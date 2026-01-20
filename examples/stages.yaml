@@ -25,9 +25,8 @@
       label: Start Coding
       prompt: Implement the planned changes.
   constraints:
-    - Do not make code edits
-    - Do not execute commands
-    - Write a specification first (what and why), then create a plan (how)
+    - Do not make code edits or execute commands
+    - Specify first (what and why), then plan (how)
     - Mark ambiguities with [NEEDS CLARIFICATION] instead of guessing
   entryCriteria: [] # Entry stage, no prior work expected
 
@@ -45,7 +44,9 @@
     - targetStage: review
       label: Request Review
       prompt: Review the implemented changes.
-  constraints: []
+  constraints:
+    - Implement one task at a time, verify before moving on
+    - Write tests alongside implementation
   entryCriteria:
     - Problem statement documented
     - Approach selected with rationale
