@@ -408,6 +408,126 @@ function validateDiscipline(discipline, index, skillIds, behaviourIds) {
     );
   }
 
+  // Validate agent section if present
+  if (discipline.agent) {
+    const agentPath = `${path}.agent`;
+
+    // Required: identity
+    if (!discipline.agent.identity) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          "Discipline agent section missing identity",
+          `${agentPath}.identity`,
+        ),
+      );
+    } else if (typeof discipline.agent.identity !== "string") {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Discipline agent identity must be a string",
+          `${agentPath}.identity`,
+          discipline.agent.identity,
+        ),
+      );
+    }
+
+    // Optional: priority (string)
+    if (
+      discipline.agent.priority !== undefined &&
+      typeof discipline.agent.priority !== "string"
+    ) {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Discipline agent priority must be a string",
+          `${agentPath}.priority`,
+          discipline.agent.priority,
+        ),
+      );
+    }
+
+    // Optional: beforeMakingChanges (array of strings)
+    if (discipline.agent.beforeMakingChanges !== undefined) {
+      if (!Array.isArray(discipline.agent.beforeMakingChanges)) {
+        errors.push(
+          createError(
+            "INVALID_VALUE",
+            "Discipline agent beforeMakingChanges must be an array",
+            `${agentPath}.beforeMakingChanges`,
+            discipline.agent.beforeMakingChanges,
+          ),
+        );
+      } else {
+        discipline.agent.beforeMakingChanges.forEach((item, i) => {
+          if (typeof item !== "string") {
+            errors.push(
+              createError(
+                "INVALID_VALUE",
+                "Discipline agent beforeMakingChanges items must be strings",
+                `${agentPath}.beforeMakingChanges[${i}]`,
+                item,
+              ),
+            );
+          }
+        });
+      }
+    }
+
+    // Optional: delegation (string)
+    if (
+      discipline.agent.delegation !== undefined &&
+      typeof discipline.agent.delegation !== "string"
+    ) {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Discipline agent delegation must be a string",
+          `${agentPath}.delegation`,
+          discipline.agent.delegation,
+        ),
+      );
+    }
+
+    // Optional: constraints (array of strings)
+    if (discipline.agent.constraints !== undefined) {
+      if (!Array.isArray(discipline.agent.constraints)) {
+        errors.push(
+          createError(
+            "INVALID_VALUE",
+            "Discipline agent constraints must be an array",
+            `${agentPath}.constraints`,
+            discipline.agent.constraints,
+          ),
+        );
+      } else {
+        discipline.agent.constraints.forEach((item, i) => {
+          if (typeof item !== "string") {
+            errors.push(
+              createError(
+                "INVALID_VALUE",
+                "Discipline agent constraints items must be strings",
+                `${agentPath}.constraints[${i}]`,
+                item,
+              ),
+            );
+          }
+        });
+      }
+    }
+
+    // Error if old 'coreInstructions' field is still present
+    if (discipline.agent.coreInstructions !== undefined) {
+      errors.push(
+        createError(
+          "INVALID_FIELD",
+          "Discipline agent 'coreInstructions' field is not supported. Use identity, priority, beforeMakingChanges, and delegation instead.",
+          `${agentPath}.coreInstructions`,
+        ),
+      );
+    }
+  }
+
   return { errors, warnings };
 }
 
@@ -609,6 +729,106 @@ function validateTrack(
           ),
         );
       }
+    }
+  }
+
+  // Validate agent section if present
+  if (track.agent) {
+    const agentPath = `${path}.agent`;
+
+    // Optional: identity (string) - if provided, overrides discipline identity
+    if (
+      track.agent.identity !== undefined &&
+      typeof track.agent.identity !== "string"
+    ) {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Track agent identity must be a string",
+          `${agentPath}.identity`,
+          track.agent.identity,
+        ),
+      );
+    }
+
+    // Optional: priority (string)
+    if (
+      track.agent.priority !== undefined &&
+      typeof track.agent.priority !== "string"
+    ) {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Track agent priority must be a string",
+          `${agentPath}.priority`,
+          track.agent.priority,
+        ),
+      );
+    }
+
+    // Optional: beforeMakingChanges (array of strings)
+    if (track.agent.beforeMakingChanges !== undefined) {
+      if (!Array.isArray(track.agent.beforeMakingChanges)) {
+        errors.push(
+          createError(
+            "INVALID_VALUE",
+            "Track agent beforeMakingChanges must be an array",
+            `${agentPath}.beforeMakingChanges`,
+            track.agent.beforeMakingChanges,
+          ),
+        );
+      } else {
+        track.agent.beforeMakingChanges.forEach((item, i) => {
+          if (typeof item !== "string") {
+            errors.push(
+              createError(
+                "INVALID_VALUE",
+                "Track agent beforeMakingChanges items must be strings",
+                `${agentPath}.beforeMakingChanges[${i}]`,
+                item,
+              ),
+            );
+          }
+        });
+      }
+    }
+
+    // Optional: constraints (array of strings)
+    if (track.agent.constraints !== undefined) {
+      if (!Array.isArray(track.agent.constraints)) {
+        errors.push(
+          createError(
+            "INVALID_VALUE",
+            "Track agent constraints must be an array",
+            `${agentPath}.constraints`,
+            track.agent.constraints,
+          ),
+        );
+      } else {
+        track.agent.constraints.forEach((item, i) => {
+          if (typeof item !== "string") {
+            errors.push(
+              createError(
+                "INVALID_VALUE",
+                "Track agent constraints items must be strings",
+                `${agentPath}.constraints[${i}]`,
+                item,
+              ),
+            );
+          }
+        });
+      }
+    }
+
+    // Error if old 'coreInstructions' field is still present
+    if (track.agent.coreInstructions !== undefined) {
+      errors.push(
+        createError(
+          "INVALID_FIELD",
+          "Track agent 'coreInstructions' field is not supported. Use identity, priority, beforeMakingChanges, and constraints instead.",
+          `${agentPath}.coreInstructions`,
+        ),
+      );
     }
   }
 

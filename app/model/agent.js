@@ -250,6 +250,49 @@ export function generateSkillMd(skillData) {
 }
 
 /**
+ * Estimate total character length of bodyData fields
+ * @param {Object} bodyData - Structured profile body data
+ * @returns {number} Estimated character count
+ */
+function estimateBodyDataLength(bodyData) {
+  let length = 0;
+
+  // String fields
+  const stringFields = [
+    "title",
+    "stageDescription",
+    "identity",
+    "priority",
+    "delegation",
+    "operationalContext",
+    "workingStyle",
+    "beforeHandoff",
+  ];
+  for (const field of stringFields) {
+    if (bodyData[field]) {
+      length += bodyData[field].length;
+    }
+  }
+
+  // Array fields
+  if (bodyData.capabilities) {
+    length += bodyData.capabilities.join(", ").length;
+  }
+  if (bodyData.beforeMakingChanges) {
+    for (const item of bodyData.beforeMakingChanges) {
+      length += item.text.length + 5; // +5 for "1. " prefix
+    }
+  }
+  if (bodyData.constraints) {
+    for (const c of bodyData.constraints) {
+      length += c.length + 2; // +2 for "- " prefix
+    }
+  }
+
+  return length;
+}
+
+/**
  * Validate agent profile against spec constraints
  * @param {Object} profile - Generated profile
  * @returns {Array<string>} Array of error messages (empty if valid)
@@ -269,9 +312,10 @@ export function validateAgentProfile(profile) {
     }
   }
 
-  // Body length limit (30,000 chars)
-  if (profile.body.length > 30000) {
-    errors.push(`Body exceeds 30,000 character limit (${profile.body.length})`);
+  // Body length limit (30,000 chars) - estimate from bodyData fields
+  const bodyLength = estimateBodyDataLength(profile.bodyData);
+  if (bodyLength > 30000) {
+    errors.push(`Body exceeds 30,000 character limit (${bodyLength})`);
   }
 
   // Tools format
@@ -405,7 +449,8 @@ function getHandoffForStage(stageId) {
 }
 
 /**
- * Build the profile body for a stage-based agent
+ * Build the profile body data for a stage-based agent
+ * Returns structured data for template rendering
  * @param {Object} params - Parameters
  * @param {Object} params.stage - Stage definition
  * @param {Object} params.humanDiscipline - Human discipline definition
@@ -416,9 +461,9 @@ function getHandoffForStage(stageId) {
  * @param {Array} params.derivedBehaviours - Behaviours sorted by maturity
  * @param {Array} params.agentBehaviours - Agent behaviour definitions
  * @param {string} params.checklistMarkdown - Pre-formatted checklist markdown
- * @returns {string} Profile body markdown
+ * @returns {Object} Structured profile body data
  */
-function buildStageProfileBody({
+function buildStageProfileBodyData({
   stage,
   humanDiscipline,
   humanTrack,
@@ -431,103 +476,64 @@ function buildStageProfileBody({
 }) {
   const name = `${humanDiscipline.specialization || humanDiscipline.name} - ${humanTrack.name}`;
   const stageName = stage.name.charAt(0).toUpperCase() + stage.name.slice(1);
-  const sections = [];
 
-  // Title with stage indicator
-  sections.push(`# ${name} - ${stageName} Agent`);
-  sections.push("");
+  // Build identity - prefer track, fall back to discipline
+  const rawIdentity = agentTrack.identity || agentDiscipline.identity;
+  const identity = substituteTemplateVars(rawIdentity, humanDiscipline);
 
-  // Stage description
-  sections.push(stage.description);
-  sections.push("");
+  // Build priority - prefer track, fall back to discipline (optional)
+  const rawPriority = agentTrack.priority || agentDiscipline.priority;
+  const priority = rawPriority
+    ? substituteTemplateVars(rawPriority, humanDiscipline)
+    : null;
 
-  // Core Identity
-  sections.push("## Core Identity");
-  sections.push("");
+  // Build beforeMakingChanges list - prefer track, fall back to discipline
+  const rawSteps =
+    agentTrack.beforeMakingChanges || agentDiscipline.beforeMakingChanges || [];
+  const beforeMakingChanges = rawSteps.map((text, i) => ({
+    index: i + 1,
+    text: substituteTemplateVars(text, humanDiscipline),
+  }));
 
-  // Use track coreInstructions if available, with template substitution
-  const rawInstructions =
-    agentTrack.coreInstructions || agentDiscipline.coreInstructions;
-  const coreInstructions = substituteTemplateVars(
-    rawInstructions,
-    humanDiscipline,
-  );
-  sections.push(coreInstructions.trim());
-  sections.push("");
+  // Delegation (from discipline only, optional)
+  const rawDelegation = agentDiscipline.delegation;
+  const delegation = rawDelegation
+    ? substituteTemplateVars(rawDelegation, humanDiscipline)
+    : null;
 
   // Primary capabilities from derived skills
-  const topSkills = derivedSkills.slice(0, 6);
-  if (topSkills.length > 0) {
-    sections.push("Your primary capabilities:");
-    for (const skill of topSkills) {
-      sections.push(`- ${skill.skillName}`);
-    }
-    sections.push("");
-  }
+  const capabilities = derivedSkills.slice(0, 6).map((s) => s.skillName);
 
   // Operational Context - use track's roleContext (shared with human job descriptions)
-  sections.push("## Operational Context");
-  sections.push("");
-  sections.push(humanTrack.roleContext.trim());
-  sections.push("");
+  const operationalContext = humanTrack.roleContext.trim();
 
-  // Working Style from derived behaviours
+  // Working Style from derived behaviours (still markdown for now)
   const workingStyle = buildWorkingStyleFromBehaviours(
     derivedBehaviours,
     agentBehaviours,
     3,
   );
-  sections.push(workingStyle);
-
-  // Before Handoff (if provided)
-  if (checklistMarkdown) {
-    sections.push("## Before Handoff");
-    sections.push("");
-    sections.push(
-      "Before offering a handoff, verify and summarize completion of these items:",
-    );
-    sections.push("");
-    sections.push(checklistMarkdown);
-    sections.push("");
-    sections.push(
-      "When verified, summarize what was accomplished then offer the handoff.",
-    );
-    sections.push("If items are incomplete, explain what remains.");
-    sections.push("");
-  }
-
-  // Return Format section
-  sections.push("## Return Format");
-  sections.push("");
-  sections.push(
-    "When completing work (for handoff or as a subagent), provide:",
-  );
-  sections.push("");
-  sections.push("1. **Work completed**: What was accomplished");
-  sections.push(
-    "2. **Checklist status**: Items verified from Before Handoff section",
-  );
-  sections.push(
-    "3. **Recommendation**: Ready for next stage, or needs more work",
-  );
-  sections.push("");
 
   // Constraints (stage + discipline + track)
-  const allConstraints = [
+  const constraints = [
     ...(stage.constraints || []),
     ...(agentDiscipline.constraints || []),
     ...(agentTrack.constraints || []),
   ];
-  if (allConstraints.length > 0) {
-    sections.push("## Constraints");
-    sections.push("");
-    for (const constraint of allConstraints) {
-      sections.push(`- ${constraint}`);
-    }
-    sections.push("");
-  }
 
-  return sections.join("\n");
+  return {
+    title: `${name} - ${stageName} Agent`,
+    stageDescription: stage.description,
+    identity: identity.trim(),
+    priority: priority ? priority.trim() : null,
+    capabilities,
+    beforeMakingChanges,
+    delegation: delegation ? delegation.trim() : null,
+    operationalContext,
+    workingStyle,
+    beforeHandoff: checklistMarkdown || null,
+    constraints,
+  };
 }
 
 /**
@@ -619,7 +625,7 @@ export function deriveStageAgent({
 
 /**
  * Generate a stage-specific agent profile (.agent.md)
- * Produces the complete profile with frontmatter, body, and filename
+ * Produces the complete profile with frontmatter, bodyData, and filename
  * @param {Object} params - Parameters
  * @param {Object} params.discipline - Human discipline definition
  * @param {Object} params.track - Human track definition
@@ -632,7 +638,7 @@ export function deriveStageAgent({
  * @param {Object} params.agentTrack - Agent track definition
  * @param {Array} params.capabilities - Capabilities with checklists
  * @param {Array} params.stages - All stages (for handoff entry criteria)
- * @returns {Object} Profile with frontmatter, body, and filename
+ * @returns {Object} Profile with frontmatter, bodyData, and filename
  */
 export function generateStageAgentProfile({
   discipline,
@@ -675,8 +681,8 @@ export function generateStageAgentProfile({
   // Format checklist as markdown
   const checklistMarkdown = formatChecklistMarkdown(agent.checklist);
 
-  // Build profile body
-  const body = buildStageProfileBody({
+  // Build structured profile body data
+  const bodyData = buildStageProfileBodyData({
     stage,
     humanDiscipline: discipline,
     humanTrack: track,
@@ -699,7 +705,7 @@ export function generateStageAgentProfile({
 
   return {
     frontmatter,
-    body,
+    bodyData,
     filename,
   };
 }
