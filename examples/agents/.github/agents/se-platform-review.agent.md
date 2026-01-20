@@ -92,6 +92,7 @@ When completing work (for handoff or as a subagent), provide:
 ## Constraints
 
 - Do not make code edits
+- Use the todo tool to track review findings and required changes
 - Prioritize actionable feedback over exhaustive lists
 - Committing code without running tests
 - Making changes without understanding the existing codebase

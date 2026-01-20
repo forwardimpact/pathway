@@ -87,6 +87,7 @@ When completing work (for handoff or as a subagent), provide:
 
 ## Constraints
 
+- Use the todo tool to track implementation tasks and mark progress
 - Committing code without running tests
 - Making changes without understanding the existing codebase
 - Ignoring error handling and edge cases

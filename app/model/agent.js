@@ -432,7 +432,7 @@ export function deriveHandoffs({ stage, discipline, track, stages }) {
     return [];
   }
 
-  // Build base name for target agents
+  // Build base name for target agents (matches frontmatter name field)
   const baseName = `${toKebabCase(discipline.id)}-${toKebabCase(track.id)}`;
 
   return stage.handoffs.map((handoff) => {

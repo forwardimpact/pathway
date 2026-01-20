@@ -13,8 +13,7 @@
   name: Plan
   emoji: "📋"
   description:
-    Research & Design - Understand the problem, gather context, design the
-    solution
+    Spec-Driven Planning - Specification is the source of truth; code serves the spec
   availableTools:
     - search
     - web/fetch
@@ -28,7 +27,8 @@
   constraints:
     - Do not make code edits
     - Do not execute commands
-    - Research thoroughly before proposing solutions
+    - Write a specification first (what and why), then create a plan (how)
+    - Mark ambiguities with [NEEDS CLARIFICATION] instead of guessing
   entryCriteria: [] # Entry stage, no prior work expected
 
 - id: code

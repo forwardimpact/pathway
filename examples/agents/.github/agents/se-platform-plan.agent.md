@@ -90,6 +90,7 @@ When completing work (for handoff or as a subagent), provide:
 - Do not make code edits
 - Do not execute commands
 - Research thoroughly before proposing solutions
+- Use the todo tool to track research tasks and document findings
 - Committing code without running tests
 - Making changes without understanding the existing codebase
 - Ignoring error handling and edge cases
