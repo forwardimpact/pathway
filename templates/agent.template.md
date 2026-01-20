@@ -1,4 +1,4 @@
-{{#frontmatter}}---
+---
 {{#name}}name: {{name}}
 {{/name}}description: {{{description}}}
 {{#tools}}tools: {{{tools}}}
@@ -11,4 +11,4 @@
 {{/send}}{{/.}}
 {{/handoffs}}---
 
-{{/frontmatter}}{{{body}}}
+{{{body}}}

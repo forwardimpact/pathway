@@ -25,13 +25,11 @@ import Mustache from "mustache";
  */
 export function formatAgentProfile({ frontmatter, body }, template) {
   const data = {
-    frontmatter: {
-      name: frontmatter.name,
-      description: frontmatter.description,
-      tools: frontmatter.tools ? JSON.stringify(frontmatter.tools) : undefined,
-      infer: frontmatter.infer,
-      handoffs: frontmatter.handoffs || [],
-    },
+    name: frontmatter.name,
+    description: frontmatter.description,
+    tools: frontmatter.tools ? JSON.stringify(frontmatter.tools) : undefined,
+    infer: frontmatter.infer,
+    handoffs: frontmatter.handoffs || [],
     body,
   };
   return Mustache.render(template, data);

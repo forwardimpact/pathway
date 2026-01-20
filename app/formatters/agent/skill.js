@@ -21,17 +21,9 @@ import Mustache from "mustache";
  * @returns {string} Complete SKILL.md file content
  */
 export function formatAgentSkill({ frontmatter, body }, template) {
-  const description = frontmatter.description.trim();
-  const descriptionLines = description.split("\n");
-  const isMultiline = descriptionLines.length > 1;
-
   const data = {
-    frontmatter: {
-      name: frontmatter.name,
-      description: isMultiline ? description : undefined,
-      descriptionSingleLine: !isMultiline ? description : undefined,
-      lines: descriptionLines,
-    },
+    name: frontmatter.name,
+    lines: frontmatter.description.trim().split("\n"),
     body,
   };
   return Mustache.render(template, data);

@@ -1,8 +1,7 @@
-{{#frontmatter}}---
+---
 name: {{name}}
-{{#description}}description: |
+description: |
 {{#lines}}  {{.}}
-{{/lines}}{{/description}}{{#descriptionSingleLine}}description: {{descriptionSingleLine}}
-{{/descriptionSingleLine}}---
+{{/lines}}---
 
-{{/frontmatter}}{{{body}}}
+{{{body}}}
