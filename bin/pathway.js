@@ -39,6 +39,7 @@ import {
 } from "../app/model/loader.js";
 import { generateAllIndexes } from "../app/model/index-generator.js";
 import { formatError } from "../app/lib/cli-output.js";
+import { validateAgentData } from "../app/model/validation.js";
 
 // Import command handlers
 import { runSkillCommand } from "../app/commands/skill.js";
@@ -316,23 +317,41 @@ async function runFullValidation(dataDir) {
   // Validate agent data
   try {
     const agentData = await loadAgentData(dataDir);
-    const skillsWithAgent = await loadSkillsWithAgentData(dataDir);
 
-    const skillsWithAgentCount = skillsWithAgent.filter((s) => s.agent).length;
+    const skillsWithAgentCount = data.skills.filter((s) => s.agent).length;
 
-    console.log(
-      `✅ Agent data: ${agentData.disciplines.length} disciplines, ${agentData.tracks.length} tracks, ${skillsWithAgentCount} skills with agent sections`,
-    );
+    // Run comprehensive agent validation
+    const agentValidation = validateAgentData({
+      humanData: {
+        disciplines: data.disciplines,
+        tracks: data.tracks,
+        skills: data.skills,
+        behaviours: data.behaviours,
+        stages: data.stages,
+      },
+      agentData: {
+        disciplines: agentData.disciplines,
+        tracks: agentData.tracks,
+        behaviours: agentData.behaviours,
+      },
+    });
 
-    // Check for orphaned agent definitions
-    for (const d of agentData.disciplines) {
-      if (!data.disciplines.find((h) => h.id === d.id)) {
-        console.log(`  ⚠️  Agent discipline '${d.id}' has no human definition`);
+    if (agentValidation.valid) {
+      console.log(
+        `✅ Agent data: ${agentData.disciplines.length} disciplines, ${agentData.tracks.length} tracks, ${skillsWithAgentCount} skills with agent sections`,
+      );
+    } else {
+      console.log("❌ Agent data validation failed");
+      hasErrors = true;
+      for (const e of agentValidation.errors) {
+        console.log(`  - [${e.type}] ${e.message}`);
       }
     }
-    for (const t of agentData.tracks) {
-      if (!data.tracks.find((h) => h.id === t.id)) {
-        console.log(`  ⚠️  Agent track '${t.id}' has no human definition`);
+
+    if (agentValidation.warnings.length > 0) {
+      console.log("\n⚠️  Agent warnings:");
+      for (const w of agentValidation.warnings) {
+        console.log(`  - [${w.type}] ${w.message}`);
       }
     }
   } catch (err) {
@@ -347,6 +366,7 @@ async function runFullValidation(dataDir) {
   console.log(`   Tracks:      ${data.tracks?.length || 0}`);
   console.log(`   Grades:      ${data.grades?.length || 0}`);
   console.log(`   Drivers:     ${data.drivers?.length || 0}`);
+  console.log(`   Stages:      ${data.stages?.length || 0}`);
   console.log("");
 
   return hasErrors ? 1 : 0;

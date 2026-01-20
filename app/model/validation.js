@@ -317,6 +317,51 @@ function validateBehaviour(behaviour, index) {
     );
   }
 
+  // Validate agent section if present
+  if (behaviour.agent) {
+    const agentPath = `${path}.agent`;
+
+    // title is required for agent behaviours
+    if (!behaviour.agent.title) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          "Behaviour agent section missing title",
+          `${agentPath}.title`,
+        ),
+      );
+    } else if (typeof behaviour.agent.title !== "string") {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Behaviour agent title must be a string",
+          `${agentPath}.title`,
+          behaviour.agent.title,
+        ),
+      );
+    }
+
+    // workingStyle is required for agent behaviours
+    if (!behaviour.agent.workingStyle) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          "Behaviour agent section missing workingStyle",
+          `${agentPath}.workingStyle`,
+        ),
+      );
+    } else if (typeof behaviour.agent.workingStyle !== "string") {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          "Behaviour agent workingStyle must be a string",
+          `${agentPath}.workingStyle`,
+          behaviour.agent.workingStyle,
+        ),
+      );
+    }
+  }
+
   return { errors, warnings };
 }
 
@@ -1768,6 +1813,202 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
           },
         );
       },
+    );
+  }
+
+  return createValidationResult(errors.length === 0, errors, warnings);
+}
+
+/**
+ * Validate agent-specific data comprehensively
+ * This validates cross-references between human and agent definitions
+ * @param {Object} params - Validation parameters
+ * @param {Object} params.humanData - Human data (disciplines, tracks, skills, behaviours, stages)
+ * @param {Object} params.agentData - Agent-specific data (disciplines, tracks, behaviours with agent sections)
+ * @returns {import('./levels.js').ValidationResult}
+ */
+export function validateAgentData({ humanData, agentData }) {
+  const errors = [];
+  const warnings = [];
+
+  const humanDisciplineIds = new Set(
+    (humanData.disciplines || []).map((d) => d.id),
+  );
+  const humanTrackIds = new Set((humanData.tracks || []).map((t) => t.id));
+  const humanBehaviourIds = new Set(
+    (humanData.behaviours || []).map((b) => b.id),
+  );
+  const stageIds = new Set((humanData.stages || []).map((s) => s.id));
+
+  // Validate agent disciplines reference human disciplines
+  for (const agentDiscipline of agentData.disciplines || []) {
+    if (!humanDisciplineIds.has(agentDiscipline.id)) {
+      errors.push(
+        createError(
+          "ORPHANED_AGENT",
+          `Agent discipline '${agentDiscipline.id}' has no human definition`,
+          `agentData.disciplines`,
+          agentDiscipline.id,
+        ),
+      );
+    }
+
+    // Validate required identity exists (spread from agent section by loader)
+    if (!agentDiscipline.identity) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          `Agent discipline '${agentDiscipline.id}' missing identity`,
+          `agentData.disciplines.${agentDiscipline.id}.identity`,
+        ),
+      );
+    }
+  }
+
+  // Validate agent tracks reference human tracks
+  for (const agentTrack of agentData.tracks || []) {
+    if (!humanTrackIds.has(agentTrack.id)) {
+      errors.push(
+        createError(
+          "ORPHANED_AGENT",
+          `Agent track '${agentTrack.id}' has no human definition`,
+          `agentData.tracks`,
+          agentTrack.id,
+        ),
+      );
+    }
+  }
+
+  // Validate agent behaviours reference human behaviours
+  for (const agentBehaviour of agentData.behaviours || []) {
+    if (!humanBehaviourIds.has(agentBehaviour.id)) {
+      errors.push(
+        createError(
+          "ORPHANED_AGENT",
+          `Agent behaviour '${agentBehaviour.id}' has no human definition`,
+          `agentData.behaviours`,
+          agentBehaviour.id,
+        ),
+      );
+    }
+
+    // Validate required agent fields (spread from agent section by loader)
+    if (!agentBehaviour.title) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          `Agent behaviour '${agentBehaviour.id}' missing title`,
+          `agentData.behaviours.${agentBehaviour.id}.title`,
+        ),
+      );
+    }
+    if (!agentBehaviour.workingStyle) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          `Agent behaviour '${agentBehaviour.id}' missing workingStyle`,
+          `agentData.behaviours.${agentBehaviour.id}.workingStyle`,
+        ),
+      );
+    }
+  }
+
+  // Validate skills with agent sections have complete stage coverage
+  const skillsWithAgent = (humanData.skills || []).filter((s) => s.agent);
+  const requiredStages = ["plan", "code", "review"];
+
+  for (const skill of skillsWithAgent) {
+    const stages = skill.agent.stages || {};
+    const missingStages = requiredStages.filter((stage) => !stages[stage]);
+
+    if (missingStages.length > 0) {
+      warnings.push(
+        createWarning(
+          "INCOMPLETE_STAGES",
+          `Skill '${skill.id}' agent section missing stages: ${missingStages.join(", ")}`,
+          `skills.${skill.id}.agent.stages`,
+        ),
+      );
+    }
+
+    // Validate each stage has required fields
+    for (const [stageId, stageData] of Object.entries(stages)) {
+      if (!stageData.focus) {
+        errors.push(
+          createError(
+            "MISSING_REQUIRED",
+            `Skill '${skill.id}' agent stage '${stageId}' missing focus`,
+            `skills.${skill.id}.agent.stages.${stageId}.focus`,
+          ),
+        );
+      }
+      if (
+        !stageData.activities ||
+        !Array.isArray(stageData.activities) ||
+        stageData.activities.length === 0
+      ) {
+        errors.push(
+          createError(
+            "MISSING_REQUIRED",
+            `Skill '${skill.id}' agent stage '${stageId}' missing or empty activities`,
+            `skills.${skill.id}.agent.stages.${stageId}.activities`,
+          ),
+        );
+      }
+      if (
+        !stageData.ready ||
+        !Array.isArray(stageData.ready) ||
+        stageData.ready.length === 0
+      ) {
+        errors.push(
+          createError(
+            "MISSING_REQUIRED",
+            `Skill '${skill.id}' agent stage '${stageId}' missing or empty ready criteria`,
+            `skills.${skill.id}.agent.stages.${stageId}.ready`,
+          ),
+        );
+      }
+    }
+  }
+
+  // Validate stage handoff targets exist
+  for (const stage of humanData.stages || []) {
+    if (stage.handoffs) {
+      for (const handoff of stage.handoffs) {
+        const targetId = handoff.targetStage || handoff.target;
+        if (targetId && !stageIds.has(targetId)) {
+          errors.push(
+            createError(
+              "INVALID_REFERENCE",
+              `Stage '${stage.id}' handoff references unknown stage '${targetId}'`,
+              `stages.${stage.id}.handoffs`,
+              targetId,
+            ),
+          );
+        }
+      }
+    }
+  }
+
+  // Summary statistics as warnings (informational)
+  const stats = {
+    agentDisciplines: (agentData.disciplines || []).length,
+    agentTracks: (agentData.tracks || []).length,
+    agentBehaviours: (agentData.behaviours || []).length,
+    skillsWithAgent: skillsWithAgent.length,
+    skillsWithCompleteStages: skillsWithAgent.filter((s) => {
+      const stages = s.agent.stages || {};
+      return requiredStages.every((stage) => stages[stage]);
+    }).length,
+  };
+
+  if (stats.skillsWithCompleteStages < stats.skillsWithAgent) {
+    warnings.push(
+      createWarning(
+        "INCOMPLETE_COVERAGE",
+        `${stats.skillsWithCompleteStages}/${stats.skillsWithAgent} skills have complete stage coverage (plan, code, review)`,
+        "agentData",
+      ),
     );
   }
 
