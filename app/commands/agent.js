@@ -228,17 +228,6 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   const agentData = await loadAgentData(dataDir);
   const skillsWithAgent = await loadSkillsWithAgentData(dataDir);
 
-  // Load templates
-  let agentTemplate;
-  let skillTemplate;
-  try {
-    agentTemplate = await loadAgentTemplate(dataDir);
-    skillTemplate = await loadSkillTemplate(dataDir);
-  } catch (error) {
-    console.error(formatError(`Failed to load templates: ${error.message}`));
-    process.exit(1);
-  }
-
   // --list: Output clean lines for piping
   if (options.list) {
     listAgentCombinations(data, agentData, false);
@@ -360,6 +349,8 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
       return;
     }
 
+    // Load templates only when writing files
+    const agentTemplate = await loadAgentTemplate(dataDir);
     await writeProfile(profile, baseDir, agentTemplate);
     await generateVSCodeSettings(baseDir, agentData.vscodeSettings);
     console.log("");
@@ -428,6 +419,10 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     }
     return;
   }
+
+  // Load templates only when writing files
+  const agentTemplate = await loadAgentTemplate(dataDir);
+  const skillTemplate = await loadSkillTemplate(dataDir);
 
   for (const profile of profiles) {
     await writeProfile(profile, baseDir, agentTemplate);
