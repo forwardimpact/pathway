@@ -48,7 +48,6 @@ ${content}`;
  */
 export async function generateAllIndexes(dataDir) {
   const directories = [
-    "skills",
     "behaviours",
     "disciplines",
     "tracks",

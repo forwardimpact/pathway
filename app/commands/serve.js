@@ -15,6 +15,7 @@ import { loadFrameworkConfig } from "../model/loader.js";
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicDir = join(__dirname, "..");
+const rootDir = join(__dirname, "../..");
 
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
@@ -23,6 +24,7 @@ const MIME_TYPES = {
   ".yaml": "text/yaml; charset=utf-8",
   ".yml": "text/yaml; charset=utf-8",
   ".json": "application/json; charset=utf-8",
+  ".md": "text/markdown; charset=utf-8",
   ".svg": "image/svg+xml",
   ".png": "image/png",
   ".ico": "image/x-icon",
@@ -113,6 +115,9 @@ export async function runServeCommand({ dataDir, options }) {
     if (pathname.startsWith("/data/")) {
       // Serve from user's data directory
       filePath = join(dataDir, pathname.slice(6));
+    } else if (pathname.startsWith("/templates/")) {
+      // Serve from templates directory
+      filePath = join(rootDir, pathname);
     } else if (pathname === "/" || pathname === "") {
       // Serve index.html for root
       filePath = join(publicDir, "index.html");

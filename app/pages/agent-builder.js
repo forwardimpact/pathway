@@ -38,6 +38,9 @@ const ALL_STAGES_VALUE = "all";
 /** @type {Object|null} Cached agent data */
 let agentDataCache = null;
 
+/** @type {{agent: string, skill: string}|null} Cached templates */
+let templateCache = null;
+
 /**
  * Load agent data with caching
  * @param {string} dataDir - Data directory path
@@ -48,6 +51,24 @@ async function getAgentData(dataDir = "./data") {
     agentDataCache = await loadAgentDataBrowser(dataDir);
   }
   return agentDataCache;
+}
+
+/**
+ * Load templates with caching
+ * @returns {Promise<{agent: string, skill: string}>}
+ */
+async function getTemplates() {
+  if (!templateCache) {
+    const [agentRes, skillRes] = await Promise.all([
+      fetch("./templates/agent.template.md"),
+      fetch("./templates/skill.template.md"),
+    ]);
+    templateCache = {
+      agent: await agentRes.text(),
+      skill: await skillRes.text(),
+    };
+  }
+  return templateCache;
 }
 
 /**
@@ -64,8 +85,11 @@ export async function renderAgentBuilder() {
     ),
   );
 
-  // Load agent-specific data
-  const agentData = await getAgentData();
+  // Load agent-specific data and templates
+  const [agentData, templates] = await Promise.all([
+    getAgentData(),
+    getTemplates(),
+  ]);
 
   // Filter to only disciplines/tracks that have agent definitions
   const agentDisciplineIds = new Set(agentData.disciplines.map((d) => d.id));
@@ -164,6 +188,7 @@ export async function renderAgentBuilder() {
       agentBehaviours: agentData.behaviours,
       capabilities: data.capabilities,
       vscodeSettings: agentData.vscodeSettings,
+      templates,
     };
 
     // Generate preview based on stage selection
@@ -325,6 +350,7 @@ function createAllStagesPreview(context) {
     agentBehaviours,
     capabilities,
     vscodeSettings,
+    templates,
   } = context;
 
   // Generate all stage agents
@@ -391,7 +417,7 @@ function createAllStagesPreview(context) {
       div(
         { className: "agent-cards-grid" },
         ...stageAgents.map(({ stage, profile }) =>
-          createAgentCard(stage, profile, stages),
+          createAgentCard(stage, profile, stages, templates.agent),
         ),
       ),
     ),
@@ -403,7 +429,7 @@ function createAllStagesPreview(context) {
       skillFiles.length > 0
         ? div(
             { className: "skill-cards-grid" },
-            ...skillFiles.map((skill) => createSkillCard(skill)),
+            ...skillFiles.map((skill) => createSkillCard(skill, templates.skill)),
           )
         : p(
             { className: "text-muted" },
@@ -435,6 +461,7 @@ function createSingleStagePreview(context, stage) {
     capabilities,
     vscodeSettings,
     stages,
+    templates,
   } = context;
 
   // Derive stage agent
@@ -483,7 +510,7 @@ function createSingleStagePreview(context, stage) {
     { className: "agent-deployment" },
 
     // Download button for single stage
-    createDownloadSingleButton(profile, skillFiles, vscodeSettings),
+    createDownloadSingleButton(profile, skillFiles, vscodeSettings, templates),
 
     // Agents section (single card)
     section(
@@ -491,7 +518,7 @@ function createSingleStagePreview(context, stage) {
       h2({}, "Agent"),
       div(
         { className: "agent-cards-grid single" },
-        createAgentCard(stage, profile, stages, derived),
+        createAgentCard(stage, profile, stages, templates.agent, derived),
       ),
     ),
 
@@ -502,7 +529,7 @@ function createSingleStagePreview(context, stage) {
       skillFiles.length > 0
         ? div(
             { className: "skill-cards-grid" },
-            ...skillFiles.map((skill) => createSkillCard(skill)),
+            ...skillFiles.map((skill) => createSkillCard(skill, templates.skill)),
           )
         : p(
             { className: "text-muted" },
@@ -520,11 +547,12 @@ function createSingleStagePreview(context, stage) {
  * @param {Object} stage - Stage object
  * @param {Object} profile - Generated profile
  * @param {Array} stages - All stages for emoji lookup
+ * @param {string} agentTemplate - Mustache template for agent profile
  * @param {Object} [_derived] - Optional derived agent data for extra info
  * @returns {HTMLElement}
  */
-function createAgentCard(stage, profile, stages, _derived) {
-  const content = formatAgentProfile(profile);
+function createAgentCard(stage, profile, stages, agentTemplate, _derived) {
+  const content = formatAgentProfile(profile, agentTemplate);
   const stageEmoji = getStageEmoji(stages, stage.id);
 
   const card = div(
@@ -548,10 +576,11 @@ function createAgentCard(stage, profile, stages, _derived) {
 /**
  * Create a skill card
  * @param {Object} skill - Skill with frontmatter and body
+ * @param {string} skillTemplate - Mustache template for skill
  * @returns {HTMLElement}
  */
-function createSkillCard(skill) {
-  const content = formatAgentSkill(skill);
+function createSkillCard(skill, skillTemplate) {
+  const content = formatAgentSkill(skill, skillTemplate);
   const filename = `${skill.dirname}/SKILL.md`;
 
   return div(
@@ -615,7 +644,7 @@ function createCopyButton(content) {
  * @param {Array} stageAgents - Array of {stage, derived, profile}
  * @param {Array} skillFiles - Array of skill file objects
  * @param {Object} vscodeSettings - VS Code settings
- * @param {Object} context - Context with discipline/track info
+ * @param {Object} context - Context with discipline/track info and templates
  * @returns {HTMLElement}
  */
 function createDownloadAllButton(
@@ -624,7 +653,7 @@ function createDownloadAllButton(
   vscodeSettings,
   context,
 ) {
-  const { humanDiscipline, humanTrack } = context;
+  const { humanDiscipline, humanTrack, templates } = context;
   const agentName = `${humanDiscipline.id}-${humanTrack.id}`.replace(/_/g, "-");
 
   const btn = document.createElement("button");
@@ -641,13 +670,13 @@ function createDownloadAllButton(
 
       // Add all stage agent profiles
       for (const { profile } of stageAgents) {
-        const content = formatAgentProfile(profile);
+        const content = formatAgentProfile(profile, templates.agent);
         zip.file(`.github/agents/${profile.filename}`, content);
       }
 
       // Add skills
       for (const skill of skillFiles) {
-        const content = formatAgentSkill(skill);
+        const content = formatAgentSkill(skill, templates.skill);
         zip.file(`.claude/skills/${skill.dirname}/SKILL.md`, content);
       }
 
@@ -685,9 +714,10 @@ function createDownloadAllButton(
  * @param {Object} profile - Agent profile
  * @param {Array} skillFiles - Skill files
  * @param {Object} vscodeSettings - VS Code settings
+ * @param {{agent: string, skill: string}} templates - Mustache templates
  * @returns {HTMLElement}
  */
-function createDownloadSingleButton(profile, skillFiles, vscodeSettings) {
+function createDownloadSingleButton(profile, skillFiles, vscodeSettings, templates) {
   const btn = document.createElement("button");
   btn.className = "btn btn-primary download-all-btn";
   btn.textContent = "📥 Download Agent (.zip)";
@@ -701,12 +731,12 @@ function createDownloadSingleButton(profile, skillFiles, vscodeSettings) {
       const zip = new JSZip();
 
       // Add profile
-      const content = formatAgentProfile(profile);
+      const content = formatAgentProfile(profile, templates.agent);
       zip.file(`.github/agents/${profile.filename}`, content);
 
       // Add skills
       for (const skill of skillFiles) {
-        const skillContent = formatAgentSkill(skill);
+        const skillContent = formatAgentSkill(skill, templates.skill);
         zip.file(`.claude/skills/${skill.dirname}/SKILL.md`, skillContent);
       }
 
