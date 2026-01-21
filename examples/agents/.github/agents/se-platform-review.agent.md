@@ -1,16 +1,16 @@
 ---
-name: software-engineering-platform-review
+name: se-platform-review
 description: Verify & Ship agent for Software Engineering on Platform track. Builds and maintains software systems, focusing on code quality, architecture, and reliable delivery of business value. In the AI era, emphasizes verification and review of AI-generated code.
-tools: ["search","search/codebase","read","todo"]
+tools: ["search","search/codebase","search/grep","search/file","read","read/dir","terminal","git/changes","todo"]
 infer: true
 handoffs:
   - label: Request Changes
-    agent: software-engineering-platform-code
-    prompt: Address the review feedback. Summarize what was completed in the Review stage. Before starting, the Code stage requires: (1) Problem statement documented, (2) Approach selected with rationale, (3) Implementation plan exists. If critical items are missing, hand back to Review.
+    agent: se-platform-code
+    prompt: "Address the review feedback. Summarize what was completed in the Review stage. Before starting, the Code stage requires: (1) Problem statement documented, (2) Approach selected with rationale, (3) Implementation plan exists. If critical items are missing, hand back to Review."
     send: true
   - label: Needs Replanning
-    agent: software-engineering-platform-plan
-    prompt: The implementation needs replanning. Summarize what was completed in the Review stage.
+    agent: se-platform-plan
+    prompt: "The implementation needs replanning. Summarize what was completed in the Review stage."
     send: true
 ---
 
@@ -92,8 +92,8 @@ When completing work (for handoff or as a subagent), provide:
 ## Constraints
 
 - Do not make code edits
-- Use the todo tool to track review findings and required changes
 - Prioritize actionable feedback over exhaustive lists
+- Track findings and required changes with the todo tool
 - Committing code without running tests
 - Making changes without understanding the existing codebase
 - Ignoring error handling and edge cases

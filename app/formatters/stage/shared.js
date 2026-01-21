@@ -7,26 +7,12 @@
 import { truncate } from "../shared.js";
 
 /**
- * Tool display configuration
- * @type {Object<string, {icon: string, label: string}>}
- */
-const TOOL_CONFIG = {
-  search: { icon: "🔍", label: "Search" },
-  fetch: { icon: "🌐", label: "Fetch" },
-  codebase: { icon: "📂", label: "Codebase" },
-  read: { icon: "📖", label: "Read" },
-  edit: { icon: "✏️", label: "Edit" },
-  terminal: { icon: "💻", label: "Terminal" },
-};
-
-/**
  * @typedef {Object} StageListItem
  * @property {string} id
  * @property {string} name
  * @property {string} emoji
  * @property {string} description
  * @property {string} truncatedDescription
- * @property {Array<{id: string, icon: string, label: string}>} tools
  * @property {Array<{target: string, label: string}>} handoffs
  */
 
@@ -38,18 +24,12 @@ const TOOL_CONFIG = {
  */
 export function prepareStagesList(stages, descriptionLimit = 150) {
   const items = stages.map((stage) => {
-    const tools = stage.availableTools || [];
     return {
       id: stage.id,
       name: stage.name,
       emoji: stage.emoji,
       description: stage.description,
       truncatedDescription: truncate(stage.description, descriptionLimit),
-      tools: tools.map((toolId) => ({
-        id: toolId,
-        icon: TOOL_CONFIG[toolId]?.icon || "🔧",
-        label: TOOL_CONFIG[toolId]?.label || toolId,
-      })),
       handoffs: (stage.handoffs || []).map((h) => ({
         target: h.targetStage,
         label: h.label,
@@ -65,7 +45,6 @@ export function prepareStagesList(stages, descriptionLimit = 150) {
  * @property {string} id
  * @property {string} name
  * @property {string} description
- * @property {Array<{id: string, icon: string, label: string}>} tools
  * @property {string[]} constraints
  * @property {string[]} entryCriteria
  * @property {string[]} exitCriteria
@@ -78,16 +57,10 @@ export function prepareStagesList(stages, descriptionLimit = 150) {
  * @returns {StageDetailView}
  */
 export function prepareStageDetail(stage) {
-  const tools = stage.availableTools || [];
   return {
     id: stage.id,
     name: stage.name,
     description: stage.description,
-    tools: tools.map((toolId) => ({
-      id: toolId,
-      icon: TOOL_CONFIG[toolId]?.icon || "🔧",
-      label: TOOL_CONFIG[toolId]?.label || toolId,
-    })),
     constraints: stage.constraints || [],
     entryCriteria: stage.entryCriteria || [],
     exitCriteria: stage.exitCriteria || [],

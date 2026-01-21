@@ -1227,18 +1227,6 @@ function validateStage(stage, index) {
     );
   }
 
-  // Mode is now inferred from availableTools - no longer required
-  // Validate availableTools array
-  if (!stage.availableTools || !Array.isArray(stage.availableTools)) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        "Stage missing availableTools array",
-        `${path}.availableTools`,
-      ),
-    );
-  }
-
   if (!stage.handoffs || !Array.isArray(stage.handoffs)) {
     warnings.push(
       createWarning(

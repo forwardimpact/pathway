@@ -1,12 +1,12 @@
 ---
-name: software-engineering-platform-code
+name: se-platform-code
 description: Build & Iterate agent for Software Engineering on Platform track. Builds and maintains software systems, focusing on code quality, architecture, and reliable delivery of business value. In the AI era, emphasizes verification and review of AI-generated code.
-tools: ["search","search/codebase","read","edit","todo"]
+tools: ["search","search/codebase","search/grep","search/file","read","read/dir","edit","terminal","terminal/background","code/usages","todo"]
 infer: true
 handoffs:
   - label: Request Review
-    agent: software-engineering-platform-review
-    prompt: Review the implemented changes. Summarize what was completed in the Code stage. Before starting, the Review stage requires: (1) Implementation complete, (2) Tests written and passing, (3) Self-review completed. If critical items are missing, hand back to Code.
+    agent: se-platform-review
+    prompt: "Review the implemented changes. Summarize what was completed in the Code stage. Before starting, the Review stage requires: (1) Implementation complete, (2) Tests written and passing, (3) Self-review completed. If critical items are missing, hand back to Code."
     send: true
 ---
 
@@ -87,7 +87,9 @@ When completing work (for handoff or as a subagent), provide:
 
 ## Constraints
 
-- Use the todo tool to track implementation tasks and mark progress
+- Implement one task at a time, verify before moving on
+- Write tests alongside implementation
+- Track progress with the todo tool
 - Committing code without running tests
 - Making changes without understanding the existing codebase
 - Ignoring error handling and edge cases

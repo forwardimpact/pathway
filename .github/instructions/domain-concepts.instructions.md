@@ -121,8 +121,6 @@ tools, constraints, and handoffs to other stages. Stages are defined in
 
 ### Stage Properties
 
-- **availableTools**: Available tools in this stage (search, read, edit,
-  terminal)
 - **constraints**: Restrictions on behaviour in this stage
 - **handoffs**: Transitions to other stages with prompts
 - **entryCriteria/exitCriteria**: Conditions for entering/leaving the stage

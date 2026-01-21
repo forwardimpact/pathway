@@ -14,12 +14,6 @@
   emoji: "📋"
   description:
     Spec-Driven Planning - Specification is the source of truth; code serves the spec
-  availableTools:
-    - search
-    - web/fetch
-    - search/codebase
-    - read
-    - todo
   handoffs:
     - targetStage: code
       label: Start Coding
@@ -35,12 +29,6 @@
   name: Code
   emoji: "💻"
   description: Build & Iterate - Implement, test, refine
-  availableTools:
-    - search
-    - search/codebase
-    - read
-    - edit
-    - todo
   handoffs:
     - targetStage: review
       label: Request Review
@@ -57,11 +45,6 @@
   name: Review
   emoji: "✅"
   description: Verify & Ship - Review, approve, deploy, document
-  availableTools:
-    - search
-    - search/codebase
-    - read
-    - todo
   handoffs:
     - targetStage: code
       label: Request Changes

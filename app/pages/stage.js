@@ -12,7 +12,6 @@ import {
   prepareStageDetail,
   getStageEmoji,
 } from "../formatters/stage/index.js";
-import { createBadge } from "../components/card.js";
 
 /**
  * Map stage to card configuration
@@ -24,7 +23,6 @@ function stageToCardConfig(stage) {
     title: `${stage.emoji || "🔄"} ${stage.name}`,
     description: stage.truncatedDescription,
     href: `/stage/${stage.id}`,
-    meta: [createBadge(`${stage.tools.length} tools`, "default")],
   };
 }
 

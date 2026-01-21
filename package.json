@@ -25,7 +25,8 @@
   "files": [
     "bin/",
     "app/",
-    "examples/"
+    "examples/",
+    "templates/"
   ],
   "exports": {
     ".": "./app/model/loader.js",

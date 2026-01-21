@@ -39,7 +39,6 @@ export function formatAgentProfile({ frontmatter, bodyData }, template) {
     // Frontmatter
     name: frontmatter.name,
     description: frontmatter.description,
-    tools: frontmatter.tools ? JSON.stringify(frontmatter.tools) : undefined,
     infer: frontmatter.infer,
     handoffs: frontmatter.handoffs || [],
     // Body data
@@ -60,7 +59,6 @@ export function formatAgentProfileForCli({ frontmatter, bodyData }) {
   lines.push("");
   lines.push(`**Description:** ${frontmatter.description}`);
   lines.push("");
-  lines.push(`**Tools:** ${frontmatter.tools.join(", ")}`);
   lines.push(`**Infer:** ${frontmatter.infer}`);
 
   if (frontmatter.handoffs && frontmatter.handoffs.length > 0) {

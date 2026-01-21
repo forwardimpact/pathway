@@ -407,17 +407,6 @@ export function validateAgentSkill(skill) {
 // =============================================================================
 
 /**
- * Derive tools for a stage-based agent
- * Stages define the authoritative tool set for each lifecycle phase
- * @param {Object} params - Parameters
- * @param {Object} params.stage - Stage definition from stages.yaml
- * @returns {string[]} Array of tool names
- */
-export function deriveAgentTools({ stage }) {
-  return stage.availableTools || [];
-}
-
-/**
  * Derive handoff buttons for a stage-based agent
  * Generates handoff button definitions from stage.handoffs with rich prompts
  * that include summary instructions and target stage entry criteria
@@ -615,9 +604,6 @@ export function deriveStageAgent({
     behaviours,
   });
 
-  // Derive tools from stage
-  const tools = deriveAgentTools({ stage });
-
   // Derive handoffs from stage
   const handoffs = deriveHandoffs({
     stage,
@@ -644,7 +630,6 @@ export function deriveStageAgent({
     track,
     derivedSkills,
     derivedBehaviours,
-    tools,
     handoffs,
     constraints: [
       ...(stage.constraints || []),
@@ -733,7 +718,6 @@ export function generateStageAgentProfile({
   const frontmatter = {
     name: fullName,
     description,
-    tools: agent.tools,
     infer: true,
     ...(agent.handoffs.length > 0 && { handoffs: agent.handoffs }),
   };
