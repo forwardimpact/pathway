@@ -13,5 +13,5 @@ chat.extensionUnification.enabled: true
 # Required for multi-agent workflows with handoffs
 chat.customAgentInSubagent.enabled: true
 
-# Enable Claude skills for enhanced agent capabilities
-chat.useClaudeSkills: true
+# Enable agent skills for enhanced agent capabilities
+chat.useAgentSkills: true
