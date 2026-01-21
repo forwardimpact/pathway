@@ -4,5 +4,5 @@
   "chat.edits2.enabled": true,
   "chat.extensionUnification.enabled": true,
   "chat.customAgentInSubagent.enabled": true,
-  "chat.useClaudeSkills": true
+  "chat.useAgentSkills": true
 }
