@@ -1,20 +1,48 @@
 # yaml-language-server: $schema=https://schema.forwardimpact.team/json/stages.schema.json
 
+- id: specify
+  name: Specify
+  emoji: "📝"
+  description:
+    Define What & Why - User stories, acceptance criteria, requirements
+  handoffs:
+    - targetStage: plan
+      label: Create Plan
+      prompt: Create plan.md based on spec.md.
+    - targetStage: specify
+      label: Refine Spec
+      prompt: Refine spec.md with more detail or clarity.
+  constraints:
+    - Do not make code edits or execute commands
+    - Focus on WHAT users need and WHY, not HOW to implement
+    - Write specifications as markdown files under specs/[feature-name]/spec.md
+    - Mark ambiguities with [NEEDS CLARIFICATION] - do not guess
+    - No technology choices, APIs, or code structure in specifications
+  entryCriteria: [] # Entry stage, no prior work expected
+
 - id: plan
   name: Plan
   emoji: "📋"
   description:
-    Spec-Driven Planning - Specification is the source of truth; code serves the spec
+    Define How - Technology choices, architecture, contracts, data models
   handoffs:
     - targetStage: code
       label: Start Coding
-      prompt: Implement the planned changes.
+      prompt: Implement the tasks defined in plan.md.
+    - targetStage: plan
+      label: Refine Plan
+      prompt: Refine plan.md with more details or alternative approaches.
+    - targetStage: specify
+      label: Clarify Spec
+      prompt: Resolve [NEEDS CLARIFICATION] markers in spec.md before continuing.
   constraints:
     - Do not make code edits or execute commands
-    - Specify first (what and why), then plan (how)
-    - Write specs and plans as markdown files under specs/[feature-name]/
-    - Stop and ask the user when requirements are unclear; do not guess
-  entryCriteria: [] # Entry stage, no prior work expected
+    - Every technology choice must trace back to a specific requirement
+    - Write plans as markdown files under specs/[feature-name]/plan.md
+    - Define contracts and data models before implementation details
+  entryCriteria:
+    - Specification exists with user stories and acceptance criteria
+    - No unresolved [NEEDS CLARIFICATION] markers in spec
 
 - id: code
   name: Code
@@ -28,9 +56,10 @@
     - Implement one task at a time, verify before moving on
     - Write tests alongside implementation
   entryCriteria:
-    - Problem statement documented
-    - Approach selected with rationale
-    - Implementation plan exists
+    - Specification complete (spec.md with acceptance criteria)
+    - Implementation plan complete (plan.md with technology choices)
+    - Contracts and data models defined where applicable
+    - Test scenarios derived from acceptance criteria
 
 - id: review
   name: Review
@@ -39,12 +68,13 @@
   handoffs:
     - targetStage: code
       label: Request Changes
-      prompt: Address the review feedback.
+      prompt: Address the findings in review.md.
     - targetStage: plan
       label: Needs Replanning
-      prompt: The implementation needs replanning.
+      prompt: Update plan.md to address issues found in review.md.
   constraints:
     - Do not make code edits
+    - Write review findings as markdown under specs/[feature-name]/review.md
     - Prioritize actionable feedback over exhaustive lists
   entryCriteria:
     - Implementation complete
