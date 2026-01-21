@@ -5,6 +5,7 @@
 import { div, h2, p, a, span, ul, li } from "../../lib/render.js";
 import { createBackLink } from "../../components/nav.js";
 import { prepareStageDetail, getStageEmoji } from "./shared.js";
+import { createJsonLdScript, stageToJsonLd } from "../json-ld.js";
 
 /**
  * Format stage detail as DOM elements
@@ -20,6 +21,8 @@ export function stageToDOM(stage, { stages = [], showBackLink = true } = {}) {
 
   return div(
     { className: "detail-page stage-detail" },
+    // JSON-LD structured data
+    createJsonLdScript(stageToJsonLd(stage)),
     // Header
     div(
       { className: "page-header" },
@@ -27,27 +30,9 @@ export function stageToDOM(stage, { stages = [], showBackLink = true } = {}) {
       div(
         { className: "page-title-row" },
         span({ className: "page-title" }, `${emoji} ${view.name}`),
-        span({ className: `badge ${view.modeClassName}` }, view.modeBadge),
       ),
       p({ className: "page-description" }, view.description),
     ),
-
-    // Tools section
-    view.tools.length > 0
-      ? div(
-          { className: "section section-detail" },
-          h2({ className: "section-title" }, "Available Tools"),
-          div(
-            { className: "tool-badges" },
-            ...view.tools.map((tool) =>
-              span(
-                { className: "badge badge-tool", title: tool.label },
-                `${tool.icon} ${tool.label}`,
-              ),
-            ),
-          ),
-        )
-      : null,
 
     // Entry/Exit Criteria
     view.entryCriteria.length > 0 || view.exitCriteria.length > 0

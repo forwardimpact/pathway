@@ -58,17 +58,7 @@ function formatDetail(viewAndContext, _framework) {
   const emoji = getStageEmoji(stages, stage.id);
 
   console.log(formatHeader(`\n${emoji} ${view.name}\n`));
-  console.log(`Mode: ${view.modeBadge}\n`);
   console.log(`${view.description}\n`);
-
-  // Tools
-  if (view.tools.length > 0) {
-    console.log(formatSubheader("Tools\n"));
-    for (const tool of view.tools) {
-      console.log(formatBullet(`${tool.icon} ${tool.label}`, 1));
-    }
-    console.log();
-  }
 
   // Entry criteria
   if (view.entryCriteria.length > 0) {
