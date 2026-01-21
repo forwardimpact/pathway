@@ -301,14 +301,23 @@ export async function loadAllData(dataDir = "./data") {
  * Load agent-specific data for browser-based agent generation
  * Uses co-located files where agent sections are embedded in entity files
  * @param {string} [dataDir='./data'] - Path to data directory
- * @returns {Promise<Object>} Agent data including disciplines, tracks, behaviours, vscodeSettings
+ * @returns {Promise<Object>} Agent data including disciplines, tracks, behaviours, vscodeSettings, devcontainer, copilotSetupSteps
  */
 export async function loadAgentDataBrowser(dataDir = "./data") {
-  const [disciplines, tracks, behaviours, vscodeSettings] = await Promise.all([
+  const [
+    disciplines,
+    tracks,
+    behaviours,
+    vscodeSettings,
+    devcontainer,
+    copilotSetupSteps,
+  ] = await Promise.all([
     loadDisciplinesFromDir(`${dataDir}/disciplines`),
     loadTracksFromDir(`${dataDir}/tracks`),
     loadBehavioursFromDir(`${dataDir}/behaviours`),
     tryLoadYamlFile(`${dataDir}/vscode-settings.yaml`),
+    tryLoadYamlFile(`${dataDir}/devcontainer.yaml`),
+    tryLoadYamlFile(`${dataDir}/copilot-setup-steps.yaml`),
   ]);
 
   // Extract agent sections from co-located files
@@ -323,5 +332,7 @@ export async function loadAgentDataBrowser(dataDir = "./data") {
       .filter((b) => b.agent)
       .map((b) => ({ id: b.id, ...b.agent })),
     vscodeSettings: vscodeSettings || {},
+    devcontainer: devcontainer || {},
+    copilotSetupSteps: copilotSetupSteps || null,
   };
 }

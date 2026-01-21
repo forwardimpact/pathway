@@ -22,6 +22,7 @@
 import { writeFile, mkdir, readFile } from "fs/promises";
 import { join, dirname } from "path";
 import { existsSync } from "fs";
+import { stringify as stringifyYaml } from "yaml";
 import { loadAgentData, loadSkillsWithAgentData } from "../model/loader.js";
 import {
   generateStageAgentProfile,
@@ -74,6 +75,64 @@ async function generateVSCodeSettings(baseDir, vscodeSettings) {
     "utf-8",
   );
   console.log(formatSuccess(`Updated: ${settingsPath}`));
+}
+
+/**
+ * Generate devcontainer.json from template with VS Code settings embedded
+ * @param {string} baseDir - Base output directory
+ * @param {Object} devcontainerConfig - Devcontainer config loaded from data
+ * @param {Object} vscodeSettings - VS Code settings to embed in customizations
+ */
+async function generateDevcontainer(
+  baseDir,
+  devcontainerConfig,
+  vscodeSettings,
+) {
+  if (!devcontainerConfig || Object.keys(devcontainerConfig).length === 0) {
+    return;
+  }
+
+  const devcontainerPath = join(baseDir, ".devcontainer", "devcontainer.json");
+
+  // Build devcontainer.json with VS Code settings embedded
+  const devcontainer = {
+    ...devcontainerConfig,
+    customizations: {
+      vscode: {
+        settings: vscodeSettings,
+      },
+    },
+  };
+
+  await ensureDir(devcontainerPath);
+  await writeFile(
+    devcontainerPath,
+    JSON.stringify(devcontainer, null, 2) + "\n",
+    "utf-8",
+  );
+  console.log(formatSuccess(`Created: ${devcontainerPath}`));
+}
+
+/**
+ * Generate GitHub Actions workflow for Copilot Coding Agent setup steps
+ * @param {string} baseDir - Base output directory
+ * @param {Object|null} copilotSetupSteps - Workflow config loaded from data
+ */
+async function generateCopilotSetupSteps(baseDir, copilotSetupSteps) {
+  if (!copilotSetupSteps) {
+    return;
+  }
+
+  const workflowPath = join(
+    baseDir,
+    ".github",
+    "workflows",
+    "copilot-setup-steps.yml",
+  );
+
+  await ensureDir(workflowPath);
+  await writeFile(workflowPath, stringifyYaml(copilotSetupSteps), "utf-8");
+  console.log(formatSuccess(`Created: ${workflowPath}`));
 }
 
 /**
@@ -356,6 +415,12 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     const agentTemplate = await loadAgentTemplate(dataDir);
     await writeProfile(profile, baseDir, agentTemplate);
     await generateVSCodeSettings(baseDir, agentData.vscodeSettings);
+    await generateDevcontainer(
+      baseDir,
+      agentData.devcontainer,
+      agentData.vscodeSettings,
+    );
+    await generateCopilotSetupSteps(baseDir, agentData.copilotSetupSteps);
     console.log("");
     console.log(
       formatSuccess(`Generated stage agent: ${profile.frontmatter.name}`),
@@ -432,6 +497,12 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   }
   await writeSkills(skillFiles, baseDir, skillTemplate);
   await generateVSCodeSettings(baseDir, agentData.vscodeSettings);
+  await generateDevcontainer(
+    baseDir,
+    agentData.devcontainer,
+    agentData.vscodeSettings,
+  );
+  await generateCopilotSetupSteps(baseDir, agentData.copilotSetupSteps);
 
   console.log("");
   console.log(formatSuccess(`Generated ${profiles.length} agents:`));

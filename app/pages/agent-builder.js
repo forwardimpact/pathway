@@ -188,6 +188,7 @@ export async function renderAgentBuilder() {
       agentBehaviours: agentData.behaviours,
       capabilities: data.capabilities,
       vscodeSettings: agentData.vscodeSettings,
+      devcontainer: agentData.devcontainer,
       templates,
     };
 
@@ -350,6 +351,7 @@ function createAllStagesPreview(context) {
     agentBehaviours,
     capabilities,
     vscodeSettings,
+    devcontainer,
     templates,
   } = context;
 
@@ -404,7 +406,13 @@ function createAllStagesPreview(context) {
     { className: "agent-deployment" },
 
     // Download all button
-    createDownloadAllButton(stageAgents, skillFiles, vscodeSettings, context),
+    createDownloadAllButton(
+      stageAgents,
+      skillFiles,
+      vscodeSettings,
+      devcontainer,
+      context,
+    ),
 
     // Agents section
     section(
@@ -462,6 +470,7 @@ function createSingleStagePreview(context, stage) {
     agentBehaviours,
     capabilities,
     vscodeSettings,
+    devcontainer,
     stages,
     templates,
   } = context;
@@ -512,7 +521,13 @@ function createSingleStagePreview(context, stage) {
     { className: "agent-deployment" },
 
     // Download button for single stage
-    createDownloadSingleButton(profile, skillFiles, vscodeSettings, templates),
+    createDownloadSingleButton(
+      profile,
+      skillFiles,
+      vscodeSettings,
+      devcontainer,
+      templates,
+    ),
 
     // Agents section (single card)
     section(
@@ -648,6 +663,7 @@ function createCopyButton(content) {
  * @param {Array} stageAgents - Array of {stage, derived, profile}
  * @param {Array} skillFiles - Array of skill file objects
  * @param {Object} vscodeSettings - VS Code settings
+ * @param {Object} devcontainer - Devcontainer config
  * @param {Object} context - Context with discipline/track info and templates
  * @returns {HTMLElement}
  */
@@ -655,6 +671,7 @@ function createDownloadAllButton(
   stageAgents,
   skillFiles,
   vscodeSettings,
+  devcontainer,
   context,
 ) {
   const { humanDiscipline, humanTrack, templates } = context;
@@ -692,6 +709,22 @@ function createDownloadAllButton(
         );
       }
 
+      // Add devcontainer.json with VS Code settings embedded
+      if (devcontainer && Object.keys(devcontainer).length > 0) {
+        const devcontainerJson = {
+          ...devcontainer,
+          customizations: {
+            vscode: {
+              settings: vscodeSettings,
+            },
+          },
+        };
+        zip.file(
+          ".devcontainer/devcontainer.json",
+          JSON.stringify(devcontainerJson, null, 2) + "\n",
+        );
+      }
+
       // Generate and download
       const blob = await zip.generateAsync({ type: "blob" });
       const url = URL.createObjectURL(blob);
@@ -718,6 +751,7 @@ function createDownloadAllButton(
  * @param {Object} profile - Agent profile
  * @param {Array} skillFiles - Skill files
  * @param {Object} vscodeSettings - VS Code settings
+ * @param {Object} devcontainer - Devcontainer config
  * @param {{agent: string, skill: string}} templates - Mustache templates
  * @returns {HTMLElement}
  */
@@ -725,6 +759,7 @@ function createDownloadSingleButton(
   profile,
   skillFiles,
   vscodeSettings,
+  devcontainer,
   templates,
 ) {
   const btn = document.createElement("button");
@@ -754,6 +789,22 @@ function createDownloadSingleButton(
         zip.file(
           ".vscode/settings.json",
           JSON.stringify(vscodeSettings, null, 2) + "\n",
+        );
+      }
+
+      // Add devcontainer.json with VS Code settings embedded
+      if (devcontainer && Object.keys(devcontainer).length > 0) {
+        const devcontainerJson = {
+          ...devcontainer,
+          customizations: {
+            vscode: {
+              settings: vscodeSettings,
+            },
+          },
+        };
+        zip.file(
+          ".devcontainer/devcontainer.json",
+          JSON.stringify(devcontainerJson, null, 2) + "\n",
         );
       }
 

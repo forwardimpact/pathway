@@ -486,7 +486,7 @@ export function loadAndValidate(data, options = {}) {
  * Load agent-specific data for agent profile generation
  * Uses co-located files: each entity file contains both human and agent sections
  * @param {string} dataDir - Path to the data directory
- * @returns {Promise<Object>} Agent data including disciplines, tracks, behaviours, vscodeSettings
+ * @returns {Promise<Object>} Agent data including disciplines, tracks, behaviours, vscodeSettings, devcontainer, copilotSetupSteps
  */
 export async function loadAgentData(dataDir) {
   const disciplinesDir = join(dataDir, "disciplines");
@@ -494,15 +494,27 @@ export async function loadAgentData(dataDir) {
   const behavioursDir = join(dataDir, "behaviours");
 
   // Load from co-located files
-  const [disciplineFiles, trackFiles, behaviourFiles, vscodeSettings] =
-    await Promise.all([
-      loadDisciplinesFromDir(disciplinesDir),
-      loadTracksFromDir(tracksDir),
-      loadBehavioursFromDir(behavioursDir),
-      fileExists(join(dataDir, "vscode-settings.yaml"))
-        ? loadYamlFile(join(dataDir, "vscode-settings.yaml"))
-        : {},
-    ]);
+  const [
+    disciplineFiles,
+    trackFiles,
+    behaviourFiles,
+    vscodeSettings,
+    devcontainer,
+    copilotSetupSteps,
+  ] = await Promise.all([
+    loadDisciplinesFromDir(disciplinesDir),
+    loadTracksFromDir(tracksDir),
+    loadBehavioursFromDir(behavioursDir),
+    fileExists(join(dataDir, "vscode-settings.yaml"))
+      ? loadYamlFile(join(dataDir, "vscode-settings.yaml"))
+      : {},
+    fileExists(join(dataDir, "devcontainer.yaml"))
+      ? loadYamlFile(join(dataDir, "devcontainer.yaml"))
+      : {},
+    fileExists(join(dataDir, "copilot-setup-steps.yaml"))
+      ? loadYamlFile(join(dataDir, "copilot-setup-steps.yaml"))
+      : null,
+  ]);
 
   // Extract agent sections from co-located files
   const disciplines = disciplineFiles
@@ -531,6 +543,8 @@ export async function loadAgentData(dataDir) {
     tracks,
     behaviours,
     vscodeSettings,
+    devcontainer,
+    copilotSetupSteps,
   };
 }
 
