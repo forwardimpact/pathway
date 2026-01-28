@@ -9,7 +9,9 @@ description: |
   People and delivery leadership, focusing on team effectiveness,
   career development, and organizational outcomes.
 
-validTracks: []
+# null = allow trackless (generalist)
+validTracks:
+  - null
 
 coreSkills:
   - stakeholder_management

@@ -296,6 +296,7 @@ export const SkillType = {
  * @property {string} roleTitle - Display name for a person in this role (e.g., "Software Engineer")
  * @property {string} [name] - Legacy display name (deprecated, use specialization/roleTitle)
  * @property {string} description - Description of the discipline
+ * @property {Array<string|null>} validTracks - Valid track configurations. null = allow trackless (generalist), string = track ID
  * @property {string[]} coreSkills - Skill IDs requiring deep expertise (Practitioner/Expert)
  * @property {string[]} supportingSkills - Skill IDs requiring solid competence (Working/Practitioner)
  * @property {string[]} broadSkills - Skill IDs requiring awareness (Awareness/Foundational)

@@ -178,12 +178,21 @@ block-beta
 
 ### Discipline Properties
 
-| Property         | Type     | Purpose                                         |
-| ---------------- | -------- | ----------------------------------------------- |
-| `isProfessional` | boolean  | Uses professionalResponsibilities (IC roles)    |
-| `isManagement`   | boolean  | Uses managementResponsibilities (manager roles) |
-| `validTracks`    | string[] | Array of track IDs valid for this discipline    |
-| `minGrade`       | string   | Minimum grade required for this discipline      |
+| Property         | Type             | Purpose                                         |
+| ---------------- | ---------------- | ----------------------------------------------- |
+| `isProfessional` | boolean          | Uses professionalResponsibilities (IC roles)    |
+| `isManagement`   | boolean          | Uses managementResponsibilities (manager roles) |
+| `validTracks`    | (string\|null)[] | Valid track configurations (see below)          |
+| `minGrade`       | string           | Minimum grade required for this discipline      |
+
+**validTracks Semantics:**
+
+- `null` in array = allow trackless (generalist) jobs
+- string values = allow specific track IDs
+- `[null]` = trackless only
+- `[null, "dx"]` = trackless OR dx track
+- `["dx"]` = dx track only (no trackless)
+- `[]` = no valid job combinations (legacy: allows trackless)
 
 Disciplines also define `behaviourModifiers` that adjust baseline behaviour
 expectations for engineers in that specialty.

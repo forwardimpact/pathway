@@ -146,7 +146,7 @@ const testDiscipline = {
   behaviourModifiers: { behaviour_x: 1 },
   isProfessional: true,
   isManagement: false,
-  validTracks: ["test_track"],
+  validTracks: [null, "test_track"], // null allows trackless, "test_track" allows that track
 };
 
 const testTrack = {
@@ -815,6 +815,25 @@ describe("Validation", () => {
 
       assert.strictEqual(result.valid, false);
       assert.ok(result.errors.some((e) => e.type === "INVALID_REFERENCE"));
+    });
+
+    it("allows null in validTracks array", () => {
+      const disciplineWithNull = {
+        ...testDiscipline,
+        validTracks: [null, "test_track"],
+      };
+
+      const result = validateAllData({
+        skills: testSkills,
+        behaviours: testBehaviours,
+        disciplines: [disciplineWithNull],
+        tracks: [testTrack],
+        grades: [testGrade],
+        drivers: testDrivers,
+        capabilities: testCategories,
+      });
+
+      assert.strictEqual(result.valid, true);
     });
 
     it("validates discipline with professional/management flags", () => {
@@ -1600,12 +1619,13 @@ describe("Derivation", () => {
       );
     });
 
-    it("allows all tracks when validTracks is empty", () => {
+    it("allows all tracks when validTracks is empty (legacy behavior)", () => {
       const disciplineWithEmptyValidTracks = {
         ...testDiscipline,
         validTracks: [],
       };
 
+      // Legacy behavior: empty array allows all tracks
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithEmptyValidTracks,
@@ -1614,6 +1634,74 @@ describe("Derivation", () => {
           grades: [],
         }),
         true,
+      );
+    });
+
+    it("allows trackless when null is in validTracks", () => {
+      const disciplineWithNullInValidTracks = {
+        ...testDiscipline,
+        validTracks: [null, "dx"],
+      };
+
+      assert.strictEqual(
+        isValidJobCombination({
+          discipline: disciplineWithNullInValidTracks,
+          grade: testGrade,
+          track: null,
+          grades: [],
+        }),
+        true,
+      );
+    });
+
+    it("rejects trackless when null is not in validTracks", () => {
+      const disciplineWithOnlyTrackIds = {
+        ...testDiscipline,
+        validTracks: ["dx", "platform"],
+      };
+
+      assert.strictEqual(
+        isValidJobCombination({
+          discipline: disciplineWithOnlyTrackIds,
+          grade: testGrade,
+          track: null,
+          grades: [],
+        }),
+        false,
+      );
+    });
+
+    it("allows track when track ID is in validTracks with null", () => {
+      const disciplineWithNullAndTrack = {
+        ...testDiscipline,
+        validTracks: [null, "test_track"],
+      };
+
+      assert.strictEqual(
+        isValidJobCombination({
+          discipline: disciplineWithNullAndTrack,
+          grade: testGrade,
+          track: testTrack,
+          grades: [],
+        }),
+        true,
+      );
+    });
+
+    it("rejects track when validTracks only contains null", () => {
+      const disciplineWithOnlyNull = {
+        ...testDiscipline,
+        validTracks: [null],
+      };
+
+      assert.strictEqual(
+        isValidJobCombination({
+          discipline: disciplineWithOnlyNull,
+          grade: testGrade,
+          track: testTrack,
+          grades: [],
+        }),
+        false,
       );
     });
 
@@ -2014,7 +2102,7 @@ describe("Matching", () => {
       const disciplineWithValidTracks = {
         ...testDiscipline,
         id: "restricted_discipline",
-        validTracks: ["other_track"], // test_track not allowed
+        validTracks: [null, "other_track"], // null allows trackless, test_track not allowed
       };
 
       const matches = findMatchingJobs({
@@ -2027,7 +2115,7 @@ describe("Matching", () => {
         topN: 10,
       });
 
-      // Should return only the trackless job since track isn't allowed
+      // Should return only the trackless job since test_track isn't in validTracks
       assert.strictEqual(matches.length, 1);
       assert.strictEqual(matches[0].job.track, null);
     });
@@ -2036,7 +2124,7 @@ describe("Matching", () => {
       const disciplineWithValidTracks = {
         ...testDiscipline,
         id: "restricted_discipline",
-        validTracks: ["test_track"],
+        validTracks: [null, "test_track"], // null allows trackless, test_track allowed
       };
 
       const matches = findMatchingJobs({

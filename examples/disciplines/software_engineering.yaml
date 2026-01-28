@@ -3,7 +3,9 @@
 specialization: Software Engineering
 roleTitle: Software Engineer
 isProfessional: true
+# null = allow trackless (generalist)
 validTracks:
+  - null
   - platform
   - sre
 

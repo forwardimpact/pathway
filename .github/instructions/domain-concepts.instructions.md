@@ -109,8 +109,13 @@ Disciplines have properties that determine the role type and valid tracks:
 
 - `isProfessional: true` - IC roles, uses `professionalResponsibilities`
 - `isManagement: true` - Manager roles, uses `managementResponsibilities`
-- `validTracks: [...]` - Array of track IDs valid for this discipline (empty =
-  trackless only)
+- `validTracks: [...]` - Array of valid track configurations:
+  - `null` in array = allow trackless (generalist) jobs
+  - string values = allow specific track IDs
+  - `[null]` = trackless only
+  - `[null, "dx"]` = trackless OR dx track
+  - `["dx"]` = dx track only (no trackless)
+  - `[]` = no valid job combinations (legacy: allows trackless)
 - `minGrade: <grade_id>` - Minimum grade for this discipline (optional)
 
 ## Stages

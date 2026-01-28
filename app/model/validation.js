@@ -490,7 +490,10 @@ function validateDiscipline(
     );
   }
 
-  // Validate validTracks (REQUIRED - must be an array, can be empty for trackless-only disciplines)
+  // Validate validTracks (REQUIRED - must be an array)
+  // - null in array = allow trackless (generalist)
+  // - string values = specific track IDs
+  // - empty array = no valid combinations (discipline cannot be used)
   if (!Array.isArray(discipline.validTracks)) {
     errors.push(
       createError(
@@ -501,6 +504,8 @@ function validateDiscipline(
     );
   } else {
     discipline.validTracks.forEach((trackId, i) => {
+      // null means "allow trackless" - skip validation
+      if (trackId === null) return;
       if (!trackIds.has(trackId)) {
         errors.push(
           createError(

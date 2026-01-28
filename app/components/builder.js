@@ -100,17 +100,29 @@ export function createBuilder({
   trackSelectEl.disabled = true;
 
   /**
-   * Get available tracks for a discipline
+   * Check if a discipline allows trackless (generalist) jobs
+   * @param {Object|null} disciplineObj
+   * @returns {boolean}
+   */
+  function allowsTrackless(disciplineObj) {
+    if (!disciplineObj) return false;
+    const validTracks = disciplineObj.validTracks ?? [];
+    // Empty array = trackless only (legacy), or null in array = trackless allowed
+    return validTracks.length === 0 || validTracks.includes(null);
+  }
+
+  /**
+   * Get available tracks for a discipline (excludes null entries)
    * @param {Object|null} disciplineObj
    * @returns {Array}
    */
   function getAvailableTracks(disciplineObj) {
     if (!disciplineObj) return [];
-    // validTracks is required - empty array means trackless only
-    if (!disciplineObj.validTracks || disciplineObj.validTracks.length === 0) {
-      return [];
-    }
-    return data.tracks.filter((t) => disciplineObj.validTracks.includes(t.id));
+    const validTracks = disciplineObj.validTracks ?? [];
+    if (validTracks.length === 0) return [];
+    // Filter to actual track IDs (exclude null which means "trackless")
+    const trackIds = validTracks.filter((t) => t !== null);
+    return data.tracks.filter((t) => trackIds.includes(t.id));
   }
 
   /**
@@ -120,18 +132,23 @@ export function createBuilder({
   function updateTrackOptions(disciplineId) {
     const disciplineObj = data.disciplines.find((d) => d.id === disciplineId);
     const availableTracks = getAvailableTracks(disciplineObj);
+    const canBeTrackless = allowsTrackless(disciplineObj);
 
-    // Clear existing options except placeholder
+    // Clear existing options
     trackSelectEl.innerHTML = "";
-    trackSelectEl.appendChild(option({ value: "" }, "(none) - Generalist"));
+
+    // Add generalist option if trackless is allowed
+    if (canBeTrackless) {
+      trackSelectEl.appendChild(option({ value: "" }, "(none) - Generalist"));
+    }
 
     // Add available track options
     availableTracks.forEach((t) => {
       trackSelectEl.appendChild(option({ value: t.id }, t.name));
     });
 
-    // Disable if no tracks available
-    trackSelectEl.disabled = availableTracks.length === 0;
+    // Disable if no options (neither trackless nor tracks)
+    trackSelectEl.disabled = !canBeTrackless && availableTracks.length === 0;
   }
 
   // Subscribe to selection changes - all updates happen here

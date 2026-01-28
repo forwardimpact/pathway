@@ -305,18 +305,35 @@ export function isValidJobCombination({
     }
   }
 
-  // 2. If no track provided, job is valid (trackless job)
+  // 2. Handle trackless vs tracked jobs based on validTracks
+  // validTracks semantics:
+  // - null in array means "allow trackless (generalist)"
+  // - string values mean "allow this specific track"
+  // - empty array = discipline cannot have any jobs
   if (!track) {
-    return true;
+    // Trackless job: only valid if null is in validTracks
+    // Note: for backwards compatibility, empty array also allows trackless
+    const validTracks = discipline.validTracks ?? [];
+    if (validTracks.length === 0) {
+      // Empty array = allow trackless (legacy behavior)
+      return true;
+    }
+    // Check if null is explicitly in the array
+    return validTracks.includes(null);
   }
 
-  // 3. Check discipline's validTracks constraint (empty array means allow all)
-  if (
-    discipline.validTracks &&
-    discipline.validTracks.length > 0 &&
-    !discipline.validTracks.includes(track.id)
-  ) {
-    return false;
+  // 3. Check discipline's validTracks constraint for tracked jobs
+  // Only string entries matter here (null = trackless, not a track ID)
+  const validTracks = discipline.validTracks ?? [];
+  if (validTracks.length > 0) {
+    const trackIds = validTracks.filter((t) => t !== null);
+    if (trackIds.length > 0 && !trackIds.includes(track.id)) {
+      return false;
+    }
+    // If validTracks only contains null (no track IDs), reject all tracks
+    if (trackIds.length === 0) {
+      return false;
+    }
   }
 
   // 4. Check track's minGrade constraint

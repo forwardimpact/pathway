@@ -1338,11 +1338,13 @@ fit:DisciplineShape a sh:NodeShape ;
     ] ;
     sh:property [
         sh:path fit:validTracks ;
-        sh:datatype xsd:string ;
-        sh:pattern "^[a-z][a-z0-9_]*$" ;
         sh:minCount 1 ;
         sh:name "validTracks" ;
-        sh:description "REQUIRED. Explicit list of valid tracks. Empty array = trackless only." ;
+        sh:description "REQUIRED. Valid track configurations. Use null for trackless (generalist)." ;
+        sh:or (
+            [ sh:datatype xsd:string ; sh:pattern "^[a-z][a-z0-9_]*$" ]
+            [ sh:nodeKind sh:Literal ; sh:hasValue "null" ]
+        ) ;
     ] ;
     sh:property [
         sh:path fit:minGrade ;
