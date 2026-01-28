@@ -18,10 +18,7 @@ export function trackListToMarkdown(tracks, framework) {
   const lines = [`# ${emoji} Tracks`, ""];
 
   for (const track of items) {
-    const types = [];
-    if (track.isProfessional) types.push("Professional");
-    if (track.isManagement) types.push("Management");
-    lines.push(`- **${track.name}**: ${types.join(", ")}`);
+    lines.push(`- **${track.name}**`);
   }
   lines.push("");
 
@@ -44,15 +41,9 @@ export function trackToMarkdown(
 ) {
   const view = prepareTrackDetail(track, { skills, behaviours, disciplines });
 
-  const types = [];
-  if (view.isProfessional) types.push("Professional");
-  if (view.isManagement) types.push("Management");
-
   const emoji = framework ? getConceptEmoji(framework, "track") : "🛤️";
   const lines = [
     `# ${emoji} ${view.name}`,
-    "",
-    `**Type**: ${types.join(", ")}`,
     "",
     view.description,
     "",
@@ -89,15 +80,6 @@ export function trackToMarkdown(
       b.modifier > 0 ? `+${b.modifier}` : `${b.modifier}`,
     ]);
     lines.push(tableToMarkdown(["Behaviour", "Modifier"], modifierRows));
-    lines.push("");
-  }
-
-  // Valid disciplines
-  if (view.validDisciplines.length > 0) {
-    lines.push("## Valid Disciplines", "");
-    for (const d of view.validDisciplines) {
-      lines.push(`- ${d.name}`);
-    }
     lines.push("");
   }
 

@@ -222,24 +222,24 @@ export function getCapabilityEmoji(capabilities, capabilityId) {
 /**
  * Get responsibility statement for a capability at a specific skill level
  *
- * Uses professionalResponsibilities for professional tracks and
- * managementResponsibilities for management tracks.
+ * Uses professionalResponsibilities for professional disciplines and
+ * managementResponsibilities for management disciplines.
  *
  * @param {Object[]} capabilities - Loaded capabilities array
  * @param {string} capabilityId - The capability ID
  * @param {string} level - The skill level (awareness, foundational, working, practitioner, expert)
- * @param {Object} [track] - Optional track to determine which responsibilities to use
- * @param {boolean} [track.isManagement] - Whether this is a management track
+ * @param {Object} [discipline] - Optional discipline to determine which responsibilities to use
+ * @param {boolean} [discipline.isManagement] - Whether this is a management discipline
  * @returns {string|undefined} The responsibility statement or undefined
  */
 export function getCapabilityResponsibility(
   capabilities,
   capabilityId,
   level,
-  track,
+  discipline,
 ) {
   const capability = getCapabilityById(capabilities, capabilityId);
-  const responsibilityKey = track?.isManagement
+  const responsibilityKey = discipline?.isManagement
     ? "managementResponsibilities"
     : "professionalResponsibilities";
   return capability?.[responsibilityKey]?.[level];
@@ -313,12 +313,9 @@ export const SkillType = {
  * @property {string} id - Unique identifier
  * @property {string} name - Display name
  * @property {string} description - Description of the track focus
- * @property {boolean} [isProfessional=true] - Whether this is a professional/individual contributor track
- * @property {boolean} [isManagement=false] - Whether this is a management/people manager track
- * @property {Object<string, number>} skillModifiers - Map of skill ID to level modifier (positive or negative integer)
+ * @property {Object<string, number>} skillModifiers - Map of capability/skill ID to level modifier (positive or negative integer)
  * @property {Object<string, number>} behaviourModifiers - Map of behaviour ID to maturity modifier (positive or negative integer)
  * @property {AssessmentWeights} [assessmentWeights] - Optional custom weights for job matching
- * @property {string[]} [validDisciplines] - Optional array of discipline IDs this track is valid for
  * @property {string} [minGrade] - Optional minimum grade ID this track is valid for
  */
 

@@ -125,8 +125,6 @@ export function trackToJsonLd(track) {
     identifier: track.id,
     name: track.name,
     description: track.description,
-    isProfessional: track.isProfessional || false,
-    isManagement: track.isManagement || false,
     ...(track.skillModifiers && {
       skillModifiers: Object.entries(track.skillModifiers).map(
         ([capability, modifier]) => ({

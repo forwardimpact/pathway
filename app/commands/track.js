@@ -12,13 +12,13 @@
 
 import { createEntityCommand } from "./command-factory.js";
 import { trackToMarkdown } from "../formatters/track/markdown.js";
-import { sortTracksByType } from "../formatters/track/shared.js";
+import { sortTracksByName } from "../formatters/track/shared.js";
 import { formatTable } from "../lib/cli-output.js";
 import { getConceptEmoji } from "../model/levels.js";
 
 /**
  * Format track summary output
- * @param {Array} tracks - Raw track entities (already sorted by type)
+ * @param {Array} tracks - Raw track entities
  * @param {Object} data - Full data context
  */
 function formatSummary(tracks, data) {
@@ -28,14 +28,11 @@ function formatSummary(tracks, data) {
   console.log(`\n${emoji} Tracks\n`);
 
   const rows = tracks.map((t) => {
-    const types = [];
-    if (t.isProfessional) types.push("P");
-    if (t.isManagement) types.push("M");
     const modCount = Object.keys(t.skillModifiers || {}).length;
-    return [t.id, t.name, types.join("/") || "-", modCount];
+    return [t.id, t.name, modCount];
   });
 
-  console.log(formatTable(["ID", "Name", "Type", "Modifiers"], rows));
+  console.log(formatTable(["ID", "Name", "Modifiers"], rows));
   console.log(`\nTotal: ${tracks.length} tracks`);
   console.log(`\nRun 'npx pathway track --list' for IDs`);
   console.log(`Run 'npx pathway track <id>' for details\n`);
@@ -63,7 +60,7 @@ export const runTrackCommand = createEntityCommand({
     behaviours: data.behaviours,
     disciplines: data.disciplines,
   }),
-  sortItems: sortTracksByType,
+  sortItems: sortTracksByName,
   formatSummary,
   formatDetail,
   emoji: "🛤️",

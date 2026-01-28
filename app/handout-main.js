@@ -36,7 +36,7 @@ import {
   gradeToDOM,
   trackToDOM,
 } from "./formatters/index.js";
-import { sortTracksByType } from "./formatters/track/shared.js";
+import { sortTracksByName } from "./formatters/track/shared.js";
 
 /**
  * Create a chapter cover page
@@ -295,7 +295,7 @@ function renderJobHandout(data) {
     });
   });
 
-  const trackSlides = sortTracksByType(data.tracks).map((track) => {
+  const trackSlides = sortTracksByName(data.tracks).map((track) => {
     return trackToDOM(track, {
       skills: data.skills,
       behaviours: data.behaviours,

@@ -175,12 +175,10 @@ async function loadTracksFromDir(tracksDir) {
         description,
         roleContext,
         // Structural properties (derivation inputs) - at top level
-        isProfessional,
-        isManagement,
         skillModifiers,
         behaviourModifiers,
         assessmentWeights,
-        validDisciplines,
+        minGrade,
         // Agent section (no human section anymore for tracks)
         agent,
       } = content;
@@ -191,12 +189,10 @@ async function loadTracksFromDir(tracksDir) {
         description,
         roleContext,
         // Structural properties at top level
-        isProfessional,
-        isManagement,
         skillModifiers,
         behaviourModifiers,
         assessmentWeights,
-        validDisciplines,
+        minGrade,
         // Preserve agent section for agent generation
         ...(agent && { agent }),
       };

@@ -27,15 +27,8 @@ export function trackListToMicrodata(tracks) {
 
   const content = items
     .map((track) => {
-      const types = [];
-      if (track.isProfessional) types.push("Professional");
-      if (track.isManagement) types.push("Management");
-
       return `${openTag("article", { itemtype: "Track", itemid: `#${track.id}` })}
 ${prop("h2", "name", track.name)}
-<p>${types.join(", ")}</p>
-${track.isProfessional ? metaTag("isProfessional", "true") : metaTag("isProfessional", "false")}
-${track.isManagement ? metaTag("isManagement", "true") : metaTag("isManagement", "false")}
 </article>`;
     })
     .join("\n");
@@ -62,10 +55,6 @@ export function trackToMicrodata(track, { skills, behaviours, disciplines }) {
   const view = prepareTrackDetail(track, { skills, behaviours, disciplines });
 
   if (!view) return "";
-
-  const types = [];
-  if (view.isProfessional) types.push("Professional");
-  if (view.isManagement) types.push("Management");
 
   const sections = [];
 
@@ -109,22 +98,10 @@ ${linkTag("targetBehaviour", `#${b.id}`)}
     sections.push(section("Behaviour Modifiers", ul(modifierItems), 2));
   }
 
-  // Valid disciplines - using validDisciplines property
-  if (view.validDisciplines.length > 0) {
-    const disciplineLinks = view.validDisciplines.map(
-      (d) =>
-        `${openTag("span", { itemprop: "validDisciplines" })}<a href="#${escapeHtml(d.id)}">${escapeHtml(d.name)}</a></span>`,
-    );
-    sections.push(section("Valid Disciplines", ul(disciplineLinks), 2));
-  }
-
   const body = `<main>
 ${openTag("article", { itemtype: "Track", itemid: `#${view.id}` })}
 ${prop("h1", "name", view.name)}
 ${metaTag("id", view.id)}
-<p><strong>Type:</strong> ${types.join(", ")}</p>
-${view.isProfessional ? metaTag("isProfessional", "true") : metaTag("isProfessional", "false")}
-${view.isManagement ? metaTag("isManagement", "true") : metaTag("isManagement", "false")}
 ${prop("p", "description", view.description)}
 ${sections.join("\n")}
 </article>

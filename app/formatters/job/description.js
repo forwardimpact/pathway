@@ -29,7 +29,9 @@ export function formatJobDescription({ job, discipline, grade, track }) {
   // Meta information
   lines.push(`- **Level:** ${grade.id}`);
   lines.push(`- **Experience:** ${grade.typicalExperienceRange}`);
-  lines.push(`- **Track:** ${track.name}`);
+  if (track) {
+    lines.push(`- **Track:** ${track.name}`);
+  }
   lines.push("");
 
   // Role Summary
@@ -37,7 +39,7 @@ export function formatJobDescription({ job, discipline, grade, track }) {
   lines.push("");
 
   // Build role summary from discipline - use manager version if applicable
-  const isManagement = track.isManagement === true;
+  const isManagement = discipline.isManagement === true;
   let roleSummary =
     isManagement && discipline.managementRoleSummary
       ? discipline.managementRoleSummary

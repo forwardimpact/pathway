@@ -4,12 +4,9 @@
 
 import { div, h1, p } from "../../lib/render.js";
 import { createBackLink } from "../../components/nav.js";
-import { createBadge, createStatCard } from "../../components/card.js";
+import { createStatCard } from "../../components/card.js";
 import { createStatsGrid } from "../../components/grid.js";
-import {
-  createDetailSection,
-  createLinksList,
-} from "../../components/detail.js";
+import { createDetailSection } from "../../components/detail.js";
 import {
   createJobBuilderButton,
   createInterviewPrepButton,
@@ -21,22 +18,6 @@ import {
 import { getConceptEmoji } from "../../model/levels.js";
 import { prepareTrackDetail } from "./shared.js";
 import { createJsonLdScript, trackToJsonLd } from "../json-ld.js";
-
-/**
- * Get track type badge(s)
- * @param {Object} view
- * @returns {HTMLElement[]}
- */
-function getTrackTypeBadges(view) {
-  const badges = [];
-  if (view.isProfessional) {
-    badges.push(createBadge("Professional", "secondary"));
-  }
-  if (view.isManagement) {
-    badges.push(createBadge("Management", "default"));
-  }
-  return badges;
-}
 
 /**
  * Format track detail as DOM elements
@@ -88,7 +69,6 @@ export function trackToDOM(
       { className: "page-header" },
       createBackLink("/track", "← Back to Tracks"),
       h1({ className: "page-title" }, `${emoji} `, view.name),
-      div({ className: "page-meta" }, ...getTrackTypeBadges(view)),
       p(
         { className: "text-muted", style: "margin-top: 0.5rem" },
         view.description,
@@ -99,14 +79,6 @@ export function trackToDOM(
         createInterviewPrepButton({ paramName: "track", paramValue: track.id }),
       ),
     ),
-
-    // Valid disciplines (if restricted)
-    view.validDisciplines.length > 0
-      ? createDetailSection({
-          title: "Valid Disciplines",
-          content: createLinksList(view.validDisciplines, "/discipline"),
-        })
-      : null,
 
     // Matching weights (stat cards)
     track.matchingWeights

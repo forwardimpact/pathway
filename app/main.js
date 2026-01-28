@@ -101,15 +101,18 @@ function setupRoutes() {
 
   // Job builder
   router.on("/job-builder", renderJobBuilder);
-  router.on("/job/:discipline/:track/:grade", renderJobDetail);
+  router.on("/job/:discipline/:grade/:track", renderJobDetail);
+  router.on("/job/:discipline/:grade", renderJobDetail);
 
   // Interview prep
   router.on("/interview-prep", renderInterviewPrep);
-  router.on("/interview/:discipline/:track/:grade", renderInterviewDetail);
+  router.on("/interview/:discipline/:grade/:track", renderInterviewDetail);
+  router.on("/interview/:discipline/:grade", renderInterviewDetail);
 
   // Career progress
   router.on("/career-progress", renderCareerProgress);
-  router.on("/progress/:discipline/:track/:grade", renderProgressDetail);
+  router.on("/progress/:discipline/:grade/:track", renderProgressDetail);
+  router.on("/progress/:discipline/:grade", renderProgressDetail);
 
   // Self-assessment
   router.on("/self-assessment", renderSelfAssessment);
@@ -117,8 +120,9 @@ function setupRoutes() {
 
   // Agent builder
   router.on("/agent-builder", renderAgentBuilder);
-  router.on("/agent/:discipline/:track", renderAgentBuilder);
   router.on("/agent/:discipline/:track/:stage", renderAgentBuilder);
+  router.on("/agent/:discipline/:track", renderAgentBuilder);
+  router.on("/agent/:discipline", renderAgentBuilder);
 }
 
 /**

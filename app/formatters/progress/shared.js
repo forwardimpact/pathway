@@ -138,8 +138,8 @@ export function prepareCareerProgressPreview({
     return {
       isValid: false,
       title: null,
-      invalidReason: track.validDisciplines
-        ? `The ${track.name} track is only available for certain disciplines.`
+      invalidReason: discipline.validTracks
+        ? `The ${discipline.name} discipline is only available for certain tracks.`
         : "This combination is not valid.",
       nextGrade: null,
       validTracks: [],

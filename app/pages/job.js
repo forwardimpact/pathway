@@ -13,18 +13,29 @@ import { jobToDOM } from "../formatters/job/dom.js";
  * @param {Object} params - Route params
  */
 export function renderJobDetail(params) {
-  const { discipline: disciplineId, track: trackId, grade: gradeId } = params;
+  const { discipline: disciplineId, grade: gradeId, track: trackId } = params;
   const { data } = getState();
 
   // Find the components
   const discipline = data.disciplines.find((d) => d.id === disciplineId);
-  const track = data.tracks.find((t) => t.id === trackId);
   const grade = data.grades.find((g) => g.id === gradeId);
+  const track = trackId ? data.tracks.find((t) => t.id === trackId) : null;
 
-  if (!discipline || !track || !grade) {
+  if (!discipline || !grade) {
     renderError({
       title: "Job Not Found",
-      message: "Invalid job combination. One or more components are missing.",
+      message: "Invalid job combination. Discipline or grade not found.",
+      backPath: "/job-builder",
+      backText: "← Back to Job Builder",
+    });
+    return;
+  }
+
+  // If trackId was provided but not found, error
+  if (trackId && !track) {
+    renderError({
+      title: "Job Not Found",
+      message: `Track "${trackId}" not found.`,
       backPath: "/job-builder",
       backText: "← Back to Job Builder",
     });

@@ -118,19 +118,11 @@ export function gradeToCardConfig(grade) {
  * @returns {Object}
  */
 export function trackToCardConfig(track) {
-  const badges = [];
-  if (track.isProfessional) {
-    badges.push(createBadge("Professional", "secondary"));
-  }
-  if (track.isManagement) {
-    badges.push(createBadge("Management", "default"));
-  }
-
   return {
     title: track.name,
     description: track.truncatedDescription,
     href: `/track/${track.id}`,
-    meta: badges,
+    meta: [],
   };
 }
 

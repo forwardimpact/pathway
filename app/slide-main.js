@@ -9,7 +9,7 @@ import { setData, getState } from "./lib/state.js";
 import { loadAllData } from "./lib/yaml-loader.js";
 import { span, a } from "./lib/render.js";
 import { generateAllJobs } from "./model/derivation.js";
-import { sortTracksByType } from "./formatters/track/shared.js";
+import { sortTracksByName } from "./formatters/track/shared.js";
 
 // Import slide renderers
 import { renderChapterSlide } from "./slides/chapter.js";
@@ -192,7 +192,7 @@ function buildSlideOrder(data) {
     boundaries.push(order.length);
     order.push("/chapter/track");
     order.push("/overview/track");
-    sortTracksByType(data.tracks).forEach((t) => order.push(`/track/${t.id}`));
+    sortTracksByName(data.tracks).forEach((t) => order.push(`/track/${t.id}`));
   }
 
   // Grades
