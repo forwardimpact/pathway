@@ -138,9 +138,10 @@ export async function renderAgentBuilder() {
    */
   function updatePreview({ discipline, track, stage }) {
     // Update URL without triggering navigation
-    if (discipline && track) {
+    if (discipline) {
+      const trackPart = track ? `/${track}` : "";
       const stagePart = stage && stage !== ALL_STAGES_VALUE ? `/${stage}` : "";
-      const newHash = `#/agent/${discipline}/${track}${stagePart}`;
+      const newHash = `#/agent/${discipline}${trackPart}${stagePart}`;
       if (window.location.hash !== newHash) {
         history.replaceState(null, "", newHash);
       }
@@ -148,7 +149,7 @@ export async function renderAgentBuilder() {
 
     previewContainer.innerHTML = "";
 
-    if (!discipline || !track) {
+    if (!discipline) {
       previewContainer.appendChild(
         createEmptyState(availableDisciplines.length, availableTracks.length),
       );
@@ -157,7 +158,7 @@ export async function renderAgentBuilder() {
 
     // Get full objects
     const humanDiscipline = data.disciplines.find((d) => d.id === discipline);
-    const humanTrack = data.tracks.find((t) => t.id === track);
+    const humanTrack = track ? data.tracks.find((t) => t.id === track) : null;
     const agentDiscipline = agentData.disciplines.find(
       (d) => d.id === discipline,
     );

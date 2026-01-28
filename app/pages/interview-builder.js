@@ -29,7 +29,9 @@ export function renderInterviewPrep() {
           grades: data.grades,
         }),
       detailPath: (sel) =>
-        `/interview/${sel.discipline}/${sel.track}/${sel.grade}`,
+        sel.track
+          ? `/interview/${sel.discipline}/${sel.grade}/${sel.track}`
+          : `/interview/${sel.discipline}/${sel.grade}`,
       renderPreview: createStandardPreview,
       helpItems: [
         {

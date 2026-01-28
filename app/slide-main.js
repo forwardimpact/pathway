@@ -241,7 +241,11 @@ function buildSlideOrder(data) {
     order.push("/chapter/job");
     order.push("/overview/job");
     jobs.forEach((job) =>
-      order.push(`/job/${job.discipline.id}/${job.track.id}/${job.grade.id}`),
+      order.push(
+        job.track
+          ? `/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
+          : `/job/${job.discipline.id}/${job.grade.id}`,
+      ),
     );
   }
 

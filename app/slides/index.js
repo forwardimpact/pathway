@@ -184,7 +184,9 @@ export function renderSlideIndex({ render, data }) {
             {},
             a(
               {
-                href: `#/job/${job.discipline.id}/${job.track.id}/${job.grade.id}`,
+                href: job.track
+                  ? `#/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
+                  : `#/job/${job.discipline.id}/${job.grade.id}`,
               },
               job.title,
             ),

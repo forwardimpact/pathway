@@ -8,15 +8,15 @@
  * or --all-stages (default) for all stages.
  *
  * Usage:
- *   npx pathway agent <discipline> <track> [--output=PATH] [--preview]
- *   npx pathway agent <discipline> <track> --stage=plan
- *   npx pathway agent <discipline> <track> --all-stages
+ *   npx pathway agent <discipline> [--track=<track>] [--output=PATH] [--preview]
+ *   npx pathway agent <discipline> --track=<track> --stage=plan
+ *   npx pathway agent <discipline> --track=<track> --all-stages
  *   npx pathway agent --list
  *
  * Examples:
- *   npx pathway agent software_engineering platform
- *   npx pathway agent software_engineering platform --stage=plan
- *   npx pathway agent software_engineering platform --preview
+ *   npx pathway agent software_engineering --track=platform
+ *   npx pathway agent software_engineering --track=platform --stage=plan
+ *   npx pathway agent software_engineering --track=platform --preview
  */
 
 import { writeFile, mkdir, readFile } from "fs/promises";
@@ -281,7 +281,7 @@ async function writeSkills(skills, baseDir, template) {
  * Run the agent command
  * @param {Object} params - Command parameters
  * @param {Object} params.data - Loaded pathway data
- * @param {string[]} params.args - Command arguments [discipline_id, track_id]
+ * @param {string[]} params.args - Command arguments [discipline_id]
  * @param {Object} params.options - Command options
  * @param {string} params.dataDir - Path to data directory
  */
@@ -302,11 +302,12 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     return;
   }
 
-  const [disciplineId, trackId] = args;
+  const [disciplineId] = args;
+  const trackId = options.track;
 
-  if (!disciplineId || !trackId) {
+  if (!disciplineId) {
     console.error(
-      formatError("Usage: npx pathway agent <discipline_id> <track_id>"),
+      formatError("Usage: npx pathway agent <discipline_id> [--track=<track_id>]"),
     );
     console.error(
       "\nRun 'npx pathway agent --list' to see available combinations.",
@@ -316,7 +317,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
 
   // Look up human definitions
   const humanDiscipline = data.disciplines.find((d) => d.id === disciplineId);
-  const humanTrack = data.tracks.find((t) => t.id === trackId);
+  const humanTrack = trackId ? data.tracks.find((t) => t.id === trackId) : null;
 
   if (!humanDiscipline) {
     console.error(formatError(`Unknown discipline: ${disciplineId}`));
@@ -327,7 +328,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     process.exit(1);
   }
 
-  if (!humanTrack) {
+  if (trackId && !humanTrack) {
     console.error(formatError(`Unknown track: ${trackId}`));
     console.error("\nAvailable tracks:");
     for (const t of data.tracks) {
@@ -340,7 +341,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   const agentDiscipline = agentData.disciplines.find(
     (d) => d.id === disciplineId,
   );
-  const agentTrack = agentData.tracks.find((t) => t.id === trackId);
+  const agentTrack = trackId ? agentData.tracks.find((t) => t.id === trackId) : null;
 
   if (!agentDiscipline) {
     console.error(
@@ -353,7 +354,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     process.exit(1);
   }
 
-  if (!agentTrack) {
+  if (trackId && !agentTrack) {
     console.error(formatError(`No agent definition for track: ${trackId}`));
     console.error("\nAgent definitions exist for:");
     for (const t of agentData.tracks) {

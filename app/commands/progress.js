@@ -2,6 +2,11 @@
  * Progress CLI Command
  *
  * Shows career progression analysis in the terminal.
+ *
+ * Usage:
+ *   npx pathway progress <discipline> <grade>                            # Progress for trackless job
+ *   npx pathway progress <discipline> <grade> --track=<track>            # Progress with track
+ *   npx pathway progress <discipline> <from_grade> --compare=<to_grade>  # Compare grades
  */
 
 import { createCompositeCommand } from "./command-factory.js";
@@ -21,11 +26,11 @@ function formatProgress(view) {
 
 export const runProgressCommand = createCompositeCommand({
   commandName: "progress",
-  requiredArgs: ["discipline_id", "track_id", "grade_id"],
+  requiredArgs: ["discipline_id", "grade_id"],
   findEntities: (data, args, options) => {
     const discipline = data.disciplines.find((d) => d.id === args[0]);
-    const track = data.tracks.find((t) => t.id === args[1]);
-    const grade = data.grades.find((g) => g.id === args[2]);
+    const grade = data.grades.find((g) => g.id === args[1]);
+    const track = options.track ? data.tracks.find((t) => t.id === options.track) : null;
 
     let targetGrade;
     if (options.compare) {
@@ -44,15 +49,15 @@ export const runProgressCommand = createCompositeCommand({
 
     return { discipline, grade, track, targetGrade };
   },
-  validateEntities: (entities, _data) => {
+  validateEntities: (entities, _data, options) => {
     if (!entities.discipline) {
       return `Discipline not found`;
     }
     if (!entities.grade) {
       return `Grade not found`;
     }
-    if (!entities.track) {
-      return `Track not found`;
+    if (options.track && !entities.track) {
+      return `Track not found: ${options.track}`;
     }
     if (!entities.targetGrade) {
       return `Target grade not found`;
@@ -73,5 +78,5 @@ export const runProgressCommand = createCompositeCommand({
     }),
   formatter: formatProgress,
   usageExample:
-    "npx pathway progress software_engineering platform L3 --compare=L4",
+    "npx pathway progress software_engineering L3 --track=platform --compare=L4",
 });

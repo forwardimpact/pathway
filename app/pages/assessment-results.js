@@ -379,7 +379,9 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
           { className: "match-job-title" },
           a(
             {
-              href: `#/job/${job.discipline.id}/${job.track.id}/${job.grade.id}`,
+              href: job.track
+                ? `#/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
+                : `#/job/${job.discipline.id}/${job.grade.id}`,
             },
             job.title,
           ),
@@ -388,7 +390,7 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
           { className: "match-badges" },
           createBadge(job.discipline.name, "default"),
           createBadge(job.grade.name, "secondary"),
-          createBadge(job.track.name, "broad"),
+          job.track && createBadge(job.track.name, "broad"),
         ),
       ),
       div(
@@ -437,14 +439,18 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
       { className: "match-card-actions" },
       a(
         {
-          href: `#/job/${job.discipline.id}/${job.track.id}/${job.grade.id}`,
+          href: job.track
+            ? `#/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
+            : `#/job/${job.discipline.id}/${job.grade.id}`,
           className: "btn btn-secondary btn-sm",
         },
         "View Job Details",
       ),
       a(
         {
-          href: `#/interview/${job.discipline.id}/${job.track.id}/${job.grade.id}`,
+          href: job.track
+            ? `#/interview/${job.discipline.id}/${job.grade.id}/${job.track.id}`
+            : `#/interview/${job.discipline.id}/${job.grade.id}`,
           className: "btn btn-secondary btn-sm",
         },
         "Interview Prep",

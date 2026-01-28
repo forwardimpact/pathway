@@ -14,7 +14,7 @@ test("job builder can generate a job", async ({ page }) => {
 
   // Select discipline, grade, track
   await page.selectOption("#discipline-select", "software_engineering");
-  await page.selectOption("#grade-select", "L3");
+  await page.selectOption("#grade-select", "J070");
   await page.selectOption("#track-select", "platform");
 
   // Verify preview appears with valid combination message

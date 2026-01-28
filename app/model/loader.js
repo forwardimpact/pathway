@@ -121,6 +121,11 @@ async function loadDisciplinesFromDir(disciplinesDir) {
       const {
         specialization,
         roleTitle,
+        // Track constraints
+        isProfessional,
+        isManagement,
+        validTracks,
+        minGrade,
         // Shared content - now at root level
         description,
         // Structural properties (derivation inputs) - at top level
@@ -136,6 +141,11 @@ async function loadDisciplinesFromDir(disciplinesDir) {
         id,
         specialization,
         roleTitle,
+        // Track constraints
+        isProfessional,
+        isManagement,
+        validTracks,
+        minGrade,
         // Shared content at top level
         description,
         // Structural properties at top level

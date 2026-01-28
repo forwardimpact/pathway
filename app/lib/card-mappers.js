@@ -132,12 +132,17 @@ export function trackToCardConfig(track) {
  * @returns {Object}
  */
 export function jobToCardConfig(job) {
+  const href = job.track
+    ? `/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
+    : `/job/${job.discipline.id}/${job.grade.id}`;
   return {
     title: job.title,
-    description: `${job.discipline.specialization || job.discipline.name} at ${job.grade.professionalTitle} level on ${job.track.name} track`,
-    href: `/job/${job.discipline.id}/${job.track.id}/${job.grade.id}`,
+    description: job.track
+      ? `${job.discipline.specialization || job.discipline.name} at ${job.grade.professionalTitle} level on ${job.track.name} track`
+      : `${job.discipline.specialization || job.discipline.name} at ${job.grade.professionalTitle} level`,
+    href,
     badges: [createBadge(job.grade.id, "default")],
-    meta: [createBadge(job.track.name, "secondary")],
+    meta: job.track ? [createBadge(job.track.name, "secondary")] : [],
   };
 }
 

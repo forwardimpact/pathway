@@ -4,11 +4,12 @@
  * Generates and displays job definitions in the terminal.
  *
  * Usage:
- *   npx pathway job                              # Summary with stats
- *   npx pathway job --list                       # All valid combinations (for piping)
- *   npx pathway job <discipline> <track> <grade> # Detail view
- *   npx pathway job se platform L3 --checklist=code_to_review # Show checklist for handoff
- *   npx pathway job --validate                   # Validation checks
+ *   npx pathway job                                          # Summary with stats
+ *   npx pathway job --list                                   # All valid combinations (for piping)
+ *   npx pathway job <discipline> <grade>                     # Detail view (trackless)
+ *   npx pathway job <discipline> <grade> --track=<track>     # Detail view (with track)
+ *   npx pathway job se L3 --track=platform --checklist=code  # Show checklist for handoff
+ *   npx pathway job --validate                               # Validation checks
  */
 
 import { prepareJobDetail } from "../model/job.js";
@@ -47,10 +48,14 @@ export async function runJobCommand({ data, args, options }) {
     validationRules: data.framework.validationRules,
   });
 
-  // --list: Output clean lines for piping
+  // --list: Output clean lines for piping (discipline grade track format)
   if (options.list) {
     for (const job of jobs) {
-      console.log(`${job.discipline.id} ${job.track.id} ${job.grade.id}`);
+      if (job.track) {
+        console.log(`${job.discipline.id} ${job.grade.id} ${job.track.id}`);
+      } else {
+        console.log(`${job.discipline.id} ${job.grade.id}`);
+      }
     }
     return;
   }
@@ -71,22 +76,23 @@ export async function runJobCommand({ data, args, options }) {
     console.log(`\nTotal: ${jobs.length} valid job combinations`);
     console.log(`\nRun 'npx pathway job --list' for all combinations`);
     console.log(
-      `Run 'npx pathway job <discipline> <track> <grade>' for details\n`,
+      `Run 'npx pathway job <discipline> <grade> [--track=<track>]' for details\n`,
     );
     return;
   }
 
-  // Handle job detail view
-  if (args.length < 3) {
-    console.error("Usage: npx pathway job <discipline> <track> <grade>");
+  // Handle job detail view - requires discipline and grade
+  if (args.length < 2) {
+    console.error("Usage: npx pathway job <discipline> <grade> [--track=<track>]");
     console.error("       npx pathway job --list");
-    console.error("Example: npx pathway job software_engineering platform L4");
+    console.error("Example: npx pathway job software_engineering L4");
+    console.error("Example: npx pathway job software_engineering L4 --track=platform");
     process.exit(1);
   }
 
   const discipline = data.disciplines.find((d) => d.id === args[0]);
-  const track = data.tracks.find((t) => t.id === args[1]);
-  const grade = data.grades.find((g) => g.id === args[2]);
+  const grade = data.grades.find((g) => g.id === args[1]);
+  const track = options.track ? data.tracks.find((t) => t.id === options.track) : null;
 
   if (!discipline) {
     console.error(`Discipline not found: ${args[0]}`);
@@ -94,15 +100,15 @@ export async function runJobCommand({ data, args, options }) {
     process.exit(1);
   }
 
-  if (!track) {
-    console.error(`Track not found: ${args[1]}`);
-    console.error(`Available: ${data.tracks.map((t) => t.id).join(", ")}`);
+  if (!grade) {
+    console.error(`Grade not found: ${args[1]}`);
+    console.error(`Available: ${data.grades.map((g) => g.id).join(", ")}`);
     process.exit(1);
   }
 
-  if (!grade) {
-    console.error(`Grade not found: ${args[2]}`);
-    console.error(`Available: ${data.grades.map((g) => g.id).join(", ")}`);
+  if (options.track && !track) {
+    console.error(`Track not found: ${options.track}`);
+    console.error(`Available: ${data.tracks.map((t) => t.id).join(", ")}`);
     process.exit(1);
   }
 

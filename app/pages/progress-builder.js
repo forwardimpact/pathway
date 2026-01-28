@@ -30,7 +30,9 @@ export function renderCareerProgress() {
           tracks: data.tracks,
         }),
       detailPath: (sel) =>
-        `/progress/${sel.discipline}/${sel.track}/${sel.grade}`,
+        sel.track
+          ? `/progress/${sel.discipline}/${sel.grade}/${sel.track}`
+          : `/progress/${sel.discipline}/${sel.grade}`,
       renderPreview: createProgressPreview,
       labels: {
         grade: "Current Grade",

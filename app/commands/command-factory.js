@@ -157,8 +157,8 @@ function handleDetail({
  * @param {Object} config - Command configuration
  * @param {string} config.commandName - Command name for error messages
  * @param {string[]} config.requiredArgs - Array of required argument names
- * @param {Function} config.findEntities - Function to find entities: (data, args) => entities object
- * @param {Function} config.validateEntities - Function to validate entities: (entities, data) => error string | null
+ * @param {Function} config.findEntities - Function to find entities: (data, args, options) => entities object
+ * @param {Function} config.validateEntities - Function to validate entities: (entities, data, options) => error string | null
  * @param {Function} config.presenter - Function to present data: (entities, data, options) => view
  * @param {Function} config.formatter - Function to format output: (view, options, data) => void
  * @param {string} [config.usageExample] - Optional usage example
@@ -184,7 +184,7 @@ export function createCompositeCommand({
     }
 
     const entities = findEntities(data, args, options);
-    const validationError = validateEntities(entities, data);
+    const validationError = validateEntities(entities, data, options);
 
     if (validationError) {
       console.error(validationError);

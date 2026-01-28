@@ -2,6 +2,11 @@
  * Interview CLI Command
  *
  * Generates and displays interview questions in the terminal.
+ *
+ * Usage:
+ *   npx pathway interview <discipline> <grade>                    # Interview for trackless job
+ *   npx pathway interview <discipline> <grade> --track=<track>    # Interview with track
+ *   npx pathway interview <discipline> <grade> --track=<track> --type=short
  */
 
 import { createCompositeCommand } from "./command-factory.js";
@@ -22,7 +27,7 @@ function formatInterview(view, options) {
 
 export const runInterviewCommand = createCompositeCommand({
   commandName: "interview",
-  requiredArgs: ["discipline_id", "track_id", "grade_id"],
+  requiredArgs: ["discipline_id", "grade_id"],
   findEntities: (data, args, options) => {
     const interviewType = options.type || "full";
 
@@ -34,20 +39,20 @@ export const runInterviewCommand = createCompositeCommand({
 
     return {
       discipline: data.disciplines.find((d) => d.id === args[0]),
-      track: data.tracks.find((t) => t.id === args[1]),
-      grade: data.grades.find((g) => g.id === args[2]),
+      grade: data.grades.find((g) => g.id === args[1]),
+      track: options.track ? data.tracks.find((t) => t.id === options.track) : null,
       interviewType,
     };
   },
-  validateEntities: (entities, _data) => {
+  validateEntities: (entities, _data, options) => {
     if (!entities.discipline) {
       return `Discipline not found: ${entities.discipline}`;
     }
     if (!entities.grade) {
       return `Grade not found: ${entities.grade}`;
     }
-    if (!entities.track) {
-      return `Track not found: ${entities.track}`;
+    if (options.track && !entities.track) {
+      return `Track not found: ${options.track}`;
     }
     return null;
   },
@@ -64,5 +69,5 @@ export const runInterviewCommand = createCompositeCommand({
   formatter: (view, options, data) =>
     formatInterview(view, { ...options, framework: data.framework }),
   usageExample:
-    "npx pathway interview software_engineering platform L4 --type=short",
+    "npx pathway interview software_engineering L4 --track=platform --type=short",
 });

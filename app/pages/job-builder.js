@@ -29,7 +29,10 @@ export function renderJobBuilder() {
           behaviourCount: data.behaviours.length,
           grades: data.grades,
         }),
-      detailPath: (sel) => `/job/${sel.discipline}/${sel.track}/${sel.grade}`,
+      detailPath: (sel) =>
+        sel.track
+          ? `/job/${sel.discipline}/${sel.grade}/${sel.track}`
+          : `/job/${sel.discipline}/${sel.grade}`,
       renderPreview: createStandardPreview,
       helpItems: [
         {
