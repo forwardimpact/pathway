@@ -15,10 +15,18 @@ import { getCapabilityEmoji } from "../model/levels.js";
  * @returns {Object}
  */
 export function disciplineToCardConfig(discipline) {
+  const badges = [];
+  if (discipline.isProfessional) {
+    badges.push(createBadge("Professional", "secondary"));
+  }
+  if (discipline.isManagement) {
+    badges.push(createBadge("Management", "primary"));
+  }
   return {
     title: discipline.name,
     description: discipline.truncatedDescription,
     href: `/discipline/${discipline.id}`,
+    badges,
     meta: [
       createBadge(`${discipline.coreSkillsCount} core`, "primary"),
       createBadge(

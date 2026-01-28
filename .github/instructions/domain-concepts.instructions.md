@@ -91,10 +91,8 @@ transitionChecklists:
 
 ## Track Types
 
-Tracks have two boolean properties that determine responsibility source:
-
-- `isProfessional: true` - IC roles, uses `professionalResponsibilities`
-- `isManagement: true` - Manager roles, uses `managementResponsibilities`
+Tracks are pure modifiers that adjust skill and behaviour expectations. They do
+not define role types—that's determined by the Discipline.
 
 Track modifiers use **capability names** to modify all skills in that
 capability:
@@ -104,6 +102,16 @@ skillModifiers:
   delivery: 1 # +1 to ALL delivery skills
   scale: -1 # -1 to ALL scale skills
 ```
+
+## Discipline Properties
+
+Disciplines have properties that determine the role type and valid tracks:
+
+- `isProfessional: true` - IC roles, uses `professionalResponsibilities`
+- `isManagement: true` - Manager roles, uses `managementResponsibilities`
+- `validTracks: [...]` - Array of track IDs valid for this discipline (empty =
+  trackless only)
+- `minGrade: <grade_id>` - Minimum grade for this discipline (optional)
 
 ## Stages
 
@@ -139,15 +147,16 @@ For example, transitioning from Plan to Code at the Working level gathers all
 ## Job Derivation Formula
 
 ```
-Job = Discipline x Track x Grade
+Job = Discipline × Grade × Track?
+     (track is optional)
 ```
 
 A job's requirements are derived by:
 
 1. Getting base skill levels from Grade (by skill type: primary/secondary/broad)
-2. Applying Track modifiers (+1, 0, -1) to capabilities
+2. Applying Track modifiers (+1, 0, -1) to capabilities (if track provided)
 3. Combining Discipline and Track behaviour modifiers
-4. Selecting responsibilities based on track type (professional/management)
+4. Selecting responsibilities based on discipline type (professional/management)
 
 ## Unified Profile Derivation
 

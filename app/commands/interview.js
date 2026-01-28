@@ -40,7 +40,9 @@ export const runInterviewCommand = createCompositeCommand({
     return {
       discipline: data.disciplines.find((d) => d.id === args[0]),
       grade: data.grades.find((g) => g.id === args[1]),
-      track: options.track ? data.tracks.find((t) => t.id === options.track) : null,
+      track: options.track
+        ? data.tracks.find((t) => t.id === options.track)
+        : null,
       interviewType,
     };
   },

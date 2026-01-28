@@ -150,13 +150,21 @@ function setupRoutes() {
     renderTrackSlide({ render: renderSlide, data: getState().data, params });
   });
 
-  // Jobs
-  router.on("/job/:discipline/:track/:grade", (params) => {
+  // Jobs - new format: discipline/grade/track (track optional)
+  router.on("/job/:discipline/:grade/:track", (params) => {
     renderJobSlide({ render: renderSlide, data: getState().data, params });
   });
 
-  // Interviews
-  router.on("/interview/:discipline/:track/:grade", (params) => {
+  router.on("/job/:discipline/:grade", (params) => {
+    renderJobSlide({
+      render: renderSlide,
+      data: getState().data,
+      params: { ...params, track: null },
+    });
+  });
+
+  // Interviews - new format: discipline/grade/track (track optional)
+  router.on("/interview/:discipline/:grade/:track", (params) => {
     renderInterviewSlide({
       render: renderSlide,
       data: getState().data,
@@ -164,9 +172,25 @@ function setupRoutes() {
     });
   });
 
-  // Progress
-  router.on("/progress/:discipline/:track/:grade", (params) => {
+  router.on("/interview/:discipline/:grade", (params) => {
+    renderInterviewSlide({
+      render: renderSlide,
+      data: getState().data,
+      params: { ...params, track: null },
+    });
+  });
+
+  // Progress - new format: discipline/grade/track (track optional)
+  router.on("/progress/:discipline/:grade/:track", (params) => {
     renderProgressSlide({ render: renderSlide, data: getState().data, params });
+  });
+
+  router.on("/progress/:discipline/:grade", (params) => {
+    renderProgressSlide({
+      render: renderSlide,
+      data: getState().data,
+      params: { ...params, track: null },
+    });
   });
 }
 
@@ -187,20 +211,20 @@ function buildSlideOrder(data) {
     data.disciplines.forEach((d) => order.push(`/discipline/${d.id}`));
   }
 
-  // Tracks
-  if (data.tracks && data.tracks.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/track");
-    order.push("/overview/track");
-    sortTracksByName(data.tracks).forEach((t) => order.push(`/track/${t.id}`));
-  }
-
-  // Grades
+  // Grades (moved before Tracks)
   if (data.grades && data.grades.length > 0) {
     boundaries.push(order.length);
     order.push("/chapter/grade");
     order.push("/overview/grade");
     data.grades.forEach((g) => order.push(`/grade/${g.id}`));
+  }
+
+  // Tracks (moved after Grades)
+  if (data.tracks && data.tracks.length > 0) {
+    boundaries.push(order.length);
+    order.push("/chapter/track");
+    order.push("/overview/track");
+    sortTracksByName(data.tracks).forEach((t) => order.push(`/track/${t.id}`));
   }
 
   // Skills

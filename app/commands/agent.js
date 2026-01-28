@@ -307,7 +307,9 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
 
   if (!disciplineId) {
     console.error(
-      formatError("Usage: npx pathway agent <discipline_id> [--track=<track_id>]"),
+      formatError(
+        "Usage: npx pathway agent <discipline_id> [--track=<track_id>]",
+      ),
     );
     console.error(
       "\nRun 'npx pathway agent --list' to see available combinations.",
@@ -341,7 +343,9 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   const agentDiscipline = agentData.disciplines.find(
     (d) => d.id === disciplineId,
   );
-  const agentTrack = trackId ? agentData.tracks.find((t) => t.id === trackId) : null;
+  const agentTrack = trackId
+    ? agentData.tracks.find((t) => t.id === trackId)
+    : null;
 
   if (!agentDiscipline) {
     console.error(

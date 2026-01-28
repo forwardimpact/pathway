@@ -113,7 +113,9 @@ export async function renderAgentBuilder() {
   // Parse URL params for pre-selection
   // Supports: /agent/discipline, /agent/discipline/track, /agent/discipline/track/stage
   const hash = window.location.hash;
-  const pathMatch = hash.match(/#\/agent\/([^/]+)(?:\/([^/]+))?(?:\/([^/?]+))?/);
+  const pathMatch = hash.match(
+    /#\/agent\/([^/]+)(?:\/([^/]+))?(?:\/([^/?]+))?/,
+  );
   const initialDiscipline = pathMatch ? pathMatch[1] : "";
   const initialTrack = pathMatch && pathMatch[2] ? pathMatch[2] : "";
   const initialStage =

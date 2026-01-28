@@ -119,7 +119,8 @@
     - Use git push to deploy changes
     - Use gh CLI to monitor triggered workflows (gh run list, gh run watch)
     - Do not make code edits; hand off to code stage if fixes are needed
-    - Verify all workflows complete successfully before considering deployment done
+    - Verify all workflows complete successfully before considering deployment
+      done
   entryCriteria:
     - Application runs locally without errors
     - Changes verified against acceptance criteria through manual testing

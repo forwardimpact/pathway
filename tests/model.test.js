@@ -1707,7 +1707,11 @@ describe("Derivation", () => {
         isProfessional: false,
         isManagement: true,
       };
-      const title = generateJobTitle(managementDiscipline, testGrade, testTrack);
+      const title = generateJobTitle(
+        managementDiscipline,
+        testGrade,
+        testTrack,
+      );
       // Management discipline format: "Manager, Track Name"
       assert.strictEqual(title, "Manager, Test Track");
     });

@@ -458,7 +458,14 @@ function validateDriver(driver, index, skillIds, behaviourIds) {
  * @param {Set<string>} gradeIds - Set of valid grade IDs
  * @returns {{errors: Array, warnings: Array}}
  */
-function validateDiscipline(discipline, index, skillIds, behaviourIds, trackIds, gradeIds) {
+function validateDiscipline(
+  discipline,
+  index,
+  skillIds,
+  behaviourIds,
+  trackIds,
+  gradeIds,
+) {
   const errors = [];
   const warnings = [];
   const path = `disciplines[${index}]`;

@@ -29,7 +29,9 @@ export function behaviourListToMicrodata(behaviours) {
 
   const content = items
     .map(
-      (behaviour) => `${openTag("article", { itemtype: "Behaviour", itemid: `#${behaviour.id}` })}
+      (
+        behaviour,
+      ) => `${openTag("article", { itemtype: "Behaviour", itemid: `#${behaviour.id}` })}
 ${prop("h2", "name", behaviour.name)}
 ${prop("p", "description", behaviour.truncatedDescription)}
 </article>`,
@@ -89,10 +91,14 @@ ${dl(maturityPairs)}
 ${openTag("article", { itemtype: "Behaviour", itemid: `#${view.id}` })}
 ${prop("h1", "name", view.name)}
 ${metaTag("id", view.id)}
-${propRaw("div", "human", `${openTag("div", { itemtype: "BehaviourHumanSection" })}
+${propRaw(
+  "div",
+  "human",
+  `${openTag("div", { itemtype: "BehaviourHumanSection" })}
 ${prop("p", "description", view.description)}
 ${sections.join("\n")}
-</div>`)}
+</div>`,
+)}
 </article>
 </main>`;
 

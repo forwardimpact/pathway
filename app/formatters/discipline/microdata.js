@@ -27,7 +27,9 @@ export function disciplineListToMicrodata(disciplines) {
 
   const content = items
     .map(
-      (d) => `${openTag("article", { itemtype: "Discipline", itemid: `#${d.id}` })}
+      (
+        d,
+      ) => `${openTag("article", { itemtype: "Discipline", itemid: `#${d.id}` })}
 ${prop("h2", "specialization", d.name)}
 <p>Core: ${d.coreSkillsCount} | Supporting: ${d.supportingSkillsCount} | Broad: ${d.broadSkillsCount}</p>
 </article>`,

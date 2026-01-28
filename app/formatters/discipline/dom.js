@@ -21,6 +21,23 @@ import {
 import { getConceptEmoji } from "../../model/levels.js";
 import { prepareDisciplineDetail } from "./shared.js";
 import { createJsonLdScript, disciplineToJsonLd } from "../json-ld.js";
+import { createBadge } from "../../components/card.js";
+
+/**
+ * Get type badges for discipline (Management/Professional)
+ * @param {Object} discipline - Raw discipline entity
+ * @returns {HTMLElement[]}
+ */
+function getDisciplineTypeBadges(discipline) {
+  const badges = [];
+  if (discipline.isProfessional) {
+    badges.push(createBadge("Professional", "secondary"));
+  }
+  if (discipline.isManagement) {
+    badges.push(createBadge("Management", "primary"));
+  }
+  return badges;
+}
 
 /**
  * Format discipline detail as DOM elements
@@ -45,6 +62,7 @@ export function disciplineToDOM(
 ) {
   const view = prepareDisciplineDetail(discipline, { skills, behaviours });
   const emoji = getConceptEmoji(framework, "discipline");
+  const typeBadges = getDisciplineTypeBadges(discipline);
   return div(
     { className: "detail-page discipline-detail" },
     // JSON-LD structured data
@@ -55,7 +73,13 @@ export function disciplineToDOM(
       showBackLink
         ? createBackLink("/discipline", "← Back to Disciplines")
         : null,
-      heading1({ className: "page-title" }, `${emoji} `, view.name),
+      div(
+        { className: "page-title-row" },
+        heading1({ className: "page-title" }, `${emoji} `, view.name),
+        typeBadges.length > 0
+          ? div({ className: "page-title-badges" }, ...typeBadges)
+          : null,
+      ),
       p({ className: "page-description" }, view.description),
       showBackLink
         ? div(

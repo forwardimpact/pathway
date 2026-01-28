@@ -314,21 +314,21 @@ function renderJobHandout(data) {
     }),
     ...disciplineSlides,
 
-    // Tracks chapter
-    createChapterCover({
-      emoji: getConceptEmoji(framework, "track"),
-      title: framework.entityDefinitions.track.title,
-      description: framework.entityDefinitions.track.description,
-    }),
-    ...trackSlides,
-
-    // Grades chapter
+    // Grades chapter (moved before Tracks)
     createChapterCover({
       emoji: getConceptEmoji(framework, "grade"),
       title: framework.entityDefinitions.grade.title,
       description: framework.entityDefinitions.grade.description,
     }),
     ...gradeSlides,
+
+    // Tracks chapter (moved after Grades)
+    createChapterCover({
+      emoji: getConceptEmoji(framework, "track"),
+      title: framework.entityDefinitions.track.title,
+      description: framework.entityDefinitions.track.description,
+    }),
+    ...trackSlides,
   );
 
   renderHandout(content);

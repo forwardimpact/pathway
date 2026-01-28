@@ -84,7 +84,8 @@ skills:
             Clarify functional and non-functional requirements.
           activities:
             - Document functional requirements and use cases
-            - Identify non-functional requirements (scale, latency, availability)
+            - Identify non-functional requirements (scale, latency,
+              availability)
             - Document system constraints and integration points
             - Identify stakeholders and their concerns
             - Mark ambiguities with [NEEDS CLARIFICATION]

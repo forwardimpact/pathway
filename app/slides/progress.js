@@ -21,9 +21,11 @@ import { progressToDOM } from "../formatters/index.js";
 export function renderProgressSlide({ render, data, params }) {
   const discipline = data.disciplines.find((d) => d.id === params.discipline);
   const grade = data.grades.find((g) => g.id === params.grade);
-  const track = data.tracks.find((t) => t.id === params.track);
+  const track = params.track
+    ? data.tracks.find((t) => t.id === params.track)
+    : null;
 
-  if (!discipline || !grade || !track) {
+  if (!discipline || !grade) {
     render(
       div(
         { className: "slide-error" },

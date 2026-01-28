@@ -33,7 +33,9 @@ export function skillListToMicrodata(skills, capabilities) {
       const capabilitySkills = groups[capability];
       const skillItems = capabilitySkills
         .map(
-          (skill) => `${openTag("article", { itemtype: "Skill", itemid: `#${skill.id}` })}
+          (
+            skill,
+          ) => `${openTag("article", { itemtype: "Skill", itemid: `#${skill.id}` })}
 ${prop("h3", "name", skill.name)}
 ${prop("p", "description", skill.truncatedDescription)}
 ${metaTag("capability", capability)}
@@ -134,10 +136,14 @@ ${openTag("article", { itemtype: "Skill", itemid: `#${view.id}` })}
 ${prop("h1", "name", view.name)}
 ${metaTag("id", view.id)}
 ${metaTag("capability", view.capability)}
-${propRaw("div", "human", `${openTag("div", { itemtype: "SkillHumanSection" })}
+${propRaw(
+  "div",
+  "human",
+  `${openTag("div", { itemtype: "SkillHumanSection" })}
 ${prop("p", "description", view.description)}
 ${sections.join("\n")}
-</div>`)}
+</div>`,
+)}
 </article>
 </main>`;
 

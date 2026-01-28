@@ -90,14 +90,14 @@ export function renderLanding() {
         href: "/discipline",
       }),
       createStatCard({
-        value: data.tracks.length,
-        label: "Tracks",
-        href: "/track",
-      }),
-      createStatCard({
         value: data.grades.length,
         label: "Grades",
         href: "/grade",
+      }),
+      createStatCard({
+        value: data.tracks.length,
+        label: "Tracks",
+        href: "/track",
       }),
       createStatCard({
         value: data.skills.length,
@@ -141,14 +141,14 @@ export function renderLanding() {
           "/discipline",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "track")} ${framework.entityDefinitions.track.title}`,
-          `${data.tracks.length} ${framework.entityDefinitions.track.title.toLowerCase()} — ${framework.entityDefinitions.track.description.trim().split("\n")[0]}`,
-          "/track",
-        ),
-        createQuickLinkCard(
           `${getConceptEmoji(framework, "grade")} ${framework.entityDefinitions.grade.title}`,
           `${data.grades.length} ${framework.entityDefinitions.grade.title.toLowerCase()} — ${framework.entityDefinitions.grade.description.trim().split("\n")[0]}`,
           "/grade",
+        ),
+        createQuickLinkCard(
+          `${getConceptEmoji(framework, "track")} ${framework.entityDefinitions.track.title}`,
+          `${data.tracks.length} ${framework.entityDefinitions.track.title.toLowerCase()} — ${framework.entityDefinitions.track.description.trim().split("\n")[0]}`,
+          "/track",
         ),
         createQuickLinkCard(
           `${getConceptEmoji(framework, "skill")} ${framework.entityDefinitions.skill.title}`,

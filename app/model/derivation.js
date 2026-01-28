@@ -109,7 +109,11 @@ export function deriveSkillLevel({
 
   // 3. Apply track modifier via capability lookup (if track provided)
   const effectiveTrack = track || { skillModifiers: {} };
-  const modifier = resolveSkillModifier(skillId, effectiveTrack.skillModifiers, skills);
+  const modifier = resolveSkillModifier(
+    skillId,
+    effectiveTrack.skillModifiers,
+    skills,
+  );
 
   // Track-added skills require a positive modifier to be included
   if (!skillType && modifier <= 0) {
@@ -418,7 +422,11 @@ function generateJobId(discipline, grade, track = null) {
  * @param {import('./levels.js').Discipline} params.discipline - The discipline (determines which responsibilities to use)
  * @returns {Array<{capability: string, capabilityName: string, emoji: string, responsibility: string, level: string}>}
  */
-export function deriveResponsibilities({ skillMatrix, capabilities, discipline }) {
+export function deriveResponsibilities({
+  skillMatrix,
+  capabilities,
+  discipline,
+}) {
   if (!capabilities || capabilities.length === 0) {
     return [];
   }

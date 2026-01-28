@@ -184,22 +184,25 @@ npx pathway discipline <discipline_id>
 
 ### Composite Commands
 
-Job, interview, and progress commands take discipline, track, and grade IDs. Use
-`npx pathway <entity> --list` to discover available values.
+Job, interview, and progress commands take discipline, grade, and optionally
+track IDs. Use `npx pathway <entity> --list` to discover available values.
 
 ```sh
 # Job definition
 npx pathway job                                    # Summary
 npx pathway job --list                             # All valid combinations
-npx pathway job <discipline> <track> <grade>       # Detail
+npx pathway job <discipline> <grade>               # Trackless detail
+npx pathway job <discipline> <grade> <track>       # With track
 
 # Interview questions
-npx pathway interview <discipline> <track> <grade>
-npx pathway interview <discipline> <track> <grade> --type=short
+npx pathway interview <discipline> <grade>
+npx pathway interview <discipline> <grade> <track>
+npx pathway interview <discipline> <grade> <track> --type=short
 
 # Career progression
-npx pathway progress <discipline> <track> <grade>
-npx pathway progress <discipline> <track> <from_grade> --compare=<to_grade>
+npx pathway progress <discipline> <grade>
+npx pathway progress <discipline> <grade> <track>
+npx pathway progress <discipline> <from_grade> --compare=<to_grade>
 ```
 
 ### Questions Commands
@@ -246,7 +249,8 @@ npx pathway --validate
 
 # Output as JSON (use actual IDs from your installation)
 npx pathway skill --json
-npx pathway job <discipline> <track> <grade> --json
+npx pathway job <discipline> <grade> --json
+npx pathway job <discipline> <grade> <track> --json
 ```
 
 ## NPM Scripts

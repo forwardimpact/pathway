@@ -42,12 +42,7 @@ export function trackToMarkdown(
   const view = prepareTrackDetail(track, { skills, behaviours, disciplines });
 
   const emoji = framework ? getConceptEmoji(framework, "track") : "🛤️";
-  const lines = [
-    `# ${emoji} ${view.name}`,
-    "",
-    view.description,
-    "",
-  ];
+  const lines = [`# ${emoji} ${view.name}`, "", view.description, ""];
 
   // Skill modifiers - show expanded skills for capabilities
   if (view.skillModifiers.length > 0) {

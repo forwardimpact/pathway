@@ -176,6 +176,15 @@ block-beta
 | supportingSkills | Mid-level         | Supporting capabilities |
 | broadSkills      | Lower level       | General awareness       |
 
+### Discipline Properties
+
+| Property         | Type     | Purpose                                         |
+| ---------------- | -------- | ----------------------------------------------- |
+| `isProfessional` | boolean  | Uses professionalResponsibilities (IC roles)    |
+| `isManagement`   | boolean  | Uses managementResponsibilities (manager roles) |
+| `validTracks`    | string[] | Array of track IDs valid for this discipline    |
+| `minGrade`       | string   | Minimum grade required for this discipline      |
+
 Disciplines also define `behaviourModifiers` that adjust baseline behaviour
 expectations for engineers in that specialty.
 
@@ -184,7 +193,7 @@ expectations for engineers in that specialty.
 ## Tracks
 
 Tracks define work context and modify the base profile through capability-based
-skill adjustments.
+skill adjustments. Tracks are pure modifiers—they do not define role types.
 
 **Example: Platform Track**
 
@@ -196,13 +205,6 @@ skill adjustments.
 | delivery      | -1       | De-emphasize rapid prototyping  |
 
 Tracks also define `behaviourModifiers` (e.g., `systems_thinking: +1`).
-
-### Track Types
-
-| Type                 | Uses                         | Roles                  |
-| -------------------- | ---------------------------- | ---------------------- |
-| `professional: true` | professionalResponsibilities | Individual contributor |
-| `management: true`   | managementResponsibilities   | People management      |
 
 ---
 
@@ -246,12 +248,13 @@ flowchart LR
 ## Job Derivation
 
 The derivation process transforms base definitions into a complete job profile.
+Track is optional—a trackless job uses only discipline and grade.
 
 ```mermaid
 flowchart TD
     subgraph inputs["Inputs"]
         D["Discipline<br>coreSkills<br>supportingSkills<br>behaviourModifiers"]
-        T["Track<br>skillModifiers<br>behaviourModifiers"]
+        T["Track (optional)<br>skillModifiers<br>behaviourModifiers"]
         G["Grade<br>baseSkillLevels<br>baseBehaviourMaturity"]
     end
 
@@ -315,7 +318,7 @@ Clamped to valid range (emerging → exemplifying).
 
 Responsibilities come from capabilities based on the maximum skill level
 achieved in that capability. Uses `professionalResponsibilities` or
-`managementResponsibilities` based on track type.
+`managementResponsibilities` based on discipline type.
 
 ---
 

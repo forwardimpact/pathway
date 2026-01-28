@@ -12,6 +12,8 @@ import {
   button,
   label,
   section,
+  select,
+  option,
 } from "../lib/render.js";
 import { getState } from "../lib/state.js";
 import { createBadge } from "./card.js";
@@ -89,9 +91,53 @@ export function createBuilder({
     buttonText,
   );
 
+  // Track select element - created once, options updated when discipline changes
+  const trackSelectEl = select(
+    { className: "form-select", id: "track-select" },
+    option({ value: "" }, "(none) - Generalist"),
+  );
+  // Initially disabled until discipline is selected
+  trackSelectEl.disabled = true;
+
+  /**
+   * Get available tracks for a discipline
+   * @param {Object|null} disciplineObj
+   * @returns {Array}
+   */
+  function getAvailableTracks(disciplineObj) {
+    if (!disciplineObj) return [];
+    // validTracks is required - empty array means trackless only
+    if (!disciplineObj.validTracks || disciplineObj.validTracks.length === 0) {
+      return [];
+    }
+    return data.tracks.filter((t) => disciplineObj.validTracks.includes(t.id));
+  }
+
+  /**
+   * Update track select options based on selected discipline
+   * @param {string} disciplineId
+   */
+  function updateTrackOptions(disciplineId) {
+    const disciplineObj = data.disciplines.find((d) => d.id === disciplineId);
+    const availableTracks = getAvailableTracks(disciplineObj);
+
+    // Clear existing options except placeholder
+    trackSelectEl.innerHTML = "";
+    trackSelectEl.appendChild(option({ value: "" }, "(none) - Generalist"));
+
+    // Add available track options
+    availableTracks.forEach((t) => {
+      trackSelectEl.appendChild(option({ value: t.id }, t.name));
+    });
+
+    // Disable if no tracks available
+    trackSelectEl.disabled = availableTracks.length === 0;
+  }
+
   // Subscribe to selection changes - all updates happen here
   selection.subscribe(({ discipline, track, grade }) => {
-    if (!discipline || !track || !grade) {
+    // Track is now optional - only discipline and grade are required
+    if (!discipline || !grade) {
       previewContainer.innerHTML = "";
       previewContainer.appendChild(
         p({ className: "text-muted" }, emptyPreviewText),
@@ -101,10 +147,10 @@ export function createBuilder({
     }
 
     const disciplineObj = data.disciplines.find((d) => d.id === discipline);
-    const trackObj = data.tracks.find((t) => t.id === track);
+    const trackObj = track ? data.tracks.find((t) => t.id === track) : null;
     const gradeObj = data.grades.find((g) => g.id === grade);
 
-    if (!disciplineObj || !trackObj || !gradeObj) {
+    if (!disciplineObj || !gradeObj) {
       previewContainer.innerHTML = "";
       previewContainer.appendChild(
         p({ className: "text-muted" }, "Invalid selection. Please try again."),
@@ -146,7 +192,7 @@ export function createBuilder({
       h2({}, formTitle),
       div(
         { className: "auto-grid-sm gap-lg" },
-        // Discipline selector
+        // Discipline selector (first)
         div(
           { className: "form-group" },
           label({ className: "form-label" }, labels.discipline || "Discipline"),
@@ -156,27 +202,19 @@ export function createBuilder({
             initialValue: selection.get().discipline,
             placeholder: "Select a discipline...",
             onChange: (value) => {
-              selection.update((prev) => ({ ...prev, discipline: value }));
+              // Update track options when discipline changes
+              updateTrackOptions(value);
+              // Reset track selection when discipline changes
+              selection.update((prev) => ({
+                ...prev,
+                discipline: value,
+                track: "",
+              }));
             },
             getDisplayName: (d) => d.specialization || d.name,
           }),
         ),
-        // Track selector
-        div(
-          { className: "form-group" },
-          label({ className: "form-label" }, labels.track || "Track"),
-          createSelectWithValue({
-            id: "track-select",
-            items: data.tracks,
-            initialValue: selection.get().track,
-            placeholder: "Select a track...",
-            onChange: (value) => {
-              selection.update((prev) => ({ ...prev, track: value }));
-            },
-            getDisplayName: (t) => t.name,
-          }),
-        ),
-        // Grade selector
+        // Grade selector (second)
         div(
           { className: "form-group" },
           label({ className: "form-label" }, labels.grade || "Grade"),
@@ -190,6 +228,31 @@ export function createBuilder({
             },
             getDisplayName: (g) => g.id,
           }),
+        ),
+        // Track selector (third, optional)
+        div(
+          { className: "form-group" },
+          label(
+            { className: "form-label" },
+            labels.track || "Track (optional)",
+          ),
+          (() => {
+            // Wire up track select change handler
+            trackSelectEl.addEventListener("change", (e) => {
+              selection.update((prev) => ({ ...prev, track: e.target.value }));
+            });
+            // Initialize track options if discipline is pre-selected
+            const initialDiscipline = selection.get().discipline;
+            if (initialDiscipline) {
+              updateTrackOptions(initialDiscipline);
+              // Set initial track value if provided
+              const initialTrack = selection.get().track;
+              if (initialTrack) {
+                trackSelectEl.value = initialTrack;
+              }
+            }
+            return trackSelectEl;
+          })(),
         ),
       ),
       previewContainer,
@@ -289,6 +352,15 @@ export function createProgressPreview(preview, selection) {
 
   const { discipline, grade, track } = selection;
 
+  // Build badges array - track is optional
+  const badges = [
+    createBadge(discipline.specialization, "discipline"),
+    createBadge(grade.id, "grade"),
+  ];
+  if (track) {
+    badges.push(createBadge(track.name, "track"));
+  }
+
   return div(
     { className: "job-preview-content" },
     div(
@@ -296,12 +368,7 @@ export function createProgressPreview(preview, selection) {
       div({ className: "preview-label" }, "Current Role"),
       div({ className: "preview-title" }, preview.title),
     ),
-    div(
-      { className: "preview-badges" },
-      createBadge(discipline.specialization, "discipline"),
-      createBadge(grade.id, "grade"),
-      createBadge(track.name, "track"),
-    ),
+    div({ className: "preview-badges" }, ...badges),
     div(
       { className: "preview-section", style: "margin-top: 1rem" },
       div({ className: "preview-label" }, "Progression Paths Available"),

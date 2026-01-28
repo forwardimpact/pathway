@@ -83,16 +83,22 @@ export async function runJobCommand({ data, args, options }) {
 
   // Handle job detail view - requires discipline and grade
   if (args.length < 2) {
-    console.error("Usage: npx pathway job <discipline> <grade> [--track=<track>]");
+    console.error(
+      "Usage: npx pathway job <discipline> <grade> [--track=<track>]",
+    );
     console.error("       npx pathway job --list");
     console.error("Example: npx pathway job software_engineering L4");
-    console.error("Example: npx pathway job software_engineering L4 --track=platform");
+    console.error(
+      "Example: npx pathway job software_engineering L4 --track=platform",
+    );
     process.exit(1);
   }
 
   const discipline = data.disciplines.find((d) => d.id === args[0]);
   const grade = data.grades.find((g) => g.id === args[1]);
-  const track = options.track ? data.tracks.find((t) => t.id === options.track) : null;
+  const track = options.track
+    ? data.tracks.find((t) => t.id === options.track)
+    : null;
 
   if (!discipline) {
     console.error(`Discipline not found: ${args[0]}`);

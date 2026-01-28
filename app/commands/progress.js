@@ -30,7 +30,9 @@ export const runProgressCommand = createCompositeCommand({
   findEntities: (data, args, options) => {
     const discipline = data.disciplines.find((d) => d.id === args[0]);
     const grade = data.grades.find((g) => g.id === args[1]);
-    const track = options.track ? data.tracks.find((t) => t.id === options.track) : null;
+    const track = options.track
+      ? data.tracks.find((t) => t.id === options.track)
+      : null;
 
     let targetGrade;
     if (options.compare) {
