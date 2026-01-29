@@ -2,13 +2,39 @@
  * Disciplines pages
  */
 
-import { render, div, h1, p } from "../lib/render.js";
+import { render, div, h1, h2, p } from "../lib/render.js";
 import { getState } from "../lib/state.js";
-import { createCardList } from "../components/list.js";
+import { createGroupedList } from "../components/list.js";
+import { createBadge } from "../components/card.js";
 import { renderNotFound } from "../components/error-page.js";
 import { prepareDisciplinesList } from "../formatters/discipline/shared.js";
 import { disciplineToDOM } from "../formatters/discipline/dom.js";
 import { disciplineToCardConfig } from "../lib/card-mappers.js";
+
+/**
+ * Format discipline group name for display
+ * @param {string} groupName - Group name (professional/management)
+ * @returns {string}
+ */
+function formatDisciplineGroupName(groupName) {
+  if (groupName === "professional") return "Professional";
+  if (groupName === "management") return "Management";
+  return groupName.charAt(0).toUpperCase() + groupName.slice(1);
+}
+
+/**
+ * Render discipline group header
+ * @param {string} groupName - Group name
+ * @param {number} count - Number of items in group
+ * @returns {HTMLElement}
+ */
+function renderDisciplineGroupHeader(groupName, count) {
+  return div(
+    { className: "capability-header" },
+    h2({ className: "capability-title" }, formatDisciplineGroupName(groupName)),
+    createBadge(`${count}`, "default"),
+  );
+}
 
 /**
  * Render disciplines list page
@@ -17,8 +43,8 @@ export function renderDisciplinesList() {
   const { data } = getState();
   const { framework } = data;
 
-  // Transform data for list view
-  const { items } = prepareDisciplinesList(data.disciplines);
+  // Transform data for list view (grouped by professional/management)
+  const { groups } = prepareDisciplinesList(data.disciplines);
 
   const page = div(
     { className: "disciplines-page" },
@@ -35,8 +61,12 @@ export function renderDisciplinesList() {
       ),
     ),
 
-    // Disciplines list
-    createCardList(items, disciplineToCardConfig, "No disciplines found."),
+    // Disciplines list (grouped by type)
+    createGroupedList(
+      groups,
+      disciplineToCardConfig,
+      renderDisciplineGroupHeader,
+    ),
   );
 
   render(page);

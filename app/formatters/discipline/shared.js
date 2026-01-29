@@ -35,16 +35,18 @@ export function getDisciplineDisplayName(discipline) {
  * @property {number} coreSkillsCount
  * @property {number} supportingSkillsCount
  * @property {number} broadSkillsCount
+ * @property {boolean} isProfessional
+ * @property {boolean} isManagement
  */
 
 /**
- * Transform disciplines for list view
- * @param {Array} disciplines - Raw discipline entities
- * @param {number} [descriptionLimit=120] - Maximum description length
- * @returns {{ items: DisciplineListItem[] }}
+ * Transform a single discipline to list item format
+ * @param {Object} discipline - Raw discipline entity
+ * @param {number} descriptionLimit - Maximum description length
+ * @returns {DisciplineListItem}
  */
-export function prepareDisciplinesList(disciplines, descriptionLimit = 120) {
-  const items = disciplines.map((discipline) => ({
+function disciplineToListItem(discipline, descriptionLimit) {
+  return {
     id: discipline.id,
     name: getDisciplineDisplayName(discipline),
     description: discipline.description,
@@ -52,9 +54,48 @@ export function prepareDisciplinesList(disciplines, descriptionLimit = 120) {
     coreSkillsCount: discipline.coreSkills?.length || 0,
     supportingSkillsCount: discipline.supportingSkills?.length || 0,
     broadSkillsCount: discipline.broadSkills?.length || 0,
-  }));
+    isProfessional: discipline.isProfessional || false,
+    isManagement: discipline.isManagement || false,
+  };
+}
 
-  return { items };
+/**
+ * Transform disciplines for list view, grouped by type (professional/management)
+ * @param {Array} disciplines - Raw discipline entities
+ * @param {number} [descriptionLimit=120] - Maximum description length
+ * @returns {{ items: DisciplineListItem[], groups: Object<string, DisciplineListItem[]>, groupOrder: string[] }}
+ */
+export function prepareDisciplinesList(disciplines, descriptionLimit = 120) {
+  const professional = [];
+  const management = [];
+
+  for (const discipline of disciplines) {
+    const item = disciplineToListItem(discipline, descriptionLimit);
+    if (discipline.isManagement) {
+      management.push(item);
+    } else {
+      // Default to professional if not explicitly management
+      professional.push(item);
+    }
+  }
+
+  // Groups in display order: professional first, then management
+  const groups = {};
+  const groupOrder = [];
+
+  if (professional.length > 0) {
+    groups.professional = professional;
+    groupOrder.push("professional");
+  }
+  if (management.length > 0) {
+    groups.management = management;
+    groupOrder.push("management");
+  }
+
+  // items maintains backward compatibility (professional first, then management)
+  const items = [...professional, ...management];
+
+  return { items, groups, groupOrder };
 }
 
 /**

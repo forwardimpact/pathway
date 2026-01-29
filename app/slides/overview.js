@@ -4,8 +4,9 @@
  * Displays overview slides for each chapter with cards for all entities.
  */
 
-import { div, h1, p, span } from "../lib/render.js";
-import { createCardList } from "../components/list.js";
+import { div, h1, h2, p, span } from "../lib/render.js";
+import { createCardList, createGroupedList } from "../components/list.js";
+import { createBadge } from "../components/card.js";
 import {
   disciplineToCardConfig,
   skillToCardConfig,
@@ -22,6 +23,31 @@ import { prepareDriversList } from "../formatters/driver/shared.js";
 import { prepareGradesList } from "../formatters/grade/shared.js";
 import { prepareTracksList } from "../formatters/track/shared.js";
 import { generateAllJobs } from "../model/derivation.js";
+
+/**
+ * Format discipline group name for display
+ * @param {string} groupName - Group name (professional/management)
+ * @returns {string}
+ */
+function formatDisciplineGroupName(groupName) {
+  if (groupName === "professional") return "Professional";
+  if (groupName === "management") return "Management";
+  return groupName.charAt(0).toUpperCase() + groupName.slice(1);
+}
+
+/**
+ * Render discipline group header
+ * @param {string} groupName - Group name
+ * @param {number} count - Number of items in group
+ * @returns {HTMLElement}
+ */
+function renderDisciplineGroupHeader(groupName, count) {
+  return div(
+    { className: "capability-header" },
+    h2({ className: "capability-title" }, formatDisciplineGroupName(groupName)),
+    createBadge(`${count}`, "default"),
+  );
+}
 
 /**
  * Render overview slide
@@ -62,8 +88,9 @@ export function renderOverviewSlide({ render, data, params }) {
       title: framework.entityDefinitions.discipline.title,
       emoji: framework.entityDefinitions.discipline.emoji,
       description: framework.entityDefinitions.discipline.description,
-      entities: prepareDisciplinesList(data.disciplines).items,
+      groups: prepareDisciplinesList(data.disciplines).groups,
       mapper: disciplineToCardConfig,
+      isGrouped: true,
     },
     grade: {
       title: framework.entityDefinitions.grade.title,
@@ -108,6 +135,15 @@ export function renderOverviewSlide({ render, data, params }) {
     return;
   }
 
+  // Render content based on whether it's grouped or flat
+  const contentElement = config.isGrouped
+    ? createGroupedList(
+        config.groups,
+        config.mapper,
+        renderDisciplineGroupHeader,
+      )
+    : createCardList(config.entities, config.mapper, "No items found.");
+
   const slide = div(
     { className: "slide overview-slide" },
     div(
@@ -119,7 +155,7 @@ export function renderOverviewSlide({ render, data, params }) {
       ),
       p({ className: "overview-description" }, config.description.trim()),
     ),
-    createCardList(config.entities, config.mapper, "No items found."),
+    contentElement,
   );
 
   render(slide);

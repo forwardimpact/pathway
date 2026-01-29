@@ -272,13 +272,27 @@ function renderBehaviourHandout(data) {
 }
 
 /**
+ * Sort disciplines by type (professional first, then management)
+ * @param {Array} disciplines - Raw discipline entities
+ * @returns {Array} - Sorted disciplines
+ */
+function sortDisciplinesByType(disciplines) {
+  const professional = disciplines.filter((d) => !d.isManagement);
+  const management = disciplines.filter((d) => d.isManagement);
+  return [...professional, ...management];
+}
+
+/**
  * Render all job component slides (disciplines, grades, tracks)
  * @param {Object} data
  */
 function renderJobHandout(data) {
   const { framework } = data;
 
-  const disciplineSlides = data.disciplines.map((discipline) => {
+  // Sort disciplines by type: professional first, then management
+  const sortedDisciplines = sortDisciplinesByType(data.disciplines);
+
+  const disciplineSlides = sortedDisciplines.map((discipline) => {
     return disciplineToDOM(discipline, {
       skills: data.skills,
       behaviours: data.behaviours,
