@@ -1,6 +1,20 @@
 {
-  "name": "Engineering Pathway",
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:bookworm",
+  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "features": {
+    "ghcr.io/devcontainers/features/github-cli:1": {}
+  },
   "postCreateCommand": "npm install",
-  "forwardPorts": [3000]
+  "forwardPorts": [3000],
+  "customizations": {
+    "vscode": {
+      "settings": {
+        "chat.agent.enabled": true,
+        "chat.agent.maxRequests": 999,
+        "chat.edits2.enabled": true,
+        "chat.extensionUnification.enabled": true,
+        "chat.customAgentInSubagent.enabled": true,
+        "chat.useAgentSkills": true
+      }
+    }
+  }
 }

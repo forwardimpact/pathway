@@ -1,5 +1,11 @@
 {
   "files.associations": {
     "*.template.md": "mustache"
-  }
+  },
+  "chat.agent.enabled": true,
+  "chat.agent.maxRequests": 999,
+  "chat.edits2.enabled": true,
+  "chat.extensionUnification.enabled": true,
+  "chat.customAgentInSubagent.enabled": true,
+  "chat.useAgentSkills": true
 }
