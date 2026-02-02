@@ -128,16 +128,16 @@ Agent profiles are generated from discipline × track × stage combinations. Use
 
 ```sh
 # Generate default agent
-npx pathway agent <discipline> <track> --output=./agents
+npx pathway agent <discipline> --track=<track> --output=./agents
 
 # Generate stage-specific agent
-npx pathway agent <discipline> <track> --stage=plan --output=./agents
+npx pathway agent <discipline> --track=<track> --stage=plan --output=./agents
 
 # Generate all stage variants
-npx pathway agent <discipline> <track> --all-stages --output=./agents
+npx pathway agent <discipline> --track=<track> --all-stages --output=./agents
 
-# Preview without writing files
-npx pathway agent <discipline> <track> --stage=plan --preview
+# Preview without writing files (outputs to console)
+npx pathway agent <discipline> --track=<track> --stage=plan
 
 # List available combinations
 npx pathway agent --list
@@ -162,6 +162,15 @@ The CLI follows consistent patterns across all commands:
 | Detail   | `npx pathway <cmd> <id>`   | Full entity details                 |
 | Validate | `npx pathway --validate`   | Run all data validation checks      |
 
+### Getting Started
+
+```sh
+npx pathway init                       # Create ./data/ with example data
+npx pathway serve                      # Serve web app at http://localhost:3000
+npx pathway serve --port=8080          # Custom port
+npx pathway site --output=./site       # Generate static site
+```
+
 ### Entity Commands
 
 ```sh
@@ -172,6 +181,7 @@ npx pathway discipline
 npx pathway grade
 npx pathway track
 npx pathway driver
+npx pathway stage
 
 # List IDs for piping (discover available entities)
 npx pathway skill --list
@@ -184,25 +194,25 @@ npx pathway discipline <discipline_id>
 
 ### Composite Commands
 
-Job, interview, and progress commands take discipline, grade, and optionally
-track IDs. Use `npx pathway <entity> --list` to discover available values.
+Job, interview, and progress commands take discipline and grade as positional
+arguments. Track is optional via `--track=<track>`. Use
+`npx pathway <entity> --list` to discover available values.
 
 ```sh
 # Job definition
 npx pathway job                                    # Summary
 npx pathway job --list                             # All valid combinations
-npx pathway job <discipline> <grade>               # Trackless detail
-npx pathway job <discipline> <grade> <track>       # With track
+npx pathway job <discipline> <grade>               # Full specification (trackless)
+npx pathway job <discipline> <grade> --track=<track>  # With track
+npx pathway job <discipline> <grade> --track=<track> --checklist=code
 
 # Interview questions
 npx pathway interview <discipline> <grade>
-npx pathway interview <discipline> <grade> <track>
-npx pathway interview <discipline> <grade> <track> --type=short
+npx pathway interview <discipline> <grade> --track=<track> --type=short
 
 # Career progression
 npx pathway progress <discipline> <grade>
-npx pathway progress <discipline> <grade> <track>
-npx pathway progress <discipline> <from_grade> --compare=<to_grade>
+npx pathway progress <discipline> <from_grade> --track=<track> --compare=<to_grade>
 ```
 
 ### Questions Commands
@@ -215,6 +225,8 @@ npx pathway questions
 npx pathway questions --level=practitioner
 npx pathway questions --maturity=role_modeling
 npx pathway questions --skill=<skill_id>        # Use actual skill ID
+npx pathway questions --behaviour=<behaviour_id>
+npx pathway questions --capability=<capability>
 npx pathway questions --stats
 
 # Export
@@ -224,6 +236,8 @@ npx pathway questions --format=yaml > questions.yaml
 
 ### Agent Commands
 
+Agent commands use `--track` as an option (not positional).
+
 ```sh
 # Summary
 npx pathway agent
@@ -232,13 +246,13 @@ npx pathway agent
 npx pathway agent --list
 
 # Generate files (use actual discipline and track IDs)
-npx pathway agent <discipline> <track>
-npx pathway agent <discipline> <track> --output=./agents
-npx pathway agent <discipline> <track> --preview
+npx pathway agent <discipline>
+npx pathway agent <discipline> --track=<track>
+npx pathway agent <discipline> --track=<track> --output=./agents
 
 # Stage variants (plan, code, review)
-npx pathway agent <discipline> <track> --stage=plan
-npx pathway agent <discipline> <track> --all-stages
+npx pathway agent <discipline> --track=<track> --stage=plan
+npx pathway agent <discipline> --track=<track> --all-stages
 ```
 
 ### Validation
@@ -250,7 +264,7 @@ npx pathway --validate
 # Output as JSON (use actual IDs from your installation)
 npx pathway skill --json
 npx pathway job <discipline> <grade> --json
-npx pathway job <discipline> <grade> <track> --json
+npx pathway job <discipline> <grade> --track=<track> --json
 ```
 
 ## NPM Scripts

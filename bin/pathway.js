@@ -15,9 +15,9 @@
  *   grade [<id>]                Show grades
  *   track [<id>]                Show tracks
  *   driver [<id>]               Show drivers
- *   job [<discipline> <track> <grade>]  Generate job definition
- *   interview <discipline> <track> <grade> [--type=TYPE]  Generate interview
- *   progress <discipline> <track> <grade> [--compare=GRADE]  Career progression
+ *   job [<discipline> <grade>] [--track=TRACK]  Generate job definition
+ *   interview <discipline> <grade> [--track=TRACK] [--type=TYPE]  Generate interview
+ *   progress <discipline> <grade> [--track=TRACK] [--compare=GRADE]  Career progression
  *   questions [options]         Browse interview questions
  *   agent [<discipline> <track>] [--output=PATH]  Generate AI agent
  *
@@ -95,10 +95,10 @@ Entity Commands (summary by default, --list for IDs, <id> for detail):
   stage [<id>]                        Browse lifecycle stages
 
 Composite Commands:
-  job [<discipline> <track> <grade>]  Generate job definition
-  interview <discipline> <track> <grade> [--type=TYPE]
+  job [<discipline> <grade>] [--track=TRACK]  Generate job definition
+  interview <discipline> <grade> [--track=TRACK] [--type=TYPE]
                                       Generate interview questions
-  progress <discipline> <track> <grade> [--compare=GRADE]
+  progress <discipline> <grade> [--track=TRACK] [--compare=GRADE]
                                       Show career progression
   questions [filters]                 Browse interview questions
   agent <discipline> [--track=<track>] Generate AI coding agent
@@ -133,8 +133,9 @@ Examples:
 
   npx pathway job                      # Summary of valid combinations
   npx pathway job --list               # All combinations for piping
-  npx pathway job software_engineering platform L4
-  npx pathway job se platform L3 --checklist=code_to_review
+  npx pathway job software_engineering L4
+  npx pathway job software_engineering L4 --track=platform
+  npx pathway job se L3 --track=platform --checklist=code
 
   npx pathway questions --level=practitioner
   npx pathway questions --stats
