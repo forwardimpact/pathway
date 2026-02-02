@@ -43,7 +43,7 @@
         },
         "qualificationSummary": {
           "type": "string",
-          "description": "Summary of qualifications expected at this grade"
+          "description": "Summary of qualifications expected at this grade. May use {typicalExperienceRange} placeholder."
         },
         "baseSkillLevels": {
           "type": "object",

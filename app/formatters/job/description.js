@@ -138,7 +138,11 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
       maturityDescription: b.maturityDescription || "",
     })),
     skillLevels,
-    qualificationSummary: grade.qualificationSummary || null,
+    qualificationSummary:
+      (grade.qualificationSummary || "").replace(
+        /\{typicalExperienceRange\}/g,
+        grade.typicalExperienceRange || "",
+      ) || null,
   };
 }
 

@@ -28,9 +28,9 @@
   managementTitle: Manager
   typicalExperienceRange: "2-5"
   ordinalRank: 2
-  qualificationSummary:
-    2-5 years of relevant experience. Demonstrated ability to complete tasks
-    independently and contribute effectively to team projects.
+  qualificationSummary: >
+    {typicalExperienceRange} years of relevant experience. Demonstrated ability
+    to complete tasks independently and contribute effectively to team projects.
   baseSkillLevels:
     primary: foundational
     secondary: foundational
@@ -50,9 +50,9 @@
   managementTitle: Senior Manager
   typicalExperienceRange: "5-8"
   ordinalRank: 3
-  qualificationSummary:
-    5-8 years of relevant experience. Proven track record of leading technical
-    initiatives and mentoring team members.
+  qualificationSummary: >
+    {typicalExperienceRange} years of relevant experience. Proven track record
+    of leading technical initiatives and mentoring team members.
   baseSkillLevels:
     primary: practitioner
     secondary: working
@@ -71,9 +71,9 @@
   managementTitle: Director
   typicalExperienceRange: "8-12"
   ordinalRank: 4
-  qualificationSummary:
-    8-12 years of relevant experience. Extensive experience leading complex
-    technical projects with multi-team impact.
+  qualificationSummary: >
+    {typicalExperienceRange} years of relevant experience. Extensive experience
+    leading complex technical projects with multi-team impact.
   baseSkillLevels:
     primary: expert
     secondary: practitioner
@@ -94,9 +94,10 @@
   managementTitle: VP of Engineering
   typicalExperienceRange: "12+"
   ordinalRank: 5
-  qualificationSummary:
-    12+ years of relevant experience. Deep technical expertise with a proven
-    track record of organization-wide technical leadership.
+  qualificationSummary: >
+    {typicalExperienceRange} years of relevant experience. Deep technical
+    expertise with a proven track record of organization-wide technical
+    leadership.
   baseSkillLevels:
     primary: expert
     secondary: expert
