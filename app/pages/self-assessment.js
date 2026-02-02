@@ -82,7 +82,7 @@ function getWizardSteps(data) {
     if (skills && skills.length > 0) {
       steps.push({
         id: `skills-${capability}`,
-        name: formatCapability(capability),
+        name: formatCapability(capability, data.capabilities),
         icon: getCapabilityEmoji(data.capabilities, capability),
         type: "skills",
         capability: capability,
@@ -113,11 +113,13 @@ function getWizardSteps(data) {
 
 /**
  * Format capability name for display
- * @param {string} capability
+ * @param {string} capabilityId
+ * @param {Array} capabilities
  * @returns {string}
  */
-function formatCapability(capability) {
-  return capability.charAt(0).toUpperCase() + capability.slice(1);
+function formatCapability(capabilityId, capabilities) {
+  const capability = capabilities.find((c) => c.id === capabilityId);
+  return capability?.name || capabilityId;
 }
 
 /**
@@ -412,7 +414,7 @@ function renderSkillsStep(step, data) {
       h2(
         {},
         span({ className: "step-header-icon" }, step.icon),
-        ` ${formatCapability(capability)} Skills`,
+        ` ${formatCapability(capability, data.capabilities)} Skills`,
       ),
       span(
         { className: "step-progress" },

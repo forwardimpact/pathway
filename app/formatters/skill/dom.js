@@ -19,7 +19,7 @@ import {
 import { createBackLink } from "../../components/nav.js";
 import { createLevelCell } from "../../components/detail.js";
 import { SKILL_LEVEL_ORDER } from "../../model/levels.js";
-import { prepareSkillDetail, formatCapability } from "./shared.js";
+import { prepareSkillDetail } from "./shared.js";
 import { createJsonLdScript, skillToJsonLd } from "../json-ld.js";
 
 /**
@@ -61,7 +61,7 @@ export function skillToDOM(
         { className: "page-meta" },
         span(
           { className: "badge badge-default" },
-          formatCapability(view.capability),
+          `${view.capabilityEmoji} ${view.capability.toUpperCase()}`,
         ),
         view.isHumanOnly
           ? span(

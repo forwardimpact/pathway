@@ -89,25 +89,13 @@ export function renderSkillDetail(params) {
 
 /**
  * Format capability for display
- * @param {string} capability
+ * @param {string} capabilityId
  * @param {Array} capabilities
  * @returns {string}
  */
-function formatCapability(capability, capabilities) {
-  const capabilityLabels = {
-    delivery: "Delivery",
-    scale: "Scale",
-    reliability: "Reliability",
-    data: "Data",
-    ai: "AI",
-    process: "Process",
-    business: "Business",
-    people: "People",
-    documentation: "Documentation",
-  };
-  const label =
-    capabilityLabels[capability] ||
-    capability.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
-  const emoji = getCapabilityEmoji(capabilities, capability);
+function formatCapability(capabilityId, capabilities) {
+  const capability = capabilities.find((c) => c.id === capabilityId);
+  const label = capability?.name || capabilityId;
+  const emoji = getCapabilityEmoji(capabilities, capabilityId);
   return `${emoji} ${label}`;
 }

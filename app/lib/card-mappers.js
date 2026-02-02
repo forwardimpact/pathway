@@ -155,24 +155,12 @@ export function jobToCardConfig(job) {
 }
 
 /**
- * Format capability for display
- * @param {string} capability
+ * Format capability for badge display (short, tag-like)
+ * @param {string} capabilityId
  * @param {Array} capabilities
  * @returns {string}
  */
-function formatCapability(capability, capabilities) {
-  const capabilityLabels = {
-    delivery: "Delivery",
-    scale: "Scale",
-    reliability: "Reliability",
-    data: "Data",
-    ai: "AI",
-    process: "Process",
-    business: "Business",
-    people: "People",
-    documentation: "Documentation",
-  };
-  const label = capabilityLabels[capability] || formatLevel(capability);
-  const emoji = getCapabilityEmoji(capabilities, capability);
-  return `${emoji} ${label}`;
+function formatCapability(capabilityId, capabilities) {
+  const emoji = getCapabilityEmoji(capabilities, capabilityId);
+  return `${emoji} ${capabilityId.toUpperCase()}`;
 }

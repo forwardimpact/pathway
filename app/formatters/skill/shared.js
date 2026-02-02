@@ -13,12 +13,12 @@ import { truncate } from "../shared.js";
 
 /**
  * Format capability name for display
- * @param {string} capability
+ * @param {string} capabilityName - The capability name to display
  * @returns {string}
  */
-export function formatCapability(capability) {
-  if (!capability) return "";
-  return capability.charAt(0).toUpperCase() + capability.slice(1);
+export function formatCapability(capabilityName) {
+  if (!capabilityName) return "";
+  return capabilityName;
 }
 
 /**
@@ -66,6 +66,7 @@ export function prepareSkillsList(
  * @property {string} name
  * @property {string} description
  * @property {string} capability
+ * @property {string} capabilityName
  * @property {boolean} isHumanOnly
  * @property {string} capabilityEmoji
  * @property {Object<string, string>} levelDescriptions
@@ -110,11 +111,14 @@ export function prepareSkillDetail(
     .filter((d) => d.contributingSkills?.includes(skill.id))
     .map((d) => ({ id: d.id, name: d.name }));
 
+  const capabilityEntity = capabilities.find((c) => c.id === skill.capability);
+
   return {
     id: skill.id,
     name: skill.name,
     description: skill.description,
     capability: skill.capability,
+    capabilityName: capabilityEntity?.name || skill.capability,
     isHumanOnly: skill.isHumanOnly || false,
     capabilityEmoji: getCapabilityEmoji(capabilities, skill.capability),
     levelDescriptions: skill.levelDescriptions,

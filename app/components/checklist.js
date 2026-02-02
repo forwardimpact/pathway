@@ -43,7 +43,7 @@ export function createChecklist(checklist, options = {}) {
 function createChecklistGroup(group, options) {
   const { interactive, capabilities } = options;
   const emoji = getCapabilityEmoji(capabilities, group.capability);
-  const capabilityName = formatCapabilityName(group.capability);
+  const capabilityName = formatCapabilityName(group.capability, capabilities);
 
   return div(
     { className: "checklist-group" },
@@ -90,11 +90,13 @@ function createInteractiveCheckbox() {
 
 /**
  * Format capability name for display
- * @param {string} capability - Capability ID
+ * @param {string} capabilityId - Capability ID
+ * @param {Array} capabilities - Capabilities array
  * @returns {string}
  */
-function formatCapabilityName(capability) {
-  return capability.replace(/_/g, " ").replace(/\b\w/g, (c) => c.toUpperCase());
+function formatCapabilityName(capabilityId, capabilities) {
+  const capability = capabilities.find((c) => c.id === capabilityId);
+  return capability?.name || capabilityId;
 }
 
 /**
