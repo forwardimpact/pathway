@@ -118,6 +118,8 @@ export const select = (attrs, ...children) =>
   createElement("select", attrs, ...children);
 export const option = (attrs, ...children) =>
   createElement("option", attrs, ...children);
+export const optgroup = (attrs, ...children) =>
+  createElement("optgroup", attrs, ...children);
 export const label = (attrs, ...children) =>
   createElement("label", attrs, ...children);
 export const form = (attrs, ...children) =>

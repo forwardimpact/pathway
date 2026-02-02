@@ -26,7 +26,10 @@ import {
   deriveAgentSkills,
   deriveReferenceGrade,
 } from "../model/agent.js";
-import { createSelectWithValue } from "../lib/form-controls.js";
+import {
+  createSelectWithValue,
+  createDisciplineSelect,
+} from "../lib/form-controls.js";
 import { createReactive } from "../lib/reactive.js";
 import { getStageEmoji } from "../formatters/stage/shared.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
@@ -242,9 +245,9 @@ export async function renderAgentBuilder() {
           { className: "form-group" },
           label({ className: "form-label" }, "Discipline"),
           availableDisciplines.length > 0
-            ? createSelectWithValue({
+            ? createDisciplineSelect({
                 id: "agent-discipline-select",
-                items: availableDisciplines,
+                disciplines: availableDisciplines,
                 initialValue: selection.get().discipline,
                 placeholder: "Select a discipline...",
                 onChange: (value) => {

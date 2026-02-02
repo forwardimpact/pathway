@@ -13,7 +13,10 @@ import {
 } from "../components/comparison-radar.js";
 import { createProgressionTable } from "../components/progression-table.js";
 import { renderError } from "../components/error-page.js";
-import { createSelectWithValue } from "../lib/form-controls.js";
+import {
+  createSelectWithValue,
+  createDisciplineSelect,
+} from "../lib/form-controls.js";
 import {
   prepareCurrentJob,
   prepareCustomProgression,
@@ -513,11 +516,9 @@ function createComparisonSelectorsSection({
       div(
         { className: "form-group" },
         label({ for: "compare-discipline-select" }, "Target Discipline"),
-        createSelectWithValue({
+        createDisciplineSelect({
           id: "compare-discipline-select",
-          items: data.disciplines.sort((a, b) =>
-            a.specialization.localeCompare(b.specialization),
-          ),
+          disciplines: data.disciplines,
           initialValue: selectedDisciplineId,
           placeholder: "Select discipline...",
           getDisplayName: (d) => d.specialization,

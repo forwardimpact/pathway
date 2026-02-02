@@ -17,7 +17,10 @@ import {
 } from "../lib/render.js";
 import { getState } from "../lib/state.js";
 import { createBadge } from "./card.js";
-import { createSelectWithValue } from "../lib/form-controls.js";
+import {
+  createSelectWithValue,
+  createDisciplineSelect,
+} from "../lib/form-controls.js";
 import { createReactive } from "../lib/reactive.js";
 
 /**
@@ -213,9 +216,9 @@ export function createBuilder({
         div(
           { className: "form-group" },
           label({ className: "form-label" }, labels.discipline || "Discipline"),
-          createSelectWithValue({
+          createDisciplineSelect({
             id: "discipline-select",
-            items: data.disciplines,
+            disciplines: data.disciplines,
             initialValue: selection.get().discipline,
             placeholder: "Select a discipline...",
             onChange: (value) => {

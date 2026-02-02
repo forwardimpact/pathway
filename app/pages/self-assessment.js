@@ -17,7 +17,7 @@ import {
 } from "../lib/render.js";
 import { getState } from "../lib/state.js";
 import { createBadge } from "../components/card.js";
-import { createSelectWithValue } from "../lib/form-controls.js";
+import { createDisciplineSelect } from "../lib/form-controls.js";
 import {
   SKILL_LEVEL_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
@@ -306,9 +306,9 @@ function renderIntroStep(data) {
           "Select a discipline to highlight which skills are most relevant for that role. " +
             "You can still assess all skills.",
         ),
-        createSelectWithValue({
+        createDisciplineSelect({
           id: "discipline-filter-select",
-          items: data.disciplines,
+          disciplines: data.disciplines,
           initialValue: assessmentState.discipline || "",
           placeholder: "Select discipline",
           onChange: (value) => {
