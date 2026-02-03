@@ -1,133 +1,127 @@
 ---
-applyTo: "app/**/*.js"
+applyTo: "**"
 ---
 
 # Architecture
 
 ## 3-Layer System
 
-1. **Model** (`app/model/`) - Pure business logic, derivation, validation
-2. **Formatter** (`app/formatters/`) - Entity + context → output (DOM/markdown)
-3. **View** (`app/pages/`, `app/commands/`, `app/slides/`) - Route handling,
+1. **Model** (`app/model/`) — Pure business logic, derivation, validation
+2. **Formatter** (`app/formatters/`) — Entity + context → output (DOM/markdown)
+3. **View** (`app/pages/`, `app/commands/`, `app/slides/`) — Route handling,
    render calls
 
-## Schema Definitions
+## Data Model
 
-- `schema/json/` - JSON Schema files for validating YAML data files
-- `schema/rdf/` - RDF/SHACL ontology for semantic representation
+Data lives in YAML files under `data/`. Schema definitions are in `schema/`:
 
-## Model Layer Structure
+- `schema/json/` — JSON Schema for validating YAML files
+- `schema/rdf/` — RDF/SHACL ontology for semantic representation
 
-The model layer has a clear hierarchy:
+**Core entities**: disciplines, grades, tracks, capabilities (containing
+skills), behaviours, drivers, stages. All entities use co-located `human:` and
+`agent:` sections in the same file.
+
+## Model Layer
 
 ```
 model/
   levels.js       # Constants, type helpers (no dependencies)
   modifiers.js    # Skill modifier resolution
-  derivation.js   # Core derivation: deriveSkillMatrix, deriveBehaviourProfile, deriveJob
-  profile.js      # Unified profile: filtering, sorting, prepareBaseProfile
-  job.js          # Job preparation for display (uses derivation via job-cache)
-  agent.js        # Agent generation (uses profile.js for filtering/sorting)
-  checklist.js    # Checklist derivation
+  derivation.js   # Core: deriveSkillMatrix, deriveBehaviourProfile, deriveJob
+  profile.js      # Post-processing: filtering, sorting for agents
+  job.js          # Job preparation for display
+  agent.js        # Agent profile/skill generation
+  checklist.js    # Stage transition checklists
   interview.js    # Interview question selection
   validation.js   # Data validation
 ```
 
-### Derivation vs Profile
+**Key distinction**: `derivation.js` provides core logic for all consumers.
+`profile.js` adds agent-specific filtering (exclude `isHumanOnly`, keep highest
+level only) and sorting.
 
-- **derivation.js**: Core derivation logic shared by all consumers
-- **profile.js**: Post-processing layer for filtering and sorting
+## Job Derivation
 
-Jobs use `derivation.js` directly (via `job-cache.js`). Agents use `profile.js`
-for additional filtering (isHumanOnly, broad skills) and sorting (by level).
+Jobs are derived from `Discipline × Grade × Track?`:
 
-## Formatter Layer
-
-**Purpose**: Single place for all presentation logic.
-
-**Structure**:
-
-```
-formatters/
-  {entity}/
-    shared.js    # Helpers shared between DOM/markdown
-    dom.js       # Entity → DOM elements
-    markdown.js  # Entity → markdown string
-```
-
-**Rules**:
-
-- Formatters receive raw entities + context, return rendered output
-- Shared helpers handle: relationship resolution, display names, truncation
-- Pages/commands NEVER transform data - pass raw entities to formatters
-
-**Pattern**:
-
-```javascript
-// Page passes raw entity to formatter
-const dom = skillToDOM(skill, { disciplines, tracks, drivers, capabilities });
-render(dom);
-```
-
-## Key Patterns
-
-### Job Caching
+1. Base skill levels from grade (by skill type: primary/secondary/broad)
+2. Track modifiers applied to capabilities (+1, 0, -1)
+3. Behaviour modifiers combined from discipline and track
+4. Responsibilities selected by discipline type (professional/management)
 
 ```javascript
 import { getOrCreateJob } from "../lib/job-cache.js";
-// In pages, cache job before passing to formatter
 const job = getOrCreateJob({ discipline, grade, track, skills, behaviours });
-const dom = jobToDOM(job, { drivers, discipline, grade, track });
 ```
 
-### Builder Pages
+## Agent Profiles
+
+Agent profiles follow the **VS Code Custom Agents** standard (`.agent.md`
+files). Generated from `Discipline × Track × Stage` using the same derivation
+logic as jobs.
+
+**Output location**: `.github/agents/{id}.agent.md`
+
+Profile includes:
+
+- **Frontmatter**: name, description, tools, handoffs, infer
+- **Core identity**: From discipline/track `agent.coreInstructions`
+- **Capabilities**: Derived from skill matrix (filtered, sorted by level)
+- **Stage context**: Tools, constraints, entry/exit criteria
+- **Working style**: From behaviour `agent.workflow` sections
+- **Delegation**: Subagent guidance
+- **Constraints**: Combined from discipline, track, stage
+
+See [templates/agent.template.md](../../templates/agent.template.md).
+
+## Agent Skills
+
+Agent skills follow the **SKILL.md** standard (Claude Code compatible). Each
+skill with an `agent:` section generates a skill file.
+
+**Output location**: `.claude/skills/{skill-name}/SKILL.md`
+
+Skill file includes:
+
+- **Frontmatter**: name, description (triggering conditions)
+- **Stage guidance**: Plan/Code/Review activities and readiness checklists
+- **Reference**: Project-specific guidance (not generic best practices)
+
+See [templates/skill.template.md](../../templates/skill.template.md).
+
+## Formatter Layer
+
+Single place for all presentation logic:
+
+```
+formatters/{entity}/
+  shared.js    # Helpers shared between outputs
+  dom.js       # Entity → DOM elements
+  markdown.js  # Entity → markdown string
+```
+
+**Rule**: Pages/commands pass raw entities to formatters—no transforms in views.
+
+## Key Patterns
 
 ```javascript
+// Builder pages (discipline/grade/track selector)
 import { createBuilder } from "../components/builder.js";
-// Reusable discipline/grade/track selector + preview
-createBuilder({ title, previewFormatter, detailPath, renderPreview });
-```
 
-### Reactive State (component-local)
-
-```javascript
+// Reactive state (component-local)
 import { createReactive } from "../lib/reactive.js";
 const state = createReactive(initial);
 state.subscribe((value) => updateUI(value));
-state.set(newValue);
-```
 
-### Error Handling
+// DOM rendering (no innerHTML)
+import { div, h2, p, render } from "./lib/render.js";
 
-```javascript
-import { withErrorBoundary } from "../lib/error-boundary.js";
-// Router wraps all pages automatically
-// Pages throw NotFoundError/InvalidCombinationError
-```
-
-### Output Formatting
-
-```javascript
-// Formatters receive raw entities, return rendered output
-import { jobToMarkdown } from "../formatters/job/markdown.js";
-import { jobToDOM } from "../formatters/job/dom.js";
-
-const dom = jobToDOM(job, { drivers, discipline, grade, track });
-const md = jobToMarkdown(job, { drivers, discipline, grade, track });
-```
-
-## State Management
-
-Module-level state with subscriber pattern:
-
-```javascript
+// Global state
 import { getState, setData, subscribe } from "./lib/state.js";
 ```
 
-## DOM Rendering
+## Error Handling
 
-Use render utilities - no innerHTML:
-
-```javascript
-import { div, h2, p, render } from "./lib/render.js";
-```
+Router wraps all pages with error boundary. Pages throw `NotFoundError` or
+`InvalidCombinationError` as needed.

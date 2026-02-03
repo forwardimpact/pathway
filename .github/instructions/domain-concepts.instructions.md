@@ -4,16 +4,11 @@ applyTo: "**"
 
 # Domain Concepts
 
-> **Data-Driven Model**: This application is data-driven. The model defines the
-> schema and derivation logic, but the actual entities are defined in YAML files
-> under `data/`. Different installations will have different disciplines,
-> tracks, skills, grades, and behaviours. Always use
-> `npx pathway <entity> --list` to discover what's available in the current
-> installation.
+> **Data-Driven Model**: The model defines schema and derivation logic, but
+> actual entities are defined in YAML files under `data/`. Use
+> `npx pathway <entity> --list` to discover what's available.
 
 ## Core Entities
-
-Each entity answers a specific question about an engineering role:
 
 | Entity           | Question                  | File Location                      |
 | ---------------- | ------------------------- | ---------------------------------- |
@@ -25,28 +20,20 @@ Each entity answers a specific question about an engineering role:
 | **Capabilities** | What capability area?     | `capabilities/{id}.yaml`           |
 | **Stages**       | What lifecycle phase?     | `stages.yaml`                      |
 | **Drivers**      | What outcomes matter?     | `drivers.yaml`                     |
-| **Agents**       | How does AI assist?       | `agent:` section in files          |
 
-All entities use **co-located files**: human and agent definitions are in the
-same file with `human:` and `agent:` sections. Skills are embedded within
-capability files under the `skills:` array.
+All entities use **co-located files** with `human:` and `agent:` sections.
 
-## Skill Levels (5 levels)
+## Skill Levels
 
-Progression aligned with grades. The five level names are fixed in the model:
+| Level          | Description                           |
+| -------------- | ------------------------------------- |
+| `awareness`    | Learning fundamentals, needs guidance |
+| `foundational` | Can apply basics independently        |
+| `working`      | Solid competence, handles ambiguity   |
+| `practitioner` | Deep expertise, leads and mentors     |
+| `expert`       | Authority, shapes org direction       |
 
-| Level          | Description                            |
-| -------------- | -------------------------------------- |
-| `awareness`    | Learning fundamentals, needs guidance  |
-| `foundational` | Can apply basics independently         |
-| `working`      | Solid competence, handles ambiguity    |
-| `practitioner` | Deep expertise, leads and mentors      |
-| `expert`       | Authority, shapes direction across org |
-
-Grades and their mappings to levels are defined in `grades.yaml` and vary per
-installation. Use `npx pathway grade --list` to see available grades.
-
-## Behaviour Maturities (5 levels)
+## Behaviour Maturities
 
 | Maturity        | Description                       |
 | --------------- | --------------------------------- |
@@ -60,42 +47,21 @@ installation. Use `npx pathway grade --list` to see available grades.
 
 Capabilities group skills and define:
 
-- **Track modifiers**: Apply level adjustments to all skills in a capability
-- **Responsibilities**: Professional and management responsibilities by level
-- **Checklists**: Transition criteria for each lifecycle stage handoff
-
-Capabilities are defined in `data/capabilities/` and vary per installation. Use
-`npx pathway capability --list` to see available capabilities.
-
-**Example capabilities** (for illustration only—actual values vary):
-
-| Capability | Description                                         |
-| ---------- | --------------------------------------------------- |
-| `delivery` | Building and shipping solutions                     |
-| `data`     | Working with data at all lifecycle stages           |
-| `scale`    | Architecture, quality, and technical sustainability |
-
-Capabilities include `transitionChecklists` with transition criteria for each
-handoff:
+- **Track modifiers**: Level adjustments to all skills in a capability
+- **Responsibilities**: Professional/management responsibilities by level
+- **Checklists**: Transition criteria for stage handoffs
 
 ```yaml
 transitionChecklists:
   plan_to_code:
-    foundational:
-      - Requirements are understood and documented
     working:
       - Technical approach is documented
-    practitioner:
-      - Cross-team dependencies are coordinated
 ```
 
-## Track Types
+## Tracks
 
-Tracks are pure modifiers that adjust skill and behaviour expectations. They do
-not define role types—that's determined by the Discipline.
-
-Track modifiers use **capability names** to modify all skills in that
-capability:
+Tracks are pure modifiers—they adjust skill/behaviour expectations without
+defining role types. Modifiers use capability names:
 
 ```yaml
 skillModifiers:
@@ -103,109 +69,16 @@ skillModifiers:
   scale: -1 # -1 to ALL scale skills
 ```
 
-## Discipline Properties
+## Disciplines
 
-Disciplines have properties that determine the role type and valid tracks:
+Disciplines define role types and valid tracks:
 
-- `isProfessional: true` - IC roles, uses `professionalResponsibilities`
-- `isManagement: true` - Manager roles, uses `managementResponsibilities`
-- `validTracks: [...]` - Array of valid track configurations:
-  - `null` in array = allow trackless (generalist) jobs
-  - string values = allow specific track IDs
-  - `[null]` = trackless only
-  - `[null, "dx"]` = trackless OR dx track
-  - `["dx"]` = dx track only (no trackless)
-  - `[]` = no valid job combinations (legacy: allows trackless)
-- `minGrade: <grade_id>` - Minimum grade for this discipline (optional)
+- `isProfessional: true` — IC roles, uses `professionalResponsibilities`
+- `isManagement: true` — Manager roles, uses `managementResponsibilities`
+- `validTracks: [...]` — Valid track configurations (`null` = trackless allowed)
+- `minGrade: <grade_id>` — Minimum grade (optional)
 
-## Stages
-
-Stages define the engineering lifecycle phases. Each stage has specific modes,
-tools, constraints, and handoffs to other stages. Stages are defined in
-`stages.yaml` and can be customized per installation.
-
-**Example stages** (for illustration only—actual values vary):
-
-| Stage    | Purpose                          |
-| -------- | -------------------------------- |
-| `plan`   | Research, gather context, design |
-| `code`   | Implement, test, iterate         |
-| `review` | Verify, approve, document        |
-
-### Stage Properties
-
-- **constraints**: Restrictions on behaviour in this stage
-- **handoffs**: Transitions to other stages with prompts
-- **entryCriteria/exitCriteria**: Conditions for entering/leaving the stage
-
-### Checklist Derivation
-
-Checklists are derived from capabilities and applied at stage transitions:
-
-```
-Checklist = Handoff × Skills Matrix × Capability Checklists
-```
-
-For example, transitioning from Plan to Code at the Working level gathers all
-`plan_to_code.working` checklist items from capabilities relevant to the job.
-
-## Job Derivation Formula
-
-```
-Job = Discipline × Grade × Track?
-     (track is optional)
-```
-
-A job's requirements are derived by:
-
-1. Getting base skill levels from Grade (by skill type: primary/secondary/broad)
-2. Applying Track modifiers (+1, 0, -1) to capabilities (if track provided)
-3. Combining Discipline and Track behaviour modifiers
-4. Selecting responsibilities based on discipline type (professional/management)
-
-## Unified Profile Derivation
-
-Both human jobs and AI agents share the same core derivation logic through
-`profile.js`. The key difference is post-processing:
-
-| Consumer  | Filtering                               | Sorting             |
-| --------- | --------------------------------------- | ------------------- |
-| **Jobs**  | None (all skills/behaviours)            | By type, then name  |
-| **Agent** | Exclude isHumanOnly, highest level only | By level/maturity ↓ |
-
-### Profile Module (`model/profile.js`)
-
-Provides unified functions used by both job and agent derivation:
-
-```javascript
-// Filter functions
-filterSkillsForAgent(skillMatrix); // Exclude isHumanOnly + keep only highest level
-filterHumanOnlySkills(skillMatrix); // Exclude isHumanOnly skills
-filterByHighestLevel(skillMatrix); // Keep only skills at max derived level
-
-// Sort functions
-sortByLevelDescending(skillMatrix); // Expert first → Awareness last
-sortByMaturityDescending(behaviourProfile); // Exemplifying first → Emerging last
-
-// Unified derivation
-prepareBaseProfile({ discipline, track, grade, skills, behaviours, options });
-prepareAgentProfile({ discipline, track, grade, skills, behaviours }); // Uses AGENT_PROFILE_OPTIONS
-```
-
-### Profile Options
-
-```javascript
-const AGENT_PROFILE_OPTIONS = {
-  excludeHumanOnly: true, // Filter skills with isHumanOnly: true
-  keepHighestLevelOnly: true, // Keep only skills at the highest derived level
-  sortByLevel: true, // Sort skills by level descending
-  sortByMaturity: true, // Sort behaviours by maturity descending
-};
-```
-
-## Discipline Skill Tiers
-
-Disciplines define T-shaped profiles with three skill tiers:
+### Skill Tiers (T-shaped profiles)
 
 | Tier               | Expected Level    | Purpose                 |
 | ------------------ | ----------------- | ----------------------- |
@@ -213,69 +86,18 @@ Disciplines define T-shaped profiles with three skill tiers:
 | `supportingSkills` | Mid-level         | Supporting capabilities |
 | `broadSkills`      | Lower level       | General awareness       |
 
-## Agent Generation
+## Stages
 
-The pathway generates AI coding agents from the same data that defines human
-roles. All entity files use **co-located structure** with `human:` and `agent:`
-sections in the same file.
+Stages define engineering lifecycle phases with:
 
-### Co-located File Structure
+- **constraints**: Restrictions on behaviour
+- **handoffs**: Transitions to other stages with prompts
+- **entryCriteria/exitCriteria**: Conditions for entering/leaving
 
-All entities (skills, disciplines, tracks, behaviours) follow this pattern.
-
-**Example structure** (for illustration only—actual skill IDs and capabilities
-vary per installation):
-
-```yaml
-id: example_skill
-name: Example Skill Name
-capability: example_capability
-human:
-  description: Description of what this skill covers...
-  levelDescriptions:
-    awareness: ...
-    expert: ...
-agent:
-  name: example-skill-name
-  description: Guide for applying this skill...
-  body: |
-    # Example Skill Name
-    ...
-```
-
-### Agent Profile Generation
-
-Profiles are generated from discipline × track × stage combinations:
-
-```
-Agent Profile = Discipline × Track × Stage
-```
-
-Stage determines the agent's available tools and constraints.
-
-Agent profiles include:
-
-- **Core identity**: From track's `agent.coreInstructions` (falls back to
-  discipline's `agent.coreInstructions` with template substitution)
-- **Capabilities**: Derived from skill matrix
-- **Stage context**: Tools, constraints from stage
-- **Operational context**: From track's root-level `roleContext`
-- **Working style**: From behaviour `agent.workflow` (or `agent.principles`)
-- **Constraints**: From discipline, track, and stage
-- **Tools**: Defined by stage
-
-### Agent Skill Generation
-
-Skills with an `agent:` section generate SKILL.md files containing:
-
-- **Frontmatter**: name, description (triggering conditions)
-- **Body**: Contextual guidance for applying the skill
+Checklists are derived at stage transitions by gathering items from relevant
+capabilities at the job's skill level.
 
 ## Data Validation
 
-Run `npm run validate` to check:
-
-- Required fields on all entities
-- Referential integrity (skill/behaviour IDs exist)
-- Valid enum values (levels, capabilities, maturities)
-- Cross-entity consistency (disciplines reference valid skills)
+Run `npm run validate` to check required fields, referential integrity, valid
+enum values, and cross-entity consistency.
