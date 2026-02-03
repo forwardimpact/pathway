@@ -5,7 +5,7 @@ from the same foundation.
 
 ## Documents
 
-1. [Core Model](model.md) — Disciplines, Tracks, Grades, Skills, Behaviours,
+1. [Core Model](model.md) — Disciplines, Grades, Tracks, Behaviours, Skills,
    Capabilities, Drivers, and Job Derivation
 2. [Lifecycle](lifecycle.md) — Stages, handoffs, and checklists (applies to both
    humans and agents)

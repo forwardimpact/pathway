@@ -207,12 +207,14 @@ agent:
 
 | Command                             | Description                              |
 | ----------------------------------- | ---------------------------------------- |
-| `npx pathway skill`                 | Browse skills (summary, list, or detail) |
 | `npx pathway discipline`            | Browse disciplines                       |
-| `npx pathway track`                 | Browse tracks                            |
 | `npx pathway grade`                 | Browse grades                            |
+| `npx pathway track`                 | Browse tracks                            |
 | `npx pathway behaviour`             | Browse behaviours                        |
+| `npx pathway skill`                 | Browse skills (summary, list, or detail) |
 | `npx pathway driver`                | Browse drivers                           |
+| `npx pathway stage`                 | Browse lifecycle stages                  |
+| `npx pathway tool`                  | Browse recommended tools                 |
 | `npx pathway job <d> <t> <g>`       | Derive job definition                    |
 | `npx pathway interview <d> <t> <g>` | Generate interview questions             |
 | `npx pathway progress <d> <t> <g>`  | Analyze career progression               |
