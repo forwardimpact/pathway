@@ -39,6 +39,11 @@ const PUBLIC_ASSETS = [
 ];
 
 /**
+ * Files and directories to copy from project root
+ */
+const ROOT_ASSETS = ["templates"];
+
+/**
  * Run the site command
  * @param {Object} params - Command parameters
  * @param {string} params.dataDir - Path to data directory
@@ -82,6 +87,21 @@ ${framework.emoji} Generating ${framework.title} static site...
   console.log("📦 Copying application files...");
   for (const asset of PUBLIC_ASSETS) {
     const src = join(appDir, asset);
+    const dest = join(outputDir, asset);
+
+    try {
+      await access(src);
+      await cp(src, dest, { recursive: true });
+      console.log(`   ✓ ${asset}`);
+    } catch (err) {
+      console.log(`   ⚠️  Skipped ${asset}: ${err.message}`);
+    }
+  }
+
+  // Copy root assets (templates, etc.)
+  const rootDir = join(appDir, "..");
+  for (const asset of ROOT_ASSETS) {
+    const src = join(rootDir, asset);
     const dest = join(outputDir, asset);
 
     try {
