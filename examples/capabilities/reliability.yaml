@@ -155,64 +155,73 @@ skills:
             - Workflows tested in production
             - Monitoring confirms healthy operation
             - First deployment through pipeline succeeded
-      reference: |
-        ## CI/CD Pipeline Stages
+    toolReferences:
+      - name: Terraform
+        url: https://developer.hashicorp.com/terraform/docs
+        description: Infrastructure as code tool
+        useWhen: Provisioning and managing cloud infrastructure
+      - name: Docker
+        url: https://docs.docker.com/
+        description: Container platform
+        useWhen: Containerizing applications or managing container environments
+    implementationReference: |
+      ## CI/CD Pipeline Stages
 
-        ### Build
-        - Install dependencies
-        - Compile/transpile code
-        - Generate artifacts
-        - Cache dependencies for speed
+      ### Build
+      - Install dependencies
+      - Compile/transpile code
+      - Generate artifacts
+      - Cache dependencies for speed
 
-        ### Test
-        - Run unit tests
-        - Run integration tests
-        - Static analysis and linting
-        - Security scanning
+      ### Test
+      - Run unit tests
+      - Run integration tests
+      - Static analysis and linting
+      - Security scanning
 
-        ### Deploy
-        - Deploy to staging environment
-        - Run smoke tests
-        - Deploy to production
-        - Verify deployment health
+      ### Deploy
+      - Deploy to staging environment
+      - Run smoke tests
+      - Deploy to production
+      - Verify deployment health
 
-        ## Infrastructure as Code
+      ## Infrastructure as Code
 
-        ### Terraform
-        ```hcl
-        # Define resources declaratively
-        resource "aws_instance" "example" {
-          ami           = "ami-0c55b159cbfafe1f0"
-          instance_type = "t2.micro"
-        }
-        ```
+      ### Terraform
+      ```hcl
+      # Define resources declaratively
+      resource "aws_instance" "example" {
+        ami           = "ami-0c55b159cbfafe1f0"
+        instance_type = "t2.micro"
+      }
+      ```
 
-        ### Docker
-        ```dockerfile
-        FROM node:18-alpine
-        WORKDIR /app
-        COPY package*.json ./
-        RUN npm ci --only=production
-        COPY . .
-        CMD ["node", "server.js"]
-        ```
+      ### Docker
+      ```dockerfile
+      FROM node:18-alpine
+      WORKDIR /app
+      COPY package*.json ./
+      RUN npm ci --only=production
+      COPY . .
+      CMD ["node", "server.js"]
+      ```
 
-        ## Deployment Strategies
+      ## Deployment Strategies
 
-        ### Rolling Deployment
-        - Gradual replacement of instances
-        - Zero downtime
-        - Easy rollback
+      ### Rolling Deployment
+      - Gradual replacement of instances
+      - Zero downtime
+      - Easy rollback
 
-        ### Blue-Green Deployment
-        - Two identical environments
-        - Switch traffic atomically
-        - Fast rollback
+      ### Blue-Green Deployment
+      - Two identical environments
+      - Switch traffic atomically
+      - Fast rollback
 
-        ### Canary Deployment
-        - Route small percentage to new version
-        - Monitor for issues
-        - Gradually increase traffic
+      ### Canary Deployment
+      - Route small percentage to new version
+      - Monitor for issues
+      - Gradually increase traffic
   - id: sre_practices
     name: Site Reliability Engineering
     human:
@@ -326,78 +335,78 @@ skills:
             - Alerts fire correctly for SLO breaches
             - On-call team is trained and ready
             - Production readiness review is complete
-      reference: |
-        ## Service Level Concepts
+    implementationReference: |
+      ## Service Level Concepts
 
-        ### SLI (Service Level Indicator)
-        Quantitative measure of service behavior:
-        - Request latency (p50, p95, p99)
-        - Error rate (% of failed requests)
-        - Availability (% of successful requests)
-        - Throughput (requests per second)
+      ### SLI (Service Level Indicator)
+      Quantitative measure of service behavior:
+      - Request latency (p50, p95, p99)
+      - Error rate (% of failed requests)
+      - Availability (% of successful requests)
+      - Throughput (requests per second)
 
-        ### SLO (Service Level Objective)
-        Target value for an SLI:
-        - "99.9% of requests complete in < 200ms"
-        - "Error rate < 0.1% over 30 days"
-        - "99.95% availability monthly"
+      ### SLO (Service Level Objective)
+      Target value for an SLI:
+      - "99.9% of requests complete in < 200ms"
+      - "Error rate < 0.1% over 30 days"
+      - "99.95% availability monthly"
 
-        ### Error Budget
-        Allowed unreliability: 100% - SLO
-        - 99.9% SLO = 0.1% error budget
-        - ~43 minutes downtime per month
-        - Spend on features or reliability
+      ### Error Budget
+      Allowed unreliability: 100% - SLO
+      - 99.9% SLO = 0.1% error budget
+      - ~43 minutes downtime per month
+      - Spend on features or reliability
 
-        ## Observability
+      ## Observability
 
-        ### Three Pillars
-        - **Metrics**: Aggregated numeric data (counters, gauges, histograms)
-        - **Logs**: Discrete event records with context
-        - **Traces**: Request flow across services
+      ### Three Pillars
+      - **Metrics**: Aggregated numeric data (counters, gauges, histograms)
+      - **Logs**: Discrete event records with context
+      - **Traces**: Request flow across services
 
-        ### Alerting Principles
-        - Alert on symptoms, not causes
-        - Every alert should be actionable
-        - Reduce noise ruthlessly
-        - Page only for user-impacting issues
-        - Use severity levels appropriately
+      ### Alerting Principles
+      - Alert on symptoms, not causes
+      - Every alert should be actionable
+      - Reduce noise ruthlessly
+      - Page only for user-impacting issues
+      - Use severity levels appropriately
 
-        ## Incident Response
+      ## Incident Response
 
-        ### Incident Lifecycle
-        1. **Detection**: Automated alerts or user reports
-        2. **Triage**: Assess severity and impact
-        3. **Mitigation**: Stop the bleeding first
-        4. **Resolution**: Fix the underlying issue
-        5. **Post-mortem**: Learn and improve
+      ### Incident Lifecycle
+      1. **Detection**: Automated alerts or user reports
+      2. **Triage**: Assess severity and impact
+      3. **Mitigation**: Stop the bleeding first
+      4. **Resolution**: Fix the underlying issue
+      5. **Post-mortem**: Learn and improve
 
-        ### During an Incident
-        - Communicate early and often
-        - Focus on mitigation before root cause
-        - Document actions in real-time
-        - Escalate when needed
-        - Update stakeholders regularly
+      ### During an Incident
+      - Communicate early and often
+      - Focus on mitigation before root cause
+      - Document actions in real-time
+      - Escalate when needed
+      - Update stakeholders regularly
 
-        ## Post-Mortem Process
+      ## Post-Mortem Process
 
-        ### Blameless Culture
-        - Focus on systems, not individuals
-        - Assume good intentions
-        - Ask "how did the system allow this?"
-        - Share findings openly
+      ### Blameless Culture
+      - Focus on systems, not individuals
+      - Assume good intentions
+      - Ask "how did the system allow this?"
+      - Share findings openly
 
-        ### Post-Mortem Template
-        1. Incident summary
-        2. Timeline of events
-        3. Root cause analysis
-        4. What went well
-        5. What could be improved
-        6. Action items with owners
+      ### Post-Mortem Template
+      1. Incident summary
+      2. Timeline of events
+      3. Root cause analysis
+      4. What went well
+      5. What could be improved
+      6. Action items with owners
 
-        ## Resilience Patterns
+      ## Resilience Patterns
 
-        - **Timeouts**: Don't wait forever
-        - **Retries**: With exponential backoff
-        - **Circuit breakers**: Fail fast when downstream is unhealthy
-        - **Bulkheads**: Isolate failures
-        - **Graceful degradation**: Partial functionality over total failure
+      - **Timeouts**: Don't wait forever
+      - **Retries**: With exponential backoff
+      - **Circuit breakers**: Fail fast when downstream is unhealthy
+      - **Bulkheads**: Isolate failures
+      - **Graceful degradation**: Partial functionality over total failure

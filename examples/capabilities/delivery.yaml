@@ -145,23 +145,23 @@ skills:
             - Performance meets requirements
             - Monitoring confirms design assumptions
             - Operational procedures are documented
-      reference: |
-        ## Common Patterns
+    implementationReference: |
+      ## Common Patterns
 
-        ### Service Architecture
-        - **Microservices**: Independent deployment, clear boundaries
-        - **Monolith**: Simpler deployment, easier refactoring
-        - **Modular monolith**: Boundaries within single deployment
+      ### Service Architecture
+      - **Microservices**: Independent deployment, clear boundaries
+      - **Monolith**: Simpler deployment, easier refactoring
+      - **Modular monolith**: Boundaries within single deployment
 
-        ### Data Patterns
-        - **Event sourcing**: Full audit trail, complex queries
-        - **CQRS**: Separate read and write models
-        - **Repository pattern**: Abstract data access
+      ### Data Patterns
+      - **Event sourcing**: Full audit trail, complex queries
+      - **CQRS**: Separate read and write models
+      - **Repository pattern**: Abstract data access
 
-        ### Communication Patterns
-        - **REST**: Synchronous, request-response
-        - **Event-driven**: Asynchronous, loose coupling
-        - **gRPC**: Efficient, strongly typed
+      ### Communication Patterns
+      - **REST**: Synchronous, request-response
+      - **Event-driven**: Asynchronous, loose coupling
+      - **gRPC**: Efficient, strongly typed
   - id: full_stack_development
     name: Full-Stack Development
     human:
@@ -268,23 +268,36 @@ skills:
             - Feature works end-to-end in production
             - No errors in monitoring
             - Performance meets requirements
-      reference: |
-        ## Technology Stack
+    toolReferences:
+      - name: Terraform
+        url: https://developer.hashicorp.com/terraform/docs
+        description: Infrastructure as code tool
+        useWhen: Provisioning and managing cloud infrastructure
+      - name: CloudFormation
+        url: https://docs.aws.amazon.com/cloudformation/
+        description: AWS infrastructure as code service
+        useWhen: Managing AWS infrastructure as code
+      - name: Docker
+        url: https://docs.docker.com/
+        description: Container platform
+        useWhen: Containerizing applications or managing container environments
+    implementationReference: |
+      ## Technology Stack
 
-        ### Primary Languages
-        - **JavaScript/TypeScript**: Frontend and Node.js backend
-        - **Python**: Backend APIs and data processing
+      ### Primary Languages
+      - **JavaScript/TypeScript**: Frontend and Node.js backend
+      - **Python**: Backend APIs and data processing
 
-        ### Infrastructure
-        - **Terraform**: Cloud infrastructure as code
-        - **CloudFormation**: AWS-specific infrastructure
-        - **Docker**: Containerization
+      ### Infrastructure
+      - **Terraform**: Cloud infrastructure as code
+      - **CloudFormation**: AWS-specific infrastructure
+      - **Docker**: Containerization
 
-        ## Layer Responsibilities
+      ## Layer Responsibilities
 
-        | Layer | Responsibilities |
-        |-------|-----------------|
-        | Frontend | UI/UX, client validation, API integration |
-        | Backend | Business logic, auth, external services |
-        | Database | Persistence, queries, migrations |
-        | Infrastructure | Deployment, scaling, monitoring |
+      | Layer | Responsibilities |
+      |-------|-----------------|
+      | Frontend | UI/UX, client validation, API integration |
+      | Backend | Business logic, auth, external services |
+      | Database | Persistence, queries, migrations |
+      | Infrastructure | Deployment, scaling, monitoring |

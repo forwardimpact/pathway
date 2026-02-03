@@ -141,21 +141,21 @@ skills:
             - Failover tested in production
             - Monitoring is operational
             - Cost tracking is active
-      reference: |
-        ## Service Categories
+    implementationReference: |
+      ## Service Categories
 
-        | Category | Services | Use Case |
-        |----------|----------|----------|
-        | Compute | EC2, ECS, Lambda | VMs, Containers, Serverless |
-        | Storage | S3, EBS, EFS | Objects, Blocks, Files |
-        | Database | RDS, DynamoDB | SQL, NoSQL |
-        | Messaging | SQS, SNS, Kinesis | Queues, Pub/Sub, Streaming |
+      | Category | Services | Use Case |
+      |----------|----------|----------|
+      | Compute | EC2, ECS, Lambda | VMs, Containers, Serverless |
+      | Storage | S3, EBS, EFS | Objects, Blocks, Files |
+      | Database | RDS, DynamoDB | SQL, NoSQL |
+      | Messaging | SQS, SNS, Kinesis | Queues, Pub/Sub, Streaming |
 
-        ## Cloud-Native Principles
-        - Design for failure
-        - Use managed services
-        - Automate everything
-        - Monitor and alert
+      ## Cloud-Native Principles
+      - Design for failure
+      - Use managed services
+      - Automate everything
+      - Monitor and alert
   - id: code_quality
     name: Code Quality & Review
     human:
@@ -258,13 +258,13 @@ skills:
             - CI pipeline passes all checks
             - No regressions detected
             - Deployment verified
-      reference: |
-        ## Review Checklist
+    implementationReference: |
+      ## Review Checklist
 
-        1. **Correctness**: Does it work as intended?
-        2. **Tests**: Is it properly tested?
-        3. **Maintainability**: Will it be easy to change?
-        4. **Style**: Does it follow conventions?
+      1. **Correctness**: Does it work as intended?
+      2. **Tests**: Is it properly tested?
+      3. **Maintainability**: Will it be easy to change?
+      4. **Style**: Does it follow conventions?
   - id: data_modeling
     name: Data Modeling
     human:
@@ -367,12 +367,12 @@ skills:
             - Data integrity verified
             - Performance meets requirements
             - Rollback procedure tested
-      reference: |
-        ## Storage Selection Guide
+    implementationReference: |
+      ## Storage Selection Guide
 
-        | Type | Use When | Examples |
-        |------|----------|----------|
-        | Relational | ACID needed, complex queries | PostgreSQL, MySQL |
-        | Document | Flexible schema, hierarchical | MongoDB, Firestore |
-        | Key-Value | Simple lookups, caching | Redis, DynamoDB |
-        | Time Series | Temporal data, metrics | InfluxDB, TimescaleDB |
+      | Type | Use When | Examples |
+      |------|----------|----------|
+      | Relational | ACID needed, complex queries | PostgreSQL, MySQL |
+      | Document | Flexible schema, hierarchical | MongoDB, Firestore |
+      | Key-Value | Simple lookups, caching | Redis, DynamoDB |
+      | Time Series | Temporal data, metrics | InfluxDB, TimescaleDB |

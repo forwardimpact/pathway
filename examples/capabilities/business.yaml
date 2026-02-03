@@ -172,18 +172,18 @@ skills:
             - Audience can discover and find it
             - Search and navigation are updated
             - Maintenance schedule is established
-      reference: |
-        ## Document Types
+    implementationReference: |
+      ## Document Types
 
-        | Type | Purpose | Key Sections |
-        |------|---------|--------------|
-        | README | Project overview | Description, Getting Started, Usage |
-        | API Docs | API reference | Endpoints, Parameters, Examples |
-        | Spec | Design proposal | Problem, Solution, Alternatives |
-        | Tutorial | Learning guide | Objective, Steps, Outcomes |
+      | Type | Purpose | Key Sections |
+      |------|---------|--------------|
+      | README | Project overview | Description, Getting Started, Usage |
+      | API Docs | API reference | Endpoints, Parameters, Examples |
+      | Spec | Design proposal | Problem, Solution, Alternatives |
+      | Tutorial | Learning guide | Objective, Steps, Outcomes |
 
-        ## Writing Principles
-        - Use simple, direct language
-        - One idea per sentence
-        - Active voice over passive
-        - Lead with most important info
+      ## Writing Principles
+      - Use simple, direct language
+      - One idea per sentence
+      - Active voice over passive
+      - Lead with most important info
