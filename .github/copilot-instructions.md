@@ -33,10 +33,10 @@ locations MUST be updated:
 See `.github/instructions/` for details:
 
 - `architecture.instructions.md` - 3-layer system, model structure, job/agent
-  derivation, formatter layer, key patterns
+  derivation, tools (derived entity), formatter layer, key patterns
 - `code-style.instructions.md` - Code style, organization, testing
-- `domain-concepts.instructions.md` - Core entities, skill levels, behaviour
-  maturities, business domain
+- `domain-concepts.instructions.md` - Core entities, skill structure, tools,
+  skill levels, behaviour maturities, business domain
 - `common-tasks.instructions.md` - Common workflows and CLI usage
 - `git-workflow.instructions.md` - Conventional commits
 - `vocabulary.instructions.md` - Standard terminology
