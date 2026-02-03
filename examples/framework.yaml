@@ -55,3 +55,15 @@ entityDefinitions:
     emoji: "🤖"
     description: |
       AI coding agent configurations generated from the same disciplines, tracks, and skills that define human roles. Agent profiles and skills follow the GitHub Copilot specification, ensuring AI assistants understand context, constraints, and working styles aligned with human engineering expectations.
+
+  stage:
+    title: Stages
+    emoji: "🔄"
+    description: |
+      Defined phases of the engineering lifecycle that structure work from planning through delivery and review. Stages provide context for AI agents and define entry criteria, exit criteria, and appropriate handoffs between phases.
+
+  tool:
+    title: Tools
+    emoji: "🔧"
+    description: |
+      Recommended tools and utilities referenced by skills for effective engineering workflows. Tools are linked to specific skills with guidance on when and how to use them, surfacing best practices directly in skill definitions.
