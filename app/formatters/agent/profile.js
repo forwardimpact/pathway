@@ -10,7 +10,7 @@
 
 import Mustache from "mustache";
 
-import { trimValue } from "../shared.js";
+import { trimValue, trimRequired, trimFields } from "../shared.js";
 
 /**
  * Prepare agent profile data for template rendering
@@ -36,34 +36,22 @@ import { trimValue } from "../shared.js";
  * @returns {Object} Data object ready for Mustache template
  */
 function prepareAgentProfileData({ frontmatter, bodyData }) {
-  // Trim handoff prompts
-  const handoffs = (frontmatter.handoffs || []).map((h) => ({
-    ...h,
-    prompt: trimValue(h.prompt) || h.prompt,
-  }));
+  // Trim array fields using helpers
+  const handoffs = trimFields(frontmatter.handoffs, { prompt: "required" });
+  const beforeMakingChanges = trimFields(bodyData.beforeMakingChanges, {
+    text: "required",
+  });
 
-  // Trim beforeMakingChanges text values
-  const beforeMakingChanges = (bodyData.beforeMakingChanges || []).map(
-    (item) => ({
-      ...item,
-      text: trimValue(item.text) || item.text,
-    }),
-  );
-
-  // Trim constraint values
-  const constraints = (bodyData.constraints || []).map(
-    (c) => trimValue(c) || c,
-  );
-
-  // Trim capability values
-  const capabilities = (bodyData.capabilities || []).map(
-    (c) => trimValue(c) || c,
+  // Trim simple string arrays
+  const constraints = (bodyData.constraints || []).map((c) => trimRequired(c));
+  const capabilities = (bodyData.capabilities || []).map((c) =>
+    trimRequired(c),
   );
 
   return {
     // Frontmatter
     name: frontmatter.name,
-    description: trimValue(frontmatter.description) || frontmatter.description,
+    description: trimRequired(frontmatter.description),
     infer: frontmatter.infer,
     handoffs,
 

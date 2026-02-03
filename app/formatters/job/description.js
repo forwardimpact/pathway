@@ -14,7 +14,7 @@ import {
   SKILL_LEVEL_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
 } from "../../model/levels.js";
-import { trimValue } from "../shared.js";
+import { trimValue, trimFields } from "../shared.js";
 
 /**
  * Prepare job data for template rendering
@@ -137,20 +137,15 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
     roleSummary: trimValue(roleSummary),
     trackRoleContext: trimValue(track?.roleContext),
     expectationsParagraph: trimValue(expectationsParagraph),
-    responsibilities: (job.derivedResponsibilities || []).map((r) => ({
-      capabilityName: r.capabilityName,
-      responsibility: trimValue(r.responsibility) || r.responsibility,
-    })),
-    behaviours: sortedBehaviours.map((b) => ({
-      behaviourName: b.behaviourName,
-      maturityDescription: trimValue(b.maturityDescription) || "",
-    })),
+    responsibilities: trimFields(job.derivedResponsibilities, {
+      responsibility: "required",
+    }),
+    behaviours: trimFields(sortedBehaviours, {
+      maturityDescription: "optional",
+    }),
     skillLevels: skillLevels.map((level) => ({
       ...level,
-      skills: level.skills.map((s) => ({
-        skillName: s.skillName,
-        levelDescription: trimValue(s.levelDescription) || "",
-      })),
+      skills: trimFields(level.skills, { levelDescription: "optional" }),
     })),
     qualificationSummary: trimValue(qualificationSummary),
   };

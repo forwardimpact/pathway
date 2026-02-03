@@ -17,6 +17,52 @@ export function trimValue(value) {
 }
 
 /**
+ * Trim a required field, preserving original if trim would result in empty
+ * Use for fields that must have a value.
+ * @param {string|null|undefined} value - Value to trim
+ * @returns {string} Trimmed value or original
+ */
+export function trimRequired(value) {
+  return trimValue(value) || value || "";
+}
+
+/**
+ * Trim and split a string into lines
+ * @param {string|null|undefined} value - Value to process
+ * @returns {string[]} Array of lines (empty array if no value)
+ */
+export function splitLines(value) {
+  const trimmed = trimValue(value);
+  return trimmed ? trimmed.split("\n") : [];
+}
+
+/**
+ * Transform an array of objects by applying trimValue to specified fields
+ * @param {Array<Object>} array - Array of objects to transform
+ * @param {Object<string, 'optional'|'required'|'array'>} fieldSpec - Fields to trim and their type
+ *   - 'optional': use trimValue (returns null if empty)
+ *   - 'required': use trimRequired (preserves original if empty)
+ *   - 'array': trim each element in array field
+ * @returns {Array<Object>} Transformed array
+ */
+export function trimFields(array, fieldSpec) {
+  if (!array) return [];
+  return array.map((item) => {
+    const result = { ...item };
+    for (const [field, type] of Object.entries(fieldSpec)) {
+      if (type === "optional") {
+        result[field] = trimValue(item[field]);
+      } else if (type === "required") {
+        result[field] = trimRequired(item[field]);
+      } else if (type === "array") {
+        result[field] = (item[field] || []).map((v) => trimRequired(v));
+      }
+    }
+    return result;
+  });
+}
+
+/**
  * Format level as text with dots (for CLI/markdown)
  * @param {number} level - 1-5
  * @param {string} name - Level name

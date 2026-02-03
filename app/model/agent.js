@@ -283,12 +283,12 @@ export function generateSkillMd(skillData, stages) {
   return {
     frontmatter: {
       name: agent.name,
-      description: agent.description.trim(),
-      useWhen: agent.useWhen ? agent.useWhen.trim() : "",
+      description: agent.description,
+      useWhen: agent.useWhen || "",
     },
     title: name,
     stages: stagesArray,
-    reference: agent.reference ? agent.reference.trim() : "",
+    reference: agent.reference || "",
     dirname: agent.name,
   };
 }

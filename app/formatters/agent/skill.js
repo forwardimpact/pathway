@@ -10,7 +10,7 @@
 
 import Mustache from "mustache";
 
-import { trimValue } from "../shared.js";
+import { trimValue, splitLines, trimFields } from "../shared.js";
 
 /**
  * Prepare agent skill data for template rendering
@@ -26,28 +26,17 @@ import { trimValue } from "../shared.js";
  * @returns {Object} Data object ready for Mustache template
  */
 function prepareAgentSkillData({ frontmatter, title, stages, reference }) {
-  // Process description into lines
-  const description = trimValue(frontmatter.description) || "";
-  const descriptionLines = description.split("\n");
-
-  // Process useWhen into lines
-  const useWhen = trimValue(frontmatter.useWhen) || "";
-  const useWhenLines = useWhen ? useWhen.split("\n") : [];
-
   // Process stages - trim focus and array values
-  const processedStages = stages.map((stage) => ({
-    ...stage,
-    stageName: stage.stageName,
-    nextStageName: stage.nextStageName,
-    focus: trimValue(stage.focus) || stage.focus,
-    activities: (stage.activities || []).map((a) => trimValue(a) || a),
-    ready: (stage.ready || []).map((r) => trimValue(r) || r),
-  }));
+  const processedStages = trimFields(stages, {
+    focus: "required",
+    activities: "array",
+    ready: "array",
+  });
 
   return {
     name: frontmatter.name,
-    descriptionLines,
-    useWhenLines,
+    descriptionLines: splitLines(frontmatter.description),
+    useWhenLines: splitLines(frontmatter.useWhen),
     title,
     stages: processedStages,
     reference: trimValue(reference) || "",
