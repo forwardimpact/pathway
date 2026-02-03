@@ -170,6 +170,10 @@ fit:SkillStage a rdfs:Class ;
     rdfs:label "Skill Stage"@en ;
     rdfs:comment "Stage-specific guidance for applying a skill"@en .
 
+fit:ToolReference a rdfs:Class ;
+    rdfs:label "Tool Reference"@en ;
+    rdfs:comment "Reference to an external tool with usage guidance"@en .
+
 fit:BehaviourHumanSection a rdfs:Class ;
     rdfs:label "Behaviour Human Section"@en ;
     rdfs:comment "Human-specific content for a behaviour"@en .
@@ -402,9 +406,40 @@ fit:stages a rdf:Property ;
     rdfs:comment "Stage-specific guidance for applying the skill"@en ;
     rdfs:domain fit:SkillAgentSection .
 
-fit:reference a rdf:Property ;
-    rdfs:label "reference"@en ;
-    rdfs:comment "Optional reference material in markdown format"@en ;
+fit:implementationReference a rdf:Property ;
+    rdfs:label "implementationReference"@en ;
+    rdfs:comment "Implementation patterns and code examples in markdown format"@en ;
+    rdfs:domain fit:Skill ;
+    rdfs:range xsd:string .
+
+fit:toolReferences a rdf:Property ;
+    rdfs:label "toolReferences"@en ;
+    rdfs:comment "Recommended tools for this skill"@en ;
+    rdfs:domain fit:Skill ;
+    rdfs:range fit:ToolReference .
+
+fit:toolName a rdf:Property ;
+    rdfs:label "toolName"@en ;
+    rdfs:comment "Name of the tool"@en ;
+    rdfs:domain fit:ToolReference ;
+    rdfs:range xsd:string .
+
+fit:toolUrl a rdf:Property ;
+    rdfs:label "toolUrl"@en ;
+    rdfs:comment "URL to tool documentation"@en ;
+    rdfs:domain fit:ToolReference ;
+    rdfs:range xsd:anyURI .
+
+fit:toolDescription a rdf:Property ;
+    rdfs:label "toolDescription"@en ;
+    rdfs:comment "What this tool does"@en ;
+    rdfs:domain fit:ToolReference ;
+    rdfs:range xsd:string .
+
+fit:toolUseWhen a rdf:Property ;
+    rdfs:label "toolUseWhen"@en ;
+    rdfs:comment "When to use this tool"@en ;
+    rdfs:domain fit:ToolReference ;
     rdfs:range xsd:string .
 
 fit:useWhen a rdf:Property ;
@@ -1027,6 +1062,57 @@ fit:SkillShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:name "agent" ;
         sh:description "Agent-specific content for the skill" ;
+    ] ;
+    sh:property [
+        sh:path fit:implementationReference ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:name "implementationReference" ;
+        sh:description "Implementation patterns and code examples in markdown format" ;
+    ] ;
+    sh:property [
+        sh:path fit:toolReferences ;
+        sh:node fit:ToolReferenceShape ;
+        sh:name "toolReferences" ;
+        sh:description "Recommended tools for this skill" ;
+    ] .
+
+# -----------------------------------------------------------------------------
+# Tool Reference Shape
+# -----------------------------------------------------------------------------
+
+fit:ToolReferenceShape a sh:NodeShape ;
+    sh:targetClass fit:ToolReference ;
+    sh:property [
+        sh:path fit:toolName ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "name" ;
+        sh:description "Tool name" ;
+    ] ;
+    sh:property [
+        sh:path fit:toolUrl ;
+        sh:datatype xsd:anyURI ;
+        sh:maxCount 1 ;
+        sh:name "url" ;
+        sh:description "Link to tool documentation" ;
+    ] ;
+    sh:property [
+        sh:path fit:toolDescription ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "description" ;
+        sh:description "What this tool does" ;
+    ] ;
+    sh:property [
+        sh:path fit:toolUseWhen ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "useWhen" ;
+        sh:description "When to use this tool" ;
     ] .
 
 # -----------------------------------------------------------------------------
@@ -1142,13 +1228,6 @@ fit:SkillAgentSectionShape a sh:NodeShape ;
         sh:node fit:SkillStageShape ;
         sh:maxCount 1 ;
         sh:name "review" ;
-    ] ;
-    sh:property [
-        sh:path fit:reference ;
-        sh:datatype xsd:string ;
-        sh:maxCount 1 ;
-        sh:name "reference" ;
-        sh:description "Optional reference material in markdown format" ;
     ] .
 
 # -----------------------------------------------------------------------------

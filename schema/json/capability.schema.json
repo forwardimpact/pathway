@@ -88,6 +88,39 @@
         "agent": {
           "$ref": "#/$defs/skillAgentSection",
           "description": "Agent-specific content for the skill"
+        },
+        "implementationReference": {
+          "type": "string",
+          "description": "Implementation patterns and code examples in markdown format (shared by human and agent)"
+        },
+        "toolReferences": {
+          "type": "array",
+          "description": "Recommended tools for this skill",
+          "items": { "$ref": "#/$defs/toolReference" }
+        }
+      },
+      "additionalProperties": false
+    },
+    "toolReference": {
+      "type": "object",
+      "required": ["name", "description", "useWhen"],
+      "properties": {
+        "name": {
+          "type": "string",
+          "description": "Tool name"
+        },
+        "url": {
+          "type": "string",
+          "format": "uri",
+          "description": "Link to tool documentation"
+        },
+        "description": {
+          "type": "string",
+          "description": "What this tool does"
+        },
+        "useWhen": {
+          "type": "string",
+          "description": "When to use this tool"
         }
       },
       "additionalProperties": false
@@ -153,10 +186,6 @@
             "deploy": { "$ref": "#/$defs/skillStage" }
           },
           "additionalProperties": false
-        },
-        "reference": {
-          "type": "string",
-          "description": "Optional reference material in markdown format"
         }
       },
       "additionalProperties": false
