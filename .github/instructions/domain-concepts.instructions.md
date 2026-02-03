@@ -14,16 +14,17 @@ generation mechanics), see `architecture.instructions.md`.
 
 ## Core Entities
 
-| Entity           | Question                  | File Location                      |
-| ---------------- | ------------------------- | ---------------------------------- |
-| **Disciplines**  | What kind of engineer?    | `disciplines/{id}.yaml`            |
-| **Grades**       | What career level?        | `grades.yaml`                      |
-| **Tracks**       | Where/how do you work?    | `tracks/{id}.yaml`                 |
-| **Skills**       | What can you do?          | `capabilities/{id}.yaml` (skills:) |
-| **Behaviours**   | How do you approach work? | `behaviours/{id}.yaml`             |
-| **Capabilities** | What capability area?     | `capabilities/{id}.yaml`           |
-| **Stages**       | What lifecycle phase?     | `stages.yaml`                      |
-| **Drivers**      | What outcomes matter?     | `drivers.yaml`                     |
+| Entity           | Question                  | File Location                       |
+| ---------------- | ------------------------- | ----------------------------------- |
+| **Disciplines**  | What kind of engineer?    | `disciplines/{id}.yaml`             |
+| **Grades**       | What career level?        | `grades.yaml`                       |
+| **Tracks**       | Where/how do you work?    | `tracks/{id}.yaml`                  |
+| **Skills**       | What can you do?          | `capabilities/{id}.yaml` (skills:)  |
+| **Behaviours**   | How do you approach work? | `behaviours/{id}.yaml`              |
+| **Capabilities** | What capability area?     | `capabilities/{id}.yaml`            |
+| **Stages**       | What lifecycle phase?     | `stages.yaml`                       |
+| **Drivers**      | What outcomes matter?     | `drivers.yaml`                      |
+| **Tools**        | What utilities to use?    | Derived from skill `toolReferences` |
 
 All entities use **co-located files** with `human:` and `agent:` sections.
 
@@ -36,6 +37,63 @@ All entities use **co-located files** with `human:` and `agent:` sections.
 | `working`      | Solid competence, handles ambiguity   |
 | `practitioner` | Deep expertise, leads and mentors     |
 | `expert`       | Authority, shapes org direction       |
+
+## Skill Structure
+
+Skills are defined within capability files and include:
+
+| Property                  | Required | Description                                             |
+| ------------------------- | -------- | ------------------------------------------------------- |
+| `id`                      | Yes      | Unique identifier (snake_case)                          |
+| `name`                    | Yes      | Human-readable name                                     |
+| `human`                   | Yes      | Human-specific content (description, levelDescriptions) |
+| `agent`                   | No       | Agent-specific content for AI skill generation          |
+| `toolReferences`          | No       | Recommended tools with usage guidance                   |
+| `implementationReference` | No       | Code examples shared by human and agent                 |
+| `isHumanOnly`             | No       | If true, excluded from agent profiles                   |
+
+### Agent Skill Sections
+
+Skills with `agent:` sections generate SKILL.md files for AI coding agents:
+
+```yaml
+agent:
+  name: skill-name-kebab-case # Required, kebab-case
+  description: Brief description
+  useWhen: When to apply this skill
+  stages:
+    plan:
+      focus: What to accomplish
+      activities: [...]
+      ready: [...]
+    code:
+      focus: ...
+```
+
+Stage-specific guidance includes: `specify`, `plan`, `code`, `review`, `deploy`.
+
+## Tools
+
+Tools are derived from `toolReferences` arrays within skills. They aggregate
+recommended utilities across all skills with guidance on when to use them.
+
+| Property      | Required | Description                |
+| ------------- | -------- | -------------------------- |
+| `name`        | Yes      | Tool name                  |
+| `description` | Yes      | What the tool does         |
+| `useWhen`     | Yes      | When to use this tool      |
+| `url`         | No       | Link to tool documentation |
+
+```yaml
+toolReferences:
+  - name: Langfuse
+    url: https://langfuse.com/docs
+    description: LLM observability and evaluation platform
+    useWhen: Instrumenting AI applications with tracing
+```
+
+Tools are not stored separately—they're extracted and aggregated from skills at
+runtime via `npx pathway tool`.
 
 ## Behaviour Maturities
 

@@ -83,10 +83,21 @@ skill with an `agent:` section generates a skill file.
 Skill file includes:
 
 - **Frontmatter**: name, description (triggering conditions)
-- **Stage guidance**: Plan/Code/Review activities and readiness checklists
-- **Reference**: Project-specific guidance (not generic best practices)
+- **useWhen**: When to apply this skill
+- **Stage guidance**: Activities and readiness checklists per stage (`specify`,
+  `plan`, `code`, `review`, `deploy`)
+- **Reference**: Implementation patterns from `implementationReference`
 
 See [templates/skill.template.md](../../templates/skill.template.md).
+
+## Tools (Derived Entity)
+
+Tools are aggregated from `toolReferences` arrays within skills—not stored as
+separate YAML files. The `tool` command extracts and deduplicates tools across
+all skills.
+
+**Formatter**: `formatters/tool/shared.js` provides `aggregateTools()` and
+`prepareToolsList()` for CLI and web output.
 
 ## Formatter Layer
 

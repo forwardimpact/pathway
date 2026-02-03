@@ -99,9 +99,10 @@ npx pathway questions --level=practitioner --format=yaml > practitioner-question
 ## Add Agent Skill
 
 1. Add `agent:` section to skill in `data/capabilities/{capability_id}.yaml`
-2. Include required fields: `name`, `description`, `body`
-3. Description should specify when to use the skill
-4. Body should focus on project-specific guidance, not generic best practices
+2. Include required fields: `name`, `description`, `useWhen`, `stages`
+3. Define stage-specific guidance (`specify`, `plan`, `code`, `review`,
+   `deploy`)
+4. Each stage needs: `focus`, `activities[]`, `ready[]` (readiness criteria)
 5. Run `npm run validate` to verify
 
 Example structure:
@@ -109,16 +110,46 @@ Example structure:
 ```yaml
 agent:
   name: skill-name-kebab-case
-  description: |
-    Guide for [task]. Use when [triggering conditions].
-  body: |
-    # Skill Name
+  description: Brief description of what this skill provides
+  useWhen: Triggering conditions - when agents should use this skill
+  stages:
+    plan:
+      focus: What to accomplish in the plan stage
+      activities:
+        - Identify requirements
+        - Define approach
+      ready:
+        - Requirements documented
+        - Approach validated
+    code:
+      focus: What to accomplish during implementation
+      activities:
+        - Implement feature
+        - Write tests
+      ready:
+        - Implementation complete
+        - Tests pass
+```
 
-    ## When to use this skill
-    ...
+## Add Tool Reference
 
-    ## Project-Specific Guidance
-    ...
+1. Add `toolReferences:` array to skill in
+   `data/capabilities/{capability_id}.yaml`
+2. Include required fields: `name`, `description`, `useWhen`
+3. Optionally add `url` for tool documentation link
+4. Run `npm run validate` to verify
+
+Example:
+
+```yaml
+toolReferences:
+  - name: Langfuse
+    url: https://langfuse.com/docs
+    description: LLM observability and evaluation platform
+    useWhen: Instrumenting AI applications with tracing
+  - name: pytest
+    description: Python testing framework
+    useWhen: Writing unit or integration tests for Python code
 ```
 
 ## Generate Agent Profile
@@ -175,21 +206,24 @@ npx pathway site --output=./site       # Generate static site
 
 ```sh
 # Summary view (default)
-npx pathway skill
-npx pathway behaviour
 npx pathway discipline
 npx pathway grade
 npx pathway track
+npx pathway behaviour
+npx pathway skill
 npx pathway driver
 npx pathway stage
+npx pathway tool
 
 # List IDs for piping (discover available entities)
 npx pathway skill --list
+npx pathway tool --list
 npx pathway job --list | head -5
 
 # Detail view (use actual IDs from your installation)
 npx pathway skill <skill_id>
 npx pathway discipline <discipline_id>
+npx pathway tool <tool_name>
 
 # Agent SKILL.md output (for skills with agent section)
 npx pathway skill <skill_id> --agent
@@ -235,6 +269,25 @@ npx pathway questions --stats
 # Export
 npx pathway questions --list                       # Question IDs for piping
 npx pathway questions --format=yaml > questions.yaml
+```
+
+### Tool Commands
+
+Tools are aggregated from `toolReferences` within skills.
+
+```sh
+# Summary (top tools by usage)
+npx pathway tool
+
+# List tool names for piping
+npx pathway tool --list
+
+# Detail view (shows description and which skills use it)
+npx pathway tool <tool_name>
+
+# JSON output
+npx pathway tool --json
+npx pathway tool <tool_name> --json
 ```
 
 ### Agent Commands
