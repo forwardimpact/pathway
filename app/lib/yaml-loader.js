@@ -70,7 +70,15 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
 
     if (capability.skills && Array.isArray(capability.skills)) {
       for (const skill of capability.skills) {
-        const { id, name, isHumanOnly, human, agent } = skill;
+        const {
+          id,
+          name,
+          isHumanOnly,
+          human,
+          agent,
+          implementationReference,
+          toolReferences,
+        } = skill;
         allSkills.push({
           id,
           name,
@@ -80,6 +88,9 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           // Include isHumanOnly flag for agent filtering (defaults to false)
           ...(isHumanOnly && { isHumanOnly }),
           ...(agent && { agent }),
+          // Include implementation reference and tool references (shared by human and agent)
+          ...(implementationReference && { implementationReference }),
+          ...(toolReferences && { toolReferences }),
         });
       }
     }
