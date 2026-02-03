@@ -10,16 +10,7 @@
 
 import Mustache from "mustache";
 
-/**
- * Trim trailing newlines from a string value
- * @param {string|null|undefined} value - Value to trim
- * @returns {string|null} Trimmed value or null
- */
-function trimValue(value) {
-  if (value == null) return null;
-  const trimmed = value.replace(/\n+$/, "");
-  return trimmed || null;
-}
+import { trimValue } from "../shared.js";
 
 /**
  * Prepare agent skill data for template rendering

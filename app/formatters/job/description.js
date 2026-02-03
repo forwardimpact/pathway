@@ -14,6 +14,7 @@ import {
   SKILL_LEVEL_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
 } from "../../model/levels.js";
+import { trimValue } from "../shared.js";
 
 /**
  * Prepare job data for template rendering
@@ -121,28 +122,37 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
     };
   });
 
+  // Build qualification summary with placeholder replacement
+  const qualificationSummary =
+    (grade.qualificationSummary || "").replace(
+      /\{typicalExperienceRange\}/g,
+      grade.typicalExperienceRange || "",
+    ) || null;
+
   return {
     title: job.title,
     gradeId: grade.id,
     typicalExperienceRange: grade.typicalExperienceRange,
     trackName: track?.name || null,
-    roleSummary,
-    trackRoleContext: track?.roleContext || null,
-    expectationsParagraph: expectationsParagraph || null,
+    roleSummary: trimValue(roleSummary),
+    trackRoleContext: trimValue(track?.roleContext),
+    expectationsParagraph: trimValue(expectationsParagraph),
     responsibilities: (job.derivedResponsibilities || []).map((r) => ({
       capabilityName: r.capabilityName,
-      responsibility: r.responsibility,
+      responsibility: trimValue(r.responsibility) || r.responsibility,
     })),
     behaviours: sortedBehaviours.map((b) => ({
       behaviourName: b.behaviourName,
-      maturityDescription: b.maturityDescription || "",
+      maturityDescription: trimValue(b.maturityDescription) || "",
     })),
-    skillLevels,
-    qualificationSummary:
-      (grade.qualificationSummary || "").replace(
-        /\{typicalExperienceRange\}/g,
-        grade.typicalExperienceRange || "",
-      ) || null,
+    skillLevels: skillLevels.map((level) => ({
+      ...level,
+      skills: level.skills.map((s) => ({
+        skillName: s.skillName,
+        levelDescription: trimValue(s.levelDescription) || "",
+      })),
+    })),
+    qualificationSummary: trimValue(qualificationSummary),
   };
 }
 

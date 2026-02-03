@@ -5,6 +5,18 @@
  */
 
 /**
+ * Trim trailing newlines from a string value
+ * Used by template prepare functions for consistent output formatting.
+ * @param {string|null|undefined} value - Value to trim
+ * @returns {string|null} Trimmed value or null if empty
+ */
+export function trimValue(value) {
+  if (value == null) return null;
+  const trimmed = value.replace(/\n+$/, "");
+  return trimmed || null;
+}
+
+/**
  * Format level as text with dots (for CLI/markdown)
  * @param {number} level - 1-5
  * @param {string} name - Level name
