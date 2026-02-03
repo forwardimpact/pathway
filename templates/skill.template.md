@@ -30,7 +30,17 @@ description: |
 {{#ready}}
 - [ ] {{{.}}}
 {{/ready}}
-{{/stages}} {{#reference}}
+{{/stages}}
+{{#toolReferences.length}}
+
+## Recommended Tools
+
+| Tool | Use When |
+|------|----------|
+{{#toolReferences}}
+| {{#url}}[{{{name}}}]({{{url}}}){{/url}}{{^url}}{{{name}}}{{/url}} | {{{useWhen}}} |
+{{/toolReferences}}
+{{/toolReferences.length}} {{#reference}}
 
 ## Reference
 
