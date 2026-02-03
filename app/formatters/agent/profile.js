@@ -11,6 +11,87 @@
 import Mustache from "mustache";
 
 /**
+ * Trim trailing newlines from a string value
+ * @param {string|null|undefined} value - Value to trim
+ * @returns {string|null} Trimmed value or null
+ */
+function trimValue(value) {
+  if (value == null) return null;
+  const trimmed = value.replace(/\n+$/, "");
+  return trimmed || null;
+}
+
+/**
+ * Prepare agent profile data for template rendering
+ * Normalizes string values by trimming trailing newlines for consistent template output.
+ * @param {Object} params
+ * @param {Object} params.frontmatter - YAML frontmatter data
+ * @param {string} params.frontmatter.name - Agent name
+ * @param {string} params.frontmatter.description - Agent description
+ * @param {boolean} params.frontmatter.infer - Whether to auto-select
+ * @param {Array} [params.frontmatter.handoffs] - Handoff definitions
+ * @param {Object} params.bodyData - Structured body data
+ * @param {string} params.bodyData.title - Agent title
+ * @param {string} params.bodyData.stageDescription - Stage description text
+ * @param {string} params.bodyData.identity - Core identity text
+ * @param {string} [params.bodyData.priority] - Priority/philosophy statement
+ * @param {string[]} params.bodyData.capabilities - List of capability names
+ * @param {Array<{index: number, text: string}>} params.bodyData.beforeMakingChanges - Numbered steps
+ * @param {string} [params.bodyData.delegation] - Delegation guidance
+ * @param {string} params.bodyData.operationalContext - Operational context text
+ * @param {string} params.bodyData.workingStyle - Working style markdown section
+ * @param {string} [params.bodyData.beforeHandoff] - Before handoff checklist markdown
+ * @param {string[]} params.bodyData.constraints - List of constraints
+ * @returns {Object} Data object ready for Mustache template
+ */
+function prepareAgentProfileData({ frontmatter, bodyData }) {
+  // Trim handoff prompts
+  const handoffs = (frontmatter.handoffs || []).map((h) => ({
+    ...h,
+    prompt: trimValue(h.prompt) || h.prompt,
+  }));
+
+  // Trim beforeMakingChanges text values
+  const beforeMakingChanges = (bodyData.beforeMakingChanges || []).map(
+    (item) => ({
+      ...item,
+      text: trimValue(item.text) || item.text,
+    }),
+  );
+
+  // Trim constraint values
+  const constraints = (bodyData.constraints || []).map(
+    (c) => trimValue(c) || c,
+  );
+
+  // Trim capability values
+  const capabilities = (bodyData.capabilities || []).map(
+    (c) => trimValue(c) || c,
+  );
+
+  return {
+    // Frontmatter
+    name: frontmatter.name,
+    description: trimValue(frontmatter.description) || frontmatter.description,
+    infer: frontmatter.infer,
+    handoffs,
+
+    // Body data - trim all string fields
+    title: bodyData.title,
+    stageDescription: trimValue(bodyData.stageDescription),
+    identity: trimValue(bodyData.identity),
+    priority: trimValue(bodyData.priority),
+    capabilities,
+    beforeMakingChanges,
+    delegation: trimValue(bodyData.delegation),
+    operationalContext: trimValue(bodyData.operationalContext),
+    workingStyle: trimValue(bodyData.workingStyle),
+    beforeHandoff: trimValue(bodyData.beforeHandoff),
+    constraints,
+  };
+}
+
+/**
  * Format agent profile as .agent.md file content using Mustache template
  * @param {Object} profile - Profile with frontmatter and bodyData
  * @param {Object} profile.frontmatter - YAML frontmatter data
@@ -35,14 +116,6 @@ import Mustache from "mustache";
  * @returns {string} Complete .agent.md file content
  */
 export function formatAgentProfile({ frontmatter, bodyData }, template) {
-  const data = {
-    // Frontmatter
-    name: frontmatter.name,
-    description: frontmatter.description,
-    infer: frontmatter.infer,
-    handoffs: frontmatter.handoffs || [],
-    // Body data
-    ...bodyData,
-  };
+  const data = prepareAgentProfileData({ frontmatter, bodyData });
   return Mustache.render(template, data);
 }
