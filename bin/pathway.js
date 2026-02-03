@@ -9,12 +9,14 @@
  *   npx pathway <command> [options]
  *
  * Commands:
- *   skill [<id>]                Show skills (summary, --list, or detail)
- *   behaviour [<id>]            Show behaviours
  *   discipline [<id>]           Show disciplines
  *   grade [<id>]                Show grades
  *   track [<id>]                Show tracks
+ *   behaviour [<id>]            Show behaviours
+ *   skill [<id>]                Show skills (summary, --list, or detail)
  *   driver [<id>]               Show drivers
+ *   stage [<id>]                Show stages
+ *   tool [<name>]               Show tools
  *   job [<discipline> <grade>] [--track=TRACK]  Generate job definition
  *   interview <discipline> <grade> [--track=TRACK] [--type=TYPE]  Generate interview
  *   progress <discipline> <grade> [--track=TRACK] [--compare=GRADE]  Career progression
@@ -37,13 +39,14 @@ import { formatError } from "../app/lib/cli-output.js";
 import { runSchemaValidation } from "../app/model/schema-validation.js";
 
 // Import command handlers
-import { runSkillCommand } from "../app/commands/skill.js";
-import { runBehaviourCommand } from "../app/commands/behaviour.js";
 import { runDisciplineCommand } from "../app/commands/discipline.js";
 import { runGradeCommand } from "../app/commands/grade.js";
 import { runTrackCommand } from "../app/commands/track.js";
+import { runBehaviourCommand } from "../app/commands/behaviour.js";
+import { runSkillCommand } from "../app/commands/skill.js";
 import { runDriverCommand } from "../app/commands/driver.js";
 import { runStageCommand } from "../app/commands/stage.js";
+import { runToolCommand } from "../app/commands/tool.js";
 import { runJobCommand } from "../app/commands/job.js";
 import { runInterviewCommand } from "../app/commands/interview.js";
 import { runProgressCommand } from "../app/commands/progress.js";
@@ -58,13 +61,14 @@ const __dirname = dirname(__filename);
 const rootDir = join(__dirname, "..");
 
 const COMMANDS = {
-  skill: runSkillCommand,
-  behaviour: runBehaviourCommand,
   discipline: runDisciplineCommand,
   grade: runGradeCommand,
   track: runTrackCommand,
+  behaviour: runBehaviourCommand,
+  skill: runSkillCommand,
   driver: runDriverCommand,
   stage: runStageCommand,
+  tool: runToolCommand,
   job: runJobCommand,
   interview: runInterviewCommand,
   progress: runProgressCommand,
@@ -86,14 +90,15 @@ Getting Started:
   site [--output=PATH]                Generate static site to ./site/
 
 Entity Commands (summary by default, --list for IDs, <id> for detail):
-  skill [<id>]                        Browse skills
-    --agent                           Output as agent SKILL.md format
-  behaviour [<id>]                    Browse behaviours  
   discipline [<id>]                   Browse disciplines
   grade [<id>]                        Browse grades
   track [<id>]                        Browse tracks
+  behaviour [<id>]                    Browse behaviours  
+  skill [<id>]                        Browse skills
+    --agent                           Output as agent SKILL.md format
   driver [<id>]                       Browse drivers
   stage [<id>]                        Browse lifecycle stages
+  tool [<name>]                       Browse recommended tools
 
 Composite Commands:
   job [<discipline> <grade>] [--track=TRACK]  Generate job definition
@@ -132,6 +137,10 @@ Examples:
   npx pathway skill --list             # Skill IDs for piping
   npx pathway skill ai_evaluation      # Detail view
   npx pathway skill architecture_design --agent  # Agent SKILL.md output
+
+  npx pathway tool                     # Summary of all tools
+  npx pathway tool --list              # Tool names for piping
+  npx pathway tool DuckDB              # Tool detail with skill usages
 
   npx pathway job                      # Summary of valid combinations
   npx pathway job --list               # All combinations for piping
