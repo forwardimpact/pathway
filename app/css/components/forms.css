@@ -124,6 +124,14 @@
     min-width: 200px;
   }
 
+  .markdown-textarea-header .filename {
+    font-family:
+      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-muted);
+    margin: 0;
+  }
+
   .markdown-display {
     width: 100%;
     margin: 0;

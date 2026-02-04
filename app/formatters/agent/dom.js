@@ -16,6 +16,7 @@ import {
   details,
   summary,
 } from "../../lib/render.js";
+import { createMarkdownTextarea } from "../../components/markdown-textarea.js";
 import { formatAgentProfile } from "./profile.js";
 import { formatAgentSkill } from "./skill.js";
 import { getStageEmoji } from "../stage/shared.js";
@@ -53,13 +54,14 @@ export function agentDeploymentToDOM({
     // Profile section
     section(
       { className: "agent-section" },
-      div(
-        { className: "section-header" },
-        h2({}, "Agent Profile"),
-        createCopyButton(profileContent),
-      ),
-      p({ className: "filename" }, profile.filename),
-      createCodeBlock(profileContent),
+      h2({}, "Agent Profile"),
+      createMarkdownTextarea({
+        content: profileContent,
+        filename: profile.filename,
+        language: "plaintext",
+        copyLabel: "📋 Copy",
+        minHeight: 450,
+      }),
     ),
 
     // Role Agents section
@@ -146,48 +148,6 @@ function createDownloadButton(
 }
 
 /**
- * Create a copy button for content
- * @param {string} content - Content to copy
- * @returns {HTMLElement}
- */
-function createCopyButton(content) {
-  const btn = button({ className: "btn btn-sm copy-btn" }, "📋 Copy");
-
-  btn.addEventListener("click", async () => {
-    try {
-      await navigator.clipboard.writeText(content);
-      btn.textContent = "✓ Copied";
-      setTimeout(() => {
-        btn.textContent = "📋 Copy";
-      }, 2000);
-    } catch {
-      btn.textContent = "Failed";
-      setTimeout(() => {
-        btn.textContent = "📋 Copy";
-      }, 2000);
-    }
-  });
-
-  return btn;
-}
-
-/**
- * Create a code block with content
- * @param {string} content - Code content
- * @returns {HTMLElement}
- */
-function createCodeBlock(content) {
-  const pre = document.createElement("pre");
-  pre.className = "code-block";
-
-  const code = document.createElement("code");
-  code.textContent = content;
-
-  pre.appendChild(code);
-  return pre;
-}
-
-/**
  * Create a skill card with content and copy button
  * @param {Object} skill - Skill with frontmatter and body
  * @returns {HTMLElement}
@@ -198,12 +158,13 @@ function createSkillCard(skill) {
 
   return div(
     { className: "skill-card" },
-    div(
-      { className: "skill-header" },
-      span({ className: "skill-filename" }, filename),
-      createCopyButton(content),
-    ),
-    createCodeBlock(content),
+    createMarkdownTextarea({
+      content,
+      filename,
+      language: "plaintext",
+      copyLabel: "📋 Copy",
+      minHeight: 300,
+    }),
   );
 }
 
@@ -235,8 +196,12 @@ function createRoleAgentCard(agent) {
         { className: "text-muted role-description" },
         agent.frontmatter.description,
       ),
-      div({ className: "role-agent-actions" }, createCopyButton(content)),
-      createCodeBlock(content),
+      createMarkdownTextarea({
+        content,
+        language: "plaintext",
+        copyLabel: "📋 Copy",
+        minHeight: 300,
+      }),
     ),
   );
 }
@@ -254,13 +219,13 @@ function createCliCommand(agentName) {
 
   const command = `npx pathway agent ${discipline} ${track} --output=.github --all-roles`;
 
-  const container = div(
-    { className: "cli-command" },
-    createCodeBlock(command),
-    createCopyButton(command),
-  );
-
-  return container;
+  return createMarkdownTextarea({
+    content: command,
+    language: "bash",
+    copyLabel: "📋 Copy",
+    minHeight: 60,
+    className: "cli-command",
+  });
 }
 
 /**
@@ -445,13 +410,14 @@ export function stageAgentToDOM(stageAgent, profile, options = {}) {
     // Profile section
     section(
       { className: "agent-section" },
-      div(
-        { className: "section-header" },
-        h3({}, "Agent Profile"),
-        createCopyButton(profileContent),
-      ),
-      p({ className: "filename" }, profile.filename),
-      createCodeBlock(profileContent),
+      h3({}, "Agent Profile"),
+      createMarkdownTextarea({
+        content: profileContent,
+        filename: profile.filename,
+        language: "plaintext",
+        copyLabel: "📋 Copy",
+        minHeight: 450,
+      }),
     ),
 
     // Download button

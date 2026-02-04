@@ -1,8 +1,8 @@
 /**
  * Markdown Textarea Component
  *
- * Reusable read-only textarea with copy buttons for displaying markdown content.
- * Used by job descriptions and skill implementation patterns.
+ * Reusable read-only code display with syntax highlighting and copy buttons.
+ * Used by job descriptions, skill implementation patterns, agent profiles, and agent skills.
  */
 
 /* global Prism */
@@ -17,7 +17,7 @@ import { div, p, button } from "../lib/render.js";
  */
 export function createCopyButton(
   content,
-  label,
+  label = "📋 Copy",
   className = "btn btn-primary",
 ) {
   const btn = button(
@@ -26,7 +26,9 @@ export function createCopyButton(
       onClick: async () => {
         try {
           await navigator.clipboard.writeText(content);
-          btn.textContent = "✓ Copied!";
+          btn.textContent = btn.textContent.includes("📋")
+            ? "✓ Copied"
+            : "✓ Copied!";
           btn.classList.add("copied");
           setTimeout(() => {
             btn.textContent = label;
@@ -82,32 +84,43 @@ export function createCopyHtmlButton(html, label) {
 }
 
 /**
- * Create a markdown textarea with copy buttons
+ * Create a code display with syntax highlighting and copy buttons
  * @param {Object} options
- * @param {string} options.markdown - The markdown content to display
- * @param {string} [options.description] - Optional description text above the textarea
+ * @param {string} options.content - The content to display (markdown, code, or plain text)
+ * @param {string} [options.markdown] - Alias for content (backwards compatibility)
+ * @param {string} [options.language="markdown"] - Language for syntax highlighting (markdown, plaintext, etc.)
+ * @param {string} [options.description] - Optional description text above the display
+ * @param {string} [options.filename] - Optional filename to show in header
  * @param {string} [options.copyLabel="Copy Markdown"] - Label for the copy button
  * @param {Function} [options.toHtml] - Optional function to convert markdown to HTML for rich copy
  * @param {string} [options.copyHtmlLabel="Copy as HTML"] - Label for the HTML copy button
  * @param {number} [options.minHeight=300] - Minimum height in pixels
+ * @param {string} [options.className] - Additional CSS class for container
  * @returns {HTMLElement}
  */
 export function createMarkdownTextarea({
-  markdown,
+  content,
+  markdown, // Backwards compatibility
+  language = "markdown",
   description,
+  filename,
   copyLabel = "Copy Markdown",
   toHtml,
   copyHtmlLabel = "Copy as HTML",
   minHeight = 300,
+  className = "",
 }) {
+  // Support both content and markdown parameters
+  const displayContent = content || markdown;
+
   // Create highlighted code block
   const pre = document.createElement("pre");
   pre.className = "markdown-display";
   pre.style.minHeight = `${minHeight}px`;
 
   const code = document.createElement("code");
-  code.className = "language-markdown";
-  code.textContent = markdown;
+  code.className = `language-${language}`;
+  code.textContent = displayContent;
   pre.appendChild(code);
 
   // Apply Prism highlighting if available
@@ -115,18 +128,24 @@ export function createMarkdownTextarea({
     Prism.highlightElement(code);
   }
 
-  const buttons = [createCopyButton(markdown, copyLabel)];
+  const buttons = [createCopyButton(displayContent, copyLabel)];
   if (toHtml) {
-    buttons.push(createCopyHtmlButton(toHtml(markdown), copyHtmlLabel));
+    buttons.push(createCopyHtmlButton(toHtml(displayContent), copyHtmlLabel));
   }
 
+  // Build header content
+  const headerContent = [];
+  if (filename) {
+    headerContent.push(p({ className: "filename" }, filename));
+  }
+  if (description) {
+    headerContent.push(p({ className: "text-muted" }, description));
+  }
+  headerContent.push(div({ className: "button-group" }, ...buttons));
+
   return div(
-    { className: "markdown-textarea-container" },
-    div(
-      { className: "markdown-textarea-header" },
-      description ? p({ className: "text-muted" }, description) : null,
-      div({ className: "button-group" }, ...buttons),
-    ),
+    { className: `markdown-textarea-container ${className}`.trim() },
+    div({ className: "markdown-textarea-header" }, ...headerContent),
     pre,
   );
 }
