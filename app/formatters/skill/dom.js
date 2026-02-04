@@ -18,7 +18,7 @@ import {
 } from "../../lib/render.js";
 import { createBackLink } from "../../components/nav.js";
 import { createLevelCell } from "../../components/detail.js";
-import { createCodeDisplay } from "../../components/markdown-textarea.js";
+import { createCodeDisplay } from "../../components/code-display.js";
 import { SKILL_LEVEL_ORDER } from "../../model/levels.js";
 import { prepareSkillDetail } from "./shared.js";
 import { createJsonLdScript, skillToJsonLd } from "../json-ld.js";

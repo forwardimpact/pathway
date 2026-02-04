@@ -14,7 +14,7 @@ import {
 } from "../../components/radar-chart.js";
 import { createSkillMatrix } from "../../components/skill-matrix.js";
 import { createBehaviourProfile } from "../../components/behaviour-profile.js";
-import { createCodeDisplay } from "../../components/markdown-textarea.js";
+import { createCodeDisplay } from "../../components/code-display.js";
 import { markdownToHtml } from "../../lib/markdown.js";
 import { formatJobDescription } from "./description.js";
 

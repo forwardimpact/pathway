@@ -16,7 +16,7 @@ import {
   details,
   summary,
 } from "../../lib/render.js";
-import { createCodeDisplay } from "../../components/markdown-textarea.js";
+import { createCodeDisplay } from "../../components/code-display.js";
 import { formatAgentProfile } from "./profile.js";
 import { formatAgentSkill } from "./skill.js";
 import { getStageEmoji } from "../stage/shared.js";

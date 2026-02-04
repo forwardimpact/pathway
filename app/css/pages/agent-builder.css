@@ -103,24 +103,16 @@
     font-size: 1.5rem;
   }
 
-  .agent-card-filename {
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
-    margin: 0;
-    padding: 0 var(--space-md);
-    padding-top: var(--space-sm);
-  }
-
   .agent-card-preview {
     padding: var(--space-md);
   }
 
-  .agent-card-preview .code-preview {
+  .agent-card-preview .code-display-container {
     margin: 0;
+  }
+
+  .agent-card-preview .code-display {
     max-height: 400px;
-    overflow-y: auto;
   }
 
   /* Skill cards grid */
@@ -151,60 +143,22 @@
     font-size: var(--font-size-sm);
   }
 
-  .skill-card-filename {
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: var(--font-size-xs);
-    color: var(--color-text-muted);
-    margin: 0;
-    padding: var(--space-xs) var(--space-md);
-  }
-
   .skill-card-preview {
     padding: var(--space-sm) var(--space-md) var(--space-md);
   }
 
-  .skill-card-preview .code-preview {
+  .skill-card-preview .code-display-container {
     margin: 0;
-    max-height: 300px;
-    overflow-y: auto;
   }
 
-  /* Code preview */
-  .code-preview {
-    background: var(--color-bg);
-    border: 1px solid var(--color-border);
-    border-radius: var(--radius-md);
-    padding: var(--space-sm);
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: var(--font-size-xs);
-    line-height: 1.4;
-    white-space: pre-wrap;
-    word-break: break-word;
-    color: var(--color-text-muted);
+  .skill-card-preview .code-display {
+    max-height: 300px;
   }
 
   .skills-list {
     display: flex;
     flex-direction: column;
     gap: var(--space-md);
-  }
-
-  .skill-header {
-    display: flex;
-    justify-content: space-between;
-    align-items: center;
-    padding: var(--space-sm) var(--space-md);
-    background: var(--color-bg);
-    border-bottom: 1px solid var(--color-border);
-  }
-
-  .skill-filename {
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: var(--font-size-sm);
-    color: var(--color-text-muted);
   }
 
   /* CLI hint */

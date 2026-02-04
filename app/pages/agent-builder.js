@@ -34,7 +34,7 @@ import { createReactive } from "../lib/reactive.js";
 import { getStageEmoji } from "../formatters/stage/shared.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import { formatAgentSkill } from "../formatters/agent/skill.js";
-import { createCodeDisplay } from "../components/markdown-textarea.js";
+import { createCodeDisplay } from "../components/code-display.js";
 
 /** All stages option value */
 const ALL_STAGES_VALUE = "all";
