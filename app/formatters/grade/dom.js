@@ -77,16 +77,16 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
             { className: "content-columns" },
             view.professionalTitle
               ? div(
-                  { className: "list-item" },
+                  { className: "card" },
                   p({ className: "label" }, "Professional Track"),
-                  p({}, view.professionalTitle),
+                  p({ className: "card-description" }, view.professionalTitle),
                 )
               : null,
             view.managementTitle
               ? div(
-                  { className: "list-item" },
+                  { className: "card" },
                   p({ className: "label" }, "Management Track"),
-                  p({}, view.managementTitle),
+                  p({ className: "card-description" }, view.managementTitle),
                 )
               : null,
           ),
@@ -102,9 +102,9 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
             { className: "content-columns" },
             ...Object.entries(view.expectations).map(([key, value]) =>
               div(
-                { className: "list-item" },
+                { className: "card" },
                 p({ className: "label" }, formatLevel(key)),
-                p({}, value),
+                p({ className: "card-description" }, value),
               ),
             ),
           ),
