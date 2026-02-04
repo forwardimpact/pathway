@@ -146,7 +146,7 @@
   .section-title {
     font-size: var(--font-size-xl);
     font-weight: 600;
-    margin: 0 0 var(--space-sm);
+    margin: 0 0 var(--space-md);
     color: var(--color-text);
   }
 
@@ -233,11 +233,33 @@
     font-weight: 500;
   }
 
+  /*
+   * List items: 60px row height = 16px padding-top + 28px content + 16px padding-bottom
+   * Uses bottom-border only for 1px gaps between items (like table rows)
+   * Left/right borders and rounded corners on first/last items match table styling
+   */
   .list-item {
-    padding: var(--space-sm);
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    min-height: 60px;
+    padding: var(--space-md) var(--space-lg);
     background: var(--color-surface);
-    border-radius: var(--radius-md);
     border: 1px solid var(--color-border);
+    border-top: none;
+  }
+
+  /* First list-item in a sequence (handles heading before list items) */
+  .list-item:first-child,
+  :not(.list-item) + .list-item {
+    border-top: 1px solid var(--color-border);
+    border-top-left-radius: var(--radius-lg);
+    border-top-right-radius: var(--radius-lg);
+  }
+
+  .list-item:last-child {
+    border-bottom-left-radius: var(--radius-lg);
+    border-bottom-right-radius: var(--radius-lg);
   }
 
   /* Accent borders */

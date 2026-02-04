@@ -5,10 +5,13 @@
  */
 
 @layer components {
-  /* Base badge */
+  /* Base badge - 28px height matches tool icons for consistent row heights */
   .badge {
-    display: inline-block;
-    padding: var(--space-xs) var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 var(--space-sm);
     border-radius: var(--radius-md);
     font-size: var(--font-size-xs);
     font-weight: 500;
@@ -78,10 +81,13 @@
     color: #5b21b6;
   }
 
-  /* Level badge base style */
+  /* Level badge base style - 28px height matches tool icons */
   .level-badge {
-    display: inline-block;
-    padding: var(--space-xs) var(--space-sm);
+    display: inline-flex;
+    align-items: center;
+    justify-content: center;
+    height: 28px;
+    padding: 0 var(--space-sm);
     border-radius: var(--radius-md);
     font-size: var(--font-size-sm);
     font-weight: 500;
@@ -142,11 +148,12 @@
     padding: var(--space-xs) var(--space-sm);
   }
 
-  /* Modifier tags - consolidated definition */
+  /* Modifier tags - 28px height matches badges and tool icons */
   .modifier {
     display: inline-flex;
     align-items: center;
-    padding: var(--space-xs) var(--space-sm);
+    height: 28px;
+    padding: 0 var(--space-sm);
     border-radius: var(--radius-sm);
     font-size: var(--font-size-sm);
     font-weight: 600;
