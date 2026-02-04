@@ -16,6 +16,8 @@ import {
   span,
   label,
   section,
+  select,
+  option,
 } from "../lib/render.js";
 import { getState } from "../lib/state.js";
 import { loadAgentDataBrowser } from "../lib/yaml-loader.js";
@@ -102,8 +104,70 @@ export async function renderAgentBuilder() {
   const availableDisciplines = data.disciplines.filter((d) =>
     agentDisciplineIds.has(d.id),
   );
-  const availableTracks = data.tracks.filter((t) => agentTrackIds.has(t.id));
+  // All tracks with agent definitions (will be filtered per-discipline)
+  const allAgentTracks = data.tracks.filter((t) => agentTrackIds.has(t.id));
   const stages = data.stages || [];
+
+  /**
+   * Get tracks valid for a discipline that also have agent definitions
+   * @param {string} disciplineId - Discipline ID
+   * @returns {Array} - Valid tracks for the discipline
+   */
+  function getValidTracksForDiscipline(disciplineId) {
+    const discipline = data.disciplines.find((d) => d.id === disciplineId);
+    if (!discipline) return [];
+
+    const validTracks = discipline.validTracks ?? [];
+    // Filter to track IDs only (exclude null which means trackless)
+    const validTrackIds = validTracks.filter((t) => t !== null);
+
+    // Intersection: valid for discipline AND has agent definition
+    return allAgentTracks.filter((t) => validTrackIds.includes(t.id));
+  }
+
+  // Track select element - created once, options updated when discipline changes
+  const trackSelectEl = select(
+    { className: "form-select", id: "agent-track-select" },
+    option({ value: "", disabled: true, selected: true }, "Select a track..."),
+  );
+  trackSelectEl.disabled = true;
+
+  /**
+   * Update track select options based on selected discipline
+   * @param {string} disciplineId - Discipline ID
+   */
+  function updateTrackOptions(disciplineId) {
+    const validTracks = getValidTracksForDiscipline(disciplineId);
+
+    // Clear existing options
+    trackSelectEl.innerHTML = "";
+
+    if (validTracks.length === 0) {
+      trackSelectEl.appendChild(
+        option(
+          { value: "", disabled: true, selected: true },
+          "No tracks available for this discipline",
+        ),
+      );
+      trackSelectEl.disabled = true;
+      return;
+    }
+
+    // Add placeholder
+    trackSelectEl.appendChild(
+      option(
+        { value: "", disabled: true, selected: true },
+        "Select a track...",
+      ),
+    );
+
+    // Add available track options
+    validTracks.forEach((t) => {
+      trackSelectEl.appendChild(option({ value: t.id }, t.name));
+    });
+
+    trackSelectEl.disabled = false;
+  }
 
   // Build stage options with "All Stages" first
   const stageOptions = [
@@ -135,7 +199,7 @@ export async function renderAgentBuilder() {
   // Preview container - will be updated reactively
   const previewContainer = div(
     { className: "agent-preview" },
-    createEmptyState(availableDisciplines.length, availableTracks.length),
+    createEmptyState(availableDisciplines.length, allAgentTracks.length),
   );
 
   /**
@@ -157,7 +221,7 @@ export async function renderAgentBuilder() {
 
     if (!discipline) {
       previewContainer.appendChild(
-        createEmptyState(availableDisciplines.length, availableTracks.length),
+        createEmptyState(availableDisciplines.length, allAgentTracks.length),
       );
       return;
     }
@@ -252,7 +316,14 @@ export async function renderAgentBuilder() {
                 initialValue: selection.get().discipline,
                 placeholder: "Select a discipline...",
                 onChange: (value) => {
-                  selection.update((prev) => ({ ...prev, discipline: value }));
+                  // Update track options when discipline changes
+                  updateTrackOptions(value);
+                  // Reset track selection when discipline changes
+                  selection.update((prev) => ({
+                    ...prev,
+                    discipline: value,
+                    track: "",
+                  }));
                 },
                 getDisplayName: (d) => d.specialization || d.name,
               })
@@ -261,25 +332,32 @@ export async function renderAgentBuilder() {
                 "No disciplines have agent definitions.",
               ),
         ),
-        // Track selector
+        // Track selector (dynamically filtered by discipline)
         div(
           { className: "form-group" },
           label({ className: "form-label" }, "Track"),
-          availableTracks.length > 0
-            ? createSelectWithValue({
-                id: "agent-track-select",
-                items: availableTracks,
-                initialValue: selection.get().track,
-                placeholder: "Select a track...",
-                onChange: (value) => {
-                  selection.update((prev) => ({ ...prev, track: value }));
-                },
-                getDisplayName: (t) => t.name,
-              })
-            : p(
-                { className: "text-muted" },
-                "No tracks have agent definitions.",
-              ),
+          (() => {
+            // Wire up track select change handler
+            trackSelectEl.addEventListener("change", (e) => {
+              selection.update((prev) => ({ ...prev, track: e.target.value }));
+            });
+            // Initialize track options if discipline is pre-selected
+            const initialDiscipline = selection.get().discipline;
+            if (initialDiscipline) {
+              updateTrackOptions(initialDiscipline);
+              // Set initial track value if provided and valid
+              const initialTrack = selection.get().track;
+              const validTracks =
+                getValidTracksForDiscipline(initialDiscipline);
+              if (
+                initialTrack &&
+                validTracks.some((t) => t.id === initialTrack)
+              ) {
+                trackSelectEl.value = initialTrack;
+              }
+            }
+            return trackSelectEl;
+          })(),
         ),
         // Stage selector (dropdown with All Stages option)
         div(
