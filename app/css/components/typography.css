@@ -111,8 +111,7 @@
 
   /* Code inline */
   .code-inline {
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
+    font-family: var(--font-family-mono);
     font-size: 0.9em;
     background: var(--color-bg);
     padding: 0.1em 0.4em;

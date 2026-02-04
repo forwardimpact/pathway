@@ -51,9 +51,8 @@
   }
 
   .agent-section .filename {
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--color-text-muted);
     margin-bottom: var(--space-sm);
   }
@@ -211,9 +210,8 @@
   }
 
   .role-filename {
-    font-family:
-      ui-monospace, SFMono-Regular, "SF Mono", Menlo, Consolas, monospace;
-    font-size: var(--font-size-sm);
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
     color: var(--color-text-muted);
   }
 
