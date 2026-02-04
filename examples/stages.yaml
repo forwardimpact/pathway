@@ -4,7 +4,8 @@
   name: Specify
   emojiIcon: "🎯"
   description:
-    Define What and Why - User stories, acceptance criteria, requirements
+    Your primary task is to define WHAT users need and WHY, not how to build it.
+    Gather requirements, write user stories, and define acceptance criteria.
   handoffs:
     - targetStage: specify
       label: Refine Spec
@@ -30,7 +31,8 @@
   name: Plan
   emojiIcon: "📐"
   description:
-    Define How - Technology choices, architecture, contracts, data models
+    Your primary task is to define HOW to build the solution. Make technology
+    choices, design architecture, define contracts and data models.
   handoffs:
     - targetStage: plan
       label: Refine Plan
@@ -58,7 +60,9 @@
 - id: code
   name: Code
   emojiIcon: "💻"
-  description: Build and Iterate - Implement, test, refine
+  description:
+    Your primary task is to implement the solution. Write code, write tests, and
+    iterate until the implementation is complete.
   handoffs:
     - targetStage: review
       label: Request Review
@@ -79,7 +83,9 @@
 - id: review
   name: Review
   emojiIcon: "🔍"
-  description: Verify and Ship - Review, approve, document
+  description:
+    Your primary task is to verify the implementation works correctly. Run the
+    application, test against acceptance criteria, document findings.
   handoffs:
     - targetStage: code
       label: Request Changes
@@ -110,7 +116,9 @@
 - id: deploy
   name: Deploy
   emojiIcon: "🚀"
-  description: Ship to Production - Push, monitor workflows, verify deployment
+  description:
+    Your primary task is to ship the changes to production. Push code, monitor
+    CI/CD workflows, and verify successful deployment.
   handoffs:
     - targetStage: code
       label: Fix Pipeline
