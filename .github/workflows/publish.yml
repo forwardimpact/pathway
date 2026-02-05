@@ -33,6 +33,8 @@ jobs:
         run: npm run test
 
       - name: Publish to npm
-        run: npm publish --workspace=apps/${{ steps.package.outputs.name }} --access=public
+        run:
+          npm publish --workspace=apps/${{ steps.package.outputs.name }}
+          --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}

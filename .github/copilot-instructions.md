@@ -1,59 +1,65 @@
-# Engineering Pathway
+# Forward Impact
 
-## Project Overview
+## Vision
 
-Unified framework for human and AI collaboration in engineering. Define roles,
-track skills and behaviours, build career paths, and generate AI coding agents
-from the same coherent foundation.
+Applications that help teams grow and cultivate world-class engineers in the age
+of AI.
 
-**This is a data-driven monorepo.** The model layer defines derivation logic,
-but the actual entities (disciplines, tracks, skills, grades, behaviours, etc.)
-are defined entirely in YAML files. Different installations may have completely
-different data while using the same model.
+Engineering excellence requires both human growth and AI augmentation. This
+monorepo provides apps that define skills, behaviours, and career paths—working
+equally well for human engineers and AI coding agents from the same coherent
+model.
 
 ## Monorepo Structure
 
 ```
 apps/
   schema/       @forwardimpact/schema   Schema, validation, data loading
-  model/        @forwardimpact/model    Business logic, derivation
+  model/        @forwardimpact/model    Derivation logic, job/agent models
   pathway/      @forwardimpact/pathway  Web app, CLI, formatters
 ```
 
-| Package                  | CLI           | Purpose                             |
-| ------------------------ | ------------- | ----------------------------------- |
-| `@forwardimpact/schema`  | `fit-schema`  | Schema validation, index generation |
-| `@forwardimpact/model`   | —             | Derivation logic, job/agent models  |
-| `@forwardimpact/pathway` | `fit-pathway` | Web app, CLI commands, formatters   |
+| Package                  | CLI           | Purpose                                |
+| ------------------------ | ------------- | -------------------------------------- |
+| `@forwardimpact/schema`  | `fit-schema`  | Schema definitions and data loading    |
+| `@forwardimpact/model`   | —             | Derivation engine for roles and agents |
+| `@forwardimpact/pathway` | `fit-pathway` | Web app and CLI for career progression |
 
-**Key paths:**
-
-- Example data: `apps/schema/examples/`
-- JSON Schema: `apps/schema/schema/json/`
-- RDF/SHACL: `apps/schema/schema/rdf/`
-- Model: `apps/model/lib/`
-- Formatters: `apps/pathway/src/formatters/`
-- Templates: `apps/pathway/templates/`
-
-**⚠️ Important:** When changing data structure or properties, update:
-
-1. `apps/schema/schema/json/` and `apps/schema/schema/rdf/` — Schema definitions
-2. `apps/schema/examples/` — Example data files to match new schema
+**This is a data-driven monorepo.** The model layer defines derivation logic,
+but actual entities (disciplines, tracks, skills, grades, behaviours) are
+defined entirely in YAML files. Different installations may have completely
+different data while using the same model.
 
 **Tech**: Node.js 18+, Plain JS + JSDoc, YAML, npm workspaces, no frameworks
-
-**Patterns**: Job caching, builder component, reactive state, error boundaries
 
 ## Instructions
 
 See `.github/instructions/` for details:
 
-- `architecture.instructions.md` - Monorepo packages, 3-layer system, derivation
-- `code-style.instructions.md` - Code style, organization, testing
+**General** (apply everywhere):
+
 - `domain-concepts.instructions.md` - Core entities, skill structure, tools
-- `common-tasks.instructions.md` - Common workflows and CLI usage
-- `git-workflow.instructions.md` - Conventional commits
 - `vocabulary.instructions.md` - Standard terminology
+- `git-workflow.instructions.md` - Conventional commits
+
+**Architecture**:
+
+- `architecture.instructions.md` - Monorepo overview and 3-layer system
+- `architecture-schema.instructions.md` - Schema package specifics
+- `architecture-model.instructions.md` - Model package specifics
+- `architecture-pathway.instructions.md` - Pathway package specifics
+
+**Code Style**:
+
+- `code-style.instructions.md` - General JS code style
+- `code-style-pathway.instructions.md` - Pathway-specific patterns
+- `css-architecture.instructions.md` - CSS layer architecture
+
+**Tasks**:
+
+- `common-tasks.instructions.md` - General workflows
+- `tasks-schema.instructions.md` - Schema-specific tasks
+- `tasks-pathway.instructions.md` - Pathway-specific tasks
 
 ## Core Rules
 
@@ -62,16 +68,13 @@ See `.github/instructions/` for details:
 3. **Pure functions** - Model layer has no side effects
 4. **Use formatters** - All presentation logic in `apps/pathway/src/formatters/`
 5. **No transforms in views** - Pages/commands pass raw entities to formatters
-6. **Cache jobs** - Use `getOrCreateJob()` in pages before calling formatters
-7. **Builder pattern** - Use `createBuilder()` for selector pages
-8. **Error boundaries** - Throw typed errors, router handles them
-9. **JSDoc types** - All public functions
-10. **Test coverage** - New derivation logic requires tests
-11. **No frameworks** - Vanilla JS only
-12. **ESM modules** - No CommonJS
-13. **Conventional commits** - `type(scope): subject`
-14. **Co-located files** - All entities (skills, behaviours, disciplines,
-    tracks) have `human:` and `agent:` sections in the same file
+6. **JSDoc types** - All public functions
+7. **Test coverage** - New derivation logic requires tests
+8. **No frameworks** - Vanilla JS only
+9. **ESM modules** - No CommonJS
+10. **Conventional commits** - `type(scope): subject`
+11. **Co-located files** - All entities have `human:` and `agent:` sections in
+    the same file
 
 ## ⚠️ Simple vs Easy
 

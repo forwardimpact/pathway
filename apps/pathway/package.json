@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/pathway",
   "version": "0.6.0",
-  "description": "Engineering Pathway CLI and web app",
+  "description": "Career progression web app and CLI for exploring roles and generating agents",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

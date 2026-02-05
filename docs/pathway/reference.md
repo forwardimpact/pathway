@@ -1,10 +1,10 @@
-# Engineering Pathway: Reference
+# Reference
 
 Practical reference for file organization, output templates, and CLI usage.
 
-> See [Core Model](model.md) for foundational concepts,
-> [Lifecycle](lifecycle.md) for stages and checklists, and [Agents](agents.md)
-> for agent profile generation.
+> See [Core Model](../model/core.md) for foundational concepts,
+> [Lifecycle](../model/lifecycle.md) for stages and checklists, and
+> [Agents](agents.md) for agent profile generation.
 
 ---
 
@@ -267,6 +267,7 @@ Agent profiles are generated from `Discipline × Track × Stage`:
 
 ## Related Documents
 
-- [Core Model](model.md) — Disciplines, Tracks, Grades, Skills, Behaviours
-- [Lifecycle](lifecycle.md) — Stages, handoffs, and checklists
+- [Core Model](../model/core.md) — Disciplines, Tracks, Grades, Skills,
+  Behaviours
+- [Lifecycle](../model/lifecycle.md) — Stages, handoffs, and checklists
 - [Agents](agents.md) — Agent profile generation and SKILL.md format

@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/schema",
   "version": "0.1.0",
-  "description": "Schema definitions and validation for Engineering Pathway framework",
+  "description": "Schema definitions and data loading for skills, behaviours, and role frameworks",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -1,0 +1,71 @@
+# @forwardimpact/model
+
+Derivation engine for roles, skills, and AI agent profiles.
+
+## Role in the Vision
+
+The model package contains the core logic that transforms raw data into
+actionable role definitions. Whether you're generating a human job description
+or an AI agent profile, the same derivation engine ensures consistent
+expectations across both.
+
+## What It Does
+
+- **Job derivation** — Combine discipline, track, and grade into complete role
+  definitions with skill matrices and behaviour profiles
+- **Agent profiles** — Generate AI coding agent configurations from the same
+  foundation as human roles
+- **Interview preparation** — Select appropriate questions based on role
+  requirements
+- **Career progression** — Analyze skill gaps and growth paths between grades
+- **Checklists** — Derive stage transition checklists from capability
+  definitions
+
+## Usage
+
+```javascript
+import {
+  deriveJob,
+  deriveSkillMatrix,
+  deriveBehaviourProfile,
+} from "@forwardimpact/model/derivation";
+import { prepareAgentProfile } from "@forwardimpact/model/agent";
+import { selectInterviewQuestions } from "@forwardimpact/model/interview";
+import { analyzeProgression } from "@forwardimpact/model/progression";
+```
+
+## Key Concepts
+
+### Job Derivation
+
+```
+Job = Discipline × Track × Grade
+```
+
+- **Discipline** defines skill tiers (primary/secondary/broad)
+- **Track** applies modifiers to capability areas
+- **Grade** sets base skill levels
+
+### Agent Profiles
+
+```
+Agent = Discipline × Track × Stage
+```
+
+Uses the same skill derivation but filtered for AI-applicable capabilities and
+constrained by lifecycle stage (plan, code, review).
+
+## Package Exports
+
+| Export        | Purpose                     |
+| ------------- | --------------------------- |
+| `derivation`  | Core derivation functions   |
+| `agent`       | Agent profile generation    |
+| `interview`   | Question selection          |
+| `job`         | Job preparation for display |
+| `job-cache`   | Caching for pages           |
+| `progression` | Career path analysis        |
+| `checklist`   | Stage transition checklists |
+| `matching`    | Role matching logic         |
+
+See the [documentation](../../docs/model/index.md) for derivation details.

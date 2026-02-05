@@ -1,10 +1,9 @@
-# Engineering Pathway: Agents
+# Agents
 
-This document covers agent-specific aspects of the Engineering Pathway: agent
-profile derivation, SKILL.md format, and VS Code integration.
+Agent profile derivation, SKILL.md format, and VS Code integration.
 
-> See [Core Model](model.md) for foundational concepts and
-> [Lifecycle](lifecycle.md) for stages, handoffs, and checklists.
+> See [Core Model](../model/core.md) for foundational concepts and
+> [Lifecycle](../model/lifecycle.md) for stages, handoffs, and checklists.
 
 ---
 
@@ -235,6 +234,7 @@ maintaining control over when stages change.
 
 ## Related Documents
 
-- [Core Model](model.md) — Disciplines, Tracks, Grades, Skills, Behaviours
-- [Lifecycle](lifecycle.md) — Stages, handoffs, and checklists
+- [Core Model](../model/core.md) — Disciplines, Tracks, Grades, Skills,
+  Behaviours
+- [Lifecycle](../model/lifecycle.md) — Stages, handoffs, and checklists
 - [Reference](reference.md) — File organization, templates, and CLI

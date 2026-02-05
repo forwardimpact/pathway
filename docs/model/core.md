@@ -1,7 +1,7 @@
-# Engineering Pathway: Core Model
+# Core Model
 
-A unified framework where human engineering roles and AI coding agents derive
-from the same foundation.
+Disciplines, Grades, Tracks, Skills, Behaviours, Capabilities, Drivers, and Job
+Derivation.
 
 ---
 
@@ -334,5 +334,5 @@ achieved in that capability. Uses `professionalResponsibilities` or
 ## Related Documents
 
 - [Lifecycle](lifecycle.md) — Stages, handoffs, and checklists
-- [Agents](agents.md) — Agent profile generation and SKILL.md format
-- [Reference](reference.md) — File organization, templates, and CLI
+- [Agents](../pathway/agents.md) — Agent profile generation and SKILL.md format
+- [Reference](../pathway/reference.md) — File organization, templates, and CLI

@@ -1,11 +1,11 @@
-# Engineering Pathway: Lifecycle
+# Lifecycle
 
 The engineering lifecycle represents the flow of work from inception to
 production. This lifecycle applies to both human engineers and AI coding agents,
 with the same stages, handoffs, and checklists.
 
-> See [Core Model](model.md) for foundational concepts and [Agents](agents.md)
-> for AI-specific profile generation.
+> See [Core Model](core.md) for foundational concepts and
+> [Agents](../pathway/agents.md) for AI-specific profile generation.
 
 ---
 
@@ -258,7 +258,7 @@ When an agent offers a handoff:
 4. **Transition**: Target agent receives summary and validates entry criteria
 5. **Return Format**: All agents use consistent summary structure
 
-See [Agents](agents.md) for agent profile generation details.
+See [Agents](../pathway/agents.md) for agent profile generation details.
 
 ### Stage Tool Sets
 
@@ -272,6 +272,6 @@ See [Agents](agents.md) for agent profile generation details.
 
 ## Related Documents
 
-- [Core Model](model.md) — Disciplines, Tracks, Grades, Skills, Behaviours
-- [Agents](agents.md) — Agent profile generation and SKILL.md format
-- [Reference](reference.md) — File organization, templates, and CLI
+- [Core Model](core.md) — Disciplines, Tracks, Grades, Skills, Behaviours
+- [Agents](../pathway/agents.md) — Agent profile generation and SKILL.md format
+- [Reference](../pathway/reference.md) — File organization, templates, and CLI

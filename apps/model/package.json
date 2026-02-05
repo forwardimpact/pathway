@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/model",
   "version": "0.1.0",
-  "description": "Business logic for Engineering Pathway framework",
+  "description": "Derivation engine for roles, skills, and AI agent profiles",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
