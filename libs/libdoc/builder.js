@@ -56,6 +56,33 @@ export class DocsBuilder {
   }
 
   /**
+   * Transform .md links to match the HTML output structure
+   * - index.md → ./
+   * - file.md → file/
+   * - dir/index.md → dir/
+   * - dir/file.md → dir/file/
+   * @param {string} html - HTML content to transform
+   * @returns {string} HTML with transformed links
+   */
+  #transformMarkdownLinks(html) {
+    return html.replace(
+      /href="([^"]*?)\.md(#[^"]*)?"/g,
+      (_match, path, hash) => {
+        const fragment = hash || "";
+        // Handle index.md links
+        if (path === "index" || path === "./index") {
+          return `href="./${fragment}"`;
+        }
+        if (path.endsWith("/index")) {
+          return `href="${path.slice(0, -5)}${fragment}"`;
+        }
+        // Non-index files become directories
+        return `href="${path}/${fragment}"`;
+      },
+    );
+  }
+
+  /**
    * Generate table of contents from h2 headings
    * @param {string} html - HTML content to extract headings from
    * @returns {string} HTML list of ToC links
@@ -196,8 +223,9 @@ export class DocsBuilder {
         continue;
       }
 
-      // Convert Markdown to HTML
-      const html = this.#marked(markdown);
+      // Convert Markdown to HTML and transform .md links
+      const rawHtml = this.#marked(markdown);
+      const html = this.#transformMarkdownLinks(rawHtml);
       const toc = frontMatter.toc !== false ? this.#generateToc(html) : "";
 
       // Render template with context
