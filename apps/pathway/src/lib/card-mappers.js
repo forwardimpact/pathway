@@ -190,7 +190,7 @@ export function toolToCardConfig(tool, capabilities) {
     title: tool.name,
     description: tool.description,
     // Docs link in header badges (upper right)
-    badges: tool.url ? [createExternalLink("Docs →", tool.url)] : [],
+    badges: tool.url ? [createExternalLink("Docs ↗", tool.url)] : [],
     content: skillsList,
     icon,
   };

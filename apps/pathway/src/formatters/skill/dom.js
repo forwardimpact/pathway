@@ -204,6 +204,7 @@ export function skillToDOM(
                             rel: "noopener noreferrer",
                           },
                           tool.name,
+                          span({ className: "external-icon" }, " ↗"),
                         )
                       : tool.name,
                   ),
