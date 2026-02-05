@@ -11,6 +11,10 @@
 import Mustache from "mustache";
 
 import { trimValue, trimRequired, trimFields } from "../shared.js";
+import {
+  flattenToLine,
+  preprocessArrayFrontmatter,
+} from "../template-preprocess.js";
 
 /**
  * @typedef {Object} WorkingStyleEntry
@@ -49,8 +53,14 @@ import { trimValue, trimRequired, trimFields } from "../shared.js";
  * @returns {Object} Data object ready for Mustache template
  */
 function prepareAgentProfileData({ frontmatter, bodyData }) {
-  // Trim array fields using shared helpers
-  const handoffs = trimFields(frontmatter.handoffs, { prompt: "required" });
+  // Preprocess handoffs - flatten prompt field for front matter compatibility
+  const preprocessedHandoffs = preprocessArrayFrontmatter(
+    frontmatter.handoffs,
+    ["prompt"],
+  );
+  // Then trim as before
+  const handoffs = trimFields(preprocessedHandoffs, { prompt: "required" });
+
   const constraints = (bodyData.constraints || []).map((c) => trimRequired(c));
   const skillIndex = trimFields(bodyData.skillIndex, {
     name: "required",
@@ -75,9 +85,9 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
   }));
 
   return {
-    // Frontmatter
+    // Frontmatter - flatten description for single-line front matter
     name: frontmatter.name,
-    description: trimRequired(frontmatter.description),
+    description: flattenToLine(frontmatter.description),
     infer: frontmatter.infer,
     handoffs,
 

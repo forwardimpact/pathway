@@ -11,6 +11,7 @@
 import Mustache from "mustache";
 
 import { trimValue, splitLines, trimFields } from "../shared.js";
+import { flattenToLine } from "../template-preprocess.js";
 
 /**
  * Prepare agent skill data for template rendering
@@ -40,17 +41,25 @@ function prepareAgentSkillData({
     ready: "array",
   });
 
+  // Flatten multi-line strings to single line for front matter compatibility
+  const description = flattenToLine(frontmatter.description);
+  const useWhen = flattenToLine(frontmatter.useWhen);
+
+  // Keep line arrays for body rendering
   const descriptionLines = splitLines(frontmatter.description);
-  const useWhenLines = splitLines(frontmatter.useWhen);
+
   const trimmedReference = trimValue(reference) || "";
   const tools = toolReferences || [];
 
   return {
     name: frontmatter.name,
+    // Single-line versions for front matter
+    description,
+    hasDescription: !!description,
+    useWhen,
+    hasUseWhen: !!useWhen,
+    // Line arrays for body content
     descriptionLines,
-    hasDescription: descriptionLines.length > 0,
-    useWhenLines,
-    hasUseWhen: useWhenLines.length > 0,
     title,
     stages: processedStages,
     hasStages: processedStages.length > 0,

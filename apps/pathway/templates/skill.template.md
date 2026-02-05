@@ -1,10 +1,6 @@
 ---
 name: {{name}}
-description: |
-  {{#descriptionLines}}{{{.}}} {{/descriptionLines}}
-{{#hasUseWhen}}
-  Use When: {{#useWhenLines}}{{{.}}} {{/useWhenLines}}
-{{/hasUseWhen}}
+description: {{{description}}}{{#hasUseWhen}} Use When: {{{useWhen}}}{{/hasUseWhen}}
 ---
 
 # {{{title}}}
