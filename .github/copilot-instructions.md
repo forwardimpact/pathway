@@ -6,25 +6,41 @@ Unified framework for human and AI collaboration in engineering. Define roles,
 track skills and behaviours, build career paths, and generate AI coding agents
 from the same coherent foundation.
 
-**This is a data-driven application.** The model layer defines the schema and
-derivation logic, but the actual entities (disciplines, tracks, skills, grades,
-behaviours, etc.) are defined entirely in YAML files. Different installations
-may have completely different data while using the same model.
+**This is a data-driven monorepo.** The model layer defines derivation logic,
+but the actual entities (disciplines, tracks, skills, grades, behaviours, etc.)
+are defined entirely in YAML files. Different installations may have completely
+different data while using the same model.
 
-**Architecture**: Model → Formatter → View (see `architecture.instructions.md`
-for details)
+## Monorepo Structure
 
-**Data**: YAML files in `examples/` and `data/` contain all human and agent
-definitions. Content varies per installation.
+```
+apps/
+  schema/       @forwardimpact/schema   Schema, validation, data loading
+  model/        @forwardimpact/model    Business logic, derivation
+  pathway/      @forwardimpact/pathway  Web app, CLI, formatters
+```
 
-**⚠️ Important:** When changing data structure or properties, ALL THREE
-locations MUST be updated:
+| Package                  | CLI           | Purpose                             |
+| ------------------------ | ------------- | ----------------------------------- |
+| `@forwardimpact/schema`  | `fit-schema`  | Schema validation, index generation |
+| `@forwardimpact/model`   | —             | Derivation logic, job/agent models  |
+| `@forwardimpact/pathway` | `fit-pathway` | Web app, CLI commands, formatters   |
 
-1. `schema/json/` and `schema/rdf/` — Update JSON Schema and RDF/SHACL ontology
-2. `examples/` — Update example data files to match new schema
-3. `data/` — Update actual data files to match new schema
+**Key paths:**
 
-**Tech**: Node.js 18+, Plain JS + JSDoc, YAML, no frameworks
+- Example data: `apps/schema/examples/`
+- JSON Schema: `apps/schema/schema/json/`
+- RDF/SHACL: `apps/schema/schema/rdf/`
+- Model: `apps/model/lib/`
+- Formatters: `apps/pathway/src/formatters/`
+- Templates: `apps/pathway/templates/`
+
+**⚠️ Important:** When changing data structure or properties, update:
+
+1. `apps/schema/schema/json/` and `apps/schema/schema/rdf/` — Schema definitions
+2. `apps/schema/examples/` — Example data files to match new schema
+
+**Tech**: Node.js 18+, Plain JS + JSDoc, YAML, npm workspaces, no frameworks
 
 **Patterns**: Job caching, builder component, reactive state, error boundaries
 
@@ -32,11 +48,9 @@ locations MUST be updated:
 
 See `.github/instructions/` for details:
 
-- `architecture.instructions.md` - 3-layer system, model structure, job/agent
-  derivation, tools (derived entity), formatter layer, key patterns
+- `architecture.instructions.md` - Monorepo packages, 3-layer system, derivation
 - `code-style.instructions.md` - Code style, organization, testing
-- `domain-concepts.instructions.md` - Core entities, skill structure, tools,
-  skill levels, behaviour maturities, business domain
+- `domain-concepts.instructions.md` - Core entities, skill structure, tools
 - `common-tasks.instructions.md` - Common workflows and CLI usage
 - `git-workflow.instructions.md` - Conventional commits
 - `vocabulary.instructions.md` - Standard terminology
@@ -46,7 +60,7 @@ See `.github/instructions/` for details:
 1. **Clean breaks** - Fully replace, never leave old and new coexisting
 2. **No defensive code** - Trust the architecture, let errors surface
 3. **Pure functions** - Model layer has no side effects
-4. **Use formatters** - All presentation logic in `formatters/{entity}/`
+4. **Use formatters** - All presentation logic in `apps/pathway/src/formatters/`
 5. **No transforms in views** - Pages/commands pass raw entities to formatters
 6. **Cache jobs** - Use `getOrCreateJob()` in pages before calling formatters
 7. **Builder pattern** - Use `createBuilder()` for selector pages

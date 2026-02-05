@@ -6,30 +6,30 @@ applyTo: "**"
 
 > **Data-Driven Application**: All entity IDs (skills, disciplines, tracks,
 > grades, behaviours) shown in examples are for illustration only. The actual
-> available values depend on the YAML files in `data/`. Always use
-> `npx pathway <entity> --list` to discover what's available in the current
-> installation.
+> available values depend on the YAML files in `apps/schema/examples/`. Always
+> use `npx fit-pathway <entity> --list` to discover what's available.
 
 ## Add Skill
 
 1. Add skill to the appropriate capability file
-   `data/capabilities/{capability_id}.yaml`
+   `apps/schema/examples/capabilities/{capability_id}.yaml`
 2. Add skill object to the `skills:` array with `id`, `name`, and `human:`
    section
 3. Include level descriptions for all five levels
 4. Reference skill in disciplines (coreSkills/supportingSkills/broadSkills)
-5. Add questions to `data/questions/skills/{skill_id}.yaml`
+5. Add questions to `apps/schema/examples/questions/skills/{skill_id}.yaml`
 6. Optionally add `agent:` section for AI coding agent support
-7. Run `npm run validate`
+7. Run `npx fit-schema validate`
 
 ## Add or Modify Interview Questions
 
-Questions live in `data/questions/` with one file per skill/behaviour.
+Questions live in `apps/schema/examples/questions/` with one file per
+skill/behaviour.
 
 ### File Location
 
-- Skills: `questions/skills/{skill_id}.yaml`
-- Behaviours: `questions/behaviours/{behaviour_id}.yaml`
+- Skills: `apps/schema/examples/questions/skills/{skill_id}.yaml`
+- Behaviours: `apps/schema/examples/questions/behaviours/{behaviour_id}.yaml`
 
 ### Question Properties
 
@@ -63,11 +63,11 @@ Questions live in `data/questions/` with one file per skill/behaviour.
 
 ### Adding Questions
 
-1. Open `questions/skills/{skill_id}.yaml` or
-   `questions/behaviours/{behaviour_id}.yaml`
+1. Open `apps/schema/examples/questions/skills/{skill_id}.yaml` or
+   `apps/schema/examples/questions/behaviours/{behaviour_id}.yaml`
 2. Add question to appropriate level/maturity section
 3. Follow ID convention: `{abbrev}_{level_abbrev}_{number}`
-4. Run `npm run validate` to verify
+4. Run `npx fit-schema validate` to verify
 
 ### Browsing Questions
 
@@ -75,35 +75,36 @@ Use the questions CLI command to compare and analyse questions:
 
 ```sh
 # See all practitioner-level skill questions
-npx pathway questions --level=practitioner
+npx fit-pathway questions --level=practitioner
 
 # See all role_modeling behaviour questions
-npx pathway questions --maturity=role_modeling
+npx fit-pathway questions --maturity=role_modeling
 
 # Question count statistics
-npx pathway questions --stats
+npx fit-pathway questions --stats
 
 # Deep dive on a single skill (use actual skill ID from your installation)
-npx pathway questions --skill=<skill_id>
+npx fit-pathway questions --skill=<skill_id>
 
 # Export as YAML for bulk editing
-npx pathway questions --level=practitioner --format=yaml > practitioner-questions.yaml
+npx fit-pathway questions --level=practitioner --format=yaml > practitioner-questions.yaml
 ```
 
 ## Add Derivation Function
 
-1. Add pure function to `app/model/derivation.js`
+1. Add pure function to `apps/model/lib/derivation.js`
 2. Add tests in `tests/model.test.js`
 3. Document with JSDoc
 
 ## Add Agent Skill
 
-1. Add `agent:` section to skill in `data/capabilities/{capability_id}.yaml`
+1. Add `agent:` section to skill in
+   `apps/schema/examples/capabilities/{capability_id}.yaml`
 2. Include required fields: `name`, `description`, `useWhen`, `stages`
 3. Define stage-specific guidance (`specify`, `plan`, `code`, `review`,
    `deploy`)
 4. Each stage needs: `focus`, `activities[]`, `ready[]` (readiness criteria)
-5. Run `npm run validate` to verify
+5. Run `npx fit-schema validate` to verify
 
 Example structure:
 
@@ -134,10 +135,10 @@ agent:
 ## Add Tool Reference
 
 1. Add `toolReferences:` array to skill in
-   `data/capabilities/{capability_id}.yaml`
+   `apps/schema/examples/capabilities/{capability_id}.yaml`
 2. Include required fields: `name`, `description`, `useWhen`
 3. Optionally add `url` for tool documentation link
-4. Run `npm run validate` to verify
+4. Run `npx fit-schema validate` to verify
 
 Example:
 
@@ -155,120 +156,136 @@ toolReferences:
 ## Generate Agent Profile
 
 Agent profiles are generated from discipline × track × stage combinations. Use
-`npx pathway agent --list` to see valid combinations in your installation.
+`npx fit-pathway agent --list` to see valid combinations.
 
 ```sh
 # Generate default agent
-npx pathway agent <discipline> --track=<track> --output=./agents
+npx fit-pathway agent <discipline> --track=<track> --output=./agents
 
 # Generate stage-specific agent
-npx pathway agent <discipline> --track=<track> --stage=plan --output=./agents
+npx fit-pathway agent <discipline> --track=<track> --stage=plan --output=./agents
 
 # Generate all stage variants
-npx pathway agent <discipline> --track=<track> --all-stages --output=./agents
+npx fit-pathway agent <discipline> --track=<track> --all-stages --output=./agents
 
 # Preview without writing files (outputs to console)
-npx pathway agent <discipline> --track=<track> --stage=plan
+npx fit-pathway agent <discipline> --track=<track> --stage=plan
 
 # List available combinations
-npx pathway agent --list
+npx fit-pathway agent --list
 ```
 
 ## Add Agent Discipline or Track
 
-1. Add configuration to `data/disciplines/agent.yaml` or
-   `data/tracks/agent.yaml`
+1. Add configuration to `apps/schema/examples/disciplines/agent.yaml` or
+   `apps/schema/examples/tracks/agent.yaml`
 2. Ensure `id` matches the corresponding human definition
 3. Include required fields (see existing entries for examples)
-4. Run `npm run validate` to verify
+4. Run `npx fit-schema validate` to verify
 
 ## CLI Usage
 
+Two CLIs are provided:
+
+| CLI           | Package                  | Purpose                             |
+| ------------- | ------------------------ | ----------------------------------- |
+| `fit-schema`  | `@forwardimpact/schema`  | Schema validation, index generation |
+| `fit-pathway` | `@forwardimpact/pathway` | Web app, entity browsing, agents    |
+
+### Schema Commands (`fit-schema`)
+
+```sh
+npx fit-schema validate          # Validate all data files
+npx fit-schema generate-index    # Generate _index.yaml for browser
+npx fit-schema validate:shacl    # Validate SHACL ontology
+```
+
+### Pathway Commands (`fit-pathway`)
+
 The CLI follows consistent patterns across all commands:
 
-| Mode     | Pattern                    | Description                         |
-| -------- | -------------------------- | ----------------------------------- |
-| Summary  | `npx pathway <command>`    | Concise overview with stats         |
-| List     | `npx pathway <cmd> --list` | IDs only, one per line (for piping) |
-| Detail   | `npx pathway <cmd> <id>`   | Full entity details                 |
-| Validate | `npx pathway --validate`   | Run all data validation checks      |
+| Mode    | Pattern                        | Description                         |
+| ------- | ------------------------------ | ----------------------------------- |
+| Summary | `npx fit-pathway <command>`    | Concise overview with stats         |
+| List    | `npx fit-pathway <cmd> --list` | IDs only, one per line (for piping) |
+| Detail  | `npx fit-pathway <cmd> <id>`   | Full entity details                 |
 
 ### Getting Started
 
 ```sh
-npx pathway init                       # Create ./data/ with example data
-npx pathway serve                      # Serve web app at http://localhost:3000
-npx pathway serve --port=8080          # Custom port
-npx pathway site --output=./site       # Generate static site
+npx fit-pathway init                       # Create ./data/ with example data
+npx fit-pathway serve                      # Serve web app at http://localhost:3000
+npx fit-pathway serve --port=8080          # Custom port
+npx fit-pathway site --output=./site       # Generate static site
 ```
 
 ### Entity Commands
 
 ```sh
 # Summary view (default)
-npx pathway discipline
-npx pathway grade
-npx pathway track
-npx pathway behaviour
-npx pathway skill
-npx pathway driver
-npx pathway stage
-npx pathway tool
+npx fit-pathway discipline
+npx fit-pathway grade
+npx fit-pathway track
+npx fit-pathway behaviour
+npx fit-pathway skill
+npx fit-pathway driver
+npx fit-pathway stage
+npx fit-pathway tool
 
 # List IDs for piping (discover available entities)
-npx pathway skill --list
-npx pathway tool --list
-npx pathway job --list | head -5
+npx fit-pathway skill --list
+npx fit-pathway tool --list
+npx fit-pathway job --list | head -5
 
 # Detail view (use actual IDs from your installation)
-npx pathway skill <skill_id>
-npx pathway discipline <discipline_id>
-npx pathway tool <tool_name>
+npx fit-pathway skill <skill_id>
+npx fit-pathway discipline <discipline_id>
+npx fit-pathway tool <tool_name>
 
 # Agent SKILL.md output (for skills with agent section)
-npx pathway skill <skill_id> --agent
+npx fit-pathway skill <skill_id> --agent
 ```
 
 ### Composite Commands
 
 Job, interview, and progress commands take discipline and grade as positional
 arguments. Track is optional via `--track=<track>`. Use
-`npx pathway <entity> --list` to discover available values.
+`npx fit-pathway <entity> --list` to discover available values.
 
 ```sh
 # Job definition
-npx pathway job                                    # Summary
-npx pathway job --list                             # All valid combinations
-npx pathway job <discipline> <grade>               # Full specification (trackless)
-npx pathway job <discipline> <grade> --track=<track>  # With track
-npx pathway job <discipline> <grade> --track=<track> --checklist=code
+npx fit-pathway job                                    # Summary
+npx fit-pathway job --list                             # All valid combinations
+npx fit-pathway job <discipline> <grade>               # Full specification
+npx fit-pathway job <discipline> <grade> --track=<track>
+npx fit-pathway job <discipline> <grade> --track=<track> --checklist=code
 
 # Interview questions
-npx pathway interview <discipline> <grade>
-npx pathway interview <discipline> <grade> --track=<track> --type=short
+npx fit-pathway interview <discipline> <grade>
+npx fit-pathway interview <discipline> <grade> --track=<track> --type=short
 
 # Career progression
-npx pathway progress <discipline> <grade>
-npx pathway progress <discipline> <from_grade> --track=<track> --compare=<to_grade>
+npx fit-pathway progress <discipline> <grade>
+npx fit-pathway progress <discipline> <from_grade> --track=<track> --compare=<to_grade>
 ```
 
 ### Questions Commands
 
 ```sh
 # Summary
-npx pathway questions
+npx fit-pathway questions
 
 # Filter and browse (level/maturity names are fixed in the model)
-npx pathway questions --level=practitioner
-npx pathway questions --maturity=role_modeling
-npx pathway questions --skill=<skill_id>        # Use actual skill ID
-npx pathway questions --behaviour=<behaviour_id>
-npx pathway questions --capability=<capability>
-npx pathway questions --stats
+npx fit-pathway questions --level=practitioner
+npx fit-pathway questions --maturity=role_modeling
+npx fit-pathway questions --skill=<skill_id>
+npx fit-pathway questions --behaviour=<behaviour_id>
+npx fit-pathway questions --capability=<capability>
+npx fit-pathway questions --stats
 
 # Export
-npx pathway questions --list                       # Question IDs for piping
-npx pathway questions --format=yaml > questions.yaml
+npx fit-pathway questions --list
+npx fit-pathway questions --format=yaml > questions.yaml
 ```
 
 ### Tool Commands
@@ -277,17 +294,17 @@ Tools are aggregated from `toolReferences` within skills.
 
 ```sh
 # Summary (top tools by usage)
-npx pathway tool
+npx fit-pathway tool
 
 # List tool names for piping
-npx pathway tool --list
+npx fit-pathway tool --list
 
 # Detail view (shows description and which skills use it)
-npx pathway tool <tool_name>
+npx fit-pathway tool <tool_name>
 
 # JSON output
-npx pathway tool --json
-npx pathway tool <tool_name> --json
+npx fit-pathway tool --json
+npx fit-pathway tool <tool_name> --json
 ```
 
 ### Agent Commands
@@ -296,35 +313,35 @@ Agent commands use `--track` as an option (not positional).
 
 ```sh
 # Summary
-npx pathway agent
+npx fit-pathway agent
 
-# List combinations (discover what's available in your installation)
-npx pathway agent --list
+# List combinations (discover what's available)
+npx fit-pathway agent --list
 
 # Generate files (use actual discipline and track IDs)
-npx pathway agent <discipline>
-npx pathway agent <discipline> --track=<track>
-npx pathway agent <discipline> --track=<track> --output=./agents
+npx fit-pathway agent <discipline>
+npx fit-pathway agent <discipline> --track=<track>
+npx fit-pathway agent <discipline> --track=<track> --output=./agents
 
 # Stage variants (plan, code, review)
-npx pathway agent <discipline> --track=<track> --stage=plan
-npx pathway agent <discipline> --track=<track> --all-stages
+npx fit-pathway agent <discipline> --track=<track> --stage=plan
+npx fit-pathway agent <discipline> --track=<track> --all-stages
 ```
 
-### Validation
+### JSON Output
 
 ```sh
-# Full validation (replaces npm run validate)
-npx pathway --validate
-
-# Output as JSON (use actual IDs from your installation)
-npx pathway skill --json
-npx pathway job <discipline> <grade> --json
-npx pathway job <discipline> <grade> --track=<track> --json
+npx fit-pathway skill --json
+npx fit-pathway job <discipline> <grade> --json
+npx fit-pathway job <discipline> <grade> --track=<track> --json
 ```
 
-## NPM Scripts
+## NPM Scripts (Root)
 
-- `npm run validate` — Validate data files (alias for `npx pathway --validate`)
+- `npm run validate` — Validate data files via fit-schema
+- `npm run validate:shacl` — Validate SHACL ontology
+- `npm run generate-index` — Generate browser index files
 - `npm start` — Start local web app at http://localhost:3000/
-- `npm run demo` — Run demo script
+- `npm run check` — Run format, lint, test, and SHACL validation
+- `npm run test` — Run unit tests
+- `npm run test:e2e` — Run Playwright E2E tests

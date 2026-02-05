@@ -1,8 +1,8 @@
 # Document the Data Model
 
 Generate comprehensive documentation of the Engineering Pathway data model in
-`MODEL.md`. This documentation should explain how data entities relate and how
-human job profiles and agent profiles are derived.
+`docs/model.md`. This documentation should explain how data entities relate and
+how human job profiles and agent profiles are derived.
 
 **IMPORTANT:** Document the _model structure and derivation logic_, NOT the
 specific data values. The actual disciplines, tracks, grades, skills,
@@ -22,26 +22,21 @@ Read these files to understand the model:
 
 ### Core Model Files
 
-- `app/model/levels.js` - Skill levels, behaviour maturities, enums
-- `app/model/derivation.js` - Job derivation logic (the heart of the system)
-- `app/model/agent.js` - Agent profile generation
-- `app/model/modifiers.js` - Capability-based skill modifier expansion
-- `app/model/loader.js` - Data loading and structure
+- `apps/schema/lib/levels.js` - Skill levels, behaviour maturities, enums
+- `apps/model/lib/derivation.js` - Job derivation logic (the heart of the
+  system)
+- `apps/model/lib/agent.js` - Agent profile generation
+- `apps/model/lib/modifiers.js` - Capability-based skill modifier expansion
+- `apps/schema/lib/loader.js` - Data loading and structure
 
 ### Data Files
 
-- `examples/grades.yaml` - Grade definitions with base levels
-- `examples/categories.yaml` - Skill categories and responsibility matrices
-- `examples/disciplines/human.yaml` - Discipline T-shaped profiles
-- `examples/tracks/human.yaml` - Track modifiers and constraints
-- `examples/behaviours/human.yaml` - Behaviour maturity descriptions
-- `examples/skills/*.yaml` - Skill definitions (sample a few)
-
-### Agent Data Files
-
-- `examples/disciplines/agent.yaml` - Agent discipline instructions
-- `examples/tracks/agent.yaml` - Agent track context and tools
-- `examples/behaviours/agent.yaml` - Agent behaviour interaction patterns
+- `apps/schema/examples/grades.yaml` - Grade definitions with base levels
+- `apps/schema/examples/capabilities/*.yaml` - Skill categories and
+  responsibility matrices
+- `apps/schema/examples/disciplines/*.yaml` - Discipline T-shaped profiles
+- `apps/schema/examples/tracks/*.yaml` - Track modifiers and constraints
+- `apps/schema/examples/behaviours/*.yaml` - Behaviour maturity descriptions
 
 ## Documentation Structure
 
@@ -126,7 +121,7 @@ Brief reference to the main derivation functions:
 
 ## Output
 
-Write the documentation to `MODEL.md` in the repository root. The document
+Write the documentation to `docs/model.md` in the repository root. The document
 should be self-contained and useful for:
 
 1. New contributors understanding the system

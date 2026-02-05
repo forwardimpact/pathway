@@ -9,8 +9,8 @@ and semantics. For technical implementation details (job derivation, agent
 generation mechanics), see `architecture.instructions.md`.
 
 > **Data-Driven Model**: The model defines schema and derivation logic, but
-> actual entities are defined in YAML files under `data/`. Use
-> `npx pathway <entity> --list` to discover what's available.
+> actual entities are defined in YAML files under `apps/schema/examples/`. Use
+> `npx fit-pathway <entity> --list` to discover what's available.
 
 ## Core Entities
 
@@ -93,7 +93,7 @@ toolReferences:
 ```
 
 Tools are not stored separately—they're extracted and aggregated from skills at
-runtime via `npx pathway tool`.
+runtime via `npx fit-pathway tool`.
 
 ## Behaviour Maturities
 
@@ -161,5 +161,5 @@ capabilities at the job's skill level.
 
 ## Data Validation
 
-Run `npm run validate` to check required fields, referential integrity, valid
-enum values, and cross-entity consistency.
+Run `npx fit-schema validate` to check required fields, referential integrity,
+valid enum values, and cross-entity consistency.

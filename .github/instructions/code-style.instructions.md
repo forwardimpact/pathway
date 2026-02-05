@@ -15,13 +15,16 @@ applyTo: "**/*.js"
 
 ## File Organization
 
-**Model** (`model/`): `types.js`, `validation.js`, `derivation.js`,
-`matching.js`, `interview.js`, `loader.js`, `index.js`
+**Schema** (`apps/schema/lib/`): `loader.js`, `validation.js`,
+`schema-validation.js`, `index-generator.js`, `levels.js`
 
-**App** (`app/`): `formatters/`, `pages/`, `components/`, `lib/`, `commands/`,
-`slides/`
+**Model** (`apps/model/lib/`): `derivation.js`, `modifiers.js`, `profile.js`,
+`job.js`, `agent.js`, `checklist.js`, `interview.js`
 
-**Formatters** (`app/formatters/{entity}/`): `shared.js`, `dom.js`,
+**Pathway** (`apps/pathway/src/`): `formatters/`, `pages/`, `components/`,
+`lib/`, `commands/`, `slides/`
+
+**Formatters** (`apps/pathway/src/formatters/{entity}/`): `shared.js`, `dom.js`,
 `markdown.js`
 
 ## Naming

@@ -25,10 +25,12 @@ tokens → reset → base → components → utilities → pages → slides → 
 | `handout`    | Handout view overrides                | `css/views/handout.css`        |
 | `print`      | Print media queries                   | `css/views/print.css`          |
 
+All CSS files live under `apps/pathway/src/css/`.
+
 ## Directory Structure
 
 ```
-app/css/
+apps/pathway/src/css/
 ├── tokens.css          # Design tokens (colors, spacing, typography)
 ├── reset.css           # Browser reset
 ├── base.css            # Base typography and links

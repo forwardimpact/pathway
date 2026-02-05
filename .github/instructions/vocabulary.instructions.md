@@ -5,7 +5,7 @@ applyTo: "**/*.yaml,**/*.md"
 # Vocabulary Standards
 
 Standard terms for skill definitions and behaviour maturity levels. Grades and
-their mappings vary per installation—use `npx pathway grade --list` to see
+their mappings vary per installation—use `npx fit-pathway grade --list` to see
 available grades.
 
 ## Scope Terms

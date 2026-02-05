@@ -33,8 +33,7 @@
  *   npx fit-schema generate-index
  */
 
-import { fileURLToPath } from "url";
-import { dirname, join, resolve } from "path";
+import { join, resolve } from "path";
 import { existsSync } from "fs";
 import { loadAllData } from "@forwardimpact/schema/loader";
 import { formatError } from "../src/lib/cli-output.js";
@@ -56,10 +55,6 @@ import { runAgentCommand } from "../src/commands/agent.js";
 import { runServeCommand } from "../src/commands/serve.js";
 import { runInitCommand } from "../src/commands/init.js";
 import { runSiteCommand } from "../src/commands/site.js";
-
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-const rootDir = join(__dirname, "..");
 
 const COMMANDS = {
   discipline: runDisciplineCommand,
