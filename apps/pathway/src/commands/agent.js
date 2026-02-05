@@ -13,7 +13,7 @@
  *   npx pathway agent <discipline> [--track=<track>]
  *   npx pathway agent <discipline> --track=<track> --stage=plan
  *   npx pathway agent <discipline> --track=<track> --output=./agents
- *   npx pathway agent <discipline> [--track=<track>] --skills  # Plain list of skill names
+ *   npx pathway agent <discipline> [--track=<track>] --skills  # Plain list of skill IDs
  *   npx pathway agent <discipline> [--track=<track>] --tools   # Plain list of tool names
  *   npx pathway agent --list
  *
@@ -376,7 +376,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   // Get reference grade for derivation
   const grade = deriveReferenceGrade(data.grades);
 
-  // --skills: Output plain list of skill names (for piping)
+  // --skills: Output plain list of skill IDs (for piping)
   if (options.skills) {
     const derivedSkills = deriveAgentSkills({
       discipline: humanDiscipline,
@@ -385,10 +385,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
       skills: skillsWithAgent,
     });
     for (const skill of derivedSkills) {
-      const skillDef = skillsWithAgent.find((s) => s.id === skill.skillId);
-      if (skillDef) {
-        console.log(skillDef.name);
-      }
+      console.log(skill.skillId);
     }
     return;
   }

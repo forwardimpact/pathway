@@ -8,7 +8,7 @@
  *   npx pathway job --list                                   # All valid combinations (for piping)
  *   npx pathway job <discipline> <grade>                     # Detail view (trackless)
  *   npx pathway job <discipline> <grade> --track=<track>     # Detail view (with track)
- *   npx pathway job <d> <g> [--track=<t>] --skills           # Plain list of skill names
+ *   npx pathway job <d> <g> [--track=<t>] --skills           # Plain list of skill IDs
  *   npx pathway job <d> <g> [--track=<t>] --tools            # Plain list of tool names
  *   npx pathway job se L3 --track=platform --checklist=code  # Show checklist for handoff
  *   npx pathway job --validate                               # Validation checks
@@ -139,10 +139,10 @@ export async function runJobCommand({ data, args, options, dataDir }) {
     process.exit(1);
   }
 
-  // --skills: Output plain list of skill names (for piping)
+  // --skills: Output plain list of skill IDs (for piping)
   if (options.skills) {
     for (const skill of view.skillMatrix) {
-      console.log(skill.skillName);
+      console.log(skill.skillId);
     }
     return;
   }

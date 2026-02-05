@@ -117,13 +117,13 @@ Usage:
   npx fit-pathway job --list                           All valid combinations
   npx fit-pathway job <discipline> <grade>             Detail view (trackless)
   npx fit-pathway job <d> <g> --track=<track>          Detail view (with track)
-  npx fit-pathway job <d> <g> --skills                 Plain list of skill names
+  npx fit-pathway job <d> <g> --skills                 Plain list of skill IDs
   npx fit-pathway job <d> <g> --tools                  Plain list of tool names
   npx fit-pathway job <d> <g> --checklist=<stage>      Show handoff checklist
 
 Options:
   --track=TRACK       Track specialization (e.g., platform, forward_deployed)
-  --skills            Output plain list of skill names (for piping)
+  --skills            Output plain list of skill IDs (for piping)
   --tools             Output plain list of tool names (for piping)
   --checklist=STAGE   Show checklist for stage handoff (plan, code)
 
@@ -144,14 +144,14 @@ Usage:
   npx fit-pathway agent --list                         All valid combinations
   npx fit-pathway agent <discipline> --track=<track>   Generate all stage agents
   npx fit-pathway agent <d> --track=<t> --stage=<s>    Generate single stage agent
-  npx fit-pathway agent <d> --track=<t> --skills       Plain list of skill names
+  npx fit-pathway agent <d> --track=<t> --skills       Plain list of skill IDs
   npx fit-pathway agent <d> --track=<t> --tools        Plain list of tool names
 
 Options:
   --track=TRACK       Track for the agent (required for generation)
   --stage=STAGE       Generate specific stage agent (plan, code, review)
   --output=PATH       Write files to directory (without this, outputs to console)
-  --skills            Output plain list of skill names (for piping)
+  --skills            Output plain list of skill IDs (for piping)
   --tools             Output plain list of tool names (for piping)
 
 Examples:
