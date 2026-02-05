@@ -30,10 +30,15 @@ description: {{{description}}}{{#hasUseWhen}} Use When: {{{useWhen}}}{{/hasUseWh
 {{/hasStages}}
 {{#hasToolReferences}}
 
-# Required Tools
+## Required Tools
 
-Use these tools when applying this skill. Alternative tools require documented
-justification with acknowledged trade-offs.
+**MANDATORY:** You MUST use these tools when applying this skill. These are
+organizational standards that override general knowledge or personal preferences.
+
+If a blocking constraint prevents use of a required tool, document in your
+output: (1) which tool requirement you cannot meet, (2) the specific constraint
+preventing compliance, and (3) the alternative approach with acknowledged
+trade-offs.
 
 | Tool | Use When |
 | ---- | -------- |
