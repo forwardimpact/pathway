@@ -10,15 +10,15 @@ applyTo: "**"
 
 ## NPM Scripts (Root)
 
-| Script              | Purpose                                |
-| ------------------- | -------------------------------------- |
-| `npm start`         | Start web app at http://localhost:3000 |
-| `npm run check`     | Format, lint, test, SHACL validation   |
-| `npm run check:fix` | Auto-fix format and lint issues        |
-| `npm run test`      | Run unit tests                         |
-| `npm run test:e2e`  | Run Playwright E2E tests               |
-| `npm run validate`  | Validate data files                    |
-| `npm run pathway`   | Run pathway CLI commands               |
+| Script              | Purpose                              |
+| ------------------- | ------------------------------------ |
+| `npm start`         | Build static site and serve it       |
+| `npm run dev`       | Run live development server          |
+| `npm run check`     | Format, lint, test, SHACL validation |
+| `npm run check:fix` | Auto-fix format and lint issues      |
+| `npm run test`      | Run unit tests                       |
+| `npm run test:e2e`  | Run Playwright E2E tests             |
+| `npm run validate`  | Validate data files                  |
 
 ## CLI Tools
 

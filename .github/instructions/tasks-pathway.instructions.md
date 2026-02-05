@@ -7,9 +7,9 @@ applyTo: "apps/pathway/**"
 ## Web App
 
 ```sh
-npx fit-pathway serve              # Start at http://localhost:3000
-npx fit-pathway serve --port=8080  # Custom port
-npx fit-pathway site --output=./site  # Generate static site
+npx fit-pathway dev                # Start at http://localhost:3000
+npx fit-pathway dev --port=8080    # Custom port
+npx fit-pathway build              # Generate static site to ./public/
 ```
 
 ## Entity Browsing

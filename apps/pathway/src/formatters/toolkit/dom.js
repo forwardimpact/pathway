@@ -28,12 +28,9 @@ export function createToolkitTable(toolkit) {
   }
 
   const rows = toolkit.map((tool) => {
-    const iconCell = tool.simpleIcon
-      ? td(
-          { className: "tool-icon-cell" },
-          createToolIcon(tool.simpleIcon, tool.name),
-        )
-      : td({ className: "tool-icon-cell" });
+    const icon = tool.simpleIcon
+      ? createToolIcon(tool.simpleIcon, tool.name)
+      : null;
 
     const nameContent = tool.url
       ? a(
@@ -50,8 +47,7 @@ export function createToolkitTable(toolkit) {
 
     return tr(
       {},
-      iconCell,
-      td({ className: "tool-name-cell" }, nameContent),
+      td({ className: "tool-name-cell" }, icon, nameContent),
       td({ className: "tool-description-cell" }, tool.description),
     );
   });
@@ -60,15 +56,7 @@ export function createToolkitTable(toolkit) {
     { className: "table-container" },
     table(
       { className: "table toolkit-table" },
-      thead(
-        {},
-        tr(
-          {},
-          th({ style: "width: 40px" }, ""),
-          th({}, "Tool"),
-          th({}, "Description"),
-        ),
-      ),
+      thead({}, tr({}, th({}, "Tool"), th({}, "Description"))),
       tbody({}, ...rows),
     ),
   );

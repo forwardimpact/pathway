@@ -17,26 +17,24 @@
     "libs/libdoc"
   ],
   "scripts": {
-    "start": "npm run -w @forwardimpact/pathway pathway -- serve --data=../../apps/schema/examples",
-    "prestart": "npm run generate-index",
-    "check": "npm run format && npm run lint && npm run test && npm run validate -- --shacl",
+    "prestart": "npx fit-pathway build",
+    "start": "npx serve public",
+    "dev": "npx fit-pathway dev",
+    "check": "npm run format && npm run lint && npm run test && npm run validate -- --json",
     "check:fix": "npm run format:fix && npm run lint:fix",
     "lint": "eslint .",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check .",
     "format:fix": "prettier --write .",
     "test": "find ./tests -name '*.test.js' | xargs node --test",
-    "test:e2e": "npx playwright test",
-    "validate": "npm run -w @forwardimpact/schema validate --",
-    "generate-index": "npm run -w @forwardimpact/schema generate-index",
-    "pathway": "npm run -w @forwardimpact/pathway pathway"
+    "test:e2e": "npx playwright test"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",
     "eslint": "^9.39.1",
     "eslint-config-prettier": "^10.1.8",
-    "n3": "^2.0.1",
-    "prettier": "^3.7.4"
+    "prettier": "^3.7.4",
+    "serve": "^14.2.5"
   },
   "engines": {
     "node": ">=18.0.0"

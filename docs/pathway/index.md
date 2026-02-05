@@ -27,7 +27,7 @@ Interactive browser at http://localhost:3000:
 Command-line access to all functionality:
 
 ```sh
-npx fit-pathway serve              # Start web app
+npx fit-pathway dev                # Start web app
 npx fit-pathway skill --list       # List all skills
 npx fit-pathway job <d> <g>        # Generate job definition
 npx fit-pathway agent <d>          # Generate agent profiles
@@ -47,7 +47,7 @@ npx fit-pathway agent <discipline> --track=<track> --output=./agents
 Export everything as a static website:
 
 ```sh
-npx fit-pathway site --output=./site
+npx fit-pathway build
 ```
 
 ## Related Documents

@@ -27,8 +27,8 @@ apps/pathway/
 
 | Command     | Purpose                    |
 | ----------- | -------------------------- |
-| `serve`     | Start web server           |
-| `site`      | Generate static site       |
+| `dev`       | Start web server           |
+| `build`     | Generate static site       |
 | `init`      | Create data directory      |
 | `skill`     | Browse skills              |
 | `behaviour` | Browse behaviours          |

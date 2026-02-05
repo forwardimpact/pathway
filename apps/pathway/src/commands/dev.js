@@ -1,7 +1,7 @@
 /**
- * Serve Command
+ * Dev Command
  *
- * Serves the Engineering Pathway web application with local data.
+ * Runs a live development server for the Engineering Pathway web application.
  * Uses Node.js built-in http module (no external dependencies).
  */
 
@@ -96,12 +96,12 @@ async function isDirectory(path) {
 }
 
 /**
- * Run the serve command
+ * Run the dev command
  * @param {Object} params - Command parameters
  * @param {string} params.dataDir - Path to data directory
  * @param {Object} params.options - Command options
  */
-export async function runServeCommand({ dataDir, options }) {
+export async function runDevCommand({ dataDir, options }) {
   const port = options.port || 3000;
 
   // Load framework config for display

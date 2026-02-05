@@ -1,5 +1,5 @@
 /**
- * Site Command
+ * Build Command
  *
  * Generates a static site from the Engineering Pathway data.
  * Copies all necessary files (HTML, JS, CSS) and data to an output directory.
@@ -59,13 +59,13 @@ const PUBLIC_ASSETS = [
 const ROOT_ASSETS = ["templates"];
 
 /**
- * Run the site command
+ * Run the build command
  * @param {Object} params - Command parameters
  * @param {string} params.dataDir - Path to data directory
  * @param {Object} params.options - Command options
  */
-export async function runSiteCommand({ dataDir, options }) {
-  const outputDir = options.output || join(process.cwd(), "site");
+export async function runBuildCommand({ dataDir, options }) {
+  const outputDir = options.output || join(process.cwd(), "public");
   const clean = options.clean !== false;
 
   // Load framework config for display

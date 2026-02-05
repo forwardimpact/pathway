@@ -48,9 +48,9 @@ import { runInterviewCommand } from "../src/commands/interview.js";
 import { runProgressCommand } from "../src/commands/progress.js";
 import { runQuestionsCommand } from "../src/commands/questions.js";
 import { runAgentCommand } from "../src/commands/agent.js";
-import { runServeCommand } from "../src/commands/serve.js";
+import { runDevCommand } from "../src/commands/dev.js";
 import { runInitCommand } from "../src/commands/init.js";
-import { runSiteCommand } from "../src/commands/site.js";
+import { runBuildCommand } from "../src/commands/build.js";
 
 const COMMANDS = {
   discipline: runDisciplineCommand,
@@ -85,8 +85,8 @@ GETTING STARTED
 ────────────────────────────────────────────────────────────────────────────────
 
   init                                Create ./data/ with example data
-  serve [--port=PORT]                 Serve web app at http://localhost:3000
-  site [--output=PATH]                Generate static site to ./site/
+  dev [--port=PORT]                   Run live development server
+  build [--output=PATH]               Generate static site to ./public/
 
 ────────────────────────────────────────────────────────────────────────────────
 ENTITY COMMANDS
@@ -400,16 +400,16 @@ async function main() {
 
   const dataDir = resolveDataPath(options);
 
-  // Handle serve command (needs data directory)
-  if (command === "serve") {
-    await runServeCommand({ dataDir, options });
-    // serve doesn't exit, keeps running
+  // Handle dev command (needs data directory)
+  if (command === "dev") {
+    await runDevCommand({ dataDir, options });
+    // dev doesn't exit, keeps running
     return;
   }
 
-  // Handle site command (generates static site)
-  if (command === "site") {
-    await runSiteCommand({ dataDir, options });
+  // Handle build command (generates static site)
+  if (command === "build") {
+    await runBuildCommand({ dataDir, options });
     process.exit(0);
   }
 
