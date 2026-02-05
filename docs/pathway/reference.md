@@ -215,7 +215,7 @@ agent:
 | `npx fit-pathway skill`             | Browse skills (summary, list, or detail) |
 | `npx fit-pathway driver`            | Browse drivers                           |
 | `npx fit-pathway stage`             | Browse lifecycle stages                  |
-| `npx fit-pathway tool`              | Browse recommended tools                 |
+| `npx fit-pathway tool`              | Browse required tools                    |
 | `npx fit-pathway job <d> <g>`       | Derive job definition                    |
 | `npx fit-pathway interview <d> <g>` | Generate interview questions             |
 | `npx fit-pathway progress <d> <g>`  | Analyze career progression               |

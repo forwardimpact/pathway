@@ -95,7 +95,7 @@
         },
         "toolReferences": {
           "type": "array",
-          "description": "Recommended tools for this skill",
+          "description": "Required tools for this skill",
           "items": { "$ref": "#/$defs/toolReference" }
         }
       },

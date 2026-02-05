@@ -104,7 +104,7 @@ All entity commands support: summary (default), --list (IDs for piping), <id> (d
   skill [<id>]          Browse skills
     --agent             Output as agent SKILL.md format
 
-  tool [<name>]         Browse recommended tools (aggregated from skills)
+  tool [<name>]         Browse required tools (aggregated from skills)
 
 ────────────────────────────────────────────────────────────────────────────────
 JOB COMMAND

@@ -33,7 +33,7 @@ import { createJsonLdScript, skillToJsonLd } from "../json-ld.js";
  * @param {Array} context.drivers - All drivers
  * @param {Array} context.capabilities - Capability entities
  * @param {boolean} [context.showBackLink=true] - Whether to show back navigation link
- * @param {boolean} [context.showToolsAndPatterns=true] - Whether to show recommended tools and implementation patterns
+ * @param {boolean} [context.showToolsAndPatterns=true] - Whether to show required tools and implementation patterns
  * @returns {HTMLElement}
  */
 export function skillToDOM(
@@ -178,11 +178,11 @@ export function skillToDOM(
         )
       : null,
 
-    // Recommended Tools
+    // Required Tools
     showToolsAndPatterns && view.toolReferences.length > 0
       ? div(
           { className: "detail-section" },
-          heading2({ className: "section-title" }, "Recommended Tools"),
+          heading2({ className: "section-title" }, "Required Tools"),
           table(
             { className: "tools-table" },
             thead({}, tr({}, th({}, "Tool"), th({}, "Use When"))),

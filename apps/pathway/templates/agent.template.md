@@ -50,17 +50,18 @@ handoffs:
 {{/hasWorkingStyles}}
 {{#hasSkills}}
 
-## Available Skills and Tools
+## Required Skills
 
-**IMPORTANT:** Before starting work, read the relevant skill file for
-project-specific guidance, tools and technology recommendations. Do not rely
-solely on pre-training knowledge.
+**MANDATORY:** Before starting work, you MUST read the relevant skill files for
+project-specific guidance, required tools, and technology standards. Pre-training
+knowledge alone is insufficient—skills contain organizational standards that
+override general knowledge.
 
-Skills represent validated organizational patterns. When a skill recommends
-specific tools in its "Recommended Tools" section, use them unless a blocking
-constraint exists. If you choose a different tool, document in your output: (1)
-which skill recommendation you're overriding, (2) the constraint preventing use,
-and (3) trade-offs of the alternative.
+Skills represent mandatory organizational patterns. When a skill specifies tools
+in its "Required Tools" section, you MUST use them. If a blocking constraint
+prevents use, document in your output: (1) which skill requirement you cannot
+meet, (2) the specific constraint preventing compliance, and (3) the alternative
+approach with acknowledged trade-offs.
 
 | Skill | Location | Use When |
 | ----- | -------- | -------- |
@@ -70,16 +71,16 @@ and (3) trade-offs of the alternative.
 {{/hasSkills}}
 {{#hasAgentIndex}}
 
-## Available Sub-Agents for Delegation
+## Required Sub-Agent Delegations
 
-**IMPORTANT:** If you come across work that is not strictly within your
-speciality, then you must delegate the task using the `runSubagent` tool.
+**MANDATORY:** You MUST delegate work outside your speciality using the
+`runSubagent` tool. Do not attempt work that another agent is better suited for.
 
-You are part of a team of agents and should not carry out all work yourself.
-Rely on other agents around you that have a speciality better suited for
-individual tasks. If you choose to not delegate specialised work to a sub-agent,
-document in your output: (1) what the specialised work is, (2) the constraint
-preventing delegation and (3) trade-offs of the alternative.
+You are part of an agentic team with specialized roles. Attempting work outside
+your speciality produces inferior results and violates team structure. If you
+cannot delegate due to a blocking constraint, document in your output: (1) the
+specialized work required, (2) the specific constraint preventing delegation,
+and (3) the compromised approach with acknowledged limitations.
 
 | Agent Name | Speciality | Description |
 | ---------- | ---------- | ----------- |

@@ -48,7 +48,7 @@ Skills are defined within capability files and include:
 | `name`                    | Yes      | Human-readable name                                     |
 | `human`                   | Yes      | Human-specific content (description, levelDescriptions) |
 | `agent`                   | No       | Agent-specific content for AI skill generation          |
-| `toolReferences`          | No       | Recommended tools with usage guidance                   |
+| `toolReferences`          | No       | Required tools with usage guidance                      |
 | `implementationReference` | No       | Code examples shared by human and agent                 |
 | `isHumanOnly`             | No       | If true, excluded from agent profiles                   |
 
@@ -75,7 +75,7 @@ Stage-specific guidance includes: `specify`, `plan`, `code`, `review`, `deploy`.
 ## Tools
 
 Tools are derived from `toolReferences` arrays within skills. They aggregate
-recommended utilities across all skills with guidance on when to use them.
+required utilities across all skills with guidance on when to use them.
 
 | Property      | Required | Description                |
 | ------------- | -------- | -------------------------- |

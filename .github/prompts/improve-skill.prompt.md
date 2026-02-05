@@ -8,7 +8,7 @@ documents. Focus on `toolReferences` and `implementationReference` sections.
 Skills with `agent:` sections generate SKILL.md files using
 `apps/pathway/templates/skill.template.md`. The template:
 
-- Renders `toolReferences` as a **Recommended Tools** table automatically
+- Renders `toolReferences` as a **Required Tools** table automatically
 - Renders `implementationReference` as a **Reference** section
 
 Because the template handles tool rendering separately, the

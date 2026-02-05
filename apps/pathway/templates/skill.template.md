@@ -37,7 +37,10 @@ description: |
 {{/hasStages}}
 {{#hasToolReferences}}
 
-# Recommended Tools
+# Required Tools
+
+Use these tools when applying this skill. Alternative tools require documented
+justification with acknowledged trade-offs.
 
 | Tool | Use When |
 | ---- | -------- |

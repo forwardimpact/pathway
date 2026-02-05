@@ -85,7 +85,7 @@ fit:implementationReference a rdf:Property ;
 
 fit:toolReferences a rdf:Property ;
     rdfs:label "toolReferences"@en ;
-    rdfs:comment "Recommended tools for this skill"@en ;
+    rdfs:comment "Required tools for this skill"@en ;
     rdfs:domain fit:Skill ;
     rdfs:range fit:ToolReference .
 
@@ -288,7 +288,7 @@ fit:SkillShape a sh:NodeShape ;
         sh:path fit:toolReferences ;
         sh:node fit:ToolReferenceShape ;
         sh:name "toolReferences" ;
-        sh:description "Recommended tools for this skill" ;
+        sh:description "Required tools for this skill" ;
     ] .
 
 # -----------------------------------------------------------------------------

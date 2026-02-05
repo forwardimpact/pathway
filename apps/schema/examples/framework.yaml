@@ -66,4 +66,4 @@ entityDefinitions:
     title: Tools
     emojiIcon: "🔧"
     description: |
-      Recommended tools and utilities referenced by skills for effective engineering workflows. Tools are linked to specific skills with guidance on when and how to use them, surfacing best practices directly in skill definitions.
+      Required tools and utilities referenced by skills for effective engineering workflows. Tools are linked to specific skills with guidance on when and how to use them, surfacing organizational standards directly in skill definitions.

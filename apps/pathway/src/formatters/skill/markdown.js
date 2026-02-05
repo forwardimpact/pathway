@@ -105,9 +105,9 @@ export function skillToMarkdown(
     lines.push("");
   }
 
-  // Recommended tools
+  // Required tools
   if (view.toolReferences.length > 0) {
-    lines.push("## Recommended Tools", "");
+    lines.push("## Required Tools", "");
     const toolRows = view.toolReferences.map((tool) => [
       tool.url ? `[${tool.name}](${tool.url})` : tool.name,
       tool.useWhen,
