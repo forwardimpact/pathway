@@ -36,6 +36,8 @@ Assess version impact at each commit:
 
 **Dependency chain**: `schema` → `model` → `pathway`
 
+Find dependents: `grep -l "@forwardimpact/{pkg}" apps/*/package.json`
+
 When releasing a minor or major version, update dependent packages:
 
 1. Bump version in `apps/{package}/package.json`
