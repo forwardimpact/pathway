@@ -1,10 +1,8 @@
 ---
 name: libdoc
-description: >
-  libdoc - Documentation build and serve tools for Forward Impact. DocsBuilder
-  generates static sites from Markdown with Mustache templates. DocsServer
-  provides local development server. parseFrontMatter extracts YAML metadata
-  from markdown files. Use for generating documentation websites.
+description:
+  "Documentation build and serve tools. Use when building static sites from
+  Markdown, serving docs locally, or parsing YAML front matter."
 ---
 
 # libdoc Skill
