@@ -1,45 +1,21 @@
 {
-  "name": "@forwardimpact/pathway",
+  "name": "forwardimpact-monorepo",
   "version": "0.5.0",
-  "description": "Engineering Pathway framework for human and AI collaboration",
+  "private": true,
+  "description": "Engineering Pathway framework monorepo",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/pathway"
   },
-  "keywords": [
-    "career",
-    "competency",
-    "framework",
-    "hr",
-    "skills",
-    "talent",
-    "ai-agent",
-    "engineering"
-  ],
   "type": "module",
-  "main": "app/model/loader.js",
-  "bin": {
-    "pathway": "./bin/pathway.js"
-  },
-  "files": [
-    "bin/",
-    "app/",
-    "examples/",
-    "templates/"
+  "workspaces": [
+    "apps/schema",
+    "apps/model",
+    "apps/pathway"
   ],
-  "exports": {
-    ".": "./app/model/loader.js",
-    "./derivation": "./app/model/derivation.js",
-    "./interview": "./app/model/interview.js",
-    "./levels": "./app/model/levels.js",
-    "./loader": "./app/model/loader.js",
-    "./matching": "./app/model/matching.js",
-    "./types": "./app/model/levels.js",
-    "./validation": "./app/model/validation.js"
-  },
   "scripts": {
-    "start": "node bin/pathway.js serve",
+    "start": "npm run -w @forwardimpact/pathway start",
     "prestart": "npm run generate-index",
     "check": "npm run format && npm run lint && npm run test && npm run validate:shacl",
     "check:fix": "npm run format:fix && npm run lint:fix",
@@ -49,18 +25,10 @@
     "format:fix": "prettier --write .",
     "test": "find ./tests -name '*.test.js' | xargs node --test",
     "test:e2e": "npx playwright test",
-    "validate": "node bin/pathway.js --validate",
-    "validate:shacl": "node scripts/validate-shacl.js",
-    "generate-index": "node bin/pathway.js --generate-index",
-    "pathway": "node bin/pathway.js",
-    "demo": "node scripts/demo.js"
-  },
-  "dependencies": {
-    "ajv": "^8.17.1",
-    "ajv-formats": "^3.0.1",
-    "mustache": "^4.2.0",
-    "simple-icons": "^16.7.0",
-    "yaml": "^2.3.4"
+    "validate": "npm run -w @forwardimpact/schema validate",
+    "validate:shacl": "npm run -w @forwardimpact/schema validate:shacl",
+    "generate-index": "npm run -w @forwardimpact/schema generate-index",
+    "pathway": "npm run -w @forwardimpact/pathway pathway"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

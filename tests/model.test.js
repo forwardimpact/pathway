@@ -29,20 +29,26 @@ import {
   getCapabilityResponsibility,
   // Framework emoji function
   getConceptEmoji,
-} from "../app/model/levels.js";
+} from "@forwardimpact/schema/levels";
 
 import {
   classifyMatchTier,
   calculateGapScore,
   MatchTier,
   GAP_SCORES,
-} from "../app/model/matching.js";
+  calculateJobMatch,
+  findMatchingJobs,
+  findRealisticMatches,
+  estimateBestFitGrade,
+  deriveDevelopmentPath,
+  findNextStepJob,
+} from "@forwardimpact/model/matching";
 
 import {
   validateAllData,
   validateSelfAssessment,
   validateQuestionBank,
-} from "../app/model/validation.js";
+} from "@forwardimpact/schema/validation";
 
 import {
   deriveSkillLevel,
@@ -58,28 +64,19 @@ import {
   isSeniorGrade,
   getDisciplineSkillIds,
   getGradeLevel,
-} from "../app/model/derivation.js";
-
-import {
-  calculateJobMatch,
-  findMatchingJobs,
-  findRealisticMatches,
-  estimateBestFitGrade,
-  deriveDevelopmentPath,
-  findNextStepJob,
-} from "../app/model/matching.js";
+} from "@forwardimpact/model/derivation";
 
 import {
   deriveInterviewQuestions,
   deriveShortInterview,
   deriveBehaviourQuestions,
   deriveFocusedInterview,
-} from "../app/model/interview.js";
+} from "@forwardimpact/model/interview";
 
 import {
   deriveChecklist,
   formatChecklistMarkdown,
-} from "../app/model/checklist.js";
+} from "@forwardimpact/model/checklist";
 
 // ============================================================================
 // Test Data Fixtures
@@ -2811,7 +2808,7 @@ import {
   extractCapabilityModifiers,
   extractIndividualModifiers,
   resolveSkillModifier,
-} from "../app/model/modifiers.js";
+} from "@forwardimpact/model/modifiers";
 
 describe("Skill Modifiers", () => {
   describe("isCapability", () => {
@@ -3133,7 +3130,7 @@ import {
   prepareBaseProfile,
   prepareAgentProfile,
   AGENT_PROFILE_OPTIONS,
-} from "../app/model/profile.js";
+} from "@forwardimpact/model/profile";
 
 describe("Profile Module", () => {
   describe("getPositiveTrackCapabilities", () => {
@@ -3384,7 +3381,7 @@ describe("Profile Module", () => {
 // Agent Module Tests
 // ============================================================================
 
-import { deriveReferenceGrade } from "../app/model/agent.js";
+import { deriveReferenceGrade } from "@forwardimpact/model/agent";
 
 describe("Agent Module", () => {
   describe("deriveReferenceGrade", () => {

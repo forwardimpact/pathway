@@ -1,0 +1,49 @@
+{
+  "name": "@forwardimpact/schema",
+  "version": "0.1.0",
+  "description": "Schema definitions and validation for Engineering Pathway framework",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/pathway",
+    "directory": "apps/schema"
+  },
+  "type": "module",
+  "main": "lib/index.js",
+  "bin": {
+    "fit-schema": "./bin/fit-schema.js"
+  },
+  "scripts": {
+    "validate": "node ./bin/fit-schema.js validate",
+    "generate-index": "node ./bin/fit-schema.js generate-index",
+    "validate:shacl": "node ./bin/fit-schema.js validate:shacl"
+  },
+  "files": [
+    "bin/",
+    "examples/",
+    "lib/",
+    "schema/"
+  ],
+  "exports": {
+    ".": "./lib/index.js",
+    "./loader": "./lib/loader.js",
+    "./validation": "./lib/validation.js",
+    "./schema-validation": "./lib/schema-validation.js",
+    "./index-generator": "./lib/index-generator.js",
+    "./levels": "./lib/levels.js",
+    "./examples/*": "./examples/*",
+    "./schema/json/*": "./schema/json/*",
+    "./schema/rdf/*": "./schema/rdf/*"
+  },
+  "dependencies": {
+    "ajv": "^8.17.1",
+    "ajv-formats": "^3.0.1",
+    "yaml": "^2.3.4"
+  },
+  "devDependencies": {
+    "n3": "^2.0.1"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}
