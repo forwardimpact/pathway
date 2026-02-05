@@ -34,11 +34,14 @@ Assess version impact at each commit:
 | New feature (`feat`)      | Minor |
 | Bug fix, refactor, other  | Patch |
 
-When ready to release, for each affected package:
+**Dependency chain**: `schema` → `model` → `pathway`
+
+When releasing a minor or major version, update dependent packages:
 
 1. Bump version in `apps/{package}/package.json`
-2. Commit: `chore({package}): bump to {version}`
-3. Tag: `git tag {package}@v{version}`
-4. Push: `git push origin main --tags`
+2. Update dependency version in downstream packages (minor/major only)
+3. Commit: `chore({package}): bump to {version}`
+4. Tag: `git tag {package}@v{version}`
+5. Push: `git push origin main --tags`
 
 Tags trigger publish workflows automatically.
