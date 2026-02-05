@@ -77,12 +77,12 @@ export function jobToDOM(view, options = {}) {
     // Radar charts
     div(
       { className: "section auto-grid-lg" },
-      createSkillRadar(view.skillMatrix, {
-        title: "Skills Radar",
-        size: 420,
-      }),
       createBehaviourRadar(view.behaviourProfile, {
         title: "Behaviours Radar",
+        size: 420,
+      }),
+      createSkillRadar(view.skillMatrix, {
+        title: "Skills Radar",
         size: 420,
       }),
     ),
@@ -104,19 +104,19 @@ export function jobToDOM(view, options = {}) {
         })
       : null,
 
-    // Skill matrix, Behaviour profile, Driver coverage tables
+    // Behaviour profile, Skill matrix, Driver coverage tables
     showTables
       ? div(
           { className: "job-tables-section" },
-          createDetailSection({
-            title: "Skill Matrix",
-            content: createSkillMatrix(view.skillMatrix),
-          }),
-
           // Behaviour profile table
           createDetailSection({
             title: "Behaviour Profile",
             content: createBehaviourProfile(view.behaviourProfile),
+          }),
+
+          createDetailSection({
+            title: "Skill Matrix",
+            content: createSkillMatrix(view.skillMatrix),
           }),
 
           // Driver coverage

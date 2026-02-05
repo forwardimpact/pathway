@@ -33,6 +33,15 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
     lines.push("");
   }
 
+  // Behaviour Profile
+  lines.push("## Behaviour Profile", "");
+  const behaviourRows = view.behaviourProfile.map((b) => [
+    b.behaviourName,
+    formatLevel(b.maturity),
+  ]);
+  lines.push(tableToMarkdown(["Behaviour", "Maturity"], behaviourRows));
+  lines.push("");
+
   // Skill Matrix - sorted by level descending
   lines.push("## Skill Matrix", "");
   const sortedSkills = [...view.skillMatrix].sort((a, b) => {
@@ -48,15 +57,6 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
     formatLevel(s.level),
   ]);
   lines.push(tableToMarkdown(["Skill", "Level"], skillRows));
-  lines.push("");
-
-  // Behaviour Profile
-  lines.push("## Behaviour Profile", "");
-  const behaviourRows = view.behaviourProfile.map((b) => [
-    b.behaviourName,
-    formatLevel(b.maturity),
-  ]);
-  lines.push(tableToMarkdown(["Behaviour", "Maturity"], behaviourRows));
   lines.push("");
 
   // Driver Coverage
