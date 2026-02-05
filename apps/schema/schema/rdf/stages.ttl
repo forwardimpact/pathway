@@ -33,6 +33,17 @@ fit:entryCriteria a rdf:Property ;
     rdfs:comment "Conditions that must be met before entering this stage"@en ;
     rdfs:range xsd:string .
 
+fit:exitCriteria a rdf:Property ;
+    rdfs:label "exitCriteria"@en ;
+    rdfs:comment "Conditions that must be met before leaving this stage"@en ;
+    rdfs:range xsd:string .
+
+fit:summary a rdf:Property ;
+    rdfs:label "summary"@en ;
+    rdfs:comment "Third-person summary for metadata, listings, and sub-agent descriptions"@en ;
+    rdfs:domain fit:Stage ;
+    rdfs:range xsd:string .
+
 fit:targetStage a rdf:Property ;
     rdfs:label "targetStage"@en ;
     rdfs:comment "The stage to transition to"@en ;
@@ -63,7 +74,7 @@ fit:StageShape a sh:NodeShape ;
     sh:targetClass fit:Stage ;
     sh:property [
         sh:path fit:id ;
-        sh:in ( "plan" "code" "review" ) ;
+        sh:in ( "specify" "plan" "code" "review" "deploy" ) ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:name "id" ;
@@ -89,7 +100,14 @@ fit:StageShape a sh:NodeShape ;
         sh:datatype xsd:string ;
         sh:maxCount 1 ;
         sh:name "description" ;
-        sh:description "Description of the stage's purpose" ;
+        sh:description "Description of the stage's purpose (second-person, for agent body)" ;
+    ] ;
+    sh:property [
+        sh:path fit:summary ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:name "summary" ;
+        sh:description "Third-person summary for metadata, listings, and sub-agent descriptions" ;
     ] ;
     sh:property [
         sh:path fit:handoffs ;
@@ -108,6 +126,12 @@ fit:StageShape a sh:NodeShape ;
         sh:datatype xsd:string ;
         sh:name "entryCriteria" ;
         sh:description "Conditions that must be met before entering this stage" ;
+    ] ;
+    sh:property [
+        sh:path fit:exitCriteria ;
+        sh:datatype xsd:string ;
+        sh:name "exitCriteria" ;
+        sh:description "Conditions that must be met before leaving this stage" ;
     ] .
 
 # -----------------------------------------------------------------------------
@@ -118,7 +142,7 @@ fit:HandoffShape a sh:NodeShape ;
     sh:targetClass fit:Handoff ;
     sh:property [
         sh:path fit:targetStage ;
-        sh:in ( "plan" "code" "review" ) ;
+        sh:in ( "specify" "plan" "code" "review" "deploy" ) ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:name "targetStage" ;

@@ -706,10 +706,8 @@ export function generateStageAgentProfile({
   const fullName = `${abbrev}-${toKebabCase(track.id)}-${stage.id}`;
   const filename = `${fullName}.agent.md`;
 
-  // Build description
-  const disciplineDesc = discipline.description.trim().split("\n")[0];
-  const stageDesc = stage.description.split(" - ")[0]; // Just the short part
-  const description = `${stageDesc} agent for ${discipline.specialization || discipline.name} on ${track.name} track. ${disciplineDesc}`;
+  // Build description using shared helper
+  const description = buildAgentDescription(discipline, track, stage);
 
   // Format checklist as markdown
   const checklistMarkdown = formatChecklistMarkdown(agent.checklist);
@@ -746,16 +744,16 @@ export function generateStageAgentProfile({
 
 /**
  * Build an agent description from discipline, track, and stage
- * Uses the same format as generateStageAgentProfile for consistency
+ * Uses stage.summary for third-person metadata description
  * @param {Object} discipline - Human discipline definition
  * @param {Object} track - Human track definition
- * @param {Object} stage - Stage definition
+ * @param {Object} stage - Stage definition with summary field
  * @returns {string} Agent description
  */
 function buildAgentDescription(discipline, track, stage) {
   const disciplineDesc = discipline.description.trim().split("\n")[0];
-  const stageDesc = stage.description.split(" - ")[0];
-  return `${stageDesc} agent for ${discipline.specialization || discipline.name} on ${track.name} track. ${disciplineDesc}`;
+  const stageSummary = stage.summary || stage.name;
+  return `${stageSummary} agent for ${discipline.specialization || discipline.name} on ${track.name} track. ${disciplineDesc}`;
 }
 
 /**

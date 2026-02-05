@@ -27,7 +27,11 @@
         },
         "description": {
           "type": "string",
-          "description": "Description of the stage's purpose"
+          "description": "Description of the stage's purpose (second-person, for agent body)"
+        },
+        "summary": {
+          "type": "string",
+          "description": "Third-person summary for metadata, listings, and sub-agent descriptions"
         },
         "handoffs": {
           "type": "array",

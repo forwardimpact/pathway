@@ -80,6 +80,10 @@ Validates YAML structure. One schema per entity type.
 
 Semantic representation for linked data interoperability.
 
+**Schema Synchronization:** When adding or modifying properties, update both
+`schema/json/` and `schema/rdf/` in the same commit. The two formats must stay
+in sync.
+
 ## Example Data (`examples/`)
 
 Canonical reference data for testing and documentation. Structure:

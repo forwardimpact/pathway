@@ -54,7 +54,8 @@ schema → model → pathway
 
 When updating data structure, change:
 
-1. `apps/schema/schema/json/` and `rdf/` — Schema definitions
+1. `apps/schema/schema/json/` and `rdf/` — Schema definitions (both formats,
+   same commit)
 2. `apps/schema/examples/` — Example data
 3. `apps/model/lib/` — Derivation logic if needed
 4. `apps/pathway/src/formatters/` — Presentation if needed

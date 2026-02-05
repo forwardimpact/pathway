@@ -3,6 +3,7 @@
 - id: specify
   name: Specify
   emojiIcon: "🎯"
+  summary: Defines requirements, user stories, and acceptance criteria
   description:
     Your primary task is to define WHAT users need and WHY, not how to build it.
     Gather requirements, write user stories, and define acceptance criteria.
@@ -30,6 +31,7 @@
 - id: plan
   name: Plan
   emojiIcon: "📐"
+  summary: Designs architecture, makes technology choices, and defines contracts
   description:
     Your primary task is to define HOW to build the solution. Make technology
     choices, design architecture, define contracts and data models.
@@ -60,6 +62,7 @@
 - id: code
   name: Code
   emojiIcon: "💻"
+  summary: Implements solutions, writes tests, and iterates to completion
   description:
     Your primary task is to implement the solution. Write code, write tests, and
     iterate until the implementation is complete.
@@ -83,6 +86,8 @@
 - id: review
   name: Review
   emojiIcon: "🔍"
+  summary:
+    Verifies implementation, tests acceptance criteria, and documents findings
   description:
     Your primary task is to verify the implementation works correctly. Run the
     application, test against acceptance criteria, document findings.
@@ -116,6 +121,7 @@
 - id: deploy
   name: Deploy
   emojiIcon: "🚀"
+  summary: Ships changes to production and monitors deployment workflows
   description:
     Your primary task is to ship the changes to production. Push code, monitor
     CI/CD workflows, and verify successful deployment.
