@@ -208,21 +208,22 @@ agent:
 
 | Command                             | Description                              |
 | ----------------------------------- | ---------------------------------------- |
-| `npx pathway discipline`            | Browse disciplines                       |
-| `npx pathway grade`                 | Browse grades                            |
-| `npx pathway track`                 | Browse tracks                            |
-| `npx pathway behaviour`             | Browse behaviours                        |
-| `npx pathway skill`                 | Browse skills (summary, list, or detail) |
-| `npx pathway driver`                | Browse drivers                           |
-| `npx pathway stage`                 | Browse lifecycle stages                  |
-| `npx pathway tool`                  | Browse recommended tools                 |
-| `npx pathway job <d> <t> <g>`       | Derive job definition                    |
-| `npx pathway interview <d> <t> <g>` | Generate interview questions             |
-| `npx pathway progress <d> <t> <g>`  | Analyze career progression               |
-| `npx pathway questions`             | Browse interview questions               |
-| `npx pathway agent <d> <t>`         | Generate agent profiles                  |
-| `npx pathway --validate`            | Validate all data files                  |
-| `npx pathway --generate-index`      | Generate browser index files             |
+| `npx fit-pathway discipline`        | Browse disciplines                       |
+| `npx fit-pathway grade`             | Browse grades                            |
+| `npx fit-pathway track`             | Browse tracks                            |
+| `npx fit-pathway behaviour`         | Browse behaviours                        |
+| `npx fit-pathway skill`             | Browse skills (summary, list, or detail) |
+| `npx fit-pathway driver`            | Browse drivers                           |
+| `npx fit-pathway stage`             | Browse lifecycle stages                  |
+| `npx fit-pathway tool`              | Browse recommended tools                 |
+| `npx fit-pathway job <d> <g>`       | Derive job definition                    |
+| `npx fit-pathway interview <d> <g>` | Generate interview questions             |
+| `npx fit-pathway progress <d> <g>`  | Analyze career progression               |
+| `npx fit-pathway questions`         | Browse interview questions               |
+| `npx fit-pathway agent <d>`         | Generate agent profiles                  |
+| `npx fit-pathway init`              | Create ./data/ with example data         |
+| `npx fit-pathway dev`               | Run live development server              |
+| `npx fit-pathway build`             | Generate static site to ./public/        |
 
 ### Output Modes
 

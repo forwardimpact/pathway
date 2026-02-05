@@ -111,27 +111,33 @@ derivation but remain fully defined for human roles.
 ## Stage-Specific Agents
 
 Each stage produces a separate agent with appropriate tools and constraints. See
-[Lifecycle](lifecycle.md) for stage definitions.
+[Lifecycle](../model/lifecycle.md) for stage definitions.
 
 ```mermaid
 flowchart LR
+    specify["Specify Agent\n(read-only)"]
     plan["Plan Agent\n(read-only)"]
     code["Code Agent\n(full access)"]
     review["Review Agent\n(read-only)"]
+    deploy["Deploy Agent\n(read-only)"]
 
+    specify -->|"Create Plan"| plan
     plan -->|"Start Coding"| code
     code -->|"Request Review"| review
+    review -->|"Deploy"| deploy
     review -->|"Request Changes"| code
-    review -->|"Plan Next Work"| plan
+    review -->|"Needs Replanning"| plan
 ```
 
 ### Stage Tool Sets
 
-| Stage  | Tools                                  | Mode        |
-| ------ | -------------------------------------- | ----------- |
-| Plan   | search, fetch, codebase, read          | Read-only   |
-| Code   | search, codebase, read, edit, terminal | Full access |
-| Review | search, codebase, read                 | Read-only   |
+| Stage   | Tools                                  | Mode        |
+| ------- | -------------------------------------- | ----------- |
+| Specify | search, fetch, codebase, read          | Read-only   |
+| Plan    | search, fetch, codebase, read          | Read-only   |
+| Code    | search, codebase, read, edit, terminal | Full access |
+| Review  | search, codebase, read                 | Read-only   |
+| Deploy  | terminal, codebase, read               | Read-only   |
 
 ### Tool Derivation
 
@@ -217,15 +223,18 @@ buttons appear after each response, allowing transitions between stage agents.
 
 ```mermaid
 flowchart TD
+    specify["Specify Agent"]
     plan["Plan Agent"]
     code["Code Agent"]
     review["Review Agent"]
+    deploy["Deploy Agent"]
 
+    specify -->|"Create Plan"| plan
     plan -->|"Start Coding"| code
     code -->|"Request Review"| review
-    review -->|"Approve & Ship"| done["Done"]
+    review -->|"Deploy"| deploy
     review -->|"Request Changes"| code
-    done -->|"Plan Next Work"| plan
+    deploy -->|"Plan Next Work"| specify
 ```
 
 Humans guide AI through the lifecycle with explicit approval at each transition,

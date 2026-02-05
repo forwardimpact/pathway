@@ -113,17 +113,13 @@ excluded from agent profile derivation.
 Capabilities group skills and define level-based responsibilities. Track
 modifiers apply to all skills in a capability at once.
 
-| Capability    | Skills                                                                                               |
-| ------------- | ---------------------------------------------------------------------------------------------------- |
-| delivery      | full_stack_development, data_integration, problem_discovery, rapid_prototyping                       |
-| scale         | architecture_design, code_quality, data_modeling, devops, cloud_platforms, technical_debt_management |
-| reliability   | sre_practices, service_management                                                                    |
-| data          | data_analysis, machine_learning, statistical_modeling                                                |
-| ai            | ai_literacy, ai_augmented_development, ai_evaluation                                                 |
-| process       | lean_thinking, time_management                                                                       |
-| business      | stakeholder_management, business_immersion                                                           |
-| people        | team_collaboration, multi_audience_communication                                                     |
-| documentation | technical_writing, knowledge_management                                                              |
+| Capability  | Skills                                       |
+| ----------- | -------------------------------------------- |
+| delivery    | architecture_design, full_stack_development  |
+| scale       | cloud_platforms, code_quality, data_modeling |
+| reliability | devops, sre_practices                        |
+| people      | team_collaboration                           |
+| business    | stakeholder_management, technical_writing    |
 
 Capabilities also define:
 
@@ -225,9 +221,9 @@ Grades define career levels with base expectations:
 | ----- | ------------ | ------------ | ------------ | -------------- |
 | L1    | foundational | awareness    | awareness    | emerging       |
 | L2    | foundational | foundational | awareness    | emerging       |
-| L3    | working      | working      | foundational | emerging       |
-| L4    | practitioner | practitioner | working      | developing     |
-| L5    | expert       | practitioner | practitioner | practicing     |
+| L3    | practitioner | working      | foundational | developing     |
+| L4    | expert       | practitioner | working      | practicing     |
+| L5    | expert       | expert       | practitioner | role_modeling  |
 
 Grades also define:
 

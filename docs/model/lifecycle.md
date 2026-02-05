@@ -12,55 +12,77 @@ description: |
 
 ## Stages
 
-Three stages define discrete phases with clear entry and exit criteria:
+Five stages define discrete phases with clear entry and exit criteria:
 
 ```mermaid
 flowchart LR
-    plan["**Plan**<br>Research & Design"]
+    specify["**Specify**<br>Define Requirements"]
+    plan["**Plan**<br>Design Solution"]
     code["**Code**<br>Build & Iterate"]
-    review["**Review**<br>Verify & Ship"]
+    review["**Review**<br>Verify Quality"]
+    deploy["**Deploy**<br>Ship to Production"]
 
-    plan --> code --> review
+    specify --> plan --> code --> review --> deploy
+    specify -.->|"refine"| specify
     plan -.->|"refine"| plan
     review -.->|"iterate"| code
-    review -.->|"next work"| plan
+    review -.->|"replan"| plan
 ```
 
-| Stage      | Focus           | Human Activity                    | Agent Mode   |
-| ---------- | --------------- | --------------------------------- | ------------ |
-| **Plan**   | What & How      | Research, design, create plan     | Read-only    |
-| **Code**   | Build & Iterate | Implement, test, refine           | Full editing |
-| **Review** | Verify & Ship   | Review, approve, deploy, document | Read-only    |
+| Stage       | Focus              | Human Activity                    | Agent Mode   |
+| ----------- | ------------------ | --------------------------------- | ------------ |
+| **Specify** | What & Why         | Gather requirements, user stories | Read-only    |
+| **Plan**    | How                | Design, architecture, contracts   | Read-only    |
+| **Code**    | Build & Iterate    | Implement, test, refine           | Full editing |
+| **Review**  | Verify Quality     | Review, test, approve             | Read-only    |
+| **Deploy**  | Ship to Production | Push, monitor, verify             | Read-only    |
 
 ### Stage Definitions
 
+**Specify**
+
+Define WHAT users need and WHY. Gather requirements, write user stories, and
+define acceptance criteria without making technology choices.
+
+- Document user stories and acceptance criteria
+- Mark ambiguities with [NEEDS CLARIFICATION]
+- Focus on requirements, not implementation
+
 **Plan**
 
-Understand the problem, gather context, and design the solution. Research
-approaches and trade-offs. Produce an implementation plan with clear
-requirements and acceptance criteria.
+Define HOW to build the solution. Make technology choices, design architecture,
+and define contracts and data models.
 
-- Identify dependencies and risks
-- Break down into actionable work items
-- Document approach with rationale
+- Every technology choice traces to a requirement
+- Define contracts before implementation details
+- Document rationale for decisions
 
 **Code**
 
 Implement the solution iteratively. Write tests alongside code. Follow
-established patterns and conventions. Address feedback from reviews.
+established patterns and conventions.
 
-- Build in small, reviewable increments
-- Validate against acceptance criteria continuously
-- Keep technical debt explicitly tracked
+- Implement one task at a time, verify before moving on
+- Write tests alongside implementation
+- Track progress with the todo tool
 
 **Review**
 
-Verify code quality, correctness, and completeness. Check against acceptance
-criteria. Ship to production, monitor for issues, and document changes.
+Verify the implementation works correctly. Run the application, test against
+acceptance criteria, and document findings.
 
-- Ensure all review feedback is addressed
-- Validate outcomes match expectations
-- Update documentation and communicate changes
+- Test against acceptance criteria through manual testing
+- Document actionable findings
+- Approve when all criteria are met
+
+**Deploy**
+
+Ship the changes to production. Push code, monitor CI/CD workflows, and verify
+successful deployment.
+
+- Use git push to deploy changes
+- Monitor triggered workflows
+- Verify all workflows complete successfully
 
 ---
 
@@ -72,41 +94,77 @@ implicit: the exit criteria of Stage A equal the entry criteria of Stage B.
 
 ```mermaid
 flowchart LR
+    subgraph specify_stage["Specify Stage"]
+        specify["Specify"]
+    end
+
     subgraph plan_stage["Plan Stage"]
         plan["Plan"]
     end
 
     subgraph code_stage["Code Stage"]
-        code_entry["Entry Criteria"]
         code["Code"]
     end
 
     subgraph review_stage["Review Stage"]
-        review_entry["Entry Criteria"]
         review["Review"]
     end
 
-    plan -->|"Start Coding"| code_entry
-    code -->|"Request Review"| review_entry
+    subgraph deploy_stage["Deploy Stage"]
+        deploy["Deploy"]
+    end
+
+    specify -->|"Create Plan"| plan
+    plan -->|"Start Coding"| code
+    code -->|"Request Review"| review
+    review -->|"Deploy"| deploy
     review -.->|"Request Changes"| code
     review -.->|"Needs Replanning"| plan
 ```
 
-### Plan Stage
+### Specify Stage
 
 **Entry Criteria**: None (entry stage)
 
+**Exit Criteria**:
+
+- spec.md exists with user stories and acceptance criteria
+- No unresolved [NEEDS CLARIFICATION] markers
+
 **Handoffs**:
 
+- **Refine Spec** → Specify (refine existing spec)
+- **Create Plan** → Plan stage
+
+### Plan Stage
+
+**Entry Criteria**:
+
+- spec.md exists with user stories and acceptance criteria
+- No unresolved [NEEDS CLARIFICATION] markers
+
+**Exit Criteria**:
+
+- plan.md exists with technology choices and architecture
+- Contracts and data models defined
+
+**Handoffs**:
+
+- **Refine Plan** → Plan (refine existing plan)
 - **Start Coding** → Code stage
 
 ### Code Stage
 
 **Entry Criteria**:
 
-- Problem statement documented
-- Approach selected with rationale
-- Implementation plan exists
+- spec.md and plan.md exist
+- No unresolved [NEEDS CLARIFICATION] markers
+
+**Exit Criteria**:
+
+- Implementation complete according to plan.md
+- Tests written and passing
+- Self-review completed
 
 **Handoffs**:
 
@@ -120,10 +178,33 @@ flowchart LR
 - Tests written and passing
 - Self-review completed
 
+**Exit Criteria**:
+
+- Application runs locally without errors
+- Changes verified against acceptance criteria
+- Review approved
+
 **Handoffs**:
 
 - **Request Changes** → Code stage
 - **Needs Replanning** → Plan stage
+- **Deploy** → Deploy stage
+
+### Deploy Stage
+
+**Entry Criteria**:
+
+- Review approved
+- Application runs locally without errors
+
+**Exit Criteria**:
+
+- All triggered workflows are green
+- Deployment verified in target environment
+
+**Handoffs**:
+
+- **Fix Pipeline** → Code stage (if deployment fails)
 
 ---
 
@@ -263,11 +344,13 @@ See [Agents](../pathway/agents.md) for agent profile generation details.
 
 ### Stage Tool Sets
 
-| Stage  | Tools                                    | Mode        |
-| ------ | ---------------------------------------- | ----------- |
-| Plan   | search, web/fetch, search/codebase, todo | Read-only   |
-| Code   | search, search/codebase, edit, todo      | Full access |
-| Review | search, search/codebase, read, todo      | Read-only   |
+| Stage   | Tools                                  | Mode        |
+| ------- | -------------------------------------- | ----------- |
+| Specify | search, fetch, codebase, read          | Read-only   |
+| Plan    | search, fetch, codebase, read          | Read-only   |
+| Code    | search, codebase, read, edit, terminal | Full access |
+| Review  | search, codebase, read                 | Read-only   |
+| Deploy  | terminal, codebase, read               | Read-only   |
 
 ---
 

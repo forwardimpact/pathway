@@ -25,14 +25,19 @@ Both use the same skill and behaviour derivation, differentiated by:
 
 ## Key Modules
 
-| Module           | Purpose                     |
-| ---------------- | --------------------------- |
-| `derivation.js`  | Core derivation functions   |
-| `agent.js`       | Agent profile generation    |
-| `job.js`         | Job preparation for display |
-| `interview.js`   | Question selection          |
-| `progression.js` | Career path analysis        |
-| `checklist.js`   | Stage transition checklists |
+| Module           | Purpose                         |
+| ---------------- | ------------------------------- |
+| `derivation.js`  | Core derivation functions       |
+| `agent.js`       | Agent profile generation        |
+| `job.js`         | Job preparation for display     |
+| `job-cache.js`   | Job caching for performance     |
+| `interview.js`   | Question selection              |
+| `progression.js` | Career path analysis            |
+| `checklist.js`   | Stage transition checklists     |
+| `toolkit.js`     | Tool derivation from skills     |
+| `profile.js`     | Profile filtering (human/agent) |
+| `modifiers.js`   | Capability and skill modifiers  |
+| `matching.js`    | Job matching and gap analysis   |
 
 ## Usage
 
