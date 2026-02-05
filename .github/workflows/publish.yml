@@ -20,9 +20,10 @@ jobs:
         run: |
           TAG_NAME="${GITHUB_REF_NAME%%@v*}"
           echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
-          # Find the npm package name from the tag (e.g., schema -> @forwardimpact/schema)
-          NPM_NAME=$(npm query "[name*=${TAG_NAME}]" --json | jq -r '.[0].name')
-          echo "npm_name=${NPM_NAME}" >> $GITHUB_OUTPUT
+          # Find the npm package name and directory from the tag (e.g., schema -> @forwardimpact/schema)
+          PKG_JSON=$(npm query "[name*=${TAG_NAME}]" --json | jq -r '.[0]')
+          echo "npm_name=$(echo "$PKG_JSON" | jq -r '.name')" >> $GITHUB_OUTPUT
+          echo "dir_name=$(echo "$PKG_JSON" | jq -r '.path')" >> $GITHUB_OUTPUT
 
       - name: Setup Node.js
         uses: actions/setup-node@v4
@@ -36,6 +37,9 @@ jobs:
 
       - name: Run tests
         run: npm run test
+
+      - name: Copy LICENSE to package
+        run: cp LICENSE ${{ steps.package.outputs.dir_name }}/
 
       - name: Publish to npm
         run:
