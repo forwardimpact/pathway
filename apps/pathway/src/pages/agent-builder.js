@@ -27,7 +27,8 @@ import {
   generateSkillMd,
   deriveAgentSkills,
   deriveReferenceGrade,
-} from "@forwardimpact/model/agent";
+  deriveToolkit,
+} from "@forwardimpact/model";
 import {
   createSelectWithValue,
   createDisciplineSelect,
@@ -37,6 +38,8 @@ import { getStageEmoji } from "../formatters/stage/shared.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import { formatAgentSkill } from "../formatters/agent/skill.js";
 import { createCodeDisplay } from "../components/code-display.js";
+import { createToolkitTable } from "../formatters/toolkit/dom.js";
+import { createDetailSection } from "../components/detail.js";
 
 /** All stages option value */
 const ALL_STAGES_VALUE = "all";
@@ -488,6 +491,12 @@ function createAllStagesPreview(context) {
     .filter((skill) => skill?.agent)
     .map((skill) => generateSkillMd(skill, stages));
 
+  // Derive toolkit from agent skills
+  const toolkit = deriveToolkit({
+    skillMatrix: derivedSkills,
+    skills,
+  });
+
   return div(
     { className: "agent-deployment" },
 
@@ -532,6 +541,14 @@ function createAllStagesPreview(context) {
             "No skills with agent sections found for this discipline.",
           ),
     ),
+
+    // Tool Kit section
+    toolkit.length > 0
+      ? createDetailSection({
+          title: `Tool Kit (${toolkit.length})`,
+          content: createToolkitTable(toolkit),
+        })
+      : null,
 
     // CLI hint
     createCliHint(humanDiscipline.id, humanTrack.id),
@@ -603,6 +620,12 @@ function createSingleStagePreview(context, stage) {
     .filter((skill) => skill?.agent)
     .map((skill) => generateSkillMd(skill, stages));
 
+  // Derive toolkit from agent skills
+  const toolkit = deriveToolkit({
+    skillMatrix: derivedSkills,
+    skills,
+  });
+
   return div(
     { className: "agent-deployment" },
 
@@ -641,6 +664,14 @@ function createSingleStagePreview(context, stage) {
             "No skills with agent sections found for this discipline.",
           ),
     ),
+
+    // Tool Kit section
+    toolkit.length > 0
+      ? createDetailSection({
+          title: `Tool Kit (${toolkit.length})`,
+          content: createToolkitTable(toolkit),
+        })
+      : null,
 
     // CLI hint
     createCliHint(humanDiscipline.id, humanTrack.id, stage.id),

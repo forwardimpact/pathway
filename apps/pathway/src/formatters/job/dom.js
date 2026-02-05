@@ -17,6 +17,7 @@ import { createBehaviourProfile } from "../../components/behaviour-profile.js";
 import { createCodeDisplay } from "../../components/code-display.js";
 import { markdownToHtml } from "../../lib/markdown.js";
 import { formatJobDescription } from "./description.js";
+import { createToolkitTable } from "../toolkit/dom.js";
 
 /**
  * Format job detail as DOM elements
@@ -104,7 +105,7 @@ export function jobToDOM(view, options = {}) {
         })
       : null,
 
-    // Behaviour profile, Skill matrix, Driver coverage tables
+    // Behaviour profile, Skill matrix, Toolkit, Driver coverage tables
     showTables
       ? div(
           { className: "job-tables-section" },
@@ -118,6 +119,14 @@ export function jobToDOM(view, options = {}) {
             title: "Skill Matrix",
             content: createSkillMatrix(view.skillMatrix),
           }),
+
+          // Toolkit (after skill matrix)
+          view.toolkit && view.toolkit.length > 0
+            ? createDetailSection({
+                title: "Tool Kit",
+                content: createToolkitTable(view.toolkit),
+              })
+            : null,
 
           // Driver coverage
           view.driverCoverage.length > 0

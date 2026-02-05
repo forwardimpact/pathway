@@ -107,6 +107,9 @@ export {
 // Checklists
 export { deriveChecklist, formatChecklistMarkdown } from "./checklist.js";
 
+// Toolkit
+export { deriveToolkit } from "./toolkit.js";
+
 // Profile filtering (for agents)
 export {
   getPositiveTrackCapabilities,

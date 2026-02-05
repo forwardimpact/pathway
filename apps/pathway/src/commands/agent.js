@@ -13,6 +13,8 @@
  *   npx pathway agent <discipline> [--track=<track>]
  *   npx pathway agent <discipline> --track=<track> --stage=plan
  *   npx pathway agent <discipline> --track=<track> --output=./agents
+ *   npx pathway agent <discipline> [--track=<track>] --skills  # Plain list of skill names
+ *   npx pathway agent <discipline> [--track=<track>] --tools   # Plain list of tool names
  *   npx pathway agent --list
  *
  * Examples:
@@ -36,7 +38,8 @@ import {
   deriveReferenceGrade,
   deriveAgentSkills,
   generateSkillMd,
-} from "@forwardimpact/model/agent";
+  deriveToolkit,
+} from "@forwardimpact/model";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import { formatAgentSkill } from "../formatters/agent/skill.js";
 import { formatError, formatSuccess } from "../lib/cli-output.js";
@@ -44,6 +47,7 @@ import {
   loadAgentTemplate,
   loadSkillTemplate,
 } from "../lib/template-loader.js";
+import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
 
 /**
  * Ensure directory exists for a file path
@@ -371,6 +375,39 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
 
   // Get reference grade for derivation
   const grade = deriveReferenceGrade(data.grades);
+
+  // --skills: Output plain list of skill names (for piping)
+  if (options.skills) {
+    const derivedSkills = deriveAgentSkills({
+      discipline: humanDiscipline,
+      track: humanTrack,
+      grade,
+      skills: skillsWithAgent,
+    });
+    for (const skill of derivedSkills) {
+      const skillDef = skillsWithAgent.find((s) => s.id === skill.skillId);
+      if (skillDef) {
+        console.log(skillDef.name);
+      }
+    }
+    return;
+  }
+
+  // --tools: Output plain list of tool names (for piping)
+  if (options.tools) {
+    const derivedSkills = deriveAgentSkills({
+      discipline: humanDiscipline,
+      track: humanTrack,
+      grade,
+      skills: skillsWithAgent,
+    });
+    const toolkit = deriveToolkit({
+      skillMatrix: derivedSkills,
+      skills: skillsWithAgent,
+    });
+    console.log(toolkitToPlainList(toolkit));
+    return;
+  }
 
   const baseDir = options.output || ".";
 

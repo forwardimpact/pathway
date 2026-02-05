@@ -10,6 +10,7 @@ import {
 import { formatLevel } from "../../lib/render.js";
 import { formatJobDescription } from "./description.js";
 import { SKILL_LEVEL_ORDER } from "@forwardimpact/schema/levels";
+import { toolkitToMarkdown } from "../toolkit/markdown.js";
 
 /**
  * Format job detail as markdown
@@ -58,6 +59,13 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
   ]);
   lines.push(tableToMarkdown(["Skill", "Level"], skillRows));
   lines.push("");
+
+  // Toolkit
+  if (view.toolkit && view.toolkit.length > 0) {
+    lines.push("## Tool Kit", "");
+    lines.push(toolkitToMarkdown(view.toolkit));
+    lines.push("");
+  }
 
   // Driver Coverage
   if (view.driverCoverage.length > 0) {

@@ -27,10 +27,6 @@
  *   --list         Output IDs only (for piping)
  *   --json         Output as JSON
  *   --help         Show help
- *
- * Validation (moved to fit-schema):
- *   npx fit-schema validate
- *   npx fit-schema generate-index
  */
 
 import { join, resolve } from "path";
@@ -78,76 +74,142 @@ Engineering Pathway CLI
 Usage:
   npx fit-pathway <command> [options]
 
-Validation (use fit-schema instead):
-  npx fit-schema validate             Run full data validation
-  npx fit-schema generate-index       Generate browser index files
-
-Getting Started:
-  init                                Create ./data/ with example data
-  serve [--port=PORT]                 Serve web app at http://localhost:3000
-  site [--output=PATH]                Generate static site to ./site/
-
-Entity Commands (summary by default, --list for IDs, <id> for detail):
-  discipline [<id>]                   Browse disciplines
-  grade [<id>]                        Browse grades
-  track [<id>]                        Browse tracks
-  behaviour [<id>]                    Browse behaviours  
-  skill [<id>]                        Browse skills
-    --agent                           Output as agent SKILL.md format
-  driver [<id>]                       Browse drivers
-  stage [<id>]                        Browse lifecycle stages
-  tool [<name>]                       Browse recommended tools
-
-Composite Commands:
-  job [<discipline> <grade>] [--track=TRACK]  Generate job definition
-  interview <discipline> <grade> [--track=TRACK] [--type=TYPE]
-                                      Generate interview questions
-  progress <discipline> <grade> [--track=TRACK] [--compare=GRADE]
-                                      Show career progression
-  questions [filters]                 Browse interview questions
-  agent <discipline> [--track=<track>] Generate AI coding agent
-
 Global Options:
   --list            Output IDs only (for piping to other commands)
   --json            Output as JSON
   --data=PATH       Path to data directory (default: ./data or examples/)
   --help            Show this help message
 
-Questions Filters:
-  --level=LEVEL       Filter by skill level
-  --maturity=MAT      Filter by behaviour maturity
-  --skill=ID          Filter to specific skill
-  --behaviour=ID      Filter to behaviour
-  --capability=CAP    Filter by capability
-  --stats             Show detailed statistics
-  --format=FORMAT     Output format: table, yaml, json
+────────────────────────────────────────────────────────────────────────────────
+GETTING STARTED
+────────────────────────────────────────────────────────────────────────────────
 
-Agent Options:
-  --track=TRACK       Track for the agent (e.g., platform, forward_deployed)
-  --output=PATH       Write files to directory (without this, outputs to console)
-  --stage=STAGE       Generate specific stage agent (plan, code, review)
-  --all-stages        Generate all stage agents (default)
+  init                                Create ./data/ with example data
+  serve [--port=PORT]                 Serve web app at http://localhost:3000
+  site [--output=PATH]                Generate static site to ./site/
+
+────────────────────────────────────────────────────────────────────────────────
+ENTITY COMMANDS
+────────────────────────────────────────────────────────────────────────────────
+
+All entity commands support: summary (default), --list (IDs for piping), <id> (detail)
+
+  discipline [<id>]     Browse engineering disciplines
+  grade [<id>]          Browse career grades/levels
+  track [<id>]          Browse track specializations
+  behaviour [<id>]      Browse professional behaviours
+  driver [<id>]         Browse outcome drivers
+  stage [<id>]          Browse lifecycle stages
+
+  skill [<id>]          Browse skills
+    --agent             Output as agent SKILL.md format
+
+  tool [<name>]         Browse recommended tools (aggregated from skills)
+
+────────────────────────────────────────────────────────────────────────────────
+JOB COMMAND
+────────────────────────────────────────────────────────────────────────────────
+
+Generate job definitions from discipline × grade × track combinations.
+
+Usage:
+  npx fit-pathway job                                  Summary with stats
+  npx fit-pathway job --list                           All valid combinations
+  npx fit-pathway job <discipline> <grade>             Detail view (trackless)
+  npx fit-pathway job <d> <g> --track=<track>          Detail view (with track)
+  npx fit-pathway job <d> <g> --skills                 Plain list of skill names
+  npx fit-pathway job <d> <g> --tools                  Plain list of tool names
+  npx fit-pathway job <d> <g> --checklist=<stage>      Show handoff checklist
+
+Options:
+  --track=TRACK       Track specialization (e.g., platform, forward_deployed)
+  --skills            Output plain list of skill names (for piping)
+  --tools             Output plain list of tool names (for piping)
+  --checklist=STAGE   Show checklist for stage handoff (plan, code)
 
 Examples:
-  npx fit-pathway skill                    # Summary of all skills
-  npx fit-pathway skill --list             # Skill IDs for piping
-  npx fit-pathway skill ai_evaluation      # Detail view
-  npx fit-pathway skill architecture_design --agent  # Agent SKILL.md output
-
-  npx fit-pathway tool                     # Summary of all tools
-  npx fit-pathway tool --list              # Tool names for piping
-  npx fit-pathway tool DuckDB              # Tool detail with skill usages
-
-  npx fit-pathway job                      # Summary of valid combinations
-  npx fit-pathway job --list               # All combinations for piping
   npx fit-pathway job software_engineering L4
   npx fit-pathway job software_engineering L4 --track=platform
-  npx fit-pathway job se L3 --track=platform --checklist=code
+  npx fit-pathway job se L3 --track=platform --skills
+  npx fit-pathway job se L3 --track=platform --tools
 
+────────────────────────────────────────────────────────────────────────────────
+AGENT COMMAND
+────────────────────────────────────────────────────────────────────────────────
+
+Generate AI coding agent configurations from discipline × track × stage.
+
+Usage:
+  npx fit-pathway agent                                Summary with stats
+  npx fit-pathway agent --list                         All valid combinations
+  npx fit-pathway agent <discipline> --track=<track>   Generate all stage agents
+  npx fit-pathway agent <d> --track=<t> --stage=<s>    Generate single stage agent
+  npx fit-pathway agent <d> --track=<t> --skills       Plain list of skill names
+  npx fit-pathway agent <d> --track=<t> --tools        Plain list of tool names
+
+Options:
+  --track=TRACK       Track for the agent (required for generation)
+  --stage=STAGE       Generate specific stage agent (plan, code, review)
+  --output=PATH       Write files to directory (without this, outputs to console)
+  --skills            Output plain list of skill names (for piping)
+  --tools             Output plain list of tool names (for piping)
+
+Examples:
+  npx fit-pathway agent software_engineering --track=platform
+  npx fit-pathway agent software_engineering --track=platform --stage=plan
+  npx fit-pathway agent software_engineering --track=platform --output=./agents
+  npx fit-pathway agent software_engineering --track=platform --skills
+
+────────────────────────────────────────────────────────────────────────────────
+INTERVIEW COMMAND
+────────────────────────────────────────────────────────────────────────────────
+
+Generate interview question sets based on job requirements.
+
+Usage:
+  npx fit-pathway interview <discipline> <grade>
+  npx fit-pathway interview <d> <g> --track=<track>
+  npx fit-pathway interview <d> <g> --type=<type>
+
+Options:
+  --track=TRACK       Track specialization
+  --type=TYPE         Interview type: full (default), short
+
+────────────────────────────────────────────────────────────────────────────────
+PROGRESS COMMAND
+────────────────────────────────────────────────────────────────────────────────
+
+Analyze career progression between grades.
+
+Usage:
+  npx fit-pathway progress <discipline> <grade>
+  npx fit-pathway progress <d> <g> --track=<track>
+  npx fit-pathway progress <d> <g> --compare=<to_grade>
+
+Options:
+  --track=TRACK        Track specialization
+  --compare=GRADE      Compare to specific grade
+
+────────────────────────────────────────────────────────────────────────────────
+QUESTIONS COMMAND
+────────────────────────────────────────────────────────────────────────────────
+
+Browse and filter interview questions.
+
+Usage:
+  npx fit-pathway questions
   npx fit-pathway questions --level=practitioner
+  npx fit-pathway questions --skill=architecture_design
   npx fit-pathway questions --stats
 
-  npx fit-pathway agent software_engineering --track=platform --output=./agents
+Options:
+  --level=LEVEL        Filter by skill level
+  --maturity=MATURITY  Filter by behaviour maturity
+  --skill=ID           Filter to specific skill
+  --behaviour=ID       Filter to specific behaviour
+  --capability=CAP     Filter by capability
+  --stats              Show detailed statistics
+  --format=FORMAT      Output format: table, yaml, json
 `;
 
 /**
@@ -177,6 +239,8 @@ function parseArgs(args) {
     stats: false,
     // Job command options
     checklist: null,
+    skills: false,
+    tools: false,
     // Agent command options
     output: null,
     stage: null,
@@ -233,6 +297,10 @@ function parseArgs(args) {
       result.agent = true;
     } else if (arg.startsWith("--checklist=")) {
       result.checklist = arg.slice(12);
+    } else if (arg === "--skills") {
+      result.skills = true;
+    } else if (arg === "--tools") {
+      result.tools = true;
     } else if (arg.startsWith("--port=")) {
       result.port = parseInt(arg.slice(7), 10);
     } else if (arg.startsWith("--path=")) {

@@ -12,6 +12,7 @@ import {
   getDisciplineSkillIds,
 } from "./derivation.js";
 import { deriveChecklist } from "./checklist.js";
+import { deriveToolkit } from "./toolkit.js";
 import { getOrCreateJob } from "./job-cache.js";
 
 /**
@@ -28,6 +29,7 @@ import { getOrCreateJob } from "./job-cache.js";
  * @property {Array} behaviourProfile
  * @property {Array} derivedResponsibilities
  * @property {Array} driverCoverage
+ * @property {Array} toolkit - De-duplicated tools from skills
  * @property {Object} checklists - Handoff checklists keyed by handoff type
  */
 
@@ -85,6 +87,12 @@ export function prepareJobDetail({
     }
   }
 
+  // Derive toolkit from skill matrix
+  const toolkit = deriveToolkit({
+    skillMatrix: job.skillMatrix,
+    skills,
+  });
+
   return {
     title: job.title,
     disciplineId: discipline.id,
@@ -98,6 +106,8 @@ export function prepareJobDetail({
     skillMatrix: job.skillMatrix,
     behaviourProfile: job.behaviourProfile,
     derivedResponsibilities: job.derivedResponsibilities || [],
+    // Derived toolkit
+    toolkit,
     // Transformed driver coverage for display
     driverCoverage: driverCoverage.map((d) => ({
       id: d.driverId,

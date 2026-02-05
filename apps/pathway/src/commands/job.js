@@ -8,6 +8,8 @@
  *   npx pathway job --list                                   # All valid combinations (for piping)
  *   npx pathway job <discipline> <grade>                     # Detail view (trackless)
  *   npx pathway job <discipline> <grade> --track=<track>     # Detail view (with track)
+ *   npx pathway job <d> <g> [--track=<t>] --skills           # Plain list of skill names
+ *   npx pathway job <d> <g> [--track=<t>] --tools            # Plain list of tool names
  *   npx pathway job se L3 --track=platform --checklist=code  # Show checklist for handoff
  *   npx pathway job --validate                               # Validation checks
  */
@@ -21,6 +23,7 @@ import {
   formatChecklistMarkdown,
 } from "@forwardimpact/model/checklist";
 import { loadJobTemplate } from "../lib/template-loader.js";
+import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
 
 /**
  * Format job output
@@ -134,6 +137,20 @@ export async function runJobCommand({ data, args, options, dataDir }) {
   if (!view) {
     console.error("Failed to generate job output.");
     process.exit(1);
+  }
+
+  // --skills: Output plain list of skill names (for piping)
+  if (options.skills) {
+    for (const skill of view.skillMatrix) {
+      console.log(skill.skillName);
+    }
+    return;
+  }
+
+  // --tools: Output plain list of tool names (for piping)
+  if (options.tools) {
+    console.log(toolkitToPlainList(view.toolkit));
+    return;
   }
 
   if (options.json) {

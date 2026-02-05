@@ -29,9 +29,7 @@ handoffs:
 
 {{{identity}}}
 
-{{#priority}} {{{priority}}}
-
-{{/priority}} {{#hasSkills}}
+{{#priority}} {{{priority}}} {{/priority}} {{#hasSkills}}
 
 ## Available Skills and Tools
 
@@ -49,9 +47,11 @@ and (3) trade-offs of the alternative.
 | ----- | -------- | -------- |
 
 {{#skillIndex}} | {{{name}}} | `.claude/skills/{{dirname}}/SKILL.md` |
-{{{useWhen}}} | {{/skillIndex}}
+{{{useWhen}}} | {{/skillIndex}} {{/hasSkills}}
 
-{{/hasSkills}} {{#beforeMakingChanges.length}} Before making changes:
+{{#beforeMakingChanges.length}}
+
+## Before Starting Work
 
 {{#beforeMakingChanges}} {{index}}. {{{text}}} {{/beforeMakingChanges}}
 {{/beforeMakingChanges.length}}
