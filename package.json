@@ -12,7 +12,8 @@
   "workspaces": [
     "apps/schema",
     "apps/model",
-    "apps/pathway"
+    "apps/pathway",
+    "libs/libdoc"
   ],
   "scripts": {
     "start": "npm run -w @forwardimpact/pathway pathway -- serve --data=../../apps/schema/examples",
