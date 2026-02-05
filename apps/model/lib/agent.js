@@ -177,21 +177,25 @@ function findAgentBehaviour(agentBehaviours, id) {
 }
 
 /**
- * Build working style section from emphasized behaviours
- * Includes workflow patterns when available
+ * @typedef {Object} WorkingStyleEntry
+ * @property {string} title - Section title (e.g. "Own the outcome end-to-end")
+ * @property {string} content - Working style content (markdown)
+ */
+
+/**
+ * Build working style entries from emphasized behaviours
+ * Returns structured data for template iteration
  * @param {Array} derivedBehaviours - Behaviours sorted by maturity (highest first)
  * @param {Array} agentBehaviours - Agent behaviour definitions with principles
  * @param {number} topN - Number of top behaviours to include
- * @returns {string} Working style markdown section
+ * @returns {WorkingStyleEntry[]} Array of working style entries
  */
 function buildWorkingStyleFromBehaviours(
   derivedBehaviours,
   agentBehaviours,
   topN = 3,
 ) {
-  const sections = [];
-  sections.push("## Working Style");
-  sections.push("");
+  const entries = [];
 
   // Get top N behaviours by maturity
   const topBehaviours = derivedBehaviours.slice(0, topN);
@@ -207,22 +211,16 @@ function buildWorkingStyleFromBehaviours(
 
     // Use title as section header
     const title = agentBehaviour.title || derived.behaviourName;
-    sections.push(`### ${title}`);
-    sections.push("");
 
-    // Include workingStyle if available (structured guidance)
-    if (agentBehaviour.workingStyle) {
-      sections.push(agentBehaviour.workingStyle.trim());
-      sections.push("");
-    } else if (agentBehaviour.principles) {
-      // Fall back to principles
-      const principles = agentBehaviour.principles.trim();
-      sections.push(principles);
-      sections.push("");
-    }
+    // Include workingStyle if available, otherwise fall back to principles
+    const content = agentBehaviour.workingStyle
+      ? agentBehaviour.workingStyle.trim()
+      : agentBehaviour.principles.trim();
+
+    entries.push({ title, content });
   }
 
-  return sections.join("\n");
+  return entries;
 }
 
 /**
@@ -308,8 +306,7 @@ function estimateBodyDataLength(bodyData) {
     "stageDescription",
     "identity",
     "priority",
-    "delegation",
-    "operationalContext",
+    "roleContext",
     "workingStyle",
     "beforeHandoff",
   ];
@@ -324,11 +321,6 @@ function estimateBodyDataLength(bodyData) {
     for (const skill of bodyData.skillIndex) {
       length +=
         skill.name.length + skill.dirname.length + skill.useWhen.length + 50;
-    }
-  }
-  if (bodyData.beforeMakingChanges) {
-    for (const item of bodyData.beforeMakingChanges) {
-      length += item.text.length + 5; // +5 for "1. " prefix
     }
   }
   if (bodyData.constraints) {
@@ -496,6 +488,7 @@ function getChecklistStage(stageId) {
  * @param {Array} params.agentBehaviours - Agent behaviour definitions
  * @param {Array} params.skills - All skill definitions (for agent section lookup)
  * @param {string} params.checklistMarkdown - Pre-formatted checklist markdown
+ * @param {Array<{id: string, name: string, description: string}>} [params.agentIndex] - List of all available agents
  * @returns {Object} Structured profile body data
  */
 function buildStageProfileBodyData({
@@ -509,6 +502,7 @@ function buildStageProfileBodyData({
   agentBehaviours,
   skills,
   checklistMarkdown,
+  agentIndex,
 }) {
   const name = `${humanDiscipline.specialization || humanDiscipline.name} - ${humanTrack.name}`;
   const stageName = stage.name.charAt(0).toUpperCase() + stage.name.slice(1);
@@ -521,20 +515,6 @@ function buildStageProfileBodyData({
   const rawPriority = agentTrack.priority || agentDiscipline.priority;
   const priority = rawPriority
     ? substituteTemplateVars(rawPriority, humanDiscipline)
-    : null;
-
-  // Build beforeMakingChanges list - prefer track, fall back to discipline
-  const rawSteps =
-    agentTrack.beforeMakingChanges || agentDiscipline.beforeMakingChanges || [];
-  const beforeMakingChanges = rawSteps.map((text, i) => ({
-    index: i + 1,
-    text: substituteTemplateVars(text, humanDiscipline),
-  }));
-
-  // Delegation (from discipline only, optional)
-  const rawDelegation = agentDiscipline.delegation;
-  const delegation = rawDelegation
-    ? substituteTemplateVars(rawDelegation, humanDiscipline)
     : null;
 
   // Build skill index from derived skills with agent sections
@@ -550,11 +530,11 @@ function buildStageProfileBodyData({
     })
     .filter(Boolean);
 
-  // Operational Context - use track's roleContext (shared with human job descriptions)
-  const operationalContext = humanTrack.roleContext.trim();
+  // Role Context - use track's roleContext (shared with human job descriptions)
+  const roleContext = humanTrack.roleContext.trim();
 
-  // Working Style from derived behaviours (still markdown for now)
-  const workingStyle = buildWorkingStyleFromBehaviours(
+  // Working styles from derived behaviours (structured for template iteration)
+  const workingStyles = buildWorkingStyleFromBehaviours(
     derivedBehaviours,
     agentBehaviours,
     3,
@@ -567,18 +547,26 @@ function buildStageProfileBodyData({
     ...(agentTrack.constraints || []),
   ];
 
+  // Filter agent index to only include agents with same track and stage (different disciplines)
+  // Agent IDs follow pattern: {discipline-abbrev}-{track-id-kebab}-{stage-id}
+  const trackSuffix = `-${toKebabCase(humanTrack.id)}-${stage.id}`;
+  const currentAgentId = `${getDisciplineAbbreviation(humanDiscipline.id)}${trackSuffix}`;
+  const filteredAgentIndex = (agentIndex || []).filter(
+    (agent) => agent.id.endsWith(trackSuffix) && agent.id !== currentAgentId,
+  );
+
   return {
     title: `${name} - ${stageName} Agent`,
     stageDescription: stage.description,
     identity: identity.trim(),
     priority: priority ? priority.trim() : null,
     skillIndex,
-    beforeMakingChanges,
-    delegation: delegation ? delegation.trim() : null,
-    operationalContext,
-    workingStyle,
+    roleContext,
+    workingStyles,
     beforeHandoff: checklistMarkdown || null,
     constraints,
+    agentIndex: filteredAgentIndex,
+    hasAgentIndex: filteredAgentIndex.length > 0,
   };
 }
 
@@ -681,6 +669,7 @@ export function deriveStageAgent({
  * @param {Object} params.agentTrack - Agent track definition
  * @param {Array} params.capabilities - Capabilities with checklists
  * @param {Array} params.stages - All stages (for handoff entry criteria)
+ * @param {Array<{id: string, name: string, description: string}>} [params.agentIndex] - List of all available agents
  * @returns {Object} Profile with frontmatter, bodyData, and filename
  */
 export function generateStageAgentProfile({
@@ -695,6 +684,7 @@ export function generateStageAgentProfile({
   agentTrack,
   capabilities,
   stages,
+  agentIndex,
 }) {
   // Derive the complete agent
   const agent = deriveStageAgent({
@@ -736,6 +726,7 @@ export function generateStageAgentProfile({
     agentBehaviours,
     skills,
     checklistMarkdown,
+    agentIndex,
   });
 
   // Build frontmatter
@@ -751,4 +742,72 @@ export function generateStageAgentProfile({
     bodyData,
     filename,
   };
+}
+
+/**
+ * Build an agent description from discipline, track, and stage
+ * Uses the same format as generateStageAgentProfile for consistency
+ * @param {Object} discipline - Human discipline definition
+ * @param {Object} track - Human track definition
+ * @param {Object} stage - Stage definition
+ * @returns {string} Agent description
+ */
+function buildAgentDescription(discipline, track, stage) {
+  const disciplineDesc = discipline.description.trim().split("\n")[0];
+  const stageDesc = stage.description.split(" - ")[0];
+  return `${stageDesc} agent for ${discipline.specialization || discipline.name} on ${track.name} track. ${disciplineDesc}`;
+}
+
+/**
+ * Build a list of all available agents in the system
+ * Enumerates all valid discipline × track × stage combinations
+ * Returns id, name, and description for each agent
+ * @param {Object} params - Parameters
+ * @param {Array} params.disciplines - Human discipline definitions
+ * @param {Array} params.tracks - Human track definitions
+ * @param {Array} params.stages - Stage definitions
+ * @param {Array} params.agentDisciplines - Agent discipline definitions (to filter valid combinations)
+ * @param {Array} params.agentTracks - Agent track definitions (to filter valid combinations)
+ * @returns {Array<{id: string, name: string, description: string}>} List of all agents
+ */
+export function buildAgentIndex({
+  disciplines,
+  tracks,
+  stages,
+  agentDisciplines,
+  agentTracks,
+}) {
+  const agents = [];
+
+  // Build lookup sets for valid agent combinations
+  const agentDisciplineIds = new Set(agentDisciplines.map((d) => d.id));
+  const agentTrackIds = new Set(agentTracks.map((t) => t.id));
+
+  for (const discipline of disciplines) {
+    // Skip disciplines without agent definitions
+    if (!agentDisciplineIds.has(discipline.id)) continue;
+
+    for (const track of tracks) {
+      // Skip tracks without agent definitions
+      if (!agentTrackIds.has(track.id)) continue;
+
+      // Build base name (matches filename pattern)
+      const abbrev = getDisciplineAbbreviation(discipline.id);
+      const baseName = `${abbrev}-${toKebabCase(track.id)}`;
+
+      for (const stage of stages) {
+        const id = `${baseName}-${stage.id}`;
+        const fullName = `${discipline.specialization || discipline.name} - ${track.name} - ${stage.name.charAt(0).toUpperCase() + stage.name.slice(1)} Agent`;
+        const description = buildAgentDescription(discipline, track, stage);
+
+        agents.push({
+          id,
+          name: fullName,
+          description,
+        });
+      }
+    }
+  }
+
+  return agents;
 }

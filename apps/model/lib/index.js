@@ -102,6 +102,7 @@ export {
   deriveHandoffs,
   deriveStageAgent,
   generateStageAgentProfile,
+  buildAgentIndex,
 } from "./agent.js";
 
 // Checklists
