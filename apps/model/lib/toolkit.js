@@ -2,8 +2,11 @@
  * Toolkit Derivation Functions
  *
  * Derives a de-duplicated list of tools from a skill matrix by looking up
- * toolReferences from skill definitions.
+ * toolReferences from skill definitions. Only skills at the highest derived
+ * level contribute tools, ensuring focused toolkits for both jobs and agents.
  */
+
+import { filterByHighestLevel } from "./profile.js";
 
 /**
  * @typedef {Object} ToolkitEntry
@@ -17,22 +20,26 @@
 /**
  * Derive a de-duplicated toolkit from a skill matrix
  *
- * Extracts all tools referenced by skills in the matrix, de-duplicates by name,
- * and collects which skills reference each tool.
+ * Extracts tools from skills at the highest derived level, de-duplicates by name,
+ * and collects which skills reference each tool. This keeps toolkits focused on
+ * the engineer's core competencies for both jobs and agents.
  *
  * @param {Object} params
- * @param {Array<{skillId: string}>} params.skillMatrix - Skill matrix with skill IDs
+ * @param {Array<{skillId: string, level: string}>} params.skillMatrix - Skill matrix with skill IDs and levels
  * @param {Array} params.skills - All skill definitions with toolReferences
  * @returns {ToolkitEntry[]} De-duplicated toolkit sorted by name
  */
 export function deriveToolkit({ skillMatrix, skills }) {
+  // Filter to highest level skills only
+  const sourceMatrix = filterByHighestLevel(skillMatrix);
+
   // Build skill lookup map for O(1) access
   const skillMap = new Map(skills.map((s) => [s.id, s]));
 
   // Tool map for de-duplication: name -> ToolkitEntry
   const toolMap = new Map();
 
-  for (const entry of skillMatrix) {
+  for (const entry of sourceMatrix) {
     const skill = skillMap.get(entry.skillId);
     if (!skill?.toolReferences) continue;
 
