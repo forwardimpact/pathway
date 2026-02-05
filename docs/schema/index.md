@@ -58,7 +58,7 @@ examples/
 ```sh
 npx fit-schema validate          # Validate all data
 npx fit-schema generate-index    # Generate browser indexes
-npx fit-schema validate:shacl    # Validate RDF/SHACL
+npx fit-schema validate --shacl  # Validate RDF/SHACL
 ```
 
 ## Exports

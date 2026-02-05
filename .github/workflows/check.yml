@@ -39,7 +39,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npm test
-      - run: npm run validate:shacl
+      - run: npm run validate -- --shacl
 
   e2e:
     runs-on: ubuntu-latest
