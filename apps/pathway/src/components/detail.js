@@ -188,7 +188,7 @@ export function createTagsList(tags, emptyMessage = "None") {
     return p({ className: "text-muted" }, emptyMessage);
   }
 
-  return div({ className: "tags" }, ...tags.map((tag) => createTag(tag)));
+  return div({ className: "info-tags" }, ...tags.map((tag) => createTag(tag)));
 }
 
 /**

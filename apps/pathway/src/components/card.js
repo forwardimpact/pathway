@@ -104,5 +104,5 @@ export function createBadge(text, type = "default") {
  * @returns {HTMLElement}
  */
 export function createTag(text) {
-  return span({ className: "tag" }, text);
+  return span({ className: "info-tag" }, text);
 }

@@ -176,14 +176,14 @@
     border: 1px solid var(--color-border);
   }
 
-  /* Tags */
-  .tags {
+  /* Info tags */
+  .info-tags {
     display: flex;
     gap: var(--space-sm);
     flex-wrap: wrap;
   }
 
-  .tag {
+  .info-tag {
     display: inline-block;
     padding: var(--space-xs) var(--space-sm);
     background: var(--color-bg);

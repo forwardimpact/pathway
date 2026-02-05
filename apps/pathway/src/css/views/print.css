@@ -194,10 +194,10 @@
     /* Preserve badge colors */
     .slide-view .badge,
     .slide-view .level-badge,
-    .slide-view .tag,
+    .slide-view .info-tag,
     .badge,
     .level-badge,
-    .tag {
+    .info-tag {
       -webkit-print-color-adjust: exact;
       print-color-adjust: exact;
       background-color: inherit !important;
