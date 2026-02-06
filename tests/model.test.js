@@ -1113,16 +1113,20 @@ describe("Validation", () => {
         {
           skillLevels: {
             skill_a: {
-              practitioner: [
-                { id: "q1", text: "Question 1", type: "technical" },
-              ],
+              professionalQuestions: {
+                practitioner: [
+                  { id: "q1", text: "Question 1", type: "technical" },
+                ],
+              },
             },
           },
           behaviourMaturities: {
             behaviour_x: {
-              practicing: [
-                { id: "q2", text: "Question 2", type: "behavioural" },
-              ],
+              professionalQuestions: {
+                practicing: [
+                  { id: "q2", text: "Question 2", type: "behavioural" },
+                ],
+              },
             },
           },
         },
@@ -1138,9 +1142,11 @@ describe("Validation", () => {
         {
           skillLevels: {
             nonexistent_skill: {
-              practitioner: [
-                { id: "q1", text: "Question 1", type: "technical" },
-              ],
+              professionalQuestions: {
+                practitioner: [
+                  { id: "q1", text: "Question 1", type: "technical" },
+                ],
+              },
             },
           },
           behaviourMaturities: {},
@@ -1158,7 +1164,9 @@ describe("Validation", () => {
         {
           skillLevels: {
             skill_a: {
-              master: [{ id: "q1", text: "Question 1", type: "technical" }],
+              professionalQuestions: {
+                master: [{ id: "q1", text: "Question 1", type: "technical" }],
+              },
             },
           },
           behaviourMaturities: {},
@@ -2645,34 +2653,58 @@ describe("Interview", () => {
   const questionBank = {
     skillLevels: {
       skill_a: {
-        practitioner: [
-          {
-            id: "q1",
-            text: "Question about skill A",
-            type: "technical",
-            expectedDurationMinutes: 5,
-          },
-        ],
-        expert: [
-          {
-            id: "q2",
-            text: "Expert question",
-            type: "technical",
-            expectedDurationMinutes: 10,
-          },
-        ],
+        professionalQuestions: {
+          practitioner: [
+            {
+              id: "q1",
+              text: "Question about skill A",
+              type: "technical",
+              expectedDurationMinutes: 5,
+            },
+          ],
+          expert: [
+            {
+              id: "q2",
+              text: "Expert question",
+              type: "technical",
+              expectedDurationMinutes: 10,
+            },
+          ],
+        },
+        managementQuestions: {
+          practitioner: [
+            {
+              id: "q1_mgmt",
+              text: "Management question about skill A",
+              type: "technical",
+              expectedDurationMinutes: 5,
+            },
+          ],
+        },
       },
     },
     behaviourMaturities: {
       behaviour_x: {
-        role_modeling: [
-          {
-            id: "q3",
-            text: "Behaviour question",
-            type: "behavioural",
-            expectedDurationMinutes: 8,
-          },
-        ],
+        professionalQuestions: {
+          role_modeling: [
+            {
+              id: "q3",
+              text: "Behaviour question",
+              type: "behavioural",
+              expectedDurationMinutes: 8,
+            },
+          ],
+        },
+        managementQuestions: {
+          role_modeling: [
+            {
+              id: "q3_mgmt",
+              text: "Management behaviour question",
+              type: "behavioural",
+              expectedDurationMinutes: 8,
+            },
+          ],
+        },
       },
     },
   };

@@ -1,49 +1,104 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/capability-questions.schema.json
 
-working:
-  - id: del_work_decomp_1
-    text:
-      A new client needs a dashboard that shows real-time analytics for their
-      e-commerce platform. Walk me through how you would approach this.
-    context:
-      The client has 50,000 daily active users, uses PostgreSQL for their main
-      database, and wants the dashboard within 6 weeks.
-    decompositionPrompts:
-      - What information would you need to gather first?
-      - How would you break down the technical implementation?
-      - What are the biggest risks and how would you mitigate them?
-      - How would you prioritize if you had only 3 weeks instead?
-    lookingFor:
-      - Asks clarifying questions about requirements before diving in
-      - Identifies data pipeline, storage, and visualization as separate
-        concerns
-      - Considers real-time vs near-real-time trade-offs
-      - Thinks about scalability and performance constraints
-    expectedDurationMinutes: 15
-    followUps:
-      - What would you do differently if their data was in 5 different systems?
-      - How would you handle if a key team member left mid-project?
+professionalQuestions:
+  working:
+    - id: del_pro_work_decomp_1
+      text:
+        A new client needs a dashboard that shows real-time analytics for their
+        e-commerce platform. Walk me through how you would approach this.
+      context:
+        The client has 50,000 daily active users, uses PostgreSQL for their main
+        database, and wants the dashboard within 6 weeks.
+      decompositionPrompts:
+        - What information would you need to gather first?
+        - How would you break down the technical implementation?
+        - What are the biggest risks and how would you mitigate them?
+        - How would you prioritize if you had only 3 weeks instead?
+      lookingFor:
+        - Asks clarifying questions about requirements before diving in
+        - Identifies data pipeline, storage, and visualization as separate
+          concerns
+        - Considers real-time vs near-real-time trade-offs
+        - Thinks about scalability and performance constraints
+      expectedDurationMinutes: 15
+      followUps:
+        - What would you do differently if their data was in 5 different
+          systems?
+        - How would you handle if a key team member left mid-project?
 
-practitioner:
-  - id: del_pract_decomp_1
-    text:
-      Your team needs to migrate a critical monolith to microservices while
-      keeping the system running. How would you approach this?
-    context:
-      The monolith handles payment processing, has 99.99% uptime requirements,
-      and the team has 8 engineers.
-    decompositionPrompts:
-      - How would you decide what to extract first?
-      - What's your strategy for maintaining reliability during the migration?
-      - How would you structure the team's work?
-      - What would success look like at each phase?
-    lookingFor:
-      - Proposes strangler fig or similar incremental approach
-      - Identifies domain boundaries as extraction points
-      - Plans for rollback and feature flags
-      - Considers team coordination and parallel workstreams
-    expectedDurationMinutes: 15
-    followUps:
-      - How would you handle if stakeholders wanted everything migrated in 6
-        months?
-      - What metrics would you track to know the migration is succeeding?
+  practitioner:
+    - id: del_pro_pract_decomp_1
+      text:
+        Your team needs to migrate a critical monolith to microservices while
+        keeping the system running. How would you approach this?
+      context:
+        The monolith handles payment processing, has 99.99% uptime requirements,
+        and the team has 8 engineers.
+      decompositionPrompts:
+        - How would you decide what to extract first?
+        - What's your strategy for maintaining reliability during the migration?
+        - How would you structure the team's work?
+        - What would success look like at each phase?
+      lookingFor:
+        - Proposes strangler fig or similar incremental approach
+        - Identifies domain boundaries as extraction points
+        - Plans for rollback and feature flags
+        - Considers team coordination and parallel workstreams
+      expectedDurationMinutes: 15
+      followUps:
+        - How would you handle if stakeholders wanted everything migrated in 6
+          months?
+        - What metrics would you track to know the migration is succeeding?
+
+managementQuestions:
+  working:
+    - id: del_mgmt_work_decomp_1
+      text:
+        Your team has committed to delivering a major feature, but halfway
+        through the sprint you realize the scope was underestimated. How would
+        you handle this?
+      context:
+        The feature was estimated at 2 weeks but will likely take 4 weeks. The
+        client has a marketing launch planned around the original date. Your
+        team has 5 engineers.
+      decompositionPrompts:
+        - How would you communicate the delay to stakeholders?
+        - What options would you present for moving forward?
+        - How would you support your team through this situation?
+        - What would you change to prevent this in the future?
+      lookingFor:
+        - Communicates early and transparently with stakeholders
+        - Presents options rather than just problems
+        - Protects team from blame while addressing root causes
+        - Focuses on learning and process improvement
+      expectedDurationMinutes: 15
+      followUps:
+        - What if the stakeholder insists on the original date?
+        - How would you handle if this was the third time this quarter scope was
+          underestimated?
+
+  practitioner:
+    - id: del_mgmt_pract_decomp_1
+      text:
+        You're leading a cross-functional initiative involving three teams with
+        different managers, timelines, and priorities. How would you coordinate
+        delivery?
+      context:
+        The initiative is a platform modernization requiring backend, frontend,
+        and infrastructure teams. Each team has their own roadmap commitments.
+        Executive sponsorship is strong but day-to-day coordination is
+        challenging.
+      decompositionPrompts:
+        - How would you establish governance and decision-making?
+        - What coordination mechanisms would you put in place?
+        - How would you handle conflicts between team priorities?
+        - How would you maintain momentum and visibility?
+      lookingFor:
+        - Creates clear accountability and escalation paths
+        - Establishes regular coordination touchpoints
+        - Negotiates with peer managers for alignment
+        - Uses visibility and reporting to maintain executive support
+      expectedDurationMinutes: 15
+      followUps:
+        - What if one team consistently missed their commitments?
+        - How would you handle if executive sponsorship weakened mid-project?

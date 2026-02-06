@@ -7,7 +7,8 @@
 # =============================================================================
 # Skill Questions Schema
 # =============================================================================
-# Interview questions for assessing skills.
+# Interview questions for assessing skills, organized by role type
+# (professional/management) and level.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -17,6 +18,18 @@
 fit:Question a rdfs:Class ;
     rdfs:label "Question"@en ;
     rdfs:comment "Interview question for assessing skills or behaviours"@en .
+
+fit:RoleType a rdfs:Class ;
+    rdfs:label "RoleType"@en ;
+    rdfs:comment "Type of role: professional (IC) or management"@en .
+
+fit:professional a fit:RoleType ;
+    rdfs:label "professional"@en ;
+    rdfs:comment "Professional/individual contributor roles"@en .
+
+fit:management a fit:RoleType ;
+    rdfs:label "management"@en ;
+    rdfs:comment "Management roles"@en .
 
 # -----------------------------------------------------------------------------
 # Properties
@@ -57,6 +70,12 @@ fit:atLevel a rdf:Property ;
     rdfs:comment "The skill level this question is for"@en ;
     rdfs:domain fit:Question ;
     rdfs:range fit:SkillLevel .
+
+fit:forRoleType a rdf:Property ;
+    rdfs:label "forRoleType"@en ;
+    rdfs:comment "The role type this question is intended for (professional or management)"@en ;
+    rdfs:domain fit:Question ;
+    rdfs:range fit:RoleType .
 
 # =============================================================================
 # SHACL SHAPES
@@ -125,4 +144,12 @@ fit:SkillQuestionShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:name "atLevel" ;
         sh:description "The skill level this question is for" ;
+    ] ;
+    sh:property [
+        sh:path fit:forRoleType ;
+        sh:in ( fit:professional fit:management ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "forRoleType" ;
+        sh:description "The role type this question is for" ;
     ] .

@@ -37,10 +37,16 @@ const DEFAULT_DECOMPOSITION_MINUTES = 15;
  * @param {import('./levels.js').QuestionBank} questionBank - The question bank
  * @param {string} skillId - The skill ID
  * @param {string} level - The skill level
+ * @param {string} [roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').Question[]} Array of questions
  */
-function getSkillQuestions(questionBank, skillId, level) {
-  return questionBank.skillLevels?.[skillId]?.[level] || [];
+function getSkillQuestions(
+  questionBank,
+  skillId,
+  level,
+  roleType = "professionalQuestions",
+) {
+  return questionBank.skillLevels?.[skillId]?.[roleType]?.[level] || [];
 }
 
 /**
@@ -48,10 +54,19 @@ function getSkillQuestions(questionBank, skillId, level) {
  * @param {import('./levels.js').QuestionBank} questionBank - The question bank
  * @param {string} behaviourId - The behaviour ID
  * @param {string} maturity - The maturity level
+ * @param {string} [roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').Question[]} Array of questions
  */
-function getBehaviourQuestions(questionBank, behaviourId, maturity) {
-  return questionBank.behaviourMaturities?.[behaviourId]?.[maturity] || [];
+function getBehaviourQuestions(
+  questionBank,
+  behaviourId,
+  maturity,
+  roleType = "professionalQuestions",
+) {
+  return (
+    questionBank.behaviourMaturities?.[behaviourId]?.[roleType]?.[maturity] ||
+    []
+  );
 }
 
 /**
@@ -59,10 +74,18 @@ function getBehaviourQuestions(questionBank, behaviourId, maturity) {
  * @param {import('./levels.js').QuestionBank} questionBank - The question bank
  * @param {string} capabilityId - The capability ID
  * @param {string} level - The skill level (capabilities use same levels as skills)
+ * @param {string} [roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').Question[]} Array of questions
  */
-function getCapabilityQuestions(questionBank, capabilityId, level) {
-  return questionBank.capabilityLevels?.[capabilityId]?.[level] || [];
+function getCapabilityQuestions(
+  questionBank,
+  capabilityId,
+  level,
+  roleType = "professionalQuestions",
+) {
+  return (
+    questionBank.capabilityLevels?.[capabilityId]?.[roleType]?.[level] || []
+  );
 }
 
 /**
@@ -191,6 +214,7 @@ function selectQuestion(questions, deterministic = false) {
  * @param {number} [params.options.maxQuestionsPerBehaviour=2] - Max questions per behaviour
  * @param {number} [params.options.targetMinutes=60] - Target interview length in minutes
  * @param {number} [params.options.skillBehaviourRatio=RATIO_SKILL_BEHAVIOUR] - Ratio of time for skills vs behaviours
+ * @param {string} [params.options.roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').InterviewGuide}
  */
 export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
@@ -201,6 +225,7 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
     maxQuestionsPerBehaviour = 2,
     targetMinutes = 60,
     skillBehaviourRatio = RATIO_SKILL_BEHAVIOUR,
+    roleType = "professionalQuestions",
   } = options;
 
   const allSkillQuestions = [];
@@ -218,6 +243,7 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
       questionBank,
       skill.skillId,
       targetLevel,
+      roleType,
     );
     let questionsAdded = 0;
 
@@ -247,6 +273,7 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
         questionBank,
         skill.skillId,
         belowLevel,
+        roleType,
       );
 
       const belowQuestion = selectQuestion(belowQuestions, deterministic);
@@ -269,6 +296,8 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
     const questions = getBehaviourQuestions(
       questionBank,
       behaviour.behaviourId,
+      targetMaturity,
+      roleType,
       targetMaturity,
     );
     let questionsAdded = 0;
@@ -473,9 +502,14 @@ export function deriveShortInterview({
  * @param {Object} params
  * @param {import('./levels.js').JobDefinition} params.job - The job definition
  * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
+ * @param {string} [params.roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').InterviewGuide}
  */
-export function deriveBehaviourQuestions({ job, questionBank }) {
+export function deriveBehaviourQuestions({
+  job,
+  questionBank,
+  roleType = "professionalQuestions",
+}) {
   const interviewQuestions = [];
   const coveredBehaviours = new Set();
 
@@ -488,6 +522,7 @@ export function deriveBehaviourQuestions({ job, questionBank }) {
       questionBank,
       behaviour.behaviourId,
       targetMaturity,
+      roleType,
     );
 
     for (const question of targetQuestions) {
@@ -531,6 +566,7 @@ export function deriveBehaviourQuestions({ job, questionBank }) {
  * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
  * @param {string[]} [params.focusSkills] - Skill IDs to focus on
  * @param {string[]} [params.focusBehaviours] - Behaviour IDs to focus on
+ * @param {string} [params.roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').InterviewGuide}
  */
 export function deriveFocusedInterview({
@@ -538,6 +574,7 @@ export function deriveFocusedInterview({
   questionBank,
   focusSkills = [],
   focusBehaviours = [],
+  roleType = "professionalQuestions",
 }) {
   const interviewQuestions = [];
   const coveredSkills = new Set();
@@ -552,6 +589,7 @@ export function deriveFocusedInterview({
       questionBank,
       skill.skillId,
       skill.level,
+      roleType,
     );
     for (const question of questions) {
       interviewQuestions.push({
@@ -575,6 +613,7 @@ export function deriveFocusedInterview({
       questionBank,
       behaviour.behaviourId,
       behaviour.maturity,
+      roleType,
     );
     for (const question of questions) {
       interviewQuestions.push({
@@ -619,12 +658,14 @@ export function deriveFocusedInterview({
  * @param {import('./levels.js').JobDefinition} params.job - The job definition
  * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
  * @param {number} [params.targetMinutes=45] - Target interview length in minutes
+ * @param {string} [params.roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').InterviewGuide}
  */
 export function deriveMissionFitInterview({
   job,
   questionBank,
   targetMinutes = 45,
+  roleType = "professionalQuestions",
 }) {
   const allSkillQuestions = [];
   const coveredSkills = new Set();
@@ -639,6 +680,7 @@ export function deriveMissionFitInterview({
       questionBank,
       skill.skillId,
       targetLevel,
+      roleType,
     );
 
     for (const question of targetQuestions) {
@@ -659,6 +701,7 @@ export function deriveMissionFitInterview({
         questionBank,
         skill.skillId,
         belowLevel,
+        roleType,
       );
 
       for (const question of belowQuestions) {
@@ -733,12 +776,14 @@ export function deriveMissionFitInterview({
  * @param {import('./levels.js').JobDefinition} params.job - The job definition
  * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
  * @param {number} [params.targetMinutes=60] - Target interview length in minutes
+ * @param {string} [params.roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').InterviewGuide}
  */
 export function deriveDecompositionInterview({
   job,
   questionBank,
   targetMinutes = 60,
+  roleType = "professionalQuestions",
 }) {
   const allCapabilityQuestions = [];
   const coveredCapabilities = new Set();
@@ -751,7 +796,12 @@ export function deriveDecompositionInterview({
     const { level, levelIndex } = levelInfo;
 
     // Get questions at the derived level
-    const questions = getCapabilityQuestions(questionBank, capabilityId, level);
+    const questions = getCapabilityQuestions(
+      questionBank,
+      capabilityId,
+      level,
+      roleType,
+    );
 
     for (const question of questions) {
       allCapabilityQuestions.push({
@@ -771,6 +821,7 @@ export function deriveDecompositionInterview({
         questionBank,
         capabilityId,
         belowLevel,
+        roleType,
       );
 
       for (const question of belowQuestions) {
@@ -845,6 +896,7 @@ export function deriveDecompositionInterview({
  * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
  * @param {number} [params.targetMinutes=60] - Target interview length in minutes
  * @param {number} [params.skillBehaviourRatio=0.5] - Ratio of time for skills vs behaviours
+ * @param {string} [params.roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').InterviewGuide}
  */
 export function deriveStakeholderInterview({
@@ -852,6 +904,7 @@ export function deriveStakeholderInterview({
   questionBank,
   targetMinutes = 60,
   skillBehaviourRatio = 0.5,
+  roleType = "professionalQuestions",
 }) {
   const allSkillQuestions = [];
   const allBehaviourQuestions = [];
@@ -865,6 +918,7 @@ export function deriveStakeholderInterview({
       questionBank,
       skill.skillId,
       targetLevel,
+      roleType,
     );
 
     for (const question of questions) {
@@ -886,6 +940,7 @@ export function deriveStakeholderInterview({
       questionBank,
       behaviour.behaviourId,
       targetMaturity,
+      roleType,
     );
 
     for (const question of questions) {

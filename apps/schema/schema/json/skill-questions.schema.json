@@ -2,32 +2,47 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://www.forwardimpact.team/schema/json/skill-questions.schema.json",
   "title": "Skill Interview Questions",
-  "description": "Interview questions for a skill, organized by level",
+  "description": "Interview questions for a skill, organized by role type (professional/management) and level",
   "type": "object",
   "properties": {
-    "awareness": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
+    "professionalQuestions": {
+      "description": "Questions for professional/IC roles (e.g., engineers)",
+      "$ref": "#/$defs/levelQuestions"
     },
-    "foundational": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
-    },
-    "working": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
-    },
-    "practitioner": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
-    },
-    "expert": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
+    "managementQuestions": {
+      "description": "Questions for management roles (e.g., engineering managers, product managers)",
+      "$ref": "#/$defs/levelQuestions"
     }
   },
   "additionalProperties": false,
   "$defs": {
+    "levelQuestions": {
+      "type": "object",
+      "description": "Questions organized by skill level",
+      "properties": {
+        "awareness": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "foundational": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "working": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "practitioner": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "expert": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        }
+      },
+      "additionalProperties": false
+    },
     "question": {
       "type": "object",
       "required": ["id", "text", "lookingFor"],

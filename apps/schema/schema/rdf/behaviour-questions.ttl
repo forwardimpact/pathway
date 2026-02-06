@@ -7,7 +7,8 @@
 # =============================================================================
 # Behaviour Questions Schema
 # =============================================================================
-# Interview questions for assessing behaviours.
+# Interview questions for assessing behaviours, organized by role type
+# (professional/management) and maturity level.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -93,4 +94,12 @@ fit:BehaviourQuestionShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:name "atMaturity" ;
         sh:description "The behaviour maturity this question is for" ;
+    ] ;
+    sh:property [
+        sh:path fit:forRoleType ;
+        sh:in ( fit:professional fit:management ) ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "forRoleType" ;
+        sh:description "The role type this question is for" ;
     ] .

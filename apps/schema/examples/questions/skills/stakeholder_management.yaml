@@ -1,48 +1,99 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/skill-questions.schema.json
 
-awareness:
-  - id: stk_aware_1
-    text:
-      Who are the key stakeholders you work with and how do you keep them
-      informed?
-    lookingFor:
-      - Stakeholder identification
-      - Basic communication practices
-    expectedDurationMinutes: 5
-foundational:
-  - id: stk_found_1
-    text:
-      How do you set expectations with stakeholders about timelines and
-      deliverables?
-    lookingFor:
-      - Expectation management
-      - Proactive communication
-    expectedDurationMinutes: 5
-working:
-  - id: stk_work_1
-    text:
-      Describe a situation where you had to manage conflicting stakeholder
-      priorities.
-    followUps:
-      - How did you resolve it?
-    lookingFor:
-      - Conflict navigation
-      - Prioritization skills
-    expectedDurationMinutes: 8
-practitioner:
-  - id: stk_pract_1
-    text:
-      How do you build trust with senior stakeholders and influence their
-      decisions?
-    lookingFor:
-      - Executive relationship building
-      - Influence without authority
-    expectedDurationMinutes: 10
-expert:
-  - id: stk_expert_1
-    text:
-      How do you manage complex stakeholder landscapes across an organization?
-    lookingFor:
-      - Enterprise stakeholder management
-      - Political navigation
-    expectedDurationMinutes: 10
+professionalQuestions:
+  awareness:
+    - id: stk_pro_aware_1
+      text:
+        Who are the key stakeholders you work with and how do you keep them
+        informed?
+      lookingFor:
+        - Stakeholder identification
+        - Basic communication practices
+      expectedDurationMinutes: 5
+  foundational:
+    - id: stk_pro_found_1
+      text:
+        How do you set expectations with stakeholders about timelines and
+        deliverables?
+      lookingFor:
+        - Expectation management
+        - Proactive communication
+      expectedDurationMinutes: 5
+  working:
+    - id: stk_pro_work_1
+      text:
+        Describe a situation where you had to manage conflicting stakeholder
+        priorities.
+      followUps:
+        - How did you resolve it?
+      lookingFor:
+        - Conflict navigation
+        - Prioritization skills
+      expectedDurationMinutes: 8
+  practitioner:
+    - id: stk_pro_pract_1
+      text:
+        How do you build trust with senior stakeholders and influence their
+        decisions?
+      lookingFor:
+        - Executive relationship building
+        - Influence without authority
+      expectedDurationMinutes: 10
+  expert:
+    - id: stk_pro_expert_1
+      text:
+        How do you manage complex stakeholder landscapes across an organization?
+      lookingFor:
+        - Enterprise stakeholder management
+        - Political navigation
+      expectedDurationMinutes: 10
+
+managementQuestions:
+  awareness:
+    - id: stk_mgmt_aware_1
+      text:
+        How do you ensure your team communicates effectively with stakeholders?
+      lookingFor:
+        - Basic stakeholder communication guidance
+        - Team communication awareness
+      expectedDurationMinutes: 5
+  foundational:
+    - id: stk_mgmt_found_1
+      text:
+        How do you shield your team from stakeholder pressure while maintaining
+        relationships?
+      followUps:
+        - How do you handle unrealistic demands?
+      lookingFor:
+        - Team protection practices
+        - Stakeholder boundary setting
+      expectedDurationMinutes: 5
+  working:
+    - id: stk_mgmt_work_1
+      text:
+        How do you represent your team's interests to stakeholders while
+        maintaining trust?
+      followUps:
+        - How do you handle conflicting stakeholder demands?
+      lookingFor:
+        - Team advocacy
+        - Stakeholder relationship management
+      expectedDurationMinutes: 8
+  practitioner:
+    - id: stk_mgmt_pract_1
+      text: How do you develop stakeholder management skills within your team?
+      followUps:
+        - How do you delegate stakeholder relationships?
+      lookingFor:
+        - Team stakeholder capability building
+        - Delegation of relationships
+      expectedDurationMinutes: 10
+  expert:
+    - id: stk_mgmt_expert_1
+      text:
+        How do you build strategic stakeholder relationships that benefit
+        multiple teams?
+      lookingFor:
+        - Cross-team stakeholder strategy
+        - Organizational relationship building
+      expectedDurationMinutes: 10

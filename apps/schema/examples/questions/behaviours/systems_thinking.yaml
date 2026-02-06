@@ -1,52 +1,112 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/behaviour-questions.schema.json
 
-emerging:
-  - id: sys_emerg_1
-    text:
-      How do you consider the impact of your code changes on other parts of the
-      system?
-    lookingFor:
-      - Awareness of dependencies
-      - Basic impact thinking
-    expectedDurationMinutes: 5
-developing:
-  - id: sys_dev_1
-    text:
-      Describe a time when you identified an unintended consequence of a change.
-    lookingFor:
-      - Systemic awareness
-      - Proactive identification
-    expectedDurationMinutes: 5
-practicing:
-  - id: sys_pract_1
-    text: How do you approach understanding a complex system you're new to?
-    lookingFor:
-      - Systematic exploration
-      - Mapping approaches
-    expectedDurationMinutes: 8
-role_modeling:
-  - id: sys_role_1
-    text: How do you help others develop systems thinking capabilities?
-    lookingFor:
-      - Teaching approaches
-      - Creating visibility
-    expectedDurationMinutes: 8
-exemplifying:
-  - id: sys_exemp_1
-    text:
-      How do you define enterprise-wide systems architecture principles and
-      influence organizational thinking?
-    followUps:
-      - How do you advise executive leadership on complex systems?
-    lookingFor:
-      - Enterprise systems thinking leadership
-      - Executive advisory on complexity
-    expectedDurationMinutes: 10
-  - id: sys_exemp_2
-    text:
-      How do you bridge technical systems with business processes at an
-      organizational scale?
-    lookingFor:
-      - Business-technical systems integration
-      - Enterprise complexity management
-    expectedDurationMinutes: 10
+professionalQuestions:
+  emerging:
+    - id: sys_pro_emerg_1
+      text:
+        How do you consider the impact of your code changes on other parts of
+        the system?
+      lookingFor:
+        - Awareness of dependencies
+        - Basic impact thinking
+      expectedDurationMinutes: 5
+  developing:
+    - id: sys_pro_dev_1
+      text:
+        Describe a time when you identified an unintended consequence of a
+        change.
+      lookingFor:
+        - Systemic awareness
+        - Proactive identification
+      expectedDurationMinutes: 5
+  practicing:
+    - id: sys_pro_pract_1
+      text: How do you approach understanding a complex system you're new to?
+      lookingFor:
+        - Systematic exploration
+        - Mapping approaches
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: sys_pro_role_1
+      text: How do you help others develop systems thinking capabilities?
+      lookingFor:
+        - Teaching approaches
+        - Creating visibility
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: sys_pro_exemp_1
+      text:
+        How do you define enterprise-wide systems architecture principles and
+        influence organizational thinking?
+      followUps:
+        - How do you advise executive leadership on complex systems?
+      lookingFor:
+        - Enterprise systems thinking leadership
+        - Executive advisory on complexity
+      expectedDurationMinutes: 10
+    - id: sys_pro_exemp_2
+      text:
+        How do you bridge technical systems with business processes at an
+        organizational scale?
+      lookingFor:
+        - Business-technical systems integration
+        - Enterprise complexity management
+      expectedDurationMinutes: 10
+
+managementQuestions:
+  emerging:
+    - id: sys_mgmt_emerg_1
+      text:
+        How do you help team members understand the broader context of their
+        work within the system?
+      lookingFor:
+        - Contextualizing work
+        - Basic systems awareness coaching
+      expectedDurationMinutes: 5
+  developing:
+    - id: sys_mgmt_dev_1
+      text:
+        How do you coach team members to think about second-order effects of
+        their decisions?
+      lookingFor:
+        - Coaching systems awareness
+        - Teaching impact thinking
+      expectedDurationMinutes: 5
+  practicing:
+    - id: sys_mgmt_pract_1
+      text:
+        How do you structure your team's work to encourage consideration of
+        system-wide impacts?
+      lookingFor:
+        - Team processes for systems thinking
+        - Cross-team coordination
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: sys_mgmt_role_1
+      text:
+        How do you model systems thinking in your leadership decisions and make
+        your reasoning visible to your team?
+      lookingFor:
+        - Personal systems thinking modeling
+        - Transparent decision-making
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: sys_mgmt_exemp_1
+      text:
+        How do you build organizational capabilities for systems thinking and
+        coach other managers to develop this in their teams?
+      followUps:
+        - How do you create visibility of system dependencies across the
+          organization?
+      lookingFor:
+        - Enterprise systems thinking culture
+        - Manager coaching on complexity
+      expectedDurationMinutes: 10
+    - id: sys_mgmt_exemp_2
+      text:
+        How do you ensure organizational decisions account for cross-functional
+        system impacts and long-term consequences?
+      lookingFor:
+        - Organizational systems alignment
+        - Strategic complexity management
+      expectedDurationMinutes: 10

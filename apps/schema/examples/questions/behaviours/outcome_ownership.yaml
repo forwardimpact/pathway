@@ -1,51 +1,108 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/behaviour-questions.schema.json
 
-emerging:
-  - id: own_emerg_1
-    text: Describe a task you completed from start to finish.
-    lookingFor:
-      - Follow-through
-      - Basic accountability
-    expectedDurationMinutes: 5
-developing:
-  - id: own_dev_1
-    text: Tell me about a time when you took responsibility for a mistake.
-    lookingFor:
-      - Accountability
-      - Learning from errors
-    expectedDurationMinutes: 5
-practicing:
-  - id: own_pract_1
-    text:
-      Describe a project where you owned the entire lifecycle from design to
-      production support.
-    lookingFor:
-      - End-to-end ownership
-      - Operational responsibility
-    expectedDurationMinutes: 8
-role_modeling:
-  - id: own_role_1
-    text: How do you build a culture of ownership in your team?
-    lookingFor:
-      - Team accountability
-      - Systemic approaches
-    expectedDurationMinutes: 8
-exemplifying:
-  - id: own_exemp_1
-    text:
-      How do you establish and drive ownership culture across an entire
-      organization?
-    followUps:
-      - How do you balance ownership with collaboration?
-    lookingFor:
-      - Enterprise ownership culture
-      - Accountability at scale
-    expectedDurationMinutes: 10
-  - id: own_exemp_2
-    text:
-      How do you hold yourself and others accountable for outcomes at an
-      organizational level?
-    lookingFor:
-      - Executive-level accountability
-      - Systemic ownership practices
-    expectedDurationMinutes: 10
+professionalQuestions:
+  emerging:
+    - id: own_pro_emerg_1
+      text: Describe a task you completed from start to finish.
+      lookingFor:
+        - Follow-through
+        - Basic accountability
+      expectedDurationMinutes: 5
+  developing:
+    - id: own_pro_dev_1
+      text: Tell me about a time when you took responsibility for a mistake.
+      lookingFor:
+        - Accountability
+        - Learning from errors
+      expectedDurationMinutes: 5
+  practicing:
+    - id: own_pro_pract_1
+      text:
+        Describe a project where you owned the entire lifecycle from design to
+        production support.
+      lookingFor:
+        - End-to-end ownership
+        - Operational responsibility
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: own_pro_role_1
+      text: How do you build a culture of ownership in your team?
+      lookingFor:
+        - Team accountability
+        - Systemic approaches
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: own_pro_exemp_1
+      text:
+        How do you establish and drive ownership culture across an entire
+        organization?
+      followUps:
+        - How do you balance ownership with collaboration?
+      lookingFor:
+        - Enterprise ownership culture
+        - Accountability at scale
+      expectedDurationMinutes: 10
+    - id: own_pro_exemp_2
+      text:
+        How do you hold yourself and others accountable for outcomes at an
+        organizational level?
+      lookingFor:
+        - Executive-level accountability
+        - Systemic ownership practices
+      expectedDurationMinutes: 10
+
+managementQuestions:
+  emerging:
+    - id: own_mgmt_emerg_1
+      text: How do you ensure your team members complete their assigned tasks?
+      lookingFor:
+        - Basic oversight
+        - Task tracking awareness
+      expectedDurationMinutes: 5
+  developing:
+    - id: own_mgmt_dev_1
+      text:
+        How do you coach team members when they struggle to take ownership of
+        their work?
+      lookingFor:
+        - Coaching for accountability
+        - Supporting ownership development
+      expectedDurationMinutes: 5
+  practicing:
+    - id: own_mgmt_pract_1
+      text:
+        How do you structure your team to encourage end-to-end ownership of
+        deliverables?
+      lookingFor:
+        - Team structure for ownership
+        - Accountability frameworks
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: own_mgmt_role_1
+      text:
+        How do you model ownership behaviour for your team and hold yourself
+        accountable publicly?
+      lookingFor:
+        - Personal accountability modeling
+        - Transparent leadership
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: own_mgmt_exemp_1
+      text:
+        How do you establish ownership expectations across multiple teams and
+        coach other managers on building accountability cultures?
+      followUps:
+        - How do you handle managers who struggle to build ownership in their
+          teams?
+      lookingFor:
+        - Cross-team ownership culture
+        - Manager coaching on accountability
+      expectedDurationMinutes: 10
+    - id: own_mgmt_exemp_2
+      text:
+        How do you balance organizational accountability with psychological
+        safety when outcomes are missed?
+      lookingFor:
+        - Balancing accountability and safety
+        - Systemic approach to ownership culture
+      expectedDurationMinutes: 10

@@ -2,32 +2,47 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://www.forwardimpact.team/schema/json/behaviour-questions.schema.json",
   "title": "Behaviour Interview Questions",
-  "description": "Interview questions for a behaviour, organized by maturity level",
+  "description": "Interview questions for a behaviour, organized by role type (professional/management) and maturity level",
   "type": "object",
   "properties": {
-    "emerging": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
+    "professionalQuestions": {
+      "description": "Questions for professional/IC roles (e.g., engineers)",
+      "$ref": "#/$defs/maturityQuestions"
     },
-    "developing": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
-    },
-    "practicing": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
-    },
-    "role_modeling": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
-    },
-    "exemplifying": {
-      "type": "array",
-      "items": { "$ref": "#/$defs/question" }
+    "managementQuestions": {
+      "description": "Questions for management roles (e.g., engineering managers, product managers)",
+      "$ref": "#/$defs/maturityQuestions"
     }
   },
   "additionalProperties": false,
   "$defs": {
+    "maturityQuestions": {
+      "type": "object",
+      "description": "Questions organized by behaviour maturity level",
+      "properties": {
+        "emerging": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "developing": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "practicing": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "role_modeling": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        },
+        "exemplifying": {
+          "type": "array",
+          "items": { "$ref": "#/$defs/question" }
+        }
+      },
+      "additionalProperties": false
+    },
     "question": {
       "type": "object",
       "required": ["id", "text", "lookingFor"],

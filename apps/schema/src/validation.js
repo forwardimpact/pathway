@@ -1774,6 +1774,7 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
   const warnings = [];
   const skillIds = new Set(skills.map((s) => s.id));
   const behaviourIds = new Set(behaviours.map((b) => b.id));
+  const validRoleTypes = ["professionalQuestions", "managementQuestions"];
 
   if (!questionBank) {
     return createValidationResult(false, [
@@ -1784,7 +1785,7 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
   // Validate skill questions
   if (questionBank.skillLevels) {
     Object.entries(questionBank.skillLevels).forEach(
-      ([skillId, levelQuestions]) => {
+      ([skillId, roleTypeQuestions]) => {
         if (!skillIds.has(skillId)) {
           errors.push(
             createError(
@@ -1795,27 +1796,46 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
             ),
           );
         }
-        Object.entries(levelQuestions || {}).forEach(([level, questions]) => {
-          if (getSkillLevelIndex(level) === -1) {
-            errors.push(
-              createError(
-                "INVALID_VALUE",
-                `Question bank has invalid skill level: ${level}`,
-                `questionBank.skillLevels.${skillId}.${level}`,
-                level,
-              ),
+        // Validate each role type (professional/management)
+        Object.entries(roleTypeQuestions || {}).forEach(
+          ([roleType, levelQuestions]) => {
+            if (!validRoleTypes.includes(roleType)) {
+              errors.push(
+                createError(
+                  "INVALID_VALUE",
+                  `Question bank has invalid role type: ${roleType}`,
+                  `questionBank.skillLevels.${skillId}.${roleType}`,
+                  roleType,
+                ),
+              );
+              return;
+            }
+            // Validate each level within the role type
+            Object.entries(levelQuestions || {}).forEach(
+              ([level, questions]) => {
+                if (getSkillLevelIndex(level) === -1) {
+                  errors.push(
+                    createError(
+                      "INVALID_VALUE",
+                      `Question bank has invalid skill level: ${level}`,
+                      `questionBank.skillLevels.${skillId}.${roleType}.${level}`,
+                      level,
+                    ),
+                  );
+                }
+                if (!Array.isArray(questions) || questions.length === 0) {
+                  warnings.push(
+                    createWarning(
+                      "EMPTY_QUESTIONS",
+                      `No questions for skill ${skillId} (${roleType}) at level ${level}`,
+                      `questionBank.skillLevels.${skillId}.${roleType}.${level}`,
+                    ),
+                  );
+                }
+              },
             );
-          }
-          if (!Array.isArray(questions) || questions.length === 0) {
-            warnings.push(
-              createWarning(
-                "EMPTY_QUESTIONS",
-                `No questions for skill ${skillId} at level ${level}`,
-                `questionBank.skillLevels.${skillId}.${level}`,
-              ),
-            );
-          }
-        });
+          },
+        );
       },
     );
   }
@@ -1823,7 +1843,7 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
   // Validate behaviour questions
   if (questionBank.behaviourMaturities) {
     Object.entries(questionBank.behaviourMaturities).forEach(
-      ([behaviourId, maturityQuestions]) => {
+      ([behaviourId, roleTypeQuestions]) => {
         if (!behaviourIds.has(behaviourId)) {
           errors.push(
             createError(
@@ -1834,27 +1854,44 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
             ),
           );
         }
-        Object.entries(maturityQuestions || {}).forEach(
-          ([maturity, questions]) => {
-            if (getBehaviourMaturityIndex(maturity) === -1) {
+        // Validate each role type (professional/management)
+        Object.entries(roleTypeQuestions || {}).forEach(
+          ([roleType, maturityQuestions]) => {
+            if (!validRoleTypes.includes(roleType)) {
               errors.push(
                 createError(
                   "INVALID_VALUE",
-                  `Question bank has invalid behaviour maturity: ${maturity}`,
-                  `questionBank.behaviourMaturities.${behaviourId}.${maturity}`,
-                  maturity,
+                  `Question bank has invalid role type: ${roleType}`,
+                  `questionBank.behaviourMaturities.${behaviourId}.${roleType}`,
+                  roleType,
                 ),
               );
+              return;
             }
-            if (!Array.isArray(questions) || questions.length === 0) {
-              warnings.push(
-                createWarning(
-                  "EMPTY_QUESTIONS",
-                  `No questions for behaviour ${behaviourId} at maturity ${maturity}`,
-                  `questionBank.behaviourMaturities.${behaviourId}.${maturity}`,
-                ),
-              );
-            }
+            // Validate each maturity level within the role type
+            Object.entries(maturityQuestions || {}).forEach(
+              ([maturity, questions]) => {
+                if (getBehaviourMaturityIndex(maturity) === -1) {
+                  errors.push(
+                    createError(
+                      "INVALID_VALUE",
+                      `Question bank has invalid behaviour maturity: ${maturity}`,
+                      `questionBank.behaviourMaturities.${behaviourId}.${roleType}.${maturity}`,
+                      maturity,
+                    ),
+                  );
+                }
+                if (!Array.isArray(questions) || questions.length === 0) {
+                  warnings.push(
+                    createWarning(
+                      "EMPTY_QUESTIONS",
+                      `No questions for behaviour ${behaviourId} (${roleType}) at maturity ${maturity}`,
+                      `questionBank.behaviourMaturities.${behaviourId}.${roleType}.${maturity}`,
+                    ),
+                  );
+                }
+              },
+            );
           },
         );
       },

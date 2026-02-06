@@ -1,45 +1,95 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/skill-questions.schema.json
 
-awareness:
-  - id: dm_aware_1
-    text: What's the difference between relational and non-relational databases?
-    lookingFor:
-      - Basic database concepts
-      - Understanding of use cases for each
-    expectedDurationMinutes: 5
-foundational:
-  - id: dm_found_1
-    text:
-      How would you design a simple database schema for a user management
-      system?
-    lookingFor:
-      - Basic schema design
-      - Understanding of normalization
-    expectedDurationMinutes: 8
-working:
-  - id: dm_work_1
-    text: Describe a data model you've designed. What trade-offs did you make?
-    followUps:
-      - How did you handle performance?
-    lookingFor:
-      - Practical data modeling experience
-      - Performance considerations
-    expectedDurationMinutes: 10
-practitioner:
-  - id: dm_pract_1
-    text:
-      How do you approach data modeling for complex domains with evolving
-      requirements?
-    lookingFor:
-      - Advanced modeling techniques
-      - Handling schema evolution
-    expectedDurationMinutes: 10
-expert:
-  - id: dm_expert_1
-    text:
-      How do you establish data modeling standards and practices across an
-      organization?
-    lookingFor:
-      - Enterprise data architecture
-      - Organizational standards leadership
-    expectedDurationMinutes: 10
+professionalQuestions:
+  awareness:
+    - id: dm_pro_aware_1
+      text:
+        What's the difference between relational and non-relational databases?
+      lookingFor:
+        - Basic database concepts
+        - Understanding of use cases for each
+      expectedDurationMinutes: 5
+  foundational:
+    - id: dm_pro_found_1
+      text:
+        How would you design a simple database schema for a user management
+        system?
+      lookingFor:
+        - Basic schema design
+        - Understanding of normalization
+      expectedDurationMinutes: 8
+  working:
+    - id: dm_pro_work_1
+      text: Describe a data model you've designed. What trade-offs did you make?
+      followUps:
+        - How did you handle performance?
+      lookingFor:
+        - Practical data modeling experience
+        - Performance considerations
+      expectedDurationMinutes: 10
+  practitioner:
+    - id: dm_pro_pract_1
+      text:
+        How do you approach data modeling for complex domains with evolving
+        requirements?
+      lookingFor:
+        - Advanced modeling techniques
+        - Handling schema evolution
+      expectedDurationMinutes: 10
+  expert:
+    - id: dm_pro_expert_1
+      text:
+        How do you establish data modeling standards and practices across an
+        organization?
+      lookingFor:
+        - Enterprise data architecture
+        - Organizational standards leadership
+      expectedDurationMinutes: 10
+
+managementQuestions:
+  awareness:
+    - id: dm_mgmt_aware_1
+      text:
+        How do you ensure your team understands the data models they work with?
+      lookingFor:
+        - Basic data awareness in team
+        - Knowledge sharing practices
+      expectedDurationMinutes: 5
+  foundational:
+    - id: dm_mgmt_found_1
+      text: How do you support your team in making data modeling decisions?
+      followUps:
+        - What review processes do you have?
+      lookingFor:
+        - Team support practices
+        - Data decision governance
+      expectedDurationMinutes: 8
+  working:
+    - id: dm_mgmt_work_1
+      text:
+        How do you manage data quality and schema changes across your team's
+        services?
+      followUps:
+        - How do you coordinate breaking changes?
+      lookingFor:
+        - Data change management
+        - Cross-service coordination
+      expectedDurationMinutes: 10
+  practitioner:
+    - id: dm_mgmt_pract_1
+      text: How do you build data modeling expertise within your team?
+      followUps:
+        - How do you identify data skill gaps?
+      lookingFor:
+        - Team capability development
+        - Data skill growth strategies
+      expectedDurationMinutes: 10
+  expert:
+    - id: dm_mgmt_expert_1
+      text:
+        How do you drive data governance and modeling standards across multiple
+        teams?
+      lookingFor:
+        - Cross-team data leadership
+        - Enterprise data strategy
+      expectedDurationMinutes: 10

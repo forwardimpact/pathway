@@ -347,9 +347,20 @@ export const SkillType = {
  */
 
 /**
+ * @typedef {Object<string, Question[]>} LevelQuestions - Questions organized by level
+ */
+
+/**
+ * @typedef {Object} RoleTypeQuestions
+ * @property {LevelQuestions} [professionalQuestions] - Questions for professional/IC roles
+ * @property {LevelQuestions} [managementQuestions] - Questions for management roles
+ */
+
+/**
  * @typedef {Object} QuestionBank
- * @property {Object<string, Object<string, Question[]>>} skillLevels - Questions by skill ID, then by level
- * @property {Object<string, Object<string, Question[]>>} behaviourMaturities - Questions by behaviour ID, then by maturity
+ * @property {Object<string, RoleTypeQuestions>} skillLevels - Questions by skill ID, then by role type (professional/management), then by level
+ * @property {Object<string, RoleTypeQuestions>} behaviourMaturities - Questions by behaviour ID, then by role type, then by maturity
+ * @property {Object<string, RoleTypeQuestions>} [capabilityLevels] - Questions by capability ID, then by role type, then by level
  */
 
 /**

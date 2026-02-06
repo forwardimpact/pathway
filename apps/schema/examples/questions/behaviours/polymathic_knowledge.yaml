@@ -1,47 +1,107 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/behaviour-questions.schema.json
 
-emerging:
-  - id: poly_emerg_1
-    text: What interests do you have outside your primary technical domain?
-    lookingFor:
-      - Breadth of interests
-      - Cross-disciplinary awareness
-    expectedDurationMinutes: 5
-developing:
-  - id: poly_dev_1
-    text: Describe a time when knowledge from one area helped you in another.
-    lookingFor:
-      - Cross-domain application
-      - Creative problem solving
-    expectedDurationMinutes: 5
-practicing:
-  - id: poly_pract_1
-    text: How do you approach problems that span multiple disciplines?
-    lookingFor:
-      - Integration of knowledge
-      - Holistic thinking
-    expectedDurationMinutes: 8
-role_modeling:
-  - id: poly_role_1
-    text: How do you encourage cross-disciplinary learning in your organization?
-    lookingFor:
-      - Creating learning opportunities
-      - Breaking down silos
-    expectedDurationMinutes: 8
-exemplifying:
-  - id: poly_exemp_1
-    text: How do you build and promote polymathic culture across an enterprise?
-    followUps:
-      - How do you break down organizational silos?
-    lookingFor:
-      - Enterprise cross-disciplinary leadership
-      - Silo breaking at scale
-    expectedDurationMinutes: 10
-  - id: poly_exemp_2
-    text:
-      How do you personally maintain breadth across multiple domains while
-      achieving depth? How do you model this for others?
-    lookingFor:
-      - Personal polymathic practice
-      - Modeling breadth and depth balance
-    expectedDurationMinutes: 10
+professionalQuestions:
+  emerging:
+    - id: poly_pro_emerg_1
+      text: What interests do you have outside your primary technical domain?
+      lookingFor:
+        - Breadth of interests
+        - Cross-disciplinary awareness
+      expectedDurationMinutes: 5
+  developing:
+    - id: poly_pro_dev_1
+      text: Describe a time when knowledge from one area helped you in another.
+      lookingFor:
+        - Cross-domain application
+        - Creative problem solving
+      expectedDurationMinutes: 5
+  practicing:
+    - id: poly_pro_pract_1
+      text: How do you approach problems that span multiple disciplines?
+      lookingFor:
+        - Integration of knowledge
+        - Holistic thinking
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: poly_pro_role_1
+      text:
+        How do you encourage cross-disciplinary learning in your organization?
+      lookingFor:
+        - Creating learning opportunities
+        - Breaking down silos
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: poly_pro_exemp_1
+      text:
+        How do you build and promote polymathic culture across an enterprise?
+      followUps:
+        - How do you break down organizational silos?
+      lookingFor:
+        - Enterprise cross-disciplinary leadership
+        - Silo breaking at scale
+      expectedDurationMinutes: 10
+    - id: poly_pro_exemp_2
+      text:
+        How do you personally maintain breadth across multiple domains while
+        achieving depth? How do you model this for others?
+      lookingFor:
+        - Personal polymathic practice
+        - Modeling breadth and depth balance
+      expectedDurationMinutes: 10
+
+managementQuestions:
+  emerging:
+    - id: poly_mgmt_emerg_1
+      text:
+        How do you encourage team members to explore topics outside their
+        immediate responsibilities?
+      lookingFor:
+        - Supporting exploration
+        - Awareness of breadth value
+      expectedDurationMinutes: 5
+  developing:
+    - id: poly_mgmt_dev_1
+      text:
+        How do you create opportunities for your team to learn from other
+        disciplines?
+      lookingFor:
+        - Cross-training facilitation
+        - Learning opportunity creation
+      expectedDurationMinutes: 5
+  practicing:
+    - id: poly_mgmt_pract_1
+      text:
+        How do you structure your team to leverage diverse knowledge and break
+        down specialization silos?
+      lookingFor:
+        - Team structure for cross-pollination
+        - Silo-breaking practices
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: poly_mgmt_role_1
+      text:
+        How do you model polymathic learning for your team and demonstrate the
+        value of cross-disciplinary knowledge?
+      lookingFor:
+        - Personal modeling of breadth
+        - Demonstrating cross-domain value
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: poly_mgmt_exemp_1
+      text:
+        How do you build organizational structures and incentives that promote
+        cross-disciplinary collaboration across teams?
+      followUps:
+        - How do you coach managers to value breadth alongside depth?
+      lookingFor:
+        - Enterprise polymathic culture
+        - Structural support for cross-disciplinary work
+      expectedDurationMinutes: 10
+    - id: poly_mgmt_exemp_2
+      text:
+        How do you balance the need for deep specialization with the benefits of
+        broad knowledge when developing your organization?
+      lookingFor:
+        - Balancing depth and breadth at scale
+        - Strategic approach to knowledge diversity
+      expectedDurationMinutes: 10

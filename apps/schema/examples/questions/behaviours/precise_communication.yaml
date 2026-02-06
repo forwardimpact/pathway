@@ -1,54 +1,112 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/behaviour-questions.schema.json
 
-emerging:
-  - id: comm_emerg_1
-    text:
-      Tell me about a time when you had to explain something technical to
-      someone less familiar with the topic.
-    lookingFor:
-      - Ability to simplify concepts
-      - Awareness of audience
-    expectedDurationMinutes: 5
-developing:
-  - id: comm_dev_1
-    text: Describe how you approach writing documentation for your work.
-    lookingFor:
-      - Clear writing habits
-      - Consideration of readers
-    expectedDurationMinutes: 5
-practicing:
-  - id: comm_pract_1
-    text:
-      Tell me about presenting a complex technical topic to diverse
-      stakeholders.
-    lookingFor:
-      - Audience adaptation
-      - Facilitation skills
-    expectedDurationMinutes: 8
-role_modeling:
-  - id: comm_role_1
-    text: How have you improved communication practices in your organization?
-    lookingFor:
-      - Leadership in communication
-      - Systemic improvements
-    expectedDurationMinutes: 8
-exemplifying:
-  - id: comm_exemp_1
-    text:
-      How do you shape communication culture across an enterprise and represent
-      your organization externally?
-    followUps:
-      - How do you coach executives on technical communication?
-    lookingFor:
-      - Enterprise communication leadership
-      - External representation
-      - Communication excellence at all levels
-    expectedDurationMinutes: 10
-  - id: comm_exemp_2
-    text:
-      Describe how you've established communication standards that span
-      technical and business audiences across the organization.
-    lookingFor:
-      - Cross-functional communication leadership
-      - Scalable communication practices
-    expectedDurationMinutes: 10
+professionalQuestions:
+  emerging:
+    - id: comm_pro_emerg_1
+      text:
+        Tell me about a time when you had to explain something technical to
+        someone less familiar with the topic.
+      lookingFor:
+        - Ability to simplify concepts
+        - Awareness of audience
+      expectedDurationMinutes: 5
+  developing:
+    - id: comm_pro_dev_1
+      text: Describe how you approach writing documentation for your work.
+      lookingFor:
+        - Clear writing habits
+        - Consideration of readers
+      expectedDurationMinutes: 5
+  practicing:
+    - id: comm_pro_pract_1
+      text:
+        Tell me about presenting a complex technical topic to diverse
+        stakeholders.
+      lookingFor:
+        - Audience adaptation
+        - Facilitation skills
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: comm_pro_role_1
+      text: How have you improved communication practices in your organization?
+      lookingFor:
+        - Leadership in communication
+        - Systemic improvements
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: comm_pro_exemp_1
+      text:
+        How do you shape communication culture across an enterprise and
+        represent your organization externally?
+      followUps:
+        - How do you coach executives on technical communication?
+      lookingFor:
+        - Enterprise communication leadership
+        - External representation
+        - Communication excellence at all levels
+      expectedDurationMinutes: 10
+    - id: comm_pro_exemp_2
+      text:
+        Describe how you've established communication standards that span
+        technical and business audiences across the organization.
+      lookingFor:
+        - Cross-functional communication leadership
+        - Scalable communication practices
+      expectedDurationMinutes: 10
+
+managementQuestions:
+  emerging:
+    - id: comm_mgmt_emerg_1
+      text:
+        How do you ensure your team communicates clearly in their daily work?
+      lookingFor:
+        - Basic communication oversight
+        - Awareness of team communication
+      expectedDurationMinutes: 5
+  developing:
+    - id: comm_mgmt_dev_1
+      text:
+        How do you coach team members who struggle with clear written or verbal
+        communication?
+      lookingFor:
+        - Communication coaching
+        - Identifying communication gaps
+      expectedDurationMinutes: 5
+  practicing:
+    - id: comm_mgmt_pract_1
+      text:
+        How do you establish communication standards and practices for your
+        team?
+      lookingFor:
+        - Team communication frameworks
+        - Standards and expectations
+      expectedDurationMinutes: 8
+  role_modeling:
+    - id: comm_mgmt_role_1
+      text:
+        How do you model precise communication in your leadership and create a
+        culture where clear communication is valued?
+      lookingFor:
+        - Personal communication modeling
+        - Building communication culture
+      expectedDurationMinutes: 8
+  exemplifying:
+    - id: comm_mgmt_exemp_1
+      text:
+        How do you establish communication excellence across multiple teams and
+        coach other managers on building strong communication cultures?
+      followUps:
+        - How do you ensure consistent communication standards across diverse
+          teams?
+      lookingFor:
+        - Cross-team communication standards
+        - Manager coaching on communication
+      expectedDurationMinutes: 10
+    - id: comm_mgmt_exemp_2
+      text:
+        How do you bridge communication gaps between technical and non-technical
+        stakeholders at an organizational level?
+      lookingFor:
+        - Enterprise communication bridging
+        - Cross-functional alignment
+      expectedDurationMinutes: 10
