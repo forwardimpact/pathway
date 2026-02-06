@@ -7,8 +7,10 @@
 # =============================================================================
 # Behaviour Questions Schema
 # =============================================================================
-# Interview questions for assessing behaviours, organized by role type
-# (professional/management) and maturity level.
+# Stakeholder simulation interview questions for assessing behaviours,
+# organized by role type (professional/management) and maturity level.
+# Each question presents a realistic stakeholder scenario with simulation
+# prompts to guide the interview panel.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
@@ -26,6 +28,12 @@ fit:atMaturity a rdf:Property ;
     rdfs:comment "The behaviour maturity this question is for"@en ;
     rdfs:domain fit:Question ;
     rdfs:range fit:BehaviourMaturity .
+
+fit:simulationPrompts a rdf:Property ;
+    rdfs:label "simulationPrompts"@en ;
+    rdfs:comment "Guiding prompts to steer the stakeholder simulation and probe the candidate's behaviour"@en ;
+    rdfs:domain fit:Question ;
+    rdfs:range xsd:string .
 
 # =============================================================================
 # SHACL SHAPES
@@ -49,27 +57,42 @@ fit:BehaviourQuestionShape a sh:NodeShape ;
     sh:property [
         sh:path fit:text ;
         sh:datatype xsd:string ;
-        sh:maxLength 150 ;
+        sh:maxLength 300 ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:name "text" ;
-        sh:description "The question text (under 150 characters)" ;
+        sh:description "The stakeholder scenario (under 300 characters)" ;
+    ] ;
+    sh:property [
+        sh:path fit:context ;
+        sh:datatype xsd:string ;
+        sh:maxCount 1 ;
+        sh:name "context" ;
+        sh:description "Additional context to set up the simulation scenario" ;
+    ] ;
+    sh:property [
+        sh:path fit:simulationPrompts ;
+        sh:datatype xsd:string ;
+        sh:minCount 2 ;
+        sh:maxCount 5 ;
+        sh:name "simulationPrompts" ;
+        sh:description "3-5 guiding prompts to steer the simulation" ;
     ] ;
     sh:property [
         sh:path fit:lookingFor ;
         sh:datatype xsd:string ;
-        sh:minCount 1 ;
+        sh:minCount 2 ;
         sh:maxCount 4 ;
         sh:name "lookingFor" ;
-        sh:description "2-4 bullet points of good answer indicators" ;
+        sh:description "2-4 indicators of strong behavioural response" ;
     ] ;
     sh:property [
         sh:path fit:expectedDurationMinutes ;
         sh:datatype xsd:integer ;
-        sh:minInclusive 1 ;
+        sh:minInclusive 10 ;
         sh:maxCount 1 ;
         sh:name "expectedDurationMinutes" ;
-        sh:description "Expected duration in minutes" ;
+        sh:description "Expected duration in minutes (default: 20)" ;
     ] ;
     sh:property [
         sh:path fit:followUps ;

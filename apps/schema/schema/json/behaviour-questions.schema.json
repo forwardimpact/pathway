@@ -2,7 +2,7 @@
   "$schema": "http://json-schema.org/draft-07/schema#",
   "$id": "https://www.forwardimpact.team/schema/json/behaviour-questions.schema.json",
   "title": "Behaviour Interview Questions",
-  "description": "Interview questions for a behaviour, organized by role type (professional/management) and maturity level",
+  "description": "Stakeholder simulation interview questions for a behaviour, organized by role type (professional/management) and maturity level. Each question presents a realistic stakeholder scenario to assess behavioural maturity.",
   "type": "object",
   "properties": {
     "professionalQuestions": {
@@ -45,7 +45,7 @@
     },
     "question": {
       "type": "object",
-      "required": ["id", "text", "lookingFor"],
+      "required": ["id", "text", "lookingFor", "simulationPrompts"],
       "properties": {
         "id": {
           "type": "string",
@@ -54,20 +54,32 @@
         },
         "text": {
           "type": "string",
-          "maxLength": 150,
-          "description": "The question text (second person, under 150 characters)"
+          "maxLength": 300,
+          "description": "The stakeholder scenario (second person, sets up a realistic situation)"
+        },
+        "context": {
+          "type": "string",
+          "description": "Additional context to set up the simulation scenario"
+        },
+        "simulationPrompts": {
+          "type": "array",
+          "description": "3-5 guiding prompts to steer the simulation and probe the candidate's behaviour",
+          "minItems": 2,
+          "maxItems": 5,
+          "items": { "type": "string" }
         },
         "lookingFor": {
           "type": "array",
-          "description": "2-4 bullet points of good answer indicators",
-          "minItems": 1,
+          "description": "2-4 indicators of strong behavioural response",
+          "minItems": 2,
           "maxItems": 4,
           "items": { "type": "string" }
         },
         "expectedDurationMinutes": {
           "type": "integer",
-          "minimum": 1,
-          "description": "Expected duration in minutes (default: 5 for emerging/developing, 8-10 for higher)"
+          "minimum": 10,
+          "default": 20,
+          "description": "Expected duration in minutes (default: 20 for stakeholder simulation)"
         },
         "followUps": {
           "type": "array",
