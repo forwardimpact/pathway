@@ -4,9 +4,9 @@
  * Generates and displays interview questions in the terminal.
  *
  * Usage:
- *   npx pathway interview <discipline> <grade>                    # Interview for trackless job
- *   npx pathway interview <discipline> <grade> --track=<track>    # Interview with track
- *   npx pathway interview <discipline> <grade> --track=<track> --type=short
+ *   npx fit-pathway interview <discipline> <grade>                                  # All interview types
+ *   npx fit-pathway interview <discipline> <grade> --track=<track>                  # With track
+ *   npx fit-pathway interview <discipline> <grade> --track=<track> --type=mission   # Single type
  */
 
 import { createCompositeCommand } from "./command-factory.js";
@@ -16,8 +16,10 @@ import {
 } from "../formatters/interview/shared.js";
 import { interviewToMarkdown } from "../formatters/interview/markdown.js";
 
+const VALID_TYPES = Object.keys(INTERVIEW_TYPES);
+
 /**
- * Format interview output
+ * Format a single interview type as markdown
  * @param {Object} view - Presenter view
  * @param {Object} options - Options including framework
  */
@@ -25,15 +27,31 @@ function formatInterview(view, options) {
   console.log(interviewToMarkdown(view, { framework: options.framework }));
 }
 
+/**
+ * Format all interview types as markdown with separators
+ * @param {Array<Object>} views - Array of presenter views
+ * @param {Object} options - Options including framework
+ */
+function formatAllInterviews(views, options) {
+  for (let i = 0; i < views.length; i++) {
+    if (i > 0) {
+      console.log("\n" + "─".repeat(80) + "\n");
+    }
+    console.log(
+      interviewToMarkdown(views[i], { framework: options.framework }),
+    );
+  }
+}
+
 export const runInterviewCommand = createCompositeCommand({
   commandName: "interview",
   requiredArgs: ["discipline_id", "grade_id"],
   findEntities: (data, args, options) => {
-    const interviewType = options.type || "full";
+    const interviewType = options.type === "full" ? null : options.type;
 
-    if (!INTERVIEW_TYPES[interviewType]) {
+    if (interviewType && !INTERVIEW_TYPES[interviewType]) {
       console.error(`Unknown interview type: ${interviewType}`);
-      console.error("Available types: full, short, behaviour");
+      console.error(`Available types: ${VALID_TYPES.join(", ")}`);
       process.exit(1);
     }
 
@@ -58,18 +76,38 @@ export const runInterviewCommand = createCompositeCommand({
     }
     return null;
   },
-  presenter: (entities, data, _options) =>
-    prepareInterviewDetail({
+  presenter: (entities, data, _options) => {
+    const params = {
       discipline: entities.discipline,
       grade: entities.grade,
       track: entities.track,
       skills: data.skills,
       behaviours: data.behaviours,
       questions: data.questions,
-      interviewType: entities.interviewType,
-    }),
-  formatter: (view, options, data) =>
-    formatInterview(view, { ...options, framework: data.framework }),
+    };
+
+    // Single type: return one view
+    if (entities.interviewType) {
+      return prepareInterviewDetail({
+        ...params,
+        interviewType: entities.interviewType,
+      });
+    }
+
+    // All types: return array of views
+    return VALID_TYPES.map((type) =>
+      prepareInterviewDetail({ ...params, interviewType: type }),
+    ).filter(Boolean);
+  },
+  formatter: (view, options, data) => {
+    const opts = { ...options, framework: data.framework };
+
+    if (Array.isArray(view)) {
+      formatAllInterviews(view, opts);
+    } else {
+      formatInterview(view, opts);
+    }
+  },
   usageExample:
-    "npx pathway interview software_engineering L4 --track=platform --type=short",
+    "npx fit-pathway interview software_engineering J090 --track=platform --type=mission",
 });

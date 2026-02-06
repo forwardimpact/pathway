@@ -44,11 +44,11 @@ export const INTERVIEW_TYPES = {
     id: "stakeholder",
     name: "Stakeholder Simulation",
     description:
-      "Simulate real-world stakeholder interactions combining technical and behavioural assessment. Focus on communication style, influence, and ability to navigate competing priorities.",
+      "Simulate real-world stakeholder interactions through behaviour-focused assessment. Focus on communication style, influence, and ability to navigate competing priorities.",
     icon: "👥",
     expectedDurationMinutes: 60,
     panel: "3-4 Stakeholders",
-    questionTypes: ["skill", "behaviour"],
+    questionTypes: ["behaviour"],
   },
 };
 
@@ -76,7 +76,6 @@ function groupQuestionsIntoSections(questions) {
       };
     }
 
-    // Handle decomposition questions with their additional fields
     const questionEntry = {
       skillOrBehaviourId: id,
       skillOrBehaviourName: name,
@@ -84,11 +83,14 @@ function groupQuestionsIntoSections(questions) {
       level,
       question: q.question.text,
       followUps: q.question.followUps || [],
+      lookingFor: q.question.lookingFor || [],
     };
 
-    // Add decomposition-specific fields if present
     if (q.question.decompositionPrompts) {
       questionEntry.decompositionPrompts = q.question.decompositionPrompts;
+    }
+    if (q.question.simulationPrompts) {
+      questionEntry.simulationPrompts = q.question.simulationPrompts;
     }
     if (q.question.context) {
       questionEntry.context = q.question.context;

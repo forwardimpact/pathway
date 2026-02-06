@@ -56,12 +56,15 @@ function showQuestionsSummary(data) {
     "practitioner",
     "expert",
   ];
+  const roleTypes = ["professionalQuestions", "managementQuestions"];
   const skillRows = skillLevels.map((level) => {
     let count = 0;
     for (const skill of skills) {
-      const sq = questions.skills?.[skill.id];
-      if (sq?.[level]) {
-        count += sq[level].length;
+      const sq = questions.skillLevels?.[skill.id];
+      if (sq) {
+        for (const roleType of roleTypes) {
+          count += (sq[roleType]?.[level] || []).length;
+        }
       }
     }
     return [level, count];
@@ -81,9 +84,11 @@ function showQuestionsSummary(data) {
   const behaviourRows = maturities.map((maturity) => {
     let count = 0;
     for (const behaviour of behaviours) {
-      const bq = questions.behaviours?.[behaviour.id];
-      if (bq?.[maturity]) {
-        count += bq[maturity].length;
+      const bq = questions.behaviourMaturities?.[behaviour.id];
+      if (bq) {
+        for (const roleType of roleTypes) {
+          count += (bq[roleType]?.[maturity] || []).length;
+        }
       }
     }
     return [maturity.replace(/_/g, " "), count];
@@ -138,10 +143,8 @@ export async function runQuestionsCommand({
       behaviours: data.behaviours,
       filter,
     });
-    for (const section of view.sections) {
-      for (const q of section.questions) {
-        console.log(q.id);
-      }
+    for (const q of view.questions) {
+      console.log(q.id);
     }
     return;
   }

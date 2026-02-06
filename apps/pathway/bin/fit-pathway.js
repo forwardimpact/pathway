@@ -18,7 +18,7 @@
  *   stage [<id>]                Show stages
  *   tool [<name>]               Show tools
  *   job [<discipline> <grade>] [--track=TRACK]  Generate job definition
- *   interview <discipline> <grade> [--track=TRACK] [--type=TYPE]  Generate interview
+ *   interview <discipline> <grade> [--track=TRACK] [--type=mission|decomposition|stakeholder]  Generate interview
  *   progress <discipline> <grade> [--track=TRACK] [--compare=GRADE]  Career progression
  *   questions [options]         Browse interview questions
  *   agent [<discipline> <track>] [--output=PATH]  Generate AI agent
@@ -167,13 +167,14 @@ INTERVIEW COMMAND
 Generate interview question sets based on job requirements.
 
 Usage:
-  npx fit-pathway interview <discipline> <grade>
-  npx fit-pathway interview <d> <g> --track=<track>
-  npx fit-pathway interview <d> <g> --type=<type>
+  npx fit-pathway interview <discipline> <grade>                     All types
+  npx fit-pathway interview <d> <g> --track=<track>                  With track
+  npx fit-pathway interview <d> <g> --track=<t> --type=<type>        Single type
 
 Options:
   --track=TRACK       Track specialization
-  --type=TYPE         Interview type: full (default), short
+  --type=TYPE         Interview type: mission, decomposition, stakeholder
+                      (omit for all types)
 
 ────────────────────────────────────────────────────────────────────────────────
 PROGRESS COMMAND

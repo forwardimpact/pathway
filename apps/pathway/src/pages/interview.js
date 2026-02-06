@@ -253,7 +253,7 @@ function createQuestionsDisplay(interview, framework) {
   if (behaviourQuestions.length > 0) {
     sections.push(
       createDetailSection({
-        title: `${getConceptEmoji(framework, "behaviour")} Behaviour Questions (${behaviourQuestions.length})`,
+        title: `${getConceptEmoji(framework, "behaviour")} Stakeholder Simulation (${behaviourQuestions.length})`,
         content: createQuestionsList(behaviourQuestions),
       }),
     );
@@ -263,7 +263,7 @@ function createQuestionsDisplay(interview, framework) {
     sections.push(
       createDetailSection({
         title: `${getConceptEmoji(framework, "capability") || "🧩"} Decomposition Questions (${capabilityQuestions.length})`,
-        content: createQuestionsList(capabilityQuestions, true),
+        content: createQuestionsList(capabilityQuestions),
       }),
     );
   }
@@ -284,14 +284,11 @@ function createQuestionsDisplay(interview, framework) {
 /**
  * Create questions list
  * @param {Array} questions - Questions to display
- * @param {boolean} isDecomposition - Whether these are decomposition questions
  */
-function createQuestionsList(questions, isDecomposition = false) {
+function createQuestionsList(questions) {
   return div(
     { className: "questions-list" },
-    ...questions.map((q, index) =>
-      createQuestionCard(q, index + 1, isDecomposition),
-    ),
+    ...questions.map((q, index) => createQuestionCard(q, index + 1)),
   );
 }
 
@@ -299,33 +296,36 @@ function createQuestionsList(questions, isDecomposition = false) {
  * Create question card
  * @param {Object} questionEntry - Question entry
  * @param {number} number - Question number
- * @param {boolean} isDecomposition - Whether this is a decomposition question
  */
-function createQuestionCard(questionEntry, number, isDecomposition = false) {
+function createQuestionCard(questionEntry, number) {
   const { question, targetName, targetLevel } = questionEntry;
 
-  // Context section (only for decomposition questions)
-  const contextSection =
-    question.context && isDecomposition
-      ? div(
-          { className: "question-context" },
-          h4({}, "Context:"),
-          p({}, question.context),
-        )
-      : null;
+  const contextSection = question.context
+    ? div(
+        { className: "question-context" },
+        h4({}, "Context:"),
+        p({}, question.context),
+      )
+    : null;
 
-  // Decomposition prompts (only for decomposition questions)
   const decompositionPromptsList =
-    question.decompositionPrompts &&
-    question.decompositionPrompts.length > 0 &&
-    isDecomposition
+    question.decompositionPrompts && question.decompositionPrompts.length > 0
       ? div(
-          { className: "question-decomposition-prompts" },
+          { className: "question-prompts" },
           h4({}, "Guide candidate thinking:"),
           ul(
             {},
             ...question.decompositionPrompts.map((prompt) => li({}, prompt)),
           ),
+        )
+      : null;
+
+  const simulationPromptsList =
+    question.simulationPrompts && question.simulationPrompts.length > 0
+      ? div(
+          { className: "question-prompts" },
+          h4({}, "Steer the simulation:"),
+          ul({}, ...question.simulationPrompts.map((prompt) => li({}, prompt))),
         )
       : null;
 
@@ -364,6 +364,7 @@ function createQuestionCard(questionEntry, number, isDecomposition = false) {
     div({ className: "question-text" }, question.text),
     contextSection,
     decompositionPromptsList,
+    simulationPromptsList,
     followUpsList,
     lookingForList,
   );

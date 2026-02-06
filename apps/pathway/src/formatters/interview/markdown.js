@@ -27,6 +27,9 @@ export function interviewToMarkdown(view, { framework } = {}) {
   // Group sections by type
   const skillSections = view.sections.filter((s) => s.type === "skill");
   const behaviourSections = view.sections.filter((s) => s.type === "behaviour");
+  const capabilitySections = view.sections.filter(
+    (s) => s.type === "capability",
+  );
 
   // Skill questions
   if (skillSections.length > 0) {
@@ -36,8 +39,15 @@ export function interviewToMarkdown(view, { framework } = {}) {
       for (const q of section.questions) {
         lines.push(`**Q**: ${q.question}`);
         if (q.followUps.length > 0) {
+          lines.push("", "**Follow-ups:**");
           for (const followUp of q.followUps) {
             lines.push(`  → ${followUp}`);
+          }
+        }
+        if (q.lookingFor && q.lookingFor.length > 0) {
+          lines.push("", "**What to look for:**");
+          for (const item of q.lookingFor) {
+            lines.push(`- ${item}`);
           }
         }
         lines.push("");
@@ -45,16 +55,65 @@ export function interviewToMarkdown(view, { framework } = {}) {
     }
   }
 
-  // Behaviour questions
+  // Capability decomposition questions
+  if (capabilitySections.length > 0) {
+    lines.push(`## 🧩 Decomposition Questions`, "");
+    for (const section of capabilitySections) {
+      lines.push(`### ${section.name} (${formatLevel(section.level)})`, "");
+      for (const q of section.questions) {
+        lines.push(`**Scenario**: ${q.question}`);
+        if (q.context) {
+          lines.push(`> ${q.context}`);
+        }
+        if (q.decompositionPrompts && q.decompositionPrompts.length > 0) {
+          lines.push("", "**Guide the candidate through:**");
+          for (const prompt of q.decompositionPrompts) {
+            lines.push(`- ${prompt}`);
+          }
+        }
+        if (q.followUps.length > 0) {
+          lines.push("", "**Follow-ups:**");
+          for (const followUp of q.followUps) {
+            lines.push(`  → ${followUp}`);
+          }
+        }
+        if (q.lookingFor && q.lookingFor.length > 0) {
+          lines.push("", "**What to look for:**");
+          for (const item of q.lookingFor) {
+            lines.push(`- ${item}`);
+          }
+        }
+        lines.push("");
+      }
+    }
+  }
+
+  // Behaviour stakeholder simulation questions
   if (behaviourSections.length > 0) {
-    lines.push(`## ${behaviourEmoji} Behaviour Questions`, "");
+    lines.push(`## ${behaviourEmoji} Stakeholder Simulation`, "");
     for (const section of behaviourSections) {
       lines.push(`### ${section.name} (${formatLevel(section.level)})`, "");
       for (const q of section.questions) {
-        lines.push(`**Q**: ${q.question}`);
+        lines.push(`**Scenario**: ${q.question}`);
+        if (q.context) {
+          lines.push(`> ${q.context}`);
+        }
+        if (q.simulationPrompts && q.simulationPrompts.length > 0) {
+          lines.push("", "**Steer the simulation:**");
+          for (const prompt of q.simulationPrompts) {
+            lines.push(`- ${prompt}`);
+          }
+        }
         if (q.followUps.length > 0) {
+          lines.push("", "**Follow-ups:**");
           for (const followUp of q.followUps) {
             lines.push(`  → ${followUp}`);
+          }
+        }
+        if (q.lookingFor && q.lookingFor.length > 0) {
+          lines.push("", "**What to look for:**");
+          for (const item of q.lookingFor) {
+            lines.push(`- ${item}`);
           }
         }
         lines.push("");

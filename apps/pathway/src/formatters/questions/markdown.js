@@ -259,6 +259,21 @@ function formatSingleSource(view) {
     for (const q of byLevel[level]) {
       lines.push(`  • [${q.id}] ${q.text}`);
       lines.push(`    Duration: ${q.expectedDurationMinutes} min`);
+      if (q.context) {
+        lines.push(`    Context: ${q.context}`);
+      }
+      if (q.simulationPrompts && q.simulationPrompts.length > 0) {
+        lines.push("    Steer the simulation:");
+        for (const prompt of q.simulationPrompts) {
+          lines.push(`      - ${prompt}`);
+        }
+      }
+      if (q.decompositionPrompts && q.decompositionPrompts.length > 0) {
+        lines.push("    Guide candidate thinking:");
+        for (const prompt of q.decompositionPrompts) {
+          lines.push(`      - ${prompt}`);
+        }
+      }
       if (q.lookingFor.length > 0) {
         lines.push("    Looking for:");
         for (const item of q.lookingFor) {
