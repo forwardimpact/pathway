@@ -281,12 +281,16 @@ async function loadCapabilitiesFromDir(capabilitiesDir) {
  * @returns {Promise<import('./levels.js').QuestionBank>}
  */
 export async function loadQuestionFolder(questionsDir) {
-  const [skillLevels, behaviourMaturities] = await Promise.all([
-    loadQuestionsFromDir(join(questionsDir, "skills")),
-    loadQuestionsFromDir(join(questionsDir, "behaviours")),
-  ]);
+  const [skillLevels, behaviourMaturities, capabilityLevels] =
+    await Promise.all([
+      loadQuestionsFromDir(join(questionsDir, "skills")),
+      loadQuestionsFromDir(join(questionsDir, "behaviours")),
+      loadQuestionsFromDir(join(questionsDir, "capabilities")).catch(
+        () => ({}),
+      ),
+    ]);
 
-  return { skillLevels, behaviourMaturities };
+  return { skillLevels, behaviourMaturities, capabilityLevels };
 }
 
 /**

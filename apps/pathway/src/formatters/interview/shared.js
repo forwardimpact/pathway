@@ -10,9 +10,9 @@ import {
   getDisciplineSkillIds,
 } from "@forwardimpact/model/derivation";
 import {
-  deriveInterviewQuestions,
-  deriveShortInterview,
-  deriveBehaviourQuestions,
+  deriveMissionFitInterview,
+  deriveDecompositionInterview,
+  deriveStakeholderInterview,
 } from "@forwardimpact/model/interview";
 import { getOrCreateJob } from "@forwardimpact/model/job-cache";
 
@@ -20,26 +20,32 @@ import { getOrCreateJob } from "@forwardimpact/model/job-cache";
  * Interview type configurations
  */
 export const INTERVIEW_TYPES = {
-  short: {
-    id: "short",
-    name: "Screening",
-    description: "20-minute screening interview",
-    icon: "⏱️",
-    expectedDurationMinutes: 20,
-  },
-  behaviour: {
-    id: "behaviour",
-    name: "Behavioural",
-    description: "Focus on behaviours and mindsets",
-    icon: "🧠",
+  mission: {
+    id: "mission",
+    name: "Mission Fit",
+    description: "Recruiting Manager + 1 Senior Engineer",
+    icon: "🎯",
     expectedDurationMinutes: 45,
+    panel: "Recruiting Manager + 1 Senior Engineer",
+    questionTypes: ["skill"],
   },
-  full: {
-    id: "full",
-    name: "Full Interview",
-    description: "Comprehensive interview covering all skills and behaviours",
-    icon: "📋",
-    expectedDurationMinutes: 90,
+  decomposition: {
+    id: "decomposition",
+    name: "Decomposition",
+    description: "2 Senior Engineers",
+    icon: "🧩",
+    expectedDurationMinutes: 60,
+    panel: "2 Senior Engineers",
+    questionTypes: ["capability"],
+  },
+  stakeholder: {
+    id: "stakeholder",
+    name: "Stakeholder Simulation",
+    description: "3-4 stakeholders",
+    icon: "👥",
+    expectedDurationMinutes: 60,
+    panel: "3-4 Stakeholders",
+    questionTypes: ["skill", "behaviour"],
   },
 };
 
@@ -67,14 +73,25 @@ function groupQuestionsIntoSections(questions) {
       };
     }
 
-    sections[id].questions.push({
+    // Handle decomposition questions with their additional fields
+    const questionEntry = {
       skillOrBehaviourId: id,
       skillOrBehaviourName: name,
       type,
       level,
       question: q.question.text,
       followUps: q.question.followUps || [],
-    });
+    };
+
+    // Add decomposition-specific fields if present
+    if (q.question.decompositionPrompts) {
+      questionEntry.decompositionPrompts = q.question.decompositionPrompts;
+    }
+    if (q.question.context) {
+      questionEntry.context = q.question.context;
+    }
+
+    sections[id].questions.push(questionEntry);
   }
 
   return Object.values(sections);
@@ -83,7 +100,7 @@ function groupQuestionsIntoSections(questions) {
 /**
  * @typedef {Object} InterviewDetailView
  * @property {string} title
- * @property {string} interviewType - 'full', 'short', or 'behaviour'
+ * @property {string} interviewType - 'mission', 'decomposition', or 'stakeholder'
  * @property {string} disciplineId
  * @property {string} disciplineName
  * @property {string} gradeId
@@ -104,7 +121,7 @@ function groupQuestionsIntoSections(questions) {
  * @param {Array} params.skills
  * @param {Array} params.behaviours
  * @param {Array} params.questions
- * @param {string} [params.interviewType='full']
+ * @param {string} [params.interviewType='mission']
  * @returns {InterviewDetailView|null}
  */
 export function prepareInterviewDetail({
@@ -114,7 +131,7 @@ export function prepareInterviewDetail({
   skills,
   behaviours,
   questions,
-  interviewType = "full",
+  interviewType = "mission",
 }) {
   if (!discipline || !grade) return null;
 
@@ -130,18 +147,26 @@ export function prepareInterviewDetail({
 
   let interviewGuide;
   switch (interviewType) {
-    case "short":
-      interviewGuide = deriveShortInterview({ job, questionBank: questions });
-      break;
-    case "behaviour":
-      interviewGuide = deriveBehaviourQuestions({
+    case "mission":
+      interviewGuide = deriveMissionFitInterview({
         job,
         questionBank: questions,
       });
       break;
-    case "full":
+    case "decomposition":
+      interviewGuide = deriveDecompositionInterview({
+        job,
+        questionBank: questions,
+      });
+      break;
+    case "stakeholder":
+      interviewGuide = deriveStakeholderInterview({
+        job,
+        questionBank: questions,
+      });
+      break;
     default:
-      interviewGuide = deriveInterviewQuestions({
+      interviewGuide = deriveMissionFitInterview({
         job,
         questionBank: questions,
       });
@@ -151,19 +176,27 @@ export function prepareInterviewDetail({
   // Extract the questions array from the interview guide
   const rawQuestions = interviewGuide.questions || [];
 
-  // Separate skill and behaviour questions based on targetType
+  // Separate questions by type
   const skillQuestions = rawQuestions.filter((q) => q.targetType === "skill");
   const behaviourQuestions = rawQuestions.filter(
     (q) => q.targetType === "behaviour",
   );
+  const capabilityQuestions = rawQuestions.filter(
+    (q) => q.targetType === "capability",
+  );
 
   const skillSections = groupQuestionsIntoSections(skillQuestions);
   const behaviourSections = groupQuestionsIntoSections(behaviourQuestions);
+  const capabilitySections = groupQuestionsIntoSections(capabilityQuestions);
 
-  const allSections = [...skillSections, ...behaviourSections];
+  const allSections = [
+    ...skillSections,
+    ...behaviourSections,
+    ...capabilitySections,
+  ];
   const totalQuestions = rawQuestions.length;
 
-  const typeConfig = INTERVIEW_TYPES[interviewType] || INTERVIEW_TYPES.full;
+  const typeConfig = INTERVIEW_TYPES[interviewType] || INTERVIEW_TYPES.mission;
 
   return {
     title: job.title,
@@ -293,24 +326,19 @@ export function prepareAllInterviews({
   if (!job) return null;
 
   // Generate all interview types
-  const shortInterview = deriveShortInterview({
-    job,
-    questionBank: questions,
-    targetMinutes: 20,
-  });
-
-  const behaviourInterview = deriveBehaviourQuestions({
+  const missionInterview = deriveMissionFitInterview({
     job,
     questionBank: questions,
   });
 
-  const fullInterview = deriveInterviewQuestions({
+  const decompositionInterview = deriveDecompositionInterview({
     job,
     questionBank: questions,
-    options: {
-      targetMinutes: 60,
-      skillBehaviourRatio: 0.6,
-    },
+  });
+
+  const stakeholderInterview = deriveStakeholderInterview({
+    job,
+    questionBank: questions,
   });
 
   return {
@@ -321,17 +349,21 @@ export function prepareAllInterviews({
     trackId: track?.id || null,
     trackName: track?.name || null,
     interviews: {
-      short: {
-        ...shortInterview,
-        type: "short",
-        typeInfo: INTERVIEW_TYPES.short,
+      mission: {
+        ...missionInterview,
+        type: "mission",
+        typeInfo: INTERVIEW_TYPES.mission,
       },
-      behaviour: {
-        ...behaviourInterview,
-        type: "behaviour",
-        typeInfo: INTERVIEW_TYPES.behaviour,
+      decomposition: {
+        ...decompositionInterview,
+        type: "decomposition",
+        typeInfo: INTERVIEW_TYPES.decomposition,
       },
-      full: { ...fullInterview, type: "full", typeInfo: INTERVIEW_TYPES.full },
+      stakeholder: {
+        ...stakeholderInterview,
+        type: "stakeholder",
+        typeInfo: INTERVIEW_TYPES.stakeholder,
+      },
     },
   };
 }

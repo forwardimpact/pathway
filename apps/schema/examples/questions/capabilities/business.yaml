@@ -1,0 +1,53 @@
+# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/capability-questions.schema.json
+
+working:
+  - id: biz_work_decomp_1
+    text:
+      The product team wants to add a feature that will increase revenue but
+      requires significant technical investment. How would you evaluate this?
+    context:
+      The feature is an AI-powered recommendation engine. Product estimates 15%
+      revenue increase. Your team estimates 4 months of work and ongoing
+      maintenance costs.
+    decompositionPrompts:
+      - What questions would you ask the product team?
+      - How would you break down the technical cost assessment?
+      - What factors would influence your recommendation?
+      - How would you present your analysis to stakeholders?
+    lookingFor:
+      - Balances business value against technical cost
+      - Considers ongoing maintenance and operational complexity
+      - Asks about success metrics and measurement approach
+      - Thinks about alternatives and build vs buy decisions
+    expectedDurationMinutes: 15
+    followUps:
+      - What if the CEO strongly favors this feature but your analysis suggests
+        otherwise?
+      - How would you handle if the revenue estimate turned out to be
+        optimistic?
+
+practitioner:
+  - id: biz_pract_decomp_1
+    text:
+      Your company is considering entering a new market that requires different
+      compliance requirements. How would you approach the technical evaluation?
+    context:
+      The new market is healthcare (HIPAA compliance). Current systems handle
+      financial data but were not designed for healthcare. Leadership wants a
+      go/no-go decision in 4 weeks.
+    decompositionPrompts:
+      - What stakeholders need to be involved in this assessment?
+      - How would you structure the technical gap analysis?
+      - What are the key decision points you need to surface?
+      - How would you communicate risk and uncertainty to leadership?
+    lookingFor:
+      - Identifies compliance, security, and data handling as separate
+        workstreams
+      - Involves legal, security, and product stakeholders appropriately
+      - Creates structured assessment with clear criteria
+      - Communicates uncertainty and risk levels clearly
+    expectedDurationMinutes: 15
+    followUps:
+      - What would change if you had 3 months instead of 4 weeks?
+      - How would you handle if different stakeholders had conflicting
+        priorities?

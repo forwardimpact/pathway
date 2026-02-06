@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/capability-questions.schema.json
+
+working:
+  - id: del_work_decomp_1
+    text:
+      A new client needs a dashboard that shows real-time analytics for their
+      e-commerce platform. Walk me through how you would approach this.
+    context:
+      The client has 50,000 daily active users, uses PostgreSQL for their main
+      database, and wants the dashboard within 6 weeks.
+    decompositionPrompts:
+      - What information would you need to gather first?
+      - How would you break down the technical implementation?
+      - What are the biggest risks and how would you mitigate them?
+      - How would you prioritize if you had only 3 weeks instead?
+    lookingFor:
+      - Asks clarifying questions about requirements before diving in
+      - Identifies data pipeline, storage, and visualization as separate
+        concerns
+      - Considers real-time vs near-real-time trade-offs
+      - Thinks about scalability and performance constraints
+    expectedDurationMinutes: 15
+    followUps:
+      - What would you do differently if their data was in 5 different systems?
+      - How would you handle if a key team member left mid-project?
+
+practitioner:
+  - id: del_pract_decomp_1
+    text:
+      Your team needs to migrate a critical monolith to microservices while
+      keeping the system running. How would you approach this?
+    context:
+      The monolith handles payment processing, has 99.99% uptime requirements,
+      and the team has 8 engineers.
+    decompositionPrompts:
+      - How would you decide what to extract first?
+      - What's your strategy for maintaining reliability during the migration?
+      - How would you structure the team's work?
+      - What would success look like at each phase?
+    lookingFor:
+      - Proposes strangler fig or similar incremental approach
+      - Identifies domain boundaries as extraction points
+      - Plans for rollback and feature flags
+      - Considers team coordination and parallel workstreams
+    expectedDurationMinutes: 15
+    followUps:
+      - How would you handle if stakeholders wanted everything migrated in 6
+        months?
+      - What metrics would you track to know the migration is succeeding?

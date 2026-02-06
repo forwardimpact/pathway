@@ -1,0 +1,49 @@
+# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/capability-questions.schema.json
+
+working:
+  - id: rel_work_decomp_1
+    text:
+      Your service experienced three outages in the past month, each from
+      different root causes. How would you approach improving reliability?
+    context:
+      The outages were caused by database connection exhaustion, a failed
+      deployment, and an upstream dependency timeout. SLO is 99.9% and you're
+      currently at 99.5%.
+    decompositionPrompts:
+      - How would you categorize and analyze these incidents?
+      - What systematic improvements would you prioritize?
+      - How would you balance reliability investment with feature work?
+      - What would success look like 3 months from now?
+    lookingFor:
+      - Looks for patterns across incidents rather than treating in isolation
+      - Proposes both reactive fixes and proactive improvements
+      - Creates measurable reliability targets
+      - Considers observability and early warning systems
+    expectedDurationMinutes: 15
+    followUps:
+      - What if leadership is pressuring for more features over reliability
+        work?
+      - How would you structure the team's on-call rotation going forward?
+
+practitioner:
+  - id: rel_pract_decomp_1
+    text:
+      You're designing the disaster recovery strategy for a system that
+      processes customer financial transactions. Walk me through your approach.
+    context:
+      The system handles $10M in daily transactions, uses AWS in us-east-1, and
+      currently has no cross-region capability. Budget for DR is $50K annual.
+    decompositionPrompts:
+      - What are the key requirements you need to establish first?
+      - How would you structure the technical options analysis?
+      - What trade-offs would you present to stakeholders?
+      - How would you test and validate the DR plan?
+    lookingFor:
+      - Defines RTO/RPO requirements with business stakeholders
+      - Evaluates active-active vs active-passive vs pilot light approaches
+      - Balances cost against recovery capabilities
+      - Plans for regular testing and runbook maintenance
+    expectedDurationMinutes: 15
+    followUps:
+      - What would you do if a regional outage happened before DR was complete?
+      - How would you handle if the $50K budget was cut in half?

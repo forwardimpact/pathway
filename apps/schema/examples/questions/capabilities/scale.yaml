@@ -1,0 +1,50 @@
+# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/capability-questions.schema.json
+
+working:
+  - id: scl_work_decomp_1
+    text:
+      Your API currently handles 100 requests per second but needs to handle
+      1000 RPS in 6 months due to a new partnership. How would you approach
+      this?
+    context:
+      The API is a monolithic Node.js application backed by PostgreSQL. Response
+      time P99 is currently 200ms and must stay under 500ms.
+    decompositionPrompts:
+      - What would you need to measure and understand first?
+      - How would you identify the scaling bottlenecks?
+      - What architectural changes would you consider?
+      - How would you phase the work and validate progress?
+    lookingFor:
+      - Profiles current system before jumping to solutions
+      - Considers horizontal vs vertical scaling trade-offs
+      - Identifies database as likely bottleneck
+      - Plans incremental validation with load testing
+    expectedDurationMinutes: 15
+    followUps:
+      - What if the partnership deal accelerated and you had only 3 months?
+      - How would you handle if the new load had very different access patterns?
+
+practitioner:
+  - id: scl_pract_decomp_1
+    text:
+      Your team maintains a data pipeline that processes events from multiple
+      sources. It's becoming increasingly difficult to add new sources. How
+      would you redesign it?
+    context:
+      Currently there are 15 event sources, each with custom integration code.
+      Adding a new source takes 3 weeks. The team receives requests for 5 new
+      sources per quarter.
+    decompositionPrompts:
+      - How would you analyze the current pain points systematically?
+      - What abstractions or patterns would improve extensibility?
+      - How would you migrate existing sources without disruption?
+      - How would you measure the success of the redesign?
+    lookingFor:
+      - Identifies common patterns across existing integrations
+      - Proposes schema standardization or adapter pattern
+      - Plans migration that doesn't break existing functionality
+      - Sets concrete targets for new source onboarding time
+    expectedDurationMinutes: 15
+    followUps:
+      - What if different sources had fundamentally incompatible data models?
+      - How would you get buy-in if the team is skeptical of a major rewrite?

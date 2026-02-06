@@ -87,6 +87,9 @@ export {
   deriveShortInterview,
   deriveBehaviourQuestions,
   deriveFocusedInterview,
+  deriveMissionFitInterview,
+  deriveDecompositionInterview,
+  deriveStakeholderInterview,
 } from "./interview.js";
 
 // Agent generation

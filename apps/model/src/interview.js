@@ -28,6 +28,11 @@ import {
 const DEFAULT_QUESTION_MINUTES = 5;
 
 /**
+ * Default decomposition question time estimate
+ */
+const DEFAULT_DECOMPOSITION_MINUTES = 15;
+
+/**
  * Get questions from the question bank for a specific skill and level
  * @param {import('./levels.js').QuestionBank} questionBank - The question bank
  * @param {string} skillId - The skill ID
@@ -47,6 +52,43 @@ function getSkillQuestions(questionBank, skillId, level) {
  */
 function getBehaviourQuestions(questionBank, behaviourId, maturity) {
   return questionBank.behaviourMaturities?.[behaviourId]?.[maturity] || [];
+}
+
+/**
+ * Get decomposition questions from the question bank for a specific capability and level
+ * @param {import('./levels.js').QuestionBank} questionBank - The question bank
+ * @param {string} capabilityId - The capability ID
+ * @param {string} level - The skill level (capabilities use same levels as skills)
+ * @returns {import('./levels.js').Question[]} Array of questions
+ */
+function getCapabilityQuestions(questionBank, capabilityId, level) {
+  return questionBank.capabilityLevels?.[capabilityId]?.[level] || [];
+}
+
+/**
+ * Derive capability levels from a job's skill matrix
+ * Uses the maximum skill level in each capability.
+ * @param {import('./levels.js').JobDefinition} job - The job definition
+ * @returns {Map<string, {capabilityId: string, level: string, levelIndex: number}>} Map of capability to level info
+ */
+function deriveCapabilityLevels(job) {
+  const capabilityLevels = new Map();
+
+  for (const skill of job.skillMatrix) {
+    const capabilityId = skill.capability;
+    const levelIndex = getSkillLevelIndex(skill.level);
+
+    const existing = capabilityLevels.get(capabilityId);
+    if (!existing || levelIndex > existing.levelIndex) {
+      capabilityLevels.set(capabilityId, {
+        capabilityId,
+        level: skill.level,
+        levelIndex,
+      });
+    }
+  }
+
+  return capabilityLevels;
 }
 
 /**
@@ -93,6 +135,30 @@ function calculateBehaviourPriority(behaviour) {
   // Higher maturity level = higher priority
   priority +=
     getBehaviourMaturityIndex(behaviour.maturity) * WEIGHT_BEHAVIOUR_MATURITY;
+
+  return priority;
+}
+
+/**
+ * Calculate priority for a capability decomposition question
+ * @param {string} capabilityId - The capability ID
+ * @param {number} levelIndex - The skill level index
+ * @returns {number} Priority score (higher = more important)
+ */
+function calculateCapabilityPriority(capabilityId, levelIndex) {
+  let priority = 0;
+
+  // Delivery and scale capabilities are typically more important for decomposition
+  if (capabilityId === Capability.DELIVERY) {
+    priority += 10;
+  } else if (capabilityId === Capability.SCALE) {
+    priority += 8;
+  } else if (capabilityId === Capability.RELIABILITY) {
+    priority += 6;
+  }
+
+  // Higher level = higher priority
+  priority += levelIndex * WEIGHT_SKILL_LEVEL;
 
   return priority;
 }
@@ -539,6 +605,355 @@ export function deriveFocusedInterview({
     coverage: {
       skills: Array.from(coveredSkills),
       behaviours: Array.from(coveredBehaviours),
+    },
+  };
+}
+
+/**
+ * Derive Mission Fit interview questions (skill-focused)
+ *
+ * 45-minute interview with Recruiting Manager + 1 Senior Engineer
+ * Focuses on skill questions to assess technical capability and fit.
+ *
+ * @param {Object} params
+ * @param {import('./levels.js').JobDefinition} params.job - The job definition
+ * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
+ * @param {number} [params.targetMinutes=45] - Target interview length in minutes
+ * @returns {import('./levels.js').InterviewGuide}
+ */
+export function deriveMissionFitInterview({
+  job,
+  questionBank,
+  targetMinutes = 45,
+}) {
+  const allSkillQuestions = [];
+  const coveredSkills = new Set();
+
+  // Generate all potential skill questions with priority
+  for (const skill of job.skillMatrix) {
+    const targetLevel = skill.level;
+    const targetLevelIndex = getSkillLevelIndex(targetLevel);
+
+    // Get questions at target level
+    const targetQuestions = getSkillQuestions(
+      questionBank,
+      skill.skillId,
+      targetLevel,
+    );
+
+    for (const question of targetQuestions) {
+      allSkillQuestions.push({
+        question,
+        targetId: skill.skillId,
+        targetName: skill.skillName,
+        targetType: "skill",
+        targetLevel,
+        priority: calculateSkillPriority(skill, false),
+      });
+    }
+
+    // Also add question from level below for depth
+    if (targetLevelIndex > 0) {
+      const belowLevel = SKILL_LEVEL_ORDER[targetLevelIndex - 1];
+      const belowQuestions = getSkillQuestions(
+        questionBank,
+        skill.skillId,
+        belowLevel,
+      );
+
+      for (const question of belowQuestions) {
+        allSkillQuestions.push({
+          question,
+          targetId: skill.skillId,
+          targetName: skill.skillName,
+          targetType: "skill",
+          targetLevel: belowLevel,
+          priority: calculateSkillPriority(skill, true),
+        });
+      }
+    }
+  }
+
+  // Sort by priority (highest first)
+  allSkillQuestions.sort((a, b) => b.priority - a.priority);
+
+  // Select questions within budget, prioritizing coverage diversity
+  const selectedQuestions = [];
+  const selectedSkillIds = new Set();
+  let totalMinutes = 0;
+
+  // First pass: one question per skill (highest priority first)
+  for (const q of allSkillQuestions) {
+    if (selectedSkillIds.has(q.targetId)) continue;
+    const questionTime =
+      q.question.expectedDurationMinutes || DEFAULT_QUESTION_MINUTES;
+    if (totalMinutes + questionTime <= targetMinutes + 5) {
+      selectedQuestions.push(q);
+      selectedSkillIds.add(q.targetId);
+      coveredSkills.add(q.targetId);
+      totalMinutes += questionTime;
+    }
+  }
+
+  // Second pass: add more questions if time allows
+  for (const q of allSkillQuestions) {
+    if (selectedQuestions.includes(q)) continue;
+    const questionTime =
+      q.question.expectedDurationMinutes || DEFAULT_QUESTION_MINUTES;
+    if (totalMinutes + questionTime <= targetMinutes + 5) {
+      selectedQuestions.push(q);
+      coveredSkills.add(q.targetId);
+      totalMinutes += questionTime;
+    }
+  }
+
+  // Re-sort by priority
+  selectedQuestions.sort((a, b) => b.priority - a.priority);
+
+  return {
+    job,
+    questions: selectedQuestions,
+    expectedDurationMinutes: totalMinutes,
+    coverage: {
+      skills: Array.from(coveredSkills),
+      behaviours: [],
+      capabilities: [],
+    },
+  };
+}
+
+/**
+ * Derive Decomposition interview questions (capability-focused)
+ *
+ * 60-minute interview with 2 Senior Engineers
+ * Focuses on capability decomposition questions inspired by Palantir's technique.
+ * Capabilities are selected based on the job's skill matrix.
+ *
+ * @param {Object} params
+ * @param {import('./levels.js').JobDefinition} params.job - The job definition
+ * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
+ * @param {number} [params.targetMinutes=60] - Target interview length in minutes
+ * @returns {import('./levels.js').InterviewGuide}
+ */
+export function deriveDecompositionInterview({
+  job,
+  questionBank,
+  targetMinutes = 60,
+}) {
+  const allCapabilityQuestions = [];
+  const coveredCapabilities = new Set();
+
+  // Derive capability levels from the job's skill matrix
+  const capabilityLevels = deriveCapabilityLevels(job);
+
+  // Generate capability questions based on derived levels
+  for (const [capabilityId, levelInfo] of capabilityLevels) {
+    const { level, levelIndex } = levelInfo;
+
+    // Get questions at the derived level
+    const questions = getCapabilityQuestions(questionBank, capabilityId, level);
+
+    for (const question of questions) {
+      allCapabilityQuestions.push({
+        question,
+        targetId: capabilityId,
+        targetName: capabilityId, // Capability name can be enhanced if needed
+        targetType: "capability",
+        targetLevel: level,
+        priority: calculateCapabilityPriority(capabilityId, levelIndex),
+      });
+    }
+
+    // Also try level below if available
+    if (levelIndex > 0) {
+      const belowLevel = SKILL_LEVEL_ORDER[levelIndex - 1];
+      const belowQuestions = getCapabilityQuestions(
+        questionBank,
+        capabilityId,
+        belowLevel,
+      );
+
+      for (const question of belowQuestions) {
+        allCapabilityQuestions.push({
+          question,
+          targetId: capabilityId,
+          targetName: capabilityId,
+          targetType: "capability",
+          targetLevel: belowLevel,
+          priority: calculateCapabilityPriority(capabilityId, levelIndex - 1),
+        });
+      }
+    }
+  }
+
+  // Sort by priority (highest first)
+  allCapabilityQuestions.sort((a, b) => b.priority - a.priority);
+
+  // Select questions within budget, prioritizing coverage diversity
+  const selectedQuestions = [];
+  const selectedCapabilityIds = new Set();
+  let totalMinutes = 0;
+
+  // First pass: one question per capability (highest priority first)
+  for (const q of allCapabilityQuestions) {
+    if (selectedCapabilityIds.has(q.targetId)) continue;
+    const questionTime =
+      q.question.expectedDurationMinutes || DEFAULT_DECOMPOSITION_MINUTES;
+    if (totalMinutes + questionTime <= targetMinutes + 5) {
+      selectedQuestions.push(q);
+      selectedCapabilityIds.add(q.targetId);
+      coveredCapabilities.add(q.targetId);
+      totalMinutes += questionTime;
+    }
+  }
+
+  // Second pass: add more questions if time allows
+  for (const q of allCapabilityQuestions) {
+    if (selectedQuestions.includes(q)) continue;
+    const questionTime =
+      q.question.expectedDurationMinutes || DEFAULT_DECOMPOSITION_MINUTES;
+    if (totalMinutes + questionTime <= targetMinutes + 5) {
+      selectedQuestions.push(q);
+      coveredCapabilities.add(q.targetId);
+      totalMinutes += questionTime;
+    }
+  }
+
+  // Re-sort by priority
+  selectedQuestions.sort((a, b) => b.priority - a.priority);
+
+  return {
+    job,
+    questions: selectedQuestions,
+    expectedDurationMinutes: totalMinutes,
+    coverage: {
+      skills: [],
+      behaviours: [],
+      capabilities: Array.from(coveredCapabilities),
+    },
+  };
+}
+
+/**
+ * Derive Stakeholder Simulation interview questions (skill + behaviour mix)
+ *
+ * 60-minute interview with 3-4 stakeholders
+ * Combines skill and behaviour questions to simulate stakeholder interactions.
+ *
+ * @param {Object} params
+ * @param {import('./levels.js').JobDefinition} params.job - The job definition
+ * @param {import('./levels.js').QuestionBank} params.questionBank - The question bank
+ * @param {number} [params.targetMinutes=60] - Target interview length in minutes
+ * @param {number} [params.skillBehaviourRatio=0.5] - Ratio of time for skills vs behaviours
+ * @returns {import('./levels.js').InterviewGuide}
+ */
+export function deriveStakeholderInterview({
+  job,
+  questionBank,
+  targetMinutes = 60,
+  skillBehaviourRatio = 0.5,
+}) {
+  const allSkillQuestions = [];
+  const allBehaviourQuestions = [];
+  const coveredSkills = new Set();
+  const coveredBehaviours = new Set();
+
+  // Generate skill questions
+  for (const skill of job.skillMatrix) {
+    const targetLevel = skill.level;
+    const questions = getSkillQuestions(
+      questionBank,
+      skill.skillId,
+      targetLevel,
+    );
+
+    for (const question of questions) {
+      allSkillQuestions.push({
+        question,
+        targetId: skill.skillId,
+        targetName: skill.skillName,
+        targetType: "skill",
+        targetLevel,
+        priority: calculateSkillPriority(skill, false),
+      });
+    }
+  }
+
+  // Generate behaviour questions
+  for (const behaviour of job.behaviourProfile) {
+    const targetMaturity = behaviour.maturity;
+    const questions = getBehaviourQuestions(
+      questionBank,
+      behaviour.behaviourId,
+      targetMaturity,
+    );
+
+    for (const question of questions) {
+      allBehaviourQuestions.push({
+        question,
+        targetId: behaviour.behaviourId,
+        targetName: behaviour.behaviourName,
+        targetType: "behaviour",
+        targetLevel: targetMaturity,
+        priority: calculateBehaviourPriority(behaviour),
+      });
+    }
+  }
+
+  // Sort both lists by priority
+  allSkillQuestions.sort((a, b) => b.priority - a.priority);
+  allBehaviourQuestions.sort((a, b) => b.priority - a.priority);
+
+  // Calculate time budgets (equal split for stakeholder simulation)
+  const skillTimeBudget = targetMinutes * skillBehaviourRatio;
+  const behaviourTimeBudget = targetMinutes * (1 - skillBehaviourRatio);
+
+  // Select skill questions
+  const selectedQuestions = [];
+  const selectedSkillIds = new Set();
+  let skillMinutes = 0;
+
+  for (const q of allSkillQuestions) {
+    if (selectedSkillIds.has(q.targetId)) continue;
+    const questionTime =
+      q.question.expectedDurationMinutes || DEFAULT_QUESTION_MINUTES;
+    if (skillMinutes + questionTime <= skillTimeBudget + 5) {
+      selectedQuestions.push(q);
+      selectedSkillIds.add(q.targetId);
+      coveredSkills.add(q.targetId);
+      skillMinutes += questionTime;
+    }
+  }
+
+  // Select behaviour questions
+  const selectedBehaviourIds = new Set();
+  let behaviourMinutes = 0;
+
+  for (const q of allBehaviourQuestions) {
+    if (selectedBehaviourIds.has(q.targetId)) continue;
+    const questionTime =
+      q.question.expectedDurationMinutes || DEFAULT_QUESTION_MINUTES;
+    if (behaviourMinutes + questionTime <= behaviourTimeBudget + 5) {
+      selectedQuestions.push(q);
+      selectedBehaviourIds.add(q.targetId);
+      coveredBehaviours.add(q.targetId);
+      behaviourMinutes += questionTime;
+    }
+  }
+
+  // Re-sort by priority
+  selectedQuestions.sort((a, b) => b.priority - a.priority);
+
+  const expectedDurationMinutes = skillMinutes + behaviourMinutes;
+
+  return {
+    job,
+    questions: selectedQuestions,
+    expectedDurationMinutes,
+    coverage: {
+      skills: Array.from(coveredSkills),
+      behaviours: Array.from(coveredBehaviours),
+      capabilities: [],
     },
   };
 }
