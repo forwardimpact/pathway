@@ -237,35 +237,52 @@ async function loadCapabilitiesFromDir(capabilitiesDir) {
 }
 
 /**
- * Load questions from folder structure using skill/behaviour IDs
+ * Load questions from folder structure using skill/behaviour/capability IDs
  * @param {string} questionsDir - Path to questions directory
  * @param {Array} skills - Skills array (with id property)
  * @param {Array} behaviours - Behaviours array (with id property)
+ * @param {Array} capabilities - Capabilities array (with id property)
  * @returns {Promise<Object>}
  */
-async function loadQuestionFolder(questionsDir, skills, behaviours) {
-  const [skillEntries, behaviourEntries] = await Promise.all([
-    Promise.all(
-      skills.map(async (skill) => {
-        const content = await tryLoadYamlFile(
-          `${questionsDir}/skills/${skill.id}.yaml`,
-        );
-        return [skill.id, content || {}];
-      }),
-    ),
-    Promise.all(
-      behaviours.map(async (behaviour) => {
-        const content = await tryLoadYamlFile(
-          `${questionsDir}/behaviours/${behaviour.id}.yaml`,
-        );
-        return [behaviour.id, content || {}];
-      }),
-    ),
-  ]);
+async function loadQuestionFolder(
+  questionsDir,
+  skills,
+  behaviours,
+  capabilities,
+) {
+  const [skillEntries, behaviourEntries, capabilityEntries] = await Promise.all(
+    [
+      Promise.all(
+        skills.map(async (skill) => {
+          const content = await tryLoadYamlFile(
+            `${questionsDir}/skills/${skill.id}.yaml`,
+          );
+          return [skill.id, content || {}];
+        }),
+      ),
+      Promise.all(
+        behaviours.map(async (behaviour) => {
+          const content = await tryLoadYamlFile(
+            `${questionsDir}/behaviours/${behaviour.id}.yaml`,
+          );
+          return [behaviour.id, content || {}];
+        }),
+      ),
+      Promise.all(
+        capabilities.map(async (capability) => {
+          const content = await tryLoadYamlFile(
+            `${questionsDir}/capabilities/${capability.id}.yaml`,
+          );
+          return [capability.id, content || {}];
+        }),
+      ),
+    ],
+  );
 
   return {
     skillLevels: Object.fromEntries(skillEntries),
     behaviourMaturities: Object.fromEntries(behaviourEntries),
+    capabilityLevels: Object.fromEntries(capabilityEntries),
   };
 }
 
@@ -293,11 +310,12 @@ export async function loadAllData(dataDir = "./data") {
       loadYamlFile(`${dataDir}/framework.yaml`),
     ]);
 
-  // Load questions using skill/behaviour IDs
+  // Load questions using skill/behaviour/capability IDs
   const questions = await loadQuestionFolder(
     `${dataDir}/questions`,
     skills,
     behaviours,
+    capabilities,
   );
 
   return {
