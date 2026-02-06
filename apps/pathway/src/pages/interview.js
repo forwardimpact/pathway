@@ -81,8 +81,8 @@ export function renderInterviewDetail(params) {
     return;
   }
 
-  // State for current interview type (default to first: Screening)
-  let currentType = "short";
+  // State for current interview type (default to first: Mission Fit)
+  let currentType = "mission";
 
   const page = div(
     { className: "interview-detail-page" },
@@ -194,20 +194,29 @@ function createInterviewSummary(interview) {
       { className: "interview-summary-header" },
       h2({}, `${typeInfo.icon} ${typeInfo.name}`),
       p({ className: "text-muted" }, typeInfo.description),
+      typeInfo.panel
+        ? p({ className: "text-muted" }, `Panel: ${typeInfo.panel}`)
+        : null,
     ),
     div(
       { className: "interview-summary-stats" },
       createBadge(`${interview.questions.length} questions`, "default"),
       createBadge(`~${interview.expectedDurationMinutes} minutes`, "secondary"),
-      interview.coverage.skills.length > 0
+      interview.coverage.skills?.length > 0
         ? createBadge(
             `${interview.coverage.skills.length} skills covered`,
             "primary",
           )
         : null,
-      interview.coverage.behaviours.length > 0
+      interview.coverage.behaviours?.length > 0
         ? createBadge(
             `${interview.coverage.behaviours.length} behaviours covered`,
+            "primary",
+          )
+        : null,
+      interview.coverage.capabilities?.length > 0
+        ? createBadge(
+            `${interview.coverage.capabilities.length} capabilities covered`,
             "primary",
           )
         : null,
@@ -225,6 +234,9 @@ function createQuestionsDisplay(interview, framework) {
   );
   const behaviourQuestions = interview.questions.filter(
     (q) => q.targetType === "behaviour",
+  );
+  const capabilityQuestions = interview.questions.filter(
+    (q) => q.targetType === "capability",
   );
 
   const sections = [];
@@ -247,6 +259,15 @@ function createQuestionsDisplay(interview, framework) {
     );
   }
 
+  if (capabilityQuestions.length > 0) {
+    sections.push(
+      createDetailSection({
+        title: `${getConceptEmoji(framework, "capability") || "🧩"} Decomposition Questions (${capabilityQuestions.length})`,
+        content: createQuestionsList(capabilityQuestions, true),
+      }),
+    );
+  }
+
   if (sections.length === 0) {
     return div(
       { className: "card" },
@@ -262,19 +283,51 @@ function createQuestionsDisplay(interview, framework) {
 
 /**
  * Create questions list
+ * @param {Array} questions - Questions to display
+ * @param {boolean} isDecomposition - Whether these are decomposition questions
  */
-function createQuestionsList(questions) {
+function createQuestionsList(questions, isDecomposition = false) {
   return div(
     { className: "questions-list" },
-    ...questions.map((q, index) => createQuestionCard(q, index + 1)),
+    ...questions.map((q, index) =>
+      createQuestionCard(q, index + 1, isDecomposition),
+    ),
   );
 }
 
 /**
  * Create question card
+ * @param {Object} questionEntry - Question entry
+ * @param {number} number - Question number
+ * @param {boolean} isDecomposition - Whether this is a decomposition question
  */
-function createQuestionCard(questionEntry, number) {
+function createQuestionCard(questionEntry, number, isDecomposition = false) {
   const { question, targetName, targetLevel } = questionEntry;
+
+  // Context section (only for decomposition questions)
+  const contextSection =
+    question.context && isDecomposition
+      ? div(
+          { className: "question-context" },
+          h4({}, "Context:"),
+          p({}, question.context),
+        )
+      : null;
+
+  // Decomposition prompts (only for decomposition questions)
+  const decompositionPromptsList =
+    question.decompositionPrompts &&
+    question.decompositionPrompts.length > 0 &&
+    isDecomposition
+      ? div(
+          { className: "question-decomposition-prompts" },
+          h4({}, "Guide candidate thinking:"),
+          ul(
+            {},
+            ...question.decompositionPrompts.map((prompt) => li({}, prompt)),
+          ),
+        )
+      : null;
 
   const followUpsList =
     question.followUps && question.followUps.length > 0
@@ -309,6 +362,8 @@ function createQuestionCard(questionEntry, number) {
       ),
     ),
     div({ className: "question-text" }, question.text),
+    contextSection,
+    decompositionPromptsList,
     followUpsList,
     lookingForList,
   );
