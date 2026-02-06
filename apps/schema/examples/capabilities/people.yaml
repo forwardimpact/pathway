@@ -2,7 +2,7 @@
 
 name: People
 emojiIcon: 👥
-displayOrder: 6
+ordinalRank: 6
 description: |
   Growing individuals and building effective teams.
   Includes mentoring, coaching, hiring, performance management,

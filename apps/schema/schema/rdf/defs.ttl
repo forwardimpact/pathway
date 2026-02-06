@@ -134,9 +134,9 @@ fit:emojiIcon a rdf:Property ;
     rdfs:comment "Emoji for visual representation"@en ;
     rdfs:range xsd:string .
 
-fit:displayOrder a rdf:Property ;
-    rdfs:label "displayOrder"@en ;
-    rdfs:comment "Order for display in UI"@en ;
+fit:ordinalRank a rdf:Property ;
+    rdfs:label "ordinalRank"@en ;
+    rdfs:comment "Numeric rank for ordering (1 = first)"@en ;
     rdfs:range xsd:integer .
 
 fit:ordinal a rdf:Property ;

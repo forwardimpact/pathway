@@ -2,7 +2,7 @@
 
 name: Reliability
 emojiIcon: 🛡️
-displayOrder: 5
+ordinalRank: 5
 description: |
   Ensuring systems are dependable, secure, and observable.
   Includes DevOps practices, security, monitoring, incident response,
@@ -161,12 +161,13 @@ skills:
         simpleIcon: terraform
         description: Infrastructure as code tool
         useWhen: Provisioning and managing cloud infrastructure as code
-      - name: Docker
-        url: https://docs.docker.com/
+      - name: Colima
+        url: https://github.com/abiosoft/colima
         simpleIcon: docker
-        description: Container platform
+        description: Container runtime for macOS with Docker-compatible CLI
         useWhen:
-          Containerizing applications, building images, or running containers
+          Running containers locally, building images, or containerizing
+          applications
     implementationReference: |
       ## CI/CD Pipeline Stages
 
@@ -190,13 +191,32 @@ skills:
 
       ## Infrastructure as Code
 
-      ### Terraform
+      ### Terraform Workflow
+      ```bash
+      terraform init      # Initialize providers and backend
+      terraform plan      # Preview changes before applying
+      terraform apply     # Apply changes to infrastructure
+      terraform destroy   # Tear down infrastructure
+      ```
+
+      ### Terraform in CI/CD Pipelines
+      1. **Plan on PR**: Run `terraform plan` on pull requests
+      2. **Review output**: Require approval for destructive changes
+      3. **Apply on merge**: Run `terraform apply` after merge to main
+      4. **State locking**: Use remote backend with locking (S3 + DynamoDB)
+
+      ### Terraform Structure
       ```hcl
-      # Define resources declaratively
-      resource "aws_instance" "example" {
-        ami           = "ami-0c55b159cbfafe1f0"
-        instance_type = "t2.micro"
+      # main.tf - Define resources declaratively
+      resource "aws_instance" "app" {
+        ami           = var.ami_id
+        instance_type = var.instance_type
+        tags = { Environment = var.environment }
       }
+
+      # variables.tf - Parameterize for environments
+      variable "environment" { type = string }
+      variable "instance_type" { default = "t3.micro" }
       ```
 
       ### Docker

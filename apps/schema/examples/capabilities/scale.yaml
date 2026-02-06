@@ -2,7 +2,7 @@
 
 name: Scale
 emojiIcon: 📐
-displayOrder: 4
+ordinalRank: 4
 description: |
   Building systems that grow gracefully.
   Encompasses architecture, code quality, testing, performance,

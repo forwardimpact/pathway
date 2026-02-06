@@ -5,13 +5,13 @@
  * Full modifier logic is in @forwardimpact/model.
  */
 
-import { CAPABILITY_ORDER } from "./levels.js";
+import { Capability } from "./levels.js";
 
 /**
- * Valid skill capability names
+ * Valid skill capability names (derived from Capability enum)
  * @type {Set<string>}
  */
-const VALID_CAPABILITIES = new Set(CAPABILITY_ORDER);
+const VALID_CAPABILITIES = new Set(Object.values(Capability));
 
 /**
  * Check if a key is a skill capability

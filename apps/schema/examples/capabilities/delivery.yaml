@@ -2,7 +2,7 @@
 
 name: Delivery
 emojiIcon: 🚀
-displayOrder: 1
+ordinalRank: 1
 description: |
   Building and shipping solutions that solve real problems.
   Encompasses full-stack development, data integration, problem discovery,
@@ -278,12 +278,13 @@ skills:
         url: https://docs.aws.amazon.com/cloudformation/
         description: AWS infrastructure as code service
         useWhen: Managing cloud infrastructure using declarative templates
-      - name: Docker
-        url: https://docs.docker.com/
+      - name: Colima
+        url: https://github.com/abiosoft/colima
         simpleIcon: docker
-        description: Container platform
+        description: Container runtime for macOS with Docker-compatible CLI
         useWhen:
-          Containerizing applications, building images, or running containers
+          Running containers locally, building images, or containerizing
+          applications
     implementationReference: |
       ## Technology Stack
 

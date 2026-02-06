@@ -2,7 +2,7 @@
 
 name: Business
 emojiIcon: 💼
-displayOrder: 8
+ordinalRank: 8
 description: |
   Understanding and driving business value.
   Includes domain knowledge, stakeholder management, strategic thinking,

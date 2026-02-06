@@ -197,12 +197,12 @@ fit:CapabilityShape a sh:NodeShape ;
         sh:description "Emoji for visual representation" ;
     ] ;
     sh:property [
-        sh:path fit:displayOrder ;
+        sh:path fit:ordinalRank ;
         sh:datatype xsd:integer ;
         sh:minInclusive 1 ;
         sh:maxCount 1 ;
-        sh:name "displayOrder" ;
-        sh:description "Order for display in UI" ;
+        sh:name "ordinalRank" ;
+        sh:description "Numeric rank for ordering capabilities (1 = first)" ;
     ] ;
     sh:property [
         sh:path fit:description ;

@@ -19,10 +19,10 @@
       "type": "string",
       "description": "Emoji for visual representation"
     },
-    "displayOrder": {
+    "ordinalRank": {
       "type": "integer",
       "minimum": 1,
-      "description": "Order for display in UI"
+      "description": "Numeric rank for ordering capabilities (1 = first)"
     },
     "description": {
       "type": "string",

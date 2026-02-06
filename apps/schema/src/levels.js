@@ -98,94 +98,6 @@ export const Capability = {
   PRODUCT: "product",
 };
 
-/**
- * Ordered array of capabilities for consistent display
- * Groups related capabilities logically:
- * 1. Core delivery
- * 2. Data & AI capabilities
- * 3. Scale & reliability
- * 4. People & process
- * 5. Business, documentation & product
- * @type {string[]}
- */
-export const CAPABILITY_ORDER = [
-  Capability.DELIVERY,
-  Capability.DATA,
-  Capability.AI,
-  Capability.ML,
-  Capability.SCALE,
-  Capability.RELIABILITY,
-  Capability.PEOPLE,
-  Capability.PROCESS,
-  Capability.BUSINESS,
-  Capability.DOCUMENTATION,
-  Capability.PRODUCT,
-];
-
-/**
- * Get the index of a capability in the ordered list
- * @param {string} capability - The capability to look up
- * @returns {number} The index (0-based), or -1 if not found
- */
-export function getCapabilityIndex(capability) {
-  return CAPABILITY_ORDER.indexOf(capability);
-}
-
-/**
- * Compare two capabilities for sorting
- * @param {string} a - First capability
- * @param {string} b - Second capability
- * @returns {number} Comparison result for sorting
- */
-export function compareCapabilities(a, b) {
-  return getCapabilityIndex(a) - getCapabilityIndex(b);
-}
-
-/**
- * Sort an array of skills by capability order, then by name
- * @param {import('./levels.js').Skill[]} skills - Array of skills to sort
- * @returns {import('./levels.js').Skill[]} Sorted array (new array, does not mutate input)
- */
-export function sortSkillsByCapability(skills) {
-  return [...skills].sort((a, b) => {
-    const capabilityCompare = compareCapabilities(a.capability, b.capability);
-    if (capabilityCompare !== 0) return capabilityCompare;
-    return a.name.localeCompare(b.name);
-  });
-}
-
-/**
- * Group skills by capability in the defined order
- * @param {import('./levels.js').Skill[]} skills - Array of skills to group
- * @returns {Object<string, import('./levels.js').Skill[]>} Object with capabilities as keys (in order)
- */
-export function groupSkillsByCapability(skills) {
-  const result = {};
-
-  // Initialize all capabilities in order (ensures consistent key order)
-  for (const capability of CAPABILITY_ORDER) {
-    result[capability] = [];
-  }
-
-  // Populate with skills
-  for (const skill of skills) {
-    if (result[skill.capability]) {
-      result[skill.capability].push(skill);
-    }
-  }
-
-  // Remove empty capabilities and sort skills within each capability by name
-  for (const capability of Object.keys(result)) {
-    if (result[capability].length === 0) {
-      delete result[capability];
-    } else {
-      result[capability].sort((a, b) => a.name.localeCompare(b.name));
-    }
-  }
-
-  return result;
-}
-
 // ============================================================================
 // Data-driven Capability Functions
 // ============================================================================
@@ -208,8 +120,42 @@ export function getCapabilityById(capabilities, capabilityId) {
  */
 export function getCapabilityOrder(capabilities) {
   return [...capabilities]
-    .sort((a, b) => (a.displayOrder || 0) - (b.displayOrder || 0))
+    .sort((a, b) => (a.ordinalRank || 0) - (b.ordinalRank || 0))
     .map((c) => c.id);
+}
+
+/**
+ * Group skills by capability in display order
+ * @param {import('./levels.js').Skill[]} skills - Array of skills to group
+ * @param {Object[]} capabilities - Loaded capabilities array for ordering
+ * @returns {Object<string, import('./levels.js').Skill[]>} Object with capabilities as keys (in display order)
+ */
+export function groupSkillsByCapability(skills, capabilities) {
+  const capabilityOrder = getCapabilityOrder(capabilities);
+  const result = {};
+
+  // Initialize all capabilities in display order (ensures consistent key order)
+  for (const capability of capabilityOrder) {
+    result[capability] = [];
+  }
+
+  // Populate with skills
+  for (const skill of skills) {
+    if (result[skill.capability]) {
+      result[skill.capability].push(skill);
+    }
+  }
+
+  // Remove empty capabilities and sort skills within each capability by name
+  for (const capability of Object.keys(result)) {
+    if (result[capability].length === 0) {
+      delete result[capability];
+    } else {
+      result[capability].sort((a, b) => a.name.localeCompare(b.name));
+    }
+  }
+
+  return result;
 }
 
 /**
