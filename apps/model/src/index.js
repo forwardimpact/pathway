@@ -33,11 +33,11 @@ export {
 
 // Job caching
 export {
-  makeJobKey,
+  buildJobKey,
   getOrCreateJob,
-  clearJobCache,
-  invalidateJob,
-  getCacheSize,
+  clearCache,
+  invalidateCachedJob,
+  getCachedJobCount,
 } from "./job-cache.js";
 
 // Modifiers
@@ -45,17 +45,17 @@ export {
   isCapability,
   getSkillsByCapability,
   buildCapabilityToSkillsMap,
-  expandSkillModifiers,
+  expandModifiersToSkills,
   extractCapabilityModifiers,
-  extractIndividualModifiers,
+  extractSkillModifiers,
   resolveSkillModifier,
 } from "./modifiers.js";
 
 // Matching
 export {
   MatchTier,
-  MATCH_TIER_CONFIG,
-  classifyMatchTier,
+  CONFIG_MATCH_TIER,
+  classifyMatch,
   GAP_SCORES,
   calculateGapScore,
   calculateJobMatch,
@@ -93,10 +93,9 @@ export {
 export {
   deriveReferenceGrade,
   getDisciplineAbbreviation,
-  toKebabCase,
   deriveAgentSkills,
   deriveAgentBehaviours,
-  generateSkillMd,
+  generateSkillMarkdown,
   validateAgentProfile,
   validateAgentSkill,
   deriveHandoffs,

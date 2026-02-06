@@ -16,7 +16,7 @@ import { skillToMarkdown } from "../formatters/skill/markdown.js";
 import { prepareSkillsList } from "../formatters/skill/shared.js";
 import { getConceptEmoji } from "@forwardimpact/schema/levels";
 import { formatTable, formatError } from "../lib/cli-output.js";
-import { generateSkillMd } from "@forwardimpact/model/agent";
+import { generateSkillMarkdown } from "@forwardimpact/model/agent";
 import { formatAgentSkill } from "../formatters/agent/skill.js";
 import { loadSkillTemplate } from "../lib/template-loader.js";
 
@@ -80,7 +80,7 @@ async function formatAgentDetail(skill, stages, dataDir) {
   }
 
   const template = await loadSkillTemplate(dataDir);
-  const skillMd = generateSkillMd(skill, stages);
+  const skillMd = generateSkillMarkdown(skill, stages);
   const output = formatAgentSkill(skillMd, template);
   console.log(output);
 }

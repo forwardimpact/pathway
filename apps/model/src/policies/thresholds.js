@@ -15,7 +15,7 @@
  * These thresholds determine how candidate match scores are classified.
  * Adjust these to change how lenient/strict match tiers are.
  *
- * @see matching.js:classifyMatchTier
+ * @see matching.js:classifyMatch
  */
 export const THRESHOLD_MATCH_STRONG = 0.85;
 export const THRESHOLD_MATCH_GOOD = 0.7;

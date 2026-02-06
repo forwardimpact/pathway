@@ -24,7 +24,7 @@ import { loadAgentDataBrowser } from "../lib/yaml-loader.js";
 import {
   generateStageAgentProfile,
   deriveStageAgent,
-  generateSkillMd,
+  generateSkillMarkdown,
   deriveAgentSkills,
   deriveReferenceGrade,
   deriveToolkit,
@@ -502,7 +502,7 @@ function createAllStagesPreview(context) {
   const skillFiles = derivedSkills
     .map((derived) => skills.find((s) => s.id === derived.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMd(skill, stages));
+    .map((skill) => generateSkillMarkdown(skill, stages));
 
   // Derive toolkit from agent skills
   const toolkit = deriveToolkit({
@@ -633,7 +633,7 @@ function createSingleStagePreview(context, stage) {
   const skillFiles = derivedSkills
     .map((d) => skills.find((s) => s.id === d.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMd(skill, stages));
+    .map((skill) => generateSkillMarkdown(skill, stages));
 
   // Derive toolkit from agent skills
   const toolkit = deriveToolkit({

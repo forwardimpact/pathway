@@ -66,7 +66,7 @@ export function buildCapabilityToSkillsMap(skills) {
  * @param {import('./levels.js').Skill[]} skills - Array of all skills (for capability lookup)
  * @returns {Object<string, number>} Expanded skill modifiers with individual skill IDs
  */
-export function expandSkillModifiers(skillModifiers, skills) {
+export function expandModifiersToSkills(skillModifiers, skills) {
   if (!skillModifiers) {
     return {};
   }
@@ -113,7 +113,7 @@ export function extractCapabilityModifiers(skillModifiers) {
  * @param {Object<string, number>} skillModifiers - The skill modifiers
  * @returns {Object<string, number>} Only the individual skill modifiers
  */
-export function extractIndividualModifiers(skillModifiers) {
+export function extractSkillModifiers(skillModifiers) {
   if (!skillModifiers) {
     return {};
   }

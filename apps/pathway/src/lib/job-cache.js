@@ -11,13 +11,13 @@ import { deriveJob } from "@forwardimpact/model/derivation";
 const cache = new Map();
 
 /**
- * Create a consistent cache key from job parameters
+ * Build a consistent cache key from job parameters
  * @param {string} disciplineId
  * @param {string} gradeId
  * @param {string} [trackId] - Optional track ID
  * @returns {string}
  */
-export function makeJobKey(disciplineId, gradeId, trackId = null) {
+export function buildJobKey(disciplineId, gradeId, trackId = null) {
   if (trackId) {
     return `${disciplineId}_${gradeId}_${trackId}`;
   }
@@ -43,7 +43,7 @@ export function getOrCreateJob({
   behaviours,
   capabilities,
 }) {
-  const key = makeJobKey(discipline.id, grade.id, track?.id);
+  const key = buildJobKey(discipline.id, grade.id, track?.id);
 
   if (!cache.has(key)) {
     const job = deriveJob({
@@ -66,7 +66,7 @@ export function getOrCreateJob({
 /**
  * Clear all cached jobs
  */
-export function clearJobCache() {
+export function clearCache() {
   cache.clear();
 }
 
@@ -76,14 +76,14 @@ export function clearJobCache() {
  * @param {string} gradeId
  * @param {string} [trackId] - Optional track ID
  */
-export function invalidateJob(disciplineId, gradeId, trackId = null) {
-  cache.delete(makeJobKey(disciplineId, gradeId, trackId));
+export function invalidateCachedJob(disciplineId, gradeId, trackId = null) {
+  cache.delete(buildJobKey(disciplineId, gradeId, trackId));
 }
 
 /**
  * Get the number of cached jobs (for testing/debugging)
  * @returns {number}
  */
-export function getCacheSize() {
+export function getCachedJobCount() {
   return cache.size;
 }

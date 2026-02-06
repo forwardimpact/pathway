@@ -230,7 +230,7 @@ function buildWorkingStyleFromBehaviours(
  * @param {Array} stages - All stage entities
  * @returns {Object} Skill with frontmatter, title, stages array, reference, dirname
  */
-export function generateSkillMd(skillData, stages) {
+export function generateSkillMarkdown(skillData, stages) {
   const { agent, name } = skillData;
 
   if (!agent) {

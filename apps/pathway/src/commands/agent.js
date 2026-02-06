@@ -37,7 +37,7 @@ import {
   validateAgentSkill,
   deriveReferenceGrade,
   deriveAgentSkills,
-  generateSkillMd,
+  generateSkillMarkdown,
   deriveToolkit,
   buildAgentIndex,
 } from "@forwardimpact/model";
@@ -502,7 +502,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   const skillFiles = derivedSkills
     .map((derived) => skillsWithAgent.find((s) => s.id === derived.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMd(skill, data.stages));
+    .map((skill) => generateSkillMarkdown(skill, data.stages));
 
   // Validate all profiles
   for (const profile of profiles) {

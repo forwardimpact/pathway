@@ -48,7 +48,7 @@ export const MatchTier = {
  * Uses threshold constants from policies/thresholds.js
  * @type {Object<number, {label: string, color: string, minScore: number, description: string}>}
  */
-export const MATCH_TIER_CONFIG = {
+export const CONFIG_MATCH_TIER = {
   [MatchTier.STRONG]: {
     label: "Strong Match",
     color: "green",
@@ -88,19 +88,19 @@ export const MATCH_TIER_CONFIG = {
  * @param {number} score - Match score from 0 to 1
  * @returns {MatchTierInfo} Tier classification
  */
-export function classifyMatchTier(score) {
-  if (score >= MATCH_TIER_CONFIG[MatchTier.STRONG].minScore) {
-    return { tier: MatchTier.STRONG, ...MATCH_TIER_CONFIG[MatchTier.STRONG] };
+export function classifyMatch(score) {
+  if (score >= CONFIG_MATCH_TIER[MatchTier.STRONG].minScore) {
+    return { tier: MatchTier.STRONG, ...CONFIG_MATCH_TIER[MatchTier.STRONG] };
   }
-  if (score >= MATCH_TIER_CONFIG[MatchTier.GOOD].minScore) {
-    return { tier: MatchTier.GOOD, ...MATCH_TIER_CONFIG[MatchTier.GOOD] };
+  if (score >= CONFIG_MATCH_TIER[MatchTier.GOOD].minScore) {
+    return { tier: MatchTier.GOOD, ...CONFIG_MATCH_TIER[MatchTier.GOOD] };
   }
-  if (score >= MATCH_TIER_CONFIG[MatchTier.STRETCH].minScore) {
-    return { tier: MatchTier.STRETCH, ...MATCH_TIER_CONFIG[MatchTier.STRETCH] };
+  if (score >= CONFIG_MATCH_TIER[MatchTier.STRETCH].minScore) {
+    return { tier: MatchTier.STRETCH, ...CONFIG_MATCH_TIER[MatchTier.STRETCH] };
   }
   return {
     tier: MatchTier.ASPIRATIONAL,
-    ...MATCH_TIER_CONFIG[MatchTier.ASPIRATIONAL],
+    ...CONFIG_MATCH_TIER[MatchTier.ASPIRATIONAL],
   };
 }
 
@@ -322,7 +322,7 @@ export function calculateJobMatch(selfAssessment, job) {
   allGaps.sort((a, b) => b.gap - a.gap);
 
   // Classify match into tier
-  const tier = classifyMatchTier(overallScore);
+  const tier = classifyMatch(overallScore);
 
   // Identify top priority gaps (top 3 by gap size)
   const priorityGaps = allGaps.slice(0, 3);

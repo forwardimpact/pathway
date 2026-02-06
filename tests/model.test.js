@@ -32,7 +32,7 @@ import {
 } from "@forwardimpact/schema/levels";
 
 import {
-  classifyMatchTier,
+  classifyMatch,
   calculateGapScore,
   MatchTier,
   GAP_SCORES,
@@ -2262,40 +2262,40 @@ describe("Matching", () => {
     });
   });
 
-  describe("classifyMatchTier", () => {
+  describe("classifyMatch", () => {
     it("classifies scores >= 0.85 as Strong Match (tier 1)", () => {
-      const tier = classifyMatchTier(0.9);
+      const tier = classifyMatch(0.9);
       assert.strictEqual(tier.tier, MatchTier.STRONG);
       assert.strictEqual(tier.label, "Strong Match");
       assert.strictEqual(tier.color, "green");
     });
 
     it("classifies scores 0.70-0.84 as Good Match (tier 2)", () => {
-      const tier = classifyMatchTier(0.75);
+      const tier = classifyMatch(0.75);
       assert.strictEqual(tier.tier, MatchTier.GOOD);
       assert.strictEqual(tier.label, "Good Match");
       assert.strictEqual(tier.color, "blue");
     });
 
     it("classifies scores 0.55-0.69 as Stretch Role (tier 3)", () => {
-      const tier = classifyMatchTier(0.6);
+      const tier = classifyMatch(0.6);
       assert.strictEqual(tier.tier, MatchTier.STRETCH);
       assert.strictEqual(tier.label, "Stretch Role");
       assert.strictEqual(tier.color, "amber");
     });
 
     it("classifies scores < 0.55 as Aspirational (tier 4)", () => {
-      const tier = classifyMatchTier(0.4);
+      const tier = classifyMatch(0.4);
       assert.strictEqual(tier.tier, MatchTier.ASPIRATIONAL);
       assert.strictEqual(tier.label, "Aspirational");
       assert.strictEqual(tier.color, "gray");
     });
 
     it("handles boundary values correctly", () => {
-      assert.strictEqual(classifyMatchTier(0.85).tier, MatchTier.STRONG);
-      assert.strictEqual(classifyMatchTier(0.7).tier, MatchTier.GOOD);
-      assert.strictEqual(classifyMatchTier(0.55).tier, MatchTier.STRETCH);
-      assert.strictEqual(classifyMatchTier(0.54).tier, MatchTier.ASPIRATIONAL);
+      assert.strictEqual(classifyMatch(0.85).tier, MatchTier.STRONG);
+      assert.strictEqual(classifyMatch(0.7).tier, MatchTier.GOOD);
+      assert.strictEqual(classifyMatch(0.55).tier, MatchTier.STRETCH);
+      assert.strictEqual(classifyMatch(0.54).tier, MatchTier.ASPIRATIONAL);
     });
   });
 
@@ -2804,9 +2804,9 @@ import {
   isCapability,
   getSkillsByCapability,
   buildCapabilityToSkillsMap,
-  expandSkillModifiers,
+  expandModifiersToSkills,
   extractCapabilityModifiers,
-  extractIndividualModifiers,
+  extractSkillModifiers,
   resolveSkillModifier,
 } from "@forwardimpact/model/modifiers";
 
@@ -2854,16 +2854,16 @@ describe("Skill Modifiers", () => {
     });
   });
 
-  describe("expandSkillModifiers", () => {
+  describe("expandModifiersToSkills", () => {
     it("expands capability modifiers to individual skills", () => {
       const modifiers = { scale: 1 };
-      const expanded = expandSkillModifiers(modifiers, testSkills);
+      const expanded = expandModifiersToSkills(modifiers, testSkills);
       assert.strictEqual(expanded.skill_a, 1);
     });
 
     it("ignores non-capability keys (validation should catch these)", () => {
       const modifiers = { scale: 1, skill_a: 2 };
-      const expanded = expandSkillModifiers(modifiers, testSkills);
+      const expanded = expandModifiersToSkills(modifiers, testSkills);
       // Individual skill modifiers are ignored - only capability modifiers are expanded
       // skill_a gets value from scale capability (1), not from individual modifier
       assert.strictEqual(expanded.skill_a, 1);
@@ -2871,13 +2871,13 @@ describe("Skill Modifiers", () => {
 
     it("expands multiple capabilities", () => {
       const modifiers = { ai: -1, scale: 1 };
-      const expanded = expandSkillModifiers(modifiers, testSkills);
+      const expanded = expandModifiersToSkills(modifiers, testSkills);
       assert.strictEqual(expanded.skill_a, 1); // scale capability
       assert.strictEqual(expanded.skill_b, -1); // ai capability
     });
 
     it("returns empty object for null input", () => {
-      const expanded = expandSkillModifiers(null, testSkills);
+      const expanded = expandModifiersToSkills(null, testSkills);
       assert.deepStrictEqual(expanded, {});
     });
   });
@@ -2895,15 +2895,15 @@ describe("Skill Modifiers", () => {
     });
   });
 
-  describe("extractIndividualModifiers", () => {
+  describe("extractSkillModifiers", () => {
     it("extracts only individual skill modifiers", () => {
       const modifiers = { scale: 1, skill_a: 2, data: -1 };
-      const individual = extractIndividualModifiers(modifiers);
+      const individual = extractSkillModifiers(modifiers);
       assert.deepStrictEqual(individual, { skill_a: 2 });
     });
 
     it("returns empty object for null input", () => {
-      const individual = extractIndividualModifiers(null);
+      const individual = extractSkillModifiers(null);
       assert.deepStrictEqual(individual, {});
     });
   });
