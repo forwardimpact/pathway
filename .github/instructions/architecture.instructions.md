@@ -39,6 +39,7 @@ Schema (data) → Model (derivation) → Pathway (presentation)
 
 | Purpose      | Location                       |
 | ------------ | ------------------------------ |
+| User data    | `data/`                        |
 | Example data | `apps/schema/examples/`        |
 | JSON Schema  | `apps/schema/schema/json/`     |
 | RDF/SHACL    | `apps/schema/schema/rdf/`      |
