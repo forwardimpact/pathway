@@ -2,32 +2,32 @@
  * Unified Profile Derivation
  *
  * Shared functions for deriving skill and behaviour profiles for both
- * human jobs and AI agents. This module provides:
+ * human jobs and AI agents.
  *
- * 1. Filtering functions - reusable filters for skills and behaviours
- * 2. Sorting functions - sort by level/maturity for display
- * 3. prepareBaseProfile() - shared profile derivation used by both job.js and agent.js
+ * - prepareBaseProfile() - full derivation with configurable options
+ * - prepareAgentProfile() - convenience wrapper with agent-specific filtering
  *
- * The core derivation (deriveSkillMatrix, deriveBehaviourProfile) remains in
- * derivation.js. This module adds post-processing for specific use cases.
- *
- * Agent filtering keeps only skills at the highest derived level. This ensures
- * track modifiers are respected—a broad skill boosted by a +1 track modifier
- * may reach the same level as primary skills and thus be included.
+ * @see policies/predicates.js - Entry-level predicate functions
+ * @see policies/filters.js - Matrix-level filter functions
+ * @see policies/orderings.js - Comparator functions
+ * @see policies/composed.js - Composed policies
  */
 
-import {
-  SKILL_LEVEL_ORDER,
-  BEHAVIOUR_MATURITY_ORDER,
-} from "@forwardimpact/schema/levels";
 import {
   deriveSkillMatrix,
   deriveBehaviourProfile,
   deriveResponsibilities,
 } from "./derivation.js";
 
+import {
+  isAgentEligible,
+  filterHighestLevel,
+  compareByLevelDesc,
+  compareByMaturityDesc,
+} from "./policies/index.js";
+
 // =============================================================================
-// Skill Filters
+// Utility Functions
 // =============================================================================
 
 /**
@@ -41,85 +41,6 @@ export function getPositiveTrackCapabilities(track) {
       .filter(([_, modifier]) => modifier > 0)
       .map(([capability]) => capability),
   );
-}
-
-/**
- * Filter out human-only skills
- * Human-only skills are those requiring human presence/experience
- * @param {Array} skillMatrix - Skill matrix entries
- * @returns {Array} Filtered skill matrix
- */
-export function filterHumanOnlySkills(skillMatrix) {
-  return skillMatrix.filter((entry) => !entry.isHumanOnly);
-}
-
-/**
- * Filter skills to keep only those at the highest derived level
- * After track modifiers are applied, some skills will be at higher levels
- * than others. This filter keeps only the skills at the maximum level.
- * @param {Array} skillMatrix - Skill matrix entries with derived levels
- * @returns {Array} Filtered skill matrix containing only highest-level skills
- */
-export function filterByHighestLevel(skillMatrix) {
-  if (skillMatrix.length === 0) return [];
-
-  // Find the highest level index in the matrix
-  const maxLevelIndex = Math.max(
-    ...skillMatrix.map((entry) => SKILL_LEVEL_ORDER.indexOf(entry.level)),
-  );
-
-  // Keep only skills at that level
-  return skillMatrix.filter(
-    (entry) => SKILL_LEVEL_ORDER.indexOf(entry.level) === maxLevelIndex,
-  );
-}
-
-/**
- * Apply agent-specific skill filters
- * Filters to human-only skills and keeps only skills at the highest derived level.
- * This approach respects track modifiers—a broad skill boosted to the same level
- * as primary skills will be included.
- * @param {Array} skillMatrix - Skill matrix entries with derived levels
- * @returns {Array} Filtered skill matrix
- */
-export function filterSkillsForAgent(skillMatrix) {
-  // First exclude human-only skills
-  const withoutHumanOnly = filterHumanOnlySkills(skillMatrix);
-
-  // Then keep only skills at the highest level
-  return filterByHighestLevel(withoutHumanOnly);
-}
-
-// =============================================================================
-// Sorting Functions
-// =============================================================================
-
-/**
- * Sort skills by level (highest first)
- * Used for agent profiles where top skills should appear first
- * @param {Array} skillMatrix - Skill matrix entries
- * @returns {Array} Sorted skill matrix (new array)
- */
-export function sortByLevelDescending(skillMatrix) {
-  return [...skillMatrix].sort((a, b) => {
-    const aIndex = SKILL_LEVEL_ORDER.indexOf(a.level);
-    const bIndex = SKILL_LEVEL_ORDER.indexOf(b.level);
-    return bIndex - aIndex;
-  });
-}
-
-/**
- * Sort behaviours by maturity (highest first)
- * Used for agent profiles where top behaviours should appear first
- * @param {Array} behaviourProfile - Behaviour profile entries
- * @returns {Array} Sorted behaviour profile (new array)
- */
-export function sortByMaturityDescending(behaviourProfile) {
-  return [...behaviourProfile].sort((a, b) => {
-    const aIndex = BEHAVIOUR_MATURITY_ORDER.indexOf(a.maturity);
-    const bIndex = BEHAVIOUR_MATURITY_ORDER.indexOf(b.maturity);
-    return bIndex - aIndex;
-  });
 }
 
 // =============================================================================
@@ -151,7 +72,7 @@ export function sortByMaturityDescending(behaviourProfile) {
  * and AI agents use this function, with different options:
  *
  * - Human jobs: No filtering, default sorting by type
- * - AI agents: Filter humanOnly, keep only highest-level skills, sort by level
+ * - AI agents: Use prepareAgentProfile() for agent-specific filtering
  *
  * @param {Object} params
  * @param {Object} params.discipline - The discipline
@@ -188,20 +109,20 @@ export function prepareBaseProfile({
     behaviours,
   });
 
-  // Apply skill filters
+  // Apply skill filters using policy functions
   if (excludeHumanOnly) {
-    skillMatrix = filterHumanOnlySkills(skillMatrix);
+    skillMatrix = skillMatrix.filter(isAgentEligible);
   }
   if (keepHighestLevelOnly) {
-    skillMatrix = filterByHighestLevel(skillMatrix);
+    skillMatrix = filterHighestLevel(skillMatrix);
   }
 
-  // Apply sorting
+  // Apply sorting using policy comparators
   if (sortByLevel) {
-    skillMatrix = sortByLevelDescending(skillMatrix);
+    skillMatrix = [...skillMatrix].sort(compareByLevelDesc);
   }
   if (sortByMaturity) {
-    behaviourProfile = sortByMaturityDescending(behaviourProfile);
+    behaviourProfile = [...behaviourProfile].sort(compareByMaturityDesc);
   }
 
   // Derive responsibilities if capabilities provided
@@ -225,20 +146,14 @@ export function prepareBaseProfile({
 }
 
 /**
- * Preset options for agent profile derivation
- * Excludes human-only skills, keeps only skills at the highest derived level,
- * and sorts by level/maturity descending
- */
-export const AGENT_PROFILE_OPTIONS = {
-  excludeHumanOnly: true,
-  keepHighestLevelOnly: true,
-  sortByLevel: true,
-  sortByMaturity: true,
-};
-
-/**
  * Prepare a profile optimized for agent generation
- * Convenience function that applies AGENT_PROFILE_OPTIONS
+ *
+ * Applies agent-specific filtering and sorting:
+ * - Excludes human-only skills
+ * - Keeps only skills at the highest derived level
+ * - Sorts skills by level descending
+ * - Sorts behaviours by maturity descending
+ *
  * @param {Object} params - Same as prepareBaseProfile, without options
  * @returns {BaseProfile} The prepared profile
  */
@@ -257,6 +172,11 @@ export function prepareAgentProfile({
     skills,
     behaviours,
     capabilities,
-    options: AGENT_PROFILE_OPTIONS,
+    options: {
+      excludeHumanOnly: true,
+      keepHighestLevelOnly: true,
+      sortByLevel: true,
+      sortByMaturity: true,
+    },
   });
 }

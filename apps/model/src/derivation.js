@@ -18,6 +18,7 @@ import {
 } from "@forwardimpact/schema/levels";
 
 import { resolveSkillModifier } from "./modifiers.js";
+import { ORDER_SKILL_TYPE } from "./policies/orderings.js";
 
 /**
  * Build a Map of skillId → skillType for a discipline
@@ -226,14 +227,10 @@ export function deriveSkillMatrix({ discipline, grade, track = null, skills }) {
   }
 
   // Sort by type (primary first, then secondary, then broad, then track) and then by name
-  const typeOrder = {
-    [SkillType.PRIMARY]: 0,
-    [SkillType.SECONDARY]: 1,
-    [SkillType.BROAD]: 2,
-    [SkillType.TRACK]: 3,
-  };
+  // Use ORDER_SKILL_TYPE from policies for canonical ordering
   matrix.sort((a, b) => {
-    const typeCompare = typeOrder[a.type] - typeOrder[b.type];
+    const typeCompare =
+      ORDER_SKILL_TYPE.indexOf(a.type) - ORDER_SKILL_TYPE.indexOf(b.type);
     if (typeCompare !== 0) return typeCompare;
     return a.skillName.localeCompare(b.skillName);
   });

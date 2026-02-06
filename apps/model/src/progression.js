@@ -11,6 +11,10 @@ import {
   getBehaviourMaturityIndex,
 } from "@forwardimpact/schema/levels";
 import { deriveJob, isValidJobCombination } from "./derivation.js";
+import {
+  compareBySkillChange,
+  compareByBehaviourChange,
+} from "./policies/orderings.js";
 
 /**
  * @typedef {Object} SkillChange
@@ -128,14 +132,8 @@ export function calculateSkillChanges(currentMatrix, targetMatrix) {
     }
   }
 
-  // Sort by change (largest first), then by type, then by name
-  const typeOrder = { primary: 0, secondary: 1, broad: 2 };
-  changes.sort((a, b) => {
-    if (b.change !== a.change) return b.change - a.change;
-    if (typeOrder[a.type] !== typeOrder[b.type])
-      return typeOrder[a.type] - typeOrder[b.type];
-    return a.name.localeCompare(b.name);
-  });
+  // Sort using policy comparator
+  changes.sort(compareBySkillChange);
 
   return changes;
 }
@@ -172,11 +170,8 @@ export function calculateBehaviourChanges(currentProfile, targetProfile) {
     }
   }
 
-  // Sort by change (largest first), then by name
-  changes.sort((a, b) => {
-    if (b.change !== a.change) return b.change - a.change;
-    return a.name.localeCompare(b.name);
-  });
+  // Sort using policy comparator
+  changes.sort(compareByBehaviourChange);
 
   return changes;
 }

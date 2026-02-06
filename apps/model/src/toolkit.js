@@ -6,7 +6,7 @@
  * level contribute tools, ensuring focused toolkits for both jobs and agents.
  */
 
-import { filterByHighestLevel } from "./profile.js";
+import { filterToolkitSkills } from "./policies/composed.js";
 
 /**
  * @typedef {Object} ToolkitEntry
@@ -30,8 +30,8 @@ import { filterByHighestLevel } from "./profile.js";
  * @returns {ToolkitEntry[]} De-duplicated toolkit sorted by name
  */
 export function deriveToolkit({ skillMatrix, skills }) {
-  // Filter to highest level skills only
-  const sourceMatrix = filterByHighestLevel(skillMatrix);
+  // Filter to highest level skills only using policy
+  const sourceMatrix = filterToolkitSkills(skillMatrix);
 
   // Build skill lookup map for O(1) access
   const skillMap = new Map(skills.map((s) => [s.id, s]));

@@ -55,7 +55,18 @@ import { getOrCreateJob } from "@forwardimpact/model/job-cache";
 Agent profile and skill file generation.
 
 ```javascript
-import { prepareAgentProfile } from "@forwardimpact/model/agent";
+import {
+  deriveAgentSkills,
+  generateStageAgentProfile,
+} from "@forwardimpact/model/agent";
+```
+
+### profile.js
+
+Unified profile derivation for jobs and agents.
+
+```javascript
+import { prepareAgentProfile } from "@forwardimpact/model/profile";
 ```
 
 ### interview.js

@@ -111,15 +111,55 @@ export { deriveChecklist, formatChecklistMarkdown } from "./checklist.js";
 // Toolkit
 export { deriveToolkit } from "./toolkit.js";
 
-// Profile filtering (for agents)
+// Profile derivation
 export {
   getPositiveTrackCapabilities,
-  filterHumanOnlySkills,
-  filterByHighestLevel,
-  filterSkillsForAgent,
-  sortByLevelDescending,
-  sortByMaturityDescending,
   prepareBaseProfile,
-  AGENT_PROFILE_OPTIONS,
   prepareAgentProfile,
 } from "./profile.js";
+
+// Policies - re-export key items for convenience
+export {
+  // Thresholds
+  THRESHOLD_MATCH_STRONG,
+  THRESHOLD_MATCH_GOOD,
+  THRESHOLD_MATCH_STRETCH,
+  THRESHOLD_MATCH_ASPIRATIONAL,
+  SCORE_GAP,
+  WEIGHT_SKILL_TYPE,
+  WEIGHT_CAPABILITY_BOOST,
+  // Predicates
+  isHumanOnly,
+  isAgentEligible,
+  isPrimary,
+  isSecondary,
+  isBroad,
+  isTrack,
+  isCore,
+  isSupporting,
+  hasMinLevel,
+  allOf,
+  anyOf,
+  not,
+  // Filters
+  filterHighestLevel,
+  filterAboveAwareness,
+  applyFilters,
+  composeFilters,
+  // Orderings
+  ORDER_SKILL_TYPE,
+  ORDER_STAGE,
+  ORDER_AGENT_STAGE,
+  compareByLevelDesc,
+  compareByType,
+  compareBySkillPriority,
+  compareByMaturityDesc,
+  compareByBehaviourPriority,
+  // Composed policies
+  filterAgentSkills,
+  filterToolkitSkills,
+  sortAgentSkills,
+  sortAgentBehaviours,
+  prepareAgentSkillMatrix,
+  prepareAgentBehaviourProfile,
+} from "./policies/index.js";

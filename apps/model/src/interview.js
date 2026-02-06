@@ -12,6 +12,16 @@ import {
   Capability,
 } from "@forwardimpact/schema/levels";
 
+import {
+  WEIGHT_SKILL_TYPE,
+  WEIGHT_CAPABILITY_BOOST,
+  WEIGHT_BEHAVIOUR_BASE,
+  WEIGHT_BEHAVIOUR_MATURITY,
+  WEIGHT_SKILL_LEVEL,
+  WEIGHT_BELOW_LEVEL_PENALTY,
+  RATIO_SKILL_BEHAVIOUR,
+} from "./policies/thresholds.js";
+
 /**
  * Default question time estimate if not specified
  */
@@ -48,31 +58,25 @@ function getBehaviourQuestions(questionBank, behaviourId, maturity) {
 function calculateSkillPriority(skill, includeBelowLevel = false) {
   let priority = 0;
 
-  // Primary skills are highest priority
-  if (skill.type === "primary") {
-    priority += 30;
-  } else if (skill.type === "secondary") {
-    priority += 20;
-  } else {
-    priority += 10;
-  }
+  // Skill type priority from policy weights
+  priority += WEIGHT_SKILL_TYPE[skill.type] || WEIGHT_SKILL_TYPE.broad;
 
   // AI skills get a boost for "AI-era focus"
   if (skill.capability === Capability.AI) {
-    priority += 15;
+    priority += WEIGHT_CAPABILITY_BOOST.ai;
   }
 
   // Delivery skills are core technical skills
   if (skill.capability === Capability.DELIVERY) {
-    priority += 5;
+    priority += WEIGHT_CAPABILITY_BOOST.delivery;
   }
 
   // Higher skill level = higher priority
-  priority += getSkillLevelIndex(skill.level) * 2;
+  priority += getSkillLevelIndex(skill.level) * WEIGHT_SKILL_LEVEL;
 
   // Below-level questions have lower priority
   if (includeBelowLevel) {
-    priority -= 5;
+    priority += WEIGHT_BELOW_LEVEL_PENALTY;
   }
 
   return priority;
@@ -84,10 +88,11 @@ function calculateSkillPriority(skill, includeBelowLevel = false) {
  * @returns {number} Priority score (higher = more important)
  */
 function calculateBehaviourPriority(behaviour) {
-  let priority = 15;
+  let priority = WEIGHT_BEHAVIOUR_BASE;
 
   // Higher maturity level = higher priority
-  priority += getBehaviourMaturityIndex(behaviour.maturity) * 3;
+  priority +=
+    getBehaviourMaturityIndex(behaviour.maturity) * WEIGHT_BEHAVIOUR_MATURITY;
 
   return priority;
 }
@@ -119,7 +124,7 @@ function selectQuestion(questions, deterministic = false) {
  * @param {number} [params.options.maxQuestionsPerSkill=2] - Max questions per skill
  * @param {number} [params.options.maxQuestionsPerBehaviour=2] - Max questions per behaviour
  * @param {number} [params.options.targetMinutes=60] - Target interview length in minutes
- * @param {number} [params.options.skillBehaviourRatio=0.6] - Ratio of time for skills vs behaviours (0.6 = 60% skills, 40% behaviours)
+ * @param {number} [params.options.skillBehaviourRatio=RATIO_SKILL_BEHAVIOUR] - Ratio of time for skills vs behaviours
  * @returns {import('./levels.js').InterviewGuide}
  */
 export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
@@ -129,7 +134,7 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
     maxQuestionsPerSkill = 2,
     maxQuestionsPerBehaviour = 2,
     targetMinutes = 60,
-    skillBehaviourRatio = 0.6,
+    skillBehaviourRatio = RATIO_SKILL_BEHAVIOUR,
   } = options;
 
   const allSkillQuestions = [];

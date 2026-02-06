@@ -21,10 +21,11 @@
 import { deriveSkillMatrix, deriveBehaviourProfile } from "./derivation.js";
 import { deriveChecklist } from "./checklist.js";
 import {
-  filterSkillsForAgent,
-  sortByLevelDescending,
-  sortByMaturityDescending,
-} from "./profile.js";
+  filterAgentSkills,
+  sortAgentSkills,
+  sortAgentBehaviours,
+} from "./policies/composed.js";
+import { ORDER_AGENT_STAGE } from "./policies/orderings.js";
 import { SkillLevel } from "@forwardimpact/schema/levels";
 
 /**
@@ -123,9 +124,9 @@ export function deriveAgentSkills({ discipline, track, grade, skills }) {
     skills,
   });
 
-  // Apply agent-specific filtering and sorting
-  const filtered = filterSkillsForAgent(skillMatrix);
-  return sortByLevelDescending(filtered);
+  // Apply agent-specific filtering and sorting using policies
+  const filtered = filterAgentSkills(skillMatrix);
+  return sortAgentSkills(filtered);
 }
 
 /**
@@ -151,7 +152,7 @@ export function deriveAgentBehaviours({
     behaviours,
   });
 
-  return sortByMaturityDescending(profile);
+  return sortAgentBehaviours(profile);
 }
 
 /**
@@ -272,10 +273,11 @@ export function generateSkillMd(skillData, stages) {
     },
   );
 
-  // Sort stages in order: plan, code, review
-  const stageOrder = ["plan", "code", "review"];
+  // Sort stages using canonical ordering from policies
   stagesArray.sort(
-    (a, b) => stageOrder.indexOf(a.stageId) - stageOrder.indexOf(b.stageId),
+    (a, b) =>
+      ORDER_AGENT_STAGE.indexOf(a.stageId) -
+      ORDER_AGENT_STAGE.indexOf(b.stageId),
   );
 
   return {

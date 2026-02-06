@@ -16,6 +16,17 @@ import {
   isSeniorGrade,
 } from "./derivation.js";
 
+import {
+  THRESHOLD_MATCH_STRONG,
+  THRESHOLD_MATCH_GOOD,
+  THRESHOLD_MATCH_STRETCH,
+  SCORE_GAP,
+  WEIGHT_DEV_TYPE_PRIMARY,
+  WEIGHT_DEV_TYPE_SECONDARY,
+  WEIGHT_DEV_TYPE_BROAD,
+  WEIGHT_DEV_AI_BOOST,
+} from "./policies/thresholds.js";
+
 // ============================================================================
 // Match Tier Types and Constants
 // ============================================================================
@@ -34,25 +45,26 @@ export const MatchTier = {
 
 /**
  * Match tier configuration with thresholds and display properties
+ * Uses threshold constants from policies/thresholds.js
  * @type {Object<number, {label: string, color: string, minScore: number, description: string}>}
  */
 export const MATCH_TIER_CONFIG = {
   [MatchTier.STRONG]: {
     label: "Strong Match",
     color: "green",
-    minScore: 0.85,
+    minScore: THRESHOLD_MATCH_STRONG,
     description: "Ready for this role now",
   },
   [MatchTier.GOOD]: {
     label: "Good Match",
     color: "blue",
-    minScore: 0.7,
+    minScore: THRESHOLD_MATCH_GOOD,
     description: "Ready within 6-12 months of focused growth",
   },
   [MatchTier.STRETCH]: {
     label: "Stretch Role",
     color: "amber",
-    minScore: 0.55,
+    minScore: THRESHOLD_MATCH_STRETCH,
     description: "Ambitious but achievable with dedicated development",
   },
   [MatchTier.ASPIRATIONAL]: {
@@ -98,16 +110,10 @@ export function classifyMatchTier(score) {
 
 /**
  * Score values for different gap sizes
- * Uses a smooth decay that reflects real-world readiness
+ * Re-exported from policies/thresholds.js for backward compatibility
  * @type {Object<number, number>}
  */
-export const GAP_SCORES = {
-  0: 1.0, // Meets or exceeds
-  1: 0.7, // Minor development needed
-  2: 0.4, // Significant but achievable gap
-  3: 0.15, // Major development required
-  4: 0.05, // Aspirational only
-};
+export const GAP_SCORES = SCORE_GAP;
 
 /**
  * Calculate gap score with smooth decay
@@ -115,11 +121,11 @@ export const GAP_SCORES = {
  * @returns {number} Score from 0 to 1
  */
 export function calculateGapScore(gap) {
-  if (gap <= 0) return GAP_SCORES[0]; // Meets or exceeds
-  if (gap === 1) return GAP_SCORES[1];
-  if (gap === 2) return GAP_SCORES[2];
-  if (gap === 3) return GAP_SCORES[3];
-  return GAP_SCORES[4]; // 4+ levels below
+  if (gap <= 0) return SCORE_GAP[0]; // Meets or exceeds
+  if (gap === 1) return SCORE_GAP[1];
+  if (gap === 2) return SCORE_GAP[2];
+  if (gap === 3) return SCORE_GAP[3];
+  return SCORE_GAP[4]; // 4+ levels below
 }
 
 /**
@@ -667,8 +673,12 @@ export function deriveDevelopmentPath({ selfAssessment, targetJob }) {
       // - AI skills get a boost for "AI-era focus"
       const gapSize = targetIndex - selfIndex;
       const typeMultiplier =
-        jobSkill.type === "primary" ? 3 : jobSkill.type === "secondary" ? 2 : 1;
-      const aiBoost = jobSkill.capability === "ai" ? 1.5 : 1;
+        jobSkill.type === "primary"
+          ? WEIGHT_DEV_TYPE_PRIMARY
+          : jobSkill.type === "secondary"
+            ? WEIGHT_DEV_TYPE_SECONDARY
+            : WEIGHT_DEV_TYPE_BROAD;
+      const aiBoost = jobSkill.capability === "ai" ? WEIGHT_DEV_AI_BOOST : 1;
       const priority = gapSize * typeMultiplier * aiBoost;
 
       items.push({

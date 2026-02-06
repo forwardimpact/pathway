@@ -25,7 +25,9 @@
     "./checklist": "./src/checklist.js",
     "./matching": "./src/matching.js",
     "./profile": "./src/profile.js",
-    "./progression": "./src/progression.js"
+    "./progression": "./src/progression.js",
+    "./policies": "./src/policies/index.js",
+    "./toolkit": "./src/toolkit.js"
   },
   "dependencies": {
     "@forwardimpact/schema": "^0.4.0"

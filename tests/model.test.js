@@ -3122,15 +3122,17 @@ describe("Checklist Derivation", () => {
 
 import {
   getPositiveTrackCapabilities,
-  filterHumanOnlySkills,
-  filterByHighestLevel,
-  filterSkillsForAgent,
-  sortByLevelDescending,
-  sortByMaturityDescending,
   prepareBaseProfile,
   prepareAgentProfile,
-  AGENT_PROFILE_OPTIONS,
 } from "@forwardimpact/model/profile";
+
+import {
+  isAgentEligible,
+  filterHighestLevel,
+  filterAgentSkills,
+  compareByLevelDesc,
+  compareByMaturityDesc,
+} from "@forwardimpact/model/policies";
 
 describe("Profile Module", () => {
   describe("getPositiveTrackCapabilities", () => {
@@ -3152,21 +3154,21 @@ describe("Profile Module", () => {
     });
   });
 
-  describe("filterHumanOnlySkills", () => {
-    it("removes skills marked as isHumanOnly", () => {
+  describe("isAgentEligible (from policies)", () => {
+    it("rejects skills marked as isHumanOnly", () => {
       const skillMatrix = [
         { skillId: "a", isHumanOnly: true },
         { skillId: "b", isHumanOnly: false },
         { skillId: "c" },
       ];
-      const result = filterHumanOnlySkills(skillMatrix);
+      const result = skillMatrix.filter(isAgentEligible);
       assert.strictEqual(result.length, 2);
       assert.ok(result.some((s) => s.skillId === "b"));
       assert.ok(result.some((s) => s.skillId === "c"));
     });
   });
 
-  describe("filterByHighestLevel", () => {
+  describe("filterHighestLevel (from policies)", () => {
     it("keeps only skills at the highest level", () => {
       const skillMatrix = [
         { skillId: "a", type: "primary", level: "practitioner" },
@@ -3174,19 +3176,19 @@ describe("Profile Module", () => {
         { skillId: "c", type: "secondary", level: "working" },
         { skillId: "d", type: "broad", level: "foundational" },
       ];
-      const result = filterByHighestLevel(skillMatrix);
+      const result = filterHighestLevel(skillMatrix);
       assert.strictEqual(result.length, 2);
       assert.ok(result.some((s) => s.skillId === "a")); // practitioner
       assert.ok(result.some((s) => s.skillId === "b")); // practitioner
     });
 
     it("returns empty array for empty input", () => {
-      const result = filterByHighestLevel([]);
+      const result = filterHighestLevel([]);
       assert.strictEqual(result.length, 0);
     });
   });
 
-  describe("filterSkillsForAgent", () => {
+  describe("filterAgentSkills (from policies)", () => {
     it("excludes humanOnly skills and keeps only highest level", () => {
       const skillMatrix = [
         {
@@ -3209,7 +3211,7 @@ describe("Profile Module", () => {
         },
         { skillId: "d", type: "broad", isHumanOnly: false, level: "working" },
       ];
-      const result = filterSkillsForAgent(skillMatrix);
+      const result = filterAgentSkills(skillMatrix);
       // Should include: a (practitioner), b (practitioner broad, same level)
       // Should exclude: c (humanOnly), d (lower level)
       assert.strictEqual(result.length, 2);
@@ -3218,37 +3220,37 @@ describe("Profile Module", () => {
     });
   });
 
-  describe("sortByLevelDescending", () => {
+  describe("compareByLevelDesc (from policies)", () => {
     it("sorts skills by level from expert to awareness", () => {
       const skillMatrix = [
         { skillId: "a", level: "awareness" },
         { skillId: "b", level: "expert" },
         { skillId: "c", level: "working" },
       ];
-      const result = sortByLevelDescending(skillMatrix);
+      const result = [...skillMatrix].sort(compareByLevelDesc);
       assert.strictEqual(result[0].skillId, "b"); // expert
       assert.strictEqual(result[1].skillId, "c"); // working
       assert.strictEqual(result[2].skillId, "a"); // awareness
     });
 
-    it("does not mutate original array", () => {
+    it("does not mutate original array when used with spread", () => {
       const original = [
         { skillId: "a", level: "awareness" },
         { skillId: "b", level: "expert" },
       ];
-      sortByLevelDescending(original);
+      [...original].sort(compareByLevelDesc);
       assert.strictEqual(original[0].skillId, "a");
     });
   });
 
-  describe("sortByMaturityDescending", () => {
+  describe("compareByMaturityDesc (from policies)", () => {
     it("sorts behaviours by maturity from exemplifying to emerging", () => {
       const behaviourProfile = [
         { behaviourId: "a", maturity: "emerging" },
         { behaviourId: "b", maturity: "exemplifying" },
         { behaviourId: "c", maturity: "practicing" },
       ];
-      const result = sortByMaturityDescending(behaviourProfile);
+      const result = [...behaviourProfile].sort(compareByMaturityDesc);
       assert.strictEqual(result[0].behaviourId, "b"); // exemplifying
       assert.strictEqual(result[1].behaviourId, "c"); // practicing
       assert.strictEqual(result[2].behaviourId, "a"); // emerging
@@ -3346,7 +3348,7 @@ describe("Profile Module", () => {
   });
 
   describe("prepareAgentProfile", () => {
-    it("applies AGENT_PROFILE_OPTIONS automatically", () => {
+    it("applies agent-specific filtering and sorting", () => {
       const result = prepareAgentProfile({
         discipline: testDiscipline,
         track: testTrack,
@@ -3364,15 +3366,6 @@ describe("Profile Module", () => {
           getSkillLevelIndex(firstLevel) >= getSkillLevelIndex(lastLevel),
         );
       }
-    });
-  });
-
-  describe("AGENT_PROFILE_OPTIONS", () => {
-    it("has all expected options set to true", () => {
-      assert.strictEqual(AGENT_PROFILE_OPTIONS.excludeHumanOnly, true);
-      assert.strictEqual(AGENT_PROFILE_OPTIONS.keepHighestLevelOnly, true);
-      assert.strictEqual(AGENT_PROFILE_OPTIONS.sortByLevel, true);
-      assert.strictEqual(AGENT_PROFILE_OPTIONS.sortByMaturity, true);
     });
   });
 });

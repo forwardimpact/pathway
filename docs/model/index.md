@@ -48,7 +48,7 @@ import {
   deriveJob,
 } from "@forwardimpact/model/derivation";
 
-import { prepareAgentProfile } from "@forwardimpact/model/agent";
+import { prepareAgentProfile } from "@forwardimpact/model/profile";
 ```
 
 ## Related Documents
