@@ -90,7 +90,7 @@ and (3) the compromised approach with acknowledged limitations.
 {{/hasAgentIndex}}
 {{#hasConfirmChecklist}}
 
-## Confirm Checklist
+## Do-Then-Confirm Checklist
 
 Before offering a handoff, verify and summarize completion of these items:
 

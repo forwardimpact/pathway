@@ -62,7 +62,7 @@ function formatDetail(viewAndContext, _framework) {
 
   // Read checklist
   if (view.readChecklist.length > 0) {
-    console.log(formatSubheader("Read Checklist\n"));
+    console.log(formatSubheader("Read-Then-Do Checklist\n"));
     for (const item of view.readChecklist) {
       console.log(formatBullet(item, 1));
     }
@@ -71,7 +71,7 @@ function formatDetail(viewAndContext, _framework) {
 
   // Confirm checklist
   if (view.confirmChecklist.length > 0) {
-    console.log(formatSubheader("Confirm Checklist\n"));
+    console.log(formatSubheader("Do-Then-Confirm Checklist\n"));
     for (const item of view.confirmChecklist) {
       console.log(formatBullet(item, 1));
     }

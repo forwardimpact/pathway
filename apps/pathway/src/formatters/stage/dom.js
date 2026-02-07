@@ -44,7 +44,7 @@ export function stageToDOM(stage, { stages = [], showBackLink = true } = {}) {
             view.readChecklist.length > 0
               ? div(
                   { className: "column" },
-                  h2({ className: "section-title" }, "Read Checklist"),
+                  h2({ className: "section-title" }, "Read-Then-Do Checklist"),
                   ul(
                     { className: "criteria-list" },
                     ...view.readChecklist.map((item) =>
@@ -57,7 +57,10 @@ export function stageToDOM(stage, { stages = [], showBackLink = true } = {}) {
             view.confirmChecklist.length > 0
               ? div(
                   { className: "column" },
-                  h2({ className: "section-title" }, "Confirm Checklist"),
+                  h2(
+                    { className: "section-title" },
+                    "Do-Then-Confirm Checklist",
+                  ),
                   ul(
                     { className: "criteria-list" },
                     ...view.confirmChecklist.map((item) =>

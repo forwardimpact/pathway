@@ -63,7 +63,9 @@ export function stageToMicrodata(stage) {
   // Read checklist
   if (view.readChecklist.length > 0) {
     const readItems = view.readChecklist.map((c) => escapeHtml(c));
-    sections.push(section("Read Checklist", ul(readItems, "readChecklist"), 2));
+    sections.push(
+      section("Read-Then-Do Checklist", ul(readItems, "readChecklist"), 2),
+    );
   }
 
   // Constraints
@@ -78,7 +80,11 @@ export function stageToMicrodata(stage) {
   if (view.confirmChecklist.length > 0) {
     const confirmItems = view.confirmChecklist.map((c) => escapeHtml(c));
     sections.push(
-      section("Confirm Checklist", ul(confirmItems, "confirmChecklist"), 2),
+      section(
+        "Do-Then-Confirm Checklist",
+        ul(confirmItems, "confirmChecklist"),
+        2,
+      ),
     );
   }
 

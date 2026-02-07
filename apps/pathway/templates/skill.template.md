@@ -17,12 +17,12 @@ description: {{{description}}}{{#hasUseWhen}} Use When: {{{useWhen}}}{{/hasUseWh
 
 **Focus:** {{{focus}}}
 
-**Read Checklist:**
+**Read-Then-Do Checklist:**
 {{#readChecklist}}
 - {{{.}}}
 {{/readChecklist}}
 
-**Confirm Checklist (verify before {{nextStageName}}):**
+**Do-Then-Confirm Checklist (verify before {{nextStageName}}):**
 {{#confirmChecklist}}
 - [ ] {{{.}}}
 {{/confirmChecklist}}
