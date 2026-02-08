@@ -1,5 +1,22 @@
 import { defineConfig, devices } from "@playwright/test";
 
+function parseProxy() {
+  const proxyUrl = process.env.HTTPS_PROXY || process.env.HTTP_PROXY;
+  if (!proxyUrl) return undefined;
+
+  try {
+    const url = new URL(proxyUrl);
+    return {
+      server: `${url.protocol}//${url.hostname}:${url.port}`,
+      bypass: "localhost,127.0.0.1",
+      username: url.username || undefined,
+      password: url.password || undefined,
+    };
+  } catch {
+    return { server: proxyUrl, bypass: "localhost,127.0.0.1" };
+  }
+}
+
 export default defineConfig({
   testDir: "./tests",
   testMatch: "*.spec.js",
@@ -15,11 +32,21 @@ export default defineConfig({
   use: {
     baseURL: "http://localhost:3000/",
     trace: "on-first-retry",
+    proxy: parseProxy(),
   },
   projects: [
     {
       name: "chromium",
-      use: { ...devices["Desktop Chrome"] },
+      use: {
+        ...devices["Desktop Chrome"],
+        launchOptions: {
+          args: [
+            "--no-sandbox",
+            "--disable-setuid-sandbox",
+            "--disable-dev-shm-usage",
+          ],
+        },
+      },
     },
   ],
   webServer: {
