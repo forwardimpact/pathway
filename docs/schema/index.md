@@ -1,8 +1,6 @@
 ---
 title: Schema
-description:
-  Schema definitions and data loading for skills, behaviours, and role
-  frameworks.
+description: Schema definitions and data loading for skills, behaviours, and role frameworks.
 ---
 
 ## Purpose

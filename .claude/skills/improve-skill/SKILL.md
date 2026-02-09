@@ -1,8 +1,6 @@
 ---
 name: improve-skill
-description:
-  "Review and improve skills in capability files for agent documents. Use when
-  improving toolReferences and implementationReference sections of skills."
+description: Review and improve skills in capability files for agent documents. Use when improving toolReferences and implementationReference sections of skills.
 ---
 
 # Improve Skills for Agent Documents

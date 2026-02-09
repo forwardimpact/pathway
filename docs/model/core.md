@@ -1,8 +1,6 @@
 ---
 title: Core Model
-description:
-  Disciplines, Grades, Tracks, Skills, Behaviours, Capabilities, Drivers, and
-  Job Derivation.
+description: Disciplines, Grades, Tracks, Skills, Behaviours, Capabilities, Drivers, and Job Derivation.
 ---
 
 ## Core Formula

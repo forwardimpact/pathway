@@ -1,8 +1,6 @@
 ---
 name: gh-cli
-description:
-  "Install and use the GitHub CLI (gh). Use when interacting with GitHub issues,
-  pull requests, releases, and API from the command line."
+description: Install and use the GitHub CLI (gh). Use when interacting with GitHub issues, pull requests, releases, and API from the command line.
 ---
 
 # GitHub CLI (gh)

@@ -1,8 +1,6 @@
 ---
 name: libdoc
-description:
-  "Documentation build and serve tools. Use when building static sites from
-  Markdown, serving docs locally, or parsing YAML front matter."
+description: Documentation build and serve tools. Use when building static sites from Markdown, serving docs locally, or parsing YAML front matter.
 ---
 
 # libdoc Skill

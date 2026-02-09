@@ -1,8 +1,6 @@
 ---
 name: commit-push
-description:
-  "Commit and push changes to remote. Use when finishing a task, grouping
-  changes into logical commits, and pushing to the remote repository."
+description: Commit and push changes to remote. Use when finishing a task, grouping changes into logical commits, and pushing to the remote repository.
 ---
 
 # Commit and Push Changes

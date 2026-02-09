@@ -196,7 +196,7 @@ skillModifiers:
   documentation: 1
 agent:
   coreInstructions: |
-    You are a Platform {roleTitle} agent. Your primary focus is 
+    You are a Platform {roleTitle} agent. Your primary focus is
     building self-service capabilities that enable other engineers...
   constraints:
     - Maintain backward compatibility
