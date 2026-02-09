@@ -133,11 +133,11 @@ proceeding.
 
 Good examples by stage:
 
-- **specify**: `ASK the user what business problem this should solve — get a
-  concrete problem statement`
+- **specify**:
+  `ASK the user what business problem this should solve — get a concrete problem statement`
 - **onboard**: `ASK the user for a valid GITHUB_TOKEN with Models access`
-- **onboard**: `ASK the user for database credentials (connection string, API
-  key)`
+- **onboard**:
+  `ASK the user for database credentials (connection string, API key)`
 
 Bad: `Configure API keys` (vague, agent may skip or guess)
 
@@ -147,11 +147,10 @@ Each item should be concrete enough that someone can unambiguously determine
 whether it's done. Include specific commands, thresholds, or observable
 outcomes.
 
-Good: `python -c "import sklearn, pandas, mlflow"` succeeds
-Bad: `ML frameworks installed`
+Good: `python -c "import sklearn, pandas, mlflow"` succeeds Bad:
+`ML frameworks installed`
 
-Good: `Train/test gap within acceptable range (< 5%)`
-Bad: `No overfitting`
+Good: `Train/test gap within acceptable range (< 5%)` Bad: `No overfitting`
 
 Good: `All credentials stored in .env file and .env is listed in .gitignore`
 Bad: `Environment variables configured`
@@ -162,10 +161,9 @@ Replace vague quality bars with concrete numbers:
 
 - `gap < 5%` instead of "acceptable range"
 - `p50 and p95 latency measured` instead of "latency checked"
-- `at least 3× model size available for checkpoints` instead of "sufficient
-  disk space"
-- `similarity scores > 0.7 indicates good relevance` instead of "good
-  relevance"
+- `at least 3× model size available for checkpoints` instead of "sufficient disk
+  space"
+- `similarity scores > 0.7 indicates good relevance` instead of "good relevance"
 
 **4. Cover security and credentials explicitly**
 
@@ -176,16 +174,16 @@ Every `onboard` checklist should address credentials:
 
 **5. Cover domain-specific critical risks**
 
-Each skill has unique failure modes. The checklists must explicitly guard against
-them:
+Each skill has unique failure modes. The checklists must explicitly guard
+against them:
 
-| Domain             | Critical Risks to Check                                  |
-| ------------------ | -------------------------------------------------------- |
-| ML models          | Data leakage, overfitting, bias/fairness, class imbalance|
-| RAG systems        | Hallucination, chunk quality, source citation, cost/query|
-| Fine-tuning        | Catastrophic forgetting, VRAM limits, licensing, eval loss|
-| Observability      | Tracing gaps, missing spans, dashboard verification      |
-| Deployment         | Rollback procedures, monitoring, alerting                |
+| Domain        | Critical Risks to Check                                    |
+| ------------- | ---------------------------------------------------------- |
+| ML models     | Data leakage, overfitting, bias/fairness, class imbalance  |
+| RAG systems   | Hallucination, chunk quality, source citation, cost/query  |
+| Fine-tuning   | Catastrophic forgetting, VRAM limits, licensing, eval loss |
+| Observability | Tracing gaps, missing spans, dashboard verification        |
+| Deployment    | Rollback procedures, monitoring, alerting                  |
 
 **6. Match checklist items to stage purpose**
 
@@ -202,10 +200,10 @@ them:
 | ------------------------------- | -------------------------------------------------- |
 | Vague items ("check quality")   | Be specific ("retrieval precision@5 > 0.8")        |
 | Missing user prompts in onboard | Add `ASK the user for` credential/config items     |
-| No verification commands        | Add runnable commands that prove success            |
+| No verification commands        | Add runnable commands that prove success           |
 | Duplicating focus text          | Checklists complement focus, don't repeat it       |
 | Too few items (< 4)             | Cover all critical failure modes for the stage     |
-| Too many items (> 10)           | Keep only items where skipping causes real failure  |
+| Too many items (> 10)           | Keep only items where skipping causes real failure |
 | Generic across skills           | Tailor to the skill's unique domain risks          |
 | No security checks              | Add credential storage and .gitignore verification |
 | Missing rollback/recovery       | Deploy stage should always cover rollback          |

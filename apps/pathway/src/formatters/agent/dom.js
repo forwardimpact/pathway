@@ -192,7 +192,6 @@ function createRoleAgentCard(agent) {
   );
 }
 
-
 /**
  * Download all agent files as a ZIP
  * @param {Object} profile - Agent profile

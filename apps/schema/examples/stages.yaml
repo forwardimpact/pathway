@@ -63,7 +63,8 @@
   name: Onboard
   emojiIcon: "🔧"
   summary:
-    Prepares the development environment with dependencies, tools, and credentials
+    Prepares the development environment with dependencies, tools, and
+    credentials
   description:
     Your primary task is to prepare the development environment with all
     prerequisites for coding. Install dependencies, configure tools, set up

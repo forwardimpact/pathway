@@ -151,7 +151,10 @@ function validateSkill(skill, index, requiredStageIds = []) {
     } else {
       // Validate each stage against loaded stage data
       for (const [stageId, stageData] of Object.entries(skill.agent.stages)) {
-        if (requiredStageIds.length > 0 && !requiredStageIds.includes(stageId)) {
+        if (
+          requiredStageIds.length > 0 &&
+          !requiredStageIds.includes(stageId)
+        ) {
           errors.push(
             createError(
               "INVALID_VALUE",
