@@ -398,10 +398,13 @@ Omit if change spans multiple packages.
 
 ### Before Committing
 
-1. Run `npm run check` and fix any issues related to your changes
-2. Review with `git diff`
-3. Assess version impact for affected packages (see below)
-4. Stage and commit: `git commit -m "type(scope): subject"`
+1. Review with `git diff`
+2. Group related changes into logical, atomic commits
+3. Separate feature/logic changes from formatting changes
+4. Run `npm run check` and fix any issues related to your changes
+5. Assess version impact for affected packages (see below)
+6. Stage and commit: `git commit -m "type(scope): subject"`
+7. Push all commits to remote
 
 **Always commit your work before finishing a task.**
 
