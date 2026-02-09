@@ -79,7 +79,7 @@ export function renderLanding() {
         ),
         a(
           { href: "#/agent-builder", className: "btn btn-primary btn-lg" },
-          "Build an Agent",
+          "Build an Agent Team",
         ),
         a(
           { href: "#/interview-prep", className: "btn btn-secondary btn-lg" },
@@ -295,17 +295,17 @@ export function renderLanding() {
         // Agent builder CTA
         div(
           { className: "card", style: "text-align: center" },
-          h2({}, "🤖 Build an AI Agent"),
+          h2({}, "🤖 Build an Agent Team"),
           p(
             {},
-            "Generate AI coding agent configurations from discipline × track combinations " +
+            "Generate coding agent team configurations from discipline × track combinations " +
               "for GitHub Copilot custom agents.",
           ),
           div(
             { className: "page-actions", style: "justify-content: center" },
             a(
               { href: "#/agent-builder", className: "btn btn-primary btn-lg" },
-              "Build Agent →",
+              "Build Agent Team →",
             ),
           ),
         ),

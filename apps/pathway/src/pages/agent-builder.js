@@ -305,10 +305,10 @@ export async function renderAgentBuilder() {
     // Header
     div(
       { className: "page-header" },
-      h1({ className: "page-title" }, "🤖 Agent Builder"),
+      h1({ className: "page-title" }, "🤖 Agent Team Builder"),
       p(
         { className: "page-description" },
-        "Generate AI coding agents from discipline × track × stage combinations. " +
+        "Generate coding agent teams from discipline × track × stage combinations. " +
           "Export complete agent profiles and skill files for GitHub Copilot.",
       ),
     ),

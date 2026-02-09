@@ -324,4 +324,24 @@
     color: var(--color-primary);
     text-decoration: underline;
   }
+
+  .footer-quote {
+    margin: var(--space-lg) auto 0;
+    max-width: 50em;
+    font-style: italic;
+    color: var(--color-text-muted);
+    border: none;
+    padding: 0;
+  }
+
+  .footer-quote p {
+    margin: 0 0 var(--space-xs) 0;
+    font-size: var(--font-size-sm);
+    line-height: 1.5;
+  }
+
+  .footer-quote cite {
+    font-size: var(--font-size-xs);
+    font-style: normal;
+  }
 }
