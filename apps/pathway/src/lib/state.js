@@ -132,6 +132,7 @@ export function getFilters(entity) {
  * @property {string} title - Application title
  * @property {string} tag - Brand hashtag/tag
  * @property {string} description - Application description
+ * @property {string} emojiIcon - Emoji icon for the framework
  */
 
 /**
@@ -144,5 +145,6 @@ export function getBranding() {
     title: framework.title || "Engineering Pathway",
     tag: framework.tag || "#BenchTools",
     description: framework.description || "",
+    emojiIcon: framework.emojiIcon || "🧭",
   };
 }

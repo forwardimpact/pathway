@@ -67,8 +67,9 @@
     flex-wrap: wrap;
   }
 
-  .page-title-row .page-title {
-    margin: 0;
+  .page-title-row .page-title,
+  .page-title-row .page-title-badges {
+    margin: 0 0 var(--space-md);
   }
 
   /* Criteria and constraints */

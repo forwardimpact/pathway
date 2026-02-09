@@ -160,15 +160,6 @@
     gap: var(--space-md);
   }
 
-  /* CLI hint */
-  .cli-hint {
-    background: var(--color-bg);
-  }
-
-  .cli-hint h2 {
-    margin-bottom: var(--space-sm);
-  }
-
   /* Role agents list */
   .role-agents-list {
     display: flex;

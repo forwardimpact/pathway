@@ -1,44 +1,73 @@
 /**
- * Navigation Component
+ * Navigation Drawer
  *
- * Fixed navigation bar, brand, links, and mobile hamburger menu.
+ * Left-hand drawer with vertically stacked links, toggled by top bar button.
+ * Open by default on desktop, overlays on mobile.
  */
 
 @layer components {
-  #app-nav {
+  /* --------------------------------------------------------------------------
+   Drawer Panel
+   -------------------------------------------------------------------------- */
+  #app-drawer {
     position: fixed;
-    top: 0;
+    top: var(--top-bar-height);
     left: 0;
-    right: 0;
-    height: var(--nav-height);
+    bottom: 0;
+    width: var(--drawer-width);
     background: var(--color-surface);
-    border-bottom: 1px solid var(--color-border);
-    display: flex;
-    align-items: center;
-    padding: 0 var(--space-lg);
+    border-right: 1px solid var(--color-border);
     z-index: 100;
-    box-shadow: var(--shadow-sm);
+    overflow-y: auto;
+    display: flex;
+    flex-direction: column;
+    transform: translateX(calc(-1 * var(--drawer-width)));
+    transition: transform 0.3s ease;
+  }
+
+  .drawer-open #app-drawer {
+    transform: translateX(0);
+  }
+
+  /* --------------------------------------------------------------------------
+   Drawer Header - brand area
+   -------------------------------------------------------------------------- */
+  .drawer-header {
+    padding: var(--space-lg) var(--space-md);
+    border-bottom: 1px solid var(--color-border);
+    flex-shrink: 0;
   }
 
   .nav-brand {
     display: flex;
+    flex-direction: column;
     align-items: center;
-    gap: var(--space-sm);
+    gap: var(--space-xs);
+    text-decoration: none;
+    color: var(--color-text);
   }
 
-  .nav-brand a {
+  .brand-emoji {
+    font-size: 2.5rem;
+    line-height: 1;
+  }
+
+  .nav-brand:hover {
+    text-decoration: none;
+  }
+
+  .brand-title {
     font-size: var(--font-size-lg);
     font-weight: 700;
     color: var(--color-text);
-    text-decoration: none;
   }
 
-  .nav-brand a:hover {
+  .nav-brand:hover .brand-title {
     color: var(--color-primary);
-    text-decoration: none;
   }
 
   .brand-tag {
+    display: inline-block;
     font-size: var(--font-size-xs);
     font-weight: 600;
     letter-spacing: 0.5px;
@@ -70,97 +99,108 @@
     }
   }
 
-  .nav-links {
-    display: flex;
-    gap: var(--space-xs);
-    margin-left: auto;
-    align-items: center;
+  /* --------------------------------------------------------------------------
+   Drawer Navigation - sections and links
+   -------------------------------------------------------------------------- */
+  .drawer-nav {
+    flex: 1;
+    overflow-y: auto;
+    padding: var(--space-sm) 0;
   }
 
-  .nav-links a {
+  .drawer-section {
+    display: flex;
+    flex-direction: column;
+    padding: var(--space-sm) 0;
+  }
+
+  .drawer-section + .drawer-section {
+    border-top: 1px solid var(--color-border);
+  }
+
+  .drawer-section-label {
+    font-size: var(--font-size-xs);
+    font-weight: 600;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    color: var(--color-text-light);
+    padding: var(--space-xs) var(--space-md);
+    margin-bottom: var(--space-xs);
+  }
+
+  .drawer-nav a {
+    display: block;
     color: var(--color-text-muted);
     font-weight: 500;
-    font-size: 0.9rem;
-    padding: var(--space-xs) var(--space-sm);
-    border-radius: var(--radius-md);
-    transition: all 0.2s;
-    white-space: nowrap;
+    font-size: var(--font-size-sm);
+    padding: var(--space-xs) var(--space-md);
+    text-decoration: none;
+    transition: all 0.15s;
+    border-left: 3px solid transparent;
   }
 
-  .nav-links a:hover {
+  .drawer-nav a:hover {
     color: var(--color-primary);
-    background: var(--color-primary-light);
-    background: rgba(59, 130, 246, 0.1);
+    background: rgba(59, 130, 246, 0.06);
+    border-left-color: var(--color-primary-light);
     text-decoration: none;
   }
 
-  .nav-cta {
-    background: var(--color-primary) !important;
-    color: white !important;
+  .drawer-nav a.active {
+    color: var(--color-primary);
+    background: rgba(59, 130, 246, 0.1);
+    border-left-color: var(--color-primary);
+    font-weight: 600;
   }
 
-  .nav-cta:hover {
-    background: var(--color-primary-dark) !important;
-    color: white !important;
+  /* CTA links in drawer */
+  .drawer-cta {
+    color: var(--color-primary) !important;
+    font-weight: 600 !important;
   }
 
-  .nav-toggle {
-    display: none;
+  .drawer-cta:hover {
+    background: rgba(59, 130, 246, 0.1) !important;
+  }
+
+  /* --------------------------------------------------------------------------
+   App Body - content area that shifts with drawer
+   -------------------------------------------------------------------------- */
+  .app-body {
+    min-height: 100vh;
+    display: flex;
     flex-direction: column;
-    gap: 4px;
-    background: none;
-    border: none;
-    cursor: pointer;
-    padding: var(--space-sm);
-    margin-left: auto;
+    transition: margin-left 0.3s ease;
   }
 
-  .nav-toggle span {
-    display: block;
-    width: 24px;
-    height: 2px;
-    background: var(--color-text);
-    transition: all 0.3s;
+  .drawer-open .app-body {
+    margin-left: var(--drawer-width);
   }
 
-  .nav-toggle-active span:nth-child(1) {
-    transform: rotate(45deg) translate(4px, 4px);
+  /* --------------------------------------------------------------------------
+   Drawer Overlay - backdrop on mobile when drawer is open
+   -------------------------------------------------------------------------- */
+  .drawer-overlay {
+    display: none;
+    position: fixed;
+    top: var(--top-bar-height);
+    left: 0;
+    right: 0;
+    bottom: 0;
+    background: rgba(0, 0, 0, 0.3);
+    z-index: 90;
   }
 
-  .nav-toggle-active span:nth-child(2) {
-    opacity: 0;
-  }
-
-  .nav-toggle-active span:nth-child(3) {
-    transform: rotate(-45deg) translate(4px, -4px);
-  }
-
-  /* Mobile navigation */
-  @media (max-width: 1280px) {
-    .nav-toggle {
-      display: flex;
+  /* --------------------------------------------------------------------------
+   Mobile - overlay instead of push
+   -------------------------------------------------------------------------- */
+  @media (max-width: 768px) {
+    .drawer-open .app-body {
+      margin-left: 0;
     }
 
-    .nav-links {
-      position: absolute;
-      top: var(--nav-height);
-      left: 0;
-      right: 0;
-      flex-direction: column;
-      background: var(--color-surface);
-      border-bottom: 1px solid var(--color-border);
-      padding: var(--space-md);
-      display: none;
-      gap: var(--space-xs);
-    }
-
-    .nav-links.nav-open {
-      display: flex;
-    }
-
-    .nav-links a {
+    .drawer-open .drawer-overlay {
       display: block;
-      text-align: center;
     }
   }
 }

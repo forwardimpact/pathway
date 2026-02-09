@@ -9,6 +9,7 @@ import { renderNotFound } from "../components/error-page.js";
 import { prepareDriversList } from "../formatters/driver/shared.js";
 import { driverToDOM } from "../formatters/driver/dom.js";
 import { driverToCardConfig } from "../lib/card-mappers.js";
+import { getConceptEmoji } from "@forwardimpact/schema/levels";
 
 /**
  * Render drivers list page
@@ -16,6 +17,7 @@ import { driverToCardConfig } from "../lib/card-mappers.js";
 export function renderDriversList() {
   const { data } = getState();
   const { framework } = data;
+  const driverEmoji = getConceptEmoji(framework, "driver");
 
   // Transform data for list view
   const { items } = prepareDriversList(data.drivers);
@@ -25,7 +27,10 @@ export function renderDriversList() {
     // Header
     div(
       { className: "page-header" },
-      h1({ className: "page-title" }, framework.entityDefinitions.driver.title),
+      h1(
+        { className: "page-title" },
+        `${driverEmoji} ${framework.entityDefinitions.driver.title}`,
+      ),
       p(
         { className: "page-description" },
         framework.entityDefinitions.driver.description.trim(),

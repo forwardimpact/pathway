@@ -9,6 +9,7 @@ import { renderNotFound } from "../components/error-page.js";
 import { prepareTracksList } from "../formatters/track/shared.js";
 import { trackToDOM } from "../formatters/track/dom.js";
 import { trackToCardConfig } from "../lib/card-mappers.js";
+import { getConceptEmoji } from "@forwardimpact/schema/levels";
 
 /**
  * Render tracks list page
@@ -16,6 +17,7 @@ import { trackToCardConfig } from "../lib/card-mappers.js";
 export function renderTracksList() {
   const { data } = getState();
   const { framework } = data;
+  const trackEmoji = getConceptEmoji(framework, "track");
 
   // Transform data for list view
   const { items } = prepareTracksList(data.tracks);
@@ -25,7 +27,10 @@ export function renderTracksList() {
     // Header
     div(
       { className: "page-header" },
-      h1({ className: "page-title" }, framework.entityDefinitions.track.title),
+      h1(
+        { className: "page-title" },
+        `${trackEmoji} ${framework.entityDefinitions.track.title}`,
+      ),
       p(
         { className: "page-description" },
         framework.entityDefinitions.track.description.trim(),

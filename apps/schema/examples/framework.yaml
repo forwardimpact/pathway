@@ -28,7 +28,7 @@ entityDefinitions:
 
   discipline:
     title: Disciplines
-    emojiIcon: "🔧"
+    emojiIcon: "🔬"
     description: |
       Engineering specializations that define T-shaped skill profiles. Each discipline specifies primary skills for deep expertise, secondary skills for supporting capabilities, and broad skills for general awareness. Disciplines answer the question: "What kind of engineer are you?"
 

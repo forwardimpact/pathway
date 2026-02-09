@@ -9,6 +9,7 @@ import { renderNotFound } from "../components/error-page.js";
 import { prepareBehavioursList } from "../formatters/behaviour/shared.js";
 import { behaviourToDOM } from "../formatters/behaviour/dom.js";
 import { behaviourToCardConfig } from "../lib/card-mappers.js";
+import { getConceptEmoji } from "@forwardimpact/schema/levels";
 
 /**
  * Render behaviours list page
@@ -16,6 +17,7 @@ import { behaviourToCardConfig } from "../lib/card-mappers.js";
 export function renderBehavioursList() {
   const { data } = getState();
   const { framework } = data;
+  const behaviourEmoji = getConceptEmoji(framework, "behaviour");
 
   // Transform data for list view
   const { items } = prepareBehavioursList(data.behaviours);
@@ -27,7 +29,7 @@ export function renderBehavioursList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        framework.entityDefinitions.behaviour.title,
+        `${behaviourEmoji} ${framework.entityDefinitions.behaviour.title}`,
       ),
       p(
         { className: "page-description" },

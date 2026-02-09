@@ -5,11 +5,11 @@
 import { div, a } from "../lib/render.js";
 
 /**
- * Update the active navigation link
+ * Update the active navigation link in the drawer
  * @param {string} path - Current path
  */
 export function updateActiveNav(path) {
-  const links = document.querySelectorAll("#nav-links a");
+  const links = document.querySelectorAll("#drawer-nav a");
   links.forEach((link) => {
     const href = link.getAttribute("href").slice(1); // Remove #
     const isActive = path === href || (href !== "/" && path.startsWith(href));

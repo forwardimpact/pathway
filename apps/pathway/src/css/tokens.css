@@ -149,11 +149,13 @@
      Layout
      -------------------------------------------------------------------------- */
     --max-width: 1400px;
-    --nav-height: 60px;
+    --drawer-width: 240px;
+    --top-bar-height: 48px;
 
     /*
    * Responsive breakpoints (used in @media queries):
-   * - 1280px: Tablet/laptop - nav hamburger, layout stacking
+   * - 1280px: Tablet/laptop - layout stacking
+   * - 768px: Mobile - drawer overlays instead of pushing content
    * - 640px: Mobile - full-width buttons, simplified layouts
    */
   }

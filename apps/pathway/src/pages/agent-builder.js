@@ -562,9 +562,6 @@ function createAllStagesPreview(context) {
           content: createToolkitTable(toolkit),
         })
       : null,
-
-    // CLI hint
-    createCliHint(humanDiscipline.id, humanTrack.id),
   );
 }
 
@@ -687,9 +684,6 @@ function createSingleStagePreview(context, stage) {
           content: createToolkitTable(toolkit),
         })
       : null,
-
-    // CLI hint
-    createCliHint(humanDiscipline.id, humanTrack.id, stage.id),
   );
 }
 
@@ -936,29 +930,7 @@ async function importJSZip() {
   return module.default;
 }
 
-/**
- * Create CLI hint section
- * @param {string} disciplineId - Discipline ID
- * @param {string} trackId - Track ID
- * @param {string} [stageId] - Optional stage ID
- * @returns {HTMLElement}
- */
-function createCliHint(disciplineId, trackId, stageId) {
-  const stageArg = stageId ? ` --stage=${stageId}` : "";
-  const command = `npx pathway agent ${disciplineId} ${trackId}${stageArg} --output=.github`;
 
-  const container = section(
-    { className: "agent-section cli-hint" },
-    h2({}, "CLI Alternative"),
-    p({}, "Generate this agent from the command line:"),
-    createCodeDisplay({
-      content: command,
-      language: "bash",
-    }),
-  );
-
-  return container;
-}
 
 /**
  * Create help section explaining how agent builder works

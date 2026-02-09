@@ -6,6 +6,8 @@ import { createPagesRouter } from "./lib/router-pages.js";
 import { setData, setError, getBranding } from "./lib/state.js";
 import { loadAllData } from "./lib/yaml-loader.js";
 import { render, div, h1, p, showError } from "./lib/render.js";
+import { updateActiveNav } from "./components/nav.js";
+import { setupTopBar, updateCommand } from "./components/top-bar.js";
 
 const router = createPagesRouter({
   onNotFound: renderNotFound,
@@ -41,8 +43,9 @@ import { renderAgentBuilder } from "./pages/agent-builder.js";
  * Initialize the application
  */
 async function init() {
-  // Set up navigation toggle for mobile
-  setupMobileNav();
+  // Set up top bar (sidebar toggle + CLI command display)
+  setupTopBar();
+  setupDrawerOverlay();
 
   // Load data
   try {
@@ -63,6 +66,14 @@ async function init() {
 
   // Start router
   router.start();
+
+  // Update active nav link and CLI command on route changes
+  const updateNav = () => {
+    updateActiveNav(window.location.hash.slice(1) || "/");
+    updateCommand();
+  };
+  window.addEventListener("hashchange", updateNav);
+  updateNav();
 }
 
 /**
@@ -175,13 +186,19 @@ function populateBranding() {
   // Update document title
   document.title = branding.title;
 
-  // Update nav brand
-  const navBrand = document.querySelector(".nav-brand a");
-  if (navBrand) {
-    navBrand.textContent = branding.title;
+  // Update drawer brand
+  const brandTitle = document.querySelector(".nav-brand .brand-title");
+  if (brandTitle) {
+    brandTitle.textContent = branding.title;
   }
 
-  // Update nav brand tag
+  // Update drawer brand emoji
+  const brandEmoji = document.querySelector(".nav-brand .brand-emoji");
+  if (brandEmoji) {
+    brandEmoji.textContent = branding.emojiIcon;
+  }
+
+  // Update drawer brand tag
   const brandTag = document.querySelector(".nav-brand .brand-tag");
   if (brandTag) {
     brandTag.textContent = branding.tag;
@@ -195,26 +212,30 @@ function populateBranding() {
 }
 
 /**
- * Set up mobile navigation toggle
+ * Set up drawer overlay for mobile backdrop and auto-close behavior
  */
-function setupMobileNav() {
-  const toggle = document.getElementById("nav-toggle");
-  const links = document.getElementById("nav-links");
+function setupDrawerOverlay() {
+  const app = document.getElementById("app");
+  const drawer = document.getElementById("app-drawer");
 
-  if (toggle && links) {
-    toggle.addEventListener("click", () => {
-      links.classList.toggle("nav-open");
-      toggle.classList.toggle("nav-toggle-active");
-    });
+  if (!drawer) return;
 
-    // Close menu when a link is clicked
-    links.addEventListener("click", (e) => {
-      if (e.target.tagName === "A") {
-        links.classList.remove("nav-open");
-        toggle.classList.remove("nav-toggle-active");
-      }
-    });
-  }
+  // Create overlay element for mobile backdrop
+  const overlay = document.createElement("div");
+  overlay.className = "drawer-overlay";
+  app.insertBefore(overlay, drawer);
+
+  // Close drawer when overlay is clicked (mobile)
+  overlay.addEventListener("click", () => {
+    app.classList.remove("drawer-open");
+  });
+
+  // Close drawer on mobile when a link is clicked
+  drawer.addEventListener("click", (e) => {
+    if (e.target.tagName === "A" && window.innerWidth <= 768) {
+      app.classList.remove("drawer-open");
+    }
+  });
 }
 
 // Start the app

@@ -1,0 +1,181 @@
+/**
+ * Top Bar
+ *
+ * Fixed bar across the top of the viewport with sidebar toggle and
+ * CLI command display. Inspired by Safari's URL bar + sidebar layout.
+ */
+
+@layer components {
+  /* --------------------------------------------------------------------------
+   Bar container - fixed across top
+   -------------------------------------------------------------------------- */
+  .top-bar {
+    position: fixed;
+    top: 0;
+    left: 0;
+    right: 0;
+    height: var(--top-bar-height);
+    z-index: 200;
+    display: flex;
+    align-items: center;
+    gap: var(--space-sm);
+    padding: 0 var(--space-sm);
+    background: var(--color-surface);
+    border-bottom: 1px solid var(--color-border);
+  }
+
+  /* --------------------------------------------------------------------------
+   Sidebar toggle button
+   -------------------------------------------------------------------------- */
+  .top-bar__toggle {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 36px;
+    height: 36px;
+    border: none;
+    border-radius: var(--radius-md);
+    background: transparent;
+    color: var(--color-text-muted);
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .top-bar__toggle:hover {
+    background: var(--color-bg-secondary);
+    color: var(--color-text);
+  }
+
+  .top-bar__toggle:active {
+    background: var(--color-border);
+  }
+
+  /* Sidebar icon: simple sidebar SVG */
+  .top-bar__toggle svg {
+    width: 18px;
+    height: 18px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 1.5;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Highlight toggle when drawer is open */
+  .drawer-open .top-bar__toggle {
+    color: var(--color-primary);
+    background: rgba(59, 130, 246, 0.08);
+  }
+
+  /* --------------------------------------------------------------------------
+   Command bar (mimics Safari-style URL bar)
+   -------------------------------------------------------------------------- */
+  .top-bar__command {
+    width: 100%;
+    max-width: 800px;
+    margin: 0 auto;
+    display: flex;
+    align-items: center;
+    height: 36px;
+    padding: 0 var(--space-sm) 0 var(--space-md);
+    background: var(--color-bg);
+    border: 1px solid var(--color-border);
+    border-radius: var(--radius-lg);
+    transition:
+      border-color 0.15s,
+      box-shadow 0.15s;
+    gap: var(--space-xs);
+  }
+
+  .top-bar__command:hover {
+    border-color: var(--color-text-light);
+  }
+
+  .top-bar__command:focus-within {
+    border-color: var(--color-primary);
+    box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.15);
+  }
+
+  /* Terminal prompt icon */
+  .top-bar__prompt {
+    flex-shrink: 0;
+    font-size: var(--font-size-sm);
+    color: var(--color-text-light);
+    user-select: none;
+  }
+
+  /* CLI command text */
+  .top-bar__command-text {
+    flex: 1;
+    min-width: 0;
+    font-family: var(--font-family-mono);
+    font-size: var(--font-size-xs);
+    color: var(--color-text-secondary);
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+    user-select: all;
+    line-height: 36px;
+  }
+
+  /* Copy button inside the command bar */
+  .top-bar__copy {
+    flex-shrink: 0;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    width: 28px;
+    height: 28px;
+    border: none;
+    border-radius: var(--radius-sm);
+    background: transparent;
+    color: var(--color-text-light);
+    cursor: pointer;
+    transition:
+      background 0.15s,
+      color 0.15s;
+  }
+
+  .top-bar__copy:hover {
+    background: var(--color-border);
+    color: var(--color-text);
+  }
+
+  .top-bar__copy svg {
+    width: 14px;
+    height: 14px;
+    fill: none;
+    stroke: currentColor;
+    stroke-width: 2;
+    stroke-linecap: round;
+    stroke-linejoin: round;
+  }
+
+  /* Copied state */
+  .top-bar__copy.copied {
+    color: var(--color-success);
+  }
+
+  .top-bar__copy.copied svg {
+    /* Swap from copy icon to checkmark via CSS — JS swaps the class */
+  }
+
+  /* --------------------------------------------------------------------------
+   Layout adjustments - push content below the top bar
+   -------------------------------------------------------------------------- */
+  .app-body {
+    padding-top: var(--top-bar-height);
+  }
+
+  /* --------------------------------------------------------------------------
+   Mobile tweaks
+   -------------------------------------------------------------------------- */
+  @media (max-width: 768px) {
+    .top-bar__prompt {
+      display: none;
+    }
+  }
+}

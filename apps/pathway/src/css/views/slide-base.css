@@ -241,7 +241,8 @@
   .slide-view footer,
   .slide-view .action-buttons,
   .slide-view .back-link,
-  .slide-view #app-nav,
+  .slide-view #app-drawer,
+  .slide-view .top-bar,
   .slide-view #app-footer {
     display: none !important;
   }

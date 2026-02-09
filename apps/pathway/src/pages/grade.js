@@ -8,6 +8,7 @@ import { createBadge } from "../components/card.js";
 import { renderNotFound } from "../components/error-page.js";
 import { prepareGradesList } from "../formatters/grade/shared.js";
 import { gradeToDOM } from "../formatters/grade/dom.js";
+import { getConceptEmoji } from "@forwardimpact/schema/levels";
 
 /**
  * Render grades list page
@@ -15,6 +16,7 @@ import { gradeToDOM } from "../formatters/grade/dom.js";
 export function renderGradesList() {
   const { data } = getState();
   const { framework } = data;
+  const gradeEmoji = getConceptEmoji(framework, "grade");
 
   // Transform data for list view
   const { items } = prepareGradesList(data.grades);
@@ -24,7 +26,10 @@ export function renderGradesList() {
     // Header
     div(
       { className: "page-header" },
-      h1({ className: "page-title" }, framework.entityDefinitions.grade.title),
+      h1(
+        { className: "page-title" },
+        `${gradeEmoji} ${framework.entityDefinitions.grade.title}`,
+      ),
       p(
         { className: "page-description" },
         framework.entityDefinitions.grade.description.trim(),

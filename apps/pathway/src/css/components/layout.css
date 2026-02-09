@@ -8,8 +8,6 @@
   /* App container */
   #app {
     min-height: 100vh;
-    display: flex;
-    flex-direction: column;
   }
 
   #app-content {
@@ -18,7 +16,6 @@
     width: 100%;
     margin: 0 auto;
     padding: var(--space-lg);
-    padding-top: calc(var(--nav-height) + var(--space-lg));
   }
 
   /* Stack - vertical flex container with gap */

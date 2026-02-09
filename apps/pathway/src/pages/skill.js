@@ -10,7 +10,10 @@ import { renderNotFound } from "../components/error-page.js";
 import { prepareSkillsList } from "../formatters/skill/shared.js";
 import { skillToDOM } from "../formatters/skill/dom.js";
 import { skillToCardConfig } from "../lib/card-mappers.js";
-import { getCapabilityEmoji } from "@forwardimpact/schema/levels";
+import {
+  getCapabilityEmoji,
+  getConceptEmoji,
+} from "@forwardimpact/schema/levels";
 
 /**
  * Render skills list page
@@ -18,6 +21,7 @@ import { getCapabilityEmoji } from "@forwardimpact/schema/levels";
 export function renderSkillsList() {
   const { data } = getState();
   const { framework } = data;
+  const skillEmoji = getConceptEmoji(framework, "skill");
 
   // Transform data for list view
   const { groups, groupOrder } = prepareSkillsList(
@@ -30,7 +34,10 @@ export function renderSkillsList() {
     // Header
     div(
       { className: "page-header" },
-      h1({ className: "page-title" }, framework.entityDefinitions.skill.title),
+      h1(
+        { className: "page-title" },
+        `${skillEmoji} ${framework.entityDefinitions.skill.title}`,
+      ),
       p(
         { className: "page-description" },
         framework.entityDefinitions.skill.description.trim(),

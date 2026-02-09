@@ -168,7 +168,7 @@
   .page-title {
     font-size: var(--font-size-3xl);
     font-weight: 700;
-    margin: 0 0 var(--space-sm);
+    margin: 0 0 var(--space-md);
   }
 
   .page-description {

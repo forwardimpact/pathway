@@ -92,14 +92,6 @@ export function agentDeploymentToDOM({
             "No skills with agent sections found for this discipline.",
           ),
     ),
-
-    // CLI hint section
-    section(
-      { className: "agent-section cli-hint" },
-      h2({}, "CLI Alternative"),
-      p({}, "Generate this agent from the command line:"),
-      createCliCommand(agentName),
-    ),
   );
 }
 
@@ -200,24 +192,6 @@ function createRoleAgentCard(agent) {
   );
 }
 
-/**
- * Create CLI command display
- * @param {string} agentName - Agent name (kebab-case)
- * @returns {HTMLElement}
- */
-function createCliCommand(agentName) {
-  // Convert kebab-case name to discipline and track
-  const parts = agentName.split("-");
-  const track = parts.pop();
-  const discipline = parts.join("_");
-
-  const command = `npx pathway agent ${discipline} ${track} --output=.github --all-roles`;
-
-  return createCodeDisplay({
-    content: command,
-    language: "bash",
-  });
-}
 
 /**
  * Download all agent files as a ZIP

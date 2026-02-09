@@ -10,6 +10,7 @@ import { renderNotFound } from "../components/error-page.js";
 import { prepareDisciplinesList } from "../formatters/discipline/shared.js";
 import { disciplineToDOM } from "../formatters/discipline/dom.js";
 import { disciplineToCardConfig } from "../lib/card-mappers.js";
+import { getConceptEmoji } from "@forwardimpact/schema/levels";
 
 /**
  * Format discipline group name for display
@@ -42,6 +43,7 @@ function renderDisciplineGroupHeader(groupName, count) {
 export function renderDisciplinesList() {
   const { data } = getState();
   const { framework } = data;
+  const disciplineEmoji = getConceptEmoji(framework, "discipline");
 
   // Transform data for list view (grouped by professional/management)
   const { groups } = prepareDisciplinesList(data.disciplines);
@@ -53,7 +55,7 @@ export function renderDisciplinesList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        framework.entityDefinitions.discipline.title,
+        `${disciplineEmoji} ${framework.entityDefinitions.discipline.title}`,
       ),
       p(
         { className: "page-description" },
