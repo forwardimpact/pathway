@@ -96,6 +96,7 @@ export function createRouter(options = {}) {
     const path = fullPath.split("?")[0];
     const matched = matchRoute(path);
     if (matched) {
+      window.scrollTo(0, 0);
       matched.handler(matched.params);
     } else {
       onNotFound(path);
