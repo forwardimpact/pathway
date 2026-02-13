@@ -1,0 +1,28 @@
+{
+  "tasks": {
+    "sync-apple-mail": {
+      "kb": "~/Documents/Personal",
+      "schedule": { "type": "interval", "minutes": 5 },
+      "enabled": true,
+      "agent": null,
+      "skill": "sync-apple-mail",
+      "prompt": "Sync Apple Mail. Only process new threads since last sync."
+    },
+    "sync-apple-calendar": {
+      "kb": "~/Documents/Personal",
+      "schedule": { "type": "interval", "minutes": 5 },
+      "enabled": true,
+      "agent": null,
+      "skill": "sync-apple-calendar",
+      "prompt": "Sync Apple Calendar events. Export events from the past 14 days and next 14 days."
+    },
+    "extract-entities": {
+      "kb": "~/Documents/Personal",
+      "schedule": { "type": "interval", "minutes": 15 },
+      "enabled": true,
+      "agent": null,
+      "skill": "extract-entities",
+      "prompt": "Process any new synced data (emails and calendar events) into knowledge graph notes."
+    }
+  }
+}

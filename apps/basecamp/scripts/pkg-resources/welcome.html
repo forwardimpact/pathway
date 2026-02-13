@@ -1,0 +1,64 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family:
+          -apple-system,
+          Helvetica Neue,
+          sans-serif;
+        padding: 20px;
+        color: #1d1d1f;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #424245;
+      }
+      ul {
+        font-size: 14px;
+        line-height: 1.8;
+        color: #424245;
+        padding-left: 20px;
+      }
+      .note {
+        font-size: 12px;
+        color: #86868b;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Basecamp</h1>
+    <p>
+      Personal knowledge system with scheduled AI tasks. No server, no database.
+      just plain files, markdown, and Claude Code.
+    </p>
+    <p>This installer will:</p>
+    <ul>
+      <li>
+        Install the <code>fit-basecamp</code> binary to
+        <code>/usr/local/bin/</code>
+      </li>
+      <li>
+        Set up the scheduler configuration at <code>~/.fit/basecamp/</code>
+      </li>
+      <li>
+        Initialize a default knowledge base at
+        <code>~/Documents/Personal/</code>
+      </li>
+      <li>
+        Install a LaunchAgent so the scheduler runs automatically on login
+      </li>
+    </ul>
+    <p class="note">
+      Requires the Claude Code CLI (<code>claude</code>) to be installed and
+      authenticated.
+    </p>
+  </body>
+</html>

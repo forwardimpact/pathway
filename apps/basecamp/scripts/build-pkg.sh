@@ -1,0 +1,117 @@
+#!/bin/bash
+set -e
+
+# Build a macOS installer package (.pkg) for Basecamp.
+#
+# Uses pkgbuild (component) + productbuild (distribution) to create a .pkg
+# that installs the binary to /usr/local/bin/ and runs a postinstall script
+# to set up the LaunchAgent, config, and default knowledge base.
+#
+# Usage: build-pkg.sh <dist_dir> <app_name> <version> <target>
+#   e.g.  build-pkg.sh dist basecamp 1.0.0 aarch64-apple-darwin
+
+DIST_DIR="${1:?Usage: build-pkg.sh <dist_dir> <app_name> <version> <target>}"
+APP_NAME="${2:?Usage: build-pkg.sh <dist_dir> <app_name> <version> <target>}"
+VERSION="${3:?Usage: build-pkg.sh <dist_dir> <app_name> <version> <target>}"
+TARGET="${4:?Usage: build-pkg.sh <dist_dir> <app_name> <version> <target>}"
+
+SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+BINARY_PATH="$DIST_DIR/$APP_NAME-$TARGET"
+IDENTIFIER="com.fit-basecamp.scheduler"
+
+if [ ! -f "$BINARY_PATH" ]; then
+  echo "Error: binary not found at $BINARY_PATH"
+  echo "Run compile.sh first."
+  exit 1
+fi
+
+# Determine short arch name
+case "$TARGET" in
+  *aarch64*) ARCH_SHORT="arm64" ;;
+  *)         ARCH_SHORT="x86_64" ;;
+esac
+
+PKG_NAME="$APP_NAME-$VERSION-$ARCH_SHORT.pkg"
+PKG_PATH="$DIST_DIR/$PKG_NAME"
+PAYLOAD_DIR="$DIST_DIR/pkg-payload-$ARCH_SHORT"
+SCRIPTS_DIR="$DIST_DIR/pkg-scripts-$ARCH_SHORT"
+RESOURCES_DIR="$DIST_DIR/pkg-resources-$ARCH_SHORT"
+COMPONENT_PKG="$DIST_DIR/pkg-component-$ARCH_SHORT.pkg"
+
+echo ""
+echo "Building pkg: $PKG_NAME..."
+
+# --- Clean previous artifacts ------------------------------------------------
+
+rm -rf "$PAYLOAD_DIR" "$SCRIPTS_DIR" "$RESOURCES_DIR" "$COMPONENT_PKG"
+rm -f "$PKG_PATH"
+
+# --- Create payload (files to install) ---------------------------------------
+
+mkdir -p "$PAYLOAD_DIR/usr/local/bin"
+mkdir -p "$PAYLOAD_DIR/usr/local/share/fit-basecamp/config"
+
+cp "$BINARY_PATH" "$PAYLOAD_DIR/usr/local/bin/$APP_NAME"
+chmod +x "$PAYLOAD_DIR/usr/local/bin/$APP_NAME"
+
+cp "$PROJECT_DIR/config/scheduler.json" "$PAYLOAD_DIR/usr/local/share/fit-basecamp/config/scheduler.json"
+cp "$SCRIPT_DIR/uninstall.sh" "$PAYLOAD_DIR/usr/local/share/fit-basecamp/uninstall.sh"
+chmod +x "$PAYLOAD_DIR/usr/local/share/fit-basecamp/uninstall.sh"
+
+# --- Create scripts directory ------------------------------------------------
+
+mkdir -p "$SCRIPTS_DIR"
+cp "$SCRIPT_DIR/postinstall" "$SCRIPTS_DIR/postinstall"
+chmod +x "$SCRIPTS_DIR/postinstall"
+
+# --- Build component package -------------------------------------------------
+
+pkgbuild \
+  --root "$PAYLOAD_DIR" \
+  --scripts "$SCRIPTS_DIR" \
+  --identifier "$IDENTIFIER" \
+  --version "$VERSION" \
+  --install-location "/" \
+  "$COMPONENT_PKG"
+
+# --- Create distribution resources -------------------------------------------
+
+mkdir -p "$RESOURCES_DIR"
+cp "$SCRIPT_DIR/pkg-resources/welcome.html" "$RESOURCES_DIR/welcome.html"
+cp "$SCRIPT_DIR/pkg-resources/conclusion.html" "$RESOURCES_DIR/conclusion.html"
+
+# --- Create distribution.xml ------------------------------------------------
+
+DIST_XML="$DIST_DIR/distribution-$ARCH_SHORT.xml"
+cat > "$DIST_XML" <<EOF
+<?xml version="1.0" encoding="utf-8"?>
+<installer-gui-script minSpecVersion="2">
+    <title>Basecamp ${VERSION}</title>
+    <welcome  file="welcome.html"    mime-type="text/html" />
+    <conclusion file="conclusion.html" mime-type="text/html" />
+    <options customize="never" require-scripts="false" hostArchitectures="$ARCH_SHORT" />
+    <domains enable_localSystem="true" />
+    <pkg-ref id="$IDENTIFIER" version="$VERSION">pkg-component-$ARCH_SHORT.pkg</pkg-ref>
+    <choices-outline>
+        <line choice="$IDENTIFIER" />
+    </choices-outline>
+    <choice id="$IDENTIFIER" visible="false">
+        <pkg-ref id="$IDENTIFIER" />
+    </choice>
+</installer-gui-script>
+EOF
+
+# --- Build distribution package ----------------------------------------------
+
+productbuild \
+  --distribution "$DIST_XML" \
+  --resources "$RESOURCES_DIR" \
+  --package-path "$DIST_DIR" \
+  "$PKG_PATH"
+
+# --- Clean up staging --------------------------------------------------------
+
+rm -rf "$PAYLOAD_DIR" "$SCRIPTS_DIR" "$RESOURCES_DIR" "$COMPONENT_PKG" "$DIST_XML"
+
+echo "  -> $PKG_PATH"

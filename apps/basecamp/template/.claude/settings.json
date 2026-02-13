@@ -1,0 +1,40 @@
+{
+  "$schema": "https://json.schemastore.org/claude-code-settings.json",
+  "permissions": {
+    "allow": [
+      "Read(~/Library/Mail/**)",
+      "Read(~/Library/Group Containers/group.com.apple.calendar/**)",
+      "Read(~/Library/Calendars/**)",
+      "Read(~/Desktop/**)",
+      "Read(~/Documents/**)",
+      "Read(~/Downloads/**)",
+      "Edit(~/Desktop/**)",
+      "Edit(~/Documents/**)",
+      "Edit(~/Downloads/**)",
+      "Read(~/.cache/fit/basecamp/**)",
+      "Edit(~/.cache/fit/basecamp/**)"
+    ],
+    "deny": [
+      "Edit(~/Library/**)",
+      "Read(~/Pictures/**)",
+      "Read(~/Music/**)",
+      "Read(~/Movies/**)",
+      "Read(~/Public/**)",
+      "Read(~/.ssh/**)",
+      "Read(~/.aws/**)",
+      "Read(~/.gnupg/**)",
+      "Read(~/.config/**)",
+      "Read(~/.env)",
+      "Read(~/.env.*)"
+    ],
+    "additionalDirectories": [
+      "~/Library/Mail",
+      "~/Library/Group Containers/group.com.apple.calendar",
+      "~/Library/Calendars",
+      "~/Desktop",
+      "~/Documents",
+      "~/Downloads",
+      "~/.cache/fit/basecamp"
+    ]
+  }
+}

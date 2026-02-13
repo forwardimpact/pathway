@@ -1,0 +1,46 @@
+#!/bin/bash
+
+# Basecamp postinstall script — runs as root after macOS pkg installation.
+#
+# Sets up per-user config, default knowledge base, and LaunchAgent for the
+# console user (the person who double-clicked the installer).
+
+REAL_USER=$(/usr/bin/stat -f "%Su" /dev/console)
+REAL_HOME=$(/usr/bin/dscl . -read "/Users/$REAL_USER" NFSHomeDirectory | /usr/bin/awk '{print $2}')
+
+BASECAMP_HOME="$REAL_HOME/.fit/basecamp"
+DEFAULT_KB="$REAL_HOME/Documents/Personal"
+SHARE_DIR="/usr/local/share/fit-basecamp"
+BINARY="/usr/local/bin/fit-basecamp"
+
+# --- Config home -------------------------------------------------------------
+
+/usr/bin/sudo -u "$REAL_USER" /bin/mkdir -p "$BASECAMP_HOME/logs"
+
+if [ ! -f "$BASECAMP_HOME/scheduler.json" ] && [ -f "$SHARE_DIR/config/scheduler.json" ]; then
+  /usr/bin/sudo -u "$REAL_USER" /bin/cp "$SHARE_DIR/config/scheduler.json" "$BASECAMP_HOME/scheduler.json"
+fi
+
+if [ ! -f "$BASECAMP_HOME/state.json" ]; then
+  echo '{ "tasks": {} }' | /usr/bin/sudo -u "$REAL_USER" /usr/bin/tee "$BASECAMP_HOME/state.json" > /dev/null
+fi
+
+# --- Default knowledge base --------------------------------------------------
+
+if [ ! -d "$DEFAULT_KB" ]; then
+  /usr/bin/sudo -u "$REAL_USER" "$BINARY" --init "$DEFAULT_KB" 2>/dev/null || true
+fi
+
+# --- LaunchAgent (runs as user, not root) ------------------------------------
+
+PLIST="$REAL_HOME/Library/LaunchAgents/com.fit-basecamp.scheduler.plist"
+if [ -f "$PLIST" ]; then
+  # Upgrade: binary already replaced by pkg payload. Kill the old daemon and
+  # let KeepAlive restart it with the new binary. No plist rewrite needed.
+  /usr/bin/killall fit-basecamp 2>/dev/null || true
+else
+  # Fresh install: create plist and load it.
+  /usr/bin/sudo -u "$REAL_USER" "$BINARY" --install-launchd 2>/dev/null || true
+fi
+
+exit 0

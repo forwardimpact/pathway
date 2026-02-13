@@ -1,0 +1,62 @@
+<!doctype html>
+<html>
+  <head>
+    <style>
+      body {
+        font-family:
+          -apple-system,
+          Helvetica Neue,
+          sans-serif;
+        padding: 20px;
+        color: #1d1d1f;
+      }
+      h1 {
+        font-size: 22px;
+        font-weight: 600;
+        margin-bottom: 16px;
+      }
+      p {
+        font-size: 14px;
+        line-height: 1.6;
+        color: #424245;
+      }
+      code {
+        font-family:
+          SF Mono,
+          Menlo,
+          monospace;
+        font-size: 13px;
+        background: #f5f5f7;
+        padding: 2px 6px;
+        border-radius: 4px;
+      }
+      .cmd {
+        margin: 8px 0 8px 16px;
+      }
+      .note {
+        font-size: 12px;
+        color: #86868b;
+        margin-top: 20px;
+      }
+    </style>
+  </head>
+  <body>
+    <h1>Basecamp is installed</h1>
+    <p>
+      The scheduler is running in the background and will start automatically on
+      login.
+    </p>
+    <p><strong>Next steps:</strong></p>
+    <p>1. Edit your identity file:</p>
+    <p class="cmd"><code>vim ~/Documents/Personal/USER.md</code></p>
+    <p>2. Configure scheduled tasks:</p>
+    <p class="cmd"><code>vim ~/.fit/basecamp/scheduler.json</code></p>
+    <p>3. Check scheduler status:</p>
+    <p class="cmd"><code>fit-basecamp --status</code></p>
+    <p>4. Open your knowledge base interactively:</p>
+    <p class="cmd"><code>cd ~/Documents/Personal &amp;&amp; claude</code></p>
+    <p class="note">
+      To uninstall, run: <code>/usr/local/share/fit-basecamp/uninstall.sh</code>
+    </p>
+  </body>
+</html>
