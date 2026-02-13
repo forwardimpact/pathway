@@ -96,6 +96,7 @@ export {
 export {
   deriveReferenceGrade,
   getDisciplineAbbreviation,
+  toKebabCase,
   deriveAgentSkills,
   deriveAgentBehaviours,
   generateSkillMarkdown,

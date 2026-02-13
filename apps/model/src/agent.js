@@ -89,6 +89,7 @@ export function deriveReferenceGrade(grades) {
 const DISCIPLINE_ABBREVIATIONS = {
   software_engineering: "se",
   data_engineering: "de",
+  data_science: "ds",
 };
 
 /**
