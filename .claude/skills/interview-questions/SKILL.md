@@ -19,30 +19,30 @@ exciting sentence in the language.
 
 ## Hiring Philosophy
 
-We are not hiring "senior engineers with 8+ years of Java." We are hiring
-people who are *dangerously curious*, who build things because they can't stop
+We are not hiring "senior engineers with 8+ years of Java." We are hiring people
+who are _dangerously curious_, who build things because they can't stop
 themselves, who have taste about code the way a chef has taste about food. The
-old interview playbook — LeetCode, system design bingo, "tell me about a time"
-— was designed to find a kind of engineer that is becoming obsolete.
+old interview playbook — LeetCode, system design bingo, "tell me about a time" —
+was designed to find a kind of engineer that is becoming obsolete.
 
 Every question must hunt for these qualities:
 
-1. **Obsessive curiosity** — Not "do they read docs" but "do they disappear
-   down rabbit holes and come back with something unexpected?" Do they explore
-   because they're *compelled* to, not because it's on their OKRs?
+1. **Obsessive curiosity** — Not "do they read docs" but "do they disappear down
+   rabbit holes and come back with something unexpected?" Do they explore
+   because they're _compelled_ to, not because it's on their OKRs?
 
 2. **Taste** — Can they tell the difference between code that works and code
-   that *sings*? Do they have opinions about how things should feel, not just
+   that _sings_? Do they have opinions about how things should feel, not just
    function? Do they cringe at the right things?
 
 3. **Speed to insight** — How fast do they orient in unfamiliar territory? The
    best engineers don't know everything — they figure out the right thing
-   *fast*. They prototype before they plan. They ship to learn.
+   _fast_. They prototype before they plan. They ship to learn.
 
 4. **Creative range** — Do they pull ideas from outside engineering? From
    design, music, biology, economics, games? The monoculture engineer who only
-   reads Hacker News is not who we want. We want the polymath who connects
-   dots nobody else sees.
+   reads Hacker News is not who we want. We want the polymath who connects dots
+   nobody else sees.
 
 5. **AI as native language** — Not "have you tried Copilot?" but "how do you
    think WITH AI?" Do they prompt, critique, iterate, and compose with AI the
@@ -62,10 +62,10 @@ Every question must hunt for these qualities:
   they can think.
 - **Tool worship** — "What's your experience with Kubernetes?" We don't care
   about their resume. We care about their brain.
-- **Single right answer** — If there's one correct response, it's a quiz, not
-  an interview.
+- **Single right answer** — If there's one correct response, it's a quiz, not an
+  interview.
 - **Past-tense theatre** — "Tell me about a time when..." invites rehearsed
-  stories. Put them in a live scenario and watch what happens *now*.
+  stories. Put them in a live scenario and watch what happens _now_.
 - **Complexity theatre** — Questions designed to make the interviewer feel smart
   rather than to reveal the candidate's thinking.
 
@@ -73,15 +73,15 @@ Every question must hunt for these qualities:
 
 ### 1. Mission Fit Interview (Skill Questions)
 
-**Format:** 45 minutes, Recruiting Manager + 1 Senior Engineer
-**Purpose:** Find out if this person has the instincts, not just the skills.
+**Format:** 45 minutes, Recruiting Manager + 1 Senior Engineer **Purpose:** Find
+out if this person has the instincts, not just the skills.
 
 Skill questions are conversational — but don't mistake conversational for soft.
 These should feel like two builders talking shop, where the interviewer can
-smell whether the candidate *actually does this* or just talks about it.
+smell whether the candidate _actually does this_ or just talks about it.
 
-**Schema:** `skill-questions.schema.json`
-**Location:** `data/questions/skills/{skill_id}.yaml`
+**Schema:** `skill-questions.schema.json` **Location:**
+`data/questions/skills/{skill_id}.yaml`
 
 #### Skill Question Structure
 
@@ -110,8 +110,8 @@ Examples: `ai_aug_pro_work_1`, `cq_mgmt_pract_1`, `pd_pro_found_1`
   interesting about X to you?" If they light up, good sign.
 - **Foundational (5 min):** "Show me how you'd use X." Concrete, not
   theoretical. The answer should smell like real work, not a tutorial.
-- **Working (8 min):** "Walk me through a real decision you made with X."
-  Push on the *why*. Add followUps that pressure-test their reasoning.
+- **Working (8 min):** "Walk me through a real decision you made with X." Push
+  on the _why_. Add followUps that pressure-test their reasoning.
 - **Practitioner (8-10 min):** "How have you changed how your team does X?"
   Listen for whether they lead by doing or by talking.
 - **Expert (10 min):** "What's broken about how the industry does X, and what
@@ -119,37 +119,37 @@ Examples: `ai_aug_pro_work_1`, `cq_mgmt_pract_1`, `pd_pro_found_1`
 
 **What to hunt for:**
 
-- At every level: Do they have *taste* about this skill? Can they tell good
-  from great? Do they have opinions, not just knowledge?
-- At working+: How do they use AI in this area? Not "have you tried it" but
-  "how has it changed your approach?" If AI hasn't changed their approach,
-  that's a red flag.
+- At every level: Do they have _taste_ about this skill? Can they tell good from
+  great? Do they have opinions, not just knowledge?
+- At working+: How do they use AI in this area? Not "have you tried it" but "how
+  has it changed your approach?" If AI hasn't changed their approach, that's a
+  red flag.
 - At practitioner+: Are they building the future or maintaining the past? Do
   they see where this skill is going or just where it's been?
 - At every level: Do they get excited? Bored engineers write boring code.
 
 **Duration guidance by level:**
 
-| Level        | Duration | Depth          |
-| ------------ | -------- | -------------- |
-| awareness    | 5 min    | Surface        |
-| foundational | 5 min    | Basic          |
-| working      | 8 min    | Moderate       |
-| practitioner | 8-10 min | Deep           |
-| expert       | 10 min   | Strategic      |
+| Level        | Duration | Depth     |
+| ------------ | -------- | --------- |
+| awareness    | 5 min    | Surface   |
+| foundational | 5 min    | Basic     |
+| working      | 8 min    | Moderate  |
+| practitioner | 8-10 min | Deep      |
+| expert       | 10 min   | Strategic |
 
 ### 2. Decomposition Interview (Capability Questions)
 
-**Format:** 60 minutes, 2 Senior Engineers
-**Purpose:** Watch them think live. Not what they know — how they *attack*.
+**Format:** 60 minutes, 2 Senior Engineers **Purpose:** Watch them think live.
+Not what they know — how they _attack_.
 
 Forget everything you know about system design interviews. This is not
 whiteboarding boxes and arrows. This is dropping someone into a messy, real
 problem and watching whether they orient like a builder or freeze like a
 student.
 
-**Schema:** `capability-questions.schema.json`
-**Location:** `data/questions/capabilities/{capability_id}.yaml`
+**Schema:** `capability-questions.schema.json` **Location:**
+`data/questions/capabilities/{capability_id}.yaml`
 
 #### Capability Question Structure
 
@@ -180,28 +180,28 @@ Examples: `data_pro_work_decomp_1`, `ai_mgmt_pract_decomp_1`
 
 #### Decomposition Question Guidelines
 
-**This is NOT system design bingo.** If your question can be answered by
-someone who read "Designing Data-Intensive Applications" and memorized the
-patterns, throw it away. We are not testing whether they can recite the
-standard architecture for a chat app. We are testing whether they can *think
-their way into a problem they've never seen before*.
+**This is NOT system design bingo.** If your question can be answered by someone
+who read "Designing Data-Intensive Applications" and memorized the patterns,
+throw it away. We are not testing whether they can recite the standard
+architecture for a chat app. We are testing whether they can _think their way
+into a problem they've never seen before_.
 
 **What decomposition questions MUST do:**
 
 1. **Drop them in the deep end** — The problem should feel unfamiliar. Not
-   tricky-for-the-sake-of-tricky, but genuinely requiring them to orient in
-   new territory. The engineer who says "I'd Google that first" is more honest
-   than the one who pretends to know. Watch for intellectual honesty.
+   tricky-for-the-sake-of-tricky, but genuinely requiring them to orient in new
+   territory. The engineer who says "I'd Google that first" is more honest than
+   the one who pretends to know. Watch for intellectual honesty.
 
 2. **Make speed of orientation visible** — How fast do they go from "I have no
    idea" to "here's how I'd start figuring this out"? That transition speed is
    one of the most valuable things you can observe. Some people get there in 30
    seconds. Some never get there.
 
-3. **Force them to choose before they're ready** — Real engineering means
-   making decisions with incomplete information. The scenario should require
-   trade-offs where there's no obviously right answer. Watch: do they freeze,
-   or do they make a call and explain their reasoning?
+3. **Force them to choose before they're ready** — Real engineering means making
+   decisions with incomplete information. The scenario should require trade-offs
+   where there's no obviously right answer. Watch: do they freeze, or do they
+   make a call and explain their reasoning?
 
 4. **Demand AI-native thinking** — If a candidate describes an approach that
    doesn't involve AI tools at any point, stop and ask "how would AI change
@@ -211,8 +211,7 @@ their way into a problem they've never seen before*.
 
 5. **Require cross-domain moves** — The best problems need the candidate to
    think about users, business, technology, and people simultaneously. If they
-   can only think about the technical layer, they're a component, not a
-   builder.
+   can only think about the technical layer, they're a component, not a builder.
 
 **Interviewer stance — be a collaborator, not an examiner:**
 
@@ -222,7 +221,7 @@ their way into a problem they've never seen before*.
 - When they miss something big, don't hint — let them discover it or not.
   Discovery is the signal.
 - Probe with: "You mentioned X — how would you learn more about that in 20
-  minutes with AI tools?" Watch for *how* they'd learn, not what they'd learn.
+  minutes with AI tools?" Watch for _how_ they'd learn, not what they'd learn.
 - Challenge with: "What breaks if you're wrong about that?" — Systems thinking
   shows up here.
 - If they go into rehearsed-answer mode: "Forget best practices for a second —
@@ -248,18 +247,18 @@ and a real one. Include:
 
 ### 3. Stakeholder Simulation Interview (Behaviour Questions)
 
-**Format:** 60 minutes, 3-4 stakeholders role-playing
-**Purpose:** No more storytelling. Put them in it and watch.
+**Format:** 60 minutes, 3-4 stakeholders role-playing **Purpose:** No more
+storytelling. Put them in it and watch.
 
-This is the interview that separates people who *talk about* engineering from
-people who *do* engineering. The candidate walks into a live scenario with real
+This is the interview that separates people who _talk about_ engineering from
+people who _do_ engineering. The candidate walks into a live scenario with real
 stakeholders in character. No prep. No rehearsed stories. Just: here's the
 situation, these people need something from you, go.
 
 This is the highest-signal interview we run. Protect its integrity.
 
-**Schema:** `behaviour-questions.schema.json`
-**Location:** `data/questions/behaviours/{behaviour_id}.yaml`
+**Schema:** `behaviour-questions.schema.json` **Location:**
+`data/questions/behaviours/{behaviour_id}.yaml`
 
 #### Behaviour Question Structure
 
@@ -295,7 +294,7 @@ stakeholders are IN CHARACTER from the moment the candidate walks in. They have
 motivations, pressures, and agendas. The candidate must read the room, make
 decisions, and communicate — all in real time.
 
-This is where you find out if someone can actually *build with people*, not just
+This is where you find out if someone can actually _build with people_, not just
 build with code.
 
 **Writing the scenario (`text` + `context`):**
@@ -303,9 +302,9 @@ build with code.
 The scenario must be vivid enough that stakeholders can improvise convincingly.
 Flat scenarios produce flat interviews. Your scenario needs:
 
-1. **A lit fuse** — Something just happened or is about to happen. The
-   candidate can't sit back and philosophize. They need to act. Make it urgent.
-   Make it messy.
+1. **A lit fuse** — Something just happened or is about to happen. The candidate
+   can't sit back and philosophize. They need to act. Make it urgent. Make it
+   messy.
 
 2. **Stakeholders who want incompatible things** — The PM wants speed. The
    security lead wants caution. The VP wants a demo by Friday. The tech lead
@@ -318,10 +317,10 @@ Flat scenarios produce flat interviews. Your scenario needs:
    create pressure. Pressure reveals character.
 
 4. **AI-era dilemmas** — Weave in scenarios where AI is part of the problem or
-   solution. "The AI-generated code passed review but caused the incident."
-   "The team wants to adopt an AI tool that leadership hasn't approved." "A
-   junior engineer shipped AI-generated code without understanding it." These
-   are real scenarios happening in real companies right now.
+   solution. "The AI-generated code passed review but caused the incident." "The
+   team wants to adopt an AI tool that leadership hasn't approved." "A junior
+   engineer shipped AI-generated code without understanding it." These are real
+   scenarios happening in real companies right now.
 
 5. **Emotional texture** — Someone is defensive. Someone is afraid. Someone is
    overconfident. The candidate who can only handle logical debates but falls
@@ -335,19 +334,19 @@ Flat scenarios produce flat interviews. Your scenario needs:
   candidate is coasting, one stakeholder should escalate.
 - Late prompts: Introduce a twist. New information, a reversal, an emotional
   reaction. The candidate who adapts in real time is the one you want.
-- Stakeholders should *push back*. If the candidate says something reasonable,
-  a stakeholder should challenge it. If they say something weak, a stakeholder
+- Stakeholders should _push back_. If the candidate says something reasonable, a
+  stakeholder should challenge it. If they say something weak, a stakeholder
   should press harder. The simulation fails if everyone just nods.
 
 **Maturity levels are about the size of the blast radius:**
 
-| Maturity      | Scenario Scope  | Stakeholder Dynamics        | Candidate Role                |
-| ------------- | --------------- | --------------------------- | ----------------------------- |
-| emerging      | Single team     | 1-2 clear stakeholders      | IC figuring it out            |
-| developing    | Team + adjacent | Conflicting perspectives    | IC owning a piece             |
-| practicing    | Cross-team      | Multiple pressures           | Leading without full authority |
-| role_modeling | Function-wide   | Organizational politics      | Senior IC, influence only     |
-| exemplifying  | Organization    | Executive/strategic tension   | Defining the playbook         |
+| Maturity      | Scenario Scope  | Stakeholder Dynamics        | Candidate Role                 |
+| ------------- | --------------- | --------------------------- | ------------------------------ |
+| emerging      | Single team     | 1-2 clear stakeholders      | IC figuring it out             |
+| developing    | Team + adjacent | Conflicting perspectives    | IC owning a piece              |
+| practicing    | Cross-team      | Multiple pressures          | Leading without full authority |
+| role_modeling | Function-wide   | Organizational politics     | Senior IC, influence only      |
+| exemplifying  | Organization    | Executive/strategic tension | Defining the playbook          |
 
 **`lookingFor` must mirror the behaviour's maturity descriptors.** If the
 behaviour definition says "practicing" means "proactively identifies and
@@ -363,19 +362,19 @@ Every question must pass all of these. No exceptions. No "it's close enough."
 - [ ] **Ungoogleable** — If someone could answer this with a search, delete it
 - [ ] **No single right answer** — Multiple valid approaches, or it's a quiz
 - [ ] **Reveals HOW they think** — You'd learn more watching them work than
-  reading their answer
+      reading their answer
 - [ ] **AI-native** — The question makes sense in a world where AI writes code.
-  If it doesn't, it's already obsolete
+      If it doesn't, it's already obsolete
 - [ ] **Future-facing** — Probes for where things are going, not where they've
-  been. We're hiring for 2027, not 2019
+      been. We're hiring for 2027, not 2019
 - [ ] **Opinionated evaluation** — The `lookingFor` items are sharp enough that
-  two interviewers would agree on what they saw
+      two interviewers would agree on what they saw
 - [ ] **Level-appropriate** — Complexity matches target level/maturity. Don't
-  sandpaper the edges off senior questions or over-inflate junior ones
+      sandpaper the edges off senior questions or over-inflate junior ones
 - [ ] **Second person** — "You" not "the candidate" or "one"
 - [ ] **Character limit** — Skill ≤150, Capability ≤200, Behaviour ≤300
 - [ ] **Would YOU want to answer this?** — If the question is boring, the
-  answers will be boring. Great questions make people lean forward
+      answers will be boring. Great questions make people lean forward
 
 ## Process
 
@@ -383,13 +382,13 @@ Every question must pass all of these. No exceptions. No "it's close enough."
 
 1. **Pick the entity** — Which skill, capability, or behaviour?
 2. **Read the entity definition** — Load from `data/capabilities/`,
-   `data/behaviours/`, or equivalent. Internalize the level descriptions.
-   You're writing for *that* level, not a generic one.
+   `data/behaviours/`, or equivalent. Internalize the level descriptions. You're
+   writing for _that_ level, not a generic one.
 3. **Read existing questions** — Check `data/questions/`. Know what's covered.
    Don't create a duplicate with different words.
-4. **Draft questions** — Follow the guidelines above. Write something that
-   would make a great engineer say "oh, interesting." If you wouldn't want to
-   answer the question yourself, it's not good enough.
+4. **Draft questions** — Follow the guidelines above. Write something that would
+   make a great engineer say "oh, interesting." If you wouldn't want to answer
+   the question yourself, it's not good enough.
 5. **Validate** — `npx fit-schema validate`
 6. **Gut check against the quality checklist** — Be your own harshest critic
 
@@ -413,13 +412,13 @@ Every question must pass all of these. No exceptions. No "it's close enough."
 `lookingFor` items are the interviewer's scoring rubric. Fuzzy items produce
 fuzzy evaluations. Sharp items produce signal.
 
-- **Observable** — Something you can *see* or *hear* them do. Not a trait. Not
-  a vibe. An action.
+- **Observable** — Something you can _see_ or _hear_ them do. Not a trait. Not a
+  vibe. An action.
 - **Specific** — Not "good communication" but "translates a latency issue into
   revenue impact for the VP without being asked"
-- **Aligned to level** — Use vocabulary from the entity's level descriptions.
-  An awareness-level `lookingFor` and an expert-level one should look
-  completely different.
+- **Aligned to level** — Use vocabulary from the entity's level descriptions. An
+  awareness-level `lookingFor` and an expert-level one should look completely
+  different.
 - **2-4 items** — More than 4 means you haven't decided what actually matters
 
 **Strong examples:**
@@ -445,7 +444,7 @@ different dimension of the problem. They should feel like a conversation between
 two builders, not cross-examination.
 
 - Each prompt covers a distinct angle — don't overlap
-- Open-ended enough that the candidate reveals *their* framework, not yours
+- Open-ended enough that the candidate reveals _their_ framework, not yours
 - Progress from "where do you start?" to "what blows up?"
 - At least one prompt about people, not systems
 - At least one prompt about learning and discovery
@@ -456,18 +455,18 @@ two builders, not cross-examination.
 2. "What would you need to learn, and how would you learn it fast?" — Reveals
    curiosity, resourcefulness, and whether AI is in their toolkit
 3. "How would you know if you're wrong?" — Reveals intellectual honesty
-4. "Who needs to know about this and what do you tell them?" — Reveals taste
-   in communication, not just ability to communicate
+4. "Who needs to know about this and what do you tell them?" — Reveals taste in
+   communication, not just ability to communicate
 
 ### Writing `simulationPrompts`
 
 These are stage directions for the actors. The stakeholders who role-play need
-to know how to push, when to escalate, and where the emotional beats are. A
-flat simulation prompt produces a flat simulation.
+to know how to push, when to escalate, and where the emotional beats are. A flat
+simulation prompt produces a flat simulation.
 
 - Tell the stakeholder exactly how to push back — not "challenge them" but
   "express frustration that the last three approaches didn't work"
-- Create conversational momentum — not an interrogation, a *situation*
+- Create conversational momentum — not an interrogation, a _situation_
 - Increase heat as the simulation progresses
 - Include emotional and political dynamics — this is where real engineering
   happens
@@ -485,11 +484,11 @@ flat simulation prompt produces a flat simulation.
 
 ## File Locations
 
-| Type       | Data Location                              | Schema Location                                  |
-| ---------- | ------------------------------------------ | ------------------------------------------------ |
-| Skill      | `data/questions/skills/{skill_id}.yaml`    | `apps/schema/schema/json/skill-questions.schema.json` |
-| Capability | `data/questions/capabilities/{cap_id}.yaml`| `apps/schema/schema/json/capability-questions.schema.json` |
-| Behaviour  | `data/questions/behaviours/{behav_id}.yaml`| `apps/schema/schema/json/behaviour-questions.schema.json` |
+| Type       | Data Location                               | Schema Location                                            |
+| ---------- | ------------------------------------------- | ---------------------------------------------------------- |
+| Skill      | `data/questions/skills/{skill_id}.yaml`     | `apps/schema/schema/json/skill-questions.schema.json`      |
+| Capability | `data/questions/capabilities/{cap_id}.yaml` | `apps/schema/schema/json/capability-questions.schema.json` |
+| Behaviour  | `data/questions/behaviours/{behav_id}.yaml` | `apps/schema/schema/json/behaviour-questions.schema.json`  |
 
 If data also exists under `apps/schema/examples/questions/`, update both
 locations in the same commit.

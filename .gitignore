@@ -13,6 +13,9 @@ public/
 # Built documentation
 dist/
 
+# Basecamp build output
+apps/basecamp/dist/
+
 # Test files
 test-results/
 playwright-report/

@@ -509,9 +509,19 @@ guideline:
 - **Playwright** (in `code_quality`) — Critical for end-to-end testing. The
   primary E2E testing framework for verifying full application behavior across
   browsers.
-- **Colima** (in `full_stack_development`, `devops`) — Critical for lightweight
-  container runtime on macOS. Required for local container development without
-  Docker Desktop. Install script can assume macOS and `brew`.
+- **Rancher Desktop** (in `full_stack_development`, `devops`) — Critical for
+  container runtime on macOS. Provides Docker socket at `/var/run/docker.sock`
+  with no licensing concerns. Replaces Colima (which has docker.sock mount
+  issues with Supabase).
+- **uv** (all Python skills) — Critical for Python package management. Replaces
+  pip with 10-50x faster installs, built-in lockfiles, and Python version
+  management. Do not revert to pip.
+- **mise** (skills with runtime requirements) — Critical for runtime version
+  pinning. Each skill provides a mise fragment in implementationReference. Do
+  not remove or replace with nvm/pyenv/asdf.
+- **just** (skills with dev workflows) — Critical for project-level task
+  automation. Each skill provides justfile recipe fragments in
+  implementationReference. Do not remove.
 - **AWS Step Functions** (in `cloud_platforms`) — Critical for modern serverless
   practices. Essential for orchestrating multi-step workflows with error
   handling, retries, and state management.
@@ -521,3 +531,7 @@ guideline:
 - **2026-02-10**: Restored GitHub Models, Playwright, Colima, and Step Functions
   after initial review incorrectly removed them as "nice-to-have". Added this
   Memory section to prevent recurrence.
+- **2026-02-11**: DX overhaul — Replaced Colima with Rancher Desktop, pip with
+  uv, added mise and just. All Python skills use `uv sync` instead of
+  `pip install`. Skills provide composable Docker Compose, justfile, and mise
+  fragments in implementationReference for Tier 3 project-level assembly.

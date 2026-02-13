@@ -26,24 +26,30 @@ curl -fsSL https://pathway.myorg.com/install.sh | bash
 # Engineer uses the CLI
 fit-pathway job software_engineering L4 --track=platform
 fit-pathway agent software_engineering --track=platform --output=./agents
+
+# Engineer sets up personal knowledge system
+npx fit-basecamp --init ~/Documents/Team
+npx fit-basecamp --daemon
 ```
 
 ## Monorepo Structure
 
 ```
 apps/
-  schema/       @forwardimpact/schema   Schema, validation, data loading
-  model/        @forwardimpact/model    Derivation logic, job/agent models
-  pathway/      @forwardimpact/pathway  Web app, CLI, formatters
+  schema/       @forwardimpact/schema    Schema, validation, data loading
+  model/        @forwardimpact/model     Derivation logic, job/agent models
+  pathway/      @forwardimpact/pathway   Web app, CLI, formatters
+  basecamp/     @forwardimpact/basecamp  Personal knowledge system, scheduler
 libs/
-  libdoc/       @forwardimpact/libdoc   Documentation build and serve tools
+  libdoc/       @forwardimpact/libdoc    Documentation build and serve tools
 ```
 
-| Package                  | CLI           | Purpose                                |
-| ------------------------ | ------------- | -------------------------------------- |
-| `@forwardimpact/schema`  | `fit-schema`  | Schema definitions and data loading    |
-| `@forwardimpact/model`   | —             | Derivation engine for roles and agents |
-| `@forwardimpact/pathway` | `fit-pathway` | Web app and CLI for career progression |
+| Package                   | CLI            | Purpose                                           |
+| ------------------------- | -------------- | ------------------------------------------------- |
+| `@forwardimpact/schema`   | `fit-schema`   | Schema definitions and data loading               |
+| `@forwardimpact/model`    | —              | Derivation engine for roles and agents            |
+| `@forwardimpact/pathway`  | `fit-pathway`  | Web app and CLI for career progression            |
+| `@forwardimpact/basecamp` | `fit-basecamp` | Personal knowledge system with scheduled AI tasks |
 
 **This is a data-driven monorepo.** The model layer defines derivation logic,
 but actual entities (disciplines, tracks, skills, grades, behaviours) are
@@ -68,15 +74,18 @@ Schema (data) → Model (derivation) → Pathway (presentation)
 
 ### Key Paths
 
-| Purpose      | Location                       |
-| ------------ | ------------------------------ |
-| User data    | `data/`                        |
-| Example data | `apps/schema/examples/`        |
-| JSON Schema  | `apps/schema/schema/json/`     |
-| RDF/SHACL    | `apps/schema/schema/rdf/`      |
-| Derivation   | `apps/model/src/`              |
-| Formatters   | `apps/pathway/src/formatters/` |
-| Templates    | `apps/pathway/templates/`      |
+| Purpose      | Location                                 |
+| ------------ | ---------------------------------------- |
+| User data    | `data/`                                  |
+| Example data | `apps/schema/examples/`                  |
+| JSON Schema  | `apps/schema/schema/json/`               |
+| RDF/SHACL    | `apps/schema/schema/rdf/`                |
+| Derivation   | `apps/model/src/`                        |
+| Formatters   | `apps/pathway/src/formatters/`           |
+| Templates    | `apps/pathway/templates/`                |
+| Scheduler    | `apps/basecamp/scheduler.js`             |
+| KB template  | `apps/basecamp/template/`                |
+| KB skills    | `apps/basecamp/template/.claude/skills/` |
 
 ### Dependency Chain
 
@@ -384,6 +393,9 @@ Use these terms for spheres of influence (ascending breadth):
 **Pathway** (`apps/pathway/src/`): `formatters/`, `pages/`, `components/`,
 `lib/`, `commands/`, `slides/`
 
+**Basecamp** (`apps/basecamp/`): `scheduler.js`, `build.js`, `config/`,
+`scripts/`, `template/`
+
 **Formatters** (`apps/pathway/src/formatters/{entity}/`): `shared.js`, `dom.js`,
 `markdown.js`
 
@@ -409,8 +421,8 @@ Format: `type(scope): subject`
 
 **Types**: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`
 
-**Scope**: Use package name (`schema`, `model`, `pathway`) or specific area.
-Omit if change spans multiple packages.
+**Scope**: Use package name (`schema`, `model`, `pathway`, `basecamp`) or
+specific area. Omit if change spans multiple packages.
 
 **Breaking changes**: Add `!` after scope: `refactor(model)!: change API`
 
@@ -485,10 +497,11 @@ failed tags after fixing the root cause: delete the remote tag
 
 ### CLI Tools
 
-| CLI           | Package                  | Purpose                             |
-| ------------- | ------------------------ | ----------------------------------- |
-| `fit-schema`  | `@forwardimpact/schema`  | Schema validation, index generation |
-| `fit-pathway` | `@forwardimpact/pathway` | Web app, entity browsing, agents    |
+| CLI            | Package                   | Purpose                                 |
+| -------------- | ------------------------- | --------------------------------------- |
+| `fit-schema`   | `@forwardimpact/schema`   | Schema validation, index generation     |
+| `fit-pathway`  | `@forwardimpact/pathway`  | Web app, entity browsing, agents        |
+| `fit-basecamp` | `@forwardimpact/basecamp` | Knowledge base scheduler and management |
 
 ### Quick Reference
 
@@ -505,4 +518,16 @@ npx fit-pathway job <discipline> <grade> --track=<track>
 
 # Generate agent profiles
 npx fit-pathway agent <discipline> --track=<track> --output=./agents
+
+# Basecamp: show scheduler status
+npx fit-basecamp --status
+
+# Basecamp: initialize a new knowledge base
+npx fit-basecamp --init ~/Documents/Team
+
+# Basecamp: run due tasks once
+npx fit-basecamp
+
+# Basecamp: run as daemon
+npx fit-basecamp --daemon
 ```

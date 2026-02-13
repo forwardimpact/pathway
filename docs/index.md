@@ -36,11 +36,12 @@ The same skill and behaviour definitions power:
 
 ## Apps
 
-| Package                                    | Purpose                                        |
-| ------------------------------------------ | ---------------------------------------------- |
-| [@forwardimpact/schema](schema/index.md)   | Schema definitions and data loading            |
-| [@forwardimpact/model](model/index.md)     | Derivation engine for roles and agent profiles |
-| [@forwardimpact/pathway](pathway/index.md) | Web app and CLI for career progression         |
+| Package                                      | Purpose                                           |
+| -------------------------------------------- | ------------------------------------------------- |
+| [@forwardimpact/schema](schema/index.md)     | Schema definitions and data loading               |
+| [@forwardimpact/model](model/index.md)       | Derivation engine for roles and agent profiles    |
+| [@forwardimpact/pathway](pathway/index.md)   | Web app and CLI for career progression            |
+| [@forwardimpact/basecamp](basecamp/index.md) | Personal knowledge system with scheduled AI tasks |
 
 ## Key Documents
 
@@ -59,3 +60,8 @@ The same skill and behaviour definitions power:
 - [Pathway Overview](pathway/index.md) — Web app and CLI
 - [Agents](pathway/agents.md) — Agent profile generation
 - [Reference](pathway/reference.md) — File organization, CLI, templates
+
+**Basecamp**
+
+- [Basecamp Overview](basecamp/index.md) — Personal knowledge system and
+  scheduler

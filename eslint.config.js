@@ -34,6 +34,19 @@ export default [
     },
   },
   {
+    files: ["apps/basecamp/**/*.js"],
+    languageOptions: {
+      globals: {
+        Deno: "readonly",
+        setInterval: "readonly",
+        require: "readonly",
+      },
+    },
+    rules: {
+      "no-empty": "off",
+    },
+  },
+  {
     ignores: ["node_modules/**", "tmp/**"],
   },
 ];

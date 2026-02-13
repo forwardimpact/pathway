@@ -11,11 +11,12 @@ bringing pride of workmanship to both.
 
 ## Apps
 
-| Package                                | Purpose                                        |
-| -------------------------------------- | ---------------------------------------------- |
-| [@forwardimpact/schema](apps/schema)   | Schema definitions and data loading            |
-| [@forwardimpact/model](apps/model)     | Derivation engine for roles and agent profiles |
-| [@forwardimpact/pathway](apps/pathway) | Web app and CLI for career progression         |
+| Package                                  | Purpose                                           |
+| ---------------------------------------- | ------------------------------------------------- |
+| [@forwardimpact/schema](apps/schema)     | Schema definitions and data loading               |
+| [@forwardimpact/model](apps/model)       | Derivation engine for roles and agent profiles    |
+| [@forwardimpact/pathway](apps/pathway)   | Web app and CLI for career progression            |
+| [@forwardimpact/basecamp](apps/basecamp) | Personal knowledge system with scheduled AI tasks |
 
 ## Quick Start
 
@@ -34,6 +35,7 @@ Open http://localhost:3000 to explore.
 - [Schema](docs/schema/index.md) — Data model and validation
 - [Model](docs/model/index.md) — Derivation logic
 - [Pathway](docs/pathway/index.md) — Web app and CLI
+- [Basecamp](docs/basecamp/index.md) — Personal knowledge system
 
 ## Development
 
