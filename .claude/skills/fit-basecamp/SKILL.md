@@ -22,7 +22,7 @@ database — just plain files, markdown, and the `claude` CLI.
 
 ```
 apps/basecamp/
-  scheduler.js          # Scheduler entry point and CLI
+  basecamp.js             # Main entry point and CLI
   build.js              # Deno compile + pkg build script
   config/
     scheduler.json      # Default scheduler configuration
@@ -57,9 +57,9 @@ npx fit-basecamp --help              # Show help
 
 ## Architecture
 
-### Scheduler (`scheduler.js`)
+### Main CLI (`basecamp.js`)
 
-Single-file scheduler that:
+Single-file CLI that:
 
 1. Reads `~/.fit/basecamp/scheduler.json` for KB definitions and task configs
 2. Checks each task against its schedule (interval, cron, or once)
@@ -102,7 +102,7 @@ Synced data lives outside the KB in `~/.cache/fit/basecamp/`:
 
 Deno-based build that:
 
-1. Compiles `scheduler.js` into a standalone binary via `deno compile`
+1. Compiles `basecamp.js` into a standalone binary via `deno compile`
 2. Embeds the `template/` directory into the binary
 3. Optionally creates macOS installer packages (.pkg)
 
@@ -142,7 +142,7 @@ from `.claude/skills/<name>/SKILL.md` inside each knowledge base.
 - Schedule logic: `shouldRun()`, `cronMatches()`, `floorToMinute()`
 - Task execution: `runTask()` — invokes `claude` CLI
 - State management: `loadState()`, `saveState()`
-- All in `scheduler.js` — single file, no dependencies
+- All in `basecamp.js` — single file, no dependencies
 
 ### Modifying the Build
 

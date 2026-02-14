@@ -1,26 +1,25 @@
 #!/bin/bash
 set -e
 
-# Compile Basecamp into a standalone Deno binary.
+# Compile Basecamp into a standalone Deno binary (arm64 macOS).
 #
-# Usage: compile.sh <dist_dir> <app_name> <target>
-#   e.g.  compile.sh dist basecamp aarch64-apple-darwin
+# Usage: compile.sh <dist_dir> <app_name>
+#   e.g.  compile.sh dist fit-basecamp
 
-DIST_DIR="${1:?Usage: compile.sh <dist_dir> <app_name> <target>}"
-APP_NAME="${2:?Usage: compile.sh <dist_dir> <app_name> <target>}"
-TARGET="${3:?Usage: compile.sh <dist_dir> <app_name> <target>}"
+DIST_DIR="${1:?Usage: compile.sh <dist_dir> <app_name>}"
+APP_NAME="${2:?Usage: compile.sh <dist_dir> <app_name>}"
 
-OUTPUT="$DIST_DIR/$APP_NAME-$TARGET"
+OUTPUT="$DIST_DIR/$APP_NAME"
 
 echo ""
-echo "Compiling $APP_NAME for $TARGET..."
+echo "Compiling $APP_NAME..."
 mkdir -p "$DIST_DIR"
 
 deno compile \
   --allow-all \
-  --target "$TARGET" \
+  --no-check \
   --output "$OUTPUT" \
   --include template/ \
-  scheduler.js
+  basecamp.js
 
 echo "  -> $OUTPUT"

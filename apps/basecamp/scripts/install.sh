@@ -61,7 +61,7 @@ fi
 echo ""
 if [ ! -d "$DEFAULT_KB" ]; then
   echo "Initializing default knowledge base at $DEFAULT_KB ..."
-  SCHEDULER="$SCRIPT_DIR/../scheduler.js"
+  SCHEDULER="$SCRIPT_DIR/../basecamp.js"
   if command -v deno &>/dev/null && [ -f "$SCHEDULER" ]; then
     deno run --allow-all "$SCHEDULER" --init "$DEFAULT_KB"
   elif command -v node &>/dev/null && [ -f "$SCHEDULER" ]; then
@@ -79,7 +79,7 @@ fi
 
 echo ""
 echo "Installing background scheduler (LaunchAgent)..."
-SCHEDULER="$SCRIPT_DIR/../scheduler.js"
+SCHEDULER="$SCRIPT_DIR/../basecamp.js"
 if command -v deno &>/dev/null && [ -f "$SCHEDULER" ]; then
   deno run --allow-all "$SCHEDULER" --install-launchd
 elif command -v node &>/dev/null && [ -f "$SCHEDULER" ]; then
@@ -102,7 +102,7 @@ echo ""
 echo "Next steps:"
 echo "  1. Edit $DEFAULT_KB/USER.md with your name, email, and domain"
 echo "  2. Edit $BASECAMP_HOME/scheduler.json to configure tasks"
-echo "  3. Run the scheduler:    deno run --allow-all scheduler.js --status"
-echo "  4. Start the daemon:     deno run --allow-all scheduler.js --install-launchd"
+echo "  3. Run the scheduler:    deno run --allow-all basecamp.js --status"
+echo "  4. Start the daemon:     deno run --allow-all basecamp.js --install-launchd"
 echo "  5. Open your KB:         cd $DEFAULT_KB && claude"
 echo ""

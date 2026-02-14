@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/basecamp",
-  "version": "0.1.0",
+  "version": "0.2.0",
   "description": "Claude Code-native personal knowledge system with scheduled tasks",
   "license": "Apache-2.0",
   "repository": {
@@ -10,22 +10,22 @@
   },
   "homepage": "https://www.forwardimpact.team/basecamp",
   "type": "module",
-  "main": "scheduler.js",
+  "main": "basecamp.js",
   "bin": {
-    "fit-basecamp": "./scheduler.js"
+    "fit-basecamp": "./basecamp.js"
   },
   "scripts": {
-    "start": "node scheduler.js",
-    "status": "node scheduler.js --status",
+    "start": "node basecamp.js",
+    "status": "node basecamp.js --status",
     "build": "deno run --allow-all build.js",
     "build:pkg": "deno run --allow-all build.js --pkg",
     "build:all": "deno run --allow-all build.js --all",
     "install:basecamp": "./scripts/install.sh",
-    "scheduler:install": "node scheduler.js --install-launchd",
-    "scheduler:uninstall": "node scheduler.js --uninstall-launchd"
+    "scheduler:install": "node basecamp.js --install-launchd",
+    "scheduler:uninstall": "node basecamp.js --uninstall-launchd"
   },
   "files": [
-    "scheduler.js",
+    "basecamp.js",
     "build.js",
     "config/",
     "scripts/",

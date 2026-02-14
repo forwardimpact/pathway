@@ -83,7 +83,7 @@ Schema (data) → Model (derivation) → Pathway (presentation)
 | Derivation   | `apps/model/src/`                        |
 | Formatters   | `apps/pathway/src/formatters/`           |
 | Templates    | `apps/pathway/templates/`                |
-| Scheduler    | `apps/basecamp/scheduler.js`             |
+| Scheduler    | `apps/basecamp/basecamp.js`              |
 | KB template  | `apps/basecamp/template/`                |
 | KB skills    | `apps/basecamp/template/.claude/skills/` |
 
@@ -393,7 +393,7 @@ Use these terms for spheres of influence (ascending breadth):
 **Pathway** (`apps/pathway/src/`): `formatters/`, `pages/`, `components/`,
 `lib/`, `commands/`, `slides/`
 
-**Basecamp** (`apps/basecamp/`): `scheduler.js`, `build.js`, `config/`,
+**Basecamp** (`apps/basecamp/`): `basecamp.js`, `build.js`, `config/`,
 `scripts/`, `template/`
 
 **Formatters** (`apps/pathway/src/formatters/{entity}/`): `shared.js`, `dom.js`,

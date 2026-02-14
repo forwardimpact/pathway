@@ -12,6 +12,7 @@ BASECAMP_HOME="$REAL_HOME/.fit/basecamp"
 DEFAULT_KB="$REAL_HOME/Documents/Personal"
 SHARE_DIR="/usr/local/share/fit-basecamp"
 BINARY="/usr/local/bin/fit-basecamp"
+STATUS_MENU_BINARY="/usr/local/bin/BasecampStatus"
 
 # --- Config home -------------------------------------------------------------
 
@@ -41,6 +42,43 @@ if [ -f "$PLIST" ]; then
 else
   # Fresh install: create plist and load it.
   /usr/bin/sudo -u "$REAL_USER" "$BINARY" --install-launchd 2>/dev/null || true
+fi
+
+# --- Status menu LaunchAgent (runs as user, not root) -----------------------
+
+STATUS_PLIST="$REAL_HOME/Library/LaunchAgents/com.fit-basecamp.status-menu.plist"
+
+if [ -f "$STATUS_MENU_BINARY" ]; then
+  # Kill old status menu if running (picks up new binary on relaunch)
+  /usr/bin/killall BasecampStatus 2>/dev/null || true
+
+  # Write LaunchAgent plist
+  /usr/bin/sudo -u "$REAL_USER" /usr/bin/tee "$STATUS_PLIST" > /dev/null <<PLIST
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>com.fit-basecamp.status-menu</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>/usr/local/bin/BasecampStatus</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>$BASECAMP_HOME/logs/status-menu-stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>$BASECAMP_HOME/logs/status-menu-stderr.log</string>
+</dict>
+</plist>
+PLIST
+
+  # Load the LaunchAgent (unload first for upgrades)
+  /usr/bin/sudo -u "$REAL_USER" /usr/bin/launchctl unload "$STATUS_PLIST" 2>/dev/null || true
+  /usr/bin/sudo -u "$REAL_USER" /usr/bin/launchctl load "$STATUS_PLIST"
 fi
 
 exit 0

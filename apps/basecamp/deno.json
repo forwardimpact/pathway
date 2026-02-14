@@ -2,8 +2,8 @@
   "name": "fit-basecamp",
   "version": "1.0.0",
   "tasks": {
-    "start": "deno run --allow-all scheduler.js",
-    "status": "deno run --allow-all scheduler.js --status",
+    "start": "deno run --allow-all basecamp.js",
+    "status": "deno run --allow-all basecamp.js --status",
     "build": "deno run --allow-all build.js",
     "build:pkg": "deno run --allow-all build.js --pkg"
   },

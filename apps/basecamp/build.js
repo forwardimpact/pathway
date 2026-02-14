@@ -1,17 +1,12 @@
 #!/usr/bin/env -S deno run --allow-all
 
-// Build script for Basecamp.
+// Build script for Basecamp (arm64 macOS).
 //
 // Usage:
-//   deno run --allow-all build.js             Build standalone executable (current arch)
-//   deno run --allow-all build.js --pkg       Build executable + macOS .pkg installer
-//   deno run --allow-all build.js --all       Build for both arm64 and x86_64 + .pkg
-//
-// Or via deno tasks:
-//   deno task build
-//   deno task build:pkg
+//   deno run --allow-all build.js         Build standalone executable
+//   deno run --allow-all build.js --pkg   Build executable + macOS .pkg installer
 
-import { existsSync, mkdirSync } from "node:fs";
+import { existsSync, mkdirSync, readFileSync, rmSync } from "node:fs";
 import { join, dirname } from "node:path";
 import { execSync } from "node:child_process";
 
@@ -19,7 +14,11 @@ const __dirname =
   import.meta.dirname || dirname(new URL(import.meta.url).pathname);
 const DIST_DIR = join(__dirname, "dist");
 const APP_NAME = "fit-basecamp";
-const VERSION = "1.0.0";
+const STATUS_MENU_NAME = "BasecampStatus";
+const STATUS_MENU_DIR = join(__dirname, "StatusMenu");
+const VERSION = JSON.parse(
+  readFileSync(join(__dirname, "package.json"), "utf8"),
+).version;
 
 // ---------------------------------------------------------------------------
 // Helpers
@@ -34,32 +33,23 @@ function run(cmd, opts = {}) {
   return execSync(cmd, { encoding: "utf8", stdio: "inherit", ...opts });
 }
 
-function runCapture(cmd) {
-  return execSync(cmd, {
-    encoding: "utf8",
-    stdio: ["pipe", "pipe", "pipe"],
-  }).trim();
-}
-
 // ---------------------------------------------------------------------------
 // Compile standalone binary
 // ---------------------------------------------------------------------------
 
-function compile(target = null) {
-  const arch = target || detectArch();
-  const outputName = target ? `${APP_NAME}-${arch}` : APP_NAME;
-  const outputPath = join(DIST_DIR, outputName);
+function compile() {
+  const outputPath = join(DIST_DIR, APP_NAME);
 
-  console.log(`\nCompiling ${APP_NAME} for ${arch}...`);
+  console.log(`\nCompiling ${APP_NAME}...`);
   ensureDir(DIST_DIR);
 
   const cmd = [
     "deno compile",
     "--allow-all",
-    `--target ${arch}`,
+    "--no-check",
     `--output "${outputPath}"`,
     "--include template/",
-    "scheduler.js",
+    "basecamp.js",
   ].join(" ");
 
   run(cmd, { cwd: __dirname });
@@ -68,26 +58,43 @@ function compile(target = null) {
   return outputPath;
 }
 
-function detectArch() {
-  const arch = runCapture("uname -m");
-  if (arch === "arm64") return "aarch64-apple-darwin";
-  return "x86_64-apple-darwin";
+// ---------------------------------------------------------------------------
+// Compile Swift status menu binary
+// ---------------------------------------------------------------------------
+
+function compileStatusMenu() {
+  console.log(`\nCompiling ${STATUS_MENU_NAME}...`);
+  ensureDir(DIST_DIR);
+
+  const buildDir = join(STATUS_MENU_DIR, ".build");
+  rmSync(buildDir, { recursive: true, force: true });
+
+  run("swift build -c release", { cwd: STATUS_MENU_DIR });
+
+  const binary = join(buildDir, "release", STATUS_MENU_NAME);
+  const outputPath = join(DIST_DIR, STATUS_MENU_NAME);
+  run(`cp "${binary}" "${outputPath}"`);
+
+  rmSync(buildDir, { recursive: true, force: true });
+
+  console.log(`  -> ${outputPath}`);
+  return outputPath;
 }
 
 // ---------------------------------------------------------------------------
 // Build macOS installer package (.pkg)
 // ---------------------------------------------------------------------------
 
-function buildPKG(binaryPath, arch) {
-  const archShort = arch.includes("aarch64") ? "arm64" : "x86_64";
-  const pkgName = `${APP_NAME}-${VERSION}-${archShort}.pkg`;
+function buildPKG(statusMenuBinaryPath) {
+  const pkgName = `${APP_NAME}-${VERSION}.pkg`;
 
   console.log(`\nBuilding pkg: ${pkgName}...`);
 
   const buildPkg = join(__dirname, "scripts", "build-pkg.sh");
-  run(`"${buildPkg}" "${DIST_DIR}" "${APP_NAME}" "${VERSION}" "${arch}"`, {
-    cwd: __dirname,
-  });
+  run(
+    `"${buildPkg}" "${DIST_DIR}" "${APP_NAME}" "${VERSION}" "${statusMenuBinaryPath}"`,
+    { cwd: __dirname },
+  );
 
   console.log(`  -> ${join(DIST_DIR, pkgName)}`);
   return join(DIST_DIR, pkgName);
@@ -99,26 +106,17 @@ function buildPKG(binaryPath, arch) {
 
 const args = Deno?.args || process.argv.slice(2);
 const wantPKG = args.includes("--pkg");
-const wantAll = args.includes("--all");
 
 console.log(`Basecamp Build (v${VERSION})`);
 console.log("==========================");
 
-if (wantAll) {
-  // Build for both architectures
-  const targets = ["aarch64-apple-darwin", "x86_64-apple-darwin"];
-  for (const target of targets) {
-    const binary = compile(target);
-    buildPKG(binary, target);
-  }
-} else {
-  // Build for current architecture
-  const arch = detectArch();
-  const binary = compile(arch);
+// Compile Deno binary first (before status menu exists in dist/),
+// so the status menu binary is not embedded in the Deno binary.
+compile();
+const statusMenuBinary = compileStatusMenu();
 
-  if (wantPKG) {
-    buildPKG(binary, arch);
-  }
+if (wantPKG) {
+  buildPKG(statusMenuBinary);
 }
 
 console.log("\nBuild complete! Output in dist/");

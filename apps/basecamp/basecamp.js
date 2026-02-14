@@ -1,17 +1,17 @@
 #!/usr/bin/env node
 
-// Basecamp Scheduler — Runs scheduled tasks across multiple knowledge bases.
+// Basecamp — CLI and scheduler for personal knowledge bases.
 //
 // Usage:
-//   node scheduler.js                     Run due tasks once and exit
-//   node scheduler.js --daemon            Run continuously (poll every 60s)
-//   node scheduler.js --run <task>        Run a specific task immediately
-//   node scheduler.js --init <path>       Initialize a new knowledge base
-//   node scheduler.js --install-launchd   Install macOS LaunchAgent
-//   node scheduler.js --uninstall-launchd Remove macOS LaunchAgent
-//   node scheduler.js --validate          Validate agents and skills exist
-//   node scheduler.js --status            Show task status
-//   node scheduler.js --help              Show this help
+//   node basecamp.js                     Run due tasks once and exit
+//   node basecamp.js --daemon            Run continuously (poll every 60s)
+//   node basecamp.js --run <task>        Run a specific task immediately
+//   node basecamp.js --init <path>       Initialize a new knowledge base
+//   node basecamp.js --install-launchd   Install macOS LaunchAgent
+//   node basecamp.js --uninstall-launchd Remove macOS LaunchAgent
+//   node basecamp.js --validate          Validate agents and skills exist
+//   node basecamp.js --status            Show task status
+//   node basecamp.js --help              Show this help
 
 import {
   readFileSync,
@@ -19,11 +19,15 @@ import {
   existsSync,
   mkdirSync,
   readdirSync,
+  unlinkSync,
+  chmodSync,
 } from "node:fs";
 import { execSync } from "node:child_process";
+import { spawn } from "node:child_process";
 import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { createServer } from "node:net";
 
 const HOME = homedir();
 const BASECAMP_HOME = join(HOME, ".fit", "basecamp");
@@ -35,10 +39,13 @@ const PLIST_PATH = join(HOME, "Library", "LaunchAgents", `${PLIST_NAME}.plist`);
 const __dirname =
   import.meta.dirname || dirname(fileURLToPath(import.meta.url));
 const KB_TEMPLATE_DIR = join(__dirname, "template");
+const SOCKET_PATH = join(BASECAMP_HOME, "basecamp.sock");
 const IS_COMPILED =
   typeof Deno !== "undefined" &&
   Deno.execPath &&
   !Deno.execPath().endsWith("deno");
+
+let daemonStartedAt = null;
 
 // --- Helpers ----------------------------------------------------------------
 
@@ -152,6 +159,7 @@ function floorToMinute(d) {
 
 function shouldRun(task, taskState, now) {
   if (task.enabled === false) return false;
+  if (taskState.status === "running") return false;
   const { schedule } = task;
   if (!schedule) return false;
   const lastRun = taskState.lastRunAt ? new Date(taskState.lastRunAt) : null;
@@ -197,63 +205,254 @@ function runTask(taskName, task, _config, state) {
   ts.startedAt = new Date().toISOString();
   saveState(state);
 
-  try {
-    const args = ["--print"];
-    if (task.agent) args.push("--agent", task.agent);
-    args.push("-p", prompt);
+  const spawnArgs = ["--print"];
+  if (task.agent) spawnArgs.push("--agent", task.agent);
+  spawnArgs.push("-p", prompt);
 
-    const result = execSync(
-      `${claude} ${args.map((a) => `'${a.replace(/'/g, "'\\''")}'`).join(" ")}`,
-      {
-        cwd: kbPath,
-        encoding: "utf8",
-        timeout: 30 * 60_000,
-        stdio: ["pipe", "pipe", "pipe"],
-      },
-    );
+  return new Promise((resolve) => {
+    const child = spawn(claude, spawnArgs, {
+      cwd: kbPath,
+      stdio: ["pipe", "pipe", "pipe"],
+      timeout: 30 * 60_000,
+    });
 
-    log(`Task ${taskName} completed. Output: ${result.slice(0, 200)}...`);
-    Object.assign(ts, {
-      status: "finished",
-      lastRunAt: new Date().toISOString(),
-      lastError: null,
-      runCount: (ts.runCount || 0) + 1,
+    let stdout = "";
+    let stderr = "";
+    child.stdout.on("data", (d) => (stdout += d));
+    child.stderr.on("data", (d) => (stderr += d));
+
+    child.on("close", (code) => {
+      if (code === 0) {
+        log(`Task ${taskName} completed. Output: ${stdout.slice(0, 200)}...`);
+        Object.assign(ts, {
+          status: "finished",
+          startedAt: null,
+          lastRunAt: new Date().toISOString(),
+          lastError: null,
+          runCount: (ts.runCount || 0) + 1,
+        });
+      } else {
+        const errMsg = stderr || stdout || `Exit code ${code}`;
+        log(`Task ${taskName} failed: ${errMsg.slice(0, 300)}`);
+        Object.assign(ts, {
+          status: "failed",
+          startedAt: null,
+          lastRunAt: new Date().toISOString(),
+          lastError: errMsg.slice(0, 500),
+        });
+      }
+      saveState(state);
+      resolve();
     });
-  } catch (err) {
-    const errMsg = err.stderr || err.stdout || err.message || String(err);
-    log(`Task ${taskName} failed: ${errMsg.slice(0, 300)}`);
-    Object.assign(ts, {
-      status: "failed",
-      lastRunAt: new Date().toISOString(),
-      lastError: errMsg.slice(0, 500),
+
+    child.on("error", (err) => {
+      log(`Task ${taskName} failed: ${err.message}`);
+      Object.assign(ts, {
+        status: "failed",
+        startedAt: null,
+        lastRunAt: new Date().toISOString(),
+        lastError: err.message.slice(0, 500),
+      });
+      saveState(state);
+      resolve();
     });
-  }
-  saveState(state);
+  });
 }
 
-function runDueTasks() {
+async function runDueTasks() {
   const config = loadConfig(),
     state = loadState(),
     now = new Date();
   let ranAny = false;
   for (const [name, task] of Object.entries(config.tasks)) {
     if (shouldRun(task, state.tasks[name] || {}, now)) {
-      runTask(name, task, config, state);
+      await runTask(name, task, config, state);
       ranAny = true;
     }
   }
   if (!ranAny) log("No tasks due.");
 }
 
+// --- Next-run computation ---------------------------------------------------
+
+/** @param {object} task @param {object} taskState @param {Date} now */
+function computeNextRunAt(task, taskState, now) {
+  if (task.enabled === false) return null;
+  const { schedule } = task;
+  if (!schedule) return null;
+
+  if (schedule.type === "interval") {
+    const ms = (schedule.minutes || 5) * 60_000;
+    const lastRun = taskState.lastRunAt ? new Date(taskState.lastRunAt) : null;
+    if (!lastRun) return now.toISOString();
+    return new Date(lastRun.getTime() + ms).toISOString();
+  }
+
+  if (schedule.type === "cron") {
+    const limit = 24 * 60;
+    const start = new Date(floorToMinute(now) + 60_000);
+    for (let i = 0; i < limit; i++) {
+      const candidate = new Date(start.getTime() + i * 60_000);
+      if (cronMatches(schedule.expression, candidate)) {
+        return candidate.toISOString();
+      }
+    }
+    return null;
+  }
+
+  if (schedule.type === "once") {
+    if (taskState.lastRunAt) return null;
+    return schedule.runAt;
+  }
+
+  return null;
+}
+
+// --- Socket server ----------------------------------------------------------
+
+/** @param {import('node:net').Socket} socket @param {object} data */
+function send(socket, data) {
+  try {
+    socket.write(JSON.stringify(data) + "\n");
+  } catch {}
+}
+
+function handleStatusRequest(socket) {
+  const config = loadConfig();
+  const state = loadState();
+  const now = new Date();
+  const tasks = {};
+
+  for (const [name, task] of Object.entries(config.tasks)) {
+    const ts = state.tasks[name] || {};
+    tasks[name] = {
+      enabled: task.enabled !== false,
+      status: ts.status || "never-run",
+      lastRunAt: ts.lastRunAt || null,
+      nextRunAt: computeNextRunAt(task, ts, now),
+      runCount: ts.runCount || 0,
+      lastError: ts.lastError || null,
+    };
+    if (ts.startedAt) tasks[name].startedAt = ts.startedAt;
+  }
+
+  send(socket, {
+    type: "status",
+    uptime: daemonStartedAt
+      ? Math.floor((Date.now() - daemonStartedAt) / 1000)
+      : 0,
+    tasks,
+  });
+}
+
+function handleRestartRequest(socket) {
+  send(socket, { type: "ack", command: "restart" });
+  const uid = execSync("id -u", { encoding: "utf8" }).trim();
+  setTimeout(() => {
+    try {
+      execSync(`launchctl kickstart -k gui/${uid}/${PLIST_NAME}`);
+    } catch {
+      process.exit(0);
+    }
+  }, 100);
+}
+
+function handleRunRequest(socket, taskName) {
+  if (!taskName) {
+    send(socket, { type: "error", message: "Missing task name" });
+    return;
+  }
+  const config = loadConfig();
+  const task = config.tasks[taskName];
+  if (!task) {
+    send(socket, { type: "error", message: `Task not found: ${taskName}` });
+    return;
+  }
+  send(socket, { type: "ack", command: "run", task: taskName });
+  const state = loadState();
+  runTask(taskName, task, config, state).catch((err) => {
+    console.error(`[socket] runTask error for ${taskName}:`, err.message);
+  });
+}
+
+function handleMessage(socket, line) {
+  let request;
+  try {
+    request = JSON.parse(line);
+  } catch {
+    send(socket, { type: "error", message: "Invalid JSON" });
+    return;
+  }
+
+  const handlers = {
+    status: () => handleStatusRequest(socket),
+    restart: () => handleRestartRequest(socket),
+    run: () => handleRunRequest(socket, request.task),
+  };
+
+  const handler = handlers[request.type];
+  if (handler) {
+    handler();
+  } else {
+    send(socket, {
+      type: "error",
+      message: `Unknown request type: ${request.type}`,
+    });
+  }
+}
+
+function startSocketServer() {
+  try {
+    unlinkSync(SOCKET_PATH);
+  } catch {}
+
+  const server = createServer((socket) => {
+    let buffer = "";
+    socket.on("data", (data) => {
+      buffer += data.toString();
+      let idx;
+      while ((idx = buffer.indexOf("\n")) !== -1) {
+        const line = buffer.slice(0, idx).trim();
+        buffer = buffer.slice(idx + 1);
+        if (line) handleMessage(socket, line);
+      }
+    });
+    socket.on("error", () => {});
+  });
+
+  server.listen(SOCKET_PATH, () => {
+    chmodSync(SOCKET_PATH, 0o600);
+    log(`Socket server listening on ${SOCKET_PATH}`);
+  });
+
+  server.on("error", (err) => {
+    log(`Socket server error: ${err.message}`);
+  });
+
+  const cleanup = () => {
+    server.close();
+    try {
+      unlinkSync(SOCKET_PATH);
+    } catch {}
+    process.exit(0);
+  };
+  process.on("SIGTERM", cleanup);
+  process.on("SIGINT", cleanup);
+
+  return server;
+}
+
 // --- Daemon -----------------------------------------------------------------
 
 function daemon() {
+  daemonStartedAt = Date.now();
   log("Scheduler daemon started. Polling every 60 seconds.");
   log(`Config: ${CONFIG_PATH}  State: ${STATE_PATH}`);
+  startSocketServer();
   runDueTasks();
-  setInterval(() => {
+  setInterval(async () => {
     try {
-      runDueTasks();
+      await runDueTasks();
     } catch (err) {
       log(`Error: ${err.message}`);
     }
@@ -307,7 +506,7 @@ function installLaunchd() {
   const isCompiled = IS_COMPILED || !execPath.includes("node");
   const progArgs = isCompiled
     ? `    <string>${execPath}</string>\n    <string>--daemon</string>`
-    : `    <string>${execPath}</string>\n    <string>${join(__dirname, "scheduler.js")}</string>\n    <string>--daemon</string>`;
+    : `    <string>${execPath}</string>\n    <string>${join(__dirname, "basecamp.js")}</string>\n    <string>--daemon</string>`;
 
   const plist = `<?xml version="1.0" encoding="UTF-8"?>
 <!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
@@ -526,14 +725,14 @@ const commands = {
   "--status": showStatus,
   "--init": () => {
     if (!args[1]) {
-      console.error("Usage: node scheduler.js --init <path>");
+      console.error("Usage: node basecamp.js --init <path>");
       process.exit(1);
     }
     initKB(args[1]);
   },
-  "--run": () => {
+  "--run": async () => {
     if (!args[1]) {
-      console.error("Usage: node scheduler.js --run <task-name>");
+      console.error("Usage: node basecamp.js --run <task-name>");
       process.exit(1);
     }
     const config = loadConfig(),
@@ -545,8 +744,8 @@ const commands = {
       );
       process.exit(1);
     }
-    runTask(args[1], task, config, state);
+    await runTask(args[1], task, config, state);
   },
 };
 
-(commands[command] || runDueTasks)();
+await (commands[command] || runDueTasks)();

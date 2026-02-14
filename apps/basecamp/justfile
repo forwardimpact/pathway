@@ -1,12 +1,11 @@
 # Basecamp — build, install, and manage the scheduler
 
-app_name   := "fit-basecamp"
-version    := "1.0.1"
-plist_name := "com.fit-basecamp.scheduler"
-dist_dir   := "dist"
-
-# Detect current architecture
-arch := if `uname -m` == "arm64" { "aarch64-apple-darwin" } else { "x86_64-apple-darwin" }
+app_name       := "fit-basecamp"
+status_menu    := "BasecampStatus"
+version        := `grep '"version"' package.json | head -1 | sed 's/.*: *"//;s/".*//;s/ //g'`
+plist_name     := "com.fit-basecamp.scheduler"
+dist_dir       := "dist"
+status_menu_bin := dist_dir / status_menu
 
 # Show available recipes
 [doc("List all available recipes")]
@@ -15,27 +14,24 @@ default:
 
 # ─── Build ────────────────────────────────────────────────────────────────────
 
-# Compile binary for the current architecture
-build:
-    ./scripts/compile.sh "{{ dist_dir }}" "{{ app_name }}" "{{ arch }}"
+# Compile the Swift status menu binary
+build-status-menu:
+    @mkdir -p "{{ dist_dir }}"
+    @rm -rf StatusMenu/.build
+    swift build -c release --package-path StatusMenu
+    @cp StatusMenu/.build/release/{{ status_menu }} "{{ status_menu_bin }}"
+    @rm -rf StatusMenu/.build
 
-# Compile binary for a specific target (e.g. aarch64-apple-darwin)
-build-target target:
-    ./scripts/compile.sh "{{ dist_dir }}" "{{ app_name }}" "{{ target }}"
+# Compile standalone Deno binary
+build-daemon:
+    ./scripts/compile.sh "{{ dist_dir }}" "{{ app_name }}"
 
-# Compile binaries for both arm64 and x86_64
-build-all:
-    ./scripts/compile.sh "{{ dist_dir }}" "{{ app_name }}" "aarch64-apple-darwin"
-    ./scripts/compile.sh "{{ dist_dir }}" "{{ app_name }}" "x86_64-apple-darwin"
+# Compile everything (Deno first so status menu binary is not embedded)
+build: build-daemon build-status-menu
 
-# Build macOS installer package (.pkg) for the current architecture
+# Build macOS installer package (.pkg)
 pkg: build
-    ./scripts/build-pkg.sh "{{ dist_dir }}" "{{ app_name }}" "{{ version }}" "{{ arch }}"
-
-# Build installer packages for both architectures
-pkg-all: build-all
-    ./scripts/build-pkg.sh "{{ dist_dir }}" "{{ app_name }}" "{{ version }}" "aarch64-apple-darwin"
-    ./scripts/build-pkg.sh "{{ dist_dir }}" "{{ app_name }}" "{{ version }}" "x86_64-apple-darwin"
+    ./scripts/build-pkg.sh "{{ dist_dir }}" "{{ app_name }}" "{{ version }}" "{{ status_menu_bin }}"
 
 # Clean build artifacts
 clean:
@@ -55,20 +51,20 @@ uninstall:
 
 # Run due tasks once and exit
 run:
-    deno run --allow-all scheduler.js
+    deno run --allow-all basecamp.js
 
 # Run scheduler daemon (poll every 60s)
 daemon:
-    deno run --allow-all scheduler.js --daemon
+    deno run --allow-all basecamp.js --daemon
 
 # Run a specific task immediately
 run-task task:
-    deno run --allow-all scheduler.js --run "{{ task }}"
+    deno run --allow-all basecamp.js --run "{{ task }}"
 
 # Show knowledge bases and task status
 status:
-    deno run --allow-all scheduler.js --status
+    deno run --allow-all basecamp.js --status
 
 # Initialize a new knowledge base at the given path
 init path:
-    deno run --allow-all scheduler.js --init "{{ path }}"
+    deno run --allow-all basecamp.js --init "{{ path }}"

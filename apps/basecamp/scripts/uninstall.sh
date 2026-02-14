@@ -24,6 +24,23 @@ else
   echo "  LaunchAgent not found, skipping."
 fi
 
+# Remove status menu LaunchAgent
+STATUS_PLIST="$HOME/Library/LaunchAgents/com.fit-basecamp.status-menu.plist"
+if [ -f "$STATUS_PLIST" ]; then
+  launchctl unload "$STATUS_PLIST" 2>/dev/null || true
+  rm -f "$STATUS_PLIST"
+  echo "  Removed status menu LaunchAgent"
+fi
+killall BasecampStatus 2>/dev/null || true
+if [ -f "/usr/local/bin/BasecampStatus" ]; then
+  sudo rm -f "/usr/local/bin/BasecampStatus"
+  echo "  Removed /usr/local/bin/BasecampStatus"
+fi
+
+# Remove stale socket file
+# Socket path: ~/.fit/basecamp/basecamp.sock (must match SOCKET_PATH in basecamp.js)
+rm -f "$HOME/.fit/basecamp/basecamp.sock"
+
 # Remove binary
 if [ -f "/usr/local/bin/$APP_NAME" ]; then
   sudo rm -f "/usr/local/bin/$APP_NAME"

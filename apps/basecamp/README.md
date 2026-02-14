@@ -186,7 +186,7 @@ fit-basecamp --status            Show knowledge bases and task status
 fit-basecamp --help              Show this help
 ```
 
-When running from source, use `node scheduler.js` or `npx fit-basecamp` instead
+When running from source, use `node basecamp.js` or `npx fit-basecamp` instead
 of `fit-basecamp`.
 
 ## How It Works
