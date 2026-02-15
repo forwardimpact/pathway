@@ -24,28 +24,28 @@ build-status-menu:
 
 # Compile standalone Deno binary
 build-daemon:
-    ./scripts/compile.sh "{{ dist_dir }}" "{{ app_name }}"
+    ./pkg/macos/compile.sh "{{ dist_dir }}" "{{ app_name }}"
 
 # Compile everything (Deno first so status menu binary is not embedded)
 build: build-daemon build-status-menu
 
 # Build macOS installer package (.pkg)
 pkg: build
-    ./scripts/build-pkg.sh "{{ dist_dir }}" "{{ app_name }}" "{{ version }}" "{{ status_menu_bin }}"
+    ./pkg/macos/build-pkg.sh "{{ dist_dir }}" "{{ app_name }}" "{{ version }}" "{{ status_menu_bin }}"
 
 # Clean build artifacts
 clean:
     rm -rf "{{ dist_dir }}"
 
-# ─── Install / Uninstall ─────────────────────────────────────────────────────
+# ─── Setup ───────────────────────────────────────────────────────────────────
 
-# Install locally (set up config and default KB at ~/Documents/Personal/)
-install:
-    ./scripts/install.sh
+# Initialize config and default KB at ~/Documents/Personal/ (dev)
+setup:
+    ./scripts/init.sh
 
-# Uninstall (remove binary and LaunchAgent; data at ~/Documents/Personal/ is preserved)
+# Uninstall pkg (remove binary and LaunchAgent; user data preserved)
 uninstall:
-    ./scripts/uninstall.sh "{{ app_name }}" "{{ plist_name }}"
+    ./pkg/macos/uninstall.sh "{{ app_name }}" "{{ plist_name }}"
 
 # ─── Scheduler ────────────────────────────────────────────────────────────────
 

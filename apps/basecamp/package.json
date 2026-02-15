@@ -20,15 +20,12 @@
     "build": "deno run --allow-all build.js",
     "build:pkg": "deno run --allow-all build.js --pkg",
     "build:all": "deno run --allow-all build.js --all",
-    "install:basecamp": "./scripts/install.sh",
-    "scheduler:install": "node basecamp.js --install-launchd",
-    "scheduler:uninstall": "node basecamp.js --uninstall-launchd"
+    "init": "./scripts/init.sh"
   },
   "files": [
     "basecamp.js",
     "build.js",
     "config/",
-    "scripts/",
     "template/"
   ],
   "engines": {

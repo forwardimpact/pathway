@@ -90,7 +90,7 @@ function buildPKG(statusMenuBinaryPath) {
 
   console.log(`\nBuilding pkg: ${pkgName}...`);
 
-  const buildPkg = join(__dirname, "scripts", "build-pkg.sh");
+  const buildPkg = join(__dirname, "pkg", "macos", "build-pkg.sh");
   run(
     `"${buildPkg}" "${DIST_DIR}" "${APP_NAME}" "${VERSION}" "${statusMenuBinaryPath}"`,
     { cwd: __dirname },

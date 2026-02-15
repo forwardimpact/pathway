@@ -54,13 +54,10 @@ To uninstall, run `/usr/local/share/basecamp/uninstall.sh`.
 
 ```bash
 cd apps/basecamp
-./scripts/install.sh
+./scripts/init.sh
 
 # Configure your identity
 vi ~/Documents/Personal/USER.md
-
-# Start the daemon
-npx fit-basecamp --install-launchd
 
 # Open your KB interactively
 cd ~/Documents/Personal && claude
@@ -180,8 +177,6 @@ fit-basecamp                     Run due tasks once and exit
 fit-basecamp --daemon            Run continuously (poll every 60s)
 fit-basecamp --run <task>        Run a specific task immediately
 fit-basecamp --init <path>       Initialize a new knowledge base
-fit-basecamp --install-launchd   Install macOS LaunchAgent for auto-start
-fit-basecamp --uninstall-launchd Remove macOS LaunchAgent
 fit-basecamp --status            Show knowledge bases and task status
 fit-basecamp --help              Show this help
 ```
@@ -220,7 +215,7 @@ ships with these skills:
 ## Requirements
 
 - Claude CLI (`claude`) installed and authenticated
-- macOS (for Apple Mail/Calendar sync and launchd)
+- macOS (for Apple Mail/Calendar sync)
 - Node.js >= 18 (for running from source) or the standalone binary
 - Deno >= 2.x (for building the standalone binary)
 

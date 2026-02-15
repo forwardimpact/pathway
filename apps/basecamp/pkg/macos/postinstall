@@ -34,14 +34,47 @@ fi
 
 # --- LaunchAgent (runs as user, not root) ------------------------------------
 
-PLIST="$REAL_HOME/Library/LaunchAgents/com.fit-basecamp.scheduler.plist"
+PLIST_LABEL="com.fit-basecamp.scheduler"
+PLIST="$REAL_HOME/Library/LaunchAgents/$PLIST_LABEL.plist"
+
 if [ -f "$PLIST" ]; then
   # Upgrade: binary already replaced by pkg payload. Kill the old daemon and
   # let KeepAlive restart it with the new binary. No plist rewrite needed.
   /usr/bin/killall fit-basecamp 2>/dev/null || true
 else
-  # Fresh install: create plist and load it.
-  /usr/bin/sudo -u "$REAL_USER" "$BINARY" --install-launchd 2>/dev/null || true
+  # Fresh install: write plist and load it.
+  /usr/bin/sudo -u "$REAL_USER" /usr/bin/tee "$PLIST" > /dev/null <<LAUNCHD
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
+<plist version="1.0">
+<dict>
+  <key>Label</key>
+  <string>$PLIST_LABEL</string>
+  <key>ProgramArguments</key>
+  <array>
+    <string>$BINARY</string>
+    <string>--daemon</string>
+  </array>
+  <key>RunAtLoad</key>
+  <true/>
+  <key>KeepAlive</key>
+  <true/>
+  <key>StandardOutPath</key>
+  <string>$BASECAMP_HOME/logs/launchd-stdout.log</string>
+  <key>StandardErrorPath</key>
+  <string>$BASECAMP_HOME/logs/launchd-stderr.log</string>
+  <key>WorkingDirectory</key>
+  <string>$BASECAMP_HOME</string>
+  <key>EnvironmentVariables</key>
+  <dict>
+    <key>PATH</key>
+    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:$REAL_HOME/.local/bin</string>
+  </dict>
+</dict>
+</plist>
+LAUNCHD
+
+  /usr/bin/sudo -u "$REAL_USER" /usr/bin/launchctl load "$PLIST"
 fi
 
 # --- Status menu LaunchAgent (runs as user, not root) -----------------------

@@ -16,7 +16,7 @@ VERSION="${3:?Usage: build-pkg.sh <dist_dir> <app_name> <version> <status_menu_b
 STATUS_MENU_BINARY="${4:?Usage: build-pkg.sh <dist_dir> <app_name> <version> <status_menu_binary>}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-PROJECT_DIR="$(cd "$SCRIPT_DIR/.." && pwd)"
+PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 BINARY_PATH="$DIST_DIR/$APP_NAME"
 IDENTIFIER="com.fit-basecamp.scheduler"
 
@@ -76,8 +76,8 @@ pkgbuild \
 # --- Create distribution resources -------------------------------------------
 
 mkdir -p "$RESOURCES_DIR"
-cp "$SCRIPT_DIR/pkg-resources/welcome.html" "$RESOURCES_DIR/welcome.html"
-cp "$SCRIPT_DIR/pkg-resources/conclusion.html" "$RESOURCES_DIR/conclusion.html"
+cp "$SCRIPT_DIR/welcome.html" "$RESOURCES_DIR/welcome.html"
+cp "$SCRIPT_DIR/conclusion.html" "$RESOURCES_DIR/conclusion.html"
 
 # --- Create distribution.xml ------------------------------------------------
 

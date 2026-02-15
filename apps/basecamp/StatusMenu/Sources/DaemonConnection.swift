@@ -59,7 +59,7 @@ struct StatusResponse {
 //
 // Socket path: ~/.fit/basecamp/basecamp.sock
 // This path is also defined in basecamp.js (SOCKET_PATH) and
-// scripts/uninstall.sh. All three must stay in sync.
+// pkg/macos/uninstall.sh. All three must stay in sync.
 
 class DaemonConnection {
     private let socketPath: String

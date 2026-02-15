@@ -7,8 +7,6 @@
 //   node basecamp.js --daemon            Run continuously (poll every 60s)
 //   node basecamp.js --run <task>        Run a specific task immediately
 //   node basecamp.js --init <path>       Initialize a new knowledge base
-//   node basecamp.js --install-launchd   Install macOS LaunchAgent
-//   node basecamp.js --uninstall-launchd Remove macOS LaunchAgent
 //   node basecamp.js --validate          Validate agents and skills exist
 //   node basecamp.js --status            Show task status
 //   node basecamp.js --help              Show this help
@@ -34,16 +32,10 @@ const BASECAMP_HOME = join(HOME, ".fit", "basecamp");
 const CONFIG_PATH = join(BASECAMP_HOME, "scheduler.json");
 const STATE_PATH = join(BASECAMP_HOME, "state.json");
 const LOG_DIR = join(BASECAMP_HOME, "logs");
-const PLIST_NAME = "com.fit-basecamp.scheduler";
-const PLIST_PATH = join(HOME, "Library", "LaunchAgents", `${PLIST_NAME}.plist`);
 const __dirname =
   import.meta.dirname || dirname(fileURLToPath(import.meta.url));
 const KB_TEMPLATE_DIR = join(__dirname, "template");
 const SOCKET_PATH = join(BASECAMP_HOME, "basecamp.sock");
-const IS_COMPILED =
-  typeof Deno !== "undefined" &&
-  Deno.execPath &&
-  !Deno.execPath().endsWith("deno");
 
 let daemonStartedAt = null;
 
@@ -347,14 +339,7 @@ function handleStatusRequest(socket) {
 
 function handleRestartRequest(socket) {
   send(socket, { type: "ack", command: "restart" });
-  const uid = execSync("id -u", { encoding: "utf8" }).trim();
-  setTimeout(() => {
-    try {
-      execSync(`launchctl kickstart -k gui/${uid}/${PLIST_NAME}`);
-    } catch {
-      process.exit(0);
-    }
-  }, 100);
+  setTimeout(() => process.exit(0), 100);
 }
 
 function handleRunRequest(socket, taskName) {
@@ -498,69 +483,6 @@ function initKB(targetPath) {
   );
 }
 
-// --- LaunchAgent ------------------------------------------------------------
-
-function installLaunchd() {
-  const execPath =
-    typeof Deno !== "undefined" ? Deno.execPath() : process.execPath;
-  const isCompiled = IS_COMPILED || !execPath.includes("node");
-  const progArgs = isCompiled
-    ? `    <string>${execPath}</string>\n    <string>--daemon</string>`
-    : `    <string>${execPath}</string>\n    <string>${join(__dirname, "basecamp.js")}</string>\n    <string>--daemon</string>`;
-
-  const plist = `<?xml version="1.0" encoding="UTF-8"?>
-<!DOCTYPE plist PUBLIC "-//Apple//DTD PLIST 1.0//EN" "http://www.apple.com/DTDs/PropertyList-1.0.dtd">
-<plist version="1.0">
-<dict>
-  <key>Label</key>
-  <string>${PLIST_NAME}</string>
-  <key>ProgramArguments</key>
-  <array>
-${progArgs}
-  </array>
-  <key>RunAtLoad</key>
-  <true/>
-  <key>KeepAlive</key>
-  <true/>
-  <key>StandardOutPath</key>
-  <string>${join(LOG_DIR, "launchd-stdout.log")}</string>
-  <key>StandardErrorPath</key>
-  <string>${join(LOG_DIR, "launchd-stderr.log")}</string>
-  <key>WorkingDirectory</key>
-  <string>${BASECAMP_HOME}</string>
-  <key>EnvironmentVariables</key>
-  <dict>
-    <key>PATH</key>
-    <string>/usr/local/bin:/usr/bin:/bin:/opt/homebrew/bin:${join(HOME, ".local", "bin")}</string>
-  </dict>
-</dict>
-</plist>`;
-
-  ensureDir(dirname(PLIST_PATH));
-  ensureDir(LOG_DIR);
-  writeFileSync(PLIST_PATH, plist);
-
-  try {
-    execSync(`launchctl unload "${PLIST_PATH}" 2>/dev/null`, {
-      stdio: "ignore",
-    });
-  } catch {}
-  execSync(`launchctl load "${PLIST_PATH}"`);
-  console.log(
-    `LaunchAgent installed and loaded.\n  Plist:  ${PLIST_PATH}\n  Logs:   ${LOG_DIR}/\n  Config: ${CONFIG_PATH}`,
-  );
-}
-
-function uninstallLaunchd() {
-  try {
-    execSync(`launchctl unload "${PLIST_PATH}" 2>/dev/null`);
-  } catch {}
-  try {
-    execSync(`rm -f "${PLIST_PATH}"`);
-  } catch {}
-  console.log("LaunchAgent uninstalled.");
-}
-
 // --- Status -----------------------------------------------------------------
 
 function showStatus() {
@@ -590,15 +512,6 @@ function showStatus() {
     if (task.skill) lines.push(`    Skill: ${task.skill}`);
     if (s.lastError) lines.push(`    Error: ${s.lastError.slice(0, 80)}`);
     console.log(lines.join("\n"));
-  }
-
-  try {
-    execSync(`launchctl list 2>/dev/null | grep ${PLIST_NAME}`, {
-      encoding: "utf8",
-    });
-    console.log("\nLaunchAgent: loaded");
-  } catch {
-    console.log("\nLaunchAgent: not loaded (run --install-launchd to start)");
   }
 }
 
@@ -680,8 +593,6 @@ Usage:
   ${bin} --daemon            Run continuously (poll every 60s)
   ${bin} --run <task>        Run a specific task immediately
   ${bin} --init <path>       Initialize a new knowledge base
-  ${bin} --install-launchd   Install macOS LaunchAgent for auto-start
-  ${bin} --uninstall-launchd Remove macOS LaunchAgent
   ${bin} --validate          Validate agents and skills exist
   ${bin} --status            Show task status
   ${bin} --help              Show this help
@@ -719,8 +630,6 @@ const commands = {
   "--help": showHelp,
   "-h": showHelp,
   "--daemon": daemon,
-  "--install-launchd": installLaunchd,
-  "--uninstall-launchd": uninstallLaunchd,
   "--validate": validate,
   "--status": showStatus,
   "--init": () => {

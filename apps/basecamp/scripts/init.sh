@@ -1,21 +1,20 @@
 #!/bin/bash
 set -e
 
-# Basecamp Installer (development / repo context)
+# Basecamp Init (development / repo context)
 #
-# Sets up scheduler config, default knowledge base, and LaunchAgent for local
-# development. The compiled binary is installed via the .pkg installer instead.
+# Sets up scheduler config and default knowledge base for local development.
+# The compiled binary and LaunchAgent are installed via the .pkg installer.
 #
 # This script is for engineers running from the repo with deno or node.
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
-APP_NAME="fit-basecamp"
 BASECAMP_HOME="$HOME/.fit/basecamp"
 DEFAULT_KB="$HOME/Documents/Personal"
 
 echo ""
-echo "Basecamp Installer (dev)"
-echo "========================"
+echo "Basecamp Init (dev)"
+echo "==================="
 echo ""
 
 # ---------------------------------------------------------------------------
@@ -74,26 +73,11 @@ else
 fi
 
 # ---------------------------------------------------------------------------
-# 5. Install LaunchAgent
-# ---------------------------------------------------------------------------
-
-echo ""
-echo "Installing background scheduler (LaunchAgent)..."
-SCHEDULER="$SCRIPT_DIR/../basecamp.js"
-if command -v deno &>/dev/null && [ -f "$SCHEDULER" ]; then
-  deno run --allow-all "$SCHEDULER" --install-launchd
-elif command -v node &>/dev/null && [ -f "$SCHEDULER" ]; then
-  node "$SCHEDULER" --install-launchd
-else
-  echo "  Neither deno nor node found, skipping LaunchAgent install."
-fi
-
-# ---------------------------------------------------------------------------
 # Summary
 # ---------------------------------------------------------------------------
 
 echo ""
-echo "Done! Basecamp is installed."
+echo "Done! Basecamp is initialized."
 echo ""
 echo "  Config:       $BASECAMP_HOME/scheduler.json"
 echo "  Knowledge:    $DEFAULT_KB/"
@@ -102,7 +86,5 @@ echo ""
 echo "Next steps:"
 echo "  1. Edit $DEFAULT_KB/USER.md with your name, email, and domain"
 echo "  2. Edit $BASECAMP_HOME/scheduler.json to configure tasks"
-echo "  3. Run the scheduler:    deno run --allow-all basecamp.js --status"
-echo "  4. Start the daemon:     deno run --allow-all basecamp.js --install-launchd"
-echo "  5. Open your KB:         cd $DEFAULT_KB && claude"
+echo "  3. Open your KB:         cd $DEFAULT_KB && claude"
 echo ""
