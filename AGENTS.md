@@ -38,22 +38,30 @@ npx fit-basecamp --daemon
 
 ## Monorepo Structure
 
+### Apps
+
+| App                        | CLI            | Purpose                                           |
+| -------------------------- | -------------- | ------------------------------------------------- |
+| `@forwardimpact/pathway`   | `fit-pathway`  | Web app and CLI for career progression            |
+| `@forwardimpact/basecamp`  | `fit-basecamp` | Personal knowledge system with scheduled AI tasks |
+| `@forwardimpact/schema`    | `fit-schema`   | Public data model for AI agents and engineers     |
+
+### Libraries
+
+| Library                      | CLI          | Purpose                                 |
+| ---------------------------- | ------------ | --------------------------------------- |
+| `@forwardimpact/libpathway`  | —            | Derivation engine for roles and agents  |
+| `@forwardimpact/libdoc`      | `fit-doc`    | Documentation build and serve tools     |
+
 ```
 apps/
-  pathway/      @forwardimpact/pathway   Web app, CLI, formatters
-  basecamp/     @forwardimpact/basecamp  Personal knowledge system, scheduler
-  schema/       @forwardimpact/schema    Schema, validation, data loading
+  pathway/      Web app, CLI, formatters
+  basecamp/     Personal knowledge system, scheduler
+  schema/       Public data model for AI agents and engineers
 libs/
-  libpathway/   @forwardimpact/libpathway  Derivation logic, job/agent models
-  libdoc/       @forwardimpact/libdoc      Documentation build and serve tools
+  libpathway/   Derivation logic, job/agent models
+  libdoc/       Documentation build and serve tools
 ```
-
-| Package                      | CLI            | Purpose                                           |
-| ---------------------------- | -------------- | ------------------------------------------------- |
-| `@forwardimpact/schema`      | `fit-schema`   | Schema definitions and data loading               |
-| `@forwardimpact/libpathway`  | —              | Derivation engine for roles and agents            |
-| `@forwardimpact/pathway`     | `fit-pathway`  | Web app and CLI for career progression            |
-| `@forwardimpact/basecamp`    | `fit-basecamp` | Personal knowledge system with scheduled AI tasks |
 
 **This is a data-driven monorepo.** The model layer defines derivation logic,
 but actual entities (disciplines, tracks, skills, grades, behaviours) are
@@ -64,7 +72,7 @@ different data while using the same model.
 
 ## 3-Layer System
 
-1. **Schema** (`apps/schema/src/`) — Data definitions, validation, loading
+1. **Schema** (`apps/schema/src/`) — Public data model, validation, loading
 2. **Model** (`libs/libpathway/src/`) — Pure business logic, derivation
 3. **Pathway** (`apps/pathway/src/`) — Formatters, views, UI components
 
@@ -72,7 +80,7 @@ different data while using the same model.
 Schema (data) → Model (derivation) → Pathway (presentation)
 ```
 
-- **Schema** defines what entities look like and validates them
+- **Schema** publishes the data model and validates entities
 - **Model** transforms entities into derived outputs (jobs, agents)
 - **Pathway** formats outputs for display (web, CLI, markdown)
 
@@ -501,11 +509,11 @@ failed tags after fixing the root cause: delete the remote tag
 
 ### CLI Tools
 
-| CLI            | Package                   | Purpose                                 |
-| -------------- | ------------------------- | --------------------------------------- |
-| `fit-schema`   | `@forwardimpact/schema`   | Schema validation, index generation     |
-| `fit-pathway`  | `@forwardimpact/pathway`  | Web app, entity browsing, agents        |
-| `fit-basecamp` | `@forwardimpact/basecamp` | Knowledge base scheduler and management |
+| CLI            | Purpose                                 |
+| -------------- | --------------------------------------- |
+| `fit-pathway`  | Web app, entity browsing, agents        |
+| `fit-basecamp` | Knowledge base scheduler and management |
+| `fit-schema`   | Schema validation, index generation     |
 
 ### Quick Reference
 

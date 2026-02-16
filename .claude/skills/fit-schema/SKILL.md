@@ -1,12 +1,18 @@
 ---
 name: fit-schema
-description: Work with the @forwardimpact/schema package. Use when adding or modifying skills, capabilities, behaviours, disciplines, tracks, grades, questions, or schema definitions.
+description: Work with the @forwardimpact/schema app. Use when adding or modifying skills, capabilities, behaviours, disciplines, tracks, grades, questions, or schema definitions.
 ---
 
-# Schema Package
+# Schema App
 
-Schema definitions, data loading, and validation for the Forward Impact
-framework.
+A public site describing the data model for consumption by AI agents and
+engineers. The schema is the fundamental underpinning of all Forward Impact
+apps—it defines how engineering competencies, career progression, and agent
+capabilities are structured in a machine-readable format.
+
+Making the schema well understood is a first-class goal. It is published in
+structured formats (JSON Schema, RDF/SHACL) so that AI agents can reliably
+interpret and work with career framework data.
 
 ## When to Use
 
@@ -16,8 +22,9 @@ framework.
 - Running data validation
 - Adding interview questions
 - Generating browser index files
+- Improving schema documentation for public consumption
 
-## Package Structure
+## App Structure
 
 ```
 apps/schema/
@@ -29,8 +36,8 @@ apps/schema/
     levels.js            # Skill levels, behaviour maturities
     modifiers.js         # Modifier utilities
   schema/
-    json/                # JSON Schema definitions
-    rdf/                 # RDF/SHACL ontology
+    json/                # JSON Schema definitions (public)
+    rdf/                 # RDF/SHACL ontology (public)
   examples/              # Canonical example data
 ```
 

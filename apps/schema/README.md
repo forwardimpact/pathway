@@ -1,19 +1,27 @@
 # @forwardimpact/schema
 
-Schema definitions and data loading for skills, behaviours, and role frameworks.
+A public site describing the data model for consumption by AI agents and
+engineers.
 
 ## Role in the Vision
 
-The schema package defines how engineering competencies are structured. It
-provides the foundational data model that both human career progression and
-coding agent team generation build upon—ensuring consistency between how we
-define human roles and how agent teams understand their capabilities.
+The schema app is the fundamental underpinning of all Forward Impact apps. It
+defines how engineering competencies, career progression, and agent capabilities
+are structured—and publishes that structure in machine-readable formats so AI
+agents can reliably interpret and work with career framework data.
+
+Making the schema well understood is a first-class goal. By publishing JSON
+Schema and RDF/SHACL definitions alongside canonical example data, we ensure
+that every consumer—human or AI—shares a consistent understanding of the data
+model.
 
 ## What It Does
 
-- **Schema definitions** — JSON Schema and RDF/SHACL for skills, behaviours,
-  disciplines, tracks, and grades
+- **Public data model** — JSON Schema and RDF/SHACL definitions for skills,
+  behaviours, disciplines, tracks, and grades
 - **Data loading** — Parse and validate YAML data files
+- **Validation** — Enforce referential integrity, required fields, and schema
+  compliance
 - **Index generation** — Generate browser-compatible file indexes
 - **Example data** — Canonical examples for testing and reference
 
