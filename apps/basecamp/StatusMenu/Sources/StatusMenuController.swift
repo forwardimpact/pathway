@@ -29,13 +29,68 @@ class StatusMenuController: NSObject, NSApplicationDelegate {
 
     private func setupStatusItem() {
         if let button = statusItem.button {
-            button.image = NSImage(
-                systemSymbolName: "gearshape.2",
-                accessibilityDescription: "Basecamp"
-            )
-            button.image?.size = NSSize(width: 18, height: 18)
+            button.image = Self.basecampIcon(size: NSSize(width: 18, height: 18))
+            button.image?.isTemplate = true
         }
         statusItem.menu = buildMenu()
+    }
+
+    /// Basecamp tent icon drawn from SVG path data.
+    /// Matches docs/assets/icons/basecamp.svg — a tent with flag.
+    private static func basecampIcon(size: NSSize) -> NSImage {
+        let image = NSImage(size: size, flipped: false) { rect in
+            let scale = min(rect.width / 64, rect.height / 64)
+            let transform = NSAffineTransform()
+            transform.translateX(by: (rect.width - 64 * scale) / 2,
+                                 yBy: (rect.height - 64 * scale) / 2)
+            transform.scale(by: scale)
+            transform.concat()
+
+            NSColor.labelColor.setStroke()
+            NSColor.labelColor.setFill()
+
+            // Ground line
+            let ground = NSBezierPath()
+            ground.move(to: NSPoint(x: 4, y: 64 - 52))
+            ground.line(to: NSPoint(x: 60, y: 64 - 52))
+            ground.lineWidth = 2
+            ground.stroke()
+
+            // Tent body
+            let tent = NSBezierPath()
+            tent.move(to: NSPoint(x: 12, y: 64 - 52))
+            tent.line(to: NSPoint(x: 32, y: 64 - 18))
+            tent.line(to: NSPoint(x: 52, y: 64 - 52))
+            tent.close()
+            tent.lineWidth = 2
+            tent.stroke()
+
+            // Tent opening
+            let opening = NSBezierPath()
+            opening.move(to: NSPoint(x: 26, y: 64 - 52))
+            opening.line(to: NSPoint(x: 32, y: 64 - 34))
+            opening.line(to: NSPoint(x: 38, y: 64 - 52))
+            opening.close()
+            opening.fill()
+
+            // Tent pole
+            let pole = NSBezierPath()
+            pole.move(to: NSPoint(x: 32, y: 64 - 18))
+            pole.line(to: NSPoint(x: 32, y: 64 - 14))
+            pole.lineWidth = 2
+            pole.stroke()
+
+            // Flag
+            let flag = NSBezierPath()
+            flag.move(to: NSPoint(x: 32, y: 64 - 14))
+            flag.line(to: NSPoint(x: 40, y: 64 - 17))
+            flag.line(to: NSPoint(x: 32, y: 64 - 20))
+            flag.close()
+            flag.fill()
+
+            return true
+        }
+        return image
     }
 
     private func setupDaemon() {
