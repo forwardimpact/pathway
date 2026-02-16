@@ -6,76 +6,107 @@
     {{#description}}
     <meta name="description" content="{{description}}" />
     {{/description}}
-    <title>Forward Impact – {{title}}</title>
+    <title>Forward Impact Engineering – {{title}}</title>
+    <link rel="icon" href="/assets/icons/forward-impact.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/assets/main.css" />
   </head>
   <body>
-    <header class="container">
-      <hgroup>
-        <a href="/"><mark>Forward Impact</mark></a>
-        <p>Growing world-class engineers in the age of AI</p>
-      </hgroup>
-      <nav>
-        <ul>
-          <li><a href="/" class="contrast">Home</a></li>
-          <li>
-            <details class="dropdown">
-              <summary>Schema</summary>
-              <ul>
-                <li><a href="/schema/">Overview</a></li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details class="dropdown">
-              <summary>Model</summary>
-              <ul>
-                <li><a href="/model/">Overview</a></li>
-                <li><a href="/model/core/">Core Model</a></li>
-                <li><a href="/model/lifecycle/">Lifecycle</a></li>
-              </ul>
-            </details>
-          </li>
-          <li>
-            <details class="dropdown">
-              <summary>Pathway</summary>
-              <ul>
-                <li><a href="/pathway/">Overview</a></li>
-                <li><a href="/pathway/agents/">Agents</a></li>
-                <li><a href="/pathway/reference/">Reference</a></li>
-              </ul>
-            </details>
-          </li>
-        </ul>
-      </nav>
-    </header>
-    <main class="container">
-      <h1>{{title}}</h1>
-
-      {{#description}}
-      <p class="lead">{{{description}}}</p>
-      {{/description}} {{#hasToc}}
-      <aside>
+    <header>
+      <div class="header-inner">
+        <a class="brand" href="/">
+          <img src="/assets/icons/forward-impact.svg" alt="" width="28" height="28" />
+          <span class="brand-text">Forward Impact</span>
+        </a>
         <nav>
+          <ul>
+            <li><a href="/">Home</a></li>
+            <li>
+              <details class="dropdown">
+                <summary>Schema</summary>
+                <ul>
+                  <li><a href="/schema/">Overview</a></li>
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details class="dropdown">
+                <summary>Model</summary>
+                <ul>
+                  <li><a href="/model/">Overview</a></li>
+                  <li><a href="/model/core/">Core Model</a></li>
+                  <li><a href="/model/lifecycle/">Lifecycle</a></li>
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details class="dropdown">
+                <summary>Pathway</summary>
+                <ul>
+                  <li><a href="/pathway/">Overview</a></li>
+                  <li><a href="/pathway/agents/">Agents</a></li>
+                  <li><a href="/pathway/reference/">Reference</a></li>
+                </ul>
+              </details>
+            </li>
+            <li>
+              <details class="dropdown">
+                <summary>Basecamp</summary>
+                <ul>
+                  <li><a href="/basecamp/">Overview</a></li>
+                </ul>
+              </details>
+            </li>
+          </ul>
+        </nav>
+        <button class="theme-toggle" aria-label="Toggle dark mode" title="Toggle theme">
+          <svg class="icon-sun" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><circle cx="12" cy="12" r="5"/><line x1="12" y1="1" x2="12" y2="3"/><line x1="12" y1="21" x2="12" y2="23"/><line x1="4.22" y1="4.22" x2="5.64" y2="5.64"/><line x1="18.36" y1="18.36" x2="19.78" y2="19.78"/><line x1="1" y1="12" x2="3" y2="12"/><line x1="21" y1="12" x2="23" y2="12"/><line x1="4.22" y1="19.78" x2="5.64" y2="18.36"/><line x1="18.36" y1="5.64" x2="19.78" y2="4.22"/></svg>
+          <svg class="icon-moon" width="20" height="20" viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2" stroke-linecap="round"><path d="M21 12.79A9 9 0 1111.21 3 7 7 0 0021 12.79z"/></svg>
+        </button>
+      </div>
+    </header>
+
+    <!-- Animated landscape scene -->
+    <div class="scene" aria-hidden="true">
+      <div class="sky">
+        <div class="celestial sun-orb"></div>
+        <div class="celestial moon-orb"></div>
+        <div class="cloud cloud-1"></div>
+        <div class="cloud cloud-2"></div>
+        <div class="cloud cloud-3"></div>
+        <div class="stars"></div>
+      </div>
+      <div class="hills">
+        <div class="hill hill-far"></div>
+        <div class="hill hill-mid"></div>
+        <div class="hill hill-near"></div>
+      </div>
+      <div class="grass-field">
+        <div class="grass-row grass-row-1"></div>
+        <div class="grass-row grass-row-2"></div>
+        <div class="grass-row grass-row-3"></div>
+      </div>
+    </div>
+
+    <main class="container">
+      {{#hasToc}}
+      <aside>
+        <nav class="toc-nav">
           <h5>Contents</h5>
           {{{toc}}}
         </nav>
-        <hr />
       </aside>
       {{/hasToc}} {{{content}}}
     </main>
-    <footer class="container">
-      <p>
-        <small>
-          Code licensed
-          <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank"
-            >Apache 2.0</a
-          >, docs
-          <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank"
-            >CC BY 4.0</a
-          >
-        </small>
-      </p>
+    <footer>
+      <div class="footer-inner">
+        <p>
+          <small>
+            Code licensed
+            <a href="https://www.apache.org/licenses/LICENSE-2.0" target="_blank">Apache 2.0</a>, docs
+            <a href="https://creativecommons.org/licenses/by/4.0/" target="_blank">CC BY 4.0</a>
+          </small>
+        </p>
+      </div>
     </footer>
 
     <script type="module" src="/assets/main.js"></script>

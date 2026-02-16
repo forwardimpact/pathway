@@ -1,7 +1,16 @@
 ---
 title: Agents
-description: Agent profile derivation, SKILL.md format, and VS Code integration.
+description: Deploy AI coding agents that match your engineering standards — derived from the same skills framework as human roles.
 ---
+
+<div class="product-value">
+<p>
+Agent profiles are derived from the same skill and behaviour definitions as
+human job descriptions. Each agent is constrained to a lifecycle stage — plan
+agents can research but not edit code, code agents get full access, review
+agents verify without changing. Handoffs between stages keep humans in control.
+</p>
+</div>
 
 > See [Core Model](../model/core.md) for foundational concepts and
 > [Lifecycle](../model/lifecycle.md) for stages, handoffs, and checklists.

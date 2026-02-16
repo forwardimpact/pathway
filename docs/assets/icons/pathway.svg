@@ -1,0 +1,15 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
+  <!-- Trail through terrain: the journey, career pathway -->
+  <!-- Mountains in background -->
+  <polygon points="8,44 22,20 36,44" fill="#b7e4c7" stroke="#52b788" stroke-width="1.5"/>
+  <polygon points="28,44 44,16 60,44" fill="#95d5b2" stroke="#40916c" stroke-width="1.5"/>
+  <!-- Winding trail -->
+  <path d="M8,56 C16,50 20,54 28,46 C36,38 34,42 40,36 C46,30 48,34 56,24"
+        stroke="#2d6a4f" stroke-width="3" fill="none"/>
+  <!-- Trail markers -->
+  <circle cx="28" cy="46" r="2" fill="#2d6a4f"/>
+  <circle cx="40" cy="36" r="2" fill="#2d6a4f"/>
+  <!-- Flag at destination -->
+  <line x1="56" y1="24" x2="56" y2="14" stroke="#1b4332" stroke-width="2"/>
+  <polygon points="56,14 64,17 56,20" fill="#2d6a4f"/>
+</svg>

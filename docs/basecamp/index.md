@@ -1,88 +1,156 @@
 ---
 title: Basecamp
-description: Claude Code-native personal knowledge system with scheduled AI tasks.
+description: Set up camp — a personal knowledge system that keeps you briefed, organized, and ready.
 ---
 
-## Purpose
+<div class="page-header">
+<img src="/assets/icons/basecamp.svg" alt="Basecamp" />
 
-Basecamp is a personal knowledge system that runs as scheduled Claude Code
-tasks. No server, no database — just plain files, markdown, and the `claude`
-CLI. It can be compiled to a standalone executable via Deno.
+## Set Up Camp
 
-## Architecture
+</div>
+
+<div class="product-value">
+<p>
+Basecamp is your personal operations center. It syncs your email and calendar,
+builds a knowledge graph of the people and projects you work with, drafts
+responses, prepares meeting briefs, and organizes your files — all running as
+scheduled AI tasks in the background. No server, no database — just plain files,
+markdown, and Claude.
+</p>
+</div>
+
+### What you get
+
+<ul class="benefits">
+<li>Automatic email and calendar sync from Apple Mail and Calendar</li>
+<li>A knowledge graph of people, organizations, projects, and topics</li>
+<li>AI-drafted email responses that use your full context</li>
+<li>Meeting preparation briefings before every call</li>
+<li>Presentation generation from markdown to PDF</li>
+<li>File organization and cleanup on autopilot</li>
+<li>A macOS status menu showing what's running</li>
+</ul>
+
+### Who it's for
+
+**Busy engineers and managers** who want an AI assistant that actually knows
+their context — who they work with, what projects are active, and what's coming
+up next.
+
+**Anyone on macOS** who wants a set-and-forget knowledge system that runs
+quietly in the background and keeps getting smarter about your work.
+
+---
+
+## Quick Start
+
+<div class="quickstart">
+
+### Initialize your knowledge base
+
+```sh
+npx fit-basecamp --init ~/Documents/Team
+```
+
+### Start the scheduler
+
+```sh
+npx fit-basecamp --daemon
+```
+
+### Check what's happening
+
+```sh
+npx fit-basecamp --status
+```
+
+### Run a specific task now
+
+```sh
+npx fit-basecamp --run sync-mail
+```
+
+</div>
+
+---
+
+## How It Works
+
+Basecamp is a scheduler that runs Claude Code tasks on a timer. Each task has a
+prompt, a schedule, and a target knowledge base directory.
+
+1. The scheduler reads your task configuration
+2. When a task is due, it invokes Claude with the task prompt
+3. Claude reads the knowledge base's instructions and skill files
+4. Claude executes the task — syncing data, extracting entities, drafting emails
+5. Results are written as plain markdown and JSON files
+
+Everything is transparent. Your knowledge graph is Obsidian-compatible markdown.
+Your drafts are plain text. Your config is JSON. No magic, no lock-in.
+
+---
+
+## Built-in Skills
+
+| Skill                  | What it does                                     |
+| ---------------------- | ------------------------------------------------ |
+| **Sync Apple Mail**    | Reads email threads from Mail.app via SQLite     |
+| **Sync Apple Calendar**| Reads upcoming events from Calendar.app          |
+| **Extract Entities**   | Processes synced data into a knowledge graph     |
+| **Draft Emails**       | Writes response drafts using your full context   |
+| **Meeting Prep**       | Creates briefings before upcoming meetings       |
+| **Create Presentations**| Generates PDF slide decks from markdown         |
+| **Document Collab**    | Assists with document creation and editing       |
+| **Organize Files**     | Cleans up and organizes your files               |
+
+---
+
+## The Knowledge Base
+
+Each knowledge base is a self-contained directory:
 
 ```
-~/.fit/basecamp/                          # Scheduler home (central config)
-├── scheduler.json                    # Task definitions
-├── state.json                        # Task run state
-└── logs/                             # Scheduler logs
-
-~/Documents/Team/                     # A knowledge base (default)
-├── CLAUDE.md                         # Claude Code instructions for this KB
-├── knowledge/                        # Knowledge graph (Obsidian-compatible)
+~/Documents/Team/
+├── CLAUDE.md              # Instructions for AI tasks
+├── knowledge/             # Knowledge graph (Obsidian-compatible)
 │   ├── People/
 │   ├── Organizations/
 │   ├── Projects/
 │   └── Topics/
-├── .claude/skills/                   # Claude Code skill files
-└── drafts/                           # Email drafts
+├── .claude/skills/        # Task skill files
+└── drafts/                # Email drafts
 ```
 
-The scheduler is the only real code — a single JavaScript file. Everything else
-is markdown, JSON, and skill files. Knowledge bases are self-contained
-directories that can live anywhere on disk. Synced data and processing state
-live in `~/.cache/fit/basecamp/`, keeping KB directories clean.
+You can have multiple knowledge bases — for different teams, projects, or
+contexts. The scheduler manages them all from one configuration.
 
-## Features
+---
 
-### Scheduled Tasks
+## macOS Status Menu
 
-The scheduler runs Claude Code tasks on configurable schedules:
+Basecamp includes a native macOS status menu app that sits in your menu bar.
+It shows the status of every scheduled task — what's running, what finished,
+and when the next run is due. Click any task to run it immediately or see error
+details.
 
-- **Interval** — Every N minutes
-- **Cron** — Standard cron expressions
-- **Once** — One-time execution at a specified time
+---
 
-### Multiple Knowledge Bases
-
-Each KB is independent with its own CLAUDE.md, skills, and knowledge graph. The
-scheduler can run tasks across multiple KBs.
-
-### Built-in Skills
-
-| Skill                | Purpose                                  |
-| -------------------- | ---------------------------------------- |
-| Sync Apple Mail      | Sync email threads via SQLite            |
-| Sync Apple Calendar  | Sync calendar events via SQLite          |
-| Extract Entities     | Process synced data into knowledge graph |
-| Draft Emails         | Draft responses using knowledge context  |
-| Meeting Prep         | Prepare briefings for upcoming meetings  |
-| Create Presentations | Generate PDF slide decks via Playwright  |
-| Document Collab      | Document creation and collaboration      |
-| Organize Files       | File organization and cleanup            |
+## Technical Reference
 
 ### Standalone Binary
 
-Compiles to a self-contained executable via Deno that embeds the KB template, so
-`basecamp --init <path>` works without source files.
-
-## CLI
+Basecamp compiles to a self-contained executable via Deno, embedding the
+knowledge base template so `basecamp --init` works without source files:
 
 ```sh
-npx fit-basecamp                     # Run due tasks once and exit
-npx fit-basecamp --daemon            # Run continuously (poll every 60s)
-npx fit-basecamp --run <task>        # Run a specific task immediately
-npx fit-basecamp --init <path>       # Initialize a new knowledge base
-npx fit-basecamp --install-launchd   # Install macOS LaunchAgent
-npx fit-basecamp --uninstall-launchd # Remove macOS LaunchAgent
-npx fit-basecamp --validate          # Validate agents and skills exist
-npx fit-basecamp --status            # Show task status
-npx fit-basecamp --help              # Show help
+npm run build           # Build for current architecture
+npm run build:all       # Build for arm64 + x86_64
 ```
 
-## Configuration
+### Configuration
 
-`~/.fit/basecamp/scheduler.json`:
+Task schedules are defined in `~/.fit/basecamp/scheduler.json`:
 
 ```json
 {
@@ -98,20 +166,15 @@ npx fit-basecamp --help              # Show help
 }
 ```
 
-## Building
-
-Requires Deno >= 2.x for building standalone binaries:
+### CLI Reference
 
 ```sh
-npm run build           # Build executable (current arch)
-npm run build:dmg       # Build executable + macOS DMG
-npm run build:all       # Build for arm64 + x86_64 + DMGs
+npx fit-basecamp                     # Run due tasks once
+npx fit-basecamp --daemon            # Run continuously
+npx fit-basecamp --run <task>        # Run a task immediately
+npx fit-basecamp --init <path>       # Initialize a knowledge base
+npx fit-basecamp --install-launchd   # Install macOS LaunchAgent
+npx fit-basecamp --uninstall-launchd # Remove LaunchAgent
+npx fit-basecamp --validate          # Check task references
+npx fit-basecamp --status            # Show task status
 ```
-
-## How It Works
-
-1. Scheduler reads `~/.fit/basecamp/scheduler.json` for task configs
-2. For each due task, invokes `claude` CLI with `--print` mode
-3. Claude runs with `cwd` set to the target KB directory
-4. Claude reads the KB's `CLAUDE.md`, executes the task, writes results
-5. State (last run times, status) tracked in `~/.fit/basecamp/state.json`

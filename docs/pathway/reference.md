@@ -1,7 +1,14 @@
 ---
 title: Reference
-description: File organization, output templates, and CLI usage reference.
+description: File organization, output formats, and complete CLI reference for Pathway.
 ---
+
+<div class="product-value">
+<p>
+This is the technical reference for Pathway — covering how data files are
+organized, what output formats are generated, and every CLI command available.
+</p>
+</div>
 
 > See [Core Model](../model/core.md) for foundational concepts,
 > [Lifecycle](../model/lifecycle.md) for stages and checklists, and

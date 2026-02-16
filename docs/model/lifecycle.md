@@ -1,9 +1,18 @@
 ---
 title: Lifecycle
 description: |
-  The engineering lifecycle from inception to production. Stages, handoffs,
-  and checklists that apply to both human engineers and AI coding agents.
+  The engineering lifecycle — from specifying what to build through deploying
+  to production. Stages, handoffs, and quality checklists for human and AI workflows.
 ---
+
+<div class="product-value">
+<p>
+The lifecycle defines the journey from idea to production. Five stages — specify,
+plan, code, review, deploy — with clear handoff criteria at each transition.
+The same lifecycle governs human engineers and AI coding agents, with
+role-specific checklists derived from each team's skill profile.
+</p>
+</div>
 
 > See [Core Model](core.md) for foundational concepts and
 > [Agents](../pathway/agents.md) for AI-specific profile generation.

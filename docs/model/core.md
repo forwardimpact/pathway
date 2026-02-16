@@ -1,9 +1,18 @@
 ---
 title: Core Model
-description: Disciplines, Grades, Tracks, Skills, Behaviours, Capabilities, Drivers, and Job Derivation.
+description: How disciplines, grades, tracks, skills, and behaviours combine to produce complete role definitions.
 ---
 
-## Core Formula
+<div class="product-value">
+<p>
+The core model defines how your engineering terrain is traversed. Every
+combination of discipline, track, and grade produces a unique, consistent role
+profile — with skill levels, behaviour expectations, and responsibilities all
+derived from the same source data.
+</p>
+</div>
+
+## The Formula
 
 ```mermaid
 flowchart LR
