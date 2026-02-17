@@ -18,7 +18,7 @@ test("navigation between pages works", async ({ page }) => {
   await expect(page.locator("h1")).toContainText("Behaviours");
 
   // Return home via nav brand link
-  await page.locator(".nav-brand a").click();
+  await page.locator("a.nav-brand").click();
   await expect(page.locator("h1")).toContainText("Engineering Pathway");
 
   // Check no JS errors occurred
