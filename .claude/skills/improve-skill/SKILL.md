@@ -28,7 +28,7 @@ following progressive disclosure:
 - `references/REFERENCE.md` — From `implementationReference` field (only when
   present)
 
-The template (`apps/pathway/templates/skill.template.md`):
+The template (`products/pathway/templates/skill.template.md`):
 
 - Renders `toolReferences` as a **Required Tools** table automatically
 - Renders `instructions` as an **Instructions** section in the SKILL.md body
@@ -65,7 +65,7 @@ a skill object:
 `isHumanOnly`, `human`, `agent`, `toolReferences`, `instructions`,
 `installScript`, `implementationReference`.
 
-**Validation rules** (enforced by `npx fit-schema validate`):
+**Validation rules** (enforced by `npx fit-map validate`):
 
 - `instructions`, `installScript`, `implementationReference` must be strings
   (use YAML `|` block scalar)
@@ -84,12 +84,12 @@ Skills live in capability YAML files in **two** locations that must stay in
 sync:
 
 - `data/capabilities/{id}.yaml` — Active installation data
-- `apps/schema/examples/capabilities/{id}.yaml` — Canonical example data
+- `products/map/examples/capabilities/{id}.yaml` — Canonical example data
 
 When a capability exists in both locations, update both files. Check with:
 
 ```sh
-diff data/capabilities/{id}.yaml apps/schema/examples/capabilities/{id}.yaml
+diff data/capabilities/{id}.yaml products/map/examples/capabilities/{id}.yaml
 ```
 
 ## Core Principles
@@ -190,11 +190,11 @@ Ask: _"If someone skipped this check, what could go wrong?"_ If the answer is
 
 1. **Identify the capability** to review (ask if not specified)
 2. **Read the capability file** from both `data/capabilities/{id}.yaml` and
-   `apps/schema/examples/capabilities/{id}.yaml`
+   `products/map/examples/capabilities/{id}.yaml`
 3. **For each skill with an `agent:` section**, review and improve
 4. **Study the updated skill** by running `npx fit-pathway skill <name> --agent`
 5. **Iterate** until the skill document is clear, complete, and well-structured
-6. **Run validation**: `npx fit-schema validate`
+6. **Run validation**: `npx fit-map validate`
 
 ### Tool References Review
 
@@ -488,7 +488,7 @@ stages:
 
 1. Summarize issues found
 2. Apply fixes directly to the capability file (both locations if applicable)
-3. Run `npx fit-schema validate` to verify changes
+3. Run `npx fit-map validate` to verify changes
 
 ## Memory
 

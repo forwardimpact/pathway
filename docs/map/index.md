@@ -15,7 +15,7 @@ toc: false
     </p>
     <div class="hero-cta">
       <a href="/docs/map/" class="btn btn-primary">Documentation</a>
-      <a href="https://github.com/forwardimpact/monorepo/" class="btn btn-secondary">View on GitHub</a>
+      <a href="https://www.npmjs.com/package/@forwardimpact/map" class="btn btn-secondary">View on npm</a>
     </div>
   </div>
 </div>
@@ -88,7 +88,7 @@ agent-specific instructions for AI coding assistants.
 Validate your data to make sure everything is connected:
 
 ```sh
-npx fit-schema validate
+npx fit-map validate
 ```
 
 Browse what's defined:

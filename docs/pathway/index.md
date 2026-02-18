@@ -18,7 +18,7 @@ toc: false
     </p>
     <div class="hero-cta">
       <a href="/docs/pathway/" class="btn btn-primary">Documentation</a>
-      <a href="https://github.com/forwardimpact/monorepo/" class="btn btn-secondary">View on GitHub</a>
+      <a href="https://www.npmjs.com/package/@forwardimpact/pathway" class="btn btn-secondary">View on npm</a>
     </div>
   </div>
 </div>

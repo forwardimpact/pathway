@@ -1,6 +1,6 @@
 ---
 title: Guide
-description: Find your bearing — AI-powered onboarding and career advice for engineers navigating unfamiliar terrain.
+description: Find your bearing — AI-powered onboarding and career advice grounded in your organization's engineering framework.
 toc: false
 ---
 
@@ -11,9 +11,9 @@ toc: false
     </div>
     <h1 class="text-hero">Guide</h1>
     <p class="text-subtitle">
-      Find your bearing. Guide is the AI assistant that helps forward deployed
-      engineers navigate unfamiliar terrain — onboarding to new teams, getting
-      career advice, and solving problems with context from your skills framework.
+      Find your bearing. Guide is the AI assistant that helps engineers
+      orient quickly — onboarding to new teams, getting career advice, and
+      solving problems with context from your organization’s skills framework.
     </p>
     <div class="hero-cta">
       <a href="/docs/" class="btn btn-secondary">Coming soon</a>

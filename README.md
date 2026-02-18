@@ -20,12 +20,12 @@ AI coding agents alike. **Basecamp** gives every engineer a personal knowledge
 system, powered by AI agents. Together, they raise quality, increase output, and
 bring pride of workmanship to engineering teams.
 
-## Apps
+## Products
 
-**[Pathway](apps/pathway)** — Web app and CLI for career progression. Browse
+**[Pathway](products/pathway)** — Web app and CLI for career progression. Browse
 skills, generate job definitions, create agent team profiles.
 
-**[Basecamp](apps/basecamp)** — Personal knowledge system with scheduled AI
+**[Basecamp](products/basecamp)** — Personal knowledge system with scheduled AI
 tasks. Sync email, prep meetings, draft responses.
 
 ## Quick Start
@@ -42,7 +42,7 @@ Open http://localhost:3000 to explore.
 ## Documentation
 
 - [Overview](docs/index.md) — Vision and high-level concepts
-- [Schema](docs/schema/index.md) — Public data model for AI agents and engineers
+- [Map](docs/map/index.md) — Public data model for AI agents and engineers
 - [Model](docs/model/index.md) — Derivation logic
 - [Pathway](docs/pathway/index.md) — Web app and CLI
 - [Basecamp](docs/basecamp/index.md) — Personal knowledge system

@@ -13,7 +13,7 @@ import {
   clampSkillLevel,
   clampBehaviourMaturity,
   skillLevelMeetsRequirement,
-} from "@forwardimpact/schema/levels";
+} from "@forwardimpact/map/levels";
 
 import { resolveSkillModifier } from "./modifiers.js";
 import { ORDER_SKILL_TYPE } from "./policies/orderings.js";

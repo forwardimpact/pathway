@@ -11,10 +11,10 @@
 
 ## Current Codebase
 
-- **Map:** This is `apps/schema/`
-- **Pathway:** This is `apps/pathway/`
+- **Map:** This is `products/map/`
+- **Pathway:** This is `products/pathway/`
 - **Guide:** To be done
-- **Basecamp:** This is `apps/basecamp/`
+- **Basecamp:** This is `products/basecamp/`
 
 ---
 

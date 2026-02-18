@@ -1,5 +1,5 @@
 ---
-title: "Map: Schema Reference"
+title: "Map: Data Model Reference"
 description: Data model, YAML format, validation, and programmatic access for the Map data layer.
 ---
 
@@ -40,13 +40,13 @@ agent-specific instructions for AI coding assistants.
 
 ## Validation
 
-Schema validates referential integrity, required fields, valid enum values, and
+Map validates referential integrity, required fields, valid enum values, and
 cross-entity consistency:
 
 ```sh
-npx fit-schema validate          # Full validation
-npx fit-schema validate --shacl  # RDF/SHACL validation
-npx fit-schema generate-index    # Generate browser indexes
+npx fit-map validate          # Full validation
+npx fit-map validate --shacl  # RDF/SHACL validation
+npx fit-map generate-index    # Generate browser indexes
 ```
 
 ---
@@ -54,9 +54,9 @@ npx fit-schema generate-index    # Generate browser indexes
 ## Programmatic Access
 
 ```javascript
-import { loadAllData } from "@forwardimpact/schema";
-import { validateAll } from "@forwardimpact/schema/validation";
-import { SKILL_LEVELS, BEHAVIOUR_MATURITIES } from "@forwardimpact/schema/levels";
+import { loadAllData } from "@forwardimpact/map";
+import { validateAll } from "@forwardimpact/map/validation";
+import { SKILL_LEVELS, BEHAVIOUR_MATURITIES } from "@forwardimpact/map/levels";
 
 const data = await loadAllData("./data");
 ```

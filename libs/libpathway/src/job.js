@@ -14,7 +14,7 @@ import {
 import { deriveChecklist } from "./checklist.js";
 import { deriveToolkit } from "./toolkit.js";
 import { getOrCreateJob } from "./job-cache.js";
-import { getStageOrder } from "@forwardimpact/schema/levels";
+import { getStageOrder } from "@forwardimpact/map/levels";
 
 /**
  * @typedef {Object} JobDetailView

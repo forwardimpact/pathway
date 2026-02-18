@@ -25,7 +25,7 @@ import {
   getCapabilityResponsibility,
   // Framework emoji function
   getConceptEmoji,
-} from "@forwardimpact/schema/levels";
+} from "@forwardimpact/map/levels";
 
 import {
   compareByCapability,
@@ -49,7 +49,7 @@ import {
   validateAllData,
   validateSelfAssessment,
   validateQuestionBank,
-} from "@forwardimpact/schema/validation";
+} from "@forwardimpact/map/validation";
 
 import {
   deriveSkillLevel,

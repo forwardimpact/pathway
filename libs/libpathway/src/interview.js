@@ -10,7 +10,7 @@ import {
   getBehaviourMaturityIndex,
   SKILL_LEVEL_ORDER,
   Capability,
-} from "@forwardimpact/schema/levels";
+} from "@forwardimpact/map/levels";
 
 import {
   WEIGHT_SKILL_TYPE,

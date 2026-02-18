@@ -8,7 +8,7 @@ description: File organization, module index, templates, and CLI command referen
 
 ## File Organization
 
-### Schema (`apps/schema/`)
+### Map (`products/map/`)
 
 Data model, validation, and loading.
 
@@ -41,7 +41,7 @@ Pure business logic and derivation.
 | `src/matching.js`    | Job matching and gap analysis                           |
 | `src/policies/`      | Filtering, sorting, and threshold policies              |
 
-### Pathway (`apps/pathway/`)
+### Pathway (`products/pathway/`)
 
 Presentation layer — formatters, pages, components.
 
@@ -215,7 +215,7 @@ Variables: `skillName`, `description`, `useWhen`, `stages` (with `focus`,
 
 - [Pathway Overview](/docs/pathway/) — Architecture and formatter pattern
 - [Agents](/docs/pathway/agents/) — Agent profile generation details
-- [Map (Schema)](/docs/map/) — Data model and validation
+- [Map](/docs/map/) — Data model and validation
 
 </div>
 </div>

@@ -1,6 +1,6 @@
 ---
 title: Forward Impact Team
-description: A suite for forward deployed engineers — chart skills, navigate careers, solve problems, share what you learn.
+description: An open-source suite that helps organizations empower engineers with clear expectations, career growth, and the clarity to do their best work.
 toc: false
 ---
 
@@ -9,9 +9,9 @@ toc: false
     <div class="hero-illustration">
       <img src="/assets/heros/welcome.svg" alt="An engineer in a hoodie, an AI robot, and a business professional wave hello" />
     </div>
-    <h1 class="text-hero">Forward deployed engineers<br>need better tools.</h1>
+    <h1 class="text-hero">Empowered engineers<br>deliver lasting impact.</h1>
     <p class="text-subtitle">
-      Map, Pathway, Guide, and Basecamp — a suite for charting skills, navigating careers, solving problems, and sharing what you learn.
+      Map, Pathway, Guide, and Basecamp — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
     </p>
     <div class="hero-cta">
       <a href="/docs/" class="btn btn-primary">Explore the suite</a>
@@ -76,8 +76,8 @@ toc: false
 </div>
 
 <div class="feature-item">
-  <h4>Field-Ready</h4>
-  <p>Practical tools that work at the command line, in VS Code, or on the web. Built for engineers who ship.</p>
+  <h4>Ready to Deploy</h4>
+  <p>Works at the command line, in VS Code, and on the web — meeting engineers where they already work.</p>
 </div>
 
 </div>
@@ -90,11 +90,15 @@ toc: false
       <img src="/assets/heros/map.svg" alt="An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together" />
     </div>
     <p class="philosophy-quote">
-      Forward deployed engineers operate where technology meets the real world.
+      "The aim of leadership should be to improve the performance of man and machine, to improve quality, to increase output, and simultaneously to bring pride of workmanship to people."
+      <span class="philosophy-attribution">— W. Edwards Deming</span>
     </p>
     <p class="philosophy-text">
-      The forward deployed engineer works at the boundary — embedded with business teams, scientists, and domain experts. They carry their tools into the field. FIT gives them the skills framework, career clarity, AI assistance, and knowledge systems to deliver impact where it matters most.
+      Forward Impact Team puts this into practice. Organizations define what great engineering looks like — skills, behaviours, and career levels — in a shared framework. Engineers gain clear expectations, career paths, AI assistance, and knowledge systems matched to their standards. When the path forward is clear, engineers deliver with confidence and pride.
     </p>
+    <div class="hero-cta" style="margin-top: var(--space-6);">
+      <a href="/about/" class="btn btn-secondary">Read our philosophy</a>
+    </div>
   </div>
 </div>
 
@@ -105,7 +109,7 @@ toc: false
 
 ### For organizations
 
-Publish a career framework for your engineering team:
+Define and publish an engineering career framework for your team:
 
 ```sh
 npx fit-pathway build --url=https://pathway.myorg.com

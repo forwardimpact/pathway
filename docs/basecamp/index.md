@@ -18,7 +18,7 @@ toc: false
     </p>
     <div class="hero-cta">
       <a href="/docs/basecamp/" class="btn btn-primary">Documentation</a>
-      <a href="https://github.com/forwardimpact/monorepo/" class="btn btn-secondary">View on GitHub</a>
+      <a href="https://www.npmjs.com/package/@forwardimpact/basecamp" class="btn btn-secondary">View on npm</a>
     </div>
   </div>
 </div>

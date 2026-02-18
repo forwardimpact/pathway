@@ -200,7 +200,7 @@ import {
 
 - [Core Model](/docs/model/) — Entity overview and formula
 - [Lifecycle](/docs/model/lifecycle/) — Stages and handoffs
-- [Map (Schema)](/docs/map/) — Data format and validation
+- [Map](/docs/map/) — Data format and validation
 
 </div>
 </div>

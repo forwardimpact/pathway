@@ -23,7 +23,7 @@ toc: false
     <div class="docs-grid">
 
 <a class="docs-card" href="/docs/map/">
-  <h3>Map (Schema)</h3>
+  <h3>Map</h3>
   <p>Data model, YAML format, validation, schema definitions, and programmatic access.</p>
 </a>
 

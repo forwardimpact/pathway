@@ -238,7 +238,7 @@ import { prepareAgentProfile }
 
 ## Related Documentation
 
-- [Map (Schema)](/docs/map/) — Data model and YAML format
+- [Map](/docs/map/) — Data model and YAML format
 - [Lifecycle](/docs/model/lifecycle/) — Stages, handoffs, and checklists
 - [Agents](/docs/pathway/agents/) — Agent profile generation
 - [Reference](/docs/pathway/reference/) — File organization, templates, and CLI

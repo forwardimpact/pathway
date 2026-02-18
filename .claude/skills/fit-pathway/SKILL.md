@@ -21,7 +21,7 @@ and agent profile generation.
 ## Package Structure
 
 ```
-apps/pathway/
+products/pathway/
   bin/
     fit-pathway.js    # CLI entry point
   src/
@@ -164,7 +164,7 @@ Router wraps all pages with error boundary. Pages throw:
 
 - Agent profiles: `.github/agents/{id}.agent.md` (VS Code Custom Agents)
 - Skill files: `.claude/skills/{skill-name}/SKILL.md` (Agent Skills Standard)
-- Templates: `apps/pathway/templates/`
+- Templates: `products/pathway/templates/`
 
 ## CSS Architecture
 
@@ -191,7 +191,7 @@ tokens → reset → base → components → utilities → pages → slides → 
 ### Directory Structure
 
 ```
-apps/pathway/src/css/
+products/pathway/src/css/
 ├── tokens.css          # Design tokens (colors, spacing, typography)
 ├── reset.css           # Browser reset
 ├── base.css            # Base typography and links

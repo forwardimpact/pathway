@@ -18,7 +18,7 @@ web pages, CLI output, markdown documents, and agent configuration files.
 ## Architecture
 
 ```
-Schema (data) → Model (derivation) → Pathway (presentation)
+Map (data) → Model (derivation) → Presentation (display)
 ```
 
 Pathway receives fully derived data from `@forwardimpact/libpathway` and formats
@@ -27,7 +27,7 @@ it for display. Pathway never performs derivation — it only presents.
 ### Module Structure
 
 ```
-apps/pathway/src/
+products/pathway/src/
 ├── commands/       # CLI command handlers
 ├── components/     # Reusable UI components
 ├── css/            # Stylesheets
@@ -172,7 +172,7 @@ npx fit-pathway agent <discipline> --track=<track> --output=./agents
 Agent output uses Mustache templates:
 
 ```
-apps/pathway/templates/
+products/pathway/templates/
 ├── agent.md.mustache       # Agent profile template
 ├── skill.md.mustache       # Skill document template
 └── ...

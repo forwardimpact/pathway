@@ -23,7 +23,7 @@ native macOS app bundle (`Basecamp.app`) with TCC-compliant process management.
 ## Package Structure
 
 ```
-apps/basecamp/
+products/basecamp/
   src/
     basecamp.js           # Main entry point and CLI (cross-platform)
     posix-spawn.js        # Deno FFI wrapper for posix_spawn (macOS)

@@ -14,7 +14,7 @@ public/
 dist/
 
 # Basecamp build output
-apps/basecamp/dist/
+products/basecamp/dist/
 
 # Test files
 test-results/

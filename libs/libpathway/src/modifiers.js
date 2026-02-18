@@ -6,7 +6,7 @@
  * (e.g., "delivery: 1", "scale: -1") - individual skill modifiers are not allowed.
  */
 
-import { Capability } from "@forwardimpact/schema/levels";
+import { Capability } from "@forwardimpact/map/levels";
 
 /**
  * Valid skill capability names for modifier expansion

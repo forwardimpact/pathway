@@ -1,0 +1,52 @@
+{
+  "name": "@forwardimpact/pathway",
+  "version": "0.20.0",
+  "description": "Career progression web app and CLI for exploring roles and generating agent teams",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "products/pathway"
+  },
+  "homepage": "https://www.forwardimpact.team/pathway",
+  "keywords": [
+    "career",
+    "competency",
+    "framework",
+    "hr",
+    "skills",
+    "talent",
+    "ai-agent",
+    "engineering"
+  ],
+  "type": "module",
+  "main": "src/index.js",
+  "bin": {
+    "fit-pathway": "./bin/fit-pathway.js"
+  },
+  "scripts": {
+    "start": "node ./bin/fit-pathway.js serve",
+    "pathway": "node ./bin/fit-pathway.js",
+    "site": "node ./bin/fit-pathway.js site"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "templates/"
+  ],
+  "exports": {
+    ".": "./src/index.js",
+    "./formatters": "./src/formatters/index.js",
+    "./commands": "./src/commands/index.js"
+  },
+  "dependencies": {
+    "@forwardimpact/map": "^0.10.0",
+    "@forwardimpact/libpathway": "^2.0.0",
+    "mustache": "^4.2.0",
+    "simple-icons": "^16.7.0",
+    "yaml": "^2.3.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  }
+}

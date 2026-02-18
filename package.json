@@ -11,10 +11,10 @@
   "homepage": "https://www.forwardimpact.team",
   "type": "module",
   "workspaces": [
-    "apps/schema",
+    "products/map",
     "libs/libpathway",
-    "apps/pathway",
-    "apps/basecamp",
+    "products/pathway",
+    "products/basecamp",
     "libs/libdoc"
   ],
   "scripts": {
@@ -29,7 +29,7 @@
     "format:fix": "prettier --write .",
     "test": "find ./tests -name '*.test.js' | xargs node --test",
     "test:e2e": "npx playwright test",
-    "validate": "npx fit-schema validate"
+    "validate": "npx fit-map validate"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

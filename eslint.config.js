@@ -31,11 +31,12 @@ export default [
         confirm: "readonly",
         navigator: "readonly",
         requestAnimationFrame: "readonly",
+        IntersectionObserver: "readonly",
       },
     },
   },
   {
-    files: ["apps/basecamp/**/*.js"],
+    files: ["products/basecamp/**/*.js"],
     languageOptions: {
       globals: {
         Deno: "readonly",

@@ -10,7 +10,7 @@
  * - allOf/anyOf/not - combinators
  */
 
-import { getSkillLevelIndex } from "@forwardimpact/schema/levels";
+import { getSkillLevelIndex } from "@forwardimpact/map/levels";
 
 // =============================================================================
 // Identity Predicates

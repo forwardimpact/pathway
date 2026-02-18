@@ -8,7 +8,7 @@
 import {
   getSkillLevelIndex,
   getBehaviourMaturityIndex,
-} from "@forwardimpact/schema/levels";
+} from "@forwardimpact/map/levels";
 
 import {
   deriveJob,

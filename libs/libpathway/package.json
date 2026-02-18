@@ -30,7 +30,7 @@
     "./toolkit": "./src/toolkit.js"
   },
   "dependencies": {
-    "@forwardimpact/schema": "^0.10.0"
+    "@forwardimpact/map": "^0.10.0"
   },
   "engines": {
     "node": ">=18.0.0"

@@ -389,7 +389,7 @@ Every question must pass all of these. No exceptions. No "it's close enough."
 4. **Draft questions** — Follow the guidelines above. Write something that would
    make a great engineer say "oh, interesting." If you wouldn't want to answer
    the question yourself, it's not good enough.
-5. **Validate** — `npx fit-schema validate`
+5. **Validate** — `npx fit-map validate`
 6. **Gut check against the quality checklist** — Be your own harshest critic
 
 ### Refining Existing Questions
@@ -405,7 +405,7 @@ Every question must pass all of these. No exceptions. No "it's close enough."
 5. **Add `context`** to decomposition/simulation questions that lack scenario
    depth. If the context is thin, the role-play will be thin.
 6. **Add `followUps`** that introduce genuine curveballs, not small variations
-7. **Validate** — `npx fit-schema validate`
+7. **Validate** — `npx fit-map validate`
 
 ### Writing `lookingFor` Items
 
@@ -484,13 +484,13 @@ simulation prompt produces a flat simulation.
 
 ## File Locations
 
-| Type       | Data Location                               | Schema Location                                            |
-| ---------- | ------------------------------------------- | ---------------------------------------------------------- |
-| Skill      | `data/questions/skills/{skill_id}.yaml`     | `apps/schema/schema/json/skill-questions.schema.json`      |
-| Capability | `data/questions/capabilities/{cap_id}.yaml` | `apps/schema/schema/json/capability-questions.schema.json` |
-| Behaviour  | `data/questions/behaviours/{behav_id}.yaml` | `apps/schema/schema/json/behaviour-questions.schema.json`  |
+| Type       | Data Location                               | Schema Location                                             |
+| ---------- | ------------------------------------------- | ----------------------------------------------------------- |
+| Skill      | `data/questions/skills/{skill_id}.yaml`     | `products/map/schema/json/skill-questions.schema.json`      |
+| Capability | `data/questions/capabilities/{cap_id}.yaml` | `products/map/schema/json/capability-questions.schema.json` |
+| Behaviour  | `data/questions/behaviours/{behav_id}.yaml` | `products/map/schema/json/behaviour-questions.schema.json`  |
 
-If data also exists under `apps/schema/examples/questions/`, update both
+If data also exists under `products/map/examples/questions/`, update both
 locations in the same commit.
 
 ## Validation
@@ -498,5 +498,5 @@ locations in the same commit.
 Always run after creating or modifying questions:
 
 ```sh
-npx fit-schema validate
+npx fit-map validate
 ```

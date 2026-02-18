@@ -13,7 +13,7 @@ import {
   getBehaviourMaturityIndex,
   getCapabilityOrder,
   getStageOrder,
-} from "@forwardimpact/schema/levels";
+} from "@forwardimpact/map/levels";
 
 // Re-export getStageOrder for consumers
 export { getStageOrder };

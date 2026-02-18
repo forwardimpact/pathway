@@ -38,13 +38,13 @@ npx fit-basecamp --daemon
 
 ## Monorepo Structure
 
-### Apps
+### Products
 
-| App                       | CLI            | Purpose                                           |
+| Product                   | CLI            | Purpose                                           |
 | ------------------------- | -------------- | ------------------------------------------------- |
 | `@forwardimpact/pathway`  | `fit-pathway`  | Web app and CLI for career progression            |
 | `@forwardimpact/basecamp` | `fit-basecamp` | Personal knowledge system with scheduled AI tasks |
-| `@forwardimpact/schema`   | `fit-schema`   | Public data model for AI agents and engineers     |
+| `@forwardimpact/map`      | `fit-map`      | Public data model for AI agents and engineers     |
 
 ### Libraries
 
@@ -54,10 +54,10 @@ npx fit-basecamp --daemon
 | `@forwardimpact/libdoc`     | `fit-doc` | Documentation build and serve tools    |
 
 ```
-apps/
+products/
   pathway/      Web app, CLI, formatters
   basecamp/     Personal knowledge system, scheduler
-  schema/       Public data model for AI agents and engineers
+  map/          Public data model for AI agents and engineers
 libs/
   libpathway/   Derivation logic, job/agent models
   libdoc/       Documentation build and serve tools
@@ -72,53 +72,54 @@ different data while using the same model.
 
 ## 3-Layer System
 
-1. **Schema** (`apps/schema/src/`) — Public data model, validation, loading
+1. **Map** (`products/map/src/`) — Public data model, validation, loading
 2. **Model** (`libs/libpathway/src/`) — Pure business logic, derivation
-3. **Pathway** (`apps/pathway/src/`) — Formatters, views, UI components
+3. **Presentation** (`products/pathway/src/`) — Formatters, views, UI components
 
 ```
-Schema (data) → Model (derivation) → Pathway (presentation)
+Map (data) → Model (derivation) → Presentation (display)
 ```
 
-- **Schema** publishes the data model and validates entities
+- **Map** publishes the data model and validates entities
 - **Model** transforms entities into derived outputs (jobs, agents)
-- **Pathway** formats outputs for display (web, CLI, markdown)
+- **Presentation** formats outputs for display (web, CLI, markdown)
 
 ### Key Paths
 
-| Purpose      | Location                                 |
-| ------------ | ---------------------------------------- |
-| User data    | `data/`                                  |
-| Example data | `apps/schema/examples/`                  |
-| JSON Schema  | `apps/schema/schema/json/`               |
-| RDF/SHACL    | `apps/schema/schema/rdf/`                |
-| Derivation   | `libs/libpathway/src/`                   |
-| Formatters   | `apps/pathway/src/formatters/`           |
-| Templates    | `apps/pathway/templates/`                |
-| Scheduler    | `apps/basecamp/basecamp.js`              |
-| KB template  | `apps/basecamp/template/`                |
-| KB skills    | `apps/basecamp/template/.claude/skills/` |
+| Purpose      | Location                                     |
+| ------------ | -------------------------------------------- |
+| User data    | `data/`                                      |
+| Example data | `products/map/examples/`                     |
+| JSON Schema  | `products/map/schema/json/`                  |
+| RDF/SHACL    | `products/map/schema/rdf/`                   |
+| Derivation   | `libs/libpathway/src/`                       |
+| Formatters   | `products/pathway/src/formatters/`           |
+| Templates    | `products/pathway/templates/`                |
+| Scheduler    | `products/basecamp/basecamp.js`              |
+| KB template  | `products/basecamp/template/`                |
+| KB skills    | `products/basecamp/template/.claude/skills/` |
 
 ### Dependency Chain
 
 ```
-schema → libpathway → pathway
+map → libpathway → pathway
 ```
 
 When updating data structure, change:
 
-1. `apps/schema/schema/json/` and `rdf/` — Schema definitions (both formats,
+1. `products/map/schema/json/` and `rdf/` — Schema definitions (both formats,
    same commit)
-2. `apps/schema/examples/` — Example data
+2. `products/map/examples/` — Example data
 3. `libs/libpathway/src/` — Derivation logic if needed
-4. `apps/pathway/src/formatters/` — Presentation if needed
+4. `products/pathway/src/formatters/` — Presentation if needed
 
 ## Core Rules
 
 1. **Clean breaks** - Fully replace, never leave old and new coexisting
 2. **No defensive code** - Trust the architecture, let errors surface
 3. **Pure functions** - Model layer has no side effects
-4. **Use formatters** - All presentation logic in `apps/pathway/src/formatters/`
+4. **Use formatters** - All presentation logic in
+   `products/pathway/src/formatters/`
 5. **No transforms in views** - Pages/commands pass raw entities to formatters
 6. **JSDoc types** - All public functions
 7. **Test coverage** - New derivation logic requires tests
@@ -197,7 +198,7 @@ than loud ones.
 ## Domain Concepts
 
 > **Data-Driven Model**: The model defines schema and derivation logic, but
-> actual entities are defined in YAML files under `apps/schema/examples/`. Use
+> actual entities are defined in YAML files under `products/map/examples/`. Use
 > `npx fit-pathway <entity> --list` to discover what's available.
 
 ### Core Entities
@@ -335,7 +336,7 @@ capabilities at the job's skill level.
 
 ### Data Validation
 
-Run `npx fit-schema validate` to check required fields, referential integrity,
+Run `npx fit-map validate` to check required fields, referential integrity,
 valid enum values, and cross-entity consistency.
 
 ## Vocabulary Standards
@@ -396,20 +397,20 @@ Use these terms for spheres of influence (ascending breadth):
 
 ### File Organization
 
-**Schema** (`apps/schema/src/`): `loader.js`, `validation.js`,
+**Map** (`products/map/src/`): `loader.js`, `validation.js`,
 `schema-validation.js`, `index-generator.js`, `levels.js`
 
 **Model** (`libs/libpathway/src/`): `derivation.js`, `modifiers.js`,
 `profile.js`, `job.js`, `agent.js`, `checklist.js`, `interview.js`
 
-**Pathway** (`apps/pathway/src/`): `formatters/`, `pages/`, `components/`,
-`lib/`, `commands/`, `slides/`
+**Presentation** (`products/pathway/src/`): `formatters/`, `pages/`,
+`components/`, `lib/`, `commands/`, `slides/`
 
-**Basecamp** (`apps/basecamp/`): `basecamp.js`, `build.js`, `config/`,
+**Basecamp** (`products/basecamp/`): `basecamp.js`, `build.js`, `config/`,
 `scripts/`, `template/`
 
-**Formatters** (`apps/pathway/src/formatters/{entity}/`): `shared.js`, `dom.js`,
-`markdown.js`
+**Formatters** (`products/pathway/src/formatters/{entity}/`): `shared.js`,
+`dom.js`, `markdown.js`
 
 ### Naming
 
@@ -433,7 +434,7 @@ Format: `type(scope): subject`
 
 **Types**: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`
 
-**Scope**: Use package name (`schema`, `libpathway`, `pathway`, `basecamp`) or
+**Scope**: Use package name (`map`, `libpathway`, `pathway`, `basecamp`) or
 specific area. Omit if change spans multiple packages.
 
 **Breaking changes**: Add `!` after scope: `refactor(libpathway)!: change API`
@@ -460,10 +461,10 @@ Assess version impact at each commit:
 | New feature (`feat`)      | Minor |
 | Bug fix, refactor, other  | Patch |
 
-**Dependency chain**: `schema` → `libpathway` → `pathway`
+**Dependency chain**: `map` → `libpathway` → `pathway`
 
 Find dependents:
-`grep -rl "@forwardimpact/{pkg}" apps/*/package.json libs/*/package.json`
+`grep -rl "@forwardimpact/{pkg}" products/*/package.json libs/*/package.json`
 
 When releasing a minor or major version, update dependent packages:
 
@@ -493,7 +494,7 @@ failed tags after fixing the root cause: delete the remote tag
 ## Common Tasks
 
 > **Data-Driven Application**: All entity IDs (skills, disciplines, tracks,
-> grades, behaviours) depend on YAML files in `apps/schema/examples/`. Use
+> grades, behaviours) depend on YAML files in `products/map/examples/`. Use
 > `npx fit-pathway <entity> --list` to discover available values.
 
 ### NPM Scripts (Root)
@@ -514,13 +515,13 @@ failed tags after fixing the root cause: delete the remote tag
 | -------------- | --------------------------------------- |
 | `fit-pathway`  | Web app, entity browsing, agents        |
 | `fit-basecamp` | Knowledge base scheduler and management |
-| `fit-schema`   | Schema validation, index generation     |
+| `fit-map`      | Data validation, index generation       |
 
 ### Quick Reference
 
 ```sh
 # Validate data
-npx fit-schema validate
+npx fit-map validate
 
 # Browse entities
 npx fit-pathway skill --list

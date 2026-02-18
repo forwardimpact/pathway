@@ -30,13 +30,13 @@ flowchart TD
 
 ### Components
 
-| Component       | Path                                     | Purpose                               |
-| --------------- | ---------------------------------------- | ------------------------------------- |
-| CLI & Scheduler | `apps/basecamp/src/basecamp.js`          | Main entry point, daemon, task runner |
-| Default Config  | `apps/basecamp/config/scheduler.json`    | Default task definitions              |
-| KB Template     | `apps/basecamp/template/`                | Template for new knowledge bases      |
-| KB Skills       | `apps/basecamp/template/.claude/skills/` | AI skill definitions for KB tasks     |
-| macOS App       | `apps/basecamp/macos/`                   | Native status menu bar app            |
+| Component       | Path                                         | Purpose                               |
+| --------------- | -------------------------------------------- | ------------------------------------- |
+| CLI & Scheduler | `products/basecamp/src/basecamp.js`          | Main entry point, daemon, task runner |
+| Default Config  | `products/basecamp/config/scheduler.json`    | Default task definitions              |
+| KB Template     | `products/basecamp/template/`                | Template for new knowledge bases      |
+| KB Skills       | `products/basecamp/template/.claude/skills/` | AI skill definitions for KB tasks     |
+| macOS App       | `products/basecamp/macos/`                   | Native status menu bar app            |
 
 ---
 
@@ -146,7 +146,7 @@ Skills define what the AI should do when invoked by the scheduler.
 npx fit-basecamp --init ~/Documents/Personal
 ```
 
-This copies the template structure from `apps/basecamp/template/` into the
+This copies the template structure from `products/basecamp/template/` into the
 target directory.
 
 ---
@@ -189,7 +189,7 @@ Basecamp includes an optional native macOS menu bar application that provides:
 The app is built as a Swift application:
 
 ```
-apps/basecamp/macos/Basecamp/
+products/basecamp/macos/Basecamp/
 ├── Sources/
 │   └── StatusMenu.swift    # Status menu implementation
 ├── Basecamp.entitlements
@@ -199,7 +199,7 @@ apps/basecamp/macos/Basecamp/
 ### Building
 
 ```sh
-cd apps/basecamp
+cd products/basecamp
 npm run build:macos
 ```
 
@@ -221,7 +221,7 @@ npm run build:macos
 
 - [Core Model](/docs/model/) — How skills and behaviours are defined
 - [Agents](/docs/pathway/agents/) — Agent profile format used by tasks
-- [Map (Schema)](/docs/map/) — Data format for entity definitions
+- [Map](/docs/map/) — Data format for entity definitions
 
 </div>
 </div>

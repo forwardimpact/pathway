@@ -34,7 +34,7 @@ import {
 } from "./policies/composed.js";
 import { compareByStageOrder } from "./policies/orderings.js";
 import { LIMIT_AGENT_WORKING_STYLES } from "./policies/thresholds.js";
-import { SkillLevel } from "@forwardimpact/schema/levels";
+import { SkillLevel } from "@forwardimpact/map/levels";
 
 /**
  * Derive the reference grade for agent generation.

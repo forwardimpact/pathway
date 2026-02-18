@@ -36,12 +36,12 @@ jobs:
       - name: Copy JSON schema files
         run: |
           mkdir -p dist/schema/json
-          cp apps/schema/schema/json/*.json dist/schema/json/
+          cp products/map/schema/json/*.json dist/schema/json/
 
       - name: Copy RDF schema files
         run: |
           mkdir -p dist/schema/rdf
-          cp apps/schema/schema/rdf/*.ttl dist/schema/rdf/
+          cp products/map/schema/rdf/*.ttl dist/schema/rdf/
 
       - name: Copy CNAME file
         run: cp docs/CNAME dist/
