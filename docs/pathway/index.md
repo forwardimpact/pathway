@@ -1,21 +1,37 @@
 ---
 title: Pathway
-description: Navigate the trail — browse career paths, generate agent teams, and explore your progression.
+description: Navigate engineering skills and careers with clarity — browse career paths, generate agent teams, build progression plans.
+toc: false
 ---
 
-<div class="page-header">
-<img src="/assets/icons/pathway.svg" alt="Pathway" />
-
-## Navigate the Trail
-
+<div class="hero">
+  <div class="page-container">
+    <div class="hero-illustration">
+      <img src="/assets/heros/pathway.svg" alt="An engineer, an AI robot, and a business professional stand at the base of mountains, studying the trail ahead" />
+    </div>
+    <h1 class="text-hero">Pathway</h1>
+    <p class="text-subtitle">
+      Navigate engineering skills and careers with clarity. Whether you're an
+      engineer exploring career progression, a manager building job descriptions,
+      or a team lead deploying AI coding agents — Pathway delivers it through a
+      web app, a CLI, and a static site generator.
+    </p>
+    <div class="hero-cta">
+      <a href="/docs/pathway/" class="btn btn-primary">Documentation</a>
+      <a href="https://github.com/forwardimpact/monorepo/" class="btn btn-secondary">View on GitHub</a>
+    </div>
+  </div>
 </div>
 
-<div class="product-value">
+<div class="section section-warm">
+  <div class="page-container content-product">
+
+<div class="value-box">
 <p>
-Pathway is your interface to the engineering framework. Whether you're an
-engineer exploring career progression, a manager building job descriptions, or a
-team lead deploying AI coding agents — Pathway delivers it through a web app, a
-CLI, and a static site generator.
+Pathway is your interface to the engineering framework. Feed it a discipline,
+a track, and a grade — and it produces a complete job definition. Swap the
+grade for a lifecycle stage and you get an agent profile instead. Same data,
+same formula, different outputs.
 </p>
 </div>
 
@@ -29,6 +45,12 @@ CLI, and a static site generator.
 <li>A static site export for publishing your career framework</li>
 <li>Interview question sets tailored to each role</li>
 </ul>
+
+  </div>
+</div>
+
+<div class="section">
+  <div class="page-container content-product">
 
 ### Who it's for
 
@@ -44,41 +66,9 @@ that match your engineering standards, constrained by lifecycle stage.
 
 ---
 
-## Quick Start
+## The Web Application
 
-<div class="quickstart">
-
-### Browse your framework
-
-```sh
-npx fit-pathway dev   # Launch at http://localhost:3000
-```
-
-### Generate a job definition
-
-```sh
-npx fit-pathway job software_engineering L3 --track=platform
-```
-
-### Deploy agent profiles
-
-```sh
-npx fit-pathway agent software_engineering --track=platform --output=.
-```
-
-### Publish as a static site
-
-```sh
-npx fit-pathway build --url=https://pathway.myorg.com
-```
-
-</div>
-
----
-
-## Web Application
-
-The interactive browser at `http://localhost:3000` gives you:
+The interactive browser gives you:
 
 - **Job Builder** — Select discipline, track, and grade to explore complete role
   definitions with skill matrices and behaviour profiles
@@ -90,23 +80,14 @@ The interactive browser at `http://localhost:3000` gives you:
 
 ---
 
-## Agent Generation
+## Quick Start
 
-Pathway generates two types of AI agent artifacts:
+```sh
+npx fit-pathway dev                                       # Launch web app
+npx fit-pathway job software_engineering L3 --track=platform  # Job definition
+npx fit-pathway agent software_engineering --track=platform   # Agent profiles
+npx fit-pathway build --url=https://pathway.myorg.com         # Static site
+```
 
-**VS Code Custom Agents** (`.agent.md`) — Stage-specific agents with tools,
-handoffs, and constraints derived from your skill framework. One agent per
-lifecycle stage — specify, plan, code, review, deploy.
-
-**Agent Skill Files** (`SKILL.md`) — Following the open
-[Agent Skills Standard](https://agentskills.io/), these portable skill files
-work across VS Code, GitHub Copilot, and other AI coding tools.
-
-See [Agents](agents.md) for the full derivation model and output format.
-
----
-
-## Further Reading
-
-- [Agents](agents.md) — How agent profiles are derived and structured
-- [Reference](reference.md) — File organization, CLI commands, and templates
+  </div>
+</div>

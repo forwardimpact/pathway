@@ -1,84 +1,107 @@
 ---
-title: Forward Impact
-description: Equip your engineers for the field — with the skills, tools, and knowledge systems they need to deliver.
+title: Forward Impact Team
+description: A suite for forward deployed engineers — chart skills, navigate careers, solve problems, share what you learn.
 toc: false
 ---
 
-<section class="hero">
+<div class="hero">
+  <div class="page-container">
+    <div class="hero-illustration">
+      <img src="/assets/heros/welcome.svg" alt="An engineer in a hoodie, an AI robot, and a business professional wave hello" />
+    </div>
+    <h1 class="text-hero">Forward deployed engineers<br>need better tools.</h1>
+    <p class="text-subtitle">
+      Map, Pathway, Guide, and Basecamp — a suite for charting skills, navigating careers, solving problems, and sharing what you learn.
+    </p>
+    <div class="hero-cta">
+      <a href="/docs/" class="btn btn-primary">Explore the suite</a>
+      <a href="https://github.com/forwardimpact/monorepo/" class="btn btn-secondary">View on GitHub</a>
+    </div>
+  </div>
+</div>
 
-# Deploy your engineers<br>into the field
+<div class="section section-warm">
+  <div class="page-container">
+    <div class="product-grid">
 
-<p class="tagline">
-Skills, behaviours, and career paths for human engineers and AI coding agents — one framework that carries your team from base camp to summit.
-</p>
-
-</section>
-
-<div class="app-grid">
-
-<a class="app-card" href="/schema/">
-<img src="/assets/icons/schema.svg" alt="Schema" />
-<h3>Schema</h3>
-<p>Map your terrain. Define skills, behaviours, and career levels in plain YAML — the single source of truth for your engineering organization.</p>
+<a class="product-card" href="/map/">
+  <img class="product-card-icon" src="/assets/icons/map.svg" alt="Map" />
+  <h3>Map</h3>
+  <p>Chart the territory. Define your engineering skills, behaviours, and career levels in plain YAML — the single source of truth.</p>
+  <span class="btn btn-ghost">Learn more</span>
 </a>
 
-<a class="app-card" href="/model/">
-<img src="/assets/icons/model.svg" alt="Model" />
-<h3>Model</h3>
-<p>Chart the route. Derive job descriptions, skill matrices, and agent profiles automatically from your schema definitions.</p>
+<a class="product-card" href="/pathway/">
+  <img class="product-card-icon" src="/assets/icons/pathway.svg" alt="Pathway" />
+  <h3>Pathway</h3>
+  <p>Navigate the trail. Browse career paths, generate agent teams, and build progression plans — in the browser or from the CLI.</p>
+  <span class="btn btn-ghost">Learn more</span>
 </a>
 
-<a class="app-card" href="/pathway/">
-<img src="/assets/icons/pathway.svg" alt="Pathway" />
-<h3>Pathway</h3>
-<p>Navigate the trail. Browse career paths, generate agent teams, and build progression plans — in the browser or from the CLI.</p>
+<a class="product-card" href="/guide/">
+  <img class="product-card-icon" src="/assets/icons/guide.svg" alt="Guide" />
+  <h3>Guide</h3>
+  <p>Find your bearing. AI-powered onboarding and career advice that helps engineers orient in unfamiliar terrain.</p>
+  <span class="btn btn-ghost">Learn more</span>
 </a>
 
-<a class="app-card" href="/basecamp/">
-<img src="/assets/icons/basecamp.svg" alt="Basecamp" />
-<h3>Basecamp</h3>
-<p>Set up camp. A personal knowledge system with scheduled AI tasks that keeps you briefed, organized, and field-ready.</p>
+<a class="product-card" href="/basecamp/">
+  <img class="product-card-icon" src="/assets/icons/basecamp.svg" alt="Basecamp" />
+  <h3>Basecamp</h3>
+  <p>Set up camp. A personal knowledge system with scheduled AI tasks that keeps you briefed, organized, and field-ready.</p>
+  <span class="btn btn-ghost">Learn more</span>
 </a>
 
 </div>
-
----
-
-## Why Forward Impact?
-
-Great engineering comes from improving the performance of people and machines
-together. Whether you're defining career paths for a team of fifty or generating
-agent profiles for AI coding assistants, the same skills and behaviours apply.
-
-<div class="features">
-
-<div class="feature">
-<strong>One Source of Truth</strong>
-<span>Skills, behaviours, and grades defined once — used everywhere</span>
+  </div>
 </div>
 
-<div class="feature">
-<strong>Human + Machine</strong>
-<span>Career frameworks and agent profiles from the same foundation</span>
+<div class="section">
+  <div class="page-container">
+    <div class="feature-grid">
+
+<div class="feature-item">
+  <h4>One Source of Truth</h4>
+  <p>Skills, behaviours, and grades defined once in YAML — used everywhere, by humans and machines alike.</p>
 </div>
 
-<div class="feature">
-<strong>Data-Driven</strong>
-<span>Plain YAML files. No vendor lock-in. Your data, your way</span>
+<div class="feature-item">
+  <h4>Human + Machine</h4>
+  <p>Career frameworks and AI agent profiles derived from the same foundation. Co-located in the same files.</p>
 </div>
 
-<div class="feature">
-<strong>Field-Ready</strong>
-<span>Practical tools that work at the command line, in VS Code, or on the web</span>
+<div class="feature-item">
+  <h4>Data-Driven</h4>
+  <p>Plain YAML files. No vendor lock-in. Your data, your way. Different installations use the same model.</p>
+</div>
+
+<div class="feature-item">
+  <h4>Field-Ready</h4>
+  <p>Practical tools that work at the command line, in VS Code, or on the web. Built for engineers who ship.</p>
 </div>
 
 </div>
+  </div>
+</div>
 
----
+<div class="section section-contour">
+  <div class="page-container" style="text-align: center;">
+    <div class="philosophy-scene">
+      <img src="/assets/heros/map.svg" alt="An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together" />
+    </div>
+    <p class="philosophy-quote">
+      Forward deployed engineers operate where technology meets the real world.
+    </p>
+    <p class="philosophy-text">
+      The forward deployed engineer works at the boundary — embedded with business teams, scientists, and domain experts. They carry their tools into the field. FIT gives them the skills framework, career clarity, AI assistance, and knowledge systems to deliver impact where it matters most.
+    </p>
+  </div>
+</div>
+
+<div class="section">
+  <div class="page-container content-product">
 
 ## Get Started
-
-<div class="quickstart">
 
 ### For organizations
 
@@ -107,4 +130,5 @@ npx fit-basecamp --init ~/Documents/Team
 npx fit-basecamp --daemon
 ```
 
+  </div>
 </div>

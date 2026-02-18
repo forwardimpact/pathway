@@ -1,9 +1,0 @@
-<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 64 64" fill="none" stroke-linecap="round" stroke-linejoin="round">
-  <!-- Topographic contour lines: defining the terrain -->
-  <ellipse cx="32" cy="38" rx="26" ry="14" stroke="#52b788" stroke-width="2"/>
-  <ellipse cx="32" cy="34" rx="20" ry="11" stroke="#40916c" stroke-width="2"/>
-  <ellipse cx="32" cy="30" rx="14" ry="8" stroke="#2d6a4f" stroke-width="2"/>
-  <ellipse cx="32" cy="26" rx="8" ry="5" stroke="#1b4332" stroke-width="2"/>
-  <!-- Peak marker -->
-  <circle cx="32" cy="24" r="2.5" fill="#2d6a4f"/>
-</svg>

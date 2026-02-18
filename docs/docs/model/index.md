@@ -3,37 +3,19 @@ title: Core Model
 description: How disciplines, grades, tracks, skills, and behaviours combine to produce complete role definitions.
 ---
 
-<div class="product-value">
-<p>
+<div class="page-container">
+<div class="prose">
+
+## Overview
+
 The core model defines how your engineering terrain is traversed. Every
 combination of discipline, track, and grade produces a unique, consistent role
 profile — with skill levels, behaviour expectations, and responsibilities all
 derived from the same source data.
-</p>
-</div>
 
-## The Formula
+---
 
-```mermaid
-flowchart LR
-    subgraph inputs["Inputs"]
-        D["Discipline"]
-        T["Track"]
-        G["Grade"]
-    end
-
-    subgraph outputs["Outputs"]
-        J["Job Definition"]
-        A["Agent Profile"]
-    end
-
-    D --> derive["Derivation<br>Engine"]
-    T --> derive
-    G --> derive
-
-    derive --> J
-    derive --> A
-```
+## The Core Formula
 
 **Job Definition** = Discipline × Track × Grade
 
@@ -45,6 +27,10 @@ flowchart LR
 | **Track**      | Where and how do you work?  |
 | **Grade**      | What career level?          |
 | **Stage**      | What part of the lifecycle? |
+
+Both jobs and agents use the same skill and behaviour derivation. The
+difference: jobs include all skills capped by grade, while agents filter out
+human-only skills and constrain by lifecycle stage.
 
 ---
 
@@ -103,16 +89,6 @@ Some skills require physical presence, emotional intelligence, or relationship
 building that AI cannot replicate. These are marked `isHumanOnly: true` and
 excluded from agent profile derivation.
 
-```yaml
-# Example skill in capabilities/{capability}.yaml
-- id: stakeholder_management
-  isHumanOnly: true
-  human:
-    # Full skill with all level descriptions
-  agent:
-    # Excluded from agent derivation
-```
-
 ---
 
 ## Capabilities
@@ -120,20 +96,11 @@ excluded from agent profile derivation.
 Capabilities group skills and define level-based responsibilities. Track
 modifiers apply to all skills in a capability at once.
 
-| Capability  | Skills                                       |
-| ----------- | -------------------------------------------- |
-| delivery    | architecture_design, full_stack_development  |
-| scale       | cloud_platforms, code_quality, data_modeling |
-| reliability | devops, sre_practices                        |
-| people      | team_collaboration                           |
-| business    | stakeholder_management, technical_writing    |
-
 Capabilities also define:
 
 - **professionalResponsibilities** — IC role expectations per skill level
 - **managementResponsibilities** — Manager role expectations per skill level
-- **checklists** — Stage handoff items per skill level (see
-  [Lifecycle](lifecycle.md))
+- **checklists** — Stage handoff items per skill level
 
 ---
 
@@ -162,17 +129,6 @@ flowchart LR
 
 Disciplines define engineering specialties with T-shaped skill profiles:
 
-```mermaid
-block-beta
-    columns 1
-    block:discipline["Software Engineering"]
-        columns 2
-        primary["Primary Skills"] p_bar["████████████████"]
-        secondary["Secondary Skills"] s_bar["████████████"]
-        broad["Broad Skills"] b_bar["██████"]
-    end
-```
-
 | Tier             | Expected Level    | Purpose                 |
 | ---------------- | ----------------- | ----------------------- |
 | coreSkills       | Highest for grade | Core expertise          |
@@ -185,36 +141,15 @@ block-beta
 | ---------------- | ---------------- | ----------------------------------------------- |
 | `isProfessional` | boolean          | Uses professionalResponsibilities (IC roles)    |
 | `isManagement`   | boolean          | Uses managementResponsibilities (manager roles) |
-| `validTracks`    | (string\|null)[] | Valid track configurations (see below)          |
+| `validTracks`    | (string\|null)[] | Valid track configurations                      |
 | `minGrade`       | string           | Minimum grade required for this discipline      |
-
-**validTracks Semantics:**
-
-- `null` in array = allow trackless (generalist) jobs
-- string values = allow specific track IDs
-- `[null]` = trackless only
-- `[null, "dx"]` = trackless OR dx track
-- `["dx"]` = dx track only (no trackless)
-- `[]` = no valid job combinations (legacy: allows trackless)
-
-Disciplines also define `behaviourModifiers` that adjust baseline behaviour
-expectations for engineers in that specialty.
 
 ---
 
 ## Tracks
 
 Tracks define work context and modify the base profile through capability-based
-skill adjustments. Tracks are pure modifiers—they do not define role types.
-
-**Example: Platform Track**
-
-| Capability    | Modifier | Effect                          |
-| ------------- | -------- | ------------------------------- |
-| scale         | +1       | Emphasize architecture, quality |
-| documentation | +1       | Emphasize technical writing     |
-| process       | +1       | Emphasize lean thinking         |
-| delivery      | -1       | De-emphasize rapid prototyping  |
+skill adjustments. Tracks are pure modifiers — they do not define role types.
 
 Tracks also define `behaviourModifiers` (e.g., `systems_thinking: +1`).
 
@@ -232,67 +167,9 @@ Grades define career levels with base expectations:
 | L4    | expert       | practitioner | working      | practicing     |
 | L5    | expert       | expert       | practitioner | role_modeling  |
 
-Grades also define:
-
-- **level** — Numeric ordering (higher = more senior)
-- **expectations** — Scope, autonomy, influence, complexity
-
----
-
-## Drivers
-
-Drivers link skills and behaviours to organizational outcomes. Used for coverage
-analysis to ensure roles contribute to business goals.
-
-```mermaid
-flowchart LR
-    subgraph driver["Driver: Efficiency"]
-        skills["Related Skills"]
-        behaviours["Related Behaviours"]
-    end
-
-    skills --> outcomes["Organizational Outcomes"]
-    behaviours --> outcomes
-```
-
 ---
 
 ## Job Derivation
-
-The derivation process transforms base definitions into a complete job profile.
-Track is optional—a trackless job uses only discipline and grade.
-
-```mermaid
-flowchart TD
-    subgraph inputs["Inputs"]
-        D["Discipline<br>coreSkills<br>supportingSkills<br>behaviourModifiers"]
-        T["Track (optional)<br>skillModifiers<br>behaviourModifiers"]
-        G["Grade<br>baseSkillLevels<br>baseBehaviourMaturity"]
-    end
-
-    subgraph engine["Derivation Engine"]
-        direction TB
-        s1["1. Get skill type from Discipline"]
-        s2["2. Get base level from Grade"]
-        s3["3. Apply Track modifier via Capability"]
-        s4["4. Cap positive modifiers at Grade ceiling"]
-        s5["5. Clamp to valid range"]
-    end
-
-    subgraph outputs["Outputs"]
-        SM["Skill Matrix"]
-        BP["Behaviour Profile"]
-        R["Responsibilities"]
-    end
-
-    D --> engine
-    T --> engine
-    G --> engine
-
-    engine --> SM
-    engine --> BP
-    engine --> R
-```
 
 ### Skill Derivation Steps
 
@@ -305,20 +182,7 @@ flowchart TD
    base level
 5. **Clamp to valid range** — Ensure result is between awareness and expert
 
-### Example: code_quality (capability: scale)
-
-**Inputs:** Software Engineering × Platform × L3
-
-1. Skill type: `primary` (in coreSkills)
-2. Base level: `working` (index 2)
-3. Track modifier: `+1` (Platform has `scale: 1`)
-4. After modifier: index 3 (`practitioner`)
-5. Cap check: L3 max is `working`, cap to index 2
-6. **Final: `working`**
-
 ### Behaviour Derivation
-
-Behaviours use additive modifiers from both discipline and track:
 
 ```
 Final Maturity = Grade Base + Discipline Modifier + Track Modifier
@@ -326,16 +190,58 @@ Final Maturity = Grade Base + Discipline Modifier + Track Modifier
 
 Clamped to valid range (emerging → exemplifying).
 
-### Responsibility Derivation
+---
 
-Responsibilities come from capabilities based on the maximum skill level
-achieved in that capability. Uses `professionalResponsibilities` or
-`managementResponsibilities` based on discipline type.
+## Key Capabilities
+
+| Capability         | What it does                                          |
+| ------------------ | ----------------------------------------------------- |
+| **Job derivation** | Complete role definitions with skills and behaviours  |
+| **Agent profiles** | Stage-specific agent instructions for AI assistants   |
+| **Skill matrices** | Derived skill levels with track modifiers applied     |
+| **Checklists**     | Stage transition criteria from capability definitions |
+| **Progression**    | Career path analysis and gap identification           |
+| **Interviews**     | Role-specific question selection                      |
+| **Job matching**   | Gap analysis between current and target roles         |
 
 ---
 
-## Related Documents
+## Technical Reference
 
-- [Lifecycle](lifecycle.md) — Stages, handoffs, and checklists
-- [Agents](../pathway/agents.md) — Agent profile generation and SKILL.md format
-- [Reference](../pathway/reference.md) — File organization, templates, and CLI
+### Modules
+
+| Module           | Purpose                         |
+| ---------------- | ------------------------------- |
+| `derivation.js`  | Core derivation functions       |
+| `agent.js`       | Agent profile generation        |
+| `job.js`         | Job preparation for display     |
+| `job-cache.js`   | Job caching for performance     |
+| `interview.js`   | Question selection              |
+| `progression.js` | Career path analysis            |
+| `checklist.js`   | Stage transition checklists     |
+| `toolkit.js`     | Tool derivation from skills     |
+| `profile.js`     | Profile filtering (human/agent) |
+| `modifiers.js`   | Capability and skill modifiers  |
+| `matching.js`    | Job matching and gap analysis   |
+
+### Programmatic Access
+
+```javascript
+import { deriveSkillMatrix, deriveBehaviourProfile, deriveJob }
+  from "@forwardimpact/libpathway/derivation";
+
+import { prepareAgentProfile }
+  from "@forwardimpact/libpathway/profile";
+```
+
+---
+
+## Related Documentation
+
+- [Map (Schema)](/docs/map/) — Data model and YAML format
+- [Lifecycle](/docs/model/lifecycle/) — Stages, handoffs, and checklists
+- [Agents](/docs/pathway/agents/) — Agent profile generation
+- [Reference](/docs/pathway/reference/) — File organization, templates, and CLI
+
+</div>
+</div>
