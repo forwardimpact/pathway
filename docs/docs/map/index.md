@@ -1,10 +1,8 @@
 ---
 title: "Map: Data Model Reference"
 description: Data model, YAML format, validation, and programmatic access for the Map data layer.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -118,6 +116,3 @@ Definitions are available in two schema formats, always kept in sync:
 - [Core Model](/docs/model/) — How entities combine into role definitions
 - [Lifecycle](/docs/model/lifecycle/) — Stages, handoffs, and checklists
 - [Reference](/docs/pathway/reference/) — File organization and CLI
-
-</div>
-</div>

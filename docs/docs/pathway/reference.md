@@ -1,10 +1,8 @@
 ---
 title: Reference
 description: File organization, module index, templates, and CLI command reference for the Pathway package.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## File Organization
 
@@ -216,6 +214,3 @@ Variables: `skillName`, `description`, `useWhen`, `stages` (with `focus`,
 - [Pathway Overview](/docs/pathway/) — Architecture and formatter pattern
 - [Agents](/docs/pathway/agents/) — Agent profile generation details
 - [Map](/docs/map/) — Data model and validation
-
-</div>
-</div>

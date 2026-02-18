@@ -10,7 +10,7 @@
     <link rel="icon" href="/assets/icons/map.svg" type="image/svg+xml" />
     <link rel="stylesheet" href="/assets/main.css" />
   </head>
-  <body>
+  <body{{#bodyClass}} class="{{bodyClass}}"{{/bodyClass}}>
     <header class="site-header">
       <div class="header-inner">
         <a class="brand" href="/">
@@ -37,8 +37,35 @@
       </div>
     </header>
 
-    <main>
+    <main{{#layout}} class="layout-{{layout}}"{{/layout}}>
+      {{#hasHero}}
+      <div class="hero">
+        <div class="page-container">
+          <div class="hero-illustration">
+            <img src="{{heroImage}}" alt="{{heroAlt}}" />
+          </div>
+          <h1 class="text-hero">{{{heroTitle}}}</h1>
+          {{#heroSubtitle}}
+          <p class="text-subtitle">{{heroSubtitle}}</p>
+          {{/heroSubtitle}}
+          {{#hasHeroCta}}
+          <div class="hero-cta">
+            {{#heroCta}}
+            <a href="{{href}}" class="btn {{btnClass}}">{{label}}</a>
+            {{/heroCta}}
+          </div>
+          {{/hasHeroCta}}
+        </div>
+      </div>
+      {{/hasHero}}
+      {{#layout}}
+      <div class="page-content">
+        {{{content}}}
+      </div>
+      {{/layout}}
+      {{^layout}}
       {{{content}}}
+      {{/layout}}
     </main>
 
     {{#hasToc}}

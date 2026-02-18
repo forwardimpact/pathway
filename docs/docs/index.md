@@ -1,26 +1,15 @@
 ---
 title: Documentation
 description: Technical documentation for the FIT suite — Map, Pathway, Guide, and Basecamp.
+layout: product
 toc: false
+hero:
+  image: /assets/heros/documentation.svg
+  alt: An engineer, an AI robot, and a business professional sorting through stacks of papers and documentation together
+  subtitle: Technical reference for the Forward Impact Team suite. Everything you need to define your engineering framework, derive roles and agents, and set up personal knowledge systems.
 ---
 
-<div class="hero">
-  <div class="page-container">
-    <div class="hero-illustration">
-      <img src="/assets/heros/documentation.svg" alt="An engineer, an AI robot, and a business professional sorting through stacks of papers and documentation together" />
-    </div>
-    <h1 class="text-hero">Documentation</h1>
-    <p class="text-subtitle">
-      Technical reference for the Forward Impact Team suite. Everything you
-      need to define your engineering framework, derive roles and agents,
-      and set up personal knowledge systems.
-    </p>
-  </div>
-</div>
-
-<div class="section section-warm">
-  <div class="page-container">
-    <div class="docs-grid">
+<div class="docs-grid">
 
 <a class="docs-card" href="/docs/map/">
   <h3>Map</h3>
@@ -57,6 +46,4 @@ toc: false
   <p>Scheduler configuration, knowledge base structure, built-in skills, CLI reference.</p>
 </a>
 
-</div>
-  </div>
 </div>

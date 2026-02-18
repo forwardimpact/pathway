@@ -1,10 +1,8 @@
 ---
 title: Core Derivation
 description: Detailed explanation of how skill levels, behaviour maturities, and responsibilities are derived from entity combinations.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -201,6 +199,3 @@ import {
 - [Core Model](/docs/model/) — Entity overview and formula
 - [Lifecycle](/docs/model/lifecycle/) — Stages and handoffs
 - [Map](/docs/map/) — Data format and validation
-
-</div>
-</div>

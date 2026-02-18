@@ -1,10 +1,8 @@
 ---
 title: "Pathway: Technical Docs"
 description: Web app, CLI, formatters, agent output, and presentation layer reference.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -188,6 +186,3 @@ assistants (GitHub Copilot, Claude, etc.).
 - [Agents](/docs/pathway/agents/) — Agent profile derivation
 - [Reference](/docs/pathway/reference/) — File organization and CLI reference
 - [Core Model](/docs/model/) — How derivation works
-
-</div>
-</div>

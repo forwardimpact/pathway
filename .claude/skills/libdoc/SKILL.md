@@ -68,13 +68,28 @@ Documentation sites require three components in the source directory:
 
 Mustache template with these variables:
 
-| Variable                                | Description                                   |
-| --------------------------------------- | --------------------------------------------- |
-| `{{title}}`                             | Page title from front matter                  |
-| `{{{content}}}`                         | Rendered HTML content (triple braces for raw) |
-| `{{#hasToc}}`                           | Conditional: true if `toc` is not `false`     |
-| `{{{toc}}}`                             | Generated table of contents HTML              |
-| `{{#description}}` / `{{/description}}` | Conditional description block                 |
+| Variable                                | Description                                         |
+| --------------------------------------- | --------------------------------------------------- |
+| `{{title}}`                             | Page title from front matter                        |
+| `{{{content}}}`                         | Rendered HTML content (triple braces for raw)       |
+| `{{#hasToc}}`                           | Conditional: true if `toc` is not `false`           |
+| `{{{toc}}}`                             | Generated table of contents HTML                    |
+| `{{#description}}` / `{{/description}}` | Conditional description block                       |
+| `{{#layout}}`                           | Conditional: true if `layout` set in front matter   |
+| `{{layout}}`                            | Layout name (e.g. `prose`, `product`)               |
+| `{{#bodyClass}}`                        | Conditional: true if `bodyClass` set                |
+| `{{bodyClass}}`                         | CSS class applied to `<body>`                       |
+| `{{#hasHero}}`                          | Conditional: true if `hero` object in front matter  |
+| `{{heroImage}}`                         | Hero image path from `hero.image`                   |
+| `{{heroAlt}}`                           | Hero image alt text from `hero.alt`                 |
+| `{{heroTitle}}`                         | Hero heading (defaults to `title`)                  |
+| `{{heroSubtitle}}`                      | Hero subtitle from `hero.subtitle`                  |
+| `{{#hasHeroCta}}`                       | Conditional: true if hero has CTA buttons           |
+| `{{#heroCta}}`                          | Array of CTA items with `href`, `label`, `btnClass` |
+
+When `layout` is set, the template wraps `{{{content}}}` in a
+`<div class="page-content">` and applies `class="layout-{layout}"` to `<main>`.
+When no layout is set, content is rendered directly inside `<main>`.
 
 ```html
 <!DOCTYPE html>
@@ -82,11 +97,18 @@ Mustache template with these variables:
   <head>
     <title>{{title}}</title>
   </head>
-  <body>
-    <h1>{{title}}</h1>
-    {{#hasToc}}
-    <nav>{{{toc}}}</nav>
-    {{/hasToc}} {{{content}}}
+  <body{{#bodyClass}} class="{{bodyClass}}"{{/bodyClass}}>
+    <main{{#layout}} class="layout-{{layout}}"{{/layout}}>
+      {{#hasHero}}
+      <div class="hero">...</div>
+      {{/hasHero}}
+      {{#layout}}
+      <div class="page-content">{{{content}}}</div>
+      {{/layout}}
+      {{^layout}}
+      {{{content}}}
+      {{/layout}}
+    </main>
   </body>
 </html>
 ```
@@ -99,10 +121,29 @@ Each `.md` file needs YAML front matter:
 ---
 title: Page Title
 description: Optional page description
-toc: true # Set to false to hide table of contents
+toc: true      # Set to false to hide table of contents
+layout: prose  # Optional: wraps content in .page-content, adds class to <main>
+bodyClass: ""  # Optional: adds class to <body>
+hero:          # Optional: renders hero section from template
+  image: /assets/heros/example.svg
+  alt: Hero image description
+  title: Override Title   # Defaults to title
+  subtitle: Hero subtitle # Defaults to description
+  cta:
+    - label: Primary
+      href: /docs/
+    - label: Secondary
+      href: /github
+      secondary: true
 ---
 Your markdown content here...
 ```
+
+**Layout values:**
+
+- `prose` — max-width 680px, top padding for header clearance (technical docs)
+- `product` — max-width 720px, blockquotes styled as value boxes, lists get
+  checkmarks (product pages)
 
 ### 3. Assets Directory (Optional)
 

@@ -1,33 +1,17 @@
 ---
 title: About
 description: Why Forward Impact Team exists — the philosophy behind empowering engineers to do their best work.
+layout: product
 toc: false
+hero:
+  image: /assets/heros/about.svg
+  alt: Concept illustration for Forward Impact Team
+  subtitle: The philosophy behind Forward Impact Team — and why empowering engineers matters.
 ---
 
-<div class="hero">
-  <div class="page-container">
-    <div class="hero-illustration">
-      <img src="/assets/heros/about.svg" alt="Concept illustration for Forward Impact Team" />
-    </div>
-    <h1 class="text-hero">About</h1>
-    <p class="text-subtitle">
-      The philosophy behind Forward Impact Team — and why empowering engineers
-      matters.
-    </p>
-  </div>
-</div>
-
-<div class="section section-warm">
-  <div class="page-container content-product">
-
-<div class="value-box">
-<p>
-"The aim of leadership should be to improve the performance of man and machine,
-to improve quality, to increase output, and simultaneously to bring pride of
-workmanship to people."
-<br><strong>— W. Edwards Deming</strong>
-</p>
-</div>
+> "The aim of leadership should be to improve the performance of man and
+> machine, to improve quality, to increase output, and simultaneously to bring
+> pride of workmanship to people." **— W. Edwards Deming**
 
 This quote has guided how we think about engineering organizations. Too often,
 the conversation about engineering productivity focuses on measuring output —
@@ -36,11 +20,7 @@ place, but they miss the point. The real question isn't "how much are engineers
 producing?" It's "are we giving engineers what they need to do work they're
 proud of?"
 
-  </div>
-</div>
-
-<div class="section">
-  <div class="page-container content-product">
+---
 
 ## The Problem With Frameworks
 
@@ -121,11 +101,7 @@ The tools are built with vanilla JavaScript, no frameworks, and designed to be
 simple rather than easy. Every design choice favours reducing complexity over
 hiding it.
 
-  </div>
-</div>
-
-<div class="section section-contour">
-  <div class="page-container content-product" style="text-align: center;">
+---
 
 ## Who We Are
 
@@ -140,6 +116,3 @@ to empower the people doing the work. When engineers have clear expectations,
 visible growth paths, and tools that respect their craft, they deliver better
 software — and better software means better outcomes for the people who depend
 on it.
-
-  </div>
-</div>

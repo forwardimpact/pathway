@@ -1,10 +1,8 @@
 ---
 title: "Basecamp: Technical Docs"
 description: Scheduler configuration, knowledge base structure, CLI reference, and macOS app architecture.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -222,6 +220,3 @@ npm run build:macos
 - [Core Model](/docs/model/) — How skills and behaviours are defined
 - [Agents](/docs/pathway/agents/) — Agent profile format used by tasks
 - [Map](/docs/map/) — Data format for entity definitions
-
-</div>
-</div>

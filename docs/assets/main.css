@@ -325,12 +325,142 @@ strong {
   padding: 0 var(--space-6);
 }
 
-.content-narrow {
-  max-width: 680px;
-}
-
 .content-product {
   max-width: 720px;
+}
+
+/* ── Page Content (layout pages) ───────────────────────────────── */
+
+.page-content {
+  margin: 0 auto;
+  padding: var(--space-12) var(--space-6);
+}
+
+.page-content h2 {
+  margin-top: var(--space-12);
+  margin-bottom: var(--space-6);
+}
+
+.page-content h3 {
+  margin-top: var(--space-10);
+  margin-bottom: var(--space-4);
+}
+
+.page-content p {
+  margin-bottom: var(--space-4);
+}
+
+.page-content ul,
+.page-content ol {
+  margin-bottom: var(--space-4);
+  padding-left: var(--space-6);
+}
+
+.page-content li {
+  margin-bottom: var(--space-2);
+}
+
+.page-content li > p {
+  margin-bottom: var(--space-2);
+}
+
+.page-content blockquote {
+  border-left: 3px solid var(--sand-200);
+  background: var(--sand-50);
+  padding: var(--space-4) var(--space-6);
+  margin: var(--space-6) 0;
+  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
+  color: var(--gray-500);
+}
+
+.page-content blockquote p:last-child {
+  margin-bottom: 0;
+}
+
+.page-content hr {
+  border: none;
+  height: 1px;
+  background: var(--border-default);
+  margin: var(--space-12) 0;
+}
+
+.page-content img {
+  border-radius: var(--radius-md);
+  margin: var(--space-6) 0;
+}
+
+/* ── Page Content: Tables ──────────────────────────────────────── */
+
+.page-content table {
+  width: 100%;
+  border-collapse: collapse;
+  margin: var(--space-6) 0;
+  font-size: var(--text-small-size);
+}
+
+.page-content th {
+  text-align: left;
+  font-weight: 600;
+  color: var(--gray-700);
+  border-bottom: 2px solid var(--gray-200);
+  padding: var(--space-3) var(--space-4);
+}
+
+.page-content td {
+  border-bottom: 1px solid var(--border-default);
+  padding: var(--space-3) var(--space-4);
+  color: var(--gray-500);
+}
+
+/* ── Layout: Prose ─────────────────────────────────────────────── */
+
+.layout-prose .page-content {
+  max-width: 680px;
+  padding-top: calc(56px + var(--space-12));
+}
+
+/* ── Layout: Product ───────────────────────────────────────────── */
+
+.layout-product .page-content {
+  max-width: 720px;
+}
+
+/* Blockquotes as value boxes */
+.layout-product .page-content > blockquote {
+  background: var(--sand-50);
+  border: 1.5px solid var(--sand-200);
+  border-left: 1.5px solid var(--sand-200);
+  border-radius: var(--radius-lg);
+  padding: var(--space-8);
+  margin: var(--space-8) 0;
+}
+
+.layout-product .page-content > blockquote p {
+  color: var(--gray-700);
+  font-size: 1.125rem;
+  line-height: 1.65;
+}
+
+/* Checkmark lists */
+.layout-product .page-content ul {
+  list-style: none;
+  padding: 0;
+  margin: var(--space-6) 0;
+}
+
+.layout-product .page-content ul li {
+  position: relative;
+  padding-left: 1.75em;
+  margin-bottom: var(--space-3);
+  line-height: 1.5;
+}
+
+.layout-product .page-content ul li::before {
+  content: "\2713";
+  position: absolute;
+  left: 0;
+  color: var(--gray-700);
+  font-weight: bold;
 }
 
 /* ── Hero Sections ─────────────────────────────────────────────── */
@@ -627,92 +757,6 @@ strong {
   margin: 0;
 }
 
-/* ── Content / Prose ───────────────────────────────────────────── */
-
-.prose {
-  max-width: 680px;
-}
-
-.prose h2 {
-  margin-top: var(--space-12);
-  margin-bottom: var(--space-6);
-}
-
-.prose h3 {
-  margin-top: var(--space-10);
-  margin-bottom: var(--space-4);
-}
-
-.prose p {
-  margin-bottom: var(--space-4);
-}
-
-.prose ul,
-.prose ol,
-.content-product ul:not([class]),
-.content-product ol:not([class]) {
-  margin-bottom: var(--space-4);
-  padding-left: var(--space-6);
-}
-
-.prose li,
-.content-product ul:not([class]) > li,
-.content-product ol:not([class]) > li {
-  margin-bottom: var(--space-2);
-}
-
-.prose li > p {
-  margin-bottom: var(--space-2);
-}
-
-.prose blockquote {
-  border-left: 3px solid var(--sand-200);
-  background: var(--sand-50);
-  padding: var(--space-4) var(--space-6);
-  margin: var(--space-6) 0;
-  border-radius: 0 var(--radius-sm) var(--radius-sm) 0;
-  color: var(--gray-500);
-}
-
-.prose blockquote p:last-child {
-  margin-bottom: 0;
-}
-
-.prose hr {
-  border: none;
-  height: 1px;
-  background: var(--border-default);
-  margin: var(--space-12) 0;
-}
-
-.prose img {
-  border-radius: var(--radius-md);
-  margin: var(--space-6) 0;
-}
-
-/* ── Tables ────────────────────────────────────────────────────── */
-
-.prose table {
-  width: 100%;
-  border-collapse: collapse;
-  margin: var(--space-6) 0;
-  font-size: var(--text-small-size);
-}
-
-.prose th {
-  text-align: left;
-  font-weight: 600;
-  color: var(--gray-700);
-  border-bottom: 2px solid var(--gray-200);
-  padding: var(--space-3) var(--space-4);
-}
-
-.prose td {
-  border-bottom: 1px solid var(--border-default);
-  padding: var(--space-3) var(--space-4);
-  color: var(--gray-500);
-}
-
 /* ── Code Blocks ───────────────────────────────────────────────── */
 
 code {
@@ -741,60 +785,6 @@ pre code {
   background: transparent;
   padding: 0;
   border-radius: 0;
-}
-
-/* ── Benefit List (checkmarks) ─────────────────────────────────── */
-
-.benefits {
-  list-style: none;
-  padding: 0;
-  margin: var(--space-6) 0;
-}
-
-.benefits li {
-  position: relative;
-  padding-left: 1.75em;
-  margin-bottom: var(--space-3);
-  line-height: 1.5;
-}
-
-.benefits li::before {
-  content: "\2713";
-  position: absolute;
-  left: 0;
-  color: var(--gray-700);
-  font-weight: bold;
-}
-
-/* ── Value Proposition Box ─────────────────────────────────────── */
-
-.value-box {
-  background: var(--sand-50);
-  border: 1.5px solid var(--sand-200);
-  border-radius: var(--radius-lg);
-  padding: var(--space-8);
-  margin: var(--space-8) 0;
-}
-
-.value-box p {
-  color: var(--gray-700);
-  font-size: 1.125rem;
-  line-height: 1.65;
-  margin: 0;
-}
-
-/* ── Quick Start Terminal ──────────────────────────────────────── */
-
-.quickstart {
-  margin: var(--space-8) 0;
-}
-
-.quickstart h3 {
-  margin-top: var(--space-8);
-}
-
-.quickstart h3:first-child {
-  margin-top: 0;
 }
 
 /* ── Docs Navigation Cards ─────────────────────────────────────── */

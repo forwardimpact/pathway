@@ -2,23 +2,19 @@
 title: Forward Impact Team
 description: An open-source suite that helps organizations empower engineers with clear expectations, career growth, and the clarity to do their best work.
 toc: false
+bodyClass: page-home
+hero:
+  image: /assets/heros/welcome.svg
+  alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
+  title: Empowered engineers<br>deliver lasting impact.
+  subtitle: Map, Pathway, Guide, and Basecamp — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
+  cta:
+    - label: Explore the suite
+      href: /docs/
+    - label: View on GitHub
+      href: https://github.com/forwardimpact/monorepo/
+      secondary: true
 ---
-
-<div class="hero">
-  <div class="page-container">
-    <div class="hero-illustration">
-      <img src="/assets/heros/welcome.svg" alt="An engineer in a hoodie, an AI robot, and a business professional wave hello" />
-    </div>
-    <h1 class="text-hero">Empowered engineers<br>deliver lasting impact.</h1>
-    <p class="text-subtitle">
-      Map, Pathway, Guide, and Basecamp — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
-    </p>
-    <div class="hero-cta">
-      <a href="/docs/" class="btn btn-primary">Explore the suite</a>
-      <a href="https://github.com/forwardimpact/monorepo/" class="btn btn-secondary">View on GitHub</a>
-    </div>
-  </div>
-</div>
 
 <div class="section section-warm">
   <div class="page-container">

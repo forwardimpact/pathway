@@ -1,10 +1,8 @@
 ---
 title: Core Model
 description: How disciplines, grades, tracks, skills, and behaviours combine to produce complete role definitions.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -242,6 +240,3 @@ import { prepareAgentProfile }
 - [Lifecycle](/docs/model/lifecycle/) — Stages, handoffs, and checklists
 - [Agents](/docs/pathway/agents/) — Agent profile generation
 - [Reference](/docs/pathway/reference/) — File organization, templates, and CLI
-
-</div>
-</div>

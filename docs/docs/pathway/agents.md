@@ -1,10 +1,8 @@
 ---
 title: Agent Profiles
 description: How AI coding agent profiles are generated from the career framework.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -233,6 +231,3 @@ import { deriveReferenceGrade } from "@forwardimpact/libpathway/agent";
 - [Pathway Overview](/docs/pathway/) — Presentation layer architecture
 - [Lifecycle](/docs/model/lifecycle/) — Stages and handoffs used by agents
 - [Core Model](/docs/model/) — Derivation formula shared with human profiles
-
-</div>
-</div>

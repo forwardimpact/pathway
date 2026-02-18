@@ -1,56 +1,35 @@
 ---
 title: Pathway
 description: Navigate engineering skills and careers with clarity — browse career paths, generate agent teams, build progression plans.
+layout: product
 toc: false
+hero:
+  image: /assets/heros/pathway.svg
+  alt: An engineer, an AI robot, and a business professional stand at the base of mountains, studying the trail ahead
+  subtitle: "Navigate engineering skills and careers with clarity. Whether you're an engineer exploring career progression, a manager building job descriptions, or a team lead deploying AI coding agents — Pathway delivers it through a web app, a CLI, and a static site generator."
+  cta:
+    - label: Documentation
+      href: /docs/pathway/
+    - label: View on npm
+      href: https://www.npmjs.com/package/@forwardimpact/pathway
+      secondary: true
 ---
 
-<div class="hero">
-  <div class="page-container">
-    <div class="hero-illustration">
-      <img src="/assets/heros/pathway.svg" alt="An engineer, an AI robot, and a business professional stand at the base of mountains, studying the trail ahead" />
-    </div>
-    <h1 class="text-hero">Pathway</h1>
-    <p class="text-subtitle">
-      Navigate engineering skills and careers with clarity. Whether you're an
-      engineer exploring career progression, a manager building job descriptions,
-      or a team lead deploying AI coding agents — Pathway delivers it through a
-      web app, a CLI, and a static site generator.
-    </p>
-    <div class="hero-cta">
-      <a href="/docs/pathway/" class="btn btn-primary">Documentation</a>
-      <a href="https://www.npmjs.com/package/@forwardimpact/pathway" class="btn btn-secondary">View on npm</a>
-    </div>
-  </div>
-</div>
-
-<div class="section section-warm">
-  <div class="page-container content-product">
-
-<div class="value-box">
-<p>
-Pathway is your interface to the engineering framework. Feed it a discipline,
-a track, and a grade — and it produces a complete job definition. Swap the
-grade for a lifecycle stage and you get an agent profile instead. Same data,
-same formula, different outputs.
-</p>
-</div>
+> Pathway is your interface to the engineering framework. Feed it a discipline,
+> a track, and a grade — and it produces a complete job definition. Swap the
+> grade for a lifecycle stage and you get an agent profile instead. Same data,
+> same formula, different outputs.
 
 ### What you get
 
-<ul class="benefits">
-<li>An interactive web app to explore roles, skills, and career paths</li>
-<li>A CLI for generating job descriptions and agent profiles</li>
-<li>VS Code Custom Agent profiles derived from your framework</li>
-<li>Agent skill files following the open Agent Skills Standard</li>
-<li>A static site export for publishing your career framework</li>
-<li>Interview question sets tailored to each role</li>
-</ul>
+- An interactive web app to explore roles, skills, and career paths
+- A CLI for generating job descriptions and agent profiles
+- VS Code Custom Agent profiles derived from your framework
+- Agent skill files following the open Agent Skills Standard
+- A static site export for publishing your career framework
+- Interview question sets tailored to each role
 
-  </div>
-</div>
-
-<div class="section">
-  <div class="page-container content-product">
+---
 
 ### Who it's for
 
@@ -88,6 +67,3 @@ npx fit-pathway job software_engineering L3 --track=platform  # Job definition
 npx fit-pathway agent software_engineering --track=platform   # Agent profiles
 npx fit-pathway build --url=https://pathway.myorg.com         # Static site
 ```
-
-  </div>
-</div>

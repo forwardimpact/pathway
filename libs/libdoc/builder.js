@@ -229,6 +229,14 @@ export class DocsBuilder {
       const html = this.#transformMarkdownLinks(rawHtml);
       const toc = frontMatter.toc !== false ? this.#generateToc(html) : "";
 
+      // Extract hero and layout data from front matter
+      const hero = frontMatter.hero;
+      const heroCta =
+        hero?.cta?.map((item) => ({
+          ...item,
+          btnClass: item.secondary ? "btn-secondary" : "btn-primary",
+        })) || [];
+
       // Render template with context
       const outputHtml = this.#mustacheRender(template, {
         title: frontMatter.title,
@@ -236,6 +244,15 @@ export class DocsBuilder {
         content: html,
         toc,
         hasToc: !!toc,
+        layout: frontMatter.layout || "",
+        bodyClass: frontMatter.bodyClass || "",
+        hasHero: !!hero,
+        heroImage: hero?.image || "",
+        heroAlt: hero?.alt || "",
+        heroTitle: hero?.title || frontMatter.title,
+        heroSubtitle: hero?.subtitle || frontMatter.description || "",
+        heroCta,
+        hasHeroCta: heroCta.length > 0,
       });
 
       // Format HTML with prettier

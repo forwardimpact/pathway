@@ -1,54 +1,36 @@
 ---
 title: Map
 description: Chart the territory — define the skills, behaviours, and career levels that matter to your engineering organization.
+layout: product
 toc: false
+hero:
+  image: /assets/heros/map.svg
+  alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
+  subtitle: Chart the territory before you move through it. Map lets you describe your engineering competencies — skills, behaviours, grades, disciplines, and tracks — in plain YAML files that humans can read and machines can validate.
+  cta:
+    - label: Documentation
+      href: /docs/map/
+    - label: View on npm
+      href: https://www.npmjs.com/package/@forwardimpact/map
+      secondary: true
 ---
 
-<div class="hero">
-  <div class="page-container">
-    <div class="hero-illustration">
-      <img src="/assets/heros/map.svg" alt="An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together" />
-    </div>
-    <h1 class="text-hero">Map</h1>
-    <p class="text-subtitle">
-      Chart the territory before you move through it. Map lets you describe your engineering competencies — skills, behaviours, grades, disciplines, and tracks — in plain YAML files that humans can read and machines can validate.
-    </p>
-    <div class="hero-cta">
-      <a href="/docs/map/" class="btn btn-primary">Documentation</a>
-      <a href="https://www.npmjs.com/package/@forwardimpact/map" class="btn btn-secondary">View on npm</a>
-    </div>
-  </div>
-</div>
-
-<div class="section section-warm">
-  <div class="page-container content-product">
-
-<div class="value-box">
-<p>
-Before you can chart a career path or deploy an agent team, you need to define
-the landscape. Map is the foundational data model — the engineering skills
-taxonomy that everything else references. Define it once in YAML, and the rest
-of the system derives from it automatically.
-</p>
-</div>
+> Before you can chart a career path or deploy an agent team, you need to define
+> the landscape. Map is the foundational data model — the engineering skills
+> taxonomy that everything else references. Define it once in YAML, and the rest
+> of the system derives from it automatically.
 
 ### What you get
 
-<ul class="benefits">
-<li>A complete vocabulary of engineering skills with five progression levels</li>
-<li>Behaviour definitions that describe how engineers approach their work</li>
-<li>Career grades from junior through principal, with clear expectations</li>
-<li>Discipline definitions that shape T-shaped skill profiles</li>
-<li>Tracks that modify expectations for different work contexts</li>
-<li>Automatic validation ensuring everything references correctly</li>
-<li>Dual-format schemas — JSON Schema for tooling, RDF/SHACL for linked data</li>
-</ul>
+- A complete vocabulary of engineering skills with five progression levels
+- Behaviour definitions that describe how engineers approach their work
+- Career grades from junior through principal, with clear expectations
+- Discipline definitions that shape T-shaped skill profiles
+- Tracks that modify expectations for different work contexts
+- Automatic validation ensuring everything references correctly
+- Dual-format schemas — JSON Schema for tooling, RDF/SHACL for linked data
 
-  </div>
-</div>
-
-<div class="section">
-  <div class="page-container content-product">
+---
 
 ### Who it's for
 
@@ -98,6 +80,3 @@ npx fit-pathway skill --list       # All skills
 npx fit-pathway discipline --list  # Engineering specialties
 npx fit-pathway grade --list       # Career levels
 ```
-
-  </div>
-</div>

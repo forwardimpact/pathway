@@ -1,10 +1,8 @@
 ---
 title: Lifecycle
 description: Engineering lifecycle stages, handoffs, constraints, and transition checklists.
+layout: prose
 ---
-
-<div class="page-container">
-<div class="prose">
 
 ## Overview
 
@@ -218,6 +216,3 @@ flowchart TD
 - [Core Model](/docs/model/) — Entity overview and derivation formula
 - [Core Derivation](/docs/model/core/) — Skill and behaviour derivation details
 - [Agents](/docs/pathway/agents/) — How agents use lifecycle stages
-
-</div>
-</div>
