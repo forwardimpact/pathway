@@ -20,8 +20,9 @@ jobs:
         run: |
           TAG_NAME="${GITHUB_REF_NAME%%@v*}"
           echo "tag_name=${TAG_NAME}" >> $GITHUB_OUTPUT
-          # Find the npm package name and directory from the tag (e.g., map -> @forwardimpact/map)
-          PKG_JSON=$(npm query "[name*=${TAG_NAME}]" --json | jq -r '.[0]')
+          # Find the npm package name and directory from the tag
+          # Use exact suffix match to avoid e.g. "pathway" matching "libpathway"
+          PKG_JSON=$(npm query "[name]" --json | jq -r --arg t "${TAG_NAME}" '[.[] | select(.name | endswith("/" + $t))][0]')
           echo "npm_name=$(echo "$PKG_JSON" | jq -r '.name')" >> $GITHUB_OUTPUT
           echo "dir_name=$(echo "$PKG_JSON" | jq -r '.path')" >> $GITHUB_OUTPUT
 
