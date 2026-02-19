@@ -58,20 +58,24 @@
         </div>
       </div>
       {{/hasHero}}
-      <div class="page-content">
-        {{#hasBreadcrumbs}}
-        <nav class="breadcrumbs" aria-label="Breadcrumb">{{{breadcrumbs}}}</nav>
-        {{/hasBreadcrumbs}}
-        {{^hasHero}}
-        <h1 class="page-title">{{{title}}}</h1>
-        {{/hasHero}}
-        {{{content}}}
+      <div{{#hasToc}} class="with-toc"{{/hasToc}}>
+        {{#hasToc}}
+        <nav class="toc-nav" aria-label="Table of contents">
+          <h5>Contents</h5>
+          {{{toc}}}
+        </nav>
+        {{/hasToc}}
+        <div class="page-content">
+          {{#hasBreadcrumbs}}
+          <nav class="breadcrumbs" aria-label="Breadcrumb">{{{breadcrumbs}}}</nav>
+          {{/hasBreadcrumbs}}
+          {{^hasHero}}
+          <h1 class="page-title">{{{title}}}</h1>
+          {{/hasHero}}
+          {{{content}}}
+        </div>
       </div>
     </main>
-
-    {{#hasToc}}
-    <!-- TOC rendered inside content via markdown structure -->
-    {{/hasToc}}
 
     <footer class="site-footer">
       <div class="footer-inner">

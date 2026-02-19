@@ -753,6 +753,21 @@ pre code {
   grid-template-columns: 1fr 220px;
   gap: var(--space-12);
   align-items: start;
+  max-width: 960px;
+  margin: 0 auto;
+  padding: calc(56px + var(--space-12)) var(--space-6) var(--space-12);
+}
+
+.with-toc > .page-content {
+  max-width: none;
+  margin: 0;
+  padding: 0;
+}
+
+@media (min-width: 961px) {
+  .with-toc > .page-content {
+    order: -1;
+  }
 }
 
 .toc-nav {
