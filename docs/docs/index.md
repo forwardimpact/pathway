@@ -15,7 +15,8 @@ hero:
 
 ### Map
 
-Data model, YAML format, validation, schema definitions, and programmatic access.
+Data model, YAML format, validation, schema definitions, and programmatic
+access.
 
 </a>
 
@@ -23,7 +24,8 @@ Data model, YAML format, validation, schema definitions, and programmatic access
 
 ### Model
 
-How disciplines, grades, tracks, skills, and behaviours combine to produce role definitions.
+How disciplines, grades, tracks, skills, and behaviours combine to produce role
+definitions.
 
 </a>
 
@@ -31,7 +33,8 @@ How disciplines, grades, tracks, skills, and behaviours combine to produce role 
 
 ### Lifecycle
 
-Engineering stages from specify through deploy — handoffs, checklists, and quality gates.
+Engineering stages from specify through deploy — handoffs, checklists, and
+quality gates.
 
 </a>
 
@@ -47,7 +50,8 @@ Web app, CLI commands, formatters, agent generation, and output templates.
 
 ### Agents
 
-Agent profile derivation, SKILL.md format, stage-specific agents, and handoff flow.
+Agent profile derivation, SKILL.md format, stage-specific agents, and handoff
+flow.
 
 </a>
 
@@ -63,7 +67,8 @@ File organization, co-located file structure, CLI commands, and output formats.
 
 ### Basecamp
 
-Scheduler configuration, knowledge base structure, built-in skills, CLI reference.
+Scheduler configuration, knowledge base structure, built-in skills, CLI
+reference.
 
 </a>
 

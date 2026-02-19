@@ -69,22 +69,23 @@ Documentation sites require three components in the source directory:
 Mustache template with these variables:
 
 | Variable                                | Description                                         |
-| --------------------------------------- | --------------------------------------------------- |
+| --------------------------------------- | --------------------------------------------------- | --- | --------------------- | ------------------------------------------- |
 | `{{title}}`                             | Page title from front matter                        |
 | `{{{content}}}`                         | Rendered HTML content (triple braces for raw)       |
 | `{{#hasToc}}`                           | Conditional: true if `toc` is not `false`           |
 | `{{{toc}}}`                             | Generated table of contents HTML                    |
 | `{{#description}}` / `{{/description}}` | Conditional description block                       |
 | `{{#layout}}`                           | Conditional: true if `layout` set in front matter   |
-| `{{layout}}`                             | Layout name (e.g. `product`, `home`)                |
-| `{{#hasHero}}`                           | Conditional: true if `hero` object in front matter  |
+| `{{layout}}`                            | Layout name (e.g. `product`, `home`)                |
+| `{{#hasHero}}`                          | Conditional: true if `hero` object in front matter  |
 | `{{heroImage}}`                         | Hero image path from `hero.image`                   |
 | `{{heroAlt}}`                           | Hero image alt text from `hero.alt`                 |
 | `{{heroTitle}}`                         | Hero heading (defaults to `title`)                  |
 | `{{heroSubtitle}}`                      | Hero subtitle from `hero.subtitle`                  |
 | `{{#hasHeroCta}}`                       | Conditional: true if hero has CTA buttons           |
-| `{{#heroCta}}`                          | Array of CTA items with `href`, `label`, `btnClass` || `{{#hasBreadcrumbs}}`                      | Conditional: true if page is 2+ levels deep         |
-| `{{{breadcrumbs}}}`                        | Breadcrumb navigation HTML (raw)                    |
+| `{{#heroCta}}`                          | Array of CTA items with `href`, `label`, `btnClass` |     | `{{#hasBreadcrumbs}}` | Conditional: true if page is 2+ levels deep |
+| `{{{breadcrumbs}}}`                     | Breadcrumb navigation HTML (raw)                    |
+
 Content is always wrapped in a `<div class="page-content">` inside `<main>`.
 When `layout` is set, `class="layout-{layout}"` is applied to `<main>` to
 override the default styling. The default styling (no layout) matches prose

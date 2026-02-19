@@ -17,7 +17,8 @@ This quote has guided how we think about engineering organizations. Too often,
 the conversation about engineering productivity focuses on measuring output —
 story points, lines of code, deployment frequency. These metrics have their
 place, but they miss the point. The real question isn't "how much are engineers
-producing?" It's "are we empowering engineers to have lasting impact on our business and customers?"
+producing?" It's "are we empowering engineers to have lasting impact on our
+business and customers?"
 
 ---
 

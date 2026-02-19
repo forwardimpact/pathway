@@ -183,5 +183,6 @@ assistants (GitHub Copilot, Claude, etc.).
 ## Related Documentation
 
 - [Agents](/docs/pathway/agents/) — Agent profile derivation
-- [Technical Reference](/docs/pathway/reference/) — File organization and CLI reference
+- [Technical Reference](/docs/pathway/reference/) — File organization and CLI
+  reference
 - [Core Model](/docs/model/) — How derivation works

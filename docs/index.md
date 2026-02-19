@@ -26,7 +26,8 @@ hero:
 
 ### Map
 
-Chart the territory. Define your engineering skills, behaviours, and career levels in plain YAML — the single source of truth.
+Chart the territory. Define your engineering skills, behaviours, and career
+levels in plain YAML — the single source of truth.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -37,7 +38,8 @@ Chart the territory. Define your engineering skills, behaviours, and career leve
 
 ### Pathway
 
-Navigate the trail. Browse career paths, generate agent teams, and build progression plans — in the browser or from the CLI.
+Navigate the trail. Browse career paths, generate agent teams, and build
+progression plans — in the browser or from the CLI.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -48,7 +50,8 @@ Navigate the trail. Browse career paths, generate agent teams, and build progres
 
 ### Guide
 
-Find your bearing. AI-powered onboarding and career advice that helps engineers orient in unfamiliar terrain.
+Find your bearing. AI-powered onboarding and career advice that helps engineers
+orient in unfamiliar terrain.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -59,7 +62,8 @@ Find your bearing. AI-powered onboarding and career advice that helps engineers 
 
 ### Basecamp
 
-Set up camp. A personal knowledge system with scheduled AI tasks that keeps you briefed, organized, and field-ready.
+Set up camp. A personal knowledge system with scheduled AI tasks that keeps you
+briefed, organized, and field-ready.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -76,7 +80,8 @@ Set up camp. A personal knowledge system with scheduled AI tasks that keeps you 
 
 #### One Source of Truth
 
-Skills, behaviours, and grades defined once in YAML — used everywhere, by humans and machines alike.
+Skills, behaviours, and grades defined once in YAML — used everywhere, by humans
+and machines alike.
 
 </div>
 
@@ -84,7 +89,8 @@ Skills, behaviours, and grades defined once in YAML — used everywhere, by huma
 
 #### Human + Machine
 
-Career frameworks and AI agent profiles derived from the same foundation. Co-located in the same files.
+Career frameworks and AI agent profiles derived from the same foundation.
+Co-located in the same files.
 
 </div>
 
@@ -92,7 +98,8 @@ Career frameworks and AI agent profiles derived from the same foundation. Co-loc
 
 #### Data-Driven
 
-Plain YAML files. No vendor lock-in. Your data, your way. Different installations use the same model.
+Plain YAML files. No vendor lock-in. Your data, your way. Different
+installations use the same model.
 
 </div>
 
@@ -100,7 +107,8 @@ Plain YAML files. No vendor lock-in. Your data, your way. Different installation
 
 #### Ready to Deploy
 
-Works at the command line, in VS Code, and on the web — meeting engineers where they already work.
+Works at the command line, in VS Code, and on the web — meeting engineers where
+they already work.
 
 </div>
 
@@ -113,11 +121,17 @@ Works at the command line, in VS Code, and on the web — meeting engineers wher
 
 ![An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together](/assets/heros/map.svg)
 
-> "The aim of leadership should be to improve the performance of man and machine, to improve quality, to increase output, and simultaneously to bring pride of workmanship to people."
+> "The aim of leadership should be to improve the performance of man and
+> machine, to improve quality, to increase output, and simultaneously to bring
+> pride of workmanship to people."
 >
 > — W. Edwards Deming
 
-Forward Impact Team puts this into practice. Organizations define what great engineering looks like — skills, behaviours, and career levels — in a shared framework. Engineers gain clear expectations, career paths, AI assistance, and knowledge systems matched to their standards. When the path forward is clear, engineers deliver with confidence and pride.
+Forward Impact Team puts this into practice. Organizations define what great
+engineering looks like — skills, behaviours, and career levels — in a shared
+framework. Engineers gain clear expectations, career paths, AI assistance, and
+knowledge systems matched to their standards. When the path forward is clear,
+engineers deliver with confidence and pride.
 
   <div class="hero-cta" style="margin-top: var(--space-6);">
     <a href="/about/" class="btn btn-secondary">Read our philosophy</a>

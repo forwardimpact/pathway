@@ -182,7 +182,8 @@ export class DocsBuilder {
       parts.push(`<a href="${ancestorPath}">${title}</a>`);
     }
 
-    const currentTitle = pageTitles.get(urlPath) || segments[segments.length - 1];
+    const currentTitle =
+      pageTitles.get(urlPath) || segments[segments.length - 1];
     parts.push(`<span>${currentTitle}</span>`);
 
     return parts.join(" / ");
