@@ -466,7 +466,7 @@ strong {
 /* ── Hero Sections ─────────────────────────────────────────────── */
 
 .hero {
-  padding-top: var(--space-24);
+  padding-top: calc(56px + var(--space-24));
   padding-bottom: var(--space-16);
   text-align: center;
 }
@@ -1114,7 +1114,7 @@ pre:has(.language-mermaid) {
   }
 
   .hero {
-    padding-top: var(--space-16);
+    padding-top: calc(56px + var(--space-16));
     padding-bottom: var(--space-12);
   }
 
