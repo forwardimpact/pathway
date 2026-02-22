@@ -79,7 +79,7 @@ npx fit-pathway init
 # Edit data files to match your organization
 # data/framework.yaml — title, icon, distribution.siteUrl
 # data/disciplines/   — your engineering disciplines
-# data/grades.yaml    — your career levels
+# data/levels.yaml    — your career levels
 # ...
 ```
 
@@ -180,11 +180,11 @@ All entity commands support three modes:
 
 ```sh
 npx fit-pathway job --list                                # Valid combinations
-npx fit-pathway job <discipline> <grade>                  # Trackless job
-npx fit-pathway job <discipline> <grade> --track=<track>  # With track
-npx fit-pathway job <discipline> <grade> --checklist=code # With checklist
-npx fit-pathway job <discipline> <grade> --skills         # Skill IDs only
-npx fit-pathway job <discipline> <grade> --tools          # Tool names only
+npx fit-pathway job <discipline> <level>                  # Trackless job
+npx fit-pathway job <discipline> <level> --track=<track>  # With track
+npx fit-pathway job <discipline> <level> --checklist=code # With checklist
+npx fit-pathway job <discipline> <level> --skills         # Skill IDs only
+npx fit-pathway job <discipline> <level> --tools          # Tool names only
 ```
 
 ### Agent Generation
@@ -201,10 +201,10 @@ npx fit-pathway agent <discipline> --track=<track> --tools          # Tool names
 ### Interview & Progression
 
 ```sh
-npx fit-pathway interview <discipline> <grade>
+npx fit-pathway interview <discipline> <level>
 npx fit-pathway interview <d> <g> --track=<t> --type=mission
-npx fit-pathway progress <discipline> <grade>
-npx fit-pathway progress <d> <g> --compare=<to_grade>
+npx fit-pathway progress <discipline> <level>
+npx fit-pathway progress <d> <g> --compare=<to_level>
 npx fit-pathway questions --level=practitioner
 npx fit-pathway questions --skill=<id> --format=yaml
 ```
@@ -249,8 +249,8 @@ Use `createReactive` for component-local state:
 ```javascript
 import { createReactive } from "../lib/reactive.js";
 
-const selectedGrade = createReactive(null);
-selectedGrade.subscribe((grade) => updateDisplay(grade));
+const selectedLevel = createReactive(null);
+selectedLevel.subscribe((level) => updateDisplay(level));
 ```
 
 ## Page Structure
@@ -285,7 +285,7 @@ Always use the cache for job derivation in pages:
 
 ```javascript
 import { getOrCreateJob } from "@forwardimpact/libpathway/job-cache";
-const job = getOrCreateJob({ discipline, grade, track, skills, behaviours });
+const job = getOrCreateJob({ discipline, level, track, skills, behaviours });
 ```
 
 ## Error Handling
@@ -293,7 +293,7 @@ const job = getOrCreateJob({ discipline, grade, track, skills, behaviours });
 Router wraps all pages with error boundary. Pages throw:
 
 - `NotFoundError` — Entity not found
-- `InvalidCombinationError` — Invalid discipline/track/grade combination
+- `InvalidCombinationError` — Invalid discipline/track/level combination
 
 ## CSS Architecture
 

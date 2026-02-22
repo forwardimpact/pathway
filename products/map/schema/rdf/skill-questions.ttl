@@ -67,9 +67,9 @@ fit:forSkill a rdf:Property ;
 
 fit:atLevel a rdf:Property ;
     rdfs:label "atLevel"@en ;
-    rdfs:comment "The skill level this question is for"@en ;
+    rdfs:comment "The skill proficiency this question is for"@en ;
     rdfs:domain fit:Question ;
-    rdfs:range fit:SkillLevel .
+    rdfs:range fit:SkillProficiency .
 
 fit:forRoleType a rdf:Property ;
     rdfs:label "forRoleType"@en ;
@@ -143,7 +143,7 @@ fit:SkillQuestionShape a sh:NodeShape ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:name "atLevel" ;
-        sh:description "The skill level this question is for" ;
+        sh:description "The skill proficiency this question is for" ;
     ] ;
     sh:property [
         sh:path fit:forRoleType ;

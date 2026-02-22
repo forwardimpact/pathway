@@ -105,9 +105,9 @@ export function renderLanding() {
         href: "/discipline",
       }),
       createStatCard({
-        value: data.grades.length,
-        label: "Grades",
-        href: "/grade",
+        value: data.levels.length,
+        label: "Levels",
+        href: "/level",
       }),
       createStatCard({
         value: data.tracks.length,
@@ -169,9 +169,9 @@ export function renderLanding() {
           "/discipline",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "grade")} ${framework.entityDefinitions.grade.title}`,
-          `${data.grades.length} ${framework.entityDefinitions.grade.title.toLowerCase()} — ${framework.entityDefinitions.grade.description.trim().split("\n")[0]}`,
-          "/grade",
+          `${getConceptEmoji(framework, "level")} ${framework.entityDefinitions.level.title}`,
+          `${data.levels.length} ${framework.entityDefinitions.level.title.toLowerCase()} — ${framework.entityDefinitions.level.description.trim().split("\n")[0]}`,
+          "/level",
         ),
         createQuickLinkCard(
           `${getConceptEmoji(framework, "track")} ${framework.entityDefinitions.track.title}`,
@@ -220,7 +220,7 @@ export function renderLanding() {
           h2({}, "🔨 Build a Job Definition"),
           p(
             {},
-            "Combine a discipline, track, and grade to generate a complete job definition " +
+            "Combine a discipline, track, and level to generate a complete job definition " +
               "with skill matrices and behaviour profiles.",
           ),
           div(
@@ -256,7 +256,7 @@ export function renderLanding() {
           h2({}, "📈 Plan Your Career"),
           p(
             {},
-            "Visualize your progression to the next grade and compare expectations " +
+            "Visualize your progression to the next level and compare expectations " +
               "across different tracks to plan your career development.",
           ),
           div(

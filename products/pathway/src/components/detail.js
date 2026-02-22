@@ -21,7 +21,7 @@ import { createBackLink } from "./nav.js";
 import { createTag } from "./card.js";
 import { formatLevel } from "../lib/render.js";
 import {
-  SKILL_LEVEL_ORDER,
+  SKILL_PROFICIENCY_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
 } from "@forwardimpact/map/levels";
 
@@ -80,7 +80,7 @@ export function createDetailSection({ title, content }) {
  */
 export function createLevelTable(descriptions, type = "skill") {
   const levels =
-    type === "skill" ? SKILL_LEVEL_ORDER : BEHAVIOUR_MATURITY_ORDER;
+    type === "skill" ? SKILL_PROFICIENCY_ORDER : BEHAVIOUR_MATURITY_ORDER;
 
   const levelLabels = Object.fromEntries(
     levels.map((level, index) => [level, String(index + 1)]),

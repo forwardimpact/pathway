@@ -5,7 +5,7 @@
  */
 
 export { runDisciplineCommand } from "./discipline.js";
-export { runGradeCommand } from "./grade.js";
+export { runLevelCommand } from "./level.js";
 export { runTrackCommand } from "./track.js";
 export { runBehaviourCommand } from "./behaviour.js";
 export { runSkillCommand } from "./skill.js";

@@ -4,9 +4,9 @@
  * Generates and displays interview questions in the terminal.
  *
  * Usage:
- *   npx fit-pathway interview <discipline> <grade>                                  # All interview types
- *   npx fit-pathway interview <discipline> <grade> --track=<track>                  # With track
- *   npx fit-pathway interview <discipline> <grade> --track=<track> --type=mission   # Single type
+ *   npx fit-pathway interview <discipline> <level>                                  # All interview types
+ *   npx fit-pathway interview <discipline> <level> --track=<track>                  # With track
+ *   npx fit-pathway interview <discipline> <level> --track=<track> --type=mission   # Single type
  */
 
 import { createCompositeCommand } from "./command-factory.js";
@@ -45,7 +45,7 @@ function formatAllInterviews(views, options) {
 
 export const runInterviewCommand = createCompositeCommand({
   commandName: "interview",
-  requiredArgs: ["discipline_id", "grade_id"],
+  requiredArgs: ["discipline_id", "level_id"],
   findEntities: (data, args, options) => {
     const interviewType = options.type === "full" ? null : options.type;
 
@@ -57,7 +57,7 @@ export const runInterviewCommand = createCompositeCommand({
 
     return {
       discipline: data.disciplines.find((d) => d.id === args[0]),
-      grade: data.grades.find((g) => g.id === args[1]),
+      level: data.levels.find((g) => g.id === args[1]),
       track: options.track
         ? data.tracks.find((t) => t.id === options.track)
         : null,
@@ -68,8 +68,8 @@ export const runInterviewCommand = createCompositeCommand({
     if (!entities.discipline) {
       return `Discipline not found: ${entities.discipline}`;
     }
-    if (!entities.grade) {
-      return `Grade not found: ${entities.grade}`;
+    if (!entities.level) {
+      return `Level not found: ${entities.level}`;
     }
     if (options.track && !entities.track) {
       return `Track not found: ${options.track}`;
@@ -79,7 +79,7 @@ export const runInterviewCommand = createCompositeCommand({
   presenter: (entities, data, _options) => {
     const params = {
       discipline: entities.discipline,
-      grade: entities.grade,
+      level: entities.level,
       track: entities.track,
       skills: data.skills,
       behaviours: data.behaviours,

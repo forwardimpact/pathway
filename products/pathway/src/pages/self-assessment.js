@@ -19,7 +19,7 @@ import { getState } from "../lib/state.js";
 import { createBadge } from "../components/card.js";
 import { createDisciplineSelect } from "../lib/form-controls.js";
 import {
-  SKILL_LEVEL_ORDER,
+  SKILL_PROFICIENCY_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
   groupSkillsByCapability,
   getCapabilityOrder,
@@ -107,7 +107,7 @@ function getWizardSteps(data) {
   steps.push({
     id: "results",
     name: "Results",
-    icon: getConceptEmoji(framework, "grade"),
+    icon: getConceptEmoji(framework, "level"),
     type: "results",
   });
 
@@ -265,7 +265,7 @@ function renderIntroStep(data) {
       h2({}, "Welcome to the Self-Assessment"),
       p(
         {},
-        "This assessment helps you understand your current skill levels and behaviours, " +
+        "This assessment helps you understand your current skill proficiencies and behaviours, " +
           "then matches you with suitable roles in the organization.",
       ),
 
@@ -472,7 +472,7 @@ function createSkillAssessmentItem(skill, relevance) {
 
     div(
       { className: "level-selector" },
-      ...SKILL_LEVEL_ORDER.map((level, index) =>
+      ...SKILL_PROFICIENCY_ORDER.map((level, index) =>
         createLevelButton(skill, level, index, "skill"),
       ),
       // Clear button
@@ -503,9 +503,9 @@ function createLevelButton(item, level, index, type) {
   const stateKey = type === "skill" ? "skills" : "behaviours";
   const currentLevel = assessmentState[stateKey][item.id];
   const isSelected = currentLevel === level;
-  const levelDescriptions =
-    type === "skill" ? item.levelDescriptions : item.maturityDescriptions;
-  const description = levelDescriptions?.[level] || "";
+  const proficiencyDescriptions =
+    type === "skill" ? item.proficiencyDescriptions : item.maturityDescriptions;
+  const description = proficiencyDescriptions?.[level] || "";
 
   return button(
     {

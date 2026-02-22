@@ -21,25 +21,25 @@ consumption.
 | Aspect          | Human Job                 | Agent Profile                          |
 | --------------- | ------------------------- | -------------------------------------- |
 | Skill source    | All skills                | Excludes `isHumanOnly` skills          |
-| Grade           | Specified by user         | Auto-selected (practitioner threshold) |
+| Level           | Specified by user         | Auto-selected (practitioner threshold) |
 | Output format   | Web page / markdown table | `.agent.md` + `SKILL.md` files         |
 | Stage filtering | All stages shown          | Stage-specific profiles                |
 | Behaviours      | Full profile              | Focused working styles                 |
 
 ---
 
-## Reference Grade Selection
+## Reference Level Selection
 
-Agents need a reference grade to determine skill and behaviour levels. The
+Agents need a reference level to determine skill and behaviour levels. The
 engine selects automatically:
 
-1. **First choice** — First grade where primary skills reach `practitioner`
+1. **First choice** — First level where primary skills reach `practitioner`
    level
-2. **Fallback** — First grade where primary skills reach `working` level
-3. **Last resort** — Middle grade by index
+2. **Fallback** — First level where primary skills reach `working` level
+3. **Last resort** — Middle level by index
 
 This ensures agents operate at a substantive senior level without overreaching
-into the highest strategic grades.
+into the highest strategic levels.
 
 ---
 
@@ -47,7 +47,7 @@ into the highest strategic grades.
 
 ```mermaid
 flowchart TD
-    A["Load discipline + track"] --> B["Select reference grade"]
+    A["Load discipline + track"] --> B["Select reference level"]
     B --> C["Derive skill matrix"]
     C --> D["Filter: remove isHumanOnly"]
     D --> E["Sort by level + stage relevance"]
@@ -207,7 +207,7 @@ npx fit-pathway agent software_engineering \
 
 | Function                   | Module               | Purpose                           |
 | -------------------------- | -------------------- | --------------------------------- |
-| `deriveReferenceGrade()`   | agent.js             | Auto-select appropriate grade     |
+| `deriveReferenceLevel()`   | agent.js             | Auto-select appropriate level     |
 | `deriveAgentSkills()`      | agent.js             | Filter and sort skills for agents |
 | `deriveAgentBehaviours()`  | agent.js             | Working style generation          |
 | `substituteTemplateVars()` | agent.js             | Template variable replacement     |
@@ -220,7 +220,7 @@ npx fit-pathway agent software_engineering \
 
 ```javascript
 import { prepareAgentProfile } from "@forwardimpact/libpathway/profile";
-import { deriveReferenceGrade } from "@forwardimpact/libpathway/agent";
+import { deriveReferenceLevel } from "@forwardimpact/libpathway/agent";
 ```
 
 ---

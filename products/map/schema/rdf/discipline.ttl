@@ -180,12 +180,12 @@ fit:DisciplineShape a sh:NodeShape ;
         ) ;
     ] ;
     sh:property [
-        sh:path fit:minGrade ;
+        sh:path fit:minLevel ;
         sh:datatype xsd:string ;
         sh:pattern "^[A-Z][A-Z0-9]*$" ;
         sh:maxCount 1 ;
-        sh:name "minGrade" ;
-        sh:description "Minimum grade required for this discipline (grade ID)" ;
+        sh:name "minLevel" ;
+        sh:description "Minimum level required for this discipline (level ID)" ;
     ] ;
     sh:property [
         sh:path fit:description ;

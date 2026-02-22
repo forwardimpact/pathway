@@ -6,7 +6,7 @@
 
 import {
   Capability,
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
 } from "./levels.js";
 
@@ -98,12 +98,12 @@ function validateSkill(skill, index, requiredStageIds = []) {
       ),
     );
   }
-  if (!skill.levelDescriptions) {
+  if (!skill.proficiencyDescriptions) {
     warnings.push(
       createWarning(
         "MISSING_OPTIONAL",
         "Skill missing level descriptions",
-        `${path}.levelDescriptions`,
+        `${path}.proficiencyDescriptions`,
       ),
     );
   }
@@ -566,7 +566,7 @@ function validateDriver(driver, index, skillIds, behaviourIds) {
  * @param {Set<string>} skillIds - Set of valid skill IDs
  * @param {Set<string>} behaviourIds - Set of valid behaviour IDs
  * @param {Set<string>} trackIds - Set of valid track IDs
- * @param {Set<string>} gradeIds - Set of valid grade IDs
+ * @param {Set<string>} levelIds - Set of valid level IDs
  * @returns {{errors: Array, warnings: Array}}
  */
 function validateDiscipline(
@@ -575,7 +575,7 @@ function validateDiscipline(
   skillIds,
   behaviourIds,
   trackIds,
-  gradeIds,
+  levelIds,
 ) {
   const errors = [];
   const warnings = [];
@@ -630,15 +630,15 @@ function validateDiscipline(
     });
   }
 
-  // Validate minGrade if specified
-  if (discipline.minGrade) {
-    if (!gradeIds.has(discipline.minGrade)) {
+  // Validate minLevel if specified
+  if (discipline.minLevel) {
+    if (!levelIds.has(discipline.minLevel)) {
       errors.push(
         createError(
           "INVALID_REFERENCE",
-          `Discipline "${discipline.id}" references non-existent grade: ${discipline.minGrade}`,
-          `${path}.minGrade`,
-          discipline.minGrade,
+          `Discipline "${discipline.id}" references non-existent level: ${discipline.minLevel}`,
+          `${path}.minLevel`,
+          discipline.minLevel,
         ),
       );
     }
@@ -858,7 +858,7 @@ function getAllDisciplineSkillIds(disciplines) {
  * @param {number} index - Index in the tracks array
  * @param {Set<string>} disciplineSkillIds - Set of skill IDs used in any discipline
  * @param {Set<string>} behaviourIds - Set of valid behaviour IDs
- * @param {Set<string>} gradeIds - Set of valid grade IDs
+ * @param {Set<string>} levelIds - Set of valid level IDs
  * @returns {{errors: Array, warnings: Array}}
  */
 function validateTrack(
@@ -866,7 +866,7 @@ function validateTrack(
   index,
   disciplineSkillIds,
   behaviourIds,
-  gradeIds,
+  levelIds,
 ) {
   const errors = [];
   const warnings = [];
@@ -934,15 +934,15 @@ function validateTrack(
     );
   }
 
-  // Validate minGrade if specified
-  if (track.minGrade) {
-    if (!gradeIds.has(track.minGrade)) {
+  // Validate minLevel if specified
+  if (track.minLevel) {
+    if (!levelIds.has(track.minLevel)) {
       errors.push(
         createError(
           "INVALID_REFERENCE",
-          `Track "${track.id}" references non-existent grade: ${track.minGrade}`,
-          `${path}.minGrade`,
-          track.minGrade,
+          `Track "${track.id}" references non-existent level: ${track.minLevel}`,
+          `${path}.minLevel`,
+          track.minLevel,
         ),
       );
     }
@@ -1070,76 +1070,76 @@ function validateTrack(
 }
 
 /**
- * Validate that a grade has required properties and valid values
- * @param {import('./levels.js').Grade} grade - Grade to validate
- * @param {number} index - Index in the grades array
+ * Validate that a level has required properties and valid values
+ * @param {import('./levels.js').Level} level - Level to validate
+ * @param {number} index - Index in the levels array
  * @returns {{errors: Array, warnings: Array}}
  */
-function validateGrade(grade, index) {
+function validateLevel(level, index) {
   const errors = [];
   const warnings = [];
-  const path = `grades[${index}]`;
+  const path = `levels[${index}]`;
 
-  if (!grade.id) {
-    errors.push(createError("MISSING_REQUIRED", "Grade missing id", path));
+  if (!level.id) {
+    errors.push(createError("MISSING_REQUIRED", "Level missing id", path));
   }
 
-  if (!grade.professionalTitle) {
+  if (!level.professionalTitle) {
     errors.push(
       createError(
         "MISSING_REQUIRED",
-        "Grade missing professionalTitle",
+        "Level missing professionalTitle",
         `${path}.professionalTitle`,
       ),
     );
   }
-  if (!grade.managementTitle) {
+  if (!level.managementTitle) {
     errors.push(
       createError(
         "MISSING_REQUIRED",
-        "Grade missing managementTitle",
+        "Level missing managementTitle",
         `${path}.managementTitle`,
       ),
     );
   }
 
-  if (typeof grade.ordinalRank !== "number") {
+  if (typeof level.ordinalRank !== "number") {
     errors.push(
       createError(
         "MISSING_REQUIRED",
-        "Grade missing numeric ordinalRank",
+        "Level missing numeric ordinalRank",
         `${path}.ordinalRank`,
       ),
     );
   }
 
-  // Validate base skill levels
-  if (!grade.baseSkillLevels) {
+  // Validate base skill proficiencies
+  if (!level.baseSkillProficiencies) {
     errors.push(
       createError(
         "MISSING_REQUIRED",
-        "Grade missing baseSkillLevels",
-        `${path}.baseSkillLevels`,
+        "Level missing baseSkillProficiencies",
+        `${path}.baseSkillProficiencies`,
       ),
     );
   } else {
     ["primary", "secondary", "broad"].forEach((type) => {
-      const level = grade.baseSkillLevels[type];
-      if (!level) {
+      const proficiency = level.baseSkillProficiencies[type];
+      if (!proficiency) {
         errors.push(
           createError(
             "MISSING_REQUIRED",
-            `Grade missing baseSkillLevels.${type}`,
-            `${path}.baseSkillLevels.${type}`,
+            `Level missing baseSkillProficiencies.${type}`,
+            `${path}.baseSkillProficiencies.${type}`,
           ),
         );
-      } else if (getSkillLevelIndex(level) === -1) {
+      } else if (getSkillProficiencyIndex(proficiency) === -1) {
         errors.push(
           createError(
             "INVALID_VALUE",
-            `Grade "${grade.id}" has invalid baseSkillLevels.${type}: ${level}`,
-            `${path}.baseSkillLevels.${type}`,
-            level,
+            `Level "${level.id}" has invalid baseSkillProficiencies.${type}: ${proficiency}`,
+            `${path}.baseSkillProficiencies.${type}`,
+            proficiency,
           ),
         );
       }
@@ -1147,31 +1147,31 @@ function validateGrade(grade, index) {
   }
 
   // Validate base behaviour maturity
-  if (!grade.baseBehaviourMaturity) {
+  if (!level.baseBehaviourMaturity) {
     errors.push(
       createError(
         "MISSING_REQUIRED",
-        "Grade missing baseBehaviourMaturity",
+        "Level missing baseBehaviourMaturity",
         `${path}.baseBehaviourMaturity`,
       ),
     );
-  } else if (getBehaviourMaturityIndex(grade.baseBehaviourMaturity) === -1) {
+  } else if (getBehaviourMaturityIndex(level.baseBehaviourMaturity) === -1) {
     errors.push(
       createError(
         "INVALID_VALUE",
-        `Grade "${grade.id}" has invalid baseBehaviourMaturity: ${grade.baseBehaviourMaturity}`,
+        `Level "${level.id}" has invalid baseBehaviourMaturity: ${level.baseBehaviourMaturity}`,
         `${path}.baseBehaviourMaturity`,
-        grade.baseBehaviourMaturity,
+        level.baseBehaviourMaturity,
       ),
     );
   }
 
   // Validate expectations
-  if (!grade.expectations) {
+  if (!level.expectations) {
     warnings.push(
       createWarning(
         "MISSING_OPTIONAL",
-        "Grade missing expectations",
+        "Level missing expectations",
         `${path}.expectations`,
       ),
     );
@@ -1179,13 +1179,13 @@ function validateGrade(grade, index) {
 
   // Validate yearsExperience if present (should be a string like "0-2" or "20+")
   if (
-    grade.yearsExperience !== undefined &&
-    typeof grade.yearsExperience !== "string"
+    level.yearsExperience !== undefined &&
+    typeof level.yearsExperience !== "string"
   ) {
     warnings.push(
       createWarning(
         "INVALID_VALUE",
-        "Grade yearsExperience should be a string",
+        "Level yearsExperience should be a string",
         `${path}.yearsExperience`,
       ),
     );
@@ -1376,8 +1376,8 @@ export function validateSelfAssessment(selfAssessment, skills, behaviours) {
 
   // Validate skill assessments
   if (
-    !selfAssessment.skillLevels ||
-    Object.keys(selfAssessment.skillLevels).length === 0
+    !selfAssessment.skillProficiencies ||
+    Object.keys(selfAssessment.skillProficiencies).length === 0
   ) {
     warnings.push(
       createWarning(
@@ -1386,28 +1386,30 @@ export function validateSelfAssessment(selfAssessment, skills, behaviours) {
       ),
     );
   } else {
-    Object.entries(selfAssessment.skillLevels).forEach(([skillId, level]) => {
-      if (!skillIds.has(skillId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Self-assessment references non-existent skill: ${skillId}`,
-            `selfAssessment.skillLevels.${skillId}`,
-            skillId,
-          ),
-        );
-      }
-      if (getSkillLevelIndex(level) === -1) {
-        errors.push(
-          createError(
-            "INVALID_VALUE",
-            `Self-assessment has invalid skill level for ${skillId}: ${level}`,
-            `selfAssessment.skillLevels.${skillId}`,
-            level,
-          ),
-        );
-      }
-    });
+    Object.entries(selfAssessment.skillProficiencies).forEach(
+      ([skillId, level]) => {
+        if (!skillIds.has(skillId)) {
+          errors.push(
+            createError(
+              "INVALID_REFERENCE",
+              `Self-assessment references non-existent skill: ${skillId}`,
+              `selfAssessment.skillProficiencies.${skillId}`,
+              skillId,
+            ),
+          );
+        }
+        if (getSkillProficiencyIndex(level) === -1) {
+          errors.push(
+            createError(
+              "INVALID_VALUE",
+              `Self-assessment has invalid skill proficiency for ${skillId}: ${level}`,
+              `selfAssessment.skillProficiencies.${skillId}`,
+              level,
+            ),
+          );
+        }
+      },
+    );
   }
 
   // Validate behaviour assessments
@@ -1459,7 +1461,7 @@ export function validateSelfAssessment(selfAssessment, skills, behaviours) {
  * @param {import('./levels.js').Skill[]} data.skills - Skills
  * @param {import('./levels.js').Discipline[]} data.disciplines - Disciplines
  * @param {import('./levels.js').Track[]} data.tracks - Tracks
- * @param {import('./levels.js').Grade[]} data.grades - Grades
+ * @param {import('./levels.js').Level[]} data.levels - Levels
  * @param {Object[]} data.capabilities - Capabilities
  * @param {Object[]} [data.stages] - Stages
  * @returns {import('./levels.js').ValidationResult}
@@ -1470,7 +1472,7 @@ export function validateAllData({
   skills,
   disciplines,
   tracks,
-  grades,
+  levels,
   capabilities,
   stages,
 }) {
@@ -1554,8 +1556,8 @@ export function validateAllData({
   // Get track IDs for discipline validation
   const trackIdSet = new Set((tracks || []).map((t) => t.id));
 
-  // Get grade IDs for discipline and track validation
-  const gradeIdSet = new Set((grades || []).map((g) => g.id));
+  // Get level IDs for discipline and track validation
+  const levelIdSet = new Set((levels || []).map((g) => g.id));
 
   // Validate disciplines
   if (!disciplines || disciplines.length === 0) {
@@ -1570,7 +1572,7 @@ export function validateAllData({
         skillIds,
         behaviourIds,
         trackIdSet,
-        gradeIdSet,
+        levelIdSet,
       );
       allErrors.push(...errors);
       allWarnings.push(...warnings);
@@ -1610,7 +1612,7 @@ export function validateAllData({
         index,
         disciplineSkillIds,
         behaviourIds,
-        gradeIdSet,
+        levelIdSet,
       );
       allErrors.push(...errors);
       allWarnings.push(...warnings);
@@ -1635,33 +1637,33 @@ export function validateAllData({
     });
   }
 
-  // Validate grades
-  if (!grades || grades.length === 0) {
+  // Validate levels
+  if (!levels || levels.length === 0) {
     allErrors.push(
-      createError("MISSING_REQUIRED", "At least one grade is required"),
+      createError("MISSING_REQUIRED", "At least one level is required"),
     );
   } else {
-    grades.forEach((grade, index) => {
-      const { errors, warnings } = validateGrade(grade, index);
+    levels.forEach((level, index) => {
+      const { errors, warnings } = validateLevel(level, index);
       allErrors.push(...errors);
       allWarnings.push(...warnings);
     });
 
     // Check for duplicate IDs
     const seenIds = new Set();
-    grades.forEach((grade, index) => {
-      if (grade.id) {
-        if (seenIds.has(grade.id)) {
+    levels.forEach((level, index) => {
+      if (level.id) {
+        if (seenIds.has(level.id)) {
           allErrors.push(
             createError(
               "DUPLICATE_ID",
-              `Duplicate grade ID: ${grade.id}`,
-              `grades[${index}]`,
-              grade.id,
+              `Duplicate level ID: ${level.id}`,
+              `levels[${index}]`,
+              level.id,
             ),
           );
         }
-        seenIds.add(grade.id);
+        seenIds.add(level.id);
       }
     });
   }
@@ -1819,15 +1821,15 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
   }
 
   // Validate skill questions
-  if (questionBank.skillLevels) {
-    Object.entries(questionBank.skillLevels).forEach(
+  if (questionBank.skillProficiencies) {
+    Object.entries(questionBank.skillProficiencies).forEach(
       ([skillId, roleTypeQuestions]) => {
         if (!skillIds.has(skillId)) {
           errors.push(
             createError(
               "INVALID_REFERENCE",
               `Question bank references non-existent skill: ${skillId}`,
-              `questionBank.skillLevels.${skillId}`,
+              `questionBank.skillProficiencies.${skillId}`,
               skillId,
             ),
           );
@@ -1840,7 +1842,7 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
                 createError(
                   "INVALID_VALUE",
                   `Question bank has invalid role type: ${roleType}`,
-                  `questionBank.skillLevels.${skillId}.${roleType}`,
+                  `questionBank.skillProficiencies.${skillId}.${roleType}`,
                   roleType,
                 ),
               );
@@ -1849,12 +1851,12 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
             // Validate each level within the role type
             Object.entries(levelQuestions || {}).forEach(
               ([level, questions]) => {
-                if (getSkillLevelIndex(level) === -1) {
+                if (getSkillProficiencyIndex(level) === -1) {
                   errors.push(
                     createError(
                       "INVALID_VALUE",
-                      `Question bank has invalid skill level: ${level}`,
-                      `questionBank.skillLevels.${skillId}.${roleType}.${level}`,
+                      `Question bank has invalid skill proficiency: ${level}`,
+                      `questionBank.skillProficiencies.${skillId}.${roleType}.${level}`,
                       level,
                     ),
                   );
@@ -1864,7 +1866,7 @@ export function validateQuestionBank(questionBank, skills, behaviours) {
                     createWarning(
                       "EMPTY_QUESTIONS",
                       `No questions for skill ${skillId} (${roleType}) at level ${level}`,
-                      `questionBank.skillLevels.${skillId}.${roleType}.${level}`,
+                      `questionBank.skillProficiencies.${skillId}.${roleType}.${level}`,
                     ),
                   );
                 }

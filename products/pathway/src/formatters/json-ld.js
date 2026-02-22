@@ -51,13 +51,13 @@ export function skillToJsonLd(skill, { capabilities = [] } = {}) {
     capability: skill.capability,
     ...(capability && { capabilityName: capability.name }),
     ...(skill.isHumanOnly && { isHumanOnly: true }),
-    levelDescriptions: Object.entries(skill.levelDescriptions || {}).map(
-      ([level, description]) => ({
-        "@type": "SkillLevelDescription",
-        level: `${VOCAB_BASE}${level}`,
-        description,
-      }),
-    ),
+    proficiencyDescriptions: Object.entries(
+      skill.proficiencyDescriptions || {},
+    ).map(([level, description]) => ({
+      "@type": "SkillProficiencyDescription",
+      level: `${VOCAB_BASE}${level}`,
+      description,
+    })),
   };
 }
 
@@ -147,29 +147,29 @@ export function trackToJsonLd(track) {
 }
 
 /**
- * Generate JSON-LD for a grade entity
- * @param {Object} grade - Raw grade entity
+ * Generate JSON-LD for a level entity
+ * @param {Object} level - Raw level entity
  * @returns {Object}
  */
-export function gradeToJsonLd(grade) {
+export function levelToJsonLd(level) {
   return {
-    ...baseJsonLd("Grade", grade.id),
-    identifier: grade.id,
-    name: grade.displayName || grade.name,
-    ...(grade.ordinalRank && { ordinalRank: grade.ordinalRank }),
-    ...(grade.typicalExperienceRange && {
-      typicalExperienceRange: grade.typicalExperienceRange,
+    ...baseJsonLd("Level", level.id),
+    identifier: level.id,
+    name: level.displayName || level.name,
+    ...(level.ordinalRank && { ordinalRank: level.ordinalRank }),
+    ...(level.typicalExperienceRange && {
+      typicalExperienceRange: level.typicalExperienceRange,
     }),
-    ...(grade.baseSkillLevels && {
-      baseSkillLevels: {
-        "@type": "BaseSkillLevels",
-        primary: `${VOCAB_BASE}${grade.baseSkillLevels.primary}`,
-        secondary: `${VOCAB_BASE}${grade.baseSkillLevels.secondary}`,
-        broad: `${VOCAB_BASE}${grade.baseSkillLevels.broad}`,
+    ...(level.baseSkillProficiencies && {
+      baseSkillProficiencies: {
+        "@type": "BaseSkillProficiencies",
+        primary: `${VOCAB_BASE}${level.baseSkillProficiencies.primary}`,
+        secondary: `${VOCAB_BASE}${level.baseSkillProficiencies.secondary}`,
+        broad: `${VOCAB_BASE}${level.baseSkillProficiencies.broad}`,
       },
     }),
-    ...(grade.baseBehaviourMaturity && {
-      baseBehaviourMaturity: `${VOCAB_BASE}${grade.baseBehaviourMaturity}`,
+    ...(level.baseBehaviourMaturity && {
+      baseBehaviourMaturity: `${VOCAB_BASE}${level.baseBehaviourMaturity}`,
     }),
   };
 }

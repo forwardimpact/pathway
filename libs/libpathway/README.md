@@ -11,13 +11,13 @@ expectations across both.
 
 ## What It Does
 
-- **Job derivation** — Combine discipline, track, and grade into complete role
+- **Job derivation** — Combine discipline, track, and level into complete role
   definitions with skill matrices and behaviour profiles
 - **Agent profiles** — Generate coding agent team configurations from the same
   foundation as human roles
 - **Interview preparation** — Select appropriate questions based on role
   requirements
-- **Career progression** — Analyze skill gaps and growth paths between grades
+- **Career progression** — Analyze skill gaps and growth paths between levels
 - **Checklists** — Derive stage transition checklists from capability
   definitions
 
@@ -39,12 +39,12 @@ import { analyzeProgression } from "@forwardimpact/libpathway/progression";
 ### Job Derivation
 
 ```
-Job = Discipline × Track × Grade
+Job = Discipline × Track × Level
 ```
 
 - **Discipline** defines skill tiers (primary/secondary/broad)
 - **Track** applies modifiers to capability areas
-- **Grade** sets base skill levels
+- **Level** sets base skill proficiencies
 
 ### Agent Profiles
 

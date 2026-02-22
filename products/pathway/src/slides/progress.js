@@ -7,7 +7,7 @@
 import { div, h1, p } from "../lib/render.js";
 import {
   prepareProgressDetail,
-  getDefaultTargetGrade,
+  getDefaultTargetLevel,
 } from "../formatters/progress/shared.js";
 import { progressToDOM } from "../formatters/index.js";
 
@@ -20,12 +20,12 @@ import { progressToDOM } from "../formatters/index.js";
  */
 export function renderProgressSlide({ render, data, params }) {
   const discipline = data.disciplines.find((d) => d.id === params.discipline);
-  const grade = data.grades.find((g) => g.id === params.grade);
+  const level = data.levels.find((g) => g.id === params.level);
   const track = params.track
     ? data.tracks.find((t) => t.id === params.track)
     : null;
 
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     render(
       div(
         { className: "slide-error" },
@@ -36,23 +36,23 @@ export function renderProgressSlide({ render, data, params }) {
     return;
   }
 
-  // Get compare grade from URL query or default to next grade
+  // Get compare level from URL query or default to next level
   const urlParams = new URLSearchParams(window.location.search);
-  const compareGradeId = urlParams.get("compare");
+  const compareLevelId = urlParams.get("compare");
 
-  let targetGrade;
-  if (compareGradeId) {
-    targetGrade = data.grades.find((g) => g.id === compareGradeId);
+  let targetLevel;
+  if (compareLevelId) {
+    targetLevel = data.levels.find((g) => g.id === compareLevelId);
   } else {
-    targetGrade = getDefaultTargetGrade(grade, data.grades);
+    targetLevel = getDefaultTargetLevel(level, data.levels);
   }
 
-  if (!targetGrade) {
+  if (!targetLevel) {
     render(
       div(
         { className: "slide-error" },
         h1({}, "No Progression Available"),
-        p({}, "No next grade available for this role."),
+        p({}, "No next level available for this role."),
       ),
     );
     return;
@@ -60,10 +60,10 @@ export function renderProgressSlide({ render, data, params }) {
 
   const view = prepareProgressDetail({
     fromDiscipline: discipline,
-    fromGrade: grade,
+    fromLevel: level,
     fromTrack: track,
     toDiscipline: discipline,
-    toGrade: targetGrade,
+    toLevel: targetLevel,
     toTrack: track,
     skills: data.skills,
     behaviours: data.behaviours,

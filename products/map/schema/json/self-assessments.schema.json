@@ -17,11 +17,11 @@
           "pattern": "^[a-z][a-z0-9_]*$",
           "description": "Unique assessment identifier"
         },
-        "skillLevels": {
+        "skillProficiencies": {
           "type": "object",
           "description": "Skill assessments (skill ID → level)",
           "additionalProperties": {
-            "$ref": "#/$defs/skillLevel"
+            "$ref": "#/$defs/skillProficiency"
           }
         },
         "behaviourMaturities": {
@@ -34,7 +34,7 @@
       },
       "additionalProperties": false
     },
-    "skillLevel": {
+    "skillProficiency": {
       "type": "string",
       "enum": ["awareness", "foundational", "working", "practitioner", "expert"]
     },

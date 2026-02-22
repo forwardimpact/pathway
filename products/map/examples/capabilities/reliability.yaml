@@ -51,7 +51,7 @@ skills:
       description:
         Managing services throughout their lifecycle from design to retirement,
         focusing on value delivery to users
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand service lifecycle concepts (design, deploy, operate,
           retire) and follow service management processes established by others.
@@ -76,7 +76,7 @@ skills:
       description:
         Ensuring system reliability through observability, incident response,
         and capacity planning
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand SLIs, SLOs, and error budgets conceptually. You can use
           monitoring dashboards and escalate issues appropriately.

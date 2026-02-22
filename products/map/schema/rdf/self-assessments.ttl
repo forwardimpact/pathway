@@ -30,8 +30,8 @@ fit:BehaviourAssessment a rdfs:Class ;
 # Properties
 # -----------------------------------------------------------------------------
 
-fit:skillLevels a rdf:Property ;
-    rdfs:label "skillLevels"@en ;
+fit:skillProficiencies a rdf:Property ;
+    rdfs:label "skillProficiencies"@en ;
     rdfs:comment "Skill assessments"@en ;
     rdfs:domain fit:SelfAssessment ;
     rdfs:range fit:SkillAssessment .
@@ -52,7 +52,7 @@ fit:assessedLevel a rdf:Property ;
     rdfs:label "assessedLevel"@en ;
     rdfs:comment "The assessed level for the skill"@en ;
     rdfs:domain fit:SkillAssessment ;
-    rdfs:range fit:SkillLevel .
+    rdfs:range fit:SkillProficiency .
 
 fit:assessedBehaviour a rdf:Property ;
     rdfs:label "assessedBehaviour"@en ;
@@ -86,9 +86,9 @@ fit:SelfAssessmentShape a sh:NodeShape ;
         sh:description "Unique assessment identifier" ;
     ] ;
     sh:property [
-        sh:path fit:skillLevels ;
+        sh:path fit:skillProficiencies ;
         sh:node fit:SkillAssessmentShape ;
-        sh:name "skillLevels" ;
+        sh:name "skillProficiencies" ;
         sh:description "Skill assessments" ;
     ] ;
     sh:property [

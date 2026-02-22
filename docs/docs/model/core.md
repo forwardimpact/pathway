@@ -1,13 +1,13 @@
 ---
 title: Core Derivation
-description: Detailed explanation of how skill levels, behaviour maturities, and responsibilities are derived from entity combinations.
+description: Detailed explanation of how skill proficiencies, behaviour maturities, and responsibilities are derived from entity combinations.
 ---
 
 ## Overview
 
 Derivation is the process of transforming raw entity definitions into concrete
-role expectations. Given a discipline, track, and grade, the engine produces
-exact skill levels, behaviour maturities, and responsibilities.
+role expectations. Given a discipline, track, and level, the engine produces
+exact skill proficiencies, behaviour maturities, and responsibilities.
 
 > See [Core Model](/docs/model/) for the entity overview and formula.
 
@@ -30,24 +30,25 @@ Each discipline classifies every skill into one of three tiers:
 A lookup map is built once per discipline via `buildSkillTypeMap()` for O(1)
 access during derivation.
 
-### Step 2: Get Base Level from Grade
+### Step 2: Get Base Proficiency from Level
 
-Each grade defines base skill levels per tier:
+Each level defines base skill proficiencies per tier:
 
 ```yaml
-# Example grade definition
-baseSkillLevels:
+# Example level definition
+baseSkillProficiencies:
   primary: practitioner
   secondary: working
   broad: foundational
 ```
 
-The grade's `baseSkillLevels` maps the skill type to a starting level.
+The level's `baseSkillProficiencies` maps the skill type to a starting
+proficiency.
 
 ### Step 3: Apply Track Modifier
 
 Tracks define capability-based skill modifiers. The modifier for a skill's
-capability is added to the base level:
+capability is added to the base proficiency:
 
 ```yaml
 # Example track definition
@@ -56,7 +57,7 @@ skillModifiers:
   scale: -1        # -1 to ALL scale skills
 ```
 
-The modifier shifts the level index:
+The modifier shifts the proficiency index:
 
 ```
 derivedIndex = baseLevelIndex + trackModifier
@@ -67,14 +68,14 @@ derivedIndex = baseLevelIndex + trackModifier
 Two constraints are applied:
 
 1. **Positive modifier cap** — Positive modifiers cannot push the result above
-   the grade's maximum base level. If the grade peaks at `practitioner`, a +1
-   modifier cannot produce `expert`.
+   the level's maximum base proficiency. If the level peaks at `practitioner`, a
+   +1 modifier cannot produce `expert`.
 
 2. **Range clamp** — The final result must fall between `awareness` (0) and
    `expert` (4).
 
 ```
-Final Level = clamp(0, cappedIndex, 4)
+Final Proficiency = clamp(0, cappedIndex, 4)
 ```
 
 ### Complete Derivation Example
@@ -82,12 +83,12 @@ Final Level = clamp(0, cappedIndex, 4)
 | Input      | Value                                                            |
 | ---------- | ---------------------------------------------------------------- |
 | Discipline | Software Engineering                                             |
-| Grade      | L3 (primary=practitioner, secondary=working, broad=foundational) |
+| Level      | L3 (primary=practitioner, secondary=working, broad=foundational) |
 | Track      | Platform (delivery: +1, scale: -1)                               |
 | Skill      | CI/CD (capability: delivery, tier: supportingSkills)             |
 
 1. **Skill type**: SECONDARY (supporting skill)
-2. **Base level**: working (index 2)
+2. **Base proficiency**: working (index 2)
 3. **Modifier**: +1 (delivery capability)
 4. **Cap check**: practitioner (index 3) ≤ max base practitioner (index 3) — OK
 5. **Result**: practitioner
@@ -99,12 +100,12 @@ Final Level = clamp(0, cappedIndex, 4)
 Behaviours use a simpler derivation:
 
 ```
-Final Maturity = Grade Base + Discipline Modifier + Track Modifier
+Final Maturity = Level Base + Discipline Modifier + Track Modifier
 ```
 
 | Step                | Source                    | Example        |
 | ------------------- | ------------------------- | -------------- |
-| Grade base          | `baseBehaviourMaturity`   | developing (1) |
+| Level base          | `baseBehaviourMaturity`   | developing (1) |
 | Discipline modifier | `behaviourModifiers.{id}` | +1             |
 | Track modifier      | `behaviourModifiers.{id}` | 0              |
 | **Result**          | Clamped to valid range    | practicing (2) |
@@ -122,8 +123,8 @@ Responsibilities come from capabilities and vary by role type:
 | Professional (IC) | `capability.professionalResponsibilities` |
 | Management        | `capability.managementResponsibilities`   |
 
-Responsibilities are selected by the derived skill level for each capability.
-Higher skill levels unlock additional responsibilities.
+Responsibilities are selected by the derived skill proficiency for each
+capability. Higher skill proficiencies unlock additional responsibilities.
 
 ---
 
@@ -134,9 +135,9 @@ which skills and behaviours meet specific thresholds:
 
 | Threshold          | Value                      |
 | ------------------ | -------------------------- |
-| Skill level        | working or above           |
+| Skill proficiency  | working or above           |
 | Behaviour maturity | practicing or above        |
-| Grade              | Senior threshold and above |
+| Level              | Senior threshold and above |
 
 Each driver specifies related skills and behaviours. If the derived job meets
 the thresholds for a driver's dependencies, that driver is considered covered.
@@ -147,8 +148,8 @@ the thresholds for a driver's dependencies, that driver is considered covered.
 
 ### Positive Modifier Capping
 
-When a track modifier is positive, the resulting level cannot exceed the grade's
-maximum base skill level. This prevents lower grades from gaining
+When a track modifier is positive, the resulting level cannot exceed the level's
+maximum base skill proficiency. This prevents lower levels from gaining
 unrealistically high expertise just because a track emphasizes a particular
 area.
 
@@ -173,7 +174,7 @@ meaningful differentiation between tracks.
 | --------------------------- | ------------- | ---------------------------------- |
 | `buildSkillTypeMap()`       | derivation.js | O(1) skill type lookup             |
 | `getSkillType()`            | derivation.js | Determine skill tier               |
-| `deriveSkillLevel()`        | derivation.js | Full skill derivation pipeline     |
+| `deriveSkillProficiency()`  | derivation.js | Full skill derivation pipeline     |
 | `deriveSkillMatrix()`       | derivation.js | All skills for a job               |
 | `deriveBehaviourProfile()`  | derivation.js | All behaviours for a job           |
 | `deriveResponsibilities()`  | derivation.js | Role responsibilities              |

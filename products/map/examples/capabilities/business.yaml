@@ -49,7 +49,7 @@ skills:
       description:
         Building relationships with and managing expectations of stakeholders
         across the organization, from frontline workers to C-level executives
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You identify key stakeholders for your work and communicate status
           when asked. You understand that different stakeholders have different
@@ -78,7 +78,7 @@ skills:
         Creating clear, accurate, and useful technical documentation. Good specs
         enable AI to generate accurate solutions; poor specs lead to poor
         results.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You document your own work following team templates and standards. You
           keep code comments current and write basic README content.

@@ -5,9 +5,9 @@
  */
 
 /**
- * Skill levels in order
+ * Skill proficiencies in order
  */
-export const SKILL_LEVELS = [
+export const SKILL_PROFICIENCIES = [
   "awareness",
   "foundational",
   "working",
@@ -28,7 +28,7 @@ export const BEHAVIOUR_MATURITIES = [
 
 /**
  * @typedef {Object} QuestionsFilter
- * @property {string|null} level - Skill level filter
+ * @property {string|null} level - Skill proficiency filter
  * @property {string|null} maturity - Behaviour maturity filter
  * @property {string[]|null} skills - Skill IDs to include
  * @property {string[]|null} behaviours - Behaviour IDs to include
@@ -40,7 +40,7 @@ export const BEHAVIOUR_MATURITIES = [
  * @property {string} source - Source skill/behaviour ID
  * @property {string} sourceName - Source skill/behaviour name
  * @property {string} sourceType - 'skill' or 'behaviour'
- * @property {string} level - Skill level or behaviour maturity
+ * @property {string} level - Skill proficiency or behaviour maturity
  * @property {string} id - Question ID
  * @property {string} text - Question text
  * @property {string[]} lookingFor - Expected answer indicators
@@ -124,7 +124,7 @@ export function flattenQuestions(questionBank, skills, behaviours, filter) {
 
   // Process skill questions
   for (const [skillId, roleTypes] of Object.entries(
-    questionBank.skillLevels || {},
+    questionBank.skillProficiencies || {},
   )) {
     const skillName = getSkillName(skillId, skills);
     const capability = getSkillCapability(skillId, skills);
@@ -218,10 +218,10 @@ export function calculateStats(questions, questionBank) {
   // Calculate full stats for skills and behaviours
   const skillStats = {};
   for (const [skillId, roleTypes] of Object.entries(
-    questionBank.skillLevels || {},
+    questionBank.skillProficiencies || {},
   )) {
     skillStats[skillId] = {};
-    for (const level of SKILL_LEVELS) {
+    for (const level of SKILL_PROFICIENCIES) {
       let count = 0;
       for (const roleType of ROLE_TYPES) {
         count += (roleTypes[roleType]?.[level] || []).length;

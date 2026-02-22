@@ -56,7 +56,7 @@ reflects the current codebase.
 | Behaviours         | `products/map/examples/behaviours/`   |
 | Disciplines        | `products/map/examples/disciplines/`  |
 | Tracks             | `products/map/examples/tracks/`       |
-| Grades             | `products/map/examples/grades.yaml`   |
+| Levels             | `products/map/examples/levels.yaml`   |
 | Stages             | `products/map/examples/stages.yaml`   |
 | Job Derivation     | `libs/libpathway/src/job.js`          |
 | Agent Derivation   | `libs/libpathway/src/agent.js`        |
@@ -75,7 +75,7 @@ folder.
 npx fit-pathway skill --data=products/map/examples --list
 npx fit-pathway discipline --data=products/map/examples --list
 npx fit-pathway track --data=products/map/examples --list
-npx fit-pathway grade --data=products/map/examples --list
+npx fit-pathway level --data=products/map/examples --list
 
 # Generate sample outputs to compare with docs
 npx fit-pathway job software_engineering L3 --data=products/map/examples

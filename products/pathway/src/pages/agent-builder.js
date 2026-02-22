@@ -26,7 +26,7 @@ import {
   deriveStageAgent,
   generateSkillMarkdown,
   deriveAgentSkills,
-  deriveReferenceGrade,
+  deriveReferenceLevel,
   deriveToolkit,
   buildAgentIndex,
 } from "@forwardimpact/libpathway";
@@ -256,8 +256,8 @@ export async function renderAgentBuilder() {
       return;
     }
 
-    // Get reference grade for derivation
-    const grade = deriveReferenceGrade(data.grades);
+    // Get reference level for derivation
+    const level = deriveReferenceLevel(data.levels);
 
     // Build agent index for all valid combinations
     const agentIndex = buildAgentIndex({
@@ -274,7 +274,7 @@ export async function renderAgentBuilder() {
       humanTrack,
       agentDiscipline,
       agentTrack,
-      grade,
+      level,
       stages,
       skills: data.skills,
       behaviours: data.behaviours,
@@ -451,7 +451,7 @@ function createAllStagesPreview(context) {
     humanTrack,
     agentDiscipline,
     agentTrack,
-    grade,
+    level,
     stages,
     skills,
     behaviours,
@@ -468,7 +468,7 @@ function createAllStagesPreview(context) {
       discipline: humanDiscipline,
       track: humanTrack,
       stage,
-      grade,
+      level,
       skills,
       behaviours,
       agentBehaviours,
@@ -481,7 +481,7 @@ function createAllStagesPreview(context) {
       discipline: humanDiscipline,
       track: humanTrack,
       stage,
-      grade,
+      level,
       skills,
       behaviours,
       agentBehaviours,
@@ -498,7 +498,7 @@ function createAllStagesPreview(context) {
   const derivedSkills = deriveAgentSkills({
     discipline: humanDiscipline,
     track: humanTrack,
-    grade,
+    level,
     skills,
   });
 
@@ -594,7 +594,7 @@ function createSingleStagePreview(context, stage) {
     humanTrack,
     agentDiscipline,
     agentTrack,
-    grade,
+    level,
     skills,
     behaviours,
     agentBehaviours,
@@ -609,7 +609,7 @@ function createSingleStagePreview(context, stage) {
     discipline: humanDiscipline,
     track: humanTrack,
     stage,
-    grade,
+    level,
     skills,
     behaviours,
     agentBehaviours,
@@ -623,7 +623,7 @@ function createSingleStagePreview(context, stage) {
   const derivedSkills = deriveAgentSkills({
     discipline: humanDiscipline,
     track: humanTrack,
-    grade,
+    level,
     skills,
   });
 

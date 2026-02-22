@@ -1,27 +1,27 @@
 /**
- * Grade formatting for markdown/CLI output
+ * Level formatting for markdown/CLI output
  */
 
 import { tableToMarkdown, capitalize } from "../shared.js";
-import { prepareGradesList, prepareGradeDetail } from "./shared.js";
+import { prepareLevelsList, prepareLevelDetail } from "./shared.js";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 
 /**
- * Format grade list as markdown
- * @param {Array} grades - Raw grade entities
+ * Format level list as markdown
+ * @param {Array} levels - Raw level entities
  * @param {Object} [framework] - Framework config for emojis
  * @returns {string}
  */
-export function gradeListToMarkdown(grades, framework) {
-  const { items } = prepareGradesList(grades);
-  const emoji = framework ? getConceptEmoji(framework, "grade") : "📊";
-  const lines = [`# ${emoji} Grades`, ""];
+export function levelListToMarkdown(levels, framework) {
+  const { items } = prepareLevelsList(levels);
+  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
+  const lines = [`# ${emoji} Levels`, ""];
 
   const rows = items.map((g) => [
     g.id,
     g.displayName,
     g.typicalExperienceRange || "-",
-    capitalize(g.baseSkillLevels?.primary || "-"),
+    capitalize(g.baseSkillProficiencies?.primary || "-"),
   ]);
 
   lines.push(tableToMarkdown(["ID", "Name", "Years", "Primary Level"], rows));
@@ -31,14 +31,14 @@ export function gradeListToMarkdown(grades, framework) {
 }
 
 /**
- * Format grade detail as markdown
- * @param {Object} grade - Raw grade entity
+ * Format level detail as markdown
+ * @param {Object} level - Raw level entity
  * @param {Object} [framework] - Framework config for emojis
  * @returns {string}
  */
-export function gradeToMarkdown(grade, framework) {
-  const view = prepareGradeDetail(grade);
-  const emoji = framework ? getConceptEmoji(framework, "grade") : "📊";
+export function levelToMarkdown(level, framework) {
+  const view = prepareLevelDetail(level);
+  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
   const lines = [`# ${emoji} ${view.displayName} (${view.id})`, ""];
 
   if (view.typicalExperienceRange) {
@@ -57,9 +57,9 @@ export function gradeToMarkdown(grade, framework) {
     lines.push("");
   }
 
-  // Base skill levels
-  lines.push("## Base Skill Levels", "");
-  const skillRows = Object.entries(view.baseSkillLevels).map(
+  // Base skill proficiencies
+  lines.push("## Base Skill Proficiencies", "");
+  const skillRows = Object.entries(view.baseSkillProficiencies).map(
     ([type, level]) => [capitalize(type), capitalize(level)],
   );
   lines.push(tableToMarkdown(["Skill Type", "Level"], skillRows));

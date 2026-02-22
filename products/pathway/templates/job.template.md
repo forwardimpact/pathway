@@ -1,6 +1,6 @@
 # {{{title}}}
 
-- **Level:** {{{gradeId}}}
+- **Level:** {{{levelId}}}
 - **Experience:** {{{typicalExperienceRange}}}
 {{#hasTrack}}- **Track:** {{{trackName}}}
 {{/hasTrack}}

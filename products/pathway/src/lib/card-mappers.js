@@ -109,31 +109,31 @@ export function driverToCardConfig(driver) {
 }
 
 /**
- * Map grade to card config (for timeline)
- * @param {Object} grade
+ * Map level to card config (for timeline)
+ * @param {Object} level
  * @returns {Object}
  */
-export function gradeToCardConfig(grade) {
+export function levelToCardConfig(level) {
   return {
-    title: grade.displayName,
-    description: grade.scope || grade.truncatedDescription,
-    href: `/grade/${grade.id}`,
-    badges: [createBadge(grade.id, "default")],
+    title: level.displayName,
+    description: level.scope || level.truncatedDescription,
+    href: `/level/${level.id}`,
+    badges: [createBadge(level.id, "default")],
     meta: [
       createBadge(
-        `Primary: ${formatLevel(grade.baseSkillLevels?.primary)}`,
+        `Primary: ${formatLevel(level.baseSkillProficiencies?.primary)}`,
         "primary",
       ),
       createBadge(
-        `Secondary: ${formatLevel(grade.baseSkillLevels?.secondary)}`,
+        `Secondary: ${formatLevel(level.baseSkillProficiencies?.secondary)}`,
         "secondary",
       ),
       createBadge(
-        `Broad: ${formatLevel(grade.baseSkillLevels?.broad)}`,
+        `Broad: ${formatLevel(level.baseSkillProficiencies?.broad)}`,
         "broad",
       ),
     ],
-    yearsExperience: grade.yearsExperience,
+    yearsExperience: level.yearsExperience,
   };
 }
 
@@ -158,15 +158,15 @@ export function trackToCardConfig(track) {
  */
 export function jobToCardConfig(job) {
   const href = job.track
-    ? `/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
-    : `/job/${job.discipline.id}/${job.grade.id}`;
+    ? `/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
+    : `/job/${job.discipline.id}/${job.level.id}`;
   return {
     title: job.title,
     description: job.track
-      ? `${job.discipline.specialization || job.discipline.name} at ${job.grade.professionalTitle} level on ${job.track.name} track`
-      : `${job.discipline.specialization || job.discipline.name} at ${job.grade.professionalTitle} level`,
+      ? `${job.discipline.specialization || job.discipline.name} at ${job.level.professionalTitle} level on ${job.track.name} track`
+      : `${job.discipline.specialization || job.discipline.name} at ${job.level.professionalTitle} level`,
     href,
-    badges: [createBadge(job.grade.id, "default")],
+    badges: [createBadge(job.level.id, "default")],
     meta: job.track ? [createBadge(job.track.name, "secondary")] : [],
   };
 }

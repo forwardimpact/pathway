@@ -7,7 +7,7 @@
  * Naming convention: filter* for functions that reduce/transform arrays.
  */
 
-import { getSkillLevelIndex } from "@forwardimpact/map/levels";
+import { getSkillProficiencyIndex } from "@forwardimpact/map/levels";
 
 // =============================================================================
 // Level-Based Filters
@@ -26,10 +26,12 @@ export function filterHighestLevel(matrix) {
   if (matrix.length === 0) return [];
 
   const maxIndex = Math.max(
-    ...matrix.map((entry) => getSkillLevelIndex(entry.level)),
+    ...matrix.map((entry) => getSkillProficiencyIndex(entry.proficiency)),
   );
 
-  return matrix.filter((entry) => getSkillLevelIndex(entry.level) === maxIndex);
+  return matrix.filter(
+    (entry) => getSkillProficiencyIndex(entry.proficiency) === maxIndex,
+  );
 }
 
 /**
@@ -42,7 +44,7 @@ export function filterHighestLevel(matrix) {
  * @returns {Array} Filtered matrix excluding awareness skills
  */
 export function filterAboveAwareness(matrix) {
-  return matrix.filter((entry) => entry.level !== "awareness");
+  return matrix.filter((entry) => entry.proficiency !== "awareness");
 }
 
 // =============================================================================

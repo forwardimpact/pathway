@@ -1,20 +1,20 @@
 ---
 title: Core Model
-description: How disciplines, grades, tracks, skills, and behaviours combine to produce complete role definitions.
+description: How disciplines, levels, tracks, skills, and behaviours combine to produce complete role definitions.
 ---
 
 ## Overview
 
 The core model defines how your engineering terrain is traversed. Every
-combination of discipline, track, and grade produces a unique, consistent role
-profile — with skill levels, behaviour expectations, and responsibilities all
-derived from the same source data.
+combination of discipline, track, and level produces a unique, consistent role
+profile — with skill proficiencies, behaviour expectations, and responsibilities
+all derived from the same source data.
 
 ---
 
 ## The Core Formula
 
-**Job Definition** = Discipline × Track × Grade
+**Job Definition** = Discipline × Track × Level
 
 **Agent Profile** = Discipline × Track × Stage
 
@@ -22,11 +22,11 @@ derived from the same source data.
 | -------------- | --------------------------- |
 | **Discipline** | What kind of engineer?      |
 | **Track**      | Where and how do you work?  |
-| **Grade**      | What career level?          |
+| **Level**      | What career level?          |
 | **Stage**      | What part of the lifecycle? |
 
 Both jobs and agents use the same skill and behaviour derivation. The
-difference: jobs include all skills capped by grade, while agents filter out
+difference: jobs include all skills capped by level, while agents filter out
 human-only skills and constrain by lifecycle stage.
 
 ---
@@ -37,7 +37,7 @@ human-only skills and constrain by lifecycle stage.
 erDiagram
     DISCIPLINE ||--o{ JOB : "defines identity"
     TRACK ||--o{ JOB : "provides context"
-    GRADE ||--o{ JOB : "sets level"
+    LEVEL ||--o{ JOB : "sets level"
     DISCIPLINE ||--o{ SKILL : "references"
     SKILL ||--|| CAPABILITY : "belongs to"
     CAPABILITY ||--o{ RESPONSIBILITY : "defines per level"
@@ -52,7 +52,7 @@ erDiagram
 | -------------- | ------------------------------------------------- | ------------------------- |
 | **Discipline** | Engineering specialty and T-shaped profile        | What kind of engineer?    |
 | **Track**      | Work context and capability-based modifiers       | Where/how do you work?    |
-| **Grade**      | Career level with base skill/behaviour levels     | What career level?        |
+| **Level**      | Career level with base skill/behaviour levels     | What career level?        |
 | **Skill**      | Technical or professional capability              | What can you do?          |
 | **Capability** | Skill grouping for modifiers and responsibilities | What capability area?     |
 | **Behaviour**  | Approach to work and mindset                      | How do you approach work? |
@@ -65,14 +65,14 @@ erDiagram
 Skills represent technical and professional capabilities. Each skill belongs to
 exactly one capability.
 
-### Skill Levels (5 Levels)
+### Skill Proficiencies (5 Levels)
 
 ```mermaid
 flowchart LR
     awareness --> foundational --> working --> practitioner --> expert
 ```
 
-| Level        | Grades | Description                            |
+| Level        | Levels | Description                            |
 | ------------ | ------ | -------------------------------------- |
 | awareness    | L1     | Learning fundamentals, needs guidance  |
 | foundational | L1-L2  | Applies basics independently           |
@@ -95,9 +95,10 @@ modifiers apply to all skills in a capability at once.
 
 Capabilities also define:
 
-- **professionalResponsibilities** — IC role expectations per skill level
-- **managementResponsibilities** — Manager role expectations per skill level
-- **checklists** — Stage handoff items per skill level
+- **professionalResponsibilities** — IC role expectations per skill proficiency
+- **managementResponsibilities** — Manager role expectations per skill
+  proficiency
+- **checklists** — Stage handoff items per skill proficiency
 
 ---
 
@@ -128,7 +129,7 @@ Disciplines define engineering specialties with T-shaped skill profiles:
 
 | Tier             | Expected Level    | Purpose                 |
 | ---------------- | ----------------- | ----------------------- |
-| coreSkills       | Highest for grade | Core expertise          |
+| coreSkills       | Highest for level | Core expertise          |
 | supportingSkills | Mid-level         | Supporting capabilities |
 | broadSkills      | Lower level       | General awareness       |
 
@@ -139,7 +140,7 @@ Disciplines define engineering specialties with T-shaped skill profiles:
 | `isProfessional` | boolean          | Uses professionalResponsibilities (IC roles)    |
 | `isManagement`   | boolean          | Uses managementResponsibilities (manager roles) |
 | `validTracks`    | (string\|null)[] | Valid track configurations                      |
-| `minGrade`       | string           | Minimum grade required for this discipline      |
+| `minLevel`       | string           | Minimum level required for this discipline      |
 
 ---
 
@@ -152,11 +153,11 @@ Tracks also define `behaviourModifiers` (e.g., `systems_thinking: +1`).
 
 ---
 
-## Grades
+## Levels
 
-Grades define career levels with base expectations:
+Levels define career levels with base expectations:
 
-| Grade | Primary      | Secondary    | Broad        | Base Behaviour |
+| Level | Primary      | Secondary    | Broad        | Base Behaviour |
 | ----- | ------------ | ------------ | ------------ | -------------- |
 | L1    | foundational | awareness    | awareness    | emerging       |
 | L2    | foundational | foundational | awareness    | emerging       |
@@ -172,17 +173,17 @@ Grades define career levels with base expectations:
 
 1. **Get skill type** — Is this skill primary, secondary, or broad for the
    discipline?
-2. **Get base level** — Look up the grade's base level for that skill type
+2. **Get base level** — Look up the level's base level for that skill type
 3. **Apply track modifier** — Add the track's modifier for the skill's
    capability
-4. **Cap positive modifiers** — Positive modifiers cannot exceed grade's max
+4. **Cap positive modifiers** — Positive modifiers cannot exceed level's max
    base level
 5. **Clamp to valid range** — Ensure result is between awareness and expert
 
 ### Behaviour Derivation
 
 ```
-Final Maturity = Grade Base + Discipline Modifier + Track Modifier
+Final Maturity = Level Base + Discipline Modifier + Track Modifier
 ```
 
 Clamped to valid range (emerging → exemplifying).
@@ -191,15 +192,15 @@ Clamped to valid range (emerging → exemplifying).
 
 ## Key Capabilities
 
-| Capability         | What it does                                          |
-| ------------------ | ----------------------------------------------------- |
-| **Job derivation** | Complete role definitions with skills and behaviours  |
-| **Agent profiles** | Stage-specific agent instructions for AI assistants   |
-| **Skill matrices** | Derived skill levels with track modifiers applied     |
-| **Checklists**     | Stage transition criteria from capability definitions |
-| **Progression**    | Career path analysis and gap identification           |
-| **Interviews**     | Role-specific question selection                      |
-| **Job matching**   | Gap analysis between current and target roles         |
+| Capability         | What it does                                             |
+| ------------------ | -------------------------------------------------------- |
+| **Job derivation** | Complete role definitions with skills and behaviours     |
+| **Agent profiles** | Stage-specific agent instructions for AI assistants      |
+| **Skill matrices** | Derived skill proficiencies with track modifiers applied |
+| **Checklists**     | Stage transition criteria from capability definitions    |
+| **Progression**    | Career path analysis and gap identification              |
+| **Interviews**     | Role-specific question selection                         |
+| **Job matching**   | Gap analysis between current and target roles            |
 
 ---
 

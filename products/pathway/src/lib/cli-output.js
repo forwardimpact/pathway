@@ -126,11 +126,11 @@ export function formatTable(headers, rows, options = {}) {
 }
 
 /**
- * Format skill level with color
+ * Format skill proficiency with color
  * @param {string} level
  * @returns {string}
  */
-export function formatSkillLevel(level) {
+export function formatSkillProficiency(level) {
   const levelColors = {
     awareness: colors.gray,
     foundational: colors.blue,

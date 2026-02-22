@@ -5,11 +5,11 @@
  */
 
 /**
- * Skill levels from lowest to highest proficiency
+ * Skill proficiencies from lowest to highest proficiency
  * @readonly
  * @enum {string}
  */
-export const SkillLevel = {
+export const SkillProficiency = {
   AWARENESS: "awareness",
   FOUNDATIONAL: "foundational",
   WORKING: "working",
@@ -18,15 +18,15 @@ export const SkillLevel = {
 };
 
 /**
- * Ordered array of skill levels for comparison/clamping
+ * Ordered array of skill proficiencies for comparison/clamping
  * @type {string[]}
  */
-export const SKILL_LEVEL_ORDER = [
-  SkillLevel.AWARENESS,
-  SkillLevel.FOUNDATIONAL,
-  SkillLevel.WORKING,
-  SkillLevel.PRACTITIONER,
-  SkillLevel.EXPERT,
+export const SKILL_PROFICIENCY_ORDER = [
+  SkillProficiency.AWARENESS,
+  SkillProficiency.FOUNDATIONAL,
+  SkillProficiency.WORKING,
+  SkillProficiency.PRACTITIONER,
+  SkillProficiency.EXPERT,
 ];
 
 /**
@@ -165,14 +165,14 @@ export function getCapabilityEmoji(capabilities, capabilityId) {
 }
 
 /**
- * Get responsibility statement for a capability at a specific skill level
+ * Get responsibility statement for a capability at a specific skill proficiency
  *
  * Uses professionalResponsibilities for professional disciplines and
  * managementResponsibilities for management disciplines.
  *
  * @param {Object[]} capabilities - Loaded capabilities array
  * @param {string} capabilityId - The capability ID
- * @param {string} level - The skill level (awareness, foundational, working, practitioner, expert)
+ * @param {string} level - The skill proficiency (awareness, foundational, working, practitioner, expert)
  * @param {Object} [discipline] - Optional discipline to determine which responsibilities to use
  * @param {boolean} [discipline.isManagement] - Whether this is a management discipline
  * @returns {string|undefined} The responsibility statement or undefined
@@ -214,7 +214,7 @@ export const SkillType = {
  * @property {string} name - Display name
  * @property {string} capability - One of Capability values
  * @property {string} description - General description of the skill
- * @property {Object<string, string>} levelDescriptions - Description for each skill level
+ * @property {Object<string, string>} proficiencyDescriptions - Description for each skill proficiency
  */
 
 /**
@@ -262,18 +262,18 @@ export const SkillType = {
  * @property {Object<string, number>} skillModifiers - Map of capability/skill ID to level modifier (positive or negative integer)
  * @property {Object<string, number>} behaviourModifiers - Map of behaviour ID to maturity modifier (positive or negative integer)
  * @property {AssessmentWeights} [assessmentWeights] - Optional custom weights for job matching
- * @property {string} [minGrade] - Optional minimum grade ID this track is valid for
+ * @property {string} [minLevel] - Optional minimum level ID this track is valid for
  */
 
 /**
- * @typedef {Object} GradeSkillLevels
- * @property {string} primary - Base skill level for primary skills
- * @property {string} secondary - Base skill level for secondary skills
- * @property {string} broad - Base skill level for broad skills
+ * @typedef {Object} LevelSkillProficiencies
+ * @property {string} primary - Base skill proficiency for primary skills
+ * @property {string} secondary - Base skill proficiency for secondary skills
+ * @property {string} broad - Base skill proficiency for broad skills
  */
 
 /**
- * @typedef {Object} GradeExpectations
+ * @typedef {Object} LevelExpectations
  * @property {string} impactScope - Expected scope of work/impact
  * @property {string} autonomyExpectation - Expected level of autonomy
  * @property {string} influenceScope - Expected sphere of influence
@@ -287,17 +287,17 @@ export const SkillType = {
  */
 
 /**
- * @typedef {Object} Grade
+ * @typedef {Object} Level
  * @property {string} id - Unique identifier
  * @property {string} professionalTitle - Display name for professional/IC track (e.g., "Level I", "Staff")
  * @property {string} managementTitle - Display name for management track (e.g., "Associate", "Director")
  * @property {string} [name] - Legacy display name (deprecated, use professionalTitle/managementTitle)
  * @property {string} [typicalExperienceRange] - Typical years of experience range (e.g., "0-2", "20+")
  * @property {number} ordinalRank - Numeric level for ordering (higher = more senior)
- * @property {GradeSkillLevels} baseSkillLevels - Base skill levels by skill type
+ * @property {LevelSkillProficiencies} baseSkillProficiencies - Base skill proficiencies by skill type
  * @property {string} baseBehaviourMaturity - Base behaviour maturity level
- * @property {GradeExpectations} expectations - Role expectations
- * @property {BreadthCriteria} [breadthCriteria] - For senior grades, breadth requirements
+ * @property {LevelExpectations} expectations - Role expectations
+ * @property {BreadthCriteria} [breadthCriteria] - For senior levels, breadth requirements
  */
 
 /**
@@ -306,8 +306,8 @@ export const SkillType = {
  * @property {string} skillName - The skill name
  * @property {string} capability - The skill capability
  * @property {string} type - The skill type (primary/secondary/broad)
- * @property {string} level - The derived skill level
- * @property {string} levelDescription - Description for this level
+ * @property {string} proficiency - The derived skill proficiency
+ * @property {string} proficiencyDescription - Description for this proficiency
  */
 
 /**
@@ -321,14 +321,14 @@ export const SkillType = {
 
 /**
  * @typedef {Object} JobDefinition
- * @property {string} id - Generated job ID (discipline_grade_track)
+ * @property {string} id - Generated job ID (discipline_level_track)
  * @property {string} title - Generated job title
  * @property {Discipline} discipline - Reference to the discipline
- * @property {Grade} grade - Reference to the grade
+ * @property {Level} level - Reference to the level
  * @property {Track} track - Reference to the track
  * @property {SkillMatrixEntry[]} skillMatrix - Complete derived skill matrix
  * @property {BehaviourProfileEntry[]} behaviourProfile - Complete derived behaviour profile
- * @property {GradeExpectations} expectations - Grade-level expectations
+ * @property {LevelExpectations} expectations - Level-level expectations
  */
 
 /**
@@ -353,7 +353,7 @@ export const SkillType = {
 
 /**
  * @typedef {Object} QuestionBank
- * @property {Object<string, RoleTypeQuestions>} skillLevels - Questions by skill ID, then by role type (professional/management), then by level
+ * @property {Object<string, RoleTypeQuestions>} skillProficiencies - Questions by skill ID, then by role type (professional/management), then by level
  * @property {Object<string, RoleTypeQuestions>} behaviourMaturities - Questions by behaviour ID, then by role type, then by maturity
  * @property {Object<string, RoleTypeQuestions>} [capabilityLevels] - Questions by capability ID, then by role type, then by level
  */
@@ -472,17 +472,17 @@ export const SkillType = {
 
 /**
  * @typedef {Object} JobValidationRules
- * @property {Array<{discipline: string, grade?: string, track?: string}>} [invalidCombinations] - Invalid combinations
+ * @property {Array<{discipline: string, level?: string, track?: string}>} [invalidCombinations] - Invalid combinations
  * @property {Object<string, string[]>} [validTracksByDiscipline] - Valid tracks per discipline
  */
 
 /**
- * Helper function to get skill level index
- * @param {string} level - The skill level
+ * Helper function to get skill proficiency index
+ * @param {string} level - The skill proficiency
  * @returns {number} The index (0-4), or -1 if invalid
  */
-export function getSkillLevelIndex(level) {
-  return SKILL_LEVEL_ORDER.indexOf(level);
+export function getSkillProficiencyIndex(level) {
+  return SKILL_PROFICIENCY_ORDER.indexOf(level);
 }
 
 /**
@@ -495,16 +495,16 @@ export function getBehaviourMaturityIndex(maturity) {
 }
 
 /**
- * Clamp a skill level index to valid range
+ * Clamp a skill proficiency index to valid range
  * @param {number} index - The index to clamp
- * @returns {string} The clamped skill level
+ * @returns {string} The clamped skill proficiency
  */
-export function clampSkillLevel(index) {
+export function clampSkillProficiency(index) {
   const clampedIndex = Math.max(
     0,
-    Math.min(SKILL_LEVEL_ORDER.length - 1, index),
+    Math.min(SKILL_PROFICIENCY_ORDER.length - 1, index),
   );
-  return SKILL_LEVEL_ORDER[clampedIndex];
+  return SKILL_PROFICIENCY_ORDER[clampedIndex];
 }
 
 /**
@@ -521,13 +521,13 @@ export function clampBehaviourMaturity(index) {
 }
 
 /**
- * Check if a skill level meets or exceeds a requirement
- * @param {string} actual - The actual skill level
- * @param {string} required - The required skill level
+ * Check if a skill proficiency meets or exceeds a requirement
+ * @param {string} actual - The actual skill proficiency
+ * @param {string} required - The required skill proficiency
  * @returns {boolean} True if actual meets or exceeds required
  */
-export function skillLevelMeetsRequirement(actual, required) {
-  return getSkillLevelIndex(actual) >= getSkillLevelIndex(required);
+export function skillProficiencyMeetsRequirement(actual, required) {
+  return getSkillProficiencyIndex(actual) >= getSkillProficiencyIndex(required);
 }
 
 /**
@@ -545,7 +545,7 @@ export function behaviourMaturityMeetsRequirement(actual, required) {
 /**
  * Get emoji for a concept from framework data
  * @param {Object} framework - Framework object loaded from framework.yaml
- * @param {string} concept - The concept type: 'driver', 'skill', 'behaviour', 'discipline', 'grade', or 'track'
+ * @param {string} concept - The concept type: 'driver', 'skill', 'behaviour', 'discipline', 'level', or 'track'
  * @returns {string} The emoji for the concept or default "💡"
  */
 export function getConceptEmoji(framework, concept) {

@@ -49,7 +49,7 @@ export function getPositiveTrackCapabilities(track) {
  * @property {Array} derivedResponsibilities - Derived responsibilities (if capabilities provided)
  * @property {Object} discipline - The discipline
  * @property {Object} track - The track
- * @property {Object} grade - The grade
+ * @property {Object} level - The level
  */
 
 /**
@@ -65,7 +65,7 @@ export function getPositiveTrackCapabilities(track) {
  * @param {Object} params
  * @param {Object} params.discipline - The discipline
  * @param {Object} params.track - The track
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Array} params.skills - All available skills
  * @param {Array} params.behaviours - All available behaviours
  * @param {Array} [params.capabilities] - Optional capabilities for responsibility derivation
@@ -74,16 +74,16 @@ export function getPositiveTrackCapabilities(track) {
 export function prepareBaseProfile({
   discipline,
   track,
-  grade,
+  level,
   skills,
   behaviours,
   capabilities,
 }) {
   // Core derivation
-  const skillMatrix = deriveSkillMatrix({ discipline, grade, track, skills });
+  const skillMatrix = deriveSkillMatrix({ discipline, level, track, skills });
   const behaviourProfile = deriveBehaviourProfile({
     discipline,
-    grade,
+    level,
     track,
     behaviours,
   });
@@ -104,7 +104,7 @@ export function prepareBaseProfile({
     derivedResponsibilities,
     discipline,
     track,
-    grade,
+    level,
   };
 }
 
@@ -123,7 +123,7 @@ export function prepareBaseProfile({
 export function prepareAgentProfile({
   discipline,
   track,
-  grade,
+  level,
   skills,
   behaviours,
   capabilities,
@@ -131,7 +131,7 @@ export function prepareAgentProfile({
   const base = prepareBaseProfile({
     discipline,
     track,
-    grade,
+    level,
     skills,
     behaviours,
     capabilities,

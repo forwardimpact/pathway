@@ -1,6 +1,6 @@
 ---
 name: fit-map
-description: Work with the @forwardimpact/map product. Use when adding or modifying skills, capabilities, behaviours, disciplines, tracks, grades, questions, or schema definitions.
+description: Work with the @forwardimpact/map product. Use when adding or modifying skills, capabilities, behaviours, disciplines, tracks, levels, questions, or schema definitions.
 ---
 
 # Map Product
@@ -17,7 +17,7 @@ interpret and work with career framework data.
 ## When to Use
 
 - Adding or modifying skills in capability files
-- Adding new behaviours, disciplines, tracks, or grades
+- Adding new behaviours, disciplines, tracks, or levels
 - Working with JSON Schema or RDF/SHACL definitions
 - Running data validation
 - Adding interview questions
@@ -33,7 +33,7 @@ products/map/
     validation.js        # Data validation logic
     schema-validation.js # JSON Schema validation
     index-generator.js   # Generate _index.yaml for browser
-    levels.js            # Skill levels, behaviour maturities
+    levels.js            # Skill proficiencies, behaviour maturities
     modifiers.js         # Modifier utilities
   schema/
     json/                # JSON Schema definitions (public)
@@ -75,11 +75,11 @@ Validates data against JSON Schema definitions.
 
 ### levels.js
 
-Exports skill level and behaviour maturity constants.
+Exports skill proficiency and behaviour maturity constants.
 
 ```javascript
 import {
-  SKILL_LEVELS,
+  SKILL_PROFICIENCIES,
   BEHAVIOUR_MATURITIES,
 } from "@forwardimpact/map/levels";
 ```
@@ -108,7 +108,7 @@ Canonical reference data for testing and documentation:
 
 ```
 examples/
-├── grades.yaml           # Career levels
+├── levels.yaml           # Career levels
 ├── stages.yaml           # Lifecycle stages
 ├── drivers.yaml          # Organizational outcomes
 ├── disciplines/          # Engineering specialties

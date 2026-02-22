@@ -42,9 +42,9 @@
       "$ref": "#/$defs/assessmentWeights",
       "description": "Custom weights for skill vs behaviour assessment"
     },
-    "minGrade": {
+    "minLevel": {
       "type": "string",
-      "description": "Minimum grade required for this track (references grade ID)"
+      "description": "Minimum level required for this track (references level ID)"
     },
     "agent": {
       "$ref": "#/$defs/trackAgentSection",

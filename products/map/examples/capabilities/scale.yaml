@@ -53,7 +53,7 @@ skills:
         Ability to design software systems that are scalable, maintainable, and
         fit for purpose. In the AI era, this includes designing systems that
         effectively leverage AI capabilities while maintaining human oversight.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand basic architectural concepts (separation of concerns,
           modularity, coupling) and can read architecture diagrams. You follow
@@ -309,7 +309,7 @@ skills:
     human:
       description:
         Working effectively with cloud infrastructure (AWS, Azure, GCP)
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand cloud computing concepts (IaaS, PaaS, SaaS) and can use
           cloud services through consoles and defined interfaces with guidance.
@@ -653,7 +653,7 @@ skills:
         code. In the AI era, code review becomes more important than code
         generation—every line must be understood and verified regardless of its
         source.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You follow team coding conventions and style guides with guidance. You
           understand why code quality matters and can run linters and tests
@@ -930,7 +930,7 @@ skills:
       description:
         Designing data structures and database schemas that support application
         needs
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand the difference between relational and non-relational
           data stores. You can create basic schemas from specifications with
@@ -1185,7 +1185,7 @@ skills:
       description:
         Building and maintaining deployment pipelines, infrastructure, and
         operational practices
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand CI/CD concepts (build, test, deploy) and can trigger
           and monitor pipelines others have built. You follow deployment
@@ -1458,7 +1458,7 @@ skills:
         Identifying, prioritizing, and addressing technical debt strategically.
         Accepts technical debt when it enables faster business value; explicitly
         leaves generalization to platform teams when appropriate.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You recognize obvious technical debt (duplicated code, missing tests,
           outdated dependencies) and flag issues to the team.

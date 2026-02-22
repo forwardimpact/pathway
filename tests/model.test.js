@@ -11,11 +11,11 @@ import assert from "node:assert";
 import {
   // Types and constants
   Capability,
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
-  clampSkillLevel,
+  clampSkillProficiency,
   clampBehaviourMaturity,
-  skillLevelMeetsRequirement,
+  skillProficiencyMeetsRequirement,
   behaviourMaturityMeetsRequirement,
   groupSkillsByCapability,
   // Data-driven capability functions
@@ -40,7 +40,7 @@ import {
   calculateJobMatch,
   findMatchingJobs,
   findRealisticMatches,
-  estimateBestFitGrade,
+  estimateBestFitLevel,
   deriveDevelopmentPath,
   findNextStepJob,
 } from "@forwardimpact/libpathway/matching";
@@ -52,7 +52,7 @@ import {
 } from "@forwardimpact/map/validation";
 
 import {
-  deriveSkillLevel,
+  deriveSkillProficiency,
   deriveBehaviourMaturity,
   deriveSkillMatrix,
   deriveBehaviourProfile,
@@ -62,9 +62,9 @@ import {
   calculateDriverCoverage,
   getSkillTypeForDiscipline,
   generateJobTitle,
-  isSeniorGrade,
+  isSeniorLevel,
   getDisciplineSkillIds,
-  getGradeLevel,
+  getLevelRank,
 } from "@forwardimpact/libpathway/derivation";
 
 import {
@@ -92,7 +92,7 @@ const testSkills = [
     name: "Skill A",
     capability: Capability.SCALE,
     description: "A scale skill",
-    levelDescriptions: {
+    proficiencyDescriptions: {
       awareness: "Basic awareness",
       foundational: "Can apply basics",
       working: "Works independently",
@@ -105,14 +105,14 @@ const testSkills = [
     name: "Skill B",
     capability: Capability.AI,
     description: "An AI skill",
-    levelDescriptions: {},
+    proficiencyDescriptions: {},
   },
   {
     id: "skill_c",
     name: "Skill C",
     capability: Capability.PEOPLE,
     description: "A people skill",
-    levelDescriptions: {},
+    proficiencyDescriptions: {},
   },
 ];
 
@@ -165,13 +165,13 @@ const testTrack = {
   },
 };
 
-const testGrade = {
-  id: "test_grade",
+const testLevel = {
+  id: "test_level",
   professionalTitle: "Level III",
   managementTitle: "Manager",
   typicalExperienceRange: "5-8",
   ordinalRank: 3,
-  baseSkillLevels: {
+  baseSkillProficiencies: {
     primary: "practitioner",
     secondary: "working",
     broad: "foundational",
@@ -266,18 +266,18 @@ const testCategories = [
 // ============================================================================
 
 describe("Type Helpers", () => {
-  describe("getSkillLevelIndex", () => {
+  describe("getSkillProficiencyIndex", () => {
     it("returns correct indices for all levels", () => {
-      assert.strictEqual(getSkillLevelIndex("awareness"), 0);
-      assert.strictEqual(getSkillLevelIndex("foundational"), 1);
-      assert.strictEqual(getSkillLevelIndex("working"), 2);
-      assert.strictEqual(getSkillLevelIndex("practitioner"), 3);
-      assert.strictEqual(getSkillLevelIndex("expert"), 4);
+      assert.strictEqual(getSkillProficiencyIndex("awareness"), 0);
+      assert.strictEqual(getSkillProficiencyIndex("foundational"), 1);
+      assert.strictEqual(getSkillProficiencyIndex("working"), 2);
+      assert.strictEqual(getSkillProficiencyIndex("practitioner"), 3);
+      assert.strictEqual(getSkillProficiencyIndex("expert"), 4);
     });
 
     it("returns -1 for invalid levels", () => {
-      assert.strictEqual(getSkillLevelIndex("invalid"), -1);
-      assert.strictEqual(getSkillLevelIndex(""), -1);
+      assert.strictEqual(getSkillProficiencyIndex("invalid"), -1);
+      assert.strictEqual(getSkillProficiencyIndex(""), -1);
     });
   });
 
@@ -290,13 +290,13 @@ describe("Type Helpers", () => {
     });
   });
 
-  describe("clampSkillLevel", () => {
+  describe("clampSkillProficiency", () => {
     it("clamps to valid range", () => {
-      assert.strictEqual(clampSkillLevel(-1), "awareness");
-      assert.strictEqual(clampSkillLevel(0), "awareness");
-      assert.strictEqual(clampSkillLevel(2), "working");
-      assert.strictEqual(clampSkillLevel(4), "expert");
-      assert.strictEqual(clampSkillLevel(10), "expert");
+      assert.strictEqual(clampSkillProficiency(-1), "awareness");
+      assert.strictEqual(clampSkillProficiency(0), "awareness");
+      assert.strictEqual(clampSkillProficiency(2), "working");
+      assert.strictEqual(clampSkillProficiency(4), "expert");
+      assert.strictEqual(clampSkillProficiency(10), "expert");
     });
   });
 
@@ -310,18 +310,18 @@ describe("Type Helpers", () => {
     });
   });
 
-  describe("skillLevelMeetsRequirement", () => {
-    it("correctly compares skill levels", () => {
+  describe("skillProficiencyMeetsRequirement", () => {
+    it("correctly compares skill proficiencies", () => {
       assert.strictEqual(
-        skillLevelMeetsRequirement("expert", "practitioner"),
+        skillProficiencyMeetsRequirement("expert", "practitioner"),
         true,
       );
       assert.strictEqual(
-        skillLevelMeetsRequirement("practitioner", "practitioner"),
+        skillProficiencyMeetsRequirement("practitioner", "practitioner"),
         true,
       );
       assert.strictEqual(
-        skillLevelMeetsRequirement("working", "practitioner"),
+        skillProficiencyMeetsRequirement("working", "practitioner"),
         false,
       );
     });
@@ -523,7 +523,7 @@ describe("Framework emoji function", () => {
         skill: { emojiIcon: "💼" },
         behaviour: { emojiIcon: "🧠" },
         discipline: { emojiIcon: "🔧" },
-        grade: { emojiIcon: "📊" },
+        level: { emojiIcon: "📊" },
         track: { emojiIcon: "🛤️" },
       },
     };
@@ -533,7 +533,7 @@ describe("Framework emoji function", () => {
       assert.strictEqual(getConceptEmoji(testFramework, "skill"), "💼");
       assert.strictEqual(getConceptEmoji(testFramework, "behaviour"), "🧠");
       assert.strictEqual(getConceptEmoji(testFramework, "discipline"), "🔧");
-      assert.strictEqual(getConceptEmoji(testFramework, "grade"), "📊");
+      assert.strictEqual(getConceptEmoji(testFramework, "level"), "📊");
       assert.strictEqual(getConceptEmoji(testFramework, "track"), "🛤️");
     });
 
@@ -558,7 +558,7 @@ describe("Framework emoji function", () => {
 describe("deriveResponsibilities", () => {
   it("returns empty array when no capabilities provided", () => {
     const skillMatrix = [
-      { skillId: "skill_a", capability: "scale", level: "working" },
+      { skillId: "skill_a", capability: "scale", proficiency: "working" },
     ];
     const result = deriveResponsibilities({
       skillMatrix,
@@ -569,7 +569,7 @@ describe("deriveResponsibilities", () => {
 
   it("excludes awareness-only capabilities", () => {
     const skillMatrix = [
-      { skillId: "skill_a", capability: "scale", level: "awareness" },
+      { skillId: "skill_a", capability: "scale", proficiency: "awareness" },
     ];
     const result = deriveResponsibilities({
       skillMatrix,
@@ -578,10 +578,10 @@ describe("deriveResponsibilities", () => {
     assert.strictEqual(result.length, 0);
   });
 
-  it("includes capabilities based on skill level", () => {
+  it("includes capabilities based on skill proficiency", () => {
     // skill_a is in testDiscipline.coreSkills and has capability "scale"
     const skillMatrix = [
-      { skillId: "skill_a", capability: "scale", level: "working" },
+      { skillId: "skill_a", capability: "scale", proficiency: "working" },
     ];
     const result = deriveResponsibilities({
       skillMatrix,
@@ -589,13 +589,17 @@ describe("deriveResponsibilities", () => {
     });
     assert.strictEqual(result.length, 1);
     assert.strictEqual(result[0].capability, "scale");
-    assert.strictEqual(result[0].level, "working");
+    assert.strictEqual(result[0].proficiency, "working");
   });
 
-  it("uses highest skill level in each capability", () => {
+  it("uses highest skill proficiency in each capability", () => {
     const skillMatrix = [
-      { skillId: "skill_a", capability: "scale", level: "working" },
-      { skillId: "skill_extra", capability: "scale", level: "practitioner" },
+      { skillId: "skill_a", capability: "scale", proficiency: "working" },
+      {
+        skillId: "skill_extra",
+        capability: "scale",
+        proficiency: "practitioner",
+      },
     ];
     const result = deriveResponsibilities({
       skillMatrix,
@@ -604,7 +608,7 @@ describe("deriveResponsibilities", () => {
     // Should use practitioner level for scale capability
     const scaleResp = result.find((r) => r.capability === "scale");
     assert.ok(scaleResp);
-    assert.strictEqual(scaleResp.level, "practitioner");
+    assert.strictEqual(scaleResp.proficiency, "practitioner");
     assert.strictEqual(
       scaleResp.responsibility,
       "Lead architectural decisions",
@@ -613,7 +617,7 @@ describe("deriveResponsibilities", () => {
 
   it("includes responsibility from capability definition", () => {
     const skillMatrix = [
-      { skillId: "skill_b", capability: "ai", level: "working" },
+      { skillId: "skill_b", capability: "ai", proficiency: "working" },
     ];
     const result = deriveResponsibilities({
       skillMatrix,
@@ -622,12 +626,12 @@ describe("deriveResponsibilities", () => {
     const aiResp = result.find((r) => r.capability === "ai");
     assert.ok(aiResp);
     assert.strictEqual(aiResp.responsibility, "Integrate AI capabilities");
-    assert.strictEqual(aiResp.level, "working");
+    assert.strictEqual(aiResp.proficiency, "working");
   });
 
   it("includes emoji from capability", () => {
     const skillMatrix = [
-      { skillId: "skill_a", capability: "scale", level: "working" },
+      { skillId: "skill_a", capability: "scale", proficiency: "working" },
     ];
     const result = deriveResponsibilities({
       skillMatrix,
@@ -641,7 +645,7 @@ describe("deriveJob with capabilities", () => {
   it("includes derived responsibilities when capabilities provided", () => {
     const job = deriveJob({
       discipline: testDiscipline,
-      grade: testGrade,
+      level: testLevel,
       track: testTrack,
       skills: testSkills,
       behaviours: testBehaviours,
@@ -657,7 +661,7 @@ describe("deriveJob with capabilities", () => {
   it("returns empty responsibilities when no capabilities provided", () => {
     const job = deriveJob({
       discipline: testDiscipline,
-      grade: testGrade,
+      level: testLevel,
       track: testTrack,
       skills: testSkills,
       behaviours: testBehaviours,
@@ -681,7 +685,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -696,7 +700,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -714,7 +718,7 @@ describe("Validation", () => {
           },
         ],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -732,7 +736,7 @@ describe("Validation", () => {
             assessmentWeights: { skillWeight: 0.7, behaviourWeight: 0.5 }, // Sums to 1.2
           },
         ],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -745,7 +749,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -758,7 +762,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline], // Uses specialization/roleTitle
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -766,13 +770,13 @@ describe("Validation", () => {
       assert.strictEqual(result.valid, true);
     });
 
-    it("validates grade with professionalTitle and managementTitle", () => {
+    it("validates level with professionalTitle and managementTitle", () => {
       const result = validateAllData({
         skills: testSkills,
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade], // Uses professionalTitle/managementTitle
+        levels: [testLevel], // Uses professionalTitle/managementTitle
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -791,7 +795,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [disciplineWithValidTracks],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -810,7 +814,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [disciplineWithInvalidTracks],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -828,7 +832,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [disciplineWithNull],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -849,7 +853,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [managementDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -868,7 +872,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [invalidDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -891,7 +895,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [trackWithInvalidModifiers],
-        grades: [testGrade],
+        levels: [testLevel],
       });
 
       assert.strictEqual(result.valid, false);
@@ -923,7 +927,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [disciplineForTest],
         tracks: [trackWithValidModifiers],
-        grades: [testGrade],
+        levels: [testLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -931,10 +935,10 @@ describe("Validation", () => {
       assert.strictEqual(result.valid, true);
     });
 
-    it("validates grade with breadthRequirements", () => {
-      const seniorGrade = {
-        ...testGrade,
-        id: "senior_grade",
+    it("validates level with breadthRequirements", () => {
+      const seniorLevel = {
+        ...testLevel,
+        id: "senior_level",
         ordinalRank: 5,
         breadthRequirements: {
           practitioner: 4,
@@ -947,7 +951,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [seniorGrade],
+        levels: [seniorLevel],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -955,9 +959,9 @@ describe("Validation", () => {
       assert.strictEqual(result.valid, true);
     });
 
-    it("validates grade with typicalExperienceRange", () => {
-      const gradeWithExperience = {
-        ...testGrade,
+    it("validates level with typicalExperienceRange", () => {
+      const levelWithExperience = {
+        ...testLevel,
         typicalExperienceRange: "5-8",
       };
 
@@ -966,7 +970,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [gradeWithExperience],
+        levels: [levelWithExperience],
         drivers: testDrivers,
         capabilities: testCategories,
       });
@@ -980,7 +984,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         capabilities: testCategories,
         drivers: testDrivers,
       });
@@ -994,7 +998,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         capabilities: [{ name: "No ID", emojiIcon: "🚀" }],
       });
 
@@ -1008,7 +1012,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         capabilities: [testCategories[0], testCategories[0]], // Duplicate
       });
 
@@ -1031,7 +1035,7 @@ describe("Validation", () => {
           },
         ],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         capabilities: testCategories,
       });
 
@@ -1055,7 +1059,7 @@ describe("Validation", () => {
         behaviours: testBehaviours,
         disciplines: [testDiscipline],
         tracks: [testTrack],
-        grades: [testGrade],
+        levels: [testLevel],
         capabilities: minimalCategories,
         drivers: testDrivers,
       });
@@ -1071,7 +1075,7 @@ describe("Validation", () => {
     it("validates valid self-assessment", () => {
       const result = validateSelfAssessment(
         {
-          skillLevels: { skill_a: "working", skill_b: "foundational" },
+          skillProficiencies: { skill_a: "working", skill_b: "foundational" },
           behaviourMaturities: { behaviour_x: "practicing" },
         },
         testSkills,
@@ -1084,7 +1088,7 @@ describe("Validation", () => {
     it("detects invalid skill references", () => {
       const result = validateSelfAssessment(
         {
-          skillLevels: { nonexistent: "working" },
+          skillProficiencies: { nonexistent: "working" },
           behaviourMaturities: {},
         },
         testSkills,
@@ -1095,10 +1099,10 @@ describe("Validation", () => {
       assert.ok(result.errors.some((e) => e.type === "INVALID_REFERENCE"));
     });
 
-    it("detects invalid skill levels", () => {
+    it("detects invalid skill proficiencies", () => {
       const result = validateSelfAssessment(
         {
-          skillLevels: { skill_a: "master" }, // Invalid level
+          skillProficiencies: { skill_a: "master" }, // Invalid level
           behaviourMaturities: {},
         },
         testSkills,
@@ -1114,7 +1118,7 @@ describe("Validation", () => {
     it("validates valid question bank", () => {
       const result = validateQuestionBank(
         {
-          skillLevels: {
+          skillProficiencies: {
             skill_a: {
               professionalQuestions: {
                 practitioner: [
@@ -1143,7 +1147,7 @@ describe("Validation", () => {
     it("detects invalid skill references in question bank", () => {
       const result = validateQuestionBank(
         {
-          skillLevels: {
+          skillProficiencies: {
             nonexistent_skill: {
               professionalQuestions: {
                 practitioner: [
@@ -1162,10 +1166,10 @@ describe("Validation", () => {
       assert.ok(result.errors.some((e) => e.type === "INVALID_REFERENCE"));
     });
 
-    it("detects invalid skill levels in question bank", () => {
+    it("detects invalid skill proficiencies in question bank", () => {
       const result = validateQuestionBank(
         {
-          skillLevels: {
+          skillProficiencies: {
             skill_a: {
               professionalQuestions: {
                 master: [{ id: "q1", text: "Question 1", type: "technical" }],
@@ -1219,13 +1223,13 @@ describe("Derivation", () => {
     });
   });
 
-  describe("deriveSkillLevel", () => {
-    it("derives correct level for primary skill with modifier capped at grade max", () => {
+  describe("deriveSkillProficiency", () => {
+    it("derives correct level for primary skill with modifier capped at level max", () => {
       // Primary skill (practitioner) + modifier (+1 from scale capability)
-      // Cap: max base level for grade is practitioner, so capped at practitioner
-      const level = deriveSkillLevel({
+      // Cap: max base level for level is practitioner, so capped at practitioner
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skillId: "skill_a",
         skills: testSkills,
@@ -1235,9 +1239,9 @@ describe("Derivation", () => {
 
     it("derives correct level for secondary skill with negative modifier", () => {
       // Secondary skill (working) + modifier (-1 from ai capability) = foundational
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skillId: "skill_b",
         skills: testSkills,
@@ -1247,9 +1251,9 @@ describe("Derivation", () => {
 
     it("derives correct level for broad skill without modifier", () => {
       // Broad skill (foundational) + no modifier = foundational
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skillId: "skill_c",
         skills: testSkills,
@@ -1258,9 +1262,9 @@ describe("Derivation", () => {
     });
 
     it("returns null for skills not in discipline", () => {
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skillId: "nonexistent",
         skills: testSkills,
@@ -1269,18 +1273,18 @@ describe("Derivation", () => {
     });
 
     it("clamps to maximum level", () => {
-      const expertGrade = {
-        ...testGrade,
-        baseSkillLevels: {
+      const expertLevel = {
+        ...testLevel,
+        baseSkillProficiencies: {
           primary: "expert",
           secondary: "expert",
           broad: "expert",
         },
       };
       // Expert + 1 should clamp to expert
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: expertGrade,
+        level: expertLevel,
         track: testTrack,
         skillId: "skill_a",
         skills: testSkills,
@@ -1288,25 +1292,25 @@ describe("Derivation", () => {
       assert.strictEqual(level, "expert");
     });
 
-    it("allows positive modifier up to grade max when base is lower", () => {
-      // Create a grade where expert is the max, but secondary is lower
-      const mixedGrade = {
-        ...testGrade,
-        baseSkillLevels: {
+    it("allows positive modifier up to level max when base is lower", () => {
+      // Create a level where expert is the max, but secondary is lower
+      const mixedLevel = {
+        ...testLevel,
+        baseSkillProficiencies: {
           primary: "expert",
           secondary: "practitioner",
           broad: "working",
         },
       };
       // Secondary skill (practitioner) + modifier (+1) = expert
-      // This is allowed because expert is the grade's max base level
+      // This is allowed because expert is the level's max base level
       const trackWithAiBoost = {
         ...testTrack,
         skillModifiers: { ai: 1 },
       };
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: mixedGrade,
+        level: mixedLevel,
         track: trackWithAiBoost,
         skillId: "skill_b", // secondary skill with AI capability
         skills: testSkills,
@@ -1314,12 +1318,12 @@ describe("Derivation", () => {
       assert.strictEqual(level, "expert");
     });
 
-    it("caps positive modifier at grade max even when would exceed", () => {
+    it("caps positive modifier at level max even when would exceed", () => {
       // Secondary skill (working) would be practitioner with +1
       // But max base is practitioner, so it's capped there
-      const capGrade = {
-        ...testGrade,
-        baseSkillLevels: {
+      const capLevel = {
+        ...testLevel,
+        baseSkillProficiencies: {
           primary: "practitioner",
           secondary: "working",
           broad: "awareness",
@@ -1329,9 +1333,9 @@ describe("Derivation", () => {
         ...testTrack,
         skillModifiers: { ai: 2 }, // Would push working +2 = expert
       };
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: capGrade,
+        level: capLevel,
         track: trackWithAiBoost,
         skillId: "skill_b", // secondary skill with AI capability
         skills: testSkills,
@@ -1340,11 +1344,11 @@ describe("Derivation", () => {
       assert.strictEqual(level, "practitioner");
     });
 
-    it("allows negative modifier to go below grade base", () => {
+    it("allows negative modifier to go below level base", () => {
       // Negative modifiers should not be capped - they create emphasis
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skillId: "skill_b", // AI skill with -1 modifier
         skills: testSkills,
@@ -1359,7 +1363,7 @@ describe("Derivation", () => {
       // Base (practicing) + modifier (+1) = role_modeling
       const maturity = deriveBehaviourMaturity({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: { ...testTrack, behaviourModifiers: {} },
         behaviourId: "behaviour_x",
       });
@@ -1370,7 +1374,7 @@ describe("Derivation", () => {
       // Base (practicing) + elevation (+1) = role_modeling
       const maturity = deriveBehaviourMaturity({
         discipline: { ...testDiscipline, behaviourModifiers: {} },
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         behaviourId: "behaviour_y",
       });
@@ -1386,7 +1390,7 @@ describe("Derivation", () => {
       };
       const maturity = deriveBehaviourMaturity({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: trackWithBothModified,
         behaviourId: "behaviour_x",
       });
@@ -1397,7 +1401,7 @@ describe("Derivation", () => {
     it("uses base maturity when no modifiers apply", () => {
       const maturity = deriveBehaviourMaturity({
         discipline: { ...testDiscipline, behaviourModifiers: {} },
-        grade: testGrade,
+        level: testLevel,
         track: { ...testTrack, behaviourModifiers: {} },
         behaviourId: "behaviour_x",
       });
@@ -1409,7 +1413,7 @@ describe("Derivation", () => {
     it("creates complete skill matrix with capped levels", () => {
       const matrix = deriveSkillMatrix({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skills: testSkills,
       });
@@ -1418,8 +1422,8 @@ describe("Derivation", () => {
 
       const skillA = matrix.find((s) => s.skillId === "skill_a");
       assert.strictEqual(skillA.type, "primary");
-      // Primary skill with +1 modifier capped at grade max (practitioner)
-      assert.strictEqual(skillA.level, "practitioner");
+      // Primary skill with +1 modifier capped at level max (practitioner)
+      assert.strictEqual(skillA.proficiency, "practitioner");
     });
 
     it("only includes skills in the discipline", () => {
@@ -1430,7 +1434,7 @@ describe("Derivation", () => {
       };
       const matrix = deriveSkillMatrix({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skills: [...testSkills, extraSkill],
       });
@@ -1444,7 +1448,7 @@ describe("Derivation", () => {
     it("creates complete behaviour profile", () => {
       const profile = deriveBehaviourProfile({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         behaviours: testBehaviours,
       });
@@ -1456,7 +1460,7 @@ describe("Derivation", () => {
     it("sorts behaviours alphabetically by name", () => {
       const profile = deriveBehaviourProfile({
         discipline: { ...testDiscipline, behaviourModifiers: {} },
-        grade: testGrade,
+        level: testLevel,
         track: { ...testTrack, behaviourModifiers: {} },
         behaviours: [
           { id: "behaviour_z", name: "Zebra Behaviour", description: "Third" },
@@ -1500,10 +1504,10 @@ describe("Derivation", () => {
     });
   });
 
-  describe("getGradeLevel", () => {
-    it("returns the grade level number", () => {
-      assert.strictEqual(getGradeLevel(testGrade), 3);
-      assert.strictEqual(getGradeLevel({ ...testGrade, ordinalRank: 5 }), 5);
+  describe("getLevelRank", () => {
+    it("returns the level level number", () => {
+      assert.strictEqual(getLevelRank(testLevel), 3);
+      assert.strictEqual(getLevelRank({ ...testLevel, ordinalRank: 5 }), 5);
     });
   });
 
@@ -1511,14 +1515,14 @@ describe("Derivation", () => {
     it("creates complete job definition", () => {
       const job = deriveJob({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
       assert.ok(job);
-      assert.strictEqual(job.id, "test_discipline_test_grade_test_track");
+      assert.strictEqual(job.id, "test_discipline_test_level_test_track");
       assert.ok(job.title.includes("Test"));
       assert.strictEqual(job.skillMatrix.length, 3);
       assert.strictEqual(job.behaviourProfile.length, 2);
@@ -1527,13 +1531,13 @@ describe("Derivation", () => {
     it("returns null for invalid combinations", () => {
       const validationRules = {
         invalidCombinations: [
-          { discipline: "test_discipline", grade: "test_grade" },
+          { discipline: "test_discipline", level: "test_level" },
         ],
       };
 
       const job = deriveJob({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skills: testSkills,
         behaviours: testBehaviours,
@@ -1546,14 +1550,14 @@ describe("Derivation", () => {
     it("creates trackless job definition", () => {
       const job = deriveJob({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: null,
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
       assert.ok(job);
-      assert.strictEqual(job.id, "test_discipline_test_grade");
+      assert.strictEqual(job.id, "test_discipline_test_level");
       assert.strictEqual(job.track, null);
       assert.ok(job.title.includes("Test"));
       assert.strictEqual(job.skillMatrix.length, 3);
@@ -1566,9 +1570,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: testDiscipline,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
-          grades: [],
+          levels: [],
         }),
         true,
       );
@@ -1584,10 +1588,10 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: testDiscipline,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
           validationRules: rules,
-          grades: [],
+          levels: [],
         }),
         false,
       );
@@ -1602,9 +1606,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithValidTracks,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
-          grades: [],
+          levels: [],
         }),
         false,
       );
@@ -1619,9 +1623,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithValidTracks,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
-          grades: [],
+          levels: [],
         }),
         true,
       );
@@ -1637,9 +1641,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithEmptyValidTracks,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
-          grades: [],
+          levels: [],
         }),
         true,
       );
@@ -1654,9 +1658,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithNullInValidTracks,
-          grade: testGrade,
+          level: testLevel,
           track: null,
-          grades: [],
+          levels: [],
         }),
         true,
       );
@@ -1671,9 +1675,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithOnlyTrackIds,
-          grade: testGrade,
+          level: testLevel,
           track: null,
-          grades: [],
+          levels: [],
         }),
         false,
       );
@@ -1688,9 +1692,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithNullAndTrack,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
-          grades: [],
+          levels: [],
         }),
         true,
       );
@@ -1705,62 +1709,62 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: disciplineWithOnlyNull,
-          grade: testGrade,
+          level: testLevel,
           track: testTrack,
-          grades: [],
+          levels: [],
         }),
         false,
       );
     });
 
-    it("respects discipline minGrade constraint", () => {
-      const juniorGrade = { id: "junior", ordinalRank: 1 };
-      const seniorGrade = { id: "senior", ordinalRank: 5 };
-      const grades = [juniorGrade, seniorGrade];
+    it("respects discipline minLevel constraint", () => {
+      const juniorLevel = { id: "junior", ordinalRank: 1 };
+      const seniorLevel = { id: "senior", ordinalRank: 5 };
+      const levels = [juniorLevel, seniorLevel];
 
-      const disciplineWithMinGrade = {
+      const disciplineWithMinLevel = {
         ...testDiscipline,
-        minGrade: "senior",
+        minLevel: "senior",
       };
 
-      // Junior grade should be invalid
+      // Junior level should be invalid
       assert.strictEqual(
         isValidJobCombination({
-          discipline: disciplineWithMinGrade,
-          grade: juniorGrade,
+          discipline: disciplineWithMinLevel,
+          level: juniorLevel,
           track: testTrack,
-          grades,
+          levels,
         }),
         false,
       );
 
-      // Senior grade should be valid
+      // Senior level should be valid
       assert.strictEqual(
         isValidJobCombination({
-          discipline: disciplineWithMinGrade,
-          grade: seniorGrade,
+          discipline: disciplineWithMinLevel,
+          level: seniorLevel,
           track: testTrack,
-          grades,
+          levels,
         }),
         true,
       );
     });
 
-    it("allows all grades when minGrade is not set", () => {
-      const juniorGrade = { id: "junior", ordinalRank: 1 };
-      const grades = [juniorGrade];
+    it("allows all levels when minLevel is not set", () => {
+      const juniorLevel = { id: "junior", ordinalRank: 1 };
+      const levels = [juniorLevel];
 
-      const disciplineWithoutMinGrade = {
+      const disciplineWithoutMinLevel = {
         ...testDiscipline,
       };
-      delete disciplineWithoutMinGrade.minGrade;
+      delete disciplineWithoutMinLevel.minLevel;
 
       assert.strictEqual(
         isValidJobCombination({
-          discipline: disciplineWithoutMinGrade,
-          grade: juniorGrade,
+          discipline: disciplineWithoutMinLevel,
+          level: juniorLevel,
           track: testTrack,
-          grades,
+          levels,
         }),
         true,
       );
@@ -1770,9 +1774,9 @@ describe("Derivation", () => {
       assert.strictEqual(
         isValidJobCombination({
           discipline: testDiscipline,
-          grade: testGrade,
+          level: testLevel,
           track: null,
-          grades: [],
+          levels: [],
         }),
         true,
       );
@@ -1780,20 +1784,20 @@ describe("Derivation", () => {
   });
 
   describe("generateJobTitle", () => {
-    it("generates title for professional track with Level grade", () => {
-      const title = generateJobTitle(testDiscipline, testGrade, testTrack);
-      // Grade is "Level III", so format is: "Test Engineer Level III - Test Track"
+    it("generates title for professional track with Level level", () => {
+      const title = generateJobTitle(testDiscipline, testLevel, testTrack);
+      // Level is "Level III", so format is: "Test Engineer Level III - Test Track"
       assert.strictEqual(title, "Test Engineer Level III - Test Track");
     });
 
-    it("generates title for professional track with non-Level grade", () => {
-      const staffGrade = {
-        ...testGrade,
+    it("generates title for professional track with non-Level level", () => {
+      const staffLevel = {
+        ...testLevel,
         professionalTitle: "Staff",
         managementTitle: "Senior Manager",
       };
-      const title = generateJobTitle(testDiscipline, staffGrade, testTrack);
-      // Grade is "Staff", so format is: "Staff Test Engineer - Test Track"
+      const title = generateJobTitle(testDiscipline, staffLevel, testTrack);
+      // Level is "Staff", so format is: "Staff Test Engineer - Test Track"
       assert.strictEqual(title, "Staff Test Engineer - Test Track");
     });
 
@@ -1805,7 +1809,7 @@ describe("Derivation", () => {
       };
       const title = generateJobTitle(
         managementDiscipline,
-        testGrade,
+        testLevel,
         testTrack,
       );
       // Management discipline format: "Manager, Role Title – Track Name"
@@ -1818,31 +1822,31 @@ describe("Derivation", () => {
         isProfessional: false,
         isManagement: true,
       };
-      const title = generateJobTitle(managementDiscipline, testGrade, null);
+      const title = generateJobTitle(managementDiscipline, testLevel, null);
       // Trackless management format: "Manager, Role Title"
       assert.strictEqual(title, "Manager, Test Engineer");
     });
 
     it("generates title for trackless professional discipline", () => {
-      const title = generateJobTitle(testDiscipline, testGrade, null);
+      const title = generateJobTitle(testDiscipline, testLevel, null);
       // Trackless professional format: "Test Engineer Level III"
       assert.strictEqual(title, "Test Engineer Level III");
     });
   });
 
-  describe("isSeniorGrade", () => {
-    it("returns false for grades below level 5", () => {
-      assert.strictEqual(isSeniorGrade(testGrade), false); // level 3
+  describe("isSeniorLevel", () => {
+    it("returns false for levels below level 5", () => {
+      assert.strictEqual(isSeniorLevel(testLevel), false); // level 3
       assert.strictEqual(
-        isSeniorGrade({ ...testGrade, ordinalRank: 4 }),
+        isSeniorLevel({ ...testLevel, ordinalRank: 4 }),
         false,
       );
     });
 
-    it("returns true for grades at level 5 or above", () => {
-      assert.strictEqual(isSeniorGrade({ ...testGrade, ordinalRank: 5 }), true);
-      assert.strictEqual(isSeniorGrade({ ...testGrade, ordinalRank: 6 }), true);
-      assert.strictEqual(isSeniorGrade({ ...testGrade, ordinalRank: 7 }), true);
+    it("returns true for levels at level 5 or above", () => {
+      assert.strictEqual(isSeniorLevel({ ...testLevel, ordinalRank: 5 }), true);
+      assert.strictEqual(isSeniorLevel({ ...testLevel, ordinalRank: 6 }), true);
+      assert.strictEqual(isSeniorLevel({ ...testLevel, ordinalRank: 7 }), true);
     });
   });
 
@@ -1850,7 +1854,7 @@ describe("Derivation", () => {
     it("calculates coverage for drivers", () => {
       const job = deriveJob({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: testTrack,
         skills: testSkills,
         behaviours: testBehaviours,
@@ -1875,7 +1879,7 @@ describe("Derivation", () => {
 describe("Matching", () => {
   const job = deriveJob({
     discipline: testDiscipline,
-    grade: testGrade,
+    level: testLevel,
     track: testTrack,
     skills: testSkills,
     behaviours: testBehaviours,
@@ -1884,7 +1888,7 @@ describe("Matching", () => {
   describe("calculateJobMatch", () => {
     it("calculates perfect match score", () => {
       const perfectAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "expert",
           skill_b: "foundational",
           skill_c: "foundational",
@@ -1906,7 +1910,7 @@ describe("Matching", () => {
     it("uses track matching weights", () => {
       const match = calculateJobMatch(
         {
-          skillLevels: {
+          skillProficiencies: {
             skill_a: "expert",
             skill_b: "foundational",
             skill_c: "foundational",
@@ -1928,7 +1932,7 @@ describe("Matching", () => {
 
     it("identifies gaps correctly", () => {
       const weakAssessment = {
-        skillLevels: { skill_a: "awareness" }, // Much lower than expert
+        skillProficiencies: { skill_a: "awareness" }, // Much lower than expert
         behaviourMaturities: { behaviour_x: "emerging" }, // Much lower than role_modeling
       };
 
@@ -1944,7 +1948,7 @@ describe("Matching", () => {
       // Job requires: skill_a=practitioner, skill_b=foundational, skill_c=foundational
       // Job requires: behaviour_x=role_modeling, behaviour_y=role_modeling
       const closeAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "working", // One below practitioner
           skill_b: "awareness", // One below foundational
           skill_c: "awareness", // One below foundational
@@ -1964,7 +1968,7 @@ describe("Matching", () => {
 
     it("includes tier classification", () => {
       const perfectAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "expert",
           skill_b: "foundational",
           skill_c: "foundational",
@@ -1986,7 +1990,7 @@ describe("Matching", () => {
 
     it("includes priority gaps (top 3)", () => {
       const weakAssessment = {
-        skillLevels: { skill_a: "awareness" }, // Much lower than expert
+        skillProficiencies: { skill_a: "awareness" }, // Much lower than expert
         behaviourMaturities: { behaviour_x: "emerging" }, // Much lower than role_modeling
       };
 
@@ -2000,11 +2004,11 @@ describe("Matching", () => {
       }
     });
 
-    it("includes expectations score for senior grades", () => {
-      const seniorGrade = {
-        ...testGrade,
-        ordinalRank: 5, // Senior grade (Principal level)
-        baseSkillLevels: {
+    it("includes expectations score for senior levels", () => {
+      const seniorLevel = {
+        ...testLevel,
+        ordinalRank: 5, // Senior level (Principal level)
+        baseSkillProficiencies: {
           core: "expert",
           secondary: "practitioner",
           broad: "working",
@@ -2020,14 +2024,14 @@ describe("Matching", () => {
 
       const seniorJob = deriveJob({
         discipline: testDiscipline,
-        grade: seniorGrade,
+        level: seniorLevel,
         track: testTrack,
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
       const assessmentWithExpectations = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "expert",
           skill_b: "practitioner",
           skill_c: "working",
@@ -2050,9 +2054,9 @@ describe("Matching", () => {
       assert.ok(match.expectationsScore >= 0 && match.expectationsScore <= 1);
     });
 
-    it("does not include expectations score for non-senior grades", () => {
+    it("does not include expectations score for non-senior levels", () => {
       const nonSeniorAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "expert",
           skill_b: "foundational",
           skill_c: "foundational",
@@ -2077,11 +2081,11 @@ describe("Matching", () => {
     it("returns ranked job matches", () => {
       const matches = findMatchingJobs({
         selfAssessment: {
-          skillLevels: { skill_a: "working" },
+          skillProficiencies: { skill_a: "working" },
           behaviourMaturities: { behaviour_x: "developing" },
         },
         disciplines: [testDiscipline],
-        grades: [testGrade],
+        levels: [testLevel],
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2094,9 +2098,9 @@ describe("Matching", () => {
 
     it("respects topN limit", () => {
       const matches = findMatchingJobs({
-        selfAssessment: { skillLevels: {}, behaviourMaturities: {} },
+        selfAssessment: { skillProficiencies: {}, behaviourMaturities: {} },
         disciplines: [testDiscipline],
-        grades: [testGrade, { ...testGrade, id: "grade2", ordinalRank: 2 }],
+        levels: [testLevel, { ...testLevel, id: "level2", ordinalRank: 2 }],
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2114,9 +2118,9 @@ describe("Matching", () => {
       };
 
       const matches = findMatchingJobs({
-        selfAssessment: { skillLevels: {}, behaviourMaturities: {} },
+        selfAssessment: { skillProficiencies: {}, behaviourMaturities: {} },
         disciplines: [disciplineWithValidTracks],
-        grades: [testGrade],
+        levels: [testLevel],
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2136,9 +2140,9 @@ describe("Matching", () => {
       };
 
       const matches = findMatchingJobs({
-        selfAssessment: { skillLevels: {}, behaviourMaturities: {} },
+        selfAssessment: { skillProficiencies: {}, behaviourMaturities: {} },
         disciplines: [disciplineWithValidTracks],
-        grades: [testGrade],
+        levels: [testLevel],
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2153,7 +2157,7 @@ describe("Matching", () => {
   describe("deriveDevelopmentPath", () => {
     it("identifies development items", () => {
       const weakAssessment = {
-        skillLevels: { skill_a: "foundational" },
+        skillProficiencies: { skill_a: "foundational" },
         behaviourMaturities: { behaviour_x: "emerging" },
       };
 
@@ -2168,7 +2172,7 @@ describe("Matching", () => {
 
     it("prioritizes primary skills", () => {
       const weakAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "awareness", // Primary skill, big gap
           skill_c: "awareness", // Broad skill, same gap
         },
@@ -2189,7 +2193,7 @@ describe("Matching", () => {
 
     it("returns empty items when fully qualified", () => {
       const perfectAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "expert",
           skill_b: "practitioner",
           skill_c: "working",
@@ -2210,12 +2214,12 @@ describe("Matching", () => {
   });
 
   describe("findNextStepJob", () => {
-    it("finds next grade level job", () => {
-      const grade2 = { ...testGrade, id: "grade2", ordinalRank: 2 };
-      const grade3 = { ...testGrade, id: "grade3", ordinalRank: 3 };
-      const grade4 = {
-        ...testGrade,
-        id: "grade4",
+    it("finds next level rank job", () => {
+      const level2 = { ...testLevel, id: "level2", ordinalRank: 2 };
+      const level3 = { ...testLevel, id: "level3", ordinalRank: 3 };
+      const level4 = {
+        ...testLevel,
+        id: "level4",
         ordinalRank: 4,
         professionalTitle: "Staff",
         managementTitle: "Senior Manager",
@@ -2223,7 +2227,7 @@ describe("Matching", () => {
 
       const currentJob = deriveJob({
         discipline: testDiscipline,
-        grade: grade3,
+        level: level3,
         track: testTrack,
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2231,37 +2235,37 @@ describe("Matching", () => {
 
       const result = findNextStepJob({
         selfAssessment: {
-          skillLevels: { skill_a: "practitioner" },
+          skillProficiencies: { skill_a: "practitioner" },
           behaviourMaturities: {},
         },
         currentJob,
         _disciplines: [testDiscipline],
-        grades: [grade2, grade3, grade4],
+        levels: [level2, level3, level4],
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
       assert.ok(result);
-      assert.strictEqual(result.job.grade.ordinalRank, 4);
+      assert.strictEqual(result.job.level.ordinalRank, 4);
     });
 
-    it("returns null when at top grade", () => {
-      const topGrade = { ...testGrade, id: "top_grade", ordinalRank: 7 };
+    it("returns null when at top level", () => {
+      const topLevel = { ...testLevel, id: "top_level", ordinalRank: 7 };
 
       const currentJob = deriveJob({
         discipline: testDiscipline,
-        grade: topGrade,
+        level: topLevel,
         track: testTrack,
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
       const result = findNextStepJob({
-        selfAssessment: { skillLevels: {}, behaviourMaturities: {} },
+        selfAssessment: { skillProficiencies: {}, behaviourMaturities: {} },
         currentJob,
         _disciplines: [testDiscipline],
-        grades: [topGrade],
+        levels: [topLevel],
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2334,53 +2338,53 @@ describe("Matching", () => {
     });
   });
 
-  describe("estimateBestFitGrade", () => {
-    const grades = [
+  describe("estimateBestFitLevel", () => {
+    const levels = [
       {
-        ...testGrade,
+        ...testLevel,
         id: "junior",
         ordinalRank: 1,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "awareness",
           secondary: "awareness",
           broad: "awareness",
         },
       },
       {
-        ...testGrade,
+        ...testLevel,
         id: "mid",
         ordinalRank: 2,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "foundational",
           secondary: "awareness",
           broad: "awareness",
         },
       },
       {
-        ...testGrade,
+        ...testLevel,
         id: "senior",
         ordinalRank: 3,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "working",
           secondary: "foundational",
           broad: "awareness",
         },
       },
       {
-        ...testGrade,
+        ...testLevel,
         id: "staff",
         ordinalRank: 4,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "practitioner",
           secondary: "working",
           broad: "foundational",
         },
       },
       {
-        ...testGrade,
+        ...testLevel,
         id: "principal",
         ordinalRank: 5,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "expert",
           secondary: "practitioner",
           broad: "working",
@@ -2388,59 +2392,62 @@ describe("Matching", () => {
       },
     ];
 
-    it("estimates lowest grade for awareness-level skills", () => {
-      const result = estimateBestFitGrade({
+    it("estimates lowest level for awareness-level skills", () => {
+      const result = estimateBestFitLevel({
         selfAssessment: {
-          skillLevels: { skill_a: "awareness", skill_b: "awareness" },
+          skillProficiencies: { skill_a: "awareness", skill_b: "awareness" },
         },
-        grades,
+        levels,
         skills: testSkills,
       });
 
-      assert.strictEqual(result.grade.id, "junior");
+      assert.strictEqual(result.level.id, "junior");
     });
 
-    it("estimates mid-level grade for working-level skills", () => {
-      const result = estimateBestFitGrade({
+    it("estimates mid-level level for working-level skills", () => {
+      const result = estimateBestFitLevel({
         selfAssessment: {
-          skillLevels: { skill_a: "working", skill_b: "working" },
+          skillProficiencies: { skill_a: "working", skill_b: "working" },
         },
-        grades,
+        levels,
         skills: testSkills,
       });
 
-      assert.strictEqual(result.grade.id, "senior");
+      assert.strictEqual(result.level.id, "senior");
     });
 
-    it("estimates top grade for expert-level skills", () => {
-      const result = estimateBestFitGrade({
+    it("estimates top level for expert-level skills", () => {
+      const result = estimateBestFitLevel({
         selfAssessment: {
-          skillLevels: { skill_a: "expert", skill_b: "expert" },
+          skillProficiencies: { skill_a: "expert", skill_b: "expert" },
         },
-        grades,
+        levels,
         skills: testSkills,
       });
 
-      assert.strictEqual(result.grade.id, "principal");
+      assert.strictEqual(result.level.id, "principal");
     });
 
-    it("returns lowest grade with 0 confidence for empty assessment", () => {
-      const result = estimateBestFitGrade({
-        selfAssessment: { skillLevels: {} },
-        grades,
+    it("returns lowest level with 0 confidence for empty assessment", () => {
+      const result = estimateBestFitLevel({
+        selfAssessment: { skillProficiencies: {} },
+        levels,
         skills: testSkills,
       });
 
-      assert.strictEqual(result.grade.id, "junior");
+      assert.strictEqual(result.level.id, "junior");
       assert.strictEqual(result.confidence, 0);
     });
 
     it("includes confidence level", () => {
-      const result = estimateBestFitGrade({
+      const result = estimateBestFitLevel({
         selfAssessment: {
-          skillLevels: { skill_a: "practitioner", skill_b: "practitioner" },
+          skillProficiencies: {
+            skill_a: "practitioner",
+            skill_b: "practitioner",
+          },
         },
-        grades,
+        levels,
         skills: testSkills,
       });
 
@@ -2449,32 +2456,32 @@ describe("Matching", () => {
   });
 
   describe("findRealisticMatches", () => {
-    const grades = [
+    const levels = [
       {
-        ...testGrade,
+        ...testLevel,
         id: "junior",
         ordinalRank: 1,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "awareness",
           secondary: "awareness",
           broad: "awareness",
         },
       },
       {
-        ...testGrade,
+        ...testLevel,
         id: "mid",
         ordinalRank: 2,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "foundational",
           secondary: "awareness",
           broad: "awareness",
         },
       },
       {
-        ...testGrade,
+        ...testLevel,
         id: "senior",
         ordinalRank: 3,
-        baseSkillLevels: {
+        baseSkillProficiencies: {
           primary: "working",
           secondary: "foundational",
           broad: "awareness",
@@ -2485,11 +2492,11 @@ describe("Matching", () => {
     it("returns matches grouped by tier", () => {
       const result = findRealisticMatches({
         selfAssessment: {
-          skillLevels: { skill_a: "working" },
+          skillProficiencies: { skill_a: "working" },
           behaviourMaturities: {},
         },
         disciplines: [testDiscipline],
-        grades,
+        levels,
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
@@ -2502,96 +2509,96 @@ describe("Matching", () => {
       assert.ok(result.matchesByTier[4] !== undefined);
     });
 
-    it("returns estimated grade", () => {
+    it("returns estimated level", () => {
       const result = findRealisticMatches({
         selfAssessment: {
-          skillLevels: { skill_a: "working" },
+          skillProficiencies: { skill_a: "working" },
           behaviourMaturities: {},
         },
         disciplines: [testDiscipline],
-        grades,
+        levels,
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
-      assert.ok(result.estimatedGrade);
-      assert.ok(result.estimatedGrade.grade);
-      assert.ok(result.estimatedGrade.confidence !== undefined);
+      assert.ok(result.estimatedLevel);
+      assert.ok(result.estimatedLevel.level);
+      assert.ok(result.estimatedLevel.confidence !== undefined);
     });
 
-    it("filters by grade range when enabled", () => {
+    it("filters by level range when enabled", () => {
       const result = findRealisticMatches({
         selfAssessment: {
-          skillLevels: { skill_a: "foundational" },
+          skillProficiencies: { skill_a: "foundational" },
           behaviourMaturities: {},
         },
         disciplines: [testDiscipline],
-        grades,
+        levels,
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
-        filterByGrade: true,
+        filterByLevel: true,
       });
 
-      // All matches should be within ±1 of estimated grade
-      const estimatedLevel = result.estimatedGrade.grade.ordinalRank;
+      // All matches should be within ±1 of estimated level
+      const estimatedLevel = result.estimatedLevel.level.ordinalRank;
       for (const match of result.matches) {
-        assert.ok(Math.abs(match.job.grade.ordinalRank - estimatedLevel) <= 1);
+        assert.ok(Math.abs(match.job.level.ordinalRank - estimatedLevel) <= 1);
       }
     });
 
-    it("includes grade range info", () => {
+    it("includes level range info", () => {
       const result = findRealisticMatches({
         selfAssessment: {
-          skillLevels: { skill_a: "working" },
+          skillProficiencies: { skill_a: "working" },
           behaviourMaturities: {},
         },
         disciplines: [testDiscipline],
-        grades,
+        levels,
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
-      assert.ok(result.gradeRange);
-      assert.ok(result.gradeRange.min !== undefined);
-      assert.ok(result.gradeRange.max !== undefined);
+      assert.ok(result.levelRange);
+      assert.ok(result.levelRange.min !== undefined);
+      assert.ok(result.levelRange.max !== undefined);
     });
 
-    it("sorts matches by grade level descending within each tier", () => {
+    it("sorts matches by level rank descending within each tier", () => {
       const result = findRealisticMatches({
         selfAssessment: {
-          skillLevels: { skill_a: "working" },
+          skillProficiencies: { skill_a: "working" },
           behaviourMaturities: {},
         },
         disciplines: [testDiscipline],
-        grades,
+        levels,
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
-        filterByGrade: false,
+        filterByLevel: false,
       });
 
-      // Check that each tier is sorted by grade level descending
+      // Check that each tier is sorted by level rank descending
       for (const tierNum of [1, 2, 3, 4]) {
         const tierMatches = result.matchesByTier[tierNum];
         for (let i = 1; i < tierMatches.length; i++) {
-          const prevLevel = tierMatches[i - 1].job.grade.ordinalRank;
-          const currLevel = tierMatches[i].job.grade.ordinalRank;
+          const prevLevel = tierMatches[i - 1].job.level.ordinalRank;
+          const currLevel = tierMatches[i].job.level.ordinalRank;
           // Should be descending or equal
           assert.ok(
             prevLevel >= currLevel,
-            `Tier ${tierNum} not sorted by grade descending`,
+            `Tier ${tierNum} not sorted by level descending`,
           );
         }
       }
     });
 
-    it("filters out lower grades when strong matches exist at higher levels", () => {
-      // Create a self-assessment that strongly matches senior grade
+    it("filters out lower levels when strong matches exist at higher levels", () => {
+      // Create a self-assessment that strongly matches senior level
       const seniorAssessment = {
-        skillLevels: {
+        skillProficiencies: {
           skill_a: "practitioner",
           skill_b: "working",
           skill_c: "foundational",
@@ -2605,33 +2612,33 @@ describe("Matching", () => {
       const result = findRealisticMatches({
         selfAssessment: seniorAssessment,
         disciplines: [testDiscipline],
-        grades,
+        levels,
         tracks: [testTrack],
         skills: testSkills,
         behaviours: testBehaviours,
-        filterByGrade: false, // Disable initial grade filtering to test the intelligent filter
+        filterByLevel: false, // Disable initial level filtering to test the intelligent filter
       });
 
-      // Find highest grade level with strong/good match
+      // Find highest level rank with strong/good match
       const strongGoodMatches = [
         ...result.matchesByTier[1],
         ...result.matchesByTier[2],
       ];
       if (strongGoodMatches.length > 0) {
         const highestLevel = Math.max(
-          ...strongGoodMatches.map((m) => m.job.grade.ordinalRank),
+          ...strongGoodMatches.map((m) => m.job.level.ordinalRank),
         );
 
         // Stretch/aspirational roles should only be at or above highest match level
         for (const match of result.matchesByTier[3]) {
           assert.ok(
-            match.job.grade.ordinalRank >= highestLevel,
+            match.job.level.ordinalRank >= highestLevel,
             "Stretch role should be at or above highest match",
           );
         }
         for (const match of result.matchesByTier[4]) {
           assert.ok(
-            match.job.grade.ordinalRank >= highestLevel,
+            match.job.level.ordinalRank >= highestLevel,
             "Aspirational role should be at or above highest match",
           );
         }
@@ -2647,14 +2654,14 @@ describe("Matching", () => {
 describe("Interview", () => {
   const job = deriveJob({
     discipline: testDiscipline,
-    grade: testGrade,
+    level: testLevel,
     track: testTrack,
     skills: testSkills,
     behaviours: testBehaviours,
   });
 
   const questionBank = {
-    skillLevels: {
+    skillProficiencies: {
       skill_a: {
         professionalQuestions: {
           practitioner: [
@@ -3030,21 +3037,21 @@ describe("Skill Modifiers", () => {
     });
   });
 
-  describe("deriveSkillLevel with capability modifiers", () => {
-    it("applies capability modifier when skills array is provided (capped at grade max)", () => {
+  describe("deriveSkillProficiency with capability modifiers", () => {
+    it("applies capability modifier when skills array is provided (capped at level max)", () => {
       const trackWithCapabilityModifier = {
         ...testTrack,
         skillModifiers: { scale: 1 },
       };
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: trackWithCapabilityModifier,
         skillId: "skill_a",
         skills: testSkills,
       });
       // skill_a is primary, base is practitioner (index 3), +1 would be expert
-      // but capped at grade max (practitioner)
+      // but capped at level max (practitioner)
       assert.strictEqual(level, "practitioner");
     });
 
@@ -3053,9 +3060,9 @@ describe("Skill Modifiers", () => {
         ...testTrack,
         skillModifiers: { scale: -1 },
       };
-      const level = deriveSkillLevel({
+      const level = deriveSkillProficiency({
         discipline: testDiscipline,
-        grade: testGrade,
+        level: testLevel,
         track: trackWithCapability,
         skillId: "skill_a",
         skills: testSkills,
@@ -3124,9 +3131,13 @@ describe("Checklist Derivation", () => {
   ];
 
   const testSkillMatrix = [
-    { skillId: "arch", level: "working", capability: "scale" },
-    { skillId: "devops", level: "foundational", capability: "reliability" },
-    { skillId: "collab", level: "working", capability: "people" },
+    { skillId: "arch", proficiency: "working", capability: "scale" },
+    {
+      skillId: "devops",
+      proficiency: "foundational",
+      capability: "reliability",
+    },
+    { skillId: "collab", proficiency: "working", capability: "people" },
   ];
 
   describe("deriveChecklist", () => {
@@ -3296,10 +3307,10 @@ describe("Profile Module", () => {
   describe("filterHighestLevel (from policies)", () => {
     it("keeps only skills at the highest level", () => {
       const skillMatrix = [
-        { skillId: "a", type: "primary", level: "practitioner" },
-        { skillId: "b", type: "broad", level: "practitioner" },
-        { skillId: "c", type: "secondary", level: "working" },
-        { skillId: "d", type: "broad", level: "foundational" },
+        { skillId: "a", type: "primary", proficiency: "practitioner" },
+        { skillId: "b", type: "broad", proficiency: "practitioner" },
+        { skillId: "c", type: "secondary", proficiency: "working" },
+        { skillId: "d", type: "broad", proficiency: "foundational" },
       ];
       const result = filterHighestLevel(skillMatrix);
       assert.strictEqual(result.length, 2);
@@ -3320,21 +3331,26 @@ describe("Profile Module", () => {
           skillId: "a",
           type: "primary",
           isHumanOnly: false,
-          level: "practitioner",
+          proficiency: "practitioner",
         },
         {
           skillId: "b",
           type: "broad",
           isHumanOnly: false,
-          level: "practitioner",
+          proficiency: "practitioner",
         },
         {
           skillId: "c",
           type: "secondary",
           isHumanOnly: true,
-          level: "practitioner",
+          proficiency: "practitioner",
         },
-        { skillId: "d", type: "broad", isHumanOnly: false, level: "working" },
+        {
+          skillId: "d",
+          type: "broad",
+          isHumanOnly: false,
+          proficiency: "working",
+        },
       ];
       const result = filterAgentSkills(skillMatrix);
       // Should include: a (practitioner), b (practitioner broad, same level)
@@ -3348,9 +3364,9 @@ describe("Profile Module", () => {
   describe("compareByLevelDesc (from policies)", () => {
     it("sorts skills by level from expert to awareness", () => {
       const skillMatrix = [
-        { skillId: "a", level: "awareness" },
-        { skillId: "b", level: "expert" },
-        { skillId: "c", level: "working" },
+        { skillId: "a", proficiency: "awareness" },
+        { skillId: "b", proficiency: "expert" },
+        { skillId: "c", proficiency: "working" },
       ];
       const result = [...skillMatrix].sort(compareByLevelDesc);
       assert.strictEqual(result[0].skillId, "b"); // expert
@@ -3360,8 +3376,8 @@ describe("Profile Module", () => {
 
     it("does not mutate original array when used with spread", () => {
       const original = [
-        { skillId: "a", level: "awareness" },
-        { skillId: "b", level: "expert" },
+        { skillId: "a", proficiency: "awareness" },
+        { skillId: "b", proficiency: "expert" },
       ];
       [...original].sort(compareByLevelDesc);
       assert.strictEqual(original[0].skillId, "a");
@@ -3387,7 +3403,7 @@ describe("Profile Module", () => {
       const result = prepareBaseProfile({
         discipline: testDiscipline,
         track: testTrack,
-        grade: testGrade,
+        level: testLevel,
         skills: testSkills,
         behaviours: testBehaviours,
       });
@@ -3395,7 +3411,7 @@ describe("Profile Module", () => {
       assert.ok(result.behaviourProfile.length > 0);
       assert.strictEqual(result.discipline, testDiscipline);
       assert.strictEqual(result.track, testTrack);
-      assert.strictEqual(result.grade, testGrade);
+      assert.strictEqual(result.level, testLevel);
     });
 
     it("includes human-only skills in raw derivation", () => {
@@ -3417,7 +3433,7 @@ describe("Profile Module", () => {
       const result = prepareBaseProfile({
         discipline: disciplineWithHumanSkill,
         track: testTrack,
-        grade: testGrade,
+        level: testLevel,
         skills: skillsWithHumanOnly,
         behaviours: testBehaviours,
       });
@@ -3430,7 +3446,7 @@ describe("Profile Module", () => {
       const result = prepareBaseProfile({
         discipline: testDiscipline,
         track: testTrack,
-        grade: testGrade,
+        level: testLevel,
         skills: testSkills,
         behaviours: testBehaviours,
         capabilities: testCategories,
@@ -3444,18 +3460,19 @@ describe("Profile Module", () => {
       const result = prepareAgentProfile({
         discipline: testDiscipline,
         track: testTrack,
-        grade: testGrade,
+        level: testLevel,
         skills: testSkills,
         behaviours: testBehaviours,
       });
 
       // Skills should be sorted by level descending
       if (result.skillMatrix.length > 1) {
-        const firstLevel = result.skillMatrix[0].level;
+        const firstLevel = result.skillMatrix[0].proficiency;
         const lastLevel =
-          result.skillMatrix[result.skillMatrix.length - 1].level;
+          result.skillMatrix[result.skillMatrix.length - 1].proficiency;
         assert.ok(
-          getSkillLevelIndex(firstLevel) >= getSkillLevelIndex(lastLevel),
+          getSkillProficiencyIndex(firstLevel) >=
+            getSkillProficiencyIndex(lastLevel),
         );
       }
     });
@@ -3478,7 +3495,7 @@ describe("Profile Module", () => {
       const result = prepareAgentProfile({
         discipline: disciplineWithHumanSkill,
         track: testTrack,
-        grade: testGrade,
+        level: testLevel,
         skills: skillsWithHumanOnly,
         behaviours: testBehaviours,
       });
@@ -3492,131 +3509,155 @@ describe("Profile Module", () => {
 // Agent Module Tests
 // ============================================================================
 
-import { deriveReferenceGrade } from "@forwardimpact/libpathway/agent";
+import { deriveReferenceLevel } from "@forwardimpact/libpathway/agent";
 
 describe("Agent Module", () => {
-  describe("deriveReferenceGrade", () => {
-    it("selects first grade with practitioner-level primary skills", () => {
-      const grades = [
+  describe("deriveReferenceLevel", () => {
+    it("selects first level with practitioner-level primary skills", () => {
+      const levels = [
         {
           id: "junior",
           ordinalRank: 1,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
-        { id: "mid", ordinalRank: 2, baseSkillLevels: { primary: "working" } },
+        {
+          id: "mid",
+          ordinalRank: 2,
+          baseSkillProficiencies: { primary: "working" },
+        },
         {
           id: "senior",
           ordinalRank: 3,
-          baseSkillLevels: { primary: "practitioner" },
+          baseSkillProficiencies: { primary: "practitioner" },
         },
-        { id: "staff", ordinalRank: 4, baseSkillLevels: { primary: "expert" } },
+        {
+          id: "staff",
+          ordinalRank: 4,
+          baseSkillProficiencies: { primary: "expert" },
+        },
       ];
-      const result = deriveReferenceGrade(grades);
+      const result = deriveReferenceLevel(levels);
       assert.strictEqual(result.id, "senior");
     });
 
-    it("falls back to first working-level grade when no practitioner exists", () => {
-      const grades = [
+    it("falls back to first working-level level when no practitioner exists", () => {
+      const levels = [
         {
           id: "junior",
           ordinalRank: 1,
-          baseSkillLevels: { primary: "awareness" },
+          baseSkillProficiencies: { primary: "awareness" },
         },
-        { id: "mid", ordinalRank: 2, baseSkillLevels: { primary: "working" } },
+        {
+          id: "mid",
+          ordinalRank: 2,
+          baseSkillProficiencies: { primary: "working" },
+        },
         {
           id: "senior",
           ordinalRank: 3,
-          baseSkillLevels: { primary: "working" },
+          baseSkillProficiencies: { primary: "working" },
         },
       ];
-      const result = deriveReferenceGrade(grades);
+      const result = deriveReferenceLevel(levels);
       assert.strictEqual(result.id, "mid");
     });
 
-    it("falls back to middle grade when no practitioner or working exists", () => {
-      const grades = [
-        { id: "G1", ordinalRank: 1, baseSkillLevels: { primary: "awareness" } },
+    it("falls back to middle level when no practitioner or working exists", () => {
+      const levels = [
+        {
+          id: "G1",
+          ordinalRank: 1,
+          baseSkillProficiencies: { primary: "awareness" },
+        },
         {
           id: "G2",
           ordinalRank: 2,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
         {
           id: "G3",
           ordinalRank: 3,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
         {
           id: "G4",
           ordinalRank: 4,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
         {
           id: "G5",
           ordinalRank: 5,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
       ];
-      const result = deriveReferenceGrade(grades);
+      const result = deriveReferenceLevel(levels);
       assert.strictEqual(result.id, "G3"); // index 2 = floor(5/2)
     });
 
-    it("handles unsorted grade input", () => {
-      const grades = [
-        { id: "staff", ordinalRank: 4, baseSkillLevels: { primary: "expert" } },
+    it("handles unsorted level input", () => {
+      const levels = [
+        {
+          id: "staff",
+          ordinalRank: 4,
+          baseSkillProficiencies: { primary: "expert" },
+        },
         {
           id: "junior",
           ordinalRank: 1,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
         {
           id: "senior",
           ordinalRank: 3,
-          baseSkillLevels: { primary: "practitioner" },
+          baseSkillProficiencies: { primary: "practitioner" },
         },
-        { id: "mid", ordinalRank: 2, baseSkillLevels: { primary: "working" } },
+        {
+          id: "mid",
+          ordinalRank: 2,
+          baseSkillProficiencies: { primary: "working" },
+        },
       ];
-      const result = deriveReferenceGrade(grades);
+      const result = deriveReferenceLevel(levels);
       assert.strictEqual(result.id, "senior");
     });
 
-    it("throws when no grades provided", () => {
-      assert.throws(() => deriveReferenceGrade([]), /No grades configured/);
-      assert.throws(() => deriveReferenceGrade(null), /No grades configured/);
+    it("throws when no levels provided", () => {
+      assert.throws(() => deriveReferenceLevel([]), /No levels configured/);
+      assert.throws(() => deriveReferenceLevel(null), /No levels configured/);
     });
 
-    it("works with single grade", () => {
-      const grades = [
+    it("works with single level", () => {
+      const levels = [
         {
           id: "only",
           ordinalRank: 1,
-          baseSkillLevels: { primary: "awareness" },
+          baseSkillProficiencies: { primary: "awareness" },
         },
       ];
-      const result = deriveReferenceGrade(grades);
+      const result = deriveReferenceLevel(levels);
       assert.strictEqual(result.id, "only");
     });
 
-    it("works with different grade ID naming conventions", () => {
-      // Customer might use L1/L2/L3 or Grade1/Grade2 or anything
-      const grades = [
+    it("works with different level ID naming conventions", () => {
+      // Customer might use L1/L2/L3 or Level1/Level2 or anything
+      const levels = [
         {
           id: "Band-A",
           ordinalRank: 1,
-          baseSkillLevels: { primary: "foundational" },
+          baseSkillProficiencies: { primary: "foundational" },
         },
         {
           id: "Band-B",
           ordinalRank: 2,
-          baseSkillLevels: { primary: "working" },
+          baseSkillProficiencies: { primary: "working" },
         },
         {
           id: "Band-C",
           ordinalRank: 3,
-          baseSkillLevels: { primary: "practitioner" },
+          baseSkillProficiencies: { primary: "practitioner" },
         },
       ];
-      const result = deriveReferenceGrade(grades);
+      const result = deriveReferenceLevel(levels);
       assert.strictEqual(result.id, "Band-C");
     });
   });

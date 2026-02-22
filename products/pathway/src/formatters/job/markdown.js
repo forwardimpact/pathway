@@ -9,7 +9,7 @@ import {
 } from "../shared.js";
 import { formatLevel } from "../../lib/render.js";
 import { formatJobDescription } from "./description.js";
-import { SKILL_LEVEL_ORDER } from "@forwardimpact/map/levels";
+import { SKILL_PROFICIENCY_ORDER } from "@forwardimpact/map/levels";
 import { toolkitToMarkdown } from "../toolkit/markdown.js";
 
 /**
@@ -23,7 +23,7 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
   const lines = [
     `# ${view.title}`,
     "",
-    `${view.disciplineName} × ${view.gradeId} × ${view.trackName}`,
+    `${view.disciplineName} × ${view.levelId} × ${view.trackName}`,
     "",
   ];
 
@@ -46,8 +46,8 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
   // Skill Matrix - sorted by level descending
   lines.push("## Skill Matrix", "");
   const sortedSkills = [...view.skillMatrix].sort((a, b) => {
-    const levelA = SKILL_LEVEL_ORDER.indexOf(a.level);
-    const levelB = SKILL_LEVEL_ORDER.indexOf(b.level);
+    const levelA = SKILL_PROFICIENCY_ORDER.indexOf(a.level);
+    const levelB = SKILL_PROFICIENCY_ORDER.indexOf(b.level);
     if (levelB !== levelA) {
       return levelB - levelA;
     }
@@ -55,7 +55,7 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
   });
   const skillRows = sortedSkills.map((s) => [
     s.skillName,
-    formatLevel(s.level),
+    formatLevel(s.proficiency),
   ]);
   lines.push(tableToMarkdown(["Skill", "Level"], skillRows));
   lines.push("");
@@ -86,7 +86,7 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
   }
 
   // Job Description (copyable markdown)
-  if (entities.discipline && entities.grade && jobTemplate) {
+  if (entities.discipline && entities.proficiency && jobTemplate) {
     lines.push("---", "");
     lines.push("## Job Description", "");
     lines.push("```markdown");
@@ -101,7 +101,7 @@ export function jobToMarkdown(view, entities = {}, jobTemplate) {
             derivedResponsibilities: view.derivedResponsibilities,
           },
           discipline: entities.discipline,
-          grade: entities.grade,
+          level: entities.proficiency,
           track: entities.track,
         },
         jobTemplate,

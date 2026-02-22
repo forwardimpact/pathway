@@ -18,7 +18,7 @@ import { renderSkillSlide } from "./slides/skill.js";
 import { renderBehaviourSlide } from "./slides/behaviour.js";
 import { renderDriverSlide } from "./slides/driver.js";
 import { renderDisciplineSlide } from "./slides/discipline.js";
-import { renderGradeSlide } from "./slides/grade.js";
+import { renderLevelSlide } from "./slides/level.js";
 import { renderTrackSlide } from "./slides/track.js";
 import { renderJobSlide } from "./slides/job.js";
 import { renderInterviewSlide } from "./slides/interview.js";
@@ -140,9 +140,9 @@ function setupRoutes() {
     });
   });
 
-  // Grades
-  router.on("/grade/:id", (params) => {
-    renderGradeSlide({ render: renderSlide, data: getState().data, params });
+  // Levels
+  router.on("/level/:id", (params) => {
+    renderLevelSlide({ render: renderSlide, data: getState().data, params });
   });
 
   // Tracks
@@ -150,12 +150,12 @@ function setupRoutes() {
     renderTrackSlide({ render: renderSlide, data: getState().data, params });
   });
 
-  // Jobs - new format: discipline/grade/track (track optional)
-  router.on("/job/:discipline/:grade/:track", (params) => {
+  // Jobs - new format: discipline/level/track (track optional)
+  router.on("/job/:discipline/:level/:track", (params) => {
     renderJobSlide({ render: renderSlide, data: getState().data, params });
   });
 
-  router.on("/job/:discipline/:grade", (params) => {
+  router.on("/job/:discipline/:level", (params) => {
     renderJobSlide({
       render: renderSlide,
       data: getState().data,
@@ -163,8 +163,8 @@ function setupRoutes() {
     });
   });
 
-  // Interviews - new format: discipline/grade/track (track optional)
-  router.on("/interview/:discipline/:grade/:track", (params) => {
+  // Interviews - new format: discipline/level/track (track optional)
+  router.on("/interview/:discipline/:level/:track", (params) => {
     renderInterviewSlide({
       render: renderSlide,
       data: getState().data,
@@ -172,7 +172,7 @@ function setupRoutes() {
     });
   });
 
-  router.on("/interview/:discipline/:grade", (params) => {
+  router.on("/interview/:discipline/:level", (params) => {
     renderInterviewSlide({
       render: renderSlide,
       data: getState().data,
@@ -180,12 +180,12 @@ function setupRoutes() {
     });
   });
 
-  // Progress - new format: discipline/grade/track (track optional)
-  router.on("/progress/:discipline/:grade/:track", (params) => {
+  // Progress - new format: discipline/level/track (track optional)
+  router.on("/progress/:discipline/:level/:track", (params) => {
     renderProgressSlide({ render: renderSlide, data: getState().data, params });
   });
 
-  router.on("/progress/:discipline/:grade", (params) => {
+  router.on("/progress/:discipline/:level", (params) => {
     renderProgressSlide({
       render: renderSlide,
       data: getState().data,
@@ -211,15 +211,15 @@ function buildSlideOrder(data) {
     data.disciplines.forEach((d) => order.push(`/discipline/${d.id}`));
   }
 
-  // Grades (moved before Tracks)
-  if (data.grades && data.grades.length > 0) {
+  // Levels (moved before Tracks)
+  if (data.levels && data.levels.length > 0) {
     boundaries.push(order.length);
-    order.push("/chapter/grade");
-    order.push("/overview/grade");
-    data.grades.forEach((g) => order.push(`/grade/${g.id}`));
+    order.push("/chapter/level");
+    order.push("/overview/level");
+    data.levels.forEach((g) => order.push(`/level/${g.id}`));
   }
 
-  // Tracks (moved after Grades)
+  // Tracks (moved after Levels)
   if (data.tracks && data.tracks.length > 0) {
     boundaries.push(order.length);
     order.push("/chapter/track");
@@ -254,7 +254,7 @@ function buildSlideOrder(data) {
   // Jobs
   const jobs = generateAllJobs({
     disciplines: data.disciplines,
-    grades: data.grades,
+    levels: data.levels,
     tracks: data.tracks,
     skills: data.skills,
     behaviours: data.behaviours,
@@ -267,8 +267,8 @@ function buildSlideOrder(data) {
     jobs.forEach((job) =>
       order.push(
         job.track
-          ? `/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
-          : `/job/${job.discipline.id}/${job.grade.id}`,
+          ? `/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
+          : `/job/${job.discipline.id}/${job.level.id}`,
       ),
     );
   }

@@ -2,12 +2,12 @@
  * Career Progression Functions
  *
  * This module provides pure functions for calculating skill and behaviour
- * changes between job definitions, supporting both grade progression and
+ * changes between job definitions, supporting both level progression and
  * track comparison scenarios.
  */
 
 import {
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
 } from "@forwardimpact/map/levels";
 import { deriveJob, isValidJobCombination } from "./derivation.js";
@@ -22,8 +22,8 @@ import {
  * @property {string} name - Skill name
  * @property {string} capability - Skill capability
  * @property {string} type - Skill type (primary/secondary/broad)
- * @property {string|null} currentLevel - Current skill level (null if skill is gained)
- * @property {string|null} targetLevel - Target skill level (null if skill is lost)
+ * @property {string|null} currentLevel - Current skill proficiency (null if skill is gained)
+ * @property {string|null} targetLevel - Target skill proficiency (null if skill is lost)
  * @property {number} currentIndex - Current level index (0-4, or -1 if not present)
  * @property {number} targetIndex - Target level index (0-4, or -1 if not present)
  * @property {number} change - Difference between target and current index
@@ -57,7 +57,7 @@ import {
  */
 
 /**
- * Calculate skill level changes between two skill matrices
+ * Calculate skill proficiency changes between two skill matrices
  * Handles cross-discipline comparisons by including gained and lost skills
  * @param {Array} currentMatrix - Current skill matrix entries
  * @param {Array} targetMatrix - Target skill matrix entries
@@ -74,8 +74,8 @@ export function calculateSkillChanges(currentMatrix, targetMatrix) {
 
     if (target) {
       // Skill exists in both - calculate level change
-      const currentIndex = getSkillLevelIndex(current.level);
-      const targetIndex = getSkillLevelIndex(target.level);
+      const currentIndex = getSkillProficiencyIndex(current.proficiency);
+      const targetIndex = getSkillProficiencyIndex(target.proficiency);
       const change = targetIndex - currentIndex;
 
       changes.push({
@@ -83,28 +83,28 @@ export function calculateSkillChanges(currentMatrix, targetMatrix) {
         name: current.skillName,
         capability: current.capability,
         type: current.type,
-        currentLevel: current.level,
-        targetLevel: target.level,
+        currentLevel: current.proficiency,
+        targetLevel: target.proficiency,
         currentIndex,
         targetIndex,
         change,
-        currentDescription: current.levelDescription,
-        targetDescription: target.levelDescription,
+        currentDescription: current.proficiencyDescription,
+        targetDescription: target.proficiencyDescription,
       });
     } else {
       // Skill is lost (in current but not in target)
-      const currentIndex = getSkillLevelIndex(current.level);
+      const currentIndex = getSkillProficiencyIndex(current.proficiency);
       changes.push({
         id: current.skillId,
         name: current.skillName,
         capability: current.capability,
         type: current.type,
-        currentLevel: current.level,
+        currentLevel: current.proficiency,
         targetLevel: null,
         currentIndex,
         targetIndex: -1,
         change: -(currentIndex + 1), // Negative change representing loss
-        currentDescription: current.levelDescription,
+        currentDescription: current.proficiencyDescription,
         targetDescription: null,
         isLost: true,
       });
@@ -114,19 +114,19 @@ export function calculateSkillChanges(currentMatrix, targetMatrix) {
   // Process skills only in target matrix (gained skills)
   for (const target of targetMatrix) {
     if (!processedSkillIds.has(target.skillId)) {
-      const targetIndex = getSkillLevelIndex(target.level);
+      const targetIndex = getSkillProficiencyIndex(target.proficiency);
       changes.push({
         id: target.skillId,
         name: target.skillName,
         capability: target.capability,
         type: target.type,
         currentLevel: null,
-        targetLevel: target.level,
+        targetLevel: target.proficiency,
         currentIndex: -1,
         targetIndex,
         change: targetIndex + 1, // Positive change representing gain
         currentDescription: null,
-        targetDescription: target.levelDescription,
+        targetDescription: target.proficiencyDescription,
         isGained: true,
       });
     }
@@ -230,44 +230,44 @@ export function analyzeProgression(currentJob, targetJob) {
 }
 
 /**
- * Analyze grade progression for a role
+ * Analyze level progression for a role
  * @param {Object} params
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - Current grade
+ * @param {Object} params.level - Current level
  * @param {Object} params.track - The track
- * @param {Object} params.nextGrade - Target grade (optional, will find next if not provided)
- * @param {Array} params.grades - All grades (needed if nextGrade not provided)
+ * @param {Object} params.nextLevel - Target level (optional, will find next if not provided)
+ * @param {Array} params.levels - All levels (needed if nextLevel not provided)
  * @param {Array} params.skills - All skills
  * @param {Array} params.behaviours - All behaviours
- * @returns {ProgressionAnalysis|null} Progression analysis or null if no next grade
+ * @returns {ProgressionAnalysis|null} Progression analysis or null if no next level
  */
-export function analyzeGradeProgression({
+export function analyzeLevelProgression({
   discipline,
-  grade,
+  level,
   track,
-  nextGrade,
-  grades,
+  nextLevel,
+  levels,
   skills,
   behaviours,
 }) {
-  // Find next grade if not provided
-  let targetGrade = nextGrade;
-  if (!targetGrade && grades) {
-    const sortedGrades = [...grades].sort(
+  // Find next level if not provided
+  let targetLevel = nextLevel;
+  if (!targetLevel && levels) {
+    const sortedLevels = [...levels].sort(
       (a, b) => a.ordinalRank - b.ordinalRank,
     );
-    const currentIndex = sortedGrades.findIndex((g) => g.id === grade.id);
-    targetGrade = sortedGrades[currentIndex + 1];
+    const currentIndex = sortedLevels.findIndex((g) => g.id === level.id);
+    targetLevel = sortedLevels[currentIndex + 1];
   }
 
-  if (!targetGrade) {
+  if (!targetLevel) {
     return null;
   }
 
   // Create job definitions
   const currentJob = deriveJob({
     discipline,
-    grade,
+    level,
     track,
     skills,
     behaviours,
@@ -275,7 +275,7 @@ export function analyzeGradeProgression({
 
   const targetJob = deriveJob({
     discipline,
-    grade: targetGrade,
+    level: targetLevel,
     track,
     skills,
     behaviours,
@@ -289,29 +289,29 @@ export function analyzeGradeProgression({
 }
 
 /**
- * Analyze track comparison at the same grade
+ * Analyze track comparison at the same level
  * @param {Object} params
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Object} params.currentTrack - Current track
  * @param {Object} params.targetTrack - Target track to compare
  * @param {Array} params.skills - All skills
  * @param {Array} params.behaviours - All behaviours
- * @param {Array} params.grades - All grades (for validation)
+ * @param {Array} params.levels - All levels (for validation)
  * @returns {ProgressionAnalysis|null} Progression analysis or null if invalid combination
  */
 export function analyzeTrackComparison({
   discipline,
-  grade,
+  level,
   currentTrack,
   targetTrack,
   skills,
   behaviours,
-  grades,
+  levels,
 }) {
   // Check if target track is valid for this discipline
   if (
-    !isValidJobCombination({ discipline, grade, track: targetTrack, grades })
+    !isValidJobCombination({ discipline, level, track: targetTrack, levels })
   ) {
     return null;
   }
@@ -319,7 +319,7 @@ export function analyzeTrackComparison({
   // Create job definitions
   const currentJob = deriveJob({
     discipline,
-    grade,
+    level,
     track: currentTrack,
     skills,
     behaviours,
@@ -327,7 +327,7 @@ export function analyzeTrackComparison({
 
   const targetJob = deriveJob({
     discipline,
-    grade,
+    level,
     track: targetTrack,
     skills,
     behaviours,
@@ -341,83 +341,83 @@ export function analyzeTrackComparison({
 }
 
 /**
- * Get all valid tracks for comparison given a discipline and grade
+ * Get all valid tracks for comparison given a discipline and level
  * @param {Object} params
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Object} params.currentTrack - Current track (will be excluded from results)
  * @param {Array} params.tracks - All available tracks
- * @param {Array} params.grades - All grades (for validation)
+ * @param {Array} params.levels - All levels (for validation)
  * @returns {Array} Valid tracks for comparison
  */
 export function getValidTracksForComparison({
   discipline,
-  grade,
+  level,
   currentTrack,
   tracks,
-  grades,
+  levels,
 }) {
   return tracks.filter(
     (t) =>
       t.id !== currentTrack.id &&
-      isValidJobCombination({ discipline, grade, track: t, grades }),
+      isValidJobCombination({ discipline, level, track: t, levels }),
   );
 }
 
 /**
- * Get the next grade in the progression
- * @param {Object} grade - Current grade
- * @param {Array} grades - All grades
- * @returns {Object|null} Next grade or null if at highest
+ * Get the next level in the progression
+ * @param {Object} level - Current level
+ * @param {Array} levels - All levels
+ * @returns {Object|null} Next level or null if at highest
  */
-export function getNextGrade(grade, grades) {
-  const sortedGrades = [...grades].sort(
+export function getNextLevel(level, levels) {
+  const sortedLevels = [...levels].sort(
     (a, b) => a.ordinalRank - b.ordinalRank,
   );
-  const currentIndex = sortedGrades.findIndex((g) => g.id === grade.id);
-  return sortedGrades[currentIndex + 1] || null;
+  const currentIndex = sortedLevels.findIndex((g) => g.id === level.id);
+  return sortedLevels[currentIndex + 1] || null;
 }
 
 /**
- * Get the previous grade in the progression
- * @param {Object} grade - Current grade
- * @param {Array} grades - All grades
- * @returns {Object|null} Previous grade or null if at lowest
+ * Get the previous level in the progression
+ * @param {Object} level - Current level
+ * @param {Array} levels - All levels
+ * @returns {Object|null} Previous level or null if at lowest
  */
-export function getPreviousGrade(grade, grades) {
-  const sortedGrades = [...grades].sort(
+export function getPreviousLevel(level, levels) {
+  const sortedLevels = [...levels].sort(
     (a, b) => a.ordinalRank - b.ordinalRank,
   );
-  const currentIndex = sortedGrades.findIndex((g) => g.id === grade.id);
-  return currentIndex > 0 ? sortedGrades[currentIndex - 1] : null;
+  const currentIndex = sortedLevels.findIndex((g) => g.id === level.id);
+  return currentIndex > 0 ? sortedLevels[currentIndex - 1] : null;
 }
 
 /**
- * Analyze custom progression from current role to any target discipline × grade × track combination
+ * Analyze custom progression from current role to any target discipline × level × track combination
  * This is the main abstraction for comparing arbitrary role combinations.
  *
  * @param {Object} params
  * @param {Object} params.discipline - Current discipline
- * @param {Object} params.currentGrade - Current grade
+ * @param {Object} params.currentLevel - Current level
  * @param {Object} params.currentTrack - Current track
  * @param {Object} [params.targetDiscipline] - Target discipline (defaults to current discipline)
- * @param {Object} params.targetGrade - Target grade for comparison
+ * @param {Object} params.targetLevel - Target level for comparison
  * @param {Object} params.targetTrack - Target track for comparison
  * @param {Array} params.skills - All skills
  * @param {Array} params.behaviours - All behaviours
- * @param {Array} params.grades - All grades (for validation)
+ * @param {Array} params.levels - All levels (for validation)
  * @returns {ProgressionAnalysis|null} Progression analysis or null if invalid combination
  */
 export function analyzeCustomProgression({
   discipline,
-  currentGrade,
+  currentLevel,
   currentTrack,
   targetDiscipline,
-  targetGrade,
+  targetLevel,
   targetTrack,
   skills,
   behaviours,
-  grades,
+  levels,
 }) {
   // Use current discipline if target not specified
   const targetDisc = targetDiscipline || discipline;
@@ -426,9 +426,9 @@ export function analyzeCustomProgression({
   if (
     !isValidJobCombination({
       discipline: targetDisc,
-      grade: targetGrade,
+      level: targetLevel,
       track: targetTrack,
-      grades,
+      levels,
     })
   ) {
     return null;
@@ -437,7 +437,7 @@ export function analyzeCustomProgression({
   // Create current job definition
   const currentJob = deriveJob({
     discipline,
-    grade: currentGrade,
+    level: currentLevel,
     track: currentTrack,
     skills,
     behaviours,
@@ -446,7 +446,7 @@ export function analyzeCustomProgression({
   // Create target job definition
   const targetJob = deriveJob({
     discipline: targetDisc,
-    grade: targetGrade,
+    level: targetLevel,
     track: targetTrack,
     skills,
     behaviours,
@@ -460,43 +460,43 @@ export function analyzeCustomProgression({
 }
 
 /**
- * Get all valid grade × track combinations for a discipline
+ * Get all valid level × track combinations for a discipline
  * Useful for populating dropdowns in the UI
  *
  * @param {Object} params
  * @param {Object} params.discipline - The discipline
- * @param {Array} params.grades - All grades
+ * @param {Array} params.levels - All levels
  * @param {Array} params.tracks - All tracks
- * @param {Object} [params.excludeGrade] - Optional grade to exclude
+ * @param {Object} [params.excludeLevel] - Optional level to exclude
  * @param {Object} [params.excludeTrack] - Optional track to exclude
- * @returns {Array<{grade: Object, track: Object}>} Valid combinations
+ * @returns {Array<{level: Object, track: Object}>} Valid combinations
  */
-export function getValidGradeTrackCombinations({
+export function getValidLevelTrackCombinations({
   discipline,
-  grades,
+  levels,
   tracks,
-  excludeGrade,
+  excludeLevel,
   excludeTrack,
 }) {
   const combinations = [];
 
-  for (const grade of grades) {
+  for (const level of levels) {
     for (const track of tracks) {
       // Skip if this is the excluded combination
-      if (excludeGrade?.id === grade.id && excludeTrack?.id === track.id) {
+      if (excludeLevel?.id === level.id && excludeTrack?.id === track.id) {
         continue;
       }
 
-      if (isValidJobCombination({ discipline, grade, track, grades })) {
-        combinations.push({ grade, track });
+      if (isValidJobCombination({ discipline, level, track, levels })) {
+        combinations.push({ level, track });
       }
     }
   }
 
-  // Sort by grade level, then by track name
+  // Sort by level rank, then by track name
   combinations.sort((a, b) => {
-    if (a.grade.ordinalRank !== b.grade.ordinalRank) {
-      return a.grade.ordinalRank - b.grade.ordinalRank;
+    if (a.level.ordinalRank !== b.level.ordinalRank) {
+      return a.level.ordinalRank - b.level.ordinalRank;
     }
     return a.track.name.localeCompare(b.track.name);
   });

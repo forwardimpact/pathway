@@ -8,8 +8,8 @@
 export {
   buildSkillTypeMap,
   getSkillTypeForDiscipline,
-  findMaxBaseSkillLevel,
-  deriveSkillLevel,
+  findMaxBaseSkillProficiency,
+  deriveSkillProficiency,
   deriveBehaviourMaturity,
   deriveSkillMatrix,
   deriveBehaviourProfile,
@@ -19,8 +19,8 @@ export {
   deriveJob,
   calculateDriverCoverage,
   getDisciplineSkillIds,
-  getGradeLevel,
-  isSeniorGrade,
+  getLevelRank,
+  isSeniorLevel,
   generateAllJobs,
 } from "./derivation.js";
 
@@ -60,7 +60,7 @@ export {
   calculateGapScore,
   calculateJobMatch,
   findMatchingJobs,
-  estimateBestFitGrade,
+  estimateBestFitLevel,
   findRealisticMatches,
   deriveDevelopmentPath,
   findNextStepJob,
@@ -72,13 +72,13 @@ export {
   calculateSkillChanges,
   calculateBehaviourChanges,
   analyzeProgression,
-  analyzeGradeProgression,
+  analyzeLevelProgression,
   analyzeTrackComparison,
   getValidTracksForComparison,
-  getNextGrade,
-  getPreviousGrade,
+  getNextLevel,
+  getPreviousLevel,
   analyzeCustomProgression,
-  getValidGradeTrackCombinations,
+  getValidLevelTrackCombinations,
 } from "./progression.js";
 
 // Interview
@@ -94,7 +94,7 @@ export {
 
 // Agent generation
 export {
-  deriveReferenceGrade,
+  deriveReferenceLevel,
   getDisciplineAbbreviation,
   toKebabCase,
   deriveAgentSkills,
@@ -140,8 +140,8 @@ export {
   WEIGHT_CAPABILITY_DECOMP_SCALE,
   WEIGHT_CAPABILITY_DECOMP_RELIABILITY,
   WEIGHT_FOCUS_BOOST,
-  // Senior grade
-  THRESHOLD_SENIOR_GRADE,
+  // Senior level
+  THRESHOLD_SENIOR_LEVEL,
   // Assessment weights
   WEIGHT_ASSESSMENT_SKILL_DEFAULT,
   WEIGHT_ASSESSMENT_BEHAVIOUR_DEFAULT,
@@ -150,10 +150,10 @@ export {
   // Match limits
   LIMIT_PRIORITY_GAPS,
   WEIGHT_SAME_TRACK_BONUS,
-  RANGE_GRADE_OFFSET,
-  RANGE_READY_GRADE_OFFSET,
+  RANGE_LEVEL_OFFSET,
+  RANGE_READY_LEVEL_OFFSET,
   // Driver coverage
-  THRESHOLD_DRIVER_SKILL_LEVEL,
+  THRESHOLD_DRIVER_SKILL_PROFICIENCY,
   THRESHOLD_DRIVER_BEHAVIOUR_MATURITY,
   // Agent limits
   LIMIT_AGENT_PROFILE_SKILLS,

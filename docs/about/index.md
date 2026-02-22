@@ -46,7 +46,7 @@ engineering looks like, you can derive everything else from it.**
 Define your skills, behaviours, and career levels in plain YAML files. From that
 single source of truth, the system produces:
 
-- **Job definitions** that combine discipline, track, and grade into clear role
+- **Job definitions** that combine discipline, track, and level into clear role
   expectations
 - **AI agent profiles** that match your engineering standards, scoped to
   specific lifecycle stages

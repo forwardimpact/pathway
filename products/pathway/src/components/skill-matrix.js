@@ -15,10 +15,10 @@ import {
   td,
   a,
 } from "../lib/render.js";
-import { getSkillLevelIndex } from "../lib/render.js";
+import { getSkillProficiencyIndex } from "../lib/render.js";
 import { createLevelCell } from "./detail.js";
 import { createBadge } from "./card.js";
-import { SKILL_LEVEL_ORDER } from "@forwardimpact/map/levels";
+import { SKILL_PROFICIENCY_ORDER } from "@forwardimpact/map/levels";
 import { truncate } from "../formatters/shared.js";
 
 /**
@@ -28,8 +28,8 @@ import { truncate } from "../formatters/shared.js";
  */
 function sortByLevelDescending(skills) {
   return [...skills].sort((a, b) => {
-    const levelA = SKILL_LEVEL_ORDER.indexOf(a.level);
-    const levelB = SKILL_LEVEL_ORDER.indexOf(b.level);
+    const levelA = SKILL_PROFICIENCY_ORDER.indexOf(a.level);
+    const levelB = SKILL_PROFICIENCY_ORDER.indexOf(b.level);
     if (levelB !== levelA) {
       return levelB - levelA;
     }
@@ -50,7 +50,7 @@ export function createSkillMatrix(skillMatrix) {
   const sortedSkills = sortByLevelDescending(skillMatrix);
 
   const rows = sortedSkills.map((skill) => {
-    const levelIndex = getSkillLevelIndex(skill.level);
+    const levelIndex = getSkillProficiencyIndex(skill.proficiency);
 
     return tr(
       { className: skill.isHumanOnly ? "human-only-row" : "" },
@@ -69,10 +69,10 @@ export function createSkillMatrix(skillMatrix) {
           : null,
       ),
       td({}, createBadge(skill.capability, skill.capability)),
-      createLevelCell(levelIndex, 5, skill.level),
+      createLevelCell(levelIndex, 5, skill.proficiency),
       td(
         { className: "skill-description" },
-        truncate(skill.levelDescription, 80),
+        truncate(skill.proficiencyDescription, 80),
       ),
     );
   });

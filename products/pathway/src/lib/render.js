@@ -3,7 +3,7 @@
  */
 
 import {
-  SKILL_LEVEL_ORDER,
+  SKILL_PROFICIENCY_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
 } from "@forwardimpact/map/levels";
 
@@ -190,7 +190,7 @@ export function showError(message) {
 }
 
 /**
- * Format a skill level or behaviour maturity for display
+ * Format a skill proficiency or behaviour maturity for display
  * Handles both snake_case and camelCase
  * @param {string} value - The level/maturity value
  * @returns {string}
@@ -205,12 +205,12 @@ export function formatLevel(value) {
 }
 
 /**
- * Get the index for a skill level (1-5)
+ * Get the index for a skill proficiency (1-5)
  * @param {string} level
  * @returns {number}
  */
-export function getSkillLevelIndex(level) {
-  return SKILL_LEVEL_ORDER.indexOf(level) + 1;
+export function getSkillProficiencyIndex(level) {
+  return SKILL_PROFICIENCY_ORDER.indexOf(level) + 1;
 }
 
 /**

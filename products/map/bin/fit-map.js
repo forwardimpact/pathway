@@ -132,7 +132,7 @@ async function runValidate(dataDir) {
   console.log(`   Behaviours:  ${data.behaviours?.length || 0}`);
   console.log(`   Disciplines: ${data.disciplines?.length || 0}`);
   console.log(`   Tracks:      ${data.tracks?.length || 0}`);
-  console.log(`   Grades:      ${data.grades?.length || 0}`);
+  console.log(`   Levels:      ${data.levels?.length || 0}`);
   console.log(`   Drivers:     ${data.drivers?.length || 0}`);
 
   return result.valid ? 0 : 1;

@@ -28,7 +28,7 @@ import { createToolkitTable } from "../toolkit/dom.js";
  * @param {boolean} [options.showJobDescriptionHtml=false] - Whether to show HTML job description (for print)
  * @param {boolean} [options.showJobDescriptionMarkdown=true] - Whether to show copyable markdown section
  * @param {Object} [options.discipline] - Discipline entity for job description
- * @param {Object} [options.grade] - Grade entity for job description
+ * @param {Object} [options.level] - Level entity for job description
  * @param {Object} [options.track] - Track entity for job description
  * @param {string} [options.jobTemplate] - Mustache template for job description
  * @returns {HTMLElement}
@@ -40,12 +40,12 @@ export function jobToDOM(view, options = {}) {
     showJobDescriptionHtml = false,
     showJobDescriptionMarkdown = true,
     discipline,
-    grade,
+    level,
     track,
     jobTemplate,
   } = options;
 
-  const hasEntities = discipline && grade && jobTemplate;
+  const hasEntities = discipline && level && jobTemplate;
 
   return div(
     { className: "job-detail-page" },
@@ -61,7 +61,7 @@ export function jobToDOM(view, options = {}) {
         "Generated from: ",
         a({ href: `#/discipline/${view.disciplineId}` }, view.disciplineName),
         " × ",
-        a({ href: `#/grade/${view.gradeId}` }, view.gradeId),
+        a({ href: `#/level/${view.levelId}` }, view.levelId),
         " × ",
         a({ href: `#/track/${view.trackId}` }, view.trackName),
       ),
@@ -99,7 +99,7 @@ export function jobToDOM(view, options = {}) {
             derivedResponsibilities: view.derivedResponsibilities,
           },
           discipline,
-          grade,
+          level,
           track,
           template: jobTemplate,
         })
@@ -156,7 +156,7 @@ export function jobToDOM(view, options = {}) {
             derivedResponsibilities: view.derivedResponsibilities,
           },
           discipline,
-          grade,
+          level,
           track,
           template: jobTemplate,
         })
@@ -211,7 +211,7 @@ function getScoreColor(score) {
  * @param {Object} params
  * @param {Object} params.job - The job definition
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Object} params.track - The track
  * @param {string} params.template - Mustache template for job description
  * @returns {HTMLElement} The job description section element
@@ -219,7 +219,7 @@ function getScoreColor(score) {
 export function createJobDescriptionSection({
   job,
   discipline,
-  grade,
+  level,
   track,
   template,
 }) {
@@ -227,7 +227,7 @@ export function createJobDescriptionSection({
     {
       job,
       discipline,
-      grade,
+      level,
       track,
     },
     template,
@@ -253,7 +253,7 @@ export function createJobDescriptionSection({
  * @param {Object} params
  * @param {Object} params.job - The job definition
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Object} params.track - The track
  * @param {string} params.template - Mustache template for job description
  * @returns {HTMLElement} The job description HTML element (print-only)
@@ -261,7 +261,7 @@ export function createJobDescriptionSection({
 export function createJobDescriptionHtml({
   job,
   discipline,
-  grade,
+  level,
   track,
   template,
 }) {
@@ -269,7 +269,7 @@ export function createJobDescriptionHtml({
     {
       job,
       discipline,
-      grade,
+      level,
       track,
     },
     template,

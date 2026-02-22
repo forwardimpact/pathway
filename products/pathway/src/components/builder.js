@@ -1,5 +1,5 @@
 /**
- * Builder component for discipline/grade/track selection pages
+ * Builder component for discipline/level/track selection pages
  */
 
 import {
@@ -32,7 +32,7 @@ import { createReactive } from "../lib/reactive.js";
 /**
  * @typedef {Object} BuilderSelection
  * @property {Object} discipline - Selected discipline
- * @property {Object} grade - Selected grade
+ * @property {Object} level - Selected level
  * @property {Object} track - Selected track
  */
 
@@ -78,10 +78,10 @@ export function createBuilder({
   const selection = createReactive({
     discipline: urlParams.get("discipline") || "",
     track: urlParams.get("track") || "",
-    grade: urlParams.get("grade") || "",
+    level: urlParams.get("level") || "",
   });
 
-  const sortedGrades = [...data.grades].sort((a, b) => a.level - b.level);
+  const sortedLevels = [...data.levels].sort((a, b) => a.level - b.level);
 
   // Create elements that need references
   const previewContainer = div(
@@ -155,9 +155,9 @@ export function createBuilder({
   }
 
   // Subscribe to selection changes - all updates happen here
-  selection.subscribe(({ discipline, track, grade }) => {
-    // Track is now optional - only discipline and grade are required
-    if (!discipline || !grade) {
+  selection.subscribe(({ discipline, track, level }) => {
+    // Track is now optional - only discipline and level are required
+    if (!discipline || !level) {
       previewContainer.innerHTML = "";
       previewContainer.appendChild(
         p({ className: "text-muted" }, emptyPreviewText),
@@ -168,9 +168,9 @@ export function createBuilder({
 
     const disciplineObj = data.disciplines.find((d) => d.id === discipline);
     const trackObj = track ? data.tracks.find((t) => t.id === track) : null;
-    const gradeObj = data.grades.find((g) => g.id === grade);
+    const levelObj = data.levels.find((g) => g.id === level);
 
-    if (!disciplineObj || !gradeObj) {
+    if (!disciplineObj || !levelObj) {
       previewContainer.innerHTML = "";
       previewContainer.appendChild(
         p({ className: "text-muted" }, "Invalid selection. Please try again."),
@@ -182,7 +182,7 @@ export function createBuilder({
     const selectionObj = {
       discipline: disciplineObj,
       track: trackObj,
-      grade: gradeObj,
+      level: levelObj,
     };
     const preview = previewPresenter(selectionObj, data);
 
@@ -193,8 +193,8 @@ export function createBuilder({
 
   // Wire up button
   actionButton.addEventListener("click", () => {
-    const { discipline, track, grade } = selection.get();
-    window.location.hash = detailPath({ discipline, track, grade });
+    const { discipline, track, level } = selection.get();
+    window.location.hash = detailPath({ discipline, track, level });
   });
 
   // Build the page
@@ -234,17 +234,17 @@ export function createBuilder({
             getDisplayName: (d) => d.specialization || d.name,
           }),
         ),
-        // Grade selector (second)
+        // Level selector (second)
         div(
           { className: "form-group" },
-          label({ className: "form-label" }, labels.grade || "Grade"),
+          label({ className: "form-label" }, labels.level || "Level"),
           createSelectWithValue({
-            id: "grade-select",
-            items: sortedGrades,
-            initialValue: selection.get().grade,
-            placeholder: "Select a grade...",
+            id: "level-select",
+            items: sortedLevels,
+            initialValue: selection.get().level,
+            placeholder: "Select a level...",
             onChange: (value) => {
-              selection.update((prev) => ({ ...prev, grade: value }));
+              selection.update((prev) => ({ ...prev, level: value }));
             },
             getDisplayName: (g) => g.id,
           }),
@@ -284,7 +284,7 @@ export function createBuilder({
 
   // Trigger initial update if preselected
   const initial = selection.get();
-  if (initial.discipline || initial.track || initial.grade) {
+  if (initial.discipline || initial.track || initial.level) {
     setTimeout(() => selection.set(selection.get()), 0);
   }
 
@@ -370,12 +370,12 @@ export function createProgressPreview(preview, selection) {
     );
   }
 
-  const { discipline, grade, track } = selection;
+  const { discipline, level, track } = selection;
 
   // Build badges array - track is optional
   const badges = [
     createBadge(discipline.specialization, "discipline"),
-    createBadge(grade.id, "grade"),
+    createBadge(level.id, "level"),
   ];
   if (track) {
     badges.push(createBadge(track.name, "track"));
@@ -394,19 +394,19 @@ export function createProgressPreview(preview, selection) {
       div({ className: "preview-label" }, "Progression Paths Available"),
       div(
         { className: "preview-paths" },
-        preview.nextGrade
+        preview.nextLevel
           ? div(
               { className: "path-item" },
               span({ className: "path-icon" }, "📈"),
               span(
                 {},
-                `Next Grade: ${preview.nextGrade.id} - ${preview.nextGrade.name}`,
+                `Next Level: ${preview.nextLevel.id} - ${preview.nextLevel.name}`,
               ),
             )
           : div(
               { className: "path-item text-muted" },
               span({ className: "path-icon" }, "🏆"),
-              span({}, "You're at the highest grade!"),
+              span({}, "You're at the highest level!"),
             ),
         preview.validTracks.length > 0
           ? div(

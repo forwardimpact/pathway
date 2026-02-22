@@ -19,7 +19,7 @@ model.
 ## What It Does
 
 - **Public data model** — JSON Schema and RDF/SHACL definitions for skills,
-  behaviours, disciplines, tracks, and grades
+  behaviours, disciplines, tracks, and levels
 - **Data loading** — Parse and validate YAML data files
 - **Validation** — Enforce referential integrity, required fields, and schema
   compliance
@@ -45,7 +45,7 @@ npx fit-map validate --shacl
 import { loadAllData, loadCapabilities } from "@forwardimpact/map";
 import { validateAll } from "@forwardimpact/map/validation";
 import {
-  SKILL_LEVELS,
+  SKILL_PROFICIENCIES,
   BEHAVIOUR_MATURITIES,
 } from "@forwardimpact/map/levels";
 ```
@@ -54,7 +54,7 @@ import {
 
 ```
 examples/
-├── grades.yaml           # Career levels
+├── levels.yaml           # Career levels
 ├── stages.yaml           # Lifecycle stages
 ├── drivers.yaml          # Organizational outcomes
 ├── disciplines/          # Engineering specialties

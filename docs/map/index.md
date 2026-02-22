@@ -6,7 +6,7 @@ toc: false
 hero:
   image: /assets/heros/map.svg
   alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
-  subtitle: Chart the territory before you move through it. Map lets you describe your engineering competencies — skills, behaviours, grades, disciplines, and tracks — in plain YAML files that humans can read and machines can validate.
+  subtitle: Chart the territory before you move through it. Map lets you describe your engineering competencies — skills, behaviours, levels, disciplines, and tracks — in plain YAML files that humans can read and machines can validate.
   cta:
     - label: Documentation
       href: /docs/map/
@@ -24,7 +24,7 @@ hero:
 
 - A complete vocabulary of engineering skills with five progression levels
 - Behaviour definitions that describe how engineers approach their work
-- Career grades from junior through principal, with clear expectations
+- Career levels from junior through principal, with clear expectations
 - Discipline definitions that shape T-shaped skill profiles
 - Tracks that modify expectations for different work contexts
 - Automatic validation ensuring everything references correctly
@@ -49,7 +49,7 @@ All definitions live in YAML files under your data directory:
 
 ```
 data/
-├── grades.yaml           # Career levels (L1–L5)
+├── levels.yaml           # Career levels (L1–L5)
 ├── stages.yaml           # Engineering lifecycle phases
 ├── drivers.yaml          # Organizational outcomes
 ├── disciplines/          # Engineering specialties
@@ -78,5 +78,5 @@ Browse what's defined:
 ```sh
 npx fit-pathway skill --list       # All skills
 npx fit-pathway discipline --list  # Engineering specialties
-npx fit-pathway grade --list       # Career levels
+npx fit-pathway level --list       # Career levels
 ```

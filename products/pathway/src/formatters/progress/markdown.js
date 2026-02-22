@@ -29,7 +29,7 @@ export function progressToMarkdown(view) {
 
   // Skill changes
   const skillsWithChanges = view.skillChanges.filter(
-    (s) => s.levelChange !== 0,
+    (s) => s.proficiencyChange !== 0,
   );
   if (skillsWithChanges.length > 0) {
     lines.push("## Skill Changes", "");
@@ -39,7 +39,7 @@ export function progressToMarkdown(view) {
       formatLevel(s.fromLevel || "-"),
       "→",
       formatLevel(s.toLevel),
-      formatChange(s.levelChange),
+      formatChange(s.proficiencyChange),
     ]);
     lines.push(
       tableToMarkdown(["Skill", "Type", "From", "", "To", "Change"], skillRows),

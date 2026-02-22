@@ -4,7 +4,7 @@
   "title": "Engineering Pathway Common Definitions",
   "description": "Shared definitions for all pathway schemas",
   "$defs": {
-    "skillLevel": {
+    "skillProficiency": {
       "type": "string",
       "enum": [
         "awareness",
@@ -31,9 +31,9 @@
       "enum": ["plan", "code", "review"],
       "description": "Lifecycle stage identifier"
     },
-    "levelDescriptions": {
+    "proficiencyDescriptions": {
       "type": "object",
-      "description": "Description of expectations at each skill level",
+      "description": "Description of expectations at each skill proficiency",
       "properties": {
         "awareness": { "type": "string" },
         "foundational": { "type": "string" },
@@ -71,7 +71,7 @@
     },
     "responsibilitiesByLevel": {
       "type": "object",
-      "description": "Responsibility descriptions by skill level",
+      "description": "Responsibility descriptions by skill proficiency",
       "properties": {
         "awareness": { "type": "string" },
         "foundational": { "type": "string" },
@@ -103,10 +103,10 @@
       "pattern": "^[a-z][a-z0-9_]*$",
       "description": "Capability identifier (snake_case)"
     },
-    "gradeId": {
+    "levelId": {
       "type": "string",
       "pattern": "^[A-Z][A-Z0-9]*$",
-      "description": "Grade identifier (uppercase)"
+      "description": "Level identifier (uppercase)"
     },
     "disciplineId": {
       "type": "string",

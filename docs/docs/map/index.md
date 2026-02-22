@@ -19,7 +19,7 @@ All definitions live in YAML files under your data directory:
 
 ```
 data/
-├── grades.yaml           # Career levels (L1–L5)
+├── levels.yaml           # Career levels (L1–L5)
 ├── stages.yaml           # Engineering lifecycle phases
 ├── drivers.yaml          # Organizational outcomes
 ├── disciplines/          # Engineering specialties
@@ -53,7 +53,7 @@ npx fit-map generate-index    # Generate browser indexes
 ```javascript
 import { loadAllData } from "@forwardimpact/map";
 import { validateAll } from "@forwardimpact/map/validation";
-import { SKILL_LEVELS, BEHAVIOUR_MATURITIES } from "@forwardimpact/map/levels";
+import { SKILL_PROFICIENCIES, BEHAVIOUR_MATURITIES } from "@forwardimpact/map/levels";
 
 const data = await loadAllData("./data");
 ```
@@ -76,7 +76,7 @@ Definitions are available in two schema formats, always kept in sync:
 | Entity           | Question                  | File Location                      |
 | ---------------- | ------------------------- | ---------------------------------- |
 | **Disciplines**  | What kind of engineer?    | `disciplines/{id}.yaml`            |
-| **Grades**       | What career level?        | `grades.yaml`                      |
+| **Levels**       | What career level?        | `levels.yaml`                      |
 | **Tracks**       | Where/how do you work?    | `tracks/{id}.yaml`                 |
 | **Skills**       | What can you do?          | `capabilities/{id}.yaml` (skills:) |
 | **Behaviours**   | How do you approach work? | `behaviours/{id}.yaml`             |
@@ -86,7 +86,7 @@ Definitions are available in two schema formats, always kept in sync:
 
 ---
 
-## Skill Levels
+## Skill Proficiencies
 
 | Level          | Description                           |
 | -------------- | ------------------------------------- |

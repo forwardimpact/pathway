@@ -36,11 +36,11 @@ entityDefinitions:
     description: |
       Engineering specializations that define T-shaped skill profiles. Each discipline specifies primary skills for deep expertise, secondary skills for supporting capabilities, and broad skills for general awareness. Disciplines answer the question: "What kind of engineer are you?"
 
-  grade:
-    title: Grades
+  level:
+    title: Levels
     emojiIcon: "📊"
     description: |
-      Career levels that define expectations for skill proficiency, behaviour maturity, and scope of impact. Grades provide a clear progression path from entry-level to distinguished leadership roles, with defined expectations at each stage.
+      Career levels that define expectations for skill proficiency, behaviour maturity, and scope of impact. Levels provide a clear progression path from entry-level to distinguished leadership roles, with defined expectations at each stage.
 
   track:
     title: Tracks
@@ -52,7 +52,7 @@ entityDefinitions:
     title: Jobs
     emojiIcon: "📋"
     description: |
-      Complete role specifications that combine discipline, track, and grade into actionable job definitions with skill matrices, behaviour profiles, and derived responsibilities. Jobs represent the practical application of the framework to define concrete engineering positions.
+      Complete role specifications that combine discipline, track, and level into actionable job definitions with skill matrices, behaviour profiles, and derived responsibilities. Jobs represent the practical application of the framework to define concrete engineering positions.
 
   agent:
     title: Agents

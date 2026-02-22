@@ -21,8 +21,8 @@ import { getStageOrder } from "@forwardimpact/map/levels";
  * @property {string} title
  * @property {string} disciplineId
  * @property {string} disciplineName
- * @property {string} gradeId
- * @property {string} gradeName
+ * @property {string} levelId
+ * @property {string} levelName
  * @property {string} trackId
  * @property {string} trackName
  * @property {Object} expectations
@@ -38,7 +38,7 @@ import { getStageOrder } from "@forwardimpact/map/levels";
  * Prepare a job for detail view
  * @param {Object} params
  * @param {Object} params.discipline
- * @param {Object} params.grade
+ * @param {Object} params.level
  * @param {Object} params.track
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -49,7 +49,7 @@ import { getStageOrder } from "@forwardimpact/map/levels";
  */
 export function prepareJobDetail({
   discipline,
-  grade,
+  level,
   track,
   skills,
   behaviours,
@@ -58,11 +58,11 @@ export function prepareJobDetail({
   stages,
 }) {
   // Track is optional (null = generalist)
-  if (!discipline || !grade) return null;
+  if (!discipline || !level) return null;
 
   const job = getOrCreateJob({
     discipline,
-    grade,
+    level,
     track,
     skills,
     behaviours,
@@ -100,8 +100,8 @@ export function prepareJobDetail({
     title: job.title,
     disciplineId: discipline.id,
     disciplineName: discipline.specialization || discipline.name,
-    gradeId: grade.id,
-    gradeName: grade.professionalTitle || grade.id,
+    levelId: level.id,
+    levelName: level.professionalTitle || level.id,
     trackId: track?.id || null,
     trackName: track?.name || null,
     expectations: job.expectations || {},
@@ -132,7 +132,7 @@ export function prepareJobDetail({
  * Prepare a job for list view (summary only)
  * @param {Object} params
  * @param {Object} params.discipline
- * @param {Object} params.grade
+ * @param {Object} params.level
  * @param {Object} params.track
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -140,16 +140,16 @@ export function prepareJobDetail({
  */
 export function prepareJobSummary({
   discipline,
-  grade,
+  level,
   track,
   skills,
   behaviours,
 }) {
-  if (!discipline || !grade) return null;
+  if (!discipline || !level) return null;
 
   const job = getOrCreateJob({
     discipline,
-    grade,
+    level,
     track,
     skills,
     behaviours,
@@ -161,7 +161,7 @@ export function prepareJobSummary({
     title: job.title,
     disciplineId: discipline.id,
     disciplineName: discipline.specialization || discipline.name,
-    gradeId: grade.id,
+    levelId: level.id,
     trackId: track?.id || null,
     trackName: track?.name || null,
     skillCount: job.skillMatrix.length,
@@ -184,21 +184,21 @@ export function prepareJobSummary({
  * Prepare job builder preview for form validation
  * @param {Object} params
  * @param {Object|null} params.discipline
- * @param {Object|null} params.grade
+ * @param {Object|null} params.level
  * @param {Object|null} params.track
  * @param {number} params.behaviourCount - Total behaviours in the system
- * @param {Array} [params.grades] - All grades for validation
+ * @param {Array} [params.levels] - All levels for validation
  * @returns {JobBuilderPreview}
  */
 export function prepareJobBuilderPreview({
   discipline,
-  grade,
+  level,
   track,
   behaviourCount,
-  grades,
+  levels,
 }) {
   // Track is optional (null = generalist)
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     return {
       isValid: false,
       title: null,
@@ -210,9 +210,9 @@ export function prepareJobBuilderPreview({
 
   const validCombination = isValidJobCombination({
     discipline,
-    grade,
+    level,
     track,
-    grades,
+    levels,
   });
 
   if (!validCombination) {
@@ -228,7 +228,7 @@ export function prepareJobBuilderPreview({
     };
   }
 
-  const title = generateJobTitle(discipline, grade, track);
+  const title = generateJobTitle(discipline, level, track);
   const totalSkills = getDisciplineSkillIds(discipline).length;
 
   return {

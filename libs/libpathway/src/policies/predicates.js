@@ -10,7 +10,7 @@
  * - allOf/anyOf/not - combinators
  */
 
-import { getSkillLevelIndex } from "@forwardimpact/map/levels";
+import { getSkillProficiencyIndex } from "@forwardimpact/map/levels";
 
 // =============================================================================
 // Identity Predicates
@@ -89,27 +89,27 @@ export const isSupporting = (entry) =>
   entry.type === "broad" || entry.type === "track";
 
 // =============================================================================
-// Skill Level Predicates
+// Skill Proficiency Predicates
 // =============================================================================
 
 /**
  * Create predicate for skills at or above a minimum level
- * @param {string} minLevel - Minimum skill level
+ * @param {string} minLevel - Minimum skill proficiency
  * @returns {(entry: Object) => boolean}
  */
 export function hasMinLevel(minLevel) {
-  const minIndex = getSkillLevelIndex(minLevel);
-  return (entry) => getSkillLevelIndex(entry.level) >= minIndex;
+  const minIndex = getSkillProficiencyIndex(minLevel);
+  return (entry) => getSkillProficiencyIndex(entry.proficiency) >= minIndex;
 }
 
 /**
  * Create predicate for skills at exactly a specific level
- * @param {string} level - Exact skill level to match
+ * @param {string} level - Exact skill proficiency to match
  * @returns {(entry: Object) => boolean}
  */
 export function hasLevel(level) {
-  const targetIndex = getSkillLevelIndex(level);
-  return (entry) => getSkillLevelIndex(entry.level) === targetIndex;
+  const targetIndex = getSkillProficiencyIndex(level);
+  return (entry) => getSkillProficiencyIndex(entry.proficiency) === targetIndex;
 }
 
 /**
@@ -118,8 +118,8 @@ export function hasLevel(level) {
  * @returns {(entry: Object) => boolean}
  */
 export function hasBelowLevel(maxLevel) {
-  const maxIndex = getSkillLevelIndex(maxLevel);
-  return (entry) => getSkillLevelIndex(entry.level) < maxIndex;
+  const maxIndex = getSkillProficiencyIndex(maxLevel);
+  return (entry) => getSkillProficiencyIndex(entry.proficiency) < maxIndex;
 }
 
 // =============================================================================

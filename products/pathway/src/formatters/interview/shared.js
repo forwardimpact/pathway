@@ -108,7 +108,7 @@ function groupQuestionsIntoSections(questions) {
  * @property {string} interviewType - 'mission', 'decomposition', or 'stakeholder'
  * @property {string} disciplineId
  * @property {string} disciplineName
- * @property {string} gradeId
+ * @property {string} levelId
  * @property {string} trackId
  * @property {string} trackName
  * @property {Array} sections
@@ -121,7 +121,7 @@ function groupQuestionsIntoSections(questions) {
  * Prepare interview questions for a job
  * @param {Object} params
  * @param {Object} params.discipline
- * @param {Object} params.grade
+ * @param {Object} params.level
  * @param {Object} params.track
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -131,18 +131,18 @@ function groupQuestionsIntoSections(questions) {
  */
 export function prepareInterviewDetail({
   discipline,
-  grade,
+  level,
   track,
   skills,
   behaviours,
   questions,
   interviewType = "mission",
 }) {
-  if (!discipline || !grade) return null;
+  if (!discipline || !level) return null;
 
   const job = getOrCreateJob({
     discipline,
-    grade,
+    level,
     track,
     skills,
     behaviours,
@@ -208,7 +208,7 @@ export function prepareInterviewDetail({
     interviewType,
     disciplineId: discipline.id,
     disciplineName: discipline.specialization || discipline.name,
-    gradeId: grade.id,
+    levelId: level.id,
     trackId: track?.id || null,
     trackName: track?.name || null,
     sections: allSections,
@@ -231,21 +231,21 @@ export function prepareInterviewDetail({
  * Prepare interview builder preview for form validation
  * @param {Object} params
  * @param {Object|null} params.discipline
- * @param {Object|null} params.grade
+ * @param {Object|null} params.level
  * @param {Object|null} params.track
  * @param {number} params.behaviourCount - Total behaviours in the system
- * @param {Array} [params.grades] - All grades for validation
+ * @param {Array} [params.levels] - All levels for validation
  * @returns {InterviewBuilderPreview}
  */
 export function prepareInterviewBuilderPreview({
   discipline,
-  grade,
+  level,
   track,
   behaviourCount,
-  grades,
+  levels,
 }) {
   // Track is optional (null = generalist)
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     return {
       isValid: false,
       title: null,
@@ -257,9 +257,9 @@ export function prepareInterviewBuilderPreview({
 
   const validCombination = isValidJobCombination({
     discipline,
-    grade,
+    level,
     track,
-    grades,
+    levels,
   });
 
   if (!validCombination) {
@@ -275,7 +275,7 @@ export function prepareInterviewBuilderPreview({
     };
   }
 
-  const title = generateJobTitle(discipline, grade, track);
+  const title = generateJobTitle(discipline, level, track);
   const totalSkills = getDisciplineSkillIds(discipline).length;
 
   return {
@@ -292,7 +292,7 @@ export function prepareInterviewBuilderPreview({
  * @property {string} title
  * @property {string} disciplineId
  * @property {string} disciplineName
- * @property {string} gradeId
+ * @property {string} levelId
  * @property {string} trackId
  * @property {string} trackName
  * @property {Object.<string, Object>} interviews - Keyed by type
@@ -302,7 +302,7 @@ export function prepareInterviewBuilderPreview({
  * Prepare all interview types for a job (for toggle UI)
  * @param {Object} params
  * @param {Object} params.discipline
- * @param {Object} params.grade
+ * @param {Object} params.level
  * @param {Object} params.track
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -311,18 +311,18 @@ export function prepareInterviewBuilderPreview({
  */
 export function prepareAllInterviews({
   discipline,
-  grade,
+  level,
   track,
   skills,
   behaviours,
   questions,
 }) {
   // Track is optional (null = generalist)
-  if (!discipline || !grade) return null;
+  if (!discipline || !level) return null;
 
   const job = getOrCreateJob({
     discipline,
-    grade,
+    level,
     track,
     skills,
     behaviours,
@@ -350,7 +350,7 @@ export function prepareAllInterviews({
     title: job.title,
     disciplineId: discipline.id,
     disciplineName: discipline.specialization || discipline.name,
-    gradeId: grade.id,
+    levelId: level.id,
     trackId: track?.id || null,
     trackName: track?.name || null,
     interviews: {

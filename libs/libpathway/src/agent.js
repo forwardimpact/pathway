@@ -34,49 +34,49 @@ import {
 } from "./policies/composed.js";
 import { compareByStageOrder } from "./policies/orderings.js";
 import { LIMIT_AGENT_WORKING_STYLES } from "./policies/thresholds.js";
-import { SkillLevel } from "@forwardimpact/map/levels";
+import { SkillProficiency } from "@forwardimpact/map/levels";
 
 /**
- * Derive the reference grade for agent generation.
+ * Derive the reference level for agent generation.
  *
- * The reference grade determines the skill and behaviour expectations for agents.
- * We select the first grade where primary skills reach "practitioner" level,
+ * The reference level determines the skill and behaviour expectations for agents.
+ * We select the first level where primary skills reach "practitioner" level,
  * as this represents substantive senior-level expertise suitable for AI agents.
  *
  * Fallback logic:
- * 1. First grade with practitioner-level primary skills
- * 2. First grade with working-level primary skills (if no practitioner found)
- * 3. Middle grade by level (if neither found)
+ * 1. First level with practitioner-level primary skills
+ * 2. First level with working-level primary skills (if no practitioner found)
+ * 3. Middle level by level (if neither found)
  *
- * @param {Array<Object>} grades - Array of grade definitions, each with baseSkillLevels.primary
- * @returns {Object} The reference grade
- * @throws {Error} If no grades are provided
+ * @param {Array<Object>} levels - Array of level definitions, each with baseSkillProficiencies.primary
+ * @returns {Object} The reference level
+ * @throws {Error} If no levels are provided
  */
-export function deriveReferenceGrade(grades) {
-  if (!grades || grades.length === 0) {
-    throw new Error("No grades configured");
+export function deriveReferenceLevel(levels) {
+  if (!levels || levels.length === 0) {
+    throw new Error("No levels configured");
   }
 
   // Sort by level to ensure consistent ordering
-  const sorted = [...grades].sort((a, b) => a.ordinalRank - b.ordinalRank);
+  const sorted = [...levels].sort((a, b) => a.ordinalRank - b.ordinalRank);
 
-  // First: find the first grade with practitioner-level primary skills
-  const practitionerGrade = sorted.find(
-    (g) => g.baseSkillLevels?.primary === SkillLevel.PRACTITIONER,
+  // First: find the first level with practitioner-level primary skills
+  const practitionerLevel = sorted.find(
+    (g) => g.baseSkillProficiencies?.primary === SkillProficiency.PRACTITIONER,
   );
-  if (practitionerGrade) {
-    return practitionerGrade;
+  if (practitionerLevel) {
+    return practitionerLevel;
   }
 
-  // Fallback: find the first grade with working-level primary skills
-  const workingGrade = sorted.find(
-    (g) => g.baseSkillLevels?.primary === SkillLevel.WORKING,
+  // Fallback: find the first level with working-level primary skills
+  const workingLevel = sorted.find(
+    (g) => g.baseSkillProficiencies?.primary === SkillProficiency.WORKING,
   );
-  if (workingGrade) {
-    return workingGrade;
+  if (workingLevel) {
+    return workingLevel;
   }
 
-  // Final fallback: use the middle grade
+  // Final fallback: use the middle level
   const middleIndex = Math.floor(sorted.length / 2);
   return sorted[middleIndex];
 }
@@ -120,15 +120,15 @@ export function toKebabCase(id) {
  * @param {Object} params - Parameters
  * @param {Object} params.discipline - Human discipline definition
  * @param {Object} params.track - Human track definition
- * @param {Object} params.grade - Reference grade for derivation
+ * @param {Object} params.level - Reference level for derivation
  * @param {Array} params.skills - All available skills
  * @returns {Array} Skills sorted by derived level (highest first)
  */
-export function deriveAgentSkills({ discipline, track, grade, skills }) {
+export function deriveAgentSkills({ discipline, track, level, skills }) {
   // Use shared derivation
   const skillMatrix = deriveSkillMatrix({
     discipline,
-    grade,
+    level,
     track,
     skills,
   });
@@ -144,19 +144,19 @@ export function deriveAgentSkills({ discipline, track, grade, skills }) {
  * @param {Object} params - Parameters
  * @param {Object} params.discipline - Human discipline definition
  * @param {Object} params.track - Human track definition
- * @param {Object} params.grade - Reference grade for derivation
+ * @param {Object} params.level - Reference level for derivation
  * @param {Array} params.behaviours - All available behaviours
  * @returns {Array} Behaviours sorted by derived maturity (highest first)
  */
 export function deriveAgentBehaviours({
   discipline,
   track,
-  grade,
+  level,
   behaviours,
 }) {
   const profile = deriveBehaviourProfile({
     discipline,
-    grade,
+    level,
     track,
     behaviours,
   });
@@ -575,7 +575,7 @@ function buildStageProfileBodyData({
  * @param {Object} params.discipline - Human discipline definition
  * @param {Object} params.track - Human track definition
  * @param {Object} params.stage - Stage definition from stages.yaml
- * @param {Object} params.grade - Reference grade for skill derivation
+ * @param {Object} params.level - Reference level for skill derivation
  * @param {Array} params.skills - All available skills
  * @param {Array} params.behaviours - All available behaviours
  * @param {Array} params.agentBehaviours - Agent behaviour definitions
@@ -588,7 +588,7 @@ export function deriveStageAgent({
   discipline,
   track,
   stage,
-  grade,
+  level,
   skills,
   behaviours,
   agentBehaviours,
@@ -600,7 +600,7 @@ export function deriveStageAgent({
   const allSkills = deriveAgentSkills({
     discipline,
     track,
-    grade,
+    level,
     skills,
   });
 
@@ -610,7 +610,7 @@ export function deriveStageAgent({
   const derivedBehaviours = deriveAgentBehaviours({
     discipline,
     track,
-    grade,
+    level,
     behaviours,
   });
 
@@ -647,7 +647,7 @@ export function deriveStageAgent({
  * @param {Object} params.discipline - Human discipline definition
  * @param {Object} params.track - Human track definition
  * @param {Object} params.stage - Stage definition
- * @param {Object} params.grade - Reference grade
+ * @param {Object} params.level - Reference level
  * @param {Array} params.skills - All skills
  * @param {Array} params.behaviours - All behaviours
  * @param {Array} params.agentBehaviours - Agent behaviour definitions
@@ -661,7 +661,7 @@ export function generateStageAgentProfile({
   discipline,
   track,
   stage,
-  grade,
+  level,
   skills,
   behaviours,
   agentBehaviours,
@@ -675,7 +675,7 @@ export function generateStageAgentProfile({
     discipline,
     track,
     stage,
-    grade,
+    level,
     skills,
     behaviours,
     agentBehaviours,

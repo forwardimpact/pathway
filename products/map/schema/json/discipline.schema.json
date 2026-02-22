@@ -32,9 +32,9 @@
         ]
       }
     },
-    "minGrade": {
+    "minLevel": {
       "type": "string",
-      "description": "Minimum grade required for this discipline"
+      "description": "Minimum level required for this discipline"
     },
     "description": {
       "type": "string",

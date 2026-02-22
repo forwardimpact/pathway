@@ -1,6 +1,6 @@
 /**
  * Career progress detail page
- * Shows skill and behaviour progression comparison across discipline × grade × track
+ * Shows skill and behaviour progression comparison across discipline × level × track
  */
 
 import { render, div, h1, h2, p, a, label, section } from "../lib/render.js";
@@ -20,7 +20,7 @@ import {
 import {
   prepareCurrentJob,
   prepareCustomProgression,
-  getDefaultTargetGrade,
+  getDefaultTargetLevel,
   isValidCombination,
 } from "../formatters/progress/shared.js";
 
@@ -29,18 +29,18 @@ import {
  * @param {Object} params - Route params
  */
 export function renderProgressDetail(params) {
-  const { discipline: disciplineId, grade: gradeId, track: trackId } = params;
+  const { discipline: disciplineId, level: levelId, track: trackId } = params;
   const { data } = getState();
 
   // Find the components
   const discipline = data.disciplines.find((d) => d.id === disciplineId);
-  const grade = data.grades.find((g) => g.id === gradeId);
+  const level = data.levels.find((g) => g.id === levelId);
   const track = trackId ? data.tracks.find((t) => t.id === trackId) : null;
 
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     renderError({
       title: "Role Not Found",
-      message: "Invalid role combination. Discipline or grade not found.",
+      message: "Invalid role combination. Discipline or level not found.",
       backPath: "/career-progress",
       backText: "← Back to Career Progress",
     });
@@ -61,7 +61,7 @@ export function renderProgressDetail(params) {
   // Prepare current job view
   const currentJobView = prepareCurrentJob({
     discipline,
-    grade,
+    level,
     track,
     skills: data.skills,
     behaviours: data.behaviours,
@@ -70,15 +70,15 @@ export function renderProgressDetail(params) {
   if (!currentJobView) {
     renderError({
       title: "Invalid Combination",
-      message: "This discipline, track, and grade combination is not valid.",
+      message: "This discipline, track, and level combination is not valid.",
       backPath: "/career-progress",
       backText: "← Back to Career Progress",
     });
     return;
   }
 
-  // Find next grade for default comparison
-  const nextGrade = getDefaultTargetGrade(grade, data.grades);
+  // Find next level for default comparison
+  const nextLevel = getDefaultTargetLevel(level, data.levels);
 
   const page = div(
     { className: "progress-detail-page" },
@@ -92,7 +92,7 @@ export function renderProgressDetail(params) {
         "Current role: ",
         a({ href: `#/discipline/${discipline.id}` }, discipline.specialization),
         " × ",
-        a({ href: `#/grade/${grade.id}` }, grade.id),
+        a({ href: `#/level/${level.id}` }, level.id),
         track
           ? [" × ", a({ href: `#/track/${track.id}` }, track.name)]
           : " (Generalist)",
@@ -123,10 +123,10 @@ export function renderProgressDetail(params) {
     // Comparison selectors section
     createComparisonSelectorsSection({
       discipline,
-      currentGrade: grade,
+      currentLevel: level,
       currentTrack: track,
       currentJobView,
-      nextGrade,
+      nextLevel,
       data,
     }),
 
@@ -136,8 +136,8 @@ export function renderProgressDetail(params) {
       a(
         {
           href: trackId
-            ? `#/job/${disciplineId}/${gradeId}/${trackId}`
-            : `#/job/${disciplineId}/${gradeId}`,
+            ? `#/job/${disciplineId}/${levelId}/${trackId}`
+            : `#/job/${disciplineId}/${levelId}`,
           className: "btn btn-secondary",
         },
         "View Full Job Definition",
@@ -150,22 +150,22 @@ export function renderProgressDetail(params) {
 
 /**
  * Create the comparison selectors section
- * Defaults to same discipline, same track, next grade up
+ * Defaults to same discipline, same track, next level up
  * @param {Object} params
  * @param {Object} params.discipline - Current discipline
- * @param {Object} params.currentGrade - Current grade
+ * @param {Object} params.currentLevel - Current level
  * @param {Object} params.currentTrack - Current track
  * @param {Object} params.currentJobView - Current job view from presenter
- * @param {Object|null} params.nextGrade - Next grade (for default selection)
- * @param {Object} params.data - Full data object with disciplines, grades, tracks, skills, behaviours
+ * @param {Object|null} params.nextLevel - Next level (for default selection)
+ * @param {Object} params.data - Full data object with disciplines, levels, tracks, skills, behaviours
  * @returns {HTMLElement}
  */
 function createComparisonSelectorsSection({
   discipline,
-  currentGrade,
+  currentLevel,
   currentTrack,
   currentJobView,
-  nextGrade,
+  nextLevel,
   data,
 }) {
   // Create a container for dynamic comparison results
@@ -174,36 +174,36 @@ function createComparisonSelectorsSection({
     id: "comparison-results",
   });
 
-  // State to track current selections - default to same discipline, same track, next grade
+  // State to track current selections - default to same discipline, same track, next level
   let selectedDisciplineId = discipline.id;
-  let selectedGradeId = nextGrade?.id || "";
+  let selectedLevelId = nextLevel?.id || "";
   let selectedTrackId = currentTrack?.id || "";
 
   // Get available options based on selected discipline
   function getAvailableOptions(disciplineId) {
     const selectedDisc = data.disciplines.find((d) => d.id === disciplineId);
     if (!selectedDisc)
-      return { grades: [], tracks: [], allowsTrackless: false };
+      return { levels: [], tracks: [], allowsTrackless: false };
 
-    const validGrades = [];
+    const validLevels = [];
     const validTracks = new Set();
     let allowsTrackless = false;
 
-    for (const grade of data.grades) {
+    for (const level of data.levels) {
       // Check trackless combination
       if (
-        isValidCombination({ discipline: selectedDisc, grade, track: null })
+        isValidCombination({ discipline: selectedDisc, level, track: null })
       ) {
-        if (!validGrades.find((g) => g.id === grade.id)) {
-          validGrades.push(grade);
+        if (!validLevels.find((g) => g.id === level.id)) {
+          validLevels.push(level);
         }
         allowsTrackless = true;
       }
       // Check each track combination
       for (const track of data.tracks) {
-        if (isValidCombination({ discipline: selectedDisc, grade, track })) {
-          if (!validGrades.find((g) => g.id === grade.id)) {
-            validGrades.push(grade);
+        if (isValidCombination({ discipline: selectedDisc, level, track })) {
+          if (!validLevels.find((g) => g.id === level.id)) {
+            validLevels.push(level);
           }
           validTracks.add(track.id);
         }
@@ -211,7 +211,7 @@ function createComparisonSelectorsSection({
     }
 
     return {
-      grades: validGrades.sort((a, b) => a.level - b.level),
+      levels: validLevels.sort((a, b) => a.level - b.level),
       tracks: data.tracks
         .filter((t) => validTracks.has(t.id))
         .sort((a, b) => a.name.localeCompare(b.name)),
@@ -226,14 +226,14 @@ function createComparisonSelectorsSection({
     // Clear previous results
     comparisonResultsContainer.innerHTML = "";
 
-    // Track can be empty string for generalist, but discipline and grade are required
-    if (!selectedDisciplineId || !selectedGradeId) {
+    // Track can be empty string for generalist, but discipline and level are required
+    if (!selectedDisciplineId || !selectedLevelId) {
       comparisonResultsContainer.appendChild(
         div(
           { className: "comparison-placeholder" },
           p(
             { className: "text-muted" },
-            "Select a discipline and grade to see the comparison.",
+            "Select a discipline and level to see the comparison.",
           ),
         ),
       );
@@ -243,20 +243,20 @@ function createComparisonSelectorsSection({
     const targetDiscipline = data.disciplines.find(
       (d) => d.id === selectedDisciplineId,
     );
-    const targetGrade = data.grades.find((g) => g.id === selectedGradeId);
+    const targetLevel = data.levels.find((g) => g.id === selectedLevelId);
     // selectedTrackId can be empty string for generalist
     const targetTrack = selectedTrackId
       ? data.tracks.find((t) => t.id === selectedTrackId)
       : null;
 
-    if (!targetDiscipline || !targetGrade) {
+    if (!targetDiscipline || !targetLevel) {
       return;
     }
 
     // Check if comparing to same role
     if (
       targetDiscipline.id === discipline.id &&
-      targetGrade.id === currentGrade.id &&
+      targetLevel.id === currentLevel.id &&
       targetTrack?.id === currentTrack?.id
     ) {
       comparisonResultsContainer.appendChild(
@@ -274,10 +274,10 @@ function createComparisonSelectorsSection({
     // Use formatter shared module to analyze the progression
     const progressionView = prepareCustomProgression({
       discipline,
-      currentGrade,
+      currentLevel,
       currentTrack,
       targetDiscipline,
-      targetGrade,
+      targetLevel,
       targetTrack,
       skills: data.skills,
       behaviours: data.behaviours,
@@ -341,8 +341,8 @@ function createComparisonSelectorsSection({
           target.skillMatrix,
           {
             title: "Skills Comparison",
-            currentLabel: `Current (${currentGrade.id})`,
-            targetLabel: `Target (${targetGrade.id})`,
+            currentLabel: `Current (${currentLevel.id})`,
+            targetLabel: `Target (${targetLevel.id})`,
             size: 400,
             capabilities: data.capabilities,
           },
@@ -352,8 +352,8 @@ function createComparisonSelectorsSection({
           target.behaviourProfile,
           {
             title: "Behaviours Comparison",
-            currentLabel: `Current (${currentGrade.id})`,
-            targetLabel: `Target (${targetGrade.id})`,
+            currentLabel: `Current (${currentLevel.id})`,
+            targetLabel: `Target (${targetLevel.id})`,
             size: 400,
           },
         ),
@@ -379,11 +379,11 @@ function createComparisonSelectorsSection({
         a(
           {
             href: targetTrack
-              ? `#/job/${targetDiscipline.id}/${targetGrade.id}/${targetTrack.id}`
-              : `#/job/${targetDiscipline.id}/${targetGrade.id}`,
+              ? `#/job/${targetDiscipline.id}/${targetLevel.id}/${targetTrack.id}`
+              : `#/job/${targetDiscipline.id}/${targetLevel.id}`,
             className: "btn btn-secondary",
           },
-          `View ${targetGrade.id}${targetTrack ? ` ${targetTrack.name}` : ""} Job Definition →`,
+          `View ${targetLevel.id}${targetTrack ? ` ${targetTrack.name}` : ""} Job Definition →`,
         ),
       ),
     );
@@ -395,36 +395,36 @@ function createComparisonSelectorsSection({
   let availableOptions = getAvailableOptions(selectedDisciplineId);
 
   // References to select elements for updating
-  let gradeSelectEl = null;
+  let levelSelectEl = null;
   let trackSelectEl = null;
 
   /**
-   * Update grade and track selectors when discipline changes
+   * Update level and track selectors when discipline changes
    */
   function updateSelectorsForDiscipline(newDisciplineId) {
     availableOptions = getAvailableOptions(newDisciplineId);
 
-    // Update grade selector
-    if (gradeSelectEl) {
-      gradeSelectEl.innerHTML = "";
+    // Update level selector
+    if (levelSelectEl) {
+      levelSelectEl.innerHTML = "";
       const placeholderOpt = document.createElement("option");
       placeholderOpt.value = "";
-      placeholderOpt.textContent = "Select grade...";
-      gradeSelectEl.appendChild(placeholderOpt);
+      placeholderOpt.textContent = "Select level...";
+      levelSelectEl.appendChild(placeholderOpt);
 
-      for (const grade of availableOptions.grades) {
+      for (const level of availableOptions.levels) {
         const opt = document.createElement("option");
-        opt.value = grade.id;
-        opt.textContent = grade.id;
-        gradeSelectEl.appendChild(opt);
+        opt.value = level.id;
+        opt.textContent = level.id;
+        levelSelectEl.appendChild(opt);
       }
 
       // Try to keep current selection if valid
-      if (availableOptions.grades.find((g) => g.id === selectedGradeId)) {
-        gradeSelectEl.value = selectedGradeId;
+      if (availableOptions.levels.find((g) => g.id === selectedLevelId)) {
+        levelSelectEl.value = selectedLevelId;
       } else {
-        selectedGradeId = "";
-        gradeSelectEl.value = "";
+        selectedLevelId = "";
+        levelSelectEl.value = "";
       }
     }
 
@@ -471,15 +471,15 @@ function createComparisonSelectorsSection({
     }
   }
 
-  // Create grade and track selects with stored references
-  gradeSelectEl = createSelectWithValue({
-    id: "compare-grade-select",
-    items: availableOptions.grades,
-    initialValue: selectedGradeId,
-    placeholder: "Select grade...",
+  // Create level and track selects with stored references
+  levelSelectEl = createSelectWithValue({
+    id: "compare-level-select",
+    items: availableOptions.levels,
+    initialValue: selectedLevelId,
+    placeholder: "Select level...",
     getDisplayName: (g) => g.id,
     onChange: (value) => {
-      selectedGradeId = value;
+      selectedLevelId = value;
       updateComparison();
     },
   });
@@ -497,7 +497,7 @@ function createComparisonSelectorsSection({
   });
 
   // Trigger initial comparison if we have defaults
-  if (selectedGradeId && selectedTrackId) {
+  if (selectedLevelId && selectedTrackId) {
     // Use setTimeout to ensure DOM is ready
     setTimeout(() => updateComparison(), 0);
   }
@@ -508,7 +508,7 @@ function createComparisonSelectorsSection({
     h2({ className: "section-title" }, "📈 Compare Progression"),
     p(
       { className: "text-muted", style: "margin-bottom: 1rem" },
-      "Compare your current role with another discipline, grade, or track combination.",
+      "Compare your current role with another discipline, level, or track combination.",
     ),
 
     // Selector row
@@ -532,8 +532,8 @@ function createComparisonSelectorsSection({
       ),
       div(
         { className: "form-group" },
-        label({ for: "compare-grade-select" }, "Target Grade"),
-        gradeSelectEl,
+        label({ for: "compare-level-select" }, "Target Level"),
+        levelSelectEl,
       ),
       div(
         { className: "form-group" },

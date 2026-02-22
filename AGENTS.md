@@ -41,7 +41,7 @@ libs/
 ```
 
 **This is a data-driven monorepo.** The model layer defines derivation logic,
-but actual entities (disciplines, tracks, skills, grades, behaviours) are
+but actual entities (disciplines, tracks, skills, levels, behaviours) are
 defined entirely in YAML files. Different installations may have completely
 different data while using the same model.
 
@@ -183,7 +183,7 @@ than loud ones.
 | Entity           | Question                  | File Location                       |
 | ---------------- | ------------------------- | ----------------------------------- |
 | **Disciplines**  | What kind of engineer?    | `disciplines/{id}.yaml`             |
-| **Grades**       | What career level?        | `grades.yaml`                       |
+| **Levels**       | What career level?        | `levels.yaml`                       |
 | **Tracks**       | Where/how do you work?    | `tracks/{id}.yaml`                  |
 | **Skills**       | What can you do?          | `capabilities/{id}.yaml` (skills:)  |
 | **Behaviours**   | How do you approach work? | `behaviours/{id}.yaml`              |
@@ -194,7 +194,7 @@ than loud ones.
 
 All entities use **co-located files** with `human:` and `agent:` sections.
 
-### Skill Levels
+### Skill Proficiencies
 
 | Level          | Description                           |
 | -------------- | ------------------------------------- |
@@ -289,13 +289,13 @@ Disciplines define role types and valid tracks:
 - `isProfessional: true` — IC roles, uses `professionalResponsibilities`
 - `isManagement: true` — Manager roles, uses `managementResponsibilities`
 - `validTracks: [...]` — Valid track configurations (`null` = trackless allowed)
-- `minGrade: <grade_id>` — Minimum grade (optional)
+- `minLevel: <level_id>` — Minimum level (optional)
 
 #### Skill Tiers (T-shaped profiles)
 
 | Tier               | Expected Level    | Purpose                 |
 | ------------------ | ----------------- | ----------------------- |
-| `coreSkills`       | Highest for grade | Core expertise          |
+| `coreSkills`       | Highest for level | Core expertise          |
 | `supportingSkills` | Mid-level         | Supporting capabilities |
 | `broadSkills`      | Lower level       | General awareness       |
 
@@ -309,7 +309,7 @@ Stages define engineering lifecycle phases with:
   checklists
 
 Checklists are derived at stage transitions by gathering items from relevant
-capabilities at the job's skill level.
+capabilities at the job's skill proficiency.
 
 ### Data Validation
 
@@ -318,9 +318,9 @@ valid enum values, and cross-entity consistency.
 
 ## Vocabulary Standards
 
-Standard terms for skill definitions and behaviour maturity levels. Grades and
-their mappings vary per installation—use `npx fit-pathway grade --list` to see
-available grades.
+Standard terms for skill definitions and behaviour maturity levels. Levels and
+their mappings vary per installation—use `npx fit-pathway level --list` to see
+available levels.
 
 ### Scope Terms
 
@@ -334,7 +334,7 @@ Use these terms for spheres of influence (ascending breadth):
 | **Function**      | Major capability | "across the function"           |
 | **Organization**  | Enterprise-wide  | "shapes organizational culture" |
 
-### Skill Level Vocabulary
+### Skill Proficiency Vocabulary
 
 | Level          | Autonomy              | Complexity            | Verbs                                       |
 | -------------- | --------------------- | --------------------- | ------------------------------------------- |
@@ -368,7 +368,7 @@ Use these terms for spheres of influence (ascending breadth):
 - ESM modules only (no CommonJS)
 - JSDoc on all public functions (`@param`, `@returns`)
 - Pure functions, no side effects
-- Descriptive names (`skillLevel`, `behaviourMaturity`)
+- Descriptive names (`skillProficiency`, `behaviourMaturity`)
 - Prefix unused params with underscore (`_param`)
 - Prefer `const`, use `let` when needed
 
@@ -471,7 +471,7 @@ failed tags after fixing the root cause: delete the remote tag
 ## Common Tasks
 
 > **Data-Driven Application**: All entity IDs (skills, disciplines, tracks,
-> grades, behaviours) depend on YAML files in `products/map/examples/`. Use
+> levels, behaviours) depend on YAML files in `products/map/examples/`. Use
 > `npx fit-pathway <entity> --list` to discover available values.
 
 ### NPM Scripts (Root)

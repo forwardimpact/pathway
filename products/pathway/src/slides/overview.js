@@ -12,7 +12,7 @@ import {
   skillToCardConfig,
   behaviourToCardConfig,
   driverToCardConfig,
-  gradeToCardConfig,
+  levelToCardConfig,
   trackToCardConfig,
   jobToCardConfig,
 } from "../lib/card-mappers.js";
@@ -20,7 +20,7 @@ import { prepareDisciplinesList } from "../formatters/discipline/shared.js";
 import { prepareSkillsList } from "../formatters/skill/shared.js";
 import { prepareBehavioursList } from "../formatters/behaviour/shared.js";
 import { prepareDriversList } from "../formatters/driver/shared.js";
-import { prepareGradesList } from "../formatters/grade/shared.js";
+import { prepareLevelsList } from "../formatters/level/shared.js";
 import { prepareTracksList } from "../formatters/track/shared.js";
 import { generateAllJobs } from "@forwardimpact/libpathway/derivation";
 
@@ -92,12 +92,12 @@ export function renderOverviewSlide({ render, data, params }) {
       mapper: disciplineToCardConfig,
       isGrouped: true,
     },
-    grade: {
-      title: framework.entityDefinitions.grade.title,
-      emojiIcon: framework.entityDefinitions.grade.emojiIcon,
-      description: framework.entityDefinitions.grade.description,
-      entities: prepareGradesList(data.grades).items,
-      mapper: gradeToCardConfig,
+    level: {
+      title: framework.entityDefinitions.level.title,
+      emojiIcon: framework.entityDefinitions.level.emojiIcon,
+      description: framework.entityDefinitions.level.description,
+      entities: prepareLevelsList(data.levels).items,
+      mapper: levelToCardConfig,
     },
     track: {
       title: framework.entityDefinitions.track.title,
@@ -112,7 +112,7 @@ export function renderOverviewSlide({ render, data, params }) {
       description: framework.entityDefinitions.job.description,
       entities: generateAllJobs({
         disciplines: data.disciplines,
-        grades: data.grades,
+        levels: data.levels,
         tracks: data.tracks,
         skills: data.skills,
         behaviours: data.behaviours,

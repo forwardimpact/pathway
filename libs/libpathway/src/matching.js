@@ -6,14 +6,14 @@
  */
 
 import {
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
 } from "@forwardimpact/map/levels";
 
 import {
   deriveJob,
   isValidJobCombination,
-  isSeniorGrade,
+  isSeniorLevel,
 } from "./derivation.js";
 
 import {
@@ -31,8 +31,8 @@ import {
   WEIGHT_SENIOR_EXPECTATIONS,
   LIMIT_PRIORITY_GAPS,
   WEIGHT_SAME_TRACK_BONUS,
-  RANGE_GRADE_OFFSET,
-  RANGE_READY_GRADE_OFFSET,
+  RANGE_LEVEL_OFFSET,
+  RANGE_READY_LEVEL_OFFSET,
 } from "./policies/thresholds.js";
 
 // ============================================================================
@@ -138,8 +138,8 @@ export function calculateGapScore(gap) {
 
 /**
  * Calculate skill match score using smooth decay scoring
- * @param {Object<string, string>} selfSkills - Self-assessed skill levels
- * @param {import('./levels.js').SkillMatrixEntry[]} jobSkills - Required job skill levels
+ * @param {Object<string, string>} selfSkills - Self-assessed skill proficiencies
+ * @param {import('./levels.js').SkillMatrixEntry[]} jobSkills - Required job skill proficiencies
  * @returns {{score: number, gaps: import('./levels.js').MatchGap[]}}
  */
 function calculateSkillScore(selfSkills, jobSkills) {
@@ -152,7 +152,7 @@ function calculateSkillScore(selfSkills, jobSkills) {
 
   for (const jobSkill of jobSkills) {
     const selfLevel = selfSkills[jobSkill.skillId];
-    const requiredIndex = getSkillLevelIndex(jobSkill.level);
+    const requiredIndex = getSkillProficiencyIndex(jobSkill.proficiency);
 
     if (!selfLevel) {
       // No self-assessment for this skill - count as gap with max penalty
@@ -163,13 +163,13 @@ function calculateSkillScore(selfSkills, jobSkills) {
         name: jobSkill.skillName,
         type: "skill",
         current: "none",
-        required: jobSkill.level,
+        required: jobSkill.proficiency,
         gap,
       });
       continue;
     }
 
-    const selfIndex = getSkillLevelIndex(selfLevel);
+    const selfIndex = getSkillProficiencyIndex(selfLevel);
     const difference = selfIndex - requiredIndex;
 
     if (difference >= 0) {
@@ -184,7 +184,7 @@ function calculateSkillScore(selfSkills, jobSkills) {
         name: jobSkill.skillName,
         type: "skill",
         current: selfLevel,
-        required: jobSkill.level,
+        required: jobSkill.proficiency,
         gap,
       });
     }
@@ -259,7 +259,7 @@ function calculateBehaviourScore(selfBehaviours, jobBehaviours) {
 /**
  * Calculate expectations match score for senior roles
  * @param {Object} selfExpectations - Self-assessed expectations
- * @param {import('./levels.js').GradeExpectations} jobExpectations - Required grade expectations
+ * @param {import('./levels.js').LevelExpectations} jobExpectations - Required level expectations
  * @returns {number} Score from 0 to 1
  */
 function calculateExpectationsScore(selfExpectations, jobExpectations) {
@@ -302,7 +302,7 @@ export function calculateJobMatch(selfAssessment, job) {
 
   // Calculate skill score
   const skillResult = calculateSkillScore(
-    selfAssessment.skillLevels || {},
+    selfAssessment.skillProficiencies || {},
     job.skillMatrix,
   );
 
@@ -318,7 +318,7 @@ export function calculateJobMatch(selfAssessment, job) {
 
   // For senior roles, add expectations score as a bonus
   let expectationsScore = undefined;
-  if (isSeniorGrade(job.grade)) {
+  if (isSeniorLevel(job.level)) {
     expectationsScore = calculateExpectationsScore(
       selfAssessment.expectations,
       job.expectations,
@@ -363,7 +363,7 @@ export function calculateJobMatch(selfAssessment, job) {
  * @param {Object} params
  * @param {import('./levels.js').SelfAssessment} params.selfAssessment - The self-assessment
  * @param {import('./levels.js').Discipline[]} params.disciplines - All disciplines
- * @param {import('./levels.js').Grade[]} params.grades - All grades
+ * @param {import('./levels.js').Level[]} params.levels - All levels
  * @param {import('./levels.js').Track[]} params.tracks - All tracks
  * @param {import('./levels.js').Skill[]} params.skills - All skills
  * @param {import('./levels.js').Behaviour[]} params.behaviours - All behaviours
@@ -374,7 +374,7 @@ export function calculateJobMatch(selfAssessment, job) {
 export function findMatchingJobs({
   selfAssessment,
   disciplines,
-  grades,
+  levels,
   tracks,
   skills,
   behaviours,
@@ -385,15 +385,15 @@ export function findMatchingJobs({
 
   // Generate all valid job combinations
   for (const discipline of disciplines) {
-    // First generate trackless jobs for each discipline × grade
-    for (const grade of grades) {
+    // First generate trackless jobs for each discipline × level
+    for (const level of levels) {
       if (
         !isValidJobCombination({
           discipline,
-          grade,
+          level,
           track: null,
           validationRules,
-          grades,
+          levels,
         })
       ) {
         continue;
@@ -401,7 +401,7 @@ export function findMatchingJobs({
 
       const job = deriveJob({
         discipline,
-        grade,
+        level,
         track: null,
         skills,
         behaviours,
@@ -416,15 +416,15 @@ export function findMatchingJobs({
 
     // Then generate jobs with valid tracks
     for (const track of tracks) {
-      for (const grade of grades) {
+      for (const level of levels) {
         // Skip invalid combinations
         if (
           !isValidJobCombination({
             discipline,
-            grade,
+            level,
             track,
             validationRules,
-            grades,
+            levels,
           })
         ) {
           continue;
@@ -432,7 +432,7 @@ export function findMatchingJobs({
 
         const job = deriveJob({
           discipline,
-          grade,
+          level,
           track,
           skills,
           behaviours,
@@ -457,64 +457,66 @@ export function findMatchingJobs({
 }
 
 /**
- * Estimate the best-fit grade level for a self-assessment
- * Maps the candidate's average skill level to the most appropriate grade
+ * Estimate the best-fit level rank for a self-assessment
+ * Maps the candidate's average skill proficiency to the most appropriate level
  * @param {Object} params
  * @param {import('./levels.js').SelfAssessment} params.selfAssessment - The self-assessment
- * @param {import('./levels.js').Grade[]} params.grades - All grades (sorted by level)
+ * @param {import('./levels.js').Level[]} params.levels - All levels (sorted by level)
  * @param {import('./levels.js').Skill[]} params.skills - All skills
- * @returns {{grade: import('./levels.js').Grade, confidence: number, averageSkillIndex: number}}
+ * @returns {{level: import('./levels.js').Level, confidence: number, averageSkillIndex: number}}
  */
-export function estimateBestFitGrade({ selfAssessment, grades, _skills }) {
-  const assessedSkills = Object.entries(selfAssessment.skillLevels || {});
+export function estimateBestFitLevel({ selfAssessment, levels, _skills }) {
+  const assessedSkills = Object.entries(
+    selfAssessment.skillProficiencies || {},
+  );
 
   if (assessedSkills.length === 0) {
-    // No skills assessed - return lowest grade
-    const sortedGrades = [...grades].sort(
+    // No skills assessed - return lowest level
+    const sortedLevels = [...levels].sort(
       (a, b) => a.ordinalRank - b.ordinalRank,
     );
     return {
-      grade: sortedGrades[0],
+      level: sortedLevels[0],
       confidence: 0,
       averageSkillIndex: 0,
     };
   }
 
-  // Calculate average skill level index
+  // Calculate average skill proficiency index
   let totalIndex = 0;
   for (const [, level] of assessedSkills) {
-    totalIndex += getSkillLevelIndex(level);
+    totalIndex += getSkillProficiencyIndex(level);
   }
   const averageSkillIndex = totalIndex / assessedSkills.length;
 
-  // Sort grades by ordinalRank
-  const sortedGrades = [...grades].sort(
+  // Sort levels by ordinalRank
+  const sortedLevels = [...levels].sort(
     (a, b) => a.ordinalRank - b.ordinalRank,
   );
 
-  // Map skill index to grade
-  // Skill levels: 0=awareness, 1=foundational, 2=working, 3=practitioner, 4=expert
-  // We estimate based on what primary skill level the grade expects
-  let bestGrade = sortedGrades[0];
+  // Map skill index to level
+  // Skill proficiencies: 0=awareness, 1=foundational, 2=working, 3=practitioner, 4=expert
+  // We estimate based on what primary skill proficiency the level expects
+  let bestLevel = sortedLevels[0];
   let minDistance = Infinity;
 
-  for (const grade of sortedGrades) {
-    const primaryLevelIndex = getSkillLevelIndex(
-      grade.baseSkillLevels?.primary || "awareness",
+  for (const level of sortedLevels) {
+    const primaryLevelIndex = getSkillProficiencyIndex(
+      level.baseSkillProficiencies?.primary || "awareness",
     );
     const distance = Math.abs(averageSkillIndex - primaryLevelIndex);
     if (distance < minDistance) {
       minDistance = distance;
-      bestGrade = grade;
+      bestLevel = level;
     }
   }
 
-  // Confidence is higher when the average skill level closely matches a grade
-  // Max confidence when exactly matching, lower when between grades
+  // Confidence is higher when the average skill proficiency closely matches a level
+  // Max confidence when exactly matching, lower when between levels
   const confidence = Math.max(0, 1 - minDistance / 2);
 
   return {
-    grade: bestGrade,
+    level: bestLevel,
     confidence,
     averageSkillIndex,
   };
@@ -522,54 +524,54 @@ export function estimateBestFitGrade({ selfAssessment, grades, _skills }) {
 
 /**
  * Find realistic job matches with tier filtering
- * Returns matches grouped by tier, filtered to a realistic range (±1 grade from best fit)
+ * Returns matches grouped by tier, filtered to a realistic range (±1 level from best fit)
  * @param {Object} params
  * @param {import('./levels.js').SelfAssessment} params.selfAssessment - The self-assessment
  * @param {import('./levels.js').Discipline[]} params.disciplines - All disciplines
- * @param {import('./levels.js').Grade[]} params.grades - All grades
+ * @param {import('./levels.js').Level[]} params.levels - All levels
  * @param {import('./levels.js').Track[]} params.tracks - All tracks
  * @param {import('./levels.js').Skill[]} params.skills - All skills
  * @param {import('./levels.js').Behaviour[]} params.behaviours - All behaviours
  * @param {import('./levels.js').JobValidationRules} [params.validationRules] - Optional validation rules
- * @param {boolean} [params.filterByGrade=true] - Whether to filter to ±1 grade from best fit
+ * @param {boolean} [params.filterByLevel=true] - Whether to filter to ±1 level from best fit
  * @param {number} [params.topN=20] - Maximum matches to return
  * @returns {{
  *   matches: import('./levels.js').JobMatch[],
  *   matchesByTier: Object<number, import('./levels.js').JobMatch[]>,
- *   estimatedGrade: {grade: import('./levels.js').Grade, confidence: number},
- *   gradeRange: {min: number, max: number}
+ *   estimatedLevel: {level: import('./levels.js').Level, confidence: number},
+ *   levelRange: {min: number, max: number}
  * }}
  */
 export function findRealisticMatches({
   selfAssessment,
   disciplines,
-  grades,
+  levels,
   tracks,
   skills,
   behaviours,
   validationRules,
-  filterByGrade = true,
+  filterByLevel = true,
   topN = 20,
 }) {
-  // Estimate best-fit grade
-  const estimatedGrade = estimateBestFitGrade({
+  // Estimate best-fit level
+  const estimatedLevel = estimateBestFitLevel({
     selfAssessment,
-    grades,
+    levels,
     skills,
   });
 
-  // Determine grade range (±RANGE_GRADE_OFFSET levels)
-  const bestFitLevel = estimatedGrade.grade.ordinalRank;
-  const gradeRange = {
-    min: bestFitLevel - RANGE_GRADE_OFFSET,
-    max: bestFitLevel + RANGE_GRADE_OFFSET,
+  // Determine level range (±RANGE_LEVEL_OFFSET levels)
+  const bestFitLevel = estimatedLevel.level.ordinalRank;
+  const levelRange = {
+    min: bestFitLevel - RANGE_LEVEL_OFFSET,
+    max: bestFitLevel + RANGE_LEVEL_OFFSET,
   };
 
   // Find all matches
   const allMatches = findMatchingJobs({
     selfAssessment,
     disciplines,
-    grades,
+    levels,
     tracks,
     skills,
     behaviours,
@@ -577,13 +579,13 @@ export function findRealisticMatches({
     topN: 100, // Get more than needed for filtering
   });
 
-  // Filter by grade range if enabled
+  // Filter by level range if enabled
   let filteredMatches = allMatches;
-  if (filterByGrade) {
+  if (filterByLevel) {
     filteredMatches = allMatches.filter(
       (m) =>
-        m.job.grade.ordinalRank >= gradeRange.min &&
-        m.job.grade.ordinalRank <= gradeRange.max,
+        m.job.level.ordinalRank >= levelRange.min &&
+        m.job.level.ordinalRank <= levelRange.max,
     );
   }
 
@@ -600,49 +602,49 @@ export function findRealisticMatches({
     matchesByTier[tierNum].push(match);
   }
 
-  // Sort each tier by grade ordinalRank (descending - more senior first), then by score
+  // Sort each tier by level ordinalRank (descending - more senior first), then by score
   for (const tierNum of Object.keys(matchesByTier)) {
     matchesByTier[tierNum].sort((a, b) => {
-      // First sort by grade ordinalRank descending (more senior first)
-      const gradeDiff = b.job.grade.ordinalRank - a.job.grade.ordinalRank;
-      if (gradeDiff !== 0) return gradeDiff;
+      // First sort by level ordinalRank descending (more senior first)
+      const levelDiff = b.job.level.ordinalRank - a.job.level.ordinalRank;
+      if (levelDiff !== 0) return levelDiff;
       // Then by score descending
       return b.analysis.overallScore - a.analysis.overallScore;
     });
   }
 
   // Intelligent filtering: limit lower-level matches when strong matches exist
-  // Find the highest grade ordinalRank with a Strong or Good match
+  // Find the highest level ordinalRank with a Strong or Good match
   const strongAndGoodMatches = [...matchesByTier[1], ...matchesByTier[2]];
   let highestMatchedLevel = 0;
   for (const match of strongAndGoodMatches) {
-    if (match.job.grade.ordinalRank > highestMatchedLevel) {
-      highestMatchedLevel = match.job.grade.ordinalRank;
+    if (match.job.level.ordinalRank > highestMatchedLevel) {
+      highestMatchedLevel = match.job.level.ordinalRank;
     }
   }
 
-  // Filter each tier to only show grades within reasonable range of highest match
-  // For Strong/Good matches: show up to RANGE_READY_GRADE_OFFSET levels below highest match
+  // Filter each tier to only show levels within reasonable range of highest match
+  // For Strong/Good matches: show up to RANGE_READY_LEVEL_OFFSET levels below highest match
   // For Stretch/Aspirational: show only at or above highest match (growth opportunities)
   if (highestMatchedLevel > 0) {
-    const minLevelForReady = highestMatchedLevel - RANGE_READY_GRADE_OFFSET;
+    const minLevelForReady = highestMatchedLevel - RANGE_READY_LEVEL_OFFSET;
     const minLevelForStretch = highestMatchedLevel;
 
     matchesByTier[1] = matchesByTier[1].filter(
-      (m) => m.job.grade.ordinalRank >= minLevelForReady,
+      (m) => m.job.level.ordinalRank >= minLevelForReady,
     );
     matchesByTier[2] = matchesByTier[2].filter(
-      (m) => m.job.grade.ordinalRank >= minLevelForReady,
+      (m) => m.job.level.ordinalRank >= minLevelForReady,
     );
     matchesByTier[3] = matchesByTier[3].filter(
-      (m) => m.job.grade.ordinalRank >= minLevelForStretch,
+      (m) => m.job.level.ordinalRank >= minLevelForStretch,
     );
     matchesByTier[4] = matchesByTier[4].filter(
-      (m) => m.job.grade.ordinalRank >= minLevelForStretch,
+      (m) => m.job.level.ordinalRank >= minLevelForStretch,
     );
   }
 
-  // Combine all filtered matches, sorted by grade (descending) then score
+  // Combine all filtered matches, sorted by level (descending) then score
   const allFilteredMatches = [
     ...matchesByTier[1],
     ...matchesByTier[2],
@@ -656,11 +658,11 @@ export function findRealisticMatches({
   return {
     matches,
     matchesByTier,
-    estimatedGrade: {
-      grade: estimatedGrade.grade,
-      confidence: estimatedGrade.confidence,
+    estimatedLevel: {
+      level: estimatedLevel.level,
+      confidence: estimatedLevel.confidence,
     },
-    gradeRange,
+    levelRange,
   };
 }
 
@@ -676,9 +678,9 @@ export function deriveDevelopmentPath({ selfAssessment, targetJob }) {
 
   // Analyze skill gaps
   for (const jobSkill of targetJob.skillMatrix) {
-    const selfLevel = selfAssessment.skillLevels?.[jobSkill.skillId];
-    const selfIndex = selfLevel ? getSkillLevelIndex(selfLevel) : -1;
-    const targetIndex = getSkillLevelIndex(jobSkill.level);
+    const selfLevel = selfAssessment.skillProficiencies?.[jobSkill.skillId];
+    const selfIndex = selfLevel ? getSkillProficiencyIndex(selfLevel) : -1;
+    const targetIndex = getSkillProficiencyIndex(jobSkill.proficiency);
 
     if (selfIndex < targetIndex) {
       // Calculate priority based on:
@@ -700,7 +702,7 @@ export function deriveDevelopmentPath({ selfAssessment, targetJob }) {
         name: jobSkill.skillName,
         type: "skill",
         currentLevel: selfLevel || "none",
-        targetLevel: jobSkill.level,
+        targetLevel: jobSkill.proficiency,
         priority,
         rationale:
           jobSkill.type === "primary"
@@ -754,12 +756,12 @@ export function deriveDevelopmentPath({ selfAssessment, targetJob }) {
 }
 
 /**
- * Find the best next step job (one grade level up) based on current assessment
+ * Find the best next step job (one level rank up) based on current assessment
  * @param {Object} params
  * @param {import('./levels.js').SelfAssessment} params.selfAssessment - The self-assessment
  * @param {import('./levels.js').JobDefinition} params.currentJob - Current job (or best match)
  * @param {import('./levels.js').Discipline[]} params.disciplines - All disciplines
- * @param {import('./levels.js').Grade[]} params.grades - All grades (sorted by level)
+ * @param {import('./levels.js').Level[]} params.levels - All levels (sorted by level)
  * @param {import('./levels.js').Track[]} params.tracks - All tracks
  * @param {import('./levels.js').Skill[]} params.skills - All skills
  * @param {import('./levels.js').Behaviour[]} params.behaviours - All behaviours
@@ -770,25 +772,25 @@ export function findNextStepJob({
   selfAssessment,
   currentJob,
   _disciplines,
-  grades,
+  levels,
   tracks,
   skills,
   behaviours,
   validationRules,
 }) {
-  const currentGradeLevel = currentJob.grade.ordinalRank;
+  const currentLevelLevel = currentJob.level.ordinalRank;
 
-  // Find next grade level
-  const sortedGrades = [...grades].sort(
+  // Find next level rank
+  const sortedLevels = [...levels].sort(
     (a, b) => a.ordinalRank - b.ordinalRank,
   );
-  const nextGrade = sortedGrades.find((g) => g.ordinalRank > currentGradeLevel);
+  const nextLevel = sortedLevels.find((g) => g.ordinalRank > currentLevelLevel);
 
-  if (!nextGrade) {
-    return null; // Already at top grade
+  if (!nextLevel) {
+    return null; // Already at top level
   }
 
-  // Find best match at the next grade level, same discipline preferred
+  // Find best match at the next level rank, same discipline preferred
   const candidates = [];
 
   for (const track of tracks) {
@@ -796,15 +798,15 @@ export function findNextStepJob({
     if (
       isValidJobCombination({
         discipline: currentJob.discipline,
-        grade: nextGrade,
+        level: nextLevel,
         track,
         validationRules,
-        grades,
+        levels,
       })
     ) {
       const job = deriveJob({
         discipline: currentJob.discipline,
-        grade: nextGrade,
+        level: nextLevel,
         track,
         skills,
         behaviours,
@@ -839,7 +841,7 @@ export function findNextStepJob({
  * @param {Object} params
  * @param {import('./levels.js').SelfAssessment} params.selfAssessment - The self-assessment
  * @param {import('./levels.js').Discipline[]} params.disciplines - All disciplines
- * @param {import('./levels.js').Grade[]} params.grades - All grades
+ * @param {import('./levels.js').Level[]} params.levels - All levels
  * @param {import('./levels.js').Track[]} params.tracks - All tracks
  * @param {import('./levels.js').Skill[]} params.skills - All skills
  * @param {import('./levels.js').Behaviour[]} params.behaviours - All behaviours
@@ -850,7 +852,7 @@ export function findNextStepJob({
 export function analyzeCandidate({
   selfAssessment,
   disciplines,
-  grades,
+  levels,
   tracks,
   skills,
   behaviours,
@@ -861,7 +863,7 @@ export function analyzeCandidate({
   const matches = findMatchingJobs({
     selfAssessment,
     disciplines,
-    grades,
+    levels,
     tracks,
     skills,
     behaviours,
@@ -878,7 +880,7 @@ export function analyzeCandidate({
   // Calculate overall skill profile
   const skillProfile = {};
   for (const [skillId, level] of Object.entries(
-    selfAssessment.skillLevels || {},
+    selfAssessment.skillProficiencies || {},
   )) {
     const skill = skills.find((s) => s.id === skillId);
     if (skill) {

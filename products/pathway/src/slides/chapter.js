@@ -38,10 +38,10 @@ export function renderChapterSlide({ render, data, params }) {
       emojiIcon: framework.entityDefinitions.discipline.emojiIcon,
       description: framework.entityDefinitions.discipline.description,
     },
-    grade: {
-      title: framework.entityDefinitions.grade.title,
-      emojiIcon: framework.entityDefinitions.grade.emojiIcon,
-      description: framework.entityDefinitions.grade.description,
+    level: {
+      title: framework.entityDefinitions.level.title,
+      emojiIcon: framework.entityDefinitions.level.emojiIcon,
+      description: framework.entityDefinitions.level.description,
     },
     track: {
       title: framework.entityDefinitions.track.title,

@@ -1,7 +1,7 @@
 /**
- * Grade formatting for microdata HTML output
+ * Level formatting for microdata HTML output
  *
- * Generates clean, class-less HTML with microdata aligned with grades.schema.json
+ * Generates clean, class-less HTML with microdata aligned with levels.schema.json
  * RDF vocab: https://www.forwardimpact.team/schema/rdf/
  */
 
@@ -16,19 +16,19 @@ import {
   formatLevelName,
   htmlDocument,
 } from "../microdata-shared.js";
-import { prepareGradesList, prepareGradeDetail } from "./shared.js";
+import { prepareLevelsList, prepareLevelDetail } from "./shared.js";
 
 /**
- * Format grade list as microdata HTML
- * @param {Array} grades - Raw grade entities
+ * Format level list as microdata HTML
+ * @param {Array} levels - Raw level entities
  * @returns {string} HTML with microdata
  */
-export function gradeListToMicrodata(grades) {
-  const { items } = prepareGradesList(grades);
+export function levelListToMicrodata(levels) {
+  const { items } = prepareLevelsList(levels);
 
   const content = items
     .map(
-      (g) => `${openTag("article", { itemtype: "Grade", itemid: `#${g.id}` })}
+      (g) => `${openTag("article", { itemtype: "Level", itemid: `#${g.id}` })}
 ${prop("h2", "id", g.id)}
 <p>${escapeHtml(g.displayName)}</p>
 ${g.typicalExperienceRange ? prop("p", "typicalExperienceRange", g.typicalExperienceRange) : ""}
@@ -38,21 +38,21 @@ ${metaTag("ordinalRank", String(g.ordinalRank))}
     .join("\n");
 
   return htmlDocument(
-    "Grades",
+    "Levels",
     `<main>
-<h1>Grades</h1>
+<h1>Levels</h1>
 ${content}
 </main>`,
   );
 }
 
 /**
- * Format grade detail as microdata HTML
- * @param {Object} grade - Raw grade entity
+ * Format level detail as microdata HTML
+ * @param {Object} level - Raw level entity
  * @returns {string} HTML with microdata
  */
-export function gradeToMicrodata(grade) {
-  const view = prepareGradeDetail(grade);
+export function levelToMicrodata(level) {
+  const view = prepareLevelDetail(level);
 
   if (!view) return "";
 
@@ -78,9 +78,12 @@ export function gradeToMicrodata(grade) {
     sections.push(section("Titles", dl(titlePairs), 2));
   }
 
-  // Base skill levels - using BaseSkillLevels itemtype
-  if (view.baseSkillLevels && Object.keys(view.baseSkillLevels).length > 0) {
-    const levelPairs = Object.entries(view.baseSkillLevels).map(
+  // Base skill proficiencies - using BaseSkillProficiencies itemtype
+  if (
+    view.baseSkillProficiencies &&
+    Object.keys(view.baseSkillProficiencies).length > 0
+  ) {
+    const levelPairs = Object.entries(view.baseSkillProficiencies).map(
       ([type, level]) => ({
         term: formatLevelName(type),
         definition: formatLevelName(level),
@@ -89,8 +92,8 @@ export function gradeToMicrodata(grade) {
     );
     sections.push(
       section(
-        "Base Skill Levels",
-        `${openTag("div", { itemtype: "BaseSkillLevels", itemprop: "baseSkillLevels" })}
+        "Base Skill Proficiencies",
+        `${openTag("div", { itemtype: "BaseSkillProficiencies", itemprop: "baseSkillProficiencies" })}
 ${dl(levelPairs)}
 </div>`,
         2,
@@ -111,14 +114,14 @@ ${dl(levelPairs)}
     );
     // Handle both single value and object cases
     const maturityContent =
-      typeof grade.baseBehaviourMaturity === "string"
-        ? `${linkTag("baseBehaviourMaturity", `#${grade.baseBehaviourMaturity}`)}
-<p>${formatLevelName(grade.baseBehaviourMaturity)}</p>`
+      typeof level.baseBehaviourMaturity === "string"
+        ? `${linkTag("baseBehaviourMaturity", `#${level.baseBehaviourMaturity}`)}
+<p>${formatLevelName(level.baseBehaviourMaturity)}</p>`
         : dl(maturityPairs);
     sections.push(section("Base Behaviour Maturity", maturityContent, 2));
   }
 
-  // Expectations - using GradeExpectations itemtype
+  // Expectations - using LevelExpectations itemtype
   if (view.expectations && Object.keys(view.expectations).length > 0) {
     const expectationPairs = Object.entries(view.expectations).map(
       ([key, value]) => ({
@@ -130,7 +133,7 @@ ${dl(levelPairs)}
     sections.push(
       section(
         "Expectations",
-        `${openTag("div", { itemtype: "GradeExpectations", itemprop: "expectations" })}
+        `${openTag("div", { itemtype: "LevelExpectations", itemprop: "expectations" })}
 ${dl(expectationPairs)}
 </div>`,
         2,
@@ -139,7 +142,7 @@ ${dl(expectationPairs)}
   }
 
   const body = `<main>
-${openTag("article", { itemtype: "Grade", itemid: `#${view.id}` })}
+${openTag("article", { itemtype: "Level", itemid: `#${view.id}` })}
 <h1>${prop("span", "id", view.id)} — ${escapeHtml(view.displayName)}</h1>
 ${metaTag("ordinalRank", String(view.ordinalRank))}
 ${view.typicalExperienceRange ? prop("p", "typicalExperienceRange", `Experience: ${view.typicalExperienceRange}`) : ""}

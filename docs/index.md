@@ -80,7 +80,7 @@ briefed, organized, and field-ready.
 
 #### One Source of Truth
 
-Skills, behaviours, and grades defined once in YAML — used everywhere, by humans
+Skills, behaviours, and levels defined once in YAML — used everywhere, by humans
 and machines alike.
 
 </div>

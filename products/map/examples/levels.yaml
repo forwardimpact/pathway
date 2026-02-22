@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/grades.schema.json
+# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/levels.schema.json
 
 - id: L1
   professionalTitle: Engineer I
@@ -8,7 +8,7 @@
   qualificationSummary:
     Entry-level position for those new to the field or transitioning careers.
     Bachelor's degree or equivalent practical experience.
-  baseSkillLevels:
+  baseSkillProficiencies:
     primary: foundational
     secondary: awareness
     broad: awareness
@@ -31,7 +31,7 @@
   qualificationSummary: >
     {typicalExperienceRange} years of relevant experience. Demonstrated ability
     to complete tasks independently and contribute effectively to team projects.
-  baseSkillLevels:
+  baseSkillProficiencies:
     primary: foundational
     secondary: foundational
     broad: awareness
@@ -53,7 +53,7 @@
   qualificationSummary: >
     {typicalExperienceRange} years of relevant experience. Proven track record
     of leading technical initiatives and mentoring team members.
-  baseSkillLevels:
+  baseSkillProficiencies:
     primary: practitioner
     secondary: working
     broad: foundational
@@ -74,7 +74,7 @@
   qualificationSummary: >
     {typicalExperienceRange} years of relevant experience. Extensive experience
     leading complex technical projects with multi-team impact.
-  baseSkillLevels:
+  baseSkillProficiencies:
     primary: expert
     secondary: practitioner
     broad: working
@@ -98,7 +98,7 @@
     {typicalExperienceRange} years of relevant experience. Deep technical
     expertise with a proven track record of organization-wide technical
     leadership.
-  baseSkillLevels:
+  baseSkillProficiencies:
     primary: expert
     secondary: expert
     broad: practitioner

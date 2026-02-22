@@ -18,11 +18,11 @@ import { trimValue, trimFields } from "../shared.js";
  * @param {Object} params
  * @param {Object} params.job - The job definition
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Object} [params.track] - The track (optional)
  * @returns {Object} Data object ready for Mustache template
  */
-function prepareJobDescriptionData({ job, discipline, grade, track }) {
+function prepareJobDescriptionData({ job, discipline, level, track }) {
   // Build role summary from discipline - use manager version if applicable
   const isManagement = discipline.isManagement === true;
   let roleSummary =
@@ -81,22 +81,22 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
     return indexB - indexA;
   });
 
-  // Build capability skill sections at the highest skill level
+  // Build capability skill sections at the highest skill proficiency
   let capabilitySkills = [];
   const derivedResponsibilities = job.derivedResponsibilities || [];
   if (derivedResponsibilities.length > 0) {
     // derivedResponsibilities is sorted: highest level first, then by ordinalRank
-    const highestLevel = derivedResponsibilities[0].level;
+    const highestProficiency = derivedResponsibilities[0].level;
 
     // Filter responsibilities to only the highest level
     const topResponsibilities = derivedResponsibilities.filter(
-      (r) => r.level === highestLevel,
+      (r) => r.level === highestProficiency,
     );
 
     // Group skill matrix entries by capability at the highest level
     const skillsByCapability = {};
     for (const skill of job.skillMatrix) {
-      if (skill.level !== highestLevel) continue;
+      if (skill.proficiency !== highestProficiency) continue;
       if (!skillsByCapability[skill.capability]) {
         skillsByCapability[skill.capability] = [];
       }
@@ -115,7 +115,7 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
           responsibilityDescription: r.responsibility,
           skills: skills.map((s) => ({
             skillName: s.skillName,
-            levelDescription: s.levelDescription || "",
+            proficiencyDescription: s.proficiencyDescription || "",
           })),
         };
       });
@@ -123,9 +123,9 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
 
   // Build qualification summary with placeholder replacement
   const qualificationSummary =
-    (grade.qualificationSummary || "").replace(
+    (level.qualificationSummary || "").replace(
       /\{typicalExperienceRange\}/g,
-      grade.typicalExperienceRange || "",
+      level.typicalExperienceRange || "",
     ) || null;
 
   const behaviours = trimFields(sortedBehaviours, {
@@ -137,8 +137,8 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
 
   return {
     title: job.title,
-    gradeId: grade.id,
-    typicalExperienceRange: grade.typicalExperienceRange,
+    levelId: level.id,
+    typicalExperienceRange: level.typicalExperienceRange,
     trackName: track?.name || null,
     hasTrack: !!track,
     roleSummary: trimValue(roleSummary),
@@ -151,7 +151,7 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
     capabilitySkills: capabilitySkills.map((cap) => ({
       ...cap,
       responsibilityDescription: trimValue(cap.responsibilityDescription),
-      skills: trimFields(cap.skills, { levelDescription: "optional" }),
+      skills: trimFields(cap.skills, { proficiencyDescription: "optional" }),
     })),
     hasCapabilitySkills: capabilitySkills.length > 0,
     qualificationSummary: trimmedQualificationSummary,
@@ -164,15 +164,15 @@ function prepareJobDescriptionData({ job, discipline, grade, track }) {
  * @param {Object} params
  * @param {Object} params.job - The job definition
  * @param {Object} params.discipline - The discipline
- * @param {Object} params.grade - The grade
+ * @param {Object} params.level - The level
  * @param {Object} [params.track] - The track (optional)
  * @param {string} template - Mustache template string
  * @returns {string} Markdown formatted job description
  */
 export function formatJobDescription(
-  { job, discipline, grade, track },
+  { job, discipline, level, track },
   template,
 ) {
-  const data = prepareJobDescriptionData({ job, discipline, grade, track });
+  const data = prepareJobDescriptionData({ job, discipline, level, track });
   return Mustache.render(template, data);
 }

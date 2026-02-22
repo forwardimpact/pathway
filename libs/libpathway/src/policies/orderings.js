@@ -9,7 +9,7 @@
  */
 
 import {
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
   getCapabilityOrder,
   getStageOrder,
@@ -61,7 +61,10 @@ export function compareByStageOrder(stages) {
  * @returns {number} Comparison result
  */
 export function compareByLevelDesc(a, b) {
-  return getSkillLevelIndex(b.level) - getSkillLevelIndex(a.level);
+  return (
+    getSkillProficiencyIndex(b.proficiency) -
+    getSkillProficiencyIndex(a.proficiency)
+  );
 }
 
 /**
@@ -71,7 +74,10 @@ export function compareByLevelDesc(a, b) {
  * @returns {number} Comparison result
  */
 export function compareByLevelAsc(a, b) {
-  return getSkillLevelIndex(a.level) - getSkillLevelIndex(b.level);
+  return (
+    getSkillProficiencyIndex(a.proficiency) -
+    getSkillProficiencyIndex(b.proficiency)
+  );
 }
 
 /**
@@ -110,7 +116,9 @@ export function compareByName(a, b) {
  */
 export function compareBySkillPriority(a, b) {
   // Level descending (higher level first)
-  const levelDiff = getSkillLevelIndex(b.level) - getSkillLevelIndex(a.level);
+  const levelDiff =
+    getSkillProficiencyIndex(b.proficiency) -
+    getSkillProficiencyIndex(a.proficiency);
   if (levelDiff !== 0) return levelDiff;
 
   // Type ascending (primary first)

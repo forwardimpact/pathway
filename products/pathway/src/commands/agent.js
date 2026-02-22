@@ -35,7 +35,7 @@ import {
   generateStageAgentProfile,
   validateAgentProfile,
   validateAgentSkill,
-  deriveReferenceGrade,
+  deriveReferenceLevel,
   deriveAgentSkills,
   generateSkillMarkdown,
   deriveToolkit,
@@ -414,15 +414,15 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     process.exit(1);
   }
 
-  // Get reference grade for derivation
-  const grade = deriveReferenceGrade(data.grades);
+  // Get reference level for derivation
+  const level = deriveReferenceLevel(data.levels);
 
   // --skills: Output plain list of skill IDs (for piping)
   if (options.skills) {
     const derivedSkills = deriveAgentSkills({
       discipline: humanDiscipline,
       track: humanTrack,
-      grade,
+      level,
       skills: skillsWithAgent,
     });
     for (const skill of derivedSkills) {
@@ -436,7 +436,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
     const derivedSkills = deriveAgentSkills({
       discipline: humanDiscipline,
       track: humanTrack,
-      grade,
+      level,
       skills: skillsWithAgent,
     });
     const toolkit = deriveToolkit({
@@ -462,7 +462,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   const stageParams = {
     discipline: humanDiscipline,
     track: humanTrack,
-    grade,
+    level,
     skills: skillsWithAgent,
     behaviours: data.behaviours,
     agentBehaviours: agentData.behaviours,
@@ -534,7 +534,7 @@ export async function runAgentCommand({ data, args, options, dataDir }) {
   const derivedSkills = deriveAgentSkills({
     discipline: humanDiscipline,
     track: humanTrack,
-    grade,
+    level,
     skills: skillsWithAgent,
   });
 

@@ -25,34 +25,34 @@ fit: a owl:Ontology ;
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Skill Levels (5 levels from lowest to highest proficiency)
+# Skill Proficiencies (5 levels from lowest to highest proficiency)
 # -----------------------------------------------------------------------------
 
-fit:SkillLevel a rdfs:Class ;
-    rdfs:label "Skill Level"@en ;
+fit:SkillProficiency a rdfs:Class ;
+    rdfs:label "Skill Proficiency"@en ;
     rdfs:comment "Skill proficiency level from lowest to highest"@en .
 
-fit:awareness a fit:SkillLevel ;
+fit:awareness a fit:SkillProficiency ;
     rdfs:label "Awareness"@en ;
     fit:ordinal 1 ;
     rdfs:comment "Learning fundamentals, needs guidance"@en .
 
-fit:foundational a fit:SkillLevel ;
+fit:foundational a fit:SkillProficiency ;
     rdfs:label "Foundational"@en ;
     fit:ordinal 2 ;
     rdfs:comment "Can apply basics independently"@en .
 
-fit:working a fit:SkillLevel ;
+fit:working a fit:SkillProficiency ;
     rdfs:label "Working"@en ;
     fit:ordinal 3 ;
     rdfs:comment "Solid competence, handles ambiguity"@en .
 
-fit:practitioner a fit:SkillLevel ;
+fit:practitioner a fit:SkillProficiency ;
     rdfs:label "Practitioner"@en ;
     fit:ordinal 4 ;
     rdfs:comment "Deep expertise, leads and mentors"@en .
 
-fit:expert a fit:SkillLevel ;
+fit:expert a fit:SkillProficiency ;
     rdfs:label "Expert"@en ;
     fit:ordinal 5 ;
     rdfs:comment "Authority, shapes direction across org"@en .
@@ -157,10 +157,10 @@ fit:agent a rdf:Property ;
     rdfs:label "agent"@en ;
     rdfs:comment "Agent-specific content"@en .
 
-fit:minGrade a rdf:Property ;
-    rdfs:label "minGrade"@en ;
-    rdfs:comment "Minimum grade required"@en ;
-    rdfs:range fit:Grade .
+fit:minLevel a rdf:Property ;
+    rdfs:label "minLevel"@en ;
+    rdfs:comment "Minimum level required"@en ;
+    rdfs:range fit:Level .
 
 fit:constraints a rdf:Property ;
     rdfs:label "constraints"@en ;
@@ -171,9 +171,9 @@ fit:constraints a rdf:Property ;
 # SHARED NESTED CLASSES
 # =============================================================================
 
-fit:LevelDescriptions a rdfs:Class ;
+fit:ProficiencyDescriptions a rdfs:Class ;
     rdfs:label "Level Descriptions"@en ;
-    rdfs:comment "Description of expectations at each skill level"@en .
+    rdfs:comment "Description of expectations at each skill proficiency"@en .
 
 fit:MaturityDescriptions a rdfs:Class ;
     rdfs:label "Maturity Descriptions"@en ;
@@ -181,7 +181,7 @@ fit:MaturityDescriptions a rdfs:Class ;
 
 fit:ResponsibilitiesByLevel a rdfs:Class ;
     rdfs:label "Responsibilities By Level"@en ;
-    rdfs:comment "Responsibility descriptions by skill level"@en .
+    rdfs:comment "Responsibility descriptions by skill proficiency"@en .
 
 # -----------------------------------------------------------------------------
 # Level Description Properties
@@ -249,8 +249,8 @@ fit:exemplifyingDescription a rdf:Property ;
 # Level Descriptions Shape
 # -----------------------------------------------------------------------------
 
-fit:LevelDescriptionsShape a sh:NodeShape ;
-    sh:targetClass fit:LevelDescriptions ;
+fit:ProficiencyDescriptionsShape a sh:NodeShape ;
+    sh:targetClass fit:ProficiencyDescriptions ;
     sh:property [
         sh:path fit:awarenessDescription ;
         sh:datatype xsd:string ;

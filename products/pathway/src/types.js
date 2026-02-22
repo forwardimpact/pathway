@@ -19,7 +19,7 @@
  * @property {boolean} [humanOnly] - Whether this skill requires human presence
  * @property {'primary'|'secondary'|'tertiary'} type - Skill type in this role
  * @property {string} level - Level ID (e.g., "advanced", "expert")
- * @property {string} levelDescription - Human-readable level description
+ * @property {string} proficiencyDescription - Human-readable level description
  */
 
 // ============================================================================

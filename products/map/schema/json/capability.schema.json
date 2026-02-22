@@ -140,20 +140,20 @@
     },
     "skillHumanSection": {
       "type": "object",
-      "required": ["description", "levelDescriptions"],
+      "required": ["description", "proficiencyDescriptions"],
       "properties": {
         "description": {
           "type": "string",
           "description": "Description of the skill"
         },
-        "levelDescriptions": {
-          "$ref": "#/$defs/levelDescriptions",
+        "proficiencyDescriptions": {
+          "$ref": "#/$defs/proficiencyDescriptions",
           "description": "Description of expectations at each level"
         }
       },
       "additionalProperties": false
     },
-    "levelDescriptions": {
+    "proficiencyDescriptions": {
       "type": "object",
       "properties": {
         "awareness": { "type": "string" },

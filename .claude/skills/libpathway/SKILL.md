@@ -10,7 +10,7 @@ career progression from schema data.
 
 ## When to Use
 
-- Modifying job derivation logic (skill levels, behaviour maturities)
+- Modifying job derivation logic (skill proficiencies, behaviour maturities)
 - Changing agent profile generation
 - Working with skill modifier resolution
 - Updating checklist derivation for stage transitions
@@ -52,8 +52,8 @@ import {
 Agent-specific filtering and sorting:
 
 - Excludes `isHumanOnly` skills
-- Keeps only highest level per skill
-- Sorts by level (highest first)
+- Keeps only highest proficiency per skill
+- Sorts by proficiency (highest first)
 
 ```javascript
 import { prepareAgentProfile } from "@forwardimpact/libpathway/profile";
@@ -84,19 +84,19 @@ Question selection based on role requirements.
 
 ### progression.js
 
-Career progression analysis between grades.
+Career progression analysis between levels.
 
 ## Job Derivation
 
-Jobs are derived from `Discipline × Grade × Track?`:
+Jobs are derived from `Discipline × Level × Track?`:
 
-1. Base skill levels from grade (by skill type: primary/secondary/broad)
+1. Base skill proficiencies from level (by skill type: primary/secondary/broad)
 2. Track modifiers applied to capabilities (+1, 0, -1)
 3. Behaviour modifiers combined from discipline and track
 4. Responsibilities by discipline type (professional/management)
 
 ```
-Final Level = clamp(Base Level + Track Modifier, awareness, grade ceiling)
+Final Proficiency = clamp(Base Proficiency + Track Modifier, awareness, level ceiling)
 ```
 
 ## Agent Profiles
@@ -108,7 +108,7 @@ capabilities:
 Agent Profile = Discipline × Track × Stage
 ```
 
-- Uses practitioner-level reference grade
+- Uses practitioner-level reference level
 - Excludes `isHumanOnly` skills
 - Constrained by stage tools and permissions
 

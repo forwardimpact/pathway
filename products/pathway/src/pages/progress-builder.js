@@ -18,7 +18,7 @@ export function renderCareerProgress() {
       title: "Career Progress",
       description:
         "Select your current role to visualize career progression. See what skills and behaviours " +
-        "change as you advance to the next grade, or compare expectations across different tracks.",
+        "change as you advance to the next level, or compare expectations across different tracks.",
       formTitle: "Select Your Current Role",
       emptyPreviewText:
         "Select all three components to preview progression paths.",
@@ -26,25 +26,25 @@ export function renderCareerProgress() {
       previewPresenter: (selection) =>
         prepareCareerProgressPreview({
           ...selection,
-          grades: data.grades,
+          levels: data.levels,
           tracks: data.tracks,
         }),
       detailPath: (sel) =>
         sel.track
-          ? `/progress/${sel.discipline}/${sel.grade}/${sel.track}`
-          : `/progress/${sel.discipline}/${sel.grade}`,
+          ? `/progress/${sel.discipline}/${sel.level}/${sel.track}`
+          : `/progress/${sel.discipline}/${sel.level}`,
       renderPreview: createProgressPreview,
       labels: {
-        grade: "Current Grade",
+        level: "Current Level",
       },
       helpItems: [
         {
-          label: "📈 Grade Progression",
-          text: "See exactly which skills and behaviours need to grow to advance to the next grade level.",
+          label: "📈 Level Progression",
+          text: "See exactly which skills and behaviours need to grow to advance to the next level rank.",
         },
         {
           label: "🔀 Track Comparison",
-          text: "Compare how expectations differ across tracks at the same grade - useful for exploring lateral moves.",
+          text: "Compare how expectations differ across tracks at the same level - useful for exploring lateral moves.",
         },
         {
           label: "🎯 Development Focus",

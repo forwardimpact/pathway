@@ -23,7 +23,7 @@ const schemaDir = join(__dirname, "../schema/json");
 const SCHEMA_MAPPINGS = {
   // Single files at root of data directory
   "drivers.yaml": "drivers.schema.json",
-  "grades.yaml": "grades.schema.json",
+  "levels.yaml": "levels.schema.json",
   "stages.yaml": "stages.schema.json",
   "framework.yaml": "framework.schema.json",
   "self-assessments.yaml": "self-assessments.schema.json",

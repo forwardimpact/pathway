@@ -6,8 +6,8 @@
  * Usage:
  *   npx pathway job                                          # Summary with stats
  *   npx pathway job --list                                   # All valid combinations (for piping)
- *   npx pathway job <discipline> <grade>                     # Detail view (trackless)
- *   npx pathway job <discipline> <grade> --track=<track>     # Detail view (with track)
+ *   npx pathway job <discipline> <level>                     # Detail view (trackless)
+ *   npx pathway job <discipline> <level> --track=<track>     # Detail view (with track)
  *   npx pathway job <d> <g> [--track=<t>] --skills           # Plain list of skill IDs
  *   npx pathway job <d> <g> [--track=<t>] --tools            # Plain list of tool names
  *   npx pathway job se L3 --track=platform --checklist=code  # Show checklist for handoff
@@ -47,20 +47,20 @@ function formatJob(view, _options, entities, jobTemplate) {
 export async function runJobCommand({ data, args, options, dataDir }) {
   const jobs = generateAllJobs({
     disciplines: data.disciplines,
-    grades: data.grades,
+    levels: data.levels,
     tracks: data.tracks,
     skills: data.skills,
     behaviours: data.behaviours,
     validationRules: data.framework.validationRules,
   });
 
-  // --list: Output clean lines for piping (discipline grade track format)
+  // --list: Output clean lines for piping (discipline level track format)
   if (options.list) {
     for (const job of jobs) {
       if (job.track) {
-        console.log(`${job.discipline.id} ${job.grade.id} ${job.track.id}`);
+        console.log(`${job.discipline.id} ${job.level.id} ${job.track.id}`);
       } else {
-        console.log(`${job.discipline.id} ${job.grade.id}`);
+        console.log(`${job.discipline.id} ${job.level.id}`);
       }
     }
     return;
@@ -82,15 +82,15 @@ export async function runJobCommand({ data, args, options, dataDir }) {
     console.log(`\nTotal: ${jobs.length} valid job combinations`);
     console.log(`\nRun 'npx pathway job --list' for all combinations`);
     console.log(
-      `Run 'npx pathway job <discipline> <grade> [--track=<track>]' for details\n`,
+      `Run 'npx pathway job <discipline> <level> [--track=<track>]' for details\n`,
     );
     return;
   }
 
-  // Handle job detail view - requires discipline and grade
+  // Handle job detail view - requires discipline and level
   if (args.length < 2) {
     console.error(
-      "Usage: npx pathway job <discipline> <grade> [--track=<track>]",
+      "Usage: npx pathway job <discipline> <level> [--track=<track>]",
     );
     console.error("       npx pathway job --list");
     console.error("Example: npx pathway job software_engineering L4");
@@ -101,7 +101,7 @@ export async function runJobCommand({ data, args, options, dataDir }) {
   }
 
   const discipline = data.disciplines.find((d) => d.id === args[0]);
-  const grade = data.grades.find((g) => g.id === args[1]);
+  const level = data.levels.find((g) => g.id === args[1]);
   const track = options.track
     ? data.tracks.find((t) => t.id === options.track)
     : null;
@@ -112,9 +112,9 @@ export async function runJobCommand({ data, args, options, dataDir }) {
     process.exit(1);
   }
 
-  if (!grade) {
-    console.error(`Grade not found: ${args[1]}`);
-    console.error(`Available: ${data.grades.map((g) => g.id).join(", ")}`);
+  if (!level) {
+    console.error(`Level not found: ${args[1]}`);
+    console.error(`Available: ${data.levels.map((g) => g.id).join(", ")}`);
     process.exit(1);
   }
 
@@ -126,7 +126,7 @@ export async function runJobCommand({ data, args, options, dataDir }) {
 
   const view = prepareJobDetail({
     discipline,
-    grade,
+    level,
     track,
     skills: data.skills,
     behaviours: data.behaviours,
@@ -137,8 +137,8 @@ export async function runJobCommand({ data, args, options, dataDir }) {
 
   if (!view) {
     const combo = track
-      ? `${discipline.id} × ${grade.id} × ${track.id}`
-      : `${discipline.id} × ${grade.id}`;
+      ? `${discipline.id} × ${level.id} × ${track.id}`
+      : `${discipline.id} × ${level.id}`;
     console.error(`Invalid combination: ${combo}`);
     if (track) {
       const validTracks =
@@ -212,5 +212,5 @@ export async function runJobCommand({ data, args, options, dataDir }) {
 
   // Load job template for description formatting
   const jobTemplate = await loadJobTemplate(dataDir);
-  formatJob(view, options, { discipline, grade, track }, jobTemplate);
+  formatJob(view, options, { discipline, level, track }, jobTemplate);
 }

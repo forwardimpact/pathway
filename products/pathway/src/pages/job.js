@@ -28,18 +28,18 @@ async function getJobTemplate() {
  * @param {Object} params - Route params
  */
 export async function renderJobDetail(params) {
-  const { discipline: disciplineId, grade: gradeId, track: trackId } = params;
+  const { discipline: disciplineId, level: levelId, track: trackId } = params;
   const { data } = getState();
 
   // Find the components
   const discipline = data.disciplines.find((d) => d.id === disciplineId);
-  const grade = data.grades.find((g) => g.id === gradeId);
+  const level = data.levels.find((g) => g.id === levelId);
   const track = trackId ? data.tracks.find((t) => t.id === trackId) : null;
 
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     renderError({
       title: "Job Not Found",
-      message: "Invalid job combination. Discipline or grade not found.",
+      message: "Invalid job combination. Discipline or level not found.",
       backPath: "/job-builder",
       backText: "← Back to Job Builder",
     });
@@ -60,7 +60,7 @@ export async function renderJobDetail(params) {
   // Use formatter shared module to get job detail view
   const jobView = prepareJobDetail({
     discipline,
-    grade,
+    level,
     track,
     skills: data.skills,
     behaviours: data.behaviours,
@@ -72,7 +72,7 @@ export async function renderJobDetail(params) {
   if (!jobView) {
     renderError({
       title: "Invalid Combination",
-      message: "This discipline, track, and grade combination is not valid.",
+      message: "This discipline, track, and level combination is not valid.",
       backPath: "/job-builder",
       backText: "← Back to Job Builder",
     });
@@ -89,6 +89,6 @@ export async function renderJobDetail(params) {
 
   // Load template and format
   const jobTemplate = await getJobTemplate();
-  const page = jobToDOM(jobView, { discipline, grade, track, jobTemplate });
+  const page = jobToDOM(jobView, { discipline, level, track, jobTemplate });
   render(page);
 }

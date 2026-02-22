@@ -59,7 +59,7 @@ export function createFixedGrid(columns, children, options = {}) {
 }
 
 /**
- * Create a grid for form selectors (discipline/grade/track dropdowns)
+ * Create a grid for form selectors (discipline/level/track dropdowns)
  * Uses auto-grid-sm (200px min)
  * @param {HTMLElement[]} children - Form control elements
  * @returns {HTMLElement}

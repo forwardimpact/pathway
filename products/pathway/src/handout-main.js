@@ -7,7 +7,7 @@
  *   /driver - All driver slides
  *   /skill - All skill slides
  *   /behaviour - All behaviour slides
- *   /job - All discipline, track, and grade slides
+ *   /job - All discipline, track, and level slides
  */
 
 import { setData, getState } from "./lib/state.js";
@@ -33,7 +33,7 @@ import {
   skillToDOM,
   behaviourToDOM,
   disciplineToDOM,
-  gradeToDOM,
+  levelToDOM,
   trackToDOM,
 } from "./formatters/index.js";
 import { sortTracksByName } from "./formatters/track/shared.js";
@@ -135,7 +135,7 @@ function renderIndex(data) {
             `${getConceptEmoji(framework, "job")} ${framework.entityDefinitions.job.title}`,
           ),
           " - ",
-          `${data.disciplines.length} disciplines, ${data.grades.length} grades, ${data.tracks.length} tracks`,
+          `${data.disciplines.length} disciplines, ${data.levels.length} levels, ${data.tracks.length} tracks`,
         ),
         li(
           {},
@@ -284,7 +284,7 @@ function sortDisciplinesByType(disciplines) {
 }
 
 /**
- * Render all job component slides (disciplines, grades, tracks)
+ * Render all job component slides (disciplines, levels, tracks)
  * @param {Object} data
  */
 function renderJobHandout(data) {
@@ -303,8 +303,8 @@ function renderJobHandout(data) {
     });
   });
 
-  const gradeSlides = data.grades.map((grade) => {
-    return gradeToDOM(grade, {
+  const levelSlides = data.levels.map((level) => {
+    return levelToDOM(level, {
       framework: data.framework,
       showBackLink: false,
     });
@@ -329,15 +329,15 @@ function renderJobHandout(data) {
     }),
     ...disciplineSlides,
 
-    // Grades chapter (moved before Tracks)
+    // Levels chapter (moved before Tracks)
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "grade"),
-      title: framework.entityDefinitions.grade.title,
-      description: framework.entityDefinitions.grade.description,
+      emojiIcon: getConceptEmoji(framework, "level"),
+      title: framework.entityDefinitions.level.title,
+      description: framework.entityDefinitions.level.description,
     }),
-    ...gradeSlides,
+    ...levelSlides,
 
-    // Tracks chapter (moved after Grades)
+    // Tracks chapter (moved after Levels)
     createChapterCover({
       emojiIcon: getConceptEmoji(framework, "track"),
       title: framework.entityDefinitions.track.title,

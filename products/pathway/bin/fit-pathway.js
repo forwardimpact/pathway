@@ -10,16 +10,16 @@
  *
  * Commands:
  *   discipline [<id>]           Show disciplines
- *   grade [<id>]                Show grades
+ *   level [<id>]                Show levels
  *   track [<id>]                Show tracks
  *   behaviour [<id>]            Show behaviours
  *   skill [<id>]                Show skills (summary, --list, or detail)
  *   driver [<id>]               Show drivers
  *   stage [<id>]                Show stages
  *   tool [<name>]               Show tools
- *   job [<discipline> <grade>] [--track=TRACK]  Generate job definition
- *   interview <discipline> <grade> [--track=TRACK] [--type=mission|decomposition|stakeholder]  Generate interview
- *   progress <discipline> <grade> [--track=TRACK] [--compare=GRADE]  Career progression
+ *   job [<discipline> <level>] [--track=TRACK]  Generate job definition
+ *   interview <discipline> <level> [--track=TRACK] [--type=mission|decomposition|stakeholder]  Generate interview
+ *   progress <discipline> <level> [--track=TRACK] [--compare=LEVEL]  Career progression
  *   questions [options]         Browse interview questions
  *   agent [<discipline> <track>] [--output=PATH]  Generate AI agent
  *
@@ -37,7 +37,7 @@ import { formatError } from "../src/lib/cli-output.js";
 
 // Import command handlers
 import { runDisciplineCommand } from "../src/commands/discipline.js";
-import { runGradeCommand } from "../src/commands/grade.js";
+import { runLevelCommand } from "../src/commands/level.js";
 import { runTrackCommand } from "../src/commands/track.js";
 import { runBehaviourCommand } from "../src/commands/behaviour.js";
 import { runSkillCommand } from "../src/commands/skill.js";
@@ -56,7 +56,7 @@ import { runUpdateCommand } from "../src/commands/update.js";
 
 const COMMANDS = {
   discipline: runDisciplineCommand,
-  grade: runGradeCommand,
+  level: runLevelCommand,
   track: runTrackCommand,
   behaviour: runBehaviourCommand,
   skill: runSkillCommand,
@@ -98,7 +98,7 @@ ENTITY COMMANDS
 All entity commands support: summary (default), --list (IDs for piping), <id> (detail)
 
   discipline [<id>]     Browse engineering disciplines
-  grade [<id>]          Browse career grades/levels
+  level [<id>]          Browse career levels/levels
   track [<id>]          Browse track specializations
   behaviour [<id>]      Browse professional behaviours
   driver [<id>]         Browse outcome drivers
@@ -113,12 +113,12 @@ All entity commands support: summary (default), --list (IDs for piping), <id> (d
 JOB COMMAND
 ────────────────────────────────────────────────────────────────────────────────
 
-Generate job definitions from discipline × grade × track combinations.
+Generate job definitions from discipline × level × track combinations.
 
 Usage:
   npx fit-pathway job                                  Summary with stats
   npx fit-pathway job --list                           All valid combinations
-  npx fit-pathway job <discipline> <grade>             Detail view (trackless)
+  npx fit-pathway job <discipline> <level>             Detail view (trackless)
   npx fit-pathway job <d> <g> --track=<track>          Detail view (with track)
   npx fit-pathway job <d> <g> --skills                 Plain list of skill IDs
   npx fit-pathway job <d> <g> --tools                  Plain list of tool names
@@ -170,7 +170,7 @@ INTERVIEW COMMAND
 Generate interview question sets based on job requirements.
 
 Usage:
-  npx fit-pathway interview <discipline> <grade>                     All types
+  npx fit-pathway interview <discipline> <level>                     All types
   npx fit-pathway interview <d> <g> --track=<track>                  With track
   npx fit-pathway interview <d> <g> --track=<t> --type=<type>        Single type
 
@@ -183,16 +183,16 @@ Options:
 PROGRESS COMMAND
 ────────────────────────────────────────────────────────────────────────────────
 
-Analyze career progression between grades.
+Analyze career progression between levels.
 
 Usage:
-  npx fit-pathway progress <discipline> <grade>
+  npx fit-pathway progress <discipline> <level>
   npx fit-pathway progress <d> <g> --track=<track>
-  npx fit-pathway progress <d> <g> --compare=<to_grade>
+  npx fit-pathway progress <d> <g> --compare=<to_level>
 
 Options:
   --track=TRACK        Track specialization
-  --compare=GRADE      Compare to specific grade
+  --compare=LEVEL      Compare to specific level
 
 ────────────────────────────────────────────────────────────────────────────────
 QUESTIONS COMMAND
@@ -207,7 +207,7 @@ Usage:
   npx fit-pathway questions --stats
 
 Options:
-  --level=LEVEL        Filter by skill level
+  --level=LEVEL        Filter by skill proficiency
   --maturity=MATURITY  Filter by behaviour maturity
   --skill=ID           Filter to specific skill
   --behaviour=ID       Filter to specific behaviour

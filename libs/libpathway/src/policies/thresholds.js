@@ -124,15 +124,15 @@ export const WEIGHT_BEHAVIOUR_MATURITY = 3;
 export const RATIO_SKILL_BEHAVIOUR = 0.6;
 
 // =============================================================================
-// Skill Level Multipliers
+// Skill Proficiency Multipliers
 // =============================================================================
 
 /**
- * Skill level multiplier for priority calculation
+ * Skill proficiency multiplier for priority calculation
  *
- * Higher skill levels get proportionally more priority.
+ * Higher skill proficiencies get proportionally more priority.
  */
-export const WEIGHT_SKILL_LEVEL = 2;
+export const WEIGHT_SKILL_PROFICIENCY = 2;
 
 /**
  * Priority penalty for below-level questions
@@ -233,18 +233,18 @@ export const WEIGHT_CAPABILITY_DECOMP_RELIABILITY = 6;
 export const WEIGHT_FOCUS_BOOST = 10;
 
 // =============================================================================
-// Senior Grade Threshold
+// Senior Level Threshold
 // =============================================================================
 
 /**
- * Minimum ordinalRank for a grade to be considered "senior" (Staff+)
+ * Minimum ordinalRank for a level to be considered "senior" (Staff+)
  *
  * Used to determine when additional expectations scoring applies
  * in job matching.
  *
- * @see derivation.js:isSeniorGrade
+ * @see derivation.js:isSeniorLevel
  */
-export const THRESHOLD_SENIOR_GRADE = 5;
+export const THRESHOLD_SENIOR_LEVEL = 5;
 
 // =============================================================================
 // Assessment Weights
@@ -289,27 +289,27 @@ export const WEIGHT_SAME_TRACK_BONUS = 0.1;
 // =============================================================================
 
 /**
- * Grade offset (±) from best-fit grade for realistic match filtering
+ * Level offset (±) from best-fit level for realistic match filtering
  */
-export const RANGE_GRADE_OFFSET = 1;
+export const RANGE_LEVEL_OFFSET = 1;
 
 /**
- * Grade offset below highest strong/good match for ready-tier filtering
+ * Level offset below highest strong/good match for ready-tier filtering
  *
  * Strong and Good matches are shown up to this many levels below the
- * highest matched grade. Stretch and Aspirational matches are only shown
- * at or above the highest matched grade.
+ * highest matched level. Stretch and Aspirational matches are only shown
+ * at or above the highest matched level.
  */
-export const RANGE_READY_GRADE_OFFSET = 2;
+export const RANGE_READY_LEVEL_OFFSET = 2;
 
 // =============================================================================
 // Driver Coverage Thresholds
 // =============================================================================
 
 /**
- * Minimum skill level for a skill to count as "covered" in driver analysis
+ * Minimum skill proficiency for a skill to count as "covered" in driver analysis
  */
-export const THRESHOLD_DRIVER_SKILL_LEVEL = "working";
+export const THRESHOLD_DRIVER_SKILL_PROFICIENCY = "working";
 
 /**
  * Minimum behaviour maturity for a behaviour to count as "covered" in driver analysis

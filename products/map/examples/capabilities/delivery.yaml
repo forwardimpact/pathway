@@ -51,7 +51,7 @@ skills:
         and making information usable for decision-making—often with
         inconsistent formats, missing values, and undocumented schemas. The
         heart of embedded engineering work.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand how data flows through systems and can use existing
           pipelines, APIs, and data sources with guidance. You know to ask about
@@ -285,7 +285,7 @@ skills:
         Python are our primary languages, with CloudFormation and Terraform for
         infrastructure. Essential for rapid delivery and embedded engineering
         work.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand how frontend, backend, and database layers work
           together. You can make changes in one layer with guidance and
@@ -578,7 +578,7 @@ skills:
         FDEs embrace ambiguity—starting with open questions like "How can we
         accelerate patient recruitment?" rather than detailed requirements
         documents.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You recognize that initial requirements are often incomplete. You ask
           clarifying questions when you encounter gaps and don't make
@@ -775,7 +775,7 @@ skills:
         through delivery. Credibility comes from showing real software in days,
         not months— demonstrating value before polishing details. "Working
         solutions delivered in days" is the FDE standard.
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You understand the value of prototypes for learning quickly. You can
           create simple demos and mockups with guidance.

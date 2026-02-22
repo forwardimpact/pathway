@@ -18,7 +18,7 @@
   "$defs": {
     "levelQuestions": {
       "type": "object",
-      "description": "Questions organized by skill level",
+      "description": "Questions organized by skill proficiency",
       "properties": {
         "awareness": {
           "type": "array",

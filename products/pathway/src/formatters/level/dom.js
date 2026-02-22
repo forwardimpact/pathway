@@ -1,5 +1,5 @@
 /**
- * Grade formatting for DOM output
+ * Level formatting for DOM output
  */
 
 import {
@@ -19,33 +19,33 @@ import {
 import { createBackLink } from "../../components/nav.js";
 import { createLevelDots } from "../../components/detail.js";
 import {
-  SKILL_LEVEL_ORDER,
+  SKILL_PROFICIENCY_ORDER,
   BEHAVIOUR_MATURITY_ORDER,
   getConceptEmoji,
 } from "@forwardimpact/map/levels";
 import { createJobBuilderButton } from "../../components/action-buttons.js";
-import { prepareGradeDetail } from "./shared.js";
-import { createJsonLdScript, gradeToJsonLd } from "../json-ld.js";
+import { prepareLevelDetail } from "./shared.js";
+import { createJsonLdScript, levelToJsonLd } from "../json-ld.js";
 
 /**
- * Format grade detail as DOM elements
- * @param {Object} grade - Raw grade entity
+ * Format level detail as DOM elements
+ * @param {Object} level - Raw level entity
  * @param {Object} options - Formatting options
  * @param {Object} [options.framework] - Framework config for emojis
  * @param {boolean} [options.showBackLink=true] - Whether to show back navigation link
  * @returns {HTMLElement}
  */
-export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
-  const view = prepareGradeDetail(grade);
-  const emoji = framework ? getConceptEmoji(framework, "grade") : "📊";
+export function levelToDOM(level, { framework, showBackLink = true } = {}) {
+  const view = prepareLevelDetail(level);
+  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
   return div(
-    { className: "detail-page grade-detail" },
+    { className: "detail-page level-detail" },
     // JSON-LD structured data
-    createJsonLdScript(gradeToJsonLd(grade)),
+    createJsonLdScript(levelToJsonLd(level)),
     // Header
     div(
       { className: "page-header" },
-      showBackLink ? createBackLink("/grade", "← Back to Grades") : null,
+      showBackLink ? createBackLink("/level", "← Back to Levels") : null,
       heading1({ className: "page-title" }, `${emoji} `, view.displayName),
       div(
         { className: "page-meta" },
@@ -61,8 +61,8 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
         ? div(
             { className: "page-actions" },
             createJobBuilderButton({
-              paramName: "grade",
-              paramValue: grade.id,
+              paramName: "level",
+              paramValue: level.id,
             }),
           )
         : null,
@@ -111,15 +111,15 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
         )
       : null,
 
-    // Base Skill Levels and Base Behaviour Maturity in two columns
+    // Base Skill Proficiencies and Base Behaviour Maturity in two columns
     div(
       { className: "detail-section" },
       div(
         { className: "content-columns" },
-        // Base Skill Levels column
+        // Base Skill Proficiencies column
         div(
           { className: "column" },
-          heading2({ className: "section-title" }, "Base Skill Levels"),
+          heading2({ className: "section-title" }, "Base Skill Proficiencies"),
           table(
             { className: "level-table" },
             thead({}, tr({}, th({}, "Type"), th({}, "Level"))),
@@ -130,10 +130,12 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
                 td({}, span({ className: "badge badge-primary" }, "Primary")),
                 td(
                   {},
-                  view.baseSkillLevels?.primary
+                  view.baseSkillProficiencies?.primary
                     ? createLevelDots(
-                        SKILL_LEVEL_ORDER.indexOf(view.baseSkillLevels.primary),
-                        SKILL_LEVEL_ORDER.length,
+                        SKILL_PROFICIENCY_ORDER.indexOf(
+                          view.baseSkillProficiencies.primary,
+                        ),
+                        SKILL_PROFICIENCY_ORDER.length,
                       )
                     : span({ className: "text-muted" }, "—"),
                 ),
@@ -146,12 +148,12 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
                 ),
                 td(
                   {},
-                  view.baseSkillLevels?.secondary
+                  view.baseSkillProficiencies?.secondary
                     ? createLevelDots(
-                        SKILL_LEVEL_ORDER.indexOf(
-                          view.baseSkillLevels.secondary,
+                        SKILL_PROFICIENCY_ORDER.indexOf(
+                          view.baseSkillProficiencies.secondary,
                         ),
-                        SKILL_LEVEL_ORDER.length,
+                        SKILL_PROFICIENCY_ORDER.length,
                       )
                     : span({ className: "text-muted" }, "—"),
                 ),
@@ -161,10 +163,12 @@ export function gradeToDOM(grade, { framework, showBackLink = true } = {}) {
                 td({}, span({ className: "badge badge-broad" }, "Broad")),
                 td(
                   {},
-                  view.baseSkillLevels?.broad
+                  view.baseSkillProficiencies?.broad
                     ? createLevelDots(
-                        SKILL_LEVEL_ORDER.indexOf(view.baseSkillLevels.broad),
-                        SKILL_LEVEL_ORDER.length,
+                        SKILL_PROFICIENCY_ORDER.indexOf(
+                          view.baseSkillProficiencies.broad,
+                        ),
+                        SKILL_PROFICIENCY_ORDER.length,
                       )
                     : span({ className: "text-muted" }, "—"),
                 ),

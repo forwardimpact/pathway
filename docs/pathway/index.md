@@ -16,8 +16,8 @@ hero:
 ---
 
 > Pathway is your interface to the engineering framework. Feed it a discipline,
-> a track, and a grade — and it produces a complete job definition. Swap the
-> grade for a lifecycle stage and you get an agent profile instead. Same data,
+> a track, and a level — and it produces a complete job definition. Swap the
+> level for a lifecycle stage and you get an agent profile instead. Same data,
 > same formula, different outputs.
 
 ### What you get
@@ -34,10 +34,10 @@ hero:
 ### Who it's for
 
 **Engineers** who want to understand where they are and where they're heading.
-Browse skills, explore what's expected at the next grade, and identify growth
+Browse skills, explore what's expected at the next level, and identify growth
 areas.
 
-**Managers** building job descriptions. Select a discipline, track, and grade —
+**Managers** building job descriptions. Select a discipline, track, and level —
 Pathway generates a complete, consistent job definition.
 
 **Teams adopting AI agents.** Generate VS Code agent profiles and skill files
@@ -49,10 +49,10 @@ that match your engineering standards, constrained by lifecycle stage.
 
 The interactive browser gives you:
 
-- **Job Builder** — Select discipline, track, and grade to explore complete role
+- **Job Builder** — Select discipline, track, and level to explore complete role
   definitions with skill matrices and behaviour profiles
 - **Skill Browser** — View all skills with detailed level descriptions
-- **Career Progression** — Compare grades side by side and see what changes
+- **Career Progression** — Compare levels side by side and see what changes
 - **Interview Prep** — Generate role-specific question sets for hiring
 - **Agent Preview** — See exactly what agent profiles will look like before
   deploying

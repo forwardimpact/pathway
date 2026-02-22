@@ -17,7 +17,7 @@ export function renderJobBuilder() {
     createBuilder({
       title: "Job Builder",
       description:
-        "Combine a discipline, track, and grade to generate a complete job definition " +
+        "Combine a discipline, track, and level to generate a complete job definition " +
         "with skill matrix and behaviour profile.",
       formTitle: "Select Components",
       emptyPreviewText:
@@ -27,12 +27,12 @@ export function renderJobBuilder() {
         prepareJobBuilderPreview({
           ...selection,
           behaviourCount: data.behaviours.length,
-          grades: data.grades,
+          levels: data.levels,
         }),
       detailPath: (sel) =>
         sel.track
-          ? `/job/${sel.discipline}/${sel.grade}/${sel.track}`
-          : `/job/${sel.discipline}/${sel.grade}`,
+          ? `/job/${sel.discipline}/${sel.level}/${sel.track}`
+          : `/job/${sel.discipline}/${sel.level}`,
       renderPreview: createStandardPreview,
       helpItems: [
         {
@@ -40,8 +40,8 @@ export function renderJobBuilder() {
           text: "Defines the T-shaped skill profile with primary, secondary, and broad skills.",
         },
         {
-          label: "Grade",
-          text: "Sets base skill levels and behaviour maturity expectations for career level.",
+          label: "Level",
+          text: "Sets base skill proficiencies and behaviour maturity expectations for career level.",
         },
         {
           label: "Track",

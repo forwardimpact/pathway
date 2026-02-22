@@ -9,15 +9,15 @@ description: File organization, module index, templates, and CLI command referen
 
 Data model, validation, and loading.
 
-| File                       | Purpose                                              |
-| -------------------------- | ---------------------------------------------------- |
-| `src/loader.js`            | YAML file loading and parsing                        |
-| `src/validation.js`        | Referential integrity and data validation            |
-| `src/schema-validation.js` | JSON Schema validation                               |
-| `src/levels.js`            | Type definitions, skill levels, behaviour maturities |
-| `src/modifiers.js`         | Capability and skill modifier utilities              |
-| `src/index-generator.js`   | Browser index generation                             |
-| `src/index.js`             | Public API exports                                   |
+| File                       | Purpose                                                     |
+| -------------------------- | ----------------------------------------------------------- |
+| `src/loader.js`            | YAML file loading and parsing                               |
+| `src/validation.js`        | Referential integrity and data validation                   |
+| `src/schema-validation.js` | JSON Schema validation                                      |
+| `src/levels.js`            | Type definitions, skill proficiencies, behaviour maturities |
+| `src/modifiers.js`         | Capability and skill modifier utilities                     |
+| `src/index-generator.js`   | Browser index generation                                    |
+| `src/index.js`             | Public API exports                                          |
 
 ### Model (`libs/libpathway/`)
 
@@ -76,7 +76,7 @@ Each entity has a formatter directory with three files:
 | Checklist  | `formatters/checklist/`  | Read/confirm checklist formatting  |
 | Discipline | `formatters/discipline/` | Discipline cards, tier display     |
 | Driver     | `formatters/driver/`     | Coverage display, driver cards     |
-| Grade      | `formatters/grade/`      | Grade badges, level tables         |
+| Level      | `formatters/level/`      | Level badges, level tables         |
 | Job        | `formatters/job/`        | Full job document formatting       |
 | Skill      | `formatters/skill/`      | Level badges, matrix tables        |
 | Stage      | `formatters/stage/`      | Stage cards, lifecycle flow        |
@@ -103,8 +103,8 @@ npx fit-pathway skill <id>            # Show skill details
 npx fit-pathway discipline --list
 npx fit-pathway discipline <id>
 
-npx fit-pathway grade --list
-npx fit-pathway grade <id>
+npx fit-pathway level --list
+npx fit-pathway level <id>
 
 npx fit-pathway track --list
 npx fit-pathway track <id>
@@ -129,13 +129,13 @@ npx fit-pathway tool --list          # Derived from skill toolReferences
 Generate a complete job definition:
 
 ```sh
-npx fit-pathway job <discipline> <grade> [--track=<track>]
+npx fit-pathway job <discipline> <level> [--track=<track>]
 ```
 
 **Arguments:**
 
 - `discipline` — Discipline ID (e.g., `software_engineering`)
-- `grade` — Grade ID (e.g., `L3`)
+- `level` — Level ID (e.g., `L3`)
 
 **Options:**
 

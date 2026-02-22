@@ -103,7 +103,7 @@ Examples:
 ## Checklists
 
 Checklists ensure quality at stage transitions. They are derived dynamically
-from capability definitions based on the job's skill levels.
+from capability definitions based on the job's skill proficiencies.
 
 ### Two Types
 
@@ -120,7 +120,8 @@ Checklist = Stage × Skill Matrix × Capability Definitions
 
 1. For each skill in the derived skill matrix
 2. Look up `skill.agent.stages[stageId]` in the capability definition
-3. Extract `readChecklist` and `confirmChecklist` items for the skill level
+3. Extract `readChecklist` and `confirmChecklist` items for the skill
+   proficiency
 4. Group items by skill and capability
 
 ### Example

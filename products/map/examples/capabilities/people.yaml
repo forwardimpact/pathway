@@ -45,7 +45,7 @@ skills:
     isHumanOnly: true
     human:
       description: Working effectively with others to achieve shared goals
-      levelDescriptions:
+      proficiencyDescriptions:
         awareness:
           You participate constructively in team activities, communicate
           clearly, and ask for help when stuck. You are reliable and follow

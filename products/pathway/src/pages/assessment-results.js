@@ -45,14 +45,14 @@ export function renderAssessmentResults() {
   };
 
   // Find matching jobs with realistic scoring
-  const { matches, matchesByTier, estimatedGrade } = findRealisticMatches({
+  const { matches, matchesByTier, estimatedLevel } = findRealisticMatches({
     selfAssessment,
     disciplines: data.disciplines,
-    grades: data.grades,
+    levels: data.levels,
     tracks: data.tracks,
     skills: data.skills,
     behaviours: data.behaviours,
-    filterByGrade: false, // Show all grades but group by tier
+    filterByLevel: false, // Show all levels but group by tier
     topN: 20,
   });
 
@@ -73,7 +73,7 @@ export function renderAssessmentResults() {
     ),
 
     // Summary stats
-    createSummaryStats(assessmentState, data, estimatedGrade),
+    createSummaryStats(assessmentState, data, estimatedLevel),
 
     // Top matches grouped by tier
     createMatchesSection(matches, matchesByTier, selfAssessment, data),
@@ -139,28 +139,28 @@ function renderNoAssessment() {
  * Create summary statistics section
  * @param {Object} assessmentState - Current assessment state
  * @param {Object} data - App data
- * @param {{grade: Object, confidence: number}} estimatedGrade - Estimated best-fit grade
+ * @param {{level: Object, confidence: number}} estimatedLevel - Estimated best-fit level
  * @returns {HTMLElement}
  */
-function createSummaryStats(assessmentState, data, estimatedGrade) {
+function createSummaryStats(assessmentState, data, estimatedLevel) {
   const skillCount = Object.keys(assessmentState.skills).length;
   const behaviourCount = Object.keys(assessmentState.behaviours).length;
 
   // Calculate average levels
-  const avgSkillLevel = calculateAverageLevel(
+  const avgSkillProficiency = calculateAverageLevel(
     Object.values(assessmentState.skills),
     ["awareness", "foundational", "working", "practitioner", "expert"],
   );
 
-  // Get grade name based on track (default to professional)
-  const gradeName =
-    estimatedGrade.grade.professionalTitle ||
-    estimatedGrade.grade.name ||
-    estimatedGrade.grade.id;
+  // Get level name based on track (default to professional)
+  const levelName =
+    estimatedLevel.level.professionalTitle ||
+    estimatedLevel.level.name ||
+    estimatedLevel.level.id;
   const confidenceLabel =
-    estimatedGrade.confidence >= 0.7
+    estimatedLevel.confidence >= 0.7
       ? "High"
-      : estimatedGrade.confidence >= 0.4
+      : estimatedLevel.confidence >= 0.4
         ? "Medium"
         : "Low";
 
@@ -179,8 +179,12 @@ function createSummaryStats(assessmentState, data, estimatedGrade) {
         `of ${data.behaviours.length} Behaviours`,
         "🧠",
       ),
-      createStatBox(formatLevel(avgSkillLevel), "Avg Skill Level", "💡"),
-      createStatBox(gradeName, `Estimated Level (${confidenceLabel})`, "🎯"),
+      createStatBox(
+        formatLevel(avgSkillProficiency),
+        "Avg Skill Proficiency",
+        "💡",
+      ),
+      createStatBox(levelName, `Estimated Level (${confidenceLabel})`, "🎯"),
     ),
   );
 }
@@ -380,8 +384,8 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
           a(
             {
               href: job.track
-                ? `#/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
-                : `#/job/${job.discipline.id}/${job.grade.id}`,
+                ? `#/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
+                : `#/job/${job.discipline.id}/${job.level.id}`,
             },
             job.title,
           ),
@@ -389,7 +393,7 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
         div(
           { className: "match-badges" },
           createBadge(job.discipline.name, "default"),
-          createBadge(job.grade.name, "secondary"),
+          createBadge(job.level.name, "secondary"),
           job.track && createBadge(job.track.name, "broad"),
         ),
       ),
@@ -440,8 +444,8 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
       a(
         {
           href: job.track
-            ? `#/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
-            : `#/job/${job.discipline.id}/${job.grade.id}`,
+            ? `#/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
+            : `#/job/${job.discipline.id}/${job.level.id}`,
           className: "btn btn-secondary btn-sm",
         },
         "View Job Details",
@@ -449,8 +453,8 @@ function createMatchCard(match, _index, _selfAssessment, _data) {
       a(
         {
           href: job.track
-            ? `#/interview/${job.discipline.id}/${job.grade.id}/${job.track.id}`
-            : `#/interview/${job.discipline.id}/${job.grade.id}`,
+            ? `#/interview/${job.discipline.id}/${job.level.id}/${job.track.id}`
+            : `#/interview/${job.discipline.id}/${job.level.id}`,
           className: "btn btn-secondary btn-sm",
         },
         "Interview Prep",

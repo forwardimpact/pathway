@@ -35,7 +35,7 @@ products/pathway/src/
 │   ├── checklist/  # Checklist formatters
 │   ├── discipline/ # Discipline formatters
 │   ├── driver/     # Driver formatters
-│   ├── grade/      # Grade formatters
+│   ├── level/      # Level formatters
 │   ├── job/        # Job definition formatters
 │   ├── skill/      # Skill formatters
 │   ├── stage/      # Stage formatters
@@ -69,23 +69,23 @@ Every entity has three formatter files:
 
 ```javascript
 // formatters/skill/shared.js
-export function formatSkillLevel(level) {
+export function formatSkillProficiency(level) {
   return level.replace(/_/g, " ");
 }
 
 // formatters/skill/dom.js
-import { formatSkillLevel } from "./shared.js";
+import { formatSkillProficiency } from "./shared.js";
 export function createSkillBadge(level) {
   const span = document.createElement("span");
-  span.textContent = formatSkillLevel(level);
+  span.textContent = formatSkillProficiency(level);
   span.className = `badge badge-${level}`;
   return span;
 }
 
 // formatters/skill/markdown.js
-import { formatSkillLevel } from "./shared.js";
-export function skillLevelMarkdown(level) {
-  return `**${formatSkillLevel(level)}**`;
+import { formatSkillProficiency } from "./shared.js";
+export function skillProficiencyMarkdown(level) {
+  return `**${formatSkillProficiency(level)}**`;
 }
 ```
 
@@ -102,7 +102,7 @@ client-side.
 | ---------- | ----------------------------------- | ------------------------------------- |
 | Landing    | `/`                                 | Overview and navigation               |
 | Discipline | `/discipline/{id}`                  | Discipline details                    |
-| Job        | `/job/{discipline}/{grade}/{track}` | Full job definition                   |
+| Job        | `/job/{discipline}/{level}/{track}` | Full job definition                   |
 | Skill      | `/skill/{id}`                       | Skill details with level descriptions |
 | Behaviour  | `/behaviour/{id}`                   | Behaviour with maturity descriptions  |
 | Stage      | `/stage/{id}`                       | Lifecycle stage details               |
@@ -127,7 +127,7 @@ The `fit-pathway` CLI provides terminal access to all derived data.
 ```sh
 npx fit-pathway skill --list           # List all skills
 npx fit-pathway discipline --list      # List all disciplines
-npx fit-pathway grade --list           # List all grades
+npx fit-pathway level --list           # List all levels
 npx fit-pathway track --list           # List all tracks
 npx fit-pathway behaviour --list       # List all behaviours
 npx fit-pathway capability --list      # List all capabilities
@@ -140,7 +140,7 @@ npx fit-pathway tool --list            # List all derived tools
 
 ```sh
 # Generate a job definition
-npx fit-pathway job <discipline> <grade> --track=<track>
+npx fit-pathway job <discipline> <level> --track=<track>
 
 # Example
 npx fit-pathway job software_engineering L3 --track=platform

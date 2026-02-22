@@ -69,7 +69,7 @@ export function prepareSkillsList(
  * @property {string} capabilityName
  * @property {boolean} isHumanOnly
  * @property {string} capabilityEmoji
- * @property {Object<string, string>} levelDescriptions
+ * @property {Object<string, string>} proficiencyDescriptions
  * @property {Array<{id: string, name: string, skillType: string}>} relatedDisciplines
  * @property {Array<{id: string, name: string, modifier: number}>} relatedTracks
  * @property {Array<{id: string, name: string}>} relatedDrivers
@@ -124,7 +124,7 @@ export function prepareSkillDetail(
     capabilityName: capabilityEntity?.name || skill.capability,
     isHumanOnly: skill.isHumanOnly || false,
     capabilityEmoji: getCapabilityEmoji(capabilities, skill.capability),
-    levelDescriptions: skill.levelDescriptions,
+    proficiencyDescriptions: skill.proficiencyDescriptions,
     relatedDisciplines,
     relatedTracks,
     relatedDrivers,

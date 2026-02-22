@@ -49,7 +49,7 @@ function showQuestionsSummary(data) {
   console.log(`\n❓ Questions\n`);
 
   // Skill questions by level
-  const skillLevels = [
+  const skillProficiencies = [
     "awareness",
     "foundational",
     "working",
@@ -57,10 +57,10 @@ function showQuestionsSummary(data) {
     "expert",
   ];
   const roleTypes = ["professionalQuestions", "managementQuestions"];
-  const skillRows = skillLevels.map((level) => {
+  const skillRows = skillProficiencies.map((level) => {
     let count = 0;
     for (const skill of skills) {
-      const sq = questions.skillLevels?.[skill.id];
+      const sq = questions.skillProficiencies?.[skill.id];
       if (sq) {
         for (const roleType of roleTypes) {
           count += (sq[roleType]?.[level] || []).length;

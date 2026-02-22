@@ -9,7 +9,7 @@
 import { ComparisonRadarChart } from "../lib/radar.js";
 import { div, h3 } from "../lib/render.js";
 import {
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
   formatLevel,
 } from "../lib/render.js";
@@ -97,7 +97,7 @@ export function createComparisonSkillRadar(
 
       currentData.push({
         label: skillName,
-        value: currentSkill ? getSkillLevelIndex(currentSkill.level) : 0,
+        value: currentSkill ? getSkillProficiencyIndex(currentSkill.level) : 0,
         maxValue: 5,
         description: currentSkill
           ? `${formatLevel(currentSkill.type)} - ${formatLevel(currentSkill.level)}`
@@ -106,7 +106,7 @@ export function createComparisonSkillRadar(
 
       targetData.push({
         label: skillName,
-        value: targetSkill ? getSkillLevelIndex(targetSkill.level) : 0,
+        value: targetSkill ? getSkillProficiencyIndex(targetSkill.level) : 0,
         maxValue: 5,
         description: targetSkill
           ? `${formatLevel(targetSkill.type)} - ${formatLevel(targetSkill.level)}`

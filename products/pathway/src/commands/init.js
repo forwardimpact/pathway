@@ -54,7 +54,7 @@ Next steps:
 Data structure:
   data/
   ├── framework.yaml      # Framework metadata
-  ├── grades.yaml         # Career levels
+  ├── levels.yaml         # Career levels
   ├── stages.yaml         # Lifecycle stages
   ├── drivers.yaml        # Business drivers
   ├── capabilities.yaml   # Capability areas

@@ -8,7 +8,7 @@
 import { RadarChart } from "../lib/radar.js";
 import { div, h3 } from "../lib/render.js";
 import {
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
   formatLevel,
 } from "../lib/render.js";
@@ -33,9 +33,9 @@ export function createSkillRadar(skillMatrix, options = {}) {
 
     const data = skillMatrix.map((skill) => ({
       label: skill.skillName,
-      value: getSkillLevelIndex(skill.level),
+      value: getSkillProficiencyIndex(skill.proficiency),
       maxValue: 5,
-      description: `${formatLevel(skill.type)} skill - ${formatLevel(skill.level)}`,
+      description: `${formatLevel(skill.type)} skill - ${formatLevel(skill.proficiency)}`,
     }));
 
     const chart = new RadarChart({

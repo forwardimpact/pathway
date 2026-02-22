@@ -22,7 +22,7 @@ hero:
 ### What Guide will offer
 
 - AI-powered onboarding that understands your team's skill framework
-- Career advice grounded in your organization's actual grade expectations
+- Career advice grounded in your organization's actual level expectations
 - Contextual help that references the right skills and behaviours
 - Problem-solving assistance that knows your team's conventions
 - Growth recommendations based on gap analysis between current and target roles

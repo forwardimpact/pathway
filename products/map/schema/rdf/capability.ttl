@@ -72,10 +72,10 @@ fit:isHumanOnly a rdf:Property ;
     rdfs:domain fit:Skill ;
     rdfs:range xsd:boolean .
 
-fit:levelDescriptions a rdf:Property ;
-    rdfs:label "levelDescriptions"@en ;
+fit:proficiencyDescriptions a rdf:Property ;
+    rdfs:label "proficiencyDescriptions"@en ;
     rdfs:comment "Description of expectations at each level"@en ;
-    rdfs:range fit:LevelDescriptions .
+    rdfs:range fit:ProficiencyDescriptions .
 
 fit:instructions a rdf:Property ;
     rdfs:label "instructions"@en ;
@@ -378,11 +378,11 @@ fit:SkillHumanSectionShape a sh:NodeShape ;
         sh:description "Description of the skill" ;
     ] ;
     sh:property [
-        sh:path fit:levelDescriptions ;
-        sh:node fit:LevelDescriptionsShape ;
+        sh:path fit:proficiencyDescriptions ;
+        sh:node fit:ProficiencyDescriptionsShape ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:name "levelDescriptions" ;
+        sh:name "proficiencyDescriptions" ;
         sh:description "Description of expectations at each level" ;
     ] .
 

@@ -52,9 +52,9 @@ Use `--help` with any command for full options.
 
 ## Web App Features
 
-- **Job Builder** — Select discipline, track, and grade to explore roles
-- **Skill Browser** — View all skills with level descriptions
-- **Career Progression** — Compare grades and identify growth areas
+- **Job Builder** — Select discipline, track, and level to explore roles
+- **Skill Browser** — View all skills with proficiency descriptions
+- **Career Progression** — Compare levels and identify growth areas
 - **Interview Prep** — Generate role-specific question sets
 - **Agent Preview** — Preview generated agent profiles
 

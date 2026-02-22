@@ -30,7 +30,7 @@ export function createNavButton({ label, href, variant = "primary" }) {
 /**
  * Create a button to navigate to job builder with a parameter
  * @param {Object} options - Configuration options
- * @param {string} options.paramName - Parameter name (discipline, grade, track)
+ * @param {string} options.paramName - Parameter name (discipline, level, track)
  * @param {string} options.paramValue - Parameter value (the ID)
  * @param {string} [options.label] - Optional custom label
  * @returns {HTMLElement}
@@ -38,7 +38,7 @@ export function createNavButton({ label, href, variant = "primary" }) {
 export function createJobBuilderButton({ paramName, paramValue, label }) {
   const defaultLabels = {
     discipline: "Build Job with this Discipline →",
-    grade: "Build Job at this Grade →",
+    level: "Build Job at this Level →",
     track: "Build Job with this Track →",
   };
 
@@ -52,7 +52,7 @@ export function createJobBuilderButton({ paramName, paramValue, label }) {
 /**
  * Create a button to navigate to interview prep with a parameter
  * @param {Object} options - Configuration options
- * @param {string} options.paramName - Parameter name (discipline, grade, track)
+ * @param {string} options.paramName - Parameter name (discipline, level, track)
  * @param {string} options.paramValue - Parameter value (the ID)
  * @param {string} [options.label] - Optional custom label
  * @returns {HTMLElement}

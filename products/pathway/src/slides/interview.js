@@ -20,7 +20,7 @@ import { interviewToDOM } from "../formatters/index.js";
  */
 export function renderInterviewSlide({ render, data, params }) {
   const discipline = data.disciplines.find((d) => d.id === params.discipline);
-  const grade = data.grades.find((g) => g.id === params.grade);
+  const level = data.levels.find((g) => g.id === params.level);
   const track = data.tracks.find((t) => t.id === params.track);
 
   // Get interview type from URL query or default to full
@@ -29,7 +29,7 @@ export function renderInterviewSlide({ render, data, params }) {
 
   const view = prepareInterviewDetail({
     discipline,
-    grade,
+    level,
     track,
     skills: data.skills,
     behaviours: data.behaviours,

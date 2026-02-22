@@ -86,7 +86,7 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           name,
           capability: capabilityId, // Add capability from parent
           description: human.description,
-          levelDescriptions: human.levelDescriptions,
+          proficiencyDescriptions: human.proficiencyDescriptions,
           // Include isHumanOnly flag for agent filtering (defaults to false)
           ...(isHumanOnly && { isHumanOnly }),
           ...(agent && { agent }),
@@ -123,7 +123,7 @@ async function loadDisciplinesFromDir(disciplinesDir) {
         isProfessional,
         isManagement,
         validTracks,
-        minGrade,
+        minLevel,
         // Shared content - now at root level
         description,
         // Structural properties (derivation inputs)
@@ -143,7 +143,7 @@ async function loadDisciplinesFromDir(disciplinesDir) {
         isProfessional,
         isManagement,
         validTracks,
-        minGrade,
+        minLevel,
         // Shared content at top level
         description,
         // Structural properties
@@ -181,7 +181,7 @@ async function loadTracksFromDir(tracksDir) {
         skillModifiers,
         behaviourModifiers,
         matchingWeights,
-        minGrade,
+        minLevel,
         // Agent section (no human section anymore for tracks)
         agent,
       } = content;
@@ -195,7 +195,7 @@ async function loadTracksFromDir(tracksDir) {
         skillModifiers,
         behaviourModifiers,
         matchingWeights,
-        minGrade,
+        minLevel,
         ...(agent && { agent }),
       };
     }),
@@ -285,7 +285,7 @@ async function loadQuestionFolder(
   );
 
   return {
-    skillLevels: Object.fromEntries(skillEntries),
+    skillProficiencies: Object.fromEntries(skillEntries),
     behaviourMaturities: Object.fromEntries(behaviourEntries),
     capabilityLevels: Object.fromEntries(capabilityEntries),
   };
@@ -304,13 +304,13 @@ export async function loadAllData(dataDir = "./data") {
   const skills = await loadSkillsFromCapabilities(`${dataDir}/capabilities`);
 
   // Load remaining core data in parallel (using _index.yaml for discovery)
-  const [drivers, behaviours, disciplines, tracks, grades, stages, framework] =
+  const [drivers, behaviours, disciplines, tracks, levels, stages, framework] =
     await Promise.all([
       loadYamlFile(`${dataDir}/drivers.yaml`),
       loadBehavioursFromDir(`${dataDir}/behaviours`),
       loadDisciplinesFromDir(`${dataDir}/disciplines`),
       loadTracksFromDir(`${dataDir}/tracks`),
-      loadYamlFile(`${dataDir}/grades.yaml`),
+      loadYamlFile(`${dataDir}/levels.yaml`),
       loadYamlFile(`${dataDir}/stages.yaml`),
       loadYamlFile(`${dataDir}/framework.yaml`),
     ]);
@@ -329,7 +329,7 @@ export async function loadAllData(dataDir = "./data") {
     skills,
     disciplines,
     tracks,
-    grades,
+    levels,
     questions,
     capabilities,
     stages,

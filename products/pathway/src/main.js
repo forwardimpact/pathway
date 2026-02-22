@@ -25,7 +25,7 @@ import {
   renderDisciplineDetail,
 } from "./pages/discipline.js";
 import { renderTracksList, renderTrackDetail } from "./pages/track.js";
-import { renderGradesList, renderGradeDetail } from "./pages/grade.js";
+import { renderLevelsList, renderLevelDetail } from "./pages/level.js";
 import { renderDriversList, renderDriverDetail } from "./pages/driver.js";
 import { renderStagesList, renderStageDetail } from "./pages/stage.js";
 import { renderToolsList } from "./pages/tool.js";
@@ -99,9 +99,9 @@ function setupRoutes() {
   router.on("/track", renderTracksList);
   router.on("/track/:id", renderTrackDetail);
 
-  // Grade
-  router.on("/grade", renderGradesList);
-  router.on("/grade/:id", renderGradeDetail);
+  // Level
+  router.on("/level", renderLevelsList);
+  router.on("/level/:id", renderLevelDetail);
 
   // Driver
   router.on("/driver", renderDriversList);
@@ -116,18 +116,18 @@ function setupRoutes() {
 
   // Job builder
   router.on("/job-builder", renderJobBuilder);
-  router.on("/job/:discipline/:grade/:track", renderJobDetail);
-  router.on("/job/:discipline/:grade", renderJobDetail);
+  router.on("/job/:discipline/:level/:track", renderJobDetail);
+  router.on("/job/:discipline/:level", renderJobDetail);
 
   // Interview prep
   router.on("/interview-prep", renderInterviewPrep);
-  router.on("/interview/:discipline/:grade/:track", renderInterviewDetail);
-  router.on("/interview/:discipline/:grade", renderInterviewDetail);
+  router.on("/interview/:discipline/:level/:track", renderInterviewDetail);
+  router.on("/interview/:discipline/:level", renderInterviewDetail);
 
   // Career progress
   router.on("/career-progress", renderCareerProgress);
-  router.on("/progress/:discipline/:grade/:track", renderProgressDetail);
-  router.on("/progress/:discipline/:grade", renderProgressDetail);
+  router.on("/progress/:discipline/:level/:track", renderProgressDetail);
+  router.on("/progress/:discipline/:level", renderProgressDetail);
 
   // Self-assessment
   router.on("/self-assessment", renderSelfAssessment);

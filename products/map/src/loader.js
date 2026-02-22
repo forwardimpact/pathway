@@ -100,7 +100,7 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           name,
           capability: capabilityId, // Add capability from parent
           description: human.description,
-          levelDescriptions: human.levelDescriptions,
+          proficiencyDescriptions: human.proficiencyDescriptions,
           // Include isHumanOnly flag for agent filtering (defaults to false)
           ...(isHumanOnly && { isHumanOnly }),
           // Preserve agent section for agent generation
@@ -141,7 +141,7 @@ async function loadDisciplinesFromDir(disciplinesDir) {
         isProfessional,
         isManagement,
         validTracks,
-        minGrade,
+        minLevel,
         // Shared content - now at root level
         description,
         // Structural properties (derivation inputs) - at top level
@@ -161,7 +161,7 @@ async function loadDisciplinesFromDir(disciplinesDir) {
         isProfessional,
         isManagement,
         validTracks,
-        minGrade,
+        minLevel,
         // Shared content at top level
         description,
         // Structural properties at top level
@@ -204,7 +204,7 @@ async function loadTracksFromDir(tracksDir) {
         skillModifiers,
         behaviourModifiers,
         assessmentWeights,
-        minGrade,
+        minLevel,
         // Agent section (no human section anymore for tracks)
         agent,
       } = content;
@@ -218,7 +218,7 @@ async function loadTracksFromDir(tracksDir) {
         skillModifiers,
         behaviourModifiers,
         assessmentWeights,
-        minGrade,
+        minLevel,
         // Preserve agent section for agent generation
         ...(agent && { agent }),
       };
@@ -286,7 +286,7 @@ async function loadCapabilitiesFromDir(capabilitiesDir) {
  * @returns {Promise<import('./levels.js').QuestionBank>}
  */
 export async function loadQuestionFolder(questionsDir) {
-  const [skillLevels, behaviourMaturities, capabilityLevels] =
+  const [skillProficiencies, behaviourMaturities, capabilityLevels] =
     await Promise.all([
       loadQuestionsFromDir(join(questionsDir, "skills")),
       loadQuestionsFromDir(join(questionsDir, "behaviours")),
@@ -295,7 +295,7 @@ export async function loadQuestionFolder(questionsDir) {
       ),
     ]);
 
-  return { skillLevels, behaviourMaturities, capabilityLevels };
+  return { skillProficiencies, behaviourMaturities, capabilityLevels };
 }
 
 /**
@@ -325,7 +325,7 @@ export async function loadAllData(dataDir, options = {}) {
     behaviours,
     disciplines,
     tracks,
-    grades,
+    levels,
     stages,
     questions,
     framework,
@@ -334,7 +334,7 @@ export async function loadAllData(dataDir, options = {}) {
     loadBehavioursFromDir(join(dataDir, "behaviours")),
     loadDisciplinesFromDir(join(dataDir, "disciplines")),
     loadTracksFromDir(join(dataDir, "tracks")),
-    loadYamlFile(join(dataDir, "grades.yaml")),
+    loadYamlFile(join(dataDir, "levels.yaml")),
     loadYamlFile(join(dataDir, "stages.yaml")),
     loadQuestionFolder(join(dataDir, "questions")),
     loadYamlFile(join(dataDir, "framework.yaml")),
@@ -346,7 +346,7 @@ export async function loadAllData(dataDir, options = {}) {
     skills,
     disciplines,
     tracks,
-    grades,
+    levels,
     capabilities,
     stages,
     questions,
@@ -483,7 +483,7 @@ export async function loadExampleData(rootDir, options = {}) {
  * @param {import('./levels.js').Skill[]} data.skills - Skills
  * @param {import('./levels.js').Discipline[]} data.disciplines - Disciplines
  * @param {import('./levels.js').Track[]} data.tracks - Tracks
- * @param {import('./levels.js').Grade[]} data.grades - Grades
+ * @param {import('./levels.js').Level[]} data.levels - Levels
  * @param {Object} [options] - Options
  * @param {boolean} [options.throwOnError=true] - Whether to throw on validation errors
  * @returns {{valid: boolean, data: Object, errors: Array, warnings: Array}}

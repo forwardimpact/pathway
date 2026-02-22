@@ -20,7 +20,7 @@ import { createBackLink } from "../../components/nav.js";
 import { createLevelCell } from "../../components/detail.js";
 import { createSkillFileViewer } from "../../components/skill-file-viewer.js";
 import { createToolIcon } from "../../lib/card-mappers.js";
-import { SKILL_LEVEL_ORDER } from "@forwardimpact/map/levels";
+import { SKILL_PROFICIENCY_ORDER } from "@forwardimpact/map/levels";
 import { prepareSkillDetail } from "./shared.js";
 import { createJsonLdScript, skillToJsonLd } from "../json-ld.js";
 
@@ -97,11 +97,11 @@ export function skillToDOM(
         thead({}, tr({}, th({}, "Level"), th({}, "Description"))),
         tbody(
           {},
-          ...SKILL_LEVEL_ORDER.map((level, index) => {
-            const description = view.levelDescriptions[level] || "—";
+          ...SKILL_PROFICIENCY_ORDER.map((level, index) => {
+            const description = view.proficiencyDescriptions[level] || "—";
             return tr(
               {},
-              createLevelCell(index + 1, SKILL_LEVEL_ORDER.length, level),
+              createLevelCell(index + 1, SKILL_PROFICIENCY_ORDER.length, level),
               td({}, description),
             );
           }),

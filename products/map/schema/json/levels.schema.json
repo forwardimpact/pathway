@@ -1,28 +1,28 @@
 {
   "$schema": "http://json-schema.org/draft-07/schema#",
-  "$id": "https://www.forwardimpact.team/schema/json/grades.schema.json",
-  "title": "Grades",
+  "$id": "https://www.forwardimpact.team/schema/json/levels.schema.json",
+  "title": "Levels",
   "description": "Career levels defining expectations for skill proficiency, behaviour maturity, and scope of impact",
   "type": "array",
   "items": {
-    "$ref": "#/$defs/grade"
+    "$ref": "#/$defs/level"
   },
   "$defs": {
-    "grade": {
+    "level": {
       "type": "object",
       "required": [
         "id",
         "professionalTitle",
         "managementTitle",
         "ordinalRank",
-        "baseSkillLevels",
+        "baseSkillProficiencies",
         "baseBehaviourMaturity"
       ],
       "properties": {
         "id": {
           "type": "string",
           "pattern": "^[A-Z][A-Z0-9]*$",
-          "description": "Unique grade identifier (e.g., L1, L2, L3)"
+          "description": "Unique level identifier (e.g., L1, L2, L3)"
         },
         "professionalTitle": {
           "type": "string",
@@ -39,27 +39,27 @@
         "ordinalRank": {
           "type": "integer",
           "minimum": 1,
-          "description": "Numeric rank for ordering grades (1 = lowest)"
+          "description": "Numeric rank for ordering levels (1 = lowest)"
         },
         "qualificationSummary": {
           "type": "string",
-          "description": "Summary of qualifications expected at this grade. May use {typicalExperienceRange} placeholder."
+          "description": "Summary of qualifications expected at this level. May use {typicalExperienceRange} placeholder."
         },
-        "baseSkillLevels": {
+        "baseSkillProficiencies": {
           "type": "object",
-          "description": "Base skill levels by skill tier for this grade",
+          "description": "Base skill proficiencys by skill tier for this level",
           "required": ["primary", "secondary", "broad"],
           "properties": {
             "primary": {
-              "$ref": "#/$defs/skillLevel",
+              "$ref": "#/$defs/skillProficiency",
               "description": "Level for core/primary skills"
             },
             "secondary": {
-              "$ref": "#/$defs/skillLevel",
+              "$ref": "#/$defs/skillProficiency",
               "description": "Level for supporting/secondary skills"
             },
             "broad": {
-              "$ref": "#/$defs/skillLevel",
+              "$ref": "#/$defs/skillProficiency",
               "description": "Level for broad skills"
             }
           },
@@ -67,11 +67,11 @@
         },
         "baseBehaviourMaturity": {
           "$ref": "#/$defs/behaviourMaturity",
-          "description": "Base behaviour maturity for this grade"
+          "description": "Base behaviour maturity for this level"
         },
         "breadthCriteria": {
           "type": "object",
-          "description": "Minimum number of skills at each level for breadth (senior grades only)",
+          "description": "Minimum number of skills at each level for breadth (senior levels only)",
           "additionalProperties": {
             "type": "integer",
             "minimum": 1
@@ -83,7 +83,7 @@
           "properties": {
             "impactScope": {
               "type": "string",
-              "description": "Scope of impact expected at this grade"
+              "description": "Scope of impact expected at this level"
             },
             "autonomyExpectation": {
               "type": "string",
@@ -95,7 +95,7 @@
             },
             "complexityHandled": {
               "type": "string",
-              "description": "Complexity level the grade should handle"
+              "description": "Complexity level the level should handle"
             }
           },
           "additionalProperties": false
@@ -103,7 +103,7 @@
       },
       "additionalProperties": false
     },
-    "skillLevel": {
+    "skillProficiency": {
       "type": "string",
       "enum": ["awareness", "foundational", "working", "practitioner", "expert"]
     },

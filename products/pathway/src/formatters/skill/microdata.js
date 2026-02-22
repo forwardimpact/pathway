@@ -87,8 +87,8 @@ export function skillToMicrodata(
 ${metaTag("isHumanOnly", "true")}`);
   }
 
-  // Level descriptions - uses LevelDescriptions itemtype
-  const levelPairs = Object.entries(view.levelDescriptions).map(
+  // Level descriptions - uses ProficiencyDescriptions itemtype
+  const levelPairs = Object.entries(view.proficiencyDescriptions).map(
     ([level, desc]) => ({
       term: formatLevelName(level),
       definition: desc,
@@ -98,7 +98,7 @@ ${metaTag("isHumanOnly", "true")}`);
   sections.push(
     section(
       "Level Descriptions",
-      `${openTag("div", { itemtype: "LevelDescriptions", itemprop: "levelDescriptions" })}
+      `${openTag("div", { itemtype: "ProficiencyDescriptions", itemprop: "proficiencyDescriptions" })}
 ${dl(levelPairs)}
 </div>`,
       2,

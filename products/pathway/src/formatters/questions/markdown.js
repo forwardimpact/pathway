@@ -4,7 +4,7 @@
  * Formats questions for terminal output as tables and lists.
  */
 
-import { SKILL_LEVELS, BEHAVIOUR_MATURITIES } from "./shared.js";
+import { SKILL_PROFICIENCIES, BEHAVIOUR_MATURITIES } from "./shared.js";
 
 /**
  * Level abbreviations for compact display
@@ -67,7 +67,7 @@ function formatStats(view, skills) {
   // Header
   const skillHeader =
     pad("Skill", 30) +
-    SKILL_LEVELS.map((l) => pad(LEVEL_ABBREVS[l], 7)).join("") +
+    SKILL_PROFICIENCIES.map((l) => pad(LEVEL_ABBREVS[l], 7)).join("") +
     "TOTAL";
   lines.push(skillHeader);
   lines.push("─".repeat(75));
@@ -84,7 +84,7 @@ function formatStats(view, skills) {
 
     const row =
       pad(name, 30) +
-      SKILL_LEVELS.map((l) => {
+      SKILL_PROFICIENCIES.map((l) => {
         const count = skillData[l] || 0;
         levelTotals[l] = (levelTotals[l] || 0) + count;
         return pad(String(count), 7);
@@ -98,7 +98,9 @@ function formatStats(view, skills) {
   lines.push("─".repeat(75));
   const totalsRow =
     pad("TOTAL", 30) +
-    SKILL_LEVELS.map((l) => pad(String(levelTotals[l] || 0), 7)).join("") +
+    SKILL_PROFICIENCIES.map((l) => pad(String(levelTotals[l] || 0), 7)).join(
+      "",
+    ) +
     String(skillTotal);
   lines.push(totalsRow);
   lines.push("");
@@ -150,7 +152,7 @@ function formatStats(view, skills) {
   const gaps = [];
   for (const skillId of sortedSkillIds) {
     const skillData = stats.skillStats[skillId];
-    for (const level of SKILL_LEVELS) {
+    for (const level of SKILL_PROFICIENCIES) {
       if ((skillData[level] || 0) < 1) {
         gaps.push(`${skillId}: missing ${level} questions`);
       }
@@ -250,7 +252,7 @@ function formatSingleSource(view) {
   }
 
   const orderedLevels =
-    sourceType === "skill" ? SKILL_LEVELS : BEHAVIOUR_MATURITIES;
+    sourceType === "skill" ? SKILL_PROFICIENCIES : BEHAVIOUR_MATURITIES;
 
   for (const level of orderedLevels) {
     if (!byLevel[level]) continue;

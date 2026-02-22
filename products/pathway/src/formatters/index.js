@@ -55,10 +55,10 @@ export {
   disciplineToMicrodata,
 } from "./discipline/microdata.js";
 
-// Grade formatters
-export { gradeListToMarkdown, gradeToMarkdown } from "./grade/markdown.js";
-export { gradeToDOM } from "./grade/dom.js";
-export { gradeListToMicrodata, gradeToMicrodata } from "./grade/microdata.js";
+// Level formatters
+export { levelListToMarkdown, levelToMarkdown } from "./level/markdown.js";
+export { levelToDOM } from "./level/dom.js";
+export { levelListToMicrodata, levelToMicrodata } from "./level/microdata.js";
 
 // Track formatters
 export { trackListToMarkdown, trackToMarkdown } from "./track/markdown.js";
@@ -75,7 +75,7 @@ export {
   behaviourToJsonLd,
   disciplineToJsonLd,
   trackToJsonLd,
-  gradeToJsonLd,
+  levelToJsonLd,
   driverToJsonLd,
   stageToJsonLd,
 } from "./json-ld.js";

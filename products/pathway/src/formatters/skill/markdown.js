@@ -71,7 +71,7 @@ export function skillToMarkdown(
 
   // Level descriptions table
   lines.push("## Level Descriptions", "");
-  const levelRows = Object.entries(view.levelDescriptions).map(
+  const levelRows = Object.entries(view.proficiencyDescriptions).map(
     ([level, desc]) => [capitalize(level), desc],
   );
   lines.push(tableToMarkdown(["Level", "Description"], levelRows));

@@ -11,31 +11,31 @@ import {
 import {
   analyzeProgression,
   analyzeCustomProgression,
-  getNextGrade,
+  getNextLevel,
 } from "@forwardimpact/libpathway/progression";
 import { getOrCreateJob } from "@forwardimpact/libpathway/job-cache";
 
 /**
- * Get the next grade for progression
- * @param {Object} currentGrade
- * @param {Array} grades
+ * Get the next level for progression
+ * @param {Object} currentLevel
+ * @param {Array} levels
  * @returns {Object|null}
  */
-export function getDefaultTargetGrade(currentGrade, grades) {
-  return getNextGrade(currentGrade, grades);
+export function getDefaultTargetLevel(currentLevel, levels) {
+  return getNextLevel(currentLevel, levels);
 }
 
 /**
  * Check if a job combination is valid
  * @param {Object} params
  * @param {Object} params.discipline
- * @param {Object} params.grade
+ * @param {Object} params.level
  * @param {Object} params.track
- * @param {Array} [params.grades] - All grades for validation
+ * @param {Array} [params.levels] - All levels for validation
  * @returns {boolean}
  */
-export function isValidCombination({ discipline, grade, track, grades }) {
-  return isValidJobCombination({ discipline, grade, track, grades });
+export function isValidCombination({ discipline, level, track, levels }) {
+  return isValidJobCombination({ discipline, level, track, levels });
 }
 
 /**
@@ -52,7 +52,7 @@ export function isValidCombination({ discipline, grade, track, grades }) {
  * Prepare current job summary for progress detail page
  * @param {Object} params
  * @param {Object} params.discipline
- * @param {Object} params.grade
+ * @param {Object} params.level
  * @param {Object} params.track
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -61,17 +61,17 @@ export function isValidCombination({ discipline, grade, track, grades }) {
  */
 export function prepareCurrentJob({
   discipline,
-  grade,
+  level,
   track,
   skills,
   behaviours,
   capabilities,
 }) {
-  if (!discipline || !grade) return null;
+  if (!discipline || !level) return null;
 
   const job = getOrCreateJob({
     discipline,
-    grade,
+    level,
     track,
     skills,
     behaviours,
@@ -96,7 +96,7 @@ export function prepareCurrentJob({
  * @property {boolean} isValid
  * @property {string|null} title
  * @property {string|null} invalidReason
- * @property {Object|null} nextGrade
+ * @property {Object|null} nextLevel
  * @property {Array} validTracks - Other valid tracks for comparison
  */
 
@@ -104,35 +104,35 @@ export function prepareCurrentJob({
  * Prepare career progress builder preview for form validation
  * @param {Object} params
  * @param {Object|null} params.discipline
- * @param {Object|null} params.grade
+ * @param {Object|null} params.level
  * @param {Object|null} params.track
- * @param {Array} params.grades - All grades
+ * @param {Array} params.levels - All levels
  * @param {Array} params.tracks - All tracks
  * @returns {CareerProgressPreview}
  */
 export function prepareCareerProgressPreview({
   discipline,
-  grade,
+  level,
   track,
-  grades,
+  levels,
   tracks,
 }) {
   // Track is optional (null = generalist)
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     return {
       isValid: false,
       title: null,
       invalidReason: null,
-      nextGrade: null,
+      nextLevel: null,
       validTracks: [],
     };
   }
 
   const validCombination = isValidJobCombination({
     discipline,
-    grade,
+    level,
     track,
-    grades,
+    levels,
   });
 
   if (!validCombination) {
@@ -143,27 +143,27 @@ export function prepareCareerProgressPreview({
       isValid: false,
       title: null,
       invalidReason: reason,
-      nextGrade: null,
+      nextLevel: null,
       validTracks: [],
     };
   }
 
-  const title = generateJobTitle(discipline, grade, track);
-  const nextGrade = getNextGrade(grade, grades);
+  const title = generateJobTitle(discipline, level, track);
+  const nextLevel = getNextLevel(level, levels);
 
   // Find other valid tracks for comparison (exclude current track if any)
   const validTracks = tracks.filter(
     (t) =>
       (!track || t.id !== track.id) &&
-      isValidJobCombination({ discipline, grade, track: t, grades }),
+      isValidJobCombination({ discipline, level, track: t, levels }),
   );
 
   return {
     isValid: true,
     title,
     invalidReason: null,
-    nextGrade: nextGrade
-      ? { id: nextGrade.id, name: nextGrade.managementTitle }
+    nextLevel: nextLevel
+      ? { id: nextLevel.id, name: nextLevel.managementTitle }
       : null,
     validTracks: validTracks.map((t) => ({ id: t.id, name: t.name })),
   };
@@ -184,10 +184,10 @@ export function prepareCareerProgressPreview({
  * Prepare career progression between two roles
  * @param {Object} params
  * @param {Object} params.fromDiscipline
- * @param {Object} params.fromGrade
+ * @param {Object} params.fromLevel
  * @param {Object} params.fromTrack
  * @param {Object} params.toDiscipline
- * @param {Object} params.toGrade
+ * @param {Object} params.toLevel
  * @param {Object} params.toTrack
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -196,22 +196,22 @@ export function prepareCareerProgressPreview({
  */
 export function prepareProgressDetail({
   fromDiscipline,
-  fromGrade,
+  fromLevel,
   fromTrack,
   toDiscipline,
-  toGrade,
+  toLevel,
   toTrack,
   skills,
   behaviours,
   capabilities,
 }) {
   // Track is optional (null = generalist)
-  if (!fromDiscipline || !fromGrade) return null;
-  if (!toDiscipline || !toGrade) return null;
+  if (!fromDiscipline || !fromLevel) return null;
+  if (!toDiscipline || !toLevel) return null;
 
   const fromJob = getOrCreateJob({
     discipline: fromDiscipline,
-    grade: fromGrade,
+    level: fromLevel,
     track: fromTrack,
     skills,
     behaviours,
@@ -220,7 +220,7 @@ export function prepareProgressDetail({
 
   const toJob = getOrCreateJob({
     discipline: toDiscipline,
-    grade: toGrade,
+    level: toLevel,
     track: toTrack,
     skills,
     behaviours,
@@ -238,7 +238,7 @@ export function prepareProgressDetail({
     type: s.type,
     fromLevel: s.currentLevel,
     toLevel: s.targetLevel,
-    levelChange: s.change,
+    proficiencyChange: s.change,
   }));
 
   // Transform behaviour changes
@@ -251,12 +251,12 @@ export function prepareProgressDetail({
   }));
 
   const summary = {
-    skillsToImprove: skillChanges.filter((s) => s.levelChange > 0).length,
+    skillsToImprove: skillChanges.filter((s) => s.proficiencyChange > 0).length,
     behavioursToImprove: behaviourChanges.filter((b) => b.maturityChange > 0)
       .length,
     newSkills: skillChanges.filter((s) => !s.fromLevel && s.toLevel).length,
     totalChanges:
-      skillChanges.filter((s) => s.levelChange !== 0).length +
+      skillChanges.filter((s) => s.proficiencyChange !== 0).length +
       behaviourChanges.filter((b) => b.maturityChange !== 0).length,
   };
 
@@ -265,12 +265,12 @@ export function prepareProgressDetail({
     toTitle: toJob.title,
     fromJob: {
       disciplineId: fromDiscipline.id,
-      gradeId: fromGrade.id,
+      levelId: fromLevel.id,
       trackId: fromTrack?.id || null,
     },
     toJob: {
       disciplineId: toDiscipline.id,
-      gradeId: toGrade.id,
+      levelId: toLevel.id,
       trackId: toTrack?.id || null,
     },
     skillChanges,
@@ -292,10 +292,10 @@ export function prepareProgressDetail({
  * Prepare custom progression analysis between any two roles
  * @param {Object} params
  * @param {Object} params.discipline - Current discipline
- * @param {Object} params.currentGrade
+ * @param {Object} params.currentLevel
  * @param {Object} params.currentTrack
  * @param {Object} params.targetDiscipline
- * @param {Object} params.targetGrade
+ * @param {Object} params.targetLevel
  * @param {Object} params.targetTrack
  * @param {Array} params.skills
  * @param {Array} params.behaviours
@@ -303,20 +303,20 @@ export function prepareProgressDetail({
  */
 export function prepareCustomProgression({
   discipline,
-  currentGrade,
+  currentLevel,
   currentTrack,
   targetDiscipline,
-  targetGrade,
+  targetLevel,
   targetTrack,
   skills,
   behaviours,
 }) {
   const analysis = analyzeCustomProgression({
     discipline,
-    currentGrade,
+    currentLevel,
     currentTrack,
     targetDiscipline,
-    targetGrade,
+    targetLevel,
     targetTrack,
     skills,
     behaviours,

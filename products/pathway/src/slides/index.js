@@ -55,25 +55,25 @@ export function renderSlideIndex({ render, data }) {
       ),
     ),
 
-    // Grades
+    // Levels
     div(
       { className: "slide-section" },
       a(
-        { href: "#/overview/grade" },
+        { href: "#/overview/level" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "grade")} `,
-          span({ className: "gradient-text" }, "Grades"),
+          `${getConceptEmoji(data.framework, "level")} `,
+          span({ className: "gradient-text" }, "Levels"),
         ),
       ),
       ul(
         { className: "related-list" },
-        ...data.grades.map((grade) =>
+        ...data.levels.map((level) =>
           li(
             {},
             a(
-              { href: `#/grade/${grade.id}` },
-              `${grade.id} - ${grade.professionalTitle}`,
+              { href: `#/level/${level.id}` },
+              `${level.id} - ${level.professionalTitle}`,
             ),
           ),
         ),
@@ -174,7 +174,7 @@ export function renderSlideIndex({ render, data }) {
         { className: "related-list" },
         ...generateAllJobs({
           disciplines: data.disciplines,
-          grades: data.grades,
+          levels: data.levels,
           tracks: data.tracks,
           skills: data.skills,
           behaviours: data.behaviours,
@@ -185,8 +185,8 @@ export function renderSlideIndex({ render, data }) {
             a(
               {
                 href: job.track
-                  ? `#/job/${job.discipline.id}/${job.grade.id}/${job.track.id}`
-                  : `#/job/${job.discipline.id}/${job.grade.id}`,
+                  ? `#/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
+                  : `#/job/${job.discipline.id}/${job.level.id}`,
               },
               job.title,
             ),

@@ -32,18 +32,18 @@ import {
  * @param {Object} params - Route params
  */
 export function renderInterviewDetail(params) {
-  const { discipline: disciplineId, grade: gradeId, track: trackId } = params;
+  const { discipline: disciplineId, level: levelId, track: trackId } = params;
   const { data } = getState();
 
   // Find the components
   const discipline = data.disciplines.find((d) => d.id === disciplineId);
-  const grade = data.grades.find((g) => g.id === gradeId);
+  const level = data.levels.find((g) => g.id === levelId);
   const track = trackId ? data.tracks.find((t) => t.id === trackId) : null;
 
-  if (!discipline || !grade) {
+  if (!discipline || !level) {
     renderError({
       title: "Interview Not Found",
-      message: "Invalid combination. Discipline or grade not found.",
+      message: "Invalid combination. Discipline or level not found.",
       backPath: "/interview-prep",
       backText: "← Back to Interview Prep",
     });
@@ -64,7 +64,7 @@ export function renderInterviewDetail(params) {
   // Use formatter shared module to get all interview types
   const interviewsView = prepareAllInterviews({
     discipline,
-    grade,
+    level,
     track,
     skills: data.skills,
     behaviours: data.behaviours,
@@ -74,7 +74,7 @@ export function renderInterviewDetail(params) {
   if (!interviewsView) {
     renderError({
       title: "Invalid Combination",
-      message: "This discipline, track, and grade combination is not valid.",
+      message: "This discipline, track, and level combination is not valid.",
       backPath: "/interview-prep",
       backText: "← Back to Interview Prep",
     });
@@ -100,8 +100,8 @@ export function renderInterviewDetail(params) {
         ),
         " × ",
         a(
-          { href: `#/grade/${interviewsView.gradeId}` },
-          interviewsView.gradeId,
+          { href: `#/level/${interviewsView.levelId}` },
+          interviewsView.levelId,
         ),
         " × ",
         a(

@@ -38,7 +38,7 @@ export {
   // Interview ratios
   RATIO_SKILL_BEHAVIOUR,
   // Level multipliers
-  WEIGHT_SKILL_LEVEL,
+  WEIGHT_SKILL_PROFICIENCY,
   WEIGHT_BELOW_LEVEL_PENALTY,
   // Development path weights
   WEIGHT_DEV_TYPE_PRIMARY,
@@ -58,8 +58,8 @@ export {
   WEIGHT_CAPABILITY_DECOMP_SCALE,
   WEIGHT_CAPABILITY_DECOMP_RELIABILITY,
   WEIGHT_FOCUS_BOOST,
-  // Senior grade threshold
-  THRESHOLD_SENIOR_GRADE,
+  // Senior level threshold
+  THRESHOLD_SENIOR_LEVEL,
   // Assessment weights
   WEIGHT_ASSESSMENT_SKILL_DEFAULT,
   WEIGHT_ASSESSMENT_BEHAVIOUR_DEFAULT,
@@ -69,10 +69,10 @@ export {
   LIMIT_PRIORITY_GAPS,
   WEIGHT_SAME_TRACK_BONUS,
   // Realistic match filtering
-  RANGE_GRADE_OFFSET,
-  RANGE_READY_GRADE_OFFSET,
+  RANGE_LEVEL_OFFSET,
+  RANGE_READY_LEVEL_OFFSET,
   // Driver coverage thresholds
-  THRESHOLD_DRIVER_SKILL_LEVEL,
+  THRESHOLD_DRIVER_SKILL_PROFICIENCY,
   THRESHOLD_DRIVER_BEHAVIOUR_MATURITY,
 } from "./thresholds.js";
 
@@ -91,7 +91,7 @@ export {
   isTrack,
   isCore,
   isSupporting,
-  // Skill levels
+  // Skill proficiencies
   hasMinLevel,
   hasLevel,
   hasBelowLevel,

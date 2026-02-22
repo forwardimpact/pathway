@@ -21,7 +21,7 @@ const ROUTE_COMMANDS = [
     toCommand: () => "npx fit-pathway discipline",
   },
   { pattern: /^\/track$/, toCommand: () => "npx fit-pathway track" },
-  { pattern: /^\/grade$/, toCommand: () => "npx fit-pathway grade" },
+  { pattern: /^\/level$/, toCommand: () => "npx fit-pathway level" },
   { pattern: /^\/driver$/, toCommand: () => "npx fit-pathway driver" },
   { pattern: /^\/stage$/, toCommand: () => "npx fit-pathway stage" },
   { pattern: /^\/tool$/, toCommand: () => "npx fit-pathway tool" },
@@ -44,8 +44,8 @@ const ROUTE_COMMANDS = [
     toCommand: (m) => `npx fit-pathway track ${m[1]}`,
   },
   {
-    pattern: /^\/grade\/(.+)$/,
-    toCommand: (m) => `npx fit-pathway grade ${m[1]}`,
+    pattern: /^\/level\/(.+)$/,
+    toCommand: (m) => `npx fit-pathway level ${m[1]}`,
   },
   {
     pattern: /^\/driver\/(.+)$/,

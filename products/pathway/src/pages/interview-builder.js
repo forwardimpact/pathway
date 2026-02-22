@@ -17,7 +17,7 @@ export function renderInterviewPrep() {
     createBuilder({
       title: "Interview Prep",
       description:
-        "Select a discipline, track, and grade to generate tailored interview questions " +
+        "Select a discipline, track, and level to generate tailored interview questions " +
         "based on the role's skill requirements and expected behaviours.",
       formTitle: "Select Role",
       emptyPreviewText: "Select all three components to preview the interview.",
@@ -26,21 +26,21 @@ export function renderInterviewPrep() {
         prepareInterviewBuilderPreview({
           ...selection,
           behaviourCount: data.behaviours.length,
-          grades: data.grades,
+          levels: data.levels,
         }),
       detailPath: (sel) =>
         sel.track
-          ? `/interview/${sel.discipline}/${sel.grade}/${sel.track}`
-          : `/interview/${sel.discipline}/${sel.grade}`,
+          ? `/interview/${sel.discipline}/${sel.level}/${sel.track}`
+          : `/interview/${sel.discipline}/${sel.level}`,
       renderPreview: createStandardPreview,
       helpItems: [
         {
           label: "Role Selection",
-          text: "Choose a discipline, track, and grade to define the target role for the interview.",
+          text: "Choose a discipline, track, and level to define the target role for the interview.",
         },
         {
           label: "Skill Questions",
-          text: "Questions are generated based on the required skill levels for the role.",
+          text: "Questions are generated based on the required skill proficiencies for the role.",
         },
         {
           label: "Behaviour Questions",

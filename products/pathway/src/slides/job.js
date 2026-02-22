@@ -17,12 +17,12 @@ import { jobToDOM } from "../formatters/index.js";
  */
 export function renderJobSlide({ render, data, params }) {
   const discipline = data.disciplines.find((d) => d.id === params.discipline);
-  const grade = data.grades.find((g) => g.id === params.grade);
+  const level = data.levels.find((g) => g.id === params.level);
   const track = data.tracks.find((t) => t.id === params.track);
 
   const view = prepareJobDetail({
     discipline,
-    grade,
+    level,
     track,
     skills: data.skills,
     behaviours: data.behaviours,
@@ -49,7 +49,7 @@ export function renderJobSlide({ render, data, params }) {
       showJobDescriptionHtml: true,
       showJobDescriptionMarkdown: false,
       discipline,
-      grade,
+      level,
       track,
     }),
   );

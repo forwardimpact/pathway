@@ -24,7 +24,7 @@ access.
 
 ### Model
 
-How disciplines, grades, tracks, skills, and behaviours combine to produce role
+How disciplines, levels, tracks, skills, and behaviours combine to produce role
 definitions.
 
 </a>

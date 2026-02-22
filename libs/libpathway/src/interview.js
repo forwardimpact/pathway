@@ -6,9 +6,9 @@
  */
 
 import {
-  getSkillLevelIndex,
+  getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
-  SKILL_LEVEL_ORDER,
+  SKILL_PROFICIENCY_ORDER,
   Capability,
 } from "@forwardimpact/map/levels";
 
@@ -17,7 +17,7 @@ import {
   WEIGHT_CAPABILITY_BOOST,
   WEIGHT_BEHAVIOUR_BASE,
   WEIGHT_BEHAVIOUR_MATURITY,
-  WEIGHT_SKILL_LEVEL,
+  WEIGHT_SKILL_PROFICIENCY,
   WEIGHT_BELOW_LEVEL_PENALTY,
   RATIO_SKILL_BEHAVIOUR,
   DEFAULT_INTERVIEW_QUESTION_MINUTES,
@@ -36,7 +36,7 @@ import { compareByMaturityDesc } from "./policies/orderings.js";
  * Get questions from the question bank for a specific skill and level
  * @param {import('./levels.js').QuestionBank} questionBank - The question bank
  * @param {string} skillId - The skill ID
- * @param {string} level - The skill level
+ * @param {string} level - The skill proficiency
  * @param {string} [roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').Question[]} Array of questions
  */
@@ -46,7 +46,7 @@ function getSkillQuestions(
   level,
   roleType = "professionalQuestions",
 ) {
-  return questionBank.skillLevels?.[skillId]?.[roleType]?.[level] || [];
+  return questionBank.skillProficiencies?.[skillId]?.[roleType]?.[level] || [];
 }
 
 /**
@@ -73,7 +73,7 @@ function getBehaviourQuestions(
  * Get decomposition questions from the question bank for a specific capability and level
  * @param {import('./levels.js').QuestionBank} questionBank - The question bank
  * @param {string} capabilityId - The capability ID
- * @param {string} level - The skill level (capabilities use same levels as skills)
+ * @param {string} level - The skill proficiency (capabilities use same levels as skills)
  * @param {string} [roleType='professionalQuestions'] - Role type ('professionalQuestions' or 'managementQuestions')
  * @returns {import('./levels.js').Question[]} Array of questions
  */
@@ -90,7 +90,7 @@ function getCapabilityQuestions(
 
 /**
  * Derive capability levels from a job's skill matrix
- * Uses the maximum skill level in each capability.
+ * Uses the maximum skill proficiency in each capability.
  * @param {import('./levels.js').JobDefinition} job - The job definition
  * @returns {Map<string, {capabilityId: string, level: string, levelIndex: number}>} Map of capability to level info
  */
@@ -99,13 +99,13 @@ function deriveCapabilityLevels(job) {
 
   for (const skill of job.skillMatrix) {
     const capabilityId = skill.capability;
-    const levelIndex = getSkillLevelIndex(skill.level);
+    const levelIndex = getSkillProficiencyIndex(skill.proficiency);
 
     const existing = capabilityLevels.get(capabilityId);
     if (!existing || levelIndex > existing.levelIndex) {
       capabilityLevels.set(capabilityId, {
         capabilityId,
-        level: skill.level,
+        level: skill.proficiency,
         levelIndex,
       });
     }
@@ -136,8 +136,9 @@ function calculateSkillPriority(skill, includeBelowLevel = false) {
     priority += WEIGHT_CAPABILITY_BOOST.delivery;
   }
 
-  // Higher skill level = higher priority
-  priority += getSkillLevelIndex(skill.level) * WEIGHT_SKILL_LEVEL;
+  // Higher skill proficiency = higher priority
+  priority +=
+    getSkillProficiencyIndex(skill.proficiency) * WEIGHT_SKILL_PROFICIENCY;
 
   // Below-level questions have lower priority
   if (includeBelowLevel) {
@@ -165,7 +166,7 @@ function calculateBehaviourPriority(behaviour) {
 /**
  * Calculate priority for a capability decomposition question
  * @param {string} capabilityId - The capability ID
- * @param {number} levelIndex - The skill level index
+ * @param {number} levelIndex - The skill proficiency index
  * @returns {number} Priority score (higher = more important)
  */
 function calculateCapabilityPriority(capabilityId, levelIndex) {
@@ -181,7 +182,7 @@ function calculateCapabilityPriority(capabilityId, levelIndex) {
   }
 
   // Higher level = higher priority
-  priority += levelIndex * WEIGHT_SKILL_LEVEL;
+  priority += levelIndex * WEIGHT_SKILL_PROFICIENCY;
 
   return priority;
 }
@@ -235,8 +236,8 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
 
   // Generate all potential skill questions with priority
   for (const skill of job.skillMatrix) {
-    const targetLevel = skill.level;
-    const targetLevelIndex = getSkillLevelIndex(targetLevel);
+    const targetLevel = skill.proficiency;
+    const targetLevelIndex = getSkillProficiencyIndex(targetLevel);
 
     // Get questions at target level
     const targetQuestions = getSkillQuestions(
@@ -268,7 +269,7 @@ export function deriveInterviewQuestions({ job, questionBank, options = {} }) {
       targetLevelIndex > 0 &&
       questionsAdded < maxQuestionsPerSkill
     ) {
-      const belowLevel = SKILL_LEVEL_ORDER[targetLevelIndex - 1];
+      const belowLevel = SKILL_PROFICIENCY_ORDER[targetLevelIndex - 1];
       const belowQuestions = getSkillQuestions(
         questionBank,
         skill.skillId,
@@ -608,7 +609,7 @@ export function deriveFocusedInterview({
     const questions = getSkillQuestions(
       questionBank,
       skill.skillId,
-      skill.level,
+      skill.proficiency,
       roleType,
     );
     for (const question of questions) {
@@ -617,7 +618,7 @@ export function deriveFocusedInterview({
         targetId: skill.skillId,
         targetName: skill.skillName,
         targetType: "skill",
-        targetLevel: skill.level,
+        targetLevel: skill.proficiency,
         priority: calculateSkillPriority(skill) + WEIGHT_FOCUS_BOOST,
       });
       coveredSkills.add(skill.skillId);
@@ -694,8 +695,8 @@ export function deriveMissionFitInterview({
 
   // Generate all potential skill questions with priority
   for (const skill of job.skillMatrix) {
-    const targetLevel = skill.level;
-    const targetLevelIndex = getSkillLevelIndex(targetLevel);
+    const targetLevel = skill.proficiency;
+    const targetLevelIndex = getSkillProficiencyIndex(targetLevel);
 
     // Get questions at target level
     const targetQuestions = getSkillQuestions(
@@ -718,7 +719,7 @@ export function deriveMissionFitInterview({
 
     // Also add question from level below for depth
     if (targetLevelIndex > 0) {
-      const belowLevel = SKILL_LEVEL_ORDER[targetLevelIndex - 1];
+      const belowLevel = SKILL_PROFICIENCY_ORDER[targetLevelIndex - 1];
       const belowQuestions = getSkillQuestions(
         questionBank,
         skill.skillId,
@@ -844,7 +845,7 @@ export function deriveDecompositionInterview({
 
     // Also try level below if available
     if (levelIndex > 0) {
-      const belowLevel = SKILL_LEVEL_ORDER[levelIndex - 1];
+      const belowLevel = SKILL_PROFICIENCY_ORDER[levelIndex - 1];
       const belowQuestions = getCapabilityQuestions(
         questionBank,
         capabilityId,

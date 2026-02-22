@@ -4,15 +4,15 @@
  * Shows career progression analysis in the terminal.
  *
  * Usage:
- *   npx pathway progress <discipline> <grade>                            # Progress for trackless job
- *   npx pathway progress <discipline> <grade> --track=<track>            # Progress with track
- *   npx pathway progress <discipline> <from_grade> --compare=<to_grade>  # Compare grades
+ *   npx pathway progress <discipline> <level>                            # Progress for trackless job
+ *   npx pathway progress <discipline> <level> --track=<track>            # Progress with track
+ *   npx pathway progress <discipline> <from_level> --compare=<to_level>  # Compare levels
  */
 
 import { createCompositeCommand } from "./command-factory.js";
 import {
   prepareProgressDetail,
-  getDefaultTargetGrade,
+  getDefaultTargetLevel,
 } from "../formatters/progress/shared.js";
 import { progressToMarkdown } from "../formatters/progress/markdown.js";
 
@@ -26,53 +26,53 @@ function formatProgress(view) {
 
 export const runProgressCommand = createCompositeCommand({
   commandName: "progress",
-  requiredArgs: ["discipline_id", "grade_id"],
+  requiredArgs: ["discipline_id", "level_id"],
   findEntities: (data, args, options) => {
     const discipline = data.disciplines.find((d) => d.id === args[0]);
-    const grade = data.grades.find((g) => g.id === args[1]);
+    const level = data.levels.find((g) => g.id === args[1]);
     const track = options.track
       ? data.tracks.find((t) => t.id === options.track)
       : null;
 
-    let targetGrade;
+    let targetLevel;
     if (options.compare) {
-      targetGrade = data.grades.find((g) => g.id === options.compare);
-      if (!targetGrade) {
-        console.error(`Target grade not found: ${options.compare}`);
+      targetLevel = data.levels.find((g) => g.id === options.compare);
+      if (!targetLevel) {
+        console.error(`Target level not found: ${options.compare}`);
         process.exit(1);
       }
     } else {
-      targetGrade = getDefaultTargetGrade(grade, data.grades);
-      if (!targetGrade) {
-        console.error("No next grade available for progression.");
+      targetLevel = getDefaultTargetLevel(level, data.levels);
+      if (!targetLevel) {
+        console.error("No next level available for progression.");
         process.exit(1);
       }
     }
 
-    return { discipline, grade, track, targetGrade };
+    return { discipline, level, track, targetLevel };
   },
   validateEntities: (entities, _data, options) => {
     if (!entities.discipline) {
       return `Discipline not found`;
     }
-    if (!entities.grade) {
-      return `Grade not found`;
+    if (!entities.level) {
+      return `Level not found`;
     }
     if (options.track && !entities.track) {
       return `Track not found: ${options.track}`;
     }
-    if (!entities.targetGrade) {
-      return `Target grade not found`;
+    if (!entities.targetLevel) {
+      return `Target level not found`;
     }
     return null;
   },
   presenter: (entities, data) =>
     prepareProgressDetail({
       fromDiscipline: entities.discipline,
-      fromGrade: entities.grade,
+      fromLevel: entities.level,
       fromTrack: entities.track,
       toDiscipline: entities.discipline,
-      toGrade: entities.targetGrade,
+      toLevel: entities.targetLevel,
       toTrack: entities.track,
       skills: data.skills,
       behaviours: data.behaviours,
