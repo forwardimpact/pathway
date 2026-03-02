@@ -1,4 +1,4 @@
-name: Build and Deploy Documentation
+name: Publish the Website
 
 on:
   push:
