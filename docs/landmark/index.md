@@ -1,53 +1,46 @@
 ---
 title: Landmark
-description: See your own growth — observable markers for engineering practice, reflecting your work against the skills that matter.
+description: Analyze engineering-system signals from Map — marker evidence from GitHub activity and quarterly GetDX snapshot outcomes.
 layout: product
 toc: false
 hero:
-  subtitle: See your own growth. Landmark is a GitHub App that collects engineering activity and reflects it against your framework — helping engineers see their own evidence and helping organizations improve the systems that support great practice.
+  subtitle: Landmark is the analysis layer for engineering-system signals. It reads Map data to show marker evidence, practice patterns, and snapshot trends for manager-defined teams.
   cta:
     - label: Read the spec
-      href: https://github.com/forwardimpact/monorepo/tree/main/specs/landmark
+      href: https://github.com/forwardimpact/monorepo/tree/main/specs/04-landmark-product
     - label: Coming soon
       href: /docs/
       secondary: true
 ---
 
-> The evidence is already there — in pull requests, code reviews, design
-> documents, architecture decisions. Landmark makes it visible. Not to judge
-> individuals, but to help engineers reflect on their own growth and to help
-> organizations see whether their engineering systems create the conditions for
-> that growth to happen.
+> Landmark turns shared data into clear analysis. It combines objective marker
+> evidence from GitHub artifacts with subjective outcomes from GetDX snapshots,
+> then presents team-level and individual views grounded in your framework.
 
 ### What you get
 
-- GitHub activity collected automatically — PRs, reviews, commits, discussions
-- Personal evidence for every engineer, private and self-directed
-- Practice patterns across teams — anonymous, aggregate, process-focused
-- Skill markers that connect real work to framework expectations
-- Guide-powered interpretation with visible rationale
-- Full event replay — raw data is immutable, extraction logic can evolve
+- Personal evidence views by skill marker and artifact context
+- Practice-pattern summaries across manager-derived team scopes
+- Snapshot trend and comparison views from GetDX quarterly results
+- Combined health views joining marker evidence and snapshot factors
+- Consistent filters by manager hierarchy, skill, and factor
 
 ---
 
 ### Who it's for
 
-**Engineers** who want to see their own growth reflected in the work they
-already do — not scores or dashboards, but real artifacts with context. Evidence
-you can bring to career conversations on your own terms.
+**Engineers** reviewing their own evidence in context of role expectations.
 
-**Engineering leaders** who want to improve the systems that support good
-practice. When a skill shows weak evidence across a team, the question is always
-"does our process support this?" — not "who isn't doing this?"
+**Engineering leaders** tracking team patterns and DX trends using shared,
+manager-scoped views.
 
 ---
 
-## Two Views
+## Core Views
 
 ### Personal Evidence
 
-An engineer sees their own artifacts reflected against the markers for their
-role. Nobody else sees this view unless the engineer shares it.
+An engineer reviews recent artifacts linked to specific skill markers.
 
 ```
 $ fit-landmark evidence --skill system_design
@@ -67,11 +60,11 @@ $ fit-landmark evidence --skill system_design
 
 ### Practice Patterns
 
-Engineering leadership sees aggregate patterns across a team. No individuals
-named. Minimum team size of 5 to prevent identification.
+  Engineering leadership sees aggregate marker patterns across a manager-defined
+  team scope.
 
 ```
-$ fit-landmark practice system_design --team platform
+  $ fit-landmark practice --skill system_design --manager platform_manager
 
   System Design practice — Platform team (last quarter)
 
@@ -81,33 +74,37 @@ $ fit-landmark practice system_design --team platform
 
   Weak evidence:
     Trade-off analysis — few PRs document multiple approaches considered
-    Consider: do engineers have time for design exploration before
-    implementation begins?
+    Consider: where does design exploration happen in the current workflow?
 ```
+
+  ### Snapshot Trends
+
+  Quarterly GetDX snapshots show how factors move over time and relative to org
+  and benchmark comparisons.
+
+  ```sh
+  fit-landmark snapshot trend --item MTQ2 --manager platform_manager
+  fit-landmark snapshot compare --snapshot MjUyNbaY --manager platform_manager
+  ```
 
 ---
 
 ## How It Works
 
-Landmark is a GitHub App with three phases:
+  Landmark queries Map's central store:
 
-1. **Ingestion** — real-time webhook events stored as immutable raw payloads
-2. **Extraction** — scheduled jobs parse structured artifacts from raw events
-3. **Interpretation** — Guide reads artifacts against skill markers on demand
+  1. `organization_people` for hierarchy and team slicing
+  2. `github_artifacts` + `evidence` for objective marker analysis
+  3. `getdx_snapshots` + `getdx_snapshot_team_scores` for quarterly outcomes
 
 ```
-GitHub Events → Collector (deterministic) → Guide (interpretation) → Evidence
+  GetDX + GitHub → Map (ingest + store) → Landmark (analyze + present)
 ```
-
-The collector is cheap, repeatable, and auditable. The interpretation is an LLM
-judgement — visible and reviewable. The engineer sees not just "this artifact
-relates to this marker" but Guide's rationale for why.
 
 ---
 
 ### Stay Updated
 
-Landmark is currently in development. The foundation is being built across Map
-(skill markers), Guide (interpretation), and Pathway (career progression). When
-these are mature, Landmark will bring evidence from real engineering work into
-the picture.
+  Landmark is currently in development. Product direction is specified in the
+  Landmark and Map specs under `specs/04-landmark-product` and
+  `specs/03-map-data-store`.

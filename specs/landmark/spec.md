@@ -62,10 +62,10 @@ Numbers invite gaming. Narratives invite reflection.
 
 ## What
 
-Landmark is a GitHub App. Organizations install it on their GitHub Organization,
-and it collects engineering activity — pull requests, reviews, commits,
-discussions. Guide then reads that activity against skill markers from the
-framework, producing two views:
+Landmark is a GitHub App and a CLI. Organizations install the app on their
+GitHub Organization, and it collects engineering activity — pull requests,
+reviews, commits, discussions — into Map's central data store. Guide then reads
+that activity against skill markers from the framework, producing two views:
 
 1. **Personal evidence** — an engineer's own work, reflected against the markers
    for their role. Self-directed. The engineer explores their own artifacts and
@@ -228,27 +228,34 @@ Landmark, loaded from YAML files or an HR integration.
 
 The app receives GitHub webhook events as they happen — no polling, no batch
 jobs. When a PR is opened, reviewed, merged, or commented on, Landmark receives
-the event and stores the relevant facts.
+the event and writes it to Map's data store.
 
 The app collects. It does not act on repositories — no comments, no status
 checks, no annotations on PRs. It does not surface results inside GitHub. All
 output is through the CLI, where the engineer controls what they see.
 
+Landmark owns no database. All data — events, artifacts, evidence, roster — lives
+in Map's Supabase project under the `activity` schema. This means any product
+that needs GitHub activity data (Guide, future products) can access it from
+the same data store without cross-service integration.
+
 ### Collector and Interpreter
 
 Landmark has two parts.
 
-The **collector** is the GitHub App. It receives events, extracts structured
-facts, and stores them. This is deterministic — anyone can see exactly what was
-collected and when.
+The **collector** is the GitHub App — an Edge Function in Map's Supabase project.
+It receives events, writes raw payloads to Map's Storage, and inserts thin index
+rows into Map's `activity.events` table. A scheduled extraction job then
+processes raw events into structured artifacts. This is deterministic — anyone
+can see exactly what was collected and when.
 
-The **interpreter** is Guide. Landmark passes collected artifacts to Guide along
-with the relevant skill markers, and Guide reads the artifacts in context: does
-this PR description show trade-off analysis? Do these review comments explain
-reasoning, not just point out problems?
+The **interpreter** is Guide. Guide reads uninterpreted artifacts from Map's
+`activity.artifacts` table, assesses them against skill markers from the
+framework schema, and writes evidence rows back to Map's `activity.evidence`
+table.
 
 ```
-GitHub Events → Collector (deterministic) → Guide (interpretation) → Evidence
+GitHub Events → Map (Storage + activity schema) → Guide (interpretation) → Evidence
 ```
 
 The collector is cheap, repeatable, and auditable. The interpretation is an LLM
@@ -337,23 +344,33 @@ creating fear.
 ## Positioning
 
 ```
-map → libpathway → pathway
-  ↘               ↗
-   guide → landmark
-  ↗
-map
+                    ┌──────────────────────┐
+                    │    Map (data store)   │
+                    │  framework | activity │
+                    └──┬─────┬─────┬───┬───┘
+                       │     │     │   │
+              ┌────────┘     │     │   └────────┐
+              ▼              ▼     ▼            ▼
+         libpathway       Guide  Landmark    Basecamp
+              │              │   (collect)   (daily ops)
+              ▼              │
+           Pathway           │
+          (present)          │
+              ▲              │
+              └──── evidence ┘
 ```
 
-- **Map** defines skills, levels, behaviours — the data model
+- **Map** is the central data store — framework schema (skills, levels,
+  behaviours, markers) and activity schema (events, artifacts, evidence, roster)
 - **libpathway** derives jobs and agent profiles from Map data
-- **Guide** is the AI agent that traverses Map and Pathway data — the
-  interpretation layer
-- **Landmark** collects GitHub activity and uses Guide to read it against
-  markers. It depends on Guide for all interpretation.
+- **Guide** is the AI agent that interprets artifacts against markers — it reads
+  from and writes evidence to Map's activity schema
+- **Landmark** is the collector (GitHub App → Map) and the reader (CLI → Map).
+  It owns no data store.
 - **Pathway** presents career progression, now with reflective evidence from
-  Landmark
+  Map's activity schema
 - **Basecamp** generates supplementary evidence (meeting notes, email decisions)
-  that Landmark can reference alongside GitHub activity
+  that can be written to Map's activity schema alongside GitHub activity
 
 ## Design
 
@@ -414,21 +431,21 @@ beyond.
 
 ## CLI
 
-The GitHub App collects activity continuously. The CLI queries what's been
-collected. Two views: personal evidence and practice patterns.
+The GitHub App collects activity continuously into Map's data store. The CLI
+queries Map for what's been collected. Two views: personal evidence and practice
+patterns.
 
 ```
 Landmark — Observable markers for engineering practice.
 
 Usage:
-  fit-landmark evidence [--skill]             Show your own evidence
-  fit-landmark practice <skill> [--manager]   Show practice patterns across a team
-  fit-landmark marker <skill> [--level]       Show markers for a skill
-  fit-landmark org                            Show the organization
-  fit-landmark org sync <file>                Sync organization from YAML
-  fit-landmark survey <id>                    Show survey results
-  fit-landmark survey load <file>             Load survey results from YAML
-  fit-landmark validate                       Validate markers and data
+  fit-landmark evidence [--skill]          Show your own evidence
+  fit-landmark practice <skill> [--team]   Show practice patterns across a team
+  fit-landmark marker <skill> [--level]    Show markers for a skill
+  fit-landmark roster                      Show the current roster
+  fit-landmark roster sync <file>          Sync roster to Map
+  fit-landmark replay [--since] [--type]   Re-extract from raw events
+  fit-landmark validate                    Validate marker definitions
 ```
 
 ### Personal Evidence
@@ -518,19 +535,18 @@ $ fit-landmark practice system_design --manager carol
 
 ## Summary
 
-| Attribute     | Value                                                                    |
-| ------------- | ------------------------------------------------------------------------ |
-| Package       | `@forwardimpact/landmark`                                                |
-| CLI           | `fit-landmark`                                                           |
-| Delivery      | GitHub App installed on GitHub Organizations                             |
-| Icon          | Cairn (three stacked stones)                                             |
-| Emoji         | 🪨                                                                       |
-| Hero scene    | "Checking the Cairn"                                                     |
-| Tagline       | "See your own growth. Improve the system."                               |
-| Depends on    | `@forwardimpact/guide` (interpretation), `@forwardimpact/map` (schemas)  |
-| Input         | GitHub events + organization (people → jobs → managers) + survey results |
-| Schema (Map)  | Organization, repositories, surveys, survey results, markers             |
-| Data          | Installation-specific, owned by Landmark                                 |
-| For engineers | Self-directed evidence, preparation for career conversations             |
-| For teams     | Practice patterns + survey context, process improvement signals          |
-| For agents    | Same markers, same evidence, same interpretation                         |
+| Attribute     | Value                                                                   |
+| ------------- | ----------------------------------------------------------------------- |
+| Package       | `@forwardimpact/landmark`                                               |
+| CLI           | `fit-landmark`                                                          |
+| Delivery      | GitHub App installed on GitHub Organizations                            |
+| Data store    | None — all data lives in Map's Supabase (activity schema)               |
+| Icon          | Cairn (three stacked stones)                                            |
+| Emoji         | 🪨                                                                      |
+| Hero scene    | "Checking the Cairn"                                                    |
+| Tagline       | "See your own growth. Improve the system."                              |
+| Depends on    | `@forwardimpact/map` (data store + markers), `@forwardimpact/guide` (interpretation) |
+| Input         | GitHub webhook events + roster (people → job profiles)                  |
+| For engineers | Self-directed evidence, preparation for career conversations            |
+| For teams     | Practice patterns, process improvement signals                          |
+| For agents    | Same markers, same evidence, same interpretation                        |

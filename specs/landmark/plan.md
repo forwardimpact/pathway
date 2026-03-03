@@ -1,9 +1,35 @@
 # Plan: Landmark GitHub App
 
-Implement Landmark as a Supabase-backed GitHub App that collects engineering
-activity from GitHub Organizations, uses Guide to interpret artifacts against
-skill markers, and produces two views: personal evidence for engineers and
-practice patterns for teams.
+Implement Landmark as a GitHub App and CLI that collects engineering activity
+from GitHub Organizations, uses Guide to interpret artifacts against skill
+markers, and produces two views: personal evidence for engineers and practice
+patterns for teams.
+
+**Prerequisite:** The Map data store plan must be implemented first. Map provides
+the Supabase project, database schemas (framework + activity), Edge Function
+hosting, Storage, and pg_cron. Landmark builds on top of that infrastructure.
+
+## What Landmark Owns
+
+Landmark is thin. It owns:
+
+1. **GitHub App registration** — webhook subscriptions and permissions
+2. **Webhook Edge Function** — lives in Map's Supabase project at
+   `products/map/supabase/functions/github-webhook/`
+3. **Extraction logic** — deterministic mapping from raw events to structured
+   artifacts, runs as a Map pg_cron job
+4. **CLI** (`fit-landmark`) — queries Map's database for evidence and patterns
+5. **Roster sync** — writes `landmark.yaml` entries to Map's `activity.roster`
+
+Landmark does **not** own:
+
+- A Supabase project
+- Database tables or migrations
+- RLS policies
+- Storage buckets
+
+All of that is Map's responsibility. See `specs/map-data-store/plan.md` for
+the full schema, RLS policies, and infrastructure details.
 
 ## Architecture
 
@@ -12,50 +38,48 @@ GitHub Organization
   │
   │ webhook events
   ▼
-Edge Function (ingestion)
+Map Supabase Project
   │
-  ├──→ Supabase Storage    /events/YYYY/MM/DD/{delivery_id}.json
-  │    (raw payloads)
+  ├──→ Edge Function (github-webhook)
+  │      │
+  │      ├──→ Storage          /events/YYYY/MM/DD/{delivery_id}.json
+  │      │    (raw payloads)
+  │      │
+  │      └──→ Postgres         activity.events (thin index)
   │
-  └──→ Postgres            events (thin index)
-       (structured data)
-                           ┌──────────────────────┐
-                           │  pg_cron (scheduled)  │
-                           │  extracts artifacts   │
-                           │  from raw events      │
-                           └──────────┬───────────┘
-                                      ▼
-                                  artifacts
-                                      │
-                      ┌───────────────┤ on-demand or nightly
-                      ▼               ▼
-                   Guide           evidence
-               (interpretation)  (cached results)
-                                      │
-                      ┌───────────────┴───────────────┐
-                      ▼                               ▼
-               personal evidence              practice patterns
-              (engineer sees own)           (team-level, anonymous)
+  ├──→ pg_cron (extraction)
+  │      │
+  │      └──→ Postgres         activity.artifacts (structured)
+  │
+  └──→ Guide (interpretation, on-demand or nightly)
+         │
+         └──→ Postgres         activity.evidence (cached results)
+                                    │
+                    ┌───────────────┴───────────────┐
+                    ▼                               ▼
+             personal evidence              practice patterns
+            (engineer sees own)           (team-level, anonymous)
 ```
 
 Three distinct phases, each running at its own cadence:
 
 1. **Ingestion** — real-time. Edge Function receives webhook, writes raw payload
-   to Storage, inserts index row into Postgres. Returns 200 immediately.
+   to Storage, inserts index row into `activity.events`. Returns 200 immediately.
 
 2. **Extraction** — scheduled. A pg_cron job processes unextracted events, reads
-   raw payloads from Storage, and writes structured artifacts to Postgres. Runs
-   every few minutes.
+   raw payloads from Storage, and writes structured artifacts to
+   `activity.artifacts`. Runs every few minutes.
 
 3. **Interpretation** — on-demand with caching. When an engineer queries their
    own evidence, Guide assesses their unscored artifacts against markers.
-   Results are cached in the evidence table. An optional nightly job pre-warms
-   evidence for the full organization.
+   Results are cached in `activity.evidence`. An optional nightly job pre-warms
+   evidence for the full roster.
 
 ## Access Model
 
 Landmark produces two views with different access rules. This is not a
-configuration option — it is the architecture.
+configuration option — it is the architecture. Access is enforced by Map's RLS
+policies on the activity schema.
 
 ### Personal Evidence
 
@@ -82,41 +106,9 @@ organization. No individuals named.
 - Minimum team size for aggregate queries: 5 engineers. Below this threshold,
   patterns could identify individuals by elimination.
 
-### Supabase Row-Level Security
-
-RLS policies enforce the access model at the database level. Even if someone
-writes a custom query, the database enforces visibility.
-
-```sql
--- Engineers can only see their own evidence
-CREATE POLICY evidence_self_only ON evidence
-  FOR SELECT
-  USING (
-    artifact_id IN (
-      SELECT id FROM artifacts WHERE person = current_setting('app.github_user')
-    )
-  );
-
--- Practice pattern views use aggregate functions only
--- No policy needed — the view definition enforces anonymity
-CREATE VIEW practice_patterns AS
-  SELECT
-    skill_id,
-    level,
-    marker_index,
-    marker_text,
-    org.manager,
-    count(*) FILTER (WHERE matched) AS matched_count,
-    count(*) AS total_count
-  FROM evidence
-  JOIN artifacts ON evidence.artifact_id = artifacts.id
-  JOIN organization org ON artifacts.person = org.github
-  GROUP BY skill_id, level, marker_index, marker_text, org.manager
-  HAVING count(DISTINCT artifacts.person) >= 5;
-```
-
-The `HAVING` clause enforces the minimum team size. The view never exposes
-individual artifact IDs, person names, or specific PRs.
+Access control is enforced at the database level by Map's RLS policies and
+the `activity.practice_patterns` aggregate view. See
+`specs/map-data-store/plan.md` for the full RLS and view definitions.
 
 ## Phase 1: Ingestion
 
@@ -145,13 +137,17 @@ No write permissions. Landmark never modifies repositories. It does not post
 comments, set status checks, or create annotations. It collects and stays
 silent.
 
+The webhook URL points to Map's Supabase Edge Function:
+`https://{project-ref}.supabase.co/functions/v1/github-webhook`
+
 ### Edge Function: Webhook Handler
 
-The Edge Function does three things sequentially:
+Lives at `products/map/supabase/functions/github-webhook/`. The function does
+three things sequentially:
 
 1. Validate the webhook signature (`X-Hub-Signature-256`)
 2. Write the raw JSON payload to Storage
-3. Insert a thin index row into Postgres
+3. Insert a thin index row into `activity.events`
 
 ```
 POST /functions/v1/github-webhook
@@ -161,7 +157,8 @@ POST /functions/v1/github-webhook
      Storage path: /events/{YYYY}/{MM}/{DD}/{delivery_id}.json
      Content-Type: application/json
   3. Insert index row:
-     INSERT INTO events (delivery_id, event_type, action, repo, sender, org, created_at, storage_path)
+     INSERT INTO activity.events
+       (delivery_id, event_type, action, repo, sender, org, created_at, storage_path)
   4. Return 200
 ```
 
@@ -189,42 +186,18 @@ Retention: indefinite. At ~1GB/day for a 1,000-developer organization, annual
 storage cost is under $100. Raw events are the source of truth — all downstream
 tables can be rebuilt from them.
 
-### Events Table (Postgres Index)
-
-```sql
-CREATE TABLE events (
-  delivery_id   UUID PRIMARY KEY,
-  event_type    TEXT NOT NULL,     -- 'pull_request', 'pull_request_review', etc.
-  action        TEXT,              -- 'opened', 'submitted', 'created', etc.
-  repo          TEXT NOT NULL,     -- 'org/repo-name'
-  sender        TEXT NOT NULL,     -- GitHub username
-  org           TEXT NOT NULL,     -- GitHub organization
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  storage_path  TEXT NOT NULL,     -- '/events/2026/02/27/{delivery_id}.json'
-  extracted     BOOLEAN NOT NULL DEFAULT false
-);
-
-CREATE INDEX idx_events_extraction ON events (extracted, created_at)
-  WHERE NOT extracted;
-CREATE INDEX idx_events_sender ON events (sender, created_at);
-CREATE INDEX idx_events_repo ON events (repo, created_at);
-CREATE INDEX idx_events_type ON events (event_type, created_at);
-```
-
-Small rows (~200 bytes). At 30,000 events/day: ~2.2GB/year of index data.
-
 ## Phase 2: Extraction
 
-A scheduled job reads unextracted events, fetches their raw payloads from
-Storage, and writes structured artifacts to Postgres.
+A scheduled pg_cron job in Map reads unextracted events, fetches their raw
+payloads from Storage, and writes structured artifacts to `activity.artifacts`.
 
 ### Extraction Job
 
-Runs via pg_cron or a Supabase scheduled Edge Function, every 5 minutes:
+Runs every 5 minutes:
 
 ```
 1. SELECT delivery_id, event_type, action, storage_path
-   FROM events
+   FROM activity.events
    WHERE NOT extracted
    ORDER BY created_at
    LIMIT 500
@@ -232,10 +205,10 @@ Runs via pg_cron or a Supabase scheduled Edge Function, every 5 minutes:
 2. For each event:
    a. Fetch raw payload from Storage
    b. Extract artifact fields based on event_type
-   c. Upsert into artifacts table
+   c. Upsert into activity.artifacts
    d. Mark event as extracted
 
-3. UPDATE events SET extracted = true
+3. UPDATE activity.events SET extracted = true
    WHERE delivery_id IN (...)
 ```
 
@@ -254,78 +227,23 @@ parsing.
 | `issue_comment` (on PR)       | `discussion`  | commenter, body, PR reference                                 |
 | `push`                        | `push`        | pusher, commits (sha, message), ref, before/after             |
 
-### Artifacts Table
+The `external_id` on `activity.artifacts` ensures idempotency — multiple events
+for the same PR (opened, synchronize, edited) upsert the same artifact row with
+updated metadata rather than creating duplicates.
 
-```sql
-CREATE TABLE artifacts (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  person        TEXT NOT NULL,         -- GitHub username
-  repo          TEXT NOT NULL,
-  artifact_type TEXT NOT NULL,         -- 'pr', 'review', 'comment', 'discussion', 'push'
-  external_id   TEXT NOT NULL,         -- 'pr:org/repo#342', 'review:org/repo#342/1'
-  external_url  TEXT,                  -- GitHub permalink
-  created_at    TIMESTAMPTZ NOT NULL,  -- event timestamp, not insertion time
-  metadata      JSONB NOT NULL,        -- type-specific fields
-  UNIQUE (external_id)
-);
+### Extraction Logic Location
 
-CREATE INDEX idx_artifacts_person ON artifacts (person, created_at);
-CREATE INDEX idx_artifacts_repo ON artifacts (repo, created_at);
-CREATE INDEX idx_artifacts_type ON artifacts (artifact_type, created_at);
-```
+The extraction code lives in the Landmark package at
+`products/landmark/src/extraction.js`. It is a pure function library — given a
+raw event payload and event type, it returns the artifact fields. The pg_cron
+job calls this logic via a Postgres function or a scheduled Edge Function that
+imports it.
 
-The `external_id` ensures idempotency — multiple events for the same PR (opened,
-synchronize, edited) upsert the same artifact row with updated metadata rather
-than creating duplicates.
+### Roster
 
-### Organization Table
-
-Loaded from `organization.yaml` via CLI or API. Maps GitHub usernames to Pathway
-job profiles and line managers.
-
-```sql
-CREATE TABLE organization (
-  github        TEXT PRIMARY KEY,
-  name          TEXT NOT NULL,
-  discipline    TEXT NOT NULL,
-  level         TEXT NOT NULL,
-  track         TEXT,
-  manager       TEXT REFERENCES organization(github),
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-
-CREATE INDEX idx_organization_manager ON organization (manager);
-```
-
-Each person links to their line manager by GitHub username. A team is a manager
-and their direct reports — there is no separate team entity. Carol's team is
-everyone whose `manager` field is `carol`. Aggregate views use this relationship
-to scope patterns. Teams with fewer than 5 members are excluded from aggregate
-queries to prevent identification by elimination.
-
-The top of the hierarchy has `manager` set to NULL.
-
-```
-$ fit-landmark org sync organization.yaml
-  Synced 142 people, 3 levels of hierarchy.
-  3 new, 2 updated, 0 removed.
-```
-
-### Repository Table
-
-Loaded from `repositories.yaml`. Maps GitHub repos to optional capability areas.
-
-```sql
-CREATE TABLE repositories (
-  id            TEXT PRIMARY KEY,     -- 'org/repo-name'
-  capabilities  TEXT[],               -- optional capability IDs
-  updated_at    TIMESTAMPTZ NOT NULL DEFAULT now()
-);
-```
-
-The `capabilities` array is optional — repositories without capability tags
-still produce artifacts and evidence. When present, capability tags let Guide
-infer what kind of work a repository exercises.
+Loaded from `landmark.yaml` via CLI. Maps GitHub usernames to Pathway job
+profiles. Written to Map's `activity.roster` table, which has foreign key
+references to `public.disciplines`, `public.levels`, and `public.tracks`.
 
 ### Survey Tables
 
@@ -364,11 +282,17 @@ manager's direct reports.
 The `ratings` JSONB contains keys matching driver IDs from Map, each with a
 `mean` and `distribution` array (count of responses at each scale point).
 
+The `team` field groups engineers for practice pattern queries. Teams are the
+organizational unit — "platform", "payments", "mobile". Teams with fewer than 5
+members are excluded from aggregate queries to prevent identification by
+elimination.
+
 ## Phase 3: Interpretation
 
-Guide runs on-demand. When an engineer queries their own evidence, Landmark
-checks which artifacts have been interpreted and which haven't. Uninterpreted
-artifacts are sent to Guide with the relevant markers. Results are cached.
+Guide runs on-demand. When an engineer queries their own evidence via the CLI,
+the system checks which artifacts have been interpreted and which haven't.
+Uninterpreted artifacts are sent to Guide with the relevant markers. Results are
+cached in `activity.evidence`.
 
 ### Personal Evidence Flow
 
@@ -376,22 +300,22 @@ artifacts are sent to Guide with the relevant markers. Results are cached.
 fit-landmark evidence --skill system_design
   │
   1. Resolve current user → @alice (from git config)
-  2. Look up @alice in organization → se, L3, platform
+  2. Look up @alice in activity.roster → se, L3, platform
   3. Derive skill expectations from Pathway → system_design at working level
-  4. Load markers for system_design.working.human
-  5. SELECT artifacts WHERE person = 'alice'
+  4. Load markers for system_design.working.human (from framework schema)
+  5. SELECT FROM activity.artifacts WHERE person = 'alice'
      AND artifact_type IN ('pr', 'review', 'comment')
      AND NOT EXISTS (cached evidence for this artifact + marker set)
   6. For each uninterpreted artifact:
      → Send to Guide: artifact metadata + markers + skill context
      ← Receive: which markers this artifact relates to, with rationale
-  7. INSERT INTO evidence (artifact, marker, rationale)
+  7. INSERT INTO activity.evidence (artifact, marker, rationale)
   8. Return evidence for @alice + system_design, grouped by artifact
 ```
 
-Steps 1–5 are cheap Postgres queries. Step 6 is the LLM call — it only runs for
-artifacts that haven't been interpreted yet. Subsequent queries for the same
-skill hit the cache.
+Steps 1–5 are cheap Postgres queries via PostgREST. Step 6 is the LLM call — it
+only runs for artifacts that haven't been interpreted yet. Subsequent queries for
+the same skill hit the cache.
 
 The output groups by artifact, not by marker. The engineer sees their work
 first, then how it relates to the framework — not a checklist of markers with
@@ -402,15 +326,13 @@ pass/fail status.
 ```
 fit-landmark practice system_design --manager carol
   │
-  1. Look up all organization entries WHERE manager = 'carol'
-  2. Verify team size >= 5 (refuse if below threshold)
-  3. Derive skill expectations for each person's job profile
-  4. Aggregate evidence across all team members:
-     - For each marker: what proportion of the team shows evidence?
-     - Trend: is evidence for this marker increasing or decreasing?
-  5. Look up survey results WHERE manager = 'carol' (most recent period)
-     - If available: include driver ratings for contributing skills
-  6. Return anonymous summary with proportions, trends, and survey context
+  1. Query activity.practice_patterns view for team + skill
+  2. The view enforces:
+     - Team size >= 5 (HAVING clause)
+     - No individual names or artifact IDs
+     - Aggregate counts only
+  3. Format proportions and trends for display
+  4. When evidence is weak, ask a process question
 ```
 
 The query never returns individual names, artifact IDs, or PR links. It returns
@@ -425,11 +347,12 @@ driver's contributing skills.
 
 ### Nightly Batch
 
-An optional pg_cron job runs interpretation for the full organization. Same
-logic as the personal evidence flow but iterates over all organization entries:
+An optional pg_cron job in Map triggers Guide to run interpretation for the full
+roster. Same logic as the personal evidence flow but iterates over all roster
+entries:
 
 ```
-For each person in organization:
+For each person in activity.roster:
   For each skill in their job profile:
     Run the evidence flow (skips already-cached interpretation)
 ```
@@ -442,39 +365,10 @@ The nightly batch produces evidence rows visible only to the individual
 engineer. It does not generate reports, send notifications, or surface results
 to anyone else.
 
-### Evidence Table
-
-```sql
-CREATE TABLE evidence (
-  id            UUID PRIMARY KEY DEFAULT gen_random_uuid(),
-  artifact_id   UUID NOT NULL REFERENCES artifacts(id),
-  skill_id      TEXT NOT NULL,         -- 'system_design'
-  level         TEXT NOT NULL,         -- 'working'
-  marker_index  INT NOT NULL,          -- which marker in the array
-  marker_text   TEXT NOT NULL,         -- the marker string (for audit)
-  matched       BOOLEAN NOT NULL,      -- does this artifact relate to this marker?
-  rationale     TEXT,                  -- Guide's reasoning (visible to the engineer)
-  created_at    TIMESTAMPTZ NOT NULL DEFAULT now(),
-  UNIQUE (artifact_id, skill_id, level, marker_index)
-);
-
-CREATE INDEX idx_evidence_artifact ON evidence (artifact_id);
-CREATE INDEX idx_evidence_skill ON evidence (skill_id, level);
-```
-
-The unique constraint ensures one interpretation per artifact per marker. When
-markers change (new version of the framework), evidence rows for the old marker
-text become stale — the nightly job or next on-demand query regenerates them.
-
-Note: the `confidence` column from the earlier design was removed. A numeric
-confidence score invites ranking and thresholding — exactly the kind of
-quantification that turns evidence into scores. Guide's `rationale` text is
-sufficient. The engineer reads the reasoning and decides for themselves.
-
 ## Event Replay
 
-Raw events in Storage are the source of truth. The `artifacts` table is a
-materialized view that can be rebuilt when extraction heuristics change.
+Raw events in Storage are the source of truth. The `activity.artifacts` table is
+a materialized view that can be rebuilt when extraction heuristics change.
 
 ### Why Replay
 
@@ -500,7 +394,7 @@ fit-landmark replay [--since DATE] [--event-type TYPE] [--dry-run]
 
    ```sql
    SELECT delivery_id, storage_path
-   FROM events
+   FROM activity.events
    WHERE created_at >= :since
      AND (:event_type IS NULL OR event_type = :event_type)
    ORDER BY created_at
@@ -511,14 +405,14 @@ fit-landmark replay [--since DATE] [--event-type TYPE] [--dry-run]
 3. Run the current extraction logic over it — same code path as the scheduled
    extraction job
 
-4. Upsert into artifacts (external_id ensures idempotency — existing rows are
-   updated, not duplicated)
+4. Upsert into `activity.artifacts` (`external_id` ensures idempotency —
+   existing rows are updated, not duplicated)
 
 5. Invalidate downstream evidence for affected artifacts:
    ```sql
-   DELETE FROM evidence
+   DELETE FROM activity.evidence
    WHERE artifact_id IN (
-     SELECT id FROM artifacts WHERE external_id = ANY(:affected_ids)
+     SELECT id FROM activity.artifacts WHERE external_id = ANY(:affected_ids)
    )
    ```
 
@@ -550,61 +444,72 @@ complete in minutes.
 
 ## Data Model Summary
 
+All tables live in Map's Supabase project. Landmark reads and writes via
+PostgREST using Map's URL and appropriate credentials.
+
 ```
-events (index)           1:1     Storage (raw payloads)
+activity.events (index)    1:1     Storage (raw payloads)
   │
-  │ extraction
+  │ extraction (pg_cron)
   ▼
-artifacts               N:1     organization (people → jobs → managers)
-  │                             repositories (repos → capabilities)
+activity.artifacts         N:1     activity.roster (people → jobs, teams)
+  │                                  │
+  │                                  └── references public.disciplines,
+  │                                      public.levels, public.tracks
   │ interpretation (Guide)
   ▼
-evidence ←──────────────────── survey_results (perception per manager/driver)
+activity.evidence
+  │                        references public.skills (markers)
   │
   ├──→ personal evidence     (engineer sees own, RLS-enforced)
   └──→ practice patterns     (team aggregate + survey context, anonymous, min 5)
 ```
 
-| Table          | Growth rate    | Retention         | Rebuildable from     |
-| -------------- | -------------- | ----------------- | -------------------- |
-| events         | ~30k rows/day  | Permanent         | —                    |
-| Storage        | ~1GB/day       | Permanent         | —                    |
-| artifacts      | ~5k rows/day   | Permanent         | events + Storage     |
-| evidence       | On-demand      | Until invalidated | artifacts + Guide    |
-| organization   | Manual updates | Current           | organization.yaml    |
-| repositories   | Manual updates | Current           | repositories.yaml    |
-| surveys        | Quarterly      | Permanent         | survey YAML files    |
-| survey_results | Quarterly      | Permanent         | survey result files  |
+| Table               | Growth rate    | Retention         | Rebuildable from            |
+| ------------------- | -------------- | ----------------- | --------------------------- |
+| activity.events     | ~30k rows/day  | Permanent         | —                           |
+| Storage             | ~1GB/day       | Permanent         | —                           |
+| activity.artifacts  | ~5k rows/day   | Permanent         | events + Storage            |
+| activity.evidence   | On-demand      | Until invalidated | artifacts + Guide           |
+| activity.roster     | Manual updates | Current           | landmark.yaml               |
 
-## Supabase Project Structure
+Table definitions, indexes, RLS policies, and views are in
+`specs/map-data-store/plan.md` under **Activity Tables** and **Row Level
+Security**.
+
+## Landmark Package Structure
 
 ```
-supabase/
-  functions/
-    github-webhook/         Edge Function — ingestion endpoint
-  migrations/
-    001_events.sql          events table + indexes
-    002_organization.sql    organization table (people → jobs → managers)
-    003_repositories.sql    repositories table (repos → capabilities)
-    004_artifacts.sql       artifacts table + indexes
-    005_evidence.sql        evidence table + indexes
-    006_surveys.sql         surveys + survey_results tables
-    007_extraction_cron.sql pg_cron job for artifact extraction
-    008_rls_policies.sql    row-level security for personal evidence
-    009_practice_views.sql  aggregate views for practice patterns
+products/landmark/
+  bin/
+    fit-landmark.js          CLI entry point
+  src/
+    extraction.js            Event → artifact field mapping (pure functions)
+    evidence.js              Personal evidence query + Guide dispatch
+    practice.js              Practice pattern query + formatting
+    roster.js                Roster sync (YAML → activity.roster)
+    replay.js                Event replay logic
+    client.js                Supabase client wrapper (Map's project)
+  package.json               Depends on @supabase/supabase-js, @forwardimpact/map
 ```
+
+No `supabase/` directory. No migrations. No Edge Functions (those live in Map).
 
 ## Implementation Order
 
-1. Supabase project setup and database migrations
-2. GitHub App registration (webhook URL, permissions, events)
-3. Webhook Edge Function (signature validation, Storage write, index insert)
-4. Extraction job (pg_cron, raw event → artifact mapping)
-5. Organization sync CLI (`fit-landmark org sync`)
-5b. Repository and survey data loading
-6. RLS policies for personal evidence isolation
-7. Personal evidence flow (`fit-landmark evidence`)
-8. Practice pattern aggregate views and CLI (`fit-landmark practice`)
-9. Evidence caching and invalidation
-10. Replay CLI (`fit-landmark replay`)
-11. Nightly batch job
+Assumes Map data store phases 1–4 are complete (Supabase project, framework
+schema, import/export, activity schema with Edge Function and extraction job).
+
+1. GitHub App registration (webhook URL → Map's Edge Function, permissions,
+   events)
+2. Extraction logic (`products/landmark/src/extraction.js`) — pure functions
+   that the Map pg_cron job calls
+3. Roster sync CLI (`fit-landmark roster sync`) — validates against Map's
+   framework tables
+4. Personal evidence flow (`fit-landmark evidence`) — queries activity schema,
+   dispatches to Guide for uninterpreted artifacts
+5. Practice pattern CLI (`fit-landmark practice`) — queries
+   `activity.practice_patterns` view
+6. Marker display CLI (`fit-landmark marker`) — queries framework schema
+7. Replay CLI (`fit-landmark replay`) — re-extracts from raw events
+8. Nightly batch configuration (pg_cron in Map, triggers Guide)

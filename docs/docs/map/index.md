@@ -1,21 +1,35 @@
 ---
 title: Map
-description: Data model, YAML format, validation, and programmatic access for the Map data layer.
+description: Data model, storage contracts, validation, and ingestion surfaces for Map.
 ---
 
 ## Overview
 
-Map is the data layer of the FIT suite. It defines the engineering competency
-model in YAML files that can be validated, loaded, and consumed by downstream
-tools.
+Map is the central data store of the FIT suite. It defines framework entities
+in YAML and stores operational activity data used by downstream products.
 
 > See the [Map product page](/map/) for a high-level overview.
 
 ---
 
+## Position in the Suite
+
+Map provides two domains:
+
+1. **Framework domain** — skills, behaviours, levels, disciplines, tracks,
+	stages, drivers, and interview questions.
+2. **Activity domain** — organization hierarchy, GitHub activity/evidence, and
+	GetDX snapshot aggregates.
+
+Products query Map through shared contracts across these datasets.
+
+---
+
 ## How Data is Organized
 
-All definitions live in YAML files under your data directory:
+### Framework definitions (YAML)
+
+Definitions live in YAML files under your data directory:
 
 ```
 data/
@@ -29,9 +43,14 @@ data/
 └── questions/            # Interview questions
 ```
 
-Every entity supports both human and agent perspectives in the same file — a
-skill definition includes human-readable level descriptions alongside
-agent-specific instructions for AI coding assistants.
+### Activity model (stored records)
+
+Core activity contracts:
+
+- `organization_people` — flat people list with manager references
+- team scope derived from manager hierarchy
+- `github_events`, `github_artifacts`, `evidence`
+- `getdx_teams`, `getdx_snapshots`, `getdx_snapshot_team_scores`
 
 ---
 
@@ -46,6 +65,9 @@ npx fit-map validate --shacl  # RDF/SHACL validation
 npx fit-map generate-index    # Generate browser indexes
 ```
 
+Validation covers framework definitions. Activity ingestion validation is handled
+by ingestion pipelines and table constraints.
+
 ---
 
 ## Programmatic Access
@@ -57,6 +79,9 @@ import { SKILL_PROFICIENCIES, BEHAVIOUR_MATURITIES } from "@forwardimpact/map/le
 
 const data = await loadAllData("./data");
 ```
+
+For activity datasets, consumers query Map storage APIs/views rather than local
+YAML loaders.
 
 ---
 

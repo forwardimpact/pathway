@@ -1,12 +1,12 @@
 ---
 title: Map
-description: Chart the territory — define the skills, behaviours, and career levels that matter to your engineering organization.
+description: Chart and store your engineering system data — framework definitions, organization structure, GitHub activity, and GetDX snapshots.
 layout: product
 toc: false
 hero:
   image: /assets/heros/map.svg
   alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
-  subtitle: Chart the territory before you move through it. Map lets you describe your engineering competencies — skills, behaviours, levels, disciplines, and tracks — in plain YAML files that humans can read and machines can validate.
+  subtitle: Map is the central data store for the FIT suite. It defines your framework in plain YAML and stores operational signals — organization hierarchy, GitHub activity, and GetDX snapshot results — in one model.
   cta:
     - label: Documentation
       href: /docs/map/
@@ -15,37 +15,39 @@ hero:
       secondary: true
 ---
 
-> Before you can chart a career path or deploy an agent team, you need to define
-> the landscape. Map is the foundational data model — the engineering skills
-> taxonomy that everything else references. Define it once in YAML, and the rest
-> of the system derives from it automatically.
+> Map provides shared context for every product in the suite. Teams define the
+> engineering framework once, import operational signals continuously, and make
+> that data available to Pathway, Guide, Landmark, and Basecamp through one
+> consistent model.
 
 ### What you get
 
-- A complete vocabulary of engineering skills with five progression levels
-- Behaviour definitions that describe how engineers approach their work
-- Career levels from junior through principal, with clear expectations
-- Discipline definitions that shape T-shaped skill profiles
-- Tracks that modify expectations for different work contexts
-- Automatic validation ensuring everything references correctly
-- Dual-format schemas — JSON Schema for tooling, RDF/SHACL for linked data
+- Framework definitions for skills, behaviours, levels, disciplines, and tracks
+- A flat `Organization` people model (`name`, `email`, `github_username`, `manager`)
+- Team views derived from reporting hierarchy (manager-rooted subtrees)
+- GitHub activity data for objective marker evidence analysis
+- GetDX snapshot imports for quarterly developer-experience results
+- Validation tooling and schema artifacts (JSON Schema + RDF/SHACL)
 
 ---
 
 ### Who it's for
 
-**Engineering leaders** who want to codify what "good" looks like across their
-organization. Define it once in YAML, and the rest of the system — job
-descriptions, agent profiles, interview questions — derives from it.
+**Engineering leaders** defining standards and reviewing outcomes in one place.
+Map connects framework expectations to operational signals without splitting the
+data model across products.
 
-**Platform teams** building internal developer tools. Map provides the
-structured data foundation that other apps consume.
+**Platform teams** building internal tooling. Map exposes a stable shared model
+for product and analytics use cases.
 
 ---
 
 ## How Data is Organized
 
-All definitions live in YAML files under your data directory:
+Framework definitions live in YAML. Operational measurements are stored in Map's
+activity schema.
+
+### Framework data (YAML)
 
 ```
 data/
@@ -59,9 +61,12 @@ data/
 └── questions/            # Interview questions
 ```
 
-Every entity supports both human and agent perspectives in the same file — a
-skill definition includes human-readable level descriptions alongside
-agent-specific instructions for AI coding assistants.
+### Activity data (ingested)
+
+- Organization people records with manager links
+- GitHub events and derived artifacts for marker analysis
+- Evidence records linking artifacts to skill markers
+- GetDX team catalog and snapshot score imports
 
 ---
 
