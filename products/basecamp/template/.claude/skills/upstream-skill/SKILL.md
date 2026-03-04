@@ -29,7 +29,8 @@ Run this skill when:
 
 ## Outputs
 
-- `.claude/skills/CHANGELOG.md` — structured changelog of all local skill changes
+- `.claude/skills/<skill-name>/CHANGELOG.md` — per-skill changelog of local
+  changes, one per modified skill directory
 
 ---
 
@@ -41,21 +42,22 @@ Use git to find all skill files that have been added, modified, or deleted since
 the last changelog entry (or since initial commit if no changelog exists).
 
 ```bash
-# Find the date of the last changelog entry (if any)
-head -20 .claude/skills/CHANGELOG.md 2>/dev/null
+# Find the date of the last changelog entry for a skill (if any)
+head -20 .claude/skills/<skill-name>/CHANGELOG.md 2>/dev/null
 
 # List changed skill files since last documented change
 git log --oneline --name-status -- '.claude/skills/'
 ```
 
-If `.claude/skills/CHANGELOG.md` already exists, read the most recent entry date
-and only look at changes after that date:
+If a skill already has a `.claude/skills/<skill-name>/CHANGELOG.md`, read the
+most recent entry date and only look at changes after that date:
 
 ```bash
-git log --after="<last-entry-date>" --name-status -- '.claude/skills/'
+git log --after="<last-entry-date>" --name-status -- '.claude/skills/<skill-name>/'
 ```
 
-If no changelog exists, consider all commits that touched `.claude/skills/`.
+If no changelog exists for a skill, consider all commits that touched that
+skill's directory.
 
 ### Step 2: Classify Each Change
 
@@ -106,17 +108,16 @@ Bad descriptions:
 
 ### Step 4: Write the Changelog
 
-Create or update `.claude/skills/CHANGELOG.md` with the following format:
+For each changed skill, create or update its
+`.claude/skills/<skill-name>/CHANGELOG.md` with the following format:
 
 ```markdown
-# Skill Changelog
+# <skill-name> Changelog
 
-Changes to skills in this installation that should be considered for upstream
-inclusion in the Forward Impact monorepo.
+Changes to this skill that should be considered for upstream inclusion in the
+Forward Impact monorepo.
 
 ## <YYYY-MM-DD>
-
-### <skill-name> (added|modified|removed)
 
 **What:** <one-line summary of the change>
 
@@ -128,14 +129,20 @@ inclusion in the Forward Impact monorepo.
 ---
 ```
 
-Entries are in **reverse chronological order** (newest first). Group changes
-from the same date under a single date heading.
+Entries are in **reverse chronological order** (newest first). Each skill has
+its own changelog file inside its directory.
 
-### Step 5: Review the Changelog
+For **new skills**, create the `CHANGELOG.md` alongside the `SKILL.md` with a
+single `added` entry describing the skill's purpose.
 
-After writing, read the changelog back and verify:
+For **removed skills**, the changelog should be the last file remaining in the
+skill directory, documenting why the skill was removed.
 
-- [ ] Every changed skill has an entry
+### Step 5: Review the Changelogs
+
+After writing, read each changelog back and verify:
+
+- [ ] Every changed skill has a `CHANGELOG.md` in its directory
 - [ ] Each entry has What, Why, and Details sections
 - [ ] Descriptions are specific enough for an upstream maintainer to act on
 - [ ] New skills include a brief description of their purpose
@@ -145,15 +152,15 @@ After writing, read the changelog back and verify:
 
 ## Example Output
 
-```markdown
-# Skill Changelog
+`.claude/skills/track-candidates/CHANGELOG.md`:
 
-Changes to skills in this installation that should be considered for upstream
-inclusion in the Forward Impact monorepo.
+```markdown
+# track-candidates Changelog
+
+Changes to this skill that should be considered for upstream inclusion in the
+Forward Impact monorepo.
 
 ## 2026-03-01
-
-### track-candidates (modified)
 
 **What:** Added gender field extraction for diversity tracking
 
@@ -166,7 +173,18 @@ invisible without structured gender data.
 - Added explicit note that field has no bearing on hiring decisions
 - Updated quality checklist to include gender field verification
 
-### process-hyprnote (added)
+---
+```
+
+`.claude/skills/process-hyprnote/CHANGELOG.md`:
+
+```markdown
+# process-hyprnote Changelog
+
+Changes to this skill that should be considered for upstream inclusion in the
+Forward Impact monorepo.
+
+## 2026-03-01
 
 **What:** New skill for processing Hyprnote meeting recordings
 
@@ -180,10 +198,17 @@ they weren't being integrated into the knowledge base.
 - Links attendees to `knowledge/People/` entries
 
 ---
+```
+
+`.claude/skills/extract-entities/CHANGELOG.md`:
+
+```markdown
+# extract-entities Changelog
+
+Changes to this skill that should be considered for upstream inclusion in the
+Forward Impact monorepo.
 
 ## 2026-02-15
-
-### extract-entities (modified)
 
 **What:** Increased batch size from 5 to 10 files per run
 
@@ -200,7 +225,8 @@ dozens of runs to catch up after a week of email.
 ## Notes
 
 - This skill only **documents** changes — it does not push or merge anything
-- The changelog is consumed by the **downstream** skill in the upstream monorepo
+- The per-skill changelogs are consumed by the **downstream** skill in the
+  upstream monorepo
 - Keep descriptions actionable: an upstream maintainer should be able to
   understand and apply each change without access to this installation
 - When in doubt about whether a change is upstream-worthy, include it — the

@@ -130,18 +130,27 @@ For each candidate found in a recruitment email, extract:
 
 | Field             | Source                                            | Required            |
 | ----------------- | ------------------------------------------------- | ------------------- |
-| **Name**          | Filename, email body, CV                          | Yes                 |
-| **Role**          | Email body, CV                                    | Yes                 |
-| **Rate**          | Email body (e.g. "$120/hr", "€80/h")              | If available        |
-| **Availability**  | Email body (e.g. "1 month notice", "immediately") | If available        |
-| **English**       | Email body (e.g. "B2", "Upper-intermediate")      | If available        |
-| **Location**      | Email body, CV                                    | If available        |
-| **Source agency** | Sender domain → Organization                      | Yes                 |
-| **Recruiter**     | Email sender or CC'd recruiter                    | Yes                 |
-| **CV path**       | Attachment directory                              | If available        |
-| **Skills**        | Email body, CV                                    | If available        |
-| **Gender**        | Name, pronouns, recruiter context                 | If identifiable     |
-| **Summary**       | Email body, CV                                    | Yes — 2-3 sentences |
+| **Name**             | Filename, email body, CV                                        | Yes                 |
+| **Title**            | Email body, CV — the candidate's professional title/function    | Yes                 |
+| **Rate**             | Email body (e.g. "$120/hr", "€80/h")                            | If available        |
+| **Availability**     | Email body (e.g. "1 month notice", "immediately")               | If available        |
+| **English**          | Email body (e.g. "B2", "Upper-intermediate")                    | If available        |
+| **Location**         | Email body, CV                                                  | If available        |
+| **Source agency**    | Sender domain → Organization                                    | Yes                 |
+| **Recruiter**        | Email sender or CC'd recruiter                                  | Yes                 |
+| **CV path**          | Attachment directory                                            | If available        |
+| **Skills**           | Email body, CV                                                  | If available        |
+| **Gender**           | Name, pronouns, recruiter context                               | If identifiable     |
+| **Summary**          | Email body, CV                                                  | Yes — 2-3 sentences |
+| **Role**             | Internal requisition profile being hired against                | If available        |
+| **Req**              | Requisition ID from hiring system                               | If available        |
+| **Internal/External**| Whether candidate is internal or external                       | If available        |
+| **Model**            | Engagement model (B2B, Direct Hire, etc.)                       | If available        |
+| **Current title**    | CV or email body                                                | If available        |
+| **Email**            | Email body, CV, signature                                       | If available        |
+| **Phone**            | Email body, CV, signature                                       | If available        |
+| **LinkedIn**         | Email body, CV                                                  | If available        |
+| **Also known as**    | Alternate name spellings or transliterations                    | If available        |
 
 ### Determining Gender
 
@@ -193,9 +202,11 @@ Assign a status based on the email context:
 | `screening`        | Under review, questions asked about the candidate     |
 | `first-interview`  | First interview scheduled or completed                |
 | `second-interview` | Second interview scheduled or completed               |
+| `work-trial`       | Paid work trial or assessment project in progress     |
 | `offer`            | Offer extended                                        |
 | `hired`            | Accepted and onboarding                               |
 | `rejected`         | Explicitly passed on ("not a fit", "pass", "decline") |
+| `withdrawn`        | Candidate withdrew from the process                   |
 | `on-hold`          | Paused, waiting on notice period, or deferred         |
 
 **Default to `new`** if no response signals are found. Read the full thread
@@ -207,7 +218,10 @@ Look for these patterns in the hiring manager's replies:
 
 - "let's schedule" / "set up an interview" → `first-interview`
 - "second round" / "follow-up interview" → `second-interview`
+- "work trial" / "assessment project" / "paid trial" → `work-trial`
 - "not what we're looking for" / "pass" → `rejected`
+- "candidate withdrew" / "no longer interested" / "accepted another offer" →
+  `withdrawn`
 - "extend an offer" / "make an offer" → `offer`
 - "they've accepted" / "start date" → `hired`
 - "put on hold" / "come back to later" → `on-hold`
@@ -244,7 +258,7 @@ Then create `knowledge/Candidates/{Full Name}/brief.md`:
 # {Full Name}
 
 ## Info
-**Role:** {role title}
+**Title:** {professional title/function}
 **Rate:** {rate or "—"}
 **Availability:** {availability or "—"}
 **English:** {level or "—"}
@@ -254,6 +268,7 @@ Then create `knowledge/Candidates/{Full Name}/brief.md`:
 **Status:** {pipeline status}
 **First seen:** {date profile was shared, YYYY-MM-DD}
 **Last activity:** {date of most recent thread activity, YYYY-MM-DD}
+{extra fields here — see below}
 
 ## Summary
 {2-3 sentences: role, experience level, key strengths}
@@ -271,13 +286,48 @@ Then create `knowledge/Candidates/{Full Name}/brief.md`:
 ## Skills
 {comma-separated skill tags}
 
+## Interview Notes
+{interview feedback, structured by date — omit section if no interviews yet}
+
 ## Notes
+{free-form observations — always present, even if empty}
 ```
 
 If a CV attachment exists, **copy it into the candidate directory** before
 writing the note.
 
 If no CV attachment exists, omit the `## CV` section entirely.
+
+### Extra Info Fields
+
+Place any of these **after Last activity** in the order shown, only when
+available:
+
+```markdown
+**Role:** {internal requisition profile, e.g. "Staff Engineer"}
+**Req:** {requisition ID, e.g. "4950237 — Principal Software Engineer"}
+**Internal/External:** {Internal / External / External (Prior Worker)}
+**Model:** {engagement model, e.g. "B2B (via Agency) — conversion to FTE not possible"}
+**Current title:** {current job title and employer}
+**Email:** {personal or work email}
+**Phone:** {phone number}
+**LinkedIn:** {LinkedIn profile URL}
+**Also known as:** {alternate name spellings}
+```
+
+### Additional Sections
+
+Some candidates accumulate richer profiles over time. These optional sections go
+**after Skills and before Notes**, in this order:
+
+1. `## Education` — degrees, institutions, years
+2. `## Certifications` — professional certifications
+3. `## Work History` — chronological career history (when extracted from CV)
+4. `## Key Facts` — notable bullet points from CV review
+5. `## Interview Notes` — structured by date as `### YYYY-MM-DD — {description}`
+
+`## Notes` is always the **last section**. If an `## Open Items` section exists
+(pending questions or follow-ups), place it after Notes.
 
 ### For EXISTING candidates
 
@@ -364,6 +414,11 @@ produces a full framework-aligned assessment.
 - [ ] Scanned all new/changed email threads for recruitment signals
 - [ ] Extracted all candidates found (check attachment directories too)
 - [ ] Each candidate has a complete note with all available fields
+- [ ] Info fields are in standard order (Title, Rate, Availability, English,
+      Location, Gender, Source, Status, First seen, Last activity, then extras)
+- [ ] Sections are in standard order (Info → Summary → CV → Connected to →
+      Pipeline → Skills → Education/Certifications/Work History/Key Facts →
+      Interview Notes → Notes → Open Items)
 - [ ] CV paths are correct and point to actual files
 - [ ] Pipeline status reflects the latest thread activity
 - [ ] Timeline entries are in chronological order

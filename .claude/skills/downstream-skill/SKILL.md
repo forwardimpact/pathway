@@ -30,8 +30,8 @@ Run this skill when:
 
 ## Inputs
 
-- `<installation>/.claude/skills/CHANGELOG.md` — changelog produced by the
-  upstream skill in each installation
+- `<installation>/.claude/skills/*/CHANGELOG.md` — per-skill changelogs
+  produced by the upstream skill in each installation
 - `<installation>/.claude/skills/*/SKILL.md` — current skill files in the
   installation
 - `products/basecamp/template/.claude/skills/` — canonical template skills in
@@ -51,25 +51,28 @@ Run this skill when:
 
 ### Step 1: Read Downstream Changelogs
 
-For each downstream installation, check for a skill changelog:
+For each downstream installation, check for per-skill changelogs:
 
 ```bash
-cat ~/Documents/Personal/.claude/skills/CHANGELOG.md 2>/dev/null
+# List all skill changelogs in the installation
+for f in ~/Documents/Personal/.claude/skills/*/CHANGELOG.md; do
+  [ -f "$f" ] && echo "--- $f ---" && cat "$f"
+done
 ```
 
-If no changelog exists, the installation hasn't run the **upstream** skill yet.
-Report this and stop — do not try to infer changes without a structured
-changelog.
+If no changelogs exist, the installation hasn't run the **upstream** skill yet.
+Report this and stop — do not try to infer changes without structured
+changelogs.
 
 ### Step 2: Identify Unprocessed Entries
 
-Read the changelog and identify entries that haven't been processed yet. Track
-processing state in this skill's Memory section (below). Compare changelog
-dates against the last processed date in Memory.
+Read each skill's changelog and identify entries that haven't been processed
+yet. Track processing state in this skill's Memory section (below). Compare
+changelog dates against the last processed date in Memory.
 
 For each unprocessed entry, record:
 
-- Skill name
+- Skill name (from the directory containing the changelog)
 - Change type (added / modified / removed)
 - What changed and why
 - The date of the change
@@ -202,4 +205,8 @@ processed. This prevents re-processing the same changelog entries.
 
 ### Sync Log
 
-_No syncs performed yet._
+| Date       | Installation | Skill              | Action                                                          |
+| ---------- | ------------ | ------------------ | --------------------------------------------------------------- |
+| 2026-03-04 | Personal     | sync-apple-mail    | Incorporated ROWID-based sync fix for late-arriving emails      |
+| 2026-03-04 | Personal     | track-candidates   | Incorporated field renames, new fields, statuses, and template  |
+| 2026-03-04 | Personal     | track-candidates   | Deferred: relaxed gender policy (name-based inference)          |

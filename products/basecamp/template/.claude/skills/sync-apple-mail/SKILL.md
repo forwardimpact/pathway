@@ -26,6 +26,8 @@ their email.
 
 - `~/.cache/fit/basecamp/state/apple_mail_last_sync` — last sync timestamp
   (single-line text file)
+- `~/.cache/fit/basecamp/state/apple_mail_last_rowid` — highest message ROWID
+  seen at last sync (single-line text file)
 - `~/Library/Mail/V*/MailData/Envelope Index` — Apple Mail SQLite database
 
 ## Outputs
@@ -36,6 +38,8 @@ their email.
   attachment files for each thread (PDFs, images, documents, etc.)
 - `~/.cache/fit/basecamp/state/apple_mail_last_sync` — updated with new sync
   timestamp
+- `~/.cache/fit/basecamp/state/apple_mail_last_rowid` — updated with highest
+  ROWID seen
 
 ---
 
@@ -53,13 +57,17 @@ The script:
 1. Finds the Mail database (`~/Library/Mail/V*/MailData/Envelope Index`)
 2. Loads last sync timestamp (or defaults to `--days` days ago for first sync)
 3. Discovers the thread grouping column (`conversation_id` or `thread_id`)
-4. Finds threads with new messages since last sync (up to 500)
-5. For each thread: fetches messages, batch-fetches recipients and attachment
+4. Loads last-seen ROWID (or defaults to 0 for first sync)
+5. Finds threads with new messages since last sync (up to 500), using both
+   timestamp and ROWID to catch late-arriving emails (emails downloaded after
+   a delay may have `date_received` before the last sync timestamp, but their
+   ROWID will be higher than the last-seen ROWID)
+6. For each thread: fetches messages, batch-fetches recipients and attachment
    metadata, parses `.emlx` files for full email bodies (falling back to
    database summaries), copies attachment files to the output directory
-6. Writes one markdown file per thread to `~/.cache/fit/basecamp/apple_mail/`
-7. Updates sync state timestamp
-8. Reports summary (threads processed, files written)
+7. Writes one markdown file per thread to `~/.cache/fit/basecamp/apple_mail/`
+8. Updates sync state (timestamp and max ROWID)
+9. Reports summary (threads processed, files written)
 
 The script imports `scripts/parse-emlx.mjs` to extract plain text bodies from
 `.emlx` / `.partial.emlx` files (handles HTML-only emails by stripping tags).
