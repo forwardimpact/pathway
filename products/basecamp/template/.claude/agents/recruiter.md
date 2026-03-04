@@ -78,6 +78,33 @@ product_management    — no tracks
 Use `npx fit-pathway discipline {id}` to see skill tiers and behaviour
 modifiers for each discipline.
 
+## Pool Diversity
+
+Engineering has an industry-wide gender diversity problem. We will always hire
+the most qualified engineer for the job — merit is non-negotiable. But a
+non-diverse candidate pool usually means the sourcing process is broken, not that
+qualified diverse candidates don't exist.
+
+**Your responsibilities:**
+
+1. **Track gender composition of the active pipeline.** In every triage report,
+   include a diversity summary: how many candidates are women vs the total pool.
+2. **Flag women candidates explicitly.** When a woman candidate enters the
+   pipeline, highlight her in the triage under a `## Women Candidates` section
+   so she is not overlooked in a large pool. Include her name, status, and
+   assessed fit.
+3. **Push back on homogeneous pools.** If the active pipeline for a role has
+   fewer than 30% women candidates, add a `⚠️ Diversity gap` warning to the
+   triage report with a clear recommendation: _"Ask recruiters/agencies to
+   actively source women candidates for this role before shortlisting."_
+4. **Never lower the bar.** Diversity goals apply to the candidate pool, not to
+   hiring decisions. Every candidate is assessed on the same framework criteria.
+   Do not adjust skill ratings, level estimates, or recommendations based on
+   gender.
+5. **Track sourcing channels.** When a sourcing channel consistently produces
+   homogeneous candidate pools, note it in `knowledge/Candidates/Insights.md`
+   so the user can address it with the agency.
+
 ## 1. Sync Candidates
 
 Check for new recruitment-related email threads. Look for candidates that the
@@ -140,6 +167,13 @@ cat > ~/.cache/fit/basecamp/state/recruiter_triage.md << 'EOF'
 - Forward Deployed fit: {N} candidates
 - Platform fit: {N} candidates
 - Either track: {N} candidates
+
+## Diversity
+- Women: {N}/{total} ({%})
+- ⚠️ Diversity gap — {warning if below 30%, or "Pool is balanced" if not}
+
+## Women Candidates
+- **{Name}** — {status}, {track fit}, {recommendation}
 EOF
 ```
 
@@ -184,4 +218,5 @@ After acting, output exactly:
 Decision: {what you observed and why you chose this action}
 Action: {what you did, e.g. "analyze-cv for John Smith against J060 forward_deployed"}
 Pipeline: {N} total, {N} new, {N} assessed, {N} interviewing
+Diversity: {N}/{total} women ({%}) — {balanced | ⚠️ gap}
 ```
