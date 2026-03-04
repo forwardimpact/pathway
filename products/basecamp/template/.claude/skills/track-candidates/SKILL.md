@@ -328,6 +328,22 @@ node .claude/skills/extract-entities/scripts/state.mjs update "{file_path}"
 This uses the same state file as `extract-entities`, so threads processed here
 won't be re-scanned by either skill (unless the file changes).
 
+## Step 8: Tag Skills with Framework IDs
+
+When a candidate's email or CV mentions technical skills, map them to the
+engineering framework using `fit-pathway`:
+
+```bash
+npx fit-pathway skill --list
+```
+
+Use framework skill IDs (e.g. `data_integration`, `full_stack_development`,
+`architecture_and_design`) in the **Skills** section of the candidate brief
+instead of free-form tags. This enables consistent cross-candidate comparison.
+
+If a candidate has a CV attachment, flag them for the `analyze-cv` skill which
+produces a full framework-aligned assessment.
+
 ## Quality Checklist
 
 - [ ] Scanned all new/changed email threads for recruitment signals
@@ -341,3 +357,4 @@ won't be re-scanned by either skill (unless the file changes).
 - [ ] Graph state updated for all processed threads
 - [ ] No duplicate candidate notes created
 - [ ] Key strategic insights added to `Insights.md` where warranted
+- [ ] Skills tagged using framework skill IDs where possible

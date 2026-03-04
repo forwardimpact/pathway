@@ -24,6 +24,8 @@ Read the state files from other agents:
    - Today's meetings, prep status, unprocessed transcripts
 3. **Librarian:** `~/.cache/fit/basecamp/state/librarian_triage.md`
    - Pending processing, graph size
+4. **Recruiter:** `~/.cache/fit/basecamp/state/recruiter_triage.md`
+   - Candidate pipeline, new assessments, interview scheduling
 
 Also read directly:
 

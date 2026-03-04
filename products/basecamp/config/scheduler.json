@@ -19,6 +19,11 @@
       "kb": "~/Documents/Personal",
       "schedule": { "type": "cron", "expression": "0 7,18 * * *" },
       "enabled": true
+    },
+    "recruiter": {
+      "kb": "~/Documents/Personal",
+      "schedule": { "type": "interval", "minutes": 30 },
+      "enabled": true
     }
   }
 }
