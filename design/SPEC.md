@@ -1,7 +1,7 @@
 # Design Spec: Forward Impact Team (FIT) — A Suite for Forward Deployed Engineers
 
-> A monochrome design system for four products — **Map**, **Pathway**,
-> **Guide**, and **Basecamp** — built around the metaphor of engineers deployed
+> A monochrome design system for five products — **Map**, **Pathway**,
+> **Guide**, **Landmark**, and **Basecamp** — built around the metaphor of engineers deployed
 > "in the field." The visual identity centers on three characters — the
 > Engineer, the AI Agent, and the Business Stakeholder — who collaborate at the
 > boundary between technology and the real world. Heavily inspired by the
@@ -14,6 +14,7 @@
 - **Map:** This is `products/map/`
 - **Pathway:** This is `products/pathway/`
 - **Guide:** To be done
+- **Landmark:** To be done
 - **Basecamp:** This is `products/basecamp/`
 
 ---
@@ -25,8 +26,9 @@ simultaneous meanings:
 
 1. **Military/expedition**: Forward deployed — you're sent ahead of the main
    force, operating with autonomy in unfamiliar terrain. Basecamp is where you
-   prepare. The Guide keeps you oriented. The Pathway is how you advance. The
-   Map shows you the whole territory.
+   prepare. Landmarks reveal what the signals say about the terrain. The Guide
+   keeps you oriented. The Pathway is how you advance. The Map shows you the
+   whole territory.
 
 2. **Scientific fieldwork**: Engineers embedded with business units, scientists,
    and domain experts — working where the problems actually live, not back in
@@ -73,8 +75,9 @@ to carry more structural authority while retaining warmth and approachability.
 4. **Typography creates hierarchy.** No accent colors to lean on. Size, weight,
    and spacing do all the work.
 5. **Each product has a distinct terrain.** Map = charted territory and routes.
-   Pathway = trails and elevation. Guide = stars and bearing. Basecamp = shelter
-   and foundation. These visual sub-themes appear in icons, illustrations, and
+   Pathway = trails and elevation. Guide = stars and bearing. Landmark = vantage
+   points and survey markers. Basecamp = shelter and foundation. These visual
+   sub-themes appear in icons, illustrations, and
    empty states — never in structural UI.
 
 ---
@@ -177,9 +180,9 @@ Instrument Serif, 64px, weight 400:
 
 DM Sans, 18px, weight 400, gray-400:
 
-  Map, Pathway, Guide, and Basecamp — a suite for
+  Map, Pathway, Guide, Landmark, and Basecamp — a suite for
   charting skills, navigating careers, solving problems,
-  and sharing what you learn.
+  reading signals, and sharing what you learn.
 ```
 
 ---
@@ -308,7 +311,7 @@ a laptop open on their lap. The Engineer is on the left, slightly leaning
 forward. The AI Agent is in the center, upright and attentive. The Business
 Stakeholder is on the right, composed and engaged. Their shoulders are close —
 almost touching. Each laptop has its distinguishing sticker (Apple logo,
-pixel-art skull, blank/professional). Below the trio, the four product icons sit
+pixel-art skull, blank/professional). Below the trio, the five product icons sit
 in a neat row, evenly spaced.
 
 ```
@@ -316,8 +319,8 @@ in a neat row, evenly spaced.
       \      |      /
        (seated together)
 
-    🗺    ⛰    🧭    ⛺
-   Map  Pathway Guide Basecamp
+  🗺    ⛰     🧭    🪨      ⛺
+ Map  Pathway  Guide Landmark Basecamp
 ```
 
 **Key details:** Laptops are open and angled slightly toward the viewer.
@@ -474,6 +477,39 @@ its role as the navigation aid. But it's showing the compass to the others, not
 dictating direction — collaborative orientation, not instruction. Small
 radiating lines around the compass suggest it's active or glowing faintly.
 
+#### Scene: Landmark — Reading the Signals
+
+**Context:** Landmark product pages, analysis dashboards, trend and measurement
+features.
+
+The trio stands on a rocky outcrop — an elevated vantage point implied by their
+positioning slightly higher on the canvas. A cairn (a stack of five flat stones,
+each slightly smaller than the one below, topped with a small pennant flag)
+stands to one side, marking the observation point. The AI Agent is in the
+center, holding a small telescope or spyglass up to one eye, scanning the
+distance. The Engineer stands beside the Agent, holding a sheet of graph paper
+or a chart, comparing what the Agent sees to the data on the page — one hand
+holding the paper, the other pointing at a specific line on it. The Business
+Stakeholder stands on the other side, one arm extended toward the horizon, palm
+open, as if saying "that's the area we need to understand." All three are
+looking outward, away from the viewer — they're observing signals from above,
+not looking at each other.
+
+```
+    🐰📊  🤖🔭  👔👉
+       \    |    /
+        (on outcrop)
+     🪨 (cairn with flag)
+```
+
+**Key details:** The outward-facing orientation is distinctive — most other
+scenes have the characters facing each other or the viewer. Here they face the
+same direction, reading the landscape together. The cairn anchors the scene and
+connects to the Landmark icon. The telescope in the Agent's hands signals active
+observation and measurement. The Engineer's chart represents data analysis —
+comparing signals to evidence. The Stakeholder's gesture says "I know this
+territory; here's what matters."
+
 #### Scene: Basecamp — Setting Up Camp
 
 **Context:** Basecamp product pages, knowledge management, personal and team
@@ -521,6 +557,7 @@ structure.
 | Map product hero               | Charting the Territory                      | 320–400px |
 | Pathway product hero           | Plotting the Ascent                         | 320–400px |
 | Guide product hero             | Finding North                               | 320–400px |
+| Landmark product hero          | Reading the Signals                         | 320–400px |
 | Basecamp product hero          | Setting Up Camp                             | 320–400px |
 | Product cards (suite landing)  | Product scenes (cropped/simplified)         | 120–160px |
 | Error / empty states           | Any single character extracted from a scene | 80–120px  |
@@ -560,8 +597,9 @@ before you travel through it.
 - Optional: tiny grid lines within the map suggesting cartographic detail
 
 **What it communicates:** The territory mapped out before you move through it.
-Map is the foundational data model — the engineering skills taxonomy that
-everything else references. It's the survey before the expedition.
+Map is the central data store — the single source of truth for engineering
+skills, organizational structure, survey snapshots, and activity signals.
+Everything else references Map. It's the survey before the expedition.
 
 ### Pathway — The Mountain Trail
 
@@ -624,6 +662,41 @@ problems and onboarding.
 "smart" element within an analog tool). Guide is the AI onboarding assistant and
 career advisor.
 
+### Landmark — The Cairn
+
+**Codebase:** This application is yet to be implemented
+
+**Concept:** A cairn — a stack of stones used as a landmark and survey marker in
+the field. Travellers and surveyors build cairns on high ground to mark
+significant points, measure progress, and guide others. It represents the
+observation and analysis of signals from a vantage point.
+
+```
+      ┃╲
+     ┌┸─┐
+    ┌────┐
+   ┌──────┐
+  ┌────────┐
+  ──────────
+```
+
+**Specifications:**
+
+- Four or five horizontally stacked flat stones, each slightly wider than the
+  one above, forming a tapered tower
+- A small pennant flag on a short pole at the apex — the signal marker
+- Sits on a ground line
+- 2px black stroke, no fill
+- The stones have slightly irregular edges (not perfect rectangles) to suggest
+  natural rock, maintaining the hand-drawn feel
+- Optional: tiny radiating lines near the top suggesting visibility or signal
+
+**What it communicates:** Observation, measurement, and reference points.
+Landmark reads the signals that Map stores — GetDX snapshots, GitHub evidence,
+organizational data — and presents analysis from a vantage point. The cairn is
+built by the team (human-made, not natural), just as Landmark's analysis derives
+meaning from collected data.
+
 ### Basecamp — The Tent
 
 **Codebase:** This is the `app/basecamp/` application
@@ -660,23 +733,23 @@ you, not be locked in a system somewhere.
 | Stroke      | 2px, round caps, round joins                                                        |
 | Fill        | None, except the Guide's compass needle (north half)                                |
 | Color       | `--gray-900` default, `--gray-400` when inactive                                    |
-| Ground line | 1px stroke, extends to icon edges, sits 2px from bottom (Pathway and Basecamp only) |
+| Ground line | 1px stroke, extends to icon edges, sits 2px from bottom (Pathway, Landmark, and Basecamp only) |
 | Style       | Hand-drawn feel — corners are slightly imperfect, lines have micro-variation        |
 | Sizes       | 24px (inline), 32px (nav), 48px (cards), 96px (marketing)                           |
 
 ### Combined Icon: The Suite Mark
 
-When all four products need to appear together (marketing, suite overview):
+When all five products need to appear together (marketing, suite overview):
 
 ```
- ┌──┬──┐       /\              N        △
- │ /│× │      /  \  /\         │       / \
- │/ │  │     /    \/  \    ───┼───   /___\
- └──┴──┘    ~~~~~~~~~~~~       │
-   Map        Pathway        Guide   Basecamp
+ ┌──┬──┐       /\              N         ┃╲          △
+ │ /│× │      /  \  /\         │        ┌┸─┐       / \
+ │/ │  │     /    \/  \    ───┼───    ┌────┐     /___\
+ └──┴──┘    ~~~~~~~~~~~~       │      ──────
+   Map        Pathway        Guide   Landmark   Basecamp
 ```
 
-Four icons in a row on a shared ground line, evenly spaced. The ground line
+Five icons in a row on a shared ground line, evenly spaced. The ground line
 connects them — they're part of the same landscape.
 
 ---
@@ -737,32 +810,33 @@ Inherit the Ollama/Moondream generosity. Specific guidelines:
 │       ┌──────────────────────────┐           │
 │       │  Trio at Work scene      │           │
 │       │  (all three with laptops │           │
-│       │   + four icons below)    │           │
+│       │   + five icons below)   │           │
 │       └──────────────────────────┘           │
 │                                              │
 │     Forward deployed engineers               │  ← Instrument Serif, centered
 │     need better tools.                       │
 │                                              │
 │     Chart skills. Navigate careers.          │  ← DM Sans, gray-400, centered
-│     Solve problems. Share what you learn.    │
+│     Solve problems. Read the signals.        │
+│     Share what you learn.                    │
 │                                              │
 │           [ Explore the suite → ]            │
 │                                              │
 │                                              │
 ├──────────────────────────────────────────────┤
 │                                              │
-│  ┌────────┐ ┌────────┐ ┌────────┐ ┌────────┐│
-│  │ 🗺 map │ │ ⛰ mtn │ │ 🧭 cmp │ │ ⛺ tnt ││
-│  │        │ │        │ │        │ │        ││
-│  │  Map   │ │Pathway │ │ Guide  │ │Basecamp││
-│  │        │ │        │ │        │ │        ││
-│  │ Chart  │ │Navigate│ │ AI     │ │Personal││
-│  │ skills │ │skills &│ │onboard-│ │& team  ││
-│  │ data   │ │careers │ │ing &   │ │know-   ││
-│  │ model  │ │        │ │advice  │ │ledge   ││
-│  │        │ │        │ │        │ │        ││
-│  │[Learn→]│ │[Learn→]│ │[Learn→]│ │[Learn→]││
-│  └────────┘ └────────┘ └────────┘ └────────┘│
+│  ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐│
+│  │🗺 map │ │⛰ mtn │ │🧭 cmp │ │🪨 crn │ │⛺ tnt ││
+│  │      │ │      │ │      │ │      │ │      ││
+│  │ Map  │ │Pathwy│ │Guide │ │Landmk│ │Basecm││
+│  │      │ │      │ │      │ │      │ │      ││
+│  │Centrl│ │Navigt│ │ AI   │ │Signal│ │Persnl││
+│  │data  │ │skills│ │onbrd-│ │analys│ │& team││
+│  │store │ │& jobs│ │ing & │ │& team│ │know- ││
+│  │      │ │      │ │advice│ │health│ │ledge ││
+│  │      │ │      │ │      │ │      │ │      ││
+│  │[Lrn→]│ │[Lrn→]│ │[Lrn→]│ │[Lrn→]│ │[Lrn→]││
+│  └──────┘ └──────┘ └──────┘ └──────┘ └──────┘│
 │                                              │
 ├──────────────────────────────────────────────┤
 │                                              │
@@ -820,7 +894,7 @@ Inherit the Ollama/Moondream generosity. Specific guidelines:
 The nav includes a **suite switcher** — a way to move between products:
 
 ```
-[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Basecamp       [Docs]  [Sign in]
+[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Basecamp       [Docs]  [Sign in]
 ```
 
 The current product is bold weight (`700`). Others are regular weight (`400`) in
@@ -860,8 +934,8 @@ On mobile, the product switcher moves into the hamburger menu.
 
 ### Product Cards (Suite Landing)
 
-Larger cards for the four products, arranged in a 4-column grid (2×2 on tablet,
-stacked on mobile), each featuring:
+Larger cards for the five products, arranged in a responsive grid (3+2 on
+desktop, 2-column on tablet, stacked on mobile), each featuring:
 
 - Product icon (48px) top-left
 - Product name in DM Sans 600, 20px
@@ -983,19 +1057,19 @@ begins with white space and ends with warm dark.
 
 ## 12. Product-Specific Visual Language
 
-While the four products share the core design system, each has subtle
+While the five products share the core design system, each has subtle
 differentiators:
 
-### Map (Engineering Skills Data Model)
+### Map (Central Data Store)
 
-| Element                  | Treatment                                                                          |
-| ------------------------ | ---------------------------------------------------------------------------------- |
-| Accent metaphor          | Cartography and survey — grid lines, coordinates, territory markers                |
-| Hero scene               | Charting the Territory — trio kneeling around the unfolded map                     |
-| Empty state illustration | AI Agent holding a blank map, tilting it toward the viewer                         |
-| Feature icons            | Grid overlays, pin markers, fold lines, legend keys                                |
-| Data visualization       | Map-like layouts for skill taxonomies — nodes connected by paths on a terrain grid |
-| Tone                     | "Chart the territory before you move through it."                                  |
+| Element                  | Treatment                                                                                          |
+| ------------------------ | -------------------------------------------------------------------------------------------------- |
+| Accent metaphor          | Cartography and survey — grid lines, coordinates, territory markers, data layers                   |
+| Hero scene               | Charting the Territory — trio kneeling around the unfolded map                                     |
+| Empty state illustration | AI Agent holding a blank map, tilting it toward the viewer                                         |
+| Feature icons            | Grid overlays, pin markers, fold lines, legend keys, data layer toggles                            |
+| Data visualization       | Map-like layouts for skill taxonomies, org structure, and signal overlays — nodes on a terrain grid |
+| Tone                     | "The single source of truth. Chart the territory before you move through it."                      |
 
 ### Pathway (Skills Catalogue & Career Advice)
 
@@ -1018,6 +1092,17 @@ differentiators:
 | Feature icons            | Compass needle, signal beacon, waypoint pin                                                        |
 | AI response styling      | Slightly indented with a faint left-border in `--sand-200` (like a margin note in a field journal) |
 | Tone                     | "I can help you find your bearings."                                                               |
+
+### Landmark (Signal Analysis)
+
+| Element                  | Treatment                                                                                         |
+| ------------------------ | ------------------------------------------------------------------------------------------------- |
+| Accent metaphor          | Observation and measurement — cairns, vantage points, survey markers, signal lines                |
+| Hero scene               | Reading the Signals — trio on an outcrop, observing the landscape with instruments               |
+| Empty state illustration | AI Agent standing beside a cairn, holding a telescope, looking outward                            |
+| Feature icons            | Cairn stones, telescope, graph lines, signal waves, trend arrows                                  |
+| Data visualization       | Dashboard-style trend lines and comparison bars, overlaid on a subtle terrain grid                 |
+| Tone                     | "What do the signals say about how engineering is functioning?"                                   |
 
 ### Basecamp (Personal & Team Knowledge Management)
 
@@ -1063,7 +1148,8 @@ differentiators:
   tools of the trade, always present in seated poses
 - **Never add background scenery to scenes** — objects (maps, compass, tent,
   papers) exist in the scene; landscapes, trees, clouds, and horizon lines do
-  not (except the Pathway mountains, which are part of the product symbol). The
+  not (except the Pathway mountains and the Landmark outcrop, which are part of
+  their product symbols). The
   white background is the canvas.
 - **Never outline or frame a scene** — no boxes, borders, or background panels.
   Scenes float freely in whitespace.
@@ -1176,7 +1262,7 @@ Monochrome systems have specific accessibility considerations:
 | **Motion**          | Restrained + trio idle sway                            | Minimal                     | Minimal to moderate                        |
 | **Footer**          | Dark (inverted)                                        | Light                       | Dark                                       |
 | **Section rhythm**  | White ↔ Warm alternation                               | White throughout            | Dark throughout                            |
-| **Products**        | Map · Pathway · Guide · Basecamp                       | Single product              | Single product                             |
+| **Products**        | Map · Pathway · Guide · Landmark · Basecamp            | Single product              | Single product                             |
 
 The serif display type and warm neutral tones are the primary differentiators.
 They position FIT as professional and editorial — more "thoughtful journal" than
@@ -1184,9 +1270,9 @@ They position FIT as professional and editorial — more "thoughtful journal" th
 signature: where other developer tools use a solo mascot animal, FIT shows a
 team solving problems together. Each scene tells a story about how engineering,
 AI, and business domain expertise converge — and the product symbols (map,
-mountains, compass, tent) give those stories a physical, tactile anchor on the
-white canvas.
+mountains, compass, cairn, tent) give those stories a physical, tactile anchor
+on the white canvas.
 
 ---
 
-_Design spec for the Forward Impact Team (FIT) product suite. February 2026._
+_Design spec for the Forward Impact Team (FIT) product suite. March 2026._
