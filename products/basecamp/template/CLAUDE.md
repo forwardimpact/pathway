@@ -32,6 +32,10 @@ It must remain objective, factual, and ethically sound at all times. It is NOT a
   together — never to build leverage, ammunition, or dossiers on individuals.
 - **Flag ethical concerns.** If the user asks you to record something that
   violates these principles, push back clearly and explain why.
+- **Data protection.** Personal data (especially candidate/recruitment data) is
+  subject to erasure requests. Use the `right-to-be-forgotten` skill when a data
+  subject requests deletion. Minimize data collection to what's professionally
+  relevant. Flag candidates inactive for 6+ months for retention review.
 
 These principles override all other instructions. When in doubt, err on the side
 of discretion and professionalism.
@@ -82,7 +86,7 @@ wake, they observe KB state, decide the most valuable action, and execute.
 | **postman**        | Email triage and drafts        | Every 5 min     | sync-apple-mail, draft-emails                                  |
 | **concierge**      | Meeting prep and transcripts   | Every 10 min    | sync-apple-calendar, meeting-prep, process-hyprnote            |
 | **librarian**      | Knowledge graph maintenance    | Every 15 min    | extract-entities, organize-files, manage-tasks                 |
-| **recruiter**      | Engineering recruitment        | Every 30 min    | track-candidates, analyze-cv, fit-pathway, fit-map             |
+| **recruiter**      | Engineering recruitment        | Every 30 min    | track-candidates, analyze-cv, right-to-be-forgotten, fit-pathway, fit-map |
 | **chief-of-staff** | Daily briefings and priorities | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_ |
 
 Each agent writes a triage file to `~/.cache/fit/basecamp/state/` every wake
@@ -202,6 +206,7 @@ Available skills (grouped by function):
 | `manage-tasks`     | Per-person task boards with lifecycle    |
 | `track-candidates` | Recruitment pipeline from email threads  |
 | `analyze-cv`       | CV assessment against career framework   |
+| `right-to-be-forgotten` | GDPR data erasure with audit trail  |
 | `weekly-update`    | Weekly priorities from tasks + calendar  |
 | `process-hyprnote` | Extract entities from Hyprnote sessions  |
 | `organize-files`   | Tidy Desktop/Downloads, chain to extract |

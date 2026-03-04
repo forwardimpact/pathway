@@ -60,7 +60,7 @@ Read the candidate's CV file. Extract:
 | **Leadership signals** | Team size, mentoring, cross-team work, architecture    |
 | **Scope signals**      | Scale of systems, user base, revenue impact            |
 | **Communication**      | Publications, talks, open source, documentation        |
-| **Gender**             | Pronouns, gendered titles, first name if unambiguous   |
+| **Gender**             | Pronouns, gendered titles (never infer from names)  |
 
 ## Step 2: Look Up the Framework Reference
 
@@ -230,6 +230,8 @@ or could work on either. Reference specific CV evidence.}
 
 ## Hiring Recommendation
 
+**⚠️ Advisory only — human decision required.**
+
 **Recommendation:** {Proceed / Proceed with reservations / Do not proceed}
 
 **Rationale:** {3-5 sentences grounding the recommendation in framework data.
@@ -264,4 +266,4 @@ to create the candidate profile from email threads.
 - [ ] Gaps are actionable — they suggest interview focus areas
 - [ ] Assessment file uses correct path format and links to CV
 - [ ] Candidate brief updated with skill tags and assessment link
-- [ ] Gender field set in both assessment and brief where identifiable
+- [ ] Gender field set only from explicit pronouns/titles (never name-inferred)

@@ -145,15 +145,16 @@ For each candidate found in a recruitment email, extract:
 
 ### Determining Gender
 
-Record the candidate's gender when identifiable from the email or CV:
+Record the candidate's gender when **explicitly stated** in the email or CV:
 
 - Pronouns used by the recruiter ("she is available", "her CV attached")
 - Gendered titles ("Ms.", "Mrs.", "Mr.")
-- First name when culturally unambiguous
 
-Record as `Woman`, `Man`, or `—` (unknown). When uncertain, use `—` — never
-guess. This field supports pool diversity tracking; it has **no bearing** on
-hiring decisions or assessment criteria.
+Record as `Woman`, `Man`, or `—` (unknown). When uncertain, use `—` — **never
+infer gender from names**, regardless of cultural context. Name-based inference
+is unreliable and culturally biased. This field supports aggregate pool
+diversity tracking; it has **no bearing** on hiring decisions, assessment
+criteria, or candidate visibility.
 
 ### Determining Source and Recruiter
 
@@ -372,4 +373,4 @@ produces a full framework-aligned assessment.
 - [ ] No duplicate candidate notes created
 - [ ] Key strategic insights added to `Insights.md` where warranted
 - [ ] Skills tagged using framework skill IDs where possible
-- [ ] Gender field populated where identifiable (Woman / Man / —)
+- [ ] Gender field populated only from explicit pronouns/titles (never name-inferred)
