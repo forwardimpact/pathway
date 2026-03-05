@@ -26,9 +26,14 @@ Run when the user asks to draft, reply to, respond to, or send an email.
 | Organizations   | `knowledge/Organizations/*.md`                |
 | Email threads   | `~/.cache/fit/basecamp/apple_mail/*.md`       |
 | Calendar events | `~/.cache/fit/basecamp/apple_calendar/*.json` |
-| Drafted IDs     | `drafts/drafted` (one ID per line)            |
+| Handled IDs     | `drafts/handled` (one ID per line)            |
 | Ignored IDs     | `drafts/ignored` (one ID per line)            |
 | Draft files     | `drafts/{email_id}_draft.md`                  |
+
+**Handled vs Ignored:** Both exclude threads from `scan-emails.mjs`. Use
+`handled` for threads that received a response (sent via this skill, replied
+manually, or resolved through other channels like DMs). Use `ignored` for
+threads that need no response (newsletters, spam, outbound with no reply).
 
 ---
 
@@ -55,6 +60,13 @@ base.**
 - Personalize from knowledge base context
 - Match the tone of the incoming email
 
+**No sign-off or closing:**
+
+- Do NOT end the body with a name, "Best", "Cheers", "Thanks", or any sign-off
+- Apple Mail appends the user's configured signature automatically (includes
+  their name, title, and contact details)
+- The draft body should end with the last sentence of content — nothing after
+
 **User approves before sending:**
 
 - Always present the draft for review before sending
@@ -68,7 +80,8 @@ base.**
 node scripts/scan-emails.mjs
 ```
 
-Outputs tab-separated `email_id<TAB>subject` for unprocessed emails.
+Outputs tab-separated `email_id<TAB>subject` for unprocessed emails (those not
+in `drafts/handled` or `drafts/ignored`).
 
 ### 2. Classify
 
@@ -115,7 +128,7 @@ Save to `drafts/{email_id}_draft.md`:
 
 ---
 
-{personalized draft body}
+{personalized draft body — no sign-off, no name at end}
 
 ---
 
@@ -145,19 +158,26 @@ node scripts/send-email.mjs \
   --to "recipient@example.com" \
   --cc "other@example.com" \
   --subject "Re: Subject" \
-  --body "Plain text body"
+  --body "Plain text body" \
+  --draft "drafts/12345_draft.md"
 ```
 
 Options: `--to` (required), `--cc` (optional), `--bcc` (optional), `--subject`
-(required), `--body` (required, plain text only).
+(required), `--body` (required, plain text only), `--draft` (path to draft file
+— deleted automatically after successful send, and email ID appended to
+`drafts/handled`).
 
-Do NOT include an email signature — Apple Mail appends the configured signature
-automatically.
+The `--draft` flag handles both cleanup and state tracking. No separate state
+update step is needed when using it.
 
-### 7. Update State
+### 7. Mark Handled (without sending)
+
+When a thread is resolved without sending through this skill (user replied
+manually, resolved via DMs, team handled it, etc.):
 
 ```bash
-echo "$EMAIL_ID" >> drafts/drafted   # or drafts/ignored
+echo "$EMAIL_ID" >> drafts/handled
+rm -f "drafts/${EMAIL_ID}_draft.md"   # remove draft if one exists
 ```
 
 ## Recruitment & Staffing Emails

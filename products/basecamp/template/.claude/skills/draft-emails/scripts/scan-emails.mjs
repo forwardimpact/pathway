@@ -3,7 +3,7 @@
  * Scan for unprocessed emails and output their IDs and subjects.
  *
  * Checks ~/.cache/fit/basecamp/apple_mail/ for email thread markdown files not
- * yet listed in drafts/drafted or drafts/ignored. Outputs one tab-separated
+ * yet listed in drafts/handled or drafts/ignored. Outputs one tab-separated
  * line per unprocessed thread: email_id<TAB>subject. Used by the draft-emails
  * skill to identify threads that need a reply.
  */
@@ -17,7 +17,7 @@ const HELP = `scan-emails — list unprocessed email threads
 Usage: node scripts/scan-emails.mjs [-h|--help]
 
 Scans ~/.cache/fit/basecamp/apple_mail/ for .md thread files not yet
-recorded in drafts/drafted or drafts/ignored. Outputs one line per
+recorded in drafts/handled or drafts/ignored. Outputs one line per
 unprocessed thread as: email_id<TAB>subject`;
 
 if (process.argv.includes("-h") || process.argv.includes("--help")) {
@@ -49,14 +49,14 @@ function extractSubject(filePath) {
 function main() {
   if (!existsSync(MAIL_DIR)) return;
 
-  const drafted = loadIdSet("drafts/drafted");
+  const handled = loadIdSet("drafts/handled");
   const ignored = loadIdSet("drafts/ignored");
 
   for (const name of readdirSync(MAIL_DIR).sort()) {
     if (!name.endsWith(".md")) continue;
 
     const emailId = basename(name, ".md");
-    if (drafted.has(emailId) || ignored.has(emailId)) continue;
+    if (handled.has(emailId) || ignored.has(emailId)) continue;
 
     const subject = extractSubject(join(MAIL_DIR, name));
     console.log(`${emailId}\t${subject}`);

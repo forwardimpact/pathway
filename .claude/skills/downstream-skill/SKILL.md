@@ -210,3 +210,4 @@ processed. This prevents re-processing the same changelog entries.
 | 2026-03-04 | Personal     | sync-apple-mail  | Incorporated ROWID-based sync fix for late-arriving emails     |
 | 2026-03-04 | Personal     | track-candidates | Incorporated field renames, new fields, statuses, and template |
 | 2026-03-04 | Personal     | track-candidates | Deferred: relaxed gender policy (name-based inference)         |
+| 2026-03-05 | Personal     | draft-emails     | Incorporated: no sign-off rule, drafted→handled rename, --draft flag, body padding fix |

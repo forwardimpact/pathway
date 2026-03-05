@@ -6,13 +6,18 @@
  * Apple Mail. The script writes a temporary .scpt file, executes it with
  * osascript, and cleans up afterwards. Mail.app must be running.
  *
- * The body should be plain text — no HTML. Do NOT include an email signature;
- * Apple Mail appends the user's configured signature automatically.
+ * The body should be plain text — no HTML. Do NOT include an email signature
+ * or sign-off; Apple Mail appends the user's configured signature automatically.
  */
 
 import { execFileSync } from "node:child_process";
-import { mkdtempSync, writeFileSync, unlinkSync } from "node:fs";
-import { join } from "node:path";
+import {
+  appendFileSync,
+  mkdtempSync,
+  writeFileSync,
+  unlinkSync,
+} from "node:fs";
+import { basename, join } from "node:path";
 import { tmpdir } from "node:os";
 
 const HELP = `send-email — send an email via Apple Mail
@@ -25,9 +30,10 @@ Options:
   --bcc <addrs>      Comma-separated BCC recipients
   --subject <subj>   Email subject line (required)
   --body <text>      Plain-text email body (required)
+  --draft <path>     Draft file — deleted after send, ID appended to drafts/handled
   -h, --help         Show this help message and exit
 
-Mail.app must be running. No email signature needed — Apple Mail appends it.`;
+Mail.app must be running. No signature or sign-off needed — Apple Mail appends it.`;
 
 if (process.argv.includes("-h") || process.argv.includes("--help")) {
   console.log(HELP);
@@ -59,7 +65,8 @@ function main() {
     cc = "",
     bcc = "",
     subject = "",
-    body = "";
+    body = "",
+    draft = "";
 
   for (let i = 0; i < args.length; i++) {
     switch (args[i]) {
@@ -78,6 +85,9 @@ function main() {
       case "--body":
         body = args[++i] ?? "";
         break;
+      case "--draft":
+        draft = args[++i] ?? "";
+        break;
     }
   }
 
@@ -86,6 +96,13 @@ function main() {
     console.error("Run with --help for usage info.");
     process.exit(1);
   }
+
+  // Strip leading two-space padding from each line and trim overall whitespace
+  body = body
+    .split("\n")
+    .map((line) => line.replace(/^  /, ""))
+    .join("\n")
+    .trim();
 
   const lines = [
     'tell application "Mail"',
@@ -106,6 +123,24 @@ function main() {
     writeFileSync(tmp, lines);
     execFileSync("osascript", [tmp], { stdio: "inherit" });
     console.log(`Sent: ${subject}`);
+
+    // Clean up draft and mark thread as handled
+    if (draft) {
+      try {
+        unlinkSync(draft);
+        console.log(`Removed draft: ${draft}`);
+      } catch {
+        // ignore if draft already gone
+      }
+
+      // Extract email ID from draft filename (e.g. "drafts/12345_draft.md" → "12345")
+      const draftBasename = basename(draft, ".md");
+      const emailId = draftBasename.replace(/_draft$/, "");
+      if (emailId) {
+        appendFileSync("drafts/handled", emailId + "\n");
+        console.log(`Marked as handled: ${emailId}`);
+      }
+    }
   } finally {
     try {
       unlinkSync(tmp);
