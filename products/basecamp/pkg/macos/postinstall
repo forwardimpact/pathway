@@ -76,12 +76,4 @@ if [ ! -d "$DEFAULT_KB" ]; then
   fi
 fi
 
-# --- Update existing knowledge bases -----------------------------------------
-# Push latest CLAUDE.md, skills, and agents into every configured KB.
-# --update skips KBs that don't have a CLAUDE.md (i.e. not yet initialised).
-
-if [ -f "$SCHEDULER" ]; then
-  /usr/bin/sudo -u "$REAL_USER" "$SCHEDULER" --update 2>/dev/null || true
-fi
-
 exit 0
