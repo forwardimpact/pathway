@@ -24,6 +24,11 @@
       "kb": "~/Documents/Personal",
       "schedule": { "type": "interval", "minutes": 30 },
       "enabled": true
+    },
+    "head-hunter": {
+      "kb": "~/Documents/Personal",
+      "schedule": { "type": "interval", "minutes": 60 },
+      "enabled": true
     }
   }
 }

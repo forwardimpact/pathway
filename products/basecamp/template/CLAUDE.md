@@ -87,6 +87,7 @@ wake, they observe KB state, decide the most valuable action, and execute.
 | **concierge**      | Meeting prep and transcripts   | Every 10 min    | sync-apple-calendar, meeting-prep, process-hyprnote                                            |
 | **librarian**      | Knowledge graph maintenance    | Every 15 min    | extract-entities, organize-files, manage-tasks                                                 |
 | **recruiter**      | Engineering recruitment        | Every 30 min    | track-candidates, analyze-cv, workday-requisition, right-to-be-forgotten, fit-pathway, fit-map |
+| **head-hunter**    | Passive talent scouting        | Every 60 min    | scan-open-candidates, fit-pathway, fit-map                                                     |
 | **chief-of-staff** | Daily briefings and priorities | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_                                 |
 
 Each agent writes a triage file to `~/.cache/fit/basecamp/state/` every wake
@@ -96,6 +97,7 @@ cycle. The naming convention is `{agent}_triage.md`:
 - `concierge_triage.md` — schedule, meeting prep status, unprocessed transcripts
 - `librarian_triage.md` — unprocessed files, knowledge graph size
 - `recruiter_triage.md` — candidate pipeline, assessments, track distribution
+- `head_hunter_triage.md` — prospect pipeline, source rotation, match strength
 
 The **chief-of-staff** reads all three triage files to synthesize daily
 briefings in `knowledge/Briefings/`.
@@ -110,13 +112,19 @@ Synced data and runtime state live outside the knowledge base in
 ├── apple_mail/              # Synced Apple Mail threads (.md files)
 │   └── attachments/         # Copied email attachments by thread
 ├── apple_calendar/          # Synced Apple Calendar events (.json files)
+├── head-hunter/             # Head hunter agent memory
+│   ├── cursor.tsv           # Source rotation state
+│   ├── seen.tsv             # Deduplication index
+│   ├── prospects.tsv        # Prospect index
+│   └── log.md               # Append-only activity log
 └── state/                   # Runtime state
     ├── apple_mail_last_sync # ISO timestamp of last mail sync
     ├── graph_processed      # TSV of processed files (path<TAB>hash)
     ├── postman_triage.md    # Agent triage files ({agent}_triage.md)
     ├── concierge_triage.md
     ├── librarian_triage.md
-    └── recruiter_triage.md
+    ├── recruiter_triage.md
+    └── head_hunter_triage.md
 ```
 
 This separation keeps the knowledge base clean — only the parsed knowledge
@@ -208,6 +216,7 @@ Available skills (grouped by function):
 | `workday-requisition`   | Import candidates from Workday XLSX      |
 | `analyze-cv`            | CV assessment against career framework   |
 | `right-to-be-forgotten` | GDPR data erasure with audit trail       |
+| `scan-open-candidates`  | Scan public sources for open-for-hire    |
 | `weekly-update`         | Weekly priorities from tasks + calendar  |
 | `process-hyprnote`      | Extract entities from Hyprnote sessions  |
 | `organize-files`        | Tidy Desktop/Downloads, chain to extract |

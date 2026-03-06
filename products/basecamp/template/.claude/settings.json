@@ -45,7 +45,11 @@
       "Edit(~/Documents/**)",
       "Edit(~/Downloads/**)",
       "Read(~/.cache/fit/basecamp/**)",
-      "Edit(~/.cache/fit/basecamp/**)"
+      "Edit(~/.cache/fit/basecamp/**)",
+      "WebFetch(domain:hn.algolia.com)",
+      "WebFetch(domain:hachyderm.io)",
+      "WebFetch(domain:dev.to)",
+      "WebFetch(domain:www.reddit.com)"
     ],
     "deny": [
       "Bash(curl *)",
