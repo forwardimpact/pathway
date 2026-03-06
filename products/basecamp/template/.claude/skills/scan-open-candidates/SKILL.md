@@ -3,7 +3,7 @@ name: scan-open-candidates
 description: >
   Scan publicly available sources for candidates who indicate they are open for
   hire. Uses WebFetch to read public APIs (HN Algolia, Mastodon, dev.to, Reddit
-  JSON). Writes prospect notes to knowledge/Candidates/Prospects/. Maintains
+  JSON). Writes prospect notes to knowledge/Prospects/. Maintains
   cursor/dedup state in ~/.cache/fit/basecamp/head-hunter/. Use when the
   head-hunter agent is woken or when the user asks to scan for open candidates.
 ---
@@ -35,7 +35,7 @@ Run this skill:
 
 ## Outputs
 
-- `knowledge/Candidates/Prospects/{Name}.md` — prospect notes
+- `knowledge/Prospects/{Name}.md` — prospect notes
 - `~/.cache/fit/basecamp/head-hunter/cursor.tsv` — updated cursors
 - `~/.cache/fit/basecamp/head-hunter/seen.tsv` — updated seen index
 - `~/.cache/fit/basecamp/head-hunter/prospects.tsv` — updated prospect index
@@ -234,7 +234,7 @@ When uncertain, default to J060 with low confidence.
 
 ## Prospect Note Format
 
-Write to `knowledge/Candidates/Prospects/{Name}.md`:
+Write to `knowledge/Prospects/{Name}.md`:
 
 ```markdown
 # {Name}

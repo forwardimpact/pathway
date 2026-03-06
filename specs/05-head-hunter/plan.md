@@ -36,7 +36,7 @@ Scheduler (every 60 min)
     → WebFetch public API for that source
     → Filter: open-for-hire → dedup → location → skills → level
     → Benchmark matches against fit-pathway jobs
-    → Write prospect notes to knowledge/Candidates/Prospects/
+    → Write prospect notes to knowledge/Prospects/
     → Update memory files (cursor, seen, prospects, log)
     → Write triage report to state directory
     → Output Decision/Action summary
@@ -83,7 +83,7 @@ in a `Prospects/` subdirectory to distinguish them from recruiter-sourced
 candidates:
 
 ```
-knowledge/Candidates/Prospects/{Name}.md
+knowledge/Prospects/{Name}.md
 ```
 
 Each note includes: source link, estimated level, track fit, match strength,
@@ -115,7 +115,7 @@ framework skill alignment, and a brief profile summary.
 4. **Prospects/ subdirectory** — Separates passively-scouted prospects from
    recruiter-sourced candidates. The recruiter agent works with
    `knowledge/Candidates/{Name}/brief.md`; the head hunter writes to
-   `knowledge/Candidates/Prospects/{Name}.md`. No collision.
+   `knowledge/Prospects/{Name}.md`. No collision.
 
 5. **60-minute interval** — Generous schedule since public sources update
    slowly (HN monthly, Mastodon/Reddit/dev.to a few times per day). Avoids

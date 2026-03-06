@@ -82,6 +82,7 @@ manageable with standard Unix tools.
 ```
 ~/.cache/fit/basecamp/head-hunter/
 ├── cursor.tsv           # Source rotation state (source<TAB>last_checked<TAB>cursor)
+├── failures.tsv         # Consecutive failure count (source<TAB>count<TAB>last_error<TAB>last_failed)
 ├── seen.tsv             # Deduplication index (source<TAB>id<TAB>date_seen)
 ├── prospects.tsv        # Prospect index (name<TAB>source<TAB>date<TAB>match_score<TAB>best_role)
 └── log.md               # Append-only activity log
@@ -93,9 +94,33 @@ Tracks where you left off in each source. One row per source.
 
 ```
 hn_wants_hired	2026-03-01T00:00:00Z	item_id_43210000
-mastodon_hachyderm	2026-03-01T00:00:00Z	status_id_123456
-devto_listings	2026-03-01T00:00:00Z	listing_id_9999
-reddit_forhire	2026-03-01T00:00:00Z	post_id_abc123
+github_open_to_work	2026-03-01T00:00:00Z	page_1
+devto_opentowork	2026-03-01T00:00:00Z	article_id_9999
+```
+
+### failures.tsv
+
+Tracks consecutive fetch failures per source. Reset to 0 on success. Sources
+with 3+ consecutive failures are **suspended** — skip them during source
+selection and note the suspension in the triage report.
+
+```
+github_open_to_work	0		
+devto_opentowork	0		
+hn_wants_hired	0		
+```
+
+When a WebFetch fails (HTTP 4xx, 5xx, timeout, or blocked-page redirect),
+increment the count and record the error:
+
+```
+github_open_to_work	2	403 Forbidden	2026-03-05T14:00:00Z
+```
+
+On a successful fetch, reset the row:
+
+```
+github_open_to_work	0		
 ```
 
 ### seen.tsv
@@ -155,15 +180,18 @@ touch ~/.cache/fit/basecamp/head-hunter/log.md
 Rotate through sources round-robin. Check `cursor.tsv` for the source with the
 oldest `last_checked` timestamp (or one never checked). Sources in rotation:
 
-| Source ID            | URL Pattern                                          | Signal         |
-| -------------------- | ---------------------------------------------------- | -------------- |
-| `hn_wants_hired`     | HN "Who Wants to Be Hired?" monthly thread           | Self-posted    |
-| `mastodon_hachyderm` | Hachyderm.io `#GetFediHired` and `#HachyJobs` tags   | Hashtag        |
-| `devto_listings`     | dev.to job listings API (candidates offering service) | Listed profile |
-| `reddit_forhire`     | r/forhire `[For Hire]` posts                         | Self-posted    |
+| Source ID             | URL Pattern                                          | Signal         |
+| --------------------- | ---------------------------------------------------- | -------------- |
+| `hn_wants_hired`      | HN "Who Wants to Be Hired?" monthly thread           | Self-posted    |
+| `github_open_to_work` | GitHub user search API — bios with open-to-work      | Bio signal     |
+| `devto_opentowork`    | dev.to articles tagged `opentowork`/`lookingforwork`  | Tagged article |
 
 Pick the source with the oldest check time. If all were checked today, pick
 the one checked longest ago.
+
+**Skip suspended sources.** Check `failures.tsv` — any source with 3+
+consecutive failures is suspended. Log the skip and move to the next source.
+If all sources are suspended, report that in the triage and exit.
 
 ## 3. Fetch & Scan
 
@@ -190,38 +218,43 @@ Each top-level comment is a candidate. Look for:
 - Experience level signals
 - "Remote" or location flexibility
 
-### Mastodon (Hachyderm.io)
+### GitHub Open to Work
 
-Search public timeline for job-seeking hashtags:
+Search for users whose bio signals availability. Run location-targeted queries
+to keep results relevant:
 
 ```
-WebFetch: https://hachyderm.io/api/v1/timelines/tag/GetFediHired?limit=40
-WebFetch: https://hachyderm.io/api/v1/timelines/tag/HachyJobs?limit=40
+WebFetch: https://api.github.com/search/users?q=%22open+to+work%22+location:UK&per_page=30&sort=joined&order=desc
+WebFetch: https://api.github.com/search/users?q=%22open+to+work%22+location:Europe&per_page=30&sort=joined&order=desc
+WebFetch: https://api.github.com/search/users?q=%22looking+for+work%22+location:remote&per_page=30&sort=joined&order=desc
 ```
 
-Each status is a candidate post. Look for skills, experience, location.
+For each candidate that passes initial screening, fetch their full profile:
+
+```
+WebFetch: https://api.github.com/users/{login}
+```
+
+Profile fields: `name`, `bio`, `location`, `hireable`, `blog`, `public_repos`,
+`company`. Check `hireable` (boolean) and bio text for open-to-work signals.
+
+**Rate limit:** 10 requests/minute unauthenticated. Batch user profile fetches
+— fetch at most 5 profiles per wake cycle.
+
+**Cursor:** Store the page number last processed. Rotate through the location
+queries across wakes (UK → Europe → Remote → repeat).
 
 ### dev.to
 
-Search for candidate listings:
+Search for articles where candidates signal availability:
 
 ```
-WebFetch: https://dev.to/api/listings?category=collabs&per_page=25
+WebFetch: https://dev.to/api/articles?tag=opentowork&per_page=25
+WebFetch: https://dev.to/api/articles?tag=lookingforwork&per_page=25
 ```
 
-Also search articles tagged with hiring/career:
-
-```
-WebFetch: https://dev.to/api/articles?tag=hiring&per_page=25&state=rising
-```
-
-### Reddit r/forhire
-
-Fetch `[For Hire]` posts:
-
-```
-WebFetch: https://www.reddit.com/r/forhire/search.json?q=flair%3A%22For+Hire%22&sort=new&restrict_sr=on&limit=25
-```
+Parse `title`, `description`, `user.name`, `url`, `tag_list`,
+`published_at`. Skip articles older than 90 days.
 
 ## 4. Filter Candidates
 
@@ -273,10 +306,10 @@ Only write prospect notes for **strong** and **moderate** matches.
 Create a prospect note in the knowledge base:
 
 ```bash
-mkdir -p "knowledge/Candidates/Prospects"
+mkdir -p "knowledge/Prospects"
 ```
 
-Write to `knowledge/Candidates/Prospects/{Name}.md`:
+Write to `knowledge/Prospects/{Name}.md`:
 
 ```markdown
 # {Name}
