@@ -199,6 +199,17 @@ processed. This prevents re-processing the same changelog entries.
 
 ## Memory
 
+### 2026-03-06
+
+**Installation:** Personal (`~/Documents/Personal/`)
+
+**Processed changelogs:**
+
+- **draft-emails** (2026-03-05) — Already synced upstream (identical)
+- **sync-apple-mail** (2026-03-04) — Already synced upstream (identical)
+- **track-candidates** (2026-03-04) — Already synced upstream (identical)
+- **workday-requisition** (2026-03-06, 2026-03-06 (2), 2026-03-06 (3)) — Incorporated: header-driven column mapping, dual-format sheet/header detection, expanded Step/Disposition status table, raw step preservation
+
 > **Keep this section up to date.** After every downstream sync, record what was
 > processed here. This prevents re-processing the same entries and provides an
 > audit trail.

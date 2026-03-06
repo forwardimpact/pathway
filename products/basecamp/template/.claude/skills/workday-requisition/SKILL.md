@@ -49,11 +49,13 @@ Run this skill:
 
 ## Workday Export Format
 
-The Workday requisition export contains multiple sheets. This skill uses:
+The Workday export format varies between versions. The parser handles both
+automatically using header-driven column mapping and dynamic header row
+detection.
 
 ### Sheet 1 — Requisition Metadata
 
-Key-value pairs, one per row:
+**Old format** — key-value pairs with Hiring Manager, Recruiter, Location:
 
 | Row | Field                 | Example                                |
 | --- | --------------------- | -------------------------------------- |
@@ -66,38 +68,58 @@ Key-value pairs, one per row:
 | 7   | Recruiter Title       | `Recruiter`                            |
 | 8   | Recruiter             | Name                                   |
 
-### Sheet 3 — Candidates
+**New format** — stage-count summary (no HM/Recruiter/Location):
 
-Row 3 contains column headers. Data rows start at row 4. After the last
-candidate, stage-summary rows appear (these are not candidates).
+| Row | Field                    | Example                                |
+| --- | ------------------------ | -------------------------------------- |
+| 1   | Title header             | `4951493 Principal Software Engineer…` |
+| 2   | Active Candidates        | `74 of 74`                             |
+| 3   | Active Referrals         | `3 of 3`                               |
+| 4   | Active Internal          | `4 of 4`                               |
+| 7+  | Stage counts             | `56 → Considered`                      |
 
-| Column | Field                  | Maps to brief field…     |
-| ------ | ---------------------- | ------------------------ |
-| B      | Candidate name         | `# {Name}`               |
-| C      | Stage                  | Status derivation        |
-| D      | Step / Disposition     | Status derivation        |
-| G      | Resume filename        | Reference only (no file) |
-| H      | Date Applied           | **First seen**           |
-| I      | Current Job Title      | **Current title**, Title |
-| J      | Current Company        | **Current title** suffix |
-| K      | Source                 | **Source**               |
-| L      | Referred by            | **Source** suffix        |
-| N      | Availability Date      | **Availability**         |
-| O      | Visa Requirement       | Notes                    |
-| P      | Eligible to Work       | Notes                    |
-| Q      | Relocation             | Notes                    |
-| R      | Salary Expectations    | **Rate**                 |
-| S      | Non-Compete            | Notes                    |
-| T      | Candidate Location     | **Location**             |
-| U      | Phone                  | **Phone**                |
-| V      | Email                  | **Email**                |
-| W      | Total Years Experience | Summary context          |
-| X      | All Job Titles         | Work History context     |
-| Y      | Companies              | Work History context     |
-| Z      | Degrees                | Education                |
-| AA     | Fields of Study        | Education                |
-| AB     | Language               | **English** / Language   |
-| AC     | Resume Text            | `CV.md` content          |
+### Candidates Sheet
+
+The parser auto-detects the candidates sheet and header row:
+- **Old format**: 3+ sheets; candidates on "Candidates" sheet or Sheet3;
+  header at row 3 (index 2); two "Job Application" columns
+- **New format**: 2 sheets; candidates on Sheet2; header at row 8 (index 7);
+  single "Job Application" column
+
+Column mapping is header-driven — the parser reads the header row and maps
+columns by name, not position. Columns that vary between exports (e.g.
+"Jobs Applied to", "Referred by", "Convenience Task") are handled
+automatically.
+
+**Core columns** (present in all formats):
+
+| Header                 | Maps to brief field…     |
+| ---------------------- | ------------------------ |
+| Job Application        | `# {Name}`               |
+| Stage                  | Row detection only (not used for status) |
+| Step / Disposition     | **Workday step** → status derivation |
+| Resume                 | Reference only (no file) |
+| Date Applied           | **First seen**           |
+| Current Job Title      | **Current title**, Title |
+| Current Company        | **Current title** suffix |
+| Source                 | **Source**               |
+| Referred by            | **Source** suffix        |
+| Candidate Location     | **Location**             |
+| Phone                  | **Phone**                |
+| Email                  | **Email**                |
+| Availability Date      | **Availability**         |
+| Visa Requirement       | Notes                    |
+| Eligible to Work       | Notes                    |
+| Relocation             | Notes                    |
+| Salary Expectations    | **Rate**                 |
+| Non-Compete            | Notes                    |
+| Total Years Experience | Summary context          |
+| All Job Titles         | Work History context     |
+| Companies              | Work History context     |
+| Degrees                | Education                |
+| Fields of Study        | Education                |
+| Language               | **English** / Language   |
+| Resume Text            | `CV.md` content          |
 
 #### Name Annotations
 
@@ -153,25 +175,36 @@ Use fuzzy matching — the Workday name may differ slightly from an existing not
 
 ## Step 3: Determine Pipeline Status
 
-Map Workday stage and step/disposition to the `track-candidates` pipeline
-status:
+Map the **Step / Disposition** column to the `track-candidates` pipeline
+status. Do NOT use the Stage column for status — it is only used for row
+detection (stop condition):
 
-| Workday Step / Disposition   | Pipeline Status    |
-| ---------------------------- | ------------------ |
-| `Considered`                 | `new`              |
-| `Manager Resume Screen`      | `screening`        |
-| `Assessment`                 | `screening`        |
-| `Interview` / `Phone Screen` | `first-interview`  |
-| `Second Interview`           | `second-interview` |
-| `Reference Check`            | `second-interview` |
-| `Offer`                      | `offer`            |
-| `Employment Agreement`       | `offer`            |
-| `Background Check`           | `hired`            |
-| `Ready for Hire`             | `hired`            |
-| `Rejected` / `Declined`      | `rejected`         |
+| Workday Step / Disposition                 | Pipeline Status    |
+| ------------------------------------------ | ------------------ |
+| `Considered`                               | `new`              |
+| `Review`                                   | `new`              |
+| `Manager Resume Screen`                    | `screening`        |
+| `Schedule Recruiter Phone Screen`          | `screening`        |
+| `Manager Request to Move Forward (HS)`     | `screening`        |
+| `Proposed Interview Slate`                 | `screening`        |
+| `Assessment`                               | `screening`        |
+| `Manager Request to Decline (HS)`          | `rejected`         |
+| `Interview` / `Phone Screen`              | `first-interview`  |
+| `Second Interview`                         | `second-interview` |
+| `Reference Check`                          | `second-interview` |
+| `Offer`                                    | `offer`            |
+| `Employment Agreement`                     | `offer`            |
+| `Background Check`                         | `hired`            |
+| `Ready for Hire`                           | `hired`            |
+| `Rejected` / `Declined`                    | `rejected`         |
 
-If the step is identical to the stage (e.g. both "Considered"), default to
-`new`.
+If the step value is empty or not recognized, default to `new`.
+
+**Important:** The raw `step` value is always preserved in the JSON output and
+should be stored in the candidate brief's **Pipeline** section (e.g.
+`Applied via LinkedIn — Step: Manager Request to Move Forward (HS)`). This
+allows the user to filter and query candidates by their exact Workday
+disposition.
 
 ## Step 4: Create CV.md from Resume Text
 

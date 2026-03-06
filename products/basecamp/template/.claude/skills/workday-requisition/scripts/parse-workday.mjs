@@ -107,20 +107,90 @@ const requisition = {
   recruiter: reqMeta["Recruiter"] || "",
 };
 
-// --- Sheet 3: Candidates ---
+// --- Candidates sheet ---
 
-// Find the "Candidates" sheet (usually index 2, but search by name to be safe)
+// Find the candidates sheet. Workday exports vary:
+//   - Old format: 3+ sheets, candidates on a sheet named "Candidates" or Sheet3
+//   - New format: 2 sheets, candidates on Sheet2
 const candSheetName =
   wb.SheetNames.find((n) => n.toLowerCase() === "candidates") ||
-  wb.SheetNames[2];
+  wb.SheetNames[Math.min(2, wb.SheetNames.length - 1)];
 const ws3 = wb.Sheets[candSheetName];
 const candRows = XLSX.utils.sheet_to_json(ws3, { header: 1, defval: "" });
 
-// Row 3 (index 2) has column headers. Data starts at row 4 (index 3).
-// Stage summary rows start when column A has a non-empty value that looks like
-// a label or number — detect by checking if column C (Stage) is empty and
-// column A has a value.
-const DATA_START = 3;
+// Find the header row dynamically — look for a row containing "Stage"
+// Old format: row 3 (index 2). New format: row 8 (index 7).
+let HEADER_ROW = 2;
+for (let i = 0; i < Math.min(15, candRows.length); i++) {
+  if (
+    candRows[i].some(
+      (c) => String(c).trim().toLowerCase() === "stage",
+    )
+  ) {
+    HEADER_ROW = i;
+    break;
+  }
+}
+const DATA_START = HEADER_ROW + 1;
+
+// --- Build header-driven column index map ---
+// Column layout varies between Workday exports (extra columns like "Jobs Applied to"
+// or "Referred by" shift indices). Map by header name to be resilient.
+
+const headerRow = candRows[HEADER_ROW] || [];
+const colMap = {};
+const HEADER_ALIASES = {
+  "job application": "name", // second "Job Application" column (index 1) has candidate name
+  stage: "stage",
+  "step / disposition": "step",
+  "awaiting me": "awaitingMe",
+  "awaiting action": "awaitingAction",
+  resume: "resumeFile",
+  "date applied": "dateApplied",
+  "current job title": "currentTitle",
+  "current company": "currentCompany",
+  source: "source",
+  "referred by": "referredBy",
+  "availability date": "availabilityDate",
+  "visa requirement": "visaRequirement",
+  "eligible to work": "eligibleToWork",
+  relocation: "relocation",
+  "salary expectations": "salaryExpectations",
+  "non-compete": "nonCompete",
+  "candidate location": "location",
+  phone: "phone",
+  email: "email",
+  "total years experience": "totalYearsExperience",
+  "all job titles": "allJobTitles",
+  companies: "companies",
+  degrees: "degrees",
+  "fields of study": "fieldsOfStudy",
+  language: "language",
+  "resume text": "resumeText",
+};
+
+// Skip columns we don't need (e.g. "Jobs Applied to", "Create Candidate Home Account URL")
+for (let i = 0; i < headerRow.length; i++) {
+  const hdr = String(headerRow[i]).trim().toLowerCase();
+  const field = HEADER_ALIASES[hdr];
+  if (field) {
+    // "Job Application" appears twice (cols A and B) — always take the latest
+    // occurrence so we end up with the second one (index 1) which has the name
+    colMap[field] = i;
+  }
+}
+
+// Fallback: if "name" wasn't mapped, use index 0 (new format) or 1 (old format)
+if (colMap.name === undefined) colMap.name = 1;
+// In new format there's only one "Job Application" column (index 0) — the
+// "always take latest" logic already handles this correctly.
+
+/** Get a cell value by field name, with fallback to empty string. */
+function col(row, field) {
+  const idx = colMap[field];
+  if (idx === undefined) return "";
+  return row[idx] ?? "";
+}
 
 /**
  * Clean a candidate name by stripping annotations like (Prior Worker),
@@ -180,45 +250,45 @@ const candidates = [];
 
 for (let i = DATA_START; i < candRows.length; i++) {
   const row = candRows[i];
-  const rawName = String(row[1] || "").trim(); // Column B (index 1)
-  const stage = String(row[2] || "").trim(); // Column C (index 2)
+  const rawName = String(col(row, "name") || "").trim();
+  const stage = String(col(row, "stage") || "").trim();
 
-  // Stop at stage-summary rows: column A has a value, column C (stage) is empty
-  if (!rawName || (!stage && String(row[0] || "").trim())) break;
+  // Skip empty rows; stop at stage-summary rows (name present but no stage)
   if (!rawName) continue;
+  if (!stage) break;
 
   const { cleanName, internalExternal: nameIE } = parseName(rawName);
-  const source = String(row[10] || "").trim();
+  const source = String(col(row, "source") || "").trim();
 
   candidates.push({
     name: rawName,
     cleanName,
     stage,
-    step: String(row[3] || "").trim(),
-    awaitingMe: String(row[4] || "").trim(),
-    awaitingAction: String(row[5] || "").trim(),
-    resumeFile: String(row[6] || "").trim(),
-    dateApplied: fmtDate(row[7]),
-    currentTitle: String(row[8] || "").trim(),
-    currentCompany: String(row[9] || "").trim(),
+    step: String(col(row, "step") || "").trim(),
+    awaitingMe: String(col(row, "awaitingMe") || "").trim(),
+    awaitingAction: String(col(row, "awaitingAction") || "").trim(),
+    resumeFile: String(col(row, "resumeFile") || "").trim(),
+    dateApplied: fmtDate(col(row, "dateApplied")),
+    currentTitle: String(col(row, "currentTitle") || "").trim(),
+    currentCompany: String(col(row, "currentCompany") || "").trim(),
     source,
-    referredBy: String(row[11] || "").trim(),
-    availabilityDate: fmtDate(row[13]),
-    visaRequirement: String(row[14] || "").trim(),
-    eligibleToWork: String(row[15] || "").trim(),
-    relocation: String(row[16] || "").trim(),
-    salaryExpectations: String(row[17] || "").trim(),
-    nonCompete: String(row[18] || "").trim(),
-    location: String(row[19] || "").trim(),
-    phone: String(row[20] || "").trim(),
-    email: String(row[21] || "").trim(),
-    totalYearsExperience: String(row[22] || "").trim(),
-    allJobTitles: multiline(row[23]),
-    companies: multiline(row[24]),
-    degrees: multiline(row[25]),
-    fieldsOfStudy: multiline(row[26]),
-    language: multiline(row[27]),
-    resumeText: String(row[28] || "").trim(),
+    referredBy: String(col(row, "referredBy") || "").trim(),
+    availabilityDate: fmtDate(col(row, "availabilityDate")),
+    visaRequirement: String(col(row, "visaRequirement") || "").trim(),
+    eligibleToWork: String(col(row, "eligibleToWork") || "").trim(),
+    relocation: String(col(row, "relocation") || "").trim(),
+    salaryExpectations: String(col(row, "salaryExpectations") || "").trim(),
+    nonCompete: String(col(row, "nonCompete") || "").trim(),
+    location: String(col(row, "location") || "").trim(),
+    phone: String(col(row, "phone") || "").trim(),
+    email: String(col(row, "email") || "").trim(),
+    totalYearsExperience: String(col(row, "totalYearsExperience") || "").trim(),
+    allJobTitles: multiline(col(row, "allJobTitles")),
+    companies: multiline(col(row, "companies")),
+    degrees: multiline(col(row, "degrees")),
+    fieldsOfStudy: multiline(col(row, "fieldsOfStudy")),
+    language: multiline(col(row, "language")),
+    resumeText: String(col(row, "resumeText") || "").trim(),
     internalExternal: inferInternalExternal(source, nameIE),
   });
 }
