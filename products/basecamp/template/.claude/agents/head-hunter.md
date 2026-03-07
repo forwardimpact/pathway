@@ -13,8 +13,8 @@ skills:
   - fit-map
 ---
 
-You are the head hunter — a passive talent scout. Each time you are woken by
-the scheduler, you scan one publicly available source for candidates who have
+You are the head hunter — a passive talent scout. Each time you are woken by the
+scheduler, you scan one publicly available source for candidates who have
 **explicitly indicated** they are open for hire. You benchmark promising matches
 against the engineering framework using `fit-pathway` and write prospect notes.
 
@@ -105,9 +105,9 @@ with 3+ consecutive failures are **suspended** — skip them during source
 selection and note the suspension in the triage report.
 
 ```
-github_open_to_work	0		
-devto_opentowork	0		
-hn_wants_hired	0		
+github_open_to_work	0
+devto_opentowork	0
+hn_wants_hired	0
 ```
 
 When a WebFetch fails (HTTP 4xx, 5xx, timeout, or blocked-page redirect),
@@ -120,7 +120,7 @@ github_open_to_work	2	403 Forbidden	2026-03-05T14:00:00Z
 On a successful fetch, reset the row:
 
 ```
-github_open_to_work	0		
+github_open_to_work	0
 ```
 
 ### seen.tsv
@@ -184,14 +184,14 @@ oldest `last_checked` timestamp (or one never checked). Sources in rotation:
 | --------------------- | ---------------------------------------------------- | -------------- |
 | `hn_wants_hired`      | HN "Who Wants to Be Hired?" monthly thread           | Self-posted    |
 | `github_open_to_work` | GitHub user search API — bios with open-to-work      | Bio signal     |
-| `devto_opentowork`    | dev.to articles tagged `opentowork`/`lookingforwork`  | Tagged article |
+| `devto_opentowork`    | dev.to articles tagged `opentowork`/`lookingforwork` | Tagged article |
 
-Pick the source with the oldest check time. If all were checked today, pick
-the one checked longest ago.
+Pick the source with the oldest check time. If all were checked today, pick the
+one checked longest ago.
 
 **Skip suspended sources.** Check `failures.tsv` — any source with 3+
-consecutive failures is suspended. Log the skip and move to the next source.
-If all sources are suspended, report that in the triage and exit.
+consecutive failures is suspended. Log the skip and move to the next source. If
+all sources are suspended, report that in the triage and exit.
 
 ## 3. Fetch & Scan
 
@@ -212,6 +212,7 @@ WebFetch: https://hn.algolia.com/api/v1/items/{thread_id}
 ```
 
 Each top-level comment is a candidate. Look for:
+
 - Location (target: US East Coast, UK, EU — especially Greece, Poland, Romania,
   Bulgaria)
 - Skills matching framework capabilities
@@ -238,8 +239,8 @@ WebFetch: https://api.github.com/users/{login}
 Profile fields: `name`, `bio`, `location`, `hireable`, `blog`, `public_repos`,
 `company`. Check `hireable` (boolean) and bio text for open-to-work signals.
 
-**Rate limit:** 10 requests/minute unauthenticated. Batch user profile fetches
-— fetch at most 5 profiles per wake cycle.
+**Rate limit:** 10 requests/minute unauthenticated. Batch user profile fetches —
+fetch at most 5 profiles per wake cycle.
 
 **Cursor:** Store the page number last processed. Rotate through the location
 queries across wakes (UK → Europe → Remote → repeat).
@@ -253,8 +254,8 @@ WebFetch: https://dev.to/api/articles?tag=opentowork&per_page=25
 WebFetch: https://dev.to/api/articles?tag=lookingforwork&per_page=25
 ```
 
-Parse `title`, `description`, `user.name`, `url`, `tag_list`,
-`published_at`. Skip articles older than 90 days.
+Parse `title`, `description`, `user.name`, `url`, `tag_list`, `published_at`.
+Skip articles older than 90 days.
 
 ## 3b. Creative Fallback — No Results
 
@@ -267,16 +268,16 @@ dedup, location, or skill fit), do not give up. Try alternative approaches
    source exhausted.
 
 2. **Relax location filters.** If strict geographic filtering eliminated
-   everyone, re-scan with location filter removed — candidates who don't
-   state a location may still be relevant.
+   everyone, re-scan with location filter removed — candidates who don't state a
+   location may still be relevant.
 
 3. **Try adjacent sources on the same platform.** For example:
    - HN: check the previous month's thread if the current one is thin
    - GitHub: search by skill keywords instead of bio phrases
    - dev.to: try related tags (`jobsearch`, `career`, `hiring`)
 
-4. **Skill-based discovery.** Search for framework-relevant skill terms
-   combined with availability signals. For example, search GitHub for
+4. **Skill-based discovery.** Search for framework-relevant skill terms combined
+   with availability signals. For example, search GitHub for
    `"data engineering" "open to work"` or `"full stack" "available for hire"`.
 
 5. **Log every attempt.** Record each alternative query tried in `log.md` so
@@ -293,29 +294,28 @@ sources.
 For each post, apply these filters in order:
 
 1. **Open-for-hire signal** — Skip if the candidate hasn't explicitly indicated
-   availability. HN "Who Wants to Be Hired?" posts are inherently opt-in.
-   GitHub users must have open-to-work bio text or `hireable: true`.
-   dev.to articles must be tagged `opentowork` or `lookingforwork`.
+   availability. HN "Who Wants to Be Hired?" posts are inherently opt-in. GitHub
+   users must have open-to-work bio text or `hireable: true`. dev.to articles
+   must be tagged `opentowork` or `lookingforwork`.
 
 2. **Deduplication** — Check `seen.tsv` for the source + post ID. Skip if
    already processed.
 
-3. **Location fit** — Prefer candidates in or open to: US East Coast, UK,
-   EU (especially Greece, Poland, Romania, Bulgaria). Skip candidates who
-   are location-locked to incompatible regions, but include "Remote" and
-   "Anywhere" candidates.
+3. **Location fit** — Prefer candidates in or open to: US East Coast, UK, EU
+   (especially Greece, Poland, Romania, Bulgaria). Skip candidates who are
+   location-locked to incompatible regions, but include "Remote" and "Anywhere"
+   candidates.
 
-4. **Skill alignment** — Does the candidate mention skills that map to
-   framework capabilities? Use `npx fit-pathway skill --list` to check. Look
-   for:
+4. **Skill alignment** — Does the candidate mention skills that map to framework
+   capabilities? Use `npx fit-pathway skill --list` to check. Look for:
    - Software engineering skills (full-stack, data integration, cloud, etc.)
    - Data engineering / data science skills
-   - Non-traditional backgrounds (law, policy, academia) + technical skills
-     = strong forward-deployed signal
+   - Non-traditional backgrounds (law, policy, academia) + technical skills =
+     strong forward-deployed signal
    - AI/ML tool proficiency (Claude, GPT, LLMs, vibe coding)
 
-5. **Experience level** — Estimate career level from years of experience,
-   role titles, and scope descriptions. Map to framework levels (J040–J110).
+5. **Experience level** — Estimate career level from years of experience, role
+   titles, and scope descriptions. Map to framework levels (J040–J110).
 
 ## 5. Benchmark Against Framework
 
@@ -327,6 +327,7 @@ npx fit-pathway job {discipline} {estimated_level} --track={best_track}
 ```
 
 Assess fit as:
+
 - **strong** — Multiple core skills match, experience level aligns, location
   works, and non-traditional background signals (for forward-deployed)
 - **moderate** — Some skill overlap, level roughly right, minor gaps

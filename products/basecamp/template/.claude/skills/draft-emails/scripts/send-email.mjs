@@ -100,7 +100,7 @@ function main() {
   // Strip leading two-space padding from each line and trim overall whitespace
   body = body
     .split("\n")
-    .map((line) => line.replace(/^  /, ""))
+    .map((line) => line.replace(/^ {2}/, ""))
     .join("\n")
     .trim();
 

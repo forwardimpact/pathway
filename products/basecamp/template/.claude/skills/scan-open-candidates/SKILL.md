@@ -96,6 +96,7 @@ WebFetch URL: https://api.github.com/search/users?q=%22looking+for+work%22+locat
 ```
 
 Alternative bio phrases to search (rotate across wakes):
+
 - `"available for hire"`
 - `"seeking opportunities"`
 - `"seeking new role"`
@@ -106,8 +107,8 @@ Alternative bio phrases to search (rotate across wakes):
 - `"on the market"`
 - `"open to opportunities"`
 
-Response has `total_count` and `items` array. Each item has `login`,
-`html_url`, `score`.
+Response has `total_count` and `items` array. Each item has `login`, `html_url`,
+`score`.
 
 **Fetch full profile for promising candidates:**
 
@@ -116,6 +117,7 @@ WebFetch URL: https://api.github.com/users/{login}
 ```
 
 Profile fields:
+
 - `name` — display name
 - `bio` — bio text (contains open-to-work signals)
 - `location` — geographic location
@@ -125,8 +127,8 @@ Profile fields:
 - `public_repos` — repository count (technical depth indicator)
 - `created_at` — account age (experience proxy)
 
-**Cursor:** Store the location query last used and page number. Rotate:
-UK → Europe → Remote → repeat.
+**Cursor:** Store the location query last used and page number. Rotate: UK →
+Europe → Remote → repeat.
 
 **Rate limit:** 10 requests/minute unauthenticated. Fetch at most 5 full
 profiles per wake cycle (1 search + 5 profile fetches = 6 requests).
@@ -142,12 +144,13 @@ WebFetch URL: https://dev.to/api/articles?tag=opentowork&per_page=25
 WebFetch URL: https://dev.to/api/articles?tag=lookingforwork&per_page=25
 ```
 
-For articles, parse `title`, `description`, `user.name`, `user.username`,
-`url`, `tag_list`, `published_at`.
+For articles, parse `title`, `description`, `user.name`, `user.username`, `url`,
+`tag_list`, `published_at`.
 
 Skip articles older than 90 days — the candidate may no longer be looking.
 
 Additional tags to try when primary tags yield no results:
+
 - `jobsearch`
 - `career`
 - `hiring`
@@ -156,8 +159,8 @@ Additional tags to try when primary tags yield no results:
 
 **Cursor:** Store the `id` of the most recent article processed.
 
-**Rate limit:** dev.to API allows 30 requests per 30 seconds. One fetch per
-wake is fine.
+**Rate limit:** dev.to API allows 30 requests per 30 seconds. One fetch per wake
+is fine.
 
 ---
 
@@ -172,13 +175,16 @@ Each source has multiple query variations. If the first query returns nothing
 new, try the next variation:
 
 **HN:**
+
 - Check the previous month's "Who Wants to Be Hired?" thread (candidates post
   late or threads stay active)
 - Search for `"Who is hiring"` threads — candidates sometimes post in the wrong
   thread, and comments may link to candidate profiles
-- Try: `https://hn.algolia.com/api/v1/search?query=%22freelancer+available%22&tags=comment`
+- Try:
+  `https://hn.algolia.com/api/v1/search?query=%22freelancer+available%22&tags=comment`
 
 **GitHub:**
+
 - Search by skill + availability instead of just bio phrases:
   ```
   WebFetch URL: https://api.github.com/search/users?q=%22data+engineering%22+%22open+to+work%22&per_page=30&sort=joined&order=desc
@@ -193,6 +199,7 @@ new, try the next variation:
   `Sofia`, `Manchester`, `Edinburgh`
 
 **dev.to:**
+
 - Try broader tags: `jobsearch`, `career`, `remotework`
 - Search articles directly:
   ```
@@ -203,20 +210,23 @@ new, try the next variation:
 ### Strategy 2: Relax Filters
 
 If geographic filtering eliminated all candidates:
+
 - Re-scan the same results without the location filter
 - Candidates without stated locations may still be open to target regions
 - Mark these as "location unconfirmed" in the prospect note
 
 If skill alignment filtered everyone out:
+
 - Lower the minimum bar from 2 framework skills to 1
 - Look for transferable skills (e.g., strong Python → likely data integration
   capability)
-- Consider adjacent skill indicators (e.g., "machine learning" implies
-  data skills)
+- Consider adjacent skill indicators (e.g., "machine learning" implies data
+  skills)
 
 ### Strategy 3: Cross-Reference
 
 When a source yields very few results, cross-reference what you do find:
+
 - If a GitHub profile links to a blog or portfolio, check it for more detail
   (via WebFetch) before deciding on skill fit
 - If an HN post mentions a GitHub username, fetch their GitHub profile for
@@ -240,10 +250,11 @@ Stopped after 2 alternatives (1 prospect found)
 
 ## Failure Handling
 
-When a WebFetch fails (HTTP 4xx, 5xx, timeout, empty response, or redirect to
-a block page), handle it gracefully:
+When a WebFetch fails (HTTP 4xx, 5xx, timeout, empty response, or redirect to a
+block page), handle it gracefully:
 
 1. **Record the failure** in `failures.tsv`:
+
    ```bash
    sed -i '' "s/^{source}\t.*/&/" ~/.cache/fit/basecamp/head-hunter/failures.tsv
    # Or increment the count and update last_error
@@ -307,6 +318,7 @@ Run `npx fit-pathway skill --list` to get the framework skill inventory. Check
 whether the candidate mentions skills that map to framework capabilities:
 
 **Strong signals (forward-deployed track):**
+
 - Multiple industries or domains in background
 - Customer-facing project experience
 - Data integration, analytics, visualization
@@ -315,6 +327,7 @@ whether the candidate mentions skills that map to framework capabilities:
 - AI/ML tool proficiency (Claude, GPT, Cursor, "vibe coding")
 
 **Strong signals (platform track):**
+
 - Infrastructure, cloud platforms, DevOps
 - Architecture and system design
 - API design, shared services

@@ -208,7 +208,9 @@ processed. This prevents re-processing the same changelog entries.
 - **draft-emails** (2026-03-05) — Already synced upstream (identical)
 - **sync-apple-mail** (2026-03-04) — Already synced upstream (identical)
 - **track-candidates** (2026-03-04) — Already synced upstream (identical)
-- **workday-requisition** (2026-03-06, 2026-03-06 (2), 2026-03-06 (3)) — Incorporated: header-driven column mapping, dual-format sheet/header detection, expanded Step/Disposition status table, raw step preservation
+- **workday-requisition** (2026-03-06, 2026-03-06 (2), 2026-03-06 (3)) —
+  Incorporated: header-driven column mapping, dual-format sheet/header
+  detection, expanded Step/Disposition status table, raw step preservation
 
 > **Keep this section up to date.** After every downstream sync, record what was
 > processed here. This prevents re-processing the same entries and provides an
@@ -216,9 +218,9 @@ processed. This prevents re-processing the same changelog entries.
 
 ### Sync Log
 
-| Date       | Installation | Skill            | Action                                                         |
-| ---------- | ------------ | ---------------- | -------------------------------------------------------------- |
-| 2026-03-04 | Personal     | sync-apple-mail  | Incorporated ROWID-based sync fix for late-arriving emails     |
-| 2026-03-04 | Personal     | track-candidates | Incorporated field renames, new fields, statuses, and template |
-| 2026-03-04 | Personal     | track-candidates | Deferred: relaxed gender policy (name-based inference)         |
+| Date       | Installation | Skill            | Action                                                                                 |
+| ---------- | ------------ | ---------------- | -------------------------------------------------------------------------------------- |
+| 2026-03-04 | Personal     | sync-apple-mail  | Incorporated ROWID-based sync fix for late-arriving emails                             |
+| 2026-03-04 | Personal     | track-candidates | Incorporated field renames, new fields, statuses, and template                         |
+| 2026-03-04 | Personal     | track-candidates | Deferred: relaxed gender policy (name-based inference)                                 |
 | 2026-03-05 | Personal     | draft-emails     | Incorporated: no sign-off rule, drafted→handled rename, --draft flag, body padding fix |

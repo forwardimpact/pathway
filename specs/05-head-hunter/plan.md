@@ -11,18 +11,18 @@ The agent never contacts candidates.
 
 ### New Files
 
-| File | Purpose |
-| ---- | ------- |
-| `products/basecamp/template/.claude/agents/head-hunter.md` | Agent definition with ethics rules, framework reference, memory layout, source rotation, and triage reporting |
-| `products/basecamp/template/.claude/skills/scan-open-candidates/SKILL.md` | Skill for fetching and filtering public candidate data via WebFetch |
+| File                                                                      | Purpose                                                                                                       |
+| ------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- |
+| `products/basecamp/template/.claude/agents/head-hunter.md`                | Agent definition with ethics rules, framework reference, memory layout, source rotation, and triage reporting |
+| `products/basecamp/template/.claude/skills/scan-open-candidates/SKILL.md` | Skill for fetching and filtering public candidate data via WebFetch                                           |
 
 ### Modified Files
 
-| File | Change |
-| ---- | ------ |
-| `products/basecamp/config/scheduler.json` | Added `head-hunter` agent entry (60-minute interval) |
+| File                                               | Change                                                                                     |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| `products/basecamp/config/scheduler.json`          | Added `head-hunter` agent entry (60-minute interval)                                       |
 | `products/basecamp/template/.claude/settings.json` | Added WebFetch domain permissions for hn.algolia.com, hachyderm.io, dev.to, www.reddit.com |
-| `products/basecamp/template/CLAUDE.md` | Added head-hunter to agent table, triage files, cache layout, and skills table |
+| `products/basecamp/template/CLAUDE.md`             | Added head-hunter to agent table, triage files, cache layout, and skills table             |
 
 ## Architecture
 
@@ -44,12 +44,12 @@ Scheduler (every 60 min)
 
 ### Data Sources
 
-| Source | API | Signal |
-| ------ | --- | ------ |
-| HN "Who Wants to Be Hired?" | hn.algolia.com/api/v1 | Monthly thread — candidates self-post availability |
-| Mastodon (Hachyderm.io) | hachyderm.io/api/v1 | #GetFediHired, #HachyJobs hashtags |
-| dev.to | dev.to/api | Listings (collabs) and articles tagged lookingforwork |
-| Reddit r/forhire | reddit.com/r/forhire/*.json | [For Hire] flair posts |
+| Source                      | API                          | Signal                                                |
+| --------------------------- | ---------------------------- | ----------------------------------------------------- |
+| HN "Who Wants to Be Hired?" | hn.algolia.com/api/v1        | Monthly thread — candidates self-post availability    |
+| Mastodon (Hachyderm.io)     | hachyderm.io/api/v1          | #GetFediHired, #HachyJobs hashtags                    |
+| dev.to                      | dev.to/api                   | Listings (collabs) and articles tagged lookingforwork |
+| Reddit r/forhire            | reddit.com/r/forhire/\*.json | [For Hire] flair posts                                |
 
 All sources are unauthenticated public APIs. The agent uses Claude Code's
 built-in `WebFetch` tool (not curl/wget, which are denied in settings).
@@ -59,12 +59,12 @@ built-in `WebFetch` tool (not curl/wget, which are denied in settings).
 All state persists in `~/.cache/fit/basecamp/head-hunter/` as TSV and markdown
 files, searchable and editable with standard Unix tools:
 
-| File | Format | Purpose |
-| ---- | ------ | ------- |
-| `cursor.tsv` | `source<TAB>last_checked<TAB>cursor_id` | Source rotation and pagination state |
-| `seen.tsv` | `source<TAB>post_id<TAB>date` | Deduplication — prevents reprocessing |
-| `prospects.tsv` | `name<TAB>source<TAB>date<TAB>strength<TAB>role` | Quick prospect index |
-| `log.md` | Markdown sections by date | Append-only activity log |
+| File            | Format                                           | Purpose                               |
+| --------------- | ------------------------------------------------ | ------------------------------------- |
+| `cursor.tsv`    | `source<TAB>last_checked<TAB>cursor_id`          | Source rotation and pagination state  |
+| `seen.tsv`      | `source<TAB>post_id<TAB>date`                    | Deduplication — prevents reprocessing |
+| `prospects.tsv` | `name<TAB>source<TAB>date<TAB>strength<TAB>role` | Quick prospect index                  |
+| `log.md`        | Markdown sections by date                        | Append-only activity log              |
 
 ### Filtering Pipeline
 
@@ -117,9 +117,9 @@ framework skill alignment, and a brief profile summary.
    `knowledge/Candidates/{Name}/brief.md`; the head hunter writes to
    `knowledge/Prospects/{Name}.md`. No collision.
 
-5. **60-minute interval** — Generous schedule since public sources update
-   slowly (HN monthly, Mastodon/Reddit/dev.to a few times per day). Avoids
-   unnecessary API calls.
+5. **60-minute interval** — Generous schedule since public sources update slowly
+   (HN monthly, Mastodon/Reddit/dev.to a few times per day). Avoids unnecessary
+   API calls.
 
 6. **Agent uses sonnet model** — Matches the pattern of other Basecamp agents.
    Source scanning and skill matching don't require the most capable model.

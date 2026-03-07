@@ -122,11 +122,7 @@ const candRows = XLSX.utils.sheet_to_json(ws3, { header: 1, defval: "" });
 // Old format: row 3 (index 2). New format: row 8 (index 7).
 let HEADER_ROW = 2;
 for (let i = 0; i < Math.min(15, candRows.length); i++) {
-  if (
-    candRows[i].some(
-      (c) => String(c).trim().toLowerCase() === "stage",
-    )
-  ) {
+  if (candRows[i].some((c) => String(c).trim().toLowerCase() === "stage")) {
     HEADER_ROW = i;
     break;
   }

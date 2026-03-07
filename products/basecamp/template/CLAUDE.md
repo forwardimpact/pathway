@@ -99,8 +99,8 @@ cycle. The naming convention is `{agent}_triage.md`:
 - `recruiter_triage.md` — candidate pipeline, assessments, track distribution
 - `head_hunter_triage.md` — prospect pipeline, source rotation, match strength
 
-The **chief-of-staff** reads all five triage files to synthesize daily
-briefings in `knowledge/Briefings/`.
+The **chief-of-staff** reads all five triage files to synthesize daily briefings
+in `knowledge/Briefings/`.
 
 ## Cache Directory (`~/.cache/fit/basecamp/`)
 
