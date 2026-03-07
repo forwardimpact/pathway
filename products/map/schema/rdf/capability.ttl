@@ -38,6 +38,10 @@ fit:ToolReference a rdfs:Class ;
     rdfs:label "Tool Reference"@en ;
     rdfs:comment "Reference to an external tool with usage guidance"@en .
 
+fit:SkillMarkers a rdfs:Class ;
+    rdfs:label "Skill Markers"@en ;
+    rdfs:comment "Observable indicators of skill proficiency at a level"@en .
+
 # -----------------------------------------------------------------------------
 # Properties
 # -----------------------------------------------------------------------------
@@ -93,6 +97,24 @@ fit:implementationReference a rdf:Property ;
     rdfs:label "implementationReference"@en ;
     rdfs:comment "Code examples and detailed reference material, exported to references/REFERENCE.md"@en ;
     rdfs:domain fit:Skill ;
+    rdfs:range xsd:string .
+
+fit:markers a rdf:Property ;
+    rdfs:label "markers"@en ;
+    rdfs:comment "Observable indicators keyed by proficiency level"@en ;
+    rdfs:domain fit:Skill ;
+    rdfs:range fit:SkillMarkers .
+
+fit:humanMarkers a rdf:Property ;
+    rdfs:label "humanMarkers"@en ;
+    rdfs:comment "Observable markers for human engineers"@en ;
+    rdfs:domain fit:SkillMarkers ;
+    rdfs:range xsd:string .
+
+fit:agentMarkers a rdf:Property ;
+    rdfs:label "agentMarkers"@en ;
+    rdfs:comment "Observable markers for AI agents"@en ;
+    rdfs:domain fit:SkillMarkers ;
     rdfs:range xsd:string .
 
 fit:toolReferences a rdf:Property ;
@@ -315,6 +337,32 @@ fit:SkillShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:name "implementationReference" ;
         sh:description "Code examples and detailed reference material, exported to references/REFERENCE.md" ;
+    ] ;
+    sh:property [
+        sh:path fit:markers ;
+        sh:node fit:SkillMarkersShape ;
+        sh:maxCount 1 ;
+        sh:name "markers" ;
+        sh:description "Observable indicators of skill proficiency, keyed by level" ;
+    ] .
+
+# -----------------------------------------------------------------------------
+# Skill Markers Shape
+# -----------------------------------------------------------------------------
+
+fit:SkillMarkersShape a sh:NodeShape ;
+    sh:targetClass fit:SkillMarkers ;
+    sh:property [
+        sh:path fit:humanMarkers ;
+        sh:datatype xsd:string ;
+        sh:name "human" ;
+        sh:description "Observable markers for human engineers" ;
+    ] ;
+    sh:property [
+        sh:path fit:agentMarkers ;
+        sh:datatype xsd:string ;
+        sh:name "agent" ;
+        sh:description "Observable markers for AI agents" ;
     ] .
 
 # -----------------------------------------------------------------------------

@@ -94,6 +94,7 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           installScript,
           implementationReference,
           toolReferences,
+          markers,
         } = skill;
         allSkills.push({
           id,
@@ -111,6 +112,8 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           // Include implementation reference and tool references (shared by human and agent)
           ...(implementationReference && { implementationReference }),
           ...(toolReferences && { toolReferences }),
+          // Include markers for evidence evaluation
+          ...(markers && { markers }),
         });
       }
     }

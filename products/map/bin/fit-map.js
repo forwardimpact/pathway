@@ -3,11 +3,12 @@
 /**
  * fit-map CLI
  *
- * Map validation and index generation for Engineering Pathway data.
+ * Map validation, index generation, and activity management for Engineering Pathway data.
  *
  * Commands:
  *   validate [--json|--shacl]   Run validation (default: --json)
  *   generate-index [--data=PATH] Generate _index.yaml files
+ *   people import <file>        Import people from CSV/YAML
  *   --help                      Show help
  */
 
@@ -22,22 +23,29 @@ const __dirname = dirname(__filename);
  * Parse CLI arguments
  */
 function parseArgs(args) {
-  const command = args[0];
   const options = {};
+  const positional = [];
 
-  for (let i = 1; i < args.length; i++) {
-    const arg = args[i];
-    if (arg.startsWith("--data=")) {
-      options.dataDir = arg.slice(7);
-    } else if (arg === "--help" || arg === "-h") {
+  for (const arg of args) {
+    if (arg.startsWith("--")) {
+      if (arg === "--help") {
+        options.help = true;
+      } else {
+        const [key, value] = arg.slice(2).split("=");
+        options[key] = value ?? true;
+      }
+    } else if (arg === "-h") {
       options.help = true;
-    } else if (arg.startsWith("--")) {
-      const [key, value] = arg.slice(2).split("=");
-      options[key] = value ?? true;
+    } else {
+      positional.push(arg);
     }
   }
 
-  return { command, options };
+  const command = positional[0] || null;
+  const subcommand = positional[1] || null;
+  const rest = positional.slice(2);
+
+  return { command, subcommand, options, positional: rest };
 }
 
 /**
@@ -215,30 +223,61 @@ async function runValidateShacl() {
 }
 
 /**
+ * People import command
+ */
+async function runPeopleImport(filePath, dataDir) {
+  console.log(`👤 Importing people from: ${filePath}\n`);
+
+  const { loadPeopleFile, validatePeople } =
+    await import("../activity/ingestion/people.js");
+
+  const people = await loadPeopleFile(filePath);
+  console.log(`  Loaded ${people.length} people from file`);
+
+  const { valid, errors } = await validatePeople(people, dataDir);
+
+  if (errors.length > 0) {
+    console.log(`\n❌ Validation errors:`);
+    for (const err of errors) {
+      console.log(`  • Row ${err.row}: ${err.message}`);
+    }
+  }
+
+  console.log(`\n✅ ${valid.length} people validated`);
+  if (errors.length > 0) {
+    console.log(`❌ ${errors.length} rows with errors\n`);
+  }
+
+  return errors.length > 0 ? 1 : 0;
+}
+
+/**
  * Show help
  */
 function showHelp() {
   console.log(`
-fit-map - Data validation for Engineering Pathway
+fit-map - Data validation and management for Engineering Pathway
 
 Usage:
   fit-map <command> [options]
 
 Commands:
-  validate           Run validation (default: JSON schema validation)
-  generate-index     Generate _index.yaml files for directories
+  validate              Run validation (default: JSON schema validation)
+  generate-index        Generate _index.yaml files for directories
+  people import <file>  Import people from CSV/YAML (validates against framework)
 
 Options:
-  --json             JSON schema + referential validation (default)
-  --shacl            SHACL schema syntax validation
-  --data=PATH        Path to data directory (default: ./data or ./examples)
-  --help, -h         Show this help message
+  --json                JSON schema + referential validation (default)
+  --shacl               SHACL schema syntax validation
+  --data=PATH           Path to data directory (default: ./data or ./examples)
+  --help, -h            Show this help message
 
 Examples:
   fit-map validate
   fit-map validate --shacl
   fit-map validate --data=./my-data
   fit-map generate-index
+  fit-map people import ./org/people.yaml
 `);
 }
 
@@ -246,11 +285,13 @@ Examples:
  * Main entry point
  */
 async function main() {
-  const { command, options } = parseArgs(process.argv.slice(2));
+  const { command, subcommand, options, positional } = parseArgs(
+    process.argv.slice(2),
+  );
 
   if (options.help || !command) {
     showHelp();
-    process.exit(command ? 0 : 1);
+    process.exit(options.help ? 0 : 1);
   }
 
   try {
@@ -261,14 +302,30 @@ async function main() {
         if (options.shacl) {
           exitCode = await runValidateShacl();
         } else {
-          const dataDir = await findDataDir(options.dataDir);
+          const dataDir = await findDataDir(options.data);
           exitCode = await runValidate(dataDir);
         }
         break;
       }
       case "generate-index": {
-        const dataDir = await findDataDir(options.dataDir);
+        const dataDir = await findDataDir(options.data);
         exitCode = await runGenerateIndex(dataDir);
+        break;
+      }
+      case "people": {
+        if (subcommand === "import") {
+          const filePath = positional[0];
+          if (!filePath) {
+            console.error("Error: people import requires a file path");
+            process.exit(1);
+          }
+          const dataDir = await findDataDir(options.data);
+          exitCode = await runPeopleImport(filePath, dataDir);
+        } else {
+          console.error(`Unknown people subcommand: ${subcommand || "(none)"}`);
+          showHelp();
+          exitCode = 1;
+        }
         break;
       }
       default:

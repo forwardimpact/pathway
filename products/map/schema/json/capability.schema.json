@@ -105,9 +105,42 @@
         "implementationReference": {
           "type": "string",
           "description": "Code examples and detailed reference material, exported to references/REFERENCE.md"
+        },
+        "markers": {
+          "$ref": "#/$defs/skillMarkers",
+          "description": "Observable indicators of skill proficiency, keyed by level"
         }
       },
       "additionalProperties": false
+    },
+    "skillMarkers": {
+      "type": "object",
+      "description": "Observable indicators of skill proficiency, keyed by level",
+      "propertyNames": {
+        "enum": [
+          "awareness",
+          "foundational",
+          "working",
+          "practitioner",
+          "expert"
+        ]
+      },
+      "additionalProperties": {
+        "type": "object",
+        "properties": {
+          "human": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Observable markers for human engineers"
+          },
+          "agent": {
+            "type": "array",
+            "items": { "type": "string" },
+            "description": "Observable markers for AI agents"
+          }
+        },
+        "additionalProperties": false
+      }
     },
     "toolReference": {
       "type": "object",

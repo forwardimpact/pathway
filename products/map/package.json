@@ -33,7 +33,14 @@
     "./levels": "./src/levels.js",
     "./examples/*": "./examples/*",
     "./schema/json/*": "./schema/json/*",
-    "./schema/rdf/*": "./schema/rdf/*"
+    "./schema/rdf/*": "./schema/rdf/*",
+    "./activity/queries/org": "./activity/queries/org.js",
+    "./activity/queries/snapshots": "./activity/queries/snapshots.js",
+    "./activity/queries/evidence": "./activity/queries/evidence.js",
+    "./activity/queries/artifacts": "./activity/queries/artifacts.js",
+    "./activity/ingestion/people": "./activity/ingestion/people.js",
+    "./activity/ingestion/getdx": "./activity/ingestion/getdx.js",
+    "./activity/ingestion/github": "./activity/ingestion/github.js"
   },
   "dependencies": {
     "ajv": "^8.17.1",
