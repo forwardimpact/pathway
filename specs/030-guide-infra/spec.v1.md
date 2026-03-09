@@ -421,31 +421,61 @@ PostalAddress (3), Blog (1), Platform (1).
 ```bash
 # From products/guide/
 
-# 1. Set up config
-cp config/config.example.json config/config.json
-cp config/tools.example.yml config/tools.yml
-for f in config/agents/*.agent.example.md; do
-  cp "$f" "${f%.example.md}.md"
-done
+# 1. Reset config and environment from examples
+make env-reset
 
-# 2. Set up environment
-cp .env.example .env
-cp .env.local.example .env.local
-# Edit .env with your LLM_TOKEN, LLM_BASE_URL, SERVICE_SECRET
+# 2. Generate secrets (SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY, DATABASE_PASSWORD)
+make env-secrets
 
-# 3. Initialize data (copies example knowledge)
+# 3. Generate storage credentials (MinIO/Supabase, optional)
+make env-storage
+
+# 4. Configure LLM access — opens interactive prompt to set LLM_TOKEN and LLM_BASE_URL
+make env-github
+
+# 5. Initialize data directories and copy example knowledge
 make data-init
 
-# 4. Process everything (except vectors)
+# 6. Process everything except vectors
 make process-fast
 
-# 5. Start TEI and process vectors
-make tei-start
+# 7. Install and start TEI, then process vectors
+make tei-install       # First time only — installs via cargo
+make tei-start         # Starts TEI on port 8090
 make process-vectors
 
-# 6. Start services and chat
+# 8. Start services and chat
 make rc-start
 echo "Hello" | npx fit-guide
+```
+
+### What Each Step Does
+
+| Step            | Make target       | Effect                                              |
+| --------------- | ----------------- | --------------------------------------------------- |
+| Reset config    | `env-reset`       | Copies all `.env*.example` → `.env*` and resets config files |
+| Generate secrets| `env-secrets`     | Writes `SERVICE_SECRET`, `JWT_SECRET`, `JWT_ANON_KEY`, `DATABASE_PASSWORD` into `.env` |
+| Storage creds   | `env-storage`     | Writes S3/Supabase credentials into `.env.storage.*` files |
+| LLM access      | `env-github`      | Interactive — sets `LLM_TOKEN` and `LLM_BASE_URL` in `.env` |
+| Init data       | `data-init`       | Creates `data/` subdirectories, copies `examples/knowledge/` |
+| Process fast    | `process-fast`    | Runs `process-agents`, `process-resources`, `process-tools`, `process-graphs` |
+| TEI install     | `tei-install`     | Installs `text-embeddings-router` via `cargo` (one-time) |
+| TEI start       | `tei-start`       | Starts TEI on port 8090 via rc supervisor |
+| Process vectors | `process-vectors` | Embeds all Message resources via TEI → `data/vectors/index.jsonl` |
+| Start services  | `rc-start`        | Starts all gRPC services (agent, graph, llm, memory, tool, trace, vector, web) |
+
+### Full Reset
+
+To wipe everything and start from scratch:
+
+```bash
+make rc-stop           # Stop running services
+make data-clean        # Remove all generated data
+make env-setup         # Equivalent to: env-reset + env-secrets + env-storage
+# Then edit .env with LLM_TOKEN and LLM_BASE_URL, or run: make env-github
+make data-init
+make process
+make rc-start
 ```
 
 ---
