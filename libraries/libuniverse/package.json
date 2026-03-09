@@ -1,0 +1,44 @@
+{
+  "name": "@forwardimpact/libuniverse",
+  "version": "0.1.0",
+  "description": "Synthetic data universe DSL and generation engine",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libuniverse"
+  },
+  "type": "module",
+  "main": "index.js",
+  "bin": {
+    "fit-universe": "./bin/fit-universe.js"
+  },
+  "exports": {
+    ".": "./index.js",
+    "./dsl": "./dsl/index.js",
+    "./engine": "./engine/tier0.js",
+    "./prose": "./engine/prose.js",
+    "./render/html": "./render/html.js",
+    "./render/yaml": "./render/yaml.js",
+    "./render/raw": "./render/raw.js",
+    "./render/markdown": "./render/markdown.js",
+    "./validate": "./validate.js",
+    "./pipeline": "./pipeline.js",
+    "./load": "./load.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libconfig": "^0.1.59",
+    "@forwardimpact/libformat": "^0.1.1",
+    "@forwardimpact/libllm": "^0.1.72",
+    "@forwardimpact/libutil": "^0.1.61",
+    "@supabase/supabase-js": "^2.0.0",
+    "seedrandom": "^3.0.5",
+    "yaml": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

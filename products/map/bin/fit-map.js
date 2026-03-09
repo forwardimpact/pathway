@@ -77,6 +77,7 @@ async function findDataDir(providedPath) {
     join(process.cwd(), "data"),
     join(process.cwd(), "examples"),
     join(__dirname, "../examples"),
+    join(__dirname, "../../../examples/framework"),
   ];
 
   for (const candidate of candidates) {

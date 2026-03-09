@@ -1,6 +1,7 @@
 # User data
 data/
 data
+!libraries/libuniverse/data/
 
 # Generated code
 generated/

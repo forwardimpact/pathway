@@ -44,15 +44,19 @@ When updating data structure: schema (`products/map/schema/`) → examples
 
 ### Key Paths
 
-| Purpose      | Location                                     |
-| ------------ | -------------------------------------------- |
-| User data    | `data/`                                      |
-| Example data | `examples/`                                  |
-| JSON Schema  | `products/map/schema/json/`                  |
-| RDF/SHACL    | `products/map/schema/rdf/`                   |
-| Formatters   | `products/pathway/src/formatters/`           |
-| KB template  | `products/basecamp/template/`                |
-| KB skills    | `products/basecamp/template/.claude/skills/` |
+| Purpose        | Location                                     |
+| -------------- | -------------------------------------------- |
+| User data      | `data/`                                      |
+| Framework data | `examples/framework/`                        |
+| Org data       | `examples/organizational/`                   |
+| Activity data  | `examples/activity/`                         |
+| Personal data  | `examples/personal/`                         |
+| Universe DSL   | `libraries/libuniverse/data/universe.dsl`    |
+| JSON Schema    | `products/map/schema/json/`                  |
+| RDF/SHACL      | `products/map/schema/rdf/`                   |
+| Formatters     | `products/pathway/src/formatters/`           |
+| KB template    | `products/basecamp/template/`                |
+| KB skills      | `products/basecamp/template/.claude/skills/` |
 
 ## Core Rules
 

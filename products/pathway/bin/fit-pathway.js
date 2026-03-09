@@ -345,7 +345,8 @@ function printHelp() {
  * 3. ~/.fit/pathway/data/ (home directory install)
  * 4. ./data/ relative to current working directory
  * 5. ./examples/ relative to current working directory
- * 6. products/map/examples/ for monorepo development
+ * 6. examples/framework/ for monorepo development
+ * 7. products/map/examples/ (legacy fallback)
  *
  * @param {Object} options - Parsed command options
  * @returns {string} Resolved absolute path to data directory
@@ -379,7 +380,13 @@ function resolveDataPath(options) {
     return cwdExamples;
   }
 
-  // 6. Monorepo: products/map/examples/
+  // 6. Monorepo: examples/framework/
+  const frameworkExamples = join(process.cwd(), "examples/framework");
+  if (existsSync(frameworkExamples)) {
+    return frameworkExamples;
+  }
+
+  // 7. Legacy: products/map/examples/
   const mapExamples = join(process.cwd(), "products/map/examples");
   if (existsSync(mapExamples)) {
     return mapExamples;

@@ -1,0 +1,107 @@
+/**
+ * Greek mythology name pool for synthetic people generation.
+ * Names are deterministically assigned based on seed order.
+ */
+
+export const GREEK_NAMES = [
+  // Olympians and major deities
+  'Zeus', 'Hera', 'Poseidon', 'Demeter', 'Athena', 'Apollo', 'Artemis',
+  'Ares', 'Aphrodite', 'Hephaestus', 'Hermes', 'Dionysus', 'Hades',
+  'Persephone', 'Hestia',
+  // Titans
+  'Prometheus', 'Epimetheus', 'Atlas', 'Cronus', 'Rhea', 'Hyperion',
+  'Theia', 'Coeus', 'Phoebe', 'Oceanus', 'Tethys', 'Mnemosyne', 'Themis',
+  'Crius', 'Iapetus',
+  // Heroes and mortals
+  'Achilles', 'Odysseus', 'Perseus', 'Heracles', 'Theseus', 'Jason',
+  'Orpheus', 'Atalanta', 'Bellerophon', 'Cadmus', 'Daedalus', 'Icarus',
+  'Minos', 'Ariadne', 'Andromeda', 'Antigone', 'Electra', 'Medea',
+  'Penelope', 'Telemachus', 'Nestor', 'Ajax', 'Agamemnon', 'Menelaus',
+  'Helen', 'Paris', 'Hector', 'Priam', 'Cassandra', 'Hecuba',
+  // Lesser deities and spirits
+  'Nike', 'Iris', 'Eros', 'Psyche', 'Tyche', 'Nemesis', 'Hecate',
+  'Selene', 'Eos', 'Helios', 'Pan', 'Triton', 'Proteus', 'Nereus',
+  'Amphitrite', 'Galatea', 'Thetis', 'Calliope', 'Clio', 'Erato',
+  'Euterpe', 'Melpomene', 'Polyhymnia', 'Terpsichore', 'Thalia', 'Urania',
+  // Physicians and wisdom
+  'Asclepius', 'Hygieia', 'Panacea', 'Chiron', 'Metis',
+  // Egyptian-Greek crossover (Thoth)
+  'Thoth', 'Chronos', 'Astraea', 'Plutus',
+  // More heroes and mythological
+  'Patroclus', 'Diomedes', 'Philoctetes', 'Pyrrhus', 'Aeneas',
+  'Deucalion', 'Pyrrha', 'Ganymede', 'Endymion', 'Narcissus', 'Echo',
+  'Adonis', 'Actaeon', 'Orion', 'Callisto', 'Io', 'Europa',
+  'Leda', 'Danae', 'Semele', 'Alcmene', 'Amphion', 'Zethus',
+  'Castor', 'Pollux', 'Clytemnestra', 'Iphigenia', 'Aegisthus', 'Pylades',
+  'Hermione', 'Neoptolemus', 'Astyanax', 'Polyxena', 'Briseis', 'Chryseis',
+  // Argonauts and companions
+  'Peleus', 'Teucer', 'Idomeneus', 'Meriones', 'Machaon', 'Podalirius',
+  'Antilochus', 'Eurypylus', 'Thrasymedes', 'Peisistratus',
+  // Mythological creatures (personified)
+  'Sphinx', 'Phoenix', 'Griffin', 'Pegasus', 'Cerberus',
+  // More names for 211 people
+  'Laertes', 'Autolycus', 'Sisyphus', 'Tantalus', 'Pelops',
+  'Atreus', 'Thyestes', 'Aegeus', 'Medus', 'Circe',
+  'Calypso', 'Nausicaa', 'Alcinous', 'Arete', 'Eumaeus',
+  'Philoetius', 'Melanthius', 'Eurycleia', 'Mentor', 'Halitherses',
+  'Tiresias', 'Polyphemus', 'Aeolus', 'Scylla', 'Charybdis',
+  'Leucothea', 'Phaeacian', 'Antiope', 'Hippolyta', 'Phaedra',
+  'Procris', 'Cephalus', 'Meleager', 'Althaea', 'Oeneus',
+  'Tydeus', 'Capaneus', 'Hippomedon', 'Parthenopaeus', 'Adrastus',
+  'Polynices', 'Eteocles', 'Ismene', 'Haemon', 'Eurydice',
+  'Creon', 'Jocasta', 'Laius', 'Oedipus', 'Chrysippus',
+  'Niobe', 'Amphion2', 'Leto', 'Asteria', 'Hecate2',
+  'Perses', 'Pallas', 'Styx', 'Zelus', 'Kratos',
+  'Bia', 'Boreas', 'Zephyrus', 'Notus', 'Eurus',
+  'Aether', 'Hemera', 'Nyx', 'Erebus', 'Gaia',
+  'Uranus', 'Pontus', 'Tartarus', 'Ananke', 'Chronos2',
+  'Phanes', 'Thalassa', 'Ourea', 'Nesoi', 'Achelous',
+]
+
+/**
+ * Stable manager name lookup (used for @references in DSL).
+ * Maps DSL @name to a canonical full name.
+ */
+export const MANAGER_NAMES = {
+  thoth: 'Thoth',
+  chronos: 'Chronos',
+  apollo: 'Apollo',
+  hygieia: 'Hygieia',
+  themis: 'Themis',
+  athena: 'Athena',
+  prometheus: 'Prometheus',
+  hephaestus: 'Hephaestus',
+  ares: 'Ares',
+  hermes: 'Hermes',
+  iris: 'Iris',
+  demeter: 'Demeter',
+  astraea: 'Astraea',
+  tyche: 'Tyche',
+  daedalus: 'Daedalus',
+  asclepius: 'Asclepius',
+  plutus: 'Plutus',
+  aphrodite: 'Aphrodite',
+  artemis: 'Artemis',
+  hestia: 'Hestia',
+  metis: 'Metis',
+}
+
+/**
+ * Get a GitHub username from a person name.
+ * @param {string} name
+ * @param {string} domain - organization domain
+ * @returns {string}
+ */
+export function toGithubUsername(name) {
+  return name.toLowerCase().replace(/[^a-z0-9]/g, '') + '-bio'
+}
+
+/**
+ * Get an email from a person name.
+ * @param {string} name
+ * @param {string} domain
+ * @returns {string}
+ */
+export function toEmail(name, domain) {
+  return `${name.toLowerCase().replace(/[^a-z0-9]/g, '')}@${domain}`
+}

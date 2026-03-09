@@ -40,6 +40,7 @@
     "libraries/librepl",
     "libraries/libtool",
     "libraries/libweb",
+    "libraries/libuniverse",
     "products/guide",
     "services/agent",
     "services/graph",
@@ -62,7 +63,8 @@
     "format:fix": "prettier --write .",
     "test": "find ./tests ./libraries ./products ./services -name '*.test.js' -not -path '*/node_modules/*' | xargs node --test",
     "test:e2e": "npx playwright test",
-    "validate": "npx fit-map validate"
+    "validate": "npx fit-map validate",
+    "generate": "fit-universe"
   },
   "devDependencies": {
     "@playwright/test": "^1.49.0",

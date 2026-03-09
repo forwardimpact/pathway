@@ -10,7 +10,9 @@ import { fileURLToPath } from "url";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const examplesDir = join(__dirname, "..", "..", "examples");
+// Prefer monorepo root examples/framework/, fall back to legacy co-located examples/
+const monorepoExamplesDir = join(__dirname, "..", "..", "..", "..", "examples", "framework");
+const legacyExamplesDir = join(__dirname, "..", "..", "examples");
 
 /**
  * Run the init command
@@ -31,13 +33,20 @@ export async function runInitCommand({ options }) {
     // Directory doesn't exist, proceed
   }
 
-  // Check if examples directory exists
+  // Find examples directory — monorepo root first, then legacy
+  let examplesDir;
   try {
-    await access(examplesDir);
+    await access(monorepoExamplesDir);
+    examplesDir = monorepoExamplesDir;
   } catch {
-    console.error("Error: Examples directory not found in package.");
-    console.error("This may indicate a corrupted package installation.");
-    process.exit(1);
+    try {
+      await access(legacyExamplesDir);
+      examplesDir = legacyExamplesDir;
+    } catch {
+      console.error("Error: Examples directory not found in package.");
+      console.error("This may indicate a corrupted package installation.");
+      process.exit(1);
+    }
   }
 
   // Copy example data
