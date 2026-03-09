@@ -10,6 +10,8 @@ volumes:
     driver: local
   supabase_storage_data:
     driver: local
+  supabase_db_data:
+    driver: local
   tei_data:
     driver: local
 
@@ -331,4 +333,83 @@ services:
           - auth-supabase.local
     depends_on:
       db:
+        condition: service_healthy
+
+  # ==========================================
+  # Map Supabase Services
+  # ==========================================
+
+  supabase-db:
+    profiles:
+      - map-supabase
+    image: supabase/postgres:15.6.1.143
+    container_name: supabase-db
+    env_file:
+      - .env
+      - .env.storage.supabase
+    environment:
+      POSTGRES_PASSWORD: ${DATABASE_PASSWORD}
+    volumes:
+      - supabase_db_data:/var/lib/postgresql/data
+      - ./products/map/supabase/migrations:/docker-entrypoint-initdb.d
+    networks:
+      internal:
+        aliases:
+          - supabase-db.local
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U postgres"]
+      interval: 5s
+      timeout: 5s
+      retries: 5
+
+  supabase-kong:
+    profiles:
+      - map-supabase
+    image: kong:2.8.1
+    container_name: supabase-kong
+    env_file:
+      - .env
+      - .env.storage.supabase
+    environment:
+      KONG_DATABASE: "off"
+      KONG_DECLARATIVE_CONFIG: /var/lib/kong/kong.yml
+      SUPABASE_ANON_KEY: ${MAP_SUPABASE_ANON_KEY}
+      SUPABASE_SERVICE_KEY: ${MAP_SUPABASE_SERVICE_ROLE_KEY}
+    volumes:
+      - ./products/map/supabase/kong.yml:/var/lib/kong/kong.yml:ro
+    ports:
+      - "54321:8000"
+    networks:
+      internal:
+        aliases:
+          - supabase-kong.local
+    depends_on:
+      supabase-db:
+        condition: service_healthy
+
+  supabase-map-storage:
+    profiles:
+      - map-supabase
+    image: supabase/storage-api:v1.11.13
+    container_name: supabase-map-storage
+    env_file:
+      - .env
+      - .env.storage.supabase
+    environment:
+      DATABASE_URL: postgres://postgres:${DATABASE_PASSWORD}@supabase-db.local:5432/postgres
+      PGRST_JWT_SECRET: ${JWT_SECRET}
+      FILE_SIZE_LIMIT: 52428800
+      STORAGE_BACKEND: file
+      FILE_STORAGE_BACKEND_PATH: /var/lib/storage
+      TENANT_ID: stub
+      REGION: local
+      GLOBAL_S3_BUCKET: stub
+      ENABLE_IMAGE_TRANSFORMATION: false
+      IS_MULTITENANT: false
+    volumes:
+      - supabase_storage_data:/var/lib/storage
+    networks:
+      internal:
+    depends_on:
+      supabase-db:
         condition: service_healthy

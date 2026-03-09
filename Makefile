@@ -70,6 +70,15 @@ help:
 	@echo "  tei-install       	Install TEI binary via cargo"
 	@echo "  tei-start         	Start TEI embedding service"
 	@echo ""
+	@echo "Map Supabase:"
+	@echo "  supabase-install  	Install Supabase CLI (brew)"
+	@echo "  supabase-up       	Start local Supabase instance"
+	@echo "  supabase-down     	Stop local Supabase instance"
+	@echo "  supabase-start    	Start Supabase via fit-rc (oneshot)"
+	@echo "  supabase-stop     	Stop Supabase via fit-rc (oneshot)"
+	@echo "  supabase-migrate  	Run Map database migrations"
+	@echo "  supabase-status   	Supabase health check"
+	@echo ""
 	@echo "Docker:"
 	@echo "  docker            	Build and start Docker Compose"
 	@echo "  docker-build      	Build Docker images"
@@ -262,6 +271,38 @@ tei-install:  ## Install TEI binary via cargo from huggingface/text-embeddings-i
 .PHONY: tei-start
 tei-start:  ## Start TEI embedding service (downloads model on first run)
 	@$(ENVLOAD) npx fit-rc start tei
+
+# ====================
+# Map Supabase
+# ====================
+
+.PHONY: supabase-install
+supabase-install:  ## Install Supabase CLI (brew)
+	@which supabase >/dev/null 2>&1 || brew install supabase/tap/supabase
+
+.PHONY: supabase-up
+supabase-up:  ## Start local Supabase instance
+	@cd products/map && supabase start --workdir .
+
+.PHONY: supabase-down
+supabase-down:  ## Stop local Supabase instance
+	@cd products/map && supabase stop --workdir .
+
+.PHONY: supabase-start
+supabase-start:  ## Start Supabase via fit-rc (oneshot)
+	@$(ENVLOAD) npx fit-rc start supabase
+
+.PHONY: supabase-stop
+supabase-stop:  ## Stop Supabase via fit-rc (oneshot)
+	@$(ENVLOAD) npx fit-rc stop supabase
+
+.PHONY: supabase-migrate
+supabase-migrate:  ## Run Map database migrations
+	@cd products/map && supabase db reset --workdir .
+
+.PHONY: supabase-status
+supabase-status:  ## Supabase health check
+	@curl -sf http://127.0.0.1:54321/rest/v1/ >/dev/null && echo "supabase: ok" || echo "supabase: not running"
 
 # ====================
 # Docker

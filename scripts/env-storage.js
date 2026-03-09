@@ -68,6 +68,27 @@ async function main() {
     SUPABASE_ENV_FILE,
   );
 
+  // Map Supabase keys (separate service-role and anon keys for Map project)
+  const mapServiceRoleKey = generateJWT(
+    { ...jwtPayloadBase, role: "service_role" },
+    jwtSecret,
+  );
+  const mapAnonKey = generateJWT(
+    { ...jwtPayloadBase, role: "anon" },
+    jwtSecret,
+  );
+
+  await updateEnvFile(
+    "MAP_SUPABASE_SERVICE_ROLE_KEY",
+    mapServiceRoleKey,
+    SUPABASE_ENV_FILE,
+  );
+  await updateEnvFile(
+    "MAP_SUPABASE_ANON_KEY",
+    mapAnonKey,
+    SUPABASE_ENV_FILE,
+  );
+
   console.log(".env:");
   console.log("  JWT_SECRET is set");
   console.log(`\n${MINIO_ENV_FILE}:`);
@@ -77,6 +98,8 @@ async function main() {
   console.log("  AWS_ACCESS_KEY_ID updated");
   console.log("  AWS_SECRET_ACCESS_KEY updated");
   console.log("  SUPABASE_SERVICE_ROLE_KEY updated");
+  console.log("  MAP_SUPABASE_SERVICE_ROLE_KEY updated");
+  console.log("  MAP_SUPABASE_ANON_KEY updated");
 }
 
 main();

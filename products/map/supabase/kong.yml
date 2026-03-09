@@ -1,0 +1,32 @@
+_format_version: "1.1"
+
+services:
+  - name: rest
+    url: http://supabase-db.local:3000
+    routes:
+      - name: rest-route
+        strip_path: true
+        paths:
+          - /rest/v1/
+    plugins:
+      - name: cors
+
+  - name: storage
+    url: http://supabase-map-storage.local:5000
+    routes:
+      - name: storage-route
+        strip_path: true
+        paths:
+          - /storage/v1/
+    plugins:
+      - name: cors
+
+  - name: functions
+    url: http://supabase-edge-runtime.local:8000
+    routes:
+      - name: functions-route
+        strip_path: true
+        paths:
+          - /functions/v1/
+    plugins:
+      - name: cors

@@ -1,0 +1,31 @@
+[project]
+id = "map"
+
+[api]
+enabled = true
+port = 54321
+schemas = ["public", "activity"]
+extra_search_path = ["public", "activity"]
+
+[db]
+port = 54322
+shadow_port = 54320
+major_version = 15
+
+[db.pooler]
+enabled = false
+
+[storage]
+enabled = true
+file_size_limit = "50MiB"
+
+[auth]
+enabled = false
+
+[edge_runtime]
+enabled = true
+policy = "per_worker"
+inspector_port = 8083
+
+[analytics]
+enabled = false
