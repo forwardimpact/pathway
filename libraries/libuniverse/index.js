@@ -1,5 +1,7 @@
 export { parseUniverse } from './dsl/index.js'
 export { generate } from './engine/tier0.js'
+export { buildEntities } from './engine/entities.js'
+export { generateActivity } from './engine/activity.js'
 export { ProseEngine } from './engine/prose.js'
 export { collectProseKeys } from './engine/prose-keys.js'
 export { renderHTML, renderREADME, renderONTOLOGY } from './render/html.js'

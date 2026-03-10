@@ -51,7 +51,7 @@ async function main() {
 
   const monorepoRoot = resolve(__dirname, '../../..')
   const result = await runPipeline({
-    universePath: args.universe || join(__dirname, '..', 'data', 'universe.dsl'),
+    universePath: args.universe || join(__dirname, '..', 'data', 'default.dsl'),
     dataDir: join(monorepoRoot, 'examples/framework'),
     mode,
     strict: !!args.strict,
