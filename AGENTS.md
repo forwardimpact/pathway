@@ -59,18 +59,21 @@ When updating data structure: schema (`products/map/schema/`) → data
 
 1. **Clean breaks** — Fully replace, never leave old and new coexisting.
    Delete old code, update all call sites, remove unused imports in one commit.
-2. **No defensive code** — Trust the architecture, let errors surface. No
+2. **No backward compatibility** — No shims, aliases, or feature flags for the
+   old path. If there are no consumers yet, remove the old interface entirely —
+   don't build bridges to code that doesn't exist.
+3. **No defensive code** — Trust the architecture, let errors surface. No
    optional chaining for non-optional data, no try-catch "just to be safe."
-3. **Simple over easy** — Reduce complexity, don't relocate it. Prefer explicit
+4. **Simple over easy** — Reduce complexity, don't relocate it. Prefer explicit
    over implicit, direct solutions over clever abstractions, fewer layers.
-4. **Pure functions** — Model layer has no side effects
-5. **Use formatters** — All presentation logic in
+5. **Pure functions** — Model layer has no side effects
+6. **Use formatters** — All presentation logic in
    `products/pathway/src/formatters/`
-6. **No transforms in views** — Pages/commands pass raw entities to formatters
-7. **JSDoc types** — All public functions (`@param`, `@returns`)
-8. **Test coverage** — New derivation logic requires tests
-9. **No frameworks** — Vanilla JS only, ESM modules only
-10. **Co-located files** — All entities have `human:` and `agent:` sections
+7. **No transforms in views** — Pages/commands pass raw entities to formatters
+8. **JSDoc types** — All public functions (`@param`, `@returns`)
+9. **Test coverage** — New derivation logic requires tests
+10. **No frameworks** — Vanilla JS only, ESM modules only
+11. **Co-located files** — All entities have `human:` and `agent:` sections
 
 ## Environment Management
 
