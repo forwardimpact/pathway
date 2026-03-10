@@ -74,10 +74,10 @@ async function findDataDir(providedPath) {
 
   // Check common locations
   const candidates = [
+    join(process.cwd(), "data/pathway"),
+    join(process.cwd(), "examples/pathway"),
     join(process.cwd(), "data"),
     join(process.cwd(), "examples"),
-    join(__dirname, "../examples"),
-    join(__dirname, "../../../examples/framework"),
   ];
 
   for (const candidate of candidates) {

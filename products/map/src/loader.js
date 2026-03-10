@@ -512,6 +512,22 @@ export function loadAndValidate(data, options = {}) {
 }
 
 /**
+/**
+ * Try loading a YAML file from repository/ subdirectory first, then root.
+ * @param {string} dataDir - Data directory
+ * @param {string} filename - File to load
+ * @param {*} fallback - Value if file not found in either location
+ * @returns {Promise<*>}
+ */
+async function loadRepoFile(dataDir, filename, fallback) {
+  const repoPath = join(dataDir, "repository", filename);
+  if (await fileExists(repoPath)) return loadYamlFile(repoPath);
+  const rootPath = join(dataDir, filename);
+  if (await fileExists(rootPath)) return loadYamlFile(rootPath);
+  return fallback;
+}
+
+/**
  * Load agent-specific data for agent profile generation
  * Uses co-located files: each entity file contains both human and agent sections
  * @param {string} dataDir - Path to the data directory
@@ -534,15 +550,9 @@ export async function loadAgentData(dataDir) {
     loadDisciplinesFromDir(disciplinesDir),
     loadTracksFromDir(tracksDir),
     loadBehavioursFromDir(behavioursDir),
-    fileExists(join(dataDir, "vscode-settings.yaml"))
-      ? loadYamlFile(join(dataDir, "vscode-settings.yaml"))
-      : {},
-    fileExists(join(dataDir, "devcontainer.yaml"))
-      ? loadYamlFile(join(dataDir, "devcontainer.yaml"))
-      : {},
-    fileExists(join(dataDir, "copilot-setup-steps.yaml"))
-      ? loadYamlFile(join(dataDir, "copilot-setup-steps.yaml"))
-      : null,
+    loadRepoFile(dataDir, "vscode-settings.yaml", {}),
+    loadRepoFile(dataDir, "devcontainer.yaml", {}),
+    loadRepoFile(dataDir, "copilot-setup-steps.yaml", null),
   ]);
 
   // Extract agent sections from co-located files

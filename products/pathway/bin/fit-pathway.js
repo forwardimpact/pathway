@@ -343,10 +343,10 @@ function printHelp() {
  * 1. --data=<path> flag (explicit override)
  * 2. PATHWAY_DATA environment variable
  * 3. ~/.fit/pathway/data/ (home directory install)
- * 4. ./data/ relative to current working directory
- * 5. ./examples/ relative to current working directory
- * 6. examples/framework/ for monorepo development
- * 7. products/map/examples/ (legacy fallback)
+ * 4. ./data/pathway/ (monorepo primary)
+ * 5. ./examples/pathway/ (monorepo fallback)
+ * 6. ./data/ (organization project)
+ * 7. ./examples/ (standalone fallback)
  *
  * @param {Object} options - Parsed command options
  * @returns {string} Resolved absolute path to data directory
@@ -368,32 +368,32 @@ function resolveDataPath(options) {
     return homeData;
   }
 
-  // 4. Current working directory ./data/
+  // 4. Monorepo: ./data/pathway/
+  const cwdDataPathway = join(process.cwd(), "data/pathway");
+  if (existsSync(cwdDataPathway)) {
+    return cwdDataPathway;
+  }
+
+  // 5. Monorepo fallback: ./examples/pathway/
+  const cwdExamplesPathway = join(process.cwd(), "examples/pathway");
+  if (existsSync(cwdExamplesPathway)) {
+    return cwdExamplesPathway;
+  }
+
+  // 6. Organization project: ./data/
   const cwdData = join(process.cwd(), "data");
   if (existsSync(cwdData)) {
     return cwdData;
   }
 
-  // 5. Current working directory ./examples/
+  // 7. Standalone fallback: ./examples/
   const cwdExamples = join(process.cwd(), "examples");
   if (existsSync(cwdExamples)) {
     return cwdExamples;
   }
 
-  // 6. Monorepo: examples/framework/
-  const frameworkExamples = join(process.cwd(), "examples/framework");
-  if (existsSync(frameworkExamples)) {
-    return frameworkExamples;
-  }
-
-  // 7. Legacy: products/map/examples/
-  const mapExamples = join(process.cwd(), "products/map/examples");
-  if (existsSync(mapExamples)) {
-    return mapExamples;
-  }
-
   throw new Error(
-    "No data directory found. Create ./data/ or use --data=<path>",
+    "No data directory found. Create ./data/pathway/ or use --data=<path>",
   );
 }
 

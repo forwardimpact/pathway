@@ -298,9 +298,15 @@ export async function loadAgentDataBrowser(dataDir = "./data") {
     loadDisciplinesFromDir(`${dataDir}/disciplines`),
     loadTracksFromDir(`${dataDir}/tracks`),
     loadBehavioursFromDir(`${dataDir}/behaviours`),
-    tryLoadYamlFile(`${dataDir}/vscode-settings.yaml`),
-    tryLoadYamlFile(`${dataDir}/devcontainer.yaml`),
-    tryLoadYamlFile(`${dataDir}/copilot-setup-steps.yaml`),
+    tryLoadYamlFile(`${dataDir}/repository/vscode-settings.yaml`).then(
+      (r) => r ?? tryLoadYamlFile(`${dataDir}/vscode-settings.yaml`),
+    ),
+    tryLoadYamlFile(`${dataDir}/repository/devcontainer.yaml`).then(
+      (r) => r ?? tryLoadYamlFile(`${dataDir}/devcontainer.yaml`),
+    ),
+    tryLoadYamlFile(`${dataDir}/repository/copilot-setup-steps.yaml`).then(
+      (r) => r ?? tryLoadYamlFile(`${dataDir}/copilot-setup-steps.yaml`),
+    ),
   ]);
 
   return {
