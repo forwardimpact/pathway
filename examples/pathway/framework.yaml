@@ -1,55 +1,54 @@
 # yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/framework.schema.json
 
-title: Example.dev Engineering Pathway
+title: Example Engineering Career Framework
 emojiIcon: 🛠️
-tag: "#ExampleDev"
-description: This framework outlines the career progression and skill
-  development for engineers at Example.dev. It provides structured guidance on
-  roles, skills, and behaviors to foster growth and excellence.
+tag: "#ExampleEng"
+description: This framework provides a structured pathway for engineering career
+  development at Example.dev. It defines key roles, skills, and behaviors to
+  guide growth and progression within the engineering discipline.
 distribution:
   siteUrl: https://example.dev/pathway
 entityDefinitions:
   driver:
     title: Driver
     emojiIcon: 🚗
-    description: Key motivators and goals that propel engineering efforts forward.
+    description: A motivating factor or goal that propels engineering work forward.
   skill:
     title: Skill
     emojiIcon: 🧰
-    description: Specific technical or professional abilities required for
+    description: A specific technical or interpersonal ability required for
       engineering success.
   behaviour:
     title: Behaviour
     emojiIcon: 🤝
-    description: Observable actions and attitudes that demonstrate effective
-      engineering practices.
+    description: Observable actions and attitudes that influence team dynamics and outcomes.
   discipline:
     title: Discipline
     emojiIcon: 📚
-    description: Areas of specialized knowledge and expertise within engineering.
+    description: A specialized area of engineering expertise or practice.
   level:
     title: Level
     emojiIcon: 📈
-    description: Stages of career progression indicating increasing responsibility
-      and impact.
+    description: A stage of seniority or proficiency within the engineering career path.
   track:
     title: Track
     emojiIcon: 🛤️
-    description: Distinct career paths engineers can follow based on their interests
-      and skills.
+    description: A defined career progression route focusing on a particular
+      engineering role or function.
   job:
     title: Job
     emojiIcon: 💼
-    description: Defined roles and positions within the engineering organization.
+    description: A specific position or role held by an engineer within the organization.
   agent:
     title: Agent
     emojiIcon: 🤖
-    description: Entities or tools that facilitate or influence engineering processes.
+    description: An individual or entity responsible for driving or influencing
+      engineering outcomes.
   stage:
     title: Stage
     emojiIcon: 🎯
-    description: Phases within projects or career development cycles.
+    description: A phase within a process or career progression marking key milestones.
   tool:
     title: Tool
     emojiIcon: 🔧
-    description: Software or hardware resources used to support engineering work.
+    description: A software, hardware, or methodology used to facilitate engineering tasks.

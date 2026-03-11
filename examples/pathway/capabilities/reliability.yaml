@@ -4,75 +4,78 @@ id: reliability
 name: Reliability
 emojiIcon: 🛡️
 ordinalRank: 2
-description: Ensuring systems are dependable, available, and resilient through
-  proactive design, monitoring, and incident management.
+description: Reliability focuses on ensuring systems are robust, available, and
+  maintainable through effective monitoring, incident response, and thoughtful
+  system design.
 professionalResponsibilities:
-  awareness: Understand the importance of system reliability and basic monitoring
-    concepts.
-  foundational: Contribute to monitoring and incident response efforts with guidance.
-  working: Independently handle common incidents and maintain monitoring systems.
-  practitioner: Lead reliability improvements and design resilient systems.
-  expert: Drive organizational reliability strategy and mentor others on best
-    practices.
+  awareness: You understand the importance of system reliability and basic
+    concepts of monitoring and incident response.
+  foundational: You contribute to monitoring efforts and assist in incident
+    response under guidance, while learning reliable system design principles.
+  working: You independently handle incident response tasks, maintain monitoring
+    systems, and apply reliable design patterns in your work.
+  practitioner: You lead incident response efforts, optimize monitoring
+    strategies, and design systems with high reliability and fault tolerance.
+  expert: You define organizational reliability standards, mentor others, and
+    innovate in system design to maximize uptime and resilience.
 managementResponsibilities:
-  awareness: Promote awareness of reliability principles within the team.
-  foundational: Support team members in developing reliability skills and processes.
-  working: Manage incident response processes and ensure monitoring coverage.
-  practitioner: Lead reliability initiatives and resource allocation for system resilience.
-  expert: Set strategic direction for reliability across multiple teams or the
-    organization.
+  awareness: You recognize the value of reliability practices and support team
+    adherence to basic standards.
+  foundational: You ensure teams have resources for monitoring and incident
+    response and encourage adoption of reliable design.
+  working: You manage incident response processes, oversee monitoring
+    effectiveness, and guide system design decisions for reliability.
+  practitioner: You lead cross-team reliability initiatives, establish best
+    practices, and manage risk related to system availability.
+  expert: You set strategic reliability goals, influence organizational culture
+    towards resilience, and drive innovation in reliability engineering.
 skills:
   - id: incident_response
     name: Incident Response
     human:
       description: Incident response involves detecting, managing, and resolving
-        system outages or degradations to minimize impact on users and business
-        operations. It requires quick decision-making, effective communication,
-        and post-incident analysis to prevent recurrence.
+        system outages or degradations to minimize impact and restore service
+        quickly.
       proficiencyDescriptions:
-        awareness: You recognize the importance of incident response and understand
-          basic terminology and processes.
-        foundational: You assist in incident detection and follow established procedures
-          to escalate or resolve issues under supervision.
-        working: You independently manage common incidents, coordinate with
-          stakeholders, and document resolutions.
-        practitioner: You lead incident response efforts, develop runbooks, and drive
-          post-incident reviews to improve processes.
-        expert: You design incident response strategies, mentor teams, and influence
-          organizational policies to enhance resilience.
+        awareness: You recognize common types of incidents and understand basic response
+          procedures.
+        foundational: You assist in incident detection and follow established protocols
+          to support resolution efforts.
+        working: You independently manage incident response tasks, coordinate with
+          stakeholders, and contribute to post-incident reviews.
+        practitioner: You lead incident response teams, develop response playbooks, and
+          drive continuous improvement in incident handling.
+        expert: You design and implement comprehensive incident management frameworks
+          and mentor others in advanced response strategies.
   - id: monitoring
     name: Monitoring
     human:
-      description: Monitoring involves setting up and maintaining systems that track
-        application and infrastructure health, enabling early detection of
-        issues. Effective monitoring supports proactive maintenance and informed
-        decision-making.
+      description: Monitoring is the continuous observation of system health and
+        performance to detect anomalies and ensure operational stability.
       proficiencyDescriptions:
-        awareness: You understand the purpose of monitoring and can interpret basic
-          alerts and dashboards.
-        foundational: You help configure monitoring tools and respond to alerts with
-          guidance.
-        working: You independently maintain monitoring systems, tune alerts to reduce
-          noise, and analyze metrics to identify trends.
-        practitioner: You design comprehensive monitoring strategies, integrate multiple
-          data sources, and automate alerting workflows.
-        expert: You lead organizational monitoring standards, innovate on observability
-          practices, and mentor others on advanced monitoring techniques.
+        awareness: You understand the purpose of monitoring and basic metrics commonly
+          tracked.
+        foundational: You configure and maintain monitoring tools to track system health
+          under supervision.
+        working: You analyze monitoring data to identify issues and tune alerts to
+          reduce noise and improve detection.
+        practitioner: You design monitoring architectures, define key performance
+          indicators, and integrate monitoring into development workflows.
+        expert: You innovate monitoring strategies, lead organization-wide observability
+          initiatives, and mentor others in advanced monitoring techniques.
   - id: system_design
     name: System Design
     human:
-      description: System design for reliability focuses on creating architectures
-        that are fault-tolerant, scalable, and maintainable. It balances
-        trade-offs to meet availability and performance goals under varying
-        conditions.
+      description: System design involves architecting software and infrastructure to
+        meet reliability, scalability, and maintainability requirements.
       proficiencyDescriptions:
-        awareness: You understand basic concepts of reliable system design and common
-          failure modes.
-        foundational: You contribute to design discussions and apply standard patterns
-          for fault tolerance with guidance.
-        working: You design and implement reliable components, considering redundancy,
-          failover, and recovery mechanisms.
-        practitioner: You lead the design of complex systems with high availability
-          requirements and perform risk assessments.
-        expert: You define organizational best practices for resilient architecture and
-          drive innovation in system reliability design.
+        awareness: You are familiar with basic system design concepts and common
+          architectural patterns.
+        foundational: You contribute to design discussions and apply simple design
+          principles under guidance.
+        working: You independently design components and systems that meet reliability
+          and performance goals.
+        practitioner: You lead design efforts for complex systems, balancing trade-offs
+          and ensuring fault tolerance.
+        expert: You define system design standards, influence architecture decisions at
+          scale, and mentor others in best practices.

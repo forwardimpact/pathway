@@ -36,18 +36,11 @@ behaviourModifiers:
 
 # Human-specific content
 human:
-  professionalRoleSummary:
+  roleSummary:
     We are seeking a skilled {roleTitle} who will design and build data
     integration, storage systems, and data infrastructure that enable analytics
     and AI capabilities. In this role, you will master the art of gaining access
     to enterprise data and making it usable for decision-making across the
-    organization.
-  managementRoleSummary:
-    We are seeking an experienced {specialization} leader to build and lead
-    high-performing data engineering teams. In this role, you will drive the
-    strategic direction of our data infrastructure while developing talent and
-    ensuring data capabilities meet business needs. You will champion data
-    quality, governance, and the democratization of data across the
     organization.
 
 # Agent-specific content

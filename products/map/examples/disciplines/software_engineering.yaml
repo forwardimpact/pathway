@@ -36,19 +36,12 @@ behaviourModifiers:
 
 # Human-specific content
 human:
-  professionalRoleSummary:
+  roleSummary:
     We are seeking a skilled {roleTitle} who will design, build, and maintain
     software systems that deliver business value. In this role, you will focus
     on code quality, architecture decisions, and reliable delivery while
     leveraging AI tools to enhance productivity. You will verify and review
     AI-generated code to ensure it meets our quality standards.
-  managementRoleSummary:
-    We are seeking an experienced {specialization} leader to build and lead
-    high-performing software engineering teams. In this role, you will drive
-    technical excellence while developing talent and ensuring delivery of
-    business value. You will set technical direction, create space for
-    innovation, and model the ownership behaviors that define our engineering
-    culture.
 
 # Agent-specific content
 agent:

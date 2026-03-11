@@ -208,7 +208,46 @@ async function generateEntity(entityType, entityId, prompt, proseEngine) {
 }
 
 /**
- * Generate self-assessments deterministically from framework data.
+ * Simple seeded PRNG (mulberry32). Deterministic given the same seed.
+ * @param {number} seed
+ * @returns {() => number} Returns values in [0, 1)
+ */
+function createRng(seed) {
+  let s = seed | 0;
+  return () => {
+    s = (s + 0x6d2b79f5) | 0;
+    let t = Math.imul(s ^ (s >>> 15), 1 | s);
+    t = (t + Math.imul(t ^ (t >>> 7), 61 | t)) ^ t;
+    return ((t ^ (t >>> 14)) >>> 0) / 4294967296;
+  };
+}
+
+/**
+ * Pick a random index near a base, weighted toward ±1 with rare ±2 outliers.
+ * @param {() => number} rng - Seeded random function
+ * @param {number} base - Centre index for this level
+ * @param {number} max - Maximum valid index (inclusive)
+ * @returns {number} Clamped index
+ */
+function jitter(rng, base, max) {
+  const r = rng();
+  // 50% same, 20% +1, 15% -1, 10% +2, 5% -2
+  let offset = 0;
+  if (r < 0.5) offset = 0;
+  else if (r < 0.7) offset = 1;
+  else if (r < 0.85) offset = -1;
+  else if (r < 0.95) offset = 2;
+  else offset = -2;
+  return Math.max(0, Math.min(max, base + offset));
+}
+
+/**
+ * Generate self-assessments with realistic randomized distributions.
+ *
+ * Each assessment centres skills around the expected proficiency for
+ * that level, then applies per-skill jitter so profiles look natural:
+ * most skills cluster near the base, with occasional outliers.
+ * Behaviours use tighter jitter (±1 only, less variance).
  *
  * @param {object} framework - Framework AST
  * @param {string[]} skillIds - All skill IDs from capabilities
@@ -231,28 +270,30 @@ function generateSelfAssessments(framework, skillIds, behaviourIds) {
     "exemplifying",
   ];
 
-  // Generate a few example assessments at different levels
+  const seed = framework.seed || 1;
+  const rng = createRng(seed);
+  const maxP = proficiencies.length - 1;
+  const maxM = maturities.length - 1;
+
   const assessments = [];
   const levelNames = ["junior", "mid", "senior", "staff", "principal"];
 
   for (let i = 0; i < Math.min(levelNames.length, proficiencies.length); i++) {
     const skillProficiencies = {};
     for (const skillId of skillIds) {
-      // Base index at level, with some variation
-      const idx = Math.max(
-        0,
-        Math.min(
-          proficiencies.length - 1,
-          i + (skillIds.indexOf(skillId) % 2 === 0 ? 0 : -1),
-        ),
-      );
-      skillProficiencies[skillId] = proficiencies[idx];
+      skillProficiencies[skillId] = proficiencies[jitter(rng, i, maxP)];
     }
 
     const behaviourMaturities = {};
     for (const behaviourId of behaviourIds) {
-      const idx = Math.max(0, Math.min(maturities.length - 1, i));
-      behaviourMaturities[behaviourId] = maturities[idx];
+      // Behaviours use tighter variance: ±1 only (no ±2 outliers)
+      const r = rng();
+      let offset = 0;
+      if (r < 0.55) offset = 0;
+      else if (r < 0.8) offset = 1;
+      else offset = -1;
+      behaviourMaturities[behaviourId] =
+        maturities[Math.max(0, Math.min(maxM, i + offset))];
     }
 
     assessments.push({

@@ -22,7 +22,7 @@ export function generate(ast) {
     orgs, departments, teams, people, projects,
     scenarios: ast.scenarios,
     snapshots: ast.snapshots,
-    framework: ast.framework,
+    framework: { ...ast.framework, seed: ast.seed },
     content: ast.content,
     activity,
     domain: ast.domain,
