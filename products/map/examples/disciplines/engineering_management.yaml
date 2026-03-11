@@ -29,13 +29,8 @@ behaviourModifiers:
 
 # Human-specific content
 human:
-  professionalRoleSummary:
-    We are seeking a skilled {roleTitle} who will lead engineering teams,
-    focusing on team effectiveness, career development, and organizational
-    outcomes. In this role, you will create space for curiosity and
-    experimentation while modeling ownership behaviours.
-  managementRoleSummary:
-    We are seeking an experienced {specialization} leader to build and lead
+  roleSummary:
+    We are seeking an experienced {roleTitle} to build and lead
     high-performing engineering teams. In this role, you will drive team
     effectiveness and career development while ensuring organizational outcomes
     are achieved. You will create space for innovation and model the ownership

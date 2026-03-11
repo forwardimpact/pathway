@@ -86,15 +86,9 @@ fit:behaviourModifiers a rdf:Property ;
     rdfs:label "behaviourModifiers"@en ;
     rdfs:comment "Modifiers to behaviour expectations"@en .
 
-fit:professionalRoleSummary a rdf:Property ;
-    rdfs:label "professionalRoleSummary"@en ;
-    rdfs:comment "Role summary for professional/IC track. May use {roleTitle} placeholder."@en ;
-    rdfs:domain fit:DisciplineHumanSection ;
-    rdfs:range xsd:string .
-
-fit:managementRoleSummary a rdf:Property ;
-    rdfs:label "managementRoleSummary"@en ;
-    rdfs:comment "Role summary for management track. May use {specialization} placeholder."@en ;
+fit:roleSummary a rdf:Property ;
+    rdfs:label "roleSummary"@en ;
+    rdfs:comment "Role summary for this discipline. May use {roleTitle} or {specialization} placeholder."@en ;
     rdfs:domain fit:DisciplineHumanSection ;
     rdfs:range xsd:string .
 
@@ -244,18 +238,11 @@ fit:DisciplineShape a sh:NodeShape ;
 fit:DisciplineHumanSectionShape a sh:NodeShape ;
     sh:targetClass fit:DisciplineHumanSection ;
     sh:property [
-        sh:path fit:professionalRoleSummary ;
+        sh:path fit:roleSummary ;
         sh:datatype xsd:string ;
         sh:maxCount 1 ;
-        sh:name "professionalRoleSummary" ;
-        sh:description "Role summary for professional/IC track" ;
-    ] ;
-    sh:property [
-        sh:path fit:managementRoleSummary ;
-        sh:datatype xsd:string ;
-        sh:maxCount 1 ;
-        sh:name "managementRoleSummary" ;
-        sh:description "Role summary for management track" ;
+        sh:name "roleSummary" ;
+        sh:description "Role summary for this discipline" ;
     ] .
 
 # -----------------------------------------------------------------------------

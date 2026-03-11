@@ -23,14 +23,9 @@ import { trimValue, trimFields } from "../shared.js";
  * @returns {Object} Data object ready for Mustache template
  */
 function prepareJobDescriptionData({ job, discipline, level, track }) {
-  // Build role summary from discipline - use manager version if applicable
-  const isManagement = discipline.isManagement === true;
-  let roleSummary =
-    isManagement && discipline.managementRoleSummary
-      ? discipline.managementRoleSummary
-      : discipline.professionalRoleSummary || discipline.description;
-  // Replace placeholders
+  // Build role summary from discipline
   const { roleTitle, specialization } = discipline;
+  let roleSummary = discipline.roleSummary || discipline.description;
   roleSummary = roleSummary.replace(/\{roleTitle\}/g, roleTitle);
   roleSummary = roleSummary.replace(/\{specialization\}/g, specialization);
 

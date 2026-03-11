@@ -88,13 +88,9 @@
     "disciplineHumanSection": {
       "type": "object",
       "properties": {
-        "professionalRoleSummary": {
+        "roleSummary": {
           "type": "string",
-          "description": "Role summary for professional/IC track. May use {roleTitle} placeholder."
-        },
-        "managementRoleSummary": {
-          "type": "string",
-          "description": "Role summary for management track. May use {specialization} placeholder."
+          "description": "Role summary for this discipline. May use {roleTitle} or {specialization} placeholder."
         }
       },
       "additionalProperties": false

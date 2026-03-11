@@ -172,7 +172,7 @@ async function loadDisciplinesFromDir(disciplinesDir) {
         supportingSkills,
         broadSkills,
         behaviourModifiers,
-        // Human presentation content (role summaries only)
+        // Human presentation content (roleSummary)
         ...human,
         // Preserve agent section for agent generation
         ...(agent && { agent }),
