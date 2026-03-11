@@ -67,3 +67,15 @@ npx fit-basecamp --daemon                   # Start the scheduler
 npx fit-basecamp --status                   # Check what's happening
 npx fit-basecamp --run sync-mail            # Run a task now
 ```
+
+### macOS Privacy & Security
+
+Basecamp agents need access to specific folders (Documents, Mail, Calendar).
+When macOS prompts, grant only the folders each process needs via
+**System Settings → Privacy & Security → Files & Folders**:
+
+- **Basecamp.app** — the TCC responsible process (Swift launcher)
+- **node** — runs skill scripts with `#!/usr/bin/env node` shebangs
+- **"2.1.72"** (or another version number) — this is the **Claude Code CLI**.
+  macOS shows its version string instead of a name. Safe to grant per-folder
+  access.
