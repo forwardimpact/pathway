@@ -52,3 +52,28 @@ export async function formatFiles(files) {
   }
   return formatted;
 }
+
+/**
+ * Content formatter class with DI.
+ */
+export class ContentFormatter {
+  /**
+   * @param {Function} prettierFn - Prettier format function
+   * @param {object} logger - Logger instance
+   */
+  constructor(prettierFn, logger) {
+    if (!prettierFn) throw new Error("prettierFn is required");
+    if (!logger) throw new Error("logger is required");
+    this.prettierFn = prettierFn;
+    this.logger = logger;
+  }
+
+  /**
+   * Format all entries in a Map of path→content.
+   * @param {Map<string, string>} files
+   * @returns {Promise<Map<string, string>>}
+   */
+  async format(files) {
+    return formatFiles(files);
+  }
+}

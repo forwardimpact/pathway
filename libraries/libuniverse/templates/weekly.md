@@ -5,8 +5,7 @@ person: {{personId}}
 
 # Weekly Notes — {{personName}}
 
-**Week of:** {{date}}
-**Team:** {{teamName}}
+**Week of:** {{date}} **Team:** {{teamName}}
 
 ## Reflections
 

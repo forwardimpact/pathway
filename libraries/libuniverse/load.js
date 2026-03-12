@@ -13,24 +13,25 @@
  * @returns {Promise<{loaded: number, errors: string[]}>}
  */
 export async function loadToSupabase(supabase, rawDocuments) {
-  const errors = []
-  let loaded = 0
+  const errors = [];
+  let loaded = 0;
 
   for (const [path, content] of rawDocuments) {
-    const contentType = path.endsWith('.yaml') || path.endsWith('.yml')
-      ? 'text/yaml'
-      : 'application/json'
+    const contentType =
+      path.endsWith(".yaml") || path.endsWith(".yml")
+        ? "text/yaml"
+        : "application/json";
 
     const { error } = await supabase.storage
-      .from('raw')
-      .upload(path, content, { contentType, upsert: true })
+      .from("raw")
+      .upload(path, content, { contentType, upsert: true });
 
     if (error) {
-      errors.push(`${path}: ${error.message}`)
+      errors.push(`${path}: ${error.message}`);
     } else {
-      loaded++
+      loaded++;
     }
   }
 
-  return { loaded, errors }
+  return { loaded, errors };
 }

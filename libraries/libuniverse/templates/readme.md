@@ -5,16 +5,19 @@
 ## Departments
 
 {{#departments}}
+
 ### {{{name}}}
 
 {{#teams}}
-- **{{{name}}}** ({{size}} members)
-{{/teams}}
+
+- **{{{name}}}** ({{size}} members) {{/teams}}
 
 {{/departments}}
+
 ## Projects
 
 {{#projects}}
+
 ### {{{name}}}
 
 - Type: {{type}}

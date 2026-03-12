@@ -8,12 +8,11 @@
 import { readFileSync, writeFileSync, existsSync } from "fs";
 import { dirname, join } from "path";
 import { fileURLToPath } from "url";
-import { createLogger } from "@forwardimpact/libtelemetry";
 import { generateHash } from "@forwardimpact/libutil";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { PromptLoader } from "@forwardimpact/libprompt";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const prompts = new PromptLoader(join(__dirname, "..", "prompts"));
 
 export class ProseEngine {
   /**
@@ -21,17 +20,32 @@ export class ProseEngine {
    * @param {string} options.cachePath      Path to .prose-cache.json
    * @param {string} options.mode           "cached" | "generate" | "no-prose"
    * @param {boolean} [options.strict]      Fail on cache miss
-   * @param {import('@forwardimpact/libllm').LlmApi} [options.llmApi]
+   * @param {import('@forwardimpact/libllm').LlmApi} options.llmApi
    *        Pre-configured LLM client — required when mode is "generate"
+   * @param {import('@forwardimpact/libprompt').PromptLoader} options.promptLoader
+   *        Prompt template loader
+   * @param {object} options.logger         Logger instance
    */
-  constructor({ cachePath, mode, strict = false, llmApi = null }) {
+  constructor({
+    cachePath,
+    mode,
+    strict = false,
+    llmApi,
+    promptLoader,
+    logger,
+  }) {
+    if (!cachePath) throw new Error("cachePath is required");
+    if (!mode) throw new Error("mode is required");
+    if (!promptLoader) throw new Error("promptLoader is required");
+    if (!logger) throw new Error("logger is required");
     this.cachePath = cachePath;
     this.mode = mode;
     this.strict = strict;
     this.llmApi = llmApi;
+    this.promptLoader = promptLoader;
+    this.logger = logger;
     this.cache = this.#loadCache();
     this.dirty = false;
-    this.log = createLogger("universe");
   }
 
   /**
@@ -67,17 +81,18 @@ export class ProseEngine {
    * @returns {Promise<string|null>}
    */
   async #callLlm(key, context) {
-    const prompt = buildPrompt(key, context);
-    // LlmApi.createCompletions expects a window object with messages array
+    const prompt = this.#buildPrompt(key, context);
     const response = await this.llmApi.createCompletions({
       messages: [
-        { role: "system", content: prompts.load("prose-system") },
+        { role: "system", content: this.promptLoader.load("prose-system") },
         { role: "user", content: prompt },
       ],
       max_tokens: context.maxTokens || 500,
     });
     const content = response.choices?.[0]?.message?.content?.trim() || null;
-    this.log.info("prose", `Generated: ${key}`, { chars: content ? content.length : 0 });
+    this.logger.info("prose", `Generated: ${key}`, {
+      chars: content ? content.length : 0,
+    });
     return content;
   }
 
@@ -93,7 +108,7 @@ export class ProseEngine {
     const cacheKey = generateHash(key, JSON.stringify(messages));
 
     if (this.cache.has(cacheKey)) {
-      this.log.debug("prose", `Cache hit: ${key}`);
+      this.logger.debug("prose", `Cache hit: ${key}`);
       return this.cache.get(cacheKey);
     }
 
@@ -111,7 +126,9 @@ export class ProseEngine {
       this.cache.set(cacheKey, content);
       this.dirty = true;
     }
-    this.log.info("prose", `Generated structured: ${key}`, { chars: content ? content.length : 0 });
+    this.logger.info("prose", `Generated structured: ${key}`, {
+      chars: content ? content.length : 0,
+    });
     return content;
   }
 
@@ -124,7 +141,6 @@ export class ProseEngine {
   async generateJson(key, messages) {
     const raw = await this.generateStructured(key, messages);
     if (!raw) return null;
-    // Strip markdown fences if present
     const cleaned = raw
       .replace(/^```(?:json)?\s*\n?/m, "")
       .replace(/\n?```\s*$/m, "")
@@ -145,6 +161,23 @@ export class ProseEngine {
     );
   }
 
+  /**
+   * Build a prompt from key and context.
+   * @param {string} key
+   * @param {object} context
+   * @returns {string}
+   */
+  #buildPrompt(key, context) {
+    return this.promptLoader.render("prose-user", {
+      topic: context.topic || key.replace(/_/g, " ").replace(/-/g, " "),
+      tone: context.tone || "technical",
+      length: context.length || "2-3 paragraphs",
+      domain: context.domain,
+      role: context.role,
+      audience: context.audience,
+    });
+  }
+
   #loadCache() {
     try {
       if (this.cachePath && existsSync(this.cachePath)) {
@@ -160,18 +193,16 @@ export class ProseEngine {
 }
 
 /**
- * Build a prompt from key and context.
- * @param {string} key
- * @param {object} context
- * @returns {string}
+ * Creates a ProseEngine with real dependencies wired.
+ * @param {object} options
+ * @param {string} options.cachePath - Path to .prose-cache.json
+ * @param {string} options.mode - "cached" | "generate" | "no-prose"
+ * @param {boolean} [options.strict] - Fail on cache miss
+ * @param {import('@forwardimpact/libllm').LlmApi} [options.llmApi] - LLM client
+ * @returns {ProseEngine}
  */
-function buildPrompt(key, context) {
-  return prompts.render("prose-user", {
-    topic: context.topic || key.replace(/_/g, " ").replace(/-/g, " "),
-    tone: context.tone || "technical",
-    length: context.length || "2-3 paragraphs",
-    domain: context.domain,
-    role: context.role,
-    audience: context.audience,
-  });
+export function createProseEngine(options) {
+  const logger = createLogger("universe");
+  const promptLoader = new PromptLoader(join(__dirname, "..", "prompts"));
+  return new ProseEngine({ ...options, promptLoader, logger });
 }

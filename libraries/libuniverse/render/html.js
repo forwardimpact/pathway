@@ -6,17 +6,11 @@
  * Pass 2: LLM enricher rewrites prose blocks in-place (handled by enricher.js).
  */
 
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
-import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
 import { generateDrugs, generatePlatforms } from "./industry-data.js";
 import { assignLinks } from "./link-assigner.js";
 
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const templates = new TemplateLoader(join(__dirname, "..", "templates"));
-
 /** Wrap inner HTML in the page shell. */
-function page(title, body, domain) {
+function page(templates, title, body, domain) {
   return templates.render("page.html", {
     title,
     body,
@@ -32,9 +26,11 @@ function titleCase(str) {
  * Render HTML microdata files from entities and prose.
  * @param {object} entities
  * @param {Map<string,string>} prose
+ * @param {import('@forwardimpact/libtemplate/loader').TemplateLoader} templates - Template loader
  * @returns {{ files: Map<string,string>, linked: import('./link-assigner.js').LinkedEntities }}
  */
-export function renderHTML(entities, prose) {
+export function renderHTML(entities, prose, templates) {
+  if (!templates) throw new Error("templates is required");
   const files = new Map();
   const domain = entities.domain;
 
@@ -74,18 +70,20 @@ export function renderHTML(entities, prose) {
     managers: entities.people
       .filter((p) => p.is_manager)
       .map((m) => {
-        const team = entities.teams.find((t) => t.id === m.team_id)
-        const dept = team ? entities.departments.find((d) => d.id === team.department) : null
+        const team = entities.teams.find((t) => t.id === m.team_id);
+        const dept = team
+          ? entities.departments.find((d) => d.id === team.department)
+          : null;
         return {
           ...m,
           teamName: team?.name || "",
           departmentIri: dept?.iri || "",
-        }
+        };
       }),
   });
   files.set(
     "organization-leadership.html",
-    page("Organization Leadership", leadershipBody, domain),
+    page(templates, "Organization Leadership", leadershipBody, domain),
   );
 
   const deptBody = templates.render("departments.html", {
@@ -100,7 +98,7 @@ export function renderHTML(entities, prose) {
             .map((p) => ({
               iri: p.iri,
               name: p.name,
-              jobTitle: `${p.level} ${p.discipline ? titleCase(p.discipline) : 'Engineer'}`,
+              jobTitle: `${p.level} ${p.discipline ? titleCase(p.discipline) : "Engineer"}`,
               teamIri: t.iri,
             })),
         })),
@@ -108,7 +106,7 @@ export function renderHTML(entities, prose) {
   });
   files.set(
     "organization-departments-teams.html",
-    page("Organization Departments & Teams", deptBody, domain),
+    page(templates, "Organization Departments & Teams", deptBody, domain),
   );
 
   const rolesBody = templates.render("roles.html", {
@@ -118,7 +116,10 @@ export function renderHTML(entities, prose) {
       count: entities.people.filter((p) => p.level === id).length,
     })),
   });
-  files.set("roles.html", page("Engineering Roles", rolesBody, domain));
+  files.set(
+    "roles.html",
+    page(templates, "Engineering Roles", rolesBody, domain),
+  );
 
   // --- New linked document types ---
 
@@ -126,6 +127,7 @@ export function renderHTML(entities, prose) {
   files.set(
     "projects-cross-functional.html",
     page(
+      templates,
       "Cross-Functional Projects",
       templates.render("projects.html", { projects: linked.projects }),
       domain,
@@ -136,6 +138,7 @@ export function renderHTML(entities, prose) {
   files.set(
     "technology-platforms-dependencies.html",
     page(
+      templates,
       "Technology Platforms",
       templates.render("platforms.html", { platforms: enrichedPlatforms }),
       domain,
@@ -146,6 +149,7 @@ export function renderHTML(entities, prose) {
   files.set(
     "drugs-development-pipeline.html",
     page(
+      templates,
       "Drug Development Pipeline",
       templates.render("drugs.html", { drugs: enrichedDrugs }),
       domain,
@@ -156,16 +160,18 @@ export function renderHTML(entities, prose) {
   if (gc) {
     for (const article of linked.articles || []) {
       const body = templates.render("article.html", {
-        articles: [{
-          ...article,
-          prose:
-            prose.get(`article_${article.topic}`) ||
-            `Article about ${article.topic.replace(/_/g, " ")}.`,
-        }],
+        articles: [
+          {
+            ...article,
+            prose:
+              prose.get(`article_${article.topic}`) ||
+              `Article about ${article.topic.replace(/_/g, " ")}.`,
+          },
+        ],
       });
       files.set(
         `articles-${article.topic.replace(/_/g, "-")}.html`,
-        page(`${article.title} - Article`, body, domain),
+        page(templates, `${article.title} - Article`, body, domain),
       );
     }
 
@@ -184,6 +190,7 @@ export function renderHTML(entities, prose) {
       files.set(
         `blog-${post.index}.html`,
         page(
+          templates,
           post.headline,
           templates.render("blog-post.html", post),
           domain,
@@ -195,6 +202,7 @@ export function renderHTML(entities, prose) {
     files.set(
       "blog-posts.html",
       page(
+        templates,
         "Engineering Blog",
         templates.render("blog.html", { blogIri, posts: blogPosts }),
         domain,
@@ -204,10 +212,15 @@ export function renderHTML(entities, prose) {
     files.set(
       "faq-pages.html",
       page(
+        templates,
         "Frequently Asked Questions",
         templates.render("faq.html", {
           faqs: Array.from({ length: gc.faqs || 0 }, (_, i) => {
-            const entityPool = [...linked.drugs, ...linked.platforms, ...linked.projects];
+            const entityPool = [
+              ...linked.drugs,
+              ...linked.platforms,
+              ...linked.projects,
+            ];
             const aboutLinks = [
               entityPool[i % entityPool.length],
               entityPool[(i + 3) % entityPool.length],
@@ -235,25 +248,31 @@ export function renderHTML(entities, prose) {
       });
       files.set(
         `howto-${topic.replace(/_/g, "-")}.html`,
-        page(`How-To: ${titleCase(topic)}`, body, domain),
+        page(templates, `How-To: ${titleCase(topic)}`, body, domain),
       );
     }
 
     files.set(
       "reviews.html",
       page(
+        templates,
         "Reviews",
         templates.render("reviews.html", {
           reviews: Array.from({ length: gc.reviews || 0 }, (_, i) => {
             const person = entities.people[i % entities.people.length];
-            const reviewPool = [...linked.courses, ...linked.events, ...linked.platforms];
+            const reviewPool = [
+              ...linked.courses,
+              ...linked.events,
+              ...linked.platforms,
+            ];
             const reviewed = reviewPool[i % reviewPool.length];
             return {
               iri: `https://${domain}/id/review/review-${i + 1}`,
-              rating: 1 + (((i * 7 + 3) % 5)),
+              rating: 1 + ((i * 7 + 3) % 5),
               author: person?.name || "Anonymous",
               authorIri: person?.iri || "",
-              body: prose.get(`review_${i}`) || "Good work on this implementation.",
+              body:
+                prose.get(`review_${i}`) || "Good work on this implementation.",
               reviewedIri: reviewed?.iri || "",
             };
           }),
@@ -265,18 +284,23 @@ export function renderHTML(entities, prose) {
     files.set(
       "comments.html",
       page(
+        templates,
         "Discussion Comments",
         templates.render("comments.html", {
           comments: Array.from({ length: gc.comments || 0 }, (_, i) => {
             const person = entities.people[i % entities.people.length];
-            const parentPool = [...linked.blogPosts, ...(linked.articles || [])];
+            const parentPool = [
+              ...linked.blogPosts,
+              ...(linked.articles || []),
+            ];
             const parent = parentPool[i % parentPool.length];
             return {
               iri: `https://${domain}/id/comment/comment-${i + 1}`,
               author: person?.name || "Anonymous",
               authorIri: person?.iri || "",
-              body: prose.get(`comment_${i}`) || "Interesting discussion point.",
-              date: `2025-${String((i % 12) + 1).padStart(2, '0')}-${String((i % 28) + 1).padStart(2, '0')}`,
+              body:
+                prose.get(`comment_${i}`) || "Interesting discussion point.",
+              date: `2025-${String((i % 12) + 1).padStart(2, "0")}-${String((i % 28) + 1).padStart(2, "0")}`,
               aboutIri: parent?.iri || "",
             };
           }),
@@ -289,6 +313,7 @@ export function renderHTML(entities, prose) {
     files.set(
       "courses-learning-catalog.html",
       page(
+        templates,
         "Learning Catalog",
         templates.render("courses.html", { courses: linked.courses }),
         domain,
@@ -299,6 +324,7 @@ export function renderHTML(entities, prose) {
     files.set(
       "events-program-calendar.html",
       page(
+        templates,
         "Event Calendar",
         templates.render("events.html", { events: linked.events }),
         domain,
@@ -323,9 +349,7 @@ function enrichPlatformsWithLinks(linked) {
 
     // Reverse: projects that link to this platform
     const projectLinks = linked.projects
-      .filter((proj) =>
-        proj.platformLinks.some((pl) => pl.id === plat.id),
-      )
+      .filter((proj) => proj.platformLinks.some((pl) => pl.id === plat.id))
       .slice(0, 3);
 
     // Reverse: drugs that use this platform
@@ -391,9 +415,11 @@ function enrichDrugsWithLinks(linked) {
  * Render organization README.
  * @param {object} entities
  * @param {Map<string,string>} prose
+ * @param {import('@forwardimpact/libtemplate/loader').TemplateLoader} templates - Template loader
  * @returns {string}
  */
-export function renderREADME(entities, prose) {
+export function renderREADME(entities, prose, templates) {
+  if (!templates) throw new Error("templates is required");
   const orgName = entities.orgs[0]?.name || "Organization";
   return templates.render("readme.md", {
     orgName,
@@ -413,9 +439,11 @@ export function renderREADME(entities, prose) {
 /**
  * Render ONTOLOGY.md with entity IRIs.
  * @param {object} entities
+ * @param {import('@forwardimpact/libtemplate/loader').TemplateLoader} templates - Template loader
  * @returns {string}
  */
-export function renderONTOLOGY(entities) {
+export function renderONTOLOGY(entities, templates) {
+  if (!templates) throw new Error("templates is required");
   const people = entities.people.slice(0, 30);
   return templates.render("ontology.md", {
     domain: entities.domain,
