@@ -63,16 +63,19 @@ When the user asks to prep for a meeting:
 
 ### Step 1: Identify the Meeting
 
-If specified, look it up in calendar:
+Use the calendar query script to find upcoming meetings:
 
 ```bash
-ls ~/.cache/fit/basecamp/apple_calendar/ 2>/dev/null
-cat "$HOME/.cache/fit/basecamp/apple_calendar/event123.json"
+# Next 2 hours of meetings as JSON
+node .claude/skills/sync-apple-calendar/scripts/query.mjs --upcoming 2h --json
+
+# Today's full schedule
+node .claude/skills/sync-apple-calendar/scripts/query.mjs --today
 ```
 
 If "prep me for my next meeting":
 
-- List upcoming events
+- Query upcoming events with `--upcoming 2h`
 - Find the next meeting with external attendees
 - Confirm with user if unclear
 

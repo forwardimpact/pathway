@@ -36,6 +36,7 @@ Run this skill:
 
 - `knowledge/Candidates/{Full Name}/brief.md` — candidate profile note
 - `knowledge/Candidates/{Full Name}/CV.pdf` — local copy of CV (or `CV.docx`)
+- `knowledge/Candidates/{Full Name}/headshot.jpeg` — candidate headshot photo
 - `~/.cache/fit/basecamp/state/graph_processed` — updated with processed threads
 
 ---
@@ -191,6 +192,48 @@ cp "~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/{filename}" \
 
 Use `CV.pdf` for PDF files and `CV.docx` for Word documents. The `## CV` link in
 the brief uses a relative path: `./CV.pdf`.
+
+### Headshot Discovery
+
+Search two locations for candidate headshot photos:
+
+1. **Email attachments** —
+   `~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/` may contain
+   headshot images sent by recruiters alongside CVs. Look for `.jpg`, `.jpeg`,
+   or `.png` files with candidate name fragments in the filename or that are
+   clearly portrait photos (not logos, signatures, or email decorations like
+   `image001.png`).
+
+2. **Downloads folder** — search `~/Downloads/` recursively (including
+   subdirectories) for headshot images:
+
+```bash
+find ~/Downloads -maxdepth 3 -type f \( -iname "*.jpg" -o -iname "*.jpeg" -o -iname "*.png" -o -iname "*.heic" \) 2>/dev/null
+```
+
+Match images to candidates by name similarity in the filename (e.g.
+`vitalii.jpeg` matches "Vitalii Huliai", `qazi.jpeg` matches "Qazi Rehman").
+Use first name, last name, or full name matching — case-insensitive.
+
+When a headshot is found, copy it into the candidate directory with a
+standardized name:
+
+```bash
+cp "{source_path}" "knowledge/Candidates/{Full Name}/headshot.jpeg"
+```
+
+Always use `headshot.jpeg` as the filename regardless of the source format. If
+the source is PNG or HEIC, convert it first:
+
+```bash
+# PNG to JPEG
+magick "{source}.png" "knowledge/Candidates/{Full Name}/headshot.jpeg"
+# HEIC to JPEG
+magick "{source}.heic" "knowledge/Candidates/{Full Name}/headshot.jpeg"
+```
+
+If headshots exist in both locations, prefer the Downloads folder version (more
+likely to be a curated, high-quality photo).
 
 ## Step 3: Determine Pipeline Status
 
@@ -430,3 +473,5 @@ produces a full framework-aligned assessment.
 - [ ] Skills tagged using framework skill IDs where possible
 - [ ] Gender field populated only from explicit pronouns/titles (never
       name-inferred)
+- [ ] Headshots searched in email attachments and `~/Downloads/` (recursive)
+- [ ] Found headshots copied as `headshot.jpeg` into candidate directory

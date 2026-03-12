@@ -197,6 +197,24 @@ processed. This prevents re-processing the same changelog entries.
 
 ## Memory
 
+### 2026-03-12
+
+**Installation:** Personal (`~/Documents/Personal/`)
+
+**Processed changelogs:**
+
+- **meeting-prep** (2026-03-09) — Incorporated: use sync-apple-calendar query
+  script in Step 1 instead of raw `ls`/`cat`
+- **process-hyprnote** (2026-03-09) — Incorporated: scan.mjs script for finding
+  unprocessed sessions, updated "Before Starting" section
+- **scan-open-candidates** (2026-03-09) — Incorporated: state.mjs script for
+  managing all 5 head-hunter state files, added State Management Script section
+- **sync-apple-calendar** (2026-03-09) — Incorporated: query.mjs script for
+  filtering events by date/time, added Querying Events section
+- **track-candidates** (2026-03-11) — Incorporated: headshot discovery in
+  Step 2 (email attachments + Downloads search), added headshot.jpeg to outputs
+  and quality checklist
+
 ### 2026-03-06
 
 **Installation:** Personal (`~/Documents/Personal/`)
@@ -222,3 +240,8 @@ processed. This prevents re-processing the same changelog entries.
 | 2026-03-04 | Personal     | track-candidates | Incorporated field renames, new fields, statuses, and template                         |
 | 2026-03-04 | Personal     | track-candidates | Deferred: relaxed gender policy (name-based inference)                                 |
 | 2026-03-05 | Personal     | draft-emails     | Incorporated: no sign-off rule, drafted→handled rename, --draft flag, body padding fix |
+| 2026-03-09 | Personal     | meeting-prep     | Incorporated: use query.mjs in Step 1 instead of raw ls/cat                            |
+| 2026-03-09 | Personal     | process-hyprnote | Incorporated: scan.mjs script + updated Before Starting section                        |
+| 2026-03-09 | Personal     | scan-open-candidates | Incorporated: state.mjs script + State Management Script section                   |
+| 2026-03-09 | Personal     | sync-apple-calendar  | Incorporated: query.mjs script + Querying Events section                           |
+| 2026-03-11 | Personal     | track-candidates | Incorporated: headshot discovery in Step 2, headshot.jpeg output + checklist            |

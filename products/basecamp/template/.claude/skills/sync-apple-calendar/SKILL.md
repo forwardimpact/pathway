@@ -96,6 +96,47 @@ Each `{event_id}.json` file:
 - Database locked → wait 2 seconds, retry once
 - Skip events with no summary (likely cancelled or placeholder)
 
+## Querying Events
+
+After syncing, use the query script to filter events by date or time window.
+**Agents should use this script instead of writing bespoke calendar parsers.**
+
+    node scripts/query.mjs [options]
+
+### Time filters (combinable)
+
+| Flag | Description |
+|------|-------------|
+| `--today` | Events starting today (default if no filter given) |
+| `--tomorrow` | Events starting tomorrow |
+| `--upcoming 2h` | Events starting within interval (e.g., `2h`, `30m`, `1d`) |
+| `--date 2026-03-09` | Events on a specific date |
+| `--range 2026-03-09 2026-03-11` | Events between two dates (inclusive) |
+
+### Output options
+
+| Flag | Description |
+|------|-------------|
+| `--json` | Output as JSON array (default: formatted table) |
+| `--include-all-day` | Include all-day events (excluded by default) |
+| `--no-attendees` | Omit attendee names from output |
+
+### Examples
+
+```bash
+# Concierge: get today + tomorrow for triage
+node scripts/query.mjs --today --tomorrow
+
+# Meeting-prep: get upcoming meetings in next 2 hours as JSON
+node scripts/query.mjs --upcoming 2h --json
+
+# Chief-of-staff: get this week's events
+node scripts/query.mjs --range 2026-03-09 2026-03-13
+
+# Quick count check
+node scripts/query.mjs --today --json | node -e "process.stdin.on('data',d=>console.log(JSON.parse(d).length+' events today'))"
+```
+
 ## Constraints
 
 - Open database read-only (`readOnly: true`)

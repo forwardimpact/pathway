@@ -384,6 +384,83 @@ combinations, anything noteworthy for the user}
 **Naming:** Use the candidate's display name as given. If only a username is
 available, use the username. Never fabricate real names.
 
+## State Management Script
+
+**Use the state script for ALL state file operations.** Do NOT write bespoke
+scripts to update cursor, seen, prospects, failures, or log files.
+
+    node .claude/skills/scan-open-candidates/scripts/state.mjs <command> [args]
+
+### Commands
+
+**Cursor** (source rotation):
+
+```bash
+# Check which source to scan next
+node scripts/state.mjs cursor list
+
+# Get cursor for a specific source
+node scripts/state.mjs cursor get github_open_to_work
+
+# Update cursor after scanning
+node scripts/state.mjs cursor set github_open_to_work "2026-03-09T22:00:00Z" "UK-done_next:Europe"
+```
+
+**Seen** (deduplication):
+
+```bash
+# Check if a candidate was already seen (exit 0=seen, 1=new)
+node scripts/state.mjs seen check github_open_to_work mxmxmx333
+
+# Mark one ID as seen
+node scripts/state.mjs seen add github_open_to_work mxmxmx333
+
+# Mark multiple IDs as seen in one call
+node scripts/state.mjs seen batch github_open_to_work id1 id2 id3 id4
+```
+
+**Prospects**:
+
+```bash
+# Add a new prospect
+node scripts/state.mjs prospect add "Hasan Cam" github_open_to_work strong "J060-J070 platform"
+
+# List recent prospects
+node scripts/state.mjs prospect list --limit 10
+
+# Count total prospects
+node scripts/state.mjs prospect count
+```
+
+**Failures**:
+
+```bash
+# Check failure count (for source selection — skip if ≥3)
+node scripts/state.mjs failure get mastodon_hachyderm
+
+# Record a fetch failure
+node scripts/state.mjs failure increment mastodon_hachyderm
+
+# Reset after successful fetch
+node scripts/state.mjs failure reset github_open_to_work
+```
+
+**Logging**:
+
+```bash
+# Append a formatted wake cycle entry
+node scripts/state.mjs log-wake github_open_to_work "Primary query: 'open to work' location:UK — 30 results, 2 new prospects"
+
+# Append raw text
+node scripts/state.mjs log "Manual note about source rotation"
+```
+
+**Summary** (state overview):
+
+```bash
+node scripts/state.mjs summary
+```
+
 ## Quality Checklist
 
 - [ ] Selected the least-recently-checked source from cursor.tsv

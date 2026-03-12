@@ -51,26 +51,35 @@ Run this skill:
 ## Before Starting
 
 1. Read `USER.md` to get the user's name, email, and domain.
-2. List all session directories:
+2. **Scan for unprocessed sessions** using the scan script:
 
 ```bash
-ls "$HOME/Library/Application Support/hyprnote/sessions/"
+node .claude/skills/process-hyprnote/scripts/scan.mjs
 ```
 
-3. For each session, check if it needs processing by looking up its key files in
-   the graph state:
+This checks all sessions against the `graph_processed` state file and reports
+which need processing, with titles, dates, and content previews.
 
-```bash
-grep -F "{file_path}" ~/.cache/fit/basecamp/state/graph_processed
-```
+**Options:**
+
+| Flag | Description |
+|------|-------------|
+| `--changed` | Also detect sessions whose memo/summary hash has changed |
+| `--json` | Output as JSON (for programmatic use) |
+| `--count` | Just print the count (for quick checks) |
+| `--limit N` | Max sessions to display (default: 20) |
 
 A session needs processing if:
 
 - Its `_memo.md` path is **not** in `graph_processed`, OR
-- Its `_memo.md` hash has changed (compute SHA-256 and compare), OR
+- Its `_memo.md` hash has changed (use `--changed` to detect this), OR
 - Its `_summary.md` exists and is not in `graph_processed` or has changed
 
 **Process all unprocessed sessions in one run** (typically few sessions).
+
+**Do NOT write bespoke scripts to scan for unprocessed sessions.** Use this
+script — it handles all edge cases (empty memos, missing summaries, metadata
+fallback).
 
 ## Step 0: Build Knowledge Index
 
