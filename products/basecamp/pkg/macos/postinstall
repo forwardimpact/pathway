@@ -66,6 +66,11 @@ if [ ! -f "$BASECAMP_HOME/state.json" ]; then
   echo '{ "tasks": {} }' | /usr/bin/sudo -u "$REAL_USER" /usr/bin/tee "$BASECAMP_HOME/state.json" > /dev/null
 fi
 
+# --- Symlink into PATH -------------------------------------------------------
+
+/bin/mkdir -p /usr/local/bin
+/bin/ln -sf "$APP_PATH/Contents/MacOS/fit-basecamp" /usr/local/bin/fit-basecamp
+
 # --- Default knowledge base --------------------------------------------------
 
 SCHEDULER="$APP_PATH/Contents/MacOS/fit-basecamp"

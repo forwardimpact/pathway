@@ -49,10 +49,10 @@ else
   echo "  Basecamp.app not found, skipping."
 fi
 
-# --- Remove old loose binaries -----------------------------------------------
+# --- Remove CLI symlink and old loose binaries -------------------------------
 
 for BIN in "/usr/local/bin/fit-basecamp" "/usr/local/bin/BasecampStatus"; do
-  if [ -f "$BIN" ]; then
+  if [ -f "$BIN" ] || [ -L "$BIN" ]; then
     sudo rm -f "$BIN"
     echo "  Removed $BIN"
   fi
