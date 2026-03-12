@@ -11,8 +11,8 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 import { PromptLoader } from "@forwardimpact/libprompt";
 import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
 
-import { DslParser, createDslParser } from "../dsl/index.js";
-import { EntityGenerator, createEntityGenerator } from "../engine/tier0.js";
+import { createDslParser } from "../dsl/index.js";
+import { createEntityGenerator } from "../engine/tier0.js";
 import { ProseEngine } from "../engine/prose.js";
 import { PathwayGenerator } from "../engine/pathway.js";
 import { Renderer } from "../render/renderer.js";

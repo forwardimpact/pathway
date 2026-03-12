@@ -5,7 +5,7 @@ export { collectProseKeys } from "./engine/prose-keys.js";
 export { PathwayGenerator, loadSchemas } from "./engine/pathway.js";
 export { Renderer, createRenderer } from "./render/renderer.js";
 export { ContentValidator, validateCrossContent } from "./validate.js";
-export { ContentFormatter, formatContent, formatFiles } from "./format.js";
+export { ContentFormatter, formatContent } from "./format.js";
 export { Pipeline } from "./pipeline.js";
 export { loadToSupabase } from "./load.js";
 export { generateDrugs, generatePlatforms } from "./render/industry-data.js";
