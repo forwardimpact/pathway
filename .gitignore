@@ -45,6 +45,10 @@ playwright-report/
 # Package files
 node_modules/
 
+# Supabase local state
+**/.branches/
+**/.temp/
+
 # Other stuff
 **/.DS_Store
 
