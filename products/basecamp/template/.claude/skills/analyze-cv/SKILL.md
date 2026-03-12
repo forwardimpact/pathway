@@ -142,8 +142,13 @@ Use the proficiency definitions from the framework:
 | `practitioner` | Led teams using this skill, mentored others, deep work  |
 | `expert`       | Published, shaped org practice, industry recognition    |
 
-**Be conservative.** CVs inflate; default one level below what's claimed unless
-there's concrete evidence (metrics, project details, scope indicators).
+**Be sceptical.** CVs inflate significantly. Default **two levels below** what
+the CV implies unless the candidate provides concrete, quantified evidence
+(metrics, measurable outcomes, named systems, team sizes, user/revenue scale).
+Only award the directly implied level when the CV includes specific, verifiable
+details — vague descriptions like "improved performance" or "led initiatives"
+do not count. A skill merely listed in a "Skills" section with no project
+context rates `awareness` at most.
 
 ## Step 4: Assess Behaviour Indicators
 
@@ -174,10 +179,18 @@ npx fit-pathway progress {discipline} {level} --track={track}
 
 Classify each skill as:
 
-- **Strong match** — candidate meets or exceeds the expected proficiency
-- **Adequate** — candidate is within one level of expected proficiency
+- **Strong match** — candidate meets or exceeds the expected proficiency **and**
+  evidence is concrete (metrics, project specifics, scope indicators)
+- **Adequate** — candidate is exactly one level below expected proficiency with
+  clear project evidence, **or** meets the level but evidence is thin
 - **Gap** — candidate is two or more levels below expected proficiency
-- **Not evidenced** — CV doesn't mention this skill area
+- **Not evidenced** — CV doesn't mention this skill area. **Treat as a gap**
+  for recommendation purposes — absence of evidence is not evidence of skill
+
+**Threshold rule:** If more than **one third** of the target job's skills are
+Gap or Not evidenced, the candidate cannot receive "Proceed." If more than
+**half** are Gap or Not evidenced, the candidate cannot receive "Proceed with
+reservations."
 
 ## Step 6: Write Assessment
 
@@ -234,8 +247,21 @@ or could work on either. Reference specific CV evidence.}
 
 **Recommendation:** {Proceed / Proceed with reservations / Do not proceed}
 
+Apply these **decision rules** strictly:
+
+| Recommendation               | Criteria                                                                |
+| ---------------------------- | ----------------------------------------------------------------------- |
+| **Proceed**                  | ≥ 70% Strong match, no core skill gaps, strong behaviour signals        |
+| **Proceed with reservations** | ≥ 50% Strong match, ≤ 2 gaps in non-core skills, no behaviour red flags |
+| **Do not proceed**           | All other candidates — including those with thin evidence               |
+
+When in doubt, choose the stricter recommendation. "Proceed with reservations"
+should be rare — it signals a strong candidate with a specific, addressable
+concern, not a marginal candidate who might work out.
+
 **Rationale:** {3-5 sentences grounding the recommendation in framework data.
-Reference specific skill gaps or strengths and their impact on the role.}
+Reference specific skill gaps or strengths and their impact on the role.
+Explicitly state the skill match percentage and gap count.}
 
 **Interview focus areas:**
 - {Area 1 — what to probe in interviews to validate}
@@ -261,7 +287,13 @@ to create the candidate profile from email threads.
 - [ ] Assessment is grounded in `fit-pathway` framework data, not subjective
       opinion
 - [ ] Every skill rating cites specific CV evidence or marks "Not evidenced"
-- [ ] Estimated level is conservative (one below CV claims unless proven)
+- [ ] Estimated level is sceptical (two below CV claims unless proven with
+      quantified evidence)
+- [ ] "Not evidenced" skills are counted as gaps in the recommendation
+- [ ] Recommendation follows the decision rules table — verify match
+      percentages and gap counts before choosing a tier
+- [ ] "Proceed with reservations" is only used for strong candidates with a
+      specific, named concern — never as a soft "maybe"
 - [ ] Track fit analysis references specific skill modifiers from the framework
 - [ ] Gaps are actionable — they suggest interview focus areas
 - [ ] Assessment file uses correct path format and links to CV
