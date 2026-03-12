@@ -114,13 +114,53 @@ Agent Profile = Discipline × Track × Stage
 
 ## Pure Functions
 
-All derivation functions are pure:
+All derivation functions are pure — no side effects, same inputs produce same
+outputs, no external state access. This is intentional and makes libskill the
+only library exempt from the OO+DI pattern used everywhere else. Do not add
+classes or constructor injection to libskill.
 
-- No side effects
-- Same inputs → same outputs
-- No external state access
+## Composition Patterns
 
-This makes them easy to test and reason about.
+### With map (upstream data)
+
+Map provides the YAML schema data that libskill consumes. Derivation functions
+accept raw entities loaded from `data/pathway/`:
+
+```javascript
+import { deriveJob } from "@forwardimpact/libskill/derivation";
+
+// discipline, level, track, capabilities, behaviours all loaded from YAML
+const job = deriveJob(discipline, level, track, capabilities, behaviours);
+```
+
+### With pathway (downstream presentation)
+
+Pathway formatters consume libskill's derived output for display:
+
+```javascript
+import { deriveSkillMatrix } from "@forwardimpact/libskill/derivation";
+import { prepareAgentProfile } from "@forwardimpact/libskill/profile";
+
+// Derive raw data
+const matrix = deriveSkillMatrix(discipline, level, capabilities);
+
+// Filter for agent context
+const agentProfile = prepareAgentProfile(matrix);
+
+// Pass to pathway formatters (never transform in views)
+renderSkillMatrix(matrix);
+```
+
+### With basecamp (agent generation)
+
+Basecamp uses libskill to generate agent profiles and skill files:
+
+```javascript
+import { deriveAgentSkills, generateStageAgentProfile } from "@forwardimpact/libskill/agent";
+
+const skills = deriveAgentSkills(discipline, track, stage, capabilities);
+const profile = generateStageAgentProfile(discipline, track, stage);
+```
 
 ## Verification
 
