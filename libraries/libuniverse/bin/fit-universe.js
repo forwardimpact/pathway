@@ -5,9 +5,20 @@
 import { resolve, join, dirname } from "path";
 import { mkdir, writeFile } from "fs/promises";
 import { fileURLToPath } from "url";
+import { format } from "prettier";
 import { createScriptConfig } from "@forwardimpact/libconfig";
-import { runPipeline } from "../pipeline.js";
-import { formatContent } from "../format.js";
+import { createLogger } from "@forwardimpact/libtelemetry";
+import { PromptLoader } from "@forwardimpact/libprompt";
+import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
+
+import { DslParser, createDslParser } from "../dsl/index.js";
+import { EntityGenerator, createEntityGenerator } from "../engine/tier0.js";
+import { ProseEngine } from "../engine/prose.js";
+import { PathwayGenerator } from "../engine/pathway.js";
+import { Renderer } from "../render/renderer.js";
+import { ContentValidator } from "../validate.js";
+import { ContentFormatter, formatContent } from "../format.js";
+import { Pipeline } from "../pipeline.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -51,14 +62,44 @@ async function main() {
 
   const monorepoRoot = resolve(__dirname, "../../..");
   const schemaDir = join(monorepoRoot, "products/map/schema/json");
-  const result = await runPipeline({
-    universePath: args.universe || join(__dirname, "..", "data", "default.dsl"),
-    dataDir: join(monorepoRoot, "examples"),
+  const cachePath = join(__dirname, "..", ".prose-cache.json");
+  const promptDir = join(__dirname, "..", "prompts");
+  const templateDir = join(__dirname, "..", "templates");
+
+  // Wire all dependencies (composition root)
+  const logger = createLogger("universe");
+  const promptLoader = new PromptLoader(promptDir);
+  const templateLoader = new TemplateLoader(templateDir);
+
+  const dslParser = createDslParser();
+  const entityGenerator = createEntityGenerator(logger);
+  const proseEngine = new ProseEngine({
+    cachePath,
     mode,
     strict: !!args.strict,
-    only: args.only || null,
     llmApi,
-    cachePath: join(__dirname, "..", ".prose-cache.json"),
+    promptLoader,
+    logger,
+  });
+  const pathwayGenerator = new PathwayGenerator(proseEngine, logger);
+  const renderer = new Renderer(templateLoader, logger);
+  const validator = new ContentValidator(logger);
+  const formatter = new ContentFormatter(format, logger);
+
+  const pipeline = new Pipeline({
+    dslParser,
+    entityGenerator,
+    proseEngine,
+    pathwayGenerator,
+    renderer,
+    validator,
+    formatter,
+    logger,
+  });
+
+  const result = await pipeline.run({
+    universePath: args.universe || join(__dirname, "..", "data", "default.dsl"),
+    only: args.only || null,
     schemaDir,
   });
 
@@ -112,7 +153,10 @@ async function main() {
         "examples/activity/evidence.json",
       );
       await mkdir(dirname(evidencePath), { recursive: true });
-      const formatted = await formatContent(evidencePath, JSON.stringify(evidence, null, 2));
+      const formatted = await formatContent(
+        evidencePath,
+        JSON.stringify(evidence, null, 2),
+      );
       await writeFile(evidencePath, formatted);
     }
   }

@@ -5,13 +5,6 @@
  * Uses TemplateLoader from libtemplate for all output.
  */
 
-import { dirname, join } from "path";
-import { fileURLToPath } from "url";
-import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
-
-const __dirname = dirname(fileURLToPath(import.meta.url));
-const templates = new TemplateLoader(join(__dirname, "..", "templates"));
-
 const SKILL_NAMES = [
   "version_control",
   "code_review",
@@ -35,9 +28,11 @@ const LEVEL_IDX = { L1: 0, L2: 1, L3: 2, L4: 3, L5: 4 };
  * Render Markdown files for Basecamp personas.
  * @param {object} entities
  * @param {Map<string,string>} prose
+ * @param {import('@forwardimpact/libtemplate/loader').TemplateLoader} templates - Template loader
  * @returns {Map<string,string>} path → Markdown content
  */
-export function renderMarkdown(entities, prose) {
+export function renderMarkdown(entities, prose, templates) {
+  if (!templates) throw new Error("templates is required");
   const files = new Map();
   const basecampContent = entities.content.find(
     (c) => c.id === "basecamp_markdown",

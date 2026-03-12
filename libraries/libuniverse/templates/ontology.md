@@ -5,32 +5,30 @@ Domain: `https://{{domain}}`
 ## Organizations
 
 {{#orgs}}
-- [{{{name}}}]({{{iri}}})
-{{/orgs}}
+
+- [{{{name}}}]({{{iri}}}) {{/orgs}}
 
 ## Departments
 
 {{#departments}}
-- [{{{name}}}]({{{iri}}})
-{{/departments}}
+
+- [{{{name}}}]({{{iri}}}) {{/departments}}
 
 ## Teams
 
 {{#teams}}
-- [{{{name}}}]({{{iri}}})
-{{/teams}}
+
+- [{{{name}}}]({{{iri}}}) {{/teams}}
 
 ## People
 
 {{#people}}
-- [{{{name}}}]({{{iri}}}) — {{discipline}} {{level}}
-{{/people}}
-{{#hasMore}}
-- ... and {{moreCount}} more
-{{/hasMore}}
+
+- [{{{name}}}]({{{iri}}}) — {{discipline}} {{level}} {{/people}} {{#hasMore}}
+- ... and {{moreCount}} more {{/hasMore}}
 
 ## Projects
 
 {{#projects}}
-- [{{{name}}}]({{{iri}}})
-{{/projects}}
+
+- [{{{name}}}]({{{iri}}}) {{/projects}}

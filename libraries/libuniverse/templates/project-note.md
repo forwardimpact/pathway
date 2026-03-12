@@ -6,9 +6,8 @@ project: {{projectId}}
 
 # {{projectName}} — Notes
 
-**Author:** {{personName}}
-**Project Type:** {{projectType}}
-**Timeline:** {{timeline_start}} to {{timeline_end}}
+**Author:** {{personName}} **Project Type:** {{projectType}} **Timeline:**
+{{timeline_start}} to {{timeline_end}}
 
 ## Notes
 

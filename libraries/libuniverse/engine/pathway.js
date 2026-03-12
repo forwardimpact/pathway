@@ -47,6 +47,41 @@ export function loadSchemas(schemaDir) {
 }
 
 /**
+ * PathwayGenerator orchestrates LLM calls to generate pathway entity data.
+ */
+export class PathwayGenerator {
+  /**
+   * @param {import('./prose.js').ProseEngine} proseEngine - Prose engine for LLM calls
+   * @param {object} logger - Logger instance
+   */
+  constructor(proseEngine, logger) {
+    if (!proseEngine) throw new Error("proseEngine is required");
+    if (!logger) throw new Error("logger is required");
+    this.proseEngine = proseEngine;
+    this.logger = logger;
+  }
+
+  /**
+   * Generate all pathway entity data via LLM calls in dependency order.
+   * @param {object} options
+   * @param {object} options.framework - Framework AST from DSL parser
+   * @param {string} options.domain - Universe domain
+   * @param {string} options.industry - Universe industry
+   * @param {object} options.schemas - Loaded JSON schemas
+   * @returns {Promise<object>} Generated pathway data keyed by entity type
+   */
+  async generate({ framework, domain, industry, schemas }) {
+    return generatePathwayData({
+      framework,
+      domain,
+      industry,
+      schemas,
+      proseEngine: this.proseEngine,
+    });
+  }
+}
+
+/**
  * Generate all pathway entity data via LLM calls in dependency order.
  *
  * @param {object} options
@@ -57,7 +92,7 @@ export function loadSchemas(schemaDir) {
  * @param {import('./prose.js').ProseEngine} options.proseEngine - Prose engine for LLM calls
  * @returns {Promise<object>} Generated pathway data keyed by entity type
  */
-export async function generatePathwayData({
+async function generatePathwayData({
   framework,
   domain,
   industry,

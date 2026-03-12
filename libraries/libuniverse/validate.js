@@ -354,3 +354,25 @@ function checkEvidenceSkillIds(entities) {
         : "Some evidence entries missing skill IDs",
   };
 }
+
+/**
+ * Content validator class with DI.
+ */
+export class ContentValidator {
+  /**
+   * @param {object} logger - Logger instance
+   */
+  constructor(logger) {
+    if (!logger) throw new Error("logger is required");
+    this.logger = logger;
+  }
+
+  /**
+   * Validate cross-content integrity of generated entities.
+   * @param {object} entities
+   * @returns {{passed: boolean, total: number, failures: number, checks: object[]}}
+   */
+  validate(entities) {
+    return validateCrossContent(entities);
+  }
+}

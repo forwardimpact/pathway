@@ -1,17 +1,27 @@
 <section itemscope itemtype="https://schema.org/Blog" itemid="{{{blogIri}}}">
   <span itemprop="name">Engineering Blog</span>
-{{#posts}}
-  <div itemprop="blogPost" itemscope itemtype="https://schema.org/BlogPosting" itemid="{{{iri}}}">
+  {{#posts}}
+  <div
+    itemprop="blogPost"
+    itemscope
+    itemtype="https://schema.org/BlogPosting"
+    itemid="{{{iri}}}"
+  >
     <h3 itemprop="headline">{{headline}}</h3>
     <meta itemprop="identifier" content="{{identifier}}" />
     <time itemprop="datePublished" datetime="{{date}}">{{date}}</time>
     {{#author}}
-    <span itemprop="author" itemscope itemtype="https://schema.org/Person" itemid="{{{iri}}}">
+    <span
+      itemprop="author"
+      itemscope
+      itemtype="https://schema.org/Person"
+      itemid="{{{iri}}}"
+    >
       <span itemprop="name">{{name}}</span>
     </span>
     {{/author}}
     <link itemprop="isPartOf" href="{{{blogIri}}}" />
     <link itemprop="url" href="blog-{{index}}.html" />
   </div>
-{{/posts}}
+  {{/posts}}
 </section>

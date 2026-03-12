@@ -6,8 +6,7 @@ date: {{date}}
 
 # Daily Briefing — {{personName}}
 
-**Role:** {{discipline}} {{level}}
-**Team:** {{teamName}} ({{deptName}})
+**Role:** {{discipline}} {{level}} **Team:** {{teamName}} ({{deptName}})
 **Email:** {{email}}
 
 ## Today's Focus
