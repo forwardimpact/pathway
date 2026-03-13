@@ -12,9 +12,9 @@ engineering teams:
 | Product      | Question it answers                            | CLI              |
 | ------------ | ---------------------------------------------- | ---------------- |
 | **Map**      | What does good engineering look like here?      | `fit-map`        |
-| **Pathway**  | Where should I grow next?                       | `fit-pathway`    |
-| **Basecamp** | What do I need to handle today?                 | `fit-basecamp`   |
-| **Landmark** | What does my engineering work demonstrate?      | `fit-landmark`   |
+| **Pathway**  | Where does my engineering path go from here?    | `fit-pathway`    |
+| **Basecamp** | Am I prepared for what's ahead today?           | `fit-basecamp`   |
+| **Landmark** | What milestones has my engineering reached?     | `fit-landmark`   |
 | **Summit**   | Is this team supported to reach peak performance? | `fit-summit`     |
 
 **Map** is the data product — skills, levels, behaviours, markers — owned,

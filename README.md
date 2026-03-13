@@ -21,9 +21,9 @@ engineering teams:
 | Product      | Question it answers                            |
 | ------------ | ---------------------------------------------- |
 | **Map**      | What does good engineering look like here?      |
-| **Pathway**  | Where should I grow next?                       |
-| **Basecamp** | What do I need to handle today?                 |
-| **Landmark** | What does my engineering work demonstrate?      |
+| **Pathway**  | Where does my engineering path go from here?    |
+| **Basecamp** | Am I prepared for what's ahead today?           |
+| **Landmark** | What milestones has my engineering reached?     |
 | **Summit**   | Is this team supported to reach peak performance? |
 
 ## Products
