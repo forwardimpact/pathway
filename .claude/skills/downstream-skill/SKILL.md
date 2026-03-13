@@ -214,6 +214,9 @@ processed. This prevents re-processing the same changelog entries.
 - **track-candidates** (2026-03-11) — Incorporated: headshot discovery in Step 2
   (email attachments + Downloads search), added headshot.jpeg to outputs and
   quality checklist
+- **synthesize-deck** (no changelog) — Incorporated: new general-purpose skill,
+  added to upstream template (PPTX → engineering brief with JTBD, dependencies,
+  synthetic data needs)
 
 ### 2026-03-06
 
@@ -244,4 +247,5 @@ processed. This prevents re-processing the same changelog entries.
 | 2026-03-09 | Personal     | process-hyprnote     | Incorporated: scan.mjs script + updated Before Starting section                        |
 | 2026-03-09 | Personal     | scan-open-candidates | Incorporated: state.mjs script + State Management Script section                       |
 | 2026-03-09 | Personal     | sync-apple-calendar  | Incorporated: query.mjs script + Querying Events section                               |
-| 2026-03-11 | Personal     | track-candidates     | Incorporated: headshot discovery in Step 2, headshot.jpeg output + checklist           |
+| 2026-03-11 | Personal     | track-candidates     | Incorporated: headshot discovery in Step 2, headshot.jpeg output + checklist            |
+| 2026-03-12 | Personal     | synthesize-deck      | Incorporated: new skill — PPTX to engineering brief with JTBD + dependencies           |
