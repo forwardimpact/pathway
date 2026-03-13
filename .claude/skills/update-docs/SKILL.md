@@ -62,7 +62,7 @@ reflects the current codebase.
 | Agent Derivation   | `libraries/libpathway/src/agent.js`   |
 | CLI Commands       | `products/pathway/bin/fit-pathway.js` |
 | Templates          | `products/pathway/templates/`         |
-| Agent instructions | `AGENTS.md`                           |
+| Agent instructions | `CLAUDE.md`                           |
 
 ## CLI Verification
 

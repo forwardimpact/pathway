@@ -118,7 +118,7 @@ All generated output writes to `examples/` at the monorepo root.
 ## Environment
 
 Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate` mode.
-These are always available in the standard environment (see AGENTS.md).
+These are always available in the standard environment (see CLAUDE.md).
 
 ```sh
 npx fit-universe --generate          # Uses LLM_TOKEN from environment

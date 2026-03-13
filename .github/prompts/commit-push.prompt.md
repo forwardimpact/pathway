@@ -2,7 +2,7 @@
 
 Commit all staged and unstaged changes, then push to remote.
 
-Follow the conventions in `AGENTS.md` (Git Workflow section).
+Follow the conventions in `CLAUDE.md` (Git Workflow section).
 
 ## Process
 
