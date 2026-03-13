@@ -20,14 +20,14 @@ description: >
 
 ## Libraries
 
-| Library     | Main API                                    | Purpose                                      |
-| ----------- | ------------------------------------------- | -------------------------------------------- |
-| libstorage  | `createStorage`, `parseJsonl`               | Multi-backend file storage (local, S3, Supabase) |
-| libindex    | `Index`, `BufferedIndex`                    | JSONL storage with filtering                 |
-| libresource | `ResourceIndex`, `createResourceIndex`      | Typed resources with authorization           |
-| libpolicy   | `PolicyIndex`, `createPolicyIndex`          | Access control policy evaluation             |
-| libgraph    | `GraphIndex`, `createGraphIndex`, `PREFIXES` | RDF triple storage and pattern queries       |
-| libvector   | `VectorIndex`, `VectorProcessor`            | Embedding storage and cosine similarity search |
+| Library     | Main API                                     | Purpose                                          |
+| ----------- | -------------------------------------------- | ------------------------------------------------ |
+| libstorage  | `createStorage`, `parseJsonl`                | Multi-backend file storage (local, S3, Supabase) |
+| libindex    | `Index`, `BufferedIndex`                     | JSONL storage with filtering                     |
+| libresource | `ResourceIndex`, `createResourceIndex`       | Typed resources with authorization               |
+| libpolicy   | `PolicyIndex`, `createPolicyIndex`           | Access control policy evaluation                 |
+| libgraph    | `GraphIndex`, `createGraphIndex`, `PREFIXES` | RDF triple storage and pattern queries           |
+| libvector   | `VectorIndex`, `VectorProcessor`             | Embedding storage and cosine similarity search   |
 
 ## Decision Guide
 

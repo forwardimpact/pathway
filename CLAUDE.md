@@ -90,31 +90,32 @@ Every library and product follows a standard pattern:
 - **Tests** bypass factories and inject mocks directly via constructors
 
 **Exceptions:** libskill (pure functions by design), libui (functional DOM),
-libsecret (stateless crypto utilities), libtype (generated protobuf code).
-Pure stateless functions (hashing, token counting, validation) do not need DI.
+libsecret (stateless crypto utilities), libtype (generated protobuf code). Pure
+stateless functions (hashing, token counting, validation) do not need DI.
 
 ### Library Examples
 
-| Library      | Classes                                              | Factory                    |
-| ------------ | ---------------------------------------------------- | -------------------------- |
-| libsupervise | `SupervisionTree`                                    | `createSupervisionTree`    |
-| libutil      | `Finder`, `BundleDownloader`, `TarExtractor`, `Retry`| `createBundleDownloader`, `createRetry` |
+| Library      | Classes                                                                                                                           | Factory                                                                           |
+| ------------ | --------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------- |
+| libsupervise | `SupervisionTree`                                                                                                                 | `createSupervisionTree`                                                           |
+| libutil      | `Finder`, `BundleDownloader`, `TarExtractor`, `Retry`                                                                             | `createBundleDownloader`, `createRetry`                                           |
 | libuniverse  | `DslParser`, `EntityGenerator`, `ProseEngine`, `PathwayGenerator`, `Renderer`, `ContentValidator`, `ContentFormatter`, `Pipeline` | `createDslParser`, `createEntityGenerator`, `createProseEngine`, `createRenderer` |
 
 Pure functions in libutil (`generateHash`, `generateUUID`, `countTokens`,
 `parseJsonBody`) and libuniverse (`collectProseKeys`, `loadSchemas`) remain
 standalone — they have no state or I/O to inject.
 
-I/O wrappers in libutil require explicit deps: `updateEnvFile(path, key, value,
-fsFns)`, `execLine(shift, deps)`, `waitFor(fn, options)`.
+I/O wrappers in libutil require explicit deps:
+`updateEnvFile(path, key, value, fsFns)`, `execLine(shift, deps)`,
+`waitFor(fn, options)`.
 
 ### Product Examples
 
-| Product  | Classes                                                        | Composition Root           |
-| -------- | -------------------------------------------------------------- | -------------------------- |
-| map      | `DataLoader`, `SchemaValidator`, `IndexGenerator`              | `bin/fit-map.js`           |
-| pathway  | Uses `createDataLoader`, `createTemplateLoader` from libraries | `bin/fit-pathway.js`       |
-| basecamp | `StateManager`, `AgentRunner`, `Scheduler`, `KBManager`, `SocketServer` | `src/basecamp.js` |
+| Product  | Classes                                                                 | Composition Root     |
+| -------- | ----------------------------------------------------------------------- | -------------------- |
+| map      | `DataLoader`, `SchemaValidator`, `IndexGenerator`                       | `bin/fit-map.js`     |
+| pathway  | Uses `createDataLoader`, `createTemplateLoader` from libraries          | `bin/fit-pathway.js` |
+| basecamp | `StateManager`, `AgentRunner`, `Scheduler`, `KBManager`, `SocketServer` | `src/basecamp.js`    |
 
 Basecamp uses a local `createLogger(logDir, fs)` function (not libtelemetry)
 since it is a user-facing CLI tool. The composition root wires StateManager →
@@ -126,13 +127,13 @@ Library skills are organized into 5 capability groups (not individual library
 skills). Each group has a corresponding skill file (`.claude/skills/`) with
 decision guides, composition recipes, and DI wiring patterns.
 
-| Group                        | Libraries                                          |
-| ---------------------------- | -------------------------------------------------- |
-| `libs-service-infrastructure`| librpc, libconfig, libtelemetry, libtype, libharness|
-| `libs-data-persistence`      | libstorage, libindex, libresource, libpolicy, libgraph, libvector |
-| `libs-llm-orchestration`     | libllm, libmemory, libprompt, libagent             |
-| `libs-web-presentation`      | libui, libformat, libweb, libdoc, libtemplate      |
-| `libs-system-utilities`      | libutil, libsecret, libsupervise, librc, libcodegen|
+| Group                         | Libraries                                                         |
+| ----------------------------- | ----------------------------------------------------------------- |
+| `libs-service-infrastructure` | librpc, libconfig, libtelemetry, libtype, libharness              |
+| `libs-data-persistence`       | libstorage, libindex, libresource, libpolicy, libgraph, libvector |
+| `libs-llm-orchestration`      | libllm, libmemory, libprompt, libagent                            |
+| `libs-web-presentation`       | libui, libformat, libweb, libdoc, libtemplate                     |
+| `libs-system-utilities`       | libutil, libsecret, libsupervise, librc, libcodegen               |
 
 `libskill` retains its own individual skill (pure-function design, intentionally
 exempt from OO+DI).

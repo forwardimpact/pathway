@@ -87,13 +87,11 @@ function buildEnrichContext(enrichKey, linked) {
         ...(drug.projectLinks || [])
           .slice(0, 2)
           .map((p) => ({ type: "Project", name: p.name, iri: p.iri })),
-        ...(drug.platformLinks || [])
-          .slice(0, 2)
-          .map((p) => ({
-            type: "SoftwareApplication",
-            name: p.name,
-            iri: p.iri,
-          })),
+        ...(drug.platformLinks || []).slice(0, 2).map((p) => ({
+          type: "SoftwareApplication",
+          name: p.name,
+          iri: p.iri,
+        })),
       ];
       if (drug.parentDrug) {
         const parent = linked.drugs.find((d) => d.id === drug.parentDrug);
@@ -172,13 +170,11 @@ function buildEnrichContext(enrichKey, linked) {
         ...post.aboutDrugs
           .slice(0, 2)
           .map((d) => ({ type: "Drug", name: d.name, iri: d.iri })),
-        ...post.aboutPlatforms
-          .slice(0, 2)
-          .map((p) => ({
-            type: "SoftwareApplication",
-            name: p.name,
-            iri: p.iri,
-          })),
+        ...post.aboutPlatforms.slice(0, 2).map((p) => ({
+          type: "SoftwareApplication",
+          name: p.name,
+          iri: p.iri,
+        })),
         ...post.mentionsPeople
           .slice(0, 3)
           .map((p) => ({ type: "Person", name: p.name, iri: p.iri })),
@@ -196,13 +192,11 @@ function buildEnrichContext(enrichKey, linked) {
         ...(article.drugLinks || [])
           .slice(0, 2)
           .map((d) => ({ type: "Drug", name: d.name, iri: d.iri })),
-        ...(article.platformLinks || [])
-          .slice(0, 2)
-          .map((p) => ({
-            type: "SoftwareApplication",
-            name: p.name,
-            iri: p.iri,
-          })),
+        ...(article.platformLinks || []).slice(0, 2).map((p) => ({
+          type: "SoftwareApplication",
+          name: p.name,
+          iri: p.iri,
+        })),
         ...(article.projectLinks || [])
           .slice(0, 2)
           .map((p) => ({ type: "Project", name: p.name, iri: p.iri })),

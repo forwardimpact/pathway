@@ -16,21 +16,21 @@ Three categories of work:
 
 ## Product conformance audit
 
-| Product      | Module                         | Status             | Issue                                                                                                    |
-| ------------ | ------------------------------ | ------------------ | -------------------------------------------------------------------------------------------------------- |
-| **map**      | `src/loader.js`                | Non-conforming     | Hard-codes `fs/promises` at module scope; `loadAllData` mixes loading + validation; no DI seams          |
-| **map**      | `src/schema-validation.js`     | Non-conforming     | Module-level `schemaDir` via `__dirname`; `createValidator()` inlines Ajv creation; no injectable fs     |
-| **map**      | `src/index-generator.js`       | Non-conforming     | Hard-codes `fs/promises`; `writeFile` called inline with no DI seam                                      |
-| **map**      | `src/validation.js`            | Exempt             | Pure validation functions — stateless, data in → result out                                              |
-| **map**      | `src/levels.js`                | Exempt             | Type constants and pure helpers                                                                          |
-| **map**      | `src/modifiers.js`             | Exempt             | Pure predicate function                                                                                  |
-| **pathway**  | `src/lib/template-loader.js`   | **Non-conforming** | Module-level singleton: `const loader = createTemplateLoader(...)` at line 14                            |
-| **pathway**  | `src/lib/state.js`             | Exempt             | Browser-side global store via libui — standard pattern for client-side apps                              |
-| **pathway**  | `src/lib/yaml-loader.js`       | Exempt             | Browser-side data loading via libui — fetch-based, no Node.js fs                                        |
-| **pathway**  | `src/formatters/**`            | Exempt             | Pure functions — data in → string/DOM out. Same exemption as libskill.                                  |
-| **pathway**  | `src/commands/**`              | Partially conform. | Commands are pure handlers but receive all deps via `{ data, args, options }` — no singleton issues     |
-| **pathway**  | `bin/fit-pathway.js`           | Non-conforming     | Composition root that hard-codes `loadAllData` inline; no library integration for config or logging     |
-| **basecamp** | `src/basecamp.js`              | **Non-conforming** | 970-line monolith; module-level mutable state (`activeChildren`, `daemonStartedAt`); inline fs + logging |
+| Product      | Module                       | Status             | Issue                                                                                                    |
+| ------------ | ---------------------------- | ------------------ | -------------------------------------------------------------------------------------------------------- |
+| **map**      | `src/loader.js`              | Non-conforming     | Hard-codes `fs/promises` at module scope; `loadAllData` mixes loading + validation; no DI seams          |
+| **map**      | `src/schema-validation.js`   | Non-conforming     | Module-level `schemaDir` via `__dirname`; `createValidator()` inlines Ajv creation; no injectable fs     |
+| **map**      | `src/index-generator.js`     | Non-conforming     | Hard-codes `fs/promises`; `writeFile` called inline with no DI seam                                      |
+| **map**      | `src/validation.js`          | Exempt             | Pure validation functions — stateless, data in → result out                                              |
+| **map**      | `src/levels.js`              | Exempt             | Type constants and pure helpers                                                                          |
+| **map**      | `src/modifiers.js`           | Exempt             | Pure predicate function                                                                                  |
+| **pathway**  | `src/lib/template-loader.js` | **Non-conforming** | Module-level singleton: `const loader = createTemplateLoader(...)` at line 14                            |
+| **pathway**  | `src/lib/state.js`           | Exempt             | Browser-side global store via libui — standard pattern for client-side apps                              |
+| **pathway**  | `src/lib/yaml-loader.js`     | Exempt             | Browser-side data loading via libui — fetch-based, no Node.js fs                                         |
+| **pathway**  | `src/formatters/**`          | Exempt             | Pure functions — data in → string/DOM out. Same exemption as libskill.                                   |
+| **pathway**  | `src/commands/**`            | Partially conform. | Commands are pure handlers but receive all deps via `{ data, args, options }` — no singleton issues      |
+| **pathway**  | `bin/fit-pathway.js`         | Non-conforming     | Composition root that hard-codes `loadAllData` inline; no library integration for config or logging      |
+| **basecamp** | `src/basecamp.js`            | **Non-conforming** | 970-line monolith; module-level mutable state (`activeChildren`, `daemonStartedAt`); inline fs + logging |
 
 ### What is exempt
 
@@ -623,12 +623,12 @@ assert(scheduler.shouldWake(agent, agentState, now));
 Each migration is a single atomic commit. Products depend on map, so map
 migrates first.
 
-| Order | Target           | Commit scope                                                             |
-| ----- | ---------------- | ------------------------------------------------------------------------ |
-| 1     | map              | DataLoader + SchemaValidator + IndexGenerator + all call sites           |
-| 2     | pathway template | Singleton removal + all template-loader call sites                       |
-| 3     | pathway CLI      | Composition root wiring (depends on map migration landing)               |
-| 4     | basecamp         | Full decomposition into 5 classes + composition root + tests             |
+| Order | Target           | Commit scope                                                   |
+| ----- | ---------------- | -------------------------------------------------------------- |
+| 1     | map              | DataLoader + SchemaValidator + IndexGenerator + all call sites |
+| 2     | pathway template | Singleton removal + all template-loader call sites             |
+| 3     | pathway CLI      | Composition root wiring (depends on map migration landing)     |
+| 4     | basecamp         | Full decomposition into 5 classes + composition root + tests   |
 
 Migrations 2 and 3 can land in a single commit since they both touch pathway.
 

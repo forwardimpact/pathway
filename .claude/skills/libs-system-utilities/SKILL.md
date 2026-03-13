@@ -21,13 +21,13 @@ description: >
 
 ## Libraries
 
-| Library      | Main API                                        | Purpose                                      |
-| ------------ | ----------------------------------------------- | -------------------------------------------- |
-| libutil      | `countTokens`, `generateHash`, `generateUuid`   | Token counting, hashing, UUIDs, project utils |
-| libsecret    | `generateSecret`, `createJwt`, `setEnvVar`      | Cryptographic secrets, JWTs, .env management |
-| libsupervise | `LongrunProcess`, `SupervisionTree`, `LogWriter` | Process supervision with restart and logging |
-| librc        | `ServiceManager`, `sendCommand`                 | Service lifecycle via svscan daemon          |
-| libcodegen   | `TypeGenerator`, `ServiceGenerator`             | Code generation from .proto files            |
+| Library      | Main API                                         | Purpose                                       |
+| ------------ | ------------------------------------------------ | --------------------------------------------- |
+| libutil      | `countTokens`, `generateHash`, `generateUuid`    | Token counting, hashing, UUIDs, project utils |
+| libsecret    | `generateSecret`, `createJwt`, `setEnvVar`       | Cryptographic secrets, JWTs, .env management  |
+| libsupervise | `LongrunProcess`, `SupervisionTree`, `LogWriter` | Process supervision with restart and logging  |
+| librc        | `ServiceManager`, `sendCommand`                  | Service lifecycle via svscan daemon           |
+| libcodegen   | `TypeGenerator`, `ServiceGenerator`              | Code generation from .proto files             |
 
 ## Decision Guide
 

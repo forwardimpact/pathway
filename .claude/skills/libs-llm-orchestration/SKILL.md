@@ -19,12 +19,12 @@ description: >
 
 ## Libraries
 
-| Library   | Main API                              | Purpose                                      |
-| --------- | ------------------------------------- | -------------------------------------------- |
+| Library   | Main API                             | Purpose                                                      |
+| --------- | ------------------------------------ | ------------------------------------------------------------ |
 | libllm    | `LlmApi`                             | HTTP client for OpenAI-compatible completions and embeddings |
-| libmemory | `WindowBuilder`, `createWindow`       | Token-budgeted context window construction   |
-| libprompt | `PromptLoader`, `createPromptLoader`  | Load and render .prompt.md templates         |
-| libagent  | `AgentMind`, `AgentAction`            | Multi-turn conversation orchestration with tools |
+| libmemory | `WindowBuilder`, `createWindow`      | Token-budgeted context window construction                   |
+| libprompt | `PromptLoader`, `createPromptLoader` | Load and render .prompt.md templates                         |
+| libagent  | `AgentMind`, `AgentAction`           | Multi-turn conversation orchestration with tools             |
 
 ## Decision Guide
 
