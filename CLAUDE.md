@@ -6,7 +6,7 @@
 >
 > — W. Edwards Deming
 
-Five products raise quality, increase output, and bring pride of workmanship to
+Six products raise quality, increase output, and bring pride of workmanship to
 engineering teams:
 
 | Product      | Question it answers                            | CLI              |
@@ -14,6 +14,7 @@ engineering teams:
 | **Map**      | What does good engineering look like here?      | `fit-map`        |
 | **Pathway**  | Where does my career path go from here?         | `fit-pathway`    |
 | **Basecamp** | Am I prepared for what's ahead today?           | `fit-basecamp`   |
+| **Guide**    | How do I find my bearing?                       | `fit-guide`      |
 | **Landmark** | What milestones has my engineering reached?     | `fit-landmark`   |
 | **Summit**   | Is this team supported to reach peak performance? | `fit-summit`     |
 

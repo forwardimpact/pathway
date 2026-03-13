@@ -15,7 +15,7 @@ approach where AI empowers people to do their best work.
 
 ## The Vision
 
-Five products raise quality, increase output, and bring pride of workmanship to
+Six products raise quality, increase output, and bring pride of workmanship to
 engineering teams:
 
 | Product      | Question it answers                            |
@@ -23,6 +23,7 @@ engineering teams:
 | **Map**      | What does good engineering look like here?      |
 | **Pathway**  | Where does my career path go from here?         |
 | **Basecamp** | Am I prepared for what's ahead today?           |
+| **Guide**    | How do I find my bearing?                       |
 | **Landmark** | What milestones has my engineering reached?     |
 | **Summit**   | Is this team supported to reach peak performance? |
 

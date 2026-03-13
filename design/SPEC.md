@@ -1,6 +1,6 @@
 # Design Spec: Forward Impact Team (FIT)
 
-> A monochrome design system for five products — **Map**, **Pathway**,
+> A monochrome design system for six products — **Map**, **Pathway**,
 > **Guide**, **Landmark**, and **Basecamp** — built around the metaphor of
 > engineers deployed "in the field." Three characters — the Engineer, the AI
 > Agent, and the Business Stakeholder — collaborate at the boundary between

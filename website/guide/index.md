@@ -8,9 +8,8 @@ hero:
   alt: An engineer, an AI robot holding a compass, and a business professional gathered together, finding their bearings
   subtitle: Find your bearing. Guide is an AI agent that understands your organization's skills, levels, and career paths — helping engineers onboard, grow, and stay on course.
   cta:
-    - label: Coming soon
+    - label: Explore the docs
       href: /docs/
-      secondary: true
 ---
 
 > The Guide doesn't carry you — it shows you which way to go. Most AI assistants
@@ -50,9 +49,8 @@ Ask Guide a question and it answers with your framework in mind:
 
 ---
 
-### Stay Updated
+### Get Started
 
-Guide is currently in development. The foundation is being built in the Map,
-Pathway, and Basecamp products. When these are mature, Guide will bring them
-together — an AI assistant that understands not just engineering in general, but
-engineering at your organization.
+Guide works with your Map data out of the box. Point it at your framework and
+start asking questions — onboarding, career advice, skill assessment, or
+day-to-day engineering guidance grounded in your organization's actual standards.
