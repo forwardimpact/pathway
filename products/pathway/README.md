@@ -7,15 +7,14 @@ teams.
 
 Pathway is the primary interface for interacting with engineering competency
 data. It provides tools for browsing career paths, generating job descriptions,
-creating agent team profiles, and preparing interviews—all from a unified web
+generating agent teams and skills, and preparing interviews—all from a unified web
 experience and command line.
 
 ## What It Does
 
 - **Web application** — Interactive browser for jobs, skills, and career paths
 - **CLI tools** — Command-line access to all functionality
-- **Agent generation** — Create VS Code Custom Agent profiles (`.agent.md`)
-- **Skill generation** — Generate Agent Skills files (`SKILL.md`)
+- **Agent teams** — Generate VS Code Custom Agent teams (`.agent.md`) and skills (`SKILL.md`)
 - **Interview prep** — Build interview question sets by role
 - **Static site** — Export everything as a static site
 
@@ -29,7 +28,7 @@ npx fit-pathway serve
 npx fit-pathway skill --list
 npx fit-pathway job software_engineering senior --track=platform
 
-# Generate agent profiles
+# Generate agent teams and skills
 npx fit-pathway agent software_engineering --track=platform --output=./.github/agents
 ```
 
@@ -43,7 +42,7 @@ npx fit-pathway agent software_engineering --track=platform --output=./.github/a
 | `skill`     | Browse skills                |
 | `behaviour` | Browse behaviours            |
 | `job`       | Generate job definitions     |
-| `agent`     | Generate agent profiles      |
+| `agent`     | Generate agent teams and skills |
 | `interview` | Generate interview questions |
 | `progress`  | Analyze career progression   |
 | `questions` | Browse interview questions   |
@@ -56,7 +55,7 @@ Use `--help` with any command for full options.
 - **Skill Browser** — View all skills with proficiency descriptions
 - **Career Progression** — Compare levels and identify growth areas
 - **Interview Prep** — Generate role-specific question sets
-- **Agent Preview** — Preview generated agent profiles
+- **Agent Preview** — Preview generated agent teams and skills
 
 ## Package Exports
 

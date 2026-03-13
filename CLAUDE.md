@@ -19,7 +19,7 @@ engineering teams:
 
 **Map** defines the data model — skills, levels, behaviours, markers — and
 validates framework data. **Pathway** charts individual career progression and
-generates agent profiles. **Basecamp** gives every engineer a personal knowledge
+generates agent teams and skills. **Basecamp** gives every engineer a personal knowledge
 system powered by scheduled AI tasks. **Guide** is the LLM agent that interprets
 artifacts against skill markers. **Landmark** is a thin analysis layer that
 presents Guide-generated evidence and GetDX snapshot data from Map. **Summit**

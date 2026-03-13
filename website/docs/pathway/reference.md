@@ -26,7 +26,7 @@ Pure business logic and derivation.
 | File                 | Purpose                                                 |
 | -------------------- | ------------------------------------------------------- |
 | `src/derivation.js`  | Core derivation functions (skills, behaviours, drivers) |
-| `src/agent.js`       | Agent profile generation                                |
+| `src/agent.js`       | Agent team and skill generation                         |
 | `src/job.js`         | Job preparation for display                             |
 | `src/job-cache.js`   | Job caching for performance                             |
 | `src/profile.js`     | Unified profile derivation (human + agent)              |
@@ -143,7 +143,7 @@ npx fit-pathway job <discipline> <level> [--track=<track>]
 
 ### Agent Command
 
-Generate AI agent profiles:
+Generate agent teams and skills:
 
 ```sh
 npx fit-pathway agent <discipline> [--track=<track>] [--output=<dir>]

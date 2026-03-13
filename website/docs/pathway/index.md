@@ -146,7 +146,7 @@ npx fit-pathway job <discipline> <level> --track=<track>
 npx fit-pathway job software_engineering L3 --track=platform
 ```
 
-### Agent Profiles
+### Agent Teams and Skills
 
 ```sh
 # Generate agent team for a discipline
@@ -182,7 +182,7 @@ assistants (GitHub Copilot, Claude, etc.).
 
 ## Related Documentation
 
-- [Agents](/docs/pathway/agents/) — Agent profile derivation
+- [Agents](/docs/pathway/agents/) — Agent teams and skills derivation
 - [Technical Reference](/docs/pathway/reference/) — File organization and CLI
   reference
 - [Core Model](/docs/model/) — How derivation works

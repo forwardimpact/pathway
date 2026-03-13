@@ -33,7 +33,7 @@ levels, behaviours, markers, and drivers in YAML. Single source of truth for the
 career framework.
 
 **[Pathway](products/pathway)** — Web app and CLI for career progression. Browse
-skills, generate job definitions, create agent team profiles.
+skills, generate job definitions, and create agent teams and skills.
 
 **[Basecamp](products/basecamp)** — Personal knowledge system with scheduled AI
 tasks. Sync email, prep meetings, draft responses.
