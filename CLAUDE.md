@@ -6,9 +6,25 @@
 >
 > — W. Edwards Deming
 
-**Pathway** defines skills, behaviours, and career paths for human engineers and
-AI coding agents. **Basecamp** gives every engineer a personal knowledge system
-powered by scheduled AI tasks.
+Five products raise quality, increase output, and bring pride of workmanship to
+engineering teams:
+
+| Product      | Question it answers              | CLI              |
+| ------------ | -------------------------------- | ---------------- |
+| **Map**      | What does the terrain look like? | `fit-map`        |
+| **Pathway**  | Where am I going?                | `fit-pathway`    |
+| **Basecamp** | What do I need day-to-day?       | `fit-basecamp`   |
+| **Landmark** | What does my work show?          | `fit-landmark`   |
+| **Summit**   | Can this team reach the peak?    | `fit-summit`     |
+
+**Map** defines the data model — skills, levels, behaviours, markers — and
+validates framework data. **Pathway** charts individual career progression and
+generates agent profiles. **Basecamp** gives every engineer a personal knowledge
+system powered by scheduled AI tasks. **Guide** is the LLM agent that interprets
+artifacts against skill markers. **Landmark** is a thin analysis layer that
+presents Guide-generated evidence and GetDX snapshot data from Map. **Summit**
+aggregates individual skill matrices into team-level capability views for
+staffing, gap analysis, and what-if planning.
 
 **Tech**: Node.js 18+, Plain JS + JSDoc, YAML, npm workspaces, no frameworks
 
@@ -16,9 +32,12 @@ powered by scheduled AI tasks.
 
 ```
 products/
+  map/          Data model, validation            (fit-map)
   pathway/      Web app, CLI, formatters          (fit-pathway)
   basecamp/     Knowledge system, scheduler       (fit-basecamp)
-  map/          Data model, validation            (fit-map)
+  guide/        LLM agent, artifact interpretation
+  landmark/     Signal analysis on Map data       (fit-landmark)
+  summit/       Team capability planning          (fit-summit)
 libraries/
   libskill/     Derivation logic, job/agent models
   libuniverse/  Synthetic data DSL and generation  (fit-universe)
@@ -43,7 +62,15 @@ completely different data while using the same model.
 ```
 map → libskill → pathway
       libui   ↗
+         libskill → summit
+
+map → guide → landmark
 ```
+
+- **Map → libskill → Pathway**: schema, data, derivation, formatters.
+- **libskill → Summit**: aggregates individual skill matrices into team views.
+- **Map → Guide → Landmark**: Map stores data, Guide interprets artifacts
+  against markers, Landmark presents evidence and snapshots.
 
 When updating data structure: schema (`products/map/schema/`) → data
 (`data/pathway/`) → derivation (`libraries/libskill/`) → formatters
