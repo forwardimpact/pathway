@@ -1,11 +1,12 @@
 # Design Spec: Forward Impact Team (FIT)
 
 > A monochrome design system for six products — **Map**, **Pathway**,
-> **Guide**, **Landmark**, **Basecamp**, and **Summit** — built around the
-> metaphor of engineers deployed "in the field." Three characters — the Engineer, the AI
-> Agent, and the Business Stakeholder — collaborate at the boundary between
-> technology and the real world. Inspired by the restraint of Ollama and
-> Moondream, adapted for a professional product suite.
+> **Basecamp**, **Guide**, **Landmark**, and **Summit** — built around the
+> metaphor of engineers deployed "in the field." Three characters — the
+> Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
+> boundary between technology and the real world. Inspired by the restraint of
+> Ollama and the character-driven warmth of Go's Gopher, adapted for a
+> professional product suite.
 
 ---
 
@@ -349,6 +350,32 @@ ahead (hacker instinct: move fast), Agent processing (systematic), Stakeholder
 waiting with quiet confidence (domain knowledge). The switchback trail is the
 visual focus — the journey, not the destination.
 
+#### Scene: Basecamp — Setting Up Camp
+
+**Context:** Basecamp product pages, knowledge management, workspace features.
+
+Trio assembling an A-frame tent (character-height). Tent is half-assembled.
+Engineer pulls a tent pole with both hands, leaning back with full body weight,
+feet braced — action lines radiating from the effort. AI Agent holds the
+opposite pole with one hand, perfectly vertical, head turned toward Engineer
+with what might be concern or might be amusement. Stakeholder already inside
+the half-built tent, only their head and one arm visible through the opening —
+arranging the interior before the structure is even finished.
+
+```
+    🐰  ╱  △  ╲  🤖
+    (pull) / \ (hold)
+          / 👔\
+         /  ┃  \
+        (already inside)
+         🏁 (flag ready)
+```
+
+Three layers of comedy: Engineer straining against physics, Agent effortlessly
+holding with one hand while side-eyeing the struggle, Stakeholder skipping ahead
+to interior design. The Stakeholder being inside the unfinished tent is the
+frame — they care about what the space is for, not how it's built.
+
 #### Scene: Guide — Finding North
 
 **Context:** Guide product pages, AI onboarding, career advice chatbot.
@@ -423,32 +450,6 @@ Three different gazes: Engineer looks down (the plan), Agent looks between
 is the hacker impulse — ready to ship. Stakeholder's folded arms aren't
 resistance, they're strategic patience. This scene owns the mountain peak;
 Pathway owns the trail.
-
-#### Scene: Basecamp — Setting Up Camp
-
-**Context:** Basecamp product pages, knowledge management, workspace features.
-
-Trio assembling an A-frame tent (character-height). Tent is half-assembled.
-Engineer pulls a tent pole with both hands, leaning back with full body weight,
-feet braced — action lines radiating from the effort. AI Agent holds the
-opposite pole with one hand, perfectly vertical, head turned toward Engineer
-with what might be concern or might be amusement. Stakeholder already inside
-the half-built tent, only their head and one arm visible through the opening —
-arranging the interior before the structure is even finished.
-
-```
-    🐰  ╱  △  ╲  🤖
-    (pull) / \ (hold)
-          / 👔\
-         /  ┃  \
-        (already inside)
-         🏁 (flag ready)
-```
-
-Three layers of comedy: Engineer straining against physics, Agent effortlessly
-holding with one hand while side-eyeing the struggle, Stakeholder skipping ahead
-to interior design. The Stakeholder being inside the unfinished tent is the
-frame — they care about what the space is for, not how it's built.
 
 ---
 
