@@ -15,18 +15,39 @@ approach where AI empowers people to do their best work.
 
 ## The Vision
 
-**Pathway** defines skills, behaviours, and career paths for human engineers and
-AI coding agents alike. **Basecamp** gives every engineer a personal knowledge
-system, powered by AI agents. Together, they raise quality, increase output, and
-bring pride of workmanship to engineering teams.
+Five products raise quality, increase output, and bring pride of workmanship to
+engineering teams:
+
+| Product      | Question it answers              |
+| ------------ | -------------------------------- |
+| **Map**      | What does the terrain look like? |
+| **Pathway**  | Where am I going?                |
+| **Basecamp** | What do I need day-to-day?       |
+| **Landmark** | What does my work show?          |
+| **Summit**   | Can this team reach the peak?    |
 
 ## Products
+
+**[Map](products/map)** — Data model, schema, and validation. Defines skills,
+levels, behaviours, markers, and drivers in YAML. Single source of truth for the
+career framework.
 
 **[Pathway](products/pathway)** — Web app and CLI for career progression. Browse
 skills, generate job definitions, create agent team profiles.
 
 **[Basecamp](products/basecamp)** — Personal knowledge system with scheduled AI
 tasks. Sync email, prep meetings, draft responses.
+
+**[Guide](products/guide)** — LLM agent that interprets engineering artifacts
+against skill markers. Reads source from Map, writes evidence back to Map.
+
+**Landmark** — Thin analysis layer on Map data. Presents Guide-generated
+evidence, GetDX snapshot scores, and trend views. No LLM calls — query,
+aggregate, explain.
+
+**Summit** — Team capability planning from skill data. Aggregates individual
+skill matrices into coverage heatmaps, structural risk analysis, and what-if
+staffing scenarios. Fully local and deterministic.
 
 ## Quick Start
 
