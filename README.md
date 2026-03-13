@@ -29,28 +29,35 @@ engineering teams:
 
 ## Products
 
-**[Map](products/map)** — Data product for engineering capability. Defines
-skills, levels, behaviours, markers, and drivers in YAML. Owned, validated, and
-published for consumption by humans and agents.
+**[Map](products/map)** — The data product that provides shared context for
+every product in the suite. Defines skills, levels, behaviours, and markers in
+YAML, imports operational signals (organization hierarchy, GitHub activity,
+GetDX snapshots), and publishes it all for humans and agents.
 
-**[Pathway](products/pathway)** — Web app and CLI for career progression. Browse
-skills, generate job definitions, and create agent teams and skills to support
-and empower the engineers.
+**[Pathway](products/pathway)** — Web app, CLI, and static site generator for
+career progression. Browse skills, generate job definitions, create agent teams
+and skills to support and empower the engineers, produce VS Code agent profiles,
+and build interview question sets.
 
-**[Basecamp](products/basecamp)** — Personal knowledge system with scheduled AI
-tasks. Sync email, prep meetings, draft responses.
+**[Basecamp](products/basecamp)** — Personal operations center with scheduled
+AI tasks. Syncs email and calendar, builds a knowledge graph of people, projects
+and topics, drafts responses, prepares meeting briefings, and runs quietly in
+the background with a macOS status menu.
 
 **[Guide](products/guide)** — AI agent that understands your organization's
-engineering framework. Helps engineers onboard, find growth areas, and interpret
-artifacts against skill markers.
+engineering framework — skills, levels, behaviours, and expectations — and
+reasons about them in context. Helps engineers onboard, find growth areas, and
+interpret artifacts against skill markers.
 
-**Landmark** — Thin analysis layer on Map data. Presents Guide-generated
-evidence, GetDX snapshot scores, and trend views. No LLM calls — query,
-aggregate, explain.
+**[Landmark](website/landmark)** — Analysis layer for engineering-system
+signals. Combines objective marker evidence from GitHub artifacts with
+subjective outcomes from GetDX snapshots, presenting team-level and individual
+views grounded in your framework. No LLM calls — query, aggregate, explain.
 
-**Summit** — Views a team as a system, not a collection of individuals.
-Aggregates skill matrices into capability coverage, structural risks, and
-what-if staffing scenarios. Fully local and deterministic.
+**[Summit](website/summit)** — Treats a team as a system, not a collection of
+individuals. Aggregates skill matrices into capability coverage, structural
+risks, and what-if staffing scenarios so leaders can build teams that succeed.
+Fully local and deterministic — no external dependencies, no LLM calls.
 
 ## Quick Start
 

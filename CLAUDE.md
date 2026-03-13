@@ -18,26 +18,36 @@ engineering teams:
 | **Landmark** | What milestones has my engineering reached?       | `fit-landmark` |
 | **Summit**   | Is this team supported to reach peak performance? | `fit-summit`   |
 
-**Map** is the data product — skills, levels, behaviours, markers — owned,
-validated, and published for consumption by humans and agents.
+**Map** is the data product that provides shared context for every product in
+the suite. Teams define their engineering framework once — skills, levels,
+behaviours, markers — import operational signals continuously (organization
+hierarchy, GitHub activity, GetDX snapshots), and publish that data for
+consumption by humans and agents.
 
-**Pathway** charts individual career progression and generates agent teams and
-skills to support and empower the engineers.
+**Pathway** is the interface to the engineering framework — a web app, CLI, and
+static site generator. Feed it a discipline, track, and level and it produces a
+complete job definition. It generates agent teams and skills to support and
+empower the engineers, VS Code agent profiles, and interview question sets.
 
-**Basecamp** gives every engineer a personal knowledge system powered by
-scheduled AI tasks.
+**Basecamp** is a personal operations center. It syncs email and calendar,
+builds a knowledge graph of people, projects, and topics, drafts responses,
+prepares meeting briefings, and organizes files — all running as scheduled AI
+tasks in the background with a macOS status menu.
 
 **Guide** is an AI agent that understands your organization's engineering
 framework — skills, levels, behaviours, and expectations — and reasons about
 them in context. It helps engineers onboard, find growth areas, and interpret
 engineering artifacts against skill markers.
 
-**Landmark** is a thin analysis layer that presents Guide-generated evidence and
-GetDX snapshot data from Map.
+**Landmark** is the analysis layer for engineering-system signals. It combines
+objective marker evidence from GitHub artifacts with subjective outcomes from
+GetDX snapshots, then presents team-level and individual views grounded in your
+framework. No LLM calls — query, aggregate, explain.
 
-**Summit** treats a team as a system, not a collection of individuals — it
+**Summit** treats a team as a system, not a collection of individuals. It
 aggregates skill matrices into capability coverage, structural risks, and
-what-if staffing scenarios so leaders can build teams that succeed.
+what-if staffing scenarios so leaders can build teams that succeed. Fully local
+and deterministic — no external dependencies, no LLM calls.
 
 **Tech**: Node.js 18+, Plain JS + JSDoc, YAML, npm workspaces, no frameworks
 

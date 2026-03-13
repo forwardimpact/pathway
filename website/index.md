@@ -7,7 +7,7 @@ hero:
   image: /assets/heros/welcome.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
   title: Empowered engineers<br>deliver lasting impact.
-  subtitle: Map, Pathway, Guide, Landmark, and Basecamp — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
+  subtitle: Map, Pathway, Guide, Landmark, Basecamp, and Summit — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
   cta:
     - label: Explore the suite
       href: /docs/
@@ -74,6 +74,16 @@ organization improve the systems that support it.
 
 Set up camp. A personal knowledge system with scheduled AI tasks that keeps you
 briefed, organized, and field-ready.
+
+<div class="btn btn-ghost">Learn more</div>
+</a>
+
+<a class="product-card" href="/summit/">
+
+### Summit
+
+Reach the peak. See your team's collective capability — coverage, risks, and
+what-if scenarios — so leaders can build teams that succeed.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
