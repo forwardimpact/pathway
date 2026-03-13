@@ -40,8 +40,9 @@ and empower the engineers.
 **[Basecamp](products/basecamp)** — Personal knowledge system with scheduled AI
 tasks. Sync email, prep meetings, draft responses.
 
-**[Guide](products/guide)** — LLM agent that interprets engineering artifacts
-against skill markers. Reads source from Map, writes evidence back to Map.
+**[Guide](products/guide)** — AI agent that understands your organization's
+engineering framework. Helps engineers onboard, find growth areas, and interpret
+artifacts against skill markers.
 
 **Landmark** — Thin analysis layer on Map data. Presents Guide-generated
 evidence, GetDX snapshot scores, and trend views. No LLM calls — query,

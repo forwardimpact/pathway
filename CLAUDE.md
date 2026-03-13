@@ -9,26 +9,35 @@
 Six products raise quality, increase output, and bring pride of workmanship to
 engineering teams:
 
-| Product      | Question it answers                            | CLI              |
-| ------------ | ---------------------------------------------- | ---------------- |
-| **Map**      | What does good engineering look like here?      | `fit-map`        |
-| **Pathway**  | Where does my career path go from here?         | `fit-pathway`    |
-| **Basecamp** | Am I prepared for what's ahead today?           | `fit-basecamp`   |
-| **Guide**    | How do I find my bearing?                       | `fit-guide`      |
-| **Landmark** | What milestones has my engineering reached?     | `fit-landmark`   |
-| **Summit**   | Is this team supported to reach peak performance? | `fit-summit`     |
+| Product      | Question it answers                               | CLI            |
+| ------------ | ------------------------------------------------- | -------------- |
+| **Map**      | What does good engineering look like here?        | `fit-map`      |
+| **Pathway**  | Where does my career path go from here?           | `fit-pathway`  |
+| **Basecamp** | Am I prepared for what's ahead today?             | `fit-basecamp` |
+| **Guide**    | How do I find my bearing?                         | `fit-guide`    |
+| **Landmark** | What milestones has my engineering reached?       | `fit-landmark` |
+| **Summit**   | Is this team supported to reach peak performance? | `fit-summit`   |
 
 **Map** is the data product — skills, levels, behaviours, markers — owned,
-validated, and published for consumption by humans and agents. **Pathway** charts
-individual career progression and generates agent teams and skills to support
-and empower the engineers. **Basecamp**
-gives every engineer a personal knowledge system powered by scheduled AI tasks.
-**Guide** is the LLM agent that interprets artifacts against skill markers.
+validated, and published for consumption by humans and agents.
+
+**Pathway** charts individual career progression and generates agent teams and
+skills to support and empower the engineers.
+
+**Basecamp** gives every engineer a personal knowledge system powered by
+scheduled AI tasks.
+
+**Guide** is an AI agent that understands your organization's engineering
+framework — skills, levels, behaviours, and expectations — and reasons about
+them in context. It helps engineers onboard, find growth areas, and interpret
+engineering artifacts against skill markers.
+
 **Landmark** is a thin analysis layer that presents Guide-generated evidence and
-GetDX snapshot data from Map. **Summit** treats a team as a system, not a
-collection of individuals — it aggregates skill matrices into capability
-coverage, structural risks, and what-if staffing scenarios so leaders can build
-teams that succeed.
+GetDX snapshot data from Map.
+
+**Summit** treats a team as a system, not a collection of individuals — it
+aggregates skill matrices into capability coverage, structural risks, and
+what-if staffing scenarios so leaders can build teams that succeed.
 
 **Tech**: Node.js 18+, Plain JS + JSDoc, YAML, npm workspaces, no frameworks
 
