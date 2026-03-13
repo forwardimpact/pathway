@@ -20,13 +20,13 @@ description: >
 
 ## Libraries
 
-| Library     | Main API                                           | Purpose                                      |
-| ----------- | -------------------------------------------------- | -------------------------------------------- |
-| libui       | `createElement`, `createRouter`, `createStore`     | Functional DOM helpers, SPA routing, reactive state |
-| libformat   | `HtmlFormatter`, `TerminalFormatter`               | Markdown to HTML or ANSI conversion          |
-| libweb      | `AuthMiddleware`, `CorsMiddleware`, `ValidationMiddleware` | Security middleware for Hono                 |
-| libdoc      | `DocsBuilder`, `DocsServer`, `parseFrontMatter`    | Static documentation site generation         |
-| libtemplate | `TemplateLoader`, `createTemplateLoader`           | Mustache template loading with overrides     |
+| Library     | Main API                                                   | Purpose                                             |
+| ----------- | ---------------------------------------------------------- | --------------------------------------------------- |
+| libui       | `createElement`, `createRouter`, `createStore`             | Functional DOM helpers, SPA routing, reactive state |
+| libformat   | `HtmlFormatter`, `TerminalFormatter`                       | Markdown to HTML or ANSI conversion                 |
+| libweb      | `AuthMiddleware`, `CorsMiddleware`, `ValidationMiddleware` | Security middleware for Hono                        |
+| libdoc      | `DocsBuilder`, `DocsServer`, `parseFrontMatter`            | Static documentation site generation                |
+| libtemplate | `TemplateLoader`, `createTemplateLoader`                   | Mustache template loading with overrides            |
 
 ## Decision Guide
 

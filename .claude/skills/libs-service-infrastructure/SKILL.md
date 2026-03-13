@@ -19,13 +19,13 @@ description: >
 
 ## Libraries
 
-| Library        | Main API                                          | Purpose                                        |
-| -------------- | ------------------------------------------------- | ---------------------------------------------- |
-| librpc         | `RpcServer`, `RpcClient`, `createClientFactory`   | gRPC server/client base classes and factories  |
-| libconfig      | `serviceConfig`, `extensionConfig`, `scriptConfig` | Load settings from files and environment       |
-| libtelemetry   | `Logger`, `Tracer`, `createLogger`                | RFC 5424 structured logging and tracing        |
-| libtype        | `agent`, `common`, `memory`, `graph`, …           | Generated Protocol Buffer types and namespaces |
-| libharness     | `createMockConfig`, `createMockStorage`, …        | Test doubles for all infrastructure deps       |
+| Library      | Main API                                           | Purpose                                        |
+| ------------ | -------------------------------------------------- | ---------------------------------------------- |
+| librpc       | `RpcServer`, `RpcClient`, `createClientFactory`    | gRPC server/client base classes and factories  |
+| libconfig    | `serviceConfig`, `extensionConfig`, `scriptConfig` | Load settings from files and environment       |
+| libtelemetry | `Logger`, `Tracer`, `createLogger`                 | RFC 5424 structured logging and tracing        |
+| libtype      | `agent`, `common`, `memory`, `graph`, …            | Generated Protocol Buffer types and namespaces |
+| libharness   | `createMockConfig`, `createMockStorage`, …         | Test doubles for all infrastructure deps       |
 
 ## Decision Guide
 
