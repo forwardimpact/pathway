@@ -162,7 +162,8 @@ at the intersection of engineering, AI, and business.
   terminals, and brings creative irreverence to serious problems.
 - Visible backpack — the constant from the field metaphor: they carry their
   tools wherever they're deployed. Hair visible under the hoodie.
-- Laptop with a round citrus fruit sticker (resembling Apple logo)
+- Laptop with a round citrus fruit sticker (resembling Apple logo without the
+  apple fruit)
 - Posture: leaning in, engaged, slightly informal
 
 **The AI Agent:**
@@ -213,7 +214,7 @@ characters.
 | Composition    | Characters grouped tightly, centered — reads as a single cluster |
 | Whitespace     | Generous space around the scene cluster                          |
 | Scale          | 120px (cards) to 480px+ (hero)                                   |
-| Emotional tone | Curious, collaborative, problem-solving — always active          |
+| Emotional tone | Curious, conspiratorial, scrappy — three people who chose this   |
 
 ---
 
@@ -223,49 +224,61 @@ characters.
 
 **Context:** Hero illustrations, suite-level marketing, default state.
 
-All three seated side by side, each with a laptop. Engineer left, leaning
-forward. AI Agent center, upright. Stakeholder right, composed. Shoulders almost
-touching. Below them, the six product icons in a neat row.
+All three seated side by side, each with a laptop. Engineer left, cross-legged
+on the ground, laptop balanced on one knee, leaning sideways to peek at Agent's
+screen. AI Agent center, seated upright on a chair, head tilted slightly — the
+only one with correct posture. Stakeholder right, chair tipped back on two legs,
+one arm draped over the backrest, typing one-handed. Shoulders overlapping.
+Below them, the six product icons in a neat row.
 
 ```
      🐰💻   🤖💻   👔💻
       \      |      /
-       (seated together)
+       (huddled together)
 
   🗺    ⛰     🧭    🪨     ⛰️     ⛺
  Map  Pathway  Guide Landmark Summit Basecamp
 ```
 
-**Key details:** Laptops open and angled toward the viewer. Characters look at
-their own screens or glance sideways at each other. Posture is relaxed but
-focused — a working session, not a meeting.
+**Key details:** The trio sits at different heights — Engineer on the floor,
+Agent on a chair, Stakeholder tipped back — creating a diagonal line that feels
+informal and alive. Engineer is clearly nosing at someone else's screen.
+Stakeholder's tipped chair says "I've done this before." Agent's perfect posture
+is the deadpan counterpoint. The energy is a late-night hackathon that happens
+to include someone in a blazer.
 
 #### Scene: Welcome Wave
 
 **Context:** Onboarding screens, first-time user experience, landing page.
 
-All three standing, facing the viewer, each raising one hand in a wave. Engineer
-waves casually. AI Agent waves with stiff, cheerful robot gesture. Stakeholder
-gives a measured wave at shoulder height. Stakeholder stands slightly forward,
-welcoming guests into their space. Feet visible, small action lines near hands.
+All three standing, facing the viewer. Engineer mid-stride toward the viewer,
+both arms out wide — too enthusiastic, slightly off-balance, hoodie ears
+bouncing. AI Agent stands still, one hand raised in a precise right-angle wave,
+head tilted in greeting. Stakeholder one step behind, hand raised palm-out at
+shoulder height — the composed anchor. Feet visible, small action lines around
+Engineer's movement.
 
 ```
     🐰🖐   🤖🖐   👔🖐
-     hi!    hello!   welcome!
+     hey!!   hello.   welcome.
 ```
 
-**Key details:** The wave is warm but not over-the-top. Should feel like walking
-into a friendly office and three colleagues looking up to greet you. Feet
-visible — standing, not floating. Small action lines near waving hands.
+**Key details:** Engineer's over-eager stride forward creates the energy.
+Agent's geometric wave is the visual punchline — friendly but mechanically
+precise. Stakeholder's measured gesture grounds it: "Don't worry, we're
+professional too." The three different levels of enthusiasm tell you everything
+about the team dynamic in one frame.
 
 #### Scene: Documentation Dig
 
 **Context:** Documentation pages, knowledge base, "getting started" flows.
 
-All three standing around a waist-high surface covered with stacked papers, open
-binders, loose sheets. Engineer picks up a sheet, squinting at it. AI Agent
-organizes a stack into a neat pile. Stakeholder points at something on an open
-document. A few loose pages on the ground near their feet.
+All three around a waist-high surface with papers. Engineer holds a sheet at
+arm's length, head tilted, rotating it — clearly reading it sideways or upside
+down. AI Agent has already sorted its section into a perfect stack and is
+reaching for Engineer's mess. Stakeholder leans across the table, index finger
+on a specific line — they've found it, and they're waiting for the other two to
+catch up.
 
 ```
          📄 📄
@@ -276,10 +289,11 @@ document. A few loose pages on the ground near their feet.
        (papers on floor)
 ```
 
-**Key details:** Should feel like the moment you open a closet and everything
-falls out — but the team handles it with good humor. The AI Agent's neat-stack
-gesture contrasts with the general chaos. The Stakeholder knows where the
-important thing is. Papers on the floor add life without cluttering silhouettes.
+**Key details:** The comedy is in the three speeds: Engineer still figuring out
+which way is up, Agent already done and reaching for more, Stakeholder patiently
+waiting with the answer. Each character's relationship to documentation reveals
+their personality. Engineer's rotated page is the visual gag — hackers and docs
+have a complicated relationship.
 
 ---
 
@@ -290,9 +304,11 @@ important thing is. Papers on the floor add life without cluttering silhouettes.
 **Context:** Map product pages, skills data model, taxonomy visualizations.
 
 Trio huddled around a large unfolded map on the ground, crouched/kneeling in a
-circle. Map is as wide as the three combined, showing route lines, grid marks,
-pin markers. Engineer traces a route with one finger. AI Agent holds one corner
-flat while pointing at markers. Stakeholder taps a location with authority.
+tight circle — heads almost touching over the center. Engineer traces a route
+with one finger while glancing sideways at Stakeholder, eyebrows up — "this
+way?" AI Agent holds one corner flat with mechanical precision, other hand
+pointing at a different spot on the map. Stakeholder shakes head slightly,
+tapping a third location — all three proposing different routes.
 
 ```
         🐰
@@ -304,35 +320,45 @@ flat while pointing at markers. Stakeholder taps a location with authority.
        (large map)
 ```
 
+**Key details:** The three pointing at three different spots is the frame —
+friendly disagreement, not conflict. Heads nearly touching creates intimacy and
+conspiracy. The posture is "we're all wrong and we know it but we're having
+fun." Nobody is deferring to anyone else.
+
 #### Scene: Pathway — Following the Trail
 
 **Context:** Pathway product pages, skills catalogue, career features.
 
-Trio on a winding mountain trail with switchbacks visible ahead. The trail
-curves through the scene with elevation markers along its length. Engineer has
-one foot forward on the trail, pointing at the next switchback. AI Agent studies
-a trail sign with distance markers. Stakeholder walks alongside, gesturing at
-the route — they know where it leads.
+Trio on a winding trail with switchbacks ahead. Engineer is already three steps
+up the trail, turned back with one hand beckoning — impatient, wants to move.
+AI Agent stands at a trail sign, head swiveling between the sign and Engineer —
+calculating whether to follow or correct course. Stakeholder stands at the fork,
+arms crossed, slight smile, waiting for the other two to sort it out — they
+already know the way.
 
 ```
          ╱ ─ ─ ╲
     🐰  ╱       ╲   👔
-     ↗ ╱  ~~~    ╲  (gesturing)
+     ↗ ╱  ~~~    ╲  (arms crossed)
       🤖   ⬍
-    (reading sign)
+    (looking both ways)
 ```
 
-Trail uses lighter stroke (1.5px) for depth. Switchbacks and elevation markers
-are the visual focus — the journey and navigation, not the destination.
+Trail uses lighter stroke (1.5px) for depth. The energy is Engineer pulling
+ahead (hacker instinct: move fast), Agent processing (systematic), Stakeholder
+waiting with quiet confidence (domain knowledge). The switchback trail is the
+visual focus — the journey, not the destination.
 
 #### Scene: Guide — Finding North
 
 **Context:** Guide product pages, AI onboarding, career advice chatbot.
 
-Trio paused to get bearings. AI Agent center, holding up a large compass (dinner
-plate sized) with visible needle pointing north (north half filled black). Agent
-tilts it toward the others. Engineer leans in, pushing back hoodie to see.
-Stakeholder leans in, hand on chin, interpreting direction.
+Trio paused to get bearings. AI Agent center, holding up a large compass at
+chest height, head angled down at it with concentration. Engineer crowds in from
+the left, one hand on Agent's shoulder, leaning in too close — practically
+cheek-to-cheek with the robot. Stakeholder leans in from the right, hand on
+chin, studying the needle — but body angled slightly away, maintaining a sliver
+of professional distance.
 
 ```
     🐰          👔
@@ -341,18 +367,21 @@ Stakeholder leans in, hand on chin, interpreting direction.
        (compass held up)
 ```
 
-Compass is the focal point — all eye lines converge on it. Agent shows the
-compass, not dictating direction. Small radiating lines suggest it's active.
+The frame is the contrast in personal space: Engineer has none (hackers pair
+program inches apart), Agent doesn't mind (robots have no concept of it),
+Stakeholder maintains composure while still leaning in. All three are genuinely
+curious — the compass is the shared puzzle. Small radiating lines suggest it's
+active.
 
 #### Scene: Landmark — Reading the Signals
 
 **Context:** Landmark product pages, analysis dashboards, measurement features.
 
-Trio on a rocky outcrop (elevated on canvas). A cairn with pennant flag to one
-side. AI Agent holds a telescope, scanning the distance. Engineer holds graph
-paper, comparing what Agent sees to data — one hand on paper, other pointing at
-a line. Stakeholder extends one arm toward horizon, palm open. All three face
-outward, away from viewer — observing signals together.
+Trio on a rocky outcrop, all facing outward — away from the viewer. AI Agent
+center, telescope raised, body perfectly still. Engineer left, up on tiptoes,
+one hand shielding eyes, craning to see what Agent sees — trying to out-observe
+a robot with a telescope. Stakeholder right, standing flat-footed, arm extended
+toward the horizon, palm open — pointing out what matters with calm authority.
 
 ```
     🐰📊  🤖🔭  👔👉
@@ -362,17 +391,21 @@ outward, away from viewer — observing signals together.
 ```
 
 Outward-facing orientation is distinctive — most scenes have characters facing
-each other; here they face the same direction.
+each other; here they face the same direction. Engineer on tiptoes vs.
+Stakeholder flat-footed is the visual joke: the hacker trying harder, the domain
+expert who already knows where to look.
 
 #### Scene: Summit — Planning the Ascent
 
 **Context:** Summit product pages, team capability analysis, staffing scenarios.
 
-Trio gathered around a map spread on a flat rock, looking up at a mountain peak.
-The peak is prominent in the background — taller than the characters, with a
-flag at the top. Engineer traces a route on the map. AI Agent holds a compass.
-Stakeholder points toward the summit. Multiple faint trail lines on the peak
-show different possible routes.
+Trio gathered around a map on a flat rock. The peak looms in the background —
+taller than the characters, flag at the top. Engineer leans over the map,
+both hands planted on it, weight forward — the posture of someone about to
+stand up and go. AI Agent holds a compass beside the map, head swiveling
+between compass and peak — cross-referencing. Stakeholder stands slightly
+back from the rock, arms folded, looking up at the peak — already thinking
+about what happens when they get there.
 
 ```
                 ⛳
@@ -385,31 +418,37 @@ show different possible routes.
      └──────────────┘
 ```
 
-The peak with flag is the focal point — the team's collective goal. Multiple
-route lines suggest different compositions. This scene owns the mountain peak
-image; Pathway owns the trail.
+Three different gazes: Engineer looks down (the plan), Agent looks between
+(the data), Stakeholder looks up (the goal). Engineer's weight-forward posture
+is the hacker impulse — ready to ship. Stakeholder's folded arms aren't
+resistance, they're strategic patience. This scene owns the mountain peak;
+Pathway owns the trail.
 
 #### Scene: Basecamp — Setting Up Camp
 
 **Context:** Basecamp product pages, knowledge management, workspace features.
 
 Trio assembling an A-frame tent (character-height). Tent is half-assembled.
-Engineer pulls a tent pole with both hands, leaning back with effort (action
-lines). AI Agent holds opposite pole perfectly vertical with robotic precision.
-Stakeholder behind the tent, holding flap open, checking the interior. A small
-flag on the ground, ready for the apex.
+Engineer pulls a tent pole with both hands, leaning back with full body weight,
+feet braced — action lines radiating from the effort. AI Agent holds the
+opposite pole with one hand, perfectly vertical, head turned toward Engineer
+with what might be concern or might be amusement. Stakeholder already inside
+the half-built tent, only their head and one arm visible through the opening —
+arranging the interior before the structure is even finished.
 
 ```
     🐰  ╱  △  ╲  🤖
     (pull) / \ (hold)
           / 👔\
          /  ┃  \
-        (checking inside)
+        (already inside)
          🏁 (flag ready)
 ```
 
-Engineer's effort vs. Agent's effortlessness is a visual joke. Stakeholder's
-focus on the interior signals Basecamp is about knowledge, not structure.
+Three layers of comedy: Engineer straining against physics, Agent effortlessly
+holding with one hand while side-eyeing the struggle, Stakeholder skipping ahead
+to interior design. The Stakeholder being inside the unfinished tent is the
+frame — they care about what the space is for, not how it's built.
 
 ---
 
