@@ -18,13 +18,13 @@ approach where AI empowers people to do their best work.
 Five products raise quality, increase output, and bring pride of workmanship to
 engineering teams:
 
-| Product      | Question it answers              |
-| ------------ | -------------------------------- |
-| **Map**      | What does the terrain look like? |
-| **Pathway**  | Where am I going?                |
-| **Basecamp** | What do I need day-to-day?       |
-| **Landmark** | What does my work show?          |
-| **Summit**   | Can this team reach the peak?    |
+| Product      | Question it answers                            |
+| ------------ | ---------------------------------------------- |
+| **Map**      | What does good engineering look like here?      |
+| **Pathway**  | Where should I grow next?                       |
+| **Basecamp** | What do I need to handle today?                 |
+| **Landmark** | What does my engineering work demonstrate?      |
+| **Summit**   | Can this team deliver what we need?             |
 
 ## Products
 

@@ -9,13 +9,13 @@
 Five products raise quality, increase output, and bring pride of workmanship to
 engineering teams:
 
-| Product      | Question it answers              | CLI              |
-| ------------ | -------------------------------- | ---------------- |
-| **Map**      | What does the terrain look like? | `fit-map`        |
-| **Pathway**  | Where am I going?                | `fit-pathway`    |
-| **Basecamp** | What do I need day-to-day?       | `fit-basecamp`   |
-| **Landmark** | What does my work show?          | `fit-landmark`   |
-| **Summit**   | Can this team reach the peak?    | `fit-summit`     |
+| Product      | Question it answers                            | CLI              |
+| ------------ | ---------------------------------------------- | ---------------- |
+| **Map**      | What does good engineering look like here?      | `fit-map`        |
+| **Pathway**  | Where should I grow next?                       | `fit-pathway`    |
+| **Basecamp** | What do I need to handle today?                 | `fit-basecamp`   |
+| **Landmark** | What does my engineering work demonstrate?      | `fit-landmark`   |
+| **Summit**   | Can this team deliver what we need?             | `fit-summit`     |
 
 **Map** defines the data model — skills, levels, behaviours, markers — and
 validates framework data. **Pathway** charts individual career progression and
