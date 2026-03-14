@@ -11,13 +11,20 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 import { PromptLoader } from "@forwardimpact/libprompt";
 import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
 
-import { createDslParser } from "../dsl/index.js";
-import { createEntityGenerator } from "../engine/tier0.js";
-import { ProseEngine } from "../engine/prose.js";
-import { PathwayGenerator } from "../engine/pathway.js";
-import { Renderer } from "../render/renderer.js";
-import { ContentValidator } from "../validate.js";
-import { ContentFormatter, formatContent } from "../format.js";
+import {
+  createDslParser,
+  createEntityGenerator,
+} from "@forwardimpact/libsyntheticgen";
+import {
+  ProseEngine,
+  PathwayGenerator,
+} from "@forwardimpact/libsyntheticprose";
+import {
+  Renderer,
+  ContentValidator,
+  ContentFormatter,
+  formatContent,
+} from "@forwardimpact/libsyntheticrender";
 import { Pipeline } from "../pipeline.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
@@ -63,8 +70,15 @@ async function main() {
   const monorepoRoot = resolve(__dirname, "../../..");
   const schemaDir = join(monorepoRoot, "products/map/schema/json");
   const cachePath = join(__dirname, "..", ".prose-cache.json");
-  const promptDir = join(__dirname, "..", "prompts");
-  const templateDir = join(__dirname, "..", "templates");
+
+  const libsyntheticproseDir = dirname(
+    fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticprose")),
+  );
+  const libsyntheticrenderDir = dirname(
+    fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticrender")),
+  );
+  const promptDir = join(libsyntheticproseDir, "prompts");
+  const templateDir = join(libsyntheticrenderDir, "templates");
 
   // Wire all dependencies (composition root)
   const logger = createLogger("universe");
@@ -98,7 +112,15 @@ async function main() {
   });
 
   const result = await pipeline.run({
-    universePath: args.universe || join(__dirname, "..", "data", "default.dsl"),
+    universePath:
+      args.universe ||
+      join(
+        dirname(
+          fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticgen")),
+        ),
+        "data",
+        "default.dsl",
+      ),
     only: args.only || null,
     schemaDir,
   });

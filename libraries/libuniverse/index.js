@@ -1,13 +1,28 @@
-export { DslParser, createDslParser } from "./dsl/index.js";
-export { EntityGenerator, createEntityGenerator } from "./engine/tier0.js";
-export { ProseEngine, createProseEngine } from "./engine/prose.js";
-export { collectProseKeys } from "./engine/prose-keys.js";
-export { PathwayGenerator, loadSchemas } from "./engine/pathway.js";
-export { Renderer, createRenderer } from "./render/renderer.js";
-export { ContentValidator, validateCrossContent } from "./validate.js";
-export { ContentFormatter, formatContent } from "./format.js";
+export {
+  DslParser,
+  createDslParser,
+  EntityGenerator,
+  createEntityGenerator,
+  createSeededRNG,
+  collectProseKeys,
+} from "@forwardimpact/libsyntheticgen";
+export {
+  ProseEngine,
+  createProseEngine,
+  PathwayGenerator,
+  loadSchemas,
+} from "@forwardimpact/libsyntheticprose";
+export {
+  Renderer,
+  createRenderer,
+  ContentValidator,
+  validateCrossContent,
+  ContentFormatter,
+  formatContent,
+  generateDrugs,
+  generatePlatforms,
+  assignLinks,
+  validateLinks,
+} from "@forwardimpact/libsyntheticrender";
 export { Pipeline } from "./pipeline.js";
 export { loadToSupabase } from "./load.js";
-export { generateDrugs, generatePlatforms } from "./render/industry-data.js";
-export { assignLinks } from "./render/link-assigner.js";
-export { validateLinks } from "./render/validate-links.js";
