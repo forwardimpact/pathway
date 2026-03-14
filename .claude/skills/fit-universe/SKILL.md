@@ -59,8 +59,10 @@ Use `--only=<type>` to generate a single content type:
 
 ## Universe DSL
 
-Universe files define a complete synthetic environment. The default file is at
-`libraries/libuniverse/data/default.dsl`.
+Universe files define a complete synthetic environment. This monorepo's universe
+DSL is at `examples/universe.dsl`. A minimal reference DSL ships with
+libsyntheticgen at `libraries/libsyntheticgen/data/default.dsl` for quick
+testing; projects provide their own DSL file.
 
 ### Top-Level Blocks
 
@@ -107,9 +109,9 @@ configurations, and briefing counts.
 
 ## Data Resolution
 
-The production universe DSL lives at `libraries/libuniverse/data/universe.dsl`.
-The default test universe is `libraries/libuniverse/data/default.dsl`. Use
-`--universe=path` to specify a custom file.
+This monorepo's universe DSL is `examples/universe.dsl`. Use `--universe=path`
+to specify a different file. Without `--universe`, the CLI falls back to the
+minimal reference DSL bundled with libsyntheticgen.
 
 All generated output writes to `examples/` at the monorepo root.
 

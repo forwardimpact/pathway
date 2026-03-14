@@ -111,7 +111,7 @@ When updating data structure: schema (`products/map/schema/`) → data
 | -------------- | -------------------------------------------- |
 | Pathway data   | `data/pathway/`                              |
 | Repo config    | `data/pathway/repository/`                   |
-| Universe DSL   | `libraries/libuniverse/data/universe.dsl`    |
+| Universe DSL   | `examples/universe.dsl`                      |
 | Generated data | `examples/` (output of `fit-universe`)       |
 | JSON Schema    | `products/map/schema/json/`                  |
 | RDF/SHACL      | `products/map/schema/rdf/`                   |
