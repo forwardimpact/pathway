@@ -1,0 +1,34 @@
+{
+  "name": "@forwardimpact/libsyntheticrender",
+  "version": "0.1.0",
+  "description": "Multi-format rendering, validation, and formatting for synthetic data",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libsyntheticrender"
+  },
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./render/html": "./render/html.js",
+    "./render/pathway": "./render/pathway.js",
+    "./render/raw": "./render/raw.js",
+    "./render/markdown": "./render/markdown.js",
+    "./validate": "./validate.js",
+    "./format": "./format.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libsyntheticgen": "^0.1.0",
+    "@forwardimpact/libtemplate": "^0.2.0",
+    "yaml": "^2.3.0",
+    "prettier": "^3.7.4"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

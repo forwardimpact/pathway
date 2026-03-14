@@ -1,0 +1,32 @@
+{
+  "name": "@forwardimpact/libsyntheticprose",
+  "version": "0.1.0",
+  "description": "LLM-based prose and pathway generation for synthetic data",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libsyntheticprose"
+  },
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./prose": "./engine/prose.js",
+    "./pathway": "./engine/pathway.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libutil": "^0.1.61",
+    "@forwardimpact/libtelemetry": "^0.1.23",
+    "@forwardimpact/libprompt": "^0.1.0",
+    "ajv": "^8.12.0",
+    "ajv-formats": "^2.1.1",
+    "yaml": "^2.3.0"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

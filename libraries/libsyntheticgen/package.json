@@ -1,0 +1,31 @@
+{
+  "name": "@forwardimpact/libsyntheticgen",
+  "version": "0.1.0",
+  "description": "DSL parsing and deterministic entity generation for synthetic data",
+  "license": "Apache-2.0",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libsyntheticgen"
+  },
+  "type": "module",
+  "main": "index.js",
+  "exports": {
+    ".": "./index.js",
+    "./dsl": "./dsl/index.js",
+    "./engine": "./engine/tier0.js",
+    "./engine/entities": "./engine/entities.js",
+    "./engine/activity": "./engine/activity.js",
+    "./rng": "./engine/rng.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libutil": "^0.1.61",
+    "seedrandom": "^3.0.5"
+  },
+  "engines": {
+    "node": ">=18.0.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

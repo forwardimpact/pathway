@@ -6,9 +6,9 @@
 
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { validateLinks, validateHTML } from "./render/validate-links.js";
-import { collectProseKeys } from "./engine/prose-keys.js";
-import { loadSchemas } from "./engine/pathway.js";
+import { validateLinks, validateHTML } from "@forwardimpact/libsyntheticrender";
+import { collectProseKeys } from "@forwardimpact/libsyntheticgen";
+import { loadSchemas } from "@forwardimpact/libsyntheticprose/pathway";
 
 /**
  * Pipeline class that orchestrates the full generation pipeline.
@@ -17,13 +17,13 @@ import { loadSchemas } from "./engine/pathway.js";
 export class Pipeline {
   /**
    * @param {object} deps
-   * @param {import('./dsl/index.js').DslParser} deps.dslParser - DSL parser
-   * @param {import('./engine/tier0.js').EntityGenerator} deps.entityGenerator - Entity generator
-   * @param {import('./engine/prose.js').ProseEngine} deps.proseEngine - Prose engine
-   * @param {import('./engine/pathway.js').PathwayGenerator} deps.pathwayGenerator - Pathway generator
-   * @param {import('./render/renderer.js').Renderer} deps.renderer - Renderer
-   * @param {import('./validate.js').ContentValidator} deps.validator - Content validator
-   * @param {import('./format.js').ContentFormatter} deps.formatter - Content formatter
+   * @param {import('@forwardimpact/libsyntheticgen').DslParser} deps.dslParser - DSL parser
+   * @param {import('@forwardimpact/libsyntheticgen').EntityGenerator} deps.entityGenerator - Entity generator
+   * @param {import('@forwardimpact/libsyntheticprose').ProseEngine} deps.proseEngine - Prose engine
+   * @param {import('@forwardimpact/libsyntheticprose').PathwayGenerator} deps.pathwayGenerator - Pathway generator
+   * @param {import('@forwardimpact/libsyntheticrender').Renderer} deps.renderer - Renderer
+   * @param {import('@forwardimpact/libsyntheticrender').ContentValidator} deps.validator - Content validator
+   * @param {import('@forwardimpact/libsyntheticrender').ContentFormatter} deps.formatter - Content formatter
    * @param {object} deps.logger - Logger instance
    */
   constructor({

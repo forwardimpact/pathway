@@ -8,7 +8,7 @@
  * @module libuniverse/render/link-assigner
  */
 
-import { createSeededRNG } from "../engine/rng.js";
+import { createSeededRNG } from "@forwardimpact/libsyntheticgen/rng";
 
 /**
  * @typedef {object} LinkedEntities

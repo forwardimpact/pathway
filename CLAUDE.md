@@ -196,6 +196,7 @@ decision guides, composition recipes, and DI wiring patterns.
 | `libs-llm-orchestration`      | libllm, libmemory, libprompt, libagent                            |
 | `libs-web-presentation`       | libui, libformat, libweb, libdoc, libtemplate                     |
 | `libs-system-utilities`       | libutil, libsecret, libsupervise, librc, libcodegen               |
+| `libs-synthetic-data`         | libsyntheticgen, libsyntheticprose, libsyntheticrender             |
 
 `libskill` retains its own individual skill (pure-function design, intentionally
 exempt from OO+DI).
