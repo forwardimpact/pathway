@@ -1,10 +1,17 @@
 {
-  "image": "mcr.microsoft.com/devcontainers/javascript-node:22-bookworm",
+  "name": "Forward Impact Monorepo",
+  "dockerComposeFile": "docker-compose.yml",
+  "service": "app",
+  "workspaceFolder": "/workspaces/monorepo",
   "features": {
     "ghcr.io/devcontainers/features/github-cli:1": {}
   },
-  "postCreateCommand": "npm install",
-  "forwardPorts": [3000],
+  "onCreateCommand": "npm install && make codegen && make env-setup && make data-init && sed -i 's|EMBEDDING_BASE_URL=http://localhost:8090|EMBEDDING_BASE_URL=http://tei:8090|' .env.local",
+  "remoteEnv": {
+    "LLM_TOKEN": "${localEnv:LLM_TOKEN}",
+    "LLM_BASE_URL": "${localEnv:LLM_BASE_URL}"
+  },
+  "forwardPorts": [3000, 3001, 3002, 3003, 3004, 3005, 3006, 3007, 3008],
   "customizations": {
     "vscode": {
       "settings": {
