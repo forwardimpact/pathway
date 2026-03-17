@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/svcweb",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Web interface service for Guide",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
@@ -30,8 +30,7 @@
     "directory": "services/web"
   },
   "publishConfig": {
-    "access": "public",
-    "registry": "https://npm.pkg.github.com"
+    "access": "public"
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.5"
