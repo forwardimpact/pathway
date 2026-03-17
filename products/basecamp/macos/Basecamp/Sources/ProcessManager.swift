@@ -47,9 +47,13 @@ class ProcessManager {
             "\(home)/.claude/bin",
         ].joined(separator: ":")
 
+        let user = NSUserName()
+
         let envVars = [
             "PATH=\(path)",
             "HOME=\(home)",
+            "USER=\(user)",
+            "LOGNAME=\(user)",
             "BASECAMP_BUNDLE=1",
             "TERM=xterm-256color",
         ]
