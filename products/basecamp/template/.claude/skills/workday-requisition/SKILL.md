@@ -351,8 +351,8 @@ npx fit-pathway skill --list
 ```
 
 Use framework skill IDs in the **Skills** section of each brief. If a candidate
-has a CV.md, flag them for the `analyze-cv` skill for a full framework-aligned
-assessment.
+has a CV.md, flag them for the `screen-cv` skill for a framework-aligned
+screening assessment.
 
 ## Quality Checklist
 

@@ -449,8 +449,8 @@ Use framework skill IDs (e.g. `data_integration`, `full_stack_development`,
 `architecture_and_design`) in the **Skills** section of the candidate brief
 instead of free-form tags. This enables consistent cross-candidate comparison.
 
-If a candidate has a CV attachment, flag them for the `analyze-cv` skill which
-produces a full framework-aligned assessment.
+If a candidate has a CV attachment, flag them for the `screen-cv` skill which
+produces a framework-aligned screening assessment.
 
 ## Quality Checklist
 

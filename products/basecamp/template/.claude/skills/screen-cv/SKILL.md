@@ -1,28 +1,33 @@
 ---
-name: analyze-cv
+name: screen-cv
 description: >
-  Analyze candidate CVs against the engineering career framework using
-  fit-pathway as the reference point. Assess skill alignment, identify track
-  fit (forward_deployed vs platform), estimate career level, and produce
-  structured assessments. Use when the user asks to evaluate a CV, compare a
-  candidate to a role, or assess engineering fit.
+  Screen candidate CVs against the engineering career framework to decide
+  whether to invest interview time. Produces a structured screening assessment
+  with interview/pass recommendation and suggested interview focus areas.
+  Use when the user asks to evaluate a CV or when a new CV is detected.
 ---
 
-# Analyze CV
+# Screen CV
 
-Analyze a candidate's CV against the engineering career framework defined in
-`fit-pathway`. Produces a structured assessment: estimated career level, track
-fit, skill alignment, gaps, and a hiring recommendation. Every assessment is
-grounded in the framework — no subjective impressions.
+Screen a candidate's CV against the engineering career framework defined in
+`fit-pathway`. The sole question this skill answers: **is this candidate worth
+interviewing?** Every assessment is grounded in the framework — no subjective
+impressions.
+
+This is Stage 1 of a three-stage hiring pipeline:
+
+1. **Screen CV** (this skill) — CV arrives → interview or pass
+2. **Assess Interview** — transcript arrives → updated evidence profile
+3. **Hiring Decision** — all stages complete → hire or not
 
 ## Trigger
 
 Run this skill:
 
-- When the user asks to analyze, evaluate, or assess a CV
 - When a new CV is added to `knowledge/Candidates/{Name}/`
-- When the user asks "is this person a fit for {role}?"
-- When comparing a candidate's background against a specific job level and track
+- When a CV appears in `~/Downloads/` and is associated with a candidate
+- When the user asks to screen, evaluate, or assess a CV
+- When the user asks "is this person worth interviewing?"
 
 ## Prerequisites
 
@@ -40,7 +45,7 @@ Run this skill:
 
 ## Outputs
 
-- `knowledge/Candidates/{Name}/assessment.md` — structured CV assessment
+- `knowledge/Candidates/{Name}/assessment.md` — structured screening assessment
 - Updated `knowledge/Candidates/{Name}/brief.md` — skills and summary enriched
   from CV analysis
 
@@ -185,19 +190,14 @@ Classify each skill as:
   clear project evidence, **or** meets the level but evidence is thin
 - **Gap** — candidate is two or more levels below expected proficiency
 - **Not evidenced** — CV doesn't mention this skill area. **Treat as a gap** for
-  recommendation purposes — absence of evidence is not evidence of skill
+  screening purposes — absence of evidence is not evidence of skill
 
-**Threshold rule:** If more than **one third** of the target job's skills are
-Gap or Not evidenced, the candidate cannot receive "Proceed." If more than
-**half** are Gap or Not evidenced, the candidate cannot receive "Proceed with
-reservations."
-
-## Step 6: Write Assessment
+## Step 6: Write Screening Assessment
 
 Create `knowledge/Candidates/{Name}/assessment.md`:
 
 ```markdown
-# CV Assessment — {Full Name}
+# CV Screening — {Full Name}
 
 **Assessed against:** {Discipline} {Level} — {Track}
 **Date:** {YYYY-MM-DD}
@@ -205,22 +205,25 @@ Create `knowledge/Candidates/{Name}/assessment.md`:
 
 ## Summary
 
-{2-3 sentence summary: overall fit, key strengths, primary concerns}
+{2-3 sentence summary: overall fit, key strengths, primary concerns.
+Frame around the screening question: is this worth an interview?}
 
 ## Estimated Profile
 
-| Dimension        | Assessment                                |
-| ---------------- | ----------------------------------------- |
-| **Level**        | {estimated level and confidence}          |
-| **Track fit**    | {forward_deployed / platform / either}    |
-| **Discipline**   | {best discipline match}                   |
-| **Gender**       | {Woman / Man / —}                         |
+| Dimension      | Assessment                             |
+| -------------- | -------------------------------------- |
+| **Level**      | {estimated level and confidence}       |
+| **Track fit**  | {forward_deployed / platform / either} |
+| **Discipline** | {best discipline match}                |
+| **Gender**     | {Woman / Man / —}                      |
 
 ## Skill Alignment
 
+Framework reference: `{discipline} {level} --track={track}`
+
 | Skill | Expected | Estimated | Status |
 | --- | --- | --- | --- |
-| {skill} | {framework level} | {CV-based estimate} | {Strong/Adequate/Gap/Not evidenced} |
+| {skill} | {framework level} | {CV-based estimate} | {✅ Strong match / 🟡 Adequate / ❌ Gap / ⬜ Not evidenced} |
 
 ### Key Strengths
 - {Strength 1 — with CV evidence}
@@ -234,28 +237,33 @@ Create `knowledge/Candidates/{Name}/assessment.md`:
 
 | Behaviour | Expected Maturity | CV Evidence | Signal |
 | --- | --- | --- | --- |
-| {behaviour} | {maturity} | {evidence or "—"} | {Strong/Weak/None} |
+| {behaviour} | {maturity} | {evidence or "—"} | {Strong / Weak / None} |
 
 ## Track Fit Analysis
 
 {Paragraph explaining why this candidate fits forward_deployed, platform,
 or could work on either. Reference specific CV evidence.}
 
-## Hiring Recommendation
+## Screening Recommendation
 
 **⚠️ Advisory only — human decision required.**
 
-**Recommendation:** {Proceed / Proceed with reservations / Do not proceed}
+**Recommendation:** {Interview / Interview with focus areas / Pass}
 
 Apply these **decision rules** strictly:
 
-| Recommendation               | Criteria                                                                |
-| ---------------------------- | ----------------------------------------------------------------------- |
-| **Proceed**                  | ≥ 70% Strong match, no core skill gaps, strong behaviour signals        |
-| **Proceed with reservations** | ≥ 50% Strong match, ≤ 2 gaps in non-core skills, no behaviour red flags |
-| **Do not proceed**           | All other candidates — including those with thin evidence               |
+| Recommendation                   | Criteria                                                                  |
+| -------------------------------- | ------------------------------------------------------------------------- |
+| **Interview**                    | ≥ 70% Strong match, no core skill gaps, strong behaviour signals          |
+| **Interview with focus areas**   | ≥ 50% Strong match, ≤ 2 gaps in non-core skills, no behaviour red flags  |
+| **Pass**                         | All other candidates — including those with thin evidence                 |
 
-When in doubt, choose the stricter recommendation. "Proceed with reservations"
+**Threshold rule:** If more than **one third** of the target job's skills are
+Gap or Not evidenced, the candidate cannot receive "Interview." If more than
+**half** are Gap or Not evidenced, the candidate cannot receive "Interview with
+focus areas."
+
+When in doubt, choose the stricter recommendation. "Interview with focus areas"
 should be rare — it signals a strong candidate with a specific, addressable
 concern, not a marginal candidate who might work out.
 
@@ -263,9 +271,24 @@ concern, not a marginal candidate who might work out.
 Reference specific skill gaps or strengths and their impact on the role.
 Explicitly state the skill match percentage and gap count.}
 
-**Interview focus areas:**
-- {Area 1 — what to probe in interviews to validate}
-- {Area 2 — what to probe in interviews to validate}
+## Interview Focus Areas
+
+{Only present if recommendation is Interview or Interview with focus areas.
+These are the specific uncertainties that interviews must resolve.}
+
+- **{Area 1}:** {What to probe and why — link to a specific gap or thin evidence}
+- **{Area 2}:** {What to probe and why — link to a specific gap or thin evidence}
+
+### Suggested Interview Questions
+
+{Generate role-specific questions using the framework:}
+
+```bash
+npx fit-pathway interview {discipline} {level} --track={track}
+```
+
+{Select 3-5 questions most relevant to the identified gaps and focus areas.
+For each question, note which gap or uncertainty it targets.}
 ```
 
 ## Step 7: Enrich Candidate Brief
@@ -275,7 +298,7 @@ If `knowledge/Candidates/{Name}/brief.md` exists, update it with findings:
 - Add or update the **Skills** section with framework skill IDs
 - Update **Summary** if the CV provides better context
 - Set the **Gender** field if identifiable from the CV and not already set
-- Add a link to the assessment: `- [CV Assessment](./assessment.md)`
+- Add a link to the assessment: `- [CV Screening](./assessment.md)`
 
 **Use precise edits — don't rewrite the entire file.**
 
@@ -292,10 +315,11 @@ to create the candidate profile from email threads.
 - [ ] "Not evidenced" skills are counted as gaps in the recommendation
 - [ ] Recommendation follows the decision rules table — verify match percentages
       and gap counts before choosing a tier
-- [ ] "Proceed with reservations" is only used for strong candidates with a
+- [ ] "Interview with focus areas" is only used for strong candidates with a
       specific, named concern — never as a soft "maybe"
 - [ ] Track fit analysis references specific skill modifiers from the framework
-- [ ] Gaps are actionable — they suggest interview focus areas
+- [ ] Interview focus areas are specific and tied to identified gaps
+- [ ] Suggested interview questions target the right uncertainties
 - [ ] Assessment file uses correct path format and links to CV
 - [ ] Candidate brief updated with skill tags and assessment link
 - [ ] Gender field set only from explicit pronouns/titles (never name-inferred)

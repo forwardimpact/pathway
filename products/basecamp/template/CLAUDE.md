@@ -86,7 +86,7 @@ wake, they observe KB state, decide the most valuable action, and execute.
 | **postman**        | Email triage and drafts        | Every 5 min     | sync-apple-mail, draft-emails                                                                  |
 | **concierge**      | Meeting prep and transcripts   | Every 10 min    | sync-apple-calendar, meeting-prep, process-hyprnote                                            |
 | **librarian**      | Knowledge graph maintenance    | Every 15 min    | extract-entities, organize-files, manage-tasks                                                 |
-| **recruiter**      | Engineering recruitment        | Every 30 min    | track-candidates, analyze-cv, workday-requisition, right-to-be-forgotten, fit-pathway, fit-map |
+| **recruiter**      | Engineering recruitment        | Every 30 min    | track-candidates, screen-cv, assess-interview, hiring-decision, workday-requisition, right-to-be-forgotten, fit-pathway, fit-map |
 | **head-hunter**    | Passive talent scouting        | Every 60 min    | scan-open-candidates, fit-pathway, fit-map                                                     |
 | **chief-of-staff** | Daily briefings and priorities | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_                                 |
 
@@ -215,7 +215,9 @@ Available skills (grouped by function):
 | `manage-tasks`          | Per-person task boards with lifecycle    |
 | `track-candidates`      | Recruitment pipeline from email threads  |
 | `workday-requisition`   | Import candidates from Workday XLSX      |
-| `analyze-cv`            | CV assessment against career framework   |
+| `screen-cv`             | CV screening — interview or pass         |
+| `assess-interview`      | Interview transcript analysis            |
+| `hiring-decision`       | Final hiring recommendation              |
 | `right-to-be-forgotten` | GDPR data erasure with audit trail       |
 | `scan-open-candidates`  | Scan public sources for open-for-hire    |
 | `weekly-update`         | Weekly priorities from tasks + calendar  |
