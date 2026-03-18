@@ -50,6 +50,7 @@ async function init() {
   // Load data
   try {
     const data = await loadAllData("./data");
+    data.disciplines = data.disciplines.filter((d) => !d.hidden);
     setData(data);
 
     // Populate branding from framework data

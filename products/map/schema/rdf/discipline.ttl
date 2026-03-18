@@ -58,6 +58,12 @@ fit:isManagement a rdf:Property ;
     rdfs:domain fit:Discipline ;
     rdfs:range xsd:boolean .
 
+fit:hidden a rdf:Property ;
+    rdfs:label "hidden"@en ;
+    rdfs:comment "If true, this discipline is hidden from the web UI but remains available via the CLI"@en ;
+    rdfs:domain fit:Discipline ;
+    rdfs:range xsd:boolean .
+
 fit:validTracks a rdf:Property ;
     rdfs:label "validTracks"@en ;
     rdfs:comment "REQUIRED. Explicit list of valid tracks. Empty array = trackless only."@en ;
@@ -162,6 +168,13 @@ fit:DisciplineShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:name "isManagement" ;
         sh:description "If true, this is a management discipline (default false)" ;
+    ] ;
+    sh:property [
+        sh:path fit:hidden ;
+        sh:datatype xsd:boolean ;
+        sh:maxCount 1 ;
+        sh:name "hidden" ;
+        sh:description "If true, this discipline is hidden from the web UI but remains available via the CLI" ;
     ] ;
     sh:property [
         sh:path fit:validTracks ;

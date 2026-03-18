@@ -22,6 +22,10 @@
       "type": "boolean",
       "description": "If true, this is a management discipline (default false)"
     },
+    "hidden": {
+      "type": "boolean",
+      "description": "If true, this discipline is hidden from the web UI but remains available via the CLI"
+    },
     "validTracks": {
       "type": "array",
       "description": "REQUIRED. Explicit list of valid tracks. Use null to allow trackless (generalist). Empty array = no valid combinations.",
