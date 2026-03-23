@@ -96,6 +96,24 @@ const KEYWORDS = new Set([
   "briefings_per_persona",
   "notes_per_persona",
   "comments_per_snapshot",
+  // Dataset and output blocks
+  "dataset",
+  "tool",
+  "population",
+  "modules",
+  "metadata",
+  "data",
+  "rows",
+  "fields",
+  "output",
+  "table",
+  "path",
+  "json",
+  "yaml",
+  "csv",
+  "markdown",
+  "parquet",
+  "sql",
 ]);
 
 const DATE_RE = /^\d{4}-\d{2}$/;

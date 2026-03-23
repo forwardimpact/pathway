@@ -3,8 +3,11 @@
 // fit-universe CLI — run with --help for usage.
 
 import { resolve, join, dirname } from "path";
-import { mkdir, writeFile } from "fs/promises";
+import { mkdir, writeFile, readFile, readdir, mkdtemp, rm } from "fs/promises";
 import { fileURLToPath } from "url";
+import { execFile } from "child_process";
+import { promisify } from "util";
+import { tmpdir } from "os";
 import { format } from "prettier";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
@@ -14,6 +17,9 @@ import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
 import {
   createDslParser,
   createEntityGenerator,
+  FakerTool,
+  SyntheaTool,
+  SdvTool,
 } from "@forwardimpact/libsyntheticgen";
 import {
   ProseEngine,
@@ -100,6 +106,42 @@ async function main() {
   const validator = new ContentValidator(logger);
   const formatter = new ContentFormatter(format, logger);
 
+  const execFileFn = promisify(execFile);
+
+  /**
+   * Create a tool instance by name.
+   * @param {string} name
+   * @param {object} deps
+   * @returns {object}
+   */
+  function toolFactory(name, deps) {
+    switch (name) {
+      case "faker":
+        return new FakerTool({ logger: deps.logger });
+      case "synthea":
+        return new SyntheaTool({
+          logger: deps.logger,
+          syntheaJar:
+            process.env.SYNTHEA_JAR || "synthea-with-dependencies.jar",
+          execFileFn,
+          fsFns: {
+            readFile,
+            readdir,
+            mkdtemp: (prefix) => mkdtemp(join(tmpdir(), prefix)),
+            rm,
+          },
+        });
+      case "sdv":
+        return new SdvTool({
+          logger: deps.logger,
+          execFileFn,
+          fsFns: { writeFile, rm },
+        });
+      default:
+        throw new Error(`Unknown tool: ${name}`);
+    }
+  }
+
   const pipeline = new Pipeline({
     dslParser,
     entityGenerator,
@@ -108,6 +150,7 @@ async function main() {
     renderer,
     validator,
     formatter,
+    toolFactory,
     logger,
   });
 

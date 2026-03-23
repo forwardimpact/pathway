@@ -625,4 +625,44 @@ universe BioNova {
     briefings_per_persona 8
     notes_per_persona 15
   }
+
+  // ─── Datasets ─────────────────────────────────
+
+  dataset trial_patients {
+    tool synthea
+    population 200
+    modules [diabetes, cardiovascular]
+  }
+
+  dataset claims {
+    tool sdv
+    metadata "schemas/bionova_claims_metadata.json"
+    data {
+      claims "data/bionova_claims_sample.csv"
+    }
+    rows 5000
+  }
+
+  dataset researchers {
+    tool faker
+    rows 100
+    fields {
+      id "string.uuid"
+      name "person.fullName"
+      email "internet.email"
+      department "commerce.department"
+      specialty "science.chemicalElement"
+      joined "date.past"
+    }
+  }
+
+  // ─── Outputs ──────────────────────────────────
+
+  output trial_patients_patient json     { path "output/trial_patients.json" }
+  output trial_patients_patient csv      { path "output/trial_patients.csv" }
+  output trial_patients_condition json   { path "output/trial_conditions.json" }
+  output claims_claims parquet           { path "output/claims.parquet" }
+  output claims_claims sql               { path "output/claims.sql" table "bionova_claims" }
+  output researchers yaml                { path "output/researchers.yaml" }
+  output researchers markdown            { path "output/researchers.md" }
 }

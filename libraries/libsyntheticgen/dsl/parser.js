@@ -15,6 +15,8 @@
  * @property {object} snapshots
  * @property {object} framework
  * @property {object[]} content
+ * @property {object[]} datasets
+ * @property {object[]} outputs
  */
 
 /**
@@ -529,6 +531,85 @@ export function parse(tokens) {
     return items;
   }
 
+  /**
+   * Parse a dataset block: dataset <id> { tool <name> rows <n> fields { ... } ... }
+   * @param {string} id
+   * @returns {object}
+   */
+  function parseDataset(id) {
+    expect("LBRACE");
+    const ds = { id, tool: null, config: {} };
+    while (peek().type !== "RBRACE") {
+      const kw = advance();
+      if (kw.value === "tool") ds.tool = parseStringOrIdent();
+      else if (kw.value === "population")
+        ds.config.population = parseNumberValue();
+      else if (kw.value === "modules") ds.config.modules = parseArray();
+      else if (kw.value === "metadata") ds.config.metadata = parseStringValue();
+      else if (kw.value === "data") ds.config.data = parseDatasetFields();
+      else if (kw.value === "rows") ds.config.rows = parseNumberValue();
+      else if (kw.value === "fields") ds.config.fields = parseDatasetFields();
+      else
+        throw new Error(
+          `Unexpected '${kw.value}' in dataset at line ${kw.line}`,
+        );
+    }
+    expect("RBRACE");
+    return ds;
+  }
+
+  /**
+   * Parse a fields/data block: { key "value" ... }
+   * @returns {Object<string, string>}
+   */
+  function parseDatasetFields() {
+    expect("LBRACE");
+    const fields = {};
+    while (peek().type !== "RBRACE") {
+      const name = parseStringOrIdent();
+      const value = parseStringValue();
+      fields[name] = value;
+    }
+    expect("RBRACE");
+    return fields;
+  }
+
+  const DATASET_FORMATS = new Set([
+    "json",
+    "yaml",
+    "csv",
+    "markdown",
+    "parquet",
+    "sql",
+  ]);
+
+  /**
+   * Parse an output block: output <dataset> <format> { path "..." [table "..."] }
+   * @param {string} datasetId
+   * @returns {object}
+   */
+  function parseOutput(datasetId) {
+    const format = parseStringOrIdent();
+    if (!DATASET_FORMATS.has(format)) {
+      throw new Error(
+        `Unknown output format '${format}'. Expected one of: ${[...DATASET_FORMATS].join(", ")}`,
+      );
+    }
+    expect("LBRACE");
+    const out = { dataset: datasetId, format, config: {} };
+    while (peek().type !== "RBRACE") {
+      const kw = advance();
+      if (kw.value === "path") out.config.path = parseStringValue();
+      else if (kw.value === "table") out.config.table = parseStringValue();
+      else
+        throw new Error(
+          `Unexpected '${kw.value}' in output at line ${kw.line}`,
+        );
+    }
+    expect("RBRACE");
+    return out;
+  }
+
   function parseContent() {
     const id = parseStringOrIdent();
     expect("LBRACE");
@@ -581,6 +662,8 @@ export function parse(tokens) {
     snapshots: null,
     framework: null,
     content: [],
+    datasets: [],
+    outputs: [],
   };
 
   while (peek().type !== "RBRACE" && peek().type !== "EOF") {
@@ -622,6 +705,16 @@ export function parse(tokens) {
       case "content":
         ast.content.push(parseContent());
         break;
+      case "dataset": {
+        const id = parseStringOrIdent();
+        ast.datasets.push(parseDataset(id));
+        break;
+      }
+      case "output": {
+        const datasetId = parseStringOrIdent();
+        ast.outputs.push(parseOutput(datasetId));
+        break;
+      }
       default:
         throw new Error(
           `Unexpected keyword '${kw.value}' at top level, line ${kw.line}`,

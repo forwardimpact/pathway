@@ -16,9 +16,13 @@
     "./engine": "./engine/tier0.js",
     "./engine/entities": "./engine/entities.js",
     "./engine/activity": "./engine/activity.js",
-    "./rng": "./engine/rng.js"
+    "./rng": "./engine/rng.js",
+    "./tools/faker": "./tools/faker.js",
+    "./tools/synthea": "./tools/synthea.js",
+    "./tools/sdv": "./tools/sdv.js"
   },
   "dependencies": {
+    "@faker-js/faker": "^10.4.0",
     "@forwardimpact/libutil": "^0.1.61",
     "seedrandom": "^3.0.5"
   },
