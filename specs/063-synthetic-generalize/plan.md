@@ -3,6 +3,12 @@
 Implementation plan for adding dataset tools and generic renderers to the
 synthetic data system.
 
+## Clean Break
+
+⚠️ All changes in this plan MUST be implemented as clean breaks wit NO
+backward compatibility. There are no consumers of this code base yet and we
+do not want any legacy code paths.
+
 ## Overview
 
 Five phases, each independently shippable:
