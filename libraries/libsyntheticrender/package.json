@@ -16,14 +16,17 @@
     "./render/pathway": "./render/pathway.js",
     "./render/raw": "./render/raw.js",
     "./render/markdown": "./render/markdown.js",
+    "./render/dataset-renderers": "./render/dataset-renderers.js",
     "./validate": "./validate.js",
     "./format": "./format.js"
   },
   "dependencies": {
     "@forwardimpact/libsyntheticgen": "^0.1.0",
     "@forwardimpact/libtemplate": "^0.2.0",
-    "yaml": "^2.3.0",
-    "prettier": "^3.7.4"
+    "apache-arrow": "^21.1.0",
+    "parquet-wasm": "^0.7.1",
+    "prettier": "^3.7.4",
+    "yaml": "^2.3.0"
   },
   "engines": {
     "node": ">=18.0.0"

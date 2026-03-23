@@ -6,7 +6,11 @@
 
 import { readFile } from "fs/promises";
 import { join } from "path";
-import { validateLinks, validateHTML } from "@forwardimpact/libsyntheticrender";
+import {
+  validateLinks,
+  validateHTML,
+  renderDataset,
+} from "@forwardimpact/libsyntheticrender";
 import { collectProseKeys } from "@forwardimpact/libsyntheticgen";
 import { loadSchemas } from "@forwardimpact/libsyntheticprose/pathway";
 
@@ -24,6 +28,7 @@ export class Pipeline {
    * @param {import('@forwardimpact/libsyntheticrender').Renderer} deps.renderer - Renderer
    * @param {import('@forwardimpact/libsyntheticrender').ContentValidator} deps.validator - Content validator
    * @param {import('@forwardimpact/libsyntheticrender').ContentFormatter} deps.formatter - Content formatter
+   * @param {Function} [deps.toolFactory] - (toolName, deps) => tool instance
    * @param {object} deps.logger - Logger instance
    */
   constructor({
@@ -34,6 +39,7 @@ export class Pipeline {
     renderer,
     validator,
     formatter,
+    toolFactory,
     logger,
   }) {
     if (!dslParser) throw new Error("dslParser is required");
@@ -52,6 +58,7 @@ export class Pipeline {
     this.renderer = renderer;
     this.validator = validator;
     this.formatter = formatter;
+    this.toolFactory = toolFactory || null;
     this.logger = logger;
   }
 
@@ -179,6 +186,39 @@ export class Pipeline {
       const md = this.renderer.renderMarkdown(entities, prose);
       for (const [name, content] of md) {
         files.set(join("examples/personal", name), content);
+      }
+    }
+
+    // Dataset tool execution and output rendering
+    if (ast.datasets.length > 0 && this.toolFactory) {
+      log.info("pipeline", `Generating ${ast.datasets.length} dataset(s)`);
+      const datasets = new Map();
+      for (const ds of ast.datasets) {
+        const tool = this.toolFactory(ds.tool, { logger: log });
+        await tool.checkAvailability();
+        const results = await tool.generate({
+          ...ds.config,
+          seed: ast.seed,
+          name: ds.id,
+        });
+        for (const dataset of results) {
+          datasets.set(dataset.name, dataset);
+        }
+      }
+
+      log.info("pipeline", `Rendering ${ast.outputs.length} dataset output(s)`);
+      for (const out of ast.outputs) {
+        const dataset = datasets.get(out.dataset);
+        if (!dataset) {
+          throw new Error(
+            `Unknown dataset '${out.dataset}' in output block. ` +
+              `Available: ${[...datasets.keys()].join(", ")}`,
+          );
+        }
+        const rendered = await renderDataset(dataset, out.format, out.config);
+        for (const [path, content] of rendered) {
+          files.set(path, content);
+        }
       }
     }
 
