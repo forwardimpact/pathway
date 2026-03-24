@@ -156,14 +156,15 @@ function daemon() {
   );
   socketServer.start();
 
-  scheduler.wakeDueAgents().catch((err) => log(`Error: ${err.message}`));
-  setInterval(async () => {
+  async function tick() {
     try {
       await scheduler.wakeDueAgents();
     } catch (err) {
       log(`Error: ${err.message}`);
     }
-  }, 60_000);
+    setTimeout(tick, 60_000);
+  }
+  tick();
 }
 
 // --- Update ------------------------------------------------------------------
