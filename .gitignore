@@ -32,6 +32,9 @@ generated/
 tmp/
 SCRATCHPAD*.md
 
+# CLI output
+output/
+
 # Built static site
 public/
 

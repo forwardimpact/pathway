@@ -156,14 +156,7 @@ async function main() {
 
   const result = await pipeline.run({
     universePath:
-      args.universe ||
-      join(
-        dirname(
-          fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticgen")),
-        ),
-        "data",
-        "default.dsl",
-      ),
+      args.universe || join(monorepoRoot, "examples", "universe.dsl"),
     only: args.only || null,
     schemaDir,
   });
@@ -244,6 +237,16 @@ async function main() {
   for (const check of result.validation.checks) {
     const icon = check.passed ? "✓" : "✗";
     console.log(`  ${icon} ${check.name}`);
+  }
+
+  // Prose cache stats
+  const { hits, generated, misses } = result.stats.prose;
+  const proseTotal = hits + generated + misses;
+  if (proseTotal > 0) {
+    const rate = Math.round((hits / proseTotal) * 100);
+    console.log(
+      `\nProse: ${hits} hits, ${generated} generated, ${misses} misses (${rate}% hit rate)`,
+    );
   }
 
   if (!result.validation.passed) {

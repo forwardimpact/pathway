@@ -39,6 +39,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx fit-codegen --all
+      - run: npx fit-universe
       - run: npm test
       - run: npm run validate -- --shacl
 
@@ -53,6 +54,7 @@ jobs:
           cache: npm
       - run: npm ci
       - run: npx fit-codegen --all
-      - run: npx playwright install --with-deps
+      - run: npx playwright install --with-deps chromium
+      - run: npx fit-universe
       - run: npx fit-map generate-index
       - run: npm run test:e2e
