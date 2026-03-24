@@ -160,6 +160,24 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   });
   console.log(`   ✓ ui/lib + ui/css`);
 
+  // Copy vendor dependencies for offline usage
+  console.log("📦 Copying vendor dependencies...");
+  const vendorDir = join(outputDir, "vendor");
+  await mkdir(vendorDir, { recursive: true });
+
+  // mustache (ESM module)
+  const mustacheSrc = fileURLToPath(import.meta.resolve("mustache"));
+  const mustacheMjs = join(dirname(mustacheSrc), "mustache.mjs");
+  await cp(mustacheMjs, join(vendorDir, "mustache.mjs"));
+  console.log("   ✓ vendor/mustache.mjs");
+
+  // yaml (browser ESM build — not in package exports, resolve via filesystem)
+  // import.meta.resolve("yaml") → .../yaml/dist/index.js, go up two levels
+  const yamlPkg = dirname(dirname(fileURLToPath(import.meta.resolve("yaml"))));
+  const yamlBrowserDist = join(yamlPkg, "browser", "dist");
+  await cp(yamlBrowserDist, join(vendorDir, "yaml"), { recursive: true });
+  console.log("   ✓ vendor/yaml/");
+
   // Copy data directory (dereference symlinks to copy actual content)
   console.log("📁 Copying data files...");
   const dataOutputDir = join(outputDir, "data");

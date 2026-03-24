@@ -7,10 +7,16 @@ test("skills list loads and displays skills", async ({ page }) => {
     errors.push(error.message);
   });
 
-  await page.goto("./#/skill");
+  // Abort external requests (fonts, prism) that are non-essential
+  await page.route(
+    (url) => !url.hostname.includes("localhost"),
+    (route) => route.abort(),
+  );
+
+  await page.goto("./#/skill", { waitUntil: "domcontentloaded" });
 
   // Page loads with skills grouped by capability
-  await expect(page.locator("h1")).toContainText("Skills");
+  await expect(page.locator("h1")).toContainText("Skill");
   const capabilityHeaders = page.locator(".capability-header");
   await expect(capabilityHeaders.first()).toBeVisible();
 

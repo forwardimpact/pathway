@@ -7,7 +7,13 @@ test("loads front page successfully", async ({ page }) => {
     errors.push(error.message);
   });
 
-  await page.goto("./");
+  // Abort external requests (fonts, prism) that are non-essential
+  await page.route(
+    (url) => !url.hostname.includes("localhost"),
+    (route) => route.abort(),
+  );
+
+  await page.goto("./", { waitUntil: "domcontentloaded" });
 
   // Wait for the landing page h1 to appear (rendered by JavaScript)
   await expect(page.locator("h1")).toContainText("Engineering Pathway");
