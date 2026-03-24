@@ -7,7 +7,13 @@ test("job builder can generate a job", async ({ page }) => {
     errors.push(error.message);
   });
 
-  await page.goto("./#/job-builder");
+  // Abort external requests (fonts, prism) that are non-essential
+  await page.route(
+    (url) => !url.hostname.includes("localhost"),
+    (route) => route.abort(),
+  );
+
+  await page.goto("./#/job-builder", { waitUntil: "domcontentloaded" });
 
   // Page loads with the job builder form
   await expect(page.locator("h1")).toContainText("Job Builder");

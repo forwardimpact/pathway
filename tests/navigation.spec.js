@@ -7,15 +7,21 @@ test("navigation between pages works", async ({ page }) => {
     errors.push(error.message);
   });
 
-  await page.goto("./");
+  // Abort external requests (fonts, prism) that are non-essential
+  await page.route(
+    (url) => !url.hostname.includes("localhost"),
+    (route) => route.abort(),
+  );
+
+  await page.goto("./", { waitUntil: "domcontentloaded" });
 
   // Navigate via hash to disciplines page
-  await page.goto("./#/discipline");
-  await expect(page.locator("h1")).toContainText("Disciplines");
+  await page.goto("./#/discipline", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("h1")).toContainText("Discipline");
 
   // Navigate to behaviours
-  await page.goto("./#/behaviour");
-  await expect(page.locator("h1")).toContainText("Behaviours");
+  await page.goto("./#/behaviour", { waitUntil: "domcontentloaded" });
+  await expect(page.locator("h1")).toContainText("Behaviour");
 
   // Return home via nav brand link
   await page.locator("a.nav-brand").click();

@@ -15,12 +15,18 @@
       href="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/themes/prism.min.css"
     />
     <link rel="stylesheet" href="css/bundles/app.css" />
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"></script>
-    <script src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js"></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/prism.min.js"
+      defer
+    ></script>
+    <script
+      src="https://cdn.jsdelivr.net/npm/prismjs@1.29.0/components/prism-markdown.min.js"
+      defer
+    ></script>
     <script type="importmap">
       {
         "imports": {
-          "mustache": "https://esm.sh/mustache@4.2.0",
+          "mustache": "/vendor/mustache.mjs",
           "@forwardimpact/map": "/map/lib/index.js",
           "@forwardimpact/map/levels": "/map/lib/levels.js",
           "@forwardimpact/map/loader": "/map/lib/loader.js",
