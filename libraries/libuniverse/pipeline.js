@@ -80,27 +80,33 @@ export class Pipeline {
     const source = await readFile(universePath, "utf-8");
     const ast = this.dslParser.parse(source);
 
-    // 2. Generate entity graph (Tier 0)
-    log.info("pipeline", "Generating entity graph");
-    const entities = this.entityGenerator.generate(ast);
-
-    // 3. Prose generation (Tier 1/2)
-    const proseKeys = collectProseKeys(entities);
+    // 2–4. Org-and-pathway generation (only when org blocks are present)
+    const hasOrgBlocks = ast.people !== null;
+    let entities = { domain: ast.domain, industry: ast.industry };
     const prose = new Map();
-    const totalKeys = proseKeys.size;
-    let keyIndex = 0;
-    if (this.proseEngine.mode !== "no-prose") {
-      log.info(
-        "pipeline",
-        `Generating prose (${this.proseEngine.mode} mode, ${totalKeys} keys)`,
-      );
-    }
-    for (const [key, context] of proseKeys) {
-      keyIndex++;
-      const result = await this.proseEngine.generateProse(key, context);
-      if (result) prose.set(key, result);
+
+    if (hasOrgBlocks) {
+      // 2. Generate entity graph (Tier 0)
+      log.info("pipeline", "Generating entity graph");
+      entities = this.entityGenerator.generate(ast);
+
+      // 3. Prose generation (Tier 1/2)
+      const proseKeys = collectProseKeys(entities);
+      const totalKeys = proseKeys.size;
+      let keyIndex = 0;
       if (this.proseEngine.mode !== "no-prose") {
-        log.info("prose", `[${keyIndex}/${totalKeys}] ${key}`);
+        log.info(
+          "pipeline",
+          `Generating prose (${this.proseEngine.mode} mode, ${totalKeys} keys)`,
+        );
+      }
+      for (const [key, context] of proseKeys) {
+        keyIndex++;
+        const result = await this.proseEngine.generateProse(key, context);
+        if (result) prose.set(key, result);
+        if (this.proseEngine.mode !== "no-prose") {
+          log.info("prose", `[${keyIndex}/${totalKeys}] ${key}`);
+        }
       }
     }
 
@@ -109,7 +115,7 @@ export class Pipeline {
     const rawDocuments = new Map();
     let htmlLinked = null;
 
-    const shouldRender = (type) => !only || only === type;
+    const shouldRender = (type) => hasOrgBlocks && (!only || only === type);
 
     if (shouldRender("html")) {
       log.info("render", "Rendering HTML (Pass 1: deterministic skeleton)");
@@ -223,7 +229,9 @@ export class Pipeline {
     }
 
     // Save prose cache after all generation
-    this.proseEngine.saveCache();
+    if (hasOrgBlocks) {
+      this.proseEngine.saveCache();
+    }
 
     // 5. Format outputs with Prettier
     log.info("format", "Formatting output files with Prettier");
@@ -231,7 +239,9 @@ export class Pipeline {
     const formattedRawDocuments = await this.formatter.format(rawDocuments);
 
     // 6. Validate
-    const validation = this.validator.validate(entities);
+    const validation = hasOrgBlocks
+      ? this.validator.validate(entities)
+      : { checks: [], failures: 0, passed: true };
 
     if (htmlLinked) {
       const linkValidation = validateLinks(htmlLinked, entities.domain);
