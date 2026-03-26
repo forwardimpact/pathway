@@ -110,7 +110,9 @@ export function prepareJobDetail({
     skillMatrix: job.skillMatrix,
     behaviourProfile: job.behaviourProfile,
     derivedResponsibilities: job.derivedResponsibilities || [],
-    capabilityOrder: (job.derivedResponsibilities || []).map((r) => r.capability),
+    capabilityOrder: (job.derivedResponsibilities || []).map(
+      (r) => r.capability,
+    ),
     // Derived toolkit
     toolkit,
     // Transformed driver coverage for display

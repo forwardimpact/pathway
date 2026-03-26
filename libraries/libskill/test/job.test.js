@@ -142,9 +142,7 @@ describe("prepareJobDetail", () => {
     });
 
     // derivedResponsibilities is sorted by proficiency desc, then skill count, then ordinalRank
-    const expectedOrder = view.derivedResponsibilities.map(
-      (r) => r.capability,
-    );
+    const expectedOrder = view.derivedResponsibilities.map((r) => r.capability);
     assert.deepStrictEqual(view.capabilityOrder, expectedOrder);
     assert.ok(view.capabilityOrder.length > 0);
   });

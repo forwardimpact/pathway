@@ -30,8 +30,12 @@ import { truncate } from "../formatters/shared.js";
 function sortByCapabilityThenLevel(skills, capabilityOrder) {
   const orderMap = new Map(capabilityOrder.map((id, i) => [id, i]));
   return [...skills].sort((a, b) => {
-    const capA = orderMap.has(a.capability) ? orderMap.get(a.capability) : capabilityOrder.length;
-    const capB = orderMap.has(b.capability) ? orderMap.get(b.capability) : capabilityOrder.length;
+    const capA = orderMap.has(a.capability)
+      ? orderMap.get(a.capability)
+      : capabilityOrder.length;
+    const capB = orderMap.has(b.capability)
+      ? orderMap.get(b.capability)
+      : capabilityOrder.length;
     if (capA !== capB) return capA - capB;
     const levelA = SKILL_PROFICIENCY_ORDER.indexOf(a.proficiency);
     const levelB = SKILL_PROFICIENCY_ORDER.indexOf(b.proficiency);

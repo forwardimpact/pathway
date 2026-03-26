@@ -190,8 +190,10 @@ Ask: _"If someone skipped this check, what could go wrong?"_ If the answer is
 
 **Memory guidelines:**
 
-- Store private operational notes in `.claude/memory/improve-skill.md` (gitignored)
-- Record: protected tools, known decision reversals, deferred changes, open issues
+- Store private operational notes in `.claude/memory/improve-skill.md`
+  (gitignored)
+- Record: protected tools, known decision reversals, deferred changes, open
+  issues
 - Do NOT mirror public skill content into private memory
 - Do NOT store credentials or secrets
 - Keep notes concise — checkpoint state, not detailed journaling
@@ -490,8 +492,8 @@ stages:
 2. Apply fixes directly to the capability file (both locations if applicable)
 3. Run `npx fit-map validate` to verify changes
 
-Do not keep dated review logs or action histories in this public skill file.
-If you need to retain working notes, store them in a private local note or a
+Do not keep dated review logs or action histories in this public skill file. If
+you need to retain working notes, store them in a private local note or a
 non-committed workspace file.
 
 ### Protected Tools

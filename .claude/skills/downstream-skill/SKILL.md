@@ -66,8 +66,9 @@ changelogs.
 ### Step 2: Identify Unprocessed Entries
 
 Read each skill's changelog and identify entries that haven't been processed
-yet. Track processing state in `.claude/memory/downstream-skill.md` (gitignored).
-Record what was reviewed, what was incorporated, and what was deferred.
+yet. Track processing state in `.claude/memory/downstream-skill.md`
+(gitignored). Record what was reviewed, what was incorporated, and what was
+deferred.
 
 For each unprocessed entry, record:
 

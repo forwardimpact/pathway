@@ -87,16 +87,16 @@ doesn't render when only discipline/track constraints exist.
 ### Code change — `libraries/libskill/agent.js`
 
 In `buildStageProfileBodyData()`, expose constraints as three separate arrays
-(`stageConstraints`, `disciplineConstraints`, `trackConstraints`) instead of
-a single merged `constraints` array. Add `hasStageConstraints` and
+(`stageConstraints`, `disciplineConstraints`, `trackConstraints`) instead of a
+single merged `constraints` array. Add `hasStageConstraints` and
 `hasDisciplineOrTrackConstraints` booleans.
 
 ### Data change — discipline/track `agent.constraints`
 
-Normalise all constraint strings to imperative form ("Do not commit code
-without running tests"). No template-level grammar transforms — every
-constraint is a complete sentence that renders as-is. This avoids encoding
-an invisible grammar contract into the data.
+Normalise all constraint strings to imperative form ("Do not commit code without
+running tests"). No template-level grammar transforms — every constraint is a
+complete sentence that renders as-is. This avoids encoding an invisible grammar
+contract into the data.
 
 Example change in `data/pathway/disciplines/software_engineering.yaml`:
 
@@ -130,14 +130,14 @@ The fix has two parts: curate the data, then filter in code.
 Remove `agent.stages` entries for stages where the skill is not meaningfully
 relevant. Use these criteria:
 
-| Stage | Skill belongs here when... |
-|-------|---------------------------|
+| Stage   | Skill belongs here when...                          |
+| ------- | --------------------------------------------------- |
 | specify | It informs what to build or constrains requirements |
-| plan | It drives architecture or design decisions |
-| onboard | It requires tooling, dependencies, or env setup |
-| code | It is directly exercised during implementation |
-| review | It has quality criteria to verify |
-| deploy | It has production or operational concerns |
+| plan    | It drives architecture or design decisions          |
+| onboard | It requires tooling, dependencies, or env setup     |
+| code    | It is directly exercised during implementation      |
+| review  | It has quality criteria to verify                   |
+| deploy  | It has production or operational concerns           |
 
 Example — `problem_discovery` keeps only specify + plan:
 
@@ -177,10 +177,10 @@ Each stage entry that IS present must still have `focus`, `readChecklist`, and
 `confirmChecklist` — the schema requires all three per stage key.
 
 **Downstream consumers:** `checklist.js` already skips missing stages
-(`if (!stageData) continue`). `validation.js` iterates only present entries.
-No code changes needed for either. The `libsyntheticprose` capability prompt
-tells the LLM to generate all 6 stages — update the prompt to say "generate
-only the stages where this skill is meaningfully relevant."
+(`if (!stageData) continue`). `validation.js` iterates only present entries. No
+code changes needed for either. The `libsyntheticprose` capability prompt tells
+the LLM to generate all 6 stages — update the prompt to say "generate only the
+stages where this skill is meaningfully relevant."
 
 ### Code change — `libraries/libskill/agent.js`
 
@@ -201,8 +201,8 @@ const skillIndex = derivedSkills
 
 ### Schema change
 
-None — `capability.schema.json` already defines `agent.stages` as an object
-with optional stage keys.
+None — `capability.schema.json` already defines `agent.stages` as an object with
+optional stage keys.
 
 ### Validation
 
@@ -219,8 +219,8 @@ combination produces fewer than 2 skills.
 ### Template change — `products/pathway/templates/agent.template.md`
 
 Remove the 10-line block that explains how Claude Code loads skills and how to
-interpret checklist tags. Keep only the skill table and the `<required_tools>`
-/ install script references.
+interpret checklist tags. Keep only the skill table and the `<required_tools>` /
+install script references.
 
 Replace with the skill table plus a conditional onboard block:
 
@@ -255,8 +255,8 @@ of the mechanism. The onboard install guidance is kept because it's actionable.
 
 ### Template change — `products/pathway/templates/agent.template.md`
 
-Replace `### {title}` subsections with bold-title paragraphs separated by
-blank lines:
+Replace `### {title}` subsections with bold-title paragraphs separated by blank
+lines:
 
 ```mustache
 {{#hasWorkingStyles}}
@@ -349,17 +349,17 @@ Pass `stage.returnFormat` through `buildStageProfileBodyData()` and
 ### Code change — `libraries/libskill/agent.js`
 
 In `deriveStageTransitions()`, skip handoffs where
-`handoff.targetStage === stage.id`. Self-loops are revision cycles, not
-forward transitions. The agent already has "continue working in the current
-stage" text in the entry criteria block.
+`handoff.targetStage === stage.id`. Self-loops are revision cycles, not forward
+transitions. The agent already has "continue working in the current stage" text
+in the entry criteria block.
 
 ### Schema/data change
 
 None — the handoff data stays as-is (self-referential handoffs are useful for
 the web UI button labels). Only the agent template rendering filters them out.
 
-Backward transitions (e.g. review→code, review→plan) are intentionally
-preserved — they're legitimate handoffs, not self-loops.
+Backward transitions (e.g. review→code, review→plan) are intentionally preserved
+— they're legitimate handoffs, not self-loops.
 
 ---
 
@@ -384,16 +384,16 @@ evaluated.
 
 ## Summary of changes
 
-| Location | Type | Changes |
-| --- | --- | --- |
-| `data/pathway/stages.yaml` | Data | Add `summary`, add `returnFormat` per stage |
-| `data/pathway/capabilities/*.yaml` | Data | Curate `agent.stages` — remove stages where the skill is not relevant |
-| `data/pathway/disciplines/*.yaml` | Data | Normalise `agent.constraints` to imperative form |
-| `libraries/libsyntheticprose/prompts/pathway/capability.js` | Code | Update prompt to generate only relevant stages |
-| `products/map/schema/json/stages.schema.json` | Schema | Add `returnFormat` property (string array) |
-| `products/pathway/templates/agent.template.md` | Template | Layer constraints, flatten working styles, data-driven return format, remove meta-instructions |
-| `libraries/libskill/agent.js` | Code | Separate constraint arrays, filter self-handoffs, filter skills by stage, min-skill warning |
-| `products/pathway/src/formatters/agent/profile.js` | Code | Pass through new fields (`returnFormat`, separated constraints) |
+| Location                                                    | Type     | Changes                                                                                        |
+| ----------------------------------------------------------- | -------- | ---------------------------------------------------------------------------------------------- |
+| `data/pathway/stages.yaml`                                  | Data     | Add `summary`, add `returnFormat` per stage                                                    |
+| `data/pathway/capabilities/*.yaml`                          | Data     | Curate `agent.stages` — remove stages where the skill is not relevant                          |
+| `data/pathway/disciplines/*.yaml`                           | Data     | Normalise `agent.constraints` to imperative form                                               |
+| `libraries/libsyntheticprose/prompts/pathway/capability.js` | Code     | Update prompt to generate only relevant stages                                                 |
+| `products/map/schema/json/stages.schema.json`               | Schema   | Add `returnFormat` property (string array)                                                     |
+| `products/pathway/templates/agent.template.md`              | Template | Layer constraints, flatten working styles, data-driven return format, remove meta-instructions |
+| `libraries/libskill/agent.js`                               | Code     | Separate constraint arrays, filter self-handoffs, filter skills by stage, min-skill warning    |
+| `products/pathway/src/formatters/agent/profile.js`          | Code     | Pass through new fields (`returnFormat`, separated constraints)                                |
 
 ### Execution order
 
@@ -418,6 +418,7 @@ diff -r tmp/agents/.claude tmp/agents-new/.claude
 ```
 
 Confirm:
+
 - Each stage agent has a distinct `skills:` list
 - Constraints are layered (stage first, then general)
 - No self-referential stage transitions

@@ -99,9 +99,9 @@ wastes context on checklists and guidance the agent will never act on. A specify
 agent has no use for `sre-practices` code-stage checklists. A review agent
 doesn't need `code-quality-review` onboard-stage install scripts.
 
-Each skill is ~185 lines. 5 skills × 185 lines = ~925 lines of skill context
-per agent. Each skill has 6 stage sections of ~20 lines each. Only 1 stage
-section is relevant. That means ~83% of loaded checklist content is noise.
+Each skill is ~185 lines. 5 skills × 185 lines = ~925 lines of skill context per
+agent. Each skill has 6 stage sections of ~20 lines each. Only 1 stage section
+is relevant. That means ~83% of loaded checklist content is noise.
 
 ### Example
 
@@ -226,8 +226,8 @@ Before taking action:
 
 3 subsections with numbered lists. This occupies roughly the same vertical space
 as the "Required skills" and "Stage transitions" sections, despite carrying less
-actionable information. The headings create structural weight that a flat list or
-bold-title paragraphs would avoid.
+actionable information. The headings create structural weight that a flat list
+or bold-title paragraphs would avoid.
 
 ---
 
@@ -309,10 +309,10 @@ in the Specify stage.
 ```
 
 The first two transitions hand off to the agent's own stage. The same pattern
-appears in plan (2 self-loops + 1 forward) and review (1 back to code, 1 back
-to plan, 1 forward to deploy). Self-loops should either be omitted or rendered
-as a distinct "Revision" section so the agent can distinguish "iterate on my
-work" from "pass work to the next stage."
+appears in plan (2 self-loops + 1 forward) and review (1 back to code, 1 back to
+plan, 1 forward to deploy). Self-loops should either be omitted or rendered as a
+distinct "Revision" section so the agent can distinguish "iterate on my work"
+from "pass work to the next stage."
 
 ---
 
@@ -368,9 +368,9 @@ field. No agent is scoped to specific file types or paths.
 Claude Code uses `applyTo` globs to scope when an agent is suggested or
 relevant. Stage agents have natural file affinities: a specify agent works on
 `specs/**/*.md`, a deploy agent works on CI/CD configs and infrastructure files,
-an onboard agent works on environment setup files. Without `applyTo`, Claude Code
-cannot use file context to suggest the right agent — the user must always select
-manually from a flat list of 6 agents with near-identical descriptions.
+an onboard agent works on environment setup files. Without `applyTo`, Claude
+Code cannot use file context to suggest the right agent — the user must always
+select manually from a flat list of 6 agents with near-identical descriptions.
 
 The stage data already contains enough information to derive reasonable globs.
 Stage handoff checklists reference specific file patterns (`spec.md`,
