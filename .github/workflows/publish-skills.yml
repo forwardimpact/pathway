@@ -6,6 +6,7 @@ on:
     paths:
       - '.claude/skills/fit-*/**'
       - '.github/workflows/publish-skills.yml'
+  workflow_dispatch:
 
 permissions:
   contents: read
