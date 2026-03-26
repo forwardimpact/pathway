@@ -60,6 +60,13 @@
           "items": {
             "type": "string"
           }
+        },
+        "returnFormat": {
+          "type": "array",
+          "description": "Expected outputs when completing this stage",
+          "items": {
+            "type": "string"
+          }
         }
       },
       "additionalProperties": false

@@ -44,7 +44,18 @@ import { flattenToLine } from "../template-preprocess.js";
  * @returns {Object} Data object ready for Mustache template
  */
 function prepareAgentProfileData({ frontmatter, bodyData }) {
-  const constraints = (bodyData.constraints || []).map((c) => trimRequired(c));
+  const stageConstraints = (bodyData.stageConstraints || []).map((c) =>
+    trimRequired(c),
+  );
+  const disciplineConstraints = (bodyData.disciplineConstraints || []).map(
+    (c) => trimRequired(c),
+  );
+  const trackConstraints = (bodyData.trackConstraints || []).map((c) =>
+    trimRequired(c),
+  );
+  const returnFormat = (bodyData.returnFormat || []).map((r) =>
+    trimRequired(r),
+  );
   const skillIndex = trimFields(bodyData.skillIndex, {
     name: "required",
     dirname: "required",
@@ -62,6 +73,11 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
     entryCriteria: (t.entryCriteria || []).map((c) => trimRequired(c)),
     hasEntryCriteria: (t.entryCriteria || []).length > 0,
   }));
+
+  const hasConstraints =
+    stageConstraints.length > 0 ||
+    disciplineConstraints.length > 0 ||
+    trackConstraints.length > 0;
 
   return {
     // Frontmatter
@@ -83,8 +99,15 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
     roleContext: trimValue(bodyData.roleContext),
     workingStyles,
     hasWorkingStyles: workingStyles.length > 0,
-    constraints,
-    hasConstraints: constraints.length > 0,
+    stageConstraints,
+    disciplineConstraints,
+    trackConstraints,
+    hasStageConstraints: stageConstraints.length > 0,
+    hasDisciplineOrTrackConstraints:
+      disciplineConstraints.length > 0 || trackConstraints.length > 0,
+    hasConstraints,
+    returnFormat,
+    hasReturnFormat: returnFormat.length > 0,
     stageTransitions,
     hasStageTransitions: stageTransitions.length > 0,
   };

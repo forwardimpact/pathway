@@ -333,9 +333,19 @@ function estimateBodyDataLength(bodyData) {
         skill.name.length + skill.dirname.length + skill.useWhen.length + 50;
     }
   }
-  if (bodyData.constraints) {
-    for (const c of bodyData.constraints) {
-      length += c.length + 2; // +2 for "- " prefix
+  if (bodyData.stageConstraints) {
+    for (const c of bodyData.stageConstraints) {
+      length += c.length + 2;
+    }
+  }
+  if (bodyData.disciplineConstraints) {
+    for (const c of bodyData.disciplineConstraints) {
+      length += c.length + 2;
+    }
+  }
+  if (bodyData.trackConstraints) {
+    for (const c of bodyData.trackConstraints) {
+      length += c.length + 2;
     }
   }
 
@@ -450,23 +460,25 @@ export function deriveStageTransitions({ stage, stages }) {
     return [];
   }
 
-  return stage.handoffs.map((handoff) => {
-    // Find the target stage to get its confirmChecklist
-    const targetStage = stages.find((s) => s.id === handoff.targetStage);
-    const confirmChecklist = targetStage?.confirmChecklist || [];
-    const targetStageName =
-      targetStage?.name.charAt(0).toUpperCase() + targetStage?.name.slice(1) ||
-      handoff.targetStage;
+  return stage.handoffs
+    .filter((handoff) => handoff.targetStage !== stage.id)
+    .map((handoff) => {
+      // Find the target stage to get its confirmChecklist
+      const targetStage = stages.find((s) => s.id === handoff.targetStage);
+      const confirmChecklist = targetStage?.confirmChecklist || [];
+      const targetStageName =
+        targetStage?.name.charAt(0).toUpperCase() +
+          targetStage?.name.slice(1) || handoff.targetStage;
 
-    // Build summary instruction
-    const summaryInstruction = `${handoff.prompt} Summarize what was completed in the ${stage.name} stage.`;
+      // Build summary instruction
+      const summaryInstruction = `${handoff.prompt} Summarize what was completed in the ${stage.name} stage.`;
 
-    return {
-      targetStageName,
-      summaryInstruction,
-      entryCriteria: confirmChecklist,
-    };
-  });
+      return {
+        targetStageName,
+        summaryInstruction,
+        entryCriteria: confirmChecklist,
+      };
+    });
 }
 
 /**
@@ -511,10 +523,12 @@ function buildStageProfileBodyData({
     : null;
 
   // Build skill index from derived skills (already focused by deriveStageAgent)
+  // Filter to only include skills that have stage-specific guidance for this stage
   const skillIndex = derivedSkills
     .map((derived) => {
       const skill = skills.find((s) => s.id === derived.skillId);
       if (!skill?.agent) return null;
+      if (!skill.agent.stages?.[stage.id]) return null;
       return {
         name: derived.skillName,
         dirname: skill.agent.name,
@@ -532,18 +546,25 @@ function buildStageProfileBodyData({
     agentBehaviours,
   );
 
-  // Constraints (stage + discipline + track)
-  const constraints = [
-    ...(stage.constraints || []),
-    ...(agentDiscipline.constraints || []),
-    ...(agentTrack.constraints || []),
-  ];
+  // Constraints — separated by source for layered rendering
+  const stageConstraints = stage.constraints || [];
+  const disciplineConstraints = agentDiscipline.constraints || [];
+  const trackConstraints = agentTrack.constraints || [];
 
   // Stage transitions for body section
   const stageTransitions = deriveStageTransitions({ stage, stages });
 
+  // Return format from stage data
+  const returnFormat = stage.returnFormat || [];
+
   // Skill dirnames for frontmatter skills: array
   const skillDirnames = skillIndex.map((s) => s.dirname);
+
+  if (skillIndex.length < 2) {
+    console.warn(
+      `Warning: ${stage.id} stage for ${humanDiscipline.id}/${humanTrack.id} has fewer than 2 skills (${skillIndex.length})`,
+    );
+  }
 
   return {
     title: `${name} - ${stageName} Agent`,
@@ -557,7 +578,10 @@ function buildStageProfileBodyData({
     skillDirnames,
     roleContext,
     workingStyles,
-    constraints,
+    stageConstraints,
+    disciplineConstraints,
+    trackConstraints,
+    returnFormat,
     stageTransitions,
   };
 }
