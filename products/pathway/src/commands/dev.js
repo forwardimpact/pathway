@@ -34,10 +34,19 @@ const mapLibDir = resolvePackageLib("@forwardimpact/map");
 const modelLibDir = resolvePackageLib("@forwardimpact/libskill");
 const uiLibDir = resolvePackageLib("@forwardimpact/libui");
 
+// Vendor dependencies — mirror the paths that build.js copies to vendor/
+const mustacheDir = dirname(fileURLToPath(import.meta.resolve("mustache")));
+const yamlBrowserDir = join(
+  dirname(dirname(fileURLToPath(import.meta.resolve("yaml")))),
+  "browser",
+  "dist",
+);
+
 const MIME_TYPES = {
   ".html": "text/html; charset=utf-8",
   ".css": "text/css; charset=utf-8",
   ".js": "application/javascript; charset=utf-8",
+  ".mjs": "application/javascript; charset=utf-8",
   ".yaml": "text/yaml; charset=utf-8",
   ".yml": "text/yaml; charset=utf-8",
   ".json": "application/json; charset=utf-8",
@@ -149,6 +158,12 @@ export async function runDevCommand({ dataDir, options }) {
     } else if (pathname.startsWith("/ui/css/")) {
       // Serve @forwardimpact/libui package CSS files
       filePath = join(uiLibDir, "css", pathname.slice(8));
+    } else if (pathname === "/vendor/mustache.mjs") {
+      // Serve vendored mustache ESM module
+      filePath = join(mustacheDir, "mustache.mjs");
+    } else if (pathname.startsWith("/vendor/yaml/")) {
+      // Serve vendored yaml browser ESM build
+      filePath = join(yamlBrowserDir, pathname.slice(13));
     } else if (pathname === "/" || pathname === "") {
       // Serve index.html for root
       filePath = join(publicDir, "index.html");
