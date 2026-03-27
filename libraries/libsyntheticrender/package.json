@@ -26,7 +26,7 @@
     "apache-arrow": "^21.1.0",
     "parquet-wasm": "^0.7.1",
     "prettier": "^3.7.4",
-    "yaml": "^2.3.0"
+    "yaml": "^2.8.3"
   },
   "engines": {
     "node": ">=18.0.0"
