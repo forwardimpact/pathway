@@ -31,6 +31,7 @@
 
 import { join, resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 import fs from "fs/promises";
 import { homedir } from "os";
 import { createDataLoader } from "@forwardimpact/map/loader";
@@ -62,6 +63,11 @@ import { runUpdateCommand } from "../src/commands/update.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_DIR = join(__dirname, "..", "templates");
 
+/** Package version read from package.json */
+const VERSION = JSON.parse(
+  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
+).version;
+
 const COMMANDS = {
   discipline: runDisciplineCommand,
   level: runLevelCommand,
@@ -88,6 +94,7 @@ Global Options:
   --list            Output IDs only (for piping to other commands)
   --json            Output as JSON
   --data=PATH       Path to data directory (default: ./data or examples/)
+  --version         Show version number
   --help            Show this help message
 
 ────────────────────────────────────────────────────────────────────────────────
@@ -240,6 +247,7 @@ function parseArgs(args) {
     list: false,
     json: false,
     help: false,
+    version: false,
     type: "full",
     compare: null,
     data: null,
@@ -265,7 +273,9 @@ function parseArgs(args) {
   };
 
   for (const arg of args) {
-    if (arg === "--help" || arg === "-h") {
+    if (arg === "--version" || arg === "-v") {
+      result.version = true;
+    } else if (arg === "--help" || arg === "-h") {
       result.help = true;
     } else if (arg === "--list" || arg === "-l") {
       result.list = true;
@@ -344,6 +354,11 @@ function printHelp() {
 async function main() {
   const args = process.argv.slice(2);
   const options = parseArgs(args);
+
+  if (options.version) {
+    console.log(VERSION);
+    process.exit(0);
+  }
 
   if (options.help) {
     printHelp();

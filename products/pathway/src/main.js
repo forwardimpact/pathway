@@ -55,6 +55,9 @@ async function init() {
 
     // Populate branding from framework data
     populateBranding();
+
+    // Load and display version
+    loadVersion();
   } catch (error) {
     console.error("Failed to load data:", error);
     setError(error);
@@ -208,8 +211,25 @@ function populateBranding() {
   // Update footer
   const footer = document.querySelector("#app-footer p");
   if (footer) {
-    footer.textContent = branding.title;
+    const versionSpan = footer.querySelector("#app-version");
+    footer.textContent = branding.title + " ";
+    if (versionSpan) footer.appendChild(versionSpan);
   }
+}
+
+/**
+ * Fetch version.json and display in the footer
+ */
+function loadVersion() {
+  fetch("./version.json")
+    .then((r) => (r.ok ? r.json() : null))
+    .then((data) => {
+      if (data?.version) {
+        const el = document.getElementById("app-version");
+        if (el) el.textContent = `v${data.version}`;
+      }
+    })
+    .catch(() => {});
 }
 
 /**

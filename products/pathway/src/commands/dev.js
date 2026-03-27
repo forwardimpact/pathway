@@ -7,6 +7,7 @@
 
 import { createServer } from "http";
 import { readFile, stat } from "fs/promises";
+import { readFileSync } from "fs";
 import { join, extname, dirname } from "path";
 import { fileURLToPath } from "url";
 import { createIndexGenerator } from "@forwardimpact/map/index-generator";
@@ -16,6 +17,11 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 const publicDir = join(__dirname, "..");
 const rootDir = join(__dirname, "../..");
+
+/** Package version for serving as /version.json */
+const VERSION = JSON.parse(
+  readFileSync(join(rootDir, "package.json"), "utf8"),
+).version;
 
 /**
  * Resolve package directory using Node's module resolution.
@@ -140,7 +146,11 @@ export async function runDevCommand({ dataDir, options }) {
 
     let filePath;
 
-    if (pathname.startsWith("/data/")) {
+    if (pathname === "/version.json") {
+      res.setHeader("Content-Type", "application/json; charset=utf-8");
+      res.end(JSON.stringify({ version: VERSION }));
+      return;
+    } else if (pathname.startsWith("/data/")) {
       // Serve from user's data directory
       filePath = join(dataDir, pathname.slice(6));
     } else if (pathname.startsWith("/templates/")) {

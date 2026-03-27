@@ -193,6 +193,14 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
     console.log(`   ✓ data/ (from ${relative(process.cwd(), dataDir)})`);
   }
 
+  // Write version.json for the web app footer
+  const version = getPathwayVersion();
+  await writeFile(
+    join(outputDir, "version.json"),
+    JSON.stringify({ version }) + "\n",
+  );
+  console.log(`   ✓ version.json (${version})`);
+
   // Generate distribution bundle if siteUrl is configured
   const siteUrl = options.url || framework.distribution?.siteUrl;
   if (siteUrl) {
