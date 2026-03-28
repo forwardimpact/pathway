@@ -30,16 +30,16 @@ rendering into multiple output formats.
 Generation flows through four stages:
 
 1. **DSL parsing** — the universe file is tokenized and parsed into an AST
-   containing organizational hierarchy, people, projects, framework
-   definitions, and content specifications
-2. **Entity generation** — the AST is expanded deterministically (using a
-   seeded RNG) into a full entity graph: orgs, departments, teams, people with
-   roles and skill assignments, repos, and projects
+   containing organizational hierarchy, people, projects, framework definitions,
+   and content specifications
+2. **Entity generation** — the AST is expanded deterministically (using a seeded
+   RNG) into a full entity graph: orgs, departments, teams, people with roles
+   and skill assignments, repos, and projects
 3. **Prose generation** — prose keys are collected from the entity graph (one
    per article, FAQ, briefing, etc.) with context (topic, tone, length). By
-   default these are read from `.prose-cache.json`; with `--generate` each
-   key is sent to an LLM and the result saved to the cache; with `--no-prose`
-   this stage is skipped entirely
+   default these are read from `.prose-cache.json`; with `--generate` each key
+   is sent to an LLM and the result saved to the cache; with `--no-prose` this
+   stage is skipped entirely
 4. **Rendering** — entities and prose are rendered into output formats: YAML
    framework files (`pathway`), HTML articles (`html`), JSON/YAML activity
    records (`raw`), and Markdown briefings (`markdown`)
@@ -55,8 +55,8 @@ schemas.
 
 The prose cache maps each content key to its generated text. The default mode
 reads from the cache, making generation fully repeatable without LLM calls.
-Using `--generate` appends new entries to the cache, so subsequent default
-runs include all previously generated content.
+Using `--generate` appends new entries to the cache, so subsequent default runs
+include all previously generated content.
 
 ---
 
@@ -86,11 +86,11 @@ Use `--only=<type>` to generate a single content type:
 
 ### Prose Modes
 
-| Mode       | Flag         | Description                                    |
-| ---------- | ------------ | ---------------------------------------------- |
-| `cached`   | _(default)_  | Read from `.prose-cache.json` (no LLM needed)  |
-| `generate` | `--generate` | Call LLM, write new entries to cache            |
-| `no-prose` | `--no-prose` | Structural scaffolding only, no prose at all    |
+| Mode       | Flag         | Description                                   |
+| ---------- | ------------ | --------------------------------------------- |
+| `cached`   | _(default)_  | Read from `.prose-cache.json` (no LLM needed) |
+| `generate` | `--generate` | Call LLM, write new entries to cache          |
+| `no-prose` | `--no-prose` | Structural scaffolding only, no prose at all  |
 
 ---
 

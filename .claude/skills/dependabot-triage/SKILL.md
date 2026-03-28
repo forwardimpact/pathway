@@ -77,7 +77,8 @@ gh pr diff <number>
 Classify the PR and determine which checks apply. Check 1 (CI passes) applies to
 every PR. Additional checks depend on the update type:
 
-- **npm update** — labels include `javascript`. Also evaluate checks 3, 4, 5, 6, 8.
+- **npm update** — labels include `javascript`. Also evaluate checks 3, 4, 5,
+  6, 8.
 - **GitHub Actions update** — labels include `github_actions`. Also evaluate
   checks 2, 7.
 - **Both** — Evaluate all checks.

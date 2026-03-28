@@ -62,10 +62,10 @@ runs:
           "${{ inputs.prompt }}"
 ```
 
-The action does **not** set environment variables for secrets (`ANTHROPIC_API_KEY`,
-`GH_TOKEN`). The calling workflow passes these via `env:` on the step or job
-that uses the action — composite actions cannot access `secrets` context
-directly.
+The action does **not** set environment variables for secrets
+(`ANTHROPIC_API_KEY`, `GH_TOKEN`). The calling workflow passes these via `env:`
+on the step or job that uses the action — composite actions cannot access
+`secrets` context directly.
 
 ### `.github/workflows/dependabot-triage.yml`
 
@@ -121,8 +121,8 @@ configure git, run a prompt with tool permissions. Extracting into
 `.github/actions/claude-prompt/` avoids copy-paste and gives one place to update
 the invocation pattern.
 
-The action is deliberately minimal — it handles installation and invocation only.
-Secrets are passed by the caller via `env:`, keeping the action generic.
+The action is deliberately minimal — it handles installation and invocation
+only. Secrets are passed by the caller via `env:`, keeping the action generic.
 
 ### Why `claude --print`
 
@@ -139,11 +139,11 @@ runaway sessions.
 
 ### Why `--allowedTools`
 
-Explicitly listing allowed tools avoids interactive permission prompts that would
-hang the CI runner. The triage skill needs `Bash` (for `gh` CLI commands, `npm
-audit`, `git` operations), `Read`/`Glob`/`Grep` (for inspecting workflow files
-and policy documents), and `Write`/`Edit` (for fixing policy violations on fix
-branches).
+Explicitly listing allowed tools avoids interactive permission prompts that
+would hang the CI runner. The triage skill needs `Bash` (for `gh` CLI commands,
+`npm audit`, `git` operations), `Read`/`Glob`/`Grep` (for inspecting workflow
+files and policy documents), and `Write`/`Edit` (for fixing policy violations on
+fix branches).
 
 ### Why `npm ci` before Claude Code
 
@@ -156,15 +156,15 @@ reproducible install from the lock file.
 - `GITHUB_TOKEN` is insufficient — GitHub doesn't trigger workflows on events it
   creates, so fix PRs wouldn't get CI runs. It also lacks the permission
   combination needed for merge + close + create-PR + push.
-- The secret is named `CLAUDE_GH_PAT` (not `GH_TOKEN`) to clearly distinguish
-  it from GitHub's built-in token and signal its purpose. The workflow passes it
-  as `GH_TOKEN` in the env so the `gh` CLI picks it up automatically.
+- The secret is named `CLAUDE_GH_PAT` (not `GH_TOKEN`) to clearly distinguish it
+  from GitHub's built-in token and signal its purpose. The workflow passes it as
+  `GH_TOKEN` in the env so the `gh` CLI picks it up automatically.
 
 ### Why every 3 days at an off-minute
 
 Dependabot opens PRs weekly. Every 3 days ensures PRs are triaged promptly
-without burning excessive CI minutes. The `:17` minute avoids the `:00`
-stampede when many scheduled workflows fire simultaneously.
+without burning excessive CI minutes. The `:17` minute avoids the `:00` stampede
+when many scheduled workflows fire simultaneously.
 
 ### Why `concurrency: cancel-in-progress`
 
@@ -174,8 +174,9 @@ The concurrency group ensures only one triage run at a time.
 
 ### Why `timeout-minutes: 30`
 
-Prevents stuck or runaway Claude sessions from consuming CI minutes indefinitely.
-30 minutes is generous for triaging a typical batch of Dependabot PRs.
+Prevents stuck or runaway Claude sessions from consuming CI minutes
+indefinitely. 30 minutes is generous for triaging a typical batch of Dependabot
+PRs.
 
 ### Why `/dependabot-triage` as the prompt
 
@@ -226,10 +227,10 @@ workflow. This avoids PAT expiry concerns but adds setup complexity.
 
 ## Files
 
-| File                                          | Action |
-| --------------------------------------------- | ------ |
-| `.github/actions/claude-prompt/action.yml`    | Create |
-| `.github/workflows/dependabot-triage.yml`     | Create |
+| File                                       | Action |
+| ------------------------------------------ | ------ |
+| `.github/actions/claude-prompt/action.yml` | Create |
+| `.github/workflows/dependabot-triage.yml`  | Create |
 
 ## Verification
 

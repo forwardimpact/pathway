@@ -31,8 +31,8 @@ reusable composite action from the start.
   checks) should not require human attention. The workflow handles them
   automatically and only leaves genuinely ambiguous cases for review.
 - **Reusable foundation.** Extracting Claude Code invocation into a composite
-  action means future AI-powered workflows share one tested, maintained
-  pattern instead of copy-pasting setup steps.
+  action means future AI-powered workflows share one tested, maintained pattern
+  instead of copy-pasting setup steps.
 
 ## What
 
@@ -65,10 +65,10 @@ any other repository code.
 
 ## Required Secrets
 
-| Secret              | Purpose                                          |
-| ------------------- | ------------------------------------------------ |
-| `ANTHROPIC_API_KEY` | Authenticates Claude Code with the Anthropic API |
-| `CLAUDE_GH_PAT`    | GitHub PAT for PR operations (merge, close, push, create) |
+| Secret              | Purpose                                                   |
+| ------------------- | --------------------------------------------------------- |
+| `ANTHROPIC_API_KEY` | Authenticates Claude Code with the Anthropic API          |
+| `CLAUDE_GH_PAT`     | GitHub PAT for PR operations (merge, close, push, create) |
 
 The built-in `GITHUB_TOKEN` is insufficient because Claude Code needs to create
 branches, push commits, create PRs, merge PRs, and close PRs — operations that
@@ -90,9 +90,9 @@ PAT provides the actual authorization.
 
 ## Operational Limits
 
-| Limit             | Value       | Rationale                                     |
-| ----------------- | ----------- | --------------------------------------------- |
-| Job timeout       | 30 minutes  | Prevents runaway sessions burning CI minutes   |
-| Max turns         | 50          | Bounds the conversation length per invocation   |
-| Concurrency group | 1 (cancel)  | Prevents parallel runs from conflicting on PRs |
-| Model             | opus        | Highest capability for autonomous triage        |
+| Limit             | Value      | Rationale                                      |
+| ----------------- | ---------- | ---------------------------------------------- |
+| Job timeout       | 30 minutes | Prevents runaway sessions burning CI minutes   |
+| Max turns         | 50         | Bounds the conversation length per invocation  |
+| Concurrency group | 1 (cancel) | Prevents parallel runs from conflicting on PRs |
+| Model             | opus       | Highest capability for autonomous triage       |

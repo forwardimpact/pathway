@@ -43,17 +43,17 @@ The scheduler polls configured tasks and evaluates whether each should wake:
   configured interval in minutes
 - **Once tasks** — wakes exactly once when the scheduled time arrives
 
-Tasks with `enabled: false` or an already-active agent are always skipped.
-Stale agents left "active" from a previous daemon session are automatically
-reset on startup.
+Tasks with `enabled: false` or an already-active agent are always skipped. Stale
+agents left "active" from a previous daemon session are automatically reset on
+startup.
 
 ### Task Execution
 
 When a task wakes, the scheduler spawns a child process running
-`claude --agent <name> --print` with the configured prompt. The process
-inherits TCC attributes from the parent app bundle (via `posix_spawn` on macOS)
-so agents can access Mail, Calendar, and other protected resources. Agent
-status, exit code, and stderr are tracked in `state.json`.
+`claude --agent <name> --print` with the configured prompt. The process inherits
+TCC attributes from the parent app bundle (via `posix_spawn` on macOS) so agents
+can access Mail, Calendar, and other protected resources. Agent status, exit
+code, and stderr are tracked in `state.json`.
 
 ### Knowledge Base Initialization
 

@@ -33,11 +33,11 @@ Domain vocabulary (proficiency levels, maturity levels, stage names) is
 hardcoded in multiple modules independently. These values are logically part of
 the framework definition, but each module maintains its own copy:
 
-| Duplicated value | Locations |
-| --- | --- |
+| Duplicated value       | Locations                                                                       |
+| ---------------------- | ------------------------------------------------------------------------------- |
 | Proficiency levels (5) | `validate.js`, behaviour prompt, level prompt, capability prompt, `entities.js` |
-| Maturity levels (5) | behaviour prompt, `pathway.js` self-assessment code |
-| Stage names (6) | capability prompt hardcodes `specify, plan, scaffold, code, review, deploy` |
+| Maturity levels (5)    | behaviour prompt, `pathway.js` self-assessment code                             |
+| Stage names (6)        | capability prompt hardcodes `specify, plan, scaffold, code, review, deploy`     |
 
 When any copy changes, the others silently diverge. The fix is extraction to a
 single shared module.
@@ -47,47 +47,46 @@ single shared module.
 A separate class of duplication: identifiers that should be derived from DSL
 output at runtime are instead hardcoded in validation and rendering code:
 
-| Hardcoded value | Locations |
-| --- | --- |
+| Hardcoded value       | Locations                                                              |
+| --------------------- | ---------------------------------------------------------------------- |
 | GetDX driver IDs (16) | `validate.js` `VALID_DRIVERS`, DSL `drivers` block, activity generator |
-| Drug IDs | `industry-data.js`, `link-assigner.js` `TOPIC_ENTITY_MAP` |
-| Platform categories | `industry-data.js`, `link-assigner.js` course/article filtering |
-| BioNova company name | `link-assigner.js` line 193 |
-| Year 2025 dates | `link-assigner.js` blog/course/event dates |
+| Drug IDs              | `industry-data.js`, `link-assigner.js` `TOPIC_ENTITY_MAP`              |
+| Platform categories   | `industry-data.js`, `link-assigner.js` course/article filtering        |
+| BioNova company name  | `link-assigner.js` line 193                                            |
+| Year 2025 dates       | `link-assigner.js` blog/course/event dates                             |
 
-These cannot be solved by extraction alone — the values must be derived from
-the generated data or DSL context at runtime so that a different universe file
+These cannot be solved by extraction alone — the values must be derived from the
+generated data or DSL context at runtime so that a different universe file
 produces correct output without code changes.
 
 ### 4. Bugs in generation and rendering code
 
-- **Discipline prompt references undefined placeholder.** `discipline.js`
-  line 54 offers `{roleName}` but only `{roleTitle}` and `{specialization}`
-  are populated by the skeleton.
+- **Discipline prompt references undefined placeholder.** `discipline.js` line
+  54 offers `{roleName}` but only `{roleTitle}` and `{specialization}` are
+  populated by the skeleton.
 - **Blog date overflow.** `link-assigner.js` line 283 computes month as
-  `Math.floor(i / 2) + 1`. When `blogCount > 24` (the DSL specifies 45),
-  months 13–23 are produced — invalid dates.
-- **IRI namespace split.** `entities.js` produces IRIs like
-  `/{type}/{id}` (e.g., `/person/{id}`, `/team/{id}`) while
-  `industry-data.js` and `link-assigner.js` use `/id/{type}/{id}`. The
-  enricher's `stripOffDomainIris` preserves only `/id/` IRIs, stripping
-  person and project links from enriched prose.
+  `Math.floor(i / 2) + 1`. When `blogCount > 24` (the DSL specifies 45), months
+  13–23 are produced — invalid dates.
+- **IRI namespace split.** `entities.js` produces IRIs like `/{type}/{id}`
+  (e.g., `/person/{id}`, `/team/{id}`) while `industry-data.js` and
+  `link-assigner.js` use `/id/{type}/{id}`. The enricher's `stripOffDomainIris`
+  preserves only `/id/` IRIs, stripping person and project links from enriched
+  prose.
 - **Silent people shortfall.** If the requested people count exceeds the name
   pool, `generatePeople` silently stops short with no warning.
-- **Hardcoded org name.** `link-assigner.js` line 193 hardcodes `"BioNova"`
-  as `orgName` in course objects instead of deriving it from the universe.
+- **Hardcoded org name.** `link-assigner.js` line 193 hardcodes `"BioNova"` as
+  `orgName` in course objects instead of deriving it from the universe.
 - **Hardcoded dates.** Blog, course, and event dates are all pinned to 2025
-  rather than derived from the DSL timeline (snapshots span 2024-07 to
-  2026-01).
+  rather than derived from the DSL timeline (snapshots span 2024-07 to 2026-01).
 
 ### 5. No tests for the prose and pipeline layers
 
-| Library | Test files | Gap |
-| --- | --- | --- |
-| libsyntheticgen | 8 | Well covered |
-| libsyntheticprose | 0 | Zero unit tests — prompt builders, cache round-trip, JSON stripping, pathway generation all untested |
-| libsyntheticrender | 2 | Dataset renderers and cross-content validation tested. HTML rendering, enrichment, link assignment, industry data untested |
-| libuniverse | 0 | Zero integration tests — no test runs the pipeline end-to-end |
+| Library            | Test files | Gap                                                                                                                        |
+| ------------------ | ---------- | -------------------------------------------------------------------------------------------------------------------------- |
+| libsyntheticgen    | 8          | Well covered                                                                                                               |
+| libsyntheticprose  | 0          | Zero unit tests — prompt builders, cache round-trip, JSON stripping, pathway generation all untested                       |
+| libsyntheticrender | 2          | Dataset renderers and cross-content validation tested. HTML rendering, enrichment, link assignment, industry data untested |
+| libuniverse        | 0          | Zero integration tests — no test runs the pipeline end-to-end                                                              |
 
 The prose layer is the most fragile (LLM output parsing, cache management,
 9-step dependency orchestration) and the least tested.
@@ -122,7 +121,7 @@ provides almost no semantic hints for prose generation:
   milestones, risks, dependencies, technical choices, or narrative arc that
   would let generated blog posts, events, and articles tell a coherent story.
 - **Scenarios** define DX driver trajectories and GitHub volume signals but no
-  narrative context explaining *why* the scenario happens. The activity
+  narrative context explaining _why_ the scenario happens. The activity
   generator produces correlated numbers, but comments and prose cannot explain
   those numbers because they have no narrative to draw from.
 - **Content blocks** declare counts (`blogs 45`, `events 8`) but no topic
@@ -142,9 +141,8 @@ unique, and fields are present. It does not check:
 
 - Whether prose length falls within acceptable ranges
 - Whether generated proficiency progressions are monotonically increasing
-- Whether scenario-driven activity volumes correlate with DX trajectories
-  (spec 060 required r > 0.7 for GitHub/scenario correlation — never
-  implemented)
+- Whether scenario-driven activity volumes correlate with DX trajectories (spec
+  060 required r > 0.7 for GitHub/scenario correlation — never implemented)
 - Whether self-assessment distributions are plausible for each level
 - Whether cross-entity terminology is consistent
 
@@ -161,8 +159,8 @@ Bug fixes with immediate impact on data correctness.
 
 #### A1. Fix discipline prompt placeholder
 
-**Why:** Every generated discipline has an unresolved `{roleName}` in the
-agent identity text, producing broken prose in agent profiles.
+**Why:** Every generated discipline has an unresolved `{roleName}` in the agent
+identity text, producing broken prose in agent profiles.
 
 Remove the `{roleName}` reference from `discipline.js` line 54. Only
 `{roleTitle}` and `{specialization}` are populated by the skeleton.
@@ -177,13 +175,13 @@ Guard month calculation in `link-assigner.js` line 283 to wrap via modulo
 
 #### A3. Unify IRI namespace
 
-**Why:** The enricher strips person, team, and project links from enriched
-prose because `stripOffDomainIris` only preserves `/id/` IRIs, but
-`entities.js` produces IRIs without the `/id/` prefix.
+**Why:** The enricher strips person, team, and project links from enriched prose
+because `stripOffDomainIris` only preserves `/id/` IRIs, but `entities.js`
+produces IRIs without the `/id/` prefix.
 
-Standardize all entity IRIs in `entities.js` to use `/id/{type}/{id}`,
-matching the pattern in `industry-data.js` and `link-assigner.js`. Update
-`enricher.js` `stripOffDomainIris` if needed.
+Standardize all entity IRIs in `entities.js` to use `/id/{type}/{id}`, matching
+the pattern in `industry-data.js` and `link-assigner.js`. Update `enricher.js`
+`stripOffDomainIris` if needed.
 
 #### A4. Warn on people shortfall
 
@@ -195,13 +193,13 @@ because the name pool is exhausted.
 
 #### A5. Derive org name and dates from DSL context
 
-**Why:** Hardcoded "BioNova" and "2025" dates in `link-assigner.js` mean
-any non-BioNova universe produces incorrect org references and dates outside
-the DSL timeline.
+**Why:** Hardcoded "BioNova" and "2025" dates in `link-assigner.js` mean any
+non-BioNova universe produces incorrect org references and dates outside the DSL
+timeline.
 
 Replace `orgName: "BioNova"` (line 193) with the domain/org name from the
-universe context. Derive date ranges from the DSL snapshot timeline rather
-than hardcoding 2025.
+universe context. Derive date ranges from the DSL snapshot timeline rather than
+hardcoding 2025.
 
 ### Tier 2 — Raise coherence
 
@@ -210,8 +208,8 @@ consistent.
 
 #### B1. Extract shared vocabulary constants
 
-**Why:** Proficiency levels, maturity levels, and stage names are hardcoded
-in 5+ locations. Divergence between copies produces validation failures and
+**Why:** Proficiency levels, maturity levels, and stage names are hardcoded in
+5+ locations. Divergence between copies produces validation failures and
 inconsistent prose.
 
 Create a single `vocabulary.js` module exporting proficiency levels, maturity
@@ -221,9 +219,9 @@ copies.
 
 #### B2. Derive validation constants from DSL output
 
-**Why:** `VALID_DRIVERS` in `validate.js` is a separate problem from B1 —
-driver IDs are universe-specific and cannot be extracted to a static module.
-They must come from the generated framework data at validation time.
+**Why:** `VALID_DRIVERS` in `validate.js` is a separate problem from B1 — driver
+IDs are universe-specific and cannot be extracted to a static module. They must
+come from the generated framework data at validation time.
 
 Replace `VALID_DRIVERS` (and similar universe-specific constants) in
 `validate.js` with values extracted from the generated framework data at
@@ -232,15 +230,15 @@ validation time rather than a hardcoded set.
 #### B3. Forward prior output into downstream prompts
 
 **Why:** This is the highest-leverage coherence improvement. Currently all 8
-prompt builders operate in isolation — each produces plausible prose that
-uses different terminology, tone, and framing from the others. Context
-forwarding gives the LLM shared vocabulary so that cross-entity queries in
-evals don't require reconciling inconsistent prose.
+prompt builders operate in isolation — each produces plausible prose that uses
+different terminology, tone, and framing from the others. Context forwarding
+gives the LLM shared vocabulary so that cross-entity queries in evals don't
+require reconciling inconsistent prose.
 
 After generating levels, include the generated level titles and proficiency
-baselines in the behaviour, capability, and discipline prompts. After
-generating behaviours, include behaviour names and descriptions in capability
-and discipline prompts.
+baselines in the behaviour, capability, and discipline prompts. After generating
+behaviours, include behaviour names and descriptions in capability and
+discipline prompts.
 
 **Downstream changes:** `buildBehaviourPrompt`, `buildCapabilityPrompt`,
 `buildDisciplinePrompt`, and `buildTrackPrompt` all need a new `priorOutput`
@@ -253,39 +251,38 @@ steps.
 register and tone. A shared preamble establishes a consistent voice baseline
 across all 8 prompt builders.
 
-Write a single system-prompt preamble that defines the organization's voice,
-key terminology, and naming conventions. Prepend it to all 8 pathway prompt
-builders so that every entity is written in the same register.
+Write a single system-prompt preamble that defines the organization's voice, key
+terminology, and naming conventions. Prepend it to all 8 pathway prompt builders
+so that every entity is written in the same register.
 
 #### B5. Replace hardcoded vocabulary in prompts with DSL-derived values
 
-**Why:** Even after B1 extracts vocabulary to a shared module, prompt
-builders should consume values from that module rather than inline strings.
-This ensures prompts stay correct if vocabulary changes.
+**Why:** Even after B1 extracts vocabulary to a shared module, prompt builders
+should consume values from that module rather than inline strings. This ensures
+prompts stay correct if vocabulary changes.
 
-Behaviour prompts should receive maturity level names from the shared
-vocabulary (or DSL framework block). Capability prompts should receive stage
-names. Level prompts should receive proficiency names.
+Behaviour prompts should receive maturity level names from the shared vocabulary
+(or DSL framework block). Capability prompts should receive stage names. Level
+prompts should receive proficiency names.
 
 #### B6. Constrain stage handoff targets
 
 **Why:** Without this constraint, LLM-generated stages can reference
 non-existent stage IDs in handoff targets, causing validation failures.
 
-Add an explicit instruction to the stage prompt: "targetStage MUST be one of
-the stage IDs listed above."
+Add an explicit instruction to the stage prompt: "targetStage MUST be one of the
+stage IDs listed above."
 
 #### B7. Scale max_tokens by entity complexity
 
-**Why:** The fixed `max_tokens: 4000` in `generateStructured` causes
-truncation of large capabilities (those with 5+ skills produce ~6000 tokens
-of JSON) and wastes budget on small entities like drivers (~800 tokens).
+**Why:** The fixed `max_tokens: 4000` in `generateStructured` causes truncation
+of large capabilities (those with 5+ skills produce ~6000 tokens of JSON) and
+wastes budget on small entities like drivers (~800 tokens).
 
-Replace the fixed value with a heuristic: `base + (skillCount * perSkill)`.
-Use `base: 2000` and `perSkill: 800` as starting values, tuneable via
-the prose engine config. Capabilities, disciplines, and tracks use the
-scaled value; framework, levels, stages, behaviours, and drivers use the
-base.
+Replace the fixed value with a heuristic: `base + (skillCount * perSkill)`. Use
+`base: 2000` and `perSkill: 800` as starting values, tuneable via the prose
+engine config. Capabilities, disciplines, and tracks use the scaled value;
+framework, levels, stages, behaviours, and drivers use the base.
 
 ### Tier 3 — Prevent regression
 
@@ -318,13 +315,13 @@ generated data (see problem #6). This check prevents silent breakage from
 recurring.
 
 After generation, verify that every entity name and IRI referenced in
-`config/eval.example.yml` exists in the generated data. Fail validation if
-any eval scenario references a non-existent entity.
+`config/eval.example.yml` exists in the generated data. Fail validation if any
+eval scenario references a non-existent entity.
 
 ### Tier 4 — Expand capability
 
-DSL enrichment and semantic validation. Each item adds optional DSL fields
-and requires corresponding changes in prompt builders and renderers.
+DSL enrichment and semantic validation. Each item adds optional DSL fields and
+requires corresponding changes in prompt builders and renderers.
 
 #### D1. Add project narrative arcs
 
@@ -343,10 +340,11 @@ project oncora {
 }
 ```
 
-These fields feed into blog, event, and article prose generation, giving the
-LLM concrete story beats instead of a single `prose_topic` string.
+These fields feed into blog, event, and article prose generation, giving the LLM
+concrete story beats instead of a single `prose_topic` string.
 
 **Downstream changes required:**
+
 - DSL parser: new optional array fields on project blocks
 - `link-assigner.js`: pass narrative fields into blog/event/article templates
 - Enricher prompts: include milestones/risks in HTML enrichment context
@@ -356,10 +354,9 @@ LLM concrete story beats instead of a single `prose_topic` string.
 
 #### D2. Add scenario narrative context
 
-**Why:** Scenarios produce correlated DX/GitHub numbers, but generated
-comments and survey prose cannot explain *why* those numbers look the way
-they do. A narrative string gives the LLM a human story to ground
-quantitative patterns.
+**Why:** Scenarios produce correlated DX/GitHub numbers, but generated comments
+and survey prose cannot explain _why_ those numbers look the way they do. A
+narrative string gives the LLM a human story to ground quantitative patterns.
 
 Extend the DSL `scenario` block to accept a `narrative` string:
 
@@ -374,6 +371,7 @@ scenario oncora_push {
 ```
 
 **Downstream changes required:**
+
 - DSL parser: new optional string field on scenario blocks
 - Activity generator: pass narrative into comment generation prompts
 - **No-prose/absent behavior:** When omitted, comment generation uses current
@@ -382,8 +380,8 @@ scenario oncora_push {
 #### D3. Add people archetypes
 
 **Why:** Self-assessment distributions are currently flat random jitter
-regardless of a person's level or tenure. This produces implausible data —
-L5 engineers with "awareness" ratings, new hires rating themselves "expert."
+regardless of a person's level or tenure. This produces implausible data — L5
+engineers with "awareness" ratings, new hires rating themselves "expert."
 Archetypes create distribution shapes that match organizational reality.
 
 Extend the DSL `people` block to declare optional archetypes:
@@ -400,10 +398,11 @@ people {
 }
 ```
 
-Each archetype defines a distribution shape for self-assessments and a tone
-for personal content (briefings, notes).
+Each archetype defines a distribution shape for self-assessments and a tone for
+personal content (briefings, notes).
 
 **Downstream changes required:**
+
 - DSL parser: new optional archetype block within people
 - `entities.js`: assign archetype to each generated person
 - `pathway.js` self-assessment generation: use archetype distribution shapes
@@ -431,20 +430,21 @@ content guide_html {
 ```
 
 **Downstream changes required:**
+
 - DSL parser: new optional topic weights block within content
-- `link-assigner.js`: replace `BLOG_TOPICS` array with weighted selection
-  from DSL values
-- **No-prose/absent behavior:** When omitted, use current uniform selection
-  from hardcoded topics.
+- `link-assigner.js`: replace `BLOG_TOPICS` array with weighted selection from
+  DSL values
+- **No-prose/absent behavior:** When omitted, use current uniform selection from
+  hardcoded topics.
 
 ### Deferred: Move industry data into the DSL
 
 Problem #8 (static industry data) is real but the solution is a major scope
 item: new DSL grammar for `drug` and `platform` blocks, new parser rules, new
-entity generation in libsyntheticgen, removal of `industry-data.js`, updates
-to link-assigner, enricher, and validation. This is significantly larger than
-any other item in this spec and deserves its own spec when Tier 1–3 are
-complete. For now, industry data remains static.
+entity generation in libsyntheticgen, removal of `industry-data.js`, updates to
+link-assigner, enricher, and validation. This is significantly larger than any
+other item in this spec and deserves its own spec when Tier 1–3 are complete.
+For now, industry data remains static.
 
 ### E. Validation improvements
 
@@ -461,8 +461,8 @@ Verify that level-to-level proficiency baselines are strictly non-decreasing
 #### E3. Add self-assessment plausibility check
 
 Verify that self-assessment skill distributions cluster around the expected
-proficiency for each level — e.g., L5 assessments should not have a majority
-of "awareness" ratings.
+proficiency for each level — e.g., L5 assessments should not have a majority of
+"awareness" ratings.
 
 ---
 
@@ -486,8 +486,8 @@ of "awareness" ratings.
 - Multi-universe generation (generating from multiple DSL files simultaneously)
 - LLM model selection or fine-tuning
 - Changing the prose cache format or keying strategy
-- Statistical correlation validation (spec 060's r > 0.7 requirement) — this
-  is a separate, larger effort that depends on this spec's coherence work
+- Statistical correlation validation (spec 060's r > 0.7 requirement) — this is
+  a separate, larger effort that depends on this spec's coherence work
 - Dataset tools (Faker, Synthea, SDV) — these are peripheral to the core
   fidelity problem
 
@@ -500,46 +500,46 @@ of "awareness" ratings.
 2. Blog dates are valid for any `blogCount` value (including 45).
 3. Generated entity IRIs use a consistent `/id/{type}/{id}` namespace.
 4. `generatePeople` warns when the name pool is exhausted.
-5. Course `orgName` and all content dates derive from DSL context, not
-   hardcoded values.
+5. Course `orgName` and all content dates derive from DSL context, not hardcoded
+   values.
 
 ### Tier 2 — Coherence raised
 
 6. All proficiency, maturity, and stage vocabulary is imported from a single
    `vocabulary.js` module — no hardcoded copies remain.
-7. `VALID_DRIVERS` in `validate.js` is derived from framework data at
-   validation time.
-8. Behaviour, capability, discipline, and track prompts receive prior
-   generated output as context. Manual review of 3 generated entity pairs
-   (level↔capability, behaviour↔discipline, capability↔track) confirms
-   shared terminology.
+7. `VALID_DRIVERS` in `validate.js` is derived from framework data at validation
+   time.
+8. Behaviour, capability, discipline, and track prompts receive prior generated
+   output as context. Manual review of 3 generated entity pairs
+   (level↔capability, behaviour↔discipline, capability↔track) confirms shared
+   terminology.
 9. All 8 prompt builders share a common system preamble.
-10. Large capabilities (5+ skills) are not truncated; small entities
-    (drivers, stages) use a lower token budget.
+10. Large capabilities (5+ skills) are not truncated; small entities (drivers,
+    stages) use a lower token budget.
 
 ### Tier 3 — Regression prevented
 
-11. libsyntheticprose has unit tests covering prompt builders, cache
-    round-trip, and JSON fence stripping.
-12. libuniverse has an integration test that runs the pipeline in no-prose
-    mode and verifies validation passes on its own output.
+11. libsyntheticprose has unit tests covering prompt builders, cache round-trip,
+    and JSON fence stripping.
+12. libuniverse has an integration test that runs the pipeline in no-prose mode
+    and verifies validation passes on its own output.
 13. HTML rendering, enricher, link-assigner, and industry-data each have at
     least one unit test.
-14. Eval scenario entity references are validated against generated data.
-    The check catches the currently-broken references (Immunex, Project Alpha,
-    etc.) and fails until `eval.example.yml` is updated.
+14. Eval scenario entity references are validated against generated data. The
+    check catches the currently-broken references (Immunex, Project Alpha, etc.)
+    and fails until `eval.example.yml` is updated.
 
 ### Tier 4 — Capability expanded
 
 15. DSL `project` blocks accept optional `milestones`, `risks`, and
-    `technical_choices` arrays. Generated blog/event content for projects
-    with narrative fields references those story beats.
+    `technical_choices` arrays. Generated blog/event content for projects with
+    narrative fields references those story beats.
 16. DSL `scenario` blocks accept an optional `narrative` string. Generated
     comments for scenarios with narratives reference the narrative context.
 17. DSL `people` blocks accept optional `archetypes`. Self-assessment
     distributions for archetyped people differ measurably from flat jitter.
-18. DSL `content` blocks accept optional `blog_topics` weights. Generated
-    blogs use weighted topic selection when provided.
+18. DSL `content` blocks accept optional `blog_topics` weights. Generated blogs
+    use weighted topic selection when provided.
 
 ### Validation improvements
 

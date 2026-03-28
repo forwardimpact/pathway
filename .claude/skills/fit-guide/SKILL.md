@@ -44,17 +44,16 @@ The CLI sends user messages to the Agent gRPC service, which orchestrates
 multi-turn conversations. The default pipeline is **planner → researcher →
 editor**: the planner analyzes the query and creates an execution plan, the
 researcher retrieves relevant data using tools (graph queries, vector search),
-and the editor synthesizes the final response. Agents hand off to each other
-via configured `handoffs`.
+and the editor synthesizes the final response. Agents hand off to each other via
+configured `handoffs`.
 
 ### Tool Execution
 
 Agents call tools during conversation turns. Available tools include graph
 queries (`get_ontology`, `query_by_pattern`), vector similarity search
-(`search_content`), and agent delegation (`run_sub_agent`, `run_handoff`).
-When the LLM returns tool calls, each is executed via the Tool service, results
-are appended to the conversation, and the LLM is called again with the new
-context.
+(`search_content`), and agent delegation (`run_sub_agent`, `run_handoff`). When
+the LLM returns tool calls, each is executed via the Tool service, results are
+appended to the conversation, and the LLM is called again with the new context.
 
 ### Knowledge Pipeline
 
@@ -66,10 +65,10 @@ combine precise graph lookups with fuzzy semantic retrieval.
 
 ### Conversation Memory
 
-Each conversation maintains a memory window — the most recent messages that
-fit within the model's token budget. The window is built newest-first: it
-includes system prompt, tool definitions, and as much conversation history as
-the budget allows, ensuring tool call/response pairs are never split.
+Each conversation maintains a memory window — the most recent messages that fit
+within the model's token budget. The window is built newest-first: it includes
+system prompt, tool definitions, and as much conversation history as the budget
+allows, ensuring tool call/response pairs are never split.
 
 ---
 

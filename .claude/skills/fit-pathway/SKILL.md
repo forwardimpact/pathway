@@ -69,29 +69,29 @@ Agent profiles reuse job derivation with three additions:
 3. **Skill focusing** limits the matrix to the most relevant skills per stage,
    sorted by type (primary → secondary → broad → track-added)
 
-Working styles are derived from the top behaviours by maturity — behaviours
-with positive track modifiers become personality traits that shape the agent's
+Working styles are derived from the top behaviours by maturity — behaviours with
+positive track modifiers become personality traits that shape the agent's
 approach.
 
 ### Tool Derivation
 
 Tools come from `toolReferences` in skill definitions. Derivation collects all
-tool references from the job's highest-proficiency skills, deduplicates by
-name, and sorts alphabetically. Each tool tracks which skills reference it.
+tool references from the job's highest-proficiency skills, deduplicates by name,
+and sorts alphabetically. Each tool tracks which skills reference it.
 
 ### Interview Questions
 
-Questions are selected from question banks organized by skill/behaviour ID,
-role type, and proficiency/maturity. Three interview types exist: mission fit
-(skill questions), decomposition (capability questions), and stakeholder
-simulation (behaviour questions). Selection prioritizes by skill type and
-fills a time budget.
+Questions are selected from question banks organized by skill/behaviour ID, role
+type, and proficiency/maturity. Three interview types exist: mission fit (skill
+questions), decomposition (capability questions), and stakeholder simulation
+(behaviour questions). Selection prioritizes by skill type and fills a time
+budget.
 
 ### Career Progression
 
 Progression compares two job derivations (current vs target level) and
-calculates deltas — skill proficiency changes, gained/lost skills, and
-behaviour maturity changes.
+calculates deltas — skill proficiency changes, gained/lost skills, and behaviour
+maturity changes.
 
 ---
 

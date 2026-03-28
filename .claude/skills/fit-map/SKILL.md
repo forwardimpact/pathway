@@ -62,9 +62,8 @@ Validation runs in two phases:
 ### Index Generation
 
 The index generator creates `_index.yaml` files in each entity directory,
-listing all valid file IDs. These indexes enable browser-based discovery
-without filesystem access — the web app loads them to know which entities are
-available.
+listing all valid file IDs. These indexes enable browser-based discovery without
+filesystem access — the web app loads them to know which entities are available.
 
 ---
 

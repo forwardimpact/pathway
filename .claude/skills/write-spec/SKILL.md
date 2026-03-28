@@ -65,8 +65,8 @@ on these qualities:
   verifiable.
 - **Visible blast radius.** Make it easy to see which files are created,
   modified, or deleted.
-- **Explicit ordering.** When changes have dependencies, state the order and
-  why it matters.
+- **Explicit ordering.** When changes have dependencies, state the order and why
+  it matters.
 - **Decisions explained.** When you make a non-obvious choice, say why briefly.
   This prevents future re-debate.
 
