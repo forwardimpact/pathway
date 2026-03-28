@@ -25,9 +25,10 @@ changes methodically.
 Read every file in the spec directory — `spec.md`, all `plan*.md` files, and any
 supporting documents. Understand:
 
-- **The problem.** What pain or gap does this address? What evidence supports it?
-- **The scope.** Which files, APIs, entities, or behaviours are affected? What is
-  explicitly out of scope?
+- **The problem.** What pain or gap does this address? What evidence supports
+  it?
+- **The scope.** Which files, APIs, entities, or behaviours are affected? What
+  is explicitly out of scope?
 - **Success criteria.** What does "done" look like? What can be tested or
   verified?
 
@@ -39,7 +40,8 @@ referring back to the spec.
 Read the plan (or the selected plan variant if multiple exist). Understand:
 
 - **Overall strategy.** What is the approach and why was it chosen?
-- **Every concrete change.** File paths, functions, before/after code, new files.
+- **Every concrete change.** File paths, functions, before/after code, new
+  files.
 - **Blast radius.** What is created, modified, and deleted?
 - **Ordering and dependencies.** Which changes must happen first? What blocks
   what?
@@ -104,8 +106,8 @@ After all tasks are complete:
 - **A test fails after a change.** Fix the issue before moving on. If the fix
   requires deviating from the plan, note the deviation.
 - **The plan is incomplete.** Some plans don't cover every detail. Fill gaps
-  using the spec's intent, codebase conventions, and CLAUDE.md rules. Do not
-  ask for permission on routine decisions — only flag genuine ambiguity.
+  using the spec's intent, codebase conventions, and CLAUDE.md rules. Do not ask
+  for permission on routine decisions — only flag genuine ambiguity.
 
 ## What NOT to Do
 
