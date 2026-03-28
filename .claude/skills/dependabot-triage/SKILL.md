@@ -31,16 +31,16 @@ gh auth status
 Each PR is evaluated against existing policies. The table below lists the check,
 where the canonical rule lives, and what triage action to take on failure.
 
-| #   | Check                                      | Policy source                            | On failure                                                                                 |
-| --- | ------------------------------------------ | ---------------------------------------- | ------------------------------------------------------------------------------------------ |
-| 1   | All CI checks pass                         | CONTRIBUTING.md § Before Submitting a PR | **Fix** if caused by the PR's changes. If pre-existing on main, skip and recommend rebase. |
+| #   | Check                                      | Policy source                                  | On failure                                                                                 |
+| --- | ------------------------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
+| 1   | All CI checks pass                         | CONTRIBUTING.md § Before Submitting a PR       | **Fix** if caused by the PR's changes. If pre-existing on main, skip and recommend rebase. |
 | 2   | Actions pinned to SHA with version comment | CONTRIBUTING.md § Security; security-audit § 1 | **Fix** — update all workflow files to the new SHA.                                        |
-| 3   | No duplicate dependencies                  | CONTRIBUTING.md § Dependency Policy      | **Close** with explanation.                                                                |
-| 4   | Version ranges aligned across workspaces   | CONTRIBUTING.md § Dependency Policy      | **Fix** — align all workspace ranges.                                                      |
-| 5   | npm audit clean (`--audit-level=high`)     | CONTRIBUTING.md § Dependency Policy      | **Close** if the update introduces the vulnerability. Skip if pre-existing.                |
-| 6   | No unnecessary dependencies                | CONTRIBUTING.md § Dependency Policy      | **Close** with explanation.                                                                |
-| 7   | First-party or official org actions only   | security-audit § 1                       | **Close** with explanation.                                                                |
-| 8   | Peer and transitive dependency compat      | CONTRIBUTING.md § Dependency Policy      | **Close** until co-dependent packages release compatible versions.                         |
+| 3   | No duplicate dependencies                  | CONTRIBUTING.md § Dependency Policy            | **Close** with explanation.                                                                |
+| 4   | Version ranges aligned across workspaces   | CONTRIBUTING.md § Dependency Policy            | **Fix** — align all workspace ranges.                                                      |
+| 5   | npm audit clean (`--audit-level=high`)     | CONTRIBUTING.md § Dependency Policy            | **Close** if the update introduces the vulnerability. Skip if pre-existing.                |
+| 6   | No unnecessary dependencies                | CONTRIBUTING.md § Dependency Policy            | **Close** with explanation.                                                                |
+| 7   | First-party or official org actions only   | security-audit § 1                             | **Close** with explanation.                                                                |
+| 8   | Peer and transitive dependency compat      | CONTRIBUTING.md § Dependency Policy            | **Close** until co-dependent packages release compatible versions.                         |
 
 ### GitHub Actions SHA Inventory
 
