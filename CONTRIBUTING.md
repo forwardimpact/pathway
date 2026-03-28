@@ -45,6 +45,8 @@ See `CLAUDE.md` for detailed architecture, style rules, and conventions.
 - Consolidate packages serving the same purpose (one YAML parser, one markdown
   renderer)
 - Align version ranges for the same package across all workspaces
+- Verify peer and transitive dependency compatibility before merging major
+  version bumps — run `npm ls <package>` and confirm no `invalid` markers
 - Run `npm audit --audit-level=high` after adding or updating dependencies
 
 ## Reporting Security Issues
