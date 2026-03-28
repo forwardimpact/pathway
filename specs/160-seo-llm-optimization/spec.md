@@ -21,8 +21,8 @@ means:
    or downstream tool needs the content of a single page in clean markdown, the
    only option is to scrape and reverse-engineer the HTML. Since libdoc already
    has the markdown source, producing a `.md` companion for each HTML page is
-   nearly free. The llms.txt standard proposes exactly this convention: pages
-   provide a clean markdown version at the same URL with `.md` appended.
+   nearly free. The llms.txt standard proposes this convention: pages provide a
+   clean markdown version alongside their HTML counterpart.
 
 libdoc currently builds markdown to HTML and copies static assets. It has no
 awareness of the full page inventory and produces no machine-readable discovery
@@ -36,12 +36,15 @@ files. The website has no manually curated LLM entry point either.
   the site root during `build()`, listing every HTML page with its URL.
 
 - **libdoc: per-page markdown output** — For each HTML page produced, write a
-  companion `.md` file following the llms.txt convention: the markdown version
-  lives at the HTML URL with `.md` appended (e.g., `/about/index.html.md`).
+  co-located `index.md` companion in the same directory (e.g., `about/index.md`
+  alongside `about/index.html`). This avoids the `.html.md` double extension
+  that causes MIME type problems on GitHub Pages and other static hosts.
 
-- **libdoc: markdown alternate link in HTML** — Add a
+- **libdoc: markdown alternate link and canonical URL in HTML** — Add a
   `<link rel="alternate" type="text/markdown">` tag to the HTML template so
-  every page advertises its markdown companion in the `<head>`. Same discovery
+  every page advertises its markdown companion in the `<head>`. Add a
+  `<link rel="canonical">` tag when a base URL is available to prevent
+  duplicate-content issues from trailing-slash ambiguity. Same discovery
   pattern as RSS feeds.
 
 - **libdoc: llms.txt link generation** — At build time, libdoc reads a manually
@@ -124,9 +127,10 @@ During `build()`, after all pages are processed, DocsBuilder produces a
 ```
 
 Each generated HTML page gets a `<loc>` entry using its clean URL path
-(directory-style, trailing slash). The page inventory used to generate
-`sitemap.xml` entries is the same list used for llms.txt link generation
-(change 5).
+(directory-style, trailing slash). Pages are sorted alphabetically by URL path
+so the output is deterministic across builds and reviewable in diffs. The page
+inventory used to generate `sitemap.xml` entries is the same sorted list used
+for llms.txt link generation (change 5).
 
 No `<lastmod>`, `<changefreq>`, or `<priority>` elements — keep it minimal.
 These are optional in the protocol and add maintenance burden without meaningful
@@ -138,62 +142,73 @@ sitemap — libdoc only knows about pages it builds from markdown sources.
 
 ### 3. libdoc: per-page markdown output
 
-For each page built from a `.md` source, DocsBuilder writes a companion markdown
-file following the llms.txt convention: the markdown version is served at the
-HTML URL with `.md` appended.
+For each page built from a `.md` source, DocsBuilder writes a co-located
+`index.md` companion in the same output directory as the `index.html` file.
 
 Output path mapping:
 
 | HTML output                    | Markdown output                    |
 | ------------------------------ | ---------------------------------- |
-| `index.html`                   | `index.html.md`                    |
-| `about/index.html`             | `about/index.html.md`              |
-| `docs/map/index.html`          | `docs/map/index.html.md`           |
-| `docs/model/core/index.html`   | `docs/model/core/index.html.md`    |
+| `index.html`                   | `index.md`                         |
+| `about/index.html`             | `about/index.md`                   |
+| `docs/map/index.html`          | `docs/map/index.md`                |
+| `docs/model/core/index.html`   | `docs/model/core/index.md`         |
 
-This follows the llms.txt specification: "pages on websites that have
-information that might be useful for LLMs to read provide a clean markdown
-version of those pages at the same URL as the original page, but with `.md`
-appended."
+**Why co-located `index.md` instead of `.html.md`?** The llms.txt specification
+suggests appending `.md` to the HTML URL (e.g., `index.html.md`), but `.html.md`
+is a non-standard double extension that most static hosts (GitHub Pages,
+Cloudflare Pages, Netlify) serve as `application/octet-stream` or `text/plain`
+rather than `text/markdown`. Co-located `index.md` files use a standard
+extension that hosts handle correctly, and the `<link rel="alternate">` tag
+provides the same discovery mechanism the llms.txt convention intends.
 
-The markdown content is the source markdown after front matter extraction — the
-same content that gets passed to the marked parser.
+**Title prepend.** The companion markdown prepends `# {title}` (from front
+matter) as the first line, followed by a blank line, then the body. The source
+markdown after front matter extraction has no title heading — it relies on the
+HTML template to render the title. Without prepending, a companion file for
+"About" would be an orphaned document with no heading identifying its subject.
 
 **Link transformation.** Internal links in the markdown body must be transformed
 from source-relative references (e.g., `[Core](./core.md)`) to directory-style
-URLs (e.g., `[Core](/docs/model/core/)`), so the markdown companions work as
-standalone documents that link to the live site. This requires a new
-markdown-specific link transformer — the existing `#transformMarkdownLinks(html)`
-operates on HTML `href` attributes (`href="./core.md"` → `href="core/"`),
-whereas companion files need transformation of markdown link syntax
-(`[text](./core.md)` → `[text](core/)`). The transformation rules are the same
-(index.md → `./`, file.md → `file/`, dir/index.md → `dir/`), just applied to
-markdown link syntax `[...](...)` instead of HTML `href="..."`.
+URLs (e.g., `[Core](core/)`), so the markdown companions work as standalone
+documents that link to the live site. This requires a new markdown-specific link
+transformer — the existing `#transformMarkdownLinks(html)` operates on HTML
+`href` attributes (`href="./core.md"` → `href="core/"`), whereas companion
+files need transformation of markdown link syntax (`[text](./core.md)` →
+`[text](core/)`). The transformation rules are the same (index.md → `./`,
+file.md → `file/`, dir/index.md → `dir/`), just applied to markdown link syntax
+`[...](...)` instead of HTML `href="..."`.
 
 Links use relative paths (not absolute URLs with the base-url), matching the
 same convention as HTML output. This keeps companion files consistent with their
 HTML counterparts and avoids coupling them to a specific domain.
 
-### 4. libdoc: markdown alternate link in HTML
+### 4. libdoc: markdown alternate link and canonical URL in HTML
 
-Add a `<link rel="alternate">` tag to `index.template.html` so each HTML page
-advertises its markdown companion in the `<head>`:
+Add two `<link>` tags to `index.template.html`:
 
 ```html
 <link rel="alternate" type="text/markdown" href="{{markdownUrl}}" />
+{{#canonicalUrl}}
+<link rel="canonical" href="{{canonicalUrl}}" />
+{{/canonicalUrl}}
 ```
 
-This is the same discovery pattern used for RSS/Atom feeds (`<link rel="alternate" type="application/rss+xml">`). An LLM agent or tool visiting
-any page can find the markdown version from the HTML itself, without needing to
-know the `.md` URL convention or having seen `llms.txt` first.
+**Alternate link.** Same discovery pattern used for RSS/Atom feeds. An LLM agent
+or tool visiting any page can find the markdown version from the HTML itself,
+without needing to know the `index.md` URL convention or having seen `llms.txt`
+first. The builder passes `markdownUrl` in the template context — a relative URL
+pointing to the companion file in the same directory. The value is always
+`index.md` (relative to the page's own directory) since every page's HTML file
+is named `index.html`. Every page built from markdown has a companion file, so
+no conditional guard is needed.
 
-The builder passes `markdownUrl` in the template context — a relative URL
-pointing to the companion file. For a page at `about/index.html`, the value is
-`index.html.md` (relative to the page's own directory). This keeps URLs
-consistent regardless of where the site is hosted.
-
-The template tag is unconditional — every page built from markdown has a
-companion file, so no `{{#hasMarkdown}}` guard is needed.
+**Canonical link.** When `baseUrl` is available (from `--base-url` or CNAME
+fallback), the builder passes `canonicalUrl` — the full absolute URL of the page
+(e.g., `https://www.forwardimpact.team/about/`). This tells search engines which
+URL is authoritative when the same content is reachable via multiple paths (with
+or without trailing slash, with or without `index.html`). When `baseUrl` is not
+available, the tag is omitted via the `{{#canonicalUrl}}` conditional.
 
 ### 5. libdoc: static file copying and llms.txt link generation
 
@@ -230,13 +245,14 @@ section based on the page inventory — the same inventory used for `sitemap.xml
 Each link follows the llms.txt format:
 
 ```
-- [Page Title](https://www.forwardimpact.team/about/index.html.md): Description from front matter
+- [Page Title](https://www.forwardimpact.team/about/index.md): Description from front matter
 ```
 
-Links point to the `.html.md` markdown companion files (not the HTML pages), so
-LLMs retrieving linked content get clean markdown. The page title comes from
-front matter `title`, and the description from front matter `description`. Pages
-without a `description` in front matter omit the colon and description suffix.
+Links point to the co-located markdown companion files (not the HTML pages), so
+LLMs retrieving linked content get clean markdown. The page title
+comes from front matter `title`, and the description from front matter
+`description`. Pages without a `description` in front matter omit the colon and
+description suffix.
 
 The curated `llms.txt` in `website/` defines the section structure. For
 example:
@@ -302,19 +318,29 @@ from `website/CNAME`. The existing build command works as-is. The CNAME copy
 step and schema file copy steps remain unchanged — those files are not part of
 libdoc's page inventory and are not included in the sitemap or llms.txt.
 
-### 8. Skill updates
+### 8. libdoc: DocsServer content-type update
+
+Add `md: "text/markdown"` and `xml: "application/xml"` to the content-type map
+in `DocsServer.serve()` so the dev server serves markdown companions and the
+sitemap with correct MIME types.
+
+### 9. Skill updates
 
 #### libs-web-presentation skill
 
 Update the libdoc section to document:
 
-- The `--base-url` CLI flag and its effect on sitemap/llms.txt generation
-- The `sitemap.xml` automatic generation behavior
-- The per-page `.html.md` markdown output and the llms.txt URL convention
+- The `--base-url` CLI flag, CNAME fallback, and their effect on sitemap/llms.txt
+  generation
+- The `sitemap.xml` automatic generation behavior with sorted page inventory
+- The co-located `index.md` companion convention for per-page markdown
 - The `<link rel="alternate" type="text/markdown">` tag and `markdownUrl`
   template variable
+- The `<link rel="canonical">` tag and `canonicalUrl` template variable
+  (conditional on baseUrl)
 - The llms.txt link generation from curated source + auto-generated links
-- That sitemap and llms.txt link generation share the same page inventory
+- That `#copyStaticAssets` copies root-level non-markdown, non-template files
+- That DocsServer serves `.md` files with `text/markdown` content type
 
 #### website skill
 
@@ -323,7 +349,7 @@ Update to document:
 - The `llms.txt` source file location (`website/llms.txt`), its purpose, and
   that it contains curated section structure with links appended at build time
 - The `robots.txt` file
-- The `.html.md` convention for per-page markdown
+- The co-located `index.md` convention for per-page markdown
 - That adding or removing H2 sections in `llms.txt` requires updating the
   section-to-page mapping logic in libdoc
 
@@ -337,42 +363,47 @@ updating (e.g., adding a new H2 section for a new product area).
 
 1. `npx fit-doc build --src=website --out=dist --base-url=https://www.forwardimpact.team`
    produces:
-   - `dist/sitemap.xml` with a `<url>` entry for every HTML page
-   - An `.html.md` file alongside every `.html` file in the output
+   - `dist/sitemap.xml` with a `<url>` entry for every HTML page, sorted by URL
+   - A co-located `index.md` alongside every `index.html` in the output
    - `dist/llms.txt` containing the curated content plus auto-generated links
    - `dist/robots.txt` copied from `website/robots.txt`
 
 2. `dist/sitemap.xml` is valid XML conforming to the Sitemaps protocol
 
-3. Each `.html.md` output file contains the page body in clean markdown with
-   directory-style internal links (transformed from source `.md` references, not
-   raw source links)
+3. Each `index.md` output file starts with `# {title}` and contains the page
+   body in clean markdown with directory-style internal links (transformed from
+   source `.md` references, not raw source links)
 
 4. Every generated HTML page contains a
-   `<link rel="alternate" type="text/markdown" href="...">` tag in the `<head>`
-   pointing to its `.html.md` companion, and the href resolves to an existing
-   file in the built output
+   `<link rel="alternate" type="text/markdown" href="index.md">` tag in the
+   `<head>` pointing to its co-located companion, and the href resolves to an
+   existing file in the built output
 
-5. `dist/llms.txt` follows the llms.txt specification with an H1, blockquote,
-   and H2-delimited link sections where links point to `.html.md` files
+5. Every generated HTML page contains a `<link rel="canonical">` tag when
+   `baseUrl` is available, with the full absolute URL of the page
 
-6. All `.html.md` links in `dist/llms.txt` resolve to existing files in the
-   built output
+6. `dist/llms.txt` follows the llms.txt specification with an H1, blockquote,
+   and H2-delimited link sections where links point to `index.md` companion
+   files
 
-7. When neither `--base-url` nor a `CNAME` file is available, libdoc still
-   produces `.html.md` files and the `<link rel="alternate">` tag but skips
-   `sitemap.xml` generation and llms.txt link generation
+7. All markdown links in `dist/llms.txt` resolve to existing files in the built
+   output
 
-7a. When `--base-url` is omitted but a `CNAME` file exists in the source
-    directory, libdoc derives the base URL as `https://{hostname}` and
-    generates sitemap and llms.txt normally
+8. When neither `--base-url` nor a `CNAME` file is available, libdoc still
+   produces `index.md` companions and the `<link rel="alternate">` tag but skips
+   `sitemap.xml` generation, `<link rel="canonical">`, and llms.txt link
+   generation
 
-8. When the curated `llms.txt` does not exist in the source directory, libdoc
+8a. When `--base-url` is omitted but a `CNAME` file exists in the source
+    directory, libdoc derives the base URL as `https://{hostname}` and generates
+    sitemap, canonical tags, and llms.txt normally
+
+9. When the curated `llms.txt` does not exist in the source directory, libdoc
    skips llms.txt generation even when `--base-url` is provided
 
-9. The `libs-web-presentation`, `website`, and `update-docs` skills accurately
-   describe the new outputs and conventions
+10. The `libs-web-presentation`, `website`, and `update-docs` skills accurately
+    describe the new outputs and conventions
 
-10. Existing tests pass; new tests cover sitemap generation, markdown companion
-    output (including link transformation), alternate link tag, and llms.txt link
-    appending
+11. Existing tests pass; new tests cover sitemap generation, markdown companion
+    output (including title prepend and link transformation), alternate link tag,
+    canonical link tag, page sort order, and llms.txt link appending
