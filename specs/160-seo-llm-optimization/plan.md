@@ -5,9 +5,9 @@
 All new functionality lives in `DocsBuilder`. The `build()` method signature
 gains a third parameter (`baseUrl`), and after the existing page loop + static
 asset copy, a new post-build phase generates `sitemap.xml` and augments
-`llms.txt`. Markdown companions and the alternate `<link>` tag are woven into
-the existing per-page loop. No new classes or files — everything fits naturally
-into the builder's current structure.
+`llms.txt`. Markdown companions, the alternate `<link>` tag, and the canonical
+`<link>` tag are woven into the existing per-page loop. No new classes or
+files — everything fits naturally into the builder's current structure.
 
 **Static file convention.** Static files (`robots.txt`, `llms.txt`) live in the
 website root alongside markdown content — there is no `public/` subdirectory.
@@ -18,6 +18,10 @@ static file copying that picks up non-markdown, non-template files automatically
 `#copyStaticAssets`. The curated `llms.txt` gets copied to dist as a regular
 static file, then the post-build phase reads it back, appends links, and
 overwrites it. This keeps `#copyStaticAssets` generic.
+
+**Deterministic output.** The page inventory is sorted alphabetically by URL
+path before generating sitemap and llms.txt, so builds are reproducible and
+diffs are reviewable.
 
 ## Changes
 
@@ -91,6 +95,13 @@ pages.push({
 });
 ```
 
+**2d.** After the loop, sort the page inventory by URL path for deterministic
+output:
+
+```javascript
+pages.sort((a, b) => a.urlPath.localeCompare(b.urlPath));
+```
+
 This array drives sitemap and llms.txt generation in step 6.
 
 **Verify:** No behaviour change yet — build output is identical.
@@ -125,23 +136,29 @@ transforms markdown-syntax links (`[text](path.md)`) using the same rules as
 ```
 
 **3b.** Inside the per-page loop, after writing the HTML file (line ~362), write
-the markdown companion:
+the co-located markdown companion:
 
 ```javascript
-// Write markdown companion (.html.md)
-const companionMarkdown = this.#transformMarkdownBodyLinks(markdown);
-const companionPath = this.#path.join(distDir, outputPath + ".html.md");
-this.#fs.writeFileSync(companionPath, companionMarkdown, "utf-8");
+// Write markdown companion (index.md alongside index.html)
+const companionContent = `# ${frontMatter.title}\n\n${this.#transformMarkdownBodyLinks(markdown)}`;
+const companionPath = this.#path.join(distDir, outputPath + ".md");
+this.#fs.writeFileSync(companionPath, companionContent, "utf-8");
 ```
 
-The `markdown` variable already holds the post-front-matter content (line 269).
-The output path reuses the same `outputPath` variable used for the HTML file.
+The `outputPath` variable already holds the path without extension (e.g.,
+`index`, `about/index`, `docs/map/index`). Appending `.md` produces
+`index.md`, `about/index.md`, etc. — co-located with the `.html` file.
 
-**Verify:** Every `.html` in dist has a sibling `.html.md`.
+The content prepends `# {title}` from front matter as the first line. The
+source markdown after front matter extraction has no title heading — it relies
+on the HTML template to render the title. Without prepending, a companion
+for "About" would be an orphaned document with no heading.
+
+**Verify:** Every `index.html` in dist has a sibling `index.md`.
 
 ---
 
-### Step 4 — Alternate `<link>` tag in HTML template
+### Step 4 — Alternate `<link>` tag, canonical `<link>` tag
 
 **File:** `website/index.template.html`
 
@@ -149,23 +166,34 @@ Add after the stylesheet `<link>` (line 11):
 
 ```html
 <link rel="alternate" type="text/markdown" href="{{markdownUrl}}" />
+{{#canonicalUrl}}
+<link rel="canonical" href="{{canonicalUrl}}" />
+{{/canonicalUrl}}
 ```
 
 **File:** `libraries/libdoc/builder.js`
 
-In the template context object (line ~296), add `markdownUrl`:
+In the template context object (line ~296), add both variables:
 
 ```javascript
-markdownUrl: "index.html.md",
+markdownUrl: "index.md",
+canonicalUrl: baseUrl ? baseUrl + urlPath : "",
 ```
 
-The value is always `index.html.md` because every page's HTML file is named
+`markdownUrl` is always `index.md` because every page's HTML file is named
 `index.html` (either directly for index pages, or inside a subdirectory for
 non-index pages). The relative href from the page's own directory is always the
 same.
 
-**Verify:** Every built HTML page has the `<link rel="alternate">` tag in
-`<head>`.
+`canonicalUrl` is the full absolute URL (e.g.,
+`https://www.forwardimpact.team/about/`) when `baseUrl` is available. This tells
+search engines which URL is authoritative when the same content is reachable via
+multiple paths (with or without trailing slash, with or without `index.html`).
+When `baseUrl` is not available, the value is empty and the `{{#canonicalUrl}}`
+conditional omits the tag entirely.
+
+**Verify:** Every built HTML page has the `<link rel="alternate">` tag.
+Pages built with a `baseUrl` also have `<link rel="canonical">`.
 
 ---
 
@@ -274,8 +302,10 @@ data model is YAML-based and drives all products.
 }
 ```
 
-**6b.** Add private method
-`#augmentLlmsTxt(pages, baseUrl, distDir)`:
+Pages are already sorted by `urlPath` (step 2d), so sitemap entries appear in a
+stable, deterministic order.
+
+**6b.** Add private method `#augmentLlmsTxt(pages, baseUrl, distDir)`:
 
 Reads `dist/llms.txt` (already copied by `#copyStaticAssets` from the source
 root). If it doesn't exist, returns early. Parses the file to find H2 section
@@ -289,15 +319,12 @@ headers. Classifies each page into a section based on URL path:
 For each H2 section, appends page links in llms.txt format:
 
 ```
-- [Page Title](https://www.forwardimpact.team/path/index.html.md): Description
+- [Page Title](https://www.forwardimpact.team/about/index.md): Description
 ```
 
-The link URL uses `baseUrl` + `urlPath` (with trailing slash removed) +
-`index.html.md`. Pages without a description omit the colon and description.
-
-Implementation approach — split the curated file at H2 boundaries, build a
-map of section name → lines, append page links to each section, then
-reassemble:
+The link URL uses `baseUrl` + `urlPath` + `index.md`. For the root page (`/`),
+the URL is `baseUrl` + `/index.md`. Pages without a description omit the colon
+and description.
 
 ```javascript
 #augmentLlmsTxt(pages, baseUrl, distDir) {
@@ -326,22 +353,21 @@ reassemble:
 
   // Build link line for a page
   const linkLine = (page) => {
-    const htmlMdUrl = page.urlPath === "/"
-      ? `${baseUrl}/index.html.md`
-      : `${baseUrl}${page.urlPath}index.html.md`;
+    const mdUrl = page.urlPath === "/"
+      ? `${baseUrl}/index.md`
+      : `${baseUrl}${page.urlPath}index.md`;
     const desc = page.description ? `: ${page.description}` : "";
-    return `- [${page.title}](${htmlMdUrl})${desc}`;
+    return `- [${page.title}](${mdUrl})${desc}`;
   };
 
   // Reassemble: insert links after each H2
   const output = [];
-  let currentSection = null;
   for (const line of lines) {
     output.push(line);
     const h2Match = line.match(/^## (.+)$/);
     if (h2Match) {
-      currentSection = h2Match[1].trim();
-      const pageList = sections[currentSection];
+      const sectionName = h2Match[1].trim();
+      const pageList = sections[sectionName];
       if (pageList?.length) {
         output.push("");
         for (const page of pageList) {
@@ -356,6 +382,8 @@ reassemble:
 }
 ```
 
+Pages within each section are already sorted by `urlPath` (step 2d).
+
 **6c.** In `build()`, after `#copyStaticAssets` (line 366) and before the
 "complete" log:
 
@@ -367,13 +395,46 @@ if (baseUrl) {
 ```
 
 **Verify:**
-- `dist/sitemap.xml` has one `<url>` per page.
+- `dist/sitemap.xml` has one `<url>` per page, sorted by URL.
 - `dist/llms.txt` has curated content + page links under each H2.
-- Without `--base-url`, neither file is generated/augmented.
+- Without `--base-url` or CNAME, neither file is generated/augmented.
 
 ---
 
-### Step 7 — GitHub Actions workflow update
+### Step 7 — DocsServer content-type update
+
+**File:** `libraries/libdoc/server.js`
+
+Add `md` and `xml` to the `contentTypes` map in `serve()` (line ~130):
+
+```javascript
+const contentTypes = {
+  html: "text/html",
+  css: "text/css",
+  js: "application/javascript",
+  json: "application/json",
+  md: "text/markdown",
+  xml: "application/xml",
+  png: "image/png",
+  // ... rest unchanged
+};
+```
+
+This ensures the dev server serves markdown companions with `text/markdown` and
+sitemap with `application/xml`. Without this, both fall through to `text/plain`.
+
+**Note on production:** GitHub Pages does not support custom MIME type
+configuration. `.md` files are typically served as `text/plain`, which is
+acceptable for LLM consumption but not ideal. This is a hosting limitation, not
+something libdoc can fix. The `<link rel="alternate">` tag provides the
+semantic signal that the content is markdown regardless of the served MIME type.
+
+**Verify:** `npx fit-doc serve` returns `Content-Type: text/markdown` for
+`/about/index.md`.
+
+---
+
+### Step 8 — GitHub Actions workflow update
 
 No workflow changes needed. The CNAME fallback (step 2b) means the existing
 build command `npx fit-doc build --src=website --out=dist` automatically derives
@@ -382,45 +443,54 @@ steps remain unchanged.
 
 ---
 
-### Step 8 — Tests
+### Step 9 — Tests
 
 **File:** `libraries/libdoc/test/libdoc.test.js`
 
 Add test cases for:
 
-1. **Markdown companion output** — Build produces `.html.md` alongside each
-   `.html`. Verify content is the post-front-matter markdown.
+1. **Markdown companion output** — Build produces `index.md` alongside each
+   `index.html`. Verify content starts with `# {title}` followed by the
+   post-front-matter markdown.
 
 2. **Markdown body link transformation** — Source link `[Core](./core.md)` →
    `[Core](core/)` in companion. Test all transformation rules: index.md,
    file.md, dir/index.md, with hash fragments.
 
 3. **Alternate link tag** — Built HTML contains
-   `<link rel="alternate" type="text/markdown" href="index.html.md" />`.
+   `<link rel="alternate" type="text/markdown" href="index.md" />`.
 
-4. **Sitemap generation** — When `baseUrl` is provided, `sitemap.xml` is written
-   with correct `<url>` entries. When omitted, no `sitemap.xml`.
+4. **Canonical link tag** — When `baseUrl` is provided, built HTML contains
+   `<link rel="canonical" href="{baseUrl}{urlPath}" />`. When `baseUrl` is
+   absent, no canonical tag is present.
 
-5. **llms.txt augmentation** — When `baseUrl` is provided and curated
+5. **Sitemap generation** — When `baseUrl` is provided, `sitemap.xml` is written
+   with correct `<url>` entries sorted by URL path. When omitted, no
+   `sitemap.xml`.
+
+6. **Page sort order** — Verify sitemap and llms.txt entries appear in
+   alphabetical URL path order regardless of file discovery order.
+
+7. **llms.txt augmentation** — When `baseUrl` is provided and curated
    `llms.txt` exists in the source root, the output `llms.txt` contains curated
    content plus auto-generated links under each H2. Verify section
    classification (product pages → Products, docs → Documentation, others →
-   Optional).
+   Optional). Verify links point to `index.md` companion files.
 
-6. **llms.txt skipped when no curated file** — When no `llms.txt` in source
+8. **llms.txt skipped when no curated file** — When no `llms.txt` in source
    root, no `llms.txt` in output even with `baseUrl`.
 
-7. **No baseUrl, no CNAME** — Markdown companions and alternate link still
-   produced; sitemap and llms.txt augmentation skipped.
+9. **No baseUrl, no CNAME** — Markdown companions and alternate link still
+   produced; sitemap, canonical tags, and llms.txt augmentation skipped.
 
-7a. **CNAME fallback** — When `baseUrl` is omitted but a `CNAME` file exists
+9a. **CNAME fallback** — When `baseUrl` is omitted but a `CNAME` file exists
     in the source directory, `build()` derives `https://{hostname}` and
-    generates sitemap/llms.txt. Verify the explicit `--base-url` flag takes
-    precedence over CNAME when both are present.
+    generates sitemap/llms.txt/canonical. Verify the explicit `--base-url` flag
+    takes precedence over CNAME when both are present.
 
-8. **Static file copying** — Non-markdown, non-template root files (e.g.
-   `robots.txt`) are copied to dist. `.md` files, `index.template.html`, and
-   `CNAME` are not copied as static files.
+10. **Static file copying** — Non-markdown, non-template root files (e.g.
+    `robots.txt`) are copied to dist. `.md` files, `index.template.html`, and
+    `CNAME` are not copied as static files.
 
 All tests use the existing mock pattern (Maps for files, Sets for directories).
 Extend the mock `fs` to track `writeFileSync` calls and `existsSync` checks for
@@ -428,39 +498,118 @@ the new output files.
 
 ---
 
-### Step 9 — Skill updates
+### Step 10 — Skill updates
 
 **File:** `.claude/skills/libs-web-presentation/SKILL.md`
 
-Add to the libdoc section:
+The libdoc row in the **Libraries** table (line 28) is fine as-is. Add a new
+section after the existing **DI Wiring > libdoc** block (line ~141), before
+**libtemplate**:
 
-- `--base-url` CLI flag and CNAME fallback: enables sitemap.xml and llms.txt
-  link generation
-- `sitemap.xml`: auto-generated from page inventory, minimal format
-- `.html.md` companions: written for every page, markdown body with transformed
-  links
-- `<link rel="alternate" type="text/markdown">`: template variable
-  `markdownUrl`, always `index.html.md`
-- `llms.txt`: curated file in source root + auto-appended links per H2 section
-- Page inventory shared between sitemap and llms.txt generation
-- `#copyStaticAssets` copies root-level non-markdown, non-template files (no
-  `public/` directory)
+```markdown
+#### libdoc build outputs
+
+`DocsBuilder.build(docsDir, distDir, baseUrl)` produces these additional outputs
+beyond HTML pages:
+
+- **`--base-url` flag / CNAME fallback** — When `baseUrl` is provided (via CLI
+  flag or derived from a `CNAME` file in the source directory), libdoc generates
+  `sitemap.xml`, `<link rel="canonical">` tags, and augmented `llms.txt`.
+- **`sitemap.xml`** — Auto-generated from the page inventory, sorted
+  alphabetically by URL path. Minimal format (no `<lastmod>` or `<priority>`).
+- **Co-located `index.md` companions** — Every page gets an `index.md` alongside
+  its `index.html`. Content is `# {title}` followed by the source markdown with
+  links transformed from `.md` references to directory-style URLs.
+- **Template variables** — `markdownUrl` (always `"index.md"`), `canonicalUrl`
+  (full absolute URL when `baseUrl` is available, empty string otherwise).
+- **`llms.txt` link generation** — If a curated `llms.txt` exists in the source
+  root, libdoc copies it to dist then appends page links under each H2 section.
+  Section mapping: product slugs → Products, `/docs/` prefix → Documentation,
+  everything else → Optional.
+- **Static file copying** — `#copyStaticAssets` copies root-level non-markdown,
+  non-template files (e.g., `robots.txt`, `llms.txt`) to dist. Skips `.md`
+  files, `index.template.html`, and `CNAME`.
+- **DocsServer** — Serves `.md` files as `text/markdown` and `.xml` files as
+  `application/xml`.
+```
+
+Also update **Recipe 3** (line ~74) to show the `baseUrl` parameter:
+
+```javascript
+// CLI: npx fit-doc build --src=website --out=dist
+// CLI: npx fit-doc build --src=website --out=dist --base-url=https://example.com
+// CLI: npx fit-doc serve --watch
+```
+
+---
 
 **File:** `.claude/skills/website/SKILL.md`
 
-Add:
+**Site Structure** (line ~20): Add `robots.txt` and `llms.txt` to the directory
+tree:
 
-- `website/llms.txt`: curated section structure, links appended at build time by
-  libdoc
-- `website/robots.txt`: references sitemap location
-- `.html.md` convention: every page has a markdown companion
-- Adding/removing H2 sections in `llms.txt` requires updating section mapping
-  in `builder.js`
+```
+website/
+├── CNAME                    # Custom domain: www.forwardimpact.team
+├── index.template.html      # Shared Mustache template for every page
+├── robots.txt               # Crawl directives + sitemap reference
+├── llms.txt                 # Curated LLM entry point (links appended at build)
+├── index.md                 # Landing page (layout: home)
+...
+```
+
+**Publishing** (line ~86): Update step 2 to mention CNAME fallback and new
+outputs:
+
+```markdown
+2. **Build**: `npx fit-doc build --src=website --out=dist` — libdoc reads
+   `CNAME` to derive the base URL automatically. Produces HTML pages, co-located
+   `index.md` markdown companions, `sitemap.xml`, augmented `llms.txt`, and
+   copies `robots.txt` to dist.
+```
+
+**Common Tasks > Add a new page** (line ~105): Add a step:
+
+```markdown
+4. Check if `website/llms.txt` needs a new H2 section for the page's URL
+   category. If the page falls under an existing section (Products,
+   Documentation, Optional), no change is needed — libdoc appends links
+   automatically.
+```
+
+Add a new **Common Tasks** subsection:
+
+```markdown
+### Update llms.txt sections
+
+The curated `website/llms.txt` defines H2 section headers. libdoc classifies
+pages by URL path and appends links under matching sections:
+
+- Top-level product pages (`/map/`, `/pathway/`, etc.) → `## Products`
+- Pages under `/docs/` → `## Documentation`
+- Everything else → `## Optional`
+
+To add a new section, edit `website/llms.txt` and update the section-to-page
+mapping in `libraries/libdoc/builder.js` (`#augmentLlmsTxt`).
+```
+
+---
 
 **File:** `.claude/skills/update-docs/SKILL.md`
 
-Add a reminder that adding or removing website pages may require updating the
-curated `website/llms.txt` section structure.
+Add to the **Process > Step 5 (Check for gaps)** section (line ~46):
+
+```markdown
+   - Verify `website/llms.txt` section structure matches the current page
+     inventory. New page categories may need a new H2 section; removed pages
+     should not leave empty sections.
+```
+
+Add a row to the **Key Files to Cross-Reference** table (line ~51):
+
+```markdown
+| LLM / SEO outputs | `website/llms.txt`, `website/robots.txt` |
+```
 
 ---
 
@@ -469,8 +618,9 @@ curated `website/llms.txt` section structure.
 | File | Action |
 |------|--------|
 | `libraries/libdoc/bin/fit-doc.js` | Modify — add `--base-url` option |
-| `libraries/libdoc/builder.js` | Modify — `build()` signature, CNAME fallback, page inventory, companion output, `#copyStaticAssets` refactor, sitemap, llms.txt |
-| `website/index.template.html` | Modify — add `<link rel="alternate">` tag |
+| `libraries/libdoc/builder.js` | Modify — `build()` signature, CNAME fallback, page inventory with sort, companion output with title prepend, canonical URL, `#copyStaticAssets` refactor, sitemap, llms.txt |
+| `libraries/libdoc/server.js` | Modify — add `md` and `xml` to content-type map |
+| `website/index.template.html` | Modify — add `<link rel="alternate">` and `<link rel="canonical">` tags |
 | `website/robots.txt` | Create |
 | `website/llms.txt` | Create |
 | `libraries/libdoc/test/libdoc.test.js` | Modify — add test cases |
@@ -482,15 +632,16 @@ curated `website/llms.txt` section structure.
 
 Steps 1–4 can be developed together (they touch different parts of the same
 files but have no circular dependencies). Step 5 modifies `#copyStaticAssets`
-and creates the static files. Step 6 depends on step 2c (page inventory) and
-step 5 (static files copied to dist). Step 7 is a no-op (CNAME fallback
-eliminates the need for workflow changes). Step 8 should be written alongside or
-after steps 1–6. Step 9 is independent and can be done last.
+and creates the static files. Step 6 depends on step 2c/2d (sorted page
+inventory) and step 5 (static files copied to dist). Step 7 is a small
+independent change to the server. Step 8 is a no-op (CNAME fallback eliminates
+the need for workflow changes). Step 9 should be written alongside or after
+steps 1–7. Step 10 is independent and can be done last.
 
 Recommended commit sequence:
 
-1. Steps 1–4: `feat(libdoc): add base-url flag with CNAME fallback, markdown companions, and alternate link tag`
+1. Steps 1–4: `feat(libdoc): add base-url flag with CNAME fallback, markdown companions, alternate and canonical link tags`
 2. Step 5: `feat(libdoc): refactor static file copying, add robots.txt and llms.txt`
-3. Step 6: `feat(libdoc): generate sitemap.xml and augment llms.txt at build time`
-4. Step 8: `test(libdoc): add tests for SEO and LLM optimization outputs`
-5. Step 9: `docs: update skills for SEO and LLM optimization`
+3. Steps 6–7: `feat(libdoc): generate sitemap.xml, augment llms.txt, update server content types`
+4. Step 9: `test(libdoc): add tests for SEO and LLM optimization outputs`
+5. Step 10: `docs: update skills for SEO and LLM optimization`
