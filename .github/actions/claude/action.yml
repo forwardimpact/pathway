@@ -34,8 +34,7 @@ runs:
     - name: Run Claude Code
       shell: bash
       run: |
-        claude --print \
+        echo "${{ inputs.prompt }}" | claude --print \
           --model "${{ inputs.model }}" \
           --max-turns "${{ inputs.max-turns }}" \
-          --allowedTools "${{ inputs.allowed-tools }}" \
-          "${{ inputs.prompt }}"
+          --allowedTools "${{ inputs.allowed-tools }}"
