@@ -47,6 +47,9 @@ reflects the current codebase.
    - New features in code that lack documentation
    - Documented features that no longer exist
    - Cross-references that point to moved or deleted content
+   - Verify `website/llms.txt` section structure matches the current page
+     inventory. New page categories may need a new H2 section; removed pages
+     should not leave empty sections.
 
 ## Key Files to Cross-Reference
 
@@ -63,6 +66,7 @@ reflects the current codebase.
 | CLI Commands       | `products/pathway/bin/fit-pathway.js` |
 | Templates          | `products/pathway/templates/`         |
 | Agent instructions | `CLAUDE.md`                           |
+| LLM / SEO outputs  | `website/llms.txt`, `website/robots.txt` |
 
 ## CLI Verification
 
