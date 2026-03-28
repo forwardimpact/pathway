@@ -2,11 +2,70 @@
 
 ## Approach
 
-Add a single workflow file that installs Claude Code on a schedule and runs it
-with a prompt that activates the `dependabot-triage` skill. No other files
-change.
+Two new files:
 
-## New File
+1. A **reusable composite action** at `.github/actions/claude-prompt/action.yml`
+   that handles Claude Code installation, git configuration, and prompt
+   execution with configurable inputs.
+2. A **workflow** at `.github/workflows/dependabot-triage.yml` that uses the
+   composite action on a schedule.
+
+No existing files change.
+
+## New Files
+
+### `.github/actions/claude-prompt/action.yml`
+
+A composite action that any workflow can use to run a Claude Code prompt.
+
+```yaml
+name: Claude Prompt
+description: Install Claude Code and run a prompt in non-interactive mode
+
+inputs:
+  prompt:
+    description: The prompt to send to Claude Code
+    required: true
+  allowed-tools:
+    description: Comma-separated list of tools to allow without prompting
+    required: false
+    default: "Bash,Read,Glob,Grep,Write,Edit"
+  model:
+    description: Claude model to use
+    required: false
+    default: "opus"
+  max-turns:
+    description: Maximum number of agentic turns
+    required: false
+    default: "50"
+
+runs:
+  using: composite
+  steps:
+    - name: Install Claude Code
+      shell: bash
+      run: npm install -g @anthropic-ai/claude-code
+
+    - name: Configure Git identity
+      shell: bash
+      run: |
+        git config user.name "github-actions[bot]"
+        git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+    - name: Run Claude Code
+      shell: bash
+      run: |
+        claude --print \
+          --model "${{ inputs.model }}" \
+          --max-turns "${{ inputs.max-turns }}" \
+          --allowedTools "${{ inputs.allowed-tools }}" \
+          "${{ inputs.prompt }}"
+```
+
+The action does **not** set environment variables for secrets (`ANTHROPIC_API_KEY`,
+`GH_TOKEN`). The calling workflow passes these via `env:` on the step or job
+that uses the action — composite actions cannot access `secrets` context
+directly.
 
 ### `.github/workflows/dependabot-triage.yml`
 
@@ -15,9 +74,13 @@ name: Dependabot Triage
 
 on:
   schedule:
-    # Every 3 days at 06:00 UTC (Mon, Thu, Sun pattern across weeks)
-    - cron: "0 6 */3 * *"
+    # Every 3 days at 06:17 UTC (off-minute to avoid :00 stampede)
+    - cron: "17 6 */3 * *"
   workflow_dispatch: # Manual trigger for testing or on-demand triage
+
+concurrency:
+  group: dependabot-triage
+  cancel-in-progress: true
 
 permissions:
   contents: read
@@ -25,6 +88,7 @@ permissions:
 jobs:
   triage:
     runs-on: ubuntu-latest
+    timeout-minutes: 30
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
 
@@ -35,31 +99,43 @@ jobs:
 
       - run: npm ci
 
-      - name: Install Claude Code
-        run: npm install -g @anthropic-ai/claude-code
-
-      - name: Configure Git identity
-        run: |
-          git config user.name "github-actions[bot]"
-          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
-
       - name: Triage Dependabot PRs
+        uses: ./.github/actions/claude-prompt
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN: ${{ secrets.GH_TOKEN }}
+          GH_TOKEN: ${{ secrets.CLAUDE_GH_PAT }}
           CLAUDE_CODE_USE_BEDROCK: "0"
-        run: |
-          claude --print --allowedTools "Bash,Read,Glob,Grep,Write,Edit" \
-            "/dependabot-triage"
+        with:
+          prompt: "/dependabot-triage"
+          model: "opus"
+          max-turns: "50"
 ```
 
 ## Design Decisions
+
+### Why a reusable composite action
+
+This is the first workflow running Claude Code. Future workflows (code review,
+release notes, skill evaluation) will need the same setup: install Claude Code,
+configure git, run a prompt with tool permissions. Extracting into
+`.github/actions/claude-prompt/` avoids copy-paste and gives one place to update
+the invocation pattern.
+
+The action is deliberately minimal — it handles installation and invocation only.
+Secrets are passed by the caller via `env:`, keeping the action generic.
 
 ### Why `claude --print`
 
 The `--print` flag runs Claude Code in non-interactive mode — it accepts the
 prompt, executes the task, prints the output, and exits. This is the correct
 mode for CI where there is no interactive terminal.
+
+### Why `--max-turns 25`
+
+Without a turn limit, Claude could loop indefinitely on edge cases (retrying
+failed merges, exploring irrelevant files). 50 turns gives ample room for
+triaging many PRs (each requiring multiple tool calls) while still preventing
+runaway sessions.
 
 ### Why `--allowedTools`
 
@@ -72,33 +148,48 @@ branches).
 ### Why `npm ci` before Claude Code
 
 The workspace must be fully installed so that Claude Code can run `npm audit`,
-`npm ls`, and other npm commands during triage. The `npm ci` step also ensures
-the lock file is present for audit checks.
+`npm ls`, and other npm commands during triage. `npm ci` ensures a clean,
+reproducible install from the lock file.
 
-### Why a PAT instead of `GITHUB_TOKEN`
+### Why `CLAUDE_GH_PAT` instead of `GH_TOKEN` or `GITHUB_TOKEN`
 
-Two reasons:
+- `GITHUB_TOKEN` is insufficient — GitHub doesn't trigger workflows on events it
+  creates, so fix PRs wouldn't get CI runs. It also lacks the permission
+  combination needed for merge + close + create-PR + push.
+- The secret is named `CLAUDE_GH_PAT` (not `GH_TOKEN`) to clearly distinguish
+  it from GitHub's built-in token and signal its purpose. The workflow passes it
+  as `GH_TOKEN` in the env so the `gh` CLI picks it up automatically.
 
-1. **Recursive trigger prevention.** GitHub does not trigger workflows on events
-   created by `GITHUB_TOKEN`. When Claude Code creates a fix PR, CI must run on
-   that PR. A PAT allows this.
-2. **Cross-branch operations.** The triage skill creates fix branches, pushes
-   commits, and creates PRs. While `GITHUB_TOKEN` can technically do some of
-   this with `contents: write`, the combination of merge + close + create-PR +
-   push requires a PAT for reliability.
+### Why every 3 days at an off-minute
 
-### Why every 3 days
+Dependabot opens PRs weekly. Every 3 days ensures PRs are triaged promptly
+without burning excessive CI minutes. The `:17` minute avoids the `:00`
+stampede when many scheduled workflows fire simultaneously.
 
-Dependabot opens PRs weekly. Running every 3 days ensures each PR is triaged
-within a few days of creation without burning excessive CI minutes. The
-`workflow_dispatch` trigger allows immediate triage when needed.
+### Why `concurrency: cancel-in-progress`
+
+If a manual dispatch fires while a scheduled run is in progress (or vice versa),
+two Claude sessions would conflict — both trying to merge or close the same PRs.
+The concurrency group ensures only one triage run at a time.
+
+### Why `timeout-minutes: 30`
+
+Prevents stuck or runaway Claude sessions from consuming CI minutes indefinitely.
+30 minutes is generous for triaging a typical batch of Dependabot PRs.
 
 ### Why `/dependabot-triage` as the prompt
 
 Claude Code's skill system recognizes slash-command invocations. The
-`dependabot-triage` skill's frontmatter and instructions are comprehensive
-enough that a simple invocation triggers the full workflow — list PRs, evaluate
-policies, take action, report.
+`dependabot-triage` skill's instructions are comprehensive enough that a simple
+invocation triggers the full workflow — list PRs, evaluate policies, take
+action, report.
+
+### Why model `opus`
+
+Triage involves nuanced policy evaluation — interpreting version ranges, reading
+diffs for SHA pinning, deciding whether to merge/fix/close. Opus provides the
+strongest autonomous reasoning for making these judgment calls correctly without
+human oversight.
 
 ## Secrets Setup
 
@@ -109,18 +200,13 @@ policies, take action, report.
 2. In the GitHub repository, go to **Settings > Secrets and variables >
    Actions**.
 3. Click **New repository secret**.
-4. Name: `ANTHROPIC_API_KEY`, Value: the API key (starts with `sk-ant-`).
-
-The key needs access to Claude Sonnet or Opus. Triage sessions typically use
-moderate token counts (reading PR diffs, policy files, running commands), so
-cost per run should be modest.
+4. Name: `ANTHROPIC_API_KEY`, Value: the API key.
 
 ### 2. GitHub PAT
 
 1. Go to **GitHub Settings > Developer settings > Fine-grained personal access
-   tokens** (or use a classic PAT).
-2. Create a token scoped to the `forwardimpact/monorepo` repository with these
-   permissions:
+   tokens**.
+2. Create a token scoped to the repository with these permissions:
    - **Contents**: Read and write
    - **Pull requests**: Read and write
    - **Actions**: Read
@@ -128,7 +214,7 @@ cost per run should be modest.
 3. In the GitHub repository, go to **Settings > Secrets and variables >
    Actions**.
 4. Click **New repository secret**.
-5. Name: `GH_TOKEN`, Value: the token.
+5. Name: `CLAUDE_GH_PAT`, Value: the token.
 
 **Token expiry:** Fine-grained tokens have a maximum lifetime (typically 1
 year). Set a calendar reminder to rotate before expiry.
@@ -140,13 +226,14 @@ workflow. This avoids PAT expiry concerns but adds setup complexity.
 
 ## Files
 
-| File                                        | Action |
-| ------------------------------------------- | ------ |
-| `.github/workflows/dependabot-triage.yml`   | Create |
+| File                                          | Action |
+| --------------------------------------------- | ------ |
+| `.github/actions/claude-prompt/action.yml`    | Create |
+| `.github/workflows/dependabot-triage.yml`     | Create |
 
 ## Verification
 
-1. Push the workflow file to `main`.
+1. Push both files to `main`.
 2. Go to **Actions > Dependabot Triage** and click **Run workflow** (manual
    dispatch).
 3. Confirm the job installs Claude Code, runs the triage prompt, and correctly
@@ -154,3 +241,19 @@ workflow. This avoids PAT expiry concerns but adds setup complexity.
 4. Verify that merged PRs are squash-merged, fix PRs trigger CI, and closed PRs
    have policy violation comments.
 5. Wait for the next scheduled run and confirm it executes automatically.
+6. Verify the composite action works by checking that the Claude Code output
+   appears in the workflow logs.
+
+## Future Use
+
+Once verified, other workflows can reuse the composite action:
+
+```yaml
+- uses: ./.github/actions/claude-prompt
+  env:
+    ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+  with:
+    prompt: "Review this PR for security issues and post comments"
+    model: "sonnet"
+    max-turns: "15"
+```

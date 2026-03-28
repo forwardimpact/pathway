@@ -69,17 +69,20 @@ iri: `https://${domain}/id/person/${id}`
 ```
 
 **Verify:** After generation, `stripOffDomainIris` preserves person, team, and
-project links in enriched HTML. Grep the generated HTML for `itemid=` and
-confirm all entity IRIs contain `/id/`.
+project links in enriched HTML. Unit-test the IRI output from `entities.js`
+directly (confirm all 5 entity types produce `/id/` IRIs) in addition to
+checking the generated HTML for `itemid=` attributes.
 
 ---
 
 ### A4. Warn on people shortfall
 
-**File:** `libraries/libsyntheticgen/engine/entities.js`
+**Files:**
+- `libraries/libsyntheticgen/engine/entities.js` — `generatePeople` function
+- `libraries/libsyntheticgen/engine/tier0.js` — `EntityGenerator` class (owns the logger)
 
-After the `while` loop in `generatePeople` (around line 79), add a warning when
-the result count is less than the requested count:
+After the `while` loop in `generatePeople` (line 89), add a warning when the
+result count is less than the requested count:
 
 ```javascript
 if (people.length < count) {
@@ -89,8 +92,12 @@ if (people.length < count) {
 }
 ```
 
-The `logger` is already available via the `EntityGenerator` class constructor.
-Thread it into `generatePeople` as a parameter.
+The `logger` is available on `EntityGenerator` in `tier0.js` but is not
+currently threaded into `entities.js`. The call chain is
+`EntityGenerator.generate()` → `buildEntities(ast, rng)` →
+`generatePeople(ast, rng, teams, domain)`. Add `logger` as a parameter to
+`buildEntities` and `generatePeople`, passed from `this.logger` in
+`EntityGenerator`.
 
 **Verify:** Set `count 500` in a test DSL (exceeding the Greek name pool) and
 confirm the warning appears in stderr.
@@ -101,32 +108,46 @@ confirm the warning appears in stderr.
 
 **File:** `libraries/libsyntheticrender/render/link-assigner.js`
 
-**Org name (line 193):** Replace hardcoded `"BioNova"` with a value from the
-entities context. The `assignLinks` function receives `entities` — extract the
-org name from the first org entity:
+**Signature change required:** `assignLinks` currently receives destructured
+individual arrays (`{ drugs, platforms, projects, people, teams, departments,
+domain, courseCount, eventCount, blogCount, articleTopics, seed }`). It does NOT
+receive `entities` as a single object. Add two new parameters to the destructured
+signature: `orgName` and `dateRange` (or `startYear`/`endYear`). The caller
+must extract these from the entities/scenarios before calling `assignLinks`.
+
+**Org name (line 193):** Replace hardcoded `"BioNova"` with the new `orgName`
+parameter:
 
 ```javascript
-const orgName = entities.orgs?.[0]?.name || domain;
+export function assignLinks({
+  drugs, platforms, projects, people, teams, departments, domain,
+  courseCount, eventCount, blogCount, articleTopics = [], seed = 42,
+  orgName = null,   // NEW
+  startYear = null, // NEW
+  endYear = null,   // NEW
+}) {
+  const effectiveOrgName = orgName || domain;
+  const effectiveYear = startYear || new Date().getFullYear();
 ```
 
-Pass `orgName` into course object construction at line 193.
+Pass `effectiveOrgName` into course object construction at line 193.
 
-**Dates (lines 272–297 and similar):** Blog, course, and event dates are pinned
-to 2025. Derive the date range from the DSL scenario timeline. The `entities`
-object contains `scenarios` with `snapshots` that define a time range. Extract
-min/max dates:
+**Dates (lines 192, 231, 276, 283, 337):** Blog, course, and event dates are
+pinned to 2025. Replace all hardcoded `2025` with `effectiveYear`. For blogs,
+spread across the year range using `startYear + (i % yearSpan)` when a range is
+provided.
+
+**Caller change:** Wherever `assignLinks` is called (in the render layer),
+extract org name and date range from the generated entities/scenarios:
 
 ```javascript
-const allDates = entities.scenarios
-  .flatMap((s) => s.snapshots.map((snap) => snap.date))
+const orgName = entities.orgs?.[0]?.name || entities.domain;
+const allDates = (entities.scenarios || [])
+  .flatMap((s) => (s.snapshots || []).map((snap) => snap.date))
   .sort();
-const startYear = new Date(allDates[0]).getFullYear();
-const endYear = new Date(allDates.at(-1)).getFullYear();
+const startYear = allDates.length ? new Date(allDates[0]).getFullYear() : null;
+const endYear = allDates.length ? new Date(allDates.at(-1)).getFullYear() : null;
 ```
-
-Replace all hardcoded `2025` with computed year values. For blog dates, spread
-across the timeline range. For events, use the scenario date range. For courses,
-derive from the same range.
 
 If scenarios or snapshots are empty, fall back to the current year.
 
@@ -140,11 +161,13 @@ when using a different org name.
 
 ### B1. Extract shared vocabulary constants
 
-**New file:** `libraries/libsyntheticprose/vocabulary.js`
+**New file:** `libraries/libsyntheticgen/vocabulary.js`
 
-Place the shared vocabulary in libsyntheticprose since it's the primary consumer
-and avoids adding a dependency on libskill (which is pure-function, pathway-data
-oriented). The vocabulary is about synthetic generation, not skill derivation.
+Place the shared vocabulary in `libsyntheticgen` — it is the structural
+foundation that both `libsyntheticprose` and `libsyntheticrender` already depend
+on. Placing it in `libsyntheticprose` would create a new dependency from
+`libsyntheticrender` → `libsyntheticprose`, which does not exist today and should
+not be introduced.
 
 ```javascript
 /** @type {string[]} */
@@ -176,22 +199,23 @@ export const STAGE_NAMES = [
 ];
 ```
 
-Export from `libraries/libsyntheticprose/index.js`.
+Export from `libraries/libsyntheticgen/index.js`.
 
 **Update consumers:**
 
 | File | Hardcoded value | Change |
 | --- | --- | --- |
-| `libsyntheticrender/validate.js` L334 | `VALID_PROFICIENCIES` | Import from vocabulary |
-| `libsyntheticprose/prompts/pathway/level.js` | Inline proficiency/maturity strings | Interpolate from vocabulary |
-| `libsyntheticprose/prompts/pathway/behaviour.js` | Inline maturity strings | Interpolate from vocabulary |
-| `libsyntheticprose/prompts/pathway/capability.js` | Inline proficiency + stage strings | Interpolate from vocabulary |
-| `libsyntheticprose/engine/pathway.js` L312 | Fallback arrays in `generateSelfAssessments` | Import from vocabulary |
+| `libsyntheticrender/validate.js` L334 | `VALID_PROFICIENCIES` | Import from `libsyntheticgen/vocabulary.js` |
+| `libsyntheticprose/prompts/pathway/level.js` | Inline proficiency/maturity strings | Import from `libsyntheticgen/vocabulary.js` |
+| `libsyntheticprose/prompts/pathway/behaviour.js` | Inline maturity strings | Import from `libsyntheticgen/vocabulary.js` |
+| `libsyntheticprose/prompts/pathway/capability.js` | Inline proficiency + stage strings | Import from `libsyntheticgen/vocabulary.js` |
+| `libsyntheticprose/engine/pathway.js` L305 | Fallback arrays in `generateSelfAssessments` | Import from `libsyntheticgen/vocabulary.js` |
 
 Remove all inline copies after wiring.
 
 **Verify:** `grep -rn "awareness.*foundational.*working" libraries/libsynthetic*`
-returns only `vocabulary.js`. Run `npm run test` to confirm no regressions.
+returns only `libsyntheticgen/vocabulary.js`. Run `npm run test` to confirm no
+regressions.
 
 ---
 
@@ -237,7 +261,7 @@ references to the removed driver.
 - `libraries/libsyntheticprose/prompts/pathway/discipline.js` — new parameter
 - `libraries/libsyntheticprose/prompts/pathway/track.js` — new parameter
 
-**Current flow** (pathway.js lines 97–180):
+**Current flow** (pathway.js lines 95–237):
 
 1. `generateFramework` → `framework`
 2. `generateLevels` → `levels` (receives framework metadata)
@@ -294,6 +318,22 @@ priorOutput.capabilities = capabilities;
 // tracks receive all prior context
 ```
 
+**Token budget for prior context:** Forwarding full descriptions for all prior
+entities would consume too many input tokens in late-stage prompts (disciplines
+and tracks receive everything). Keep prior context compact:
+
+- **Levels:** title and proficiency baseline only (not full descriptions). ~100
+  tokens for 6 levels.
+- **Behaviours:** name and one-sentence summary only. ~200 tokens for 10
+  behaviours.
+- **Capabilities:** name and skill list (IDs, not descriptions). ~300 tokens for
+  10 capabilities.
+
+Total prior context stays under ~600 tokens even at the discipline/track stage.
+The prompt builder should format prior context as a concise bullet list, not
+as raw JSON. If a future framework has significantly more entities, add a hard
+cap (e.g., 1000 tokens) and truncate the oldest entries.
+
 **Verify:** Generate framework twice — once without forwarding (current), once
 with. Manual review of 3 entity pairs (level↔capability, behaviour↔discipline,
 capability↔track) should show shared terminology in the forwarded version.
@@ -309,7 +349,7 @@ A single function returning the system preamble text. Defines voice
 own names for proficiency/maturity levels, not synonyms).
 
 ```javascript
-import { PROFICIENCY_LEVELS, MATURITY_LEVELS } from "../../vocabulary.js";
+import { PROFICIENCY_LEVELS, MATURITY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";
 
 export function buildPreamble(frameworkName) {
   return [
@@ -321,6 +361,12 @@ export function buildPreamble(frameworkName) {
   ].join("\n");
 }
 ```
+
+**`frameworkName` source:** The `PathwayGenerator.generate()` method receives
+`{ framework, domain, industry, schemas }`. The framework AST from the DSL
+parser contains `framework.name`. Thread `framework.name` (or fall back to
+`domain`) as `frameworkName` into each prompt builder via the existing `ctx`
+object — e.g., `{ ...ctx, frameworkName: framework.name || domain }`.
 
 **Change in each prompt builder:** Prepend the preamble to the system message.
 All 8 builders (`framework.js`, `level.js`, `stage.js`, `behaviour.js`,
@@ -380,14 +426,32 @@ stage IDs from the same framework. Cross-check with `validateCrossContent`.
 
 **File:** `libraries/libsyntheticprose/engine/prose.js`
 
-In `generateStructured()` (line 91), replace the fixed `max_tokens: 4000` with
-a computed value:
+In `generateStructured()` (line 111), the LLM call at line 130 uses a fixed
+`max_tokens: 4000`. The method signature is `async generateStructured(key,
+messages)` — it does not accept options.
+
+Add an optional `maxTokens` parameter:
 
 ```javascript
-generateStructured(system, user, schema, { maxTokens } = {}) {
-  const tokens = maxTokens || 4000;
-  // ... pass tokens to LLM call
-}
+async generateStructured(key, messages, { maxTokens = 4000 } = {}) {
+  // ... existing cache logic ...
+  const response = await this.llmApi.createCompletions({
+    messages,
+    max_tokens: maxTokens,
+  });
+```
+
+**Note:** The cache key is computed from `key` and `messages` (line 114). Since
+`maxTokens` is not part of the cache key, changing it for a given entity will
+still match existing cache entries. This is acceptable — the cache stores the
+LLM output, and a different token budget only affects whether the response is
+truncated, not the cache lookup.
+
+In `generateJson()` (which wraps `generateStructured`), forward the option:
+
+```javascript
+async generateJson(key, messages, options) {
+  const raw = await this.generateStructured(key, messages, options);
 ```
 
 In `pathway.js`, compute `maxTokens` per entity type:
@@ -408,6 +472,26 @@ Pass `{ maxTokens }` as an option through `generateStep` to `generateStructured`
 **Verify:** Generate a capability with 6 skills — confirm the response is not
 truncated (full JSON parses successfully). Generate a driver — confirm token
 budget is 2000, not 4000.
+
+---
+
+### Tier 2 note: Prose cache invalidation
+
+Tier 2 changes all 8 prompt builders (B3 context forwarding, B4 preamble, B5
+vocabulary). The prose cache key is computed from `generateHash(key,
+JSON.stringify(messages))` (prose.js line 114). Since the messages include the
+full system and user prompts, any change to prompt text (preamble, vocabulary
+interpolation, prior context) automatically produces a different cache key.
+
+This means Tier 2 changes will **not** match existing cache entries — every
+entity will be regenerated on the next `make generate-update` run. This is
+the desired behaviour (we want the new prompts to produce coherent prose), but
+it means the first generation after Tier 2 ships will be a full LLM run, not
+a cache-only run.
+
+**Action:** After completing Tier 2, run `make generate-update` to regenerate
+all prose and update `.prose-cache.json`. Commit the updated cache so that
+subsequent `make generate` (cached mode) works without LLM calls.
 
 ---
 
@@ -483,18 +567,23 @@ Use a minimal DSL fixture (2 teams, 5 people, 1 project, 1 scenario) with
 no-prose mode. Wire the pipeline with real `DslParser`, `EntityGenerator`, and
 `Renderer`, but skip the prose engine (no LLM calls).
 
+The `Pipeline` class (libuniverse/pipeline.js) has this interface:
+`async run({ universePath, only, schemaDir })`. The prose engine mode is set
+at construction time, not per-run. Wire with `mode: "no-prose"` in the
+`ProseEngine` constructor.
+
 ```javascript
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
 import { Pipeline } from "../pipeline.js";
-// ... wire dependencies
+// ... wire dependencies with ProseEngine in no-prose mode
 
 describe("Pipeline", () => {
   it("completes parse-generate-render-validate without errors", async () => {
-    const result = await pipeline.run(minimalDsl, { mode: "no-prose" });
+    const result = await pipeline.run({ universePath: fixturePath });
     assert.ok(result.entities);
     assert.ok(result.files);
-    assert.strictEqual(result.validationErrors.length, 0);
+    assert.strictEqual(result.validation.errors?.length ?? 0, 0);
   });
 });
 ```
@@ -560,14 +649,28 @@ export function validateEvalReferences(evalConfig, generatedData) {
 **Integration:** Add as an optional validation step in the Pipeline. Also usable
 standalone via `node libraries/libsyntheticrender/validate-eval.js`.
 
-**Immediate fix:** Update `config/eval.example.yml` to use actual generated
-entity names:
-- `Immunex` → `immunex-pro` (actual drug ID)
-- `Neurova` → `neuralink-7` (actual drug ID)
-- `Project Alpha` → `oncora` (actual project ID)
-- `Project Gamma` → `molecularforge` (actual project ID)
-- `GMP360` → an actual platform from `industry-data.js`
-- `ManufacturingOS` → an actual platform from `industry-data.js`
+**Immediate fix:** Audit ALL entity references in `config/eval.example.yml`, not
+just names — include IRIs, team names, person names, project names, drug names,
+and platform names. The following references need updating:
+
+| Eval reference | Type | Status | Fix |
+| --- | --- | --- | --- |
+| `Immunex` | Drug name | Broken — `industry-data.js` uses `ImmuneX Pro` (id: `immunex-pro`) | Update eval to `ImmuneX Pro` |
+| `Neurova` | Drug name | Broken — `industry-data.js` uses `NeuraLink-7` (id: `neuralink-7`) | Update eval to `NeuraLink-7` |
+| `Project Alpha` | Project name | Broken — DSL defines `oncora`, `molecularforge`, etc. | Update eval to actual project ID |
+| `Project Gamma` | Project name/IRI | Broken — IRI `https://bionova.example/id/project/gamma` | Update IRI to actual project IRI |
+| `GMP360` | Platform name | Broken — `industry-data.js` uses `BatchControl` (id: `batch-control`) | Update eval to `BatchControl` |
+| `ManufacturingOS` | Platform name/IRI | Broken — `industry-data.js` uses `SupplyOptimizer` etc. | Update eval to actual platform |
+| `Drug Discovery Team` | Team name | Verify — must match generated team from DSL | Verify against `entities.js` output |
+| `Thoth` | Person name | Verify — must exist in Greek name pool and be assigned correctly | Verify against generation output |
+| `Minerva` | Person name | Verify — must exist in Greek name pool | Verify against generation output |
+| `BioNova R&D` | Org/dept name | Verify — must match DSL org structure | Verify against generation output |
+| `MolecularForge` | Platform name/IRI | OK — exists in `industry-data.js` | No change needed |
+| `Oncora` | Drug name | OK — exists in `industry-data.js` | No change needed |
+
+Run `make generate` in no-prose mode and cross-reference every named entity and
+IRI in `eval.example.yml` against the generated output. Update all broken
+references in a single commit.
 
 **Verify:** Run the validator against current generated data — zero unresolved
 references after fixing `eval.example.yml`.
@@ -579,7 +682,7 @@ references after fixing `eval.example.yml`.
 ### D1. Project narrative arcs
 
 **Files:**
-- `libraries/libsyntheticgen/engine/parser.js` — new optional fields
+- `libraries/libsyntheticgen/dsl/parser.js` — new optional fields
 - `libraries/libsyntheticrender/render/link-assigner.js` — consume fields
 - `libraries/libsyntheticrender/render/enricher.js` — include in context
 
@@ -618,7 +721,7 @@ project oncora {
 ### D2. Scenario narrative context
 
 **Files:**
-- `libraries/libsyntheticgen/engine/parser.js` — new optional field
+- `libraries/libsyntheticgen/dsl/parser.js` — new optional field
 - Activity generator (comment generation) — consume field
 
 **DSL parser change:** Add optional `narrative` string field to `scenario`
@@ -637,7 +740,7 @@ themes.
 ### D3. People archetypes
 
 **Files:**
-- `libraries/libsyntheticgen/engine/parser.js` — new optional block
+- `libraries/libsyntheticgen/dsl/parser.js` — new optional block
 - `libraries/libsyntheticgen/engine/entities.js` — assign archetype
 - `libraries/libsyntheticprose/engine/pathway.js` — use archetype distribution
 
@@ -648,11 +751,25 @@ as `{ name: percentage }` pairs.
 based on the declared percentages using the seeded RNG.
 
 **pathway.js change:** In `generateSelfAssessments`, shape the proficiency
-distribution by archetype:
-- `high_performer`: skew +1 level above expected
-- `new_hire`: skew −1 level below expected
-- `struggling`: skew −2 below expected
-- `steady_contributor`: use expected level (current behaviour)
+distribution by archetype. Map proficiency levels to ordinal indices
+(awareness=0 through expert=4), apply the offset, and clamp to [0, 4]:
+
+- `high_performer`: shift +1 index above expected, clamp at 4 (expert)
+- `new_hire`: shift −1 index below expected, clamp at 0 (awareness)
+- `struggling`: shift −2 below expected, clamp at 0 (awareness)
+- `steady_contributor`: use expected index (current behaviour)
+
+```javascript
+const PROFICIENCY_INDEX = { awareness: 0, foundational: 1, working: 2, practitioner: 3, expert: 4 };
+const ARCHETYPE_OFFSET = { high_performer: 1, steady_contributor: 0, new_hire: -1, struggling: -2 };
+
+function adjustProficiency(expected, archetype) {
+  const base = PROFICIENCY_INDEX[expected];
+  const offset = ARCHETYPE_OFFSET[archetype] || 0;
+  const clamped = Math.max(0, Math.min(4, base + offset));
+  return PROFICIENCY_LEVELS[clamped];
+}
+```
 
 **Verify:** Generate with archetypes. Compare self-assessment distributions for
 `high_performer` vs `struggling` — they should differ measurably (e.g.,
@@ -663,7 +780,7 @@ high_performer average proficiency index > struggling average by at least 1).
 ### D4. Content topic distributions
 
 **Files:**
-- `libraries/libsyntheticgen/engine/parser.js` — new optional block
+- `libraries/libsyntheticgen/dsl/parser.js` — new optional block
 - `libraries/libsyntheticrender/render/link-assigner.js` — weighted selection
 
 **DSL parser change:** Add optional `blog_topics` block inside `content`. Parse
@@ -696,8 +813,15 @@ approximately 90% of the dominant topic.
 
 **File:** `libraries/libsyntheticrender/validate.js`
 
-Add a `checkProseLength` check to `validateCrossContent`. Configure min/max
-ranges per field type:
+Add a `checkProseLength` check to `validateCrossContent`. Before setting final
+ranges, measure the current distributions:
+
+**Step 1 — Measure baselines:** Run `make generate-update` and compute
+min/mean/max character counts for each prose field type across all generated
+entities. Record the distributions.
+
+**Step 2 — Set ranges:** Configure min/max as ±50% of the measured mean, rounded
+to readable numbers. Provisional ranges (to be confirmed by measurement):
 
 ```javascript
 const PROSE_RANGES = {
@@ -707,11 +831,17 @@ const PROSE_RANGES = {
 };
 ```
 
+These ranges must be validated against actual output before committing. If
+measured values fall outside these provisionals, adjust the ranges to fit
+observed reality — the goal is to catch outliers and truncation, not to reject
+valid prose.
+
 Iterate all prose fields in capabilities, behaviours, and levels. Flag values
 outside the configured range.
 
 **Verify:** Add check to the validation suite. Run against generated data —
-should pass (tune ranges if needed).
+should pass. If any fields fall outside the configured range, investigate
+whether the range or the generation needs adjustment.
 
 ---
 
@@ -725,7 +855,9 @@ proficiency index (awareness=0, foundational=1, working=2, practitioner=3,
 expert=4).
 
 **Verify:** Run against generated data. If violations are found, tune the
-level prompt (B3 context forwarding should help).
+level prompt (B3 context forwarding should help). Measure the violation rate
+before and after B3 to confirm that context forwarding actually reduces
+monotonicity violations.
 
 ---
 
@@ -738,8 +870,14 @@ distribution, verify the median skill rating is within ±1 of the expected
 proficiency for that level. Flag distributions where L5 people have a majority
 of "awareness" ratings.
 
+**Calibration:** Before committing the ±1 threshold, measure the actual
+deviation in current generated data. If the current median deviation is larger
+than ±1 (which it likely is, given flat jitter), start with a wider threshold
+(e.g., ±2) and tighten it after D3 (archetypes) ships. The check should catch
+gross implausibility, not enforce exact alignment.
+
 **Verify:** Run against generated data. After D3 (archetypes), plausibility
-should improve further.
+should improve further — re-measure and tighten the threshold.
 
 ---
 
@@ -749,22 +887,24 @@ Work proceeds left-to-right within each tier, but tiers are sequential:
 
 ```
 Tier 1: A1 → A2 → A3 → A4 → A5
-Tier 2: B1 → B5 → B4 → B2 → B3 → B6 → B7
-Tier 3: C1 → C3 → C2 → C4
+Tier 2: B1 → B4 → B5 → B2 → B3 → B6 → B7
+Tier 3: C3 → C1 → C2 → C4
 Tier 4: D1 → D2 → D3 → D4
 Validation: E1 → E2 → E3
 ```
 
 **Tier 2 ordering rationale:** B1 (vocabulary extraction) must come before
-B5 (prompts consume vocabulary) and B4 (preamble uses vocabulary). B2 (derive
-drivers) is independent of vocabulary but should follow B1 since validate.js is
-touched by both. B3 (context forwarding) is the largest change and depends on
-B1/B4/B5 being stable.
+B4 (preamble uses vocabulary) and B5 (prompts consume vocabulary). B5 depends
+on both B1 and B4 (it says "After B1 extracts vocabulary … and B4 introduces
+the preamble"), so B4 must precede B5. B2 (derive drivers) is independent of
+vocabulary but should follow B1 since validate.js is touched by both. B3
+(context forwarding) is the largest change and depends on B1/B4/B5 being stable.
 
-**Tier 3 ordering rationale:** C1 (prose tests) comes first because Tier 2
-changes to the prose layer need test coverage. C3 (render tests) covers the
-Tier 1 bug fixes. C2 (pipeline integration) exercises the full chain and should
-come after unit-level coverage. C4 (eval check) is standalone.
+**Tier 3 ordering rationale:** C3 (render tests) covers the Tier 1 bug fixes
+(A2, A3, A5 in link-assigner/enricher) and should land first since Tier 1
+ships before Tier 2. C1 (prose tests) covers the Tier 2 changes to the prose
+layer. C2 (pipeline integration) exercises the full chain and should come after
+unit-level coverage. C4 (eval check) is standalone.
 
 Each tier is independently shippable. Commit after completing each lettered
 item within a tier.

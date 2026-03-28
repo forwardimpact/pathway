@@ -12,6 +12,11 @@ The gap is not the triage logic but the trigger. A scheduled GitHub Actions
 workflow can close this gap by launching Claude Code on a timer and letting the
 existing skill do the work.
 
+This is also the first workflow in the repository that runs Claude Code. The
+invocation pattern — install, configure, prompt — will be needed by future
+workflows (code review, release notes, etc.), so it must be extracted into a
+reusable composite action from the start.
+
 ## Why
 
 - **PRs go stale.** Dependabot opens new PRs weekly. Without regular triage,
@@ -25,32 +30,31 @@ existing skill do the work.
 - **Reduced toil.** Routine dependency updates (patch/minor bumps that pass all
   checks) should not require human attention. The workflow handles them
   automatically and only leaves genuinely ambiguous cases for review.
+- **Reusable foundation.** Extracting Claude Code invocation into a composite
+  action means future AI-powered workflows share one tested, maintained
+  pattern instead of copy-pasting setup steps.
 
 ## What
 
-A single GitHub Actions workflow file that:
+Two files:
 
-1. **Runs on a schedule** — every 3 days via `cron`, with manual
-   `workflow_dispatch` as a fallback.
-2. **Installs Claude Code** — uses `npm install -g @anthropic-ai/claude-code` in
-   the runner.
-3. **Launches a Claude Code session** — runs `claude` with a prompt that
-   triggers the `dependabot-triage` skill to process all open Dependabot PRs.
-4. **Authenticates with GitHub** — uses a GitHub token with sufficient
-   permissions to read PRs, merge, close, create branches, and push commits.
-5. **Authenticates with Anthropic** — uses an API key secret to power the Claude
-   session.
+1. **Reusable composite action** (`.github/actions/claude-prompt/action.yml`) —
+   installs Claude Code, configures git identity, and runs a prompt with
+   configurable tools, model, and turn limits.
+2. **Scheduled workflow** (`.github/workflows/dependabot-triage.yml`) — uses the
+   composite action on a 3-day cron schedule (with manual `workflow_dispatch`)
+   to invoke the `dependabot-triage` skill.
 
 The workflow does not modify the existing skill, add new triage logic, or change
-any repository code. It is a pure automation trigger.
+any other repository code.
 
 ## Scope
 
 ### In scope
 
+- New composite action: `.github/actions/claude-prompt/action.yml`
 - New workflow file: `.github/workflows/dependabot-triage.yml`
-- Documentation of required secrets and permissions
-- Cron schedule configuration
+- Documentation of required secrets, permissions, and operational limits
 
 ### Out of scope
 
@@ -61,10 +65,10 @@ any repository code. It is a pure automation trigger.
 
 ## Required Secrets
 
-| Secret              | Purpose                                           |
-| ------------------- | ------------------------------------------------- |
-| `ANTHROPIC_API_KEY` | Authenticates Claude Code with the Anthropic API  |
-| `GH_TOKEN`         | GitHub PAT or fine-grained token for PR operations |
+| Secret              | Purpose                                          |
+| ------------------- | ------------------------------------------------ |
+| `ANTHROPIC_API_KEY` | Authenticates Claude Code with the Anthropic API |
+| `CLAUDE_GH_PAT`    | GitHub PAT for PR operations (merge, close, push, create) |
 
 The built-in `GITHUB_TOKEN` is insufficient because Claude Code needs to create
 branches, push commits, create PRs, merge PRs, and close PRs — operations that
@@ -74,11 +78,21 @@ recursive workflow triggers from `GITHUB_TOKEN`).
 
 ## Permissions Model
 
-The `GH_TOKEN` (PAT) needs:
+The `CLAUDE_GH_PAT` needs:
 
 - **Pull requests**: read and write (list, merge, close, comment, create)
 - **Contents**: read and write (fetch branches, push fix branches)
 - **Actions**: read (check CI status via `gh pr checks`)
+- **Metadata**: read (granted by default)
 
 The workflow itself declares minimal `permissions:` at the job level since the
 PAT provides the actual authorization.
+
+## Operational Limits
+
+| Limit             | Value       | Rationale                                     |
+| ----------------- | ----------- | --------------------------------------------- |
+| Job timeout       | 30 minutes  | Prevents runaway sessions burning CI minutes   |
+| Max turns         | 50          | Bounds the conversation length per invocation   |
+| Concurrency group | 1 (cancel)  | Prevents parallel runs from conflicting on PRs |
+| Model             | opus        | Highest capability for autonomous triage        |
