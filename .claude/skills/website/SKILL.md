@@ -21,6 +21,8 @@ skill for template variables, front matter options, and build mechanics).
 website/
 ├── CNAME                    # Custom domain: www.forwardimpact.team
 ├── index.template.html      # Shared Mustache template for every page
+├── robots.txt               # Crawl directives + sitemap reference
+├── llms.txt                 # Curated LLM entry point (links appended at build)
 ├── index.md                 # Landing page (layout: home)
 ├── about/index.md           # Philosophy page (layout: product)
 ├── map/index.md             # Map product page
@@ -87,7 +89,10 @@ specs, and character guidelines.
 The site is published via GitHub Actions in `.github/workflows/website.yaml`:
 
 1. **Trigger**: push to `main` or manual `workflow_dispatch`
-2. **Build**: `npx fit-doc build --src=website --out=dist`
+2. **Build**: `npx fit-doc build --src=website --out=dist` — libdoc reads
+   `CNAME` to derive the base URL automatically. Produces HTML pages, co-located
+   `index.md` markdown companions, `sitemap.xml`, augmented `llms.txt`, and
+   copies `robots.txt` to dist.
 3. **Extra assets**: JSON schema files from `products/map/schema/json/` and RDF
    schema files from `products/map/schema/rdf/` are copied into `dist/schema/`
 4. **CNAME**: `website/CNAME` is copied to `dist/` for the custom domain
@@ -108,12 +113,28 @@ npx fit-doc build --src=website --out=dist   # Full production build
    `description`, `layout` if needed)
 2. Add navigation links from related pages
 3. Preview with `npx fit-doc serve --watch`
+4. Check if `website/llms.txt` needs a new H2 section for the page's URL
+   category. If the page falls under an existing section (Products,
+   Documentation, Optional), no change is needed — libdoc appends links
+   automatically.
 
 ### Update a hero illustration
 
 1. Edit the SVG source in `design/heroes/`
 2. Copy to `website/assets/heros/` (both `.svg` and `.jpg` if applicable)
 3. Reference in front matter as `/assets/heros/{name}.svg`
+
+### Update llms.txt sections
+
+The curated `website/llms.txt` defines H2 section headers. libdoc classifies
+pages by URL path and appends links under matching sections:
+
+- Top-level product pages (`/map/`, `/pathway/`, etc.) → `## Products`
+- Pages under `/docs/` → `## Documentation`
+- Everything else → `## Optional`
+
+To add a new section, edit `website/llms.txt` and update the section-to-page
+mapping in `libraries/libdoc/builder.js` (`#augmentLlmsTxt`).
 
 ### Add schema files to the published site
 

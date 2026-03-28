@@ -80,6 +80,7 @@ const builder = new DocsBuilder({ srcDir: "website", outDir: "public" });
 await builder.build();
 
 // CLI: npx fit-doc build --src=website --out=dist
+// CLI: npx fit-doc build --src=website --out=dist --base-url=https://example.com
 // CLI: npx fit-doc serve --watch
 ```
 
@@ -139,6 +140,31 @@ const builder = new DocsBuilder({ srcDir: "website", outDir: "public" });
 import { parseFrontMatter } from "@forwardimpact/libdoc";
 const { data, content } = parseFrontMatter(markdownContent);
 ```
+
+#### libdoc build outputs
+
+`DocsBuilder.build(docsDir, distDir, baseUrl)` produces these additional outputs
+beyond HTML pages:
+
+- **`--base-url` flag / CNAME fallback** — When `baseUrl` is provided (via CLI
+  flag or derived from a `CNAME` file in the source directory), libdoc generates
+  `sitemap.xml`, `<link rel="canonical">` tags, and augmented `llms.txt`.
+- **`sitemap.xml`** — Auto-generated from the page inventory, sorted
+  alphabetically by URL path. Minimal format (no `<lastmod>` or `<priority>`).
+- **Co-located `index.md` companions** — Every page gets an `index.md` alongside
+  its `index.html`. Content is `# {title}` followed by the source markdown with
+  links transformed from `.md` references to directory-style URLs.
+- **Template variables** — `markdownUrl` (always `"index.md"`), `canonicalUrl`
+  (full absolute URL when `baseUrl` is available, empty string otherwise).
+- **`llms.txt` link generation** — If a curated `llms.txt` exists in the source
+  root, libdoc copies it to dist then appends page links under each H2 section.
+  Section mapping: product slugs → Products, `/docs/` prefix → Documentation,
+  everything else → Optional.
+- **Static file copying** — `#copyStaticAssets` copies root-level non-markdown,
+  non-template files (e.g., `robots.txt`, `llms.txt`) to dist. Skips `.md`
+  files, `index.template.html`, and `CNAME`.
+- **DocsServer** — Serves `.md` files as `text/markdown` and `.xml` files as
+  `application/xml`.
 
 ### libtemplate
 
