@@ -23,6 +23,42 @@ rendering into multiple output formats.
 
 ---
 
+## How It Works
+
+### Pipeline
+
+Generation flows through four stages:
+
+1. **DSL parsing** — the universe file is tokenized and parsed into an AST
+   containing organizational hierarchy, people, projects, framework
+   definitions, and content specifications
+2. **Entity generation** — the AST is expanded deterministically (using a
+   seeded RNG) into a full entity graph: orgs, departments, teams, people with
+   roles and skill assignments, repos, and projects
+3. **Prose generation** — prose keys are collected from the entity graph (one
+   per article, FAQ, briefing, etc.) with context (topic, tone, length). In
+   `--cached` mode these are read from `.prose-cache.json`; in `--generate`
+   mode each key is sent to an LLM and the result saved to the cache
+4. **Rendering** — entities and prose are rendered into output formats: YAML
+   framework files (`pathway`), HTML articles (`html`), JSON/YAML activity
+   records (`raw`), and Markdown briefings (`markdown`)
+
+### Content Validation
+
+After rendering, cross-content validation runs automatically: internal HTML
+links are checked for resolution, entities referenced in prose are verified
+against the entity graph, and rendered YAML is validated against pathway
+schemas.
+
+### Prose Caching
+
+The prose cache maps each content key to its generated text. Using `--cached`
+makes generation fully repeatable without LLM calls. Using `--generate`
+appends new entries to the cache, so subsequent `--cached` runs include all
+previously generated content.
+
+---
+
 ## CLI Reference
 
 ```sh

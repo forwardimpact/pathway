@@ -36,6 +36,38 @@ interpret and work with career framework data.
 
 ---
 
+## How It Works
+
+### Data Loading
+
+Map loads YAML files from structured directories (`disciplines/`, `tracks/`,
+`capabilities/`, `behaviours/`, `levels.yaml`, etc.). Skills are extracted from
+capability files during loading — they live inside capabilities rather than as
+standalone files. The result is a unified data object containing all entities
+with their cross-references resolved by ID.
+
+### Validation Pipeline
+
+Validation runs in two phases:
+
+1. **Schema validation** — each YAML file is checked against its corresponding
+   JSON Schema (e.g. capability files against `capability.schema.json`). This
+   catches structural issues like missing required fields or wrong types.
+2. **Referential integrity** — after schema passes, cross-references are
+   verified: skill IDs referenced by disciplines must exist in capabilities,
+   behaviour IDs in tracks must exist, track IDs in discipline `validTracks`
+   must exist, driver `contributingSkills` and `contributingBehaviours` must
+   point to valid entities, and level references (`minLevel`) must resolve.
+
+### Index Generation
+
+The index generator creates `_index.yaml` files in each entity directory,
+listing all valid file IDs. These indexes enable browser-based discovery
+without filesystem access — the web app loads them to know which entities are
+available.
+
+---
+
 ## CLI
 
 ```sh

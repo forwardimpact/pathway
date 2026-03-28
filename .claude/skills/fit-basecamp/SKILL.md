@@ -34,6 +34,40 @@ native macOS app bundle (`Basecamp.app`) with TCC-compliant process management.
 
 ---
 
+## How It Works
+
+### Scheduling
+
+The scheduler polls configured tasks and evaluates whether each should wake:
+
+- **Cron tasks** — the 5-field cron expression is matched against the current
+  time; skipped if the agent already woke in the same minute
+- **Interval tasks** — wakes when elapsed time since last wake exceeds the
+  configured interval in minutes
+- **Once tasks** — wakes exactly once when the scheduled time arrives
+
+Tasks with `enabled: false` or an already-active agent are always skipped.
+Stale agents left "active" from a previous daemon session are automatically
+reset on startup.
+
+### Task Execution
+
+When a task wakes, the scheduler spawns a child process running
+`claude --agent <name> --print` with the configured prompt. The process
+inherits TCC attributes from the parent app bundle (via `posix_spawn` on macOS)
+so agents can access Mail, Calendar, and other protected resources. Agent
+status, exit code, and stderr are tracked in `state.json`.
+
+### Knowledge Base Initialization
+
+Running `--init <path>` copies the bundled template into the target directory:
+`CLAUDE.md` (instructions), `USER.md` (identity), `.claude/skills/` (built-in
+skills), and `.claude/settings.json` (permissions). Running `--update` on an
+existing KB merges new files without overwriting user customizations — settings
+permissions are reconciled rather than replaced.
+
+---
+
 ## CLI Reference
 
 ### Operations
