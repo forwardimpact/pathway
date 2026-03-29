@@ -5,6 +5,10 @@ inputs:
   prompt:
     description: The prompt to send to Claude Code
     required: true
+  agent:
+    description: Agent profile to use (must exist in .claude/agents/)
+    required: false
+    default: ""
   allowed-tools:
     description: Comma-separated list of tools to allow without prompting
     required: false
@@ -34,7 +38,12 @@ runs:
     - name: Run Claude Code
       shell: bash
       run: |
+        AGENT_FLAG=""
+        if [ -n "${{ inputs.agent }}" ]; then
+          AGENT_FLAG="--agent ${{ inputs.agent }}"
+        fi
         echo "${{ inputs.prompt }}" | claude --print \
           --model "${{ inputs.model }}" \
           --max-turns "${{ inputs.max-turns }}" \
-          --allowedTools "${{ inputs.allowed-tools }}"
+          --allowedTools "${{ inputs.allowed-tools }}" \
+          $AGENT_FLAG

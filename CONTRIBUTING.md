@@ -37,11 +37,14 @@ make install-hooks
 
 ## Development Workflow
 
+All changes go through pull requests — never push directly to `main`.
+
 1. Create a branch from `main`
 2. Make your changes
 3. Run `npm run check` (format, lint, test, validate)
 4. Run `make audit` (npm audit + gitleaks secret scanning)
-5. Commit and push
+5. Commit and push your branch
+6. Open a pull request against `main`
 
 ## Git Workflow
 
@@ -59,7 +62,8 @@ Format: `type(scope): subject`
    - `npm run check:fix` auto-fixes formatting and lint issues
 4. Assess version impact (breaking=major, feat=minor, other=patch)
 5. Stage and commit: `git commit -m "type(scope): subject"`
-6. Push all commits to remote
+6. Push your branch to remote
+7. Open a pull request against `main`
 
 **Always commit your work before finishing a task.**
 
