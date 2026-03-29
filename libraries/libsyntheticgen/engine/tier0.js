@@ -33,6 +33,7 @@ export class EntityGenerator {
     const { orgs, departments, teams, people, projects } = buildEntities(
       ast,
       rng,
+      this.logger,
     );
     const activity = generateActivity(ast, rng, people, teams);
 

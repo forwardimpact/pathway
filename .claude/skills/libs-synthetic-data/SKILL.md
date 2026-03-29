@@ -32,7 +32,7 @@ description: >
 
 - **DSL files** — libsyntheticgen ships a minimal reference DSL
   (`libraries/libsyntheticgen/data/default.dsl`) for quick testing. Projects
-  provide their own DSL file; this monorepo's is at `examples/universe.dsl`.
+  provide their own DSL file; this monorepo's is at `data/synthetic/story.dsl`.
 - **libsyntheticgen vs libuniverse** — Use `libsyntheticgen` directly when you
   only need DSL parsing or entity generation without rendering. Use
   `libuniverse` (Pipeline) when you want the full parse-generate-render-validate

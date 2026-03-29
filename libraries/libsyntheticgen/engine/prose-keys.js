@@ -11,13 +11,15 @@
  */
 export function collectProseKeys(entities) {
   const keys = new Map();
+  const orgName = entities.orgs[0]?.name || "BioNova";
 
   // Organization README prose
   keys.set("org_readme", {
-    topic: `${entities.orgs[0]?.name || "BioNova"} company overview`,
+    topic: `${orgName} company overview`,
     tone: "corporate, informative",
     length: "3-4 paragraphs",
     domain: entities.domain,
+    orgName,
   });
 
   // Project descriptions
@@ -28,6 +30,7 @@ export function collectProseKeys(entities) {
         tone: proj.prose_tone || "technical",
         length: "2-3 paragraphs",
         domain: entities.domain,
+        orgName,
       });
     }
   }
@@ -41,6 +44,7 @@ export function collectProseKeys(entities) {
         tone: "technical, informative",
         length: "6-8 paragraphs",
         domain: entities.domain,
+        orgName,
       });
     }
 
@@ -51,6 +55,7 @@ export function collectProseKeys(entities) {
         tone: "conversational, technical",
         length: "4-5 paragraphs",
         domain: entities.domain,
+        orgName,
       });
     }
 
@@ -61,6 +66,7 @@ export function collectProseKeys(entities) {
         tone: "helpful, concise",
         length: "1 paragraph",
         domain: entities.domain,
+        orgName,
       });
     }
 
@@ -71,6 +77,7 @@ export function collectProseKeys(entities) {
         tone: "instructional",
         length: "5-6 paragraphs",
         domain: entities.domain,
+        orgName,
       });
     }
 
@@ -82,6 +89,7 @@ export function collectProseKeys(entities) {
         length: "1-2 sentences",
         maxTokens: 100,
         domain: entities.domain,
+        orgName,
       });
     }
 
@@ -93,6 +101,7 @@ export function collectProseKeys(entities) {
         length: "1-2 sentences",
         maxTokens: 80,
         domain: entities.domain,
+        orgName,
       });
     }
   }
@@ -111,6 +120,7 @@ export function collectProseKeys(entities) {
           tone: "professional, concise",
           length: "2-3 paragraphs",
           domain: entities.domain,
+          orgName,
           role: `${persona.level} ${persona.discipline}`,
         });
       }
@@ -122,6 +132,7 @@ export function collectProseKeys(entities) {
           tone: "personal, technical",
           length: "1-2 paragraphs",
           domain: entities.domain,
+          orgName,
           role: `${persona.level} ${persona.discipline}`,
         });
       }
@@ -141,6 +152,7 @@ export function collectProseKeys(entities) {
           length: "1-2 sentences",
           maxTokens: 80,
           domain: entities.domain,
+          orgName,
           role: `${ck.person_level} ${ck.person_discipline.replace(/_/g, " ")} on the ${ck.team_name}`,
           scenario: ck.scenario_name,
           driver: ck.driver_name,

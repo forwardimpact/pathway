@@ -1,19 +1,24 @@
+import { buildPreamble } from "./preamble.js";
+
 /**
  * Prompt template for framework.yaml metadata.
  *
  * @param {object} skeleton - Framework skeleton from DSL
- * @param {object} ctx - Universe context (domain, industry)
+ * @param {object} ctx - Universe context (domain, industry, frameworkName)
  * @param {object} schema - JSON schema for framework entity
  * @returns {{ system: string, user: string }}
  */
 export function buildFrameworkPrompt(skeleton, ctx, schema) {
   return {
-    system: [
-      "You are an expert career framework author.",
-      "Output ONLY valid JSON. No markdown fences, no explanations.",
-      `The organization domain is: ${ctx.domain}.`,
-      `Industry: ${ctx.industry}.`,
-    ].join(" "),
+    system:
+      buildPreamble(ctx.frameworkName || ctx.domain) +
+      "\n\n" +
+      [
+        "You are an expert career framework author.",
+        "Output ONLY valid JSON. No markdown fences, no explanations.",
+        `The organization domain is: ${ctx.domain}.`,
+        `Industry: ${ctx.industry}.`,
+      ].join(" "),
 
     user: [
       "Generate a framework metadata file for an engineering career framework.",
@@ -32,6 +37,7 @@ export function buildFrameworkPrompt(skeleton, ctx, schema) {
       "- entityDefinitions: Provide definitions for these entity types:",
       "  driver, skill, behaviour, discipline, level, track, job, agent, stage, tool.",
       "  Each needs: title, emojiIcon, description (1 sentence).",
+      '  IMPORTANT: A "stage" is a lifecycle phase of work delivery (specify, plan, scaffold, code, review, deploy) — NOT a maturity or progression level.',
       "",
       "Output a single JSON object.",
     ].join("\n"),

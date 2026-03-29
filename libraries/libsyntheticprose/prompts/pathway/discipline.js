@@ -1,3 +1,5 @@
+import { buildPreamble } from "./preamble.js";
+
 /**
  * Prompt template for a single discipline entity.
  *
@@ -6,14 +8,17 @@
  * @param {object} schema - JSON schema for discipline
  * @returns {{ system: string, user: string }}
  */
-export function buildDisciplinePrompt(skeleton, ctx, schema) {
+export function buildDisciplinePrompt(skeleton, ctx, schema, priorOutput) {
   return {
-    system: [
-      "You are an expert career framework author.",
-      "Output ONLY valid JSON. No markdown fences, no explanations.",
-      `The organization domain is: ${ctx.domain}.`,
-      `Industry: ${ctx.industry}.`,
-    ].join(" "),
+    system:
+      buildPreamble(ctx.frameworkName || ctx.domain) +
+      "\n\n" +
+      [
+        "You are an expert career framework author.",
+        "Output ONLY valid JSON. No markdown fences, no explanations.",
+        `The organization domain is: ${ctx.domain}.`,
+        `Industry: ${ctx.industry}.`,
+      ].join(" "),
 
     user: [
       "Generate a discipline definition for a career framework.",
@@ -51,9 +56,44 @@ export function buildDisciplinePrompt(skeleton, ctx, schema) {
       "  Include 2-3 behaviour modifiers relevant to this discipline.",
       "- human.roleSummary: 2-3 sentences describing this role. May use {roleTitle} or {specialization}.",
       "- agent.identity: 1-2 sentences defining the AI coding agent's core identity.",
-      "  Frame as 'You are a {roleTitle} agent that...' May use {roleTitle} or {roleName} placeholder.",
+      "  Frame as 'You are a {roleTitle} agent that...' May use {roleTitle} or {specialization} placeholder.",
       "- agent.priority: 1 sentence stating the agent's top priority (e.g., code quality, system reliability).",
       "- agent.constraints: 2-3 things the agent must avoid or never do.",
+      "",
+      ...(priorOutput?.levels ||
+      priorOutput?.behaviours ||
+      priorOutput?.capabilities
+        ? [
+            "",
+            "## Previously generated context",
+            ...(priorOutput.levels && Array.isArray(priorOutput.levels)
+              ? [
+                  "Level titles:",
+                  ...priorOutput.levels.map(
+                    (l) => `- ${l.id}: ${l.professionalTitle || l.id}`,
+                  ),
+                ]
+              : []),
+            ...(priorOutput.behaviours && Array.isArray(priorOutput.behaviours)
+              ? [
+                  "Behaviour names:",
+                  ...priorOutput.behaviours.map(
+                    (b) => `- ${b._id || b.id}: ${b.name || b._id || b.id}`,
+                  ),
+                ]
+              : []),
+            ...(priorOutput.capabilities &&
+            Array.isArray(priorOutput.capabilities)
+              ? [
+                  "Capability names and skill IDs:",
+                  ...priorOutput.capabilities.map(
+                    (c) =>
+                      `- ${c._id || c.id}: ${c.name || c._id || c.id} (skills: ${(c.skills || []).map((s) => s.id || s).join(", ")})`,
+                  ),
+                ]
+              : []),
+          ]
+        : []),
       "",
       "Output a single JSON object for this discipline.",
     ].join("\n"),

@@ -37,8 +37,8 @@ Generation flows through four stages:
    and skill assignments, repos, and projects
 3. **Prose generation** — prose keys are collected from the entity graph (one
    per article, FAQ, briefing, etc.) with context (topic, tone, length). By
-   default these are read from `.prose-cache.json`; with `--generate` each key
-   is sent to an LLM and the result saved to the cache; with `--no-prose` this
+   default these are read from `prose-cache.json`; with `--generate` each key is
+   sent to an LLM and the result saved to the cache; with `--no-prose` this
    stage is skipped entirely
 4. **Rendering** — entities and prose are rendered into output formats: YAML
    framework files (`pathway`), HTML articles (`html`), JSON/YAML activity
@@ -70,7 +70,8 @@ npx fit-universe --strict            # Fail on cache miss (with default cached m
 npx fit-universe --load              # Load raw docs to Supabase Storage
 npx fit-universe --only=pathway      # Render only one content type
 npx fit-universe --dry-run           # Show what would be written
-npx fit-universe --universe=path     # Custom universe file
+npx fit-universe --story=path        # Custom story DSL file
+npx fit-universe --cache=path        # Custom prose cache file
 ```
 
 ### Content Types
@@ -86,18 +87,18 @@ Use `--only=<type>` to generate a single content type:
 
 ### Prose Modes
 
-| Mode       | Flag         | Description                                   |
-| ---------- | ------------ | --------------------------------------------- |
-| `cached`   | _(default)_  | Read from `.prose-cache.json` (no LLM needed) |
-| `generate` | `--generate` | Call LLM, write new entries to cache          |
-| `no-prose` | `--no-prose` | Structural scaffolding only, no prose at all  |
+| Mode       | Flag         | Description                                  |
+| ---------- | ------------ | -------------------------------------------- |
+| `cached`   | _(default)_  | Read from `prose-cache.json` (no LLM needed) |
+| `generate` | `--generate` | Call LLM, write new entries to cache         |
+| `no-prose` | `--no-prose` | Structural scaffolding only, no prose at all |
 
 ---
 
 ## Universe DSL
 
 Universe files define a complete synthetic environment. This monorepo's universe
-DSL is at `examples/universe.dsl`. A minimal reference DSL ships with
+DSL is at `data/synthetic/story.dsl`. A minimal reference DSL ships with
 libsyntheticgen at `libraries/libsyntheticgen/data/default.dsl` for quick
 testing; projects provide their own DSL file.
 
@@ -146,9 +147,9 @@ configurations, and briefing counts.
 
 ## Data Resolution
 
-This monorepo's universe DSL is `examples/universe.dsl`. Use `--universe=path`
-to specify a different file. Without `--universe`, the CLI falls back to the
-minimal reference DSL bundled with the package.
+This monorepo's story DSL is `data/synthetic/story.dsl`. Use `--story=path` to
+specify a different file. Without `--story`, the CLI falls back to the minimal
+reference DSL bundled with the package.
 
 Generated output writes to `data/` directories at the monorepo root:
 
@@ -163,9 +164,9 @@ Generated output writes to `data/` directories at the monorepo root:
 
 ## Prose Cache
 
-The prose cache is stored at `libraries/libuniverse/.prose-cache.json`. This
-file is pre-populated for the BioNova universe (440+ keys). The default mode
-reads from it without LLM calls.
+The prose cache is stored at `data/synthetic/prose-cache.json`. This file is
+pre-populated for the BioNova universe (530+ keys). The default mode reads from
+it without LLM calls.
 
 When using `--generate`, new prose is appended to the cache after generation
 completes. Subsequent default runs will reuse all generated content.

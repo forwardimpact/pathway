@@ -79,7 +79,8 @@ async function main() {
 
   const monorepoRoot = resolve(__dirname, "../../..");
   const schemaDir = join(monorepoRoot, "products/map/schema/json");
-  const cachePath = join(__dirname, "..", ".prose-cache.json");
+  const cachePath =
+    args.cache || join(monorepoRoot, "data", "synthetic", "prose-cache.json");
 
   const libsyntheticproseDir = dirname(
     fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticprose")),
@@ -160,7 +161,7 @@ async function main() {
 
   const result = await pipeline.run({
     universePath:
-      args.universe || join(monorepoRoot, "examples", "universe.dsl"),
+      args.story || join(monorepoRoot, "data", "synthetic", "story.dsl"),
     only: args.only || null,
     schemaDir,
   });
@@ -266,7 +267,8 @@ function parseArgs(argv) {
     else if (arg === "--dry-run") args.dryRun = true;
     else if (arg === "--load") args.load = true;
     else if (arg.startsWith("--only=")) args.only = arg.slice(7);
-    else if (arg.startsWith("--universe=")) args.universe = arg.slice(11);
+    else if (arg.startsWith("--story=")) args.story = arg.slice(8);
+    else if (arg.startsWith("--cache=")) args.cache = arg.slice(8);
   }
   return args;
 }
@@ -284,11 +286,12 @@ Options:
   --dry-run           Show what would be written without writing
   --load              Load raw documents to Supabase Storage
   --only=<type>       Render only one content type (html|pathway|raw|markdown)
-  --universe=<path>   Path to a custom universe DSL file
+  --story=<path>      Path to a custom story DSL file
+  --cache=<path>      Path to prose cache file
   -h, --help          Show this help message
 
 Prose modes:
-  (default)           Use cached prose from .prose-cache.json
+  (default)           Use cached prose from prose-cache.json
   --generate          Call LLM to generate prose and update the cache
   --no-prose          No prose — produces minimal structural data only
 
@@ -304,7 +307,7 @@ Examples:
   npx fit-universe --strict                  # Cached prose, fail on miss
   npx fit-universe --no-prose                # Structural only, no prose
   npx fit-universe --only=pathway            # Generate pathway data only
-  npx fit-universe --universe=custom.dsl     # Use custom DSL file
+  npx fit-universe --story=custom.dsl        # Use custom DSL file
 `);
 }
 

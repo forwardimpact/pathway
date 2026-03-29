@@ -1,3 +1,5 @@
+import { buildPreamble } from "./preamble.js";
+
 /**
  * Prompt template for stages.yaml — all stages in a single call.
  *
@@ -8,12 +10,15 @@
  */
 export function buildStagePrompt(stageIds, ctx, schema) {
   return {
-    system: [
-      "You are an expert career framework author.",
-      "Output ONLY valid JSON. No markdown fences, no explanations.",
-      `The organization domain is: ${ctx.domain}.`,
-      `Industry: ${ctx.industry}.`,
-    ].join(" "),
+    system:
+      buildPreamble(ctx.frameworkName || ctx.domain) +
+      "\n\n" +
+      [
+        "You are an expert career framework author.",
+        "Output ONLY valid JSON. No markdown fences, no explanations.",
+        `The organization domain is: ${ctx.domain}.`,
+        `Industry: ${ctx.industry}.`,
+      ].join(" "),
 
     user: [
       "Generate engineering lifecycle stage definitions.",
@@ -35,6 +40,8 @@ export function buildStagePrompt(stageIds, ctx, schema) {
       "  - summary: 1 sentence in third person.",
       "  - handoffs: Array of transitions to other stages, each with:",
       "    targetStage, label (button text), prompt (instructions for next stage).",
+      `    targetStage in each handoff MUST be one of the stage IDs listed above: ${stageIds.join(", ")}.`,
+      "    Do not invent stage IDs that are not in the provided list.",
       "  - constraints: 2-3 restrictions on behaviour in this stage.",
       "  - readChecklist: 2-4 Read-Then-Do steps.",
       "  - confirmChecklist: 2-4 Do-Then-Confirm items.",

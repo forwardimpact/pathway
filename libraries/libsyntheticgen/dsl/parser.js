@@ -173,6 +173,15 @@ export function parse(tokens) {
           people.disciplines[disc] = pct;
         }
         expect("RBRACE");
+      } else if (kw.value === "archetypes") {
+        expect("LBRACE");
+        people.archetypes = {};
+        while (peek().type !== "RBRACE") {
+          const archetype = parseStringOrIdent();
+          const pct = parseNumberValue();
+          people.archetypes[archetype] = pct;
+        }
+        expect("RBRACE");
       } else
         throw new Error(
           `Unexpected '${kw.value}' in people at line ${kw.line}`,
@@ -199,6 +208,10 @@ export function parse(tokens) {
       else if (kw.value === "prose_topic")
         proj.prose_topic = parseStringValue();
       else if (kw.value === "prose_tone") proj.prose_tone = parseStringValue();
+      else if (kw.value === "milestones") proj.milestones = parseArray();
+      else if (kw.value === "risks") proj.risks = parseArray();
+      else if (kw.value === "technical_choices")
+        proj.technical_choices = parseArray();
       else
         throw new Error(
           `Unexpected '${kw.value}' in project at line ${kw.line}`,
@@ -263,6 +276,8 @@ export function parse(tokens) {
     while (peek().type !== "RBRACE") {
       const kw = advance();
       if (kw.value === "name") scenario.name = parseStringValue();
+      else if (kw.value === "narrative")
+        scenario.narrative = parseStringValue();
       else if (kw.value === "timerange_start")
         scenario.timerange_start = parseDateValue();
       else if (kw.value === "timerange_end")
@@ -634,7 +649,16 @@ export function parse(tokens) {
         content.briefings_per_persona = parseNumberValue();
       else if (kw.value === "notes_per_persona")
         content.notes_per_persona = parseNumberValue();
-      else
+      else if (kw.value === "blog_topics") {
+        expect("LBRACE");
+        content.blog_topics = {};
+        while (peek().type !== "RBRACE") {
+          const topic = parseStringOrIdent();
+          const pct = parseNumberValue();
+          content.blog_topics[topic] = pct;
+        }
+        expect("RBRACE");
+      } else
         throw new Error(
           `Unexpected '${kw.value}' in content at line ${kw.line}`,
         );

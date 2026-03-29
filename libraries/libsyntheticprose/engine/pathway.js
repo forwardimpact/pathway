@@ -18,6 +18,10 @@ import { buildCapabilityPrompt } from "../prompts/pathway/capability.js";
 import { buildDriverPrompt } from "../prompts/pathway/driver.js";
 import { buildDisciplinePrompt } from "../prompts/pathway/discipline.js";
 import { buildTrackPrompt } from "../prompts/pathway/track.js";
+import {
+  PROFICIENCY_LEVELS,
+  MATURITY_LEVELS,
+} from "@forwardimpact/libsyntheticgen/vocabulary.js";
 
 /**
  * Load JSON schemas from the schema directory.
@@ -99,7 +103,10 @@ async function generatePathwayData({
   schemas,
   proseEngine,
 }) {
-  const ctx = { domain, industry };
+  const frameworkName = framework.name || domain;
+  const ctx = { domain, industry, frameworkName };
+  const BASE_TOKENS = 2000;
+  const PER_SKILL_TOKENS = 800;
 
   // 1. Framework metadata
   const fw = await generateEntity(
@@ -107,6 +114,7 @@ async function generatePathwayData({
     "framework",
     buildFrameworkPrompt(framework, ctx, schemas.framework),
     proseEngine,
+    { maxTokens: BASE_TOKENS },
   );
 
   // 2. Levels
@@ -123,15 +131,19 @@ async function generatePathwayData({
     "stages",
     buildStagePrompt(framework.stages, ctx, schemas.stages),
     proseEngine,
+    { maxTokens: BASE_TOKENS },
   );
 
-  // 4. Behaviours (parallel — no cross-references)
+  // Build prior output context for downstream prompts
+  const priorOutput = { levels };
+
+  // 4. Behaviours (parallel — receive level context)
   const behaviours = await Promise.all(
     framework.behaviours.map((b) =>
       generateEntity(
         "behaviour",
         b.id,
-        buildBehaviourPrompt(b, ctx, schemas.behaviour),
+        buildBehaviourPrompt(b, ctx, schemas.behaviour, priorOutput),
         proseEngine,
       ).then((data) => ({
         ...data,
@@ -140,7 +152,9 @@ async function generatePathwayData({
     ),
   );
 
-  // 5. Capabilities with skills (parallel)
+  priorOutput.behaviours = behaviours;
+
+  // 5. Capabilities with skills (parallel — receive level + behaviour context)
   const capabilities = await Promise.all(
     framework.capabilities.map((c, i) =>
       generateEntity(
@@ -150,14 +164,18 @@ async function generatePathwayData({
           { ...c, ordinalRank: i + 1 },
           ctx,
           schemas.capability,
+          priorOutput,
         ),
         proseEngine,
+        { maxTokens: BASE_TOKENS + (c.skills || []).length * PER_SKILL_TOKENS },
       ).then((data) => ({
         ...data,
         _id: c.id,
       })),
     ),
   );
+
+  priorOutput.capabilities = capabilities;
 
   // Collect all skill IDs and behaviour IDs from DSL declarations
   // (not from LLM output — these must be available even in no-prose mode)
@@ -174,6 +192,7 @@ async function generatePathwayData({
       schemas.drivers,
     ),
     proseEngine,
+    { maxTokens: BASE_TOKENS },
   );
 
   // 7. Disciplines (reference skills, behaviours, track IDs from DSL)
@@ -187,6 +206,7 @@ async function generatePathwayData({
           d,
           { ...ctx, skillIds, behaviourIds, trackIds },
           schemas.discipline,
+          priorOutput,
         ),
         proseEngine,
       ).then((data) => ({
@@ -207,6 +227,7 @@ async function generatePathwayData({
           t,
           { ...ctx, capabilityIds, skillIds, behaviourIds },
           schemas.track,
+          priorOutput,
         ),
         proseEngine,
       ).then((data) => ({
@@ -245,12 +266,22 @@ async function generatePathwayData({
  * @param {import('./prose.js').ProseEngine} proseEngine - Prose engine
  * @returns {Promise<object|null>} Parsed JSON data
  */
-async function generateEntity(entityType, entityId, prompt, proseEngine) {
+async function generateEntity(
+  entityType,
+  entityId,
+  prompt,
+  proseEngine,
+  { maxTokens } = {},
+) {
   const key = `pathway:${entityType}:${entityId}`;
-  const result = await proseEngine.generateJson(key, [
-    { role: "system", content: prompt.system },
-    { role: "user", content: prompt.user },
-  ]);
+  const result = await proseEngine.generateJson(
+    key,
+    [
+      { role: "system", content: prompt.system },
+      { role: "user", content: prompt.user },
+    ],
+    maxTokens ? { maxTokens } : undefined,
+  );
   return result;
 }
 
@@ -302,20 +333,8 @@ function jitter(rng, base, max) {
  * @returns {object[]}
  */
 function generateSelfAssessments(framework, skillIds, behaviourIds) {
-  const proficiencies = framework.proficiencies || [
-    "awareness",
-    "foundational",
-    "working",
-    "practitioner",
-    "expert",
-  ];
-  const maturities = framework.maturities || [
-    "emerging",
-    "developing",
-    "practicing",
-    "role_modeling",
-    "exemplifying",
-  ];
+  const proficiencies = framework.proficiencies || PROFICIENCY_LEVELS;
+  const maturities = framework.maturities || MATURITY_LEVELS;
 
   const seed = framework.seed || 1;
   const rng = createRng(seed);
@@ -325,10 +344,18 @@ function generateSelfAssessments(framework, skillIds, behaviourIds) {
   const assessments = [];
   const levelNames = ["junior", "mid", "senior", "staff", "principal"];
 
+  // Track previous level's indices per skill/behaviour to enforce monotonicity
+  const prevSkillIdx = {};
+  const prevBehIdx = {};
+
   for (let i = 0; i < Math.min(levelNames.length, proficiencies.length); i++) {
     const skillProficiencies = {};
     for (const skillId of skillIds) {
-      skillProficiencies[skillId] = proficiencies[jitter(rng, i, maxP)];
+      const raw = jitter(rng, i, maxP);
+      const floor = prevSkillIdx[skillId] ?? 0;
+      const idx = Math.max(floor, raw);
+      skillProficiencies[skillId] = proficiencies[idx];
+      prevSkillIdx[skillId] = idx;
     }
 
     const behaviourMaturities = {};
@@ -339,8 +366,11 @@ function generateSelfAssessments(framework, skillIds, behaviourIds) {
       if (r < 0.55) offset = 0;
       else if (r < 0.8) offset = 1;
       else offset = -1;
-      behaviourMaturities[behaviourId] =
-        maturities[Math.max(0, Math.min(maxM, i + offset))];
+      const raw = Math.max(0, Math.min(maxM, i + offset));
+      const floor = prevBehIdx[behaviourId] ?? 0;
+      const idx = Math.max(floor, raw);
+      behaviourMaturities[behaviourId] = maturities[idx];
+      prevBehIdx[behaviourId] = idx;
     }
 
     assessments.push({

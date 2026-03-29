@@ -48,16 +48,16 @@ every page.
 
 Real user goals that the docs should serve but currently don't:
 
-| User group   | Goal                                            | Current experience                                                      |
-| ------------ | ----------------------------------------------- | ----------------------------------------------------------------------- |
-| Leadership   | Author a framework from scratch                 | Read Map docs (mixed with internals), guess at YAML structure from examples |
-| Leadership   | Validate and publish framework data              | Buried in Map docs as a CLI command among many                          |
-| Leadership   | Connect GetDX and GitHub signals                | Only in Map docs under "Ingestion Surfaces", mixed with schema details  |
-| Developer    | Install agent teams for Claude Code             | Spread across Agents page, Reference page, and Pathway CLI section      |
-| Developer    | Set up Basecamp for personal knowledge          | Single page, adequate but isolated with no onboarding path              |
-| Developer    | Understand role expectations and find growth areas | No Guide docs exist at all                                            |
-| Contributor  | Understand the data model and derivation logic  | Good content exists but buried among user-facing content                |
-| Contributor  | Generate test data for development              | Universe page exists but is disconnected from any development workflow  |
+| User group  | Goal                                               | Current experience                                                          |
+| ----------- | -------------------------------------------------- | --------------------------------------------------------------------------- |
+| Leadership  | Author a framework from scratch                    | Read Map docs (mixed with internals), guess at YAML structure from examples |
+| Leadership  | Validate and publish framework data                | Buried in Map docs as a CLI command among many                              |
+| Leadership  | Connect GetDX and GitHub signals                   | Only in Map docs under "Ingestion Surfaces", mixed with schema details      |
+| Developer   | Install agent teams for Claude Code                | Spread across Agents page, Reference page, and Pathway CLI section          |
+| Developer   | Set up Basecamp for personal knowledge             | Single page, adequate but isolated with no onboarding path                  |
+| Developer   | Understand role expectations and find growth areas | No Guide docs exist at all                                                  |
+| Contributor | Understand the data model and derivation logic     | Good content exists but buried among user-facing content                    |
+| Contributor | Generate test data for development                 | Universe page exists but is disconnected from any development workflow      |
 
 ### Agents need progressive disclosure, not just SKILL.md
 
@@ -74,7 +74,7 @@ consume context primarily through machine-readable artifacts:
 
 The SKILL.md files are brief and effective — they tell an agent what a product
 does and how to drive its CLI. But they don't support progressive disclosure.
-When an agent needs to understand *how* a product works (e.g. how job derivation
+When an agent needs to understand _how_ a product works (e.g. how job derivation
 combines discipline, level, and track modifiers, or how validation runs in two
 phases), the SKILL.md doesn't go deep enough and there's nowhere to look next.
 
@@ -82,10 +82,10 @@ This matters because the monorepo is open source, and the products and skills
 are published for external use. Organizations install Pathway and use coding
 agents to drive CLIs like `fit-map` and `fit-pathway`. These agents need to
 understand how the products **work** — the logic, the data flow, the
-relationships — but **not** how they are **implemented** (module structure,
-code imports, internal architecture). That distinction maps exactly to the
-audience split this spec proposes: Guides and Reference are "how it works" for
-users and agents; Internals are "how it's built" for contributors.
+relationships — but **not** how they are **implemented** (module structure, code
+imports, internal architecture). That distinction maps exactly to the audience
+split this spec proposes: Guides and Reference are "how it works" for users and
+agents; Internals are "how it's built" for contributors.
 
 The documentation already has the mechanism: `libdoc` generates markdown
 companion files (`index.md`) alongside every HTML page, and `llms.txt` links to
@@ -147,18 +147,18 @@ organized by audience and task:
 
 ### Design principles
 
-**User goals drive top-level sections.** The four top-level sections map to
-what users are trying to do:
+**User goals drive top-level sections.** The four top-level sections map to what
+users are trying to do:
 
 1. **Getting Started** — "I'm new, get me going fast" (all user groups)
 2. **Guides** — "I have a specific task to accomplish" (Leadership + Developers)
 3. **Reference** — "I need to look something up" (all user groups)
 4. **Internals** — "I need to understand how this works" (Contributors)
 
-**Guides are task-oriented, not product-oriented.** A guide answers "how do I
-do X?" not "what does product Y contain?" For example, "Authoring Frameworks"
-pulls from Map (YAML format, validation), Core Model (entity relationships),
-and Pathway (previewing results) — because that's the actual workflow.
+**Guides are task-oriented, not product-oriented.** A guide answers "how do I do
+X?" not "what does product Y contain?" For example, "Authoring Frameworks" pulls
+from Map (YAML format, validation), Core Model (entity relationships), and
+Pathway (previewing results) — because that's the actual workflow.
 
 **Reference is lookup, not tutorial.** The CLI reference lists every command
 with arguments and options. The model reference defines every entity. The YAML
@@ -202,39 +202,39 @@ Every piece of existing content moves to the new hierarchy. Nothing is deleted �
 content is reorganized, and in some cases split when a single page serves
 multiple audiences.
 
-| Current page                  | Destination(s)                                                                    |
-| ----------------------------- | --------------------------------------------------------------------------------- |
-| `/docs/map/`                  | User content → `/docs/guides/authoring-frameworks/` and `/docs/reference/yaml-schema/` |
-|                               | Contributor content → `/docs/internals/map/`                                      |
-| `/docs/model/`                | Entity overview → `/docs/reference/model/`                                        |
-|                               | Derivation details → `/docs/internals/libskill/`                                  |
-| `/docs/model/lifecycle/`      | → `/docs/reference/lifecycle/`                                                    |
-| `/docs/pathway/`              | CLI content → `/docs/reference/cli/`                                              |
-|                               | Formatter/module content → `/docs/internals/pathway/`                             |
-| `/docs/pathway/agents/`       | User guide → `/docs/guides/agent-teams/`                                          |
-|                               | Technical reference → `/docs/internals/pathway/` (agent derivation section)       |
-| `/docs/pathway/reference/`    | CLI commands → `/docs/reference/cli/`                                             |
-|                               | File organization → `/docs/internals/pathway/`                                    |
-| `/docs/basecamp/`             | Setup and usage → `/docs/guides/knowledge-systems/`                               |
-|                               | Architecture → `/docs/internals/basecamp/`                                        |
-| `/docs/landmark/`             | User guide → `/docs/guides/engineering-signals/`                                  |
-|                               | Architecture → `/docs/internals/landmark/`                                        |
-| `/docs/universe/`             | → `/docs/internals/universe/`                                                     |
+| Current page               | Destination(s)                                                                         |
+| -------------------------- | -------------------------------------------------------------------------------------- |
+| `/docs/map/`               | User content → `/docs/guides/authoring-frameworks/` and `/docs/reference/yaml-schema/` |
+|                            | Contributor content → `/docs/internals/map/`                                           |
+| `/docs/model/`             | Entity overview → `/docs/reference/model/`                                             |
+|                            | Derivation details → `/docs/internals/libskill/`                                       |
+| `/docs/model/lifecycle/`   | → `/docs/reference/lifecycle/`                                                         |
+| `/docs/pathway/`           | CLI content → `/docs/reference/cli/`                                                   |
+|                            | Formatter/module content → `/docs/internals/pathway/`                                  |
+| `/docs/pathway/agents/`    | User guide → `/docs/guides/agent-teams/`                                               |
+|                            | Technical reference → `/docs/internals/pathway/` (agent derivation section)            |
+| `/docs/pathway/reference/` | CLI commands → `/docs/reference/cli/`                                                  |
+|                            | File organization → `/docs/internals/pathway/`                                         |
+| `/docs/basecamp/`          | Setup and usage → `/docs/guides/knowledge-systems/`                                    |
+|                            | Architecture → `/docs/internals/basecamp/`                                             |
+| `/docs/landmark/`          | User guide → `/docs/guides/engineering-signals/`                                       |
+|                            | Architecture → `/docs/internals/landmark/`                                             |
+| `/docs/universe/`          | → `/docs/internals/universe/`                                                          |
 
 ### New content (pages that don't exist today)
 
-| Page                                       | Purpose                                                   |
-| ------------------------------------------ | --------------------------------------------------------- |
-| `/docs/getting-started/leadership/`        | Author your first framework: install, create YAML, validate, preview |
-| `/docs/getting-started/developers/`        | Install CLI tools, generate agent teams, set up Basecamp  |
-| `/docs/getting-started/contributors/`      | Clone, install, generate data, run tests, understand structure |
-| `/docs/guides/finding-your-bearing/`       | Guide product usage (new — no docs exist today)           |
-| `/docs/guides/team-capability/`            | Summit product usage (new — no docs exist today)          |
-| `/docs/guides/career-paths/`               | Using Pathway to browse jobs, skills, and progression     |
-| `/docs/reference/cli/`                     | Unified CLI reference for all products                    |
-| `/docs/reference/yaml-schema/`             | YAML file format overview with examples; links to published schemas at `/schema/json/` and `/schema/rdf/` for authoritative definitions |
-| `/docs/internals/guide/`                   | Guide architecture (new — no docs exist today)            |
-| `/docs/internals/summit/`                  | Summit architecture (new — no docs exist today)           |
+| Page                                  | Purpose                                                                                                                                 |
+| ------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------- |
+| `/docs/getting-started/leadership/`   | Author your first framework: install, create YAML, validate, preview                                                                    |
+| `/docs/getting-started/developers/`   | Install CLI tools, generate agent teams, set up Basecamp                                                                                |
+| `/docs/getting-started/contributors/` | Clone, install, generate data, run tests, understand structure                                                                          |
+| `/docs/guides/finding-your-bearing/`  | Guide product usage (new — no docs exist today)                                                                                         |
+| `/docs/guides/team-capability/`       | Summit product usage (new — no docs exist today)                                                                                        |
+| `/docs/guides/career-paths/`          | Using Pathway to browse jobs, skills, and progression                                                                                   |
+| `/docs/reference/cli/`                | Unified CLI reference for all products                                                                                                  |
+| `/docs/reference/yaml-schema/`        | YAML file format overview with examples; links to published schemas at `/schema/json/` and `/schema/rdf/` for authoritative definitions |
+| `/docs/internals/guide/`              | Guide architecture (new — no docs exist today)                                                                                          |
+| `/docs/internals/summit/`             | Summit architecture (new — no docs exist today)                                                                                         |
 
 ### Published skills link to documentation URLs
 
@@ -271,8 +271,8 @@ explain the open-source distribution model. Three clarifications are needed:
 1. **The monorepo is open source.** The repository is public and the products
    are designed for external consumption.
 2. **Organizations install the products.** Teams install Pathway, Map, and other
-   products in their own environments, bringing their own framework data.
-   Coding agents at those installations drive the CLIs.
+   products in their own environments, bringing their own framework data. Coding
+   agents at those installations drive the CLIs.
 3. **Skills have two audiences.** Skills in `.claude/skills/` serve two distinct
    purposes. Internal skills (library groups, product internals) help
    contributors to the monorepo. Published skills (`fit-*`) help users and
@@ -288,10 +288,12 @@ what goes in skills, what goes in docs, and what goes in code comments.
 ### What does NOT change
 
 - **Home page** (`/index.md`) — untouched
-- **Product pages** (`/map/`, `/pathway/`, `/guide/`, `/basecamp/`, `/landmark/`, `/summit/`) — untouched
+- **Product pages** (`/map/`, `/pathway/`, `/guide/`, `/basecamp/`,
+  `/landmark/`, `/summit/`) — untouched
 - **About page** (`/about/`) — untouched
 - **Global template** (`index.template.html`) — navigation links unchanged
-- **Build system** (`libdoc`) — no changes needed; it already handles nested directories
+- **Build system** (`libdoc`) — no changes needed; it already handles nested
+  directories
 - **Assets** (`assets/`) — untouched
 
 ### llms.txt update

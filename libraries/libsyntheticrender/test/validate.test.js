@@ -32,7 +32,7 @@ function buildEntities(overrides = {}) {
       capabilities: [],
       behaviours: [],
       disciplines: [],
-      drivers: [],
+      drivers: [{ id: "code_review" }],
     },
     activity: {
       roster: [{ email: "zeus@acme.com" }, { email: "athena@acme.com" }],

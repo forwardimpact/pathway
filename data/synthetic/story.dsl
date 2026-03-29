@@ -200,6 +200,12 @@ universe BioNova {
       data_engineering 25%
       engineering_management 15%
     }
+    archetypes {
+      high_performer 15%
+      steady_contributor 55%
+      new_hire 20%
+      struggling 10%
+    }
   }
 
   // ─── Projects ───────────────────────────────────
@@ -213,6 +219,9 @@ universe BioNova {
     timeline_end 2026-06
     prose_topic "oncology drug in Phase 3 clinical trials"
     prose_tone "technical, optimistic"
+    milestones ["Phase 2 completion", "Phase 3 enrollment start", "Interim analysis", "NDA submission"]
+    risks ["enrollment delays", "manufacturing scale-up", "regulatory feedback cycles"]
+    technical_choices ["mAb platform", "companion diagnostic", "adaptive trial design"]
   }
 
   project molecularforge {
@@ -223,6 +232,9 @@ universe BioNova {
     timeline_end 2026-12
     prose_topic "AI-powered drug discovery platform rewrite"
     prose_tone "technical"
+    milestones ["v2 architecture design", "ML pipeline migration", "Beta launch", "GA release"]
+    risks ["model accuracy regression", "data migration complexity", "API backward compatibility"]
+    technical_choices ["PyTorch for ML inference", "graph database for molecular data", "gRPC API layer"]
   }
 
   project compliance_remediation {
@@ -266,6 +278,7 @@ universe BioNova {
 
   scenario oncora_push {
     name "Oncora Drug Discovery Push"
+    narrative "Drug discovery team ramps up for Phase 3 enrollment, requiring elevated code velocity and cross-team coordination with clinical development"
     timerange_start 2025-03
     timerange_end 2025-09
 
@@ -296,6 +309,7 @@ universe BioNova {
 
   scenario molecularforge_release {
     name "MolecularForge Major Release"
+    narrative "Platform team pushes toward GA release of MolecularForge v2, with ML pipeline migration and API stabilization as critical path items"
     timerange_start 2025-06
     timerange_end 2025-12
 
@@ -336,6 +350,37 @@ universe BioNova {
       dx_drivers {
         managing_tech_debt { trajectory "rising" magnitude 3 }
         documentation      { trajectory "rising" magnitude 4 }
+      }
+      evidence_skills [cloud_platforms]
+      evidence_floor "foundational"
+    }
+
+    affect quality_assurance {
+      github_commits "elevated"
+      github_prs "elevated"
+      dx_drivers {
+        documentation       { trajectory "rising" magnitude 5 }
+        efficient_processes { trajectory "rising" magnitude 4 }
+      }
+      evidence_skills [regulatory_compliance]
+      evidence_floor "working"
+    }
+
+    affect regulatory_science {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        documentation { trajectory "rising" magnitude 4 }
+      }
+      evidence_skills [regulatory_compliance, stakeholder_management]
+      evidence_floor "foundational"
+    }
+
+    affect enterprise_applications {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        managing_tech_debt { trajectory "rising" magnitude 3 }
       }
       evidence_skills [cloud_platforms]
       evidence_floor "foundational"
@@ -418,6 +463,100 @@ universe BioNova {
       }
       evidence_skills [stakeholder_management]
       evidence_floor "awareness"
+    }
+
+    affect genomics {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness    { trajectory "rising" magnitude 3 }
+        learning_culture { trajectory "rising" magnitude 2 }
+      }
+      evidence_skills [data_integration]
+      evidence_floor "working"
+    }
+
+    affect biostatistics {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness { trajectory "rising" magnitude 3 }
+      }
+      evidence_skills [data_modeling]
+      evidence_floor "working"
+    }
+
+    affect supply_chain {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        efficient_processes { trajectory "rising" magnitude 4 }
+        connectedness       { trajectory "rising" magnitude 3 }
+      }
+      evidence_skills [stakeholder_management]
+      evidence_floor "foundational"
+    }
+
+    affect manufacturing_it {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness       { trajectory "rising" magnitude 4 }
+        efficient_processes { trajectory "rising" magnitude 3 }
+      }
+      evidence_skills [cloud_platforms, team_collaboration]
+      evidence_floor "foundational"
+    }
+
+    affect medical_affairs {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness { trajectory "rising" magnitude 3 }
+      }
+      evidence_skills [stakeholder_management]
+      evidence_floor "awareness"
+    }
+
+    affect market_access {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness { trajectory "rising" magnitude 3 }
+      }
+      evidence_skills [stakeholder_management]
+      evidence_floor "awareness"
+    }
+
+    affect field_operations {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness { trajectory "rising" magnitude 2 }
+      }
+      evidence_skills [team_collaboration]
+      evidence_floor "awareness"
+    }
+
+    affect customer_support {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness { trajectory "rising" magnitude 3 }
+      }
+      evidence_skills [team_collaboration]
+      evidence_floor "awareness"
+    }
+
+    affect commercial_analytics {
+      github_commits "moderate"
+      github_prs "moderate"
+      dx_drivers {
+        connectedness       { trajectory "rising" magnitude 3 }
+        learning_culture    { trajectory "rising" magnitude 2 }
+      }
+      evidence_skills [data_modeling, data_integration]
+      evidence_floor "foundational"
     }
   }
 
@@ -601,7 +740,7 @@ universe BioNova {
       }
     }
 
-    stages [specify, plan, onboard, code, review, deploy]
+    stages [specify, plan, scaffold, code, review, deploy]
   }
 
   // ─── Content Types ──────────────────────────────
@@ -610,6 +749,13 @@ universe BioNova {
     articles 4
     article_topics [clinical, data_ai, drug_discovery, manufacturing]
     blogs 45
+    blog_topics {
+      drug_discovery 30%
+      platform_engineering 25%
+      clinical_development 20%
+      data_science 15%
+      engineering_culture 10%
+    }
     faqs 35
     howtos 2
     howto_topics [clinical_data, gmp_procedures]

@@ -17,7 +17,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export class ProseEngine {
   /**
    * @param {object} options
-   * @param {string} options.cachePath      Path to .prose-cache.json
+   * @param {string} options.cachePath      Path to prose cache JSON file
    * @param {string} options.mode           "cached" | "generate" | "no-prose"
    * @param {boolean} [options.strict]      Fail on cache miss
    * @param {import('@forwardimpact/libllm').LlmApi} options.llmApi
@@ -108,7 +108,7 @@ export class ProseEngine {
    * @param {object[]} messages - Pre-built messages array [{role, content}]
    * @returns {Promise<string|null>}
    */
-  async generateStructured(key, messages) {
+  async generateStructured(key, messages, { maxTokens = 4000 } = {}) {
     if (this.mode === "no-prose") return null;
 
     const cacheKey = generateHash(key, JSON.stringify(messages));
@@ -127,7 +127,7 @@ export class ProseEngine {
 
     const response = await this.llmApi.createCompletions({
       messages,
-      max_tokens: 4000,
+      max_tokens: maxTokens,
     });
     const content = response.choices?.[0]?.message?.content?.trim() || null;
     this.stats.generated++;
@@ -147,8 +147,8 @@ export class ProseEngine {
    * @param {object[]} messages - Pre-built messages array
    * @returns {Promise<object|null>}
    */
-  async generateJson(key, messages) {
-    const raw = await this.generateStructured(key, messages);
+  async generateJson(key, messages, options) {
+    const raw = await this.generateStructured(key, messages, options);
     if (!raw) return null;
     const cleaned = raw
       .replace(/^```(?:json)?\s*\n?/m, "")
@@ -183,6 +183,7 @@ export class ProseEngine {
       tone: context.tone || "technical",
       length: context.length || "2-3 paragraphs",
       domain: context.domain,
+      orgName: context.orgName,
       role: context.role,
       audience: context.audience,
       scenario: context.scenario,
@@ -209,7 +210,7 @@ export class ProseEngine {
 /**
  * Creates a ProseEngine with real dependencies wired.
  * @param {object} options
- * @param {string} options.cachePath - Path to .prose-cache.json
+ * @param {string} options.cachePath - Path to prose cache JSON file
  * @param {string} options.mode - "cached" | "generate" | "no-prose"
  * @param {boolean} [options.strict] - Fail on cache miss
  * @param {import('@forwardimpact/libllm').LlmApi} [options.llmApi] - LLM client
