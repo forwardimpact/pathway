@@ -50,9 +50,15 @@ All changes go through pull requests — never push directly to `main`.
 
 Format: `type(scope): subject`
 
-**Types**: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`
-**Scope**: package name (`map`, `libskill`, `libui`, `pathway`, `basecamp`).
+**Types**: `feat`, `fix`, `refactor`, `docs`, `style`, `test`, `chore`, `perf`,
+`spec`
+**Scope**: package name (`map`, `libskill`, `libui`, `pathway`, `basecamp`), or
+domain area (`security`) for specs.
 **Breaking**: add `!` after scope.
+
+`spec` is for new specification documents in `specs/`. Use when proposing a
+change that requires design review before implementation (e.g.
+`spec(security): Supabase edge function hardening`).
 
 ### Before Committing
 

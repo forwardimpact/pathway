@@ -90,3 +90,16 @@ How to perform a review:
 - Grep for common vulnerability patterns: `eval(`, `child_process.exec(`,
   `innerHTML`, `dangerouslySetInnerHTML`, `new Function(`, unsanitized template
   literals in SQL/shell contexts.
+
+## 8. Output Requirements
+
+Every audit must produce **both** output categories when applicable:
+
+1. **Incremental fixes** — Commit with `fix(security):` on a `fix/` branch and
+   open a PR. Batch all small fixes into a single PR.
+2. **Specs for structural findings** — Commit with `spec(security):` on a
+   `spec/` branch and open a PR per finding. Use the `write-spec` skill to
+   produce `specs/{NNN}-{name}/spec.md`.
+
+Do not list structural findings in the fix PR body without also filing spec PRs.
+Each PR must be on an independent branch from `main`.
