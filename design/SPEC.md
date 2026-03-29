@@ -1,12 +1,16 @@
 # Design Spec: Forward Impact Team (FIT)
 
-> A monochrome design system for six products — **Map**, **Pathway**,
+> A monochrome design system for six open-source products — **Map**, **Pathway**,
 > **Basecamp**, **Guide**, **Landmark**, and **Summit** — built around the
 > metaphor of engineers deployed "in the field." Three characters — the
 > Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
 > boundary between technology and the real world. Inspired by the restraint of
 > Ollama and the character-driven warmth of Go's Gopher, adapted for a
 > professional product suite.
+>
+> The design embodies Deming's principle: improve the performance of developers
+> and agents, improve quality, increase output, and bring pride of workmanship
+> to engineering teams.
 
 ---
 
@@ -125,15 +129,15 @@ field journals, cartographic labels, and expedition logs.
 ```
 Instrument Serif, 64px, weight 400:
 
-  Forward deployed engineers
-  need better tools.
+  Empowered engineers
+  deliver lasting impact.
 
 DM Sans, 18px, weight 400, gray-400:
 
-  Map, Pathway, Guide, Landmark, Basecamp, and Summit — a suite for
-  charting skills, navigating careers, solving problems,
-  reading signals, sharing what you learn, and building
-  teams that reach the peak.
+  Map, Pathway, Guide, Landmark, Basecamp, and Summit — an open-source
+  suite that helps organizations define great engineering, support career
+  growth, and give every engineer the clarity to do their best work
+  in the field.
 ```
 
 ---
@@ -141,7 +145,8 @@ DM Sans, 18px, weight 400, gray-400:
 ## 4. The Characters
 
 The visual identity is built around three characters who embody the
-collaborative dynamic at the heart of forward deployed engineering. They are
+collaborative dynamic at the heart of forward deployed engineering — and mirror
+the suite's three audiences (Developers, Agents, Leadership). They are
 always shown together — working side by side, consulting, collaborating. They
 replace the solo hero with a team, reflecting that forward deployed work happens
 at the intersection of engineering, AI, and business.
@@ -181,8 +186,9 @@ at the intersection of engineering, AI, and business.
 
 - Business attire: collared shirt, tie, blazer. Neat hair, formal posture.
 - **No backpack** — they're the domain expert who knows the territory, not the
-  one carrying gear through it. They represent the scientists, product owners,
-  and business leaders that FDEs are embedded with.
+  one carrying gear through it. They represent the leadership and domain experts
+  that engineers are embedded with — product owners, engineering managers, and
+  business stakeholders who define what good engineering looks like.
 - Laptop with a Claude Code sticker
 - Posture: engaged but composed, professional
 
@@ -470,6 +476,11 @@ trail.
 | Error / empty states         | Single character         | 80–120px  |
 | Loading states               | AI Agent + compass       | 48–80px   |
 
+**Asset status:** Hero illustrations and icons exist in `design/` for Map,
+Pathway, Guide, Basecamp, Documentation Dig, and Welcome Wave. Landmark and
+Summit scenes and icons are specified above but not yet illustrated — they
+should follow the same 2px monochrome line-art style.
+
 ---
 
 ## 6. Product Icons
@@ -642,38 +653,41 @@ Base unit: `8px`
 │       │  Trio at Work scene      │           │
 │       └──────────────────────────┘           │
 │                                              │
-│     Forward deployed engineers               │  ← Instrument Serif
-│     need better tools.                       │
+│     Empowered engineers                      │  ← Instrument Serif
+│     deliver lasting impact.                  │
 │                                              │
-│     Chart skills. Navigate careers.          │  ← DM Sans, gray-400
-│     Solve problems. Read the signals.        │
-│     Build teams that reach the peak.         │
+│     Define great engineering. Support         │  ← DM Sans, gray-400
+│     career growth. Give every engineer       │
+│     the clarity to do their best work        │
+│     in the field.                            │
 │                                              │
 │           [ Explore the suite → ]            │
 │                                              │
 ├──────────────────────────────────────────────┤
 │ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐│
-│ │ Map  │ │Pathwy│ │Guide │ │Landmk│ │Summit│ │Basecm││
+│ │ Map  │ │Pathwy│ │Guide │ │Landmk│ │Basecm│ │Summit││
 │ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘│
 ├──────────────────────────────────────────────┤
 │  Background: contour line texture            │
-│     "Forward deployed engineers              │  ← Instrument Serif
-│      operate where technology                │
-│      meets the real world."                  │
+│     "The aim of leadership should be to      │  ← Instrument Serif
+│      improve the performance of              │
+│      developers and agents."                 │
 ├──────────────────────────────────────────────┤
-│     [ Create your free account ]             │
-│  © Forward Impact Team                       │
+│     [ Get started → ]                        │
+│  © Forward Impact Team  ·  Apache-2.0 code  │
+│     CC BY 4.0 docs                           │
 └──────────────────────────────────────────────┘
 ```
 
 ### Navigation Pattern
 
 ```
-[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Summit  ·  Basecamp       [Docs]  [Sign in]
+[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Basecamp       [Docs]  [Sign in]
 ```
 
-Current product is bold (`700`). Others are regular (`400`) in `--gray-400`. On
-mobile, product switcher moves into hamburger menu.
+Current product is bold (`700`). Others are regular (`400`) in `--gray-400`.
+Summit is accessible from its product page but not shown in the primary nav
+until launch. On mobile, product switcher moves into hamburger menu.
 
 ### Warm/Cool Section Rhythm
 
@@ -682,8 +696,8 @@ Section 1: white (#ffffff)          — Hero
 Section 2: warm (#faf9f7)           — Product cards
 Section 3: white (#ffffff)          — Feature deep-dive
 Section 4: warm (#faf9f7) + contours — Quote / philosophy
-Section 5: white (#ffffff)          — CTA / sign-up
-Footer:    gray-900 (#1c1a18)       — Dark footer (inverted)
+Section 5: white (#ffffff)          — CTA / get started
+Footer:    gray-900 (#1c1a18)       — Dark footer (inverted), licenses
 ```
 
 ---
@@ -731,13 +745,14 @@ white backgrounds.
 
 ### Footer (Dark)
 
-| Property         | Value                            |
-| ---------------- | -------------------------------- |
-| Background       | `--gray-900`                     |
-| Text (primary)   | `#e8e5e0`                        |
-| Text (secondary) | `--gray-400`                     |
-| Border           | `--gray-700` for dividers        |
-| Logo             | Trio silhouette + "FIT" in white |
+| Property         | Value                                                    |
+| ---------------- | -------------------------------------------------------- |
+| Background       | `--gray-900`                                             |
+| Text (primary)   | `#e8e5e0`                                                |
+| Text (secondary) | `--gray-400`                                             |
+| Border           | `--gray-700` for dividers                                |
+| Logo             | Trio silhouette + "FIT" in white                         |
+| Licenses         | Apache-2.0 (code), CC BY 4.0 (docs) — in `--gray-400`   |
 
 ---
 
@@ -760,14 +775,14 @@ All animations respect `prefers-reduced-motion`.
 
 Each product shares the core design system with subtle differentiators:
 
-| Product      | Accent Metaphor                       | Empty State                                      | Tone                                              |
-| ------------ | ------------------------------------- | ------------------------------------------------ | ------------------------------------------------- |
-| **Map**      | Cartography — grids, pins, layers     | AI Agent holding blank map toward viewer         | "Chart the territory before you move through it." |
-| **Pathway**  | Trail — switchbacks, elevation marks  | Engineer at trailhead, reading a trail sign      | "Where are you going? Let's map the route."       |
-| **Guide**    | Navigation — compass, stars           | AI Agent holding compass toward viewer           | "I can help you find your bearings."              |
-| **Landmark** | Observation — cairns, survey markers  | AI Agent beside cairn, holding telescope outward | "What do the signals say?"                        |
-| **Summit**   | Ascent — peaks, routes, team planning | Trio looking up at peak with flag                | "Can this team reach the peak?"                   |
-| **Basecamp** | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Everything you know, in one place."              |
+| Product      | Accent Metaphor                       | Empty State                                      | Tone                                                       |
+| ------------ | ------------------------------------- | ------------------------------------------------ | ---------------------------------------------------------- |
+| **Map**      | Cartography — grids, pins, layers     | AI Agent holding blank map toward viewer         | "Chart the territory before you move through it."          |
+| **Pathway**  | Trail — switchbacks, elevation marks  | Engineer at trailhead, reading a trail sign      | "Navigate the trail."                                      |
+| **Guide**    | Navigation — compass, stars           | AI Agent holding compass toward viewer           | "Find your bearing."                                       |
+| **Landmark** | Observation — cairns, survey markers  | AI Agent beside cairn, holding telescope outward | "Check the cairn."                                         |
+| **Basecamp** | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Set up camp."                                             |
+| **Summit**   | Ascent — peaks, routes, team planning | Trio looking up at peak with flag                | "Reach the peak."                                          |
 
 ### Product-Specific UI Treatments
 
@@ -895,4 +910,4 @@ Each product shares the core design system with subtle differentiators:
 
 ---
 
-_Design spec for the Forward Impact Team (FIT) product suite. March 2026._
+_Design spec for the Forward Impact Team (FIT) product suite. Updated March 2026._
