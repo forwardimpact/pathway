@@ -66,7 +66,7 @@ export class Pipeline {
    * Run the full generation pipeline.
    *
    * @param {object} options
-   * @param {string} options.universePath - Path to the universe.dsl file
+   * @param {string} options.universePath - Path to the story DSL file
    * @param {string} [options.only=null] - Render only a specific content type
    * @param {string|null} [options.schemaDir=null] - Path to JSON schema directory
    * @returns {Promise<{files: Map<string,string>, rawDocuments: Map<string,string>, entities: object, validation: object, stats: {prose: {hits: number, misses: number, generated: number}, files: number, rawDocuments: number}}>}

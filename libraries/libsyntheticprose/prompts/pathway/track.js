@@ -1,3 +1,5 @@
+import { buildPreamble } from "./preamble.js";
+
 /**
  * Prompt template for a single track entity.
  *
@@ -6,14 +8,17 @@
  * @param {object} schema - JSON schema for track
  * @returns {{ system: string, user: string }}
  */
-export function buildTrackPrompt(skeleton, ctx, schema) {
+export function buildTrackPrompt(skeleton, ctx, schema, priorOutput) {
   return {
-    system: [
-      "You are an expert career framework author.",
-      "Output ONLY valid JSON. No markdown fences, no explanations.",
-      `The organization domain is: ${ctx.domain}.`,
-      `Industry: ${ctx.industry}.`,
-    ].join(" "),
+    system:
+      buildPreamble(ctx.frameworkName || ctx.domain) +
+      "\n\n" +
+      [
+        "You are an expert career framework author.",
+        "Output ONLY valid JSON. No markdown fences, no explanations.",
+        `The organization domain is: ${ctx.domain}.`,
+        `Industry: ${ctx.industry}.`,
+      ].join(" "),
 
     user: [
       "Generate a track definition for a career framework.",
@@ -44,6 +49,41 @@ export function buildTrackPrompt(skeleton, ctx, schema) {
       "  May use {roleTitle} placeholder. Example: 'You specialize in platform infrastructure.'",
       "- agent.priority: 1 sentence stating the track-specific priority.",
       "- agent.constraints: 1-2 additional constraints specific to this track.",
+      "",
+      ...(priorOutput?.levels ||
+      priorOutput?.behaviours ||
+      priorOutput?.capabilities
+        ? [
+            "",
+            "## Previously generated context",
+            ...(priorOutput.levels && Array.isArray(priorOutput.levels)
+              ? [
+                  "Level titles:",
+                  ...priorOutput.levels.map(
+                    (l) => `- ${l.id}: ${l.professionalTitle || l.id}`,
+                  ),
+                ]
+              : []),
+            ...(priorOutput.behaviours && Array.isArray(priorOutput.behaviours)
+              ? [
+                  "Behaviour names:",
+                  ...priorOutput.behaviours.map(
+                    (b) => `- ${b._id || b.id}: ${b.name || b._id || b.id}`,
+                  ),
+                ]
+              : []),
+            ...(priorOutput.capabilities &&
+            Array.isArray(priorOutput.capabilities)
+              ? [
+                  "Capability names and skill IDs:",
+                  ...priorOutput.capabilities.map(
+                    (c) =>
+                      `- ${c._id || c.id}: ${c.name || c._id || c.id} (skills: ${(c.skills || []).map((s) => s.id || s).join(", ")})`,
+                  ),
+                ]
+              : []),
+          ]
+        : []),
       "",
       "Output a single JSON object for this track.",
     ].join("\n"),

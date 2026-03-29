@@ -1,3 +1,9 @@
+import { buildPreamble } from "./preamble.js";
+import {
+  PROFICIENCY_LEVELS,
+  MATURITY_LEVELS,
+} from "@forwardimpact/libsyntheticgen/vocabulary.js";
+
 /**
  * Prompt template for levels.yaml — all levels in a single call.
  *
@@ -15,12 +21,15 @@ export function buildLevelPrompt(levels, ctx, schema) {
     .join("\n");
 
   return {
-    system: [
-      "You are an expert career framework author.",
-      "Output ONLY valid JSON. No markdown fences, no explanations.",
-      `The organization domain is: ${ctx.domain}.`,
-      `Industry: ${ctx.industry}.`,
-    ].join(" "),
+    system:
+      buildPreamble(ctx.frameworkName || ctx.domain) +
+      "\n\n" +
+      [
+        "You are an expert career framework author.",
+        "Output ONLY valid JSON. No markdown fences, no explanations.",
+        `The organization domain is: ${ctx.domain}.`,
+        `Industry: ${ctx.industry}.`,
+      ].join(" "),
 
     user: [
       "Generate career level definitions for an engineering pathway.",
@@ -44,9 +53,9 @@ export function buildLevelPrompt(levels, ctx, schema) {
       "  - qualificationSummary: 2-3 sentences describing qualifications.",
       "    May use {typicalExperienceRange} placeholder.",
       "  - baseSkillProficiencies: { primary, secondary, broad } using",
-      "    awareness/foundational/working/practitioner/expert.",
-      "    Increase across levels (L1→awareness, L5→expert for primary).",
-      "  - baseBehaviourMaturity: emerging/developing/practicing/role_modeling/exemplifying.",
+      `    ${PROFICIENCY_LEVELS.join("/")}.`,
+      `    Increase across levels (L1→${PROFICIENCY_LEVELS[0]}, L5→${PROFICIENCY_LEVELS.at(-1)} for primary).`,
+      `  - baseBehaviourMaturity: ${MATURITY_LEVELS.join("/")}.`,
       "    Increase across levels.",
       "  - expectations: { impactScope, autonomyExpectation, influenceScope, complexityHandled }.",
       "    Each 1 sentence showing clear progression.",

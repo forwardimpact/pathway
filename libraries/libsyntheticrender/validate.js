@@ -4,6 +4,8 @@
  * @module libuniverse/validate
  */
 
+import { PROFICIENCY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";
+
 /**
  * Validate cross-content integrity of generated entities.
  * @param {object} entities
@@ -36,6 +38,9 @@ export function validateCrossContent(entities) {
     checkScorecardCheckIds(entities),
     checkRosterSnapshotQuarters(entities),
     checkProjectTeamEmails(entities),
+    checkProseLength(entities),
+    checkProficiencyMonotonicity(entities),
+    checkSelfAssessmentPlausibility(entities),
   ];
 
   const failures = checks.filter((c) => !c.passed);
@@ -287,25 +292,10 @@ function checkGetDXSnapshotsInfoResponses(entities) {
 
 function checkSnapshotScoreDriverIds(entities) {
   const scores = entities.activity?.scores || [];
-  const VALID_DRIVERS = new Set([
-    "clear_direction",
-    "say_on_priorities",
-    "requirements_quality",
-    "ease_of_release",
-    "test_efficiency",
-    "managing_tech_debt",
-    "code_review",
-    "documentation",
-    "codebase_experience",
-    "incident_response",
-    "learning_culture",
-    "experimentation",
-    "connectedness",
-    "efficient_processes",
-    "deep_work",
-    "leveraging_user_feedback",
-  ]);
-  const invalid = scores.filter((s) => !VALID_DRIVERS.has(s.item_id));
+  const validDrivers = new Set(
+    (entities.framework?.drivers || []).map((d) => d.id),
+  );
+  const invalid = scores.filter((s) => !validDrivers.has(s.item_id));
   return {
     name: "snapshot_score_driver_ids",
     passed: invalid.length === 0,
@@ -331,13 +321,7 @@ function checkScoreTrajectories(entities) {
 
 function checkEvidenceProficiency(entities) {
   const evidence = entities.activity?.evidence || [];
-  const VALID_PROFICIENCIES = new Set([
-    "awareness",
-    "foundational",
-    "working",
-    "practitioner",
-    "expert",
-  ]);
+  const VALID_PROFICIENCIES = new Set(PROFICIENCY_LEVELS);
   const invalid = evidence.filter(
     (e) => e.proficiency && !VALID_PROFICIENCIES.has(e.proficiency),
   );
@@ -509,6 +493,179 @@ function checkProjectTeamEmails(entities) {
       invalid.length === 0
         ? "All project team member emails are known people"
         : `${invalid.length} project team members with unknown emails`,
+  };
+}
+
+// ─── E1: Prose length validation ────────────────
+
+const PROSE_RANGES = {
+  description: { min: 50, max: 2000 },
+  proficiencyDescription: { min: 20, max: 500 },
+  maturityDescription: { min: 20, max: 500 },
+};
+
+function checkProseLength(entities) {
+  const fw = entities.framework;
+  if (!fw)
+    return { name: "prose_length", passed: true, message: "No framework data" };
+
+  const errors = [];
+
+  // Check capabilities for description and proficiency descriptions
+  for (const cap of fw.capabilities || []) {
+    if (typeof cap !== "object") continue;
+    if (cap.description) {
+      const len = cap.description.length;
+      if (
+        len < PROSE_RANGES.description.min ||
+        len > PROSE_RANGES.description.max
+      ) {
+        errors.push(
+          `Capability '${cap.id || cap.name}' description: ${len} chars`,
+        );
+      }
+    }
+  }
+
+  // Check behaviours for description
+  for (const beh of fw.behaviours || []) {
+    if (typeof beh !== "object") continue;
+    if (beh.description) {
+      const len = beh.description.length;
+      if (
+        len < PROSE_RANGES.description.min ||
+        len > PROSE_RANGES.description.max
+      ) {
+        errors.push(
+          `Behaviour '${beh.id || beh.name}' description: ${len} chars`,
+        );
+      }
+    }
+  }
+
+  return {
+    name: "prose_length",
+    passed: errors.length === 0,
+    message:
+      errors.length === 0
+        ? "All prose fields within expected length range"
+        : `${errors.length} prose fields outside range: ${errors.slice(0, 3).join("; ")}`,
+  };
+}
+
+// ─── E2: Proficiency monotonicity ──────────────
+
+const PROF_INDEX = Object.fromEntries(PROFICIENCY_LEVELS.map((p, i) => [p, i]));
+
+function checkProficiencyMonotonicity(entities) {
+  const pathway = entities.pathway;
+  if (!pathway?.levels) {
+    return {
+      name: "proficiency_monotonicity",
+      passed: true,
+      message: "No pathway level data",
+    };
+  }
+
+  const levels = pathway.levels;
+  const levelIds = Object.keys(levels);
+  if (levelIds.length < 2) {
+    return {
+      name: "proficiency_monotonicity",
+      passed: true,
+      message: "Fewer than 2 levels",
+    };
+  }
+
+  const violations = [];
+  // For each skill, check that proficiency is non-decreasing across levels
+  const skillIds = new Set();
+  for (const levelId of levelIds) {
+    const baselines =
+      levels[levelId]?.baselines || levels[levelId]?.skillBaselines || {};
+    for (const skillId of Object.keys(baselines)) {
+      skillIds.add(skillId);
+    }
+  }
+
+  for (const skillId of skillIds) {
+    let prevIdx = -1;
+    for (const levelId of levelIds) {
+      const baselines =
+        levels[levelId]?.baselines || levels[levelId]?.skillBaselines || {};
+      const prof = baselines[skillId];
+      if (!prof || PROF_INDEX[prof] === undefined) continue;
+      const idx = PROF_INDEX[prof];
+      if (idx < prevIdx) {
+        violations.push(`Skill '${skillId}' decreases at level '${levelId}'`);
+      }
+      prevIdx = idx;
+    }
+  }
+
+  return {
+    name: "proficiency_monotonicity",
+    passed: violations.length === 0,
+    message:
+      violations.length === 0
+        ? "All skill proficiencies are non-decreasing across levels"
+        : `${violations.length} monotonicity violations: ${violations.slice(0, 3).join("; ")}`,
+  };
+}
+
+// ─── E3: Self-assessment plausibility ──────────
+
+function checkSelfAssessmentPlausibility(entities) {
+  const pathway = entities.pathway;
+  if (!pathway?.selfAssessments) {
+    return {
+      name: "self_assessment_plausibility",
+      passed: true,
+      message: "No self-assessment data",
+    };
+  }
+
+  const assessments = pathway.selfAssessments;
+  if (!Array.isArray(assessments) || assessments.length === 0) {
+    return {
+      name: "self_assessment_plausibility",
+      passed: true,
+      message: "No self-assessments",
+    };
+  }
+
+  const violations = [];
+  const threshold = 2; // Allow ±2 deviation from expected
+
+  for (let i = 0; i < assessments.length; i++) {
+    const assessment = assessments[i];
+    const profs = Object.values(assessment.skillProficiencies || {});
+    if (profs.length === 0) continue;
+
+    const indices = profs
+      .map((p) => PROF_INDEX[p])
+      .filter((idx) => idx !== undefined);
+    if (indices.length === 0) continue;
+
+    const median = indices.sort((a, b) => a - b)[
+      Math.floor(indices.length / 2)
+    ];
+    const expectedBase = Math.min(i, PROFICIENCY_LEVELS.length - 1);
+
+    if (Math.abs(median - expectedBase) > threshold) {
+      violations.push(
+        `Assessment '${assessment.id}': median proficiency ${median} vs expected ~${expectedBase}`,
+      );
+    }
+  }
+
+  return {
+    name: "self_assessment_plausibility",
+    passed: violations.length === 0,
+    message:
+      violations.length === 0
+        ? "Self-assessment distributions are plausible"
+        : `${violations.length} implausible assessments: ${violations.slice(0, 3).join("; ")}`,
   };
 }
 

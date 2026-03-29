@@ -1,3 +1,5 @@
+import { buildPreamble } from "./preamble.js";
+
 /**
  * Prompt template for drivers.yaml — all drivers in a single call.
  *
@@ -18,12 +20,15 @@ export function buildDriverPrompt(drivers, ctx, schema) {
     .join("\n");
 
   return {
-    system: [
-      "You are an expert career framework author.",
-      "Output ONLY valid JSON. No markdown fences, no explanations.",
-      `The organization domain is: ${ctx.domain}.`,
-      `Industry: ${ctx.industry}.`,
-    ].join(" "),
+    system:
+      buildPreamble(ctx.frameworkName || ctx.domain) +
+      "\n\n" +
+      [
+        "You are an expert career framework author.",
+        "Output ONLY valid JSON. No markdown fences, no explanations.",
+        `The organization domain is: ${ctx.domain}.`,
+        `Industry: ${ctx.industry}.`,
+      ].join(" "),
 
     user: [
       "Generate organizational driver definitions for a career framework.",

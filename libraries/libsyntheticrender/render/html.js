@@ -9,6 +9,44 @@
 import { generateDrugs, generatePlatforms } from "./industry-data.js";
 import { assignLinks } from "./link-assigner.js";
 
+const FAQ_QUESTIONS = [
+  "What is pharmaceutical engineering and what does it involve?",
+  "How does computational chemistry accelerate drug discovery?",
+  "What are the key phases of clinical trial development?",
+  "How does GMP compliance affect manufacturing processes?",
+  "What role does data science play in pharmaceutical R&D?",
+  "How are biomarkers used in drug development?",
+  "What is the drug approval process and how long does it take?",
+  "How does continuous manufacturing differ from batch processing?",
+  "What are the main challenges in scaling up drug production?",
+  "How do platform engineering teams support drug discovery?",
+  "What regulatory frameworks govern pharmaceutical development?",
+  "How is AI being used in drug candidate screening?",
+  "What quality control measures ensure drug safety?",
+  "How does real-world evidence complement clinical trials?",
+  "What are the key considerations for biologics manufacturing?",
+  "How do cross-functional teams collaborate in drug development?",
+  "What is the role of process analytical technology in manufacturing?",
+  "How are digital twins used in pharmaceutical engineering?",
+  "What sustainability practices are used in drug manufacturing?",
+  "How does pharmacovigilance work after drug approval?",
+  "What are the differences between small molecule and biologic drugs?",
+  "How do adaptive trial designs improve clinical development?",
+  "What is the role of observability in manufacturing systems?",
+  "How are cloud platforms used in pharmaceutical data management?",
+  "What are the key challenges in supply chain management for pharma?",
+  "How does formulation science affect drug delivery?",
+  "What are the best practices for laboratory data management?",
+  "How do engineering teams handle regulatory submission preparation?",
+  "What is the role of DevOps in pharmaceutical software systems?",
+  "How are patient-reported outcomes used in clinical development?",
+  "What are the principles of quality by design in drug manufacturing?",
+  "How does risk management apply to pharmaceutical engineering?",
+  "What emerging technologies are transforming drug development?",
+  "How do companies manage intellectual property in pharma R&D?",
+  "What role does environmental monitoring play in GMP facilities?",
+];
+
 /** Wrap inner HTML in the page shell. */
 function page(templates, title, body, domain) {
   return templates.render("page.html", {
@@ -45,6 +83,18 @@ export function renderHTML(entities, prose, templates) {
   const blogCount = gc?.blogs || 0;
   const articleTopics = gc?.article_topics || [];
 
+  // Extract org name and date range from entities
+  const orgName = entities.orgs?.[0]?.name || domain;
+  const allDates = (entities.scenarios || [])
+    .flatMap((s) => (s.snapshots || []).map((snap) => snap.date))
+    .sort();
+  const startYear = allDates.length
+    ? new Date(allDates[0]).getFullYear()
+    : null;
+  const endYear = allDates.length
+    ? new Date(allDates.at(-1)).getFullYear()
+    : null;
+
   // Assign cross-links deterministically
   const linked = assignLinks({
     drugs,
@@ -59,6 +109,10 @@ export function renderHTML(entities, prose, templates) {
     blogCount,
     articleTopics,
     seed: entities.activity?.seed || 42,
+    orgName,
+    startYear,
+    endYear,
+    blogTopics: gc?.blog_topics || null,
   });
 
   // Enrich platform and drug entities with reverse links
@@ -227,7 +281,7 @@ export function renderHTML(entities, prose, templates) {
             ].filter(Boolean);
             return {
               iri: `https://${domain}/id/faq/faq-${i + 1}`,
-              question: `FAQ Question ${i + 1}`,
+              question: FAQ_QUESTIONS[i % FAQ_QUESTIONS.length],
               answer: prose.get(`faq_${i}`) || `Answer to FAQ ${i + 1}.`,
               aboutLinks,
             };

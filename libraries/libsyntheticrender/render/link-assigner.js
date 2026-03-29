@@ -50,9 +50,16 @@ export function assignLinks({
   blogCount,
   articleTopics = [],
   seed = 42,
+  orgName = null,
+  startYear = null,
+  endYear = null,
+  blogTopics = null,
 }) {
   const rng = createSeededRNG(seed + 1000);
   const base = `https://${domain}`;
+  const effectiveOrgName = orgName || domain;
+  const effectiveStartYear = startYear || new Date().getFullYear();
+  const yearSpan = endYear && startYear ? endYear - startYear + 1 : 1;
 
   // --- Project linking ---
   const linkedProjects = projects.map((proj) => {
@@ -189,9 +196,9 @@ export function assignLinks({
         platformLink,
         drugLink,
         attendees,
-        date: `2025-${String((i % 12) + 1).padStart(2, "0")}-01`,
-        orgName: "BioNova",
-        orgIri: `${base}/org/headquarters`,
+        date: `${effectiveStartYear + (i % yearSpan)}-${String((i % 12) + 1).padStart(2, "0")}-01`,
+        orgName: effectiveOrgName,
+        orgIri: `${base}/id/org/headquarters`,
       };
     },
   );
@@ -228,7 +235,7 @@ export function assignLinks({
       aboutProjects,
       aboutDrugs,
       aboutPlatforms,
-      date: `2025-${String((i % 12) + 1).padStart(2, "0")}-15`,
+      date: `${effectiveStartYear + (i % yearSpan)}-${String((i % 12) + 1).padStart(2, "0")}-15`,
       location: "Cambridge, MA",
       eventStatus: "EventScheduled",
     };
@@ -253,6 +260,71 @@ export function assignLinks({
     "Open Source in Pharmaceutical R&D",
   ];
 
+  // Weighted topic selection from DSL blog_topics or fallback to BLOG_TOPICS
+  const weightedTopicEntries = blogTopics
+    ? Object.entries(blogTopics).map(([name, weight]) => ({ name, weight }))
+    : null;
+
+  // Title templates per topic — cycle through for variety
+  const TOPIC_TITLES = {
+    drug_discovery: [
+      "Advances in AI-Driven Drug Discovery",
+      "Accelerating Lead Optimization with Computational Methods",
+      "From Target Identification to Clinical Candidate",
+      "Novel Approaches to Drug Screening and Design",
+      "Machine Learning in Molecular Discovery",
+    ],
+    platform_engineering: [
+      "Building Scalable Platform Infrastructure",
+      "Platform Engineering at Scale",
+      "Cloud-Native Architecture for Life Sciences",
+      "Developer Experience and Platform Tooling",
+      "Infrastructure as Code in Practice",
+    ],
+    clinical_development: [
+      "Navigating Complex Clinical Trial Design",
+      "Real-World Evidence in Clinical Development",
+      "Adaptive Trial Strategies for Modern Therapeutics",
+      "Biomarker-Driven Clinical Programs",
+    ],
+    data_science: [
+      "Data Science in Pharmaceutical R&D",
+      "Building Robust Data Pipelines for Drug Development",
+      "Machine Learning Models for Bioprocess Optimization",
+      "Data Mesh Architecture for Pharma",
+    ],
+    engineering_culture: [
+      "Building a Culture of Engineering Excellence",
+      "Cross-Functional Collaboration in Drug Development",
+      "Developer Experience: Lessons Learned",
+      "Mentoring and Growth in Engineering Teams",
+    ],
+  };
+  const topicCounters = {};
+
+  function selectBlogTopic(index) {
+    if (!weightedTopicEntries) return BLOG_TOPICS[index % BLOG_TOPICS.length];
+    const total = weightedTopicEntries.reduce((s, t) => s + t.weight, 0);
+    let r = rng.random() * total;
+    let selectedKey = weightedTopicEntries.at(-1).name;
+    for (const t of weightedTopicEntries) {
+      r -= t.weight;
+      if (r <= 0) {
+        selectedKey = t.name;
+        break;
+      }
+    }
+    // Map topic key to a human-readable title
+    const titles = TOPIC_TITLES[selectedKey];
+    if (!titles)
+      return selectedKey
+        .replace(/_/g, " ")
+        .replace(/\b\w/g, (c) => c.toUpperCase());
+    const count = topicCounters[selectedKey] || 0;
+    topicCounters[selectedKey] = count + 1;
+    return titles[count % titles.length];
+  }
+
   const linkedBlogPosts = Array.from({ length: blogCount }, (_, i) => {
     const author = rng.pick(people);
     const aboutDrugs = rng.shuffle(drugs).slice(0, rng.randomInt(1, 3));
@@ -271,16 +343,16 @@ export function assignLinks({
 
     return {
       index: i + 1,
-      headline: BLOG_TOPICS[i % BLOG_TOPICS.length],
+      headline: selectBlogTopic(i),
       iri: `${base}/id/blog/blog-${i + 1}`,
-      identifier: `BLOG-2025-${String(i + 1).padStart(3, "0")}`,
+      identifier: `BLOG-${effectiveStartYear}-${String(i + 1).padStart(3, "0")}`,
       author,
       aboutDrugs,
       aboutPlatforms,
       aboutProjects,
       mentionsPeople,
       keywords: keywords.join(", "),
-      date: `2025-${String(Math.floor(i / 2) + 1).padStart(2, "0")}-${String(10 + (i % 20)).padStart(2, "0")}`,
+      date: `${effectiveStartYear + (Math.floor(i / 24) % yearSpan)}-${String((Math.floor(i / 2) % 12) + 1).padStart(2, "0")}-${String(10 + (i % 20)).padStart(2, "0")}`,
     };
   });
 
@@ -334,7 +406,7 @@ export function assignLinks({
         ...drugLinks.map((d) => d.name),
         ...platformLinks.map((p) => p.name),
       ].join(", "),
-      date: `2025-${String((i % 12) + 1).padStart(2, "0")}-01`,
+      date: `${effectiveStartYear + (i % yearSpan)}-${String((i % 12) + 1).padStart(2, "0")}-01`,
     };
   });
 

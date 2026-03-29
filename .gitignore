@@ -2,10 +2,10 @@
 data/
 data
 !libraries/libuniverse/data/
+!data/synthetic/
 
 # Generated examples (universe output)
 examples/
-!examples/universe.dsl
 
 # Generated code
 generated/
@@ -24,9 +24,6 @@ generated/
 **/config/eval.yml
 **/config/agents/*.agent.md
 !**/config/agents/*.agent.example.md
-
-# Prose cache (LLM generation artifact)
-.prose-cache.json
 
 # Development files
 tmp/

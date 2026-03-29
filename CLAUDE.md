@@ -135,7 +135,8 @@ When updating data structure: schema (`products/map/schema/`) → data
 | -------------- | -------------------------------------------- |
 | Pathway data   | `data/pathway/`                              |
 | Repo config    | `data/pathway/repository/`                   |
-| Universe DSL   | `examples/universe.dsl`                      |
+| Story DSL      | `data/synthetic/story.dsl`                   |
+| Prose cache    | `data/synthetic/prose-cache.json`            |
 | Generated data | `data/` (output of `fit-universe`)           |
 | JSON Schema    | `products/map/schema/json/`                  |
 | RDF/SHACL      | `products/map/schema/rdf/`                   |

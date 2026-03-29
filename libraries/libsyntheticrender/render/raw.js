@@ -429,6 +429,7 @@ function renderRoster(entities) {
     level: person.level,
     hire_date: person.hire_date,
     is_manager: person.is_manager || false,
+    archetype: person.archetype || "steady_contributor",
   }));
 
   return YAML.stringify({ roster }, { lineWidth: 120 });
@@ -452,7 +453,7 @@ function renderTeams(entities) {
       department_name: dept?.name || "",
       manager: manager?.name || "",
       manager_email: manager?.email || "",
-      size: team.size,
+      size: members.length,
       members: members.map((m) => ({
         name: m.name,
         email: m.email,

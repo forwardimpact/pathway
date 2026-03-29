@@ -15,39 +15,42 @@ import {
  * Build all entities from AST and RNG.
  * @param {import('../dsl/parser.js').UniverseAST} ast
  * @param {import('./rng.js').SeededRNG} rng
+ * @param {object} [logger] - Logger instance for warnings
  * @returns {{ orgs: object[], departments: object[], teams: object[], people: object[], projects: object[] }}
  */
-export function buildEntities(ast, rng) {
+export function buildEntities(ast, rng, logger) {
   const domain = ast.domain;
   const orgs = ast.orgs.map((o) => ({
     ...o,
-    iri: `https://${domain}/org/${o.id}`,
+    iri: `https://${domain}/id/org/${o.id}`,
   }));
   const departments = ast.departments.map((d) => ({
     ...d,
-    iri: `https://${domain}/department/${d.id}`,
+    iri: `https://${domain}/id/department/${d.id}`,
   }));
   const teams = ast.teams.map((t) => ({
     ...t,
     repos: t.repos || [],
-    iri: `https://${domain}/team/${t.id}`,
+    iri: `https://${domain}/id/team/${t.id}`,
     getdx_team_id: `gdx_team_${t.id}`,
   }));
-  const people = generatePeople(ast, rng, teams, domain);
+  const people = generatePeople(ast, rng, teams, domain, logger);
   const projects = ast.projects.map((p) => ({
     ...p,
     teams: p.teams || [],
     phase: p.phase || null,
     prose_topic: p.prose_topic || null,
     prose_tone: p.prose_tone || null,
-    iri: `https://${domain}/project/${p.id}`,
+    iri: `https://${domain}/id/project/${p.id}`,
   }));
 
   return { orgs, departments, teams, people, projects };
 }
 
-function generatePeople(ast, rng, teams, domain) {
-  const { count, distribution, disciplines } = ast.people;
+function generatePeople(ast, rng, teams, domain, logger) {
+  const { count, distribution, disciplines, archetypes } = ast.people;
+  const archetypeKeys = archetypes ? Object.keys(archetypes) : [];
+  const archetypeWeights = archetypes ? Object.values(archetypes) : [];
   const people = [];
   const usedNames = new Set();
 
@@ -71,6 +74,9 @@ function generatePeople(ast, rng, teams, domain) {
   for (const team of teams) {
     if (!team.manager) continue;
     const name = managerAssignments.get(team.id);
+    const archetype = archetypeKeys.length
+      ? archetypeKeys[rng.weightedPick(archetypeWeights)]
+      : "steady_contributor";
     people.push(
       makePerson(
         name,
@@ -80,6 +86,8 @@ function generatePeople(ast, rng, teams, domain) {
         domain,
         true,
         null,
+        undefined,
+        archetype,
       ),
     );
   }
@@ -92,6 +100,9 @@ function generatePeople(ast, rng, teams, domain) {
     const disc = discKeys[rng.weightedPick(discWeights)];
     const team = rng.pick(teams);
     const mgr = people.find((p) => p.is_manager && p.team_id === team.id);
+    const archetype = archetypeKeys.length
+      ? archetypeKeys[rng.weightedPick(archetypeWeights)]
+      : "steady_contributor";
     people.push(
       makePerson(
         name,
@@ -102,7 +113,14 @@ function generatePeople(ast, rng, teams, domain) {
         false,
         mgr?.email || null,
         `2023-${pad2(rng.randomInt(1, 12))}-${pad2(rng.randomInt(1, 28))}`,
+        archetype,
       ),
+    );
+  }
+
+  if (people.length < count && logger) {
+    logger.warn(
+      `People shortfall: requested ${count}, generated ${people.length} (name pool exhausted)`,
     );
   }
 
@@ -118,6 +136,7 @@ function makePerson(
   isManager,
   managerEmail,
   hireDate = "2023-01-15",
+  archetype = "steady_contributor",
 ) {
   const id = name.toLowerCase().replace(/\s+/g, "-");
   return {
@@ -134,7 +153,8 @@ function makePerson(
     is_manager: isManager,
     manager_email: managerEmail,
     hire_date: hireDate,
-    iri: `https://${domain}/person/${id}`,
+    archetype,
+    iri: `https://${domain}/id/person/${id}`,
   };
 }
 

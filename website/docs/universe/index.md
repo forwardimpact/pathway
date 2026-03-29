@@ -136,7 +136,7 @@ Content generation happens in tiers:
 | 1    | Template-based prose           | Yes          |
 | 2    | Deep framework prose (pathway) | Yes          |
 
-Use `--generate` to invoke the LLM. Results are cached in `.prose-cache.json` —
+Use `--generate` to invoke the LLM. Results are cached in `prose-cache.json` —
 subsequent runs with `--cached` skip LLM calls entirely. Use `--cached --strict`
 to fail on cache misses rather than silently skipping.
 
@@ -153,12 +153,12 @@ npx fit-map validate --data=examples/pathway
 
 ---
 
-## Custom Universe Files
+## Custom Story Files
 
-Point to any DSL file with `--universe=path`:
+Point to any DSL file with `--story=path`:
 
 ```sh
-npx fit-universe --universe=./my-universe.dsl --generate
+npx fit-universe --story=./my-story.dsl --generate
 ```
 
 This is useful for generating data for different organizational shapes, team

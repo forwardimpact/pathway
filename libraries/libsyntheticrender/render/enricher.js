@@ -44,10 +44,16 @@ function buildEnrichContext(enrichKey, linked) {
           .slice(0, 3)
           .map((m) => ({ type: "Person", name: m.name, iri: m.iri })),
       ];
+      const narrative = {};
+      if (proj.milestones?.length) narrative.milestones = proj.milestones;
+      if (proj.risks?.length) narrative.risks = proj.risks;
+      if (proj.technical_choices?.length)
+        narrative.technical_choices = proj.technical_choices;
       return {
         entityType: "Project",
         entityName: proj.name,
         mentionTargets: mentions,
+        ...(Object.keys(narrative).length > 0 && { narrative }),
       };
     }
     case "platform": {

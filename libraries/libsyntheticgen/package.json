@@ -16,6 +16,8 @@
     "./engine": "./engine/tier0.js",
     "./engine/entities": "./engine/entities.js",
     "./engine/activity": "./engine/activity.js",
+    "./vocabulary": "./vocabulary.js",
+    "./vocabulary.js": "./vocabulary.js",
     "./rng": "./engine/rng.js",
     "./tools/faker": "./tools/faker.js",
     "./tools/synthea": "./tools/synthea.js",
