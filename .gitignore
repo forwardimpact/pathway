@@ -11,6 +11,14 @@ examples/
 generated/
 **/generated
 
+# Sensitive files
+*.pem
+*.key
+*.p12
+*.pfx
+credentials.json
+service-account.json
+
 # Environment files (use *.example templates)
 **/.env
 **/.env.*
