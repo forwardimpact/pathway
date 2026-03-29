@@ -57,12 +57,12 @@ website/docs/
 Every sentence belongs to exactly one audience. When writing or reviewing, apply
 these rules strictly:
 
-| Content type | Audience | Section |
-| --- | --- | --- |
-| How to accomplish a task with the products | Leadership, Developers | Getting Started, Guides |
-| Entity definitions, CLI synopsis, YAML format | All users | Reference |
-| Module structures, code imports, class names, `src/` paths | Contributors | Internals |
-| Internal architecture, data flow diagrams, formatter patterns | Contributors | Internals |
+| Content type                                                  | Audience               | Section                 |
+| ------------------------------------------------------------- | ---------------------- | ----------------------- |
+| How to accomplish a task with the products                    | Leadership, Developers | Getting Started, Guides |
+| Entity definitions, CLI synopsis, YAML format                 | All users              | Reference               |
+| Module structures, code imports, class names, `src/` paths    | Contributors           | Internals               |
+| Internal architecture, data flow diagrams, formatter patterns | Contributors           | Internals               |
 
 **Never mix audiences on the same page.** If a page mentions both CLI usage and
 module internals, split it. User-facing pages (Getting Started, Guides,
@@ -142,7 +142,8 @@ is structured.
    Reference page, move it to the appropriate Internals page.
 3. **Verify CLI examples.** Run every CLI command shown. Use
    `--data=data/pathway` for canonical output.
-4. **Verify YAML examples.** Check against schemas in `products/map/schema/json/`.
+4. **Verify YAML examples.** Check against schemas in
+   `products/map/schema/json/`.
 5. **Check cross-links.** Ensure all internal links resolve to pages that exist.
 6. **Build and check.** Run `npx fit-doc build --src=website --out=dist`.
 
@@ -161,34 +162,34 @@ is structured.
 
 ## Source of Truth
 
-| Documentation topic | Verify against |
-| --- | --- |
-| Skills and levels | `data/pathway/capabilities/` |
-| Behaviours | `data/pathway/behaviours/` |
-| Disciplines | `data/pathway/disciplines/` |
-| Tracks | `data/pathway/tracks/` |
-| Levels | `data/pathway/levels.yaml` |
-| Stages | `data/pathway/stages.yaml` |
-| Drivers | `data/pathway/drivers.yaml` |
-| Job derivation | `libraries/libskill/src/job.js` |
-| Agent derivation | `libraries/libskill/src/agent.js` |
-| Map validation | `products/map/src/` |
-| Pathway CLI | `products/pathway/bin/fit-pathway.js` |
-| Basecamp CLI | `products/basecamp/bin/fit-basecamp.js` |
-| Landmark CLI | `products/landmark/bin/fit-landmark.js` |
-| Summit CLI | `products/summit/bin/fit-summit.js` |
-| Universe CLI | `libraries/libuniverse/bin/fit-universe.js` |
-| Templates | `products/pathway/templates/` |
-| JSON Schema | `products/map/schema/json/` |
-| RDF/SHACL Schema | `products/map/schema/rdf/` |
-| LLM / SEO outputs | `website/llms.txt`, `website/robots.txt` |
+| Documentation topic | Verify against                              |
+| ------------------- | ------------------------------------------- |
+| Skills and levels   | `data/pathway/capabilities/`                |
+| Behaviours          | `data/pathway/behaviours/`                  |
+| Disciplines         | `data/pathway/disciplines/`                 |
+| Tracks              | `data/pathway/tracks/`                      |
+| Levels              | `data/pathway/levels.yaml`                  |
+| Stages              | `data/pathway/stages.yaml`                  |
+| Drivers             | `data/pathway/drivers.yaml`                 |
+| Job derivation      | `libraries/libskill/src/job.js`             |
+| Agent derivation    | `libraries/libskill/src/agent.js`           |
+| Map validation      | `products/map/src/`                         |
+| Pathway CLI         | `products/pathway/bin/fit-pathway.js`       |
+| Basecamp CLI        | `products/basecamp/bin/fit-basecamp.js`     |
+| Landmark CLI        | `products/landmark/bin/fit-landmark.js`     |
+| Summit CLI          | `products/summit/bin/fit-summit.js`         |
+| Universe CLI        | `libraries/libuniverse/bin/fit-universe.js` |
+| Templates           | `products/pathway/templates/`               |
+| JSON Schema         | `products/map/schema/json/`                 |
+| RDF/SHACL Schema    | `products/map/schema/rdf/`                  |
+| LLM / SEO outputs   | `website/llms.txt`, `website/robots.txt`    |
 
 ## Layouts
 
-| Layout | Use for |
-| --- | --- |
+| Layout    | Use for                                                                             |
+| --------- | ----------------------------------------------------------------------------------- |
 | `product` | Section index pages (Getting Started, Guides, Reference, Internals) — grid of cards |
-| _(none)_ | Leaf pages — prose with table of contents |
+| _(none)_  | Leaf pages — prose with table of contents                                           |
 
 ## Commit
 
