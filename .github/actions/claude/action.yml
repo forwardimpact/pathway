@@ -35,7 +35,7 @@ runs:
   steps:
     - name: Install Claude Code
       shell: bash
-      run: npm install -g @anthropic-ai/claude-code
+      run: npm install -g @anthropic-ai/claude-code@2.1.87
 
     - name: Configure Git identity
       shell: bash
