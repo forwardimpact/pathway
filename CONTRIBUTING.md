@@ -41,8 +41,8 @@ All changes go through pull requests — never push directly to `main`.
 
 1. Create a branch from `main`
 2. Make your changes
-3. Auto-fix formatting and lint: `npm run check:fix`
-4. Verify all checks pass: `npm run check`
+3. Auto-fix formatting and lint: `npm run check:fix` (applies to all file types)
+4. Verify all checks pass: `npm run check` (required for code **and** docs)
 5. Run security audit: `make audit`
 6. Commit: `git commit -m "type(scope): subject"`
 7. Push and open a pull request against `main`
@@ -86,7 +86,7 @@ The release engineer agent handles version bumps, tagging, and publishing. See
 ## Quality Commands
 
 ```sh
-npm run check                 # Format, lint, test, validate (run before pushing)
+npm run check                 # Format, lint, test, validate — ALL file types (run before every commit)
 npm run check:fix             # Auto-fix format and lint issues
 npm run format                # Check Prettier formatting
 npm run format:fix            # Auto-fix Prettier formatting

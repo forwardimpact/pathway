@@ -87,8 +87,8 @@ local and deterministic — no external dependencies, no LLM calls.
 
 Commit format: `type(scope): subject` — see CONTRIBUTING.md § Git Conventions.
 
-Run `npm run check` before every commit to catch format, lint, and test failures
-early.
+Run `npm run check` before every commit — code **and** documentation. It formats
+and lints many file types (JS, YAML, Markdown, JSON), not just source code.
 
 ## Policy Ownership
 
