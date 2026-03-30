@@ -25,6 +25,8 @@ jobs:
           token: ${{ secrets.SKILLS_PUBLISH_TOKEN }}
           path: skills-repo
 
+      - uses: ./monorepo/.github/actions/audit
+
       - name: Sync skills
         run: |
           # Clean existing skills (full replace, not merge)

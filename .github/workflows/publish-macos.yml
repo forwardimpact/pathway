@@ -32,6 +32,9 @@ jobs:
 
       - uses: ./.github/actions/audit
 
+      - name: Run tests
+        run: npm run test
+
       - name: Build .pkg installer
         working-directory: products/basecamp
         run: just pkg
