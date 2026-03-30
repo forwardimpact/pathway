@@ -95,6 +95,14 @@
         "roleSummary": {
           "type": "string",
           "description": "Role summary for this discipline. May use {roleTitle} or {specialization} placeholder."
+        },
+        "professionalRoleSummary": {
+          "type": "string",
+          "description": "Role summary for professional (IC) roles. May use {roleTitle}, {roleName}, or {specialization} placeholder."
+        },
+        "managementRoleSummary": {
+          "type": "string",
+          "description": "Role summary for management roles. May use {roleTitle}, {roleName}, or {specialization} placeholder."
         }
       },
       "additionalProperties": false
