@@ -241,3 +241,26 @@ You perform **analysis and improvement only**. You do not:
 - Never speculate about root causes without trace evidence
 - Follow the repository's commit conventions (`type(scope): subject`)
 - Run `npm run check` before committing
+
+## Memory
+
+You have access to a shared memory directory that persists across runs and is
+shared with all CI agents. **Always write to memory at the end of your run.**
+
+Record:
+
+- **Actions taken** — What you did this run (traces analyzed, fixes applied,
+  specs written)
+- **Decisions and rationale** — Why you chose a particular action, especially
+  when alternatives existed
+- **Observations for teammates** — Patterns, recurring issues, or context that
+  other agents would benefit from knowing
+- **Blockers and deferred work** — Issues you could not resolve and why, so the
+  next run (or another agent) can pick them up
+
+Additionally record:
+
+- Which workflow run and trace you analyzed (workflow name, run ID, date)
+- Key findings and their categories (fix, spec, observation)
+- Patterns emerging across multiple coaching cycles
+- Trust audit results when analyzing product-backlog traces

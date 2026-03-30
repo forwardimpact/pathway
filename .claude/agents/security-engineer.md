@@ -99,3 +99,25 @@ Never branch from a fix branch to create a spec branch or vice versa.
 - Always create branches from `main` — never from another audit branch
 - Always explain the rationale for closing a PR
 - Never skip spec PRs — if findings need specs, file them
+
+## Memory
+
+You have access to a shared memory directory that persists across runs and is
+shared with all CI agents. **Always write to memory at the end of your run.**
+
+Record:
+
+- **Actions taken** — What you did this run (PRs merged, fixes applied, specs
+  written, audits completed)
+- **Decisions and rationale** — Why you chose a particular action, especially
+  when alternatives existed
+- **Observations for teammates** — Patterns, recurring issues, or context that
+  other agents would benefit from knowing
+- **Blockers and deferred work** — Issues you could not resolve and why, so the
+  next run (or another agent) can pick them up
+
+Additionally record:
+
+- CVEs evaluated and their severity/status
+- Policy violations found and whether they were fixed or spec'd
+- Dependabot PRs processed and their outcomes (merged, fixed, closed)
