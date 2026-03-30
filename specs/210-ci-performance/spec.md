@@ -1,20 +1,21 @@
-# 210 — CI Performance: Bun Migration and Workflow Optimization
+# 210 — CI Performance: Full Bun Migration
 
 Every pull request triggers three GitHub Actions workflows that collectively spin
 up six jobs. Five of those six jobs independently run `npm ci` against 46
-workspaces, installing 225 MB of node_modules from scratch each time. The
-package manager is the single largest time cost in CI, and it runs five times in
-parallel for every push.
+workspaces, installing 225 MB of node_modules from scratch each time. Beyond CI,
+another six scheduled agent workflows and three publish workflows all pay the
+same cost. The package manager is the single largest time sink across the entire
+GitHub Actions footprint.
 
-This spec defines a migration from npm to Bun as the package manager and script
-runner across all CI workflows, plus targeted workflow optimizations that
-compound with the faster runtime.
+This spec defines a full migration from Node.js + npm to Bun as the runtime,
+package manager, and script runner across the entire project — CI workflows,
+local development, and production.
 
 ## Problem
 
 ### npm ci dominates wall-clock time
 
-The `make install` step (`npm ci` + codegen) runs in five of six CI jobs:
+The `make install` step (`npm ci` + codegen) runs in 12 of 15 workflow jobs:
 
 | Workflow | Job | Runs `make install`? |
 |---|---|---|
@@ -24,12 +25,22 @@ The `make install` step (`npm ci` + codegen) runs in five of six CI jobs:
 | check-test.yml | e2e | yes |
 | check-security.yml | vulnerability-scanning | yes |
 | check-security.yml | secret-scanning | no |
+| publish-npm.yml | publish | yes |
+| publish-macos.yml | build | no (uses npm run directly) |
+| publish-skills.yml | publish | no (no install needed) |
+| website.yaml | build | yes (npm ci) |
+| security-audit.yml | audit | yes |
+| release-readiness.yml | readiness | yes |
+| release-review.yml | review | yes |
+| product-backlog.yml | backlog | yes |
+| improvement-coach.yml | coach | yes |
+| dependabot-triage.yml | triage | yes |
 
 Each `npm ci` invocation resolves, downloads, and links 652 packages across 46
 workspaces. Even with GitHub Actions npm caching enabled (`cache: npm` on
 setup-node), the restore-cache + `npm ci` + codegen step costs 30-60 seconds per
-job. Multiplied across five jobs, the monorepo pays 2.5-5 minutes of aggregate
-compute time on package installation alone — and that's the _cached_ case.
+job. Across all workflows, the monorepo pays this cost 12 times per trigger
+cycle.
 
 ### Sequential check script compounds locally
 
@@ -61,15 +72,23 @@ The `vulnerability-scanning` job in check-security.yml runs `make install` (full
 lockfile and package metadata — it does not need the installed node_modules tree
 or generated code.
 
+### Two runtimes add friction
+
+The project currently requires Node.js as the runtime while npm serves as the
+package manager. Basecamp already uses Deno for its build. Standardizing on Bun
+as the single runtime eliminates the Node.js dependency for contributors, aligns
+the runtime with the package manager, and simplifies the toolchain to one
+install.
+
 ## Proposal
 
-### Migrate CI to Bun
+### Migrate fully to Bun
 
-Replace npm with Bun as the package manager and script runner in all CI
-workflows. Bun's install is 10-30x faster than npm ci in benchmarks due to its
-native binary linker and global module cache. On a cold install of a comparable
-monorepo (hundreds of packages, 200+ MB node_modules), Bun typically completes
-in under 3 seconds versus npm ci's 30-60 seconds.
+Replace Node.js + npm with Bun as the runtime, package manager, and script
+runner across the entire project. Bun's install is 10-30x faster than `npm ci`
+due to its native binary linker and global module cache. Its runtime is
+compatible with the Node.js APIs this project uses, and its script execution
+avoids npm's shell-spawning overhead.
 
 The monorepo is well-suited for this migration:
 
@@ -89,30 +108,54 @@ The monorepo is well-suited for this migration:
 
 Scope of Bun adoption:
 
-- **Package manager: yes.** `bun install` replaces `npm ci` in CI. Generates
-  `bun.lock` alongside the existing `package-lock.json`.
+- **Runtime: yes.** Bun replaces Node.js as the execution runtime. The `engines`
+  field in package.json changes from `node >= 18.0.0` to specify Bun. CLI entry
+  points (`bin/fit-*.js`) and services run under Bun. CI workflows use
+  `oven-sh/setup-bun` instead of `actions/setup-node`.
+- **Package manager: yes.** `bun install` replaces `npm ci` and `npm install`
+  everywhere. `bun.lock` becomes the canonical lockfile.
 - **Script runner: yes.** `bun run` replaces `npm run` for executing package
-  scripts in CI workflows, eliminating npm's shell-spawning overhead.
-- **Test runner: no.** Keep `node --test` as the test runner. The project
-  standardizes on the Node.js test runner per CONTRIBUTING.md and CLAUDE.md.
-  Bun's test runner uses a different API (`bun:test`) that would require
-  rewriting all 110 test files. Using `bun run node --test` still gets the
-  faster process spawning benefit.
-- **Runtime: no.** Application code continues to run on Node.js. Bun is adopted
-  as a development and CI tool, not as the production runtime. The `engines`
-  field in package.json remains `node >= 18.0.0`.
+  scripts, eliminating npm's shell-spawning overhead.
+- **Test runner: no.** Keep `node:test` as the test API. Tests continue to use
+  `import { test, describe } from "node:test"` and `import assert from
+  "node:assert"`. Bun executes them via `bun --test` or `bun run node --test` —
+  the test _API_ stays the same, only the _runner process_ changes.
+
+### Remove package-lock.json
+
+Delete `package-lock.json` and make `bun.lock` the sole lockfile. Maintaining
+two lockfiles creates drift risk — a dependency added via `bun install` won't
+appear in `package-lock.json` and vice versa. Since the entire project
+standardizes on Bun, the npm lockfile serves no purpose.
+
+### Migrate all workflows
+
+Every GitHub Actions workflow that currently uses `actions/setup-node` and
+`npm ci` / `make install` switches to `oven-sh/setup-bun` and `bun install`.
+This includes:
+
+- **CI check workflows** (3): check-quality, check-test, check-security
+- **Publish workflows** (3): publish-npm, publish-macos, publish-skills
+- **Website workflow** (1): website
+- **Agent workflows** (6): security-audit, release-readiness, release-review,
+  product-backlog, improvement-coach, dependabot-triage
+
+The `.github/actions/claude` composite action switches its global install from
+`npm install -g @anthropic-ai/claude-code` to `bun install -g
+@anthropic-ai/claude-code`.
+
+The `.github/actions/audit` composite action adapts vulnerability scanning to
+work with Bun's lockfile, either via `bun pm` or by retaining a targeted
+`npm audit` invocation.
 
 ### Optimize vulnerability scanning
 
-Replace the full `make install` in the vulnerability-scanning job with `bun
-install --frozen-lockfile` (or simply rely on the lockfile). `npm audit`
-(or its equivalent) reads package metadata, not installed code. If Bun is
-the package manager, use `bun pm` or continue to use `npm audit` with a
-minimal install.
-
-Alternatively, since `npm audit` parses the lockfile: install only npm (not the
-full dependency tree) and run `npm audit` against the lockfile directly. The
-codegen step is unnecessary for auditing.
+The vulnerability-scanning job currently runs `make install` (full dependency
+tree + codegen) just to execute `npm audit`. The audit reads package metadata,
+not installed code. With Bun as the package manager, the job installs
+dependencies (fast) but skips codegen entirely. If `bun audit` or equivalent
+is not available, a lightweight `npm audit` against the lockfile can be retained
+without the full install.
 
 ### Increase Playwright parallelism
 
@@ -123,7 +166,7 @@ Chromium instances.
 
 ### Parallelize the local check script
 
-Replace the sequential `&&` chain in `npm run check` with a parallel runner.
+Replace the sequential `&&` chain in `bun run check` with a parallel runner.
 Format and lint have no interdependency. Test and validate have no
 interdependency. The new structure runs both pairs concurrently, reducing local
 check time by roughly 40%.
@@ -132,52 +175,45 @@ check time by roughly 40%.
 
 ### In scope
 
-- All three CI check workflows: `check-quality.yml`, `check-test.yml`,
-  `check-security.yml`
-- The `make install` target in `Makefile`
-- The `check` script in root `package.json`
+- All 13 GitHub Actions workflow files in `.github/workflows/`
+- Both composite actions in `.github/actions/` (claude, audit)
+- The `make install` target and other Makefile targets that use `npx`
+- The root `package.json` (scripts, engines)
 - The `playwright.config.js` CI worker count
-- Generation of `bun.lock`
-- The `publish-npm.yml` workflow (uses `make install`)
-- The `publish-skills.yml` workflow (uses `make install`)
-- The `website.yaml` workflow (uses `npm ci`)
+- Generation of `bun.lock` and deletion of `package-lock.json`
+- CONTRIBUTING.md and CLAUDE.md references to npm commands
+- The `.github/dependabot.yml` ecosystem configuration
 
 ### Out of scope
 
-- **Merging CI jobs.** Lint, format, test, and E2E remain separate jobs. Separate
-  jobs provide faster signal — a developer sees "lint failed" or "format failed"
-  immediately without waiting for the full suite. The cost of separate jobs drops
-  dramatically when install takes 2 seconds instead of 45.
-- **Agent workflows.** The Claude agent workflows (`security-audit.yml`,
-  `release-readiness.yml`, etc.) use the custom `.github/actions/claude`
-  composite action, which installs Claude Code via npm. These workflows are
-  scheduled, not on the PR critical path, and have different optimization
-  characteristics.
-- **Removing package-lock.json.** Keep both lockfiles during the transition.
-  Developers who prefer npm locally can continue using it. CI uses Bun.
-- **Bun as production runtime.** Node.js remains the runtime for all services
-  and CLIs. The `engines` field is unchanged.
-- **Local developer workflow mandate.** Developers may use npm or Bun locally.
-  CI standardizes on Bun. The `make install` target switches to Bun, but `npm
-  install` continues to work from `package-lock.json`.
+- **Merging CI jobs.** Lint, format, test, and E2E remain separate jobs.
+  Separate jobs provide faster signal — a developer sees "lint failed" or
+  "format failed" immediately without waiting for the full suite. The cost of
+  separate jobs drops dramatically when install takes 2 seconds instead of 45.
+- **Rewriting tests to `bun:test`.** Tests keep the `node:test` API. This
+  avoids rewriting 110 test files and maintains portability.
+- **Basecamp's Deno dependency.** The macOS build uses Deno via `just pkg`.
+  That's a separate toolchain concern unrelated to the npm-to-Bun migration.
 
 ## Success Criteria
 
-1. **Install time.** The `make install` step in CI completes in under 5 seconds
-   (down from 30-60 seconds), measured from the GitHub Actions step timer across
-   10 consecutive runs.
-2. **Total CI wall-clock time.** The slowest CI workflow (check-test.yml)
-   completes at least 30% faster end-to-end compared to the 10-run average
-   before the change.
+1. **Install time.** `bun install` in CI completes in under 5 seconds (down from
+   30-60 seconds with `npm ci`), measured from the GitHub Actions step timer
+   across 10 consecutive runs.
+2. **Total CI wall-clock time.** The slowest PR-triggered workflow
+   (check-test.yml) completes at least 30% faster end-to-end compared to the
+   10-run average before the change.
 3. **E2E parallelism.** Playwright E2E tests run with 2 workers in CI, confirmed
    by Playwright's output log showing `Running N tests using 2 workers`.
-4. **Local check time.** `npm run check` completes at least 30% faster on a
+4. **Local check time.** `bun run check` completes at least 30% faster on a
    developer machine compared to the sequential baseline, measured across 5 runs.
-5. **Zero test regressions.** All 110 existing test files pass. All E2E specs
-   pass. No new test flakiness introduced.
-6. **Audit integrity.** `npm audit` (or equivalent) continues to detect the same
-   vulnerability set as before — verified by running both old and new approaches
-   against the current lockfile and comparing output.
-7. **Publish workflows.** `publish-npm.yml` and `publish-skills.yml` succeed
-   with the updated install step, verified by a dry-run or tag-triggered
-   execution.
+5. **Zero test regressions.** All 110 existing test files pass under Bun. All
+   E2E specs pass. No new test flakiness introduced.
+6. **All workflows green.** Every workflow in `.github/workflows/` succeeds after
+   the migration — verified by a full CI run on the migration PR plus manual
+   triggering of publish and agent workflows (or dry-run equivalents).
+7. **Single lockfile.** `package-lock.json` is deleted. `bun.lock` is the sole
+   lockfile. No lockfile drift is possible.
+8. **Audit integrity.** Vulnerability scanning continues to detect the same
+   vulnerability set as before — verified by comparing output from the old and
+   new approaches against the same dependency state.
