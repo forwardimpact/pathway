@@ -39,6 +39,20 @@ import {
 import { sortTracksByName } from "./formatters/track/shared.js";
 
 /**
+ * Escape HTML special characters to prevent XSS
+ * @param {string} text
+ * @returns {string}
+ */
+function escapeHtml(text) {
+  return text
+    .replace(/&/g, "&amp;")
+    .replace(/</g, "&lt;")
+    .replace(/>/g, "&gt;")
+    .replace(/"/g, "&quot;")
+    .replace(/'/g, "&#039;");
+}
+
+/**
  * Create a chapter cover page
  * @param {Object} params
  * @param {string} params.emojiIcon - Chapter emoji
@@ -425,7 +439,7 @@ async function init() {
     container.innerHTML = `
       <div class="slide-error">
         <h1>Initialization Error</h1>
-        <p>${error.message}</p>
+        <p>${escapeHtml(String(error.message))}</p>
       </div>
     `;
     hideLoading();
