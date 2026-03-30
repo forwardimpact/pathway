@@ -75,6 +75,28 @@ on these qualities:
 - **Decisions explained.** When you make a non-obvious choice, say why briefly.
   This prevents future re-debate.
 
+## Status Lifecycle
+
+Specs track progress in `specs/STATUS`. The lifecycle is:
+
+```
+draft → review → planned → active → done
+```
+
+| Status    | Meaning                                             | Set by           |
+| --------- | --------------------------------------------------- | ---------------- |
+| `draft`   | Spec or plan is being written, not ready for review | `write-spec`     |
+| `review`  | Spec (and plan if present) is ready for evaluation  | `write-spec`     |
+| `planned` | Spec and plan approved, ready for implementation    | `review-spec`    |
+| `active`  | Implementation in progress                          | `implement-spec` |
+| `done`    | Implemented                                         | `implement-spec` |
+
+A spec without a plan can be reviewed and approved, but remains at `review`
+until a plan is added and also approved — only then does it advance to
+`planned`. This means `review` has two sub-states: awaiting first review, and
+approved-but-needs-plan. The `review-spec` skill resolves this ambiguity by
+inspecting the spec directory contents.
+
 ## Process
 
 ### Writing a spec
@@ -101,6 +123,8 @@ on these qualities:
    Understand the current state before proposing changes.
 3. **Write the plan.** Translate the approved spec into concrete steps. Each
    step should be independently verifiable.
-4. **Update STATUS.** Set the spec's status to `review` in `specs/STATUS`.
-5. **Present the plan.** Share it with the user for feedback. Formal approval
-   via `review-spec` advances the status to `planned`.
+4. **Present the plan.** Share it with the user for feedback.
+5. **Update STATUS.** When the user is satisfied with both spec and plan, set
+   the spec's status to `review` in `specs/STATUS` — signalling it is ready for
+   formal evaluation via `review-spec`. Do not set `review` while the plan is
+   still being iterated on.

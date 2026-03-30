@@ -52,15 +52,23 @@ Assess `plan.md` (or plan variants) against these criteria:
   order is justified.
 - **Decisions are explained.** Non-obvious choices include brief rationale.
 
-### 4. Decide and update STATUS
+### 4. Decide
 
 If all criteria are met, approve. If any criterion falls short, request changes.
 
-| Situation                  | Action                                      |
-| -------------------------- | ------------------------------------------- |
-| Spec + plan approved       | Set status to `planned`                     |
-| Spec approved, no plan yet | Keep status at `review` (plan still needed) |
-| Changes requested          | Set status to `draft`                       |
+| Situation                  | Decision | Target status |
+| -------------------------- | -------- | ------------- |
+| Spec + plan approved       | Approve  | `planned`     |
+| Spec approved, no plan yet | Approve  | `review`      |
+| Changes requested          | Revise   | `draft`       |
+
+### 5. Update STATUS
+
+Update `specs/STATUS` to reflect the decision from Step 4.
+
+If you are operating in a context where you cannot commit changes (e.g.,
+evaluating a spec PR for another workflow), report your decision and target
+status clearly — the caller is responsible for acting on it.
 
 ## What NOT to Do
 
