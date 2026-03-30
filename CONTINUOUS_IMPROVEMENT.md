@@ -226,6 +226,30 @@ prohibited.
 **Least privilege.** The security-audit workflow runs with `contents: read`
 only. Workflows that need to push use `contents: write` with a scoped token.
 
+## Shared Memory
+
+Agents share a persistent memory backed by the repository's **GitHub wiki**. The
+wiki is a separate git repository (`{repo}.wiki.git`) that the composite action
+clones before each run and pushes after.
+
+The composite action's `wiki` input (default `true`) controls this behaviour:
+
+1. **Before Claude runs** — clone the wiki to `/tmp/wiki` (or initialize it on
+   first use) and set `autoMemoryDirectory` in `.claude/settings.json` to point
+   there.
+2. **During the run** — Claude Code reads existing memory and writes new entries
+   via its auto-memory mechanism.
+3. **After Claude finishes** — commit and push any wiki changes. The push is
+   non-fatal so a failure does not break the workflow.
+
+Every agent is instructed to write to memory at the end of each run, recording
+actions taken, decisions, observations for teammates, and deferred work. This
+gives each subsequent run — by the same agent or a different one — context about
+what has already happened and what still needs attention.
+
+To disable wiki memory for a specific workflow, pass `wiki: "false"` to the
+composite action.
+
 ## Accountability
 
 The **improvement coach** is responsible for auditing the product manager's

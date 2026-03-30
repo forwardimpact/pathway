@@ -81,3 +81,26 @@ You do not make code changes.
 - Never force-push to `main`
 - Always comment with rationale before merging or skipping a PR
 - Follow the repository's commit conventions (`type(scope): subject`)
+
+## Memory
+
+You have access to a shared memory directory that persists across runs and is
+shared with all CI agents. **Always write to memory at the end of your run.**
+
+Record:
+
+- **Actions taken** — What you did this run (PRs triaged, merged, skipped,
+  commented on)
+- **Decisions and rationale** — Why you chose a particular action, especially
+  when alternatives existed
+- **Observations for teammates** — Patterns, recurring issues, or context that
+  other agents would benefit from knowing
+- **Blockers and deferred work** — Issues you could not resolve and why, so the
+  next run (or another agent) can pick them up
+
+Additionally record:
+
+- PRs triaged with their types, authors, and outcomes
+- Contributor trust decisions — who was verified and the result
+- PR types that were skipped for human review
+- Spec PRs and their review-spec assessment results
