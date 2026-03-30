@@ -113,34 +113,74 @@ The CI system has a single point where external contributions enter the
 codebase: the **product-backlog** workflow. Every other merge point operates on
 trusted sources — our own agents acting without external input.
 
+The product-backlog workflow applies a **two-tier gate** that limits what
+external contributors can merge directly:
+
+| PR type          | What merges                          | Who implements the change   |
+| ---------------- | ------------------------------------ | --------------------------- |
+| `fix` / `bug`    | The contributor's code (small patch) | The external contributor    |
+| `spec`           | A specification document (WHAT/WHY)  | Trusted agents, not the contributor |
+| Everything else  | Nothing — PR is skipped              | N/A                         |
+
+**Trivial fixes** (`fix`, `bug`) from top-20 contributors merge the
+contributor's own code, gated by CI and trust checks. These are small,
+mechanical patches where the code diff is the deliverable.
+
+**Specs** (`spec`) from top-20 contributors merge only the specification
+document — a description of what should change and why. The spec passes through
+an additional `review-spec` quality gate. Critically, **planning and
+implementation of approved specs is performed by trusted agents**, not by the
+external contributor. The contributor proposes _what_ to change; the system's
+own agents decide _how_ and write the code. This separation means that even a
+compromised top-20 contributor cannot inject significant code changes through
+the autonomous pipeline — they can only propose ideas that trusted agents
+evaluate and implement independently.
+
+**Features, refactors, and other significant changes** are never auto-merged.
+The product manager skips these PR types entirely, requiring human review.
+
 ```mermaid
 graph TD
-    EXT["External contributions"] --> PM
-    PM["Product Manager<br/>contributor trust<br/>gate (top-20 check)"]
+    EXT["External contribution"]
+    PM["Product Manager<br/>top-20 gate + CI"]
+    CB["Codebase (main)"]
     SE["Security Engineer<br/>Dependabot only"]
     RE["Release Engineer<br/>rebase + release"]
-    CB["Codebase (main)"]
 
-    PM -- "merge" --> CB
+    EXT -- "fix / bug PR" --> PM
+    EXT -- "spec PR" --> PM
+    PM -- "merge fix/bug code" --> CB
+    PM -- "merge spec document" --> CB
+
+    CB -- "spec available" --> TA
+    TA["Trusted Agents<br/>plan + implement spec"]
+    TA -- "implementation PR" --> CB
+
     SE -- "merge/tag" --> CB
     RE -- "merge/tag" --> CB
 
     style PM fill:#f9f,stroke:#333
+    style TA fill:#bfb,stroke:#333
     style SE fill:#bbf,stroke:#333
     style RE fill:#bbf,stroke:#333
 ```
 
-| Merge point           | Source                    | Trust model                    |
-| --------------------- | ------------------------- | ------------------------------ |
-| **product-backlog**   | External contributor PRs  | Top-20 contributor gate + CI   |
-| **dependabot-triage** | Dependabot PRs            | Trusted bot, policy-gated      |
-| **release-readiness** | Agent-authored rebases    | Agent-only, no external input  |
-| **release-review**    | Agent-authored tags/bumps | Agent-only, no external input  |
-| **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence |
+| Merge point           | Source                    | Trust model                              |
+| --------------------- | ------------------------- | ---------------------------------------- |
+| **product-backlog**   | External fix/bug PRs      | Top-20 contributor gate + CI             |
+| **product-backlog**   | External spec PRs         | Top-20 gate + CI + review-spec           |
+| **product-backlog**   | Agent implementation PRs  | Top-20 gate + CI (agents are top contributors) |
+| **dependabot-triage** | Dependabot PRs            | Trusted bot, policy-gated                |
+| **release-readiness** | Agent-authored rebases    | Agent-only, no external input            |
+| **release-review**    | Agent-authored tags/bumps | Agent-only, no external input            |
+| **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence           |
 
-This design concentrates external-contribution risk at a single auditable point.
-The improvement coach is responsible for verifying that the product manager
-performed trust checks on every merged PR (see § Accountability below).
+This design concentrates external-contribution risk at a single auditable point
+and limits external influence to small patches and proposals. Significant code
+changes always pass through trusted agents — even when the original idea came
+from outside. The improvement coach is responsible for verifying that the
+product manager performed trust checks on every merged PR (see § Accountability
+below).
 
 ## Design Principles
 
@@ -152,6 +192,12 @@ exactly one place to verify that contributor trust was checked.
 **Fix-or-spec discipline.** Every agent separates mechanical fixes (`fix/`
 branches) from structural improvements (`spec/` branches). No agent mixes the
 two in a single PR.
+
+**Spec-to-implementation handoff.** External contributors may propose specs, but
+trusted agents always perform the planning and implementation. This ensures that
+significant code changes are authored by agents operating within the system's
+scope constraints and trace-driven accountability — never by unaudited external
+code.
 
 **Explicit scope constraints.** Each agent definition lists what it must not do.
 The release engineer never resolves substantive merge conflicts. The security

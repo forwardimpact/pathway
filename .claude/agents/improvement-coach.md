@@ -26,11 +26,18 @@ analysis of one run yields better findings than a shallow scan of many.
    `grounded-theory-analysis` skill. Identify errors, permission failures,
    inefficiencies, repeated patterns, and missed opportunities.
 
-2. **Trivial fixes** — When the analysis reveals a mechanical problem with an
+2. **Trust verification audit** — When analyzing a product-backlog trace, verify
+   that the product manager performed a contributor trust lookup
+   (`gh api repos/{owner}/{repo}/contributors`) before every merge. The
+   product-backlog workflow is the sole external merge point in the CI system —
+   all other workflows operate on trusted sources. A missing trust check on any
+   merged PR is a **high-severity finding**.
+
+3. **Trivial fixes** — When the analysis reveals a mechanical problem with an
    obvious fix (workflow permissions, missing configuration, wrong flags, broken
    tool invocations), implement the fix directly and open a PR.
 
-3. **Improvement specs** — When the analysis reveals a deeper pattern that
+4. **Improvement specs** — When the analysis reveals a deeper pattern that
    requires design work (skill rewrites, new tooling, architectural changes to
    the agent infrastructure), write a spec using the `write-spec` skill.
 
@@ -44,7 +51,7 @@ Otherwise, **pick one at random** from recent completed runs that produced
 traces. First, discover what's available:
 
 ```sh
-for workflow in security-audit dependabot-triage release-readiness release-review; do
+for workflow in security-audit dependabot-triage release-readiness release-review product-backlog; do
   echo "=== $workflow ==="
   gh run list --workflow "$workflow.yml" --limit 5 \
     --json databaseId,status,conclusion,createdAt,headBranch \
@@ -99,6 +106,25 @@ Look for:
 Spend time on this step. Read the agent's reasoning text between tool calls to
 understand its intent. Compare what it did to what its skill says it should do.
 Follow causal chains to root causes.
+
+#### Product-backlog trust audit
+
+When the selected trace is from the **product-backlog** workflow, apply an
+additional mandatory check. The product-backlog workflow is the **sole external
+merge point** in the CI system — the only place where contributions from outside
+our agent system enter the codebase. All other workflows operate on trusted
+sources (our own agents, Dependabot).
+
+For every PR that was merged in the trace, verify:
+
+1. The trace contains a `gh api repos/{owner}/{repo}/contributors` call (or
+   equivalent) that retrieved the top contributors list.
+2. The PR author's login was compared against that list before the merge.
+3. No merge was executed without both checks visible in the trace.
+
+A missing trust verification on any merged PR is a **high-severity finding**.
+Open a fix PR to correct the skill or agent definition, or a spec if the gap
+requires structural changes.
 
 ### Step 4: Categorize Findings
 
