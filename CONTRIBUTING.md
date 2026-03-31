@@ -3,7 +3,7 @@
 ## Getting Started
 
 ```sh
-npm install
+bun install
 make quickstart
 ```
 
@@ -32,7 +32,7 @@ make quickstart
 - **ESM only**, no CommonJS. JSDoc on all public functions.
 - **Naming**: files `kebab-case`, functions `camelCase`, constants
   `UPPER_SNAKE_CASE`, YAML IDs `snake_case`
-- **Testing**: Node.js test runner (`node --test`), fixtures mirror YAML
+- **Testing**: Node.js test runner (`bun run node --test`), fixtures mirror YAML
 
 ## Pull Request Workflow
 
@@ -40,14 +40,14 @@ All changes go through pull requests — never push directly to `main`.
 
 **Exception:** The release engineer agent may push trivial CI fixes (formatting,
 lint, lock file drift) directly to `main` to unblock releases. This is limited
-to mechanical fixes that `npm run check:fix` can resolve — never logic, tests,
+to mechanical fixes that `bun run check:fix` can resolve — never logic, tests,
 or feature changes. See `.claude/agents/release-engineer.md` for the full scope
 constraints.
 
 1. Create a branch from `main`
 2. Make your changes
-3. Auto-fix formatting and lint: `npm run check:fix` (applies to all file types)
-4. Verify all checks pass: `npm run check` (required for code **and** docs)
+3. Auto-fix formatting and lint: `bun run check:fix` (applies to all file types)
+4. Verify all checks pass: `bun run check` (required for code **and** docs)
 5. Run security audit: `make audit`
 6. Commit: `git commit -m "type(scope): subject"`
 7. Push and open a pull request against `main`
@@ -91,16 +91,16 @@ The release engineer agent handles version bumps, tagging, and publishing. See
 ## Quality Commands
 
 ```sh
-npm run check                 # Format, lint, test, validate — ALL file types (run before every commit)
-npm run check:fix             # Auto-fix format and lint issues
-npm run format                # Check Prettier formatting
-npm run format:fix            # Auto-fix Prettier formatting
-npm run lint                  # Check ESLint linting
-npm run lint:fix              # Auto-fix ESLint issues
-npm run test                  # Unit tests (node --test)
-npm run test:e2e              # Playwright E2E tests (requires generated data)
-npx fit-map validate          # Validate data files
-npx fit-map validate --shacl  # Validate with SHACL syntax check
+bun run check                 # Format, lint, test, validate — ALL file types (run before every commit)
+bun run check:fix             # Auto-fix format and lint issues
+bun run format                # Check Prettier formatting
+bun run format:fix            # Auto-fix Prettier formatting
+bun run lint                  # Check ESLint linting
+bun run lint:fix              # Auto-fix ESLint issues
+bun run test                  # Unit tests (bun run node --test)
+bun run test:e2e              # Playwright E2E tests (requires generated data)
+bunx fit-map validate         # Validate data files
+bunx fit-map validate --shacl # Validate with SHACL syntax check
 ```
 
 ## Security
@@ -109,8 +109,8 @@ Security policies apply to all contributors — human and agent.
 
 - **ESLint security rules** — `eslint-plugin-security` is enabled in
   `eslint.config.js`. Do not disable security rules without justification.
-- **npm audit** — `npm audit --audit-level=high` runs in CI and gates publish
-  workflows.
+- **npm audit** — `npm audit --audit-level=high` runs in CI (via temporary
+  lockfile generation) and gates publish workflows.
 - **CI secret scanning** — Gitleaks runs on every push and pull request via the
   `audit` job in `check-security.yml`.
 - **GitHub Actions** — All third-party actions are pinned to SHA hashes. Use
@@ -126,5 +126,6 @@ Security policies apply to all contributors — human and agent.
   renderer)
 - Align version ranges for the same package across all workspaces
 - Verify peer and transitive dependency compatibility before merging major
-  version bumps — run `npm ls <package>` and confirm no `invalid` markers
-- Run `npm audit --audit-level=high` after adding or updating dependencies
+  version bumps — run `bun pm ls` and confirm no `invalid` markers
+- Run `npm audit --audit-level=high` after adding or updating dependencies (use
+  `make audit-vulnerabilities` which generates a temporary lockfile)
