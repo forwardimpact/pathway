@@ -273,6 +273,54 @@ describe("Supervisor", () => {
     assert.strictEqual(tagged.event.source, "sdk-internal");
   });
 
+  test("drains agent output and emits summary when agent errors on turn 0", async () => {
+    const agentMessages = [[{ type: "assistant", content: "Partial work" }]];
+    const agentRunner = createMockRunner(
+      [{ text: "Partial work", success: false }],
+      agentMessages,
+    );
+
+    // Override run to simulate an error return
+    const origRun = agentRunner.run;
+    agentRunner.run = async (task) => {
+      const result = await origRun.call(agentRunner, task);
+      return { ...result, error: new Error("Process exited with code 1") };
+    };
+
+    const supervisorRunner = createMockRunner([]);
+
+    const output = new PassThrough();
+    const supervisor = new Supervisor({
+      agentRunner,
+      supervisorRunner,
+      output,
+      maxTurns: 10,
+    });
+
+    const result = await supervisor.run("Task");
+
+    assert.strictEqual(result.success, false);
+    assert.strictEqual(result.turns, 0);
+
+    // Output should still contain the agent's buffered lines + summary
+    const data = output.read()?.toString() ?? "";
+    const lines = data
+      .trim()
+      .split("\n")
+      .filter((l) => l.length > 0);
+
+    assert.ok(lines.length >= 2, "Expected at least agent line + summary");
+
+    const agentLine = JSON.parse(lines[0]);
+    assert.strictEqual(agentLine.source, "agent");
+    assert.strictEqual(agentLine.turn, 0);
+
+    const summaryLine = JSON.parse(lines[lines.length - 1]);
+    assert.strictEqual(summaryLine.source, "orchestrator");
+    assert.strictEqual(summaryLine.success, false);
+    assert.strictEqual(summaryLine.turns, 0);
+  });
+
   test("createSupervisor factory returns a Supervisor instance", () => {
     const supervisor = createSupervisor({
       supervisorCwd: "/tmp/sup",

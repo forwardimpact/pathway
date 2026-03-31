@@ -48,6 +48,11 @@ export class Supervisor {
     let agentResult = await this.agentRunner.run(task);
     this.emitTagged("agent", 0);
 
+    if (agentResult.error) {
+      this.emitSummary({ success: false, turns: 0 });
+      return { success: false, turns: 0 };
+    }
+
     for (let turn = 1; turn <= this.maxTurns; turn++) {
       // Supervisor observes the agent's output
       const supervisorPrompt =
@@ -62,6 +67,11 @@ export class Supervisor {
       }
       this.emitTagged("supervisor", turn);
 
+      if (supervisorResult.error) {
+        this.emitSummary({ success: false, turns: turn });
+        return { success: false, turns: turn };
+      }
+
       if (isDone(supervisorResult.text)) {
         this.emitSummary({ success: true, turns: turn });
         return { success: true, turns: turn };
@@ -70,6 +80,11 @@ export class Supervisor {
       // Supervisor's response becomes the agent's next input
       agentResult = await this.agentRunner.resume(supervisorResult.text);
       this.emitTagged("agent", turn);
+
+      if (agentResult.error) {
+        this.emitSummary({ success: false, turns: turn });
+        return { success: false, turns: turn };
+      }
     }
 
     this.emitSummary({ success: false, turns: this.maxTurns });

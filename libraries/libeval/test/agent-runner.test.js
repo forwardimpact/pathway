@@ -229,6 +229,58 @@ describe("AgentRunner", () => {
     assert.strictEqual(secondDrain.length, 0);
   });
 
+  test("run() captures error when query throws and returns buffered output", async () => {
+    async function* failingQuery() {
+      yield { type: "system", subtype: "init", session_id: "sess-err" };
+      yield { type: "assistant", content: "Partial work" };
+      throw new Error("Claude Code process exited with code 1");
+    }
+
+    const output = new PassThrough();
+    const runner = new AgentRunner({
+      cwd: "/tmp",
+      query: () => failingQuery(),
+      output,
+    });
+
+    const result = await runner.run("Task");
+    assert.strictEqual(result.success, false);
+    assert.ok(result.error);
+    assert.match(result.error.message, /exited with code 1/);
+    assert.strictEqual(result.sessionId, "sess-err");
+
+    // Buffered output should contain the messages yielded before the error
+    const drained = runner.drainOutput();
+    assert.strictEqual(drained.length, 2);
+  });
+
+  test("resume() captures error when query throws", async () => {
+    const initMessages = [
+      { type: "system", subtype: "init", session_id: "sess-r" },
+      { type: "result", subtype: "success", result: "OK" },
+    ];
+
+    let callCount = 0;
+    const query = async function* () {
+      callCount++;
+      if (callCount === 1) {
+        for (const m of initMessages) yield m;
+      } else {
+        yield { type: "assistant", content: "Resuming..." };
+        throw new Error("Process crashed");
+      }
+    };
+
+    const output = new PassThrough();
+    const runner = new AgentRunner({ cwd: "/tmp", query, output });
+
+    await runner.run("Task");
+    const result = await runner.resume("Continue");
+    assert.strictEqual(result.success, false);
+    assert.ok(result.error);
+    assert.match(result.error.message, /Process crashed/);
+  });
+
   test("createAgentRunner factory returns an AgentRunner instance", () => {
     const runner = createAgentRunner({
       cwd: "/tmp",
