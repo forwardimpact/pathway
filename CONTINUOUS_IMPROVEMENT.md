@@ -114,12 +114,11 @@ graph TD
 
 ## Trust Boundary
 
-The CI system has a single point where external contributions enter the
-codebase: the **product-backlog** workflow. Every other merge point operates on
-trusted sources — our own agents acting without external input.
+The product-backlog workflow handles all non-Dependabot PRs. For **external
+contributions**, it is the sole merge point in the CI system — every other merge
+point operates on trusted sources (our own agents, Dependabot).
 
-The product-backlog workflow applies a **two-tier gate** that limits what
-external contributors can merge directly:
+External contributions pass through a two-tier gate:
 
 | PR type         | What merges                          | Who implements the change           |
 | --------------- | ------------------------------------ | ----------------------------------- |
@@ -149,11 +148,17 @@ evaluate and implement independently.
 **Features, refactors, and other significant changes** are never auto-merged.
 The product manager skips these PR types entirely, requiring human review.
 
+**CI app PRs** authored by `app/forward-impact-ci` are also processed by
+product-backlog. These are PRs created by our own agent workflows
+(product-feedback, improvement-coach, etc.) and are trusted by identity — the
+product manager skips the top-20 contributor lookup and proceeds directly to
+type classification and CI checks.
+
 ```mermaid
 graph TD
     EXT["External contribution"]
     ISS["GitHub issues"]
-    PM["Product Manager<br/>top-20 gate + CI"]
+    PM["Product Manager<br/>trust gate + CI"]
     CB["Codebase (main)"]
     SE["Security Engineer<br/>Dependabot only"]
     RE["Release Engineer<br/>rebase + release"]

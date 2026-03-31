@@ -2,8 +2,8 @@
 name: product-backlog
 description: >
   Triage open pull requests for product alignment. Verify contributor trust
-  via top-contributor lookup, check CI status, classify PR types, and merge
-  fix, bug, and spec PRs that pass all gates.
+  (CI app identity or top-contributor lookup), check CI status, classify PR
+  types, and merge fix, bug, and spec PRs that pass all gates.
 ---
 
 # Product Backlog Triage
@@ -12,11 +12,11 @@ Triage all open pull requests for product alignment, verify contributor trust,
 and merge PRs that pass all quality and security gates. The `bug` type is
 treated as equivalent to `fix` — both represent corrections.
 
-This workflow is the **sole external merge point** in the CI system. All other
-merge points operate on trusted sources (our own agents, Dependabot).
-Contributor trust verification is therefore the most critical gate — the
-improvement coach audits product-backlog traces to confirm it happened on every
-merged PR.
+This workflow handles **all non-Dependabot PRs** — both external contributions
+and PRs created by our own CI app (`forward-impact-ci`). For external
+contributions it is the sole merge point, making contributor trust verification
+the most critical gate. The improvement coach audits product-backlog traces to
+confirm trust checks happened on every merged PR.
 
 ## When to Use
 
