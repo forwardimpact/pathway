@@ -1,11 +1,11 @@
-#!/usr/bin/env -S deno run --allow-all
+#!/usr/bin/env bun
 
 // Build script for Basecamp (arm64 macOS).
 //
 // Usage:
-//   deno run --allow-all pkg/build.js           Build scheduler + launcher
-//   deno run --allow-all pkg/build.js --app     Build + assemble Basecamp.app
-//   deno run --allow-all pkg/build.js --pkg     Build + assemble + .pkg installer
+//   bun pkg/build.js           Build scheduler + launcher
+//   bun pkg/build.js --app     Build + assemble Basecamp.app
+//   bun pkg/build.js --pkg     Build + assemble + .pkg installer
 
 import {
   cpSync,
@@ -73,7 +73,7 @@ function prepareTemplate() {
 }
 
 // ---------------------------------------------------------------------------
-// Compile Deno scheduler binary
+// Compile scheduler binary
 // ---------------------------------------------------------------------------
 
 function compileScheduler() {
@@ -83,10 +83,9 @@ function compileScheduler() {
   ensureDir(DIST_DIR);
 
   const cmd = [
-    "deno compile",
-    "--allow-all",
-    "--no-check",
-    `--output "${outputPath}"`,
+    "bun build",
+    "--compile",
+    `--outfile "${outputPath}"`,
     "src/basecamp.js",
   ].join(" ");
 
@@ -149,7 +148,7 @@ function buildPKG() {
 // CLI
 // ---------------------------------------------------------------------------
 
-const args = Deno?.args || process.argv.slice(2);
+const args = process.argv.slice(2);
 const wantApp = args.includes("--app") || args.includes("--pkg");
 const wantPKG = args.includes("--pkg");
 
@@ -159,8 +158,8 @@ console.log("==========================");
 // Copy monorepo fit-* skills into template before packaging
 prepareTemplate();
 
-// Compile Deno scheduler first (before launcher exists in dist/),
-// so the launcher binary is not embedded in the Deno binary.
+// Compile scheduler first (before launcher exists in dist/),
+// so the launcher binary is not embedded in the compiled binary.
 compileScheduler();
 compileLauncher();
 
