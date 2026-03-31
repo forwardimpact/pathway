@@ -93,7 +93,7 @@ Usage:
 Global Options:
   --list            Output IDs only (for piping to other commands)
   --json            Output as JSON
-  --data=PATH       Path to data directory (default: ./data or examples/)
+  --data=PATH       Path to data directory (default: ./data)
   --version         Show version number
   --help            Show this help message
 

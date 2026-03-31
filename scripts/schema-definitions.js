@@ -2,7 +2,7 @@
  * Schema.org Type Definitions
  *
  * Predefined Schema.org vocabulary knowledge used for top-down ontology generation.
- * Based on Schema.org specifications and observed usage patterns in examples/knowledge/
+ * Based on Schema.org specifications and observed usage patterns in data/knowledge/
  *
  * Schema definitions are loaded from schema-definitions.json to keep this file
  * within linting limits (similar to how ontology.js loads ontology-prompt.md).
