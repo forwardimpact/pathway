@@ -196,20 +196,20 @@ make process-graphs     # Build graph indices from data/resources/
 
 ### Data Directories
 
-| Path              | Contents                                   |
-| ----------------- | ------------------------------------------ |
-| `data/knowledge/` | Input HTML files                           |
-| `data/resources/` | Processed resources                        |
-| `data/vectors/`   | Embedding vector indices                   |
-| `data/graphs/`    | RDF quad index + ontology                  |
-| `data/memories/`  | Conversation state                         |
-| `data/traces/`    | Distributed traces                         |
-| `data/policies/`  | Access control policies                    |
-| `data/logs/`      | Service logs                               |
-| `data/cli/`       | CLI session data                           |
-| `data/eval/`      | Evaluation results                         |
-| `data/ingest/`    | Ingestion pipeline (in/pipeline/done)      |
-| `examples/`       | Example datasets (copied to data/ on init) |
+| Path              | Contents                                     |
+| ----------------- | -------------------------------------------- |
+| `data/knowledge/` | Input HTML files                             |
+| `data/resources/` | Processed resources                          |
+| `data/vectors/`   | Embedding vector indices                     |
+| `data/graphs/`    | RDF quad index + ontology                    |
+| `data/memories/`  | Conversation state                           |
+| `data/traces/`    | Distributed traces                           |
+| `data/policies/`  | Access control policies                      |
+| `data/logs/`      | Service logs                                 |
+| `data/cli/`       | CLI session data                             |
+| `data/eval/`      | Evaluation results                           |
+| `data/ingest/`    | Ingestion pipeline (in/pipeline/done)        |
+| `data/pathway/`   | Framework data (created by fit-pathway init) |
 
 ---
 

@@ -341,12 +341,8 @@ supabase-migrate:  ## Run Map database migrations
 supabase-status:  ## Supabase health check
 	@curl -sf http://127.0.0.1:54321/rest/v1/ >/dev/null && echo "supabase: ok" || echo "supabase: not running"
 
-.PHONY: supabase-seed
-supabase-seed:  ## Load example data into Supabase
-	@bun products/map/scripts/load-examples.js
-
 .PHONY: supabase-setup
-supabase-setup: supabase-up supabase-seed  ## Start + migrate + seed
+supabase-setup: supabase-up  ## Start Supabase and run migrations
 
 # ── TEI ───────────────────────────────────────────────────────────
 

@@ -1,26 +1,15 @@
 /**
  * Init Command
  *
- * Initializes a new Engineering Pathway project by copying example data.
+ * Initializes a new Engineering Pathway project by copying starter data.
  */
 
 import { cp, access } from "fs/promises";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
-const __filename = fileURLToPath(import.meta.url);
-const __dirname = dirname(__filename);
-// Prefer monorepo root examples/framework/, fall back to legacy co-located examples/
-const monorepoExamplesDir = join(
-  __dirname,
-  "..",
-  "..",
-  "..",
-  "..",
-  "examples",
-  "framework",
-);
-const legacyExamplesDir = join(__dirname, "..", "..", "examples");
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const starterDir = join(__dirname, "..", "..", "starter");
 
 /**
  * Run the init command
@@ -29,56 +18,47 @@ const legacyExamplesDir = join(__dirname, "..", "..", "examples");
  */
 export async function runInitCommand({ options }) {
   const targetPath = options.path || process.cwd();
-  const dataDir = join(targetPath, "data");
+  const dataDir = join(targetPath, "data", "pathway");
 
-  // Check if data/ already exists
+  // Check if data/pathway/ already exists
   try {
     await access(dataDir);
-    console.error("Error: ./data/ already exists.");
+    console.error("Error: ./data/pathway/ already exists.");
     console.error("Remove it first or use a different directory.");
     process.exit(1);
   } catch {
     // Directory doesn't exist, proceed
   }
 
-  // Find examples directory — monorepo root first, then legacy
-  let examplesDir;
+  // Verify starter data is available
   try {
-    await access(monorepoExamplesDir);
-    examplesDir = monorepoExamplesDir;
+    await access(starterDir);
   } catch {
-    try {
-      await access(legacyExamplesDir);
-      examplesDir = legacyExamplesDir;
-    } catch {
-      console.error("Error: Examples directory not found in package.");
-      console.error("This may indicate a corrupted package installation.");
-      process.exit(1);
-    }
+    console.error("Error: Starter data not found in package.");
+    console.error("This may indicate a corrupted package installation.");
+    process.exit(1);
   }
 
-  // Copy example data
-  console.log("Creating ./data/ with example data...\n");
-  await cp(examplesDir, dataDir, { recursive: true });
+  // Copy starter data
+  console.log("Creating ./data/pathway/ with starter data...\n");
+  await cp(starterDir, dataDir, { recursive: true });
 
-  console.log(`✅ Created ./data/ with example data.
+  console.log(`✅ Created ./data/pathway/ with starter data.
 
 Next steps:
   1. Edit data files to match your organization
-  2. bunx pathway --validate
-  3. bunx pathway serve
+  2. bunx fit-map validate
+  3. bunx fit-pathway dev
 
 Data structure:
-  data/
-  ├── framework.yaml      # Framework metadata
-  ├── levels.yaml         # Career levels
-  ├── stages.yaml         # Lifecycle stages
-  ├── drivers.yaml        # Business drivers
-  ├── capabilities.yaml   # Capability areas
-  ├── disciplines/        # Engineering disciplines
-  ├── tracks/             # Role tracks
-  ├── skills/             # Technical skills
-  ├── behaviours/         # Behavioural expectations
-  └── questions/          # Interview questions
+  data/pathway/
+  ├── framework.yaml        # Framework metadata
+  ├── levels.yaml           # Career levels
+  ├── stages.yaml           # Lifecycle stages
+  ├── drivers.yaml          # Business drivers
+  ├── disciplines/          # Engineering disciplines
+  ├── capabilities/         # Capability areas with skills
+  ├── behaviours/           # Behavioural expectations
+  └── tracks/               # Track specializations
 `);
 }

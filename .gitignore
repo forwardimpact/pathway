@@ -4,9 +4,6 @@ data
 !libraries/libuniverse/data/
 !data/synthetic/
 
-# Generated examples (universe output)
-examples/
-
 # Generated code
 generated/
 **/generated
