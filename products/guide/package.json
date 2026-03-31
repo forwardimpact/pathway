@@ -1,14 +1,33 @@
 {
   "name": "@forwardimpact/guide",
   "version": "0.1.4",
-  "description": "Intelligent agent platform with knowledge graph and RAG",
+  "description": "Conversational agent for engineering framework guidance — How do I find my bearing?",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "products/guide"
+  },
+  "homepage": "https://www.forwardimpact.team/guide",
+  "keywords": [
+    "engineering-framework",
+    "career-development",
+    "ai-agent",
+    "skill-assessment",
+    "knowledge-platform",
+    "conversational-agent",
+    "engineering-excellence",
+    "rag"
+  ],
   "type": "module",
-  "private": true,
   "bin": {
     "fit-guide": "./bin/fit-guide.js"
   },
+  "files": [
+    "bin/",
+    "README.md"
+  ],
   "engines": {
     "bun": ">=1.2.0"
   },
@@ -20,5 +39,8 @@
     "@forwardimpact/libstorage": "^0.1.53",
     "@forwardimpact/libtelemetry": "^0.1.22",
     "@forwardimpact/libtype": "^0.1.63"
+  },
+  "publishConfig": {
+    "access": "public"
   }
 }
