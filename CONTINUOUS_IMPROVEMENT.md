@@ -228,8 +228,8 @@ installation token generated per run by the GitHub App.
 Agents share persistent memory backed by the repository's **GitHub wiki**,
 mounted as a git submodule at `.claude/memory/`.
 
-- **`make memory-init`** (called by `make install` / `SessionStart` hook) —
-  initializes the submodule from `{repo}.wiki.git`.
+- **`make memory-update`** (called by `make install` / `SessionStart` hook) —
+  initializes and updates the memory submodule from `{repo}.wiki.git`.
 - **`make memory-commit`** (`Stop` hook) — commits and pushes memory changes
   when a session ends.
 

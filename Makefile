@@ -7,8 +7,11 @@ ENVLOAD = ENV=$(ENV) STORAGE=$(STORAGE) AUTH=$(AUTH) ./scripts/env.sh
 
 # ── Core ──────────────────────────────────────────────────────────
 
-.PHONY: memory-init
-memory-init:  ## Initialize agent memory submodule (wiki)
+.PHONY: memory-update
+memory-update:  ## Initialize and update agent memory submodule (wiki)
+	@if [ -d .claude/memory ] && ! [ -d .claude/memory/.git ] && ! [ -f .claude/memory/.git ]; then \
+		rm -rf .claude/memory; \
+	fi
 	@git submodule update --init --remote .claude/memory 2>/dev/null || true
 	@if [ -d .claude/memory/.git ] || [ -f .claude/memory/.git ]; then \
 		git -C .claude/memory config user.name "$$(git config user.name)"; \
@@ -16,15 +19,17 @@ memory-init:  ## Initialize agent memory submodule (wiki)
 	fi
 
 .PHONY: memory-commit
-memory-commit:  ## Commit and push agent memory changes
-	@cd .claude/memory && git add -A && \
+memory-commit: memory-update  ## Commit and push agent memory changes
+	@if [ -d .claude/memory/.git ] || [ -f .claude/memory/.git ]; then \
+		cd .claude/memory && git add -A && \
 		if ! git diff --cached --quiet; then \
 			git commit -m "memory: update from session"; \
 			git push origin HEAD:master; \
-		fi
+		fi; \
+	fi
 
 .PHONY: install
-install: memory-init  ## Install dependencies and generate code
+install: memory-update  ## Install dependencies and generate code
 	@bun install --frozen-lockfile
 	@bunx --workspace=@forwardimpact/libcodegen fit-codegen --all
 
