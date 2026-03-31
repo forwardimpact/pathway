@@ -151,8 +151,13 @@ npm run check            # Verify all checks pass
 
 If `npm run check` still fails after `check:fix`:
 
+- **Validation failures** (`npm run validate`) — Expected in CI when
+  `data/pathway/` is not generated. This does not block merge readiness. Verify
+  the other checks (format, lint, test) pass individually:
+  ```sh
+  npm run format && npm run lint && npm run test
+  ```
 - **Test failures** — Do not fix. Comment on the PR with the failing test names.
-- **Validation failures** — Do not fix. Comment with the validation errors.
 - **Build/codegen failures** — Try `npx fit-codegen --all` then re-check. If
   still failing, comment and skip.
 

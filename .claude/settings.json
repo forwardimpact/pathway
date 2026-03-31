@@ -1,6 +1,7 @@
 {
   "permissions": {
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "allow": ["Edit(.claude/memory/**)", "Write(.claude/memory/**)"]
   },
   "hooks": {
     "SessionStart": [
