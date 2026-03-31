@@ -1,24 +1,25 @@
 // @ts-check
-/// <reference lib="deno.ns" />
 
-// Deno FFI wrapper for posix_spawn (macOS only).
+// Bun FFI wrapper for posix_spawn (macOS only).
 //
 // Used by the scheduler when running inside Basecamp.app so that child
 // processes (claude) inherit TCC attributes from the responsible binary.
+
+import { dlopen, ptr } from "bun:ffi";
 
 // responsibility_spawnattrs_setdisclaim makes the spawned child disclaim
 // TCC "responsible process" status, so macOS checks the parent's responsible
 // process (Basecamp.app) instead.
 const {
   symbols: { responsibility_spawnattrs_setdisclaim: setDisclaim },
-} = Deno.dlopen("/usr/lib/system/libquarantine.dylib", {
+} = dlopen("/usr/lib/system/libquarantine.dylib", {
   responsibility_spawnattrs_setdisclaim: {
     parameters: ["pointer", "i32"],
     result: "i32",
   },
 });
 
-const libc = Deno.dlopen("libSystem.B.dylib", {
+const libc = dlopen("libSystem.B.dylib", {
   posix_spawn: {
     parameters: [
       "pointer", // pid_t *pid
@@ -93,7 +94,7 @@ function buildStringArray(strings) {
   const buffers = strings.map(cstr);
   const pointers = new BigInt64Array(buffers.length + 1); // null-terminated
   for (let i = 0; i < buffers.length; i++) {
-    pointers[i] = Deno.UnsafePointer.value(Deno.UnsafePointer.of(buffers[i]));
+    pointers[i] = BigInt(ptr(buffers[i]));
   }
   pointers[buffers.length] = 0n; // NULL terminator
   return { pointer: pointers, buffers };
@@ -105,23 +106,23 @@ function buildStringArray(strings) {
  */
 function createPipe() {
   const fds = new Int32Array(2);
-  const result = libc.symbols.pipe(Deno.UnsafePointer.of(fds));
+  const result = libc.symbols.pipe(ptr(fds));
   if (result !== 0) throw new Error("pipe() failed");
   return [fds[0], fds[1]];
 }
 
 /**
  * Read all data from a file descriptor until EOF.
- * Opens via /dev/fd/N so reads go through Deno's async I/O (Tokio) and
+ * Opens via /dev/fd/N so reads go through Bun's async I/O and
  * properly yield to the event loop (socket server, timers, etc. stay
  * responsive while a child process runs).
  * @param {number} fd
  * @returns {Promise<string>}
  */
 export async function readAll(fd) {
-  const file = await Deno.open(`/dev/fd/${fd}`, { read: true });
+  const stream = Bun.file(`/dev/fd/${fd}`).stream();
   libc.symbols.close(fd); // Original fd no longer needed after dup
-  return new Response(file.readable).text();
+  return new Response(stream).text();
 }
 
 /**
@@ -139,7 +140,7 @@ export async function readAll(fd) {
  */
 export function spawn(executable, args, env, cwd) {
   const argv = buildStringArray([executable, ...args]);
-  const envObj = env ?? Deno.env.toObject();
+  const envObj = env ?? { ...process.env };
   const envStrings = Object.entries(envObj)
     .filter(([, v]) => typeof v === "string")
     .map(([k, v]) => `${k}=${v}`);
@@ -152,8 +153,8 @@ export function spawn(executable, args, env, cwd) {
   // Allocate attr and file_actions on the heap
   const attrBuf = new Uint8Array(512); // posix_spawnattr_t is opaque, 512 is generous
   const fileActionsBuf = new Uint8Array(512);
-  const attr = Deno.UnsafePointer.of(attrBuf);
-  const fa = Deno.UnsafePointer.of(fileActionsBuf);
+  const attr = ptr(attrBuf);
+  const fa = ptr(fileActionsBuf);
 
   libc.symbols.posix_spawnattr_init(attr);
 
@@ -178,12 +179,12 @@ export function spawn(executable, args, env, cwd) {
   const pidBuf = new Int32Array(1);
 
   const result = libc.symbols.posix_spawn(
-    Deno.UnsafePointer.of(pidBuf),
+    ptr(pidBuf),
     cstr(executable),
     fa,
     attr,
-    Deno.UnsafePointer.of(argv.pointer),
-    Deno.UnsafePointer.of(envp.pointer),
+    ptr(argv.pointer),
+    ptr(envp.pointer),
   );
 
   // Close write ends in the parent (child owns them now)
@@ -204,7 +205,7 @@ export function spawn(executable, args, env, cwd) {
 
 /**
  * Wait for a child process to exit (non-blocking poll).
- * Uses WNOHANG to avoid blocking the Deno event loop.
+ * Uses WNOHANG to avoid blocking the event loop.
  * @param {number} pid
  * @param {number} [pollIntervalMs=100] - Polling interval in milliseconds
  * @returns {Promise<number>} Exit status
@@ -214,7 +215,7 @@ export async function waitForExit(pid, pollIntervalMs = 100) {
   while (true) {
     const result = libc.symbols.waitpid(
       pid,
-      Deno.UnsafePointer.of(status),
+      ptr(status),
       WNOHANG,
     );
     if (result > 0) {
