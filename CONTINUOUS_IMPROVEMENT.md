@@ -5,8 +5,8 @@
 > — W. Edwards Deming
 
 This monorepo runs an autonomous continuous improvement system powered by Claude
-Code agents on GitHub Actions. Seven scheduled workflows, four agent personas, and
-nine skills form a closed feedback loop that keeps the codebase secure,
+Code agents on GitHub Actions. Seven scheduled workflows, four agent personas,
+and nine skills form a closed feedback loop that keeps the codebase secure,
 release-ready, and steadily improving — without human intervention for routine
 tasks. This is a repo self-maintenance system, not part of the Forward Impact
 products — it maintains the project, not the engineering frameworks the products
@@ -34,12 +34,12 @@ the composite action (see § Authentication below).
 
 ## Agents
 
-| Agent                 | Purpose                                                                         | Skills                                        |
-| --------------------- | ------------------------------------------------------------------------------- | --------------------------------------------- |
-| **security-engineer** | Patch dependencies, harden supply chain, enforce security policies              | dependabot-triage, security-audit, write-spec |
-| **release-engineer**  | Keep PR branches merge-ready, repair trivial CI on main, cut releases           | release-readiness, release-review, gh-cli     |
-| **improvement-coach** | Deep-analyze agent traces, fix trivial issues, spec larger improvements         | grounded-theory-analysis, write-spec, gh-cli  |
-| **product-manager**   | Review PRs for product alignment, triage issues, verify contributor trust       | product-backlog, product-feedback, write-spec, gh-cli |
+| Agent                 | Purpose                                                                   | Skills                                                |
+| --------------------- | ------------------------------------------------------------------------- | ----------------------------------------------------- |
+| **security-engineer** | Patch dependencies, harden supply chain, enforce security policies        | dependabot-triage, security-audit, write-spec         |
+| **release-engineer**  | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | release-readiness, release-review, gh-cli             |
+| **improvement-coach** | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | grounded-theory-analysis, write-spec, gh-cli          |
+| **product-manager**   | Review PRs for product alignment, triage issues, verify contributor trust | product-backlog, product-feedback, write-spec, gh-cli |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -47,14 +47,14 @@ than attempting the fix.
 
 ## Workflows
 
-| Workflow              | Schedule               | Agent             | What it does                                                                |
-| --------------------- | ---------------------- | ----------------- | --------------------------------------------------------------------------- |
-| **release-readiness** | Daily 05:23 UTC        | release-engineer  | Rebase open PRs on main, fix lint/format failures, repair main CI if broken |
-| **security-audit**    | Every 2 days 04:43 UTC | security-engineer | Audit supply chain, dependencies, credentials, OWASP Top 10                 |
-| **dependabot-triage** | Every 3 days 06:17 UTC | security-engineer | Evaluate Dependabot PRs against policy, merge/fix/close                     |
-| **release-review**    | Weekly Mon 07:37 UTC   | release-engineer  | Find unreleased changes, bump versions, tag, push, verify publish           |
-| **improvement-coach** | Weekly Wed 08:47 UTC   | improvement-coach | Deep-analyze a single random agent trace, open fix PRs or write specs       |
-| **product-backlog**   | Daily 09:13 UTC        | product-manager   | Classify open PRs by type, verify contributor trust, merge fix/bug/spec PRs |
+| Workflow              | Schedule               | Agent             | What it does                                                                  |
+| --------------------- | ---------------------- | ----------------- | ----------------------------------------------------------------------------- |
+| **release-readiness** | Daily 05:23 UTC        | release-engineer  | Rebase open PRs on main, fix lint/format failures, repair main CI if broken   |
+| **security-audit**    | Every 2 days 04:43 UTC | security-engineer | Audit supply chain, dependencies, credentials, OWASP Top 10                   |
+| **dependabot-triage** | Every 3 days 06:17 UTC | security-engineer | Evaluate Dependabot PRs against policy, merge/fix/close                       |
+| **release-review**    | Weekly Mon 07:37 UTC   | release-engineer  | Find unreleased changes, bump versions, tag, push, verify publish             |
+| **improvement-coach** | Weekly Wed 08:47 UTC   | improvement-coach | Deep-analyze a single random agent trace, open fix PRs or write specs         |
+| **product-backlog**   | Daily 09:13 UTC        | product-manager   | Classify open PRs by type, verify contributor trust, merge fix/bug/spec PRs   |
 | **product-feedback**  | Weekly Thu 10:31 UTC   | product-manager   | Triage open issues, implement trivial fixes, write specs for aligned requests |
 
 All schedules use off-minute values to avoid API load spikes. Every workflow
@@ -181,17 +181,17 @@ graph TD
     style RE fill:#bbf,stroke:#333
 ```
 
-| Merge point           | Source                    | Trust model                                    |
-| --------------------- | ------------------------- | ---------------------------------------------- |
-| **product-backlog**   | External fix/bug PRs      | Top-20 contributor gate + CI                   |
-| **product-backlog**   | External spec PRs         | Top-20 gate + CI + write-spec review           |
+| Merge point           | Source                    | Trust model                                     |
+| --------------------- | ------------------------- | ----------------------------------------------- |
+| **product-backlog**   | External fix/bug PRs      | Top-20 contributor gate + CI                    |
+| **product-backlog**   | External spec PRs         | Top-20 gate + CI + write-spec review            |
 | **product-backlog**   | CI app PRs                | Trusted app identity (`forward-impact-ci`) + CI |
-| **dependabot-triage** | Dependabot PRs            | Trusted bot, policy-gated                      |
-| **release-readiness** | Agent-authored rebases    | Agent-only, no external input                  |
-| **release-review**    | Agent-authored tags/bumps | Agent-only, no external input                  |
-| **release-engineer**  | Trivial CI fixes on main  | Agent-only, mechanical fixes only              |
-| **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence                 |
-| **product-feedback**  | Agent-authored fix/spec   | Agent-only, issues as input                    |
+| **dependabot-triage** | Dependabot PRs            | Trusted bot, policy-gated                       |
+| **release-readiness** | Agent-authored rebases    | Agent-only, no external input                   |
+| **release-review**    | Agent-authored tags/bumps | Agent-only, no external input                   |
+| **release-engineer**  | Trivial CI fixes on main  | Agent-only, mechanical fixes only               |
+| **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence                  |
+| **product-feedback**  | Agent-authored fix/spec   | Agent-only, issues as input                     |
 
 This design concentrates external-contribution risk at a single auditable point.
 The improvement coach verifies that the product manager performed trust checks

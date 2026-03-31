@@ -37,12 +37,12 @@ gh auth status
 
 Each PR must pass all applicable gates before merge:
 
-| #   | Gate                                  | Verification                         | On failure                                                           |
-| --- | ------------------------------------- | ------------------------------------ | -------------------------------------------------------------------- |
-| 1   | Author is trusted                     | CI app or top-20 lookup (Step 2)     | **Skip** — comment that only trusted authors' PRs are auto-merged    |
-| 2   | PR type is `fix`, `bug`, or `spec`    | Parse title prefix (Step 3)          | **Skip** — comment that the PR type is outside product-manager scope |
-| 3   | All CI checks pass                    | `gh pr checks` (Step 4)              | **Skip** — comment that CI must be green                             |
-| 4   | Spec quality approved (spec PRs only) | Apply `write-spec` review (Step 5)   | **Skip** — comment with review findings                              |
+| #   | Gate                                  | Verification                       | On failure                                                           |
+| --- | ------------------------------------- | ---------------------------------- | -------------------------------------------------------------------- |
+| 1   | Author is trusted                     | CI app or top-20 lookup (Step 2)   | **Skip** — comment that only trusted authors' PRs are auto-merged    |
+| 2   | PR type is `fix`, `bug`, or `spec`    | Parse title prefix (Step 3)        | **Skip** — comment that the PR type is outside product-manager scope |
+| 3   | All CI checks pass                    | `gh pr checks` (Step 4)            | **Skip** — comment that CI must be green                             |
+| 4   | Spec quality approved (spec PRs only) | Apply `write-spec` review (Step 5) | **Skip** — comment with review findings                              |
 
 ## Process
 

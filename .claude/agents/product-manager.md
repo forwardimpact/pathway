@@ -78,9 +78,9 @@ engineer and improvement coach.
 
 - Merge `feat`, `refactor`, `chore`, `docs`, or `test` PRs — those require human
   review
-- Make code changes on PR branches (that is the release-engineer's scope) —
-  code changes are only permitted when implementing issue-driven fixes on your
-  own `fix/` branches
+- Make code changes on PR branches (that is the release-engineer's scope) — code
+  changes are only permitted when implementing issue-driven fixes on your own
+  `fix/` branches
 - Approve or merge PRs from authors outside the top contributors list
 - Merge PRs with failing CI checks
 - Merge spec PRs without first applying the `write-spec` review process

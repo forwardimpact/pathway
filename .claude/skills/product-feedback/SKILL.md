@@ -45,12 +45,12 @@ vision. The six products and their questions:
 
 | Product      | Question it answers                               |
 | ------------ | ------------------------------------------------- |
-| **Map**      | What does good engineering look like here?         |
-| **Pathway**  | Where does my career path go from here?            |
-| **Basecamp** | Am I prepared for what's ahead today?              |
-| **Guide**    | How do I find my bearing?                          |
-| **Landmark** | What milestones has my engineering reached?         |
-| **Summit**   | Is this team supported to reach peak performance?  |
+| **Map**      | What does good engineering look like here?        |
+| **Pathway**  | Where does my career path go from here?           |
+| **Basecamp** | Am I prepared for what's ahead today?             |
+| **Guide**    | How do I find my bearing?                         |
+| **Landmark** | What milestones has my engineering reached?       |
+| **Summit**   | Is this team supported to reach peak performance? |
 
 An issue is product-aligned if it describes a need that one of these products
 should address for its users (Leadership, Developers, or Agents).
@@ -302,8 +302,8 @@ After processing all issues, produce a summary table:
 When writing your memory entry at the end of the run, include these
 triage-specific fields in addition to the standard agent memory fields:
 
-- **Issue triage table** — Each issue processed with category, action taken,
-  and outcome (PR number, spec number, or close reason)
+- **Issue triage table** — Each issue processed with category, action taken, and
+  outcome (PR number, spec number, or close reason)
 - **Recurring themes** — Feature requests or bug patterns that appear across
   multiple issues, noting frequency and product alignment
 - **Specs created** — Spec numbers and their associated issues, for tracking
@@ -320,5 +320,5 @@ triage-specific fields in addition to the standard agent memory fields:
 - **Do not make architectural decisions** — if a bug fix requires design work,
   classify it as product-aligned and write a spec.
 - **Do not bypass quality checks** — run `bun run check` before every commit.
-- **Do not process issues already labelled `triaged` or `wontfix`** — those
-  have been handled.
+- **Do not process issues already labelled `triaged` or `wontfix`** — those have
+  been handled.
