@@ -97,28 +97,6 @@ describe("Logger", () => {
     assert.strictEqual(consoleOutput.length, 0);
   });
 
-  test(
-    "logs message with data object",
-    { skip: "Future PR will fix this" },
-    () => {
-      process.env.DEBUG = "test";
-      const logger = new Logger("test");
-
-      logger.debug("ProcessMethod", "Processing", {
-        items: "50/200",
-        retry: "2/3",
-      });
-
-      assert.strictEqual(consoleOutput.length, 1);
-      assert.ok(consoleOutput[0].includes("DEBUG"));
-      assert.ok(consoleOutput[0].includes("test"));
-      assert.ok(consoleOutput[0].includes("ProcessMethod"));
-      assert.ok(consoleOutput[0].includes("Processing"));
-      assert.ok(consoleOutput[0].includes('items="50/200"'));
-      assert.ok(consoleOutput[0].includes('retry="2/3"'));
-    },
-  );
-
   test("handles empty data object", () => {
     process.env.DEBUG = "test";
     const logger = new Logger("test");
@@ -139,87 +117,6 @@ describe("Logger", () => {
     assert.strictEqual(consoleOutput.length, 1);
     assert.ok(consoleOutput[0].match(/\d{4}-\d{2}-\d{2}T\d{2}:\d{2}/));
   });
-
-  test(
-    "extracts trace context from error objects",
-    { skip: "Future PR will fix this" },
-    () => {
-      process.env.DEBUG = "test";
-      const logger = new Logger("test");
-
-      // Create error with trace context (as added by Tracer)
-      const error = new Error("Test error");
-      Object.defineProperties(error, {
-        trace_id: {
-          value: "abc123def456",
-          enumerable: false,
-          writable: false,
-        },
-        span_id: {
-          value: "789xyz012",
-          enumerable: false,
-          writable: false,
-        },
-        service_name: {
-          value: "test-service",
-          enumerable: false,
-          writable: false,
-        },
-      });
-
-      logger.error("TestMethod", error);
-
-      assert.strictEqual(consoleOutput.length, 1);
-      assert.ok(consoleOutput[0].includes("ERROR"));
-      assert.ok(consoleOutput[0].includes("Test error"));
-      assert.ok(
-        consoleOutput[0].includes("trace_id=abc123def456"),
-        "Should include trace_id in structured data",
-      );
-      assert.ok(
-        consoleOutput[0].includes("span_id=789xyz012"),
-        "Should include span_id in structured data",
-      );
-      assert.ok(
-        consoleOutput[0].includes("service_name=test-service"),
-        "Should include service_name in structured data",
-      );
-    },
-  );
-
-  test(
-    "merges trace context with provided attributes",
-    { skip: "Future PR will fix this" },
-    () => {
-      process.env.DEBUG = "test";
-      const logger = new Logger("test");
-
-      const error = new Error("Test error");
-      Object.defineProperty(error, "trace_id", {
-        value: "trace123",
-        enumerable: false,
-        writable: false,
-      });
-
-      logger.error("TestMethod", error, { retry: "1/3", status: "500" });
-
-      assert.strictEqual(consoleOutput.length, 1);
-      assert.ok(consoleOutput[0].includes("ERROR"));
-      assert.ok(consoleOutput[0].includes("Test error"));
-      assert.ok(
-        consoleOutput[0].includes('trace_id="abc123def456"'),
-        "Should include trace_id in structured data",
-      );
-      assert.ok(
-        consoleOutput[0].includes('span_id="789xyz012"'),
-        "Should include span_id in structured data",
-      );
-      assert.ok(
-        consoleOutput[0].includes('service_name="test-service"'),
-        "Should include service_name in structured data",
-      );
-    },
-  );
 
   test("merges trace context with provided attributes", () => {
     process.env.DEBUG = "test";
