@@ -75,11 +75,11 @@ Services are supervised by `fit-rc` (via `libraries/librc/`). The service list
 is defined in `config/config.json` under `init.services`.
 
 ```sh
-npx fit-rc start              # Start all services (or: make rc-start)
-npx fit-rc stop               # Graceful shutdown    (or: make rc-stop)
-npx fit-rc restart            # Restart all          (or: make rc-restart)
-npx fit-rc status             # Show service status  (or: make rc-status)
-npx fit-rc start tei          # Start a single service
+bunx fit-rc start              # Start all services (or: make rc-start)
+bunx fit-rc stop               # Graceful shutdown    (or: make rc-stop)
+bunx fit-rc restart            # Restart all          (or: make rc-restart)
+bunx fit-rc status             # Show service status  (or: make rc-status)
+bunx fit-rc start tei          # Start a single service
 ```
 
 Services run on localhost in local mode (ports 3002–3008 for gRPC, 3001 for web,
@@ -97,7 +97,7 @@ make tei-start                # Start TEI service (downloads model on first run)
 ### Bootstrap (First Run)
 
 ```sh
-npm install                   # Install all workspace dependencies
+bun install                   # Install all workspace dependencies
 make quickstart               # Full bootstrap: env, generate, data, codegen, process
 make rc-start                 # Start services (supabase/tei skipped if not installed)
 ```
@@ -117,11 +117,11 @@ Use `make synthetic-update` to call the LLM and refresh the cache. The
 ### Development
 
 ```sh
-npm run dev                   # Development server
-npx fit-pathway dev           # Pathway dev server
-npx fit-pathway build --url=X # Static site + install bundle
-npx fit-basecamp --init ~/Dir # Initialize knowledge base
-npx fit-basecamp --daemon     # Run scheduler
+bun run dev                   # Development server
+bunx fit-pathway dev          # Pathway dev server
+bunx fit-pathway build --url=X # Static site + install bundle
+bunx fit-basecamp --init ~/Dir # Initialize knowledge base
+bunx fit-basecamp --daemon    # Run scheduler
 ```
 
 ### Processing & Services
