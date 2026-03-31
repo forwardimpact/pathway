@@ -7,8 +7,24 @@ ENVLOAD = ENV=$(ENV) STORAGE=$(STORAGE) AUTH=$(AUTH) ./scripts/env.sh
 
 # ── Core ──────────────────────────────────────────────────────────
 
+.PHONY: memory-init
+memory-init:  ## Initialize agent memory submodule (wiki)
+	@git submodule update --init --remote .claude/memory 2>/dev/null || true
+	@if [ -d .claude/memory/.git ] || [ -f .claude/memory/.git ]; then \
+		git -C .claude/memory config user.name "$$(git config user.name)"; \
+		git -C .claude/memory config user.email "$$(git config user.email)"; \
+	fi
+
+.PHONY: memory-commit
+memory-commit:  ## Commit and push agent memory changes
+	@cd .claude/memory && git add -A && \
+		if ! git diff --cached --quiet; then \
+			git commit -m "memory: update from session"; \
+			git push origin HEAD:master; \
+		fi
+
 .PHONY: install
-install:  ## Install dependencies and generate code
+install: memory-init  ## Install dependencies and generate code
 	@npm ci
 	@npx --workspace=@forwardimpact/libcodegen fit-codegen --all
 

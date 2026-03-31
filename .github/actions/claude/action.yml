@@ -29,10 +29,6 @@ inputs:
     description: Artifact name for the trace
     required: false
     default: "claude-trace"
-  wiki:
-    description: Clone the repository wiki for shared agent memory
-    required: false
-    default: "true"
   app-slug:
     description: GitHub App slug for git identity
     required: false
@@ -56,50 +52,6 @@ runs:
       run: |
         git config user.name "${APP_SLUG}[bot]"
         git config user.email "${APP_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
-
-    - name: Clone wiki for shared memory
-      id: clone-wiki
-      if: inputs.wiki == 'true'
-      shell: bash
-      env:
-        APP_SLUG: ${{ inputs.app-slug }}
-        APP_ID: ${{ inputs.app-id }}
-      run: |
-        WIKI_DIR="/tmp/wiki"
-        REPO_URL="${GITHUB_SERVER_URL}/${GITHUB_REPOSITORY}.wiki.git"
-
-        WIKI_REMOTE="https://x-access-token:${GH_TOKEN}@${REPO_URL#https://}"
-
-        # Clone wiki (initialize if it doesn't exist yet)
-        if ! git clone "$WIKI_REMOTE" "$WIKI_DIR" 2>/dev/null; then
-          mkdir -p "$WIKI_DIR"
-          git -C "$WIKI_DIR" init
-          git -C "$WIKI_DIR" remote add origin "$WIKI_REMOTE"
-          git -C "$WIKI_DIR" config user.name "${APP_SLUG}[bot]"
-          git -C "$WIKI_DIR" config user.email "${APP_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
-          echo "# Agent Memory" > "$WIKI_DIR/Home.md"
-          git -C "$WIKI_DIR" add .
-          git -C "$WIKI_DIR" commit -m "Initialize wiki for agent memory"
-        fi
-
-        echo "wiki-dir=$WIKI_DIR" >> "$GITHUB_OUTPUT"
-
-    - name: Configure shared memory directory
-      if: inputs.wiki == 'true'
-      shell: bash
-      run: |
-        WIKI_DIR="${{ steps.clone-wiki.outputs.wiki-dir }}"
-        SETTINGS_FILE=".claude/settings.json"
-        if [ -f "$SETTINGS_FILE" ]; then
-          node -e "
-            const fs = require('fs');
-            const s = JSON.parse(fs.readFileSync('$SETTINGS_FILE', 'utf8'));
-            s.autoMemoryDirectory = '$WIKI_DIR';
-            fs.writeFileSync('$SETTINGS_FILE', JSON.stringify(s, null, 2) + '\n');
-          "
-        else
-          echo '{"autoMemoryDirectory":"'"$WIKI_DIR"'"}' > "$SETTINGS_FILE"
-        fi
 
     - name: Run Claude Code
       id: run
@@ -143,39 +95,3 @@ runs:
       with:
         name: ${{ inputs.trace-name }}
         path: ${{ steps.run.outputs.trace-dir }}
-
-    - name: Push wiki changes
-      if: always() && inputs.wiki == 'true'
-      shell: bash
-      env:
-        APP_SLUG: ${{ inputs.app-slug }}
-        APP_ID: ${{ inputs.app-id }}
-      run: |
-        WIKI_DIR="${{ steps.clone-wiki.outputs.wiki-dir }}"
-        cd "$WIKI_DIR"
-        git config user.name "${APP_SLUG}[bot]"
-        git config user.email "${APP_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
-
-        # Stage and commit any uncommitted changes in the wiki
-        git add -A
-        if ! git diff --cached --quiet; then
-          AGENT_NAME="${GITHUB_WORKFLOW// /-}"
-          git commit -m "memory($AGENT_NAME): update from run $GITHUB_RUN_NUMBER"
-        fi
-
-        # Push all commits (including any the agent made during its run)
-        if ! git remote get-url origin >/dev/null 2>&1; then
-          echo "No wiki remote configured, skipping push"
-          exit 0
-        fi
-
-        # Check if there are commits to push (handles both cloned and init'd repos)
-        if git rev-parse --verify origin/master >/dev/null 2>&1; then
-          # Cloned repo: check for unpushed commits
-          if [ -z "$(git log origin/master..HEAD --oneline 2>/dev/null)" ]; then
-            echo "No wiki changes to push"
-            exit 0
-          fi
-        fi
-
-        git push -u origin HEAD:master || echo "Wiki push failed (non-fatal)"

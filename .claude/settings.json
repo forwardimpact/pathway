@@ -12,6 +12,16 @@
           }
         ]
       }
+    ],
+    "Stop": [
+      {
+        "hooks": [
+          {
+            "type": "command",
+            "command": "make memory-commit"
+          }
+        ]
+      }
     ]
   }
 }
