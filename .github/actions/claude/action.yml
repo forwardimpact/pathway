@@ -42,7 +42,7 @@ runs:
   steps:
     - name: Install Claude Code
       shell: bash
-      run: npm install -g @anthropic-ai/claude-code@2.1.87
+      run: bun install -g @anthropic-ai/claude-code@2.1.87
 
     - name: Configure Git identity
       shell: bash
@@ -79,7 +79,7 @@ runs:
             --max-turns "$MAX_TURNS" \
             --allowedTools "$TOOLS" \
             $AGENT_FLAG \
-            | npx fit-eval tee "$TRACE_DIR/trace.ndjson"
+            | bunx fit-eval tee "$TRACE_DIR/trace.ndjson"
         else
           echo "$PROMPT" | claude --print \
             --model "$MODEL" \

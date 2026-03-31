@@ -17,7 +17,10 @@ runs:
     - name: Vulnerability scanning
       if: inputs.vulnerability-scanning == 'true'
       shell: bash
-      run: npm audit --audit-level=high --omit=dev --workspaces
+      run: |
+        npm install --package-lock-only --ignore-scripts 2>/dev/null
+        npm audit --audit-level=high --omit=dev --workspaces
+        rm -f package-lock.json
 
     - name: Install gitleaks
       if: inputs.secret-scanning == 'true'

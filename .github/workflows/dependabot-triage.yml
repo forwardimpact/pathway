@@ -30,10 +30,9 @@ jobs:
           token: ${{ steps.app-token.outputs.token }}
           submodules: true
 
-      - uses: actions/setup-node@49933ea5288caeca8642d1e84afbd3f7d6820020 # v4
+      - uses: oven-sh/setup-bun@735343cf11a0fad2539a9800e109ac7e0bafc0e6 # v2
         with:
-          node-version: 22
-          cache: npm
+          bun-version: latest
 
       - run: make install
 
