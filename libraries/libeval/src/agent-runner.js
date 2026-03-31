@@ -55,33 +55,38 @@ export class AgentRunner {
   async run(task) {
     let text = "";
     let stopReason = null;
+    let error = null;
 
-    for await (const message of this.query({
-      prompt: task,
-      options: {
-        cwd: this.cwd,
-        allowedTools: this.allowedTools,
-        maxTurns: this.maxTurns,
-        model: this.model,
-        permissionMode: this.permissionMode,
-        allowDangerouslySkipPermissions: true,
-      },
-    })) {
-      const line = JSON.stringify(message);
-      this.output.write(line + "\n");
-      this.buffer.push(line);
+    try {
+      for await (const message of this.query({
+        prompt: task,
+        options: {
+          cwd: this.cwd,
+          allowedTools: this.allowedTools,
+          maxTurns: this.maxTurns,
+          model: this.model,
+          permissionMode: this.permissionMode,
+          allowDangerouslySkipPermissions: true,
+        },
+      })) {
+        const line = JSON.stringify(message);
+        this.output.write(line + "\n");
+        this.buffer.push(line);
 
-      if (message.type === "system" && message.subtype === "init") {
-        this.sessionId = message.session_id;
+        if (message.type === "system" && message.subtype === "init") {
+          this.sessionId = message.session_id;
+        }
+        if (message.type === "result") {
+          text = message.result ?? "";
+          stopReason = message.subtype;
+        }
       }
-      if (message.type === "result") {
-        text = message.result ?? "";
-        stopReason = message.subtype;
-      }
+    } catch (err) {
+      error = err;
     }
 
-    const success = stopReason === "success";
-    return { success, text, sessionId: this.sessionId };
+    const success = !error && stopReason === "success";
+    return { success, text, sessionId: this.sessionId, error };
   }
 
   /**
@@ -92,23 +97,28 @@ export class AgentRunner {
   async resume(prompt) {
     let text = "";
     let stopReason = null;
+    let error = null;
 
-    for await (const message of this.query({
-      prompt,
-      options: { resume: this.sessionId },
-    })) {
-      const line = JSON.stringify(message);
-      this.output.write(line + "\n");
-      this.buffer.push(line);
+    try {
+      for await (const message of this.query({
+        prompt,
+        options: { resume: this.sessionId },
+      })) {
+        const line = JSON.stringify(message);
+        this.output.write(line + "\n");
+        this.buffer.push(line);
 
-      if (message.type === "result") {
-        text = message.result ?? "";
-        stopReason = message.subtype;
+        if (message.type === "result") {
+          text = message.result ?? "";
+          stopReason = message.subtype;
+        }
       }
+    } catch (err) {
+      error = err;
     }
 
-    const success = stopReason === "success";
-    return { success, text };
+    const success = !error && stopReason === "success";
+    return { success, text, error };
   }
 
   /**
