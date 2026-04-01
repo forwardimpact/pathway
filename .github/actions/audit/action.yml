@@ -10,6 +10,10 @@ inputs:
     description: Run secret scanning on the repository
     required: false
     default: "false"
+  working-directory:
+    description: Directory containing package.json
+    required: false
+    default: "."
 
 runs:
   using: composite
@@ -17,6 +21,7 @@ runs:
     - name: Vulnerability scanning
       if: inputs.vulnerability-scanning == 'true'
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: |
         npm install --package-lock-only --ignore-scripts 2>/dev/null
         npm audit --audit-level=high --omit=dev --workspaces
@@ -37,4 +42,5 @@ runs:
     - name: Secret scanning
       if: inputs.secret-scanning == 'true'
       shell: bash
+      working-directory: ${{ inputs.working-directory }}
       run: gitleaks detect --source . --verbose

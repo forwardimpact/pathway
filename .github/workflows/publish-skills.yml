@@ -26,6 +26,8 @@ jobs:
           path: skills-repo
 
       - uses: ./monorepo/.github/actions/audit
+        with:
+          working-directory: monorepo
 
       - name: Sync skills
         run: |
