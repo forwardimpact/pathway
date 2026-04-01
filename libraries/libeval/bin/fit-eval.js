@@ -25,7 +25,8 @@ Commands:
   supervise [options]            Run a supervised agent ↔ supervisor relay loop
 
 Run options:
-  --task=PATH          Path to task file (required)
+  --task-file=PATH     Path to task file (mutually exclusive with --task-text)
+  --task-text=STRING   Inline task text (mutually exclusive with --task-file)
   --cwd=DIR            Agent working directory (default: .)
   --model=MODEL        Claude model to use (default: opus)
   --max-turns=N        Maximum agentic turns (default: 50)
@@ -34,7 +35,8 @@ Run options:
   --agent-profile=NAME Agent profile name (passed as --agent to Claude CLI)
 
 Supervise options:
-  --task=PATH               Path to task file (required)
+  --task-file=PATH          Path to task file (mutually exclusive with --task-text)
+  --task-text=STRING        Inline task text (mutually exclusive with --task-file)
   --supervisor-cwd=DIR      Supervisor working directory (default: .)
   --agent-cwd=DIR           Agent working directory (default: temp directory)
   --model=MODEL             Claude model to use (default: opus)
@@ -53,8 +55,9 @@ Examples:
   fit-eval output --format=json < trace.ndjson
   fit-eval tee < trace.ndjson
   fit-eval tee output.ndjson < trace.ndjson
-  fit-eval run --task=.github/tasks/security-audit.md --model=opus
-  fit-eval supervise --task=scenarios/guide-setup/task.md --supervisor-cwd=.
+  fit-eval run --task-text="Perform a security audit of the repository." --model=opus
+  fit-eval run --task-file=scenarios/guide-setup/task.md --model=opus
+  fit-eval supervise --task-file=scenarios/guide-setup/task.md --supervisor-cwd=.
 `.trim();
 
 async function main() {
