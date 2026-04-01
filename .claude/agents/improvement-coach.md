@@ -64,7 +64,7 @@ Otherwise, select a run using memory-informed rotation:
 2. **Discover available runs**:
 
    ```sh
-   for workflow in security-audit dependabot-triage release-readiness release-review product-backlog product-feedback; do
+   for workflow in security-audit dependabot-triage release-readiness release-review product-backlog product-feedback guide-setup; do
      echo "=== $workflow ==="
      gh run list --workflow "$workflow.yml" --limit 5 \
        --json databaseId,status,conclusion,createdAt,headBranch \
