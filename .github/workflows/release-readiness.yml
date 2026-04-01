@@ -45,7 +45,7 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task: .github/tasks/release-readiness.md
+          task-text: Check release readiness.
           agent-profile: "release-engineer"
           model: "opus"
           max-turns: "200"

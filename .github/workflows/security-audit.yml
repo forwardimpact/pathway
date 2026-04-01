@@ -44,7 +44,7 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task: .github/tasks/security-audit.md
+          task-text: Run a security audit.
           agent-profile: "security-engineer"
           model: "opus"
           max-turns: "200"

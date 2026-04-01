@@ -24,7 +24,8 @@ function parseFlag(args, name) {
  * Usage: fit-eval run [options]
  *
  * Options:
- *   --task=PATH          Path to task file (required)
+ *   --task-file=PATH     Path to task file (mutually exclusive with --task-text)
+ *   --task-text=STRING   Inline task text (mutually exclusive with --task-file)
  *   --cwd=DIR            Agent working directory (default: .)
  *   --model=MODEL        Claude model to use (default: opus)
  *   --max-turns=N        Maximum agentic turns (default: 50)
@@ -35,8 +36,12 @@ function parseFlag(args, name) {
  * @param {string[]} args - Command arguments
  */
 export async function runRunCommand(args) {
-  const task = parseFlag(args, "task");
-  if (!task) throw new Error("--task is required");
+  const taskFile = parseFlag(args, "task-file");
+  const taskText = parseFlag(args, "task-text");
+  if (taskFile && taskText)
+    throw new Error("--task-file and --task-text are mutually exclusive");
+  if (!taskFile && !taskText)
+    throw new Error("--task-file or --task-text is required");
 
   const cwd = resolve(parseFlag(args, "cwd") ?? ".");
   const model = parseFlag(args, "model") ?? "opus";
@@ -47,7 +52,7 @@ export async function runRunCommand(args) {
     parseFlag(args, "allowed-tools") ?? "Bash,Read,Glob,Grep,Write,Edit"
   ).split(",");
 
-  const taskContent = readFileSync(task, "utf8");
+  const taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
 
   // When --output is specified, stream text to stdout while writing NDJSON to file.
   // Otherwise, write NDJSON directly to stdout (backwards-compatible).

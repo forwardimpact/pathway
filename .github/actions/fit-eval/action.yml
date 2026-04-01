@@ -2,9 +2,12 @@ name: Fit Eval
 description: Run agent tasks via fit-eval CLI using the Claude Agent SDK
 
 inputs:
-  task:
-    description: Path to task file (markdown or text)
-    required: true
+  task-file:
+    description: Path to task file (mutually exclusive with task-text)
+    required: false
+  task-text:
+    description: Inline task text (mutually exclusive with task-file)
+    required: false
   mode:
     description: Execution mode — "run" (single agent) or "supervise"
     required: false
@@ -76,7 +79,8 @@ runs:
       shell: bash
       env:
         MODE: ${{ inputs.mode }}
-        TASK: ${{ inputs.task }}
+        TASK_FILE: ${{ inputs.task-file }}
+        TASK_TEXT: ${{ inputs.task-text }}
         CWD: ${{ inputs.cwd }}
         SUPERVISOR_CWD: ${{ inputs.supervisor-cwd }}
         AGENT_CWD: ${{ inputs.agent-cwd }}
@@ -90,6 +94,19 @@ runs:
       run: |
         # Build args array to avoid quoting issues with spaces in paths
         args=()
+
+        # Resolve task source — exactly one of task-file or task-text is required
+        if [ -n "$TASK_FILE" ] && [ -n "$TASK_TEXT" ]; then
+          echo "::error::task-file and task-text are mutually exclusive"
+          exit 1
+        elif [ -n "$TASK_FILE" ]; then
+          args+=("--task-file=$TASK_FILE")
+        elif [ -n "$TASK_TEXT" ]; then
+          args+=("--task-text=$TASK_TEXT")
+        else
+          echo "::error::Either task-file or task-text is required"
+          exit 1
+        fi
 
         if [ "$TRACE_ENABLED" = "true" ] && [ -n "$TRACE_DIR" ]; then
           args+=("--output=$TRACE_DIR/trace.ndjson")
@@ -106,7 +123,6 @@ runs:
           fi
 
           bunx fit-eval supervise \
-            --task="$TASK" \
             --supervisor-cwd="$SUPERVISOR_CWD" \
             --agent-cwd="$agent_cwd" \
             --model="$MODEL" \
@@ -119,7 +135,6 @@ runs:
           fi
 
           bunx fit-eval run \
-            --task="$TASK" \
             --cwd="$CWD" \
             --model="$MODEL" \
             --max-turns="$MAX_TURNS" \

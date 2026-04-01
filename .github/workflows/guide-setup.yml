@@ -51,7 +51,7 @@ jobs:
         with:
           app-id: ${{ secrets.CI_APP_ID }}
           mode: "supervise"
-          task: scenarios/guide-setup/task.md
+          task-file: scenarios/guide-setup/task.md
           supervisor-cwd: "."
           agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
           supervisor-profile: "product-manager"
