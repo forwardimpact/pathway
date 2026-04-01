@@ -48,4 +48,4 @@ jobs:
           task: .github/tasks/release-review.md
           agent-profile: "release-engineer"
           model: "opus"
-          max-turns: "50"
+          max-turns: "200"

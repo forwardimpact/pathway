@@ -48,4 +48,4 @@ jobs:
           task: .github/tasks/product-backlog.md
           agent-profile: "product-manager"
           model: "opus"
-          max-turns: "50"
+          max-turns: "200"
