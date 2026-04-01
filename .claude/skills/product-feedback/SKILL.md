@@ -1,23 +1,30 @@
 ---
 name: product-feedback
 description: >
-  Triage open GitHub issues for product alignment. Implement trivial fixes or
-  bugs directly as PRs. For product-aligned feature requests and improvements,
-  write specs using the spec skill and open PRs for them.
+  Manage product feedback in both directions. Triage open GitHub issues for
+  product alignment — implement trivial fixes or write specs. Create new GitHub
+  issues from product feedback observed during user testing sessions.
 ---
 
-# Product Feedback Triage
+# Product Feedback
 
-Triage all open GitHub issues for product alignment, classify them by type and
-scope, and take action: implement trivial fixes directly or write specs for
-product-aligned improvements. Issues that fall outside the product vision are
-labelled and skipped.
+Manage product feedback in both directions:
+
+- **Inbound** — Triage open GitHub issues submitted by others: classify by type
+  and scope, implement trivial fixes directly, or write specs for
+  product-aligned improvements.
+- **Outbound** — Assess feedback observed during user testing sessions (e.g.
+  evaluation scenarios), classify it for product alignment, and create GitHub
+  issues for feedback that serves the product vision.
 
 ## When to Use
 
 - Reviewing and actioning open issues for product alignment
 - Scheduled to process community feedback regularly
 - On-demand when the issue backlog needs attention
+- After supervising a user testing or evaluation session where the agent
+  reported feedback about product experience (installation, documentation,
+  CLI output, error messages, etc.)
 
 ## Prerequisites
 
@@ -28,7 +35,9 @@ installation instructions. Verify with:
 gh auth status
 ```
 
-## Classification
+## Part 1: Triaging Open Issues
+
+### Classification
 
 Each issue is classified into one of three categories based on its content:
 
@@ -55,7 +64,7 @@ vision. The six products and their questions:
 An issue is product-aligned if it describes a need that one of these products
 should address for its users (Leadership, Developers, or Agents).
 
-## Process
+### Process
 
 ### Step 0: Read Memory for Issue History
 
@@ -308,6 +317,109 @@ triage-specific fields in addition to the standard agent memory fields:
 - **Specs created** — Spec numbers and their associated issues, for tracking
   through the spec lifecycle
 
+## Part 2: Creating Issues from User Testing Feedback
+
+When supervising a user testing or evaluation session, the agent being tested
+will report feedback about their experience — installation friction, unclear
+documentation, confusing CLI output, errors, missing features, etc. This
+feedback is a valuable product signal. Assess it for product alignment and
+create GitHub issues for feedback that serves the product vision.
+
+### When This Applies
+
+Use this process when you have observed or received product feedback from:
+
+- Evaluation scenarios (e.g. `guide-setup`, `pathway-setup`)
+- User testing sessions where an agent tried a product as a first-time user
+- Any supervised session where the agent reported friction or suggestions
+
+### Process
+
+#### Step 1: Extract Feedback Items
+
+Review the agent's output and identify distinct feedback items. Each item
+should describe a single observation — don't merge unrelated feedback.
+
+Examples of feedback items:
+
+- "Installation instructions didn't mention needing Node 18+"
+- "fit-guide crashed with 'Cannot read properties of undefined' when asking
+  about skills"
+- "The response about career progression was generic and didn't reference the
+  framework"
+- "No example prompts were shown after installation"
+
+#### Step 2: Classify Each Item
+
+Use the same product alignment criteria as inbound triage:
+
+| Category            | Criteria                                                       | Action              |
+| ------------------- | -------------------------------------------------------------- | ------------------- |
+| **Bug**             | Something is broken — crashes, errors, incorrect output        | Create bug issue    |
+| **Product-aligned** | Missing feature or improvement that serves the product vision  | Create feature issue |
+| **Documentation**   | Instructions unclear, missing steps, or outdated content       | Create docs issue   |
+| **Out of scope**    | Not actionable, environmental, or outside product control      | Skip — note in summary |
+
+#### Step 3: Create GitHub Issues
+
+For each product-aligned feedback item, create a GitHub issue:
+
+```sh
+gh issue create \
+  --title "<type>(<product>): <concise description>" \
+  --label "user-testing" \
+  --body "$(cat <<'EOF'
+## Context
+
+Observed during user testing of the **<product>** product in the
+`<scenario>` evaluation scenario.
+
+## Feedback
+
+<detailed description of the feedback item>
+
+## Expected Behaviour
+
+<what the user expected to happen>
+
+## Actual Behaviour
+
+<what actually happened>
+
+— Product Manager 🌱
+EOF
+)"
+```
+
+Use the appropriate title prefix:
+
+- `bug(<product>):` for broken behaviour
+- `docs(<product>):` for documentation issues
+- `feat(<product>):` for missing features or improvements
+
+#### Step 4: Report Summary
+
+Produce a summary table of all feedback items:
+
+```
+| # | Feedback                              | Category       | Action       | Issue |
+|---|---------------------------------------|----------------|--------------|-------|
+| 1 | Install docs missing Node version     | documentation  | issue #52    |  #52  |
+| 2 | Crash on skill query                  | bug            | issue #53    |  #53  |
+| 3 | Generic career progression response   | product-aligned| issue #54    |  #54  |
+| 4 | Slow response in CI environment       | out of scope   | skipped      |  —    |
+```
+
+### Memory: what to record for user testing feedback
+
+When writing your memory entry after processing user testing feedback, include:
+
+- **Feedback items table** — Each item with category, action taken, and issue
+  number if created
+- **Scenario tested** — Which evaluation scenario produced the feedback
+- **Product quality patterns** — Recurring themes across testing sessions that
+  suggest systemic issues
+
 ## What NOT to Do
 
 - **Do not implement features directly** — features require a spec, even if the
@@ -321,3 +433,7 @@ triage-specific fields in addition to the standard agent memory fields:
 - **Do not bypass quality checks** — run `bun run check` before every commit.
 - **Do not process issues already labelled `triaged` or `wontfix`** — those have
   been handled.
+- **Do not create issues for environmental or infrastructure feedback** — only
+  product-level feedback gets issues.
+- **Do not create duplicate issues** — search for existing issues before
+  creating new ones.
