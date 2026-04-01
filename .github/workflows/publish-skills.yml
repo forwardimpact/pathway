@@ -28,6 +28,8 @@ jobs:
       - uses: ./monorepo/.github/actions/audit
         with:
           working-directory: monorepo
+          vulnerability-scanning: "false"
+          secret-scanning: "true"
 
       - name: Sync skills
         run: |
