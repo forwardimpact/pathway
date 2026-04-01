@@ -17,6 +17,7 @@ export class AgentRunner {
    * @param {string[]} [deps.allowedTools] - Tools the agent may use
    * @param {string} [deps.permissionMode] - SDK permission mode
    * @param {function} [deps.onLine] - Callback invoked with each NDJSON line as it's produced
+   * @param {string[]} [deps.settingSources] - SDK setting sources (e.g. ['project'] to load CLAUDE.md)
    */
   constructor({
     cwd,
@@ -27,6 +28,7 @@ export class AgentRunner {
     allowedTools,
     permissionMode,
     onLine,
+    settingSources,
   }) {
     if (!cwd) throw new Error("cwd is required");
     if (!query) throw new Error("query is required");
@@ -46,6 +48,7 @@ export class AgentRunner {
     ];
     this.permissionMode = permissionMode ?? "bypassPermissions";
     this.onLine = onLine ?? null;
+    this.settingSources = settingSources ?? [];
     this.sessionId = null;
     this.buffer = [];
   }
@@ -70,6 +73,7 @@ export class AgentRunner {
           model: this.model,
           permissionMode: this.permissionMode,
           allowDangerouslySkipPermissions: true,
+          settingSources: this.settingSources,
         },
       })) {
         const line = JSON.stringify(message);

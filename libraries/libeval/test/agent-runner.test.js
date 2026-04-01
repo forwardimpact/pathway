@@ -81,6 +81,7 @@ describe("AgentRunner", () => {
       "Edit",
     ]);
     assert.strictEqual(runner.permissionMode, "bypassPermissions");
+    assert.deepStrictEqual(runner.settingSources, []);
     assert.strictEqual(runner.sessionId, null);
   });
 
@@ -145,6 +146,7 @@ describe("AgentRunner", () => {
       maxTurns: 10,
       allowedTools: ["Read", "Grep"],
       permissionMode: "plan",
+      settingSources: ["project"],
     });
 
     await runner.run("My task");
@@ -156,6 +158,7 @@ describe("AgentRunner", () => {
     assert.deepStrictEqual(captured.options.allowedTools, ["Read", "Grep"]);
     assert.strictEqual(captured.options.permissionMode, "plan");
     assert.strictEqual(captured.options.allowDangerouslySkipPermissions, true);
+    assert.deepStrictEqual(captured.options.settingSources, ["project"]);
   });
 
   test("run() returns success=false on non-success subtype", async () => {

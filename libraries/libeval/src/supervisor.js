@@ -162,6 +162,7 @@ export function createSupervisor({
     maxTurns: 50,
     allowedTools,
     onLine,
+    settingSources: ["project"],
   });
 
   const supervisorRunner = createAgentRunner({
@@ -172,6 +173,7 @@ export function createSupervisor({
     maxTurns: 10,
     allowedTools: ["Read", "Glob", "Grep"],
     onLine,
+    settingSources: ["project"],
   });
 
   supervisor = new Supervisor({

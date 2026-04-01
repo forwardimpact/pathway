@@ -62,6 +62,7 @@ export async function runRunCommand(args) {
     model,
     maxTurns,
     allowedTools,
+    settingSources: ["project"],
   });
 
   const result = await runner.run(taskContent);
