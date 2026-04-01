@@ -87,9 +87,9 @@ via `manager_email`.
 
 Three tables capture the data:
 
-- **`getdx_snapshots`** -- metadata for each quarterly survey cycle.
-- **`getdx_teams`** -- GetDX team hierarchy with `manager_email` bridge.
-- **`getdx_snapshot_team_scores`** -- aggregated factor/driver scores with
+- `getdx_snapshots` — metadata for each quarterly survey cycle.
+- `getdx_teams` — GetDX team hierarchy with `manager_email` bridge.
+- `getdx_snapshot_team_scores` — aggregated factor/driver scores with
   comparative metrics (`vs_prev`, `vs_org`, `vs_50th`, `vs_75th`, `vs_90th`).
 
 ### GitHub Webhooks

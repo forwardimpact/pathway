@@ -104,8 +104,10 @@ static site, used by `bunx fit-pathway update` to download framework bundles.
 ## Levels
 
 Levels define career progression with base expectations for skill proficiency
-and behaviour maturity. Every level sets three baseline proficiencies (primary,
-secondary, broad) that disciplines and tracks then modify.
+and behaviour maturity. Every level sets three baseline proficiencies
+(`primary`, `secondary`, `broad`) that map to how a discipline classifies its
+skills (`coreSkills`, `supportingSkills`, `broadSkills`). Disciplines and
+tracks then modify these baselines.
 
 ### Proficiency Scale
 
@@ -193,10 +195,6 @@ descriptions. "Independently resolves incidents" belongs at `working`;
 
 **Optional:** `typicalExperienceRange`, `qualificationSummary`,
 `breadthCriteria`, `expectations`
-
-The three skill tiers (`primary`, `secondary`, `broad`) correspond to how a
-discipline classifies its skills. A level always specifies proficiency at all
-three tiers — this baseline is modified by discipline and track modifiers.
 
 ---
 
@@ -289,12 +287,12 @@ agent:
 
 ### Field Details
 
-- **`validTracks`**: Array of valid track combinations. Use `null` to allow
+- `validTracks`: Array of valid track combinations. Use `null` to allow
   trackless (generalist) configurations. An empty array means no valid
   configurations.
-- **`behaviourModifiers`**: Integer adjustments to behaviour maturity. Discipline
+- `behaviourModifiers`: Integer adjustments to behaviour maturity. Discipline
   modifiers are capped at ±1.
-- **`coreSkills` / `supportingSkills` / `broadSkills`**: Skill IDs from
+- `coreSkills` / `supportingSkills` / `broadSkills`: Skill IDs from
   capability files. These determine the T-shape of the discipline.
 
 ### How Derivation Uses Disciplines
@@ -384,14 +382,14 @@ agent:
 The `agent:` section on a track controls what the exported agent team receives.
 All subfields are optional:
 
-- **`identity`**: Overrides the discipline's `agent.identity`. Use when the
+- `identity`: Overrides the discipline's `agent.identity`. Use when the
   track fundamentally changes how the agent introduces itself. Supports
   `{roleTitle}` and `{specialization}` template variables.
-- **`priority`**: Overrides the discipline's `agent.priority`.
-- **`constraints`**: Appended to the discipline and stage constraints (not
+- `priority`: Overrides the discipline's `agent.priority`.
+- `constraints`: Appended to the discipline and stage constraints (not
   replacing them).
-- **`teamInstructions`**: Markdown content written to `.claude/CLAUDE.md` in
-  the exported agent team. This is the **only** field that produces team-level
+- `teamInstructions`: Markdown content written to `.claude/CLAUDE.md` in
+  the exported agent team. This is the only field that produces team-level
   instructions. Use it for cross-cutting platform facts, conventions, and
   skill coordination tables — content every agent needs regardless of stage.
   See the [Agent Teams guide](/docs/guides/agent-teams/#layer-1-team-instructions-claudemd)
@@ -399,14 +397,14 @@ All subfields are optional:
 
 ### Modifier Mechanics
 
-- **`skillModifiers`**: Keys are **capability IDs**, not individual skill IDs.
+- `skillModifiers`: Keys are capability IDs, not individual skill IDs.
   A modifier of `+1` raises all skills in that capability by one proficiency
   level. A modifier of `-2` lowers them by two. Results are clamped to the
   valid proficiency range.
-- **`behaviourModifiers`**: Integer adjustments to behaviour maturity. Track
+- `behaviourModifiers`: Integer adjustments to behaviour maturity. Track
   behaviour modifiers are not capped like discipline modifiers — they can
   exceed ±1.
-- **`minLevel`**: If set, this track only applies at the specified level and
+- `minLevel`: If set, this track only applies at the specified level and
   above.
 
 Skills from capabilities the track modifies positively — but that aren't in
@@ -463,7 +461,7 @@ skills:
     # ...
 ```
 
-**Required (capability):** `name`
+**Required:** `name`
 
 **Optional:** `id`, `description`, `emojiIcon`, `ordinalRank`,
 `professionalResponsibilities`, `managementResponsibilities`, `skills`
@@ -851,11 +849,11 @@ and should not do at each phase.
 
 ### Field Details
 
-- **`constraints`**: What the agent must not do at this stage
-- **`readChecklist`**: What to read or understand before starting
-- **`confirmChecklist`**: What to verify before handoff
-- **`returnFormat`**: What output the agent should provide
-- **`handoffs`**: Transitions to next stages with labels and prompts
+- `constraints`: What the agent must not do at this stage
+- `readChecklist`: What to read or understand before starting
+- `confirmChecklist`: What to verify before handoff
+- `returnFormat`: What output the agent should provide
+- `handoffs`: Transitions to next stages with labels and prompts
 
 ---
 
@@ -918,7 +916,7 @@ and proficiency levels use valid values.
 | ----------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------- |
 | Cross-reference mismatch      | Skill ID in `coreSkills` doesn't exist in any capability        | Check spelling against actual skill IDs in capability files |
 | Invalid proficiency level     | Using a non-standard level like `intermediate`                  | Use only: awareness, foundational, working, practitioner, expert |
-| Missing required field        | A capability is missing `professionalResponsibilities`          | Add the missing field at all five proficiency levels        |
+| Missing required field        | A skill is missing `human.proficiencyDescriptions`              | Add the missing field at all five proficiency levels        |
 | Duplicate ID                  | Two entities share the same identifier                          | Rename one to be unique                                     |
 
 ### Preview Changes

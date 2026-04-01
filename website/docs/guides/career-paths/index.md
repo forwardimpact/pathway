@@ -59,11 +59,11 @@ increasing autonomy and scope:
 
 | Proficiency      | Autonomy              | Scope                    | Typical Verbs                     |
 | ---------------- | --------------------- | ------------------------ | --------------------------------- |
-| **awareness**    | With guidance         | Team                     | understand, follow, use, learn    |
-| **foundational** | With minimal guidance | Team                     | apply, create, explain, identify  |
-| **working**      | Independently         | Team                     | design, own, troubleshoot, decide |
-| **practitioner** | Lead, mentor          | Area (2-5 teams)         | lead, mentor, establish, evaluate |
-| **expert**       | Define, shape         | Business unit / function | define, shape, innovate, pioneer  |
+| **awareness**    | with guidance         | team                     | understand, follow, use, learn    |
+| **foundational** | with minimal guidance | team                     | apply, create, explain, identify  |
+| **working**      | independently         | team                     | design, own, troubleshoot, decide |
+| **practitioner** | lead, mentor          | area (2–5 teams)         | lead, mentor, establish, evaluate |
+| **expert**       | define, shape         | business unit / function | define, shape, innovate, pioneer  |
 
 A job definition specifies the expected proficiency for each skill. Not every
 skill needs to be at the same level — disciplines use a T-shaped model where

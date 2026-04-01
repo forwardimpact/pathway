@@ -60,12 +60,12 @@ credentials works out of the box.
 
 `config/config.json` controls service startup and runtime behaviour:
 
-- **`init.services`** — Ordered list of services for `fit-rc` to supervise (tei,
+- `init.services` — Ordered list of services for `fit-rc` to supervise (tei,
   trace, vector, graph, llm, memory, tool, agent, web)
-- **`init.log_dir`** / **`init.shutdown_timeout`** — Logging and shutdown
-- **`service.*`** — Per-service settings (model, temperature, max_tokens, tool
+- `init.log_dir` / `init.shutdown_timeout` — Logging and shutdown
+- `service.*` — Per-service settings (model, temperature, max_tokens, tool
   filter thresholds, tool endpoints)
-- **`evals`** — Evaluation models and judge model
+- `evals` — Evaluation models and judge model
 
 `config/tools.yml` — Tool endpoint definitions (purpose, parameters, evaluation
 criteria) used by the tool service.

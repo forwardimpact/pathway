@@ -145,14 +145,14 @@ where each field ends up helps you decide where to put new content.
 
 **Key patterns:**
 
-- **`agent.teamInstructions`** is the only field that produces `.claude/CLAUDE.md`.
+- `agent.teamInstructions` is the only field that produces `.claude/CLAUDE.md`.
   It lives on the track because team instructions are context-specific — a
   platform track and a forward-deployed track serve different conventions.
-- **`agent.identity`** on a track _overrides_ the discipline's identity. Use
+- `agent.identity` on a track _overrides_ the discipline's identity. Use
   this when the track fundamentally changes how the agent introduces itself.
-- **`agent.constraints`** from discipline, track, and stage are all _appended_
+- `agent.constraints` from discipline, track, and stage are all _appended_
   — they are additive, not overriding.
-- **`roleContext`** is a shared field (used in both human job descriptions and
+- `roleContext` is a shared field (used in both human job descriptions and
   agent profiles). It is not inside the `agent:` section.
 
 ### Layer 1: Team Instructions (CLAUDE.md)
