@@ -1,42 +1,60 @@
 ---
 title: "Authoring Frameworks"
-description: "Define your engineering framework in YAML — levels, disciplines, tracks, capabilities, skills, behaviours, stages, and drivers."
+description: "Write career framework definitions in YAML — disciplines, levels, tracks, capabilities, skills, behaviours, stages, and drivers."
 ---
 
 # Authoring Frameworks
 
-Map is the data product that stores your engineering framework definitions.
-Teams define what good engineering looks like once, in YAML files, and every
-other product in the suite reads from that shared source of truth.
+A career framework is a set of YAML files that define what good engineering
+looks like in your organization. These files are the single source of truth for
+human job definitions, AI agent teams, interview question banks, and career
+progression logic. Author them once and every product in the suite derives its
+output from the same data.
 
-## Position in the Suite
+## Data Directory Structure
 
-Map separates three concerns that are often tangled together:
-
-- **Storage** — Map owns the canonical definitions
-- **Interpretation** — Guide reasons about those definitions in context
-- **Presentation** — Pathway and Summit each present a focused view
-
-## How Data is Organized
-
-Framework definitions live in YAML files under a data directory:
+Framework definitions live in a `data/` directory. Each entity type has a
+specific location:
 
 ```
 data/
-├── framework.yaml        # Framework metadata and display configuration
-├── levels.yaml           # Career levels
-├── stages.yaml           # Engineering lifecycle phases
-├── drivers.yaml          # Organizational outcomes
-├── disciplines/          # Engineering specialties (one file each)
-├── tracks/               # Work context modifiers (one file each)
-├── behaviours/           # Approaches to work (one file each)
-├── capabilities/         # Skill groups with responsibilities (one file each)
-└── questions/            # Interview questions (by type subdirectory)
+├── framework.yaml              # Framework metadata and display config
+├── levels.yaml                 # Career levels (collection file)
+├── stages.yaml                 # Engineering lifecycle phases (collection file)
+├── drivers.yaml                # Organizational outcomes (collection file)
+├── disciplines/                # Engineering specialties (one file each)
+│   ├── software_engineering.yaml
+│   └── data_engineering.yaml
+├── tracks/                     # Work context modifiers (one file each)
+│   ├── platform.yaml
+│   └── forward_deployed.yaml
+├── behaviours/                 # Approaches to work (one file each)
+│   ├── outcome_ownership.yaml
+│   └── systems_thinking.yaml
+├── capabilities/               # Skill groups (one file each)
+│   ├── delivery.yaml
+│   ├── reliability.yaml
+│   └── ai.yaml
+└── questions/                  # Interview question banks (by type)
 ```
 
-Single-entity files (disciplines, tracks, behaviours, capabilities) are named by
-identifier — `data/disciplines/software_engineering.yaml`. Collection files
+Single-entity files (disciplines, tracks, behaviours, capabilities) are named
+by identifier — `disciplines/software_engineering.yaml`. Collection files
 (levels, stages, drivers) contain all entries in one file.
+
+Initialize a data directory with example content:
+
+```sh
+bunx fit-pathway init
+```
+
+Validate at any time:
+
+```sh
+bunx fit-map validate
+```
+
+---
 
 ## Framework Configuration
 
@@ -46,7 +64,7 @@ defines metadata and display configuration for the Pathway web app.
 ```yaml
 # data/framework.yaml
 title: Acme Engineering Pathway
-description: Engineering career framework for Acme Corp.
+description: Engineering career framework for Acme Corp
 tag: acme
 entityDefinitions:
   discipline:
@@ -65,207 +83,451 @@ entityDefinitions:
     title: Behaviour
     emojiIcon: "\U0001F9E0"
     description: Approach to work
+  capability:
+    title: Capability
+    emojiIcon: "\U0001F4A1"
+    description: Grouped skills with responsibilities
 distribution:
   siteUrl: https://pathway.acme.com
 ```
 
-**Required fields**: `title`.
+**Required:** `title`
 
-**Optional fields**: `description`, `tag`, `emojiIcon`, `entityDefinitions`,
-`distribution`.
+**Optional:** `description`, `tag`, `entityDefinitions`, `distribution`
 
-The `entityDefinitions` object controls how each entity type is labelled in the
-web app — its title, emoji icon, and description. The `distribution.siteUrl` is
-the base URL for the published static site, used by `bunx fit-pathway update` to
-download framework bundles.
+The `entityDefinitions` object controls how each entity type is labelled in
+the web app. The `distribution.siteUrl` is the base URL for the published
+static site, used by `bunx fit-pathway update` to download framework bundles.
+
+---
 
 ## Levels
 
 Levels define career progression with base expectations for skill proficiency
-and behaviour maturity. Each level sets the baseline that disciplines and tracks
-then modify.
+and behaviour maturity. Every level sets three baseline proficiencies (primary,
+secondary, broad) that disciplines and tracks then modify.
+
+### Proficiency Scale
+
+All skills use the same five-level scale:
+
+| Proficiency    | Autonomy              | Scope                    | Typical Verbs                     |
+| -------------- | --------------------- | ------------------------ | --------------------------------- |
+| `awareness`    | with guidance         | team                     | understand, follow, use, learn    |
+| `foundational` | with minimal guidance | team                     | apply, create, explain, identify  |
+| `working`      | independently         | team                     | design, own, troubleshoot, decide |
+| `practitioner` | lead, mentor          | area (2–5 teams)         | lead, mentor, establish, evaluate |
+| `expert`       | define, shape         | business unit / function | define, shape, innovate, pioneer  |
+
+Use the vocabulary standards from this table when writing proficiency
+descriptions. "Independently resolves incidents" belongs at `working`;
+"defines incident response strategy" belongs at `expert`.
+
+### Example
 
 ```yaml
 # data/levels.yaml
-- id: L1
-  professionalTitle: Engineer I
-  managementTitle: Manager I
+- id: J040
+  professionalTitle: Level I
+  managementTitle: Associate
+  typicalExperienceRange: "0-2 years"
   ordinalRank: 1
-  typicalExperienceRange: "0-2"
+  qualificationSummary:
+    Bachelor's degree in Computer Science, Engineering, or related
+    field, or equivalent practical experience.
   baseSkillProficiencies:
     primary: foundational
     secondary: awareness
     broad: awareness
   baseBehaviourMaturity: emerging
   expectations:
-    impactScope: Task-level contributions within a team
-    autonomyExpectation: Works with guidance on well-defined tasks
+    impactScope:
+      Individual tasks and small features with guidance
+    autonomyExpectation:
+      Work with close supervision
+    influenceScope:
+      Contribute to team discussions and learn from colleagues
+    complexityHandled:
+      Standard tasks with established patterns
 
-- id: L2
-  professionalTitle: Engineer II
-  managementTitle: Manager II
-  ordinalRank: 2
-  typicalExperienceRange: "2-5"
+- id: J070
+  professionalTitle: Level III
+  managementTitle: Manager
+  typicalExperienceRange: "5+ years"
+  ordinalRank: 3
   baseSkillProficiencies:
     primary: working
-    secondary: foundational
-    broad: awareness
-  baseBehaviourMaturity: developing
+    secondary: working
+    broad: foundational
+  baseBehaviourMaturity: emerging
   expectations:
-    impactScope: Feature-level contributions within a team
-    autonomyExpectation: Works independently on familiar problems
+    impactScope:
+      Large features and technical initiatives
+    autonomyExpectation:
+      Self-directed work, seeks input on strategic decisions
+    influenceScope:
+      Shape team practices and mentor junior engineers
+    complexityHandled:
+      High complexity with comfort navigating ambiguity
+
+- id: J090
+  professionalTitle: Staff
+  managementTitle: Senior Manager
+  typicalExperienceRange: "9+ years"
+  ordinalRank: 4
+  baseSkillProficiencies:
+    primary: practitioner
+    secondary: practitioner
+    broad: working
+  baseBehaviourMaturity: developing
+  breadthCriteria:
+    practitioner: 4
+  expectations:
+    impactScope: Multi-team initiatives with area-wide impact
+    autonomyExpectation: Set own direction within broader strategic goals
 ```
 
-**Required fields**: `id`, `professionalTitle`, `managementTitle`,
-`ordinalRank`, `baseSkillProficiencies` (with `primary`, `secondary`, `broad`),
-`baseBehaviourMaturity`.
+**Required:** `id`, `professionalTitle`, `managementTitle`, `ordinalRank`,
+`baseSkillProficiencies` (with `primary`, `secondary`, `broad`),
+`baseBehaviourMaturity`
 
-**Optional fields**: `typicalExperienceRange`, `qualificationSummary`,
-`breadthCriteria`, `expectations`.
+**Optional:** `typicalExperienceRange`, `qualificationSummary`,
+`breadthCriteria`, `expectations`
 
 The three skill tiers (`primary`, `secondary`, `broad`) correspond to how a
-discipline classifies its skills — core skills use `primary`, supporting skills
-use `secondary`, and broad skills use `broad`.
+discipline classifies its skills. A level always specifies proficiency at all
+three tiers — this baseline is modified by discipline and track modifiers.
+
+---
 
 ## Disciplines
 
 Disciplines define engineering specialties with T-shaped skill profiles. Each
-discipline classifies skills into three tiers and optionally restricts which
-tracks and levels apply.
+discipline classifies skills into three tiers (core, supporting, broad) and
+optionally restricts which tracks and levels apply.
+
+A discipline defines _role types_ through specialization. Tracks are pure
+modifiers — they adjust expectations based on work context, not the role type
+itself.
+
+### Example
 
 ```yaml
 # data/disciplines/software_engineering.yaml
 specialization: Software Engineering
 roleTitle: Software Engineer
 isProfessional: true
-isManagement: false
-coreSkills:
-  - code_quality
-  - testing
-  - system_design
-supportingSkills:
-  - ci_cd
-  - documentation
-broadSkills:
-  - security
-  - observability
+
 validTracks:
-  - null
+  - null           # Allow trackless (generalist)
+  - forward_deployed
   - platform
-  - product
+  - sre
+  - dx
+
+description:
+  Builds and maintains software systems, focusing on code quality,
+  architecture, and reliable delivery of business value.
+
+coreSkills:
+  - architecture_design
+  - code_quality
+  - full_stack_development
+supportingSkills:
+  - devops
+  - cloud_platforms
+  - ai_augmented_development
+  - technical_debt_management
+broadSkills:
+  - data_modeling
+  - stakeholder_management
+  - technical_writing
+  - ai_literacy
+
 behaviourModifiers:
-  analytical_thinking: 1
-human:
-  roleSummary: >
-    {roleTitle}s in {specialization} design, build, and maintain
-    software systems.
-  professionalRoleSummary: >
-    As a {roleName}, you design and build software systems that
-    serve your team and organization.
-agent:
-  identity: >
-    You are a {roleName} focused on writing clean, tested,
-    well-documented code.
-  priority: Code quality and test coverage
-  constraints:
-    - Never skip tests
-    - Never commit secrets
+  outcome_ownership: 1
+  systems_thinking: 1
+  relentless_curiosity: 1
 ```
 
-**Required fields**: `specialization`, `roleTitle`, `coreSkills` (at least one),
-`validTracks`.
+**Required:** `specialization`, `roleTitle`, `coreSkills` (at least one),
+`validTracks`
 
-**Optional fields**: `isProfessional` (default true), `isManagement` (default
+**Optional:** `id`, `isProfessional` (default true), `isManagement` (default
 false), `hidden`, `minLevel`, `description`, `supportingSkills`, `broadSkills`,
-`behaviourModifiers`, `human`, `agent`.
+`behaviourModifiers`, `human`, `agent`
 
-Use `null` in `validTracks` to allow a trackless (generalist) configuration. An
-empty array means no valid track combinations exist.
+### Co-located Human and Agent Content
 
-Skill references in `coreSkills`, `supportingSkills`, and `broadSkills` are
-skill IDs defined within capability files. The tier determines which base
-proficiency from the level applies during derivation.
+Disciplines include parallel `human:` and `agent:` sections. Variables in
+braces (`{roleTitle}`, `{roleName}`, `{specialization}`) are substituted at
+render time.
+
+```yaml
+# Continuation of data/disciplines/software_engineering.yaml
+human:
+  professionalRoleSummary:
+    We are seeking a skilled {roleTitle} who will design, build, and
+    maintain software systems that deliver business value.
+  managementRoleSummary:
+    We are seeking an experienced {specialization} leader to build and
+    lead high-performing software engineering teams.
+
+agent:
+  identity: |
+    You are a {roleTitle} agent. Your primary focus is writing
+    correct, maintainable, well-tested code.
+  priority: |
+    Code review is more important than code generation. Every line
+    of code you produce must be understood and verified.
+  constraints:
+    - Do not commit code without running tests
+    - Do not make changes without understanding the existing codebase
+    - Do not ignore error handling and edge cases
+    - Do not over-engineer simple solutions
+```
+
+### Field Details
+
+- **`validTracks`**: Array of valid track combinations. Use `null` to allow
+  trackless (generalist) configurations. An empty array means no valid
+  configurations.
+- **`behaviourModifiers`**: Integer adjustments to behaviour maturity. Discipline
+  modifiers are capped at ±1.
+- **`coreSkills` / `supportingSkills` / `broadSkills`**: Skill IDs from
+  capability files. These determine the T-shape of the discipline.
+
+### How Derivation Uses Disciplines
+
+When generating a job, the discipline's skill tiers map to the level's base
+proficiencies:
+
+- `coreSkills` → level's `primary` proficiency
+- `supportingSkills` → level's `secondary` proficiency
+- `broadSkills` → level's `broad` proficiency
+
+Track modifiers then shift these proficiencies up or down per capability.
+
+---
 
 ## Tracks
 
-Tracks are pure modifiers that adjust skill and behaviour expectations based on
-work context. They do not define role types — disciplines do that.
+Tracks are pure modifiers that adjust skill and behaviour expectations based
+on work context. They do not define role types — _disciplines_ define roles. A
+track represents how you work (your context), not who you are.
+
+"Platform Engineering" is a track. It applies modifiers to capabilities for
+_any_ discipline. A Software Engineer on the platform track has different
+expectations than the same discipline on the product track.
+
+### Example
 
 ```yaml
 # data/tracks/platform.yaml
 name: Platform
-description: Infrastructure and platform engineering
-roleContext: >
-  Works on shared infrastructure, developer tooling,
-  and platform reliability.
+
+description:
+  Internal tooling and infrastructure focus. Builds shared
+  capabilities that enable other engineering teams.
+roleContext:
+  In this platform-focused role, you build internal tooling and
+  shared infrastructure. You treat the platform as a product —
+  building golden paths and optimizing for developer experience.
+
 skillModifiers:
   reliability: 1
   delivery: -1
 behaviourModifiers:
   systems_thinking: 1
+assessmentWeights:
+  skillWeight: 0.6
+  behaviourWeight: 0.4
+
 agent:
-  priority: Infrastructure reliability and developer experience
+  identity: |
+    You are a Platform {roleTitle} agent focused on building
+    self-service capabilities that enable other engineers.
+  priority: |
+    Developer experience is paramount. Design golden paths,
+    maintain backward compatibility, and document everything.
   constraints:
-    - Prefer infrastructure-as-code over manual configuration
+    - Maintain backward compatibility
+    - Document breaking changes with migration guides
+    - Test changes against consumer use cases
+  teamInstructions: |
+    # Platform Team
+
+    ## Conventions
+
+    - **Task runner:** just (see justfile)
+    - **Package manager:** pnpm
+    - **Node version:** pinned in .mise.toml
+    - **Test runner:** vitest
+
+    ## Skill Coordination
+
+    | Topic            | Canonical Skill   |
+    | ---------------- | ----------------- |
+    | Database schemas | data-modeling     |
+    | API endpoints    | api-design        |
+    | CI/CD pipelines  | ci-cd             |
+    | Deployment       | deployment        |
 ```
 
-**Required fields**: `name`.
+**Required:** `name`
 
-**Optional fields**: `description`, `roleContext`, `skillModifiers`,
-`behaviourModifiers`, `assessmentWeights`, `minLevel`, `agent`.
+**Optional:** `description`, `roleContext`, `skillModifiers`,
+`behaviourModifiers`, `assessmentWeights`, `minLevel`, `agent`
 
-`skillModifiers` keys are **capability IDs**, not individual skill IDs. A
-modifier of `+1` raises the proficiency of every skill in that capability by one
-step; `-1` lowers it. Track modifiers can be any integer, while discipline
-`behaviourModifiers` are restricted to -1, 0, or 1. Positive skill modifiers are
-capped at the level's maximum base proficiency to prevent unrealistic inflation.
+### Agent Section
+
+The `agent:` section on a track controls what the exported agent team receives.
+All subfields are optional:
+
+- **`identity`**: Overrides the discipline's `agent.identity`. Use when the
+  track fundamentally changes how the agent introduces itself. Supports
+  `{roleTitle}` and `{specialization}` template variables.
+- **`priority`**: Overrides the discipline's `agent.priority`.
+- **`constraints`**: Appended to the discipline and stage constraints (not
+  replacing them).
+- **`teamInstructions`**: Markdown content written to `.claude/CLAUDE.md` in
+  the exported agent team. This is the **only** field that produces team-level
+  instructions. Use it for cross-cutting platform facts, conventions, and
+  skill coordination tables — content every agent needs regardless of stage.
+  See the [Agent Teams guide](/docs/guides/agent-teams/#layer-1-team-instructions-claudemd)
+  for what to include and exclude.
+
+### Modifier Mechanics
+
+- **`skillModifiers`**: Keys are **capability IDs**, not individual skill IDs.
+  A modifier of `+1` raises all skills in that capability by one proficiency
+  level. A modifier of `-2` lowers them by two. Results are clamped to the
+  valid proficiency range.
+- **`behaviourModifiers`**: Integer adjustments to behaviour maturity. Track
+  behaviour modifiers are not capped like discipline modifiers — they can
+  exceed ±1.
+- **`minLevel`**: If set, this track only applies at the specified level and
+  above.
+
+Skills from capabilities the track modifies positively — but that aren't in
+the base discipline — are added as broad-type "track-added" skills.
+
+---
 
 ## Capabilities
 
 Capabilities group related skills and define responsibilities at each
-proficiency level. Track modifiers apply to all skills in a capability at once.
+proficiency level. When a track applies a modifier to a capability, all skills
+in that capability shift together — they are a cohesive unit.
+
+### Example
 
 ```yaml
 # data/capabilities/delivery.yaml
+id: delivery
 name: Delivery
-description: Ship working software reliably.
+emojiIcon: 🚀
 ordinalRank: 1
+description: Ship working software reliably.
+
 professionalResponsibilities:
-  awareness: Follow deployment checklists and team workflows
-  foundational: Complete deployment tasks with minimal guidance
-  working: Own the deployment pipeline for your team
-  practitioner: Design deployment strategy across multiple teams
-  expert: Define organization-wide delivery practices
+  awareness:
+    Follow deployment checklists and team workflows
+  foundational:
+    Complete deployment tasks with minimal guidance
+  working:
+    Own the deployment pipeline for your team
+  practitioner:
+    Design deployment strategy across multiple teams
+  expert:
+    Define organization-wide delivery practices
+
 managementResponsibilities:
-  awareness: Understand the team's deployment process
-  foundational: Ensure team follows deployment standards
-  working: Optimize team delivery throughput
-  practitioner: Coordinate delivery across multiple teams
-  expert: Shape organizational delivery culture
+  awareness:
+    Understand the team's deployment process
+  foundational:
+    Ensure team follows deployment standards
+  working:
+    Optimize team delivery throughput
+  practitioner:
+    Coordinate delivery across multiple teams
+  expert:
+    Shape organizational delivery culture
+
+skills:
+  - id: task_execution
+    name: Task Execution
+    # ... (see Skills section for full skill definitions)
+  - id: ci_cd
+    name: CI/CD
+    # ...
+```
+
+**Required (capability):** `name`
+
+**Optional:** `id`, `description`, `emojiIcon`, `ordinalRank`,
+`professionalResponsibilities`, `managementResponsibilities`, `skills`
+
+---
+
+## Skills
+
+Skills are the most detailed entity in the framework. Each skill lives
+inside a capability file and requires a `human:` section (for engineers)
+and optionally an `agent:` section (for AI agents).
+
+### Minimal Skill
+
+Every skill requires a human section with a description and proficiency
+descriptions at all five levels:
+
+```yaml
+skills:
+  - id: task_execution
+    name: Task Execution
+    human:
+      description:
+        Breaking down and completing engineering work
+      proficiencyDescriptions:
+        awareness:
+          Understands the team's delivery workflow and follows
+          guidance to complete assigned tasks.
+        foundational:
+          Breaks work into steps, estimates effort, and completes
+          tasks with minimal guidance.
+        working:
+          Independently plans and delivers work, adjusting approach
+          when requirements change.
+        practitioner:
+          Leads delivery across multiple workstreams, mentoring
+          others on effective execution.
+        expert:
+          Defines delivery practices that scale across the
+          organization.
+```
+
+### Adding Agent Content
+
+The `agent:` section turns a human skill definition into operational guidance
+for AI agents. It includes a name, description, when to use the skill, and
+stage-specific checklists:
+
+```yaml
 skills:
   - id: task_execution
     name: Task Execution
     human:
       description: Breaking down and completing engineering work
       proficiencyDescriptions:
-        awareness: >
-          Understands the team's delivery workflow and follows guidance
-          to complete assigned tasks.
-        foundational: >
-          Breaks work into steps, estimates effort, and completes tasks
-          with minimal guidance.
-        working: >
-          Independently plans and delivers work, adjusting approach when
-          requirements change.
-        practitioner: >
-          Leads delivery across multiple workstreams, mentoring others
-          on effective execution.
-        expert: >
-          Defines delivery practices that scale across the organization.
+        awareness: # ...
+        foundational: # ...
+        working: # ...
+        practitioner: # ...
+        expert: # ...
     agent:
       name: task-execution
       description: Breaking down and completing engineering tasks
-      useWhen: Implementing features, fixing bugs, or completing assigned work
+      useWhen: Implementing features, fixing bugs, or completing work
       stages:
         code:
           focus: Complete implementation with tests
@@ -275,176 +537,327 @@ skills:
           confirmChecklist:
             - All tests pass
             - Code follows project conventions
-  - id: ci_cd
-    name: CI/CD
-    human:
-      description: Continuous integration and deployment pipelines
-      proficiencyDescriptions:
-        awareness: >
-          Follows existing pipeline configuration and understands
-          basic CI/CD concepts.
-        foundational: >
-          Creates basic pipeline steps and configures standard
-          test runners.
-        working: >
-          Designs multi-stage pipelines and implements caching
-          strategies.
-        practitioner: >
-          Optimizes pipeline performance and designs deployment
-          strategies across teams.
-        expert: >
-          Architects CI/CD platform standards for the organization.
 ```
 
-**Required fields** (capability): `name`.
+### Writing Good Checklists
 
-**Optional fields** (capability): `id`, `description`, `emojiIcon`,
-`ordinalRank`, `professionalResponsibilities`, `managementResponsibilities`,
-`skills`.
+Checklists are the skill's primary interface with agents. They must be
+scannable and actionable — agents parse them mechanically.
 
-**Required fields** (skill): `id`, `name`, `human` (with `description` and
-`proficiencyDescriptions`).
+**Good checklist items** — one action, one line:
 
-**Optional fields** (skill): `isHumanOnly`, `agent`, `toolReferences`,
-`instructions`, `installScript`, `implementationReference`, `markers`.
+```yaml
+readChecklist:
+  - Read the requirements or issue description
+  - Identify affected files and dependencies
+  - Understand the current test coverage
+confirmChecklist:
+  - All tests pass
+  - Code follows project conventions
+  - No security vulnerabilities introduced
+```
 
-### Human and Agent Skill Content
+**Bad checklist items** — narrative with the action buried inside:
 
-Every skill requires a `human:` section with a `description` and
-`proficiencyDescriptions` at all five levels. The optional `agent:` section
-defines how AI coding agents apply the skill, with stage-specific checklists
-tied to the lifecycle stages.
+```yaml
+readChecklist:
+  - "The cloud instance provisioned by the platform has pgvector
+     already enabled. The CI/CD pipeline handles migrations
+     automatically when it detects OIDC secrets — just ensure
+     drizzle-kit is installed, drizzle.config.ts exists, and
+     migration SQL files are committed"
+```
 
-Skills marked `isHumanOnly: true` are excluded from agent profile generation.
+**Rules:**
+
+- One action per item, one line (≤ 120 chars ideal, ≤ 200 max)
+- Start with a verb: Read, Create, Verify, Configure, Install
+- Move explanatory context to the skill's `instructions` field
+- Move code examples to `implementationReference`
+- If an item contains "because," "note that," or "when X then Y" — it is too
+  long. Split it or move the explanation.
+
+For guidance on standardizing shared checklist items across skills and avoiding
+common structural mistakes, see the
+[Agent Teams guide](/docs/guides/agent-teams/#checklist-quality).
+
+### Human-Only Skills
+
+Skills that can't be automated (mentoring, cultural practices, physical
+presence) should be marked `isHumanOnly: true`. They are excluded from agent
+team export:
+
+```yaml
+skills:
+  - id: mentoring
+    name: Mentoring
+    isHumanOnly: true
+    human:
+      description: Growing other engineers through guidance
+      proficiencyDescriptions:
+        awareness: # ...
+```
 
 ### Tool References
 
-Skills can declare tools that agents need:
+Skills can declare tools that agents need. These are collected during
+derivation and exported with the agent team:
 
 ```yaml
 toolReferences:
-  - name: Terraform
-    description: Infrastructure as code provisioning
-    useWhen: Creating or modifying cloud infrastructure
-    url: https://www.terraform.io
-    simpleIcon: terraform
+  - name: GitHub Copilot
+    url: https://docs.github.com/en/copilot
+    simpleIcon: githubcopilot
+    description: AI coding agent integrated into VS Code
+    useWhen: AI-assisted code completion and generation
+  - name: Claude Code
+    url: https://docs.anthropic.com/en/docs/claude-code
+    simpleIcon: claude
+    description: Terminal-based AI coding agent
+    useWhen: Terminal-based AI coding with agentic control
 ```
 
 ### Skill Markers
 
-Markers define observable evidence of proficiency at each level, for both humans
-and agents:
+Markers define observable evidence of proficiency, for both humans and agents.
+They answer: "How would you know someone has this skill at this level?"
 
 ```yaml
 markers:
   awareness:
     human:
       - Follows existing pipeline configuration
+      - Understands basic CI/CD terminology
     agent:
       - Uses existing CI config without modification
   working:
     human:
       - Designs multi-stage pipelines
       - Implements caching strategies
+      - Troubleshoots pipeline failures independently
     agent:
       - Generates multi-stage pipeline configurations
       - Adds caching to pipeline definitions
+  practitioner:
+    human:
+      - Optimizes pipeline performance
+      - Designs deployment strategies across teams
 ```
+
+Markers describe observable behavior, not effort. "Designs multi-stage
+pipelines" — not "Tries hard to learn about pipelines."
+
+### Advanced Skill Fields
+
+For skills that need richer structure, additional fields support instructions,
+install scripts, and implementation references:
+
+```yaml
+skills:
+  - id: ai_evaluation
+    name: AI Evaluation & Observability
+    human:
+      description: Building evaluation frameworks for AI/LLM systems
+      proficiencyDescriptions:
+        awareness: # ...
+        foundational: # ...
+        working: # ...
+        practitioner: # ...
+        expert: # ...
+    agent:
+      name: ai-evaluation-observability
+      description: Guide for building AI evaluation systems
+      useWhen: Instrumenting AI applications or creating evaluation datasets
+      stages:
+        specify:
+          focus: Define evaluation requirements
+          readChecklist:
+            - Identify quality dimensions that matter
+            - Document expected inputs, outputs, and criteria
+          confirmChecklist:
+            - Quality dimensions are documented
+            - Evaluation criteria are clear
+        scaffold:
+          focus: Set up evaluation environment
+          readChecklist:
+            - Install evaluation tools
+            - Configure API keys
+          confirmChecklist:
+            - SDK installed and connected
+            - Environment is reproducible
+        code:
+          focus: Implement tracing, datasets, and evaluators
+          readChecklist:
+            - Instrument application with tracing
+            - Create datasets from production data
+          confirmChecklist:
+            - Tracing captures execution flow
+            - Evaluators produce consistent scores
+    instructions: |
+      Focus on tracing first — instrument the application before
+      building evaluators. Create golden datasets from real
+      production data, not synthetic examples.
+    installScript: |
+      uv sync
+    implementationReference: |
+      See the Langfuse Python SDK docs for tracing patterns.
+```
+
+---
 
 ## Behaviours
 
 Behaviours describe mindsets and approaches to work, separate from technical
-skills. They use maturity levels instead of proficiency levels.
+skills. They use five maturity levels instead of proficiency levels:
+
+| Maturity        | Description                                          |
+| --------------- | ---------------------------------------------------- |
+| `emerging`      | Shows interest, needs prompting                      |
+| `developing`    | Regularly applies with some guidance                 |
+| `practicing`    | Consistently demonstrates in daily work              |
+| `role_modeling` | Influences the team's approach, others seek them out |
+| `exemplifying`  | Shapes organizational culture in this area           |
+
+### Example
 
 ```yaml
-# data/behaviours/analytical_thinking.yaml
-name: Analytical Thinking
+# data/behaviours/outcome_ownership.yaml
+name: Own the Outcome
 human:
-  description: Breaks down complex problems systematically
+  description:
+    Business outcomes trump engineering elegance. Embrace extreme
+    ownership of what you build — not just code quality, but business
+    relationships, impact metrics, and end-to-end results.
   maturityDescriptions:
-    emerging: >
-      Shows interest in understanding problems before jumping to
-      solutions; needs prompting to break down complexity.
-    developing: >
-      Regularly decomposes problems into smaller parts with some
-      guidance; identifies obvious dependencies.
-    practicing: >
-      Consistently breaks down complex problems, identifies
-      root causes, and considers multiple perspectives.
-    role_modeling: >
-      Influences the team's approach to problem-solving;
-      others seek out their analytical perspective.
-    exemplifying: >
-      Shapes organizational culture around evidence-based
-      decision making and systematic analysis.
+    emerging:
+      Takes responsibility for assigned tasks with supervision;
+      follows through when reminded; asks for help appropriately
+    developing:
+      Owns task completion independently; reviews AI-generated code
+      critically; makes pragmatic trade-offs between speed and polish
+    practicing:
+      Takes end-to-end ownership of features and business outcomes;
+      accepts technical debt intentionally when it accelerates value
+    role_modeling:
+      Drives accountability culture focused on outcomes not
+      deliverables; owns business relationships and impact metrics
+    exemplifying:
+      Defines organizational accountability standards focused on
+      business impact; shapes industry practices around outcome
+      ownership
+
 agent:
-  title: Systematic Problem Decomposition
-  workingStyle: >
-    Break problems into smaller parts before proposing solutions.
-    Identify assumptions, dependencies, and risks explicitly.
+  title: Own the outcome end-to-end
+  workingStyle: |
+    At each step:
+    1. Define success criteria before starting
+    2. Verify the change achieves the criteria
+    3. Don't hand off until you've validated the work
 ```
 
-**Required fields**: `name`, `human` (with `description` and
-`maturityDescriptions` at all five levels).
+**Required:** `name`, `human` (with `description` and `maturityDescriptions`
+at all five levels)
 
-**Optional fields**: `agent` (with `title` and `workingStyle`).
+**Optional:** `id`, `agent` (with `title` and `workingStyle`)
+
+---
 
 ## Stages
 
-Stages define the engineering lifecycle — the phases that work moves through
-from specification to deployment. Agents use stages to constrain their behaviour
-to what is appropriate at each phase.
+Stages define the engineering lifecycle — the phases work moves through from
+specification to deployment. Agents use stages to understand what they should
+and should not do at each phase.
+
+### Standard Stages
+
+| Stage       | Purpose                              |
+| ----------- | ------------------------------------ |
+| `specify`   | Author requirements and criteria     |
+| `plan`      | Design solutions, create plans       |
+| `scaffold`  | Generate project structure           |
+| `code`      | Implement solutions and write tests  |
+| `review`    | Review code for correctness          |
+| `deploy`    | Ship changes to production           |
+
+### Example
 
 ```yaml
 # data/stages.yaml
 - id: code
   name: Code
-  description: >
-    You implement the solution and write tests. Follow the plan
-    from the previous stage.
-  summary: Implements solutions and writes tests
+  emojiIcon: "💻"
+  summary:
+    Implements solutions and writes tests
+  description:
+    Your primary task is to implement the solution and write tests.
+    Follow the plan from the previous stage.
   constraints:
     - Do not change architecture decisions made during planning
-    - Follow the plan from the previous stage
+    - Implement exactly what the plan specifies
+    - Do not change specs without consulting the planner
   readChecklist:
     - Read the plan or specification
     - Identify affected files and dependencies
+    - Understand the current test coverage
   confirmChecklist:
     - All tests pass
     - Code follows project conventions
     - No security vulnerabilities introduced
+    - Implementation matches the plan
   returnFormat:
     - List of files changed
     - Test results summary
+    - Any deviations from the plan noted
   handoffs:
     - targetStage: review
       label: Request Review
-      prompt: >
-        Implementation complete and tests passing.
+      prompt:
+        Implementation complete and all tests passing.
         Ready for code review.
 
 - id: review
   name: Review
-  description: >
-    You review code changes for correctness, style, and
-    adherence to the plan.
-  summary: Reviews code for correctness and style
+  emojiIcon: "🔍"
+  summary:
+    Reviews code for correctness and style
+  description:
+    You review code changes for correctness, style, and adherence
+    to the plan. Provide constructive feedback.
   constraints:
     - Do not make implementation changes during review
+    - Do not approve if tests fail
+  readChecklist:
+    - Read the plan or specification
+    - Review the code changes
+    - Check test coverage
+  confirmChecklist:
+    - Implementation matches the plan
+    - No logical errors or edge cases missed
+    - Code follows conventions
+    - Tests pass
   handoffs:
     - targetStage: deploy
       label: Approve for Deploy
-      prompt: Review complete, changes approved.
+      prompt: Code review complete. Changes approved for deployment.
     - targetStage: code
       label: Request Changes
       prompt: Changes needed before approval.
 ```
 
-**Required fields**: `id` (one of: specify, plan, scaffold, code, review,
-deploy), `name`.
+**Required:** `id`, `name`
 
-**Optional fields**: `emojiIcon`, `description`, `summary`, `handoffs`,
-`constraints`, `readChecklist`, `confirmChecklist`, `returnFormat`.
+**Optional:** `emojiIcon`, `description`, `summary`, `handoffs`,
+`constraints`, `readChecklist`, `confirmChecklist`, `returnFormat`
+
+### Field Details
+
+- **`constraints`**: What the agent must not do at this stage
+- **`readChecklist`**: What to read or understand before starting
+- **`confirmChecklist`**: What to verify before handoff
+- **`returnFormat`**: What output the agent should provide
+- **`handoffs`**: Transitions to next stages with labels and prompts
+
+---
 
 ## Drivers
 
@@ -453,57 +866,77 @@ engineering produces. They connect skills and behaviours to measurable goals.
 
 ```yaml
 # data/drivers.yaml
-- id: quality
-  name: Quality
-  description: Delivering reliable, well-tested software
+- id: clear_direction
+  name: Clear Direction
+  description:
+    The degree to which developers understand their team's mission,
+    goals, and alignment with the greater organization
   contributingSkills:
-    - testing
-    - code_quality
+    - service_management
+    - stakeholder_management
+    - product_thinking
   contributingBehaviours:
-    - analytical_thinking
+    - polymathic_knowledge
+    - systems_thinking
 
-- id: velocity
-  name: Velocity
-  description: Shipping features at a sustainable pace
+- id: requirements_quality
+  name: Requirements Quality
+  description:
+    How well specifications are defined for tasks and projects
   contributingSkills:
-    - task_execution
-    - ci_cd
+    - technical_writing
+    - problem_discovery
   contributingBehaviours:
-    - ownership
+    - relentless_curiosity
+    - precise_communication
 ```
 
-**Required fields**: `id`, `name`.
+**Required:** `id`, `name`
 
-**Optional fields**: `description`, `contributingSkills`,
-`contributingBehaviours`.
+**Optional:** `description`, `contributingSkills`, `contributingBehaviours`
+
+Aim for 3–7 drivers — fewer is better. Use business-friendly IDs, not
+technical jargon.
+
+---
 
 ## Validation
 
-Validate your framework data at any time:
+Validate framework data at any time:
 
 ```sh
 bunx fit-map validate
 ```
 
-This checks that all YAML files conform to the expected schema — required fields
-are present, identifiers are consistent, cross-references resolve, and
-proficiency levels use valid values.
+This checks that all YAML files conform to the expected schema — required
+fields are present, identifiers are consistent, cross-references resolve,
+and proficiency levels use valid values.
 
-For additional schema validation including SHACL syntax checks:
+### Common Validation Errors
+
+| Error                         | Typical Cause                                                   | Fix                                                         |
+| ----------------------------- | --------------------------------------------------------------- | ----------------------------------------------------------- |
+| Cross-reference mismatch      | Skill ID in `coreSkills` doesn't exist in any capability        | Check spelling against actual skill IDs in capability files |
+| Invalid proficiency level     | Using a non-standard level like `intermediate`                  | Use only: awareness, foundational, working, practitioner, expert |
+| Missing required field        | A capability is missing `professionalResponsibilities`          | Add the missing field at all five proficiency levels        |
+| Duplicate ID                  | Two entities share the same identifier                          | Rename one to be unique                                     |
+
+### Preview Changes
+
+After editing YAML files, preview the results in the Pathway web app:
 
 ```sh
-bunx fit-map validate --shacl
+bunx fit-pathway dev
 ```
 
-Run validation before committing changes to catch structural issues early.
+This starts a local development server so you can see how your framework
+renders before publishing.
 
-## Related Documentation
+---
 
-- [YAML Schema Reference](/docs/reference/yaml-schema/) — full schema
-  specification for all entity types
-- [Data Model Reference](/docs/reference/model/) — how entities relate to each
-  other and how derivation works
-- [Getting Started: Leadership](/docs/getting-started/leadership/) — create your
-  first framework step by step
-- [CLI Reference](/docs/reference/cli/) — complete command documentation for
-  `fit-map`
+## Related Guides
+
+- [Agent Teams](/docs/guides/agent-teams/) — How to structure and maintain
+  exported agent teams from your framework
+- [Career Paths](/docs/guides/career-paths/) — Browse jobs, skills, and career
+  progression between levels
