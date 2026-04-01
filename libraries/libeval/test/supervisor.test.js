@@ -120,12 +120,34 @@ describe("Supervisor", () => {
     );
   });
 
-  test("completes on EVALUATION_COMPLETE from supervisor", async () => {
+  test("completes on EVALUATION_COMPLETE from supervisor at turn 0", async () => {
+    const agentRunner = createMockRunner([]);
+
+    const supervisorRunner = createMockRunner([
+      { text: "EVALUATION_COMPLETE" },
+    ]);
+
+    const output = new PassThrough();
+    const supervisor = new Supervisor({
+      agentRunner,
+      supervisorRunner,
+      output,
+      maxTurns: 10,
+    });
+
+    const result = await supervisor.run("Install stuff");
+
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.turns, 0);
+  });
+
+  test("completes after one agent turn", async () => {
     const agentRunner = createMockRunner([
       { text: "I installed the packages." },
     ]);
 
     const supervisorRunner = createMockRunner([
+      { text: "Welcome! Please install the packages." },
       { text: "Good work.\n\nEVALUATION_COMPLETE" },
     ]);
 
@@ -151,6 +173,7 @@ describe("Supervisor", () => {
     ]);
 
     const supervisorRunner = createMockRunner([
+      { text: "Here is your task. Do the work." },
       { text: "Keep going, you need to do more." },
       { text: "Almost there, continue." },
       { text: "EVALUATION_COMPLETE" },
@@ -171,14 +194,14 @@ describe("Supervisor", () => {
   });
 
   test("enforces maxTurns limit", async () => {
-    // Agent responds to every turn, supervisor never says done
+    // Supervisor starts, agent responds each turn, supervisor never says done
     const agentRunner = createMockRunner([
-      { text: "Turn 0" },
       { text: "Turn 1" },
       { text: "Turn 2" },
     ]);
 
     const supervisorRunner = createMockRunner([
+      { text: "Start working." },
       { text: "Continue." },
       { text: "Continue." },
     ]);
@@ -198,16 +221,17 @@ describe("Supervisor", () => {
   });
 
   test("output contains tagged lines with correct source and turn", async () => {
-    const agentMessages = [[{ type: "assistant", content: "Working" }]];
     const supervisorMessages = [
+      [{ type: "assistant", content: "Go ahead" }],
       [{ type: "assistant", content: "EVALUATION_COMPLETE" }],
     ];
+    const agentMessages = [[{ type: "assistant", content: "Working" }]];
 
-    const agentRunner = createMockRunner([{ text: "Working" }], agentMessages);
     const supervisorRunner = createMockRunner(
-      [{ text: "EVALUATION_COMPLETE" }],
+      [{ text: "Go ahead" }, { text: "EVALUATION_COMPLETE" }],
       supervisorMessages,
     );
+    const agentRunner = createMockRunner([{ text: "Working" }], agentMessages);
 
     const output = new PassThrough();
     const supervisor = new Supervisor({
@@ -227,18 +251,18 @@ describe("Supervisor", () => {
       .split("\n")
       .filter((l) => l.length > 0);
 
-    // Should have: agent turn 0, supervisor turn 1, orchestrator summary
-    assert.ok(lines.length >= 3);
+    // Should have: supervisor turn 0, agent turn 1, supervisor turn 1, orchestrator summary
+    assert.ok(lines.length >= 4);
 
-    const agentLine = JSON.parse(lines[0]);
-    assert.strictEqual(agentLine.source, "agent");
-    assert.strictEqual(agentLine.turn, 0);
-    assert.ok("event" in agentLine);
-
-    const supervisorLine = JSON.parse(lines[1]);
+    const supervisorLine = JSON.parse(lines[0]);
     assert.strictEqual(supervisorLine.source, "supervisor");
-    assert.strictEqual(supervisorLine.turn, 1);
+    assert.strictEqual(supervisorLine.turn, 0);
     assert.ok("event" in supervisorLine);
+
+    const agentLine = JSON.parse(lines[1]);
+    assert.strictEqual(agentLine.source, "agent");
+    assert.strictEqual(agentLine.turn, 1);
+    assert.ok("event" in agentLine);
 
     const summaryLine = JSON.parse(lines[lines.length - 1]);
     assert.strictEqual(summaryLine.source, "orchestrator");
@@ -252,11 +276,14 @@ describe("Supervisor", () => {
       source: "sdk-internal",
       content: "test",
     };
-    const agentRunner = createMockRunner([{ text: "Done" }], [[sourceEvent]]);
     const supervisorRunner = createMockRunner(
-      [{ text: "EVALUATION_COMPLETE" }],
-      [[{ type: "assistant", content: "ok" }]],
+      [{ text: "Go" }, { text: "EVALUATION_COMPLETE" }],
+      [
+        [{ type: "assistant", content: "Go" }],
+        [{ type: "assistant", content: "ok" }],
+      ],
     );
+    const agentRunner = createMockRunner([{ text: "Done" }], [[sourceEvent]]);
 
     const output = new PassThrough();
     const supervisor = new Supervisor({
@@ -276,27 +303,30 @@ describe("Supervisor", () => {
       .split("\n")
       .filter((l) => l.length > 0);
 
-    const tagged = JSON.parse(lines[0]);
+    // First line is supervisor turn 0, second is agent turn 1
+    const tagged = JSON.parse(lines[1]);
     // The original event's `source` field is preserved inside `event`
     assert.strictEqual(tagged.source, "agent");
     assert.strictEqual(tagged.event.source, "sdk-internal");
   });
 
-  test("emits agent output and summary when agent errors on turn 0", async () => {
-    const agentMessages = [[{ type: "assistant", content: "Partial work" }]];
-    const agentRunner = createMockRunner(
-      [{ text: "Partial work", success: false }],
-      agentMessages,
+  test("emits supervisor output and summary when supervisor errors on turn 0", async () => {
+    const supervisorMessages = [
+      [{ type: "assistant", content: "Starting..." }],
+    ];
+    const supervisorRunner = createMockRunner(
+      [{ text: "Starting...", success: false }],
+      supervisorMessages,
     );
 
     // Override run to simulate an error return
-    const origRun = agentRunner.run;
-    agentRunner.run = async (task) => {
-      const result = await origRun.call(agentRunner, task);
+    const origRun = supervisorRunner.run;
+    supervisorRunner.run = async (task) => {
+      const result = await origRun.call(supervisorRunner, task);
       return { ...result, error: new Error("Process exited with code 1") };
     };
 
-    const supervisorRunner = createMockRunner([]);
+    const agentRunner = createMockRunner([]);
 
     const output = new PassThrough();
     const supervisor = new Supervisor({
@@ -313,18 +343,18 @@ describe("Supervisor", () => {
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.turns, 0);
 
-    // Output should still contain the agent's buffered lines + summary
+    // Output should still contain the supervisor's buffered lines + summary
     const data = output.read()?.toString() ?? "";
     const lines = data
       .trim()
       .split("\n")
       .filter((l) => l.length > 0);
 
-    assert.ok(lines.length >= 2, "Expected at least agent line + summary");
+    assert.ok(lines.length >= 2, "Expected at least supervisor line + summary");
 
-    const agentLine = JSON.parse(lines[0]);
-    assert.strictEqual(agentLine.source, "agent");
-    assert.strictEqual(agentLine.turn, 0);
+    const supervisorLine = JSON.parse(lines[0]);
+    assert.strictEqual(supervisorLine.source, "supervisor");
+    assert.strictEqual(supervisorLine.turn, 0);
 
     const summaryLine = JSON.parse(lines[lines.length - 1]);
     assert.strictEqual(summaryLine.source, "orchestrator");

@@ -1,7 +1,8 @@
 /**
  * Supervisor — orchestrates a relay loop between an agent and a supervisor,
- * both running as AgentRunner instances. The agent works on a task while the
- * supervisor observes and decides when the evaluation is complete.
+ * both running as AgentRunner instances. The supervisor receives the task first,
+ * introduces itself, and delegates work to the agent. The loop then alternates:
+ * agent → supervisor → agent.
  *
  * Follows OO+DI: constructor injection, factory function, tests bypass factory.
  */
@@ -54,34 +55,51 @@ export class Supervisor {
 
   /**
    * Run the supervisor ↔ agent relay loop.
-   * @param {string} task - The initial task for the agent
+   * The supervisor receives the task first, introduces itself, and delegates
+   * work to the agent. The loop then alternates: agent → supervisor → agent.
+   * @param {string} task - The initial task for the supervisor
    * @returns {Promise<{success: boolean, turns: number}>}
    */
   async run(task) {
-    // Turn 0: Agent receives the task and starts working
-    this.currentSource = "agent";
+    // Turn 0: Supervisor receives the task and introduces it to the agent
+    this.currentSource = "supervisor";
     this.currentTurn = 0;
-    let agentResult = await this.agentRunner.run(task);
+    let supervisorResult = await this.supervisorRunner.run(task);
 
-    if (agentResult.error) {
+    if (supervisorResult.error) {
       this.emitSummary({ success: false, turns: 0 });
       return { success: false, turns: 0 };
     }
 
+    if (isDone(supervisorResult.text)) {
+      this.emitSummary({ success: true, turns: 0 });
+      return { success: true, turns: 0 };
+    }
+
     for (let turn = 1; turn <= this.maxTurns; turn++) {
-      // Supervisor observes the agent's output
+      // Supervisor's output becomes the agent's input
+      this.currentSource = "agent";
+      this.currentTurn = turn;
+      let agentResult;
+      if (turn === 1) {
+        agentResult = await this.agentRunner.run(supervisorResult.text);
+      } else {
+        agentResult = await this.agentRunner.resume(supervisorResult.text);
+      }
+
+      if (agentResult.error) {
+        this.emitSummary({ success: false, turns: turn });
+        return { success: false, turns: turn };
+      }
+
+      // Agent's output goes back to the supervisor
       const supervisorPrompt =
         `The agent reported:\n\n${agentResult.text}\n\n` +
         `Decide: provide guidance, answer a question, or say EVALUATION_COMPLETE on its own line.`;
 
       this.currentSource = "supervisor";
       this.currentTurn = turn;
-      let supervisorResult;
-      if (turn === 1) {
-        supervisorResult = await this.supervisorRunner.run(supervisorPrompt);
-      } else {
-        supervisorResult = await this.supervisorRunner.resume(supervisorPrompt);
-      }
+      supervisorResult = await this.supervisorRunner.resume(supervisorPrompt);
 
       if (supervisorResult.error) {
         this.emitSummary({ success: false, turns: turn });
@@ -91,16 +109,6 @@ export class Supervisor {
       if (isDone(supervisorResult.text)) {
         this.emitSummary({ success: true, turns: turn });
         return { success: true, turns: turn };
-      }
-
-      // Supervisor's response becomes the agent's next input
-      this.currentSource = "agent";
-      this.currentTurn = turn;
-      agentResult = await this.agentRunner.resume(supervisorResult.text);
-
-      if (agentResult.error) {
-        this.emitSummary({ success: false, turns: turn });
-        return { success: false, turns: turn };
       }
     }
 
