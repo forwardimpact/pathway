@@ -27,7 +27,7 @@ inputs:
   max-turns:
     description: Maximum turns
     required: false
-    default: "50"
+    default: "200"
   allowed-tools:
     description: Comma-separated list of allowed tools
     required: false

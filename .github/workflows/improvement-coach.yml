@@ -48,4 +48,4 @@ jobs:
           task: .github/tasks/improvement-coach.md
           agent-profile: "improvement-coach"
           model: "opus"
-          max-turns: "50"
+          max-turns: "200"

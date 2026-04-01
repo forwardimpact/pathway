@@ -47,4 +47,4 @@ jobs:
           task: .github/tasks/dependabot-triage.md
           agent-profile: "security-engineer"
           model: "opus"
-          max-turns: "50"
+          max-turns: "200"
