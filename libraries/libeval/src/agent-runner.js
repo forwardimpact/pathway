@@ -19,6 +19,7 @@ export class AgentRunner {
    * @param {function} [deps.onLine] - Callback invoked with each NDJSON line as it's produced
    * @param {string[]} [deps.settingSources] - SDK setting sources (e.g. ['project'] to load CLAUDE.md)
    * @param {string} [deps.agentProfile] - Agent profile name to pass as --agent to the Claude CLI
+   * @param {string|object} [deps.systemPrompt] - SDK system prompt (string replaces default; {type:'preset', preset:'claude_code', append} appends)
    */
   constructor({
     cwd,
@@ -31,6 +32,7 @@ export class AgentRunner {
     onLine,
     settingSources,
     agentProfile,
+    systemPrompt,
   }) {
     if (!cwd) throw new Error("cwd is required");
     if (!query) throw new Error("query is required");
@@ -52,6 +54,7 @@ export class AgentRunner {
     this.onLine = onLine ?? null;
     this.settingSources = settingSources ?? [];
     this.agentProfile = agentProfile ?? null;
+    this.systemPrompt = systemPrompt ?? null;
     this.sessionId = null;
     this.buffer = [];
   }
@@ -77,6 +80,7 @@ export class AgentRunner {
           permissionMode: this.permissionMode,
           allowDangerouslySkipPermissions: true,
           settingSources: this.settingSources,
+          ...(this.systemPrompt && { systemPrompt: this.systemPrompt }),
           ...(this.agentProfile && { extraArgs: { agent: this.agentProfile } }),
         },
       })) {

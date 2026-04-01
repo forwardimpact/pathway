@@ -20,6 +20,16 @@ export function isDone(text) {
   return /^EVALUATION_COMPLETE$/m.test(text);
 }
 
+/** System prompt appended for the supervisor runner in supervise mode. */
+export const SUPERVISOR_SYSTEM_PROMPT =
+  "You are a supervisor agent observing and guiding another AI agent. " +
+  "Assess its work critically and provide specific, actionable feedback.";
+
+/** System prompt appended for the agent runner in supervise mode. */
+export const AGENT_SYSTEM_PROMPT =
+  "You are being supervised by another AI agent. " +
+  "When requirements are ambiguous or you are uncertain, stop and ask a clarifying question before proceeding.";
+
 export class Supervisor {
   /**
    * @param {object} deps
@@ -168,6 +178,11 @@ export function createSupervisor({
     onLine,
     settingSources: ["project"],
     agentProfile,
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code",
+      append: AGENT_SYSTEM_PROMPT,
+    },
   });
 
   const supervisorRunner = createAgentRunner({
@@ -180,6 +195,11 @@ export function createSupervisor({
     onLine,
     settingSources: ["project"],
     agentProfile: supervisorProfile,
+    systemPrompt: {
+      type: "preset",
+      preset: "claude_code",
+      append: SUPERVISOR_SYSTEM_PROMPT,
+    },
   });
 
   supervisor = new Supervisor({

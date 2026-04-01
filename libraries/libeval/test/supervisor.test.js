@@ -6,6 +6,8 @@ import {
   AgentRunner,
   Supervisor,
   createSupervisor,
+  SUPERVISOR_SYSTEM_PROMPT,
+  AGENT_SYSTEM_PROMPT,
 } from "@forwardimpact/libeval";
 import { isDone } from "../src/supervisor.js";
 
@@ -338,5 +340,32 @@ describe("Supervisor", () => {
       output: new PassThrough(),
     });
     assert.ok(supervisor instanceof Supervisor);
+  });
+
+  test("createSupervisor wires system prompts to both runners", () => {
+    const supervisor = createSupervisor({
+      supervisorCwd: "/tmp/sup",
+      agentCwd: "/tmp/agent",
+      query: async function* () {},
+      output: new PassThrough(),
+    });
+
+    assert.deepStrictEqual(supervisor.agentRunner.systemPrompt, {
+      type: "preset",
+      preset: "claude_code",
+      append: AGENT_SYSTEM_PROMPT,
+    });
+    assert.deepStrictEqual(supervisor.supervisorRunner.systemPrompt, {
+      type: "preset",
+      preset: "claude_code",
+      append: SUPERVISOR_SYSTEM_PROMPT,
+    });
+  });
+
+  test("system prompt constants are non-empty strings", () => {
+    assert.ok(typeof SUPERVISOR_SYSTEM_PROMPT === "string");
+    assert.ok(typeof AGENT_SYSTEM_PROMPT === "string");
+    assert.ok(SUPERVISOR_SYSTEM_PROMPT.length > 0);
+    assert.ok(AGENT_SYSTEM_PROMPT.length > 0);
   });
 });
