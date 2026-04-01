@@ -161,47 +161,49 @@ pass `teamInstructions` through from the deployment data.
 ### 6. Tests
 
 **Schema validation.** Add test cases to the existing map validation tests:
+
 - Track with `teamInstructions` string validates.
 - Track without `teamInstructions` validates (backward compat).
 - Track with `teamInstructions: 123` (non-string) fails validation.
 
 **Derivation.** Add test cases to libskill agent tests:
-- `interpolateTeamInstructions` replaces `{roleTitle}` and
-  `{specialization}`.
+
+- `interpolateTeamInstructions` replaces `{roleTitle}` and `{specialization}`.
 - `interpolateTeamInstructions` returns `null` when field is absent.
 - `buildStageProfileBodyData` includes `teamInstructions` in output.
 
 **CLI output.** Add test cases to pathway agent command tests:
-- With `--output` and `teamInstructions` present, `.claude/CLAUDE.md` is
-  written with interpolated content.
+
+- With `--output` and `teamInstructions` present, `.claude/CLAUDE.md` is written
+  with interpolated content.
 - With `--output` and `teamInstructions` absent, no `.claude/CLAUDE.md` is
   created.
 
 ## Ordering
 
-Steps 1–2 (schema) have no code dependencies and can be done in any order.
-Step 3 (derivation) depends on the schema being valid but not on the schema
-files themselves — libskill reads data, not schema files. Step 4 (CLI) depends
-on step 3 for the exported `interpolateTeamInstructions` function. Step 5 (DOM)
-is independent of step 4. Step 6 (tests) should be written alongside each step.
+Steps 1–2 (schema) have no code dependencies and can be done in any order. Step
+3 (derivation) depends on the schema being valid but not on the schema files
+themselves — libskill reads data, not schema files. Step 4 (CLI) depends on step
+3 for the exported `interpolateTeamInstructions` function. Step 5 (DOM) is
+independent of step 4. Step 6 (tests) should be written alongside each step.
 
 Recommended order: 1 → 2 → 3 → 4 → 5 → 6. All in one commit.
 
 ## Files Modified
 
-| File | Action |
-|------|--------|
-| `products/map/schema/json/track.schema.json` | Add property |
-| `products/map/schema/rdf/track.ttl` | Add property + shape |
-| `libraries/libskill/agent.js` | Add interpolation, pass-through |
-| `products/pathway/src/commands/agent.js` | Add write function, call sites |
-| `products/pathway/src/formatters/agent/dom.js` | Add ZIP inclusion |
+| File                                           | Action                          |
+| ---------------------------------------------- | ------------------------------- |
+| `products/map/schema/json/track.schema.json`   | Add property                    |
+| `products/map/schema/rdf/track.ttl`            | Add property + shape            |
+| `libraries/libskill/agent.js`                  | Add interpolation, pass-through |
+| `products/pathway/src/commands/agent.js`       | Add write function, call sites  |
+| `products/pathway/src/formatters/agent/dom.js` | Add ZIP inclusion               |
 
 ## Files Not Modified
 
 - Track YAML files in `data/pathway/tracks/` — no `teamInstructions` authored
   yet; that is a downstream/installation concern.
-- Agent profile template (`products/pathway/templates/agent.template.md`) —
-  team instructions go in a separate file, not inside profiles.
+- Agent profile template (`products/pathway/templates/agent.template.md`) — team
+  instructions go in a separate file, not inside profiles.
 - Skill formatter — unchanged.
 - Validation logic in map — plain string, no custom validation needed.

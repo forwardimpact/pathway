@@ -106,6 +106,7 @@ export {
   deriveStageAgent,
   generateStageAgentProfile,
   buildAgentIndex,
+  interpolateTeamInstructions,
 } from "./agent.js";
 
 // Checklists

@@ -450,7 +450,10 @@ export async function runAgentCommand({
 
     // Output to console (default) or write to files (with --output)
     if (!options.output) {
-      const teamInstructions = interpolateTeamInstructions(agentTrack, humanDiscipline);
+      const teamInstructions = interpolateTeamInstructions(
+        agentTrack,
+        humanDiscipline,
+      );
       if (teamInstructions) {
         console.log("# Team Instructions (CLAUDE.md)\n");
         console.log(teamInstructions.trim());
@@ -460,7 +463,10 @@ export async function runAgentCommand({
       return;
     }
 
-    const teamInstructions = interpolateTeamInstructions(agentTrack, humanDiscipline);
+    const teamInstructions = interpolateTeamInstructions(
+      agentTrack,
+      humanDiscipline,
+    );
     await writeTeamInstructions(teamInstructions, baseDir);
     await writeProfile(profile, baseDir, agentTemplate);
     await generateClaudeCodeSettings(baseDir, agentData.claudeCodeSettings);
@@ -540,7 +546,10 @@ export async function runAgentCommand({
 
   // Output to console (default) or write to files (with --output)
   if (!options.output) {
-    const teamInstructions = interpolateTeamInstructions(agentTrack, humanDiscipline);
+    const teamInstructions = interpolateTeamInstructions(
+      agentTrack,
+      humanDiscipline,
+    );
     if (teamInstructions) {
       console.log("# Team Instructions (CLAUDE.md)\n");
       console.log(teamInstructions.trim());
@@ -553,7 +562,10 @@ export async function runAgentCommand({
     return;
   }
 
-  const teamInstructions = interpolateTeamInstructions(agentTrack, humanDiscipline);
+  const teamInstructions = interpolateTeamInstructions(
+    agentTrack,
+    humanDiscipline,
+  );
   await writeTeamInstructions(teamInstructions, baseDir);
   for (const profile of profiles) {
     await writeProfile(profile, baseDir, agentTemplate);

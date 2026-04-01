@@ -37,13 +37,13 @@ skill coordination — without being forced into a fixed structure.
 
 ### What changes
 
-| Area | Change |
-|------|--------|
-| Track JSON schema (`products/map/schema/json/track.schema.json`) | Add `teamInstructions` string property to `trackAgentSection` |
-| Track RDF/SHACL schema (`products/map/schema/rdf/track.ttl`) | Add `fit:teamInstructions` property and SHACL constraint to `TrackAgentSectionShape` |
-| Agent derivation (`libraries/libskill/agent.js`) | Pass `teamInstructions` through derivation, apply `substituteTemplateVars` |
-| Agent CLI export (`products/pathway/src/commands/agent.js`) | Write `.claude/CLAUDE.md` when `teamInstructions` is present |
-| Agent DOM formatter (`products/pathway/src/formatters/agent/dom.js`) | Include `CLAUDE.md` in ZIP download |
+| Area                                                                 | Change                                                                               |
+| -------------------------------------------------------------------- | ------------------------------------------------------------------------------------ |
+| Track JSON schema (`products/map/schema/json/track.schema.json`)     | Add `teamInstructions` string property to `trackAgentSection`                        |
+| Track RDF/SHACL schema (`products/map/schema/rdf/track.ttl`)         | Add `fit:teamInstructions` property and SHACL constraint to `TrackAgentSectionShape` |
+| Agent derivation (`libraries/libskill/agent.js`)                     | Pass `teamInstructions` through derivation, apply `substituteTemplateVars`           |
+| Agent CLI export (`products/pathway/src/commands/agent.js`)          | Write `.claude/CLAUDE.md` when `teamInstructions` is present                         |
+| Agent DOM formatter (`products/pathway/src/formatters/agent/dom.js`) | Include `CLAUDE.md` in ZIP download                                                  |
 
 ### What does not change
 
@@ -67,8 +67,8 @@ skill coordination — without being forced into a fixed structure.
 
 ### Out of scope
 
-- Authoring `teamInstructions` content in the monorepo's own track files —
-  that is a downstream concern, not a framework change.
+- Authoring `teamInstructions` content in the monorepo's own track files — that
+  is a downstream concern, not a framework change.
 - Support for alternative output filenames (e.g. `copilot-instructions.md`) —
   future formatter concern, not needed for the initial implementation.
 - Structured/queryable format for the field — it is intentionally a plain
@@ -84,8 +84,8 @@ filename, just as it already decides `.claude/agents/` vs other paths.
 
 ### Why a plain string and not a structured object
 
-A structured object with arrays of `{heading, content}` or `{topic,
-canonicalSkill}` was considered and rejected:
+A structured object with arrays of `{heading, content}` or
+`{topic, canonicalSkill}` was considered and rejected:
 
 1. **Overhead** — forces all adopters to learn a sub-model for what is
    fundamentally a markdown document.
