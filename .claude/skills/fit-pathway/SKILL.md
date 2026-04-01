@@ -163,7 +163,7 @@ bunx fit-pathway init                          # Create ./data/ with example fra
 bunx fit-pathway dev                           # Run live development server (default port 3000)
 bunx fit-pathway dev --port=8080               # Dev server on custom port
 bunx fit-pathway build --output=./public --url=https://example.com  # Static site
-bunx fit-pathway update                        # Update local ~/.fit/pathway/ installation
+bunx fit-pathway update                        # Update local ~/.fit/data/pathway/ installation
 bunx fit-pathway update --url=URL              # Update from custom source URL
 ```
 

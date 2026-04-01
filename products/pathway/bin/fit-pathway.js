@@ -104,7 +104,7 @@ GETTING STARTED
   init                                Create ./data/ with example data
   dev [--port=PORT]                   Run live development server
   build [--output=PATH] [--url=URL]   Generate static site + distribution bundle
-  update [--url=URL]                  Update local ~/.fit/pathway/ installation
+  update [--url=URL]                  Update local ~/.fit/data/pathway/ installation
 
 ────────────────────────────────────────────────────────────────────────────────
 ENTITY COMMANDS

@@ -2,7 +2,7 @@
  * Update Command
  *
  * Re-downloads the distribution bundle from the published site URL
- * and updates the local ~/.fit/pathway/ installation.
+ * and updates the local ~/.fit/data/pathway/ installation.
  * Updates the global @forwardimpact/pathway package if the version changed.
  */
 
@@ -10,9 +10,11 @@ import { cp, mkdir, rm, readFile, writeFile, access } from "fs/promises";
 import { join } from "path";
 import { homedir } from "os";
 import { execFileSync } from "child_process";
+import { tmpdir } from "os";
 import { createDataLoader } from "@forwardimpact/map/loader";
 
-const INSTALL_DIR = join(homedir(), ".fit", "pathway");
+const BASE_DIR = join(homedir(), ".fit", "data");
+const INSTALL_DIR = join(BASE_DIR, "pathway");
 
 /**
  * Run the update command.
@@ -24,13 +26,11 @@ const INSTALL_DIR = join(homedir(), ".fit", "pathway");
  * @param {Object} params.options - Command options
  */
 export async function runUpdateCommand({ dataDir: _dataDir, options }) {
-  const installDataDir = join(INSTALL_DIR, "data");
-
   // Verify we have a home-directory installation
   try {
-    await access(installDataDir);
+    await access(INSTALL_DIR);
   } catch {
-    console.error("Error: No local installation found at ~/.fit/pathway/");
+    console.error("Error: No local installation found at ~/.fit/data/pathway/");
     console.error(
       "Install first using the install.sh script from your organization's pathway site.",
     );
@@ -39,12 +39,12 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
 
   // Load framework config to get siteUrl
   const loader = createDataLoader();
-  const framework = await loader.loadFrameworkConfig(installDataDir);
+  const framework = await loader.loadFrameworkConfig(INSTALL_DIR);
   const siteUrl = options.url || framework.distribution?.siteUrl;
 
   if (!siteUrl) {
     console.error(
-      "Error: No siteUrl found in ~/.fit/pathway/data/framework.yaml (distribution.siteUrl)",
+      "Error: No siteUrl found in ~/.fit/data/pathway/framework.yaml (distribution.siteUrl)",
     );
     console.error("Provide one with --url=<URL> or add it to framework.yaml.");
     process.exit(1);
@@ -56,7 +56,7 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
   console.log(`\n🔄 Updating from ${baseUrl}...\n`);
 
   // 1. Download bundle to temp location
-  const tmpDir = join(INSTALL_DIR, "_update_tmp");
+  const tmpDir = join(tmpdir(), "fit-pathway-update");
   await mkdir(tmpDir, { recursive: true });
 
   const tmpBundle = join(tmpDir, bundleName);
@@ -86,7 +86,7 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
 
     // 3. Compare versions from bundle's package.json (version manifest)
     const newPkgPath = join(extractDir, "package.json");
-    const oldPkgPath = join(INSTALL_DIR, "package.json");
+    const oldPkgPath = join(BASE_DIR, "package.json");
     const newPkg = JSON.parse(await readFile(newPkgPath, "utf8"));
     let oldPkg;
     try {
@@ -102,8 +102,8 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
 
     // 4. Replace data
     console.log("   Updating data files...");
-    await rm(installDataDir, { recursive: true });
-    await cp(join(extractDir, "data"), installDataDir, { recursive: true });
+    await rm(INSTALL_DIR, { recursive: true });
+    await cp(join(extractDir, "data"), INSTALL_DIR, { recursive: true });
     console.log("   ✓ Data updated");
 
     // 5. Update version manifest
