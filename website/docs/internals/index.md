@@ -20,8 +20,8 @@ surfaces, query functions, and programmatic access.
 
 ### Pathway
 
-Presentation layer — module structure, formatter pattern, web application
-architecture, templates, and agent derivation internals.
+Presentation layer architecture — module structure, formatter pattern, web
+application, templates, and agent derivation.
 
 </a>
 
@@ -39,7 +39,7 @@ of skill, behaviour, and responsibility derivation.
 ### Basecamp
 
 Scheduler architecture — component table, process tree, macOS app, cache
-directory, and state management internals.
+directory, and state management.
 
 </a>
 
@@ -75,7 +75,7 @@ rendering, and validation.
 ### Operations
 
 Environment configuration, service management, and common development tasks for
-the monorepo.
+the Forward Impact monorepo.
 
 </a>
 

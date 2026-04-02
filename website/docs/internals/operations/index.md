@@ -1,19 +1,17 @@
 ---
 title: Operations Reference
-description:
-  Environment configuration, service management, and common development tasks
-  for the Forward Impact monorepo.
+description: "Environment configuration, service management, and common development tasks for the Forward Impact monorepo."
 ---
 
-# Operations Reference
-
-> **Note:** The commands on this page (`make` targets, `fit-rc`, environment
+> **Note:** The commands on this page (`just` recipes, `fit-rc`, environment
 > scripts) require a full monorepo checkout. For npm-based installs, see
 > [Getting Started: Developers](/docs/getting-started/developers/).
 
 Day-to-day reference for environment setup, service management, and common
 development tasks. For the PR workflow and contributing guidelines, see
 [CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md).
+
+---
 
 ## Environment Management
 
@@ -57,6 +55,8 @@ just env-github    # GitHub token utility (LLM_TOKEN, LLM_BASE_URL)
 the hosting platform or `.env`). Any code using `libconfig` to access LLM
 credentials works out of the box.
 
+---
+
 ## Configuration
 
 `config/config.json` controls service startup and runtime behaviour:
@@ -73,6 +73,8 @@ criteria) used by the tool service.
 
 `config/agents/*.agent.md` — Agent prompt files (planner, researcher, editor,
 eval_judge). Reset from examples with `just config-reset`.
+
+---
 
 ## Service Management
 
@@ -96,6 +98,8 @@ TEI (Text Embeddings Inference) provides local embeddings:
 just tei-install              # Install via cargo (first time)
 just tei-start                # Start TEI service (downloads model on first run)
 ```
+
+---
 
 ## Common Tasks
 
@@ -150,6 +154,8 @@ just config-reset             # Reset config files from examples
 
 See each product's skill file for full CLI reference.
 
+---
+
 ## CI Agent Authentication
 
 The continuous improvement system authenticates to GitHub using a **GitHub App**
@@ -196,3 +202,12 @@ Organizations that want full control create their own GitHub App.
 
 Private keys are per-App, not per-installation. Only the App owner can generate
 and distribute them.
+
+---
+
+## Related Documentation
+
+- [CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)
+  -- Development workflow and quality guidelines
+- [Getting Started: Contributors](/docs/getting-started/contributors/) --
+  Environment setup walkthrough

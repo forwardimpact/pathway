@@ -1,6 +1,6 @@
 ---
 title: libskill Internals
-description: "Derivation engine — key functions, module index, and technical details of skill, behaviour, and responsibility derivation."
+description: "Derivation engine — key functions, module index, imports, and technical details of skill, behaviour, and responsibility derivation."
 ---
 
 ## Module Index
@@ -18,6 +18,7 @@ description: "Derivation engine — key functions, module index, and technical d
 | `profile.js`     | Profile filtering (human + agent)                       |
 | `modifiers.js`   | Capability and skill modifier resolution                |
 | `matching.js`    | Job matching and gap analysis                           |
+| `policies/`      | Ordering, sorting, filtering, and threshold policies    |
 
 libskill is pure-function by design and intentionally exempt from OO+DI. All
 functions are stateless and side-effect-free.
@@ -88,11 +89,11 @@ for every skill in the discipline. Behaviours are derived by
 
 ## Lifecycle Key Functions
 
-| Function                | Module       | Purpose                               |
-| ----------------------- | ------------ | ------------------------------------- |
-| `deriveChecklist()`     | checklist.js | Derive stage transition checklists    |
-| `getStageOrder()`       | orderings.js | Return stage ordering for comparisons |
-| `compareByStageOrder()` | orderings.js | Sort stages by lifecycle order        |
+| Function                | Module                | Purpose                               |
+| ----------------------- | --------------------- | ------------------------------------- |
+| `deriveChecklist()`     | checklist.js          | Derive stage transition checklists    |
+| `getStageOrder()`       | policies/orderings.js | Return stage ordering for comparisons |
+| `compareByStageOrder()` | policies/orderings.js | Sort stages by lifecycle order        |
 
 ### Lifecycle Data Structure
 

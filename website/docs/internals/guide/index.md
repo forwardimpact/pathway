@@ -1,6 +1,6 @@
 ---
 title: Guide Internals
-description: "Agent infrastructure — orchestration pipeline, tool execution, knowledge pipeline, and service stack."
+description: "Agent infrastructure — orchestration pipeline, tool execution, knowledge pipeline, conversation memory, and service stack."
 ---
 
 ## Architecture
@@ -28,8 +28,8 @@ each is executed via the Tool service. Available tool types include:
 - **Graph queries** -- `get_ontology`, `get_subjects`, `query_by_pattern` for
   structured knowledge graph lookups
 - **Vector search** -- Semantic similarity search across embedded documents
-- **Agent delegation** -- `list_sub_agents`, `run_sub_agent` for isolated
-  task delegation; `list_handoffs`, `run_handoff` for conversation handoffs
+- **Agent delegation** -- `list_sub_agents`, `run_sub_agent` for isolated task
+  delegation; `list_handoffs`, `run_handoff` for conversation handoffs
 
 Tool descriptors are defined in `config/tools.yml`, which maps tool names to
 descriptions, parameters, and evaluation criteria. The Tool service resolves

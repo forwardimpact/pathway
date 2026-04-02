@@ -135,38 +135,9 @@ Shared UI components used across pages:
 
 ## File Organization
 
-### Map (`products/map/`)
-
-Data model, validation, and loading.
-
-| File                       | Purpose                                                     |
-| -------------------------- | ----------------------------------------------------------- |
-| `src/loader.js`            | YAML file loading and parsing                               |
-| `src/validation.js`        | Referential integrity and data validation                   |
-| `src/schema-validation.js` | JSON Schema validation                                      |
-| `src/levels.js`            | Type definitions, skill proficiencies, behaviour maturities |
-| `src/modifiers.js`         | Capability and skill modifier utilities                     |
-| `src/index-generator.js`   | Browser index generation                                    |
-| `src/index.js`             | Public API exports                                          |
-
-### Model (`libraries/libskill/`)
-
-Pure business logic and derivation.
-
-| File             | Purpose                                                 |
-| ---------------- | ------------------------------------------------------- |
-| `derivation.js`  | Core derivation functions (skills, behaviours, drivers) |
-| `agent.js`       | Agent team and skill generation                         |
-| `job.js`         | Job preparation for display                             |
-| `job-cache.js`   | Job caching for performance                             |
-| `profile.js`     | Unified profile derivation (human + agent)              |
-| `modifiers.js`   | Capability and skill modifier resolution                |
-| `checklist.js`   | Stage transition checklist derivation                   |
-| `toolkit.js`     | Tool derivation from skill references                   |
-| `interview.js`   | Interview question selection                            |
-| `progression.js` | Career path analysis and gap identification             |
-| `matching.js`    | Job matching and gap analysis                           |
-| `policies/`      | Filtering, sorting, and threshold policies              |
+For the data model and validation layer, see
+[Map Internals](/docs/internals/map/). For the derivation engine, see
+[libskill Internals](/docs/internals/libskill/).
 
 ### Pathway (`products/pathway/`)
 

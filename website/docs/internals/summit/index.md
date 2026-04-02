@@ -1,6 +1,6 @@
 ---
 title: Summit Internals
-description: "Capability aggregation engine — skill matrix aggregation, structural risk detection, and scenario modeling."
+description: "Capability aggregation engine — skill matrix aggregation, structural risk detection, scenario modeling, and design principles."
 ---
 
 ## Overview
