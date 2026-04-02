@@ -11,7 +11,7 @@ toc: false
 
 ### Leadership
 
-Author your first engineering framework — create YAML definitions, validate, and
+Install the CLI tools, author your first engineering framework, validate, and
 preview.
 
 </a>
@@ -20,8 +20,8 @@ preview.
 
 ### Developers
 
-Install CLI tools, generate agent teams, browse job definitions, and set up
-Basecamp.
+Install CLI tools, browse job definitions, generate agent teams, set up Guide,
+and configure Basecamp.
 
 </a>
 

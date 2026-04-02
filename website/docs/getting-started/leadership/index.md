@@ -1,44 +1,72 @@
 ---
 title: "Getting Started: Leadership"
-description: "Author your first engineering framework — create YAML definitions, validate, and preview."
+description: "Install the CLI tools, author your first engineering framework, validate, and preview."
 ---
 
 # Getting Started: Leadership
 
 This guide walks you through creating your first engineering framework. By the
-end you will have a minimal set of YAML definitions that validate and preview in
+end you will have a working set of YAML definitions that validate and preview in
 the browser.
 
 ## Prerequisites
 
-- Bun 1.0+
+- Node.js 18+
+- npm
 
 ## Install
 
-Install the packages directly:
-
 ```sh
-bun install @forwardimpact/map @forwardimpact/pathway
+npm install @forwardimpact/map @forwardimpact/pathway
 ```
 
-Or clone the monorepo:
+This gives you two CLI tools:
+
+- `fit-pathway` — browse, preview, and publish your framework
+- `fit-map` — validate framework data against published schemas
+
+## Initialize starter data
+
+Bootstrap a complete framework skeleton with editable YAML files:
 
 ```sh
-git clone https://github.com/forwardimpact/monorepo.git
-cd monorepo
-bun install
+npx fit-pathway init
 ```
 
-## Create your first framework
+This creates `./data/pathway/` with starter definitions for levels, disciplines,
+capabilities, skills, behaviours, stages, drivers, and tracks. The starter data
+is a working framework you can customize to match your organization.
 
-Framework definitions live in YAML files under a `data/` directory. You need
-three files to get started: levels, a capability with at least one skill, and a
-discipline that references it.
+## Validate
 
-### Define levels
+Run the validator to check your YAML files against the schema:
 
-Create `data/levels.yaml` with your level definitions. Each level sets baseline
-expectations for skill proficiency and behaviour maturity.
+```sh
+npx fit-map validate
+```
+
+Fix any errors the validator reports before moving on.
+
+## Preview
+
+Start the development server to see your framework in the browser:
+
+```sh
+npx fit-pathway dev
+# Open http://localhost:3000
+```
+
+Browse disciplines, levels, and skills to verify everything looks correct.
+
+## Customize your framework
+
+The starter data gives you a complete foundation. Edit the YAML files under
+`data/pathway/` to match your organization's engineering expectations.
+
+### Levels
+
+Edit `data/pathway/levels.yaml` to define your level structure. Each level sets
+baseline expectations for skill proficiency and behaviour maturity.
 
 ```yaml
 - id: L1
@@ -60,22 +88,12 @@ expectations for skill proficiency and behaviour maturity.
     secondary: foundational
     broad: awareness
   baseBehaviourMaturity: developing
-
-- id: L3
-  professionalTitle: Senior Engineer
-  managementTitle: Senior Manager
-  ordinalRank: 3
-  baseSkillProficiencies:
-    primary: practitioner
-    secondary: working
-    broad: foundational
-  baseBehaviourMaturity: practicing
 ```
 
-### Define a capability and skill
+### Capabilities and skills
 
-Create `data/capabilities/delivery.yaml` with one capability containing a skill.
-Each skill needs a `human:` section with a description and proficiency
+Edit files under `data/pathway/capabilities/` to define capability groups
+containing skills. Each skill needs a `human:` section with proficiency
 descriptions at all five levels.
 
 ```yaml
@@ -103,10 +121,10 @@ skills:
           Defines delivery practices that scale across the organization.
 ```
 
-### Define a discipline
+### Disciplines
 
-Create `data/disciplines/software_engineering.yaml` referencing your capability
-skill.
+Edit files under `data/pathway/disciplines/` to define role types that reference
+your capability skills.
 
 ```yaml
 specialization: Software Engineering
@@ -119,26 +137,8 @@ validTracks:
 
 Use `null` in `validTracks` to allow a trackless (generalist) configuration.
 
-## Validate
-
-Run the validator to check your YAML files against the schema:
-
-```sh
-bunx fit-map validate
-```
-
-Fix any errors the validator reports before moving on.
-
-## Preview
-
-Start the development server to see your framework in the browser:
-
-```sh
-bunx fit-pathway dev
-# Open http://localhost:3000
-```
-
-Browse disciplines, levels, and skills to verify everything looks correct.
+After each change, re-validate with `npx fit-map validate` and preview with
+`npx fit-pathway dev`.
 
 ## Next steps
 

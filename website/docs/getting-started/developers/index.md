@@ -1,42 +1,42 @@
 ---
 title: "Getting Started: Developers"
-description: "Install CLI tools, generate agent teams, browse job definitions, and set up Basecamp."
+description: "Install CLI tools, browse job definitions, generate agent teams, set up Guide, and configure Basecamp."
 ---
 
 # Getting Started: Developers
 
 Get up and running with the Forward Impact CLI tools. This guide covers browsing
-your career framework, generating AI agent teams, and setting up your personal
-knowledge base.
+your career framework, generating AI agent teams, interpreting engineering
+artifacts with Guide, and setting up your personal knowledge base.
 
-## Install
-
-Install the packages directly:
+## Install Pathway
 
 ```sh
-bun install @forwardimpact/pathway @forwardimpact/basecamp
+npm install @forwardimpact/pathway
 ```
 
-Or from the monorepo:
+## Initialize framework data
+
+If your organization hasn't provided a framework data bundle, bootstrap starter
+data to explore with:
 
 ```sh
-git clone https://github.com/forwardimpact/monorepo.git
-cd monorepo
-bun install
+npx fit-pathway init
 ```
 
-## Data directory convention
+This creates `./data/pathway/` with a complete starter framework. If your
+organization distributes a framework bundle, follow their installation
+instructions instead — typically a one-line `curl | bash` install script that
+places data at `~/.fit/data/pathway/`.
 
-The Pathway and Map CLIs expect framework data at `./data/pathway/`, not
-`./data/` directly. The CLI resolves the data directory by walking upward from
-the current working directory looking for a `data/` folder, then appends
-`/pathway`.
+### Data directory resolution
 
-To override, use the `--data` flag pointing to the `pathway` subdirectory
-directly:
+The CLI resolves the data directory by walking upward from the current working
+directory looking for a `data/pathway/` folder. To override, use the `--data`
+flag:
 
 ```sh
-bunx fit-pathway discipline --list --data=./my-data/pathway
+npx fit-pathway discipline --list --data=./my-data/pathway
 ```
 
 ## Browse your job definition
@@ -45,16 +45,16 @@ Use the Pathway CLI to explore the engineering framework your organization has
 defined.
 
 ```sh
-bunx fit-pathway discipline --list    # See available disciplines
-bunx fit-pathway level --list         # See available levels
-bunx fit-pathway track --list         # See available tracks
+npx fit-pathway discipline --list    # See available disciplines
+npx fit-pathway level --list         # See available levels
+npx fit-pathway track --list         # See available tracks
 ```
 
 Generate a complete job definition by combining a discipline, level, and
 optional track:
 
 ```sh
-bunx fit-pathway job software_engineering L3 --track=platform
+npx fit-pathway job software_engineering L3 --track=platform
 ```
 
 This produces a full view of the skills, behaviours, and expectations for that
@@ -65,49 +65,92 @@ role.
 Create AI agent definitions matched to your role's skill profile:
 
 ```sh
-bunx fit-pathway agent software_engineering --track=platform --output=./agents
+npx fit-pathway agent software_engineering --track=platform --output=./agents
 ```
 
 This generates a set of `.agent.md` files and a `skills/` directory. Each agent
 file defines a persona with specific capabilities. The skills directory contains
-`SKILL.md` files that agents use as operational context -- the same skill
+`SKILL.md` files that agents use as operational context — the same skill
 definitions humans reference, formatted for AI consumption.
 
 Copy the output into your project's `.claude/` or equivalent agent configuration
 directory.
 
+## Set up Guide
+
+Guide is a conversational AI agent that understands your organization's
+engineering framework. It helps you onboard, find growth areas, and interpret
+engineering artifacts against your skill markers.
+
+### Install
+
+```sh
+npm install @forwardimpact/guide
+```
+
+### Prerequisites
+
+Guide connects to the Forward Impact knowledge platform services. You need a
+running service stack and a service secret:
+
+```sh
+export SERVICE_SECRET=<your-secret>
+```
+
+If your organization hosts the platform, they will provide the service secret
+and endpoint configuration. If `SERVICE_SECRET` is not set, the CLI prints
+onboarding instructions.
+
+### Usage
+
+```sh
+npx fit-guide                                        # Start interactive conversation
+echo "What skills should I focus on for L3?" | npx fit-guide  # Pipe a question
+```
+
+Guide reasons about your organization's specific skill definitions, behaviour
+expectations, and markers — not generic career advice.
+
 ## Set up Basecamp
 
 Basecamp is your personal operations center. It syncs email and calendar, builds
-a knowledge graph, drafts responses, and prepares meeting briefings. The full
-desktop experience (macOS status menu app) requires macOS; the CLI scheduler
-works on any platform.
+a knowledge graph, drafts responses, and prepares meeting briefings.
 
-Initialize a knowledge base in a directory of your choice:
+> **Note:** Basecamp requires [Bun](https://bun.sh) 1.2+ as its runtime.
+
+### Install
+
+```sh
+bun install @forwardimpact/basecamp
+```
+
+### Initialize a knowledge base
 
 ```sh
 bunx fit-basecamp --init ~/Documents/Personal
 ```
 
-Check the status of your knowledge base:
+### Check status
 
 ```sh
 bunx fit-basecamp --status
 ```
 
-Run the scheduler in the background to keep everything up to date:
+### Run the scheduler
 
 ```sh
 bunx fit-basecamp --daemon
 ```
 
-Basecamp runs as a macOS status menu app with scheduled AI tasks handling the
-background work.
+Basecamp runs as a macOS status menu app with scheduled AI tasks handling
+background work. The CLI scheduler works on any platform.
 
 ## Next steps
 
 - [Agent teams](/docs/guides/agent-teams/) -- configure and customize generated
   agents
+- [Finding your bearing](/docs/guides/finding-your-bearing/) -- Guide usage and
+  configuration
 - [Knowledge systems](/docs/guides/knowledge-systems/) -- deep dive into
   Basecamp features
 - [Career paths](/docs/guides/career-paths/) -- understand progression and skill

@@ -8,6 +8,15 @@ description: "Clone the monorepo, generate synthetic data, run checks, and under
 Set up the Forward Impact monorepo for development. This guide covers
 installation, data generation, and running the quality checks.
 
+> External users install products via npm (see [Leadership](/docs/getting-started/leadership/)
+> or [Developers](/docs/getting-started/developers/)). This page is for
+> contributors working on the monorepo itself.
+
+## Prerequisites
+
+- [Bun](https://bun.sh) 1.2+
+- [just](https://github.com/casey/just) (command runner)
+
 ## Clone and install
 
 ```sh
@@ -72,7 +81,7 @@ website/        Documentation website
 engineering looks like. Pathway renders career frameworks. Basecamp manages
 personal knowledge. Guide interprets artifacts. Summit models team capability.
 
-**Libraries** provide shared logic following OO+DI patterns -- classes accept
+**Libraries** provide shared logic following OO+DI patterns — classes accept
 dependencies through constructors, factory functions wire real implementations,
 tests inject mocks directly.
 
@@ -94,7 +103,7 @@ scope for breaking changes.
 
 ## Next steps
 
-- [Architecture internals](/docs/internals/) -- dependency chains, data flow,
+- [Architecture internals](/docs/internals/) — dependency chains, data flow,
   and design decisions
 - [CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)
-  -- full contributing guide with PR checklist and release process
+  — full contributing guide with PR checklist and release process
