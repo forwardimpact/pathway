@@ -220,8 +220,7 @@ env-setup: env-reset env-secrets env-storage
 
 # Reset environment config from examples
 env-reset PROFILE="local": config-reset
-    cp -f .env.example .env
-    cat .env.{{PROFILE}}.example >> .env
+    cp -f .env.{{PROFILE}}.example .env
 
 # Generate service and JWT secrets
 env-secrets:

@@ -13,6 +13,8 @@ generated/
 *.key
 *.p12
 *.pfx
+*.p8
+*.jks
 credentials.json
 service-account.json
 
@@ -20,15 +22,6 @@ service-account.json
 **/.env
 **/.env.*
 !**/.env.*.example
-!**/.env.example
-
-# Private keys and certificates
-*.pem
-*.key
-*.p8
-*.p12
-*.pfx
-*.jks
 
 # Local config (use *.example.* templates)
 **/config/config.json
@@ -37,10 +30,6 @@ service-account.json
 **/config/eval.yml
 **/config/agents/*.agent.md
 !**/config/agents/*.agent.example.md
-
-# Development files
-tmp/
-SCRATCHPAD*.md
 
 # Development files
 tmp/
@@ -76,4 +65,3 @@ package-lock.json
 
 # Other stuff
 **/.DS_Store
-
