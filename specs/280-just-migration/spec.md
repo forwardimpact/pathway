@@ -112,13 +112,14 @@ In practice, the auth files contain 2–3 variables each and storage files conta
 
 ### Design: Complete profile files
 
-Collapse the 9 example files into **3 complete, self-contained profiles**:
+Collapse the 9 example files into **4 complete, self-contained profiles**:
 
 | File | Contents | When to use |
 | --- | --- | --- |
 | `.env.example` | API credentials, service secrets, database, debug | Always — copy to `.env` |
 | `.env.local.example` | All of: service URLs (localhost), `STORAGE_TYPE=local`, `AUTH_TYPE=none` | Local development |
-| `.env.docker.example` | All of: proxy config, service URLs (docker), storage and auth for Docker Compose | Docker development |
+| `.env.docker-native.example` | Proxy config, service URLs (docker), GoTrue auth, MinIO storage | Docker with native services |
+| `.env.docker-supabase.example` | Proxy config, service URLs (docker), Supabase auth + storage | Docker with Supabase |
 
 Each profile file is **complete** — it contains every variable needed for that
 environment, including the auth and storage settings that were previously in
@@ -162,10 +163,12 @@ environment via `just`'s dotenv loading.
 ### Setup flow
 
 ```sh
-cp .env.example .env          # secrets and credentials
-cp .env.local.example .env    # append or use local profile
+cp .env.example .env                  # secrets and credentials
+cp .env.local.example .env            # append or use local profile
 #  — or —
-cp .env.docker.example .env   # append or use docker profile
+cp .env.docker-native.example .env    # append or use docker + gotrue/minio
+#  — or —
+cp .env.docker-supabase.example .env  # append or use docker + supabase
 ```
 
 The `env-reset` recipe handles this automatically, same as today but simpler.
@@ -177,7 +180,7 @@ The `env-reset` recipe handles this automatically, same as today but simpler.
 | Env load mechanism | External shell script + exec wrapper | Native `set dotenv-load` |
 | Working directory resilience | None — fails if cwd changes | Just walks ancestors to find justfile |
 | New recipe cost | 3 lines (.PHONY + target + command) | 1–2 lines (recipe + command) |
-| Env example files | 9 files + layering script | 3 complete profile files |
+| Env example files | 9 files + layering script | 4 complete profile files |
 | scripts/env.sh | Required | Deleted |
 | Variable pass-through | `ENVLOAD` prefix on every recipe | None — automatic |
 | Auth/storage switching | Change `AUTH`/`STORAGE` variable | Edit `.env` directly |
@@ -190,18 +193,21 @@ The `env-reset` recipe handles this automatically, same as today but simpler.
 | --- | --- |
 | `Makefile` | Replaced by `justfile` |
 | `scripts/env.sh` | Replaced by native just dotenv loading |
+| `.env.docker.example` | Replaced by `docker-native` and `docker-supabase` profiles |
 | `.env.auth.none.example` | Folded into `.env.local.example` |
-| `.env.auth.gotrue.example` | Folded into profile files |
-| `.env.auth.supabase.example` | Folded into profile files |
+| `.env.auth.gotrue.example` | Folded into `.env.docker-native.example` |
+| `.env.auth.supabase.example` | Folded into `.env.docker-supabase.example` |
 | `.env.storage.local.example` | Folded into `.env.local.example` |
-| `.env.storage.minio.example` | Folded into profile files |
-| `.env.storage.supabase.example` | Folded into `.env.docker.example` |
+| `.env.storage.minio.example` | Folded into `.env.docker-native.example` |
+| `.env.storage.supabase.example` | Folded into `.env.docker-supabase.example` |
 
 ### Created
 
 | File | Purpose |
 | --- | --- |
 | `justfile` | All recipes from Makefile, with dotenv configuration |
+| `.env.docker-native.example` | Complete Docker profile with GoTrue auth + MinIO storage |
+| `.env.docker-supabase.example` | Complete Docker profile with Supabase auth + storage |
 
 ### Modified
 
