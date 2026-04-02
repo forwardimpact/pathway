@@ -20,9 +20,10 @@ install from npm as a user would, not clone the monorepo.
 
 Observe the agent's progress, answer any questions it has, and provide guidance
 when it gets stuck. When you are satisfied the agent has completed the task
-adequately, say EVALUATION_COMPLETE on its own line.
+adequately, say EVALUATION_SUCCESSFUL on its own line, then continue with
+post-evaluation work in the same turn.
 
-After the evaluation is complete, use your `product-feedback` skill (Part 2) to
+After signaling success, use your `product-feedback` skill (Part 2) to
 process the agent's reported feedback. Assess each feedback item for product
 alignment and create GitHub issues for bugs, documentation gaps, and
 product-aligned improvements. Skip feedback that is environmental or outside
