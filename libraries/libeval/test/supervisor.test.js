@@ -380,9 +380,12 @@ describe("Supervisor", () => {
       output: new PassThrough(),
     });
     assert.deepStrictEqual(supervisor.supervisorRunner.allowedTools, [
+      "Bash",
       "Read",
       "Glob",
       "Grep",
+      "Write",
+      "Edit",
     ]);
   });
 

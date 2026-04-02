@@ -42,7 +42,7 @@ Supervise options:
   --output=PATH             Write NDJSON trace to file (default: stdout)
   --allowed-tools=LIST      Comma-separated tools for agent (default: Bash,Read,Glob,Grep,Write,Edit)
   --supervisor-allowed-tools=LIST
-                            Comma-separated tools for supervisor (default: Read,Glob,Grep)
+                            Comma-separated tools for supervisor (default: Bash,Read,Glob,Grep,Write,Edit)
   --supervisor-profile=NAME Supervisor agent profile name (passed as --agent to Claude CLI)
   --agent-profile=NAME      Agent profile name (passed as --agent to Claude CLI)
 
