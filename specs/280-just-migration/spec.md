@@ -65,12 +65,10 @@ as commands by default — no `.PHONY` needed.
 1. **Replace `Makefile` with `justfile`** — translate all 50+ Make targets to
    `just` recipes with identical names and behaviour.
 
-2. **Replace `scripts/env.sh` with native `just` dotenv loading** — consolidate
-   the layered environment system into a scheme that uses `just`'s built-in
-   `dotenv-load` / `dotenv-filename` / `dotenv-path` settings. The current
-   four-layer cascade (base → environment → storage → auth) may be consolidated
-   into fewer files or a single generated `.env` file per profile, as long as
-   the same environment combinations remain expressible.
+2. **Replace `scripts/env.sh` with native `just` dotenv loading** — collapse
+   the 9 `.env.*.example` files and shell-script loader into a small set of
+   complete, self-contained profile files loaded by `just`'s built-in
+   `set dotenv-load`. No generation step, no helper recipes, no scripts.
 
 3. **Update `.claude/settings.json` hooks** — change `make install` and
    `make memory-commit` to `just install` and `just memory-commit`.
@@ -101,62 +99,88 @@ as commands by default — no `.PHONY` needed.
 - Changing the actual commands that recipes run (the `bun`, `bunx`, `docker
   compose` invocations remain identical).
 - Refactoring service definitions, codegen, or processing pipelines.
-- Changing the `.env.*.example` file contents (only the loading mechanism
-  changes).
 - Historical spec documents in `specs/` — these are immutable records and will
   not be updated.
 
 ## Dotenv Consolidation
 
-The current four-layer system (`ENV`, `STORAGE`, `AUTH` axes) produces a matrix
-of possible combinations. `just`'s native dotenv support loads a single file.
-Two approaches satisfy the requirements:
+The current system has 9 `.env.*.example` files and a shell script that layers
+them at runtime based on three axis variables (`ENV`, `STORAGE`, `AUTH`). This
+complexity exists to avoid duplicating a handful of variables across profiles.
+In practice, the auth files contain 2–3 variables each and storage files contain
+3–6. The layering machinery costs more than the duplication it prevents.
 
-### Preferred: Profile-based loading with just variables
+### Design: Complete profile files
 
-Use `just` variables to select a dotenv profile, and load a single composed
-`.env` file. The `justfile` declares:
+Collapse the 9 example files into **3 complete, self-contained profiles**:
+
+| File | Contents | When to use |
+| --- | --- | --- |
+| `.env.example` | API credentials, service secrets, database, debug | Always — copy to `.env` |
+| `.env.local.example` | All of: service URLs (localhost), `STORAGE_TYPE=local`, `AUTH_TYPE=none` | Local development |
+| `.env.docker.example` | All of: proxy config, service URLs (docker), storage and auth for Docker Compose | Docker development |
+
+Each profile file is **complete** — it contains every variable needed for that
+environment, including the auth and storage settings that were previously in
+separate files. There is deliberate duplication of a few variables between
+profiles; this is the right trade-off because it eliminates the layering
+machinery entirely.
+
+Users who need non-default auth or storage (e.g., GoTrue auth with local
+services) edit the relevant variables directly in their `.env.local` copy.
+Commented-out blocks with alternative values and instructions make this
+straightforward — the same pattern used for optional Teams Extension config
+today.
+
+### Deleted files
+
+The 6 axis-specific files are deleted:
+
+- `.env.auth.none.example`
+- `.env.auth.gotrue.example`
+- `.env.auth.supabase.example`
+- `.env.storage.local.example`
+- `.env.storage.minio.example`
+- `.env.storage.supabase.example`
+
+Their contents (2–6 variables each) are folded into the profile files above.
+
+### Justfile dotenv configuration
 
 ```just
 set dotenv-load
-
-ENV := env("ENV", "local")
-STORAGE := env("STORAGE", "local")
-AUTH := env("AUTH", "none")
 ```
 
-Recipes that need the full environment layer source the additional files inline:
+One line. `just` loads `.env` automatically. No `ENVLOAD` prefix, no helper
+recipes, no shell script. Every recipe sees the full environment natively.
 
-```just
-[private]
-@_env *ARGS:
-    set -a && \
-    [ -f .env ] && . ./.env && \
-    [ -f .env.{{ENV}} ] && . ./.env.{{ENV}} && \
-    [ -f .env.storage.{{STORAGE}} ] && . ./.env.storage.{{STORAGE}} && \
-    [ -f .env.auth.{{AUTH}} ] && . ./.env.auth.{{AUTH}} && \
-    set +a && \
-    {{ARGS}}
+For the Docker Compose targets that currently pass `--env-file` flags explicitly
+(e.g., `docker compose --env-file .env --env-file .env.docker ...`), these
+simplify to just `docker compose` since all variables are already in the
+environment via `just`'s dotenv loading.
+
+### Setup flow
+
+```sh
+cp .env.example .env          # secrets and credentials
+cp .env.local.example .env    # append or use local profile
+#  — or —
+cp .env.docker.example .env   # append or use docker profile
 ```
 
-This replaces `scripts/env.sh` entirely. The base `.env` is loaded natively by
-`just`; the profile overlays are sourced by a private helper recipe that every
-env-dependent recipe calls. The `ENVLOAD` pattern becomes a recipe dependency
-instead of a shell wrapper.
-
-Alternatively, the inline sourcing can be extracted to a shell function within
-the justfile header, avoiding repetition.
+The `env-reset` recipe handles this automatically, same as today but simpler.
 
 ### Trade-offs
 
 | Aspect | Current (Make + env.sh) | Proposed (just) |
 | --- | --- | --- |
-| Env load mechanism | External shell script exec wrapper | Native dotenv + inline sourcing |
+| Env load mechanism | External shell script + exec wrapper | Native `set dotenv-load` |
 | Working directory resilience | None — fails if cwd changes | Just walks ancestors to find justfile |
 | New recipe cost | 3 lines (.PHONY + target + command) | 1–2 lines (recipe + command) |
-| Env file count | 9 example files | Same 9 example files (unchanged) |
+| Env example files | 9 files + layering script | 3 complete profile files |
 | scripts/env.sh | Required | Deleted |
-| Variable pass-through | `ENVLOAD` prefix on every recipe | Private helper recipe or shell function |
+| Variable pass-through | `ENVLOAD` prefix on every recipe | None — automatic |
+| Auth/storage switching | Change `AUTH`/`STORAGE` variable | Edit `.env` directly |
 
 ## Affected Files
 
@@ -165,7 +189,13 @@ the justfile header, avoiding repetition.
 | File | Reason |
 | --- | --- |
 | `Makefile` | Replaced by `justfile` |
-| `scripts/env.sh` | Replaced by native just dotenv + inline sourcing |
+| `scripts/env.sh` | Replaced by native just dotenv loading |
+| `.env.auth.none.example` | Folded into `.env.local.example` |
+| `.env.auth.gotrue.example` | Folded into profile files |
+| `.env.auth.supabase.example` | Folded into profile files |
+| `.env.storage.local.example` | Folded into `.env.local.example` |
+| `.env.storage.minio.example` | Folded into profile files |
+| `.env.storage.supabase.example` | Folded into `.env.docker.example` |
 
 ### Created
 
@@ -205,11 +235,10 @@ the justfile header, avoiding repetition.
 2. **All CI workflows pass** — every GitHub Actions workflow that previously
    used `make` passes with `just`.
 
-3. **Dotenv loading produces identical environments** — for each combination of
-   `ENV`, `STORAGE`, `AUTH`, the environment variables available to recipes match
-   what `scripts/env.sh` previously produced. Verify with: `just _env env | sort`
-   vs. `ENV=local STORAGE=local AUTH=none ./scripts/env.sh env | sort` (run
-   before deleting env.sh).
+3. **Dotenv loading produces identical environments** — for the default local
+   profile, the environment variables available to recipes match what
+   `scripts/env.sh` previously produced. Verify by comparing `env | sort`
+   output before and after migration.
 
 4. **Claude Code hooks succeed after cwd change** — simulate the failure case:
    `cd /tmp && just memory-commit` (invoked from outside the repo) should either
