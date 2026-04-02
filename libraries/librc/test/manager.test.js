@@ -141,6 +141,20 @@ describe("ServiceManager", () => {
       assert.ok(svscanLogs.some((l) => l.msg === "Spawning svscan"));
     });
 
+    test("restarts svscan if already running", async () => {
+      const manager = new ServiceManager(mockConfig, mockLogger, mockDeps);
+      await manager.start();
+
+      const svscanLogs = logCalls.filter((l) => l.name === "svscan");
+      assert.ok(
+        svscanLogs.some(
+          (l) => l.msg === "Restarting daemon (fresh environment)",
+        ),
+      );
+      assert.ok(svscanLogs.some((l) => l.msg === "Starting daemon"));
+      assert.ok(svscanLogs.some((l) => l.msg === "Spawning svscan"));
+    });
+
     test("adds longrun services to supervision", async () => {
       const manager = new ServiceManager(mockConfig, mockLogger, mockDeps);
       await manager.start();

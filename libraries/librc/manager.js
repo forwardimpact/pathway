@@ -240,10 +240,21 @@ export class ServiceManager {
       count: services.length,
     });
 
-    if (!this.isSvscanRunning()) {
-      this.#logger.debug("svscan", "Starting daemon");
-      await this.spawnSvscan();
+    if (this.isSvscanRunning()) {
+      this.#logger.debug("svscan", "Restarting daemon (fresh environment)");
+      try {
+        await this.#sendCommand(paths.socketPath, { command: "shutdown" });
+      } catch {
+        // Expected — connection closes on shutdown
+      }
+      try {
+        this.#fs.unlinkSync(paths.socketPath);
+      } catch {
+        // Ignore
+      }
     }
+    this.#logger.debug("svscan", "Starting daemon");
+    await this.spawnSvscan();
 
     for (const svc of services) {
       if (svc.type === "oneshot") {
