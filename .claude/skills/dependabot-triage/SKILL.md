@@ -14,38 +14,29 @@ security policies, then take action: merge, fix, or close each PR.
 ## When to Use
 
 - Reviewing and actioning open Dependabot PRs
-- Ensuring dependency updates comply with CONTRIBUTING.md and security policies
 - Batch-processing accumulated Dependabot PRs
 
 ## Prerequisites
 
-The `gh` CLI must be installed and authenticated. See the `gh-cli` skill for
-installation instructions. Verify with:
-
-```sh
-gh auth status
-```
+The `gh` CLI must be installed and authenticated. Verify with `gh auth status`.
 
 ## Policy Checklist
 
-Each PR is evaluated against existing policies. The table below lists the check,
-where the canonical rule lives, and what triage action to take on failure.
-
-| #   | Check                                      | Policy source                                  | On failure                                                                                 |
-| --- | ------------------------------------------ | ---------------------------------------------- | ------------------------------------------------------------------------------------------ |
-| 1   | All CI checks pass                         | CONTRIBUTING.md § Before Submitting a PR       | **Fix** if caused by the PR's changes. If pre-existing on main, skip and recommend rebase. |
-| 2   | Actions pinned to SHA with version comment | CONTRIBUTING.md § Security; security-audit § 1 | **Fix** — update all workflow files to the new SHA.                                        |
-| 3   | No duplicate dependencies                  | CONTRIBUTING.md § Dependency Policy            | **Close** with explanation.                                                                |
-| 4   | Version ranges aligned across workspaces   | CONTRIBUTING.md § Dependency Policy            | **Fix** — align all workspace ranges.                                                      |
-| 5   | npm audit clean (`--audit-level=high`)     | CONTRIBUTING.md § Dependency Policy            | **Close** if the update introduces the vulnerability. Skip if pre-existing.                |
-| 6   | No unnecessary dependencies                | CONTRIBUTING.md § Dependency Policy            | **Close** with explanation.                                                                |
-| 7   | First-party or official org actions only   | security-audit § 1                             | **Close** with explanation.                                                                |
-| 8   | Peer and transitive dependency compat      | CONTRIBUTING.md § Dependency Policy            | **Close** until co-dependent packages release compatible versions.                         |
+| #   | Check                                      | Policy source                                  | On failure                                                                   |
+| --- | ------------------------------------------ | ---------------------------------------------- | ---------------------------------------------------------------------------- |
+| 1   | All CI checks pass                         | CONTRIBUTING.md § Before Submitting a PR       | **Fix** if caused by PR. If pre-existing on main, skip and recommend rebase. |
+| 2   | Actions pinned to SHA with version comment | CONTRIBUTING.md § Security; security-audit § 1 | **Fix** — update all workflow files to the new SHA.                          |
+| 3   | No duplicate dependencies                  | CONTRIBUTING.md § Dependency Policy            | **Close** with explanation.                                                  |
+| 4   | Version ranges aligned across workspaces   | CONTRIBUTING.md § Dependency Policy            | **Fix** — align all workspace ranges.                                        |
+| 5   | npm audit clean (`--audit-level=high`)     | CONTRIBUTING.md § Dependency Policy            | **Close** if update introduces vulnerability. Skip if pre-existing.          |
+| 6   | No unnecessary dependencies                | CONTRIBUTING.md § Dependency Policy            | **Close** with explanation.                                                  |
+| 7   | First-party or official org actions only   | security-audit § 1                             | **Close** with explanation.                                                  |
+| 8   | Peer and transitive dependency compat      | CONTRIBUTING.md § Dependency Policy            | **Close** until co-dependent packages release compatible versions.           |
 
 ### GitHub Actions SHA Inventory
 
 When evaluating check 2, verify the PR updates **all** workflow files that
-reference the action — not just the one Dependabot found. Current usage:
+reference the action:
 
 | Action                          | Workflow files                                                                                                              |
 | ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
@@ -58,16 +49,10 @@ reference the action — not just the one Dependabot found. Current usage:
 
 ## Process
 
-### Step 0: Read Memory for Triage History
+### Step 0: Read Memory
 
-Before listing PRs, read all files in the memory directory. From previous
-`dependabot-triage-*.md` entries, extract:
-
-- PRs that were previously closed, merged, or deferred and their outcomes
-- Packages that repeatedly fail Check 8 (peer/transitive compatibility)
-
-Also check entries from other agents — the security engineer may have flagged
-dependency issues, or the improvement coach may have noted triage mistakes.
+Read all memory files. Extract previous triage outcomes and packages that
+repeatedly fail Check 8.
 
 ### Step 1: List Open Dependabot PRs
 
@@ -78,166 +63,66 @@ gh pr list --author 'app/dependabot' --state open \
 
 ### Step 2: Evaluate Each PR
 
-For each open PR, gather details:
-
 ```sh
 gh pr view <number> --json title,body,headRefName,files,commits,statusCheckRollup,mergeable,mergeStateStatus
 gh pr diff <number>
 ```
 
-Classify the PR and determine which checks apply. Check 1 (CI passes) applies to
-every PR. Additional checks depend on the update type:
+Determine update type from title: **patch** (low risk), **minor** (low risk),
+**major** (check changelogs for breaking changes and transitive deps).
 
-- **npm update** — labels include `javascript`. Also evaluate checks 3, 4, 5,
-  6, 8.
-- **GitHub Actions update** — labels include `github_actions`. Also evaluate
-  checks 2, 7.
-- **Both** — Evaluate all checks.
+#### Check 8: Peer/Transitive Compatibility (npm major updates)
 
-Determine the update type from the PR title and body:
+Run `bun pm ls` on the PR branch. Look for:
 
-- **Patch** (`x.y.Z`) — Low risk. Merge if all checks pass.
-- **Minor** (`x.Y.0`) — Low risk. Merge if all checks pass.
-- **Major** (`X.0.0`) — Requires closer review. Check changelogs for breaking
-  changes, scope changes, and new transitive dependencies.
+- **`invalid`** — resolved version violates another package's range. Close.
+- **Nested duplicates in `bun.lock`** — lockfile creates nested entry for old
+  major. Close until co-dependents release compatible ranges.
+- **`deduped` across mismatched majors** — investigate before merging.
 
-#### Check 8: Peer and Transitive Dependency Compatibility (npm major updates)
+### Step 3: Take Action
 
-For every npm major version bump, verify the updated package does not break
-co-installed packages. Run `bun pm ls` on the PR branch and check for:
-
-- **`invalid`** — a resolved version violates another package's declared range
-  (peer or regular dependency). The major bump cannot land until those packages
-  release compatible versions.
-- **Nested duplicates in `bun.lock`** — if the lockfile creates a nested entry
-  for the old major version under a co-dependent package (e.g.
-  `@grpc/proto-loader/protobufjs@7` alongside a top-level `protobufjs@8`), the
-  bump forces two major versions into the tree. This causes version splitting
-  (sometimes called "dependency indirection") and **fails this check**. Close
-  the PR until all co-dependent packages release compatible ranges.
-- **`deduped` across mismatched majors** — if the same package resolves to
-  multiple major versions in the tree, the update may cause subtle runtime
-  issues (e.g. type mismatches, duplicate registrations). Investigate before
-  merging.
-
-If the tree is clean (single version, no `invalid` markers, no nested
-duplicates), the check passes.
-
-### Step 3: Check CI Status
-
-```sh
-gh pr checks <number>
-```
-
-All five checks must pass: lint, format, test, e2e, audit.
-
-If checks are failing, determine whether the failure is caused by the PR's
-changes or is pre-existing on main. Compare with:
-
-```sh
-gh run list --branch main --limit 1 --json conclusion
-```
-
-### Step 4: Take Action
-
-For each PR, take exactly one action:
-
-#### Merge
-
-When **all policies pass** and **all CI checks are green**:
-
-```sh
-gh pr merge <number> --squash --auto
-```
-
-Add a brief comment before merging:
+#### Merge — all policies pass, CI green:
 
 ```sh
 gh pr comment <number> --body "Dependabot triage: all policies pass, CI green. Merging."
+gh pr merge <number> --squash --auto
 ```
 
-#### Fix on New Branch
+#### Fix on new branch — minor policy violations fixable:
 
-When minor policy violations can be fixed (e.g. missing SHA pins in some
-workflow files, version range misalignment):
-
-1. Claude Code **cannot push to Dependabot branches** (branches not initiated by
-   itself). Create a new branch from the Dependabot branch:
+Claude Code cannot push to Dependabot branches. Create a new branch:
 
 ```sh
 git fetch origin <dependabot-branch>
 git checkout -b fix/dependabot-<number> origin/<dependabot-branch>
-```
-
-2. Make the necessary fixes (update workflow files, align versions, etc.)
-3. Run `bun run check` and `make audit` to verify fixes
-4. Commit and push the fix branch:
-
-```sh
-git add <changed-files>
-git commit -m "fix(deps): <description of fix for PR #number>"
+# Make fixes, run bun run check && make audit
+git commit -m "fix(deps): <description for PR #number>"
 git push -u origin fix/dependabot-<number>
+gh pr create --title "chore(deps): <description> (fixed)" \
+  --body "Fixes policy violations in Dependabot PR #<number>."
+gh pr close <number> --comment "Superseded by #<new-pr> with policy fixes."
 ```
 
-5. Create a new PR from the fix branch targeting `main`:
+#### Close — policy violation cannot be fixed:
 
 ```sh
-gh pr create \
-  --title "chore(deps): <original update description> (fixed)" \
-  --body "$(cat <<'EOF'
-## Summary
-
-Fixes policy violations in Dependabot PR #<number> and incorporates the
-dependency update.
-
-- Original PR: #<number>
-- Fixes applied: <list fixes>
-
-## Test plan
-
-- [ ] All CI checks pass
-- [ ] Policy compliance verified
-EOF
-)"
+gh pr close <number> --comment "Dependabot triage: closing because <reason>. Policy: <which>."
 ```
 
-6. Close the original Dependabot PR:
-
-```sh
-gh pr close <number> --comment "Superseded by #<new-pr-number> which includes fixes for policy violations."
-```
-
-#### Close
-
-When a policy violation cannot be fixed or the update is undesirable:
-
-```sh
-gh pr close <number> --comment "Dependabot triage: closing because <reason>. Policy: <which policy>."
-```
-
-### Step 5: Report
-
-After processing all PRs, produce a summary table:
+### Step 4: Summary
 
 ```
 | PR  | Title                          | Action | Reason                     |
 | --- | ------------------------------ | ------ | -------------------------- |
-| #67 | bump protobufjs 7.5.4 to 8.0.0 | close  | Check 8: @grpc/proto-loader peers on ^7 |
-| #61 | bump upload-pages-artifact ...  | fix    | Missing SHA pins in ...    |
-| #58 | bump configure-pages ...        | close  | Introduces tag reference   |
+| #67 | bump protobufjs 7.5.4 to 8.0.0 | close  | Check 8: peer incompatible |
+| #61 | bump upload-pages-artifact ...  | fix    | Missing SHA pins           |
 ```
 
-Include any PRs that were skipped (e.g. waiting for main to be fixed) with a
-note explaining why.
+### Memory: what to record
 
-### Memory: what to record for dependabot triage
+Include these fields in addition to standard agent memory fields:
 
-When writing your memory entry at the end of the run, include these
-triage-specific fields in addition to the standard agent memory fields:
-
-- **PR triage table** — Each PR processed with action taken (merged, closed,
-  fixed), which policy checks failed, and the reason for the decision
-- **Compatibility blockers** — Packages closed due to Check 8 (peer/transitive
-  incompatibility), noting which co-dependent packages need compatible releases
-- **Reverted merges** — Any PRs that were merged but later reverted, with the
-  root cause (e.g. lockfile duplication missed during triage)
+- **PR triage table** — Each PR with action, failed checks, and reason
+- **Compatibility blockers** — Packages closed due to Check 8
+- **Reverted merges** — PRs merged then reverted, with root cause
