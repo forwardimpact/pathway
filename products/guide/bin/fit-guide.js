@@ -54,7 +54,7 @@ services must be available:
 
 To get started:
 
-  1. Clone the monorepo and run: make services
+  1. Clone the monorepo and run: just rc-start
   2. Set SERVICE_SECRET in your environment
   3. Run: bunx fit-guide
 
@@ -173,7 +173,7 @@ Error: ${err.message}
 Ensure all required services are running:
   agent, llm, memory, graph, vector, tool, trace, web
 
-For local development: make services
+For local development: just rc-start
 Documentation: https://www.forwardimpact.team/guide`);
   process.exit(1);
 }

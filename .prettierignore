@@ -6,7 +6,7 @@ package-lock.json
 **/*.template.html
 **/*.proto
 **/Dockerfile
-**/Makefile
+**/justfile
 **/*.conf
 **/*.sql
 **/proxy_params

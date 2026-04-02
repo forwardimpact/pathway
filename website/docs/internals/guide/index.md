@@ -93,7 +93,7 @@ dependency order:
 | 8     | agent   | Agent orchestration and handoffs         | 3008 |
 | 9     | web     | HTTP API and web interface               | 3001 |
 
-Start all services with `bunx fit-rc start` or `make rc-start`.
+Start all services with `bunx fit-rc start` or `just rc-start`.
 
 ---
 

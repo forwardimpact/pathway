@@ -19,6 +19,8 @@ jobs:
         with:
           bun-version: latest
 
+      - uses: extractions/setup-just@e33e0265a09d0d9e33f4558b0461f616a6b44220 # v2
+
       - name: Setup Node.js
         uses: actions/setup-node@53b83947a5a98c8d113130e565377fae1a50d02f # v6.3.0
         with:
@@ -46,7 +48,7 @@ jobs:
           echo "dir_name=$(echo "$PKG_JSON" | jq -r '.path')" >> $GITHUB_OUTPUT
 
       - name: Install dependencies and generate code
-        run: make install
+        run: just install
 
       - uses: ./.github/actions/audit
 

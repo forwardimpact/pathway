@@ -5,16 +5,16 @@ set -e
 bun install
 
 # Generate types, services, clients from proto/
-make codegen
+just codegen
 
 # Set up environment (copy examples, generate secrets, storage credentials)
-make env-setup
+just env-setup
 
 # Create data directories
-make data-init
+just data-init
 
 # Point EMBEDDING_BASE_URL at the TEI sidecar (not localhost)
-sed -i 's|EMBEDDING_BASE_URL=http://localhost:8090|EMBEDDING_BASE_URL=http://tei:8090|' .env.local
+sed -i 's|EMBEDDING_BASE_URL=http://localhost:8090|EMBEDDING_BASE_URL=http://tei:8090|' .env
 
 # Remove tei and supabase from rc services — TEI runs as a Docker sidecar,
 # Supabase is not needed for the minimal devcontainer workflows

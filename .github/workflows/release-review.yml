@@ -35,7 +35,8 @@ jobs:
         with:
           bun-version: latest
 
-      - run: make install
+      - uses: extractions/setup-just@e33e0265a09d0d9e33f4558b0461f616a6b44220 # v2
+      - run: just install
 
       - name: Review and Release
         uses: ./.github/actions/fit-eval

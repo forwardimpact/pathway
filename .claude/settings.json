@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "make install"
+            "command": "just install"
           }
         ]
       }
@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "make memory-commit"
+            "command": "just memory-commit"
           }
         ]
       }

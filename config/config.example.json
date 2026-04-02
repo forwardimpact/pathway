@@ -6,8 +6,8 @@
       {
         "name": "supabase",
         "type": "oneshot",
-        "up": "make supabase-up",
-        "down": "make supabase-down",
+        "up": "just supabase-up",
+        "down": "just supabase-down",
         "optional": true
       },
       {

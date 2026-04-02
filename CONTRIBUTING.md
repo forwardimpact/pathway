@@ -4,7 +4,7 @@
 
 ```sh
 bun install
-make quickstart
+just quickstart
 ```
 
 ## Core Rules
@@ -48,7 +48,7 @@ constraints.
 2. Make your changes
 3. Auto-fix formatting and lint: `bun run check:fix` (applies to all file types)
 4. Verify all checks pass: `bun run check` (required for code **and** docs)
-5. Run security audit: `make audit`
+5. Run security audit: `just audit`
 6. Commit: `git commit -m "type(scope): subject"`
 7. Push and open a pull request against `main`
 
@@ -125,7 +125,7 @@ Security policies apply to all contributors — human and agent.
   `@grpc/proto-loader/protobufjs@7`). A major bump that forces co-installed
   packages onto a separate version violates this policy — close the PR until all
   dependents release compatible ranges
-- Run `make audit-vulnerabilities` after adding or updating dependencies
+- Run `just audit-vulnerabilities` after adding or updating dependencies
 
 ### Dependency Classification
 

@@ -80,7 +80,7 @@ Check other agents' memory entries for security-relevant observations.
 
 ## 8. Audit Checklist
 
-- Run `make audit` locally and report findings.
+- Run `just audit` locally and report findings.
 - Review `.github/workflows/` for unpinned actions, missing permissions.
 - Review `package.json` files for unnecessary or duplicate dependencies.
 - Review `.gitignore` and `.gitleaks.toml` for coverage gaps.

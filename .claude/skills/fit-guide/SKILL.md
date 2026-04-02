@@ -77,12 +77,12 @@ allows, ensuring tool call/response pairs are never split.
 ### Conversational Agent
 
 ```sh
-make cli-chat                    # Interactive REPL — multi-turn conversations
-make cli-chat ARGS="--help"      # Pass arguments via ARGS
-echo "Tell me about X" | make cli-chat   # Piped single prompt
+just cli-chat                    # Interactive REPL — multi-turn conversations
+just cli-chat ARGS="--help"      # Pass arguments via ARGS
+echo "Tell me about X" | just cli-chat   # Piped single prompt
 ```
 
-**Always use `make cli-chat`** — it loads the required environment
+**Always use `just cli-chat`** — it loads the required environment
 automatically. Running `npx fit-guide` directly requires env to be loaded first
 (`. scripts/env.sh && npx fit-guide`).
 
@@ -92,14 +92,14 @@ across turns, and persists session state locally.
 ### Supporting CLI Tools
 
 ```sh
-make cli-search ARGS="query text"   # Vector similarity search
-make cli-query ARGS="s p o"         # Graph triple pattern queries
-make cli-subjects ARGS="type"       # List graph subjects by type
-make cli-visualize                  # Trace visualization
-make cli-window                     # Fetch memory window as JSON
-make cli-completion                 # Send window to LLM API
-make cli-tiktoken ARGS="text"       # Token counting
-make cli-unary ARGS="service method"  # Unary gRPC calls
+just cli-search ARGS="query text"   # Vector similarity search
+just cli-query ARGS="s p o"         # Graph triple pattern queries
+just cli-subjects ARGS="type"       # List graph subjects by type
+just cli-visualize                  # Trace visualization
+just cli-window                     # Fetch memory window as JSON
+just cli-completion                 # Send window to LLM API
+just cli-tiktoken ARGS="text"       # Token counting
+just cli-unary ARGS="service method"  # Unary gRPC calls
 ```
 
 ---
@@ -112,14 +112,14 @@ fit-rc and defined in `config/config.json`.
 ### Service Lifecycle
 
 ```sh
-make env-setup          # Reset .env files from examples, generate secrets
-make data-init          # Create data directories, copy example knowledge
-make process            # Process agents, resources, tools, graphs, vectors
-make process-fast       # Process without vectors (faster)
-make rc-start           # Start all services
-make rc-status          # Check service health
-make rc-stop            # Stop all services
-make rc-restart         # Restart all services
+just env-setup          # Reset .env files from examples, generate secrets
+just data-init          # Create data directories, copy example knowledge
+just process            # Process agents, resources, tools, graphs, vectors
+just process-fast       # Process without vectors (faster)
+just rc-start           # Start all services
+just rc-status          # Check service health
+just rc-stop            # Stop all services
+just rc-restart         # Restart all services
 ```
 
 ### Service Order
@@ -139,8 +139,8 @@ Services start in dependency order (defined in `config/config.json`):
 ### TEI Setup (First Time)
 
 ```sh
-make tei-install        # Install via cargo (one-time)
-make tei-start          # Start TEI (downloads model on first run)
+just tei-install        # Install via cargo (one-time)
+just tei-start          # Start TEI (downloads model on first run)
 ```
 
 ---
@@ -169,11 +169,11 @@ Three variables control the stack:
 ### Setup Commands
 
 ```sh
-make env-setup          # Full setup: reset + secrets + storage credentials
-make env-reset          # Reset .env and config files from examples
-make env-secrets        # Generate SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY
-make env-storage        # Generate storage backend credentials
-make env-github         # Configure GitHub token (LLM_TOKEN, LLM_BASE_URL)
+just env-setup          # Full setup: reset + secrets + storage credentials
+just env-reset          # Reset .env and config files from examples
+just env-secrets        # Generate SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY
+just env-storage        # Generate storage backend credentials
+just env-github         # Configure GitHub token (LLM_TOKEN, LLM_BASE_URL)
 ```
 
 ---
@@ -185,13 +185,13 @@ make env-github         # Configure GitHub token (LLM_TOKEN, LLM_BASE_URL)
 All processing runs from the monorepo root via `make` targets:
 
 ```sh
-make process            # All: agents + resources + tools + graphs + vectors
-make process-fast       # All except vectors (faster iteration)
-make process-agents     # Process agent definitions from config/agents/
-make process-resources  # Process knowledge resources from data/knowledge/
-make process-tools      # Process tool definitions from config/tools.yml + proto/
-make process-vectors    # Build vector indices from data/resources/
-make process-graphs     # Build graph indices from data/resources/
+just process            # All: agents + resources + tools + graphs + vectors
+just process-fast       # All except vectors (faster iteration)
+just process-agents     # Process agent definitions from config/agents/
+just process-resources  # Process knowledge resources from data/knowledge/
+just process-tools      # Process tool definitions from config/tools.yml + proto/
+just process-vectors    # Build vector indices from data/resources/
+just process-graphs     # Build graph indices from data/resources/
 ```
 
 ### Data Directories
@@ -252,7 +252,7 @@ Key fields:
 Default agents: **planner** (creates plans), **researcher** (retrieves data),
 **editor** (synthesizes responses).
 
-Reset from examples: `make config-reset`
+Reset from examples: `just config-reset`
 
 ### Tool Descriptors (`config/tools.yml`)
 
@@ -266,11 +266,11 @@ agent delegation (`run_sub_agent`, `list_sub_agents`), and handoff control
 ## Docker
 
 ```sh
-make docker-build       # Build images only
-make docker-up          # Start core services
-make docker-up-minio    # Start with MinIO storage
-make docker-up-supabase # Start with Supabase
-make docker-down        # Stop all containers
+just docker-build       # Build images only
+just docker-up          # Start core services
+just docker-up-minio    # Start with MinIO storage
+just docker-up-supabase # Start with Supabase
+just docker-down        # Stop all containers
 ```
 
 Docker networking uses `.env.docker` with service aliases (`agent.local`,
@@ -281,13 +281,13 @@ Docker networking uses `.env.docker` with service aliases (`agent.local`,
 ## Storage Backends
 
 ```sh
-make storage-setup      # Full: start + wait + init + upload
-make storage-start      # Start storage containers
-make storage-stop       # Stop storage containers
-make storage-init       # Create bucket
-make storage-upload     # Upload data to backend
-make storage-download   # Download data from backend
-make storage-list       # List storage contents
+just storage-setup      # Full: start + wait + init + upload
+just storage-start      # Start storage containers
+just storage-stop       # Stop storage containers
+just storage-init       # Create bucket
+just storage-upload     # Upload data to backend
+just storage-download   # Download data from backend
+just storage-list       # List storage contents
 ```
 
 ---
@@ -298,61 +298,61 @@ make storage-list       # List storage contents
 
 ```sh
 npm install             # Install all workspace dependencies
-make quickstart         # Bootstrap: env, generate, data, codegen, process
-make rc-start           # Start services (supabase/tei auto-skipped if not installed)
-make cli-chat           # Verify end-to-end
+just quickstart         # Bootstrap: env, generate, data, codegen, process
+just rc-start           # Start services (supabase/tei auto-skipped if not installed)
+just cli-chat           # Verify end-to-end
 ```
 
-`make quickstart` chains: `env-setup` → `generate-cached` → `data-init` →
+`just quickstart` chains: `env-setup` → `generate-cached` → `data-init` →
 `codegen` → `process-fast`. It generates synthetic organizational content from
 the prose cache directly into `data/`, and processes all resources.
 
 For individual steps or custom generation:
 
 ```sh
-make synthetic-update   # Generate with LLM prose (requires LLM_TOKEN)
-make data-init          # Create data directories
-make process            # Full processing including vectors (requires TEI)
+just synthetic-update   # Generate with LLM prose (requires LLM_TOKEN)
+just data-init          # Create data directories
+just process            # Full processing including vectors (requires TEI)
 ```
 
 ### Reset Everything
 
 ```sh
-make rc-stop
-make data-reset
-make process
-make rc-start
+just rc-stop
+just data-reset
+just process
+just rc-start
 ```
 
 ### Add a New Agent
 
 1. Create `config/agents/{name}.agent.example.md` with YAML front matter
-2. Copy to `config/agents/{name}.agent.md` (or run `make config-reset`)
-3. Run `make process-agents` to register it
+2. Copy to `config/agents/{name}.agent.md` (or run `just config-reset`)
+3. Run `just process-agents` to register it
 4. Reference from other agents' `handoffs` list
 
 ### Add a New Tool
 
 1. Add tool definition to `config/tools.example.yml`
-2. Copy to `config/tools.yml` (or run `make config-reset`)
-3. Run `make process-tools` to register it
+2. Copy to `config/tools.yml` (or run `just config-reset`)
+3. Run `just process-tools` to register it
 4. Add tool name to agent definitions that should use it
 
 ### Ingest New Knowledge
 
 1. Generate HTML files (e.g., `npx fit-universe --cached` writes directly to
    `data/knowledge/`)
-2. Run `make process-resources` to create resources
-3. Run `make process-graphs` to build graph index
-4. Run `make process-vectors` to build vector index (requires TEI)
+2. Run `just process-resources` to create resources
+3. Run `just process-graphs` to build graph index
+4. Run `just process-vectors` to build vector index (requires TEI)
 
 ## Verification
 
 ```sh
-make rc-status          # All services should show "running"
-make cli-chat           # Should get agent responses
-make cli-search ARGS="test query"  # Should return search results
-make cli-subjects       # Should list graph entities
+just rc-status          # All services should show "running"
+just cli-chat           # Should get agent responses
+just cli-search ARGS="test query"  # Should return search results
+just cli-subjects       # Should list graph entities
 ```
 
 ## Documentation

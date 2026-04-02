@@ -43,7 +43,7 @@ The following services must be running:
    ```sh
    git clone https://github.com/forwardimpact/monorepo
    cd monorepo
-   make services
+   just rc-start
    ```
 
 2. Set the service secret in your environment:

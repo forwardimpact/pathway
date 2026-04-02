@@ -14,7 +14,7 @@ installation, data generation, and running the quality checks.
 git clone https://github.com/forwardimpact/monorepo.git
 cd monorepo
 bun install
-make quickstart
+just quickstart
 ```
 
 The `quickstart` target bootstraps environment files, generates data, runs
@@ -25,7 +25,7 @@ codegen, and processes resources.
 The monorepo includes a synthetic data pipeline for testing and development:
 
 ```sh
-make synthetic
+just synthetic
 ```
 
 This uses cached prose from `data/synthetic/prose-cache.json` and requires no
@@ -35,8 +35,8 @@ activity data that the products consume during development and testing.
 Other generation modes:
 
 ```sh
-make synthetic-update     # Regenerate prose via LLM and update the cache
-make synthetic-no-prose   # Structural data only, no prose content
+just synthetic-update     # Regenerate prose via LLM and update the cache
+just synthetic-no-prose   # Structural data only, no prose content
 ```
 
 ## Run checks
@@ -77,14 +77,14 @@ dependencies through constructors, factory functions wire real implementations,
 tests inject mocks directly.
 
 **Services** are gRPC microservices supervised by `fit-rc`. Start them with
-`make rc-start`.
+`just rc-start`.
 
 ## Development workflow
 
 1. Create a branch from `main`
 2. Make your changes
 3. Run `bun run check`
-4. Run `make audit` (npm audit + gitleaks secret scanning)
+4. Run `just audit` (npm audit + gitleaks secret scanning)
 5. Commit and push
 
 Commit messages follow conventional format: `type(scope): subject`. Types

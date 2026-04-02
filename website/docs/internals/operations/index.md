@@ -35,21 +35,22 @@ Three variables control the environment stack:
 | `STORAGE` | `local`, `minio`, `supabase` | `local` |
 | `AUTH`    | `none`, `gotrue`, `supabase` | `none`  |
 
-All `make` targets automatically load the correct env files. Pass overrides:
+All `just` recipes automatically load environment from `.env`. Configure
+profiles via `just env-reset`:
 
 ```sh
-make rc-start                              # local env, local storage, no auth
-make rc-start ENV=docker STORAGE=minio     # docker networking, MinIO storage
+just rc-start                              # local env, local storage, no auth
+just env-reset docker-native && just rc-start  # docker networking, MinIO storage
 ```
 
 ### Environment Setup
 
 ```sh
-make env-setup     # Reset from examples, generate secrets and storage creds
-make env-reset     # Reset .env* and config files from *.example counterparts
-make env-secrets   # Generate SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY
-make env-storage   # Generate storage backend credentials
-make env-github    # GitHub token utility (LLM_TOKEN, LLM_BASE_URL)
+just env-setup     # Reset from examples, generate secrets and storage creds
+just env-reset     # Copy .env.example + .env.local.example → .env
+just env-secrets   # Generate SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY
+just env-storage   # Generate storage backend credentials
+just env-github    # GitHub token utility (LLM_TOKEN, LLM_BASE_URL)
 ```
 
 `LLM_TOKEN` and `LLM_BASE_URL` are always set in the environment (provided by
@@ -71,7 +72,7 @@ credentials works out of the box.
 criteria) used by the tool service.
 
 `config/agents/*.agent.md` — Agent prompt files (planner, researcher, editor,
-eval_judge). Reset from examples with `make config-reset`.
+eval_judge). Reset from examples with `just config-reset`.
 
 ## Service Management
 
@@ -79,10 +80,10 @@ Services are supervised by `fit-rc` (via `libraries/librc/`). The service list
 is defined in `config/config.json` under `init.services`.
 
 ```sh
-bunx fit-rc start              # Start all services (or: make rc-start)
-bunx fit-rc stop               # Graceful shutdown    (or: make rc-stop)
-bunx fit-rc restart            # Restart all          (or: make rc-restart)
-bunx fit-rc status             # Show service status  (or: make rc-status)
+bunx fit-rc start              # Start all services (or: just rc-start)
+bunx fit-rc stop               # Graceful shutdown    (or: just rc-stop)
+bunx fit-rc restart            # Restart all          (or: just rc-restart)
+bunx fit-rc status             # Show service status  (or: just rc-status)
 bunx fit-rc start tei          # Start a single service
 ```
 
@@ -92,8 +93,8 @@ Services run on localhost in local mode (ports 3002–3008 for gRPC, 3001 for we
 TEI (Text Embeddings Inference) provides local embeddings:
 
 ```sh
-make tei-install              # Install via cargo (first time)
-make tei-start                # Start TEI service (downloads model on first run)
+just tei-install              # Install via cargo (first time)
+just tei-start                # Start TEI service (downloads model on first run)
 ```
 
 ## Common Tasks
@@ -102,20 +103,20 @@ make tei-start                # Start TEI service (downloads model on first run)
 
 ```sh
 bun install                   # Install all workspace dependencies
-make quickstart               # Full bootstrap: env, generate, data, codegen, process
-make rc-start                 # Start services (supabase/tei skipped if not installed)
+just quickstart               # Full bootstrap: env, generate, data, codegen, process
+just rc-start                 # Start services (supabase/tei skipped if not installed)
 ```
 
 ### Generation
 
 ```sh
-make synthetic                # Cached prose (default, no LLM needed)
-make synthetic-update         # Generate new prose via LLM and update cache
-make synthetic-no-prose       # Structural only, no prose (minimal data)
+just synthetic                # Cached prose (default, no LLM needed)
+just synthetic-update         # Generate new prose via LLM and update cache
+just synthetic-no-prose       # Structural only, no prose (minimal data)
 ```
 
 Generation uses cached prose by default from `data/synthetic/prose-cache.json`.
-Use `make synthetic-update` to call the LLM and refresh the cache. The
+Use `just synthetic-update` to call the LLM and refresh the cache. The
 `no-prose` mode produces minimal structural data without prose content.
 
 ### Development
@@ -131,20 +132,20 @@ bunx fit-basecamp --daemon    # Run scheduler
 ### Processing & Services
 
 ```sh
-make process                  # Process all resources (agents, tools, vectors, graphs)
-make process-fast             # Process without vectors (no TEI required)
-make rc-start                 # Start all services
-make rc-stop                  # Stop all services
-make rc-status                # Service health check
+just process                  # Process all resources (agents, tools, vectors, graphs)
+just process-fast             # Process without vectors (no TEI required)
+just rc-start                 # Start all services
+just rc-stop                  # Stop all services
+just rc-status                # Service health check
 ```
 
 ### Infrastructure
 
 ```sh
-make codegen                  # Generate types, services, clients from proto/
-make env-setup                # Initialize environment from examples
-make data-init                # Create data dirs, copy example data to data/knowledge/
-make config-reset             # Reset config files from examples
+just codegen                  # Generate types, services, clients from proto/
+just env-setup                # Initialize environment from examples
+just data-init                # Create data dirs, copy example data to data/knowledge/
+just config-reset             # Reset config files from examples
 ```
 
 See each product's skill file for full CLI reference.

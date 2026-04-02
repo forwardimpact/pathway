@@ -40,14 +40,14 @@ function createServiceToken(secret) {
 function getServiceCredentials() {
   if (!AUTH_TYPE) {
     console.error("Error: AUTH_TYPE not set");
-    console.error("Run: make auth-user AUTH=gotrue  (or AUTH=supabase)");
+    console.error("Run: just auth-user  (set AUTH_TYPE in .env)");
     process.exit(1);
   }
 
   if (AUTH_TYPE === "supabase") {
     if (!SERVICE_ROLE_KEY) {
       console.error("Error: SUPABASE_SERVICE_ROLE_KEY not set");
-      console.error("Run: make env-storage STORAGE=supabase");
+      console.error("Run: just env-storage");
       process.exit(1);
     }
     return { token: SERVICE_ROLE_KEY, apikey: SERVICE_ROLE_KEY };
@@ -56,7 +56,7 @@ function getServiceCredentials() {
   // gotrue or other: generate token from JWT_SECRET
   if (!JWT_SECRET) {
     console.error("Error: JWT_SECRET not set");
-    console.error("Run: make env-secrets");
+    console.error("Run: just env-secrets");
     process.exit(1);
   }
   return { token: createServiceToken(JWT_SECRET), apikey: null };

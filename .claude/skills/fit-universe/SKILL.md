@@ -221,17 +221,17 @@ cache statistics.
 After generation, bootstrap the full Guide pipeline:
 
 ```sh
-make quickstart       # Generates, copies to data/knowledge/, processes all resources
-make rc-start         # Start services
+just quickstart       # Generates, copies to data/knowledge/, processes all resources
+just rc-start         # Start services
 ```
 
 Or run individual steps:
 
 ```sh
-make data-init              # Creates data directories
-make process-resources      # Create resource index from knowledge files
-make process-graphs         # Build RDF graph from resources
-make process-vectors        # Generate vector embeddings (requires TEI)
+just data-init              # Creates data directories
+just process-resources      # Create resource index from knowledge files
+just process-graphs         # Build RDF graph from resources
+just process-vectors        # Generate vector embeddings (requires TEI)
 ```
 
 ## Verification

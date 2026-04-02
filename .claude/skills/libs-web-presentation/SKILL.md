@@ -181,4 +181,4 @@ const loader = createTemplateLoader(defaultsDir);
 
 - Use the `yaml` package (not `js-yaml`) for YAML parsing
 - Use `marked` ^15.x for markdown parsing
-- Run `make audit-vulnerabilities` after adding dependencies
+- Run `just audit-vulnerabilities` after adding dependencies

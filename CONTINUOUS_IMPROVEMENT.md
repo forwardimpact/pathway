@@ -234,9 +234,9 @@ installation token generated per run by the GitHub App.
 Agents share persistent memory backed by the repository's **GitHub wiki**,
 mounted as a git submodule at `.claude/memory/`.
 
-- **`make memory-update`** (called by `make install` / `SessionStart` hook) —
+- **`just memory-update`** (called by `just install` / `SessionStart` hook) —
   initializes and updates the memory submodule from `{repo}.wiki.git`.
-- **`make memory-commit`** (`Stop` hook) — commits and pushes memory changes
+- **`just memory-commit`** (`Stop` hook) — commits and pushes memory changes
   when a session ends.
 
 During a run, Claude Code reads and writes memory files in `.claude/memory/`.

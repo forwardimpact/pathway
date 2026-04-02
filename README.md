@@ -37,7 +37,7 @@ engineering teams:
 git clone https://github.com/forwardimpact/monorepo.git
 cd monorepo
 bun install
-make quickstart
+just quickstart
 bun start
 ```
 

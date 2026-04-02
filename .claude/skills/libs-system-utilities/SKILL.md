@@ -39,7 +39,7 @@ description: >
   deterministic content hashing (SHA256 of input data). `generateSecret` for
   cryptographic random secrets (API keys, tokens). `libsecret.hashValues` for
   deterministic hashes of multiple values.
-- **libcodegen** — Run once after .proto file changes (`make codegen`). Not used
+- **libcodegen** — Run once after .proto file changes (`just codegen`). Not used
   at runtime. Output consumed by libtype and librpc.
 - **libutil pure functions** — `countTokens`, `generateHash`, `generateUuid` are
   stateless with zero dependencies beyond Node.js built-ins.
@@ -87,7 +87,7 @@ await typeGen.generate("./generated/types");
 const serviceGen = new ServiceGenerator("./proto");
 await serviceGen.generate("./generated/services");
 
-// CLI: make codegen
+// CLI: just codegen
 ```
 
 ## DI Wiring
@@ -158,5 +158,5 @@ const generator = new DefinitionGenerator("./proto");
 
 - **Secret generation** — Always use `libsecret` for generating secrets and
   tokens. Never hardcode secrets in source code.
-- **Audit** — Run `make audit` for combined npm audit and gitleaks secret
+- **Audit** — Run `just audit` for combined npm audit and gitleaks secret
   scanning.

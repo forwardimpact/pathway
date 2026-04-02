@@ -18,7 +18,8 @@ jobs:
         with:
           bun-version: latest
           cache: true
-      - run: make install
+      - uses: extractions/setup-just@e33e0265a09d0d9e33f4558b0461f616a6b44220 # v2
+      - run: just install
       - run: bun run lint
 
   format:
@@ -29,5 +30,6 @@ jobs:
         with:
           bun-version: latest
           cache: true
-      - run: make install
+      - uses: extractions/setup-just@e33e0265a09d0d9e33f4558b0461f616a6b44220 # v2
+      - run: just install
       - run: bun run format
