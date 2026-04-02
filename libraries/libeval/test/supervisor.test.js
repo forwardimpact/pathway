@@ -9,7 +9,7 @@ import {
   SUPERVISOR_SYSTEM_PROMPT,
   AGENT_SYSTEM_PROMPT,
 } from "@forwardimpact/libeval";
-import { isDone } from "../src/supervisor.js";
+import { isSuccessful } from "../src/supervisor.js";
 
 /**
  * Create a mock AgentRunner that yields pre-scripted responses.
@@ -63,26 +63,45 @@ function createMockRunner(responses, messages) {
   return runner;
 }
 
-describe("isDone", () => {
-  test("detects EVALUATION_COMPLETE on its own line", () => {
-    assert.strictEqual(isDone("EVALUATION_COMPLETE"), true);
+describe("isSuccessful", () => {
+  test("detects EVALUATION_SUCCESSFUL on its own line", () => {
+    assert.strictEqual(isSuccessful("EVALUATION_SUCCESSFUL"), true);
     assert.strictEqual(
-      isDone("Some text\nEVALUATION_COMPLETE\nMore text"),
+      isSuccessful("Some text\nEVALUATION_SUCCESSFUL\nMore text"),
       true,
     );
-    assert.strictEqual(isDone("Done.\n\nEVALUATION_COMPLETE"), true);
+    assert.strictEqual(isSuccessful("Done.\n\nEVALUATION_SUCCESSFUL"), true);
   });
 
-  test("does not match EVALUATION_COMPLETE embedded in text", () => {
-    assert.strictEqual(isDone("not EVALUATION_COMPLETE yet"), false);
-    assert.strictEqual(isDone("The agent is EVALUATION_COMPLETE done"), false);
-    assert.strictEqual(isDone("EVALUATION_COMPLETE_EXTRA"), false);
+  test("tolerates markdown formatting around the signal", () => {
+    assert.strictEqual(isSuccessful("**EVALUATION_SUCCESSFUL**"), true);
+    assert.strictEqual(isSuccessful("*EVALUATION_SUCCESSFUL*"), true);
+    assert.strictEqual(isSuccessful("__EVALUATION_SUCCESSFUL__"), true);
+    assert.strictEqual(isSuccessful("_EVALUATION_SUCCESSFUL_"), true);
+    assert.strictEqual(isSuccessful("`EVALUATION_SUCCESSFUL`"), true);
+    assert.strictEqual(
+      isSuccessful("Good work.\n\n**EVALUATION_SUCCESSFUL**\n\nNow filing issues."),
+      true,
+    );
+  });
+
+  test("does not match EVALUATION_SUCCESSFUL embedded in text", () => {
+    assert.strictEqual(isSuccessful("not EVALUATION_SUCCESSFUL yet"), false);
+    assert.strictEqual(
+      isSuccessful("The agent is EVALUATION_SUCCESSFUL done"),
+      false,
+    );
+    assert.strictEqual(isSuccessful("EVALUATION_SUCCESSFUL_EXTRA"), false);
   });
 
   test("does not match empty or unrelated text", () => {
-    assert.strictEqual(isDone(""), false);
-    assert.strictEqual(isDone("All done!"), false);
-    assert.strictEqual(isDone("DONE"), false);
+    assert.strictEqual(isSuccessful(""), false);
+    assert.strictEqual(isSuccessful("All done!"), false);
+    assert.strictEqual(isSuccessful("DONE"), false);
+  });
+
+  test("does not match old EVALUATION_COMPLETE signal", () => {
+    assert.strictEqual(isSuccessful("EVALUATION_COMPLETE"), false);
   });
 });
 
@@ -120,11 +139,11 @@ describe("Supervisor", () => {
     );
   });
 
-  test("completes on EVALUATION_COMPLETE from supervisor at turn 0", async () => {
+  test("completes on EVALUATION_SUCCESSFUL from supervisor at turn 0", async () => {
     const agentRunner = createMockRunner([]);
 
     const supervisorRunner = createMockRunner([
-      { text: "EVALUATION_COMPLETE" },
+      { text: "EVALUATION_SUCCESSFUL" },
     ]);
 
     const output = new PassThrough();
@@ -148,7 +167,7 @@ describe("Supervisor", () => {
 
     const supervisorRunner = createMockRunner([
       { text: "Welcome! Please install the packages." },
-      { text: "Good work.\n\nEVALUATION_COMPLETE" },
+      { text: "Good work.\n\nEVALUATION_SUCCESSFUL" },
     ]);
 
     const output = new PassThrough();
@@ -176,7 +195,7 @@ describe("Supervisor", () => {
       { text: "Here is your task. Do the work." },
       { text: "Keep going, you need to do more." },
       { text: "Almost there, continue." },
-      { text: "EVALUATION_COMPLETE" },
+      { text: "EVALUATION_SUCCESSFUL" },
     ]);
 
     const output = new PassThrough();
@@ -223,12 +242,12 @@ describe("Supervisor", () => {
   test("output contains tagged lines with correct source and turn", async () => {
     const supervisorMessages = [
       [{ type: "assistant", content: "Go ahead" }],
-      [{ type: "assistant", content: "EVALUATION_COMPLETE" }],
+      [{ type: "assistant", content: "EVALUATION_SUCCESSFUL" }],
     ];
     const agentMessages = [[{ type: "assistant", content: "Working" }]];
 
     const supervisorRunner = createMockRunner(
-      [{ text: "Go ahead" }, { text: "EVALUATION_COMPLETE" }],
+      [{ text: "Go ahead" }, { text: "EVALUATION_SUCCESSFUL" }],
       supervisorMessages,
     );
     const agentRunner = createMockRunner([{ text: "Working" }], agentMessages);
@@ -277,7 +296,7 @@ describe("Supervisor", () => {
       content: "test",
     };
     const supervisorRunner = createMockRunner(
-      [{ text: "Go" }, { text: "EVALUATION_COMPLETE" }],
+      [{ text: "Go" }, { text: "EVALUATION_SUCCESSFUL" }],
       [
         [{ type: "assistant", content: "Go" }],
         [{ type: "assistant", content: "ok" }],

@@ -12,20 +12,22 @@ import { createAgentRunner } from "./agent-runner.js";
 import { TraceCollector } from "./trace-collector.js";
 
 /**
- * Check if the supervisor's response signals evaluation completion.
- * Uses a structured signal — `EVALUATION_COMPLETE` on its own line —
- * to avoid false positives from natural language.
+ * Check if the supervisor's response signals evaluation success.
+ * Tolerates markdown formatting around the signal (e.g. **EVALUATION_SUCCESSFUL**).
  * @param {string} text
  * @returns {boolean}
  */
-export function isDone(text) {
-  return /^EVALUATION_COMPLETE$/m.test(text);
+export function isSuccessful(text) {
+  return /^[*_~`]*EVALUATION_SUCCESSFUL[*_~`]*$/m.test(text);
 }
 
 /** System prompt appended for the supervisor runner in supervise mode. */
-export const SUPERVISOR_SYSTEM_PROMPT =
-  "You are a supervisor agent observing and guiding another AI agent. " +
-  "Assess its work critically and provide specific, actionable feedback.";
+export const SUPERVISOR_SYSTEM_PROMPT = [
+  "You supervise another AI agent.",
+  "Guide its work: provide feedback, answer questions, and give direction when it gets stuck.",
+  "When the agent's work meets the task requirements, write EVALUATION_SUCCESSFUL on its own line — plain text, no markdown formatting.",
+  "You may continue with follow-up work (e.g. filing issues) in the same turn after the signal.",
+].join(" ");
 
 /** System prompt appended for the agent runner in supervise mode. */
 export const AGENT_SYSTEM_PROMPT =
@@ -72,7 +74,7 @@ export class Supervisor {
       return { success: false, turns: 0 };
     }
 
-    if (isDone(supervisorResult.text)) {
+    if (isSuccessful(supervisorResult.text)) {
       this.emitSummary({ success: true, turns: 0 });
       return { success: true, turns: 0 };
     }
@@ -99,7 +101,7 @@ export class Supervisor {
 
       const supervisorPrompt =
         `The agent reported:\n\n${agentTranscript}\n\n` +
-        `Decide: provide guidance, answer a question, or say EVALUATION_COMPLETE on its own line.`;
+        `Review the agent's work and decide how to proceed.`;
 
       this.currentSource = "supervisor";
       this.currentTurn = turn;
@@ -110,7 +112,7 @@ export class Supervisor {
         return { success: false, turns: turn };
       }
 
-      if (isDone(supervisorResult.text)) {
+      if (isSuccessful(supervisorResult.text)) {
         this.emitSummary({ success: true, turns: turn });
         return { success: true, turns: turn };
       }
