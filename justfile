@@ -7,31 +7,16 @@ ARGS := ""
 
 # ── Core ──────────────────────────────────────────────────────────
 
-# Initialize and update agent memory submodule (wiki)
-memory-update:
-    #!/usr/bin/env bash
-    if [ -d .claude/memory ] && ! [ -d .claude/memory/.git ] && ! [ -f .claude/memory/.git ]; then \
-        rm -rf .claude/memory; \
-    fi
-    git submodule update --init --remote .claude/memory 2>/dev/null || true
-    if [ -d .claude/memory/.git ] || [ -f .claude/memory/.git ]; then \
-        git -C .claude/memory config user.name "$(git config user.name)"; \
-        git -C .claude/memory config user.email "$(git config user.email)"; \
-    fi
+# Pull latest agent memory from wiki
+memory-pull:
+    bash scripts/memory-sync.sh pull
 
-# Commit and push agent memory changes
-memory-commit:
-    #!/usr/bin/env bash
-    if [ -d .claude/memory/.git ] || [ -f .claude/memory/.git ]; then \
-        cd .claude/memory && git add -A && \
-        if ! git diff --cached --quiet; then \
-            git commit -m "memory: update from session"; \
-            git push origin HEAD:master; \
-        fi; \
-    fi
+# Commit and push agent memory to wiki
+memory-push:
+    bash scripts/memory-sync.sh push
 
 # Install dependencies and generate code
-install: memory-update
+install: memory-pull
     bun install --frozen-lockfile
     bunx --workspace=@forwardimpact/libcodegen fit-codegen --all
 

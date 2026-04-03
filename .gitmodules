@@ -1,3 +1,4 @@
 [submodule ".claude/memory"]
 	path = .claude/memory
 	url = https://github.com/forwardimpact/monorepo.wiki.git
+	branch = master

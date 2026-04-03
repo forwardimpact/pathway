@@ -234,10 +234,11 @@ installation token generated per run by the GitHub App.
 Agents share persistent memory backed by the repository's **GitHub wiki**,
 mounted as a git submodule at `.claude/memory/`.
 
-- **`just memory-update`** (called by `just install` / `SessionStart` hook) —
-  initializes and updates the memory submodule from `{repo}.wiki.git`.
-- **`just memory-commit`** (`Stop` hook) — commits and pushes memory changes
-  when a session ends.
+- **`just memory-pull`** / **`just memory-push`** — thin wrappers around
+  `scripts/memory-sync.sh`. Pull is called by `just install` on `SessionStart`;
+  push runs on the `Stop` hook. The script initialises the submodule, fixes
+  detached HEAD onto `master`, and handles concurrent pushes via rebase with
+  merge fallback.
 
 During a run, Claude Code reads and writes memory files in `.claude/memory/`.
 Each agent records actions taken, decisions, observations for teammates, and

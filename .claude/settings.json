@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "just memory-commit"
+            "command": "just memory-push"
           }
         ]
       }
