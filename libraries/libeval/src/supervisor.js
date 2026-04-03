@@ -53,6 +53,15 @@ export class Supervisor {
     this.currentSource = "agent";
     /** @type {number} */
     this.currentTurn = 0;
+    /**
+     * Set to true when any supervisor message contains the success signal.
+     * The SDK result text only reflects the last assistant message, so when
+     * the supervisor writes EVALUATION_SUCCESSFUL in an early message and
+     * then continues with follow-up work, the result text won't contain it.
+     * This flag captures the signal from the full message stream.
+     * @type {boolean}
+     */
+    this.successSignalSeen = false;
   }
 
   /**
@@ -66,6 +75,7 @@ export class Supervisor {
     // Turn 0: Supervisor receives the task and introduces it to the agent
     this.currentSource = "supervisor";
     this.currentTurn = 0;
+    this.successSignalSeen = false;
     let supervisorResult = await this.supervisorRunner.run(task);
 
     if (supervisorResult.error) {
@@ -73,9 +83,12 @@ export class Supervisor {
       return { success: false, turns: 0 };
     }
 
-    // The supervisor's turn is fully complete (all tool calls executed) by the
-    // time we check the signal — no work is interrupted.
-    if (isSuccessful(supervisorResult.text)) {
+    // Check for the success signal in either the SDK result text or the
+    // streamed message content. The SDK result text only reflects the last
+    // assistant message, so when the supervisor writes EVALUATION_SUCCESSFUL
+    // early and then continues (e.g. filing issues), we must also check the
+    // flag set by emitLine during streaming.
+    if (this.successSignalSeen || isSuccessful(supervisorResult.text)) {
       this.emitSummary({ success: true, turns: 0 });
       return { success: true, turns: 0 };
     }
@@ -106,6 +119,7 @@ export class Supervisor {
 
       this.currentSource = "supervisor";
       this.currentTurn = turn;
+      this.successSignalSeen = false;
       supervisorResult = await this.supervisorRunner.resume(supervisorPrompt);
 
       if (supervisorResult.error) {
@@ -113,8 +127,9 @@ export class Supervisor {
         return { success: false, turns: turn };
       }
 
-      // The supervisor's turn is fully complete — check for success signal.
-      if (isSuccessful(supervisorResult.text)) {
+      // The supervisor's turn is fully complete — check for success signal
+      // in either the SDK result text or streamed messages.
+      if (this.successSignalSeen || isSuccessful(supervisorResult.text)) {
         this.emitSummary({ success: true, turns: turn });
         return { success: true, turns: turn };
       }
@@ -142,6 +157,9 @@ export class Supervisor {
   /**
    * Emit a single NDJSON line tagged with the current source and turn.
    * Called in real-time via the AgentRunner onLine callback.
+   *
+   * When the current source is the supervisor, also scans assistant text
+   * content for the EVALUATION_SUCCESSFUL signal and sets successSignalSeen.
    * @param {string} line - Raw NDJSON line from the runner
    */
   emitLine(line) {
@@ -152,6 +170,21 @@ export class Supervisor {
       event,
     };
     this.output.write(JSON.stringify(tagged) + "\n");
+
+    // Scan supervisor assistant messages for the success signal in real time.
+    // The SDK result text only reflects the final assistant message, but the
+    // supervisor may write EVALUATION_SUCCESSFUL in an earlier message and
+    // then continue with follow-up tool calls.
+    if (this.currentSource === "supervisor" && event.type === "assistant") {
+      const content = event.message?.content ?? event.content ?? [];
+      if (Array.isArray(content)) {
+        for (const block of content) {
+          if (block.type === "text" && isSuccessful(block.text)) {
+            this.successSignalSeen = true;
+          }
+        }
+      }
+    }
   }
 
   /**
