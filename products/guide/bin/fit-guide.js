@@ -46,12 +46,8 @@ if (process.argv.includes("--version") || process.argv.includes("-v")) {
 
 // --init flag (works without SERVICE_SECRET)
 if (process.argv.includes("--init")) {
-  const {
-    generateJWT,
-    generateSecret,
-    getOrGenerateSecret,
-    updateEnvFile,
-  } = await import("@forwardimpact/libsecret");
+  const { generateJWT, generateSecret, getOrGenerateSecret, updateEnvFile } =
+    await import("@forwardimpact/libsecret");
 
   const serviceSecret = generateSecret();
   const jwtSecret = await getOrGenerateSecret("JWT_SECRET", () =>
