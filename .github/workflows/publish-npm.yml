@@ -56,7 +56,7 @@ jobs:
           npm init -y
           npm install "$TARBALL"
           # Verify the CLI entry point loads (--help exits 0 without services)
-          BIN=$(node -e "const p=require('./${{ steps.package.outputs.dir_name }}/package.json'); const b=Object.values(p.bin||{})[0]; if(b) console.log(b)")
+          BIN=$(node -e "const p=require('${{ steps.package.outputs.npm_name }}/package.json'); const b=Object.values(p.bin||{})[0]; if(b) console.log(b)")
           if [ -n "$BIN" ]; then
             node "node_modules/${{ steps.package.outputs.npm_name }}/$BIN" --help
           fi
