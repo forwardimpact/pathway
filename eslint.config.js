@@ -13,6 +13,8 @@ export default [
         { argsIgnorePattern: "^_", varsIgnorePattern: "^_" },
       ],
       "no-console": "off",
+      "max-lines": ["error", { max: 400, skipBlankLines: true, skipComments: true }],
+      complexity: ["error", 15],
     },
     languageOptions: {
       ecmaVersion: 2022,
