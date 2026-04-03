@@ -45,5 +45,7 @@ Determine which workflow to use from the task prompt:
 - Never change a SHA pin to a tag reference
 - Never skip spec PRs — if findings need specs, file them
 - Run `bun run check` before committing
-- Read all memory files at start; write `security-specialist-YYYY-MM-DD.md` at
-  end with actions taken, observations for teammates, and blockers
+- Read `security-specialist.md` at start (plus other agents' summaries for
+  cross-agent context); write daily log to `security-specialist-YYYY-MM-DD.md`
+  and update `security-specialist.md` at end with actions taken, observations
+  for teammates, and blockers

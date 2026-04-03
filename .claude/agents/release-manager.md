@@ -44,5 +44,7 @@ Determine which workflow to use from the task prompt:
 - Push tags individually — never `git push --tags`
 - Release in dependency order when multiple packages change together
 - Run `bun run check` before committing
-- Read all memory files at start; write `release-manager-YYYY-MM-DD.md` at end
-  with actions taken, observations for teammates, and blockers
+- Read `release-manager.md` at start (plus other agents' summaries for
+  cross-agent context); write daily log to `release-manager-YYYY-MM-DD.md` and
+  update `release-manager.md` at end with actions taken, observations for
+  teammates, and blockers

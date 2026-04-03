@@ -54,5 +54,7 @@ Determine which workflow to use from the task prompt:
   own `fix/` branches from issues
 - Features always get a spec, never a direct implementation
 - Run `bun run check` before every commit
-- Read all memory files at start; write `product-manager-YYYY-MM-DD.md` at end
-  with actions taken, observations for teammates, and blockers
+- Read `product-manager.md` at start (plus other agents' summaries for
+  cross-agent context); write daily log to `product-manager-YYYY-MM-DD.md` and
+  update `product-manager.md` at end with actions taken, observations for
+  teammates, and blockers

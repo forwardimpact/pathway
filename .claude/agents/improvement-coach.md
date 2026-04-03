@@ -48,5 +48,7 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
   counts
 - Trust audit results when analyzing product-backlog traces
 - Run `bun run check` before committing
-- Read all memory files at start; write `improvement-coach-YYYY-MM-DD.md` at end
-  with actions taken, observations for teammates, and blockers
+- Read `improvement-coach.md` at start (plus other agents' summaries for
+  cross-agent context); write daily log to `improvement-coach-YYYY-MM-DD.md` and
+  update `improvement-coach.md` at end with actions taken, observations for
+  teammates, and blockers
