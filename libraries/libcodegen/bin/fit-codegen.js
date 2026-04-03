@@ -180,6 +180,63 @@ function createCodegen(
 }
 
 /**
+ * Count files recursively in a directory
+ * @param {string} dirPath - Directory to count files in
+ * @returns {number} Total file count
+ */
+function countFiles(dirPath) {
+  let count = 0;
+  if (!fs.existsSync(dirPath)) return count;
+  for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
+    if (entry.isDirectory()) {
+      count += countFiles(path.join(dirPath, entry.name));
+    } else if (!entry.name.endsWith(".tar.gz")) {
+      count++;
+    }
+  }
+  return count;
+}
+
+/**
+ * Print a summary of generated code
+ * @param {string} sourcePath - Path to generated directory
+ * @param {object} flags - Parsed generation flags
+ */
+function printSummary(sourcePath, flags) {
+  const totalFiles = countFiles(sourcePath);
+  const relPath = path.relative(process.cwd(), sourcePath);
+  const lines = [`Generated ${totalFiles} files in ./${relPath}/`];
+
+  const dirLabels = {
+    types: "Protocol Buffer types",
+    proto: "Proto source files",
+    services: "Service bases and clients",
+    definitions: "Service definitions",
+  };
+
+  if (fs.existsSync(sourcePath)) {
+    const dirs = fs
+      .readdirSync(sourcePath, { withFileTypes: true })
+      .filter((e) => e.isDirectory());
+
+    for (const dir of dirs) {
+      const label = dirLabels[dir.name];
+      if (label) lines.push(`  ${dir.name}/  — ${label}`);
+    }
+  }
+
+  const generated = [
+    flags.doTypes && "types",
+    flags.doServices && "services",
+    flags.doClients && "clients",
+    flags.doDefinitions && "definitions",
+  ].filter(Boolean);
+  lines.push(`\nCode generation complete (${generated.join(", ")}).`);
+
+  process.stdout.write(lines.join("\n") + "\n");
+}
+
+/**
  * Execute code generation tasks
  * @param {object} codegens - Codegen instances
  * @param {string} sourcePath - Generated source path
@@ -251,6 +308,8 @@ async function runCodegen(protoDirs, projectRoot, finder) {
 
   await finder.createPackageSymlinks(sourcePath);
   await createBundle(sourcePath);
+
+  printSummary(sourcePath, parsedFlags);
 }
 
 /**
