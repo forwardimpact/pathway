@@ -296,6 +296,16 @@ async function runCodegen(protoDirs, projectRoot, finder) {
 
   await generatedStorage.ensureBucket();
 
+  // Write package.json with "type": "module" so Node.js treats generated
+  // ES module files correctly and avoids MODULE_TYPELESS_PACKAGE_JSON warnings.
+  const generatedPkgPath = path.join(sourcePath, "package.json");
+  if (!fs.existsSync(generatedPkgPath)) {
+    fs.writeFileSync(
+      generatedPkgPath,
+      JSON.stringify({ type: "module" }, null, 2) + "\n",
+    );
+  }
+
   const codegens = createCodegen(
     protoDirs,
     projectRoot,
