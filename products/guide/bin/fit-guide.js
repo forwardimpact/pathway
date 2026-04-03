@@ -67,9 +67,25 @@ if (process.argv.includes("--init")) {
   await updateEnvFile("JWT_SECRET", jwtSecret);
   await updateEnvFile("JWT_ANON_KEY", jwtAnonKey);
 
+  // Assign unique ports so services don't all bind to the default 3000
+  const serviceUrls = {
+    SERVICE_AGENT_URL: "grpc://localhost:3002",
+    SERVICE_MEMORY_URL: "grpc://localhost:3003",
+    SERVICE_LLM_URL: "grpc://localhost:3004",
+    SERVICE_VECTOR_URL: "grpc://localhost:3005",
+    SERVICE_GRAPH_URL: "grpc://localhost:3006",
+    SERVICE_TOOL_URL: "grpc://localhost:3007",
+    SERVICE_TRACE_URL: "grpc://localhost:3008",
+  };
+
+  for (const [key, url] of Object.entries(serviceUrls)) {
+    await updateEnvFile(key, url);
+  }
+
   console.log("SERVICE_SECRET was updated in .env");
   console.log("JWT_SECRET is set in .env");
   console.log("JWT_ANON_KEY was updated in .env");
+  console.log("Service URLs written to .env (ports 3002–3008).");
 
   // Generate config/config.json with minimal service tree
   const configDir = resolve("config");
