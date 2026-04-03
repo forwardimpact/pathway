@@ -189,6 +189,67 @@ describe("Supervisor", () => {
     assert.strictEqual(result.turns, 1);
   });
 
+  test("detects EVALUATION_SUCCESSFUL in streamed messages when result text differs", async () => {
+    // Simulates the real failure: supervisor writes EVALUATION_SUCCESSFUL in
+    // an early message, then continues with follow-up work (e.g. filing issues).
+    // The SDK result text reflects only the final message, which does NOT
+    // contain the signal.
+    const agentRunner = createMockRunner([
+      { text: "I installed the packages." },
+    ]);
+
+    // The supervisor's result text is the Summary (no signal), but messages
+    // include one with EVALUATION_SUCCESSFUL.
+    const supervisorMessages = [
+      undefined, // turn 0: use default
+      [
+        {
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "text",
+                text: "Good work.\n\nEVALUATION_SUCCESSFUL\n\nNow filing issues.",
+              },
+            ],
+          },
+        },
+        {
+          type: "assistant",
+          message: {
+            content: [
+              { type: "text", text: "## Summary\n\nAll issues filed." },
+            ],
+          },
+        },
+      ],
+    ];
+
+    const supervisorRunner = createMockRunner(
+      [
+        { text: "Welcome! Please install the packages." },
+        // Result text is the final message — does NOT contain the signal
+        { text: "## Summary\n\nAll issues filed." },
+      ],
+      supervisorMessages,
+    );
+
+    const output = new PassThrough();
+    const supervisor = new Supervisor({
+      agentRunner,
+      supervisorRunner,
+      output,
+      maxTurns: 10,
+    });
+    agentRunner.onLine = (line) => supervisor.emitLine(line);
+    supervisorRunner.onLine = (line) => supervisor.emitLine(line);
+
+    const result = await supervisor.run("Install stuff");
+
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.turns, 1);
+  });
+
   test("runs multiple turns before completion", async () => {
     const agentRunner = createMockRunner([
       { text: "Started working." },
