@@ -83,7 +83,9 @@ export class AgentRunner {
           permissionMode: this.permissionMode,
           allowDangerouslySkipPermissions: true,
           settingSources: this.settingSources,
-          ...(this.disallowedTools.length > 0 && { disallowedTools: this.disallowedTools }),
+          ...(this.disallowedTools.length > 0 && {
+            disallowedTools: this.disallowedTools,
+          }),
           ...(this.systemPrompt && { systemPrompt: this.systemPrompt }),
           ...(this.agentProfile && { extraArgs: { agent: this.agentProfile } }),
         },

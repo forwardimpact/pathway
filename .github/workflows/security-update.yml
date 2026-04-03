@@ -40,7 +40,9 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Apply security updates, triage Dependabot PRs and address npm audit findings.
+          task-text:
+            Apply security updates, triage Dependabot PRs and address npm audit
+            findings.
           agent-profile: "security-specialist"
           model: "opus"
           max-turns: "200"

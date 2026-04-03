@@ -47,8 +47,8 @@ npx fit-pathway job software_engineering L3 --data=./custom-path/pathway
 
 All entity commands support three output modes:
 
-| Mode    | Pattern                         | Description                 |
-| ------- | ------------------------------- | --------------------------- |
+| Mode    | Pattern                        | Description                 |
+| ------- | ------------------------------ | --------------------------- |
 | Summary | `npx fit-pathway <command>`    | Concise overview with stats |
 | List    | `npx fit-pathway <cmd> --list` | IDs for piping              |
 | Detail  | `npx fit-pathway <cmd> <id>`   | Full entity details         |

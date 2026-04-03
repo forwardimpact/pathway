@@ -27,10 +27,10 @@ evaluation testing. The patterns are consistent:
    is to convert lines 66-72 from static `import` to dynamic `await import()`
    inside the `try` block at line 101.
 
-2. **librpc requires generated code that isn't in the package** (#178, fix
-   PR #184) — `librpc/index.js:7` imports `./generated/services/exports.js`,
-   which is produced by `just codegen` (libcodegen). The root `.gitignore`
-   correctly excludes `generated/` and `**/generated` — generated code is
+2. **librpc requires generated code that isn't in the package** (#178, fix PR
+   #184) — `librpc/index.js:7` imports `./generated/services/exports.js`, which
+   is produced by `just codegen` (libcodegen). The root `.gitignore` correctly
+   excludes `generated/` and `**/generated` — generated code is
    installation-specific and should not be committed or bundled in npm tarballs.
    The fix is not to include `generated/` in the package, but to document that
    external users must run `npx fit-codegen --all` after installing. The
@@ -49,18 +49,18 @@ evaluation testing. The patterns are consistent:
    README in the monorepo — no other product or library ships one. It duplicates
    content from the getting-started guide and product page, creating a third
    location that drifts out of sync. Committing to per-package READMEs would
-   require maintaining one for every product and library. The fix is to delete it,
-   update the root `README.md` Quick Start to serve external users (covering
+   require maintaining one for every product and library. The fix is to delete
+   it, update the root `README.md` Quick Start to serve external users (covering
    Pathway and Guide), and remove `README.md` from Guide's `files` field in
    `package.json`.
 
 4. **No smoke test for npm packages** (#182) — `publish-npm.yml` runs monorepo
-   tests (`bun run test`) but never validates the published tarball in isolation.
-   The librpc `generated/` omission reached npm because nothing tested
-   `npm pack && npm install <tarball>` outside the workspace.
+   tests (`bun run test`) but never validates the published tarball in
+   isolation. The librpc `generated/` omission reached npm because nothing
+   tested `npm pack && npm install <tarball>` outside the workspace.
 
-5. **npm vs monorepo install path unclear** (#181) — The root README Quick
-   Start only shows the monorepo contributor path (`git clone`, `just quickstart`).
+5. **npm vs monorepo install path unclear** (#181) — The root README Quick Start
+   only shows the monorepo contributor path (`git clone`, `just quickstart`).
    External users arriving via npm have no quick start in the root README. The
    monorepo clone path belongs in CONTRIBUTING.md (where it already exists). The
    root Quick Start should be rewritten for external users.
@@ -76,8 +76,9 @@ evaluation testing. The patterns are consistent:
 ## Scope
 
 This spec covers the Guide product's npm user experience. Similar patterns may
-exist in other products but those are out of scope except for the `engines` field
-fix, which applies to all 46 `package.json` files as a consistency correction.
+exist in other products but those are out of scope except for the `engines`
+field fix, which applies to all 46 `package.json` files as a consistency
+correction.
 
 ### In Scope
 
@@ -105,10 +106,10 @@ fix, which applies to all 46 `package.json` files as a consistency correction.
 2. **`npx fit-guide --version` works**: Prints version and exits 0 under the
    same conditions.
 
-3. **Post-install codegen documented**: The root README and getting-started
-   docs include `npx fit-codegen --all` as a required step after
-   `npm install`. The generated code is installation-specific and is never
-   committed or bundled in npm tarballs.
+3. **Post-install codegen documented**: The root README and getting-started docs
+   include `npx fit-codegen --all` as a required step after `npm install`. The
+   generated code is installation-specific and is never committed or bundled in
+   npm tarballs.
 
 4. **Consistent `engines` field**: Every `package.json` in the monorepo declares
    both `"bun": ">=1.2.0"` and `"node": ">=18.0.0"` in `engines`.

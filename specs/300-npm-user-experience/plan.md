@@ -14,9 +14,9 @@ The engines, README, and smoke test changes round out the experience.
 
 **Why**: ES module static `import` declarations are resolved before any code
 executes. The current `bin/fit-guide.js` places `--help`/`--version` checks
-(lines 17-44) before the service imports (lines 66-72) in source order, but
-the module loader resolves all static imports first, so `process.exit(0)` never
-runs if any import fails.
+(lines 17-44) before the service imports (lines 66-72) in source order, but the
+module loader resolves all static imports first, so `process.exit(0)` never runs
+if any import fails.
 
 **File**: `products/guide/bin/fit-guide.js`
 
@@ -52,6 +52,7 @@ and all service connection logic inside the `try` block, since they depend on
 these imports.
 
 **Verify**: Without running any services or setting `SERVICE_SECRET`:
+
 - `node products/guide/bin/fit-guide.js --help` prints help and exits 0
 - `node products/guide/bin/fit-guide.js --version` prints version and exits 0
 - `node products/guide/bin/fit-guide.js` prints the SERVICE_SECRET onboarding
@@ -67,22 +68,25 @@ it must not be committed to the repo or bundled in npm tarballs. The root
 installing.
 
 **Files**:
+
 - `CLAUDE.md` (canonical — Product Distribution section, already updated)
 - `website/docs/getting-started/engineers/index.md`
 
 `CLAUDE.md` § Product Distribution is already updated to establish the policy:
 generated code is installation-specific, never committed or distributed. The
-getting-started guide adds `npx fit-codegen --all` as a step after `npm install`.
-The root README also includes codegen in its quick start (see step 4).
+getting-started guide adds `npx fit-codegen --all` as a step after
+`npm install`. The root README also includes codegen in its quick start (see
+step 4).
 
 In the getting-started guide, add the step after line 86 (`npm install`):
 
-```markdown
+````markdown
 ```sh
 npm install @forwardimpact/guide
 npx fit-codegen --all
-```
-```
+````
+
+````
 
 **Verify**: Follow the documented steps in a clean directory and confirm
 `node_modules/@forwardimpact/librpc/generated/` is created.
@@ -103,7 +107,7 @@ Change every `engines` field from:
 "engines": {
   "bun": ">=1.2.0"
 }
-```
+````
 
 To:
 
@@ -117,15 +121,18 @@ To:
 **Complete file list** (46 files):
 
 Root:
+
 - `package.json`
 
 Products (4):
+
 - `products/basecamp/package.json`
 - `products/guide/package.json`
 - `products/map/package.json`
 - `products/pathway/package.json`
 
 Libraries (33):
+
 - `libraries/libagent/package.json`
 - `libraries/libcodegen/package.json`
 - `libraries/libconfig/package.json`
@@ -161,6 +168,7 @@ Libraries (33):
 - `libraries/libweb/package.json`
 
 Services (8):
+
 - `services/agent/package.json`
 - `services/graph/package.json`
 - `services/llm/package.json`
@@ -230,6 +238,7 @@ setup.
 ```
 
 **Verify**:
+
 - `products/guide/README.md` does not exist
 - Root `README.md` Quick Start mentions both Pathway and Guide
 - `npm pack --workspace=@forwardimpact/guide --dry-run` does not list README.md
@@ -237,8 +246,8 @@ setup.
 ### 5. Add smoke test to publish workflow
 
 **Why**: Packaging errors have reached npm because nothing tested the tarball
-outside the workspace. A smoke test after `npm pack` catches issues before
-they reach users.
+outside the workspace. A smoke test after `npm pack` catches issues before they
+reach users.
 
 **File**: `.github/workflows/publish-npm.yml`
 
@@ -261,15 +270,16 @@ Add a step between the existing "Run tests" step and "Copy LICENSE" step:
 ```
 
 This step:
+
 1. Packs the workspace package into a tarball
 2. Creates an isolated temp directory with a fresh `package.json`
 3. Installs the tarball (not from the workspace — from the packed archive)
 4. Runs `--help` on the CLI entry point if one exists
 5. Cleans up
 
-The smoke test only validates packages that declare a `bin` field with a `--help`
-flag. Packages without a CLI (libraries) are validated by the tarball installing
-without error.
+The smoke test only validates packages that declare a `bin` field with a
+`--help` flag. Packages without a CLI (libraries) are validated by the tarball
+installing without error.
 
 **Verify**: Trigger the workflow locally with `act` or verify by reading the
 workflow YAML and confirming the step appears in the correct position.
@@ -286,20 +296,20 @@ Step 4 (delete Guide README, root QS) ─┘
 Step 5 (smoke test)  ← depends on step 1 to pass
 ```
 
-Steps 1-4 are independent of each other. Step 5 should be done last because
-the smoke test will fail unless the dynamic import fix (step 1) is in place.
+Steps 1-4 are independent of each other. Step 5 should be done last because the
+smoke test will fail unless the dynamic import fix (step 1) is in place.
 
 ## Files Modified
 
-| File | Change |
-|------|--------|
-| `CLAUDE.md` | Remove "Product READMEs" from Documentation Map; codegen policy already done |
-| `products/guide/bin/fit-guide.js` | Static imports → dynamic `await import()` |
-| `products/guide/package.json` | Remove `README.md` from `files` |
-| `README.md` | Quick Start rewritten for external users |
-| `website/docs/getting-started/engineers/index.md` | Add codegen step |
-| 46× `package.json` | Add `"node": ">=18.0.0"` to `engines` |
-| `.github/workflows/publish-npm.yml` | Add smoke test step |
+| File                                              | Change                                                                       |
+| ------------------------------------------------- | ---------------------------------------------------------------------------- |
+| `CLAUDE.md`                                       | Remove "Product READMEs" from Documentation Map; codegen policy already done |
+| `products/guide/bin/fit-guide.js`                 | Static imports → dynamic `await import()`                                    |
+| `products/guide/package.json`                     | Remove `README.md` from `files`                                              |
+| `README.md`                                       | Quick Start rewritten for external users                                     |
+| `website/docs/getting-started/engineers/index.md` | Add codegen step                                                             |
+| 46× `package.json`                                | Add `"node": ">=18.0.0"` to `engines`                                        |
+| `.github/workflows/publish-npm.yml`               | Add smoke test step                                                          |
 
 ## Files Created
 
@@ -307,6 +317,6 @@ None.
 
 ## Files Deleted
 
-| File | Reason |
-|------|--------|
+| File                       | Reason                                                    |
+| -------------------------- | --------------------------------------------------------- |
 | `products/guide/README.md` | Only per-package README; duplicates getting-started guide |

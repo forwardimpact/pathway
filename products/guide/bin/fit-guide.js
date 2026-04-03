@@ -66,9 +66,7 @@ Run bunx fit-guide --help for CLI options.`);
 try {
   const { createServiceConfig } = await import("@forwardimpact/libconfig");
   const { Repl } = await import("@forwardimpact/librepl");
-  const { createClient, createTracer } = await import(
-    "@forwardimpact/librpc"
-  );
+  const { createClient, createTracer } = await import("@forwardimpact/librpc");
   const { createLogger } = await import("@forwardimpact/libtelemetry");
   const { agent, common } = await import("@forwardimpact/libtype");
   const { createStorage } = await import("@forwardimpact/libstorage");
