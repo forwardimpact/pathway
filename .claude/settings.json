@@ -12,7 +12,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "just install"
+            "command": "bash scripts/bootstrap.sh"
           }
         ]
       }
