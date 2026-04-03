@@ -35,6 +35,7 @@
   "dependencies": {
     "@forwardimpact/libcodegen": "^0.1.32",
     "@forwardimpact/libconfig": "^0.1.58",
+    "@forwardimpact/libsecret": "^0.1.7",
     "@forwardimpact/librepl": "^0.1.0",
     "@forwardimpact/librpc": "^0.1.77",
     "@forwardimpact/libstorage": "^0.1.53",

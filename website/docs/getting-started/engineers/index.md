@@ -85,23 +85,11 @@ engineering artifacts against your skill markers.
 ```sh
 npm install @forwardimpact/guide
 npx fit-codegen --all
+npx fit-guide --init
 ```
 
 The `fit-codegen` step generates gRPC service clients that Guide needs. Without
 it, imports fail with a missing module error.
-
-### Prerequisites
-
-Guide connects to the Forward Impact knowledge platform services. You need a
-running service stack and a service secret:
-
-```sh
-export SERVICE_SECRET=<your-secret>
-```
-
-If your organization hosts the platform, they will provide the service secret
-and endpoint configuration. If `SERVICE_SECRET` is not set, the CLI prints
-onboarding instructions.
 
 ### Usage
 

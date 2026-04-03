@@ -18,12 +18,13 @@ if (process.argv.includes("--help") || process.argv.includes("-h")) {
   console.log(`fit-guide — Conversational agent for the Guide knowledge platform
 
 Usage:
-  bunx fit-guide                   Start interactive conversation
-  bunx fit-guide --data=<path>     Specify framework data directory
-  echo "question" | bunx fit-guide Pipe a question directly
+  npx fit-guide                   Start interactive conversation
+  npx fit-guide --data=<path>     Specify framework data directory
+  echo "question" | npx fit-guide Pipe a question directly
 
 Options:
   --data=<path>   Path to framework data directory
+  --init          Generate secrets and update .env
   --help, -h      Show this help message
   --version, -v   Show version
 
@@ -43,6 +44,39 @@ if (process.argv.includes("--version") || process.argv.includes("-v")) {
   process.exit(0);
 }
 
+// --init flag (works without SERVICE_SECRET)
+if (process.argv.includes("--init")) {
+  const {
+    generateJWT,
+    generateSecret,
+    getOrGenerateSecret,
+    updateEnvFile,
+  } = await import("@forwardimpact/libsecret");
+
+  const serviceSecret = generateSecret();
+  const jwtSecret = await getOrGenerateSecret("JWT_SECRET", () =>
+    generateSecret(32),
+  );
+  const jwtAnonKey = generateJWT(
+    {
+      iss: "supabase",
+      iat: Math.floor(Date.now() / 1000),
+      exp: Math.floor(Date.now() / 1000) + 10 * 365 * 24 * 60 * 60,
+      role: "anon",
+    },
+    jwtSecret,
+  );
+
+  await updateEnvFile("SERVICE_SECRET", serviceSecret);
+  await updateEnvFile("JWT_SECRET", jwtSecret);
+  await updateEnvFile("JWT_ANON_KEY", jwtAnonKey);
+
+  console.log("SERVICE_SECRET was updated in .env");
+  console.log("JWT_SECRET is set in .env");
+  console.log("JWT_ANON_KEY was updated in .env");
+  process.exit(0);
+}
+
 // SERVICE_SECRET gate — provide onboarding instructions instead of a cryptic error
 if (!process.env.SERVICE_SECRET) {
   console.log(`fit-guide — Conversational agent for the Guide knowledge platform
@@ -54,12 +88,12 @@ services must be available:
 
 To get started:
 
-  1. Clone the monorepo and run: just rc-start
-  2. Set SERVICE_SECRET in your environment
-  3. Run: bunx fit-guide
+  1. Run: npx fit-guide --init
+  2. Start the service stack and set SERVICE_SECRET
+  3. Run: npx fit-guide
 
 Documentation: https://www.forwardimpact.team/guide
-Run bunx fit-guide --help for CLI options.`);
+Run npx fit-guide --help for CLI options.`);
   process.exit(1);
 }
 
@@ -79,8 +113,8 @@ The agent maintains conversation context across multiple turns.
 
 **Examples:**
 
-    echo "Tell me about the company" | bunx fit-guide
-    printf "What is microservices?\\nWhat are the benefits?\\n" | bunx fit-guide`;
+    echo "Tell me about the company" | npx fit-guide
+    printf "What is microservices?\\nWhat are the benefits?\\n" | npx fit-guide`;
 
   // Parse --data flag from CLI args
   const dataArg = process.argv.find((a) => a.startsWith("--data="));

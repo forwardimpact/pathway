@@ -32,7 +32,7 @@
     },
     "libraries/libcodegen": {
       "name": "@forwardimpact/libcodegen",
-      "version": "0.1.36",
+      "version": "0.1.37",
       "bin": {
         "fit-codegen": "./bin/fit-codegen.js",
       },
@@ -456,7 +456,7 @@
     },
     "products/guide": {
       "name": "@forwardimpact/guide",
-      "version": "0.1.8",
+      "version": "0.1.10",
       "bin": {
         "fit-guide": "./bin/fit-guide.js",
       },
@@ -465,6 +465,7 @@
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librepl": "^0.1.0",
         "@forwardimpact/librpc": "^0.1.77",
+        "@forwardimpact/libsecret": "^0.1.7",
         "@forwardimpact/libstorage": "^0.1.53",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libtype": "^0.1.63",
@@ -512,7 +513,7 @@
     },
     "services/agent": {
       "name": "@forwardimpact/svcagent",
-      "version": "0.1.113",
+      "version": "0.1.114",
       "dependencies": {
         "@forwardimpact/libagent": "^0.1.36",
         "@forwardimpact/libconfig": "^0.1.58",
@@ -525,7 +526,7 @@
     },
     "services/graph": {
       "name": "@forwardimpact/svcgraph",
-      "version": "0.1.60",
+      "version": "0.1.61",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libgraph": "^0.1.49",
@@ -539,7 +540,7 @@
     },
     "services/llm": {
       "name": "@forwardimpact/svcllm",
-      "version": "0.1.96",
+      "version": "0.1.97",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libllm": "^0.1.71",
@@ -552,7 +553,7 @@
     },
     "services/memory": {
       "name": "@forwardimpact/svcmemory",
-      "version": "0.1.87",
+      "version": "0.1.88",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libmemory": "^0.1.33",
@@ -566,7 +567,7 @@
     },
     "services/tool": {
       "name": "@forwardimpact/svctool",
-      "version": "0.1.91",
+      "version": "0.1.92",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librpc": "^0.1.77",
@@ -578,7 +579,7 @@
     },
     "services/trace": {
       "name": "@forwardimpact/svctrace",
-      "version": "0.1.34",
+      "version": "0.1.35",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libindex": "^0.1.27",
@@ -592,7 +593,7 @@
     },
     "services/vector": {
       "name": "@forwardimpact/svcvector",
-      "version": "0.1.111",
+      "version": "0.1.112",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libresource": "^0.1.89",
