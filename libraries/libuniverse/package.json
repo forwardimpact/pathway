@@ -35,7 +35,8 @@
     "@supabase/supabase-js": "^2.101.0"
   },
   "engines": {
-    "bun": ">=1.2.0"
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

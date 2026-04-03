@@ -10,7 +10,8 @@
     "fit-completion": "./bin/fit-completion.js"
   },
   "engines": {
-    "bun": ">=1.2.0"
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "scripts": {
     "test": "bun run node --test test/*.test.js"
