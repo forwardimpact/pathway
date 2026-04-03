@@ -91,6 +91,17 @@ npx fit-guide --init
 The `fit-codegen` step generates gRPC service clients that Guide needs. Without
 it, imports fail with a missing module error.
 
+### Start the service stack
+
+Guide requires a running service stack. Start it before launching Guide:
+
+```sh
+npx fit-rc start
+```
+
+This supervises all required microservices (trace, vector, graph, llm, memory,
+tool, agent, web) in dependency order. Stop them with `npx fit-rc stop`.
+
 ### Usage
 
 ```sh

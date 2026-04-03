@@ -85,7 +85,7 @@ services must be available:
 To get started:
 
   1. Run: npx fit-guide --init
-  2. Start the service stack and set SERVICE_SECRET
+  2. Start the service stack: npx fit-rc start
   3. Run: npx fit-guide
 
 Documentation: https://www.forwardimpact.team/guide
@@ -203,7 +203,7 @@ Error: ${err.message}
 Ensure all required services are running:
   agent, llm, memory, graph, vector, tool, trace, web
 
-For local development: just rc-start
+Start the service stack: npx fit-rc start
 Documentation: https://www.forwardimpact.team/guide`);
   process.exit(1);
 }
