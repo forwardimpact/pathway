@@ -10,8 +10,6 @@ hero:
   cta:
     - label: For Leadership
       href: /docs/getting-started/leadership/
-    - label: For Engineers
-      href: /docs/getting-started/engineers/
     - label: View on npm
       href: https://www.npmjs.com/package/@forwardimpact/map
       secondary: true
