@@ -188,10 +188,9 @@ function countFiles(dirPath) {
   let count = 0;
   if (!fs.existsSync(dirPath)) return count;
   for (const entry of fs.readdirSync(dirPath, { withFileTypes: true })) {
-    const fullPath = path.join(dirPath, entry.name);
     if (entry.isDirectory()) {
-      count += countFiles(fullPath);
-    } else {
+      count += countFiles(path.join(dirPath, entry.name));
+    } else if (!entry.name.endsWith(".tar.gz")) {
       count++;
     }
   }
@@ -205,15 +204,23 @@ function countFiles(dirPath) {
  */
 function printSummary(sourcePath, flags) {
   const totalFiles = countFiles(sourcePath);
-  const lines = [`Generated ${totalFiles} files in ./${path.relative(process.cwd(), sourcePath)}/`];
+  const relPath = path.relative(process.cwd(), sourcePath);
+  const lines = [`Generated ${totalFiles} files in ./${relPath}/`];
 
-  const dirs = fs.existsSync(sourcePath)
-    ? fs.readdirSync(sourcePath, { withFileTypes: true }).filter((e) => e.isDirectory())
-    : [];
+  const dirLabels = {
+    types: "Protocol Buffer types",
+    proto: "Proto source files",
+    services: "Service bases and clients",
+    definitions: "Service definitions",
+  };
 
-  if (dirs.length > 0) {
+  if (fs.existsSync(sourcePath)) {
+    const dirs = fs
+      .readdirSync(sourcePath, { withFileTypes: true })
+      .filter((e) => e.isDirectory());
+
     for (const dir of dirs) {
-      const label = { types: "Protocol Buffer types", proto: "Proto source files", services: "Service bases and clients", definitions: "Service definitions" }[dir.name];
+      const label = dirLabels[dir.name];
       if (label) lines.push(`  ${dir.name}/  — ${label}`);
     }
   }
