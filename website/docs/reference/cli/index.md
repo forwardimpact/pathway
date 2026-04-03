@@ -3,8 +3,8 @@ title: CLI Reference
 description: Commands, arguments, and options for all Forward Impact CLI tools.
 ---
 
-> **Availability:** `fit-pathway`, `fit-map`, and `fit-basecamp` are published
-> to npm and can be installed standalone. `fit-guide`, `fit-summit`, `fit-rc`,
+> **Availability:** `fit-pathway`, `fit-map`, `fit-basecamp`, `fit-guide`, and
+> `fit-rc` are published to npm and can be installed standalone. `fit-summit`,
 > `fit-doc`, and `fit-universe` are monorepo-only tools that require a full
 > checkout of the [monorepo](https://github.com/forwardimpact/monorepo).
 
@@ -273,6 +273,32 @@ npx fit-universe --cache=path        # Custom prose cache file
 | `--dry-run`      | Preview without writing files       |
 | `--story=<path>` | Path to custom story DSL file       |
 | `--cache=<path>` | Path to custom prose cache file     |
+
+---
+
+## fit-rc
+
+Service stack supervisor for Guide. Manages microservices in dependency order.
+
+```sh
+npx fit-rc start              # Start all services
+npx fit-rc stop               # Graceful shutdown
+npx fit-rc restart            # Restart all services
+npx fit-rc status             # Show service status
+npx fit-rc start <service>   # Start up to a specific service
+```
+
+| Command   | Description                             |
+| --------- | --------------------------------------- |
+| `start`   | Start services in dependency order      |
+| `stop`    | Graceful shutdown of all services       |
+| `restart` | Stop and restart all services           |
+| `status`  | Show running status of each service     |
+
+| Option          | Description       |
+| --------------- | ----------------- |
+| `-s`, `--silent` | Suppress output  |
+| `-h`, `--help`   | Show help message |
 
 ---
 
