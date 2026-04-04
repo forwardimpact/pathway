@@ -183,36 +183,28 @@ const todayE = dayEnd(now);
 const tomorrow = dayStart(new Date(now.getTime() + 86400000));
 const tomorrowE = dayEnd(new Date(now.getTime() + 86400000));
 
-const filtered = events.filter((ev) => {
-  let match = false;
+function inRange(dt, lo, hi) {
+  return dt >= lo && dt <= hi;
+}
 
-  if (flags.today) {
-    match = match || (ev.start >= today && ev.start <= todayE);
+function matchesFilters(ev, f, ref) {
+  if (f.today && inRange(ev.start, ref.today, ref.todayE)) return true;
+  if (f.tomorrow && inRange(ev.start, ref.tomorrow, ref.tomorrowE)) return true;
+  if (f.upcoming) {
+    const cutoff = new Date(ref.now.getTime() + f.upcoming);
+    if (inRange(ev.start, ref.now, cutoff)) return true;
   }
-
-  if (flags.tomorrow) {
-    match = match || (ev.start >= tomorrow && ev.start <= tomorrowE);
+  if (f.date) {
+    if (inRange(ev.start, dayStart(f.date + "T00:00:00"), dayEnd(f.date + "T00:00:00"))) return true;
   }
-
-  if (flags.upcoming) {
-    const cutoff = new Date(now.getTime() + flags.upcoming);
-    match = match || (ev.start >= now && ev.start <= cutoff);
+  if (f.rangeStart && f.rangeEnd) {
+    if (inRange(ev.start, dayStart(f.rangeStart + "T00:00:00"), dayEnd(f.rangeEnd + "T00:00:00"))) return true;
   }
+  return false;
+}
 
-  if (flags.date) {
-    const dStart = dayStart(flags.date + "T00:00:00");
-    const dEnd = dayEnd(flags.date + "T00:00:00");
-    match = match || (ev.start >= dStart && ev.start <= dEnd);
-  }
-
-  if (flags.rangeStart && flags.rangeEnd) {
-    const rStart = dayStart(flags.rangeStart + "T00:00:00");
-    const rEnd = dayEnd(flags.rangeEnd + "T00:00:00");
-    match = match || (ev.start >= rStart && ev.start <= rEnd);
-  }
-
-  return match;
-});
+const ref = { now, today, todayE, tomorrow, tomorrowE };
+const filtered = events.filter((ev) => matchesFilters(ev, flags, ref));
 
 // --- Output ---
 
