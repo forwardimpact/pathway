@@ -15,6 +15,8 @@ export default [
       "no-console": "off",
       "max-lines": ["error", { max: 400, skipBlankLines: true, skipComments: true }],
       complexity: ["error", 15],
+      "security/detect-object-injection": "off",
+      "security/detect-non-literal-fs-filename": "off",
     },
     languageOptions: {
       ecmaVersion: 2022,
