@@ -66,6 +66,7 @@ export class DocsBuilder {
    */
   #transformMarkdownLinks(html) {
     return html.replace(
+      // eslint-disable-next-line security/detect-unsafe-regex -- bounded negated char classes on internal HTML; no backtracking risk
       /href="([^"]*?)\.md(#[^"]*)?"/g,
       (_match, path, hash) => {
         const fragment = hash || "";
@@ -90,6 +91,7 @@ export class DocsBuilder {
    */
   #transformMarkdownBodyLinks(markdown) {
     return markdown.replace(
+      // eslint-disable-next-line security/detect-unsafe-regex -- bounded negated char classes on internal markdown; no backtracking risk
       /\[([^\]]*)\]\(([^)]*?)\.md(#[^)]*)?\)/g,
       (_match, text, path, hash) => {
         const fragment = hash || "";

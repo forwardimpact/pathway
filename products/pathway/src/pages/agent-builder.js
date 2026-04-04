@@ -179,6 +179,7 @@ export async function renderAgentBuilder() {
   // Supports: /agent/discipline, /agent/discipline/track, /agent/discipline/track/stage
   const hash = window.location.hash;
   const pathMatch = hash.match(
+    // eslint-disable-next-line security/detect-unsafe-regex -- negated char classes prevent backtracking; parses internal URL hash
     /#\/agent\/([^/]+)(?:\/([^/]+))?(?:\/([^/?]+))?/,
   );
   const initialDiscipline = pathMatch ? pathMatch[1] : "";

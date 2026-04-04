@@ -152,6 +152,7 @@ function getUtcOffset(dt, tzName) {
     const tzPart = parts.find((p) => p.type === "timeZoneName");
     if (tzPart) {
       // "GMT+2" → "+02:00", "GMT-5:30" → "-05:30", "GMT" → "+00:00"
+      // eslint-disable-next-line security/detect-unsafe-regex -- fixed pattern matching trusted Intl API output; no backtracking risk
       const match = tzPart.value.match(/GMT([+-])(\d{1,2})(?::(\d{2}))?/);
       if (match) {
         const sign = match[1];
