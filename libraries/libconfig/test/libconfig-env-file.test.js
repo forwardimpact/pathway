@@ -98,7 +98,7 @@ describe("libconfig - .env file loading", () => {
 
   test("strips surrounding quotes from values", async () => {
     writeEnvFile(
-      'JWT_SECRET="double-quoted"\nGITHUB_TOKEN=\'single-quoted\'\n',
+      "JWT_SECRET=\"double-quoted\"\nGITHUB_TOKEN='single-quoted'\n",
     );
 
     const config = await createConfig(
