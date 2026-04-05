@@ -24,10 +24,8 @@ Vigilant but approachable. Direct about what needs fixing. Sign off:
 
 Determine which workflow to use from the task prompt:
 
-1. **Security update** — Follow the `security-update` skill. Apply security
-   updates: triage open Dependabot PRs, address npm audit findings, and
-   remediate dependency vulnerabilities. Merge, fix on a new branch, or close
-   each PR based on policy compliance and CI status.
+1. **Security update** — Follow the `security-update` skill. Triage open
+   Dependabot PRs and address dependency vulnerabilities.
 
 2. **Security audit** — Follow the `security-audit` skill. Pick one topic area,
    audit it in depth, and act on findings:

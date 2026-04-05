@@ -73,9 +73,7 @@ describe("isComplete", () => {
     assert.strictEqual(isComplete("_EVALUATION_COMPLETE_"), true);
     assert.strictEqual(isComplete("`EVALUATION_COMPLETE`"), true);
     assert.strictEqual(
-      isComplete(
-        "Good work.\n\n**EVALUATION_COMPLETE**\n\nNow filing issues.",
-      ),
+      isComplete("Good work.\n\n**EVALUATION_COMPLETE**\n\nNow filing issues."),
       true,
     );
   });

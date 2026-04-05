@@ -354,9 +354,41 @@ Use the same product alignment criteria as inbound triage:
 | **Documentation**   | Instructions unclear, missing steps, or outdated content      | Create docs issue      |
 | **Out of scope**    | Not actionable, environmental, or outside product control     | Skip — note in summary |
 
-#### Step 3: Create GitHub Issues
+#### Step 3: Check for Similar Existing Issues
 
-For each product-aligned feedback item, create a GitHub issue:
+Before creating new issues, search for existing issues that may already track
+similar feedback:
+
+```sh
+gh issue list --state open --limit 50 \
+  --json number,title,labels \
+  --jq '.[] | {number, title, labels: [.labels[].name]}'
+```
+
+For each feedback item, compare it against existing open issues by title and
+description. If a similar issue already exists, add a comment with the new
+feedback context instead of creating a duplicate:
+
+```sh
+gh issue comment <number> --body "$(cat <<'EOF'
+Additional feedback observed during user testing of **<product>** in the
+`<scenario>` evaluation scenario:
+
+<description of the feedback item>
+
+— Product Manager 🌱
+EOF
+)"
+```
+
+Record the existing issue number in the summary table (Step 5) with the action
+"commented on #\<number\>". Only proceed to create a new issue (Step 4) when no
+similar issue exists.
+
+#### Step 4: Create GitHub Issues
+
+For each product-aligned feedback item with no existing similar issue, create a
+GitHub issue:
 
 ```sh
 gh issue create \
@@ -391,17 +423,17 @@ Use the appropriate title prefix:
 - `docs(<product>):` for documentation issues
 - `feat(<product>):` for missing features or improvements
 
-#### Step 4: Report Summary
+#### Step 5: Report Summary
 
 Produce a summary table of all feedback items:
 
 ```
-| # | Feedback                              | Category       | Action       | Issue |
-|---|---------------------------------------|----------------|--------------|-------|
-| 1 | Install docs missing Node version     | documentation  | issue #52    |  #52  |
-| 2 | Crash on skill query                  | bug            | issue #53    |  #53  |
-| 3 | Generic career progression response   | product-aligned| issue #54    |  #54  |
-| 4 | Slow response in CI environment       | out of scope   | skipped      |  —    |
+| # | Feedback                              | Category       | Action              | Issue |
+|---|---------------------------------------|----------------|---------------------|-------|
+| 1 | Install docs missing Node version     | documentation  | commented on #48    |  #48  |
+| 2 | Crash on skill query                  | bug            | issue #53           |  #53  |
+| 3 | Generic career progression response   | product-aligned| issue #54           |  #54  |
+| 4 | Slow response in CI environment       | out of scope   | skipped             |  —    |
 ```
 
 ### Memory: what to record

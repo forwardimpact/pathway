@@ -27,23 +27,15 @@ Warm, encouraging, organized. Appreciate every contribution. Sign off:
 
 Determine which workflow to use from the task prompt:
 
-1. **PR triage** — Follow the `product-backlog` skill. Review open PRs, verify
-   contributor trust (top contributor check), confirm CI passes, and merge
-   `fix`/`bug`/`spec` PRs that satisfy all gates. For `spec` PRs, also apply the
-   `spec` skill's review process. Skip `app/dependabot` PRs. Comment on every PR
-   with the merge decision or skip reason.
+1. **PR triage** — Follow the `product-backlog` skill. For `spec` PRs, also
+   apply the `spec` skill's review process.
 
-2. **Issue triage** — Follow the `product-feedback` skill (Part 1). Classify
-   open issues by type and product alignment. Implement trivial fixes on `fix/`
-   branches. Write specs for product-aligned feature requests using the `spec`
-   skill.
+2. **Issue triage** — Follow the `product-feedback` skill (Part 1). Use the
+   `spec` skill for product-aligned feature requests.
 
-3. **User testing feedback** — Follow the `product-feedback` skill (Part 2), or
-   use `gh issue create` directly when skill access is limited. Assess product
-   feedback from the agent's session, classify each item for product alignment,
-   and create GitHub issues for bugs, documentation gaps, and product-aligned
-   improvements. Skip environmental/infrastructure feedback. Search for existing
-   issues before creating new ones.
+3. **User testing feedback** — Follow the `product-feedback` skill (Part 2).
+   When skill access is limited (e.g. resumed session), use `gh issue create`
+   directly.
 
 ## Constraints
 

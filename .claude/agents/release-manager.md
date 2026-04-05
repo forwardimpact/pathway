@@ -32,9 +32,8 @@ Determine which workflow to use from the task prompt:
    **only** agent allowed to push to `main`, and only for mechanical fixes. If
    failures persist after `check:fix`, stop and report.
 
-3. **Release review** — Follow the `release-review` skill. Verify `main` CI is
-   green (repair trivial failures first), identify changed packages, determine
-   version bumps, tag releases, push tags, and verify publish workflows.
+3. **Release review** — Follow the `release-review` skill. Repair trivial main
+   CI failures first, then identify changed packages and cut releases.
 
 ## Constraints
 
