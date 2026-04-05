@@ -41,8 +41,8 @@ than attempting the fix.
 
 ## Workflows
 
-Daily pipeline: work creators (04–05 UTC) → preparers (06 UTC) → mergers
-(08 UTC) → releasers (09 UTC) → analyzers (10 UTC). Same-agent workflows never
+Daily pipeline: work creators (04–05 UTC) → preparers (06 UTC) → mergers (08
+UTC) → releasers (09 UTC) → analyzers (10 UTC). Same-agent workflows never
 overlap.
 
 | Workflow              | Schedule                | Agent               | What it does                                                                  |
@@ -175,10 +175,10 @@ graph TD
 - **Fix-or-spec discipline.** Mechanical fixes (`fix/` branches) and structural
   improvements (`spec/` branches) are never mixed in one PR.
 - **Explicit scope constraints.** Each agent lists what it must _not_ do.
-- **Main branch CI repair.** See CONTRIBUTING.md § Pull Request Workflow for
-  the release manager's direct-to-`main` exception.
-- **Trace-driven observability.** Every workflow captures a full execution trace.
-  The improvement coach must quote specific evidence — no speculation.
+- **Main branch CI repair.** See CONTRIBUTING.md § Pull Request Workflow for the
+  release manager's direct-to-`main` exception.
+- **Trace-driven observability.** Every workflow captures a full execution
+  trace. The improvement coach must quote specific evidence — no speculation.
 - **Least privilege.** `security-audit` runs `contents: read` only. Write
   workflows use scoped per-run installation tokens.
 
@@ -241,21 +241,21 @@ skills                   — how to do it (procedures, checklists, templates)
 3. **Tasks are scenario-specific; skills are reusable.** Shared procedures
    belong in skills; per-run details (which product, success criteria) belong in
    tasks.
-4. **Skills may elaborate on system prompt behaviour** but must not contradict or
-   copy it verbatim.
+4. **Skills may elaborate on system prompt behaviour** but must not contradict
+   or copy it verbatim.
 5. **Profiles define boundaries; skills define steps.** Prefer one sentence per
    constraint. No MUST/MUST NOT checklists that repeat skill content.
-6. **Task texts must activate the full workflow.** Name the complete cycle ("Walk
-   the gemba and act on findings"), not just the first phase.
+6. **Task texts must activate the full workflow.** Name the complete cycle
+   ("Walk the gemba and act on findings"), not just the first phase.
 
 **Common violations:**
 
-| Violation                                    | Symptom                                   |
-| -------------------------------------------- | ----------------------------------------- |
-| Task restates skill procedures               | Agent follows task wording, skips skill   |
-| Profile copies skill checklists              | Tokens wasted parsing redundant text      |
-| Skill description parrots system prompt      | Contradictions when system prompt evolves |
-| Task references skills unavailable to agent  | Agent stalls searching for missing skill  |
+| Violation                                   | Symptom                                   |
+| ------------------------------------------- | ----------------------------------------- |
+| Task restates skill procedures              | Agent follows task wording, skips skill   |
+| Profile copies skill checklists             | Tokens wasted parsing redundant text      |
+| Skill description parrots system prompt     | Contradictions when system prompt evolves |
+| Task references skills unavailable to agent | Agent stalls searching for missing skill  |
 
 ### Shared patterns must be consistent
 

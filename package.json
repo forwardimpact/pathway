@@ -10,7 +10,11 @@
   },
   "homepage": "https://www.forwardimpact.team",
   "type": "module",
-  "workspaces": ["libraries/*", "products/*", "services/*"],
+  "workspaces": [
+    "libraries/*",
+    "products/*",
+    "services/*"
+  ],
   "scripts": {
     "prestart": "bunx fit-pathway build",
     "start": "bunx serve public",
