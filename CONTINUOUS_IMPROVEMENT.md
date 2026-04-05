@@ -4,17 +4,13 @@
 >
 > — W. Edwards Deming
 
-This monorepo runs an autonomous continuous improvement system powered by Claude
-Code agents on GitHub Actions. Seven scheduled workflows, four agent personas,
-and nine skills form a closed feedback loop that keeps the codebase secure,
-release-ready, and steadily improving — without human intervention for routine
-tasks. This is a repo self-maintenance system, not part of the Forward Impact
-products — it maintains the project, not the engineering frameworks the products
-serve.
+Autonomous repo self-maintenance powered by Claude Code agents on GitHub
+Actions. Seven scheduled workflows, four agent personas, and ten skills form a
+closed feedback loop that keeps the codebase secure, release-ready, and steadily
+improving. This system maintains the project — not the engineering frameworks
+the products serve.
 
 ## Architecture
-
-Three layers compose the system:
 
 ```mermaid
 graph TD
@@ -26,11 +22,9 @@ graph TD
 ```
 
 All workflows use a shared composite action (`.github/actions/claude/`) that
-installs Claude Code, configures the GitHub App's bot Git identity, runs a
-prompt against an agent profile in non-interactive mode, captures a full
-execution trace as NDJSON, and uploads it as a workflow artifact. Each workflow
-generates a short-lived installation token from the GitHub App before invoking
-the composite action (see § Authentication below).
+installs Claude Code, runs a prompt against an agent profile, captures the
+execution trace as NDJSON, and uploads it as an artifact. Authentication via
+GitHub App tokens (see § Authentication).
 
 ## Agents
 
@@ -47,10 +41,9 @@ than attempting the fix.
 
 ## Workflows
 
-Workflows are sequenced as a daily pipeline: work creators (04–05 UTC) →
-preparers (06 UTC) → mergers (08 UTC) → releasers (09 UTC) → analyzers (10 UTC).
-Each step runs after enough time for CI to complete on the previous step’s
-output. Same-agent workflows never overlap within a day.
+Daily pipeline: work creators (04–05 UTC) → preparers (06 UTC) → mergers
+(08 UTC) → releasers (09 UTC) → analyzers (10 UTC). Same-agent workflows never
+overlap.
 
 | Workflow              | Schedule                | Agent               | What it does                                                                  |
 | --------------------- | ----------------------- | ------------------- | ----------------------------------------------------------------------------- |
@@ -62,29 +55,19 @@ output. Same-agent workflows never overlap within a day.
 | **release-review**    | Tue, Thu, Sat 09:37 UTC | release-manager     | Find unreleased changes, bump versions, tag, push, verify publish             |
 | **improvement-coach** | Wed & Sat 10:47 UTC     | improvement-coach   | Deep-analyze a single random agent trace, open fix PRs or write specs         |
 
-All schedules use off-minute values to avoid API load spikes. Every workflow
-supports `workflow_dispatch` for manual runs, uses concurrency groups, and has a
-30-minute timeout.
+Off-minute schedules avoid API load spikes. All workflows support
+`workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
 
 ## The Feedback Loop
 
-The improvement coach is the meta-agent that closes the loop. Each cycle focuses
-on **one trace** — depth over breadth. It:
+The improvement coach closes the loop. Each cycle focuses on **one trace** —
+depth over breadth: select a run → download the trace → deep-analyze every turn
+via grounded theory → categorize findings → act (trivial fixes become PRs,
+larger improvements become specs).
 
-1. **Selects** a single completed run from the other six workflows (preferring
-   failures, but successful runs are valid targets for inefficiency analysis).
-2. **Downloads** the execution trace artifact and processes it with `fit-eval`.
-3. **Deep-analyzes** every turn, tool call, and result using grounded theory
-   methodology (open coding, axial coding, selective coding) — no skimming.
-4. **Categorizes** findings as trivial fix, improvement, or observation.
-5. **Acts**: trivial fixes become PRs; larger improvements become specs.
-
-When analyzing a **product-backlog** trace, the coach additionally verifies that
-the product manager performed trust checks on every merged PR (see §
-Accountability below).
-
-This means the system studies its own behaviour and feeds corrections back in —
-a closed feedback loop running on a 2–3 day cadence.
+When analyzing a **product-backlog** trace, the coach also verifies that the
+product manager performed trust checks on every merged PR (see §
+Accountability).
 
 ```mermaid
 graph TD
@@ -120,11 +103,9 @@ graph TD
 
 ## Trust Boundary
 
-The product-backlog workflow handles all non-Dependabot PRs. For **external
-contributions**, it is the sole merge point in the CI system — every other merge
-point operates on trusted sources (our own agents, Dependabot).
-
-External contributions pass through a two-tier gate:
+Product-backlog is the sole external merge point — every other merge path
+operates on trusted sources (our agents, Dependabot). External contributions
+pass through a two-tier gate:
 
 | PR type         | What merges                          | Who implements the change           |
 | --------------- | ------------------------------------ | ----------------------------------- |
@@ -133,32 +114,17 @@ External contributions pass through a two-tier gate:
 | Everything else | Nothing — PR is skipped              | N/A                                 |
 
 **Trivial fixes** (`fix`, `bug`) from top-20 contributors merge the
-contributor's own code, gated by CI and trust checks. These are small,
-mechanical patches where the code diff is the deliverable.
+contributor's code, gated by CI and trust checks.
 
-**CI app PRs** authored by `app/forward-impact-ci` are trusted by identity —
-they were created by one of our own agent workflows (product-feedback,
-improvement-coach, etc.). The product manager skips the top-20 contributor
-lookup for these PRs and proceeds directly to type classification and CI checks.
+**CI app PRs** (`app/forward-impact-ci`) are trusted by identity — the product
+manager skips the top-20 lookup and proceeds to type classification and CI.
 
 **Specs** (`spec`) from top-20 contributors merge only the specification
-document — a description of what should change and why. The spec passes through
-an additional `spec` review quality gate. Critically, **planning and
-implementation of approved specs is performed by trusted agents**, not by the
-external contributor. The contributor proposes _what_ to change; the system's
-own agents decide _how_ and write the code. This separation means that even a
-compromised top-20 contributor cannot inject significant code changes through
-the autonomous pipeline — they can only propose ideas that trusted agents
-evaluate and implement independently.
+document. Planning and implementation is performed by trusted agents, not the
+contributor — even a compromised top contributor cannot inject code through the
+autonomous pipeline.
 
-**Features, refactors, and other significant changes** are never auto-merged.
-The product manager skips these PR types entirely, requiring human review.
-
-**CI app PRs** authored by `app/forward-impact-ci` are also processed by
-product-backlog. These are PRs created by our own agent workflows
-(product-feedback, improvement-coach, etc.) and are trusted by identity — the
-product manager skips the top-20 contributor lookup and proceeds directly to
-type classification and CI checks.
+**All other PR types** (features, refactors) require human review.
 
 ```mermaid
 graph TD
@@ -204,133 +170,100 @@ graph TD
 | **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence                  |
 | **product-feedback**  | Agent-authored fix/spec   | Agent-only, issues as input                     |
 
-This design concentrates external-contribution risk at a single auditable point.
-The improvement coach verifies that the product manager performed trust checks
-on every merged PR (see § Accountability below).
-
 ## Design Principles
 
-**Fix-or-spec discipline.** Agents separate mechanical fixes (`fix/` branches)
-from structural improvements (`spec/` branches) — never mixed in one PR.
-
-**Explicit scope constraints.** Each agent definition lists what it must not do.
-The release manager never resolves substantive merge conflicts. The security
-engineer never weakens existing policies. The improvement coach never speculates
-without trace evidence.
-
-**Main branch CI repair.** See CONTRIBUTING.md § Pull Request Workflow for the
-release manager's direct-to-`main` exception and its scope constraints.
-
-**Trace-driven observability.** Every workflow captures a full execution trace
-as an artifact. The improvement coach must quote specific tool calls, error
-messages, or token counts — speculation without evidence is prohibited.
-
-**Least privilege.** The security-audit workflow runs with `contents: read`
-only. Workflows that need to push use `contents: write` with a scoped
-installation token generated per run by the GitHub App.
+- **Fix-or-spec discipline.** Mechanical fixes (`fix/` branches) and structural
+  improvements (`spec/` branches) are never mixed in one PR.
+- **Explicit scope constraints.** Each agent lists what it must _not_ do.
+- **Main branch CI repair.** See CONTRIBUTING.md § Pull Request Workflow for
+  the release manager's direct-to-`main` exception.
+- **Trace-driven observability.** Every workflow captures a full execution trace.
+  The improvement coach must quote specific evidence — no speculation.
+- **Least privilege.** `security-audit` runs `contents: read` only. Write
+  workflows use scoped per-run installation tokens.
 
 ## Shared Memory
 
-Agents share persistent memory backed by the repository's **GitHub wiki**,
-mounted as a git submodule at `.claude/memory/`.
+Agents share persistent memory via the repository's **GitHub wiki**, mounted as
+a git submodule at `.claude/memory/`. Synced by `just memory-pull` (on
+`SessionStart`) and `just memory-push` (on `Stop`).
 
-- **`just memory-pull`** / **`just memory-push`** — thin wrappers around
-  `scripts/memory-sync.sh`. Pull is called by `just install` on `SessionStart`;
-  push runs on the `Stop` hook. The script initialises the submodule, fixes
-  detached HEAD onto `master`, and handles concurrent pushes via rebase with
-  merge fallback.
-
-During a run, Claude Code reads and writes memory files in `.claude/memory/`.
-Each agent records actions taken, decisions, observations for teammates, and
-deferred work so subsequent runs have context about what happened and what still
-needs attention.
+Each agent records actions, decisions, observations for teammates, and deferred
+work so subsequent runs have context.
 
 ## Authentication
 
-Agent workflows authenticate to GitHub using a **GitHub App** instead of a
-personal access token (PAT). Each workflow run generates a short-lived
-installation token via `actions/create-github-app-token`, scoped to the
-repository the App is installed on. This provides three benefits over PATs:
+Workflows authenticate via a **GitHub App** (`forward-impact-ci`), not a PAT.
+Each run generates a short-lived installation token via
+`actions/create-github-app-token` — no long-lived secrets to rotate.
 
-1. **No token expiry management.** Installation tokens are generated on demand
-   and expire after one hour. There is no long-lived secret to rotate.
-2. **Distinct bot identity.** Commits and API calls appear as the App's bot
-   account (`forward-impact-ci[bot]`), not a personal GitHub user. This makes
-   the audit trail unambiguous — agent actions are clearly separated from human
-   actions.
-3. **One-click setup for downstream installations.** The Forward Impact CI App
-   is public. Organizations that install the monorepo can add the App to their
-   repository and store `CI_APP_ID` and `CI_APP_PRIVATE_KEY` as repository
-   secrets. Organizations that prefer full control can create their own GitHub
-   App with the same permissions and override the `app-slug` input in the
-   composite action.
+Benefits: on-demand tokens (1-hour expiry), distinct bot identity
+(`forward-impact-ci[bot]`) for unambiguous audit trails, and one-click setup for
+downstream installations (store `CI_APP_ID` and `CI_APP_PRIVATE_KEY` as
+repository secrets, or create a custom App and override `app-slug`).
 
-The token generation step runs at the workflow level before `actions/checkout`,
-so the checkout token triggers downstream workflows and the same token is passed
-to the composite action via the `GH_TOKEN` environment variable. The
-`security-audit` workflow generates an App token for API access but uses the
-default `GITHUB_TOKEN` for checkout, preserving its `contents: read` least
-privilege constraint.
+Token generation runs before `actions/checkout` so the checkout token triggers
+downstream workflows. The `security-audit` workflow uses `GITHUB_TOKEN` for
+checkout (preserving `contents: read` least privilege) and generates a separate
+App token for API access.
 
 ## Accountability
 
-The **improvement coach** is responsible for auditing the product manager's
-trust verification. When analyzing a product-backlog trace, the coach must
-check:
-
-1. **Every merged PR had a contributor lookup** — the trace must show a
-   `gh api repos/{owner}/{repo}/contributors` call before each merge.
-2. **The author was verified against the result** — the trace must show the
-   author login being compared to the contributor list.
-3. **No merge happened without both checks** — if a PR was merged without a
-   visible trust verification, this is a **high-severity finding**.
-
-If trust verification is missing or incomplete, the improvement coach must open
-a fix PR or spec to correct the gap. This is the mechanism that holds the
-product manager accountable — trace evidence, not trust.
+The improvement coach audits the product manager's trust verification in
+product-backlog traces. Every merged PR must show: (1) a contributor lookup
+call, (2) author verification against the result. A merge without visible trust
+verification is a **high-severity finding** that requires a fix PR or spec.
 
 ## Authoring Best Practices
 
 Lessons from trace analysis and grounded-theory coding of agent workflow runs.
 
-### Task texts must activate the full workflow
+### Instruction layering
 
-A workflow's `task-text` becomes the agent's first user message. If it only
-names the analysis phase ("Analyze a recent agent trace"), the agent completes
-analysis and stops — it never reaches the action phase. Task texts must name the
-complete cycle: "Walk the gemba and act on findings."
+Agent instructions span four layers. Each layer owns a distinct concern — no
+layer should restate content from another.
 
-### Profiles and skills: signal over length
+```
+libeval system prompt   — relay mechanics (how turns work, completion signal)
+       ↓
+workflow task            — this run (which product, scenario, success criteria)
+       ↓
+agent profile            — who you are (persona, voice, skill routing, constraints)
+       ↓
+skills                   — how to do it (procedures, checklists, templates)
+```
 
-Shorter agent profiles produce better task activation than longer ones. When a
-profile contains redundant scope constraints, MUST/MUST NOT checklists that
-repeat skill content, or verbose memory boilerplate, the agent spends tokens
-parsing instructions instead of acting. Prefer:
+**Rules:**
 
-- **One sentence per constraint** — not a paragraph
-- **No duplication between profile and skill** — the profile says _when_ to use
-  a skill; the skill says _how_
-- **Constraints, not procedures** — profiles define boundaries; skills define
-  steps
+1. **Each layer owns its concern.** No layer restates another's content.
+2. **Reference by name, not by content.** Tasks and profiles name skills — they
+   do not copy their steps.
+3. **Tasks are scenario-specific; skills are reusable.** Shared procedures
+   belong in skills; per-run details (which product, success criteria) belong in
+   tasks.
+4. **Skills may elaborate on system prompt behaviour** but must not contradict or
+   copy it verbatim.
+5. **Profiles define boundaries; skills define steps.** Prefer one sentence per
+   constraint. No MUST/MUST NOT checklists that repeat skill content.
+6. **Task texts must activate the full workflow.** Name the complete cycle ("Walk
+   the gemba and act on findings"), not just the first phase.
+
+**Common violations:**
+
+| Violation                                    | Symptom                                   |
+| -------------------------------------------- | ----------------------------------------- |
+| Task restates skill procedures               | Agent follows task wording, skips skill   |
+| Profile copies skill checklists              | Tokens wasted parsing redundant text      |
+| Skill description parrots system prompt      | Contradictions when system prompt evolves |
+| Task references skills unavailable to agent  | Agent stalls searching for missing skill  |
 
 ### Shared patterns must be consistent
 
-When multiple agents or skills share a structural element (memory instructions,
-prerequisites format, section headings), use the same wording everywhere. During
-trace analysis, inconsistency between files correlated with agents skipping
-steps that were worded differently from what they'd seen in other contexts.
+Use the same wording for shared structural elements (memory instructions,
+prerequisites format, section headings) across all agents and skills.
+Inconsistent wording correlated with agents skipping steps in trace analysis.
 
 ### resume() must propagate session state
 
-When an agent SDK session is resumed (e.g., after a supervisor handoff), all
-session configuration — especially `permissionMode` — must be passed again. The
-SDK does not persist configuration across resume boundaries. A resumed session
-that drops `bypassPermissions` falls back to `acceptEdits`, blocking Bash tool
-calls and stalling the workflow.
-
-### Supervisor tasks must not reference unavailable skills
-
-When a supervisor resumes a session, the resumed agent may not have access to
-the same skills as the original. Task definitions for supervised workflows
-should use direct tool calls (e.g., `gh issue create`) rather than referencing
-skills that may be unavailable in the resumed context.
+The SDK does not persist `permissionMode` across resume boundaries. Always pass
+all session configuration again when calling `resume()`.

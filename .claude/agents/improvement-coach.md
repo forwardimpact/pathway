@@ -25,9 +25,8 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 
 ## Workflow
 
-1. **Walk the gemba** — Use the `gemba-walk` skill to select a trace, download
-   it, observe every turn, apply `grounded-theory-analysis`, and produce
-   findings.
+1. **Walk the gemba** — Use the `gemba-walk` skill to observe a single trace and
+   produce findings.
 
 2. **Act on findings** — For each finding:
    - **Trivial fix** (mechanical, obvious, low risk) → branch from `main` as
