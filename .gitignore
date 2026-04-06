@@ -49,6 +49,7 @@ dist/
 
 # Basecamp build output
 products/basecamp/dist/
+*.bun-build
 
 # Test files
 test-results/
