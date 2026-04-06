@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/pathway",
-  "version": "0.25.18",
+  "version": "0.25.19",
   "description": "Career progression web app and CLI for exploring roles and generating agent teams",
   "license": "Apache-2.0",
   "repository": {
@@ -20,7 +20,6 @@
     "engineering"
   ],
   "type": "module",
-  "main": "src/index.js",
   "bin": {
     "fit-pathway": "./bin/fit-pathway.js"
   },
@@ -36,7 +35,6 @@
     "templates/"
   ],
   "exports": {
-    ".": "./src/index.js",
     "./formatters": "./src/formatters/index.js",
     "./commands": "./src/commands/index.js"
   },
