@@ -32,7 +32,9 @@ case "$CMD" in
     jq ".turns[-$N:]" "$FILE"
     ;;
   errors)
-    jq '.turns[] | select(.role == "tool_result" and .isError == true) | {index, content: .content[0:200]}' "$FILE"
+    # Stringify content first (it may be a string or an array of blocks),
+    # then truncate to 200 characters for readability.
+    jq '.turns[] | select(.role == "tool_result" and .isError == true) | {index, content: (.content | tostring | .[0:200])}' "$FILE"
     ;;
   tools)
     jq '[.turns[] | select(.role == "assistant") | .content[] | select(.type == "tool_use") | .name] | group_by(.) | map({tool: .[0], count: length}) | sort_by(-.count)' "$FILE"
