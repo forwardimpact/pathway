@@ -32,8 +32,8 @@ deliberately by the user. This template is for manual creation only.
 
 ## Goals
 
-Goals are **not auto-created** by extract-entities. They are set deliberately
-by the user. This template is for manual creation only.
+Goals are **not auto-created** by extract-entities. They are set deliberately by
+the user. This template is for manual creation only.
 
 ```markdown
 # {Goal Name}

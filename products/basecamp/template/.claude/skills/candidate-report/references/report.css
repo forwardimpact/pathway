@@ -8,33 +8,44 @@
  * PDF rendering via Playwright. Avoid box-shadow and fixed positioning.
  */
 
-@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+@import url("https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap");
 
 :root {
-  --blue: #0072CE;
+  --blue: #0072ce;
   --dark: #003087;
-  --accent: #00A3E0;
-  --green: #10B981;
-  --amber: #F59E0B;
-  --red: #EF4444;
-  --s50: #F8FAFC;
-  --s100: #F1F5F9;
-  --s200: #E2E8F0;
-  --s300: #CBD5E1;
-  --s400: #94A3B8;
-  --s500: #64748B;
+  --accent: #00a3e0;
+  --green: #10b981;
+  --amber: #f59e0b;
+  --red: #ef4444;
+  --s50: #f8fafc;
+  --s100: #f1f5f9;
+  --s200: #e2e8f0;
+  --s300: #cbd5e1;
+  --s400: #94a3b8;
+  --s500: #64748b;
   --s600: #475569;
   --s700: #334155;
-  --s800: #1E293B;
-  --s900: #0F172A;
+  --s800: #1e293b;
+  --s900: #0f172a;
 }
 
-@page { size: A4; margin: 0; }
+@page {
+  size: A4;
+  margin: 0;
+}
 
-* { margin: 0; padding: 0; box-sizing: border-box; }
+* {
+  margin: 0;
+  padding: 0;
+  box-sizing: border-box;
+}
 
 body {
-  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  font-family:
+    "Inter",
+    -apple-system,
+    BlinkMacSystemFont,
+    sans-serif;
   color: var(--s800);
   line-height: 1.45;
   -webkit-font-smoothing: antialiased;
@@ -49,7 +60,12 @@ body {
 /* ── Header ── */
 
 .hdr {
-  background: linear-gradient(135deg, var(--dark), var(--blue) 60%, var(--accent));
+  background: linear-gradient(
+    135deg,
+    var(--dark),
+    var(--blue) 60%,
+    var(--accent)
+  );
   padding: 22px 32px 18px;
   color: white;
   display: flex;
@@ -58,9 +74,22 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.hdr-left h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
-.hdr-left p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
-.hdr-right { text-align: right; font-size: 10px; opacity: 0.75; line-height: 1.5; }
+.hdr-left h1 {
+  font-size: 22px;
+  font-weight: 800;
+  letter-spacing: -0.3px;
+}
+.hdr-left p {
+  font-size: 11px;
+  opacity: 0.8;
+  margin-top: 2px;
+}
+.hdr-right {
+  text-align: right;
+  font-size: 10px;
+  opacity: 0.75;
+  line-height: 1.5;
+}
 
 /* ── Verdict Banner ── */
 
@@ -74,13 +103,24 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.verdict strong { color: var(--s900); font-size: 12px; }
-.verdict span { color: var(--s600); }
+.verdict strong {
+  color: var(--s900);
+  font-size: 12px;
+}
+.verdict span {
+  color: var(--s600);
+}
 
 /* Verdict colour variants — set on the element via class */
-.verdict-caution  { background: #FEF3C7; }
-.verdict-pass     { background: #FEE2E2; }
-.verdict-proceed  { background: #D1FAE5; }
+.verdict-caution {
+  background: #fef3c7;
+}
+.verdict-pass {
+  background: #fee2e2;
+}
+.verdict-proceed {
+  background: #d1fae5;
+}
 
 /* ── Body ── */
 
@@ -106,12 +146,20 @@ body {
 
 /* ── Two-Column Layout ── */
 
-.cols { display: flex; gap: 20px; }
-.col  { flex: 1; }
+.cols {
+  display: flex;
+  gap: 20px;
+}
+.col {
+  flex: 1;
+}
 
 /* ── Snapshot (definition list) ── */
 
-.snap { font-size: 11px; line-height: 1.6; }
+.snap {
+  font-size: 11px;
+  line-height: 1.6;
+}
 .snap dt {
   font-weight: 600;
   color: var(--s400);
@@ -119,14 +167,25 @@ body {
   letter-spacing: 0.5px;
   text-transform: uppercase;
 }
-.snap dd { margin-bottom: 4px; color: var(--s800); }
+.snap dd {
+  margin-bottom: 4px;
+  color: var(--s800);
+}
 
 /* ── Strengths List ── */
 
-.str-list { list-style: none; font-size: 11px; color: var(--s600); }
-.str-list li { padding: 3px 0; padding-left: 14px; position: relative; }
+.str-list {
+  list-style: none;
+  font-size: 11px;
+  color: var(--s600);
+}
+.str-list li {
+  padding: 3px 0;
+  padding-left: 14px;
+  position: relative;
+}
 .str-list li::before {
-  content: '';
+  content: "";
   position: absolute;
   left: 0;
   top: 10px;
@@ -137,7 +196,9 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.str-list li strong { color: var(--s800); }
+.str-list li strong {
+  color: var(--s800);
+}
 
 /* ── Level Gauge ── */
 
@@ -161,15 +222,22 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.gauge div:last-child { border-right: none; }
-.gauge div small { display: block; font-size: 8px; font-weight: 500; margin-top: 1px; }
+.gauge div:last-child {
+  border-right: none;
+}
+.gauge div small {
+  display: block;
+  font-size: 8px;
+  font-weight: 500;
+  margin-top: 1px;
+}
 .gauge .cand {
-  background: #FEF3C7;
-  color: #92400E;
+  background: #fef3c7;
+  color: #92400e;
   box-shadow: inset 0 0 0 2px var(--amber);
 }
 .gauge .tgt {
-  background: #DBEAFE;
+  background: #dbeafe;
   color: var(--dark);
   box-shadow: inset 0 0 0 2px var(--blue);
 }
@@ -182,7 +250,12 @@ body {
   gap: 6px 16px;
   font-size: 10.5px;
 }
-.bm-area h4 { font-size: 10px; font-weight: 700; color: var(--s700); margin-bottom: 3px; }
+.bm-area h4 {
+  font-size: 10px;
+  font-weight: 700;
+  color: var(--s700);
+  margin-bottom: 3px;
+}
 .bm-row {
   display: flex;
   justify-content: space-between;
@@ -190,8 +263,12 @@ body {
   padding: 2px 0;
   border-bottom: 1px solid var(--s100);
 }
-.bm-row:last-child { border-bottom: none; }
-.bm-skill { color: var(--s700); }
+.bm-row:last-child {
+  border-bottom: none;
+}
+.bm-skill {
+  color: var(--s700);
+}
 
 /* Status pills */
 .p {
@@ -204,16 +281,40 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.p-g { background: #FEE2E2; color: #991B1B; }  /* Gap         */
-.p-a { background: #FEF3C7; color: #92400E; }  /* Partial     */
-.p-p { background: #D1FAE5; color: #065F46; }  /* Positive    */
-.p-u { background: var(--s100); color: var(--s500); }  /* Unknown */
+.p-g {
+  background: #fee2e2;
+  color: #991b1b;
+} /* Gap         */
+.p-a {
+  background: #fef3c7;
+  color: #92400e;
+} /* Partial     */
+.p-p {
+  background: #d1fae5;
+  color: #065f46;
+} /* Positive    */
+.p-u {
+  background: var(--s100);
+  color: var(--s500);
+} /* Unknown */
 
 /* ── Behaviour Bars ── */
 
-.beh { display: flex; gap: 8px; flex-wrap: wrap; }
-.beh-item { flex: 1; min-width: 90px; }
-.beh-name { font-size: 9px; font-weight: 600; color: var(--s700); margin-bottom: 2px; }
+.beh {
+  display: flex;
+  gap: 8px;
+  flex-wrap: wrap;
+}
+.beh-item {
+  flex: 1;
+  min-width: 90px;
+}
+.beh-name {
+  font-size: 9px;
+  font-weight: 600;
+  color: var(--s700);
+  margin-bottom: 2px;
+}
 .beh-bar {
   height: 4px;
   border-radius: 2px;
@@ -228,11 +329,19 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.beh-tag { font-size: 8px; color: var(--s400); margin-top: 1px; }
+.beh-tag {
+  font-size: 8px;
+  color: var(--s400);
+  margin-top: 1px;
+}
 
 /* ── Coverage Counters ── */
 
-.counters { display: flex; gap: 8px; margin-top: 4px; }
+.counters {
+  display: flex;
+  gap: 8px;
+  margin-top: 4px;
+}
 .ctr {
   flex: 1;
   text-align: center;
@@ -242,8 +351,16 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.ctr .n { font-size: 18px; font-weight: 800; }
-.ctr .l { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+.ctr .n {
+  font-size: 18px;
+  font-weight: 800;
+}
+.ctr .l {
+  font-size: 8px;
+  font-weight: 600;
+  text-transform: uppercase;
+  letter-spacing: 0.5px;
+}
 
 /* ── Recommendation Box ── */
 
@@ -253,9 +370,21 @@ body {
   border-radius: 8px;
   padding: 10px 14px;
 }
-.reco ol { list-style: none; counter-reset: s; font-size: 11px; color: var(--s600); }
-.reco li { counter-increment: s; display: flex; gap: 8px; margin-bottom: 4px; }
-.reco li:last-child { margin-bottom: 0; }
+.reco ol {
+  list-style: none;
+  counter-reset: s;
+  font-size: 11px;
+  color: var(--s600);
+}
+.reco li {
+  counter-increment: s;
+  display: flex;
+  gap: 8px;
+  margin-bottom: 4px;
+}
+.reco li:last-child {
+  margin-bottom: 0;
+}
 .reco li::before {
   content: counter(s);
   width: 18px;
@@ -273,7 +402,9 @@ body {
   print-color-adjust: exact;
   -webkit-print-color-adjust: exact;
 }
-.reco li strong { color: var(--s800); }
+.reco li strong {
+  color: var(--s800);
+}
 
 /* ── Footer ── */
 
@@ -285,14 +416,26 @@ body {
   font-size: 9px;
   color: var(--s400);
 }
-.ftr b { color: var(--blue); letter-spacing: 1px; }
+.ftr b {
+  color: var(--blue);
+  letter-spacing: 1px;
+}
 
 /* ── Print Overrides ── */
 
 @media print {
-  body { width: 210mm; height: 297mm; }
-  .hdr, .verdict, .gauge div, .p, .str-list li::before, .beh-bar div,
-  .ctr, .reco li::before {
+  body {
+    width: 210mm;
+    height: 297mm;
+  }
+  .hdr,
+  .verdict,
+  .gauge div,
+  .p,
+  .str-list li::before,
+  .beh-bar div,
+  .ctr,
+  .reco li::before {
     print-color-adjust: exact !important;
     -webkit-print-color-adjust: exact !important;
   }

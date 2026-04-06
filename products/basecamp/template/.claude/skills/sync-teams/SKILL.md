@@ -10,8 +10,8 @@ compatibility:
 
 Sync recent Microsoft Teams chat messages into
 `~/.cache/fit/basecamp/teams_chat/` as markdown files. This is an automated data
-pipeline skill — it ingests chat data that other skills (like `extract-entities`)
-consume downstream.
+pipeline skill — it ingests chat data that other skills (like
+`extract-entities`) consume downstream.
 
 Unlike sync-apple-mail (which reads a local SQLite database), this skill uses
 browser automation against the Teams web app. This means Chrome must be open and
@@ -20,7 +20,8 @@ Teams must be authenticated.
 ## Trigger
 
 Run this skill on a schedule (every 15 minutes) or when the user asks to sync
-their Teams chats. Skip if Chrome is not available or Teams is not authenticated.
+their Teams chats. Skip if Chrome is not available or Teams is not
+authenticated.
 
 ## Prerequisites
 
@@ -71,8 +72,8 @@ The user's chat list is NOT a flat recent-chats list — it has sections like
 
 1. Navigate to the Chat section (click the Chat button in the left nav, or it
    may already be showing).
-2. Use `read_page` at **depth 5** on the sidebar tree to read chat entries.
-   The tree structure is:
+2. Use `read_page` at **depth 5** on the sidebar tree to read chat entries. The
+   tree structure is:
    ```
    tree [ref_XX]
      treeitem [section]
@@ -86,7 +87,8 @@ The user's chat list is NOT a flat recent-chats list — it has sections like
 3. Identify **1:1 chats** by their structure:
    - **1:1 chat:** Single person name + status icon (Available/Offline/Away/OOO)
    - **Group chat:** Multiple names or "+N" suffix (e.g., "Hook, Jamie, +4")
-   - **Meeting chat:** Descriptive title (e.g., "Weekly standup", "Accord tech review")
+   - **Meeting chat:** Descriptive title (e.g., "Weekly standup", "Accord tech
+     review")
    - **Bot chat:** Button element with "Bot" in text (e.g., "DX Bot Available")
    - Skip group chats, meeting chats, and bots.
 4. Collect the top 15 most recent 1:1 chats across all sections ("Pins" and
@@ -118,11 +120,13 @@ For each chat to sync (up to 10 per run to keep runtime reasonable):
    const pane = document.querySelector('[data-tid="message-pane-layout"]');
    pane.innerText;
    ```
+
    - **IMPORTANT:** The `innerText` response truncates around 2000–2500 chars.
      Read in chunks: `text.substring(0, 2500)`, `text.substring(2500, 5000)`,
      etc., until you've captured the full content.
    - The total text length is available via `pane.innerText.length`.
 4. **Parse the innerText.** Messages appear in this pattern:
+
    ```
    {heading preview}... by {Sender, Name}   ← STRIP this line (navigation heading)
    {Sender, Name}                           ← sender
@@ -131,10 +135,12 @@ For each chat to sync (up to 10 per run to keep runtime reasonable):
 
    {message body}                           ← actual content (may span multiple lines)
    ```
+
    - Day markers appear as standalone lines: `"Thursday"`, `"Yesterday"`,
      `"Wednesday, March 18"`, `"Last read"`.
    - Strip: heading preview lines (`"... by {Name}"`), reaction counts
      (`"1 Laugh reaction."`), `"has context menu"`, `"Last read"`.
+
 5. **Correlate** the accessibility tree (reliable timestamps) with innerText
    (full message bodies) by matching sender names and message order.
 6. **Normalize sender names** from "Last, First" to "First Last" to match the
@@ -175,6 +181,7 @@ hyphenated first-last name (e.g., `jane-smith.md`, not `smith-jane.md`).
 ```
 
 Key conventions:
+
 - Messages in **chronological order** (oldest first), matching the email thread
   format so `extract-entities` processes them consistently.
 - **Normalize names** from Teams format ("Last, First") to knowledge graph
@@ -193,8 +200,8 @@ Key conventions:
    ```
    {person-slug}\t{Display Name}\t{last_message_iso_timestamp}
    ```
-3. Navigate the tab to `about:blank` or close it (note: `window.close()` may
-   not work from content scripts — navigating to `about:blank` is a reliable
+3. Navigate the tab to `about:blank` or close it (note: `window.close()` may not
+   work from content scripts — navigating to `about:blank` is a reliable
    alternative).
 
 ### Step 6: Report

@@ -44,7 +44,8 @@ Run this skill:
 - `knowledge/Projects/*.md` — project notes (new or updated)
 - `knowledge/Topics/*.md` — topic notes (new or updated)
 - `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
-- `knowledge/Priorities/*.md` — priority notes (updated only, never auto-created)
+- `knowledge/Priorities/*.md` — priority notes (updated only, never
+  auto-created)
 - `~/.cache/fit/basecamp/state/graph_processed` — updated with processed session
   files
 
@@ -348,7 +349,8 @@ Before completing, verify:
 - [ ] Summaries describe relationship, not communication method
 - [ ] Key facts are substantive (no filler)
 - [ ] Open items are commitments (no meta-tasks)
-- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔ Goal)
+- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔
+      Goal)
 - [ ] Goal progress updated where meeting content references existing goals
 - [ ] No new Goal or Priority entities auto-created (user-set only)
 - [ ] Graph state updated for all processed session files

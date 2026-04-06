@@ -23,19 +23,24 @@ before deciding whether to invest interview time.
 ## Prerequisites
 
 - `@forwardimpact/pathway` CLI installed (`bunx fit-pathway --help`)
-- Playwright for PDF output (`bun install playwright && bunx playwright install chromium`)
+- Playwright for PDF output
+  (`bun install playwright && bunx playwright install chromium`)
 - Candidate must have a `brief.md` in `knowledge/Candidates/{Name}/`
 
 ## Inputs
 
 1. **Candidate name** — used to locate `knowledge/Candidates/{Name}/brief.md`
-2. **Target role** — discipline, level, and track (e.g. `software_engineering J070 forward_deployed`)
+2. **Target role** — discipline, level, and track (e.g.
+   `software_engineering J070 forward_deployed`)
 3. **Recipient** — who the report is for (pod lead, hiring manager)
 4. **CV file** — optional; if no `screening.md` exists, read the CV directly
 
 If the user doesn't specify a target role, infer it from:
-- The candidate's `brief.md` (look for Req field -> Role file -> discipline/level/track)
-- The role file linked in the vendor pipeline or role files in `knowledge/Roles/`
+
+- The candidate's `brief.md` (look for Req field -> Role file ->
+  discipline/level/track)
+- The role file linked in the vendor pipeline or role files in
+  `knowledge/Roles/`
 - Ask the user if it can't be inferred
 
 ## Outputs
@@ -75,12 +80,14 @@ bunx fit-pathway job {discipline} {level} --track={track}
 ```
 
 This returns:
+
 - **Skill matrix** — every skill with its expected proficiency level
 - **Behaviour profile** — each behaviour with its expected maturity
 - **Expectations** — impact scope, autonomy, influence, complexity
 - **Role summary** — what success looks like at this level
 
 Extract the key data points you need:
+
 - Core skills grouped by capability area (Delivery, AI, Business, Docs, ML)
 - Behaviour names and expected maturity levels
 - The level label and experience range
@@ -91,12 +98,12 @@ Map candidate evidence against each framework skill and behaviour.
 
 **Skill assessment (from CV or screening.md):**
 
-| Rating | Criteria | Pill class |
-|--------|----------|------------|
-| **Met** | Evidence meets or exceeds the expected proficiency | `p-p` |
-| **Partial** | Some evidence but below expected level | `p-a` |
-| **Gap** | No evidence, or clearly below expected | `p-g` |
-| **Unknown** | Cannot assess from available evidence | `p-u` |
+| Rating      | Criteria                                           | Pill class |
+| ----------- | -------------------------------------------------- | ---------- |
+| **Met**     | Evidence meets or exceeds the expected proficiency | `p-p`      |
+| **Partial** | Some evidence but below expected level             | `p-a`      |
+| **Gap**     | No evidence, or clearly below expected             | `p-g`      |
+| **Unknown** | Cannot assess from available evidence              | `p-u`      |
 
 Apply the **two-level scepticism rule** from the screen-cv skill: default two
 levels below CV claims unless concrete, quantified evidence is provided.
@@ -104,6 +111,7 @@ levels below CV claims unless concrete, quantified evidence is provided.
 **Behaviour assessment:**
 
 Map a 0-100% bar width based on evidence strength:
+
 - 60-100%: Positive signal (use `var(--green)`)
 - 30-59%: Partial signal (use `var(--amber)`)
 - 10-29%: Weak/unknown (use `var(--s300)`)
@@ -122,11 +130,11 @@ Count the total skills assessed into each bucket: Gap, Partial, Unknown, Met.
 
 Choose one of three verdict classes based on the overall assessment:
 
-| Verdict | Class | When to use |
-|---------|-------|-------------|
-| Proceed | `verdict-proceed` | Candidate benchmarks at or above target level |
+| Verdict              | Class             | When to use                                                         |
+| -------------------- | ----------------- | ------------------------------------------------------------------- |
+| Proceed              | `verdict-proceed` | Candidate benchmarks at or above target level                       |
 | Proceed with Caution | `verdict-caution` | Mixed signals; viable for scoped role or needs interview to resolve |
-| Pass | `verdict-pass` | Clear misalignment with role requirements |
+| Pass                 | `verdict-pass`    | Clear misalignment with role requirements                           |
 
 Write a one-line verdict headline and a brief detail sentence.
 
@@ -139,22 +147,23 @@ Write a one-line verdict headline and a brief detail sentence.
 
 **Template sections to populate:**
 
-| Section | Source |
-|---------|--------|
-| Header | Candidate name, title, org, location from brief.md |
-| Verdict | Step 4 output |
-| Snapshot | 5-6 key facts (experience, education, source, stack) |
-| Strengths | 3-5 bullet points — what the candidate brings |
-| Level gauge | Estimated vs target level from Step 3 |
-| Benchmark grid | Top skills per capability area with pills — from Step 3 |
-| Behaviours | Bar chart items — from Step 3 |
-| Coverage counters | Gap/Partial/Unknown/Met counts |
-| Recommendation | 2-4 actionable next steps |
-| Footer | Author name and role from USER.md |
+| Section           | Source                                                  |
+| ----------------- | ------------------------------------------------------- |
+| Header            | Candidate name, title, org, location from brief.md      |
+| Verdict           | Step 4 output                                           |
+| Snapshot          | 5-6 key facts (experience, education, source, stack)    |
+| Strengths         | 3-5 bullet points — what the candidate brings           |
+| Level gauge       | Estimated vs target level from Step 3                   |
+| Benchmark grid    | Top skills per capability area with pills — from Step 3 |
+| Behaviours        | Bar chart items — from Step 3                           |
+| Coverage counters | Gap/Partial/Unknown/Met counts                          |
+| Recommendation    | 2-4 actionable next steps                               |
+| Footer            | Author name and role from USER.md                       |
 
 **A4 fit rules:**
 
 The report MUST fit on a single A4 page (210mm x 297mm). To stay within budget:
+
 - Snapshot: max 6 `<dt>`/`<dd>` pairs
 - Strengths: max 5 `<li>` items, keep each to one sentence
 - Benchmark grid: show 4-6 rows per capability area (prioritise skills with
@@ -185,6 +194,7 @@ node .claude/skills/candidate-report/scripts/render-pdf.mjs \
 
 First copy the HTML to `/tmp/candidate-report.html`, then run the script.
 Requires Playwright — if not installed, tell the user to run:
+
 ```bash
 bun install playwright && bunx playwright install chromium
 ```

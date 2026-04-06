@@ -75,15 +75,15 @@ Extract: **title**, **created_at**, **participants**.
 
 Determine the meeting type from the title. This drives coaching strategy:
 
-| Title Pattern | Type | Coaching Focus |
-|---|---|---|
-| "Interview with {Name}", "Screening {Name}" | **Screening interview** | Framework skills, behaviour probes, level signals |
-| "Decomposition interview with {Name}" | **Decomposition interview** | Problem-solving approach, system thinking, trade-offs |
-| "Technical assessment of {Name}" | **Technical interview** | Hands-on skill, architecture reasoning, code quality |
-| "Panel with {Name}", "Second interview" | **Panel interview** | Business acumen, cultural fit, leadership signals |
-| "Meeting with {Name}", "{Topic} meeting" | **General meeting** | Agenda coverage, action items, decision capture |
-| "Recruitment call", "Recruitment strategy" | **Recruitment planning** | Pipeline status, role requirements, next steps |
-| Other | **General** | Active listening, follow-up questions, key takeaways |
+| Title Pattern                               | Type                        | Coaching Focus                                        |
+| ------------------------------------------- | --------------------------- | ----------------------------------------------------- |
+| "Interview with {Name}", "Screening {Name}" | **Screening interview**     | Framework skills, behaviour probes, level signals     |
+| "Decomposition interview with {Name}"       | **Decomposition interview** | Problem-solving approach, system thinking, trade-offs |
+| "Technical assessment of {Name}"            | **Technical interview**     | Hands-on skill, architecture reasoning, code quality  |
+| "Panel with {Name}", "Second interview"     | **Panel interview**         | Business acumen, cultural fit, leadership signals     |
+| "Meeting with {Name}", "{Topic} meeting"    | **General meeting**         | Agenda coverage, action items, decision capture       |
+| "Recruitment call", "Recruitment strategy"  | **Recruitment planning**    | Pipeline status, role requirements, next steps        |
+| Other                                       | **General**                 | Active listening, follow-up questions, key takeaways  |
 
 ## Phase 2: Gather Context
 
@@ -119,8 +119,7 @@ previous interactions.
 
 1. Read attendee People notes
 2. Read relevant Project and Organization notes referenced in those notes
-3. Check for open tasks involving these people:
-   `rg "{name}" knowledge/Tasks/`
+3. Check for open tasks involving these people: `rg "{name}" knowledge/Tasks/`
 
 ### Step 6 — Build the coaching brief
 
@@ -183,8 +182,8 @@ Subsequent reads (pass the last word ID):
 node .claude/skills/hyprnote-follow/scripts/follow.mjs <session-id> --after <last-word-id>
 ```
 
-The script returns JSON with grouped text segments, channel labels, and the
-last word ID for the next poll.
+The script returns JSON with grouped text segments, channel labels, and the last
+word ID for the next poll.
 
 ### Step 8 — Analyze new content
 
@@ -192,24 +191,24 @@ For each batch of new transcript content, analyze against the coaching brief:
 
 **For interviews — track these dimensions:**
 
-| Dimension | What to watch for |
-|---|---|
-| **Skills demonstrated** | Candidate shows (not just claims) framework skills |
-| **Behaviour signals** | Own the Outcome, Think in Systems, Communicate with Precision, Polymath, Curiosity |
-| **Level signals** | Autonomy, scope, complexity handling, mentoring |
-| **Coverage gaps** | Focus areas from screening that haven't been touched yet |
-| **Red flags** | Contradictions with CV, vague answers, deflection |
-| **Time awareness** | Are you running out of time with uncovered areas? |
+| Dimension               | What to watch for                                                                  |
+| ----------------------- | ---------------------------------------------------------------------------------- |
+| **Skills demonstrated** | Candidate shows (not just claims) framework skills                                 |
+| **Behaviour signals**   | Own the Outcome, Think in Systems, Communicate with Precision, Polymath, Curiosity |
+| **Level signals**       | Autonomy, scope, complexity handling, mentoring                                    |
+| **Coverage gaps**       | Focus areas from screening that haven't been touched yet                           |
+| **Red flags**           | Contradictions with CV, vague answers, deflection                                  |
+| **Time awareness**      | Are you running out of time with uncovered areas?                                  |
 
 **For general meetings — track these dimensions:**
 
-| Dimension | What to watch for |
-|---|---|
-| **Open items** | Were pending items raised and addressed? |
-| **Decisions** | What was decided? Who owns next steps? |
-| **New commitments** | Track who committed to what |
+| Dimension             | What to watch for                                    |
+| --------------------- | ---------------------------------------------------- |
+| **Open items**        | Were pending items raised and addressed?             |
+| **Decisions**         | What was decided? Who owns next steps?               |
+| **New commitments**   | Track who committed to what                          |
 | **Unasked questions** | Topics the user should raise before the meeting ends |
-| **Tone/dynamics** | Shifts in energy, resistance, enthusiasm |
+| **Tone/dynamics**     | Shifts in energy, resistance, enthusiasm             |
 
 ### Step 9 — Provide coaching
 
@@ -340,8 +339,8 @@ After the debrief, offer (don't ask) logical follow-ups:
 
 1. **Framework-grounded.** Every coaching nudge ties back to the career
    framework skills and behaviours. Don't coach based on vibes.
-2. **Evidence over claims.** Flag when a candidate *claims* something vs
-   *demonstrates* it. Push the user to ask for specific examples.
+2. **Evidence over claims.** Flag when a candidate _claims_ something vs
+   _demonstrates_ it. Push the user to ask for specific examples.
 3. **Coverage-aware.** Track which screening focus areas have been explored and
    which haven't. Nudge before time runs out.
 4. **Level-calibrated.** Know what the target level expects. If the candidate is
@@ -362,10 +361,10 @@ After the debrief, offer (don't ask) logical follow-ups:
 
 ### Universal
 
-- **Be quiet when things are going well.** Only speak up when you have
-  something actionable. Silence means "you're doing fine."
+- **Be quiet when things are going well.** Only speak up when you have something
+  actionable. Silence means "you're doing fine."
 - **Channel awareness.** Channel 0 is the user, channel 1+ is the guest(s).
-  Coaching should reference what the *guest* said, since the user already knows
+  Coaching should reference what the _guest_ said, since the user already knows
   what they said.
 - **Never interrupt flow.** If the conversation is in a productive groove, hold
   your coaching until the next natural pause.
@@ -381,8 +380,8 @@ After the debrief, offer (don't ask) logical follow-ups:
   process-hyprnote during the follow. Offer them after.
 - **Channel 0 = user.** Always. Don't confuse who said what.
 - **Transcription noise.** Live transcripts are messy — expect typos, missing
-  words, and misattributed speech. Don't coach based on a single ambiguous
-  word. Wait for enough context.
+  words, and misattributed speech. Don't coach based on a single ambiguous word.
+  Wait for enough context.
 - **Privacy.** Don't repeat sensitive candidate information in coaching output
   that could be seen on a shared screen. Keep nudges generic enough that they
   don't reveal confidential assessment details.

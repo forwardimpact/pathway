@@ -60,7 +60,8 @@ Run this skill:
 - `knowledge/Projects/*.md` — project notes
 - `knowledge/Topics/*.md` — topic notes
 - `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
-- `knowledge/Priorities/*.md` — priority notes (updated only, never auto-created)
+- `knowledge/Priorities/*.md` — priority notes (updated only, never
+  auto-created)
 - `knowledge/Conditions/*.md` — condition notes (created when cross-cutting
   patterns detected, or updated with new activity)
 - `knowledge/Roles/*.md` — role/requisition files (created or enriched)
@@ -134,8 +135,8 @@ TOPICS:
   notes)
 - Has `From:` and `To:` or `Subject:` → **email** (can only update existing
   notes)
-- Has `**Platform:** Microsoft Teams` → **teams chat** (can only update
-  existing notes — same rules as email)
+- Has `**Platform:** Microsoft Teams` → **teams chat** (can only update existing
+  notes — same rules as email)
 - Is in `Voice Memos/` folder → **voice memo** (can create notes)
 - Is in `apple_calendar/` → **calendar event** (enrich existing notes only)
 - Is an **ad-hoc document** (from `~/Desktop/`, `~/Downloads/`, or passed by
@@ -506,10 +507,9 @@ When a match is found:
 
 ### Priority References
 
-Check whether source content relates to an existing
-`knowledge/Priorities/*.md` entry. This is typically implicit — match source
-content themes against the priority names and descriptions in existing priority
-notes.
+Check whether source content relates to an existing `knowledge/Priorities/*.md`
+entry. This is typically implicit — match source content themes against the
+priority names and descriptions in existing priority notes.
 
 When a Priority link is useful for context (not every mention needs one):
 
@@ -533,13 +533,13 @@ When processing a batch of source files, watch for **cross-cutting signals** —
 the same constraint or state referenced across 3+ different entity updates in
 the same processing run. Signals include:
 
-| Signal | Example | Potential Condition |
-|--------|---------|-------------------|
-| "on hold", "paused", "frozen", "blocked" | "All recruitment is on hold" | Hiring Freeze |
-| "reorg", "restructuring", "transition" | "Team may move outside division" | Organizational Restructure |
-| "budget", "cost reduction", "headcount" | "30% reduction planned" | Budget Constraint |
-| "waiting on", "pending approval from" | "Waiting on leadership decision" | Leadership Decision Pending |
-| "new CTO", "leadership change" | "New CTO starting next month" | Leadership Transition |
+| Signal                                   | Example                          | Potential Condition         |
+| ---------------------------------------- | -------------------------------- | --------------------------- |
+| "on hold", "paused", "frozen", "blocked" | "All recruitment is on hold"     | Hiring Freeze               |
+| "reorg", "restructuring", "transition"   | "Team may move outside division" | Organizational Restructure  |
+| "budget", "cost reduction", "headcount"  | "30% reduction planned"          | Budget Constraint           |
+| "waiting on", "pending approval from"    | "Waiting on leadership decision" | Leadership Decision Pending |
+| "new CTO", "leadership change"           | "New CTO starting next month"    | Leadership Transition       |
 
 ### Creating a Condition
 
@@ -561,8 +561,7 @@ When a Condition is created or updated:
 
 1. Add `[[Conditions/{Condition}]]` to the `## Blockers` section of affected
    Goals
-2. Add `[Status → on hold]` state changes to affected Projects where
-   appropriate
+2. Add `[Status → on hold]` state changes to affected Projects where appropriate
 3. Add a `## Blockers` entry to affected Role files if recruitment is frozen
 4. Log the Condition reference in activity entries:
    `- **YYYY-MM-DD** (source): {update}. See [[Conditions/{Condition}]]`
@@ -620,17 +619,17 @@ Use precise edits — don't rewrite the entire file.
 
 After writing, verify links go both ways:
 
-| If you add...          | Then also add...                              |
-| ---------------------- | --------------------------------------------- |
-| Person → Organization  | Organization → Person (in People section)     |
-| Person → Project       | Project → Person (in People section)          |
-| Project → Organization | Organization → Project (in Projects section)  |
-| Project → Goal         | Goal → Project (in Projects section)          |
-| Goal → Priority        | Priority → Goal (in Goals section)            |
-| Project → Priority     | Priority → Project (in Projects section)      |
-| Condition → Goal       | Goal → Condition (in Blockers section)        |
-| Condition → Project    | Project → Condition (in Related section)      |
-| Condition → Role       | Role → Condition (in notes or status field)   |
+| If you add...          | Then also add...                             |
+| ---------------------- | -------------------------------------------- |
+| Person → Organization  | Organization → Person (in People section)    |
+| Person → Project       | Project → Person (in People section)         |
+| Project → Organization | Organization → Project (in Projects section) |
+| Project → Goal         | Goal → Project (in Projects section)         |
+| Goal → Priority        | Priority → Goal (in Goals section)           |
+| Project → Priority     | Priority → Project (in Projects section)     |
+| Condition → Goal       | Goal → Condition (in Blockers section)       |
+| Condition → Project    | Project → Condition (in Related section)     |
+| Condition → Role       | Role → Condition (in notes or status field)  |
 
 Always use absolute links: `[[People/Sarah Chen]]`,
 `[[Organizations/Acme Corp]]`, `[[Projects/Acme Integration]]`,
@@ -669,9 +668,11 @@ Before completing, verify:
 - [ ] Key facts are substantive (no filler)
 - [ ] Open items are commitments (no "find their email" tasks)
 - [ ] State changes logged with `[Field → value]` notation
-- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔ Goal)
+- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔
+      Goal)
 - [ ] Goal progress updated where source content references existing goals
-- [ ] Priority links added to Projects/Topics where appropriate (not over-linked)
+- [ ] Priority links added to Projects/Topics where appropriate (not
+      over-linked)
 - [ ] No new Goal or Priority entities auto-created (user-set only)
 - [ ] Conditions detected when 3+ entities reference same constraint in a batch
 - [ ] Existing Conditions updated with new activity when referenced

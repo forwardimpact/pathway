@@ -143,8 +143,8 @@ json.dump(data, open(path, 'w'), indent=2)
 
 The fact that a transcript needs trimming means the recording captured audio
 beyond the consented meeting — ambient conversation, unrelated chatter, or other
-people who did not consent to being recorded. The full audio file must be deleted
-to respect participant privacy.
+people who did not consent to being recorded. The full audio file must be
+deleted to respect participant privacy.
 
 1. Delete the audio file:
    ```bash
@@ -155,9 +155,9 @@ to respect participant privacy.
    Audio deleted: audio.mp3 removed (recording contained unconsented content beyond the meeting)
    ```
 
-This step is **not optional** and does **not require separate user confirmation**
-— the user already approved the trim, which implicitly acknowledges the
-recording went beyond the meeting boundary.
+This step is **not optional** and does **not require separate user
+confirmation** — the user already approved the trim, which implicitly
+acknowledges the recording went beyond the meeting boundary.
 
 ### Step 6 — Verify
 

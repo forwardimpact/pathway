@@ -36,7 +36,7 @@ import { homedir } from "node:os";
 
 const SESSIONS_DIR = join(
   homedir(),
-  "Library/Application Support/hyprnote/sessions"
+  "Library/Application Support/hyprnote/sessions",
 );
 
 function parseArgs() {
@@ -181,7 +181,9 @@ function main() {
   }
 
   if (!opts.sessionId) {
-    console.error("Usage: follow.mjs <session-id> [--after <word-id>] [--meta]");
+    console.error(
+      "Usage: follow.mjs <session-id> [--after <word-id>] [--meta]",
+    );
     process.exit(1);
   }
 
@@ -207,7 +209,7 @@ function main() {
         duration_ms: 0,
         channels: {},
         text: [],
-      })
+      }),
     );
     return;
   }
@@ -253,8 +255,8 @@ function main() {
         text: segments,
       },
       null,
-      2
-    )
+      2,
+    ),
   );
 }
 

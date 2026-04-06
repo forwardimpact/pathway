@@ -1,9 +1,9 @@
-<!DOCTYPE html>
+<!doctype html>
 <html lang="en">
-<head>
-<meta charset="UTF-8">
-<title>Candidate Report — {{CANDIDATE_NAME}}</title>
-<!--
+  <head>
+    <meta charset="UTF-8" />
+    <title>Candidate Report — {{CANDIDATE_NAME}}</title>
+    <!--
   candidate-report template
   ─────────────────────────
   This is the structural skeleton for the A4 one-page candidate assessment.
@@ -22,63 +22,67 @@
   the report fits on a single page. If content overflows, reduce the number
   of benchmark skills shown or shorten the strengths list.
 -->
-<style>
-{{INLINE_CSS}}
-</style>
-</head>
-<body>
+    <style>
+      {{INLINE_CSS}}
+    </style>
+  </head>
+  <body>
+    <!-- ── Header ── -->
+    <div class="hdr">
+      <div class="hdr-left">
+        <h1>{{CANDIDATE_NAME}}</h1>
+        <p>
+          {{CANDIDATE_TITLE}} &mdash; {{CANDIDATE_ORG}} &bull;
+          {{CANDIDATE_LOCATION}}
+        </p>
+      </div>
+      <div class="hdr-right">
+        {{REPORT_DATE}}<br />
+        {{TARGET_POD_OR_TEAM}}<br />
+        {{TARGET_DOMAIN}}
+      </div>
+    </div>
 
-<!-- ── Header ── -->
-<div class="hdr">
-  <div class="hdr-left">
-    <h1>{{CANDIDATE_NAME}}</h1>
-    <p>{{CANDIDATE_TITLE}} &mdash; {{CANDIDATE_ORG}} &bull; {{CANDIDATE_LOCATION}}</p>
-  </div>
-  <div class="hdr-right">
-    {{REPORT_DATE}}<br>
-    {{TARGET_POD_OR_TEAM}}<br>
-    {{TARGET_DOMAIN}}
-  </div>
-</div>
-
-<!-- ── Verdict Banner ──
+    <!-- ── Verdict Banner ──
      Classes: verdict-caution (amber), verdict-pass (red), verdict-proceed (green)
 -->
-<div class="verdict {{VERDICT_CLASS}}">
-  <strong>{{VERDICT_ICON}} {{VERDICT_HEADLINE}}</strong>
-  <span>&mdash; {{VERDICT_DETAIL}}</span>
-</div>
+    <div class="verdict {{VERDICT_CLASS}}">
+      <strong>{{VERDICT_ICON}} {{VERDICT_HEADLINE}}</strong>
+      <span>&mdash; {{VERDICT_DETAIL}}</span>
+    </div>
 
-<div class="body">
-
-  <!-- ── Row 1: Snapshot + Strengths (two columns) ── -->
-  <div class="cols">
-    <div class="col">
-      <div class="stitle">Snapshot</div>
-      <dl class="snap">
-        <!--
+    <div class="body">
+      <!-- ── Row 1: Snapshot + Strengths (two columns) ── -->
+      <div class="cols">
+        <div class="col">
+          <div class="stitle">Snapshot</div>
+          <dl class="snap">
+            <!--
           Typical fields: Experience, Education, Source, Stack.
           Add/remove <dt>/<dd> pairs as needed for the candidate.
         -->
-        {{SNAPSHOT_DL_ITEMS}}
-      </dl>
-    </div>
-    <div class="col">
-      <div class="stitle">Key Strengths</div>
-      <ul class="str-list">
-        <!--
+            {{SNAPSHOT_DL_ITEMS}}
+          </dl>
+        </div>
+        <div class="col">
+          <div class="stitle">Key Strengths</div>
+          <ul class="str-list">
+            <!--
           3-5 bullet points. Each: <li><strong>Label.</strong> Detail.</li>
         -->
-        {{STRENGTHS_LI_ITEMS}}
-      </ul>
-    </div>
-  </div>
+            {{STRENGTHS_LI_ITEMS}}
+          </ul>
+        </div>
+      </div>
 
-  <!-- ── Row 2: Level Gauge ── -->
-  <div>
-    <div class="stitle">Level Calibration &mdash; estimated {{ESTIMATED_LEVEL}} vs target {{TARGET_LEVEL}}</div>
-    <div class="gauge">
-      <!--
+      <!-- ── Row 2: Level Gauge ── -->
+      <div>
+        <div class="stitle">
+          Level Calibration &mdash; estimated {{ESTIMATED_LEVEL}} vs target
+          {{TARGET_LEVEL}}
+        </div>
+        <div class="gauge">
+          <!--
         Render one <div> per level on the gauge.
         Add class="cand" to the estimated level, class="tgt" to the target.
         Show 5 levels centred around the candidate/target range.
@@ -90,15 +94,18 @@
         <div>J080<small>Level IV</small></div>
         <div>J090<small>Staff</small></div>
       -->
-      {{GAUGE_DIVS}}
-    </div>
-  </div>
+          {{GAUGE_DIVS}}
+        </div>
+      </div>
 
-  <!-- ── Row 3: Benchmark Grid (2×2) ── -->
-  <div>
-    <div class="stitle">Benchmark vs {{TARGET_LEVEL_LABEL}} {{DISCIPLINE_LABEL}} &mdash; {{TRACK_LABEL}} ({{TOTAL_SKILLS}} skills)</div>
-    <div class="bm">
-      <!--
+      <!-- ── Row 3: Benchmark Grid (2×2) ── -->
+      <div>
+        <div class="stitle">
+          Benchmark vs {{TARGET_LEVEL_LABEL}} {{DISCIPLINE_LABEL}} &mdash;
+          {{TRACK_LABEL}} ({{TOTAL_SKILLS}} skills)
+        </div>
+        <div class="bm">
+          <!--
         Four .bm-area blocks in a 2×2 grid. Each contains:
           <h4>🚀 Area Name</h4>
           <div class="bm-row">
@@ -117,16 +124,16 @@
           p-p  = Positive / Met (green)
           p-u  = Unknown (grey)
       -->
-      {{BENCHMARK_AREAS}}
-    </div>
-  </div>
+          {{BENCHMARK_AREAS}}
+        </div>
+      </div>
 
-  <!-- ── Row 4: Behaviours + Coverage Counters (two columns) ── -->
-  <div class="cols">
-    <div class="col">
-      <div class="stitle">Behaviours</div>
-      <div class="beh">
-        <!--
+      <!-- ── Row 4: Behaviours + Coverage Counters (two columns) ── -->
+      <div class="cols">
+        <div class="col">
+          <div class="stitle">Behaviours</div>
+          <div class="beh">
+            <!--
           One .beh-item per behaviour. Bar fill width = evidence strength (0-100%).
           Colour: var(--green) positive, var(--amber) partial, var(--red) gap,
                   var(--s300) unknown.
@@ -137,48 +144,60 @@
             <div class="beh-tag">Assessment — short note</div>
           </div>
         -->
-        {{BEHAVIOUR_ITEMS}}
-      </div>
-    </div>
-    <div class="col">
-      <div class="stitle">Coverage Summary</div>
-      <div class="counters">
-        <!--
+            {{BEHAVIOUR_ITEMS}}
+          </div>
+        </div>
+        <div class="col">
+          <div class="stitle">Coverage Summary</div>
+          <div class="counters">
+            <!--
           Four counter boxes. Colours are fixed:
             Gap:     background:#FEE2E2  text:#991B1B
             Partial: background:#FEF3C7  text:#92400E
             Unknown: background:var(--s100) text:var(--s500)
             Met:     background:#D1FAE5  text:#065F46
         -->
-        <div class="ctr" style="background:#FEE2E2;"><div class="n" style="color:#991B1B;">{{COUNT_GAP}}</div><div class="l" style="color:#991B1B;">Gap</div></div>
-        <div class="ctr" style="background:#FEF3C7;"><div class="n" style="color:#92400E;">{{COUNT_PARTIAL}}</div><div class="l" style="color:#92400E;">Partial</div></div>
-        <div class="ctr" style="background:var(--s100);"><div class="n" style="color:var(--s500);">{{COUNT_UNKNOWN}}</div><div class="l" style="color:var(--s500);">Unknown</div></div>
-        <div class="ctr" style="background:#D1FAE5;"><div class="n" style="color:#065F46;">{{COUNT_MET}}</div><div class="l" style="color:#065F46;">Met</div></div>
+            <div class="ctr" style="background: #fee2e2">
+              <div class="n" style="color: #991b1b">{{COUNT_GAP}}</div>
+              <div class="l" style="color: #991b1b">Gap</div>
+            </div>
+            <div class="ctr" style="background: #fef3c7">
+              <div class="n" style="color: #92400e">{{COUNT_PARTIAL}}</div>
+              <div class="l" style="color: #92400e">Partial</div>
+            </div>
+            <div class="ctr" style="background: var(--s100)">
+              <div class="n" style="color: var(--s500)">{{COUNT_UNKNOWN}}</div>
+              <div class="l" style="color: var(--s500)">Unknown</div>
+            </div>
+            <div class="ctr" style="background: #d1fae5">
+              <div class="n" style="color: #065f46">{{COUNT_MET}}</div>
+              <div class="l" style="color: #065f46">Met</div>
+            </div>
+          </div>
+        </div>
       </div>
-    </div>
-  </div>
 
-  <!-- ── Row 5: Recommendation ── -->
-  <div>
-    <div class="stitle">Recommendation</div>
-    <div class="reco">
-      <ol>
-        <!--
+      <!-- ── Row 5: Recommendation ── -->
+      <div>
+        <div class="stitle">Recommendation</div>
+        <div class="reco">
+          <ol>
+            <!--
           2-4 numbered action items. Each:
           <li><strong>Action.</strong> Detail explaining the step.</li>
         -->
-        {{RECOMMENDATION_LI_ITEMS}}
-      </ol>
+            {{RECOMMENDATION_LI_ITEMS}}
+          </ol>
+        </div>
+      </div>
     </div>
-  </div>
 
-</div>
-
-<!-- ── Footer ── -->
-<div class="ftr">
-  <b>FORWARD IMPACT TEAM</b>
-  <span>Confidential &mdash; prepared by {{AUTHOR_NAME}}, {{AUTHOR_ROLE}}</span>
-</div>
-
-</body>
+    <!-- ── Footer ── -->
+    <div class="ftr">
+      <b>FORWARD IMPACT TEAM</b>
+      <span
+        >Confidential &mdash; prepared by {{AUTHOR_NAME}}, {{AUTHOR_ROLE}}</span
+      >
+    </div>
+  </body>
 </html>
