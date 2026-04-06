@@ -60,8 +60,8 @@ jobs:
           cd "$PACK_DIR"
           npm init -y
           npm install "$TARBALL"
-          # Verify the main entry point is resolvable (skip for bin-only packages)
-          HAS_MAIN=$(node -e "const p=JSON.parse(require('fs').readFileSync('node_modules/${{ steps.package.outputs.npm_name }}/package.json','utf8')); if(p.main||p.exports) console.log('yes')")
+          # Verify the main entry point is resolvable (skip for bin-only or subpath-only packages)
+          HAS_MAIN=$(node -e "const p=JSON.parse(require('fs').readFileSync('node_modules/${{ steps.package.outputs.npm_name }}/package.json','utf8')); if(p.main||(p.exports&&(typeof p.exports==='string'||p.exports['.']))) console.log('yes')")
           if [ -n "$HAS_MAIN" ]; then
             node -e "require.resolve('${{ steps.package.outputs.npm_name }}')"
           fi
