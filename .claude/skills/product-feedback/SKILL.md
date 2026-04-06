@@ -10,42 +10,37 @@ description: >
 
 Manage product feedback in both directions:
 
-- **Inbound** — Triage open GitHub issues submitted by others: classify by type
-  and scope, implement trivial fixes directly, or write specs for
-  product-aligned improvements.
-- **Outbound** — Assess feedback observed during user testing sessions (e.g.
-  evaluation scenarios), classify it for product alignment, and create GitHub
-  issues for feedback that serves the product vision.
+- **Inbound** — Triage open GitHub issues: classify by type and scope, implement
+  trivial fixes directly, or write specs for product-aligned improvements.
+- **Outbound** — Create GitHub issues from feedback observed during user testing
+  sessions (e.g. evaluation scenarios).
 
 ## When to Use
 
 - Reviewing and actioning open issues for product alignment
 - Scheduled to process community feedback regularly
-- On-demand when the issue backlog needs attention
 - After supervising a user testing or evaluation session where the agent
-  reported feedback about product experience (installation, documentation, CLI
-  output, error messages, etc.)
+  reported friction, bugs, or suggestions
 
 ## Prerequisites
 
 The `gh` CLI must be installed and authenticated. Verify with `gh auth status`.
 
+All comment, PR, and issue templates are in `references/templates.md`.
+
 ## Part 1: Triaging Open Issues
 
 ### Classification
 
-Each issue is classified into one of three categories based on its content:
+| Category            | Criteria                                              | Action          |
+| ------------------- | ----------------------------------------------------- | --------------- |
+| **Trivial fix/bug** | Clear bug or small fix with obvious resolution        | Implement + PR  |
+| **Product-aligned** | Feature/improvement serving the product vision        | Write spec + PR |
+| **Out of scope**    | Not aligned, unclear, duplicate, or already addressed | Label + comment |
 
-| Category            | Criteria                                                       | Action          |
-| ------------------- | -------------------------------------------------------------- | --------------- |
-| **Trivial fix/bug** | Clear bug report or small fix with obvious resolution          | Implement + PR  |
-| **Product-aligned** | Feature request or improvement aligned with the product vision | Write spec + PR |
-| **Out of scope**    | Not aligned with products, unclear, or already addressed       | Label + comment |
+### Product Vision Alignment
 
-### Product vision alignment
-
-Use CLAUDE.md and JTBD.md to determine whether an issue aligns with the product
-vision. The six products and their questions:
+Use CLAUDE.md and JTBD.md to determine alignment. The six products:
 
 | Product      | Question it answers                               |
 | ------------ | ------------------------------------------------- |
@@ -56,25 +51,18 @@ vision. The six products and their questions:
 | **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
 
-An issue is product-aligned if it describes a need that one of these products
-should address for its users (Leadership, Engineers, or Agents).
+An issue is product-aligned if it describes a need one of these products should
+address for its users (Leadership, Engineers, or Agents).
 
 ### Process
 
-### Step 0: Read Memory for Issue History
+#### Step 0: Read Memory
 
-Before listing issues, read all files in the memory directory. From previous
-`product-manager-*.md` entries (this skill runs under the product-manager
-agent), extract:
+Read all files in the memory directory. From previous `product-manager-*.md`
+entries, extract issues previously processed and recurring themes. Also check
+entries from other agents (improvement coach, security engineer).
 
-- Issues that were previously processed and their outcomes
-- Recurring themes or requests that inform prioritization
-
-Also check entries from other agents — the improvement coach may have noted
-user-facing issues in traces, or the security engineer may have flagged
-vulnerabilities reported as issues.
-
-### Step 1: List Open Issues
+#### Step 1: List Open Issues
 
 ```sh
 gh issue list --state open --limit 50 \
@@ -82,246 +70,54 @@ gh issue list --state open --limit 50 \
   --jq '.[] | {number, title, author: .author.login, labels: [.labels[].name], created: .createdAt}'
 ```
 
-Skip issues that already have a `triaged` or `wontfix` label — those have been
-processed.
+Skip issues with `triaged` or `wontfix` labels.
 
-### Step 2: Read and Classify Each Issue
-
-For each open issue, read the full details:
+#### Step 2: Read and Classify Each Issue
 
 ```sh
 gh issue view <number> --json title,body,comments,labels,author
 ```
 
-Classify the issue:
+Classify as **trivial fix/bug** (clear, reproducible, mechanical fix),
+**product-aligned** (serves a product and its users), or **out of scope**
+(unaligned, duplicate, unclear, already addressed).
 
-1. **Trivial fix/bug** — The issue describes a clear, reproducible bug or a
-   small fix. The root cause is identifiable from the description, and the fix
-   is mechanical (e.g., typo, broken link, incorrect validation, missing edge
-   case). The change would touch a small number of files with an obvious
-   resolution.
+#### Step 3: Handle Trivial Fixes
 
-2. **Product-aligned** — The issue describes a feature request, enhancement, or
-   improvement that serves one of the six products and its users. The issue has
-   enough detail to understand the need, even if the solution requires design
-   work.
+Implement the fix, run `bun run check`, create a fix PR. See
+`references/templates.md` § Fix PRs for branch, commit, and PR body templates.
+Label the issue `triaged`.
 
-3. **Out of scope** — The issue does not align with any product, is a duplicate,
-   is unclear and lacks enough context to act on, or has already been addressed.
+#### Step 4: Handle Product-Aligned Issues
 
-### Step 3: Handle Trivial Fixes/Bugs
+Write a spec using the `spec` skill, referencing the original issue. See
+`references/templates.md` § Spec PRs for templates. Update `specs/STATUS`. Label
+the issue `triaged`.
 
-For issues classified as trivial fixes or bugs:
+#### Step 5: Handle Out-of-Scope Issues
 
-1. Comment on the issue to acknowledge it and explain next steps:
+Comment with explanation, label, and close. For duplicates, reference the
+original. For unclear issues, add `needs-info` label but leave open. See
+`references/templates.md` § Issue Comments for templates.
 
-```sh
-gh issue comment <number> --body "Thanks for reporting this! I can see the problem — I'll put together a fix now.
+#### Step 6: Report Summary
 
-— Product Manager 🌱"
-```
+Produce a summary table of all issues processed. See `references/templates.md` §
+Report Summary Tables for the format.
 
-2. Create a fix branch:
+### Memory: What to Record
 
-```sh
-git checkout main
-git pull origin main
-git checkout -b fix/issue-<number>-<short-description>
-```
-
-3. Investigate and implement the fix. Read relevant code, make the change, and
-   verify it works.
-
-4. Run quality checks:
-
-```sh
-bun run check
-```
-
-5. Commit and push:
-
-```sh
-git add <changed-files>
-git commit -m "fix(<scope>): <description>
-
-Closes #<number>"
-git push -u origin fix/issue-<number>-<short-description>
-```
-
-6. Create a PR:
-
-```sh
-gh pr create \
-  --title "fix(<scope>): <description>" \
-  --body "$(cat <<'EOF'
-## Summary
-
-<description of the fix>
-
-Closes #<number>
-
-## Test plan
-
-- [ ] `bun run check` passes
-- [ ] <specific verification>
-EOF
-)"
-```
-
-7. Label the issue as triaged:
-
-```sh
-gh issue edit <number> --add-label "triaged"
-```
-
-### Step 4: Handle Product-Aligned Issues
-
-For issues classified as product-aligned, write a spec using the `spec` skill:
-
-1. Comment on the issue to acknowledge it and explain next steps:
-
-```sh
-gh issue comment <number> --body "Thanks for this suggestion! This aligns with our product direction. I'm going to write up a spec so we can plan the implementation properly.
-
-— Product Manager 🌱"
-```
-
-2. Determine the next available spec number:
-
-```sh
-ls specs/ | sort -n | tail -1
-```
-
-3. Create a spec branch:
-
-```sh
-git checkout main
-git pull origin main
-git checkout -b spec/issue-<number>-<short-description>
-```
-
-4. Write the spec following the `spec` skill process. The spec should:
-   - Reference the original issue (`#<number>`)
-   - Define the problem from the issue reporter's perspective
-   - Scope the change to what the issue describes
-   - Define verifiable success criteria
-
-5. Update `specs/STATUS` with the new spec in `draft` status.
-
-6. Run quality checks:
-
-```sh
-bun run check
-```
-
-7. Commit and push:
-
-```sh
-git add specs/<NNN>-<name>/spec.md specs/STATUS
-git commit -m "spec(<scope>): <description>
-
-Addresses #<number>"
-git push -u origin spec/issue-<number>-<short-description>
-```
-
-8. Create a PR:
-
-```sh
-gh pr create \
-  --title "spec(<scope>): <description>" \
-  --body "$(cat <<'EOF'
-## Summary
-
-Spec for issue #<number>: <issue title>
-
-<brief description of what the spec proposes>
-
-Addresses #<number>
-
-## Review
-
-This spec needs review before implementation can begin. See the `spec`
-skill for the review process.
-EOF
-)"
-```
-
-9. Label the issue as triaged:
-
-```sh
-gh issue edit <number> --add-label "triaged"
-```
-
-### Step 5: Handle Out-of-Scope Issues
-
-For issues classified as out of scope:
-
-```sh
-gh issue comment <number> --body "Thanks for taking the time to open this! After reviewing it against our product direction, this falls outside our current scope. <brief explanation of why>.
-
-Closing for now — feel free to reopen with additional context if you think this assessment is off.
-
-— Product Manager 🌱"
-gh issue edit <number> --add-label "wontfix"
-gh issue close <number>
-```
-
-For duplicate issues, reference the original:
-
-```sh
-gh issue comment <number> --body "Thanks for reporting this! This is already tracked in #<original>, so I'll close this one as a duplicate.
-
-— Product Manager 🌱"
-gh issue close <number> --reason "not planned"
-```
-
-For unclear issues that need more information:
-
-```sh
-gh issue comment <number> --body "Thanks for opening this! I'd like to help, but I need a bit more context to act on it. Could you provide <specific questions>?
-
-— Product Manager 🌱"
-gh issue edit <number> --add-label "needs-info"
-```
-
-Do **not** close unclear issues — leave them open for the reporter to respond.
-
-### Step 6: Report Summary
-
-After processing all issues, produce a summary table:
-
-```
-| Issue | Title                           | Category       | Action         | Detail                     |
-| ----- | ------------------------------- | -------------- | -------------- | -------------------------- |
-| #12   | Schema validation crash on null | trivial fix    | PR #45         | Fix null check in validate |
-| #8    | Support custom skill levels     | product-aligned| spec PR #46    | specs/220-custom-levels/   |
-| #5    | Add dark mode                   | out of scope   | closed         | Not in product scope       |
-| #3    | Unclear error message           | trivial fix    | PR #47         | Improve error text         |
-| #1    | Integration with Jira           | out of scope   | needs-info     | Asked for use case detail  |
-```
-
-### Memory: what to record
-
-Include these fields in addition to standard agent memory fields:
-
-- **Issue triage table** — Each issue processed with category, action taken, and
-  outcome (PR number, spec number, or close reason)
-- **Recurring themes** — Feature requests or bug patterns that appear across
-  multiple issues, noting frequency and product alignment
-- **Specs created** — Spec numbers and their associated issues, for tracking
-  through the spec lifecycle
+- **Issue triage table** — Each issue with category, action, and outcome
+- **Recurring themes** — Patterns across issues, with frequency and alignment
+- **Specs created** — Spec numbers and associated issue numbers
 
 ## Part 2: Creating Issues from User Testing Feedback
 
-When supervising a user testing or evaluation session, the agent being tested
-will report feedback about their experience — installation friction, unclear
-documentation, confusing CLI output, errors, missing features, etc. This
-feedback is a valuable product signal. Assess it for product alignment and
-create GitHub issues for feedback that serves the product vision.
+When a user testing or evaluation session produces feedback (installation
+friction, unclear docs, CLI errors, missing features), assess it for product
+alignment and create GitHub issues for actionable items.
 
 ### When This Applies
-
-Use this process when you have observed or received product feedback from:
 
 - Evaluation scenarios (e.g. `guide-setup`, `pathway-setup`)
 - User testing sessions where an agent tried a product as a first-time user
@@ -331,117 +127,35 @@ Use this process when you have observed or received product feedback from:
 
 #### Step 1: Extract Feedback Items
 
-Review the agent's output and identify distinct feedback items. Each item should
-describe a single observation — don't merge unrelated feedback.
-
-Examples of feedback items:
-
-- "Installation instructions didn't mention needing Node 18+"
-- "fit-guide crashed with 'Cannot read properties of undefined' when asking
-  about skills"
-- "The response about career progression was generic and didn't reference the
-  framework"
-- "No example prompts were shown after installation"
+Review the agent's output and identify distinct feedback items. Each item
+describes a single observation — don't merge unrelated feedback.
 
 #### Step 2: Classify Each Item
 
-Use the same product alignment criteria as inbound triage:
+| Category            | Criteria                                         | Action                |
+| ------------------- | ------------------------------------------------ | --------------------- |
+| **Bug**             | Crashes, errors, incorrect output                | Create bug issue      |
+| **Product-aligned** | Missing feature serving the product vision       | Create feature issue  |
+| **Documentation**   | Instructions unclear, missing steps, or outdated | Create docs issue     |
+| **Out of scope**    | Not actionable or outside product control        | Skip — note in report |
 
-| Category            | Criteria                                                      | Action                 |
-| ------------------- | ------------------------------------------------------------- | ---------------------- |
-| **Bug**             | Something is broken — crashes, errors, incorrect output       | Create bug issue       |
-| **Product-aligned** | Missing feature or improvement that serves the product vision | Create feature issue   |
-| **Documentation**   | Instructions unclear, missing steps, or outdated content      | Create docs issue      |
-| **Out of scope**    | Not actionable, environmental, or outside product control     | Skip — note in summary |
+#### Step 3: Check for Existing Issues
 
-#### Step 3: Check for Similar Existing Issues
+Search open issues. If similar feedback already exists, add a comment with the
+new context instead of creating a duplicate. See `references/templates.md` §
+Adding Feedback to Existing Issues.
 
-Before creating new issues, search for existing issues that may already track
-similar feedback:
+#### Step 4: Create Issues
 
-```sh
-gh issue list --state open --limit 50 \
-  --json number,title,labels \
-  --jq '.[] | {number, title, labels: [.labels[].name]}'
-```
-
-For each feedback item, compare it against existing open issues by title and
-description. If a similar issue already exists, add a comment with the new
-feedback context instead of creating a duplicate:
-
-```sh
-gh issue comment <number> --body "$(cat <<'EOF'
-Additional feedback observed during user testing of **<product>** in the
-`<scenario>` evaluation scenario:
-
-<description of the feedback item>
-
-— Product Manager 🌱
-EOF
-)"
-```
-
-Record the existing issue number in the summary table (Step 5) with the action
-"commented on #\<number\>". Only proceed to create a new issue (Step 4) when no
-similar issue exists.
-
-#### Step 4: Create GitHub Issues
-
-For each product-aligned feedback item with no existing similar issue, create a
-GitHub issue:
-
-```sh
-gh issue create \
-  --title "<type>(<product>): <concise description>" \
-  --label "user-testing" \
-  --body "$(cat <<'EOF'
-## Context
-
-Observed during user testing of the **<product>** product in the
-`<scenario>` evaluation scenario.
-
-## Feedback
-
-<detailed description of the feedback item>
-
-## Expected Behaviour
-
-<what the user expected to happen>
-
-## Actual Behaviour
-
-<what actually happened>
-
-— Product Manager 🌱
-EOF
-)"
-```
-
-Use the appropriate title prefix:
-
-- `bug(<product>):` for broken behaviour
-- `docs(<product>):` for documentation issues
-- `feat(<product>):` for missing features or improvements
+For each product-aligned item with no existing match, create a GitHub issue. See
+`references/templates.md` § New Issues from User Testing for the template.
 
 #### Step 5: Report Summary
 
-Produce a summary table of all feedback items:
+Produce a summary table. See `references/templates.md` § Report Summary Tables.
 
-```
-| # | Feedback                              | Category       | Action              | Issue |
-|---|---------------------------------------|----------------|---------------------|-------|
-| 1 | Install docs missing Node version     | documentation  | commented on #48    |  #48  |
-| 2 | Crash on skill query                  | bug            | issue #53           |  #53  |
-| 3 | Generic career progression response   | product-aligned| issue #54           |  #54  |
-| 4 | Slow response in CI environment       | out of scope   | skipped             |  —    |
-```
+### Memory: What to Record
 
-### Memory: what to record
-
-Include these fields in addition to standard agent memory fields:
-
-- **Feedback items table** — Each item with category, action taken, and issue
-  number if created
+- **Feedback items table** — Each item with category, action, and issue number
 - **Scenario tested** — Which evaluation scenario produced the feedback
-- **Product quality patterns** — Recurring themes across testing sessions that
-  suggest systemic issues
+- **Product quality patterns** — Recurring themes suggesting systemic issues

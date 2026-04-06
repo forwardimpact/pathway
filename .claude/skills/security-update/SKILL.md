@@ -37,19 +37,9 @@ The `gh` CLI must be installed and authenticated. Verify with `gh auth status`.
 | 7   | First-party or official org actions only   | security-audit § 1                             | **Close** with explanation.                                                  |
 | 8   | Peer and transitive dependency compat      | CONTRIBUTING.md § Dependency Policy            | **Close** until co-dependent packages release compatible versions.           |
 
-### GitHub Actions SHA Inventory
-
-When evaluating check 2, verify the PR updates **all** workflow files that
-reference the action:
-
-| Action                          | Workflow files                                                                                                              |
-| ------------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
-| `actions/checkout`              | check-quality.yml, check-test.yml, check-security.yml, publish-npm.yml, publish-macos.yml, publish-skills.yml, website.yaml |
-| `actions/setup-node`            | check-quality.yml, check-test.yml, check-security.yml, publish-npm.yml, website.yaml                                        |
-| `actions/configure-pages`       | website.yaml                                                                                                                |
-| `actions/upload-pages-artifact` | website.yaml                                                                                                                |
-| `actions/deploy-pages`          | website.yaml                                                                                                                |
-| `denoland/setup-deno`           | publish-macos.yml                                                                                                           |
+When evaluating Check 2 (SHA pinning), verify the PR updates **all** workflow
+files referencing the action. See `references/sha-inventory.md` for the full
+action-to-workflow mapping.
 
 ## Process
 
@@ -77,25 +67,21 @@ Determine update type from title: **patch** (low risk), **minor** (low risk),
 
 #### Check 8: Peer/Transitive Compatibility (npm major updates)
 
-Run `bun pm ls` on the PR branch. Look for:
-
-- **`invalid`** — resolved version violates another package's range. Close.
-- **Nested duplicates in `bun.lock`** — lockfile creates nested entry for old
-  major. Close until co-dependents release compatible ranges.
-- **`deduped` across mismatched majors** — investigate before merging.
+Run `bun pm ls` on the PR branch. Look for: **`invalid`** (close), **nested
+duplicates** in `bun.lock` (close), or **`deduped` across mismatched majors**
+(investigate before merging).
 
 ### Step 3: Take Action
 
-#### Merge — all policies pass, CI green:
+**Merge** — all policies pass, CI green:
 
 ```sh
 gh pr comment <number> --body "Dependabot triage: all policies pass, CI green. Merging."
 gh pr merge <number> --squash --auto
 ```
 
-#### Fix on new branch — minor policy violations fixable:
-
-Claude Code cannot push to Dependabot branches. Create a new branch:
+**Fix on new branch** — minor policy violations fixable (Claude Code cannot push
+to Dependabot branches):
 
 ```sh
 git fetch origin <dependabot-branch>
@@ -108,7 +94,7 @@ gh pr create --title "chore(deps): <description> (fixed)" \
 gh pr close <number> --comment "Superseded by #<new-pr> with policy fixes."
 ```
 
-#### Close — policy violation cannot be fixed:
+**Close** — policy violation cannot be fixed:
 
 ```sh
 gh pr close <number> --comment "Dependabot triage: closing because <reason>. Policy: <which>."
@@ -123,9 +109,7 @@ gh pr close <number> --comment "Dependabot triage: closing because <reason>. Pol
 | #61 | bump upload-pages-artifact ...  | fix    | Missing SHA pins           |
 ```
 
-### Memory: what to record
-
-Include these fields in addition to standard agent memory fields:
+### Memory: What to Record
 
 - **PR triage table** — Each PR with action, failed checks, and reason
 - **Compatibility blockers** — Packages closed due to Check 8

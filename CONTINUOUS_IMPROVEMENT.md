@@ -5,9 +5,10 @@
 > — W. Edwards Deming
 
 Autonomous repo self-maintenance powered by Claude Code agents on GitHub
-Actions. Seven scheduled workflows, four agent personas, and ten skills form a
-closed feedback loop that keeps the codebase secure, release-ready, and steadily
-improving. This system maintains the project — not the engineering frameworks
+Actions. Seven scheduled workflows, four agent personas, and eleven skills form
+a closed feedback loop that keeps the codebase secure, release-ready, and
+steadily improving. Product evaluation sessions validate changes from the user's
+perspective. This system maintains the project — not the engineering frameworks
 the products serve.
 
 ## Architecture
@@ -28,12 +29,12 @@ GitHub App tokens (see § Authentication).
 
 ## Agents
 
-| Agent                   | Purpose                                                                   | Skills                                             |
-| ----------------------- | ------------------------------------------------------------------------- | -------------------------------------------------- |
-| **security-specialist** | Patch dependencies, harden supply chain, enforce security policies        | security-update, security-audit, spec              |
-| **release-manager**     | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | release-readiness, release-review, gh-cli          |
-| **improvement-coach**   | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | gemba-walk, grounded-theory-analysis, spec, gh-cli |
-| **product-manager**     | Review PRs for product alignment, triage issues, verify contributor trust | product-backlog, product-feedback, spec, gh-cli    |
+| Agent                   | Purpose                                                                   | Skills                                                              |
+| ----------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------- |
+| **security-specialist** | Patch dependencies, harden supply chain, enforce security policies        | security-update, security-audit, spec                               |
+| **release-manager**     | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | release-readiness, release-review, gh-cli                           |
+| **improvement-coach**   | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | gemba-walk, grounded-theory-analysis, spec, gh-cli                  |
+| **product-manager**     | Review PRs for product alignment, triage issues, verify contributor trust | product-backlog, product-feedback, product-evaluation, spec, gh-cli |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -99,6 +100,7 @@ graph TD
 | **spec**                     | Spec and plan lifecycle — write, review, approve, track status                |
 | **gh-cli**                   | GitHub CLI installation and usage patterns for CI                             |
 | **product-backlog**          | PR triage with type classification, contributor verification, and merge gates |
+| **product-evaluation**       | Supervise product evaluation sessions, capture feedback, create issues        |
 | **product-feedback**         | Issue triage with classification, fix PRs for bugs, and specs for features    |
 
 ## Trust Boundary
@@ -256,6 +258,42 @@ skills                   — how to do it (procedures, checklists, templates)
 | Profile copies skill checklists             | Tokens wasted parsing redundant text      |
 | Skill description parrots system prompt     | Contradictions when system prompt evolves |
 | Task references skills unavailable to agent | Agent stalls searching for missing skill  |
+
+### Skill length and progressive disclosure
+
+SKILL.md is the instruction the agent reads on every run. Keep it short — aim
+for **~200 lines or fewer**. Long skills waste tokens on boilerplate and
+increase the chance the agent skips steps buried deep in the document.
+
+Move supporting material into co-located subdirectories that the agent reads
+only when needed:
+
+```
+.claude/skills/<skill-name>/
+  SKILL.md                     ← core instructions (always loaded)
+  scripts/<name>.sh|.mjs       ← executable automation the agent invokes
+  references/<name>.md         ← templates, examples, data tables
+```
+
+**What belongs in `scripts/`:** Repeatable shell or JS commands that the agent
+runs verbatim — installation routines, data extraction queries, discovery
+helpers. The SKILL.md documents the script's purpose and invocation; the script
+contains the implementation.
+
+**What belongs in `references/`:** Content the agent reads on demand —
+comment/PR/issue body templates, report formats, worked examples, data
+inventories (e.g. SHA-to-workflow mappings). The SKILL.md names the reference
+file and describes when to consult it.
+
+**What stays in SKILL.md:** The decision-making procedure — when to use the
+skill, the gate checklist, the process steps, classification criteria, and
+memory instructions. If the agent needs it on every run to know _what to do
+next_, it belongs in the SKILL.md.
+
+**Guideline, not a hard rule.** Some skills (e.g. `spec` at 179 lines) are
+entirely instructional with no templates or scripts to extract — that's fine.
+The goal is not to hit a line count but to separate procedure from supporting
+material so the core instructions stay scannable.
 
 ### Shared patterns must be consistent
 
