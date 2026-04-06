@@ -35,6 +35,8 @@ Also read directly:
    - Full event details for today and tomorrow
 7. **Open items:** Search `knowledge/` for unchecked items `- [ ]`
 8. **Pending drafts:** List `drafts/*_draft.md` files
+9. **Goals:** Read `knowledge/Goals/*.md` — active goals, status, progress
+10. **Priorities:** Read `knowledge/Priorities/*.md` — strategic pillars
 
 ## 2. Determine Briefing Type
 
@@ -57,9 +59,13 @@ Write to `knowledge/Briefings/{YYYY-MM-DD}-morning.md`:
 - {time}: {meeting title} with {attendees} — {prep status}
 
 ## Priority Actions
-1. {Most urgent item — email reply, meeting prep, or deadline}
-2. {Second priority}
-3. {Third priority}
+1. {Most urgent item — email reply, meeting prep, or deadline} — [[Priorities/...]]
+2. {Second priority} — [[Priorities/...]]
+3. {Third priority} — [[Priorities/...]]
+
+## Goal Progress
+- [[Goals/{Goal}]]: {status} — {latest progress or blocker}
+- [[Goals/{Goal}]]: {status} — {latest progress or blocker}
 
 ## Inbox
 - {urgent} urgent, {reply} needing reply, {awaiting} awaiting response
@@ -91,6 +97,9 @@ Write to `knowledge/Briefings/{YYYY-MM-DD}-evening.md`:
 - {Meeting with X — key decisions, action items}
 - {Emails of note — replies received, threads resolved}
 - {Knowledge graph updates — new contacts, projects}
+
+## Goal Progress
+- [[Goals/{Goal}]]: {what moved today, if anything}
 
 ## Still Outstanding
 - {Priority items from morning not yet addressed}

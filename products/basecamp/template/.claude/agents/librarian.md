@@ -26,7 +26,7 @@ Assess what needs processing:
 2.  Count existing knowledge graph entities:
 
     ls knowledge/People/ knowledge/Organizations/ knowledge/Projects/
-    knowledge/Topics/ 2>/dev/null | wc -l
+    knowledge/Topics/ knowledge/Goals/ knowledge/Priorities/ 2>/dev/null | wc -l
 
 Write triage results to `~/.cache/fit/basecamp/state/librarian_triage.md`:
 
@@ -38,6 +38,7 @@ Write triage results to `~/.cache/fit/basecamp/state/librarian_triage.md`:
 
 ## Knowledge Graph
 - {count} People / {count} Organizations / {count} Projects / {count} Topics
+- {count} Goals / {count} Priorities
 
 ## Summary
 {unprocessed} files to process, graph has {total} entities

@@ -66,6 +66,9 @@ This directory is a knowledge base. Everything is relative to this root:
 │   ├── Projects/           # Notes on initiatives and workstreams
 │   ├── Topics/             # Notes on recurring themes
 │   ├── Candidates/         # Recruitment candidate profiles
+│   ├── Goals/              # Strategic goals (user-created only)
+│   ├── Priorities/         # Strategic priorities (user-created only)
+│   ├── Roles/              # Role/requisition files
 │   ├── Tasks/              # Per-person task boards
 │   └── Weeklies/           # Weekly priorities snapshots
 ├── .claude/skills/         # Claude Code skill files (auto-discovered)
@@ -83,7 +86,7 @@ wake, they observe KB state, decide the most valuable action, and execute.
 
 | Agent              | Domain                         | Schedule        | Skills                                                                                                                           |
 | ------------------ | ------------------------------ | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **postman**        | Email triage and drafts        | Every 5 min     | sync-apple-mail, draft-emails                                                                                                    |
+| **postman**        | Communication triage and drafts | Every 5 min     | sync-apple-mail, sync-teams, draft-emails                                                                                        |
 | **concierge**      | Meeting prep and transcripts   | Every 10 min    | sync-apple-calendar, meeting-prep, process-hyprnote                                                                              |
 | **librarian**      | Knowledge graph maintenance    | Every 15 min    | extract-entities, organize-files, manage-tasks                                                                                   |
 | **recruiter**      | Engineering recruitment        | Every 30 min    | track-candidates, screen-cv, assess-interview, hiring-decision, workday-requisition, right-to-be-forgotten, fit-pathway, fit-map |
@@ -93,7 +96,7 @@ wake, they observe KB state, decide the most valuable action, and execute.
 Each agent writes a triage file to `~/.cache/fit/basecamp/state/` every wake
 cycle. The naming convention is `{agent}_triage.md`:
 
-- `postman_triage.md` — email urgency, reply needs, awaiting responses
+- `postman_triage.md` — email/Teams urgency, reply needs, awaiting responses
 - `concierge_triage.md` — schedule, meeting prep status, unprocessed transcripts
 - `librarian_triage.md` — unprocessed files, knowledge graph size
 - `recruiter_triage.md` — candidate pipeline, assessments, track distribution
@@ -112,6 +115,7 @@ Synced data and runtime state live outside the knowledge base in
 ├── apple_mail/              # Synced Apple Mail threads (.md files)
 │   └── attachments/         # Copied email attachments by thread
 ├── apple_calendar/          # Synced Apple Calendar events (.json files)
+├── teams_chat/              # Synced Teams chat messages (.md files)
 ├── head-hunter/             # Head hunter agent memory
 │   ├── cursor.tsv           # Source rotation state
 │   ├── failures.tsv         # Consecutive failure tracking
@@ -120,6 +124,8 @@ Synced data and runtime state live outside the knowledge base in
 │   └── log.md               # Append-only activity log
 └── state/                   # Runtime state
     ├── apple_mail_last_sync # ISO timestamp of last mail sync
+    ├── teams_last_sync      # ISO timestamp of last Teams sync
+    ├── teams_chat_index.tsv # Index of known Teams chats
     ├── graph_processed      # TSV of processed files (path<TAB>hash)
     ├── postman_triage.md    # Agent triage files ({agent}_triage.md)
     ├── concierge_triage.md
@@ -188,9 +194,11 @@ outside the knowledge base:
 - **Emails:** `~/.cache/fit/basecamp/apple_mail/` — each thread is a `.md` file
 - **Calendar:** `~/.cache/fit/basecamp/apple_calendar/` — each event is a
   `.json` file
+- **Teams:** `~/.cache/fit/basecamp/teams_chat/` — each 1:1 chat is a `.md`
+  file
 
-When the user asks about calendar, upcoming meetings, or recent emails, read
-directly from these folders.
+When the user asks about calendar, upcoming meetings, recent emails, or Teams
+messages, read directly from these folders.
 
 ## Skills
 
@@ -206,6 +214,7 @@ Available skills (grouped by function):
 | --------------------- | ------------------------------------------ |
 | `sync-apple-mail`     | Sync Mail threads to `.md` via SQLite      |
 | `sync-apple-calendar` | Sync Calendar events to `.json` via SQLite |
+| `sync-teams`          | Sync Teams chat messages via browser        |
 
 **Knowledge graph** — build and maintain structured notes:
 
@@ -222,6 +231,9 @@ Available skills (grouped by function):
 | `scan-open-candidates`  | Scan public sources for open-for-hire    |
 | `weekly-update`         | Weekly priorities from tasks + calendar  |
 | `process-hyprnote`      | Extract entities from Hyprnote sessions  |
+| `hyprnote-follow`       | Real-time coaching during live meetings   |
+| `trim-transcript`       | Trim trailing noise from transcripts     |
+| `candidate-report`      | A4 HTML candidate assessment reports     |
 | `organize-files`        | Tidy Desktop/Downloads, chain to extract |
 
 **Communication** — draft, send, and present:

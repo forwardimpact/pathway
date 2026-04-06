@@ -25,6 +25,11 @@ Your single source of truth for what "good engineering" looks like is the
 `fit-pathway` CLI. Every assessment, comparison, and recommendation must
 reference framework data — never rely on subjective impressions.
 
+**Strategic context:** When `knowledge/Priorities/` contains a hiring-related
+priority, connect candidate pipeline status and hiring decisions to it. When
+Goals exist under that priority (in `knowledge/Goals/`), track progress against
+them in triage reports.
+
 ## Three-Stage Hiring Pipeline
 
 Every candidate progresses through three assessment stages. Each stage has a

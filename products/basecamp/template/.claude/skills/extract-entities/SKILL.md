@@ -25,8 +25,8 @@ Run this skill:
 
 ## Prerequisites
 
-- Synced data in `~/.cache/fit/basecamp/` (from `sync-apple-mail` or
-  `sync-apple-calendar` skills), **and/or**
+- Synced data in `~/.cache/fit/basecamp/` (from `sync-apple-mail`,
+  `sync-apple-calendar`, or `sync-teams` skills), **and/or**
 - Ad-hoc file paths provided by the calling skill or user
 - User identity configured in `USER.md` (Name, Email, Domain)
 
@@ -36,6 +36,7 @@ Run this skill:
 
 - `~/.cache/fit/basecamp/apple_mail/*.md` — synced email threads
 - `~/.cache/fit/basecamp/apple_calendar/*.json` — synced calendar events
+- `~/.cache/fit/basecamp/teams_chat/*.md` — synced Teams chat messages
 
 ### Ad-hoc files (from other skills or user)
 
@@ -58,6 +59,8 @@ Run this skill:
 - `knowledge/Organizations/*.md` — organization notes
 - `knowledge/Projects/*.md` — project notes
 - `knowledge/Topics/*.md` — topic notes
+- `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
+- `knowledge/Priorities/*.md` — priority notes (updated only, never auto-created)
 - `knowledge/Roles/*.md` — role/requisition files (created or enriched)
 - `knowledge/Candidates/*/brief.md` — candidate briefs (enriched with inferred
   metadata)
@@ -90,7 +93,7 @@ changed.
 Before processing, scan all existing notes to build an index:
 
 ```bash
-find knowledge/People knowledge/Organizations knowledge/Projects knowledge/Topics -name "*.md" 2>/dev/null
+find knowledge/People knowledge/Organizations knowledge/Projects knowledge/Topics knowledge/Goals knowledge/Priorities -name "*.md" 2>/dev/null
 ```
 
 For each note, extract key fields:
@@ -111,6 +114,12 @@ ORGANIZATIONS:
 PROJECTS:
 | Name | Status | Aliases |
 
+GOALS:
+| Name | Priority | Status | Target date |
+
+PRIORITIES:
+| Name | Status |
+
 TOPICS:
 | Name | Keywords | Aliases |
 ```
@@ -123,6 +132,8 @@ TOPICS:
   notes)
 - Has `From:` and `To:` or `Subject:` → **email** (can only update existing
   notes)
+- Has `**Platform:** Microsoft Teams` → **teams chat** (can only update
+  existing notes — same rules as email)
 - Is in `Voice Memos/` folder → **voice memo** (can create notes)
 - Is in `apple_calendar/` → **calendar event** (enrich existing notes only)
 - Is an **ad-hoc document** (from `~/Desktop/`, `~/Downloads/`, or passed by
@@ -208,6 +219,12 @@ roles/titles, pronouns with clear antecedents.
 
 **Projects:** Explicit names, descriptive references ("the pilot", "the deal").
 
+**Goals:** References to time-bound targets, OKRs, or measurable outcomes that
+match existing `knowledge/Goals/` entries.
+
+**Priorities:** References to strategic directions that match existing
+`knowledge/Priorities/` entries.
+
 ## Step 3: Look Up Existing Notes
 
 For each variant, search the knowledge index built in Step 0.
@@ -235,12 +252,18 @@ RESOLVED:
 - "Sarah Chen" → [[People/Sarah Chen]]
 - "sarah@acme.com" → [[People/Sarah Chen]]
 - "Acme" → [[Organizations/Acme Corp]]
+- "hiring target" → [[Goals/{matching goal}]]
+- "strategic theme" → [[Priorities/{matching priority}]]
 
 NEW ENTITIES (meeting — create notes):
 - "Jennifer" (CTO) → Create [[People/Jennifer]]
 
 NEW ENTITIES (email — do NOT create):
 - "Random Person" → Skip
+
+NEVER AUTO-CREATE (user-set only):
+- Goals — link to existing [[Goals/...]] if referenced, never create new ones
+- Priorities — link to existing [[Priorities/...]] if referenced, never create
 
 AMBIGUOUS:
 - "Mike" (no context) → Skip
@@ -456,6 +479,46 @@ evidence is strong. A single calendar invite organized by someone is suggestive
 but not conclusive — confirm against People notes or multiple data points before
 setting the field.
 
+## Step 7c: Link to Goals and Priorities
+
+When extracted content references an existing Goal or Priority, create
+backlinks. **Never create new Goal or Priority entities** — they are set
+deliberately by the user.
+
+### Goal References
+
+Check whether source content relates to an existing `knowledge/Goals/*.md`
+entry. Signals:
+
+- Explicit mention of a goal name or its measurable outcome
+- Discussion of progress, milestones, blockers, or status changes related to a
+  goal's target
+- Quantitative updates that map to a goal's outcome metric
+
+When a match is found:
+
+1. Add a `[[Goals/{Goal}]]` link to the relevant Project or Topic activity entry
+2. Add a progress entry to the Goal's `## Progress` section
+3. If evidence suggests a status change (e.g. "we won't hit the Q3 target"),
+   update the Goal's `**Status:**` field and log with `[Status → value]`
+
+### Priority References
+
+Check whether source content relates to an existing
+`knowledge/Priorities/*.md` entry. This is typically implicit — match source
+content themes against the priority names and descriptions in existing priority
+notes.
+
+When a Priority link is useful for context (not every mention needs one):
+
+1. Add the `[[Priorities/{Priority}]]` link to Project or Topic `## Related`
+   sections if not already present
+2. Update the Priority's `## Projects` section if a new project is discovered
+   that serves it
+
+**Be conservative:** Don't over-link. A project that already links to a Goal
+which links to a Priority doesn't need a redundant direct Priority link.
+
 ---
 
 ## Step 8: Check for Duplicates
@@ -494,14 +557,18 @@ Use precise edits — don't rewrite the entire file.
 
 After writing, verify links go both ways:
 
-| If you add...          | Then also add...                             |
-| ---------------------- | -------------------------------------------- |
-| Person → Organization  | Organization → Person (in People section)    |
-| Person → Project       | Project → Person (in People section)         |
-| Project → Organization | Organization → Project (in Projects section) |
+| If you add...          | Then also add...                              |
+| ---------------------- | --------------------------------------------- |
+| Person → Organization  | Organization → Person (in People section)     |
+| Person → Project       | Project → Person (in People section)          |
+| Project → Organization | Organization → Project (in Projects section)  |
+| Project → Goal         | Goal → Project (in Projects section)          |
+| Goal → Priority        | Priority → Goal (in Goals section)            |
+| Project → Priority     | Priority → Project (in Projects section)      |
 
 Always use absolute links: `[[People/Sarah Chen]]`,
-`[[Organizations/Acme Corp]]`, `[[Projects/Acme Integration]]`.
+`[[Organizations/Acme Corp]]`, `[[Projects/Acme Integration]]`,
+`[[Goals/Goal Name]]`, `[[Priorities/Priority Name]]`.
 
 ## Step 11: Update Graph State
 
@@ -520,6 +587,7 @@ After processing each file, update the state:
 | Email (known contact)   | No              | Yes            | Yes                    |
 | Email (unknown contact) | No (SKIP)       | No             | No                     |
 | Email (warm intro)      | Yes (exception) | Yes            | Yes                    |
+| Teams chat              | No              | Yes            | Yes                    |
 
 ## Quality Checklist
 
@@ -534,7 +602,10 @@ Before completing, verify:
 - [ ] Key facts are substantive (no filler)
 - [ ] Open items are commitments (no "find their email" tasks)
 - [ ] State changes logged with `[Field → value]` notation
-- [ ] Bidirectional links are consistent
+- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔ Goal)
+- [ ] Goal progress updated where source content references existing goals
+- [ ] Priority links added to Projects/Topics where appropriate (not over-linked)
+- [ ] No new Goal or Priority entities auto-created (user-set only)
 - [ ] Requisition numbers detected and Role files created/enriched
 - [ ] Hiring manager inferred from calendar event organizers where applicable
 - [ ] Recruiter inferred from email CC fields where applicable

@@ -44,7 +44,9 @@ Run this skill:
 - Framework data via `fit-pathway`
 - `knowledge/Candidates/Insights.md` for cross-candidate context
 - `knowledge/Roles/*.md` — the Role file for this candidate's requisition
-  (provides remaining positions, hiring manager, domain lead priorities)
+  (provides remaining positions, hiring manager, domain lead context)
+- `knowledge/Goals/*.md` — active hiring goals this candidate contributes to
+- `knowledge/Priorities/*.md` — strategic context (hiring-related priorities)
 - Other active candidates at the same level (for relative positioning)
 
 ## Outputs
@@ -160,7 +162,9 @@ Extract and include in the recommendation:
   minus filled candidates in the Candidates table)
 - **Hiring manager** and their expectations (from the Role file and their People
   note)
-- **Domain lead** and their hiring priorities (from recent meetings/emails)
+- **Domain lead** and their hiring context (from recent meetings/emails)
+- **Goal alignment** — which Goal(s) in `knowledge/Goals/` does this hire
+  contribute to? Frame the recommendation in terms of strategic impact.
 - **Other candidates** on the same req — how does this candidate compare to the
   pipeline for this specific role?
 - **Channel** — is this a vendor candidate or HR candidate? This affects

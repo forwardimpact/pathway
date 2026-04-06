@@ -31,6 +31,8 @@ Run this skill:
 
 - `knowledge/Tasks/{Person Name}.md` — current task board
 - `knowledge/People/{Person Name}.md` — recent activity, context
+- `knowledge/Goals/*.md` — active goals (for linking weekly priorities to goals)
+- `knowledge/Priorities/*.md` — strategic pillars (for framing the focus statement)
 - `~/.cache/fit/basecamp/apple_calendar/*.json` — calendar events for the week
 - Previous weekly document (if exists) — for continuity and carry-forward
 
@@ -49,7 +51,7 @@ Run this skill:
 
 ## Priorities
 
-- [ ] Priority one — [[Projects/Name]]
+- [ ] Priority one — [[Projects/Name]] → [[Goals/Goal Name]]
 - [ ] Priority two
 - [x] Completed priority
 
@@ -77,11 +79,14 @@ Run this skill:
 **Key conventions:**
 
 - **Week numbers:** ISO 8601 (e.g., `2026-W08`)
-- **Priorities:** Top 3-7 items pulled from the task board
+- **Priorities:** Top 3-7 items pulled from the task board. Where a task clearly
+  serves a Goal (`knowledge/Goals/`), append `→ [[Goals/Goal Name]]` to connect
+  weekly work to the strategic hierarchy. Not every task needs a goal link — only
+  add when the connection is clear and useful.
 - **Key Meetings:** Substantive meetings only (skip recurring standups)
 - **Retrospective:** Filled at end-of-week only
 - **All backlinks** use absolute paths: `[[People/Name]]`, `[[Projects/Name]]`,
-  `[[Tasks/Name]]`
+  `[[Goals/Name]]`, `[[Tasks/Name]]`
 
 ## Before Starting
 

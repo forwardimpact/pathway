@@ -25,6 +25,8 @@ meetings.
 - `knowledge/People/*.md` — attendee context
 - `knowledge/Organizations/*.md` — company context
 - `knowledge/Projects/*.md` — project context
+- `knowledge/Goals/*.md` — active goals relevant to the meeting topic
+- `knowledge/Priorities/*.md` — strategic context for framing
 - `knowledge/Candidates/*/brief.md` — candidate context (for interview meetings)
 - `knowledge/Roles/*.md` — role/requisition context (for interview meetings)
 
@@ -98,6 +100,10 @@ rg -l "attendee_name" knowledge/Projects/
 ```
 
 Extract: role/title, company, key facts, previous interactions, open items.
+
+Also check `knowledge/Goals/` and `knowledge/Priorities/` for context relevant
+to the meeting topic — e.g. if the meeting is about hiring, surface the relevant
+hiring Goal's status and progress.
 
 ### Step 4: Create Meeting Brief
 

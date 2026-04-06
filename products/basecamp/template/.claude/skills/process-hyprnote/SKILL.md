@@ -43,6 +43,8 @@ Run this skill:
 - `knowledge/Organizations/*.md` — organization notes (new or updated)
 - `knowledge/Projects/*.md` — project notes (new or updated)
 - `knowledge/Topics/*.md` — topic notes (new or updated)
+- `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
+- `knowledge/Priorities/*.md` — priority notes (updated only, never auto-created)
 - `~/.cache/fit/basecamp/state/graph_processed` — updated with processed session
   files
 
@@ -86,7 +88,7 @@ fallback).
 Scan existing notes to avoid duplicates and resolve entities:
 
 ```bash
-ls knowledge/People/ knowledge/Organizations/ knowledge/Projects/ knowledge/Topics/ 2>/dev/null
+ls knowledge/People/ knowledge/Organizations/ knowledge/Projects/ knowledge/Topics/ knowledge/Goals/ knowledge/Priorities/ 2>/dev/null
 ```
 
 For each existing note, read the header fields to build a mental index of known
@@ -186,7 +188,8 @@ Hyprnote sessions are **meetings**. They follow meeting rules from
 `extract-entities`:
 
 - **CAN create** new People, Organization, Project, and Topic notes
-- **CAN update** existing notes
+- **CAN update** existing notes (including Goal and Priority notes, but never
+  auto-create them — they are user-set only)
 - **CAN detect** state changes
 
 Apply the same "Would I prep for this person?" test from `extract-entities` Step
@@ -308,9 +311,14 @@ Apply targeted edits:
 
 ### Bidirectional links
 
-Verify links go both ways (same rules as `extract-entities` Step 10). Always use
+Verify links go both ways (same rules as `extract-entities` Step 10, including
+Goal ↔ Project, Goal ↔ Priority, and Project ↔ Priority links). Always use
 absolute paths: `[[People/Name]]`, `[[Organizations/Name]]`,
-`[[Projects/Name]]`.
+`[[Projects/Name]]`, `[[Goals/Goal Name]]`, `[[Priorities/Priority Name]]`.
+
+When meeting content references an existing Goal or Priority, apply the linking
+rules from `extract-entities` Step 7c — update progress, add backlinks, but
+never auto-create Goal or Priority entities.
 
 ## Step 6: Update Graph State
 
@@ -340,5 +348,7 @@ Before completing, verify:
 - [ ] Summaries describe relationship, not communication method
 - [ ] Key facts are substantive (no filler)
 - [ ] Open items are commitments (no meta-tasks)
-- [ ] Bidirectional links are consistent
+- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔ Goal)
+- [ ] Goal progress updated where meeting content references existing goals
+- [ ] No new Goal or Priority entities auto-created (user-set only)
 - [ ] Graph state updated for all processed session files

@@ -72,7 +72,7 @@ All four sections are always present, even if empty.
 **Task entry format:**
 
 ```
-- [ ] **{Task title}** | {priority} | due {YYYY-MM-DD} | [[Projects/Name]]
+- [ ] **{Task title}** | {priority} | due {YYYY-MM-DD} | [[Projects/Name]] → [[Goals/Name]]
   {Context line with source info and backlinks.}
 ```
 
@@ -81,6 +81,9 @@ All four sections are always present, even if empty.
 - **Priorities:** `high` | `medium` | `low` — omit if medium (default)
 - **Due dates:** Only include if there's a real deadline. Format:
   `due YYYY-MM-DD`
+- **Goal link:** Append `→ [[Goals/Name]]` when the task clearly serves a
+  specific Goal. Not every task needs one — only link when the connection is
+  clear and useful.
 - **No task IDs.** Tasks are identified by their bold title. Keep titles unique
   within a person's board.
 - **Recently Done:** Keep the last 14 days. Older items pruned during
@@ -188,8 +191,8 @@ Run across all task boards:
    `## Open` or `## In Progress` — check if it needs attention. Do NOT
    auto-modify the task; instead, report overdue items to the user.
 3. **Deduplicate:** If identical tasks appear on the same board, merge them.
-4. **Validate links:** Spot-check that `[[People/]]` and `[[Projects/]]`
-   references point to existing notes.
+4. **Validate links:** Spot-check that `[[People/]]`, `[[Projects/]]`, and
+   `[[Goals/]]` references point to existing notes.
 
 ## Step 4: Write Updates
 
@@ -221,7 +224,7 @@ When first setting up task boards, or when the user asks, migrate existing
 
 1. Scan notes for `## Open items` sections with content:
    ```bash
-   rg -l "## Open items" knowledge/People/ knowledge/Projects/
+   rg -l "## Open items" knowledge/People/ knowledge/Projects/ knowledge/Goals/
    ```
 2. For each note with open items, read the items and convert them to task board
    entries.

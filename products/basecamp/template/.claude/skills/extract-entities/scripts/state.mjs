@@ -40,6 +40,7 @@ const STATE_FILE = join(HOME, ".cache/fit/basecamp/state/graph_processed");
 const SOURCE_DIRS = [
   join(HOME, ".cache/fit/basecamp/apple_mail"),
   join(HOME, ".cache/fit/basecamp/apple_calendar"),
+  join(HOME, ".cache/fit/basecamp/teams_chat"),
 ];
 
 /** Compute SHA-256 hash of a file. */

@@ -1,0 +1,299 @@
+/*
+ * candidate-report — A4 single-page candidate assessment report
+ *
+ * This stylesheet is designed for a 210mm × 297mm page.
+ * It is loaded into the HTML template by the candidate-report skill.
+ *
+ * IMPORTANT: All colours must use print-color-adjust: exact so they survive
+ * PDF rendering via Playwright. Avoid box-shadow and fixed positioning.
+ */
+
+@import url('https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800&display=swap');
+
+:root {
+  --blue: #0072CE;
+  --dark: #003087;
+  --accent: #00A3E0;
+  --green: #10B981;
+  --amber: #F59E0B;
+  --red: #EF4444;
+  --s50: #F8FAFC;
+  --s100: #F1F5F9;
+  --s200: #E2E8F0;
+  --s300: #CBD5E1;
+  --s400: #94A3B8;
+  --s500: #64748B;
+  --s600: #475569;
+  --s700: #334155;
+  --s800: #1E293B;
+  --s900: #0F172A;
+}
+
+@page { size: A4; margin: 0; }
+
+* { margin: 0; padding: 0; box-sizing: border-box; }
+
+body {
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, sans-serif;
+  color: var(--s800);
+  line-height: 1.45;
+  -webkit-font-smoothing: antialiased;
+  width: 210mm;
+  min-height: 297mm;
+  max-height: 297mm;
+  overflow: hidden;
+  margin: 0 auto;
+  background: white;
+}
+
+/* ── Header ── */
+
+.hdr {
+  background: linear-gradient(135deg, var(--dark), var(--blue) 60%, var(--accent));
+  padding: 22px 32px 18px;
+  color: white;
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-end;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.hdr-left h1 { font-size: 22px; font-weight: 800; letter-spacing: -0.3px; }
+.hdr-left p { font-size: 11px; opacity: 0.8; margin-top: 2px; }
+.hdr-right { text-align: right; font-size: 10px; opacity: 0.75; line-height: 1.5; }
+
+/* ── Verdict Banner ── */
+
+.verdict {
+  border-left: 4px solid var(--amber);
+  padding: 8px 32px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  font-size: 11px;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.verdict strong { color: var(--s900); font-size: 12px; }
+.verdict span { color: var(--s600); }
+
+/* Verdict colour variants — set on the element via class */
+.verdict-caution  { background: #FEF3C7; }
+.verdict-pass     { background: #FEE2E2; }
+.verdict-proceed  { background: #D1FAE5; }
+
+/* ── Body ── */
+
+.body {
+  padding: 16px 32px 14px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+/* ── Section Titles ── */
+
+.stitle {
+  font-size: 10px;
+  font-weight: 700;
+  letter-spacing: 1.5px;
+  text-transform: uppercase;
+  color: var(--blue);
+  margin-bottom: 6px;
+  padding-bottom: 4px;
+  border-bottom: 1.5px solid var(--s200);
+}
+
+/* ── Two-Column Layout ── */
+
+.cols { display: flex; gap: 20px; }
+.col  { flex: 1; }
+
+/* ── Snapshot (definition list) ── */
+
+.snap { font-size: 11px; line-height: 1.6; }
+.snap dt {
+  font-weight: 600;
+  color: var(--s400);
+  font-size: 9px;
+  letter-spacing: 0.5px;
+  text-transform: uppercase;
+}
+.snap dd { margin-bottom: 4px; color: var(--s800); }
+
+/* ── Strengths List ── */
+
+.str-list { list-style: none; font-size: 11px; color: var(--s600); }
+.str-list li { padding: 3px 0; padding-left: 14px; position: relative; }
+.str-list li::before {
+  content: '';
+  position: absolute;
+  left: 0;
+  top: 10px;
+  width: 6px;
+  height: 6px;
+  border-radius: 2px;
+  background: var(--blue);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.str-list li strong { color: var(--s800); }
+
+/* ── Level Gauge ── */
+
+.gauge {
+  display: flex;
+  gap: 0;
+  border-radius: 6px;
+  overflow: hidden;
+  border: 1px solid var(--s200);
+  margin-top: 2px;
+}
+.gauge div {
+  flex: 1;
+  text-align: center;
+  padding: 7px 4px;
+  font-size: 11px;
+  font-weight: 700;
+  background: var(--s50);
+  border-right: 1px solid var(--s200);
+  color: var(--s400);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.gauge div:last-child { border-right: none; }
+.gauge div small { display: block; font-size: 8px; font-weight: 500; margin-top: 1px; }
+.gauge .cand {
+  background: #FEF3C7;
+  color: #92400E;
+  box-shadow: inset 0 0 0 2px var(--amber);
+}
+.gauge .tgt {
+  background: #DBEAFE;
+  color: var(--dark);
+  box-shadow: inset 0 0 0 2px var(--blue);
+}
+
+/* ── Benchmark Grid ── */
+
+.bm {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 6px 16px;
+  font-size: 10.5px;
+}
+.bm-area h4 { font-size: 10px; font-weight: 700; color: var(--s700); margin-bottom: 3px; }
+.bm-row {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  padding: 2px 0;
+  border-bottom: 1px solid var(--s100);
+}
+.bm-row:last-child { border-bottom: none; }
+.bm-skill { color: var(--s700); }
+
+/* Status pills */
+.p {
+  display: inline-block;
+  padding: 1px 7px;
+  border-radius: 4px;
+  font-size: 9px;
+  font-weight: 600;
+  white-space: nowrap;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.p-g { background: #FEE2E2; color: #991B1B; }  /* Gap         */
+.p-a { background: #FEF3C7; color: #92400E; }  /* Partial     */
+.p-p { background: #D1FAE5; color: #065F46; }  /* Positive    */
+.p-u { background: var(--s100); color: var(--s500); }  /* Unknown */
+
+/* ── Behaviour Bars ── */
+
+.beh { display: flex; gap: 8px; flex-wrap: wrap; }
+.beh-item { flex: 1; min-width: 90px; }
+.beh-name { font-size: 9px; font-weight: 600; color: var(--s700); margin-bottom: 2px; }
+.beh-bar {
+  height: 4px;
+  border-radius: 2px;
+  background: var(--s100);
+  overflow: hidden;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.beh-bar div {
+  height: 100%;
+  border-radius: 2px;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.beh-tag { font-size: 8px; color: var(--s400); margin-top: 1px; }
+
+/* ── Coverage Counters ── */
+
+.counters { display: flex; gap: 8px; margin-top: 4px; }
+.ctr {
+  flex: 1;
+  text-align: center;
+  padding: 8px 4px;
+  border-radius: 6px;
+  border: 1px solid var(--s200);
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.ctr .n { font-size: 18px; font-weight: 800; }
+.ctr .l { font-size: 8px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.5px; }
+
+/* ── Recommendation Box ── */
+
+.reco {
+  background: var(--s50);
+  border: 1.5px solid var(--s200);
+  border-radius: 8px;
+  padding: 10px 14px;
+}
+.reco ol { list-style: none; counter-reset: s; font-size: 11px; color: var(--s600); }
+.reco li { counter-increment: s; display: flex; gap: 8px; margin-bottom: 4px; }
+.reco li:last-child { margin-bottom: 0; }
+.reco li::before {
+  content: counter(s);
+  width: 18px;
+  height: 18px;
+  border-radius: 5px;
+  background: var(--blue);
+  color: white;
+  font-size: 10px;
+  font-weight: 700;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  margin-top: 1px;
+  print-color-adjust: exact;
+  -webkit-print-color-adjust: exact;
+}
+.reco li strong { color: var(--s800); }
+
+/* ── Footer ── */
+
+.ftr {
+  padding: 8px 32px;
+  border-top: 1px solid var(--s200);
+  display: flex;
+  justify-content: space-between;
+  font-size: 9px;
+  color: var(--s400);
+}
+.ftr b { color: var(--blue); letter-spacing: 1px; }
+
+/* ── Print Overrides ── */
+
+@media print {
+  body { width: 210mm; height: 297mm; }
+  .hdr, .verdict, .gauge div, .p, .str-list li::before, .beh-bar div,
+  .ctr, .reco li::before {
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+}

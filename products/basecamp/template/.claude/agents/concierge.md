@@ -30,6 +30,8 @@ Assess the current state:
    - Tomorrow's first meeting (for awareness)
 2. For each upcoming meeting, check whether a briefing exists:
    - Search `knowledge/People/` for notes on each attendee
+   - Check `knowledge/Goals/` and `knowledge/Priorities/` for relevant context
+     (e.g. a staffing meeting connects to hiring goals)
    - A meeting is "prepped" if the user has recent notes on all key attendees
 3. Check for unprocessed Hyprnote sessions:
    - Look in `~/Library/Application Support/hyprnote/sessions/`
