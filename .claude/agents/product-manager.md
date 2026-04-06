@@ -9,6 +9,7 @@ model: opus
 skills:
   - product-backlog
   - product-feedback
+  - product-evaluation
   - spec
   - gh-cli
 ---
@@ -36,6 +37,10 @@ Determine which workflow to use from the task prompt:
 3. **User testing feedback** — Follow the `product-feedback` skill (Part 2).
    When skill access is limited (e.g. resumed session), use `gh issue create`
    directly.
+
+4. **Product evaluation** — When supervising a `fit-eval supervise` relay,
+   follow the `product-evaluation` skill. Brief the agent, observe the session,
+   capture feedback, and create issues via `product-feedback` Part 2.
 
 ## Constraints
 

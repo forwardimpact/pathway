@@ -133,4 +133,6 @@ If a publish fails, investigate with `gh run view <run-id> --log-failed`.
 
 - **First release**: Skip packages with version `0.0.0` or `"private": true`.
 - **Failed publish**: Don't delete the tag. Fix, bump patch, re-tag.
-- **Dependency chain**: Release in order: map → libskill → pathway/summit.
+- **Dependency chain**: Release foundational packages before consumers — for
+  example, `map` and `libskill` must be released before `pathway` (which depends
+  on both). Check `package.json` dependencies before tagging.
