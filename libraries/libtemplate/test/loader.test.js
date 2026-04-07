@@ -143,6 +143,70 @@ describe("TemplateLoader", () => {
     });
   });
 
+  describe("renderWithPartials", () => {
+    test("resolves a partial referenced via {{> name}}", () => {
+      writeFileSync(
+        join(defaultsDir, "page.html"),
+        "<ul>{{#items}}{{> item.html}}{{/items}}</ul>",
+      );
+      writeFileSync(join(defaultsDir, "item.html"), "<li>{{label}}</li>");
+
+      const loader = new TemplateLoader(defaultsDir);
+      const result = loader.renderWithPartials(
+        "page.html",
+        { items: [{ label: "a" }, { label: "b" }] },
+        ["item.html"],
+      );
+
+      assert.strictEqual(result, "<ul><li>a</li><li>b</li></ul>");
+    });
+
+    test("partial under dataDir/templates overrides the package default", () => {
+      const dataDir = mkdtempSync(join(tmpdir(), "libtemplate-data-"));
+      mkdirSync(join(dataDir, "templates"), { recursive: true });
+
+      writeFileSync(join(defaultsDir, "page.html"), "{{> partial.html}}");
+      writeFileSync(join(defaultsDir, "partial.html"), "default");
+      writeFileSync(join(dataDir, "templates", "partial.html"), "overridden");
+
+      const loader = new TemplateLoader(defaultsDir);
+      const result = loader.renderWithPartials(
+        "page.html",
+        {},
+        ["partial.html"],
+        dataDir,
+      );
+
+      assert.strictEqual(result, "overridden");
+      rmSync(dataDir, { recursive: true, force: true });
+    });
+
+    test("missing partial raises a Template not found error", () => {
+      writeFileSync(join(defaultsDir, "page.html"), "{{> missing.html}}");
+
+      const loader = new TemplateLoader(defaultsDir);
+      assert.throws(
+        () => loader.renderWithPartials("page.html", {}, ["missing.html"]),
+        {
+          message: /Template 'missing.html' not found/,
+        },
+      );
+    });
+
+    test("renders without any partials when partialNames is empty", () => {
+      writeFileSync(join(defaultsDir, "page.html"), "Hello, {{name}}!");
+
+      const loader = new TemplateLoader(defaultsDir);
+      const result = loader.renderWithPartials(
+        "page.html",
+        { name: "World" },
+        [],
+      );
+
+      assert.strictEqual(result, "Hello, World!");
+    });
+  });
+
   test.afterEach(() => {
     try {
       rmSync(defaultsDir, { recursive: true, force: true });

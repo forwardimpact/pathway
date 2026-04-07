@@ -46,6 +46,31 @@ describe("Parser", () => {
     assert.ok(items.length > 0, "Should extract at least one item");
   });
 
+  test("parses HTML with fit: vocabulary microdata", async () => {
+    const html = `
+      <div itemscope itemtype="https://www.forwardimpact.team/schema/rdf/Skill">
+        <span itemprop="https://www.forwardimpact.team/schema/rdf/name">Test Skill</span>
+      </div>
+    `;
+    const dom = new JSDOM(html);
+    const baseIri = "https://example.com/";
+
+    const items = await parser.parseHTML(dom, baseIri);
+
+    assert.ok(Array.isArray(items));
+    assert.ok(
+      items.length > 0,
+      "Should extract at least one fit: vocabulary item",
+    );
+    const hasFitType = items[0].quads.some(
+      (q) =>
+        q.predicate.value ===
+          "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
+        q.object.value === "https://www.forwardimpact.team/schema/rdf/Skill",
+    );
+    assert.ok(hasFitType, "Item should carry the fit:Skill rdf:type quad");
+  });
+
   test("returns empty array for HTML without microdata", async () => {
     const html = "<div><h1>No Microdata Here</h1></div>";
     const dom = new JSDOM(html);
