@@ -55,4 +55,28 @@ export class TemplateLoader {
     const template = this.load(name, dataDir);
     return Mustache.render(template, data);
   }
+
+  /**
+   * Load and render a template that references Mustache partials.
+   *
+   * Each partial is resolved through the same two-tier fallback as the main
+   * template, so users can override individual partials by dropping a file at
+   * `{dataDir}/templates/{partialName}`. Missing partials raise the same
+   * `Template '...' not found` error that {@link TemplateLoader#load} does.
+   *
+   * @param {string} name - Main template filename
+   * @param {object} data - Data to render into the template
+   * @param {string[]} partialNames - Filenames of partials referenced by the
+   *   main template via `{{> partialName}}`
+   * @param {string} [dataDir] - Optional data directory for user overrides
+   * @returns {string} Rendered template content
+   */
+  renderWithPartials(name, data = {}, partialNames = [], dataDir) {
+    const template = this.load(name, dataDir);
+    const partials = {};
+    for (const partialName of partialNames) {
+      partials[partialName] = this.load(partialName, dataDir);
+    }
+    return Mustache.render(template, data, partials);
+  }
 }

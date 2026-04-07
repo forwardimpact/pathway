@@ -25,6 +25,7 @@
   ],
   "exports": {
     ".": "./src/index.js",
+    "./iri": "./src/iri.js",
     "./loader": "./src/loader.js",
     "./validation": "./src/validation.js",
     "./schema-validation": "./src/schema-validation.js",

@@ -2,6 +2,21 @@ import { minify } from "html-minifier-terser";
 import { MicrodataRdfParser } from "microdata-rdf-streaming-parser";
 import { Writer, Parser as N3Parser } from "n3";
 
+/** Allowed itemtype namespace prefixes for main microdata items. */
+const ALLOWED_TYPE_PREFIXES = [
+  "https://schema.org/",
+  "https://www.forwardimpact.team/schema/rdf/",
+];
+
+/**
+ * Returns true if the given IRI starts with any allowed namespace prefix.
+ * @param {string} iri - IRI to test
+ * @returns {boolean}
+ */
+function hasAllowedTypePrefix(iri) {
+  return ALLOWED_TYPE_PREFIXES.some((prefix) => iri.startsWith(prefix));
+}
+
 /** Parser for converting HTML with microdata to structured RDF items */
 export class Parser {
   #skolemizer;
@@ -54,7 +69,8 @@ export class Parser {
    * Validates that an item is a main item with a schema.org type
    * @param {string} itemIri - The IRI of the item to validate
    * @param {Array} itemQuads - Array of RDF quads for the item
-   * @returns {boolean} True if the item has an rdf:type with a schema.org value
+   * @returns {boolean} True if the item has an rdf:type whose value matches an
+   *   allowed namespace prefix (schema.org or the fit: vocabulary).
    */
   isMainItem(itemIri, itemQuads) {
     return itemQuads.some(
@@ -62,7 +78,7 @@ export class Parser {
         quad.subject.value === itemIri &&
         quad.predicate.value ===
           "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
-        quad.object.value.startsWith("https://schema.org/"),
+        hasAllowedTypePrefix(quad.object.value),
     );
   }
 
@@ -178,7 +194,7 @@ export class Parser {
           (q) =>
             q.predicate.value ===
               "http://www.w3.org/1999/02/22-rdf-syntax-ns#type" &&
-            q.object.value.startsWith("https://schema.org/"),
+            hasAllowedTypePrefix(q.object.value),
         )
         .map((q) => q.subject.value),
     );
