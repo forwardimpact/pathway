@@ -66,3 +66,93 @@ run_handoff:
   evaluation: Conversation control transferred to the target agent.
   parameters:
     label: Handoff label from list_handoffs.
+
+pathway_list_jobs:
+  purpose: |
+    List jobs (discipline x level x track) defined in the pathway framework
+    as Turtle RDF using the fit: vocabulary.
+  applicability: |
+    Use to discover fit:Job entities before calling pathway_describe_job.
+  instructions: |
+    Optional 'discipline' filter. Returns one fit:Job per valid combination.
+  evaluation: Turtle RDF describing every job in the framework.
+  parameters:
+    discipline: Optional discipline id (e.g. "fde").
+
+pathway_describe_job:
+  purpose: |
+    Describe a job at (discipline, level, optional track) including its
+    skill matrix, behaviour profile, and responsibilities, as Turtle RDF.
+  applicability: |
+    Use after pathway_list_jobs to retrieve full detail about a role.
+    Skill IRIs in the result can be passed to query_by_pattern.
+  instructions: |
+    Required 'discipline' and 'level', optional 'track'.
+  evaluation: "Turtle RDF describing the job using the fit: vocabulary."
+  parameters:
+    discipline: Discipline id (e.g. "fde").
+    level: Level id (e.g. "l3").
+    track: Optional track id (e.g. "forward_deployed").
+
+pathway_list_agent_profiles:
+  purpose: |
+    List static agent profile (discipline, track) combinations as Turtle RDF.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  applicability: |
+    Use to discover fit:AgentProfile definitions in framework data.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  instructions: "Optional 'discipline' filter."
+  evaluation: Turtle RDF listing static agent profile definitions.
+  parameters:
+    discipline: Optional discipline id.
+
+pathway_describe_agent_profile:
+  purpose: |
+    Describe stage agent profiles for a (discipline, track) as Turtle RDF.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  applicability: |
+    Use to read agent skills/behaviours/frontmatter for a role and stage.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  instructions: |
+    Required 'discipline' and 'track', optional 'stage'. Without 'stage'
+    the service returns one fit:AgentProfile per stage.
+  evaluation: Turtle RDF describing static agent profile definitions.
+  parameters:
+    discipline: Discipline id.
+    track: Track id.
+    stage: Optional stage id.
+
+pathway_describe_progression:
+  purpose: |
+    Compute the progression delta between two levels of the same discipline
+    and return it as a Turtle RDF fit:Progression.
+  applicability: |
+    Use to answer "what changes between L2 and L3" style questions.
+  instructions: |
+    Required 'discipline', 'from_level', 'to_level'; optional 'track'.
+  evaluation: "Turtle RDF with fit:skillChange and fit:behaviourChange entries."
+  parameters:
+    discipline: Discipline id.
+    from_level: Starting level id.
+    to_level: Target level id.
+    track: Optional track id.
+
+pathway_list_job_software:
+  purpose: |
+    List the software toolkit derived for a job, as Turtle RDF.
+    This lists software technologies used by the job (Python, Figma, etc.) —
+    NOT the LLM tools available to you.
+  applicability: |
+    Use to discover what software a role uses day-to-day.
+    This lists software technologies used by the job (Python, Figma, etc.) —
+    NOT the LLM tools available to you.
+  instructions: "Required 'discipline' and 'level', optional 'track'."
+  evaluation: Turtle RDF describing software (not LLM tools) used by the job.
+  parameters:
+    discipline: Discipline id.
+    level: Level id.
+    track: Optional track id.

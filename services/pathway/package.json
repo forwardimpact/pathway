@@ -1,0 +1,38 @@
+{
+  "name": "@forwardimpact/svcpathway",
+  "version": "0.1.0",
+  "description": "Pathway derivation service for Guide",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "dev": "node --watch server.js",
+    "start": "bun server.js",
+    "test": "bun run node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libconfig": "^0.1.58",
+    "@forwardimpact/librpc": "^0.1.77",
+    "@forwardimpact/libskill": "^4.1.5",
+    "@forwardimpact/libtelemetry": "^0.1.30",
+    "@forwardimpact/libtype": "^0.1.67",
+    "@forwardimpact/libutil": "^0.1.64",
+    "@forwardimpact/map": "^0.15.12",
+    "n3": "^2.0.3"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.5"
+  },
+  "files": [
+    "proto/",
+    "server.js"
+  ],
+  "publishConfig": {
+    "access": "public"
+  }
+}

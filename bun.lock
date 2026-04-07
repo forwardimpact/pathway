@@ -51,7 +51,7 @@
     },
     "libraries/libconfig": {
       "name": "@forwardimpact/libconfig",
-      "version": "0.1.64",
+      "version": "0.1.65",
       "dependencies": {
         "@forwardimpact/libstorage": "^0.1.53",
       },
@@ -449,7 +449,7 @@
     },
     "products/basecamp": {
       "name": "@forwardimpact/basecamp",
-      "version": "2.10.2",
+      "version": "2.11.0",
       "bin": {
         "fit-basecamp": "./src/basecamp.js",
       },
@@ -562,6 +562,23 @@
         "@forwardimpact/libresource": "^0.1.89",
         "@forwardimpact/librpc": "^0.1.77",
         "@forwardimpact/libstorage": "^0.1.53",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.5",
+      },
+    },
+    "services/pathway": {
+      "name": "@forwardimpact/svcpathway",
+      "version": "0.1.0",
+      "dependencies": {
+        "@forwardimpact/libconfig": "^0.1.58",
+        "@forwardimpact/librpc": "^0.1.77",
+        "@forwardimpact/libskill": "^4.1.5",
+        "@forwardimpact/libtelemetry": "^0.1.30",
+        "@forwardimpact/libtype": "^0.1.67",
+        "@forwardimpact/libutil": "^0.1.64",
+        "@forwardimpact/map": "^0.15.12",
+        "n3": "^2.0.3",
       },
       "devDependencies": {
         "@forwardimpact/libharness": "^0.1.5",
@@ -854,6 +871,8 @@
     "@forwardimpact/svcllm": ["@forwardimpact/svcllm@workspace:services/llm"],
 
     "@forwardimpact/svcmemory": ["@forwardimpact/svcmemory@workspace:services/memory"],
+
+    "@forwardimpact/svcpathway": ["@forwardimpact/svcpathway@workspace:services/pathway"],
 
     "@forwardimpact/svctool": ["@forwardimpact/svctool@workspace:services/tool"],
 
