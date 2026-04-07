@@ -187,9 +187,12 @@ Two coordinated changes:
 
 - New `fit-map export` CLI command that loads framework data and renders HTML
   microdata files to `data/knowledge/`
-- Templates in `products/map/templates/` — one per base entity type:
-  capability (with nested skills), level, behaviour, discipline, track, stage,
-  driver, tool
+- Mustache templates in `products/map/templates/` — one per base entity type:
+  capability (with nested skills), skill, level, behaviour, discipline, track,
+  stage, driver, tool — loaded and rendered via `@forwardimpact/libtemplate`'s
+  `TemplateLoader`, following the same precedent as
+  `libraries/libsyntheticrender/` (which owns its own template set under
+  `templates/` and renders through `TemplateLoader.render()`)
 - Templates use the `fit:` vocabulary from `products/map/schema/rdf/` for
   `itemtype` and `itemprop` values
 - New `just export-framework` recipe that runs `fit-map export`
