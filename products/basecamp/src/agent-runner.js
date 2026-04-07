@@ -124,6 +124,7 @@ export class AgentRunner {
     this.#stateManager.save(state);
 
     const spawnArgs = [
+      "--chrome",
       "--agent",
       agentName,
       "--print",
