@@ -28,6 +28,10 @@
         "command": "bun run --filter @forwardimpact/svcgraph dev"
       },
       {
+        "name": "pathway",
+        "command": "bun run --filter @forwardimpact/svcpathway dev"
+      },
+      {
         "name": "llm",
         "command": "bun run --filter @forwardimpact/svcllm dev"
       },
@@ -112,6 +116,30 @@
         "run_handoff": {
           "method": "agent.Agent.RunHandoff",
           "request": "agent.RunHandoffRequest"
+        },
+        "pathway_list_jobs": {
+          "method": "pathway.Pathway.ListJobs",
+          "request": "pathway.ListJobsRequest"
+        },
+        "pathway_describe_job": {
+          "method": "pathway.Pathway.DescribeJob",
+          "request": "pathway.DescribeJobRequest"
+        },
+        "pathway_list_agent_profiles": {
+          "method": "pathway.Pathway.ListAgentProfiles",
+          "request": "pathway.ListAgentProfilesRequest"
+        },
+        "pathway_describe_agent_profile": {
+          "method": "pathway.Pathway.DescribeAgentProfile",
+          "request": "pathway.DescribeAgentProfileRequest"
+        },
+        "pathway_describe_progression": {
+          "method": "pathway.Pathway.DescribeProgression",
+          "request": "pathway.DescribeProgressionRequest"
+        },
+        "pathway_list_job_software": {
+          "method": "pathway.Pathway.ListJobSoftware",
+          "request": "pathway.ListJobSoftwareRequest"
         }
       }
     }

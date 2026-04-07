@@ -1,0 +1,42 @@
+import { Server, createTracer } from "@forwardimpact/librpc";
+import { createServiceConfig } from "@forwardimpact/libconfig";
+import { createLogger } from "@forwardimpact/libtelemetry";
+import { createDataLoader } from "@forwardimpact/map/loader";
+import { Finder } from "@forwardimpact/libutil";
+import { homedir } from "os";
+import { join } from "path";
+import fs from "fs/promises";
+
+import { PathwayService } from "./index.js";
+
+const config = await createServiceConfig("pathway");
+
+// Initialize observability
+const logger = createLogger("pathway");
+const tracer = await createTracer("pathway");
+
+// Resolve the pathway data directory using the same upward-walk + HOME
+// fallback rules as fit-pathway. SERVICE_PATHWAY_DATA_DIR (picked up by
+// libconfig and exposed as config.dataDir) overrides the discovery.
+const finder = new Finder(fs, logger, process);
+const dataDir = config.dataDir
+  ? String(config.dataDir)
+  : join(finder.findData("data", homedir()), "pathway");
+
+// Three-call load sequence matching products/pathway/src/commands/agent.js.
+// loadAllData drops `human` from each skill (loader.js:102-127) while
+// loadSkillsWithAgentData spreads the full raw skill, which is the shape
+// generateStageAgentProfile walks. Both are required.
+const loader = createDataLoader();
+const data = await loader.loadAllData(dataDir);
+const agentData = await loader.loadAgentData(dataDir);
+const skillsWithAgent = await loader.loadSkillsWithAgentData(dataDir);
+
+const service = new PathwayService(config, {
+  data,
+  agentData,
+  skillsWithAgent,
+});
+const server = new Server(service, config, logger, tracer);
+
+await server.start();

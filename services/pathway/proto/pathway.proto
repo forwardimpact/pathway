@@ -1,0 +1,50 @@
+syntax = "proto3";
+
+package pathway;
+
+import "common.proto";
+import "tool.proto";
+
+service Pathway {
+  rpc ListJobs(ListJobsRequest) returns (tool.ToolCallResult);
+  rpc DescribeJob(DescribeJobRequest) returns (tool.ToolCallResult);
+  rpc ListAgentProfiles(ListAgentProfilesRequest) returns (tool.ToolCallResult);
+  rpc DescribeAgentProfile(DescribeAgentProfileRequest) returns (tool.ToolCallResult);
+  rpc DescribeProgression(DescribeProgressionRequest) returns (tool.ToolCallResult);
+  rpc ListJobSoftware(ListJobSoftwareRequest) returns (tool.ToolCallResult);
+}
+
+message ListJobsRequest {
+  optional string discipline = 1;
+}
+
+message DescribeJobRequest {
+  string discipline = 1;
+  string level = 2;
+  optional string track = 3;
+}
+
+message ListAgentProfilesRequest {
+  optional string discipline = 1;
+}
+
+message DescribeAgentProfileRequest {
+  string discipline = 1;
+  string track = 2;
+  // Optional stage id (e.g. "intern", "established"). If omitted, the
+  // service returns every stage profile for the discipline x track.
+  optional string stage = 3;
+}
+
+message DescribeProgressionRequest {
+  string discipline = 1;
+  string from_level = 2;
+  string to_level = 3;
+  optional string track = 4;
+}
+
+message ListJobSoftwareRequest {
+  string discipline = 1;
+  string level = 2;
+  optional string track = 3;
+}

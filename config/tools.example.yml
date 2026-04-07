@@ -151,3 +151,127 @@ run_handoff:
     Conversation control transferred to the target agent.
   parameters:
     label: Handoff label identifying the target agent (from list_handoffs).
+
+pathway_list_jobs:
+  purpose: |
+    List jobs (discipline x level x track combinations) defined in the
+    pathway framework, returned as Turtle RDF using the fit: vocabulary.
+  applicability: |
+    Use to discover which fit:Job entities exist before calling
+    pathway_describe_job for full skill matrix detail. Optionally filter by
+    discipline.
+  instructions: |
+    Input: optional 'discipline' field.
+    Output: Turtle RDF with one fit:Job per valid combination (discipline,
+    level, optional track) plus its rdfs:label.
+  evaluation: |
+    Turtle RDF describing every job in the framework using the fit:
+    vocabulary. Job IRIs can be passed back into pathway_describe_job.
+  parameters:
+    discipline: Optional discipline id (e.g. "fde") to filter jobs.
+
+pathway_describe_job:
+  purpose: |
+    Describe a single job at a specific (discipline, level, track) including
+    its derived skill matrix, behaviour profile, and responsibilities.
+  applicability: |
+    Use after pathway_list_jobs (or query_by_pattern on fit:Job) to retrieve
+    full detail about one role.
+  instructions: |
+    Input: required 'discipline' and 'level', optional 'track'.
+    Output: Turtle RDF describing the fit:Job with fit:skillMatrix entries,
+    fit:behaviourProfile entries, and any derived responsibilities.
+  evaluation: |
+    Turtle RDF describing the job using the fit: vocabulary. Skill and
+    behaviour IRIs can be passed to query_by_pattern or get_subjects to
+    retrieve base definitions from the graph.
+  parameters:
+    discipline: Discipline id (e.g. "fde", "platform").
+    level: Level id (e.g. "l3", "l4").
+    track: Optional track id (e.g. "forward_deployed").
+
+pathway_list_agent_profiles:
+  purpose: |
+    List agent profile (discipline, track) combinations defined in the
+    pathway framework, returned as Turtle RDF.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  applicability: |
+    Use to discover which fit:AgentProfile entities exist before calling
+    pathway_describe_agent_profile.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  instructions: |
+    Input: optional 'discipline' field.
+    Output: Turtle RDF with one fit:AgentProfile per (discipline, track)
+    combination defined in agent data.
+  evaluation: |
+    Turtle RDF listing static agent profile definitions (not runnable agents).
+  parameters:
+    discipline: Optional discipline id to filter agent profiles.
+
+pathway_describe_agent_profile:
+  purpose: |
+    Describe one or more stage-specific agent profiles for a (discipline,
+    track) pair, returned as Turtle RDF.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  applicability: |
+    Use to retrieve full agent profile content (skills, behaviours,
+    frontmatter) for a specific role and optionally a single stage.
+    Pathway agent profiles are static role descriptions in framework data —
+    they are NOT runnable LLM sub-agents. Use list_sub_agents for delegation.
+  instructions: |
+    Input: required 'discipline' and 'track', optional 'stage'. If 'stage'
+    is omitted, the service returns one fit:AgentProfile per stage.
+    Output: Turtle RDF describing each fit:AgentProfile with fit:agentSkill,
+    fit:agentBehaviour, fit:stage and a JSON-literal fit:frontmatter.
+  evaluation: |
+    Turtle RDF describing static agent profile definitions for the role
+    (not runnable agents).
+  parameters:
+    discipline: Discipline id (e.g. "fde").
+    track: Track id (e.g. "forward_deployed").
+    stage: Optional stage id (e.g. "intern", "established").
+
+pathway_describe_progression:
+  purpose: |
+    Compute the progression delta between two levels (and optionally tracks)
+    of the same discipline, returned as Turtle RDF.
+  applicability: |
+    Use to answer "what changes between L2 and L3 for an FDE" style
+    questions. Returns skill and behaviour deltas as RDF.
+  instructions: |
+    Input: required 'discipline', 'from_level', 'to_level', optional
+    'track'. Output: Turtle RDF describing a fit:Progression with
+    fit:skillChange and fit:behaviourChange entries (each with changeKind:
+    gained/lost/increased/decreased/unchanged).
+  evaluation: |
+    Turtle RDF describing the progression delta. Skill and behaviour IRIs
+    can be chained into query_by_pattern.
+  parameters:
+    discipline: Discipline id.
+    from_level: Starting level id.
+    to_level: Target level id.
+    track: Optional track id.
+
+pathway_list_job_software:
+  purpose: |
+    List the software toolkit derived for a specific job, returned as Turtle
+    RDF.
+    This lists software technologies used by the job (Python, Figma, etc.) —
+    NOT the LLM tools available to you.
+  applicability: |
+    Use to discover what software a role uses day-to-day.
+    This lists software technologies used by the job (Python, Figma, etc.) —
+    NOT the LLM tools available to you.
+  instructions: |
+    Input: required 'discipline' and 'level', optional 'track'.
+    Output: Turtle RDF describing a fit:Job with fit:software predicates
+    pointing to fit:Tool IRIs and rdfs:label values.
+  evaluation: |
+    Turtle RDF describing software (not LLM tools) used by the job.
+  parameters:
+    discipline: Discipline id.
+    level: Level id.
+    track: Optional track id.
