@@ -2,6 +2,11 @@ name: "Gemba: Guide Setup"
 
 on:
   workflow_dispatch: # Manual trigger for on-demand evaluation
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
 
 concurrency:
   group: guide-setup
@@ -65,3 +70,4 @@ jobs:
           max-turns: "200"
           allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,WebFetch,WebSearch"
           supervisor-allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,Skill,TodoWrite"
+          task-amend: ${{ inputs.task-amend }}

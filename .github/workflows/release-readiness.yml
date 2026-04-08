@@ -5,6 +5,11 @@ on:
     # Daily at 06:23 UTC — prepares PRs after work creators finish
     - cron: "23 6 * * *"
   workflow_dispatch: # Manual trigger for on-demand readiness checks
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
 
 concurrency:
   group: release-readiness
@@ -45,3 +50,4 @@ jobs:
           agent-profile: "release-engineer"
           model: "opus"
           max-turns: "200"
+          task-amend: ${{ inputs.task-amend }}

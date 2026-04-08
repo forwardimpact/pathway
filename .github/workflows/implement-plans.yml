@@ -5,6 +5,11 @@ on:
     # Daily at 07:53 UTC — runs after planners, before mergers
     - cron: "53 7 * * *"
   workflow_dispatch: # Manual trigger for on-demand implementation
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
 
 concurrency:
   group: implement-plans
@@ -44,3 +49,4 @@ jobs:
           agent-profile: "staff-engineer"
           model: "opus"
           max-turns: "0"
+          task-amend: ${{ inputs.task-amend }}
