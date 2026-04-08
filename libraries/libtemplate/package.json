@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libtemplate",
-  "version": "0.2.4",
+  "version": "0.2.5",
   "description": "Mustache template loading with data directory fallback",
   "license": "Apache-2.0",
   "repository": {
