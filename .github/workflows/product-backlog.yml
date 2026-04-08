@@ -5,6 +5,11 @@ on:
     # Daily at 08:13 UTC — merges PRs after CI runs on rebased branches
     - cron: "13 8 * * *"
   workflow_dispatch: # Manual trigger for on-demand backlog triage
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
 
 concurrency:
   group: product-backlog
@@ -45,3 +50,4 @@ jobs:
           agent-profile: "product-manager"
           model: "opus"
           max-turns: "200"
+          task-amend: ${{ inputs.task-amend }}

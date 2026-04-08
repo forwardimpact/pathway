@@ -5,6 +5,11 @@ on:
     # Wed & Sat at 10:47 UTC — analyzes traces after all other agents
     - cron: "47 10 * * 3,6"
   workflow_dispatch: # Manual trigger for on-demand analysis
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
 
 concurrency:
   group: improvement-coach
@@ -45,3 +50,4 @@ jobs:
           agent-profile: "improvement-coach"
           model: "opus"
           max-turns: "200"
+          task-amend: ${{ inputs.task-amend }}
