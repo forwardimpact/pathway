@@ -85,50 +85,25 @@ install may define custom `.proto` files that `fit-codegen` auto-discovers from
 [Codegen Internals](website/docs/internals/codegen/index.md) for the full
 pipeline.
 
-Published skills (`fit-*` in `.claude/skills/`) help external users understand
-how products **work** — not how they are **implemented**. Synced to
-`forwardimpact/skills` on push to `main`. External users install them with
-`npx skills add forwardimpact/skills`.
+Published skills (`fit-*` entries in [.claude/skills/](.claude/skills/)) help
+external users understand how products **work** — not how they are
+**implemented**. Synced to `forwardimpact/skills` on push to `main`. External
+users install them with `npx skills add forwardimpact/skills`.
 
 ### How Internal Contributors Develop
 
-| Context               | Runtime  | Package manager | CLI commands         |
-| --------------------- | -------- | --------------- | -------------------- |
-| External users        | Node.js  | npm             | `npx fit-*`          |
-| Internal contributors | Bun 1.2+ | bun             | `bunx fit-*`, `just` |
+- **External users** — Node.js + npm, run `npx fit-*`.
+- **Internal contributors** — Bun 1.2+ + bun, run `bunx fit-*` and `just`.
 
 `just codegen` (included in `just quickstart`) runs `fit-codegen` internally.
 Internal skills (`libs-*`, product internals) help contributors understand
 architecture — these are never published.
 
 **Documentation rule:** External-facing docs must use `npm`/`npx`.
-`bun`/`bunx`/`just` appear only in internal docs (`CONTRIBUTING.md`, operations
-reference, internals pages).
-
-## Documentation Map
-
-Policy rows (†) have one canonical location — other files reference, never
-restate.
-
-| Document                       | Location                                      | Context  |
-| ------------------------------ | --------------------------------------------- | -------- |
-| Core rules & architecture †    | `CLAUDE.md`                                   | Internal |
-| Contributor workflow †         | `CONTRIBUTING.md`                             | Internal |
-| Security, deps, SHA pinning †  | `CONTRIBUTING.md` § Security / Dep Policy     | Internal |
-| Repo self-maintenance †        | `CONTINUOUS_IMPROVEMENT.md`                   | Internal |
-| Environment, services, tasks † | `website/docs/internals/operations/`          | Internal |
-| Supply chain & app security †  | `.claude/skills/security-audit`               | Internal |
-| Security update †              | `.claude/skills/security-update`              | Internal |
-| Release readiness / review †   | `.claude/skills/release-readiness`, `-review` | Internal |
-| Codegen pipeline †             | `website/docs/internals/codegen/`             | Internal |
-| REPL API                       | `website/docs/internals/librepl/`             | Internal |
-| Product internals              | `website/docs/internals/{product}/`           | Internal |
-| Getting started — Contributors | `website/docs/getting-started/contributors/`  | Internal |
-| Product pages                  | `website/{product}/index.md`                  | External |
-| Getting started — Engineers    | `website/docs/getting-started/engineers/`     | External |
-| Getting started — Leadership   | `website/docs/getting-started/leadership/`    | External |
-| User guides                    | `website/docs/guides/`                        | External |
-| Published skills (`fit-*`)     | `.claude/skills/fit-*`                        | External |
+`bun`/`bunx`/`just` appear only in internal docs:
+[CONTRIBUTING.md](CONTRIBUTING.md), the
+[Operations Reference](website/docs/internals/operations/), and other
+[internals pages](website/docs/internals/).
 
 ## Contributor Workflow
 
@@ -140,10 +115,14 @@ consult the [Getting Started guides](website/docs/getting-started/).
 - **[Operations Reference](website/docs/internals/operations/index.md)** —
   Environment setup, service management, common tasks.
 
-Commit format: `type(scope): subject` — see CONTRIBUTING.md § Git Conventions.
+Two checklists frame every contribution, following Atul Gawande's _Checklist
+Manifesto_:
 
-Run `bun run check` and `bun run test` before every commit — code **and**
-documentation.
+- **Before starting**, run [CONTRIBUTING.md § READ-DO](CONTRIBUTING.md#read-do)
+  — the rules to hold in mind while writing, including _Simple over easy_.
+- **Before committing**, run
+  [CONTRIBUTING.md § DO-CONFIRM](CONTRIBUTING.md#do-confirm) — the gates to
+  verify, including `bun run check`, `bun run test`, and commit format.
 
 ## LLM Environment
 
@@ -154,43 +133,38 @@ environment, so testing with an LLM will always "just work".
 
 ## Structure
 
-Plain JS + JSDoc, YAML, no frameworks.
-
 ```
 products/
-  map/          Data product, validation          (fit-map)
-  pathway/      Web app, CLI, formatters          (fit-pathway)
-  basecamp/     Knowledge system, scheduler       (fit-basecamp)
-  guide/        LLM agent, artifact interpretation
-  landmark/     Signal analysis on Map data       (fit-landmark)
-  summit/       Team capability as a system        (fit-summit)
+  map/                 # fit-map — data product, validation
+    schema/json/       #   JSON Schema
+    schema/rdf/        #   RDF/SHACL
+  pathway/             # fit-pathway — web app, CLI, formatters
+    src/formatters/    #   output formatters
+    starter/           #   framework YAML (installs to data/pathway/)
+  basecamp/            # fit-basecamp — knowledge system, scheduler
+    template/          #   KB template
+  guide/               # fit-guide — LLM agent, artifact interpretation
+  landmark/            # fit-landmark — signal analysis on Map data
+  summit/              # fit-summit — team capability as a system
 libraries/
-  libskill/     Derivation logic, job/agent models
-  libuniverse/  Synthetic data DSL and generation  (fit-universe)
-  libui/        Web UI framework, components, CSS
-  libdoc/       Documentation build/serve         (fit-doc)
+  libskill/            # derivation logic, job/agent models
+  libuniverse/         # fit-universe — synthetic data DSL and generation
+  libui/               # web UI framework, components, CSS
+  libdoc/              # fit-doc — documentation build/serve
 services/
   agent/ graph/ llm/ memory/ tool/ trace/ vector/ web/
 config/
-  config.json   Service definitions, model settings, eval config
-  tools.yml     Tool endpoint definitions
-  agents/       Agent prompt files (*.agent.md)
+  config.json          # service definitions, model settings, eval config
+  tools.yml            # tool endpoint definitions
+  agents/              # agent prompt files (*.agent.md)
+data/
+  synthetic/           # synthetic data DSL and generated artifacts
 specs/
-  {feature}/    Feature specifications and plans
+  {feature}/           # feature specifications and plans
 ```
 
 Data-driven: entities defined in YAML, each external installation may have
 completely different framework data while using the same product code.
-
-### Key Paths
-
-| Purpose      | Location                           |
-| ------------ | ---------------------------------- |
-| Pathway data | `data/pathway/`                    |
-| JSON Schema  | `products/map/schema/json/`        |
-| RDF/SHACL    | `products/map/schema/rdf/`         |
-| Formatters   | `products/pathway/src/formatters/` |
-| KB template  | `products/basecamp/template/`      |
 
 ## OO+DI Architecture
 
@@ -208,34 +182,36 @@ not need DI.
 ## Skill Groups
 
 Library skills are organized into capability groups with corresponding skill
-files in `.claude/skills/`.
+files in [.claude/skills/](.claude/skills/):
 
-| Group                         | Libraries                                                         |
-| ----------------------------- | ----------------------------------------------------------------- |
-| `libs-service-infrastructure` | librpc, libconfig, libtelemetry, libtype, libharness              |
-| `libs-data-persistence`       | libstorage, libindex, libresource, libpolicy, libgraph, libvector |
-| `libs-llm-orchestration`      | libllm, libmemory, libprompt, libagent                            |
-| `libs-web-presentation`       | libui, libformat, libweb, libdoc, libtemplate                     |
-| `libs-system-utilities`       | libutil, libsecret, libsupervise, librc, libcodegen               |
-| `libs-synthetic-data`         | libsyntheticgen, libsyntheticprose, libsyntheticrender            |
+- **`libs-service-infrastructure`** — librpc, libconfig, libtelemetry, libtype,
+  libharness
+- **`libs-data-persistence`** — libstorage, libindex, libresource, libpolicy,
+  libgraph, libvector
+- **`libs-llm-orchestration`** — libllm, libmemory, libprompt, libagent
+- **`libs-web-presentation`** — libui, libformat, libweb, libdoc, libtemplate
+- **`libs-system-utilities`** — libutil, libsecret, libsupervise, librc,
+  libcodegen
+- **`libs-synthetic-data`** — libsyntheticgen, libsyntheticprose,
+  libsyntheticrender
 
 `libskill` retains its own skill (pure-function design, exempt from OO+DI).
 
 ## Domain Concepts
 
-> Entities are defined in YAML under `data/pathway/`. Use
-> `bunx fit-pathway <entity> --list` to discover available values.
+Framework entities are defined in YAML under
+[products/pathway/starter/](products/pathway/starter/) (the monorepo's starter
+template, which installs to `data/pathway/` in consuming projects). Use
+`bunx fit-pathway <entity> --list` to discover available values.
 
-| Entity       | File Location                      |
-| ------------ | ---------------------------------- |
-| Disciplines  | `disciplines/{id}.yaml`            |
-| Levels       | `levels.yaml`                      |
-| Tracks       | `tracks/{id}.yaml`                 |
-| Capabilities | `capabilities/{id}.yaml`           |
-| Skills       | `capabilities/{id}.yaml` (skills:) |
-| Behaviours   | `behaviours/{id}.yaml`             |
-| Stages       | `stages.yaml`                      |
-| Drivers      | `drivers.yaml`                     |
+- **Disciplines** — `disciplines/{id}.yaml`
+- **Levels** — `levels.yaml`
+- **Tracks** — `tracks/{id}.yaml`
+- **Capabilities** — `capabilities/{id}.yaml`
+- **Skills** — `capabilities/{id}.yaml` (under `skills:`)
+- **Behaviours** — `behaviours/{id}.yaml`
+- **Stages** — `stages.yaml`
+- **Drivers** — `drivers.yaml`
 
 All entities use co-located `human:` and `agent:` sections.
 
@@ -252,3 +228,43 @@ All entities use co-located `human:` and `agent:` sections.
 
 Validate data: `bunx fit-map validate`. Vocabulary standards in the
 [Authoring Frameworks guide](website/docs/guides/authoring-frameworks/index.md).
+
+## Documentation Map
+
+Policy entries (†) have one canonical location — other files reference, never
+restate. Per-product Overview and Internals pages are in [§ Products](#products)
+above.
+
+**Internal:**
+
+- **Core rules & architecture** † — [CLAUDE.md](CLAUDE.md)
+- **Contributor workflow** † — [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Security policies** † —
+  [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
+- **Dependency policy** † —
+  [CONTRIBUTING.md § Dependency Policy](CONTRIBUTING.md#dependency-policy)
+- **Repo self-maintenance** † —
+  [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md)
+- **Environment, services, tasks** † —
+  [Operations Reference](website/docs/internals/operations/)
+- **Supply chain & app security** † —
+  [security-audit skill](.claude/skills/security-audit)
+- **Security update** † —
+  [security-update skill](.claude/skills/security-update)
+- **Release readiness** † —
+  [release-readiness skill](.claude/skills/release-readiness)
+- **Release review** † — [release-review skill](.claude/skills/release-review)
+- **Codegen pipeline** † — [Codegen Internals](website/docs/internals/codegen/)
+- **REPL API** — [librepl internals](website/docs/internals/librepl/)
+- **Getting started (contributors)** —
+  [website/docs/getting-started/contributors/](website/docs/getting-started/contributors/)
+
+**External:**
+
+- **Getting started (engineers)** —
+  [website/docs/getting-started/engineers/](website/docs/getting-started/engineers/)
+- **Getting started (leadership)** —
+  [website/docs/getting-started/leadership/](website/docs/getting-started/leadership/)
+- **User guides** — [website/docs/guides/](website/docs/guides/)
+- **Published skills** — [.claude/skills/](.claude/skills/) (`fit-*` entries,
+  externally consumable)

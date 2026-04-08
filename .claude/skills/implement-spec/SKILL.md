@@ -20,6 +20,10 @@ changes methodically.
 
 ## Process
 
+Before starting: run the READ-DO checklist in CONTRIBUTING.md § Core Rules.
+Those rules apply to every implementation task — hold them in mind as you work
+through the steps below.
+
 ### 1. Study the spec deeply
 
 Read every file in the spec directory — `spec.md`, all `plan*.md` files, and any
@@ -86,9 +90,10 @@ For each task:
    assumptions are stale.
 2. **Verify immediately.** Run relevant tests, linters, or validation commands
    after each logical group of changes. Do not accumulate untested work.
-3. **Commit atomically.** Group related changes into logical commits following
-   the repository's git workflow (`type(scope): subject`). Commit after each
-   verified step — do not batch unrelated changes.
+3. **Commit atomically.** Before each commit, run the DO-CONFIRM checklist in
+   CONTRIBUTING.md § Core Rules. Group related changes into logical commits
+   following the repository's git workflow (`type(scope): subject`). Commit
+   after each verified step — do not batch unrelated changes.
 
 ### 7. Final verification
 
@@ -112,8 +117,9 @@ After all tasks are complete:
 - **A test fails after a change.** Fix the issue before moving on. If the fix
   requires deviating from the plan, note the deviation.
 - **The plan is incomplete.** Some plans don't cover every detail. Fill gaps
-  using the spec's intent, codebase conventions, and CLAUDE.md rules. Do not ask
-  for permission on routine decisions — only flag genuine ambiguity.
+  using the spec's intent, codebase conventions, and CONTRIBUTING.md § Core
+  Rules (Invariants and the READ-DO / DO-CONFIRM checklists). Do not ask for
+  permission on routine decisions — only flag genuine ambiguity.
 
 ## What NOT to Do
 

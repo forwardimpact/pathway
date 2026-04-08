@@ -1508,7 +1508,6 @@ under the map product. Update to reference the monorepo root
 Update all paths to `examples/framework/capabilities/`,
 `examples/framework/behaviours/`, etc.
 
-**`.claude/skills/improve-skill/SKILL.md`** and
 **`.claude/skills/eval/SKILL.md`** — Canonical example data references like
 `products/map/examples/capabilities/{id}.yaml` must be updated to
 `examples/framework/capabilities/{id}.yaml`.
