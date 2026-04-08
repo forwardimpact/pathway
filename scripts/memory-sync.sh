@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 # Sync the .claude/memory submodule (GitHub wiki).
 # Usage: memory-sync.sh pull   — fetch latest from remote
+#        memory-sync.sh stage  — copy /tmp/agent-memory/*.md back to submodule
 #        memory-sync.sh push   — commit local changes and push
 set -euo pipefail
 
@@ -15,6 +16,16 @@ git submodule update --init "$MEMORY_DIR" 2>/dev/null || true
 
 if ! [ -d "$MEMORY_DIR/.git" ] && ! [ -f "$MEMORY_DIR/.git" ]; then
     echo "memory-sync: submodule not available, skipping" >&2
+    exit 0
+fi
+
+# ── Stage mode: copy staging files back to submodule (before cd) ──
+if [ "$MODE" = "stage" ]; then
+    STAGING="${MEMORY_STAGING:-/tmp/agent-memory}"
+    if [ -d "$STAGING" ] && [ "$(ls -A "$STAGING"/*.md 2>/dev/null)" ]; then
+        cp -a "$STAGING"/*.md "$MEMORY_DIR/"
+        echo "memory-sync: staged files copied to $MEMORY_DIR"
+    fi
     exit 0
 fi
 

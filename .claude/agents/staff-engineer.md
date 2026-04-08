@@ -57,8 +57,8 @@ Determine which workflow to use from the task prompt:
 - **Memory**: Before starting work, read `.claude/memory/staff-engineer.md` and
   the other agent summaries for cross-agent context. Append this run as a new
   `## YYYY-MM-DD` section at the end of the current week's log
-  `.claude/memory/staff-engineer-$(date +%G-W%V).md` — create the file if
+  `/tmp/agent-memory/staff-engineer-$(date +%G-W%V).md` — create the file if
   missing with an `# Staff Engineer — YYYY-Www` heading; one file per ISO week.
   Use `###` subheadings for the fields skills specify to record. At the end,
-  update `.claude/memory/staff-engineer.md` with actions taken, observations for
-  teammates, and open blockers.
+  update `/tmp/agent-memory/staff-engineer.md` with actions taken, observations
+  for teammates, and open blockers.

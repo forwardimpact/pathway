@@ -22,7 +22,7 @@
         "hooks": [
           {
             "type": "command",
-            "command": "just memory-push"
+            "command": "bash scripts/memory-sync.sh stage && just memory-push"
           }
         ]
       }

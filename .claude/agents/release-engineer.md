@@ -46,8 +46,8 @@ Determine which workflow to use from the task prompt:
 - **Memory**: Before starting work, read `.claude/memory/release-engineer.md`
   and the other three agent summaries for cross-agent context. Append this run
   as a new `## YYYY-MM-DD` section at the end of the current week's log
-  `.claude/memory/release-engineer-$(date +%G-W%V).md` — create the file if
+  `/tmp/agent-memory/release-engineer-$(date +%G-W%V).md` — create the file if
   missing with an `# Release Engineer — YYYY-Www` heading; one file per ISO
   week. Use `###` subheadings for the fields skills specify to record. At the
-  end, update `.claude/memory/release-engineer.md` with actions taken,
+  end, update `/tmp/agent-memory/release-engineer.md` with actions taken,
   observations for teammates, and open blockers.
