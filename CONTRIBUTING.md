@@ -9,52 +9,66 @@ just quickstart
 
 ## Core Rules
 
-1. **Clean breaks** — Fully replace, never leave old and new coexisting. Delete
-   old code, update all call sites, remove unused imports in one commit.
-2. **No backward compatibility** — No shims, aliases, or feature flags for the
-   old path. If there are no consumers yet, remove the old interface entirely —
-   don't build bridges to code that doesn't exist.
-3. **No defensive code** — Trust the architecture, let errors surface. No
-   optional chaining for non-optional data, no try-catch "just to be safe."
-4. **Simple over easy** — Reduce complexity, don't relocate it. Prefer explicit
-   over implicit, direct solutions over clever abstractions, fewer layers.
-5. **OO+DI everywhere** — Constructor-injected dependencies. No module-level
-   singletons, no inline dependency creation. Factory functions (`createXxx`)
-   wire real implementations. Tests inject mocks directly via constructors. See
-   CLAUDE.md § OO+DI Architecture for patterns and examples.
-6. **JSDoc types** — All public functions (`@param`, `@returns`)
-7. **Test coverage** — New logic requires tests
-8. **No frameworks** — Vanilla JS only, ESM modules only
-9. **Co-located files** — All entities have `human:` and `agent:` sections
+Organized by _when_ they apply, following Atul Gawande's _Checklist Manifesto_
+(Ch. 6). **READ-DO**: read each item, then do it. **DO-CONFIRM**: do from
+memory, then pause and confirm.
 
-## Code Style
+### Invariants
 
-- **ESM only**, no CommonJS. JSDoc on all public functions.
-- **Naming**: files `kebab-case`, functions `camelCase`, constants
-  `UPPER_SNAKE_CASE`, YAML IDs `snake_case`
-- **Testing**: Node.js test runner (`bun run node --test`), fixtures mirror YAML
+Architectural non-negotiables — the shape of the codebase, not per-contribution
+checks.
+
+- **OO+DI everywhere** — Constructor-injected dependencies. No module-level
+  singletons, no inline dependency creation. Factory functions (`createXxx`)
+  wire real implementations; tests inject mocks directly. See
+  [CLAUDE.md § OO+DI Architecture](CLAUDE.md#oodi-architecture) for patterns and
+  exceptions.
+- **No frameworks** — Vanilla JS, ESM modules only, no CommonJS.
+
+### READ-DO
+
+Read every item before starting, and hold them while writing. Entry gate — don't
+start until all are internalized.
+
+- [ ] **Understand the task.** What is it actually asking? Which files will I
+      touch, and which will I not?
+- [ ] **Smallest plan.** No unrequested features, abstractions, or refactors. If
+      it isn't asked for, don't add it.
+- [ ] **Read the code** I'm about to change before writing.
+- [ ] **Simple over easy.** Reduce complexity, don't relocate it. Three similar
+      lines beat a premature abstraction. If tempted to extract a helper for a
+      single use, inline it. If tempted to add configuration for a single
+      consumer, hardcode it.
+- [ ] **No defensive code.** Trust the architecture — let errors surface. No
+      try/catch "just to be safe," no optional chaining on data that isn't
+      optional.
+- [ ] **Clean breaks.** Delete old code as you write new — in one commit. No
+      shims, aliases, or feature flags for the old path. If there are no
+      consumers yet, remove the old interface entirely.
+
+### DO-CONFIRM
+
+Before committing, verify every item. Exit gate — don't proceed until all are
+confirmed.
+
+- [ ] `bun run check` passes — format and lint, all file types.
+- [ ] `bun run test` passes — new logic has tests.
+- [ ] My diff only contains changes the task required — no unrequested
+      refactors, no scope creep.
+- [ ] Commit format: `type(scope): subject` (see § Git Conventions).
 
 ## Pull Request Workflow
 
 All changes go through pull requests — never push directly to `main`.
 
+**Always commit your work before finishing a task.**
+
 **Exception:** The release manager agent may push trivial CI fixes (formatting,
 lint, lock file drift) directly to `main` to unblock releases. This is limited
 to mechanical fixes that `bun run check:fix` can resolve — never logic, tests,
-or feature changes. See `.claude/agents/release-manager.md` for the full scope
-constraints.
-
-1. Create a branch from `main`
-2. Make your changes
-3. Auto-fix formatting and lint: `bun run check:fix` (applies to all file types)
-4. Verify formatting and lint pass: `bun run check` (required for code **and**
-   docs)
-5. Run unit tests: `bun run test`
-6. Run security audit: `just audit`
-7. Commit: `git commit -m "type(scope): subject"`
-8. Push and open a pull request against `main`
-
-**Always commit your work before finishing a task.**
+or feature changes. See
+[.claude/agents/release-manager.md](.claude/agents/release-manager.md) for the
+full scope constraints.
 
 The pre-commit hook auto-formats staged files and scans for secrets. If the hook
 reformats files, it re-stages them automatically — just re-run your commit.
@@ -74,20 +88,18 @@ change that requires design review before implementation (e.g.
 
 ### Releasing
 
-**Tag prefix mapping** — tag prefix matches the directory name, not the package
-scope:
+**Tag prefix** matches the directory name, not the package scope:
 
-| Directory          | Tag prefix | Example tag         |
-| ------------------ | ---------- | ------------------- |
-| `libraries/libfoo` | `libfoo`   | `libfoo@v0.1.5`     |
-| `products/pathway` | `pathway`  | `pathway@v0.25.0`   |
-| `services/agent`   | `svcagent` | `svcagent@v0.1.110` |
+- `libraries/libfoo` → `libfoo@v0.1.5`
+- `products/pathway` → `pathway@v0.25.0`
+- `services/agent` → `svcagent@v0.1.110`
 
 **Version rules** — pre-1.0 packages (`0.x.y`) bump patch for any change.
 Post-1.0 packages use semver: breaking=major, feat=minor, fix/refactor=patch.
 
 The release manager agent handles version bumps, tagging, and publishing. See
-`.claude/skills/release-review` for the full release procedure.
+the [release-review skill](.claude/skills/release-review) for the full release
+procedure.
 
 ## Quality Commands
 
@@ -105,10 +117,11 @@ bunx fit-map validate --shacl # Validate with SHACL syntax check
 Security policies apply to all contributors — human and agent.
 
 - **ESLint security rules** — `eslint-plugin-security` is enabled in
-  `eslint.config.js` with all active rules set to `"error"`. Two high-noise,
-  low-signal rules (`detect-object-injection`, `detect-non-literal-fs-filename`)
-  are turned off. To suppress a security rule for a verified false positive, add
-  an inline disable with an audit justification:
+  [eslint.config.js](eslint.config.js) with all active rules set to `"error"`.
+  Two high-noise, low-signal rules (`detect-object-injection`,
+  `detect-non-literal-fs-filename`) are turned off. To suppress a security rule
+  for a verified false positive, add an inline disable with an audit
+  justification:
   ```js
   // eslint-disable-next-line security/detect-unsafe-regex -- <why this is safe>
   ```
@@ -117,30 +130,32 @@ Security policies apply to all contributors — human and agent.
 - **Vulnerability audit** — `npm audit --audit-level=high` runs in CI (via
   temporary lockfile generation) and gates publish workflows.
 - **CI secret scanning** — Gitleaks runs on every push and pull request via the
-  `audit` job in `check-security.yml`.
+  `audit` job in
+  [.github/workflows/check-security.yml](.github/workflows/check-security.yml).
 - **GitHub Actions** — All third-party actions are pinned to SHA hashes. Use
   `Dependabot` for updates. Never change a pin to a tag.
-- **Reporting** — See `SECURITY.md`. Contact `hi.security@senzilla.io`.
+- **Reporting** — See [SECURITY.md](SECURITY.md). Contact
+  `hi.security@senzilla.io`.
 
 ## Dependency Policy
 
-- Minimize external dependencies — prefer existing packages and Node.js
-  built-ins over new ones, and consolidate packages that serve the same purpose
-  (e.g. one YAML parser, one markdown renderer)
-- Align version ranges for the same package across all workspaces
-- Verify peer and transitive dependency compatibility before merging major
-  version bumps — run `bun pm ls` and confirm no `invalid` markers. Also inspect
-  `bun.lock` for **nested duplicates** (the same package resolved at two
-  different major versions, e.g. a top-level `protobufjs@8` alongside
-  `@grpc/proto-loader/protobufjs@7`). A major bump that forces co-installed
-  packages onto a separate version violates this policy — close the PR until all
-  dependents release compatible ranges
-- Run `just audit-vulnerabilities` after adding or updating dependencies
+- **Prefer built-ins.** Reach for Node.js built-ins before npm packages (`fetch`
+  over `undici`, `crypto.randomUUID()` over `uuid`), and consolidate overlapping
+  packages — one YAML parser, one markdown renderer.
+- **Align versions.** Declare the same range across workspaces. Bun hoists
+  packages at the same version to a single copy, which is fine — don't remove a
+  runtime dep from a `package.json` just because bun deduplicates.
+- **No nested duplicates.** The same package resolved at two major versions
+  (e.g. `protobufjs@8` alongside `@grpc/proto-loader/protobufjs@7`) is not
+  allowed. Before merging a major version bump, run `bun pm ls` and inspect
+  `bun.lock` for `invalid` markers. If a bump forces co-installed packages onto
+  a separate version, close the PR until dependents release compatible ranges.
+- **Audit after changes.** Run `just audit-vulnerabilities` after adding or
+  updating dependencies.
 
-### Dependency Classification
+### Classification
 
-Every external dependency must be classified into one of these categories. Apply
-the decision rules in order — the first match wins.
+Every dependency belongs in one category. Apply in order — first match wins.
 
 | Category             | Rule                                                                                        | Field                                       | Examples                                         |
 | -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------ |
@@ -150,24 +165,11 @@ the decision rules in order — the first match wins.
 | **Build-tool**       | Used only by consumers who already have the tool installed (formatters, linters)            | `peerDependencies`                          | prettier                                         |
 | **Build-time only**  | Used in `bin/` scripts or code generation, never by library consumers                       | `devDependencies`                           | protobufjs-cli, @grpc/proto-loader               |
 
-**Rules:**
-
-1. Code that uses a backend-specific or feature-gated dependency **must** use
-   dynamic `import()` and handle the missing-module error gracefully.
-2. A dependency that appears in multiple workspaces at the same pinned version
-   is fine — bun hoists it to one copy. Do not remove it from a published
-   package just to "deduplicate" if that package needs it at runtime.
-3. Prefer Bun/Node.js built-ins over npm packages (e.g. `fetch` with `proxy`
-   option over `undici`, `crypto.randomUUID()` over `uuid`).
-
 ### Optional Dependency Pattern
 
-When a dependency is backend-specific or feature-gated, follow this pattern:
-
-1. List the package in `optionalDependencies` in `package.json`.
-2. Use dynamic `import()` at the point of use — never at the top of the module.
-3. Wrap the import in `try/catch` and throw a descriptive error naming the
-   missing package and the install command:
+Backend-specific and feature-gated dependencies must use dynamic `import()` at
+the point of use — never at the top of the module — wrapped in `try/catch` that
+throws a descriptive error:
 
 ```js
 let createClient;
@@ -180,6 +182,6 @@ try {
 }
 ```
 
-The error message **must** include: what feature triggered the need, the package
-name, and the exact install command. Do not silently fall back or swallow the
-error — let the caller decide how to handle it.
+The error message **must** name the feature that triggered the need, the
+package, and the exact install command. Never silently fall back or swallow the
+error — let the caller decide.
