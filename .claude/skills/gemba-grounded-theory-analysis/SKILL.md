@@ -5,7 +5,6 @@ description: >
   Extract patterns from raw trace data without preconceived categories, then
   build up themes through open coding, axial coding, and selective coding. Use
   when studying agent behaviour from workflow trace artifacts.
-phase: Study
 ---
 
 # Grounded Theory Analysis for Agent Traces

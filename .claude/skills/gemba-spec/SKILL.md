@@ -5,7 +5,6 @@ description: >
   improvements. Manage spec status in specs/STATUS through draft → review.
   Use when proposing changes, capturing findings as actionable specs, or
   evaluating spec quality. Pair with the `gemba-plan` skill for the HOW side.
-phase: Act
 ---
 
 # Write and Review Specs
