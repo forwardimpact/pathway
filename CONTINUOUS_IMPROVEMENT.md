@@ -5,7 +5,7 @@
 > — W. Edwards Deming
 
 Autonomous repo self-maintenance powered by Claude Code agents on GitHub
-Actions, structured as a continuous **Plan–Do–Study–Act** (PDSA) loop. Seven
+Actions, structured as a continuous **Plan–Do–Study–Act** (PDSA) loop. Nine
 scheduled workflows, five agent personas, and fifteen skills form a
 self-reinforcing PDSA cycle that keeps the codebase secure, release-ready, and
 steadily improving. Product evaluation sessions feed the Study phase with
@@ -44,16 +44,18 @@ than attempting the fix.
 
 ## Workflows
 
-Daily pipeline: work creators (04–05 UTC) → preparers (06 UTC) → mergers (08
-UTC) → releasers (09 UTC) → analyzers (10 UTC). Same-agent workflows never
-overlap.
+Daily pipeline: work creators (04–05 UTC) → preparers (06 UTC) → planners
+(07:11 UTC) → implementers (07:53 UTC) → mergers (08 UTC) → releasers (09
+UTC) → analyzers (10 UTC). Same-agent workflows never overlap.
 
-| Workflow              | Schedule                | Agent               | Phase       | What it does                                                                  |
-| --------------------- | ----------------------- | ------------------- | ----------- | ----------------------------------------------------------------------------- |
+| Workflow              | Schedule                | Agent             | Phase       | What it does                                                                  |
+| --------------------- | ----------------------- | ----------------- | ----------- | ----------------------------------------------------------------------------- |
 | **security-audit**    | Tue & Fri 04:07 UTC     | security-engineer | Study       | Audit supply chain, dependencies, credentials, OWASP Top 10                   |
 | **security-update**   | Mon & Thu 04:43 UTC     | security-engineer | Do          | Apply security updates: triage Dependabot PRs, address audit findings         |
 | **product-feedback**  | Mon, Wed, Fri 05:17 UTC | product-manager   | Study → Act | Triage open issues, implement trivial fixes, write specs for aligned requests |
 | **release-readiness** | Daily 06:23 UTC         | release-engineer  | Do          | Rebase open PRs on main, fix lint/format failures, repair main CI if broken   |
+| **plan-specs**        | Daily 07:11 UTC         | staff-engineer    | Plan        | Pick up approved specs without plans and produce execution-ready plan.md       |
+| **implement-plans**   | Daily 07:53 UTC         | release-engineer  | Do          | Pick up approved plans (`status: planned`) and execute via implement-spec      |
 | **product-backlog**   | Daily 08:13 UTC         | product-manager   | Study → Do  | Classify open PRs by type, verify contributor trust, merge fix/bug/spec PRs   |
 | **release-review**    | Tue, Thu, Sat 09:37 UTC | release-engineer  | Do          | Find unreleased changes, bump versions, tag, push, verify publish             |
 | **improvement-coach** | Wed & Sat 10:47 UTC     | improvement-coach | Study → Act | Deep-analyze a single random agent trace, open fix PRs or write specs         |
@@ -190,7 +192,7 @@ graph TD
     PM["Product Manager<br/>trust gate + CI"]
     CB["Codebase (main)"]
     SE["Security Engineer<br/>Dependabot only"]
-    RE["Release Engineer<br/>rebase + release"]
+    RE["Release Engineer<br/>rebase + release + implement"]
 
     EXT -- "fix / bug PR" --> PM
     EXT -- "spec PR" --> PM
@@ -222,6 +224,8 @@ graph TD
 | **product-backlog**   | CI app PRs                | Trusted app identity (`forward-impact-ci`) + CI |
 | **security-update**   | Dependabot PRs            | Trusted bot, policy-gated                       |
 | **release-readiness** | Agent-authored rebases    | Agent-only, no external input                   |
+| **plan-specs**        | Agent-authored `plan.md`  | Agent-only, against approved specs              |
+| **implement-plans**   | Agent-authored impl PRs   | Agent-only, against approved plans              |
 | **release-review**    | Agent-authored tags/bumps | Agent-only, no external input                   |
 | **release-engineer**  | Trivial CI fixes on main  | Agent-only, mechanical fixes only               |
 | **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence                  |

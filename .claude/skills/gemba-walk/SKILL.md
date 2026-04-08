@@ -74,12 +74,13 @@ If no trace artifacts exist, pick a different run and note why.
 Apply the `grounded-theory-analysis` skill to the trace. Read it **in full** —
 every turn, every tool call, every result.
 
-#### Trust audit (product-backlog traces)
+#### Invariant audit
 
-The product-backlog workflow is the **sole external merge point**. For every
-merged PR, verify the trace contains a contributor list lookup and that the PR
-author was checked against it before merge. Missing trust verification is a
-**high-severity finding**.
+After observing the trace, run the `trace-audit` skill against it. trace-audit
+verifies the named per-agent invariants for the trace's owner — including the
+critical contributor-trust check on every product-classify trace, since
+product-classify is the sole external merge point. High-severity audit failures
+must result in a fix PR or spec just like any other gemba finding.
 
 ### 4. Categorize Findings
 
