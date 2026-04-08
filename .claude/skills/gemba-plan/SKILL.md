@@ -94,7 +94,7 @@ responsible for acting on it.
   and let the spec author fix it.
 - **Do not bundle multiple specs into one plan.** One plan per spec — even
   when specs share a theme. Bundling defeats independent review and rollback.
-- **Do not implement.** This skill writes the plan; `gemba-implement-spec`
+- **Do not implement.** This skill writes the plan; `gemba-implement`
   (Do phase) executes it.
 - **Do not approve a plan whose spec is still under review.** Both must be
   approved before advancing to `planned`.

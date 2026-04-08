@@ -65,12 +65,12 @@ draft → review → planned → active → done
 | `draft`   | Spec is being written, not ready for review         | `gemba-spec`           |
 | `review`  | Spec is ready for evaluation                        | `gemba-spec`           |
 | `planned` | Spec approved and a plan is approved                | `gemba-plan`           |
-| `active`  | Implementation in progress                          | `gemba-implement-spec` |
-| `done`    | Implemented                                         | `gemba-implement-spec` |
+| `active`  | Implementation in progress                          | `gemba-implement`      |
+| `done`    | Implemented                                         | `gemba-implement`      |
 
 This skill owns the `draft` and `review` transitions. The `gemba-plan` skill
 advances to `planned` once both spec and plan are approved. The
-`gemba-implement-spec` skill owns `active` and `done`.
+`gemba-implement` skill owns `active` and `done`.
 
 ## Reviewing a Spec
 

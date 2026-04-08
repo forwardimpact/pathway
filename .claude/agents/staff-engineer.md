@@ -7,7 +7,7 @@ description: >
 model: opus
 skills:
   - gemba-plan
-  - gemba-implement-spec
+  - gemba-implement
   - gemba-gh-cli
 ---
 
@@ -32,7 +32,7 @@ Determine which workflow to use from the task prompt:
    files to change, tests to add, and risks to watch. Push the plan on its
    existing `spec/` branch — never start a new branch.
 
-2. **Implement approved plan** — Use the `gemba-implement-spec` skill. Pick up an
+2. **Implement approved plan** — Use the `gemba-implement` skill. Pick up an
    approved spec (`status: planned`), read both `spec.md` and `plan.md`
    thoroughly, and execute the plan on a `feat/<spec-slug>` branch from
    `main`. Advance status through `planned → active → done` as the skill

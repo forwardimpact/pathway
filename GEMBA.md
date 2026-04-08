@@ -39,7 +39,7 @@ GitHub App tokens (see § Authentication).
 | Agent                 | Purpose                                                                   | PDSA phases    | Skills                                                                                                                       |
 | --------------------- | ------------------------------------------------------------------------- | -------------- | ----------------------------------------------------------------------------------------------------------------------------- |
 | **security-engineer** | Patch dependencies, harden supply chain, enforce security policies        | Study, Do, Act | gemba-security-audit, gemba-security-update, gemba-spec                                                                       |
-| **staff-engineer**    | Own the full spec → plan → implement arc for approved specs               | Plan, Do       | gemba-plan, gemba-implement-spec, gemba-gh-cli                                                                                |
+| **staff-engineer**    | Own the full spec → plan → implement arc for approved specs               | Plan, Do       | gemba-plan, gemba-implement, gemba-gh-cli                                                                                     |
 | **release-engineer**  | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | Do             | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                                   |
 | **improvement-coach** | Walk traces, audit invariants, fix trivial issues, spec larger ones       | Study, Act     | gemba-walk, gemba-grounded-theory-analysis, gemba-trace-audit, gemba-spec, gemba-gh-cli                                       |
 | **product-manager**   | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations      | Study, Act, Do | gemba-product-classify, gemba-product-merge, gemba-product-triage, gemba-product-evaluation, gemba-spec, gemba-plan, gemba-gh-cli |
@@ -97,7 +97,7 @@ any trusted agent to pick up and execute.
 
 The Do phase is where work happens. It has two modes:
 
-- **Implement approved plans** via the `gemba-implement-spec` skill — trusted
+- **Implement approved plans** via the `gemba-implement` skill — trusted
   agents open PRs that complete the plan step by step.
 - **Run scheduled workflows** that exercise, harden, and release the codebase
   (`security-update`, `release-readiness`, `release-review`,
@@ -165,7 +165,7 @@ All Gemba skills are namespaced with the `gemba-` prefix.
 | **gemba-release-readiness**        | Do    | Mechanical PR preparation — rebase, fix, report                               |
 | **gemba-release-review**           | Do    | Version bumps, tagging, publish verification                                  |
 | **gemba-product-merge**            | Do    | Merge PRs marked mergeable by `gemba-product-classify`                        |
-| **gemba-implement-spec**           | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
+| **gemba-implement**                | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
 | **gemba-gh-cli**                   | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)    |
 
 ## Trust Boundary

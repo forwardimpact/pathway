@@ -1,5 +1,5 @@
 ---
-name: gemba-implement-spec
+name: gemba-implement
 description: >
   Implement a spec by studying its spec.md and plan.md, then executing the plan
   step by step. Use when a spec and plan are approved and ready for
