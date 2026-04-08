@@ -3,26 +3,20 @@
  *
  * Generates a static site from the Engineering Pathway data.
  * Copies all necessary files (HTML, JS, CSS) and data to an output directory.
- * Optionally generates a distribution bundle (bundle.tar.gz + install.sh)
- * for local installs by individual engineers.
+ * Optionally delegates to build-bundle and build-packs to produce the
+ * distribution surfaces (bundle.tar.gz + install.sh for the curl|bash flow,
+ * and agent/skill packs for ecosystem tools like `npx skills` and APM) when
+ * `framework.distribution.siteUrl` is configured.
  */
 
-import {
-  cp,
-  mkdir,
-  rm,
-  access,
-  realpath,
-  readFile,
-  writeFile,
-} from "fs/promises";
+import { cp, mkdir, rm, access, realpath, writeFile } from "fs/promises";
 import { readFileSync } from "fs";
 import { join, dirname, relative, resolve } from "path";
 import { fileURLToPath } from "url";
-import { execFileSync } from "child_process";
-import Mustache from "mustache";
 import { createIndexGenerator } from "@forwardimpact/map/index-generator";
 import { createDataLoader } from "@forwardimpact/map/loader";
+import { generateBundle } from "./build-bundle.js";
+import { generatePacks } from "./build-packs.js";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -201,10 +195,26 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   );
   console.log(`   ✓ version.json (${version})`);
 
-  // Generate distribution bundle if siteUrl is configured
+  // Generate distribution surfaces if siteUrl is configured
   const siteUrl = options.url || framework.distribution?.siteUrl;
   if (siteUrl) {
-    await generateBundle({ outputDir, dataDir, siteUrl, framework });
+    const templatesDir = join(appDir, "..", "templates");
+    await generateBundle({
+      outputDir,
+      dataDir,
+      siteUrl,
+      framework,
+      version,
+      templatesDir,
+    });
+    await generatePacks({
+      outputDir,
+      dataDir,
+      siteUrl,
+      framework,
+      version,
+      templatesDir,
+    });
   }
 
   // Show summary
@@ -212,7 +222,7 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
 ✅ Site generated successfully!
 
 Output: ${outputDir}
-${siteUrl ? `\nDistribution:\n  ${outputDir}/bundle.tar.gz\n  ${outputDir}/install.sh\n` : ""}
+${siteUrl ? `\nDistribution:\n  ${outputDir}/bundle.tar.gz\n  ${outputDir}/install.sh\n  ${outputDir}/packs/ (agent/skill packs)\n  ${outputDir}/.well-known/agent-skills/index.json\n  ${outputDir}/apm.yml\n` : ""}
 To serve locally:
   cd ${relative(process.cwd(), outputDir) || "."}
   bunx serve .
@@ -227,71 +237,4 @@ function getPathwayVersion() {
   const pkgPath = join(appDir, "..", "package.json");
   const pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
   return pkg.version;
-}
-
-/**
- * Generate distribution bundle (bundle.tar.gz + install.sh)
- * @param {Object} params
- * @param {string} params.outputDir - Build output directory
- * @param {string} params.dataDir - Source data directory
- * @param {string} params.siteUrl - Base URL for the published site
- * @param {Object} params.framework - Framework configuration
- */
-async function generateBundle({ outputDir, dataDir, siteUrl, framework }) {
-  console.log("📦 Generating distribution bundle...");
-
-  const version = getPathwayVersion();
-  const frameworkTitle = framework.title || "Engineering Pathway";
-
-  // 1. Create temporary bundle directory
-  const bundleDir = join(outputDir, "_bundle");
-  await mkdir(bundleDir, { recursive: true });
-
-  // 2. Generate minimal package.json for the bundle
-  const bundlePkg = {
-    name: "fit-pathway-local",
-    version: version,
-    private: true,
-    dependencies: {
-      "@forwardimpact/pathway": `^${version}`,
-    },
-  };
-  await writeFile(
-    join(bundleDir, "package.json"),
-    JSON.stringify(bundlePkg, null, 2) + "\n",
-  );
-  console.log(`   ✓ package.json (pathway ^${version})`);
-
-  // 3. Copy data files into bundle
-  await cp(dataDir, join(bundleDir, "data"), {
-    recursive: true,
-    dereference: true,
-  });
-  console.log("   ✓ data/");
-
-  // 4. Create tar.gz from the bundle directory
-  execFileSync("tar", [
-    "-czf",
-    join(outputDir, "bundle.tar.gz"),
-    "-C",
-    outputDir,
-    "_bundle",
-  ]);
-  console.log("   ✓ bundle.tar.gz");
-
-  // 5. Clean up temporary bundle directory
-  await rm(bundleDir, { recursive: true });
-
-  // 6. Render install.sh from template
-  const templatePath = join(appDir, "..", "templates", "install.template.sh");
-  const template = await readFile(templatePath, "utf8");
-  const installScript = Mustache.render(template, {
-    siteUrl: siteUrl.replace(/\/$/, ""),
-    version,
-    frameworkTitle,
-  });
-  await writeFile(join(outputDir, "install.sh"), installScript, {
-    mode: 0o755,
-  });
-  console.log("   ✓ install.sh");
 }
