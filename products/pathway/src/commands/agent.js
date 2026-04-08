@@ -94,7 +94,7 @@ function showAgentSummary(data, agentData, skillsWithAgent) {
  * @param {Object} agentData - Agent-specific data
  * @returns {Array<{discipline: Object, track: Object, humanDiscipline: Object, humanTrack: Object}>}
  */
-function findValidCombinations(data, agentData) {
+export function findValidCombinations(data, agentData) {
   const pairs = [];
   for (const discipline of agentData.disciplines) {
     for (const track of agentData.tracks) {
