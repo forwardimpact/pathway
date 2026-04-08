@@ -58,6 +58,9 @@ Artifact names:
 - **`agent-trace`** — Agent events only (all runs).
 - **`supervisor-trace`** — Supervisor events only (supervised runs).
 
+Download using the canonical shape from
+[`gemba-gh-cli` § Workflow run artifacts](../gemba-gh-cli/SKILL.md#workflow-run-artifacts):
+
 ```sh
 # Supervised runs:
 gh run download <run-id> --name combined-trace --dir /tmp/trace-<run-id>

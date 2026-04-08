@@ -23,7 +23,8 @@ security policies.
 
 ## Prerequisites
 
-The `gh` CLI must be installed and authenticated. Verify with `gh auth status`.
+See [`gemba-gh-cli`](../gemba-gh-cli/SKILL.md) for `gh` installation and the
+canonical query shapes used in the steps below.
 
 ## Policy Checklist
 

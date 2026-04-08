@@ -155,7 +155,7 @@ All Gemba skills are namespaced with the `gemba-` prefix.
 | ---------------------------------- | ----- | ----------------------------------------------------------------------------- |
 | **gemba-plan**                     | Plan  | Write and review plans (HOW); advance approved specs from `review → planned`  |
 | **gemba-security-update**          | Do    | Security updates: Dependabot triage, npm audit findings, vulnerability fixes  |
-| **gemba-implement**                | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
+| **gemba-implement**                | Do    | Execute an approved plan step by step; advance `planned → active → done`      |
 | **gemba-product-merge**            | Do    | Merge PRs marked mergeable by `gemba-product-classify`                        |
 | **gemba-release-readiness**        | Do    | Mechanical PR preparation — rebase, fix, report                               |
 | **gemba-release-review**           | Do    | Version bumps, tagging, publish verification                                  |

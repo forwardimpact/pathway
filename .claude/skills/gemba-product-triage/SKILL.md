@@ -26,7 +26,8 @@ the triage decisions captured here.
 
 ## Prerequisites
 
-The `gh` CLI must be installed and authenticated. Verify with `gh auth status`.
+See [`gemba-gh-cli`](../gemba-gh-cli/SKILL.md) for `gh` installation and the
+canonical query shapes used in the steps below.
 
 All comment templates are in `references/templates.md`.
 

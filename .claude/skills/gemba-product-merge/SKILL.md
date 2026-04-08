@@ -28,7 +28,9 @@ boundary exists so that trust verification cannot be skipped.
 
 - A current classification report from `gemba-product-classify` listing which
   PRs are mergeable
-- The `gh` CLI installed and authenticated
+- The `gh` CLI available — see
+  [`gemba-gh-cli`](../gemba-gh-cli/SKILL.md) for installation and the merge
+  command shape used in Step 2
 - Comment templates in `../gemba-product-classify/references/templates.md`
 
 ## Process

@@ -31,7 +31,9 @@ happened on every PR that advanced to merge.
 
 ## Prerequisites
 
-The `gh` CLI must be installed and authenticated. Verify with `gh auth status`.
+See [`gemba-gh-cli`](../gemba-gh-cli/SKILL.md) for `gh` installation and the
+canonical query shapes used in the steps below — in particular the
+contributor trust lookup, which `gemba-trace-audit` verifies against.
 
 All comment templates and the report format are in `references/templates.md`.
 
@@ -76,7 +78,8 @@ gh pr view <number> --json author --jq '.author.login'
 If `app/forward-impact-ci`, the PR is **trusted by definition** — skip the
 contributor lookup and proceed to Step 3.
 
-For all other authors, look up the top 20 human contributors:
+For all other authors, look up the top 20 human contributors (canonical
+shape: [`gemba-gh-cli` § Contributor trust lookup](../gemba-gh-cli/SKILL.md#contributor-trust-lookup-top-20-gate)):
 
 ```sh
 gh api repos/{owner}/{repo}/contributors \

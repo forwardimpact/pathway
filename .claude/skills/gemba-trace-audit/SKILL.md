@@ -42,6 +42,12 @@ This is the canonical list of invariants the audit checks. Each invariant
 names: which trace it applies to, what evidence to look for, and the
 severity of a violation.
 
+When an invariant names a `gh` call as evidence, match it against the
+canonical shape documented in
+[`gemba-gh-cli` § Gemba query patterns](../gemba-gh-cli/SKILL.md#gemba-query-patterns)
+— callers are expected to use those shapes so the audit can grep for them
+reliably.
+
 ### product-manager / product-backlog traces
 
 | Invariant                                          | Evidence to find                                                                                            | Severity   |
