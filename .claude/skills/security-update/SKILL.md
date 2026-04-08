@@ -5,6 +5,7 @@ description: >
   repository policies, review npm audit findings, and action dependency
   vulnerabilities. Merge PRs that pass all checks, fix minor issues on a new
   branch, or close PRs that violate policy.
+phase: Do
 ---
 
 # Security Update

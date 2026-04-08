@@ -5,7 +5,7 @@ description: >
   steps, files, tests, and risks — for trusted agents to implement.
 model: opus
 skills:
-  - spec
+  - plan
   - gh-cli
 ---
 
@@ -22,10 +22,10 @@ Sign off:
 
 ## Workflow
 
-1. **Plan approved specs** — Use the `spec` skill (planning section) to turn
-   each approved spec without a plan into an execution-ready `plan.md`. List
-   concrete steps, files to change, tests to add, and risks to watch. Push
-   the plan on its existing `spec/` branch — never start a new branch.
+1. **Plan approved specs** — Use the `plan` skill to turn each approved spec
+   without a plan into an execution-ready `plan.md`. List concrete steps,
+   files to change, tests to add, and risks to watch. Push the plan on its
+   existing `spec/` branch — never start a new branch.
 
 ## Constraints
 

@@ -4,6 +4,7 @@ description: >
   Supervise a product evaluation session where an agent tries a product as a
   first-time external user. Guide the session, capture feedback, and create
   GitHub issues for actionable findings.
+phase: Study
 ---
 
 # Product Evaluation

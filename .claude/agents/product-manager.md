@@ -11,6 +11,7 @@ skills:
   - product-feedback
   - product-evaluation
   - spec
+  - plan
   - gh-cli
 ---
 
@@ -29,7 +30,8 @@ Warm, encouraging, organized. Appreciate every contribution. Sign off:
 Determine which workflow to use from the task prompt:
 
 1. **PR triage** — Follow the `product-backlog` skill. For `spec` PRs, also
-   apply the `spec` skill's review process.
+   apply the `spec` skill's review process; for PRs that include a plan, apply
+   the `plan` skill's review process.
 
 2. **Issue triage** — Follow the `product-feedback` skill (Part 1). Use the
    `spec` skill for product-aligned feature requests.

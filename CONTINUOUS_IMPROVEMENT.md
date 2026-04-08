@@ -6,7 +6,7 @@
 
 Autonomous repo self-maintenance powered by Claude Code agents on GitHub
 Actions, structured as a continuous **Plan–Do–Study–Act** (PDSA) loop. Seven
-scheduled workflows, five agent personas, and eleven skills form a
+scheduled workflows, five agent personas, and thirteen skills form a
 self-reinforcing PDSA cycle that keeps the codebase secure, release-ready, and
 steadily improving. Product evaluation sessions feed the Study phase with
 observations from the user's perspective. This system maintains the project —
@@ -30,13 +30,13 @@ GitHub App tokens (see § Authentication).
 
 ## Agents
 
-| Agent                 | Purpose                                                                   | PDSA phases    | Skills                                                              |
-| --------------------- | ------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
-| **security-engineer** | Patch dependencies, harden supply chain, enforce security policies        | Study, Do, Act | security-update, security-audit, spec                               |
-| **staff-engineer**    | Turn approved specs into execution-ready plans for trusted agents to ship | Plan           | spec, gh-cli                                                        |
-| **release-engineer**  | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | Do             | release-readiness, release-review, gh-cli                           |
-| **improvement-coach** | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | Study, Act, Do | gemba-walk, grounded-theory-analysis, spec, gh-cli                  |
-| **product-manager**   | Review PRs for product alignment, triage issues, verify contributor trust | Study, Act, Do | product-backlog, product-feedback, product-evaluation, spec, gh-cli |
+| Agent                 | Purpose                                                                   | PDSA phases    | Skills                                                                    |
+| --------------------- | ------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------- |
+| **security-engineer** | Patch dependencies, harden supply chain, enforce security policies        | Study, Do, Act | security-audit, security-update, spec                                     |
+| **staff-engineer**    | Turn approved specs into execution-ready plans for trusted agents to ship | Plan           | plan, gh-cli                                                              |
+| **release-engineer**  | Keep PR branches merge-ready, implement plans, repair main CI, cut releases | Do           | release-readiness, release-review, implement-spec, gh-cli                 |
+| **improvement-coach** | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | Study, Act, Do | gemba-walk, grounded-theory-analysis, spec, gh-cli                        |
+| **product-manager**   | Review PRs for product alignment, triage issues, verify contributor trust | Study, Act, Do | product-backlog, product-feedback, product-evaluation, spec, plan, gh-cli |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -137,19 +137,24 @@ from structural improvements (`spec/` branches) — never mixed in one PR.
 
 ## Skills
 
-| Skill                        | Purpose                                                                       |
-| ---------------------------- | ----------------------------------------------------------------------------- |
-| **security-audit**           | Seven-area security review (supply chain, deps, credentials, OWASP, CI)       |
-| **security-update**          | Security updates: Dependabot triage, npm audit findings, vulnerability fixes  |
-| **release-readiness**        | Mechanical PR preparation — rebase, fix, report                               |
-| **release-review**           | Version bumps, tagging, publish verification                                  |
-| **gemba-walk**               | Trace observation process — select, download, analyze, report                 |
-| **grounded-theory-analysis** | Qualitative trace analysis adapted from research methodology                  |
-| **spec**                     | Spec and plan lifecycle — write, review, approve, track status                |
-| **gh-cli**                   | GitHub CLI installation and usage patterns for CI                             |
-| **product-backlog**          | PR triage with type classification, contributor verification, and merge gates |
-| **product-evaluation**       | Supervise product evaluation sessions, capture feedback, create issues        |
-| **product-feedback**         | Issue triage with classification, fix PRs for bugs, and specs for features    |
+Each skill owns exactly one PDSA phase (or none for utilities). Reading an
+agent's skill list reveals its phase coverage at a glance.
+
+| Skill                        | Phase | Purpose                                                                       |
+| ---------------------------- | ----- | ----------------------------------------------------------------------------- |
+| **security-audit**           | Study | Seven-area security review (supply chain, deps, credentials, OWASP, CI)       |
+| **gemba-walk**               | Study | Trace observation process — select, download, analyze, report                 |
+| **grounded-theory-analysis** | Study | Qualitative trace analysis adapted from research methodology                  |
+| **product-evaluation**       | Study | Supervise product evaluation sessions, capture feedback, create issues        |
+| **product-backlog**          | Study | PR triage with type classification, contributor verification, and merge gates |
+| **product-feedback**         | Study | Issue triage with classification, fix PRs for bugs, and specs for features    |
+| **spec**                     | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status             |
+| **plan**                     | Plan  | Write and review plans (HOW); advance approved specs from `review → planned`  |
+| **security-update**          | Do    | Security updates: Dependabot triage, npm audit findings, vulnerability fixes  |
+| **release-readiness**        | Do    | Mechanical PR preparation — rebase, fix, report                               |
+| **release-review**           | Do    | Version bumps, tagging, publish verification                                  |
+| **implement-spec**           | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
+| **gh-cli**                   | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)    |
 
 ## Trust Boundary
 

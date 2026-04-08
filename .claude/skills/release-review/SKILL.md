@@ -4,6 +4,7 @@ description: >
   Review the main branch for unreleased changes and cut new versions. Determine
   version bumps, update package.json files, tag releases, push tags, and verify
   publish workflows. Canonical source for the release procedure.
+phase: Do
 ---
 
 # Release Review

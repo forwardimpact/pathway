@@ -4,6 +4,7 @@ description: >
   Check open pull requests for merge readiness. Rebase branches on main, fix
   trivial CI failures (lint, format, lock file), and report status. Do not make
   code-level decisions or approve PRs.
+phase: Do
 ---
 
 # Release Readiness
