@@ -231,30 +231,30 @@ Validate data: `bunx fit-map validate`. Vocabulary standards in the
 
 ## Documentation Map
 
-Policy entries (†) have one canonical location — other files reference, never
+Policy entries have one canonical location — other files reference, never
 restate. Per-product Overview and Internals pages are in [§ Products](#products)
 above.
 
 **Internal:**
 
-- **Core rules & architecture** † — [CLAUDE.md](CLAUDE.md)
-- **Contributor workflow** † — [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Security policies** † —
+- **Core rules & architecture** — [CLAUDE.md](CLAUDE.md)
+- **Contributor workflow** — [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Security policies** —
   [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
-- **Dependency policy** † —
+- **Dependency policy** —
   [CONTRIBUTING.md § Dependency Policy](CONTRIBUTING.md#dependency-policy)
-- **Repo self-maintenance** † —
+- **Repo self-maintenance** —
   [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md)
-- **Environment, services, tasks** † —
+- **Environment, services, tasks** —
   [Operations Reference](website/docs/internals/operations/)
-- **Supply chain & app security** † —
+- **Supply chain & app security** —
   [security-audit skill](.claude/skills/security-audit)
-- **Security update** † —
+- **Security update** —
   [security-update skill](.claude/skills/security-update)
-- **Release readiness** † —
+- **Release readiness** —
   [release-readiness skill](.claude/skills/release-readiness)
-- **Release review** † — [release-review skill](.claude/skills/release-review)
-- **Codegen pipeline** † — [Codegen Internals](website/docs/internals/codegen/)
+- **Release review** — [release-review skill](.claude/skills/release-review)
+- **Codegen pipeline** — [Codegen Internals](website/docs/internals/codegen/)
 - **REPL API** — [librepl internals](website/docs/internals/librepl/)
 - **Getting started (contributors)** —
   [website/docs/getting-started/contributors/](website/docs/getting-started/contributors/)
