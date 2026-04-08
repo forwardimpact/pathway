@@ -321,7 +321,7 @@ describe("Supervisor - createSupervisor factory", () => {
     });
   });
 
-  test("createSupervisor blocks Task and TaskOutput on supervisor by default", () => {
+  test("createSupervisor blocks sub-agent spawn tools on supervisor by default", () => {
     const supervisor = createSupervisor({
       supervisorCwd: "/tmp/sup",
       agentCwd: "/tmp/agent",
@@ -329,8 +329,10 @@ describe("Supervisor - createSupervisor factory", () => {
       output: new PassThrough(),
     });
     assert.deepStrictEqual(supervisor.supervisorRunner.disallowedTools, [
+      "Agent",
       "Task",
       "TaskOutput",
+      "TaskStop",
     ]);
     assert.deepStrictEqual(supervisor.agentRunner.disallowedTools, []);
   });
@@ -344,8 +346,10 @@ describe("Supervisor - createSupervisor factory", () => {
       supervisorDisallowedTools: ["WebSearch", "Task"],
     });
     const disallowed = supervisor.supervisorRunner.disallowedTools;
+    assert.ok(disallowed.includes("Agent"));
     assert.ok(disallowed.includes("Task"));
     assert.ok(disallowed.includes("TaskOutput"));
+    assert.ok(disallowed.includes("TaskStop"));
     assert.ok(disallowed.includes("WebSearch"));
     assert.strictEqual(disallowed.length, new Set(disallowed).size);
   });

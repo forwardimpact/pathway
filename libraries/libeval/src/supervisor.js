@@ -36,11 +36,12 @@ export function isIntervention(text) {
 
 /** System prompt appended for the supervisor runner in supervise mode. */
 export const SUPERVISOR_SYSTEM_PROMPT =
-  "You supervise another AI agent, seeing its work in batches. " +
-  "Reply briefly to let it continue, or write EVALUATION_INTERVENTION " +
-  "followed by new instructions to stop it mid-turn. " +
-  "Write EVALUATION_COMPLETE when the task is done. " +
-  "Only your final message is relayed.";
+  "You relay messages to one persistent agent session — your only output " +
+  "channel. Spawning sub-agents or restarting the agent is blocked. Do not " +
+  "do the work yourself. Reply briefly to let the agent continue, write " +
+  "EVALUATION_INTERVENTION + instructions to interrupt mid-turn, or " +
+  "EVALUATION_COMPLETE when done. Only your final message each turn is " +
+  "relayed.";
 
 /** System prompt appended for the agent runner in supervise mode. */
 export const AGENT_SYSTEM_PROMPT =
@@ -486,10 +487,14 @@ export function createSupervisor({
     },
   });
 
-  // Block Task/TaskOutput so the supervisor cannot spawn its own sub-agents.
-  // The relay loop handles agent communication — letting the supervisor use
-  // Task would bypass the relay and produce an empty agent trace.
-  const defaultDisallowed = ["Task", "TaskOutput"];
+  // Block every sub-agent spawning tool so the supervisor cannot bypass the
+  // relay loop. The current Claude Agent SDK exposes the spawn tool to the
+  // model as `Agent`; older versions called it `Task`. Both are blocked
+  // (along with TaskOutput/TaskStop) so the supervisor sees no spawn tool
+  // regardless of which SDK version is installed. Letting the supervisor
+  // spawn its own sub-agent would bypass the relay and produce an empty
+  // agent trace, which is the failure mode that motivated this default.
+  const defaultDisallowed = ["Agent", "Task", "TaskOutput", "TaskStop"];
   const disallowedTools = supervisorDisallowedTools
     ? [...new Set([...defaultDisallowed, ...supervisorDisallowedTools])]
     : defaultDisallowed;
