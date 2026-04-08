@@ -5,11 +5,12 @@
 > — W. Edwards Deming
 
 Autonomous repo self-maintenance powered by Claude Code agents on GitHub
-Actions. Seven scheduled workflows, four agent personas, and eleven skills form
-a closed feedback loop that keeps the codebase secure, release-ready, and
-steadily improving. Product evaluation sessions validate changes from the user's
-perspective. This system maintains the project — not the engineering frameworks
-the products serve.
+Actions, structured as a continuous **Plan–Do–Study–Act** (PDSA) loop. Seven
+scheduled workflows, four agent personas, and eleven skills form a
+self-reinforcing PDSA cycle that keeps the codebase secure, release-ready, and
+steadily improving. Product evaluation sessions feed the Study phase with
+observations from the user's perspective. This system maintains the project —
+not the engineering frameworks the products serve.
 
 ## Architecture
 
@@ -29,12 +30,12 @@ GitHub App tokens (see § Authentication).
 
 ## Agents
 
-| Agent                   | Purpose                                                                   | Skills                                                              |
-| ----------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------------------- |
-| **security-specialist** | Patch dependencies, harden supply chain, enforce security policies        | security-update, security-audit, spec                               |
-| **release-manager**     | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | release-readiness, release-review, gh-cli                           |
-| **improvement-coach**   | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | gemba-walk, grounded-theory-analysis, spec, gh-cli                  |
-| **product-manager**     | Review PRs for product alignment, triage issues, verify contributor trust | product-backlog, product-feedback, product-evaluation, spec, gh-cli |
+| Agent                   | Purpose                                                                   | PDSA phases    | Skills                                                              |
+| ----------------------- | ------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------- |
+| **security-specialist** | Patch dependencies, harden supply chain, enforce security policies        | Study, Do, Act | security-update, security-audit, spec                               |
+| **release-manager**     | Keep PR branches merge-ready, repair trivial CI on main, cut releases     | Do             | release-readiness, release-review, gh-cli                           |
+| **improvement-coach**   | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | Study, Act, Do | gemba-walk, grounded-theory-analysis, spec, gh-cli                  |
+| **product-manager**     | Review PRs for product alignment, triage issues, verify contributor trust | Study, Act, Do | product-backlog, product-feedback, product-evaluation, spec, gh-cli |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -46,46 +47,92 @@ Daily pipeline: work creators (04–05 UTC) → preparers (06 UTC) → mergers (
 UTC) → releasers (09 UTC) → analyzers (10 UTC). Same-agent workflows never
 overlap.
 
-| Workflow              | Schedule                | Agent               | What it does                                                                  |
-| --------------------- | ----------------------- | ------------------- | ----------------------------------------------------------------------------- |
-| **security-audit**    | Tue & Fri 04:07 UTC     | security-specialist | Audit supply chain, dependencies, credentials, OWASP Top 10                   |
-| **security-update**   | Mon & Thu 04:43 UTC     | security-specialist | Apply security updates: triage Dependabot PRs, address audit findings         |
-| **product-feedback**  | Mon, Wed, Fri 05:17 UTC | product-manager     | Triage open issues, implement trivial fixes, write specs for aligned requests |
-| **release-readiness** | Daily 06:23 UTC         | release-manager     | Rebase open PRs on main, fix lint/format failures, repair main CI if broken   |
-| **product-backlog**   | Daily 08:13 UTC         | product-manager     | Classify open PRs by type, verify contributor trust, merge fix/bug/spec PRs   |
-| **release-review**    | Tue, Thu, Sat 09:37 UTC | release-manager     | Find unreleased changes, bump versions, tag, push, verify publish             |
-| **improvement-coach** | Wed & Sat 10:47 UTC     | improvement-coach   | Deep-analyze a single random agent trace, open fix PRs or write specs         |
+| Workflow              | Schedule                | Agent               | Phase       | What it does                                                                  |
+| --------------------- | ----------------------- | ------------------- | ----------- | ----------------------------------------------------------------------------- |
+| **security-audit**    | Tue & Fri 04:07 UTC     | security-specialist | Study       | Audit supply chain, dependencies, credentials, OWASP Top 10                   |
+| **security-update**   | Mon & Thu 04:43 UTC     | security-specialist | Do          | Apply security updates: triage Dependabot PRs, address audit findings         |
+| **product-feedback**  | Mon, Wed, Fri 05:17 UTC | product-manager     | Study → Act | Triage open issues, implement trivial fixes, write specs for aligned requests |
+| **release-readiness** | Daily 06:23 UTC         | release-manager     | Do          | Rebase open PRs on main, fix lint/format failures, repair main CI if broken   |
+| **product-backlog**   | Daily 08:13 UTC         | product-manager     | Study → Do  | Classify open PRs by type, verify contributor trust, merge fix/bug/spec PRs   |
+| **release-review**    | Tue, Thu, Sat 09:37 UTC | release-manager     | Do          | Find unreleased changes, bump versions, tag, push, verify publish             |
+| **improvement-coach** | Wed & Sat 10:47 UTC     | improvement-coach   | Study → Act | Deep-analyze a single random agent trace, open fix PRs or write specs         |
 
 Off-minute schedules avoid API load spikes. All workflows support
 `workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
 
-## The Feedback Loop
+## The PDSA Loop
 
-The improvement coach closes the loop. Each cycle focuses on **one trace** —
-depth over breadth: select a run → download the trace → deep-analyze every turn
-via grounded theory → categorize findings → act (trivial fixes become PRs,
-larger improvements become specs).
+The system runs as a continuous **Plan–Do–Study–Act** cycle. Plans are
+executed, outputs are studied, findings become new specs, and the cycle
+restarts. Each phase produces the artifacts the next phase consumes, forming
+a self-reinforcing loop rather than a one-shot pipeline.
+
+```mermaid
+graph LR
+    P["Plan<br/>plan.md (HOW) for<br/>approved specs"]
+    D["Do<br/>implement plans; run<br/>workflows; ship PRs,<br/>issues, releases, traces"]
+    S["Study<br/>triage feedback;<br/>analyze traces;<br/>audit posture"]
+    A["Act<br/>spec.md (WHAT/WHY)<br/>capturing findings"]
+
+    P --> D --> S --> A --> P
+```
+
+### Plan — turn specs into executable plans
+
+Approved specs become concrete plans. Agents use the `spec` skill to transform
+an approved `spec.md` (the WHAT/WHY) into a `plan.md` (the HOW) with steps,
+files to change, tests to add, and risks to watch — enough for any trusted
+agent to pick up and execute.
+
+### Do — execute plans and run scheduled workflows
+
+The Do phase is where work happens. It has two modes:
+
+- **Implement approved plans** via the `implement-spec` skill — trusted agents
+  open PRs that complete the plan step by step.
+- **Run scheduled workflows** that exercise, harden, and release the codebase
+  (`security-update`, `release-readiness`, `release-review`,
+  `product-backlog`). Each run produces the artifacts the Study phase
+  consumes: PRs, tagged releases, audit reports, execution traces, and GitHub
+  issues.
+
+Every scheduled run captures a full execution trace — raw evidence for the
+Study phase.
+
+### Study — analyze outputs and feedback
+
+The Study phase closes observation over the Do phase. Three study streams
+feed the next Act phase:
+
+- **Product manager** studies **external feedback** — open issues, external
+  PRs, contributor activity — in `product-feedback` and `product-backlog`.
+  Triages against product alignment, verifies trust, classifies work, and
+  gates merges. Product evaluation sessions feed the same stream with
+  observations from first-time users.
+- **Security specialist** studies the **repository's security posture** —
+  supply chain, dependencies, credentials, OWASP Top 10 — in `security-audit`.
+- **Improvement coach** studies **internal agent behaviour**. Each cycle
+  focuses on **one trace** — depth over breadth: select a run → download the
+  trace → deep-analyze every turn via grounded theory (open coding → axial
+  coding → selective coding) → categorize findings with quoted evidence.
 
 When analyzing a **product-backlog** trace, the coach also verifies that the
 product manager performed trust checks on every merged PR (see §
 Accountability).
 
-```mermaid
-graph TD
-    IC["Improvement Coach<br/>downloads traces, analyzes, audits trust checks"]
-    SE["Security Specialist<br/>audit, triage"]
-    RE["Release Manager<br/>readiness, cuts"]
-    PM["Product Manager<br/>backlog, feedback, merge"]
-    CB["Codebase (main)"]
+### Act — write new specs
 
-    IC -- "fix PRs / specs" --> CB
-    IC -. "reads traces" .-> SE
-    IC -. "reads traces" .-> RE
-    IC -. "reads traces" .-> PM
-    SE --> CB
-    RE --> CB
-    PM --> CB
-```
+Findings from the Study phase do not fix themselves. The Act phase converts
+insight into new inputs for the next cycle:
+
+- **Trivial findings** become fix PRs directly (short-circuit through the
+  loop).
+- **Structural findings** become new `spec.md` documents capturing WHAT needs
+  to change and WHY, written with the `spec` skill. These enter the backlog
+  and start the next Plan phase.
+
+Fix-or-spec discipline keeps mechanical repairs (`fix/` branches) separate
+from structural improvements (`spec/` branches) — never mixed in one PR.
 
 ## Skills
 
@@ -174,6 +221,9 @@ graph TD
 
 ## Design Principles
 
+- **PDSA over pipeline.** Every workflow belongs to a phase of the Plan–Do–
+  Study–Act cycle. Findings from Study always re-enter the loop as specs or
+  fix PRs — nothing is observed without a downstream action.
 - **Fix-or-spec discipline.** Mechanical fixes (`fix/` branches) and structural
   improvements (`spec/` branches) are never mixed in one PR.
 - **Explicit scope constraints.** Each agent lists what it must _not_ do.
