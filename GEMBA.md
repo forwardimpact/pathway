@@ -1,15 +1,21 @@
-# Continuous Improvement System
+# Gemba
 
-> "Improve constantly and forever the system of production and service."
+> "Go see, ask why, show respect."
 >
-> — W. Edwards Deming
+> — Taiichi Ohno
 
-Autonomous repo self-maintenance powered by Claude Code agents on GitHub
-Actions, structured as a continuous **Plan–Do–Study–Act** (PDSA) loop. Nine
-scheduled workflows, five agent personas, and fifteen skills form a
-self-reinforcing PDSA cycle that keeps the codebase secure, release-ready, and
-steadily improving. Product evaluation sessions feed the Study phase with
-observations from the user's perspective. This system maintains the project —
+Gemba is the Forward Impact repo self-maintenance system: autonomous agents
+running on GitHub Actions that keep the codebase secure, release-ready, and
+steadily improving. The name comes from the Toyota Production System concept
+of _genba_ (現場) — "the real place where work happens." Gemba agents walk the
+real place (the execution traces of prior runs) and act on what they find.
+
+Within Gemba, **Plan–Do–Study–Act** (PDSA, after Deming) is the improvement
+method. Every workflow belongs to a PDSA phase, findings from Study always
+re-enter the loop as specs or fix PRs, and the cycle runs on a schedule.
+Nine scheduled workflows, five agent personas, and fifteen skills form a
+self-reinforcing PDSA cycle. Product evaluation sessions feed the Study phase
+with observations from the user's perspective. Gemba maintains the project —
 not the engineering frameworks the products serve.
 
 ## Architecture

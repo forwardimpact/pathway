@@ -239,8 +239,7 @@ above.
 - **Security policies** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
 - **Dependency policy** —
   [CONTRIBUTING.md § Dependency Policy](CONTRIBUTING.md#dependency-policy)
-- **Repo self-maintenance** —
-  [CONTINUOUS_IMPROVEMENT.md](CONTINUOUS_IMPROVEMENT.md)
+- **Repo self-maintenance** — [GEMBA.md](GEMBA.md)
 - **Environment, services, tasks** —
   [Operations Reference](website/docs/internals/operations/)
 - **Supply chain & app security** —
