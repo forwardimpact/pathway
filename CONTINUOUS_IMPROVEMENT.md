@@ -6,7 +6,7 @@
 
 Autonomous repo self-maintenance powered by Claude Code agents on GitHub
 Actions, structured as a continuous **Plan–Do–Study–Act** (PDSA) loop. Seven
-scheduled workflows, five agent personas, and thirteen skills form a
+scheduled workflows, five agent personas, and fifteen skills form a
 self-reinforcing PDSA cycle that keeps the codebase secure, release-ready, and
 steadily improving. Product evaluation sessions feed the Study phase with
 observations from the user's perspective. This system maintains the project —
@@ -30,13 +30,13 @@ GitHub App tokens (see § Authentication).
 
 ## Agents
 
-| Agent                 | Purpose                                                                   | PDSA phases    | Skills                                                                    |
-| --------------------- | ------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------- |
-| **security-engineer** | Patch dependencies, harden supply chain, enforce security policies        | Study, Do, Act | security-audit, security-update, spec                                     |
-| **staff-engineer**    | Turn approved specs into execution-ready plans for trusted agents to ship | Plan           | plan, gh-cli                                                              |
-| **release-engineer**  | Keep PR branches merge-ready, implement plans, repair main CI, cut releases | Do           | release-readiness, release-review, implement-spec, gh-cli                 |
-| **improvement-coach** | Deep-analyze agent traces, fix trivial issues, spec larger improvements   | Study, Act, Do | gemba-walk, grounded-theory-analysis, spec, gh-cli                        |
-| **product-manager**   | Review PRs for product alignment, triage issues, verify contributor trust | Study, Act, Do | product-backlog, product-feedback, product-evaluation, spec, plan, gh-cli |
+| Agent                 | Purpose                                                                   | PDSA phases    | Skills                                                                                            |
+| --------------------- | ------------------------------------------------------------------------- | -------------- | ------------------------------------------------------------------------------------------------- |
+| **security-engineer** | Patch dependencies, harden supply chain, enforce security policies        | Study, Do, Act | security-audit, security-update, spec                                                             |
+| **staff-engineer**    | Turn approved specs into execution-ready plans for trusted agents to ship | Plan           | plan, gh-cli                                                                                      |
+| **release-engineer**  | Keep PR branches merge-ready, implement plans, repair main CI, cut releases | Do           | release-readiness, release-review, implement-spec, gh-cli                                         |
+| **improvement-coach** | Walk traces, audit invariants, fix trivial issues, spec larger ones       | Study, Act     | gemba-walk, grounded-theory-analysis, trace-audit, spec, gh-cli                                   |
+| **product-manager**   | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations      | Study, Act, Do | product-classify, product-merge, product-triage, product-evaluation, spec, plan, gh-cli           |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -143,16 +143,18 @@ agent's skill list reveals its phase coverage at a glance.
 | Skill                        | Phase | Purpose                                                                       |
 | ---------------------------- | ----- | ----------------------------------------------------------------------------- |
 | **security-audit**           | Study | Seven-area security review (supply chain, deps, credentials, OWASP, CI)       |
-| **gemba-walk**               | Study | Trace observation process — select, download, analyze, report                 |
+| **gemba-walk**               | Study | Open-ended trace observation via grounded theory                              |
 | **grounded-theory-analysis** | Study | Qualitative trace analysis adapted from research methodology                  |
+| **trace-audit**              | Study | Verify named per-agent invariants against a trace; quoted evidence required   |
 | **product-evaluation**       | Study | Supervise product evaluation sessions, capture feedback, create issues        |
-| **product-backlog**          | Study | PR triage with type classification, contributor verification, and merge gates |
-| **product-feedback**         | Study | Issue triage with classification, fix PRs for bugs, and specs for features    |
+| **product-triage**           | Study | Classify open issues for product alignment; produce a triage report           |
+| **product-classify**         | Study | Classify open PRs for mergeability — trust, type, CI, spec review             |
 | **spec**                     | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status             |
 | **plan**                     | Plan  | Write and review plans (HOW); advance approved specs from `review → planned`  |
 | **security-update**          | Do    | Security updates: Dependabot triage, npm audit findings, vulnerability fixes  |
 | **release-readiness**        | Do    | Mechanical PR preparation — rebase, fix, report                               |
 | **release-review**           | Do    | Version bumps, tagging, publish verification                                  |
+| **product-merge**            | Do    | Merge PRs marked mergeable by `product-classify`                              |
 | **implement-spec**           | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
 | **gh-cli**                   | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)    |
 
@@ -277,10 +279,15 @@ App token for API access.
 
 ## Accountability
 
-The improvement coach audits the product manager's trust verification in
-product-backlog traces. Every merged PR must show: (1) a contributor lookup
-call, (2) author verification against the result. A merge without visible trust
-verification is a **high-severity finding** that requires a fix PR or spec.
+Cross-agent accountability runs through the `trace-audit` skill. The
+improvement coach invokes it on every gemba walk to verify named per-agent
+invariants against the actual trace — for example, that the product manager
+ran a contributor lookup before marking any non-CI-app PR mergeable. The
+canonical invariant list lives in
+[.claude/skills/trace-audit/SKILL.md](.claude/skills/trace-audit/SKILL.md);
+new accountability rules are added there as new specs land, not in this
+document. High-severity audit failures must result in a fix PR or spec —
+silent acceptance is itself a process failure.
 
 ## Authoring Best Practices
 

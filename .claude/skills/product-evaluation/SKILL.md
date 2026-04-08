@@ -90,14 +90,23 @@ in the same turn**. Do not stop after signaling — proceed immediately to Step 
 Review the agent's output across all turns and identify distinct feedback items.
 Each item should describe a single observation — don't merge unrelated feedback.
 
-Use the `product-feedback` skill (Part 2) to:
+For each item, classify against this table:
 
-1. **Extract** — Identify distinct feedback items from the agent's output
-2. **Classify** — Categorize each item (bug, product-aligned, documentation, out
-   of scope)
-3. **Check duplicates** — Search existing open issues before creating new ones
-4. **Create or comment** — File new issues or comment on existing ones
-5. **Summarize** — Produce a summary table of all feedback items with actions
+| Category            | Criteria                                         | Action                |
+| ------------------- | ------------------------------------------------ | --------------------- |
+| **Bug**             | Crashes, errors, incorrect output                | Create bug issue      |
+| **Product-aligned** | Missing feature serving the product vision       | Create feature issue  |
+| **Documentation**   | Instructions unclear, missing steps, or outdated | Create docs issue     |
+| **Out of scope**    | Not actionable or outside product control        | Skip — note in report |
+
+Then for each actionable item:
+
+1. **Extract** — Identify the distinct feedback item from the agent's output
+2. **Check duplicates** — Search existing open issues before creating new ones
+3. **Create or comment** — File a new issue or add a comment with new context
+   on a matching existing issue. Issue body templates live in
+   `../product-triage/references/templates.md` § New Issues from User Testing
+4. **Summarize** — Add the item (with its issue number) to the summary table
 
 ### Step 5: Report
 
