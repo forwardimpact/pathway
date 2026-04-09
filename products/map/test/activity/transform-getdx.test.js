@@ -19,10 +19,6 @@ function createFakeClient({ rawFiles }) {
           upsertCalls.push({ table, rows, onConflict: opts?.onConflict });
           return { error: null };
         },
-        async insert(rows) {
-          upsertCalls.push({ table, rows, insert: true });
-          return { error: null };
-        },
       };
     },
     storage: {

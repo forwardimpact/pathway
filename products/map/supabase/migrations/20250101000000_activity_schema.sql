@@ -77,9 +77,8 @@ CREATE TABLE activity.getdx_teams (
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE activity.getdx_snapshot_team_scores (
-  id                      BIGSERIAL PRIMARY KEY,
   snapshot_id             TEXT NOT NULL REFERENCES activity.getdx_snapshots(snapshot_id),
-  getdx_team_id           TEXT,
+  getdx_team_id           TEXT NOT NULL,
   item_id                 TEXT NOT NULL,
   item_type               TEXT,
   item_name               TEXT,
@@ -93,7 +92,8 @@ CREATE TABLE activity.getdx_snapshot_team_scores (
   vs_90th                 NUMERIC,
   snapshot_team           JSONB,
   raw                     JSONB NOT NULL,
-  imported_at             TIMESTAMPTZ NOT NULL DEFAULT now()
+  imported_at             TIMESTAMPTZ NOT NULL DEFAULT now(),
+  PRIMARY KEY (snapshot_id, getdx_team_id, item_id)
 );
 
 -- -----------------------------------------------------------------------------

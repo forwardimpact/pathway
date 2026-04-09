@@ -146,7 +146,7 @@ async function transformSnapshotScores(supabase, path) {
 
   const scoreRows = teamScores.map((entry) => ({
     snapshot_id: snapshotId,
-    getdx_team_id: entry.snapshot_team?.team_id || null,
+    getdx_team_id: entry.snapshot_team?.team_id || "unknown",
     item_id: entry.item_id,
     item_type: entry.item_type || null,
     item_name: entry.item_name || null,
@@ -165,7 +165,9 @@ async function transformSnapshotScores(supabase, path) {
   if (scoreRows.length > 0) {
     const { error } = await supabase
       .from("getdx_snapshot_team_scores")
-      .insert(scoreRows);
+      .upsert(scoreRows, {
+        onConflict: "snapshot_id,getdx_team_id,item_id",
+      });
 
     if (error) {
       errors.push(`Scores for ${snapshotId}: ${error.message}`);
