@@ -12,7 +12,7 @@ place (the execution traces of prior runs) and act on what they find.
 
 Within Gemba, **Plan–Do–Study–Act** (PDSA, after Deming) is the improvement
 method. Every workflow belongs to a PDSA phase, findings from Study always
-re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Nine
+re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Eight
 scheduled workflows, five agent personas, and twelve skills form a
 self-reinforcing PDSA cycle. Product evaluation sessions feed the Study phase
 with observations from the user's perspective. Gemba maintains the project — not
@@ -65,7 +65,7 @@ The Do phase is where work happens. It has two modes:
 - **Implement approved plans** via the `gemba-implement` skill — trusted agents
   open PRs that complete the plan step by step.
 - **Run scheduled workflows** that exercise, harden, and release the codebase
-  (`security-update`, `release-readiness`, `release-review`, `product-backlog`).
+  (`security-update`, `release-readiness`, `release-review`, `product-manager`).
   Each run produces the artifacts the Study phase consumes: PRs, tagged
   releases, audit reports, execution traces, and GitHub issues.
 
@@ -80,16 +80,16 @@ the next Act phase:
 - **Security engineer** studies the **repository's security posture** — supply
   chain, dependencies, credentials, OWASP Top 10 — in `security-audit`.
 - **Product manager** studies **external feedback** — open issues, external PRs,
-  contributor activity — in `product-feedback` and `product-backlog`. Triages
-  against product alignment, verifies trust, classifies work, and gates merges.
-  Product evaluation sessions feed the same stream with observations from
-  first-time users.
+  contributor activity — in `product-manager`. Triages against product
+  alignment, verifies trust, classifies work, and gates merges. Product
+  evaluation sessions feed the same stream with observations from first-time
+  users.
 - **Improvement coach** studies **internal agent behaviour**. Each cycle focuses
   on **one trace** — depth over breadth: select a run → download the trace →
   deep-analyze every turn via grounded theory (open coding → axial coding →
   selective coding) → categorize findings with quoted evidence.
 
-When analyzing a **product-backlog** trace, the coach also verifies that the
+When analyzing a **product-manager** trace, the coach also verifies that the
 product manager performed trust checks on every merged PR (see §
 Accountability).
 
@@ -127,17 +127,16 @@ Daily pipeline follows the PDSA cycle: **Plan** (04 UTC) → **Do** (05–07 UTC
 (plans before implementation, rebase before merge, merge before release) and
 same-agent workflows never overlap.
 
-| Workflow              | Phase       | Schedule                | Agent             | What it does                                                                  |
-| --------------------- | ----------- | ----------------------- | ----------------- | ----------------------------------------------------------------------------- |
-| **plan-specs**        | Plan        | Daily 04:11 UTC         | staff-engineer    | Pick up approved specs without plans and produce execution-ready plan.md      |
-| **implement-plans**   | Do          | Daily 05:07 UTC         | staff-engineer    | Pick up approved plans (`status: planned`) and execute via implement-spec     |
-| **security-update**   | Do          | Mon & Thu 05:43 UTC     | security-engineer | Apply security updates: triage Dependabot PRs, address audit findings         |
-| **release-readiness** | Do          | Daily 06:23 UTC         | release-engineer  | Rebase open PRs on main, fix lint/format failures, repair main CI if broken   |
-| **release-review**    | Do          | Tue, Thu, Sat 07:53 UTC | release-engineer  | Find unreleased changes, bump versions, tag, push, verify publish             |
-| **product-backlog**   | Study → Do  | Daily 07:13 UTC         | product-manager   | Classify open PRs by type, verify contributor trust, merge fix/bug/spec PRs   |
-| **security-audit**    | Study       | Tue & Fri 08:37 UTC     | security-engineer | Audit supply chain, dependencies, credentials, OWASP Top 10                   |
-| **product-feedback**  | Study → Act | Mon, Wed, Fri 09:17 UTC | product-manager   | Triage open issues, implement trivial fixes, write specs for aligned requests |
-| **improvement-coach** | Study → Act | Wed & Sat 10:47 UTC     | improvement-coach | Deep-analyze a single random agent trace, open fix PRs or write specs         |
+| Workflow              | Phase          | Schedule                                | Agent             | What it does                                                                |
+| --------------------- | -------------- | --------------------------------------- | ----------------- | --------------------------------------------------------------------------- |
+| **plan-specs**        | Plan           | Daily 04:11 UTC                         | staff-engineer    | Pick up approved specs without plans and produce execution-ready plan.md    |
+| **implement-plans**   | Do             | Daily 05:07 UTC                         | staff-engineer    | Pick up approved plans (`status: planned`) and execute via implement-spec   |
+| **security-update**   | Do             | Mon & Thu 05:43 UTC                     | security-engineer | Apply security updates: triage Dependabot PRs, address audit findings       |
+| **release-readiness** | Do             | Daily 06:23 UTC                         | release-engineer  | Rebase open PRs on main, fix lint/format failures, repair main CI if broken |
+| **release-review**    | Do             | Tue, Thu, Sat 07:53 UTC                 | release-engineer  | Find unreleased changes, bump versions, tag, push, verify publish           |
+| **product-manager**   | Do, Study, Act | Daily 08:13 UTC + Mon/Wed/Fri 05:17 UTC | product-manager   | Classify and merge open PRs, then triage open issues into fixes and specs   |
+| **security-audit**    | Study          | Tue & Fri 08:37 UTC                     | security-engineer | Audit supply chain, dependencies, credentials, OWASP Top 10                 |
+| **improvement-coach** | Study → Act    | Wed & Sat 10:47 UTC                     | improvement-coach | Deep-analyze a single random agent trace, open fix PRs or write specs       |
 
 Off-minute schedules avoid API load spikes. All workflows support
 `workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
@@ -227,11 +226,11 @@ graph TD
 | **implement-plans**   | Agent-authored impl PRs   | Agent-only, against approved plans              |
 | **security-update**   | Dependabot PRs            | Trusted bot, policy-gated                       |
 | **release-readiness** | Agent-authored rebases    | Agent-only, no external input                   |
-| **product-backlog**   | External fix/bug PRs      | Top-20 contributor gate + CI                    |
-| **product-backlog**   | External spec PRs         | Top-20 gate + CI + spec review                  |
-| **product-backlog**   | CI app PRs                | Trusted app identity (`forward-impact-ci`) + CI |
+| **product-manager**   | External fix/bug PRs      | Top-20 contributor gate + CI                    |
+| **product-manager**   | External spec PRs         | Top-20 gate + CI + spec review                  |
+| **product-manager**   | CI app PRs                | Trusted app identity (`forward-impact-ci`) + CI |
+| **product-manager**   | Agent-authored fix/spec   | Agent-only, issues as input                     |
 | **release-review**    | Agent-authored tags/bumps | Agent-only, no external input                   |
-| **product-feedback**  | Agent-authored fix/spec   | Agent-only, issues as input                     |
 | **improvement-coach** | Agent-authored fix/spec   | Agent-only, traces as evidence                  |
 | **release-engineer**  | Trivial CI fixes on main  | Agent-only, mechanical fixes only               |
 
