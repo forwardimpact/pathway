@@ -5,7 +5,7 @@
  */
 
 import { spawn } from "child_process";
-import { getSupabaseDir } from "./package-root.js";
+import { getPackageRoot } from "./package-root.js";
 
 const SUPABASE_INSTALL_URL =
   "https://supabase.com/docs/guides/local-development";
@@ -29,7 +29,7 @@ export async function runSupabase(args, { cwd } = {}) {
 
   return new Promise((resolve, reject) => {
     const child = spawn("supabase", args, {
-      cwd: cwd ?? getSupabaseDir(),
+      cwd: cwd ?? getPackageRoot(),
       stdio: "inherit",
     });
     child.on("error", reject);

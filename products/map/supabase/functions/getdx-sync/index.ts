@@ -14,11 +14,15 @@ Deno.serve(async (_req) => {
   const extract = await extractGetDX(supabase, { apiToken, baseUrl });
   const transform = await transformAllGetDX(supabase);
 
-  return json({
-    ok: extract.errors.length === 0 && transform.errors.length === 0,
-    extract: { files: extract.files, errors: extract.errors },
-    transform,
-  });
+  const ok = extract.errors.length === 0 && transform.errors.length === 0;
+  return json(
+    {
+      ok,
+      extract: { files: extract.files, errors: extract.errors },
+      transform,
+    },
+    ok ? 200 : 500,
+  );
 });
 
 function json(body: unknown, status = 200) {
