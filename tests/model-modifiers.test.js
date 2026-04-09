@@ -48,13 +48,19 @@ describe("Skill Modifiers", () => {
 
   describe("getSkillsByCapability", () => {
     it("returns skills matching the capability", () => {
-      const scaleSkills = getSkillsByCapability(testSkills, "scale");
+      const scaleSkills = getSkillsByCapability({
+        skills: testSkills,
+        capability: "scale",
+      });
       assert.strictEqual(scaleSkills.length, 1);
       assert.strictEqual(scaleSkills[0].id, "skill_a");
     });
 
     it("returns empty array for non-existent capability", () => {
-      const skills = getSkillsByCapability(testSkills, "nonexistent");
+      const skills = getSkillsByCapability({
+        skills: testSkills,
+        capability: "nonexistent",
+      });
       assert.strictEqual(skills.length, 0);
     });
   });
@@ -72,13 +78,19 @@ describe("Skill Modifiers", () => {
   describe("expandModifiersToSkills", () => {
     it("expands capability modifiers to individual skills", () => {
       const modifiers = { scale: 1 };
-      const expanded = expandModifiersToSkills(modifiers, testSkills);
+      const expanded = expandModifiersToSkills({
+        skillModifiers: modifiers,
+        skills: testSkills,
+      });
       assert.strictEqual(expanded.skill_a, 1);
     });
 
     it("ignores non-capability keys (validation should catch these)", () => {
       const modifiers = { scale: 1, skill_a: 2 };
-      const expanded = expandModifiersToSkills(modifiers, testSkills);
+      const expanded = expandModifiersToSkills({
+        skillModifiers: modifiers,
+        skills: testSkills,
+      });
       // Individual skill modifiers are ignored - only capability modifiers are expanded
       // skill_a gets value from scale capability (1), not from individual modifier
       assert.strictEqual(expanded.skill_a, 1);
@@ -86,13 +98,19 @@ describe("Skill Modifiers", () => {
 
     it("expands multiple capabilities", () => {
       const modifiers = { ai: -1, scale: 1 };
-      const expanded = expandModifiersToSkills(modifiers, testSkills);
+      const expanded = expandModifiersToSkills({
+        skillModifiers: modifiers,
+        skills: testSkills,
+      });
       assert.strictEqual(expanded.skill_a, 1); // scale capability
       assert.strictEqual(expanded.skill_b, -1); // ai capability
     });
 
     it("returns empty object for null input", () => {
-      const expanded = expandModifiersToSkills(null, testSkills);
+      const expanded = expandModifiersToSkills({
+        skillModifiers: null,
+        skills: testSkills,
+      });
       assert.deepStrictEqual(expanded, {});
     });
   });
@@ -126,18 +144,30 @@ describe("Skill Modifiers", () => {
   describe("resolveSkillModifier", () => {
     it("returns capability modifier for skill in that capability", () => {
       const modifiers = { scale: 1 };
-      const modifier = resolveSkillModifier("skill_a", modifiers, testSkills);
+      const modifier = resolveSkillModifier({
+        skillId: "skill_a",
+        skillModifiers: modifiers,
+        skills: testSkills,
+      });
       assert.strictEqual(modifier, 1);
     });
 
     it("returns 0 when no modifier applies", () => {
       const modifiers = { data: 1 };
-      const modifier = resolveSkillModifier("skill_a", modifiers, testSkills);
+      const modifier = resolveSkillModifier({
+        skillId: "skill_a",
+        skillModifiers: modifiers,
+        skills: testSkills,
+      });
       assert.strictEqual(modifier, 0);
     });
 
     it("returns 0 for null modifiers", () => {
-      const modifier = resolveSkillModifier("skill_a", null, testSkills);
+      const modifier = resolveSkillModifier({
+        skillId: "skill_a",
+        skillModifiers: null,
+        skills: testSkills,
+      });
       assert.strictEqual(modifier, 0);
     });
   });

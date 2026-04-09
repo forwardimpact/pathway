@@ -3,18 +3,33 @@
  *
  * Pure functions for preparing job data for display.
  * Parallels model/agent.js in structure.
+ *
+ * Functions that need caching accept a `jobCache` parameter (created
+ * via `createJobCache()`). Callers without a cache can pass `null`
+ * and a fresh (uncached) derivation will be performed.
  */
 
 import {
   calculateDriverCoverage,
+  deriveJob,
   generateJobTitle,
   getDisciplineSkillIds,
 } from "./derivation.js";
 import { isValidJobCombination } from "./derivation-validation.js";
 import { deriveChecklist } from "./checklist.js";
 import { deriveToolkit } from "./toolkit.js";
-import { getOrCreateJob } from "./job-cache.js";
 import { getStageOrder } from "@forwardimpact/map/levels";
+
+/**
+ * Get or derive a job, optionally using a cache.
+ * @param {import('./job-cache.js').JobCache|null} jobCache
+ * @param {Object} params
+ * @returns {Object|null}
+ */
+function getJob(jobCache, params) {
+  if (jobCache) return jobCache.getOrCreate(params);
+  return deriveJob(params);
+}
 
 /**
  * @typedef {Object} JobDetailView
@@ -77,41 +92,18 @@ function formatDriverCoverage(driverCoverage) {
 }
 
 /**
- * Prepare a job for detail view
- * @param {Object} params
- * @param {Object} params.discipline
- * @param {Object} params.level
- * @param {Object} params.track
- * @param {Array} params.skills
- * @param {Array} params.behaviours
- * @param {Array} params.drivers
- * @param {Array} [params.capabilities]
- * @param {Array} [params.stages] - Loaded stages for checklist derivation
- * @returns {JobDetailView|null}
+ * Build the detail view object from a derived job.
  */
-export function prepareJobDetail({
+function buildJobDetailView({
+  job,
   discipline,
   level,
   track,
   skills,
-  behaviours,
   drivers,
   capabilities,
   stages,
 }) {
-  if (!discipline || !level) return null;
-
-  const job = getOrCreateJob({
-    discipline,
-    level,
-    track,
-    skills,
-    behaviours,
-    capabilities,
-  });
-
-  if (!job) return null;
-
   const driverCoverage = calculateDriverCoverage({ job, drivers });
   const checklists =
     capabilities && stages
@@ -141,6 +133,56 @@ export function prepareJobDetail({
 }
 
 /**
+ * Prepare a job for detail view
+ * @param {Object} params
+ * @param {Object} params.discipline
+ * @param {Object} params.level
+ * @param {Object} params.track
+ * @param {Array} params.skills
+ * @param {Array} params.behaviours
+ * @param {Array} params.drivers
+ * @param {Array} [params.capabilities]
+ * @param {Array} [params.stages] - Loaded stages for checklist derivation
+ * @param {import('./job-cache.js').JobCache} [params.jobCache] - Optional cache instance
+ * @returns {JobDetailView|null}
+ */
+export function prepareJobDetail({
+  discipline,
+  level,
+  track,
+  skills,
+  behaviours,
+  drivers,
+  capabilities,
+  stages,
+  jobCache = null,
+}) {
+  if (!discipline || !level) return null;
+
+  const job = getJob(jobCache, {
+    discipline,
+    level,
+    track,
+    skills,
+    behaviours,
+    capabilities,
+  });
+
+  if (!job) return null;
+
+  return buildJobDetailView({
+    job,
+    discipline,
+    level,
+    track,
+    skills,
+    drivers,
+    capabilities,
+    stages,
+  });
+}
+
+/**
  * Prepare a job for list view (summary only)
  * @param {Object} params
  * @param {Object} params.discipline
@@ -148,6 +190,7 @@ export function prepareJobDetail({
  * @param {Object} params.track
  * @param {Array} params.skills
  * @param {Array} params.behaviours
+ * @param {import('./job-cache.js').JobCache} [params.jobCache] - Optional cache instance
  * @returns {Object|null}
  */
 export function prepareJobSummary({
@@ -156,10 +199,11 @@ export function prepareJobSummary({
   track,
   skills,
   behaviours,
+  jobCache = null,
 }) {
   if (!discipline || !level) return null;
 
-  const job = getOrCreateJob({
+  const job = getJob(jobCache, {
     discipline,
     level,
     track,
@@ -240,7 +284,7 @@ export function prepareJobBuilderPreview({
     };
   }
 
-  const title = generateJobTitle(discipline, level, track);
+  const title = generateJobTitle({ discipline, level, track });
   const totalSkills = getDisciplineSkillIds(discipline).length;
 
   return {

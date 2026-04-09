@@ -36,7 +36,6 @@ describe("estimateBestFitLevel", () => {
     const result = estimateBestFitLevel({
       selfAssessment: { skillProficiencies: {} },
       levels,
-      _skills: [],
     });
     assert.strictEqual(result.level.id, "l1");
     assert.strictEqual(result.confidence, 0);
@@ -49,7 +48,6 @@ describe("estimateBestFitLevel", () => {
         skillProficiencies: { s1: "awareness", s2: "awareness" },
       },
       levels,
-      _skills: [],
     });
     assert.strictEqual(result.level.id, "l1");
     assert.strictEqual(result.averageSkillIndex, 0);
@@ -61,7 +59,6 @@ describe("estimateBestFitLevel", () => {
         skillProficiencies: { s1: "working", s2: "working" },
       },
       levels,
-      _skills: [],
     });
     assert.strictEqual(result.level.id, "l3");
     assert.strictEqual(result.averageSkillIndex, 2);
@@ -73,7 +70,6 @@ describe("estimateBestFitLevel", () => {
         skillProficiencies: { s1: "expert", s2: "expert" },
       },
       levels,
-      _skills: [],
     });
     assert.strictEqual(result.level.id, "l5");
     assert.strictEqual(result.averageSkillIndex, 4);
@@ -86,7 +82,6 @@ describe("estimateBestFitLevel", () => {
         skillProficiencies: { s1: "awareness", s2: "working" },
       },
       levels,
-      _skills: [],
     });
     assert.strictEqual(result.level.id, "l2");
     assert.strictEqual(result.averageSkillIndex, 1);
@@ -98,7 +93,6 @@ describe("estimateBestFitLevel", () => {
         skillProficiencies: { s1: "working" },
       },
       levels,
-      _skills: [],
     });
     // exact match => distance 0 => confidence = max(0, 1 - 0/2) = 1
     assert.strictEqual(result.confidence, 1);
@@ -114,7 +108,6 @@ describe("estimateBestFitLevel", () => {
         skillProficiencies: { s1: "foundational", s2: "working" },
       },
       levels,
-      _skills: [],
     });
     assert.ok(result.confidence < 1);
     assert.ok(result.confidence > 0);
@@ -142,7 +135,6 @@ describe("estimateBestFitLevel", () => {
     const result = estimateBestFitLevel({
       selfAssessment: { skillProficiencies: {} },
       levels: unsortedLevels,
-      _skills: [],
     });
     // Should still return lowest ordinalRank
     assert.strictEqual(result.level.id, "l1");
@@ -152,7 +144,6 @@ describe("estimateBestFitLevel", () => {
     const result = estimateBestFitLevel({
       selfAssessment: {},
       levels,
-      _skills: [],
     });
     assert.strictEqual(result.level.id, "l1");
     assert.strictEqual(result.confidence, 0);

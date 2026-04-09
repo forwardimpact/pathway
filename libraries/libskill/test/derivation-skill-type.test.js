@@ -71,7 +71,7 @@ describe("getSkillTypeForDiscipline", () => {
   test("returns primary for core skill", () => {
     const discipline = makeDiscipline();
     assert.strictEqual(
-      getSkillTypeForDiscipline(discipline, "coding"),
+      getSkillTypeForDiscipline({ discipline, skillId: "coding" }),
       "primary",
     );
   });
@@ -79,7 +79,7 @@ describe("getSkillTypeForDiscipline", () => {
   test("returns secondary for supporting skill", () => {
     const discipline = makeDiscipline();
     assert.strictEqual(
-      getSkillTypeForDiscipline(discipline, "ci_cd"),
+      getSkillTypeForDiscipline({ discipline, skillId: "ci_cd" }),
       "secondary",
     );
   });
@@ -87,7 +87,7 @@ describe("getSkillTypeForDiscipline", () => {
   test("returns broad for broad skill", () => {
     const discipline = makeDiscipline();
     assert.strictEqual(
-      getSkillTypeForDiscipline(discipline, "documentation"),
+      getSkillTypeForDiscipline({ discipline, skillId: "documentation" }),
       "broad",
     );
   });
@@ -95,7 +95,7 @@ describe("getSkillTypeForDiscipline", () => {
   test("returns null for skill not in discipline", () => {
     const discipline = makeDiscipline();
     assert.strictEqual(
-      getSkillTypeForDiscipline(discipline, "capacity_planning"),
+      getSkillTypeForDiscipline({ discipline, skillId: "capacity_planning" }),
       null,
     );
   });
@@ -106,7 +106,10 @@ describe("getSkillTypeForDiscipline", () => {
       supportingSkills: [],
       broadSkills: [],
     });
-    assert.strictEqual(getSkillTypeForDiscipline(discipline, "coding"), null);
+    assert.strictEqual(
+      getSkillTypeForDiscipline({ discipline, skillId: "coding" }),
+      null,
+    );
   });
 });
 

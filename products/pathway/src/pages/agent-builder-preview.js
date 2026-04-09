@@ -10,8 +10,8 @@ import {
   deriveStageAgent,
   generateSkillMarkdown,
   deriveAgentSkills,
-  deriveToolkit,
-} from "@forwardimpact/libskill";
+} from "@forwardimpact/libskill/agent";
+import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 import { getStageEmoji } from "../formatters/stage/shared.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import {
@@ -115,7 +115,7 @@ function deriveSkillData(context) {
   const skillFiles = derivedSkills
     .map((d) => skills.find((s) => s.id === d.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMarkdown(skill, stages));
+    .map((skill) => generateSkillMarkdown({ skillData: skill, stages }));
 
   const toolkit = deriveToolkit({
     skillMatrix: derivedSkills,

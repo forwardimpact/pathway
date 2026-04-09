@@ -312,7 +312,6 @@ export function findRealisticMatches({
   const estimatedLevel = estimateBestFitLevel({
     selfAssessment,
     levels,
-    skills,
   });
 
   const bestFitLevel = estimatedLevel.level.ordinalRank;

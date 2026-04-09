@@ -208,7 +208,7 @@ describe("generateJobTitle", () => {
     const discipline = makeDiscipline();
     const level = makeSeniorLevel({ professionalTitle: "Staff" });
 
-    const title = generateJobTitle(discipline, level);
+    const title = generateJobTitle({ discipline, level });
     assert.strictEqual(title, "Staff Software Engineer");
   });
 
@@ -216,7 +216,7 @@ describe("generateJobTitle", () => {
     const discipline = makeDiscipline();
     const level = makeLevel({ professionalTitle: "Level III" });
 
-    const title = generateJobTitle(discipline, level);
+    const title = generateJobTitle({ discipline, level });
     assert.strictEqual(title, "Software Engineer Level III");
   });
 
@@ -225,7 +225,7 @@ describe("generateJobTitle", () => {
     const level = makeSeniorLevel({ professionalTitle: "Staff" });
     const track = makeTrack({ name: "Platform" });
 
-    const title = generateJobTitle(discipline, level, track);
+    const title = generateJobTitle({ discipline, level, track });
     assert.strictEqual(title, "Staff Software Engineer - Platform");
   });
 
@@ -234,7 +234,7 @@ describe("generateJobTitle", () => {
     const level = makeLevel({ professionalTitle: "Level III" });
     const track = makeTrack({ name: "Platform" });
 
-    const title = generateJobTitle(discipline, level, track);
+    const title = generateJobTitle({ discipline, level, track });
     assert.strictEqual(title, "Software Engineer Level III - Platform");
   });
 
@@ -242,7 +242,7 @@ describe("generateJobTitle", () => {
     const discipline = makeManagementDiscipline();
     const level = makeLevel({ managementTitle: "Manager" });
 
-    const title = generateJobTitle(discipline, level);
+    const title = generateJobTitle({ discipline, level });
     assert.strictEqual(title, "Manager, Engineering");
   });
 
@@ -251,7 +251,7 @@ describe("generateJobTitle", () => {
     const level = makeLevel({ managementTitle: "Manager" });
     const track = makeTrack({ name: "Platform" });
 
-    const title = generateJobTitle(discipline, level, track);
+    const title = generateJobTitle({ discipline, level, track });
     // Uses en-dash
     assert.strictEqual(title, "Manager, Engineering \u2013 Platform");
   });
@@ -260,7 +260,7 @@ describe("generateJobTitle", () => {
     const discipline = makeDiscipline();
     const level = makeLevel({ professionalTitle: "Principal" });
 
-    const title = generateJobTitle(discipline, level);
+    const title = generateJobTitle({ discipline, level });
     assert.strictEqual(title, "Principal Software Engineer");
   });
 });

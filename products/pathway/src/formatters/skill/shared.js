@@ -95,11 +95,18 @@ export function prepareSkillDetail(
   if (!skill) return null;
 
   const relatedDisciplines = disciplines
-    .filter((d) => getSkillTypeForDiscipline(d, skill.id) !== null)
+    .filter(
+      (d) =>
+        getSkillTypeForDiscipline({ discipline: d, skillId: skill.id }) !==
+        null,
+    )
     .map((d) => ({
       id: d.id,
       name: d.specialization || d.name,
-      skillType: getSkillTypeForDiscipline(d, skill.id),
+      skillType: getSkillTypeForDiscipline({
+        discipline: d,
+        skillId: skill.id,
+      }),
     }));
 
   const relatedTracks = tracks

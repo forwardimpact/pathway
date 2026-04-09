@@ -371,7 +371,7 @@ export function getValidTracksForComparison({
  * @param {Array} levels - All levels
  * @returns {Object|null} Next level or null if at highest
  */
-export function getNextLevel(level, levels) {
+export function getNextLevel({ level, levels }) {
   const sortedLevels = [...levels].sort(
     (a, b) => a.ordinalRank - b.ordinalRank,
   );
@@ -385,7 +385,7 @@ export function getNextLevel(level, levels) {
  * @param {Array} levels - All levels
  * @returns {Object|null} Previous level or null if at lowest
  */
-export function getPreviousLevel(level, levels) {
+export function getPreviousLevel({ level, levels }) {
   const sortedLevels = [...levels].sort(
     (a, b) => a.ordinalRank - b.ordinalRank,
   );

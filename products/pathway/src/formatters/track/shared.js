@@ -88,7 +88,10 @@ export function prepareTrackDetail(track, { skills, behaviours }) {
   const skillModifiers = track.skillModifiers
     ? Object.entries(track.skillModifiers).map(([key, modifier]) => {
         if (isCapability(key)) {
-          const capabilitySkills = getSkillsByCapability(skills, key);
+          const capabilitySkills = getSkillsByCapability({
+            skills,
+            capability: key,
+          });
           return {
             id: key,
             name: key.charAt(0).toUpperCase() + key.slice(1),

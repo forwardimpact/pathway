@@ -206,7 +206,6 @@ describe("Matching", () => {
           skillProficiencies: { skill_a: "awareness", skill_b: "awareness" },
         },
         levels,
-        skills: testSkills,
       });
 
       assert.strictEqual(result.level.id, "junior");
@@ -218,7 +217,6 @@ describe("Matching", () => {
           skillProficiencies: { skill_a: "working", skill_b: "working" },
         },
         levels,
-        skills: testSkills,
       });
 
       assert.strictEqual(result.level.id, "senior");
@@ -230,7 +228,6 @@ describe("Matching", () => {
           skillProficiencies: { skill_a: "expert", skill_b: "expert" },
         },
         levels,
-        skills: testSkills,
       });
 
       assert.strictEqual(result.level.id, "principal");
@@ -240,7 +237,6 @@ describe("Matching", () => {
       const result = estimateBestFitLevel({
         selfAssessment: { skillProficiencies: {} },
         levels,
-        skills: testSkills,
       });
 
       assert.strictEqual(result.level.id, "junior");
@@ -256,7 +252,6 @@ describe("Matching", () => {
           },
         },
         levels,
-        skills: testSkills,
       });
 
       assert.ok(result.confidence >= 0 && result.confidence <= 1);

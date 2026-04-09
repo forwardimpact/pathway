@@ -14,7 +14,9 @@ import {
   deriveDecompositionInterview,
   deriveStakeholderInterview,
 } from "@forwardimpact/libskill/interview";
-import { getOrCreateJob } from "@forwardimpact/libskill/job-cache";
+import { createJobCache } from "@forwardimpact/libskill/job-cache";
+
+const jobCache = createJobCache();
 
 /**
  * Interview type configurations
@@ -140,7 +142,7 @@ export function prepareInterviewDetail({
 }) {
   if (!discipline || !level) return null;
 
-  const job = getOrCreateJob({
+  const job = jobCache.getOrCreate({
     discipline,
     level,
     track,
@@ -275,7 +277,7 @@ export function prepareInterviewBuilderPreview({
     };
   }
 
-  const title = generateJobTitle(discipline, level, track);
+  const title = generateJobTitle({ discipline, level, track });
   const totalSkills = getDisciplineSkillIds(discipline).length;
 
   return {
@@ -320,7 +322,7 @@ export function prepareAllInterviews({
   // Track is optional (null = generalist)
   if (!discipline || !level) return null;
 
-  const job = getOrCreateJob({
+  const job = jobCache.getOrCreate({
     discipline,
     level,
     track,

@@ -76,7 +76,7 @@ derived job into a view model for the job page. Key fields:
 
 ```javascript
 import { prepareJobDetail } from "@forwardimpact/libskill/job";
-import { getOrCreateJob } from "@forwardimpact/libskill/job-cache";
+import { createJobCache } from "@forwardimpact/libskill/job-cache";
 ```
 
 ### agent.js

@@ -17,7 +17,7 @@ import { createTemplateLoader } from "@forwardimpact/libtemplate";
 import {
   getDisciplineAbbreviation,
   toKebabCase,
-} from "@forwardimpact/libskill";
+} from "@forwardimpact/libskill/agent";
 import { generatePacks } from "../src/commands/build-packs.js";
 import {
   findValidCombinations,

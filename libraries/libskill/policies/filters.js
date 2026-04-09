@@ -5,9 +5,27 @@
  * Unlike predicates (single entry → boolean), these transform arrays.
  *
  * Naming convention: filter* for functions that reduce/transform arrays.
+ * Matrix filters are tagged with matrixFilter() so applyFilters can
+ * distinguish them from predicates without runtime probing.
  */
 
 import { getSkillProficiencyIndex } from "@forwardimpact/map/levels";
+
+// =============================================================================
+// Matrix filter tagging
+// =============================================================================
+
+const MATRIX_FILTER = Symbol("matrix-filter");
+
+/**
+ * Tag a function as a matrix filter (array → array).
+ * @param {Function} fn
+ * @returns {Function} Tagged function
+ */
+export function matrixFilter(fn) {
+  fn[MATRIX_FILTER] = true;
+  return fn;
+}
 
 // =============================================================================
 // Level-Based Filters
@@ -22,17 +40,19 @@ import { getSkillProficiencyIndex } from "@forwardimpact/map/levels";
  * @param {Array} matrix - Skill matrix entries with derived levels
  * @returns {Array} Filtered matrix with only max-level skills
  */
-export function filterHighestLevel(matrix) {
-  if (matrix.length === 0) return [];
+export const filterHighestLevel = matrixFilter(
+  function filterHighestLevel(matrix) {
+    if (matrix.length === 0) return [];
 
-  const maxIndex = Math.max(
-    ...matrix.map((entry) => getSkillProficiencyIndex(entry.proficiency)),
-  );
+    const maxIndex = Math.max(
+      ...matrix.map((entry) => getSkillProficiencyIndex(entry.proficiency)),
+    );
 
-  return matrix.filter(
-    (entry) => getSkillProficiencyIndex(entry.proficiency) === maxIndex,
-  );
-}
+    return matrix.filter(
+      (entry) => getSkillProficiencyIndex(entry.proficiency) === maxIndex,
+    );
+  },
+);
 
 /**
  * Filter matrix to exclude skills at awareness level
@@ -43,9 +63,11 @@ export function filterHighestLevel(matrix) {
  * @param {Array} matrix - Skill matrix entries
  * @returns {Array} Filtered matrix excluding awareness skills
  */
-export function filterAboveAwareness(matrix) {
-  return matrix.filter((entry) => entry.proficiency !== "awareness");
-}
+export const filterAboveAwareness = matrixFilter(
+  function filterAboveAwareness(matrix) {
+    return matrix.filter((entry) => entry.proficiency !== "awareness");
+  },
+);
 
 // =============================================================================
 // Predicate Application
@@ -61,7 +83,7 @@ export function filterAboveAwareness(matrix) {
  * @returns {(matrix: Array) => Array} Curried filter function
  */
 export function filterBy(predicate) {
-  return (matrix) => matrix.filter(predicate);
+  return matrixFilter((matrix) => matrix.filter(predicate));
 }
 
 // =============================================================================
@@ -73,9 +95,7 @@ export function filterBy(predicate) {
  *
  * Each operation can be either:
  * - A predicate function (entry → boolean): used with Array.filter()
- * - A matrix filter (array → array): applied directly
- *
- * Detection: if the function returns an array when given [{}], it's a matrix filter.
+ * - A matrix filter tagged with matrixFilter(): applied directly
  *
  * @param {Array} matrix - Initial items
  * @param {...Function} operations - Predicates or matrix filters
@@ -83,10 +103,7 @@ export function filterBy(predicate) {
  */
 export function applyFilters(matrix, ...operations) {
   return operations.reduce((acc, op) => {
-    // Detect matrix filter by checking return type
-    // Matrix filters always return arrays; predicates return booleans
-    const testResult = op([{}]);
-    if (Array.isArray(testResult)) {
+    if (op[MATRIX_FILTER]) {
       return op(acc);
     }
     return acc.filter(op);
@@ -102,5 +119,5 @@ export function applyFilters(matrix, ...operations) {
  * @returns {(matrix: Array) => Array} Composed filter function
  */
 export function composeFilters(...operations) {
-  return (matrix) => applyFilters(matrix, ...operations);
+  return matrixFilter((matrix) => applyFilters(matrix, ...operations));
 }

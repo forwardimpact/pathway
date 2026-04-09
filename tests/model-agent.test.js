@@ -169,7 +169,10 @@ describe("interpolateTeamInstructions", () => {
       teamInstructions:
         "This team supports the {roleTitle} track.\nSpecialization: {specialization}.",
     };
-    const result = interpolateTeamInstructions(agentTrack, discipline);
+    const result = interpolateTeamInstructions({
+      agentTrack,
+      humanDiscipline: discipline,
+    });
     assert.strictEqual(
       result,
       "This team supports the Software Engineer track.\nSpecialization: Backend Engineering.",
@@ -178,18 +181,27 @@ describe("interpolateTeamInstructions", () => {
 
   it("returns null when teamInstructions is absent", () => {
     const agentTrack = { identity: "test" };
-    const result = interpolateTeamInstructions(agentTrack, discipline);
+    const result = interpolateTeamInstructions({
+      agentTrack,
+      humanDiscipline: discipline,
+    });
     assert.strictEqual(result, null);
   });
 
   it("returns null when agentTrack is null", () => {
-    const result = interpolateTeamInstructions(null, discipline);
+    const result = interpolateTeamInstructions({
+      agentTrack: null,
+      humanDiscipline: discipline,
+    });
     assert.strictEqual(result, null);
   });
 
   it("returns string unchanged when no placeholders present", () => {
     const agentTrack = { teamInstructions: "Static instructions." };
-    const result = interpolateTeamInstructions(agentTrack, discipline);
+    const result = interpolateTeamInstructions({
+      agentTrack,
+      humanDiscipline: discipline,
+    });
     assert.strictEqual(result, "Static instructions.");
   });
 });

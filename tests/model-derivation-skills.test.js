@@ -23,28 +23,40 @@ describe("Derivation", () => {
   describe("getSkillTypeForDiscipline", () => {
     it("identifies primary skills", () => {
       assert.strictEqual(
-        getSkillTypeForDiscipline(testDiscipline, "skill_a"),
+        getSkillTypeForDiscipline({
+          discipline: testDiscipline,
+          skillId: "skill_a",
+        }),
         "primary",
       );
     });
 
     it("identifies secondary skills", () => {
       assert.strictEqual(
-        getSkillTypeForDiscipline(testDiscipline, "skill_b"),
+        getSkillTypeForDiscipline({
+          discipline: testDiscipline,
+          skillId: "skill_b",
+        }),
         "secondary",
       );
     });
 
     it("identifies broad skills", () => {
       assert.strictEqual(
-        getSkillTypeForDiscipline(testDiscipline, "skill_c"),
+        getSkillTypeForDiscipline({
+          discipline: testDiscipline,
+          skillId: "skill_c",
+        }),
         "broad",
       );
     });
 
     it("returns null for skills not in discipline", () => {
       assert.strictEqual(
-        getSkillTypeForDiscipline(testDiscipline, "unknown"),
+        getSkillTypeForDiscipline({
+          discipline: testDiscipline,
+          skillId: "unknown",
+        }),
         null,
       );
     });

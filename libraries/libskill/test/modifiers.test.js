@@ -71,30 +71,45 @@ describe("isCapability", () => {
 
 describe("getSkillsByCapability", () => {
   test("returns skills matching the capability", () => {
-    const result = getSkillsByCapability(SKILLS, "delivery");
+    const result = getSkillsByCapability({
+      skills: SKILLS,
+      capability: "delivery",
+    });
     assert.strictEqual(result.length, 2);
     assert.ok(result.some((s) => s.id === "coding"));
     assert.ok(result.some((s) => s.id === "testing"));
   });
 
   test("returns single skill when only one matches", () => {
-    const result = getSkillsByCapability(SKILLS, "scale");
+    const result = getSkillsByCapability({
+      skills: SKILLS,
+      capability: "scale",
+    });
     assert.strictEqual(result.length, 1);
     assert.strictEqual(result[0].id, "architecture");
   });
 
   test("returns empty array when no skills match", () => {
-    const result = getSkillsByCapability(SKILLS, "people");
+    const result = getSkillsByCapability({
+      skills: SKILLS,
+      capability: "people",
+    });
     assert.strictEqual(result.length, 0);
   });
 
   test("returns empty array for empty skills array", () => {
-    const result = getSkillsByCapability([], "delivery");
+    const result = getSkillsByCapability({
+      skills: [],
+      capability: "delivery",
+    });
     assert.strictEqual(result.length, 0);
   });
 
   test("returns empty array for invalid capability", () => {
-    const result = getSkillsByCapability(SKILLS, "nonexistent");
+    const result = getSkillsByCapability({
+      skills: SKILLS,
+      capability: "nonexistent",
+    });
     assert.strictEqual(result.length, 0);
   });
 });
@@ -150,50 +165,71 @@ describe("buildCapabilityToSkillsMap", () => {
 
 describe("expandModifiersToSkills", () => {
   test("expands capability modifier to all skills in that capability", () => {
-    const result = expandModifiersToSkills({ delivery: 1 }, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: { delivery: 1 },
+      skills: SKILLS,
+    });
     assert.strictEqual(result.coding, 1);
     assert.strictEqual(result.testing, 1);
   });
 
   test("expands multiple capabilities", () => {
-    const result = expandModifiersToSkills({ delivery: 1, scale: -1 }, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: { delivery: 1, scale: -1 },
+      skills: SKILLS,
+    });
     assert.strictEqual(result.coding, 1);
     assert.strictEqual(result.testing, 1);
     assert.strictEqual(result.architecture, -1);
   });
 
   test("ignores non-capability keys", () => {
-    const result = expandModifiersToSkills(
-      { delivery: 1, some_skill_id: 2 },
-      SKILLS,
-    );
+    const result = expandModifiersToSkills({
+      skillModifiers: { delivery: 1, some_skill_id: 2 },
+      skills: SKILLS,
+    });
     assert.strictEqual(result.coding, 1);
     assert.strictEqual(result.testing, 1);
     assert.ok(!("some_skill_id" in result));
   });
 
   test("returns empty object for null input", () => {
-    const result = expandModifiersToSkills(null, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: null,
+      skills: SKILLS,
+    });
     assert.deepStrictEqual(result, {});
   });
 
   test("returns empty object for undefined input", () => {
-    const result = expandModifiersToSkills(undefined, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: undefined,
+      skills: SKILLS,
+    });
     assert.deepStrictEqual(result, {});
   });
 
   test("returns empty object for empty modifiers", () => {
-    const result = expandModifiersToSkills({}, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: {},
+      skills: SKILLS,
+    });
     assert.deepStrictEqual(result, {});
   });
 
   test("capability with no matching skills produces no entries", () => {
-    const result = expandModifiersToSkills({ people: 1 }, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: { people: 1 },
+      skills: SKILLS,
+    });
     assert.deepStrictEqual(result, {});
   });
 
   test("preserves negative modifiers", () => {
-    const result = expandModifiersToSkills({ reliability: -2 }, SKILLS);
+    const result = expandModifiersToSkills({
+      skillModifiers: { reliability: -2 },
+      skills: SKILLS,
+    });
     assert.strictEqual(result.monitoring, -2);
   });
 });
@@ -273,47 +309,79 @@ describe("extractSkillModifiers", () => {
 describe("resolveSkillModifier", () => {
   test("returns capability modifier for a matching skill", () => {
     const modifiers = { delivery: 1, scale: -1 };
-    const result = resolveSkillModifier("coding", modifiers, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "coding",
+      skillModifiers: modifiers,
+      skills: SKILLS,
+    });
     assert.strictEqual(result, 1);
   });
 
   test("returns modifier for different capability", () => {
     const modifiers = { delivery: 1, scale: -1 };
-    const result = resolveSkillModifier("architecture", modifiers, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "architecture",
+      skillModifiers: modifiers,
+      skills: SKILLS,
+    });
     assert.strictEqual(result, -1);
   });
 
   test("returns 0 when skill capability has no modifier", () => {
     const modifiers = { delivery: 1 };
-    const result = resolveSkillModifier("architecture", modifiers, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "architecture",
+      skillModifiers: modifiers,
+      skills: SKILLS,
+    });
     assert.strictEqual(result, 0);
   });
 
   test("returns 0 when skill ID is not found", () => {
     const modifiers = { delivery: 1 };
-    const result = resolveSkillModifier("nonexistent", modifiers, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "nonexistent",
+      skillModifiers: modifiers,
+      skills: SKILLS,
+    });
     assert.strictEqual(result, 0);
   });
 
   test("returns 0 for null modifiers", () => {
-    const result = resolveSkillModifier("coding", null, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "coding",
+      skillModifiers: null,
+      skills: SKILLS,
+    });
     assert.strictEqual(result, 0);
   });
 
   test("returns 0 for undefined modifiers", () => {
-    const result = resolveSkillModifier("coding", undefined, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "coding",
+      skillModifiers: undefined,
+      skills: SKILLS,
+    });
     assert.strictEqual(result, 0);
   });
 
   test("returns 0 for empty modifiers", () => {
-    const result = resolveSkillModifier("coding", {}, SKILLS);
+    const result = resolveSkillModifier({
+      skillId: "coding",
+      skillModifiers: {},
+      skills: SKILLS,
+    });
     assert.strictEqual(result, 0);
   });
 
   test("returns 0 for skill without capability", () => {
     const skills = [{ id: "orphan", name: "Orphan" }];
     const modifiers = { delivery: 1 };
-    const result = resolveSkillModifier("orphan", modifiers, skills);
+    const result = resolveSkillModifier({
+      skillId: "orphan",
+      skillModifiers: modifiers,
+      skills,
+    });
     assert.strictEqual(result, 0);
   });
 });

@@ -13,7 +13,9 @@ import {
   analyzeCustomProgression,
   getNextLevel,
 } from "@forwardimpact/libskill/progression";
-import { getOrCreateJob } from "@forwardimpact/libskill/job-cache";
+import { createJobCache } from "@forwardimpact/libskill/job-cache";
+
+const jobCache = createJobCache();
 
 /**
  * Get the next level for progression
@@ -22,20 +24,7 @@ import { getOrCreateJob } from "@forwardimpact/libskill/job-cache";
  * @returns {Object|null}
  */
 export function getDefaultTargetLevel(currentLevel, levels) {
-  return getNextLevel(currentLevel, levels);
-}
-
-/**
- * Check if a job combination is valid
- * @param {Object} params
- * @param {Object} params.discipline
- * @param {Object} params.level
- * @param {Object} params.track
- * @param {Array} [params.levels] - All levels for validation
- * @returns {boolean}
- */
-export function isValidCombination({ discipline, level, track, levels }) {
-  return isValidJobCombination({ discipline, level, track, levels });
+  return getNextLevel({ level: currentLevel, levels });
 }
 
 /**
@@ -69,7 +58,7 @@ export function prepareCurrentJob({
 }) {
   if (!discipline || !level) return null;
 
-  const job = getOrCreateJob({
+  const job = jobCache.getOrCreate({
     discipline,
     level,
     track,
@@ -148,8 +137,8 @@ export function prepareCareerProgressPreview({
     };
   }
 
-  const title = generateJobTitle(discipline, level, track);
-  const nextLevel = getNextLevel(level, levels);
+  const title = generateJobTitle({ discipline, level, track });
+  const nextLevel = getNextLevel({ level, levels });
 
   // Find other valid tracks for comparison (exclude current track if any)
   const validTracks = tracks.filter(
@@ -209,7 +198,7 @@ export function prepareProgressDetail({
   if (!fromDiscipline || !fromLevel) return null;
   if (!toDiscipline || !toLevel) return null;
 
-  const fromJob = getOrCreateJob({
+  const fromJob = jobCache.getOrCreate({
     discipline: fromDiscipline,
     level: fromLevel,
     track: fromTrack,
@@ -218,7 +207,7 @@ export function prepareProgressDetail({
     capabilities,
   });
 
-  const toJob = getOrCreateJob({
+  const toJob = jobCache.getOrCreate({
     discipline: toDiscipline,
     level: toLevel,
     track: toTrack,

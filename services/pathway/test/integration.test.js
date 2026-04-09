@@ -17,7 +17,8 @@ import pkg from "n3";
 import { PathwayService } from "../index.js";
 import { createDataLoader } from "@forwardimpact/map/loader";
 import { createMockConfig } from "@forwardimpact/libharness";
-import { deriveJob, analyzeProgression } from "@forwardimpact/libskill";
+import { deriveJob } from "@forwardimpact/libskill/derivation";
+import { analyzeProgression } from "@forwardimpact/libskill/progression";
 
 const { Parser } = pkg;
 const FIT = "https://www.forwardimpact.team/schema/rdf/";

@@ -1,13 +1,14 @@
 import { services } from "@forwardimpact/librpc";
+import { generateAllJobs, deriveJob } from "@forwardimpact/libskill/derivation";
 import {
-  generateAllJobs,
   getValidLevelTrackCombinations,
-  deriveJob,
-  deriveReferenceLevel,
   analyzeProgression,
-  deriveToolkit,
+} from "@forwardimpact/libskill/progression";
+import {
+  deriveReferenceLevel,
   generateStageAgentProfile,
-} from "@forwardimpact/libskill";
+} from "@forwardimpact/libskill/agent";
+import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 
 import {
   jobToTurtle,

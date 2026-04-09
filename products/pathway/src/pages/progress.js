@@ -16,8 +16,8 @@ import {
   prepareCurrentJob,
   prepareCustomProgression,
   getDefaultTargetLevel,
-  isValidCombination,
 } from "../formatters/progress/shared.js";
+import { isValidJobCombination } from "@forwardimpact/libskill/derivation";
 import { buildComparisonResult } from "./progress-comparison.js";
 
 /**
@@ -188,7 +188,7 @@ function createComparisonSelectorsSection({
     for (const level of data.levels) {
       // Check trackless combination
       if (
-        isValidCombination({ discipline: selectedDisc, level, track: null })
+        isValidJobCombination({ discipline: selectedDisc, level, track: null })
       ) {
         if (!validLevels.find((g) => g.id === level.id)) {
           validLevels.push(level);
@@ -197,7 +197,7 @@ function createComparisonSelectorsSection({
       }
       // Check each track combination
       for (const track of data.tracks) {
-        if (isValidCombination({ discipline: selectedDisc, level, track })) {
+        if (isValidJobCombination({ discipline: selectedDisc, level, track })) {
           if (!validLevels.find((g) => g.id === level.id)) {
             validLevels.push(level);
           }

@@ -106,6 +106,7 @@ export {
 
 // Filters
 export {
+  matrixFilter,
   filterHighestLevel,
   filterAboveAwareness,
   filterBy,

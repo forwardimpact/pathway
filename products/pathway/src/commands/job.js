@@ -44,7 +44,11 @@ function formatJob(view, _options, entities, jobTemplate) {
  */
 function printJobList(filteredJobs) {
   for (const job of filteredJobs) {
-    const title = generateJobTitle(job.discipline, job.level, job.track);
+    const title = generateJobTitle({
+      discipline: job.discipline,
+      level: job.level,
+      track: job.track,
+    });
     if (job.track) {
       console.log(
         `${job.discipline.id} ${job.level.id} ${job.track.id}, ${title}`,

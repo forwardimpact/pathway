@@ -1,8 +1,7 @@
-import { test, describe, beforeEach } from "node:test";
+import { test, describe } from "node:test";
 import assert from "node:assert";
 
 import { prepareJobDetail } from "../job.js";
-import { clearCache } from "../job-cache.js";
 
 // =============================================================================
 // Test Fixtures
@@ -128,8 +127,6 @@ function makeDrivers() {
 // =============================================================================
 
 describe("prepareJobDetail", () => {
-  beforeEach(() => clearCache());
-
   test("capabilityOrder reflects derivedResponsibilities order", () => {
     const view = prepareJobDetail({
       discipline: makeDiscipline(),

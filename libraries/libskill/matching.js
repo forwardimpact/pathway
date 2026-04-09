@@ -10,8 +10,7 @@ import {
   getBehaviourMaturityIndex,
 } from "@forwardimpact/map/levels";
 
-import { deriveJob, isSeniorLevel } from "./derivation.js";
-import { isValidJobCombination } from "./derivation-validation.js";
+import { isSeniorLevel, generateAllJobs } from "./derivation.js";
 
 import {
   THRESHOLD_MATCH_STRONG,
@@ -320,67 +319,19 @@ export function findMatchingJobs({
   validationRules,
   topN = 10,
 }) {
-  const matches = [];
+  const allJobs = generateAllJobs({
+    disciplines,
+    levels,
+    tracks,
+    skills,
+    behaviours,
+    validationRules,
+  });
 
-  for (const discipline of disciplines) {
-    for (const level of levels) {
-      if (
-        !isValidJobCombination({
-          discipline,
-          level,
-          track: null,
-          validationRules,
-          levels,
-        })
-      ) {
-        continue;
-      }
-
-      const job = deriveJob({
-        discipline,
-        level,
-        track: null,
-        skills,
-        behaviours,
-        validationRules,
-      });
-
-      if (job) {
-        const analysis = calculateJobMatch(selfAssessment, job);
-        matches.push({ job, analysis });
-      }
-    }
-
-    for (const track of tracks) {
-      for (const level of levels) {
-        if (
-          !isValidJobCombination({
-            discipline,
-            level,
-            track,
-            validationRules,
-            levels,
-          })
-        ) {
-          continue;
-        }
-
-        const job = deriveJob({
-          discipline,
-          level,
-          track,
-          skills,
-          behaviours,
-          validationRules,
-        });
-
-        if (!job) continue;
-
-        const analysis = calculateJobMatch(selfAssessment, job);
-        matches.push({ job, analysis });
-      }
-    }
-  }
+  const matches = allJobs.map((job) => ({
+    job,
+    analysis: calculateJobMatch(selfAssessment, job),
+  }));
 
   matches.sort((a, b) => b.analysis.overallScore - a.analysis.overallScore);
   return matches.slice(0, topN);
@@ -391,10 +342,9 @@ export function findMatchingJobs({
  * @param {Object} params
  * @param {Object} params.selfAssessment - The self-assessment
  * @param {Array} params.levels - All levels
- * @param {Array} params.skills - All skills
  * @returns {{level: Object, confidence: number, averageSkillIndex: number}}
  */
-export function estimateBestFitLevel({ selfAssessment, levels, _skills }) {
+export function estimateBestFitLevel({ selfAssessment, levels }) {
   const assessedSkills = Object.entries(
     selfAssessment.skillProficiencies || {},
   );

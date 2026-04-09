@@ -1,89 +1,158 @@
 /**
  * Job Cache
  *
- * Centralized caching for generated job definitions.
- * Provides consistent key generation and get-or-create pattern.
+ * Factory-based caching for generated job definitions.
+ * Each consumer creates its own cache instance via createJobCache(),
+ * eliminating the module-level mutable state that contradicted
+ * libskill's pure-function exemption (spec 330 finding C4).
  */
 
 import { deriveJob } from "./derivation.js";
 
-/** @type {Map<string, Object>} */
-const cache = new Map();
-
 /**
- * Build a consistent cache key from job parameters
- * @param {string} disciplineId
- * @param {string} levelId
- * @param {string} [trackId] - Optional track ID
+ * Build a consistent cache key from job parameters.
+ * Includes capabilities and validationRules so that calls with different
+ * derivation inputs never collide (see spec 330 finding C1).
+ * For the user-facing job id, see `generateJobId` in derivation.js.
+ * @param {Object} params
+ * @param {string} params.disciplineId
+ * @param {string} params.levelId
+ * @param {string} [params.trackId]
+ * @param {string[]} [params.capabilityIds]
+ * @param {string} [params.validationRulesHash]
  * @returns {string}
  */
-export function buildJobKey(disciplineId, levelId, trackId = null) {
-  if (trackId) {
-    return `${disciplineId}_${levelId}_${trackId}`;
-  }
-  return `${disciplineId}_${levelId}`;
+export function buildJobKey({
+  disciplineId,
+  levelId,
+  trackId = null,
+  capabilityIds = null,
+  validationRulesHash = null,
+}) {
+  const parts = [disciplineId, levelId, trackId ?? "-"];
+  if (capabilityIds?.length) parts.push(`caps:${capabilityIds.join(",")}`);
+  if (validationRulesHash) parts.push(`rules:${validationRulesHash}`);
+  return parts.join("_");
 }
 
 /**
- * Get or create a cached job definition
- * @param {Object} params
- * @param {Object} params.discipline
- * @param {Object} params.level
- * @param {Object} [params.track] - Optional track
- * @param {Array} params.skills
- * @param {Array} params.behaviours
- * @param {Array} [params.capabilities]
- * @returns {Object|null}
+ * Produce a stable hash string from validationRules for cache key use.
+ * @param {Object} [validationRules]
+ * @returns {string|null}
  */
-export function getOrCreateJob({
-  discipline,
-  level,
-  track = null,
-  skills,
-  behaviours,
-  capabilities,
-}) {
-  const key = buildJobKey(discipline.id, level.id, track?.id);
+function hashValidationRules(validationRules) {
+  if (!validationRules) return null;
+  const str = JSON.stringify(
+    validationRules,
+    Object.keys(validationRules).sort(),
+  );
+  let hash = 0;
+  for (let i = 0; i < str.length; i++) {
+    hash = ((hash << 5) - hash + str.charCodeAt(i)) | 0;
+  }
+  return hash.toString(36);
+}
 
-  if (!cache.has(key)) {
-    const job = deriveJob({
+/**
+ * @typedef {Object} JobCache
+ * @property {function(Object): Object|null} getOrCreate - Get or create a cached job
+ * @property {function(Object): void} invalidate - Invalidate a specific job
+ * @property {function(): void} clear - Clear all cached jobs
+ * @property {function(): number} size - Get the number of cached jobs
+ */
+
+/**
+ * Create a new job cache instance.
+ * @returns {JobCache}
+ */
+export function createJobCache() {
+  /** @type {Map<string, Object>} */
+  const cache = new Map();
+
+  return {
+    /**
+     * Get or create a cached job definition
+     * @param {Object} params
+     * @param {Object} params.discipline
+     * @param {Object} params.level
+     * @param {Object} [params.track]
+     * @param {Array} params.skills
+     * @param {Array} params.behaviours
+     * @param {Array} [params.capabilities]
+     * @param {Object} [params.validationRules]
+     * @returns {Object|null}
+     */
+    getOrCreate({
       discipline,
       level,
-      track,
+      track = null,
       skills,
       behaviours,
       capabilities,
-    });
-    if (job) {
-      cache.set(key, job);
-    }
-    return job;
-  }
+      validationRules,
+    }) {
+      const capabilityIds = capabilities?.map((c) => c.id).sort() ?? null;
+      const key = buildJobKey({
+        disciplineId: discipline.id,
+        levelId: level.id,
+        trackId: track?.id,
+        capabilityIds,
+        validationRulesHash: hashValidationRules(validationRules),
+      });
 
-  return cache.get(key);
-}
+      if (!cache.has(key)) {
+        const job = deriveJob({
+          discipline,
+          level,
+          track,
+          skills,
+          behaviours,
+          capabilities,
+        });
+        if (job) {
+          cache.set(key, job);
+        }
+        return job;
+      }
 
-/**
- * Clear all cached jobs
- */
-export function clearCache() {
-  cache.clear();
-}
+      return cache.get(key);
+    },
 
-/**
- * Invalidate a specific job from the cache
- * @param {string} disciplineId
- * @param {string} levelId
- * @param {string} [trackId] - Optional track ID
- */
-export function invalidateCachedJob(disciplineId, levelId, trackId = null) {
-  cache.delete(buildJobKey(disciplineId, levelId, trackId));
-}
+    /**
+     * Invalidate a specific job from the cache
+     * @param {Object} params
+     * @param {string} params.disciplineId
+     * @param {string} params.levelId
+     * @param {string} [params.trackId]
+     * @param {string[]} [params.capabilityIds]
+     * @param {string} [params.validationRulesHash]
+     */
+    invalidate({
+      disciplineId,
+      levelId,
+      trackId = null,
+      capabilityIds = null,
+      validationRulesHash = null,
+    }) {
+      cache.delete(
+        buildJobKey({
+          disciplineId,
+          levelId,
+          trackId,
+          capabilityIds,
+          validationRulesHash,
+        }),
+      );
+    },
 
-/**
- * Get the number of cached jobs (for testing/debugging)
- * @returns {number}
- */
-export function getCachedJobCount() {
-  return cache.size;
+    /** Clear all cached jobs */
+    clear() {
+      cache.clear();
+    },
+
+    /** @returns {number} */
+    size() {
+      return cache.size;
+    },
+  };
 }

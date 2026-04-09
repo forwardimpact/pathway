@@ -293,7 +293,11 @@ describe("Derivation", () => {
 
   describe("generateJobTitle", () => {
     it("generates title for professional track with Level level", () => {
-      const title = generateJobTitle(testDiscipline, testLevel, testTrack);
+      const title = generateJobTitle({
+        discipline: testDiscipline,
+        level: testLevel,
+        track: testTrack,
+      });
       // Level is "Level III", so format is: "Test Engineer Level III - Test Track"
       assert.strictEqual(title, "Test Engineer Level III - Test Track");
     });
@@ -304,7 +308,11 @@ describe("Derivation", () => {
         professionalTitle: "Staff",
         managementTitle: "Senior Manager",
       };
-      const title = generateJobTitle(testDiscipline, staffLevel, testTrack);
+      const title = generateJobTitle({
+        discipline: testDiscipline,
+        level: staffLevel,
+        track: testTrack,
+      });
       // Level is "Staff", so format is: "Staff Test Engineer - Test Track"
       assert.strictEqual(title, "Staff Test Engineer - Test Track");
     });
@@ -315,11 +323,11 @@ describe("Derivation", () => {
         isProfessional: false,
         isManagement: true,
       };
-      const title = generateJobTitle(
-        managementDiscipline,
-        testLevel,
-        testTrack,
-      );
+      const title = generateJobTitle({
+        discipline: managementDiscipline,
+        level: testLevel,
+        track: testTrack,
+      });
       // Management discipline format: "Manager, Role Title – Track Name"
       assert.strictEqual(title, "Manager, Test Engineer – Test Track");
     });
@@ -330,13 +338,19 @@ describe("Derivation", () => {
         isProfessional: false,
         isManagement: true,
       };
-      const title = generateJobTitle(managementDiscipline, testLevel, null);
+      const title = generateJobTitle({
+        discipline: managementDiscipline,
+        level: testLevel,
+      });
       // Trackless management format: "Manager, Role Title"
       assert.strictEqual(title, "Manager, Test Engineer");
     });
 
     it("generates title for trackless professional discipline", () => {
-      const title = generateJobTitle(testDiscipline, testLevel, null);
+      const title = generateJobTitle({
+        discipline: testDiscipline,
+        level: testLevel,
+      });
       // Trackless professional format: "Test Engineer Level III"
       assert.strictEqual(title, "Test Engineer Level III");
     });

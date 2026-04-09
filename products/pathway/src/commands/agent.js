@@ -32,11 +32,11 @@ import {
   deriveReferenceLevel,
   deriveAgentSkills,
   generateSkillMarkdown,
-  deriveToolkit,
   getDisciplineAbbreviation,
   toKebabCase,
   interpolateTeamInstructions,
-} from "@forwardimpact/libskill";
+} from "@forwardimpact/libskill/agent";
+import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import { formatError, formatSuccess } from "../lib/cli-output.js";
 import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
@@ -237,10 +237,10 @@ function resolveAgentEntities(data, agentData, disciplineId, trackId) {
  * @param {Object} humanDiscipline
  */
 function printTeamInstructions(agentTrack, humanDiscipline) {
-  const teamInstructions = interpolateTeamInstructions(
+  const teamInstructions = interpolateTeamInstructions({
     agentTrack,
     humanDiscipline,
-  );
+  });
   if (teamInstructions) {
     console.log("# Team Instructions (CLAUDE.md)\n");
     console.log(teamInstructions.trim());
@@ -287,10 +287,10 @@ async function handleSingleStage({
     return;
   }
 
-  const teamInstructions = interpolateTeamInstructions(
+  const teamInstructions = interpolateTeamInstructions({
     agentTrack,
     humanDiscipline,
-  );
+  });
   await writeTeamInstructions(teamInstructions, baseDir);
   await writeProfile(profile, baseDir, agentTemplate);
   await generateClaudeCodeSettings(baseDir, agentData.claudeCodeSettings);
@@ -331,7 +331,9 @@ async function handleAllStages({
   const skillFiles = derivedSkills
     .map((derived) => skillsWithAgent.find((s) => s.id === derived.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMarkdown(skill, data.stages));
+    .map((skill) =>
+      generateSkillMarkdown({ skillData: skill, stages: data.stages }),
+    );
 
   for (const profile of profiles) {
     const errors = validateAgentProfile(profile);
@@ -373,10 +375,10 @@ async function handleAllStages({
     return;
   }
 
-  const teamInstructions = interpolateTeamInstructions(
+  const teamInstructions = interpolateTeamInstructions({
     agentTrack,
     humanDiscipline,
-  );
+  });
   await writeTeamInstructions(teamInstructions, baseDir);
   for (const profile of profiles) {
     await writeProfile(profile, baseDir, agentTemplate);

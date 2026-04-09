@@ -79,7 +79,7 @@ async function formatAgentDetail(skill, stages, templateLoader, dataDir) {
   }
 
   const template = templateLoader.load("skill.template.md", dataDir);
-  const skillMd = generateSkillMarkdown(skill, stages);
+  const skillMd = generateSkillMarkdown({ skillData: skill, stages });
   const output = formatAgentSkill(skillMd, template);
   console.log(output);
 }

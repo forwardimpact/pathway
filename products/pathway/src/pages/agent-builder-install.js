@@ -14,7 +14,7 @@ import { code, div, h2, p, section } from "../lib/render.js";
 import {
   getDisciplineAbbreviation,
   toKebabCase,
-} from "@forwardimpact/libskill";
+} from "@forwardimpact/libskill/agent";
 import { createCommandPrompt } from "../components/command-prompt.js";
 
 /** Stable id for the install section heading (for aria-labelledby). */

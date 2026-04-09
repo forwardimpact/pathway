@@ -5,15 +5,15 @@
  * Extracted from agent.js to satisfy max-lines rule.
  */
 
-import { deriveSkillMatrix, deriveBehaviourProfile } from "./derivation.js";
-import {
-  filterAgentSkills,
-  sortAgentSkills,
-  sortAgentBehaviours,
-  focusAgentSkills,
-} from "./policies/composed.js";
+import { focusAgentSkills } from "./policies/composed.js";
 import { LIMIT_AGENT_WORKING_STYLES } from "./policies/thresholds.js";
-import { getDisciplineAbbreviation, toKebabCase } from "./agent.js";
+import {
+  getDisciplineAbbreviation,
+  toKebabCase,
+  deriveAgentSkills,
+  deriveAgentBehaviours,
+  deriveStageTransitions,
+} from "./agent.js";
 
 /**
  * Lowercase the first character of a string
@@ -76,69 +76,6 @@ function buildWorkingStyleFromBehaviours(
   }
 
   return entries;
-}
-
-/**
- * Derive agent skills using the unified profile system
- * @param {Object} params
- * @param {Object} params.discipline - Human discipline definition
- * @param {Object} params.track - Human track definition
- * @param {Object} params.level - Reference level for derivation
- * @param {Array} params.skills - All available skills
- * @returns {Array} Skills sorted by derived level (highest first)
- */
-function deriveAgentSkills({ discipline, track, level, skills }) {
-  const skillMatrix = deriveSkillMatrix({ discipline, level, track, skills });
-  const filtered = filterAgentSkills(skillMatrix);
-  return sortAgentSkills(filtered);
-}
-
-/**
- * Derive agent behaviours using the unified profile system
- * @param {Object} params
- * @param {Object} params.discipline - Human discipline definition
- * @param {Object} params.track - Human track definition
- * @param {Object} params.level - Reference level for derivation
- * @param {Array} params.behaviours - All available behaviours
- * @returns {Array} Behaviours sorted by derived maturity (highest first)
- */
-function deriveAgentBehaviours({ discipline, track, level, behaviours }) {
-  const profile = deriveBehaviourProfile({
-    discipline,
-    level,
-    track,
-    behaviours,
-  });
-  return sortAgentBehaviours(profile);
-}
-
-/**
- * Derive stage transition data for a stage-based agent
- * @param {Object} params
- * @param {Object} params.stage - Stage definition
- * @param {Array} params.stages - All stages
- * @returns {Array} Transition definitions
- */
-export function deriveStageTransitions({ stage, stages }) {
-  if (!stage.handoffs || stage.handoffs.length === 0) return [];
-
-  return stage.handoffs
-    .filter((handoff) => handoff.targetStage !== stage.id)
-    .map((handoff) => {
-      const targetStage = stages.find((s) => s.id === handoff.targetStage);
-      const confirmChecklist = targetStage?.confirmChecklist || [];
-      const targetStageName =
-        targetStage?.name.charAt(0).toUpperCase() +
-          targetStage?.name.slice(1) || handoff.targetStage;
-
-      const summaryInstruction = `${handoff.prompt} Summarize what was completed in the ${stage.name} stage.`;
-
-      return {
-        targetStageName,
-        summaryInstruction,
-        entryCriteria: confirmChecklist,
-      };
-    });
 }
 
 /**
@@ -381,7 +318,7 @@ export function buildAgentIndex({
  * @param {Object} humanDiscipline - Human discipline (with roleTitle, specialization)
  * @returns {string|null} Interpolated team instructions or null
  */
-export function interpolateTeamInstructions(agentTrack, humanDiscipline) {
+export function interpolateTeamInstructions({ agentTrack, humanDiscipline }) {
   if (!agentTrack?.teamInstructions) return null;
   return substituteTemplateVars(agentTrack.teamInstructions, humanDiscipline);
 }

@@ -134,7 +134,7 @@ export function deriveAgentBehaviours({
  * @param {Array} stages - All stage entities
  * @returns {Object} Skill with frontmatter, title, stages array, etc.
  */
-export function generateSkillMarkdown(skillData, stages) {
+export function generateSkillMarkdown({ skillData, stages }) {
   const { agent, name } = skillData;
 
   if (!agent) {

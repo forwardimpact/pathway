@@ -18,7 +18,7 @@ import {
 } from "../lib/render.js";
 import { getState } from "../lib/state.js";
 import { loadAgentDataBrowser } from "../lib/yaml-loader.js";
-import { deriveReferenceLevel } from "@forwardimpact/libskill";
+import { deriveReferenceLevel } from "@forwardimpact/libskill/agent";
 import {
   createSelectWithValue,
   createDisciplineSelect,

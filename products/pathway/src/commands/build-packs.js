@@ -24,7 +24,7 @@ import {
   interpolateTeamInstructions,
   getDisciplineAbbreviation,
   toKebabCase,
-} from "@forwardimpact/libskill";
+} from "@forwardimpact/libskill/agent";
 
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import {
@@ -197,9 +197,14 @@ function derivePackContent({
   const skillFiles = derivedSkills
     .map((derived) => skillsWithAgent.find((s) => s.id === derived.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMarkdown(skill, data.stages));
+    .map((skill) =>
+      generateSkillMarkdown({ skillData: skill, stages: data.stages }),
+    );
 
-  const teamInstructions = interpolateTeamInstructions(track, humanDiscipline);
+  const teamInstructions = interpolateTeamInstructions({
+    agentTrack: track,
+    humanDiscipline,
+  });
 
   return { profiles, skillFiles, teamInstructions };
 }

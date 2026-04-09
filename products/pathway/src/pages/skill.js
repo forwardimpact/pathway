@@ -11,7 +11,7 @@ import { prepareSkillsList } from "../formatters/skill/shared.js";
 import { skillToDOM } from "../formatters/skill/dom.js";
 import { skillToCardConfig } from "../lib/card-mappers.js";
 import { getCapabilityEmoji, getConceptEmoji } from "@forwardimpact/map/levels";
-import { generateSkillMarkdown } from "@forwardimpact/libskill";
+import { generateSkillMarkdown } from "@forwardimpact/libskill/agent";
 import { formatAgentSkill } from "../formatters/agent/skill.js";
 
 /** @type {string|null} Cached skill template */
@@ -101,7 +101,10 @@ export async function renderSkillDetail(params) {
   let agentSkillContent;
   if (skill.agent) {
     const template = await getSkillTemplate();
-    const skillData = generateSkillMarkdown(skill, data.stages);
+    const skillData = generateSkillMarkdown({
+      skillData: skill,
+      stages: data.stages,
+    });
     agentSkillContent = formatAgentSkill(skillData, template);
   }
 
