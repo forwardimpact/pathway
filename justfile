@@ -8,15 +8,15 @@ ARGS := ""
 # ── Core ──────────────────────────────────────────────────────────
 
 # Pull latest agent memory from wiki
-memory-pull:
-    bash scripts/memory-sync.sh pull
+wiki-pull:
+    bash scripts/wiki-sync.sh pull
 
 # Commit and push agent memory to wiki
-memory-push:
-    bash scripts/memory-sync.sh push
+wiki-push:
+    bash scripts/wiki-sync.sh push
 
 # Install dependencies and generate code
-install: memory-pull
+install: wiki-pull
     bun install --frozen-lockfile
     bunx --workspace=@forwardimpact/libcodegen fit-codegen --all
 

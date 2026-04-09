@@ -256,8 +256,8 @@ graph TD
 ## Shared Memory
 
 Agents share persistent memory via the repository's **GitHub wiki**, mounted as
-a git submodule at `.claude/memory/`. Synced by `just memory-pull` (on
-`SessionStart`) and `just memory-push` (on `Stop`).
+a git submodule at `wiki/`. Synced by `just wiki-pull` (on `SessionStart`) and
+`just wiki-push` (on `Stop`).
 
 Each agent maintains two kinds of file:
 

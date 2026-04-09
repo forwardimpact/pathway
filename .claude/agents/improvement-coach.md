@@ -53,11 +53,11 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 - Trust the gemba-trace-audit results — they are the structured accountability
   check
 - Run `bun run check` and `bun run test` before committing
-- **Memory**: Before starting work, read `.claude/memory/improvement-coach.md`
-  and the other three agent summaries for cross-agent context. Append this run
-  as a new `## YYYY-MM-DD` section at the end of the current week's log
-  `.claude/memory/improvement-coach-$(date +%G-W%V).md` — create the file if
-  missing with an `# Improvement Coach — YYYY-Www` heading; one file per ISO
-  week. Use `###` subheadings for the fields skills specify to record. At the
-  end, update `.claude/memory/improvement-coach.md` with actions taken,
-  observations for teammates, and open blockers.
+- **Memory**: Before starting work, read `wiki/improvement-coach.md` and the
+  other three agent summaries for cross-agent context. Append this run as a new
+  `## YYYY-MM-DD` section at the end of the current week's log
+  `wiki/improvement-coach-$(date +%G-W%V).md` — create the file if missing with
+  an `# Improvement Coach — YYYY-Www` heading; one file per ISO week. Use `###`
+  subheadings for the fields skills specify to record. At the end, update
+  `wiki/improvement-coach.md` with actions taken, observations for teammates,
+  and open blockers.

@@ -43,11 +43,11 @@ Determine which workflow to use from the task prompt:
 - Never change a SHA pin to a tag reference
 - Never skip spec PRs — if findings need specs, file them
 - Run `bun run check` and `bun run test` before committing
-- **Memory**: Before starting work, read `.claude/memory/security-engineer.md`
-  and the other three agent summaries for cross-agent context. Append this run
-  as a new `## YYYY-MM-DD` section at the end of the current week's log
-  `.claude/memory/security-engineer-$(date +%G-W%V).md` — create the file if
-  missing with an `# Security Engineer — YYYY-Www` heading; one file per ISO
-  week. Use `###` subheadings for the fields skills specify to record. At the
-  end, update `.claude/memory/security-engineer.md` with actions taken,
-  observations for teammates, and open blockers.
+- **Memory**: Before starting work, read `wiki/security-engineer.md` and the
+  other three agent summaries for cross-agent context. Append this run as a new
+  `## YYYY-MM-DD` section at the end of the current week's log
+  `wiki/security-engineer-$(date +%G-W%V).md` — create the file if missing with
+  an `# Security Engineer — YYYY-Www` heading; one file per ISO week. Use `###`
+  subheadings for the fields skills specify to record. At the end, update
+  `wiki/security-engineer.md` with actions taken, observations for teammates,
+  and open blockers.
