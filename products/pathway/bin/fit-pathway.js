@@ -56,7 +56,6 @@ import { runProgressCommand } from "../src/commands/progress.js";
 import { runQuestionsCommand } from "../src/commands/questions.js";
 import { runAgentCommand } from "../src/commands/agent.js";
 import { runDevCommand } from "../src/commands/dev.js";
-import { runInitCommand } from "../src/commands/init.js";
 import { runBuildCommand } from "../src/commands/build.js";
 import { runUpdateCommand } from "../src/commands/update.js";
 
@@ -101,7 +100,6 @@ Global Options:
 GETTING STARTED
 ────────────────────────────────────────────────────────────────────────────────
 
-  init                                Create ./data/ with example data
   dev [--port=PORT]                   Run live development server
   build [--output=PATH] [--url=URL]   Generate static site + distribution bundle
   update [--url=URL]                  Update local ~/.fit/data/pathway/ installation
@@ -379,11 +377,6 @@ async function main() {
   }
 
   const command = options.command;
-
-  if (command === "init") {
-    await runInitCommand({ options });
-    process.exit(0);
-  }
 
   let dataDir;
   if (options.data) {

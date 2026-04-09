@@ -10,7 +10,7 @@ import {
 } from "@forwardimpact/map/activity/validate/people";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const STARTER_DIR = resolve(__dirname, "../../..", "pathway/starter");
+const STARTER_DIR = resolve(__dirname, "../..", "starter");
 
 describe("activity/validate/people", () => {
   test("validatePeople flags unknown levels", async () => {

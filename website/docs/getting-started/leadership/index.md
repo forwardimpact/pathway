@@ -47,7 +47,7 @@ everything Landmark and Summit do.
 Bootstrap a complete framework skeleton with editable YAML files:
 
 ```sh
-npx fit-pathway init
+npx fit-map init
 ```
 
 This creates `./data/pathway/` with starter definitions for levels, disciplines,

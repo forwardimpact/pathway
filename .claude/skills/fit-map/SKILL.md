@@ -89,6 +89,7 @@ filesystem access — the web app loads them to know which entities are availabl
 ### Framework commands
 
 ```sh
+npx fit-map init                            # Create ./data/pathway/ with starter framework data
 npx fit-map validate                        # Validate all data (JSON schema + referential)
 npx fit-map validate --shacl                # Validate RDF/SHACL syntax
 npx fit-map validate --data=PATH            # Validate a specific data directory

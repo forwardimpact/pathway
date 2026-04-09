@@ -1,7 +1,7 @@
 /**
  * Init Command
  *
- * Initializes a new Engineering Pathway project by copying starter data.
+ * Initializes a new framework data directory by copying starter data.
  */
 
 import { cp, access } from "fs/promises";
@@ -9,16 +9,15 @@ import { join, dirname } from "path";
 import { fileURLToPath } from "url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const starterDir = join(__dirname, "..", "..", "starter");
+const starterDir = join(__dirname, "..", "..", "..", "starter");
 
 /**
  * Run the init command
- * @param {Object} params - Command parameters
- * @param {Object} params.options - Command options
+ * @param {string} [targetPath] - Target directory (defaults to cwd)
  */
-export async function runInitCommand({ options }) {
-  const targetPath = options.path || process.cwd();
-  const dataDir = join(targetPath, "data", "pathway");
+export async function runInit(targetPath) {
+  const target = targetPath || process.cwd();
+  const dataDir = join(target, "data", "pathway");
 
   // Check if data/pathway/ already exists
   try {

@@ -42,8 +42,8 @@ function findOne(quads, pattern) {
 }
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-// services/pathway/test -> repo root -> products/pathway/starter
-const STARTER_DIR = resolve(__dirname, "../../../products/pathway/starter");
+// services/pathway/test -> repo root -> products/map/starter
+const STARTER_DIR = resolve(__dirname, "../../../products/map/starter");
 
 describe("PathwayService integration (starter framework)", () => {
   let service;

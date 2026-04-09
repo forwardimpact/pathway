@@ -9,7 +9,8 @@
  * Invoked from build.js after the distribution bundle has been generated.
  */
 
-import { mkdir, rm, readFile, writeFile } from "fs/promises";
+import { mkdir, rm, readFile, writeFile, readdir } from "fs/promises";
+import { utimesSync } from "fs";
 import { join } from "path";
 import { execFileSync } from "child_process";
 import { createHash } from "crypto";
@@ -210,25 +211,60 @@ function derivePackContent({
 }
 
 /**
+ * Recursively collect all paths (files and directories) under `dir`,
+ * relative to `dir`, in sorted order.
+ */
+async function collectPaths(dir, prefix = ".") {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const result = [];
+  for (const entry of entries) {
+    const rel = prefix + "/" + entry.name;
+    const abs = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      result.push(rel);
+      result.push(...(await collectPaths(abs, rel)));
+    } else {
+      result.push(rel);
+    }
+  }
+  return result;
+}
+
+/**
+ * Set mtime and atime to the Unix epoch for every entry under `dir`.
+ */
+async function resetTimestamps(dir) {
+  const epoch = new Date(0);
+  const paths = await collectPaths(dir);
+  for (const rel of paths) {
+    utimesSync(join(dir, rel), epoch, epoch);
+  }
+  utimesSync(dir, epoch, epoch);
+}
+
+/**
  * Archive a staged pack directory as a deterministic tar.gz and return its
  * sha256 digest.
+ *
+ * Determinism strategy (works on GNU tar and BSD tar):
+ *  1. Reset all file timestamps to epoch via Node's utimesSync.
+ *  2. Collect and sort the file list in JS — no reliance on --sort=name.
+ *  3. Create an uncompressed tar to stdout with the sorted list.
+ *  4. Pipe through `gzip -n` to suppress the gzip header timestamp.
+ *
  * @param {string} packDir - Staging directory containing the pack files
  * @param {string} archivePath - Destination path for the tar.gz
  * @returns {Promise<string>} sha256 digest string (e.g. "sha256:abc...")
  */
 async function archivePack(packDir, archivePath) {
-  execFileSync("tar", [
-    "-czf",
-    archivePath,
-    "--sort=name",
-    "--mtime=1970-01-01",
-    "--owner=0",
-    "--group=0",
-    "--numeric-owner",
-    "-C",
-    packDir,
-    ".",
-  ]);
+  await resetTimestamps(packDir);
+
+  const files = await collectPaths(packDir);
+  files.sort();
+
+  const tarBuf = execFileSync("tar", ["-cf", "-", "-C", packDir, ...files]);
+  const gzBuf = execFileSync("gzip", ["-n"], { input: tarBuf });
+  await writeFile(archivePath, gzBuf);
 
   const bytes = await readFile(archivePath);
   return "sha256:" + createHash("sha256").update(bytes).digest("hex");

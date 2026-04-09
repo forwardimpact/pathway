@@ -37,7 +37,7 @@ If your organization hasn't provided a framework data bundle, bootstrap starter
 data to explore with:
 
 ```sh
-npx fit-pathway init
+npx fit-map init
 ```
 
 This creates `./data/pathway/` with a complete starter framework. If your

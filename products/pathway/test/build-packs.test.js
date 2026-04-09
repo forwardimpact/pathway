@@ -26,7 +26,7 @@ import {
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
-const starterDir = join(__dirname, "..", "starter");
+const starterDir = join(__dirname, "..", "..", "map", "starter");
 const pathwayPkg = JSON.parse(
   readFileSync(join(__dirname, "..", "package.json"), "utf8"),
 );

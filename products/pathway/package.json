@@ -31,7 +31,6 @@
   "files": [
     "bin/",
     "src/",
-    "starter/",
     "templates/"
   ],
   "exports": {

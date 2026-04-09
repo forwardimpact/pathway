@@ -240,6 +240,7 @@ Usage:
   fit-map <command> [options]
 
 Framework commands:
+  init                  Create ./data/pathway/ with starter framework data
   validate              Run validation (default: JSON schema validation)
   validate --shacl      SHACL schema syntax validation
   generate-index        Generate _index.yaml files for directories
@@ -268,6 +269,7 @@ Options:
   --help, -h            Show this help message
 
 Examples:
+  fit-map init
   fit-map validate
   fit-map validate --shacl
   fit-map validate --data=./my-data
@@ -395,6 +397,12 @@ async function main() {
     let exitCode = 0;
 
     switch (command) {
+      case "init": {
+        const { runInit } = await import("./lib/commands/init.js");
+        await runInit(positionals[1]);
+        exitCode = 0;
+        break;
+      }
       case "validate": {
         if (values.shacl) {
           exitCode = await runValidateShacl();

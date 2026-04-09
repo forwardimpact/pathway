@@ -108,9 +108,9 @@ npx fit-guide             # Verify end-to-end with an interactive prompt
 ```
 
 If you already have a `data/pathway/` framework from
-[`npx fit-pathway init`](../fit-pathway/SKILL.md), Guide picks it up
-automatically — Map exports framework entities to `data/knowledge/` during
-processing so they appear in the graph alongside other content.
+[`npx fit-map init`](../fit-map/SKILL.md), Guide picks it up automatically — Map
+exports framework entities to `data/knowledge/` during processing so they appear
+in the graph alongside other content.
 
 ---
 
@@ -223,20 +223,20 @@ npx fit-process-vectors   # Build the vector index from data/resources/
 
 ### Data Directories
 
-| Path              | Contents                                     |
-| ----------------- | -------------------------------------------- |
-| `data/knowledge/` | Input HTML files                             |
-| `data/resources/` | Processed resources                          |
-| `data/vectors/`   | Embedding vector indices                     |
-| `data/graphs/`    | RDF quad index + ontology                    |
-| `data/memories/`  | Conversation state                           |
-| `data/traces/`    | Distributed traces                           |
-| `data/policies/`  | Access control policies                      |
-| `data/logs/`      | Service logs                                 |
-| `data/cli/`       | CLI session data                             |
-| `data/eval/`      | Evaluation results                           |
-| `data/ingest/`    | Ingestion pipeline (in/pipeline/done)        |
-| `data/pathway/`   | Framework data (created by fit-pathway init) |
+| Path              | Contents                                 |
+| ----------------- | ---------------------------------------- |
+| `data/knowledge/` | Input HTML files                         |
+| `data/resources/` | Processed resources                      |
+| `data/vectors/`   | Embedding vector indices                 |
+| `data/graphs/`    | RDF quad index + ontology                |
+| `data/memories/`  | Conversation state                       |
+| `data/traces/`    | Distributed traces                       |
+| `data/policies/`  | Access control policies                  |
+| `data/logs/`      | Service logs                             |
+| `data/cli/`       | CLI session data                         |
+| `data/eval/`      | Evaluation results                       |
+| `data/ingest/`    | Ingestion pipeline (in/pipeline/done)    |
+| `data/pathway/`   | Framework data (created by fit-map init) |
 
 ---
 

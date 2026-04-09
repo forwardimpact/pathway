@@ -13,6 +13,7 @@ description: Commands, arguments, and options for all Forward Impact CLI tools.
 Data validation and index generation.
 
 ```sh
+npx fit-map init                        # Create ./data/pathway/ with starter framework data
 npx fit-map validate                    # Validate all data (JSON Schema + referential integrity)
 npx fit-map validate --shacl            # Validate RDF/SHACL syntax
 npx fit-map validate --data=PATH        # Validate a specific data directory
@@ -175,7 +176,6 @@ npx fit-pathway questions --format=yaml
 ### Build and Development
 
 ```sh
-npx fit-pathway init                          # Create ./data/ with example framework data
 npx fit-pathway dev                           # Run live development server
 npx fit-pathway dev --port=8080               # Dev server on custom port
 npx fit-pathway build --output=./public --url=https://example.com  # Static site

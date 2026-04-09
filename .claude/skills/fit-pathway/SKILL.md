@@ -159,7 +159,6 @@ npx fit-pathway job software_engineering J060 --track=forward_deployed --skills
 ### Getting Started
 
 ```sh
-npx fit-pathway init                          # Create ./data/pathway/ with example framework data
 npx fit-pathway dev                           # Run live development server (default port 3000)
 npx fit-pathway dev --port=8080               # Dev server on custom port
 npx fit-pathway build --output=./public --url=https://example.com  # Static site
@@ -252,7 +251,7 @@ The CLI resolves the data directory in this order:
 2. Upward traversal from CWD — looks for `data/` (up to 3 parents)
 3. `~/.fit/data/` (user-global fallback)
 
-Use `npx fit-pathway init` to create a local `./data/` directory with example
+Use `npx fit-map init` to create a local `./data/` directory with starter
 framework data to get started.
 
 ---

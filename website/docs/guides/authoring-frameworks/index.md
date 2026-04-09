@@ -43,7 +43,7 @@ stages, drivers) contain all entries in one file.
 Initialize a data directory with example content:
 
 ```sh
-npx fit-pathway init
+npx fit-map init
 ```
 
 Validate at any time:
