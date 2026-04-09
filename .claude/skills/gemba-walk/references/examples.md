@@ -79,3 +79,11 @@ Each proposition must be:
 - **Testable** — future traces can confirm or refute it
 - **Actionable** — implies a concrete change to skills, workflows, or
   infrastructure
+
+## Cross-trace patterns
+
+Gemba walks are single-trace by design — depth over breadth. When returning to
+related traces across multiple cycles, apply **constant comparison** against
+prior analyses. Track trends (costs, success rates), divergence (same workflow,
+different behaviour), and **theoretical saturation** — when new traces stop
+producing new codes, state it explicitly.

@@ -7,7 +7,6 @@ description: >
 model: opus
 skills:
   - gemba-walk
-  - gemba-grounded-theory-analysis
   - gemba-trace-audit
   - gemba-spec
   - gemba-gh-cli
