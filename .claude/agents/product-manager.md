@@ -8,7 +8,6 @@ description: >
 model: opus
 skills:
   - gemba-product-classify
-  - gemba-product-merge
   - gemba-product-triage
   - gemba-product-evaluation
   - gemba-spec
@@ -31,10 +30,9 @@ Warm, encouraging, organized. Appreciate every contribution. Sign off:
 Determine which workflow to use from the task prompt:
 
 1. **PR triage** — Follow the `gemba-product-classify` skill to classify open
-   PRs for mergeability. For each PR marked **mergeable**, follow the
-   `gemba-product-merge` skill to perform the merge. For `spec` PRs, also apply
-   the `gemba-spec` skill's review process; for PRs that include a plan, apply
-   the `gemba-plan` skill's review process.
+   PRs and merge those that pass all gates. For `spec` PRs, also apply the
+   `gemba-spec` skill's review process; for PRs that include a plan, apply the
+   `gemba-plan` skill's review process.
 
 2. **Issue triage** — Follow the `gemba-product-triage` skill to classify open
    issues. Then act on the triage report:

@@ -2,18 +2,15 @@
 name: gemba-product-classify
 description: >
   Classify open pull requests for mergeability — verify contributor trust,
-  parse PR type, check CI status, and review spec quality on spec PRs.
-  Produces a classification report listing which PRs are ready to merge.
-  Does not perform the merge itself — that belongs to the `gemba-product-merge`
-  skill.
+  parse PR type, check CI status, review spec quality on spec PRs, and merge
+  PRs that pass all gates.
 ---
 
 # Product PR Classification
 
 Triage all open pull requests, verify contributor trust, run the gate checks,
-and produce a report stating which PRs are ready to merge and which are blocked.
-The merge action itself belongs to the
-[`gemba-product-merge`](../gemba-product-merge/SKILL.md) skill (Do phase).
+produce a report stating which PRs are ready to merge, and merge those that pass
+all gates.
 
 This skill handles **all non-Dependabot PRs** — both external contributions and
 PRs created by our own CI app (`forward-impact-ci`). Because external
@@ -51,8 +48,7 @@ All comment templates and the report format are in `references/templates.md`.
 
 </do_confirm_checklist>
 
-A PR that passes all four gates is marked **mergeable** in the report;
-`gemba-product-merge` then performs the merge in the Do phase.
+A PR that passes all four gates is merged in Step 7.
 
 ## Process
 
@@ -141,10 +137,25 @@ For `spec` PRs, apply the `gemba-spec` skill's review process:
 
 For each PR, record: number, title, type, author, trust check result, CI status,
 spec review (if applicable), and final verdict — **mergeable** or **blocked**
-with reason. The report is the deliverable of this skill.
+with reason. The report drives Step 7.
 
-The report is consumed by the `gemba-product-merge` skill, which performs the
-actual merge for each mergeable PR.
+### Step 7: Merge Mergeable PRs
+
+For each PR marked **mergeable** in the report:
+
+1. Post the merge comment from `references/templates.md` § Merge Comment.
+2. Perform the merge:
+   ```sh
+   gh pr merge <number> --merge --delete-branch
+   ```
+3. Verify the new state:
+   ```sh
+   gh pr view <number> --json state --jq '.state'
+   ```
+   Confirm the state is `MERGED`.
+4. If the merge fails (race condition, branch protection update, etc.), record
+   the failure in the run report and move on — do **not** retry without
+   re-running Steps 1–6, since the gate state may have changed.
 
 ## Memory: What to Record
 
@@ -155,3 +166,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Contributor trust decisions** — Who was verified and the result (this is the
   data the `gemba-walk` invariant audit checks)
 - **Spec review results** — Spec PRs and their assessment
+- **PRs merged this run** — number, title, and final state
+- **Merge failures** — number and the reason (so the next run can revisit)
