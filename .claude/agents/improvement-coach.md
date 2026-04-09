@@ -7,7 +7,6 @@ description: >
 model: opus
 skills:
   - gemba-walk
-  - gemba-trace-audit
   - gemba-spec
   - gemba-gh-cli
 ---
@@ -25,14 +24,10 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 
 ## Workflow
 
-1. **Walk the gemba** — Use the `gemba-walk` skill to observe a single trace and
-   produce findings via grounded theory.
+1. **Walk the gemba** — Use the `gemba-walk` skill to observe a single trace,
+   audit named invariants, and produce findings via grounded theory.
 
-2. **Audit invariants** — Use the `gemba-trace-audit` skill to verify the trace
-   against the named per-agent invariants for that trace's owner. High- severity
-   audit failures must result in a fix PR or spec.
-
-3. **Act on findings** — For each finding (gemba or audit):
+2. **Act on findings** — For each finding (gemba or audit):
    - **Trivial fix** (mechanical, obvious, low risk) → branch from `main` as
      `fix/coach-<name>`, fix, commit as `fix(<scope>): <subject>`, push, open
      PR. Batch related fixes into one PR when they share a root cause.
@@ -49,7 +44,7 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 - Mechanical fixes only — anything beyond gets a spec
 - Ground every finding in trace evidence — quote tool calls, errors, token
   counts
-- Trust the gemba-trace-audit results — they are the structured accountability
+- Trust the invariant audit results — they are the structured accountability
   check
 - Run `bun run check` and `bun run test` before committing
 - **Memory**: Before starting work, read `wiki/improvement-coach.md` and the

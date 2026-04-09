@@ -14,7 +14,7 @@ consistently, not authenticating it.
 - You are a Gemba skill running inside a scheduled GitHub Actions workflow and
   need to read from or write to GitHub.
 - You need the canonical shape for a cross-skill operation (e.g. contributor
-  lookup) so your call matches what `gemba-trace-audit` verifies.
+  lookup) so your call matches what the `gemba-walk` invariant audit verifies.
 
 For one-off interactive use outside CI, read `gh help` instead.
 
@@ -45,8 +45,8 @@ skill.
 
 ## Gemba query patterns
 
-These are the canonical shapes Gemba skills reuse. Match them exactly so
-`gemba-trace-audit` can verify the calls happened.
+These are the canonical shapes Gemba skills reuse. Match them exactly so the
+`gemba-walk` invariant audit can verify the calls happened.
 
 ### List open PRs for triage
 
@@ -66,8 +66,8 @@ gh pr list --author 'app/dependabot' --state open \
 
 ### Contributor trust lookup (top-20 gate)
 
-Used by `gemba-product-classify` before any external PR is marked mergeable.
-`gemba-trace-audit` verifies this call ran for every non-CI-app PR.
+Used by `gemba-product-classify` before any external PR is marked mergeable. The
+`gemba-walk` invariant audit verifies this call ran for every non-CI-app PR.
 
 ```sh
 gh api repos/{owner}/{repo}/contributors \
