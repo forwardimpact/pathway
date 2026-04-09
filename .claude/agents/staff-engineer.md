@@ -54,11 +54,11 @@ Determine which workflow to use from the task prompt:
 - When the plan and current codebase have diverged, adapt to the codebase and
   note the deviation in the commit message — do not blindly replay a stale plan
 - Run `bun run check` and `bun run test` before committing
-- **Memory**: Before starting work, read `.claude/memory/staff-engineer.md` and
-  the other agent summaries for cross-agent context. Append this run as a new
+- **Memory**: Before starting work, read `wiki/staff-engineer.md` and the other
+  agent summaries for cross-agent context. Append this run as a new
   `## YYYY-MM-DD` section at the end of the current week's log
-  `.claude/memory/staff-engineer-$(date +%G-W%V).md` — create the file if
-  missing with an `# Staff Engineer — YYYY-Www` heading; one file per ISO week.
-  Use `###` subheadings for the fields skills specify to record. At the end,
-  update `.claude/memory/staff-engineer.md` with actions taken, observations for
-  teammates, and open blockers.
+  `wiki/staff-engineer-$(date +%G-W%V).md` — create the file if missing with an
+  `# Staff Engineer — YYYY-Www` heading; one file per ISO week. Use `###`
+  subheadings for the fields skills specify to record. At the end, update
+  `wiki/staff-engineer.md` with actions taken, observations for teammates, and
+  open blockers.

@@ -66,9 +66,8 @@ changelogs.
 ### Step 2: Identify Unprocessed Entries
 
 Read each skill's changelog and identify entries that haven't been processed
-yet. Track processing state in `.claude/memory/downstream-skill.md`
-(gitignored). Record what was reviewed, what was incorporated, and what was
-deferred.
+yet. Track processing state in `wiki/downstream-skill.md`. Record what was
+reviewed, what was incorporated, and what was deferred.
 
 For each unprocessed entry, record:
 
@@ -193,7 +192,7 @@ Summarize what was done:
 
 ### Step 7: Update Memory
 
-After processing, update `.claude/memory/downstream-skill.md` with:
+After processing, update `wiki/downstream-skill.md` with:
 
 - What was processed (skill names and change summaries)
 - What was incorporated upstream

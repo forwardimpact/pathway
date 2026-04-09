@@ -1,24 +1,24 @@
 #!/usr/bin/env bash
-# Sync the .claude/memory submodule (GitHub wiki).
-# Usage: memory-sync.sh pull   — fetch latest from remote
-#        memory-sync.sh push   — commit local changes and push
+# Sync the wiki submodule (GitHub wiki — agent shared memory).
+# Usage: wiki-sync.sh pull   — fetch latest from remote
+#        wiki-sync.sh push   — commit local changes and push
 set -euo pipefail
 
 MODE="${1:-pull}"
-MEMORY_DIR=".claude/memory"
+WIKI_DIR="wiki"
 
 # ── Init: ensure submodule is present ──
-if [ -d "$MEMORY_DIR" ] && ! [ -d "$MEMORY_DIR/.git" ] && ! [ -f "$MEMORY_DIR/.git" ]; then
-    rm -rf "$MEMORY_DIR"
+if [ -d "$WIKI_DIR" ] && ! [ -d "$WIKI_DIR/.git" ] && ! [ -f "$WIKI_DIR/.git" ]; then
+    rm -rf "$WIKI_DIR"
 fi
-git submodule update --init "$MEMORY_DIR" 2>/dev/null || true
+git submodule update --init "$WIKI_DIR" 2>/dev/null || true
 
-if ! [ -d "$MEMORY_DIR/.git" ] && ! [ -f "$MEMORY_DIR/.git" ]; then
-    echo "memory-sync: submodule not available, skipping" >&2
+if ! [ -d "$WIKI_DIR/.git" ] && ! [ -f "$WIKI_DIR/.git" ]; then
+    echo "wiki-sync: submodule not available, skipping" >&2
     exit 0
 fi
 
-cd "$MEMORY_DIR"
+cd "$WIKI_DIR"
 
 # ── Fix detached HEAD → master ──
 if ! git symbolic-ref -q HEAD >/dev/null 2>&1; then
@@ -27,8 +27,8 @@ fi
 git branch --set-upstream-to=origin/master master 2>/dev/null || true
 
 # ── Configure identity from parent repo ──
-git config user.name  "$(cd ../.. && git config user.name)"
-git config user.email "$(cd ../.. && git config user.email)"
+git config user.name  "$(cd .. && git config user.name)"
+git config user.email "$(cd .. && git config user.email)"
 
 # ── Fetch latest ──
 git fetch origin master 2>/dev/null || exit 0
@@ -47,7 +47,7 @@ git add -A
 if git diff --cached --quiet; then
     exit 0
 fi
-git commit -m "memory: update from session"
+git commit -m "wiki: update from session"
 
 if ! git rebase origin/master 2>/dev/null; then
     git rebase --abort 2>/dev/null || true

@@ -1,6 +1,6 @@
 node_modules
 package-lock.json
-.claude/memory
+wiki
 **/generated/**
 **/*.template.md
 **/*.template.html
