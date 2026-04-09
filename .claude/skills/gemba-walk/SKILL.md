@@ -139,11 +139,40 @@ See `references/examples.md` for worked axial and selective coding examples.
 | **Improvement** | Pattern requires design, touches multiple files | Write spec     |
 | **Observation** | Not actionable yet, or needs more data          | Note in report |
 
-### 6. Report
+### 6. Audit Named Invariants
+
+In addition to open-ended observation, verify the trace against the named
+per-agent invariants listed in
+[`references/invariants.md`](references/invariants.md). For each invariant that
+applies to the trace's owner, search the trace for the evidence listed and
+record PASS (with a quoted tool call) or FAIL (with what was searched for and
+not found). Group findings by severity.
+
+High-severity invariant failures — especially the contributor-lookup invariant
+on `product-manager` traces — must result in a fix PR or spec just like any
+other gemba finding. Silent acceptance of a high-severity failure is itself a
+process failure.
+
+### 7. Report and Act
 
 Produce the analysis report using the template at
 [`references/report-template.md`](references/report-template.md). Prefix with
-run selection context.
+run selection context, and append the invariant audit results grouped by
+severity.
+
+Then act on findings — both gemba findings and audit findings flow through the
+same fix-or-spec discipline:
+
+- **Trivial fix** (mechanical, obvious, low risk) → branch from `main` as
+  `fix/coach-<name>` (or `fix/audit-<name>` for audit-originated fixes), fix,
+  commit, push, open PR. Batch related fixes into one PR when they share a root
+  cause.
+- **Improvement** (requires design, touches multiple files) → branch from `main`
+  as `spec/<name>`, write a spec via `gemba-spec`, push, open PR. Each distinct
+  improvement gets its own branch and PR.
+
+Every PR must branch directly from `main` — never from another fix or spec
+branch.
 
 ## Analysis Principles
 
