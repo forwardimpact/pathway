@@ -13,7 +13,7 @@ place (the execution traces of prior runs) and act on what they find.
 Within Gemba, **Plan–Do–Study–Act** (PDSA, after Deming) is the improvement
 method. Every workflow belongs to a PDSA phase, findings from Study always
 re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Nine
-scheduled workflows, five agent personas, and fifteen skills form a
+scheduled workflows, five agent personas, and fourteen skills form a
 self-reinforcing PDSA cycle. Product evaluation sessions feed the Study phase
 with observations from the user's perspective. Gemba maintains the project — not
 the engineering frameworks the products serve.
@@ -114,7 +114,7 @@ structural improvements (`spec/` branches) — never mixed in one PR.
 | **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies    | gemba-security-update, gemba-security-audit, gemba-spec                                                                           |
 | **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI on main, cut releases | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                                       |
 | **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations  | gemba-plan, gemba-product-merge, gemba-product-triage, gemba-product-classify, gemba-product-evaluation, gemba-spec, gemba-gh-cli |
-| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones   | gemba-walk, gemba-grounded-theory-analysis, gemba-trace-audit, gemba-spec, gemba-gh-cli                                           |
+| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones   | gemba-walk, gemba-trace-audit, gemba-spec, gemba-gh-cli                                                                           |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -149,23 +149,22 @@ agent's skill list reveals its phase coverage at a glance.
 
 All Gemba skills are namespaced with the `gemba-` prefix.
 
-| Skill                              | Phase | Purpose                                                                      |
-| ---------------------------------- | ----- | ---------------------------------------------------------------------------- |
-| **gemba-plan**                     | Plan  | Write and review plans (HOW); advance approved specs from `review → planned` |
-| **gemba-security-update**          | Do    | Security updates: Dependabot triage, npm audit findings, vulnerability fixes |
-| **gemba-implement**                | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
-| **gemba-product-merge**            | Do    | Merge PRs marked mergeable by `gemba-product-classify`                       |
-| **gemba-release-readiness**        | Do    | Mechanical PR preparation — rebase, fix, report                              |
-| **gemba-release-review**           | Do    | Version bumps, tagging, publish verification                                 |
-| **gemba-security-audit**           | Study | Seven-area security review (supply chain, deps, credentials, OWASP, CI)      |
-| **gemba-product-triage**           | Study | Classify open issues for product alignment; produce a triage report          |
-| **gemba-product-classify**         | Study | Classify open PRs for mergeability — trust, type, CI, spec review            |
-| **gemba-product-evaluation**       | Study | Supervise product evaluation sessions, capture feedback, create issues       |
-| **gemba-walk**                     | Study | Open-ended trace observation via grounded theory                             |
-| **gemba-grounded-theory-analysis** | Study | Qualitative trace analysis adapted from research methodology                 |
-| **gemba-trace-audit**              | Study | Verify named per-agent invariants against a trace; quoted evidence required  |
-| **gemba-spec**                     | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status            |
-| **gemba-gh-cli**                   | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)   |
+| Skill                        | Phase | Purpose                                                                      |
+| ---------------------------- | ----- | ---------------------------------------------------------------------------- |
+| **gemba-plan**               | Plan  | Write and review plans (HOW); advance approved specs from `review → planned` |
+| **gemba-security-update**    | Do    | Security updates: Dependabot triage, npm audit findings, vulnerability fixes |
+| **gemba-implement**          | Do    | Execute an approved plan step by step; advance `planned → active → done`     |
+| **gemba-product-merge**      | Do    | Merge PRs marked mergeable by `gemba-product-classify`                       |
+| **gemba-release-readiness**  | Do    | Mechanical PR preparation — rebase, fix, report                              |
+| **gemba-release-review**     | Do    | Version bumps, tagging, publish verification                                 |
+| **gemba-security-audit**     | Study | Seven-area security review (supply chain, deps, credentials, OWASP, CI)      |
+| **gemba-product-triage**     | Study | Classify open issues for product alignment; produce a triage report          |
+| **gemba-product-classify**   | Study | Classify open PRs for mergeability — trust, type, CI, spec review            |
+| **gemba-product-evaluation** | Study | Supervise product evaluation sessions, capture feedback, create issues       |
+| **gemba-walk**               | Study | Open-ended trace observation via grounded theory                             |
+| **gemba-trace-audit**        | Study | Verify named per-agent invariants against a trace; quoted evidence required  |
+| **gemba-spec**               | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status            |
+| **gemba-gh-cli**             | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)   |
 
 ## Trust Boundary
 

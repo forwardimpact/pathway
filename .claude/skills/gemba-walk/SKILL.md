@@ -9,8 +9,9 @@ description: >
 # Gemba Walk for Agent Workflows
 
 Go to where the work happens — the execution trace of a CI agent workflow run —
-and observe it firsthand. Select one run, download its trace, study every turn,
-categorize findings, and produce a structured report. Depth over breadth.
+and observe it firsthand. Select one run, download its trace, study every turn
+via grounded theory, categorize findings, and act on what you find. Depth over
+breadth.
 
 ## When to Use
 
@@ -71,21 +72,66 @@ bunx fit-eval output --format=json < /tmp/trace-<run-id>/trace.ndjson > /tmp/tra
 
 If no trace artifacts exist, pick a different run and note why.
 
-### 3. Observe the Work
+For large traces, use the extraction helpers in `scripts/trace-queries.sh`
+(`overview`, `count`, `batch N M`, `tail N`, `errors`, `tools`):
 
-Apply the `gemba-grounded-theory-analysis` skill to the trace. Read it **in
-full** — every turn, every tool call, every result.
+```sh
+bash .claude/skills/gemba-walk/scripts/trace-queries.sh structured.json overview
+bash .claude/skills/gemba-walk/scripts/trace-queries.sh structured.json batch 0 20
+bash .claude/skills/gemba-walk/scripts/trace-queries.sh structured.json errors
+```
 
-#### Invariant audit
+### 3. Observe the Work (Open Coding + Memos)
 
-After observing the trace, run the `gemba-trace-audit` skill against it.
-gemba-trace-audit verifies the named per-agent invariants for the trace's owner
-— including the critical contributor-trust check on every gemba-product-classify
-trace, since gemba-product-classify is the sole external merge point.
-High-severity audit failures must result in a fix PR or spec just like any other
-gemba finding.
+Read the trace **in full** — every turn, every tool call, every result.
+Sequentially assign a **code** to each meaningful unit (a tool call, a decision
+point, a failure, a recovery): a short label that captures what happened in the
+data's own terms.
 
-### 4. Categorize Findings
+**Use in-vivo codes** — labels drawn from the trace's own language (error
+messages, command names, the agent's reasoning text). Do not use pre-defined
+categories. Let codes emerge from the data.
+
+Focus on: what the agent did, what happened, how the agent reacted, and what the
+agent said (reasoning text between tool calls reveals intent).
+
+**Write memos as you code.** A memo is a short analytical note recording your
+thinking — why a code surprised you, a tentative connection between codes, or a
+question the data raises. Memos are the engine of theory development — analysis
+without memos is just sorting.
+
+See `references/examples.md` for worked open coding and memo examples.
+
+### 4. Build Categories and Core Category (Axial + Selective Coding)
+
+Relate codes using the **paradigm model**:
+
+```
+Causal conditions → Phenomenon → Context → Actions/Interactions → Consequences
+```
+
+Group related codes into **categories**. For each category, fill in all five
+paradigm elements: what triggered it, what it is, what context shaped it, what
+was done, and what resulted. Incomplete paradigms indicate incomplete analysis.
+
+Look for relationships across categories: causal chains, repeated patterns,
+contrasts (same operation succeeded/failed in different contexts), and temporal
+patterns (early vs. late in session).
+
+Then identify the **core category** — the single central phenomenon that
+integrates the most categories and explains the most variance. The core category
+is not the biggest bug or the most expensive failure; it is the conceptual
+thread that connects the most findings. Ask: which category do others orbit
+around? What is the "story" this trace tells?
+
+From the core category, derive **theoretical propositions** — testable
+statements about agent behaviour. Each proposition must be **grounded**
+(traceable to specific turns), **testable** (future traces can confirm or refute
+it), and **actionable** (implies a concrete change).
+
+See `references/examples.md` for worked axial and selective coding examples.
+
+### 5. Categorize Findings
 
 | Category        | Criteria                                        | Action         |
 | --------------- | ----------------------------------------------- | -------------- |
@@ -93,7 +139,25 @@ gemba finding.
 | **Improvement** | Pattern requires design, touches multiple files | Write spec     |
 | **Observation** | Not actionable yet, or needs more data          | Note in report |
 
-### 5. Report
+### 6. Report
 
-Produce the full grounded theory analysis report as defined in the
-`gemba-grounded-theory-analysis` skill. Prefix with run selection context.
+Produce the analysis report using the template at
+[`references/report-template.md`](references/report-template.md). Prefix with
+run selection context.
+
+## Analysis Principles
+
+- **Let the data speak.** Do not start with a hypothesis. Read, code, then find
+  patterns.
+- **Write memos constantly.** Analysis without memos is just sorting.
+- **Use in-vivo codes.** Preserve the data's own language. "403 forbidden", not
+  "authorization failure".
+- **Apply the paradigm model.** Incomplete paradigms indicate incomplete
+  analysis.
+- **Seek the core category.** The goal is a theory, not a list.
+- **Quote, don't paraphrase.** Exact error messages, commands, token counts.
+- **Distinguish symptoms from causes.** The paradigm model forces you to trace
+  causal conditions.
+- **Count what matters.** Token usage, retry counts, wasted turns, cost.
+- **Compare to intent.** Read the skill docs, compare to actual execution.
+- **Maintain traceability.** Proposition → category → code → turn number.
