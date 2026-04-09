@@ -306,7 +306,7 @@ Lessons from trace analysis and grounded-theory coding of agent workflow runs.
 Agent instructions span four layers. Each layer owns a distinct concern — no
 layer should restate content from another.
 
-```
+```text
 libeval system prompt   — relay mechanics (how turns work, completion signal)
        ↓
 workflow task            — this run (which product, scenario, success criteria)
@@ -349,7 +349,7 @@ increase the chance the agent skips steps buried deep in the document.
 Move supporting material into co-located subdirectories that the agent reads
 only when needed:
 
-```
+```text
 .claude/skills/<skill-name>/
   SKILL.md                     ← core instructions (always loaded)
   scripts/<name>.sh|.mjs       ← executable automation the agent invokes
