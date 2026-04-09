@@ -114,11 +114,18 @@ describe("generatePacks", () => {
     }
   });
 
-  test(".well-known/agent-skills/index.json is valid and matches archives", async () => {
+  test("each pack has its own skill repository with individual skills", async () => {
+    const packsDir = join(outputDir, "packs");
+    const { discipline, track } = validCombinations[0];
+    const abbrev = getDisciplineAbbreviation(discipline.id);
+    const packName = `${abbrev}-${toKebabCase(track.id)}`;
+
+    // Per-pack index must exist
     const manifestPath = join(
-      outputDir,
+      packsDir,
+      packName,
       ".well-known",
-      "agent-skills",
+      "skills",
       "index.json",
     );
     const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
@@ -128,28 +135,134 @@ describe("generatePacks", () => {
       "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
     );
     assert.ok(Array.isArray(manifest.skills));
-    assert.strictEqual(manifest.skills.length, validCombinations.length);
+    assert.ok(
+      manifest.skills.length > 0,
+      "pack must contain at least one skill",
+    );
 
     for (const entry of manifest.skills) {
       assert.strictEqual(typeof entry.name, "string");
-      assert.strictEqual(entry.type, "archive");
       assert.strictEqual(typeof entry.description, "string");
-      assert.ok(entry.url.startsWith(siteUrl + "/packs/"));
-      assert.ok(entry.url.endsWith(".tar.gz"));
-      assert.match(entry.digest, /^sha256:[0-9a-f]{64}$/);
-      assert.strictEqual(entry.version, pathwayPkg.version);
+      assert.ok(Array.isArray(entry.files), "entry must have files array");
+      assert.ok(
+        entry.files.includes("SKILL.md"),
+        "files must include SKILL.md",
+      );
 
-      const archiveName = entry.url.split("/").pop();
-      const archivePath = join(outputDir, "packs", archiveName);
-      assert.ok(existsSync(archivePath), `archive missing for ${entry.name}`);
+      // Each file must exist in the per-pack well-known directory
+      const skillDir = join(
+        packsDir,
+        packName,
+        ".well-known",
+        "skills",
+        entry.name,
+      );
+      for (const file of entry.files) {
+        assert.ok(
+          existsSync(join(skillDir, file)),
+          `file ${file} missing for ${entry.name}`,
+        );
+      }
 
-      // Digest in manifest must match actual sha256 of the archive
-      const { createHash } = await import("node:crypto");
-      const bytes = await readFile(archivePath);
-      const actualDigest =
-        "sha256:" + createHash("sha256").update(bytes).digest("hex");
-      assert.strictEqual(entry.digest, actualDigest);
+      // SKILL.md must have valid frontmatter
+      const skillMd = await readFile(join(skillDir, "SKILL.md"), "utf8");
+      assert.match(skillMd, /^---\nname: /);
+      assert.match(skillMd, /\ndescription: /);
     }
+  });
+
+  test("every pack has a per-pack skill repository", async () => {
+    for (const { discipline, track } of validCombinations) {
+      const abbrev = getDisciplineAbbreviation(discipline.id);
+      const packName = `${abbrev}-${toKebabCase(track.id)}`;
+      const manifestPath = join(
+        outputDir,
+        "packs",
+        packName,
+        ".well-known",
+        "skills",
+        "index.json",
+      );
+      assert.ok(
+        existsSync(manifestPath),
+        `per-pack manifest missing for ${packName}`,
+      );
+    }
+  });
+
+  test("aggregate repository at packs/ lists deduplicated skills", async () => {
+    const manifestPath = join(
+      outputDir,
+      "packs",
+      ".well-known",
+      "skills",
+      "index.json",
+    );
+    const manifest = JSON.parse(await readFile(manifestPath, "utf8"));
+
+    assert.strictEqual(
+      manifest.$schema,
+      "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+    );
+    assert.ok(Array.isArray(manifest.skills));
+    assert.ok(manifest.skills.length > 0);
+
+    // Entries use plain skill names (no pack prefix)
+    for (const entry of manifest.skills) {
+      assert.doesNotMatch(
+        entry.name,
+        /--/,
+        `aggregate entry ${entry.name} must not be prefixed`,
+      );
+      assert.ok(Array.isArray(entry.files));
+      assert.ok(entry.files.includes("SKILL.md"));
+
+      // File must exist in the aggregate well-known directory
+      const skillDir = join(
+        outputDir,
+        "packs",
+        ".well-known",
+        "skills",
+        entry.name,
+      );
+      assert.ok(
+        existsSync(join(skillDir, "SKILL.md")),
+        `SKILL.md missing for aggregate entry ${entry.name}`,
+      );
+    }
+
+    // Names must be unique (deduplicated)
+    const names = manifest.skills.map((s) => s.name);
+    assert.strictEqual(names.length, new Set(names).size, "duplicate names");
+
+    // Count must be <= sum of per-pack skills (deduplicated ≤ total)
+    let totalAcrossPacks = 0;
+    for (const { discipline, track } of validCombinations) {
+      const abbrev = getDisciplineAbbreviation(discipline.id);
+      const packName = `${abbrev}-${toKebabCase(track.id)}`;
+      const packManifest = JSON.parse(
+        await readFile(
+          join(
+            outputDir,
+            "packs",
+            packName,
+            ".well-known",
+            "skills",
+            "index.json",
+          ),
+          "utf8",
+        ),
+      );
+      totalAcrossPacks += packManifest.skills.length;
+    }
+    assert.ok(
+      manifest.skills.length <= totalAcrossPacks,
+      "aggregate must have ≤ total per-pack skills",
+    );
+    assert.ok(
+      manifest.skills.length < totalAcrossPacks,
+      "deduplication should reduce the count",
+    );
   });
 
   test("apm.yml is well-formed and lists every pack", async () => {
@@ -262,8 +375,11 @@ describe("generatePacks", () => {
       }),
     );
 
-    const firstArchives = (await readdir(join(outputDir, "packs"))).sort();
-    const secondArchives = (await readdir(join(secondDir, "packs"))).sort();
+    // Archives must be identical
+    const firstEntries = (await readdir(join(outputDir, "packs"))).sort();
+    const secondEntries = (await readdir(join(secondDir, "packs"))).sort();
+    const firstArchives = firstEntries.filter((n) => n.endsWith(".tar.gz"));
+    const secondArchives = secondEntries.filter((n) => n.endsWith(".tar.gz"));
     assert.deepStrictEqual(firstArchives, secondArchives);
 
     for (const name of firstArchives) {
@@ -272,15 +388,46 @@ describe("generatePacks", () => {
       assert.ok(a.equals(b), `archive ${name} differs between builds`);
     }
 
-    const firstManifest = await readFile(
-      join(outputDir, ".well-known", "agent-skills", "index.json"),
+    // Aggregate manifest must be identical
+    const firstAggregate = await readFile(
+      join(outputDir, "packs", ".well-known", "skills", "index.json"),
       "utf8",
     );
-    const secondManifest = await readFile(
-      join(secondDir, ".well-known", "agent-skills", "index.json"),
+    const secondAggregate = await readFile(
+      join(secondDir, "packs", ".well-known", "skills", "index.json"),
       "utf8",
     );
-    assert.strictEqual(firstManifest, secondManifest);
+    assert.strictEqual(firstAggregate, secondAggregate);
+
+    // Per-pack manifests must be identical
+    const packDirs = firstEntries.filter(
+      (n) => !n.endsWith(".tar.gz") && n !== ".well-known",
+    );
+    for (const packName of packDirs) {
+      const first = await readFile(
+        join(
+          outputDir,
+          "packs",
+          packName,
+          ".well-known",
+          "skills",
+          "index.json",
+        ),
+        "utf8",
+      );
+      const second = await readFile(
+        join(
+          secondDir,
+          "packs",
+          packName,
+          ".well-known",
+          "skills",
+          "index.json",
+        ),
+        "utf8",
+      );
+      assert.strictEqual(first, second, `manifest for ${packName} differs`);
+    }
 
     const firstApm = await readFile(join(outputDir, "apm.yml"), "utf8");
     const secondApm = await readFile(join(secondDir, "apm.yml"), "utf8");

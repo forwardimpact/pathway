@@ -76,17 +76,17 @@ describe("agent-builder-install", () => {
   });
 
   describe("getSkillsAddCommand", () => {
-    test("points at the site URL for well-known discovery", () => {
+    test("points at the per-pack URL for well-known discovery", () => {
       assert.strictEqual(
-        getSkillsAddCommand("https://example.com"),
-        "npx skills add https://example.com",
+        getSkillsAddCommand("https://example.com", "se-platform"),
+        "npx skills add https://example.com/packs/se-platform",
       );
     });
 
     test("strips a trailing slash from the site URL", () => {
       assert.strictEqual(
-        getSkillsAddCommand("https://example.com/"),
-        "npx skills add https://example.com",
+        getSkillsAddCommand("https://example.com/", "se-platform"),
+        "npx skills add https://example.com/packs/se-platform",
       );
     });
   });

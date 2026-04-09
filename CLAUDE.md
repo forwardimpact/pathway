@@ -210,8 +210,8 @@ files in [.claude/skills/](.claude/skills/):
 ## Domain Concepts
 
 Framework entities are defined in YAML under
-[products/map/starter/](products/map/starter/) (the monorepo's starter
-template, which installs to `data/pathway/` in consuming projects). Use
+[products/map/starter/](products/map/starter/) (the monorepo's starter template,
+which installs to `data/pathway/` in consuming projects). Use
 `bunx fit-pathway <entity> --list` to discover available values.
 
 - **Disciplines** — `disciplines/{id}.yaml`

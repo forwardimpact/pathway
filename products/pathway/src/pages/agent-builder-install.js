@@ -56,13 +56,14 @@ export function getApmInstallCommand(siteUrl, packName) {
 }
 
 /**
- * Build the `npx skills add` command that discovers the published pack
- * registry at `<siteUrl>/.well-known/agent-skills/index.json`.
+ * Build the `npx skills add` command that discovers the per-pack skill
+ * repository at `<siteUrl>/packs/<packName>/.well-known/skills/index.json`.
  * @param {string} siteUrl
+ * @param {string} packName
  * @returns {string}
  */
-export function getSkillsAddCommand(siteUrl) {
-  return `npx skills add ${normalizeSiteUrl(siteUrl)}`;
+export function getSkillsAddCommand(siteUrl, packName) {
+  return `npx skills add ${normalizeSiteUrl(siteUrl)}/packs/${packName}`;
 }
 
 /**
@@ -80,7 +81,7 @@ export function createInstallSection({ discipline, track, siteUrl }) {
 
   const packName = getPackName(discipline, track);
   const apmCommand = getApmInstallCommand(siteUrl, packName);
-  const skillsCommand = getSkillsAddCommand(siteUrl);
+  const skillsCommand = getSkillsAddCommand(siteUrl, packName);
 
   return section(
     {

@@ -1,15 +1,18 @@
 /**
  * Pack generation for Pathway distribution.
  *
- * Emits one pre-built agent/skill pack per valid discipline/track combination
- * and two discovery manifests (`.well-known/agent-skills/index.json` for
- * `npx skills` and `apm.yml` for Microsoft APM). See
- * specs/320-pathway-ecosystem-distribution for context.
+ * Emits one pre-built agent/skill pack per valid discipline/track combination.
+ * Each pack becomes its own `npx skills`-compatible repository at
+ * `packs/{name}/.well-known/skills/`, with an aggregate repository at
+ * `packs/.well-known/skills/` listing every skill from every pack.
+ * An `apm.yml` for Microsoft APM is also written at the site root.
+ *
+ * See specs/320-pathway-ecosystem-distribution for context.
  *
  * Invoked from build.js after the distribution bundle has been generated.
  */
 
-import { mkdir, rm, readFile, writeFile, readdir } from "fs/promises";
+import { mkdir, rm, readFile, writeFile, readdir, cp } from "fs/promises";
 import { utimesSync } from "fs";
 import { join } from "path";
 import { execFileSync } from "child_process";
@@ -271,24 +274,149 @@ async function archivePack(packDir, archivePath) {
 }
 
 /**
- * Write the `npx skills` discovery manifest.
- * @param {string} outputDir
- * @param {Array<{name: string, description: string, url: string, digest: string}>} packs
- * @param {string} version
+ * Collect all file paths under `dir`, relative to `dir`, for the manifest
+ * `files` array. Returns sorted paths with forward slashes.
+ * @param {string} dir
+ * @param {string} [prefix]
+ * @returns {Promise<string[]>}
  */
-async function writeSkillsManifest(outputDir, packs, version) {
-  const wellKnownDir = join(outputDir, ".well-known", "agent-skills");
+async function collectFileList(dir, prefix = "") {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const result = [];
+  for (const entry of entries) {
+    const rel = prefix ? prefix + "/" + entry.name : entry.name;
+    if (entry.isDirectory()) {
+      result.push(...(await collectFileList(join(dir, entry.name), rel)));
+    } else {
+      result.push(rel);
+    }
+  }
+  return result.sort();
+}
+
+/**
+ * Parse YAML frontmatter from a SKILL.md file. Returns an object with
+ * the key/value pairs found between the `---` fences.
+ * @param {string} content
+ * @returns {Record<string, string>}
+ */
+function parseFrontmatter(content) {
+  const match = content.match(/^---\n([\s\S]*?)\n---/);
+  if (!match) return {};
+  const result = {};
+  for (const line of match[1].split("\n")) {
+    const idx = line.indexOf(":");
+    if (idx > 0) result[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
+  }
+  return result;
+}
+
+/**
+ * Build a single skill index entry from a staged skill directory.
+ * @param {string} skillDir - Path containing SKILL.md and optional extras
+ * @param {string} name - Skill name for the manifest
+ * @returns {Promise<{name: string, description: string, files: string[]}>}
+ */
+async function buildSkillEntry(skillDir, name) {
+  const skillMd = await readFile(join(skillDir, "SKILL.md"), "utf-8");
+  const fm = parseFrontmatter(skillMd);
+  const files = await collectFileList(skillDir);
+  return { description: fm.description || "", files, name };
+}
+
+/**
+ * Write a `npx skills`-compatible repository for a single pack.
+ *
+ * Each pack becomes its own skill repository at
+ * `packs/{name}/.well-known/skills/` so that individual skills
+ * within the pack can be discovered and installed independently:
+ *
+ *   npx skills add domain.org/packs/se-platform --all
+ *   npx skills add domain.org/packs/se-platform -s architecture-design
+ *
+ * @param {string} packsOutputDir - The `packs/` output directory
+ * @param {string} packStagingDir - Staging directory for this pack
+ * @param {string} packName - Pack name (e.g. "se-platform")
+ * @returns {Promise<Array<{name: string, description: string, files: string[]}>>}
+ *   The skill entries written, for use in the aggregate manifest.
+ */
+async function writePackRepository(packsOutputDir, packStagingDir, packName) {
+  const wellKnownDir = join(
+    packsOutputDir,
+    packName,
+    ".well-known",
+    "skills",
+  );
   await mkdir(wellKnownDir, { recursive: true });
+
+  // Discover individual skills from the staged pack's .claude/skills/
+  const skillsSrcDir = join(packStagingDir, ".claude", "skills");
+  const skillDirs = (
+    await readdir(skillsSrcDir, { withFileTypes: true })
+  ).filter((e) => e.isDirectory());
+
+  const entries = [];
+  for (const dir of skillDirs) {
+    const src = join(skillsSrcDir, dir.name);
+    const dest = join(wellKnownDir, dir.name);
+    await cp(src, dest, { recursive: true });
+    entries.push(await buildSkillEntry(dest, dir.name));
+  }
+
   const manifest = {
     $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-    skills: packs.map((pack) => ({
-      description: pack.description,
-      digest: pack.digest,
-      name: pack.name,
-      type: "archive",
-      url: pack.url,
-      version,
-    })),
+    skills: entries,
+  };
+  await writeFile(
+    join(wellKnownDir, "index.json"),
+    stringifySorted(manifest),
+    "utf-8",
+  );
+
+  return entries;
+}
+
+/**
+ * Write an aggregate `npx skills` repository at `packs/` that lists every
+ * unique skill across all packs. Skills with the same name produce identical
+ * SKILL.md content regardless of discipline/track, so we deduplicate by name
+ * and write one copy.
+ *
+ *   npx skills add domain.org/packs --list
+ *
+ * @param {string} packsOutputDir
+ * @param {Array<{packName: string, entries: Array}>} allPackEntries
+ */
+async function writeAggregateRepository(packsOutputDir, allPackEntries) {
+  const wellKnownDir = join(packsOutputDir, ".well-known", "skills");
+  await mkdir(wellKnownDir, { recursive: true });
+
+  // Deduplicate: first occurrence of each skill name wins (content is identical)
+  const seen = new Map();
+  for (const { packName, entries } of allPackEntries) {
+    for (const entry of entries) {
+      if (seen.has(entry.name)) continue;
+      seen.set(entry.name, { packName, entry });
+    }
+  }
+
+  const skills = [];
+  for (const [, { packName, entry }] of seen) {
+    const dest = join(wellKnownDir, entry.name);
+    const src = join(
+      packsOutputDir,
+      packName,
+      ".well-known",
+      "skills",
+      entry.name,
+    );
+    await cp(src, dest, { recursive: true });
+    skills.push(entry);
+  }
+
+  const manifest = {
+    $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
+    skills,
   };
   await writeFile(
     join(wellKnownDir, "index.json"),
@@ -418,10 +546,25 @@ export async function generatePacks({
     console.log(`   ✓ packs/${agentName}.tar.gz`);
   }
 
-  await rm(stagingDir, { recursive: true, force: true });
+  // Write per-pack skill repositories (one per discipline/track combination)
+  const allPackEntries = [];
+  for (const pack of packs) {
+    const entries = await writePackRepository(
+      packsDir,
+      join(stagingDir, pack.name),
+      pack.name,
+    );
+    allPackEntries.push({ packName: pack.name, entries });
+    console.log(
+      `   ✓ packs/${pack.name}/.well-known/skills/ (${entries.length} skills)`,
+    );
+  }
 
-  await writeSkillsManifest(outputDir, packs, version);
-  console.log("   ✓ .well-known/agent-skills/index.json");
+  // Write aggregate repository at packs/ level
+  await writeAggregateRepository(packsDir, allPackEntries);
+  console.log("   ✓ packs/.well-known/skills/index.json (aggregate)");
+
+  await rm(stagingDir, { recursive: true, force: true });
 
   await writeApmManifest(outputDir, packs, version, frameworkTitle);
   console.log("   ✓ apm.yml");

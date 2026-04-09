@@ -222,7 +222,7 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
 ✅ Site generated successfully!
 
 Output: ${outputDir}
-${siteUrl ? `\nDistribution:\n  ${outputDir}/bundle.tar.gz\n  ${outputDir}/install.sh\n  ${outputDir}/packs/ (agent/skill packs)\n  ${outputDir}/.well-known/agent-skills/index.json\n  ${outputDir}/apm.yml\n` : ""}
+${siteUrl ? `\nDistribution:\n  ${outputDir}/bundle.tar.gz\n  ${outputDir}/install.sh\n  ${outputDir}/packs/ (agent/skill packs)\n  ${outputDir}/packs/{name}/.well-known/skills/ (per-pack skill repositories)\n  ${outputDir}/packs/.well-known/skills/ (aggregate skill repository)\n  ${outputDir}/apm.yml\n` : ""}
 To serve locally:
   cd ${relative(process.cwd(), outputDir) || "."}
   bunx serve .
