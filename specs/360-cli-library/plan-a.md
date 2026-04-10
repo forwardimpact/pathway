@@ -245,6 +245,25 @@ After each part, run:
   `bunx fit-<name> --help --json` produces JSON, error format matches
   `name: error: message`
 
+## Execution
+
+Part 01 is the shared prerequisite — implement it first with `staff-engineer`.
+
+Once part 01 merges, launch parts 02, 03, 04, and 05 as concurrent sub-agents:
+
+| Part | Agent              | Rationale                                             |
+| ---- | ------------------ | ----------------------------------------------------- |
+| 01   | `staff-engineer`   | New library: code, tests, package wiring              |
+| 02   | `staff-engineer`   | Product CLI migration: code changes                   |
+| 03   | `staff-engineer`   | Library CLI migration: code changes                   |
+| 04   | `technical-writer` | Internals documentation page                          |
+| 05   | `staff-engineer`   | Basecamp refactor: code changes                       |
+| 06   | `technical-writer` | Documentation updates matching new CLI output formats |
+
+Part 06 is strictly sequential after parts 02–05 — it updates documentation to
+reflect the new CLI output, including basecamp's positional subcommands. Launch
+it only after all four preceding parts merge.
+
 ## Risks
 
 1. **pathway's 150-line HELP_TEXT** — The current help text has per-command
