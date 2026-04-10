@@ -9,6 +9,12 @@ runs:
         bun-version: "1.3.11"
         no-cache: false
 
+    - name: Configure git identity
+      shell: bash
+      run: |
+        git config --global user.name "github-actions[bot]"
+        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
     - name: Bootstrap
       shell: bash
       run: ./scripts/bootstrap.sh
