@@ -54,8 +54,8 @@ Use DO-CONFIRM when:
 
 ### The Distinction Matters
 
-A READ-DO used post-hoc is too late — the damage is done. A DO-CONFIRM forced
-on every micro-step fragments flow and gets ignored.
+A READ-DO used post-hoc is too late — the damage is done. A DO-CONFIRM forced on
+every micro-step fragments flow and gets ignored.
 
 | Moment                   | Type       | Purpose                      |
 | ------------------------ | ---------- | ---------------------------- |
@@ -134,8 +134,8 @@ Drawing from Gawande's findings, effective checklists share these properties:
    Two contributors should interpret each item the same way.
 
 4. **Killer items only.** Every item must address a failure mode that has
-   actually occurred or is highly likely to occur. Include steps that are easy to
-   miss and consequential when missed. A list full of obvious steps wastes
+   actually occurred or is highly likely to occur. Include steps that are easy
+   to miss and consequential when missed. A list full of obvious steps wastes
    attention on things no one forgets.
 
 5. **Action or verification, never explanation.** A checklist item is a verb
@@ -159,8 +159,8 @@ Drawing from Gawande's findings, effective checklists share these properties:
 ## Agents
 
 Everything above applies equally to autonomous agents. They face the same
-failure modes — omission under complexity, assumptions about prior state, skipped
-steps — and benefit from the same countermeasure.
+failure modes — omission under complexity, assumptions about prior state,
+skipped steps — and benefit from the same countermeasure.
 
 One critical difference: agents follow checklists literally. A human reads
 "verify CI passes" and knows to check the status page. An agent needs the exact

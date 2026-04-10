@@ -97,6 +97,12 @@ export default [
     },
   },
   {
-    ignores: ["node_modules/**", "tmp/**", "**/dist/**", "**/generated/**"],
+    ignores: [
+      "node_modules/**",
+      "tmp/**",
+      "**/dist/**",
+      "**/generated/**",
+      "public/vendor/**",
+    ],
   },
 ];
