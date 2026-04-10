@@ -6,12 +6,14 @@ monorepo.
 
 ```
 specs/060-synthetic-data-pipeline/
-  spec.md                       This document (WHAT and WHY)
-  plan-01-claude-api.md         Claude API with validation loops
-  plan-02-local-models.md       Local open-weight models (MLX / llama.cpp)
-  plan-03-distilabel.md         Distilabel DAG pipeline with Argilla review
-  plan-04-template-engine.md    Deterministic templates (no LLM)
-  plan-05-hybrid-dsl.md         Custom DSL with tiered generation
+  spec.md          This document (WHAT and WHY)
+  plan-a.md        Custom DSL with tiered generation (implemented, v3)
+  plan-a.v1.md     v1 revision (superseded)
+  plan-a.v2.md     v2 revision (superseded)
+  plan-b.md        Claude API with validation loops (rejected alternative)
+  plan-c.md        Local open-weight models (rejected alternative)
+  plan-d.md        Distilabel DAG pipeline (rejected alternative)
+  plan-e.md        Deterministic templates (rejected alternative)
 ```
 
 ## Why
@@ -180,8 +182,8 @@ self-contained document:
 
 | Plan                             | Approach                          | LLM             | Language | Key trade-off                                                      |
 | -------------------------------- | --------------------------------- | --------------- | -------- | ------------------------------------------------------------------ |
-| [01](plan-01-claude-api.md)      | Claude API with validation loops  | Claude (remote) | Node.js  | Highest prose quality; API cost and dependency                     |
-| [02](plan-02-local-models.md)    | Local models on Mac Studio M4 Max | Qwen3 (local)   | Python   | No API cost; hardware requirement and lower quality                |
-| [03](plan-03-distilabel.md)      | Distilabel DAG pipeline           | Any (pluggable) | Python   | Production orchestration; Python dependency and framework coupling |
-| [04](plan-04-template-engine.md) | Deterministic templates           | None            | Node.js  | Instant, free, reproducible; formulaic prose                       |
-| [05](plan-05-hybrid-dsl.md)      | Custom DSL with tiered generation | Any (cached)    | Node.js  | Deterministic structure + LLM prose; custom parser maintenance     |
+| [A](plan-a.md) ★                | Custom DSL with tiered generation | Any (cached)    | Node.js  | Deterministic structure + LLM prose; custom parser maintenance     |
+| [B](plan-b.md)                   | Claude API with validation loops  | Claude (remote) | Node.js  | Highest prose quality; API cost and dependency                     |
+| [C](plan-c.md)                   | Local models on Mac Studio M4 Max | Qwen3 (local)   | Python   | No API cost; hardware requirement and lower quality                |
+| [D](plan-d.md)                   | Distilabel DAG pipeline           | Any (pluggable) | Python   | Production orchestration; Python dependency and framework coupling |
+| [E](plan-e.md)                   | Deterministic templates           | None            | Node.js  | Instant, free, reproducible; formulaic prose                       |
