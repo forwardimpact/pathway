@@ -4,7 +4,7 @@
  * @module libuniverse/engine/activity-roster
  */
 
-const LEVEL_ORDER = ["L1", "L2", "L3", "L4", "L5"];
+const LEVEL_ORDER = ["J040", "J060", "J070", "J080", "J090"];
 
 /**
  * Simulate departures for a quarter.
@@ -45,7 +45,7 @@ function simulateHires(rng, roster, teams, people, domain, hireCounter) {
   for (let h = 0; h < hireCount; h++) {
     hireCounter.value++;
     const team = rng.pick(teams);
-    const level = rng.pick(["L1", "L1", "L2", "L2", "L3"]);
+    const level = rng.pick(["J040", "J040", "J060", "J060", "J070"]);
     const discipline = rng.pick([
       "software_engineering",
       "software_engineering",

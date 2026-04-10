@@ -175,9 +175,8 @@ and `kong.yml` — inside the npm package. `fit-map activity start` runs
 npx fit-map activity start
 ```
 
-The CLI prints the local URL, the anon key, and the service-role key when it
-finishes booting. Save the URL and service-role key — every ingestion command
-needs them. The anon key is useful if you build a client-side dashboard.
+The CLI prints the local URL and the service-role key when it finishes booting.
+Copy the export commands it prints — every ingestion command needs them.
 
 ```sh
 export MAP_SUPABASE_URL=http://127.0.0.1:54321

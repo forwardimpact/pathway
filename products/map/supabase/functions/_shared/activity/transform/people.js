@@ -61,7 +61,12 @@ function parseCsv(csv) {
  */
 function parseYamlPeople(content) {
   const data = parseYaml(content);
-  return Array.isArray(data) ? data : data.people || [];
+  if (Array.isArray(data)) return data;
+  const rows = data.people || data.roster || [];
+  return rows.map((row) => ({
+    ...row,
+    github_username: row.github_username || row.github || null,
+  }));
 }
 
 /**

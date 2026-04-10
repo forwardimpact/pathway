@@ -189,11 +189,11 @@ universe BioNova {
     count 211
     names "greek_mythology"
     distribution {
-      L1 40%
-      L2 25%
-      L3 20%
-      L4 10%
-      L5 5%
+      J040 40%
+      J060 25%
+      J070 20%
+      J080 10%
+      J090 5%
     }
     disciplines {
       software_engineering 60%

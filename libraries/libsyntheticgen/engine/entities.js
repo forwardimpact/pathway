@@ -71,7 +71,7 @@ function createManagers(
     people.push(
       makePerson(
         name,
-        rng.pick(["L3", "L4", "L5"]),
+        rng.pick(["J070", "J080", "J090"]),
         discKeys[rng.weightedPick(discWeights)] || "software_engineering",
         team,
         domain,
