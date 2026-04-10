@@ -122,8 +122,9 @@ The `transformAll` call reuses the existing orchestrator import
 verify function (it already returns an exit code).
 
 The existing `report(target, counts)` function takes two arguments — a label
-string and a counts object, logging `Transform ${target}: ${JSON.stringify(counts)}`.
-The seed command reuses this signature.
+string and a counts object, logging
+`Transform ${target}: ${JSON.stringify(counts)}`. The seed command reuses this
+signature.
 
 **Wire the subcommand** in the `dispatchActivity` switch in
 `products/map/bin/fit-map.js` (line 343). Follow the existing pattern for
@@ -231,6 +232,7 @@ Unit test for the seed command using fake Supabase clients (following the
 existing test pattern in `products/map/test/activity/`).
 
 Test cases:
+
 - **Happy path**: Fake filesystem with roster + raw files, fake Supabase client.
   Verify `storeRaw` called with correct paths, transforms run, verify called.
 - **Missing raw directory**: Seed completes without error (uploads roster,

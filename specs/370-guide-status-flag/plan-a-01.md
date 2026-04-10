@@ -8,11 +8,11 @@ code or codegen changes.
 
 ## Files
 
-| Action | File |
-|--------|------|
-| Create | `libraries/librpc/health.js` |
-| Modify | `libraries/librpc/server.js` |
-| Modify | `libraries/librpc/index.js` |
+| Action | File                                   |
+| ------ | -------------------------------------- |
+| Create | `libraries/librpc/health.js`           |
+| Modify | `libraries/librpc/server.js`           |
+| Modify | `libraries/librpc/index.js`            |
 | Create | `libraries/librpc/test/health.test.js` |
 
 ## Step 1: Create `libraries/librpc/health.js`
@@ -171,11 +171,12 @@ const serviceName = capitalizeFirstLetter(this.config.name);
 this.#server.addService(healthDefinition, createHealthHandlers(serviceName));
 ```
 
-Wait -- `serviceName` is already computed earlier in the method. Reuse it.
-The import can be a static import at the top of the file since health.js is
-always needed.
+Wait -- `serviceName` is already computed earlier in the method. Reuse it. The
+import can be a static import at the top of the file since health.js is always
+needed.
 
 **Before (top of server.js):**
+
 ```js
 import {
   Rpc,
@@ -187,6 +188,7 @@ import {
 ```
 
 **After:**
+
 ```js
 import {
   Rpc,
@@ -199,6 +201,7 @@ import { healthDefinition, createHealthHandlers } from "./health.js";
 ```
 
 **Before (in `start()`):**
+
 ```js
     this.#server.addService(definition, wrappedHandlers);
 
@@ -206,6 +209,7 @@ import { healthDefinition, createHealthHandlers } from "./health.js";
 ```
 
 **After:**
+
 ```js
     this.#server.addService(definition, wrappedHandlers);
 
@@ -224,6 +228,7 @@ Add the health definition export so the status command (Part 02) can use it to
 build a lightweight health client:
 
 **Before:**
+
 ```js
 export { createGrpc, createAuth, Rpc } from "./base.js";
 export { Client } from "./client.js";
@@ -232,6 +237,7 @@ export { Server } from "./server.js";
 ```
 
 **After:**
+
 ```js
 export { createGrpc, createAuth, Rpc } from "./base.js";
 export { Client } from "./client.js";
@@ -274,8 +280,8 @@ import from `../index.js`, use libharness mocks.
 
 7. **Server registers health service.** Use the existing mock pattern: create a
    Server with a mock gRPC factory, call `start()`, assert `addService` was
-   called twice (once for the application service, once for the health
-   service). Verify the second call's definition has a `Check` method with
+   called twice (once for the application service, once for the health service).
+   Verify the second call's definition has a `Check` method with
    `path === "/grpc.health.v1.Health/Check"`.
 
 8. **Health service bypasses auth.** Create a Server with a mock auth that

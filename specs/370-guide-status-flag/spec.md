@@ -18,11 +18,11 @@ feedback path is: start a conversation, hit an error, guess which layer failed,
 and repeat. This is especially painful for first-time users who have never seen
 the system in a healthy state.
 
-Beyond diagnostics, there is no standard way to probe whether a service is alive.
-Each service exposes only its application RPCs. A status check must guess which
-RPC to call, construct valid protobuf request objects for each service's unique
-API, and interpret application-level errors as reachability signals. This is
-fragile and couples the health check logic to every service's domain API.
+Beyond diagnostics, there is no standard way to probe whether a service is
+alive. Each service exposes only its application RPCs. A status check must guess
+which RPC to call, construct valid protobuf request objects for each service's
+unique API, and interpret application-level errors as reachability signals. This
+is fragile and couples the health check logic to every service's domain API.
 
 ## Why this matters
 
@@ -73,10 +73,10 @@ In scope:
   first positional argument is `status`, run the status checks, print the
   report, and exit without entering the interactive session (same early-exit
   pattern as `--version` and the `init` command).
-- **Promote the existing `--init` flag** to an `init` command for consistency ---
-  `init` and `status` are both actions, not modifiers on the REPL session. This
-  aligns fit-guide with other products (`fit-map init`, `fit-map validate`) that
-  use commands for distinct operations.
+- **Promote the existing `--init` flag** to an `init` command for consistency
+  --- `init` and `status` are both actions, not modifiers on the REPL session.
+  This aligns fit-guide with other products (`fit-map init`, `fit-map validate`)
+  that use commands for distinct operations.
 - **Health checks** against each required gRPC service (agent, llm, memory,
   graph, vector, tool, trace) via `Health/Check`, and the web service via its
   existing HTTP `/web/health` endpoint. Each check reports pass/fail with the
@@ -89,8 +89,8 @@ In scope:
   "ready" or "not ready" verdict line.
 - **Machine-readable output** via `status --json`, producing a JSON object with
   the same sections (services, data, credentials, verdict).
-- **Exit code:** 0 if all checks pass (ready), 1 if any check fails (not
-  ready). Follows libcli's exit code convention.
+- **Exit code:** 0 if all checks pass (ready), 1 if any check fails (not ready).
+  Follows libcli's exit code convention.
 
 Out of scope:
 
@@ -148,10 +148,10 @@ Out of scope:
    - With an unknown service name: respond `SERVICE_UNKNOWN`.
 
    The health endpoint does NOT assess application-level readiness (e.g.,
-   whether the graph index is populated). It answers one question: "is this
-   gRPC process accepting connections?" Application-level readiness (data
-   loaded, dependencies available) is a higher-level concern handled by the
-   status command's data inventory checks.
+   whether the graph index is populated). It answers one question: "is this gRPC
+   process accepting connections?" Application-level readiness (data loaded,
+   dependencies available) is a higher-level concern handled by the status
+   command's data inventory checks.
 
 4. **Authentication.** The `Health/Check` RPC bypasses the HMAC authentication
    interceptor. Health checks must work without credentials --- this is standard
@@ -238,7 +238,8 @@ Out of scope:
   credentials configured, and `Status: ready`. Exits 0.
 - `npx fit-guide status --json` outputs the JSON representation. Exits 0.
 - `npx fit-guide status` on a system with missing services or credentials prints
-  the structured summary with specific failures and `Status: not ready`. Exits 1.
+  the structured summary with specific failures and `Status: not ready`.
+  Exits 1.
 - `npx fit-guide init` works identically to the current `npx fit-guide --init`.
 - `bun run check` passes with the new code.
 - Tests cover: health endpoint responding to Check, health endpoint bypassing
@@ -256,10 +257,10 @@ After spec 360 is implemented, fit-guide will use libcli for initial argument
 parsing before entering the Repl session. The `status` and `init` commands are
 declared in the libcli definition's `commands` array alongside the existing
 flags (`--version`, `--data`, `--streaming`, `--help`, `--json`). When
-`cli.parse()` returns positionals with `status` or `init` as the first
-argument, the entry point dispatches to the corresponding handler and exits
-without starting the Repl. This follows the same command dispatch pattern used
-by `fit-map` and `fit-pathway`.
+`cli.parse()` returns positionals with `status` or `init` as the first argument,
+the entry point dispatches to the corresponding handler and exits without
+starting the Repl. This follows the same command dispatch pattern used by
+`fit-map` and `fit-pathway`.
 
 The help output separates commands from options, making the distinction clear:
 

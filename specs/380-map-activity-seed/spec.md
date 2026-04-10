@@ -1,8 +1,8 @@
 # 380 — Map Activity Seed: Synthetic-to-Database in One Command
 
-Make it trivial for an internal contributor or agent to go from freshly generated
-synthetic data to a fully populated, verified activity database — without
-multiple sequential CLI invocations.
+Make it trivial for an internal contributor or agent to go from freshly
+generated synthetic data to a fully populated, verified activity database —
+without multiple sequential CLI invocations.
 
 Builds on [spec 350](../350-map-activity-end-to-end/spec.md), which delivered
 the activity CLI surface and end-to-end transforms for external users. This spec
@@ -48,8 +48,8 @@ integration test exercises the seam:
    level that didn't exist in the framework.
 4. **Duplicate parsers**: `parseYamlPeople()` and `parseCsv()` each existed in
    two files (`activity/validate/people.js` and
-   `supabase/functions/_shared/activity/transform/people.js`) with identical code
-   and identical bugs.
+   `supabase/functions/_shared/activity/transform/people.js`) with identical
+   code and identical bugs.
 
 The roster-wrapper, field-name, and level-ID issues have been fixed in the
 current working tree (pending commit). The duplicated parsers remain — they
@@ -180,9 +180,10 @@ universe pipeline and the Map consumer was never exercised.
 
 ## Success criteria
 
-1. **Single command**: After `just supabase-up && just supabase-migrate &&
-   just synthetic`, running `bunx fit-map activity seed` populates all activity
-   tables and exits 0. No manual file uploads or intermediate steps required.
+1. **Single command**: After
+   `just supabase-up && just supabase-migrate && just synthetic`, running
+   `bunx fit-map activity seed` populates all activity tables and exits 0. No
+   manual file uploads or intermediate steps required.
 
 2. **Verify passes**: `bunx fit-map activity verify` exits 0 after `seed` with
    non-zero counts in `organization_people`, `github_events`, and
@@ -202,8 +203,8 @@ universe pipeline and the Map consumer was never exercised.
 
 7. **Just targets**: `just seed` (with Supabase running and synthetic data
    generated) exits 0 and produces the same result as manually running the seed
-   command. `just quickstart` with Docker running includes the seed step; without
-   Docker it skips gracefully with a message.
+   command. `just quickstart` with Docker running includes the seed step;
+   without Docker it skips gracefully with a message.
 
 ## Open questions
 
@@ -221,8 +222,8 @@ universe pipeline and the Map consumer was never exercised.
 
 ## Risks
 
-- **Seed command creates coupling between Map and the synthetic data schema.** If
-  the synthetic output format changes (field names, file layout), the seed
+- **Seed command creates coupling between Map and the synthetic data schema.**
+  If the synthetic output format changes (field names, file layout), the seed
   command breaks. Mitigated by the parser consolidation (item 3) and the
   integration test (item 5) — format drift is caught immediately.
 

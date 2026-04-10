@@ -12,11 +12,11 @@ Two independent layers, bottom-up:
 The health service definition is constructed manually as a
 `grpc.ServiceDefinition` object inside librpc -- no `.proto` file, no
 proto-loader, no codegen involvement. This matches how the existing generated
-definitions work (plain JS objects with `path`, serialize/deserialize, and stream
-flags) and avoids adding file-system dependencies or proto-loader to the runtime
-path. The `HealthCheckRequest` and `HealthCheckResponse` messages are trivial
-(one string field, one enum field) so hand-coding the serialization with raw
-protobuf wire format is straightforward.
+definitions work (plain JS objects with `path`, serialize/deserialize, and
+stream flags) and avoids adding file-system dependencies or proto-loader to the
+runtime path. The `HealthCheckRequest` and `HealthCheckResponse` messages are
+trivial (one string field, one enum field) so hand-coding the serialization with
+raw protobuf wire format is straightforward.
 
 The health service is registered directly on the `grpc.Server` instance with
 **unwrapped** handlers -- bypassing `#wrapHandlers` entirely -- so HMAC auth
@@ -32,10 +32,10 @@ The plan is split into two independently executable parts.
 
 ## Part Index
 
-| Part | File | Summary | Depends on |
-|------|------|---------|------------|
-| 01 | [plan-a-01.md](plan-a-01.md) | librpc health endpoint + tests | -- |
-| 02 | [plan-a-02.md](plan-a-02.md) | fit-guide status/init commands + tests | Part 01 |
+| Part | File                         | Summary                                | Depends on |
+| ---- | ---------------------------- | -------------------------------------- | ---------- |
+| 01   | [plan-a-01.md](plan-a-01.md) | librpc health endpoint + tests         | --         |
+| 02   | [plan-a-02.md](plan-a-02.md) | fit-guide status/init commands + tests | Part 01    |
 
 ## Cross-cutting Concerns
 
@@ -63,9 +63,9 @@ The plan is split into two independently executable parts.
 
 3. **Config loading in status command.** `createServiceConfig` loads `.env` and
    `config.json`. The status command gates on `config/config.json` existence
-   before attempting any config loads (same check as `setupServices`). Per-service
-   config failures are caught individually — a missing entry for one service
-   marks it `"unreachable"` without preventing checks on the others.
+   before attempting any config loads (same check as `setupServices`).
+   Per-service config failures are caught individually — a missing entry for one
+   service marks it `"unreachable"` without preventing checks on the others.
 
 ## Execution
 

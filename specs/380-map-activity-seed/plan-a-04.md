@@ -124,14 +124,14 @@ describe("synthetic → map integration", () => {
 ```
 
 **Import notes**: All imports use package exports (not direct file paths).
-`createSeededRNG` is the actual export name from `@forwardimpact/libsyntheticgen/rng`.
-The `"./activity/parse-people"` export must be added to `products/map/package.json`
-(see part 01).
+`createSeededRNG` is the actual export name from
+`@forwardimpact/libsyntheticgen/rng`. The `"./activity/parse-people"` export
+must be added to `products/map/package.json` (see part 01).
 
 ### Key test properties
 
-1. **Steps 1–3 are pure computation** — no Docker, no network, no Supabase.
-   They run in CI unconditionally.
+1. **Steps 1–3 are pure computation** — no Docker, no network, no Supabase. They
+   run in CI unconditionally.
 2. **Step 4 is gated on Docker** — detected at test load time via `docker info`.
    When Docker is unavailable, the test is skipped with `test.skip`, not failed.
 3. **Deterministic** — uses `seed 42` for reproducible generation.
@@ -150,5 +150,6 @@ The `"./activity/parse-people"` export must be added to `products/map/package.js
 - **Entity generation API surface**: The test imports internal functions from
   libsyntheticgen. If the API changes, the test breaks — but that's the point
   (the integration boundary is being tested). Keep imports minimal.
-- **CI Docker availability**: The test must degrade gracefully. The `docker info`
-  check with a 3-second timeout ensures the test suite doesn't hang.
+- **CI Docker availability**: The test must degrade gracefully. The
+  `docker info` check with a 3-second timeout ensures the test suite doesn't
+  hang.

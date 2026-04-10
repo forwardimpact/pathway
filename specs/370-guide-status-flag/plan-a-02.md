@@ -11,17 +11,17 @@ command replaces the existing `--init` flag.
 
 ## Files
 
-| Action | File |
-|--------|------|
-| Modify | `products/guide/bin/fit-guide.js` |
-| Create | `products/guide/lib/status.js` |
+| Action | File                                 |
+| ------ | ------------------------------------ |
+| Modify | `products/guide/bin/fit-guide.js`    |
+| Create | `products/guide/lib/status.js`       |
 | Create | `products/guide/test/status.test.js` |
 
 ## Step 1: Create `products/guide/lib/status.js`
 
-This module exports the `runStatus` function that performs all checks and returns
-a structured result. Keeping check logic in its own module makes it testable
-with injected dependencies.
+This module exports the `runStatus` function that performs all checks and
+returns a structured result. Keeping check logic in its own module makes it
+testable with injected dependencies.
 
 ### Signature
 
@@ -126,9 +126,9 @@ function checkGrpcHealth(grpc, healthDef, config, timeoutMs = 2000) {
 }
 ```
 
-**Display URL resolution:** `config.url` may contain `grpc://0.0.0.0:3006`
-when the default bind address is used. For the status report, construct a
-display URL using the resolved host to match user expectations:
+**Display URL resolution:** `config.url` may contain `grpc://0.0.0.0:3006` when
+the default bind address is used. For the status report, construct a display URL
+using the resolved host to match user expectations:
 
 ```js
 function displayUrl(config) {
@@ -137,10 +137,11 @@ function displayUrl(config) {
 }
 ```
 
-Use `displayUrl(configs[name])` instead of `configs[name].url` when building
-the result object.
+Use `displayUrl(configs[name])` instead of `configs[name].url` when building the
+result object.
 
 Key design choices:
+
 - **No auth interceptor.** The health endpoint bypasses HMAC.
 - **No retry.** Single attempt with 2-second deadline.
 - **`client.close()` after each call.** Prevents leaked channels.
@@ -260,9 +261,9 @@ async function countAgents(deps) {
 
 #### 6. LLM credential check
 
-Use `configs.llm.llmToken()` which resolves `LLM_TOKEN` through libconfig's
-full credential resolution chain (process.env first, then `.env` file fallback).
-The `llmToken()` method throws when the token is not found, so the try/catch is
+Use `configs.llm.llmToken()` which resolves `LLM_TOKEN` through libconfig's full
+credential resolution chain (process.env first, then `.env` file fallback). The
+`llmToken()` method throws when the token is not found, so the try/catch is
 required.
 
 ```js
@@ -291,6 +292,7 @@ Data warnings (zero counts) do not affect the verdict per the spec.
 ### 2a. Update CLI definition
 
 **Before:**
+
 ```js
 const definition = {
   name: "fit-guide",
@@ -320,6 +322,7 @@ const definition = {
 ```
 
 **After:**
+
 ```js
 const definition = {
   name: "fit-guide",
@@ -355,6 +358,7 @@ const definition = {
 ```
 
 Changes:
+
 - Added `commands` array with `status` and `init`.
 - Removed `init` from `options` (it is now a command, not a flag).
 - Added `json` to `options` (was not previously declared; needed for
@@ -364,6 +368,7 @@ Changes:
 ### 2b. Update command dispatch
 
 **Before:**
+
 ```js
 const parsed = cli.parse(process.argv.slice(2));
 if (!parsed) process.exit(0);
@@ -379,6 +384,7 @@ if (values.streaming) useStreaming = true;
 ```
 
 **After:**
+
 ```js
 const parsed = cli.parse(process.argv.slice(2));
 if (!parsed) process.exit(0);
@@ -473,11 +479,11 @@ function printStatusSummary(summary, result) {
 
 ### 2d. Backward compatibility for `--init`
 
-The `--init` flag is removed from the options definition, so
-`parseArgs` will throw if a user passes `--init`. To ease the transition,
-we do **not** add backward compatibility -- the spec explicitly says to promote
-`--init` to the `init` command. The error message from `parseArgs` will
-naturally guide the user.
+The `--init` flag is removed from the options definition, so `parseArgs` will
+throw if a user passes `--init`. To ease the transition, we do **not** add
+backward compatibility -- the spec explicitly says to promote `--init` to the
+`init` command. The error message from `parseArgs` will naturally guide the
+user.
 
 **Risk:** Users following old documentation may hit a confusing error. This is
 acceptable because the help output clearly shows `init` as a command, and the
@@ -495,16 +501,16 @@ spec explicitly requires this change.
    Assert verdict is "ready" and all services show "ok".
 
 2. **One service unreachable -- verdict "not ready".** Same as above but the
-   mock client for "agent" calls back with an error. Assert verdict is
-   "not ready", assert `services.agent.status === "unreachable"`.
+   mock client for "agent" calls back with an error. Assert verdict is "not
+   ready", assert `services.agent.status === "unreachable"`.
 
 3. **LLM_TOKEN missing -- verdict "not ready".** All services ok, but
    `llmToken()` throws. Assert verdict is "not ready" and
    `credentials.LLM_TOKEN === "missing"`.
 
 4. **Graph unreachable -- data counts are 0.** Graph service health check
-   returns unreachable. Assert `data.resources === 0` and
-   `data.triples === 0`. Verdict is "not ready" (service unreachable).
+   returns unreachable. Assert `data.resources === 0` and `data.triples === 0`.
+   Verdict is "not ready" (service unreachable).
 
 5. **Zero data counts do not affect verdict.** All services reachable,
    credentials configured, but graph returns empty data. Assert verdict is
@@ -551,6 +557,7 @@ bun run test
 ```
 
 Manual verification (requires running services):
+
 ```sh
 bunx fit-guide status
 bunx fit-guide status --json
@@ -601,9 +608,9 @@ product.
    full resolution chain (process.env then `.env` file). The method throws when
    the token is absent, so try/catch is required.
 
-8. **Config loading is per-service with try/catch.** A missing config entry
-   for one service does not prevent checking the others. Services with config
-   errors are immediately marked `"unreachable"`.
+8. **Config loading is per-service with try/catch.** A missing config entry for
+   one service does not prevent checking the others. Services with config errors
+   are immediately marked `"unreachable"`.
 
 9. **Onboarding gate before status dispatch.** The status command checks for
    `config/config.json` before attempting any config loads. Without it, every

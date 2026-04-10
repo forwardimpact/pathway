@@ -124,9 +124,9 @@ whenever you encounter one. Design and authoring rules:
 
 **Every contribution** must run both universal checklists:
 [CONTRIBUTING.md § READ-DO](CONTRIBUTING.md#read-do) (before starting) and
-[§ DO-CONFIRM](CONTRIBUTING.md#do-confirm) (before committing).
-Domain-specific checklists live in `.claude/skills/gemba-*/SKILL.md`. Discover
-all checklists repo-wide:
+[§ DO-CONFIRM](CONTRIBUTING.md#do-confirm) (before committing). Domain-specific
+checklists live in `.claude/skills/gemba-*/SKILL.md`. Discover all checklists
+repo-wide:
 
 ```sh
 rg '<read_do_checklist'     # all entry gates

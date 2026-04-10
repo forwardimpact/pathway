@@ -70,7 +70,8 @@ other activity modules):
 "./activity/parse-people": "./activity/parse-people.js"
 ```
 
-Add this adjacent to the existing `"./activity/validate/people"` entry (line 46).
+Add this adjacent to the existing `"./activity/validate/people"` entry (line
+46).
 
 ### Modify: `products/map/activity/validate/people.js`
 
@@ -78,12 +79,14 @@ Remove the local `parseCsv()` and `parseYamlPeople()` functions. Import from the
 shared module.
 
 **Before:**
+
 ```javascript
 import { parse as parseYaml } from "yaml";
 // ... local parseCsv and parseYamlPeople definitions
 ```
 
 **After:**
+
 ```javascript
 import { parseYamlPeople, parseCsv } from "../parse-people.js";
 // ... remove local definitions, keep loadPeopleFile, validatePeople
@@ -98,12 +101,14 @@ Remove the local `parseCsv()`, `parseYamlPeople()`, and `parsePeopleFile()`
 functions. Import from the shared module.
 
 **Before:**
+
 ```javascript
 import { parse as parseYaml } from "yaml";
 // ... local parseCsv, parseYamlPeople, parsePeopleFile definitions
 ```
 
 **After:**
+
 ```javascript
 import { parsePeopleFile } from "../../../../activity/parse-people.js";
 // ... remove local definitions, keep transformPeople, importPeople

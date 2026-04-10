@@ -25,8 +25,7 @@ asked for. If they ask for a spec, write the spec and stop.
 
 ## Checklists
 
-<read_do_checklist goal="Hold the WHAT/WHY boundary before writing or
-reviewing">
+<read_do_checklist goal="Ensure the WHAT/WHY boundary when writing a spec"
 
 - [ ] Only produce the deliverable asked for — if asked for a spec, stop after
       the spec. Do not also write a plan.

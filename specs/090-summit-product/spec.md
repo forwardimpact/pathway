@@ -37,10 +37,10 @@ about the team as a system. Note that libskill currently provides only
 individual-level derivation — Summit must implement team-level aggregation on
 top of these primitives.
 
-When a team has five backend engineers and zero incident response experience, the
-question isn't "why don't these engineers know incident response?" The question
-is "have we staffed this team to succeed?" The skill definitions describe what
-good looks like. Summit shows whether the team has it.
+When a team has five backend engineers and zero incident response experience,
+the question isn't "why don't these engineers know incident response?" The
+question is "have we staffed this team to succeed?" The skill definitions
+describe what good looks like. Summit shows whether the team has it.
 
 ## Design Principles
 
@@ -80,9 +80,9 @@ Summit defines explicit audiences per view:
 | **Manager** (1:1 tool)       | `coverage`, `risks`, `growth`, `trajectory`, `what-if`  | Individual specificity for direct reports — managers already see Pathway profiles |
 | **Director** (planning tool) | `coverage`, `risks`, `compare`, `trajectory`, `what-if` | Aggregated team views — named growth recommendations removed at this scope        |
 
-The manager already knows their team. Named growth recommendations ("Dan or Carol
-could develop incident_response") are appropriate for 1:1 conversations. For
-directors viewing across teams, Summit omits individual names and shows only
+The manager already knows their team. Named growth recommendations ("Dan or
+Carol could develop incident_response") are appropriate for 1:1 conversations.
+For directors viewing across teams, Summit omits individual names and shows only
 structural gaps and coverage counts.
 
 ## What
@@ -188,13 +188,14 @@ $ fit-summit coverage platform
     incident_response         ░░░░░░░░░░  gap — no engineers at working+
 ```
 
-The starter data defines two capabilities (delivery with skills `task_completion`
-and `planning`; reliability with skill `incident_response`) and one discipline
-(`software_engineering` with core skill `task_completion`, supporting skill
-`planning`, broad skill `incident_response`). The examples throughout this spec
-assume an installation with a richer skill framework to illustrate Summit's full
-analytical power. A minimal starter installation still benefits from coverage and
-risk analysis — the value scales with framework richness.
+The starter data defines two capabilities (delivery with skills
+`task_completion` and `planning`; reliability with skill `incident_response`)
+and one discipline (`software_engineering` with core skill `task_completion`,
+supporting skill `planning`, broad skill `incident_response`). The examples
+throughout this spec assume an installation with a richer skill framework to
+illustrate Summit's full analytical power. A minimal starter installation still
+benefits from coverage and risk analysis — the value scales with framework
+richness.
 
 The coverage view answers: "Where are we strong? Where are we thin? Where do we
 have nothing at all?"
@@ -269,9 +270,9 @@ obscure skills that don't apply — they're capabilities the team's composition
 suggests it needs.
 
 **Concentration risks** — multiple engineers clustered at the same level in the
-same capability, creating both redundancy and growth bottlenecks. Three Level III
-engineers all strong in delivery but nobody growing toward reliability suggests a
-structural imbalance.
+same capability, creating both redundancy and growth bottlenecks. Three Level
+III engineers all strong in delivery but nobody growing toward reliability
+suggests a structural imbalance.
 
 ```
 $ fit-summit risks platform
@@ -463,8 +464,8 @@ $ fit-summit growth platform --outcomes
 When `--outcomes` is passed, Summit reads GetDX snapshot scores from Map (via
 the activity layer's `getSnapshotScores` query) and driver definitions from
 `drivers.yaml` (which map drivers to contributing skills via
-`contributingSkills`). Growth recommendations are weighted by outcome severity: a
-gap aligned with a poorly-scoring GetDX driver gets boosted.
+`contributingSkills`). Growth recommendations are weighted by outcome severity:
+a gap aligned with a poorly-scoring GetDX driver gets boosted.
 
 The starter data defines only one driver (`quality`, contributing skills:
 `task_completion`, `planning`). Skills not linked to any driver (like
@@ -538,8 +539,8 @@ Two housekeeping commands support roster workflows:
 
 **`roster`** — Show the current roster as Summit sees it. When using Map's
 person model, displays the team hierarchy derived from `manager_email`. When
-using a local YAML file, displays the parsed teams and project teams with
-member counts, level distribution, and track coverage.
+using a local YAML file, displays the parsed teams and project teams with member
+counts, level distribution, and track coverage.
 
 ```
 $ fit-summit roster
@@ -697,18 +698,18 @@ Summit must handle missing or sparse data gracefully. Each view should
 communicate what is absent and why, rather than showing empty tables or failing
 silently.
 
-| Condition | Behavior |
-|---|---|
-| No roster source available | "No roster found. Provide --roster path or configure Map's organization_people table." |
-| Roster references unknown discipline/level/track | `validate` reports each mismatch: "{value} is not defined in {file}." Other commands warn but proceed with what they can resolve. |
-| Team has only 1 skill in framework | Coverage and risks work correctly but output is sparse. No error — the view reflects what the framework defines. |
-| `--evidenced` with no evidence data | Evidenced depth shows 0 for all skills, with a note: "No evidence data found. Evidenced depth reflects Guide-interpreted artifacts only." |
-| `--outcomes` with no GetDX snapshots | "No GetDX snapshot data available. Growth recommendations shown without outcome weighting." Falls back to structural-only ranking. |
-| `--outcomes` with no matching drivers | Skills without a linked driver show "no driver linked — outcome weighting not available." Ranking proceeds for skills that do have drivers. |
-| `trajectory` with no historical data | "Historical roster data not available. Showing current-state only. Trajectory requires quarterly roster snapshots in Map or version-controlled summit.yaml." |
-| `what-if --remove` references unknown name | "No team member named {name} found in {team}." |
-| `what-if --add` with invalid job fields | "Invalid job profile: {field} is not defined in Map data." |
-| Team has 0 members | "Team {name} has no members. Add members to the roster or check the manager email hierarchy." |
+| Condition                                        | Behavior                                                                                                                                                     |
+| ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| No roster source available                       | "No roster found. Provide --roster path or configure Map's organization_people table."                                                                       |
+| Roster references unknown discipline/level/track | `validate` reports each mismatch: "{value} is not defined in {file}." Other commands warn but proceed with what they can resolve.                            |
+| Team has only 1 skill in framework               | Coverage and risks work correctly but output is sparse. No error — the view reflects what the framework defines.                                             |
+| `--evidenced` with no evidence data              | Evidenced depth shows 0 for all skills, with a note: "No evidence data found. Evidenced depth reflects Guide-interpreted artifacts only."                    |
+| `--outcomes` with no GetDX snapshots             | "No GetDX snapshot data available. Growth recommendations shown without outcome weighting." Falls back to structural-only ranking.                           |
+| `--outcomes` with no matching drivers            | Skills without a linked driver show "no driver linked — outcome weighting not available." Ranking proceeds for skills that do have drivers.                  |
+| `trajectory` with no historical data             | "Historical roster data not available. Showing current-state only. Trajectory requires quarterly roster snapshots in Map or version-controlled summit.yaml." |
+| `what-if --remove` references unknown name       | "No team member named {name} found in {team}."                                                                                                               |
+| `what-if --add` with invalid job fields          | "Invalid job profile: {field} is not defined in Map data."                                                                                                   |
+| Team has 0 members                               | "Team {name} has no members. Add members to the roster or check the manager email hierarchy."                                                                |
 
 The principle: always explain the empty state in terms the user can act on —
 name the missing data source and how to populate it.
@@ -751,16 +752,16 @@ named project team from the `projects` section of the roster file.
 **`--project` flag scope:** `--project` replaces the `<team>` argument. It is
 supported on all commands that accept a team:
 
-| Command | `--project` support | Notes |
-|---|---|---|
-| `coverage` | Yes | Shows effective depth (allocation-weighted) instead of headcount depth |
-| `risks` | Yes | Risk assessment incorporates allocation — partial allocation increases risk severity |
-| `what-if` | Yes | `--allocation` flag available for hypothetical additions |
-| `growth` | Yes | Growth candidates drawn from project members only |
-| `compare` | Yes | Can compare a project team against a reporting team or another project |
-| `trajectory` | No | Project teams are ephemeral by nature — trajectory tracks reporting teams over quarters |
-| `roster` | Yes | Shows project team members with allocation percentages |
-| `validate` | Yes | Validates that project member emails resolve to known people |
+| Command      | `--project` support | Notes                                                                                   |
+| ------------ | ------------------- | --------------------------------------------------------------------------------------- |
+| `coverage`   | Yes                 | Shows effective depth (allocation-weighted) instead of headcount depth                  |
+| `risks`      | Yes                 | Risk assessment incorporates allocation — partial allocation increases risk severity    |
+| `what-if`    | Yes                 | `--allocation` flag available for hypothetical additions                                |
+| `growth`     | Yes                 | Growth candidates drawn from project members only                                       |
+| `compare`    | Yes                 | Can compare a project team against a reporting team or another project                  |
+| `trajectory` | No                  | Project teams are ephemeral by nature — trajectory tracks reporting teams over quarters |
+| `roster`     | Yes                 | Shows project team members with allocation percentages                                  |
+| `validate`   | Yes                 | Validates that project member emails resolve to known people                            |
 
 ### What-If Options
 
@@ -845,15 +846,16 @@ Summit's analytical depth. The starter defines 2 levels (`J040` Level I, `J060`
 Level II), 3 skills across 2 capabilities, 1 driver, and 1 discipline.
 
 Summit's value scales with framework richness. An installation with 5 levels, 20
-skills across 6 capabilities, and multiple disciplines will see detailed coverage
-heatmaps, meaningful risk analysis, and rich what-if scenarios. The minimal
-starter is intentional: it forces installations to own their framework
+skills across 6 capabilities, and multiple disciplines will see detailed
+coverage heatmaps, meaningful risk analysis, and rich what-if scenarios. The
+minimal starter is intentional: it forces installations to own their framework
 definitions rather than cargo-culting examples. Summit works correctly with the
 starter — coverage and risk views are accurate, just sparse.
 
 Getting-started documentation for external users should set this expectation
 clearly: install Summit, define your roster, then author your framework data.
-The [Authoring Frameworks guide](website/docs/guides/authoring-frameworks/index.md)
+The
+[Authoring Frameworks guide](website/docs/guides/authoring-frameworks/index.md)
 covers vocabulary standards.
 
 ## Implementation Prerequisites
@@ -879,14 +881,14 @@ tracks what exists and what must be built.
 
 **New work Summit must implement:**
 
-| Component | What it enables | Notes |
-|---|---|---|
+| Component              | What it enables                   | Notes                                                                                                                                                                            |
+| ---------------------- | --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Team aggregation logic | `coverage`, `risks`, all commands | Iterate roster, call `deriveSkillMatrix` per person, aggregate into team-level coverage/depth counts. This is Summit's core contribution — libskill has no team-level functions. |
-| Risk detection | `risks` | Single point of failure detection, critical gap identification, concentration risk analysis. Pure logic over aggregated data. |
-| What-if simulation | `what-if` | Clone roster, apply mutation (add/remove/move/promote), re-aggregate, diff. |
-| Growth alignment | `growth`, export for Landmark | Identify team gaps, rank by impact, match candidates. Export as `computeGrowthAlignment`. |
-| Roster loader | All commands | Load from Map org model or local YAML. The YAML format is defined in this spec but no parser exists yet. An example YAML exists at `data/activity/raw/activity/summit.yaml`. |
-| Trajectory tracking | `trajectory` | Requires either historical roster snapshots from Map (not yet supported) or git history parsing of summit.yaml. |
+| Risk detection         | `risks`                           | Single point of failure detection, critical gap identification, concentration risk analysis. Pure logic over aggregated data.                                                    |
+| What-if simulation     | `what-if`                         | Clone roster, apply mutation (add/remove/move/promote), re-aggregate, diff.                                                                                                      |
+| Growth alignment       | `growth`, export for Landmark     | Identify team gaps, rank by impact, match candidates. Export as `computeGrowthAlignment`.                                                                                        |
+| Roster loader          | All commands                      | Load from Map org model or local YAML. The YAML format is defined in this spec but no parser exists yet. An example YAML exists at `data/activity/raw/activity/summit.yaml`.     |
+| Trajectory tracking    | `trajectory`                      | Requires either historical roster snapshots from Map (not yet supported) or git history parsing of summit.yaml.                                                                  |
 
 **Starter data gaps (not blockers but reduce demo value):**
 
@@ -902,11 +904,11 @@ tracks what exists and what must be built.
 
 **Cross-product dependencies:**
 
-| Dependency | Required for | Status |
-|---|---|---|
-| Landmark (spec 080) | Consuming `computeGrowthAlignment` | Draft — Summit should ship first since Landmark depends on it |
-| Guide evidence writing | `--evidenced` flag | Guide can interpret artifacts independently of Summit |
-| Map historical roster snapshots | `trajectory` from Map source | Not yet supported — would need new query/table |
+| Dependency                      | Required for                       | Status                                                        |
+| ------------------------------- | ---------------------------------- | ------------------------------------------------------------- |
+| Landmark (spec 080)             | Consuming `computeGrowthAlignment` | Draft — Summit should ship first since Landmark depends on it |
+| Guide evidence writing          | `--evidenced` flag                 | Guide can interpret artifacts independently of Summit         |
+| Map historical roster snapshots | `trajectory` from Map source       | Not yet supported — would need new query/table                |
 
 ## Summary
 

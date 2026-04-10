@@ -20,8 +20,8 @@ recommendations in context.
 Key simplification:
 
 - We continue using **GetDX** as the survey and developer experience platform.
-- Map ingests GetDX snapshot aggregates. Comment and initiative ingestion require
-  new extract/transform endpoints (not yet implemented — see
+- Map ingests GetDX snapshot aggregates. Comment and initiative ingestion
+  require new extract/transform endpoints (not yet implemented — see
   [Implementation Prerequisites](#implementation-prerequisites)).
 - Map also stores GitHub activity. Marker definitions belong in capability YAML
   (schema-supported via `capability.schema.json`, but no markers are defined in
@@ -207,13 +207,14 @@ and each entry is an object with `human` and/or `agent` string arrays. The data
 loader (`src/loader.js`) carries markers through to the loaded skill objects.
 
 **Current state:** No capabilities in the starter data define markers yet. The
-starter capabilities (`delivery`, `reliability`) define `proficiencyDescriptions`
-but not `markers`. Markers are installation-specific — each organization authors
-markers that reflect their context. Landmark's evidence-based views (readiness,
-health, evidence) require markers to be populated.
+starter capabilities (`delivery`, `reliability`) define
+`proficiencyDescriptions` but not `markers`. Markers are installation-specific —
+each organization authors markers that reflect their context. Landmark's
+evidence-based views (readiness, health, evidence) require markers to be
+populated.
 
-Landmark reads markers to label and group evidence. Guide reads them to interpret
-artifacts. Map validates them.
+Landmark reads markers to label and group evidence. Guide reads them to
+interpret artifacts. Map validates them.
 
 ### Evidence Pipeline
 
@@ -323,11 +324,11 @@ indicate whether evidence exists, cite the artifact, or mark as gap.
 - Summary: "8/12 markers evidenced. Missing: ..."
 - Default target is current level + 1 (determined by `ordinalRank` in
   `levels.yaml`). Override with `--target`.
-- **Starter limitation:** The starter data defines only 2 levels (`J040`
-  Level I, `J060` Level II). An engineer at Level II has no next level to
-  target. In this case, `readiness` should report "no higher level defined"
-  rather than failing silently. Installations with a full level ladder (e.g.,
-  5 levels) will see the intended readiness checklist behavior.
+- **Starter limitation:** The starter data defines only 2 levels (`J040` Level
+  I, `J060` Level II). An engineer at Level II has no next level to target. In
+  this case, `readiness` should report "no higher level defined" rather than
+  failing silently. Installations with a full level ladder (e.g., 5 levels) will
+  see the intended readiness checklist behavior.
 
 ### Individual growth timeline
 
@@ -420,10 +421,10 @@ $ fit-landmark health --manager alice@example.com
 
 The examples above use the starter data's single driver (`quality`) and its
 contributing skills (`task_completion`, `planning`). In a real installation with
-richer driver definitions (e.g., `reliability` contributing `incident_response`),
-the health view would show multiple driver sections. The starter data's single
-driver is intentionally minimal — installations define drivers that match their
-GetDX scorecard items.
+richer driver definitions (e.g., `reliability` contributing
+`incident_response`), the health view would show multiple driver sections. The
+starter data's single driver is intentionally minimal — installations define
+drivers that match their GetDX scorecard items.
 
 Implementation: When Summit is installed, Landmark imports its growth
 computation as a library function. Given a team roster and Map data, it returns
@@ -534,18 +535,18 @@ Landmark must handle missing or sparse data gracefully. Each view should
 communicate what is absent and why, rather than showing empty tables or failing
 silently.
 
-| Condition | Behavior |
-|---|---|
-| No evidence rows exist | `evidence`, `readiness`, `timeline`, `coverage`, `practiced` show "No evidence data available. Guide has not yet interpreted artifacts for this scope." |
-| No markers defined for a skill | `marker` shows "No markers defined for {skill}. Add markers to the capability YAML." `readiness` shows "No markers defined at target level — cannot generate checklist." |
-| No GetDX snapshots ingested | `snapshot`, `health` show "No GetDX snapshot data available. Run `fit-map getdx sync` to ingest." |
-| No GetDX comments table | `voice` shows "Snapshot comments not available. The getdx_snapshot_comments table has not been created." |
-| No GetDX initiatives table | `initiative` shows "Initiative data not available. The getdx_initiatives table has not been created." |
-| Summit not installed | `health` omits the recommendation lines — shows driver scores, evidence, and comments without growth suggestions. No error. |
-| `--email` matches no person | "No person found with email {email} in organization_people." |
-| `--manager` matches no team | "No team found for manager {email}." |
-| Readiness target level not defined | "No higher level defined in levels.yaml. Current level ({id}) is the highest." |
-| `--evidenced` with no evidence | Views show evidenced depth as 0 for all skills, with a note: "No evidence data found. Evidenced depth reflects Guide-interpreted artifacts only." |
+| Condition                          | Behavior                                                                                                                                                                 |
+| ---------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| No evidence rows exist             | `evidence`, `readiness`, `timeline`, `coverage`, `practiced` show "No evidence data available. Guide has not yet interpreted artifacts for this scope."                  |
+| No markers defined for a skill     | `marker` shows "No markers defined for {skill}. Add markers to the capability YAML." `readiness` shows "No markers defined at target level — cannot generate checklist." |
+| No GetDX snapshots ingested        | `snapshot`, `health` show "No GetDX snapshot data available. Run `fit-map getdx sync` to ingest."                                                                        |
+| No GetDX comments table            | `voice` shows "Snapshot comments not available. The getdx_snapshot_comments table has not been created."                                                                 |
+| No GetDX initiatives table         | `initiative` shows "Initiative data not available. The getdx_initiatives table has not been created."                                                                    |
+| Summit not installed               | `health` omits the recommendation lines — shows driver scores, evidence, and comments without growth suggestions. No error.                                              |
+| `--email` matches no person        | "No person found with email {email} in organization_people."                                                                                                             |
+| `--manager` matches no team        | "No team found for manager {email}."                                                                                                                                     |
+| Readiness target level not defined | "No higher level defined in levels.yaml. Current level ({id}) is the highest."                                                                                           |
+| `--evidenced` with no evidence     | Views show evidenced depth as 0 for all skills, with a note: "No evidence data found. Evidenced depth reflects Guide-interpreted artifacts only."                        |
 
 The principle: always explain the empty state in terms the user can act on —
 name the missing data source and how to populate it.
@@ -604,10 +605,10 @@ capabilities, 1 driver, 1 behaviour, and 0 markers.
 
 Landmark's value scales with framework richness. An installation with 5 levels,
 20 skills, 8 drivers, and authored markers will see multi-driver health views,
-meaningful readiness checklists, and rich evidence timelines. The minimal starter
-is intentional: it forces installations to own their framework definitions rather
-than cargo-culting examples. Landmark works correctly with the starter — it just
-shows less.
+meaningful readiness checklists, and rich evidence timelines. The minimal
+starter is intentional: it forces installations to own their framework
+definitions rather than cargo-culting examples. Landmark works correctly with
+the starter — it just shows less.
 
 Getting-started documentation for external users should set this expectation
 clearly: install Landmark, then author your framework data. The
@@ -634,24 +635,24 @@ section tracks what must be built before each Landmark capability can function.
 
 **Map activity layer — requires new work:**
 
-| Prerequisite | Blocks Landmark commands | Work required |
-|---|---|---|
-| `getdx_snapshot_comments` table | `voice` | New migration, new extract endpoint (`snapshots.comments.list`), new transform step |
-| `getdx_initiatives` table | `initiative list/show/impact` | New migration, new extract endpoint (Initiatives API), new transform step |
+| Prerequisite                                    | Blocks Landmark commands      | Work required                                                                                                                |
+| ----------------------------------------------- | ----------------------------- | ---------------------------------------------------------------------------------------------------------------------------- |
+| `getdx_snapshot_comments` table                 | `voice`                       | New migration, new extract endpoint (`snapshots.comments.list`), new transform step                                          |
+| `getdx_initiatives` table                       | `initiative list/show/impact` | New migration, new extract endpoint (Initiatives API), new transform step                                                    |
 | Additional driver definitions in `drivers.yaml` | `health` (multi-driver views) | Starter data authoring — installations can define their own, but the starter should demonstrate the pattern with 2-3 drivers |
 
 **Framework data — requires authoring:**
 
-| Prerequisite | Blocks Landmark commands | Work required |
-|---|---|---|
+| Prerequisite                          | Blocks Landmark commands                                | Work required                                                                       |
+| ------------------------------------- | ------------------------------------------------------- | ----------------------------------------------------------------------------------- |
 | Marker definitions in capability YAML | `readiness`, `evidence` (marker-linked views), `health` | Add `markers` to at least `delivery` and `reliability` capabilities in starter data |
 
 **Cross-product dependencies:**
 
-| Prerequisite | Blocks Landmark commands | Work required |
-|---|---|---|
-| Summit's `computeGrowthAlignment` export (spec 090) | `health` growth recommendations (health itself works without Summit — degrades gracefully to driver scores + evidence + comments) | Implement Summit product, export growth function |
-| Guide evidence generation | All evidence-based views | Guide must interpret artifacts and write evidence rows |
+| Prerequisite                                        | Blocks Landmark commands                                                                                                          | Work required                                          |
+| --------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------ |
+| Summit's `computeGrowthAlignment` export (spec 090) | `health` growth recommendations (health itself works without Summit — degrades gracefully to driver scores + evidence + comments) | Implement Summit product, export growth function       |
+| Guide evidence generation                           | All evidence-based views                                                                                                          | Guide must interpret artifacts and write evidence rows |
 
 **Landmark can ship incrementally.** The `org`, `snapshot`, and `practice`
 commands depend only on existing infrastructure. Evidence-based commands

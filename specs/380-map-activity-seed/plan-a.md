@@ -13,8 +13,8 @@ end-to-end.
 
 Parser consolidation extracts the duplicated `parseYamlPeople`/`parseCsv` into a
 new shared module under `products/map/activity/`. Both the CLI validator and the
-Supabase edge function import from it. The shared module avoids Node-only imports
-(`fs`) so it works under Deno.
+Supabase edge function import from it. The shared module avoids Node-only
+imports (`fs`) so it works under Deno.
 
 DSL validation is a parse-time check: when `framework.levels` and
 `people.distribution` both exist, distribution keys must be a subset of level
@@ -24,12 +24,12 @@ IDs.
 
 This plan is decomposed into four independently executable parts:
 
-| Part | Scope | Dependencies |
-|------|-------|--------------|
-| [01](plan-a-01.md) | Parser consolidation | None |
-| [02](plan-a-02.md) | DSL distribution key validation | None |
+| Part               | Scope                             | Dependencies                 |
+| ------------------ | --------------------------------- | ---------------------------- |
+| [01](plan-a-01.md) | Parser consolidation              | None                         |
+| [02](plan-a-02.md) | DSL distribution key validation   | None                         |
 | [03](plan-a-03.md) | `seed` command and `just` targets | Part 01 (uses shared parser) |
-| [04](plan-a-04.md) | Integration test | Part 01, 03 |
+| [04](plan-a-04.md) | Integration test                  | Part 01, 03                  |
 
 ## Cross-cutting concerns
 
@@ -55,8 +55,8 @@ This plan is decomposed into four independently executable parts:
   adds an informational note to `website/docs/getting-started/leadership/` after
   the activity verify section, explaining how to seed with synthetic data.
 - **Docker detection**: Use `docker info --format '{{.ID}}' 2>/dev/null` with a
-  3-second timeout. Fast, silent on failure, returns exit 1 when Docker daemon is
-  not running.
+  3-second timeout. Fast, silent on failure, returns exit 1 when Docker daemon
+  is not running.
 - **Shared parser import path**: The Supabase edge function at
   `supabase/functions/_shared/activity/transform/people.js` imports the shared
   module via a relative path (`../../../../activity/parse-people.js`). The
