@@ -92,10 +92,10 @@ Out of scope:
    existing `libconfig` credential resolution (environment variable or `.env`
    file). Report present/missing. Do not attempt an actual LLM API call.
 
-4. **Structured summary output.** Use libcli's `SummaryRenderer` to print
-   each section (Services, Data, Credentials) as a summary group with aligned
-   labels. End with a single verdict line: `Status: ready` or
-   `Status: not ready`. Example:
+4. **Structured summary output.** Use libcli's `SummaryRenderer` to print each
+   section (Services, Data, Credentials) as a summary group with aligned labels.
+   End with a single verdict line: `Status: ready` or `Status: not ready`.
+   Example:
 
    ```
    Services
