@@ -83,14 +83,14 @@ no `prescreen()`, no pass-through of unknown flags. CLIs that previously
 delegated flag parsing to sub-command handlers (fit-eval) or to a Repl
 (fit-guide, fit-visualize) are restructured:
 
-- **fit-eval**: All sub-command flags (`--task-file`, `--model`,
-  `--max-turns`, etc.) move into the top-level definition. Handlers receive
-  parsed `values` instead of raw argv. The custom `parseFlag()` function is
-  deleted. Unused flags for a given sub-command are harmlessly `undefined`.
+- **fit-eval**: All sub-command flags (`--task-file`, `--model`, `--max-turns`,
+  etc.) move into the top-level definition. Handlers receive parsed `values`
+  instead of raw argv. The custom `parseFlag()` function is deleted. Unused
+  flags for a given sub-command are harmlessly `undefined`.
 - **fit-guide, fit-visualize**: CLI flags (`--init`, `--data`, `--streaming`)
   move out of the Repl's `commands` config and into the libcli definition. The
-  CLI entry point handles them before starting the Repl. The Repl becomes
-  purely interactive — no CLI flag parsing.
+  CLI entry point handles them before starting the Repl. The Repl becomes purely
+  interactive — no CLI flag parsing.
 
 Typical entry point pattern after migration:
 
@@ -193,18 +193,18 @@ directly." libcli and libtelemetry are peers — both used by CLI entry points.
 
 ## Parts
 
-| Part               | Scope                                                | Depends on | Files               |
-| ------------------ | ---------------------------------------------------- | ---------- | ------------------- |
-| [01](plan-a-01.md) | Create libcli library                                | —          | ~12 new             |
-| [02](plan-a-02.md) | Migrate product CLIs (pathway, map, guide)           | 01         | ~7 modified         |
-| [03](plan-a-03.md) | Migrate library CLIs (22 CLIs across 17 packages)    | 01         | ~22 modified        |
-| [04](plan-a-04.md) | Documentation (internals page, index update)         | 01         | ~2 new, 2 modified  |
-| [05](plan-a-05.md) | Refactor Basecamp CLI to positional subcommands      | 01         | ~3 modified, 1 new  |
-| [06](plan-a-06.md) | Update documentation referencing CLI output          | 02–05      | ~12 modified        |
+| Part               | Scope                                             | Depends on | Files              |
+| ------------------ | ------------------------------------------------- | ---------- | ------------------ |
+| [01](plan-a-01.md) | Create libcli library                             | —          | ~12 new            |
+| [02](plan-a-02.md) | Migrate product CLIs (pathway, map, guide)        | 01         | ~7 modified        |
+| [03](plan-a-03.md) | Migrate library CLIs (22 CLIs across 17 packages) | 01         | ~22 modified       |
+| [04](plan-a-04.md) | Documentation (internals page, index update)      | 01         | ~2 new, 2 modified |
+| [05](plan-a-05.md) | Refactor Basecamp CLI to positional subcommands   | 01         | ~3 modified, 1 new |
+| [06](plan-a-06.md) | Update documentation referencing CLI output       | 02–05      | ~12 modified       |
 
 Parts 02, 03, 04, and 05 all depend on part 01 but are independent of each
-other. Part 06 depends on parts 02–05 (it updates documentation to match the
-new CLI output formats, including basecamp's new positional subcommands).
+other. Part 06 depends on parts 02–05 (it updates documentation to match the new
+CLI output formats, including basecamp's new positional subcommands).
 
 ## Cross-cutting concerns
 

@@ -78,9 +78,9 @@ For every CLI: add `@forwardimpact/libcli` to the package's `dependencies` in
 ### fit-eval (`libraries/libeval/bin/fit-eval.js`)
 
 **Current:** 101 lines. `HELP_TEXT` const (lines 15–63), manual
-`process.argv.slice(2)` parsing (line 66), `console.error` for errors. The
-`run` and `supervise` handlers each have a custom `parseFlag()` function that
-scans raw argv for `--key=value` patterns.
+`process.argv.slice(2)` parsing (line 66), `console.error` for errors. The `run`
+and `supervise` handlers each have a custom `parseFlag()` function that scans
+raw argv for `--key=value` patterns.
 
 **Changes:**
 
@@ -150,20 +150,19 @@ scans raw argv for `--key=value` patterns.
    ```
 
 4. Update `run.js` and `supervise.js`:
-
    - Delete `parseFlag()` function (duplicated in both files)
    - Delete `parseRunOptions()` / `parseSuperviseOptions()` functions
    - Change handler signatures from `(args)` to `(values, args)`
    - Read flags directly from `values` instead of scanning argv:
      `values["task-file"]` instead of `parseFlag(args, "task-file")`
-   - Validation logic (`--task-file` and `--task-text` mutually exclusive,
-     one required) stays but reads from `values`
+   - Validation logic (`--task-file` and `--task-text` mutually exclusive, one
+     required) stays but reads from `values`
 
 5. Update `output.js`: Change signature to `(values, args)`, read
    `values.format` instead of scanning args.
 
-6. Update `tee.js`: Change signature to `(values, args)`, read output path
-   from `args[0]` (already a positional).
+6. Update `tee.js`: Change signature to `(values, args)`, read output path from
+   `args[0]` (already a positional).
 
 7. Replace `console.error` with `cli.error()` and `cli.usageError()`.
 
@@ -406,9 +405,9 @@ config.
 
 Same approach as fit-guide (part 02): declare all CLI flags in the libcli
 definition, handle them in the CLI entry point before starting the Repl. Move
-any CLI-time concerns out of the Repl's `commands` config. Use `cli.parse()`
-for `--help`/`--version` and any CLI flags, then start the Repl for the
-interactive session.
+any CLI-time concerns out of the Repl's `commands` config. Use `cli.parse()` for
+`--help`/`--version` and any CLI flags, then start the Repl for the interactive
+session.
 
 ## Package.json updates
 

@@ -80,21 +80,21 @@ production use).
 13 files import generic formatters that move to libcli — redirect their imports
 to `@forwardimpact/libcli`:
 
-| File                                           | Functions imported                                     |
-| ---------------------------------------------- | ------------------------------------------------------ |
-| `products/pathway/bin/fit-pathway.js`          | `formatError`                                          |
-| `products/pathway/src/commands/skill.js`       | `formatTable`, `formatError`                           |
-| `products/pathway/src/commands/track.js`       | `formatTable`                                          |
-| `products/pathway/src/commands/agent.js`       | `formatError`, `formatSuccess`                         |
-| `products/pathway/src/commands/behaviour.js`   | `formatTable`                                          |
-| `products/pathway/src/commands/level.js`       | `formatTable`                                          |
-| `products/pathway/src/commands/driver.js`      | `formatTable`, `formatHeader`, `formatSubheader`, `formatBullet` |
-| `products/pathway/src/commands/discipline.js`  | `formatTable`                                          |
-| `products/pathway/src/commands/job.js`         | `formatTable`                                          |
-| `products/pathway/src/commands/agent-io.js`    | `formatSuccess`                                        |
-| `products/pathway/src/commands/questions.js`   | `formatTable`                                          |
-| `products/pathway/src/commands/stage.js`       | `formatTable`, `formatHeader`, `formatSubheader`, `formatBullet` |
-| `products/pathway/src/commands/tool.js`        | `formatTable`, `formatHeader`, `formatSubheader`       |
+| File                                          | Functions imported                                               |
+| --------------------------------------------- | ---------------------------------------------------------------- |
+| `products/pathway/bin/fit-pathway.js`         | `formatError`                                                    |
+| `products/pathway/src/commands/skill.js`      | `formatTable`, `formatError`                                     |
+| `products/pathway/src/commands/track.js`      | `formatTable`                                                    |
+| `products/pathway/src/commands/agent.js`      | `formatError`, `formatSuccess`                                   |
+| `products/pathway/src/commands/behaviour.js`  | `formatTable`                                                    |
+| `products/pathway/src/commands/level.js`      | `formatTable`                                                    |
+| `products/pathway/src/commands/driver.js`     | `formatTable`, `formatHeader`, `formatSubheader`, `formatBullet` |
+| `products/pathway/src/commands/discipline.js` | `formatTable`                                                    |
+| `products/pathway/src/commands/job.js`        | `formatTable`                                                    |
+| `products/pathway/src/commands/agent-io.js`   | `formatSuccess`                                                  |
+| `products/pathway/src/commands/questions.js`  | `formatTable`                                                    |
+| `products/pathway/src/commands/stage.js`      | `formatTable`, `formatHeader`, `formatSubheader`, `formatBullet` |
+| `products/pathway/src/commands/tool.js`       | `formatTable`, `formatHeader`, `formatSubheader`                 |
 
 Each file switches from `import { fn } from "../lib/cli-output.js"` to
 `import { fn } from "@forwardimpact/libcli"`. Domain-specific formatters
@@ -320,8 +320,8 @@ Add `@forwardimpact/libcli` dependency.
 
 #### 3b. Rewrite `products/guide/bin/fit-guide.js`
 
-**Current state:** Repl-based interactive CLI (280 lines). The Repl's
-`commands` config (lines 231–261) handles `--version`, `--init`, `--data`, and
+**Current state:** Repl-based interactive CLI (280 lines). The Repl's `commands`
+config (lines 231–261) handles `--version`, `--init`, `--data`, and
 `--streaming` as CLI flags parsed during `repl.start()`. These are CLI-time
 concerns, not interactive Repl commands.
 
@@ -375,10 +375,10 @@ await repl.start();
 
 **What's deleted:**
 
-- The `commands` object passed to the Repl (lines 231–261) — `version`,
-  `init`, `data`, `streaming` entries all move to the libcli definition
-- The `showVersion()` function (lines 42–47) — `cli.parse()` handles
-  `--version` directly
+- The `commands` object passed to the Repl (lines 231–261) — `version`, `init`,
+  `data`, `streaming` entries all move to the libcli definition
+- The `showVersion()` function (lines 42–47) — `cli.parse()` handles `--version`
+  directly
 
 **What's kept:**
 
@@ -397,6 +397,7 @@ The spec requires every CLI to create a Logger. Check each product CLI:
   for Finder. Keep as-is — Logger is already wired.
 - **fit-map**: Already creates `createLogger()` for Finder (line 37). Keep.
 - **fit-guide**: Already creates `createLogger("cli")` (line 150). Keep.
+
 ### 5. Verification
 
 For each product CLI:

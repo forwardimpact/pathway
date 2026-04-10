@@ -1,8 +1,8 @@
 # 360 Part 05 — Refactor Basecamp CLI
 
 Refactor fit-basecamp from flag-based commands (`--daemon`, `--wake`, `--init`)
-to positional subcommands (`daemon`, `wake`, `init`). This is a clean break —
-no backwards compatibility with the old flag syntax.
+to positional subcommands (`daemon`, `wake`, `init`). This is a clean break — no
+backwards compatibility with the old flag syntax.
 
 **Depends on:** Part 01 (libcli library must exist).
 
@@ -17,8 +17,8 @@ fit-basecamp --wake <agent>
 fit-basecamp --init <path>
 ```
 
-This is confusing: `--daemon` appears under "Commands:" in help output, but
-it's syntactically an option. Agents and users parsing `--help` output see
+This is confusing: `--daemon` appears under "Commands:" in help output, but it's
+syntactically an option. Agents and users parsing `--help` output see
 "Commands:" and expect positional arguments. The flag-as-command pattern also
 prevents basecamp from fitting cleanly into libcli's definition model, where
 `commands` are positional and `options` are flags.
@@ -35,11 +35,11 @@ This aligns basecamp with every other CLI in the suite.
 
 ## Files modified
 
-| File                                | Change                                        |
-| ----------------------------------- | --------------------------------------------- |
-| `products/basecamp/package.json`    | Add `@forwardimpact/libcli` dependency        |
-| `products/basecamp/src/basecamp.js` | Rewrite CLI entry: flags → positional commands |
-| `products/basecamp/test/basecamp-cli.test.js` | **New** — CLI dispatch tests         |
+| File                                          | Change                                         |
+| --------------------------------------------- | ---------------------------------------------- |
+| `products/basecamp/package.json`              | Add `@forwardimpact/libcli` dependency         |
+| `products/basecamp/src/basecamp.js`           | Rewrite CLI entry: flags → positional commands |
+| `products/basecamp/test/basecamp-cli.test.js` | **New** — CLI dispatch tests                   |
 
 ## Steps
 
@@ -82,8 +82,8 @@ const definition = {
 };
 ```
 
-This is a clean command model — commands are positional, options are flags.
-No semantic confusion between "Commands:" and "Options:" in help output.
+This is a clean command model — commands are positional, options are flags. No
+semantic confusion between "Commands:" and "Options:" in help output.
 
 #### 2b. Replace CLI entry point
 
