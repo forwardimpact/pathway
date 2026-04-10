@@ -30,14 +30,17 @@ losing one person would leave the team unable to ship. An IC planning their
 growth doesn't know which skills their team actually needs them to develop.
 
 The data is already there — Pathway derives every engineer's skill matrix from
-their discipline, level, and track. Summit aggregates those matrices into a
-team-level view and makes capability visible. Not to rank individuals, but to
-answer structural questions about the team as a system.
+their discipline, level, and track via libskill (`deriveSkillMatrix`,
+`deriveJob`). Summit aggregates those matrices into a team-level view and makes
+capability visible. Not to rank individuals, but to answer structural questions
+about the team as a system. Note that libskill currently provides only
+individual-level derivation — Summit must implement team-level aggregation on
+top of these primitives.
 
-When a team has five backend engineers and zero observability experience, the
-question isn't "why don't these engineers know observability?" The question is
-"have we staffed this team to succeed?" The skill definitions describe what good
-looks like. Summit shows whether the team has it.
+When a team has five backend engineers and zero incident response experience, the
+question isn't "why don't these engineers know incident response?" The question
+is "have we staffed this team to succeed?" The skill definitions describe what
+good looks like. Summit shows whether the team has it.
 
 ## Design Principles
 
@@ -77,9 +80,9 @@ Summit defines explicit audiences per view:
 | **Manager** (1:1 tool)       | `coverage`, `risks`, `growth`, `trajectory`, `what-if`  | Individual specificity for direct reports — managers already see Pathway profiles |
 | **Director** (planning tool) | `coverage`, `risks`, `compare`, `trajectory`, `what-if` | Aggregated team views — named growth recommendations removed at this scope        |
 
-The manager already knows their team. Named growth recommendations ("Dan or
-Carol could develop incident_response") are appropriate for 1:1 conversations.
-For directors viewing across teams, Summit omits individual names and shows only
+The manager already knows their team. Named growth recommendations ("Dan or Carol
+could develop incident_response") are appropriate for 1:1 conversations. For
+directors viewing across teams, Summit omits individual names and shows only
 structural gaps and coverage counts.
 
 ## What
@@ -111,30 +114,30 @@ teams:
   platform:
     - name: Alice
       email: alice@example.com
-      job: { discipline: se, level: L3, track: platform }
+      job: { discipline: software_engineering, level: J080, track: platform }
     - name: Bob
       email: bob@example.com
-      job: { discipline: se, level: L4 }
+      job: { discipline: software_engineering, level: J100 }
     - name: Carol
       email: carol@example.com
-      job: { discipline: se, level: L3, track: platform }
+      job: { discipline: software_engineering, level: J080, track: platform }
     - name: Dan
       email: dan@example.com
-      job: { discipline: se, level: L2 }
+      job: { discipline: software_engineering, level: J060 }
     - name: Eve
       email: eve@example.com
-      job: { discipline: se, level: L5, track: platform }
+      job: { discipline: software_engineering, level: J120, track: platform }
 
   payments:
     - name: Frank
       email: frank@example.com
-      job: { discipline: se, level: L3 }
+      job: { discipline: software_engineering, level: J080 }
     - name: Grace
       email: grace@example.com
-      job: { discipline: se, level: L4 }
+      job: { discipline: software_engineering, level: J100 }
     - name: Heidi
       email: heidi@example.com
-      job: { discipline: se, level: L2 }
+      job: { discipline: software_engineering, level: J060 }
 
 # Project teams with allocation percentages
 projects:
@@ -146,9 +149,15 @@ projects:
     - email: grace@example.com
       allocation: 0.4                  # 40% on this project
     - name: Ivan                       # external/hypothetical member
-      job: { discipline: se, level: L4, track: platform }
+      job: { discipline: software_engineering, level: J100, track: platform }
       allocation: 1.0
 ```
+
+Level IDs are framework-defined. The starter data defines `J040` (Level I) and
+`J060` (Level II). The examples above assume a richer installation with
+additional levels (`J080` Level III, `J100` Level IV, `J120` Level V) to
+illustrate multi-level team composition. Installations define their own level
+ladder in `levels.yaml`.
 
 When using Map's person model, teams are derived automatically from the manager
 hierarchy — no local file needed. When using a local file, email is included so
@@ -172,21 +181,20 @@ $ fit-summit coverage platform
   Platform team — 5 engineers
 
   Capability: Delivery
-    task_decomposition        ████████░░  depth: 3 engineers at working+
-    incremental_delivery      ████████░░  depth: 3 engineers at working+
-    technical_debt_management ██████░░░░  depth: 2 engineers at working+
-    estimation                ████░░░░░░  depth: 1 engineer at working+
+    task_completion           ████████░░  depth: 3 engineers at working+
+    planning                  ██████░░░░  depth: 2 engineers at working+
 
   Capability: Reliability
-    observability             ██░░░░░░░░  depth: 1 engineer at foundational
     incident_response         ░░░░░░░░░░  gap — no engineers at working+
-    capacity_planning         ████░░░░░░  depth: 1 engineer at practitioner
-
-  Capability: Scale
-    system_design             ██████████  depth: 4 engineers at working+
-    api_design                ████████░░  depth: 3 engineers at working+
-    performance_engineering   ██░░░░░░░░  depth: 1 engineer at foundational
 ```
+
+The starter data defines two capabilities (delivery with skills `task_completion`
+and `planning`; reliability with skill `incident_response`) and one discipline
+(`software_engineering` with core skill `task_completion`, supporting skill
+`planning`, broad skill `incident_response`). The examples throughout this spec
+assume an installation with a richer skill framework to illustrate Summit's full
+analytical power. A minimal starter installation still benefits from coverage and
+risk analysis — the value scales with framework richness.
 
 The coverage view answers: "Where are we strong? Where are we thin? Where do we
 have nothing at all?"
@@ -203,13 +211,12 @@ $ fit-summit coverage --project migration-q2
 
   Migration Q2 — 4 members (3.0 FTE)
 
-  Capability: Scale
-    system_design             ██████████  effective depth: 2.6 at working+
-    api_design                ████████░░  effective depth: 2.0 at working+
+  Capability: Delivery
+    task_completion           ██████████  effective depth: 2.6 at working+
+    planning                  ████████░░  effective depth: 2.0 at working+
 
   Capability: Reliability
     incident_response         ██░░░░░░░░  effective depth: 0.4 at working+
-    observability             ████░░░░░░  effective depth: 1.0 at working+
 ```
 
 When Grace is 40% allocated and holds working-level incident_response, the
@@ -228,21 +235,19 @@ $ fit-summit coverage platform --evidenced
   Platform team — 5 engineers (evidence from last 12 months)
 
   Capability: Delivery
-    task_decomposition        derived: 3  evidenced: 3  ✓ practiced
-    incremental_delivery      derived: 3  evidenced: 2  ~ 1 without recent evidence
-    technical_debt_management derived: 2  evidenced: 0  ✗ not practiced
-    estimation                derived: 1  evidenced: 1  ✓ practiced
+    task_completion           derived: 3  evidenced: 3  ✓ practiced
+    planning                  derived: 2  evidenced: 0  ✗ not practiced
 
   Capability: Reliability
-    observability             derived: 1  evidenced: 0  ✗ not practiced
     incident_response         derived: 0  evidenced: 0  — gap (both)
-    capacity_planning         derived: 1  evidenced: 1  ✓ practiced
 ```
 
-Summit reads evidence aggregates from Map's activity layer and computes
-`evidenced_depth`: the count of engineers with at least one matched evidence row
-for that skill at working level or above within a lookback window (default: 12
-months).
+Summit reads evidence aggregates from Map's activity layer (via `getEvidence`
+and `getPracticePatterns` from `@forwardimpact/map/activity/queries/evidence`)
+and computes `evidenced_depth`: the count of engineers with at least one matched
+evidence row for that skill at working level or above within a lookback window
+(default: 12 months). This requires Guide to be writing evidence rows — without
+evidence data, `--evidenced` shows all-zero evidenced depths.
 
 Divergence between derived and evidenced depth is the key signal:
 
@@ -264,9 +269,9 @@ obscure skills that don't apply — they're capabilities the team's composition
 suggests it needs.
 
 **Concentration risks** — multiple engineers clustered at the same level in the
-same capability, creating both redundancy and growth bottlenecks. Three L3s all
-strong in delivery but nobody growing toward scale suggests a structural
-imbalance.
+same capability, creating both redundancy and growth bottlenecks. Three Level III
+engineers all strong in delivery but nobody growing toward reliability suggests a
+structural imbalance.
 
 ```
 $ fit-summit risks platform
@@ -274,19 +279,18 @@ $ fit-summit risks platform
   Platform team — structural risks
 
   Single points of failure:
-    capacity_planning — only Eve (L5) holds practitioner level
-    estimation — only Bob (L4) holds working level
-    If Eve or Bob are unavailable, these capabilities drop significantly.
+    planning — only Bob (Level IV) holds working level
+    If Bob is unavailable, this capability drops significantly.
 
   Critical gaps:
     incident_response — no engineer at working level
-    The platform track typically requires incident response capability.
+    The platform track lists incident_response as a broad skill.
     Consider: hiring, cross-training, or borrowing from another team.
 
   Concentration risks:
-    delivery skills — 3 of 5 engineers at L3 working level
+    delivery skills — 3 of 5 engineers at Level III working level
     Limited growth headroom in this area. Consider diversifying
-    development focus toward reliability or scale skills.
+    development focus toward reliability skills.
 ```
 
 When `--evidenced` is passed, risks are assessed against practiced capability. A
@@ -302,7 +306,7 @@ $ fit-summit risks --project migration-q2
   Migration Q2 — structural risks
 
   Single points of failure:
-    incident_response — only Grace (L3, 40% allocated)
+    incident_response — only Grace (Level IV, 40% allocated)
     Effective availability: 0.4 FTE. High risk at partial allocation.
 ```
 
@@ -314,17 +318,16 @@ on team capability before anyone makes a decision.
 **Adding a person:**
 
 ```
-$ fit-summit what-if platform --add "{ discipline: se, level: L3 }"
+$ fit-summit what-if platform --add "{ discipline: software_engineering, level: J080 }"
 
-  Adding an L3 Software Engineer to Platform team:
+  Adding a Level III Software Engineer to Platform team:
 
   Capability changes:
-    + task_decomposition        depth: 3 → 4 engineers at working+
-    + incremental_delivery      depth: 3 → 4 engineers at working+
-    = incident_response         still a gap (L3 SE: foundational)
+    + task_completion           depth: 3 → 4 engineers at working+
+    + planning                  depth: 2 → 3 engineers at working+
+    = incident_response         still a gap (Level III SE: awareness broad skill)
 
   Risk changes:
-    = capacity_planning         still single point of failure
     = incident_response         still a critical gap
 
   This hire strengthens existing delivery coverage but doesn't address
@@ -334,18 +337,16 @@ $ fit-summit what-if platform --add "{ discipline: se, level: L3 }"
 **Adding a targeted hire:**
 
 ```
-$ fit-summit what-if platform --add "{ discipline: se, level: L3, track: platform }" --focus reliability
+$ fit-summit what-if platform --add "{ discipline: software_engineering, level: J080, track: platform }" --focus reliability
 
-  Adding an L3 Platform Software Engineer (reliability focus) to Platform team:
+  Adding a Level III Platform Software Engineer (reliability focus) to Platform team:
 
   Capability changes:
-    + observability             depth: 1 → 2 engineers at working+
     + incident_response         gap closed — 1 engineer at working
-    + capacity_planning         depth unchanged but redundancy improves
+      (platform track modifies incident_response proficiency upward)
 
   Risk changes:
     - incident_response         no longer a critical gap
-    - capacity_planning         no longer single point of failure (with growth)
 
   This hire addresses the team's primary structural gap.
 ```
@@ -355,19 +356,18 @@ $ fit-summit what-if platform --add "{ discipline: se, level: L3, track: platfor
 ```
 $ fit-summit what-if platform --remove Eve
 
-  Removing Eve (L5 Platform SE) from Platform team:
+  Removing Eve (Level V Platform SE) from Platform team:
 
   Capability changes:
-    - system_design             depth: 4 → 3 engineers at working+
-    - capacity_planning         depth: 1 → 0 — becomes critical gap
-    - api_design                depth: 3 → 2 engineers at working+
+    - task_completion           depth: 3 → 2 engineers at working+
+    - planning                  depth: 2 → 1 engineer at working+
 
   Risk changes:
-    + capacity_planning         new critical gap
-    + 3 skills become single points of failure
+    + planning                  becomes single point of failure
+    + Eve was the highest-level engineer — expert-level coverage lost
 
-  Eve's departure creates significant capability loss in scale skills.
-  The team loses its only practitioner-level capacity planning capability.
+  Eve's departure reduces capability depth across all skills.
+  The team loses its most senior contributor.
 ```
 
 **Comparing team compositions:**
@@ -375,30 +375,30 @@ $ fit-summit what-if platform --remove Eve
 ```
 $ fit-summit what-if platform --move Alice --to payments
 
-  Moving Alice (L3 Platform SE) from Platform to Payments:
+  Moving Alice (Level III Platform SE) from Platform to Payments:
 
   Platform impact:
-    - system_design             depth: 4 → 3
-    - observability             depth: 1 → 0 — becomes gap
+    - task_completion           depth: 3 → 2
+    - planning                  depth: 2 → 1 — becomes single point of failure
 
   Payments impact:
-    + system_design             depth: 1 → 2
-    + observability             gap closed — 1 engineer at working
+    + task_completion           depth: 1 → 2
+    + incident_response         platform track brings reliability skills
 
   Net: Payments gains more than Platform loses. Alice's platform track
-  skills fill critical gaps in Payments where they were redundant in Platform.
+  skills strengthen Payments where they were redundant in Platform.
 ```
 
 What-if works with project teams and respects allocation:
 
 ```
-$ fit-summit what-if --project migration-q2 --add "{ discipline: se, level: L3, track: platform }" --allocation 0.5
+$ fit-summit what-if --project migration-q2 --add "{ discipline: software_engineering, level: J080, track: platform }" --allocation 0.5
 
-  Adding an L3 Platform SE (50% allocated) to Migration Q2:
+  Adding a Level III Platform SE (50% allocated) to Migration Q2:
 
   Capability changes:
     + incident_response         effective depth: 0.4 → 0.9
-    + observability             effective depth: 1.0 → 1.5
+    + task_completion           effective depth: 2.0 → 2.5
 
   Risk changes:
     - incident_response         no longer single point of failure (with redundancy)
@@ -416,16 +416,17 @@ $ fit-summit growth platform
   Growth opportunities aligned with team needs:
 
   High impact (addresses critical gaps):
-    incident_response — Dan (L2) or Carol (L3) could develop this skill.
-    Growing from foundational to working would close the team's critical gap.
+    incident_response — Dan (Level II) or Carol (Level III) could develop
+    this skill. Growing from awareness to working would close the team's
+    critical gap. (incident_response is a broad skill for software_engineering;
+    platform track modifiers may accelerate it.)
 
   Medium impact (reduces single points of failure):
-    capacity_planning — Bob (L4) is closest to developing this skill.
-    Growing from working to practitioner would create redundancy for Eve.
-    estimation — Alice or Carol could develop this to reduce bus factor.
+    planning — Alice or Carol could develop this to reduce bus factor.
+    Currently only Bob holds working level.
 
   Low impact (strengthens existing coverage):
-    system_design — already well-covered. Individual growth still valuable
+    task_completion — already well-covered. Individual growth still valuable
     but team coverage is not a constraint.
 ```
 
@@ -447,26 +448,29 @@ $ fit-summit growth platform --outcomes
   Growth opportunities aligned with team needs and outcomes:
 
   High impact (addresses critical gaps + poor outcomes):
-    incident_response — critical gap
-      GetDX reliability driver: 35th percentile (vs_org: -12)
-      Team feels it: "reliability" is the lowest-scoring driver.
-      Dan (L2) or Carol (L3) could develop this skill.
-
-  High impact (strong outcome signal):
-    technical_debt_management — derived: 2, evidenced: 0
-      GetDX cognitive load driver: 28th percentile (vs_org: -8)
-      The team has the skill on paper but doesn't practice it,
+    planning — derived: 2, evidenced: 0
+      GetDX quality driver: 42nd percentile (vs_org: -10)
+      Planning is a contributing skill for the quality driver,
       and the GetDX data confirms the pain.
+      Dan (Level II) or Carol (Level III) could develop this skill.
 
-  Medium impact (reduces single points of failure):
-    capacity_planning — Bob (L4) is closest to developing this skill.
-      GetDX infrastructure driver: 65th percentile — not urgent by outcomes.
+  High impact (addresses critical gaps):
+    incident_response — critical gap
+      No linked driver — outcome weighting not available.
+      Dan (Level II) or Carol (Level III) could develop this skill.
 ```
 
 When `--outcomes` is passed, Summit reads GetDX snapshot scores from Map (via
-the activity layer) and driver definitions (which map drivers to contributing
-skills via `contributingSkills`). Growth recommendations are weighted by outcome
-severity: a gap aligned with a poorly-scoring GetDX driver gets boosted.
+the activity layer's `getSnapshotScores` query) and driver definitions from
+`drivers.yaml` (which map drivers to contributing skills via
+`contributingSkills`). Growth recommendations are weighted by outcome severity: a
+gap aligned with a poorly-scoring GetDX driver gets boosted.
+
+The starter data defines only one driver (`quality`, contributing skills:
+`task_completion`, `planning`). Skills not linked to any driver (like
+`incident_response`) still appear in growth recommendations but cannot be
+outcome-weighted. Installations should define drivers that cover their key
+improvement areas for this feature to reach full value.
 
 ### Team Trajectory
 
@@ -478,24 +482,21 @@ $ fit-summit trajectory platform
   Platform team — capability trajectory
 
   Roster changes:
-    2024-Q1: 4 engineers (Dan joined)
-    2024-Q2: 5 engineers (Eve joined)
-    2024-Q3: 5 engineers (Carol promoted L3 → L4)
-    2024-Q4: 4 engineers (Bob departed)
+    2025-Q1: 4 engineers (Dan joined)
+    2025-Q2: 5 engineers (Eve joined)
+    2025-Q3: 5 engineers (Carol promoted Level III → Level IV)
+    2025-Q4: 4 engineers (Bob departed)
 
   Coverage evolution:
                           Q1    Q2    Q3    Q4    Trend
-    task_decomposition     2     3     3     3     ─
+    task_completion        2     3     3     2     ↓ declining (departure)
+    planning               1     2     2     1     ↓ declining (departure)
     incident_response      0     0     0     0     ⚠ persistent gap
-    system_design          2     4     4     3     ↓ declining (departure)
-    capacity_planning      0     1     1     0     ↓ lost (departure)
-    observability          1     1     1     1     ─
 
   Summary:
-    Coverage improved Q1→Q2 (Eve's hire filled scale skills).
+    Coverage improved Q1→Q2 (Eve's hire added depth across all skills).
     Carol's promotion strengthened delivery but didn't address reliability.
-    Bob's departure in Q4 created new critical gaps in capacity_planning
-    and reduced system_design redundancy.
+    Bob's departure in Q4 reduced planning to single point of failure.
 
     Persistent gap: incident_response has been uncovered for 4 quarters.
     Consider prioritizing this in hiring or growth planning.
@@ -506,6 +507,8 @@ computes trajectory from one of two sources:
 
 1. **Map's activity layer** — if Map stores historical `organization_people`
    snapshots (roster at each quarter boundary), Summit reads them directly.
+   Map's `snapshots.js` query module exists but does not yet support historical
+   roster snapshots — this would require a new query or table extension.
 2. **Git history of summit.yaml** — if using a local roster file tracked in
    version control, Summit can read prior versions to reconstruct roster
    changes.
@@ -521,14 +524,40 @@ $ fit-summit trajectory platform --evidenced
 
   Coverage evolution (derived / evidenced):
                           Q1        Q2        Q3        Q4
-    task_decomposition     2/1       3/2       3/3       3/3    ↑ evidence catching up
+    task_completion        2/1       3/2       3/3       2/2    ↑ evidence catching up
+    planning               1/0       2/0       2/1       1/1    ~ slowly improving
     incident_response      0/0       0/0       0/0       0/0    ⚠ persistent gap
-    system_design          2/2       4/3       4/4       3/3    ─ practiced
-    technical_debt_mgmt    2/0       2/0       2/1       2/1    ~ slowly improving
 ```
 
 This answers "is this team getting stronger or weaker?" — the question that
 turns Summit from a planning tool into a planning + tracking tool.
+
+### Roster Management
+
+Two housekeeping commands support roster workflows:
+
+**`roster`** — Show the current roster as Summit sees it. When using Map's
+person model, displays the team hierarchy derived from `manager_email`. When
+using a local YAML file, displays the parsed teams and project teams with
+member counts, level distribution, and track coverage.
+
+```
+$ fit-summit roster
+
+  Source: summit.yaml
+
+  Teams:
+    platform     5 members  (1× Level V, 1× Level IV, 2× Level III, 1× Level II)
+    payments     3 members  (1× Level IV, 1× Level III, 1× Level II)
+
+  Projects:
+    migration-q2  4 members  (3.0 effective FTE)
+```
+
+**`validate`** — Validate the roster file against the framework data. Checks
+that discipline, level, and track values reference defined entities in Map data.
+Reports mismatches (e.g., a level ID that doesn't exist in `levels.yaml`) so
+users catch configuration errors before running analysis.
 
 ### Growth Logic Export
 
@@ -565,8 +594,13 @@ map → libskill → pathway
 ```
 
 - **Map** defines skills, levels, behaviours — the data model
-- **libskill** derives individual job profiles and skill matrices
-- **Summit** aggregates individual matrices into team-level analysis
+- **libskill** derives individual job profiles and skill matrices. Current
+  exports: `deriveSkillMatrix`, `deriveJob`, `deriveBehaviourProfile`,
+  `getNextLevel`, `analyzeLevelProgression`, `calculateJobMatch`, and ~80 more
+  functions — all individual-level. No team aggregation exists in libskill.
+- **Summit** aggregates individual matrices into team-level analysis. This is
+  new logic that Summit must implement — it is not a wrapper around an existing
+  libskill function.
 - **Summit → Landmark** exports growth logic for contextual recommendations
 - **Pathway** presents individual career progression
 - **Summit** presents collective capability, planning, and trajectory
@@ -657,6 +691,28 @@ right, with multiple possible routes visible as faint trails.
 - Secondary: "Team capability planning from skill data."
 - CTA: "Map your team."
 
+## Empty States and Error Behavior
+
+Summit must handle missing or sparse data gracefully. Each view should
+communicate what is absent and why, rather than showing empty tables or failing
+silently.
+
+| Condition | Behavior |
+|---|---|
+| No roster source available | "No roster found. Provide --roster path or configure Map's organization_people table." |
+| Roster references unknown discipline/level/track | `validate` reports each mismatch: "{value} is not defined in {file}." Other commands warn but proceed with what they can resolve. |
+| Team has only 1 skill in framework | Coverage and risks work correctly but output is sparse. No error — the view reflects what the framework defines. |
+| `--evidenced` with no evidence data | Evidenced depth shows 0 for all skills, with a note: "No evidence data found. Evidenced depth reflects Guide-interpreted artifacts only." |
+| `--outcomes` with no GetDX snapshots | "No GetDX snapshot data available. Growth recommendations shown without outcome weighting." Falls back to structural-only ranking. |
+| `--outcomes` with no matching drivers | Skills without a linked driver show "no driver linked — outcome weighting not available." Ranking proceeds for skills that do have drivers. |
+| `trajectory` with no historical data | "Historical roster data not available. Showing current-state only. Trajectory requires quarterly roster snapshots in Map or version-controlled summit.yaml." |
+| `what-if --remove` references unknown name | "No team member named {name} found in {team}." |
+| `what-if --add` with invalid job fields | "Invalid job profile: {field} is not defined in Map data." |
+| Team has 0 members | "Team {name} has no members. Add members to the roster or check the manager email hierarchy." |
+
+The principle: always explain the empty state in terms the user can act on —
+name the missing data source and how to populate it.
+
 ## CLI
 
 All analysis is local and instant. No network calls, no API keys, no cloud
@@ -692,10 +748,24 @@ and derives teams from the manager email hierarchy. When `--roster` is provided,
 it uses the local YAML file instead. When `--project` is provided, it uses the
 named project team from the `projects` section of the roster file.
 
+**`--project` flag scope:** `--project` replaces the `<team>` argument. It is
+supported on all commands that accept a team:
+
+| Command | `--project` support | Notes |
+|---|---|---|
+| `coverage` | Yes | Shows effective depth (allocation-weighted) instead of headcount depth |
+| `risks` | Yes | Risk assessment incorporates allocation — partial allocation increases risk severity |
+| `what-if` | Yes | `--allocation` flag available for hypothetical additions |
+| `growth` | Yes | Growth candidates drawn from project members only |
+| `compare` | Yes | Can compare a project team against a reporting team or another project |
+| `trajectory` | No | Project teams are ephemeral by nature — trajectory tracks reporting teams over quarters |
+| `roster` | Yes | Shows project team members with allocation percentages |
+| `validate` | Yes | Validates that project member emails resolve to known people |
+
 ### What-If Options
 
 ```
-  fit-summit what-if <team> --add "<job>"             Add a hypothetical person
+  fit-summit what-if <team> --add "<job>"             Add a hypothetical person (e.g. "{ discipline: software_engineering, level: J080 }")
   fit-summit what-if <team> --remove <name>           Remove someone
   fit-summit what-if <team> --move <name> --to <team> Move between teams
   fit-summit what-if <team> --promote <name>          Simulate level promotion
@@ -715,10 +785,10 @@ $ fit-summit risks platform --format json
   "team": "platform",
   "members": 5,
   "singlePoints": [
-    { "skill": "capacity_planning", "holder": "Eve", "level": "practitioner" }
+    { "skill": "planning", "holder": "Bob", "level": "working" }
   ],
   "criticalGaps": [
-    { "skill": "incident_response", "requiredLevel": "working", "reason": "platform track" }
+    { "skill": "incident_response", "requiredLevel": "working", "reason": "broad skill for software_engineering" }
   ],
   "concentrationRisks": [
     { "capability": "delivery", "level": "working", "count": 3 }
@@ -735,19 +805,19 @@ $ fit-summit trajectory platform --format json
   "team": "platform",
   "quarters": [
     {
-      "quarter": "2024-Q1",
+      "quarter": "2025-Q1",
       "members": 4,
       "rosterChanges": [{ "type": "join", "name": "Dan" }],
       "coverage": {
-        "task_decomposition": { "depth": 2 },
-        "incident_response": { "depth": 0 },
-        "system_design": { "depth": 2 }
+        "task_completion": { "depth": 2 },
+        "planning": { "depth": 1 },
+        "incident_response": { "depth": 0 }
       }
     }
   ],
   "persistentGaps": ["incident_response"],
   "trends": {
-    "system_design": "declining",
+    "planning": "declining",
     "incident_response": "persistent_gap"
   }
 }
@@ -761,11 +831,82 @@ $ fit-summit coverage --project migration-q2 --format json
   "members": 4,
   "effectiveFte": 3.0,
   "coverage": {
-    "system_design": { "derivedDepth": 3, "effectiveDepth": 2.6 },
+    "task_completion": { "derivedDepth": 3, "effectiveDepth": 2.6 },
     "incident_response": { "derivedDepth": 1, "effectiveDepth": 0.4 }
   }
 }
 ```
+
+## Starter Data Philosophy
+
+The monorepo's starter data (`products/map/starter/`) is a scaffold — it
+demonstrates the schema and validates the pipeline, but it is not a demo of
+Summit's analytical depth. The starter defines 2 levels (`J040` Level I, `J060`
+Level II), 3 skills across 2 capabilities, 1 driver, and 1 discipline.
+
+Summit's value scales with framework richness. An installation with 5 levels, 20
+skills across 6 capabilities, and multiple disciplines will see detailed coverage
+heatmaps, meaningful risk analysis, and rich what-if scenarios. The minimal
+starter is intentional: it forces installations to own their framework
+definitions rather than cargo-culting examples. Summit works correctly with the
+starter — coverage and risk views are accurate, just sparse.
+
+Getting-started documentation for external users should set this expectation
+clearly: install Summit, define your roster, then author your framework data.
+The [Authoring Frameworks guide](website/docs/guides/authoring-frameworks/index.md)
+covers vocabulary standards.
+
+## Implementation Prerequisites
+
+Summit depends on existing infrastructure and requires new work. This section
+tracks what exists and what must be built.
+
+**Existing infrastructure (ready to consume):**
+
+- **Map data loader** (`@forwardimpact/map` `createDataLoader`) — loads
+  capabilities, disciplines, tracks, levels, drivers, behaviours from YAML.
+- **libskill derivation** (`@forwardimpact/libskill`) — `deriveSkillMatrix`,
+  `deriveJob`, `deriveBehaviourProfile`, `getNextLevel`, and ~80 other
+  individual-level functions. Version 4.1.7.
+- **Map activity queries** — `getOrganization`, `getTeam`, `getPerson` (for
+  roster from Map), `getEvidence`, `getPracticePatterns` (for `--evidenced`),
+  `getSnapshotScores` (for `--outcomes`).
+- **Starter data** — `software_engineering` discipline (core: `task_completion`,
+  supporting: `planning`, broad: `incident_response`), `platform` and
+  `forward_deployed` tracks, 2 levels (`J040` Level I, `J060` Level II), 2
+  capabilities (`delivery`, `reliability`), 1 driver (`quality`), 1 behaviour
+  (`systems_thinking`).
+
+**New work Summit must implement:**
+
+| Component | What it enables | Notes |
+|---|---|---|
+| Team aggregation logic | `coverage`, `risks`, all commands | Iterate roster, call `deriveSkillMatrix` per person, aggregate into team-level coverage/depth counts. This is Summit's core contribution — libskill has no team-level functions. |
+| Risk detection | `risks` | Single point of failure detection, critical gap identification, concentration risk analysis. Pure logic over aggregated data. |
+| What-if simulation | `what-if` | Clone roster, apply mutation (add/remove/move/promote), re-aggregate, diff. |
+| Growth alignment | `growth`, export for Landmark | Identify team gaps, rank by impact, match candidates. Export as `computeGrowthAlignment`. |
+| Roster loader | All commands | Load from Map org model or local YAML. The YAML format is defined in this spec but no parser exists yet. An example YAML exists at `data/activity/raw/activity/summit.yaml`. |
+| Trajectory tracking | `trajectory` | Requires either historical roster snapshots from Map (not yet supported) or git history parsing of summit.yaml. |
+
+**Starter data gaps (not blockers but reduce demo value):**
+
+- Only 2 levels defined — most examples assume 5. Installations needing richer
+  analysis should define additional levels in `levels.yaml`.
+- Only 3 skills across 2 capabilities — coverage/risk views are sparse with
+  minimal data. The starter is intentionally minimal; installations define their
+  own framework.
+- Only 1 driver — `--outcomes` flag has limited value without additional driver
+  definitions.
+- No markers defined — `--evidenced` depends on Guide writing evidence, which
+  depends on markers (spec 080 prerequisite).
+
+**Cross-product dependencies:**
+
+| Dependency | Required for | Status |
+|---|---|---|
+| Landmark (spec 080) | Consuming `computeGrowthAlignment` | Draft — Summit should ship first since Landmark depends on it |
+| Guide evidence writing | `--evidenced` flag | Guide can interpret artifacts independently of Summit |
+| Map historical roster snapshots | `trajectory` from Map source | Not yet supported — would need new query/table |
 
 ## Summary
 
@@ -779,6 +920,7 @@ $ fit-summit coverage --project migration-q2 --format json
 | Hero scene              | "Planning the Ascent"                                         |
 | Tagline                 | "See your team's capability. Plan the ascent."                |
 | Depends on              | `@forwardimpact/map`, `@forwardimpact/libskill`               |
+| New logic required      | Team aggregation, risk detection, what-if sim, growth export  |
 | Input                   | Map unified person model or local YAML + Map data             |
 | For leaders             | Capability coverage, structural risks, staffing planning      |
 | For teams               | Growth alignment, what-if scenarios, trajectory               |
@@ -793,3 +935,5 @@ $ fit-summit coverage --project migration-q2 --format json
 | Audience model          | Explicit per-view privacy: engineer, manager, director        |
 | Historical data         | Reads quarterly roster snapshots from Map or git history      |
 | Optional dependency     | Map activity layer (evidence, GetDX scores) — opt-in only     |
+| Starter data gaps       | 2 levels, 3 skills, 1 driver — minimal but functional         |
+| Implementation order    | Summit before Landmark (Landmark imports growth logic)        |
