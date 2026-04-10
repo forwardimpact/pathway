@@ -5,12 +5,13 @@ microdata so the Guide agent can be evaluated on multi-hop graph traversal.
 
 ```
 specs/062-synthetic-links/
-  spec.md                        This document (WHAT and WHY)
-  plan-01-template-linking.md    Deterministic template + entity-graph linking
-  plan-02-dsl-expansion.md       New DSL blocks for products, platforms, courses
-  plan-03-llm-link-enrichment.md LLM prose with injected entity links
-  plan-04-llm-doc-generation.md  LLM generates entire linked documents
-  plan-05-hybrid-two-pass.md     Deterministic skeleton + LLM link enrichment
+  spec.md         This document (WHAT and WHY)
+  plan-a.md       Deterministic skeleton + LLM link enrichment (implemented)
+  plan-a-02.md    Quality parity follow-up (implemented)
+  plan-b.md       Deterministic template + entity-graph linking (rejected alternative)
+  plan-c.md       New DSL blocks for products, platforms, courses (rejected alternative)
+  plan-d.md       LLM prose with injected entity links (rejected alternative)
+  plan-e.md       LLM generates entire linked documents (rejected alternative)
 ```
 
 ## Why

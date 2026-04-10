@@ -6,9 +6,10 @@ discover and use libraries.
 
 ```
 specs/070-library-standardization/
-  spec.md                       This document (WHAT and WHY)
-  plan-01-oo-di-migration.md    Migrate non-conforming libraries to OO+DI
-  plan-02-skill-consolidation.md  Consolidate library skills into capability groups
+  spec.md         This document (WHAT and WHY)
+  plan-a-01.md    Migrate non-conforming libraries to OO+DI
+  plan-a-02.md    Consolidate library skills into capability groups
+  plan-a-03.md    Migrate products to OO+DI and integrate libraries
 ```
 
 ## Why
