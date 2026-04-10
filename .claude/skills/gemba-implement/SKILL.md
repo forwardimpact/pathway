@@ -61,12 +61,17 @@ Read the selected plan thoroughly. Understand:
 - **Ordering and dependencies.** Which changes must happen first? What blocks
   what?
 - **Design decisions.** Why were non-obvious choices made?
+- **Execution recommendation.** How does the plan recommend executing — single
+  agent, or parallel `staff-engineer` agents for independent parts?
 
 **Multi-part plans.** If the plan is decomposed into parts (`plan-a.md` +
 `plan-a-01.md`, `plan-a-02.md`, etc.), start by reading the overview in
-`plan-a.md` for strategy and the part index. Then work through parts in numbered
-order. Each part is independently executable — complete and verify each part
-before moving to the next.
+`plan-a.md` for strategy, the part index, and the execution recommendation. Then
+work through parts in numbered order. Each part is independently executable —
+complete and verify each part before moving to the next. When the plan
+recommends parallel execution for independent parts, the caller is responsible
+for launching concurrent `staff-engineer` agents — a single agent implements one
+part at a time.
 
 ### 3. Research the current codebase
 
