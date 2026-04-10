@@ -88,4 +88,3 @@ export async function validatePeople(people, dataDir) {
 
   return { valid, errors };
 }
-

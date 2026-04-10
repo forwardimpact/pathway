@@ -23,9 +23,8 @@ universe minimal {
   people {
     count 5
     distribution {
-      L3 40%
-      L4 40%
-      L5 20%
+      J040 60%
+      J050 40%
     }
     disciplines {
       software_engineering 100%

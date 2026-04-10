@@ -175,7 +175,12 @@ async function uploadRawDir(supabase, rawDir) {
           fullPath.endsWith(".yaml") || fullPath.endsWith(".yml")
             ? "text/yaml"
             : "application/json";
-        const result = await storeRaw(supabase, storagePath, content, contentType);
+        const result = await storeRaw(
+          supabase,
+          storagePath,
+          content,
+          contentType,
+        );
         if (result.stored) {
           count++;
         } else {
