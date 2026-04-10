@@ -1,24 +1,4 @@
----
-name: write-docs
-description: >
-  Review and update documentation in the website/ folder. Use when writing,
-  editing, auditing, or reviewing documentation for accuracy, coherence,
-  or consistency.
----
-
-# Write Documentation
-
-Write effective, user-centric documentation for the `website/docs/` hierarchy.
-Documentation is organized by audience and task, not by product.
-
-## When to Use
-
-- Writing new documentation pages
-- Updating existing documentation after code changes
-- Auditing documentation for accuracy, gaps, or audience drift
-- Adding documentation for features that lack it
-- Reviewing documentation for cross-page coherence and consistency
-- Fixing terminology, formatting, or field name inaccuracies
+# Documentation Standards
 
 ## Information Architecture
 
@@ -58,8 +38,7 @@ website/docs/
 
 ## Audience Rules
 
-Every sentence belongs to exactly one audience. When writing or reviewing, apply
-these rules strictly:
+Every sentence belongs to exactly one audience. Apply these rules strictly:
 
 | Content type                                                  | Audience              | Section                 |
 | ------------------------------------------------------------- | --------------------- | ----------------------- |
@@ -119,7 +98,7 @@ these skills **must** use absolute URLs with the full domain:
 - [Guide](/docs/guides/authoring-frameworks/index.md)
 ```
 
-Internal skills (library groups, `write-docs`, etc.) may use repo-relative paths
+Internal skills (library groups, `gemba-*`, etc.) may use repo-relative paths
 since they only run inside the monorepo.
 
 ### Guides and Reference produce stable, agent-fetchable URLs
@@ -171,57 +150,6 @@ the single source of truth — do not guess from examples or convention.
 - Behaviour maturities: always lowercase with underscores (`role_modeling`)
 - Entity field names: always in backticks (`\`baseSkillProficiencies\``)
 
-## Process
-
-### Writing a new page
-
-1. **Identify the audience.** Determine which user group the page serves. This
-   decides which section it belongs to.
-2. **Choose the section.** Place the page in the correct tier:
-   - New to the product? → Getting Started
-   - Task to accomplish? → Guides
-   - Looking something up? → Reference
-   - Understanding the code? → Internals
-3. **Research the source of truth.** Read the actual code and data before
-   writing. Cross-reference the table below.
-4. **Write for the audience.** Strip out anything that belongs to a different
-   audience. A leadership user reading Authoring Frameworks should never see a
-   class name. A contributor reading Internals should never wade through
-   tutorials.
-5. **Verify accuracy.** Run CLI commands, check YAML against schemas, confirm
-   entity names against `data/pathway/`.
-6. **Add cross-links.** Link to related pages within the hierarchy. Guides link
-   to Reference for lookup details. Getting Started links to Guides for next
-   steps. Internals link to Reference for the user-facing model.
-7. **Build and check.** Run `bunx fit-doc build --src=website --out=dist` to
-   confirm the page renders and all links resolve.
-
-### Updating existing pages
-
-1. **Read the page and its source of truth.** Check the actual code and data
-   files — not just the documentation.
-2. **Check audience purity.** If contributor content has crept into a Guide or
-   Reference page, move it to the appropriate Internals page.
-3. **Verify CLI examples.** Run every CLI command shown. Use
-   `--data=data/pathway` for canonical output.
-4. **Verify YAML examples.** Check against schemas in
-   `products/map/schema/json/`.
-5. **Check cross-links.** Ensure all internal links resolve to pages that exist.
-6. **Build and check.** Run `bunx fit-doc build --src=website --out=dist`.
-
-### Auditing documentation
-
-1. **Check coverage.** Every product should have:
-   - At least one Guide (task-oriented user documentation)
-   - CLI entries in the Reference CLI page
-   - An Internals page (architecture for contributors)
-2. **Check accuracy.** For each page, examine the actual code it describes.
-   Cross-reference the source-of-truth table below.
-3. **Check freshness.** Review `git log --oneline -20` for recent changes that
-   may have invalidated documentation.
-4. **Check `llms.txt`.** Verify the Documentation section in `website/llms.txt`
-   reflects the current page inventory.
-
 ## Repository Documentation
 
 The documentation lives in two layers: repository-root files and the website.
@@ -236,7 +164,7 @@ The documentation lives in two layers: repository-root files and the website.
 
 **Website documentation** (`website/docs/`):
 
-The four-tier hierarchy described below. Contributor-facing reference material
+The four-tier hierarchy described above. Contributor-facing reference material
 (environment, services, tasks) lives at `docs/internals/operations/` — extracted
 from CONTRIBUTING.md to keep the workflow focused.
 
@@ -249,45 +177,9 @@ from CONTRIBUTING.md to keep the workflow focused.
 - `website/docs/internals/operations/` holds operational reference (environment,
   config, services, tasks) that supports CONTRIBUTING.md without cluttering it.
 
-## Source of Truth
-
-| Documentation topic   | Verify against                              |
-| --------------------- | ------------------------------------------- |
-| Skills and levels     | `data/pathway/capabilities/`                |
-| Behaviours            | `data/pathway/behaviours/`                  |
-| Disciplines           | `data/pathway/disciplines/`                 |
-| Tracks                | `data/pathway/tracks/`                      |
-| Levels                | `data/pathway/levels.yaml`                  |
-| Stages                | `data/pathway/stages.yaml`                  |
-| Drivers               | `data/pathway/drivers.yaml`                 |
-| Job derivation        | `libraries/libskill/src/job.js`             |
-| Agent derivation      | `libraries/libskill/src/agent.js`           |
-| Map validation        | `products/map/src/`                         |
-| Pathway CLI           | `products/pathway/bin/fit-pathway.js`       |
-| Basecamp CLI          | `products/basecamp/bin/fit-basecamp.js`     |
-| Landmark CLI          | `products/landmark/bin/fit-landmark.js`     |
-| Summit CLI            | `products/summit/bin/fit-summit.js`         |
-| Universe CLI          | `libraries/libuniverse/bin/fit-universe.js` |
-| Templates             | `products/pathway/templates/`               |
-| JSON Schema           | `products/map/schema/json/`                 |
-| RDF/SHACL Schema      | `products/map/schema/rdf/`                  |
-| LLM / SEO outputs     | `website/llms.txt`, `website/robots.txt`    |
-| Repo self-maintenance | `GEMBA.md`                                  |
-
 ## Layouts
 
 | Layout    | Use for                                                                             |
 | --------- | ----------------------------------------------------------------------------------- |
 | `product` | Section index pages (Getting Started, Guides, Reference, Internals) — grid of cards |
 | _(none)_  | Leaf pages — prose with table of contents                                           |
-
-## Commit
-
-After making updates, commit with:
-
-```
-docs(website): {verb} {topic} documentation
-```
-
-Use separate commits for distinct documentation areas. Verbs: `add` for new
-pages, `update` for changes to existing pages, `fix` for corrections.

@@ -265,6 +265,10 @@ above.
   [gemba-release-readiness skill](.claude/skills/gemba-release-readiness)
 - **Release review** —
   [gemba-release-review skill](.claude/skills/gemba-release-review)
+- **Documentation review** —
+  [gemba-documentation skill](.claude/skills/gemba-documentation)
+- **Wiki curation** —
+  [gemba-wiki-curate skill](.claude/skills/gemba-wiki-curate)
 - **Codegen pipeline** — [Codegen Internals](website/docs/internals/codegen/)
 - **REPL API** — [librepl internals](website/docs/internals/librepl/)
 - **Getting started (contributors)** —

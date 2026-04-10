@@ -59,3 +59,18 @@ acceptance.
 | `bun run check` and `bun run test` ran before push | Tool calls invoking these commands before any push                                        | **Medium** |
 | Status advanced to `done` after final push         | `specs/STATUS` edit setting the spec to `done` after the push                             | **Medium** |
 | Scope discipline held                              | No edits to files outside the plan's stated blast radius                                  | **Medium** |
+
+## technical-writer / doc-review traces
+
+| Invariant                                 | Evidence to find                                                  | Severity   |
+| ----------------------------------------- | ----------------------------------------------------------------- | ---------- |
+| Source of truth consulted before findings | `Read` calls on source code/data files before documentation edits | **Medium** |
+| `bunx fit-doc build` ran before push      | Tool call invoking the build command before any push              | **Medium** |
+| Coverage map updated in memory            | Wiki write containing coverage map table                          | **Low**    |
+
+## technical-writer / wiki-curate traces
+
+| Invariant                                | Evidence to find                                             | Severity   |
+| ---------------------------------------- | ------------------------------------------------------------ | ---------- |
+| All agent summaries read before curation | `Read` calls on each `wiki/<agent>.md` before any wiki edits | **Medium** |
+| Current week logs read for each agent    | `Read` calls on `wiki/<agent>-YYYY-Www.md` files             | **Medium** |
