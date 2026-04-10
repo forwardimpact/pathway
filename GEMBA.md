@@ -12,8 +12,8 @@ place (the execution traces of prior runs) and act on what they find.
 
 Within Gemba, **Plan–Do–Study–Act** (PDSA, after Deming) is the improvement
 method. Every workflow belongs to a PDSA phase, findings from Study always
-re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Eight
-scheduled workflows, five agent personas, and twelve skills form a
+re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Ten
+scheduled workflows, six agent personas, and fourteen skills form a
 self-reinforcing PDSA cycle. Product evaluation sessions feed the Study phase
 with observations from the user's perspective. Gemba maintains the project — not
 the engineering frameworks the products serve.
@@ -75,7 +75,7 @@ phase.
 
 ### Study — analyze outputs and feedback
 
-The Study phase closes observation over the Do phase. Three study streams feed
+The Study phase closes observation over the Do phase. Four study streams feed
 the next Act phase:
 
 - **Security engineer** studies the **repository's security posture** — supply
@@ -85,6 +85,10 @@ the next Act phase:
   alignment, verifies trust, classifies work, and gates merges. Product
   evaluation sessions feed the same stream with observations from first-time
   users.
+- **Technical writer** studies **documentation accuracy and wiki health**. Each
+  cycle reviews **one documentation topic** — depth over breadth: pick a topic
+  area → read every page → verify against source code → fix staleness and
+  audience drift. Also curates agent memory (summaries, observations, logs).
 - **Improvement coach** studies **internal agent behaviour**. Each cycle focuses
   on **one trace** — depth over breadth: select a run → download the trace →
   deep-analyze every turn via grounded theory (open coding → axial coding →
@@ -109,13 +113,14 @@ structural improvements (`spec/` branches) — never mixed in one PR.
 
 ## Agents
 
-| Agent                 | Phase          | Purpose                                                               | Skills                                                                                                       |
-| --------------------- | -------------- | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **staff-engineer**    | Plan, Do       | Own the full spec → plan → implement arc for approved specs           | gemba-plan, gemba-implement, gemba-gh-cli                                                                    |
-| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies    | gemba-security-update, gemba-security-audit, gemba-spec                                                      |
-| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI on main, cut releases | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                  |
-| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations  | gemba-plan, gemba-product-triage, gemba-product-classify, gemba-product-evaluation, gemba-spec, gemba-gh-cli |
-| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones   | gemba-walk, gemba-spec, gemba-gh-cli                                                                         |
+| Agent                 | Phase          | Purpose                                                                | Skills                                                                                                       |
+| --------------------- | -------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
+| **staff-engineer**    | Plan, Do       | Own the full spec → plan → implement arc for approved specs            | gemba-plan, gemba-implement, gemba-gh-cli                                                                    |
+| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies     | gemba-security-update, gemba-security-audit, gemba-spec                                                      |
+| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI on main, cut releases  | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                  |
+| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations   | gemba-plan, gemba-product-triage, gemba-product-classify, gemba-product-evaluation, gemba-spec, gemba-gh-cli |
+| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec larger gaps | gemba-documentation, gemba-wiki-curate, gemba-spec                                                           |
+| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones    | gemba-walk, gemba-spec, gemba-gh-cli                                                                         |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -123,7 +128,7 @@ than attempting the fix.
 
 ## Workflows
 
-Workflows span 04–11 UTC, loosely following a PDSA cycle. Times respect
+Workflows span 03–11 UTC, loosely following a PDSA cycle. Times respect
 dependencies (plans before implementation, rebase before merge, merge before
 release) and same-agent workflows never overlap.
 
@@ -136,6 +141,8 @@ release) and same-agent workflows never overlap.
 | **plan-specs**        | Plan           | Daily 07:11 UTC                         | staff-engineer    | Pick up approved specs without plans and produce execution-ready plan-a.md  |
 | **implement-plans**   | Do             | Daily 07:53 UTC                         | staff-engineer    | Pick up approved plans (`status: planned`) and execute via implement-spec   |
 | **release-review**    | Do             | Tue, Thu, Sat 09:37 UTC                 | release-engineer  | Find unreleased changes, bump versions, tag, push, verify publish           |
+| **doc-review**        | Study, Act     | Mon & Thu 05:37 UTC                     | technical-writer  | Review one documentation topic in depth, fix staleness or write specs       |
+| **wiki-curate**       | Study, Act     | Wed & Sat 03:47 UTC                     | technical-writer  | Curate agent memory: verify summaries, follow up observations, clean logs   |
 | **improvement-coach** | Study → Act    | Wed & Sat 10:47 UTC                     | improvement-coach | Deep-analyze a single random agent trace, open fix PRs or write specs       |
 
 Off-minute schedules avoid API load spikes. All workflows support
@@ -159,6 +166,8 @@ All Gemba skills are namespaced with the `gemba-` prefix.
 | **gemba-product-triage**     | Study | Classify open issues for product alignment; produce a triage report           |
 | **gemba-product-classify**   | Study | Classify open PRs for mergeability — trust, type, CI, spec review — and merge |
 | **gemba-product-evaluation** | Study | Supervise product evaluation sessions, capture feedback, create issues        |
+| **gemba-documentation**      | Study | Write and review documentation — one topic deep per scheduled run             |
+| **gemba-wiki-curate**        | Study | Curate agent memory: summary accuracy, observation follow-up, log hygiene     |
 | **gemba-walk**               | Study | Open-ended trace observation, invariant audit, grounded-theory report         |
 | **gemba-spec**               | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status             |
 | **gemba-gh-cli**             | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)    |
@@ -232,6 +241,8 @@ graph TD
 | **product-manager**   | Agent-authored fix/spec    | Agent-only, issues as input                     |
 | **release-review**    | Agent-authored tags/bumps  | Agent-only, no external input                   |
 | **improvement-coach** | Agent-authored fix/spec    | Agent-only, traces as evidence                  |
+| **doc-review**        | Agent-authored doc fixes   | Agent-only, source-of-truth verified            |
+| **wiki-curate**       | Agent-authored wiki edits  | Agent-only, cross-agent memory maintenance      |
 | **release-engineer**  | Trivial CI fixes on main   | Agent-only, mechanical fixes only               |
 
 ## Design Principles

@@ -1,0 +1,130 @@
+---
+name: gemba-documentation
+description: >
+  Write and review documentation in the website/ folder. Scheduled runs review
+  one topic in depth for accuracy, audience purity, and staleness. Interactive
+  runs write or update pages following documentation standards. Use when
+  writing, editing, auditing, or reviewing documentation, or running scheduled
+  documentation review.
+---
+
+# Documentation
+
+Write effective documentation and systematically review it for accuracy. Two
+modes of operation:
+
+- **Scheduled review** — Pick one topic, go deep, verify against source code.
+- **Interactive writing** — Write or update pages following the standards.
+
+Standards and conventions live in
+[`references/standards.md`](references/standards.md). Source-of-truth mappings
+live in [`references/source-of-truth.md`](references/source-of-truth.md). Read
+them before writing or reviewing.
+
+## 1. Scheduled Review
+
+Each run covers **one topic** in depth.
+
+### Topic areas
+
+| Topic                    | What to review                                                        |
+| ------------------------ | --------------------------------------------------------------------- |
+| `getting-started`        | `website/docs/getting-started/` — onboarding accuracy, CLI examples   |
+| `guides`                 | `website/docs/guides/` — task accuracy, audience purity, completeness |
+| `reference`              | `website/docs/reference/` — CLI synopsis, entity definitions, schema  |
+| `internals`              | `website/docs/internals/` — architecture accuracy, code path validity |
+| `product-pages`          | `website/{map,pathway,guide,basecamp,landmark,summit}/` — overviews   |
+| `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `GEMBA.md`, `SECURITY.md`             |
+| `llms-txt-and-seo`       | `website/llms.txt`, `website/robots.txt`, sitemap completeness        |
+| `cross-page-consistency` | Terminology, proficiency scales, field names across all pages         |
+
+### Topic selection
+
+1. Read memory per the agent profile (your summary, the current week's log, and
+   teammates' summaries). Find last review dates per topic in the coverage map.
+2. Build coverage map — never-reviewed topics go first, then oldest.
+3. Revisit threshold — if all topics covered within last 6 runs, revisit oldest.
+4. Announce your pick and why before starting.
+5. Go deep — read every page in the topic area, not just spot-check.
+
+### Review process
+
+1. Read every page in the topic area.
+2. For each page, identify the source of truth (per
+   [`references/source-of-truth.md`](references/source-of-truth.md)).
+3. Read the actual source code/data and compare to documentation claims.
+4. Check audience purity — flag contributor content in user-facing pages (per
+   [`references/standards.md`](references/standards.md)).
+5. Run CLI examples shown in docs, verify output matches.
+6. Check YAML examples against JSON schemas in `products/map/schema/json/`.
+7. Verify all internal cross-links resolve.
+8. Run `bunx fit-doc build --src=website --out=dist` to confirm build.
+9. Check `git log --oneline -20 -- <paths>` for recent code changes that may
+   have invalidated docs.
+
+### Review checklist
+
+<do_confirm_checklist goal="Confirm documentation review is complete">
+
+- [ ] Every CLI example on the page was executed and output verified.
+- [ ] Every YAML example was checked against JSON schema.
+- [ ] Audience purity confirmed (no audience mixing).
+- [ ] Source of truth consulted and docs match current code.
+- [ ] All cross-links resolve.
+- [ ] `bunx fit-doc build` succeeds.
+- [ ] Terminology matches conventions in `references/standards.md`.
+
+</do_confirm_checklist>
+
+## 2. Interactive Writing
+
+### Writing a new page
+
+1. **Identify the audience.** Determine which user group the page serves — this
+   decides the section. See
+   [`references/standards.md`](references/standards.md).
+2. **Choose the section.** New to the product → Getting Started. Task to
+   accomplish → Guides. Looking something up → Reference. Understanding the code
+   → Internals.
+3. **Research the source of truth.** Read the actual code and data before
+   writing. Cross-reference
+   [`references/source-of-truth.md`](references/source-of-truth.md).
+4. **Write for the audience.** Strip content that belongs to a different
+   audience.
+5. **Verify accuracy.** Run CLI commands, check YAML against schemas, confirm
+   entity names against `data/pathway/`.
+6. **Add cross-links.** Guides → Reference for details. Getting Started → Guides
+   for next steps. Internals → Reference for the user-facing model.
+7. **Build and check.** Run `bunx fit-doc build --src=website --out=dist`.
+
+### Updating existing pages
+
+1. Read the page and its source of truth — check actual code, not just docs.
+2. Check audience purity — move contributor content to Internals if needed.
+3. Verify CLI examples. Run every command shown.
+4. Verify YAML examples against `products/map/schema/json/`.
+5. Check cross-links resolve.
+6. Build and check.
+
+## 3. Output
+
+Every review must produce both categories when applicable — incremental fixes on
+a `fix/` branch and specs for structural findings on `spec/` branches. Branch
+naming, commit conventions, and independence rules are defined in the agent
+profile.
+
+**Commit format:** `docs(website): {verb} {topic} documentation`
+
+Verbs: `add` for new pages, `update` for changes, `fix` for corrections.
+
+### Memory: what to record
+
+Append to the current week's log (see agent profile for the file path):
+
+- **Topic reviewed** — Which topic and why selected
+- **Coverage map** — Updated table of all topics with last review date
+- **Findings summary** — What found, severity, disposition
+  (fixed/spec'd/deferred)
+- **Deferred work** — Issues needing follow-up with enough context to resume
+- **Accuracy errors** — Specific docs that diverged from source code
+- **Observations for teammates** — Callouts for agents whose work affects docs
