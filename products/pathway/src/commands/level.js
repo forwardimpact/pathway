@@ -12,7 +12,7 @@
 
 import { createEntityCommand } from "./command-factory.js";
 import { levelToMarkdown } from "../formatters/level/markdown.js";
-import { formatTable } from "../lib/cli-output.js";
+import { formatTable } from "@forwardimpact/libcli";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 import { capitalize } from "../formatters/shared.js";
 

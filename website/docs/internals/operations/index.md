@@ -121,8 +121,8 @@ Use `just synthetic-update` to call the LLM and refresh the cache. The
 bun run dev                   # Development server
 bunx fit-pathway dev          # Pathway dev server
 bunx fit-pathway build --url=X # Static site + install bundle
-bunx fit-basecamp --init ~/Dir # Initialize knowledge base
-bunx fit-basecamp --daemon    # Run scheduler
+bunx fit-basecamp init ~/Dir  # Initialize knowledge base
+bunx fit-basecamp daemon      # Run scheduler
 ```
 
 ### Processing & Services

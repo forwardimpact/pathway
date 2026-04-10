@@ -70,7 +70,7 @@ When running as an app bundle, the process hierarchy is:
 
 ```
 Basecamp.app (Swift launcher)
-  -> fit-basecamp --daemon (Node.js scheduler)
+  -> fit-basecamp daemon (Node.js scheduler)
      -> claude (spawned per task execution)
      -> claude (spawned per task execution)
 ```

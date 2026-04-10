@@ -29,6 +29,7 @@
     "linked-data"
   ],
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
     "@forwardimpact/libindex": "^0.1.27",
     "@forwardimpact/libstorage": "^0.1.53",
     "@forwardimpact/libtelemetry": "^0.1.22",

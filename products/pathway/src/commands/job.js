@@ -20,7 +20,7 @@ import {
   generateJobTitle,
   generateAllJobs,
 } from "@forwardimpact/libskill/derivation";
-import { formatTable } from "../lib/cli-output.js";
+import { formatTable } from "@forwardimpact/libcli";
 import {
   deriveChecklist,
   formatChecklistMarkdown,

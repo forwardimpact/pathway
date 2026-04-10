@@ -4,47 +4,32 @@ import { createAgentRunner } from "../agent-runner.js";
 import { createTeeWriter } from "../tee-writer.js";
 
 /**
- * Parse a --key=value or --key value flag from args.
- * @param {string[]} args
- * @param {string} name - Flag name without --
- * @returns {string|undefined}
- */
-function parseFlag(args, name) {
-  const prefix = `--${name}=`;
-  for (let i = 0; i < args.length; i++) {
-    if (args[i].startsWith(prefix)) return args[i].slice(prefix.length);
-    if (args[i] === `--${name}` && i + 1 < args.length) return args[i + 1];
-  }
-  return undefined;
-}
-
-/**
- * Parse and validate run command options from args.
- * @param {string[]} args
+ * Parse and validate run command options from parsed values.
+ * @param {object} values - Parsed option values from cli.parse()
  * @returns {{ taskContent: string, cwd: string, model: string, maxTurns: number, outputPath: string|undefined, agentProfile: string|undefined, allowedTools: string[] }}
  */
-function parseRunOptions(args) {
-  const taskFile = parseFlag(args, "task-file");
-  const taskText = parseFlag(args, "task-text");
+function parseRunOptions(values) {
+  const taskFile = values["task-file"];
+  const taskText = values["task-text"];
   if (taskFile && taskText)
     throw new Error("--task-file and --task-text are mutually exclusive");
   if (!taskFile && !taskText)
     throw new Error("--task-file or --task-text is required");
 
-  const maxTurnsRaw = parseFlag(args, "max-turns") ?? "50";
-  const taskAmend = parseFlag(args, "task-amend") ?? undefined;
+  const maxTurnsRaw = values["max-turns"] ?? "50";
+  const taskAmend = values["task-amend"] ?? undefined;
   let taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
   if (taskAmend) taskContent += `\n\n${taskAmend}`;
 
   return {
     taskContent,
-    cwd: resolve(parseFlag(args, "cwd") ?? "."),
-    model: parseFlag(args, "model") ?? "opus",
+    cwd: resolve(values.cwd ?? "."),
+    model: values.model ?? "opus",
     maxTurns: maxTurnsRaw === "0" ? 0 : parseInt(maxTurnsRaw, 10),
-    outputPath: parseFlag(args, "output"),
-    agentProfile: parseFlag(args, "agent-profile") ?? undefined,
+    outputPath: values.output,
+    agentProfile: values["agent-profile"] ?? undefined,
     allowedTools: (
-      parseFlag(args, "allowed-tools") ??
+      values["allowed-tools"] ??
       "Bash,Read,Glob,Grep,Write,Edit,Agent,TodoWrite"
     ).split(","),
   };
@@ -55,20 +40,10 @@ function parseRunOptions(args) {
  *
  * Usage: fit-eval run [options]
  *
- * Options:
- *   --task-file=PATH     Path to task file (mutually exclusive with --task-text)
- *   --task-text=STRING   Inline task text (mutually exclusive with --task-file)
- *   --cwd=DIR            Agent working directory (default: .)
- *   --model=MODEL        Claude model to use (default: opus)
- *   --max-turns=N        Maximum agentic turns (default: 50, 0 = unlimited)
- *   --output=PATH        Write NDJSON trace to file (default: stdout)
- *   --allowed-tools=LIST Comma-separated tools (default: Bash,Read,Glob,Grep,Write,Edit)
- *   --agent-profile=NAME Agent profile name (passed as --agent to Claude CLI)
- *   --task-amend=TEXT     Additional text appended to the task prompt
- *
- * @param {string[]} args - Command arguments
+ * @param {object} values - Parsed option values from cli.parse()
+ * @param {string[]} args - Positional arguments
  */
-export async function runRunCommand(args) {
+export async function runRunCommand(values, _args) {
   const {
     taskContent,
     cwd,
@@ -77,7 +52,7 @@ export async function runRunCommand(args) {
     outputPath,
     agentProfile,
     allowedTools,
-  } = parseRunOptions(args);
+  } = parseRunOptions(values);
 
   // When --output is specified, stream text to stdout while writing NDJSON to file.
   // Otherwise, write NDJSON directly to stdout (backwards-compatible).

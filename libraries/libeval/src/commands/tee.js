@@ -9,9 +9,10 @@ import { createTeeWriter } from "../tee-writer.js";
  *
  * Usage: fit-eval tee [output.ndjson] < trace.ndjson
  *
- * @param {string[]} args - Command arguments (optional output file path)
+ * @param {object} values - Parsed option values from cli.parse()
+ * @param {string[]} args - Positional arguments (optional output file path)
  */
-export async function runTeeCommand(args) {
+export async function runTeeCommand(values, args) {
   const outputPath = args.find((a) => !a.startsWith("-")) ?? null;
   const fileStream = outputPath ? createWriteStream(outputPath) : null;
 

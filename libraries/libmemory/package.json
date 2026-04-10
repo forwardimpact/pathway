@@ -21,6 +21,7 @@
     "test": "bun run node --test test/*.test.js"
   },
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
     "@forwardimpact/libindex": "^0.1.27"
   },
   "devDependencies": {

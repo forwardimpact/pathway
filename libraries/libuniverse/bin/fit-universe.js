@@ -2,6 +2,7 @@
 
 // fit-universe CLI — run with --help for usage.
 
+import { readFileSync } from "node:fs";
 import { resolve, join, dirname } from "path";
 import { mkdir, writeFile, readFile, readdir, mkdtemp, rm } from "fs/promises";
 import { fileURLToPath } from "url";
@@ -9,6 +10,7 @@ import { execFile } from "child_process";
 import { promisify } from "util";
 import { tmpdir } from "os";
 import { format } from "prettier";
+import { createCli } from "@forwardimpact/libcli";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { PromptLoader } from "@forwardimpact/libprompt";
@@ -34,6 +36,56 @@ import {
 import { Pipeline } from "../pipeline.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-universe",
+  version: VERSION,
+  description: "Synthetic data generation pipeline",
+  options: {
+    generate: {
+      type: "boolean",
+      description: "Generate prose via LLM and update cache",
+    },
+    "no-prose": {
+      type: "boolean",
+      description: "Skip prose entirely (structural scaffolding only)",
+    },
+    strict: {
+      type: "boolean",
+      description: "Fail on cache miss (use with default cached mode)",
+    },
+    "dry-run": {
+      type: "boolean",
+      description: "Show what would be written without writing",
+    },
+    load: {
+      type: "boolean",
+      description: "Load raw documents to Supabase Storage",
+    },
+    only: {
+      type: "string",
+      description: "Render only one content type (html|pathway|raw|markdown)",
+    },
+    story: { type: "string", description: "Path to a custom story DSL file" },
+    cache: { type: "string", description: "Path to prose cache file" },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: [
+    "bunx fit-universe",
+    "bunx fit-universe --generate",
+    "bunx fit-universe --strict",
+    "bunx fit-universe --no-prose",
+    "bunx fit-universe --only=pathway",
+  ],
+};
+
+const cli = createCli(definition);
 
 /**
  * Resolve the LLM API client when running in generate mode.
@@ -176,7 +228,7 @@ function printDryRun(result, load) {
 function printReport(result) {
   console.log("\nValidation:");
   for (const check of result.validation.checks) {
-    const icon = check.passed ? "✓" : "✗";
+    const icon = check.passed ? "\u2713" : "\u2717";
     console.log(`  ${icon} ${check.name}`);
   }
 
@@ -270,12 +322,10 @@ function createPipeline(opts) {
 }
 
 async function main() {
-  const args = parseArgs(process.argv.slice(2));
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
 
-  if (args.help) {
-    printHelp();
-    return;
-  }
+  const { values } = parsed;
 
   const config = await createScriptConfig("universe", {
     LLM_TOKEN: null,
@@ -286,9 +336,9 @@ async function main() {
     SUPABASE_SERVICE_ROLE_KEY: null,
   });
 
-  const mode = args.noProse
+  const mode = values["no-prose"]
     ? "no-prose"
-    : args.generate
+    : values.generate
       ? "generate"
       : "cached";
 
@@ -297,7 +347,7 @@ async function main() {
   const monorepoRoot = resolve(__dirname, "../../..");
   const schemaDir = join(monorepoRoot, "products/map/schema/json");
   const cachePath =
-    args.cache || join(monorepoRoot, "data", "synthetic", "prose-cache.json");
+    values.cache || join(monorepoRoot, "data", "synthetic", "prose-cache.json");
 
   const libsyntheticproseDir = dirname(
     fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticprose")),
@@ -310,7 +360,7 @@ async function main() {
     logger: createLogger("universe"),
     mode,
     cachePath,
-    strict: !!args.strict,
+    strict: !!values.strict,
     llmApi,
     promptDir: join(libsyntheticproseDir, "prompts"),
     templateDir: join(libsyntheticrenderDir, "templates"),
@@ -318,83 +368,33 @@ async function main() {
 
   const result = await pipeline.run({
     universePath:
-      args.story || join(monorepoRoot, "data", "synthetic", "story.dsl"),
-    only: args.only || null,
+      values.story || join(monorepoRoot, "data", "synthetic", "story.dsl"),
+    only: values.only || null,
     schemaDir,
   });
 
-  if (!args.dryRun) {
+  if (!values["dry-run"]) {
     await writeOutputFiles(result.files, monorepoRoot);
   }
 
-  await handleRawDocuments(result, args, config, monorepoRoot);
+  await handleRawDocuments(
+    result,
+    { load: values.load, dryRun: values["dry-run"] },
+    config,
+    monorepoRoot,
+  );
 
-  if (args.dryRun) {
-    printDryRun(result, args.load);
+  if (values["dry-run"]) {
+    printDryRun(result, values.load);
   }
 
   printReport(result);
 }
 
-/**
- * @param {string[]} argv
- * @returns {object}
- */
-function parseArgs(argv) {
-  const args = {};
-  for (const arg of argv) {
-    if (arg === "--help" || arg === "-h") args.help = true;
-    else if (arg === "--no-prose") args.noProse = true;
-    else if (arg === "--generate") args.generate = true;
-    else if (arg === "--strict") args.strict = true;
-    else if (arg === "--dry-run") args.dryRun = true;
-    else if (arg === "--load") args.load = true;
-    else if (arg.startsWith("--only=")) args.only = arg.slice(7);
-    else if (arg.startsWith("--story=")) args.story = arg.slice(8);
-    else if (arg.startsWith("--cache=")) args.cache = arg.slice(8);
-  }
-  return args;
-}
-
-function printHelp() {
-  console.log(`fit-universe — synthetic data generation pipeline
-
-Usage:
-  bunx fit-universe [options]
-
-Options:
-  --generate          Generate prose via LLM and update cache (requires LLM_TOKEN)
-  --no-prose          Skip prose entirely (structural scaffolding only)
-  --strict            Fail on cache miss (use with default cached mode)
-  --dry-run           Show what would be written without writing
-  --load              Load raw documents to Supabase Storage
-  --only=<type>       Render only one content type (html|pathway|raw|markdown)
-  --story=<path>      Path to a custom story DSL file
-  --cache=<path>      Path to prose cache file
-  -h, --help          Show this help message
-
-Prose modes:
-  (default)           Use cached prose from prose-cache.json
-  --generate          Call LLM to generate prose and update the cache
-  --no-prose          No prose — produces minimal structural data only
-
-Content types:
-  html                Organizational articles, guides, FAQs (data/knowledge)
-  pathway             YAML framework files (data/pathway)
-  raw                 Roster, GitHub events, evidence (data/activity)
-  markdown            Briefings, notes, KB content (data/personal)
-
-Examples:
-  bunx fit-universe                           # Cached prose (default)
-  bunx fit-universe --generate                # Generate new prose via LLM
-  bunx fit-universe --strict                  # Cached prose, fail on miss
-  bunx fit-universe --no-prose                # Structural only, no prose
-  bunx fit-universe --only=pathway            # Generate pathway data only
-  bunx fit-universe --story=custom.dsl        # Use custom DSL file
-`);
-}
+const logger = createLogger("universe");
 
 main().catch((err) => {
-  console.error(err.message);
+  logger.exception("main", err);
+  cli.error(err.message);
   process.exit(1);
 });

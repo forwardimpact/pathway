@@ -1,31 +1,55 @@
 #!/usr/bin/env node
-import { parseArgs } from "node:util";
+import { readFileSync } from "node:fs";
 import readline from "node:readline";
+
+import { createCli } from "@forwardimpact/libcli";
 
 import { LogWriter } from "../logger.js";
 
-const { values } = parseArgs({
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-logger",
+  version: VERSION,
+  description: "Log writer that reads stdin and writes rotated log files",
   options: {
     dir: {
       type: "string",
       short: "d",
+      description: "Log directory (required)",
     },
     maxFileSize: {
       type: "string",
       short: "s",
+      description: "Maximum log file size in bytes",
     },
     maxFiles: {
       type: "string",
       short: "n",
+      description: "Maximum number of log files to keep",
     },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
   },
-});
+  examples: [
+    "fit-logger --dir /var/log/myapp",
+    "fit-logger -d ./logs -s 1048576 -n 5",
+  ],
+};
+
+const cli = createCli(definition);
+
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const { values } = parsed;
 
 if (!values.dir) {
-  console.error(
-    "Usage: fit-logger --dir <logdir> [--maxFileSize <bytes>] [--maxFiles <count>]",
-  );
-  process.exit(1);
+  cli.usageError("missing required option: --dir");
+  process.exit(2);
 }
 
 const writer = new LogWriter(values.dir, {

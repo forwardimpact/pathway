@@ -38,7 +38,7 @@ import {
 } from "@forwardimpact/libskill/agent";
 import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
-import { formatError, formatSuccess } from "../lib/cli-output.js";
+import { formatError, formatSuccess } from "@forwardimpact/libcli";
 import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
 import {
   generateClaudeCodeSettings,

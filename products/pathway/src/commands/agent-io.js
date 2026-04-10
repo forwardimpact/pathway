@@ -14,7 +14,7 @@ import {
   formatInstallScript,
   formatReference,
 } from "../formatters/agent/skill.js";
-import { formatSuccess } from "../lib/cli-output.js";
+import { formatSuccess } from "@forwardimpact/libcli";
 
 /**
  * Ensure directory exists for a file path

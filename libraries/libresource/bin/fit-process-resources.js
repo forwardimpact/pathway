@@ -1,6 +1,6 @@
 #!/usr/bin/env node
-import { parseArgs } from "node:util";
-
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createResourceIndex } from "@forwardimpact/libresource";
 import { createStorage } from "@forwardimpact/libstorage";
@@ -10,34 +10,49 @@ import { ResourceProcessor } from "@forwardimpact/libresource/processor/resource
 import { Parser } from "@forwardimpact/libresource/parser.js";
 import { Skolemizer } from "@forwardimpact/libresource/skolemizer.js";
 
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-process-resources",
+  version: VERSION,
+  description:
+    "Process HTML files in the knowledge base directory and generate resources",
+  options: {
+    base: {
+      type: "string",
+      short: "b",
+      description: "Base URI (default: https://example.invalid/)",
+    },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+};
+
+const cli = createCli(definition);
+const logger = createLogger("resources");
+
 /**
  * Process all HTML files in the knowledge base directory and generate resources
- * using the ResourceProcessor
  * @returns {Promise<void>}
  */
 async function main() {
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
+
   await createScriptConfig("resources");
 
-  const { values } = parseArgs({
-    options: {
-      base: {
-        type: "string",
-        short: "b",
-        default: "https://example.invalid/",
-      },
-    },
-  });
-
+  const base = parsed.values.base || "https://example.invalid/";
   const knowledgeStorage = createStorage("knowledge");
-  const logger = createLogger("resources");
 
   const resourceIndex = createResourceIndex("resources");
   const skolemizer = new Skolemizer();
   const parser = new Parser(skolemizer, logger);
 
-  // Process knowledge using ResourceProcessor
   const resourceProcessor = new ResourceProcessor(
-    values.base,
+    base,
     resourceIndex,
     knowledgeStorage,
     parser,
@@ -47,6 +62,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error("Resource processing failed:", error);
+  logger.exception("main", error);
+  cli.error(error.message);
   process.exit(1);
 });

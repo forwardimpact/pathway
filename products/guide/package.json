@@ -34,6 +34,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
     "@forwardimpact/libcodegen": "^0.1.32",
     "@forwardimpact/librc": "^0.1.16",
     "@forwardimpact/libconfig": "^0.1.58",

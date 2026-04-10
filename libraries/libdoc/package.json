@@ -28,6 +28,8 @@
     "test": "bun run node --test test/*.test.js"
   },
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
+    "@forwardimpact/libtelemetry": "^0.1.22",
     "@hono/node-server": "^1.19.12",
     "hono": "^4.12.10",
     "marked": "^17.0.5",

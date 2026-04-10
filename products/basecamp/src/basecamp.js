@@ -3,15 +3,15 @@
 // Basecamp — CLI and scheduler for autonomous agent teams.
 //
 // Usage:
-//   node basecamp.js                     Wake due agents once and exit
-//   node basecamp.js --daemon            Run continuously (poll every 60s)
-//   node basecamp.js --wake <agent>      Wake a specific agent immediately
-//   node basecamp.js --init <path>       Initialize a new knowledge base
-//   node basecamp.js --update [path]     Update KB with latest CLAUDE.md, agents and skills
-//   node basecamp.js --stop              Gracefully stop daemon and children
-//   node basecamp.js --validate          Validate agent definitions exist
-//   node basecamp.js --status            Show agent status
-//   node basecamp.js --help              Show this help
+//   fit-basecamp                     Wake due agents once and exit
+//   fit-basecamp daemon              Run continuously (poll every 60s)
+//   fit-basecamp wake <agent>        Wake a specific agent immediately
+//   fit-basecamp init <path>         Initialize a new knowledge base
+//   fit-basecamp update [path]       Update KB with latest CLAUDE.md, agents and skills
+//   fit-basecamp stop                Gracefully stop daemon and all running agents
+//   fit-basecamp validate            Validate agent definitions exist
+//   fit-basecamp status              Show agent status
+//   fit-basecamp --help              Show this help
 
 import {
   readFileSync,
@@ -25,6 +25,7 @@ import {
 import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
+import { createCli } from "@forwardimpact/libcli";
 
 import * as posixSpawn from "./posix-spawn.js";
 import { StateManager } from "./state-manager.js";
@@ -45,6 +46,11 @@ const __dirname =
   import.meta.dirname || dirname(fileURLToPath(import.meta.url));
 const SHARE_DIR = "/usr/local/share/fit-basecamp";
 const SOCKET_PATH = join(BASECAMP_HOME, "basecamp.sock");
+
+/** Package version read from package.json */
+const VERSION = JSON.parse(
+  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
+).version;
 
 // --- Logging -----------------------------------------------------------------
 
@@ -172,9 +178,9 @@ function daemon() {
 
 // --- Update ------------------------------------------------------------------
 
-function runUpdate(cliArgs) {
-  if (cliArgs[1]) {
-    kbManager.update(cliArgs[1], requireTemplateDir());
+function runUpdate(args) {
+  if (args[0]) {
+    kbManager.update(args[0], requireTemplateDir());
     return;
   }
 
@@ -190,7 +196,7 @@ function runUpdate(cliArgs) {
   if (kbPaths.length === 0) {
     console.error(
       "No knowledge bases configured and no path given.\n" +
-        "Usage: fit-basecamp --update [path]",
+        "Usage: fit-basecamp update [path]",
     );
     process.exit(1);
   }
@@ -276,72 +282,92 @@ function validate() {
   if (errors > 0) process.exit(1);
 }
 
-// --- Help --------------------------------------------------------------------
+// --- CLI definition ----------------------------------------------------------
 
-function showHelp() {
-  const bin = "fit-basecamp";
-  console.log(`
-Basecamp — Schedule autonomous agents across knowledge bases.
-
-Usage:
-  ${bin}                     Wake due agents once and exit
-  ${bin} --daemon            Run continuously (poll every 60s)
-  ${bin} --wake <agent>      Wake a specific agent immediately
-  ${bin} --init <path>       Initialize a new knowledge base
-  ${bin} --update [path]     Update KB with latest CLAUDE.md, agents and skills
-  ${bin} --stop              Gracefully stop daemon and all running agents
-  ${bin} --validate          Validate agent definitions exist
-  ${bin} --status            Show agent status
-
-Config:  ~/.fit/basecamp/scheduler.json
-State:   ~/.fit/basecamp/state.json
-Logs:    ~/.fit/basecamp/logs/
-`);
-}
-
-// --- CLI entry point ---------------------------------------------------------
-
-const args = process.argv.slice(2);
-const command = args[0];
-mkdirSync(BASECAMP_HOME, { recursive: true });
-
-function requireArg(usage) {
-  if (!args[1]) {
-    console.error(usage);
-    process.exit(1);
-  }
-  return args[1];
-}
-
-const commands = {
-  "--help": showHelp,
-  "-h": showHelp,
-  "--daemon": daemon,
-  "--validate": validate,
-  "--stop": async () => {
-    const stopped = await requestShutdown(SOCKET_PATH);
-    if (!stopped) process.exit(1);
-  },
-  "--status": showStatus,
-  "--init": () =>
-    kbManager.init(
-      requireArg("Usage: fit-basecamp --init <path>"),
-      requireTemplateDir(),
-    ),
-  "--update": () => runUpdate(args),
-  "--wake": async () => {
-    const name = requireArg("Usage: fit-basecamp --wake <agent-name>");
-    const config = loadConfig();
-    const state = stateManager.load();
-    const agent = config.agents[name];
-    if (!agent) {
-      console.error(
-        `Agent "${name}" not found. Available: ${Object.keys(config.agents).join(", ") || "(none)"}`,
-      );
-      process.exit(1);
-    }
-    await agentRunner.wake(name, agent, state);
+const definition = {
+  name: "fit-basecamp",
+  version: VERSION,
+  description: "Schedule autonomous agents across knowledge bases",
+  commands: [
+    { name: "daemon", description: "Run continuously (poll every 60s)" },
+    {
+      name: "wake",
+      args: "<agent>",
+      description: "Wake a specific agent immediately",
+    },
+    {
+      name: "init",
+      args: "<path>",
+      description: "Initialize a new knowledge base",
+    },
+    {
+      name: "update",
+      args: "[path]",
+      description: "Update KB with latest CLAUDE.md, agents and skills",
+    },
+    {
+      name: "stop",
+      description: "Gracefully stop daemon and all running agents",
+    },
+    { name: "validate", description: "Validate agent definitions exist" },
+    { name: "status", description: "Show agent status" },
+  ],
+  options: {
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "JSON output (with --help)" },
   },
 };
 
-await (commands[command] || (() => scheduler.wakeDueAgents()))();
+// --- CLI entry point ---------------------------------------------------------
+
+const cli = createCli(definition);
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const { positionals } = parsed;
+const [command, ...args] = positionals;
+
+mkdirSync(BASECAMP_HOME, { recursive: true });
+
+const COMMANDS = {
+  daemon,
+  wake: async () => {
+    if (!args[0]) {
+      cli.usageError("missing required argument <agent>");
+      process.exit(2);
+    }
+    const config = loadConfig();
+    const state = stateManager.load();
+    const agent = config.agents[args[0]];
+    if (!agent) {
+      cli.error(
+        `agent "${args[0]}" not found. Available: ${Object.keys(config.agents).join(", ") || "(none)"}`,
+      );
+      process.exit(1);
+    }
+    await agentRunner.wake(args[0], agent, state);
+  },
+  init: () => {
+    if (!args[0]) {
+      cli.usageError("missing required argument <path>");
+      process.exit(2);
+    }
+    kbManager.init(args[0], requireTemplateDir());
+  },
+  update: () => runUpdate(args),
+  stop: async () => {
+    const stopped = await requestShutdown(SOCKET_PATH);
+    if (!stopped) process.exit(1);
+  },
+  validate,
+  status: showStatus,
+};
+
+const handler = COMMANDS[command];
+if (command && !handler) {
+  cli.usageError(`unknown command "${command}"`);
+  process.exit(2);
+}
+
+await (handler || (() => scheduler.wakeDueAgents()))();

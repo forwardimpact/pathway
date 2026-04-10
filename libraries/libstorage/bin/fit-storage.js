@@ -1,11 +1,59 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
 import fs from "node:fs/promises";
-import { parseArgs } from "node:util";
+import { createCli } from "@forwardimpact/libcli";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createStorage } from "@forwardimpact/libstorage";
 import { Logger } from "@forwardimpact/libtelemetry";
 import { Finder, waitFor } from "@forwardimpact/libutil";
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-storage",
+  version: VERSION,
+  description: "Storage operations for local and remote data",
+  commands: [
+    {
+      name: "create-bucket",
+      description: "Create storage bucket (idempotent)",
+    },
+    { name: "wait", description: "Wait for storage to be ready" },
+    { name: "upload", description: "Upload local data to remote storage" },
+    { name: "download", description: "Download remote data to local storage" },
+    { name: "list", description: "List remote storage contents" },
+  ],
+  options: {
+    prefix: {
+      type: "string",
+      multiple: true,
+      description: "Storage prefix to operate on (repeatable)",
+    },
+    timeout: {
+      type: "string",
+      description: "Timeout for wait command (default: 30000)",
+    },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: [
+    "fit-storage upload",
+    "fit-storage upload --prefix resources",
+    "fit-storage download",
+    "fit-storage list --prefix graphs",
+  ],
+};
+
+const cli = createCli(definition);
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const { values, positionals } = parsed;
+const [command] = positionals;
 
 /**
  * Discovers storage prefixes from local data directory.
@@ -40,16 +88,7 @@ async function discoverRemotePrefixes() {
     .sort();
 }
 
-const { values, positionals } = parseArgs({
-  allowPositionals: true,
-  options: {
-    prefix: { type: "string", multiple: true },
-    timeout: { type: "string", default: "30000" },
-    help: { type: "boolean", short: "h" },
-  },
-});
-
-const [command] = positionals;
+const prefixList = values.prefix || [];
 
 const commands = {
   async "create-bucket"() {
@@ -63,7 +102,7 @@ const commands = {
   async wait() {
     await createScriptConfig("storage");
     const storage = createStorage("");
-    const timeout = parseInt(values.timeout);
+    const timeout = parseInt(values.timeout || "30000");
     console.log(`Waiting for storage (timeout: ${timeout}ms)...`);
     const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
     await waitFor(() => storage.isHealthy(), { timeout }, delay);
@@ -73,8 +112,8 @@ const commands = {
   async upload() {
     await createScriptConfig("storage");
     const logger = new Logger("storage");
-    const prefixes = values.prefix?.length
-      ? values.prefix
+    const prefixes = prefixList.length
+      ? prefixList
       : await discoverLocalPrefixes();
 
     if (prefixes.length === 0) {
@@ -109,8 +148,8 @@ const commands = {
   async download() {
     await createScriptConfig("storage");
     const logger = new Logger("storage");
-    const prefixes = values.prefix?.length
-      ? values.prefix
+    const prefixes = prefixList.length
+      ? prefixList
       : await discoverRemotePrefixes();
 
     if (prefixes.length === 0) {
@@ -135,8 +174,8 @@ const commands = {
 
   async list() {
     await createScriptConfig("storage");
-    const prefixes = values.prefix?.length
-      ? values.prefix
+    const prefixes = prefixList.length
+      ? prefixList
       : await discoverRemotePrefixes();
 
     if (prefixes.length === 0) {
@@ -150,41 +189,14 @@ const commands = {
       keys.forEach((k) => console.log(`${prefix}/${k}`));
     }
   },
-
-  async help() {
-    console.log(`
-Usage: fit-storage <command> [options]
-
-Commands:
-  create-bucket    Create storage bucket (idempotent)
-  wait             Wait for storage to be ready
-  upload           Upload local data to remote storage
-  download         Download remote data to local storage
-  list             List remote storage contents
-
-Options:
-  --prefix <name>  Storage prefix(es) to operate on (repeatable)
-                   If omitted, discovers prefixes automatically:
-                   - upload: from local data/ subdirectories
-                   - download/list: from remote bucket prefixes
-  --timeout <ms>   Timeout for wait command (default: 30000)
-  -h, --help       Show this help message
-
-Examples:
-  fit-storage upload                           # Upload all data/* dirs
-  fit-storage upload --prefix resources        # Upload specific prefix
-  fit-storage download                         # Download all remote prefixes
-  fit-storage list --prefix graphs             # List specific prefix
-`);
-  },
 };
 
-if (!command || command === "help" || values.help) {
-  await commands.help();
+if (!command) {
+  cli.usageError("no command specified");
+  process.exit(2);
 } else if (commands[command]) {
   await commands[command]();
 } else {
-  console.error(`Unknown command: ${command}`);
-  console.error('Run "fit-storage help" for usage');
-  process.exit(1);
+  cli.usageError(`unknown command "${command}"`);
+  process.exit(2);
 }

@@ -1,0 +1,27 @@
+{
+  "name": "@forwardimpact/libcli",
+  "version": "0.1.0",
+  "description": "Shared CLI infrastructure for the Forward Impact monorepo",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "type": "module",
+  "main": "index.js",
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "bun run node --test test/*.test.js"
+  },
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "libraries/libcli"
+  },
+  "publishConfig": {
+    "access": "public"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.5"
+  }
+}

@@ -12,8 +12,46 @@
 import fs from "fs/promises";
 import { homedir } from "os";
 import { resolve } from "path";
+import { readFileSync } from "fs";
+import { fileURLToPath } from "url";
+import { dirname, join } from "path";
 
+import { createCli } from "@forwardimpact/libcli";
 import { Repl } from "@forwardimpact/librepl";
+
+const __dirname = dirname(fileURLToPath(import.meta.url));
+
+const VERSION = JSON.parse(
+  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
+).version;
+
+const definition = {
+  name: "fit-guide",
+  version: VERSION,
+  description: "Conversational agent for the Guide knowledge platform",
+  options: {
+    init: {
+      type: "boolean",
+      description: "Generate secrets, .env, and config",
+    },
+    data: {
+      type: "string",
+      description: "Path to framework data directory",
+    },
+    streaming: {
+      type: "boolean",
+      description: "Use streaming agent endpoint",
+    },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+  },
+  examples: [
+    'echo "Tell me about the company" | npx fit-guide',
+    "npx fit-guide --init",
+  ],
+};
+
+const cli = createCli(definition);
 
 const usage = `**fit-guide** — Conversational agent for the Guide knowledge platform
 
@@ -34,17 +72,6 @@ let useStreaming = false;
 let agentClient = null;
 let agentConfig = null;
 let logger = null;
-
-/**
- * Prints the package version and exits the REPL early.
- * @returns {Promise<void>}
- */
-async function showVersion() {
-  const { version } = JSON.parse(
-    await fs.readFile(new URL("../package.json", import.meta.url), "utf8"),
-  );
-  console.log(version);
-}
 
 /**
  * Generates secrets, writes .env, and copies starter config into ./config/.
@@ -113,12 +140,12 @@ async function runInit() {
     console.log(`config/ created with starter configuration.
 
   config/
-  ├── config.json                  # Service configuration
-  ├── agents/
-  │   ├── planner.agent.md         # Plans retrieval strategy
-  │   ├── researcher.agent.md      # Retrieves data
-  │   └── editor.agent.md          # Synthesizes response
-  └── tools.yml                    # Tool definitions`);
+  \u251C\u2500\u2500 config.json                  # Service configuration
+  \u251C\u2500\u2500 agents/
+  \u2502   \u251C\u2500\u2500 planner.agent.md         # Plans retrieval strategy
+  \u2502   \u251C\u2500\u2500 researcher.agent.md      # Retrieves data
+  \u2502   \u2514\u2500\u2500 editor.agent.md          # Synthesizes response
+  \u2514\u2500\u2500 tools.yml                    # Tool definitions`);
   }
 }
 
@@ -218,6 +245,19 @@ async function handlePrompt(prompt, state, outputStream) {
   }
 }
 
+// Parse CLI flags before entering the REPL
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const { values } = parsed;
+
+if (values.init) {
+  await runInit();
+  process.exit(0);
+}
+if (values.data) dataDir = resolve(values.data);
+if (values.streaming) useStreaming = true;
+
 const { createStorage } = await import("@forwardimpact/libstorage");
 const storage = createStorage("cli");
 
@@ -228,37 +268,7 @@ const repl = new Repl({
   state: {
     resource_id: null,
   },
-  commands: {
-    version: {
-      usage: "Show version",
-      type: "boolean",
-      handler: async () => {
-        await showVersion();
-        return false;
-      },
-    },
-    init: {
-      usage: "Generate secrets, .env, and config/config.json",
-      type: "boolean",
-      handler: async () => {
-        await runInit();
-        return false;
-      },
-    },
-    data: {
-      usage: "Path to framework data directory",
-      handler: ([path]) => {
-        dataDir = resolve(path);
-      },
-    },
-    streaming: {
-      usage: "Use the streaming agent endpoint (default: unary)",
-      type: "boolean",
-      handler: () => {
-        useStreaming = true;
-      },
-    },
-  },
+  commands: {},
   setup: setupServices,
   onLine: handlePrompt,
 });
@@ -266,7 +276,7 @@ const repl = new Repl({
 try {
   await repl.start();
 } catch (err) {
-  console.error(`Failed to connect to the Guide service stack.
+  cli.error(`Failed to connect to the Guide service stack.
 
 Error: ${err.message}
 

@@ -79,6 +79,15 @@ generation, and installation-specific design.
 
 </a>
 
+<a href="/docs/internals/libcli/">
+
+### libcli
+
+CLI development patterns — help text, argument parsing, error handling, summary
+rendering, Logger conventions, and composition with other libraries.
+
+</a>
+
 <a href="/docs/internals/operations/">
 
 ### Operations

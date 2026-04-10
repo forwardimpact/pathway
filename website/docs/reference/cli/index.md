@@ -197,24 +197,24 @@ agents.
 
 ```sh
 fit-basecamp                         # Wake due agents once and exit
-fit-basecamp --daemon                # Run continuously (poll every 60s)
-fit-basecamp --wake <agent>          # Wake a specific agent immediately
-fit-basecamp --stop                  # Gracefully stop daemon and agents
-fit-basecamp --status                # Show agent status and last decisions
-fit-basecamp --validate              # Validate agent definitions exist
-fit-basecamp --init <path>           # Initialize a new knowledge base
-fit-basecamp --update [path]         # Update KB with latest templates
+fit-basecamp daemon                  # Run continuously (poll every 60s)
+fit-basecamp wake <agent>            # Wake a specific agent immediately
+fit-basecamp stop                    # Gracefully stop daemon and agents
+fit-basecamp status                  # Show agent status and last decisions
+fit-basecamp validate                # Validate agent definitions exist
+fit-basecamp init <path>             # Initialize a new knowledge base
+fit-basecamp update [path]           # Update KB with latest templates
 ```
 
-| Option            | Description                                |
-| ----------------- | ------------------------------------------ |
-| `--daemon`        | Run continuously, polling every 60 seconds |
-| `--wake <agent>`  | Wake a specific agent by name              |
-| `--stop`          | Graceful shutdown of daemon and agents     |
-| `--status`        | Display agent status and last decisions    |
-| `--validate`      | Check that agent definitions exist         |
-| `--init <path>`   | Initialize a new knowledge base at path    |
-| `--update [path]` | Update existing KB with latest templates   |
+| Command         | Description                                |
+| --------------- | ------------------------------------------ |
+| `daemon`        | Run continuously, polling every 60 seconds |
+| `wake <agent>`  | Wake a specific agent by name              |
+| `stop`          | Graceful shutdown of daemon and agents     |
+| `status`        | Display agent status and last decisions    |
+| `validate`      | Check that agent definitions exist         |
+| `init <path>`   | Initialize a new knowledge base at path    |
+| `update [path]` | Update existing KB with latest templates   |
 
 ---
 

@@ -4,48 +4,67 @@
  * Listens on a Unix domain socket for control commands.
  * This is a pure supervisor - it knows nothing about service order or oneshots.
  */
+import { readFileSync } from "node:fs";
 import fs from "node:fs";
 import net from "node:net";
 import path from "node:path";
-import { parseArgs } from "node:util";
 
+import { createCli } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
 import { SupervisionTree } from "../tree.js";
 
-const logger = createLogger("svscan");
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
 
-const { values } = parseArgs({
+const definition = {
+  name: "fit-svscan",
+  version: VERSION,
+  description: "Supervision daemon that manages a SupervisionTree",
   options: {
     socket: {
       type: "string",
       short: "s",
+      description: "Path to Unix socket",
     },
-    pid: {
-      type: "string",
-      short: "p",
-    },
+    pid: { type: "string", short: "p", description: "Path to PID file" },
     logdir: {
       type: "string",
       short: "l",
+      description: "Path to log directory",
     },
     timeout: {
       type: "string",
       short: "t",
-      default: "3000",
+      description: "Shutdown timeout in ms (default: 3000)",
     },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
   },
-});
+  examples: [
+    "fit-svscan --socket /tmp/sv.sock --pid /tmp/sv.pid --logdir /tmp/logs",
+  ],
+};
+
+const cli = createCli(definition);
+const logger = createLogger("svscan");
+
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const { values } = parsed;
 
 if (!values.socket || !values.pid || !values.logdir) {
-  logger.error("main", "Missing required arguments: --socket, --pid, --logdir");
-  process.exit(1);
+  cli.usageError("missing required arguments: --socket, --pid, --logdir");
+  process.exit(2);
 }
 
 const socketPath = path.resolve(values.socket);
 const pidPath = path.resolve(values.pid);
 const logDir = path.resolve(values.logdir);
-const shutdownTimeout = parseInt(values.timeout, 10);
+const shutdownTimeout = parseInt(values.timeout || "3000", 10);
 
 const tree = new SupervisionTree(logDir, { shutdownTimeout, logger });
 

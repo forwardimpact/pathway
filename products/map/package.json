@@ -54,6 +54,7 @@
     "./activity/transform": "./supabase/functions/_shared/activity/transform/index.js"
   },
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
     "@forwardimpact/libtemplate": "^0.2.0",
     "@forwardimpact/libutil": "^0.1.64",
     "@supabase/supabase-js": "^2.48.0",

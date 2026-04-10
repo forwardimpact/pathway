@@ -197,19 +197,19 @@ a knowledge graph, drafts responses, and prepares meeting briefings.
 ### Initialize a knowledge base
 
 ```sh
-npx fit-basecamp --init ~/Documents/Personal
+npx fit-basecamp init ~/Documents/Personal
 ```
 
 ### Check status
 
 ```sh
-npx fit-basecamp --status
+npx fit-basecamp status
 ```
 
 ### Run the scheduler
 
 ```sh
-npx fit-basecamp --daemon
+npx fit-basecamp daemon
 ```
 
 Basecamp runs as a macOS status menu app with scheduled AI tasks handling

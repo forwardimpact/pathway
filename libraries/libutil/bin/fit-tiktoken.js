@@ -1,14 +1,38 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { countTokens } from "@forwardimpact/libutil";
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-tiktoken",
+  version: VERSION,
+  description: "Count tokens in text",
+  usage: "fit-tiktoken <text>\n       echo 'text' | fit-tiktoken",
+  options: {
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: ['fit-tiktoken "hello world"', "echo 'hello world' | fit-tiktoken"],
+};
+
+const cli = createCli(definition);
+const logger = createLogger("tiktoken");
 
 /**
  * Counts tokens in the provided text
- * Usage: fit-tiktoken <text>
- *        echo "text" | fit-tiktoken
  * @returns {Promise<void>}
  */
 async function main() {
-  let text = process.argv.slice(2).join(" ");
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
+
+  let text = parsed.positionals.join(" ");
 
   if (!text && !process.stdin.isTTY) {
     const chunks = [];
@@ -19,15 +43,15 @@ async function main() {
   }
 
   if (!text) {
-    console.error("Usage: fit-tiktoken <text>");
-    console.error('       echo "text" | fit-tiktoken');
-    process.exit(1);
+    cli.usageError("expected text argument or stdin input");
+    process.exit(2);
   }
 
   console.log(countTokens(text));
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  logger.exception("main", error);
+  cli.error(error.message);
   process.exit(1);
 });

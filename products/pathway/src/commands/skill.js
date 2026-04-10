@@ -15,7 +15,7 @@ import { createEntityCommand } from "./command-factory.js";
 import { skillToMarkdown } from "../formatters/skill/markdown.js";
 import { prepareSkillsList } from "../formatters/skill/shared.js";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
-import { formatTable, formatError } from "../lib/cli-output.js";
+import { formatTable, formatError } from "@forwardimpact/libcli";
 import { generateSkillMarkdown } from "@forwardimpact/libskill/agent";
 import { formatAgentSkill } from "../formatters/agent/skill.js";
 

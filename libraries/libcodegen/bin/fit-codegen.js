@@ -1,14 +1,14 @@
 #!/usr/bin/env node
 
-import fs from "node:fs";
+import fs, { readFileSync } from "node:fs";
 import fsAsync from "node:fs/promises";
 import path from "node:path";
 import { execFileSync } from "node:child_process";
-import { parseArgs } from "node:util";
 
 import protoLoader from "@grpc/proto-loader";
 import mustache from "mustache";
 
+import { createCli, SummaryRenderer } from "@forwardimpact/libcli";
 import { Finder } from "@forwardimpact/libutil";
 import { Logger } from "@forwardimpact/libtelemetry";
 import {
@@ -18,6 +18,39 @@ import {
   CodegenDefinitions,
 } from "@forwardimpact/libcodegen";
 import { createStorage } from "@forwardimpact/libstorage";
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-codegen",
+  version: VERSION,
+  description: "Generate protobuf types, service clients, and definitions",
+  options: {
+    all: { type: "boolean", description: "Generate all code" },
+    type: { type: "boolean", description: "Generate protobuf types only" },
+    service: {
+      type: "boolean",
+      description: "Generate service bases only",
+    },
+    client: { type: "boolean", description: "Generate clients only" },
+    definition: {
+      type: "boolean",
+      description: "Generate service definitions only",
+    },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: [
+    "npx fit-codegen --all",
+    "npx fit-codegen --type",
+    "npx fit-codegen --service",
+  ],
+};
+
+const cli = createCli(definition);
 
 /**
  * Create tar.gz bundle of all directories inside sourcePath
@@ -53,51 +86,16 @@ async function createBundle(sourcePath) {
 }
 
 /**
- * Print CLI usage help
- */
-function printUsage() {
-  process.stdout.write(
-    [
-      "Usage:",
-      `  npx fit-codegen --all                              # Generate all code`,
-      `  npx fit-codegen --type                             # Generate protobuf types only`,
-      `  npx fit-codegen --service                          # Generate service bases only`,
-      `  npx fit-codegen --client                           # Generate clients only`,
-      `  npx fit-codegen --definition                       # Generate service definitions only`,
-    ].join("\n") + "\n",
-  );
-}
-
-/**
- * Parse command line flags
+ * Parse command line flags using libcli
  * @returns {object} Parsed flags with convenience methods
  */
 function parseFlags() {
-  const { values } = parseArgs({
-    options: {
-      all: {
-        type: "boolean",
-        default: false,
-      },
-      type: {
-        type: "boolean",
-        default: false,
-      },
-      service: {
-        type: "boolean",
-        default: false,
-      },
-      client: {
-        type: "boolean",
-        default: false,
-      },
-      definition: {
-        type: "boolean",
-        default: false,
-      },
-    },
-  });
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) {
+    process.exit(0);
+  }
 
+  const { values } = parsed;
   const doAll = values.all;
   return {
     doTypes: doAll || values.type,
@@ -205,7 +203,6 @@ function countFiles(dirPath) {
 function printSummary(sourcePath, flags) {
   const totalFiles = countFiles(sourcePath);
   const relPath = path.relative(process.cwd(), sourcePath);
-  const lines = [`Generated ${totalFiles} files in ./${relPath}/`];
 
   const dirLabels = {
     types: "Protocol Buffer types",
@@ -214,6 +211,7 @@ function printSummary(sourcePath, flags) {
     definitions: "Service definitions",
   };
 
+  const items = [];
   if (fs.existsSync(sourcePath)) {
     const dirs = fs
       .readdirSync(sourcePath, { withFileTypes: true })
@@ -221,9 +219,18 @@ function printSummary(sourcePath, flags) {
 
     for (const dir of dirs) {
       const label = dirLabels[dir.name];
-      if (label) lines.push(`  ${dir.name}/  — ${label}`);
+      if (label) items.push({ label: `${dir.name}/`, description: label });
     }
   }
+
+  const summary = new SummaryRenderer({ process });
+  summary.render(
+    {
+      title: `Generated ${totalFiles} files in ./${relPath}/`,
+      items,
+    },
+    process.stdout,
+  );
 
   const generated = [
     flags.doTypes && "types",
@@ -231,9 +238,9 @@ function printSummary(sourcePath, flags) {
     flags.doClients && "clients",
     flags.doDefinitions && "definitions",
   ].filter(Boolean);
-  lines.push(`\nCode generation complete (${generated.join(", ")}).`);
-
-  process.stdout.write(lines.join("\n") + "\n");
+  process.stdout.write(
+    `\nCode generation complete (${generated.join(", ")}).\n`,
+  );
 }
 
 /**
@@ -286,9 +293,10 @@ async function runCodegen(protoDirs, projectRoot, finder) {
   const parsedFlags = parseFlags();
 
   if (!parsedFlags.hasGenerationFlags()) {
-    printUsage();
-    process.exitCode = 1;
-    return;
+    cli.usageError(
+      "no generation flags specified (use --all, --type, --service, --client, or --definition)",
+    );
+    process.exit(2);
   }
 
   const generatedStorage = createStorage("generated", "local");
@@ -342,12 +350,14 @@ async function main() {
 
     await runCodegen(protoDirs, projectRoot, finder);
   } catch (err) {
-    process.stderr.write(`Error: ${err.message}\n`);
+    const logger = new Logger("codegen");
+    logger.exception("main", err);
+    cli.error(err.message);
     process.exit(1);
   }
 }
 
 main().catch((err) => {
-  process.stderr.write(`Unexpected error: ${err.message}\n`);
+  cli.error(err.message);
   process.exit(1);
 });

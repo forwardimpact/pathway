@@ -17,7 +17,7 @@ import {
 import { questionsToMarkdown } from "../formatters/questions/markdown.js";
 import { questionsToYaml } from "../formatters/questions/yaml.js";
 import { questionsToJson } from "../formatters/questions/json.js";
-import { formatTable } from "../lib/cli-output.js";
+import { formatTable } from "@forwardimpact/libcli";
 
 /**
  * Parse questions command options

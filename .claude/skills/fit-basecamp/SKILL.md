@@ -57,9 +57,9 @@ code, and stderr are tracked in `state.json`.
 
 ### Knowledge Base Initialization
 
-Running `--init <path>` copies the bundled template into the target directory:
+Running `init <path>` copies the bundled template into the target directory:
 `CLAUDE.md` (instructions), `USER.md` (identity), `.claude/skills/` (built-in
-skills), and `.claude/settings.json` (permissions). Running `--update` on an
+skills), and `.claude/settings.json` (permissions). Running `update` on an
 existing KB merges new files without overwriting user customizations — settings
 permissions are reconciled rather than replaced.
 
@@ -71,18 +71,18 @@ permissions are reconciled rather than replaced.
 
 ```sh
 fit-basecamp                         # Wake due agents once and exit
-fit-basecamp --daemon                # Run continuously (poll every 60s)
-fit-basecamp --wake <agent>          # Wake a specific agent immediately
-fit-basecamp --stop                  # Gracefully stop daemon and all running agents
-fit-basecamp --status                # Show agent status and last decisions
-fit-basecamp --validate              # Validate agent definitions exist
+fit-basecamp daemon                  # Run continuously (poll every 60s)
+fit-basecamp wake <agent>            # Wake a specific agent immediately
+fit-basecamp stop                    # Gracefully stop daemon and all running agents
+fit-basecamp status                  # Show agent status and last decisions
+fit-basecamp validate                # Validate agent definitions exist
 ```
 
 ### Knowledge Base Management
 
 ```sh
-fit-basecamp --init <path>           # Initialize a new knowledge base
-fit-basecamp --update [path]         # Update KB with latest CLAUDE.md, agents, skills
+fit-basecamp init <path>             # Initialize a new knowledge base
+fit-basecamp update [path]           # Update KB with latest CLAUDE.md, agents, skills
 ```
 
 ### Key Paths
@@ -114,7 +114,7 @@ Each task entry defines:
 
 ```
 Basecamp.app/Contents/MacOS/Basecamp      ← Swift launcher, TCC responsible
-├── fit-basecamp --daemon                 ← Deno scheduler (posix_spawn)
+├── fit-basecamp daemon                   ← Node.js scheduler (posix_spawn)
 │   └── claude --print ...                ← spawned via posix_spawn FFI
 └── [status menu UI]                      ← AppKit menu bar, in-process
 ```
@@ -142,13 +142,13 @@ Synced data lives outside the KB:
 3. Write the skill workflow (trigger, prerequisites, inputs, outputs, steps)
 4. Update `template/CLAUDE.md` to list the new skill
 5. If scheduled, add a default task entry to `config/scheduler.json`
-6. Run `fit-basecamp --update` to push the new skill to existing KBs
+6. Run `fit-basecamp update` to push the new skill to existing KBs
 
 ## Verification
 
 ```sh
-fit-basecamp --status       # Check config and agent state
-fit-basecamp --validate     # Verify agent/skill references exist
+fit-basecamp status         # Check config and agent state
+fit-basecamp validate       # Verify agent/skill references exist
 ```
 
 ## Documentation

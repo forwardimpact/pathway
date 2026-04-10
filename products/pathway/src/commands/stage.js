@@ -14,12 +14,12 @@ import {
   prepareStageDetail,
   getStageEmoji,
 } from "../formatters/stage/shared.js";
-import { formatTable } from "../lib/cli-output.js";
 import {
+  formatTable,
   formatHeader,
   formatSubheader,
   formatBullet,
-} from "../lib/cli-output.js";
+} from "@forwardimpact/libcli";
 
 /**
  * Format stage list item for --list output

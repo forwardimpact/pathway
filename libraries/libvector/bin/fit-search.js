@@ -1,19 +1,44 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createLlmApi } from "@forwardimpact/libllm";
 import { createStorage } from "@forwardimpact/libstorage";
 import { VectorIndex } from "@forwardimpact/libvector/index/vector.js";
 
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-search",
+  version: VERSION,
+  description: "Search vector index by embedding a query string",
+  usage: "fit-search <query>",
+  options: {
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: ["fit-search 'career progression'"],
+};
+
+const cli = createCli(definition);
+const logger = createLogger("search");
+
 /**
  * Searches vector index by embedding a query string
- * Usage: fit-search <query>
  * @returns {Promise<void>}
  */
 async function main() {
-  const query = process.argv.slice(2).join(" ");
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
+
+  const query = parsed.positionals.join(" ");
   if (!query) {
-    console.error("Usage: fit-search <query>");
-    process.exit(1);
+    cli.usageError("expected a query string");
+    process.exit(2);
   }
 
   const config = await createScriptConfig("vectors");
@@ -37,6 +62,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  logger.exception("main", error);
+  cli.error(error.message);
   process.exit(1);
 });

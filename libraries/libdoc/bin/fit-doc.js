@@ -1,45 +1,70 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
 import fs from "node:fs";
 import path from "node:path";
-import { parseArgs } from "node:util";
 import { Hono } from "hono";
 import { serve } from "@hono/node-server";
 import { marked } from "marked";
 import mustache from "mustache";
 import prettier from "prettier";
 
+import { createCli } from "@forwardimpact/libcli";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { DocsBuilder, DocsServer } from "../index.js";
 import { parseFrontMatter } from "../frontmatter.js";
 
-const USAGE = `
-Usage: fit-doc <command> [options]
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
 
-Commands:
-  build    Build documentation site from markdown files
-  serve    Build and serve documentation with optional watch mode
+const definition = {
+  name: "fit-doc",
+  version: VERSION,
+  description: "Build and serve documentation sites from markdown",
+  commands: [
+    {
+      name: "build",
+      description: "Build documentation site from markdown files",
+    },
+    {
+      name: "serve",
+      description: "Build and serve documentation with optional watch mode",
+    },
+  ],
+  options: {
+    src: {
+      type: "string",
+      default: "website",
+      description: "Source directory (default: website)",
+    },
+    out: {
+      type: "string",
+      default: "dist",
+      description: "Output directory (default: dist)",
+    },
+    "base-url": {
+      type: "string",
+      description: "Base URL for sitemap, canonical links, and llms.txt",
+    },
+    port: {
+      type: "string",
+      short: "p",
+      description: "Port to serve on (default: 3000)",
+    },
+    watch: {
+      type: "boolean",
+      short: "w",
+      description: "Watch for changes and rebuild",
+    },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: ["fit-doc build", "fit-doc serve --watch --port 8080"],
+};
 
-Options:
-  -h, --help     Show this help message
-
-Build options:
-  --src=<dir>       Source directory (default: website)
-  --out=<dir>       Output directory (default: dist)
-  --base-url=<url>  Base URL for sitemap, canonical links, and llms.txt
-
-Serve options:
-  --src=<dir>    Source directory (default: website)
-  --out=<dir>    Output directory (default: dist)
-  -p, --port     Port to serve on (default: 3000)
-  -w, --watch    Watch for changes and rebuild
-`;
-
-/**
- * @param {string} message
- */
-function error(message) {
-  console.error(`Error: ${message}`);
-  process.exit(1);
-}
+const cli = createCli(definition);
+const logger = createLogger("doc");
 
 /**
  * @param {import("../builder.js").DocsBuilder} builder
@@ -49,7 +74,8 @@ function error(message) {
  */
 async function runBuild(builder, docsDir, distDir, baseUrl) {
   if (!fs.existsSync(docsDir)) {
-    error(`Source directory not found: ${docsDir}`);
+    cli.error(`source directory not found: ${docsDir}`);
+    process.exit(1);
   }
 
   await builder.build(docsDir, distDir, baseUrl);
@@ -60,11 +86,12 @@ async function runBuild(builder, docsDir, distDir, baseUrl) {
  * @param {import("../server.js").DocsServer} server
  * @param {string} docsDir
  * @param {string} distDir
- * @param {{ port: number, watch: boolean }} options
+ * @param {{ port: number, watch: boolean, baseUrl: string }} options
  */
 async function runServe(builder, server, docsDir, distDir, options) {
   if (!fs.existsSync(docsDir)) {
-    error(`Source directory not found: ${docsDir}`);
+    cli.error(`source directory not found: ${docsDir}`);
+    process.exit(1);
   }
 
   await builder.build(docsDir, distDir, options.baseUrl);
@@ -78,36 +105,20 @@ async function runServe(builder, server, docsDir, distDir, options) {
 }
 
 async function main() {
-  const args = process.argv.slice(2);
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
 
-  if (args.length === 0 || args[0] === "-h" || args[0] === "--help") {
-    console.log(USAGE.trim());
-    process.exit(args.length === 0 ? 1 : 0);
+  const { values, positionals } = parsed;
+  const command = positionals[0];
+
+  if (!command) {
+    cli.usageError("no command specified (use build or serve)");
+    process.exit(2);
   }
-
-  const command = args[0];
-  const commandArgs = args.slice(1);
 
   if (!["build", "serve"].includes(command)) {
-    error(`Unknown command: ${command}\n\n${USAGE.trim()}`);
-  }
-
-  const { values } = parseArgs({
-    args: commandArgs,
-    options: {
-      src: { type: "string", default: "website" },
-      out: { type: "string", default: "dist" },
-      "base-url": { type: "string" },
-      port: { type: "string", short: "p", default: "3000" },
-      watch: { type: "boolean", short: "w", default: false },
-      help: { type: "boolean", short: "h", default: false },
-    },
-    allowPositionals: false,
-  });
-
-  if (values.help) {
-    console.log(USAGE.trim());
-    process.exit(0);
+    cli.usageError(`unknown command "${command}"`);
+    process.exit(2);
   }
 
   const workingDir = process.env.INIT_CWD || process.cwd();
@@ -130,13 +141,15 @@ async function main() {
     } else {
       const server = new DocsServer(fs, Hono, serve, builder);
       await runServe(builder, server, docsDir, distDir, {
-        port: parseInt(values.port, 10),
+        port: parseInt(values.port || "3000", 10),
         watch: values.watch,
         baseUrl,
       });
     }
   } catch (err) {
-    error(err.message);
+    logger.exception("main", err);
+    cli.error(err.message);
+    process.exit(1);
   }
 }
 

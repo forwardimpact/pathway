@@ -12,12 +12,12 @@
 
 import { createEntityCommand } from "./command-factory.js";
 import { prepareDriverDetail } from "../formatters/driver/shared.js";
-import { formatTable } from "../lib/cli-output.js";
 import {
+  formatTable,
   formatHeader,
   formatSubheader,
   formatBullet,
-} from "../lib/cli-output.js";
+} from "@forwardimpact/libcli";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 
 /**

@@ -187,8 +187,8 @@ npx fit-pathway agent se --track=dx  # Generate agent profiles
 Set up Basecamp and let scheduled AI tasks keep you organized:
 
 ```sh
-npx fit-basecamp --init ~/Documents/Team
-npx fit-basecamp --daemon
+npx fit-basecamp init ~/Documents/Team
+npx fit-basecamp daemon
 ```
 
   </div>

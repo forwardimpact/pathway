@@ -39,6 +39,7 @@
   },
   "dependencies": {
     "@forwardimpact/map": "^0.15.5",
+    "@forwardimpact/libcli": "workspace:*",
     "@forwardimpact/libskill": "^4.0.0",
     "@forwardimpact/libtemplate": "^0.2.0",
     "@forwardimpact/libui": "^1.0.0",

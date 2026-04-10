@@ -12,7 +12,7 @@
 
 import { createEntityCommand } from "./command-factory.js";
 import { disciplineToMarkdown } from "../formatters/discipline/markdown.js";
-import { formatTable } from "../lib/cli-output.js";
+import { formatTable } from "@forwardimpact/libcli";
 
 /**
  * Format discipline list item for --list output

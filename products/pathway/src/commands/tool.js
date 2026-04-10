@@ -15,7 +15,7 @@ import {
   formatTable,
   formatHeader,
   formatSubheader,
-} from "../lib/cli-output.js";
+} from "@forwardimpact/libcli";
 
 /**
  * Run tool command

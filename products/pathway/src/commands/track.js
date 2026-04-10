@@ -13,7 +13,7 @@
 import { createEntityCommand } from "./command-factory.js";
 import { trackToMarkdown } from "../formatters/track/markdown.js";
 import { sortTracksByName } from "../formatters/track/shared.js";
-import { formatTable } from "../lib/cli-output.js";
+import { formatTable } from "@forwardimpact/libcli";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 
 /**

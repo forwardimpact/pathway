@@ -10,13 +10,76 @@
 import fs from "fs/promises";
 import { join, resolve, dirname } from "path";
 import { fileURLToPath } from "url";
+import { readFileSync } from "fs";
 import { homedir } from "os";
-import { parseArgs } from "node:util";
 import { Finder } from "@forwardimpact/libutil";
 import { createLogger } from "@forwardimpact/libtelemetry";
+import { createCli } from "@forwardimpact/libcli";
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
+
+const VERSION = JSON.parse(
+  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
+).version;
+
+const definition = {
+  name: "fit-map",
+  version: VERSION,
+  description: "Data validation and management for Engineering Pathway",
+  commands: [
+    {
+      name: "init",
+      description: "Create ./data/pathway/ with starter framework data",
+    },
+    {
+      name: "validate",
+      description: "Run validation (default: JSON schema)",
+    },
+    {
+      name: "generate-index",
+      description: "Generate _index.yaml files",
+    },
+    {
+      name: "export",
+      description: "Render base entities to HTML microdata",
+    },
+    {
+      name: "people",
+      args: "<validate|push> <file>",
+      description: "Validate or push people files",
+    },
+    {
+      name: "activity",
+      args: "<start|stop|status|migrate|transform|verify>",
+      description: "Manage activity stack",
+    },
+    {
+      name: "getdx",
+      args: "sync",
+      description: "Extract + transform GetDX snapshots",
+    },
+  ],
+  options: {
+    data: { type: "string", description: "Path to data directory" },
+    output: { type: "string", description: "Output directory for export" },
+    url: { type: "string", description: "Supabase URL" },
+    "base-url": { type: "string", description: "GetDX API base URL" },
+    json: { type: "boolean", description: "Output as JSON" },
+    shacl: { type: "boolean", description: "SHACL schema validation" },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+  },
+  examples: [
+    "fit-map init",
+    "fit-map validate",
+    "fit-map validate --shacl",
+    "fit-map people validate ./org/people.yaml",
+    "fit-map activity start",
+  ],
+};
+
+const cli = createCli(definition);
 
 /**
  * Find the data directory
@@ -229,60 +292,6 @@ async function runValidateShacl() {
   }
 }
 
-/**
- * Show help
- */
-function showHelp() {
-  console.log(`
-fit-map - Data validation and management for Engineering Pathway
-
-Usage:
-  fit-map <command> [options]
-
-Framework commands:
-  init                  Create ./data/pathway/ with starter framework data
-  validate              Run validation (default: JSON schema validation)
-  validate --shacl      SHACL schema syntax validation
-  generate-index        Generate _index.yaml files for directories
-  export                Render base entities to HTML microdata
-
-People commands:
-  people validate <file>  Validate a people file against the framework (no DB)
-  people push <file>      Store raw + upsert into activity.organization_people
-
-Activity commands:
-  activity start        Start the bundled local Supabase stack
-  activity stop         Stop the local stack
-  activity status       Report local stack health
-  activity migrate      Reset + re-apply migrations (drops data)
-  activity transform    Reprocess every raw document in the raw bucket
-  activity verify       Smoke-test the activity database
-
-GetDX commands:
-  getdx sync            Extract + transform GetDX snapshots
-
-Options:
-  --data=PATH           Path to data directory (default: ./data or ./examples)
-  --output=PATH         Output directory for export (default: <repo>/data/knowledge)
-  --url=URL             Supabase URL (default: MAP_SUPABASE_URL env)
-  --base-url=URL        GetDX API base URL (default: https://api.getdx.com)
-  --help, -h            Show this help message
-
-Examples:
-  fit-map init
-  fit-map validate
-  fit-map validate --shacl
-  fit-map validate --data=./my-data
-  fit-map generate-index
-  fit-map export --output=./build/knowledge
-  fit-map people validate ./org/people.yaml
-  fit-map people push ./org/people.yaml
-  fit-map activity start
-  fit-map activity verify
-  GETDX_API_TOKEN=xxx fit-map getdx sync
-`);
-}
-
 // ── Dispatchers ──────────────────────────────────────────────────────────────
 
 async function mapClient(values) {
@@ -296,7 +305,7 @@ async function dispatchPeople(subcommand, rest, values) {
     case "validate": {
       const filePath = rest[0];
       if (!filePath) {
-        console.error("people validate requires a file path");
+        cli.error("people validate requires a file path");
         return 1;
       }
       const dataDir = await findDataDir(values.data);
@@ -305,7 +314,7 @@ async function dispatchPeople(subcommand, rest, values) {
     case "push": {
       const filePath = rest[0];
       if (!filePath) {
-        console.error("people push requires a file path");
+        cli.error("people push requires a file path");
         return 1;
       }
       const supabase = await mapClient(values);
@@ -319,15 +328,14 @@ async function dispatchPeople(subcommand, rest, values) {
       );
       const filePath = rest[0];
       if (!filePath) {
-        console.error("people import requires a file path");
+        cli.error("people import requires a file path");
         return 1;
       }
       const dataDir = await findDataDir(values.data);
       return people.validate(filePath, dataDir);
     }
     default:
-      console.error(`Unknown people subcommand: ${subcommand || "(none)"}`);
-      showHelp();
+      cli.usageError(`unknown people subcommand: ${subcommand || "(none)"}`);
       return 1;
   }
 }
@@ -348,8 +356,7 @@ async function dispatchActivity(subcommand, rest, values) {
     case "verify":
       return activity.verify(await mapClient(values));
     default:
-      console.error(`Unknown activity subcommand: ${subcommand || "(none)"}`);
-      showHelp();
+      cli.usageError(`unknown activity subcommand: ${subcommand || "(none)"}`);
       return 1;
   }
 }
@@ -362,8 +369,7 @@ async function dispatchGetdx(subcommand, rest, values) {
         baseUrl: values["base-url"],
       });
     default:
-      console.error(`Unknown getdx subcommand: ${subcommand || "(none)"}`);
-      showHelp();
+      cli.usageError(`unknown getdx subcommand: ${subcommand || "(none)"}`);
       return 1;
   }
 }
@@ -372,25 +378,15 @@ async function dispatchGetdx(subcommand, rest, values) {
  * Main entry point
  */
 async function main() {
-  const { values, positionals } = parseArgs({
-    options: {
-      help: { type: "boolean", short: "h", default: false },
-      json: { type: "boolean", default: false },
-      shacl: { type: "boolean", default: false },
-      data: { type: "string" },
-      output: { type: "string" },
-      url: { type: "string" },
-      "base-url": { type: "string" },
-    },
-    allowPositionals: true,
-    strict: false,
-  });
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
 
+  const { values, positionals } = parsed;
   const [command, subcommand, ...rest] = positionals;
 
-  if (values.help || !command) {
-    showHelp();
-    process.exit(values.help ? 0 : 1);
+  if (!command) {
+    cli.showHelp();
+    process.exit(0);
   }
 
   try {
@@ -433,14 +429,13 @@ async function main() {
         exitCode = await dispatchGetdx(subcommand, rest, values);
         break;
       default:
-        console.error(`Unknown command: ${command}`);
-        showHelp();
-        exitCode = 1;
+        cli.usageError(`unknown command "${command}"`);
+        exitCode = 2;
     }
 
     process.exit(exitCode);
   } catch (error) {
-    console.error(`Error: ${error.message}`);
+    cli.error(error.message);
     process.exit(1);
   }
 }

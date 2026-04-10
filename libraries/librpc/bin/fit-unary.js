@@ -1,24 +1,44 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
 import { createClient, createTracer } from "@forwardimpact/librpc";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-unary",
+  version: VERSION,
+  description: "Make a unary gRPC call to a service",
+  usage: "fit-unary <service> <method> [json-request]",
+  options: {
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: ['fit-unary memory GetWindow \'{"resource_id":"..."}\''],
+};
+
+const cli = createCli(definition);
+const logger = createLogger("cli");
+
 /**
  * Makes a unary gRPC call to a service
- * Usage: fit-unary <service> <method> [json-request]
  * @returns {Promise<void>}
  */
 async function main() {
-  const [service, method, requestJson] = process.argv.slice(2);
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
+
+  const [service, method, requestJson] = parsed.positionals;
   if (!service || !method) {
-    console.error("Usage: fit-unary <service> <method> [json-request]");
-    console.error(
-      'Example: fit-unary memory GetWindow \'{"resource_id":"..."}\'',
-    );
-    process.exit(1);
+    cli.usageError("expected arguments: <service> <method> [json-request]");
+    process.exit(2);
   }
 
   const request = requestJson ? JSON.parse(requestJson) : {};
-  const logger = createLogger("cli");
   const tracer = await createTracer("cli");
   const client = await createClient(service, logger, tracer);
 
@@ -27,6 +47,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  logger.exception("main", error);
+  cli.error(error.message);
   process.exit(1);
 });

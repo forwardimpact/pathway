@@ -18,6 +18,7 @@
   },
   "dependencies": {
     "@aws-sdk/client-s3": "^3.1023.0",
+    "@forwardimpact/libcli": "workspace:*",
     "@aws-sdk/credential-providers": "^3.1023.0",
     "@forwardimpact/libconfig": "^0.1.58",
     "@forwardimpact/libsecret": "^0.1.3",

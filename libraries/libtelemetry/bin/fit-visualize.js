@@ -1,9 +1,42 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
 import { Repl } from "@forwardimpact/librepl";
 import { createStorage } from "@forwardimpact/libstorage";
 
 import { TraceIndex } from "../index/trace.js";
 import { TraceVisualizer } from "../visualizer.js";
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-visualize",
+  version: VERSION,
+  description: "Query and visualize traces using JMESPath expressions",
+  options: {
+    trace: { type: "string", description: "Filter traces by trace ID" },
+    resource: {
+      type: "string",
+      description: "Filter traces by resource ID",
+    },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: [
+    "echo \"[?name=='ProcessStream']\" | fit-visualize",
+    'echo "[]" | fit-visualize --trace 0f53069dbc62d',
+  ],
+};
+
+const cli = createCli(definition);
+
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const { values } = parsed;
 
 const usage = `**Usage:** <JMESPath expression>
 
@@ -59,8 +92,8 @@ const repl = new Repl({
   },
 
   state: {
-    trace_id: null,
-    resource_id: null,
+    trace_id: values.trace || null,
+    resource_id: values.resource || null,
   },
 
   commands: {

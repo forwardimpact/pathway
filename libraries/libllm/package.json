@@ -17,6 +17,8 @@
     "test": "bun run node --test test/*.test.js"
   },
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
+    "@forwardimpact/libtelemetry": "^0.1.22",
     "@forwardimpact/libtype": "^0.1.63",
     "@forwardimpact/libutil": "^0.1.60"
   },

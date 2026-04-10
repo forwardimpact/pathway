@@ -7,26 +7,6 @@
  *
  * Usage:
  *   npx fit-pathway <command> [options]
- *
- * Commands:
- *   discipline [<id>]           Show disciplines
- *   level [<id>]                Show levels
- *   track [<id>]                Show tracks
- *   behaviour [<id>]            Show behaviours
- *   skill [<id>]                Show skills (summary, --list, or detail)
- *   driver [<id>]               Show drivers
- *   stage [<id>]                Show stages
- *   tool [<name>]               Show tools
- *   job [<discipline> <level>] [--track=TRACK]  Generate job definition
- *   interview <discipline> <level> [--track=TRACK] [--type=mission|decomposition|stakeholder]  Generate interview
- *   progress <discipline> <level> [--track=TRACK] [--compare=LEVEL]  Career progression
- *   questions [options]         Browse interview questions
- *   agent [<discipline> <track>] [--output=PATH]  Generate AI agent
- *
- * Global Options:
- *   --list         Output IDs only (for piping)
- *   --json         Output as JSON
- *   --help         Show help
  */
 
 import { join, resolve, dirname } from "path";
@@ -38,7 +18,7 @@ import { createDataLoader } from "@forwardimpact/map/loader";
 import { validateAllData } from "@forwardimpact/map/validation";
 import { Finder } from "@forwardimpact/libutil";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { formatError } from "../src/lib/cli-output.js";
+import { createCli } from "@forwardimpact/libcli";
 import { createTemplateLoader } from "@forwardimpact/libtemplate";
 
 // Import command handlers
@@ -83,337 +63,156 @@ const COMMANDS = {
   agent: runAgentCommand,
 };
 
-const HELP_TEXT = `
-Engineering Pathway CLI
-
-Usage:
-  npx fit-pathway <command> [options]
-
-Global Options:
-  --list            Output IDs only (for piping to other commands)
-  --json            Output as JSON
-  --data=PATH       Path to data directory (default: ./data)
-  --version         Show version number
-  --help            Show this help message
-
-────────────────────────────────────────────────────────────────────────────────
-GETTING STARTED
-────────────────────────────────────────────────────────────────────────────────
-
-  dev [--port=PORT]                   Run live development server
-  build [--output=PATH] [--url=URL]   Generate static site + distribution bundle
-  update [--url=URL]                  Update local ~/.fit/data/pathway/ installation
-
-────────────────────────────────────────────────────────────────────────────────
-ENTITY COMMANDS
-────────────────────────────────────────────────────────────────────────────────
-
-All entity commands support: summary (default), --list (IDs for piping), <id> (detail)
-
-  discipline [<id>]     Browse engineering disciplines
-  level [<id>]          Browse career levels
-  track [<id>]          Browse track specializations
-  behaviour [<id>]      Browse professional behaviours
-  driver [<id>]         Browse outcome drivers
-  stage [<id>]          Browse lifecycle stages
-
-  skill [<id>]          Browse skills
-    --agent             Output as agent SKILL.md format
-
-  tool [<name>]         Browse required tools (aggregated from skills)
-
-────────────────────────────────────────────────────────────────────────────────
-JOB COMMAND
-────────────────────────────────────────────────────────────────────────────────
-
-Generate job definitions from discipline × level × track combinations.
-
-Usage:
-  npx fit-pathway job                                  Summary with stats
-  npx fit-pathway job --track=<track>                  Summary filtered by track
-  npx fit-pathway job --list                           All valid combinations
-  npx fit-pathway job --list --track=<track>            Combinations for a track
-  npx fit-pathway job <discipline> <level>             Detail view (trackless)
-  npx fit-pathway job <d> <l> --track=<track>          Detail view (with track)
-  npx fit-pathway job <d> <l> --skills                 Plain list of skill IDs
-  npx fit-pathway job <d> <l> --tools                  Plain list of tool names
-  npx fit-pathway job <d> <l> --checklist=<stage>      Show handoff checklist
-
-Options:
-  --track=TRACK       Track specialization (e.g., platform, forward_deployed)
-                      Also filters --list and summary modes
-  --skills            Output plain list of skill IDs (for piping)
-  --tools             Output plain list of tool names (for piping)
-  --checklist=STAGE   Show checklist for stage handoff (plan, code)
-
-Examples:
-  npx fit-pathway job                                  # overview of all jobs
-  npx fit-pathway job --track=forward_deployed         # jobs on a specific track
-  npx fit-pathway job --list --track=forward_deployed  # list for piping
-  npx fit-pathway job software_engineering J060        # trackless job detail
-  npx fit-pathway job software_engineering J060 --track=platform  # with track
-
-────────────────────────────────────────────────────────────────────────────────
-AGENT COMMAND
-────────────────────────────────────────────────────────────────────────────────
-
-Generate AI coding agent configurations from discipline × track × stage.
-
-Usage:
-  npx fit-pathway agent                                Summary with stats
-  npx fit-pathway agent --list                         All valid combinations
-  npx fit-pathway agent <discipline> --track=<track>   Generate all stage agents
-  npx fit-pathway agent <d> --track=<t> --stage=<s>    Generate single stage agent
-  npx fit-pathway agent <d> --track=<t> --skills       Plain list of skill IDs
-  npx fit-pathway agent <d> --track=<t> --tools        Plain list of tool names
-
-Options:
-  --track=TRACK       Track for the agent (required for generation)
-  --stage=STAGE       Generate specific stage agent (plan, code, review)
-  --output=PATH       Write files to directory (without this, outputs to console)
-  --skills            Output plain list of skill IDs (for piping)
-  --tools             Output plain list of tool names (for piping)
-
-Examples:
-  npx fit-pathway agent software_engineering --track=platform
-  npx fit-pathway agent software_engineering --track=platform --stage=plan
-  npx fit-pathway agent software_engineering --track=platform --output=./agents
-  npx fit-pathway agent software_engineering --track=platform --skills
-
-────────────────────────────────────────────────────────────────────────────────
-INTERVIEW COMMAND
-────────────────────────────────────────────────────────────────────────────────
-
-Generate interview question sets based on job requirements.
-
-Usage:
-  npx fit-pathway interview <discipline> <level>                     All types
-  npx fit-pathway interview <d> <l> --track=<track>                  With track
-  npx fit-pathway interview <d> <l> --track=<t> --type=<type>        Single type
-
-Options:
-  --track=TRACK       Track specialization
-  --type=TYPE         Interview type: mission, decomposition, stakeholder
-                      (omit for all types)
-
-────────────────────────────────────────────────────────────────────────────────
-PROGRESS COMMAND
-────────────────────────────────────────────────────────────────────────────────
-
-Analyze career progression between levels.
-
-Usage:
-  npx fit-pathway progress <discipline> <level>
-  npx fit-pathway progress <d> <l> --track=<track>
-  npx fit-pathway progress <d> <l> --compare=<to_level>
-
-Options:
-  --track=TRACK        Track specialization
-  --compare=LEVEL      Compare to specific level
-
-────────────────────────────────────────────────────────────────────────────────
-QUESTIONS COMMAND
-────────────────────────────────────────────────────────────────────────────────
-
-Browse and filter interview questions.
-
-Usage:
-  npx fit-pathway questions
-  npx fit-pathway questions --level=practitioner
-  npx fit-pathway questions --skill=architecture_design
-  npx fit-pathway questions --stats
-
-Options:
-  --level=LEVEL        Filter by skill proficiency
-  --maturity=MATURITY  Filter by behaviour maturity
-  --skill=ID           Filter to specific skill
-  --behaviour=ID       Filter to specific behaviour
-  --capability=CAP     Filter by capability
-  --stats              Show detailed statistics
-  --format=FORMAT      Output format: table, yaml, json
-`;
-
-/** Boolean flags: exact match sets the field to true */
-const BOOLEAN_FLAGS = {
-  "--version": "version",
-  "-v": "version",
-  "--help": "help",
-  "-h": "help",
-  "--list": "list",
-  "-l": "list",
-  "--json": "json",
-  "--stats": "stats",
-  "--all-roles": "all-roles",
-  "--all-stages": "all-stages",
-  "--agent": "agent",
-  "--skills": "skills",
-  "--tools": "tools",
+const definition = {
+  name: "fit-pathway",
+  version: VERSION,
+  description: "Career progression for engineering frameworks",
+  commands: [
+    { name: "discipline", args: "[<id>]", description: "Show disciplines" },
+    { name: "level", args: "[<id>]", description: "Show levels" },
+    { name: "track", args: "[<id>]", description: "Show tracks" },
+    { name: "behaviour", args: "[<id>]", description: "Show behaviours" },
+    { name: "skill", args: "[<id>]", description: "Show skills" },
+    { name: "driver", args: "[<id>]", description: "Show drivers" },
+    { name: "stage", args: "[<id>]", description: "Show stages" },
+    { name: "tool", args: "[<name>]", description: "Show tools" },
+    {
+      name: "job",
+      args: "[<discipline> <level>]",
+      description: "Generate job definition",
+    },
+    {
+      name: "interview",
+      args: "<discipline> <level>",
+      description: "Generate interview questions",
+    },
+    {
+      name: "progress",
+      args: "<discipline> <level>",
+      description: "Career progression analysis",
+    },
+    {
+      name: "questions",
+      args: "[options]",
+      description: "Browse interview questions",
+    },
+    {
+      name: "agent",
+      args: "[<discipline>]",
+      description: "Generate AI agent profile",
+    },
+    {
+      name: "dev",
+      args: "[--port=PORT]",
+      description: "Run live development server",
+    },
+    {
+      name: "build",
+      args: "[--output=PATH]",
+      description: "Generate static site",
+    },
+    {
+      name: "update",
+      args: "[--url=URL]",
+      description: "Update local installation",
+    },
+  ],
+  options: {
+    list: {
+      type: "boolean",
+      short: "l",
+      description: "Output IDs only (for piping)",
+    },
+    json: { type: "boolean", description: "Output as JSON" },
+    data: { type: "string", description: "Path to data directory" },
+    track: { type: "string", description: "Track specialization" },
+    level: { type: "string", description: "Target level" },
+    type: { type: "string", description: "Interview type", default: "full" },
+    compare: { type: "string", description: "Compare to level" },
+    format: { type: "string", description: "Output format" },
+    output: { type: "string", description: "Output path" },
+    stage: { type: "string", description: "Lifecycle stage" },
+    checklist: { type: "string", description: "Handoff checklist stage" },
+    maturity: {
+      type: "string",
+      description: "Filter by behaviour maturity",
+    },
+    skill: { type: "string", description: "Filter by skill ID" },
+    behaviour: { type: "string", description: "Filter by behaviour ID" },
+    capability: { type: "string", description: "Filter by capability" },
+    port: { type: "string", description: "Dev server port" },
+    path: { type: "string", description: "File path" },
+    url: { type: "string", description: "URL for update" },
+    role: { type: "string", description: "Role filter" },
+    stats: { type: "boolean", description: "Show detailed statistics" },
+    "all-stages": { type: "boolean", description: "Show all stages" },
+    agent: { type: "boolean", description: "Output as agent format" },
+    skills: { type: "boolean", description: "Output skill IDs" },
+    tools: { type: "boolean", description: "Output tool names" },
+    clean: { type: "boolean", default: true, description: "Clean build" },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", short: "v", description: "Show version" },
+  },
+  examples: [
+    "fit-pathway discipline backend",
+    "fit-pathway job software_engineering J060 --track=platform",
+    "fit-pathway interview software_engineering J060 --json",
+    "fit-pathway agent software_engineering --track=platform",
+  ],
 };
-
-/** Negation flags: exact match sets the field to false */
-const NEGATION_FLAGS = { "--no-clean": "clean" };
-
-/** Value flags: --key=val sets result[field] = val */
-const VALUE_FLAGS = {
-  "--type": "type",
-  "--compare": "compare",
-  "--data": "data",
-  "--track": "track",
-  "--output": "output",
-  "--level": "level",
-  "--maturity": "maturity",
-  "--skill": "skill",
-  "--behaviour": "behaviour",
-  "--capability": "capability",
-  "--format": "format",
-  "--role": "role",
-  "--stage": "stage",
-  "--checklist": "checklist",
-  "--path": "path",
-  "--url": "url",
-};
-
-/**
- * Try to parse a --key=value argument using the VALUE_FLAGS table
- * @param {string} arg
- * @param {Object} result
- * @returns {boolean} true if the arg was handled
- */
-function parseValueFlag(arg, result) {
-  const eqIndex = arg.indexOf("=");
-  if (eqIndex === -1) return false;
-  const key = arg.slice(0, eqIndex);
-  const field = VALUE_FLAGS[key];
-  if (!field) return false;
-  result[field] = arg.slice(eqIndex + 1);
-  return true;
-}
-
-/**
- * Parse command line arguments
- * @param {string[]} args
- * @returns {Object}
- */
-function parseArgs(args) {
-  const result = {
-    command: null,
-    args: [],
-    list: false,
-    json: false,
-    help: false,
-    version: false,
-    type: "full",
-    compare: null,
-    data: null,
-    track: null,
-    level: null,
-    maturity: null,
-    skill: null,
-    behaviour: null,
-    capability: null,
-    format: null,
-    stats: false,
-    checklist: null,
-    skills: false,
-    tools: false,
-    output: null,
-    stage: null,
-    "all-stages": false,
-    agent: false,
-    port: null,
-    path: null,
-    clean: true,
-    url: null,
-  };
-
-  for (const arg of args) {
-    if (BOOLEAN_FLAGS[arg]) {
-      result[BOOLEAN_FLAGS[arg]] = true;
-    } else if (NEGATION_FLAGS[arg]) {
-      result[NEGATION_FLAGS[arg]] = false;
-    } else if (arg.startsWith("--port=")) {
-      result.port = parseInt(arg.slice(7), 10);
-    } else if (parseValueFlag(arg, result)) {
-      // handled
-    } else if (!arg.startsWith("-")) {
-      if (!result.command) {
-        result.command = arg;
-      } else {
-        result.args.push(arg);
-      }
-    }
-  }
-
-  return result;
-}
-
-/**
- * Print help text
- */
-function printHelp() {
-  console.log(HELP_TEXT);
-}
 
 /**
  * Main CLI entry point
  */
 async function main() {
-  const args = process.argv.slice(2);
-  const options = parseArgs(args);
+  const cli = createCli(definition);
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
 
-  if (options.version) {
-    console.log(VERSION);
+  const { values, positionals } = parsed;
+  const [command, ...args] = positionals;
+
+  if (!command) {
+    cli.showHelp();
     process.exit(0);
   }
-
-  if (options.help) {
-    printHelp();
-    process.exit(0);
-  }
-
-  if (!options.command) {
-    printHelp();
-    process.exit(0);
-  }
-
-  const command = options.command;
 
   let dataDir;
-  if (options.data) {
-    dataDir = resolve(options.data);
+  if (values.data) {
+    dataDir = resolve(values.data);
   } else {
     const logger = createLogger("pathway");
     const finder = new Finder(fs, logger, process);
     try {
       dataDir = join(finder.findData("data", homedir()), "pathway");
     } catch {
-      throw new Error(
+      cli.error(
         "No data directory found. Use --data=<path> to specify location.",
       );
+      process.exit(1);
     }
   }
 
   if (command === "dev") {
-    await runDevCommand({ dataDir, options });
+    await runDevCommand({ dataDir, options: values });
     return;
   }
 
   if (command === "build") {
-    await runBuildCommand({ dataDir, options });
+    await runBuildCommand({ dataDir, options: values });
     process.exit(0);
   }
 
   if (command === "update") {
-    await runUpdateCommand({ dataDir, options });
+    await runUpdateCommand({ dataDir, options: values });
     process.exit(0);
   }
 
   const handler = COMMANDS[command];
 
   if (!handler) {
-    console.error(formatError(`Unknown command: ${command}`));
-    console.error(`Run 'npx fit-pathway --help' for usage.`);
-    process.exit(1);
+    cli.usageError(`unknown command "${command}"`);
+    process.exit(2);
   }
 
   try {
@@ -425,14 +224,14 @@ async function main() {
 
     await handler({
       data,
-      args: options.args,
-      options,
+      args,
+      options: values,
       dataDir,
       templateLoader,
       loader,
     });
   } catch (error) {
-    console.error(formatError(error.message));
+    cli.error(error.message);
     process.exit(1);
   }
 }

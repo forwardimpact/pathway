@@ -16,7 +16,7 @@
   },
   "scripts": {
     "start": "bun src/basecamp.js",
-    "status": "bun src/basecamp.js --status",
+    "status": "bun src/basecamp.js status",
     "build": "bun pkg/build.js",
     "build:app": "bun pkg/build.js --app",
     "build:pkg": "bun pkg/build.js --pkg"
@@ -30,7 +30,9 @@
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
   },
-  "dependencies": {},
+  "dependencies": {
+    "@forwardimpact/libcli": "workspace:*"
+  },
   "publishConfig": {
     "access": "public"
   }

@@ -1,9 +1,99 @@
 #!/usr/bin/env node
 
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
+import { createLogger } from "@forwardimpact/libtelemetry";
+
 import { runOutputCommand } from "../src/commands/output.js";
 import { runTeeCommand } from "../src/commands/tee.js";
 import { runRunCommand } from "../src/commands/run.js";
 import { runSuperviseCommand } from "../src/commands/supervise.js";
+
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-eval",
+  version: VERSION,
+  description: "Process Claude Code stream-json output",
+  commands: [
+    {
+      name: "output",
+      args: "[--format=FORMAT]",
+      description: "Process trace and output formatted result",
+    },
+    {
+      name: "tee",
+      args: "[output.ndjson]",
+      description: "Stream text to stdout, optionally save raw NDJSON",
+    },
+    {
+      name: "run",
+      args: "[options]",
+      description: "Run a single agent via the Claude Agent SDK",
+    },
+    {
+      name: "supervise",
+      args: "[options]",
+      description: "Run a supervised agent-supervisor relay loop",
+    },
+  ],
+  options: {
+    format: { type: "string", description: "Output format (json|text)" },
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+    "task-file": { type: "string", description: "Path to task file" },
+    "task-text": { type: "string", description: "Inline task text" },
+    "task-amend": {
+      type: "string",
+      description: "Additional text appended to task",
+    },
+    model: {
+      type: "string",
+      description: "Claude model (default: opus)",
+    },
+    "max-turns": {
+      type: "string",
+      description: "Max agentic turns (default: 50)",
+    },
+    output: { type: "string", description: "Write NDJSON trace to file" },
+    cwd: { type: "string", description: "Working directory" },
+    "agent-profile": {
+      type: "string",
+      description: "Agent profile name",
+    },
+    "allowed-tools": {
+      type: "string",
+      description: "Comma-separated tool list",
+    },
+    "supervisor-cwd": {
+      type: "string",
+      description: "Supervisor working directory",
+    },
+    "agent-cwd": {
+      type: "string",
+      description: "Agent working directory",
+    },
+    "supervisor-profile": {
+      type: "string",
+      description: "Supervisor profile name",
+    },
+    "supervisor-allowed-tools": {
+      type: "string",
+      description: "Supervisor tool list",
+    },
+  },
+  examples: [
+    "fit-eval output --format=text < trace.ndjson",
+    "fit-eval run --task-file=task.md --model=opus",
+    "fit-eval supervise --task-file=task.md --supervisor-cwd=.",
+  ],
+};
+
+const cli = createCli(definition);
+const logger = createLogger("eval");
 
 const COMMANDS = {
   output: runOutputCommand,
@@ -12,89 +102,30 @@ const COMMANDS = {
   supervise: runSuperviseCommand,
 };
 
-const HELP_TEXT = `
-Eval CLI — Process Claude Code stream-json output
-
-Usage:
-  fit-eval <command> [options]
-
-Commands:
-  output [--format=json|text]    Process trace and output formatted result
-  tee [output.ndjson]            Stream text to stdout, optionally save raw NDJSON
-  run [options]                  Run a single agent via the Claude Agent SDK
-  supervise [options]            Run a supervised agent ↔ supervisor relay loop
-
-Run options:
-  --task-file=PATH     Path to task file (mutually exclusive with --task-text)
-  --task-text=STRING   Inline task text (mutually exclusive with --task-file)
-  --cwd=DIR            Agent working directory (default: .)
-  --model=MODEL        Claude model to use (default: opus)
-  --max-turns=N        Maximum agentic turns (default: 50, 0 = unlimited)
-  --output=PATH        Write NDJSON trace to file (default: stdout)
-  --allowed-tools=LIST Comma-separated tools (default: Bash,Read,Glob,Grep,Write,Edit)
-  --agent-profile=NAME Agent profile name (passed as --agent to Claude CLI)
-
-Supervise options:
-  --task-file=PATH          Path to task file (mutually exclusive with --task-text)
-  --task-text=STRING        Inline task text (mutually exclusive with --task-file)
-  --supervisor-cwd=DIR      Supervisor working directory (default: .)
-  --agent-cwd=DIR           Agent working directory (default: temp directory)
-  --model=MODEL             Claude model to use (default: opus)
-  --max-turns=N             Maximum supervisor ↔ agent exchanges (default: 20, 0 = unlimited)
-  --output=PATH             Write NDJSON trace to file (default: stdout)
-  --allowed-tools=LIST      Comma-separated tools for agent (default: Bash,Read,Glob,Grep,Write,Edit)
-  --supervisor-allowed-tools=LIST
-                            Comma-separated tools for supervisor (default: Bash,Read,Glob,Grep,Write,Edit)
-  --supervisor-profile=NAME Supervisor agent profile name (passed as --agent to Claude CLI)
-  --agent-profile=NAME      Agent profile name (passed as --agent to Claude CLI)
-
-Options:
-  --help      Show this help message
-  --version   Show version number
-
-Examples:
-  fit-eval output --format=text < trace.ndjson
-  fit-eval output --format=json < trace.ndjson
-  fit-eval tee < trace.ndjson
-  fit-eval tee output.ndjson < trace.ndjson
-  fit-eval run --task-text="Perform a security audit of the repository." --model=opus
-  fit-eval run --task-file=scenarios/guide-setup/task.md --model=opus
-  fit-eval supervise --task-file=scenarios/guide-setup/task.md --supervisor-cwd=.
-`.trim();
-
 async function main() {
-  const args = process.argv.slice(2);
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
 
-  if (args.includes("--help") || args.includes("-h") || args.length === 0) {
-    console.log(HELP_TEXT);
-    return;
+  const { values, positionals } = parsed;
+
+  if (positionals.length === 0) {
+    cli.usageError("no command specified");
+    process.exit(2);
   }
 
-  if (args.includes("--version")) {
-    const { readFileSync } = await import("fs");
-    const { join, dirname } = await import("path");
-    const { fileURLToPath } = await import("url");
-    const __dirname = dirname(fileURLToPath(import.meta.url));
-    const pkg = JSON.parse(
-      readFileSync(join(__dirname, "..", "package.json"), "utf8"),
-    );
-    console.log(pkg.version);
-    return;
-  }
-
-  const commandName = args[0];
-  const handler = COMMANDS[commandName];
+  const [command, ...args] = positionals;
+  const handler = COMMANDS[command];
 
   if (!handler) {
-    console.error(`Unknown command: ${commandName}\n`);
-    console.error(HELP_TEXT);
-    process.exit(1);
+    cli.usageError(`unknown command "${command}"`);
+    process.exit(2);
   }
 
-  await handler(args.slice(1));
+  await handler(values, args);
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  logger.exception("main", error);
+  cli.error(error.message);
   process.exit(1);
 });

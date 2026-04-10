@@ -12,7 +12,7 @@
 
 import { createEntityCommand } from "./command-factory.js";
 import { behaviourToMarkdown } from "../formatters/behaviour/markdown.js";
-import { formatTable } from "../lib/cli-output.js";
+import { formatTable } from "@forwardimpact/libcli";
 
 /**
  * Format behaviour list item for --list output

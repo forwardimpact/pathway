@@ -1,24 +1,47 @@
 #!/usr/bin/env node
+import { readFileSync } from "node:fs";
+import { createCli } from "@forwardimpact/libcli";
 import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createClient, createTracer } from "@forwardimpact/librpc";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
+const { version: VERSION } = JSON.parse(
+  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
+);
+
+const definition = {
+  name: "fit-window",
+  version: VERSION,
+  description: "Fetch the memory window for a conversation as JSON",
+  usage: "fit-window <resource_id> [model]",
+  options: {
+    help: { type: "boolean", short: "h", description: "Show this help" },
+    version: { type: "boolean", description: "Show version" },
+    json: { type: "boolean", description: "Output help as JSON" },
+  },
+  examples: ["fit-window common.Conversation.abc123"],
+};
+
+const cli = createCli(definition);
+const logger = createLogger("cli");
+
 /**
  * Fetches the memory window for a conversation as JSON
- * Usage: fit-window <resource_id> [model]
  * @returns {Promise<void>}
  */
 async function main() {
-  const resourceId = process.argv[2];
+  const parsed = cli.parse(process.argv.slice(2));
+  if (!parsed) process.exit(0);
+
+  const resourceId = parsed.positionals[0];
   if (!resourceId) {
-    console.error("Usage: fit-window <resource_id> [model]");
-    process.exit(1);
+    cli.usageError("expected argument: <resource_id>");
+    process.exit(2);
   }
 
   const agentConfig = await createServiceConfig("agent");
-  const model = process.argv[3] || agentConfig.model;
+  const model = parsed.positionals[1] || agentConfig.model;
   const config = await createServiceConfig("memory");
-  const logger = createLogger("cli");
   const tracer = await createTracer("cli");
   const client = await createClient("memory", logger, tracer);
 
@@ -32,6 +55,7 @@ async function main() {
 }
 
 main().catch((error) => {
-  console.error(error.message);
+  logger.exception("main", error);
+  cli.error(error.message);
   process.exit(1);
 });

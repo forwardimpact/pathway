@@ -146,6 +146,7 @@ products/
   landmark/            # fit-landmark — signal analysis on Map data
   summit/              # fit-summit — team capability as a system
 libraries/
+  libcli/              # CLI infrastructure, help, arg parsing, formatting
   libskill/            # derivation logic, job/agent models
   libuniverse/         # fit-universe — synthetic data DSL and generation
   libui/               # web UI framework, components, CSS
@@ -193,7 +194,7 @@ files in [.claude/skills/](.claude/skills/):
   libgraph, libvector
 - **`libs-llm-orchestration`** — libllm, libmemory, libprompt, libagent, libtool
 - **`libs-web-presentation`** — libui, libformat, libweb, libdoc, libtemplate,
-  librepl
+  libcli, librepl
 - **`libs-system-utilities`** — libutil, libsecret, libsupervise, librc,
   libcodegen, libeval
 - **`libs-synthetic-data`** — libsyntheticgen, libsyntheticprose,

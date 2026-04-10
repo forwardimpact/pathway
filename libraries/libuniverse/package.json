@@ -19,6 +19,7 @@
     "./load": "./load.js"
   },
   "dependencies": {
+    "@forwardimpact/libcli": "workspace:*",
     "@forwardimpact/libconfig": "^0.1.59",
     "@forwardimpact/libllm": "^0.1.72",
     "@forwardimpact/libprompt": "^0.1.0",

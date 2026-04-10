@@ -21,11 +21,19 @@
         "fit-process-agents": "./bin/fit-process-agents.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libdoc": "^0.2.0",
         "@forwardimpact/libsecret": "^0.1.3",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libtype": "^0.1.63",
       },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.5",
+      },
+    },
+    "libraries/libcli": {
+      "name": "@forwardimpact/libcli",
+      "version": "0.1.0",
       "devDependencies": {
         "@forwardimpact/libharness": "^0.1.5",
       },
@@ -37,6 +45,7 @@
         "fit-codegen": "./bin/fit-codegen.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libstorage": "^0.1.53",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libutil": "^0.1.64",
@@ -66,6 +75,8 @@
         "fit-doc": "./bin/fit-doc.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libtelemetry": "^0.1.22",
         "@hono/node-server": "^1.19.12",
         "hono": "^4.12.10",
         "marked": "^17.0.5",
@@ -80,12 +91,14 @@
     },
     "libraries/libeval": {
       "name": "@forwardimpact/libeval",
-      "version": "0.1.8",
+      "version": "0.1.9",
       "bin": {
         "fit-eval": "./bin/fit-eval.js",
       },
       "dependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.2.91",
+        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libtelemetry": "^0.1.22",
       },
     },
     "libraries/libformat": {
@@ -109,6 +122,7 @@
         "fit-query": "./bin/fit-query.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libindex": "^0.1.27",
         "@forwardimpact/libstorage": "^0.1.53",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -144,6 +158,8 @@
         "fit-completion": "./bin/fit-completion.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libtype": "^0.1.63",
         "@forwardimpact/libutil": "^0.1.60",
       },
@@ -158,6 +174,7 @@
         "fit-window": "./bin/fit-window.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libindex": "^0.1.27",
       },
       "devDependencies": {
@@ -188,6 +205,7 @@
         "fit-rc": "./bin/fit-rc.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libsupervise": "^0.1.6",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -213,6 +231,7 @@
         "fit-process-resources": "./bin/fit-process-resources.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libllm": "^0.1.71",
         "@forwardimpact/libpolicy": "^0.1.52",
         "@forwardimpact/libstorage": "^0.1.53",
@@ -236,6 +255,7 @@
         "fit-unary": "./bin/fit-unary.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libutil": "^0.1.60",
@@ -251,7 +271,7 @@
     },
     "libraries/libskill": {
       "name": "@forwardimpact/libskill",
-      "version": "4.1.6",
+      "version": "4.1.7",
       "dependencies": {
         "@forwardimpact/map": "^0.13.0",
       },
@@ -265,6 +285,7 @@
       "dependencies": {
         "@aws-sdk/client-s3": "^3.1023.0",
         "@aws-sdk/credential-providers": "^3.1023.0",
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libsecret": "^0.1.3",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -282,6 +303,7 @@
         "fit-svscan": "./bin/fit-svscan.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libtelemetry": "^0.1.22",
       },
       "devDependencies": {
@@ -334,6 +356,7 @@
         "fit-visualize": "./bin/fit-visualize.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libindex": "^0.1.27",
         "jmespath": "^0.16.0",
       },
@@ -355,6 +378,7 @@
         "fit-process-tools": "./bin/fit-process-tools.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libresource": "^0.1.89",
         "@forwardimpact/libstorage": "^0.1.53",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -389,6 +413,7 @@
         "fit-universe": "./bin/fit-universe.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libconfig": "^0.1.59",
         "@forwardimpact/libllm": "^0.1.72",
         "@forwardimpact/libprompt": "^0.1.0",
@@ -413,6 +438,7 @@
         "fit-tiktoken": "./bin/fit-tiktoken.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libtelemetry": "^0.1.22",
       },
       "devDependencies": {
@@ -427,6 +453,7 @@
         "fit-search": "./bin/fit-search.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libindex": "^0.1.27",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libtype": "^0.1.63",
@@ -453,6 +480,9 @@
       "bin": {
         "fit-basecamp": "./src/basecamp.js",
       },
+      "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
+      },
     },
     "products/guide": {
       "name": "@forwardimpact/guide",
@@ -461,6 +491,7 @@
         "fit-guide": "./bin/fit-guide.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libcodegen": "^0.1.32",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librc": "^0.1.16",
@@ -483,11 +514,12 @@
     },
     "products/map": {
       "name": "@forwardimpact/map",
-      "version": "0.15.13",
+      "version": "0.15.14",
       "bin": {
         "fit-map": "./bin/fit-map.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libtemplate": "^0.2.0",
         "@forwardimpact/libutil": "^0.1.64",
         "@supabase/supabase-js": "^2.48.0",
@@ -505,11 +537,12 @@
     },
     "products/pathway": {
       "name": "@forwardimpact/pathway",
-      "version": "0.25.21",
+      "version": "0.25.22",
       "bin": {
         "fit-pathway": "./bin/fit-pathway.js",
       },
       "dependencies": {
+        "@forwardimpact/libcli": "workspace:*",
         "@forwardimpact/libskill": "^4.0.0",
         "@forwardimpact/libtemplate": "^0.2.0",
         "@forwardimpact/libui": "^1.0.0",
@@ -575,7 +608,7 @@
     },
     "services/pathway": {
       "name": "@forwardimpact/svcpathway",
-      "version": "0.1.3",
+      "version": "0.1.4",
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librpc": "^0.1.77",
@@ -801,6 +834,8 @@
     "@forwardimpact/guide": ["@forwardimpact/guide@workspace:products/guide"],
 
     "@forwardimpact/libagent": ["@forwardimpact/libagent@workspace:libraries/libagent"],
+
+    "@forwardimpact/libcli": ["@forwardimpact/libcli@workspace:libraries/libcli"],
 
     "@forwardimpact/libcodegen": ["@forwardimpact/libcodegen@workspace:libraries/libcodegen"],
 
