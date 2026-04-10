@@ -57,7 +57,8 @@ jobs:
           cp -r data/activity "$agent_dir/data/activity"
 
           # Install the Supabase CLI so the agent has it on PATH
-          npm install -g supabase
+          # npm global install is blocked by supabase's postinstall script
+          bun install -g supabase
 
           cp scenarios/map-setup/agent/CLAUDE.md "$agent_dir/CLAUDE.md"
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
