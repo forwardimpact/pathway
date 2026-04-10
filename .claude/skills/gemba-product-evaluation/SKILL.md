@@ -34,6 +34,22 @@ Do not tell the agent that the token is pre-configured. The agent should
 discover that LLM features work out of the box, just as a real external user
 would after setting their own `LLM_TOKEN`.
 
+## Checklists
+
+<read_do_checklist goal="Protect evaluation integrity before briefing the agent">
+
+- [ ] Do not reveal monorepo internals, skills, or internal documentation to
+      the agent.
+- [ ] Do not tell the agent that `LLM_TOKEN` is pre-configured — they should
+      discover LLM features work out of the box.
+- [ ] Do not fix problems for the agent — friction is the signal, not noise.
+- [ ] Let the agent explore independently; intervene only when struggle becomes
+      noise (dead-end loops, not productive difficulty).
+- [ ] Note friction even when the agent eventually succeeds — difficulty
+      reaching success indicates a UX or documentation gap.
+
+</read_do_checklist>
+
 ## Process
 
 ### Step 0: Read Memory
@@ -72,14 +88,9 @@ Each turn, you see the agent's full output. Decide how to respond:
 | Asks a direct question   | Answer it directly                           |
 | Completed all tasks      | Proceed to Step 3                            |
 
-Guidelines:
+The READ-DO checklist covers the core evaluation boundaries (no internal leaks,
+no fixing for the agent, note friction). Additionally:
 
-- **Let the agent work.** Don't dictate steps — let them explore and
-  troubleshoot. Their independent experience is the product feedback.
-- **Don't fix problems** for the agent. If installation is confusing, that's a
-  finding — not something to shortcut past.
-- **Note friction** even when the agent eventually succeeds. Difficulty reaching
-  success indicates a documentation or UX gap.
 - **Use your monorepo access** to verify the agent's observations. If the agent
   says docs are missing, check if that's true. If they hit an error, read the
   source to understand the root cause.

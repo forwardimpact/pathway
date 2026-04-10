@@ -114,14 +114,34 @@ consult the [Getting Started guides](website/docs/getting-started/).
 
 ### Checklists
 
-`<read_do_checklist>` tags are entry gates — read each item, then do it.
-`<do_confirm_checklist>` tags are exit gates — do from memory, then confirm.
+The repo uses tagged checklists as forcing functions at natural pause points.
+Design principles and authoring rules live in
+[CHECKLISTS.md](CHECKLISTS.md) — read it before creating or revising a
+checklist.
+
+Two types, encoded in the tag name:
+
+- **`<read_do_checklist>`** — Entry gate. Read each item, then do it. Use
+  before starting work.
+- **`<do_confirm_checklist>`** — Exit gate. Do from memory, then pause and
+  confirm every item. Use before crossing a boundary (commit, merge, publish).
+
 Follow the protocol whenever you encounter these tags in the instruction stack.
+
+**Universal checklists** (apply to every contribution):
 
 - **Before starting** — run
   [CONTRIBUTING.md § READ-DO](CONTRIBUTING.md#read-do).
 - **Before committing** — run
   [CONTRIBUTING.md § DO-CONFIRM](CONTRIBUTING.md#do-confirm).
+
+**Domain-specific checklists** live in the skills that own each workflow
+(`.claude/skills/gemba-*/SKILL.md`). Discover all checklists repo-wide:
+
+```sh
+rg '<read_do_checklist'     # all entry gates
+rg '<do_confirm_checklist'  # all exit gates
+```
 
 ## LLM Environment
 

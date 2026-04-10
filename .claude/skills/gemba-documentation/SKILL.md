@@ -16,10 +16,31 @@ modes of operation:
 - **Scheduled review** — Pick one topic, go deep, verify against source code.
 - **Interactive writing** — Write or update pages following the standards.
 
-Standards and conventions live in
-[`references/standards.md`](references/standards.md). Source-of-truth mappings
-live in [`references/source-of-truth.md`](references/source-of-truth.md). Read
-them before writing or reviewing.
+## Checklists
+
+<read_do_checklist goal="Load documentation standards before writing or reviewing">
+
+- [ ] Read [`references/standards.md`](references/standards.md) — audience
+      rules, formatting conventions, terminology.
+- [ ] Read [`references/source-of-truth.md`](references/source-of-truth.md) —
+      which code/data backs each documentation claim.
+- [ ] Identify the audience for every page touched — do not mix contributor
+      content into user-facing pages or vice versa.
+- [ ] Verify claims against source code, not against other documentation.
+
+</read_do_checklist>
+
+<do_confirm_checklist goal="Confirm documentation review is complete">
+
+- [ ] Every CLI example on the page was executed and output verified.
+- [ ] Every YAML example was checked against JSON schema.
+- [ ] Audience purity confirmed (no audience mixing).
+- [ ] Source of truth consulted and docs match current code.
+- [ ] All cross-links resolve.
+- [ ] `bunx fit-doc build` succeeds.
+- [ ] Terminology matches conventions in `references/standards.md`.
+
+</do_confirm_checklist>
 
 ## 1. Scheduled Review
 
@@ -64,17 +85,7 @@ Each run covers **one topic** in depth.
 
 ### Review checklist
 
-<do_confirm_checklist goal="Confirm documentation review is complete">
-
-- [ ] Every CLI example on the page was executed and output verified.
-- [ ] Every YAML example was checked against JSON schema.
-- [ ] Audience purity confirmed (no audience mixing).
-- [ ] Source of truth consulted and docs match current code.
-- [ ] All cross-links resolve.
-- [ ] `bunx fit-doc build` succeeds.
-- [ ] Terminology matches conventions in `references/standards.md`.
-
-</do_confirm_checklist>
+Run the DO-CONFIRM checklist at the top of this skill.
 
 ## 2. Interactive Writing
 

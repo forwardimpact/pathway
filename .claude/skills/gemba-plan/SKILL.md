@@ -23,6 +23,33 @@ no commitment to implement, and a plan has nothing to translate.
   NNN ready?")
 - Creating an alternative plan variant for the same spec
 
+## Checklists
+
+<read_do_checklist goal="Internalize plan-writing boundaries before starting">
+
+- [ ] A plan requires an approved spec — if no approved spec exists, stop.
+- [ ] Do not write or revise the spec — return it to `draft` if it needs
+      changes.
+- [ ] Do not implement — this skill writes the plan; `gemba-implement` executes
+      it.
+- [ ] One plan per spec — do not bundle multiple specs into one plan.
+- [ ] Read the spec end-to-end before writing. Restate problem, scope, and
+      success criteria without referring back.
+
+</read_do_checklist>
+
+<do_confirm_checklist goal="Verify plan quality before advancing to planned">
+
+- [ ] Approach and rationale stated before details.
+- [ ] Changes are concrete — exact file paths, functions, before/after.
+- [ ] Blast radius visible — created, modified, and deleted files clear.
+- [ ] Ordering explicit with stated dependencies.
+- [ ] Non-obvious decisions explained.
+- [ ] Risks surfaced — no step should surprise the implementer.
+- [ ] Execution recommendation present (which agents, sequential vs parallel).
+
+</do_confirm_checklist>
+
 ## Naming Convention
 
 Plans live alongside their spec in `specs/{NNN}-{name}/`.
@@ -87,8 +114,9 @@ Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
 
 The plan translates an approved spec into concrete implementation steps.
 
-Structure and format are up to you — match the complexity of the change. Focus
-on these qualities:
+Structure and format are up to you — match the complexity of the change. The
+DO-CONFIRM checklist verifies these qualities; the guidance below explains what
+each one means in practice:
 
 - **Approach before details.** Open with the overall strategy and rationale
   before diving into individual changes.
@@ -112,10 +140,8 @@ on these qualities:
 
 ## Reviewing a Plan
 
-Evaluate the plan against the qualities listed in "Writing a Plan" above:
-approach is stated, changes are concrete, blast radius is visible, ordering is
-explicit, decisions are explained, risks are surfaced, and an execution
-recommendation is present.
+Evaluate the plan against the qualities listed in "Writing a Plan" above, then
+run the DO-CONFIRM checklist at the top of this skill.
 
 If all criteria are met **and** the spec is also approved, advance the spec to
 `planned` in `specs/STATUS`. If any criterion falls short, request changes and
@@ -176,13 +202,9 @@ Append to the current week's log (see agent profile for the file path):
 
 ## What NOT to Do
 
-- **Do not write or revise the spec.** That belongs to the `gemba-spec` skill
-  (Act phase). If the spec is wrong or unclear, return it to `draft` and let the
-  spec author fix it.
-- **Do not bundle multiple specs into one plan.** One plan per spec — even when
-  specs share a theme. Bundling defeats independent review and rollback.
-- **Do not implement.** This skill writes the plan; `gemba-implement` (Do phase)
-  executes it.
+The READ-DO checklist covers the core boundaries (no spec writing, no
+implementation, one plan per spec). Additionally:
+
 - **Do not approve a plan whose spec is still under review.** Both must be
   approved before advancing to `planned`.
 - **Do not use `plan.md` as a filename.** Always use `plan-a.md` (or

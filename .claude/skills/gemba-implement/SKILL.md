@@ -18,6 +18,33 @@ changes methodically.
 - The user says "implement spec NNN" or "execute the plan for NNN"
 - Resuming a partially completed implementation
 
+## Checklists
+
+Also run the CONTRIBUTING.md § READ-DO before starting — those universal rules
+apply alongside the skill-specific ones below.
+
+<read_do_checklist goal="Internalize scope and study constraints before writing code">
+
+- [ ] Read the full spec and all plan files before writing any code.
+- [ ] Implement plan-a unless explicitly directed to a different variant.
+- [ ] Implement only what the plan describes — no unrequested refactors,
+      features, or cleanup.
+- [ ] Verify current codebase matches plan assumptions before each change.
+- [ ] Follow the plan's execution order — dependencies exist for a reason.
+
+</read_do_checklist>
+
+<do_confirm_checklist goal="Confirm implementation is complete before pushing">
+
+- [ ] `bun run check` passes (format and lint).
+- [ ] `bun run test` passes (unit tests).
+- [ ] Spec-specific verification commands from the plan pass.
+- [ ] Full diff reviewed against the spec's success criteria — every criterion
+      met.
+- [ ] Spec status set to `done` in `specs/STATUS`.
+
+</do_confirm_checklist>
+
 ## Process
 
 ### Step 0: Read Memory
@@ -25,10 +52,6 @@ changes methodically.
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Extract specs previously implemented and any blockers
 from prior `staff-engineer` entries.
-
-Before starting: run the READ-DO checklist in CONTRIBUTING.md § Core Rules.
-Those rules apply to every implementation task — hold them in mind as you work
-through the steps below.
 
 ### 1. Study the spec deeply
 
@@ -119,15 +142,9 @@ For each task:
 
 ### 7. Final verification
 
-After all tasks are complete:
+After all tasks are complete, run the DO-CONFIRM checklist above.
 
-1. Run `bun run check` to verify formatting and lint pass, then `bun run test`
-   to verify unit tests pass.
-2. Run any spec-specific verification commands mentioned in the plan.
-3. Review the full diff (`git diff` from the starting point) against the spec's
-   success criteria. Confirm every criterion is met.
-4. **Update STATUS.** Set the spec's status to `done` in `specs/STATUS`.
-5. Push all commits to the remote branch.
+Push all commits to the remote branch.
 
 ## Handling Problems
 
@@ -156,14 +173,8 @@ Append to the current week's log (see agent profile for the file path):
 
 ## What NOT to Do
 
-- **Do not skip the study phase.** Jumping to code without understanding the
-  spec leads to rework. Read everything first.
-- **Do not improve beyond the plan.** Implement what the plan describes. Do not
-  refactor adjacent code, add features the spec didn't request, or "clean up"
-  files you happen to touch. Scope discipline prevents scope creep.
-- **Do not ignore ordering.** The plan's execution order exists for a reason.
-  Follow it unless you have a concrete reason not to (and note why).
+The READ-DO checklist covers the core boundaries (read before coding, plan-only
+scope, execution order, default to plan-a). Additionally:
+
 - **Do not batch all changes into one commit.** Atomic commits make review,
   bisection, and rollback possible.
-- **Do not implement a non-default plan variant without explicit direction.**
-  Always implement plan-a unless told otherwise.

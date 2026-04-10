@@ -35,7 +35,7 @@ All comment templates and the report format are in `references/templates.md`.
 
 ## Gate Checklist
 
-<do_confirm_checklist>
+<do_confirm_checklist goal="Verify all gates pass before merging a PR">
 
 - [ ] **Author is trusted** — CI app or top-20 lookup (Step 2). On failure, mark
       **blocked** and comment that only trusted authors merge.

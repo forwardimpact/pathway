@@ -23,6 +23,32 @@ asked for. If they ask for a spec, write the spec and stop.
 - Reviewing a spec before it advances to planning ("review spec NNN", "is spec
   NNN ready?")
 
+## Checklists
+
+<read_do_checklist goal="Hold the WHAT/WHY boundary before writing or reviewing">
+
+- [ ] Only produce the deliverable asked for — if asked for a spec, stop after
+      the spec. Do not also write a plan.
+- [ ] No implementation details in the spec — file paths, function signatures,
+      and code patterns belong in the plan.
+- [ ] When reviewing: evaluate, do not rewrite. If changes are needed, return
+      to `draft`.
+- [ ] Clarify motivation, scope, and success criteria with the user before
+      writing.
+
+</read_do_checklist>
+
+<do_confirm_checklist goal="Verify spec quality before approving">
+
+- [ ] Problem is stated first, backed by evidence (errors, metrics, examples).
+- [ ] Scope names specific files, APIs, or entities — and states what is
+      excluded.
+- [ ] Success criteria are verifiable (a command, observable behaviour, or
+      testable property).
+- [ ] No implementation details have leaked in (HOW belongs in the plan).
+
+</do_confirm_checklist>
+
 ## Directory Structure
 
 ```
@@ -73,9 +99,8 @@ advances to `planned` once both spec and plan are approved. The
 
 ## Reviewing a Spec
 
-Evaluate `spec.md` against the qualities listed in "Writing a Spec" above:
-problem is clear with evidence, scope is specific, success is verifiable, and no
-implementation details have leaked in.
+Evaluate `spec.md` against the qualities listed in "Writing a Spec" above, then
+run the DO-CONFIRM checklist at the top of this skill.
 
 If all criteria are met, approve the spec. If any criterion falls short, request
 changes and return status to `draft`.
@@ -109,10 +134,8 @@ status clearly — the caller is responsible for acting on it.
 
 ## What NOT to Do
 
-- **Do not write the plan.** That belongs to the `gemba-plan` skill (Plan
-  phase). Drafting implementation steps in the spec couples WHAT to HOW and
-  forces rewrites whenever the implementation strategy changes.
+The READ-DO checklist covers the core boundaries (spec only, no implementation
+details, evaluate don't rewrite). Additionally:
+
 - **Do not approve without reading.** Every criterion must be checked against
   the actual content.
-- **Do not rewrite during review.** Reviews evaluate — they do not author. If
-  changes are needed, return the status to `draft`.

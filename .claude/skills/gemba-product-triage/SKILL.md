@@ -23,6 +23,19 @@ triage decisions captured here.
 - On-demand when specific issues need a product decision
 - Before any action is taken on an issue
 
+## Checklists
+
+<read_do_checklist goal="Hold the triage boundary before classifying issues">
+
+- [ ] This skill stops at the triage report — do not implement fixes or write
+      specs from within triage.
+- [ ] Classify against the product vision (CLAUDE.md § Products), not personal
+      judgement about usefulness.
+- [ ] Skip issues already labeled `triaged` or `wontfix`.
+- [ ] Record reasoning for each classification — future runs audit decisions.
+
+</read_do_checklist>
+
 ## Prerequisites
 
 See [`gemba-gh-cli`](../gemba-gh-cli/SKILL.md) for `gh` installation and the
@@ -98,8 +111,7 @@ The triage report is consumed by the calling agent, which then takes action:
 - **Out of scope** → comment with explanation per `references/templates.md` §
   Issue Comments and apply the appropriate label.
 
-This skill stops at the report. Do not implement fixes or write specs from
-within gemba-product-triage — the phase boundary matters.
+The READ-DO checklist defines this phase boundary.
 
 ## Memory: what to record
 

@@ -19,6 +19,32 @@ breadth.
 - When investigating a specific workflow failure or unexpected behaviour
 - When auditing trust boundaries in external merge workflows
 
+## Checklists
+
+<read_do_checklist goal="Internalize grounded theory principles before reading the trace">
+
+- [ ] Begin with no hypothesis — let codes emerge from the data.
+- [ ] Use in-vivo codes: the trace's own language ("403 forbidden"), not
+      pre-defined categories ("authorization failure").
+- [ ] Write memos during coding, not retroactively — memos are the engine of
+      theory development.
+- [ ] Read the full trace sequentially — every turn, tool call, and result.
+      Skimming produces shallow codes.
+- [ ] Seek a core category (a theory), not a list of bugs.
+
+</read_do_checklist>
+
+<do_confirm_checklist goal="Confirm analysis is complete before reporting">
+
+- [ ] Entire trace read — every turn, tool call, and result observed.
+- [ ] Open codes assigned using in-vivo labels from the trace's own language.
+- [ ] Memos written during coding (not retroactively).
+- [ ] Categories built with all five paradigm elements filled.
+- [ ] Core category identified — integrates the most categories.
+- [ ] Named invariants from `references/invariants.md` audited with PASS/FAIL.
+
+</do_confirm_checklist>
+
 ## Process
 
 ### 1. Select a Run
@@ -155,6 +181,8 @@ process failure.
 
 ### 7. Report and Act
 
+Run the DO-CONFIRM checklist above before producing the report.
+
 Produce the analysis report using the template at
 [`references/report-template.md`](references/report-template.md). Prefix with
 run selection context, and append the invariant audit results grouped by
@@ -190,14 +218,10 @@ Append to the current week's log (see agent profile for the file path):
 
 ## Analysis Principles
 
-- **Let the data speak.** Do not start with a hypothesis. Read, code, then find
-  patterns.
-- **Write memos constantly.** Analysis without memos is just sorting.
-- **Use in-vivo codes.** Preserve the data's own language. "403 forbidden", not
-  "authorization failure".
-- **Apply the paradigm model.** Incomplete paradigms indicate incomplete
-  analysis.
-- **Seek the core category.** The goal is a theory, not a list.
+The READ-DO checklist covers grounded theory fundamentals (no hypothesis, in-vivo
+codes, memos during coding, full trace read, core category). These principles
+add practical guidance:
+
 - **Quote, don't paraphrase.** Exact error messages, commands, token counts.
 - **Distinguish symptoms from causes.** The paradigm model forces you to trace
   causal conditions.

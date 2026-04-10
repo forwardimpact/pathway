@@ -31,15 +31,15 @@ had publish failures from prior `release-engineer` entries.
 
 ## Pre-Flight: Verify Main Branch CI
 
-<read_do_checklist>
+<read_do_checklist goal="Confirm main branch CI is green before cutting releases">
 
 - [ ] Ran
       `gh run list --branch main --limit 5 --json name,conclusion,headBranch`.
 - [ ] All recent workflows show `conclusion: success`.
-- [ ] If any are failing due to trivial issues (formatting, lint, lock file
-      drift), repaired via `bun run check:fix` on `main`, committed, and pushed.
-- [ ] Waited for CI to confirm green. If failures persist after `check:fix`,
-      **stop** — do not release from a broken `main`.
+- [ ] Trivial failures (format, lint, lock file) repaired via
+      `bun run check:fix` on `main`, committed, and pushed.
+- [ ] CI confirmed green after repairs. **Stop if failures persist** — never
+      release from a broken `main`.
 
 </read_do_checklist>
 
