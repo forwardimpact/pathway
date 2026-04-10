@@ -79,7 +79,7 @@
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@hono/node-server": "^1.19.12",
         "hono": "^4.12.10",
-        "marked": "^17.0.5",
+        "marked": "^18.0.0",
         "marked-gfm-heading-id": "^4.1.3",
         "marked-highlight": "^2.2.3",
         "mustache": "^4.2.0",
@@ -105,7 +105,7 @@
       "name": "@forwardimpact/libformat",
       "version": "0.1.5",
       "dependencies": {
-        "marked": "^17.0.5",
+        "marked": "^18.0.0",
         "marked-terminal": "^7.3.0",
         "sanitize-html": "^2.17.2",
       },
@@ -1515,7 +1515,7 @@
 
     "markdown-it-anchor": ["markdown-it-anchor@8.6.7", "", { "peerDependencies": { "@types/markdown-it": "*", "markdown-it": "*" } }, "sha512-FlCHFwNnutLgVTflOYHPW2pPcl2AACqVzExlkGQNsi4CJgqOHN7YTgDd4LuhgN1BFO3TS0vLAruV1Td6dwWPJA=="],
 
-    "marked": ["marked@17.0.5", "", { "bin": "bin/marked.js" }, "sha512-6hLvc0/JEbRjRgzI6wnT2P1XuM1/RrrDEX0kPt0N7jGm1133g6X7DlxFasUIx+72aKAr904GTxhSLDrd5DIlZg=="],
+    "marked": ["marked@18.0.0", "", { "bin": { "marked": "bin/marked.js" } }, "sha512-2e7Qiv/HJSXj8rDEpgTvGKsP8yYtI9xXHKDnrftrmnrJPaFNM7VRb2YCzWaX4BP1iCJ/XPduzDJZMFoqTCcIMA=="],
 
     "marked-gfm-heading-id": ["marked-gfm-heading-id@4.1.3", "", { "dependencies": { "github-slugger": "^2.0.0" }, "peerDependencies": { "marked": ">=13 <18" } }, "sha512-aR0i63LmFbuxU/gAgrgz1Ir+8HK6zAIFXMlckeKHpV+qKbYaOP95L4Ux5Gi+sKmCZU5qnN2rdKpvpb7PnUBIWg=="],
 
@@ -1890,8 +1890,6 @@
     "jsdoc/marked": ["marked@4.3.0", "", { "bin": "bin/marked.js" }, "sha512-PRsaiG84bK+AMvxziE/lCFss8juXjNaWzVbN5tXAm4XjeaS9NAHhop+PjQxz2A9h8Q4M/xGmzP8vqNwy6JeK0A=="],
 
     "marked-terminal/chalk": ["chalk@5.6.2", "", {}, "sha512-7NzBL0rN6fMUW+f7A6Io4h40qQlG+xGmtMxfbnH/K7TAtt8JQWVQK+6g0UXKMeVJoyV5EkkNsErQ8pVD3bLHbA=="],
-
-    "marked-terminal/marked": ["marked@14.1.4", "", { "bin": "bin/marked.js" }, "sha512-vkVZ8ONmUdPnjCKc5uTRvmkRbx4EAi2OkTOXmfTDhZz3OFqMNBM1oTTWwTr4HY4uAEojhzPf+Fy8F1DWa3Sndg=="],
 
     "microdata-rdf-streaming-parser/htmlparser2": ["htmlparser2@9.1.0", "", { "dependencies": { "domelementtype": "^2.3.0", "domhandler": "^5.0.3", "domutils": "^3.1.0", "entities": "^4.5.0" } }, "sha512-5zfg6mHUoaer/97TxnGpxmbR7zJtPwIYFMZ/H5ucTlPZhKvtum05yiPK3Mgai3a0DyVxv7qYqoweaEd2nrYQzQ=="],
 
