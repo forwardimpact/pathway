@@ -4,10 +4,10 @@ import {
   createMockConfig,
   createMockServiceConfig,
   createMockExtensionConfig,
-} from "../mock/config.js";
-import { createMockStorage, MockStorage } from "../mock/storage.js";
-import { createMockLogger, createSilentLogger } from "../mock/logger.js";
-import { createMockFs } from "../mock/fs.js";
+} from "../src/mock/config.js";
+import { createMockStorage, MockStorage } from "../src/mock/storage.js";
+import { createMockLogger, createSilentLogger } from "../src/mock/logger.js";
+import { createMockFs } from "../src/mock/fs.js";
 import {
   createTestLevel,
   createTestSkill,
@@ -18,7 +18,7 @@ import {
   createTestDriver,
   createTestSkillEntry,
   createTestBehaviourEntry,
-} from "../fixture/pathway.js";
+} from "../src/fixture/pathway.js";
 
 describe("libharness", () => {
   test("createMockConfig creates config with defaults", () => {

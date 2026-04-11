@@ -1,18 +1,16 @@
 {
   "name": "@forwardimpact/libharness",
   "version": "0.1.12",
-  "description": "Test harness and mock infrastructure for guide tests",
+  "description": "Shared test harness and mock infrastructure for the Forward Impact monorepo",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "exports": {
-    ".": "./index.js",
-    "./mock": "./mock/index.js",
-    "./fixture": "./fixture/index.js"
+    ".": "./src/index.js",
+    "./mock": "./src/mock/index.js",
+    "./fixture": "./src/fixture/index.js"
   },
   "files": [
-    "index.js",
-    "mock/**/*.js",
-    "fixture/**/*.js",
+    "src/**/*.js",
     "README.md"
   ],
   "scripts": {
