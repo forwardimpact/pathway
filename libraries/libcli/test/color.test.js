@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { colors, supportsColor, colorize } from "../color.js";
+import { colors, supportsColor, colorize } from "../src/color.js";
 
 describe("supportsColor", () => {
   test("returns false when NO_COLOR is set", () => {

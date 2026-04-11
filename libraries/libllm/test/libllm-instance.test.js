@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
-import { LlmApi, DEFAULT_BASE_URL } from "../index.js";
+import { LlmApi, DEFAULT_BASE_URL } from "../src/index.js";
 import { Retry } from "@forwardimpact/libutil";
 
 const EMBEDDING_BASE_URL = "http://localhost:8090";
@@ -51,7 +51,7 @@ describe("LlmApi instance methods", () => {
 describe("Proxy Support", () => {
   test("createLlmApi creates LlmApi instance with default fetch", async () => {
     const { createLlmApi, LlmApi, DEFAULT_BASE_URL } =
-      await import("../index.js");
+      await import("../src/index.js");
 
     const llm = createLlmApi(
       "test-token",
@@ -65,7 +65,7 @@ describe("Proxy Support", () => {
 
   test("createLlmApi works without embeddingBaseUrl", async () => {
     const { createLlmApi, LlmApi, DEFAULT_BASE_URL } =
-      await import("../index.js");
+      await import("../src/index.js");
 
     const llm = createLlmApi("test-token", "gpt-4", DEFAULT_BASE_URL);
     assert.ok(llm instanceof LlmApi);
@@ -77,7 +77,7 @@ describe("Proxy Support", () => {
 
     try {
       const { createLlmApi, LlmApi, DEFAULT_BASE_URL } =
-        await import("../index.js");
+        await import("../src/index.js");
 
       const llm = createLlmApi(
         "test-token",

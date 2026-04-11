@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
-import { IndexBase } from "../index.js";
+import { IndexBase } from "../src/index.js";
 import { resource } from "@forwardimpact/libtype";
 import { createMockStorage } from "@forwardimpact/libharness";
 

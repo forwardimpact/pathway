@@ -4,7 +4,7 @@ import assert from "node:assert";
 import { createSilentLogger } from "@forwardimpact/libharness";
 
 // Module under test
-import { ProcessorBase } from "../processor.js";
+import { ProcessorBase } from "../src/processor.js";
 
 describe("ProcessorBase", () => {
   let mockLogger;

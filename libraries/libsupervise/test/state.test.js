@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 
-import { ProcessState } from "../state.js";
+import { ProcessState } from "../src/state.js";
 
 describe("ProcessState", () => {
   describe("constructor", () => {

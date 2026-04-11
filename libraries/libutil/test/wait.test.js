@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 
-import { waitFor } from "../wait.js";
+import { waitFor } from "../src/wait.js";
 
 const delay = (ms) => new Promise((resolve) => setTimeout(resolve, ms));
 

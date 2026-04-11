@@ -2,7 +2,7 @@ import { test, describe, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { BufferedIndex } from "../index.js";
+import { BufferedIndex } from "../src/index.js";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 describe("BufferedIndex - Buffered Write Operations", () => {

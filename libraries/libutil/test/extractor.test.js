@@ -6,7 +6,7 @@ import path from "path";
 import { fileURLToPath } from "url";
 
 // Module under test
-import { TarExtractor, ZipExtractor } from "../extractor.js";
+import { TarExtractor, ZipExtractor } from "../src/extractor.js";
 
 describe("TarExtractor", () => {
   let extractor;

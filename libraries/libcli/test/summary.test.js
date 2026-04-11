@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { SummaryRenderer } from "../summary.js";
+import { SummaryRenderer } from "../src/summary.js";
 
 function createStream() {
   return {

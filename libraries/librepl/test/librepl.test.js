@@ -4,7 +4,7 @@ import assert from "node:assert";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 // Module under test
-import { Repl } from "../index.js";
+import { Repl } from "../src/index.js";
 
 describe("librepl", () => {
   describe("Repl", () => {

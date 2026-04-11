@@ -5,7 +5,7 @@ import { createResourceIndex } from "@forwardimpact/libresource";
 import { createStorage } from "@forwardimpact/libstorage";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
-import { AgentProcessor } from "../processor/agent.js";
+import { AgentProcessor } from "../src/processor/agent.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),

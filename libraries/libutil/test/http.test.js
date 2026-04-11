@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
-import { parseJsonBody } from "../http.js";
+import { parseJsonBody } from "../src/http.js";
 
 /**
  * Creates a mock HTTP request object with event emitter behavior

@@ -2,7 +2,7 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { HtmlFormatter, TerminalFormatter } from "../index.js";
+import { HtmlFormatter, TerminalFormatter } from "../src/index.js";
 
 describe("libformat", () => {
   describe("HtmlFormatter", () => {

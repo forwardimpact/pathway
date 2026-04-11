@@ -5,7 +5,7 @@ import {
   createConfig,
   createServiceConfig,
   createExtensionConfig,
-} from "../index.js";
+} from "../src/index.js";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 describe("libconfig - Config", () => {

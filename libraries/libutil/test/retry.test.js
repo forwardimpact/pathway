@@ -2,7 +2,7 @@ import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { Retry } from "../retry.js";
+import { Retry } from "../src/retry.js";
 
 describe("Retry", () => {
   let retry;

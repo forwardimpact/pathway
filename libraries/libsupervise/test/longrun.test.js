@@ -3,7 +3,7 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 import { EventEmitter } from "node:events";
 
-import { LongrunProcess } from "../longrun.js";
+import { LongrunProcess } from "../src/longrun.js";
 
 describe("LongrunProcess", () => {
   let mockStdout;

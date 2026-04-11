@@ -108,6 +108,7 @@ export class CodegenBase {
     const __dirname = this.#path.dirname(__filename);
     const templatePath = this.#path.join(
       __dirname,
+      "..",
       "templates",
       `${kind}.js.mustache`,
     );

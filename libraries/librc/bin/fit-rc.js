@@ -8,7 +8,7 @@ import { createCli } from "@forwardimpact/libcli";
 import { createInitConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
-import { ServiceManager, sendCommand, waitForSocket } from "../index.js";
+import { ServiceManager, sendCommand, waitForSocket } from "../src/index.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),

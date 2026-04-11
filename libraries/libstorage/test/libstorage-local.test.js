@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
-import { LocalStorage } from "../index.js";
+import { LocalStorage } from "../src/index.js";
 
 describe("LocalStorage", () => {
   let localStorage;

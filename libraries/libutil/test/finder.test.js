@@ -8,7 +8,7 @@ import { fileURLToPath } from "url";
 import { createMockLogger } from "@forwardimpact/libharness";
 
 // Module under test
-import { Finder } from "../finder.js";
+import { Finder } from "../src/finder.js";
 
 describe("Finder", () => {
   let mockLogger;

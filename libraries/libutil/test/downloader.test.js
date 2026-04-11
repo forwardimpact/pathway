@@ -3,7 +3,7 @@ import { test, describe, beforeEach, mock } from "node:test";
 
 import { createSilentLogger } from "@forwardimpact/libharness";
 
-import { BundleDownloader } from "../downloader.js";
+import { BundleDownloader } from "../src/downloader.js";
 
 describe("BundleDownloader", () => {
   let mockStorageFactory;

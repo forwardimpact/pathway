@@ -2,7 +2,7 @@ import { describe, test, mock } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { createBundleDownloader } from "../index.js";
+import { createBundleDownloader } from "../src/index.js";
 
 const noop = () => {};
 const mockLogger = { info: noop, debug: noop, warn: noop, error: noop };

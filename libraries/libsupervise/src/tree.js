@@ -7,7 +7,7 @@ import { EventEmitter } from "node:events";
 import { LongrunProcess } from "./longrun.js";
 
 const require = createRequire(import.meta.url);
-const LOG_BIN = require.resolve("./bin/fit-logger.js");
+const LOG_BIN = require.resolve("../bin/fit-logger.js");
 
 /**
  * @typedef {object} TreeConfig

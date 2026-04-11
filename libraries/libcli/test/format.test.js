@@ -7,8 +7,8 @@ import {
   formatError,
   indent,
   horizontalRule,
-} from "../format.js";
-import { colors } from "../color.js";
+} from "../src/format.js";
+import { colors } from "../src/color.js";
 
 const noColor = { env: {}, stdout: { isTTY: false } };
 const withColor = { env: { FORCE_COLOR: "1" }, stdout: { isTTY: true } };

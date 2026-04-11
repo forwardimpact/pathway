@@ -1,8 +1,8 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { Cli } from "../cli.js";
-import { HelpRenderer } from "../help.js";
+import { Cli } from "../src/cli.js";
+import { HelpRenderer } from "../src/help.js";
 
 function createProc() {
   return {

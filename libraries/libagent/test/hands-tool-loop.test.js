@@ -1,7 +1,7 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { AgentHands } from "../hands.js";
+import { AgentHands } from "../src/hands.js";
 
 describe("AgentHands - Tool Loop", () => {
   let mockServiceCallbacks;
