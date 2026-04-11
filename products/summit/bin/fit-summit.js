@@ -15,6 +15,7 @@ import { fileURLToPath } from "node:url";
 import { createCli } from "@forwardimpact/libcli";
 
 import { runCoverageCommand } from "../src/commands/coverage.js";
+import { runGrowthCommand } from "../src/commands/growth.js";
 import { runRisksCommand } from "../src/commands/risks.js";
 import { runRosterCommand } from "../src/commands/roster.js";
 import { runValidateCommand } from "../src/commands/validate.js";
@@ -30,6 +31,7 @@ const VERSION = JSON.parse(
 
 const COMMANDS = {
   coverage: runCoverageCommand,
+  growth: runGrowthCommand,
   risks: runRisksCommand,
   roster: runRosterCommand,
   validate: runValidateCommand,
@@ -55,6 +57,11 @@ const definition = {
       name: "what-if",
       args: "<team> [--add/--remove/--move/--promote]",
       description: "Simulate roster changes",
+    },
+    {
+      name: "growth",
+      args: "<team>",
+      description: "Show growth opportunities aligned with team needs",
     },
     { name: "roster", args: "", description: "Show current roster" },
     { name: "validate", args: "", description: "Validate roster file" },

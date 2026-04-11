@@ -30,3 +30,8 @@ export {
   ScenarioError,
   ScenarioType,
 } from "./scenarios.js";
+export {
+  computeGrowthAlignment,
+  GrowthContractError,
+  rankCandidates,
+} from "./growth.js";
