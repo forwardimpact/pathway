@@ -41,8 +41,10 @@ apply alongside the skill-specific ones below.
 - [ ] Spec-specific verification commands from the plan pass.
 - [ ] Full diff reviewed against the spec's success criteria — every criterion
       met.
-- [ ] Clean sub-agent review of the full diff completed (fresh context, no prior
-      bias) and every **blocker**, **high**, and **medium** finding addressed.
+- [ ] Clean sub-agent review of the full diff via
+      [`gemba-review`](../gemba-review/SKILL.md) completed (fresh context, no
+      prior bias) and every **blocker**, **high**, and **medium** finding
+      addressed.
 - [ ] Spec status set to `done` in `specs/STATUS`.
 
 </do_confirm_checklist>
@@ -149,15 +151,17 @@ After all tasks are complete, run the DO-CONFIRM checklist above.
 ### 8. Clean sub-agent review
 
 Before pushing, launch a fresh sub-agent (via the `Agent` tool, no prior
-conversation context) and ask it to review the full diff
-(`git diff origin/main...HEAD`) against `spec.md`, the plan, and CONTRIBUTING.md
-§ Core Rules. Give the reviewer enough context to act independently — spec path,
-plan path, branch name.
+conversation context) and instruct it to load the
+[`gemba-review`](../gemba-review/SKILL.md) skill and grade the full diff
+(`git diff origin/main...HEAD`). Give the reviewer enough context to act
+independently — spec path, plan path, branch name.
 
-The reviewer must **return findings only** — tell it explicitly not to invoke
-the `gemba-implement` skill (or any other skill) and not to spawn its own
-sub-agents. This prevents recursion. Grade findings using the shared vocabulary
-in [`gemba-spec` § Review Severity](../gemba-spec/SKILL.md#review-severity).
+`gemba-review` owns the severity vocabulary and the implementation-diff
+criteria; it never spawns sub-agents, so the review loop bottoms out
+structurally — see
+[GEMBA.md § Recursion-safe self-review](../../../GEMBA.md#recursion-safe-self-review).
+Tell the reviewer explicitly **not** to invoke `gemba-implement` itself —
+defense in depth on top of the structural fix.
 
 Address every **blocker**, **high**, and **medium** finding before pushing.
 **Low** findings are optional. If the reviewer raises blockers you disagree

@@ -12,6 +12,7 @@ skills:
   - gemba-product-evaluation
   - gemba-spec
   - gemba-plan
+  - gemba-review
   - gemba-gh-cli
 ---
 

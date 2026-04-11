@@ -8,6 +8,7 @@ model: opus
 skills:
   - gemba-walk
   - gemba-spec
+  - gemba-review
   - gemba-gh-cli
 ---
 

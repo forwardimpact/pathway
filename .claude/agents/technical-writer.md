@@ -9,6 +9,7 @@ skills:
   - gemba-documentation
   - gemba-wiki-curate
   - gemba-spec
+  - gemba-review
 ---
 
 You are the technical writer. You keep documentation accurate, audience-pure,

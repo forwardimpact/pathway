@@ -47,9 +47,10 @@ no commitment to implement, and a plan has nothing to translate.
 - [ ] Non-obvious decisions explained.
 - [ ] Risks surfaced — no step should surprise the implementer.
 - [ ] Execution recommendation present (which agents, sequential vs parallel).
-- [ ] Clean sub-agent review of `plan-a.md` (and any parts) completed (fresh
-      context, no prior bias) and every **blocker**, **high**, and **medium**
-      finding addressed.
+- [ ] Clean sub-agent review of `plan-a.md` (and any parts) via
+      [`gemba-review`](../gemba-review/SKILL.md) completed (fresh context, no
+      prior bias) and every **blocker**, **high**, and **medium** finding
+      addressed.
 
 </do_confirm_checklist>
 
@@ -190,17 +191,18 @@ from prior `staff-engineer` entries.
    explicitly. If the plan is large, decompose it into parts (see § Large plan
    decomposition).
 5. **Clean sub-agent review.** Before advancing status, launch a fresh sub-agent
-   (via the `Agent` tool, no prior conversation context) and ask it to review
-   `plan-a.md` (and any `plan-a-NN.md` parts) against this skill's DO-CONFIRM
-   checklist and the qualities in "Writing a Plan". The reviewer must **return
-   findings only** — tell it explicitly not to invoke the `gemba-plan` skill or
-   any other skill, and not to spawn its own sub-agents. This prevents
-   recursion. Grade findings using the shared vocabulary in
-   [`gemba-spec` § Review Severity](../gemba-spec/SKILL.md#review-severity).
-   Address every **blocker**, **high**, and **medium** finding before moving on.
-   **Low** findings are optional. If the reviewer raises blockers you disagree
-   with, resolve the disagreement explicitly (revise, or record the rationale
-   for dismissal) — silent dismissal is not allowed.
+   (via the `Agent` tool, no prior conversation context) and instruct it to load
+   the [`gemba-review`](../gemba-review/SKILL.md) skill and grade `plan-a.md`
+   (and any `plan-a-NN.md` parts). `gemba-review` owns the severity vocabulary
+   and the plan criteria; it never spawns sub-agents, so the review loop bottoms
+   out structurally — see
+   [GEMBA.md § Recursion-safe self-review](../../../GEMBA.md#recursion-safe-self-review).
+   Tell the reviewer explicitly **not** to invoke `gemba-plan` itself — defense
+   in depth on top of the structural fix. Address every **blocker**, **high**,
+   and **medium** finding before moving on. **Low** findings are optional. If
+   the reviewer raises blockers you disagree with, resolve the disagreement
+   explicitly (revise, or record the rationale for dismissal) — silent dismissal
+   is not allowed.
 6. **Present the plan.** Share it for feedback.
 7. **Update STATUS.** When both spec and plan are approved, advance the spec's
    status from `review` to `planned`. Do not advance while the plan is still
