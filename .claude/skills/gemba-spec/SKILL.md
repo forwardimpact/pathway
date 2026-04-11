@@ -46,8 +46,9 @@ asked for. If they ask for a spec, write the spec and stop.
 - [ ] Success criteria are verifiable (a command, observable behaviour, or
       testable property).
 - [ ] No implementation details have leaked in (HOW belongs in the plan).
-- [ ] Clean sub-agent review of `spec.md` completed (fresh context, no prior
-      bias) and every **blocker**, **high**, and **medium** finding addressed.
+- [ ] Clean sub-agent review via [`gemba-review`](../gemba-review/SKILL.md)
+      completed (fresh context, no prior bias) and every **blocker**, **high**,
+      and **medium** finding addressed.
 
 </do_confirm_checklist>
 
@@ -131,35 +132,20 @@ status clearly — the caller is responsible for acting on it.
    details — those go in the plan.
 4. **Update STATUS.** Add the spec to `specs/STATUS` with status `draft`.
 5. **Clean sub-agent review.** Before advancing status, launch a fresh sub-agent
-   (via the `Agent` tool, no prior conversation context) and ask it to review
-   `spec.md` against this skill's DO-CONFIRM checklist and the qualities in
-   "Writing a Spec". The reviewer must **return findings only** — tell it
-   explicitly not to invoke the `gemba-spec` skill or any other skill, and not
-   to spawn its own sub-agents. This prevents recursion. Instruct it to grade
-   each finding using the severity vocabulary in
-   [Review Severity](#review-severity) below. Address every **blocker**,
-   **high**, and **medium** finding before moving on. **Low** findings are
-   optional. If the reviewer raises blockers you disagree with, resolve the
-   disagreement explicitly (revise, or record the rationale for dismissal) —
-   silent dismissal is not allowed.
+   (via the `Agent` tool, no prior conversation context) and instruct it to load
+   the [`gemba-review`](../gemba-review/SKILL.md) skill and grade `spec.md`.
+   `gemba-review` owns the severity vocabulary and the spec criteria; it never
+   spawns sub-agents, so the review loop bottoms out structurally — see
+   [GEMBA.md § Recursion-safe self-review](../../../GEMBA.md#recursion-safe-self-review).
+   Tell the reviewer explicitly **not** to invoke `gemba-spec` itself — defense
+   in depth on top of the structural fix. Address every **blocker**, **high**,
+   and **medium** finding before moving on. **Low** findings are optional. If
+   the reviewer raises blockers you disagree with, resolve the disagreement
+   explicitly (revise, or record the rationale for dismissal) — silent dismissal
+   is not allowed.
 6. **Present the spec.** Share it for feedback. Iterate until satisfied, then
    set status to `review` — signalling it is ready for formal evaluation. Stop
    here. The plan is the staff engineer's job.
-
-## Review Severity
-
-The clean sub-agent reviewer grades each finding using this vocabulary. It is
-shared with [`gemba-plan`](../gemba-plan/SKILL.md#review-severity) and
-[`gemba-implement`](../gemba-implement/SKILL.md#review-severity) so grading is
-consistent across the spec → plan → implement arc.
-
-- **Blocker** — The work is broken, dangerous, or materially wrong. Must fix
-  before advancing (approving the spec, advancing status, merging code).
-- **High** — A correctness or clarity problem that will cause rework, confusion,
-  or bugs downstream if shipped. Fix before advancing.
-- **Medium** — A real quality or consistency issue worth fixing now while the
-  context is fresh. Fix before advancing.
-- **Low** — Nit or preference. Optional; document if dismissed.
 
 ## What NOT to Do
 

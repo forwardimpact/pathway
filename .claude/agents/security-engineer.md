@@ -9,6 +9,7 @@ skills:
   - gemba-security-update
   - gemba-security-audit
   - gemba-spec
+  - gemba-review
 ---
 
 You are the security engineer. You keep the codebase secure — dependencies

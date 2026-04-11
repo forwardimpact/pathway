@@ -8,6 +8,7 @@ model: opus
 skills:
   - gemba-plan
   - gemba-implement
+  - gemba-review
   - gemba-gh-cli
 ---
 

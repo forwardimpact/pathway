@@ -13,7 +13,7 @@ place (the execution traces of prior runs) and act on what they find.
 Within Gemba, **Plan–Do–Study–Act** (PDSA, after Deming) is the improvement
 method. Every workflow belongs to a PDSA phase, findings from Study always
 re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Ten
-scheduled workflows, six agent personas, and fourteen skills form a
+scheduled workflows, six agent personas, and sixteen skills form a
 self-reinforcing PDSA cycle. Product evaluation sessions feed the Study phase
 with observations from the user's perspective. Gemba maintains the project — not
 the engineering frameworks the products serve.
@@ -113,14 +113,14 @@ structural improvements (`spec/` branches) — never mixed in one PR.
 
 ## Agents
 
-| Agent                 | Phase          | Purpose                                                                | Skills                                                                                                       |
-| --------------------- | -------------- | ---------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------ |
-| **staff-engineer**    | Plan, Do       | Own the full spec → plan → implement arc for approved specs            | gemba-plan, gemba-implement, gemba-gh-cli                                                                    |
-| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies     | gemba-security-update, gemba-security-audit, gemba-spec                                                      |
-| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI on main, cut releases  | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                  |
-| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations   | gemba-plan, gemba-product-triage, gemba-product-classify, gemba-product-evaluation, gemba-spec, gemba-gh-cli |
-| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec larger gaps | gemba-documentation, gemba-wiki-curate, gemba-spec                                                           |
-| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones    | gemba-walk, gemba-spec, gemba-gh-cli                                                                         |
+| Agent                 | Phase          | Purpose                                                                | Skills                                                                                                                     |
+| --------------------- | -------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
+| **staff-engineer**    | Plan, Do       | Own the full spec → plan → implement arc for approved specs            | gemba-plan, gemba-implement, gemba-review, gemba-gh-cli                                                                    |
+| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies     | gemba-security-update, gemba-security-audit, gemba-spec, gemba-review                                                      |
+| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI on main, cut releases  | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                                |
+| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations   | gemba-plan, gemba-product-triage, gemba-product-classify, gemba-product-evaluation, gemba-spec, gemba-review, gemba-gh-cli |
+| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec larger gaps | gemba-documentation, gemba-wiki-curate, gemba-spec, gemba-review                                                           |
+| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones    | gemba-walk, gemba-spec, gemba-review, gemba-gh-cli                                                                         |
 
 Each agent has explicit scope constraints — it knows what it must _not_ do. When
 a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
@@ -170,6 +170,8 @@ All Gemba skills are namespaced with the `gemba-` prefix.
 | **gemba-wiki-curate**        | Study | Curate agent memory: summary accuracy, observation follow-up, log hygiene     |
 | **gemba-walk**               | Study | Open-ended trace observation, invariant audit, grounded-theory report         |
 | **gemba-spec**               | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status             |
+| **gemba-ship**               | —     | Rebase, check, push, open/reuse PR, watch CI, squash-merge a feature branch   |
+| **gemba-review**             | —     | Grade a spec, plan, or diff against criteria — leaf skill, never spawns       |
 | **gemba-gh-cli**             | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)    |
 
 ## Trust Boundary
@@ -405,6 +407,38 @@ material so the core instructions stay scannable.
 Use the same wording for shared structural elements (memory instructions,
 prerequisites format, section headings) across all agents and skills.
 Inconsistent wording correlated with agents skipping steps in trace analysis.
+
+### Recursion-safe self-review
+
+Skills that require an independent review of their own output (e.g.
+`gemba-spec`, `gemba-plan`, `gemba-implement`) must spawn a fresh sub-agent —
+otherwise the reviewer shares context with the author and grades aren't
+independent. The naive design — "spawn a sub-agent and ask it to review using
+this same skill" — is **structurally vulnerable to recursion**: the sub-agent
+matches the skill's "When to Use" triggers, runs the full Process, and reaches
+its own review step, which spawns another sub-agent, which… and so on.
+
+The fix is to **delegate the review to a separate, leaf skill** (`gemba-review`)
+whose Process never spawns sub-agents. The call graph then bottoms out
+structurally:
+
+```text
+gemba-spec.Step5 → spawn sub-agent → gemba-review.Process → return findings
+                                                            ↑
+                                                      no spawn step here
+```
+
+Even if a buggy prompt match causes the sub-agent to mis-load `gemba-spec`
+instead of `gemba-review`, defense-in-depth applies: the parent skill's review
+step explicitly tells the sub-agent **"do not invoke this skill"**. The
+structural fix prevents recursion in the happy path; the prompt instruction
+catches it in the edge case.
+
+**Rule for new skills.** A skill that calls another skill via a sub-agent must
+target a skill whose Process has no further sub-agent spawn step. If you find
+yourself wanting to recursively self-review, factor the review into a separate
+leaf skill instead. `gemba-review` is the canonical example — copy its shape
+when you need a new self-review loop.
 
 ### resume() must propagate session state
 
