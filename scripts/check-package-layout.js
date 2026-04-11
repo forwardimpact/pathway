@@ -2,7 +2,7 @@
 // Check every package under products/, services/, libraries/ for conformance
 // to the allowed-root-subdirs contract (spec 390).
 
-import { readdirSync, statSync } from "node:fs";
+import { readdirSync, statSync, existsSync } from "node:fs";
 import { join } from "node:path";
 
 const ALLOWED_SUBDIRS = new Set([
@@ -27,11 +27,17 @@ const strict = !process.argv.includes("--no-strict");
 
 const violations = [];
 const rootSourceFiles = [];
+const missingSrcIndex = [];
 
 for (const tier of TIERS) {
   for (const pkgName of readdirSync(tier)) {
     const pkgDir = join(tier, pkgName);
     if (!statSync(pkgDir).isDirectory()) continue;
+
+    // Every non-service package must have src/index.js (spec 390 #4).
+    if (tier !== "services" && !existsSync(join(pkgDir, "src", "index.js"))) {
+      missingSrcIndex.push(pkgDir);
+    }
 
     for (const entry of readdirSync(pkgDir)) {
       const entryPath = join(pkgDir, entry);
@@ -60,7 +66,7 @@ for (const tier of TIERS) {
   }
 }
 
-if (violations.length || rootSourceFiles.length) {
+if (violations.length || rootSourceFiles.length || missingSrcIndex.length) {
   console.error("Package layout drift detected (spec 390):\n");
 
   if (violations.length) {
@@ -81,6 +87,16 @@ if (violations.length || rootSourceFiles.length) {
     console.error(
       "\n  Services may keep only index.js and server.js at the root.\n",
     );
+  }
+
+  if (missingSrcIndex.length) {
+    console.error(
+      "  Missing src/index.js (required for non-service packages):",
+    );
+    for (const pkg of missingSrcIndex) {
+      console.error(`    ${pkg}/src/index.js`);
+    }
+    console.error("");
   }
 
   if (strict) {

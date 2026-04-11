@@ -10,7 +10,10 @@
   },
   "homepage": "https://www.forwardimpact.team/basecamp",
   "type": "module",
-  "main": "./src/basecamp.js",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
   "bin": {
     "fit-basecamp": "./bin/fit-basecamp.js"
   },
