@@ -1,0 +1,90 @@
+#!/usr/bin/env node
+// Check every package under products/, services/, libraries/ for conformance
+// to the allowed-root-subdirs contract (spec 390).
+
+import { readdirSync, statSync } from "node:fs";
+import { join } from "node:path";
+
+const ALLOWED_SUBDIRS = new Set([
+  "bin",
+  "config",
+  "macos",
+  "pkg",
+  "proto",
+  "schema",
+  "src",
+  "starter",
+  "supabase",
+  "templates",
+  "test",
+]);
+
+// Dirs the working tree may contain but that are gitignored / out of scope.
+const IGNORED_SUBDIRS = new Set(["node_modules"]);
+
+const TIERS = ["products", "services", "libraries"];
+const strict = process.argv.includes("--strict");
+
+const violations = [];
+const rootSourceFiles = [];
+
+for (const tier of TIERS) {
+  for (const pkgName of readdirSync(tier)) {
+    const pkgDir = join(tier, pkgName);
+    if (!statSync(pkgDir).isDirectory()) continue;
+
+    for (const entry of readdirSync(pkgDir)) {
+      const entryPath = join(pkgDir, entry);
+      const stat = statSync(entryPath);
+
+      if (stat.isDirectory()) {
+        if (IGNORED_SUBDIRS.has(entry)) continue;
+        if (!ALLOWED_SUBDIRS.has(entry)) {
+          violations.push({ pkg: pkgDir, subdir: entry });
+        }
+        continue;
+      }
+
+      // Root-level source files.
+      if (entry.endsWith(".js") || entry.endsWith(".ts")) {
+        // Services are allowed exactly two: index.js and server.js.
+        if (tier === "services") {
+          if (entry !== "index.js" && entry !== "server.js") {
+            rootSourceFiles.push({ pkg: pkgDir, file: entry });
+          }
+        } else {
+          rootSourceFiles.push({ pkg: pkgDir, file: entry });
+        }
+      }
+    }
+  }
+}
+
+if (violations.length || rootSourceFiles.length) {
+  console.error("Package layout drift detected (spec 390):\n");
+
+  if (violations.length) {
+    console.error("  Non-allowed root subdirectories:");
+    for (const v of violations) {
+      console.error(`    ${v.pkg}/${v.subdir}/`);
+    }
+    console.error(
+      "\n  Allowed: " + [...ALLOWED_SUBDIRS].sort().join(", ") + "\n",
+    );
+  }
+
+  if (rootSourceFiles.length) {
+    console.error("  Root-level source files (move into src/):");
+    for (const f of rootSourceFiles) {
+      console.error(`    ${f.pkg}/${f.file}`);
+    }
+    console.error(
+      "\n  Services may keep only index.js and server.js at the root.\n",
+    );
+  }
+
+  if (strict) {
+    process.exit(1);
+  }
+  console.error("  (Permissive mode — not failing. Pass --strict to fail.)");
+}
