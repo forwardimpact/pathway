@@ -8,11 +8,26 @@
 
 export {
   loadRoster,
-  parseRosterYaml,
   loadRosterFromMap,
+  parseRosterYaml,
   validateRosterAgainstFramework,
 } from "./roster/index.js";
 export {
   createSummitClient,
   SupabaseUnavailableError,
 } from "./lib/supabase.js";
+export {
+  computeCoverage,
+  computeEffectiveDepth,
+  derivePersonMatrix,
+  EmptyTeamError,
+  meetsWorking,
+  resolveTeam,
+  TeamNotFoundError,
+  UnknownJobFieldError,
+} from "./aggregation/index.js";
+export {
+  Audience,
+  resolveAudience,
+  withAudienceFilter,
+} from "./lib/audience.js";
