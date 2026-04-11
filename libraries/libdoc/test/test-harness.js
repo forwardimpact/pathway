@@ -1,4 +1,4 @@
-import { DocsBuilder } from "../index.js";
+import { DocsBuilder } from "../src/index.js";
 
 /**
  * Create a mock fs/path/builder setup for tests

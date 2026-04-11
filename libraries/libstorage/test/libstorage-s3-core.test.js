@@ -1,7 +1,7 @@
 import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
-import { S3Storage } from "../index.js";
+import { S3Storage } from "../src/index.js";
 
 describe("S3Storage", () => {
   let s3Storage;

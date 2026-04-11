@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
-import { runStatus } from "../lib/status.js";
+import { runStatus } from "../src/lib/status.js";
 
 /**
  * Creates a mock createServiceConfig that returns configs with predictable URLs.

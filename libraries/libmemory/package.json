@@ -5,14 +5,19 @@
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "exports": {
-    ".": "./index.js",
-    "./index/memory.js": "./index/memory.js"
+    ".": "./src/index.js",
+    "./index/memory.js": "./src/index/memory.js"
   },
   "bin": {
     "fit-window": "./bin/fit-window.js"
   },
+  "files": [
+    "src/**/*.js",
+    "bin/**/*.js",
+    "README.md"
+  ],
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"

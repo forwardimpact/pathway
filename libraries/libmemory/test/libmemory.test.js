@@ -1,7 +1,7 @@
 import { describe, it, beforeEach } from "node:test";
 import assert from "node:assert";
-import { MemoryWindow } from "../index.js";
-import { MemoryIndex } from "../index/memory.js";
+import { MemoryWindow } from "../src/index.js";
+import { MemoryIndex } from "../src/index/memory.js";
 import { resource, common, tool } from "@forwardimpact/libtype";
 import {
   MockStorage,

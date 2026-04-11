@@ -1,7 +1,10 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { assignLinks } from "../render/link-assigner.js";
-import { generateDrugs, generatePlatforms } from "../render/industry-data.js";
+import { assignLinks } from "../src/render/link-assigner.js";
+import {
+  generateDrugs,
+  generatePlatforms,
+} from "../src/render/industry-data.js";
 
 const DOMAIN = "test.example";
 

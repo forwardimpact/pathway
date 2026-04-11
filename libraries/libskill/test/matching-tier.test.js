@@ -7,7 +7,7 @@ import {
   classifyMatch,
   calculateGapScore,
   GAP_SCORES,
-} from "../matching.js";
+} from "../src/matching.js";
 
 // =============================================================================
 // MatchTier enum

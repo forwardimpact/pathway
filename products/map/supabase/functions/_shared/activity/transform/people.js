@@ -8,7 +8,7 @@
  */
 
 import { readRaw, listRaw } from "../storage.js";
-import { parsePeopleFile } from "../../../../../activity/parse-people.js";
+import { parsePeopleFile } from "../../../../../src/activity/parse-people.js";
 
 /**
  * Transform the most recent stored people file into DB rows.

@@ -1,6 +1,6 @@
 import { describe, it, beforeEach, mock } from "node:test";
 import assert from "node:assert";
-import { MemoryIndex } from "../index/memory.js";
+import { MemoryIndex } from "../src/index/memory.js";
 import { resource } from "@forwardimpact/libtype";
 
 describe("MemoryIndex - IndexBase Functionality", () => {

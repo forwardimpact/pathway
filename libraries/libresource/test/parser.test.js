@@ -2,8 +2,8 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 import { JSDOM } from "jsdom";
 
-import { Parser } from "../parser.js";
-import { Skolemizer } from "../skolemizer.js";
+import { Parser } from "../src/parser.js";
+import { Skolemizer } from "../src/skolemizer.js";
 
 describe("Parser", () => {
   let parser;

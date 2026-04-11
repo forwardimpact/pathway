@@ -4,7 +4,7 @@ import { writeFileSync, mkdirSync, rmSync, chmodSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
 
-import { createConfig } from "../index.js";
+import { createConfig } from "../src/index.js";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 describe("libconfig - .env file loading", () => {

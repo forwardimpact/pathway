@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 
-import { Tracer } from "../tracer.js";
+import { Tracer } from "../src/tracer.js";
 
 /**
  * Mock gRPC Metadata class for testing

@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { prepareJobDetail } from "../job.js";
+import { prepareJobDetail } from "../src/job.js";
 
 // =============================================================================
 // Test Fixtures

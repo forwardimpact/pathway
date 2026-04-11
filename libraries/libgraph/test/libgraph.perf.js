@@ -1,8 +1,8 @@
 import { test, describe } from "node:test";
 import { Store, DataFactory } from "n3";
 
-import { GraphIndex } from "../index/graph.js";
-import { parseGraphQuery } from "../index.js";
+import { GraphIndex } from "../src/index/graph.js";
+import { parseGraphQuery } from "../src/index.js";
 import { createPerformanceTest } from "@forwardimpact/libperf";
 
 const { namedNode, literal } = DataFactory;

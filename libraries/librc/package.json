@@ -5,13 +5,18 @@
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./bin/fit-rc.js": "./bin/fit-rc.js"
+  },
   "bin": {
     "fit-rc": "./bin/fit-rc.js"
   },
   "files": [
-    "bin/",
-    "*.js"
+    "src/**/*.js",
+    "bin/**/*.js",
+    "README.md"
   ],
   "engines": {
     "bun": ">=1.2.0",

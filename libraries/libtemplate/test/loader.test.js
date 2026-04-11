@@ -4,7 +4,7 @@ import { mkdtempSync, mkdirSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-import { TemplateLoader, createTemplateLoader } from "../index.js";
+import { TemplateLoader, createTemplateLoader } from "../src/index.js";
 
 describe("TemplateLoader", () => {
   let defaultsDir;

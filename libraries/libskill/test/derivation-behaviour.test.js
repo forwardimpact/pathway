@@ -5,7 +5,7 @@ import {
   deriveBehaviourMaturity,
   deriveSkillMatrix,
   deriveBehaviourProfile,
-} from "../derivation.js";
+} from "../src/derivation.js";
 import {
   makeDiscipline,
   makeManagementDiscipline,

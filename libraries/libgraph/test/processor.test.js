@@ -1,7 +1,7 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { GraphProcessor } from "../processor/graph.js";
+import { GraphProcessor } from "../src/processor/graph.js";
 import { resource } from "@forwardimpact/libtype";
 import { createSilentLogger } from "@forwardimpact/libharness";
 

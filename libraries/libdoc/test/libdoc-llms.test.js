@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DocsBuilder } from "../index.js";
+import { DocsBuilder } from "../src/index.js";
 
 function createTestHarness({
   sourceFiles,

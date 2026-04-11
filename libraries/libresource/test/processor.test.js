@@ -1,9 +1,9 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { ResourceProcessor } from "../processor/resource.js";
-import { Parser } from "../parser.js";
-import { Skolemizer } from "../skolemizer.js";
+import { ResourceProcessor } from "../src/processor/resource.js";
+import { Parser } from "../src/parser.js";
+import { Skolemizer } from "../src/skolemizer.js";
 
 describe("ResourceProcessor", () => {
   let resourceIndex;

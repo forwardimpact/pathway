@@ -9,17 +9,22 @@
     "directory": "libraries/libsyntheticrender"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "exports": {
-    ".": "./index.js",
-    "./render/html": "./render/html.js",
-    "./render/pathway": "./render/pathway.js",
-    "./render/raw": "./render/raw.js",
-    "./render/markdown": "./render/markdown.js",
-    "./render/dataset-renderers": "./render/dataset-renderers.js",
-    "./validate": "./validate.js",
-    "./format": "./format.js"
+    ".": "./src/index.js",
+    "./render/html": "./src/render/html.js",
+    "./render/pathway": "./src/render/pathway.js",
+    "./render/raw": "./src/render/raw.js",
+    "./render/markdown": "./src/render/markdown.js",
+    "./render/dataset-renderers": "./src/render/dataset-renderers.js",
+    "./validate": "./src/validate.js",
+    "./format": "./src/format.js"
   },
+  "files": [
+    "src/**/*.js",
+    "templates/**",
+    "README.md"
+  ],
   "dependencies": {
     "@forwardimpact/libsyntheticgen": "^0.1.0",
     "@forwardimpact/libtemplate": "^0.2.0",

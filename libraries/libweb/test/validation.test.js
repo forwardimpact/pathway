@@ -1,7 +1,10 @@
 import { describe, test, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
-import { ValidationMiddleware, createValidationMiddleware } from "../index.js";
+import {
+  ValidationMiddleware,
+  createValidationMiddleware,
+} from "../src/index.js";
 
 /**
  * Helper to create mock Hono context

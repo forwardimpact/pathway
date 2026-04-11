@@ -2,8 +2,8 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 import { JSDOM } from "jsdom";
 
-import { toType, toIdentifier, ResourceIndex } from "../index.js";
-import { sanitizeDom } from "../sanitizer.js";
+import { toType, toIdentifier, ResourceIndex } from "../src/index.js";
+import { sanitizeDom } from "../src/sanitizer.js";
 import { common, resource } from "@forwardimpact/libtype";
 
 /**

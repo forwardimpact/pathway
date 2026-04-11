@@ -2,7 +2,7 @@ import { test, describe, mock } from "node:test";
 import assert from "node:assert";
 import { createHmac } from "node:crypto";
 
-import { AuthMiddleware, createAuthMiddleware } from "../index.js";
+import { AuthMiddleware, createAuthMiddleware } from "../src/index.js";
 
 /**
  * Helper to create test JWT

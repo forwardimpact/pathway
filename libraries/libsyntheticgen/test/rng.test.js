@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { createSeededRNG } from "../engine/rng.js";
+import { createSeededRNG } from "../src/engine/rng.js";
 
 describe("createSeededRNG", () => {
   describe("determinism", () => {

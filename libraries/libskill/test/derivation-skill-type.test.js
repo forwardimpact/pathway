@@ -6,7 +6,7 @@ import {
   getSkillTypeForDiscipline,
   findMaxBaseSkillProficiency,
   deriveSkillProficiency,
-} from "../derivation.js";
+} from "../src/derivation.js";
 import {
   makeDiscipline,
   makeLevel,

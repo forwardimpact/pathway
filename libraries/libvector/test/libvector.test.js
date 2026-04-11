@@ -2,7 +2,7 @@ import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { VectorIndex } from "../index/vector.js";
+import { VectorIndex } from "../src/index/vector.js";
 import { resource } from "@forwardimpact/libtype";
 import { createMockStorage } from "@forwardimpact/libharness";
 

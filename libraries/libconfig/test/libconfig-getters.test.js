@@ -1,7 +1,7 @@
 import { test, describe, mock } from "node:test";
 import assert from "node:assert";
 
-import { createConfig } from "../index.js";
+import { createConfig } from "../src/index.js";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 describe("libconfig - Config getters", () => {

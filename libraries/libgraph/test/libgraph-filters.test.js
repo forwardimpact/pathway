@@ -2,8 +2,8 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 import { Store, DataFactory } from "n3";
 
-import { GraphIndex } from "../index/graph.js";
-import { parseGraphQuery } from "../index.js";
+import { GraphIndex } from "../src/index/graph.js";
+import { parseGraphQuery } from "../src/index.js";
 import { resource } from "@forwardimpact/libtype";
 import { createMockStorage } from "@forwardimpact/libharness";
 

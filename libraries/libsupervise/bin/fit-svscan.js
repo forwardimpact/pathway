@@ -12,7 +12,7 @@ import path from "node:path";
 import { createCli } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
-import { SupervisionTree } from "../tree.js";
+import { SupervisionTree } from "../src/tree.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),

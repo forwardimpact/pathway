@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { HelpRenderer } from "../help.js";
+import { HelpRenderer } from "../src/help.js";
 
 function createStream() {
   return {

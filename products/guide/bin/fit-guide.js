@@ -337,7 +337,7 @@ if (command === "status") {
     process.exit(1);
   }
 
-  const { runStatus } = await import("../lib/status.js");
+  const { runStatus } = await import("../src/lib/status.js");
   const { createServiceConfig } = await import("@forwardimpact/libconfig");
   const { healthDefinition } = await import("@forwardimpact/librpc");
   const grpcMod = (await import("@grpc/grpc-js")).default;

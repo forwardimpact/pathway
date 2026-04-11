@@ -15,7 +15,7 @@ import {
   generateSecret,
   generateBase64Secret,
   generateJWT,
-} from "../index.js";
+} from "../src/index.js";
 
 describe("libsecret", () => {
   describe("generateHash", () => {

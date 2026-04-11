@@ -1,7 +1,7 @@
 import { describe, test, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { ServiceManager } from "../manager.js";
+import { ServiceManager } from "../src/manager.js";
 
 describe("ServiceManager - stop, status, filtering", () => {
   let mockConfig;

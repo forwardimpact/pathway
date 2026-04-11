@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 
-import { AgentMind } from "../mind.js";
+import { AgentMind } from "../src/mind.js";
 import { common, resource } from "@forwardimpact/libtype";
 import { createPerformanceTest } from "@forwardimpact/libperf";
 

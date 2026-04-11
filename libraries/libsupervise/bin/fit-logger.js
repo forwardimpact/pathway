@@ -4,7 +4,7 @@ import readline from "node:readline";
 
 import { createCli } from "@forwardimpact/libcli";
 
-import { LogWriter } from "../logger.js";
+import { LogWriter } from "../src/logger.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),

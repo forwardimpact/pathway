@@ -12,7 +12,7 @@ import {
   chainComparators,
   compareBySkillChange,
   compareByBehaviourChange,
-} from "../policies/orderings.js";
+} from "../src/policies/orderings.js";
 
 function skill(overrides = {}) {
   return {

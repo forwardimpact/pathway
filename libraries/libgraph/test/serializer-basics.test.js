@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { ShaclSerializer } from "../serializer.js";
+import { ShaclSerializer } from "../src/serializer.js";
 
 describe("ShaclSerializer - basics", () => {
   let serializer;

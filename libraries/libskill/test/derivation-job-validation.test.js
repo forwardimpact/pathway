@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { isValidJobCombination, generateJobTitle } from "../derivation.js";
+import { isValidJobCombination, generateJobTitle } from "../src/derivation.js";
 import {
   makeDiscipline,
   makeManagementDiscipline,

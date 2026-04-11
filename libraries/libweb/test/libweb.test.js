@@ -7,7 +7,7 @@ import {
   CorsMiddleware,
   createValidationMiddleware,
   createCorsMiddleware,
-} from "../index.js";
+} from "../src/index.js";
 
 describe("ValidationMiddleware", () => {
   let validationMiddleware;

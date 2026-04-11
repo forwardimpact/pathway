@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { validateEvalReferences } from "../validate-eval.js";
+import { validateEvalReferences } from "../src/validate-eval.js";
 
 describe("validateEvalReferences", () => {
   const generatedData = {

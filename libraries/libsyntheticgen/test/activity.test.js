@@ -1,10 +1,10 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { tokenize } from "../dsl/tokenizer.js";
-import { parse } from "../dsl/parser.js";
-import { createSeededRNG } from "../engine/rng.js";
-import { buildEntities } from "../engine/entities.js";
-import { generateActivity } from "../engine/activity.js";
+import { tokenize } from "../src/dsl/tokenizer.js";
+import { parse } from "../src/dsl/parser.js";
+import { createSeededRNG } from "../src/engine/rng.js";
+import { buildEntities } from "../src/engine/entities.js";
+import { generateActivity } from "../src/engine/activity.js";
 
 /**
  * Helper: parse DSL, build entities, generate activity.

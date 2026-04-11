@@ -7,7 +7,7 @@ import {
   createMockResourceIndex,
 } from "@forwardimpact/libharness";
 
-import { AgentMind, AgentHands } from "../index.js";
+import { AgentMind, AgentHands } from "../src/index.js";
 import { common } from "@forwardimpact/libtype";
 
 describe("libagent", () => {

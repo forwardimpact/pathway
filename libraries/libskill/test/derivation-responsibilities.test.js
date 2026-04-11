@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { deriveResponsibilities, deriveJob } from "../derivation.js";
+import { deriveResponsibilities, deriveJob } from "../src/derivation.js";
 import {
   makeDiscipline,
   makeManagementDiscipline,

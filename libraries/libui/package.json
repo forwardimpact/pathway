@@ -9,28 +9,29 @@
     "directory": "libraries/libui"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "files": [
-    "*.js",
-    "components/",
-    "css/"
+    "src/**/*.js",
+    "src/components/",
+    "src/css/",
+    "README.md"
   ],
   "exports": {
-    ".": "./index.js",
-    "./render": "./render.js",
-    "./reactive": "./reactive.js",
-    "./state": "./state.js",
-    "./errors": "./errors.js",
-    "./error-boundary": "./error-boundary.js",
-    "./router-core": "./router-core.js",
-    "./router-pages": "./router-pages.js",
-    "./router-slides": "./router-slides.js",
-    "./yaml-loader": "./yaml-loader.js",
-    "./markdown": "./markdown.js",
-    "./utils": "./utils.js",
-    "./components": "./components/index.js",
-    "./components/*": "./components/*.js",
-    "./css/*": "./css/*"
+    ".": "./src/index.js",
+    "./render": "./src/render.js",
+    "./reactive": "./src/reactive.js",
+    "./state": "./src/state.js",
+    "./errors": "./src/errors.js",
+    "./error-boundary": "./src/error-boundary.js",
+    "./router-core": "./src/router-core.js",
+    "./router-pages": "./src/router-pages.js",
+    "./router-slides": "./src/router-slides.js",
+    "./yaml-loader": "./src/yaml-loader.js",
+    "./markdown": "./src/markdown.js",
+    "./utils": "./src/utils.js",
+    "./components": "./src/components/index.js",
+    "./components/*": "./src/components/*.js",
+    "./css/*": "./src/css/*"
   },
   "engines": {
     "bun": ">=1.2.0",

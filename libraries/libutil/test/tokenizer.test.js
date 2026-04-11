@@ -2,8 +2,8 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { Tokenizer, ranks } from "../tokenizer.js";
-import { countTokens, createTokenizer } from "../index.js";
+import { Tokenizer, ranks } from "../src/tokenizer.js";
+import { countTokens, createTokenizer } from "../src/index.js";
 
 describe("Tokenizer", () => {
   describe("constructor", () => {

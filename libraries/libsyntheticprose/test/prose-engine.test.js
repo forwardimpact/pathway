@@ -3,7 +3,7 @@ import assert from "node:assert/strict";
 import { writeFileSync, mkdtempSync, rmSync } from "fs";
 import { join } from "path";
 import { tmpdir } from "os";
-import { ProseEngine } from "../engine/prose.js";
+import { ProseEngine } from "../src/engine/prose.js";
 
 function makeLogger() {
   return {

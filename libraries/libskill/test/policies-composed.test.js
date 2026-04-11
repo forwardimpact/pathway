@@ -10,14 +10,14 @@ import {
   focusAgentSkills,
   prepareAgentSkillMatrix,
   prepareAgentBehaviourProfile,
-} from "../policies/composed.js";
+} from "../src/policies/composed.js";
 
 import {
   THRESHOLD_MATCH_STRONG,
   SCORE_GAP,
   WEIGHT_SKILL_TYPE,
   LIMIT_AGENT_PROFILE_SKILLS,
-} from "../policies/thresholds.js";
+} from "../src/policies/thresholds.js";
 
 function skill(overrides = {}) {
   return {

@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { tokenize } from "../dsl/tokenizer.js";
-import { parse } from "../dsl/parser.js";
+import { tokenize } from "../src/dsl/tokenizer.js";
+import { parse } from "../src/dsl/parser.js";
 
 /**
  * Helper: tokenize then parse a DSL source string.

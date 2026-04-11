@@ -43,14 +43,14 @@ function run(cmd, opts = {}) {
 }
 
 // ---------------------------------------------------------------------------
-// Copy fit-* skills from monorepo into template
+// Copy fit-* skills from monorepo into templates
 // ---------------------------------------------------------------------------
 
 const MONOREPO_SKILLS_DIR = join(PROJECT_DIR, "..", "..", ".claude", "skills");
-const TEMPLATE_SKILLS_DIR = join(PROJECT_DIR, "template", ".claude", "skills");
+const TEMPLATE_SKILLS_DIR = join(PROJECT_DIR, "templates", ".claude", "skills");
 
 function prepareTemplate() {
-  console.log("\nCopying fit-* skills into template...");
+  console.log("\nCopying fit-* skills into templates...");
 
   if (!existsSync(MONOREPO_SKILLS_DIR)) {
     console.error(`  Monorepo skills not found at ${MONOREPO_SKILLS_DIR}`);
@@ -155,7 +155,7 @@ const wantPKG = args.includes("--pkg");
 console.log(`Basecamp Build (v${VERSION})`);
 console.log("==========================");
 
-// Copy monorepo fit-* skills into template before packaging
+// Copy monorepo fit-* skills into templates before packaging
 prepareTemplate();
 
 // Compile scheduler first (before launcher exists in dist/),

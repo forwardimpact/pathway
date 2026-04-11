@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { FakerTool } from "../tools/faker.js";
+import { FakerTool } from "../src/tools/faker.js";
 
 const logger = {
   info() {},

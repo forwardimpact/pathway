@@ -2,7 +2,7 @@ import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { Policy } from "../index.js";
+import { Policy } from "../src/index.js";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 describe("libpolicy", () => {

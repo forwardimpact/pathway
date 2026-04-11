@@ -12,7 +12,7 @@ import {
   toJson,
   isJsonLines,
   isJson,
-} from "../index.js";
+} from "../src/index.js";
 
 describe("storageFactory", () => {
   let mockProcess;

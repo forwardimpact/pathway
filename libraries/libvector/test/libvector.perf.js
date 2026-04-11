@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 
-import { VectorIndex } from "../index/vector.js";
+import { VectorIndex } from "../src/index/vector.js";
 import { createPerformanceTest } from "@forwardimpact/libperf";
 
 describe("LibVector Performance Tests", () => {
