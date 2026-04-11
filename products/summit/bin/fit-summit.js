@@ -14,6 +14,7 @@ import { fileURLToPath } from "node:url";
 
 import { createCli } from "@forwardimpact/libcli";
 
+import { runCoverageCommand } from "../src/commands/coverage.js";
 import { runRosterCommand } from "../src/commands/roster.js";
 import { runValidateCommand } from "../src/commands/validate.js";
 import { loadMapData, resolveDataDir } from "../src/lib/cli.js";
@@ -26,6 +27,7 @@ const VERSION = JSON.parse(
 ).version;
 
 const COMMANDS = {
+  coverage: runCoverageCommand,
   roster: runRosterCommand,
   validate: runValidateCommand,
 };
@@ -35,6 +37,11 @@ const definition = {
   version: VERSION,
   description: "Team capability planning from skill data.",
   commands: [
+    {
+      name: "coverage",
+      args: "<team>",
+      description: "Show capability coverage",
+    },
     { name: "roster", args: "", description: "Show current roster" },
     { name: "validate", args: "", description: "Validate roster file" },
   ],
@@ -46,12 +53,22 @@ const definition = {
       default: "text",
       description: "Output format: text, json, markdown",
     },
+    project: {
+      type: "string",
+      description: "Use a project team instead of a reporting team",
+    },
+    audience: {
+      type: "string",
+      default: "manager",
+      description: "Privacy audience: engineer, manager, director",
+    },
     help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", short: "v", description: "Show version" },
   },
   examples: [
     "fit-summit roster",
-    "fit-summit roster --roster ./summit.yaml",
+    "fit-summit coverage platform",
+    "fit-summit coverage --project migration-q2",
     "fit-summit validate --roster ./summit.yaml",
   ],
 };

@@ -1,9 +1,18 @@
 /**
  * Public barrel for Summit's aggregation surface.
  *
- * Part 01 ships with no aggregation primitives — this file exists so
- * the `./aggregation` subpath export resolves. Part 02 introduces
- * `computeCoverage`, `resolveTeam`, and friends here.
+ * Exports grow across parts — see plan-a.md "Data Model" for the
+ * complete shape list.
  */
 
-export {};
+export {
+  computeCoverage,
+  derivePersonMatrix,
+  resolveTeam,
+} from "./coverage.js";
+export { computeEffectiveDepth, meetsWorking } from "./depth.js";
+export {
+  EmptyTeamError,
+  TeamNotFoundError,
+  UnknownJobFieldError,
+} from "./errors.js";
