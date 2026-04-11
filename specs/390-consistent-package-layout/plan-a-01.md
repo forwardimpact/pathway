@@ -1,9 +1,9 @@
 # Plan A — Part 01: Allowed-root-subdirs check infrastructure
 
 Introduce the layout contract as an executable check, running in **permissive
-mode** for the duration of the migration (Parts 02–07) and switched to
-**strict mode** by Part 08. This part adds no enforcement against existing
-drift yet — it only makes the drift visible.
+mode** for the duration of the migration (Parts 02–07) and switched to **strict
+mode** by Part 08. This part adds no enforcement against existing drift yet — it
+only makes the drift visible.
 
 ## Scope
 
@@ -147,8 +147,8 @@ if (violations.length || rootSourceFiles.length) {
 
 **Key design choices:**
 
-- Uses `readdirSync` on the working tree (not `git ls-files`) because the
-  check runs _before_ the working tree is committed and needs to see in-flight
+- Uses `readdirSync` on the working tree (not `git ls-files`) because the check
+  runs _before_ the working tree is committed and needs to see in-flight
   changes. `node_modules/` is explicitly skipped so `libskill/node_modules/`
   (created by Bun for workspace deps) does not trip the check.
 - Permissive is the default so every intermediate commit in Parts 02–07 still
@@ -178,14 +178,14 @@ if (violations.length || rootSourceFiles.length) {
 - `bun run layout --strict` prints the drift report and exits 1.
 - `bun run check` exits 0.
 - `bun run test` exits 0.
-- Drift report includes at minimum: `products/guide/lib`, `products/map/activity`,
-  `libraries/libharness/packages`, `libraries/libharness/fixture`,
-  `libraries/libharness/mock`, `libraries/libskill/policies`,
-  `libraries/libsyntheticgen/dsl`, `libraries/libsyntheticgen/engine`,
-  `libraries/libsyntheticgen/tools`, `libraries/libsyntheticprose/engine`,
-  `libraries/libsyntheticprose/prompts`, `libraries/libsyntheticrender/render`,
-  `libraries/libui/components`, `libraries/libui/css`, and root `.js` files in
-  every library that has them.
+- Drift report includes at minimum: `products/guide/lib`,
+  `products/map/activity`, `libraries/libharness/packages`,
+  `libraries/libharness/fixture`, `libraries/libharness/mock`,
+  `libraries/libskill/policies`, `libraries/libsyntheticgen/dsl`,
+  `libraries/libsyntheticgen/engine`, `libraries/libsyntheticgen/tools`,
+  `libraries/libsyntheticprose/engine`, `libraries/libsyntheticprose/prompts`,
+  `libraries/libsyntheticrender/render`, `libraries/libui/components`,
+  `libraries/libui/css`, and root `.js` files in every library that has them.
 
 ## Risks
 
@@ -193,16 +193,16 @@ if (violations.length || rootSourceFiles.length) {
   the root, but the check forbids them. That matches the spec's rule #1. No
   change required; flagged for the implementer so an unrelated `.ts` file
   introduction is caught quickly.
-- **Permissive drift is invisible to CI.** The new `layout` job prints to
-  stderr but exits 0 during the migration. A reviewer skimming the CI status
-  page will not notice ongoing drift. Mitigation: Part 08 flips strict mode
-  on. Between Part 01 and Part 08, drift is visible locally via
-  `bun run layout` but not enforced in PRs — acceptable for the two-hour
-  planning-to-landing window of this branch.
-- **Running `node scripts/check-package-layout.js` from a subdirectory
-  breaks.** The script uses relative paths (`products/`, `libraries/`,
-  `services/`). Wire it exclusively via `bun run layout` from the monorepo
-  root. Do not invoke directly.
+- **Permissive drift is invisible to CI.** The new `layout` job prints to stderr
+  but exits 0 during the migration. A reviewer skimming the CI status page will
+  not notice ongoing drift. Mitigation: Part 08 flips strict mode on. Between
+  Part 01 and Part 08, drift is visible locally via `bun run layout` but not
+  enforced in PRs — acceptable for the two-hour planning-to-landing window of
+  this branch.
+- **Running `node scripts/check-package-layout.js` from a subdirectory breaks.**
+  The script uses relative paths (`products/`, `libraries/`, `services/`). Wire
+  it exclusively via `bun run layout` from the monorepo root. Do not invoke
+  directly.
 
 ## Deliverable commit
 

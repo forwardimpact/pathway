@@ -2,8 +2,8 @@
 
 `libharness` is the outlier in every library audit. This part fixes it end to
 end: move sources into `src/`, delete the stale `packages/` tree, update the
-package description to reflect its actual cross-monorepo role, and verify
-every call site across ~23 test files still resolves.
+package description to reflect its actual cross-monorepo role, and verify every
+call site across ~23 test files still resolves.
 
 ## Scope
 
@@ -15,8 +15,8 @@ All six items from spec 390's "Fix `libraries/libharness`" section:
    `packages/libharness/mock/config.js`).
 4. Update `package.json` description.
 5. Update `main`, `exports`, `files` fields.
-6. Verify every call site across the monorepo still resolves — import
-   specifiers are unchanged because the `exports` map absorbs the move.
+6. Verify every call site across the monorepo still resolves — import specifiers
+   are unchanged because the `exports` map absorbs the move.
 
 ## Current state
 
@@ -129,8 +129,10 @@ right-hand targets move. Every current call site continues to resolve.
 ## Files modified
 
 - `libraries/libharness/package.json` — description, main, exports, files.
-- `libraries/libharness/index.js` → `libraries/libharness/src/index.js` (via `git mv`).
-- `libraries/libharness/fixture/index.js` → `libraries/libharness/src/fixture/index.js`.
+- `libraries/libharness/index.js` → `libraries/libharness/src/index.js` (via
+  `git mv`).
+- `libraries/libharness/fixture/index.js` →
+  `libraries/libharness/src/fixture/index.js`.
 - `libraries/libharness/mock/*` → `libraries/libharness/src/mock/*`.
 
 ## Files deleted
@@ -147,80 +149,80 @@ specifiers:
 - `@forwardimpact/libharness/mock`
 - `@forwardimpact/libharness/fixture`
 
-The exports map catches all three; their targets change under the hood but
-the specifiers remain valid. The research sweep identified ~23 test files
-across services (`services/{agent,graph,llm,memory,pathway,tool,trace,vector,web}/test/`)
-and libraries (`libraries/{librpc,libutil,libvector,libindex}/test/`). None
-need changes.
+The exports map catches all three; their targets change under the hood but the
+specifiers remain valid. The research sweep identified ~23 test files across
+services
+(`services/{agent,graph,llm,memory,pathway,tool,trace,vector,web}/test/`) and
+libraries (`libraries/{librpc,libutil,libvector,libindex}/test/`). None need
+changes.
 
 ## Ordering
 
-1. Read `libraries/libharness/index.js` to confirm its imports (it
-   re-exports from `./fixture/index.js` and `./mock/index.js` — these become
-   `./fixture/index.js` and `./mock/index.js` inside `src/`, still
-   resolving).
-2. Read `libraries/libharness/mock/index.js` to confirm its internal imports
-   are relative (`./clients.js`, etc.) — these resolve unchanged after the
-   move because the whole directory moves together.
+1. Read `libraries/libharness/index.js` to confirm its imports (it re-exports
+   from `./fixture/index.js` and `./mock/index.js` — these become
+   `./fixture/index.js` and `./mock/index.js` inside `src/`, still resolving).
+2. Read `libraries/libharness/mock/index.js` to confirm its internal imports are
+   relative (`./clients.js`, etc.) — these resolve unchanged after the move
+   because the whole directory moves together.
 3. `mkdir -p libraries/libharness/src`
 4. `git mv libraries/libharness/index.js libraries/libharness/src/index.js`
 5. `git mv libraries/libharness/fixture libraries/libharness/src/fixture`
 6. `git mv libraries/libharness/mock libraries/libharness/src/mock`
 7. `git rm -r libraries/libharness/packages`
 8. Edit `libraries/libharness/package.json`:
-   - `description` → "Shared test harness and mock infrastructure for the Forward Impact monorepo"
+   - `description` → "Shared test harness and mock infrastructure for the
+     Forward Impact monorepo"
    - `main` → `"./src/index.js"`
    - `exports["."]` → `"./src/index.js"`
    - `exports["./mock"]` → `"./src/mock/index.js"`
    - `exports["./fixture"]` → `"./src/fixture/index.js"`
    - `files` → `["src/**/*.js", "README.md"]`
-9. Run `bun run node --test libraries/libharness/test/*.test.js` (if tests
-   exist in libharness itself — per the inventory there is a `test/` dir).
-10. Run `bun run test` at repo root to verify every call site still
-    resolves.
+9. Run `bun run node --test libraries/libharness/test/*.test.js` (if tests exist
+   in libharness itself — per the inventory there is a `test/` dir).
+10. Run `bun run test` at repo root to verify every call site still resolves.
 11. Run `bun run layout` — libharness should no longer report any drift.
 12. Commit.
 
 ## Verification
 
-- `libraries/libharness/packages/` does not exist (`git ls-files libraries/libharness/packages` returns nothing).
+- `libraries/libharness/packages/` does not exist
+  (`git ls-files libraries/libharness/packages` returns nothing).
 - `libraries/libharness/src/index.js`, `src/fixture/index.js`,
   `src/mock/index.js` all exist.
 - No root-level `.js` files in `libraries/libharness/`.
 - `libraries/libharness/package.json` description no longer mentions "guide".
 - Every file in `test/` across services and libraries that imports
-  `@forwardimpact/libharness` or `@forwardimpact/libharness/mock` still
-  passes its test.
+  `@forwardimpact/libharness` or `@forwardimpact/libharness/mock` still passes
+  its test.
 - `bun run test` passes.
 - `bun run layout` shows libharness conformant.
 
 ## Risks
 
-1. **The zero-byte `packages/libharness/mock/config.js` has no importers,
-   per the spec.** Verify once more with
-   `rg 'packages/libharness' .` before deleting. A single hit would reset
-   the plan — investigate and escalate before proceeding.
+1. **The zero-byte `packages/libharness/mock/config.js` has no importers, per
+   the spec.** Verify once more with `rg 'packages/libharness' .` before
+   deleting. A single hit would reset the plan — investigate and escalate before
+   proceeding.
 
-2. **Internal relative imports inside `mock/`.** Files like
-   `mock/clients.js` and `mock/index.js` likely import from each other via
-   `./clients.js`. These paths are preserved when the whole `mock/`
-   directory moves into `src/mock/`. No edits needed, but run
-   `bun run node --test libraries/libharness/test/*.test.js` to catch any
-   miss.
+2. **Internal relative imports inside `mock/`.** Files like `mock/clients.js`
+   and `mock/index.js` likely import from each other via `./clients.js`. These
+   paths are preserved when the whole `mock/` directory moves into `src/mock/`.
+   No edits needed, but run
+   `bun run node --test libraries/libharness/test/*.test.js` to catch any miss.
 
 3. **The description change is a published metadata change.** External npm
-   consumers see the new description on the next release. That is the
-   intended outcome of spec 390 success criterion #10.
+   consumers see the new description on the next release. That is the intended
+   outcome of spec 390 success criterion #10.
 
-4. **`libharness/README.md` may reference the old layout.** If a README
-   exists, read it and update any file paths it shows. Grep for
-   `./index.js` and `./mock/` in the README.
+4. **`libharness/README.md` may reference the old layout.** If a README exists,
+   read it and update any file paths it shows. Grep for `./index.js` and
+   `./mock/` in the README.
 
 5. **Stale symlinks or untracked files in `packages/`.** `git rm -r` only
    removes tracked files; untracked residue needs a separate
-   `rm -rf libraries/libharness/packages` before the commit. Use
-   `git status` to confirm the directory is gone from both the tree and the
-   index before committing.
+   `rm -rf libraries/libharness/packages` before the commit. Use `git status` to
+   confirm the directory is gone from both the tree and the index before
+   committing.
 
 ## Deliverable commit
 
