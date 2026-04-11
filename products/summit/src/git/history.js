@@ -26,6 +26,31 @@ export class GitUnavailableError extends Error {
  */
 
 /**
+ * Return the absolute path of the git repository root that contains
+ * `cwd`. Used to convert a caller-supplied path into a repo-root-relative
+ * path before shelling out to `git show <sha>:<path>`, which interprets
+ * its path argument as repo-root-relative regardless of `cwd`.
+ *
+ * @param {object} [options]
+ * @param {string} [options.cwd]
+ * @param {typeof defaultExec} [options.exec]
+ * @returns {Promise<string>}
+ */
+export async function getRepoRoot(options = {}) {
+  const exec = options.exec ?? defaultExec;
+  const cwd = options.cwd ?? process.cwd();
+  try {
+    const result = await exec("git", ["rev-parse", "--show-toplevel"], { cwd });
+    return (result.stdout ?? "").trim();
+  } catch (e) {
+    if (e.code === "ENOENT") {
+      throw new GitUnavailableError("git binary not found");
+    }
+    throw new GitUnavailableError(e.message ?? "git rev-parse failed");
+  }
+}
+
+/**
  * List commits that modified the given file, newest first.
  *
  * @param {string} filePath

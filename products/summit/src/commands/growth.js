@@ -8,10 +8,7 @@ import { resolveTeam } from "../aggregation/coverage.js";
 import { computeGrowthAlignment } from "../aggregation/growth.js";
 import { TeamNotFoundError } from "../aggregation/errors.js";
 import { EvidenceUnavailableError, loadEvidence } from "../evidence/index.js";
-import {
-  decorateRecommendationsWithOutcomes,
-  loadDriverScores,
-} from "../outcomes/index.js";
+import { loadDriverScores } from "../outcomes/index.js";
 import {
   createSummitClient,
   SupabaseUnavailableError,
@@ -58,20 +55,12 @@ export async function runGrowthCommand({ data, args, options }) {
     ? await loadScoresSafe(resolved, options)
     : undefined;
 
-  let recommendations = computeGrowthAlignment({
+  const recommendations = computeGrowthAlignment({
     team,
     mapData: data,
     evidence,
     driverScores,
   });
-
-  if (options.outcomes && driverScores) {
-    recommendations = decorateRecommendationsWithOutcomes(
-      recommendations,
-      driverScores,
-      data,
-    );
-  }
 
   if (format === Format.JSON) {
     process.stdout.write(
@@ -85,7 +74,7 @@ export async function runGrowthCommand({ data, args, options }) {
   }
   if (format === Format.MARKDOWN) {
     process.stdout.write(
-      growthToMarkdown({ teamId: resolved.id, recommendations }),
+      growthToMarkdown({ teamId: resolved.id, recommendations, audience }),
     );
     return;
   }
@@ -110,7 +99,7 @@ async function loadEvidenceSafe(resolved, options) {
     const client = options.supabase ?? createSummitClient();
     return await loadEvidence(client, {
       team: resolved,
-      lookbackMonths: Number(options.lookbackMonths ?? 12),
+      lookbackMonths: Number(options["lookback-months"] ?? 12),
     });
   } catch (e) {
     if (

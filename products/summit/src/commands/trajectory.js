@@ -16,6 +16,7 @@ import {
   computeTrajectory,
 } from "../aggregation/trajectory.js";
 import {
+  getRepoRoot,
   GitUnavailableError,
   listCommits,
   showFileAt,
@@ -56,11 +57,25 @@ export async function runTrajectoryCommand({ data, args, options }) {
   const quarters = Math.max(1, Number(options.quarters ?? 4));
   const absolute = resolve(options.roster);
   const cwd = dirname(absolute);
-  const relativePath = relative(cwd, absolute);
+
+  let repoRoot;
+  try {
+    repoRoot = await getRepoRoot({ cwd });
+  } catch (e) {
+    if (e instanceof GitUnavailableError) {
+      process.stdout.write(`  ${e.message}\n  Showing current-state only.\n`);
+      return;
+    }
+    throw e;
+  }
+
+  // `git show <sha>:<path>` interprets <path> as repo-root-relative,
+  // so compute the path from the repo root, not from the roster's dir.
+  const relativePath = relative(repoRoot, absolute);
 
   let commits;
   try {
-    commits = await listCommits(relativePath, { cwd });
+    commits = await listCommits(relativePath, { cwd: repoRoot });
   } catch (e) {
     if (e instanceof GitUnavailableError) {
       process.stdout.write(`  ${e.message}\n  Showing current-state only.\n`);
@@ -80,7 +95,7 @@ export async function runTrajectoryCommand({ data, args, options }) {
   const historicalRosters = await loadHistoricalRosters(
     buckets,
     relativePath,
-    cwd,
+    repoRoot,
   );
 
   const trajectory = computeTrajectory({

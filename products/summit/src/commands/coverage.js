@@ -89,7 +89,7 @@ async function decorateWithEvidence(coverage, resolved, options) {
     const client = options.supabase ?? createSummitClient();
     const evidence = await loadEvidence(client, {
       team: resolved,
-      lookbackMonths: Number(options.lookbackMonths ?? 12),
+      lookbackMonths: Number(options["lookback-months"] ?? 12),
     });
     return decorateCoverageWithEvidence(coverage, evidence);
   } catch (e) {

@@ -38,7 +38,7 @@ export class GrowthContractError extends Error {
 
 /**
  * @typedef {object} GrowthRecommendation
- * @property {string} skillId
+ * @property {string} skill - skill id (stable contract name per spec.md:583)
  * @property {"critical"|"spof-reduction"|"coverage-strengthening"} impact
  * @property {GrowthCandidate[]} candidates
  * @property {object|null} driverContext
@@ -89,6 +89,7 @@ export function computeGrowthAlignment({
     risks.singlePointsOfFailure.map((s) => s.skillId),
   );
   const personLookup = buildPersonLookup(personMatrices);
+  const driverLookup = buildDriverLookup(mapData, driverScores);
 
   const recommendations = [];
   for (const skill of mapData.skills ?? []) {
@@ -100,22 +101,12 @@ export function computeGrowthAlignment({
       personMatrices,
       personLookup,
       evidence,
+      driverLookup,
     });
     if (rec) recommendations.push(rec);
   }
 
   recommendations.sort(compareRecommendations);
-
-  // driverScores consumption is Part 07's responsibility. In Part 05
-  // we emit `driverContext: null` for every recommendation so Landmark
-  // can rely on the field existing regardless of version.
-  for (const rec of recommendations) {
-    rec.driverContext = null;
-  }
-
-  // driverScores param is here for Part 07 consumption. Reference it
-  // so linters don't complain about an unused parameter.
-  void driverScores;
   return recommendations;
 }
 
@@ -154,6 +145,7 @@ function buildRecommendation({
   personMatrices,
   personLookup,
   evidence,
+  driverLookup,
 }) {
   const skillCoverage = coverage.skills.get(skill.id);
   if (!skillCoverage) return null;
@@ -177,7 +169,46 @@ function buildRecommendation({
     return null;
   }
 
-  return { skillId: skill.id, impact, candidates };
+  return {
+    skill: skill.id,
+    impact,
+    candidates,
+    driverContext: driverLookup.get(skill.id) ?? null,
+  };
+}
+
+/**
+ * Build a skillId → worst driver context lookup. Each skill can
+ * contribute to multiple drivers (via `data.drivers[].contributingSkills`);
+ * the lookup carries the worst (lowest percentile) score.
+ *
+ * @param {object} data
+ * @param {Map<string, object>} [driverScores]
+ * @returns {Map<string, object>}
+ */
+function buildDriverLookup(data, driverScores) {
+  const lookup = new Map();
+  if (
+    !driverScores ||
+    !(driverScores instanceof Map) ||
+    driverScores.size === 0
+  ) {
+    return lookup;
+  }
+  for (const driver of data.drivers ?? []) {
+    const score = driverScores.get(driver.id);
+    if (!score) continue;
+    for (const skillId of driver.contributingSkills ?? []) {
+      const existing = lookup.get(skillId);
+      if (
+        !existing ||
+        (score.percentile ?? 100) < (existing.percentile ?? 100)
+      ) {
+        lookup.set(skillId, { driverId: driver.id, ...score });
+      }
+    }
+  }
+  return lookup;
 }
 
 function classifyImpact(
@@ -256,5 +287,13 @@ const IMPACT_RANK = {
 function compareRecommendations(a, b) {
   const rankDiff = IMPACT_RANK[a.impact] - IMPACT_RANK[b.impact];
   if (rankDiff !== 0) return rankDiff;
-  return a.skillId.localeCompare(b.skillId);
+  // Within a tier, prefer skills with the worst driver percentile.
+  // Spec.md:451 — a gap aligned with a poorly-scoring GetDX driver
+  // gets boosted within its impact tier.
+  const aPct = a.driverContext?.percentile ?? null;
+  const bPct = b.driverContext?.percentile ?? null;
+  if (aPct !== null && bPct !== null && aPct !== bPct) return aPct - bPct;
+  if (aPct !== null && bPct === null) return -1;
+  if (bPct !== null && aPct === null) return 1;
+  return a.skill.localeCompare(b.skill);
 }

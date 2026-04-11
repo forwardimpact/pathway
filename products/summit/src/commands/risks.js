@@ -66,7 +66,9 @@ export async function runRisksCommand({ data, args, options }) {
     return;
   }
   if (format === Format.MARKDOWN) {
-    process.stdout.write(risksToMarkdown({ coverage: filtered, risks }));
+    process.stdout.write(
+      risksToMarkdown({ coverage: filtered, risks, audience }),
+    );
     return;
   }
   process.stdout.write(
@@ -101,7 +103,7 @@ async function loadEvidenceSafe(resolved, options) {
     const client = options.supabase ?? createSummitClient();
     return await loadEvidence(client, {
       team: resolved,
-      lookbackMonths: Number(options.lookbackMonths ?? 12),
+      lookbackMonths: Number(options["lookback-months"] ?? 12),
     });
   } catch (e) {
     if (

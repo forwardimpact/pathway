@@ -16,7 +16,7 @@ export function growthToJson({ teamId, recommendations, audience }) {
   return {
     team: teamId,
     recommendations: recommendations.map((rec) => ({
-      skillId: rec.skillId,
+      skill: rec.skill,
       impact: rec.impact,
       driverContext: rec.driverContext ?? null,
       candidates: rec.candidates.map((c) =>

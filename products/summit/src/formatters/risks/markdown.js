@@ -2,23 +2,30 @@
  * Minimal markdown formatter for the `risks` command.
  */
 
+import { Audience } from "../../lib/audience.js";
+
 /**
  * @param {object} params
  * @param {import("../../aggregation/coverage.js").TeamCoverage} params.coverage
  * @param {import("../../aggregation/risks.js").TeamRisks} params.risks
+ * @param {string} [params.audience]
  * @returns {string}
  */
-export function risksToMarkdown({ coverage, risks }) {
+export function risksToMarkdown({ coverage, risks, audience }) {
   const lines = [];
   lines.push(`# ${coverage.teamId} structural risks`);
   lines.push("");
+
+  const director = audience === Audience.DIRECTOR;
 
   lines.push("## Single points of failure");
   if (risks.singlePointsOfFailure.length === 0) {
     lines.push("- (none detected)");
   } else {
     for (const spof of risks.singlePointsOfFailure) {
-      const holder = spof.holder.name ?? spof.holder.email ?? "one engineer";
+      const holder = director
+        ? "one engineer"
+        : (spof.holder.name ?? spof.holder.email ?? "one engineer");
       lines.push(`- **${spof.skillId}** — ${holder} (${spof.severity})`);
     }
   }
