@@ -32,13 +32,16 @@ queries, its evidence-based views).
    Shared helpers (`resolveDataDir`, `loadMapData`, `resolveFormat`,
    `createLandmarkClient`) live in `src/lib/`.
 
-2. **Summit is a hard dependency, not optional.** Spec 090 is `done` and
-   `@forwardimpact/summit` already exports `computeGrowthAlignment` from the
-   package root. Landmark lists Summit in its `dependencies` and imports it
-   directly. The spec's "Summit not installed" empty-state remains relevant
-   only for hypothetical external users who strip Summit from their install —
-   handled via a dynamic `import()` guarded by a try/catch in the health
-   command, with the catch path rendering the graceful-degraded output.
+2. **Summit is a declared dependency with optional runtime.** Spec 090 is
+   `done` and `@forwardimpact/summit` already exports `computeGrowthAlignment`
+   from the package root (synchronous function). Landmark lists Summit in its
+   `dependencies` so contributors and default npm installs always have it.
+   The spec still specifies a graceful-degrade path when Summit is missing,
+   so Landmark loads Summit through a dynamic `import()` wrapper and falls
+   back to a no-recommendations view if the module is absent. This resolves
+   the tension between "hard dep in the manifest" and "optional at runtime":
+   the manifest is truthful, the wrapper makes the spec's empty-state
+   enforceable in tests, and real users always get recommendations.
 
 3. **Supabase client is created lazily per command.** Commands that need
    activity data call `createLandmarkClient()` from `src/lib/supabase.js` (a
@@ -73,32 +76,38 @@ queries, its evidence-based views).
 ### Dependency graph
 
 ```
-┌──────────────────────────────┐
-│ Part 01 — Scaffolding +      │   foundation
-│  org, snapshot, marker       │
-└──────┬───────────────────────┘
-       │
-       ├──→ Part 02 — Evidence views + starter markers
-       │        (evidence, readiness, timeline, coverage, practiced)
-       │
-       ├──→ Part 03 — Health view + drivers expansion
-       │        (depends on Part 02 for evidence query wiring)
-       │
-       ├──→ Part 04 — Map snapshot comments + voice
-       │        (independent of Parts 02/03 on the Map side; the voice
-       │         command reuses Part 01's CLI plumbing only)
-       │
-       ├──→ Part 05 — Map initiatives + initiative commands
-       │        (independent of Part 04)
-       │
-       └──→ Part 06 — Documentation + published skill
-                (depends on Parts 01-05 being merged)
+Part 01 ─────────────┬──→ Part 02 ──→ Part 03 ──┬──→ Part 04 ──┐
+(scaffolding)        │   (evidence    (health)  │   (comments  │
+                     │    helpers)              │    + voice)  │
+                     │                          │              ├──→ Part 06
+                     └──→ Part 05 ──────────────┘              │    (docs)
+                         (initiatives)                         │
+                                                               │
+                         Part 05 also joins  ─────────────────┘
+                         before Part 06
 ```
 
-Parts 02 and 03 are strictly sequential (Part 03's `health` view reuses
-evidence query helpers written in Part 02). Parts 04 and 05 are independent
-of each other and of Parts 02/03 — they can run in parallel after Part 01
-lands. Part 06 is the last step.
+True DAG:
+
+- **Part 01** is the strict prerequisite for everything.
+- **Part 02** depends on Part 01. It introduces `evidence-helpers.js` which
+  Parts 03 and 04 reuse.
+- **Part 03** depends on Part 02 (evidence helpers) and creates
+  `src/commands/health.js`. Both Parts 04 and 05 later mutate this file.
+- **Part 04** depends on Part 03. It adds the comments pipeline, ships
+  `voice`, and adds a **comments section** to `health.js` and
+  `formatters/health.js` via a clearly-named hook point (`// <comments
+  section>` comment anchor) documented in Part 03.
+- **Part 05** depends on Part 03. It adds the initiatives pipeline, ships
+  `initiative list|show|impact`, and adds an **initiatives section** to
+  `health.js` and `formatters/health.js` via a separate hook point (`//
+  <initiatives section>`). Part 05 is required (not polish) because spec
+  § Initiative tracking mandates the health-view integration.
+- **Parts 04 and 05 can run in parallel** after Part 03 lands, because they
+  touch disjoint sections of the same files. Part 03 pre-places the two
+  hook-point comments so the two sequential edits are non-overlapping.
+  Part 06 waits for both.
+- **Part 06** depends on Parts 01–05. Documentation only.
 
 ### Blast radius
 
@@ -139,16 +148,20 @@ Part 06 touches `website/`, `.claude/skills/`, and root docs.
 Route every part to **`staff-engineer`** except Part 06, which goes to
 **`technical-writer`**. Plan execution is:
 
-1. **Part 01** runs first in isolation. It creates the package and lands
-   nothing else. Merge before starting any other part.
-2. After Part 01 merges, launch **Parts 02, 04, and 05 in parallel** as three
-   concurrent staff-engineer sub-agents. They touch disjoint files (Part 02
-   only inside `products/landmark/` + starter markers; Parts 04/05 touch Map's
-   Supabase layer and the Landmark command files they own).
-3. **Part 03** waits for Part 02 to merge (it reuses Part 02's evidence
-   helper). Launch after Part 02 lands.
-4. **Part 06** runs after all code parts are merged — it needs the final
-   command surface to write accurate documentation.
+1. **Part 01** runs first in isolation (staff-engineer). Merge before
+   starting any other part.
+2. **Part 02** runs after Part 01 merges (staff-engineer). Its
+   `evidence-helpers.js` is reused by Parts 03 and 04 so it must land first.
+3. **Part 03** runs after Part 02 merges (staff-engineer). Part 03 creates
+   `src/commands/health.js` and pre-places two anchor comments
+   (`// <comments section>`, `// <initiatives section>`) so Parts 04 and 05
+   can edit disjoint regions of the file without merge conflicts.
+4. **Parts 04 and 05 run in parallel** (two concurrent staff-engineer
+   sub-agents) after Part 03 merges. They touch disjoint sections of
+   `health.js`/`formatters/health.js`, disjoint query modules in Map, and
+   disjoint command files. The anchor-comment contract is mandatory.
+5. **Part 06** runs after Parts 04 and 05 both merge (technical-writer). It
+   needs the final command surface to write accurate documentation.
 
 Each part includes its own verification steps (tests, CI, smoke test). Do not
 chain parts past a failing verification.

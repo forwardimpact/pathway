@@ -110,9 +110,7 @@ later parts will extend this list.
   },
   "files": ["bin/", "src/"],
   "exports": {
-    ".": "./src/index.js",
-    "./formatters": "./src/formatters/index.js",
-    "./commands": "./src/commands/index.js"
+    ".": "./src/index.js"
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
@@ -154,9 +152,11 @@ The `createCli` definition lists the full spec-080 command set from the
 beginning (so `fit-landmark --help` prints the correct usage even though
 Parts 02–05 are not yet implemented). Unimplemented commands in Part 01
 dispatch to a shared `runNotYetImplementedCommand` stub that prints
-"`<command>` lands in spec 080 Part <NN>" and exits with code 2. This keeps
-`fit-landmark --help` honest and gives downstream parts a fixed insertion
-point.
+"`<command>` lands in spec 080 Part <NN>" and exits with code **64**
+(`EX_USAGE`-adjacent — clearly distinct from libcli's code 2 "usage error"
+so shell automation can tell "unknown command" apart from "command not yet
+implemented"). This keeps `fit-landmark --help` honest and gives downstream
+parts a fixed insertion point.
 
 Global options (shared with Summit's pattern):
 
@@ -196,6 +196,13 @@ sync going forward; if either diverges, the divergence must be justified.
 Rationale: duplicating Summit's helper avoids cross-product coupling from a
 shared library change while both products' needs are still evolving. A future
 refactor can extract this into `libmap-cli` if a third consumer appears.
+
+**Data directory subpath:** Summit's `resolveDataDir` hard-codes the
+`"pathway"` subdirectory under the contributor data finder root (`join(finder
+.findData("data", homedir()), "pathway")`). This is intentional — Pathway,
+Summit, and Landmark all read the same Map data directory, which lives under
+`data/pathway/` for historical reasons. Landmark copies the literal
+`"pathway"` verbatim; do not rename.
 
 ### `products/landmark/src/lib/supabase.js`
 
@@ -280,10 +287,12 @@ Dispatches `list`, `show`, `trend`, `compare`:
   `MANAGER_NOT_FOUND`.
 - `trend` → requires `--item <id>`. Calls `getItemTrend(supabase, itemId,
   { managerEmail })`. Empty → `EMPTY_STATES.NO_SNAPSHOTS`.
-- `compare` → requires `--snapshot <id>`. Calls `getSnapshotComparison(...)`;
-  note spec says this reuses `getSnapshotScores`, so the command simply calls
-  that. Columns shown in text/markdown formatters use `vs_prev`, `vs_org`,
-  `vs_50th`, `vs_75th`, `vs_90th`.
+- `compare` → requires `--snapshot <id>`. Calls **`getSnapshotComparison`**
+  directly from `@forwardimpact/map/activity/queries/snapshots` — the module
+  already exports it as its own function (internal implementation may wrap
+  `getSnapshotScores`, but Landmark must depend on the public contract).
+  Columns in text/markdown formatters use `vs_prev`, `vs_org`, `vs_50th`,
+  `vs_75th`, `vs_90th`.
 
 Cross-reference unknown `item_id` values against `mapData.drivers` to collect
 warnings: any score row whose `item_id` has no matching driver adds a warning
@@ -366,17 +375,21 @@ After all files are written and tests pass locally:
 
 1. `cd products/landmark && bun install` — confirms workspace graph is
    correct.
-2. `bun run check` at the repo root — runs lint, format, layout
-   (`scripts/check-package-layout.js` asserts `src/`-rooted layout), and
-   exports check.
-3. `bun test products/landmark/test` — runs Part 01 tests in isolation.
-4. Smoke test: `bunx fit-landmark --help` prints the full command set with
+2. `bun run layout` at the repo root — asserts Landmark's `src/`-rooted
+   package layout passes `scripts/check-package-layout.js`.
+3. `bun run check:exports` at the repo root — asserts every published
+   `main`, `bin`, `exports` target resolves to a real file
+   (`scripts/check-exports-resolve.js`). This catches invented exports
+   entries before they reach CI.
+4. `bun run check` at the repo root — full lint/format/layout/exports.
+5. `bun test products/landmark/test` — runs Part 01 tests in isolation.
+6. Smoke test: `bunx fit-landmark --help` prints the full command set with
    Part 01 commands implemented and Parts 02–05 listed (dispatching to the
-   "not yet implemented" stub).
-5. `bunx fit-landmark marker task_completion` against the starter data
+   "not yet implemented" stub, exit code 64).
+7. `bunx fit-landmark marker task_completion` against the starter data
    returns the "No markers defined" empty state, proving the command hits the
    spec-documented empty path.
-6. With a running `just activity` Supabase, `bunx fit-landmark org show`
+8. With a running `just activity` Supabase, `bunx fit-landmark org show`
    returns the seeded `organization_people` rows.
 
 ## Deliverable
