@@ -1,16 +1,22 @@
 # Plan A · Part 05 — Initiatives pipeline + initiative commands
 
 Parent plan: [plan-a.md](./plan-a.md). Spec: [spec.md](./spec.md). Depends on
-[Part 01](./plan-a-01.md). Independent of Parts 02, 03, 04.
+[Part 03](./plan-a-03.md) being merged (extends `health.js` via the
+pre-placed `<initiatives section>` anchors). Runs in parallel with Part 04,
+which edits the disjoint `<comments section>` anchors.
 
 This part adds the `activity.getdx_initiatives` table, extends Map's GetDX
 extract/transform pipeline to populate it from the GetDX Initiatives API,
-exports a new query module, and ships `fit-landmark initiative list|show|impact`.
+exports a new query module, ships `fit-landmark initiative list|show|impact`,
+and extends Part 03's health view with an active-initiatives section per
+driver (spec § Initiative tracking explicitly requires this — it is **not**
+polish).
 
-Structurally identical to Part 04 but for the initiatives table. The impact
+Structurally similar to Part 04 but for the initiatives table. The impact
 command is the novel piece: it joins initiative completion dates against
 `getdx_snapshot_team_scores` across before/after snapshots to compute
-percentile deltas.
+percentile deltas. The cross-snapshot join lives in Landmark, not Map —
+see § Design decision below.
 
 ## Scope
 
@@ -29,13 +35,30 @@ percentile deltas.
 
 **Out of scope**
 
-- Extending the health view to show active initiatives inline — the spec
-  mentions this (§ Initiative tracking) but it's a small additive formatter
-  change that can follow in Part 06 as a polish, or in a separate small PR.
-  Keeping it out of this part reduces the diff size and keeps the initiative
-  command self-contained.
 - Any write path to initiatives (Landmark is read-only).
 - Driver linking UI changes beyond what the schema requires.
+
+### Design decision — impact join lives in Landmark, not Map
+
+The cross-snapshot join logic (pick the snapshot before an initiative's
+`completed_at`, pick the one after, compute the delta) is **analytical
+computation**, not a raw query. Map's existing query modules in
+`products/map/src/activity/queries/` are thin `SELECT` wrappers — none of
+them implement multi-row analysis. Putting the join there would break that
+convention and force Landmark's domain logic into Map's surface area.
+
+Instead:
+
+- Map exports raw queries only: `listInitiatives`, `getInitiative`, plus the
+  existing `listSnapshots` and `getSnapshotScores`.
+- Landmark owns the analytical join in a new helper:
+  `products/landmark/src/lib/initiative-helpers.js`, exporting
+  `computeInitiativeImpact({ completed, snapshots, scoresBySnapshot })`
+  as a pure function operating on already-fetched rows. The function is
+  unit-testable with in-memory fixtures; no Supabase contact.
+- `runImpact` in `src/commands/initiative.js` performs the fetches
+  (completed initiatives, all snapshots, scores per relevant snapshot) and
+  passes the result arrays into `computeInitiativeImpact`.
 
 ## Files
 
@@ -52,6 +75,9 @@ products/map/test/activity/
   transform-getdx-initiatives.test.js
   query-initiatives.test.js
 
+products/landmark/src/lib/
+  initiative-helpers.js
+
 products/landmark/src/commands/
   initiative.js
 
@@ -60,6 +86,7 @@ products/landmark/src/formatters/
 
 products/landmark/test/
   initiative.test.js
+  initiative-helpers.test.js
 ```
 
 ### Modified
@@ -75,6 +102,14 @@ products/landmark/test/
 - `products/landmark/bin/fit-landmark.js` — wire `runInitiativeCommand`.
 - `products/landmark/src/formatters/index.js` — register initiative
   formatter.
+- `products/landmark/src/commands/health.js` — add initiatives fetch **only
+  between the `<initiatives section>` anchors** placed by Part 03. Do not
+  touch the `<comments section>` region (that is Part 04's territory).
+- `products/landmark/src/formatters/health.js` — render per-driver active
+  initiatives between the matching `<initiatives section>` anchors.
+- `products/landmark/test/health.test.js` — extend with assertions that
+  initiatives render per driver when present, and that missing initiatives
+  table records a warning without failing the command.
 
 ## Implementation details
 
@@ -171,10 +206,38 @@ pipeline treats the payload as opaque JSON.
    - `completed_at` from the payload if present, else computed as
      `passed_checks === total_checks && total_checks > 0 ? now() : null`.
    - `raw` = the entire payload entry.
-4. Upsert on `id`.
+4. Upsert on `id` with a **completion-preserving merge**: if the row
+   already exists and the old `completed_at` is non-null, keep the old
+   value. Use:
+
+   ```sql
+   on conflict (id) do update set
+     name = excluded.name,
+     description = excluded.description,
+     scorecard_id = excluded.scorecard_id,
+     owner_email = excluded.owner_email,
+     due_date = excluded.due_date,
+     priority = excluded.priority,
+     passed_checks = excluded.passed_checks,
+     total_checks = excluded.total_checks,
+     completion_pct = excluded.completion_pct,
+     tags = excluded.tags,
+     completed_at = coalesce(getdx_initiatives.completed_at, excluded.completed_at),
+     raw = excluded.raw,
+     inserted_at = now()
+   ```
+
+   This makes the transform idempotent: replaying the same extract cannot
+   shift `completed_at` forward, so the before/after snapshot selection in
+   impact computation stays deterministic.
 5. Return `{ initiatives: <count>, errors: [...] }`.
 
-### Query module
+### Query module (thin SELECT wrappers only)
+
+Map's query module exports **two** functions —
+`listInitiatives` and `getInitiative` — that stay in line with the existing
+Map query convention (thin `SELECT` wrappers, no cross-row analysis). The
+impact computation lives in Landmark (see § Design decision above).
 
 ```js
 export async function listInitiatives(supabase, options = {}) {
@@ -210,49 +273,66 @@ export async function getInitiative(supabase, id) {
   return data;
 }
 
-// Core impact computation: for each initiative, find the snapshot
-// immediately before completion and the snapshot immediately after, then
-// return the score delta on the linked scorecard driver.
-export async function getInitiativeImpact(supabase, options = {}) {
-  const completed = await listInitiatives(supabase, {
-    ...options,
-    status: "completed",
-  });
-  const snapshots = await listSnapshots(supabase);
-  // For each completed initiative, find the latest snapshot with
-  // scheduled_for <= completed_at (= "before") and the earliest snapshot
-  // with scheduled_for > completed_at (= "after").
+```
+
+### Landmark helper: `initiative-helpers.js`
+
+Pure function operating on already-fetched rows. No Supabase inside.
+
+```js
+/**
+ * @param {object} params
+ * @param {Array<object>} params.completed - Completed initiatives.
+ * @param {Array<object>} params.snapshots - All snapshots (ordered DESC).
+ * @param {Map<string, Map<string, number>>} params.scoresBySnapshot -
+ *   snapshotId → (scorecardId → score).
+ * @returns {Array<{initiative, before, after, delta}>}
+ */
+export function computeInitiativeImpact({ completed, snapshots, scoresBySnapshot }) {
+  const sorted = [...snapshots].sort((a, b) =>
+    a.scheduled_for.localeCompare(b.scheduled_for),
+  );
   const results = [];
   for (const init of completed) {
-    const before = [...snapshots]
-      .filter((s) => s.scheduled_for <= init.completed_at)
-      .sort((a, b) => b.scheduled_for.localeCompare(a.scheduled_for))[0];
-    const after = snapshots
-      .filter((s) => s.scheduled_for > init.completed_at)
-      .sort((a, b) => a.scheduled_for.localeCompare(b.scheduled_for))[0];
-    if (!before || !after || !init.scorecard_id) {
+    if (!init.scorecard_id || !init.completed_at) {
       results.push({ initiative: init, before: null, after: null, delta: null });
       continue;
     }
-    const beforeScore = await getScoreForItem(supabase, before.snapshot_id, init.scorecard_id);
-    const afterScore = await getScoreForItem(supabase, after.snapshot_id, init.scorecard_id);
+    // Latest snapshot before completion.
+    let before = null;
+    for (const s of sorted) {
+      if (s.scheduled_for <= init.completed_at) before = s;
+      else break;
+    }
+    // Earliest snapshot after completion.
+    const after = sorted.find((s) => s.scheduled_for > init.completed_at) ?? null;
+    if (!before || !after) {
+      results.push({ initiative: init, before: null, after: null, delta: null });
+      continue;
+    }
+    const beforeScore = scoresBySnapshot.get(before.snapshot_id)?.get(init.scorecard_id) ?? null;
+    const afterScore = scoresBySnapshot.get(after.snapshot_id)?.get(init.scorecard_id) ?? null;
     results.push({
       initiative: init,
       before: beforeScore,
       after: afterScore,
-      delta: beforeScore && afterScore ? afterScore - beforeScore : null,
+      delta:
+        beforeScore != null && afterScore != null ? afterScore - beforeScore : null,
     });
   }
   return results;
 }
 ```
 
-`getScoreForItem` is a small private helper inside the same module that
-queries `getdx_snapshot_team_scores`. It accepts an optional `managerEmail`
-to scope to a team when needed.
+`runImpact` in the initiative command is responsible for fetching:
 
-Note: `listSnapshots` comes from `@forwardimpact/map/activity/queries/snapshots`
-— keep the cross-module import.
+1. `listInitiatives(supabase, { ...filter, status: "completed" })`
+2. `listSnapshots(supabase)`
+3. For each unique `(snapshot_id, scorecard_id)` pair referenced by the
+   completed initiatives, `getSnapshotScores(supabase, snapshot_id, {
+   managerEmail })` once and index the result by `item_id` into
+   `scoresBySnapshot`.
+4. Call `computeInitiativeImpact({ completed, snapshots, scoresBySnapshot })`.
 
 ### Landmark: `initiative` command
 
@@ -276,9 +356,10 @@ export async function runInitiativeCommand({ args, options, supabase, mapData, f
   Empty → `NO_INITIATIVES`. Table-missing error → same empty state.
 - `show` → requires `--id`. `getInitiative(supabase, options.id)`. Null →
   `"No initiative found with id ${id}."` empty state.
-- `impact` → `getInitiativeImpact(supabase, { managerEmail: options.manager })`.
-  Renders per the spec's mocked output (§ Initiative impact, lines 510–541).
-  Initiatives with null `scorecard_id` render the "no driver linked" note.
+- `impact` → orchestrates fetches (see § Landmark helper) and calls
+  `computeInitiativeImpact`. Renders per the spec's mocked output
+  (§ Initiative impact, lines 510–541). Initiatives with null
+  `scorecard_id` render the "no driver linked" note.
 
 Catch `42P01` errors on the initiatives query and return `NO_INITIATIVES`,
 matching Part 04's pattern for `NO_COMMENTS`.
@@ -290,6 +371,47 @@ exactly: initiative name, target driver id, before/after percentile, delta,
 and any engineer voice quote (deferred — engineer voice is Part 04's
 concern; initiatives formatter only renders voice if the view object has a
 `voice` field, which Part 06 polish can add later).
+
+### Health view integration — active initiatives per driver
+
+Edit **only** between the `// <initiatives section>` anchors Part 03
+placed in `src/commands/health.js` and `src/formatters/health.js`. Do not
+touch the `<comments section>` region (Part 04's territory).
+
+In `src/commands/health.js`, between the `<initiatives section>` anchors:
+
+```js
+// <initiatives section> — Part 05
+let activeInitiatives = [];
+try {
+  activeInitiatives = await listInitiatives(supabase, {
+    managerEmail: options.manager,
+    status: "active",
+  });
+} catch (err) {
+  if (isRelationNotFoundError(err)) {
+    activeInitiatives = [];
+    meta.warnings.push("Active initiatives unavailable — table not present.");
+  } else {
+    throw err;
+  }
+}
+// Attach to each driver by scorecard_id match.
+for (const driver of view.drivers) {
+  driver.initiatives = activeInitiatives.filter(
+    (i) => i.scorecard_id === driver.id,
+  );
+}
+// </initiatives section>
+```
+
+`isRelationNotFoundError` was added to `src/lib/supabase.js` by Part 04; if
+this part lands before Part 04 (tie-break), add it here instead. Parts 04
+and 05 must coordinate: whichever lands first adds the helper, the second
+asserts it already exists.
+
+In `src/formatters/health.js`, between the matching anchors, render up to
+3 active initiatives per driver as one line each (name + completion_pct).
 
 ## Tests
 
@@ -307,6 +429,18 @@ concern; initiatives formatter only renders voice if the view object has a
     delta), a completed initiative without alignment (null delta), and an
     in-progress initiative (skipped in impact view).
   - `NO_INITIATIVES` empty state for the three subcommands.
+- `initiative-helpers.test.js`:
+  - Happy path: completed initiative between two snapshots produces a
+    non-null delta.
+  - Edge: no snapshots before completion → null before/after.
+  - Edge: no snapshots after completion → null after/delta.
+  - Edge: `scorecard_id` null → null delta.
+  - Edge: score missing in one of the snapshots → null delta.
+  - Idempotency: identical input yields identical output regardless of
+    snapshot array input order (the helper sorts internally).
+- `health.test.js` — extended with:
+  - Active initiatives render per driver when the fetch returns rows.
+  - Missing initiatives table records the warning, does not fail.
 
 ## Verification
 
@@ -314,8 +448,15 @@ concern; initiatives formatter only renders voice if the view object has a
 2. `fit-map getdx sync` — new extract stores initiatives document.
 3. `fit-map activity transform` — new transform step populates the table.
 4. `bun test products/map/test/activity` — new tests green.
-5. `bun test products/landmark/test` — new tests green.
-6. `bun run check` — lint, format, layout, exports.
+5. `bun test products/landmark/test` — new tests green (including the
+   extended `health.test.js`).
+6. `bun run layout && bun run check:exports && bun run check` — layout,
+   exports (confirms `./activity/queries/initiatives` subpath is wired),
+   and lint/format all green.
+7. Grep confirms only `<initiatives section>` anchors were edited in
+   `health.js` and `formatters/health.js` — the `<comments section>`
+   region remains untouched. Any edit outside the initiatives anchors is
+   a contract violation and must be reverted.
 7. Smoke tests:
    - `bunx fit-landmark initiative list --manager alice@example.com`
    - `bunx fit-landmark initiative show --id <id>`

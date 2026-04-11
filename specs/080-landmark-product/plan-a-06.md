@@ -99,12 +99,20 @@ New page covering:
 - Data contracts with Map: which queries Landmark consumes, and the
   subpath import paths.
 - The Summit import pattern (`src/lib/summit.js`) and the graceful-degrade
-  rationale.
-- The `item_id ↔ driver.id` join contract — call this out as the single
-  most important framework authoring constraint.
+  rationale, including the `GrowthContractError` warning path.
+- The `item_id ↔ driver.id` (and `scorecard_id ↔ driver.id` for initiatives)
+  join contract — call this out as the single most important framework
+  authoring constraint.
 - The comment and initiative pipelines (ELT flow).
-- Testing strategy: stub query pattern, fixture conventions.
+- Testing strategy: stub query pattern, fixture conventions, anchor-comment
+  contract for cross-part edits to `health.js` and `formatters/health.js`.
 - Audience model enforcement — which commands apply which privacy rules.
+- **Behaviour rendering — explicit non-goal.** Drivers may declare
+  `contributingBehaviours`, but Landmark does not render behaviour evidence
+  in the health view for spec 080. Rationale: behaviours are maturity
+  profiles (derived from discipline + level + track), not artifact-level
+  markers, and the spec's § Health view mock-up shows skills only. Track as
+  a follow-up if a user asks.
 
 This page uses internal contributor conventions — `bun`, `bunx`, `just` —
 because it lives under `website/docs/internals/`.
@@ -189,24 +197,24 @@ complete.
 
 ## Optional polish (can split into separate small PRs)
 
-These are small additive changes that did not justify their own part file
-but close the spec's last gaps. Each can be landed standalone or bundled
-into this part:
+These small additive changes close the spec's last cosmetic gaps. Each can
+be landed standalone or bundled into this part. Unlike earlier plan
+revisions, the **"health shows active initiatives"** feature is no longer
+optional — it lives in Part 05 because spec § Initiative tracking
+mandates it.
 
-- **Health view shows active initiatives.** Extend
-  `src/commands/health.js` to also fetch `listInitiatives(supabase, {
-  managerEmail, status: "active" })` and render a one-line-per-initiative
-  block under each driver. Conditional on the initiatives table existing
-  (catch `42P01` → render without).
 - **Initiative impact shows engineer voice.** Extend
   `src/commands/initiative.js` `runImpact` to fetch two representative
   comments for the "after" snapshot in the affected driver and render them
-  under the impact line (matching the spec's mock-up).
+  under the impact line (matching the spec's mock-up). Small diff; routed
+  to `staff-engineer` as a Part 06 sub-task.
 - **`fit-landmark --help` examples.** Expand the `examples:` array in
   `bin/fit-landmark.js` with one realistic invocation per command group.
 
 Each polish item has a corresponding test addition in the relevant
-`.test.js` file.
+`.test.js` file. Route these two items to `staff-engineer` separately from
+the main documentation pass, since they are code not docs. Part 06's
+primary routing is `technical-writer` for everything else in this file.
 
 ## Verification
 

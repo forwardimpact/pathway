@@ -90,15 +90,36 @@ Exact content to add (adjust skill ids to match whatever Part 02 authored):
   description: Keep systems dependable and recover quickly from disruption.
   contributingSkills:
     - incident_response   # or whatever skill Part 02 added markers to
-  contributingBehaviours: []
+  contributingBehaviours:
+    - systems_thinking
 
 - id: cognitive_load
   name: Cognitive Load
   description: Keep day-to-day engineering tractable by managing complexity.
   contributingSkills:
     - planning
-  contributingBehaviours: []
+  contributingBehaviours:
+    - systems_thinking
 ```
+
+**Behaviours in health view — scope decision.** The existing `quality`
+driver already declares `contributingBehaviours: [systems_thinking]`. The
+spec's § Health view output example shows only contributing **skills** and
+their evidence counts, not behaviours. Behaviour evidence does not flow
+through the evidence pipeline the same way (behaviours are maturity
+profiles, not artifact-interpreted markers).
+
+**Decision:** Part 03 preserves the `contributingBehaviours` field on all
+three drivers (consistency with `quality`), but the `health` command
+**does not render behaviours**. This matches the spec's mock-up exactly.
+Behaviour rendering is explicitly **out of scope** for spec 080 and should
+be tracked as a follow-up if a user asks for it. The spec's § Out of scope
+does not list this, so note it in Part 06's internals documentation.
+
+Rationale for preserving the field: dropping `contributingBehaviours` from
+the new drivers would create schema-level asymmetry with `quality` and
+suggest behaviours are irrelevant to those drivers, which is not the
+claim — Landmark just doesn't render them in this version.
 
 Validate with `bunx fit-map validate`. Confirm the new drivers load via
 `createDataLoader().loadAllData(dataDir)` in a unit test — Map's loader test
@@ -111,50 +132,85 @@ intentional: starter drivers are demonstrative, not production.
 
 ### `src/lib/summit.js`
 
-Wrapper around Summit's growth export. Exposes an injectable surface so
-tests can exercise both the "Summit installed" and "Summit missing" paths.
+Wrapper around Summit's growth export. Summit's `computeGrowthAlignment` is
+**synchronous** (`export function computeGrowthAlignment(...)` in
+`products/summit/src/aggregation/growth.js`). The wrapper exists purely for
+**optionality** (dynamic `import()` so Landmark degrades gracefully if
+Summit is absent from node_modules) and for **test injection**. It is not
+an async-bridging shim.
+
+Summit also exports `GrowthContractError` — raised when the caller's framework
+data violates Summit's contract (e.g., a skill without a valid proficiency
+at the target level). This is a **data problem**, not a "Summit unavailable"
+problem, and must surface differently: as a warning on the health view, not
+as silent degradation.
 
 ```js
-let cached = null;
+let cachedFn = null;
+let cachedErrorClass = null;
 let cacheSet = false;
 
 export async function loadSummit() {
-  if (cacheSet) return cached;
+  if (cacheSet) return { fn: cachedFn, GrowthContractError: cachedErrorClass };
   try {
     const mod = await import("@forwardimpact/summit");
-    cached = mod?.computeGrowthAlignment ?? null;
+    cachedFn = mod?.computeGrowthAlignment ?? null;
+    cachedErrorClass = mod?.GrowthContractError ?? null;
   } catch {
-    cached = null;
+    cachedFn = null;
+    cachedErrorClass = null;
   }
   cacheSet = true;
-  return cached;
+  return { fn: cachedFn, GrowthContractError: cachedErrorClass };
 }
 
 // Test helper — reset cache and optionally inject a stub.
-export function __setSummitForTests(fn) {
-  cached = fn;
+export function __setSummitForTests({ fn, GrowthContractError } = {}) {
+  cachedFn = fn ?? null;
+  cachedErrorClass = GrowthContractError ?? null;
   cacheSet = true;
 }
 
 export async function computeGrowth(params) {
-  const fn = await loadSummit();
-  if (!fn) return { available: false, recommendations: [] };
+  const { fn, GrowthContractError } = await loadSummit();
+  if (!fn) {
+    // Summit module is absent — graceful degrade, no warning.
+    return { available: false, recommendations: [], warnings: [] };
+  }
   try {
-    return { available: true, recommendations: fn(params) };
+    // fn is synchronous; no await needed, but await tolerates non-promises.
+    const recommendations = fn(params);
+    return { available: true, recommendations, warnings: [] };
   } catch (err) {
+    // Distinguish contract violations from unexpected failures.
+    if (GrowthContractError && err instanceof GrowthContractError) {
+      return {
+        available: true,
+        recommendations: [],
+        warnings: [
+          `Summit growth alignment skipped: ${err.message} (code: ${err.code ?? "unknown"})`,
+        ],
+      };
+    }
+    // Unknown failure — surface as warning, do not crash the health view.
     return {
-      available: false,
+      available: true,
       recommendations: [],
-      error: `Summit growth computation failed: ${err.message}`,
+      warnings: [`Summit growth computation failed: ${err.message}`],
     };
   }
 }
 ```
 
-Decision: `loadSummit` is cached because `import()` is async and repeated
-dispatch inside the health view would otherwise re-resolve the module. The
-test hook `__setSummitForTests` is the documented seam and is used only by
-`summit.test.js` and `health.test.js`. No production code calls it.
+Decisions:
+
+- `loadSummit` is cached because `import()` is async and repeated dispatch
+  inside the health view would otherwise re-resolve the module.
+- The test hook `__setSummitForTests` is the documented seam and is used
+  only by `summit.test.js` and `health.test.js`. No production code calls
+  it.
+- `GrowthContractError` becomes a **warning** on the health view rather
+  than a silent skip, so framework authoring bugs are visible to the user.
 
 ### Command: `health`
 
@@ -185,10 +241,37 @@ Steps:
    recommendation lines; if `available: true`, render each recommendation
    inline under its driver section matching the spec's output (§ Health
    view, lines 410–440).
-7. Comment section: reserved for Part 04. Render a placeholder `"(engineer
-   voice requires Part 04 — getdx_snapshot_comments table)"` when Part 04
-   has not landed. Part 04 will replace the placeholder with the real fetch.
-8. Return `{ view: { drivers: [...] }, meta: { format, warnings } }`.
+7. Comment section: reserved for Part 04. The handler reserves a
+   `comments: []` field inside each driver view entry and the formatter
+   renders `(engineer voice requires Part 04 — getdx_snapshot_comments
+   table)` when the array is empty. Part 04 populates the field; the
+   formatter handles both paths.
+8. Initiatives section: reserved for Part 05. Each driver view entry
+   reserves an `initiatives: []` field; the formatter renders
+   `(no active initiatives)` when empty. Part 05 populates the field.
+9. Return `{ view: { drivers: [...] }, meta: { format, warnings } }`.
+
+**Anchor-comment contract for Parts 04 and 05.** Part 03 **must** place
+two explicit anchor comments inside `src/commands/health.js` at the
+fetch-assembly stage:
+
+```js
+// <comments section> — Part 04 adds getSnapshotComments fetch here
+// <initiatives section> — Part 05 adds listInitiatives fetch here
+```
+
+and two corresponding anchors inside `src/formatters/health.js` at the
+per-driver render stage:
+
+```js
+// <comments section> — Part 04 renders per-driver comments here
+// <initiatives section> — Part 05 renders per-driver initiatives here
+```
+
+Parts 04 and 05 edit only the code between their own anchors. This
+contract makes the parallel execution window risk-free: a merge conflict
+between Parts 04 and 05 indicates a contract violation, not a merge
+problem to resolve.
 
 ### Formatter
 
@@ -237,7 +320,11 @@ untouched.
 2. `bun test products/landmark/test` — new tests green. Part 02 tests still
    green (no regressions from Part 02 helpers reused in Part 03).
 3. `bun test products/map/test` — starter-count assertions updated; green.
-4. `bun run check` — lint, format, layout, exports.
+4. `bun run layout && bun run check:exports && bun run check` — layout,
+   exports, lint/format all green.
+5. Grep asserts the two `<comments section>` and `<initiatives section>`
+   anchors exist in both `src/commands/health.js` and
+   `src/formatters/health.js`, so Parts 04/05 have hook points to edit.
 5. Smoke test against `fit-map activity seed`:
    - `bunx fit-landmark health --manager manager-1@example.com` prints a
      multi-driver health view including at least one Summit recommendation

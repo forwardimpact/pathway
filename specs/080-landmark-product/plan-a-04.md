@@ -1,12 +1,16 @@
 # Plan A · Part 04 — Snapshot comments pipeline + voice command
 
 Parent plan: [plan-a.md](./plan-a.md). Spec: [spec.md](./spec.md). Depends on
-[Part 01](./plan-a-01.md). Independent of Parts 02, 03, 05.
+[Part 03](./plan-a-03.md) being merged (health.js + formatters/health.js
+must exist with the `<comments section>` anchor pre-placed).
 
 This part adds the `activity.getdx_snapshot_comments` table, extends Map's
 GetDX extract/transform pipeline to populate it, exports a new query module
-from Map, and ships the `fit-landmark voice` command. It also replaces the
-Part 03 placeholder inside the `health` command with a real comment fetch.
+from Map, and ships the `fit-landmark voice` command. It also extends Part
+03's `health` command with comment fetching, editing **only** the code
+between the `// <comments section>` anchors pre-placed in Part 03. Part 05
+runs in parallel with this part and edits the disjoint
+`// <initiatives section>` anchors.
 
 Touches **both** Map and Landmark — this is intentional: the feature is only
 verifiable end-to-end when migration + extract + transform + query + CLI all
@@ -269,19 +273,30 @@ signals" footer when a theme aligns with a poorly-scoring driver.
 Theme bucketing is intentionally crude. Anything smarter is an LLM call,
 which spec § Out of Scope forbids.
 
-Empty paths:
+Empty paths use **one** constant, `NO_COMMENTS`, which Part 01 already
+placed in `src/lib/empty-state.js`. The voice command differentiates the
+two empty cases by appending a context hint to the message:
 
-- Comments table does not exist yet (query throws a "relation not found"
-  error) → catch and return `NO_COMMENTS` empty state. This handles the
-  case where the migration has not been applied locally.
-- No comments matching filter → `NO_COMMENTS` empty state with a specific
-  message: "No snapshot comments found for scope."
+- Comments table missing (catch `42P01` error) → return `NO_COMMENTS` with
+  no hint. Message: "Snapshot comments not available. The
+  getdx_snapshot_comments table has not been created."
+- Table exists but no comments match the filter → return `NO_COMMENTS` with
+  a `hint` field in the meta: `"No comments in scope — try broadening the
+  --manager or --email filter."`. Formatters append the hint on a second
+  line.
 
-Add `NO_COMMENTS_FOR_SCOPE` to `src/lib/empty-state.js`.
+Do **not** add a `NO_COMMENTS_FOR_SCOPE` constant. The spec's empty-state
+table (§ Empty States) has exactly one `NO_COMMENTS` row, and introducing a
+second constant would diverge from the spec contract.
 
 ### Health view integration
 
-Replace the Part 03 placeholder in `src/commands/health.js`:
+Edit **only** between the `// <comments section>` anchors Part 03 placed in
+`src/commands/health.js` and `src/formatters/health.js`. Do not touch any
+other region of these files; Part 05 owns the `<initiatives section>`
+region.
+
+Replace the placeholder between the anchors in `src/commands/health.js`:
 
 ```js
 // Fetch comments once per health render; filter per driver downstream.
@@ -319,9 +334,9 @@ Postgres error code `42P01` from the underlying client.
 - `products/landmark/test/voice.test.js`:
   - `--email` path with comments across 4 snapshots.
   - `--manager` path with themed comments.
-  - `--email` with no comments → `NO_COMMENTS_FOR_SCOPE`.
-  - `--manager` with table missing → `NO_COMMENTS` (simulate via stub
-    throwing a 42P01 error).
+  - `--email` with no comments → `NO_COMMENTS` with scope hint appended.
+  - `--manager` with table missing → `NO_COMMENTS` without hint (simulate
+    via stub throwing a 42P01 error).
   - Missing both flags → `UsageError`.
 - `products/landmark/test/health.test.js` — extend with an assertion that
   comments render under driver sections when the stub returns them, and
@@ -339,8 +354,9 @@ Postgres error code `42P01` from the underlying client.
 4. `bun test products/map/test/activity` — new and existing tests green.
 5. `bun test products/landmark/test` — new and existing tests green,
    including the updated `health.test.js`.
-6. `bun run check` — lint, format, layout, exports (confirms the new
-   subpath export is wired).
+6. `bun run layout && bun run check:exports && bun run check` — layout,
+   exports (confirms the new `./activity/queries/comments` subpath is
+   wired), and full lint/format all green.
 7. Smoke test: `bunx fit-landmark voice --manager alice@example.com`
    returns themed comments; `bunx fit-landmark voice --email
    dan@example.com` returns the per-snapshot timeline with the evidence
