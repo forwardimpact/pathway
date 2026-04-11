@@ -92,6 +92,14 @@ const definition = {
       type: "string",
       description: "Use a project team instead of a reporting team",
     },
+    "left-project": {
+      type: "string",
+      description: "compare: left side is a project team",
+    },
+    "right-project": {
+      type: "string",
+      description: "compare: right side is a project team",
+    },
     audience: {
       type: "string",
       default: "manager",
@@ -128,6 +136,11 @@ const definition = {
     outcomes: {
       type: "boolean",
       description: "growth: weight recommendations by GetDX driver scores",
+    },
+    "lookback-months": {
+      type: "string",
+      description:
+        "evidenced: lookback window for practice patterns (default: 12)",
     },
     help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", short: "v", description: "Show version" },

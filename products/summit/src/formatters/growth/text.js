@@ -39,7 +39,12 @@ export function growthToText({ teamId, recommendations, audience }) {
     if (items.length === 0) continue;
     lines.push(`  ${SECTION_HEADERS[impact]}:`);
     for (const rec of items) {
-      lines.push(`    ${rec.skillId}`);
+      lines.push(`    ${rec.skill}`);
+      if (rec.driverContext) {
+        lines.push(
+          `      driver: ${rec.driverContext.driverId} at ${rec.driverContext.percentile}th percentile`,
+        );
+      }
       lines.push(`      ${formatCandidates(rec, audience)}`);
     }
     lines.push("");

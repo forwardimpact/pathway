@@ -132,3 +132,75 @@ test("EvidenceUnavailableError is a SupabaseUnavailableError", () => {
   assert.ok(err instanceof SupabaseUnavailableError);
   assert.ok(err.code === "SUMMIT_EVIDENCE_UNAVAILABLE");
 });
+
+test("decorateRisksWithEvidence ignores practitioners outside the team", async () => {
+  const data = await loadData();
+  const roster = parseRosterYaml(`
+teams:
+  a:
+    - name: Alice
+      email: alice@example.com
+      job: { discipline: software_engineering, level: J060 }
+    - name: Bob
+      email: bob@example.com
+      job: { discipline: software_engineering, level: J060 }
+`);
+  const resolved = resolveTeam(roster, data, { teamId: "a" });
+  const coverage = computeCoverage(resolved, data);
+  const risks = detectRisks({ resolvedTeam: resolved, coverage, data });
+
+  // Evidence says task_completion has TWO practitioners, but only one
+  // is on the team — the other is from another team. The team-intersect
+  // must drop the outsider and leave decoratedRisks with a SPOF for
+  // task_completion.
+  const evidence = new Map();
+  evidence.set("task_completion", {
+    count: 2,
+    practitioners: new Set(["alice@example.com", "outsider@example.com"]),
+  });
+  const decoratedCoverage = decorateCoverageWithEvidence(coverage, evidence);
+  const decoratedRisks = decorateRisksWithEvidence(
+    risks,
+    decoratedCoverage,
+    evidence,
+  );
+
+  const task = decoratedRisks.singlePointsOfFailure.find(
+    (s) => s.skillId === "task_completion",
+  );
+  assert.ok(
+    task,
+    "task_completion must be a SPOF when only one team member has evidence",
+  );
+});
+
+test("loadEvidence filters by team emails when team is provided", async () => {
+  const fakeRows = [
+    {
+      skill_id: "task_completion",
+      matched: true,
+      created_at: new Date().toISOString(),
+      github_artifacts: { email: "alice@example.com" },
+    },
+    {
+      skill_id: "task_completion",
+      matched: true,
+      created_at: new Date().toISOString(),
+      github_artifacts: { email: "outsider@example.com" },
+    },
+  ];
+
+  const evidence = await loadEvidence(
+    {},
+    {
+      team: {
+        members: [{ email: "alice@example.com" }],
+      },
+      fetchEvidence: async () => fakeRows,
+    },
+  );
+
+  const task = evidence.get("task_completion");
+  assert.equal(task.practitioners.size, 1);
+  assert.ok(task.practitioners.has("alice@example.com"));
+});

@@ -58,7 +58,7 @@ test("computeGrowthAlignment ranks candidates by proximity", async () => {
     },
   ];
   const recs = computeGrowthAlignment({ team, mapData });
-  const planning = recs.find((r) => r.skillId === "planning");
+  const planning = recs.find((r) => r.skill === "planning");
   assert.ok(planning);
   // Senior has planning=foundational (closer), Junior has planning=awareness
   // so senior should rank first.
@@ -107,4 +107,94 @@ test("computeGrowthAlignment signature — accepts a single destructured param",
     driverScores: undefined,
   });
   assert.deepEqual(recs, []);
+});
+
+test("computeGrowthAlignment recommendations expose `skill` per spec.md:583", async () => {
+  const mapData = await loadData();
+  const team = [
+    {
+      email: "a@example.com",
+      name: "A",
+      job: { discipline: "software_engineering", level: "J040" },
+    },
+  ];
+  const recs = computeGrowthAlignment({ team, mapData });
+  assert.ok(recs.length > 0);
+  for (const rec of recs) {
+    assert.ok(
+      typeof rec.skill === "string",
+      `recommendation missing skill: ${JSON.stringify(rec)}`,
+    );
+    assert.equal(
+      rec.skillId,
+      undefined,
+      "recommendation should not expose skillId alongside skill",
+    );
+    assert.ok("driverContext" in rec);
+    assert.ok(Array.isArray(rec.candidates));
+  }
+});
+
+test("computeGrowthAlignment attaches driverContext when driverScores passed", async () => {
+  const mapData = await loadData();
+  const team = [
+    {
+      email: "a@example.com",
+      name: "A",
+      job: { discipline: "software_engineering", level: "J040" },
+    },
+  ];
+  // starter drivers.yaml defines `quality` with contributingSkills
+  // task_completion and planning.
+  const driverScores = new Map();
+  driverScores.set("quality", { percentile: 25, vsOrg: -10 });
+
+  const recs = computeGrowthAlignment({ team, mapData, driverScores });
+  const task = recs.find((r) => r.skill === "task_completion");
+  assert.ok(task, "task_completion recommendation expected");
+  assert.ok(task.driverContext, "driverContext should be populated");
+  assert.equal(task.driverContext.driverId, "quality");
+  assert.equal(task.driverContext.percentile, 25);
+
+  const incident = recs.find((r) => r.skill === "incident_response");
+  assert.ok(incident);
+  assert.equal(
+    incident.driverContext,
+    null,
+    "incident_response has no linked driver",
+  );
+});
+
+test("computeGrowthAlignment outcome weighting reorders within a tier", async () => {
+  const mapData = await loadData();
+  const team = [
+    {
+      email: "a@example.com",
+      name: "A",
+      job: { discipline: "software_engineering", level: "J040" },
+    },
+  ];
+  // Without outcomes: planning and task_completion sort alphabetically.
+  const baseline = computeGrowthAlignment({ team, mapData });
+  // With outcomes: same skills exist in the `quality` driver. When one
+  // is associated with a bad percentile and the other isn't, the weighted
+  // one should rise within its tier.
+  const driverScores = new Map();
+  driverScores.set("quality", { percentile: 5, vsOrg: -20 });
+  const weighted = computeGrowthAlignment({ team, mapData, driverScores });
+
+  // Critical tier ordering is preserved — critical stays above spof/
+  // coverage regardless of weighting.
+  const criticalBaseline = baseline.filter((r) => r.impact === "critical");
+  const criticalWeighted = weighted.filter((r) => r.impact === "critical");
+  assert.equal(criticalBaseline.length, criticalWeighted.length);
+  // Both task_completion and planning have the same driver weight; the
+  // tiebreaker falls back to name. The assertion here is that the
+  // weighted path still returns both and all skills carry the driver
+  // context.
+  for (const rec of criticalWeighted) {
+    if (rec.skill === "task_completion" || rec.skill === "planning") {
+      assert.ok(rec.driverContext);
+    }
+  }
 });

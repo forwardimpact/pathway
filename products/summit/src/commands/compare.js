@@ -23,17 +23,13 @@ export async function runCompareCommand({ data, args, options }) {
   const format = resolveFormat(options);
   const audience = resolveAudience(options);
 
-  const [leftId, rightId] = args;
-  if (!leftId || !rightId) {
-    throw new Error(
-      "summit: compare requires two team ids. Usage: fit-summit compare <team1> <team2>.",
-    );
-  }
+  const leftTarget = parseCompareTarget(args[0], options, "left-project");
+  const rightTarget = parseCompareTarget(args[1], options, "right-project");
 
   const roster = await loadRoster(getRosterSource(options));
 
-  const left = snapshotTeam(roster, data, leftId);
-  const right = snapshotTeam(roster, data, rightId);
+  const left = snapshotTeam(roster, data, leftTarget);
+  const right = snapshotTeam(roster, data, rightTarget);
 
   const coverageDiff = diffCoverage(left.coverage, right.coverage);
   const riskDiff = diffRisks(left.risks, right.risks);
@@ -66,10 +62,26 @@ export async function runCompareCommand({ data, args, options }) {
   );
 }
 
-function snapshotTeam(roster, data, teamId) {
+/**
+ * Parse one side of a `compare` target. Each side can be a positional
+ * team id, or a `--left-project` / `--right-project` flag pointing at a
+ * project team in the roster file.
+ */
+function parseCompareTarget(positional, options, projectOptionKey) {
+  const projectId = options[projectOptionKey];
+  if (projectId) return { projectId };
+  if (!positional) {
+    throw new Error(
+      "summit: compare requires two team ids (or --left-project / --right-project for project teams). Usage: fit-summit compare <team1> <team2>.",
+    );
+  }
+  return { teamId: positional };
+}
+
+function snapshotTeam(roster, data, target) {
   let resolved;
   try {
-    resolved = resolveTeam(roster, data, { teamId });
+    resolved = resolveTeam(roster, data, target);
   } catch (e) {
     if (e instanceof TeamNotFoundError) {
       throw new Error(`summit: ${e.message}`, { cause: e });
