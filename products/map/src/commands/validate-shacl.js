@@ -22,7 +22,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 export async function runValidateShacl() {
   process.stdout.write(formatHeader("Validating SHACL schema syntax") + "\n\n");
 
-  const rdfDir = join(__dirname, "..", "..", "..", "schema", "rdf");
+  const rdfDir = join(__dirname, "..", "..", "schema", "rdf");
 
   try {
     const { default: N3 } = await import("n3");

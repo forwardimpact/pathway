@@ -14,7 +14,7 @@ const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
 export function getPackageRoot() {
-  // bin/lib/package-root.js → ../../ is the package root
+  // src/lib/package-root.js → ../../ is the package root
   return resolve(__dirname, "..", "..");
 }
 

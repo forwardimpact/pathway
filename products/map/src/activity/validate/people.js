@@ -7,7 +7,7 @@
  */
 
 import { parseYamlPeople, parseCsv } from "../parse-people.js";
-import { createDataLoader } from "../../src/loader.js";
+import { createDataLoader } from "../../loader.js";
 
 /**
  * Load people from a local file (CSV or YAML).

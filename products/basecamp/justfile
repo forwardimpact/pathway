@@ -13,13 +13,13 @@ default:
 
 # ─── Build ────────────────────────────────────────────────────────────────────
 
-# Copy fit-* skills from monorepo .claude/skills/ into template.
+# Copy fit-* skills from monorepo .claude/skills/ into templates.
 # For local testing only — the build script (pkg/build.js) does this automatically.
 prepare-template:
     #!/usr/bin/env bash
     set -e
     src="../../.claude/skills"
-    dest="template/.claude/skills"
+    dest="templates/.claude/skills"
     count=0
     for d in "$src"/fit-*/; do
         [ -d "$d" ] || continue

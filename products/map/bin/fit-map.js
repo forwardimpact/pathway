@@ -282,12 +282,12 @@ async function runGenerateIndex(dataDir) {
 // ── Dispatchers ──────────────────────────────────────────────────────────────
 
 async function mapClient(values) {
-  const { createMapClient } = await import("./lib/client.js");
+  const { createMapClient } = await import("../src/lib/client.js");
   return createMapClient({ url: values.url });
 }
 
 async function dispatchPeople(subcommand, rest, values) {
-  const people = await import("./lib/commands/people.js");
+  const people = await import("../src/commands/people.js");
   switch (subcommand) {
     case "validate": {
       const filePath = rest[0];
@@ -330,7 +330,7 @@ async function dispatchPeople(subcommand, rest, values) {
 }
 
 async function dispatchActivity(subcommand, rest, values) {
-  const activity = await import("./lib/commands/activity.js");
+  const activity = await import("../src/commands/activity.js");
   switch (subcommand) {
     case "start":
       return activity.start();
@@ -357,7 +357,7 @@ async function dispatchActivity(subcommand, rest, values) {
 }
 
 async function dispatchGetdx(subcommand, rest, values) {
-  const getdx = await import("./lib/commands/getdx.js");
+  const getdx = await import("../src/commands/getdx.js");
   switch (subcommand) {
     case "sync":
       return getdx.sync(await mapClient(values), {
@@ -389,7 +389,7 @@ async function main() {
 
     switch (command) {
       case "init": {
-        const { runInit } = await import("./lib/commands/init.js");
+        const { runInit } = await import("../src/commands/init.js");
         await runInit(positionals[1]);
         exitCode = 0;
         break;
@@ -397,7 +397,7 @@ async function main() {
       case "validate": {
         if (values.shacl) {
           const { runValidateShacl } =
-            await import("./lib/commands/validate-shacl.js");
+            await import("../src/commands/validate-shacl.js");
           exitCode = await runValidateShacl();
         } else {
           const dataDir = await findDataDir(values.data);

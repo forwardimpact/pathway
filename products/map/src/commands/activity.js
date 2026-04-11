@@ -1,4 +1,4 @@
-import { createSupabaseCli } from "../supabase-cli.js";
+import { createSupabaseCli } from "../lib/supabase-cli.js";
 import { storeRaw } from "@forwardimpact/map/activity/storage";
 import { transformAll } from "@forwardimpact/map/activity/transform";
 import { transformPeople } from "@forwardimpact/map/activity/transform/people";

@@ -10,21 +10,22 @@
   },
   "homepage": "https://www.forwardimpact.team/basecamp",
   "type": "module",
-  "main": "src/basecamp.js",
+  "main": "./src/basecamp.js",
   "bin": {
-    "fit-basecamp": "./src/basecamp.js"
+    "fit-basecamp": "./bin/fit-basecamp.js"
   },
   "scripts": {
-    "start": "bun src/basecamp.js",
-    "status": "bun src/basecamp.js status",
+    "start": "bun ./bin/fit-basecamp.js",
+    "status": "bun ./bin/fit-basecamp.js status",
     "build": "bun pkg/build.js",
     "build:app": "bun pkg/build.js --app",
     "build:pkg": "bun pkg/build.js --pkg"
   },
   "files": [
-    "src/basecamp.js",
+    "bin/**/*.js",
+    "src/**/*.js",
     "config/",
-    "template/"
+    "templates/"
   ],
   "engines": {
     "bun": ">=1.2.0",

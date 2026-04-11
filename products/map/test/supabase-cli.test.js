@@ -10,8 +10,8 @@ import { test, describe } from "node:test";
 import assert from "node:assert";
 import { EventEmitter } from "node:events";
 
-import { createSupabaseCli } from "../bin/lib/supabase-cli.js";
-import { getPackageRoot } from "../bin/lib/package-root.js";
+import { createSupabaseCli } from "../src/lib/supabase-cli.js";
+import { getPackageRoot } from "../src/lib/package-root.js";
 
 /**
  * Build a fake spawn function that returns scripted responses in order.

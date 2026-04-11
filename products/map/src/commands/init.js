@@ -16,7 +16,7 @@ import {
 } from "@forwardimpact/libcli";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
-const starterDir = join(__dirname, "..", "..", "..", "starter");
+const starterDir = join(__dirname, "..", "..", "starter");
 
 /**
  * Run the init command

@@ -3,7 +3,7 @@ import assert from "node:assert";
 import { writeFile, mkdir, mkdtemp, rm } from "node:fs/promises";
 import { tmpdir } from "node:os";
 import { join } from "node:path";
-import { seed } from "../../bin/lib/commands/activity.js";
+import { seed } from "../../src/commands/activity.js";
 
 function createFakeSeedClient() {
   const uploads = [];

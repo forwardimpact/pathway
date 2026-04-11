@@ -21,11 +21,16 @@
     "rag"
   ],
   "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
   "bin": {
     "fit-guide": "./bin/fit-guide.js"
   },
   "files": [
     "bin/",
+    "src/",
     "proto/",
     "starter/"
   ],

@@ -51,7 +51,7 @@ cp "$PROJECT_DIR/macos/Info.plist" "$APP_DIR/Contents/Info.plist"
 # --- Copy resources -----------------------------------------------------------
 
 cp -R "$PROJECT_DIR/config" "$APP_DIR/Contents/Resources/config"
-cp -R "$PROJECT_DIR/template" "$APP_DIR/Contents/Resources/template"
+cp -R "$PROJECT_DIR/templates" "$APP_DIR/Contents/Resources/templates"
 
 # --- Copy icons ---------------------------------------------------------------
 

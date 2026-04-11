@@ -130,12 +130,12 @@ function getBundlePath() {
 function requireTemplateDir() {
   const bundle = getBundlePath();
   if (bundle) {
-    const tpl = join(bundle.resources, "template");
+    const tpl = join(bundle.resources, "templates");
     if (existsSync(tpl)) return tpl;
   }
   for (const d of [
-    join(SHARE_DIR, "template"),
-    join(__dirname, "..", "template"),
+    join(SHARE_DIR, "templates"),
+    join(__dirname, "..", "templates"),
   ])
     if (existsSync(d)) return d;
   console.error("Template not found. Reinstall fit-basecamp.");
