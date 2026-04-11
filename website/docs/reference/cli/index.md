@@ -18,8 +18,9 @@ npx fit-map validate                    # Validate all data (JSON Schema + refer
 npx fit-map validate --shacl            # Validate RDF/SHACL syntax
 npx fit-map validate --data=PATH        # Validate a specific data directory
 npx fit-map generate-index              # Generate _index.yaml files for browser loading
-npx fit-map people import <file>        # Import people from CSV/YAML
-npx fit-map people import <f> --data=P  # Import with custom data directory
+npx fit-map people validate <file>      # Validate people CSV/YAML without importing
+npx fit-map people push <file>          # Import people from CSV/YAML
+npx fit-map people push <f> --data=P    # Import with custom data directory
 ```
 
 | Option          | Description                     |
