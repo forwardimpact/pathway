@@ -10,8 +10,8 @@ import prettier from "prettier";
 
 import { createCli, formatBullet } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { DocsBuilder, DocsServer } from "../index.js";
-import { parseFrontMatter } from "../frontmatter.js";
+import { DocsBuilder, DocsServer } from "../src/index.js";
+import { parseFrontMatter } from "../src/frontmatter.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),

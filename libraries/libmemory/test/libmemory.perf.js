@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 
-import { MemoryWindow } from "../index.js";
-import { MemoryIndex } from "../index/memory.js";
+import { MemoryWindow } from "../src/index.js";
+import { MemoryIndex } from "../src/index/memory.js";
 import { createPerformanceTest } from "@forwardimpact/libperf";
 
 describe("LibMemory Performance Tests", () => {

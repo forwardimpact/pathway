@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { validateCrossContent, ContentValidator } from "../validate.js";
+import { validateCrossContent, ContentValidator } from "../src/validate.js";
 
 /**
  * Build minimal valid entities for testing.

@@ -9,12 +9,17 @@
     "directory": "libraries/libsyntheticprose"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "exports": {
-    ".": "./index.js",
-    "./prose": "./engine/prose.js",
-    "./pathway": "./engine/pathway.js"
+    ".": "./src/index.js",
+    "./prose": "./src/engine/prose.js",
+    "./pathway": "./src/engine/pathway.js"
   },
+  "files": [
+    "src/**/*.js",
+    "src/prompts/**/*",
+    "README.md"
+  ],
   "dependencies": {
     "@forwardimpact/libutil": "^0.1.61",
     "@forwardimpact/libtelemetry": "^0.1.23",

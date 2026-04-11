@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DocsBuilder, DocsServer } from "../index.js";
+import { DocsBuilder, DocsServer } from "../src/index.js";
 
 test("DocsBuilder constructor validates dependencies", () => {
   assert.throws(

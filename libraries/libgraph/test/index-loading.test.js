@@ -2,7 +2,7 @@ import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 import { Store, DataFactory } from "n3";
 
-import { GraphIndex } from "../index/graph.js";
+import { GraphIndex } from "../src/index/graph.js";
 import { createMockStorage } from "@forwardimpact/libharness";
 
 const { namedNode, literal } = DataFactory;

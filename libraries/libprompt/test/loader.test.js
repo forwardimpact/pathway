@@ -4,7 +4,7 @@ import { mkdtempSync, writeFileSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 
-import { PromptLoader, createPromptLoader } from "../index.js";
+import { PromptLoader, createPromptLoader } from "../src/index.js";
 
 describe("PromptLoader", () => {
   let tempDir;

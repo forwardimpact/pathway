@@ -1,7 +1,7 @@
 import { test } from "node:test";
 import { strict as assert } from "node:assert";
 
-import { Tracer } from "../tracer.js";
+import { Tracer } from "../src/tracer.js";
 
 test("Tracer enriches errors with trace context in observeClientUnaryCall", async () => {
   const mockTraceClient = {

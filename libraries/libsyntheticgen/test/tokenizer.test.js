@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { tokenize } from "../dsl/tokenizer.js";
+import { tokenize } from "../src/dsl/tokenizer.js";
 
 describe("tokenize", () => {
   describe("basic tokens", () => {

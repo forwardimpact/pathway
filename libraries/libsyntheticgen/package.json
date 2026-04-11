@@ -9,20 +9,24 @@
     "directory": "libraries/libsyntheticgen"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "exports": {
-    ".": "./index.js",
-    "./dsl": "./dsl/index.js",
-    "./engine": "./engine/tier0.js",
-    "./engine/entities": "./engine/entities.js",
-    "./engine/activity": "./engine/activity.js",
-    "./vocabulary": "./vocabulary.js",
-    "./vocabulary.js": "./vocabulary.js",
-    "./rng": "./engine/rng.js",
-    "./tools/faker": "./tools/faker.js",
-    "./tools/synthea": "./tools/synthea.js",
-    "./tools/sdv": "./tools/sdv.js"
+    ".": "./src/index.js",
+    "./dsl": "./src/dsl/index.js",
+    "./engine": "./src/engine/tier0.js",
+    "./engine/entities": "./src/engine/entities.js",
+    "./engine/activity": "./src/engine/activity.js",
+    "./vocabulary": "./src/vocabulary.js",
+    "./vocabulary.js": "./src/vocabulary.js",
+    "./rng": "./src/engine/rng.js",
+    "./tools/faker": "./src/tools/faker.js",
+    "./tools/synthea": "./src/tools/synthea.js",
+    "./tools/sdv": "./src/tools/sdv.js"
   },
+  "files": [
+    "src/**/*.js",
+    "README.md"
+  ],
   "dependencies": {
     "@forwardimpact/libutil": "^0.1.61",
     "seedrandom": "^3.0.5"

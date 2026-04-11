@@ -5,16 +5,21 @@
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "exports": {
-    ".": "./index.js",
-    "./index/vector.js": "./index/vector.js",
-    "./processor/vector.js": "./processor/vector.js"
+    ".": "./src/index.js",
+    "./index/vector.js": "./src/index/vector.js",
+    "./processor/vector.js": "./src/processor/vector.js"
   },
   "bin": {
     "fit-process-vectors": "./bin/fit-process-vectors.js",
     "fit-search": "./bin/fit-search.js"
   },
+  "files": [
+    "src/**/*.js",
+    "bin/**/*.js",
+    "README.md"
+  ],
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"

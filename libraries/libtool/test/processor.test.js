@@ -1,7 +1,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 
-import { ToolProcessor } from "../processor/tool.js";
+import { ToolProcessor } from "../src/processor/tool.js";
 
 describe("libtool", () => {
   describe("ToolProcessor", () => {

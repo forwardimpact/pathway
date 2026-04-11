@@ -40,7 +40,7 @@ import {
   ContentFormatter,
   formatContent,
 } from "@forwardimpact/libsyntheticrender";
-import { Pipeline } from "../pipeline.js";
+import { Pipeline } from "../src/pipeline.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 

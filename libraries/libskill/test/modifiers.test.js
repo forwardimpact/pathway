@@ -9,7 +9,7 @@ import {
   extractCapabilityModifiers,
   extractSkillModifiers,
   resolveSkillModifier,
-} from "../modifiers.js";
+} from "../src/modifiers.js";
 
 import { Capability } from "@forwardimpact/map/levels";
 

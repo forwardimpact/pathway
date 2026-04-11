@@ -7,9 +7,9 @@ import {
   filterBy,
   applyFilters,
   composeFilters,
-} from "../policies/filters.js";
+} from "../src/policies/filters.js";
 
-import { isPrimary, isAgentEligible } from "../policies/predicates.js";
+import { isPrimary, isAgentEligible } from "../src/policies/predicates.js";
 
 function skill(overrides = {}) {
   return {

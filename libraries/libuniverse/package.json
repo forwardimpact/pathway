@@ -9,15 +9,20 @@
     "directory": "libraries/libuniverse"
   },
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "bin": {
     "fit-universe": "./bin/fit-universe.js"
   },
   "exports": {
-    ".": "./index.js",
-    "./pipeline": "./pipeline.js",
-    "./load": "./load.js"
+    ".": "./src/index.js",
+    "./pipeline": "./src/pipeline.js",
+    "./load": "./src/load.js"
   },
+  "files": [
+    "src/**/*.js",
+    "bin/**/*.js",
+    "README.md"
+  ],
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libconfig": "^0.1.59",

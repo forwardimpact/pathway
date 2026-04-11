@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { renderDataset } from "../render/dataset-renderers.js";
+import { renderDataset } from "../src/render/dataset-renderers.js";
 
 const FIXTURE = {
   name: "test_records",

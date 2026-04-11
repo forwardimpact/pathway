@@ -116,7 +116,7 @@ export class Renderer {
  * @returns {Renderer}
  */
 export function createRenderer(logger) {
-  const templateDir = join(__dirname, "..", "templates");
+  const templateDir = join(__dirname, "..", "..", "templates");
   const templateLoader = new TemplateLoader(templateDir);
   return new Renderer(templateLoader, logger);
 }

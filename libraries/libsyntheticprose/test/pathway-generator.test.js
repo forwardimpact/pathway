@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { PathwayGenerator } from "../engine/pathway.js";
+import { PathwayGenerator } from "../src/engine/pathway.js";
 
 function makeLogger() {
   return {

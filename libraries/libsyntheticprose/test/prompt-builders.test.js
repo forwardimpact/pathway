@@ -1,13 +1,13 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { buildFrameworkPrompt } from "../prompts/pathway/framework.js";
-import { buildLevelPrompt } from "../prompts/pathway/level.js";
-import { buildStagePrompt } from "../prompts/pathway/stage.js";
-import { buildBehaviourPrompt } from "../prompts/pathway/behaviour.js";
-import { buildCapabilityPrompt } from "../prompts/pathway/capability.js";
-import { buildDriverPrompt } from "../prompts/pathway/driver.js";
-import { buildDisciplinePrompt } from "../prompts/pathway/discipline.js";
-import { buildTrackPrompt } from "../prompts/pathway/track.js";
+import { buildFrameworkPrompt } from "../src/prompts/pathway/framework.js";
+import { buildLevelPrompt } from "../src/prompts/pathway/level.js";
+import { buildStagePrompt } from "../src/prompts/pathway/stage.js";
+import { buildBehaviourPrompt } from "../src/prompts/pathway/behaviour.js";
+import { buildCapabilityPrompt } from "../src/prompts/pathway/capability.js";
+import { buildDriverPrompt } from "../src/prompts/pathway/driver.js";
+import { buildDisciplinePrompt } from "../src/prompts/pathway/discipline.js";
+import { buildTrackPrompt } from "../src/prompts/pathway/track.js";
 
 const CTX = {
   domain: "test.example",

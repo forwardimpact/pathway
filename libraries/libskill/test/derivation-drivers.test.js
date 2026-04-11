@@ -6,7 +6,7 @@ import {
   getDisciplineSkillIds,
   getLevelRank,
   isSeniorLevel,
-} from "../derivation.js";
+} from "../src/derivation.js";
 import {
   makeDiscipline,
   makeLevel,

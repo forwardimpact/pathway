@@ -4,8 +4,8 @@ import { createCli } from "@forwardimpact/libcli";
 import { Repl } from "@forwardimpact/librepl";
 import { createStorage } from "@forwardimpact/libstorage";
 
-import { TraceIndex } from "../index/trace.js";
-import { TraceVisualizer } from "../visualizer.js";
+import { TraceIndex } from "../src/index/trace.js";
+import { TraceVisualizer } from "../src/visualizer.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),

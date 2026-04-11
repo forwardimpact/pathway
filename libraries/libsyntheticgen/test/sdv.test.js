@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { SdvTool } from "../tools/sdv.js";
+import { SdvTool } from "../src/tools/sdv.js";
 
 const logger = { info() {}, error() {} };
 

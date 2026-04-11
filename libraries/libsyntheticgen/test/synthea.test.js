@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
-import { SyntheaTool } from "../tools/synthea.js";
+import { SyntheaTool } from "../src/tools/synthea.js";
 
 const logger = { info() {}, error() {} };
 

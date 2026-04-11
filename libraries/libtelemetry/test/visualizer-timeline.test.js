@@ -1,8 +1,8 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { TraceVisualizer } from "../visualizer.js";
-import { TraceIndex } from "../index/trace.js";
+import { TraceVisualizer } from "../src/visualizer.js";
+import { TraceIndex } from "../src/index/trace.js";
 import { trace } from "@forwardimpact/libtype";
 import { createMockStorage } from "@forwardimpact/libharness";
 

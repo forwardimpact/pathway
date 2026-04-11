@@ -13,7 +13,7 @@ import {
   compareByMaturityAsc,
   compareByBehaviourName,
   compareByBehaviourPriority,
-} from "../policies/orderings.js";
+} from "../src/policies/orderings.js";
 
 function skill(overrides = {}) {
   return {

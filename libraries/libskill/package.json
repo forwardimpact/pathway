@@ -10,25 +10,25 @@
   },
   "homepage": "https://www.forwardimpact.team/model",
   "type": "module",
-  "main": "index.js",
+  "main": "./src/index.js",
   "files": [
-    "*.js",
-    "policies/"
+    "src/**/*.js",
+    "README.md"
   ],
   "exports": {
-    ".": "./index.js",
-    "./derivation": "./derivation.js",
-    "./modifiers": "./modifiers.js",
-    "./agent": "./agent.js",
-    "./interview": "./interview.js",
-    "./job": "./job.js",
-    "./job-cache": "./job-cache.js",
-    "./checklist": "./checklist.js",
-    "./matching": "./matching.js",
-    "./profile": "./profile.js",
-    "./progression": "./progression.js",
-    "./policies": "./policies/index.js",
-    "./toolkit": "./toolkit.js"
+    ".": "./src/index.js",
+    "./derivation": "./src/derivation.js",
+    "./modifiers": "./src/modifiers.js",
+    "./agent": "./src/agent.js",
+    "./interview": "./src/interview.js",
+    "./job": "./src/job.js",
+    "./job-cache": "./src/job-cache.js",
+    "./checklist": "./src/checklist.js",
+    "./matching": "./src/matching.js",
+    "./profile": "./src/profile.js",
+    "./progression": "./src/progression.js",
+    "./policies": "./src/policies/index.js",
+    "./toolkit": "./src/toolkit.js"
   },
   "dependencies": {
     "@forwardimpact/map": "^0.13.0"

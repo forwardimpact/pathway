@@ -1,6 +1,6 @@
 import { test, describe } from "node:test";
 
-import { ResourceIndex } from "../index.js";
+import { ResourceIndex } from "../src/index.js";
 import { common } from "@forwardimpact/libtype";
 import { createPerformanceTest } from "@forwardimpact/libperf";
 

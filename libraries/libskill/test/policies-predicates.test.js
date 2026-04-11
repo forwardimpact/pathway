@@ -20,7 +20,7 @@ import {
   allOf,
   anyOf,
   not,
-} from "../policies/predicates.js";
+} from "../src/policies/predicates.js";
 
 function skill(overrides = {}) {
   return {
