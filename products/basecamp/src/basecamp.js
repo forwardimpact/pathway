@@ -219,9 +219,7 @@ function showStatus() {
 
   const agents = Object.entries(config.agents || {});
   if (agents.length === 0) {
-    logger.info(
-      `No agents configured.\n\nEdit ${CONFIG_PATH} to add agents.`,
-    );
+    logger.info(`No agents configured.\n\nEdit ${CONFIG_PATH} to add agents.`);
     return;
   }
 
