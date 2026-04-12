@@ -13,6 +13,7 @@
  *      walking up from the fit-map package root to the consumer's node_modules)
  */
 
+import { Buffer } from "node:buffer";
 import { spawn as realSpawn } from "child_process";
 import { getPackageRoot } from "./package-root.js";
 

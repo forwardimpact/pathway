@@ -33,9 +33,7 @@ export async function runToolCommand({ data, args, options }) {
   // --list: Output descriptive comma-separated tool lines for piping
   if (options.list) {
     for (const tool of tools) {
-      process.stdout.write(
-        `${tool.name}, ${truncate(tool.description, 60)}\n`,
-      );
+      process.stdout.write(`${tool.name}, ${truncate(tool.description, 60)}\n`);
     }
     return;
   }

@@ -347,7 +347,8 @@ export async function runAgentCommand({
       level,
       skills: skillsWithAgent,
     });
-    for (const skill of derivedSkills) process.stdout.write(skill.skillId + "\n");
+    for (const skill of derivedSkills)
+      process.stdout.write(skill.skillId + "\n");
     return;
   }
 
