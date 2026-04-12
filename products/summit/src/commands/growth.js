@@ -96,7 +96,7 @@ function resolveTarget(args, options) {
 
 async function loadEvidenceSafe(resolved, options) {
   try {
-    const client = options.supabase ?? createSummitClient();
+    const client = options.supabase ?? (await createSummitClient());
     return await loadEvidence(client, {
       team: resolved,
       lookbackMonths: Number(options["lookback-months"] ?? 12),
@@ -115,7 +115,7 @@ async function loadEvidenceSafe(resolved, options) {
 
 async function loadScoresSafe(resolved, options) {
   try {
-    const client = options.supabase ?? createSummitClient();
+    const client = options.supabase ?? (await createSummitClient());
     return await loadDriverScores(client, { team: resolved });
   } catch (e) {
     if (e instanceof SupabaseUnavailableError) {

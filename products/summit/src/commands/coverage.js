@@ -86,7 +86,7 @@ function resolveCommandTeam(roster, data, target) {
 
 async function decorateWithEvidence(coverage, resolved, options) {
   try {
-    const client = options.supabase ?? createSummitClient();
+    const client = options.supabase ?? (await createSummitClient());
     const evidence = await loadEvidence(client, {
       team: resolved,
       lookbackMonths: Number(options["lookback-months"] ?? 12),

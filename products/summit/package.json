@@ -38,8 +38,10 @@
     "@forwardimpact/libtelemetry": "^0.1.33",
     "@forwardimpact/libutil": "^0.1.72",
     "@forwardimpact/map": "^0.15.18",
-    "@supabase/supabase-js": "^2.103.0",
     "yaml": "^2.8.3"
+  },
+  "optionalDependencies": {
+    "@supabase/supabase-js": "^2.103.0"
   },
   "engines": {
     "bun": ">=1.2.0",

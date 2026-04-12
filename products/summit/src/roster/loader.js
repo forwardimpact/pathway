@@ -45,7 +45,7 @@ export async function loadRoster(options = {}) {
   let client = supabase;
   if (!client) {
     try {
-      client = createClient();
+      client = await createClient();
     } catch (e) {
       if (e instanceof SupabaseUnavailableError) {
         throw new Error(
