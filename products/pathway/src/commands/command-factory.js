@@ -59,7 +59,9 @@ export function createEntityCommand({
     // --list: Output descriptive comma-separated lines for piping and AI agent discovery
     if (options.list) {
       for (const item of items) {
-        console.log(formatListItem ? formatListItem(item) : item.id);
+        process.stdout.write(
+          (formatListItem ? formatListItem(item) : item.id) + "\n",
+        );
       }
       return;
     }
@@ -67,7 +69,7 @@ export function createEntityCommand({
     // No args: Show summary
     if (!id) {
       if (options.json) {
-        console.log(JSON.stringify(items, null, 2));
+        process.stdout.write(JSON.stringify(items, null, 2) + "\n");
         return;
       }
       formatSummary(items, data);
@@ -168,7 +170,7 @@ function handleDetail({
   }
 
   if (options.json) {
-    console.log(JSON.stringify(view, null, 2));
+    process.stdout.write(JSON.stringify(view, null, 2) + "\n");
     return;
   }
 
@@ -226,7 +228,7 @@ export function createCompositeCommand({
     }
 
     if (options.json) {
-      console.log(JSON.stringify(view, null, 2));
+      process.stdout.write(JSON.stringify(view, null, 2) + "\n");
       return;
     }
 

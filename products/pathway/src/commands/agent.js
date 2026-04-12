@@ -347,7 +347,8 @@ export async function runAgentCommand({
       level,
       skills: skillsWithAgent,
     });
-    for (const skill of derivedSkills) console.log(skill.skillId);
+    for (const skill of derivedSkills)
+      process.stdout.write(skill.skillId + "\n");
     return;
   }
 
@@ -362,7 +363,7 @@ export async function runAgentCommand({
       skillMatrix: derivedSkills,
       skills: skillsWithAgent,
     });
-    console.log(toolkitToPlainList(toolkit));
+    process.stdout.write(toolkitToPlainList(toolkit) + "\n");
     return;
   }
 

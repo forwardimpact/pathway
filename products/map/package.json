@@ -46,14 +46,14 @@
     "./activity/queries/initiatives": "./src/activity/queries/initiatives.js",
     "./activity/parse-people": "./src/activity/parse-people.js",
     "./activity/validate/people": "./src/activity/validate/people.js",
-    "./activity/storage": "./supabase/functions/_shared/activity/storage.js",
-    "./activity/extract/github": "./supabase/functions/_shared/activity/extract/github.js",
-    "./activity/extract/getdx": "./supabase/functions/_shared/activity/extract/getdx.js",
-    "./activity/extract/people": "./supabase/functions/_shared/activity/extract/people.js",
-    "./activity/transform/github": "./supabase/functions/_shared/activity/transform/github.js",
-    "./activity/transform/getdx": "./supabase/functions/_shared/activity/transform/getdx.js",
-    "./activity/transform/people": "./supabase/functions/_shared/activity/transform/people.js",
-    "./activity/transform": "./supabase/functions/_shared/activity/transform/index.js"
+    "./activity/storage": "./src/activity/storage.js",
+    "./activity/extract/github": "./src/activity/extract/github.js",
+    "./activity/extract/getdx": "./src/activity/extract/getdx.js",
+    "./activity/extract/people": "./src/activity/extract/people.js",
+    "./activity/transform/github": "./src/activity/transform/github.js",
+    "./activity/transform/getdx": "./src/activity/transform/getdx.js",
+    "./activity/transform/people": "./src/activity/transform/people.js",
+    "./activity/transform": "./src/activity/transform/index.js"
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",

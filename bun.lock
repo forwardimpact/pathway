@@ -91,7 +91,7 @@
     },
     "libraries/libeval": {
       "name": "@forwardimpact/libeval",
-      "version": "0.1.12",
+      "version": "0.1.13",
       "bin": {
         "fit-eval": "./bin/fit-eval.js",
       },
@@ -271,7 +271,7 @@
     },
     "libraries/libskill": {
       "name": "@forwardimpact/libskill",
-      "version": "4.1.8",
+      "version": "4.1.9",
       "dependencies": {
         "@forwardimpact/map": "^0.13.0",
       },
@@ -530,7 +530,7 @@
     },
     "products/map": {
       "name": "@forwardimpact/map",
-      "version": "0.15.19",
+      "version": "0.15.20",
       "bin": {
         "fit-map": "./bin/fit-map.js",
       },
@@ -558,8 +558,9 @@
         "fit-pathway": "./bin/fit-pathway.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libskill": "^4.0.0",
+        "@forwardimpact/libtelemetry": "^0.1.33",
         "@forwardimpact/libtemplate": "^0.2.0",
         "@forwardimpact/libui": "^1.0.0",
         "@forwardimpact/libutil": "^0.1.64",

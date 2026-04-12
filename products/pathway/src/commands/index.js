@@ -16,6 +16,4 @@ export { runJobCommand } from "./job.js";
 export { runInterviewCommand } from "./interview.js";
 export { runProgressCommand } from "./progress.js";
 export { runQuestionsCommand } from "./questions.js";
-export { runServeCommand } from "./serve.js";
-export { runSiteCommand } from "./site.js";
 export { runUpdateCommand } from "./update.js";

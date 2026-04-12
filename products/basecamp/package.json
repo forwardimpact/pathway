@@ -35,7 +35,8 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@forwardimpact/libcli": "^0.1.0"
+    "@forwardimpact/libcli": "^0.1.0",
+    "@forwardimpact/libtelemetry": "^0.1.33"
   },
   "publishConfig": {
     "access": "public"

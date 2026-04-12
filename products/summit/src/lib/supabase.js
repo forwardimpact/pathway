@@ -6,8 +6,6 @@
  * the same factory for evidence and outcomes decorators.
  */
 
-import { createClient } from "@supabase/supabase-js";
-
 export class SupabaseUnavailableError extends Error {
   constructor(reason) {
     super(`Supabase connection unavailable: ${reason}`);
@@ -22,9 +20,9 @@ export class SupabaseUnavailableError extends Error {
  * @param {string} [opts.url] - Override for MAP_SUPABASE_URL.
  * @param {string} [opts.serviceRoleKey] - Override for MAP_SUPABASE_SERVICE_ROLE_KEY.
  * @param {string} [opts.schema] - Database schema (default: "activity").
- * @returns {import("@supabase/supabase-js").SupabaseClient}
+ * @returns {Promise<import("@supabase/supabase-js").SupabaseClient>}
  */
-export function createSummitClient(opts = {}) {
+export async function createSummitClient(opts = {}) {
   const url = opts.url ?? process.env.MAP_SUPABASE_URL;
   const key = opts.serviceRoleKey ?? process.env.MAP_SUPABASE_SERVICE_ROLE_KEY;
   const schema = opts.schema ?? "activity";
@@ -34,6 +32,16 @@ export function createSummitClient(opts = {}) {
       "MAP_SUPABASE_URL / MAP_SUPABASE_SERVICE_ROLE_KEY not set. " +
         "Run `fit-map activity start` and export the URL + key it prints, " +
         "or use --roster <path> to load from a local YAML file instead.",
+    );
+  }
+
+  let createClient;
+  try {
+    ({ createClient } = await import("@supabase/supabase-js"));
+  } catch {
+    throw new Error(
+      "Supabase features require @supabase/supabase-js. " +
+        "Install with: npm install @supabase/supabase-js",
     );
   }
 

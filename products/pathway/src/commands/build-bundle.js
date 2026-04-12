@@ -11,6 +11,9 @@ import { cp, mkdir, rm, readFile, writeFile } from "fs/promises";
 import { join } from "path";
 import { execFileSync } from "child_process";
 import Mustache from "mustache";
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("pathway");
 
 /**
  * Generate distribution bundle (bundle.tar.gz + install.sh)
@@ -30,7 +33,7 @@ export async function generateBundle({
   version,
   templatesDir,
 }) {
-  console.log("📦 Generating distribution bundle...");
+  logger.info("📦 Generating distribution bundle...");
 
   const frameworkTitle = framework.title || "Engineering Pathway";
 
@@ -51,14 +54,14 @@ export async function generateBundle({
     join(bundleDir, "package.json"),
     JSON.stringify(bundlePkg, null, 2) + "\n",
   );
-  console.log(`   ✓ package.json (pathway ^${version})`);
+  logger.info(`   ✓ package.json (pathway ^${version})`);
 
   // 3. Copy data files into bundle
   await cp(dataDir, join(bundleDir, "data"), {
     recursive: true,
     dereference: true,
   });
-  console.log("   ✓ data/");
+  logger.info("   ✓ data/");
 
   // 4. Create tar.gz from the bundle directory
   execFileSync("tar", [
@@ -68,7 +71,7 @@ export async function generateBundle({
     outputDir,
     "_bundle",
   ]);
-  console.log("   ✓ bundle.tar.gz");
+  logger.info("   ✓ bundle.tar.gz");
 
   // 5. Clean up temporary bundle directory
   await rm(bundleDir, { recursive: true });
@@ -84,5 +87,5 @@ export async function generateBundle({
   await writeFile(join(outputDir, "install.sh"), installScript, {
     mode: 0o755,
   });
-  console.log("   ✓ install.sh");
+  logger.info("   ✓ install.sh");
 }

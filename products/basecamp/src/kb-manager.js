@@ -12,6 +12,10 @@ import {
 } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("basecamp");
+
 export class KBManager {
   #fs;
 
@@ -82,7 +86,7 @@ export class KBManager {
    */
   copyBundledFiles(tpl, dest) {
     this.#fs.copyFileSync(join(tpl, "CLAUDE.md"), join(dest, "CLAUDE.md"));
-    console.log(`  Updated CLAUDE.md`);
+    logger.info(`  Updated CLAUDE.md`);
 
     this.mergeSettings(tpl, dest);
 
@@ -98,7 +102,7 @@ export class KBManager {
       const names = entries.map((d) =>
         sub === "agents" ? d.name.replace(".md", "") : d.name,
       );
-      console.log(`  Updated ${names.length} ${sub}: ${names.join(", ")}`);
+      logger.info(`  Updated ${names.length} ${sub}: ${names.join(", ")}`);
     }
   }
 
@@ -116,7 +120,7 @@ export class KBManager {
     if (!this.#fs.existsSync(destPath)) {
       this.#ensureDir(join(dest, ".claude"));
       this.#fs.copyFileSync(src, destPath);
-      console.log(`  Created settings.json`);
+      logger.info(`  Created settings.json`);
       return;
     }
 
@@ -145,9 +149,9 @@ export class KBManager {
 
     if (added > 0) {
       this.#writeJSON(destPath, existing);
-      console.log(`  Updated settings.json (${added} new entries)`);
+      logger.info(`  Updated settings.json (${added} new entries)`);
     } else {
-      console.log(`  Settings up to date`);
+      logger.info(`  Settings up to date`);
     }
   }
 
@@ -177,7 +181,7 @@ export class KBManager {
 
     this.copyBundledFiles(templateDir, dest);
 
-    console.log(
+    logger.info(
       `Knowledge base initialized at ${dest}\n\nNext steps:\n  1. Edit ${dest}/USER.md with your name, email, and domain\n  2. cd ${dest} && claude`,
     );
   }
@@ -194,7 +198,7 @@ export class KBManager {
       process.exit(1);
     }
     this.copyBundledFiles(templateDir, dest);
-    console.log(`\nKnowledge base updated: ${dest}`);
+    logger.info(`\nKnowledge base updated: ${dest}`);
   }
 
   /**

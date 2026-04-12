@@ -13,6 +13,7 @@
  *      walking up from the fit-map package root to the consumer's node_modules)
  */
 
+import { Buffer } from "node:buffer";
 import { spawn as realSpawn } from "child_process";
 import { getPackageRoot } from "./package-root.js";
 
@@ -58,6 +59,7 @@ async function doResolve(spawnFn, cwd) {
  *   `node_modules/.bin/supabase` on the npm-local install path.
  * @returns {{
  *   run: (args: string[]) => Promise<void>,
+ *   capture: (args: string[]) => Promise<string>,
  *   resolve: () => Promise<{cmd: string, prefix: string[]} | null>,
  * }}
  */
@@ -96,5 +98,31 @@ export function createSupabaseCli({
     });
   }
 
-  return { run, resolve };
+  async function capture(args) {
+    const desc = await resolve();
+    if (!desc) {
+      throw new Error(
+        "Could not find the `supabase` CLI. Install it via Homebrew " +
+          "(`brew install supabase/tap/supabase`) or npm " +
+          "(`npm install supabase` in this project, or `npm install -g supabase`), " +
+          `then retry. See ${SUPABASE_INSTALL_URL}.`,
+      );
+    }
+
+    return new Promise((res, rej) => {
+      const chunks = [];
+      const child = spawnFn(desc.cmd, [...desc.prefix, ...args], {
+        cwd,
+        stdio: ["inherit", "pipe", "inherit"],
+      });
+      child.stdout.on("data", (chunk) => chunks.push(chunk));
+      child.on("error", rej);
+      child.on("exit", (code) => {
+        if (code === 0) res(Buffer.concat(chunks).toString());
+        else rej(new Error(`supabase ${args.join(" ")} exited ${code}`));
+      });
+    });
+  }
+
+  return { run, capture, resolve };
 }

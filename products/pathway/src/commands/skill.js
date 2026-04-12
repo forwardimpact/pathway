@@ -65,14 +65,14 @@ function formatSummary(skills, data) {
  */
 function formatDetail(viewAndContext, framework) {
   const { skill, disciplines, tracks, drivers, capabilities } = viewAndContext;
-  console.log(
+  process.stdout.write(
     skillToMarkdown(skill, {
       disciplines,
       tracks,
       drivers,
       capabilities,
       framework,
-    }),
+    }) + "\n",
   );
 }
 

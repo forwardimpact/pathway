@@ -16,8 +16,6 @@ import {
   SummaryRenderer,
 } from "@forwardimpact/libcli";
 
-const summary = new SummaryRenderer({ process });
-
 /**
  * Find valid agent combination pairs
  * @param {Object} data - Pathway data
@@ -47,6 +45,7 @@ export function findValidCombinations(data, agentData) {
  * @param {Array} skillsWithAgent - Skills with agent sections
  */
 export function showAgentSummary(data, agentData, skillsWithAgent) {
+  const summary = new SummaryRenderer({ process });
   const validCombinations = findValidCombinations(data, agentData).length;
   const skillsWithAgentCount = skillsWithAgent.filter((s) => s.agent).length;
 
@@ -101,9 +100,8 @@ function listAgentCombinationsCompact(data, agentData) {
     const abbrev = getDisciplineAbbreviation(discipline.id);
     const agentName = `${abbrev}-${toKebabCase(track.id)}`;
     const specName = humanDiscipline.specialization || humanDiscipline.id;
-    // Piped output — keep as plain console.log for stable format
-    console.log(
-      `${agentName} ${discipline.id} ${track.id}, ${specName} (${humanTrack.name})`,
+    process.stdout.write(
+      `${agentName} ${discipline.id} ${track.id}, ${specName} (${humanTrack.name})\n`,
     );
   }
 }

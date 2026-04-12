@@ -100,7 +100,7 @@ function safeResolveTeam(roster, data, target) {
 
 async function loadEvidenceSafe(resolved, options) {
   try {
-    const client = options.supabase ?? createSummitClient();
+    const client = options.supabase ?? (await createSummitClient());
     return await loadEvidence(client, {
       team: resolved,
       lookbackMonths: Number(options["lookback-months"] ?? 12),

@@ -33,7 +33,7 @@ export async function runToolCommand({ data, args, options }) {
   // --list: Output descriptive comma-separated tool lines for piping
   if (options.list) {
     for (const tool of tools) {
-      console.log(`${tool.name}, ${truncate(tool.description, 60)}`);
+      process.stdout.write(`${tool.name}, ${truncate(tool.description, 60)}\n`);
     }
     return;
   }
@@ -41,7 +41,7 @@ export async function runToolCommand({ data, args, options }) {
   // No args: Show summary
   if (!name) {
     if (options.json) {
-      console.log(JSON.stringify(tools, null, 2));
+      process.stdout.write(JSON.stringify(tools, null, 2) + "\n");
       return;
     }
     formatSummary(tools, totalCount);
@@ -58,7 +58,7 @@ export async function runToolCommand({ data, args, options }) {
   }
 
   if (options.json) {
-    console.log(JSON.stringify(tool, null, 2));
+    process.stdout.write(JSON.stringify(tool, null, 2) + "\n");
     return;
   }
 

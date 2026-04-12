@@ -11,7 +11,10 @@ import { join } from "path";
 import { homedir } from "os";
 import { execFileSync } from "child_process";
 import { tmpdir } from "os";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { createDataLoader } from "@forwardimpact/map/loader";
+
+const logger = createLogger("pathway");
 
 const BASE_DIR = join(homedir(), ".fit", "data");
 const INSTALL_DIR = join(BASE_DIR, "pathway");
@@ -53,7 +56,7 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
   const baseUrl = siteUrl.replace(/\/$/, "");
   const bundleName = "bundle.tar.gz";
 
-  console.log(`\n🔄 Updating from ${baseUrl}...\n`);
+  logger.info(`\n🔄 Updating from ${baseUrl}...\n`);
 
   // 1. Download bundle to temp location
   const tmpDir = join(tmpdir(), "fit-pathway-update");
@@ -62,17 +65,17 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
   const tmpBundle = join(tmpDir, bundleName);
 
   try {
-    console.log("   Downloading bundle...");
+    logger.info("   Downloading bundle...");
     execFileSync("curl", [
       "-fsSL",
       `${baseUrl}/${bundleName}`,
       "-o",
       tmpBundle,
     ]);
-    console.log("   ✓ Downloaded");
+    logger.info("   ✓ Downloaded");
 
     // 2. Extract bundle
-    console.log("   Extracting...");
+    logger.info("   Extracting...");
     const extractDir = join(tmpDir, "extracted");
     await mkdir(extractDir, { recursive: true });
     execFileSync("tar", [
@@ -82,7 +85,7 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
       extractDir,
       "--strip-components=1",
     ]);
-    console.log("   ✓ Extracted");
+    logger.info("   ✓ Extracted");
 
     // 3. Compare versions from bundle's package.json (version manifest)
     const newPkgPath = join(extractDir, "package.json");
@@ -101,17 +104,17 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
       newPkg.dependencies?.["@forwardimpact/pathway"] || "unknown";
 
     // 4. Replace data
-    console.log("   Updating data files...");
+    logger.info("   Updating data files...");
     await rm(INSTALL_DIR, { recursive: true });
     await cp(join(extractDir, "data"), INSTALL_DIR, { recursive: true });
-    console.log("   ✓ Data updated");
+    logger.info("   ✓ Data updated");
 
     // 5. Update version manifest
     await writeFile(oldPkgPath, JSON.stringify(newPkg, null, 2) + "\n");
 
     // 6. Update global pathway package if version changed
     if (oldVersion !== newVersion) {
-      console.log(`   Updating pathway ${oldVersion} → ${newVersion}...`);
+      logger.info(`   Updating pathway ${oldVersion} → ${newVersion}...`);
       execFileSync(
         "npm",
         ["install", "-g", `@forwardimpact/pathway@${newVersion}`],
@@ -119,11 +122,11 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
           stdio: "ignore",
         },
       );
-      console.log("   ✓ Global package updated");
+      logger.info("   ✓ Global package updated");
     }
 
     // 7. Report
-    console.log(`
+    logger.info(`
 ✅ Update complete!
 
   Pathway: ${oldVersion === newVersion ? newVersion + " (unchanged)" : oldVersion + " → " + newVersion}
