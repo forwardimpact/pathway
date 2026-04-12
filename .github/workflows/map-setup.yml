@@ -1,4 +1,4 @@
-name: "Gemba: Map Setup"
+name: "Kata: Map Setup"
 
 on:
   workflow_dispatch: # Manual trigger for on-demand evaluation
@@ -64,7 +64,7 @@ jobs:
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
 
       - name: Evaluate Map Setup
-        uses: ./.github/actions/gemba-action
+        uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_TOKEN: ${{ steps.llm-app.outputs.token }}

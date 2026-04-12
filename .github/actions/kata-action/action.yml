@@ -1,4 +1,4 @@
-name: Gemba Action
+name: Kata Action
 description: Run agent tasks via the fit-eval CLI using the Claude Agent SDK
 
 inputs:

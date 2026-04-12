@@ -1,4 +1,4 @@
-name: "Gemba: Improvement Coach"
+name: "Kata: Improvement Coach"
 
 on:
   schedule:
@@ -39,14 +39,14 @@ jobs:
       - uses: ./.github/actions/bootstrap
 
       - name: Analyze Agent Traces
-        uses: ./.github/actions/gemba-action
+        uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Walk the gemba and act on findings.
+          task-text: Grasp the current condition and act on findings.
           agent-profile: "improvement-coach"
           model: "opus"
           max-turns: "200"

@@ -1,5 +1,5 @@
 #!/usr/bin/env bash
-# Find recent GitHub Actions workflow runs whose workflow name contains "Gemba"
+# Find recent GitHub Actions workflow runs whose workflow name contains "Kata"
 # (case-insensitive). Returns structured JSON for each matching run.
 #
 # Usage: find-runs.sh [lookback]
@@ -35,14 +35,14 @@ parse_cutoff() {
 cutoff=$(parse_cutoff "$lookback")
 
 # List all workflow runs since the cutoff, filter to those whose workflow name
-# contains "gemba" (case-insensitive), and emit structured JSON.
+# contains "kata" (case-insensitive), and emit structured JSON.
 gh run list \
   --limit 200 \
   --json databaseId,workflowName,status,conclusion,createdAt,headBranch,url \
   --jq "
     [.[] | select(
       (.createdAt >= \"$cutoff\") and
-      (.workflowName | ascii_downcase | contains(\"gemba\"))
+      (.workflowName | ascii_downcase | contains(\"kata\"))
     )]
     | sort_by(.createdAt) | reverse
     | .[]
