@@ -114,7 +114,7 @@ package installed.
 
 ### Step 3: Update callers to await
 
-`createSummitClient` is now async. Two call sites need `await`:
+`createSummitClient` is now async. Four call sites need `await`:
 
 **File:** `products/summit/src/roster/loader.js`
 
@@ -136,8 +136,45 @@ const client = await createClient();
 
 **File:** `products/summit/src/commands/coverage.js`
 
-If `createSummitClient()` is called directly in coverage.js,
-add `await`. `runCoverageCommand` is already `async`.
+Line 89 calls `createSummitClient()` directly inside the async
+`decorateWithEvidence` helper:
+```javascript
+// Before
+const client = options.supabase ?? createSummitClient();
+
+// After
+const client = options.supabase ?? await createSummitClient();
+```
+
+**File:** `products/summit/src/commands/growth.js`
+
+Two call sites inside async helpers:
+- Line 99 in `loadEvidenceSafe()`: `options.supabase ?? createSummitClient()`
+- Line 118 in `loadScoresSafe()`: `options.supabase ?? createSummitClient()`
+
+Add `await` to both:
+```javascript
+// Before
+const client = options.supabase ?? createSummitClient();
+
+// After
+const client = options.supabase ?? await createSummitClient();
+```
+
+Both helpers are `async` functions.
+
+**File:** `products/summit/src/commands/risks.js`
+
+Line 103 in `loadEvidenceSafe()`: same pattern as growth.js.
+```javascript
+// Before
+const client = options.supabase ?? createSummitClient();
+
+// After
+const client = options.supabase ?? await createSummitClient();
+```
+
+Already inside an `async` function.
 
 ## Blast radius
 
@@ -146,10 +183,9 @@ add `await`. `runCoverageCommand` is already `async`.
 | Modified | `products/summit/package.json`            |
 | Modified | `products/summit/src/lib/supabase.js`     |
 | Modified | `products/summit/src/roster/loader.js`    |
-
-Coverage.js imports `createSummitClient` but may not call it directly (it may
-delegate through `loadRoster`). Verify during implementation — only modify if a
-direct call exists.
+| Modified | `products/summit/src/commands/coverage.js` |
+| Modified | `products/summit/src/commands/growth.js`  |
+| Modified | `products/summit/src/commands/risks.js`   |
 
 ## Ordering
 
@@ -161,10 +197,10 @@ Steps are strictly sequential within this part.
 
 ## Risks
 
-- **Async propagation.** Making `createSummitClient` async propagates to any
-  synchronous caller. From the codebase research, both known callers
-  (`loadRoster`, `runCoverageCommand`) are already async. Verify no other
-  callers exist with `grep -rn "createSummitClient" products/summit/src/`.
+- **Async propagation.** Making `createSummitClient` async propagates to every
+  caller. All four verified call sites (`loader.js`, `coverage.js`, `growth.js`,
+  `risks.js`) are inside `async` functions, so adding `await` is safe. The
+  re-export in `src/index.js` is pass-through and unaffected.
 - **JSDoc type annotations.** Several files reference
   `import("@supabase/supabase-js").SupabaseClient` in JSDoc. These are type-only
   annotations and do not cause runtime imports — leave them unchanged.

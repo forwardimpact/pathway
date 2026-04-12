@@ -5,8 +5,8 @@
 Two packages use `console.log` for operational output instead of
 `createLogger` from `@forwardimpact/libtelemetry`:
 
-- **basecamp:** 22 occurrences across 3 files.
-- **libdoc:** 9 occurrences across 2 files.
+- **basecamp:** 23 occurrences across 3 files.
+- **libdoc:** 10 occurrences across 2 files.
 
 All calls are operational messages (status, progress, validation output) — none
 emit structured data for pipeline consumption.
@@ -58,7 +58,7 @@ itself uses `console.log(line)` to emit a line. Replace with `logger.info(line)`
 If the callback is passed to an external consumer, ensure the signature remains
 compatible.
 
-#### Step 3: Migrate src/kb-manager.js — 6 calls
+#### Step 3: Migrate src/kb-manager.js — 7 calls
 
 **File:** `products/basecamp/src/kb-manager.js`
 
@@ -68,7 +68,7 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("basecamp");
 ```
 
-Replace all 6 `console.log` calls with `logger.info()`:
+Replace all 7 `console.log` calls with `logger.info()`:
 
 | Line | Current purpose                  |
 |------|----------------------------------|
@@ -78,6 +78,7 @@ Replace all 6 `console.log` calls with `logger.info()`:
 | 148  | Settings update confirmation     |
 | 150  | Settings up-to-date message      |
 | 180  | KB update summary (multi-line)   |
+| 197  | KB updated final message         |
 
 #### Step 4: Migrate src/socket-server.js — 4 calls
 
@@ -125,7 +126,7 @@ Replace all 7 `console.log` calls with `logger.info()`:
 | 544  | "Building documentation..." start   |
 | 591  | "Documentation build complete!"     |
 
-#### Step 6: Migrate src/server.js — 2 calls
+#### Step 6: Migrate src/server.js — 3 calls
 
 **File:** `libraries/libdoc/src/server.js`
 
@@ -135,16 +136,13 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("libdoc");
 ```
 
-Replace all 2 `console.log` calls with `logger.info()`:
+Replace all 3 `console.log` calls with `logger.info()`:
 
 | Line | Current purpose                          |
 |------|------------------------------------------|
 | 36   | File watch start message                 |
 | 48   | Rebuild trigger notification             |
 | 151  | Server ready URL                         |
-
-**Note:** The research identified 2 occurrences but listed 3 lines — verify
-the exact count during implementation. Replace all `console.log` calls found.
 
 ## Blast radius
 
