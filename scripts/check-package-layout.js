@@ -20,7 +20,7 @@ const ALLOWED_SUBDIRS = new Set([
 ]);
 
 // Dirs the working tree may contain but that are gitignored / out of scope.
-const IGNORED_SUBDIRS = new Set(["node_modules"]);
+const IGNORED_SUBDIRS = new Set(["node_modules", "generated"]);
 
 const TIERS = ["products", "services", "libraries"];
 const strict = !process.argv.includes("--no-strict");
