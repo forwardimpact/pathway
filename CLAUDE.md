@@ -125,7 +125,7 @@ whenever you encounter one. Design and authoring rules:
 **Every contribution** must run both universal checklists:
 [CONTRIBUTING.md § READ-DO](CONTRIBUTING.md#read-do) (before starting) and
 [§ DO-CONFIRM](CONTRIBUTING.md#do-confirm) (before committing). Domain-specific
-checklists live in `.claude/skills/gemba-*/SKILL.md`. Discover all checklists
+checklists live in `.claude/skills/kata-*/SKILL.md`. Discover all checklists
 repo-wide:
 
 ```sh
@@ -312,23 +312,23 @@ above.
 - **Security policies** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
 - **Dependency policy** —
   [CONTRIBUTING.md § Dependency Policy](CONTRIBUTING.md#dependency-policy)
-- **Repo self-maintenance** — [GEMBA.md](GEMBA.md)
-- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki submodule; gemba agents
+- **Repo self-maintenance** — [KATA.md](KATA.md)
+- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki submodule; kata agents
   read and write per-agent summaries and weekly logs here)
 - **Environment, services, tasks** —
   [Operations Reference](website/docs/internals/operations/)
 - **Supply chain & app security** —
-  [gemba-security-audit skill](.claude/skills/gemba-security-audit)
+  [kata-security-audit skill](.claude/skills/kata-security-audit)
 - **Security update** —
-  [gemba-security-update skill](.claude/skills/gemba-security-update)
+  [kata-security-update skill](.claude/skills/kata-security-update)
 - **Release readiness** —
-  [gemba-release-readiness skill](.claude/skills/gemba-release-readiness)
+  [kata-release-readiness skill](.claude/skills/kata-release-readiness)
 - **Release review** —
-  [gemba-release-review skill](.claude/skills/gemba-release-review)
+  [kata-release-review skill](.claude/skills/kata-release-review)
 - **Documentation review** —
-  [gemba-documentation skill](.claude/skills/gemba-documentation)
+  [kata-documentation skill](.claude/skills/kata-documentation)
 - **Wiki curation** —
-  [gemba-wiki-curate skill](.claude/skills/gemba-wiki-curate)
+  [kata-wiki-curate skill](.claude/skills/kata-wiki-curate)
 - **Codegen pipeline** — [Codegen Internals](website/docs/internals/codegen/)
 - **REPL API** — [librepl internals](website/docs/internals/librepl/)
 - **Getting started (contributors)** —
