@@ -131,8 +131,9 @@ operate on trusted sources (our agents, Dependabot).
 ```mermaid
 graph TD
     EXT["External PR"] --> PM["Product Manager<br/>trust + CI gate"]
-    ISS["GitHub Issue"] --> PM
+    ISS["External Issue"] --> PM
     PM -- "merge fix/bug/spec" --> CB["Codebase (main)"]
+    style PM fill:#a855f7,stroke:#7c3aed,color:#fff
     CB -- "approved spec" --> TA["Trusted Agents<br/>plan + implement"]
     TA --> CB
     SE["Security Engineer"] -- "Dependabot" --> CB
@@ -145,7 +146,7 @@ graph TD
 | `spec`           | Specification document only     | Trusted agents, never the contributor |
 | Everything else  | Nothing — requires human review | N/A                                   |
 
-Top-20 contributors pass the trust gate. CI app PRs (`forward-impact-ci`) are
+Top-7 contributors pass the trust gate. CI app PRs (`forward-impact-ci`) are
 trusted by identity. Even a compromised top contributor cannot inject code
 through the autonomous pipeline — specs merge only the document, not code.
 

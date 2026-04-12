@@ -7,7 +7,7 @@ Comment templates and report formats for PR triage.
 ### Untrusted Author
 
 ```sh
-gh pr comment <number> --body "Product backlog triage: skipping — author \`<login>\` is not in the top 20 contributors. Requires human review."
+gh pr comment <number> --body "Product backlog triage: skipping — author \`<login>\` is not in the top 7 contributors. Requires human review."
 ```
 
 ### Unsupported PR Type

@@ -37,7 +37,7 @@ All comment templates and the report format are in `references/templates.md`.
 
 <do_confirm_checklist goal="Verify all gates pass before merging a PR">
 
-- [ ] **Author is trusted** — CI app or top-20 lookup (Step 2). On failure, mark
+- [ ] **Author is trusted** — CI app or top-7 lookup (Step 2). On failure, mark
       **blocked** and comment that only trusted authors merge.
 - [ ] **PR type is `fix`, `bug`, or `spec`** — parse title prefix (Step 3). On
       failure, mark **blocked** and comment that the PR type is outside scope.
@@ -79,12 +79,12 @@ gh pr view <number> --json author --jq '.author.login'
 If `app/forward-impact-ci`, the PR is **trusted by definition** — skip the
 contributor lookup and proceed to Step 3.
 
-For all other authors, look up the top 20 human contributors (canonical shape:
-[`gemba-gh-cli` § Contributor trust lookup](../gemba-gh-cli/SKILL.md#contributor-trust-lookup-top-20-gate)):
+For all other authors, look up the top 7 human contributors (canonical shape:
+[`gemba-gh-cli` § Contributor trust lookup](../gemba-gh-cli/SKILL.md#contributor-trust-lookup-top-7-gate)):
 
 ```sh
 gh api repos/{owner}/{repo}/contributors \
-  --jq '[.[] | select(.type == "User")] | .[0:20] | .[].login'
+  --jq '[.[] | select(.type == "User")] | .[0:7] | .[].login'
 ```
 
 The PR author must appear in this list. If not, mark **blocked** and record the

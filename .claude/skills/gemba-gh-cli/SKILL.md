@@ -64,17 +64,17 @@ gh pr list --author 'app/dependabot' --state open \
   --json number,title,headRefName
 ```
 
-### Contributor trust lookup (top-20 gate)
+### Contributor trust lookup (top-7 gate)
 
 Used by `gemba-product-classify` before any external PR is marked mergeable. The
 `gemba-walk` invariant audit verifies this call ran for every non-CI-app PR.
 
 ```sh
 gh api repos/{owner}/{repo}/contributors \
-  --jq '[.[] | select(.type == "User")] | .[0:20] | .[].login'
+  --jq '[.[] | select(.type == "User")] | .[0:7] | .[].login'
 ```
 
-The `select(.type == "User")` filter excludes bot accounts from the top-20
+The `select(.type == "User")` filter excludes bot accounts from the top-7
 ranking — a bot with high contribution volume must not gate human authors.
 
 `app/forward-impact-ci` short-circuits the gate — skip the lookup for CI app PRs
