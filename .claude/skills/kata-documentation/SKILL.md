@@ -61,7 +61,7 @@ Each run covers **one topic** in depth.
 | `reference`              | `website/docs/reference/` — CLI synopsis, entity definitions, schema  |
 | `internals`              | `website/docs/internals/` — architecture accuracy, code path validity |
 | `product-pages`          | `website/{map,pathway,guide,basecamp,landmark,summit}/` — overviews   |
-| `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `KATA.md`, `SECURITY.md`             |
+| `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `KATA.md`, `SECURITY.md`              |
 | `llms-txt-and-seo`       | `website/llms.txt`, `website/robots.txt`, sitemap completeness        |
 | `cross-page-consistency` | Terminology, proficiency scales, field names across all pages         |
 

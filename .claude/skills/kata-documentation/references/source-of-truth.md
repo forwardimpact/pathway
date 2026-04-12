@@ -24,4 +24,4 @@ source. Never trust documentation alone — read the code.
 | JSON Schema           | `products/map/schema/json/`                 |
 | RDF/SHACL Schema      | `products/map/schema/rdf/`                  |
 | LLM / SEO outputs     | `website/llms.txt`, `website/robots.txt`    |
-| Repo self-maintenance | `KATA.md`                                  |
+| Repo self-maintenance | `KATA.md`                                   |

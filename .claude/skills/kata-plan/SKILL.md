@@ -193,8 +193,8 @@ from prior `staff-engineer` entries.
 5. **Clean sub-agent review.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
    to launch a fresh sub-agent that grades `plan-a.md` (and any `plan-a-NN.md`
-   parts). Tell the reviewer not to invoke `kata-plan`. Verify findings,
-   address all confirmed blocker/high/medium issues before advancing.
+   parts). Tell the reviewer not to invoke `kata-plan`. Verify findings, address
+   all confirmed blocker/high/medium issues before advancing.
 6. **Present the plan.** Share it for feedback.
 7. **Update STATUS.** When both spec and plan are approved, advance the spec's
    status from `review` to `planned`. Do not advance while the plan is still

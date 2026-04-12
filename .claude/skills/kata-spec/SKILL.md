@@ -10,8 +10,8 @@ description: >
 # Write and Review Specs
 
 A spec defines WHAT to build and WHY. Pair with the
-[`kata-plan`](../kata-plan/SKILL.md) skill — once a spec is approved, the
-staff engineer turns it into a plan that translates the WHAT/WHY into HOW.
+[`kata-plan`](../kata-plan/SKILL.md) skill — once a spec is approved, the staff
+engineer turns it into a plan that translates the WHAT/WHY into HOW.
 
 **Spec and plan are independent deliverables.** Only produce the one the user
 asked for. If they ask for a spec, write the spec and stop.
@@ -88,8 +88,8 @@ Specs track progress in `specs/STATUS`. The lifecycle is:
 draft → review → planned → active → done
 ```
 
-| Status    | Meaning                                     | Set by            |
-| --------- | ------------------------------------------- | ----------------- |
+| Status    | Meaning                                     | Set by           |
+| --------- | ------------------------------------------- | ---------------- |
 | `draft`   | Spec is being written, not ready for review | `kata-spec`      |
 | `review`  | Spec is ready for evaluation                | `kata-spec`      |
 | `planned` | Spec approved and a plan is approved        | `kata-plan`      |
@@ -97,8 +97,8 @@ draft → review → planned → active → done
 | `done`    | Implemented                                 | `kata-implement` |
 
 This skill owns the `draft` and `review` transitions. The `kata-plan` skill
-advances to `planned` once both spec and plan are approved. The
-`kata-implement` skill owns `active` and `done`.
+advances to `planned` once both spec and plan are approved. The `kata-implement`
+skill owns `active` and `done`.
 
 ## Reviewing a Spec
 

@@ -103,8 +103,8 @@ change that requires design review before implementation (e.g.
 Post-1.0 packages use semver: breaking=major, feat=minor, fix/refactor=patch.
 
 The release engineer agent handles version bumps, tagging, and publishing. See
-the [kata-release-review skill](.claude/skills/kata-release-review) for the
-full release procedure.
+the [kata-release-review skill](.claude/skills/kata-release-review) for the full
+release procedure.
 
 ## Quality Commands
 

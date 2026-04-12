@@ -6,8 +6,8 @@ Shared protocol for callers of `kata-review`. Used by `kata-spec` (Step 5),
 ## How to invoke
 
 1. **Launch a fresh sub-agent** via the `Agent` tool with no prior conversation
-   context. Instruct it to load the [`kata-review`](../SKILL.md) skill and
-   grade the artifact (spec, plan, or diff).
+   context. Instruct it to load the [`kata-review`](../SKILL.md) skill and grade
+   the artifact (spec, plan, or diff).
 
 2. **Tell the reviewer not to invoke the parent skill** (e.g., "do not invoke
    `kata-spec`") — defense in depth on top of the structural recursion fix.

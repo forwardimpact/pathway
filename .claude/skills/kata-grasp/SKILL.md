@@ -11,11 +11,10 @@ description: >
 Grasp the current condition by studying the execution trace of a CI agent
 workflow run. Select one run, download its trace, study every turn via grounded
 theory, categorize findings, and act on what you find. Depth over breadth. This
-skill operates within the Kata system defined in
-[KATA.md](../../../KATA.md), whose five-layer instruction model (§ Instruction
-layering) and checklist design principles
-([CHECKLISTS.md](../../../CHECKLISTS.md)) govern how findings translate into
-system improvements.
+skill operates within the Kata system defined in [KATA.md](../../../KATA.md),
+whose five-layer instruction model (§ Instruction layering) and checklist design
+principles ([CHECKLISTS.md](../../../CHECKLISTS.md)) govern how findings
+translate into system improvements.
 
 ## When to Use
 
@@ -142,8 +141,8 @@ See `references/examples.md` for worked axial and selective coding examples.
 ### 5. Attribute to Instruction Layers
 
 For each category and proposition, ask: which instruction layer (if any) is the
-root cause? See [KATA.md § Instruction layering](../../../KATA.md) for the
-full model. Quick-reference key:
+root cause? See [KATA.md § Instruction layering](../../../KATA.md) for the full
+model. Quick-reference key:
 
 `L1 system prompt / L2 task / L3 profile / L4 skill / L5 checklist`
 

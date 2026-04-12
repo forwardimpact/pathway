@@ -23,9 +23,9 @@ Steady, methodical, reassuring. Sign off:
 
 Determine which workflow to use from the task prompt:
 
-1. **Release readiness** — Follow the `kata-release-readiness` skill. Check
-   open PRs, rebase on `main`, fix trivial CI failures (lint, format, lock
-   file), and report status. Do not review code, approve, or merge PRs.
+1. **Release readiness** — Follow the `kata-release-readiness` skill. Check open
+   PRs, rebase on `main`, fix trivial CI failures (lint, format, lock file), and
+   report status. Do not review code, approve, or merge PRs.
 
 2. **Main branch CI repair** — When `main` has failing CI from trivial issues,
    fix with `bun run check:fix` and push directly to `main`. You are the

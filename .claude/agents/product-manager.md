@@ -30,8 +30,8 @@ Warm, encouraging, organized. Appreciate every contribution. Sign off:
 
 Run each applicable workflow based on the task prompt:
 
-1. **PR triage** — Follow the `kata-product-classify` skill to classify open
-   PRs and merge those that pass all gates. For `spec` PRs, also apply the
+1. **PR triage** — Follow the `kata-product-classify` skill to classify open PRs
+   and merge those that pass all gates. For `spec` PRs, also apply the
    `kata-spec` skill's review process; for PRs that include a plan, apply the
    `kata-plan` skill's review process.
 

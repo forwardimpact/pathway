@@ -45,11 +45,11 @@ All comment templates are in `references/templates.md`.
 
 ## Classification
 
-| Category            | Criteria                                              | Recommended action                    |
-| ------------------- | ----------------------------------------------------- | ------------------------------------- |
-| **Trivial fix/bug** | Clear bug or small fix with obvious resolution        | Fix PR (direct git ops, no spec)      |
+| Category            | Criteria                                              | Recommended action                   |
+| ------------------- | ----------------------------------------------------- | ------------------------------------ |
+| **Trivial fix/bug** | Clear bug or small fix with obvious resolution        | Fix PR (direct git ops, no spec)     |
 | **Product-aligned** | Feature/improvement serving the product vision        | Write spec via the `kata-spec` skill |
-| **Out of scope**    | Not aligned, unclear, duplicate, or already addressed | Comment + label `triaged`/`wontfix`   |
+| **Out of scope**    | Not aligned, unclear, duplicate, or already addressed | Comment + label `triaged`/`wontfix`  |
 
 ## Product Vision Alignment
 

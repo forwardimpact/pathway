@@ -155,8 +155,8 @@ After all tasks are complete, run the DO-CONFIRM checklist above.
 ### 8. Clean sub-agent review
 
 Follow the
-[`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-to launch a fresh sub-agent that grades the full diff
+[`kata-review` caller protocol](../kata-review/references/caller-protocol.md) to
+launch a fresh sub-agent that grades the full diff
 (`git diff origin/main...HEAD`). Provide spec path, plan path, and branch name
 so the reviewer can act independently. Tell the reviewer not to invoke
 `kata-implement`. Verify findings, address all confirmed blocker/high/medium

@@ -16,9 +16,9 @@ spawns sub-agents.
 
 ## When to Use
 
-- A `kata-spec`, `kata-plan`, or `kata-implement` workflow has reached its
-  clean sub-agent review step and you have been spawned with no prior context to
-  grade the artifact.
+- A `kata-spec`, `kata-plan`, or `kata-implement` workflow has reached its clean
+  sub-agent review step and you have been spawned with no prior context to grade
+  the artifact.
 - Any time another agent needs an independent quality grade on a spec, plan, or
   diff without changing it.
 
@@ -149,5 +149,5 @@ rubber-stamp.
 - **Do not modify the artifact.** Reviewers grade; they do not edit.
 - **Do not open PRs, comments, or commits.** Findings are returned to the
   caller, who decides what to act on.
-- **Do not invoke `kata-spec`, `kata-plan`, or `kata-implement`.** Their
-  Process steps would spawn another reviewer and loop.
+- **Do not invoke `kata-spec`, `kata-plan`, or `kata-implement`.** Their Process
+  steps would spawn another reviewer and loop.

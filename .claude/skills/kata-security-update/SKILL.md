@@ -53,7 +53,7 @@ each check to its policy source and failure action — merge, fix, close, or ski
 | Aligned version ranges   | CONTRIBUTING.md § Dependency Policy | **fix** — align all workspace ranges                          |
 | Clean npm audit          | CONTRIBUTING.md § Dependency Policy | **close** if new vuln; **skip** if pre-existing               |
 | No unnecessary deps      | CONTRIBUTING.md § Dependency Policy | **close** with explanation                                    |
-| First-party actions only | kata-security-audit § 1            | **close** with explanation                                    |
+| First-party actions only | kata-security-audit § 1             | **close** with explanation                                    |
 | Peer/transitive compat   | CONTRIBUTING.md § Dependency Policy | **close** until co-dependent packages release compat versions |
 
 When evaluating the SHA-pinning check, verify the PR updates **all** workflow

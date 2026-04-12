@@ -11,9 +11,9 @@ running on GitHub Actions that keep the codebase secure, release-ready, and
 steadily improving. The name comes from Toyota Kata — the improvement kata
 pattern of _understand the direction_, _grasp the current condition_, _establish
 the next target condition_, and _experiment toward it_. Kata agents grasp the
-current condition (by analyzing execution traces of prior runs), establish target
-conditions (via specs), and experiment toward them (via implementation). Ten
-scheduled workflows, six agent personas, and sixteen skills form a
+current condition (by analyzing execution traces of prior runs), establish
+target conditions (via specs), and experiment toward them (via implementation).
+Ten scheduled workflows, six agent personas, and sixteen skills form a
 self-reinforcing PDSA cycle.
 
 ## Architecture
@@ -30,8 +30,8 @@ checklists, and domain knowledge.
 All workflows share two composite actions:
 
 - `bootstrap/` — sets up Bun and installs dependencies.
-- `kata-action/` — runs a task against an agent profile via `fit-eval`,
-  captures the execution trace as NDJSON, and uploads it as an artifact.
+- `kata-action/` — runs a task against an agent profile via `fit-eval`, captures
+  the execution trace as NDJSON, and uploads it as an artifact.
 
 ## The PDSA Loop
 
@@ -62,14 +62,14 @@ graph LR
 Six agent personas, each with explicit scope constraints — when a finding
 exceeds an agent's scope, it writes a spec rather than attempting the fix.
 
-| Agent                 | Phase          | Purpose                                                             |
-| --------------------- | -------------- | ------------------------------------------------------------------- |
-| **staff-engineer**    | Plan, Do       | Own the full spec -> plan -> implement arc for approved specs       |
-| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI, cut releases       |
-| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies  |
-| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations      |
-| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps     |
-| **improvement-coach** | Study, Act     | Grasp current condition via traces, audit invariants, fix or spec   |
+| Agent                 | Phase          | Purpose                                                            |
+| --------------------- | -------------- | ------------------------------------------------------------------ |
+| **staff-engineer**    | Plan, Do       | Own the full spec -> plan -> implement arc for approved specs      |
+| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI, cut releases      |
+| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies |
+| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations     |
+| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps    |
+| **improvement-coach** | Study, Act     | Grasp current condition via traces, audit invariants, fix or spec  |
 
 ## Workflows
 
@@ -115,7 +115,8 @@ none for utilities). Reading an agent's skill list reveals its phase coverage.
 - `kata-product-evaluation` — user testing sessions
 - `kata-documentation` — one topic deep per run
 - `kata-wiki-curate` — agent memory hygiene
-- `kata-grasp` — grasp the current condition via trace observation and grounded theory
+- `kata-grasp` — grasp the current condition via trace observation and grounded
+  theory
 
 **Act**
 

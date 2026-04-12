@@ -327,8 +327,7 @@ above.
   [kata-release-review skill](.claude/skills/kata-release-review)
 - **Documentation review** —
   [kata-documentation skill](.claude/skills/kata-documentation)
-- **Wiki curation** —
-  [kata-wiki-curate skill](.claude/skills/kata-wiki-curate)
+- **Wiki curation** — [kata-wiki-curate skill](.claude/skills/kata-wiki-curate)
 - **Codegen pipeline** — [Codegen Internals](website/docs/internals/codegen/)
 - **REPL API** — [librepl internals](website/docs/internals/librepl/)
 - **Getting started (contributors)** —
