@@ -1,4 +1,4 @@
-name: "Gemba: Doc Review"
+name: "Kata: Doc Review"
 
 on:
   schedule:
@@ -39,7 +39,7 @@ jobs:
       - uses: ./.github/actions/bootstrap
 
       - name: Review Documentation
-        uses: ./.github/actions/gemba-action
+        uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
