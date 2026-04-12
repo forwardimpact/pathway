@@ -4,7 +4,7 @@
 
 Three violations in `products/pathway`:
 
-1. **73 `console.log` calls across 17 command files.** Operational output and
+1. **72 `console.log` calls across 17 command files.** Operational output and
    data display both go through `console.log`, polluting stdout.
 2. **2 dead re-exports** in `src/commands/index.js` reference non-existent
    `serve.js` and `site.js`, causing import failures.
@@ -138,10 +138,10 @@ Replace all with `process.stdout.write(... + "\n")`.
 
 Lines 36, 44, 61: tool listing output. Replace with `process.stdout.write()`.
 
-#### `src/commands/agent-list.js` — 2 calls
+#### `src/commands/agent-list.js` — 1 call
 
-Lines 104–107: piped agent listing (existing comment notes stable format).
-Replace with `process.stdout.write()`.
+Line 105 (spanning lines 105–107): piped agent listing (existing comment notes
+stable format). Replace with `process.stdout.write()`.
 
 #### `src/commands/questions.js` — 2 calls
 
