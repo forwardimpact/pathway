@@ -27,9 +27,9 @@ export async function start() {
     formatSubheader("Export these variables to use the activity layer:") +
       "\n\n",
   );
-  process.stdout.write(`  export MAP_SUPABASE_URL=${status.API_URL}\n`);
+  process.stdout.write(`  export MAP_SUPABASE_URL=${status.api_url}\n`);
   process.stdout.write(
-    `  export MAP_SUPABASE_SERVICE_ROLE_KEY=${status.SERVICE_ROLE_KEY}\n\n`,
+    `  export MAP_SUPABASE_SERVICE_ROLE_KEY=${status.service_role_key}\n\n`,
   );
   return 0;
 }
