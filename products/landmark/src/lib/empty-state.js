@@ -17,6 +17,8 @@ export const EMPTY_STATES = {
     "No GetDX snapshot data available. Run `fit-map getdx sync` (or `fit-map activity seed` for synthetic data) to ingest.",
   NO_COMMENTS:
     "Snapshot comments not available. The getdx_snapshot_comments table has not been created.",
+  NO_COMMENTS_EMPTY:
+    "No snapshot comments found. Run `fit-map getdx sync` to ingest GetDX snapshot comments.",
   NO_INITIATIVES:
     "Initiative data not available. The getdx_initiatives table has not been created.",
   NO_ORGANIZATION:

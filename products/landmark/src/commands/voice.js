@@ -90,7 +90,7 @@ async function runEmailVoice({
       view: null,
       meta: {
         format,
-        emptyState: EMPTY_STATES.NO_COMMENTS,
+        emptyState: EMPTY_STATES.NO_COMMENTS_EMPTY,
         hint: "No comments in scope — try broadening the --email filter.",
       },
     };
@@ -149,7 +149,7 @@ async function runManagerVoice({ managerEmail, supabase, mapData, format, q }) {
       view: null,
       meta: {
         format,
-        emptyState: EMPTY_STATES.NO_COMMENTS,
+        emptyState: EMPTY_STATES.NO_COMMENTS_EMPTY,
         hint: "No comments in scope — try broadening the --manager filter.",
       },
     };
