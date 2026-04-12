@@ -2,14 +2,16 @@
  * Formatters for the `health` command.
  */
 
-import { formatDelta, renderHeader } from "./shared.js";
+import { formatDelta, ordinalSuffix, renderHeader } from "./shared.js";
 
 export function toText(view) {
   const lines = [renderHeader(`${view.teamLabel} — health view`), ""];
 
   for (const driver of view.drivers) {
     const scorePart =
-      driver.score != null ? `${driver.score}th percentile` : "n/a";
+      driver.score != null
+        ? `${driver.score}${ordinalSuffix(driver.score)} percentile`
+        : "n/a";
     const orgPart =
       driver.vs_org != null ? `vs_org: ${formatDelta(driver.vs_org)}` : "";
     lines.push(
@@ -75,7 +77,9 @@ export function toMarkdown(view) {
 
   for (const driver of view.drivers) {
     const scorePart =
-      driver.score != null ? `${driver.score}th percentile` : "n/a";
+      driver.score != null
+        ? `${driver.score}${ordinalSuffix(driver.score)} percentile`
+        : "n/a";
     lines.push(`## Driver: ${driver.name} (${scorePart})`);
     lines.push("");
 

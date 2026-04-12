@@ -38,6 +38,24 @@ export function formatDelta(value) {
 }
 
 /**
+ * Return the English ordinal suffix for a number (e.g. 1 -> "st", 2 -> "nd").
+ * Handles the 11/12/13 special cases.
+ *
+ * @param {number} n
+ * @returns {string}
+ */
+export function ordinalSuffix(n) {
+  const i = Math.round(Math.abs(n));
+  const ones = i % 10;
+  const tens = i % 100;
+  if (tens >= 11 && tens <= 13) return "th";
+  if (ones === 1) return "st";
+  if (ones === 2) return "nd";
+  if (ones === 3) return "rd";
+  return "th";
+}
+
+/**
  * Render a simple key-value table.
  *
  * @param {Array<[string, string]>} rows
