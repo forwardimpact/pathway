@@ -14,27 +14,27 @@ package's violations in a self-contained part.
 
 ### Violation-to-part mapping
 
-| # | Violation category            | Part   | Packages affected        |
-|---|-------------------------------|--------|--------------------------|
-| 6 | Layout checker false-positive | 01     | scripts/                 |
-| 2 | Export contract violations    | 02, 03 | map (02), pathway (03)   |
-| 5 | Hardcoded credential          | 02     | map                      |
-| 1 | console.log bypasses logger   | 03, 04 | pathway, basecamp, libdoc|
-| 4 | OO+DI violation               | 03     | pathway                  |
-| 3 | Dependency misclassification  | 05     | summit                   |
+| #   | Violation category            | Part   | Packages affected         |
+| --- | ----------------------------- | ------ | ------------------------- |
+| 6   | Layout checker false-positive | 01     | scripts/                  |
+| 2   | Export contract violations    | 02, 03 | map (02), pathway (03)    |
+| 5   | Hardcoded credential          | 02     | map                       |
+| 1   | console.log bypasses logger   | 03, 04 | pathway, basecamp, libdoc |
+| 4   | OO+DI violation               | 03     | pathway                   |
+| 3   | Dependency misclassification  | 05     | summit                    |
 
 Pathway's dead exports (violation #2) are fixed in Part 03 alongside its other
 violations since the fix is two lines in the same file.
 
 ## Parts
 
-| Part | Scope                                      | Files | Depends on |
-|------|--------------------------------------------|----|------------|
-| [01](plan-a-01.md) | Layout checker: ignore `generated/`       | 1  | —          |
-| [02](plan-a-02.md) | Map: export compliance + credential removal | 14 | 01         |
-| [03](plan-a-03.md) | Pathway: logger migration, dead exports, singleton | 18 | 01   |
-| [04](plan-a-04.md) | Basecamp + libdoc: logger migration        | 7  | 01         |
-| [05](plan-a-05.md) | Summit: optional dependency reclassification | 6  | 01         |
+| Part               | Scope                                              | Files | Depends on |
+| ------------------ | -------------------------------------------------- | ----- | ---------- |
+| [01](plan-a-01.md) | Layout checker: ignore `generated/`                | 1     | —          |
+| [02](plan-a-02.md) | Map: export compliance + credential removal        | 14    | 01         |
+| [03](plan-a-03.md) | Pathway: logger migration, dead exports, singleton | 18    | 01         |
+| [04](plan-a-04.md) | Basecamp + libdoc: logger migration                | 7     | 01         |
+| [05](plan-a-05.md) | Summit: optional dependency reclassification       | 6     | 01         |
 
 ## Cross-cutting concerns
 
@@ -53,9 +53,9 @@ violations since the fix is two lines in the same file.
 Part 01 is a prerequisite — execute it first and verify `bun run check` passes
 after `just codegen`.
 
-Parts 02–05 are independent and can run as **concurrent sub-agents** once
-Part 01 lands. All four parts are code and infrastructure changes, so route each
-to `staff-engineer`.
+Parts 02–05 are independent and can run as **concurrent sub-agents** once Part
+01 lands. All four parts are code and infrastructure changes, so route each to
+`staff-engineer`.
 
 ```
 Part 01 (sequential prerequisite)

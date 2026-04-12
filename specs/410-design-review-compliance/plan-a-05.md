@@ -18,6 +18,7 @@ Move `"@supabase/supabase-js": "^2.103.0"` from `dependencies` (line 41) to a
 new `optionalDependencies` section.
 
 **Before:**
+
 ```json
 "dependencies": {
   "@forwardimpact/libcli": "^0.1.0",
@@ -31,6 +32,7 @@ new `optionalDependencies` section.
 ```
 
 **After:**
+
 ```json
 "dependencies": {
   "@forwardimpact/libcli": "^0.1.0",
@@ -53,6 +55,7 @@ Replace the static import (line 9) with a dynamic import inside the factory
 function. The function becomes `async` to accommodate `await import()`.
 
 **Before:**
+
 ```javascript
 import { createClient } from "@supabase/supabase-js";
 
@@ -76,6 +79,7 @@ export function createSummitClient(opts = {}) {
 ```
 
 **After:**
+
 ```javascript
 // Static import removed — dynamic import below per CONTRIBUTING.md § Optional Dependency Pattern.
 
@@ -119,11 +123,13 @@ package installed.
 **File:** `products/summit/src/roster/loader.js`
 
 The factory is used as a default parameter (line 35):
+
 ```javascript
 createClient = createSummitClient,
 ```
 
 Later in the function body, wherever `createClient()` is called, add `await`:
+
 ```javascript
 // Before
 const client = createClient();
@@ -138,6 +144,7 @@ const client = await createClient();
 
 Line 89 calls `createSummitClient()` directly inside the async
 `decorateWithEvidence` helper:
+
 ```javascript
 // Before
 const client = options.supabase ?? createSummitClient();
@@ -149,10 +156,12 @@ const client = options.supabase ?? await createSummitClient();
 **File:** `products/summit/src/commands/growth.js`
 
 Two call sites inside async helpers:
+
 - Line 99 in `loadEvidenceSafe()`: `options.supabase ?? createSummitClient()`
 - Line 118 in `loadScoresSafe()`: `options.supabase ?? createSummitClient()`
 
 Add `await` to both:
+
 ```javascript
 // Before
 const client = options.supabase ?? createSummitClient();
@@ -166,6 +175,7 @@ Both helpers are `async` functions.
 **File:** `products/summit/src/commands/risks.js`
 
 Line 103 in `loadEvidenceSafe()`: same pattern as growth.js.
+
 ```javascript
 // Before
 const client = options.supabase ?? createSummitClient();
@@ -178,14 +188,14 @@ Already inside an `async` function.
 
 ## Blast radius
 
-| Action   | File                                      |
-|----------|-------------------------------------------|
-| Modified | `products/summit/package.json`            |
-| Modified | `products/summit/src/lib/supabase.js`     |
-| Modified | `products/summit/src/roster/loader.js`    |
+| Action   | File                                       |
+| -------- | ------------------------------------------ |
+| Modified | `products/summit/package.json`             |
+| Modified | `products/summit/src/lib/supabase.js`      |
+| Modified | `products/summit/src/roster/loader.js`     |
 | Modified | `products/summit/src/commands/coverage.js` |
-| Modified | `products/summit/src/commands/growth.js`  |
-| Modified | `products/summit/src/commands/risks.js`   |
+| Modified | `products/summit/src/commands/growth.js`   |
+| Modified | `products/summit/src/commands/risks.js`    |
 
 ## Ordering
 

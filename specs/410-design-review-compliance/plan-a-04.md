@@ -2,8 +2,8 @@
 
 ## Problem
 
-Two packages use `console.log` for operational output instead of
-`createLogger` from `@forwardimpact/libtelemetry`:
+Two packages use `console.log` for operational output instead of `createLogger`
+from `@forwardimpact/libtelemetry`:
 
 - **basecamp:** 23 occurrences across 3 files.
 - **libdoc:** 10 occurrences across 2 files.
@@ -20,6 +20,7 @@ emit structured data for pipeline consumption.
 **File:** `products/basecamp/package.json`
 
 Add to `dependencies`:
+
 ```json
 "@forwardimpact/libtelemetry": "^0.1.33"
 ```
@@ -31,6 +32,7 @@ Basecamp currently has only `@forwardimpact/libcli` as a dependency.
 **File:** `products/basecamp/src/basecamp.js`
 
 Add import:
+
 ```javascript
 import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("basecamp");
@@ -39,7 +41,7 @@ const logger = createLogger("basecamp");
 Replace all 12 `console.log` calls with `logger.info()`:
 
 | Line | Current purpose                     |
-|------|-------------------------------------|
+| ---- | ----------------------------------- |
 | 64   | Custom logger output line           |
 | 205  | KB update progress                  |
 | 215  | Scheduler status header             |
@@ -54,15 +56,16 @@ Replace all 12 `console.log` calls with `logger.info()`:
 | 281  | Final validation summary            |
 
 **Note on line 64:** This is inside a custom logger callback. The callback
-itself uses `console.log(line)` to emit a line. Replace with `logger.info(line)`.
-If the callback is passed to an external consumer, ensure the signature remains
-compatible.
+itself uses `console.log(line)` to emit a line. Replace with
+`logger.info(line)`. If the callback is passed to an external consumer, ensure
+the signature remains compatible.
 
 #### Step 3: Migrate src/kb-manager.js — 7 calls
 
 **File:** `products/basecamp/src/kb-manager.js`
 
 Add import:
+
 ```javascript
 import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("basecamp");
@@ -71,7 +74,7 @@ const logger = createLogger("basecamp");
 Replace all 7 `console.log` calls with `logger.info()`:
 
 | Line | Current purpose                  |
-|------|----------------------------------|
+| ---- | -------------------------------- |
 | 85   | CLAUDE.md update confirmation    |
 | 101  | Subdirectory update confirmation |
 | 119  | Settings creation confirmation   |
@@ -85,6 +88,7 @@ Replace all 7 `console.log` calls with `logger.info()`:
 **File:** `products/basecamp/src/socket-server.js`
 
 Add import:
+
 ```javascript
 import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("basecamp");
@@ -92,12 +96,12 @@ const logger = createLogger("basecamp");
 
 Replace all 4 `console.log` calls with `logger.info()`:
 
-| Line | Current purpose               |
-|------|-------------------------------|
-| 284  | Daemon not running (no socket)|
-| 290  | Shutdown timed out            |
-| 304  | Daemon stopped                |
-| 312  | Daemon not running (refused)  |
+| Line | Current purpose                |
+| ---- | ------------------------------ |
+| 284  | Daemon not running (no socket) |
+| 290  | Shutdown timed out             |
+| 304  | Daemon stopped                 |
+| 312  | Daemon not running (refused)   |
 
 ### Libdoc
 
@@ -109,6 +113,7 @@ package.json change needed.
 **File:** `libraries/libdoc/src/builder.js`
 
 Add import:
+
 ```javascript
 import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("libdoc");
@@ -117,7 +122,7 @@ const logger = createLogger("libdoc");
 Replace all 7 `console.log` calls with `logger.info()`:
 
 | Line | Current purpose                     |
-|------|-------------------------------------|
+| ---- | ----------------------------------- |
 | 157  | Asset copy confirmation (✓ assets/) |
 | 175  | File copy confirmation (✓ name)     |
 | 277  | Sitemap generation (✓ sitemap.xml)  |
@@ -131,6 +136,7 @@ Replace all 7 `console.log` calls with `logger.info()`:
 **File:** `libraries/libdoc/src/server.js`
 
 Add import:
+
 ```javascript
 import { createLogger } from "@forwardimpact/libtelemetry";
 const logger = createLogger("libdoc");
@@ -138,30 +144,30 @@ const logger = createLogger("libdoc");
 
 Replace all 3 `console.log` calls with `logger.info()`:
 
-| Line | Current purpose                          |
-|------|------------------------------------------|
-| 36   | File watch start message                 |
-| 48   | Rebuild trigger notification             |
-| 151  | Server ready URL                         |
+| Line | Current purpose              |
+| ---- | ---------------------------- |
+| 36   | File watch start message     |
+| 48   | Rebuild trigger notification |
+| 151  | Server ready URL             |
 
 ## Blast radius
 
-| Action   | File                                    |
-|----------|-----------------------------------------|
-| Modified | `products/basecamp/package.json`        |
-| Modified | `products/basecamp/src/basecamp.js`     |
-| Modified | `products/basecamp/src/kb-manager.js`   |
-| Modified | `products/basecamp/src/socket-server.js`|
-| Modified | `libraries/libdoc/src/builder.js`       |
-| Modified | `libraries/libdoc/src/server.js`        |
+| Action   | File                                     |
+| -------- | ---------------------------------------- |
+| Modified | `products/basecamp/package.json`         |
+| Modified | `products/basecamp/src/basecamp.js`      |
+| Modified | `products/basecamp/src/kb-manager.js`    |
+| Modified | `products/basecamp/src/socket-server.js` |
+| Modified | `libraries/libdoc/src/builder.js`        |
+| Modified | `libraries/libdoc/src/server.js`         |
 
 ## Ordering
 
 1. Add basecamp dependency (Step 1).
 2. Steps 2–6 can proceed in any order after Step 1.
 
-Steps 5–6 (libdoc) are fully independent of Steps 1–4 (basecamp) and can run
-in parallel.
+Steps 5–6 (libdoc) are fully independent of Steps 1–4 (basecamp) and can run in
+parallel.
 
 ## Verification
 
