@@ -1,0 +1,193 @@
+---
+name: kata-grasp
+description: >
+  Grasp the current condition of an agent workflow run. Select a trace, download
+  it, study the work as it actually happened, apply grounded theory analysis,
+  and produce a structured findings report. Understand what is actually
+  happening — through evidence, not assumption.
+---
+
+# Kata Grasp — Current Condition Analysis
+
+Understand the current condition of work by studying its execution trace — the
+record of a CI agent workflow run as it actually happened. Select one run,
+download its trace, study every turn via grounded theory, categorize findings,
+and act on what you find. Depth over breadth.
+
+## When to Use
+
+- During a coaching cycle to analyze a single agent workflow run
+- When investigating a specific workflow failure or unexpected behaviour
+- When auditing trust boundaries in external merge workflows
+
+## Process
+
+### 1. Select a Run
+
+If a specific workflow name, run ID, or URL is provided, use that run.
+
+Otherwise, select a run using memory-informed rotation:
+
+1. **Read memory** — Per the agent profile, read your summary, the current
+   week's log, and teammates' summaries. Extract workflow names and run IDs from
+   previous cycles.
+
+2. **Discover available runs**:
+
+   ```sh
+   bash .claude/skills/kata-grasp/scripts/find-runs.sh [lookback]
+   ```
+
+   Default lookback is `7d`. Use `14d` for broader window, `24h` for recent
+   only. Returns JSON sorted newest-first with `workflow`, `run_id`, `status`,
+   `conclusion`, `created_at`, `branch`, and `url` fields.
+
+3. **Avoid duplicates** — Skip run IDs already analyzed (per memory).
+
+4. **Rotate across agents** — Prefer the least-recently analyzed workflow.
+
+5. **Prefer failures** — Among eligible runs, prefer non-success conclusions.
+
+Announce which run you selected and why before proceeding.
+
+### 2. Download and Process the Trace
+
+Artifact names:
+
+- **`combined-trace`** — Full interleaved agent + supervisor (supervised runs).
+  **Prefer this.**
+- **`agent-trace`** — Agent events only (all runs).
+- **`supervisor-trace`** — Supervisor events only (supervised runs).
+
+Download using the canonical shape from
+[`kata-gh-cli` § Workflow run artifacts](../kata-gh-cli/SKILL.md#workflow-run-artifacts):
+
+```sh
+# Supervised runs:
+gh run download <run-id> --name combined-trace --dir /tmp/trace-<run-id>
+# Non-supervised runs:
+gh run download <run-id> --name agent-trace --dir /tmp/trace-<run-id>
+# Then process:
+bunx fit-eval output --format=json < /tmp/trace-<run-id>/trace.ndjson > /tmp/trace-<run-id>/structured.json
+```
+
+If no trace artifacts exist, pick a different run and note why.
+
+For large traces, use the extraction helpers in `scripts/trace-queries.sh`
+(`overview`, `count`, `batch N M`, `tail N`, `errors`, `tools`):
+
+```sh
+bash .claude/skills/kata-grasp/scripts/trace-queries.sh structured.json overview
+bash .claude/skills/kata-grasp/scripts/trace-queries.sh structured.json batch 0 20
+bash .claude/skills/kata-grasp/scripts/trace-queries.sh structured.json errors
+```
+
+### 3. Observe the Work (Open Coding + Memos)
+
+Read the trace **in full** — every turn, every tool call, every result.
+Sequentially assign a **code** to each meaningful unit (a tool call, a decision
+point, a failure, a recovery): a short label that captures what happened in the
+data's own terms.
+
+**Use in-vivo codes** — labels drawn from the trace's own language (error
+messages, command names, the agent's reasoning text). Do not use pre-defined
+categories. Let codes emerge from the data.
+
+Focus on: what the agent did, what happened, how the agent reacted, and what the
+agent said (reasoning text between tool calls reveals intent).
+
+**Write memos as you code.** A memo is a short analytical note recording your
+thinking — why a code surprised you, a tentative connection between codes, or a
+question the data raises. Memos are the engine of theory development — analysis
+without memos is just sorting.
+
+See `references/examples.md` for worked open coding and memo examples.
+
+### 4. Build Categories and Core Category (Axial + Selective Coding)
+
+Relate codes using the **paradigm model**:
+
+```
+Causal conditions → Phenomenon → Context → Actions/Interactions → Consequences
+```
+
+Group related codes into **categories**. For each category, fill in all five
+paradigm elements: what triggered it, what it is, what context shaped it, what
+was done, and what resulted. Incomplete paradigms indicate incomplete analysis.
+
+Look for relationships across categories: causal chains, repeated patterns,
+contrasts (same operation succeeded/failed in different contexts), and temporal
+patterns (early vs. late in session).
+
+Then identify the **core category** — the single central phenomenon that
+integrates the most categories and explains the most variance. The core category
+is not the biggest bug or the most expensive failure; it is the conceptual
+thread that connects the most findings. Ask: which category do others orbit
+around? What is the "story" this trace tells?
+
+From the core category, derive **theoretical propositions** — testable
+statements about agent behaviour. Each proposition must be **grounded**
+(traceable to specific turns), **testable** (future traces can confirm or refute
+it), and **actionable** (implies a concrete change).
+
+See `references/examples.md` for worked axial and selective coding examples.
+
+### 5. Categorize Findings
+
+| Category        | Criteria                                        | Action         |
+| --------------- | ----------------------------------------------- | -------------- |
+| **Trivial fix** | Root cause clear, fix mechanical, low risk      | Implement + PR |
+| **Improvement** | Pattern requires design, touches multiple files | Write spec     |
+| **Observation** | Not actionable yet, or needs more data          | Note in report |
+
+### 6. Audit Named Invariants
+
+In addition to open-ended observation, verify the trace against the named
+per-agent invariants listed in
+[`references/invariants.md`](references/invariants.md). For each invariant that
+applies to the trace's owner, search the trace for the evidence listed and
+record PASS (with a quoted tool call) or FAIL (with what was searched for and
+not found). Group findings by severity.
+
+High-severity invariant failures — especially the contributor-lookup invariant
+on `product-manager` traces — must result in a fix PR or spec just like any
+other finding. Silent acceptance of a high-severity failure is itself a process
+failure.
+
+### 7. Report and Act
+
+Produce the analysis report using the template at
+[`references/report-template.md`](references/report-template.md). Prefix with
+run selection context, and append the invariant audit results grouped by
+severity.
+
+Then act on findings — both observation findings and audit findings flow through
+the same fix-or-spec discipline:
+
+- **Trivial fix** (mechanical, obvious, low risk) → branch from `main` as
+  `fix/coach-<name>` (or `fix/audit-<name>` for audit-originated fixes), fix,
+  commit, push, open PR. Batch related fixes into one PR when they share a root
+  cause.
+- **Improvement** (requires design, touches multiple files) → branch from `main`
+  as `spec/<name>`, write a spec via `kata-spec`, push, open PR. Each distinct
+  improvement gets its own branch and PR.
+
+Every PR must branch directly from `main` — never from another fix or spec
+branch.
+
+## Analysis Principles
+
+- **Let the data speak.** Do not start with a hypothesis. Read, code, then find
+  patterns.
+- **Write memos constantly.** Analysis without memos is just sorting.
+- **Use in-vivo codes.** Preserve the data's own language. "403 forbidden", not
+  "authorization failure".
+- **Apply the paradigm model.** Incomplete paradigms indicate incomplete
+  analysis.
+- **Seek the core category.** The goal is a theory, not a list.
+- **Quote, don't paraphrase.** Exact error messages, commands, token counts.
+- **Distinguish symptoms from causes.** The paradigm model forces you to trace
+  causal conditions.
+- **Count what matters.** Token usage, retry counts, wasted turns, cost.
+- **Compare to intent.** Read the skill docs, compare to actual execution.
+- **Maintain traceability.** Proposition → category → code → turn number.

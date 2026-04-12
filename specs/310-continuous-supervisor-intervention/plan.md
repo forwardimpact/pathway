@@ -451,7 +451,7 @@ alone.
 - Manual smoke (feature-invisible-when-not-needed): a clean scenario produces
   zero `intervention_requested` events and substantively the same turn count as
   on `master`.
-- Improvement coach parser sanity: run `.claude/skills/gemba-walk` over the new
+- Improvement coach parser sanity: run `.claude/skills/kata-grasp` over the new
   trace; it should load and display without parser errors.
 - Degenerate all-tools turn: the implicit flush at the SDK `result` message
   guarantees the supervisor sees at least one batch per turn even when the agent

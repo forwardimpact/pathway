@@ -106,8 +106,8 @@ change that requires design review before implementation (e.g.
 Post-1.0 packages use semver: breaking=major, feat=minor, fix/refactor=patch.
 
 The release manager agent handles version bumps, tagging, and publishing. See
-the [gemba-release-review skill](.claude/skills/gemba-release-review) for the
-full release procedure.
+the [kata-release-review skill](.claude/skills/kata-release-review) for the full
+release procedure.
 
 ## Quality Commands
 

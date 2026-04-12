@@ -130,7 +130,7 @@ Out of scope:
 - A scenario in which the agent never goes off track produces a trace with zero
   interventions and substantively the same turn count as today — the feature is
   invisible when not needed.
-- The improvement coach (`gemba-walk` + `grounded-theory-analysis`) can read the
+- The improvement coach (`kata-grasp` + `grounded-theory-analysis`) can read the
   new trace shape without changes to its parser; new event sources/types are
   additive.
 - `bun run check` passes. New behaviour has unit coverage in

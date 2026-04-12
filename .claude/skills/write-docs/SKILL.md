@@ -272,7 +272,7 @@ from CONTRIBUTING.md to keep the workflow focused.
 | JSON Schema           | `products/map/schema/json/`                 |
 | RDF/SHACL Schema      | `products/map/schema/rdf/`                  |
 | LLM / SEO outputs     | `website/llms.txt`, `website/robots.txt`    |
-| Repo self-maintenance | `GEMBA.md`                                  |
+| Repo self-maintenance | `KATA.md`                                   |
 
 ## Layouts
 
