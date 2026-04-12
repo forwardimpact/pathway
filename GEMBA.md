@@ -204,19 +204,28 @@ Lessons from trace analysis of agent workflow runs.
 
 ### Instruction layering
 
-Agent instructions span four layers, each owning a distinct concern:
+Agent instructions span five layers, each owning a distinct concern:
 
 1. **libeval system prompt** — relay mechanics (how turns work, completion)
 2. **workflow task** — this run (which product, scenario, success criteria)
 3. **agent profile** — who you are (persona, voice, skill routing, constraints)
-4. **skills** — how to do it (procedures, checklists, templates)
+4. **skills** — how to do it (procedures, templates, domain knowledge)
+5. **checklists** — did you do it (yes/no verification at pause points)
+
+Layers 4 and 5 coexist in the same file (SKILL.md) but serve fundamentally
+different purposes. Skill instructions are _procedural_ — they teach, explain,
+and guide decisions. Checklists are _verificational_ — each item is a binary
+assertion that a prior step was completed, with no explanation of how.
 
 Rules:
 
 - No layer restates another's content.
 - Tasks name skills — they don't copy steps. Shared procedures belong in skills;
   per-run details belong in tasks.
-- Profiles define boundaries; skills define steps.
+- Profiles define boundaries; skills define steps; checklists verify steps.
+- A checklist item must never teach how to do something — that belongs in the
+  skill procedure above it. If a checklist item needs explanation, the procedure
+  is incomplete.
 
 ### Skill structure
 
@@ -233,7 +242,30 @@ material into co-located subdirectories:
 SKILL.md holds the decision-making procedure. `scripts/` holds repeatable
 commands the agent runs verbatim. `references/` holds content the agent reads on
 demand. Some skills are entirely instructional with nothing to extract — that's
-fine.
+fine. Entry-point skills include tagged checklists as verification gates (see
+below).
+
+### Checklists
+
+Checklists are the lowest instruction layer — they verify that higher layers
+were followed without restating them. Two tagged types serve as gates at natural
+pause points:
+
+- **`<read_do_checklist>`** — Entry gate. Read each item, then do it.
+- **`<do_confirm_checklist>`** — Exit gate. Do from memory, then confirm every
+  item before crossing a boundary.
+
+The boundary between skill procedure and checklist is strict: if the agent needs
+the checklist item to _learn_ what to do, the item belongs in the procedure. If
+the agent already knows what to do and the item only confirms it was done, it
+belongs in the checklist. Duplicating procedural guidance into checklist items
+bloats the document and creates contradiction risk when one copy is updated
+without the other.
+
+Keep checklists short (5–9 items), action-oriented, and free of explanation.
+Entry-point skills embed domain-specific checklists; universal checklists live
+in CONTRIBUTING.md. See [CHECKLISTS.md](CHECKLISTS.md) for design rules, type
+selection, and authoring guidance.
 
 ### Recursion-safe self-review
 
