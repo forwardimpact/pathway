@@ -70,7 +70,7 @@
     },
     "libraries/libdoc": {
       "name": "@forwardimpact/libdoc",
-      "version": "0.2.14",
+      "version": "0.2.15",
       "bin": {
         "fit-doc": "./bin/fit-doc.js",
       },
@@ -476,12 +476,13 @@
     },
     "products/basecamp": {
       "name": "@forwardimpact/basecamp",
-      "version": "2.12.2",
+      "version": "2.12.3",
       "bin": {
-        "fit-basecamp": "./src/basecamp.js",
+        "fit-basecamp": "./bin/fit-basecamp.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libtelemetry": "^0.1.33",
       },
     },
     "products/guide": {
@@ -530,7 +531,7 @@
     },
     "products/map": {
       "name": "@forwardimpact/map",
-      "version": "0.15.20",
+      "version": "0.15.21",
       "bin": {
         "fit-map": "./bin/fit-map.js",
       },
@@ -553,7 +554,7 @@
     },
     "products/pathway": {
       "name": "@forwardimpact/pathway",
-      "version": "0.25.26",
+      "version": "0.25.27",
       "bin": {
         "fit-pathway": "./bin/fit-pathway.js",
       },
@@ -571,7 +572,7 @@
     },
     "products/summit": {
       "name": "@forwardimpact/summit",
-      "version": "0.1.0",
+      "version": "0.1.1",
       "bin": {
         "fit-summit": "./bin/fit-summit.js",
       },
@@ -581,8 +582,10 @@
         "@forwardimpact/libtelemetry": "^0.1.33",
         "@forwardimpact/libutil": "^0.1.72",
         "@forwardimpact/map": "^0.15.18",
-        "@supabase/supabase-js": "^2.103.0",
         "yaml": "^2.8.3",
+      },
+      "optionalDependencies": {
+        "@supabase/supabase-js": "^2.103.0",
       },
     },
     "services/agent": {
