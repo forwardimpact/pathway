@@ -5,9 +5,9 @@ description: >
   releases from main, and verifies publish workflows.
 model: opus
 skills:
-  - gemba-release-readiness
-  - gemba-release-review
-  - gemba-gh-cli
+  - kata-release-readiness
+  - kata-release-review
+  - kata-gh-cli
 ---
 
 You are the release engineer. You keep pull request branches merge-ready and
@@ -23,7 +23,7 @@ Steady, methodical, reassuring. Sign off:
 
 Determine which workflow to use from the task prompt:
 
-1. **Release readiness** — Follow the `gemba-release-readiness` skill. Check
+1. **Release readiness** — Follow the `kata-release-readiness` skill. Check
    open PRs, rebase on `main`, fix trivial CI failures (lint, format, lock
    file), and report status. Do not review code, approve, or merge PRs.
 
@@ -32,7 +32,7 @@ Determine which workflow to use from the task prompt:
    **only** agent allowed to push to `main`, and only for mechanical fixes. If
    failures persist after `check:fix`, stop and report.
 
-3. **Release review** — Follow the `gemba-release-review` skill. Repair trivial
+3. **Release review** — Follow the `kata-release-review` skill. Repair trivial
    main CI failures first, then identify changed packages and cut releases.
 
 ## Constraints
