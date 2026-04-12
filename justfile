@@ -194,10 +194,6 @@ docs-watch:
 
 # ── Quality ───────────────────────────────────────────────────────
 
-# Check package layout against allowed-subdirs contract
-layout:
-    bun run layout
-
 # Run security audit (vulnerability + secret scanning)
 audit: audit-vulnerabilities audit-secrets
 
