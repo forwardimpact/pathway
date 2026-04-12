@@ -59,6 +59,7 @@ async function doResolve(spawnFn, cwd) {
  *   `node_modules/.bin/supabase` on the npm-local install path.
  * @returns {{
  *   run: (args: string[]) => Promise<void>,
+ *   capture: (args: string[]) => Promise<string>,
  *   resolve: () => Promise<{cmd: string, prefix: string[]} | null>,
  * }}
  */

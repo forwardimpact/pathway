@@ -26,9 +26,9 @@ import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createCli } from "@forwardimpact/libcli";
-import { createLogger as createTelemetryLogger } from "@forwardimpact/libtelemetry";
+import { createLogger } from "@forwardimpact/libtelemetry";
 
-const telemetryLogger = createTelemetryLogger("basecamp");
+const logger = createLogger("basecamp");
 
 import * as posixSpawn from "./posix-spawn.js";
 import { StateManager } from "./state-manager.js";
@@ -57,14 +57,14 @@ const VERSION = JSON.parse(
 
 // --- Logging -----------------------------------------------------------------
 
-function createLogger(logDir, fs) {
+function createFileLogger(logDir, fs) {
   if (!logDir) throw new Error("logDir is required");
   if (!fs) throw new Error("fs is required");
   fs.mkdirSync(logDir, { recursive: true });
   return function log(msg) {
     const ts = new Date().toISOString();
     const line = `[${ts}] ${msg}`;
-    telemetryLogger.info(line);
+    logger.info(line);
     fs.appendFileSync(
       join(logDir, `scheduler-${ts.slice(0, 10)}.log`),
       line + "\n",
@@ -72,7 +72,7 @@ function createLogger(logDir, fs) {
   };
 }
 
-const log = createLogger(LOG_DIR, { mkdirSync, appendFileSync });
+const log = createFileLogger(LOG_DIR, { mkdirSync, appendFileSync });
 
 // --- Config ------------------------------------------------------------------
 
@@ -205,7 +205,7 @@ function runUpdate(args) {
   }
 
   for (const kb of kbPaths) {
-    telemetryLogger.info(`\nUpdating ${kb}...`);
+    logger.info(`\nUpdating ${kb}...`);
     kbManager.update(kb, requireTemplateDir());
   }
 }
@@ -215,22 +215,22 @@ function runUpdate(args) {
 function showStatus() {
   const config = loadConfig();
   const state = stateManager.load();
-  telemetryLogger.info("\nBasecamp Scheduler\n==================\n");
+  logger.info("\nBasecamp Scheduler\n==================\n");
 
   const agents = Object.entries(config.agents || {});
   if (agents.length === 0) {
-    telemetryLogger.info(
+    logger.info(
       `No agents configured.\n\nEdit ${CONFIG_PATH} to add agents.`,
     );
     return;
   }
 
-  telemetryLogger.info("Agents:");
+  logger.info("Agents:");
   for (const [name, agent] of agents) {
     const s = state.agents[name] || {};
     const kbStatus =
       agent.kb && !existsSync(expandPath(agent.kb)) ? " (not found)" : "";
-    telemetryLogger.info(
+    logger.info(
       `  ${agent.enabled !== false ? "+" : "-"} ${name}\n` +
         `    KB: ${agent.kb || "(none)"}${kbStatus}  Schedule: ${JSON.stringify(agent.schedule)}\n` +
         `    Status: ${s.status || "never-woken"}  Last wake: ${s.lastWokeAt ? new Date(s.lastWokeAt).toLocaleString() : "never"}  Wakes: ${s.wakeCount || 0}` +
@@ -255,35 +255,35 @@ function validate() {
   const config = loadConfig();
   const agents = Object.entries(config.agents || {});
   if (agents.length === 0) {
-    telemetryLogger.info("No agents configured. Nothing to validate.");
+    logger.info("No agents configured. Nothing to validate.");
     return;
   }
 
-  telemetryLogger.info("\nValidating agents...\n");
+  logger.info("\nValidating agents...\n");
   let errors = 0;
 
   for (const [name, agent] of agents) {
     if (!agent.kb) {
-      telemetryLogger.info(`  [FAIL] ${name}: no "kb" path specified`);
+      logger.info(`  [FAIL] ${name}: no "kb" path specified`);
       errors++;
       continue;
     }
     const kbPath = expandPath(agent.kb);
     if (!existsSync(kbPath)) {
-      telemetryLogger.info(`  [FAIL] ${name}: path not found: ${kbPath}`);
+      logger.info(`  [FAIL] ${name}: path not found: ${kbPath}`);
       errors++;
       continue;
     }
 
     const agentFile = join("agents", name + ".md");
     const found = findInLocalOrGlobal(kbPath, agentFile);
-    telemetryLogger.info(
+    logger.info(
       `  [${found ? "OK" : "FAIL"}]  ${name}: agent definition${found ? "" : " not found"}`,
     );
     if (!found) errors++;
   }
 
-  telemetryLogger.info(errors > 0 ? `\n${errors} error(s).` : "\nAll OK.");
+  logger.info(errors > 0 ? `\n${errors} error(s).` : "\nAll OK.");
   if (errors > 0) process.exit(1);
 }
 
