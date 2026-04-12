@@ -197,8 +197,8 @@ carries only metadata, declared CLI binaries, and published non-source assets.
 
 Any directory at the package root must be one of: `bin/`, `config/`, `macos/`,
 `pkg/`, `proto/`, `schema/`, `src/`, `starter/`, `supabase/`, `templates/`,
-`test/`. Anything else fails `bun run layout`. Source files live under `src/` —
-no `.js` or `.ts` files at the package root.
+`test/`. Source files live under `src/` — no `.js` or `.ts` files at the package
+root.
 
 `bin/` holds one file per declared CLI binary and nothing else (no
 subdirectories, no shared helpers). Each entry is a thin script that parses argv
@@ -234,14 +234,6 @@ A package may carry its own `justfile` at the root for meaningful package-local
 task targets (for example `products/basecamp/justfile`). The top-level
 `justfile` remains the primary entry point; per-package `justfile` files
 complement it.
-
-### Enforcement
-
-`bun run layout` (powered by `scripts/check-package-layout.js`) enforces the
-allowed-root-subdirs contract in strict mode. `bun run check:exports` (powered
-by `scripts/check-exports-resolve.js`) asserts that every published `main`,
-`bin`, and `exports` target resolves to a real file. Both run as part of
-`bun run check` and in the `check-quality` CI workflow.
 
 ## OO+DI Architecture
 
