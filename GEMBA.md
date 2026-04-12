@@ -10,438 +10,217 @@ steadily improving. The name comes from the Toyota Production System concept of
 _genba_ (現場) — "the real place where work happens." Gemba agents walk the real
 place (the execution traces of prior runs) and act on what they find.
 
-Within Gemba, **Plan–Do–Study–Act** (PDSA, after Deming) is the improvement
-method. Every workflow belongs to a PDSA phase, findings from Study always
-re-enter the loop as specs or fix PRs, and the cycle runs on a schedule. Ten
-scheduled workflows, six agent personas, and sixteen skills form a
-self-reinforcing PDSA cycle. Product evaluation sessions feed the Study phase
-with observations from the user's perspective. Gemba maintains the project — not
-the engineering frameworks the products serve.
-
 ## Architecture
 
 ```mermaid
-graph TD
-    W["Workflows (.github/workflows/)<br/>schedule, trigger, permissions"]
-    A["Agents (.claude/agents/)<br/>persona, scope constraints, skill composition"]
-    S["Skills (.claude/skills/)<br/>procedures, checklists, domain knowledge"]
-
-    W --> A --> S
+graph LR
+    W["Workflows<br/>.github/workflows/"] --> A["Agents<br/>.claude/agents/"] --> S["Skills<br/>.claude/skills/"]
 ```
 
-All workflows use two shared composite actions: `.github/actions/bootstrap/`
-(sets up Bun and installs dependencies) and `.github/actions/gemba-action/`
-(runs a task against an agent profile via `fit-eval`, captures the execution
-trace as NDJSON, and uploads it as an artifact). Authentication via GitHub App
-tokens (see § Authentication).
+**Workflows** define schedule, trigger, and permissions. **Agents** define
+persona, scope constraints, and skill composition. **Skills** define procedures,
+checklists, and domain knowledge. All workflows share two composite actions:
+`bootstrap/` (Bun + deps) and `gemba-action/` (runs a task via `fit-eval`,
+captures an NDJSON execution trace, uploads it as an artifact).
 
 ## The PDSA Loop
 
-The system runs as a continuous **Plan–Do–Study–Act** cycle. Plans are executed,
-outputs are studied, findings become new specs, and the cycle restarts. Each
-phase produces the artifacts the next phase consumes, forming a self-reinforcing
-loop rather than a one-shot pipeline.
+Every workflow belongs to a phase of the **Plan-Do-Study-Act** cycle (after
+Deming). Findings from Study always re-enter the loop as specs or fix PRs —
+nothing is observed without a downstream action.
 
 ```mermaid
 graph LR
-    P["Plan<br/>plan-a.md (HOW) for<br/>approved specs"]
-    D["Do<br/>implement plans; run<br/>workflows; ship PRs,<br/>issues, releases, traces"]
-    S["Study<br/>triage feedback;<br/>analyze traces;<br/>audit posture"]
-    A["Act<br/>spec.md (WHAT/WHY)<br/>capturing findings"]
-
-    P --> D --> S --> A --> P
+    P["Plan"] --> D["Do"] --> S["Study"] --> A["Act"] --> P
 ```
 
-### Plan — turn specs into executable plans
-
-Approved specs become concrete plans. Agents use the `gemba-plan` skill to
-transform an approved `spec.md` (the WHAT/WHY) into a `plan-a.md` (the HOW) with
-steps, files to change, tests to add, and risks to watch — enough for any
-trusted agent to pick up and execute.
-
-### Do — execute plans and run scheduled workflows
-
-The Do phase is where work happens. It has two modes:
-
-- **Implement approved plans** via the `gemba-implement` skill — trusted agents
-  open PRs that complete the plan step by step.
-- **Run scheduled workflows** that exercise, harden, and release the codebase
-  (`security-update`, `release-readiness`, `release-review`, `product-manager`).
-  Each run produces the artifacts the Study phase consumes: PRs, tagged
-  releases, audit reports, execution traces, and GitHub issues.
-
-Every scheduled run captures a full execution trace — raw evidence for the Study
-phase.
-
-### Study — analyze outputs and feedback
-
-The Study phase closes observation over the Do phase. Four study streams feed
-the next Act phase:
-
-- **Security engineer** studies the **repository's security posture** — supply
-  chain, dependencies, credentials, OWASP Top 10 — in `security-audit`.
-- **Product manager** studies **external feedback** — open issues, external PRs,
-  contributor activity — in `product-manager`. Triages against product
-  alignment, verifies trust, classifies work, and gates merges. Product
-  evaluation sessions feed the same stream with observations from first-time
-  users.
-- **Technical writer** studies **documentation accuracy and wiki health**. Each
-  cycle reviews **one documentation topic** — depth over breadth: pick a topic
-  area → read every page → verify against source code → fix staleness and
-  audience drift. Also curates agent memory (summaries, observations, logs).
-- **Improvement coach** studies **internal agent behaviour**. Each cycle focuses
-  on **one trace** — depth over breadth: select a run → download the trace →
-  deep-analyze every turn via grounded theory (open coding → axial coding →
-  selective coding) → categorize findings with quoted evidence.
-
-When analyzing a **product-manager** trace, the coach also verifies that the
-product manager performed trust checks on every merged PR (see §
-Accountability).
-
-### Act — write new specs
-
-Findings from the Study phase do not fix themselves. The Act phase converts
-insight into new inputs for the next cycle:
-
-- **Trivial findings** become fix PRs directly (short-circuit through the loop).
-- **Structural findings** become new `spec.md` documents capturing WHAT needs to
-  change and WHY, written with the `gemba-spec` skill. These enter the backlog
-  and start the next Plan phase.
-
-Fix-or-spec discipline keeps mechanical repairs (`fix/` branches) separate from
-structural improvements (`spec/` branches) — never mixed in one PR.
+- **Plan** — Turn approved `spec.md` (WHAT/WHY) into `plan-a.md` (HOW) with
+  steps, files, tests, and risks.
+- **Do** — Execute plans via implementation PRs. Run scheduled workflows that
+  harden, release, and maintain the codebase. Every run captures a full
+  execution trace.
+- **Study** — Analyze outputs from Do. Four streams: security posture audits,
+  external feedback triage, documentation review (one topic deep per cycle), and
+  trace analysis (one trace deep per cycle via grounded theory).
+- **Act** — Convert findings into action. Trivial findings become fix PRs
+  directly; structural findings become new `spec.md` documents entering the
+  backlog. Fix PRs (`fix/` branches) and specs (`spec/` branches) are never
+  mixed.
 
 ## Agents
 
-| Agent                 | Phase          | Purpose                                                                | Skills                                                                                                                     |
-| --------------------- | -------------- | ---------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------- |
-| **staff-engineer**    | Plan, Do       | Own the full spec → plan → implement arc for approved specs            | gemba-plan, gemba-implement, gemba-review, gemba-gh-cli                                                                    |
-| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies     | gemba-security-update, gemba-security-audit, gemba-spec, gemba-review                                                      |
-| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI on main, cut releases  | gemba-release-readiness, gemba-release-review, gemba-gh-cli                                                                |
-| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, supervise evaluations   | gemba-plan, gemba-product-triage, gemba-product-classify, gemba-product-evaluation, gemba-spec, gemba-review, gemba-gh-cli |
-| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec larger gaps | gemba-documentation, gemba-wiki-curate, gemba-spec, gemba-review                                                           |
-| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones    | gemba-walk, gemba-spec, gemba-review, gemba-gh-cli                                                                         |
+Six agent personas, each with explicit scope constraints — when a finding
+exceeds an agent's scope, it writes a spec rather than attempting the fix.
 
-Each agent has explicit scope constraints — it knows what it must _not_ do. When
-a finding exceeds an agent's scope, it writes a formal spec (`specs/`) rather
-than attempting the fix.
+| Agent                 | Phase          | Purpose                                                             |
+| --------------------- | -------------- | ------------------------------------------------------------------- |
+| **staff-engineer**    | Plan, Do       | Own the full spec -> plan -> implement arc for approved specs       |
+| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies  |
+| **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI, cut releases       |
+| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations      |
+| **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps     |
+| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones |
 
 ## Workflows
 
-Workflows span 03–11 UTC, loosely following a PDSA cycle. Times respect
-dependencies (plans before implementation, rebase before merge, merge before
-release) and same-agent workflows never overlap.
-
-| Workflow              | Phase          | Schedule                                | Agent             | What it does                                                                |
-| --------------------- | -------------- | --------------------------------------- | ----------------- | --------------------------------------------------------------------------- |
-| **security-audit**    | Study          | Tue & Fri 04:07 UTC                     | security-engineer | Audit supply chain, dependencies, credentials, OWASP Top 10                 |
-| **security-update**   | Do             | Mon & Thu 04:43 UTC                     | security-engineer | Apply security updates: triage Dependabot PRs, address audit findings       |
-| **product-manager**   | Do, Study, Act | Daily 08:13 UTC + Mon/Wed/Fri 05:17 UTC | product-manager   | Classify and merge open PRs, then triage open issues into fixes and specs   |
-| **release-readiness** | Do             | Daily 06:23 UTC                         | release-engineer  | Rebase open PRs on main, fix lint/format failures, repair main CI if broken |
-| **plan-specs**        | Plan           | Daily 07:11 UTC                         | staff-engineer    | Pick up approved specs without plans and produce execution-ready plan-a.md  |
-| **implement-plans**   | Do             | Daily 07:53 UTC                         | staff-engineer    | Pick up approved plans (`status: planned`) and execute via implement-spec   |
-| **release-review**    | Do             | Tue, Thu, Sat 09:37 UTC                 | release-engineer  | Find unreleased changes, bump versions, tag, push, verify publish           |
-| **doc-review**        | Study, Act     | Mon & Thu 05:37 UTC                     | technical-writer  | Review one documentation topic in depth, fix staleness or write specs       |
-| **wiki-curate**       | Study, Act     | Wed & Sat 03:47 UTC                     | technical-writer  | Curate agent memory: verify summaries, follow up observations, clean logs   |
-| **improvement-coach** | Study → Act    | Wed & Sat 10:47 UTC                     | improvement-coach | Deep-analyze a single random agent trace, open fix PRs or write specs       |
-
-Off-minute schedules avoid API load spikes. All workflows support
+Ten scheduled workflows span 03-11 UTC. Times respect dependencies (plans before
+implementation, rebase before merge, merge before release) and same-agent
+workflows never overlap. Off-minute schedules avoid API load spikes. All support
 `workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
+
+| Workflow              | Phase          | Schedule                                | Agent             |
+| --------------------- | -------------- | --------------------------------------- | ----------------- |
+| **security-audit**    | Study          | Tue & Fri 04:07 UTC                     | security-engineer |
+| **security-update**   | Do             | Mon & Thu 04:43 UTC                     | security-engineer |
+| **product-manager**   | Do, Study, Act | Daily 08:13 UTC + Mon/Wed/Fri 05:17 UTC | product-manager   |
+| **release-readiness** | Do             | Daily 06:23 UTC                         | release-engineer  |
+| **plan-specs**        | Plan           | Daily 07:11 UTC                         | staff-engineer    |
+| **implement-plans**   | Do             | Daily 07:53 UTC                         | staff-engineer    |
+| **release-review**    | Do             | Tue, Thu, Sat 09:37 UTC                 | release-engineer  |
+| **doc-review**        | Study, Act     | Mon & Thu 05:37 UTC                     | technical-writer  |
+| **wiki-curate**       | Study, Act     | Wed & Sat 03:47 UTC                     | technical-writer  |
+| **improvement-coach** | Study -> Act   | Wed & Sat 10:47 UTC                     | improvement-coach |
 
 ## Skills
 
-Each skill owns exactly one PDSA phase (or none for utilities). Reading an
-agent's skill list reveals its phase coverage at a glance.
+All Gemba skills use the `gemba-` prefix. Each owns exactly one PDSA phase (or
+none for utilities). Reading an agent's skill list reveals its phase coverage.
 
-All Gemba skills are namespaced with the `gemba-` prefix.
-
-| Skill                        | Phase | Purpose                                                                       |
-| ---------------------------- | ----- | ----------------------------------------------------------------------------- |
-| **gemba-plan**               | Plan  | Write and review plans (HOW); advance approved specs from `review → planned`  |
-| **gemba-security-update**    | Do    | Security updates: Dependabot triage, npm audit findings, vulnerability fixes  |
-| **gemba-implement**          | Do    | Execute an approved plan step by step; advance `planned → active → done`      |
-| **gemba-release-readiness**  | Do    | Mechanical PR preparation — rebase, fix, report                               |
-| **gemba-release-review**     | Do    | Version bumps, tagging, publish verification                                  |
-| **gemba-security-audit**     | Study | Seven-area security review (supply chain, deps, credentials, OWASP, CI)       |
-| **gemba-product-triage**     | Study | Classify open issues for product alignment; produce a triage report           |
-| **gemba-product-classify**   | Study | Classify open PRs for mergeability — trust, type, CI, spec review — and merge |
-| **gemba-product-evaluation** | Study | Supervise product evaluation sessions, capture feedback, create issues        |
-| **gemba-documentation**      | Study | Write and review documentation — one topic deep per scheduled run             |
-| **gemba-wiki-curate**        | Study | Curate agent memory: summary accuracy, observation follow-up, log hygiene     |
-| **gemba-walk**               | Study | Open-ended trace observation, invariant audit, grounded-theory report         |
-| **gemba-spec**               | Act   | Write and review specs (WHAT/WHY); manage `draft → review` status             |
-| **gemba-gh-cli**             | —     | GitHub CLI installation and usage patterns for CI (utility, no PDSA phase)    |
-| **gemba-review**             | —     | Grade a spec, plan, or diff against criteria — leaf skill, never spawns       |
-| **gemba-ship**               | —     | Rebase, check, push, open/reuse PR, watch CI, squash-merge a feature branch   |
+**Plan:** gemba-plan (specs -> executable plans). **Do:** gemba-implement
+(execute plans), gemba-security-update (Dependabot triage, vulnerability fixes),
+gemba-release-readiness (rebase, lint fix), gemba-release-review (version bumps,
+tagging, publish verification). **Study:** gemba-security-audit (seven-area
+security review), gemba-product-triage (issue classification),
+gemba-product-classify (PR mergeability gate), gemba-product-evaluation (user
+testing sessions), gemba-documentation (one topic deep per run),
+gemba-wiki-curate (agent memory hygiene), gemba-walk (trace observation via
+grounded theory). **Act:** gemba-spec (write specs capturing WHAT/WHY).
+**Utility:** gemba-gh-cli (GitHub CLI patterns for CI), gemba-review (grade a
+single artifact — leaf skill, never spawns sub-agents), gemba-ship (rebase,
+push, open PR, merge a feature branch).
 
 ## Trust Boundary
 
-PR classification is the sole external merge point — every other merge path
-operates on trusted sources (our agents, Dependabot). External contributions
-pass through a two-tier gate:
-
-| PR type         | What merges                          | Who implements the change           |
-| --------------- | ------------------------------------ | ----------------------------------- |
-| `fix` / `bug`   | The contributor's code (small patch) | The external contributor            |
-| `spec`          | A specification document (WHAT/WHY)  | Trusted agents, not the contributor |
-| Everything else | Nothing — PR is skipped              | N/A                                 |
-
-**Trivial fixes** (`fix`, `bug`) from top-20 contributors merge the
-contributor's code, gated by CI and trust checks.
-
-**CI app PRs** (`app/forward-impact-ci`) are trusted by identity — the product
-manager skips the top-20 lookup and proceeds to type classification and CI.
-
-**Specs** (`spec`) from top-20 contributors merge only the specification
-document. Planning and implementation is performed by trusted agents, not the
-contributor — even a compromised top contributor cannot inject code through the
-autonomous pipeline.
-
-**All other PR types** (features, refactors) require human review.
+The product manager is the sole external merge point. All other merge paths
+operate on trusted sources (our agents, Dependabot).
 
 ```mermaid
 graph TD
-    EXT["External contribution"]
-    ISS["GitHub issues"]
-    PM["Product Manager<br/>trust gate + CI"]
-    CB["Codebase (main)"]
-    SE["Security Engineer<br/>Dependabot only"]
-    RE["Release Engineer<br/>rebase + release"]
-
-    EXT -- "fix / bug PR" --> PM
-    EXT -- "spec PR" --> PM
-    PM -- "merge fix/bug code" --> CB
-    PM -- "merge spec document" --> CB
-
-    ISS -- "bug report" --> PM
-    ISS -- "feature request" --> PM
-    PM -- "fix PR (agent-authored)" --> CB
-    PM -- "spec PR (agent-authored)" --> CB
-
-    CB -- "spec available" --> TA
-    TA["Trusted Agents<br/>plan + implement spec"]
-    TA -- "implementation PR" --> CB
-
-    SE -- "merge/tag" --> CB
-    RE -- "merge/tag" --> CB
-
-    style PM fill:#f9f,stroke:#333
-    style TA fill:#bfb,stroke:#333
-    style SE fill:#bbf,stroke:#333
-    style RE fill:#bbf,stroke:#333
+    EXT["External PR"] --> PM["Product Manager<br/>trust + CI gate"]
+    ISS["GitHub Issue"] --> PM
+    PM -- "merge fix/bug/spec" --> CB["Codebase (main)"]
+    CB -- "approved spec" --> TA["Trusted Agents<br/>plan + implement"]
+    TA --> CB
+    SE["Security Engineer"] -- "Dependabot" --> CB
+    RE["Release Engineer"] -- "rebase + release" --> CB
 ```
 
-| Merge point           | Source                     | Trust model                                     |
-| --------------------- | -------------------------- | ----------------------------------------------- |
-| **plan-specs**        | Agent-authored `plan-a.md` | Agent-only, against approved specs              |
-| **implement-plans**   | Agent-authored impl PRs    | Agent-only, against approved plans              |
-| **security-update**   | Dependabot PRs             | Trusted bot, policy-gated                       |
-| **release-readiness** | Agent-authored rebases     | Agent-only, no external input                   |
-| **product-manager**   | External fix/bug PRs       | Top-20 contributor gate + CI                    |
-| **product-manager**   | External spec PRs          | Top-20 gate + CI + spec review                  |
-| **product-manager**   | CI app PRs                 | Trusted app identity (`forward-impact-ci`) + CI |
-| **product-manager**   | Agent-authored fix/spec    | Agent-only, issues as input                     |
-| **release-review**    | Agent-authored tags/bumps  | Agent-only, no external input                   |
-| **improvement-coach** | Agent-authored fix/spec    | Agent-only, traces as evidence                  |
-| **doc-review**        | Agent-authored doc fixes   | Agent-only, source-of-truth verified            |
-| **wiki-curate**       | Agent-authored wiki edits  | Agent-only, cross-agent memory maintenance      |
-| **release-engineer**  | Trivial CI fixes on main   | Agent-only, mechanical fixes only               |
+| External PR type | What merges                     | Who implements                        |
+| ---------------- | ------------------------------- | ------------------------------------- |
+| `fix` / `bug`    | Contributor's code (small)      | The external contributor              |
+| `spec`           | Specification document only     | Trusted agents, never the contributor |
+| Everything else  | Nothing — requires human review | N/A                                   |
+
+Top-20 contributors pass the trust gate. CI app PRs (`forward-impact-ci`) are
+trusted by identity. Even a compromised top contributor cannot inject code
+through the autonomous pipeline — specs merge only the document, not code.
 
 ## Design Principles
 
-- **PDSA over pipeline.** Every workflow belongs to a phase of the Plan–Do–
-  Study–Act cycle. Findings from Study always re-enter the loop as specs or fix
-  PRs — nothing is observed without a downstream action.
-- **Fix-or-spec discipline.** Mechanical fixes (`fix/` branches) and structural
-  improvements (`spec/` branches) are never mixed in one PR.
-- **Explicit scope constraints.** Each agent lists what it must _not_ do.
-- **Main branch CI repair.** See CONTRIBUTING.md § Pull Request Workflow for the
-  release engineer's direct-to-`main` exception.
-- **Trace-driven observability.** Every workflow captures a full execution
-  trace. The improvement coach must quote specific evidence — no speculation.
-- **Least privilege.** `security-audit` runs `contents: read` only. Write
-  workflows use scoped per-run installation tokens.
+- **PDSA over pipeline.** Findings from Study always re-enter the loop.
+- **Fix-or-spec discipline.** Mechanical fixes and structural improvements never
+  share a PR.
+- **Explicit scope constraints.** Each agent knows what it must _not_ do.
+- **Trace-driven observability.** Every workflow captures a trace. The
+  improvement coach must quote specific evidence — no speculation.
+- **Least privilege.** Read-only workflows use `contents: read`. Write workflows
+  use scoped per-run installation tokens.
+- **Main branch CI repair.** See CONTRIBUTING.md for the release engineer's
+  direct-to-`main` exception.
 
 ## Shared Memory
 
-Agents share persistent memory via the repository's **GitHub wiki**, mounted as
-a git submodule at `wiki/`. Synced by `just wiki-pull` (on `SessionStart`) and
-`just wiki-push` (on `Stop`).
+Agents share persistent memory via the **GitHub wiki** submodule at `wiki/`.
+Synced by `just wiki-pull` (on `SessionStart`) and `just wiki-push` (on `Stop`).
 
-Each agent maintains two kinds of file:
+Each agent maintains two file types:
 
-- A rolling **summary** — `<agent>.md`, latest state (coverage, backlog,
-  blockers, observations for teammates).
-- A **weekly log** — `<agent>-<YYYY>-W<VV>.md`, keyed by ISO week-year and week
-  number (`date +%G-W%V`). One file per agent per week provides continuity
-  across the weekly CI cadence without fragmenting context into daily files.
+- **Summary** (`<agent>.md`) — latest state: coverage, backlog, blockers,
+  teammate observations.
+- **Weekly log** (`<agent>-<YYYY>-W<VV>.md`) — one file per agent per week,
+  keyed by ISO week-year.
 
-Every scheduled run must read the summary and the current week's log before
-acting, append that run's findings to the week's log, and update the summary at
-the end. The canonical memory instruction block lives in each agent profile;
-skills reference it without restating paths.
-
-**Skill responsibilities.** Every entry-point skill (the primary skill for a
-scheduled workflow) must include two memory elements:
-
-1. A **read step** — "Read memory per the agent profile (your summary, the
-   current week's log, and teammates' summaries)." followed by domain-specific
-   extraction (what to look for in prior entries).
-2. A **"Memory: what to record"** section — a bulleted list of the specific
-   fields to append to the weekly log.
-
-Sub-skills invoked within a workflow (e.g. `gemba-spec` called as the Act phase
-inside another workflow) do not need their own memory instructions — the
-entry-point skill's recording list and the agent profile's write protocol cover
-them. Utility skills with no PDSA phase (`gemba-gh-cli`, `gemba-ship`,
-`gemba-review`) are also exempt.
+Every scheduled run reads the summary and current week's log before acting,
+appends findings to the log, and updates the summary at the end. Entry-point
+skills must include a read step and a "Memory: what to record" section.
+Sub-skills and utility skills are exempt.
 
 ## Authentication
 
-Workflows authenticate via a **GitHub App** (`forward-impact-ci`), not a PAT.
-Each run generates a short-lived installation token via
-`actions/create-github-app-token` — no long-lived secrets to rotate.
-
-Benefits: on-demand tokens (1-hour expiry), distinct bot identity
-(`forward-impact-ci[bot]`) for unambiguous audit trails, and one-click setup for
-downstream installations (store `CI_APP_ID` and `CI_APP_PRIVATE_KEY` as
-repository secrets, or create a custom App and override `app-slug`).
-
-Token generation runs before `actions/checkout` so the checkout token triggers
-downstream workflows. The `security-audit` workflow uses `GITHUB_TOKEN` for
-checkout (preserving `contents: read` least privilege) and generates a separate
-App token for API access.
+Workflows authenticate via the **GitHub App** (`forward-impact-ci`), not a PAT.
+Each run generates a short-lived installation token (1-hour expiry) via
+`actions/create-github-app-token` — no long-lived secrets to rotate. The token
+generates before `actions/checkout` so the checkout token triggers downstream
+workflows. `security-audit` uses `GITHUB_TOKEN` for checkout (preserving least
+privilege) and a separate App token for API access.
 
 ## Accountability
 
 Cross-agent accountability runs through the `gemba-walk` skill's invariant
-audit. The improvement coach runs the audit on every gemba walk to verify named
-per-agent invariants against the actual trace — for example, that the product
-manager ran a contributor lookup before marking any non-CI-app PR mergeable. The
-canonical invariant list lives in
-[.claude/skills/gemba-walk/references/invariants.md](.claude/skills/gemba-walk/references/invariants.md);
-new accountability rules are added there as new specs land, not in this
-document. High-severity audit failures must result in a fix PR or spec — silent
-acceptance is itself a process failure.
+audit. The improvement coach verifies named per-agent invariants against the
+actual trace on every walk — e.g., that the product manager ran a contributor
+lookup before marking any non-CI-app PR mergeable. The canonical invariant list
+lives in `.claude/skills/gemba-walk/references/invariants.md`. High-severity
+audit failures must result in a fix PR or spec.
 
 ## Authoring Best Practices
 
-Lessons from trace analysis and grounded-theory coding of agent workflow runs.
+Lessons from trace analysis of agent workflow runs.
 
 ### Instruction layering
 
-Agent instructions span four layers. Each layer owns a distinct concern — no
-layer should restate content from another.
+Agent instructions span four layers, each owning a distinct concern:
 
-```text
-libeval system prompt   — relay mechanics (how turns work, completion signal)
-       ↓
-workflow task            — this run (which product, scenario, success criteria)
-       ↓
-agent profile            — who you are (persona, voice, skill routing, constraints)
-       ↓
-skills                   — how to do it (procedures, checklists, templates)
-```
+1. **libeval system prompt** — relay mechanics (how turns work, completion)
+2. **workflow task** — this run (which product, scenario, success criteria)
+3. **agent profile** — who you are (persona, voice, skill routing, constraints)
+4. **skills** — how to do it (procedures, checklists, templates)
 
-**Rules:**
+No layer restates another's content. Tasks name skills — they don't copy steps.
+Shared procedures belong in skills; per-run details belong in tasks. Profiles
+define boundaries; skills define steps.
 
-1. **Each layer owns its concern.** No layer restates another's content.
-2. **Reference by name, not by content.** Tasks and profiles name skills — they
-   do not copy their steps.
-3. **Tasks are scenario-specific; skills are reusable.** Shared procedures
-   belong in skills; per-run details (which product, success criteria) belong in
-   tasks.
-4. **Skills may elaborate on system prompt behaviour** but must not contradict
-   or copy it verbatim.
-5. **Profiles define boundaries; skills define steps.** Prefer one sentence per
-   constraint. No MUST/MUST NOT checklists that repeat skill content.
-6. **Task texts must activate the full workflow.** Name the complete cycle
-   ("Walk the gemba and act on findings"), not just the first phase.
+### Skill structure
 
-**Common violations:**
-
-| Violation                                   | Symptom                                   |
-| ------------------------------------------- | ----------------------------------------- |
-| Task restates skill procedures              | Agent follows task wording, skips skill   |
-| Task references skills unavailable to agent | Agent stalls searching for missing skill  |
-| Profile copies skill checklists             | Tokens wasted parsing redundant text      |
-| Skill description parrots system prompt     | Contradictions when system prompt evolves |
-
-### Skill length and progressive disclosure
-
-SKILL.md is the instruction the agent reads on every run. Keep it short — aim
-for **~200 lines or fewer**. Long skills waste tokens on boilerplate and
-increase the chance the agent skips steps buried deep in the document.
-
-Move supporting material into co-located subdirectories that the agent reads
-only when needed:
+SKILL.md is read on every run — aim for ~200 lines or fewer. Move supporting
+material into co-located subdirectories:
 
 ```text
 .claude/skills/<skill-name>/
-  SKILL.md                     ← core instructions (always loaded)
-  scripts/<name>.sh|.mjs       ← executable automation the agent invokes
-  references/<name>.md         ← templates, examples, data tables
+  SKILL.md                     <- core instructions (always loaded)
+  scripts/<name>.sh|.mjs       <- executable automation
+  references/<name>.md         <- templates, examples, data tables
 ```
 
-**What belongs in `scripts/`:** Repeatable shell or JS commands that the agent
-runs verbatim — installation routines, data extraction queries, discovery
-helpers. The SKILL.md documents the script's purpose and invocation; the script
-contains the implementation.
-
-**What belongs in `references/`:** Content the agent reads on demand —
-comment/PR/issue body templates, report formats, worked examples, data
-inventories (e.g. SHA-to-workflow mappings). The SKILL.md names the reference
-file and describes when to consult it.
-
-**What stays in SKILL.md:** The decision-making procedure — when to use the
-skill, the gate checklist, the process steps, classification criteria, and
-memory instructions. If the agent needs it on every run to know _what to do
-next_, it belongs in the SKILL.md.
-
-**Guideline, not a hard rule.** Some skills (e.g. `spec` at 179 lines) are
-entirely instructional with no templates or scripts to extract — that's fine.
-The goal is not to hit a line count but to separate procedure from supporting
-material so the core instructions stay scannable.
-
-### Shared patterns must be consistent
-
-Use the same wording for shared structural elements (memory instructions,
-prerequisites format, section headings) across all agents and skills.
-Inconsistent wording correlated with agents skipping steps in trace analysis.
+SKILL.md holds the decision-making procedure. `scripts/` holds repeatable
+commands the agent runs verbatim. `references/` holds content the agent reads on
+demand. Some skills are entirely instructional with nothing to extract — that's
+fine.
 
 ### Recursion-safe self-review
 
-Skills that require an independent review of their own output (e.g.
-`gemba-spec`, `gemba-plan`, `gemba-implement`) must spawn a fresh sub-agent —
-otherwise the reviewer shares context with the author and grades aren't
-independent. The naive design — "spawn a sub-agent and ask it to review using
-this same skill" — is **structurally vulnerable to recursion**: the sub-agent
-matches the skill's "When to Use" triggers, runs the full Process, and reaches
-its own review step, which spawns another sub-agent, which… and so on.
+Skills requiring independent review of their output must spawn a fresh sub-agent
+targeting a **leaf skill** (`gemba-review`) whose process never spawns further
+sub-agents. This prevents infinite recursion. Defense-in-depth: the parent's
+review step also tells the sub-agent "do not invoke this skill."
 
-The fix is to **delegate the review to a separate, leaf skill** (`gemba-review`)
-whose Process never spawns sub-agents. The call graph then bottoms out
-structurally:
+### Shared patterns
 
-```text
-gemba-spec.Step5 → spawn sub-agent → gemba-review.Process → return findings
-                                                            ↑
-                                                      no spawn step here
-```
+Use identical wording for shared structural elements (memory instructions,
+prerequisites, section headings) across all agents and skills. Inconsistent
+wording correlated with agents skipping steps in trace analysis.
 
-Even if a buggy prompt match causes the sub-agent to mis-load `gemba-spec`
-instead of `gemba-review`, defense-in-depth applies: the parent skill's review
-step explicitly tells the sub-agent **"do not invoke this skill"**. The
-structural fix prevents recursion in the happy path; the prompt instruction
-catches it in the edge case.
+### SDK note
 
-**Rule for new skills.** A skill that calls another skill via a sub-agent must
-target a skill whose Process has no further sub-agent spawn step. If you find
-yourself wanting to recursively self-review, factor the review into a separate
-leaf skill instead. `gemba-review` is the canonical example — copy its shape
-when you need a new self-review loop.
-
-### resume() must propagate session state
-
-The SDK does not persist `permissionMode` across resume boundaries. Always pass
-all session configuration again when calling `resume()`.
+`resume()` does not persist `permissionMode` across resume boundaries — always
+pass all session configuration again.
