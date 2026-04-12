@@ -11,7 +11,11 @@ description: >
 Go to where the work happens — the execution trace of a CI agent workflow run —
 and observe it firsthand. Select one run, download its trace, study every turn
 via grounded theory, categorize findings, and act on what you find. Depth over
-breadth.
+breadth. This skill operates within the Gemba system defined in
+[GEMBA.md](../../../GEMBA.md), whose five-layer instruction model (§ Instruction
+layering) and checklist design principles
+([CHECKLISTS.md](../../../CHECKLISTS.md)) govern how findings translate into
+system improvements.
 
 ## When to Use
 
@@ -41,6 +45,7 @@ breadth.
 - [ ] Memos written during coding (not retroactively).
 - [ ] Categories built with all five paradigm elements filled.
 - [ ] Core category identified — integrates the most categories.
+- [ ] Categories attributed to instruction layers where evidence supports it.
 - [ ] Named invariants from `references/invariants.md` audited with PASS/FAIL.
 
 </do_confirm_checklist>
@@ -55,26 +60,9 @@ teammates' summaries). Extract workflow names and run IDs from previous cycles.
 ### 1. Select a Run
 
 If a specific workflow name, run ID, or URL is provided, use that run.
-
-Otherwise, select a run using memory-informed rotation:
-
-1. **Discover available runs**:
-
-   ```sh
-   bash .claude/skills/gemba-walk/scripts/find-runs.sh [lookback]
-   ```
-
-   Default lookback is `7d`. Use `14d` for broader window, `24h` for recent
-   only. Returns JSON sorted newest-first with `workflow`, `run_id`, `status`,
-   `conclusion`, `created_at`, `branch`, and `url` fields.
-
-2. **Avoid duplicates** — Skip run IDs already analyzed (per memory).
-
-3. **Rotate across agents** — Prefer the least-recently analyzed workflow.
-
-4. **Prefer failures** — Among eligible runs, prefer non-success conclusions.
-
-Announce which run you selected and why before proceeding.
+Otherwise, select a run using memory-informed rotation — see
+[`references/run-selection.md`](references/run-selection.md) for the selection
+algorithm. Announce which run you selected and why before proceeding.
 
 ### 2. Download and Process the Trace
 
@@ -97,16 +85,9 @@ gh run download <run-id> --name agent-trace --dir /tmp/trace-<run-id>
 bunx fit-eval output --format=json < /tmp/trace-<run-id>/trace.ndjson > /tmp/trace-<run-id>/structured.json
 ```
 
-If no trace artifacts exist, pick a different run and note why.
-
-For large traces, use the extraction helpers in `scripts/trace-queries.sh`
-(`overview`, `count`, `batch N M`, `tail N`, `errors`, `tools`):
-
-```sh
-bash .claude/skills/gemba-walk/scripts/trace-queries.sh structured.json overview
-bash .claude/skills/gemba-walk/scripts/trace-queries.sh structured.json batch 0 20
-bash .claude/skills/gemba-walk/scripts/trace-queries.sh structured.json errors
-```
+If no trace artifacts exist, pick a different run and note why. For large
+traces, use `scripts/trace-queries.sh` (`overview`, `count`, `batch N M`,
+`tail N`, `errors`, `tools`).
 
 ### 3. Observe the Work (Open Coding + Memos)
 
@@ -158,7 +139,34 @@ it), and **actionable** (implies a concrete change).
 
 See `references/examples.md` for worked axial and selective coding examples.
 
-### 5. Categorize Findings
+### 5. Attribute to Instruction Layers
+
+For each category and proposition, ask: which instruction layer (if any) is the
+root cause? See [GEMBA.md § Instruction layering](../../../GEMBA.md) for the
+full model. Quick-reference key:
+
+`L1 system prompt / L2 task / L3 profile / L4 skill / L5 checklist`
+
+| Layer               | Typical fix shape                               |
+| ------------------- | ----------------------------------------------- |
+| L1 (system prompt)  | Infrastructure fix (relay code, supervisor.js)  |
+| L2 (workflow task)  | Trivial fix (reword task text in workflow YAML) |
+| L3 (agent profile)  | Trivial fix or improvement (edit profile .md)   |
+| L4 (skill)          | Improvement or trivial fix depending on scope   |
+| L5 (checklist)      | Trivial fix (add or edit checklist item)        |
+| None (infra/config) | Depends on scope                                |
+
+Not every finding maps to an instruction layer — infrastructure, SDK, and
+external service failures are valid non-layer findings. Attribute only when the
+evidence supports it. Prefer the highest layer where the defect originates — a
+symptom in L4 (skill execution) may have a root cause in L2 (task text).
+
+See `references/examples.md` for a worked attribution example.
+
+### 6. Categorize Findings
+
+Use the instruction-layer attribution from Step 5 to inform the action column —
+the typical fix shape biases the trivial-fix vs improvement judgment.
 
 | Category        | Criteria                                        | Action         |
 | --------------- | ----------------------------------------------- | -------------- |
@@ -166,7 +174,7 @@ See `references/examples.md` for worked axial and selective coding examples.
 | **Improvement** | Pattern requires design, touches multiple files | Write spec     |
 | **Observation** | Not actionable yet, or needs more data          | Note in report |
 
-### 6. Audit Named Invariants
+### 7. Audit Named Invariants
 
 In addition to open-ended observation, verify the trace against the named
 per-agent invariants listed in
@@ -180,7 +188,7 @@ on `product-manager` traces — must result in a fix PR or spec just like any
 other gemba finding. Silent acceptance of a high-severity failure is itself a
 process failure.
 
-### 7. Report and Act
+### 8. Report and Act
 
 Run the DO-CONFIRM checklist above before producing the report.
 
@@ -213,6 +221,8 @@ Append to the current week's log (see agent profile for the file path):
 - **Core category** — The central phenomenon and theoretical propositions
 - **Invariant audit results** — Each invariant checked with PASS/FAIL and quoted
   evidence
+- **Instruction-layer attributions** — Which layers were implicated and what fix
+  shapes resulted
 - **Saturation notes** — Patterns confirmed, refuted, or newly emerged compared
   to prior cycles
 - **Observations for teammates** — Callouts for specific agents
@@ -229,3 +239,8 @@ principles add practical guidance:
 - **Count what matters.** Token usage, retry counts, wasted turns, cost.
 - **Compare to intent.** Read the skill docs, compare to actual execution.
 - **Maintain traceability.** Proposition → category → code → turn number.
+- **Trace findings back to instruction layers.** When a failure's root cause is
+  an instruction defect, name the layer. Attributed findings lead to layer
+  fixes; unattributed findings lead to vague improvements.
+- **Prefer upstream layers.** A symptom in L4 (skill execution) may have a root
+  cause in L2 (task text). Fix the highest layer where the defect originates.

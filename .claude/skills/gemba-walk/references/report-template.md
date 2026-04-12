@@ -66,17 +66,31 @@ the core. Reference the categories it connects.>
 2. <Testable statement...>
 3. <Testable statement...>
 
+### Instruction-Layer Attribution
+
+<For each category with an instruction-layer root cause, map it to the
+layer and state the evidence. Not every category maps to a layer — only
+attribute when the evidence supports it. See GEMBA.md § Instruction layering
+for the five-layer model.>
+
+| Category | Layer              | Evidence                        | Fix Shape    |
+| -------- | ------------------ | ------------------------------- | ------------ |
+| TASK_... | L2 (workflow task) | Turn NN: agent cites singular   | Trivial fix  |
+| CRED_... | L4 (skill)         | No diagnostic step in skill doc | Improvement  |
+| BUDGET.. | None (infra)       | Hardcoded maxTurns in JS        | Trivial fix  |
+
 ### Actionable Findings
 
 <Translate propositions into concrete actions. Each finding traces back
-to a proposition, which traces to categories, which trace to codes, which
-trace to specific turns. This traceability chain is the report's integrity.>
+to a proposition, which traces to categories and layers, which trace to
+codes, which trace to specific turns. This traceability chain is the
+report's integrity.>
 
-| # | Proposition | Category | Finding                           | Action            |
-| - | ----------- | -------- | --------------------------------- | ----------------- |
-| 1 | P1          | CRED_... | Agent lacks credential diagnostic | Spec: skill update |
-| 2 | P3          | WASTE_.. | 3 identical retries, no backoff   | Fix: add retry cap |
-| 3 | —           | —        | High token usage in triage phase  | Observe            |
+| # | Proposition | Category | Layer | Finding                           | Action            |
+| - | ----------- | -------- | ----- | --------------------------------- | ----------------- |
+| 1 | P1          | CRED_... | L4    | Agent lacks credential diagnostic | Spec: skill update |
+| 2 | P3          | WASTE_.. | —     | 3 identical retries, no backoff   | Fix: add retry cap |
+| 3 | —           | —        | —     | High token usage in triage phase  | Observe            |
 
 ### Saturation Notes
 
