@@ -26,6 +26,9 @@ import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
 import { fileURLToPath } from "node:url";
 import { createCli } from "@forwardimpact/libcli";
+import { createLogger as createTelemetryLogger } from "@forwardimpact/libtelemetry";
+
+const telemetryLogger = createTelemetryLogger("basecamp");
 
 import * as posixSpawn from "./posix-spawn.js";
 import { StateManager } from "./state-manager.js";
@@ -61,7 +64,7 @@ function createLogger(logDir, fs) {
   return function log(msg) {
     const ts = new Date().toISOString();
     const line = `[${ts}] ${msg}`;
-    console.log(line);
+    telemetryLogger.info(line);
     fs.appendFileSync(
       join(logDir, `scheduler-${ts.slice(0, 10)}.log`),
       line + "\n",
@@ -202,7 +205,7 @@ function runUpdate(args) {
   }
 
   for (const kb of kbPaths) {
-    console.log(`\nUpdating ${kb}...`);
+    telemetryLogger.info(`\nUpdating ${kb}...`);
     kbManager.update(kb, requireTemplateDir());
   }
 }
@@ -212,20 +215,22 @@ function runUpdate(args) {
 function showStatus() {
   const config = loadConfig();
   const state = stateManager.load();
-  console.log("\nBasecamp Scheduler\n==================\n");
+  telemetryLogger.info("\nBasecamp Scheduler\n==================\n");
 
   const agents = Object.entries(config.agents || {});
   if (agents.length === 0) {
-    console.log(`No agents configured.\n\nEdit ${CONFIG_PATH} to add agents.`);
+    telemetryLogger.info(
+      `No agents configured.\n\nEdit ${CONFIG_PATH} to add agents.`,
+    );
     return;
   }
 
-  console.log("Agents:");
+  telemetryLogger.info("Agents:");
   for (const [name, agent] of agents) {
     const s = state.agents[name] || {};
     const kbStatus =
       agent.kb && !existsSync(expandPath(agent.kb)) ? " (not found)" : "";
-    console.log(
+    telemetryLogger.info(
       `  ${agent.enabled !== false ? "+" : "-"} ${name}\n` +
         `    KB: ${agent.kb || "(none)"}${kbStatus}  Schedule: ${JSON.stringify(agent.schedule)}\n` +
         `    Status: ${s.status || "never-woken"}  Last wake: ${s.lastWokeAt ? new Date(s.lastWokeAt).toLocaleString() : "never"}  Wakes: ${s.wakeCount || 0}` +
@@ -250,35 +255,35 @@ function validate() {
   const config = loadConfig();
   const agents = Object.entries(config.agents || {});
   if (agents.length === 0) {
-    console.log("No agents configured. Nothing to validate.");
+    telemetryLogger.info("No agents configured. Nothing to validate.");
     return;
   }
 
-  console.log("\nValidating agents...\n");
+  telemetryLogger.info("\nValidating agents...\n");
   let errors = 0;
 
   for (const [name, agent] of agents) {
     if (!agent.kb) {
-      console.log(`  [FAIL] ${name}: no "kb" path specified`);
+      telemetryLogger.info(`  [FAIL] ${name}: no "kb" path specified`);
       errors++;
       continue;
     }
     const kbPath = expandPath(agent.kb);
     if (!existsSync(kbPath)) {
-      console.log(`  [FAIL] ${name}: path not found: ${kbPath}`);
+      telemetryLogger.info(`  [FAIL] ${name}: path not found: ${kbPath}`);
       errors++;
       continue;
     }
 
     const agentFile = join("agents", name + ".md");
     const found = findInLocalOrGlobal(kbPath, agentFile);
-    console.log(
+    telemetryLogger.info(
       `  [${found ? "OK" : "FAIL"}]  ${name}: agent definition${found ? "" : " not found"}`,
     );
     if (!found) errors++;
   }
 
-  console.log(errors > 0 ? `\n${errors} error(s).` : "\nAll OK.");
+  telemetryLogger.info(errors > 0 ? `\n${errors} error(s).` : "\nAll OK.");
   if (errors > 0) process.exit(1);
 }
 

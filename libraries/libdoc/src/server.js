@@ -1,3 +1,7 @@
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("libdoc");
+
 /**
  * Documentation server for serving built documentation and watching for changes
  */
@@ -33,7 +37,7 @@ export class DocsServer {
    * @returns {void}
    */
   watch(docsDir, distDir) {
-    console.log(`Watching for changes in ${docsDir}...`);
+    logger.info(`Watching for changes in ${docsDir}...`);
 
     this.#watcher = this.#fs.watch(
       docsDir,
@@ -45,7 +49,7 @@ export class DocsServer {
             filename.endsWith(".mustache") ||
             filename.startsWith("assets/"))
         ) {
-          console.log(`\nRebuilding due to change in ${filename}...`);
+          logger.info(`\nRebuilding due to change in ${filename}...`);
           this.#builder.build(docsDir, distDir).catch((error) => {
             console.error("Build error:", error);
           });
@@ -148,7 +152,7 @@ export class DocsServer {
       });
     });
 
-    console.log(`Serving documentation at http://${hostname}:${port}`);
+    logger.info(`Serving documentation at http://${hostname}:${port}`);
 
     return this.#serve({ fetch: app.fetch, port, hostname });
   }

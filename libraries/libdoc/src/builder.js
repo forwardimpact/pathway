@@ -1,5 +1,8 @@
 import { gfmHeadingId } from "marked-gfm-heading-id";
 import { markedHighlight } from "marked-highlight";
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("libdoc");
 
 /**
  * Documentation builder for converting Markdown files to HTML
@@ -154,7 +157,7 @@ export class DocsBuilder {
         this.#path.join(distDir, "assets"),
       )
     ) {
-      console.log("  ✓ assets/");
+      logger.info("  ✓ assets/");
     }
 
     // Copy root-level static files (robots.txt, llms.txt, etc.)
@@ -172,7 +175,7 @@ export class DocsBuilder {
           this.#path.join(docsDir, entry.name),
           this.#path.join(distDir, entry.name),
         );
-        console.log(`  ✓ ${entry.name}`);
+        logger.info(`  ✓ ${entry.name}`);
       });
   }
 
@@ -274,7 +277,7 @@ export class DocsBuilder {
       xml,
       "utf-8",
     );
-    console.log("  ✓ sitemap.xml");
+    logger.info("  ✓ sitemap.xml");
   }
 
   /**
@@ -339,7 +342,7 @@ export class DocsBuilder {
     }
 
     this.#fs.writeFileSync(llmsPath, output.join("\n"), "utf-8");
-    console.log("  ✓ llms.txt (augmented)");
+    logger.info("  ✓ llms.txt (augmented)");
   }
 
   /**
@@ -448,7 +451,7 @@ export class DocsBuilder {
       finalHtml,
       "utf-8",
     );
-    console.log(`  ✓ ${outputPath}.html`);
+    logger.info(`  ✓ ${outputPath}.html`);
 
     this.#fs.writeFileSync(
       this.#path.join(distDir, outputPath + ".md"),
@@ -541,7 +544,7 @@ export class DocsBuilder {
    * @returns {Promise<void>}
    */
   async build(docsDir, distDir, baseUrl) {
-    console.log("Building documentation...");
+    logger.info("Building documentation...");
 
     baseUrl = this.#resolveBaseUrl(baseUrl, docsDir);
 
@@ -588,6 +591,6 @@ export class DocsBuilder {
       this.#augmentLlmsTxt(pages, baseUrl, distDir);
     }
 
-    console.log("Documentation build complete!");
+    logger.info("Documentation build complete!");
   }
 }

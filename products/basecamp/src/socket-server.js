@@ -4,6 +4,7 @@
 
 import { createServer } from "node:net";
 import { createConnection } from "node:net";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import {
   existsSync,
   unlinkSync,
@@ -11,6 +12,8 @@ import {
   readdirSync,
   statSync,
 } from "node:fs";
+
+const logger = createLogger("basecamp");
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { computeNextWakeAt } from "./scheduler.js";
@@ -281,13 +284,13 @@ export class SocketServer {
  */
 export async function requestShutdown(socketPath) {
   if (!existsSync(socketPath)) {
-    console.log("Daemon not running (no socket).");
+    logger.info("Daemon not running (no socket).");
     return false;
   }
 
   return new Promise((resolve) => {
     const timeout = setTimeout(() => {
-      console.log("Shutdown timed out.");
+      logger.info("Shutdown timed out.");
       socket.destroy();
       resolve(false);
     }, 5000);
@@ -301,7 +304,7 @@ export async function requestShutdown(socketPath) {
       buffer += data.toString();
       if (buffer.includes("\n")) {
         clearTimeout(timeout);
-        console.log("Daemon stopped.");
+        logger.info("Daemon stopped.");
         socket.destroy();
         resolve(true);
       }
@@ -309,7 +312,7 @@ export async function requestShutdown(socketPath) {
 
     socket.on("error", () => {
       clearTimeout(timeout);
-      console.log("Daemon not running (connection refused).");
+      logger.info("Daemon not running (connection refused).");
       resolve(false);
     });
 
