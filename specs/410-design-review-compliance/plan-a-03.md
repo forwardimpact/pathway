@@ -18,8 +18,8 @@ depending on the call's purpose:
 
 - **Operational output** (progress, status, feedback) → `logger.info(msg)`
   (writes to stderr, keeps stdout clean).
-- **Data output** (formatted entities, JSON, markdown) → `process.stdout.write(msg + "\n")`
-  (structured data stays on stdout).
+- **Data output** (formatted entities, JSON, markdown) →
+  `process.stdout.write(msg + "\n")` (structured data stays on stdout).
 
 The distinction is critical: pathway commands like `fit-pathway job` emit
 formatted data that downstream tools may parse. These must remain on stdout.
@@ -37,6 +37,7 @@ it.
 **File:** `products/pathway/package.json`
 
 Add to `dependencies`:
+
 ```json
 "@forwardimpact/libtelemetry": "^0.1.33"
 ```
@@ -53,6 +54,7 @@ and create a logger at the top of each exported function (or accept one via
 parameter if the function already receives an options object).
 
 **Pattern:**
+
 ```javascript
 import { createLogger } from "@forwardimpact/libtelemetry";
 
@@ -67,10 +69,11 @@ export async function runBuildCommand(options) {
 #### `src/commands/build.js` — 20 calls
 
 All 20 `console.log` calls are build progress messages (lines 88, 96, 107, 112,
-120, 122, 135, 137, 143, 145, 147, 155, 158, 166, 173, 176, 184, 187, 196,
-221). Replace every one with `logger.info()`.
+120, 122, 135, 137, 143, 145, 147, 155, 158, 166, 173, 176, 184, 187, 196, 221).
+Replace every one with `logger.info()`.
 
 Example — line 88–90 (welcome header):
+
 ```javascript
 // Before
 console.log(`\n${emoji} ${title}\n`);
@@ -80,6 +83,7 @@ logger.info(`\n${emoji} ${title}\n`);
 ```
 
 Example — line 120 (asset copy success):
+
 ```javascript
 // Before
 console.log(`  ✓ ${file}`);
@@ -122,15 +126,14 @@ No logger import is needed for these files — they have no operational output.
 
 #### `src/commands/job.js` — 6 calls
 
-Lines 44, 59, 63: markdown/text display of job entities.
-Lines 404, 410, 415: JSON output.
+Lines 44, 59, 63: markdown/text display of job entities. Lines 404, 410, 415:
+JSON output.
 
 Replace all with `process.stdout.write(... + "\n")`.
 
 #### `src/commands/command-factory.js` — 4 calls
 
-Lines 62, 70: formatted list output.
-Lines 171, 229: JSON output.
+Lines 62, 70: formatted list output. Lines 171, 229: JSON output.
 
 Replace all with `process.stdout.write(... + "\n")`.
 
@@ -176,6 +179,7 @@ Line 70: discipline markdown display. Replace with `process.stdout.write()`.
 **File:** `src/commands/index.js`
 
 Delete lines 19–20:
+
 ```javascript
 export { runServeCommand } from "./serve.js";
 export { runSiteCommand } from "./site.js";
@@ -192,11 +196,13 @@ Move `SummaryRenderer` instantiation from module scope (line 19) into the
 function that uses it (`showAgentSummary`).
 
 **Before (line 19):**
+
 ```javascript
 const summary = new SummaryRenderer({ process });
 ```
 
 **After:** Delete line 19. Inside `showAgentSummary()`, create the instance:
+
 ```javascript
 export function showAgentSummary(data, agentData, options) {
   const summary = new SummaryRenderer({ process });
@@ -206,27 +212,27 @@ export function showAgentSummary(data, agentData, options) {
 
 ## Blast radius
 
-| Action   | File                                        |
-|----------|---------------------------------------------|
-| Modified | `package.json`                              |
-| Modified | `src/commands/build.js`                     |
-| Modified | `src/commands/update.js`                    |
-| Modified | `src/commands/build-packs.js`               |
-| Modified | `src/commands/build-bundle.js`              |
-| Modified | `src/commands/agent-io.js`                  |
-| Modified | `src/commands/dev.js`                       |
-| Modified | `src/commands/job.js`                       |
-| Modified | `src/commands/command-factory.js`            |
-| Modified | `src/commands/tool.js`                      |
-| Modified | `src/commands/agent-list.js`                |
-| Modified | `src/commands/questions.js`                 |
-| Modified | `src/commands/agent.js`                     |
-| Modified | `src/commands/skill.js`                     |
-| Modified | `src/commands/track.js`                     |
-| Modified | `src/commands/behaviour.js`                 |
-| Modified | `src/commands/level.js`                     |
-| Modified | `src/commands/discipline.js`                |
-| Modified | `src/commands/index.js`                     |
+| Action   | File                              |
+| -------- | --------------------------------- |
+| Modified | `package.json`                    |
+| Modified | `src/commands/build.js`           |
+| Modified | `src/commands/update.js`          |
+| Modified | `src/commands/build-packs.js`     |
+| Modified | `src/commands/build-bundle.js`    |
+| Modified | `src/commands/agent-io.js`        |
+| Modified | `src/commands/dev.js`             |
+| Modified | `src/commands/job.js`             |
+| Modified | `src/commands/command-factory.js` |
+| Modified | `src/commands/tool.js`            |
+| Modified | `src/commands/agent-list.js`      |
+| Modified | `src/commands/questions.js`       |
+| Modified | `src/commands/agent.js`           |
+| Modified | `src/commands/skill.js`           |
+| Modified | `src/commands/track.js`           |
+| Modified | `src/commands/behaviour.js`       |
+| Modified | `src/commands/level.js`           |
+| Modified | `src/commands/discipline.js`      |
+| Modified | `src/commands/index.js`           |
 
 All paths relative to `products/pathway/`.
 

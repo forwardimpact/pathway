@@ -33,35 +33,37 @@ removes the hardcoded JWT from source while preserving the same user experience.
 
 Move these 8 files, preserving directory structure:
 
-| From (supabase/functions/_shared/activity/) | To (src/activity/) |
-|---------------------------------------------|--------------------|
-| `storage.js`                     | `storage.js`                     |
-| `extract/github.js`             | `extract/github.js`             |
-| `extract/getdx.js`              | `extract/getdx.js`              |
-| `extract/people.js`             | `extract/people.js`             |
-| `transform/index.js`            | `transform/index.js`            |
-| `transform/github.js`           | `transform/github.js`           |
-| `transform/getdx.js`            | `transform/getdx.js`            |
-| `transform/people.js`           | `transform/people.js`           |
+| From (supabase/functions/\_shared/activity/) | To (src/activity/)    |
+| -------------------------------------------- | --------------------- |
+| `storage.js`                                 | `storage.js`          |
+| `extract/github.js`                          | `extract/github.js`   |
+| `extract/getdx.js`                           | `extract/getdx.js`    |
+| `extract/people.js`                          | `extract/people.js`   |
+| `transform/index.js`                         | `transform/index.js`  |
+| `transform/github.js`                        | `transform/github.js` |
+| `transform/getdx.js`                         | `transform/getdx.js`  |
+| `transform/people.js`                        | `transform/people.js` |
 
 Create `src/activity/extract/` and `src/activity/transform/` directories.
 
 Internal relative imports within `transform/index.js` (`./github.js`,
-`./getdx.js`, `./people.js`) remain correct after the move because the
-directory structure is preserved.
+`./getdx.js`, `./people.js`) remain correct after the move because the directory
+structure is preserved.
 
 ### Step 2: Replace originals with re-exports
 
-Each original file in `_shared/activity/` becomes a single re-export line.
-The relative path from `supabase/functions/_shared/activity/` to `src/activity/`
-is `../../../../src/activity/`.
+Each original file in `_shared/activity/` becomes a single re-export line. The
+relative path from `supabase/functions/_shared/activity/` to `src/activity/` is
+`../../../../src/activity/`.
 
 **`supabase/functions/_shared/activity/storage.js`:**
+
 ```javascript
 export * from "../../../../src/activity/storage.js";
 ```
 
 **`supabase/functions/_shared/activity/extract/github.js`:**
+
 ```javascript
 export * from "../../../../../src/activity/extract/github.js";
 ```
@@ -71,22 +73,23 @@ Same pattern for all 8 files. The extra `../` for files inside `extract/` and
 
 Full list of re-export paths:
 
-| Re-export file (under _shared/activity/)  | Points to                                       |
-|-------------------------------------------|-------------------------------------------------|
-| `storage.js`                              | `../../../../src/activity/storage.js`            |
-| `extract/github.js`                       | `../../../../../src/activity/extract/github.js`  |
-| `extract/getdx.js`                        | `../../../../../src/activity/extract/getdx.js`   |
-| `extract/people.js`                       | `../../../../../src/activity/extract/people.js`  |
-| `transform/index.js`                      | `../../../../../src/activity/transform/index.js` |
-| `transform/github.js`                     | `../../../../../src/activity/transform/github.js`|
-| `transform/getdx.js`                      | `../../../../../src/activity/transform/getdx.js` |
-| `transform/people.js`                     | `../../../../../src/activity/transform/people.js`|
+| Re-export file (under \_shared/activity/) | Points to                                         |
+| ----------------------------------------- | ------------------------------------------------- |
+| `storage.js`                              | `../../../../src/activity/storage.js`             |
+| `extract/github.js`                       | `../../../../../src/activity/extract/github.js`   |
+| `extract/getdx.js`                        | `../../../../../src/activity/extract/getdx.js`    |
+| `extract/people.js`                       | `../../../../../src/activity/extract/people.js`   |
+| `transform/index.js`                      | `../../../../../src/activity/transform/index.js`  |
+| `transform/github.js`                     | `../../../../../src/activity/transform/github.js` |
+| `transform/getdx.js`                      | `../../../../../src/activity/transform/getdx.js`  |
+| `transform/people.js`                     | `../../../../../src/activity/transform/people.js` |
 
 ### Step 3: Update package.json exports
 
 Replace the 8 export targets (lines 49–56) to point to `src/activity/`:
 
 **Before:**
+
 ```json
 "./activity/storage": "./supabase/functions/_shared/activity/storage.js",
 "./activity/extract/github": "./supabase/functions/_shared/activity/extract/github.js",
@@ -99,6 +102,7 @@ Replace the 8 export targets (lines 49–56) to point to `src/activity/`:
 ```
 
 **After:**
+
 ```json
 "./activity/storage": "./src/activity/storage.js",
 "./activity/extract/github": "./src/activity/extract/github.js",
@@ -115,8 +119,8 @@ Replace the 8 export targets (lines 49–56) to point to `src/activity/`:
 **File:** `products/map/src/lib/supabase-cli.js`
 
 Add an async `capture(args)` function alongside the existing `run(args)`.
-Identical flow (resolve binary, spawn) but uses `stdio: ['inherit', 'pipe', 'inherit']`
-and collects stdout into a string.
+Identical flow (resolve binary, spawn) but uses
+`stdio: ['inherit', 'pipe', 'inherit']` and collects stdout into a string.
 
 ```javascript
 async function capture(args) {
@@ -156,6 +160,7 @@ Replace the hardcoded key in `start()` with a dynamic read from
 `supabase status`.
 
 **Before (lines 21–32):**
+
 ```javascript
 export async function start() {
   await supabaseCli.run(["start"]);
@@ -173,6 +178,7 @@ export async function start() {
 ```
 
 **After:**
+
 ```javascript
 export async function start() {
   await supabaseCli.run(["start"]);
@@ -198,38 +204,39 @@ locally. If the actual field names differ, adjust accordingly.
 ### Step 6: Fix module-level singleton in activity.js
 
 While reading `activity.js`, note that line 17 has a module-level singleton:
+
 ```javascript
 const supabaseCli = createSupabaseCli();
 ```
 
-This is the same OO+DI violation pattern as pathway's `agent-list.js`.
-However, the spec scopes OO+DI fixes to pathway only (violation #4 names only
-`agent-list.js`). Leave this instance as-is — it can be addressed in a
-follow-up if desired.
+This is the same OO+DI violation pattern as pathway's `agent-list.js`. However,
+the spec scopes OO+DI fixes to pathway only (violation #4 names only
+`agent-list.js`). Leave this instance as-is — it can be addressed in a follow-up
+if desired.
 
 ## Blast radius
 
-| Action   | File                                                        |
-|----------|-------------------------------------------------------------|
-| Created  | `src/activity/storage.js`                                   |
-| Created  | `src/activity/extract/github.js`                            |
-| Created  | `src/activity/extract/getdx.js`                             |
-| Created  | `src/activity/extract/people.js`                            |
-| Created  | `src/activity/transform/index.js`                           |
-| Created  | `src/activity/transform/github.js`                          |
-| Created  | `src/activity/transform/getdx.js`                           |
-| Created  | `src/activity/transform/people.js`                          |
-| Modified | `supabase/functions/_shared/activity/storage.js`            |
-| Modified | `supabase/functions/_shared/activity/extract/github.js`     |
-| Modified | `supabase/functions/_shared/activity/extract/getdx.js`      |
-| Modified | `supabase/functions/_shared/activity/extract/people.js`     |
-| Modified | `supabase/functions/_shared/activity/transform/index.js`    |
-| Modified | `supabase/functions/_shared/activity/transform/github.js`   |
-| Modified | `supabase/functions/_shared/activity/transform/getdx.js`    |
-| Modified | `supabase/functions/_shared/activity/transform/people.js`   |
-| Modified | `package.json`                                              |
-| Modified | `src/lib/supabase-cli.js`                                   |
-| Modified | `src/commands/activity.js`                                  |
+| Action   | File                                                      |
+| -------- | --------------------------------------------------------- |
+| Created  | `src/activity/storage.js`                                 |
+| Created  | `src/activity/extract/github.js`                          |
+| Created  | `src/activity/extract/getdx.js`                           |
+| Created  | `src/activity/extract/people.js`                          |
+| Created  | `src/activity/transform/index.js`                         |
+| Created  | `src/activity/transform/github.js`                        |
+| Created  | `src/activity/transform/getdx.js`                         |
+| Created  | `src/activity/transform/people.js`                        |
+| Modified | `supabase/functions/_shared/activity/storage.js`          |
+| Modified | `supabase/functions/_shared/activity/extract/github.js`   |
+| Modified | `supabase/functions/_shared/activity/extract/getdx.js`    |
+| Modified | `supabase/functions/_shared/activity/extract/people.js`   |
+| Modified | `supabase/functions/_shared/activity/transform/index.js`  |
+| Modified | `supabase/functions/_shared/activity/transform/github.js` |
+| Modified | `supabase/functions/_shared/activity/transform/getdx.js`  |
+| Modified | `supabase/functions/_shared/activity/transform/people.js` |
+| Modified | `package.json`                                            |
+| Modified | `src/lib/supabase-cli.js`                                 |
+| Modified | `src/commands/activity.js`                                |
 
 All paths relative to `products/map/`.
 
@@ -252,6 +259,7 @@ grep -n "eyJhbGci" products/map/src/        # no JWT in source
 
 Verify self-imports work by running one of the CLI commands that uses the
 activity exports:
+
 ```sh
 bunx fit-map activity --help
 ```

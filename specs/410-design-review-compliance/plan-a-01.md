@@ -2,10 +2,11 @@
 
 ## Problem
 
-`bun run check` fails after `just codegen` because `scripts/check-package-layout.js`
-treats `generated/` directories (created by codegen in `libraries/librpc/` and
-`libraries/libtype/`) as non-allowed root subdirectories. These directories are
-gitignored (`**/generated` in `.gitignore`) and exist only at runtime.
+`bun run check` fails after `just codegen` because
+`scripts/check-package-layout.js` treats `generated/` directories (created by
+codegen in `libraries/librpc/` and `libraries/libtype/`) as non-allowed root
+subdirectories. These directories are gitignored (`**/generated` in
+`.gitignore`) and exist only at runtime.
 
 ## Change
 
@@ -14,11 +15,13 @@ gitignored (`**/generated` in `.gitignore`) and exist only at runtime.
 Add `"generated"` to the `IGNORED_SUBDIRS` set (line 23).
 
 **Before:**
+
 ```javascript
 const IGNORED_SUBDIRS = new Set(["node_modules"]);
 ```
 
 **After:**
+
 ```javascript
 const IGNORED_SUBDIRS = new Set(["node_modules", "generated"]);
 ```
@@ -32,9 +35,9 @@ should never be committed or published.
 
 ## Blast radius
 
-| Action   | File                               |
-|----------|------------------------------------|
-| Modified | `scripts/check-package-layout.js`  |
+| Action   | File                              |
+| -------- | --------------------------------- |
+| Modified | `scripts/check-package-layout.js` |
 
 ## Verification
 
