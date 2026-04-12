@@ -1,17 +1,17 @@
 ---
 name: kata-grasp
 description: >
-  Walk the kata of an agent workflow run. Select a trace, download it, observe
-  the work as it actually happened, apply grounded theory analysis, and produce
-  a structured findings report. "Go see, ask why, show respect."
+  Grasp the current condition of an agent workflow run. Select a trace, download
+  it, observe the work as it actually happened, apply grounded theory analysis,
+  and produce a structured findings report — step 2 of the improvement kata.
 ---
 
-# Kata Walk for Agent Workflows
+# Grasping the Current Condition
 
-Go to where the work happens — the execution trace of a CI agent workflow run —
-and observe it firsthand. Select one run, download its trace, study every turn
-via grounded theory, categorize findings, and act on what you find. Depth over
-breadth. This skill operates within the Kata system defined in
+Grasp the current condition by studying the execution trace of a CI agent
+workflow run. Select one run, download its trace, study every turn via grounded
+theory, categorize findings, and act on what you find. Depth over breadth. This
+skill operates within the Kata system defined in
 [KATA.md](../../../KATA.md), whose five-layer instruction model (§ Instruction
 layering) and checklist design principles
 ([CHECKLISTS.md](../../../CHECKLISTS.md)) govern how findings translate into

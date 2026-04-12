@@ -26,7 +26,7 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 ## Workflow
 
 1. **Grasp the current condition** — Use the `kata-grasp` skill to observe a single trace,
-   audit named invariants, and produce findings via grounded theory. The walk
+   audit named invariants, and produce findings via grounded theory. The grasp
    includes instruction-layer attribution — mapping findings to the 5-layer
    model (KATA.md § Instruction layering) to bias action toward system
    instruction improvements.

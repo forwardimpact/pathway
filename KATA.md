@@ -1,14 +1,18 @@
-# Gemba
+# Kata
 
-> "Go see, ask why, show respect."
+> "What does the pattern of the Improvement Kata give us? A means for
+> systematically and scientifically working toward a new desired condition, in a
+> way that is appropriate for the unpredictability and uncertainty involved."
 >
-> — Taiichi Ohno
+> — Mike Rother, _Toyota Kata_
 
-Gemba is the Forward Impact repo self-maintenance system: autonomous agents
+Kata is the Forward Impact repo self-maintenance system: autonomous agents
 running on GitHub Actions that keep the codebase secure, release-ready, and
-steadily improving. The name comes from the Toyota Production System concept of
-_genba_ (現場) — "the real place where work happens." Gemba agents walk the real
-place (the execution traces of prior runs) and act on what they find. Ten
+steadily improving. The name comes from Toyota Kata — the improvement kata
+pattern of _understand the direction_, _grasp the current condition_, _establish
+the next target condition_, and _experiment toward it_. Kata agents grasp the
+current condition (by analyzing execution traces of prior runs), establish target
+conditions (via specs), and experiment toward them (via implementation). Ten
 scheduled workflows, six agent personas, and sixteen skills form a
 self-reinforcing PDSA cycle.
 
@@ -26,7 +30,7 @@ checklists, and domain knowledge.
 All workflows share two composite actions:
 
 - `bootstrap/` — sets up Bun and installs dependencies.
-- `gemba-action/` — runs a task against an agent profile via `fit-eval`,
+- `kata-action/` — runs a task against an agent profile via `fit-eval`,
   captures the execution trace as NDJSON, and uploads it as an artifact.
 
 ## The PDSA Loop
@@ -65,7 +69,7 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 | **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies  |
 | **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations      |
 | **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps     |
-| **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones |
+| **improvement-coach** | Study, Act     | Grasp current condition via traces, audit invariants, fix or spec   |
 
 ## Workflows
 
@@ -89,39 +93,39 @@ workflows never overlap. Off-minute schedules avoid API load spikes. All support
 
 ## Skills
 
-All Gemba skills use the `gemba-` prefix. Each owns exactly one PDSA phase (or
+All Kata skills use the `kata-` prefix. Each owns exactly one PDSA phase (or
 none for utilities). Reading an agent's skill list reveals its phase coverage.
 
 **Plan**
 
-- `gemba-plan` — specs -> executable plans
+- `kata-plan` — specs -> executable plans
 
 **Do**
 
-- `gemba-implement` — execute plans step by step
-- `gemba-security-update` — Dependabot triage, vulnerability fixes
-- `gemba-release-readiness` — rebase, lint fix
-- `gemba-release-review` — version bumps, tagging, publish verification
+- `kata-implement` — execute plans step by step
+- `kata-security-update` — Dependabot triage, vulnerability fixes
+- `kata-release-readiness` — rebase, lint fix
+- `kata-release-review` — version bumps, tagging, publish verification
 
 **Study**
 
-- `gemba-security-audit` — seven-area security review
-- `gemba-product-triage` — issue classification
-- `gemba-product-classify` — PR mergeability gate
-- `gemba-product-evaluation` — user testing sessions
-- `gemba-documentation` — one topic deep per run
-- `gemba-wiki-curate` — agent memory hygiene
-- `gemba-walk` — trace observation via grounded theory
+- `kata-security-audit` — seven-area security review
+- `kata-product-triage` — issue classification
+- `kata-product-classify` — PR mergeability gate
+- `kata-product-evaluation` — user testing sessions
+- `kata-documentation` — one topic deep per run
+- `kata-wiki-curate` — agent memory hygiene
+- `kata-grasp` — grasp the current condition via trace observation and grounded theory
 
 **Act**
 
-- `gemba-spec` — write specs capturing WHAT/WHY
+- `kata-spec` — write specs capturing WHAT/WHY
 
 **Utility**
 
-- `gemba-gh-cli` — GitHub CLI patterns for CI
-- `gemba-review` — grade a single artifact (leaf skill, never spawns sub-agents)
-- `gemba-ship` — rebase, push, open PR, merge a feature branch
+- `kata-gh-cli` — GitHub CLI patterns for CI
+- `kata-review` — grade a single artifact (leaf skill, never spawns sub-agents)
+- `kata-ship` — rebase, push, open PR, merge a feature branch
 
 ## Trust Boundary
 
@@ -191,12 +195,12 @@ privilege) and a separate App token for API access.
 
 ## Accountability
 
-Cross-agent accountability runs through the `gemba-walk` skill's invariant
+Cross-agent accountability runs through the `kata-grasp` skill's invariant
 audit. The improvement coach verifies named per-agent invariants against the
-actual trace on every walk — e.g., that the product manager ran a contributor
-lookup before marking any non-CI-app PR mergeable. The canonical invariant list
-lives in `.claude/skills/gemba-walk/references/invariants.md`. High-severity
-audit failures must result in a fix PR or spec.
+actual trace on every grasp cycle — e.g., that the product manager ran a
+contributor lookup before marking any non-CI-app PR mergeable. The canonical
+invariant list lives in `.claude/skills/kata-grasp/references/invariants.md`.
+High-severity audit failures must result in a fix PR or spec.
 
 ## Authoring Best Practices
 
@@ -270,7 +274,7 @@ selection, and authoring guidance.
 ### Recursion-safe self-review
 
 Skills requiring independent review of their output must spawn a fresh sub-agent
-targeting a **leaf skill** (`gemba-review`) whose process never spawns further
+targeting a **leaf skill** (`kata-review`) whose process never spawns further
 sub-agents. This prevents infinite recursion. Defense-in-depth: the parent's
 review step also tells the sub-agent "do not invoke this skill."
 
