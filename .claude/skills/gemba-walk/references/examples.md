@@ -80,6 +80,34 @@ Each proposition must be:
 - **Actionable** — implies a concrete change to skills, workflows, or
   infrastructure
 
+## Instruction-Layer Attribution Example
+
+After selective coding, map each category to an instruction layer:
+
+```
+Category: TASK_AMBIGUITY_PARALYSIS
+  Layer: L2 (workflow task)
+  Evidence: Turn 24 — agent cites singular "an" from task text
+    "Implement an approved plan" as reason for asking instead of acting.
+  Fix shape: Trivial fix — reword task to include selection criteria
+    ("implement the highest-priority planned spec").
+
+Category: STALE_STATUS_FILE
+  Layer: None (data integrity)
+  Evidence: specs/STATUS shows "planned" for spec 370 but implementation
+    is already on main.
+  Fix shape: Trivial fix — update STATUS file.
+
+Category: EFFECTIVE_RESEARCH_DELEGATION
+  Layer: None (positive finding)
+  No attribution — this is a working pattern, not a defect.
+```
+
+Not every category maps to a layer. Positive findings and infrastructure issues
+may have no instruction-layer attribution. The discipline is to check
+systematically — ask "could an instruction-layer change have prevented this?"
+for every category, then attribute only when the answer is yes with evidence.
+
 ## Cross-trace patterns
 
 Gemba walks are single-trace by design — depth over breadth. When returning to

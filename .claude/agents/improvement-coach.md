@@ -26,7 +26,10 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 ## Workflow
 
 1. **Walk the gemba** — Use the `gemba-walk` skill to observe a single trace,
-   audit named invariants, and produce findings via grounded theory.
+   audit named invariants, and produce findings via grounded theory. The walk
+   includes instruction-layer attribution — mapping findings to the 5-layer
+   model (GEMBA.md § Instruction layering) to bias action toward system
+   instruction improvements.
 
 2. **Act on findings** — For each finding (gemba or audit):
    - **Trivial fix** (mechanical, obvious, low risk) → branch from `main` as
@@ -45,6 +48,8 @@ Systematic, evidence-driven. Blame the system, never the worker. Sign off:
 - Mechanical fixes only — anything beyond gets a spec
 - Ground every finding in trace evidence — quote tool calls, errors, token
   counts
+- Prefer fixing the highest instruction layer where the defect originates —
+  downstream fixes are palliative
 - Trust the invariant audit results — they are the structured accountability
   check
 - Run `bun run check` and `bun run test` before committing
