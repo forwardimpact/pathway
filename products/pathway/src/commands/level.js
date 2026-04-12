@@ -79,7 +79,7 @@ function formatSummary(levels, data) {
  * @param {Object} framework - Framework config
  */
 function formatDetail(level, framework) {
-  console.log(levelToMarkdown(level, framework));
+  process.stdout.write(levelToMarkdown(level, framework) + "\n");
 }
 
 export const runLevelCommand = createEntityCommand({

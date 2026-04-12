@@ -13,8 +13,11 @@ import { cp, mkdir, rm, access, realpath, writeFile } from "fs/promises";
 import { readFileSync } from "fs";
 import { join, dirname, relative, resolve } from "path";
 import { fileURLToPath } from "url";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { createIndexGenerator } from "@forwardimpact/map/index-generator";
 import { createDataLoader } from "@forwardimpact/map/loader";
+
+const logger = createLogger("pathway");
 import { generateBundle } from "./build-bundle.js";
 import { generatePacks } from "./build-packs.js";
 
@@ -85,7 +88,7 @@ export async function runBuildCommand({ dataDir, options }) {
     framework = { emojiIcon: "🚀", title: "Engineering Pathway" };
   }
 
-  console.log(`
+  logger.info(`
 ${framework.emojiIcon} Generating ${framework.title} static site...
 `);
 
@@ -93,7 +96,7 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   if (clean) {
     try {
       await access(outputDir);
-      console.log(`🗑️  Cleaning ${outputDir}...`);
+      logger.info(`🗑️  Cleaning ${outputDir}...`);
       await rm(outputDir, { recursive: true });
     } catch {
       // Directory doesn't exist, nothing to clean
@@ -104,12 +107,12 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   await mkdir(outputDir, { recursive: true });
 
   // Generate index files in data directory
-  console.log("📇 Generating index files...");
+  logger.info("📇 Generating index files...");
   const indexGenerator = createIndexGenerator();
   await indexGenerator.generateAllIndexes(dataDir);
 
   // Copy app assets
-  console.log("📦 Copying application files...");
+  logger.info("📦 Copying application files...");
   for (const asset of PUBLIC_ASSETS) {
     const src = join(appDir, asset);
     const dest = join(outputDir, asset);
@@ -117,9 +120,9 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
     try {
       await access(src);
       await cp(src, dest, { recursive: true });
-      console.log(`   ✓ ${asset}`);
+      logger.info(`   ✓ ${asset}`);
     } catch (err) {
-      console.log(`   ⚠️  Skipped ${asset}: ${err.message}`);
+      logger.info(`   ⚠️  Skipped ${asset}: ${err.message}`);
     }
   }
 
@@ -132,19 +135,19 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
     try {
       await access(src);
       await cp(src, dest, { recursive: true });
-      console.log(`   ✓ ${asset}`);
+      logger.info(`   ✓ ${asset}`);
     } catch (err) {
-      console.log(`   ⚠️  Skipped ${asset}: ${err.message}`);
+      logger.info(`   ⚠️  Skipped ${asset}: ${err.message}`);
     }
   }
 
   // Copy @forwardimpact/map and @forwardimpact/libskill packages
   // These are needed by the browser's import map
-  console.log("📚 Copying package dependencies...");
+  logger.info("📚 Copying package dependencies...");
   await cp(mapLibDir, join(outputDir, "map/lib"), { recursive: true });
-  console.log(`   ✓ map/lib`);
+  logger.info(`   ✓ map/lib`);
   await cp(modelLibDir, join(outputDir, "model/lib"), { recursive: true });
-  console.log(`   ✓ model/lib`);
+  logger.info(`   ✓ model/lib`);
   // Copy libui JS (src/) and CSS (src/css/)
   await cp(uiLibDir, join(outputDir, "ui/lib"), { recursive: true });
   // CSS is within uiLibDir/css/ so it's already copied as ui/lib/css/
@@ -152,10 +155,10 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   await cp(join(uiLibDir, "css"), join(outputDir, "ui/css"), {
     recursive: true,
   });
-  console.log(`   ✓ ui/lib + ui/css`);
+  logger.info(`   ✓ ui/lib + ui/css`);
 
   // Copy vendor dependencies for offline usage
-  console.log("📦 Copying vendor dependencies...");
+  logger.info("📦 Copying vendor dependencies...");
   const vendorDir = join(outputDir, "vendor");
   await mkdir(vendorDir, { recursive: true });
 
@@ -163,17 +166,17 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   const mustacheSrc = fileURLToPath(import.meta.resolve("mustache"));
   const mustacheMjs = join(dirname(mustacheSrc), "mustache.mjs");
   await cp(mustacheMjs, join(vendorDir, "mustache.mjs"));
-  console.log("   ✓ vendor/mustache.mjs");
+  logger.info("   ✓ vendor/mustache.mjs");
 
   // yaml (browser ESM build — not in package exports, resolve via filesystem)
   // import.meta.resolve("yaml") → .../yaml/dist/index.js, go up two levels
   const yamlPkg = dirname(dirname(fileURLToPath(import.meta.resolve("yaml"))));
   const yamlBrowserDist = join(yamlPkg, "browser", "dist");
   await cp(yamlBrowserDist, join(vendorDir, "yaml"), { recursive: true });
-  console.log("   ✓ vendor/yaml/");
+  logger.info("   ✓ vendor/yaml/");
 
   // Copy data directory (dereference symlinks to copy actual content)
-  console.log("📁 Copying data files...");
+  logger.info("📁 Copying data files...");
   const dataOutputDir = join(outputDir, "data");
 
   // Check if source and destination are the same (e.g., when --output=.)
@@ -181,10 +184,10 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   const resolvedDataOutputDir = resolve(dataOutputDir);
 
   if (resolvedDataDir === resolvedDataOutputDir) {
-    console.log(`   ✓ data/ (already in place)`);
+    logger.info(`   ✓ data/ (already in place)`);
   } else {
     await cp(dataDir, dataOutputDir, { recursive: true, dereference: true });
-    console.log(`   ✓ data/ (from ${relative(process.cwd(), dataDir)})`);
+    logger.info(`   ✓ data/ (from ${relative(process.cwd(), dataDir)})`);
   }
 
   // Write version.json for the web app footer
@@ -193,7 +196,7 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
     join(outputDir, "version.json"),
     JSON.stringify({ version }) + "\n",
   );
-  console.log(`   ✓ version.json (${version})`);
+  logger.info(`   ✓ version.json (${version})`);
 
   // Generate distribution surfaces if siteUrl is configured
   const siteUrl = options.url || framework.distribution?.siteUrl;
@@ -218,7 +221,7 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   }
 
   // Show summary
-  console.log(`
+  logger.info(`
 ✅ Site generated successfully!
 
 Output: ${outputDir}

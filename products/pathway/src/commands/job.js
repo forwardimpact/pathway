@@ -41,7 +41,7 @@ import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
  * @param {string} jobTemplate - Mustache template for job description
  */
 function formatJob(view, _options, entities, jobTemplate) {
-  console.log(jobToMarkdown(view, entities, jobTemplate));
+  process.stdout.write(jobToMarkdown(view, entities, jobTemplate) + "\n");
 }
 
 /**
@@ -56,11 +56,11 @@ function printJobList(filteredJobs) {
       track: job.track,
     });
     if (job.track) {
-      console.log(
-        `${job.discipline.id} ${job.level.id} ${job.track.id}, ${title}`,
+      process.stdout.write(
+        `${job.discipline.id} ${job.level.id} ${job.track.id}, ${title}\n`,
       );
     } else {
-      console.log(`${job.discipline.id} ${job.level.id}, ${title}`);
+      process.stdout.write(`${job.discipline.id} ${job.level.id}, ${title}\n`);
     }
   }
 }
@@ -401,18 +401,18 @@ export async function runJobCommand({
 
   if (options.skills) {
     for (const skill of view.skillMatrix) {
-      console.log(skill.skillId);
+      process.stdout.write(skill.skillId + "\n");
     }
     return;
   }
 
   if (options.tools) {
-    console.log(toolkitToPlainList(view.toolkit));
+    process.stdout.write(toolkitToPlainList(view.toolkit) + "\n");
     return;
   }
 
   if (options.json) {
-    console.log(JSON.stringify(view, null, 2));
+    process.stdout.write(JSON.stringify(view, null, 2) + "\n");
     return;
   }
 

@@ -15,6 +15,9 @@ import {
   formatReference,
 } from "../formatters/agent/skill.js";
 import { formatSuccess } from "@forwardimpact/libcli";
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("pathway");
 
 /**
  * Ensure directory exists for a file path
@@ -47,7 +50,7 @@ export async function generateClaudeCodeSettings(baseDir, claudeCodeSettings) {
     JSON.stringify(merged, null, 2) + "\n",
     "utf-8",
   );
-  console.log(formatSuccess(`Updated: ${settingsPath}`));
+  logger.info(formatSuccess(`Updated: ${settingsPath}`));
 }
 
 /**
@@ -61,7 +64,7 @@ export async function writeProfile(profile, baseDir, template) {
   const profileContent = formatAgentProfile(profile, template);
   await ensureDir(profilePath);
   await writeFile(profilePath, profileContent, "utf-8");
-  console.log(formatSuccess(`Created: ${profilePath}`));
+  logger.info(formatSuccess(`Created: ${profilePath}`));
   return profilePath;
 }
 
@@ -76,7 +79,7 @@ export async function writeTeamInstructions(teamInstructions, baseDir) {
   const filePath = join(baseDir, ".claude", "CLAUDE.md");
   await ensureDir(filePath);
   await writeFile(filePath, teamInstructions.trim() + "\n", "utf-8");
-  console.log(formatSuccess(`Created: ${filePath}`));
+  logger.info(formatSuccess(`Created: ${filePath}`));
   return filePath;
 }
 
@@ -95,7 +98,7 @@ export async function writeSkills(skills, baseDir, templates) {
     const skillContent = formatAgentSkill(skill, templates.skill);
     await ensureDir(skillPath);
     await writeFile(skillPath, skillContent, "utf-8");
-    console.log(formatSuccess(`Created: ${skillPath}`));
+    logger.info(formatSuccess(`Created: ${skillPath}`));
     fileCount++;
 
     if (skill.installScript) {
@@ -103,7 +106,7 @@ export async function writeSkills(skills, baseDir, templates) {
       const installContent = formatInstallScript(skill, templates.install);
       await ensureDir(installPath);
       await writeFile(installPath, installContent, { mode: 0o755 });
-      console.log(formatSuccess(`Created: ${installPath}`));
+      logger.info(formatSuccess(`Created: ${installPath}`));
       fileCount++;
     }
 
@@ -112,7 +115,7 @@ export async function writeSkills(skills, baseDir, templates) {
       const refContent = formatReference(skill, templates.reference);
       await ensureDir(refPath);
       await writeFile(refPath, refContent, "utf-8");
-      console.log(formatSuccess(`Created: ${refPath}`));
+      logger.info(formatSuccess(`Created: ${refPath}`));
       fileCount++;
     }
   }

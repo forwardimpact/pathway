@@ -67,7 +67,9 @@ function formatSummary(disciplines) {
  */
 function formatDetail(viewAndContext) {
   const { discipline, skills, behaviours, tracks } = viewAndContext;
-  console.log(disciplineToMarkdown(discipline, { skills, behaviours, tracks }));
+  process.stdout.write(
+    disciplineToMarkdown(discipline, { skills, behaviours, tracks }) + "\n",
+  );
 }
 
 export const runDisciplineCommand = createEntityCommand({

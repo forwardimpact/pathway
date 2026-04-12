@@ -65,7 +65,7 @@ function formatSummary(behaviours, data) {
  */
 function formatDetail(viewAndContext) {
   const { behaviour, drivers } = viewAndContext;
-  console.log(behaviourToMarkdown(behaviour, { drivers }));
+  process.stdout.write(behaviourToMarkdown(behaviour, { drivers }) + "\n");
 }
 
 export const runBehaviourCommand = createEntityCommand({

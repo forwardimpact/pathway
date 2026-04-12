@@ -162,7 +162,7 @@ export async function runQuestionsCommand({
       filter,
     });
     for (const q of view.questions) {
-      console.log(q.id);
+      process.stdout.write(q.id + "\n");
     }
     return;
   }
@@ -196,5 +196,5 @@ export async function runQuestionsCommand({
       break;
   }
 
-  console.log(output);
+  process.stdout.write(output + "\n");
 }

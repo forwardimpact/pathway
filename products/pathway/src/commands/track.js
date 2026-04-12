@@ -73,8 +73,9 @@ function formatSummary(tracks, data) {
  */
 function formatDetail(viewAndContext, framework) {
   const { track, skills, behaviours, disciplines } = viewAndContext;
-  console.log(
-    trackToMarkdown(track, { skills, behaviours, disciplines, framework }),
+  process.stdout.write(
+    trackToMarkdown(track, { skills, behaviours, disciplines, framework }) +
+      "\n",
   );
 }
 

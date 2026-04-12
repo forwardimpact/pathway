@@ -18,7 +18,10 @@ import { join } from "path";
 import { execFileSync } from "child_process";
 import { createHash } from "crypto";
 
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { createDataLoader } from "@forwardimpact/map/loader";
+
+const logger = createLogger("pathway");
 import { createTemplateLoader } from "@forwardimpact/libtemplate";
 import {
   generateStageAgentProfile,
@@ -467,7 +470,7 @@ export async function generatePacks({
   version,
   templatesDir,
 }) {
-  console.log("📦 Generating agent/skill packs...");
+  logger.info("📦 Generating agent/skill packs...");
 
   const normalizedSiteUrl = siteUrl.replace(/\/$/, "");
   const frameworkTitle = framework.title || "Engineering Pathway";
@@ -495,7 +498,7 @@ export async function generatePacks({
 
   const combinations = findValidCombinations(data, agentData);
   if (combinations.length === 0) {
-    console.log("   (no valid discipline/track combinations — skipping)");
+    logger.info("   (no valid discipline/track combinations — skipping)");
     await rm(stagingDir, { recursive: true, force: true });
     return;
   }
@@ -538,7 +541,7 @@ export async function generatePacks({
       digest,
     });
 
-    console.log(`   ✓ packs/${agentName}.tar.gz`);
+    logger.info(`   ✓ packs/${agentName}.tar.gz`);
   }
 
   // Write per-pack skill repositories (one per discipline/track combination)
@@ -550,17 +553,17 @@ export async function generatePacks({
       pack.name,
     );
     allPackEntries.push({ packName: pack.name, entries });
-    console.log(
+    logger.info(
       `   ✓ packs/${pack.name}/.well-known/skills/ (${entries.length} skills)`,
     );
   }
 
   // Write aggregate repository at packs/ level
   await writeAggregateRepository(packsDir, allPackEntries);
-  console.log("   ✓ packs/.well-known/skills/index.json (aggregate)");
+  logger.info("   ✓ packs/.well-known/skills/index.json (aggregate)");
 
   await rm(stagingDir, { recursive: true, force: true });
 
   await writeApmManifest(outputDir, packs, version, frameworkTitle);
-  console.log("   ✓ apm.yml");
+  logger.info("   ✓ apm.yml");
 }

@@ -10,8 +10,11 @@ import { readFile, stat } from "fs/promises";
 import { readFileSync } from "fs";
 import { join, extname, dirname } from "path";
 import { fileURLToPath } from "url";
+import { createLogger } from "@forwardimpact/libtelemetry";
 import { createIndexGenerator } from "@forwardimpact/map/index-generator";
 import { createDataLoader } from "@forwardimpact/map/loader";
+
+const logger = createLogger("pathway");
 
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
@@ -131,7 +134,7 @@ export async function runDevCommand({ dataDir, options }) {
   }
 
   // Generate _index.yaml files before serving
-  console.log("Generating index files...");
+  logger.info("Generating index files...");
   const indexGenerator = createIndexGenerator();
   await indexGenerator.generateAllIndexes(dataDir);
 
@@ -191,7 +194,7 @@ export async function runDevCommand({ dataDir, options }) {
   });
 
   server.listen(port, () => {
-    console.log(`
+    logger.info(`
 ${framework.emojiIcon} ${framework.title} running at http://localhost:${port}
 📁 Data directory: ${dataDir}
 
