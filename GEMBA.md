@@ -61,8 +61,8 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 | Agent                 | Phase          | Purpose                                                             |
 | --------------------- | -------------- | ------------------------------------------------------------------- |
 | **staff-engineer**    | Plan, Do       | Own the full spec -> plan -> implement arc for approved specs       |
-| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies  |
 | **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI, cut releases       |
+| **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies  |
 | **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations      |
 | **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps     |
 | **improvement-coach** | Study, Act     | Walk traces, audit invariants, fix trivial issues, spec larger ones |
