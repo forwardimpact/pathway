@@ -18,10 +18,9 @@ changes methodically.
 
 - A spec and plan exist with STATUS `planned` (has passed review)
 - The user says "implement spec NNN", "implement the plan for spec NNN",
-  "execute the plan for NNN", "build spec NNN", or "start implementation of
-  NNN"
-- Resuming a partially completed implementation ("continue spec NNN",
-  "finish implementing NNN")
+  "execute the plan for NNN", "build spec NNN", or "start implementation of NNN"
+- Resuming a partially completed implementation ("continue spec NNN", "finish
+  implementing NNN")
 
 ## Checklists
 
