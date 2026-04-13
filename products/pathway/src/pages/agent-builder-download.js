@@ -79,55 +79,7 @@ function downloadBlob(blob, filename) {
 }
 
 /**
- * Create download all button for all stages
- * @param {Array} stageAgents - Array of {stage, derived, profile}
- * @param {Array} skillFiles - Array of skill file objects
- * @param {Object} claudeCodeSettings - Claude Code settings
- * @param {Object} context - Context with discipline/track info and templates
- * @returns {HTMLElement}
- */
-export function createDownloadAllButton(
-  stageAgents,
-  skillFiles,
-  claudeCodeSettings,
-  context,
-) {
-  const { humanDiscipline, humanTrack, templates } = context;
-  const agentName = `${humanDiscipline.id}-${humanTrack.id}`.replace(/_/g, "-");
-
-  const btn = document.createElement("button");
-  btn.className = "btn btn-primary download-all-btn";
-  btn.textContent = "📦 Download All (.zip)";
-
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    btn.textContent = "Generating...";
-
-    try {
-      const JSZip = await importJSZip();
-      const zip = new JSZip();
-
-      for (const { profile } of stageAgents) {
-        const content = formatAgentProfile(profile, templates.agent);
-        zip.file(`.claude/agents/${profile.filename}`, content);
-      }
-
-      addSkillsToZip(zip, skillFiles, templates);
-      addSettingsToZip(zip, claudeCodeSettings);
-
-      const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, `${agentName}-agents.zip`);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "📦 Download All (.zip)";
-    }
-  });
-
-  return btn;
-}
-
-/**
- * Create download button for single stage
+ * Create download button for an agent profile
  * @param {Object} profile - Agent profile
  * @param {Array} skillFiles - Skill files
  * @param {Object} claudeCodeSettings - Claude Code settings

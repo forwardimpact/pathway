@@ -58,5 +58,4 @@ export {
   trackToJsonLd,
   levelToJsonLd,
   driverToJsonLd,
-  stageToJsonLd,
 } from "./json-ld.js";

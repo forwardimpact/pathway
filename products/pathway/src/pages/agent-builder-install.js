@@ -95,7 +95,7 @@ export function createInstallSection({ discipline, track, siteUrl }) {
         { className: "text-muted agent-install-description" },
         "Install the pre-built pack for this discipline × track combination " +
           "directly through an ecosystem package manager. The pack contains " +
-          "the same stage agents, skills, team instructions, and Claude Code " +
+          "the same agent profile, skills, team instructions, and Claude Code " +
           "settings shown below — installed into your project's ",
         code({}, ".claude/"),
         " directory.",
