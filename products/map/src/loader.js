@@ -318,7 +318,6 @@ export class DataLoader {
       disciplines,
       tracks,
       levels,
-      stages,
       questions,
       framework,
     ] = await Promise.all([
@@ -327,7 +326,6 @@ export class DataLoader {
       this.#loadDisciplinesFromDir(join(dataDir, "disciplines")),
       this.#loadTracksFromDir(join(dataDir, "tracks")),
       this.loadYamlFile(join(dataDir, "levels.yaml")),
-      this.loadYamlFile(join(dataDir, "stages.yaml")),
       this.loadQuestionFolder(join(dataDir, "questions")),
       this.loadYamlFile(join(dataDir, "framework.yaml")),
     ]);
@@ -340,7 +338,6 @@ export class DataLoader {
       tracks,
       levels,
       capabilities,
-      stages,
       questions,
       framework,
     };

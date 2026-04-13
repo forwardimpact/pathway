@@ -16,7 +16,6 @@ export const levelIri = (id) => `${VOCAB_BASE}level/${id}`;
 export const behaviourIri = (id) => `${VOCAB_BASE}behaviour/${id}`;
 export const disciplineIri = (id) => `${VOCAB_BASE}discipline/${id}`;
 export const trackIri = (id) => `${VOCAB_BASE}track/${id}`;
-export const stageIri = (id) => `${VOCAB_BASE}stage/${id}`;
 export const driverIri = (id) => `${VOCAB_BASE}driver/${id}`;
 export const toolIri = (id) => `${VOCAB_BASE}tool/${id}`;
 
@@ -30,10 +29,8 @@ export const jobIri = (discipline, level, track) =>
     ? `${VOCAB_BASE}job/${discipline}/${level}/${track}`
     : `${VOCAB_BASE}job/${discipline}/${level}`;
 
-export const agentProfileIri = (discipline, track, stage) =>
-  stage
-    ? `${VOCAB_BASE}agent-profile/${discipline}/${track}/${stage}`
-    : `${VOCAB_BASE}agent-profile/${discipline}/${track}`;
+export const agentProfileIri = (discipline, track) =>
+  `${VOCAB_BASE}agent-profile/${discipline}/${track}`;
 
 export const progressionIri = (discipline, from, to, track) =>
   track

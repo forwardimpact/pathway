@@ -84,7 +84,6 @@ const DATA = {
       ordinalRank: 1,
     },
   ],
-  stages: [{ id: "code", name: "Code", description: "..." }],
 };
 
 let outputDir;
@@ -125,7 +124,6 @@ describe("Exporter", () => {
       "behaviour/systems_thinking.html",
       "discipline/software_engineering.html",
       "track/platform.html",
-      "stage/code.html",
       "driver/quality.html",
       "tool/linear.html",
     ];

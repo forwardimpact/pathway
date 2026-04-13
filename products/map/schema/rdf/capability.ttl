@@ -161,40 +161,22 @@ fit:useWhen a rdf:Property ;
     rdfs:domain fit:SkillAgentSection ;
     rdfs:range xsd:string .
 
-fit:stages a rdf:Property ;
-    rdfs:label "stages"@en ;
-    rdfs:comment "Stage-specific guidance for applying the skill"@en ;
-    rdfs:domain fit:SkillAgentSection .
-
-fit:planStage a rdf:Property ;
-    rdfs:label "planStage"@en ;
-    rdfs:comment "Guidance for the plan stage"@en ;
-    rdfs:range fit:SkillStage .
-
-fit:codeStage a rdf:Property ;
-    rdfs:label "codeStage"@en ;
-    rdfs:comment "Guidance for the code stage"@en ;
-    rdfs:range fit:SkillStage .
-
-fit:reviewStage a rdf:Property ;
-    rdfs:label "reviewStage"@en ;
-    rdfs:comment "Guidance for the review stage"@en ;
-    rdfs:range fit:SkillStage .
-
-# Skill Stage Properties
 fit:focus a rdf:Property ;
     rdfs:label "focus"@en ;
-    rdfs:comment "Primary focus for this stage"@en ;
+    rdfs:comment "Primary focus for this skill"@en ;
+    rdfs:domain fit:SkillAgentSection ;
     rdfs:range xsd:string .
 
 fit:readChecklist a rdf:Property ;
     rdfs:label "readChecklist"@en ;
-    rdfs:comment "Read-Then-Do Checklist: steps to follow in order during this stage"@en ;
+    rdfs:comment "READ-DO checklist: steps to read and do before acting"@en ;
+    rdfs:domain fit:SkillAgentSection ;
     rdfs:range xsd:string .
 
 fit:confirmChecklist a rdf:Property ;
     rdfs:label "confirmChecklist"@en ;
-    rdfs:comment "Do-Then-Confirm Checklist: items to verify before moving to next stage"@en ;
+    rdfs:comment "DO-CONFIRM checklist: items to verify after completing work"@en ;
+    rdfs:domain fit:SkillAgentSection ;
     rdfs:range xsd:string .
 
 # =============================================================================
@@ -466,49 +448,24 @@ fit:SkillAgentSectionShape a sh:NodeShape ;
         sh:description "Triggering conditions - when agents should use this skill" ;
     ] ;
     sh:property [
-        sh:path fit:planStage ;
-        sh:node fit:SkillStageShape ;
-        sh:maxCount 1 ;
-        sh:name "plan" ;
-    ] ;
-    sh:property [
-        sh:path fit:codeStage ;
-        sh:node fit:SkillStageShape ;
-        sh:maxCount 1 ;
-        sh:name "code" ;
-    ] ;
-    sh:property [
-        sh:path fit:reviewStage ;
-        sh:node fit:SkillStageShape ;
-        sh:maxCount 1 ;
-        sh:name "review" ;
-    ] .
-
-# -----------------------------------------------------------------------------
-# Skill Stage Shape
-# -----------------------------------------------------------------------------
-
-fit:SkillStageShape a sh:NodeShape ;
-    sh:targetClass fit:SkillStage ;
-    sh:property [
         sh:path fit:focus ;
         sh:datatype xsd:string ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:name "focus" ;
-        sh:description "Primary focus for this stage" ;
+        sh:description "Primary focus for this skill" ;
     ] ;
     sh:property [
         sh:path fit:readChecklist ;
         sh:datatype xsd:string ;
         sh:minCount 1 ;
         sh:name "readChecklist" ;
-        sh:description "Read-Then-Do Checklist: steps to follow in order during this stage" ;
+        sh:description "READ-DO checklist: steps to read and do before acting" ;
     ] ;
     sh:property [
         sh:path fit:confirmChecklist ;
         sh:datatype xsd:string ;
         sh:minCount 1 ;
         sh:name "confirmChecklist" ;
-        sh:description "Do-Then-Confirm Checklist: items to verify before moving to next stage" ;
+        sh:description "DO-CONFIRM checklist: items to verify after completing work" ;
     ] .

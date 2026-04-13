@@ -75,12 +75,6 @@ export class Renderer {
     return this.#page(view.name, body);
   }
 
-  renderStage(stage, position) {
-    const view = viewBuilders.buildStageView(stage, position);
-    const body = this.#templates.render("stage.html", view);
-    return this.#page(view.name, body);
-  }
-
   renderDriver(driver) {
     const view = viewBuilders.buildDriverView(driver);
     const body = this.#templates.render("driver.html", view);

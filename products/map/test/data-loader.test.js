@@ -140,7 +140,6 @@ describe("DataLoader", () => {
         },
         "drivers.yaml": [{ id: "quality", name: "Quality" }],
         "levels.yaml": [{ id: "junior", name: "Junior" }],
-        "stages.yaml": [{ id: "plan", name: "Plan" }],
         "framework.yaml": { name: "Test Framework" },
         "questions/skills/coding.yaml": { awareness: "What is coding?" },
         "questions/behaviours/teamwork.yaml": {
@@ -169,7 +168,6 @@ describe("DataLoader", () => {
       assert.ok(Array.isArray(result.capabilities));
       assert.ok(result.drivers);
       assert.ok(result.levels);
-      assert.ok(result.stages);
       assert.ok(result.framework);
       assert.ok(result.questions);
 

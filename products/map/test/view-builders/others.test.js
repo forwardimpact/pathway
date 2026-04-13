@@ -6,7 +6,6 @@ import {
   buildBehaviourView,
   buildDisciplineView,
   buildTrackView,
-  buildStageView,
   buildDriverView,
   buildToolView,
   aggregateTools,
@@ -17,7 +16,6 @@ import {
   behaviourIri,
   disciplineIri,
   trackIri,
-  stageIri,
   driverIri,
   toolIri,
   skillIri,
@@ -92,17 +90,6 @@ describe("buildTrackView", () => {
     assert.strictEqual(view.iri, trackIri("platform"));
     assert.strictEqual(view.skillModifiers.length, 2);
     assert.strictEqual(view.skillModifiers[0].skillIri, skillIri("python"));
-  });
-});
-
-describe("buildStageView", () => {
-  test("threads position from caller", () => {
-    const view = buildStageView(
-      { id: "code", name: "Code", description: "..." },
-      3,
-    );
-    assert.strictEqual(view.iri, stageIri("code"));
-    assert.strictEqual(view.position, 3);
   });
 });
 

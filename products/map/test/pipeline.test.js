@@ -76,7 +76,6 @@ const DATA = {
       ordinalRank: 1,
     },
   ],
-  stages: [],
 };
 
 /**

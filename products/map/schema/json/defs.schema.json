@@ -26,11 +26,6 @@
       ],
       "description": "Behaviour maturity level from lowest to highest"
     },
-    "stageId": {
-      "type": "string",
-      "enum": ["plan", "code", "review"],
-      "description": "Lifecycle stage identifier"
-    },
     "proficiencyDescriptions": {
       "type": "object",
       "description": "Description of expectations at each skill proficiency",

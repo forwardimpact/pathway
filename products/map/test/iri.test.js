@@ -9,7 +9,6 @@ import {
   behaviourIri,
   disciplineIri,
   trackIri,
-  stageIri,
   driverIri,
   toolIri,
   jobIri,
@@ -35,7 +34,6 @@ describe("base entity IRI helpers", () => {
     [behaviourIri, "behaviour", "ownership"],
     [disciplineIri, "discipline", "swe"],
     [trackIri, "track", "forward_deployed"],
-    [stageIri, "stage", "design"],
     [driverIri, "driver", "impact"],
     [toolIri, "tool", "kubernetes"],
   ];
@@ -65,14 +63,7 @@ describe("jobIri", () => {
 });
 
 describe("agentProfileIri", () => {
-  test("includes the stage segment when provided", () => {
-    assert.strictEqual(
-      agentProfileIri("swe", "forward_deployed", "design"),
-      `${VOCAB_BASE}agent-profile/swe/forward_deployed/design`,
-    );
-  });
-
-  test("omits the stage segment when not provided", () => {
+  test("produces discipline/track path", () => {
     assert.strictEqual(
       agentProfileIri("swe", "forward_deployed"),
       `${VOCAB_BASE}agent-profile/swe/forward_deployed`,

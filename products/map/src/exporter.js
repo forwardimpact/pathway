@@ -71,14 +71,6 @@ export class Exporter {
     collect(ctx.tracks, "track", (t) => r.renderTrack(t));
     collect(ctx.drivers, "driver", (d) => r.renderDriver(d));
 
-    (data.stages || []).forEach((stage, index) => {
-      tasks.push({
-        type: "stage",
-        id: stage.id,
-        render: () => r.renderStage(stage, index + 1),
-      });
-    });
-
     for (const tool of aggregateTools(ctx.skills)) {
       tasks.push({
         type: "tool",

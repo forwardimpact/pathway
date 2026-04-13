@@ -70,7 +70,6 @@ export async function runInit(targetPath) {
       `data/pathway/
 \u251C\u2500\u2500 framework.yaml        # Framework metadata
 \u251C\u2500\u2500 levels.yaml           # Career levels
-\u251C\u2500\u2500 stages.yaml           # Lifecycle stages
 \u251C\u2500\u2500 drivers.yaml          # Business drivers
 \u251C\u2500\u2500 disciplines/          # Engineering disciplines
 \u251C\u2500\u2500 capabilities/         # Capability areas with skills

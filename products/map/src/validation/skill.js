@@ -54,129 +54,74 @@ function validateSkillBasicFields(skill, path) {
   return { errors, warnings };
 }
 
-function validateStageFields(stageId, stageData, stagePath) {
+function validateSkillAgentFlatFields(skill, agentPath) {
   const errors = [];
 
-  if (!stageData.focus) {
+  if (skill.agent.stages) {
     errors.push(
       createError(
-        "MISSING_REQUIRED",
-        `Stage ${stageId} missing focus`,
-        `${stagePath}.focus`,
-      ),
-    );
-  } else if (typeof stageData.focus !== "string") {
-    errors.push(
-      createError(
-        "INVALID_VALUE",
-        `Stage ${stageId} focus must be a string`,
-        `${stagePath}.focus`,
-        stageData.focus,
-      ),
-    );
-  }
-
-  if (!stageData.readChecklist) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        `Stage ${stageId} missing readChecklist`,
-        `${stagePath}.readChecklist`,
-      ),
-    );
-  } else if (!Array.isArray(stageData.readChecklist)) {
-    errors.push(
-      createError(
-        "INVALID_VALUE",
-        `Stage ${stageId} readChecklist must be an array`,
-        `${stagePath}.readChecklist`,
-        stageData.readChecklist,
-      ),
-    );
-  }
-
-  if (!stageData.confirmChecklist) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        `Stage ${stageId} missing confirmChecklist`,
-        `${stagePath}.confirmChecklist`,
-      ),
-    );
-  } else if (!Array.isArray(stageData.confirmChecklist)) {
-    errors.push(
-      createError(
-        "INVALID_VALUE",
-        `Stage ${stageId} confirmChecklist must be an array`,
-        `${stagePath}.confirmChecklist`,
-        stageData.confirmChecklist,
-      ),
-    );
-  }
-
-  return errors;
-}
-
-function validateSkillAgentStages(skill, agentPath, requiredStageIds) {
-  const errors = [];
-
-  if (!skill.agent.stages) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        "Skill agent section missing stages",
+        "INVALID_FIELD",
+        "Skill agent uses deprecated stages nesting — flatten to agent.focus/readChecklist/confirmChecklist",
         `${agentPath}.stages`,
       ),
     );
-    return errors;
   }
 
-  if (typeof skill.agent.stages !== "object") {
+  if (!skill.agent.focus) {
+    errors.push(
+      createError(
+        "MISSING_REQUIRED",
+        "Skill agent missing focus",
+        `${agentPath}.focus`,
+      ),
+    );
+  } else if (typeof skill.agent.focus !== "string") {
     errors.push(
       createError(
         "INVALID_VALUE",
-        "Skill agent stages must be an object",
-        `${agentPath}.stages`,
-        skill.agent.stages,
+        "Skill agent focus must be a string",
+        `${agentPath}.focus`,
+        skill.agent.focus,
       ),
     );
-    return errors;
   }
 
-  for (const [stageId, stageData] of Object.entries(skill.agent.stages)) {
-    if (requiredStageIds.length > 0 && !requiredStageIds.includes(stageId)) {
-      errors.push(
-        createError(
-          "INVALID_VALUE",
-          `Invalid stage ID: ${stageId}. Must be one of: ${requiredStageIds.join(", ")}`,
-          `${agentPath}.stages.${stageId}`,
-          stageId,
-        ),
-      );
-      continue;
-    }
+  if (!skill.agent.readChecklist) {
     errors.push(
-      ...validateStageFields(
-        stageId,
-        stageData,
-        `${agentPath}.stages.${stageId}`,
+      createError(
+        "MISSING_REQUIRED",
+        "Skill agent missing readChecklist",
+        `${agentPath}.readChecklist`,
+      ),
+    );
+  } else if (!Array.isArray(skill.agent.readChecklist)) {
+    errors.push(
+      createError(
+        "INVALID_VALUE",
+        "Skill agent readChecklist must be an array",
+        `${agentPath}.readChecklist`,
+        skill.agent.readChecklist,
       ),
     );
   }
 
-  if (requiredStageIds.length > 0) {
-    const presentStageIds = Object.keys(skill.agent.stages);
-    for (const requiredStageId of requiredStageIds) {
-      if (!presentStageIds.includes(requiredStageId)) {
-        errors.push(
-          createError(
-            "MISSING_REQUIRED",
-            `Skill agent missing required stage: ${requiredStageId}`,
-            `${agentPath}.stages.${requiredStageId}`,
-          ),
-        );
-      }
-    }
+  if (!skill.agent.confirmChecklist) {
+    errors.push(
+      createError(
+        "MISSING_REQUIRED",
+        "Skill agent missing confirmChecklist",
+        `${agentPath}.confirmChecklist`,
+      ),
+    );
+  } else if (!Array.isArray(skill.agent.confirmChecklist)) {
+    errors.push(
+      createError(
+        "INVALID_VALUE",
+        "Skill agent confirmChecklist must be an array",
+        `${agentPath}.confirmChecklist`,
+        skill.agent.confirmChecklist,
+      ),
+    );
   }
 
   return errors;
@@ -186,10 +131,10 @@ function validateSkillAgentDeprecatedFields(agentPath, agent) {
   const errors = [];
   const deprecated = [
     ["reference", "Use skill.implementationReference instead."],
-    ["body", "Use stages instead."],
-    ["applicability", "Use stages instead."],
-    ["guidance", "Use stages instead."],
-    ["verificationCriteria", "Use stages.{stage}.confirmChecklist instead."],
+    ["body", "Use agent.focus instead."],
+    ["applicability", "Use agent.focus instead."],
+    ["guidance", "Use agent.focus instead."],
+    ["verificationCriteria", "Use agent.confirmChecklist instead."],
   ];
 
   for (const [field, hint] of deprecated) {
@@ -207,7 +152,7 @@ function validateSkillAgentDeprecatedFields(agentPath, agent) {
   return errors;
 }
 
-function validateSkillAgentSection(skill, path, requiredStageIds) {
+function validateSkillAgentSection(skill, path) {
   const errors = [];
   const agentPath = `${path}.agent`;
 
@@ -230,7 +175,7 @@ function validateSkillAgentSection(skill, path, requiredStageIds) {
     );
   }
 
-  errors.push(...validateSkillAgentStages(skill, agentPath, requiredStageIds));
+  errors.push(...validateSkillAgentFlatFields(skill, agentPath));
   errors.push(...validateSkillAgentDeprecatedFields(agentPath, skill.agent));
 
   return errors;
@@ -400,12 +345,12 @@ function validateSkillMarkers(skill, path) {
  * @param {string[]} [requiredStageIds]
  * @returns {{errors: Array, warnings: Array}}
  */
-export function validateSkill(skill, index, requiredStageIds = []) {
+export function validateSkill(skill, index) {
   const path = `skills[${index}]`;
   const { errors, warnings } = validateSkillBasicFields(skill, path);
 
   if (skill.agent) {
-    errors.push(...validateSkillAgentSection(skill, path, requiredStageIds));
+    errors.push(...validateSkillAgentSection(skill, path));
   }
 
   errors.push(...validateSkillOptionalStringFields(skill, path));

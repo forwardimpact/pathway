@@ -8,6 +8,5 @@ export { buildLevelView } from "./level.js";
 export { buildBehaviourView } from "./behaviour.js";
 export { buildDisciplineView } from "./discipline.js";
 export { buildTrackView } from "./track.js";
-export { buildStageView } from "./stage.js";
 export { buildDriverView } from "./driver.js";
 export { buildToolView, aggregateTools, slugifyToolName } from "./tool.js";

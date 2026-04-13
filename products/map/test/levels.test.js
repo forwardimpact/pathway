@@ -7,7 +7,6 @@ import {
   BehaviourMaturity,
   BEHAVIOUR_MATURITY_ORDER,
   Capability,
-  getStageOrder,
   getCapabilityById,
   getCapabilityOrder,
   groupSkillsByCapability,
@@ -65,27 +64,6 @@ describe("levels", () => {
       assert.strictEqual(Capability.SCALE, "scale");
       assert.strictEqual(Capability.RELIABILITY, "reliability");
       assert.strictEqual(Capability.PEOPLE, "people");
-    });
-  });
-
-  describe("getStageOrder", () => {
-    test("extracts stage IDs in order", () => {
-      const stages = [
-        { id: "specify" },
-        { id: "plan" },
-        { id: "code" },
-        { id: "review" },
-      ];
-      assert.deepStrictEqual(getStageOrder(stages), [
-        "specify",
-        "plan",
-        "code",
-        "review",
-      ]);
-    });
-
-    test("returns empty array for empty input", () => {
-      assert.deepStrictEqual(getStageOrder([]), []);
     });
   });
 

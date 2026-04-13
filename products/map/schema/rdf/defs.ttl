@@ -94,22 +94,6 @@ fit:exemplifying a fit:BehaviourMaturity ;
 # Lifecycle Stages
 # -----------------------------------------------------------------------------
 
-fit:Stage a rdfs:Class ;
-    rdfs:label "Stage"@en ;
-    rdfs:comment "Engineering lifecycle stage"@en .
-
-fit:plan a fit:Stage ;
-    rdfs:label "Plan"@en ;
-    rdfs:comment "Research, gather context, design"@en .
-
-fit:code a fit:Stage ;
-    rdfs:label "Code"@en ;
-    rdfs:comment "Implement, test, iterate"@en .
-
-fit:review a fit:Stage ;
-    rdfs:label "Review"@en ;
-    rdfs:comment "Verify, approve, document"@en .
-
 # =============================================================================
 # COMMON PROPERTIES
 # =============================================================================

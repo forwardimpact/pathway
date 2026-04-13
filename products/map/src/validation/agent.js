@@ -90,119 +90,63 @@ function validateAgentBehaviours(agentBehaviours, humanBehaviourIds) {
   return errors;
 }
 
-function validateSkillAgentStages(skillsWithAgent, requiredStages) {
+function validateSkillAgentFields(skillsWithAgent) {
   const errors = [];
   const warnings = [];
 
   for (const skill of skillsWithAgent) {
-    const stages = skill.agent.stages || {};
-    const missingStages = requiredStages.filter((stage) => !stages[stage]);
+    const basePath = `skills.${skill.id}.agent`;
 
-    if (missingStages.length > 0) {
-      warnings.push(
-        createWarning(
-          "INCOMPLETE_STAGES",
-          `Skill '${skill.id}' agent section missing stages: ${missingStages.join(", ")}`,
-          `skills.${skill.id}.agent.stages`,
+    if (skill.agent.stages) {
+      errors.push(
+        createError(
+          "INVALID_FIELD",
+          `Skill '${skill.id}' agent uses deprecated stages nesting — flatten to agent.focus/readChecklist/confirmChecklist`,
+          `${basePath}.stages`,
         ),
       );
     }
 
-    for (const [stageId, stageData] of Object.entries(stages)) {
+    if (!skill.agent.focus) {
       errors.push(
-        ...validateAgentSkillStageFields(skill.id, stageId, stageData),
+        createError(
+          "MISSING_REQUIRED",
+          `Skill '${skill.id}' agent missing focus`,
+          `${basePath}.focus`,
+        ),
+      );
+    }
+
+    if (
+      !skill.agent.readChecklist ||
+      !Array.isArray(skill.agent.readChecklist) ||
+      skill.agent.readChecklist.length === 0
+    ) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          `Skill '${skill.id}' agent missing or empty readChecklist`,
+          `${basePath}.readChecklist`,
+        ),
+      );
+    }
+
+    if (
+      !skill.agent.confirmChecklist ||
+      !Array.isArray(skill.agent.confirmChecklist) ||
+      skill.agent.confirmChecklist.length === 0
+    ) {
+      errors.push(
+        createError(
+          "MISSING_REQUIRED",
+          `Skill '${skill.id}' agent missing or empty confirmChecklist`,
+          `${basePath}.confirmChecklist`,
+        ),
       );
     }
   }
 
   return { errors, warnings };
-}
-
-function validateAgentSkillStageFields(skillId, stageId, stageData) {
-  const errors = [];
-  const basePath = `skills.${skillId}.agent.stages.${stageId}`;
-
-  if (!stageData.focus) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        `Skill '${skillId}' agent stage '${stageId}' missing focus`,
-        `${basePath}.focus`,
-      ),
-    );
-  }
-  if (
-    !stageData.readChecklist ||
-    !Array.isArray(stageData.readChecklist) ||
-    stageData.readChecklist.length === 0
-  ) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        `Skill '${skillId}' agent stage '${stageId}' missing or empty readChecklist`,
-        `${basePath}.readChecklist`,
-      ),
-    );
-  }
-  if (
-    !stageData.confirmChecklist ||
-    !Array.isArray(stageData.confirmChecklist) ||
-    stageData.confirmChecklist.length === 0
-  ) {
-    errors.push(
-      createError(
-        "MISSING_REQUIRED",
-        `Skill '${skillId}' agent stage '${stageId}' missing or empty confirmChecklist`,
-        `${basePath}.confirmChecklist`,
-      ),
-    );
-  }
-
-  return errors;
-}
-
-function validateStageHandoffs(humanStages, stageIds) {
-  const errors = [];
-
-  for (const stage of humanStages) {
-    if (!stage.handoffs) continue;
-    for (const handoff of stage.handoffs) {
-      const targetId = handoff.targetStage || handoff.target;
-      if (targetId && !stageIds.has(targetId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Stage '${stage.id}' handoff references unknown stage '${targetId}'`,
-            `stages.${stage.id}.handoffs`,
-            targetId,
-          ),
-        );
-      }
-    }
-  }
-
-  return errors;
-}
-
-function buildCoverageWarnings(skillsWithAgent, requiredStages) {
-  const warnings = [];
-
-  const completCount = skillsWithAgent.filter((s) => {
-    const stages = s.agent.stages || {};
-    return requiredStages.every((stage) => stages[stage]);
-  }).length;
-
-  if (completCount < skillsWithAgent.length) {
-    warnings.push(
-      createWarning(
-        "INCOMPLETE_COVERAGE",
-        `${completCount}/${skillsWithAgent.length} skills have complete stage coverage (plan, code, review)`,
-        "agentData",
-      ),
-    );
-  }
-
-  return warnings;
 }
 
 /**
@@ -222,7 +166,6 @@ export function validateAgentData({ humanData, agentData }) {
   const humanBehaviourIds = new Set(
     (humanData.behaviours || []).map((b) => b.id),
   );
-  const stageIds = new Set((humanData.stages || []).map((s) => s.id));
 
   errors.push(
     ...validateAgentDisciplines(
@@ -236,15 +179,10 @@ export function validateAgentData({ humanData, agentData }) {
   );
 
   const skillsWithAgent = (humanData.skills || []).filter((s) => s.agent);
-  const requiredStages = (humanData.stages || []).map((s) => s.id);
 
-  const stageResult = validateSkillAgentStages(skillsWithAgent, requiredStages);
-  errors.push(...stageResult.errors);
-  warnings.push(...stageResult.warnings);
-
-  errors.push(...validateStageHandoffs(humanData.stages || [], stageIds));
-
-  warnings.push(...buildCoverageWarnings(skillsWithAgent, requiredStages));
+  const fieldResult = validateSkillAgentFields(skillsWithAgent);
+  errors.push(...fieldResult.errors);
+  warnings.push(...fieldResult.warnings);
 
   return createValidationResult(errors.length === 0, errors, warnings);
 }

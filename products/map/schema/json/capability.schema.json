@@ -206,7 +206,14 @@
     },
     "skillAgentSection": {
       "type": "object",
-      "required": ["name", "description", "useWhen", "stages"],
+      "required": [
+        "name",
+        "description",
+        "useWhen",
+        "focus",
+        "readChecklist",
+        "confirmChecklist"
+      ],
       "properties": {
         "name": {
           "type": "string",
@@ -221,39 +228,21 @@
           "type": "string",
           "description": "Triggering conditions - when agents should use this skill"
         },
-        "stages": {
-          "type": "object",
-          "description": "Stage-specific guidance for applying the skill",
-          "properties": {
-            "specify": { "$ref": "#/$defs/skillStage" },
-            "plan": { "$ref": "#/$defs/skillStage" },
-            "scaffold": { "$ref": "#/$defs/skillStage" },
-            "code": { "$ref": "#/$defs/skillStage" },
-            "review": { "$ref": "#/$defs/skillStage" },
-            "deploy": { "$ref": "#/$defs/skillStage" }
-          },
-          "additionalProperties": false
-        }
-      },
-      "additionalProperties": false
-    },
-    "skillStage": {
-      "type": "object",
-      "required": ["focus", "readChecklist", "confirmChecklist"],
-      "properties": {
         "focus": {
           "type": "string",
-          "description": "Primary focus for this stage"
+          "description": "Primary focus for this skill"
         },
         "readChecklist": {
           "type": "array",
-          "description": "Read-Then-Do Checklist: steps to follow in order during this stage",
-          "items": { "type": "string" }
+          "description": "READ-DO checklist: steps to read and do before acting",
+          "items": { "type": "string" },
+          "minItems": 1
         },
         "confirmChecklist": {
           "type": "array",
-          "description": "Do-Then-Confirm Checklist: items to verify before moving to next stage",
-          "items": { "type": "string" }
+          "description": "DO-CONFIRM checklist: items to verify after completing work",
+          "items": { "type": "string" },
+          "minItems": 1
         }
       },
       "additionalProperties": false

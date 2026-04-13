@@ -12,11 +12,7 @@ import {
 } from "./validation/discipline.js";
 import { validateTrack } from "./validation/track.js";
 import { validateDriver } from "./validation/driver.js";
-import {
-  validateLevel,
-  validateCapability,
-  validateStage,
-} from "./validation/level.js";
+import { validateLevel, validateCapability } from "./validation/level.js";
 import { validateAgentData } from "./validation/agent.js";
 import {
   validateSelfAssessment,
@@ -62,26 +58,6 @@ function validateSkillCapabilityRefs(skills, capabilityIds, allErrors) {
   });
 }
 
-function validateStageHandoffTargets(stages, allErrors) {
-  if (!stages || stages.length === 0) return;
-  const stageIds = new Set(stages.map((s) => s.id));
-  stages.forEach((stage, sIndex) => {
-    if (!stage.handoffs) return;
-    stage.handoffs.forEach((handoff, hIndex) => {
-      if (handoff.target && !stageIds.has(handoff.target)) {
-        allErrors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Stage '${stage.id}' handoff references unknown stage '${handoff.target}'`,
-            `stages[${sIndex}].handoffs[${hIndex}].target`,
-            handoff.target,
-          ),
-        );
-      }
-    });
-  });
-}
-
 /**
  * @param {Object} data
  * @returns {import('./levels.js').ValidationResult}
@@ -94,7 +70,6 @@ export function validateAllData({
   tracks,
   levels,
   capabilities,
-  stages,
 }) {
   const allErrors = [];
   const allWarnings = [];
@@ -102,14 +77,13 @@ export function validateAllData({
   const skillIds = new Set((skills || []).map((s) => s.id));
   const behaviourIds = new Set((behaviours || []).map((b) => b.id));
   const capabilityIds = new Set((capabilities || []).map((c) => c.id));
-  const requiredStageIds = (stages || []).map((s) => s.id);
   const trackIdSet = new Set((tracks || []).map((t) => t.id));
   const levelIdSet = new Set((levels || []).map((g) => g.id));
 
   validateEntityList(
     skills,
     "skill",
-    (skill, index) => validateSkill(skill, index, requiredStageIds),
+    (skill, index) => validateSkill(skill, index),
     allErrors,
     allWarnings,
   );
@@ -169,16 +143,6 @@ export function validateAllData({
     });
     allErrors.push(...checkDuplicateIds(capabilities, "capability"));
     validateSkillCapabilityRefs(skills, capabilityIds, allErrors);
-  }
-
-  if (stages && stages.length > 0) {
-    stages.forEach((stage, index) => {
-      const { errors, warnings } = validateStage(stage, index);
-      allErrors.push(...errors);
-      allWarnings.push(...warnings);
-    });
-    allErrors.push(...checkDuplicateIds(stages, "stage"));
-    validateStageHandoffTargets(stages, allErrors);
   }
 
   validateEntityList(

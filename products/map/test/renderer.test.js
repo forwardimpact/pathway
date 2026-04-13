@@ -21,7 +21,6 @@ import {
   behaviourIri,
   disciplineIri,
   trackIri,
-  stageIri,
   driverIri,
   toolIri,
   VOCAB_BASE,
@@ -240,21 +239,6 @@ describe("Renderer", () => {
     );
   });
 
-  test("renderStage emits fit:Stage", async () => {
-    const html = renderer.renderStage(
-      { id: "code", name: "Code", description: "..." },
-      1,
-    );
-    const quads = await parseQuads(html);
-    assert.ok(typesOf(quads).includes(`${VOCAB_BASE}Stage`));
-    assert.ok(
-      hasQuad(quads, {
-        subject: stageIri("code"),
-        predicate: `${VOCAB_BASE}name`,
-      }),
-    );
-  });
-
   test("renderDriver emits fit:Driver with contributing skill links", async () => {
     const html = renderer.renderDriver(CTX.drivers[0]);
     const quads = await parseQuads(html);
@@ -309,7 +293,6 @@ describe("Renderer", () => {
       ),
       renderer.renderDiscipline(CTX.disciplines[0]),
       renderer.renderTrack(CTX.tracks[0]),
-      renderer.renderStage({ id: "code", name: "Code", description: "..." }, 1),
       renderer.renderDriver(CTX.drivers[0]),
       renderer.renderTool({
         name: "VS Code",
