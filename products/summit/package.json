@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/summit",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Team capability planning from skill data.",
   "license": "Apache-2.0",
   "repository": {
@@ -34,7 +34,7 @@
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
-    "@forwardimpact/libskill": "^4.1.7",
+    "@forwardimpact/libskill": "^5.0.0",
     "@forwardimpact/libtelemetry": "^0.1.33",
     "@forwardimpact/libutil": "^0.1.72",
     "@forwardimpact/map": "^0.15.18",

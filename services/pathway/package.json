@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/svcpathway",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Pathway derivation service for Guide",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
@@ -18,7 +18,7 @@
   "dependencies": {
     "@forwardimpact/libconfig": "^0.1.58",
     "@forwardimpact/librpc": "^0.1.77",
-    "@forwardimpact/libskill": "^4.1.5",
+    "@forwardimpact/libskill": "^5.0.0",
     "@forwardimpact/libtelemetry": "^0.1.30",
     "@forwardimpact/libtype": "^0.1.67",
     "@forwardimpact/libutil": "^0.1.64",

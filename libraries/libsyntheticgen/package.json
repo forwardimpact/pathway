@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsyntheticgen",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "DSL parsing and deterministic entity generation for synthetic data",
   "license": "Apache-2.0",
   "repository": {

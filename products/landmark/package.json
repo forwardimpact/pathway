@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/landmark",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Analysis and recommendation layer on top of Map activity data.",
   "license": "Apache-2.0",
   "repository": {
@@ -34,7 +34,7 @@
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.33",
     "@forwardimpact/libutil": "^0.1.72",
-    "@forwardimpact/libskill": "^4.1.7",
+    "@forwardimpact/libskill": "^5.0.0",
     "@forwardimpact/map": "^0.15.18",
     "@forwardimpact/summit": "^0.1.0",
     "@supabase/supabase-js": "^2.103.0"
