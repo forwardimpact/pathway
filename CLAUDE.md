@@ -280,10 +280,11 @@ which installs to `data/pathway/` in consuming projects). Use
 - **Capabilities** — `capabilities/{id}.yaml`
 - **Skills** — `capabilities/{id}.yaml` (under `skills:`)
 - **Behaviours** — `behaviours/{id}.yaml`
-- **Stages** — `stages.yaml`
 - **Drivers** — `drivers.yaml`
 
-All entities use co-located `human:` and `agent:` sections.
+All entities use co-located `human:` and `agent:` sections. Skill agent sections
+use flat `agent.focus`, `agent.readChecklist`, and `agent.confirmChecklist`
+fields.
 
 - **Skill proficiencies**: awareness → foundational → working → practitioner →
   expert
@@ -292,8 +293,7 @@ All entities use co-located `human:` and `agent:` sections.
 - **Disciplines** define role types with T-shaped skill tiers
   (core/supporting/broad)
 - **Tracks** are pure modifiers — adjust expectations via `skillModifiers`
-- **Capabilities** group skills, define responsibilities, provide stage handoffs
-- **Stages** define lifecycle phases with constraints and checklists
+- **Capabilities** group skills and define responsibilities
 - **Tools** derived from `toolReferences` at runtime via `bunx fit-pathway tool`
 
 Validate data: `bunx fit-map validate`. Vocabulary standards in the
