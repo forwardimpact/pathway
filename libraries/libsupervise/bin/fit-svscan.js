@@ -22,7 +22,7 @@ const definition = {
   name: "fit-svscan",
   version: VERSION,
   description: "Supervision daemon that manages a SupervisionTree",
-  options: {
+  globalOptions: {
     socket: {
       type: "string",
       short: "s",

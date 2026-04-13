@@ -27,7 +27,7 @@ const definition = {
   name: "fit-codegen",
   version: VERSION,
   description: "Generate protobuf types, service clients, and definitions",
-  options: {
+  globalOptions: {
     all: { type: "boolean", description: "Generate all code" },
     type: { type: "boolean", description: "Generate protobuf types only" },
     service: {

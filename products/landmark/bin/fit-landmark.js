@@ -60,101 +60,150 @@ const definition = {
     { name: "org show", description: "Show full organization directory" },
     {
       name: "org team",
-      args: "--manager <email>",
+      args: "<email>",
       description: "Show hierarchy under a manager",
+      options: {
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     { name: "snapshot list", description: "List available snapshots" },
     {
       name: "snapshot show",
-      args: "--snapshot <id> [--manager <email>]",
+      args: "",
       description: "Show factor/driver scores for a snapshot",
+      options: {
+        snapshot: { type: "string", description: "Snapshot id" },
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "snapshot trend",
-      args: "--item <item_id> [--manager <email>]",
+      args: "",
       description: "Track item trend across snapshots",
+      options: {
+        item: { type: "string", description: "Driver/item id for trend" },
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "snapshot compare",
-      args: "--snapshot <id> [--manager <email>]",
+      args: "",
       description: "Compare snapshot against benchmarks",
+      options: {
+        snapshot: { type: "string", description: "Snapshot id" },
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "evidence",
-      args: "[--skill <id>] [--email <email>]",
+      args: "",
       description: "Show marker-linked evidence",
+      options: {
+        skill: { type: "string", description: "Filter by skill id" },
+        email: { type: "string", description: "Filter by person email" },
+      },
     },
     {
       name: "practice",
-      args: "[--skill <id>] [--manager <email>]",
+      args: "",
       description: "Show practice-pattern aggregates",
+      options: {
+        skill: { type: "string", description: "Filter by skill id" },
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "marker",
-      args: "<skill> [--level <level>]",
+      args: "<skill>",
       description: "Show marker definitions for a skill",
+      options: {
+        skill: { type: "string", description: "Filter by skill id" },
+        level: { type: "string", description: "Target or filter level" },
+      },
     },
     {
       name: "health",
-      args: "[--manager <email>]",
+      args: "",
       description: "Show health view with driver scores and evidence",
+      options: {
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "readiness",
-      args: "--email <email> [--target <level>]",
+      args: "",
       description: "Show promotion readiness checklist",
+      options: {
+        email: { type: "string", description: "Filter by person email" },
+        target: { type: "string", description: "Readiness target level" },
+      },
     },
     {
       name: "timeline",
-      args: "--email <email> [--skill <id>]",
+      args: "",
       description: "Show individual growth timeline",
+      options: {
+        email: { type: "string", description: "Filter by person email" },
+        skill: { type: "string", description: "Filter by skill id" },
+      },
     },
     {
       name: "initiative list",
-      args: "[--manager <email>]",
+      args: "",
       description: "List active initiatives",
+      options: {
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "initiative show",
-      args: "--id <id>",
+      args: "",
       description: "Show initiative detail",
+      options: {
+        id: { type: "string", description: "Entity id" },
+      },
     },
     {
       name: "initiative impact",
-      args: "[--manager <email>]",
+      args: "",
       description: "Show initiative impact on scores",
+      options: {
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "coverage",
-      args: "--email <email>",
+      args: "",
       description: "Show evidence coverage metrics",
+      options: {
+        email: { type: "string", description: "Filter by person email" },
+      },
     },
     {
       name: "practiced",
-      args: "--manager <email>",
+      args: "",
       description: "Show evidenced vs derived capability",
+      options: {
+        manager: { type: "string", description: "Filter by manager email" },
+      },
     },
     {
       name: "voice",
-      args: "--manager <email> | --email <email>",
+      args: "",
       description: "Surface engineer voice from GetDX comments",
+      options: {
+        manager: { type: "string", description: "Filter by manager email" },
+        email: { type: "string", description: "Filter by person email" },
+      },
     },
   ],
-  options: {
+  globalOptions: {
     data: { type: "string", description: "Path to Map data directory" },
     format: {
       type: "string",
       default: "text",
       description: "Output format (text|json|markdown)",
     },
-    manager: { type: "string", description: "Filter by manager email" },
-    email: { type: "string", description: "Filter by person email" },
-    skill: { type: "string", description: "Filter by skill id" },
-    level: { type: "string", description: "Target or filter level" },
-    target: { type: "string", description: "Readiness target level" },
-    snapshot: { type: "string", description: "Snapshot id" },
-    item: { type: "string", description: "Driver/item id for trend" },
-    id: { type: "string", description: "Entity id (initiative, etc.)" },
     help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", short: "v", description: "Show version" },
   },

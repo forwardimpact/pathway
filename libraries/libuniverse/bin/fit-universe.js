@@ -52,7 +52,7 @@ const definition = {
   name: "fit-universe",
   version: VERSION,
   description: "Synthetic data generation pipeline",
-  options: {
+  globalOptions: {
     generate: {
       type: "boolean",
       description: "Generate prose via LLM and update cache",

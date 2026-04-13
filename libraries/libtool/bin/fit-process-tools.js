@@ -17,7 +17,7 @@ const definition = {
   version: VERSION,
   description:
     "Process tool endpoint configurations and generate tool resources",
-  options: {
+  globalOptions: {
     "proto-root": {
       type: "string",
       short: "p",

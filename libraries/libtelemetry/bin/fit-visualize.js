@@ -15,7 +15,7 @@ const definition = {
   name: "fit-visualize",
   version: VERSION,
   description: "Query and visualize traces using JMESPath expressions",
-  options: {
+  globalOptions: {
     trace: { type: "string", description: "Filter traces by trace ID" },
     resource: {
       type: "string",

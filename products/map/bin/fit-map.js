@@ -46,14 +46,23 @@ const definition = {
     {
       name: "validate",
       description: "Run validation (default: JSON schema)",
+      options: {
+        shacl: { type: "boolean", description: "SHACL schema validation" },
+      },
     },
     {
       name: "generate-index",
       description: "Generate _index.yaml files",
+      options: {
+        "base-url": { type: "string", description: "GetDX API base URL" },
+      },
     },
     {
       name: "export",
       description: "Render base entities to HTML microdata",
+      options: {
+        output: { type: "string", description: "Output directory for export" },
+      },
     },
     {
       name: "people",
@@ -69,15 +78,14 @@ const definition = {
       name: "getdx",
       args: "sync",
       description: "Extract + transform GetDX snapshots",
+      options: {
+        url: { type: "string", description: "Supabase URL" },
+      },
     },
   ],
-  options: {
+  globalOptions: {
     data: { type: "string", description: "Path to data directory" },
-    output: { type: "string", description: "Output directory for export" },
-    url: { type: "string", description: "Supabase URL" },
-    "base-url": { type: "string", description: "GetDX API base URL" },
     json: { type: "boolean", description: "Output as JSON" },
-    shacl: { type: "boolean", description: "SHACL schema validation" },
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
   },

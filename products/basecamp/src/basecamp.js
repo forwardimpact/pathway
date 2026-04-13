@@ -315,7 +315,7 @@ const definition = {
     { name: "validate", description: "Validate agent definitions exist" },
     { name: "status", description: "Show agent status" },
   ],
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "JSON output (with --help)" },

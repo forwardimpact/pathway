@@ -17,7 +17,7 @@ const definition = {
   name: "fit-process-vectors",
   version: VERSION,
   description: "Process resources into vector embeddings",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

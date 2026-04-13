@@ -40,7 +40,7 @@ const definition = {
     { name: "status", description: "Check system readiness" },
     { name: "init", description: "Generate secrets, .env, and config" },
   ],
-  options: {
+  globalOptions: {
     data: {
       type: "string",
       description: "Path to framework data directory",

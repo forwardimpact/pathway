@@ -19,7 +19,7 @@ const definition = {
   version: VERSION,
   description:
     "Process HTML files in the knowledge base directory and generate resources",
-  options: {
+  globalOptions: {
     base: {
       type: "string",
       short: "b",

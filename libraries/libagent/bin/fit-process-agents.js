@@ -16,7 +16,7 @@ const definition = {
   version: VERSION,
   description:
     "Process agent configurations from config/agents/*.agent.md and generate Agent resources",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

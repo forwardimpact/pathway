@@ -16,7 +16,7 @@ const definition = {
   name: "fit-download-bundle",
   version: VERSION,
   description: "Download generated code bundle from remote storage",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

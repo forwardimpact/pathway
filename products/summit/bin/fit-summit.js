@@ -51,96 +51,176 @@ const definition = {
       name: "coverage",
       args: "<team>",
       description: "Show capability coverage",
+      options: {
+        evidenced: {
+          type: "boolean",
+          description: "Include practiced capability from Map evidence data",
+        },
+        "lookback-months": {
+          type: "string",
+          description: "Lookback window for practice patterns (default: 12)",
+        },
+        project: {
+          type: "string",
+          description: "Use a project team instead of a reporting team",
+        },
+        audience: {
+          type: "string",
+          default: "manager",
+          description: "Privacy audience: engineer, manager, director",
+        },
+      },
+      examples: [
+        "fit-summit coverage platform",
+        "fit-summit coverage platform --evidenced --lookback-months=6",
+      ],
     },
     {
       name: "risks",
       args: "<team>",
       description: "Show structural risks",
+      options: {
+        evidenced: {
+          type: "boolean",
+          description: "Include practiced capability from Map evidence data",
+        },
+        "lookback-months": {
+          type: "string",
+          description: "Lookback window for practice patterns (default: 12)",
+        },
+        project: {
+          type: "string",
+          description: "Use a project team instead of a reporting team",
+        },
+        audience: {
+          type: "string",
+          default: "manager",
+          description: "Privacy audience: engineer, manager, director",
+        },
+      },
     },
     {
       name: "what-if",
-      args: "<team> [--add/--remove/--move/--promote]",
+      args: "<team>",
       description: "Simulate roster changes",
+      options: {
+        add: { type: "string", description: "Add a hypothetical person" },
+        remove: { type: "string", description: "Remove a team member" },
+        move: { type: "string", description: "Move a member between teams" },
+        to: { type: "string", description: "Destination team for --move" },
+        promote: {
+          type: "string",
+          description: "Promote a member to the next level",
+        },
+        focus: {
+          type: "string",
+          description: "Filter the diff to one capability",
+        },
+        allocation: {
+          type: "string",
+          description: "Allocation fraction for --add on a project",
+        },
+        project: {
+          type: "string",
+          description: "Use a project team instead of a reporting team",
+        },
+        audience: {
+          type: "string",
+          default: "manager",
+          description: "Privacy audience: engineer, manager, director",
+        },
+        evidenced: {
+          type: "boolean",
+          description: "Include practiced capability from Map evidence data",
+        },
+        "lookback-months": {
+          type: "string",
+          description: "Lookback window for practice patterns (default: 12)",
+        },
+      },
+      examples: [
+        "fit-summit what-if platform --add 'Jane, senior, backend'",
+        "fit-summit what-if platform --remove 'Bob'",
+        "fit-summit what-if platform --promote 'Alice'",
+      ],
     },
     {
       name: "growth",
       args: "<team>",
       description: "Show growth opportunities aligned with team needs",
+      options: {
+        evidenced: {
+          type: "boolean",
+          description: "Include practiced capability from Map evidence data",
+        },
+        outcomes: {
+          type: "boolean",
+          description: "Weight recommendations by GetDX driver scores",
+        },
+        "lookback-months": {
+          type: "string",
+          description: "Lookback window for practice patterns (default: 12)",
+        },
+        project: {
+          type: "string",
+          description: "Use a project team instead of a reporting team",
+        },
+        audience: {
+          type: "string",
+          default: "manager",
+          description: "Privacy audience: engineer, manager, director",
+        },
+      },
     },
     {
       name: "compare",
       args: "<team1> <team2>",
       description: "Compare two teams' coverage and risks",
+      options: {
+        "left-project": {
+          type: "string",
+          description: "Left side is a project team",
+        },
+        "right-project": {
+          type: "string",
+          description: "Right side is a project team",
+        },
+        audience: {
+          type: "string",
+          default: "manager",
+          description: "Privacy audience: engineer, manager, director",
+        },
+      },
     },
     {
       name: "trajectory",
       args: "<team>",
       description: "Show team capability over time",
+      options: {
+        quarters: {
+          type: "string",
+          description: "Number of quarters to show (default: 4)",
+        },
+        project: {
+          type: "string",
+          description: "Use a project team instead of a reporting team",
+        },
+      },
+      examples: [
+        "fit-summit trajectory platform",
+        "fit-summit trajectory platform --quarters=8",
+      ],
     },
     { name: "roster", args: "", description: "Show current roster" },
     { name: "validate", args: "", description: "Validate roster file" },
   ],
-  options: {
+  globalOptions: {
     roster: { type: "string", description: "Path to summit.yaml" },
     data: { type: "string", description: "Path to Map data directory" },
     format: {
       type: "string",
       default: "text",
-      description: "Output format: text, json, markdown",
-    },
-    project: {
-      type: "string",
-      description: "Use a project team instead of a reporting team",
-    },
-    "left-project": {
-      type: "string",
-      description: "compare: left side is a project team",
-    },
-    "right-project": {
-      type: "string",
-      description: "compare: right side is a project team",
-    },
-    audience: {
-      type: "string",
-      default: "manager",
-      description: "Privacy audience: engineer, manager, director",
-    },
-    add: { type: "string", description: "what-if: add a hypothetical person" },
-    remove: { type: "string", description: "what-if: remove a team member" },
-    move: {
-      type: "string",
-      description: "what-if: move a member between teams",
-    },
-    to: { type: "string", description: "what-if: destination team for --move" },
-    promote: {
-      type: "string",
-      description: "what-if: promote a member to the next level",
-    },
-    focus: {
-      type: "string",
-      description: "what-if: filter the diff to one capability",
-    },
-    allocation: {
-      type: "string",
-      description: "what-if: allocation fraction for --add on a project",
-    },
-    quarters: {
-      type: "string",
-      description: "trajectory: number of quarters to show (default: 4)",
-    },
-    evidenced: {
-      type: "boolean",
-      description:
-        "coverage/risks/growth: include practiced capability from Map evidence data",
-    },
-    outcomes: {
-      type: "boolean",
-      description: "growth: weight recommendations by GetDX driver scores",
-    },
-    "lookback-months": {
-      type: "string",
-      description:
-        "evidenced: lookback window for practice patterns (default: 12)",
+      description: "Output format: text, json, markdown (default: text)",
     },
     help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", short: "v", description: "Show version" },

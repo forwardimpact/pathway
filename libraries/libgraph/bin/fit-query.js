@@ -13,7 +13,7 @@ const definition = {
   version: VERSION,
   description: "Query the graph index with a triple pattern",
   usage: "fit-query <subject> <predicate> <object>",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

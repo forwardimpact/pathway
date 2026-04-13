@@ -13,7 +13,7 @@ const definition = {
   version: VERSION,
   description: "Count tokens in text",
   usage: "fit-tiktoken <text>\n       echo 'text' | fit-tiktoken",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

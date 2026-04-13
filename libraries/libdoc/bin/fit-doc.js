@@ -25,13 +25,31 @@ const definition = {
     {
       name: "build",
       description: "Build documentation site from markdown files",
+      options: {
+        "base-url": {
+          type: "string",
+          description: "Base URL for sitemap, canonical links, and llms.txt",
+        },
+      },
     },
     {
       name: "serve",
       description: "Build and serve documentation with optional watch mode",
+      options: {
+        port: {
+          type: "string",
+          short: "p",
+          description: "Port to serve on (default: 3000)",
+        },
+        watch: {
+          type: "boolean",
+          short: "w",
+          description: "Watch for changes and rebuild",
+        },
+      },
     },
   ],
-  options: {
+  globalOptions: {
     src: {
       type: "string",
       default: "website",
@@ -41,20 +59,6 @@ const definition = {
       type: "string",
       default: "dist",
       description: "Output directory (default: dist)",
-    },
-    "base-url": {
-      type: "string",
-      description: "Base URL for sitemap, canonical links, and llms.txt",
-    },
-    port: {
-      type: "string",
-      short: "p",
-      description: "Port to serve on (default: 3000)",
-    },
-    watch: {
-      type: "boolean",
-      short: "w",
-      description: "Watch for changes and rebuild",
     },
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },

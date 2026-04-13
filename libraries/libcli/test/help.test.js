@@ -89,9 +89,7 @@ describe("HelpRenderer", () => {
     test("includes hint line when commands exist", () => {
       const stream = createStream();
       createRenderer().render(fullDefinition, stream);
-      assert.ok(
-        stream.output.includes("--help for command-specific options"),
-      );
+      assert.ok(stream.output.includes("--help for command-specific options"));
     });
 
     test("omits hint line when no commands exist", () => {
@@ -103,9 +101,7 @@ describe("HelpRenderer", () => {
         },
       };
       createRenderer().render(def, stream);
-      assert.ok(
-        !stream.output.includes("--help for command-specific options"),
-      );
+      assert.ok(!stream.output.includes("--help for command-specific options"));
     });
 
     test("global help shows only globalOptions, not per-command options", () => {

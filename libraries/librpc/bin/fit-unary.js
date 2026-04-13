@@ -13,7 +13,7 @@ const definition = {
   version: VERSION,
   description: "Make a unary gRPC call to a service",
   usage: "fit-unary <service> <method> [json-request]",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

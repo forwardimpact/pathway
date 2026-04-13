@@ -14,7 +14,7 @@ const definition = {
   name: "fit-logger",
   version: VERSION,
   description: "Log writer that reads stdin and writes rotated log files",
-  options: {
+  globalOptions: {
     dir: {
       type: "string",
       short: "d",

@@ -14,7 +14,7 @@ const definition = {
   version: VERSION,
   description: "Fetch the memory window for a conversation as JSON",
   usage: "fit-window <resource_id> [model]",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

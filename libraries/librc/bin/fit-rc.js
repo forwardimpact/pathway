@@ -24,7 +24,7 @@ const definition = {
     { name: "status", args: "[service]", description: "Show service status" },
     { name: "restart", args: "[service]", description: "Restart services" },
   ],
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     silent: {
       type: "boolean",

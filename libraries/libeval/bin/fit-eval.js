@@ -20,7 +20,7 @@ const definition = {
   commands: [
     {
       name: "output",
-      args: "[--format=FORMAT]",
+      args: "",
       description: "Process trace and output formatted result",
     },
     {
@@ -30,60 +30,73 @@ const definition = {
     },
     {
       name: "run",
-      args: "[options]",
+      args: "",
       description: "Run a single agent via the Claude Agent SDK",
+      options: {
+        "task-file": { type: "string", description: "Path to task file" },
+        "task-text": { type: "string", description: "Inline task text" },
+        "task-amend": {
+          type: "string",
+          description: "Additional text appended to task",
+        },
+        model: { type: "string", description: "Claude model (default: opus)" },
+        "max-turns": {
+          type: "string",
+          description: "Max agentic turns (default: 50)",
+        },
+        output: { type: "string", description: "Write NDJSON trace to file" },
+        cwd: { type: "string", description: "Working directory" },
+        "agent-profile": { type: "string", description: "Agent profile name" },
+        "allowed-tools": {
+          type: "string",
+          description: "Comma-separated tool list",
+        },
+      },
     },
     {
       name: "supervise",
-      args: "[options]",
+      args: "",
       description: "Run a supervised agent-supervisor relay loop",
+      options: {
+        "task-file": { type: "string", description: "Path to task file" },
+        "task-text": { type: "string", description: "Inline task text" },
+        "task-amend": {
+          type: "string",
+          description: "Additional text appended to task",
+        },
+        model: { type: "string", description: "Claude model (default: opus)" },
+        "max-turns": {
+          type: "string",
+          description: "Max agentic turns (default: 50)",
+        },
+        output: { type: "string", description: "Write NDJSON trace to file" },
+        cwd: { type: "string", description: "Working directory" },
+        "agent-profile": { type: "string", description: "Agent profile name" },
+        "allowed-tools": {
+          type: "string",
+          description: "Comma-separated tool list",
+        },
+        "supervisor-cwd": {
+          type: "string",
+          description: "Supervisor working directory",
+        },
+        "agent-cwd": { type: "string", description: "Agent working directory" },
+        "supervisor-profile": {
+          type: "string",
+          description: "Supervisor profile name",
+        },
+        "supervisor-allowed-tools": {
+          type: "string",
+          description: "Supervisor tool list",
+        },
+      },
     },
   ],
-  options: {
+  globalOptions: {
     format: { type: "string", description: "Output format (json|text)" },
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },
-    "task-file": { type: "string", description: "Path to task file" },
-    "task-text": { type: "string", description: "Inline task text" },
-    "task-amend": {
-      type: "string",
-      description: "Additional text appended to task",
-    },
-    model: {
-      type: "string",
-      description: "Claude model (default: opus)",
-    },
-    "max-turns": {
-      type: "string",
-      description: "Max agentic turns (default: 50)",
-    },
-    output: { type: "string", description: "Write NDJSON trace to file" },
-    cwd: { type: "string", description: "Working directory" },
-    "agent-profile": {
-      type: "string",
-      description: "Agent profile name",
-    },
-    "allowed-tools": {
-      type: "string",
-      description: "Comma-separated tool list",
-    },
-    "supervisor-cwd": {
-      type: "string",
-      description: "Supervisor working directory",
-    },
-    "agent-cwd": {
-      type: "string",
-      description: "Agent working directory",
-    },
-    "supervisor-profile": {
-      type: "string",
-      description: "Supervisor profile name",
-    },
-    "supervisor-allowed-tools": {
-      type: "string",
-      description: "Supervisor tool list",
-    },
   },
   examples: [
     "fit-eval output --format=text < trace.ndjson",

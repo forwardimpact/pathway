@@ -60,7 +60,11 @@ export class Cli {
 
     if (values.help) {
       if (values.json) {
-        this.#helpRenderer.renderJson(this.#definition, this.#proc.stdout, command);
+        this.#helpRenderer.renderJson(
+          this.#definition,
+          this.#proc.stdout,
+          command,
+        );
       } else {
         this.#helpRenderer.render(this.#definition, this.#proc.stdout, command);
       }

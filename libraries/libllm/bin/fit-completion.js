@@ -14,7 +14,7 @@ const definition = {
   version: VERSION,
   description: "Send a completion request to the LLM API",
   usage: "echo '{\"messages\":[...]}' | fit-completion",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

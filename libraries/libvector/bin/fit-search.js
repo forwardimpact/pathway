@@ -16,7 +16,7 @@ const definition = {
   version: VERSION,
   description: "Search vector index by embedding a query string",
   usage: "fit-search <query>",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

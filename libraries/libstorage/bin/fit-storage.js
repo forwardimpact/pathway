@@ -26,21 +26,51 @@ const definition = {
       name: "create-bucket",
       description: "Create storage bucket (idempotent)",
     },
-    { name: "wait", description: "Wait for storage to be ready" },
-    { name: "upload", description: "Upload local data to remote storage" },
-    { name: "download", description: "Download remote data to local storage" },
-    { name: "list", description: "List remote storage contents" },
+    {
+      name: "wait",
+      description: "Wait for storage to be ready",
+      options: {
+        timeout: {
+          type: "string",
+          description: "Timeout in ms (default: 30000)",
+        },
+      },
+    },
+    {
+      name: "upload",
+      description: "Upload local data to remote storage",
+      options: {
+        prefix: {
+          type: "string",
+          multiple: true,
+          description: "Storage prefix to operate on (repeatable)",
+        },
+      },
+    },
+    {
+      name: "download",
+      description: "Download remote data to local storage",
+      options: {
+        prefix: {
+          type: "string",
+          multiple: true,
+          description: "Storage prefix to operate on (repeatable)",
+        },
+      },
+    },
+    {
+      name: "list",
+      description: "List remote storage contents",
+      options: {
+        prefix: {
+          type: "string",
+          multiple: true,
+          description: "Storage prefix to operate on (repeatable)",
+        },
+      },
+    },
   ],
-  options: {
-    prefix: {
-      type: "string",
-      multiple: true,
-      description: "Storage prefix to operate on (repeatable)",
-    },
-    timeout: {
-      type: "string",
-      description: "Timeout for wait command (default: 30000)",
-    },
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },

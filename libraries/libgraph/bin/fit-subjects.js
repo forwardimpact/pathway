@@ -13,7 +13,7 @@ const definition = {
   version: VERSION,
   description: "List graph subjects, optionally filtered by type",
   usage: "fit-subjects [type]",
-  options: {
+  globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },
