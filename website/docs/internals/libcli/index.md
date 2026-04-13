@@ -180,8 +180,8 @@ Examples:
   fit-summit coverage platform --evidenced --lookback-months=6
 ```
 
-Commands with no `options` omit the `Options:` section and show only `Global
-options:`.
+Commands with no `options` omit the `Options:` section and show only
+`Global options:`.
 
 ### Grep-friendliness
 
@@ -208,9 +208,9 @@ $ fit-summit -h | grep add
 - `--help` renders human-readable formatted text to stdout
 - `--help --json` emits structured JSON
 
-Global `--help --json` emits the full definition object. Per-command `--help
---json` emits a focused object with `parent`, `name`, `args`, `description`,
-`options`, `globalOptions` (without `--version`), and `examples`.
+Global `--help --json` emits the full definition object. Per-command
+`--help --json` emits a focused object with `parent`, `name`, `args`,
+`description`, `options`, `globalOptions` (without `--version`), and `examples`.
 
 Both modes are handled automatically by `cli.parse()`.
 
@@ -300,8 +300,8 @@ It returns `{ values, positionals }` on success, or `null` if `--help` or
 
 When the definition has `commands`, `parse()` identifies the command by scanning
 non-flag tokens and trying the longest match against `commands[].name`. This
-handles multi-word commands like `org show` in fit-landmark — `parse(["org",
-"show", "--help"])` correctly matches the `org show` entry.
+handles multi-word commands like `org show` in fit-landmark —
+`parse(["org", "show", "--help"])` correctly matches the `org show` entry.
 
 ### Option merging and scoping
 
