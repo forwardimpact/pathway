@@ -68,11 +68,17 @@ const definition = {
       name: "people",
       args: "<validate|push> <file>",
       description: "Validate or push people files",
+      options: {
+        url: { type: "string", description: "Supabase URL" },
+      },
     },
     {
       name: "activity",
       args: "<start|stop|status|migrate|transform|verify|seed>",
       description: "Manage activity stack",
+      options: {
+        url: { type: "string", description: "Supabase URL" },
+      },
     },
     {
       name: "getdx",

@@ -36,6 +36,10 @@ const definition = {
       name: "serve",
       description: "Build and serve documentation with optional watch mode",
       options: {
+        "base-url": {
+          type: "string",
+          description: "Base URL for sitemap, canonical links, and llms.txt",
+        },
         port: {
           type: "string",
           short: "p",
