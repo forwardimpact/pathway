@@ -27,6 +27,7 @@ Remove `stages` from the keyword list (line 71).
 **File:** `libraries/libsyntheticgen/src/dsl/parser-framework.js`
 
 In `parseFramework()` (line 194):
+
 - Remove `stages: []` from framework AST initialization (line 205)
 - Remove `"stages"` from `FW_ARRAY_KEYS` set (line 207)
 
@@ -38,6 +39,7 @@ error. This is intentional — the DSL must be updated.
 **File:** `data/synthetic/story.dsl`
 
 Remove the `stages` line from the `framework` block (line 743):
+
 ```
 Before: stages [specify, plan, scaffold, code, review, deploy]
 After:  (line deleted)
@@ -60,12 +62,14 @@ stage definitions — no longer needed.
   instruction block (lines 62-70) with flat agent field instructions:
 
 **Before (lines 62-70):**
+
 ```
 "- agent.stages: Object with ONLY the stages where this skill is meaningfully relevant."
 ... (stage criteria, per-stage focus/readChecklist/confirmChecklist)
 ```
 
 **After:**
+
 ```
 "- agent.focus: 1 sentence — the overall primary focus for this skill."
 "- agent.readChecklist: Array of 5-9 items — steps to read/understand before acting."
@@ -88,6 +92,7 @@ In `buildFrameworkPrompt()` (line 40), remove the annotation that explains
 **File:** `libraries/libsyntheticprose/src/engine/pathway.js`
 
 In `generatePathwayData()` (lines 99-246):
+
 - Remove Step 3 (lines 128-135) — stage generation via `buildStagePrompt()`
 - Remove `stages` from the returned pathway data object
 - Remove `import { buildStagePrompt }` if present
@@ -101,6 +106,7 @@ of nested stage blocks.
 **File:** `libraries/libsyntheticrender/src/render/pathway.js`
 
 In `renderPathway()` (lines 50-66):
+
 - Remove `["stages", "stages.yaml", "stages"]` from `SINGLE_FILE_ENTITIES`
   (lines 10-16)
 
@@ -116,6 +122,7 @@ just synth   # or equivalent regeneration command
 ```
 
 Verify:
+
 - No `data/pathway/stages.yaml` exists
 - Capability YAML files have `agent.{focus, readChecklist, confirmChecklist}`
   per skill (flat, not nested under `agent.stages`)
@@ -123,8 +130,9 @@ Verify:
 ### 10. Update tests
 
 Update or add tests in the relevant test directories:
-- `libraries/libsyntheticgen/test/` — verify `STAGE_NAMES` is not exported,
-  DSL parsing rejects `stages` keyword
+
+- `libraries/libsyntheticgen/test/` — verify `STAGE_NAMES` is not exported, DSL
+  parsing rejects `stages` keyword
 - `libraries/libsyntheticprose/test/prompt-builders.test.js` — remove
   `buildStagePrompt` import (line 5), delete stage prompt tests (lines 70-87),
   verify capability prompt includes flat agent fields
@@ -143,13 +151,14 @@ grep -r 'agent.stages' data/pathway/capabilities/  # should return no matches
 ```
 
 Success criteria from spec:
+
 - `STAGE_NAMES` is absent from libsyntheticgen exports (criterion 10)
 - Regenerated data has no `stages.yaml` and flat skill checklists (criterion 9)
 
 ## Blast radius
 
-| Action | Files |
-|--------|-------|
-| Delete | `libraries/libsyntheticprose/src/prompts/pathway/stage.js` |
-| Modify | `libraries/libsyntheticgen/src/vocabulary.js`, `libraries/libsyntheticgen/src/index.js`, `libraries/libsyntheticgen/src/dsl/tokenizer.js`, `libraries/libsyntheticgen/src/dsl/parser-framework.js`, `libraries/libsyntheticprose/src/prompts/pathway/capability.js`, `libraries/libsyntheticprose/src/prompts/pathway/framework.js`, `libraries/libsyntheticprose/src/engine/pathway.js`, `libraries/libsyntheticrender/src/render/pathway.js`, `data/synthetic/story.dsl` |
-| Regenerate | All files under `data/pathway/` |
+| Action     | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                      |
+| ---------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Delete     | `libraries/libsyntheticprose/src/prompts/pathway/stage.js`                                                                                                                                                                                                                                                                                                                                                                                                                 |
+| Modify     | `libraries/libsyntheticgen/src/vocabulary.js`, `libraries/libsyntheticgen/src/index.js`, `libraries/libsyntheticgen/src/dsl/tokenizer.js`, `libraries/libsyntheticgen/src/dsl/parser-framework.js`, `libraries/libsyntheticprose/src/prompts/pathway/capability.js`, `libraries/libsyntheticprose/src/prompts/pathway/framework.js`, `libraries/libsyntheticprose/src/engine/pathway.js`, `libraries/libsyntheticrender/src/render/pathway.js`, `data/synthetic/story.dsl` |
+| Regenerate | All files under `data/pathway/`                                                                                                                                                                                                                                                                                                                                                                                                                                            |

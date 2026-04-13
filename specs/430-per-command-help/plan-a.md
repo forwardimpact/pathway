@@ -5,8 +5,8 @@
 The change has three independent dimensions: the library itself (schema, parser,
 renderer), the 28 `createCli()` call sites (27 in `bin/` files + 1 in
 `products/basecamp/src/basecamp.js`; the spec says "27 CLI consumers" counting
-only bin entry points), and the documentation. The library changes land
-first; consumer migration and docs are independent of each other and can run in
+only bin entry points), and the documentation. The library changes land first;
+consumer migration and docs are independent of each other and can run in
 parallel once the library is merged.
 
 **Why a big-bang migration:** All consumers are internal. The spec calls for
@@ -29,8 +29,8 @@ every command (the handler simply ignores irrelevant flags). After migration,
 passing a command-specific option on the wrong command throws
 `ERR_PARSE_ARGS_UNKNOWN_OPTION`. The spec intends this ("Command-specific
 options apply only to the command they belong to") even though the out-of-scope
-list says "Changes to what any CLI does." The distinction: command *behavior*
-is unchanged; input *validation* is stricter.
+list says "Changes to what any CLI does." The distinction: command _behavior_ is
+unchanged; input _validation_ is stricter.
 
 **Key design decision — merge order and collision guard:** The merge is
 `{ ...globalOpts, ...commandOpts }`. This order is safe ONLY because the
@@ -41,11 +41,11 @@ without changing the merge strategy.
 
 ## Part index
 
-| Part | Scope | Depends on | Agent |
-|------|-------|------------|-------|
-| [Part 1](plan-a-01.md) | Core library (schema, parser, renderer, tests) | — | `staff-engineer` |
-| [Part 2](plan-a-02.md) | Consumer migration (28 CLI bin files + test files) | Part 1 | `staff-engineer` |
-| [Part 3](plan-a-03.md) | Documentation (`website/docs/internals/libcli/index.md`) | Part 1 | `technical-writer` |
+| Part                   | Scope                                                    | Depends on | Agent              |
+| ---------------------- | -------------------------------------------------------- | ---------- | ------------------ |
+| [Part 1](plan-a-01.md) | Core library (schema, parser, renderer, tests)           | —          | `staff-engineer`   |
+| [Part 2](plan-a-02.md) | Consumer migration (28 CLI bin files + test files)       | Part 1     | `staff-engineer`   |
+| [Part 3](plan-a-03.md) | Documentation (`website/docs/internals/libcli/index.md`) | Part 1     | `technical-writer` |
 
 ## Cross-cutting concerns
 

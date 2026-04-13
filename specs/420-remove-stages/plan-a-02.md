@@ -22,11 +22,12 @@ functions in `agent.js`.
 **File:** `libraries/libskill/src/agent.js`
 
 **Remove:**
+
 - `import { compareByStageOrder }` (line 29)
 - `deriveStageTransitions()` (lines 202-224) — stage transitions no longer exist
 - Re-exports of `deriveStageAgent`, `generateStageAgentProfile`,
-  `buildAgentIndex`, `interpolateTeamInstructions` from `agent-stage.js`
-  (lines 232-237)
+  `buildAgentIndex`, `interpolateTeamInstructions` from `agent-stage.js` (lines
+  232-237)
 - `generateSkillMarkdown` current implementation (lines 137-193)
 
 **Add new function: `generateAgentProfile()`**
@@ -57,11 +58,14 @@ Returns `{ frontmatter, bodyData, filename }` where:
   `stageTransitions`, `returnFormat`
 
 The `skillIndex` filter changes from:
+
 ```js
 // Before: only skills with agent.stages[stage.id]
 if (!skill.agent.stages?.[stage.id]) return null;
 ```
+
 To:
+
 ```js
 // After: all skills with an agent section
 if (!skill.agent) return null;
@@ -76,6 +80,7 @@ export function buildAgentIndex({ disciplines, tracks, agentDisciplines, agentTr
 ```
 
 Returns `[{id, name, description}]` where:
+
 - `id`: `{kebab(roleTitle)}--{track}` or `{kebab(roleTitle)}`
 - `name`: `"{specialization} - {track.name}"` or `"{specialization}"`
 - `description`: `"{specialization} ({track.name})."`
@@ -133,6 +138,7 @@ pathway changes (Part 03), delete the entire file.
 **File:** `libraries/libskill/src/job.js`
 
 **Remove:**
+
 - `import { getStageOrder } from "@forwardimpact/map/levels"` (line 21)
 - `import { deriveChecklist } from "./checklist.js"` (line 19)
 - `deriveAllChecklists()` function (lines 61-73)
@@ -147,6 +153,7 @@ function no longer accepts or passes `stages`.
 **File:** `libraries/libskill/src/policies/orderings.js`
 
 **Remove:**
+
 - `import { getStageOrder } from "@forwardimpact/map/levels"` (line 15)
 - `export { getStageOrder }` re-export (line 19)
 - `compareByStageOrder()` function (lines 44-51)
@@ -155,6 +162,7 @@ function no longer accepts or passes `stages`.
 **File:** `libraries/libskill/src/policies/index.js`
 
 **Remove:**
+
 - `getStageOrder` export (line 122)
 - `compareByStageOrder` export (line 123)
 - The comment "Data-driven stage ordering" (line 121)
@@ -164,16 +172,18 @@ function no longer accepts or passes `stages`.
 **File:** `libraries/libskill/src/agent-validation.js`
 
 In `estimateBodyDataLength()`:
+
 - Remove `stageConstraints` length estimation (lines 36-39)
 - Keep `disciplineConstraints` and `trackConstraints`
-- Remove `stageDescription` from `stringFields` (line 18 — currently listed as
-  a string)
+- Remove `stageDescription` from `stringFields` (line 18 — currently listed as a
+  string)
 
 ### 7. Update root exports
 
 **File:** `libraries/libskill/src/index.js`
 
 **Remove:**
+
 - `deriveStageTransitions` from agent.js exports (line 98)
 - `deriveStageAgent`, `generateStageAgentProfile`, `buildAgentIndex`,
   `interpolateTeamInstructions` from agent-stage.js exports (lines 106-111)
@@ -181,11 +191,13 @@ In `estimateBodyDataLength()`:
   deleted, remove both exports
 
 **Add:**
+
 - `generateAgentProfile` to agent.js exports
 - `buildAgentIndex` to agent.js exports (moved from agent-stage.js)
 - `interpolateTeamInstructions` to agent.js exports (moved from agent-stage.js)
 
 **Keep:**
+
 - `generateSkillMarkdown` (updated signature)
 - `formatChecklistMarkdown` if kept
 - `validateAgentProfile`, `validateAgentSkill`
@@ -197,6 +209,7 @@ In `estimateBodyDataLength()`:
 Remove `compareByStageOrder` tests.
 
 Add/update tests for:
+
 - `generateAgentProfile` — verify it produces a single profile per
   discipline/track with correct naming pattern
 - `generateSkillMarkdown` — verify it reads flat agent fields, not stages
@@ -210,8 +223,8 @@ cd libraries/libskill && bun test
 
 ## Blast radius
 
-| Action | Files |
-|--------|-------|
-| Delete | `src/agent-stage.js` |
-| Modify | `src/agent.js`, `src/checklist.js`, `src/job.js`, `src/agent-validation.js`, `src/policies/orderings.js`, `src/policies/index.js`, `src/index.js` |
-| Modify (tests) | `test/policies-orderings-advanced.test.js` |
+| Action         | Files                                                                                                                                             |
+| -------------- | ------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Delete         | `src/agent-stage.js`                                                                                                                              |
+| Modify         | `src/agent.js`, `src/checklist.js`, `src/job.js`, `src/agent-validation.js`, `src/policies/orderings.js`, `src/policies/index.js`, `src/index.js` |
+| Modify (tests) | `test/policies-orderings-advanced.test.js`                                                                                                        |

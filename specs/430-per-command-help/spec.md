@@ -1,8 +1,6 @@
 # 430 — Per-command help in libcli
 
-**Author:** D. Olsson
-**Created:** 2026-04-13
-**Closes:** #335
+**Author:** D. Olsson **Created:** 2026-04-13 **Closes:** #335
 
 ## Problem
 
@@ -12,15 +10,16 @@ does not show help for the `coverage` command — it dispatches to the command
 handler, which fails on missing required arguments.
 
 This is a known limitation from the original spec (360). Options are defined
-globally and documented apart from the commands that use them. For CLIs with many
-commands and options — Summit has 8 commands and 20+ options — the global help
-becomes a wall of flags where users must mentally map which options apply to
-which commands. The `what-if` command alone uses `--add`, `--remove`, `--move`,
-`--to`, `--promote`, `--focus`, and `--allocation`, none of which apply to any
-other command.
+globally and documented apart from the commands that use them. For CLIs with
+many commands and options — Summit has 8 commands and 20+ options — the global
+help becomes a wall of flags where users must mentally map which options apply
+to which commands. The `what-if` command alone uses `--add`, `--remove`,
+`--move`, `--to`, `--promote`, `--focus`, and `--allocation`, none of which
+apply to any other command.
 
-User testing (issue #335) confirmed this is a real discoverability problem. Users
-expect `fit-summit coverage --help` to work the way `git commit --help` does.
+User testing (issue #335) confirmed this is a real discoverability problem.
+Users expect `fit-summit coverage --help` to work the way `git commit --help`
+does.
 
 ### Why a clean break
 
@@ -95,20 +94,20 @@ Use fit-summit <command> --help for command-specific options.
    provided, or `Usage: {name} [options]` when no commands exist).
 4. **Blank line.**
 5. **Commands section** (only if commands exist). Section header `Commands:` on
-   its own line. Then one line per command: two-space indent, command name + args
-   left-padded to column width, two-space gap, description. No per-command
+   its own line. Then one line per command: two-space indent, command name +
+   args left-padded to column width, two-space gap, description. No per-command
    options appear here.
 6. **Blank line.**
-7. **Options section** (only if `globalOptions` exist). Section header `Options:`
-   on its own line. Then one line per option: two-space indent, flag string
-   left-padded, two-space gap, description.
+7. **Options section** (only if `globalOptions` exist). Section header
+   `Options:` on its own line. Then one line per option: two-space indent, flag
+   string left-padded, two-space gap, description.
 8. **Blank line.**
 9. **Examples section** (only if top-level `examples` exist). Section header
    `Examples:` on its own line. One line per example, two-space indent.
 10. **Blank line.**
-11. **Hint line** (only if commands exist). `Use {name} <command> --help for
-    command-specific options.` This is the only line that tells the user
-    per-command help exists.
+11. **Hint line** (only if commands exist).
+    `Use {name} <command> --help for command-specific options.` This is the only
+    line that tells the user per-command help exists.
 
 **What global help does NOT show:**
 
@@ -179,8 +178,8 @@ Examples:
 6. **Blank line.**
 7. **Global options section** (only if `globalOptions` exist). Section header
    `Global options:` on its own line. One line per global option, same format.
-   `--version` is omitted from per-command global options (it only applies at the
-   root level).
+   `--version` is omitted from per-command global options (it only applies at
+   the root level).
 8. **Blank line.**
 9. **Examples section** (only if the command has `examples`). Section header
    `Examples:` on its own line. One line per example, two-space indent.
@@ -190,8 +189,8 @@ Examples:
 An agent grepping for an option name gets the same one-line result regardless of
 which section it falls in. But the section headers let agents (and humans)
 distinguish "this option is specific to this command" from "this option works on
-any command." Merging them into one list loses that signal. Keeping them separate
-costs one extra line (the `Global options:` header) and adds clarity.
+any command." Merging them into one list loses that signal. Keeping them
+separate costs one extra line (the `Global options:` header) and adds clarity.
 
 **Why "Options" before "Global options":**
 
@@ -218,16 +217,17 @@ $ fit-summit what-if -h | grep move
   --move=<string>            Move a member between teams
 ```
 
-Every line is self-contained. An agent that runs `fit-summit what-if -h | grep
-add` gets the flag name, type hint, and description — enough to construct
+Every line is self-contained. An agent that runs
+`fit-summit what-if -h | grep add` gets the flag name, type hint, and
+description — enough to construct
 `fit-summit what-if platform --add 'Jane, senior, backend'` without reading
 anything else.
 
 #### Commands with no options
 
 If a command has no command-specific options, per-command help omits the
-`Options:` section entirely and shows only global options under `Global
-options:`. No empty `Options:` header appears.
+`Options:` section entirely and shows only global options under
+`Global options:`. No empty `Options:` header appears.
 
 ```
 fit-summit validate — Validate roster file
@@ -297,8 +297,8 @@ internal to the monorepo, so a clean break is viable.
 ## Success criteria
 
 1. **Per-command help works.** `fit-summit coverage --help` renders help showing
-   `coverage`-specific options under `Options:` and shared options under `Global
-   options:`, with no `what-if`-specific flags visible.
+   `coverage`-specific options under `Options:` and shared options under
+   `Global options:`, with no `what-if`-specific flags visible.
 2. **Global help is unchanged in spirit.** `fit-summit --help` renders global
    help listing all commands (one per line) and only global options under
    `Options:`. Ends with a hint line pointing to per-command help.

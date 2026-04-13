@@ -16,6 +16,7 @@ In the **Domain Concepts** section, remove:
 - `- **Drivers** — `drivers.yaml`` stays (unrelated)
 
 Remove the stage-related lines from the entity file listing:
+
 ```
 Before:
 - **Stages** — `stages.yaml`
@@ -33,8 +34,8 @@ The current text says:
 This remains true. Update or add a note that skill agent sections use flat
 `agent.focus`, `agent.readChecklist`, and `agent.confirmChecklist` fields.
 
-Remove "Stages define lifecycle phases with constraints and checklists" from
-the bullet list of entity descriptions.
+Remove "Stages define lifecycle phases with constraints and checklists" from the
+bullet list of entity descriptions.
 
 ### 2. Verify no stale stage references
 
@@ -49,6 +50,7 @@ framework entity.
 ## Verification
 
 Read CLAUDE.md and confirm:
+
 - No `stages.yaml` reference
 - No `agent.stages` reference
 - No stage lifecycle description
@@ -56,6 +58,6 @@ Read CLAUDE.md and confirm:
 
 ## Blast radius
 
-| Action | Files |
-|--------|-------|
+| Action | Files       |
+| ------ | ----------- |
 | Modify | `CLAUDE.md` |

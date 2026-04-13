@@ -11,12 +11,14 @@ rendering, no starter data.
 ### 1. Delete stage schema files
 
 **Delete:**
+
 - `products/map/schema/json/stages.schema.json`
 - `products/map/schema/rdf/stages.ttl`
 
 ### 2. Delete stage starter data
 
 **Delete:**
+
 - `products/map/starter/stages.yaml`
 
 ### 2a. Remove `stageId` from shared schema definitions
@@ -32,6 +34,7 @@ shared definitions file is referenced by other schemas — verify no remaining
 **File:** `products/map/src/loader.js`
 
 In `loadAllData()` (line 330), remove the line that loads `stages.yaml`:
+
 ```
 Before: stages are loaded and included in the returned data object
 After:  no stages property in returned data
@@ -69,15 +72,15 @@ Delete `validateStage()` function (lines 217-283).
 - Delete `validateStageFields()` (lines 57-118).
 - Delete `validateSkillAgentStages()` (lines 120-183).
 - Add new validation for flat skill agent structure: `agent.focus` required
-  string, `agent.readChecklist` required non-empty array, `agent.confirmChecklist`
-  required non-empty array. Reject if `agent.stages` is present (error: "skill
-  agent uses deprecated stages nesting — flatten to agent.focus/readChecklist/
-  confirmChecklist").
+  string, `agent.readChecklist` required non-empty array,
+  `agent.confirmChecklist` required non-empty array. Reject if `agent.stages` is
+  present (error: "skill agent uses deprecated stages nesting — flatten to
+  agent.focus/readChecklist/ confirmChecklist").
 
 **File:** `products/map/src/schema-validation.js`
 
-Remove `stages.yaml` → `stages.schema.json` entry from `SCHEMA_MAPPINGS`
-(line 22).
+Remove `stages.yaml` → `stages.schema.json` entry from `SCHEMA_MAPPINGS` (line
+22).
 
 ### 5. Remove stage ordering utility
 
@@ -97,6 +100,7 @@ block (lines 57-75).
 ### 7. Remove stage view builder
 
 **Delete:**
+
 - `products/map/src/view-builders/stage.js`
 
 Remove its export from `products/map/src/view-builders/index.js` (line 11:
@@ -115,6 +119,7 @@ In `#buildTasks()` (lines 74-80), remove the stage rendering loop.
 ### 9. Delete stage template
 
 **Delete:**
+
 - `products/map/templates/stage.html`
 
 ### 10. Remove stage from init command
@@ -130,6 +135,7 @@ Remove stage references in data structure documentation (line 73).
 For each skill that has `agent.stages`:
 
 **Before:**
+
 ```yaml
 agent:
   name: data-integration
@@ -151,6 +157,7 @@ agent:
 ```
 
 **After:**
+
 ```yaml
 agent:
   name: data-integration
@@ -174,6 +181,7 @@ agent:
 The consolidated `focus` captures the overall skill focus (not stage-specific).
 The `readChecklist` and `confirmChecklist` merge the most important items from
 all stage-specific checklists, following CHECKLISTS.md guidelines:
+
 - `readChecklist`: READ-DO semantics (5-9 items)
 - `confirmChecklist`: DO-CONFIRM semantics (5-9 items)
 - Precise, actionable phrasing
@@ -191,22 +199,28 @@ instead temporarily stub the data files to unblock validation tests.
 ### 12. Delete generated stages.yaml
 
 **Delete:**
+
 - `data/pathway/stages.yaml`
 
 ### 13. Update tests
 
 **Files:**
-- `products/map/test/levels.test.js` — remove `getStageOrder` tests (lines 71-90)
-- `products/map/test/view-builders/others.test.js` — remove `buildStageView` test
+
+- `products/map/test/levels.test.js` — remove `getStageOrder` tests (lines
+  71-90)
+- `products/map/test/view-builders/others.test.js` — remove `buildStageView`
+  test
 - `products/map/test/exporter.test.js` — remove stage export tests
 - `products/map/test/data-loader.test.js` — remove stage loading expectations
 - `products/map/test/renderer.test.js` — remove stage rendering tests
-- `products/map/test/pipeline.test.js` — update pipeline test to not expect stages
-- `products/map/test/iri.test.js` — remove `stageIri` test, update `agentProfileIri` test
+- `products/map/test/pipeline.test.js` — update pipeline test to not expect
+  stages
+- `products/map/test/iri.test.js` — remove `stageIri` test, update
+  `agentProfileIri` test
 
 Add tests for the new flat agent validation in `products/map/test/` — verify
-that `agent.stages` is rejected and `agent.{focus, readChecklist,
-confirmChecklist}` is accepted.
+that `agent.stages` is rejected and
+`agent.{focus, readChecklist, confirmChecklist}` is accepted.
 
 ## Verification
 
@@ -217,8 +231,8 @@ bunx fit-map validate   # passes with no stage schemas or data
 
 ## Blast radius
 
-| Action | Files |
-|--------|-------|
-| Delete | `schema/json/stages.schema.json`, `schema/rdf/stages.ttl`, `starter/stages.yaml`, `templates/stage.html`, `src/view-builders/stage.js`, `data/pathway/stages.yaml` |
-| Modify | `schema/json/defs.schema.json`, `src/loader.js`, `src/validation.js`, `src/validation/level.js`, `src/validation/agent.js`, `src/validation/skill.js`, `src/schema-validation.js`, `src/levels.js`, `src/iri.js`, `src/renderer.js`, `src/exporter.js`, `src/commands/init.js`, all `data/pathway/capabilities/*.yaml` |
-| Modify (tests) | `test/levels.test.js`, `test/view-builders/others.test.js`, `test/exporter.test.js`, `test/data-loader.test.js`, `test/renderer.test.js`, `test/pipeline.test.js`, `test/iri.test.js` |
+| Action         | Files                                                                                                                                                                                                                                                                                                                  |
+| -------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Delete         | `schema/json/stages.schema.json`, `schema/rdf/stages.ttl`, `starter/stages.yaml`, `templates/stage.html`, `src/view-builders/stage.js`, `data/pathway/stages.yaml`                                                                                                                                                     |
+| Modify         | `schema/json/defs.schema.json`, `src/loader.js`, `src/validation.js`, `src/validation/level.js`, `src/validation/agent.js`, `src/validation/skill.js`, `src/schema-validation.js`, `src/levels.js`, `src/iri.js`, `src/renderer.js`, `src/exporter.js`, `src/commands/init.js`, all `data/pathway/capabilities/*.yaml` |
+| Modify (tests) | `test/levels.test.js`, `test/view-builders/others.test.js`, `test/exporter.test.js`, `test/data-loader.test.js`, `test/renderer.test.js`, `test/pipeline.test.js`, `test/iri.test.js`                                                                                                                                  |

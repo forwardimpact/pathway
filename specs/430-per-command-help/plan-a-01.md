@@ -129,9 +129,10 @@ if (definition.commands && definition.globalOptions) {
 
 ### 1e. Update `showHelp()`
 
-Currently calls `this.#helpRenderer.render(this.#definition, this.#proc.stdout)`.
-No change needed — `showHelp()` always renders global help (called when no
-command is given).
+Currently calls
+`this.#helpRenderer.render(this.#definition, this.#proc.stdout)`. No change
+needed — `showHelp()` always renders global help (called when no command is
+given).
 
 ### 1f. `createCli()` factory — no change needed
 
@@ -332,6 +333,7 @@ The `multiDef` (line 102) similarly changes `options` → `globalOptions`.
 Add new tests:
 
 1. **Legacy rejection:**
+
    ```javascript
    test("throws on definition with legacy options field", () => {
      const proc = createProc();
@@ -346,6 +348,7 @@ Add new tests:
    ```
 
 2. **Per-command help dispatch:**
+
    ```javascript
    test("renders per-command help when command --help is passed", () => {
      const proc = createProc();
@@ -377,6 +380,7 @@ Add new tests:
    ```
 
 3. **Per-command JSON help:**
+
    ```javascript
    test("renders per-command JSON when command --help --json is passed", () => {
      // Similar setup, verify JSON contains command-scoped fields
@@ -384,6 +388,7 @@ Add new tests:
    ```
 
 4. **Command-specific option rejected on wrong command:**
+
    ```javascript
    test("throws on command-specific option used with wrong command", () => {
      const proc = createProc();
@@ -407,6 +412,7 @@ Add new tests:
    ```
 
 5. **Multi-word command matching:**
+
    ```javascript
    test("matches multi-word commands for per-command help", () => {
      const proc = createProc();
@@ -450,6 +456,7 @@ Add new tests:
 Migrate `fullDefinition` from `options` → `globalOptions`. Add tests:
 
 1. **Global help includes hint line:**
+
    ```javascript
    test("includes hint line when commands exist", () => {
      const stream = createStream();
@@ -459,6 +466,7 @@ Migrate `fullDefinition` from `options` → `globalOptions`. Add tests:
    ```
 
 2. **Per-command help rendering:**
+
    ```javascript
    test("renders per-command help with command and global options", () => {
      const stream = createStream();
@@ -493,6 +501,7 @@ Migrate `fullDefinition` from `options` → `globalOptions`. Add tests:
    ```
 
 3. **Per-command help omits Options section when command has no options:**
+
    ```javascript
    test("omits Options section when command has no options", () => {
      // Command with no options → only "Global options:" appears
@@ -500,6 +509,7 @@ Migrate `fullDefinition` from `options` → `globalOptions`. Add tests:
    ```
 
 4. **Per-command JSON:**
+
    ```javascript
    test("per-command JSON includes command metadata and scoped options", () => {
      // Verify JSON has parent, name, options, globalOptions fields
@@ -516,13 +526,13 @@ Migrate `fullDefinition` from `options` → `globalOptions`. Add tests:
 
 ## File change summary
 
-| File | Action |
-|------|--------|
-| `libraries/libcli/src/cli.js` | Modified — constructor guard, `parse()` rewrite, `#findCommand()` |
-| `libraries/libcli/src/help.js` | Modified — `render()`/`renderJson()` signature, `#renderCommand()`, `#renderOptionSection()`, `#renderHintLine()`, `#renderExamplesArray()` |
-| `libraries/libcli/src/index.js` | No change |
-| `libraries/libcli/test/cli.test.js` | Modified — migrate definitions, add 6 new tests |
-| `libraries/libcli/test/help.test.js` | Modified — migrate definitions, add 5 new tests |
+| File                                 | Action                                                                                                                                      |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------- |
+| `libraries/libcli/src/cli.js`        | Modified — constructor guard, `parse()` rewrite, `#findCommand()`                                                                           |
+| `libraries/libcli/src/help.js`       | Modified — `render()`/`renderJson()` signature, `#renderCommand()`, `#renderOptionSection()`, `#renderHintLine()`, `#renderExamplesArray()` |
+| `libraries/libcli/src/index.js`      | No change                                                                                                                                   |
+| `libraries/libcli/test/cli.test.js`  | Modified — migrate definitions, add 6 new tests                                                                                             |
+| `libraries/libcli/test/help.test.js` | Modified — migrate definitions, add 5 new tests                                                                                             |
 
 ## Verification
 

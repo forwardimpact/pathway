@@ -3,10 +3,10 @@
 ## Scope
 
 Remove all stage-related UI, CLI, and generation code from the pathway product
-and the pathway gRPC service. After this part, `fit-pathway stage` is an
-unknown command, `--stage` and `--all-stages` flags are gone, the web UI has no
-stage selector, build-packs generate one agent per discipline/track, and the
-gRPC service returns stage-free profiles.
+and the pathway gRPC service. After this part, `fit-pathway stage` is an unknown
+command, `--stage` and `--all-stages` flags are gone, the web UI has no stage
+selector, build-packs generate one agent per discipline/track, and the gRPC
+service returns stage-free profiles.
 
 ## Changes
 
@@ -25,6 +25,7 @@ gRPC service returns stage-free profiles.
 ### 2. Remove stage page and formatters
 
 **Delete:**
+
 - `products/pathway/src/pages/stage.js`
 - `products/pathway/src/formatters/stage/index.js`
 - `products/pathway/src/formatters/stage/shared.js`
@@ -41,6 +42,7 @@ Delete `stageToJsonLd()` (lines 225-242).
 **File:** `products/pathway/src/commands/agent.js`
 
 **Remove:**
+
 - `import { generateStageAgentProfile }` — replace with
   `import { generateAgentProfile }` from `@forwardimpact/libskill/agent`
 - `handleSingleStage()` function (lines 142-192)
@@ -81,9 +83,11 @@ Same flow as current `handleAllStages` minus the `data.stages.map()` loop.
 **File:** `products/pathway/src/commands/agent-list.js`
 
 In `showAgentSummary()`:
+
 - Remove the "Stages" stat item (lines 68-71)
 
 In `listAgentCombinationsVerbose()`:
+
 - Remove the "Available stages" section (lines 142-147)
 
 ### 4a. Update job command — remove stage checklist handling
@@ -102,7 +106,8 @@ In `listAgentCombinationsVerbose()`:
 **File:** `products/pathway/src/lib/yaml-loader.js`
 
 - Remove `loadYamlFile(\`\${dataDir}/stages.yaml\`)` (line 259)
-- Remove `stages` from the destructuring and returned data object (lines 252, 279)
+- Remove `stages` from the destructuring and returned data object (lines
+  252, 279)
 
 Without this change, the loader throws a file-not-found error after
 `data/pathway/stages.yaml` is deleted in Part 01.
@@ -122,6 +127,7 @@ Without this change, the loader throws a file-not-found error after
 **File:** `products/pathway/src/formatters/agent/profile.js`
 
 In `prepareAgentProfileData()`:
+
 - Remove `stageConstraints` processing (line 46-48)
 - Remove `stageDescription`, `stageId`, `stageName` fields (lines 90-92)
 - Remove `hasStageConstraints` (line 103)
@@ -134,6 +140,7 @@ In `prepareAgentProfileData()`:
 **File:** `products/pathway/templates/agent.template.md`
 
 Remove all stage-specific template sections:
+
 - `{{{stageDescription}}}` line (line 17)
 - `{{#hasStageTransitions}}` block (lines 53-71) — stage transitions, entry
   criteria, handoffs
@@ -154,6 +161,7 @@ skill index, discipline/track constraints, team instructions.
 Replace the stages block (lines 48-69):
 
 **Before:**
+
 ```mustache
 {{#hasStages}}
 
@@ -176,6 +184,7 @@ Replace the stages block (lines 48-69):
 ```
 
 **After:**
+
 ```mustache
 {{#hasFocus}}
 
@@ -250,8 +259,8 @@ Update `updatePreview()` to generate a single profile directly via
 
 - Remove `/stage` route mapping (line 26)
 - Remove `/stage/:id` route mapping (lines 55-56)
-- Update `/agent/discipline/track/stage` to `/agent/discipline/track`
-  (lines 119-121), remove `--stage` from generated command
+- Update `/agent/discipline/track/stage` to `/agent/discipline/track` (lines
+  119-121), remove `--stage` from generated command
 
 ### 11. Update application state
 
@@ -266,6 +275,7 @@ Remove `stages: []` from store data shape (line 20).
 In `derivePackContent()` (lines 171-217):
 
 **Before:**
+
 ```js
 const profiles = data.stages.map((stage) =>
   generateStageAgentProfile({ ...stageParams, stage }),
@@ -273,6 +283,7 @@ const profiles = data.stages.map((stage) =>
 ```
 
 **After:**
+
 ```js
 const profile = generateAgentProfile({
   discipline: humanDiscipline,
@@ -287,11 +298,11 @@ const profile = generateAgentProfile({
 const profiles = [profile];
 ```
 
-Remove `stages: data.stages` from `stageParams` (line 190).
-Remove `stages` parameter from `generateSkillMarkdown` call (line 208).
+Remove `stages: data.stages` from `stageParams` (line 190). Remove `stages`
+parameter from `generateSkillMarkdown` call (line 208).
 
-The rest of the pack pipeline (writePackFiles, archivePack) works unchanged —
-it already accepts an array of profiles.
+The rest of the pack pipeline (writePackFiles, archivePack) works unchanged — it
+already accepts an array of profiles.
 
 ### 13. Update pathway gRPC service
 
@@ -305,9 +316,8 @@ it already accepts an array of profiles.
   (line 178). The method already builds unique (discipline, track) pairs — it
   simply drops the stage dimension.
 - In `DescribeAgentProfile()` (lines 189-229): remove the `stageParams` object,
-  the `if (req.stage)` branch (lines 211-221), and the
-  `data.stages.map()` loop (lines 223-226). Replace with a single call to
-  `generateAgentProfile()`:
+  the `if (req.stage)` branch (lines 211-221), and the `data.stages.map()` loop
+  (lines 223-226). Replace with a single call to `generateAgentProfile()`:
 
   ```js
   const profile = generateAgentProfile({
@@ -345,6 +355,7 @@ it already accepts an array of profiles.
 ### 13a. Update pathway service tests
 
 **Files:**
+
 - `services/pathway/test/service.test.js` — remove stage parameters from
   `DescribeAgentProfile` tests, update `ListAgentProfiles` expectations
 - `services/pathway/test/serialize.test.js` — remove stage serialization tests,
@@ -357,6 +368,7 @@ it already accepts an array of profiles.
 Remove stage-related route mapping tests.
 
 Add tests verifying:
+
 - `fit-pathway stage` is not a recognized command
 - Agent command produces single profile without `--stage` flag
 - Build-packs produces one agent per discipline/track combination
@@ -385,10 +397,10 @@ bunx fit-pathway build-packs --output=/tmp/test-packs          # one agent per c
 
 ## Blast radius
 
-| Action | Files |
-|--------|-------|
-| Delete | `src/commands/stage.js`, `src/pages/stage.js`, `src/formatters/stage/` (directory), `src/css/pages/lifecycle.css` |
+| Action                   | Files                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                                |
+| ------------------------ | -------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Delete                   | `src/commands/stage.js`, `src/pages/stage.js`, `src/formatters/stage/` (directory), `src/css/pages/lifecycle.css`                                                                                                                                                                                                                                                                                                                                                                                                    |
 | Modify (pathway product) | `bin/fit-pathway.js`, `src/commands/agent.js`, `src/commands/agent-list.js`, `src/commands/build-packs.js`, `src/commands/job.js`, `src/formatters/agent/profile.js`, `src/formatters/agent/dom.js`, `src/formatters/json-ld.js`, `src/pages/agent-builder.js`, `src/pages/agent-builder-preview.js`, `src/pages/landing.js`, `src/main.js`, `src/lib/cli-command.js`, `src/lib/yaml-loader.js`, `src/lib/state.js`, `src/css/pages/agent-builder.css`, `templates/agent.template.md`, `templates/skill.template.md` |
-| Modify (pathway service) | `services/pathway/index.js`, `services/pathway/src/serialize.js`, `services/pathway/proto/pathway.proto` |
-| Modify (tests) | `products/pathway/test/cli-command.test.js`, `services/pathway/test/service.test.js`, `services/pathway/test/serialize.test.js` |
-| Regenerate | `just codegen` (after proto change) |
+| Modify (pathway service) | `services/pathway/index.js`, `services/pathway/src/serialize.js`, `services/pathway/proto/pathway.proto`                                                                                                                                                                                                                                                                                                                                                                                                             |
+| Modify (tests)           | `products/pathway/test/cli-command.test.js`, `services/pathway/test/service.test.js`, `services/pathway/test/serialize.test.js`                                                                                                                                                                                                                                                                                                                                                                                      |
+| Regenerate               | `just codegen` (after proto change)                                                                                                                                                                                                                                                                                                                                                                                                                                                                                  |

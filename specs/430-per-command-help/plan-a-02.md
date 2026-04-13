@@ -14,39 +14,39 @@ Each consumer falls into one of three categories:
 These CLIs have no `commands` array. The only change is renaming the top-level
 `options` key to `globalOptions`.
 
-| # | File | CLI name |
-|---|------|----------|
-| 1 | `libraries/libagent/bin/fit-process-agents.js` | fit-process-agents |
-| 2 | `libraries/libcodegen/bin/fit-codegen.js` | fit-codegen |
-| 3 | `libraries/libgraph/bin/fit-process-graphs.js` | fit-process-graphs |
-| 4 | `libraries/libgraph/bin/fit-query.js` | fit-query |
-| 5 | `libraries/libgraph/bin/fit-subjects.js` | fit-subjects |
-| 6 | `libraries/libllm/bin/fit-completion.js` | fit-completion |
-| 7 | `libraries/libmemory/bin/fit-window.js` | fit-window |
-| 8 | `libraries/libresource/bin/fit-process-resources.js` | fit-process-resources |
-| 9 | `libraries/librpc/bin/fit-unary.js` | fit-unary |
-| 10 | `libraries/libsupervise/bin/fit-svscan.js` | fit-svscan |
-| 11 | `libraries/libsupervise/bin/fit-logger.js` | fit-logger |
-| 12 | `libraries/libtool/bin/fit-process-tools.js` | fit-process-tools |
-| 13 | `libraries/libuniverse/bin/fit-universe.js` | fit-universe |
-| 14 | `libraries/libutil/bin/fit-download-bundle.js` | fit-download-bundle |
-| 15 | `libraries/libutil/bin/fit-tiktoken.js` | fit-tiktoken |
-| 16 | `libraries/libvector/bin/fit-process-vectors.js` | fit-process-vectors |
-| 17 | `libraries/libvector/bin/fit-search.js` | fit-search |
-| 18 | `libraries/libtelemetry/bin/fit-visualize.js` | fit-visualize |
+| #   | File                                                 | CLI name              |
+| --- | ---------------------------------------------------- | --------------------- |
+| 1   | `libraries/libagent/bin/fit-process-agents.js`       | fit-process-agents    |
+| 2   | `libraries/libcodegen/bin/fit-codegen.js`            | fit-codegen           |
+| 3   | `libraries/libgraph/bin/fit-process-graphs.js`       | fit-process-graphs    |
+| 4   | `libraries/libgraph/bin/fit-query.js`                | fit-query             |
+| 5   | `libraries/libgraph/bin/fit-subjects.js`             | fit-subjects          |
+| 6   | `libraries/libllm/bin/fit-completion.js`             | fit-completion        |
+| 7   | `libraries/libmemory/bin/fit-window.js`              | fit-window            |
+| 8   | `libraries/libresource/bin/fit-process-resources.js` | fit-process-resources |
+| 9   | `libraries/librpc/bin/fit-unary.js`                  | fit-unary             |
+| 10  | `libraries/libsupervise/bin/fit-svscan.js`           | fit-svscan            |
+| 11  | `libraries/libsupervise/bin/fit-logger.js`           | fit-logger            |
+| 12  | `libraries/libtool/bin/fit-process-tools.js`         | fit-process-tools     |
+| 13  | `libraries/libuniverse/bin/fit-universe.js`          | fit-universe          |
+| 14  | `libraries/libutil/bin/fit-download-bundle.js`       | fit-download-bundle   |
+| 15  | `libraries/libutil/bin/fit-tiktoken.js`              | fit-tiktoken          |
+| 16  | `libraries/libvector/bin/fit-process-vectors.js`     | fit-process-vectors   |
+| 17  | `libraries/libvector/bin/fit-search.js`              | fit-search            |
+| 18  | `libraries/libtelemetry/bin/fit-visualize.js`        | fit-visualize         |
 
 **Change per file:** `options: {` → `globalOptions: {`
 
 ### Category B — Has commands, all options stay global → rename only
 
-These CLIs have commands but none of their options are command-specific. The only
-change is renaming `options` → `globalOptions`.
+These CLIs have commands but none of their options are command-specific. The
+only change is renaming `options` → `globalOptions`.
 
-| # | File | CLI name |
-|---|------|----------|
-| 19 | `products/basecamp/src/basecamp.js` | fit-basecamp |
-| 20 | `products/guide/bin/fit-guide.js` | fit-guide |
-| 21 | `libraries/librc/bin/fit-rc.js` | fit-rc |
+| #   | File                                | CLI name     |
+| --- | ----------------------------------- | ------------ |
+| 19  | `products/basecamp/src/basecamp.js` | fit-basecamp |
+| 20  | `products/guide/bin/fit-guide.js`   | fit-guide    |
+| 21  | `libraries/librc/bin/fit-rc.js`     | fit-rc       |
 
 ### Category C — Has commands with options to scope
 
@@ -54,39 +54,46 @@ These CLIs have options that should be scoped to specific commands. Requires
 moving options from the top-level `options` into command entries and adding
 per-command `examples` where useful.
 
-| # | File | CLI name | Notes |
-|---|------|----------|-------|
-| 22 | `products/summit/bin/fit-summit.js` | fit-summit | Primary motivating case |
-| 23 | `products/pathway/bin/fit-pathway.js` | fit-pathway | Most options to scope |
-| 24 | `products/landmark/bin/fit-landmark.js` | fit-landmark | Multi-word commands |
-| 25 | `products/map/bin/fit-map.js` | fit-map | Some command-specific options |
-| 26 | `libraries/libeval/bin/fit-eval.js` | fit-eval | Supervisor-specific options |
-| 27 | `libraries/libdoc/bin/fit-doc.js` | fit-doc | serve-specific options |
-| 28 | `libraries/libstorage/bin/fit-storage.js` | fit-storage | wait-specific options |
+| #   | File                                      | CLI name     | Notes                         |
+| --- | ----------------------------------------- | ------------ | ----------------------------- |
+| 22  | `products/summit/bin/fit-summit.js`       | fit-summit   | Primary motivating case       |
+| 23  | `products/pathway/bin/fit-pathway.js`     | fit-pathway  | Most options to scope         |
+| 24  | `products/landmark/bin/fit-landmark.js`   | fit-landmark | Multi-word commands           |
+| 25  | `products/map/bin/fit-map.js`             | fit-map      | Some command-specific options |
+| 26  | `libraries/libeval/bin/fit-eval.js`       | fit-eval     | Supervisor-specific options   |
+| 27  | `libraries/libdoc/bin/fit-doc.js`         | fit-doc      | serve-specific options        |
+| 28  | `libraries/libstorage/bin/fit-storage.js` | fit-storage  | wait-specific options         |
 
 ## Detailed migration: Category C consumers
 
 ### 22. fit-summit (`products/summit/bin/fit-summit.js`)
 
 **Global options** (apply to all commands):
+
 - `roster`, `data`, `format`, `help`, `version`
 
 **Move to `what-if` command:**
+
 - `add`, `remove`, `move`, `to`, `promote`, `focus`, `allocation`
 
 **Move to `coverage` command:**
+
 - `evidenced`, `lookback-months`
 
 **Move to `risks` command:**
+
 - `evidenced`, `lookback-months`
 
 **Move to `growth` command:**
+
 - `evidenced`, `lookback-months`, `outcomes`
 
 **Move to `trajectory` command:**
+
 - `quarters`
 
 **Move to `compare` command:**
+
 - `left-project`, `right-project`
 
 **Shared across some commands:** `evidenced`, `lookback-months`, `project`,
@@ -97,9 +104,9 @@ but not all. Two approaches:
 2. **Keep global** — simpler, slightly looser validation.
 
 **Decision:** Duplicate into each command. The spec's goal is that global help
-does not show `--add` (which only applies to what-if). Options like `--evidenced`
-that apply to 3 of 8 commands are similarly confusing in global help. The small
-duplication cost is worth the clarity.
+does not show `--add` (which only applies to what-if). Options like
+`--evidenced` that apply to 3 of 8 commands are similarly confusing in global
+help. The small duplication cost is worth the clarity.
 
 `project` → move to: `coverage`, `risks`, `growth`, `what-if`, `trajectory`
 `audience` → move to: `coverage`, `risks`, `growth`, `compare`, `what-if`
@@ -109,9 +116,11 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 ### 23. fit-pathway (`products/pathway/bin/fit-pathway.js`)
 
 **Global options** (apply across most commands):
+
 - `list`, `json`, `data`, `format`, `help`, `version`
 
 **Move to specific commands:**
+
 - `track`, `level` → `job`, `interview`, `progress`, `agent`, `questions`
 - `type` → `interview`
 - `compare` → `progress`
@@ -136,6 +145,7 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 **Global options:** `data`, `format`, `help`, `version`
 
 **Move to specific commands:**
+
 - `manager` → `org team`, `snapshot show`, `snapshot trend`, `snapshot compare`,
   `practice`, `health`, `initiative list`, `initiative impact`, `practiced`,
   `voice`
@@ -152,6 +162,7 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 **Global options:** `data`, `help`, `version`, `json`
 
 **Move to specific commands:**
+
 - `output` → `export`, `generate-index`
 - `url` → `getdx`
 - `base-url` → `generate-index`
@@ -162,8 +173,9 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 **Global options:** `format`, `help`, `version`, `json`
 
 **Move to specific commands:**
-- `task-file`, `task-text`, `task-amend`, `model`, `max-turns`, `output`,
-  `cwd`, `agent-profile`, `allowed-tools` → `run`
+
+- `task-file`, `task-text`, `task-amend`, `model`, `max-turns`, `output`, `cwd`,
+  `agent-profile`, `allowed-tools` → `run`
 - `supervisor-cwd`, `supervisor-profile`, `supervisor-allowed-tools`,
   `agent-cwd` → `supervise` (plus the `run` options that also apply)
 
@@ -172,6 +184,7 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 **Global options:** `src`, `out`, `help`, `version`, `json`
 
 **Move to specific commands:**
+
 - `port`, `watch` → `serve`
 - `base-url` → `build`
 
@@ -180,8 +193,9 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 **Global options:** `help`, `version`, `json`
 
 **Move to specific commands:**
-- `prefix` → `upload`, `download`, `list` (not used by `create-bucket` or
-  `wait` — same duplication principle as summit's `--evidenced`)
+
+- `prefix` → `upload`, `download`, `list` (not used by `create-bucket` or `wait`
+  — same duplication principle as summit's `--evidenced`)
 - `timeout` → `wait`
 
 ## Migration of test files
@@ -199,11 +213,13 @@ instances.)
 ## Ordering and verification
 
 1. **Category A (18 files):** Mechanical rename. After migrating all 18, run:
+
    ```sh
    just check
    ```
 
 2. **Category B (3 files):** Mechanical rename. Run:
+
    ```sh
    just check
    ```
@@ -219,13 +235,14 @@ instances.)
    - Run the product/library tests
 
 4. **Final verification:**
+
    ```sh
    just check
    ```
 
 5. **Wrapping verification (success criterion 7):** After all consumers are
-   migrated, run each Category C CLI with `--help` and each of its commands
-   with `<command> --help`. Confirm no output line exceeds 80 columns. If any
+   migrated, run each Category C CLI with `--help` and each of its commands with
+   `<command> --help`. Confirm no output line exceeds 80 columns. If any
    description is too long, shorten it — the description is the only variable
    the consumer controls.
 
@@ -240,13 +257,13 @@ CLIs that intentionally don't support JSON help — the error is clear.
 
 ## File change summary
 
-| Files | Count | Action |
-|-------|-------|--------|
-| Category A bin files | 18 | `options:` → `globalOptions:` |
-| Category B bin files | 3 | `options:` → `globalOptions:` |
-| Category C bin files | 7 | Restructure: split options into commands |
-| Test files | 1+ | Update definitions |
-| **Total** | **28+** | |
+| Files                | Count   | Action                                   |
+| -------------------- | ------- | ---------------------------------------- |
+| Category A bin files | 18      | `options:` → `globalOptions:`            |
+| Category B bin files | 3       | `options:` → `globalOptions:`            |
+| Category C bin files | 7       | Restructure: split options into commands |
+| Test files           | 1+      | Update definitions                       |
+| **Total**            | **28+** |                                          |
 
 ## Risks
 

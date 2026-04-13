@@ -25,10 +25,9 @@ help/parsing content:
    shape: `globalOptions` at the top level, per-command `options` and `examples`
    inside command entries. Show a realistic example (fit-summit or similar).
 
-2. **Help rendering — global view.** Document the global help structure
-   (header, usage, commands, global options, examples, hint line). Show the
-   exact output format. Emphasize that per-command options do NOT appear in
-   global help.
+2. **Help rendering — global view.** Document the global help structure (header,
+   usage, commands, global options, examples, hint line). Show the exact output
+   format. Emphasize that per-command options do NOT appear in global help.
 
 3. **Help rendering — per-command view.** Document the per-command help
    structure (header with parent name, usage, command options, global options
@@ -43,8 +42,8 @@ help/parsing content:
    `globalOptions`).
 
 6. **Argument parsing.** Update to explain that `parse()` identifies the
-   command, merges `globalOptions` + command `options`, and passes the merged set
-   to `parseArgs()`. Explain that command-specific options throw on wrong
+   command, merges `globalOptions` + command `options`, and passes the merged
+   set to `parseArgs()`. Explain that command-specific options throw on wrong
    commands.
 
 7. **Legacy schema rejection.** Note that passing `options` (without
@@ -66,13 +65,14 @@ help/parsing content:
 ## Verification
 
 - All code examples must match the actual library behavior after Part 1.
-- Output examples should match what `bun run products/summit/bin/fit-summit.js
-  --help` and `bun run products/summit/bin/fit-summit.js coverage --help`
-  actually produce after Part 2.
+- Output examples should match what
+  `bun run products/summit/bin/fit-summit.js --help` and
+  `bun run products/summit/bin/fit-summit.js coverage --help` actually produce
+  after Part 2.
 - No line in any help output example should wrap at 80 columns.
 
 ## File change summary
 
-| File | Action |
-|------|--------|
+| File                                     | Action                        |
+| ---------------------------------------- | ----------------------------- |
 | `website/docs/internals/libcli/index.md` | Rewrite help/parsing sections |
