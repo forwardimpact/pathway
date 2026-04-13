@@ -66,41 +66,151 @@ Logger emits RFC 5424 structured messages:
 
 libcli renders help from a **definition object** — a plain data structure that
 declares the CLI's name, version, description, commands, options, and examples.
+Options are scoped: `globalOptions` apply to every command, while per-command
+`options` apply only to the command they belong to.
+
+### Definition schema
 
 ```js
 const definition = {
-  name: "fit-example",
-  version: "0.1.0",
-  description: "Example CLI showing standard pattern",
-  usage: "fit-example <input>",
+  name: "fit-summit",
+  version: "1.0.0",
+  description: "Team capability planning from skill data.",
   commands: [
-    { name: "validate", args: "<file>", description: "Validate a framework" },
-    { name: "list",                      description: "List all entities" },
+    {
+      name: "coverage",
+      args: "<team>",
+      description: "Show capability coverage",
+      options: {
+        evidenced: { type: "boolean", description: "Include practiced capability from Map evidence data" },
+        "lookback-months": { type: "string", description: "Lookback window for practice patterns (default: 12)" },
+      },
+      examples: [
+        "fit-summit coverage platform",
+        "fit-summit coverage platform --evidenced --lookback-months=6",
+      ],
+    },
+    { name: "validate", args: "", description: "Validate roster file" },
   ],
-  options: {
-    output: { type: "string", description: "Output path" },
-    json:   { type: "boolean", description: "Output as JSON" },
-    help:   { type: "boolean", short: "h", description: "Show this help" },
-    version: { type: "boolean", description: "Show version" },
+  globalOptions: {
+    data: { type: "string", description: "Path to Map data directory" },
+    roster: { type: "string", description: "Path to summit.yaml" },
+    format: { type: "string", default: "text", description: "Output format: text, json, markdown (default: text)" },
+    help: { type: "boolean", short: "h", description: "Show help" },
+    version: { type: "boolean", short: "v", description: "Show version" },
   },
   examples: [
-    "fit-example data.yaml",
-    "fit-example data.yaml --json",
+    "fit-summit coverage platform",
+    "fit-summit what-if platform --add 'Jane, senior, backend'",
   ],
 };
 ```
 
-### One line per command
+**Key fields:**
 
-Each command occupies exactly one line in help output, with aligned columns.
-This is intentional — agents parse help text line-by-line, and a predictable
-one-command-per-line layout makes discovery reliable.
+- **`globalOptions`** — Options that apply to every command. Shown under
+  `Options:` in global help and `Global options:` in per-command help.
+- **`commands[].options`** — Options specific to one command. Only shown in that
+  command's per-command help. Not visible in global help.
+- **`commands[].examples`** — Per-command examples, shown only in per-command
+  help.
+- **`examples`** — Top-level examples, shown only in global help.
+
+**Legacy schema rejected:** Passing a top-level `options` field (instead of
+`globalOptions`) throws at startup with a migration message. See
+[spec 430](../../../../specs/430-per-command-help/spec.md) for background.
+
+**Option name collisions:** If a command option shares a name with a global
+option, the constructor throws. Command options are merged with global options
+for parsing — a collision would silently shadow the global option.
+
+### Global help (`--help`)
+
+Global help lists all commands and global options. Per-command options do not
+appear — global help is a scannable index, not a dump of every flag.
+
+```
+fit-summit 1.0.0 — Team capability planning from skill data.
+
+Usage: fit-summit <command> [options]
+
+Commands:
+  coverage <team>            Show capability coverage
+  validate                   Validate roster file
+
+Options:
+  --data=<string>            Path to Map data directory
+  --roster=<string>          Path to summit.yaml
+  --format=<string>          Output format: text, json, markdown (default: text)
+  --help, -h                 Show help
+  --version, -v              Show version
+
+Examples:
+  fit-summit coverage platform
+  fit-summit what-if platform --add 'Jane, senior, backend'
+
+Use fit-summit <command> --help for command-specific options.
+```
+
+The hint line at the bottom is the only indication that per-command help exists.
+
+### Per-command help (`<command> --help`)
+
+Per-command help shows the command's own options under `Options:` and global
+options (minus `--version`) under `Global options:`. Each section aligns columns
+independently.
+
+```
+fit-summit coverage <team> — Show capability coverage
+
+Usage: fit-summit coverage <team> [options]
+
+Options:
+  --evidenced                Include practiced capability from Map evidence data
+  --lookback-months=<string>   Lookback window for practice patterns (default: 12)
+
+Global options:
+  --data=<string>            Path to Map data directory
+  --roster=<string>          Path to summit.yaml
+  --format=<string>          Output format: text, json, markdown (default: text)
+  --help, -h                 Show help
+
+Examples:
+  fit-summit coverage platform
+  fit-summit coverage platform --evidenced --lookback-months=6
+```
+
+Commands with no `options` omit the `Options:` section and show only `Global
+options:`.
+
+### Grep-friendliness
+
+Every command and every option occupies exactly one self-contained line. A grep
+for any keyword returns a complete, actionable line — no wrapping to a second
+line.
+
+```sh
+# Global help — find the command
+$ fit-summit -h | grep coverage
+  coverage <team>            Show capability coverage
+
+# Per-command help — find the flag
+$ fit-summit coverage -h | grep evidenced
+  --evidenced                Include practiced capability from Map evidence data
+
+# Command-specific options don't leak into global help
+$ fit-summit -h | grep add
+# (no output — --add is what-if-specific)
+```
 
 ### Human and machine modes
 
 - `--help` renders human-readable formatted text to stdout
-- `--help --json` emits the definition object as JSON, suitable for agent
-  consumption
+- `--help --json` emits structured JSON
+
+Global `--help --json` emits the full definition object. Per-command `--help
+--json` emits a focused object with `parent`, `name`, `args`, `description`,
+`options`, `globalOptions` (without `--version`), and `examples`.
 
 Both modes are handled automatically by `cli.parse()`.
 
@@ -182,12 +292,27 @@ The fit-codegen CLI is the reference pattern for summary usage.
 
 ## Argument Parsing
 
-The definition object's `options` field serves double duty — it drives both help
-text generation and argument parsing.
+`cli.parse(argv)` wraps `node:util` `parseArgs` with `allowPositionals: true`.
+It returns `{ values, positionals }` on success, or `null` if `--help` or
+`--version` was handled (the caller should exit cleanly).
 
-`cli.parse(argv)` wraps `node:util` `parseArgs` with `allowPositionals: true`
-always set. It returns `{ values, positionals }` on success, or `null` if
-`--help` or `--version` was handled (the caller should exit cleanly).
+### Command identification
+
+When the definition has `commands`, `parse()` identifies the command by scanning
+non-flag tokens and trying the longest match against `commands[].name`. This
+handles multi-word commands like `org show` in fit-landmark — `parse(["org",
+"show", "--help"])` correctly matches the `org show` entry.
+
+### Option merging and scoping
+
+Once a command is identified, its `options` are merged with `globalOptions` for
+the `parseArgs()` call. Only the merged set is accepted — passing a
+command-specific option on the wrong command throws
+`ERR_PARSE_ARGS_UNKNOWN_OPTION`.
+
+This is a tightening over the pre-spec-430 behavior: previously every option was
+accepted on every command (the handler simply ignored irrelevant flags). Now
+input validation is stricter while command behavior is unchanged.
 
 ```js
 const parsed = cli.parse(process.argv.slice(2));
@@ -241,7 +366,7 @@ const definition = {
   version: "0.1.0",
   description: "Example CLI showing standard pattern",
   usage: "fit-example <input>",
-  options: {
+  globalOptions: {
     output:  { type: "string", description: "Output path" },
     json:    { type: "boolean", description: "Output as JSON" },
     help:    { type: "boolean", short: "h", description: "Show this help" },
