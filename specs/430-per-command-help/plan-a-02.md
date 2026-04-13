@@ -1,6 +1,7 @@
 # Part 2 — Consumer migration
 
-Migrates all 28 CLI consumers from `options` → `globalOptions`, scoping
+Migrates all 28 `createCli()` call sites (27 in `bin/` files + 1 in
+`products/basecamp/src/basecamp.js`) from `options` → `globalOptions`, scoping
 command-specific options into their command entries where applicable. Depends on
 Part 1 (core library changes).
 
@@ -176,9 +177,11 @@ Add per-command `examples` to at least `coverage`, `what-if`, and `trajectory`.
 
 ### 28. fit-storage (`libraries/libstorage/bin/fit-storage.js`)
 
-**Global options:** `prefix`, `help`, `version`, `json`
+**Global options:** `help`, `version`, `json`
 
 **Move to specific commands:**
+- `prefix` → `upload`, `download`, `list` (not used by `create-bucket` or
+  `wait` — same duplication principle as summit's `--evidenced`)
 - `timeout` → `wait`
 
 ## Migration of test files

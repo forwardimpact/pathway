@@ -3,7 +3,9 @@
 ## Approach
 
 The change has three independent dimensions: the library itself (schema, parser,
-renderer), the 28 CLI consumers, and the documentation. The library changes land
+renderer), the 28 `createCli()` call sites (27 in `bin/` files + 1 in
+`products/basecamp/src/basecamp.js`; the spec says "27 CLI consumers" counting
+only bin entry points), and the documentation. The library changes land
 first; consumer migration and docs are independent of each other and can run in
 parallel once the library is merged.
 
@@ -21,6 +23,14 @@ lets `fit-landmark org show --help` match the `org show` command entry.
 `options` are merged with `globalOptions` for the `parseArgs()` call. Options
 not in the merged set throw `ERR_PARSE_ARGS_UNKNOWN_OPTION` as before. This
 gives command-scoped validation for free via Node's built-in parser.
+
+**Behavioral note:** This is a tightening. Today every option is accepted on
+every command (the handler simply ignores irrelevant flags). After migration,
+passing a command-specific option on the wrong command throws
+`ERR_PARSE_ARGS_UNKNOWN_OPTION`. The spec intends this ("Command-specific
+options apply only to the command they belong to") even though the out-of-scope
+list says "Changes to what any CLI does." The distinction: command *behavior*
+is unchanged; input *validation* is stricter.
 
 **Key design decision — merge order and collision guard:** The merge is
 `{ ...globalOpts, ...commandOpts }`. This order is safe ONLY because the
