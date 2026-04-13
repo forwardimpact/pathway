@@ -27,6 +27,12 @@ describe("EMPTY_STATES", () => {
     assert.ok(EMPTY_STATES.NO_COMMENTS.includes("getdx_snapshot_comments"));
   });
 
+  it("has a NO_COMMENTS_EMPTY constant distinct from NO_COMMENTS", () => {
+    assert.equal(typeof EMPTY_STATES.NO_COMMENTS_EMPTY, "string");
+    assert.ok(EMPTY_STATES.NO_COMMENTS_EMPTY.includes("comments"));
+    assert.notEqual(EMPTY_STATES.NO_COMMENTS_EMPTY, EMPTY_STATES.NO_COMMENTS);
+  });
+
   it("has a NO_INITIATIVES constant", () => {
     assert.ok(EMPTY_STATES.NO_INITIATIVES.includes("getdx_initiatives"));
   });

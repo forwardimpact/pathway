@@ -68,7 +68,7 @@ describe("voice --email", () => {
     assert.ok(result.view.comments.length > 0);
   });
 
-  it("returns NO_COMMENTS when none found", async () => {
+  it("returns NO_COMMENTS_EMPTY when none found", async () => {
     const result = await runVoiceCommand({
       options: { email: "alice@example.com" },
       supabase: {},
@@ -77,7 +77,7 @@ describe("voice --email", () => {
       queries: stubQueries({ comments: [] }),
     });
     assert.equal(result.view, null);
-    assert.ok(result.meta.emptyState.includes("comments"));
+    assert.equal(result.meta.emptyState, EMPTY_STATES.NO_COMMENTS_EMPTY);
     assert.ok(result.meta.hint);
   });
 
