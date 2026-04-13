@@ -42,7 +42,6 @@ universe minimal {
   framework {
     proficiencies [awareness, foundational, working, practitioner, expert]
     maturities [emerging, developing, practicing, role_modeling, exemplifying]
-    stages [specify, plan, code, review]
 
     levels {
       J040 { title "Software Engineer" rank 1 experience "0-2 years" }

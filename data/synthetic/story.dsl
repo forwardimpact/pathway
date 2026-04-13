@@ -739,8 +739,6 @@ universe BioNova {
         behaviours [relentless_curiosity, precise_communication]
       }
     }
-
-    stages [specify, plan, scaffold, code, review, deploy]
   }
 
   // ─── Content Types ──────────────────────────────

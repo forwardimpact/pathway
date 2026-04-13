@@ -36,19 +36,6 @@ describe("parse — framework section", () => {
     ]);
   });
 
-  test("parses stages as array", () => {
-    const ast = parseDsl(`universe test {
-      framework {
-        stages [discovery, delivery, optimization]
-      }
-    }`);
-    assert.deepStrictEqual(ast.framework.stages, [
-      "discovery",
-      "delivery",
-      "optimization",
-    ]);
-  });
-
   test("parses levels with title, rank, experience", () => {
     const ast = parseDsl(`universe test {
       framework {
@@ -188,6 +175,5 @@ describe("parse — framework section", () => {
     assert.deepStrictEqual(ast.framework.disciplines, []);
     assert.deepStrictEqual(ast.framework.tracks, []);
     assert.deepStrictEqual(ast.framework.drivers, []);
-    assert.deepStrictEqual(ast.framework.stages, []);
   });
 });

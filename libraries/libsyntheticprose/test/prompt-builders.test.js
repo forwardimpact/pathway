@@ -2,7 +2,6 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { buildFrameworkPrompt } from "../src/prompts/pathway/framework.js";
 import { buildLevelPrompt } from "../src/prompts/pathway/level.js";
-import { buildStagePrompt } from "../src/prompts/pathway/stage.js";
 import { buildBehaviourPrompt } from "../src/prompts/pathway/behaviour.js";
 import { buildCapabilityPrompt } from "../src/prompts/pathway/capability.js";
 import { buildDriverPrompt } from "../src/prompts/pathway/driver.js";
@@ -63,28 +62,6 @@ describe("prompt builders", () => {
       const result = buildLevelPrompt(levels, CTX, SCHEMA);
       assert.ok(result.user.includes("awareness"));
       assert.ok(result.user.includes("expert"));
-    });
-  });
-
-  describe("buildStagePrompt", () => {
-    const stageIds = ["specify", "plan", "code"];
-
-    test("returns system and user strings", () => {
-      const result = buildStagePrompt(stageIds, CTX, SCHEMA);
-      assert.ok(typeof result.system === "string");
-      assert.ok(typeof result.user === "string");
-    });
-
-    test("includes stage IDs in user prompt", () => {
-      const result = buildStagePrompt(stageIds, CTX, SCHEMA);
-      for (const id of stageIds) {
-        assert.ok(result.user.includes(id));
-      }
-    });
-
-    test("includes handoff constraint", () => {
-      const result = buildStagePrompt(stageIds, CTX, SCHEMA);
-      assert.ok(result.user.includes("MUST be one of the stage IDs"));
     });
   });
 

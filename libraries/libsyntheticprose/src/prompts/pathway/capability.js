@@ -1,8 +1,5 @@
 import { buildPreamble } from "./preamble.js";
-import {
-  PROFICIENCY_LEVELS,
-  STAGE_NAMES,
-} from "@forwardimpact/libsyntheticgen/vocabulary.js";
+import { PROFICIENCY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";
 
 /**
  * Prompt template for a single capability entity (with skills).
@@ -59,19 +56,11 @@ export function buildCapabilityPrompt(skeleton, ctx, schema, priorOutput) {
       "  - agent.name: kebab-case name (e.g., 'code-review', 'data-modeling').",
       "  - agent.description: 1 sentence describing what this agent skill provides.",
       "  - agent.useWhen: 1 sentence describing when/why an agent should use this skill.",
-      "  - agent.stages: Object with ONLY the stages where this skill is meaningfully relevant.",
-      `    Not all skills need all ${STAGE_NAMES.length} stages. Use these criteria:`,
-      `      - ${STAGE_NAMES[0]}: include if the skill informs what to build or constrains requirements`,
-      `      - ${STAGE_NAMES[1]}: include if the skill drives architecture or design decisions`,
-      `      - ${STAGE_NAMES[2]}: include if the skill requires tooling, dependencies, or env setup`,
-      `      - ${STAGE_NAMES[3]}: include if the skill is directly exercised during implementation`,
-      `      - ${STAGE_NAMES[4]}: include if the skill has quality criteria to verify`,
-      `      - ${STAGE_NAMES[5]}: include if the skill has production or operational concerns`,
-      "    Each skill must have at least 2 stages. Omit stages where the skill has no specific guidance.",
-      "    Each stage has:",
-      "    - focus: 1 sentence — the primary focus for this skill in this stage.",
-      "    - readChecklist: Array of 2-3 items — steps to read/understand before acting.",
-      "    - confirmChecklist: Array of 2-3 items — items to verify after completing work.",
+      "  - agent.focus: 1 sentence — the overall primary focus for this skill.",
+      "  - agent.readChecklist: Array of 5-9 items — steps to read/understand before acting.",
+      "    Follow READ-DO semantics: read each item, then do it.",
+      "  - agent.confirmChecklist: Array of 5-9 items — items to verify after completing work.",
+      "    Follow DO-CONFIRM semantics: do from memory, then confirm every item.",
       "",
       ...(priorOutput?.levels || priorOutput?.behaviours
         ? [

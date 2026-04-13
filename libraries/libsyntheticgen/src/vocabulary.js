@@ -24,16 +24,6 @@ export const MATURITY_LEVELS = [
   "exemplifying",
 ];
 
-/** @type {string[]} */
-export const STAGE_NAMES = [
-  "specify",
-  "plan",
-  "scaffold",
-  "code",
-  "review",
-  "deploy",
-];
-
 /** @type {Record<string, number>} */
 const PROFICIENCY_INDEX = Object.fromEntries(
   PROFICIENCY_LEVELS.map((p, i) => [p, i]),

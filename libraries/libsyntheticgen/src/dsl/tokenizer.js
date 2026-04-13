@@ -68,7 +68,6 @@ const KEYWORDS = new Set([
   "behaviours",
   "drivers",
   "tracks",
-  "stages",
   "skills",
   "title",
   "rank",

@@ -202,9 +202,8 @@ export function createFrameworkParsers(helpers) {
       disciplines: [],
       tracks: [],
       drivers: [],
-      stages: [],
     };
-    const FW_ARRAY_KEYS = new Set(["proficiencies", "maturities", "stages"]);
+    const FW_ARRAY_KEYS = new Set(["proficiencies", "maturities"]);
     const FW_PARSERS = {
       levels: parseFrameworkLevels,
       capabilities: parseFrameworkCapabilities,

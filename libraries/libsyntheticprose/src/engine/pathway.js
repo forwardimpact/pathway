@@ -2,7 +2,7 @@
  * Pathway Engine — orchestrates LLM calls to generate pathway entity data.
  *
  * Generates entities in dependency order:
- * framework → levels → stages → behaviours → capabilities →
+ * framework → levels → behaviours → capabilities →
  * drivers → disciplines → tracks → self-assessments
  *
  * @module libuniverse/engine/pathway
@@ -12,7 +12,6 @@ import { readFileSync } from "fs";
 import { join } from "path";
 import { buildFrameworkPrompt } from "../prompts/pathway/framework.js";
 import { buildLevelPrompt } from "../prompts/pathway/level.js";
-import { buildStagePrompt } from "../prompts/pathway/stage.js";
 import { buildBehaviourPrompt } from "../prompts/pathway/behaviour.js";
 import { buildCapabilityPrompt } from "../prompts/pathway/capability.js";
 import { buildDriverPrompt } from "../prompts/pathway/driver.js";
@@ -32,7 +31,6 @@ export function loadSchemas(schemaDir) {
   const names = [
     "framework",
     "levels",
-    "stages",
     "behaviour",
     "capability",
     "discipline",
@@ -123,15 +121,6 @@ async function generatePathwayData({
     "levels",
     buildLevelPrompt(framework.levels, ctx, schemas.levels),
     proseEngine,
-  );
-
-  // 3. Stages
-  const stages = await generateEntity(
-    "stages",
-    "stages",
-    buildStagePrompt(framework.stages, ctx, schemas.stages),
-    proseEngine,
-    { maxTokens: BASE_TOKENS },
   );
 
   // Build prior output context for downstream prompts
@@ -235,7 +224,6 @@ async function generatePathwayData({
   return {
     framework: fw,
     levels,
-    stages,
     behaviours,
     capabilities,
     drivers,

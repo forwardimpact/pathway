@@ -10,7 +10,6 @@ import YAML from "yaml";
 const SINGLE_FILE_ENTITIES = [
   ["framework", "framework.yaml", "framework"],
   ["levels", "levels.yaml", "levels"],
-  ["stages", "stages.yaml", "stages"],
   ["drivers", "drivers.yaml", "drivers"],
   ["selfAssessments", "self-assessments.yaml", "self-assessments"],
 ];

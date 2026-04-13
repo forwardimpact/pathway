@@ -29,9 +29,6 @@ function makeMockProseEngine() {
           },
         ];
       }
-      if (key.includes("stages")) {
-        return [{ id: "specify", name: "Specify" }];
-      }
       if (key.includes("behaviour")) {
         return { name: "Collaboration" };
       }
@@ -67,7 +64,6 @@ describe("PathwayGenerator", () => {
     const framework = {
       name: "Test",
       levels: [{ id: "J040", professionalTitle: "Engineer", rank: 1 }],
-      stages: ["specify", "plan"],
       behaviours: [{ id: "collab", name: "Collaboration" }],
       capabilities: [{ id: "coding", name: "Coding", skills: ["python"] }],
       drivers: [
@@ -89,7 +85,6 @@ describe("PathwayGenerator", () => {
     const schemas = {
       framework: {},
       levels: {},
-      stages: {},
       behaviour: {},
       capability: {},
       drivers: {},
@@ -108,7 +103,6 @@ describe("PathwayGenerator", () => {
 
     assert.ok(result.framework);
     assert.ok(result.levels);
-    assert.ok(result.stages);
     assert.ok(Array.isArray(result.behaviours));
     assert.ok(Array.isArray(result.capabilities));
     assert.ok(result.drivers);
@@ -123,7 +117,6 @@ describe("PathwayGenerator", () => {
     const framework = {
       name: "Test",
       levels: [{ id: "J040", rank: 1 }],
-      stages: ["specify"],
       behaviours: [{ id: "collab", name: "Collaboration" }],
       capabilities: [{ id: "coding", name: "Coding", skills: ["python"] }],
       drivers: [],
@@ -134,7 +127,6 @@ describe("PathwayGenerator", () => {
     const schemas = {
       framework: {},
       levels: {},
-      stages: {},
       behaviour: {},
       capability: {},
       drivers: {},
