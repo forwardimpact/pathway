@@ -217,6 +217,77 @@ function buildWorkingStyleFromBehaviours(
 }
 
 /**
+ * Interpolate a raw template string if present, otherwise return null.
+ */
+function interpolateOrNull(raw, discipline) {
+  return raw ? substituteTemplateVars(raw, discipline) : null;
+}
+
+/**
+ * Build skill index from focused skills and all skills
+ */
+function buildSkillIndex(focusedSkills, skills) {
+  return focusedSkills
+    .map((derived) => {
+      const skill = skills.find((s) => s.id === derived.skillId);
+      if (!skill?.agent) return null;
+      return {
+        name: derived.skillName,
+        dirname: skill.agent.name,
+        useWhen: lcFirst(skill.agent.useWhen?.trim() || ""),
+      };
+    })
+    .filter(Boolean);
+}
+
+/**
+ * Build the profile body data for a discipline/track agent
+ */
+function buildProfileBodyData({
+  discipline,
+  track,
+  hasTrack,
+  focusedSkills,
+  derivedBehaviours,
+  agentBehaviours,
+  agentDiscipline,
+  agentTrack,
+  skills,
+}) {
+  const specialization = discipline.specialization || discipline.name;
+  const identity = substituteTemplateVars(
+    agentTrack?.identity || agentDiscipline.identity,
+    discipline,
+  );
+  const priority = interpolateOrNull(
+    agentTrack?.priority || agentDiscipline.priority,
+    discipline,
+  );
+  const teamInstructions = interpolateOrNull(
+    agentTrack?.teamInstructions,
+    discipline,
+  );
+  const skillIndex = buildSkillIndex(focusedSkills, skills);
+  const title = hasTrack ? `${specialization} - ${track.name}` : specialization;
+
+  return {
+    title,
+    identity: identity.trim(),
+    priority: priority ? priority.trim() : null,
+    skillIndex,
+    skillDirnames: skillIndex.map((s) => s.dirname),
+    roleContext: track?.roleContext ? track.roleContext.trim() : "",
+    workingStyles: buildWorkingStyleFromBehaviours(
+      derivedBehaviours,
+      agentBehaviours,
+    ),
+    disciplineConstraints: agentDiscipline.constraints || [],
+    trackConstraints: agentTrack?.constraints || [],
+    teamInstructions: teamInstructions ? teamInstructions.trim() : null,
+  };
+}
+
+/**
  * Generate an agent profile for a discipline/track combination.
  * Produces one profile per discipline (x track) with full skill matrix.
  *
@@ -255,61 +326,23 @@ export function generateAgentProfile({
     ? `${specialization} (${track.name}).`
     : `${specialization}.`;
 
-  const rawIdentity = agentTrack?.identity || agentDiscipline.identity;
-  const identity = substituteTemplateVars(rawIdentity, discipline);
-
-  const rawPriority = agentTrack?.priority || agentDiscipline.priority;
-  const priority = rawPriority
-    ? substituteTemplateVars(rawPriority, discipline)
-    : null;
-
-  const rawTeamInstructions = agentTrack?.teamInstructions;
-  const teamInstructions = rawTeamInstructions
-    ? substituteTemplateVars(rawTeamInstructions, discipline)
-    : null;
-
-  const skillIndex = focusedSkills
-    .map((derived) => {
-      const skill = skills.find((s) => s.id === derived.skillId);
-      if (!skill?.agent) return null;
-      return {
-        name: derived.skillName,
-        dirname: skill.agent.name,
-        useWhen: lcFirst(skill.agent.useWhen?.trim() || ""),
-      };
-    })
-    .filter(Boolean);
-
-  const roleContext = track?.roleContext ? track.roleContext.trim() : "";
-  const workingStyles = buildWorkingStyleFromBehaviours(
+  const bodyData = buildProfileBodyData({
+    discipline,
+    track,
+    hasTrack,
+    focusedSkills,
     derivedBehaviours,
     agentBehaviours,
-  );
-
-  const disciplineConstraints = agentDiscipline.constraints || [];
-  const trackConstraints = agentTrack?.constraints || [];
-  const skillDirnames = skillIndex.map((s) => s.dirname);
-
-  const title = hasTrack ? `${specialization} - ${track.name}` : specialization;
-
-  const bodyData = {
-    title,
-    identity: identity.trim(),
-    priority: priority ? priority.trim() : null,
-    skillIndex,
-    skillDirnames,
-    roleContext,
-    workingStyles,
-    disciplineConstraints,
-    trackConstraints,
-    teamInstructions: teamInstructions ? teamInstructions.trim() : null,
-  };
+    agentDiscipline,
+    agentTrack,
+    skills,
+  });
 
   const frontmatter = {
     name: profileName,
     description,
     model: "opus",
-    skills: skillDirnames,
+    skills: bodyData.skillDirnames,
   };
 
   return { frontmatter, bodyData, filename };

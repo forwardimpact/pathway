@@ -1,8 +1,4 @@
-import {
-  createValidationResult,
-  createError,
-  createWarning,
-} from "./common.js";
+import { createValidationResult, createError } from "./common.js";
 
 function validateAgentDisciplines(agentDisciplines, humanDisciplineIds) {
   const errors = [];
