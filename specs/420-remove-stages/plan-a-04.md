@@ -125,8 +125,9 @@ Verify:
 Update or add tests in the relevant test directories:
 - `libraries/libsyntheticgen/test/` — verify `STAGE_NAMES` is not exported,
   DSL parsing rejects `stages` keyword
-- `libraries/libsyntheticprose/test/` — verify capability prompt includes flat
-  agent fields, no stage prompt exists
+- `libraries/libsyntheticprose/test/prompt-builders.test.js` — remove
+  `buildStagePrompt` import (line 5), delete stage prompt tests (lines 70-87),
+  verify capability prompt includes flat agent fields
 - `libraries/libsyntheticrender/test/` — verify pathway render does not output
   `stages.yaml`
 

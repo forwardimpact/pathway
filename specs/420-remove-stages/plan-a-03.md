@@ -361,7 +361,7 @@ Add tests verifying:
 - Agent command produces single profile without `--stage` flag
 - Build-packs produces one agent per discipline/track combination
 
-### 14. Remove stage CSS
+### 15. Remove stage CSS
 
 **File:** `products/pathway/src/css/pages/lifecycle.css`
 
