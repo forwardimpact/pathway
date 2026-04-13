@@ -48,11 +48,11 @@ export class HelpRenderer {
     return lines;
   }
 
-  #renderOptions(definition) {
-    if (!definition.options) return [];
-    const entries = Object.entries(definition.options);
+  #renderOptionSection(options, title) {
+    if (!options) return [];
+    const entries = Object.entries(options);
     if (entries.length === 0) return [];
-    const lines = [this.#sectionHeader("Options:")];
+    const lines = [this.#sectionHeader(title)];
     const optStrings = entries.map(([name, opt]) => {
       let s = `--${name}`;
       if (opt.type === "string") s += `=<${opt.type}>`;
@@ -69,30 +69,99 @@ export class HelpRenderer {
     return lines;
   }
 
-  #renderExamples(definition) {
-    if (!definition.examples || definition.examples.length === 0) return [];
+  #renderExamplesArray(examples) {
+    if (!examples || examples.length === 0) return [];
     const lines = [this.#sectionHeader("Examples:")];
-    for (const ex of definition.examples) {
+    for (const ex of examples) {
       lines.push(`  ${ex}`);
     }
     lines.push("");
     return lines;
   }
 
-  render(definition, stream) {
+  #renderExamples(definition) {
+    return this.#renderExamplesArray(definition.examples);
+  }
+
+  #renderHintLine(definition) {
+    if (!definition.commands || definition.commands.length === 0) return [];
+    return [
+      `Use ${definition.name} <command> --help for command-specific options.`,
+      "",
+    ];
+  }
+
+  #renderCommand(definition, stream, command) {
+    let header = `${definition.name} ${command.name}`;
+    if (command.args) header += ` ${command.args}`;
+    if (command.description) header += ` \u2014 ${command.description}`;
+    const formatted = supportsColor(this.#proc)
+      ? formatHeader(header, this.#proc)
+      : header;
+
+    let usage = `Usage: ${definition.name} ${command.name}`;
+    if (command.args) usage += ` ${command.args}`;
+    usage += " [options]";
+
+    const globalWithoutVersion = definition.globalOptions
+      ? Object.fromEntries(
+          Object.entries(definition.globalOptions).filter(
+            ([name]) => name !== "version",
+          ),
+        )
+      : null;
+
+    const lines = [
+      formatted,
+      "",
+      usage,
+      "",
+      ...this.#renderOptionSection(command.options, "Options:"),
+      ...this.#renderOptionSection(globalWithoutVersion, "Global options:"),
+      ...this.#renderExamplesArray(command.examples),
+    ];
+    stream.write(lines.join("\n"));
+  }
+
+  render(definition, stream, command) {
     const out = stream || this.#proc.stdout;
+    if (command) {
+      this.#renderCommand(definition, out, command);
+      return;
+    }
     const lines = [
       ...this.#renderHeader(definition),
       ...this.#renderUsage(definition),
       ...this.#renderCommands(definition),
-      ...this.#renderOptions(definition),
+      ...this.#renderOptionSection(definition.globalOptions, "Options:"),
       ...this.#renderExamples(definition),
+      ...this.#renderHintLine(definition),
     ];
     out.write(lines.join("\n"));
   }
 
-  renderJson(definition, stream) {
+  renderJson(definition, stream, command) {
     const out = stream || this.#proc.stdout;
-    out.write(JSON.stringify(definition, null, 2) + "\n");
+    if (command) {
+      const globalWithoutVersion = definition.globalOptions
+        ? Object.fromEntries(
+            Object.entries(definition.globalOptions).filter(
+              ([name]) => name !== "version",
+            ),
+          )
+        : undefined;
+      const obj = {
+        name: command.name,
+        args: command.args,
+        description: command.description,
+        parent: definition.name,
+        options: command.options,
+        globalOptions: globalWithoutVersion,
+        examples: command.examples,
+      };
+      out.write(JSON.stringify(obj, null, 2) + "\n");
+    } else {
+      out.write(JSON.stringify(definition, null, 2) + "\n");
+    }
   }
 }

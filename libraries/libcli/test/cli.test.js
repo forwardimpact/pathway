@@ -28,7 +28,7 @@ const definition = {
   name: "fit-test",
   version: "1.0.0",
   description: "Test CLI",
-  options: {
+  globalOptions: {
     output: { type: "string", description: "Output path" },
     json: { type: "boolean", description: "JSON output" },
     help: { type: "boolean", short: "h", description: "Show help" },
@@ -101,7 +101,7 @@ describe("Cli", () => {
       const proc = createProc();
       const multiDef = {
         name: "fit-multi",
-        options: {
+        globalOptions: {
           tag: { type: "string", multiple: true, description: "Tags" },
           help: { type: "boolean", short: "h", description: "Show help" },
         },
@@ -110,6 +110,156 @@ describe("Cli", () => {
       const cli = new Cli(multiDef, { process: proc, helpRenderer });
       const result = cli.parse(["--tag=a", "--tag=b"]);
       assert.deepStrictEqual(result.values.tag, ["a", "b"]);
+    });
+  });
+
+  describe("legacy schema rejection", () => {
+    test("throws on definition with legacy options field", () => {
+      const proc = createProc();
+      assert.throws(
+        () =>
+          new Cli(
+            { name: "old", options: { help: { type: "boolean" } } },
+            {
+              process: proc,
+              helpRenderer: new HelpRenderer({ process: proc }),
+            },
+          ),
+        /globalOptions/,
+      );
+    });
+  });
+
+  describe("per-command help", () => {
+    test("renders per-command help when command --help is passed", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "run",
+            args: "<file>",
+            description: "Run a file",
+            options: {
+              watch: { type: "boolean", description: "Watch mode" },
+            },
+            examples: ["fit-test run main.js --watch"],
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const result = cli.parse(["run", "--help"]);
+      assert.strictEqual(result, null);
+      assert.ok(proc.stdout.output.includes("fit-test run <file>"));
+      assert.ok(proc.stdout.output.includes("--watch"));
+      assert.ok(proc.stdout.output.includes("Global options:"));
+    });
+
+    test("renders per-command JSON when command --help --json is passed", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "run",
+            args: "<file>",
+            description: "Run a file",
+            options: {
+              watch: { type: "boolean", description: "Watch mode" },
+            },
+          },
+        ],
+        globalOptions: {
+          json: { type: "boolean", description: "JSON output" },
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const result = cli.parse(["run", "--help", "--json"]);
+      assert.strictEqual(result, null);
+      const parsed = JSON.parse(proc.stdout.output);
+      assert.strictEqual(parsed.name, "run");
+      assert.strictEqual(parsed.parent, "fit-test");
+      assert.ok(parsed.options.watch);
+    });
+  });
+
+  describe("command-specific option scoping", () => {
+    test("throws on command-specific option used with wrong command", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "run",
+            options: {
+              watch: { type: "boolean", description: "W" },
+            },
+          },
+          { name: "check" },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      assert.throws(() => cli.parse(["check", "--watch"]), {
+        code: "ERR_PARSE_ARGS_UNKNOWN_OPTION",
+      });
+    });
+  });
+
+  describe("multi-word commands", () => {
+    test("matches multi-word commands for per-command help", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [{ name: "org show", description: "Show org" }],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const result = cli.parse(["org", "show", "--help"]);
+      assert.strictEqual(result, null);
+      assert.ok(proc.stdout.output.includes("fit-test org show"));
+    });
+  });
+
+  describe("option name collision", () => {
+    test("throws on command option colliding with global option", () => {
+      const proc = createProc();
+      assert.throws(
+        () =>
+          new Cli(
+            {
+              name: "t",
+              commands: [
+                {
+                  name: "a",
+                  options: {
+                    data: { type: "string", description: "X" },
+                  },
+                },
+              ],
+              globalOptions: {
+                data: { type: "string", description: "Y" },
+              },
+            },
+            {
+              process: proc,
+              helpRenderer: new HelpRenderer({ process: proc }),
+            },
+          ),
+        /collides/,
+      );
     });
   });
 

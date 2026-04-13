@@ -7,6 +7,27 @@ export class Cli {
   #helpRenderer;
 
   constructor(definition, { process, helpRenderer }) {
+    if (definition.options) {
+      throw new Error(
+        `${definition.name}: "options" is no longer supported. ` +
+          `Use "globalOptions" for shared options and per-command "options" ` +
+          `for command-specific options.`,
+      );
+    }
+    if (definition.commands && definition.globalOptions) {
+      const globalNames = new Set(Object.keys(definition.globalOptions));
+      for (const cmd of definition.commands) {
+        if (!cmd.options) continue;
+        for (const name of Object.keys(cmd.options)) {
+          if (globalNames.has(name)) {
+            throw new Error(
+              `${definition.name}: option "${name}" in command ` +
+                `"${cmd.name}" collides with a global option`,
+            );
+          }
+        }
+      }
+    }
     this.#definition = definition;
     this.#proc = process;
     this.#helpRenderer = helpRenderer;
@@ -17,8 +38,14 @@ export class Cli {
   }
 
   parse(argv) {
+    const command = this.#findCommand(argv);
+
+    const globalOpts = this.#definition.globalOptions || {};
+    const commandOpts = command?.options || {};
+    const merged = { ...globalOpts, ...commandOpts };
+
     const options = {};
-    for (const [name, opt] of Object.entries(this.#definition.options || {})) {
+    for (const [name, opt] of Object.entries(merged)) {
       options[name] = { type: opt.type };
       if (opt.short) options[name].short = opt.short;
       if (opt.default !== undefined) options[name].default = opt.default;
@@ -33,9 +60,9 @@ export class Cli {
 
     if (values.help) {
       if (values.json) {
-        this.#helpRenderer.renderJson(this.#definition, this.#proc.stdout);
+        this.#helpRenderer.renderJson(this.#definition, this.#proc.stdout, command);
       } else {
-        this.#helpRenderer.render(this.#definition, this.#proc.stdout);
+        this.#helpRenderer.render(this.#definition, this.#proc.stdout, command);
       }
       return null;
     }
@@ -46,6 +73,20 @@ export class Cli {
     }
 
     return { values, positionals };
+  }
+
+  #findCommand(argv) {
+    const commands = this.#definition.commands;
+    if (!commands || commands.length === 0) return null;
+
+    const positionals = argv.filter((a) => !a.startsWith("-"));
+
+    for (let len = Math.min(positionals.length, 3); len > 0; len--) {
+      const candidate = positionals.slice(0, len).join(" ");
+      const found = commands.find((c) => c.name === candidate);
+      if (found) return found;
+    }
+    return null;
   }
 
   showHelp() {
