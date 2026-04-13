@@ -26,7 +26,7 @@ const dataDir = config.dataDir
 // Three-call load sequence matching products/pathway/src/commands/agent.js.
 // loadAllData drops `human` from each skill (loader.js:102-127) while
 // loadSkillsWithAgentData spreads the full raw skill, which is the shape
-// generateStageAgentProfile walks. Both are required.
+// generateAgentProfile walks. Both are required.
 const loader = createDataLoader();
 const data = await loader.loadAllData(dataDir);
 const agentData = await loader.loadAgentData(dataDir);

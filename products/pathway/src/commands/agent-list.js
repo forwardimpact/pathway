@@ -65,10 +65,6 @@ export function showAgentSummary(data, agentData, skillsWithAgent) {
         label: "Skills",
         description: `${skillsWithAgentCount}/${skillsWithAgent.length} with agent sections`,
       },
-      {
-        label: "Stages",
-        description: `${data.stages.length} available`,
-      },
     ],
   });
   process.stdout.write(
@@ -136,13 +132,6 @@ function listAgentCombinationsVerbose(data, agentData) {
   for (const { discipline, track } of findValidCombinations(data, agentData)) {
     process.stdout.write(
       `  npx fit-pathway agent ${discipline.id} ${track.id}\n`,
-    );
-  }
-
-  process.stdout.write("\n## Available stages:\n\n");
-  for (const stage of data.stages) {
-    process.stdout.write(
-      `  --stage=${stage.id}: ${stage.description.split(" - ")[0]}\n`,
     );
   }
 }

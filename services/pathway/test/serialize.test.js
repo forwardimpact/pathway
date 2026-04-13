@@ -168,9 +168,8 @@ describe("agentProfileToTurtle", () => {
     const turtle = await agentProfileToTurtle({
       discipline: { id: "fde" },
       track: { id: "forward_deployed" },
-      stage: { id: "established" },
       profile: {
-        frontmatter: { name: "fde-fwd-established", model: "opus" },
+        frontmatter: { name: "fde-fwd", model: "opus" },
         bodyData: {
           derivedSkills: [{ skillId: "python" }, { skillId: "ci-cd" }],
           derivedBehaviours: [{ behaviourId: "ownership" }],
@@ -178,7 +177,7 @@ describe("agentProfileToTurtle", () => {
       },
     });
     const quads = parseQuads(turtle);
-    const node = `${FIT}agent-profile/fde/forward_deployed/established`;
+    const node = `${FIT}agent-profile/fde/forward_deployed`;
 
     assert.ok(
       findOne(quads, {
@@ -196,14 +195,18 @@ describe("agentProfileToTurtle", () => {
         .length,
       1,
     );
-    assert.ok(findOne(quads, { subject: node, predicate: `${FIT}stage` }));
+    assert.strictEqual(
+      findOne(quads, { subject: node, predicate: `${FIT}stage` }),
+      undefined,
+      "should not have stage triple",
+    );
     const fm = findOne(quads, {
       subject: node,
       predicate: `${FIT}frontmatter`,
     });
     assert.ok(fm);
     assert.deepStrictEqual(JSON.parse(fm.object.value), {
-      name: "fde-fwd-established",
+      name: "fde-fwd",
       model: "opus",
     });
   });

@@ -17,7 +17,6 @@ const store = createStore({
     drivers: [],
     questions: {},
     capabilities: [],
-    stages: [],
     framework: {},
     loaded: false,
     error: null,

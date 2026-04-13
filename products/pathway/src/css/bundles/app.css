@@ -41,7 +41,6 @@
 @import "../pages/landing.css" layer(pages);
 @import "../pages/job-builder.css" layer(pages);
 @import "../pages/agent-builder.css" layer(pages);
-@import "../pages/lifecycle.css" layer(pages);
 @import "../pages/interview-builder.css" layer(pages);
 @import "../pages/self-assessment.css" layer(pages);
 @import "../pages/assessment-results.css" layer(pages);

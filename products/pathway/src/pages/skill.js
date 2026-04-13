@@ -103,7 +103,6 @@ export async function renderSkillDetail(params) {
     const template = await getSkillTemplate();
     const skillData = generateSkillMarkdown({
       skillData: skill,
-      stages: data.stages,
     });
     agentSkillContent = formatAgentSkill(skillData, template);
   }

@@ -23,7 +23,6 @@ const ROUTE_COMMANDS = [
   { pattern: /^\/track$/, toCommand: () => "npx fit-pathway track" },
   { pattern: /^\/level$/, toCommand: () => "npx fit-pathway level" },
   { pattern: /^\/driver$/, toCommand: () => "npx fit-pathway driver" },
-  { pattern: /^\/stage$/, toCommand: () => "npx fit-pathway stage" },
   { pattern: /^\/tool$/, toCommand: () => "npx fit-pathway tool" },
 
   // Entity details
@@ -51,11 +50,6 @@ const ROUTE_COMMANDS = [
     pattern: /^\/driver\/(.+)$/,
     toCommand: (m) => `npx fit-pathway driver ${m[1]}`,
   },
-  {
-    pattern: /^\/stage\/(.+)$/,
-    toCommand: (m) => `npx fit-pathway stage ${m[1]}`,
-  },
-
   // Job builder + detail
   {
     pattern: /^\/job-builder$/,
@@ -114,11 +108,6 @@ const ROUTE_COMMANDS = [
   {
     pattern: /^\/agent-builder$/,
     toCommand: () => "npx fit-pathway agent --list",
-  },
-  {
-    pattern: /^\/agent\/([^/]+)\/([^/]+)\/([^/]+)$/,
-    toCommand: (m) =>
-      `npx fit-pathway agent ${m[1]} --track=${m[2]} --stage=${m[3]}`,
   },
   {
     pattern: /^\/agent\/([^/]+)\/([^/]+)$/,

@@ -2,8 +2,7 @@
  * Agent builder page
  *
  * Single scrollable view for generating AI coding agent configurations.
- * Uses dropdown pattern matching job builder: discipline × track × stage.
- * Stage includes "All Stages" option for complete deployment downloads.
+ * Uses dropdown pattern matching job builder: discipline x track.
  */
 
 import {
@@ -19,21 +18,13 @@ import {
 import { getState } from "../lib/state.js";
 import { loadAgentDataBrowser } from "../lib/yaml-loader.js";
 import { deriveReferenceLevel } from "@forwardimpact/libskill/agent";
-import {
-  createSelectWithValue,
-  createDisciplineSelect,
-} from "../lib/form-controls.js";
+import { createDisciplineSelect } from "../lib/form-controls.js";
 import { createReactive } from "../lib/reactive.js";
-import { getStageEmoji } from "../formatters/stage/shared.js";
 import {
-  createAllStagesPreview,
-  createSingleStagePreview,
+  createAgentPreview,
   createHelpSection,
 } from "./agent-builder-preview.js";
 import { createInstallSection } from "./agent-builder-install.js";
-
-/** All stages option value */
-const ALL_STAGES_VALUE = "all";
 
 /** @type {Object|null} Cached agent data */
 let agentDataCache = null;
@@ -105,7 +96,6 @@ export async function renderAgentBuilder() {
   );
   // All tracks with agent definitions (will be filtered per-discipline)
   const allAgentTracks = data.tracks.filter((t) => agentTrackIds.has(t.id));
-  const stages = data.stages || [];
 
   /**
    * Get tracks valid for a discipline that also have agent definitions
@@ -168,32 +158,20 @@ export async function renderAgentBuilder() {
     trackSelectEl.disabled = false;
   }
 
-  // Build stage options with "All Stages" first
-  const stageOptions = [
-    { id: ALL_STAGES_VALUE, name: "All Stages" },
-    ...stages.map((s) => ({
-      id: s.id,
-      name: `${getStageEmoji(stages, s.id)} ${s.name}`,
-    })),
-  ];
-
   // Parse URL params for pre-selection
-  // Supports: /agent/discipline, /agent/discipline/track, /agent/discipline/track/stage
+  // Supports: /agent/discipline, /agent/discipline/track
   const hash = window.location.hash;
   const pathMatch = hash.match(
     // eslint-disable-next-line security/detect-unsafe-regex -- negated char classes prevent backtracking; parses internal URL hash
-    /#\/agent\/([^/]+)(?:\/([^/]+))?(?:\/([^/?]+))?/,
+    /#\/agent\/([^/]+)(?:\/([^/?]+))?/,
   );
   const initialDiscipline = pathMatch ? pathMatch[1] : "";
   const initialTrack = pathMatch && pathMatch[2] ? pathMatch[2] : "";
-  const initialStage =
-    pathMatch && pathMatch[3] ? pathMatch[3] : ALL_STAGES_VALUE;
 
   // Create reactive selection state
   const selection = createReactive({
     discipline: initialDiscipline,
     track: initialTrack,
-    stage: initialStage,
   });
 
   // Preview container - will be updated reactively
@@ -206,12 +184,11 @@ export async function renderAgentBuilder() {
    * Update the preview when selection changes
    * @param {Object} sel - Current selection
    */
-  function updatePreview({ discipline, track, stage }) {
+  function updatePreview({ discipline, track }) {
     // Update URL without triggering navigation
     if (discipline) {
       const trackPart = track ? `/${track}` : "";
-      const stagePart = stage && stage !== ALL_STAGES_VALUE ? `/${stage}` : "";
-      const newHash = `#/agent/${discipline}${trackPart}${stagePart}`;
+      const newHash = `#/agent/${discipline}${trackPart}`;
       if (window.location.hash !== newHash) {
         history.replaceState(null, "", newHash);
       }
@@ -254,7 +231,6 @@ export async function renderAgentBuilder() {
       agentDiscipline,
       agentTrack,
       level,
-      stages,
       skills: data.skills,
       behaviours: data.behaviours,
       agentBehaviours: agentData.behaviours,
@@ -262,42 +238,17 @@ export async function renderAgentBuilder() {
       templates,
     };
 
-    // Install section (ecosystem-tool install commands) — appears above the
-    // preview cards so the install action is visible before users scroll
-    // through the generated files. Only rendered when the framework has a
-    // published distribution site URL, since the packs only exist at that
-    // URL after a `fit-pathway build`. Must come after the stage-validity
-    // guard below so an invalid stage id (e.g. from a stale bookmark) does
-    // not pair the install card with a "Stage not found" error.
-    function appendInstallSection() {
-      const installSection = createInstallSection({
-        discipline: humanDiscipline,
-        track: humanTrack,
-        siteUrl,
-      });
-      if (installSection) {
-        previewContainer.appendChild(installSection);
-      }
+    // Install section (ecosystem-tool install commands)
+    const installSection = createInstallSection({
+      discipline: humanDiscipline,
+      track: humanTrack,
+      siteUrl,
+    });
+    if (installSection) {
+      previewContainer.appendChild(installSection);
     }
 
-    // Generate preview based on stage selection
-    if (stage === ALL_STAGES_VALUE) {
-      appendInstallSection();
-      previewContainer.appendChild(createAllStagesPreview(context));
-    } else {
-      const stageObj = stages.find((s) => s.id === stage);
-      if (!stageObj) {
-        previewContainer.appendChild(
-          div(
-            { className: "empty-state" },
-            p({ className: "text-muted" }, `Stage "${stage}" not found.`),
-          ),
-        );
-        return;
-      }
-      appendInstallSection();
-      previewContainer.appendChild(createSingleStagePreview(context, stageObj));
-    }
+    previewContainer.appendChild(createAgentPreview(context));
   }
 
   // Subscribe to selection changes
@@ -309,10 +260,10 @@ export async function renderAgentBuilder() {
     // Header
     div(
       { className: "page-header" },
-      h1({ className: "page-title" }, "🤖 Agent Team Builder"),
+      h1({ className: "page-title" }, "Agent Team Builder"),
       p(
         { className: "page-description" },
-        "Generate coding agent teams from discipline × track × stage combinations. " +
+        "Generate coding agent teams from discipline x track combinations. " +
           "Export complete agent profiles and skill files for Claude Code.",
       ),
     ),
@@ -377,21 +328,6 @@ export async function renderAgentBuilder() {
             return trackSelectEl;
           })(),
         ),
-        // Stage selector (dropdown with All Stages option)
-        div(
-          { className: "form-group" },
-          label({ className: "form-label" }, "Stage"),
-          createSelectWithValue({
-            id: "agent-stage-select",
-            items: stageOptions,
-            initialValue: selection.get().stage,
-            placeholder: "Select a stage...",
-            onChange: (value) => {
-              selection.update((prev) => ({ ...prev, stage: value }));
-            },
-            getDisplayName: (s) => s.name,
-          }),
-        ),
       ),
     ),
 
@@ -431,7 +367,7 @@ function createEmptyState(disciplineCount, trackCount) {
     { className: "empty-state" },
     p(
       { className: "text-muted" },
-      "Select a discipline, track, and stage to generate agents.",
+      "Select a discipline and track to generate agents.",
     ),
   );
 }

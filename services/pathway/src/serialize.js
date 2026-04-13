@@ -25,7 +25,6 @@ import {
   disciplineIri,
   trackIri,
   levelIri,
-  stageIri,
   toolIri,
 } from "@forwardimpact/map/iri";
 
@@ -165,21 +164,15 @@ export async function jobListToTurtle(jobs) {
 }
 
 /**
- * Serialize a single stage agent profile produced by generateStageAgentProfile.
+ * Serialize a single agent profile produced by generateAgentProfile.
  * @param {object} params
  * @param {object} params.discipline
  * @param {object} params.track
- * @param {object} [params.stage]
  * @param {object} params.profile - { frontmatter, bodyData, filename }
  * @returns {Promise<string>}
  */
-export async function agentProfileToTurtle({
-  discipline,
-  track,
-  stage,
-  profile,
-}) {
-  return writeTurtle(agentProfileQuads({ discipline, track, stage, profile }));
+export async function agentProfileToTurtle({ discipline, track, profile }) {
+  return writeTurtle(agentProfileQuads({ discipline, track, profile }));
 }
 
 function pushAgentSkills(quads, node, derivedSkills) {
@@ -202,17 +195,14 @@ function pushAgentBehaviours(quads, node, derivedBehaviours) {
   }
 }
 
-function agentProfileQuads({ discipline, track, stage, profile }) {
-  const node = namedNode(agentProfileIri(discipline.id, track.id, stage?.id));
+function agentProfileQuads({ discipline, track, profile }) {
+  const node = namedNode(agentProfileIri(discipline.id, track.id));
   const quads = [];
   quads.push(typeQuad(node, TYPE_AGENT_PROFILE));
   quads.push(
     quad(node, fit("discipline"), namedNode(disciplineIri(discipline.id))),
   );
   quads.push(quad(node, fit("track"), namedNode(trackIri(track.id))));
-  if (stage) {
-    quads.push(quad(node, fit("stage"), namedNode(stageIri(stage.id))));
-  }
 
   const bodyData = profile?.bodyData || {};
   pushAgentSkills(quads, node, bodyData.derivedSkills);
@@ -232,11 +222,9 @@ function agentProfileQuads({ discipline, track, stage, profile }) {
 }
 
 /**
- * Serialize a list of agent profiles. Each profile is serialized with its
- * stage attached so the LLM can distinguish between stages of the same
- * (discipline, track) pair.
+ * Serialize a list of agent profiles.
  *
- * @param {Array<{discipline, track, stage, profile}>} entries
+ * @param {Array<{discipline, track, profile}>} entries
  * @returns {Promise<string>}
  */
 export async function agentProfileListToTurtle(entries) {

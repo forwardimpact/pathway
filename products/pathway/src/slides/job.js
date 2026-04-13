@@ -28,7 +28,6 @@ export function renderJobSlide({ render, data, params }) {
     behaviours: data.behaviours,
     drivers: data.drivers,
     capabilities: data.capabilities,
-    stages: data.stages,
   });
 
   if (!view) {

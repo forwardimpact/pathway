@@ -114,7 +114,6 @@ function buildData() {
     tracks: [fwd],
     levels: [l1, l2],
     capabilities: [],
-    stages: [],
     questions: [],
     framework: { validationRules: { levels: [l1, l2] } },
   };

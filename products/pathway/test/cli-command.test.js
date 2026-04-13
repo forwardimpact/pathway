@@ -21,7 +21,6 @@ describe("getCliCommand", () => {
     assert.strictEqual(getCliCommand("/track"), "npx fit-pathway track");
     assert.strictEqual(getCliCommand("/level"), "npx fit-pathway level");
     assert.strictEqual(getCliCommand("/driver"), "npx fit-pathway driver");
-    assert.strictEqual(getCliCommand("/stage"), "npx fit-pathway stage");
     assert.strictEqual(getCliCommand("/tool"), "npx fit-pathway tool");
   });
 
@@ -92,10 +91,6 @@ describe("getCliCommand", () => {
     assert.strictEqual(
       getCliCommand("/agent/se/backend"),
       "npx fit-pathway agent se --track=backend",
-    );
-    assert.strictEqual(
-      getCliCommand("/agent/se/backend/code"),
-      "npx fit-pathway agent se --track=backend --stage=code",
     );
   });
 

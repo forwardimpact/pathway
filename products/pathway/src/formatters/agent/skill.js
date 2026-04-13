@@ -11,7 +11,7 @@
 
 import Mustache from "mustache";
 
-import { trimValue, splitLines, trimFields } from "../shared.js";
+import { trimValue, splitLines } from "../shared.js";
 import { flattenToLine } from "../template-preprocess.js";
 
 /**
@@ -30,7 +30,9 @@ const lcFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s);
  * @param {string} params.frontmatter.description - Skill description (required)
  * @param {string} [params.frontmatter.useWhen] - When to use this skill
  * @param {string} params.title - Human-readable skill title for heading
- * @param {Array} params.stages - Array of stage objects with stageName, focus, readChecklist, confirmChecklist
+ * @param {string} [params.focus] - Skill focus text
+ * @param {Array} [params.readChecklist] - Read-do checklist items
+ * @param {Array} [params.confirmChecklist] - Do-confirm checklist items
  * @param {string} params.instructions - Workflow guidance content (markdown)
  * @param {string} params.installScript - Shell commands for install script
  * @param {string} params.implementationReference - Reference content (markdown)
@@ -40,19 +42,14 @@ const lcFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s);
 function prepareAgentSkillData({
   frontmatter,
   title,
-  stages,
+  focus,
+  readChecklist,
+  confirmChecklist,
   instructions,
   installScript,
   implementationReference,
   toolReferences,
 }) {
-  // Process stages - trim focus and array values
-  const processedStages = trimFields(stages, {
-    focus: "required",
-    readChecklist: "array",
-    confirmChecklist: "array",
-  });
-
   // Flatten multi-line strings to single line for front matter compatibility
   const description = flattenToLine(frontmatter.description);
   const useWhen = lcFirst(flattenToLine(frontmatter.useWhen));
@@ -60,6 +57,11 @@ function prepareAgentSkillData({
   // Keep line arrays for body rendering
   const descriptionLines = splitLines(frontmatter.description);
 
+  const trimmedFocus = trimValue(focus) || "";
+  const trimmedReadChecklist = (readChecklist || []).map((c) => trimValue(c));
+  const trimmedConfirmChecklist = (confirmChecklist || []).map((c) =>
+    trimValue(c),
+  );
   const trimmedInstructions = trimValue(instructions) || "";
   const trimmedInstallScript = trimValue(installScript) || "";
   const trimmedReference = trimValue(implementationReference) || "";
@@ -75,8 +77,12 @@ function prepareAgentSkillData({
     // Line arrays for body content
     descriptionLines,
     title,
-    stages: processedStages,
-    hasStages: processedStages.length > 0,
+    focus: trimmedFocus,
+    hasFocus: !!trimmedFocus,
+    readChecklist: trimmedReadChecklist,
+    hasReadChecklist: trimmedReadChecklist.length > 0,
+    confirmChecklist: trimmedConfirmChecklist,
+    hasConfirmChecklist: trimmedConfirmChecklist.length > 0,
     instructions: trimmedInstructions,
     hasInstructions: !!trimmedInstructions,
     installScript: trimmedInstallScript,
@@ -90,12 +96,14 @@ function prepareAgentSkillData({
 
 /**
  * Format agent skill as SKILL.md file content using Mustache template
- * @param {Object} skill - Skill with frontmatter, title, stages, instructions, installScript, implementationReference
+ * @param {Object} skill - Skill with frontmatter, title, focus, readChecklist, confirmChecklist, instructions, installScript, implementationReference
  * @param {Object} skill.frontmatter - YAML frontmatter data
  * @param {string} skill.frontmatter.name - Skill name (required)
  * @param {string} skill.frontmatter.description - Skill description (required)
  * @param {string} skill.title - Human-readable skill title for heading
- * @param {Array} skill.stages - Array of stage objects with stageName, focus, readChecklist, confirmChecklist
+ * @param {string} [skill.focus] - Skill focus text
+ * @param {Array} [skill.readChecklist] - Read-do checklist items
+ * @param {Array} [skill.confirmChecklist] - Do-confirm checklist items
  * @param {string} skill.instructions - Workflow guidance (markdown)
  * @param {string} skill.installScript - Shell commands for install script
  * @param {string} skill.implementationReference - Reference content (markdown)
@@ -107,7 +115,9 @@ export function formatAgentSkill(
   {
     frontmatter,
     title,
-    stages,
+    focus,
+    readChecklist,
+    confirmChecklist,
     instructions,
     installScript,
     implementationReference,
@@ -118,7 +128,9 @@ export function formatAgentSkill(
   const data = prepareAgentSkillData({
     frontmatter,
     title,
-    stages,
+    focus,
+    readChecklist,
+    confirmChecklist,
     instructions,
     installScript,
     implementationReference,

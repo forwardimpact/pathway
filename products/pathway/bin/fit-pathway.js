@@ -28,7 +28,6 @@ import { runTrackCommand } from "../src/commands/track.js";
 import { runBehaviourCommand } from "../src/commands/behaviour.js";
 import { runSkillCommand } from "../src/commands/skill.js";
 import { runDriverCommand } from "../src/commands/driver.js";
-import { runStageCommand } from "../src/commands/stage.js";
 import { runToolCommand } from "../src/commands/tool.js";
 import { runJobCommand } from "../src/commands/job.js";
 import { runInterviewCommand } from "../src/commands/interview.js";
@@ -54,7 +53,6 @@ const COMMANDS = {
   behaviour: runBehaviourCommand,
   skill: runSkillCommand,
   driver: runDriverCommand,
-  stage: runStageCommand,
   tool: runToolCommand,
   job: runJobCommand,
   interview: runInterviewCommand,
@@ -99,16 +97,6 @@ const definition = {
       },
     },
     { name: "driver", args: "[<id>]", description: "Show drivers" },
-    {
-      name: "stage",
-      args: "[<id>]",
-      description: "Show stages",
-      options: {
-        stage: { type: "string", description: "Lifecycle stage" },
-        checklist: { type: "string", description: "Handoff checklist stage" },
-        "all-stages": { type: "boolean", description: "Show all stages" },
-      },
-    },
     { name: "tool", args: "[<name>]", description: "Show tools" },
     {
       name: "job",

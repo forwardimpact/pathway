@@ -9,33 +9,8 @@ import {
   groupSkillsByCapability,
   getConceptEmoji,
 } from "@forwardimpact/map/levels";
-import { getStageEmoji } from "../formatters/stage/shared.js";
 import { aggregateTools } from "../formatters/tool/shared.js";
 import { createCommandPrompt } from "../components/command-prompt.js";
-
-/**
- * Create lifecycle flow visualization for landing page
- * @param {Array} stages - Array of stage objects
- * @returns {HTMLElement}
- */
-function createLifecycleFlow(stages) {
-  const flowItems = stages.map((stage, index) => {
-    const emoji = getStageEmoji(stages, stage.id);
-    const isLast = index === stages.length - 1;
-
-    return div(
-      { className: "lifecycle-flow-item" },
-      a(
-        { href: `#/stage/${stage.id}`, className: "lifecycle-stage" },
-        span({ className: "lifecycle-emoji" }, emoji),
-        span({ className: "lifecycle-name" }, stage.name),
-      ),
-      !isLast ? span({ className: "lifecycle-arrow" }, "→") : null,
-    );
-  });
-
-  return div({ className: "lifecycle-flow" }, ...flowItems);
-}
 
 /**
  * Render the landing page
@@ -43,7 +18,6 @@ function createLifecycleFlow(stages) {
 export function renderLanding() {
   const { data } = getState();
   const { framework } = data;
-  const stages = data.stages || [];
 
   // Calculate stats using centralized capability ordering
   const skillsByCapability = groupSkillsByCapability(
@@ -130,32 +104,11 @@ export function renderLanding() {
         href: "/driver",
       }),
       createStatCard({
-        value: stages.length,
-        label: "Stages",
-        href: "/stage",
-      }),
-      createStatCard({
         value: tools.length,
         label: "Tools",
         href: "/tool",
       }),
     ),
-
-    // Lifecycle flow visualization
-    stages.length > 0
-      ? div(
-          { className: "section section-detail" },
-          h2(
-            { className: "section-title" },
-            `${getConceptEmoji(framework, "stage")} Engineering Lifecycle`,
-          ),
-          p(
-            { className: "text-muted", style: "margin-bottom: 1rem" },
-            "The three stages of engineering work, from planning through review.",
-          ),
-          createLifecycleFlow(stages),
-        )
-      : null,
 
     // Quick links section
     div(
@@ -192,11 +145,6 @@ export function renderLanding() {
           `${getConceptEmoji(framework, "driver")} ${framework.entityDefinitions.driver.title}`,
           `${data.drivers.length} ${framework.entityDefinitions.driver.title.toLowerCase()} — ${framework.entityDefinitions.driver.description.trim().split("\n")[0]}`,
           "/driver",
-        ),
-        createQuickLinkCard(
-          `${getConceptEmoji(framework, "stage")} ${framework.entityDefinitions.stage.title}`,
-          `${stages.length} ${framework.entityDefinitions.stage.title.toLowerCase()} — ${framework.entityDefinitions.stage.description.trim().split("\n")[0]}`,
-          "/stage",
         ),
         createQuickLinkCard(
           `${getConceptEmoji(framework, "tool")} ${framework.entityDefinitions.tool.title}`,

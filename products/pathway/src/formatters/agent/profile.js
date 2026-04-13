@@ -30,30 +30,21 @@ import { flattenToLine } from "../template-preprocess.js";
  * @param {string[]} params.frontmatter.skills - Skill dirnames for auto-loading
  * @param {Object} params.bodyData - Structured body data
  * @param {string} params.bodyData.title - Agent title
- * @param {string} params.bodyData.stageDescription - Stage description text
- * @param {string} params.bodyData.stageId - Stage identifier (e.g. "plan", "code", "scaffold")
- * @param {string} params.bodyData.stageName - Human-readable stage name (e.g. "Plan", "Code", "Scaffold")
  * @param {string} params.bodyData.identity - Core identity text
  * @param {string} [params.bodyData.priority] - Priority/philosophy statement
  * @param {Array<{name: string, dirname: string, useWhen: string}>} params.bodyData.skillIndex - Skill index entries
  * @param {string} params.bodyData.roleContext - Role context text
  * @param {WorkingStyleEntry[]} params.bodyData.workingStyles - Working style entries
- * @param {string[]} params.bodyData.constraints - List of constraints
- * @param {Array<{targetStageName: string, summaryInstruction: string, entryCriteria: string[]}>} params.bodyData.stageTransitions - Stage transition definitions
+ * @param {string[]} params.bodyData.disciplineConstraints - Discipline constraints
+ * @param {string[]} params.bodyData.trackConstraints - Track constraints
  * @returns {Object} Data object ready for Mustache template
  */
 function prepareAgentProfileData({ frontmatter, bodyData }) {
-  const stageConstraints = (bodyData.stageConstraints || []).map((c) =>
-    trimRequired(c),
-  );
   const disciplineConstraints = (bodyData.disciplineConstraints || []).map(
     (c) => trimRequired(c),
   );
   const trackConstraints = (bodyData.trackConstraints || []).map((c) =>
     trimRequired(c),
-  );
-  const returnFormat = (bodyData.returnFormat || []).map((r) =>
-    trimRequired(r),
   );
   const skillIndex = trimFields(bodyData.skillIndex, {
     name: "required",
@@ -65,18 +56,8 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
     content: "required",
   });
 
-  // Prepare stage transitions for body rendering
-  const stageTransitions = (bodyData.stageTransitions || []).map((t) => ({
-    targetStageName: t.targetStageName,
-    summaryInstruction: trimValue(t.summaryInstruction),
-    entryCriteria: (t.entryCriteria || []).map((c) => trimRequired(c)),
-    hasEntryCriteria: (t.entryCriteria || []).length > 0,
-  }));
-
   const hasConstraints =
-    stageConstraints.length > 0 ||
-    disciplineConstraints.length > 0 ||
-    trackConstraints.length > 0;
+    disciplineConstraints.length > 0 || trackConstraints.length > 0;
 
   return {
     // Frontmatter
@@ -87,9 +68,6 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
 
     // Body data - trim all string fields
     title: bodyData.title,
-    stageDescription: trimValue(bodyData.stageDescription),
-    stageId: bodyData.stageId,
-    stageName: bodyData.stageName,
     identity: trimValue(bodyData.identity),
     priority: trimValue(bodyData.priority),
     skillIndex,
@@ -97,17 +75,9 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
     roleContext: trimValue(bodyData.roleContext),
     workingStyles,
     hasWorkingStyles: workingStyles.length > 0,
-    stageConstraints,
     disciplineConstraints,
     trackConstraints,
-    hasStageConstraints: stageConstraints.length > 0,
-    hasDisciplineOrTrackConstraints:
-      disciplineConstraints.length > 0 || trackConstraints.length > 0,
     hasConstraints,
-    returnFormat,
-    hasReturnFormat: returnFormat.length > 0,
-    stageTransitions,
-    hasStageTransitions: stageTransitions.length > 0,
   };
 }
 
@@ -120,15 +90,14 @@ function prepareAgentProfileData({ frontmatter, bodyData }) {
  * @param {string} profile.frontmatter.model - Claude Code model
  * @param {string[]} profile.frontmatter.skills - Skill dirnames
  * @param {Object} profile.bodyData - Structured body data
- * @param {string} profile.bodyData.title - Agent title (e.g. "Software Engineering - Platform - Plan Agent")
- * @param {string} profile.bodyData.stageDescription - Stage description text
+ * @param {string} profile.bodyData.title - Agent title (e.g. "Software Engineering - Platform")
  * @param {string} profile.bodyData.identity - Core identity text
  * @param {string} [profile.bodyData.priority] - Priority/philosophy statement (optional)
  * @param {Array<{name: string, dirname: string, useWhen: string}>} profile.bodyData.skillIndex - Skill index entries
  * @param {string} profile.bodyData.roleContext - Role context text
  * @param {WorkingStyleEntry[]} profile.bodyData.workingStyles - Working style entries
- * @param {string[]} profile.bodyData.constraints - List of constraints
- * @param {Array} profile.bodyData.stageTransitions - Stage transitions for body section
+ * @param {string[]} profile.bodyData.disciplineConstraints - Discipline constraints
+ * @param {string[]} profile.bodyData.trackConstraints - Track constraints
  * @param {string} template - Mustache template string
  * @returns {string} Complete .md file content
  */

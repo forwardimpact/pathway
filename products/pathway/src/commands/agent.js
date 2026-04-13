@@ -5,14 +5,10 @@
  * from Engineering Pathway data. Outputs follow the Claude Code
  * agent specification.
  *
- * All agents are stage-specific. Use --stage for a single stage
- * or --all-stages (default) for all stages.
- *
  * By default, outputs to console. Use --output to write files.
  *
  * Usage:
  *   npx fit-pathway agent <discipline> [--track=<track>]
- *   npx fit-pathway agent <discipline> --track=<track> --stage=plan
  *   npx fit-pathway agent <discipline> --track=<track> --output=./agents
  *   npx fit-pathway agent <discipline> [--track=<track>] --skills  # Plain list of skill IDs
  *   npx fit-pathway agent <discipline> [--track=<track>] --tools   # Plain list of tool names
@@ -20,13 +16,12 @@
  *
  * Examples:
  *   npx fit-pathway agent software_engineering --track=platform
- *   npx fit-pathway agent software_engineering --track=platform --stage=plan
  *   npx fit-pathway agent software_engineering --track=platform --output=./agents
  */
 
 import { createDataLoader } from "@forwardimpact/map/loader";
 import {
-  generateStageAgentProfile,
+  generateAgentProfile,
   validateAgentProfile,
   validateAgentSkill,
   deriveReferenceLevel,
@@ -136,81 +131,32 @@ function printTeamInstructions(agentTrack, humanDiscipline) {
 }
 
 /**
- * Handle single-stage agent generation
+ * Handle agent generation (single profile per discipline/track)
  * @param {Object} params
  */
-async function handleSingleStage({
-  stageParams,
-  options,
-  data,
-  agentTrack,
-  humanDiscipline,
-  agentData,
-  templateLoader,
-  dataDir,
-}) {
-  const stage = data.stages.find((s) => s.id === options.stage);
-  if (!stage) {
-    process.stderr.write(formatError(`Unknown stage: ${options.stage}`) + "\n");
-    process.stderr.write("\nAvailable stages:\n");
-    for (const s of data.stages) {
-      process.stderr.write(formatBullet(s.id, 1) + "\n");
-    }
-    process.exit(1);
-  }
-
-  const profile = generateStageAgentProfile({ ...stageParams, stage });
-  const errors = validateAgentProfile(profile);
-  if (errors.length > 0) {
-    process.stderr.write(formatError("Profile validation failed:") + "\n");
-    for (const err of errors) {
-      process.stderr.write(formatBullet(err, 1) + "\n");
-    }
-    process.exit(1);
-  }
-
-  const agentTemplate = templateLoader.load("agent.template.md", dataDir);
-  const baseDir = options.output || ".";
-
-  if (!options.output) {
-    printTeamInstructions(agentTrack, humanDiscipline);
-    process.stdout.write(formatAgentProfile(profile, agentTemplate) + "\n");
-    return;
-  }
-
-  const teamInstructions = interpolateTeamInstructions({
-    agentTrack,
-    humanDiscipline,
-  });
-  await writeTeamInstructions(teamInstructions, baseDir);
-  await writeProfile(profile, baseDir, agentTemplate);
-  await generateClaudeCodeSettings(baseDir, agentData.claudeCodeSettings);
-  process.stdout.write("\n");
-  process.stdout.write(
-    formatSuccess(`Generated stage agent: ${profile.frontmatter.name}`) + "\n",
-  );
-}
-
-/**
- * Handle all-stages agent generation
- * @param {Object} params
- */
-async function handleAllStages({
-  stageParams,
+async function handleAgent({
   options,
   data,
   agentTrack,
   humanDiscipline,
   humanTrack,
   agentData,
+  agentDiscipline,
   skillsWithAgent,
   level,
   templateLoader,
   dataDir,
 }) {
-  const profiles = data.stages.map((stage) =>
-    generateStageAgentProfile({ ...stageParams, stage }),
-  );
+  const profile = generateAgentProfile({
+    discipline: humanDiscipline,
+    track: humanTrack,
+    level,
+    skills: skillsWithAgent,
+    behaviours: data.behaviours,
+    agentBehaviours: agentData.behaviours,
+    agentDiscipline,
+    agentTrack,
+  });
 
   const derivedSkills = deriveAgentSkills({
     discipline: humanDiscipline,
@@ -222,32 +168,28 @@ async function handleAllStages({
   const skillFiles = derivedSkills
     .map((derived) => skillsWithAgent.find((s) => s.id === derived.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) =>
-      generateSkillMarkdown({ skillData: skill, stages: data.stages }),
-    );
+    .map((skill) => generateSkillMarkdown({ skillData: skill }));
 
-  for (const profile of profiles) {
-    const errors = validateAgentProfile(profile);
-    if (errors.length > 0) {
-      process.stderr.write(
-        formatError(`Profile ${profile.frontmatter.name} validation failed:`) +
-          "\n",
-      );
-      for (const err of errors) {
-        process.stderr.write(formatBullet(err, 1) + "\n");
-      }
-      process.exit(1);
+  const errors = validateAgentProfile(profile);
+  if (errors.length > 0) {
+    process.stderr.write(
+      formatError(`Profile ${profile.frontmatter.name} validation failed:`) +
+        "\n",
+    );
+    for (const err of errors) {
+      process.stderr.write(formatBullet(err, 1) + "\n");
     }
+    process.exit(1);
   }
 
   for (const skill of skillFiles) {
-    const errors = validateAgentSkill(skill);
-    if (errors.length > 0) {
+    const skillErrors = validateAgentSkill(skill);
+    if (skillErrors.length > 0) {
       process.stderr.write(
         formatError(`Skill ${skill.frontmatter.name} validation failed:`) +
           "\n",
       );
-      for (const err of errors) {
+      for (const err of skillErrors) {
         process.stderr.write(formatBullet(err, 1) + "\n");
       }
       process.exit(1);
@@ -265,10 +207,7 @@ async function handleAllStages({
 
   if (!options.output) {
     printTeamInstructions(agentTrack, humanDiscipline);
-    for (const profile of profiles) {
-      process.stdout.write(formatAgentProfile(profile, agentTemplate) + "\n");
-      process.stdout.write("\n---\n\n");
-    }
+    process.stdout.write(formatAgentProfile(profile, agentTemplate) + "\n");
     return;
   }
 
@@ -277,19 +216,14 @@ async function handleAllStages({
     humanDiscipline,
   });
   await writeTeamInstructions(teamInstructions, baseDir);
-  for (const profile of profiles) {
-    await writeProfile(profile, baseDir, agentTemplate);
-  }
+  await writeProfile(profile, baseDir, agentTemplate);
   const fileCount = await writeSkills(skillFiles, baseDir, skillTemplates);
   await generateClaudeCodeSettings(baseDir, agentData.claudeCodeSettings);
 
   process.stdout.write("\n");
   process.stdout.write(
-    formatSuccess(`Generated ${profiles.length} agents:`) + "\n",
+    formatSuccess(`Generated agent: ${profile.frontmatter.name}`) + "\n",
   );
-  for (const profile of profiles) {
-    process.stdout.write(formatBullet(profile.frontmatter.name, 1) + "\n");
-  }
   process.stdout.write(formatSubheader(`Skills: ${fileCount} files`) + "\n");
 }
 
@@ -367,35 +301,17 @@ export async function runAgentCommand({
     return;
   }
 
-  const stageParams = {
-    discipline: humanDiscipline,
-    track: humanTrack,
-    level,
-    skills: skillsWithAgent,
-    behaviours: data.behaviours,
-    agentBehaviours: agentData.behaviours,
-    agentDiscipline,
-    agentTrack,
-    stages: data.stages,
-  };
-
-  const commonCtx = {
-    stageParams,
+  await handleAgent({
     options,
     data,
     agentTrack,
     humanDiscipline,
     humanTrack,
     agentData,
+    agentDiscipline,
     skillsWithAgent,
     level,
     templateLoader,
     dataDir,
-  };
-
-  if (options.stage) {
-    await handleSingleStage(commonCtx);
-  } else {
-    await handleAllStages(commonCtx);
-  }
+  });
 }

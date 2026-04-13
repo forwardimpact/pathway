@@ -216,27 +216,3 @@ export function driverToJsonLd(driver, { skills = [], behaviours = [] } = {}) {
     }),
   };
 }
-
-/**
- * Generate JSON-LD for a stage entity
- * @param {Object} stage - Raw stage entity
- * @returns {Object}
- */
-export function stageToJsonLd(stage) {
-  return {
-    ...baseJsonLd("Stage", stage.id),
-    identifier: stage.id,
-    name: stage.name,
-    description: stage.description,
-    ...(stage.emojiIcon && { emojiIcon: stage.emojiIcon }),
-    ...(stage.tools?.length > 0 && { tools: stage.tools }),
-    ...(stage.constraints?.length > 0 && { constraints: stage.constraints }),
-    ...(stage.handoffs && {
-      handoffs: Object.entries(stage.handoffs).map(([targetStage, config]) => ({
-        "@type": "StageHandoff",
-        targetStage: `${VOCAB_BASE}Stage/${targetStage}`,
-        ...(config.prompt && { prompt: config.prompt }),
-      })),
-    }),
-  };
-}

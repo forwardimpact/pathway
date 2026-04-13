@@ -31,9 +31,7 @@ message ListAgentProfilesRequest {
 message DescribeAgentProfileRequest {
   string discipline = 1;
   string track = 2;
-  // Optional stage id (e.g. "intern", "established"). If omitted, the
-  // service returns every stage profile for the discipline x track.
-  optional string stage = 3;
+  reserved 3;
 }
 
 message DescribeProgressionRequest {

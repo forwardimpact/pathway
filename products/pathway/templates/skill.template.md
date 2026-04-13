@@ -45,25 +45,25 @@ trade-offs.
 {{/toolReferences}}
 </required_tools>
 {{/hasToolReferences}}
-{{#hasStages}}
+{{#hasFocus}}
 
-# Stage checklists
-{{#stages}}
+## Focus
 
-## {{stageName}} stage
+{{{focus}}}
+{{/hasFocus}}
+{{#hasReadChecklist}}
 
-**Focus:** {{{focus}}}
-
-<read_then_do_{{stageId}}>
+<read_do_checklist goal="Internalize before starting">
 {{#readChecklist}}
 - [ ] {{{.}}}
 {{/readChecklist}}
-</read_then_do_{{stageId}}>
+</read_do_checklist>
+{{/hasReadChecklist}}
+{{#hasConfirmChecklist}}
 
-<do_then_confirm_{{stageId}}>
+<do_confirm_checklist goal="Verify before completing">
 {{#confirmChecklist}}
 - [ ] {{{.}}}
 {{/confirmChecklist}}
-</do_then_confirm_{{stageId}}>
-{{/stages}}
-{{/hasStages}}
+</do_confirm_checklist>
+{{/hasConfirmChecklist}}

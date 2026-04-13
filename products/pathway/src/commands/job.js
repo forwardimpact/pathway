@@ -27,10 +27,6 @@ import {
   formatBullet,
   formatError,
 } from "@forwardimpact/libcli";
-import {
-  deriveChecklist,
-  formatChecklistMarkdown,
-} from "@forwardimpact/libskill/checklist";
 import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
 
 /**
@@ -227,49 +223,6 @@ function resolveJobEntities(data, args, options) {
 }
 
 /**
- * Handle --checklist sub-command
- * @param {Object} view
- * @param {Object} data
- * @param {string} stageId
- */
-function handleChecklist(view, data, stageId) {
-  const validStages = data.stages.map((s) => s.id);
-  if (!validStages.includes(stageId)) {
-    process.stderr.write(formatError(`Invalid stage: ${stageId}`) + "\n");
-    process.stderr.write(`Available: ${validStages.join(", ")}\n`);
-    process.exit(1);
-  }
-
-  const { readChecklist, confirmChecklist } = deriveChecklist({
-    stageId,
-    skillMatrix: view.skillMatrix,
-    skills: data.skills,
-    capabilities: data.capabilities,
-  });
-
-  if (readChecklist.length === 0 && confirmChecklist.length === 0) {
-    process.stdout.write(
-      "\n" +
-        formatSubheader(`No checklist items for ${stageId} stage`) +
-        "\n\n",
-    );
-    return;
-  }
-
-  // Markdown output (#/##) is intentional — this is consumed as markdown.
-  const stageLabel = stageId.charAt(0).toUpperCase() + stageId.slice(1);
-  process.stdout.write(`\n# ${view.title} — ${stageLabel} Stage Checklist\n\n`);
-  if (readChecklist.length > 0) {
-    process.stdout.write("## Read-Then-Do\n\n");
-    process.stdout.write(formatChecklistMarkdown(readChecklist) + "\n\n");
-  }
-  if (confirmChecklist.length > 0) {
-    process.stdout.write("## Do-Then-Confirm\n\n");
-    process.stdout.write(formatChecklistMarkdown(confirmChecklist) + "\n\n");
-  }
-}
-
-/**
  * Run job command
  * @param {Object} params
  * @param {Object} params.data - All loaded data
@@ -392,7 +345,6 @@ export async function runJobCommand({
     behaviours: data.behaviours,
     drivers: data.drivers,
     capabilities: data.capabilities,
-    stages: data.stages,
   });
 
   if (!view) {
@@ -413,11 +365,6 @@ export async function runJobCommand({
 
   if (options.json) {
     process.stdout.write(JSON.stringify(view, null, 2) + "\n");
-    return;
-  }
-
-  if (options.checklist) {
-    handleChecklist(view, data, options.checklist);
     return;
   }
 

@@ -27,7 +27,6 @@ import {
 import { renderTracksList, renderTrackDetail } from "./pages/track.js";
 import { renderLevelsList, renderLevelDetail } from "./pages/level.js";
 import { renderDriversList, renderDriverDetail } from "./pages/driver.js";
-import { renderStagesList, renderStageDetail } from "./pages/stage.js";
 import { renderToolsList } from "./pages/tool.js";
 import { renderJobBuilder } from "./pages/job-builder.js";
 import { renderJobDetail } from "./pages/job.js";
@@ -111,10 +110,6 @@ function setupRoutes() {
   router.on("/driver", renderDriversList);
   router.on("/driver/:id", renderDriverDetail);
 
-  // Stage
-  router.on("/stage", renderStagesList);
-  router.on("/stage/:id", renderStageDetail);
-
   // Tool
   router.on("/tool", renderToolsList);
 
@@ -139,7 +134,6 @@ function setupRoutes() {
 
   // Agent builder
   router.on("/agent-builder", renderAgentBuilder);
-  router.on("/agent/:discipline/:track/:stage", renderAgentBuilder);
   router.on("/agent/:discipline/:track", renderAgentBuilder);
   router.on("/agent/:discipline", renderAgentBuilder);
 }

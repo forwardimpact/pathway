@@ -10,7 +10,6 @@ export { runTrackCommand } from "./track.js";
 export { runBehaviourCommand } from "./behaviour.js";
 export { runSkillCommand } from "./skill.js";
 export { runDriverCommand } from "./driver.js";
-export { runStageCommand } from "./stage.js";
 export { runToolCommand } from "./tool.js";
 export { runJobCommand } from "./job.js";
 export { runInterviewCommand } from "./interview.js";

@@ -6,7 +6,7 @@ import {
 } from "@forwardimpact/libskill/progression";
 import {
   deriveReferenceLevel,
-  generateStageAgentProfile,
+  generateAgentProfile,
 } from "@forwardimpact/libskill/agent";
 import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 
@@ -71,13 +71,6 @@ export class PathwayService extends PathwayBase {
     const t = this.#data.tracks.find((x) => x.id === id);
     if (!t) throw new Error(`Unknown track: ${id}`);
     return t;
-  }
-
-  #findStage(id) {
-    if (!id) return null;
-    const s = (this.#data.stages || []).find((x) => x.id === id);
-    if (!s) throw new Error(`Unknown stage: ${id}`);
-    return s;
   }
 
   #resolveAgentEntities(disciplineId, trackId) {
@@ -175,7 +168,7 @@ export class PathwayService extends PathwayBase {
         const key = `${discipline.id}|${track.id}`;
         if (seen.has(key)) continue;
         seen.add(key);
-        entries.push({ discipline, track, stage: null, profile: null });
+        entries.push({ discipline, track, profile: null });
       }
     }
 
@@ -196,7 +189,7 @@ export class PathwayService extends PathwayBase {
     }
 
     const level = deriveReferenceLevel(data.levels);
-    const stageParams = {
+    const profile = generateAgentProfile({
       discipline: humanDiscipline,
       track: humanTrack,
       level,
@@ -205,26 +198,12 @@ export class PathwayService extends PathwayBase {
       agentBehaviours: this.#agentData.behaviours,
       agentDiscipline,
       agentTrack,
-      stages: data.stages,
-    };
-
-    if (req.stage) {
-      const stage = this.#findStage(req.stage);
-      const profile = generateStageAgentProfile({ ...stageParams, stage });
-      const content = await agentProfileToTurtle({
-        discipline: humanDiscipline,
-        track: humanTrack,
-        stage,
-        profile,
-      });
-      return { content };
-    }
-
-    const entries = (data.stages || []).map((stage) => {
-      const profile = generateStageAgentProfile({ ...stageParams, stage });
-      return { discipline: humanDiscipline, track: humanTrack, stage, profile };
     });
-    const content = await agentProfileListToTurtle(entries);
+    const content = await agentProfileToTurtle({
+      discipline: humanDiscipline,
+      track: humanTrack,
+      profile,
+    });
     return { content };
   }
 

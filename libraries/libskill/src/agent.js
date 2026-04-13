@@ -290,9 +290,7 @@ export function generateAgentProfile({
   const trackConstraints = agentTrack?.constraints || [];
   const skillDirnames = skillIndex.map((s) => s.dirname);
 
-  const title = hasTrack
-    ? `${specialization} - ${track.name}`
-    : specialization;
+  const title = hasTrack ? `${specialization} - ${track.name}` : specialization;
 
   const bodyData = {
     title,

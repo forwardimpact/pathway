@@ -24,7 +24,7 @@ import { createDataLoader } from "@forwardimpact/map/loader";
 const logger = createLogger("pathway");
 import { createTemplateLoader } from "@forwardimpact/libtemplate";
 import {
-  generateStageAgentProfile,
+  generateAgentProfile,
   deriveReferenceLevel,
   deriveAgentSkills,
   generateSkillMarkdown,
@@ -178,7 +178,7 @@ function derivePackContent({
   skillsWithAgent,
   level,
 }) {
-  const stageParams = {
+  const profile = generateAgentProfile({
     discipline: humanDiscipline,
     track: humanTrack,
     level,
@@ -187,12 +187,8 @@ function derivePackContent({
     agentBehaviours: agentData.behaviours,
     agentDiscipline: discipline,
     agentTrack: track,
-    stages: data.stages,
-  };
-
-  const profiles = data.stages.map((stage) =>
-    generateStageAgentProfile({ ...stageParams, stage }),
-  );
+  });
+  const profiles = [profile];
 
   const derivedSkills = deriveAgentSkills({
     discipline: humanDiscipline,
@@ -204,9 +200,7 @@ function derivePackContent({
   const skillFiles = derivedSkills
     .map((derived) => skillsWithAgent.find((s) => s.id === derived.skillId))
     .filter((skill) => skill?.agent)
-    .map((skill) =>
-      generateSkillMarkdown({ skillData: skill, stages: data.stages }),
-    );
+    .map((skill) => generateSkillMarkdown({ skillData: skill }));
 
   const teamInstructions = interpolateTeamInstructions({
     agentTrack: track,
