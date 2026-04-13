@@ -118,9 +118,6 @@ export {
 export {
   // Canonical orders
   ORDER_SKILL_TYPE,
-  // Data-driven stage ordering
-  getStageOrder,
-  compareByStageOrder,
   // Skill comparators
   compareByLevelDesc,
   compareByLevelAsc,

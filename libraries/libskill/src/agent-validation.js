@@ -13,14 +13,7 @@
 function estimateBodyDataLength(bodyData) {
   let length = 0;
 
-  const stringFields = [
-    "title",
-    "stageDescription",
-    "identity",
-    "priority",
-    "roleContext",
-    "workingStyle",
-  ];
+  const stringFields = ["title", "identity", "priority", "roleContext"];
   for (const field of stringFields) {
     if (bodyData[field]) {
       length += bodyData[field].length;
@@ -31,11 +24,6 @@ function estimateBodyDataLength(bodyData) {
     for (const skill of bodyData.skillIndex) {
       length +=
         skill.name.length + skill.dirname.length + skill.useWhen.length + 50;
-    }
-  }
-  if (bodyData.stageConstraints) {
-    for (const c of bodyData.stageConstraints) {
-      length += c.length + 2;
     }
   }
   if (bodyData.disciplineConstraints) {

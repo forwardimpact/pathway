@@ -95,7 +95,9 @@ export {
   deriveAgentSkills,
   deriveAgentBehaviours,
   generateSkillMarkdown,
-  deriveStageTransitions,
+  generateAgentProfile,
+  buildAgentIndex,
+  interpolateTeamInstructions,
 } from "./agent.js";
 
 export {
@@ -103,15 +105,8 @@ export {
   validateAgentSkill,
 } from "./agent-validation.js";
 
-export {
-  deriveStageAgent,
-  generateStageAgentProfile,
-  buildAgentIndex,
-  interpolateTeamInstructions,
-} from "./agent-stage.js";
-
 // Checklists
-export { deriveChecklist, formatChecklistMarkdown } from "./checklist.js";
+export { formatChecklistMarkdown } from "./checklist.js";
 
 // Toolkit
 export { deriveToolkit } from "./toolkit.js";

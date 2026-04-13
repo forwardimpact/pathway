@@ -16,9 +16,7 @@ import {
   getDisciplineSkillIds,
 } from "./derivation.js";
 import { isValidJobCombination } from "./derivation-validation.js";
-import { deriveChecklist } from "./checklist.js";
 import { deriveToolkit } from "./toolkit.js";
-import { getStageOrder } from "@forwardimpact/map/levels";
 
 /**
  * Get or derive a job, optionally using a cache.
@@ -47,30 +45,7 @@ function getJob(jobCache, params) {
  * @property {string[]} capabilityOrder - Capability IDs in display order (from derivedResponsibilities)
  * @property {Array} driverCoverage
  * @property {Array} toolkit - De-duplicated tools from skills
- * @property {Object} checklists - Handoff checklists keyed by handoff type
  */
-
-/**
- * Derive checklists for all stages
- * @param {Object} job - The job definition
- * @param {Array} skills - All skills
- * @param {Array} capabilities - Capability definitions
- * @param {Array} stages - Stage definitions
- * @returns {Object} Checklists keyed by stage ID
- */
-function deriveAllChecklists(job, skills, capabilities, stages) {
-  const checklists = {};
-  const stageIds = getStageOrder(stages);
-  for (const stageId of stageIds) {
-    checklists[stageId] = deriveChecklist({
-      stageId,
-      skillMatrix: job.skillMatrix,
-      skills,
-      capabilities,
-    });
-  }
-  return checklists;
-}
 
 /**
  * Format driver coverage for display
@@ -101,14 +76,8 @@ function buildJobDetailView({
   track,
   skills,
   drivers,
-  capabilities,
-  stages,
 }) {
   const driverCoverage = calculateDriverCoverage({ job, drivers });
-  const checklists =
-    capabilities && stages
-      ? deriveAllChecklists(job, skills, capabilities, stages)
-      : {};
   const toolkit = deriveToolkit({ skillMatrix: job.skillMatrix, skills });
 
   return {
@@ -128,7 +97,6 @@ function buildJobDetailView({
     ),
     toolkit,
     driverCoverage: formatDriverCoverage(driverCoverage),
-    checklists,
   };
 }
 
@@ -142,7 +110,6 @@ function buildJobDetailView({
  * @param {Array} params.behaviours
  * @param {Array} params.drivers
  * @param {Array} [params.capabilities]
- * @param {Array} [params.stages] - Loaded stages for checklist derivation
  * @param {import('./job-cache.js').JobCache} [params.jobCache] - Optional cache instance
  * @returns {JobDetailView|null}
  */
@@ -154,7 +121,6 @@ export function prepareJobDetail({
   behaviours,
   drivers,
   capabilities,
-  stages,
   jobCache = null,
 }) {
   if (!discipline || !level) return null;
@@ -177,8 +143,6 @@ export function prepareJobDetail({
     track,
     skills,
     drivers,
-    capabilities,
-    stages,
   });
 }
 

@@ -7,7 +7,6 @@ import {
   compareByName,
   compareByCapability,
   sortSkillsByCapability,
-  compareByStageOrder,
   compareByOrder,
   chainComparators,
   compareBySkillChange,
@@ -27,34 +26,6 @@ function skill(overrides = {}) {
 }
 
 describe("orderings - advanced", () => {
-  describe("compareByStageOrder", () => {
-    test("sorts by stage lifecycle order from loaded data", () => {
-      const stages = [{ id: "plan" }, { id: "build" }, { id: "operate" }];
-      const comparator = compareByStageOrder(stages);
-      const items = [
-        { stageId: "operate" },
-        { stageId: "plan" },
-        { stageId: "build" },
-      ];
-      items.sort(comparator);
-      assert.deepStrictEqual(
-        items.map((e) => e.stageId),
-        ["plan", "build", "operate"],
-      );
-    });
-
-    test("falls back to id property", () => {
-      const stages = [{ id: "alpha" }, { id: "beta" }];
-      const comparator = compareByStageOrder(stages);
-      const items = [{ id: "beta" }, { id: "alpha" }];
-      items.sort(comparator);
-      assert.deepStrictEqual(
-        items.map((e) => e.id),
-        ["alpha", "beta"],
-      );
-    });
-  });
-
   describe("compareByCapability", () => {
     test("sorts by capability ordinal rank", () => {
       const capabilities = [

@@ -10,13 +10,6 @@
  * Agent profiles are derived using the SAME modifier logic as human job profiles.
  * Emphasized behaviours and skills (those with positive modifiers) drive agent
  * identity, creating distinct profiles for each discipline x track combination.
- *
- * Stage-based agents (plan, code, review) use lifecycle stages for tool sets,
- * stage transitions, and constraints. See concept/lifecycle.md for details.
- *
- * NOTE: This module uses prepareAgentProfile() from profile.js for unified
- * skill/behaviour derivation. The deriveAgentSkills() and deriveAgentBehaviours()
- * functions are thin wrappers for backward compatibility.
  */
 
 import { deriveSkillMatrix, deriveBehaviourProfile } from "./derivation.js";
@@ -25,8 +18,9 @@ import {
   filterAgentSkills,
   sortAgentSkills,
   sortAgentBehaviours,
+  focusAgentSkills,
 } from "./policies/composed.js";
-import { compareByStageOrder } from "./policies/orderings.js";
+import { LIMIT_AGENT_WORKING_STYLES } from "./policies/thresholds.js";
 import { SkillProficiency } from "@forwardimpact/map/levels";
 
 /**
@@ -130,51 +124,16 @@ export function deriveAgentBehaviours({
 
 /**
  * Generate SKILL.md content from skill data
- * @param {Object} skillData - Skill with agent section containing stages
- * @param {Array} stages - All stage entities
- * @returns {Object} Skill with frontmatter, title, stages array, etc.
+ * @param {Object} params - Parameters
+ * @param {Object} params.skillData - Skill with agent section
+ * @returns {Object} Skill with frontmatter, title, focus, checklists, etc.
  */
-export function generateSkillMarkdown({ skillData, stages }) {
+export function generateSkillMarkdown({ skillData }) {
   const { agent, name } = skillData;
 
   if (!agent) {
     throw new Error(`Skill ${skillData.id} has no agent section`);
   }
-  if (!agent.stages) {
-    throw new Error(`Skill ${skillData.id} agent section missing stages`);
-  }
-
-  const stageMap = new Map(stages.map((s) => [s.id, s]));
-
-  const stagesArray = Object.entries(agent.stages).map(
-    ([stageId, stageData]) => {
-      const stageEntity = stageMap.get(stageId);
-      const stageName = stageEntity?.name || stageId;
-
-      let nextStageName = "Complete";
-      if (stageEntity?.handoffs) {
-        const nextHandoff = stageEntity.handoffs.find(
-          (h) => h.targetStage !== stageId,
-        );
-        if (nextHandoff) {
-          const nextStage = stageMap.get(nextHandoff.targetStage);
-          nextStageName = nextStage?.name || nextHandoff.targetStage;
-        }
-      }
-
-      return {
-        stageId,
-        stageName,
-        nextStageName,
-        focus: stageData.focus,
-        readChecklist: stageData.readChecklist || [],
-        confirmChecklist: stageData.confirmChecklist || [],
-      };
-    },
-  );
-
-  const stageComparator = compareByStageOrder(stages);
-  stagesArray.sort(stageComparator);
 
   return {
     frontmatter: {
@@ -183,7 +142,9 @@ export function generateSkillMarkdown({ skillData, stages }) {
       useWhen: agent.useWhen || "",
     },
     title: name,
-    stages: stagesArray,
+    focus: agent.focus,
+    readChecklist: agent.readChecklist || [],
+    confirmChecklist: agent.confirmChecklist || [],
     instructions: skillData.instructions || "",
     installScript: skillData.installScript || "",
     implementationReference: skillData.implementationReference || "",
@@ -193,34 +154,225 @@ export function generateSkillMarkdown({ skillData, stages }) {
 }
 
 /**
- * Derive stage transition data for a stage-based agent.
- * @param {Object} params - Parameters
- * @param {Object} params.stage - Stage definition
- * @param {Array} params.stages - All stages
- * @returns {Array<{targetStageName: string, summaryInstruction: string, entryCriteria: string[]}>}
+ * Lowercase the first character of a string
+ * @param {string} s
+ * @returns {string}
  */
-export function deriveStageTransitions({ stage, stages }) {
-  if (!stage.handoffs || stage.handoffs.length === 0) {
-    return [];
+const lcFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s);
+
+/**
+ * Substitute template variables in text
+ * @param {string} text - Text with {roleTitle}, {specialization} placeholders
+ * @param {Object} discipline - Discipline with roleTitle, specialization properties
+ * @returns {string} Text with substituted values
+ */
+function substituteTemplateVars(text, discipline) {
+  return text
+    .replace(/\{roleTitle\}/g, discipline.roleTitle)
+    .replace(/\{specialization\}/g, discipline.specialization);
+}
+
+/**
+ * Find an agent behaviour by id
+ * @param {Array} agentBehaviours - Array of agent behaviour definitions
+ * @param {string} id - Behaviour id to find
+ * @returns {Object|undefined} Agent behaviour or undefined
+ */
+function findAgentBehaviour(agentBehaviours, id) {
+  return agentBehaviours.find((b) => b.id === id);
+}
+
+/**
+ * Build working style entries from emphasized behaviours
+ * @param {Array} derivedBehaviours - Behaviours sorted by maturity (highest first)
+ * @param {Array} agentBehaviours - Agent behaviour definitions with principles
+ * @param {number} topN - Number of top behaviours to include
+ * @returns {Array} Array of working style entries
+ */
+function buildWorkingStyleFromBehaviours(
+  derivedBehaviours,
+  agentBehaviours,
+  topN = LIMIT_AGENT_WORKING_STYLES,
+) {
+  const entries = [];
+  const topBehaviours = derivedBehaviours.slice(0, topN);
+
+  for (const derived of topBehaviours) {
+    const agentBehaviour = findAgentBehaviour(
+      agentBehaviours,
+      derived.behaviourId,
+    );
+    if (!agentBehaviour) continue;
+    if (!agentBehaviour.workingStyle && !agentBehaviour.principles) continue;
+
+    const title = agentBehaviour.title || derived.behaviourName;
+    const content = agentBehaviour.workingStyle
+      ? agentBehaviour.workingStyle.trim()
+      : agentBehaviour.principles.trim();
+
+    entries.push({ title, content });
   }
 
-  return stage.handoffs
-    .filter((handoff) => handoff.targetStage !== stage.id)
-    .map((handoff) => {
-      const targetStage = stages.find((s) => s.id === handoff.targetStage);
-      const confirmChecklist = targetStage?.confirmChecklist || [];
-      const targetStageName =
-        targetStage?.name.charAt(0).toUpperCase() +
-          targetStage?.name.slice(1) || handoff.targetStage;
+  return entries;
+}
 
-      const summaryInstruction = `${handoff.prompt} Summarize what was completed in the ${stage.name} stage.`;
+/**
+ * Generate an agent profile for a discipline/track combination.
+ * Produces one profile per discipline (x track) with full skill matrix.
+ *
+ * @param {Object} params - Parameters
+ * @returns {Object} Profile with frontmatter, bodyData, and filename
+ */
+export function generateAgentProfile({
+  discipline,
+  track,
+  level,
+  skills,
+  behaviours,
+  agentBehaviours,
+  agentDiscipline,
+  agentTrack,
+}) {
+  const allSkills = deriveAgentSkills({ discipline, track, level, skills });
+  const focusedSkills = focusAgentSkills(allSkills);
+  const derivedBehaviours = deriveAgentBehaviours({
+    discipline,
+    track,
+    level,
+    behaviours,
+  });
 
+  const roleTitle = discipline.roleTitle;
+  const kebabRole = toKebabCase(roleTitle.toLowerCase().replace(/\s+/g, "-"));
+  const hasTrack = track && track.id !== "null";
+  const filename = hasTrack
+    ? `${kebabRole}--${toKebabCase(track.id)}.md`
+    : `${kebabRole}.md`;
+  const profileName = filename.replace(/\.md$/, "");
+
+  const specialization = discipline.specialization || discipline.name;
+  const description = hasTrack
+    ? `${specialization} (${track.name}).`
+    : `${specialization}.`;
+
+  const rawIdentity = agentTrack?.identity || agentDiscipline.identity;
+  const identity = substituteTemplateVars(rawIdentity, discipline);
+
+  const rawPriority = agentTrack?.priority || agentDiscipline.priority;
+  const priority = rawPriority
+    ? substituteTemplateVars(rawPriority, discipline)
+    : null;
+
+  const rawTeamInstructions = agentTrack?.teamInstructions;
+  const teamInstructions = rawTeamInstructions
+    ? substituteTemplateVars(rawTeamInstructions, discipline)
+    : null;
+
+  const skillIndex = focusedSkills
+    .map((derived) => {
+      const skill = skills.find((s) => s.id === derived.skillId);
+      if (!skill?.agent) return null;
       return {
-        targetStageName,
-        summaryInstruction,
-        entryCriteria: confirmChecklist,
+        name: derived.skillName,
+        dirname: skill.agent.name,
+        useWhen: lcFirst(skill.agent.useWhen?.trim() || ""),
       };
-    });
+    })
+    .filter(Boolean);
+
+  const roleContext = track?.roleContext ? track.roleContext.trim() : "";
+  const workingStyles = buildWorkingStyleFromBehaviours(
+    derivedBehaviours,
+    agentBehaviours,
+  );
+
+  const disciplineConstraints = agentDiscipline.constraints || [];
+  const trackConstraints = agentTrack?.constraints || [];
+  const skillDirnames = skillIndex.map((s) => s.dirname);
+
+  const title = hasTrack
+    ? `${specialization} - ${track.name}`
+    : specialization;
+
+  const bodyData = {
+    title,
+    identity: identity.trim(),
+    priority: priority ? priority.trim() : null,
+    skillIndex,
+    skillDirnames,
+    roleContext,
+    workingStyles,
+    disciplineConstraints,
+    trackConstraints,
+    teamInstructions: teamInstructions ? teamInstructions.trim() : null,
+  };
+
+  const frontmatter = {
+    name: profileName,
+    description,
+    model: "opus",
+    skills: skillDirnames,
+  };
+
+  return { frontmatter, bodyData, filename };
+}
+
+/**
+ * Build a list of all available agents in the system
+ * @param {Object} params - Parameters
+ * @returns {Array<{id: string, name: string, description: string}>} List of all agents
+ */
+export function buildAgentIndex({
+  disciplines,
+  tracks,
+  agentDisciplines,
+  agentTracks,
+}) {
+  const agents = [];
+
+  const agentDisciplineIds = new Set(agentDisciplines.map((d) => d.id));
+  const agentTrackIds = new Set(agentTracks.map((t) => t.id));
+
+  for (const discipline of disciplines) {
+    if (!agentDisciplineIds.has(discipline.id)) continue;
+
+    const roleTitle = discipline.roleTitle;
+    const kebabRole = toKebabCase(roleTitle.toLowerCase().replace(/\s+/g, "-"));
+    const specialization = discipline.specialization || discipline.name;
+
+    const validTracks = tracks.filter(
+      (t) => agentTrackIds.has(t.id) && discipline.validTracks?.includes(t.id),
+    );
+
+    if (validTracks.length === 0) {
+      agents.push({
+        id: kebabRole,
+        name: specialization,
+        description: `${specialization}.`,
+      });
+    } else {
+      for (const track of validTracks) {
+        const id = `${kebabRole}--${toKebabCase(track.id)}`;
+        const name = `${specialization} - ${track.name}`;
+        const description = `${specialization} (${track.name}).`;
+        agents.push({ id, name, description });
+      }
+    }
+  }
+
+  return agents;
+}
+
+/**
+ * Interpolate teamInstructions from a track's agent section
+ * @param {Object} params
+ * @param {Object} params.agentTrack - Agent track definition
+ * @param {Object} params.humanDiscipline - Human discipline (with roleTitle, specialization)
+ * @returns {string|null} Interpolated team instructions or null
+ */
+export function interpolateTeamInstructions({ agentTrack, humanDiscipline }) {
+  if (!agentTrack?.teamInstructions) return null;
+  return substituteTemplateVars(agentTrack.teamInstructions, humanDiscipline);
 }
 
 // Re-export from extracted modules for backward compatibility
@@ -228,10 +380,3 @@ export {
   validateAgentProfile,
   validateAgentSkill,
 } from "./agent-validation.js";
-
-export {
-  deriveStageAgent,
-  generateStageAgentProfile,
-  buildAgentIndex,
-  interpolateTeamInstructions,
-} from "./agent-stage.js";

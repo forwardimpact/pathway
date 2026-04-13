@@ -12,11 +12,7 @@ import {
   getSkillProficiencyIndex,
   getBehaviourMaturityIndex,
   getCapabilityOrder,
-  getStageOrder,
 } from "@forwardimpact/map/levels";
-
-// Re-export getStageOrder for consumers
-export { getStageOrder };
 
 // =============================================================================
 // Canonical Orderings
@@ -27,28 +23,6 @@ export { getStageOrder };
  * Primary skills first, then secondary, broad, and track-added skills.
  */
 export const ORDER_SKILL_TYPE = ["primary", "secondary", "broad", "track"];
-
-// =============================================================================
-// Stage Comparators
-// =============================================================================
-
-/**
- * Create a comparator for sorting by stage lifecycle order
- *
- * The returned comparator uses the canonical order from loaded stage data,
- * making the ordering data-driven rather than hardcoded.
- *
- * @param {Object[]} stages - Loaded stages array from stages.yaml
- * @returns {(a: Object, b: Object) => number} Comparator function
- */
-export function compareByStageOrder(stages) {
-  const order = getStageOrder(stages);
-  return (a, b) => {
-    const stageA = a.stageId || a.id || "";
-    const stageB = b.stageId || b.id || "";
-    return order.indexOf(stageA) - order.indexOf(stageB);
-  };
-}
 
 // =============================================================================
 // Skill Comparators
