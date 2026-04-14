@@ -12,8 +12,8 @@ description: >
 A spec defines WHAT to build and WHY. Pair with the
 [`kata-design`](../kata-design/SKILL.md) and
 [`kata-plan`](../kata-plan/SKILL.md) skills — once a spec is approved, the
-staff engineer shapes it into an architectural design (DIRECTION) and then a
-concrete plan (HOW).
+staff engineer shapes it into an architectural design (WHICH/WHERE) and then a
+concrete plan (HOW/WHEN).
 
 **Spec and plan are independent deliverables.** Only produce the one the user
 asked for. If they ask for a spec, write the spec and stop.
@@ -59,8 +59,8 @@ asked for. If they ask for a spec, write the spec and stop.
 ```
 specs/{NNN}-{kebab-case-name}/
   spec.md      WHAT and WHY      (this skill)
-  design.md    DIRECTION         (the `kata-design` skill)
-  plan-a.md    HOW               (the `kata-plan` skill)
+  design.md    WHICH and WHERE   (the `kata-design` skill)
+  plan-a.md    HOW and WHEN      (the `kata-plan` skill)
 ```
 
 Number directories sequentially. Use the next available number.

@@ -1,20 +1,21 @@
 ---
 name: kata-design
 description: >
-  Create design documents (DIRECTION) for approved specs. A design is a
-  max-200-line architectural sketch — components, interactions, key decisions
-  with trade-offs, and Mermaid diagrams — that gives reviewers a high-leverage
-  point to influence direction before the full plan is written. Sets design
-  phase to draft in specs/STATUS.
+  Create design documents (WHICH/WHERE) for approved specs. A design is a
+  max-200-line architectural sketch — components, interfaces, data flow, and
+  key decisions with trade-offs — that gives reviewers a high-leverage point
+  to redirect architecture before the full plan is written. Sets design phase
+  to draft in specs/STATUS.
 ---
 
 # Write and Review Designs
 
-A design defines DIRECTION — the architectural approach for an approved spec.
-It sits between the [`kata-spec`](../kata-spec/SKILL.md) skill (WHAT/WHY) and
-the [`kata-plan`](../kata-plan/SKILL.md) skill (HOW). The spec captures the
-problem and scope; the design captures the architectural direction; the plan
-translates that direction into concrete implementation steps.
+A design defines WHICH components exist, WHERE they interact, and what
+interfaces connect them. It sits between the
+[`kata-spec`](../kata-spec/SKILL.md) skill (WHAT/WHY) and the
+[`kata-plan`](../kata-plan/SKILL.md) skill (HOW/WHEN). The spec captures the
+problem and scope; the design captures components, interfaces, and data flow;
+the plan translates those into file-level changes and execution ordering.
 
 **A design requires an existing approved spec.** Without an approved spec there
 is no commitment to implement, and a design has nothing to shape.
@@ -49,12 +50,13 @@ spec's scope is too broad and should be narrowed.
 
 <do_confirm_checklist goal="Verify design quality before recommending approval">
 
-- [ ] Direction and rationale stated before detail.
+- [ ] Components, interfaces, and data flow stated before detail.
 - [ ] Each key decision names a rejected alternative and why.
 - [ ] Mermaid diagrams used where they clarify structure.
 - [ ] Stays within spec scope — no scope expansion.
-- [ ] No file-level implementation detail — file paths, function signatures, and
-      before/after code belong in the plan.
+- [ ] Stays at the architectural level — names components, classes, interfaces,
+      and data structures but not file-level changes, execution ordering, or
+      implementation steps (those belong in the plan).
 - [ ] Under 200 lines total.
 - [ ] Clean sub-agent review of `design.md` via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
@@ -69,19 +71,20 @@ The design is always **`design.md`**. There are no variants and no
 decomposition — a design that cannot fit in 200 lines signals that the spec
 should be narrowed, not that the design should be split.
 
-## Writing a Design (DIRECTION)
+## Writing a Design (WHICH + WHERE)
 
-The design answers: what architectural direction are we heading, and why this
-direction over alternatives?
+The design answers: which components exist, where they interact, and what
+interfaces connect them — and why this architecture over alternatives.
 
 Structure and format are up to you — match the complexity of the change. The
 DO-CONFIRM checklist verifies these qualities; the guidance below explains what
 each one means in practice:
 
-- **Direction over detail.** Describe components, interactions, and data flow.
-  Do not name file paths, function signatures, or code patterns — those belong
-  in the plan. The design should survive implementation-level changes without
-  needing revision.
+- **Architecture over execution.** Name components, classes, interfaces, data
+  structures, and their interactions. Do not specify file-level changes,
+  execution ordering, or implementation steps — those belong in the plan. The
+  boundary: a design names *what exists and how it connects*; a plan names
+  *which files change and in what order*.
 - **Decisions with trade-offs.** Each architectural choice should name at least
   one rejected alternative and why it was rejected. This is the primary review
   leverage point — a reviewer can redirect a decision here at low cost, versus
@@ -92,9 +95,11 @@ each one means in practice:
 - **Scope-faithful.** Stay within the spec's declared scope. If the design
   reveals that the scope should change, return the spec to draft rather than
   expanding silently.
-- **Plan-enabling.** After reading the design, a planner should be able to write
-  the plan without ambiguity about architectural direction. If the planner would
-  need to make architectural decisions, the design is incomplete.
+- **Plan-enabling.** After reading the design, a planner should know which
+  components to build, what interfaces they expose, and how data flows between
+  them — without ambiguity. The planner's job is to translate those into
+  file-level changes and execution ordering, not to make architectural
+  decisions.
 
 ## Status
 
@@ -159,5 +164,6 @@ writing, one design per spec). Additionally:
 - **Do not write a design whose spec is not yet approved.** The spec must show
   `spec approved` in STATUS before designing begins.
 - **Do not exceed 200 lines.** If the design needs more, narrow the spec.
-- **Do not include file-level implementation detail.** File paths, function
-  signatures, and code snippets belong in the plan.
+- **Do not include file-level execution detail.** File changes, execution
+  ordering, and implementation steps belong in the plan. Naming components,
+  interfaces, and data structures is expected — that is the design's job.

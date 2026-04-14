@@ -87,25 +87,27 @@ and that skill's DO-CONFIRM checklist. Look for:
 - Problem stated first with concrete evidence (errors, metrics, examples)
 - Specific scope (files, APIs, entities) with explicit exclusions
 - Verifiable success criteria
-- No implementation details (HOW belongs in the plan)
+- No implementation details (HOW/WHEN belongs in the plan, WHICH/WHERE in the
+  design)
 
 ### design.md
 
 Match the qualities in
-[`kata-design` § Writing a Design](../kata-design/SKILL.md#writing-a-design-direction)
+[`kata-design` § Writing a Design](../kata-design/SKILL.md#writing-a-design-which--where)
 and that skill's DO-CONFIRM checklist. Look for:
 
-- Direction stated before detail — components, interactions, data flow
+- Components, interfaces, and data flow stated before detail
 - Key decisions name a rejected alternative and why
 - Mermaid diagrams used where they clarify structure
 - Stays within spec scope — no scope expansion
-- No file-level implementation detail (paths, functions belong in the plan)
+- Stays at the architectural level — names components, classes, interfaces, and
+  data structures but not file-level changes, execution ordering, or steps
 - Under 200 lines total (violation is a **Blocker**)
 
 ### plan-a.md (and parts)
 
 Match the qualities in
-[`kata-plan` § Writing a Plan](../kata-plan/SKILL.md#writing-a-plan-how) and
+[`kata-plan` § Writing a Plan](../kata-plan/SKILL.md#writing-a-plan-how--when) and
 that skill's DO-CONFIRM checklist. Look for:
 
 - Approach and rationale stated before details

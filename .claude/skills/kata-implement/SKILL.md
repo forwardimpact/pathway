@@ -11,8 +11,8 @@ description: >
 # Implement Spec
 
 Execute an approved implementation plan from the specs/ directory. Read the spec
-to understand WHAT and WHY, read the plan to understand HOW, then implement the
-changes methodically.
+to understand WHAT and WHY, read the design to understand WHICH and WHERE, read
+the plan to understand HOW and WHEN, then implement the changes methodically.
 
 ## When to Use
 

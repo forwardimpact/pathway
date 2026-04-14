@@ -1,17 +1,17 @@
 ---
 name: kata-plan
 description: >
-  Write implementation plans (HOW) for approved designs. Translate an approved
-  design into concrete steps, files, tests, and risks for a trusted agent
-  to execute. Sets plan phase to draft in specs/STATUS.
+  Write implementation plans (HOW/WHEN) for approved designs. Translate an
+  approved design into concrete steps, file changes, sequencing, and risks
+  for a trusted agent to execute. Sets plan phase to draft in specs/STATUS.
 ---
 
 # Write and Review Plans
 
-A plan defines HOW to implement an approved spec. Pair with the
+A plan defines HOW to implement and WHEN to sequence changes. Pair with the
 [`kata-spec`](../kata-spec/SKILL.md) and
 [`kata-design`](../kata-design/SKILL.md) skills — the spec captures WHAT/WHY,
-the design captures DIRECTION, the plan captures HOW.
+the design captures WHICH/WHERE, the plan captures HOW/WHEN.
 
 **A plan requires an existing approved design.** Without an approved design
 there is no architectural direction to translate into implementation steps.
@@ -118,7 +118,7 @@ plan-a-03.md    ← part 3 (independently executable)
 
 Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
 
-## Writing a Plan (HOW)
+## Writing a Plan (HOW + WHEN)
 
 The plan translates an approved spec into concrete implementation steps.
 
