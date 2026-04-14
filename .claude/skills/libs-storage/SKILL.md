@@ -84,7 +84,9 @@ const results = await graphIndex.query(
 ```javascript
 import { calculateDotProduct } from "@forwardimpact/libvector";
 
-// Compare two normalized embedding vectors
+// Compare two normalized embedding vectors (cosine similarity)
+// Higher-level vector indexing and search are handled by the vector service;
+// libvector provides the core similarity primitive
 const similarity = calculateDotProduct(vectorA, vectorB);
 ```
 

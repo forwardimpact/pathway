@@ -14,12 +14,12 @@ import { globSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 
 // ── Regex patterns ───────────────────────────────────────────────────────────
-// eslint-disable-next-line security/detect-unsafe-regex -- bounded by export keyword prefix; no user input
+// eslint-disable-next-line security/detect-unsafe-regex -- runs on trusted library source files, not user input
 const RE_EXPORT_FUNCTION = /export +(async +)?function +(\w+)/g;
 const RE_EXPORT_CLASS = /export +class +(\w+)/g;
 const RE_EXPORT_VAR = /export +(?:const|let|var) +(\w+)/g;
 const RE_EXPORT_DEFAULT = /export +default\b/;
-// eslint-disable-next-line security/detect-unsafe-regex -- bounded by braces; no user input
+// eslint-disable-next-line security/detect-unsafe-regex -- runs on trusted library source files, not user input
 const RE_EXPORT_NAMED = /export +\{([\s\S]*?)\}( *from *["']([^"']+)["'])?/g;
 const RE_EXPORT_STAR = /export +\* +from +["']([^"']+)["']/g;
 

@@ -81,17 +81,9 @@ for await (const chunk of agent.stream(request)) {
 
 ```javascript
 import { MemoryWindow } from "@forwardimpact/libmemory";
-import { PromptLoader } from "@forwardimpact/libprompt";
 
-const loader = new PromptLoader("./prompts");
-const systemPrompt = loader.render("system", { agentName: "Assistant" });
-
-const window = new MemoryWindow(tokenizer);
-const context = await window.build({
-  messages: conversationHistory,
-  tools: availableTools,
-  budget: 4000,
-});
+const window = new MemoryWindow(resourceId, resourceIndex, memoryIndex);
+const { messages, tools } = await window.build("gpt-4", 1000);
 ```
 
 ### Recipe 4: Generate tool schema from protobuf
@@ -118,8 +110,9 @@ const embeddings = await api.embed(texts);
 ### libmemory
 
 ```javascript
-// MemoryWindow — accepts tokenizer
-const window = new MemoryWindow(tokenizer);
+// MemoryWindow — accepts resourceId, resourceIndex, memoryIndex
+const window = new MemoryWindow(resourceId, resourceIndex, memoryIndex);
+const { messages, tools } = await window.build("gpt-4", 1000);
 
 // getModelBudget — pure function
 import { getModelBudget } from "@forwardimpact/libmemory";

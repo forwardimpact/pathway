@@ -49,13 +49,12 @@ description: >
 ```javascript
 import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { Server, createGrpc } from "@forwardimpact/librpc";
+import { Server } from "@forwardimpact/librpc";
 
 const config = createServiceConfig("my-service");
 const logger = createLogger("my-service");
 
-const grpc = createGrpc(proto, MyServiceImpl);
-const server = new Server([grpc], config);
+const server = new Server(myServiceImpl, config, { logger });
 await server.start();
 ```
 
@@ -66,7 +65,7 @@ import { createClient } from "@forwardimpact/librpc";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
 const logger = createLogger("caller");
-const client = createClient(logger);
+const client = await createClient("agent", logger);
 const response = await client.request(message);
 ```
 
@@ -96,11 +95,11 @@ await handler(call, callback);
 ### librpc
 
 ```javascript
-// Server — accepts services and config
-const server = new Server(services, config);
+// Server — accepts service impl, config, and options
+const server = new Server(myServiceImpl, config, { logger, tracer });
 
-// createClient — accepts logger
-const client = createClient(logger);
+// createClient — accepts service name, optional logger and tracer
+const client = await createClient("agent", logger, tracer);
 ```
 
 ### libconfig
