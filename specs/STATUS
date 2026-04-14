@@ -3,12 +3,14 @@
 # Format: {id}	{phase}	{status}
 #
 #   spec	draft			Spec is being written
-#   spec	approved		Human approved — ready for planning
+#   spec	approved		Human approved — ready for design
+#   design	draft			Design is being written
+#   design	approved		Human approved — ready for planning
 #   plan	draft			Plan is being written
 #   plan	approved		Human approved — ready for implementation
 #   plan	implemented		Implementation complete
 #
-# Lifecycle: spec draft → spec approved → plan draft → plan approved → plan implemented
+# Lifecycle: spec draft → spec approved → design draft → design approved → plan draft → plan approved → plan implemented
 # One row per spec, updated in place.
 
 010	plan	implemented

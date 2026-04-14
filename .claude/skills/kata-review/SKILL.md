@@ -1,26 +1,26 @@
 ---
 name: kata-review
 description: >
-  Grade a single artifact (spec, plan, or implementation diff) against quality
-  criteria and return findings by severity. Use when another skill spawns a
-  fresh sub-agent for an independent review of its work. This skill never
-  spawns sub-agents — it produces findings only — which structurally prevents
-  the spec/plan/implement review loop from recursing.
+  Grade a single artifact (spec, design, plan, or implementation diff) against
+  quality criteria and return findings by severity. Use when another skill
+  spawns a fresh sub-agent for an independent review of its work. This skill
+  never spawns sub-agents — it produces findings only — which structurally
+  prevents the spec/design/plan/implement review loop from recursing.
 ---
 
 # Review
 
-Independent grading skill for artifacts produced by `kata-spec`, `kata-plan`,
-and `kata-implement`. Returns severity-graded findings; takes no action. Never
-spawns sub-agents.
+Independent grading skill for artifacts produced by `kata-spec`, `kata-design`,
+`kata-plan`, and `kata-implement`. Returns severity-graded findings; takes no
+action. Never spawns sub-agents.
 
 ## When to Use
 
-- A `kata-spec`, `kata-plan`, or `kata-implement` workflow has reached its clean
-  sub-agent review step and you have been spawned with no prior context to grade
-  the artifact.
-- Any time another agent needs an independent quality grade on a spec, plan, or
-  diff without changing it.
+- A `kata-spec`, `kata-design`, `kata-plan`, or `kata-implement` workflow has
+  reached its clean sub-agent review step and you have been spawned with no
+  prior context to grade the artifact.
+- Any time another agent needs an independent quality grade on a spec, design,
+  plan, or diff without changing it.
 
 ## Invariant: never spawn
 
@@ -54,14 +54,16 @@ optional.
 ## Process
 
 1. **Identify the artifact type.** The caller tells you whether the input is a
-   `spec.md`, a `plan-a.md` (plus any decomposed parts), or a code diff
-   (`git diff origin/main...HEAD`). You are spawned cold with no back-channel to
-   the caller — if the artifact type or path is genuinely ambiguous, return a
-   single **Blocker** finding asking for clarification and stop. Do not guess.
+   `spec.md`, a `design.md`, a `plan-a.md` (plus any decomposed parts), or a
+   code diff (`git diff origin/main...HEAD`). You are spawned cold with no
+   back-channel to the caller — if the artifact type or path is genuinely
+   ambiguous, return a single **Blocker** finding asking for clarification and
+   stop. Do not guess.
 
-2. **Read the artifact and directly relevant context.** For a plan, read the
-   spec it targets. For a diff, read the spec, the plan, and CONTRIBUTING.md §
-   Core Rules. Read once, fully, before grading.
+2. **Read the artifact and directly relevant context.** For a design, read the
+   spec it targets. For a plan, read the spec and design it targets. For a
+   diff, read the spec, the design, the plan, and CONTRIBUTING.md § Core Rules.
+   Read once, fully, before grading.
 
 3. **Grade against the artifact-specific criteria** in the section below. For
    each gap or risk, write one finding with:
@@ -86,6 +88,19 @@ and that skill's DO-CONFIRM checklist. Look for:
 - Specific scope (files, APIs, entities) with explicit exclusions
 - Verifiable success criteria
 - No implementation details (HOW belongs in the plan)
+
+### design.md
+
+Match the qualities in
+[`kata-design` § Writing a Design](../kata-design/SKILL.md#writing-a-design-direction)
+and that skill's DO-CONFIRM checklist. Look for:
+
+- Direction stated before detail — components, interactions, data flow
+- Key decisions name a rejected alternative and why
+- Mermaid diagrams used where they clarify structure
+- Stays within spec scope — no scope expansion
+- No file-level implementation detail (paths, functions belong in the plan)
+- Under 200 lines total (violation is a **Blocker**)
 
 ### plan-a.md (and parts)
 
@@ -149,5 +164,5 @@ rubber-stamp.
 - **Do not modify the artifact.** Reviewers grade; they do not edit.
 - **Do not open PRs, comments, or commits.** Findings are returned to the
   caller, who decides what to act on.
-- **Do not invoke `kata-spec`, `kata-plan`, or `kata-implement`.** Their Process
-  steps would spawn another reviewer and loop.
+- **Do not invoke `kata-spec`, `kata-design`, `kata-plan`, or
+  `kata-implement`.** Their Process steps would spawn another reviewer and loop.

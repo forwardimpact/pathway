@@ -1,7 +1,7 @@
 # Sub-Agent Review Protocol
 
 Shared protocol for callers of `kata-review`. Used by `kata-spec` (Step 5),
-`kata-plan` (Step 5), and `kata-implement` (Step 8).
+`kata-design` (Step 5), `kata-plan` (Step 5), and `kata-implement` (Step 8).
 
 ## How to invoke
 

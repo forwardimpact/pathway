@@ -1,24 +1,25 @@
 ---
 name: kata-plan
 description: >
-  Write implementation plans (HOW) for approved specs. Translate an approved
-  spec.md into concrete steps, files, tests, and risks for a trusted agent
+  Write implementation plans (HOW) for approved designs. Translate an approved
+  design into concrete steps, files, tests, and risks for a trusted agent
   to execute. Sets plan phase to draft in specs/STATUS.
 ---
 
 # Write and Review Plans
 
 A plan defines HOW to implement an approved spec. Pair with the
-[`kata-spec`](../kata-spec/SKILL.md) skill — the spec captures WHAT/WHY, the
-plan captures HOW.
+[`kata-spec`](../kata-spec/SKILL.md) and
+[`kata-design`](../kata-design/SKILL.md) skills — the spec captures WHAT/WHY,
+the design captures DIRECTION, the plan captures HOW.
 
-**A plan requires an existing approved spec.** Without an approved spec there is
-no commitment to implement, and a plan has nothing to translate.
+**A plan requires an existing approved design.** Without an approved design
+there is no architectural direction to translate into implementation steps.
 
 ## When to Use
 
-- Turning an approved spec (`spec approved` in STATUS) into an execution-ready
-  plan
+- Turning an approved design (`design approved` in STATUS) into an
+  execution-ready plan
 - Reviewing a plan before approval ("review plan NNN", "is plan NNN ready?")
 - Creating an alternative plan variant for the same spec
 
@@ -26,14 +27,15 @@ no commitment to implement, and a plan has nothing to translate.
 
 <read_do_checklist goal="Internalize plan-writing boundaries before starting">
 
-- [ ] A plan requires an approved spec — if no approved spec exists, stop.
+- [ ] A plan requires an approved design — if no approved design exists, stop.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not implement — this skill writes the plan; `kata-implement` executes
       it.
 - [ ] One plan per spec — do not bundle multiple specs into one plan.
-- [ ] Read the spec end-to-end before writing. Restate problem, scope, and
-      success criteria without referring back.
+- [ ] Read the spec and design end-to-end before writing. Restate problem,
+      scope, success criteria, and architectural direction without referring
+      back.
 
 </read_do_checklist>
 
@@ -175,10 +177,12 @@ from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** A plan requires `spec approved` in `specs/STATUS`. If the
-   spec is still at `spec draft` or missing, stop — it must be approved first.
-2. **Study the spec.** Read `spec.md` end to end. You should be able to restate
-   the problem, scope, and success criteria without referring back.
+1. **Find the spec.** A plan requires `design approved` in `specs/STATUS`. If
+   the spec is still at `spec draft`, `spec approved`, or `design draft`, stop
+   — the design must be approved first.
+2. **Study the spec and design.** Read `spec.md` and `design.md` end to end.
+   You should be able to restate the problem, scope, success criteria, and
+   architectural direction without referring back.
 3. **Research the codebase.** Read the files the plan will target. Verify
    current state matches what the spec assumes.
 4. **Write the plan.** Create `plan-a.md`. Translate the approved spec into
@@ -208,7 +212,7 @@ Append to the current week's log (see agent profile for the file path):
 The READ-DO checklist covers the core boundaries (no spec writing, no
 implementation, one plan per spec). Additionally:
 
-- **Do not write a plan whose spec is not yet approved.** The spec must show
-  `spec approved` in STATUS before planning begins.
+- **Do not write a plan whose design is not yet approved.** The design must show
+  `design approved` in STATUS before planning begins.
 - **Do not use `plan.md` as a filename.** Always use `plan-a.md` (or
   `plan-b.md`, etc.) for naming consistency.
