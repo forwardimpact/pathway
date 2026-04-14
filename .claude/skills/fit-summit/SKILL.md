@@ -62,8 +62,8 @@ Three risk types are detected from coverage data:
    Severity depends on allocation: part-time holders are higher risk.
 2. **Critical gaps** — skills expected by the team's disciplines and tracks that
    have zero working+ holders.
-3. **Concentration risks** — clusters of 3+ people at the same level, capability,
-   and proficiency, indicating lack of seniority distribution.
+3. **Concentration risks** — clusters of 3+ people at the same level,
+   capability, and proficiency, indicating lack of seniority distribution.
 
 ### What-If Scenarios
 
@@ -75,22 +75,22 @@ simulation is pure.
 
 Growth recommendations rank team members by their potential to fill team gaps.
 Each skill gap is classified by impact: `critical` > `spof-reduction` >
-`coverage-strengthening`. Candidates are ranked by current proficiency (lower
-is better — more room to grow) and level. When `--outcomes` is provided,
+`coverage-strengthening`. Candidates are ranked by current proficiency (lower is
+better — more room to grow) and level. When `--outcomes` is provided,
 recommendations within the same impact tier are re-sorted by worst GetDX driver
 score.
 
 ### Evidence Decorator
 
 The optional `--evidenced` flag loads evidence from Map's activity schema and
-overlays practiced capability onto derived coverage. This can escalate risks —
-a skill with derived depth but no evidence becomes a more urgent concern.
+overlays practiced capability onto derived coverage. This can escalate risks — a
+skill with derived depth but no evidence becomes a more urgent concern.
 
 ### Trajectory
 
-Trajectory reads the git history of the roster file, buckets commits by
-calendar quarter, and computes coverage at each point. Per-skill trends are
-classified as improving, declining, stable, or persistent_gap.
+Trajectory reads the git history of the roster file, buckets commits by calendar
+quarter, and computes coverage at each point. Per-skill trends are classified as
+improving, declining, stable, or persistent_gap.
 
 ### Audience Model
 
@@ -108,13 +108,13 @@ Each view applies privacy rules based on the audience:
 
 All commands accept these options:
 
-| Option             | Description                              |
-| ------------------ | ---------------------------------------- |
-| `--roster <path>`  | Path to `summit.yaml` roster file        |
-| `--data <path>`    | Path to Map framework data directory     |
-| `--format <type>`  | Output format: `text`, `json`, `markdown` |
-| `--help`           | Show command help                        |
-| `--version`        | Print version                            |
+| Option            | Description                               |
+| ----------------- | ----------------------------------------- |
+| `--roster <path>` | Path to `summit.yaml` roster file         |
+| `--data <path>`   | Path to Map framework data directory      |
+| `--format <type>` | Output format: `text`, `json`, `markdown` |
+| `--help`          | Show command help                         |
+| `--version`       | Print version                             |
 
 ### Coverage and Risks
 
@@ -235,8 +235,8 @@ Compare the coverage diff from each scenario to see which addresses more gaps.
 npx fit-summit growth platform --evidenced --outcomes
 ```
 
-Returns recommendations ranked by team impact, filtered by what the engineer
-has already demonstrated, and weighted by organizational driver scores.
+Returns recommendations ranked by team impact, filtered by what the engineer has
+already demonstrated, and weighted by organizational driver scores.
 
 ### "How has the team changed over time?"
 

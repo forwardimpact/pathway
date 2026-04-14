@@ -21,14 +21,14 @@ daily simplifies scheduling; the Assess framework handles idle days by reporting
 clean state. The improvement coach stays at 2x/week because it needs traces from
 other agents to accumulate between runs.
 
-| New workflow            | Cron              | Frequency | UTC   | Agent             |
-| ----------------------- | ----------------- | --------- | ----- | ----------------- |
-| `security-engineer.yml` | `7 4 * * *`       | Daily     | 04:07 | security-engineer |
-| `technical-writer.yml`  | `37 5 * * *`      | Daily     | 05:37 | technical-writer  |
-| `product-manager.yml`   | `23 6 * * *`      | Daily     | 06:23 | product-manager   |
-| `staff-engineer.yml`    | `11 7 * * *`      | Daily     | 07:11 | staff-engineer    |
-| `release-engineer.yml`  | `43 8 * * *`      | Daily     | 08:43 | release-engineer  |
-| `improvement-coach.yml` | `47 10 * * 3,6`   | Wed & Sat | 10:47 | improvement-coach |
+| New workflow            | Cron            | Frequency | UTC   | Agent             |
+| ----------------------- | --------------- | --------- | ----- | ----------------- |
+| `security-engineer.yml` | `7 4 * * *`     | Daily     | 04:07 | security-engineer |
+| `technical-writer.yml`  | `37 5 * * *`    | Daily     | 05:37 | technical-writer  |
+| `product-manager.yml`   | `23 6 * * *`    | Daily     | 06:23 | product-manager   |
+| `staff-engineer.yml`    | `11 7 * * *`    | Daily     | 07:11 | staff-engineer    |
+| `release-engineer.yml`  | `43 8 * * *`    | Daily     | 08:43 | release-engineer  |
+| `improvement-coach.yml` | `47 10 * * 3,6` | Wed & Sat | 10:47 | improvement-coach |
 
 **Ordering constraints preserved:**
 
@@ -241,18 +241,18 @@ improvement-coach.yml are overwritten with new content; the other 4 are new):
 - `.github/workflows/release-engineer.yml`
 - `.github/workflows/improvement-coach.yml`
 
-All six share the same structure. The template block below is authoritative —
-do not copy from an existing file (they use varied job names and checkout
+All six share the same structure. The template block below is authoritative — do
+not copy from an existing file (they use varied job names and checkout
 settings). Apply per-agent values from the table below:
 
-| File                      | `name:`                     | `cron:`            | Job name  | Step name                | `agent-profile:`    | `max-turns:` |
-| ------------------------- | --------------------------- | ------------------ | --------- | ------------------------ | ------------------- | ------------ |
-| `security-engineer.yml`   | `Kata: Security Engineer`   | `7 4 * * *`        | `kata`    | `Assess and Act`         | `security-engineer` | `200`        |
-| `technical-writer.yml`    | `Kata: Technical Writer`    | `37 5 * * *`       | `kata`    | `Assess and Act`         | `technical-writer`  | `200`        |
-| `product-manager.yml`     | `Kata: Product Manager`     | `23 6 * * *`       | `kata`    | `Assess and Act`         | `product-manager`   | `200`        |
-| `staff-engineer.yml`      | `Kata: Staff Engineer`      | `11 7 * * *`       | `kata`    | `Assess and Act`         | `staff-engineer`    | `0`          |
-| `release-engineer.yml`    | `Kata: Release Engineer`    | `43 8 * * *`       | `kata`    | `Assess and Act`         | `release-engineer`  | `200`        |
-| `improvement-coach.yml`   | `Kata: Improvement Coach`   | `47 10 * * 3,6`   | `kata`    | `Assess and Act`         | `improvement-coach` | `200`        |
+| File                    | `name:`                   | `cron:`         | Job name | Step name        | `agent-profile:`    | `max-turns:` |
+| ----------------------- | ------------------------- | --------------- | -------- | ---------------- | ------------------- | ------------ |
+| `security-engineer.yml` | `Kata: Security Engineer` | `7 4 * * *`     | `kata`   | `Assess and Act` | `security-engineer` | `200`        |
+| `technical-writer.yml`  | `Kata: Technical Writer`  | `37 5 * * *`    | `kata`   | `Assess and Act` | `technical-writer`  | `200`        |
+| `product-manager.yml`   | `Kata: Product Manager`   | `23 6 * * *`    | `kata`   | `Assess and Act` | `product-manager`   | `200`        |
+| `staff-engineer.yml`    | `Kata: Staff Engineer`    | `11 7 * * *`    | `kata`   | `Assess and Act` | `staff-engineer`    | `0`          |
+| `release-engineer.yml`  | `Kata: Release Engineer`  | `43 8 * * *`    | `kata`   | `Assess and Act` | `release-engineer`  | `200`        |
+| `improvement-coach.yml` | `Kata: Improvement Coach` | `47 10 * * 3,6` | `kata`   | `Assess and Act` | `improvement-coach` | `200`        |
 
 **Shared values for all six:**
 
@@ -319,15 +319,17 @@ jobs:
 
 - security-engineer: `# Daily at 04:07 UTC — first agent in the cycle`
 - technical-writer: `# Daily at 05:37 UTC — curate and review before producers`
-- product-manager: `# Daily at 06:23 UTC — triage after security, before planning`
+- product-manager:
+  `# Daily at 06:23 UTC — triage after security, before planning`
 - staff-engineer: `# Daily at 07:11 UTC — plan and implement after triage`
 - release-engineer: `# Daily at 08:43 UTC — release after implementation`
-- improvement-coach: `# Wed & Sat at 10:47 UTC — analyze traces after all producers`
+- improvement-coach:
+  `# Wed & Sat at 10:47 UTC — analyze traces after all producers`
 
 ### 3. KATA.md — update workflow references
 
-Four edits to `KATA.md`. Match by content, not line numbers — concurrent
-merges to `main` may shift lines before this plan lands.
+Four edits to `KATA.md`. Match by content, not line numbers — concurrent merges
+to `main` may shift lines before this plan lands.
 
 **Edit A — Opening paragraph (line 16).** Change:
 
@@ -403,14 +405,14 @@ used the App token for checkout, not `GITHUB_TOKEN`.)
 an agent previously had two workflow-specific sections. Existing invariant rows
 within each section are preserved unchanged.
 
-| Old header(s)                                                                | New header                    |
-| ---------------------------------------------------------------------------- | ----------------------------- |
-| `## product-manager / product-backlog traces`                                | `## product-manager traces`   |
-| `## release-engineer / release-readiness traces` + `## release-engineer / release-review traces` | `## release-engineer traces`  |
-| `## security-engineer / security-update traces`                              | `## security-engineer traces` (note: no security-audit invariants exist to merge — only security-update) |
-| `## staff-engineer / plan-specs traces` + `## staff-engineer / implement-plans traces` | `## staff-engineer traces`    |
-| `## technical-writer / doc-review traces` + `## technical-writer / wiki-curate traces` | `## technical-writer traces`  |
-| _(new)_                                                                      | `## improvement-coach traces` |
+| Old header(s)                                                                                    | New header                                                                                               |
+| ------------------------------------------------------------------------------------------------ | -------------------------------------------------------------------------------------------------------- |
+| `## product-manager / product-backlog traces`                                                    | `## product-manager traces`                                                                              |
+| `## release-engineer / release-readiness traces` + `## release-engineer / release-review traces` | `## release-engineer traces`                                                                             |
+| `## security-engineer / security-update traces`                                                  | `## security-engineer traces` (note: no security-audit invariants exist to merge — only security-update) |
+| `## staff-engineer / plan-specs traces` + `## staff-engineer / implement-plans traces`           | `## staff-engineer traces`                                                                               |
+| `## technical-writer / doc-review traces` + `## technical-writer / wiki-curate traces`           | `## technical-writer traces`                                                                             |
+| _(new)_                                                                                          | `## improvement-coach traces`                                                                            |
 
 For merged sections (release-engineer, staff-engineer, technical-writer),
 concatenate the invariant tables into a single table under the new header.
@@ -419,14 +421,14 @@ Preserve the prose paragraph after the product-manager table.
 **New decision-quality invariant.** Add one row as the **first row** in each
 agent's table — the assess phase precedes all skill-specific work:
 
-| Agent             | Invariant                                    | Evidence to find                                                                                        | Severity |
-| ----------------- | -------------------------------------------- | ------------------------------------------------------------------------------------------------------- | -------- |
-| security-engineer | Domain state surveyed before action chosen   | `npm audit` execution or Dependabot PR listing before the first skill-specific action                   | **High** |
-| technical-writer  | Domain state surveyed before action chosen   | `Read` calls on agent summaries or coverage map before the first skill-specific action                  | **High** |
-| release-engineer  | Domain state surveyed before action chosen   | CI status check (`bun run check`) or PR listing before the first skill-specific action                  | **High** |
-| staff-engineer    | Domain state surveyed before action chosen   | `Read` call on `specs/STATUS` before the first plan or implement action                                 | **High** |
-| product-manager   | Domain state surveyed before action chosen   | `gh pr list` or `gh issue list` call before the first classify or triage action                         | **High** |
-| improvement-coach | Domain state surveyed before action chosen   | Workflow run listing (`gh run list`) or run selection check before the first grasp or act-on-findings action | **High** |
+| Agent             | Invariant                                  | Evidence to find                                                                                             | Severity |
+| ----------------- | ------------------------------------------ | ------------------------------------------------------------------------------------------------------------ | -------- |
+| security-engineer | Domain state surveyed before action chosen | `npm audit` execution or Dependabot PR listing before the first skill-specific action                        | **High** |
+| technical-writer  | Domain state surveyed before action chosen | `Read` calls on agent summaries or coverage map before the first skill-specific action                       | **High** |
+| release-engineer  | Domain state surveyed before action chosen | CI status check (`bun run check`) or PR listing before the first skill-specific action                       | **High** |
+| staff-engineer    | Domain state surveyed before action chosen | `Read` call on `specs/STATUS` before the first plan or implement action                                      | **High** |
+| product-manager   | Domain state surveyed before action chosen | `gh pr list` or `gh issue list` call before the first classify or triage action                              | **High** |
+| improvement-coach | Domain state surveyed before action chosen | Workflow run listing (`gh run list`) or run selection check before the first grasp or act-on-findings action | **High** |
 
 **New section.** Add `## improvement-coach traces` with the decision-quality
 invariant as its only row.
@@ -505,14 +507,14 @@ invariant as its only row.
    phases.
 
 7. **Action patterns preserved in Assess sections.** Some agents have branching
-   patterns not fully specified in skills (security-engineer's fix/spec branching,
-   release-engineer's direct-to-main authority, improvement-coach's branch
-   naming). These are retained after the priority list for continuity.
+   patterns not fully specified in skills (security-engineer's fix/spec
+   branching, release-engineer's direct-to-main authority, improvement-coach's
+   branch naming). These are retained after the priority list for continuity.
 
 8. **Product evaluation excluded from Assess.** The `kata-product-evaluation`
-   skill is supervisor-initiated via manual setup workflows
-   (`guide-setup.yml`, etc.). It is not part of scheduled assessment and is
-   omitted from the product-manager's priority framework.
+   skill is supervisor-initiated via manual setup workflows (`guide-setup.yml`,
+   etc.). It is not part of scheduled assessment and is omitted from the
+   product-manager's priority framework.
 
 9. **Product-manager dual-job consolidated to single cron.** The current file
    has two cron entries (daily 08:13 + Mon/Wed/Fri 05:17, totalling ~10
@@ -535,11 +537,13 @@ invariant as its only row.
 
 1. **Assessment quality.** Agents may skip the survey and jump to a default
    action. **Mitigation:** The new decision-quality invariants catch this at
-   **High** severity in trace audits. The improvement coach will flag violations.
+   **High** severity in trace audits. The improvement coach will flag
+   violations.
 
 2. **Decision logging consistency.** Agents may omit the four required Decision
    fields. **Mitigation:** The Memory paragraph prescribes the format. The
-   improvement coach's regular trace analysis will flag logging gaps as findings.
+   improvement coach's regular trace analysis will flag logging gaps as
+   findings.
 
 3. **Daily security-engineer runs.** Previously 4x/week; now 7x/week. On clean
    days the agent reports clean state quickly (low token cost). **Mitigation:**
@@ -551,11 +555,11 @@ invariant as its only row.
    stale. **Mitigation:** Expected for a clean break. Run history is preserved
    under old names; new runs appear under new names.
 
-5. **Concurrency group rename.** Old groups (`security-audit`, `security-update`,
-   etc.) are replaced by agent-name groups. If an old run is somehow still
-   in-progress when the new workflow fires, they won't share a concurrency group.
-   **Mitigation:** Extremely unlikely — workflows have 30-minute timeouts and old
-   cron schedules stop firing once files are deleted.
+5. **Concurrency group rename.** Old groups (`security-audit`,
+   `security-update`, etc.) are replaced by agent-name groups. If an old run is
+   somehow still in-progress when the new workflow fires, they won't share a
+   concurrency group. **Mitigation:** Extremely unlikely — workflows have
+   30-minute timeouts and old cron schedules stop firing once files are deleted.
 
 ## Libraries Used
 

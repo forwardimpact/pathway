@@ -113,8 +113,8 @@ commit changes, report your decision so the caller can act on it.
    invoke `kata-spec`. Verify findings, address all confirmed
    blocker/high/medium issues before advancing.
 6. **Present the spec.** Share it for feedback. Iterate until satisfied. The
-   spec stays at `spec draft` until a human approves it. Stop here — the plan
-   is the staff engineer's job.
+   spec stays at `spec draft` until a human approves it. Stop here — the plan is
+   the staff engineer's job.
 
 ## What NOT to Do
 
