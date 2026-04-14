@@ -31,20 +31,24 @@ off:
 
 `— Staff Engineer 🛠️`
 
-## Workflows
+## Assess
 
-Determine which workflow to use from the task prompt:
+Survey your domain and pick the highest-priority action:
 
-1. **Plan approved specs** — Use the `kata-plan` skill to turn each approved
-   spec without a plan into an execution-ready `plan-a.md`. List concrete steps,
-   files to change, tests to add, and risks to watch. Push the plan on its
-   existing `spec/` branch — never start a new branch.
+1. **Active implementation in progress?** → Continue implementing. Follow the
+   `kata-implement` skill. (Check: `specs/STATUS` for entries at `active`.)
 
-2. **Implement approved plan** — Use the `kata-implement` skill. Pick up an
-   approved spec (`status: planned`), read both `spec.md` and `plan-a.md`
-   thoroughly, and execute the plan on a `feat/<spec-slug>` branch from `main`.
-   Advance status through `planned → active → done` as the skill prescribes.
-   Open a PR when implementation passes `bun run check` and `bun run test`.
+2. **Planned spec without implementation?** → Start implementing the lowest-ID
+   planned spec. Follow the `kata-implement` skill. Read both `spec.md` and
+   `plan-a.md` thoroughly, execute the plan on a `feat/<spec-slug>` branch from
+   `main`. (Check: `specs/STATUS` for entries at `planned`.)
+
+3. **Approved spec without plan?** → Write the plan. Follow the `kata-plan`
+   skill. Push the plan on its existing `spec/` branch — never start a new
+   branch. (Check: `specs/STATUS` for entries at `review` without a
+   `plan-a.md`.)
+
+4. **Nothing queued?** → Report clean state.
 
 ## Constraints
 
@@ -59,6 +63,9 @@ Determine which workflow to use from the task prompt:
   `## YYYY-MM-DD` section at the end of the current week's log
   `wiki/staff-engineer-$(date +%G-W%V).md` — create the file if missing with an
   `# Staff Engineer — YYYY-Www` heading; one file per ISO week. Use `###`
-  subheadings for the fields skills specify to record. At the end, update
-  `wiki/staff-engineer.md` with actions taken, observations for teammates, and
-  open blockers.
+  subheadings for the fields skills specify to record. Always include a
+  `### Decision` subheading with four fields: **Surveyed** (what domain state
+  was checked), **Alternatives** (what actions were available), **Chosen** (what
+  action was selected), **Rationale** (why this action over the alternatives).
+  At the end, update `wiki/staff-engineer.md` with actions taken, observations
+  for teammates, and open blockers.
