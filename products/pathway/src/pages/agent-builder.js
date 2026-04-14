@@ -27,9 +27,7 @@ import {
   createHelpSection,
 } from "./agent-builder-preview.js";
 import { createInstallSection } from "./agent-builder-install.js";
-import {
-  createDownloadButton,
-} from "./agent-builder-download.js";
+import { createDownloadButton } from "./agent-builder-download.js";
 
 /** @type {Object|null} Cached agent data */
 let agentDataCache = null;

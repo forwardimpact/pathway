@@ -76,7 +76,11 @@ export async function writeProfile(profile, baseDir, template) {
  * @param {string} template - Mustache template string for CLAUDE.md
  * @returns {string|null} Path written, or null if skipped
  */
-export async function writeTeamInstructions(teamInstructions, baseDir, template) {
+export async function writeTeamInstructions(
+  teamInstructions,
+  baseDir,
+  template,
+) {
   if (!teamInstructions) return null;
   const filePath = join(baseDir, ".claude", "CLAUDE.md");
   const content = formatTeamInstructions(teamInstructions, template);

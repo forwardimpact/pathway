@@ -334,4 +334,3 @@ text-token signaling, it is deleted.
   `supervisor-run`, `supervisor-intervention`, and `supervisor-batching` tests.
 - The six orchestration tools are schema-validated — invalid tool calls produce
   structured errors, not silent failures.
-

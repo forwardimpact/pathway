@@ -95,12 +95,12 @@ npx fit-pathway job <discipline> <level> --tools          # Tool names only
 
 **Options:**
 
-| Option                | Description                              |
-| --------------------- | ---------------------------------------- |
-| `--track=<id>`        | Track ID (e.g. `platform`)               |
-| `--list`              | List valid discipline/level combinations |
-| `--skills`            | Output skill IDs only                    |
-| `--tools`             | Output tool names only                   |
+| Option         | Description                              |
+| -------------- | ---------------------------------------- |
+| `--track=<id>` | Track ID (e.g. `platform`)               |
+| `--list`       | List valid discipline/level combinations |
+| `--skills`     | Output skill IDs only                    |
+| `--tools`      | Output tool names only                   |
 
 ### Agent Generation
 
@@ -118,13 +118,13 @@ npx fit-pathway agent <discipline> --track=<track> --tools           # Tool name
 
 **Options:**
 
-| Option            | Description                           |
-| ----------------- | ------------------------------------- |
-| `--track=<id>`    | Track ID                              |
-| `--output=<dir>`  | Write agent files to directory        |
-| `--list`          | List valid combinations               |
-| `--skills`        | Output skill IDs only                 |
-| `--tools`         | Output tool names only                |
+| Option           | Description                    |
+| ---------------- | ------------------------------ |
+| `--track=<id>`   | Track ID                       |
+| `--output=<dir>` | Write agent files to directory |
+| `--list`         | List valid combinations        |
+| `--skills`       | Output skill IDs only          |
+| `--tools`        | Output tool names only         |
 
 ### Interview, Progress, and Questions
 

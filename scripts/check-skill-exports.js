@@ -9,8 +9,7 @@
  * Exit:  0 on success, 1 on any missing export
  */
 
-import { readFileSync, existsSync } from "node:fs";
-import { globSync } from "node:fs";
+import { readFileSync, readdirSync, existsSync } from "node:fs";
 import { join, dirname, resolve } from "node:path";
 
 // ── Regex patterns ───────────────────────────────────────────────────────────
@@ -198,7 +197,10 @@ function walkExportsMap(exportsObj, libDir, allExports) {
 
 // ── Main ─────────────────────────────────────────────────────────────────────
 
-const skillFiles = globSync(".claude/skills/libs-*/SKILL.md");
+const skillFiles = readdirSync(".claude/skills", { withFileTypes: true })
+  .filter((d) => d.isDirectory() && d.name.startsWith("libs-"))
+  .map((d) => join(".claude/skills", d.name, "SKILL.md"))
+  .filter((f) => existsSync(f));
 let totalFiles = 0;
 let totalRows = 0;
 let totalExports = 0;

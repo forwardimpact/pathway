@@ -75,7 +75,10 @@ const definition = {
       args: "[<id>]",
       description: "Show skills",
       options: {
-        agent: { type: "boolean", description: "Show agent detail for a skill" },
+        agent: {
+          type: "boolean",
+          description: "Show agent detail for a skill",
+        },
       },
     },
     { name: "driver", args: "[<id>]", description: "Show drivers" },
@@ -120,7 +123,10 @@ const definition = {
         behaviour: { type: "string", description: "Filter by behaviour ID" },
         capability: { type: "string", description: "Filter by capability" },
         level: { type: "string", description: "Filter by level" },
-        maturity: { type: "string", description: "Filter by behaviour maturity" },
+        maturity: {
+          type: "string",
+          description: "Filter by behaviour maturity",
+        },
         stats: { type: "boolean", description: "Show question statistics" },
       },
     },
@@ -130,7 +136,10 @@ const definition = {
       description: "Generate AI agent profile",
       options: {
         track: { type: "string", description: "Track specialization" },
-        output: { type: "string", description: "Output directory for generated files" },
+        output: {
+          type: "string",
+          description: "Output directory for generated files",
+        },
         skills: { type: "boolean", description: "Output skill IDs" },
         tools: { type: "boolean", description: "Output tool names" },
       },
@@ -147,8 +156,15 @@ const definition = {
       description: "Generate static site",
       options: {
         output: { type: "string", description: "Output directory" },
-        url: { type: "string", description: "Site URL for distribution bundle" },
-        clean: { type: "boolean", default: true, description: "Clean output directory before building" },
+        url: {
+          type: "string",
+          description: "Site URL for distribution bundle",
+        },
+        clean: {
+          type: "boolean",
+          default: true,
+          description: "Clean output directory before building",
+        },
       },
     },
     {

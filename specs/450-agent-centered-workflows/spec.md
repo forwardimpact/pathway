@@ -25,9 +25,8 @@ The cost is visible in the wiki:
 
 - **Incomplete coverage.** Agent wiki summaries show large coverage gaps across
   domains (see `wiki/security-engineer.md`, `wiki/technical-writer.md`,
-  `wiki/improvement-coach.md`). Coverage gaps persist — agents lack the
-  autonomy to prioritize uncovered areas when their assigned task has nothing to
-  do.
+  `wiki/improvement-coach.md`). Coverage gaps persist — agents lack the autonomy
+  to prioritize uncovered areas when their assigned task has nothing to do.
 
 - **Stale cross-agent observations.** The technical writer reports that the
   security engineer's protobufjs observation has been sitting 12 days without

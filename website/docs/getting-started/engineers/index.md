@@ -312,8 +312,8 @@ Guide validates configuration before connecting. If you see errors about missing
 `service.agent.agent`, `service.agent.model`, `LLM_TOKEN`, or `LLM_BASE_URL`,
 check that:
 
-1. You ran `npx fit-guide init` (creates `config/config.json` with the
-   `service` section)
+1. You ran `npx fit-guide init` (creates `config/config.json` with the `service`
+   section)
 2. Your `.env` file contains `LLM_TOKEN` and `LLM_BASE_URL`
 
 ### Guide: `Agent not found` error

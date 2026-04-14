@@ -182,9 +182,10 @@ export function createTeamPreview({
       h2({}, `Agents (${profiles.length})`),
       div(
         {
-          className: profiles.length === 1
-            ? "agent-cards-grid single"
-            : "agent-cards-grid",
+          className:
+            profiles.length === 1
+              ? "agent-cards-grid single"
+              : "agent-cards-grid",
         },
         ...profiles.map((profile) => {
           const content = formatAgentProfile(profile, templates.agent);

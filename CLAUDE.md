@@ -76,12 +76,11 @@ Agents are often the primary consumers of our products. Published skills
 use them, so skill clarity directly affects product quality.
 
 Each published skill should teach agents how a product **works** and how to
-**use** it — not how it is **implemented**. Progressively disclose detail:
-start with what the product does and when to reach for it, then link out to
-published documentation for deeper context. External users have no access to
-the monorepo source, so every reference must use fully qualified URLs to the
-`.md` version of published pages — agents fetch these to read documentation in
-context (e.g.
+**use** it — not how it is **implemented**. Progressively disclose detail: start
+with what the product does and when to reach for it, then link out to published
+documentation for deeper context. External users have no access to the monorepo
+source, so every reference must use fully qualified URLs to the `.md` version of
+published pages — agents fetch these to read documentation in context (e.g.
 `https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
 
 Skills sync to `forwardimpact/skills` on push to `main`. External users install
