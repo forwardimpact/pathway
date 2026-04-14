@@ -6,7 +6,7 @@ memory-informed rotation:
 1. **Discover available runs**:
 
    ```sh
-   bash .claude/skills/kata-grasp/scripts/find-runs.sh [lookback]
+   bash .claude/skills/kata-trace/scripts/find-runs.sh [lookback]
    ```
 
    Default lookback is `7d`. Use `14d` for broader window, `24h` for recent

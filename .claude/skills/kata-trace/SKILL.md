@@ -1,18 +1,19 @@
 ---
-name: kata-grasp
+name: kata-trace
 description: >
-  Grasp the current condition of an agent workflow run. Select a trace, download
-  it, observe the work as it actually happened, apply grounded theory analysis,
-  and produce a structured findings report — step 2 of the improvement kata.
+  Go and see the work agents did by analyzing their execution traces. Select a
+  workflow run, download its trace artifact, observe every turn via grounded
+  theory, and produce a structured findings report with instruction-layer
+  attribution.
 ---
 
-# Grasping the Current Condition
+# Agent Trace Analysis
 
-Grasp the current condition by studying the execution trace of a CI agent
-workflow run. Select one run, download its trace, study every turn via grounded
-theory, categorize findings, and act on what you find. Depth over breadth. This
-skill operates within the Kata system defined in [KATA.md](../../../KATA.md),
-whose five-layer instruction model (§ Instruction layering) and checklist design
+Go and see the work agents did by analyzing their execution traces. Select one
+workflow run, download its trace, study every turn via grounded theory,
+categorize findings, and act on what you find. Depth over breadth. This skill
+operates within the Kata system defined in [KATA.md](../../../KATA.md), whose
+five-layer instruction model (§ Instruction layering) and checklist design
 principles ([CHECKLISTS.md](../../../CHECKLISTS.md)) govern how findings
 translate into system improvements.
 

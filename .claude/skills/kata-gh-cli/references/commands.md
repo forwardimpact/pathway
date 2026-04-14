@@ -3,7 +3,7 @@
 Appendix to [`SKILL.md`](../SKILL.md). For operations Kata skills reuse across
 workflows (PR triage, contributor lookup, trace downloads, release creation),
 use the canonical shapes in § Kata query patterns instead — matching shapes lets
-the `kata-grasp` invariant audit verify the calls happened.
+the `kata-trace` invariant audit verify the calls happened.
 
 This file is a generic `gh` crib sheet for one-off operations not covered there.
 

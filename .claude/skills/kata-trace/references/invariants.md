@@ -1,6 +1,6 @@
 # Per-Agent Invariants
 
-Named invariants that `kata-grasp`'s invariant audit step checks against an
+Named invariants that `kata-trace`'s invariant audit step checks against an
 agent workflow trace. Each invariant names: which trace it applies to, what
 evidence to look for, and the severity of a violation.
 

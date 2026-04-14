@@ -204,7 +204,7 @@ with:
 Survey domain state, then choose the highest-priority action:
 
 1. **Recent workflow traces not yet analyzed?** -- Grasp the current condition
-   (`kata-grasp`; check: completed workflow runs since last analysis, using the
+   (`kata-trace`; check: completed workflow runs since last analysis, using the
    run selection algorithm)
 2. **Unaddressed findings from prior grasps?** -- Act on findings (check:
    previous findings in `wiki/improvement-coach.md`; trivial fix --
@@ -398,7 +398,7 @@ used the App token for checkout, not `GITHUB_TOKEN`.)
 
 ### 4. Invariants — reorganize headers and add decision-quality checks
 
-**`.claude/skills/kata-grasp/references/invariants.md`**
+**`.claude/skills/kata-trace/references/invariants.md`**
 
 **Header reorganization.** Rename section headers from
 `## agent / workflow-name traces` to `## agent traces`, merging sections where
@@ -453,7 +453,7 @@ invariant as its only row.
 - `.github/workflows/product-manager.yml`
 - `.github/workflows/improvement-coach.yml`
 - `KATA.md`
-- `.claude/skills/kata-grasp/references/invariants.md`
+- `.claude/skills/kata-trace/references/invariants.md`
 
 **Deleted (8):**
 

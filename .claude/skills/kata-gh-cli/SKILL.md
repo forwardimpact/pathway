@@ -14,7 +14,7 @@ consistently, not authenticating it.
 - You are a Kata skill running inside a scheduled GitHub Actions workflow and
   need to read from or write to GitHub.
 - You need the canonical shape for a cross-skill operation (e.g. contributor
-  lookup) so your call matches what the `kata-grasp` invariant audit verifies.
+  lookup) so your call matches what the `kata-trace` invariant audit verifies.
 
 For one-off interactive use outside CI, read `gh help` instead.
 
@@ -46,7 +46,7 @@ skill.
 ## Kata query patterns
 
 These are the canonical shapes Kata skills reuse. Match them exactly so the
-`kata-grasp` invariant audit can verify the calls happened.
+`kata-trace` invariant audit can verify the calls happened.
 
 ### List open PRs for triage
 
@@ -67,7 +67,7 @@ gh pr list --author 'app/dependabot' --state open \
 ### Contributor trust lookup (top-7 gate)
 
 Used by `kata-product-classify` before any external PR is marked mergeable. The
-`kata-grasp` invariant audit verifies this call ran for every non-CI-app PR.
+`kata-trace` invariant audit verifies this call ran for every non-CI-app PR.
 
 ```sh
 gh api repos/{owner}/{repo}/contributors \
@@ -114,7 +114,7 @@ gh issue view <number> --json title,body,comments,labels,author
 
 ### Workflow run artifacts
 
-Used by `kata-grasp` to download traces and `kata-release-review` to verify
+Used by `kata-trace` to download traces and `kata-release-review` to verify
 publish runs.
 
 ```sh

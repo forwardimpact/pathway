@@ -16,7 +16,7 @@ This skill handles **all non-Dependabot PRs** — both external contributions an
 PRs created by our own CI app (`forward-impact-ci`). Because external
 contributions merge here, contributor trust verification is the most critical
 gate. The improvement coach audits classification traces via the
-[`kata-grasp`](../kata-grasp/SKILL.md) skill's invariant audit to confirm trust
+[`kata-trace`](../kata-trace/SKILL.md) skill's invariant audit to confirm trust
 checks happened on every PR that advanced to merge.
 
 ## When to Use
@@ -29,7 +29,7 @@ checks happened on every PR that advanced to merge.
 
 See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
 canonical query shapes used in the steps below — in particular the contributor
-trust lookup, which the `kata-grasp` invariant audit verifies against.
+trust lookup, which the `kata-trace` invariant audit verifies against.
 
 All comment templates and the report format are in `references/templates.md`.
 
@@ -86,7 +86,7 @@ gh api repos/{owner}/{repo}/contributors \
 ```
 
 The PR author must appear in this list. If not, mark **blocked** and record the
-decision (the `kata-grasp` invariant audit checks that this lookup happened on
+decision (the `kata-trace` invariant audit checks that this lookup happened on
 every classified PR).
 
 ### Step 3: Classify PR Type
@@ -162,7 +162,7 @@ Append to the current week's log (see agent profile for the file path):
 - **PR classification table** — Each PR with type, author, trust check, CI,
   verdict, and consecutive-block count
 - **Contributor trust decisions** — Who was verified and the result (this is the
-  data the `kata-grasp` invariant audit checks)
+  data the `kata-trace` invariant audit checks)
 - **Spec review results** — Spec PRs and their assessment
 - **PRs merged this run** — number, title, and final state
 - **Merge failures** — number and the reason (so the next run can revisit)
