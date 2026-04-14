@@ -189,9 +189,8 @@ describe("TeeWriter", () => {
       }),
       JSON.stringify({
         source: "orchestrator",
-        type: "summary",
-        success: true,
-        turns: 1,
+        seq: 2,
+        event: { type: "summary", success: true, turns: 1 },
       }),
     ];
 
@@ -221,9 +220,8 @@ describe("TeeWriter", () => {
     await writeLines(writer, [
       JSON.stringify({
         source: "orchestrator",
-        type: "summary",
-        success: false,
-        turns: 5,
+        seq: 0,
+        event: { type: "summary", success: false, turns: 5 },
       }),
     ]);
 

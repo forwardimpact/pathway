@@ -109,8 +109,9 @@ describe("Supervisor - output and events", () => {
 
     const summaryLine = JSON.parse(lines[lines.length - 1]);
     assert.strictEqual(summaryLine.source, "orchestrator");
-    assert.strictEqual(summaryLine.type, "summary");
-    assert.strictEqual(summaryLine.success, true);
+    assert.strictEqual(typeof summaryLine.seq, "number");
+    assert.strictEqual(summaryLine.event.type, "summary");
+    assert.strictEqual(summaryLine.event.success, true);
   });
 
   test("events are nested under event key (no field collisions)", async () => {
@@ -235,8 +236,8 @@ describe("Supervisor - output and events", () => {
 
     const summary = lines[lines.length - 1];
     assert.strictEqual(summary.source, "orchestrator");
-    assert.strictEqual(summary.type, "summary");
-    assert.strictEqual(summary.success, true);
+    assert.strictEqual(summary.event.type, "summary");
+    assert.strictEqual(summary.event.success, true);
   });
 
   test("emits supervisor output and summary when supervisor errors on turn 0", async () => {
@@ -285,8 +286,8 @@ describe("Supervisor - output and events", () => {
 
     const summaryLine = JSON.parse(lines[lines.length - 1]);
     assert.strictEqual(summaryLine.source, "orchestrator");
-    assert.strictEqual(summaryLine.success, false);
-    assert.strictEqual(summaryLine.turns, 0);
+    assert.strictEqual(summaryLine.event.success, false);
+    assert.strictEqual(summaryLine.event.turns, 0);
   });
 
   test("summary includes Conclude payload", async () => {
@@ -317,7 +318,7 @@ describe("Supervisor - output and events", () => {
       .split("\n")
       .filter((l) => l.length > 0);
     const summaryLine = JSON.parse(lines[lines.length - 1]);
-    assert.strictEqual(summaryLine.summary, "Agent passed all checks");
+    assert.strictEqual(summaryLine.event.summary, "Agent passed all checks");
   });
 });
 

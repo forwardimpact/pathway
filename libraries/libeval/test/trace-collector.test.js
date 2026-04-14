@@ -234,14 +234,13 @@ describe("TraceCollector", () => {
       collector.addLine(
         JSON.stringify({
           source: "orchestrator",
-          type: "summary",
-          success: true,
-          turns: 3,
+          seq: 99,
+          event: { type: "summary", success: true, turns: 3 },
         }),
       );
 
-      // Orchestrator summaries have no inner event and no recognized type
-      // after unwrap — they should be silently skipped.
+      // Orchestrator summaries unwrap to { type: "summary" } which
+      // hits the default case — silently skipped.
       assert.strictEqual(collector.toJSON().turns.length, 0);
     });
 

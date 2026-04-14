@@ -213,11 +213,55 @@ describe("Facilitator - core orchestration", () => {
       );
     }
 
-    // Summary line should exist
+    // Summary line should exist — wrapped in envelope
     const summary = lines.find(
-      (l) => l.source === "orchestrator" && l.type === "summary",
+      (l) => l.source === "orchestrator" && l.event?.type === "summary",
     );
     assert.ok(summary, "Trace should contain summary");
-    assert.strictEqual(summary.success, true);
+    assert.strictEqual(summary.event.success, true);
+  });
+
+  test("fail-fast: agent error aborts all sessions", async () => {
+    const ctx = createOrchestrationContext();
+    const messageBus = new MessageBus({
+      participants: ["facilitator", "agent-1", "agent-2"],
+    });
+    ctx.messageBus = messageBus;
+
+    const facilitatorRunner = createMockRunner(
+      [{ text: "Assigning" }],
+      [[tellMsg("agent-1", "Do work"), tellMsg("agent-2", "Do work")]],
+      {
+        toolDispatcher: {
+          Tell: (input) =>
+            messageBus.tell("facilitator", input.to, input.message),
+        },
+      },
+    );
+
+    // agent-1 throws an error
+    const agent1Runner = createMockRunner([{ text: "Crash" }]);
+    agent1Runner.run = async () => {
+      throw new Error("Agent-1 process crashed");
+    };
+
+    const agent2Runner = createMockRunner([{ text: "Working" }]);
+
+    const output = new PassThrough();
+    const facilitator = new Facilitator({
+      facilitatorRunner,
+      agents: [
+        { name: "agent-1", role: "a", runner: agent1Runner },
+        { name: "agent-2", role: "b", runner: agent2Runner },
+      ],
+      messageBus,
+      output,
+      maxTurns: 10,
+      ctx,
+    });
+
+    await assert.rejects(() => facilitator.run("Test fail-fast"), {
+      message: "Agent-1 process crashed",
+    });
   });
 });

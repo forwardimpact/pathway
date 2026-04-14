@@ -3,8 +3,11 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { Supervisor } from "@forwardimpact/libeval";
-import { createOrchestrationContext } from "../src/orchestration-toolkit.js";
-import { createConcludeHandler } from "../src/orchestration-toolkit.js";
+import {
+  createOrchestrationContext,
+  createConcludeHandler,
+  createAskHandler,
+} from "../src/orchestration-toolkit.js";
 import { createMockRunner } from "./mock-runner.js";
 
 function concludeMsg(summary) {
@@ -262,5 +265,78 @@ describe("Supervisor - run and turns", () => {
 
     assert.strictEqual(result.success, false);
     assert.strictEqual(result.turns, 2);
+  });
+
+  test("agent Ask tool blocks until supervisor answers", async () => {
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+
+    // The agent calls Ask on its first turn. The onAsk callback runs
+    // the supervisor inline and returns the answer.
+    let askAnswer = null;
+    const askHandler = createAskHandler(ctx, {
+      onAsk: async (question) => {
+        // Simulate supervisor answering the question
+        return `The answer to "${question}" is: use npm install.`;
+      },
+    });
+
+    // Agent messages: first message has a text block (triggers onBatch),
+    // followed by an Ask tool_use. The Ask handler runs synchronously
+    // from the agent's perspective.
+    const agentMessages = [
+      [
+        {
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "tool_use",
+                id: "ask-1",
+                name: "Ask",
+                input: { question: "Should I use npm or yarn?" },
+              },
+            ],
+          },
+        },
+      ],
+    ];
+
+    const agentRunner = createMockRunner([{ text: "Done" }], agentMessages, {
+      toolDispatcher: {
+        Ask: async (input) => {
+          const result = await askHandler(input);
+          askAnswer = result.content[0].text;
+        },
+      },
+    });
+
+    const supervisorRunner = createMockRunner(
+      [{ text: "Install the packages." }, { text: "Good" }],
+      [undefined, [concludeMsg("Complete")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
+    );
+
+    const output = new PassThrough();
+    const supervisor = new Supervisor({
+      agentRunner,
+      supervisorRunner,
+      output,
+      maxTurns: 10,
+      ctx,
+    });
+
+    const result = await supervisor.run("Install task");
+
+    assert.strictEqual(result.success, true);
+    assert.ok(askAnswer, "Ask handler should have been called");
+    assert.ok(
+      askAnswer.includes("npm install"),
+      "Answer should contain the supervisor's response",
+    );
   });
 });

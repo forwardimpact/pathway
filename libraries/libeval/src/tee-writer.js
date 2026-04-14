@@ -83,17 +83,17 @@ export class TeeWriter extends Writable {
       return;
     }
 
-    // Orchestrator summary (not wrapped in envelope)
-    if (parsed.source === "orchestrator" && parsed.type === "summary") {
-      const status = parsed.success ? "completed" : "incomplete";
-      this.textStream.write(
-        `\n--- Evaluation ${status} after ${parsed.turns} turns ---\n`,
-      );
-      return;
-    }
-
     // Universal envelope: { source, seq, event }
     if (parsed.event) {
+      // Orchestrator summary event
+      if (parsed.source === "orchestrator" && parsed.event.type === "summary") {
+        const status = parsed.event.success ? "completed" : "incomplete";
+        this.textStream.write(
+          `\n--- Evaluation ${status} after ${parsed.event.turns} turns ---\n`,
+        );
+        return;
+      }
+
       if (parsed.source && parsed.source !== this.lastSource) {
         this.lastSource = parsed.source;
       }

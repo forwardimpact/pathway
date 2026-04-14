@@ -14,7 +14,6 @@ import {
   createOrchestrationContext,
   createFacilitatorToolServer,
   createFacilitatedAgentToolServer,
-  createConcludeHandler as _createConcludeHandler,
 } from "./orchestration-toolkit.js";
 
 /** System prompt appended for the facilitator runner. */
@@ -366,10 +365,13 @@ export class Facilitator {
     this.output.write(
       JSON.stringify({
         source: "orchestrator",
-        type: "summary",
-        success: result.success,
-        turns: result.turns,
-        ...(result.summary && { summary: result.summary }),
+        seq: this.counter.next(),
+        event: {
+          type: "summary",
+          success: result.success,
+          turns: result.turns,
+          ...(result.summary && { summary: result.summary }),
+        },
       }) + "\n",
     );
   }

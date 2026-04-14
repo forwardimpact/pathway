@@ -318,17 +318,20 @@ export class Supervisor {
   }
 
   /**
-   * Emit a final orchestrator summary line.
+   * Emit a final orchestrator summary line, wrapped in the universal envelope.
    * @param {{success: boolean, turns: number, summary?: string}} result
    */
   emitSummary(result) {
     this.output.write(
       JSON.stringify({
         source: "orchestrator",
-        type: "summary",
-        success: result.success,
-        turns: result.turns,
-        ...(result.summary && { summary: result.summary }),
+        seq: this.counter.next(),
+        event: {
+          type: "summary",
+          success: result.success,
+          turns: result.turns,
+          ...(result.summary && { summary: result.summary }),
+        },
       }) + "\n",
     );
   }
