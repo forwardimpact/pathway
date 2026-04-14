@@ -49,6 +49,7 @@ apply alongside the skill-specific ones below.
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias) and every **blocker**, **high**, and **medium** finding
       addressed.
+- [ ] Spec status set to `plan implemented` in `specs/STATUS`.
 
 </do_confirm_checklist>
 

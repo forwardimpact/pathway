@@ -56,6 +56,7 @@ acceptance.
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------- |
 | Both `spec.md` and plan read before first edit     | `Read` calls on `spec.md` and `plan-a.md` (or selected variant) before any `Edit`/`Write` | **High**   |
 | `bun run check` and `bun run test` ran before push | Tool calls invoking these commands before any push                                        | **Medium** |
+| Status advanced to `plan implemented` after push   | `specs/STATUS` edit setting the spec to `plan implemented` after the push                 | **Medium** |
 | Scope discipline held                              | No edits to files outside the plan's stated blast radius                                  | **Medium** |
 
 ## technical-writer / doc-review traces

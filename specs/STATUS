@@ -5,59 +5,60 @@
 #   spec  draft      Spec is being written
 #   spec  approved   Human approved — ready for planning
 #   plan  draft      Plan is being written
-#   plan  approved   Human approved — ready for implementation
+#   plan  approved       Human approved — ready for implementation
+#   plan  implemented    Implementation complete
 #
-# Lifecycle: spec draft → spec approved → plan draft → plan approved
-# Agents set "draft". Humans set "approved".
+# Lifecycle: spec draft → spec approved → plan draft → plan approved → plan implemented
+# Agents set "draft" and "implemented". Humans set "approved".
 # One row per spec, updated in place.
 
-010	plan	approved
-020	plan	approved
-030	plan	approved
-040	plan	approved
-050	plan	approved
-051	plan	approved
-052	plan	approved
-060	plan	approved
-061	plan	approved
-062	plan	approved
-063	plan	approved
-070	plan	approved
-080	plan	approved
-090	plan	approved
-100	plan	approved
-110	plan	approved
-120	plan	approved
-130	plan	approved
-140	plan	approved
-150	plan	approved
-160	plan	approved
-170	plan	approved
-180	plan	approved
-190	plan	approved
-200	plan	approved
-210	plan	approved
-220	plan	approved
-230	plan	approved
-240	plan	approved
-250	plan	approved
+010	plan	implemented
+020	plan	implemented
+030	plan	implemented
+040	plan	implemented
+050	plan	implemented
+051	plan	implemented
+052	plan	implemented
+060	plan	implemented
+061	plan	implemented
+062	plan	implemented
+063	plan	implemented
+070	plan	implemented
+080	plan	implemented
+090	plan	implemented
+100	plan	implemented
+110	plan	implemented
+120	plan	implemented
+130	plan	implemented
+140	plan	implemented
+150	plan	implemented
+160	plan	implemented
+170	plan	implemented
+180	plan	implemented
+190	plan	implemented
+200	plan	implemented
+210	plan	implemented
+220	plan	implemented
+230	plan	implemented
+240	plan	implemented
+250	plan	implemented
 260	spec	draft
-270	plan	approved
-280	plan	approved
-290	plan	approved
-300	plan	approved
-310	plan	approved
-320	plan	approved
-330	plan	approved
-340	plan	approved
-350	plan	approved
-360	plan	approved
-370	plan	approved
-380	plan	approved
-390	plan	approved
-400	plan	approved
-410	plan	approved
-420	plan	approved
-430	plan	approved
+270	plan	implemented
+280	plan	implemented
+290	plan	implemented
+300	plan	implemented
+310	plan	implemented
+320	plan	implemented
+330	plan	implemented
+340	plan	implemented
+350	plan	implemented
+360	plan	implemented
+370	plan	implemented
+380	plan	implemented
+390	plan	implemented
+400	plan	implemented
+410	plan	implemented
+420	plan	implemented
+430	plan	implemented
 440	spec	draft
 450	spec	draft
