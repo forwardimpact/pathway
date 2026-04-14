@@ -8,6 +8,7 @@ import { runOutputCommand } from "../src/commands/output.js";
 import { runTeeCommand } from "../src/commands/tee.js";
 import { runRunCommand } from "../src/commands/run.js";
 import { runSuperviseCommand } from "../src/commands/supervise.js";
+import { runFacilitateCommand } from "../src/commands/facilitate.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -91,6 +92,38 @@ const definition = {
         },
       },
     },
+    {
+      name: "facilitate",
+      args: "",
+      description: "Run a facilitated multi-agent session",
+      options: {
+        "task-file": { type: "string", description: "Path to task file" },
+        "task-text": { type: "string", description: "Inline task text" },
+        "task-amend": {
+          type: "string",
+          description: "Additional text appended to task",
+        },
+        model: { type: "string", description: "Claude model (default: opus)" },
+        "max-turns": {
+          type: "string",
+          description: "Max facilitator LLM turns (default: 20)",
+        },
+        output: { type: "string", description: "Write NDJSON trace to file" },
+        "facilitator-cwd": {
+          type: "string",
+          description: "Facilitator working directory",
+        },
+        "facilitator-profile": {
+          type: "string",
+          description: "Facilitator profile name",
+        },
+        agents: {
+          type: "string",
+          description:
+            "Agent configs: name1:cwd=/tmp/a:role=explorer,name2:cwd=/tmp/b:role=tester",
+        },
+      },
+    },
   ],
   globalOptions: {
     format: { type: "string", description: "Output format (json|text)" },
@@ -102,6 +135,7 @@ const definition = {
     "fit-eval output --format=text < trace.ndjson",
     "fit-eval run --task-file=task.md --model=opus",
     "fit-eval supervise --task-file=task.md --supervisor-cwd=.",
+    'fit-eval facilitate --task-file=task.md --agents "explorer:cwd=/tmp/a,tester:cwd=/tmp/b"',
   ],
 };
 
@@ -113,6 +147,7 @@ const COMMANDS = {
   tee: runTeeCommand,
   run: runRunCommand,
   supervise: runSuperviseCommand,
+  facilitate: runFacilitateCommand,
 };
 
 async function main() {

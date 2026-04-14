@@ -16,3 +16,9 @@ export {
   createFacilitatedAgentToolServer,
 } from "./orchestration-toolkit.js";
 export { MessageBus, createMessageBus } from "./message-bus.js";
+export {
+  Facilitator,
+  createFacilitator,
+  FACILITATOR_SYSTEM_PROMPT,
+  FACILITATED_AGENT_SYSTEM_PROMPT,
+} from "./facilitator.js";
