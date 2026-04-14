@@ -1,9 +1,9 @@
 ---
 name: kata-ship
 description: >
-  Ship the current feature branch: rebase on main, fix conflicts, run checks,
-  open (or reuse) a PR, wait for checks, and squash-merge into main. Use when
-  a feature branch is ready to land.
+  Ship the current feature branch as-is: approve, rebase on main, run checks,
+  open (or reuse) a PR, wait for checks, and squash-merge into main. Ships only
+  the work already done — never creates new work to complete a phase.
 ---
 
 # Ship Feature Branch
@@ -19,6 +19,31 @@ merge.
 - **Not applicable on `main`** — the Step 1 guard aborts the workflow if the
   current branch is `main`.
 
+## Scope — Ship What Was Done, Nothing More
+
+Shipping means landing the work **as it was already completed** on the branch.
+It never means creating additional work to finish an incomplete phase or
+advancing to the next phase. Examples:
+
+- **Spec branch** — contains only `spec.md`. Ship the spec. Do not write a
+  design or plan.
+- **Design branch** — contains `spec.md` and `design.md`. Ship the design. Do
+  not write a plan.
+- **Plan branch** — contains `spec.md`, `design.md`, and `plan-a.md`. Ship the
+  plan. Do not start implementing.
+- **Implementation branch** — contains code changes implementing an approved
+  plan. Ship the implementation.
+- **Non-spec branch** — contains code changes unrelated to a spec (bug fix,
+  chore, docs). Ship as-is with no STATUS update.
+
+If the work on the branch is incomplete or broken, **stop and tell the user** —
+do not attempt to finish it.
+
+## Shipping Implies Approval
+
+Shipping a spec-tracked deliverable inherently means approving it. Step 2
+handles the `specs/STATUS` update before the mechanical ship process begins.
+
 ## Prerequisites
 
 See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
@@ -29,6 +54,8 @@ canonical `gh` query shapes used below.
 <do_confirm_checklist goal="Confirm the branch is safe to merge into main">
 
 - [ ] Current branch is not `main`.
+- [ ] Scope limited to work already on the branch.
+- [ ] `specs/STATUS` reflects current phase approval (if spec-tracked).
 - [ ] Rebased cleanly on `origin/main` (no unresolved conflicts).
 - [ ] `bun run check` and `bun run test` pass locally.
 - [ ] PR exists and its body follows the repo's Summary / Test plan template.
@@ -50,7 +77,35 @@ if [ "$branch" = "main" ]; then
 fi
 ```
 
-### Step 2: Rebase on Main
+### Step 2: Approve the Work (spec-tracked branches only)
+
+If the branch contains spec-tracked work (a spec, design, plan, or
+implementation tied to an entry in `specs/STATUS`), update STATUS to mark the
+phase as approved before proceeding:
+
+```sh
+# Example: shipping a plan for spec 460
+# Change:  460  plan  draft
+# To:      460  plan  approved
+```
+
+| Deliverable    | Phase update       |
+| -------------- | ------------------ |
+| `spec.md`      | `spec approved`    |
+| `design.md`    | `design approved`  |
+| `plan-a.md`    | `plan approved`    |
+| Implementation | `plan implemented` |
+
+Commit the STATUS change:
+
+```sh
+git add specs/STATUS
+git commit -m "approve: mark spec <id> <phase> approved"
+```
+
+Skip this step for branches with no spec association (bug fixes, chores, docs).
+
+### Step 3: Rebase on Main
 
 ```sh
 git fetch origin main
@@ -61,7 +116,7 @@ Resolve conflicts in place, then `git add <files> && git rebase --continue`. If
 a conflict is substantive and cannot be resolved mechanically, abort with
 `git rebase --abort` and stop.
 
-### Step 3: Run Checks
+### Step 4: Run Checks
 
 ```sh
 bun run check:fix    # auto-fix format and lint
@@ -71,7 +126,7 @@ bun run test         # unit tests
 
 Do not proceed until all checks pass.
 
-### Step 4: Push the Branch
+### Step 5: Push the Branch
 
 ```sh
 git push --force-with-lease -u origin "$branch"
@@ -79,7 +134,7 @@ git push --force-with-lease -u origin "$branch"
 
 Keep atomic commits intact — squashing happens at merge time, not here.
 
-### Step 5: Create or Reuse PR
+### Step 6: Create or Reuse PR
 
 Probe for an existing open PR on this branch before creating one:
 
@@ -110,7 +165,7 @@ EOF
 
 If a PR already exists, reuse it — do not open a duplicate.
 
-### Step 6: Wait for Checks
+### Step 7: Wait for Checks
 
 ```sh
 gh pr checks "$branch" --watch
@@ -120,7 +175,7 @@ If any check fails, stop and report — do not attempt code fixes from inside th
 skill. If no workflow runs against the branch at all, abort after a reasonable
 wait and investigate upstream rather than blocking forever.
 
-### Step 7: Squash-Merge
+### Step 8: Squash-Merge
 
 ```sh
 gh pr merge "$branch" --squash --delete-branch
