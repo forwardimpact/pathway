@@ -57,25 +57,22 @@ whether a weekly plan already exists for the current ISO week.
 
 **Monday (or first meeting of the week) — Planning meeting:**
 
-1. **Roll call** — Facilitator uses `RollCall()` to discover participants.
-2. **Status round** — Each agent shares a brief status via `Share()`: what they
-   accomplished since last meeting, any blockers, and any observations for
-   teammates. Agents read their own summary and the current week's log to
-   prepare this.
+1. **Roll call** — Facilitator discovers participants.
+2. **Status round** — Each agent shares a brief status: what they accomplished
+   since last meeting, any blockers, and any observations for teammates. Agents
+   read their own summary and the current week's log to prepare this.
 3. **Review last week** — If a plan from the prior week exists
    (`plan-W{VV-1}.md`), the facilitator asks agents to assess which items were
-   completed, deferred, or abandoned. Each agent responds for its own items via
-   `Share()`.
+   completed, deferred, or abandoned. Each agent responds for its own items.
 4. **Identify priorities** — The facilitator asks each agent to propose its top
-   priorities for the week based on current domain state. Agents share via
-   `Share()`.
+   priorities for the week based on current domain state.
 5. **Resolve dependencies** — The facilitator identifies cross-agent
-   dependencies from the proposed priorities and uses `Tell()` to coordinate
-   directly between affected agents. For example, if the staff-engineer plans to
-   implement a spec that touches CI, the facilitator coordinates with the
-   release-engineer on sequencing.
+   dependencies from the proposed priorities and coordinates directly between
+   affected agents. For example, if the staff-engineer plans to implement a spec
+   that touches CI, the facilitator coordinates with the release-engineer on
+   sequencing.
 6. **Write the plan** — The facilitator synthesizes priorities into
-   `wiki/plan-W{VV}.md` and concludes the meeting via `Conclude()`.
+   `wiki/plan-W{VV}.md` and concludes the meeting.
 
 **Tuesday–Sunday — Daily review meeting:**
 
@@ -83,12 +80,12 @@ whether a weekly plan already exists for the current ISO week.
 2. **Status round** — Each agent shares brief status: what they did since
    yesterday, any new blockers.
 3. **Plan review** — The facilitator reads the current `plan-W{VV}.md` and asks
-   each agent to report progress on their items. Agents respond via `Share()`.
+   each agent to report progress on their items.
 4. **Adjust** — If priorities have shifted (e.g., a critical vulnerability
    appeared, a blocking PR was merged), the facilitator updates the plan with
    adjustments and rationale.
 5. **Conclude** — Facilitator writes any plan updates to the wiki and concludes
-   via `Conclude()`.
+   the meeting.
 
 ### Weekly plan format
 
@@ -193,25 +190,26 @@ The daily meeting runs before all individual agent workflows:
 
 The meeting runs at 03:00 UTC — over an hour before the first individual
 workflow. This gives the plan time to be committed and pushed to the wiki before
-agents start reading it.
+agents start reading it. The meeting must complete within the same 30-minute
+timeout used by individual agent workflows.
 
 ### Facilitator profile
 
 A new agent profile `daily-meeting-facilitator.md` defines the facilitator role.
 The facilitator is not a seventh team member — it is a coordination role that
-runs only during the meeting. It has no domain, no skills, and no Assess
-section. Its sole purpose is to:
+runs only during the meeting. It has no domain ownership, no `kata-*` skills,
+and no Assess section. Its meeting procedure is defined entirely in the agent
+profile (not in a skill file) because the procedure is specific to this role and
+never reused elsewhere. The facilitator's purpose is to:
 
 1. Run the meeting agenda (planning or review, depending on whether a plan
    exists for the current week)
-2. Elicit status and priorities from each agent
-3. Identify and resolve cross-agent dependencies
-4. Write or update the weekly plan in the wiki
-5. Keep the meeting focused and time-bounded
-
-The facilitator reads all agent summaries and the current week's logs before the
-meeting starts, so it arrives with full context on what each agent has been
-doing.
+2. Read all agent summaries and the current week's logs to arrive with full
+   context
+3. Elicit status and priorities from each agent
+4. Identify and resolve cross-agent dependencies
+5. Write or update the weekly plan in the wiki
+6. Keep the meeting focused and time-bounded
 
 ### What this is really about
 
@@ -279,10 +277,10 @@ visible.
 ## Dependencies
 
 - **Spec 440 (facilitate mode)** — the meeting requires the `facilitate`
-  execution mode, `RollCall()`, `Share()`, `Tell()`, and `Conclude()` tools.
-  This spec cannot be implemented until spec 440 is implemented.
+  execution mode and its orchestration tools. Both specs are already implemented
+  (`plan implemented` in STATUS).
 - **Spec 450 (agent-centered workflows)** — the Assess framework that the plan
-  integrates into. Must be implemented first.
+  integrates into.
 
 ## Success Criteria
 
@@ -292,12 +290,13 @@ visible.
 2. **Facilitator profile** exists at
    `.claude/agents/daily-meeting-facilitator.md` with a structured meeting
    agenda covering both planning and review modes.
-3. **Weekly plan file** (`wiki/plan-W{VV}.md`) is created on the first meeting
-   of each ISO week with sections: Team Priorities, Agent Focus Areas (with
-   checkboxes), Dependencies, Carry-Forward, Daily Notes.
-4. **Plan review** occurs on subsequent daily meetings — progress is noted,
-   checkboxes updated, adjustments recorded with rationale in the Daily Notes
-   section.
+3. **Weekly plan creation** — the facilitator profile includes instructions to
+   create `wiki/plan-W{VV}.md` when none exists for the current ISO week, with
+   sections: Team Priorities, Agent Focus Areas (with checkboxes), Dependencies,
+   Carry-Forward, Daily Notes.
+4. **Plan review** — the facilitator profile includes instructions to review the
+   existing `plan-W{VV}.md` on subsequent meetings: note progress, update
+   checkboxes, and record adjustments with rationale in the Daily Notes section.
 5. **Agent profiles** each include an Assess step 0 that reads the weekly plan
    and weights priority assessment toward plan-aligned items.
 6. **MEMORY.md** documents the `plan-W{VV}.md` convention alongside the existing
