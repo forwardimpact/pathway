@@ -1,10 +1,10 @@
-name: "Kata: Release Review"
+name: "Kata: Security Engineer"
 
 on:
   schedule:
-    # Tue, Thu, Sat at 09:37 UTC — cuts releases after merges settle
-    - cron: "37 9 * * 2,4,6"
-  workflow_dispatch: # Manual trigger for on-demand releases
+    # Daily at 04:07 UTC — first agent in the cycle
+    - cron: "7 4 * * *"
+  workflow_dispatch:
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -12,14 +12,14 @@ on:
         type: string
 
 concurrency:
-  group: release-review
+  group: security-engineer
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  release:
+  kata:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Review and Release
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -46,8 +46,10 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Review for new releases.
-          agent-profile: "release-engineer"
+          task-text: >-
+            Assess the current state of your domain and act on the
+            highest-priority finding.
+          agent-profile: "security-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

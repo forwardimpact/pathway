@@ -1,10 +1,10 @@
-name: "Kata: Plan Approved Specs"
+name: "Kata: Release Engineer"
 
 on:
   schedule:
-    # Daily at 07:11 UTC — runs after preparers, before implementers and mergers
-    - cron: "11 7 * * *"
-  workflow_dispatch: # Manual trigger for on-demand planning
+    # Daily at 08:43 UTC — release after implementation
+    - cron: "43 8 * * *"
+  workflow_dispatch:
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -12,14 +12,14 @@ on:
         type: string
 
 concurrency:
-  group: plan-specs
+  group: release-engineer
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  plan:
+  kata:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -32,12 +32,13 @@ jobs:
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
+          fetch-depth: 0
           token: ${{ steps.ci-app.outputs.token }}
           submodules: true
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Plan approved specs
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -45,8 +46,10 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Plan approved specs awaiting implementation.
-          agent-profile: "staff-engineer"
+          task-text: >-
+            Assess the current state of your domain and act on the
+            highest-priority finding.
+          agent-profile: "release-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

@@ -1,10 +1,10 @@
-name: "Kata: Release Readiness"
+name: "Kata: Staff Engineer"
 
 on:
   schedule:
-    # Daily at 06:23 UTC — prepares PRs after work creators finish
-    - cron: "23 6 * * *"
-  workflow_dispatch: # Manual trigger for on-demand readiness checks
+    # Daily at 07:11 UTC — plan and implement after triage
+    - cron: "11 7 * * *"
+  workflow_dispatch:
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -12,14 +12,14 @@ on:
         type: string
 
 concurrency:
-  group: release-readiness
+  group: staff-engineer
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  readiness:
+  kata:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Check PR Readiness
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -46,8 +46,10 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Check release readiness.
-          agent-profile: "release-engineer"
+          task-text: >-
+            Assess the current state of your domain and act on the
+            highest-priority finding.
+          agent-profile: "staff-engineer"
           model: "opus"
-          max-turns: "200"
+          max-turns: "0"
           task-amend: ${{ inputs.task-amend }}

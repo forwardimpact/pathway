@@ -2,9 +2,9 @@ name: "Kata: Improvement Coach"
 
 on:
   schedule:
-    # Wed & Sat at 10:47 UTC — analyzes traces after all other agents
+    # Wed & Sat at 10:47 UTC — analyze traces after all producers
     - cron: "47 10 * * 3,6"
-  workflow_dispatch: # Manual trigger for on-demand analysis
+  workflow_dispatch:
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -19,7 +19,7 @@ permissions:
   contents: write
 
 jobs:
-  coach:
+  kata:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Analyze Agent Traces
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -46,7 +46,9 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Grasp the current condition and act on findings.
+          task-text: >-
+            Assess the current state of your domain and act on the
+            highest-priority finding.
           agent-profile: "improvement-coach"
           model: "opus"
           max-turns: "200"

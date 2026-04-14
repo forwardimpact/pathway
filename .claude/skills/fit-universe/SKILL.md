@@ -212,8 +212,8 @@ present in the DSL but skip gracefully if the tool is unavailable.
 
 ## Environment
 
-Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate`
-mode. Set these environment variables before running:
+Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate` mode.
+Set these environment variables before running:
 
 ```sh
 LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-universe --generate
