@@ -41,18 +41,8 @@ do not attempt to finish it.
 
 ## Shipping Implies Approval
 
-Shipping a spec-tracked deliverable inherently means approving it. Before the
-mechanical ship process begins, update `specs/STATUS` to mark the current phase
-as approved (or implemented):
-
-| Work on branch          | STATUS update      |
-| ----------------------- | ------------------ |
-| Spec written            | `spec approved`    |
-| Design written          | `design approved`  |
-| Plan written            | `plan approved`    |
-| Implementation complete | `plan implemented` |
-
-Commit the STATUS change to the branch before rebasing.
+Shipping a spec-tracked deliverable inherently means approving it. Step 2
+handles the `specs/STATUS` update before the mechanical ship process begins.
 
 ## Prerequisites
 
@@ -64,10 +54,8 @@ canonical `gh` query shapes used below.
 <do_confirm_checklist goal="Confirm the branch is safe to merge into main">
 
 - [ ] Current branch is not `main`.
-- [ ] Only shipping work already done — no new phases started, no incomplete
-      work finished.
-- [ ] If spec-tracked: `specs/STATUS` updated to approved (or implemented) and
-      committed before rebase.
+- [ ] Scope limited to work already on the branch.
+- [ ] `specs/STATUS` reflects current phase approval (if spec-tracked).
 - [ ] Rebased cleanly on `origin/main` (no unresolved conflicts).
 - [ ] `bun run check` and `bun run test` pass locally.
 - [ ] PR exists and its body follows the repo's Summary / Test plan template.
