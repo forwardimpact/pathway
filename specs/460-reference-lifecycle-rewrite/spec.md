@@ -28,12 +28,11 @@ The page's conceptual content (lifecycle phases, handoffs, constraints) still
 has value. But the entity-based framing is structurally stale and will confuse
 users who look for `stages.yaml` or `--stage` options.
 
-Additionally, the fit-pathway CLI has some undeclared options in its command
-handlers that reference stage-era features. The `questions` handler expects
-`--level`, `--maturity`, and `--stats` — none are declared in the CLI definition
-and all throw parse errors. These are either dead code or missing registrations
-from the spec 420 migration. (Note: `--skills`/`--tools` on `job` and `--output`
-on `agent` were verified as properly registered and functional.)
+All fit-pathway CLI options referenced in command handlers (`--level`,
+`--maturity`, `--stats` on `questions`; `--skills`/`--tools` on `job`;
+`--output` on `agent`) were verified as properly registered and functional in
+`fit-pathway.js`. No phantom CLI option cleanup is needed — the only action is
+rewriting the lifecycle page itself.
 
 ## Proposed solution
 
@@ -55,28 +54,20 @@ If lifecycle phases are no longer a user-facing concept post spec 420, remove
 the page and its card from the Reference index. Update cross-links from Core
 Model and Agent Teams guides.
 
-### Cleanup: fit-pathway phantom CLI options
-
-Regardless of lifecycle page choice, audit and resolve the undeclared options in
-fit-pathway command handlers:
-
-| Command     | Undeclared options           | Disposition                     |
-| ----------- | ---------------------------- | ------------------------------- |
-| `questions` | --level, --maturity, --stats | Register or remove from handler |
-
-These were documented in the CLI Reference and caused user-facing errors; the
-documentation was fixed in PR #368 but the handler code still references them.
-
 ## Scope
 
 - `website/docs/reference/lifecycle/index.md` — rewrite or remove
 - `website/docs/reference/index.md` — update lifecycle card if reframing
 - `website/docs/reference/model/index.md` — update lifecycle cross-link
-- `products/pathway/bin/fit-pathway.js` — register or clean up undeclared
-  options
-- `products/pathway/src/commands/job.js` — verify option references
-- `products/pathway/src/commands/questions.js` — verify option references
-- `products/pathway/src/commands/agent.js` — verify option references
+
+## Success criteria
+
+- No references to `stages.yaml`, stage schemas, `stages.schema.json`, or the
+  `--stage` flag remain in `website/docs/reference/lifecycle/index.md` (or the
+  file is removed entirely).
+- No broken cross-links from Reference index, Core Model, or Authoring
+  Frameworks pages to a removed or restructured lifecycle page.
+- `bun run check` passes with no formatting or lint errors.
 
 ## Out of scope
 
