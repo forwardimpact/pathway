@@ -3,14 +3,15 @@ title: CLI Reference
 description: Commands, arguments, and options for all Forward Impact CLI tools.
 ---
 
-> **Availability:** `fit-pathway`, `fit-map`, `fit-basecamp`, `fit-guide`, and
-> `fit-rc` are published to npm and can be installed standalone. `fit-summit`,
-> `fit-doc`, and `fit-universe` are monorepo-only tools that require a full
-> checkout of the [monorepo](https://github.com/forwardimpact/monorepo).
+> **Availability:** `fit-pathway`, `fit-map`, `fit-basecamp`, `fit-guide`,
+> `fit-landmark`, `fit-summit`, and `fit-rc` are published to npm and can be
+> installed standalone. `fit-doc` and `fit-universe` are monorepo-only tools
+> that require a full checkout of the
+> [monorepo](https://github.com/forwardimpact/monorepo).
 
 ## fit-map
 
-Data validation and index generation.
+Data validation, index generation, and activity management.
 
 ```sh
 npx fit-map init                        # Create ./data/pathway/ with starter framework data
@@ -18,15 +19,25 @@ npx fit-map validate                    # Validate all data (JSON Schema + refer
 npx fit-map validate --shacl            # Validate RDF/SHACL syntax
 npx fit-map validate --data=PATH        # Validate a specific data directory
 npx fit-map generate-index              # Generate _index.yaml files for browser loading
+npx fit-map export                      # Render base entities to HTML microdata
+npx fit-map export --output=PATH        # Export to a specific directory
 npx fit-map people validate <file>      # Validate people CSV/YAML without importing
-npx fit-map people push <file>          # Import people from CSV/YAML
-npx fit-map people push <f> --data=P    # Import with custom data directory
+npx fit-map people push <file>          # Push people from CSV/YAML to database
+npx fit-map activity start              # Start Supabase activity stack
+npx fit-map activity stop               # Stop activity stack
+npx fit-map activity status             # Show activity stack status
+npx fit-map activity migrate            # Run database migrations
+npx fit-map activity transform <type>   # Transform activity data
+npx fit-map activity verify             # Verify activity data
+npx fit-map activity seed               # Seed activity data from framework
+npx fit-map getdx sync                  # Extract and transform GetDX snapshots
 ```
 
-| Option          | Description                     |
-| --------------- | ------------------------------- |
-| `--shacl`       | Include RDF/SHACL syntax checks |
-| `--data=<path>` | Use a specific data directory   |
+| Option          | Description                      |
+| --------------- | -------------------------------- |
+| `--shacl`       | Include RDF/SHACL syntax checks  |
+| `--data=<path>` | Use a specific data directory    |
+| `--url=<url>`   | Supabase URL for remote commands |
 
 ---
 
@@ -55,8 +66,8 @@ All entity commands support three output modes:
 | List    | `npx fit-pathway <cmd> --list` | IDs for piping              |
 | Detail  | `npx fit-pathway <cmd> <id>`   | Full entity details         |
 
-Entity commands: `discipline`, `level`, `track`, `behaviour`, `driver`, `stage`,
-`skill`, `tool`.
+Entity commands: `discipline`, `level`, `track`, `behaviour`, `driver`, `skill`,
+`tool`.
 
 **Global options** (apply to all fit-pathway commands):
 
@@ -91,7 +102,7 @@ npx fit-pathway job <discipline> <level> --tools          # Tool names only
 **Arguments:**
 
 - `<discipline>` -- Discipline ID (e.g. `software_engineering`)
-- `<level>` -- Level ID (e.g. `L3`)
+- `<level>` -- Level ID (e.g. `J060`)
 
 **Options:**
 
@@ -136,13 +147,10 @@ npx fit-pathway progress <discipline> <level>
 npx fit-pathway progress <d> <l> --compare=<to_level>
 
 npx fit-pathway questions
-npx fit-pathway questions --level=practitioner
-npx fit-pathway questions --maturity=practicing
 npx fit-pathway questions --skill=<id>
 npx fit-pathway questions --behaviour=<id>
 npx fit-pathway questions --capability=<id>
-npx fit-pathway questions --stats
-npx fit-pathway questions --format=yaml
+npx fit-pathway questions --role=<role>
 ```
 
 **Interview options:**
@@ -160,15 +168,12 @@ npx fit-pathway questions --format=yaml
 
 **Questions options:**
 
-| Option                  | Description                  |
-| ----------------------- | ---------------------------- |
-| `--level=<level>`       | Filter by proficiency level  |
-| `--maturity=<maturity>` | Filter by behaviour maturity |
-| `--skill=<id>`          | Filter by skill ID           |
-| `--behaviour=<id>`      | Filter by behaviour ID       |
-| `--capability=<id>`     | Filter by capability ID      |
-| `--stats`               | Show question statistics     |
-| `--format=<format>`     | Output format (e.g. `yaml`)  |
+| Option              | Description            |
+| ------------------- | ---------------------- |
+| `--skill=<id>`      | Filter by skill ID     |
+| `--behaviour=<id>`  | Filter by behaviour ID |
+| `--capability=<id>` | Filter by capability   |
+| `--role=<role>`     | Filter by role         |
 
 ### Build and Development
 
@@ -215,21 +220,100 @@ fit-basecamp update [path]           # Update KB with latest templates
 
 ---
 
+## fit-guide
+
+Conversational AI agent for engineering frameworks.
+
+```sh
+npx fit-guide                            # Start interactive REPL session
+npx fit-guide status                     # Check system readiness
+npx fit-guide init                       # Generate secrets, .env, and config
+echo "question" | npx fit-guide          # Pipe mode (single question, exit)
+npx fit-guide --streaming                # Use streaming agent endpoint
+```
+
+| Command  | Description                        |
+| -------- | ---------------------------------- |
+| _(none)_ | Interactive REPL session           |
+| `status` | Check system readiness             |
+| `init`   | Generate secrets, .env, and config |
+
+| Option        | Description                      |
+| ------------- | -------------------------------- |
+| `--data`      | Path to framework data directory |
+| `--streaming` | Use streaming agent endpoint     |
+| `--json`      | Output as JSON                   |
+
+---
+
+## fit-landmark
+
+Engineering signal analysis layer. Combines GitHub artifact evidence with GetDX
+snapshots. No LLM calls.
+
+```sh
+npx fit-landmark org show                         # Show organization directory
+npx fit-landmark org team <email>                  # Show hierarchy under a manager
+npx fit-landmark snapshot list                     # List available snapshots
+npx fit-landmark snapshot show                     # Show snapshot factor/driver scores
+npx fit-landmark snapshot trend                    # Show snapshot trends over time
+npx fit-landmark marker <skill>                    # Show evidence markers for a skill
+npx fit-landmark evidence <email>                  # Show evidence for a person
+npx fit-landmark readiness <email>                 # Show promotion readiness
+npx fit-landmark timeline <email>                  # Show activity timeline
+npx fit-landmark coverage <team>                   # Show team coverage
+npx fit-landmark practice <email>                  # Show practice patterns
+npx fit-landmark practiced <email>                 # Show practiced capabilities
+npx fit-landmark health <team>                     # Show team health metrics
+npx fit-landmark voice <team>                      # Show team voice (comments)
+npx fit-landmark initiative <team>                 # Show team initiative patterns
+```
+
+| Command      | Description                            |
+| ------------ | -------------------------------------- |
+| `org`        | Organization directory and hierarchy   |
+| `snapshot`   | GetDX snapshot listing, scores, trends |
+| `marker`     | Evidence markers for skills            |
+| `evidence`   | Evidence portfolio for a person        |
+| `readiness`  | Promotion readiness assessment         |
+| `timeline`   | Activity timeline for a person         |
+| `coverage`   | Team capability coverage               |
+| `practice`   | Practice patterns for a person         |
+| `practiced`  | Practiced capabilities for a person    |
+| `health`     | Team health metrics                    |
+| `voice`      | Team voice from comments               |
+| `initiative` | Team initiative patterns               |
+
+---
+
 ## fit-summit
 
 Team capability analysis. Deterministic, no LLM calls.
 
 ```sh
-fit-summit coverage <team>                                   # Capability coverage
-fit-summit risks <team>                                      # Structural risks
-fit-summit what-if <team> --add "{ discipline: se, level: L3, track: platform }" # Scenario
+npx fit-summit roster                                        # Show current roster
+npx fit-summit validate                                      # Validate roster file
+npx fit-summit coverage <team>                               # Capability coverage
+npx fit-summit coverage <team> --evidenced                   # Include practiced capability
+npx fit-summit risks <team>                                  # Structural risks
+npx fit-summit growth <team>                                 # Growth opportunities
+npx fit-summit what-if <team> --add 'Jane, senior, backend'  # Add scenario
+npx fit-summit what-if <team> --remove 'Bob'                 # Remove scenario
+npx fit-summit what-if <team> --promote 'Alice'              # Promote scenario
+npx fit-summit compare <team1> <team2>                       # Compare teams
+npx fit-summit trajectory <team>                             # Capability over time
 ```
 
-| Command    | Description                                      |
-| ---------- | ------------------------------------------------ |
-| `coverage` | Show capability coverage for a team              |
-| `risks`    | Identify structural risks in team composition    |
-| `what-if`  | Model staffing scenarios with `--add`/`--remove` |
+| Command      | Description                                    |
+| ------------ | ---------------------------------------------- |
+| `roster`     | Show current roster                            |
+| `validate`   | Validate roster file                           |
+| `coverage`   | Show capability coverage for a team            |
+| `risks`      | Identify structural risks in team composition  |
+| `growth`     | Show growth opportunities aligned to team gaps |
+| `what-if`    | Simulate roster changes                        |
+| `compare`    | Compare two teams' coverage and risks          |
+| `trajectory` | Show team capability over time                 |
 
 **Arguments:**
 
@@ -237,10 +321,31 @@ fit-summit what-if <team> --add "{ discipline: se, level: L3, track: platform }"
 
 **what-if options:**
 
-| Option     | Description                                  |
-| ---------- | -------------------------------------------- |
-| `--add`    | Add a hypothetical team member (YAML object) |
-| `--remove` | Remove a team member from the scenario       |
+| Option               | Description                        |
+| -------------------- | ---------------------------------- |
+| `--add=<person>`     | Add a hypothetical person          |
+| `--remove=<person>`  | Remove a team member               |
+| `--move=<person>`    | Move a member between teams        |
+| `--to=<team>`        | Destination team for `--move`      |
+| `--promote=<person>` | Promote a member to the next level |
+| `--focus=<cap>`      | Filter the diff to one capability  |
+
+**Shared options** (apply to coverage, risks, growth, what-if):
+
+| Option                  | Description                                         |
+| ----------------------- | --------------------------------------------------- |
+| `--evidenced`           | Include practiced capability from Map evidence      |
+| `--lookback-months=<n>` | Lookback window for practice patterns (default: 12) |
+| `--project=<id>`        | Use a project team instead of a reporting team      |
+| `--audience=<level>`    | Privacy audience: engineer, manager, director       |
+
+**Global options:**
+
+| Option            | Description                                         |
+| ----------------- | --------------------------------------------------- |
+| `--roster=<path>` | Path to summit.yaml                                 |
+| `--data=<path>`   | Path to Map data directory                          |
+| `--format=<fmt>`  | Output format: text, json, markdown (default: text) |
 
 ---
 
