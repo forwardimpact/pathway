@@ -22,15 +22,15 @@ No file content changes in this step.
 
 **Files affected:**
 
-| Old path | New path |
-| --- | --- |
-| `.claude/skills/kata-grasp/SKILL.md` | `.claude/skills/kata-trace/SKILL.md` |
-| `.claude/skills/kata-grasp/references/examples.md` | `.claude/skills/kata-trace/references/examples.md` |
-| `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
+| Old path                                                  | New path                                                  |
+| --------------------------------------------------------- | --------------------------------------------------------- |
+| `.claude/skills/kata-grasp/SKILL.md`                      | `.claude/skills/kata-trace/SKILL.md`                      |
+| `.claude/skills/kata-grasp/references/examples.md`        | `.claude/skills/kata-trace/references/examples.md`        |
+| `.claude/skills/kata-grasp/references/invariants.md`      | `.claude/skills/kata-trace/references/invariants.md`      |
 | `.claude/skills/kata-grasp/references/report-template.md` | `.claude/skills/kata-trace/references/report-template.md` |
-| `.claude/skills/kata-grasp/references/run-selection.md` | `.claude/skills/kata-trace/references/run-selection.md` |
-| `.claude/skills/kata-grasp/scripts/find-runs.sh` | `.claude/skills/kata-trace/scripts/find-runs.sh` |
-| `.claude/skills/kata-grasp/scripts/trace-queries.sh` | `.claude/skills/kata-trace/scripts/trace-queries.sh` |
+| `.claude/skills/kata-grasp/references/run-selection.md`   | `.claude/skills/kata-trace/references/run-selection.md`   |
+| `.claude/skills/kata-grasp/scripts/find-runs.sh`          | `.claude/skills/kata-trace/scripts/find-runs.sh`          |
+| `.claude/skills/kata-grasp/scripts/trace-queries.sh`      | `.claude/skills/kata-trace/scripts/trace-queries.sh`      |
 
 ## Step 2: Rewrite the skill identity
 
@@ -219,57 +219,57 @@ replacement to `kata-trace` is correct. Apply `kata-grasp` → `kata-trace`
 
 **File:** `.claude/skills/kata-product-classify/SKILL.md`
 
-| Line | Before | After |
-| --- | --- | --- |
-| 19 | `[`kata-grasp`](../kata-grasp/SKILL.md)` | `[`kata-trace`](../kata-trace/SKILL.md)` |
-| 32 | `the `kata-grasp` invariant audit verifies against` | `the `kata-trace` invariant audit verifies against` |
-| 89 | `the `kata-grasp` invariant audit checks that` | `the `kata-trace` invariant audit checks that` |
-| 165 | `the `kata-grasp` invariant audit checks)` | `the `kata-trace` invariant audit checks)` |
+| Line | Before                                              | After                                               |
+| ---- | --------------------------------------------------- | --------------------------------------------------- |
+| 19   | `[`kata-grasp`](../kata-grasp/SKILL.md)`            | `[`kata-trace`](../kata-trace/SKILL.md)`            |
+| 32   | `the `kata-grasp` invariant audit verifies against` | `the `kata-trace` invariant audit verifies against` |
+| 89   | `the `kata-grasp` invariant audit checks that`      | `the `kata-trace` invariant audit checks that`      |
+| 165  | `the `kata-grasp` invariant audit checks)`          | `the `kata-trace` invariant audit checks)`          |
 
 ### 6b. `kata-gh-cli/SKILL.md` — 4 references
 
 **File:** `.claude/skills/kata-gh-cli/SKILL.md`
 
-| Line | Before | After |
-| --- | --- | --- |
-| 17 | `the `kata-grasp` invariant audit verifies` | `the `kata-trace` invariant audit verifies` |
-| 49 | `kata-grasp` invariant audit can verify` | `kata-trace` invariant audit can verify` |
-| 70 | `kata-grasp` invariant audit verifies this call` | `kata-trace` invariant audit verifies this call` |
-| 117 | `Used by `kata-grasp` to download traces` | `Used by `kata-trace` to download traces` |
+| Line | Before                                           | After                                            |
+| ---- | ------------------------------------------------ | ------------------------------------------------ |
+| 17   | `the `kata-grasp` invariant audit verifies`      | `the `kata-trace` invariant audit verifies`      |
+| 49   | `kata-grasp` invariant audit can verify`         | `kata-trace` invariant audit can verify`         |
+| 70   | `kata-grasp` invariant audit verifies this call` | `kata-trace` invariant audit verifies this call` |
+| 117  | `Used by `kata-grasp` to download traces`        | `Used by `kata-trace` to download traces`        |
 
 ### 6c. `kata-gh-cli/references/commands.md` — 1 reference
 
 **File:** `.claude/skills/kata-gh-cli/references/commands.md`
 
-| Line | Before | After |
-| --- | --- | --- |
-| 6 | `the `kata-grasp` invariant audit verify` | `the `kata-trace` invariant audit verify` |
+| Line | Before                                    | After                                     |
+| ---- | ----------------------------------------- | ----------------------------------------- |
+| 6    | `the `kata-grasp` invariant audit verify` | `the `kata-trace` invariant audit verify` |
 
 ### 6d. `specs/450-agent-centered-workflows/spec.md` — 1 reference
 
 **File:** `specs/450-agent-centered-workflows/spec.md`
 
-| Line | Before | After |
-| --- | --- | --- |
-| 169 | `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
+| Line | Before                                               | After                                                |
+| ---- | ---------------------------------------------------- | ---------------------------------------------------- |
+| 169  | `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
 
 ### 6e. `specs/450-agent-centered-workflows/plan-a.md` — 3 references
 
 **File:** `specs/450-agent-centered-workflows/plan-a.md`
 
-| Line | Before | After |
-| --- | --- | --- |
-| 207 | `(`kata-grasp`; check:` | `(`kata-trace`; check:` |
-| 401 | `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
-| 456 | `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
+| Line | Before                                               | After                                                |
+| ---- | ---------------------------------------------------- | ---------------------------------------------------- |
+| 207  | `(`kata-grasp`; check:`                              | `(`kata-trace`; check:`                              |
+| 401  | `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
+| 456  | `.claude/skills/kata-grasp/references/invariants.md` | `.claude/skills/kata-trace/references/invariants.md` |
 
 ### 6f. `wiki/staff-engineer.md` — 1 reference
 
 **File:** `wiki/staff-engineer.md`
 
-| Line | Before | After |
-| --- | --- | --- |
-| 46 | `` `kata-grasp` trace analysis should see `` | `` `kata-trace` trace analysis should see `` |
+| Line | Before                                       | After                                        |
+| ---- | -------------------------------------------- | -------------------------------------------- |
+| 46   | `` `kata-grasp` trace analysis should see `` | `` `kata-trace` trace analysis should see `` |
 
 ## Step 7: Verify
 
@@ -289,8 +289,8 @@ replacement to `kata-trace` is correct. Apply `kata-grasp` → `kata-trace`
   wiki change uncommitted.
 - **Spec 450 references**: `specs/450-agent-centered-workflows/plan-a.md` quotes
   the improvement-coach profile text verbatim (line 207). After this rename, the
-  quoted text in 450's plan will say `kata-trace` — which is correct for
-  the future state but diverges from what 450 originally described. This is
+  quoted text in 450's plan will say `kata-trace` — which is correct for the
+  future state but diverges from what 450 originally described. This is
   acceptable because 450 is at `review` status and its plan should reflect the
   current skill name at implementation time.
 
