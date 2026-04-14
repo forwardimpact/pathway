@@ -1,6 +1,10 @@
 ---
 name: libskill
-description: Work with the @forwardimpact/libskill package. Use when modifying job derivation, agent profile generation, skill matrices, behaviour profiles, or career progression logic.
+description: >
+  Use when deriving a job from Discipline × Level × Track, generating agent
+  profiles, resolving skill modifiers, producing stage transition checklists,
+  selecting interview questions by role, analysing career progression between
+  levels, or matching candidates to jobs.
 ---
 
 # Libskill Package

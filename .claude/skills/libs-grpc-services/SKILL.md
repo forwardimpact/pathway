@@ -1,14 +1,13 @@
 ---
-name: libs-service-infrastructure
+name: libs-grpc-services
 description: >
-  Service infrastructure for gRPC microservices. librpc provides Server/Client
-  base classes. libconfig loads service settings. libtelemetry provides
-  structured logging and tracing. libtype provides Protocol Buffer types.
-  libharness provides test mocks. Use when building, modifying, or testing gRPC
-  services.
+  Use when building or testing a gRPC service, configuring service startup
+  settings, adding structured logging or distributed tracing, generating or
+  consuming Protocol Buffer types, or mocking infrastructure dependencies in
+  unit tests.
 ---
 
-# Service Infrastructure
+# gRPC Services and Service Infrastructure
 
 ## When to Use
 
@@ -19,25 +18,25 @@ description: >
 
 ## Libraries
 
-| Library      | Main API                                           | Purpose                                        |
-| ------------ | -------------------------------------------------- | ---------------------------------------------- |
-| librpc       | `RpcServer`, `RpcClient`, `createClientFactory`    | gRPC server/client base classes and factories  |
-| libconfig    | `serviceConfig`, `extensionConfig`, `scriptConfig` | Load settings from files and environment       |
-| libtelemetry | `Logger`, `Tracer`, `createLogger`                 | RFC 5424 structured logging and tracing        |
-| libtype      | `agent`, `common`, `memory`, `graph`, …            | Generated Protocol Buffer types and namespaces |
-| libharness   | `createMockConfig`, `createMockStorage`, …         | Test doubles for all infrastructure deps       |
+| Library      | Capabilities                                                         | Key Exports                                                                                            |
+| ------------ | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ |
+| librpc       | Build gRPC servers and clients, create service factories             | `Server`, `Client`, `createClient`, `createGrpc`, `Rpc`                                                |
+| libconfig    | Load settings from files and environment for services, CLIs, scripts | `createServiceConfig`, `createExtensionConfig`, `createScriptConfig`, `Config`                         |
+| libtelemetry | Structured RFC 5424 logging, distributed trace spans, observability  | `Logger`, `createLogger`, `Observer`, `createObserver`                                                 |
+| libtype      | Generated Protocol Buffer types and namespaces                       | `agent`, `common`, `memory`, `graph`, `tool`                                                           |
+| libharness   | Test doubles for all infrastructure dependencies                     | `createMockConfig`, `createMockStorage`, `createMockLogger`, `createMockLlmClient`, `createMockGrpcFn` |
 
 ## Decision Guide
 
-- **librpc Server vs Client** — `RpcServer` for implementing service handlers
-  that respond to requests. `RpcClient` / `createClientFactory` for calling
-  other services.
-- **libconfig `serviceConfig` vs `extensionConfig` vs `scriptConfig`** —
-  `serviceConfig` for long-running daemons (gRPC services). `extensionConfig`
-  for plugins and extensions. `scriptConfig` for CLI tools and one-off scripts.
-- **libtelemetry Logger vs Tracer** — `Logger` for structured log lines (always
-  use instead of `console.log`). `Tracer` for distributed trace spans across
-  service boundaries. Use `observe()` to wrap operations with timing.
+- **librpc Server vs Client** — `Server` for implementing service handlers that
+  respond to requests. `Client` / `createClient` for calling other services.
+- **libconfig `createServiceConfig` vs `createExtensionConfig` vs
+  `createScriptConfig`** — `createServiceConfig` for long-running daemons (gRPC
+  services). `createExtensionConfig` for plugins and extensions.
+  `createScriptConfig` for CLI tools and one-off scripts.
+- **libtelemetry Logger vs Observer** — `Logger` for structured log lines
+  (always use instead of `console.log`). `Observer` for distributed trace spans
+  across service boundaries with timing via `observe()`.
 - **Always use `logger.info` for operational output** — sends to stderr, keeps
   stdout clean for data. `logger.debug` only prints when `DEBUG=<domain>` is
   set. This is the standard pattern for all CLI tools and services across the
@@ -48,30 +47,27 @@ description: >
 ### Recipe 1: Create a new gRPC service
 
 ```javascript
-import { serviceConfig } from "@forwardimpact/libconfig";
+import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { RpcServer, createService } from "@forwardimpact/librpc";
-import { Tracer } from "@forwardimpact/libtelemetry/tracer.js";
+import { Server, createGrpc } from "@forwardimpact/librpc";
 
-const config = serviceConfig("my-service");
+const config = createServiceConfig("my-service");
 const logger = createLogger("my-service");
-const tracer = new Tracer(storage);
 
-const service = createService(MyServiceImpl, proto);
-const server = new RpcServer([service], config);
+const grpc = createGrpc(proto, MyServiceImpl);
+const server = new Server([grpc], config);
 await server.start();
 ```
 
 ### Recipe 2: Call another service
 
 ```javascript
-import { createClientFactory } from "@forwardimpact/librpc";
+import { createClient } from "@forwardimpact/librpc";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
 const logger = createLogger("caller");
-const factory = createClientFactory(logger, tracer);
-const agentClient = factory.createAgentClient("localhost", 50051);
-const response = await agentClient.request(message);
+const client = createClient(logger);
+const response = await client.request(message);
 ```
 
 ### Recipe 3: Test a service handler
@@ -81,7 +77,7 @@ import {
   createMockConfig,
   createMockStorage,
   createMockLogger,
-  createMockGrpcCall,
+  createMockGrpcFn,
   createMockLlmClient,
 } from "@forwardimpact/libharness";
 
@@ -91,7 +87,7 @@ const logger = createMockLogger();
 const llmClient = createMockLlmClient({ completionResponse: { content: "Hello" } });
 
 // Test handler directly with mock gRPC call
-const call = createMockGrpcCall({ resourceId: "test:123" });
+const call = createMockGrpcFn({ resourceId: "test:123" });
 await handler(call, callback);
 ```
 
@@ -100,20 +96,20 @@ await handler(call, callback);
 ### librpc
 
 ```javascript
-// RpcServer — accepts services and config
-const server = new RpcServer(services, config);
+// Server — accepts services and config
+const server = new Server(services, config);
 
-// createClientFactory — accepts logger and tracer
-const factory = createClientFactory(logger, tracer);
+// createClient — accepts logger
+const client = createClient(logger);
 ```
 
 ### libconfig
 
 ```javascript
 // Factory functions return config object — no constructor injection
-const config = serviceConfig("service-name");
-const config = extensionConfig("extension-name");
-const config = scriptConfig("script-name");
+const config = createServiceConfig("service-name");
+const config = createExtensionConfig("extension-name");
+const config = createScriptConfig("script-name");
 ```
 
 ### libtelemetry
@@ -122,8 +118,8 @@ const config = scriptConfig("script-name");
 // createLogger — factory, returns Logger instance
 const logger = createLogger("domain");
 
-// Tracer — accepts storage
-const tracer = new Tracer(storage);
+// Observer — accepts logger
+const observer = createObserver(logger);
 ```
 
 ### libtype
@@ -145,5 +141,5 @@ const logger = createMockLogger();
 const llmClient = createMockLlmClient(overrides);
 const memoryClient = createMockMemoryClient(overrides);
 const agentClient = createMockAgentClient(overrides);
-const call = createMockGrpcCall(requestData);
+const grpcFn = createMockGrpcFn(requestData);
 ```

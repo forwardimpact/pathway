@@ -1,57 +1,105 @@
 ---
-name: libs-system-utilities
+name: libs-cli-and-tooling
 description: >
-  System utilities for infrastructure tasks. libutil provides hashing, token
-  counting, and process execution. libsecret generates secrets and JWTs.
-  libsupervise provides process supervision with restart policies. librc manages
-  service lifecycles via Unix sockets. libcodegen generates code from Protocol
-  Buffer definitions. Use for infrastructure automation, service management, or
-  code generation.
+  Use when building a CLI tool, parsing arguments, rendering help text or
+  summary output, running an interactive REPL session, finding the project
+  root, retrying flaky network calls with backoff, counting LLM tokens,
+  generating hashes or UUIDs, downloading and extracting tarballs, generating
+  secrets or JWTs, reading or writing .env files, supervising long-running
+  daemons, managing service lifecycles, generating code from Protocol Buffer
+  definitions, or processing Claude Code traces and running agent evaluations.
 ---
 
-# System Utilities
+# CLI and Tooling
 
 ## When to Use
 
+- Building CLI entry points with argument parsing and help rendering
+- Running interactive REPL sessions
+- Retrying flaky operations with exponential backoff
+- Finding the project root, counting tokens, generating hashes or UUIDs
+- Downloading and extracting tarballs
+- Creating cryptographic secrets, JWTs, or managing .env files
 - Supervising long-running daemon processes with automatic restarts
 - Managing service lifecycles (start/stop/status/restart)
 - Generating code from Protocol Buffer definitions
-- Creating cryptographic secrets, JWTs, or managing .env files
-- Counting tokens, generating hashes, or running child processes
+- Processing Claude Code traces, running agent evaluations
 
 ## Libraries
 
-| Library      | Main API                                         | Purpose                                       |
-| ------------ | ------------------------------------------------ | --------------------------------------------- |
-| libutil      | `countTokens`, `generateHash`, `generateUuid`    | Token counting, hashing, UUIDs, project utils |
-| libsecret    | `generateSecret`, `createJwt`, `setEnvVar`       | Cryptographic secrets, JWTs, .env management  |
-| libsupervise | `LongrunProcess`, `SupervisionTree`, `LogWriter` | Process supervision with restart and logging  |
-| librc        | `ServiceManager`, `sendCommand`                  | Service lifecycle via svscan daemon           |
-| libcodegen   | `TypeGenerator`, `ServiceGenerator`              | Code generation from .proto files             |
+| Library      | Capabilities                                                                 | Key Exports                                                                                             |
+| ------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| libcli       | Parse arguments, render help text, format tables and colored output          | `Cli`, `createCli`, `HelpRenderer`, `SummaryRenderer`, `formatTable`, `colorize`                        |
+| librepl      | Run interactive REPL sessions                                                | `Repl`                                                                                                  |
+| libutil      | Retry with backoff, count tokens, hash, find project root, download tarballs | `Retry`, `createRetry`, `countTokens`, `generateHash`, `Finder`, `BundleDownloader`                     |
+| libsecret    | Generate secrets, JWTs, read and write .env files                            | `generateSecret`, `generateBase64Secret`, `generateJWT`, `getOrGenerateSecret`                          |
+| libsupervise | Supervise daemons with restart policies and log rotation                     | `SupervisionTree`, `createSupervisionTree`, `LongrunProcess`, `OneshotProcess`, `LogWriter`             |
+| librc        | Manage service lifecycles via svscan daemon and Unix sockets                 | `ServiceManager`, `sendCommand`, `waitForSocket`                                                        |
+| libcodegen   | Generate types, services, and definitions from .proto files                  | `CodegenBase`, `CodegenTypes`, `CodegenServices`, `CodegenDefinitions`                                  |
+| libeval      | Process Claude Code traces, run agent evaluations, supervise loops           | `TraceCollector`, `createTraceCollector`, `AgentRunner`, `createAgentRunner`, `Supervisor`, `TeeWriter` |
 
 ## Decision Guide
 
+- **libcli vs inline argument parsing** — Always use `Cli` for CLI entry points.
+  It provides argument parsing, help text generation via `HelpRenderer`, and
+  summary output via `SummaryRenderer`. Never hand-roll `process.argv` parsing.
+- **librepl vs readline** — Use `Repl` for interactive command loops. It handles
+  prompt display, history, and command dispatch. Never use raw `readline`.
 - **libsupervise vs librc** — `libsupervise` for direct process supervision
   (LongrunProcess, OneshotProcess with restart policies and log rotation).
   `librc` for managing services through the svscan daemon via Unix socket
   commands (start/stop/status).
 - **libutil `generateHash` vs libsecret `generateSecret`** — `generateHash` for
   deterministic content hashing (SHA256 of input data). `generateSecret` for
-  cryptographic random secrets (API keys, tokens). `libsecret.hashValues` for
-  deterministic hashes of multiple values.
+  cryptographic random secrets (API keys, tokens). `libsecret.generateJWT` for
+  signed JSON Web Tokens.
 - **libcodegen** — Run once after .proto file changes (`just codegen`). Not used
   at runtime. Output consumed by libtype and librpc.
-- **libutil pure functions** — `countTokens`, `generateHash`, `generateUuid` are
-  stateless with zero dependencies beyond Node.js built-ins.
-- **libsecret pure functions** — `generateSecret`, `createJwt`, `getEnvVar`,
-  `setEnvVar` are stateless cryptographic utilities.
+- **libeval** — `TraceCollector` for downloading and parsing Claude Code JSONL
+  traces. `AgentRunner` for running agent evaluation loops. `Supervisor` for
+  orchestrating multi-step agent workflows with intervention support.
+- **For CLI logging, see libtelemetry in libs-grpc-services** — use
+  `createLogger` for operational output in CLI tools.
 
 ## Composition Recipes
 
-### Recipe 1: Supervise a service
+### Recipe 1: Create a CLI entry point
 
 ```javascript
-import { LongrunProcess } from "@forwardimpact/libsupervise";
+import { Cli, createCli, HelpRenderer } from "@forwardimpact/libcli";
+
+const cli = createCli({
+  name: "my-tool",
+  version: "1.0.0",
+  commands: {
+    build: { description: "Build the project", handler: buildCommand },
+    test: { description: "Run tests", handler: testCommand },
+  },
+});
+
+const help = new HelpRenderer(cli);
+await cli.run(process.argv.slice(2));
+```
+
+### Recipe 2: Run an interactive REPL
+
+```javascript
+import { Repl } from "@forwardimpact/librepl";
+
+const repl = new Repl({
+  prompt: "> ",
+  commands: {
+    status: async () => console.log("OK"),
+    quit: () => process.exit(0),
+  },
+});
+
+await repl.start();
+```
+
+### Recipe 3: Supervise a service
+
+```javascript
 import { SupervisionTree } from "@forwardimpact/libsupervise";
 
 const tree = new SupervisionTree("/var/log/services");
@@ -62,53 +110,99 @@ const status = tree.getStatus();
 await tree.stop();
 ```
 
-### Recipe 2: Generate secrets for environment
+### Recipe 4: Generate secrets for environment
 
 ```javascript
-import { generateSecret, generateSecretB64 } from "@forwardimpact/libsecret";
-import { createJwt, setEnvVar } from "@forwardimpact/libsecret";
+import { generateSecret, generateBase64Secret } from "@forwardimpact/libsecret";
+import { generateJWT } from "@forwardimpact/libsecret";
+import { updateEnvFile } from "@forwardimpact/libsecret";
 
 const secret = generateSecret();
-await setEnvVar(".env", "SERVICE_SECRET", secret);
+await updateEnvFile(".env", "SERVICE_SECRET", secret);
 
-const jwt = createJwt({ userId: "123" }, secret, { expiresIn: "1h" });
-await setEnvVar(".env", "JWT_TOKEN", jwt);
+const jwt = generateJWT({ userId: "123" }, secret, { expiresIn: "1h" });
+await updateEnvFile(".env", "JWT_TOKEN", jwt);
 ```
 
-### Recipe 3: Generate code from proto definitions
+### Recipe 5: Generate code from proto definitions
 
 ```javascript
-import { TypeGenerator } from "@forwardimpact/libcodegen";
-import { ServiceGenerator } from "@forwardimpact/libcodegen";
+import { CodegenTypes, CodegenServices } from "@forwardimpact/libcodegen";
 
-const typeGen = new TypeGenerator("./proto");
+const typeGen = new CodegenTypes("./proto");
 await typeGen.generate("./generated/types");
 
-const serviceGen = new ServiceGenerator("./proto");
+const serviceGen = new CodegenServices("./proto");
 await serviceGen.generate("./generated/services");
 
 // CLI: just codegen
 ```
 
+### Recipe 6: Run an agent evaluation
+
+```javascript
+import { AgentRunner, createAgentRunner } from "@forwardimpact/libeval";
+
+const runner = createAgentRunner({ traceDir: "./traces", logger });
+const result = await runner.run({ prompt: "Fix the bug", workDir: "." });
+```
+
 ## DI Wiring
+
+### libcli
+
+```javascript
+// Cli — accepts options with name, commands, version
+const cli = new Cli({ name: "tool", commands, version: "1.0.0" });
+
+// createCli — convenience factory
+const cli = createCli({ name: "tool", commands });
+
+// HelpRenderer — accepts cli instance
+const help = new HelpRenderer(cli);
+
+// SummaryRenderer — accepts options
+const summary = new SummaryRenderer({ title: "Results" });
+```
+
+### librepl
+
+```javascript
+// Repl — accepts options with prompt, commands
+const repl = new Repl({ prompt: "> ", commands });
+await repl.start();
+```
 
 ### libutil
 
 ```javascript
 // Pure functions — no DI, no classes
-import { countTokens, estimateTokens } from "@forwardimpact/libutil";
-import { generateHash, generateUuid } from "@forwardimpact/libutil";
-import { findProjectRoot } from "@forwardimpact/libutil";
+import { countTokens, createTokenizer } from "@forwardimpact/libutil";
+import { generateHash, generateUUID } from "@forwardimpact/libutil";
+import { Retry, createRetry } from "@forwardimpact/libutil";
+
+// Retry — accepts options
+const retry = createRetry({ maxAttempts: 3, backoff: "exponential" });
+await retry.run(() => fetch(url));
+
+// Finder — accepts options
+import { Finder } from "@forwardimpact/libutil";
+const finder = new Finder();
+const root = finder.findProjectRoot();
+
+// BundleDownloader — accepts options
+import { BundleDownloader } from "@forwardimpact/libutil";
+const downloader = new BundleDownloader(url, destDir);
 ```
 
 ### libsecret
 
 ```javascript
 // Pure functions — no DI, no classes
-import { generateSecret, generateSecretB64 } from "@forwardimpact/libsecret";
-import { createJwt } from "@forwardimpact/libsecret";
-import { getEnvVar, setEnvVar } from "@forwardimpact/libsecret";
-import { hashValues } from "@forwardimpact/libsecret";
+import { generateSecret, generateBase64Secret } from "@forwardimpact/libsecret";
+import { generateJWT } from "@forwardimpact/libsecret";
+import { readEnvFile, updateEnvFile } from "@forwardimpact/libsecret";
+import { getOrGenerateSecret } from "@forwardimpact/libsecret";
 ```
 
 ### libsupervise
@@ -144,14 +238,33 @@ const response = await sendCommand("/tmp/svscan.sock", { command: "status" });
 ### libcodegen
 
 ```javascript
-// TypeGenerator — accepts proto directory
-const generator = new TypeGenerator("./proto");
+// CodegenTypes — accepts proto directory
+const generator = new CodegenTypes("./proto");
 
-// ServiceGenerator — accepts proto directory
-const generator = new ServiceGenerator("./proto");
+// CodegenServices — accepts proto directory
+const generator = new CodegenServices("./proto");
 
-// DefinitionGenerator — accepts proto directory
-const generator = new DefinitionGenerator("./proto");
+// CodegenDefinitions — accepts proto directory
+const generator = new CodegenDefinitions("./proto");
+```
+
+### libeval
+
+```javascript
+// TraceCollector — accepts options
+const collector = new TraceCollector({ traceDir: "./traces" });
+
+// createTraceCollector — convenience factory
+const collector = createTraceCollector({ traceDir: "./traces" });
+
+// AgentRunner — accepts options
+const runner = new AgentRunner({ traceDir: "./traces", logger });
+
+// Supervisor — accepts agent runner and options
+const supervisor = new Supervisor(runner, { maxIterations: 10 });
+
+// TeeWriter — accepts write streams
+const tee = new TeeWriter(stream1, stream2);
 ```
 
 ## Security

@@ -1,12 +1,11 @@
 ---
 name: libs-synthetic-data
 description: >
-  Synthetic data generation for testing and development. libsyntheticgen provides
-  DSL parsing and deterministic entity generation. libsyntheticprose generates
-  prose content and pathway frameworks via LLM. libsyntheticrender renders
-  entities to HTML, Markdown, YAML, and raw formats with validation. Use when
-  generating example data, creating synthetic frameworks, or modifying the
-  generation pipeline.
+  Use when parsing or extending the universe DSL grammar, generating
+  deterministic entity graphs, producing LLM-generated prose or pathway
+  frameworks, rendering synthetic data to HTML, Markdown, YAML, or raw
+  formats, validating generated content integrity, or running the full
+  parse-generate-render pipeline.
 ---
 
 # Synthetic Data Libraries
@@ -18,15 +17,16 @@ description: >
 - Adding LLM-generated prose or pathway framework content
 - Rendering synthetic data to HTML, Markdown, YAML, or raw documents
 - Validating generated content (cross-content integrity, link density, HTML)
-- Modifying the generation pipeline stages
+- Running the full parse-generate-render-validate pipeline
 
 ## Libraries
 
-| Library            | Main API                                           | Purpose                                                  |
-| ------------------ | -------------------------------------------------- | -------------------------------------------------------- |
-| libsyntheticgen    | `DslParser`, `EntityGenerator`, `createSeededRNG`  | DSL parsing, deterministic entity generation, vocabulary |
-| libsyntheticprose  | `ProseEngine`, `PathwayGenerator`                  | LLM prose generation, pathway framework data             |
-| libsyntheticrender | `Renderer`, `ContentValidator`, `ContentFormatter` | Multi-format rendering, validation, formatting           |
+| Library            | Capabilities                                                          | Key Exports                                                                                                         |
+| ------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| libsyntheticgen    | Parse DSL grammar, generate deterministic entities, shared vocabulary | `DslParser`, `createDslParser`, `EntityGenerator`, `createEntityGenerator`, `createSeededRNG`, `PROFICIENCY_LEVELS` |
+| libsyntheticprose  | Generate LLM prose, pathway framework data, load schemas              | `ProseEngine`, `createProseEngine`, `PathwayGenerator`, `loadSchemas`                                               |
+| libsyntheticrender | Multi-format rendering, content validation, formatting                | `Renderer`, `createRenderer`, `ContentValidator`, `ContentFormatter`, `validateCrossContent`                        |
+| libuniverse        | Full parse-generate-render-validate pipeline, Supabase upload         | `Pipeline`, `loadToSupabase`                                                                                        |
 
 ## Decision Guide
 
@@ -164,6 +164,27 @@ const validator = new ContentValidator(logger);
 // ContentFormatter — accepts prettier format function and logger
 import { ContentFormatter } from "@forwardimpact/libsyntheticrender";
 const formatter = new ContentFormatter(prettierFormat, logger);
+```
+
+### libuniverse
+
+```javascript
+// Pipeline — accepts all pipeline dependencies
+import { Pipeline } from "@forwardimpact/libuniverse/pipeline";
+const pipeline = new Pipeline({
+  dslParser,
+  entityGenerator,
+  proseEngine,
+  pathwayGenerator,
+  renderer,
+  validator,
+  formatter,
+  logger,
+});
+
+// loadToSupabase — accepts supabase client and options
+import { loadToSupabase } from "@forwardimpact/libuniverse";
+await loadToSupabase(client, { dataDir });
 ```
 
 ## GetDX API References

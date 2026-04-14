@@ -1,14 +1,13 @@
 ---
-name: libs-llm-orchestration
+name: libs-llm-and-agents
 description: >
-  LLM orchestration for AI features. libllm provides the API client for
-  completions and embeddings. libmemory manages conversation history within
-  token budgets. libprompt loads and renders prompt templates. libagent
-  orchestrates multi-turn conversations with tool use. Use when integrating LLM
-  capabilities, building agents, or managing AI context windows.
+  Use when making LLM completion or embedding requests, managing conversation
+  memory within token budgets, loading and rendering prompt templates,
+  orchestrating multi-turn agents with tool calling, dispatching tool calls
+  from an LLM response, or generating tool schemas from protobuf definitions.
 ---
 
-# LLM Orchestration
+# LLM and Agents
 
 ## When to Use
 
@@ -16,15 +15,17 @@ description: >
 - Managing conversation memory within token budgets
 - Loading and rendering prompt templates from files
 - Building conversational agents with tool calling and multi-turn state
+- Dispatching tool calls or generating tool schemas from protobuf
 
 ## Libraries
 
-| Library   | Main API                             | Purpose                                                      |
-| --------- | ------------------------------------ | ------------------------------------------------------------ |
-| libllm    | `LlmApi`                             | HTTP client for OpenAI-compatible completions and embeddings |
-| libmemory | `WindowBuilder`, `createWindow`      | Token-budgeted context window construction                   |
-| libprompt | `PromptLoader`, `createPromptLoader` | Load and render .prompt.md templates                         |
-| libagent  | `AgentMind`, `AgentAction`           | Multi-turn conversation orchestration with tools             |
+| Library   | Capabilities                                                   | Key Exports                                                                               |
+| --------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
+| libllm    | Send completions and embeddings to OpenAI-compatible endpoints | `LlmApi`, `createLlmApi`, `normalizeVector`, `getBudget`                                  |
+| libmemory | Token-budgeted context window construction                     | `MemoryWindow`, `getModelBudget`                                                          |
+| libprompt | Load and render .prompt.md templates with Mustache             | `PromptLoader`, `createPromptLoader`                                                      |
+| libagent  | Multi-turn conversation orchestration with tools               | `AgentMind`, `AgentHands`                                                                 |
+| libtool   | Dispatch tool calls, generate tool schemas from protobuf       | `ToolProcessor`, `mapFieldToSchema`, `generateSchemaFromProtobuf`, `buildToolDescription` |
 
 ## Decision Guide
 
@@ -34,9 +35,13 @@ description: >
 - **libprompt vs inline strings** — Always use `PromptLoader` for system prompts
   (supports Mustache variable substitution, file-based management). Use inline
   strings only for dynamic user messages constructed at runtime.
-- **libmemory** — Used internally by `AgentMind`. Access `WindowBuilder`
-  directly only when building custom memory strategies or non-standard context
-  window layouts.
+- **libmemory** — Used internally by `AgentMind`. Access `MemoryWindow` directly
+  only when building custom memory strategies or non-standard context window
+  layouts.
+- **libtool vs libagent** — `ToolProcessor` for binding a protobuf tool service
+  into an LLM-callable tool schema and dispatching individual tool calls.
+  `AgentMind` for running the full conversation loop that invokes tools via
+  `AgentHands`.
 
 ## Composition Recipes
 
@@ -75,18 +80,28 @@ for await (const chunk of agent.stream(request)) {
 ### Recipe 3: Custom memory window
 
 ```javascript
-import { WindowBuilder } from "@forwardimpact/libmemory";
+import { MemoryWindow } from "@forwardimpact/libmemory";
 import { PromptLoader } from "@forwardimpact/libprompt";
 
 const loader = new PromptLoader("./prompts");
 const systemPrompt = loader.render("system", { agentName: "Assistant" });
 
-const builder = new WindowBuilder(tokenizer);
-const window = await builder.build({
+const window = new MemoryWindow(tokenizer);
+const context = await window.build({
   messages: conversationHistory,
   tools: availableTools,
   budget: 4000,
 });
+```
+
+### Recipe 4: Generate tool schema from protobuf
+
+```javascript
+import { ToolProcessor, generateSchemaFromProtobuf } from "@forwardimpact/libtool";
+
+const schema = generateSchemaFromProtobuf(protoDefinition);
+const processor = new ToolProcessor(toolClient, logger);
+const result = await processor.dispatch(toolCall);
 ```
 
 ## DI Wiring
@@ -103,14 +118,12 @@ const embeddings = await api.embed(texts);
 ### libmemory
 
 ```javascript
-// WindowBuilder — accepts tokenizer
-const builder = new WindowBuilder(tokenizer);
+// MemoryWindow — accepts tokenizer
+const window = new MemoryWindow(tokenizer);
 
-// createWindow — factory for common usage
-const window = await createWindow(resourceId, { maxTokens: 4000, systemPrompt });
-
-// MemoryIndex — stores conversation identifiers
-const index = new MemoryIndex(storage);
+// getModelBudget — pure function
+import { getModelBudget } from "@forwardimpact/libmemory";
+const budget = getModelBudget(modelName);
 ```
 
 ### libprompt
@@ -130,4 +143,18 @@ const loader = createPromptLoader("./prompts");
 // AgentMind — accepts memoryClient, llmClient, toolClient
 const agent = new AgentMind(memoryClient, llmClient, toolClient);
 const response = await agent.process({ resourceId, content });
+```
+
+### libtool
+
+```javascript
+// ToolProcessor — accepts toolClient and logger
+const processor = new ToolProcessor(toolClient, logger);
+const result = await processor.dispatch(toolCall);
+
+// generateSchemaFromProtobuf — pure function
+const schema = generateSchemaFromProtobuf(protoDefinition);
+
+// buildToolDescription — pure function
+const description = buildToolDescription(toolName, schema);
 ```

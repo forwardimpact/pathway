@@ -1,14 +1,13 @@
 ---
-name: libs-web-presentation
+name: libs-content
 description: >
-  Web presentation and content rendering. libui provides DOM helpers, reactive
-  state, and routing for web apps. libformat converts markdown to HTML or ANSI.
-  libweb provides auth, CORS, and validation middleware for Hono. libdoc builds
-  static documentation sites. libtemplate loads Mustache templates. Use when
-  building web interfaces, rendering content, or serving documentation.
+  Use when building interactive web app pages with DOM helpers and routing,
+  rendering markdown to HTML or ANSI terminal output, adding JWT auth, CORS,
+  or validation middleware to Hono apps, building static documentation sites
+  from markdown folders, or loading and rendering Mustache templates.
 ---
 
-# Web Presentation
+# Content
 
 ## When to Use
 
@@ -20,13 +19,13 @@ description: >
 
 ## Libraries
 
-| Library     | Main API                                                   | Purpose                                             |
-| ----------- | ---------------------------------------------------------- | --------------------------------------------------- |
-| libui       | `createElement`, `createRouter`, `createStore`             | Functional DOM helpers, SPA routing, reactive state |
-| libformat   | `HtmlFormatter`, `TerminalFormatter`                       | Markdown to HTML or ANSI conversion                 |
-| libweb      | `AuthMiddleware`, `CorsMiddleware`, `ValidationMiddleware` | Security middleware for Hono                        |
-| libdoc      | `DocsBuilder`, `DocsServer`, `parseFrontMatter`            | Static documentation site generation                |
-| libtemplate | `TemplateLoader`, `createTemplateLoader`                   | Mustache template loading with overrides            |
+| Library     | Capabilities                                        | Key Exports                                                                            |
+| ----------- | --------------------------------------------------- | -------------------------------------------------------------------------------------- |
+| libui       | Functional DOM helpers, SPA routing, reactive state | `createElement`, `render`, `createRouter`, `createStore`, `createReactive`             |
+| libformat   | Convert markdown to HTML or ANSI terminal output    | `HtmlFormatter`, `TerminalFormatter`, `createHtmlFormatter`, `createTerminalFormatter` |
+| libweb      | JWT auth, CORS, and validation middleware for Hono  | `AuthMiddleware`, `CorsMiddleware`, `ValidationMiddleware`, `createAuthMiddleware`     |
+| libdoc      | Static documentation site generation from markdown  | `DocsBuilder`, `DocsServer`, `parseFrontMatter`                                        |
+| libtemplate | Mustache template loading with override directories | `TemplateLoader`, `createTemplateLoader`                                               |
 
 ## Decision Guide
 
