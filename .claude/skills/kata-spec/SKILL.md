@@ -78,10 +78,14 @@ Focus on these qualities:
 - **Specific scope.** Name the files, APIs, entities, or behaviours affected.
   Make clear what is and is not included. Vague specs produce vague work.
 - **Verifiable success.** Define what "done" looks like in terms someone can
-  test — a command to run, a behaviour to observe, a property to check.
+  check at implementation time — a file that exists, a property of the code, a
+  command that succeeds. Avoid criteria that describe ongoing runtime behaviour
+  observable only across multiple runs; reframe those as properties of the
+  artifacts that produce the behaviour.
 - **No HOW.** If you find yourself describing implementation steps, stop and
-  save it for the plan. The spec should remain stable as implementation details
-  change.
+  save it for the plan. Name what each phase or component does, not which
+  mechanism implements it — tool selection and sequencing belong in the design
+  and plan. The spec should remain stable as implementation details change.
 
 ## Status
 
