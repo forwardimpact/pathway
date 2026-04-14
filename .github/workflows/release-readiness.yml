@@ -1,10 +1,10 @@
-name: "Kata: Technical Writer"
+name: "Kata: Release Readiness"
 
 on:
   schedule:
-    # Mon, Wed, Thu, Sat at 04:37 UTC — runs early so curated wiki is available
-    - cron: "37 4 * * 1,3,4,6"
-  workflow_dispatch:
+    # Daily at 06:23 UTC — prepares PRs after work creators finish
+    - cron: "23 6 * * *"
+  workflow_dispatch: # Manual trigger for on-demand readiness checks
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -12,14 +12,14 @@ on:
         type: string
 
 concurrency:
-  group: technical-writer
+  group: release-readiness
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  run:
+  readiness:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Assess and act
+      - name: Check PR Readiness
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -46,8 +46,8 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Assess your domain and act on the highest-priority finding.
-          agent-profile: "technical-writer"
+          task-text: Check release readiness.
+          agent-profile: "release-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

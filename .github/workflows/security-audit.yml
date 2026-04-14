@@ -1,10 +1,10 @@
-name: "Kata: Improvement Coach"
+name: "Kata: Security Audit"
 
 on:
   schedule:
-    # Wed & Sat at 10:47 UTC — analyzes traces after all other agents
-    - cron: "47 10 * * 3,6"
-  workflow_dispatch: # Manual trigger for on-demand analysis
+    # Tue & Fri at 04:07 UTC — runs before preparers and mergers
+    - cron: "7 4 * * 2,5"
+  workflow_dispatch: # Manual trigger for on-demand audits
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -12,14 +12,14 @@ on:
         type: string
 
 concurrency:
-  group: improvement-coach
+  group: security-audit
   cancel-in-progress: true
 
 permissions:
-  contents: write
+  contents: read
 
 jobs:
-  coach:
+  audit:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -32,13 +32,12 @@ jobs:
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
-          fetch-depth: 0
           token: ${{ steps.ci-app.outputs.token }}
           submodules: true
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Analyze Agent Traces
+      - name: Run Security Audit
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -46,8 +45,8 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Grasp the current condition and act on findings.
-          agent-profile: "improvement-coach"
+          task-text: Audit one topic and act on findings.
+          agent-profile: "security-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}
