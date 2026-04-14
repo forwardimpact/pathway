@@ -93,7 +93,10 @@ export class Facilitator {
     this.eventQueue = eventQueue ?? createAsyncQueue();
     this.facilitatorTurns = 0;
 
-    const { promise, resolve } = Promise.withResolvers();
+    let resolve;
+    const promise = new Promise((r) => {
+      resolve = r;
+    });
     this.concludePromise = promise;
     this.concludeResolve = resolve;
   }
@@ -424,7 +427,10 @@ export function createFacilitator({
     const agentServer = createFacilitatedAgentToolServer(ctx, {
       from: config.name,
       onAsk: async (question) => {
-        const { promise, resolve } = Promise.withResolvers();
+        let resolve;
+        const promise = new Promise((r) => {
+          resolve = r;
+        });
         eventQueue.enqueue({
           type: "ask",
           from: config.name,
