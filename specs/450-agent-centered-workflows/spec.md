@@ -166,7 +166,7 @@ structure exists.
 - `.claude/agents/product-manager.md` — Assess section replaces Workflows
 - `.claude/agents/improvement-coach.md` — Assess section replaces Workflows
 - `KATA.md` — Workflows table, workflow count, and PDSA descriptions updated
-- `.claude/skills/kata-grasp/references/invariants.md` — six new
+- `.claude/skills/kata-trace/references/invariants.md` — six new
   decision-quality invariants added (one per agent)
 
 ### Excluded

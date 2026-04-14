@@ -114,7 +114,7 @@ none for utilities). Reading an agent's skill list reveals its phase coverage.
 - `kata-product-evaluation` — user testing sessions
 - `kata-documentation` — one topic deep per run
 - `kata-wiki-curate` — agent memory hygiene
-- `kata-grasp` — grasp the current condition via trace observation and grounded
+- `kata-trace` — go and see the work agents did via trace analysis and grounded
   theory
 
 **Act**
@@ -194,11 +194,11 @@ workflows.
 
 ## Accountability
 
-Cross-agent accountability runs through the `kata-grasp` skill's invariant
+Cross-agent accountability runs through the `kata-trace` skill's invariant
 audit. The improvement coach verifies named per-agent invariants against the
-actual trace on every grasp cycle — e.g., that the product manager ran a
-contributor lookup before marking any non-CI-app PR mergeable. The canonical
-invariant list lives in `.claude/skills/kata-grasp/references/invariants.md`.
+actual trace on every trace analysis cycle — e.g., that the product manager ran
+a contributor lookup before marking any non-CI-app PR mergeable. The canonical
+invariant list lives in `.claude/skills/kata-trace/references/invariants.md`.
 High-severity audit failures must result in a fix PR or spec.
 
 ## Authoring Best Practices
