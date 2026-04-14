@@ -55,18 +55,22 @@ function buildSkillComparisonData(currentMatrix, targetMatrix, options) {
   for (const { skillName, currentSkill, targetSkill } of skillEntries) {
     currentData.push({
       label: skillName,
-      value: currentSkill ? getSkillProficiencyIndex(currentSkill.level) : 0,
+      value: currentSkill
+        ? getSkillProficiencyIndex(currentSkill.proficiency)
+        : 0,
       maxValue: 5,
       description: currentSkill
-        ? `${formatLevel(currentSkill.type)} - ${formatLevel(currentSkill.level)}`
+        ? `${formatLevel(currentSkill.type)} - ${formatLevel(currentSkill.proficiency)}`
         : "Not required",
     });
     targetData.push({
       label: skillName,
-      value: targetSkill ? getSkillProficiencyIndex(targetSkill.level) : 0,
+      value: targetSkill
+        ? getSkillProficiencyIndex(targetSkill.proficiency)
+        : 0,
       maxValue: 5,
       description: targetSkill
-        ? `${formatLevel(targetSkill.type)} - ${formatLevel(targetSkill.level)}`
+        ? `${formatLevel(targetSkill.type)} - ${formatLevel(targetSkill.proficiency)}`
         : "Not required",
     });
   }
