@@ -1,9 +1,11 @@
 ---
 name: fit-guide
 description: >
-  Work with the @forwardimpact/guide product. Use when using the fit-guide CLI,
-  configuring agents, managing the knowledge platform services, processing data,
-  or working with the conversational agent interface.
+  Ask an AI agent that understands your engineering framework. Use when
+  asking questions about skills, levels, and career expectations, getting
+  context-specific career guidance, interpreting engineering artifacts
+  against skill markers, setting up the Guide service stack, configuring
+  agents and tools, or ingesting knowledge content.
 ---
 
 # Guide Product
@@ -15,24 +17,26 @@ against skill markers.
 
 ## When to Use
 
-**Using the conversational CLI:**
+**Conversational framework queries:**
 
+- Getting career guidance specific to your organization's framework
+- Interpreting engineering artifacts against specific skill markers
 - Running the fit-guide REPL for interactive agent conversations
 - Piping prompts to fit-guide for scripted queries
-- Troubleshooting agent responses or connectivity
+- Asking about skills, levels, behaviours, and career expectations
 
-**Managing agents and tools:**
+**Setup and configuration:**
 
+- Initializing a new Guide project (`npx fit-guide init`)
 - Configuring agent definitions (`config/agents/*.agent.md`)
-- Editing tool descriptors (`config/tools.yml`)
-- Processing agents, resources, tools, vectors, or graphs
+- Adding or updating tool descriptors (`config/tools.yml`)
+- Processing knowledge content, graphs, and vectors
 
-**Operating the service stack:**
+**Service operations:**
 
-- Starting, stopping, or checking service status via fit-rc
-- Setting up environment files and secrets
-- Initializing data directories and example knowledge
-- Running evaluations against the agent platform
+- Starting, stopping, or checking service status via `npx fit-rc`
+- Ingesting new knowledge content into the pipeline
+- Troubleshooting agent responses or connectivity
 
 ---
 
@@ -107,10 +111,9 @@ npx fit-rc start          # Launch the service stack
 npx fit-guide             # Verify end-to-end with an interactive prompt
 ```
 
-If you already have a `data/pathway/` framework from
-[`npx fit-map init`](../fit-map/SKILL.md), Guide picks it up automatically — Map
-exports framework entities to `data/knowledge/` during processing so they appear
-in the graph alongside other content.
+If you already have a `data/pathway/` framework from `npx fit-map init`, Guide
+picks it up automatically — Map exports framework entities to `data/knowledge/`
+during processing so they appear in the graph alongside other content.
 
 ---
 

@@ -1,12 +1,11 @@
 ---
 name: fit-map
 description: >
-  Work with the @forwardimpact/map product. Use when validating framework
-  data, browsing entity definitions, adding/modifying skills, capabilities,
-  behaviours, disciplines, tracks, levels, questions, or schema definitions,
-  or when running the activity layer — pushing people rosters, syncing GetDX
-  snapshots, ingesting GitHub webhook artifacts, and verifying the activity
-  database.
+  Define what good engineering looks like — author and validate framework
+  definitions for skills, capabilities, behaviours, disciplines, tracks,
+  levels, and questions. Also covers activity-layer operations: pushing
+  people rosters, syncing GetDX snapshots, ingesting GitHub artifacts, and
+  verifying the activity database.
 ---
 
 # Map Product
@@ -35,6 +34,7 @@ interpret and work with career framework data.
 
 **Framework-layer authoring and schema work:**
 
+- Defining or tailoring engineering expectations for your organization
 - Adding or modifying skills in capability files
 - Adding new behaviours, disciplines, tracks, or levels
 - Adding interview questions

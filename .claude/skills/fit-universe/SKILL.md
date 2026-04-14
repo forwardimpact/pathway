@@ -1,10 +1,10 @@
 ---
 name: fit-universe
 description: >
-  Synthetic data generation CLI. Generates framework definitions, organizational
-  documents, activity data, and personal knowledge base content from a universe
-  DSL file. Use when generating example data, testing with synthetic datasets,
-  or working with the universe DSL.
+  Generate synthetic data for development, testing, and demos. Use when
+  creating example framework definitions, organizational documents, activity
+  records, or knowledge base content from a universe DSL file, or when
+  testing pipeline changes end-to-end with synthetic datasets.
 ---
 
 # fit-universe CLI
@@ -18,6 +18,7 @@ rendering into multiple output formats.
 - Generating example data for development or testing
 - Creating synthetic pathway frameworks for new installations
 - Producing organizational documents, activity records, and KB content
+- Bootstrapping a realistic environment for product evaluation or demos
 - Testing pipeline changes end-to-end
 - Writing or editing universe DSL files
 
@@ -161,11 +162,10 @@ configurations, and briefing counts.
 
 ## Data Resolution
 
-This monorepo's story DSL is `data/synthetic/story.dsl`. Use `--story=path` to
-specify a different file. Without `--story`, the CLI falls back to the minimal
-reference DSL bundled with the package.
+Use `--story=path` to specify a custom universe DSL file. Without `--story`, the
+CLI falls back to the minimal reference DSL bundled with the package.
 
-Generated output writes to `data/` directories at the monorepo root:
+Generated output writes to `data/` directories in the current working directory:
 
 | Type       | Output Directory |
 | ---------- | ---------------- |
@@ -186,7 +186,7 @@ When using `--generate`, prose is regenerated and the cache is written after
 generation completes. To do a full regeneration, delete the cache file first and
 run with `--generate`.
 
-Use `just synthetic-update` to regenerate synthetic data with LLM prose.
+To regenerate all prose, delete the cache file and run with `--generate`.
 
 ---
 
@@ -212,15 +212,14 @@ present in the DSL but skip gracefully if the tool is unavailable.
 
 ## Environment
 
-Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate` mode.
-Load environment via `scripts/env.sh`:
+Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate`
+mode. Set these environment variables before running:
 
 ```sh
-ENV=local STORAGE=local AUTH=none ./scripts/env.sh npx fit-universe --generate
+LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-universe --generate
 ```
 
-Or use the Makefile's env loading for consistency. `LLM_TOKEN` is always
-available in the standard environment (see CLAUDE.md).
+The default cached mode requires no LLM credentials.
 
 ---
 
@@ -238,17 +237,11 @@ cache statistics.
 After generation, bootstrap the full Guide pipeline:
 
 ```sh
-just quickstart       # Generates, copies to data/knowledge/, processes all resources
-just rc-start         # Start services
-```
-
-Or run individual steps:
-
-```sh
-just data-init              # Creates data directories
-just process-resources      # Create resource index from knowledge files
-just process-graphs         # Build RDF graph from resources
-just process-vectors        # Generate vector embeddings (requires TEI)
+npx fit-process-resources   # Create resource index from knowledge files
+npx fit-process-graphs      # Build RDF graph from resources
+npx fit-process-vectors     # Generate vector embeddings (requires TEI)
+npx fit-rc start            # Start services
+npx fit-guide               # Verify end-to-end
 ```
 
 ## Verification

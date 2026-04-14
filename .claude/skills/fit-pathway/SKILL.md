@@ -1,21 +1,22 @@
 ---
 name: fit-pathway
 description: >
-  Work with the @forwardimpact/pathway package. Use when exploring roles,
-  skills, career progression, or agent profiles via the CLI, or when modifying
-  the web app, CLI commands, formatters, pages, or templates.
+  Explore roles, skills, career progression, and agent profiles. Use when
+  looking up role expectations by discipline, track, and level, generating
+  or comparing job definitions, analyzing career progression gaps, creating
+  agent configurations, building a static framework site, or selecting
+  interview questions.
 ---
 
 # Pathway Package
 
 Web application, CLI, and formatters for career progression, job definitions,
-and agent profile generation. Three audiences use `fit-pathway` differently:
+and agent profile generation. Two audiences use `fit-pathway` differently:
 
-| Audience          | Goal                                                | How they run it                                   |
-| ----------------- | --------------------------------------------------- | ------------------------------------------------- |
-| **Maintainers**   | Develop and improve `@forwardimpact/pathway` itself | `npx fit-pathway` from the monorepo workspace     |
-| **Organizations** | Publish a career framework for their engineers      | `npx fit-pathway build` in a standalone project   |
-| **Engineers**     | Explore jobs, skills, and career progression        | `fit-pathway` installed globally on their machine |
+| Audience          | Goal                                           | How they run it                                 |
+| ----------------- | ---------------------------------------------- | ----------------------------------------------- |
+| **Organizations** | Publish a career framework for their engineers | `npx fit-pathway build` in a standalone project |
+| **Engineers**     | Explore jobs, skills, and career progression   | `npx fit-pathway` installed in their project    |
 
 ## When to Use This Skill
 
@@ -23,7 +24,8 @@ and agent profile generation. Three audiences use `fit-pathway` differently:
 
 - Exploring disciplines, tracks, levels, skills, behaviours, or drivers
 - Generating or comparing job definitions across tracks and levels
-- Analyzing career progression between levels
+- Understanding the proficiency and autonomy expected at each level
+- Analyzing career progression gaps between current and target levels
 - Generating AI agent configurations from the framework
 - Answering questions about roles, skill expectations, or career paths
 

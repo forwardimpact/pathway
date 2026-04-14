@@ -1,9 +1,11 @@
 ---
 name: fit-basecamp
 description: >
-  Work with the @forwardimpact/basecamp package. Use when checking agent status,
-  waking agents, initializing or updating knowledge bases, or modifying the
-  scheduler, build system, KB template, KB skills, or configuration.
+  Personal operations center — schedule AI agents, maintain a knowledge
+  graph, and prepare daily briefings. Use when preparing briefings from
+  email and calendar, managing email drafts, maintaining a personal
+  knowledge base, scheduling background AI tasks, checking agent status,
+  waking agents on demand, or initializing and updating a knowledge base.
 ---
 
 # Basecamp Package
@@ -14,20 +16,17 @@ native macOS app bundle (`Basecamp.app`) with TCC-compliant process management.
 
 ## When to Use
 
-**Operations and management:**
-
+- Preparing daily briefings from email, calendar, and knowledge context
+- Managing email drafts and response preparation
+- Maintaining a personal knowledge graph of people, projects, and topics
+- Scheduling background AI tasks for syncing and organizing knowledge
 - Checking agent status and last decisions
 - Waking a specific agent immediately
 - Initializing a new knowledge base
 - Updating a KB with the latest templates and skills
 - Starting, stopping, or monitoring the scheduler daemon
 - Validating agent/skill references
-
-**Knowledge base customization:**
-
-- Adding or modifying KB skills
 - Configuring scheduled tasks in `scheduler.json`
-- Customizing KB template files (CLAUDE.md, USER.md)
 
 ---
 
@@ -70,19 +69,19 @@ permissions are reconciled rather than replaced.
 ### Operations
 
 ```sh
-fit-basecamp                         # Wake due agents once and exit
-fit-basecamp daemon                  # Run continuously (poll every 60s)
-fit-basecamp wake <agent>            # Wake a specific agent immediately
-fit-basecamp stop                    # Gracefully stop daemon and all running agents
-fit-basecamp status                  # Show agent status and last decisions
-fit-basecamp validate                # Validate agent definitions exist
+npx fit-basecamp                         # Wake due agents once and exit
+npx fit-basecamp daemon                  # Run continuously (poll every 60s)
+npx fit-basecamp wake <agent>            # Wake a specific agent immediately
+npx fit-basecamp stop                    # Gracefully stop daemon and all running agents
+npx fit-basecamp status                  # Show agent status and last decisions
+npx fit-basecamp validate                # Validate agent definitions exist
 ```
 
 ### Knowledge Base Management
 
 ```sh
-fit-basecamp init <path>             # Initialize a new knowledge base
-fit-basecamp update [path]           # Update KB with latest CLAUDE.md, agents, skills
+npx fit-basecamp init <path>             # Initialize a new knowledge base
+npx fit-basecamp update [path]           # Update KB with latest CLAUDE.md, agents, skills
 ```
 
 ### Key Paths
@@ -142,13 +141,13 @@ Synced data lives outside the KB:
 3. Write the skill workflow (trigger, prerequisites, inputs, outputs, steps)
 4. Update `template/CLAUDE.md` to list the new skill
 5. If scheduled, add a default task entry to `config/scheduler.json`
-6. Run `fit-basecamp update` to push the new skill to existing KBs
+6. Run `npx fit-basecamp update` to push the new skill to existing KBs
 
 ## Verification
 
 ```sh
-fit-basecamp status         # Check config and agent state
-fit-basecamp validate       # Verify agent/skill references exist
+npx fit-basecamp status         # Check config and agent state
+npx fit-basecamp validate       # Verify agent/skill references exist
 ```
 
 ## Documentation
