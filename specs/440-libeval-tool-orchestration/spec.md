@@ -202,23 +202,41 @@ facilitator trusts agents to communicate, and only intervenes when things go
 wrong. (Stream-level visibility over an agent is supervision, not facilitation —
 and is explicitly out of scope.)
 
-### Trace Requirements
+### Trace Format
 
-- Facilitate-mode traces use a **global monotonic sequence number** as the turn
-  identifier. Each event across all participants increments a single counter.
-  This replaces the per-participant turn counter used in supervise mode and
-  provides a total ordering of events across the session.
-- Facilitate-mode traces must identify each participant by name (not generic
-  "agent" / "supervisor" labels), so that filtering by a single participant
-  extracts a coherent trace.
-- Orchestration tool calls (`Conclude`, `Redirect`, `Ask`,
-  `Share`, `Tell`) must appear as standard `tool_use`/`tool_result`
-  events within the participant's stream — visible to `TraceCollector` and
-  downstream parsers without special-case handling.
-- Message delivery, session start/stop, and completion events must be emitted by
-  the orchestrator so the coordination sequence is visible in the trace.
-- Supervise-mode traces must remain compatible with the existing
-  `{ source, turn, event }` wrapper format.
+All three modes — `run`, `supervise`, and `facilitate` — emit traces with the
+same envelope structure. A single set of tools and scripts can parse, filter,
+and analyse any trace regardless of which mode produced it.
+
+#### Universal envelope
+
+Every trace event is wrapped in `{ source, seq, event }`:
+
+- **`source`** — participant name. In `run` mode this is the agent name. In
+  `supervise` mode this is the supervisor or agent name. In `facilitate` mode
+  each participant has a distinct name.
+- **`seq`** — global monotonic sequence number. A single counter increments
+  across all participants and all event types within a session. No two events
+  share a sequence number. This provides a total ordering of events regardless
+  of mode.
+- **`event`** — the trace event payload (assistant message, `tool_use`,
+  `tool_result`, orchestrator lifecycle event, etc.).
+
+Filtering by `source` extracts a coherent single-participant trace. Sorting by
+`seq` reconstructs the full session timeline. Both operations work identically
+across modes.
+
+In `run` mode the sequence number is trivially monotonic (single participant),
+but the envelope shape is identical — no special-casing for single-agent traces.
+
+#### Additional requirements
+
+- Orchestration tool calls (`Conclude`, `Redirect`, `Ask`, `RollCall`, `Share`,
+  `Tell`) appear as standard `tool_use`/`tool_result` events within the
+  participant's stream — visible to `TraceCollector` and downstream parsers without
+  special-case handling.
+- The orchestrator emits lifecycle events (session start/stop, message delivery,
+  completion) so the coordination sequence is visible in the trace.
 
 ### Migration Strategy: Clean Break, No Backward Compatibility
 
@@ -267,8 +285,9 @@ text-token signaling, it is deleted.
   facilitated sessions.
 - **Facilitate-mode tools.** `RollCall`, `Share`, `Tell` plus
   `Conclude`, `Redirect`, `Ask` adapted for multi-party semantics.
-- **Trace format for facilitate mode.** Per-participant source names and
-  orchestrator coordination events.
+- **Unified trace format.** All modes emit the same `{ source, seq, event }`
+  envelope. Replaces the per-participant `turn` counter in supervise mode with
+  a global monotonic `seq` across all modes.
 - **Remove text-token detection.** All regex-based `EVALUATION_COMPLETE` and
   `EVALUATION_INTERVENTION` scanning code is deleted — no fallback, no
   deprecation shim.
@@ -284,15 +303,25 @@ text-token signaling, it is deleted.
   facilitation.
 - **Persistent message history.** Messages live in memory for the session
   duration only.
-- **Changes to `fit-eval run`.** The single-agent mode is unaffected.
-- **Changes to `TraceCollector` parsing.** The collector already handles the
-  `{ source, turn, event }` wrapper. Facilitate-mode traces use the same wrapper
-  shape with participant names as source values.
+- **Changes to `fit-eval run` behaviour.** The single-agent execution model is
+  unaffected. Its trace output adopts the unified envelope (see Trace Format)
+  but the command itself gains no new flags or options.
+- **`TraceCollector` parsing redesign.** The envelope field rename from `turn`
+  to `seq` is a mechanical change covered by the unified trace format (in
+  scope). What is out of scope is any broader rearchitecture of the collector's
+  parsing pipeline.
 
 ## Success Criteria
 
+### Run mode — unified trace envelope
+
+- A `fit-eval run` trace wraps every event in `{ source, seq, event }` with the
+  agent name as `source`. Sequence numbers are monotonically increasing.
+
 ### Supervise mode — tool-based signaling
 
+- The trace uses the universal `{ source, seq, event }` envelope. Sequence
+  numbers are globally monotonic across supervisor and agent events.
 - A `fit-eval supervise` run completes via the supervisor calling `Conclude`
   rather than printing `EVALUATION_COMPLETE`. The trace contains a `tool_use`
   event for `Conclude` with a summary payload.
@@ -324,12 +353,14 @@ text-token signaling, it is deleted.
 - The facilitator calls `Conclude` and all sessions terminate.
 - If any agent session errors out, the orchestrator terminates all remaining
   sessions and the overall run fails.
-- The trace is parseable by `TraceCollector` — filtering by a single
-  participant's source name extracts a coherent single-agent trace. Turn numbers
-  are globally monotonic across all participants.
+- The trace uses the universal `{ source, seq, event }` envelope — filtering by
+  a single participant's source name extracts a coherent single-agent trace.
+  Sequence numbers are globally monotonic across all participants.
 
 ### General
 
+- All three modes emit traces with the same `{ source, seq, event }` envelope.
+  A trace parser written for one mode works on any mode without branching.
 - `bun run check` passes. New behaviour has unit coverage analogous to existing
   `supervisor-run`, `supervisor-intervention`, and `supervisor-batching` tests.
 - The six orchestration tools are schema-validated — invalid tool calls produce
