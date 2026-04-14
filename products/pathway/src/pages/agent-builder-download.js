@@ -120,3 +120,48 @@ export function createDownloadSingleButton(
 
   return btn;
 }
+
+/**
+ * Create download button for a team of agent profiles
+ * @param {Array} profiles - Array of agent profiles
+ * @param {Array} skillFiles - Deduplicated skill files across all agents
+ * @param {Object} claudeCodeSettings - Claude Code settings
+ * @param {{agent: string, skill: string}} templates - Mustache templates
+ * @returns {HTMLElement}
+ */
+export function createDownloadTeamButton(
+  profiles,
+  skillFiles,
+  claudeCodeSettings,
+  templates,
+) {
+  const btn = document.createElement("button");
+  btn.className = "btn btn-primary download-all-btn";
+  btn.textContent = `📥 Download Team (${profiles.length} agents, .zip)`;
+
+  btn.addEventListener("click", async () => {
+    btn.disabled = true;
+    btn.textContent = "Generating...";
+
+    try {
+      const JSZip = await importJSZip();
+      const zip = new JSZip();
+
+      for (const profile of profiles) {
+        const content = formatAgentProfile(profile, templates.agent);
+        zip.file(`.claude/agents/${profile.filename}`, content);
+      }
+
+      addSkillsToZip(zip, skillFiles, templates);
+      addSettingsToZip(zip, claudeCodeSettings);
+
+      const blob = await zip.generateAsync({ type: "blob" });
+      downloadBlob(blob, "agent-team.zip");
+    } finally {
+      btn.disabled = false;
+      btn.textContent = `📥 Download Team (${profiles.length} agents, .zip)`;
+    }
+  });
+
+  return btn;
+}

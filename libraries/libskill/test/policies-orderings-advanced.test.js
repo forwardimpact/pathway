@@ -6,6 +6,7 @@ import {
   compareByType,
   compareByName,
   compareByCapability,
+  createSkillPriorityComparator,
   sortSkillsByCapability,
   compareByOrder,
   chainComparators,
@@ -166,6 +167,68 @@ describe("orderings - advanced", () => {
         items.map((e) => `${e.name}:${e.change}`),
         ["Alpha:2", "Alpha:1", "Beta:1"],
       );
+    });
+  });
+
+  describe("createSkillPriorityComparator", () => {
+    const capabilities = [
+      { id: "delivery", ordinalRank: 1 },
+      { id: "scale", ordinalRank: 2 },
+      { id: "reliability", ordinalRank: 3 },
+    ];
+
+    test("sorts by level desc, then type asc, then capability ordinalRank asc", () => {
+      const comparator = createSkillPriorityComparator(capabilities);
+      const items = [
+        skill({ proficiency: "working", type: "primary", capability: "scale" }),
+        skill({
+          proficiency: "expert",
+          type: "secondary",
+          capability: "delivery",
+        }),
+        skill({
+          proficiency: "expert",
+          type: "primary",
+          capability: "reliability",
+        }),
+        skill({
+          proficiency: "expert",
+          type: "primary",
+          capability: "delivery",
+        }),
+      ];
+      items.sort(comparator);
+      assert.deepStrictEqual(
+        items.map((e) => `${e.proficiency}:${e.type}:${e.capability}`),
+        [
+          "expert:primary:delivery",
+          "expert:primary:reliability",
+          "expert:secondary:delivery",
+          "working:primary:scale",
+        ],
+      );
+    });
+
+    test("does not use alphabetical name as tie-breaker", () => {
+      const comparator = createSkillPriorityComparator(capabilities);
+      const items = [
+        skill({
+          skillName: "A-Scale",
+          type: "primary",
+          proficiency: "expert",
+          capability: "scale",
+        }),
+        skill({
+          skillName: "Z-Delivery",
+          type: "primary",
+          proficiency: "expert",
+          capability: "delivery",
+        }),
+      ];
+      items.sort(comparator);
+      // Delivery (rank 1) before Scale (rank 2), despite Z > A alphabetically
+      assert.strictEqual(items[0].skillName, "Z-Delivery");
+      assert.strictEqual(items[1].skillName, "A-Scale");
     });
   });
 

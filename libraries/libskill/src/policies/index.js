@@ -124,6 +124,7 @@ export {
   compareByType,
   compareByName,
   compareBySkillPriority,
+  createSkillPriorityComparator,
   compareByTypeAndName,
   // Capability comparators
   compareByCapability,

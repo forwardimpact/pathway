@@ -172,7 +172,7 @@ export const WEIGHT_DEV_AI_BOOST = 1.5;
  *
  * @see agent.js:buildStageProfileBodyData
  */
-export const LIMIT_AGENT_PROFILE_SKILLS = 5;
+export const LIMIT_AGENT_PROFILE_SKILLS = 7;
 
 /**
  * Maximum number of working style entries from top behaviours

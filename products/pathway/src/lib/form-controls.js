@@ -2,7 +2,7 @@
  * Reusable form control components
  */
 
-import { select, option, optgroup } from "./render.js";
+import { select, option, optgroup, div, label, input, span } from "./render.js";
 
 /**
  * Create a select element with initial value and change handler
@@ -107,4 +107,170 @@ export function createDisciplineSelect({
   });
 
   return selectEl;
+}
+
+/**
+ * Create a checkbox group with "Select All" toggle
+ * @param {Object} options
+ * @param {string} options.id - Element ID prefix
+ * @param {Array<{label: string|null, items: Array}>} options.groups - Grouped items
+ * @param {Set<string>} options.selected - Currently selected IDs
+ * @param {Function} options.onChange - Callback with updated Set of selected IDs
+ * @param {Function} [options.getDisplayName] - Get display name from item
+ * @returns {HTMLElement}
+ */
+export function createCheckboxGroup({
+  id,
+  groups,
+  selected,
+  onChange,
+  getDisplayName,
+}) {
+  const displayFn = getDisplayName || ((item) => item.name);
+  const allItems = groups.flatMap((g) => g.items);
+
+  function fireChange() {
+    onChange(new Set(selected));
+  }
+
+  function updateSelectAll() {
+    if (selectAllBox) {
+      selectAllBox.checked =
+        allItems.length > 0 && allItems.every((item) => selected.has(item.id));
+      selectAllBox.indeterminate =
+        !selectAllBox.checked && allItems.some((item) => selected.has(item.id));
+    }
+  }
+
+  const selectAllBox = input({
+    type: "checkbox",
+    id: `${id}-select-all`,
+    className: "form-checkbox",
+  });
+  selectAllBox.addEventListener("change", () => {
+    if (selectAllBox.checked) {
+      for (const item of allItems) selected.add(item.id);
+    } else {
+      selected.clear();
+    }
+    container.querySelectorAll("input[data-item-id]").forEach((cb) => {
+      cb.checked = selected.has(cb.dataset.itemId);
+    });
+    fireChange();
+  });
+
+  const selectAllRow = div(
+    { className: "checkbox-row select-all-row" },
+    label(
+      { className: "checkbox-label", htmlFor: `${id}-select-all` },
+      selectAllBox,
+      span({ className: "checkbox-text" }, "Select All"),
+    ),
+  );
+
+  const container = div(
+    { className: "checkbox-group", id },
+    selectAllRow,
+    ...groups.map((group) =>
+      div(
+        { className: "checkbox-group-section" },
+        group.label
+          ? div({ className: "checkbox-group-label" }, group.label)
+          : null,
+        ...group.items.map((item) => {
+          const cb = input({
+            type: "checkbox",
+            id: `${id}-${item.id}`,
+            className: "form-checkbox",
+          });
+          cb.dataset.itemId = item.id;
+          cb.checked = selected.has(item.id);
+          cb.addEventListener("change", () => {
+            if (cb.checked) {
+              selected.add(item.id);
+            } else {
+              selected.delete(item.id);
+            }
+            updateSelectAll();
+            fireChange();
+          });
+          return div(
+            { className: "checkbox-row" },
+            label(
+              { className: "checkbox-label", htmlFor: `${id}-${item.id}` },
+              cb,
+              span({ className: "checkbox-text" }, displayFn(item)),
+            ),
+          );
+        }),
+      ),
+    ),
+  );
+
+  updateSelectAll();
+  return container;
+}
+
+/**
+ * Create a multi-discipline checkbox group with Professional/Management grouping
+ * @param {Object} options
+ * @param {string} options.id - Element ID prefix
+ * @param {Array} options.disciplines - Array of discipline objects
+ * @param {Set<string>} options.selected - Currently selected discipline IDs
+ * @param {Function} options.onChange - Callback with updated Set of selected IDs
+ * @param {Function} [options.getDisplayName] - Get display name from discipline
+ * @returns {HTMLElement}
+ */
+export function createMultiDisciplineSelect({
+  id,
+  disciplines,
+  selected,
+  onChange,
+  getDisplayName,
+}) {
+  const displayFn = getDisplayName || ((d) => d.specialization || d.name);
+
+  const professional = disciplines
+    .filter((d) => d.isProfessional)
+    .sort((a, b) => displayFn(a).localeCompare(displayFn(b)));
+  const management = disciplines
+    .filter((d) => d.isManagement)
+    .sort((a, b) => displayFn(a).localeCompare(displayFn(b)));
+
+  const groups = [];
+  if (professional.length > 0) {
+    groups.push({ label: "Professional", items: professional });
+  }
+  if (management.length > 0) {
+    groups.push({ label: "Management", items: management });
+  }
+
+  return createCheckboxGroup({
+    id,
+    groups,
+    selected,
+    onChange,
+    getDisplayName: displayFn,
+  });
+}
+
+/**
+ * Create a multi-track checkbox group
+ * @param {Object} options
+ * @param {string} options.id - Element ID prefix
+ * @param {Array} options.tracks - Array of track objects
+ * @param {Set<string>} options.selected - Currently selected track IDs
+ * @param {Function} options.onChange - Callback with updated Set of selected IDs
+ * @returns {HTMLElement}
+ */
+export function createMultiTrackSelect({ id, tracks, selected, onChange }) {
+  const sorted = [...tracks].sort((a, b) => a.name.localeCompare(b.name));
+
+  return createCheckboxGroup({
+    id,
+    groups: [{ label: null, items: sorted }],
+    selected,
+    onChange,
+    getDisplayName: (t) => t.name,
+  });
 }

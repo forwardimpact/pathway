@@ -123,7 +123,7 @@ function deriveSkillData(context) {
 /**
  * Create preview for an agent (single profile per discipline/track)
  * @param {Object} context
- * @returns {HTMLElement}
+ * @returns {{preview: HTMLElement, profile: Object, skillFiles: Array}}
  */
 export function createAgentPreview(context) {
   const {
@@ -133,6 +133,7 @@ export function createAgentPreview(context) {
     agentTrack,
     level,
     skills,
+    capabilities,
     behaviours,
     agentBehaviours,
     claudeCodeSettings,
@@ -144,6 +145,7 @@ export function createAgentPreview(context) {
     track: humanTrack,
     level,
     skills,
+    capabilities,
     behaviours,
     agentBehaviours,
     agentDiscipline,
@@ -152,7 +154,7 @@ export function createAgentPreview(context) {
 
   const { skillFiles, toolkit } = deriveSkillData(context);
 
-  return div(
+  const preview = div(
     { className: "agent-deployment" },
     createDownloadSingleButton(
       profile,
@@ -185,6 +187,8 @@ export function createAgentPreview(context) {
         })
       : null,
   );
+
+  return { preview, profile, skillFiles };
 }
 
 /**

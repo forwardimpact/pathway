@@ -107,6 +107,36 @@ export function compareBySkillPriority(a, b) {
 }
 
 /**
+ * Create a skill priority comparator that uses capability ordinalRank
+ * as the final tie-breaker instead of alphabetical name.
+ *
+ * Ordering: level descending → type ascending → capability ordinalRank ascending
+ *
+ * @param {Object[]} capabilities - Loaded capabilities array with ordinalRank
+ * @returns {(a: Object, b: Object) => number} Comparator function
+ */
+export function createSkillPriorityComparator(capabilities) {
+  const capOrder = getCapabilityOrder(capabilities);
+  return (a, b) => {
+    // Level descending (higher level first)
+    const levelDiff =
+      getSkillProficiencyIndex(b.proficiency) -
+      getSkillProficiencyIndex(a.proficiency);
+    if (levelDiff !== 0) return levelDiff;
+
+    // Type ascending (primary first)
+    const typeA = ORDER_SKILL_TYPE.indexOf(a.type);
+    const typeB = ORDER_SKILL_TYPE.indexOf(b.type);
+    if (typeA !== typeB) return typeA - typeB;
+
+    // Capability ordinalRank ascending (higher-ranked capabilities first)
+    const capA = a.capability || "";
+    const capB = b.capability || "";
+    return capOrder.indexOf(capA) - capOrder.indexOf(capB);
+  };
+}
+
+/**
  * Compare skills by type (asc), then name (asc)
  *
  * Standard ordering for job skill matrix display:

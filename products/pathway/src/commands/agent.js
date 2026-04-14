@@ -152,6 +152,7 @@ async function handleAgent({
     track: humanTrack,
     level,
     skills: skillsWithAgent,
+    capabilities: data.capabilities,
     behaviours: data.behaviours,
     agentBehaviours: agentData.behaviours,
     agentDiscipline,

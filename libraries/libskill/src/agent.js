@@ -299,13 +299,14 @@ export function generateAgentProfile({
   track,
   level,
   skills,
+  capabilities,
   behaviours,
   agentBehaviours,
   agentDiscipline,
   agentTrack,
 }) {
   const allSkills = deriveAgentSkills({ discipline, track, level, skills });
-  const focusedSkills = focusAgentSkills(allSkills);
+  const focusedSkills = focusAgentSkills(allSkills, capabilities);
   const derivedBehaviours = deriveAgentBehaviours({
     discipline,
     track,

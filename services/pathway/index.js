@@ -194,6 +194,7 @@ export class PathwayService extends PathwayBase {
       track: humanTrack,
       level,
       skills: this.#skillsWithAgent,
+      capabilities: data.capabilities,
       behaviours: data.behaviours,
       agentBehaviours: this.#agentData.behaviours,
       agentDiscipline,
