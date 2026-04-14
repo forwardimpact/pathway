@@ -1,10 +1,10 @@
-name: "Kata: Doc Review"
+name: "Kata: Technical Writer"
 
 on:
   schedule:
-    # Mon & Thu at 05:37 UTC — runs after security, before release-readiness
-    - cron: "37 5 * * 1,4"
-  workflow_dispatch: # Manual trigger for on-demand reviews
+    # Daily at 05:37 UTC — curate and review before producers
+    - cron: "37 5 * * *"
+  workflow_dispatch:
     inputs:
       task-amend:
         description: "Additional text appended to the task prompt for steering"
@@ -12,14 +12,14 @@ on:
         type: string
 
 concurrency:
-  group: doc-review
+  group: technical-writer
   cancel-in-progress: true
 
 permissions:
   contents: write
 
 jobs:
-  review:
+  kata:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -38,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Review Documentation
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -46,7 +46,9 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: Review one documentation topic and act on findings.
+          task-text: >-
+            Assess the current state of your domain and act on the
+            highest-priority finding.
           agent-profile: "technical-writer"
           model: "opus"
           max-turns: "200"

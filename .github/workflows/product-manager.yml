@@ -2,10 +2,8 @@ name: "Kata: Product Manager"
 
 on:
   schedule:
-    # Daily at 08:13 UTC — classify and merge open PRs after overnight CI
-    - cron: "13 8 * * *"
-    # Mon, Wed, Fri at 05:17 UTC — early triage of feedback before preparers
-    - cron: "17 5 * * 1,3,5"
+    # Daily at 06:23 UTC — triage after security, before planning
+    - cron: "23 6 * * *"
   workflow_dispatch:
     inputs:
       task-amend:
@@ -21,7 +19,7 @@ permissions:
   contents: write
 
 jobs:
-  triage:
+  kata:
     runs-on: ubuntu-latest
     timeout-minutes: 30
     steps:
@@ -40,7 +38,7 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
-      - name: Triage product backlog and feedback
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -48,7 +46,9 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          task-text: "Triage the product backlog: PRs and open issues."
+          task-text: >-
+            Assess the current state of your domain and act on the
+            highest-priority finding.
           agent-profile: "product-manager"
           model: "opus"
           max-turns: "200"

@@ -31,19 +31,20 @@ off:
 
 `— Staff Engineer 🛠️`
 
-## Workflows
+## Assess
 
-Determine which workflow to use from the task prompt:
+Survey domain state, then choose the highest-priority action:
 
-1. **Plan approved specs** — Use the `kata-plan` skill to turn each approved
-   spec without a plan into an execution-ready `plan-a.md`. List concrete steps,
-   files to change, tests to add, and risks to watch. Push the plan on its
-   existing `spec/` branch — never start a new branch.
+1. **Approved specs without plans?** -- Write an execution-ready plan
+   (`kata-plan`; check: `specs/STATUS` for specs in `review` without a
+   `plan-a.md`; push the plan on the existing `spec/` branch -- never start a
+   new branch)
+2. **Planned specs awaiting implementation?** -- Implement the lowest-ID planned
+   spec (`kata-implement`; check: `specs/STATUS` for specs in `planned`;
+   implement on a `feat/<spec-slug>` branch from `main`)
+3. **Nothing actionable?** -- Report clean state
 
-2. **Implement approved plan** — Use the `kata-implement` skill. Pick up a spec
-   at `plan approved` in STATUS, read both `spec.md` and `plan-a.md`
-   thoroughly, and execute the plan on a `feat/<spec-slug>` branch from `main`.
-   Open a PR when implementation passes `bun run check` and `bun run test`.
+After choosing, follow the selected skill's full procedure.
 
 ## Constraints
 
@@ -58,6 +59,10 @@ Determine which workflow to use from the task prompt:
   `## YYYY-MM-DD` section at the end of the current week's log
   `wiki/staff-engineer-$(date +%G-W%V).md` — create the file if missing with an
   `# Staff Engineer — YYYY-Www` heading; one file per ISO week. Use `###`
-  subheadings for the fields skills specify to record. At the end, update
+  subheadings for the fields skills specify to record. Every run must open with
+  a `### Decision` subheading recording: **Surveyed** — what domain state was
+  checked and the results, **Alternatives** — what actions were available,
+  **Chosen** — what action was selected and which skill was invoked,
+  **Rationale** — why this action over the alternatives. At the end, update
   `wiki/staff-engineer.md` with actions taken, observations for teammates, and
   open blockers.

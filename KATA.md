@@ -13,8 +13,8 @@ pattern of _understand the direction_, _grasp the current condition_, _establish
 the next target condition_, and _experiment toward it_. Kata agents grasp the
 current condition (by analyzing execution traces of prior runs), establish
 target conditions (via specs), and experiment toward them (via implementation).
-Ten scheduled workflows, six agent personas, and sixteen skills form a
-self-reinforcing PDSA cycle.
+Six scheduled workflows — one per agent — six agent personas, and sixteen skills
+form a self-reinforcing PDSA cycle.
 
 ## Architecture
 
@@ -73,23 +73,21 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 
 ## Workflows
 
-Ten scheduled workflows span 03-11 UTC. Times respect dependencies (plans before
-implementation, rebase before merge, merge before release) and same-agent
-workflows never overlap. Off-minute schedules avoid API load spikes. All support
-`workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
+Six scheduled workflows span 04-11 UTC, one per agent. Times respect ordering
+constraints (security before product, product before planning, planning before
+release, all producers before the improvement coach). Off-minute schedules avoid
+API load spikes. All support `workflow_dispatch`, use concurrency groups, and
+have a 30-minute timeout. Each workflow sends the same generic task prompt; the
+agent's Assess section determines the actual action.
 
-| Workflow              | Phase          | Schedule                                | Agent             |
-| --------------------- | -------------- | --------------------------------------- | ----------------- |
-| **security-audit**    | Study          | Tue & Fri 04:07 UTC                     | security-engineer |
-| **security-update**   | Do             | Mon & Thu 04:43 UTC                     | security-engineer |
-| **product-manager**   | Do, Study, Act | Daily 08:13 UTC + Mon/Wed/Fri 05:17 UTC | product-manager   |
-| **release-readiness** | Do             | Daily 06:23 UTC                         | release-engineer  |
-| **plan-specs**        | Plan           | Daily 07:11 UTC                         | staff-engineer    |
-| **implement-plans**   | Do             | Daily 07:53 UTC                         | staff-engineer    |
-| **release-review**    | Do             | Tue, Thu, Sat 09:37 UTC                 | release-engineer  |
-| **doc-review**        | Study, Act     | Mon & Thu 05:37 UTC                     | technical-writer  |
-| **wiki-curate**       | Study, Act     | Wed & Sat 03:47 UTC                     | technical-writer  |
-| **improvement-coach** | Study -> Act   | Wed & Sat 10:47 UTC                     | improvement-coach |
+| Workflow              | Schedule            | Agent             |
+| --------------------- | ------------------- | ----------------- |
+| **security-engineer** | Daily 04:07 UTC     | security-engineer |
+| **technical-writer**  | Daily 05:37 UTC     | technical-writer  |
+| **product-manager**   | Daily 06:23 UTC     | product-manager   |
+| **staff-engineer**    | Daily 07:11 UTC     | staff-engineer    |
+| **release-engineer**  | Daily 08:43 UTC     | release-engineer  |
+| **improvement-coach** | Wed & Sat 10:47 UTC | improvement-coach |
 
 ## Skills
 
@@ -191,8 +189,7 @@ Workflows authenticate via the **GitHub App** (`forward-impact-ci`), not a PAT.
 Each run generates a short-lived installation token (1-hour expiry) via
 `actions/create-github-app-token` — no long-lived secrets to rotate. The token
 generates before `actions/checkout` so the checkout token triggers downstream
-workflows. `security-audit` uses `GITHUB_TOKEN` for checkout (preserving least
-privilege) and a separate App token for API access.
+workflows.
 
 ## Accountability
 
