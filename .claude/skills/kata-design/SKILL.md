@@ -67,9 +67,9 @@ spec's scope is too broad and should be narrowed.
 
 ## Naming Convention
 
-The design is always **`design.md`**. There are no variants and no
-decomposition — a design that cannot fit in 200 lines signals that the spec
-should be narrowed, not that the design should be split.
+The design is always **`design.md`**. There are no variants and no decomposition
+— a design that cannot fit in 200 lines signals that the spec should be
+narrowed, not that the design should be split.
 
 ## Writing a Design (WHICH + WHERE)
 
@@ -83,8 +83,8 @@ each one means in practice:
 - **Architecture over execution.** Name components, classes, interfaces, data
   structures, and their interactions. Do not specify file-level changes,
   execution ordering, or implementation steps — those belong in the plan. The
-  boundary: a design names *what exists and how it connects*; a plan names
-  *which files change and in what order*.
+  boundary: a design names _what exists and how it connects_; a plan names
+  _which files change and in what order_.
 - **Decisions with trade-offs.** Each architectural choice should name at least
   one rejected alternative and why it was rejected. This is the primary review
   leverage point — a reviewer can redirect a decision here at low cost, versus

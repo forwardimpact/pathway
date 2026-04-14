@@ -11,8 +11,8 @@ description: >
 
 A spec defines WHAT to build and WHY. Pair with the
 [`kata-design`](../kata-design/SKILL.md) and
-[`kata-plan`](../kata-plan/SKILL.md) skills — once a spec is approved, the
-staff engineer shapes it into an architectural design (WHICH/WHERE) and then a
+[`kata-plan`](../kata-plan/SKILL.md) skills — once a spec is approved, the staff
+engineer shapes it into an architectural design (WHICH/WHERE) and then a
 concrete plan (HOW/WHEN).
 
 **Spec and plan are independent deliverables.** Only produce the one the user

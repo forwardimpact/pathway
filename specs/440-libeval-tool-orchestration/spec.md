@@ -163,17 +163,16 @@ been shared, but not necessarily in real time.
 **Available to:** facilitator, agents (facilitate mode only)
 
 Sends a direct message to one participant. Only the named recipient sees it.
-Returns immediately (fire-and-forget). The facilitator sees shared traffic
-(it is a participant) but not direct messages between agents unless it is a
-party to them.
+Returns immediately (fire-and-forget). The facilitator sees shared traffic (it
+is a participant) but not direct messages between agents unless it is a party to
+them.
 
 ### Facilitate Mode Behaviour
 
 **Concurrent work, asynchronous communication.** All agent sessions run
-concurrently and independently. Agents communicate via `Share` and
-`Tell`. Messages are delivered between turns, not mid-turn. The
-facilitator coordinates work, receives broadcast traffic passively, and
-intervenes when needed.
+concurrently and independently. Agents communicate via `Share` and `Tell`.
+Messages are delivered between turns, not mid-turn. The facilitator coordinates
+work, receives broadcast traffic passively, and intervenes when needed.
 
 **Lazy agent start.** Agents are declared at invocation time but do not start
 working until they receive their first message. This avoids idle sessions — the
@@ -181,14 +180,14 @@ facilitator distributes initial assignments, and agents activate as messages
 arrive.
 
 **Facilitator serialization.** Only one thing talks to the facilitator at a
-time. If multiple agents call `Ask` concurrently, the requests queue
-and the facilitator handles them one at a time. This avoids interleaving
-multiple conversations in the facilitator's context.
+time. If multiple agents call `Ask` concurrently, the requests queue and the
+facilitator handles them one at a time. This avoids interleaving multiple
+conversations in the facilitator's context.
 
 **Event-driven facilitator.** The facilitator only gets an LLM turn when there
-is input to process — an `Ask` call, an incoming message, or a
-session lifecycle event. There is no idle loop and no polling. The orchestrator
-delivers events and invokes the facilitator on demand.
+is input to process — an `Ask` call, an incoming message, or a session lifecycle
+event. There is no idle loop and no polling. The orchestrator delivers events
+and invokes the facilitator on demand.
 
 **Fail-fast on agent failure.** If any agent session errors out, the
 orchestrator terminates all remaining sessions and reports the failure. There is
@@ -233,8 +232,8 @@ but the envelope shape is identical — no special-casing for single-agent trace
 
 - Orchestration tool calls (`Conclude`, `Redirect`, `Ask`, `RollCall`, `Share`,
   `Tell`) appear as standard `tool_use`/`tool_result` events within the
-  participant's stream — visible to `TraceCollector` and downstream parsers without
-  special-case handling.
+  participant's stream — visible to `TraceCollector` and downstream parsers
+  without special-case handling.
 - The orchestrator emits lifecycle events (session start/stop, message delivery,
   completion) so the coordination sequence is visible in the trace.
 
@@ -253,8 +252,8 @@ deprecation path, no feature flags, and no transitional shims.
 
 **What replaces it:**
 
-- Orchestration tools (`Conclude`, `Redirect`, `Ask`) as the sole
-  signaling mechanism.
+- Orchestration tools (`Conclude`, `Redirect`, `Ask`) as the sole signaling
+  mechanism.
 - Updated system prompts that describe available tools, not text conventions.
 
 **Why a clean break:**
@@ -275,19 +274,18 @@ text-token signaling, it is deleted.
 
 ### In scope
 
-- **Orchestration tools for supervise mode.** `Conclude`, `Redirect`,
-  `Ask` — replace text-token detection as the primary signaling
-  mechanism.
+- **Orchestration tools for supervise mode.** `Conclude`, `Redirect`, `Ask` —
+  replace text-token detection as the primary signaling mechanism.
 - **Updated system prompts.** `SUPERVISOR_SYSTEM_PROMPT` and
   `AGENT_SYSTEM_PROMPT` updated to describe the available tools instead of text
   tokens.
 - **`fit-eval facilitate` command.** New CLI subcommand for multi-agent
   facilitated sessions.
-- **Facilitate-mode tools.** `RollCall`, `Share`, `Tell` plus
-  `Conclude`, `Redirect`, `Ask` adapted for multi-party semantics.
+- **Facilitate-mode tools.** `RollCall`, `Share`, `Tell` plus `Conclude`,
+  `Redirect`, `Ask` adapted for multi-party semantics.
 - **Unified trace format.** All modes emit the same `{ source, seq, event }`
-  envelope. Replaces the per-participant `turn` counter in supervise mode with
-  a global monotonic `seq` across all modes.
+  envelope. Replaces the per-participant `turn` counter in supervise mode with a
+  global monotonic `seq` across all modes.
 - **Remove text-token detection.** All regex-based `EVALUATION_COMPLETE` and
   `EVALUATION_INTERVENTION` scanning code is deleted — no fallback, no
   deprecation shim.
@@ -329,9 +327,9 @@ text-token signaling, it is deleted.
   `EVALUATION_INTERVENTION` text token. The trace shows `tool_use` for
   `Redirect`, the agent's session interrupted, and the agent resumed with the
   redirection message.
-- An agent calls `Ask` with a question, the supervisor receives and
-  answers it, and the agent's `tool_result` contains the answer. The agent
-  continues working with the guidance in context.
+- An agent calls `Ask` with a question, the supervisor receives and answers it,
+  and the agent's `tool_result` contains the answer. The agent continues working
+  with the guidance in context.
 - Legacy text tokens (`EVALUATION_COMPLETE`, `EVALUATION_INTERVENTION`) in
   supervisor output are ignored — they have no effect and no fallback detection
   exists.
@@ -341,15 +339,15 @@ text-token signaling, it is deleted.
 - `fit-eval facilitate` accepts a task, a facilitator configuration, and two or
   more agent configurations. All participants appear in the trace with distinct
   source names.
-- The facilitator calls `Tell` to assign work to individual agents.
-  Agents start working only after receiving their first message.
-- Agents call `Share` and `Tell` to communicate. Messages are
-  delivered between turns. A message shared by agent A appears in agent B's
-  context on its next turn.
+- The facilitator calls `Tell` to assign work to individual agents. Agents start
+  working only after receiving their first message.
+- Agents call `Share` and `Tell` to communicate. Messages are delivered between
+  turns. A message shared by agent A appears in agent B's context on its next
+  turn.
 - The facilitator calls `Redirect({ to: "all", message })` and all running
   agents are interrupted and resumed with the redirection message.
-- An agent calls `Ask` and blocks until the facilitator answers.
-  Multiple concurrent `Ask` calls are handled sequentially.
+- An agent calls `Ask` and blocks until the facilitator answers. Multiple
+  concurrent `Ask` calls are handled sequentially.
 - The facilitator calls `Conclude` and all sessions terminate.
 - If any agent session errors out, the orchestrator terminates all remaining
   sessions and the overall run fails.
@@ -359,8 +357,8 @@ text-token signaling, it is deleted.
 
 ### General
 
-- All three modes emit traces with the same `{ source, seq, event }` envelope.
-  A trace parser written for one mode works on any mode without branching.
+- All three modes emit traces with the same `{ source, seq, event }` envelope. A
+  trace parser written for one mode works on any mode without branching.
 - `bun run check` passes. New behaviour has unit coverage analogous to existing
   `supervisor-run`, `supervisor-intervention`, and `supervisor-batching` tests.
 - The six orchestration tools are schema-validated — invalid tool calls produce

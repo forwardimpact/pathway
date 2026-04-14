@@ -35,9 +35,9 @@ if (toolDispatcher && m.type === "assistant") {
 }
 ```
 
-This runs after `onLine` fires but before `maybeFlushBatch`, mirroring the
-SDK's sequencing: the iterator yields the assistant message, then the SDK
-executes tools.
+This runs after `onLine` fires but before `maybeFlushBatch`, mirroring the SDK's
+sequencing: the iterator yields the assistant message, then the SDK executes
+tools.
 
 **Why this approach:** The alternative — having tests manually set context flags
 — obscures the causal chain. With dispatch, tests verify the full path: model
@@ -47,16 +47,17 @@ calls tool → handler sets flag → orchestrator reads flag.
 
 **Modify:** `src/trace-collector.js`
 
-The existing unwrap logic (line 44) checks for `event.event && !event.type &&
-typeof event.source === "string"`. This already works for both
-`{ source, turn, event }` and `{ source, seq, event }` — the field being
-renamed (`turn` → `seq`) is not checked. **No source code change needed.**
+The existing unwrap logic (line 44) checks for
+`event.event && !event.type && typeof event.source === "string"`. This already
+works for both `{ source, turn, event }` and `{ source, seq, event }` — the
+field being renamed (`turn` → `seq`) is not checked. **No source code change
+needed.**
 
 **Modify:** `test/trace-collector.test.js`
 
 Update any test fixtures that use `{ source, turn, event }` to use
-`{ source, seq, event }`. The collector should accept both (it doesn't check
-the field name), but tests should reflect the new canonical format.
+`{ source, seq, event }`. The collector should accept both (it doesn't check the
+field name), but tests should reflect the new canonical format.
 
 ## Step 3: Rewrite Supervisor
 
@@ -70,6 +71,7 @@ preserved.
 ### 3a. Remove text-token detection
 
 Delete entirely:
+
 - `isComplete(text)` function and its export (lines 22–24)
 - `isIntervention(text)` function and its export (lines 33–35)
 - `completeSignalSeen` property and all reads/writes
@@ -179,8 +181,8 @@ export const AGENT_SYSTEM_PROMPT =
 
 ### 3e. Rewrite relay loop to use context flags
 
-**`run()` method** — Replace `completeSignalSeen || isComplete(...)` checks
-with `this.ctx.concluded`:
+**`run()` method** — Replace `completeSignalSeen || isComplete(...)` checks with
+`this.ctx.concluded`:
 
 ```js
 // After turn 0:
@@ -247,7 +249,8 @@ async #midTurnReview(turn, batchLines, { abort }) {
 calls `Redirect` during end-of-turn review, the redirect message is returned as
 a direct `relay` — the agent is NOT aborted (it already finished its turn
 naturally). The `relay` field bypasses `extractLastText` in the `run()` loop,
-which would otherwise pick up the supervisor's pre-redirect text from the buffer:
+which would otherwise pick up the supervisor's pre-redirect text from the
+buffer:
 
 ```js
 async #endOfTurnReview(turn) {
@@ -284,8 +287,8 @@ async #endOfTurnReview(turn) {
 }
 ```
 
-**Corresponding `run()` loop change** — add a `pendingRelay` variable that
-takes precedence over `extractLastText` when set by an end-of-turn redirect:
+**Corresponding `run()` loop change** — add a `pendingRelay` variable that takes
+precedence over `extractLastText` when set by an end-of-turn redirect:
 
 ```js
 let pendingRelay = null;
@@ -440,13 +443,15 @@ Update `_final`: the result footer logic remains unchanged (still checks
 **Modify:** `src/index.js`
 
 Remove:
+
 ```js
 isComplete,
 isIntervention,
 ```
 
-Add (these exports serve Part 3 but the index update is Part 2's
-responsibility since it's removing exports from the same file):
+Add (these exports serve Part 3 but the index update is Part 2's responsibility
+since it's removing exports from the same file):
+
 ```js
 export { SequenceCounter, createSequenceCounter } from "./sequence-counter.js";
 export {
@@ -505,13 +510,14 @@ appear in multi-participant traces but not in single-participant traces.
 
 ### trace-collector.test.js
 
-Update any fixtures using `{ source, turn, event }` to use `seq`. Verify
-the collector unwraps both formats (backward compatibility is free — the
-unwrap logic doesn't check the field name).
+Update any fixtures using `{ source, turn, event }` to use `seq`. Verify the
+collector unwraps both formats (backward compatibility is free — the unwrap
+logic doesn't check the field name).
 
 ## Ordering
 
 Steps 1–7 are broadly sequential:
+
 1. Mock-runner first (other test changes depend on it)
 2. TraceCollector (mechanical, unblocks envelope work)
 3. Supervisor rewrite (the core change)
@@ -520,8 +526,8 @@ Steps 1–7 are broadly sequential:
 6. Index exports (depends on supervisor changes)
 7. Tests (depends on all code changes)
 
-In practice, step 3 (supervisor) is the critical path. Steps 4–6 can follow
-in any order after step 3.
+In practice, step 3 (supervisor) is the critical path. Steps 4–6 can follow in
+any order after step 3.
 
 ## Verification
 
