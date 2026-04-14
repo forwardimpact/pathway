@@ -79,12 +79,6 @@ Output directory structure:
     └── ...
 ```
 
-Generate a single stage agent:
-
-```sh
-npx fit-pathway agent software_engineering --track=platform --stage=code
-```
-
 Preview without writing files:
 
 ```sh

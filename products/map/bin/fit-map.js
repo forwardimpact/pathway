@@ -50,13 +50,7 @@ const definition = {
         shacl: { type: "boolean", description: "SHACL schema validation" },
       },
     },
-    {
-      name: "generate-index",
-      description: "Generate _index.yaml files",
-      options: {
-        "base-url": { type: "string", description: "GetDX API base URL" },
-      },
-    },
+    { name: "generate-index", description: "Generate _index.yaml files" },
     {
       name: "export",
       description: "Render base entities to HTML microdata",
@@ -86,6 +80,7 @@ const definition = {
       description: "Extract + transform GetDX snapshots",
       options: {
         url: { type: "string", description: "Supabase URL" },
+        "base-url": { type: "string", description: "GetDX API base URL" },
       },
     },
   ],

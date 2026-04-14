@@ -106,13 +106,13 @@ engineering artifacts against your skill markers.
 
 ```sh
 npx fit-codegen --all    # provided by @forwardimpact/libcodegen (a dependency of guide)
-npx fit-guide --init
+npx fit-guide init
 ```
 
 The `fit-codegen` step generates gRPC service clients that Guide needs. Without
 it, imports fail with a missing module error.
 
-The `--init` step generates:
+The `init` step generates:
 
 - `.env` — service secrets and port assignments
 - `config/config.json` — service configuration with agent, LLM, memory, and tool
@@ -312,7 +312,7 @@ Guide validates configuration before connecting. If you see errors about missing
 `service.agent.agent`, `service.agent.model`, `LLM_TOKEN`, or `LLM_BASE_URL`,
 check that:
 
-1. You ran `npx fit-guide --init` (creates `config/config.json` with the
+1. You ran `npx fit-guide init` (creates `config/config.json` with the
    `service` section)
 2. Your `.env` file contains `LLM_TOKEN` and `LLM_BASE_URL`
 

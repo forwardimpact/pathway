@@ -185,6 +185,16 @@ time. If multiple agents call `RequestGuidance` concurrently, the requests queue
 and the facilitator handles them one at a time. This avoids interleaving
 multiple conversations in the facilitator's context.
 
+**Event-driven facilitator.** The facilitator only gets an LLM turn when there
+is input to process — a `RequestGuidance` call, an incoming message, or a
+session lifecycle event. There is no idle loop and no polling. The orchestrator
+delivers events and invokes the facilitator on demand.
+
+**Fail-fast on agent failure.** If any agent session errors out, the
+orchestrator terminates all remaining sessions and reports the failure. There is
+no partial-completion mode and no facilitator notification — the entire session
+fails as a unit.
+
 **Facilitator observation.** The facilitator does not watch agent output
 streams. It relies on agents to surface relevant information via broadcasts and
 direct messages. This is the "less active than supervision" quality — the
@@ -194,6 +204,10 @@ and is explicitly out of scope.)
 
 ### Trace Requirements
 
+- Facilitate-mode traces use a **global monotonic sequence number** as the turn
+  identifier. Each event across all participants increments a single counter.
+  This replaces the per-participant turn counter used in supervise mode and
+  provides a total ordering of events across the session.
 - Facilitate-mode traces must identify each participant by name (not generic
   "agent" / "supervisor" labels), so that filtering by a single participant
   extracts a coherent trace.
@@ -206,13 +220,38 @@ and is explicitly out of scope.)
 - Supervise-mode traces must remain compatible with the existing
   `{ source, turn, event }` wrapper format.
 
-### Backward Compatibility
+### Migration Strategy: Clean Break, No Backward Compatibility
 
-Existing `fit-eval supervise` invocations must continue working without CLI
-changes. Legacy text-token signaling (`EVALUATION_COMPLETE`,
-`EVALUATION_INTERVENTION`) must be supported with deprecation warnings for one
-release cycle, giving callers time to update supervisor prompts that rely on the
-old tokens.
+This is a clean-break migration. There is no backward compatibility layer, no
+deprecation path, no feature flags, and no transitional shims.
+
+**What is removed:**
+
+- All regex-based text-token detection (`EVALUATION_COMPLETE`,
+  `EVALUATION_INTERVENTION`) — the functions, the constants, and the dual
+  detection paths in `emitLine` and `run`.
+- All prompt text that instructs the supervisor to print magic strings.
+- Any helper or utility that exists solely to support text-token signaling.
+
+**What replaces it:**
+
+- Orchestration tools (`Complete`, `Intervene`, `RequestGuidance`) as the sole
+  signaling mechanism.
+- Updated system prompts that describe available tools, not text conventions.
+
+**Why a clean break:**
+
+- The consumer base is internal and small — carrying dead code or compatibility
+  shims adds maintenance cost with no benefit.
+- Dual code paths (old + new) invite bugs where one path is tested and the other
+  rots. A single path is simpler to reason about, test, and maintain.
+- Text tokens in supervisor output after migration are ignored silently — they
+  have no effect. There is no fallback that "helpfully" detects them.
+
+**Implementation constraint:** The implementation must not retain any remnant of
+the text-token mechanism — no commented-out code, no `// removed:` markers, no
+unused imports, no backward-compatible re-exports. If it existed only to support
+text-token signaling, it is deleted.
 
 ## Scope
 
@@ -230,8 +269,9 @@ old tokens.
   `Complete`, `Intervene`, `RequestGuidance` adapted for multi-party semantics.
 - **Trace format for facilitate mode.** Per-participant source names and
   orchestrator coordination events.
-- **Deprecation path for text tokens.** Legacy detection kept as fallback with
-  deprecation warning for one release.
+- **Remove text-token detection.** All regex-based `EVALUATION_COMPLETE` and
+  `EVALUATION_INTERVENTION` scanning code is deleted — no fallback, no
+  deprecation shim.
 - **Public API.** New exports for the facilitator alongside existing
   `Supervisor` exports.
 
@@ -263,9 +303,9 @@ old tokens.
 - An agent calls `RequestGuidance` with a question, the supervisor receives and
   answers it, and the agent's `tool_result` contains the answer. The agent
   continues working with the guidance in context.
-- A supervisor that emits the legacy `EVALUATION_COMPLETE` text token (without
-  calling the tool) still triggers completion, and a deprecation warning appears
-  in the trace.
+- Legacy text tokens (`EVALUATION_COMPLETE`, `EVALUATION_INTERVENTION`) in
+  supervisor output are ignored — they have no effect and no fallback detection
+  exists.
 
 ### Facilitate mode — multi-agent group work
 
@@ -282,32 +322,16 @@ old tokens.
 - An agent calls `RequestGuidance` and blocks until the facilitator answers.
   Multiple concurrent `RequestGuidance` calls are handled sequentially.
 - The facilitator calls `Complete` and all sessions terminate.
+- If any agent session errors out, the orchestrator terminates all remaining
+  sessions and the overall run fails.
 - The trace is parseable by `TraceCollector` — filtering by a single
-  participant's source name extracts a coherent single-agent trace.
+  participant's source name extracts a coherent single-agent trace. Turn numbers
+  are globally monotonic across all participants.
 
 ### General
 
 - `bun run check` passes. New behaviour has unit coverage analogous to existing
   `supervisor-run`, `supervisor-intervention`, and `supervisor-batching` tests.
-- Existing `fit-eval supervise` invocations continue to work without CLI
-  changes.
 - The six orchestration tools are schema-validated — invalid tool calls produce
   structured errors, not silent failures.
 
-## Open Questions
-
-1. **Facilitate-mode turn semantics.** In supervise mode, "turn" has a clear
-   definition: one supervisor-agent exchange. In facilitate mode with concurrent
-   agents, what does a "turn" mean? Options: per-participant turn counter,
-   wall-clock epoch, or a global monotonic sequence number. This affects trace
-   structure and is deferred to the plan.
-
-2. **Facilitator idle behavior.** When no agents are calling `RequestGuidance`
-   and no messages are arriving, should the facilitator's session stay active or
-   suspend until there is something to respond to? Active sessions waste LLM
-   calls; suspension requires an explicit wake mechanism.
-
-3. **Agent failure isolation.** If one agent's session errors out in facilitate
-   mode, should the orchestrator terminate all sessions (fail-fast) or continue
-   with the remaining agents and notify the facilitator? This affects both the
-   success criteria and the facilitator's expected behaviour.

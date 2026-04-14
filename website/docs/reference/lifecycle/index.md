@@ -176,7 +176,6 @@ Generate agent teams for a discipline and track:
 
 ```sh
 npx fit-pathway agent <discipline> --track=<track> --output=./agents
-npx fit-pathway agent <discipline> --track=<track> --stage=code
 ```
 
 See [CLI Reference](/docs/reference/cli/) for the full `agent` command.

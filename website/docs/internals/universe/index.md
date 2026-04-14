@@ -23,9 +23,6 @@ bunx fit-universe
 # Generate with LLM-written prose (requires LLM_TOKEN)
 bunx fit-universe --generate
 
-# Use cached prose for fast, repeatable runs
-bunx fit-universe --cached
-
 # Preview what would be generated
 bunx fit-universe --dry-run
 

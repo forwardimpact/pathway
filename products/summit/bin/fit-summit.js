@@ -124,19 +124,6 @@ const definition = {
           type: "string",
           description: "Use a project team instead of a reporting team",
         },
-        audience: {
-          type: "string",
-          default: "manager",
-          description: "Privacy audience: engineer, manager, director",
-        },
-        evidenced: {
-          type: "boolean",
-          description: "Include practiced capability from Map evidence data",
-        },
-        "lookback-months": {
-          type: "string",
-          description: "Lookback window for practice patterns (default: 12)",
-        },
       },
       examples: [
         "fit-summit what-if platform --add 'Jane, senior, backend'",
@@ -201,9 +188,9 @@ const definition = {
           type: "string",
           description: "Number of quarters to show (default: 4)",
         },
-        project: {
-          type: "string",
-          description: "Use a project team instead of a reporting team",
+        evidenced: {
+          type: "boolean",
+          description: "Include practiced capability from Map evidence data",
         },
       },
       examples: [
@@ -211,8 +198,8 @@ const definition = {
         "fit-summit trajectory platform --quarters=8",
       ],
     },
-    { name: "roster", args: "", description: "Show current roster" },
-    { name: "validate", args: "", description: "Validate roster file" },
+    { name: "roster", description: "Show current roster" },
+    { name: "validate", description: "Validate roster file" },
   ],
   globalOptions: {
     roster: { type: "string", description: "Path to summit.yaml" },

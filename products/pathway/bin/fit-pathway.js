@@ -66,34 +66,16 @@ const definition = {
   version: VERSION,
   description: "Career progression for engineering frameworks",
   commands: [
-    {
-      name: "discipline",
-      args: "[<id>]",
-      description: "Show disciplines",
-      options: {
-        stats: { type: "boolean", description: "Show detailed statistics" },
-      },
-    },
+    { name: "discipline", args: "[<id>]", description: "Show disciplines" },
     { name: "level", args: "[<id>]", description: "Show levels" },
     { name: "track", args: "[<id>]", description: "Show tracks" },
-    {
-      name: "behaviour",
-      args: "[<id>]",
-      description: "Show behaviours",
-      options: {
-        maturity: {
-          type: "string",
-          description: "Filter by behaviour maturity",
-        },
-      },
-    },
+    { name: "behaviour", args: "[<id>]", description: "Show behaviours" },
     {
       name: "skill",
       args: "[<id>]",
       description: "Show skills",
       options: {
-        skill: { type: "string", description: "Filter by skill ID" },
-        stats: { type: "boolean", description: "Show detailed statistics" },
+        agent: { type: "boolean", description: "Show agent detail for a skill" },
       },
     },
     { name: "driver", args: "[<id>]", description: "Show drivers" },
@@ -104,9 +86,8 @@ const definition = {
       description: "Generate job definition",
       options: {
         track: { type: "string", description: "Track specialization" },
-        level: { type: "string", description: "Target level" },
-        output: { type: "string", description: "Output path" },
-        capability: { type: "string", description: "Filter by capability" },
+        skills: { type: "boolean", description: "Output skill IDs" },
+        tools: { type: "boolean", description: "Output tool names" },
       },
     },
     {
@@ -115,7 +96,6 @@ const definition = {
       description: "Generate interview questions",
       options: {
         track: { type: "string", description: "Track specialization" },
-        level: { type: "string", description: "Target level" },
         type: {
           type: "string",
           description: "Interview type",
@@ -129,19 +109,19 @@ const definition = {
       description: "Career progression analysis",
       options: {
         track: { type: "string", description: "Track specialization" },
-        level: { type: "string", description: "Target level" },
         compare: { type: "string", description: "Compare to level" },
       },
     },
     {
       name: "questions",
-      args: "[options]",
       description: "Browse interview questions",
       options: {
         skill: { type: "string", description: "Filter by skill ID" },
         behaviour: { type: "string", description: "Filter by behaviour ID" },
         capability: { type: "string", description: "Filter by capability" },
-        role: { type: "string", description: "Role filter" },
+        level: { type: "string", description: "Filter by level" },
+        maturity: { type: "string", description: "Filter by behaviour maturity" },
+        stats: { type: "boolean", description: "Show question statistics" },
       },
     },
     {
@@ -150,15 +130,13 @@ const definition = {
       description: "Generate AI agent profile",
       options: {
         track: { type: "string", description: "Track specialization" },
-        level: { type: "string", description: "Target level" },
-        agent: { type: "boolean", description: "Output as agent format" },
+        output: { type: "string", description: "Output directory for generated files" },
         skills: { type: "boolean", description: "Output skill IDs" },
         tools: { type: "boolean", description: "Output tool names" },
       },
     },
     {
       name: "dev",
-      args: "",
       description: "Run live development server",
       options: {
         port: { type: "string", description: "Dev server port" },
@@ -166,17 +144,15 @@ const definition = {
     },
     {
       name: "build",
-      args: "",
       description: "Generate static site",
       options: {
-        output: { type: "string", description: "Output path" },
-        path: { type: "string", description: "File path" },
-        clean: { type: "boolean", default: true, description: "Clean build" },
+        output: { type: "string", description: "Output directory" },
+        url: { type: "string", description: "Site URL for distribution bundle" },
+        clean: { type: "boolean", default: true, description: "Clean output directory before building" },
       },
     },
     {
       name: "update",
-      args: "",
       description: "Update local installation",
       options: {
         url: { type: "string", description: "URL for update" },

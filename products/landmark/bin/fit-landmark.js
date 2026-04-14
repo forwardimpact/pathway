@@ -60,7 +60,6 @@ const definition = {
     { name: "org show", description: "Show full organization directory" },
     {
       name: "org team",
-      args: "<email>",
       description: "Show hierarchy under a manager",
       options: {
         manager: { type: "string", description: "Filter by manager email" },
@@ -69,7 +68,6 @@ const definition = {
     { name: "snapshot list", description: "List available snapshots" },
     {
       name: "snapshot show",
-      args: "",
       description: "Show factor/driver scores for a snapshot",
       options: {
         snapshot: { type: "string", description: "Snapshot id" },
@@ -78,7 +76,6 @@ const definition = {
     },
     {
       name: "snapshot trend",
-      args: "",
       description: "Track item trend across snapshots",
       options: {
         item: { type: "string", description: "Driver/item id for trend" },
@@ -87,7 +84,6 @@ const definition = {
     },
     {
       name: "snapshot compare",
-      args: "",
       description: "Compare snapshot against benchmarks",
       options: {
         snapshot: { type: "string", description: "Snapshot id" },
@@ -96,7 +92,6 @@ const definition = {
     },
     {
       name: "evidence",
-      args: "",
       description: "Show marker-linked evidence",
       options: {
         skill: { type: "string", description: "Filter by skill id" },
@@ -105,7 +100,6 @@ const definition = {
     },
     {
       name: "practice",
-      args: "",
       description: "Show practice-pattern aggregates",
       options: {
         skill: { type: "string", description: "Filter by skill id" },
@@ -117,13 +111,11 @@ const definition = {
       args: "<skill>",
       description: "Show marker definitions for a skill",
       options: {
-        skill: { type: "string", description: "Filter by skill id" },
-        level: { type: "string", description: "Target or filter level" },
+        level: { type: "string", description: "Filter by level" },
       },
     },
     {
       name: "health",
-      args: "",
       description: "Show health view with driver scores and evidence",
       options: {
         manager: { type: "string", description: "Filter by manager email" },
@@ -131,7 +123,6 @@ const definition = {
     },
     {
       name: "readiness",
-      args: "",
       description: "Show promotion readiness checklist",
       options: {
         email: { type: "string", description: "Filter by person email" },
@@ -140,7 +131,6 @@ const definition = {
     },
     {
       name: "timeline",
-      args: "",
       description: "Show individual growth timeline",
       options: {
         email: { type: "string", description: "Filter by person email" },
@@ -149,7 +139,6 @@ const definition = {
     },
     {
       name: "initiative list",
-      args: "",
       description: "List active initiatives",
       options: {
         manager: { type: "string", description: "Filter by manager email" },
@@ -157,7 +146,6 @@ const definition = {
     },
     {
       name: "initiative show",
-      args: "",
       description: "Show initiative detail",
       options: {
         id: { type: "string", description: "Entity id" },
@@ -165,7 +153,6 @@ const definition = {
     },
     {
       name: "initiative impact",
-      args: "",
       description: "Show initiative impact on scores",
       options: {
         manager: { type: "string", description: "Filter by manager email" },
@@ -173,7 +160,6 @@ const definition = {
     },
     {
       name: "coverage",
-      args: "",
       description: "Show evidence coverage metrics",
       options: {
         email: { type: "string", description: "Filter by person email" },
@@ -181,7 +167,6 @@ const definition = {
     },
     {
       name: "practiced",
-      args: "",
       description: "Show evidenced vs derived capability",
       options: {
         manager: { type: "string", description: "Filter by manager email" },
@@ -189,7 +174,6 @@ const definition = {
     },
     {
       name: "voice",
-      args: "",
       description: "Surface engineer voice from GetDX comments",
       options: {
         manager: { type: "string", description: "Filter by manager email" },

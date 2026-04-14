@@ -193,7 +193,6 @@ npx fit-pathway job --list                                # Valid combinations
 npx fit-pathway job --list --track=<track>                # Combinations for a track
 npx fit-pathway job <discipline> <level>                  # Trackless job
 npx fit-pathway job <discipline> <level> --track=<track>  # With track
-npx fit-pathway job <discipline> <level> --checklist=code # With checklist
 npx fit-pathway job <discipline> <level> --skills         # Skill IDs only
 npx fit-pathway job <discipline> <level> --tools          # Tool names only
 ```
@@ -204,7 +203,6 @@ npx fit-pathway job <discipline> <level> --tools          # Tool names only
 npx fit-pathway agent --list                                        # Valid combinations
 npx fit-pathway agent <discipline> --track=<track>                  # Preview
 npx fit-pathway agent <discipline> --track=<track> --output=./agents # Write files
-npx fit-pathway agent <discipline> --track=<track> --stage=plan     # Single stage
 npx fit-pathway agent <discipline> --track=<track> --skills         # Skill IDs only
 npx fit-pathway agent <discipline> --track=<track> --tools          # Tool names only
 ```
