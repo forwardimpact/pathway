@@ -2,14 +2,13 @@
 #
 # Format: {id}	{phase}	{status}
 #
-#   spec  draft      Spec is being written
-#   spec  approved   Human approved — ready for planning
-#   plan  draft      Plan is being written
-#   plan  approved       Human approved — ready for implementation
-#   plan  implemented    Implementation complete
+#   spec	draft			Spec is being written
+#   spec	approved		Human approved — ready for planning
+#   plan	draft			Plan is being written
+#   plan	approved		Human approved — ready for implementation
+#   plan	implemented		Implementation complete
 #
 # Lifecycle: spec draft → spec approved → plan draft → plan approved → plan implemented
-# Agents set "draft" and "implemented". Humans set "approved".
 # One row per spec, updated in place.
 
 010	plan	implemented
@@ -60,5 +59,5 @@
 410	plan	implemented
 420	plan	implemented
 430	plan	implemented
-440	spec	draft
-450	spec	draft
+440	spec	approved
+450	plan	approved
