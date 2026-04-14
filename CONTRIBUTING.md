@@ -37,6 +37,11 @@ start until all are internalized.
 - [ ] **Smallest plan.** No unrequested features, abstractions, or refactors. If
       it isn't asked for, don't add it.
 - [ ] **Read the code** I'm about to change before writing.
+- [ ] **Search shared libraries first.** Before writing a helper, utility, retry
+      wrapper, argument parser, or any other generic capability, search
+      `libraries/` and the `libs-*` skill group that covers the task. If a
+      shared library already provides the capability, use it. If not, note that
+      in the commit or plan so future contributors don't re-search.
 - [ ] **Simple over easy.** Reduce complexity, don't relocate it. Three similar
       lines beat a premature abstraction. If tempted to extract a helper for a
       single use, inline it. If tempted to add configuration for a single
