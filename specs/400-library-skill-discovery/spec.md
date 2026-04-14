@@ -67,10 +67,10 @@ workflow makes it a step:
   the code, simple over easy, no defensive code, clean breaks. None say "before
   writing a helper, search `libs-*` and `libraries/`." "Simple over easy"
   implies reuse but does not direct the agent to a specific surface.
-- **`gemba-plan` SKILL.md** does not mention libraries. A plan author can write
+- **`kata-plan` SKILL.md** does not mention libraries. A plan author can write
   `plan-a.md` full of "create helper X," "add a retry wrapper," "write a JSONL
   parser" without ever enumerating which `libraries/` already do this.
-- **`gemba-implement` SKILL.md** explicitly forbids deviation from the plan
+- **`kata-implement` SKILL.md** explicitly forbids deviation from the plan
   ("implement only what the plan describes — no unrequested refactors"). If the
   plan doesn't cite a library, the implementer cannot substitute one in without
   violating its own checklist.
@@ -216,24 +216,22 @@ helpers.** Every contribution must confirm that it checked `libs-*` and
 wrapper. Observable: the READ-DO section contains a checklist item whose text
 makes this search mandatory.
 
-**3b. `gemba-plan` produces plans that enumerate the libraries they use.** Every
-`plan-a.md` must contain a section naming the `@forwardimpact/lib*` packages and
-specific exports the plan consumes. A plan that uses no libraries must say so
-explicitly — absence is a visible signal, not a default. Observable:
-`gemba-plan` SKILL.md requires the section; existing plans (as they are revised)
-include it.
+**3b. `kata-plan` produces plans that enumerate the libraries they use.** Every
+plan must state which shared libraries it consumes and which exports it relies
+on. A plan that uses no libraries must say so explicitly — absence is a visible
+signal, not a default. Observable: `kata-plan` SKILL.md requires this
+enumeration; the plan owns the exact format and placement.
 
-**3c. Agent profiles that write code pre-load the relevant `libs-*` skills.** At
-minimum, the staff engineer (the agent that owns implementation) must have
-`libs-*` skills available in its profile without having to discover them at run
-time. Observable: `.claude/agents/staff-engineer.md` (and other code-writing
-agent profiles identified during planning) list the `libs-*` skills in their
-`skills:` field, so the library catalog is in context before the READ-DO and
-library-survey steps run.
+**3c. Agent profiles that write code pre-load the relevant `libs-*` skills.**
+Code-writing agents must have the library catalog available in context before
+implementation begins, without relying on runtime discovery. Observable: the
+agent profiles responsible for writing code include the `libs-*` skills in their
+configuration. The plan identifies which profiles need updating and owns the
+exact mechanism.
 
 Together these three surfaces move discovery from "rely on agent reflex" to
 "required at plan time, enforced at read-do time, pre-loaded at agent-load
-time." This matters because `gemba-implement` structurally forbids deviation
+time." This matters because `kata-implement` structurally forbids deviation
 from the plan, so discovery has to be upstream of implementation to take effect.
 
 ### Move 4 — CI guard against `Key Exports` drift
@@ -301,7 +299,7 @@ direction — "everything we advertise must exist" — is enforced.
    the six files.
 
 5. **Discovery protocol live on all three surfaces.** CONTRIBUTING.md § READ-DO
-   contains the library-search item (Move 3a). `gemba-plan` SKILL.md requires
+   contains the library-search item (Move 3a). `kata-plan` SKILL.md requires
    plans to enumerate the libraries they use (Move 3b).
    `.claude/agents/staff-engineer.md` — and any other code-writing agent profile
    identified during planning — lists the relevant `libs-*` skills in its
