@@ -231,8 +231,8 @@ exact mechanism.
 
 Together these three surfaces move discovery from "rely on agent reflex" to
 "required at plan time, enforced at read-do time, pre-loaded at agent-load
-time." This matters because `kata-implement` structurally forbids deviation
-from the plan, so discovery has to be upstream of implementation to take effect.
+time." This matters because `kata-implement` structurally forbids deviation from
+the plan, so discovery has to be upstream of implementation to take effect.
 
 ### Move 4 — CI guard against `Key Exports` drift
 
