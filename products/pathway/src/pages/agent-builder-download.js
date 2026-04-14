@@ -1,5 +1,5 @@
 /**
- * Download button components for agent builder page
+ * Download button component for agent builder page
  */
 
 import { formatAgentProfile } from "../formatters/agent/profile.js";
@@ -79,65 +79,24 @@ function downloadBlob(blob, filename) {
 }
 
 /**
- * Create download button for an agent profile
- * @param {Object} profile - Agent profile
- * @param {Array} skillFiles - Skill files
+ * Create download button for agent profiles and skills
+ * @param {Array} profiles - Agent profiles
+ * @param {Array} skillFiles - Deduplicated skill files
  * @param {Object} claudeCodeSettings - Claude Code settings
  * @param {{agent: string, skill: string}} templates - Mustache templates
+ * @param {string|null} teamInstructionsContent - Rendered CLAUDE.md content
  * @returns {HTMLElement}
  */
-export function createDownloadSingleButton(
-  profile,
-  skillFiles,
-  claudeCodeSettings,
-  templates,
-) {
-  const btn = document.createElement("button");
-  btn.className = "btn btn-primary download-all-btn";
-  btn.textContent = "📥 Download Agent (.zip)";
-
-  btn.addEventListener("click", async () => {
-    btn.disabled = true;
-    btn.textContent = "Generating...";
-
-    try {
-      const JSZip = await importJSZip();
-      const zip = new JSZip();
-
-      const content = formatAgentProfile(profile, templates.agent);
-      zip.file(`.claude/agents/${profile.filename}`, content);
-
-      addSkillsToZip(zip, skillFiles, templates);
-      addSettingsToZip(zip, claudeCodeSettings);
-
-      const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, `${profile.frontmatter.name}-agent.zip`);
-    } finally {
-      btn.disabled = false;
-      btn.textContent = "📥 Download Agent (.zip)";
-    }
-  });
-
-  return btn;
-}
-
-/**
- * Create download button for a team of agent profiles
- * @param {Array} profiles - Array of agent profiles
- * @param {Array} skillFiles - Deduplicated skill files across all agents
- * @param {Object} claudeCodeSettings - Claude Code settings
- * @param {{agent: string, skill: string}} templates - Mustache templates
- * @returns {HTMLElement}
- */
-export function createDownloadTeamButton(
+export function createDownloadButton(
   profiles,
   skillFiles,
   claudeCodeSettings,
   templates,
+  teamInstructionsContent,
 ) {
   const btn = document.createElement("button");
   btn.className = "btn btn-primary download-all-btn";
-  btn.textContent = `📥 Download Team (${profiles.length} agents, .zip)`;
+  btn.textContent = "📥 Download Agent (.zip)";
 
   btn.addEventListener("click", async () => {
     btn.disabled = true;
@@ -155,11 +114,19 @@ export function createDownloadTeamButton(
       addSkillsToZip(zip, skillFiles, templates);
       addSettingsToZip(zip, claudeCodeSettings);
 
+      if (teamInstructionsContent) {
+        zip.file(".claude/CLAUDE.md", teamInstructionsContent);
+      }
+
       const blob = await zip.generateAsync({ type: "blob" });
-      downloadBlob(blob, "agent-team.zip");
+      const filename =
+        profiles.length === 1
+          ? `${profiles[0].frontmatter.name}-agent.zip`
+          : "agent-team.zip";
+      downloadBlob(blob, filename);
     } finally {
       btn.disabled = false;
-      btn.textContent = `📥 Download Team (${profiles.length} agents, .zip)`;
+      btn.textContent = "📥 Download Agent (.zip)";
     }
   });
 

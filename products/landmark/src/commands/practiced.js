@@ -84,6 +84,7 @@ function aggregateDerivedDepths(team, mapData) {
       level,
       track,
       skills: mapData.skills,
+      capabilities: mapData.capabilities,
     });
 
     for (const entry of matrix) {

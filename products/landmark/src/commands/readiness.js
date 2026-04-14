@@ -41,6 +41,7 @@ export async function runReadinessCommand({
     level: targetLevel,
     track,
     skills: mapData.skills,
+    capabilities: mapData.capabilities,
   });
 
   const { checklist, skippedSkills } = partitionMatrix(matrix, mapData);

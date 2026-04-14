@@ -13,7 +13,7 @@ import {
   compareByLevelDesc,
   compareByMaturityDesc,
   compareByTypeAndName,
-  createSkillPriorityComparator,
+  compareBySkillFocusPriority,
 } from "./orderings.js";
 import { LIMIT_AGENT_PROFILE_SKILLS } from "./thresholds.js";
 
@@ -95,12 +95,12 @@ export function sortJobSkills(skills) {
  * All skills are still exported as SKILL.md files and listed via --skills.
  *
  * @param {Array} skills - Agent-eligible skills (already filtered and sorted)
- * @param {Array} capabilities - Loaded capabilities array with ordinalRank
  * @returns {Array} Top N skills by priority
  */
-export function focusAgentSkills(skills, capabilities) {
-  const comparator = createSkillPriorityComparator(capabilities);
-  return [...skills].sort(comparator).slice(0, LIMIT_AGENT_PROFILE_SKILLS);
+export function focusAgentSkills(skills) {
+  return [...skills]
+    .sort(compareBySkillFocusPriority)
+    .slice(0, LIMIT_AGENT_PROFILE_SKILLS);
 }
 
 // =============================================================================

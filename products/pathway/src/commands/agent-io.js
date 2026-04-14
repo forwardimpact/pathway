@@ -14,6 +14,7 @@ import {
   formatInstallScript,
   formatReference,
 } from "../formatters/agent/skill.js";
+import { formatTeamInstructions } from "../formatters/agent/team-instructions.js";
 import { formatSuccess } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
@@ -72,13 +73,15 @@ export async function writeProfile(profile, baseDir, template) {
  * Write team instructions to CLAUDE.md
  * @param {string|null} teamInstructions - Interpolated team instructions content
  * @param {string} baseDir - Base output directory
+ * @param {string} template - Mustache template string for CLAUDE.md
  * @returns {string|null} Path written, or null if skipped
  */
-export async function writeTeamInstructions(teamInstructions, baseDir) {
+export async function writeTeamInstructions(teamInstructions, baseDir, template) {
   if (!teamInstructions) return null;
   const filePath = join(baseDir, ".claude", "CLAUDE.md");
+  const content = formatTeamInstructions(teamInstructions, template);
   await ensureDir(filePath);
-  await writeFile(filePath, teamInstructions.trim() + "\n", "utf-8");
+  await writeFile(filePath, content, "utf-8");
   logger.info(formatSuccess(`Created: ${filePath}`));
   return filePath;
 }

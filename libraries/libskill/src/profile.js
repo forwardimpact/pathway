@@ -80,7 +80,13 @@ export function prepareBaseProfile({
   capabilities,
 }) {
   // Core derivation
-  const skillMatrix = deriveSkillMatrix({ discipline, level, track, skills });
+  const skillMatrix = deriveSkillMatrix({
+    discipline,
+    level,
+    track,
+    skills,
+    capabilities,
+  });
   const behaviourProfile = deriveBehaviourProfile({
     discipline,
     level,

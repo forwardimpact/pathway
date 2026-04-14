@@ -98,6 +98,7 @@ export function derivePersonMatrix(person, data) {
     level,
     track,
     skills: data.skills ?? [],
+    capabilities: data.capabilities ?? [],
   });
 
   return {

@@ -39,6 +39,7 @@ import {
   formatInstallScript,
   formatReference,
 } from "../formatters/agent/skill.js";
+import { formatTeamInstructions } from "../formatters/agent/team-instructions.js";
 import { findValidCombinations } from "./agent.js";
 
 /**
@@ -94,6 +95,7 @@ async function writePackFiles({
   skillFiles,
   teamInstructions,
   agentTemplate,
+  claudeTemplate,
   skillTemplates,
   claudeCodeSettings,
 }) {
@@ -145,11 +147,11 @@ async function writePackFiles({
   }
 
   if (teamInstructions) {
-    await writeFile(
-      join(claudeDir, "CLAUDE.md"),
-      teamInstructions.trim() + "\n",
-      "utf-8",
+    const claudeContent = formatTeamInstructions(
+      teamInstructions,
+      claudeTemplate,
     );
+    await writeFile(join(claudeDir, "CLAUDE.md"), claudeContent, "utf-8");
   }
 
   // Claude Code settings — matches the CLI path's generateClaudeCodeSettings
@@ -196,6 +198,7 @@ function derivePackContent({
     track: humanTrack,
     level,
     skills: skillsWithAgent,
+    capabilities: data.capabilities,
   });
 
   const skillFiles = derivedSkills
@@ -480,6 +483,7 @@ export async function generatePacks({
   const level = deriveReferenceLevel(data.levels);
 
   const agentTemplate = templateLoader.load("agent.template.md", dataDir);
+  const claudeTemplate = templateLoader.load("claude.template.md", dataDir);
   const skillTemplates = {
     skill: templateLoader.load("skill.template.md", dataDir),
     install: templateLoader.load("skill-install.template.sh", dataDir),
@@ -522,6 +526,7 @@ export async function generatePacks({
       skillFiles,
       teamInstructions,
       agentTemplate,
+      claudeTemplate,
       skillTemplates,
       claudeCodeSettings: agentData.claudeCodeSettings,
     });

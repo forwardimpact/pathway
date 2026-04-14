@@ -23,11 +23,9 @@ The cost is visible in the wiki:
   security-audit run is sitting unaddressed. The agent cannot pivot because the
   workflow told it to do one thing.
 
-- **Incomplete coverage.** The security engineer has audited 1 of 8 topic areas
-  (`wiki/security-engineer.md`). The technical writer has reviewed 2 of 8
-  documentation areas (`wiki/technical-writer.md`). The improvement coach cannot
-  analyze 5 of 10 workflows due to missing trace artifacts
-  (`wiki/improvement-coach.md`). Coverage gaps persist — agents lack the
+- **Incomplete coverage.** Agent wiki summaries show large coverage gaps across
+  domains (see `wiki/security-engineer.md`, `wiki/technical-writer.md`,
+  `wiki/improvement-coach.md`). Coverage gaps persist — agents lack the
   autonomy to prioritize uncovered areas when their assigned task has nothing to
   do.
 
@@ -147,6 +145,14 @@ assessing).
 - **kata-action composite.** The dispatch mechanism is unchanged — only the task
   text and workflow file count change.
 
+### Clean break — no backward compatibility
+
+This is a clean break. The ten existing workflow files are deleted and replaced
+by six new ones. Old workflow names, old task prompts, and old agent profile
+sections (e.g., "Workflows") are removed entirely — no aliases, no deprecation
+shims, no fallback paths. The goal is a clean code base where only the new
+structure exists.
+
 ## Scope
 
 ### Affected
@@ -169,7 +175,9 @@ assessing).
 - Skill content (`kata-*/SKILL.md`) — procedures do not change
 - `kata-action` composite action — dispatch mechanism unchanged
 - `fit-eval` CLI — no changes to the evaluation runner
-- Agent memory format — weekly logs gain a subheading, not a structural change
+- Agent memory format — wiki file layout and naming unchanged; the new
+  `### Decision` subheading (see Decision logging) is an addition, not a
+  restructuring
 - Trust boundary or permission model — unchanged
 
 ## Success Criteria
@@ -190,5 +198,7 @@ assessing).
 5. **Scheduling constraints** are preserved: security before product, product
    before planning, planning before release, all producers before the
    improvement coach. Off-minute staggering avoids API load spikes.
-6. **`task-amend` input** still works for manual steering on any workflow.
+6. **`task-amend` input** (the `kata-action` composite's optional override that
+   lets a caller append text to the task prompt) still works for manual steering
+   on any workflow.
 7. **`bun run check` and `bun run test` pass** with no regressions.

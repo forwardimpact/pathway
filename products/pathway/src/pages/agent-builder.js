@@ -2,25 +2,34 @@
  * Agent builder page
  *
  * Single scrollable view for generating AI coding agent team configurations.
- * Multi-select checkboxes for disciplines and tracks; generates one agent
- * per discipline x track combination.
+ * Multi-select checkboxes for disciplines, single-select dropdown for track.
+ * Generates one agent per selected discipline × the chosen track.
  */
 
-import { render, div, h1, h2, p, label } from "../lib/render.js";
+import {
+  render,
+  div,
+  h1,
+  h2,
+  p,
+  label,
+  select,
+  option,
+} from "../lib/render.js";
 import { getState } from "../lib/state.js";
 import { loadAgentDataBrowser } from "../lib/yaml-loader.js";
 import { deriveReferenceLevel } from "@forwardimpact/libskill/agent";
-import {
-  createMultiDisciplineSelect,
-  createMultiTrackSelect,
-} from "../lib/form-controls.js";
+import { createMultiDisciplineSelect } from "../lib/form-controls.js";
 import { createReactive } from "../lib/reactive.js";
 import {
-  createAgentPreview,
+  deriveAgentData,
+  createTeamPreview,
   createHelpSection,
 } from "./agent-builder-preview.js";
 import { createInstallSection } from "./agent-builder-install.js";
-import { createDownloadTeamButton } from "./agent-builder-download.js";
+import {
+  createDownloadButton,
+} from "./agent-builder-download.js";
 
 /** @type {Object|null} Cached agent data */
 let agentDataCache = null;
@@ -46,17 +55,20 @@ async function getAgentData(dataDir = "./data") {
  */
 async function getTemplates() {
   if (!templateCache) {
-    const [agentRes, skillRes, installRes, referenceRes] = await Promise.all([
-      fetch("./templates/agent.template.md"),
-      fetch("./templates/skill.template.md"),
-      fetch("./templates/skill-install.template.sh"),
-      fetch("./templates/skill-reference.template.md"),
-    ]);
+    const [agentRes, skillRes, installRes, referenceRes, claudeRes] =
+      await Promise.all([
+        fetch("./templates/agent.template.md"),
+        fetch("./templates/skill.template.md"),
+        fetch("./templates/skill-install.template.sh"),
+        fetch("./templates/skill-reference.template.md"),
+        fetch("./templates/claude.template.md"),
+      ]);
     templateCache = {
       agent: await agentRes.text(),
       skill: await skillRes.text(),
       install: await installRes.text(),
       reference: await referenceRes.text(),
+      claude: await claudeRes.text(),
     };
   }
   return templateCache;
@@ -127,7 +139,7 @@ export async function renderAgentBuilder() {
   }
 
   // Parse URL params for pre-selection
-  // Supports: #/agent/d1,d2/t1,t2 (comma-separated)
+  // Supports: #/agent/d1,d2/track (disciplines comma-separated, single track)
   const hash = window.location.hash;
   const pathMatch = hash.match(
     // eslint-disable-next-line security/detect-unsafe-regex -- negated char classes prevent backtracking; parses internal URL hash
@@ -136,64 +148,79 @@ export async function renderAgentBuilder() {
   const initialDisciplines = pathMatch
     ? new Set(pathMatch[1].split(",").filter(Boolean))
     : new Set();
-  const initialTracks =
-    pathMatch && pathMatch[2]
-      ? new Set(pathMatch[2].split(",").filter(Boolean))
-      : new Set();
+  const initialTrack = pathMatch && pathMatch[2] ? pathMatch[2] : "";
+
+  // Track select element — options updated when disciplines change
+  const trackSelectEl = select(
+    { className: "form-select", id: "agent-track-select" },
+    option({ value: "", disabled: true, selected: true }, "Select a track..."),
+  );
+  trackSelectEl.disabled = true;
 
   // Reactive selection state
   const selection = createReactive({
     disciplines: initialDisciplines,
-    tracks: initialTracks,
+    track: initialTrack,
   });
 
-  // Track checkbox container — rebuilt when disciplines change
-  const trackContainer = div({ className: "form-group" });
-
   /**
-   * Rebuild the track checkbox group for the currently selected disciplines
+   * Update track select options based on selected disciplines
    */
-  function rebuildTrackCheckboxes() {
-    const { disciplines, tracks } = selection.get();
+  function updateTrackOptions() {
+    const { disciplines, track } = selection.get();
     const unionTracks = getUnionTracks(disciplines);
 
-    trackContainer.innerHTML = "";
-    trackContainer.appendChild(label({ className: "form-label" }, "Tracks"));
+    trackSelectEl.innerHTML = "";
 
     if (disciplines.size === 0) {
-      trackContainer.appendChild(
-        p({ className: "text-muted" }, "Select at least one discipline first."),
+      trackSelectEl.appendChild(
+        option(
+          { value: "", disabled: true, selected: true },
+          "Select disciplines first...",
+        ),
       );
+      trackSelectEl.disabled = true;
       return;
     }
 
     if (unionTracks.length === 0) {
-      trackContainer.appendChild(
-        p(
-          { className: "text-muted" },
-          "No tracks available for selected disciplines.",
+      trackSelectEl.appendChild(
+        option(
+          { value: "", disabled: true, selected: true },
+          "No tracks available for selected disciplines",
         ),
       );
+      trackSelectEl.disabled = true;
       return;
     }
 
-    // Prune tracks that are no longer valid
+    trackSelectEl.appendChild(
+      option(
+        { value: "", disabled: true, selected: !track },
+        "Select a track...",
+      ),
+    );
+
+    unionTracks
+      .sort((a, b) => a.name.localeCompare(b.name))
+      .forEach((t) => {
+        const opt = option({ value: t.id }, t.name);
+        if (t.id === track) opt.selected = true;
+        trackSelectEl.appendChild(opt);
+      });
+
+    // Clear track if no longer valid
     const validIds = new Set(unionTracks.map((t) => t.id));
-    for (const tId of tracks) {
-      if (!validIds.has(tId)) tracks.delete(tId);
+    if (track && !validIds.has(track)) {
+      selection.update((prev) => ({ ...prev, track: "" }));
     }
 
-    trackContainer.appendChild(
-      createMultiTrackSelect({
-        id: "agent-track-select",
-        tracks: unionTracks,
-        selected: tracks,
-        onChange: (updated) => {
-          selection.update((prev) => ({ ...prev, tracks: updated }));
-        },
-      }),
-    );
+    trackSelectEl.disabled = false;
   }
+
+  trackSelectEl.addEventListener("change", (e) => {
+    selection.update((prev) => ({ ...prev, track: e.target.value }));
+  });
 
   // Preview container
   const previewContainer = div(
@@ -204,27 +231,26 @@ export async function renderAgentBuilder() {
   /**
    * Compute valid discipline x track combinations from current selection
    * @param {Set<string>} disciplines
-   * @param {Set<string>} tracks
+   * @param {string} track - Single selected track ID
    * @returns {Array<{humanDiscipline, humanTrack, agentDiscipline, agentTrack}>}
    */
-  function computeCombinations(disciplines, tracks) {
+  function computeCombinations(disciplines, track) {
+    if (!track) return [];
     const combos = [];
     for (const dId of disciplines) {
       const validTracks = getValidTracksForDiscipline(dId);
-      for (const t of validTracks) {
-        if (!tracks.has(t.id)) continue;
-        const humanDiscipline = data.disciplines.find((d) => d.id === dId);
-        const humanTrack = data.tracks.find((tr) => tr.id === t.id);
-        const agentDiscipline = agentData.disciplines.find((d) => d.id === dId);
-        const agentTrack = agentData.tracks.find((tr) => tr.id === t.id);
-        if (humanDiscipline && humanTrack && agentDiscipline && agentTrack) {
-          combos.push({
-            humanDiscipline,
-            humanTrack,
-            agentDiscipline,
-            agentTrack,
-          });
-        }
+      if (!validTracks.some((t) => t.id === track)) continue;
+      const humanDiscipline = data.disciplines.find((d) => d.id === dId);
+      const humanTrack = data.tracks.find((t) => t.id === track);
+      const agentDiscipline = agentData.disciplines.find((d) => d.id === dId);
+      const agentTrack = agentData.tracks.find((t) => t.id === track);
+      if (humanDiscipline && humanTrack && agentDiscipline && agentTrack) {
+        combos.push({
+          humanDiscipline,
+          humanTrack,
+          agentDiscipline,
+          agentTrack,
+        });
       }
     }
     return combos;
@@ -234,11 +260,11 @@ export async function renderAgentBuilder() {
    * Update the preview when selection changes
    * @param {Object} sel - Current selection
    */
-  function updatePreview({ disciplines, tracks }) {
+  function updatePreview({ disciplines, track }) {
     // Update URL
     if (disciplines.size > 0) {
       const dPart = [...disciplines].join(",");
-      const tPart = tracks.size > 0 ? `/${[...tracks].join(",")}` : "";
+      const tPart = track ? `/${track}` : "";
       const newHash = `#/agent/${dPart}${tPart}`;
       if (window.location.hash !== newHash) {
         history.replaceState(null, "", newHash);
@@ -247,7 +273,7 @@ export async function renderAgentBuilder() {
 
     previewContainer.innerHTML = "";
 
-    const combos = computeCombinations(disciplines, tracks);
+    const combos = computeCombinations(disciplines, track);
 
     if (combos.length === 0) {
       previewContainer.appendChild(
@@ -258,10 +284,13 @@ export async function renderAgentBuilder() {
 
     const level = deriveReferenceLevel(data.levels);
 
-    // Collect all profiles and skill files for team download
+    // Derive data for all combos, then build one unified layout
     const allProfiles = [];
     const allSkillFiles = [];
+    const allToolkit = [];
     const seenSkillDirs = new Set();
+    const seenTools = new Set();
+    let teamInstructionsContent = null;
 
     for (const combo of combos) {
       const context = {
@@ -275,39 +304,52 @@ export async function renderAgentBuilder() {
         templates,
       };
 
-      // Install section per combo
-      const installSection = createInstallSection({
-        discipline: combo.humanDiscipline,
-        track: combo.humanTrack,
-        siteUrl,
-      });
-      if (installSection) {
-        previewContainer.appendChild(installSection);
+      const result = deriveAgentData(context);
+      allProfiles.push(result.profile);
+      if (!teamInstructionsContent && result.teamInstructionsContent) {
+        teamInstructionsContent = result.teamInstructionsContent;
       }
-
-      const { preview, profile, skillFiles } = createAgentPreview(context);
-      previewContainer.appendChild(preview);
-
-      allProfiles.push(profile);
-      for (const sf of skillFiles) {
+      for (const sf of result.skillFiles) {
         if (!seenSkillDirs.has(sf.dirname)) {
           seenSkillDirs.add(sf.dirname);
           allSkillFiles.push(sf);
         }
       }
+      for (const tool of result.toolkit) {
+        if (!seenTools.has(tool.name)) {
+          seenTools.add(tool.name);
+          allToolkit.push(tool);
+        }
+      }
     }
 
-    // Team download button at the top if multiple agents
-    if (combos.length > 1) {
-      previewContainer.prepend(
-        createDownloadTeamButton(
+    // Install section for the first combo (pack name is per-discipline)
+    const installSection = createInstallSection({
+      discipline: combos[0].humanDiscipline,
+      track: combos[0].humanTrack,
+      siteUrl,
+    });
+    if (installSection) {
+      previewContainer.appendChild(installSection);
+    }
+
+    // Unified preview with consolidated sections
+    previewContainer.appendChild(
+      createTeamPreview({
+        profiles: allProfiles,
+        skillFiles: allSkillFiles,
+        toolkit: allToolkit,
+        teamInstructionsContent,
+        templates,
+        downloadButton: createDownloadButton(
           allProfiles,
           allSkillFiles,
           agentData.claudeCodeSettings,
           templates,
+          teamInstructionsContent,
         ),
-      );
-    }
+      }),
+    );
   }
 
   // Subscribe to selection changes
@@ -323,7 +365,7 @@ export async function renderAgentBuilder() {
       p(
         { className: "page-description" },
         "Generate coding agent teams from discipline x track combinations. " +
-          "Select multiple disciplines and tracks to build a full team. " +
+          "Select multiple disciplines and a track to build a full team. " +
           "Export complete agent profiles and skill files for Claude Code.",
       ),
     ),
@@ -348,7 +390,7 @@ export async function renderAgentBuilder() {
                     ...prev,
                     disciplines: updated,
                   }));
-                  rebuildTrackCheckboxes();
+                  updateTrackOptions();
                 },
                 getDisplayName: (d) => d.specialization || d.name,
               })
@@ -357,8 +399,12 @@ export async function renderAgentBuilder() {
                 "No disciplines have agent definitions.",
               ),
         ),
-        // Track multi-select (dynamically rebuilt)
-        trackContainer,
+        // Track single-select (options filtered by selected disciplines)
+        div(
+          { className: "form-group" },
+          label({ className: "form-label" }, "Track"),
+          trackSelectEl,
+        ),
       ),
     ),
 
@@ -371,9 +417,9 @@ export async function renderAgentBuilder() {
 
   render(page);
 
-  // Initialize track checkboxes and trigger preview if pre-selected
-  rebuildTrackCheckboxes();
-  if (initialDisciplines.size > 0 && initialTracks.size > 0) {
+  // Initialize track options and trigger preview if pre-selected
+  updateTrackOptions();
+  if (initialDisciplines.size > 0 && initialTrack) {
     updatePreview(selection.get());
   }
 }
@@ -399,7 +445,7 @@ function createEmptyState(disciplineCount, trackCount) {
     { className: "empty-state" },
     p(
       { className: "text-muted" },
-      "Select disciplines and tracks to generate an agent team.",
+      "Select disciplines and a track to generate an agent team.",
     ),
   );
 }

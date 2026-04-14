@@ -31,6 +31,7 @@ import {
 } from "@forwardimpact/libskill/agent";
 import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
+import { formatTeamInstructions } from "../formatters/agent/team-instructions.js";
 import {
   formatError,
   formatSuccess,
@@ -116,8 +117,9 @@ function resolveAgentEntities(data, agentData, disciplineId, trackId) {
  * Output team instructions to console if present
  * @param {Object|null} agentTrack
  * @param {Object} humanDiscipline
+ * @param {string} template - Mustache template for CLAUDE.md
  */
-function printTeamInstructions(agentTrack, humanDiscipline) {
+function printTeamInstructions(agentTrack, humanDiscipline, template) {
   const teamInstructions = interpolateTeamInstructions({
     agentTrack,
     humanDiscipline,
@@ -125,7 +127,9 @@ function printTeamInstructions(agentTrack, humanDiscipline) {
   if (teamInstructions) {
     // Markdown output — headings stay literal so downstream tools parse them
     process.stdout.write("# Team Instructions (CLAUDE.md)\n\n");
-    process.stdout.write(teamInstructions.trim() + "\n");
+    process.stdout.write(
+      formatTeamInstructions(teamInstructions, template) + "\n",
+    );
     process.stdout.write("\n---\n\n");
   }
 }
@@ -164,6 +168,7 @@ async function handleAgent({
     track: humanTrack,
     level,
     skills: skillsWithAgent,
+    capabilities: data.capabilities,
   });
 
   const skillFiles = derivedSkills
@@ -198,6 +203,7 @@ async function handleAgent({
   }
 
   const agentTemplate = templateLoader.load("agent.template.md", dataDir);
+  const claudeTemplate = templateLoader.load("claude.template.md", dataDir);
   const skillTemplates = {
     skill: templateLoader.load("skill.template.md", dataDir),
     install: templateLoader.load("skill-install.template.sh", dataDir),
@@ -207,7 +213,7 @@ async function handleAgent({
   const baseDir = options.output || ".";
 
   if (!options.output) {
-    printTeamInstructions(agentTrack, humanDiscipline);
+    printTeamInstructions(agentTrack, humanDiscipline, claudeTemplate);
     process.stdout.write(formatAgentProfile(profile, agentTemplate) + "\n");
     return;
   }
@@ -216,7 +222,7 @@ async function handleAgent({
     agentTrack,
     humanDiscipline,
   });
-  await writeTeamInstructions(teamInstructions, baseDir);
+  await writeTeamInstructions(teamInstructions, baseDir, claudeTemplate);
   await writeProfile(profile, baseDir, agentTemplate);
   const fileCount = await writeSkills(skillFiles, baseDir, skillTemplates);
   await generateClaudeCodeSettings(baseDir, agentData.claudeCodeSettings);
@@ -281,6 +287,7 @@ export async function runAgentCommand({
       track: humanTrack,
       level,
       skills: skillsWithAgent,
+      capabilities: data.capabilities,
     });
     for (const skill of derivedSkills)
       process.stdout.write(skill.skillId + "\n");
@@ -293,6 +300,7 @@ export async function runAgentCommand({
       track: humanTrack,
       level,
       skills: skillsWithAgent,
+      capabilities: data.capabilities,
     });
     const toolkit = deriveToolkit({
       skillMatrix: derivedSkills,

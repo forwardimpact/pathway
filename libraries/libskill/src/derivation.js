@@ -153,34 +153,11 @@ export function deriveBehaviourMaturity({
   return clampBehaviourMaturity(modifiedIndex);
 }
 
-/**
- * Derive the complete skill matrix for a job
- * @param {Object} params
- * @param {import('@forwardimpact/map/levels').Discipline} params.discipline - The discipline
- * @param {import('@forwardimpact/map/levels').Level} params.level - The level
- * @param {import('@forwardimpact/map/levels').Track} [params.track] - The track (optional)
- * @param {import('@forwardimpact/map/levels').Skill[]} params.skills - All available skills
- * @returns {import('@forwardimpact/map/levels').SkillMatrixEntry[]} Complete skill matrix
- */
-/**
- * Derive a single skill matrix entry, or null if the skill doesn't qualify.
- */
-function deriveSkillEntry({
-  skill,
-  discipline,
-  level,
-  track,
-  skills,
-  allDisciplineSkills,
-  trackCapabilities,
-  typeMap,
-}) {
-  const inDiscipline = allDisciplineSkills.has(skill.id);
-  const inTrackCapability = trackCapabilities.has(skill.capability);
-
-  if (!inDiscipline && !inTrackCapability) return null;
-
-  const skillType = typeMap.get(skill.id) ?? null;
+/** Build a single skill matrix entry, or null if the skill doesn't qualify. */
+function buildSkillEntry(skill, discipline, level, track, skills, sets) {
+  const { allDiscipline, trackCaps, typeMap, capRank } = sets;
+  if (!allDiscipline.has(skill.id) && !trackCaps.has(skill.capability))
+    return null;
   const proficiency = deriveSkillProficiency({
     discipline,
     level,
@@ -188,49 +165,52 @@ function deriveSkillEntry({
     skillId: skill.id,
     skills,
   });
-
   if (proficiency === null) return null;
-
   return {
     skillId: skill.id,
     skillName: skill.name,
     capability: skill.capability,
+    capabilityRank: capRank.get(skill.capability) ?? 0,
     isHumanOnly: skill.isHumanOnly || false,
-    type: skillType || SkillType.TRACK,
+    type: typeMap.get(skill.id) ?? SkillType.TRACK,
     proficiency,
     proficiencyDescription: skill.proficiencyDescriptions?.[proficiency] || "",
   };
 }
 
-export function deriveSkillMatrix({ discipline, level, track = null, skills }) {
+/** Derive the complete skill matrix for a job. */
+export function deriveSkillMatrix({
+  discipline,
+  level,
+  track = null,
+  skills,
+  capabilities = [],
+}) {
   const matrix = [];
   const effectiveTrack = track || { skillModifiers: {} };
-
-  const allDisciplineSkills = new Set([
-    ...(discipline.coreSkills || []),
-    ...(discipline.supportingSkills || []),
-    ...(discipline.broadSkills || []),
-  ]);
-
-  const trackCapabilities = new Set(
-    Object.entries(effectiveTrack.skillModifiers || {})
-      .filter(([_, modifier]) => modifier > 0)
-      .map(([capability]) => capability),
-  );
-
-  const typeMap = buildSkillTypeMap(discipline);
-
+  const sets = {
+    allDiscipline: new Set([
+      ...(discipline.coreSkills || []),
+      ...(discipline.supportingSkills || []),
+      ...(discipline.broadSkills || []),
+    ]),
+    trackCaps: new Set(
+      Object.entries(effectiveTrack.skillModifiers || {})
+        .filter(([_, modifier]) => modifier > 0)
+        .map(([capability]) => capability),
+    ),
+    typeMap: buildSkillTypeMap(discipline),
+    capRank: new Map(capabilities.map((c) => [c.id, c.ordinalRank || 0])),
+  };
   for (const skill of skills) {
-    const entry = deriveSkillEntry({
+    const entry = buildSkillEntry(
       skill,
       discipline,
       level,
       track,
       skills,
-      allDisciplineSkills,
-      trackCapabilities,
-      typeMap,
-    });
+      sets,
+    );
     if (entry) matrix.push(entry);
   }
 
@@ -282,65 +262,27 @@ export function deriveBehaviourProfile({
   return profile;
 }
 
-/**
- * Generate a job title from discipline, track, and level
- * @param {import('@forwardimpact/map/levels').Discipline} discipline - The discipline
- * @param {import('@forwardimpact/map/levels').Level} level - The level
- * @param {import('@forwardimpact/map/levels').Track} [track] - The track (optional)
- * @returns {string} Generated job title
- */
+/** Generate a job title from discipline, track, and level. */
 export function generateJobTitle({ discipline, level, track = null }) {
   const { roleTitle, isManagement } = discipline;
   const { professionalTitle, managementTitle } = level;
-
-  if (isManagement && !track) {
-    return `${managementTitle}, ${roleTitle}`;
+  if (isManagement) {
+    const base = `${managementTitle}, ${roleTitle}`;
+    return track ? `${base} \u2013 ${track.name}` : base;
   }
-
-  if (isManagement && track) {
-    return `${managementTitle}, ${roleTitle} \u2013 ${track.name}`;
-  }
-
-  if (track) {
-    if (professionalTitle.startsWith("Level")) {
-      return `${roleTitle} ${professionalTitle} - ${track.name}`;
-    }
-    return `${professionalTitle} ${roleTitle} - ${track.name}`;
-  }
-
-  if (professionalTitle.startsWith("Level")) {
-    return `${roleTitle} ${professionalTitle}`;
-  }
-  return `${professionalTitle} ${roleTitle}`;
+  const prefix = professionalTitle.startsWith("Level")
+    ? `${roleTitle} ${professionalTitle}`
+    : `${professionalTitle} ${roleTitle}`;
+  return track ? `${prefix} - ${track.name}` : prefix;
 }
 
-/**
- * Generate a user-facing job ID from discipline, level, and track.
- * For the internal cache key, see `buildJobKey` in job-cache.js.
- * @param {import('@forwardimpact/map/levels').Discipline} discipline - The discipline
- * @param {import('@forwardimpact/map/levels').Level} level - The level
- * @param {import('@forwardimpact/map/levels').Track} [track] - The track (optional)
- * @returns {string} Generated job ID
- */
+/** Generate a user-facing job ID from discipline, level, and track. */
 export function generateJobId({ discipline, level, track = null }) {
-  if (track) {
-    return `${discipline.id}_${level.id}_${track.id}`;
-  }
-  return `${discipline.id}_${level.id}`;
+  const base = `${discipline.id}_${level.id}`;
+  return track ? `${base}_${track.id}` : base;
 }
 
-/**
- * Create a complete job definition from discipline, level, and optional track
- * @param {Object} params
- * @param {import('@forwardimpact/map/levels').Discipline} params.discipline - The discipline
- * @param {import('@forwardimpact/map/levels').Level} params.level - The level
- * @param {import('@forwardimpact/map/levels').Track} [params.track] - The track (optional)
- * @param {import('@forwardimpact/map/levels').Skill[]} params.skills - All available skills
- * @param {import('@forwardimpact/map/levels').Behaviour[]} params.behaviours - All available behaviours
- * @param {Object[]} [params.capabilities] - Optional capabilities for responsibility derivation
- * @param {import('@forwardimpact/map/levels').JobValidationRules} [params.validationRules] - Optional validation rules
- * @returns {import('@forwardimpact/map/levels').JobDefinition|null} The job definition or null if invalid
- */
+/** Create a complete job definition from discipline, level, and optional track. */
 export function deriveJob({
   discipline,
   level,
@@ -361,7 +303,13 @@ export function deriveJob({
     return null;
   }
 
-  const skillMatrix = deriveSkillMatrix({ discipline, level, track, skills });
+  const skillMatrix = deriveSkillMatrix({
+    discipline,
+    level,
+    track,
+    skills,
+    capabilities,
+  });
   const behaviourProfile = deriveBehaviourProfile({
     discipline,
     level,

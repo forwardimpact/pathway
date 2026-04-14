@@ -107,33 +107,30 @@ export function compareBySkillPriority(a, b) {
 }
 
 /**
- * Create a skill priority comparator that uses capability ordinalRank
- * as the final tie-breaker instead of alphabetical name.
+ * Compare skills by level (desc), then type (asc), then capabilityRank (asc)
  *
- * Ordering: level descending → type ascending → capability ordinalRank ascending
+ * Used for agent profile skill focusing where capability ordinalRank
+ * determines tie-breaking instead of alphabetical name. Requires
+ * capabilityRank on each skill matrix entry (set by deriveSkillMatrix).
  *
- * @param {Object[]} capabilities - Loaded capabilities array with ordinalRank
- * @returns {(a: Object, b: Object) => number} Comparator function
+ * @param {Object} a - First skill entry (with capabilityRank)
+ * @param {Object} b - Second skill entry (with capabilityRank)
+ * @returns {number} Comparison result
  */
-export function createSkillPriorityComparator(capabilities) {
-  const capOrder = getCapabilityOrder(capabilities);
-  return (a, b) => {
-    // Level descending (higher level first)
-    const levelDiff =
-      getSkillProficiencyIndex(b.proficiency) -
-      getSkillProficiencyIndex(a.proficiency);
-    if (levelDiff !== 0) return levelDiff;
+export function compareBySkillFocusPriority(a, b) {
+  // Level descending (higher level first)
+  const levelDiff =
+    getSkillProficiencyIndex(b.proficiency) -
+    getSkillProficiencyIndex(a.proficiency);
+  if (levelDiff !== 0) return levelDiff;
 
-    // Type ascending (primary first)
-    const typeA = ORDER_SKILL_TYPE.indexOf(a.type);
-    const typeB = ORDER_SKILL_TYPE.indexOf(b.type);
-    if (typeA !== typeB) return typeA - typeB;
+  // Type ascending (primary first)
+  const typeA = ORDER_SKILL_TYPE.indexOf(a.type);
+  const typeB = ORDER_SKILL_TYPE.indexOf(b.type);
+  if (typeA !== typeB) return typeA - typeB;
 
-    // Capability ordinalRank ascending (higher-ranked capabilities first)
-    const capA = a.capability || "";
-    const capB = b.capability || "";
-    return capOrder.indexOf(capA) - capOrder.indexOf(capB);
-  };
+  // Capability ordinalRank ascending (higher-ranked capabilities first)
+  return (a.capabilityRank || 0) - (b.capabilityRank || 0);
 }
 
 /**

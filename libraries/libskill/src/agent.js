@@ -92,8 +92,20 @@ export function toKebabCase(id) {
  * @param {Array} params.skills - All available skills
  * @returns {Array} Skills sorted by derived level (highest first)
  */
-export function deriveAgentSkills({ discipline, track, level, skills }) {
-  const skillMatrix = deriveSkillMatrix({ discipline, level, track, skills });
+export function deriveAgentSkills({
+  discipline,
+  track,
+  level,
+  skills,
+  capabilities = [],
+}) {
+  const skillMatrix = deriveSkillMatrix({
+    discipline,
+    level,
+    track,
+    skills,
+    capabilities,
+  });
   const filtered = filterAgentSkills(skillMatrix);
   return sortAgentSkills(filtered);
 }
@@ -305,8 +317,14 @@ export function generateAgentProfile({
   agentDiscipline,
   agentTrack,
 }) {
-  const allSkills = deriveAgentSkills({ discipline, track, level, skills });
-  const focusedSkills = focusAgentSkills(allSkills, capabilities);
+  const allSkills = deriveAgentSkills({
+    discipline,
+    track,
+    level,
+    skills,
+    capabilities,
+  });
+  const focusedSkills = focusAgentSkills(allSkills);
   const derivedBehaviours = deriveAgentBehaviours({
     discipline,
     track,

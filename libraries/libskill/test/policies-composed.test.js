@@ -24,6 +24,7 @@ function skill(overrides = {}) {
     skillId: "testing",
     skillName: "Testing",
     capability: "delivery",
+    capabilityRank: 1,
     type: "primary",
     proficiency: "working",
     isHumanOnly: false,
@@ -167,13 +168,6 @@ describe("composed", () => {
   });
 
   describe("focusAgentSkills", () => {
-    const capabilities = [
-      { id: "delivery", ordinalRank: 1 },
-      { id: "scale", ordinalRank: 2 },
-      { id: "reliability", ordinalRank: 3 },
-      { id: "ai", ordinalRank: 4 },
-    ];
-
     test("returns top N skills by priority", () => {
       // Create more than LIMIT_AGENT_PROFILE_SKILLS entries
       const matrix = [
@@ -181,95 +175,95 @@ describe("composed", () => {
           skillName: "A",
           type: "primary",
           proficiency: "expert",
-          capability: "delivery",
+          capabilityRank: 1,
         }),
         skill({
           skillName: "B",
           type: "secondary",
           proficiency: "expert",
-          capability: "scale",
+          capabilityRank: 2,
         }),
         skill({
           skillName: "C",
           type: "broad",
           proficiency: "expert",
-          capability: "reliability",
+          capabilityRank: 3,
         }),
         skill({
           skillName: "D",
           type: "primary",
           proficiency: "working",
-          capability: "delivery",
+          capabilityRank: 1,
         }),
         skill({
           skillName: "E",
           type: "secondary",
           proficiency: "working",
-          capability: "scale",
+          capabilityRank: 2,
         }),
         skill({
           skillName: "F",
           type: "broad",
           proficiency: "working",
-          capability: "reliability",
+          capabilityRank: 3,
         }),
         skill({
           skillName: "G",
           type: "primary",
           proficiency: "practitioner",
-          capability: "delivery",
+          capabilityRank: 1,
         }),
         skill({
           skillName: "H",
           type: "secondary",
           proficiency: "practitioner",
-          capability: "scale",
+          capabilityRank: 2,
         }),
         skill({
           skillName: "I",
           type: "broad",
           proficiency: "practitioner",
-          capability: "ai",
+          capabilityRank: 4,
         }),
       ];
-      const result = focusAgentSkills(matrix, capabilities);
+      const result = focusAgentSkills(matrix);
       assert.strictEqual(result.length, LIMIT_AGENT_PROFILE_SKILLS);
       // First should be expert primary (highest priority)
       assert.strictEqual(result[0].skillName, "A");
     });
 
-    test("uses capability ordinalRank to break ties within same level and type", () => {
+    test("uses capabilityRank to break ties within same level and type", () => {
       const matrix = [
         skill({
           skillName: "Z-Reliability",
           type: "primary",
           proficiency: "expert",
-          capability: "reliability",
+          capabilityRank: 3,
         }),
         skill({
           skillName: "A-AI",
           type: "primary",
           proficiency: "expert",
-          capability: "ai",
+          capabilityRank: 4,
         }),
         skill({
           skillName: "M-Delivery",
           type: "primary",
           proficiency: "expert",
-          capability: "delivery",
+          capabilityRank: 1,
         }),
         skill({
           skillName: "B-Scale",
           type: "primary",
           proficiency: "expert",
-          capability: "scale",
+          capabilityRank: 2,
         }),
       ];
-      const result = focusAgentSkills(matrix, capabilities);
-      // Should be ordered by capability ordinalRank, not alphabetically
+      const result = focusAgentSkills(matrix);
+      // Should be ordered by capabilityRank, not alphabetically
       assert.deepStrictEqual(
-        result.map((e) => e.capability),
-        ["delivery", "scale", "reliability", "ai"],
+        result.map((e) => e.capabilityRank),
+        [1, 2, 3, 4],
       );
     });
 
@@ -278,7 +272,7 @@ describe("composed", () => {
         skill({ skillName: "A", type: "primary", proficiency: "expert" }),
         skill({ skillName: "B", type: "secondary", proficiency: "working" }),
       ];
-      const result = focusAgentSkills(matrix, capabilities);
+      const result = focusAgentSkills(matrix);
       assert.strictEqual(result.length, 2);
     });
 
@@ -288,7 +282,7 @@ describe("composed", () => {
         skill({ skillName: "A", type: "primary", proficiency: "expert" }),
       ];
       const original = [...matrix];
-      focusAgentSkills(matrix, capabilities);
+      focusAgentSkills(matrix);
       assert.deepStrictEqual(matrix, original);
     });
   });

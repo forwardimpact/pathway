@@ -1,7 +1,9 @@
 /**
  * Agent builder preview components
  *
- * Preview panel for agent generation (single profile per discipline/track).
+ * Preview panel for agent generation. Derives data per discipline/track
+ * combination, then assembles a single unified layout with consolidated
+ * Agents, Skills, and Toolkit sections.
  */
 
 import { div, h2, h3, p, section } from "../lib/render.js";
@@ -9,9 +11,11 @@ import {
   generateAgentProfile,
   generateSkillMarkdown,
   deriveAgentSkills,
+  interpolateTeamInstructions,
 } from "@forwardimpact/libskill/agent";
 import { deriveToolkit } from "@forwardimpact/libskill/toolkit";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
+import { formatTeamInstructions } from "../formatters/agent/team-instructions.js";
 import {
   formatAgentSkill,
   formatInstallScript,
@@ -20,7 +24,6 @@ import {
 import { createFileCard } from "../components/file-card.js";
 import { createToolkitTable } from "../formatters/toolkit/dom.js";
 import { createDetailSection } from "../components/detail.js";
-import { createDownloadSingleButton } from "./agent-builder-download.js";
 
 /**
  * Build a file card for a skill with 1-3 file panes (accordion).
@@ -72,60 +75,12 @@ function buildSkillFileCard(skill, templates) {
 }
 
 /**
- * Create a skills section for the preview
- * @param {Array} skillFiles
- * @param {Object} templates
- * @returns {HTMLElement}
- */
-function createSkillsSection(skillFiles, templates) {
-  return section(
-    { className: "agent-section" },
-    h2({}, `Skills (${skillFiles.length})`),
-    skillFiles.length > 0
-      ? div(
-          { className: "skill-cards-grid" },
-          ...skillFiles.map((skill) => buildSkillFileCard(skill, templates)),
-        )
-      : p(
-          { className: "text-muted" },
-          "No skills with agent sections found for this discipline.",
-        ),
-  );
-}
-
-/**
- * Derive skill files and toolkit from context
+ * Derive agent data for a single discipline/track combination.
+ * Returns raw data; does not build DOM.
  * @param {Object} context
- * @returns {{derivedSkills: Array, skillFiles: Array, toolkit: Array}}
+ * @returns {{profile: Object, skillFiles: Array, toolkit: Array, teamInstructionsContent: string|null}}
  */
-function deriveSkillData(context) {
-  const { humanDiscipline, humanTrack, level, skills } = context;
-  const derivedSkills = deriveAgentSkills({
-    discipline: humanDiscipline,
-    track: humanTrack,
-    level,
-    skills,
-  });
-
-  const skillFiles = derivedSkills
-    .map((d) => skills.find((s) => s.id === d.skillId))
-    .filter((skill) => skill?.agent)
-    .map((skill) => generateSkillMarkdown({ skillData: skill }));
-
-  const toolkit = deriveToolkit({
-    skillMatrix: derivedSkills,
-    skills,
-  });
-
-  return { derivedSkills, skillFiles, toolkit };
-}
-
-/**
- * Create preview for an agent (single profile per discipline/track)
- * @param {Object} context
- * @returns {{preview: HTMLElement, profile: Object, skillFiles: Array}}
- */
-export function createAgentPreview(context) {
+export function deriveAgentData(context) {
   const {
     humanDiscipline,
     humanTrack,
@@ -136,7 +91,6 @@ export function createAgentPreview(context) {
     capabilities,
     behaviours,
     agentBehaviours,
-    claudeCodeSettings,
     templates,
   } = context;
 
@@ -152,22 +106,87 @@ export function createAgentPreview(context) {
     agentTrack,
   });
 
-  const { skillFiles, toolkit } = deriveSkillData(context);
+  const derivedSkills = deriveAgentSkills({
+    discipline: humanDiscipline,
+    track: humanTrack,
+    level,
+    skills,
+    capabilities,
+  });
 
-  const preview = div(
+  const skillFiles = derivedSkills
+    .map((d) => skills.find((s) => s.id === d.skillId))
+    .filter((skill) => skill?.agent)
+    .map((skill) => generateSkillMarkdown({ skillData: skill }));
+
+  const toolkit = deriveToolkit({
+    skillMatrix: derivedSkills,
+    skills,
+  });
+
+  const teamInstructions = interpolateTeamInstructions({
+    agentTrack,
+    humanDiscipline,
+  });
+  const teamInstructionsContent = teamInstructions
+    ? formatTeamInstructions(teamInstructions, templates.claude)
+    : null;
+
+  return { profile, skillFiles, toolkit, teamInstructionsContent };
+}
+
+/**
+ * Build the unified preview layout from collected agent data.
+ * @param {Object} params
+ * @param {Array} params.profiles - All agent profiles
+ * @param {Array} params.skillFiles - Deduplicated skill files
+ * @param {Array} params.toolkit - Deduplicated toolkit entries
+ * @param {string|null} params.teamInstructionsContent - Rendered CLAUDE.md
+ * @param {Object} params.templates - Mustache templates
+ * @param {HTMLElement} params.downloadButton - Download button element
+ * @returns {HTMLElement}
+ */
+export function createTeamPreview({
+  profiles,
+  skillFiles,
+  toolkit,
+  teamInstructionsContent,
+  templates,
+  downloadButton,
+}) {
+  return div(
     { className: "agent-deployment" },
-    createDownloadSingleButton(
-      profile,
-      skillFiles,
-      claudeCodeSettings,
-      templates,
-    ),
+    downloadButton,
+    teamInstructionsContent
+      ? section(
+          { className: "agent-section" },
+          h2({}, "Team Instructions"),
+          div(
+            { className: "agent-cards-grid single" },
+            createFileCard({
+              header: [h3({}, "CLAUDE.md")],
+              files: [
+                {
+                  filename: ".claude/CLAUDE.md",
+                  content: teamInstructionsContent,
+                  language: "markdown",
+                },
+              ],
+              maxHeight: 400,
+            }),
+          ),
+        )
+      : null,
     section(
       { className: "agent-section" },
-      h2({}, "Agent"),
+      h2({}, `Agents (${profiles.length})`),
       div(
-        { className: "agent-cards-grid single" },
-        (() => {
+        {
+          className: profiles.length === 1
+            ? "agent-cards-grid single"
+            : "agent-cards-grid",
+        },
+        ...profiles.map((profile) => {
           const content = formatAgentProfile(profile, templates.agent);
           return createFileCard({
             header: [h3({}, profile.frontmatter.name)],
@@ -176,10 +195,22 @@ export function createAgentPreview(context) {
             ],
             maxHeight: 400,
           });
-        })(),
+        }),
       ),
     ),
-    createSkillsSection(skillFiles, templates),
+    section(
+      { className: "agent-section" },
+      h2({}, `Skills (${skillFiles.length})`),
+      skillFiles.length > 0
+        ? div(
+            { className: "skill-cards-grid" },
+            ...skillFiles.map((skill) => buildSkillFileCard(skill, templates)),
+          )
+        : p(
+            { className: "text-muted" },
+            "No skills with agent sections found.",
+          ),
+    ),
     toolkit.length > 0
       ? createDetailSection({
           title: `Tool Kit (${toolkit.length})`,
@@ -187,8 +218,6 @@ export function createAgentPreview(context) {
         })
       : null,
   );
-
-  return { preview, profile, skillFiles };
 }
 
 /**
