@@ -12,11 +12,11 @@ summaries left behind hours earlier.
 This creates three visible problems in the wiki:
 
 - **No shared direction.** Each agent independently assesses its domain every
-  run, but nobody decides _what the team should focus on_. The
-  security-engineer may spend Tuesday auditing CI/CD while the staff-engineer is
-  implementing a spec that will restructure CI/CD — because neither knew the
-  other's intent. Individual assessment (spec 450) solved _per-agent_ planning;
-  it did not solve _cross-agent_ planning.
+  run, but nobody decides _what the team should focus on_. The security-engineer
+  may spend Tuesday auditing CI/CD while the staff-engineer is implementing a
+  spec that will restructure CI/CD — because neither knew the other's intent.
+  Individual assessment (spec 450) solved _per-agent_ planning; it did not solve
+  _cross-agent_ planning.
 
 - **Slow feedback loops.** The "Observations for Teammates" pattern in wiki
   summaries works, but observations routinely sit for days before the target
@@ -34,14 +34,14 @@ This creates three visible problems in the wiki:
   cannot build process behavior charts that reveal whether a process is stable
   or reacting to special causes.
 
-The Toyota Kata model prescribes a specific discipline: understand the
-direction (challenge), grasp the current condition (measured), establish a
-target condition (measurable), identify obstacles, and run experiments (PDSA
-cycles). The daily Kata Storyboard meeting reviews progress through five
-structured questions — not status updates. Spec 450 gave agents the ability to
-grasp _their own_ current condition. This spec gives the _team_ the structures
-needed to practice Toyota Kata as a team: a shared storyboard, measured data,
-and a disciplined daily review.
+The Toyota Kata model prescribes a specific discipline: understand the direction
+(challenge), grasp the current condition (measured), establish a target
+condition (measurable), identify obstacles, and run experiments (PDSA cycles).
+The daily Kata Storyboard meeting reviews progress through five structured
+questions — not status updates. Spec 450 gave agents the ability to grasp _their
+own_ current condition. This spec gives the _team_ the structures needed to
+practice Toyota Kata as a team: a shared storyboard, measured data, and a
+disciplined daily review.
 
 ## Proposal
 
@@ -96,8 +96,8 @@ mandate them.
 
 - Data format specification (schema, field types, appending rules)
 - Storage convention (directory structure, file naming, partitioning)
-- Metric design guidance: prefer counts and durations over ratios; prefer
-  direct measurements over derived values; keep metric names stable across runs
+- Metric design guidance: prefer counts and durations over ratios; prefer direct
+  measurements over derived values; keep metric names stable across runs
 - Process behavior chart guidance: how to read XmR charts, how natural process
   limits are computed from the data itself, how to distinguish signal from noise
 
@@ -193,22 +193,22 @@ Every entry-point kata skill (14 total) gains two things:
    mandates. Agents discover the most useful metrics through practice — the
    reference file seeds initial ideas. Examples of what each file might suggest:
 
-   | Skill                    | Example metric suggestions                                    |
-   | ------------------------ | ------------------------------------------------------------- |
-   | kata-security-audit      | open_vulnerabilities, days_since_topic_audit, findings_count  |
-   | kata-security-update     | dependabot_pr_backlog, time_to_resolve, merge_success_rate    |
-   | kata-release-readiness   | prs_waiting, consecutive_stuck_count, rebase_failures         |
-   | kata-release-review      | unreleased_changes, days_since_release, publish_failures      |
-   | kata-product-triage      | open_issues, issues_triaged_per_run, spec_conversion_count    |
-   | kata-product-classify    | open_prs, prs_merged_per_run, blocked_pr_count                |
-   | kata-product-evaluation  | friction_points_found, tasks_completed_ratio                  |
-   | kata-documentation       | pages_reviewed, accuracy_errors, days_since_topic_review      |
-   | kata-wiki-curate         | stale_observations, summary_corrections, log_hygiene_issues   |
-   | kata-grasp               | traces_analyzed, findings_per_trace, invariant_pass_rate      |
-   | kata-spec                | specs_in_backlog, days_in_draft                               |
-   | kata-design              | designs_in_backlog, days_in_draft                             |
-   | kata-plan                | plans_in_backlog, days_in_draft                               |
-   | kata-implement           | steps_completed, blockers_encountered, plan_deviation_count   |
+   | Skill                   | Example metric suggestions                                   |
+   | ----------------------- | ------------------------------------------------------------ |
+   | kata-security-audit     | open_vulnerabilities, days_since_topic_audit, findings_count |
+   | kata-security-update    | dependabot_pr_backlog, time_to_resolve, merge_success_rate   |
+   | kata-release-readiness  | prs_waiting, consecutive_stuck_count, rebase_failures        |
+   | kata-release-review     | unreleased_changes, days_since_release, publish_failures     |
+   | kata-product-triage     | open_issues, issues_triaged_per_run, spec_conversion_count   |
+   | kata-product-classify   | open_prs, prs_merged_per_run, blocked_pr_count               |
+   | kata-product-evaluation | friction_points_found, tasks_completed_ratio                 |
+   | kata-documentation      | pages_reviewed, accuracy_errors, days_since_topic_review     |
+   | kata-wiki-curate        | stale_observations, summary_corrections, log_hygiene_issues  |
+   | kata-grasp              | traces_analyzed, findings_per_trace, invariant_pass_rate     |
+   | kata-spec               | specs_in_backlog, days_in_draft                              |
+   | kata-design             | designs_in_backlog, days_in_draft                            |
+   | kata-plan               | plans_in_backlog, days_in_draft                              |
+   | kata-implement          | steps_completed, blockers_encountered, plan_deviation_count  |
 
 2. **Metric recording in "Memory: what to record"** — Each entry-point skill's
    memory section gains a metric recording step referencing the `kata-metrics`
@@ -221,15 +221,15 @@ Every entry-point kata skill (14 total) gains two things:
 ### Agent profile changes
 
 All six existing agent profiles (security-engineer, technical-writer,
-product-manager, staff-engineer, release-engineer, improvement-coach) gain a
-new Assess step 0 that reads the current month's storyboard and weights
-priority assessment toward actions that advance the team's target condition.
+product-manager, staff-engineer, release-engineer, improvement-coach) gain a new
+Assess step 0 that reads the current month's storyboard and weights priority
+assessment toward actions that advance the team's target condition.
 
 This step is advisory, not directive. The storyboard informs the agent's
 assessment but does not override it. If an agent discovers an urgent condition
 during its Assess phase (e.g., a critical CVE), it acts on that regardless of
-what the storyboard says — urgency always wins. The agent notes the deviation
-in its decision log with rationale.
+what the storyboard says — urgency always wins. The agent notes the deviation in
+its decision log with rationale.
 
 The improvement-coach profile additionally gains `kata-metrics` in its skill
 list. The coach needs to read metrics across all agents when analyzing traces
@@ -237,10 +237,10 @@ and assessing whether experiments are producing measurable improvement — this 
 cross-agent analysis that goes beyond what individual entry-point skills record
 for their own domain.
 
-The new facilitator agent profile references `kata-storyboard` as its skill.
-The meeting procedure lives in the skill (not inline in the profile), keeping
-the profile focused on persona and constraints while making the protocol
-reusable for future 1-on-1 coaching.
+The new facilitator agent profile references `kata-storyboard` as its skill. The
+meeting procedure lives in the skill (not inline in the profile), keeping the
+profile focused on persona and constraints while making the protocol reusable
+for future 1-on-1 coaching.
 
 ### Workflow scheduling
 
@@ -386,8 +386,9 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
 
 ## Success Criteria
 
-1. **`kata-metrics` skill** exists with CSV schema, storage convention, recording
-   protocol, metric design guidance, and process behavior chart guidance.
+1. **`kata-metrics` skill** exists with CSV schema, storage convention,
+   recording protocol, metric design guidance, and process behavior chart
+   guidance.
 2. **`kata-storyboard` skill** exists with the five-question meeting protocol
    (planning and review modes), storyboard artifact template, and checklists.
 3. **Monthly storyboard creation** — the `kata-storyboard` skill includes
@@ -402,9 +403,8 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
    recording step in their "Memory: what to record" section.
 7. **Agent profiles** — all six existing profiles (security-engineer,
    technical-writer, product-manager, staff-engineer, release-engineer,
-   improvement-coach) include an Assess step 0 that reads the monthly
-   storyboard and weights priority assessment toward target-condition-aligned
-   actions.
+   improvement-coach) include an Assess step 0 that reads the monthly storyboard
+   and weights priority assessment toward target-condition-aligned actions.
 8. **Facilitator profile** exists at
    `.claude/agents/daily-meeting-facilitator.md` with `kata-storyboard` as its
    skill.
