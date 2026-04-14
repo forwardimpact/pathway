@@ -21,7 +21,7 @@
         "fit-process-agents": "./bin/fit-process-agents.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libdoc": "^0.2.0",
         "@forwardimpact/libsecret": "^0.1.3",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -45,7 +45,7 @@
         "fit-codegen": "./bin/fit-codegen.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libstorage": "^0.1.53",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libutil": "^0.1.64",
@@ -75,7 +75,7 @@
         "fit-doc": "./bin/fit-doc.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@hono/node-server": "^1.19.13",
         "hono": "^4.12.12",
@@ -175,7 +175,7 @@
         "fit-window": "./bin/fit-window.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libindex": "^0.1.27",
       },
       "devDependencies": {
@@ -206,7 +206,7 @@
         "fit-rc": "./bin/fit-rc.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libsupervise": "^0.1.6",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -256,7 +256,7 @@
         "fit-unary": "./bin/fit-unary.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libutil": "^0.1.60",
@@ -304,7 +304,7 @@
         "fit-svscan": "./bin/fit-svscan.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.22",
       },
       "devDependencies": {
@@ -379,7 +379,7 @@
         "fit-process-tools": "./bin/fit-process-tools.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libresource": "^0.1.89",
         "@forwardimpact/libstorage": "^0.1.53",
         "@forwardimpact/libtelemetry": "^0.1.22",
@@ -414,7 +414,7 @@
         "fit-universe": "./bin/fit-universe.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libconfig": "^0.1.59",
         "@forwardimpact/libllm": "^0.1.72",
         "@forwardimpact/libprompt": "^0.1.0",
@@ -454,7 +454,7 @@
         "fit-search": "./bin/fit-search.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libindex": "^0.1.27",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "@forwardimpact/libtype": "^0.1.63",
@@ -493,7 +493,7 @@
         "fit-guide": "./bin/fit-guide.js",
       },
       "dependencies": {
-        "@forwardimpact/libcli": "workspace:*",
+        "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libcodegen": "^0.1.32",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librc": "^0.1.16",
@@ -522,7 +522,7 @@
       },
       "dependencies": {
         "@forwardimpact/libcli": "^0.1.0",
-        "@forwardimpact/libskill": "^4.1.7",
+        "@forwardimpact/libskill": "^5.0.0",
         "@forwardimpact/libtelemetry": "^0.1.33",
         "@forwardimpact/libutil": "^0.1.72",
         "@forwardimpact/map": "^0.15.18",
@@ -561,7 +561,7 @@
       },
       "dependencies": {
         "@forwardimpact/libcli": "^0.1.0",
-        "@forwardimpact/libskill": "^4.0.0",
+        "@forwardimpact/libskill": "^5.0.0",
         "@forwardimpact/libtelemetry": "^0.1.33",
         "@forwardimpact/libtemplate": "^0.2.0",
         "@forwardimpact/libui": "^1.0.0",
@@ -579,7 +579,7 @@
       },
       "dependencies": {
         "@forwardimpact/libcli": "^0.1.0",
-        "@forwardimpact/libskill": "^4.1.7",
+        "@forwardimpact/libskill": "^5.0.0",
         "@forwardimpact/libtelemetry": "^0.1.33",
         "@forwardimpact/libutil": "^0.1.72",
         "@forwardimpact/map": "^0.15.18",
@@ -649,7 +649,7 @@
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librpc": "^0.1.77",
-        "@forwardimpact/libskill": "^4.1.5",
+        "@forwardimpact/libskill": "^5.0.0",
         "@forwardimpact/libtelemetry": "^0.1.30",
         "@forwardimpact/libtype": "^0.1.67",
         "@forwardimpact/libutil": "^0.1.64",
@@ -721,6 +721,8 @@
   },
   "overrides": {
     "@anthropic-ai/sdk": "^0.81.0",
+    "@hono/node-server": "^1.19.13",
+    "hono": "^4.12.12",
     "lodash": "^4.18.0",
   },
   "packages": {
@@ -1895,10 +1897,6 @@
     "@eslint-community/eslint-utils/eslint-visitor-keys": ["eslint-visitor-keys@3.4.3", "", {}, "sha512-wpc+LXeiyiisxPlEkUzU6svyS1frIO3Mgxj1fdy7Pm8Ygzguax2N3Fa/D/ag1WqbOprdI+uY6wMUl8/a2G+iag=="],
 
     "@forwardimpact/libskill/@forwardimpact/map": ["@forwardimpact/map@0.13.0", "", { "dependencies": { "ajv": "^8.17.1", "ajv-formats": "^3.0.1", "yaml": "^2.3.4" }, "bin": { "fit-map": "bin/fit-map.js" } }, "sha512-ucjZB4UXjkXCTU+abr1syfNw8ZK+Ak10hgBF3I7dp9fC0wxyNXrEmGLJl2pwGkaDW1mp01EOr/Bwm+tw1Dj0eQ=="],
-
-    "@modelcontextprotocol/sdk/@hono/node-server": ["@hono/node-server@1.19.12", "", { "peerDependencies": { "hono": "^4" } }, "sha512-txsUW4SQ1iilgE0l9/e9VQWmELXifEFvmdA1j6WFh/aFPj99hIntrSsq/if0UWyGVkmrRPKA1wCeP+UCr1B9Uw=="],
-
-    "@modelcontextprotocol/sdk/hono": ["hono@4.12.10", "", {}, "sha512-mx/p18PLy5og9ufies2GOSUqep98Td9q4i/EF6X7yJgAiIopxqdfIO3jbqsi3jRgTgw88jMDEzVKi+V2EF+27w=="],
 
     "@modelcontextprotocol/sdk/zod": ["zod@4.3.6", "", {}, "sha512-rftlrkhHZOcjDwkGlnUtZZkvaPHCsDATp4pGpuOOMDaTdDDXF91wuVDJoWoPsKX/3YPQ5fHuF3STjcYyKr+Qhg=="],
 
