@@ -32,7 +32,6 @@ Paths are relative to `products/map/` (published as `@forwardimpact/map`).
 | Capabilities | What capability area?     | `capabilities/{id}.yaml` | `schema/json/capability.schema.json`  |
 | Skills       | What can you do?          | `capabilities/{id}.yaml` | (within capability schema)            |
 | Behaviours   | How do you approach work? | `behaviours/{id}.yaml`   | `schema/json/behaviour.schema.json`   |
-| Stages       | What lifecycle phase?     | `stages.yaml`            | `schema/json/stages.schema.json`      |
 | Drivers      | What outcomes matter?     | `drivers.yaml`           | `schema/json/drivers.schema.json`     |
 | Questions    | How do you assess this?   | `questions/{type}/`      | `schema/json/*-questions.schema.json` |
 
@@ -221,33 +220,6 @@ agent:
     Identify assumptions, dependencies, and risks explicitly.
 ```
 
-### Stage
-
-```yaml
-- id: code
-  name: Code
-  emojiIcon: "\U0001F4BB"
-  description: >
-    You implement the solution and write tests. Follow the plan
-    from the previous stage.
-  summary: Implements solutions and writes tests
-  constraints:
-    - Do not change architecture decisions made during planning
-  readChecklist:
-    - Read the plan or specification
-    - Identify affected files and dependencies
-  confirmChecklist:
-    - All tests pass
-    - Code follows project conventions
-  returnFormat:
-    - List of files changed
-    - Test results summary
-  handoffs:
-    - targetStage: review
-      label: Request Review
-      prompt: Implementation complete and tests passing.
-```
-
 ### Driver
 
 ```yaml
@@ -265,17 +237,16 @@ agent:
 
 ## ID Patterns
 
-| Entity     | Pattern           | Example                                       |
-| ---------- | ----------------- | --------------------------------------------- |
-| Level      | `[A-Z][A-Z0-9]*`  | L1, L2, L3                                    |
-| Discipline | `[a-z][a-z0-9_]*` | software_engineering                          |
-| Track      | `[a-z][a-z0-9_]*` | platform                                      |
-| Capability | `[a-z][a-z0-9_]*` | delivery                                      |
-| Skill      | `[a-z][a-z0-9_]*` | ci_cd                                         |
-| Behaviour  | `[a-z][a-z0-9_]*` | analytical_thinking                           |
-| Driver     | `[a-z][a-z0-9_]*` | quality                                       |
-| Stage      | Fixed enum        | specify, plan, scaffold, code, review, deploy |
-| Agent name | `[a-z][a-z0-9-]*` | ci-cd (kebab-case)                            |
+| Entity     | Pattern           | Example              |
+| ---------- | ----------------- | -------------------- |
+| Level      | `[A-Z][A-Z0-9]*`  | L1, L2, L3           |
+| Discipline | `[a-z][a-z0-9_]*` | software_engineering |
+| Track      | `[a-z][a-z0-9_]*` | platform             |
+| Capability | `[a-z][a-z0-9_]*` | delivery             |
+| Skill      | `[a-z][a-z0-9_]*` | ci_cd                |
+| Behaviour  | `[a-z][a-z0-9_]*` | analytical_thinking  |
+| Driver     | `[a-z][a-z0-9_]*` | quality              |
+| Agent name | `[a-z][a-z0-9-]*` | ci-cd (kebab-case)   |
 
 ---
 

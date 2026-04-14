@@ -12,7 +12,7 @@ toc: false
 ### CLI Reference
 
 Commands, arguments, and options for fit-map, fit-pathway, fit-basecamp,
-fit-summit, fit-universe, and fit-doc.
+fit-guide, fit-landmark, fit-summit, fit-universe, fit-doc, and fit-rc.
 
 </a>
 
@@ -29,8 +29,8 @@ behaviours, and drivers. How they combine into job definitions.
 
 ### Lifecycle
 
-The six engineering stages — specify, plan, scaffold, code, review, deploy —
-with handoffs, constraints, and checklists.
+The engineering lifecycle — specify, plan, scaffold, code, review, deploy — with
+handoffs, constraints, and checklists.
 
 </a>
 

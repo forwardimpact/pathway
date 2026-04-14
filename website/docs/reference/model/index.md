@@ -16,18 +16,17 @@ responsibilities all derived from the same source data.
 
 **Job Definition** = Discipline x Track x Level
 
-**Agent Profile** = Discipline x Track x Stage
+**Agent Profile** = Discipline x Track
 
-| Input          | Question                    |
-| -------------- | --------------------------- |
-| **Discipline** | What kind of engineer?      |
-| **Track**      | Where and how do you work?  |
-| **Level**      | What career level?          |
-| **Stage**      | What part of the lifecycle? |
+| Input          | Question                   |
+| -------------- | -------------------------- |
+| **Discipline** | What kind of engineer?     |
+| **Track**      | Where and how do you work? |
+| **Level**      | What career level?         |
 
 Both jobs and agents use the same skill and behaviour derivation. The
 difference: jobs include all skills capped by level, while agents filter out
-human-only skills and constrain by lifecycle stage.
+human-only skills.
 
 ---
 
@@ -56,7 +55,6 @@ erDiagram
 | **Skill**      | Technical or professional capability              | What can you do?          |
 | **Capability** | Skill grouping for modifiers and responsibilities | What capability area?     |
 | **Behaviour**  | Approach to work and mindset                      | How do you approach work? |
-| **Stage**      | Lifecycle phase with constraints and handoffs     | What part of the process? |
 | **Driver**     | Organizational outcome                            | What outcomes matter?     |
 
 ---
@@ -73,13 +71,13 @@ flowchart LR
     awareness --> foundational --> working --> practitioner --> expert
 ```
 
-| Proficiency  | Typical Levels | Description                            |
-| ------------ | -------------- | -------------------------------------- |
-| awareness    | L1             | Learning fundamentals, needs guidance  |
-| foundational | L1--L2         | Applies basics independently           |
-| working      | L2--L3         | Solid competence, handles ambiguity    |
-| practitioner | L3--L4         | Deep expertise, leads and mentors      |
-| expert       | L5+            | Authority, shapes direction across org |
+| Proficiency  | Description                            |
+| ------------ | -------------------------------------- |
+| awareness    | Learning fundamentals, needs guidance  |
+| foundational | Applies basics independently           |
+| working      | Solid competence, handles ambiguity    |
+| practitioner | Deep expertise, leads and mentors      |
+| expert       | Authority, shapes direction across org |
 
 ### Human-Only Skills
 
@@ -165,13 +163,12 @@ Tracks define two kinds of modifiers:
 Levels define career levels with base expectations for skill proficiency and
 behaviour maturity:
 
-| Level | Primary      | Secondary    | Broad        | Base Behaviour |
-| ----- | ------------ | ------------ | ------------ | -------------- |
-| L1    | foundational | awareness    | awareness    | emerging       |
-| L2    | foundational | foundational | awareness    | emerging       |
-| L3    | practitioner | working      | foundational | developing     |
-| L4    | expert       | practitioner | working      | practicing     |
-| L5    | expert       | expert       | practitioner | role_modeling  |
+The starter framework ships with two levels. Your framework may define more.
+
+| Level | Primary      | Secondary    | Broad     | Base Behaviour |
+| ----- | ------------ | ------------ | --------- | -------------- |
+| J040  | foundational | awareness    | awareness | emerging       |
+| J060  | working      | foundational | awareness | developing     |
 
 ---
 
@@ -184,8 +181,8 @@ behaviour maturity:
    tiers: core (primary), supporting (secondary), or broad.
 
 2. **Get base proficiency** -- Look up the level's base proficiency for that
-   skill type. For example, L3 maps primary skills to `practitioner`, secondary
-   to `working`, and broad to `foundational`.
+   skill type. For example, J060 maps primary skills to `working`, secondary to
+   `foundational`, and broad to `awareness`.
 
 3. **Apply track modifier** -- Add the track's modifier for the skill's
    capability. Track modifiers apply at the capability level, affecting all
@@ -200,19 +197,18 @@ behaviour maturity:
 
 ### Complete Derivation Example
 
-| Input      | Value                                                            |
-| ---------- | ---------------------------------------------------------------- |
-| Discipline | Software Engineering                                             |
-| Level      | L3 (primary=practitioner, secondary=working, broad=foundational) |
-| Track      | Platform (delivery: +1, scale: -1)                               |
-| Skill      | CI/CD (capability: delivery, tier: supportingSkills)             |
+| Input      | Value                                                           |
+| ---------- | --------------------------------------------------------------- |
+| Discipline | Software Engineering                                            |
+| Level      | J060 (primary=working, secondary=foundational, broad=awareness) |
+| Track      | Platform (delivery: +1, reliability: +1)                        |
+| Skill      | Task Completion (capability: delivery, tier: supportingSkills)  |
 
 1. **Skill type**: secondary (supporting skill)
-2. **Base proficiency**: working (index 2)
+2. **Base proficiency**: foundational (index 1)
 3. **Modifier**: +1 (delivery capability)
-4. **Cap check**: practitioner (index 3) <= max base practitioner (index 3) --
-   OK
-5. **Result**: practitioner
+4. **Cap check**: working (index 2) <= max base working (index 2) -- OK
+5. **Result**: working
 
 ---
 
