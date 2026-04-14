@@ -71,8 +71,8 @@ smaller per-agent contexts, and cleaner traces.
 
 Other concrete use cases: red-team/blue-team security evaluations (attacker and
 defender agents with a facilitator judging outcomes), multi-persona user testing
-(agents simulating different user types simultaneously), and parallel exploration
-of alternative approaches to the same problem.
+(agents simulating different user types simultaneously), and parallel
+exploration of alternative approaches to the same problem.
 
 The supervised relay loop cannot support this. It is fundamentally a two-party,
 single-threaded protocol.
@@ -95,10 +95,10 @@ Add three capabilities to libeval:
 
 ### Execution Modes After This Spec
 
-| Mode | Participants | Communication | Use case |
-|---|---|---|---|
-| `run` | 1 agent | None (autonomous) | CI tasks, single-agent evaluation |
-| `supervise` | 1 supervisor + 1 agent | Tool-based relay (synchronous) | Guided evaluation, product testing |
+| Mode         | Participants             | Communication                       | Use case                               |
+| ------------ | ------------------------ | ----------------------------------- | -------------------------------------- |
+| `run`        | 1 agent                  | None (autonomous)                   | CI tasks, single-agent evaluation      |
+| `supervise`  | 1 supervisor + 1 agent   | Tool-based relay (synchronous)      | Guided evaluation, product testing     |
 | `facilitate` | 1 facilitator + N agents | Tool-based messaging (asynchronous) | Group evaluation, parallel exploration |
 
 ### Orchestration Tools
@@ -143,8 +143,8 @@ agent-to-agent questions use `SendMessage`.
 
 **Available to:** facilitator, agents (facilitate mode only)
 
-Returns `[{ name, role }]` for all participants in the session. Allows agents
-to discover who else is working on the task and address messages to specific
+Returns `[{ name, role }]` for all participants in the session. Allows agents to
+discover who else is working on the task and address messages to specific
 participants.
 
 #### `Broadcast({ message })`
@@ -181,16 +181,16 @@ facilitator distributes initial assignments, and agents activate as messages
 arrive.
 
 **Facilitator serialization.** Only one thing talks to the facilitator at a
-time. If multiple agents call `RequestGuidance` concurrently, the requests
-queue and the facilitator handles them one at a time. This avoids interleaving
+time. If multiple agents call `RequestGuidance` concurrently, the requests queue
+and the facilitator handles them one at a time. This avoids interleaving
 multiple conversations in the facilitator's context.
 
 **Facilitator observation.** The facilitator does not watch agent output
 streams. It relies on agents to surface relevant information via broadcasts and
 direct messages. This is the "less active than supervision" quality — the
 facilitator trusts agents to communicate, and only intervenes when things go
-wrong. (Stream-level visibility over an agent is supervision, not
-facilitation — and is explicitly out of scope.)
+wrong. (Stream-level visibility over an agent is supervision, not facilitation —
+and is explicitly out of scope.)
 
 ### Trace Requirements
 
@@ -201,8 +201,8 @@ facilitation — and is explicitly out of scope.)
   `Broadcast`, `SendMessage`) must appear as standard `tool_use`/`tool_result`
   events within the participant's stream — visible to `TraceCollector` and
   downstream parsers without special-case handling.
-- Message delivery, session start/stop, and completion events must be emitted
-  by the orchestrator so the coordination sequence is visible in the trace.
+- Message delivery, session start/stop, and completion events must be emitted by
+  the orchestrator so the coordination sequence is visible in the trace.
 - Supervise-mode traces must remain compatible with the existing
   `{ source, turn, event }` wrapper format.
 
@@ -226,9 +226,8 @@ old tokens.
   tokens.
 - **`fit-eval facilitate` command.** New CLI subcommand for multi-agent
   facilitated sessions.
-- **Facilitate-mode tools.** `ListParticipants`, `Broadcast`, `SendMessage`
-  plus `Complete`, `Intervene`, `RequestGuidance` adapted for multi-party
-  semantics.
+- **Facilitate-mode tools.** `ListParticipants`, `Broadcast`, `SendMessage` plus
+  `Complete`, `Intervene`, `RequestGuidance` adapted for multi-party semantics.
 - **Trace format for facilitate mode.** Per-participant source names and
   orchestrator coordination events.
 - **Deprecation path for text tokens.** Legacy detection kept as fallback with
@@ -247,8 +246,8 @@ old tokens.
   duration only.
 - **Changes to `fit-eval run`.** The single-agent mode is unaffected.
 - **Changes to `TraceCollector` parsing.** The collector already handles the
-  `{ source, turn, event }` wrapper. Facilitate-mode traces use the same
-  wrapper shape with participant names as source values.
+  `{ source, turn, event }` wrapper. Facilitate-mode traces use the same wrapper
+  shape with participant names as source values.
 
 ## Success Criteria
 
@@ -304,8 +303,8 @@ old tokens.
    structure and is deferred to the plan.
 
 2. **Facilitator idle behavior.** When no agents are calling `RequestGuidance`
-   and no messages are arriving, should the facilitator's session stay active
-   or suspend until there is something to respond to? Active sessions waste LLM
+   and no messages are arriving, should the facilitator's session stay active or
+   suspend until there is something to respond to? Active sessions waste LLM
    calls; suspension requires an explicit wake mechanism.
 
 3. **Agent failure isolation.** If one agent's session errors out in facilitate
