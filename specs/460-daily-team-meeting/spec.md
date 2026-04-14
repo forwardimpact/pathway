@@ -1,4 +1,4 @@
-# Spec 460 — Daily Team Meeting
+# Spec 460 — Kata Storyboard and Metrics
 
 ## Problem
 
@@ -11,8 +11,8 @@ summaries left behind hours earlier.
 
 This creates three visible problems in the wiki:
 
-- **No shared plan.** Each agent independently assesses its domain every run,
-  but nobody decides _what the team should focus on this week_. The
+- **No shared direction.** Each agent independently assesses its domain every
+  run, but nobody decides _what the team should focus on_. The
   security-engineer may spend Tuesday auditing CI/CD while the staff-engineer is
   implementing a spec that will restructure CI/CD — because neither knew the
   other's intent. Individual assessment (spec 450) solved _per-agent_ planning;
@@ -25,158 +25,267 @@ This creates three visible problems in the wiki:
   communication channel is "write a note, hope they read it tomorrow,"
   cross-agent feedback degrades into a suggestion box.
 
-- **No weekly rhythm.** The wiki already uses ISO weeks for log files, and each
-  agent's coverage map reveals weekly patterns. But there is no artifact that
-  captures _what the team intends to accomplish this week_ versus _what each
-  agent happened to pick on its own_. Without a shared plan, there is no way to
-  distinguish "we chose to defer this" from "nobody noticed it."
+- **No measured conditions.** Agents describe their domain state in prose —
+  "coverage is improving," "backlog is manageable," "CI is healthy." But Toyota
+  Kata requires _measured_ conditions: numbers that reveal whether experiments
+  are working. Without time-series data, the improvement kata questions ("what
+  is the actual condition now?") produce narrative answers instead of evidence.
+  The team cannot distinguish signal from noise, cannot detect trends, and
+  cannot build process behavior charts that reveal whether a process is stable
+  or reacting to special causes.
 
-The Toyota Kata model prescribes team-level target conditions, not just
-individual ones. Spec 450 gave agents the ability to grasp their own current
-condition and choose their next experiment. This spec gives the _team_ the
-ability to establish a shared target condition for the week and review progress
-toward it daily.
+The Toyota Kata model prescribes a specific discipline: understand the
+direction (challenge), grasp the current condition (measured), establish a
+target condition (measurable), identify obstacles, and run experiments (PDSA
+cycles). The daily Kata Storyboard meeting reviews progress through five
+structured questions — not status updates. Spec 450 gave agents the ability to
+grasp _their own_ current condition. This spec gives the _team_ the structures
+needed to practice Toyota Kata as a team: a shared storyboard, measured data,
+and a disciplined daily review.
 
 ## Proposal
 
-Add a **daily team meeting** workflow that runs before individual agent
-workflows. The meeting uses the `facilitate` execution mode from spec 440 to
-bring all six agents together with a facilitator. The meeting produces and
-maintains a **weekly plan** (`wiki/plan-W{VV}.md`) — a shared artifact that
-individual agents consult during their Assess phase.
+Three additions form a cohesive system: a data recording protocol that all kata
+skills use (`kata-metrics`), a structured meeting skill built on that data
+(`kata-storyboard`), and holistic updates to every entry-point kata skill to
+participate in data collection.
 
 ```
 Current:  Agent wakes → reads wiki → assesses own domain → acts
-Proposed: Meeting runs → team reviews/creates plan → agents wake → read plan → assess → act
+Proposed: Agents record metrics → Meeting reviews storyboard → agents read storyboard → assess → act
 ```
 
-### Meeting structure
+### kata-metrics — Time-series data recording
 
-The facilitator runs a structured agenda. The meeting has two modes depending on
-whether a weekly plan already exists for the current ISO week.
+A new utility skill defining the protocol for recording measured data across all
+kata workflows. Like `kata-gh-cli`, it is a reference skill that other skills
+consume — no agent's Assess phase routes to it as a primary action.
 
-**Monday (or first meeting of the week) — Planning meeting:**
+**CSV format.** Each data point is one row:
 
-1. **Roll call** — Facilitator discovers participants.
-2. **Status round** — Each agent shares a brief status: what they accomplished
-   since last meeting, any blockers, and any observations for teammates. Agents
-   read their own summary and the current week's log to prepare this.
-3. **Review last week** — If a plan from the prior week exists
-   (`plan-W{VV-1}.md`), the facilitator asks agents to assess which items were
-   completed, deferred, or abandoned. Each agent responds for its own items.
-4. **Identify priorities** — The facilitator asks each agent to propose its top
-   priorities for the week based on current domain state.
-5. **Resolve dependencies** — The facilitator identifies cross-agent
-   dependencies from the proposed priorities and coordinates directly between
-   affected agents. For example, if the staff-engineer plans to implement a spec
-   that touches CI, the facilitator coordinates with the release-engineer on
-   sequencing.
-6. **Write the plan** — The facilitator synthesizes priorities into
-   `wiki/plan-W{VV}.md` and concludes the meeting.
+```csv
+date,metric,value,unit,run_id,context
+2026-04-14,open_vulnerabilities,3,count,12345,
+2026-04-14,days_since_audit_cicd,12,days,12345,lowest coverage topic
+2026-04-15,open_vulnerabilities,2,count,12346,resolved CVE-2026-1234
+```
 
-**Tuesday–Sunday — Daily review meeting:**
+Fields:
 
-1. **Roll call** — Same as above.
-2. **Status round** — Each agent shares brief status: what they did since
-   yesterday, any new blockers.
-3. **Plan review** — The facilitator reads the current `plan-W{VV}.md` and asks
-   each agent to report progress on their items.
-4. **Adjust** — If priorities have shifted (e.g., a critical vulnerability
-   appeared, a blocking PR was merged), the facilitator updates the plan with
-   adjustments and rationale.
-5. **Conclude** — Facilitator writes any plan updates to the wiki and concludes
-   the meeting.
+- `date` — ISO 8601 date (YYYY-MM-DD)
+- `metric` — snake_case metric name, stable across runs (the time-series key)
+- `value` — numeric measurement
+- `unit` — measurement unit (`count`, `days`, `hours`, `percent`, `rate`)
+- `run_id` — GitHub Actions run ID for traceability (empty if not from a run)
+- `context` — optional free-text annotation for anomalies or notable events
 
-### Weekly plan format
+**Storage convention.** Metrics live in the wiki under a per-agent,
+per-domain directory structure, one file per calendar year:
 
-The weekly plan lives at `wiki/plan-W{VV}.md` (e.g., `plan-W16.md`) and follows
-a fixed structure:
+```
+wiki/metrics/{agent}/{domain}/YYYY.csv
+```
+
+Examples:
+
+- `wiki/metrics/security-engineer/audit/2026.csv`
+- `wiki/metrics/security-engineer/vulnerabilities/2026.csv`
+- `wiki/metrics/release-engineer/pr-readiness/2026.csv`
+- `wiki/metrics/product-manager/triage/2026.csv`
+- `wiki/metrics/technical-writer/documentation/2026.csv`
+- `wiki/metrics/improvement-coach/traces/2026.csv`
+- `wiki/metrics/staff-engineer/planning/2026.csv`
+
+One year per file keeps files manageable while providing enough sequential data
+points for meaningful control charts. Agents create files and directories as
+needed — the first metric recorded for a domain creates the path.
+
+**Recording protocol.** Every entry-point kata skill appends metrics at the end
+of each run, after completing its primary work but before updating the wiki
+summary. The recording step is part of the skill's "Memory: what to record"
+section. Agents choose which metrics to record based on what they observe during
+the run — the skill's `references/metrics.md` file suggests metrics but does not
+mandate them.
+
+**What the skill file contains:**
+
+- CSV schema specification (header, field types, quoting rules)
+- Storage convention (directory structure, file naming)
+- Recording procedure (when to append, how to handle missing files)
+- Guidance on metric design: prefer counts and durations over ratios; prefer
+  direct measurements over derived values; keep metric names stable across runs
+  so they form valid time series
+- Guidance on reading data for process behavior charts: individual values chart
+  (X chart), moving range chart (mR chart), how to compute natural process
+  limits from the data itself (average ± 2.66 × average moving range)
+
+**What the skill file does not contain:** specific metrics for any domain. Those
+live in each entry-point skill's `references/metrics.md`.
+
+### kata-storyboard — Team storyboard meeting
+
+A new entry-point skill defining the Toyota Kata Storyboard protocol for the
+daily team meeting. The facilitator agent profile references this skill instead
+of carrying an inline meeting procedure. This makes the protocol reusable — a
+future 1-on-1 coaching skill could share the same storyboard structure.
+
+**The storyboard artifact.** The team maintains a monthly storyboard at
+`wiki/storyboard-YYYY-M{MM}.md` (e.g., `storyboard-2026-M04.md`). Monthly
+cadence matches the natural rhythm of target conditions — long enough to run
+meaningful experiments, short enough to force regular reassessment.
 
 ```markdown
-# Team Plan — 2026-W16
+# Team Storyboard — 2026-04
 
-ISO week 2026-W16 (Mon 2026-04-13 -- Sun 2026-04-19).
+## Challenge
 
-## Team Priorities
+What we are working toward. The challenge is the long-term direction that gives
+meaning to target conditions and experiments. It changes rarely — only when the
+team's strategic direction shifts.
 
-Ordered by impact. Items higher in the list take precedence when agents must
-choose between competing actions during their individual Assess phase.
+> [Challenge statement — 1-2 sentences expressing the team's overarching goal]
 
-1. Land spec 440 implementation (staff-engineer; unblocks facilitate mode)
-2. Cut releases for 6 packages pending on main (release-engineer)
-3. Resolve protobufjs compatibility blocker (security-engineer)
-4. Complete product evaluation for Basecamp (product-manager)
+## Target Condition
 
-## Agent Focus Areas
+The measurable state we aim to reach by the end of this month. The target
+condition is not a task list — it is a description of how the system will
+behave differently, expressed in terms that can be verified with data.
 
-### security-engineer
-- [ ] Resolve protobufjs compatibility blocker (carry-forward from W15)
-- [ ] Audit CI/CD topic (lowest coverage)
+> [Target condition statement — measurable, time-bound, verifiable]
 
-### technical-writer
-- [ ] Review codegen internals for accuracy
-- [ ] Follow up on stale teammate observations
+Target date: YYYY-MM-DD
 
-### product-manager
-- [ ] Complete Basecamp product evaluation
-- [ ] Triage new issues from evaluation findings
+## Current Condition
 
-### staff-engineer
-- [ ] Implement spec 440 part 01 (infrastructure)
-- [ ] Implement spec 440 part 02 (supervisor migration)
+The measured state as of the last storyboard review. Updated daily during the
+meeting using data from wiki/metrics/. The current condition is always
+expressed with numbers, not narratives.
 
-### release-engineer
-- [ ] Cut pending releases after spec 440 lands
-- [ ] Monitor CI health after implementation PRs merge
+Last updated: YYYY-MM-DD
 
-### improvement-coach
-- [ ] Analyze staff-engineer traces from spec implementation
-- [ ] Check decision-quality invariants from spec 450
+> [Current condition — measured values from metrics CSVs, compared to target]
 
-## Dependencies
+## Obstacles
 
-- staff-engineer spec 440 implementation blocks release-engineer releases
-- security-engineer protobufjs resolution blocks technical-writer from
-  clearing the stale observation
+What stands between the current condition and the target condition. Obstacles
+are discovered through experiments, not predicted upfront. The list grows and
+shrinks as experiments reveal what is actually in the way.
 
-## Carry-Forward
+1. [Obstacle — discovered, not hypothetical]
+2. ...
 
-Items deferred from prior week with rationale.
+**Currently addressing:** Obstacle N
 
-- (none) | (items from W15 plan review)
+## Experiments
 
-## Daily Notes
+PDSA cycles run against the current obstacle. Each experiment has an expected
+outcome recorded _before_ running it, and an actual outcome recorded _after_.
 
-### Monday
-Plan created. [summary of planning discussion]
-
-### Tuesday
-[Status updates, adjustments, rationale for changes]
+### Experiment N — [short name]
+- **Obstacle:** Which obstacle this addresses
+- **Plan:** What we will try and what we expect to happen
+- **Do:** What actually happened (filled in after)
+- **Study:** What did we learn? Did the result match our expectation?
+- **Act:** What is the next step based on this learning?
+- **Date:** YYYY-MM-DD
 ```
+
+**The five coaching kata questions.** The daily meeting is structured around
+these questions, not status updates:
+
+1. **What is the target condition?** — Facilitator reads the target condition
+   from the storyboard. Grounds the conversation in where the team is headed.
+2. **What is the actual condition now?** — Each agent reports measured data from
+   their domain's metrics CSVs. The facilitator updates the Current Condition
+   section with fresh numbers.
+3. **What obstacles are preventing us from reaching the target condition?** —
+   Agents identify obstacles from their domain. The facilitator updates the
+   Obstacles list and asks which obstacle the team is currently addressing.
+4. **What is the next step? What do you expect?** — For the obstacle currently
+   being addressed, agents propose their next experiment. The expected outcome
+   is recorded _before_ the experiment runs.
+5. **When can we see what we learned from that step?** — Establishes when the
+   experiment's results will be visible (next meeting, end of week, after a
+   specific workflow run).
+
+**Meeting modes.** The meeting has two modes depending on storyboard state:
+
+- **First meeting of the month (or no storyboard exists)** — Planning meeting.
+  The facilitator leads the team through establishing the challenge (if new),
+  setting the target condition, measuring the current condition, identifying
+  initial obstacles, and planning the first experiment. Creates
+  `wiki/storyboard-YYYY-M{MM}.md`.
+- **All other meetings** — Review meeting. The facilitator walks through the
+  five questions, updates the current condition with fresh metrics, records
+  experiment outcomes, and starts the next experiment cycle.
+
+**What the skill file contains:**
+
+- The five-question meeting protocol (planning mode and review mode)
+- Storyboard artifact format and template
+- Instructions for reading metrics CSVs during the meeting
+- Guidance on writing good target conditions (measurable, time-bound)
+- Guidance on identifying obstacles (discovered through data, not hypothesized)
+- Guidance on designing experiments (expected outcome stated before running)
+- Checklists: read-do for meeting preparation, do-confirm for meeting conclusion
+
+### Holistic kata skill updates
+
+Every entry-point kata skill (13 total) gains two things:
+
+1. **`references/metrics.md`** — A new reference file suggesting domain-specific
+   metrics the agent should consider tracking. These are suggestions, not
+   mandates. Agents discover the most useful metrics through practice — the
+   reference file seeds initial ideas. Examples of what each file might suggest:
+
+   | Skill                    | Example metric suggestions                                    |
+   | ------------------------ | ------------------------------------------------------------- |
+   | kata-security-audit      | open_vulnerabilities, days_since_topic_audit, findings_count  |
+   | kata-security-update     | dependabot_pr_backlog, time_to_resolve, merge_success_rate    |
+   | kata-release-readiness   | prs_waiting, consecutive_stuck_count, rebase_failures         |
+   | kata-release-review      | unreleased_changes, days_since_release, publish_failures      |
+   | kata-product-triage      | open_issues, issues_triaged_per_run, spec_conversion_count    |
+   | kata-product-classify    | open_prs, prs_merged_per_run, blocked_pr_count                |
+   | kata-product-evaluation  | friction_points_found, tasks_completed_ratio                  |
+   | kata-documentation       | pages_reviewed, accuracy_errors, days_since_topic_review      |
+   | kata-wiki-curate         | stale_observations, summary_corrections, log_hygiene_issues   |
+   | kata-grasp               | traces_analyzed, findings_per_trace, invariant_pass_rate      |
+   | kata-spec                | specs_in_backlog, days_in_draft                               |
+   | kata-design              | designs_in_backlog, days_in_draft                             |
+   | kata-plan                | plans_in_backlog, days_in_draft                               |
+   | kata-implement           | steps_completed, blockers_encountered, plan_deviation_count   |
+
+2. **Metric recording in "Memory: what to record"** — Each skill's existing
+   memory section gains a final bullet: "Append metrics to
+   `wiki/metrics/{agent}/{domain}/YYYY.csv` per the `kata-metrics` protocol."
+   The specific metrics recorded per run are the agent's choice, informed by the
+   skill's `references/metrics.md`.
 
 ### Agent profile changes
 
 Each agent's **Assess** section gains a new top-level step before the existing
 priority framework:
 
-> 0. **Read the weekly plan.** Check `wiki/plan-W{VV}.md` for this ISO week. If
->    it exists, review your focus areas and the team priorities. Weight your
->    priority assessment toward items that appear in the plan. If no plan
+> 0. **Read the storyboard.** Check `wiki/storyboard-YYYY-M{MM}.md` for this
+>    month. If it exists, review the target condition, current obstacle, and any
+>    experiments relevant to your domain. Weight your priority assessment toward
+>    actions that advance the team toward the target condition. If no storyboard
 >    exists, proceed with your standard priority framework.
 
-This is advisory, not directive. The plan informs the agent's assessment but
-does not override it. If an agent discovers an urgent condition during its
-Assess phase (e.g., a critical CVE), it acts on that regardless of what the plan
-says — urgency always wins. The agent notes the deviation in its decision log
-with rationale.
+This is advisory, not directive. The storyboard informs the agent's assessment
+but does not override it. If an agent discovers an urgent condition during its
+Assess phase (e.g., a critical CVE), it acts on that regardless of what the
+storyboard says — urgency always wins. The agent notes the deviation in its
+decision log with rationale.
 
-The weekly plan is a _shared target condition_, not a task list. It tells agents
-what the team agreed matters most, so that when an agent faces a choice between
-two roughly-equal priority actions, it picks the one aligned with the team plan.
+The facilitator agent profile gains `kata-storyboard` as its skill. The meeting
+procedure moves from the profile into the skill, keeping the profile focused on
+persona and constraints.
 
 ### Workflow scheduling
 
-The daily meeting runs before all individual agent workflows:
+The daily meeting runs before all individual agent workflows. Schedule unchanged
+from the original proposal:
 
 | Workflow          | Schedule            | Mode       |
 | ----------------- | ------------------- | ---------- |
@@ -188,121 +297,160 @@ The daily meeting runs before all individual agent workflows:
 | release-engineer  | Daily 08:43 UTC     | run        |
 | improvement-coach | Wed & Sat 10:47 UTC | run        |
 
-The meeting runs at 03:00 UTC — over an hour before the first individual
-workflow. This gives the plan time to be committed and pushed to the wiki before
-agents start reading it. The meeting must complete within the same 30-minute
-timeout used by individual agent workflows.
-
-### Facilitator profile
-
-A new agent profile `daily-meeting-facilitator.md` defines the facilitator role.
-The facilitator is not a seventh team member — it is a coordination role that
-runs only during the meeting. It has no domain ownership, no `kata-*` skills,
-and no Assess section. Its meeting procedure is defined entirely in the agent
-profile (not in a skill file) because the procedure is specific to this role and
-never reused elsewhere. The facilitator's purpose is to:
-
-1. Run the meeting agenda (planning or review, depending on whether a plan
-   exists for the current week)
-2. Read all agent summaries and the current week's logs to arrive with full
-   context
-3. Elicit status and priorities from each agent
-4. Identify and resolve cross-agent dependencies
-5. Write or update the weekly plan in the wiki
-6. Keep the meeting focused and time-bounded
-
 ### What this is really about
 
-The kata system is named after Toyota Kata because it follows the same
-improvement pattern: understand the direction, grasp the current condition,
-establish the next target condition, and experiment toward it. Spec 450 gave
-individual agents the ability to grasp _their own_ current condition and choose
-_their own_ next experiment. But Toyota Kata is a _team_ practice — the target
-condition is shared, the experiments are coordinated, and the daily coaching
-cycle keeps the team aligned.
+Toyota Kata is not a meeting format — it is a practice pattern. The storyboard
+is the visual management tool that makes the pattern tangible: challenge,
+current condition, target condition, obstacles, experiments. The five questions
+are the coaching protocol that keeps practitioners honest — no narrative status
+updates, only measured conditions and expected outcomes compared to actual
+outcomes.
 
-The daily meeting is the team-level coaching cycle. The weekly plan is the
-shared target condition. The individual agent runs are the experiments. The
-meeting creates a feedback loop that is faster than passive wiki reading (hours,
-not days) and more structured than "Observations for Teammates" (agenda-driven,
-not ad hoc).
+The previous version of this spec proposed a standup-format meeting with a
+weekly task list. That format replicates the same antipattern Toyota Kata was
+designed to replace: meetings where people report what they did instead of
+examining whether their process is improving. The storyboard format forces the
+team to measure, predict, and learn.
 
-This is not about adding ceremony. The meeting is short — status round plus plan
-review or creation. It is about giving the team a mechanism to _collectively
-decide_ what matters, rather than having six agents independently guess. The
-weekly plan makes implicit priorities explicit and implicit dependencies
-visible.
+The metrics infrastructure makes this possible. Without recorded data, the five
+questions produce the same prose answers agents already write in wiki summaries.
+With CSV time series per domain, agents can answer "what is the actual condition
+now?" with numbers, plot trends over time, and build process behavior charts
+that distinguish stable processes from ones reacting to special causes.
+
+This is not about adding ceremony. The daily meeting is short — five questions,
+data-grounded answers. It is about giving the team the structures Toyota Kata
+prescribes for systematic improvement: a shared challenge, measured conditions,
+deliberate experiments, and a daily review cycle that keeps everyone aligned.
 
 ### What does not change
 
 - **Individual agent autonomy.** Agents still assess their own domain and choose
-  their own action. The plan informs, it does not command.
-- **Skills.** No kata skills are modified. The meeting is a new workflow using
-  facilitate mode, not a new skill.
+  their own action. The storyboard informs, it does not command.
 - **Fix-or-spec discipline.** Unchanged.
 - **Trust boundary.** The product manager remains the sole external merge point.
 - **Trace capture.** The meeting produces its own trace artifact.
-- **Wiki file format.** Summaries and weekly logs are unchanged. The plan is a
-  new file type added alongside them.
+- **Wiki summaries and weekly logs.** Unchanged. Metrics are a new file type
+  added alongside them, not a replacement.
 - **Decision logging.** Agents still log Surveyed/Alternatives/Chosen/Rationale.
-  The plan becomes one of the things surveyed.
+  The storyboard becomes one of the things surveyed.
+
+### Future extensions
+
+- **1-on-1 Kata Coaching sessions.** The improvement coach could run facilitated
+  1-on-1 sessions with individual agents, walking through the five questions
+  against that agent's domain-specific storyboard. The `kata-storyboard` skill
+  is designed to be reusable for this purpose. This is a natural next step but
+  out of scope for this spec.
 
 ## Scope
 
 ### Affected
 
-- `.github/workflows/` — new `daily-meeting.yml` workflow using facilitate mode
-- `.claude/agents/daily-meeting-facilitator.md` — new facilitator agent profile
-  (coordination role, no domain skills)
-- `.claude/agents/security-engineer.md` — Assess step 0 (read weekly plan)
+**New skill files:**
+
+- `.claude/skills/kata-storyboard/SKILL.md` — storyboard meeting skill
+- `.claude/skills/kata-storyboard/references/storyboard-template.md` — artifact
+  template
+- `.claude/skills/kata-metrics/SKILL.md` — metrics recording protocol
+- `.claude/skills/kata-metrics/references/csv-schema.md` — CSV format
+  specification
+- `.claude/skills/kata-metrics/references/control-charts.md` — process behavior
+  chart guidance
+
+**New reference files in existing skills (13 entry-point skills):**
+
+- `.claude/skills/kata-security-audit/references/metrics.md`
+- `.claude/skills/kata-security-update/references/metrics.md`
+- `.claude/skills/kata-release-readiness/references/metrics.md`
+- `.claude/skills/kata-release-review/references/metrics.md`
+- `.claude/skills/kata-product-triage/references/metrics.md`
+- `.claude/skills/kata-product-classify/references/metrics.md`
+- `.claude/skills/kata-product-evaluation/references/metrics.md`
+- `.claude/skills/kata-documentation/references/metrics.md`
+- `.claude/skills/kata-wiki-curate/references/metrics.md`
+- `.claude/skills/kata-grasp/references/metrics.md`
+- `.claude/skills/kata-spec/references/metrics.md`
+- `.claude/skills/kata-design/references/metrics.md`
+- `.claude/skills/kata-plan/references/metrics.md`
+- `.claude/skills/kata-implement/references/metrics.md`
+
+**Modified skill files (13 entry-point SKILL.md files):**
+
+- Each gains a metric recording bullet in "Memory: what to record"
+
+**New and modified agent profiles:**
+
+- `.claude/agents/daily-meeting-facilitator.md` — new facilitator profile with
+  `kata-storyboard` skill
+- `.claude/agents/security-engineer.md` — Assess step 0 (read storyboard)
 - `.claude/agents/technical-writer.md` — Assess step 0
 - `.claude/agents/product-manager.md` — Assess step 0
 - `.claude/agents/staff-engineer.md` — Assess step 0
 - `.claude/agents/release-engineer.md` — Assess step 0
-- `.claude/agents/improvement-coach.md` — Assess step 0
-- `wiki/MEMORY.md` — document `plan-W{VV}.md` file convention
-- `KATA.md` — add daily meeting to Workflows table, describe team planning
+- `.claude/agents/improvement-coach.md` — Assess step 0, add `kata-metrics` to
+  skill list
+
+**New workflow:**
+
+- `.github/workflows/daily-meeting.yml` — daily meeting using facilitate mode
+
+**Documentation:**
+
+- `wiki/MEMORY.md` — document storyboard and metrics conventions
+- `KATA.md` — add storyboard meeting to Workflows table, add Metrics section,
+  describe the five-question protocol
+
+**Wiki directory structure (created at runtime):**
+
+- `wiki/metrics/{agent}/{domain}/` — created by agents as they record metrics
+- `wiki/storyboard-YYYY-M{MM}.md` — created by facilitator during planning
+  meetings
 
 ### Excluded
 
-- Skill content (`kata-*/SKILL.md`) — no skill changes
 - `kata-action` composite action — may need a facilitate mode variant, but that
-  is an implementation detail for the design phase, not a spec concern
-- `fit-eval` CLI — facilitate mode already specified in spec 440
+  is an implementation detail for the design phase
+- `fit-eval` CLI — facilitate mode already implemented (spec 440)
 - Individual agent scheduling — times unchanged
-- Invariants — the improvement coach already audits decision quality; the
-  meeting's contribution to decision quality is indirect (better-informed agents
-  make better decisions) rather than a new invariant to check
+- Utility/leaf skills (`kata-review`, `kata-ship`, `kata-gh-cli`) — no metrics
+  sections; they are not entry-point skills
+- 1-on-1 coaching sessions — future extension noted above
 
 ## Dependencies
 
 - **Spec 440 (facilitate mode)** — the meeting requires the `facilitate`
-  execution mode and its orchestration tools. Both specs are already implemented
-  (`plan implemented` in STATUS).
-- **Spec 450 (agent-centered workflows)** — the Assess framework that the plan
-  integrates into.
+  execution mode and its orchestration tools (`plan implemented` in STATUS).
+- **Spec 450 (agent-centered workflows)** — the Assess framework that the
+  storyboard integrates into (`plan implemented` in STATUS).
 
 ## Success Criteria
 
-1. **Daily meeting workflow** exists at `.github/workflows/daily-meeting.yml`,
-   scheduled at 03:00 UTC daily, using facilitate mode with all six agents and a
-   facilitator.
-2. **Facilitator profile** exists at
-   `.claude/agents/daily-meeting-facilitator.md` with a structured meeting
-   agenda covering both planning and review modes.
-3. **Weekly plan creation** — the facilitator profile includes instructions to
-   create `wiki/plan-W{VV}.md` when none exists for the current ISO week, with
-   sections: Team Priorities, Agent Focus Areas (with checkboxes), Dependencies,
-   Carry-Forward, Daily Notes.
-4. **Plan review** — the facilitator profile includes instructions to review the
-   existing `plan-W{VV}.md` on subsequent meetings: note progress, update
-   checkboxes, and record adjustments with rationale in the Daily Notes section.
-5. **Agent profiles** each include an Assess step 0 that reads the weekly plan
-   and weights priority assessment toward plan-aligned items.
-6. **MEMORY.md** documents the `plan-W{VV}.md` convention alongside the existing
-   summary and weekly log conventions.
-7. **KATA.md** includes the daily meeting in the Workflows table and describes
-   the team planning cycle.
-8. **Meeting trace** is captured as an NDJSON artifact, giving the improvement
-   coach visibility into meeting quality.
-9. **`bun run check` and `bun run test` pass** with no regressions.
+1. **`kata-metrics` skill** exists with CSV schema, storage convention, recording
+   protocol, metric design guidance, and process behavior chart guidance.
+2. **`kata-storyboard` skill** exists with the five-question meeting protocol
+   (planning and review modes), storyboard artifact template, and checklists.
+3. **Monthly storyboard creation** — the `kata-storyboard` skill includes
+   instructions to create `wiki/storyboard-YYYY-M{MM}.md` with sections:
+   Challenge, Target Condition, Current Condition, Obstacles, Experiments.
+4. **Storyboard review** — the skill includes instructions to walk through the
+   five coaching kata questions, update the current condition with measured data
+   from metrics CSVs, record experiment outcomes, and plan next experiments.
+5. **Metrics reference files** — all 13 entry-point kata skills carry a
+   `references/metrics.md` suggesting domain-appropriate metrics.
+6. **Metric recording** — all 13 entry-point kata skills include a metric
+   recording step in their "Memory: what to record" section.
+7. **Agent profiles** each include an Assess step 0 that reads the monthly
+   storyboard and weights priority assessment toward target-condition-aligned
+   actions.
+8. **Facilitator profile** exists at
+   `.claude/agents/daily-meeting-facilitator.md` with `kata-storyboard` as its
+   skill.
+9. **Daily meeting workflow** exists at `.github/workflows/daily-meeting.yml`,
+   scheduled at 03:00 UTC daily, using facilitate mode.
+10. **MEMORY.md** documents both the `storyboard-YYYY-M{MM}.md` and
+    `wiki/metrics/` conventions.
+11. **KATA.md** includes the storyboard meeting, metrics infrastructure, and
+    five-question protocol.
+12. **Meeting trace** is captured as an NDJSON artifact.
+13. **`bun run check` and `bun run test` pass** with no regressions.
