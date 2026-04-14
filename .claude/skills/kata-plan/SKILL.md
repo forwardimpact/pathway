@@ -178,10 +178,10 @@ from prior `staff-engineer` entries.
 ### Steps
 
 1. **Find the spec.** A plan requires `design approved` in `specs/STATUS`. If
-   the spec is still at `spec draft`, `spec approved`, or `design draft`, stop
-   — the design must be approved first.
-2. **Study the spec and design.** Read `spec.md` and `design.md` end to end.
-   You should be able to restate the problem, scope, success criteria, and
+   the spec is still at `spec draft`, `spec approved`, or `design draft`, stop —
+   the design must be approved first.
+2. **Study the spec and design.** Read `spec.md` and `design.md` end to end. You
+   should be able to restate the problem, scope, success criteria, and
    architectural direction without referring back.
 3. **Research the codebase.** Read the files the plan will target. Verify
    current state matches what the spec assumes.

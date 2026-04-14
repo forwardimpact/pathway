@@ -61,9 +61,9 @@ optional.
    stop. Do not guess.
 
 2. **Read the artifact and directly relevant context.** For a design, read the
-   spec it targets. For a plan, read the spec and design it targets. For a
-   diff, read the spec, the design, the plan, and CONTRIBUTING.md § Core Rules.
-   Read once, fully, before grading.
+   spec it targets. For a plan, read the spec and design it targets. For a diff,
+   read the spec, the design, the plan, and CONTRIBUTING.md § Core Rules. Read
+   once, fully, before grading.
 
 3. **Grade against the artifact-specific criteria** in the section below. For
    each gap or risk, write one finding with:
@@ -107,8 +107,8 @@ and that skill's DO-CONFIRM checklist. Look for:
 ### plan-a.md (and parts)
 
 Match the qualities in
-[`kata-plan` § Writing a Plan](../kata-plan/SKILL.md#writing-a-plan-how--when) and
-that skill's DO-CONFIRM checklist. Look for:
+[`kata-plan` § Writing a Plan](../kata-plan/SKILL.md#writing-a-plan-how--when)
+and that skill's DO-CONFIRM checklist. Look for:
 
 - Approach and rationale stated before details
 - Concrete changes (file paths, function names, before/after)

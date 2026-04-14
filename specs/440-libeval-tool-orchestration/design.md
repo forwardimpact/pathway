@@ -22,22 +22,22 @@ graph TD
 ```
 
 Three new components. Two changed: `Supervisor` (architectural — tool-based
-signaling replaces regex) and `TraceCollector` (mechanical — `turn` field
-rename to `seq` in envelope unwrapping, no structural change).
+signaling replaces regex) and `TraceCollector` (mechanical — `turn` field rename
+to `seq` in envelope unwrapping, no structural change).
 
 ## OrchestrationToolkit
 
-Tool schemas, per-role tool sets, and handler factories wired to an
-orchestrator context object.
+Tool schemas, per-role tool sets, and handler factories wired to an orchestrator
+context object.
 
-| Tool | Input | Handler behaviour |
-|------|-------|-------------------|
-| `Conclude` | `{ summary }` | Sets `ctx.concluded`, records summary |
-| `Redirect` | `{ message, to? }` | Queues redirect in ctx, returns ack |
-| `Ask` | `{ question }` | Returns a Promise resolved by orchestrator |
-| `RollCall` | `{}` | Returns `[{ name, role }]` from ctx |
-| `Share` | `{ message }` | Posts to `ctx.messageBus`, returns ack |
-| `Tell` | `{ message, to }` | Posts direct to `ctx.messageBus`, returns ack |
+| Tool       | Input              | Handler behaviour                             |
+| ---------- | ------------------ | --------------------------------------------- |
+| `Conclude` | `{ summary }`      | Sets `ctx.concluded`, records summary         |
+| `Redirect` | `{ message, to? }` | Queues redirect in ctx, returns ack           |
+| `Ask`      | `{ question }`     | Returns a Promise resolved by orchestrator    |
+| `RollCall` | `{}`               | Returns `[{ name, role }]` from ctx           |
+| `Share`    | `{ message }`      | Posts to `ctx.messageBus`, returns ack        |
+| `Tell`     | `{ message, to }`  | Posts direct to `ctx.messageBus`, returns ack |
 
 **Per-role sets:** Supervisor gets Conclude + Redirect. Supervised agent gets
 Ask. Facilitator gets all six. Facilitated agent gets Ask + RollCall + Share +
@@ -62,13 +62,13 @@ instructions.
 
 **Signaling flows:**
 
-- **Conclude:** Supervisor calls tool. Handler sets `ctx.concluded`. Orchestrator
-  checks flag after each supervisor turn and terminates.
+- **Conclude:** Supervisor calls tool. Handler sets `ctx.concluded`.
+  Orchestrator checks flag after each supervisor turn and terminates.
 - **Redirect:** Supervisor calls tool. Handler queues redirect. Orchestrator
   aborts agent SDK session, resumes with redirect message — same abort/resume
   mechanics as today, triggered by handler instead of regex.
-- **Ask:** Agent calls tool. Handler returns a Promise (SDK blocks at tool call).
-  Orchestrator runs supervisor with the question. Supervisor responds.
+- **Ask:** Agent calls tool. Handler returns a Promise (SDK blocks at tool
+  call). Orchestrator runs supervisor with the question. Supervisor responds.
   Orchestrator resolves Promise. Agent receives answer as tool result.
 
 `onBatch` still fires at batch boundaries. Mid-turn prompt changes to "review
@@ -115,12 +115,12 @@ extend Supervisor — the relay loop doesn't generalize.
 
 In-memory per-participant message queues for facilitate mode.
 
-| Method | Behaviour |
-|--------|-----------|
-| `share(from, message)` | Copy to every other participant's queue |
-| `tell(from, to, message)` | Copy to one participant's queue |
-| `drain(participant)` | Return and clear pending messages |
-| `waitForMessages(participant)` | Resolve when at least one arrives |
+| Method                         | Behaviour                               |
+| ------------------------------ | --------------------------------------- |
+| `share(from, message)`         | Copy to every other participant's queue |
+| `tell(from, to, message)`      | Copy to one participant's queue         |
+| `drain(participant)`           | Return and clear pending messages       |
+| `waitForMessages(participant)` | Resolve when at least one arrives       |
 
 Messages: `{ from, text, direct: boolean }`. Facilitator sees shared messages
 but not agent-to-agent directs.
@@ -160,6 +160,6 @@ createMessageBus({ participants })
 ```
 
 **New exports:** `Facilitator`, `createFacilitator`, `MessageBus`,
-`createMessageBus`, orchestration tool schemas.
-**Removed exports:** `isComplete`, `isIntervention`.
-**CLI:** `fit-eval facilitate` — task, facilitator config, N agent configs.
+`createMessageBus`, orchestration tool schemas. **Removed exports:**
+`isComplete`, `isIntervention`. **CLI:** `fit-eval facilitate` — task,
+facilitator config, N agent configs.

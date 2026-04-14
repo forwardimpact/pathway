@@ -17,14 +17,27 @@ import { PassThrough } from "node:stream";
 import { AgentRunner } from "@forwardimpact/libeval";
 import { hasTextBlock } from "../src/agent-runner.js";
 
+async function dispatchTools(toolDispatcher, message) {
+  if (!toolDispatcher || message.type !== "assistant") return;
+  const content = message.message?.content ?? message.content ?? [];
+  if (!Array.isArray(content)) return;
+  for (const block of content) {
+    if (block.type === "tool_use" && toolDispatcher[block.name]) {
+      await toolDispatcher[block.name](block.input);
+    }
+  }
+}
+
 /**
  * Create a mock AgentRunner that yields pre-scripted responses. Each call
  * to `run()` or `resume()` pops the next response from the array.
  * @param {object[]} responses - Array of {text, success} objects
  * @param {object[]} [messages] - Messages to buffer per response
+ * @param {object} [opts]
+ * @param {Record<string, function>} [opts.toolDispatcher] - Map of tool name → async handler for orchestration tool calls
  * @returns {AgentRunner}
  */
-export function createMockRunner(responses, messages) {
+export function createMockRunner(responses, messages, { toolDispatcher } = {}) {
   const output = new PassThrough();
   let callIndex = 0;
 
@@ -43,6 +56,8 @@ export function createMockRunner(responses, messages) {
       runner.buffer.push(line);
       if (runner.onLine) runner.onLine(line);
       if (runner.onBatch) pendingBatch.push(line);
+
+      await dispatchTools(toolDispatcher, m);
 
       if (hasTextBlock(m)) {
         assistantTextCount++;

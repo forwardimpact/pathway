@@ -106,6 +106,7 @@ async #facilitatorLoop() {
 ```
 
 Event types:
+
 - **`ask`** — `{ type: "ask", from, question, resolve }` — an agent called
   `Ask`. The facilitator answers, and the handler resolves the agent's blocked
   Promise.
@@ -231,9 +232,9 @@ execution model — no two `emitLine` calls interleave.
 
 ### 1f. Redirect handling
 
-When the facilitator calls `Redirect({ to: "all", message })`, the handler
-sets `ctx.redirect`. The facilitator event loop checks `ctx.redirect` after
-each facilitator turn and broadcasts the redirect:
+When the facilitator calls `Redirect({ to: "all", message })`, the handler sets
+`ctx.redirect`. The facilitator event loop checks `ctx.redirect` after each
+facilitator turn and broadcasts the redirect:
 
 - `to: "all"` — abort all agent sessions, deliver redirect message via
   `messageBus.share("facilitator", message)`, resume agents
@@ -398,20 +399,20 @@ export async function runFacilitateCommand(values, _args) {
 
 **CLI options:**
 
-| Flag | Type | Description |
-|------|------|-------------|
-| `--task-file` | string | Path to task file |
-| `--task-text` | string | Inline task text |
-| `--task-amend` | string | Additional text appended to task |
-| `--model` | string | Claude model (default: opus) |
-| `--max-turns` | string | Max facilitator LLM turns (default: 20) |
-| `--output` | string | Write NDJSON trace to file |
-| `--facilitator-cwd` | string | Facilitator working directory |
-| `--facilitator-profile` | string | Facilitator agent profile name |
-| `--agents` | string | Agent configs (see format below) |
+| Flag                    | Type   | Description                             |
+| ----------------------- | ------ | --------------------------------------- |
+| `--task-file`           | string | Path to task file                       |
+| `--task-text`           | string | Inline task text                        |
+| `--task-amend`          | string | Additional text appended to task        |
+| `--model`               | string | Claude model (default: opus)            |
+| `--max-turns`           | string | Max facilitator LLM turns (default: 20) |
+| `--output`              | string | Write NDJSON trace to file              |
+| `--facilitator-cwd`     | string | Facilitator working directory           |
+| `--facilitator-profile` | string | Facilitator agent profile name          |
+| `--agents`              | string | Agent configs (see format below)        |
 
-**Agent config format:** Comma-separated `name:key=value` pairs. Each agent
-gets a name and optional overrides:
+**Agent config format:** Comma-separated `name:key=value` pairs. Each agent gets
+a name and optional overrides:
 
 ```
 --agents "explorer:cwd=/tmp/a:role=explorer,tester:cwd=/tmp/b:role=tester"
@@ -477,17 +478,17 @@ MessageBus integration tests within the Facilitator context:
 
 - **Share delivery:** Agent A calls `Share` → agent B sees it on next turn.
   Facilitator sees shared messages.
-- **Tell delivery:** Agent A calls `Tell(to: "agent-b")` → only agent-b
-  receives it. Facilitator does not see agent-to-agent directs.
+- **Tell delivery:** Agent A calls `Tell(to: "agent-b")` → only agent-b receives
+  it. Facilitator does not see agent-to-agent directs.
 - **RollCall:** Agent calls `RollCall` → receives participant list.
 - **Redirect all:** Facilitator calls `Redirect({ to: "all" })` → all agents
   interrupted and resumed.
 - **Redirect one:** Facilitator calls `Redirect({ to: "agent-1" })` → only
   agent-1 interrupted.
-- **Ask:** Agent calls `Ask` → facilitator receives question → answers →
-  agent's tool_result contains answer.
-- **Concurrent Ask:** Two agents call `Ask` simultaneously → facilitator
-  handles FIFO → both get answers.
+- **Ask:** Agent calls `Ask` → facilitator receives question → answers → agent's
+  tool_result contains answer.
+- **Concurrent Ask:** Two agents call `Ask` simultaneously → facilitator handles
+  FIFO → both get answers.
 
 ## Ordering
 
@@ -498,7 +499,6 @@ MessageBus integration tests within the Facilitator context:
 
 ## Verification
 
-`bun run --filter=@forwardimpact/libeval test` passes. The facilitate command
-is callable: `bunx fit-eval facilitate --help` prints usage. New tests cover
-lazy start, conclude, fail-fast, messaging, ask serialization, and trace
-envelope.
+`bun run --filter=@forwardimpact/libeval test` passes. The facilitate command is
+callable: `bunx fit-eval facilitate --help` prints usage. New tests cover lazy
+start, conclude, fail-fast, messaging, ask serialization, and trace envelope.

@@ -6,6 +6,28 @@
  * Follows OO+DI: constructor injection, factory function, tests bypass factory.
  */
 
+const DEFAULT_ALLOWED_TOOLS = ["Bash", "Read", "Glob", "Grep", "Write", "Edit"];
+
+function applyDefaults(deps) {
+  return {
+    cwd: deps.cwd,
+    query: deps.query,
+    output: deps.output,
+    model: deps.model ?? "opus",
+    maxTurns: deps.maxTurns ?? 50,
+    allowedTools: deps.allowedTools ?? DEFAULT_ALLOWED_TOOLS,
+    permissionMode: deps.permissionMode ?? "bypassPermissions",
+    onLine: deps.onLine ?? null,
+    onBatch: deps.onBatch ?? null,
+    batchSize: deps.batchSize ?? 3,
+    settingSources: deps.settingSources ?? [],
+    agentProfile: deps.agentProfile ?? null,
+    systemPrompt: deps.systemPrompt ?? null,
+    disallowedTools: deps.disallowedTools ?? [],
+    mcpServers: deps.mcpServers ?? null,
+  };
+}
+
 export class AgentRunner {
   /**
    * @param {object} deps
@@ -23,47 +45,13 @@ export class AgentRunner {
    * @param {string} [deps.agentProfile] - Agent profile name to pass as --agent to the Claude CLI
    * @param {string|object} [deps.systemPrompt] - SDK system prompt (string replaces default; {type:'preset', preset:'claude_code', append} appends)
    * @param {string[]} [deps.disallowedTools] - Tools to explicitly remove from the model's context
+   * @param {Record<string, object>} [deps.mcpServers] - MCP server configs to pass to the SDK query
    */
-  constructor({
-    cwd,
-    query,
-    output,
-    model,
-    maxTurns,
-    allowedTools,
-    permissionMode,
-    onLine,
-    onBatch,
-    batchSize,
-    settingSources,
-    agentProfile,
-    systemPrompt,
-    disallowedTools,
-  }) {
-    if (!cwd) throw new Error("cwd is required");
-    if (!query) throw new Error("query is required");
-    if (!output) throw new Error("output is required");
-    this.cwd = cwd;
-    this.query = query;
-    this.output = output;
-    this.model = model ?? "opus";
-    this.maxTurns = maxTurns ?? 50; // 0 means unlimited (omit from SDK)
-    this.allowedTools = allowedTools ?? [
-      "Bash",
-      "Read",
-      "Glob",
-      "Grep",
-      "Write",
-      "Edit",
-    ];
-    this.permissionMode = permissionMode ?? "bypassPermissions";
-    this.onLine = onLine ?? null;
-    this.onBatch = onBatch ?? null;
-    this.batchSize = batchSize ?? 3;
-    this.settingSources = settingSources ?? [];
-    this.agentProfile = agentProfile ?? null;
-    this.systemPrompt = systemPrompt ?? null;
-    this.disallowedTools = disallowedTools ?? [];
+  constructor(deps) {
+    if (!deps.cwd) throw new Error("cwd is required");
+    if (!deps.query) throw new Error("query is required");
+    if (!deps.output) throw new Error("output is required");
+    Object.assign(this, applyDefaults(deps));
     this.sessionId = null;
     this.buffer = [];
     /** @type {AbortController|null} */
@@ -95,6 +83,7 @@ export class AgentRunner {
           }),
           ...(this.systemPrompt && { systemPrompt: this.systemPrompt }),
           ...(this.agentProfile && { extraArgs: { agent: this.agentProfile } }),
+          ...(this.mcpServers && { mcpServers: this.mcpServers }),
         },
       });
       return await this.#consumeQuery(iterator);

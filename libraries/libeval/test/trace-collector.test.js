@@ -149,14 +149,14 @@ describe("TraceCollector", () => {
       assert.strictEqual(trace.summary.tokenUsage.inputTokens, 5000);
     });
 
-    test("unwraps combined supervised trace format {source, turn, event}", () => {
+    test("unwraps combined supervised trace format {source, seq, event}", () => {
       const collector = new TraceCollector();
 
       // System init wrapped in supervisor envelope
       collector.addLine(
         JSON.stringify({
           source: "agent",
-          turn: 0,
+          seq: 0,
           event: {
             type: "system",
             subtype: "init",
@@ -171,7 +171,7 @@ describe("TraceCollector", () => {
       collector.addLine(
         JSON.stringify({
           source: "agent",
-          turn: 1,
+          seq: 1,
           event: {
             type: "assistant",
             message: {
@@ -186,7 +186,7 @@ describe("TraceCollector", () => {
       collector.addLine(
         JSON.stringify({
           source: "agent",
-          turn: 1,
+          seq: 2,
           event: {
             type: "user",
             message: {
@@ -207,7 +207,7 @@ describe("TraceCollector", () => {
       collector.addLine(
         JSON.stringify({
           source: "supervisor",
-          turn: 1,
+          seq: 3,
           event: {
             type: "result",
             subtype: "success",
@@ -234,14 +234,13 @@ describe("TraceCollector", () => {
       collector.addLine(
         JSON.stringify({
           source: "orchestrator",
-          type: "summary",
-          success: true,
-          turns: 3,
+          seq: 99,
+          event: { type: "summary", success: true, turns: 3 },
         }),
       );
 
-      // Orchestrator summaries have no inner event and no recognized type
-      // after unwrap — they should be silently skipped.
+      // Orchestrator summaries unwrap to { type: "summary" } which
+      // hits the default case — silently skipped.
       assert.strictEqual(collector.toJSON().turns.length, 0);
     });
 
