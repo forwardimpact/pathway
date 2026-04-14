@@ -3,53 +3,25 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { Supervisor } from "@forwardimpact/libeval";
-import { isComplete } from "../src/supervisor.js";
+import { createOrchestrationContext } from "../src/orchestration-toolkit.js";
+import { createConcludeHandler } from "../src/orchestration-toolkit.js";
 import { createMockRunner } from "./mock-runner.js";
 
-describe("isComplete", () => {
-  test("detects EVALUATION_COMPLETE on its own line", () => {
-    assert.strictEqual(isComplete("EVALUATION_COMPLETE"), true);
-    assert.strictEqual(
-      isComplete("Some text\nEVALUATION_COMPLETE\nMore text"),
-      true,
-    );
-    assert.strictEqual(isComplete("Done.\n\nEVALUATION_COMPLETE"), true);
-  });
-
-  test("tolerates markdown formatting around the signal", () => {
-    assert.strictEqual(isComplete("**EVALUATION_COMPLETE**"), true);
-    assert.strictEqual(isComplete("*EVALUATION_COMPLETE*"), true);
-    assert.strictEqual(isComplete("__EVALUATION_COMPLETE__"), true);
-    assert.strictEqual(isComplete("_EVALUATION_COMPLETE_"), true);
-    assert.strictEqual(isComplete("`EVALUATION_COMPLETE`"), true);
-    assert.strictEqual(
-      isComplete("Good work.\n\n**EVALUATION_COMPLETE**\n\nNow filing issues."),
-      true,
-    );
-  });
-
-  test("matches EVALUATION_COMPLETE anywhere in text", () => {
-    assert.strictEqual(isComplete("not EVALUATION_COMPLETE yet"), true);
-    assert.strictEqual(
-      isComplete("The agent is EVALUATION_COMPLETE done"),
-      true,
-    );
-    assert.strictEqual(
-      isComplete("Great work! EVALUATION_COMPLETE. Now filing issues."),
-      true,
-    );
-  });
-
-  test("does not match empty or unrelated text", () => {
-    assert.strictEqual(isComplete(""), false);
-    assert.strictEqual(isComplete("All done!"), false);
-    assert.strictEqual(isComplete("DONE"), false);
-  });
-
-  test("does not match old EVALUATION_SUCCESSFUL signal", () => {
-    assert.strictEqual(isComplete("EVALUATION_SUCCESSFUL"), false);
-  });
-});
+function concludeMsg(summary) {
+  return {
+    type: "assistant",
+    message: {
+      content: [
+        {
+          type: "tool_use",
+          id: "conclude-1",
+          name: "Conclude",
+          input: { summary },
+        },
+      ],
+    },
+  };
+}
 
 describe("Supervisor - run and turns", () => {
   test("constructor throws on missing agentRunner", () => {
@@ -85,87 +57,20 @@ describe("Supervisor - run and turns", () => {
     );
   });
 
-  test("completes on EVALUATION_COMPLETE from supervisor at turn 0", async () => {
+  test("completes on Conclude tool call from supervisor at turn 0", async () => {
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+
     const agentRunner = createMockRunner([]);
 
-    const supervisorRunner = createMockRunner([
-      { text: "EVALUATION_COMPLETE" },
-    ]);
-
-    const output = new PassThrough();
-    const supervisor = new Supervisor({
-      agentRunner,
-      supervisorRunner,
-      output,
-      maxTurns: 10,
-    });
-
-    const result = await supervisor.run("Install stuff");
-
-    assert.strictEqual(result.success, true);
-    assert.strictEqual(result.turns, 0);
-  });
-
-  test("completes after one agent turn", async () => {
-    const agentRunner = createMockRunner([
-      { text: "I installed the packages." },
-    ]);
-
-    const supervisorRunner = createMockRunner([
-      { text: "Welcome! Please install the packages." },
-      { text: "Good work.\n\nEVALUATION_COMPLETE" },
-    ]);
-
-    const output = new PassThrough();
-    const supervisor = new Supervisor({
-      agentRunner,
-      supervisorRunner,
-      output,
-      maxTurns: 10,
-    });
-
-    const result = await supervisor.run("Install stuff");
-
-    assert.strictEqual(result.success, true);
-    assert.strictEqual(result.turns, 1);
-  });
-
-  test("detects EVALUATION_COMPLETE in streamed messages when result text differs", async () => {
-    const agentRunner = createMockRunner([
-      { text: "I installed the packages." },
-    ]);
-
-    const supervisorMessages = [
-      undefined,
-      [
-        {
-          type: "assistant",
-          message: {
-            content: [
-              {
-                type: "text",
-                text: "Good work.\n\nEVALUATION_COMPLETE\n\nNow filing issues.",
-              },
-            ],
-          },
-        },
-        {
-          type: "assistant",
-          message: {
-            content: [
-              { type: "text", text: "## Summary\n\nAll issues filed." },
-            ],
-          },
-        },
-      ],
-    ];
-
     const supervisorRunner = createMockRunner(
-      [
-        { text: "Welcome! Please install the packages." },
-        { text: "## Summary\n\nAll issues filed." },
-      ],
-      supervisorMessages,
+      [{ text: "Done" }],
+      [[concludeMsg("All tasks complete")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
     );
 
     const output = new PassThrough();
@@ -174,9 +79,45 @@ describe("Supervisor - run and turns", () => {
       supervisorRunner,
       output,
       maxTurns: 10,
+      ctx,
     });
-    agentRunner.onLine = (line) => supervisor.emitLine(line);
-    supervisorRunner.onLine = (line) => supervisor.emitLine(line);
+
+    const result = await supervisor.run("Install stuff");
+
+    assert.strictEqual(result.success, true);
+    assert.strictEqual(result.turns, 0);
+    assert.strictEqual(ctx.summary, "All tasks complete");
+  });
+
+  test("completes after one agent turn", async () => {
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+
+    const agentRunner = createMockRunner([
+      { text: "I installed the packages." },
+    ]);
+
+    const supervisorRunner = createMockRunner(
+      [
+        { text: "Welcome! Please install the packages." },
+        { text: "Good work." },
+      ],
+      [undefined, [concludeMsg("Agent completed the task")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
+    );
+
+    const output = new PassThrough();
+    const supervisor = new Supervisor({
+      agentRunner,
+      supervisorRunner,
+      output,
+      maxTurns: 10,
+      ctx,
+    });
 
     const result = await supervisor.run("Install stuff");
 
@@ -185,10 +126,10 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("relays only the last assistant text block to the agent", async () => {
-    // Supervisor emits reasoning text ("Let me research...") then a tool call,
-    // then a final task message. Only the final message should reach the agent.
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+
     const supervisorMessages = [
-      // Turn 0: multiple assistant messages with reasoning + task
       [
         {
           type: "assistant",
@@ -210,8 +151,7 @@ describe("Supervisor - run and turns", () => {
           },
         },
       ],
-      // Turn 1: evaluation
-      undefined,
+      [concludeMsg("Done")],
     ];
 
     let capturedAgentPrompt = null;
@@ -226,11 +166,15 @@ describe("Supervisor - run and turns", () => {
 
     const supervisorRunner = createMockRunner(
       [
-        // SDK result text = last message text (but relay should use buffer)
         { text: "Hello! Here is your task: install the packages." },
-        { text: "EVALUATION_COMPLETE" },
+        { text: "Done" },
       ],
       supervisorMessages,
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
     );
 
     const output = new PassThrough();
@@ -239,11 +183,11 @@ describe("Supervisor - run and turns", () => {
       supervisorRunner,
       output,
       maxTurns: 10,
+      ctx,
     });
 
     await supervisor.run("Evaluate the product");
 
-    // Agent should receive only the final text, not the reasoning
     assert.strictEqual(
       capturedAgentPrompt,
       "Hello! Here is your task: install the packages.",
@@ -255,18 +199,29 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("runs multiple turns before completion", async () => {
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+
     const agentRunner = createMockRunner([
       { text: "Started working." },
       { text: "Made progress." },
       { text: "Finished everything." },
     ]);
 
-    const supervisorRunner = createMockRunner([
-      { text: "Here is your task. Do the work." },
-      { text: "Keep going, you need to do more." },
-      { text: "Almost there, continue." },
-      { text: "EVALUATION_COMPLETE" },
-    ]);
+    const supervisorRunner = createMockRunner(
+      [
+        { text: "Here is your task. Do the work." },
+        { text: "Keep going, you need to do more." },
+        { text: "Almost there, continue." },
+        { text: "Done" },
+      ],
+      [undefined, undefined, undefined, [concludeMsg("Complete")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
+    );
 
     const output = new PassThrough();
     const supervisor = new Supervisor({
@@ -274,6 +229,7 @@ describe("Supervisor - run and turns", () => {
       supervisorRunner,
       output,
       maxTurns: 10,
+      ctx,
     });
 
     const result = await supervisor.run("Do the work");

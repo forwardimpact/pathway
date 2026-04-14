@@ -1,7 +1,9 @@
 import { readFileSync, createWriteStream } from "node:fs";
+import { Writable } from "node:stream";
 import { resolve } from "node:path";
 import { createAgentRunner } from "../agent-runner.js";
 import { createTeeWriter } from "../tee-writer.js";
+import { SequenceCounter } from "../sequence-counter.js";
 
 /**
  * Parse and validate run command options from parsed values.
@@ -61,14 +63,28 @@ export async function runRunCommand(values, _args) {
     ? createTeeWriter({ fileStream, textStream: process.stdout, mode: "raw" })
     : process.stdout;
 
+  const counter = new SequenceCounter();
+  const devNull = new Writable({
+    write(_chunk, _enc, cb) {
+      cb();
+    },
+  });
+  const onLine = (line) => {
+    const event = JSON.parse(line);
+    output.write(
+      JSON.stringify({ source: "agent", seq: counter.next(), event }) + "\n",
+    );
+  };
+
   const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const runner = createAgentRunner({
     cwd,
     query,
-    output,
+    output: devNull,
     model,
     maxTurns,
     allowedTools,
+    onLine,
     settingSources: ["project"],
     agentProfile,
   });

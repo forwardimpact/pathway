@@ -3,71 +3,50 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { Supervisor } from "@forwardimpact/libeval";
-import { isIntervention } from "../src/supervisor.js";
+import {
+  createOrchestrationContext,
+  createConcludeHandler,
+  createRedirectHandler,
+} from "../src/orchestration-toolkit.js";
 import { createMockRunner } from "./mock-runner.js";
 
-describe("isIntervention", () => {
-  test("detects EVALUATION_INTERVENTION on its own line", () => {
-    assert.strictEqual(isIntervention("EVALUATION_INTERVENTION"), true);
-    assert.strictEqual(
-      isIntervention("Some text\nEVALUATION_INTERVENTION\nMore text"),
-      true,
-    );
-    assert.strictEqual(
-      isIntervention("Stop.\n\nEVALUATION_INTERVENTION"),
-      true,
-    );
-  });
+function concludeMsg(summary) {
+  return {
+    type: "assistant",
+    message: {
+      content: [
+        {
+          type: "tool_use",
+          id: "conclude-1",
+          name: "Conclude",
+          input: { summary },
+        },
+      ],
+    },
+  };
+}
 
-  test("tolerates markdown formatting around the signal", () => {
-    assert.strictEqual(isIntervention("**EVALUATION_INTERVENTION**"), true);
-    assert.strictEqual(isIntervention("*EVALUATION_INTERVENTION*"), true);
-    assert.strictEqual(isIntervention("__EVALUATION_INTERVENTION__"), true);
-    assert.strictEqual(isIntervention("_EVALUATION_INTERVENTION_"), true);
-    assert.strictEqual(isIntervention("`EVALUATION_INTERVENTION`"), true);
-    assert.strictEqual(
-      isIntervention(
-        "Wrong path.\n\n**EVALUATION_INTERVENTION**\n\nTry the documented one.",
-      ),
-      true,
-    );
-  });
-
-  test("matches EVALUATION_INTERVENTION inline", () => {
-    assert.strictEqual(
-      isIntervention("Stopping you with EVALUATION_INTERVENTION now."),
-      true,
-    );
-    assert.strictEqual(
-      isIntervention("Note: EVALUATION_INTERVENTION. Switch to Y."),
-      true,
-    );
-  });
-
-  test("does not match empty or unrelated text", () => {
-    assert.strictEqual(isIntervention(""), false);
-    assert.strictEqual(isIntervention("Stop and think."), false);
-    assert.strictEqual(isIntervention("INTERVENTION"), false);
-  });
-
-  test("does not match EVALUATION_COMPLETE alone", () => {
-    assert.strictEqual(isIntervention("EVALUATION_COMPLETE"), false);
-    assert.strictEqual(
-      isIntervention("Good work.\n\nEVALUATION_COMPLETE"),
-      false,
-    );
-  });
-});
+function redirectMsg(message) {
+  return {
+    type: "assistant",
+    message: {
+      content: [
+        {
+          type: "tool_use",
+          id: "redirect-1",
+          name: "Redirect",
+          input: { message },
+        },
+      ],
+    },
+  };
+}
 
 describe("Supervisor - mid-turn intervention", () => {
   test("observation without intervention does not interrupt the agent", async () => {
-    // Agent emits one structured assistant text block — fires onBatch once.
-    // Supervisor responds with "Keep going." — neither signal flag is set,
-    // so the agent's SDK session completes naturally and the end-of-turn
-    // review then emits EVALUATION_COMPLETE.
-    //
-    // batchSize = 1 keeps this test focused on intervention semantics, not
-    // on the coarser default batching (3) exercised by agent-runner.test.js.
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+
     const agentMessages = [
       [
         {
@@ -85,11 +64,19 @@ describe("Supervisor - mid-turn intervention", () => {
     );
     agentRunner.batchSize = 1;
 
-    const supervisorRunner = createMockRunner([
-      { text: "Welcome! Please install." },
-      { text: "Keep going." },
-      { text: "Good work.\n\nEVALUATION_COMPLETE" },
-    ]);
+    const supervisorRunner = createMockRunner(
+      [
+        { text: "Welcome! Please install." },
+        { text: "Keep going." },
+        { text: "Done" },
+      ],
+      [undefined, undefined, [concludeMsg("Complete")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+        },
+      },
+    );
 
     const output = new PassThrough();
     const supervisor = new Supervisor({
@@ -97,6 +84,7 @@ describe("Supervisor - mid-turn intervention", () => {
       supervisorRunner,
       output,
       maxTurns: 10,
+      ctx,
     });
     agentRunner.onLine = (line) => supervisor.emitLine(line);
     supervisorRunner.onLine = (line) => supervisor.emitLine(line);
@@ -118,7 +106,6 @@ describe("Supervisor - mid-turn intervention", () => {
       "Agent should not be resumed when supervisor never intervenes",
     );
 
-    // Trace must contain a mid_turn_review marker but no intervention markers.
     const data = output.read()?.toString() ?? "";
     const orchestratorEvents = data
       .trim()
@@ -138,11 +125,11 @@ describe("Supervisor - mid-turn intervention", () => {
     );
   });
 
-  test("EVALUATION_INTERVENTION from mid-turn batch interrupts and relays", async () => {
-    // Agent's first call fires onBatch on a structured assistant text block;
-    // supervisor responds with EVALUATION_INTERVENTION → abort + relay.
-    // Agent's second call (resume) finishes naturally; end-of-turn review
-    // then emits EVALUATION_COMPLETE.
+  test("Redirect tool from mid-turn batch interrupts and relays", async () => {
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+    const redirectHandler = createRedirectHandler(ctx);
+
     const agentMessages = [
       [
         {
@@ -173,38 +160,25 @@ describe("Supervisor - mid-turn intervention", () => {
     );
     agentRunner.batchSize = 1;
 
-    // Supervisor responses (in order):
-    //   0: turn 0 introduction
-    //   1: mid-turn 1 batch 1 — intervene
-    //   2: mid-turn 1 batch 1 (post-resume) — keep going
-    //   3: end-of-turn 1 — EVALUATION_COMPLETE
-    const supervisorMessages = [
-      undefined,
-      [
-        {
-          type: "assistant",
-          message: {
-            content: [
-              {
-                type: "text",
-                text: "EVALUATION_INTERVENTION Stop and use the documented path.",
-              },
-            ],
-          },
-        },
-      ],
-      undefined,
-      undefined,
-    ];
-
     const supervisorRunner = createMockRunner(
       [
         { text: "Welcome." },
-        { text: "EVALUATION_INTERVENTION Stop and use the documented path." },
+        { text: "Stop and use the documented path." },
         { text: "Keep going." },
-        { text: "Good.\n\nEVALUATION_COMPLETE" },
+        { text: "Done" },
       ],
-      supervisorMessages,
+      [
+        undefined,
+        [redirectMsg("Stop and use the documented path.")],
+        undefined,
+        [concludeMsg("Complete")],
+      ],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+          Redirect: (input) => redirectHandler(input),
+        },
+      },
     );
 
     const output = new PassThrough();
@@ -213,6 +187,7 @@ describe("Supervisor - mid-turn intervention", () => {
       supervisorRunner,
       output,
       maxTurns: 10,
+      ctx,
     });
     agentRunner.onLine = (line) => supervisor.emitLine(line);
     supervisorRunner.onLine = (line) => supervisor.emitLine(line);
@@ -237,7 +212,7 @@ describe("Supervisor - mid-turn intervention", () => {
     );
     assert.ok(
       firstResumePrompt && firstResumePrompt.includes("documented path"),
-      "Resume prompt should carry the supervisor's intervention text",
+      "Resume prompt should carry the redirect message",
     );
 
     const orchestratorEvents = (output.read()?.toString() ?? "")
@@ -258,11 +233,11 @@ describe("Supervisor - mid-turn intervention", () => {
     );
   });
 
-  test("EVALUATION_INTERVENTION and EVALUATION_COMPLETE in the same turn", async () => {
-    // Batch 1: supervisor intervenes (abort + relay).
-    // After resume, batch 1 of resume: supervisor writes EVALUATION_COMPLETE
-    // (mid-turn) — the loop must exit success without running an end-of-turn
-    // review.
+  test("Redirect and Conclude in the same turn", async () => {
+    const ctx = createOrchestrationContext();
+    const concludeHandler = createConcludeHandler(ctx);
+    const redirectHandler = createRedirectHandler(ctx);
+
     const agentMessages = [
       [
         {
@@ -284,38 +259,19 @@ describe("Supervisor - mid-turn intervention", () => {
     );
     agentRunner.batchSize = 1;
 
-    const supervisorMessages = [
-      undefined,
-      [
-        {
-          type: "assistant",
-          message: {
-            content: [
-              {
-                type: "text",
-                text: "EVALUATION_INTERVENTION Try Y instead.",
-              },
-            ],
-          },
-        },
-      ],
-      [
-        {
-          type: "assistant",
-          message: {
-            content: [{ type: "text", text: "Excellent. EVALUATION_COMPLETE" }],
-          },
-        },
-      ],
-    ];
-
     const supervisorRunner = createMockRunner(
       [
         { text: "Welcome." },
-        { text: "EVALUATION_INTERVENTION Try Y instead." },
-        { text: "Excellent. EVALUATION_COMPLETE" },
+        { text: "Try Y instead." },
+        { text: "Excellent." },
       ],
-      supervisorMessages,
+      [undefined, [redirectMsg("Try Y instead.")], [concludeMsg("Complete")]],
+      {
+        toolDispatcher: {
+          Conclude: (input) => concludeHandler(input),
+          Redirect: (input) => redirectHandler(input),
+        },
+      },
     );
 
     const output = new PassThrough();
@@ -324,6 +280,7 @@ describe("Supervisor - mid-turn intervention", () => {
       supervisorRunner,
       output,
       maxTurns: 10,
+      ctx,
     });
     agentRunner.onLine = (line) => supervisor.emitLine(line);
     supervisorRunner.onLine = (line) => supervisor.emitLine(line);
@@ -342,7 +299,7 @@ describe("Supervisor - mid-turn intervention", () => {
     assert.strictEqual(
       agentResumeCalls,
       1,
-      "Agent.resume runs once (after intervention); EVALUATION_COMPLETE then ends the turn",
+      "Agent.resume runs once (after redirect); Conclude then ends the turn",
     );
 
     const orchestratorEvents = (output.read()?.toString() ?? "")
@@ -359,7 +316,7 @@ describe("Supervisor - mid-turn intervention", () => {
     );
     assert.ok(
       orchestratorEvents.some((e) => e.event?.type === "complete_requested"),
-      "Trace should contain complete_requested for mid-turn EVALUATION_COMPLETE",
+      "Trace should contain complete_requested for mid-turn Conclude",
     );
   });
 });

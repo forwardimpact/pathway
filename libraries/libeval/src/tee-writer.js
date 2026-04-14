@@ -3,9 +3,9 @@
  * simultaneously streaming human-readable text to a separate stream (e.g.
  * process.stdout).
  *
- * Supports two modes:
- * - "raw" (default): expects standard stream-json events from AgentRunner
- * - "supervised": expects tagged events {source, turn, event} from Supervisor
+ * All modes emit the same { source, seq, event } envelope. The `mode`
+ * parameter controls display formatting: multi-participant modes show
+ * source labels on content lines.
  *
  * Follows OO+DI: constructor injection, factory function, tests bypass factory.
  */
@@ -18,7 +18,7 @@ export class TeeWriter extends Writable {
    * @param {object} deps
    * @param {import("stream").Writable} deps.fileStream - Stream to write raw NDJSON to
    * @param {import("stream").Writable} deps.textStream - Stream to write human-readable text to
-   * @param {"raw"|"supervised"} [deps.mode] - Event format: "raw" or "supervised" (default: "raw")
+   * @param {"raw"|"supervised"} [deps.mode] - Display mode: "raw" (no source labels) or "supervised" (source labels) (default: "raw")
    */
   constructor({ fileStream, textStream, mode }) {
     super();
@@ -72,23 +72,10 @@ export class TeeWriter extends Writable {
   }
 
   /**
-   * Process a single NDJSON line — feed to collector and flush text.
+   * Process a single NDJSON line — unified envelope handling for all modes.
    * @param {string} line
    */
   processLine(line) {
-    if (this.mode === "supervised") {
-      this.processSupervisedLine(line);
-    } else {
-      this.collector.addLine(line);
-      this.flushTurns();
-    }
-  }
-
-  /**
-   * Handle a tagged supervisor line: unwrap event, show source labels.
-   * @param {string} line
-   */
-  processSupervisedLine(line) {
     let parsed;
     try {
       parsed = JSON.parse(line);
@@ -96,6 +83,7 @@ export class TeeWriter extends Writable {
       return;
     }
 
+    // Orchestrator summary (not wrapped in envelope)
     if (parsed.source === "orchestrator" && parsed.type === "summary") {
       const status = parsed.success ? "completed" : "incomplete";
       this.textStream.write(
@@ -104,13 +92,19 @@ export class TeeWriter extends Writable {
       return;
     }
 
+    // Universal envelope: { source, seq, event }
     if (parsed.event) {
       if (parsed.source && parsed.source !== this.lastSource) {
         this.lastSource = parsed.source;
       }
       this.collector.addLine(JSON.stringify(parsed.event));
       this.flushTurns();
+      return;
     }
+
+    // Bare event (run mode pre-migration or direct feed)
+    this.collector.addLine(line);
+    this.flushTurns();
   }
 
   /**
