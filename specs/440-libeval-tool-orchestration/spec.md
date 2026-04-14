@@ -1,0 +1,314 @@
+# 440 — Tool-Based Orchestration and Facilitated Group Work
+
+## Problem
+
+### 1. Text-token signaling is fragile
+
+`fit-eval supervise` manages the evaluation lifecycle by instructing the
+supervisor to print magic strings — `EVALUATION_COMPLETE` and
+`EVALUATION_INTERVENTION` — inside its assistant text. The orchestrator scans
+every supervisor message with regex (`isComplete`, `isIntervention` in
+`supervisor.js`) to detect these tokens, tolerating markdown formatting
+variations (`**EVALUATION_COMPLETE**`, `` `EVALUATION_INTERVENTION` ``, etc.).
+
+This works but is fragile in several ways:
+
+- **Prompt-dependent.** The entire mechanism hinges on the supervisor following
+  natural-language instructions in `SUPERVISOR_SYSTEM_PROMPT`. If the model
+  paraphrases ("The evaluation is now complete"), wraps the token in unexpected
+  formatting, or emits it inside a code block, the regex misses it. The dual
+  detection paths (real-time in `emitLine` and post-turn in `run`) exist
+  precisely because the first path alone was unreliable.
+
+- **No structured data.** The tokens carry no payload. `EVALUATION_COMPLETE`
+  cannot include a summary or verdict; `EVALUATION_INTERVENTION` cannot specify
+  which part of the agent's work triggered the intervention. The orchestrator
+  must infer context from surrounding text.
+
+- **One-directional.** The agent has no way to reach the supervisor. If the
+  agent gets stuck, confused, or needs clarification, its only option is to
+  embed a question in its text output and hope the supervisor notices it in the
+  next batch review. There is no explicit upward channel.
+
+- **Invisible to tooling.** Text tokens don't appear in the trace as structured
+  events. The improvement coach and trace parsers must regex-scan assistant text
+  the same way the orchestrator does, duplicating the fragile detection logic.
+
+Tool calls are the right replacement primitive. They are structurally validated
+by the SDK (the model cannot paraphrase a tool name), carry typed payloads,
+appear as first-class `tool_use`/`tool_result` events in the NDJSON trace, and
+cannot be confused with ordinary assistant text.
+
+### 2. No upward communication channel
+
+In supervised evaluation, the agent operates blind. When it encounters ambiguity
+— "should I follow the npm docs or the getting-started guide?", "this command
+failed, should I retry or try a different approach?" — it can only express the
+question in its text output. The supervisor sees this (if at all) at the next
+batch review boundary, which may be several assistant turns away.
+
+The result is wasted agent turns. The agent guesses, often guesses wrong, the
+supervisor eventually intervenes with the correction, and the trace fills with
+recoverable dead ends that a single synchronous question-and-answer would have
+prevented.
+
+### 3. Only two execution modes
+
+libeval supports two modes: `run` (single agent, autonomous) and `supervise`
+(one supervisor watching one agent, relay loop). Real evaluation scenarios
+require a third pattern: multiple agents working on a shared task with light
+coordination.
+
+The `product-evaluation` skill already strains against the two-mode limit. A
+single supervised session requires one agent to play all roles — discover
+documentation, install the product, run commands, write an assessment. When the
+evaluation touches multiple independent workflows (e.g. leadership setup vs.
+engineer setup vs. agent configuration), the agent context grows monotonically
+and the supervisor must track interleaved threads of work. With multiple agents,
+a facilitator could assign independent aspects to specialized agents, let them
+work concurrently, and synthesize their findings — shorter wall-clock time,
+smaller per-agent contexts, and cleaner traces.
+
+Other concrete use cases: red-team/blue-team security evaluations (attacker and
+defender agents with a facilitator judging outcomes), multi-persona user testing
+(agents simulating different user types simultaneously), and parallel exploration
+of alternative approaches to the same problem.
+
+The supervised relay loop cannot support this. It is fundamentally a two-party,
+single-threaded protocol.
+
+## Solution
+
+Add three capabilities to libeval:
+
+1. **Tool-based signaling for supervise mode.** Replace `EVALUATION_COMPLETE`
+   and `EVALUATION_INTERVENTION` text tokens with orchestration tools that the
+   supervisor and agent call explicitly. The orchestrator handles these tools
+   and signals the orchestration loop directly.
+
+2. **Bidirectional supervision.** Give the agent a `RequestGuidance` tool that
+   synchronously asks the supervisor a question and blocks until answered.
+
+3. **Facilitate mode.** A new `fit-eval facilitate` command that runs a
+   facilitator plus N agents as concurrent sessions, communicating through
+   structured tool-based primitives (broadcast, direct message, intervene).
+
+### Execution Modes After This Spec
+
+| Mode | Participants | Communication | Use case |
+|---|---|---|---|
+| `run` | 1 agent | None (autonomous) | CI tasks, single-agent evaluation |
+| `supervise` | 1 supervisor + 1 agent | Tool-based relay (synchronous) | Guided evaluation, product testing |
+| `facilitate` | 1 facilitator + N agents | Tool-based messaging (asynchronous) | Group evaluation, parallel exploration |
+
+### Orchestration Tools
+
+Six tools total. Each mode injects only the tools relevant to its participants.
+
+#### `Complete({ summary })`
+
+**Available to:** supervisor, facilitator
+
+Signals that the evaluation or task is done. The `summary` field carries a
+structured verdict — replacing the bare `EVALUATION_COMPLETE` token that could
+carry no payload. The orchestrator terminates all running sessions and records
+the summary in the trace.
+
+#### `Intervene({ message, to? })`
+
+**Available to:** supervisor, facilitator
+
+Interrupts the target with a corrective message. In supervise mode, `to` is
+omitted (there is only one agent). In facilitate mode, `to` is a participant
+name or `"all"`.
+
+From the caller's perspective: "stop what you're doing, read this, then
+continue." The target receives the message and resumes working with the
+intervention as new context.
+
+#### `RequestGuidance({ question })`
+
+**Available to:** agent (both supervise and facilitate modes)
+
+Synchronous upward channel. The agent calls the tool with a question and blocks
+until the supervisor or facilitator answers. The tool result carries the answer.
+From the agent's perspective it is an ordinary tool call that happens to take
+longer. From the supervisor/facilitator's perspective it is a prioritized review
+where the agent is explicitly asking something.
+
+In facilitate mode, the question is always directed at the facilitator —
+agent-to-agent questions use `SendMessage`.
+
+#### `ListParticipants()`
+
+**Available to:** facilitator, agents (facilitate mode only)
+
+Returns `[{ name, role }]` for all participants in the session. Allows agents
+to discover who else is working on the task and address messages to specific
+participants.
+
+#### `Broadcast({ message })`
+
+**Available to:** facilitator, agents (facilitate mode only)
+
+Posts a message to the shared channel. All participants receive a copy. The tool
+returns immediately — the sender does not wait for delivery or acknowledgement.
+
+Messages accumulate and are delivered to each participant between turns. This
+provides **eventual visibility** — every participant sees everything that has
+been broadcast, but not necessarily in real time.
+
+#### `SendMessage({ to, message })`
+
+**Available to:** facilitator, agents (facilitate mode only)
+
+Sends a direct message to one participant. Only the named recipient sees it.
+Returns immediately (fire-and-forget). The facilitator sees broadcast traffic
+(it is a participant) but not direct messages between agents unless it is a
+party to them.
+
+### Facilitate Mode Behaviour
+
+**Concurrent work, asynchronous communication.** All agent sessions run
+concurrently and independently. Agents communicate via `Broadcast` and
+`SendMessage`. Messages are delivered between turns, not mid-turn. The
+facilitator coordinates work, receives broadcast traffic passively, and
+intervenes when needed.
+
+**Lazy agent start.** Agents are declared at invocation time but do not start
+working until they receive their first message. This avoids idle sessions — the
+facilitator distributes initial assignments, and agents activate as messages
+arrive.
+
+**Facilitator serialization.** Only one thing talks to the facilitator at a
+time. If multiple agents call `RequestGuidance` concurrently, the requests
+queue and the facilitator handles them one at a time. This avoids interleaving
+multiple conversations in the facilitator's context.
+
+**Facilitator observation.** The facilitator does not watch agent output
+streams. It relies on agents to surface relevant information via broadcasts and
+direct messages. This is the "less active than supervision" quality — the
+facilitator trusts agents to communicate, and only intervenes when things go
+wrong. (Stream-level visibility over an agent is supervision, not
+facilitation — and is explicitly out of scope.)
+
+### Trace Requirements
+
+- Facilitate-mode traces must identify each participant by name (not generic
+  "agent" / "supervisor" labels), so that filtering by a single participant
+  extracts a coherent trace.
+- Orchestration tool calls (`Complete`, `Intervene`, `RequestGuidance`,
+  `Broadcast`, `SendMessage`) must appear as standard `tool_use`/`tool_result`
+  events within the participant's stream — visible to `TraceCollector` and
+  downstream parsers without special-case handling.
+- Message delivery, session start/stop, and completion events must be emitted
+  by the orchestrator so the coordination sequence is visible in the trace.
+- Supervise-mode traces must remain compatible with the existing
+  `{ source, turn, event }` wrapper format.
+
+### Backward Compatibility
+
+Existing `fit-eval supervise` invocations must continue working without CLI
+changes. Legacy text-token signaling (`EVALUATION_COMPLETE`,
+`EVALUATION_INTERVENTION`) must be supported with deprecation warnings for one
+release cycle, giving callers time to update supervisor prompts that rely on the
+old tokens.
+
+## Scope
+
+### In scope
+
+- **Orchestration tools for supervise mode.** `Complete`, `Intervene`,
+  `RequestGuidance` — replace text-token detection as the primary signaling
+  mechanism.
+- **Updated system prompts.** `SUPERVISOR_SYSTEM_PROMPT` and
+  `AGENT_SYSTEM_PROMPT` updated to describe the available tools instead of text
+  tokens.
+- **`fit-eval facilitate` command.** New CLI subcommand for multi-agent
+  facilitated sessions.
+- **Facilitate-mode tools.** `ListParticipants`, `Broadcast`, `SendMessage`
+  plus `Complete`, `Intervene`, `RequestGuidance` adapted for multi-party
+  semantics.
+- **Trace format for facilitate mode.** Per-participant source names and
+  orchestrator coordination events.
+- **Deprecation path for text tokens.** Legacy detection kept as fallback with
+  deprecation warning for one release.
+- **Public API.** New exports for the facilitator alongside existing
+  `Supervisor` exports.
+
+### Out of scope
+
+- **Dynamic agent creation.** Agents are declared at invocation time (CLI
+  flags), not spawned dynamically by the facilitator during a session.
+- **Agent-to-agent stream watching.** No `Watch` tool. If a participant needs
+  stream-level visibility over another participant, that is supervision, not
+  facilitation.
+- **Persistent message history.** Messages live in memory for the session
+  duration only.
+- **Changes to `fit-eval run`.** The single-agent mode is unaffected.
+- **Changes to `TraceCollector` parsing.** The collector already handles the
+  `{ source, turn, event }` wrapper. Facilitate-mode traces use the same
+  wrapper shape with participant names as source values.
+
+## Success Criteria
+
+### Supervise mode — tool-based signaling
+
+- A `fit-eval supervise` run completes via the supervisor calling `Complete`
+  rather than printing `EVALUATION_COMPLETE`. The trace contains a `tool_use`
+  event for `Complete` with a summary payload.
+- A supervisor intervention occurs via the `Intervene` tool rather than the
+  `EVALUATION_INTERVENTION` text token. The trace shows `tool_use` for
+  `Intervene`, the agent's session interrupted, and the agent resumed with the
+  intervention message.
+- An agent calls `RequestGuidance` with a question, the supervisor receives and
+  answers it, and the agent's `tool_result` contains the answer. The agent
+  continues working with the guidance in context.
+- A supervisor that emits the legacy `EVALUATION_COMPLETE` text token (without
+  calling the tool) still triggers completion, and a deprecation warning appears
+  in the trace.
+
+### Facilitate mode — multi-agent group work
+
+- `fit-eval facilitate` accepts a task, a facilitator configuration, and two or
+  more agent configurations. All participants appear in the trace with distinct
+  source names.
+- The facilitator calls `SendMessage` to assign work to individual agents.
+  Agents start working only after receiving their first message.
+- Agents call `Broadcast` and `SendMessage` to communicate. Messages are
+  delivered between turns. A broadcast sent by agent A appears in agent B's
+  context on its next turn.
+- The facilitator calls `Intervene({ to: "all", message })` and all running
+  agents are interrupted and resumed with the intervention message.
+- An agent calls `RequestGuidance` and blocks until the facilitator answers.
+  Multiple concurrent `RequestGuidance` calls are handled sequentially.
+- The facilitator calls `Complete` and all sessions terminate.
+- The trace is parseable by `TraceCollector` — filtering by a single
+  participant's source name extracts a coherent single-agent trace.
+
+### General
+
+- `bun run check` passes. New behaviour has unit coverage analogous to existing
+  `supervisor-run`, `supervisor-intervention`, and `supervisor-batching` tests.
+- Existing `fit-eval supervise` invocations continue to work without CLI
+  changes.
+- The six orchestration tools are schema-validated — invalid tool calls produce
+  structured errors, not silent failures.
+
+## Open Questions
+
+1. **Facilitate-mode turn semantics.** In supervise mode, "turn" has a clear
+   definition: one supervisor-agent exchange. In facilitate mode with concurrent
+   agents, what does a "turn" mean? Options: per-participant turn counter,
+   wall-clock epoch, or a global monotonic sequence number. This affects trace
+   structure and is deferred to the plan.
+
+2. **Facilitator idle behavior.** When no agents are calling `RequestGuidance`
+   and no messages are arriving, should the facilitator's session stay active
+   or suspend until there is something to respond to? Active sessions waste LLM
+   calls; suspension requires an explicit wake mechanism.
+
+3. **Agent failure isolation.** If one agent's session errors out in facilitate
+   mode, should the orchestrator terminate all sessions (fail-fast) or continue
+   with the remaining agents and notify the facilitator? This affects both the
+   success criteria and the facilitator's expected behaviour.
