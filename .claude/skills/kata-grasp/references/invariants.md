@@ -55,9 +55,7 @@ acceptance.
 | Invariant                                          | Evidence to find                                                                          | Severity   |
 | -------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------- |
 | Both `spec.md` and plan read before first edit     | `Read` calls on `spec.md` and `plan-a.md` (or selected variant) before any `Edit`/`Write` | **High**   |
-| Status advanced to `active` before implementation  | `specs/STATUS` edit setting the spec to `active` before the first edit                    | **Medium** |
 | `bun run check` and `bun run test` ran before push | Tool calls invoking these commands before any push                                        | **Medium** |
-| Status advanced to `done` after final push         | `specs/STATUS` edit setting the spec to `done` after the push                             | **Medium** |
 | Scope discipline held                              | No edits to files outside the plan's stated blast radius                                  | **Medium** |
 
 ## technical-writer / doc-review traces

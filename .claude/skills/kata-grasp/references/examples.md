@@ -94,9 +94,9 @@ Category: TASK_AMBIGUITY_PARALYSIS
 
 Category: STALE_STATUS_FILE
   Layer: None (data integrity)
-  Evidence: specs/STATUS shows "planned" for spec 370 but implementation
+  Evidence: specs/STATUS shows "plan draft" for spec 370 but implementation
     is already on main.
-  Fix shape: Trivial fix — update STATUS file.
+  Fix shape: Trivial fix — advance to `plan approved` in STATUS.
 
 Category: EFFECTIVE_RESEARCH_DELEGATION
   Layer: None (positive finding)

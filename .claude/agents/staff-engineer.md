@@ -40,10 +40,9 @@ Determine which workflow to use from the task prompt:
    files to change, tests to add, and risks to watch. Push the plan on its
    existing `spec/` branch — never start a new branch.
 
-2. **Implement approved plan** — Use the `kata-implement` skill. Pick up an
-   approved spec (`status: planned`), read both `spec.md` and `plan-a.md`
+2. **Implement approved plan** — Use the `kata-implement` skill. Pick up a spec
+   at `plan approved` in STATUS, read both `spec.md` and `plan-a.md`
    thoroughly, and execute the plan on a `feat/<spec-slug>` branch from `main`.
-   Advance status through `planned → active → done` as the skill prescribes.
    Open a PR when implementation passes `bun run check` and `bun run test`.
 
 ## Constraints

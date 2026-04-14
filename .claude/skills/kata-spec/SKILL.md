@@ -1,10 +1,10 @@
 ---
 name: kata-spec
 description: >
-  Write and review specifications (WHAT/WHY) for features, changes, and
-  improvements. Manage spec status in specs/STATUS through draft → review.
-  Use when proposing changes, capturing findings as actionable specs, or
-  evaluating spec quality. Pair with the `kata-plan` skill for the HOW side.
+  Write specifications (WHAT/WHY) for features, changes, and improvements.
+  Sets spec phase to draft in specs/STATUS. Use when proposing changes,
+  capturing findings as actionable specs, or evaluating spec quality.
+  Pair with the `kata-plan` skill for the HOW side.
 ---
 
 # Write and Review Specs
@@ -38,7 +38,7 @@ asked for. If they ask for a spec, write the spec and stop.
 
 </read_do_checklist>
 
-<do_confirm_checklist goal="Verify spec quality before approving">
+<do_confirm_checklist goal="Verify spec quality before recommending approval">
 
 - [ ] Problem is stated first, backed by evidence (errors, metrics, examples).
 - [ ] Scope names specific files, APIs, or entities — and states what is
@@ -80,45 +80,21 @@ Focus on these qualities:
   save it for the plan. The spec should remain stable as implementation details
   change.
 
-## Status Lifecycle
+## Status
 
-Specs track progress in `specs/STATUS`. The lifecycle is:
-
-```
-draft → review → planned → active → done
-```
-
-| Status    | Meaning                                     | Set by           |
-| --------- | ------------------------------------------- | ---------------- |
-| `draft`   | Spec is being written, not ready for review | `kata-spec`      |
-| `review`  | Spec is ready for evaluation                | `kata-spec`      |
-| `planned` | Spec approved and a plan is approved        | `kata-plan`      |
-| `active`  | Implementation in progress                  | `kata-implement` |
-| `done`    | Implemented                                 | `kata-implement` |
-
-This skill owns the `draft` and `review` transitions. The `kata-plan` skill
-advances to `planned` once both spec and plan are approved. The `kata-implement`
-skill owns `active` and `done`.
+This skill sets `spec draft` in `specs/STATUS`. A human advances it to
+`spec approved` during review. See `specs/STATUS` header for the full lifecycle.
 
 ## Reviewing a Spec
 
 Evaluate `spec.md` against the qualities listed in "Writing a Spec" above, then
 run the DO-CONFIRM checklist at the top of this skill.
 
-If all criteria are met, approve the spec. If any criterion falls short, request
-changes and return status to `draft`.
+If all criteria are met, recommend approval. If any criterion falls short,
+request changes — the spec stays at `spec draft` until issues are resolved.
 
-| Situation                | Decision | Target status |
-| ------------------------ | -------- | ------------- |
-| Spec content is approved | Approve  | `review`\*    |
-| Changes requested        | Revise   | `draft`       |
-
-\*The spec stays at `review` until a plan is also approved — at which point the
-`kata-plan` skill advances it to `planned`.
-
-If you are operating in a context where you cannot commit changes (e.g.,
-evaluating a spec PR for another workflow), report your decision and target
-status clearly — the caller is responsible for acting on it.
+Approval is a human action — report your recommendation clearly. If you cannot
+commit changes, report your decision so the caller can act on it.
 
 ## Process
 
@@ -130,15 +106,15 @@ status clearly — the caller is responsible for acting on it.
    the current state before proposing changes.
 3. **Write the spec.** Focus on WHAT and WHY. Do not include implementation
    details — those go in the plan.
-4. **Update STATUS.** Add the spec to `specs/STATUS` with status `draft`.
+4. **Update STATUS.** Add the spec to `specs/STATUS` with `spec draft`.
 5. **Clean sub-agent review.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
    to launch a fresh sub-agent that grades `spec.md`. Tell the reviewer not to
    invoke `kata-spec`. Verify findings, address all confirmed
    blocker/high/medium issues before advancing.
-6. **Present the spec.** Share it for feedback. Iterate until satisfied, then
-   set status to `review` — signalling it is ready for formal evaluation. Stop
-   here. The plan is the staff engineer's job.
+6. **Present the spec.** Share it for feedback. Iterate until satisfied. The
+   spec stays at `spec draft` until a human approves it. Stop here — the plan
+   is the staff engineer's job.
 
 ## What NOT to Do
 

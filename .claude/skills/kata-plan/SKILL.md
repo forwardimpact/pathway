@@ -1,9 +1,9 @@
 ---
 name: kata-plan
 description: >
-  Write and review implementation plans (HOW) for approved specs. Translate
-  an approved spec.md into concrete steps, files, tests, and risks for a
-  trusted agent to execute. Advances status from review → planned.
+  Write implementation plans (HOW) for approved specs. Translate an approved
+  spec.md into concrete steps, files, tests, and risks for a trusted agent
+  to execute. Sets plan phase to draft in specs/STATUS.
 ---
 
 # Write and Review Plans
@@ -17,10 +17,9 @@ no commitment to implement, and a plan has nothing to translate.
 
 ## When to Use
 
-- Turning an approved spec (`status: review` with content approved) into an
-  execution-ready plan
-- Reviewing a plan before it advances to `planned` ("review plan NNN", "is plan
-  NNN ready?")
+- Turning an approved spec (`spec approved` in STATUS) into an execution-ready
+  plan
+- Reviewing a plan before approval ("review plan NNN", "is plan NNN ready?")
 - Creating an alternative plan variant for the same spec
 
 ## Checklists
@@ -38,7 +37,7 @@ no commitment to implement, and a plan has nothing to translate.
 
 </read_do_checklist>
 
-<do_confirm_checklist goal="Verify plan quality before advancing to planned">
+<do_confirm_checklist goal="Verify plan quality before recommending approval">
 
 - [ ] Approach and rationale stated before details.
 - [ ] Changes are concrete — exact file paths, functions, before/after.
@@ -79,7 +78,7 @@ plan-c.md    ← another alternative
 ```
 
 Each variant should open with a brief rationale explaining how it differs from
-plan-a. When the spec advances to `planned`, **plan-a is the plan that will be
+plan-a. When the plan reaches `plan approved`, **plan-a is the plan that will be
 implemented** unless the approver explicitly selects a different variant.
 
 ### Large plan decomposition
@@ -157,27 +156,14 @@ each one means in practice:
 Evaluate the plan against the qualities listed in "Writing a Plan" above, then
 run the DO-CONFIRM checklist at the top of this skill.
 
-If all criteria are met **and** the spec is also approved, advance the spec to
-`planned` in `specs/STATUS`. If any criterion falls short, request changes and
-return status to `draft`.
+If all criteria are met, recommend approval. If any criterion falls short,
+request changes — the plan stays at `plan draft` until issues are resolved.
 
-| Situation                                 | Decision | Target status |
-| ----------------------------------------- | -------- | ------------- |
-| Spec approved + plan approved             | Approve  | `planned`     |
-| Plan approved but spec still under review | Wait     | (no change)   |
-| Plan changes requested                    | Revise   | `draft`       |
+When multiple plan variants exist (plan-a, plan-b, etc.), note which variant is
+recommended. If none is explicitly selected, plan-a is the default.
 
-When multiple plan variants exist (plan-a, plan-b, etc.), the review should note
-which variant is approved. If no variant is explicitly selected, plan-a is the
-default.
-
-The full status lifecycle lives in the
-[`kata-spec`](../kata-spec/SKILL.md#status-lifecycle) skill — this skill owns
-only the `review → planned` transition.
-
-If you cannot commit changes (e.g., evaluating a plan PR for another workflow),
-report your decision and target status clearly — the caller is responsible for
-acting on it.
+Approval is a human action — report your recommendation clearly. See
+`specs/STATUS` header for the full lifecycle.
 
 ## Process
 
@@ -189,9 +175,8 @@ from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** A plan requires an approved spec in the same directory. If
-   no spec exists or the spec has not yet been approved, stop — the spec skill
-   must run first.
+1. **Find the spec.** A plan requires `spec approved` in `specs/STATUS`. If the
+   spec is still at `spec draft` or missing, stop — it must be approved first.
 2. **Study the spec.** Read `spec.md` end to end. You should be able to restate
    the problem, scope, and success criteria without referring back.
 3. **Research the codebase.** Read the files the plan will target. Verify
@@ -206,9 +191,8 @@ from prior `staff-engineer` entries.
    parts). Tell the reviewer not to invoke `kata-plan`. Verify findings, address
    all confirmed blocker/high/medium issues before advancing.
 6. **Present the plan.** Share it for feedback.
-7. **Update STATUS.** When both spec and plan are approved, advance the spec's
-   status from `review` to `planned`. Do not advance while the plan is still
-   being iterated on.
+7. **Update STATUS.** Set the spec to `plan draft` in `specs/STATUS`. The plan
+   stays at `plan draft` until a human approves it.
 
 ## Memory: what to record
 
@@ -224,7 +208,7 @@ Append to the current week's log (see agent profile for the file path):
 The READ-DO checklist covers the core boundaries (no spec writing, no
 implementation, one plan per spec). Additionally:
 
-- **Do not approve a plan whose spec is still under review.** Both must be
-  approved before advancing to `planned`.
+- **Do not write a plan whose spec is not yet approved.** The spec must show
+  `spec approved` in STATUS before planning begins.
 - **Do not use `plan.md` as a filename.** Always use `plan-a.md` (or
   `plan-b.md`, etc.) for naming consistency.

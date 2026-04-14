@@ -16,7 +16,7 @@ changes methodically.
 
 ## When to Use
 
-- A spec and plan exist with STATUS `planned` (has passed review)
+- A spec and plan exist with STATUS `plan approved`
 - The user says "implement spec NNN", "implement the plan for spec NNN",
   "execute the plan for NNN", "build spec NNN", or "start implementation of NNN"
 - Resuming a partially completed implementation ("continue spec NNN", "finish
@@ -49,7 +49,6 @@ apply alongside the skill-specific ones below.
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias) and every **blocker**, **high**, and **medium** finding
       addressed.
-- [ ] Spec status set to `done` in `specs/STATUS`.
 
 </do_confirm_checklist>
 
@@ -130,11 +129,7 @@ Use TodoWrite to track progress. Group related changes that must land together
 For multi-part plans, organize tasks by part — complete all tasks for part 01
 before starting part 02, unless the plan explicitly allows parallel execution.
 
-### 5. Update STATUS
-
-Set the spec's status to `active` in `specs/STATUS` before starting work.
-
-### 6. Implement step by step
+### 5. Implement step by step
 
 For each task:
 
@@ -148,11 +143,11 @@ For each task:
    following the repository's git workflow (`type(scope): subject`). Commit
    after each verified step — do not batch unrelated changes.
 
-### 7. Final verification
+### 6. Final verification
 
 After all tasks are complete, run the DO-CONFIRM checklist above.
 
-### 8. Clean sub-agent review
+### 7. Clean sub-agent review
 
 Follow the
 [`kata-review` caller protocol](../kata-review/references/caller-protocol.md) to
@@ -182,8 +177,7 @@ Push all commits to the remote branch only after the review is clean.
 
 Append to the current week's log (see agent profile for the file path):
 
-- **Spec implemented** — Spec number, name, and status transition (planned →
-  active → done)
+- **Spec implemented** — Spec number, name, and branch
 - **PR opened** — PR number and branch name
 - **Blockers encountered** — Plan deviations, codebase divergences, test
   failures, and how they were resolved
