@@ -266,12 +266,16 @@ parallel step for facilitate mode that extracts per-participant traces:
     # Extract facilitator events
     jq -c 'select(.source == "facilitator") | .event' "$TRACE_DIR/trace.ndjson" \
       > "$TRACE_DIR/facilitator-trace.ndjson"
-    # Extract per-agent traces (one file per unique source that is not facilitator)
-    # This enables each domain agent to analyze its own trace via kata-trace
-    for agent in $(jq -r 'select(.source != "facilitator") | .source' "$TRACE_DIR/trace.ndjson" | sort -u); do
-      jq -c "select(.source == \"$agent\") | .event" "$TRACE_DIR/trace.ndjson" \
-        > "$TRACE_DIR/${agent}-trace.ndjson"
-    done
+    # Extract per-agent traces using jq --arg to avoid shell injection.
+    # Agent names come from trace .source fields which originate from
+    # workflow_dispatch input — sanitize by filtering to alphanumeric + hyphen.
+    jq -r 'select(.source != "facilitator") | .source' "$TRACE_DIR/trace.ndjson" \
+      | sort -u \
+      | grep -E '^[a-z][a-z0-9-]*$' \
+      | while IFS= read -r agent; do
+          jq -c --arg src "$agent" 'select(.source == $src) | .event' \
+            "$TRACE_DIR/trace.ndjson" > "$TRACE_DIR/${agent}-trace.ndjson"
+        done
     # Also produce a combined agent trace for the agent-trace artifact
     jq -c 'select(.source != "facilitator") | .event' "$TRACE_DIR/trace.ndjson" \
       > "$TRACE_DIR/agent-trace.ndjson"
@@ -301,6 +305,24 @@ Add a "Upload facilitator trace" step (parallel to "Upload supervisor trace"):
   with:
     name: facilitator-trace
     path: ${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
+```
+
+Add an "Upload per-agent traces" step so domain agents can access their own
+trace during 1-on-1 coaching sessions:
+
+```yaml
+- name: Upload per-agent traces
+  if:
+    always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
+    steps.setup.outputs.trace-dir != ''
+  uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+  with:
+    name: per-agent-traces
+    path: |
+      ${{ steps.setup.outputs.trace-dir }}/*-trace.ndjson
+      !${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
+      !${{ steps.setup.outputs.trace-dir }}/agent-trace.ndjson
+      !${{ steps.setup.outputs.trace-dir }}/trace.ndjson
 ```
 
 Also update the existing "Upload combined trace" step condition to include

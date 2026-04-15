@@ -105,8 +105,11 @@ description: >
   - **Current condition** — Key numbers from metrics CSVs reviewed
   - **Obstacle addressed** — Which obstacle was the focus
   - **Experiment status** — Outcome of prior experiment, next experiment planned
-  - **Metrics** — Record relevant measurements to
-    `wiki/metrics/{agent}/{domain}/` per the `kata-metrics` protocol
+  - **Metrics** — Record coaching-specific measurements (e.g.,
+    `meetings_facilitated`, `experiments_active`) to
+    `wiki/metrics/improvement-coach/coaching/` per the `kata-metrics` protocol.
+    The coach records coaching activity metrics, not domain metrics — domain
+    agents record their own domain metrics via their own entry-point skills.
 
 ### 2. Create storyboard-template.md
 

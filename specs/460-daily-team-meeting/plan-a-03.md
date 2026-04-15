@@ -138,11 +138,11 @@ sources):
 
 **kata-trace** (`references/metrics.md`):
 
-| Metric              | Unit  | Description                                 | Data source     |
-| ------------------- | ----- | ------------------------------------------- | --------------- |
-| traces_analyzed     | count | Workflow traces analyzed this run           | Run actions     |
-| findings_per_trace  | count | Actionable findings from the analyzed trace | Analysis        |
-| invariant_pass_rate | count | Invariants that passed out of total checked | Invariant audit |
+| Metric             | Unit  | Description                                 | Data source     |
+| ------------------ | ----- | ------------------------------------------- | --------------- |
+| traces_analyzed    | count | Workflow traces analyzed this run           | Run actions     |
+| findings_per_trace | count | Actionable findings from the analyzed trace | Analysis        |
+| invariants_passed  | count | Invariants that passed this run             | Invariant audit |
 
 **kata-spec** (`references/metrics.md`):
 
