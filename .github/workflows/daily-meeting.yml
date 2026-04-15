@@ -51,7 +51,7 @@ jobs:
             coaching kata questions with all participants. Update the storyboard
             with fresh metrics and experiment progress.
           facilitator-profile: "improvement-coach"
-          agents: "security-engineer:role=security-engineer,technical-writer:role=technical-writer,product-manager:role=product-manager,staff-engineer:role=staff-engineer,release-engineer:role=release-engineer"
+          agents: "security-engineer:role=security-engineer:cwd=.,technical-writer:role=technical-writer:cwd=.,product-manager:role=product-manager:cwd=.,staff-engineer:role=staff-engineer:cwd=.,release-engineer:role=release-engineer:cwd=."
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

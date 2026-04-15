@@ -31,10 +31,12 @@ Agents hear the same direction and can orient before the coach asks Q2.
 
 ### Facilitation
 
-The coach poses Q2 to each agent individually via **Tell**. Each agent responds
-by broadcasting their domain metrics via **Share** — all participants see every
-response, enabling cross-domain awareness. The coach collects all responses
-before moving to Q3.
+The coach poses Q2 to each agent individually via **Tell**. Include the
+facilitator's working directory path in each Tell message so agents can locate
+the repository checkout for direct measurement (e.g., `specs/STATUS`,
+`wiki/<agent>.md`). Each agent responds by broadcasting their domain metrics via
+**Share** — all participants see every response, enabling cross-domain
+awareness. The coach collects all responses before moving to Q3.
 
 ## Question 3: What obstacles are preventing us from reaching the target condition?
 
