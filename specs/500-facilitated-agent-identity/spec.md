@@ -7,9 +7,9 @@ main, branch `fix/coach-agent-identity`). This spec documents the rationale
 retroactively. Line references describe pre-fix state unless noted otherwise.
 
 Participant agents in facilitated daily meetings had no identity. The
-`FACILITATED_AGENT_SYSTEM_PROMPT` in `facilitator.js` was a static string —
-"You are one of several agents" — that never named the agent or its role. When
-five domain agents (staff-engineer, security-engineer, technical-writer,
+`FACILITATED_AGENT_SYSTEM_PROMPT` in `facilitator.js` was a static string — "You
+are one of several agents" — that never named the agent or its role. When five
+domain agents (staff-engineer, security-engineer, technical-writer,
 release-engineer, product-manager) received the same anonymous prompt and the
 same facilitator broadcast about technical topics (specs, CI, quality gates),
 they converged on whichever role best matched the shared context.
@@ -17,11 +17,11 @@ they converged on whichever role best matched the shared context.
 In three consecutive daily-meeting traces on 2026-04-15, this convergence
 worsened:
 
-| Trace (run ID)  | Role confusion rate | Manifestation                                |
-| --------------- | ------------------- | -------------------------------------------- |
-| 24459264601     | 1/5 (PM only)       | PM adopted facilitator voice, 0 domain Shares |
-| 24461540859     | 5/5                 | All agents titled "Staff Engineer — Current Condition" |
-| 24464669481     | 5/5                 | All agents titled "Staff Engineer perspective" |
+| Trace (run ID) | Role confusion rate | Manifestation                                          |
+| -------------- | ------------------- | ------------------------------------------------------ |
+| 24459264601    | 1/5 (PM only)       | PM adopted facilitator voice, 0 domain Shares          |
+| 24461540859    | 5/5                 | All agents titled "Staff Engineer — Current Condition" |
+| 24464669481    | 5/5                 | All agents titled "Staff Engineer perspective"         |
 
 The PM in the first trace was not uniquely vulnerable — it was the canary. By
 the third trace every agent self-identified as "Staff Engineer" and produced
@@ -47,18 +47,18 @@ observed problems:
 
 1. **Redundant data gathering.** When all agents believe they are the same role,
    they query the same data sources. In run 24464669481, `cat specs/STATUS` was
-   run 5 times, `gh issue list` 4 times, `gh run list` 4 times, and `bun run
-   check` 4 times — approximately 17 redundant tool calls producing identical
-   results. In run 24459264601, key files were read 6-9 times across agents (97
-   total Read calls). Agents also re-gather data the facilitator already
-   broadcast in Q1 because the prompt doesn't instruct them to use it.
+   run 5 times, `gh issue list` 4 times, `gh run list` 4 times, and
+   `bun run check` 4 times — approximately 17 redundant tool calls producing
+   identical results. In run 24459264601, key files were read 6-9 times across
+   agents (97 total Read calls). Agents also re-gather data the facilitator
+   already broadcast in Q1 because the prompt doesn't instruct them to use it.
 
 2. **Solo completion of Q2-Q5 (observed correlation).** The facilitator yields
-   correctly after Q1 (per commit 330e702), but after receiving five identical Q1
-   responses, it completed Q2-Q5 as a monologue in all three traces. Whether this
-   is caused by identity collapse or an independent facilitation-protocol issue is
-   not yet determined — diverse Q1 responses may provide sufficient incentive for
-   collaborative Q2-Q5, but this remains to be verified.
+   correctly after Q1 (per commit 330e702), but after receiving five identical
+   Q1 responses, it completed Q2-Q5 as a monologue in all three traces. Whether
+   this is caused by identity collapse or an independent facilitation-protocol
+   issue is not yet determined — diverse Q1 responses may provide sufficient
+   incentive for collaborative Q2-Q5, but this remains to be verified.
 
 3. **Redundant corrections.** When agents do catch stale data, the correction
    comes N times instead of once. In run 24461540859, four agents independently
@@ -83,15 +83,16 @@ than re-gathering it.
 
 The system prompt appended to each agent must include the agent's name and role.
 The `config.name` and `config.role` fields are already available at agent
-construction time — they must be interpolated into the prompt so each agent knows
-who it is without an identity-discovery loop.
+construction time — they must be interpolated into the prompt so each agent
+knows who it is without an identity-discovery loop.
 
 ### Domain focus
 
-The prompt must instruct each agent to report on its own domain and not duplicate
-other participants' areas. When a security-engineer receives this instruction
-alongside its identity, it should analyze supply chain and dependency security
-rather than mirroring the staff-engineer's specs pipeline analysis.
+The prompt must instruct each agent to report on its own domain and not
+duplicate other participants' areas. When a security-engineer receives this
+instruction alongside its identity, it should analyze supply chain and
+dependency security rather than mirroring the staff-engineer's specs pipeline
+analysis.
 
 ### Data reuse
 
@@ -137,8 +138,8 @@ not re-verify it.
    stated in the agent config.
 2. Each facilitated agent's system prompt instructs domain-specific reporting
    (not generic analysis).
-3. Each facilitated agent's system prompt instructs reuse of facilitator-provided
-   data.
+3. Each facilitated agent's system prompt instructs reuse of
+   facilitator-provided data.
 4. `bun run check` passes with no regressions.
 
 Runtime validation (role confusion rate, redundant tool call count, domain

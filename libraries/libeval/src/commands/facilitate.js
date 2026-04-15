@@ -1,30 +1,18 @@
-import { readFileSync, createWriteStream, mkdtempSync } from "node:fs";
-import { resolve, join } from "node:path";
-import { tmpdir } from "node:os";
+import { readFileSync, createWriteStream } from "node:fs";
+import { resolve } from "node:path";
 import { createFacilitator } from "../facilitator.js";
 import { createTeeWriter } from "../tee-writer.js";
 
 /**
- * Parse agent config string into structured configs.
- * Format: "name1:key=val:key=val,name2:key=val"
- * @param {string} raw
- * @returns {Array<{name: string, role: string, cwd: string, maxTurns?: number}>}
+ * Parse comma-separated agent profile names into structured configs.
+ * @param {string} raw - Comma-separated profile names
+ * @param {string} cwd - Shared working directory for all agents
+ * @returns {Array<{name: string, role: string, cwd: string, agentProfile: string}>}
  */
-function parseAgentConfigs(raw) {
-  return raw.split(",").map((spec) => {
-    const parts = spec.split(":");
-    const name = parts[0];
-    const config = { name, role: name };
-    for (let i = 1; i < parts.length; i++) {
-      const [key, val] = parts[i].split("=");
-      if (key === "cwd") config.cwd = resolve(val);
-      else if (key === "role") config.role = val;
-      else if (key === "maxTurns") config.maxTurns = parseInt(val, 10);
-    }
-    if (!config.cwd) {
-      config.cwd = mkdtempSync(join(tmpdir(), `fit-eval-${name}-`));
-    }
-    return config;
+function parseAgentProfiles(raw, cwd) {
+  return raw.split(",").map((entry) => {
+    const name = entry.trim();
+    return { name, role: name, cwd, agentProfile: name };
   });
 }
 
@@ -45,12 +33,10 @@ function parseFacilitateOptions(values) {
   let taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
   if (taskAmend) taskContent += `\n\n${taskAmend}`;
 
-  const agentsRaw = values.agents;
-  if (!agentsRaw) throw new Error("--agents is required");
-
-  const agentConfigs = parseAgentConfigs(agentsRaw);
-  if (agentConfigs.length < 1)
-    throw new Error("--agents must specify at least one agent");
+  const profilesRaw = values["agent-profiles"];
+  if (!profilesRaw) throw new Error("--agent-profiles is required");
+  const agentCwd = resolve(values["agent-cwd"] ?? ".");
+  const agentConfigs = parseAgentProfiles(profilesRaw, agentCwd);
 
   const maxTurnsRaw = values["max-turns"] ?? "20";
 

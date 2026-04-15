@@ -475,14 +475,7 @@ export function createFacilitator({
       systemPrompt: {
         type: "preset",
         preset: "claude_code",
-        append:
-          `You are "${config.name}" (role: ${config.role}). ` +
-          FACILITATED_AGENT_SYSTEM_PROMPT +
-          " Report only on your own domain — do not duplicate " +
-          "other participants' areas. " +
-          "The facilitator's messages contain measured data — use it " +
-          "as your starting point rather than re-gathering the same " +
-          "information.",
+        append: FACILITATED_AGENT_SYSTEM_PROMPT,
       },
     });
 

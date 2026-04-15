@@ -53,7 +53,7 @@ jobs:
             analyze their own most recent trace using kata-trace. Help them
             identify obstacles and design their next experiment.
           facilitator-profile: "improvement-coach"
-          agents: "${{ inputs.agent }}:role=${{ inputs.agent }}"
+          agent-profiles: "${{ inputs.agent }}"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}
