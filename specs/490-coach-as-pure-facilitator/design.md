@@ -12,8 +12,8 @@ A structural conflict reinforces the layering gap: the coach's agent profile
 contains an Assess section — a solo decision tree for the standalone
 `improvement-coach.yml` workflow — that loads in every context, including
 facilitated meetings where the task already specifies the action. The standalone
-workflow and Assess section must be removed to align the profile with the coach's
-pure facilitator identity.
+workflow and Assess section must be removed to align the profile with the
+coach's pure facilitator identity.
 
 ## Components
 
@@ -91,13 +91,13 @@ In 1-on-1 coaching, the same mechanism applies with a single participant.
 
 ### Question Delivery and Response Pattern
 
-| Question | Coach tool | Agent response | Rationale |
-|----------|-----------|----------------|-----------|
-| Q1: Target condition | Share | — (context-setting) | All agents hear the same direction |
-| Q2: Current condition | Tell (per agent) | Share | Each agent reports own domain metrics |
-| Q3: Obstacles | Tell (per agent) | Share | Obstacles are domain-specific |
-| Q4: Next step | Tell (obstacle owner) | Share | Experiment ownership is individual |
-| Q5: When can we see | Tell (experiment owner) | Share | Timeline is per-experiment |
+| Question              | Coach tool              | Agent response      | Rationale                             |
+| --------------------- | ----------------------- | ------------------- | ------------------------------------- |
+| Q1: Target condition  | Share                   | — (context-setting) | All agents hear the same direction    |
+| Q2: Current condition | Tell (per agent)        | Share               | Each agent reports own domain metrics |
+| Q3: Obstacles         | Tell (per agent)        | Share               | Obstacles are domain-specific         |
+| Q4: Next step         | Tell (obstacle owner)   | Share               | Experiment ownership is individual    |
+| Q5: When can we see   | Tell (experiment owner) | Share               | Timeline is per-experiment            |
 
 Agents respond via Share so all participants see each response — cross-domain
 awareness in team meetings.
@@ -138,7 +138,8 @@ broadcasts to all…"
 
 Read-do and do-confirm checklists gain orchestration-related verification
 concerns: mode detection occurred (read-do), orchestration tools were used for
-all coaching questions in facilitated mode, and Conclude was called (do-confirm).
+all coaching questions in facilitated mode, and Conclude was called
+(do-confirm).
 
 ### Agent Profile — Pure Facilitator Identity
 
@@ -147,8 +148,8 @@ retains: frontmatter, persona, Voice, Constraints, and Memory. Update the
 description to reflect the pure facilitator role. Solo activities previously
 routed through Assess are reassigned: coaching session scheduling becomes a
 storyboard meeting outcome; acting on findings routes to domain agents or
-staff-engineer. The skill's "When to Use" section references the two facilitation
-contexts directly, removing the Assess coupling.
+staff-engineer. The skill's "When to Use" section references the two
+facilitation contexts directly, removing the Assess coupling.
 
 ### Workflow Deletion and KATA.md
 
@@ -163,23 +164,24 @@ The storyboard process gains a team-meeting-only outcome: evaluate whether a
 participant would benefit from a 1-on-1 and trigger `coaching-session.yml` if
 warranted. Skipped in 1-on-1 sessions.
 
-**Rejected: always trigger after every meeting.** Coaching sessions are expensive
-(30-min timeout, Opus). Only trigger when the meeting surfaces a clear need.
+**Rejected: always trigger after every meeting.** Coaching sessions are
+expensive (30-min timeout, Opus). Only trigger when the meeting surfaces a clear
+need.
 
 **Rejected: schedule outside the meeting.** The meeting is where all agents'
 conditions are visible.
 
 ## Key Decisions
 
-| Decision | Chosen | Rejected | Why |
-|----------|--------|----------|-----|
-| Context detection | RollCall probe (tool-not-found = solo) | Separate sections; env var | Intrinsic, no coupling |
-| Question delivery | Mixed Tell + Share | All Share; all Tell | Q1 broadcast; Q2-Q5 directed |
-| Agent responses | Share (broadcast) | Tell (direct) | Cross-domain visibility |
-| System prompts | Refactor to descriptive | Leave unchanged | Prevents layer 1/4 overlap |
-| Mechanics location | coaching-protocol.md | Inline in SKILL.md | Protocol exists, missing mechanism |
-| Solo mode | Preserved as fallback | Removed | Manual/dev use cases |
-| Standalone workflow | Remove | Keep with narrowed Assess | Coach is a facilitator, not a solo actor |
-| Assess section | Remove from profile | Keep for solo routing | Pollutes facilitation contexts |
-| Coaching scheduling | Meeting outcome | Separate scheduled workflow | Meeting is where conditions are visible |
-| Acting on findings | Route to domain agents | Coach implements | Facilitator identity, separation of concerns |
+| Decision            | Chosen                                 | Rejected                    | Why                                          |
+| ------------------- | -------------------------------------- | --------------------------- | -------------------------------------------- |
+| Context detection   | RollCall probe (tool-not-found = solo) | Separate sections; env var  | Intrinsic, no coupling                       |
+| Question delivery   | Mixed Tell + Share                     | All Share; all Tell         | Q1 broadcast; Q2-Q5 directed                 |
+| Agent responses     | Share (broadcast)                      | Tell (direct)               | Cross-domain visibility                      |
+| System prompts      | Refactor to descriptive                | Leave unchanged             | Prevents layer 1/4 overlap                   |
+| Mechanics location  | coaching-protocol.md                   | Inline in SKILL.md          | Protocol exists, missing mechanism           |
+| Solo mode           | Preserved as fallback                  | Removed                     | Manual/dev use cases                         |
+| Standalone workflow | Remove                                 | Keep with narrowed Assess   | Coach is a facilitator, not a solo actor     |
+| Assess section      | Remove from profile                    | Keep for solo routing       | Pollutes facilitation contexts               |
+| Coaching scheduling | Meeting outcome                        | Separate scheduled workflow | Meeting is where conditions are visible      |
+| Acting on findings  | Route to domain agents                 | Coach implements            | Facilitator identity, separation of concerns |
