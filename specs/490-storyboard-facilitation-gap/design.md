@@ -83,13 +83,13 @@ In 1-on-1 coaching, the same mechanism applies with a single participant.
 
 ### Question Delivery and Response Pattern
 
-| Question | Coach tool | Agent response | Rationale |
-|----------|-----------|----------------|-----------|
-| Q1: Target condition | Share | — (context-setting) | All agents hear the same direction |
-| Q2: Current condition | Tell (per agent) | Share | Each agent reports own domain metrics |
-| Q3: Obstacles | Tell (per agent) | Share | Obstacles are domain-specific |
-| Q4: Next step | Tell (obstacle owner) | Share | Experiment ownership is individual |
-| Q5: When can we see | Tell (experiment owner) | Share | Timeline is per-experiment |
+| Question              | Coach tool              | Agent response      | Rationale                             |
+| --------------------- | ----------------------- | ------------------- | ------------------------------------- |
+| Q1: Target condition  | Share                   | — (context-setting) | All agents hear the same direction    |
+| Q2: Current condition | Tell (per agent)        | Share               | Each agent reports own domain metrics |
+| Q3: Obstacles         | Tell (per agent)        | Share               | Obstacles are domain-specific         |
+| Q4: Next step         | Tell (obstacle owner)   | Share               | Experiment ownership is individual    |
+| Q5: When can we see   | Tell (experiment owner) | Share               | Timeline is per-experiment            |
 
 Agents respond via Share (broadcast) rather than Tell (direct to facilitator).
 This lets the facilitator and other agents see each response, enabling
@@ -129,8 +129,8 @@ When orchestration tools are unavailable:
 ### System Prompt Refactoring
 
 Both constants shift from imperative to descriptive. Each tool description
-becomes a declarative statement of what the tool does — no "use X to..." phrasing
-remains at layer 1.
+becomes a declarative statement of what the tool does — no "use X to..."
+phrasing remains at layer 1.
 
 **Current layer 1 (imperative — overlaps layer 4):**
 
@@ -166,15 +166,16 @@ to [verb]," violating the layering rule "no layer restates another's content."
 
 Read-do and do-confirm checklists gain orchestration-related verification
 concerns: mode detection occurred (read-do), orchestration tools were used for
-all coaching questions in facilitated mode, and Conclude was called (do-confirm).
+all coaching questions in facilitated mode, and Conclude was called
+(do-confirm).
 
 ## Key Decisions
 
-| Decision | Chosen | Rejected | Why |
-|----------|--------|----------|-----|
-| Context detection | RollCall probe (tool-not-found = solo) | Separate sections; env var | Intrinsic, no coupling |
-| Question delivery | Mixed Tell + Share | All Share; all Tell | Q1 broadcast; Q2-Q5 directed |
-| Agent responses | Share (broadcast) | Tell (direct) | Cross-domain visibility |
-| System prompts | Refactor to descriptive | Leave unchanged | Prevents layer 1/4 overlap |
-| Mechanics location | coaching-protocol.md | Inline in SKILL.md | Protocol exists, missing mechanism |
-| Solo mode | Preserved as fallback | Removed | Manual/dev use cases |
+| Decision           | Chosen                                 | Rejected                   | Why                                |
+| ------------------ | -------------------------------------- | -------------------------- | ---------------------------------- |
+| Context detection  | RollCall probe (tool-not-found = solo) | Separate sections; env var | Intrinsic, no coupling             |
+| Question delivery  | Mixed Tell + Share                     | All Share; all Tell        | Q1 broadcast; Q2-Q5 directed       |
+| Agent responses    | Share (broadcast)                      | Tell (direct)              | Cross-domain visibility            |
+| System prompts     | Refactor to descriptive                | Leave unchanged            | Prevents layer 1/4 overlap         |
+| Mechanics location | coaching-protocol.md                   | Inline in SKILL.md         | Protocol exists, missing mechanism |
+| Solo mode          | Preserved as fallback                  | Removed                    | Manual/dev use cases               |

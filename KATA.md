@@ -243,11 +243,11 @@ Rules:
 
 - No layer restates another's content. When two layers mention the same tool,
   use voice to separate them: layer 1 describes what a tool is ("ToolX sends a
-  message to ThingY"), layer 4 directs when to use it ("Use ToolX to deliver
-  the quarterly finance report to ThingY").
+  message to ThingY"), layer 4 directs when to use it ("Use ToolX to deliver the
+  quarterly finance report to ThingY").
 - Agents follow the most specific layer. A skill that provides a complete
-  procedure makes system-level tool descriptions invisible — tools not named
-  in the skill procedure will not be used regardless of what layer 1 says.
+  procedure makes system-level tool descriptions invisible — tools not named in
+  the skill procedure will not be used regardless of what layer 1 says.
 - Tasks name skills — they don't copy steps. Shared procedures belong in skills;
   per-run details belong in tasks.
 - Profiles define boundaries; skills define steps; checklists verify steps.
