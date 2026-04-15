@@ -145,8 +145,8 @@ Commits are not visible until pushed. After committing on a branch:
 2. **Open a PR** — `gh pr create --title "<title>" --body "<body>"`
 
 Each branch gets its own PR. Fix and spec branches are independent — push and PR
-each one separately. Wiki submodule changes follow the wiki curation skill's
-publishing instructions.
+each one separately. Wiki changes follow the wiki curation skill's publishing
+instructions.
 
 ## Memory: what to record
 

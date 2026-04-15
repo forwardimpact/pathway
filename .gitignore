@@ -31,6 +31,9 @@ service-account.json
 **/config/agents/*.agent.md
 !**/config/agents/*.agent.example.md
 
+# Wiki (cloned on demand by scripts/wiki-sync.sh, not tracked)
+wiki/
+
 # Development files
 tmp/
 SCRATCHPAD*.md

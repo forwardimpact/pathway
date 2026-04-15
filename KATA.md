@@ -174,8 +174,9 @@ through the autonomous pipeline — specs merge only the document, not code.
 
 ## Shared Memory
 
-Agents share persistent memory via the **GitHub wiki** submodule at `wiki/`.
-Synced by `just wiki-pull` (on `SessionStart`) and `just wiki-push` (on `Stop`).
+Agents share persistent memory via the **GitHub wiki** at `wiki/`.
+Cloned on demand and synced by `just wiki-pull` (on `SessionStart`) and
+`just wiki-push` (on `Stop`).
 
 Each agent maintains two file types:
 

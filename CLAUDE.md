@@ -172,7 +172,7 @@ data/
   synthetic/   # synthetic data DSL and generated artifacts
 specs/
   {feature}/   # feature specifications and plans
-wiki/          # GitHub wiki submodule — shared agent memory
+wiki/          # GitHub wiki (cloned on demand) — shared agent memory
 website/       # public site content and docs
 ```
 
@@ -322,8 +322,8 @@ above.
 - **Dependency policy** —
   [CONTRIBUTING.md § Dependency Policy](CONTRIBUTING.md#dependency-policy)
 - **Repo self-maintenance** — [KATA.md](KATA.md)
-- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki submodule; kata agents
-  read and write per-agent summaries and weekly logs here)
+- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand; kata
+  agents read and write per-agent summaries and weekly logs here)
 - **Environment, services, tasks** —
   [Operations Reference](website/docs/internals/operations/)
 - **Supply chain & app security** —

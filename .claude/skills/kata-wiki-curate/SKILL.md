@@ -117,7 +117,7 @@ agent's summary under "Observations for teammates."
 ## Output
 
 - **Direct wiki fixes** — Summary corrections, MEMORY.md updates, stale blocker
-  removal. Commit directly to the wiki submodule.
+  removal. Commit directly in `wiki/`.
 - **Cross-agent observations** — Note unacted teammate observations in the
   technical-writer's summary for target agents to see.
 - **Structural improvements** — Spec via `kata-spec` if the wiki structure
@@ -127,10 +127,8 @@ agent's summary under "Observations for teammates."
 
 Wiki changes are not visible to other agents until pushed. After committing:
 
-1. **Push the wiki submodule** — `cd wiki && git push origin HEAD:master`
-2. **Commit and push the submodule pointer** — back in the monorepo root, stage
-   the `wiki` submodule pointer, commit as `chore: update wiki submodule`, and
-   push to `main`.
+1. **Push the wiki** — `cd wiki && git push origin HEAD:master` (or let the
+   `Stop` hook run `just wiki-push`).
 
 If the curation also produced monorepo fixes (e.g., stale spec STATUS, doc
 corrections), branch from `main` as `fix/wiki-curate-YYYY-MM-DD`, commit, push,

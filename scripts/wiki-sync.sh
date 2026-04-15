@@ -1,30 +1,22 @@
 #!/usr/bin/env bash
-# Sync the wiki submodule (GitHub wiki — agent shared memory).
+# Sync the wiki (GitHub wiki — agent shared memory).
 # Usage: wiki-sync.sh pull   — fetch latest from remote
 #        wiki-sync.sh push   — commit local changes and push
 set -euo pipefail
 
 MODE="${1:-pull}"
 WIKI_DIR="wiki"
+WIKI_URL="https://github.com/forwardimpact/monorepo.wiki.git"
 
-# ── Init: ensure submodule is present ──
-if [ -d "$WIKI_DIR" ] && ! [ -d "$WIKI_DIR/.git" ] && ! [ -f "$WIKI_DIR/.git" ]; then
-    rm -rf "$WIKI_DIR"
-fi
-git submodule update --init "$WIKI_DIR" 2>/dev/null || true
-
-if ! [ -d "$WIKI_DIR/.git" ] && ! [ -f "$WIKI_DIR/.git" ]; then
-    echo "wiki-sync: submodule not available, skipping" >&2
-    exit 0
+# ── Init: clone if missing ──
+if ! [ -d "$WIKI_DIR/.git" ]; then
+    git clone "$WIKI_URL" "$WIKI_DIR" 2>/dev/null || {
+        echo "wiki-sync: could not clone wiki, skipping" >&2
+        exit 0
+    }
 fi
 
 cd "$WIKI_DIR"
-
-# ── Fix detached HEAD → master ──
-if ! git symbolic-ref -q HEAD >/dev/null 2>&1; then
-    git checkout -B master HEAD
-fi
-git branch --set-upstream-to=origin/master master 2>/dev/null || true
 
 # ── Configure identity from parent repo ──
 git config user.name  "$(cd .. && git config user.name)"
@@ -39,11 +31,6 @@ if [ "$MODE" = "pull" ]; then
         git rebase --abort 2>/dev/null || true
         git reset --hard origin/master
     }
-    cd ..
-    git add "$WIKI_DIR"
-    if ! git diff --cached --quiet -- "$WIKI_DIR"; then
-        git commit -m "chore: update wiki submodule"
-    fi
     exit 0
 fi
 
@@ -61,8 +48,3 @@ if ! git rebase origin/master 2>/dev/null; then
     }
 fi
 git push origin master 2>/dev/null || true
-cd ..
-git add "$WIKI_DIR"
-if ! git diff --cached --quiet -- "$WIKI_DIR"; then
-    git commit -m "chore: update wiki submodule"
-fi
