@@ -14,13 +14,16 @@ agent analyzing its own trace). Both use the same five coaching kata questions.
 
 ## When to Use
 
-Your Assess section routed you to a coaching context: team storyboard meeting or
-1-on-1 coaching session.
+Entry-point skill for the improvement coach's two facilitation contexts: team
+storyboard meetings (daily-meeting workflow) and 1-on-1 coaching sessions
+(coaching-session workflow).
 
 ## Checklists
 
 <read_do_checklist goal="Prepare for the coaching session">
 
+- [ ] Detect mode: call RollCall — success means facilitated mode,
+      tool-not-found means solo mode.
 - [ ] Read the current month's storyboard (`wiki/storyboard-YYYY-MNN.md`). If
       none exists, this is a planning meeting.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
@@ -31,10 +34,13 @@ Your Assess section routed you to a coaching context: team storyboard meeting or
 <do_confirm_checklist goal="Verify coaching session quality">
 
 - [ ] All five coaching kata questions were addressed.
+- [ ] In facilitated mode: every coaching question reached participants via Tell
+      or Share — no direct wiki/metrics file reads for domain data.
 - [ ] Current condition updated with numbers from metrics CSVs (not narrative).
 - [ ] For team meetings: storyboard file updated and committed.
 - [ ] For 1-on-1: agent's findings written to its own memory.
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
+- [ ] In facilitated mode: Conclude called with session summary.
 
 </do_confirm_checklist>
 
@@ -68,17 +74,31 @@ try next? When will you know?
 
 ## Process
 
-1. **Read the storyboard.** Load `wiki/storyboard-YYYY-MNN.md`. If it does not
+1. **Detect mode.** Call RollCall. If it succeeds, you are in facilitated mode —
+   use orchestration tools for all participant interaction. If the call fails
+   with tool-not-found, you are in solo mode — use direct file reads (existing
+   behavior).
+2. **Read the storyboard.** Load `wiki/storyboard-YYYY-MNN.md`. If it does not
    exist, this is a planning meeting — create it from
    [`references/storyboard-template.md`](references/storyboard-template.md).
-2. **Gather metrics.** Read relevant CSVs from `wiki/metrics/` for each
-   participating agent's domain.
 3. **Run the five questions.** Follow
-   [`references/coaching-protocol.md`](references/coaching-protocol.md) for the
-   appropriate mode.
+   [`references/coaching-protocol.md`](references/coaching-protocol.md). In
+   facilitated mode, use the orchestration tools specified in each question's
+   Facilitation subsection — Share to broadcast Q1, Tell to pose Q2–Q5 to
+   individual agents, collect agent responses (agents respond via Share). In
+   solo mode, read metrics and wiki files directly.
 4. **Update the storyboard.** Write updated Current Condition, Obstacles, and
    Experiments sections back to the storyboard file.
-5. **Commit.** Commit storyboard changes as part of the wiki push.
+5. **Evaluate coaching need (team meetings only).** Review the session's
+   findings. If a participant would benefit from a 1-on-1 coaching session —
+   persistent obstacles, unanalyzed traces, or stalled experiments — trigger
+   `coaching-session.yml` via
+   `gh workflow run coaching-session.yml -f agent=<name>`. Skip this step in
+   1-on-1 sessions.
+6. **Commit.** Commit storyboard changes as part of the wiki push.
+7. **Conclude (facilitated mode only).** Call Conclude with a session summary
+   covering: meeting type, key metrics reviewed, obstacles addressed,
+   experiments planned, and any coaching session triggered.
 
 ## Memory: what to record
 

@@ -13,7 +13,7 @@ pattern of _understand the direction_, _grasp the current condition_, _establish
 the next target condition_, and _experiment toward it_. Kata agents grasp the
 current condition (by analyzing execution traces of prior runs), establish
 target conditions (via specs), and experiment toward them (via implementation).
-Eight workflows — six individual agent runs, one daily team meeting, and one
+Seven workflows — five individual agent runs, one daily team meeting, and one
 on-demand coaching session — six agent personas, and nineteen skills form a
 self-reinforcing PDSA cycle.
 
@@ -70,18 +70,19 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 | **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies      |
 | **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations          |
 | **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps         |
-| **improvement-coach** | Study, Act     | Grasp current condition via traces, audit invariants, fix or spec       |
+| **improvement-coach** | Study          | Facilitate storyboard meetings and 1-on-1 coaching sessions             |
 
 ## Workflows
 
-Eight workflows: six individual agent runs spanning 04-11 UTC, one daily team
+Seven workflows: five individual agent runs spanning 04–09 UTC, one daily team
 meeting at 03:00 UTC, and one on-demand coaching session. Times respect ordering
 constraints (team meeting before individual runs, security before product,
-product before planning, planning before release, all producers before the
-improvement coach). Off-minute schedules avoid API load spikes. All support
-`workflow_dispatch`, use concurrency groups, and have a 30-minute timeout. Each
-workflow sends the same generic task prompt; the agent's Assess section
-determines the actual action.
+product before planning, planning before release). Off-minute schedules avoid
+API load spikes. All support `workflow_dispatch`, use concurrency groups, and
+have a 30-minute timeout. Individual agent workflows send a generic task prompt;
+the agent's Assess section determines the actual action. The daily meeting and
+coaching session send specific task prompts to the improvement coach as
+facilitator.
 
 | Workflow              | Schedule            | Agent                                    |
 | --------------------- | ------------------- | ---------------------------------------- |
@@ -92,7 +93,6 @@ determines the actual action.
 | **product-manager**   | Daily 06:23 UTC     | product-manager                          |
 | **staff-engineer**    | Daily 07:11 UTC     | staff-engineer                           |
 | **release-engineer**  | Daily 08:43 UTC     | release-engineer                         |
-| **improvement-coach** | Wed & Sat 10:47 UTC | improvement-coach                        |
 
 ## Skills
 

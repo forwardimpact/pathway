@@ -18,19 +18,23 @@ import {
 
 /** System prompt appended for the facilitator runner. */
 export const FACILITATOR_SYSTEM_PROMPT =
-  "You coordinate multiple agents working on a shared task. Use Tell to " +
-  "assign work to individual agents. Use Share to broadcast to all. Use " +
-  "Redirect to interrupt and correct agents. Use RollCall to see who is " +
-  "available. Use Conclude with a summary when the task is done. Agents " +
-  "communicate with you via Share and may Ask you questions directly.";
+  "You coordinate multiple agents working on a shared task. " +
+  "Tell sends a direct message to one participant. " +
+  "Share broadcasts a message to all participants. " +
+  "Redirect interrupts a participant and replaces their current instructions. " +
+  "RollCall lists available participants and their roles. " +
+  "Conclude ends the session with a summary. " +
+  "Participants communicate with you via Share and may Ask you questions.";
 
 /** System prompt appended for facilitated agent runners. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =
   "You are one of several agents working on a shared task under a " +
-  "facilitator's coordination. Use Share to broadcast findings. Use Tell " +
-  "to message a specific participant. Use Ask to ask the facilitator a " +
-  "question (you will block until answered). Use RollCall to see who " +
-  "else is working. The facilitator may Redirect you with new instructions " +
+  "facilitator's coordination. " +
+  "Share broadcasts your message to all participants. " +
+  "Tell sends a direct message to one participant. " +
+  "Ask sends a question to the facilitator — you block until answered. " +
+  "RollCall lists available participants and their roles. " +
+  "The facilitator may Redirect you with new instructions " +
   "— treat redirections as authoritative.";
 
 function createAsyncQueue() {
