@@ -1,181 +1,187 @@
-- # Design 490 — Storyboard Facilitation Instructions
+# Design 490 — Orchestration-Aware Storyboard Facilitation
 
-## Problem (restated)
+## Problem Recap
 
-The kata-storyboard skill's process steps are all facilitator self-actions. The
-skill (layer 4) never references orchestration tools, so the agent follows its
-solo procedure and never wakes participant agents via the message bus.
-Compounding this, the system prompt constants (layer 1) use imperative phrasing
-("Use Tell to...") that overlaps with the procedural role layer 4 should own.
+The `kata-storyboard` skill defines a solo procedure. The orchestration tools
+(RollCall, Tell, Share, Conclude) exist at the relay layer but the skill never
+references them. Result: the coach performs every step alone, participant agents
+never wake up. Fix is instruction-only — two markdown files change.
 
 ## Components
 
-Three change sites: two skill files, one code constant pair. No new files.
+Two files, one interface contract:
 
-### SKILL.md — Session lifecycle and context detection
+| Component                         | Role                                      | Layer           |
+| --------------------------------- | ----------------------------------------- | --------------- |
+| `SKILL.md`                        | Process steps, checklists, mode detection | Skill (L4)      |
+| `references/coaching-protocol.md` | Per-question facilitation mechanics       | Skill reference |
+| `FACILITATOR_SYSTEM_PROMPT`       | Tool semantics (unchanged)                | System (L1)     |
+| `FACILITATED_AGENT_SYSTEM_PROMPT` | Agent tool semantics (unchanged)          | System (L1)     |
 
-The Process section gains:
+**Interface contract:** The coach communicates with agents exclusively through
+orchestration tools. Agents respond via Share (broadcast findings) or Tell
+(direct to facilitator). The message bus is the only data channel — no direct
+file reads of agent wiki summaries or metrics by the facilitator. All messages
+are natural-language prompts (not structured JSON) — the same format agents use
+in normal conversation.
 
-1. **Context detection** — determine facilitated vs. solo mode at session start.
-2. **Orchestration-aware steps** — steps 2-3 become facilitation actions in
-   facilitated mode.
-
-### coaching-protocol.md — Per-question facilitation mechanics
-
-Each of the five questions gains: which tool the coach uses to pose it, how
-agents respond (Share), and how the coach integrates responses before advancing.
-
-### facilitator.js — System prompt constants
-
-`FACILITATOR_SYSTEM_PROMPT` and `FACILITATED_AGENT_SYSTEM_PROMPT` are refactored
-from imperative to descriptive semantics. Layer 1 becomes purely descriptive —
-what each tool is — so layer 4 can own procedural instructions without overlap.
-
-## Architecture
-
-### Context Detection
-
-```mermaid
-flowchart TD
-    A[Session start] --> B{Orchestration tools available?}
-    B -->|Yes| C[Facilitated mode]
-    B -->|No, tool-not-found| D[Solo mode]
-    C --> E[Orchestration tools for all coaching questions]
-    D --> F[Direct file reads — existing procedure]
-```
-
-The skill probes for facilitated mode by calling RollCall. If the orchestration
-MCP server is not wired, the call fails with tool-not-found — the skill falls
-back to solo mode. If RollCall succeeds, the coach must use Tell, Share, and
-Conclude for all participant interaction.
-
-**Rejected: separate process sections** for facilitated and solo. Doubles
-maintenance surface and creates divergence risk.
-
-**Rejected: environment variable or config flag.** Couples the skill to
-infrastructure details and violates instruction layering.
-
-### Session Lifecycle (Facilitated Mode)
+## Architecture: Two-Phase Session
 
 ```mermaid
 sequenceDiagram
-    participant C as Coach (facilitator)
-    participant A as Agents (1..N)
+    participant F as Facilitator (Coach)
+    participant MB as MessageBus
+    participant A1 as Agent 1..N
 
-    C->>A: RollCall — discover participants
-    C->>A: Share — announce target condition (Q1)
+    Note over F: Phase 1 — Session Setup
+    F->>MB: RollCall()
+    MB-->>F: participant list
+    F->>MB: Share("Session context + Q1: target condition")
+    MB-->>A1: wake up (lazy start triggered)
 
-    loop Q2-Q5 per agent
-        C->>A: Tell — pose question to specific agent
-        A->>C: Share — agent broadcasts response
+    Note over F,A1: Phase 2 — Coaching Loop (Q2–Q5)
+    loop For each question Q2..Q5
+        F->>MB: Share("Q{n}: [question text + context]")
+        A1->>MB: Share("[domain findings]")
+        MB-->>F: collect responses
+        Note over F: Synthesize, update storyboard
     end
 
-    Note over C: Update storyboard artifact
-    Note over C: Commit to wiki
-    C->>A: Conclude — session summary
+    F->>MB: Share("Summary + action items")
+    F->>MB: Conclude(summary)
 ```
 
-The coach owns the storyboard artifact (read, write, commit) and session
-lifecycle (RollCall, Conclude). Domain data flows from agents — the coach must
-not read agent wiki files or metrics CSVs directly in facilitated mode.
+### Phase 1: Session Setup
 
-In 1-on-1 coaching, the same mechanism applies with a single participant.
+The coach owns session lifecycle. Three steps execute before any coaching
+question reaches participants:
 
-### Question Delivery and Response Pattern
+1. **RollCall** — discover available agents, detect mode (team vs. 1-on-1)
+2. **Read storyboard** — load/create storyboard artifact (coach-owned)
+3. **Share** — broadcast session context (storyboard state, target condition)
+   plus Q1 to all participants. This triggers lazy agent startup.
 
-| Question              | Coach tool              | Agent response      | Rationale                             |
-| --------------------- | ----------------------- | ------------------- | ------------------------------------- |
-| Q1: Target condition  | Share                   | — (context-setting) | All agents hear the same direction    |
-| Q2: Current condition | Tell (per agent)        | Share               | Each agent reports own domain metrics |
-| Q3: Obstacles         | Tell (per agent)        | Share               | Obstacles are domain-specific         |
-| Q4: Next step         | Tell (obstacle owner)   | Share               | Experiment ownership is individual    |
-| Q5: When can we see   | Tell (experiment owner) | Share               | Timeline is per-experiment            |
+### Phase 2: Coaching Loop
 
-Agents respond via Share (broadcast) rather than Tell (direct to facilitator).
-This lets the facilitator and other agents see each response, enabling
-cross-domain awareness in team meetings. The facilitator's event-driven
-architecture already supports this — agent Share messages arrive in the
-facilitator's message queue and trigger a resume turn.
+For each question Q2 through Q5, the coach:
 
-**Rejected: Share all questions simultaneously.** Agents respond out of order
-and the coach cannot integrate Q2 answers before posing Q3.
+1. **Shares the question** with context from the storyboard
+2. **Waits for agent responses** (agents Share their domain findings)
+3. **Synthesizes responses** into the storyboard artifact
+4. **Proceeds to next question**
 
-**Rejected: Tell every question (no Share).** Q1 is context-setting —
-broadcasting is more efficient than N identical Tell calls.
+Redirect is an error-handling tool, not part of the happy-path question flow. If
+an agent's response is off-topic or misunderstands the question, the coach uses
+Redirect to correct course before proceeding. It is not mapped to any specific
+coaching question.
 
-**Rejected: agents respond via Tell (direct to facilitator).** Loses
-cross-domain visibility. In team meetings, agents benefit from hearing each
-other's responses.
+After Q5, the coach shares a summary and calls Conclude.
 
-### Redirect — Corrective Intervention
+## Mode Detection via RollCall
 
-Redirect is available to the coach but not mapped to any coaching question. It
-interrupts an agent whose response drifts off-topic. The coaching protocol notes
-its availability without prescribing when.
+The coach detects meeting mode from RollCall results, not from workflow config:
 
-**Rejected: mapping Redirect to a specific question.** Redirect is corrective,
-not questioning.
+| RollCall result | Mode            | Behavior                              |
+| --------------- | --------------- | ------------------------------------- |
+| 2+ participants | Team meeting    | Share all questions to all agents     |
+| 1 participant   | 1-on-1 coaching | Tell questions to single agent        |
+| 0 participants  | Solo fallback   | Existing solo process preserved as-is |
 
-### Solo Mode Fallback
+**Decision:** Detect from RollCall, not from workflow YAML. **Rejected
+alternative:** Hard-code mode in the skill based on workflow name. Why rejected:
+the skill should work in any orchestration context without coupling to workflow
+definitions. RollCall is the canonical runtime discovery mechanism.
 
-When orchestration tools are unavailable:
+## Question-to-Tool Mapping
 
-- **Steps 2-3:** Coach reads metrics CSVs and agent wiki files directly (current
-  behavior preserved).
-- **Steps 1, 4, 5:** Unchanged in both modes (coach-owned actions).
+Each coaching question specifies which tool delivers it and how agents respond:
 
-**Rejected: remove solo mode.** Breaks manual and development use cases.
+| Question              | Coach sends via   | Agent responds via                | Coach action                   |
+| --------------------- | ----------------- | --------------------------------- | ------------------------------ |
+| Q1: Target condition  | Share (broadcast) | — (grounding, no response needed) | Read aloud from storyboard     |
+| Q2: Actual condition  | Share (broadcast) | Share (domain metrics)            | Update Current Condition table |
+| Q3: Obstacles         | Share (broadcast) | Share (identified obstacles)      | Update Obstacles list          |
+| Q4: Next experiment   | Tell (per agent)  | Share (proposed experiment)       | Record in Experiments section  |
+| Q5: When will we know | Share (broadcast) | Share (timeline)                  | Record feedback timing         |
 
-### System Prompt Refactoring
+**Decision:** Q4 uses Tell (directed) rather than Share (broadcast). **Rejected
+alternative:** Share Q4 to all agents simultaneously. Why rejected: experiments
+are per-agent and per-obstacle. Directing Q4 to the agent owning the current
+obstacle produces focused proposals. Other agents overhear via the message bus
+but are not prompted to respond to someone else's obstacle.
 
-Both constants shift from imperative to descriptive. Each tool description
-becomes a declarative statement of what the tool does — no "use X to..."
-phrasing remains at layer 1.
+**Decision:** Q1 does not require agent responses. **Rejected alternative:**
+Have agents confirm they understand the target. Why rejected: Q1 is a grounding
+step — the facilitator reads the target from the storyboard. Requiring
+acknowledgment adds round-trips without information gain. Agents receive the
+context via Share and use it to inform Q2–Q5 responses.
 
-**Current layer 1 (imperative — overlaps layer 4):**
+## 1-on-1 Adaptation
 
+Same question-to-tool mapping but all communication uses Tell (single
+participant) instead of Share. Q1 still requires no response. The agent runs
+`kata-trace` on its own trace when Q2 is posed — the coach does not run trace
+analysis on the agent's behalf.
+
+**Decision:** Agent runs its own trace analysis, not the coach. **Rejected
+alternative:** Coach runs `kata-trace` and reports findings. Why rejected: the
+coaching kata requires the learner to observe their own work. The agent must
+analyze its own trace to internalize the findings.
+
+## Checklist Additions
+
+All checklist items live in `SKILL.md` (the skill owns checklists per KATA.md
+instruction layering). The coaching protocol reference describes mechanics only.
+
+### Read-do additions (SKILL.md)
+
+- Verify orchestration tools are available (RollCall returns without error)
+- For 1-on-1: confirm the single participant agent is in the RollCall list
+
+### Do-confirm additions (SKILL.md)
+
+- RollCall was called before first Share or Tell
+- Every coaching question (Q2–Q5) was delivered via Share or Tell
+- Agent responses received before the coach updated each storyboard section
+- Conclude was called with a session summary
+- No direct wiki reads replaced agent-reported data (coach reads storyboard and
+  template only, not agent summaries or agent metrics CSVs)
+
+## Data Flow
+
+```mermaid
+flowchart LR
+    subgraph Coach
+        S[Storyboard artifact]
+        T[Template]
+    end
+    subgraph Agents
+        M1[Agent metrics CSVs]
+        W1[Agent wiki summaries]
+    end
+    subgraph Shared
+        MB[MessageBus]
+    end
+
+    T -->|create if missing| S
+    S -->|read target, current| Coach
+    M1 -->|agent reads own| Agents
+    W1 -->|agent reads own| Agents
+    Agents -->|Share findings| MB
+    MB -->|deliver to coach| Coach
+    Coach -->|Share questions| MB
+    MB -->|deliver to agents| Agents
+    Coach -->|write updates| S
 ```
-FACILITATOR:  "Use Tell to assign work to individual agents. Use Share to
-               broadcast to all. Use Redirect to interrupt and correct agents."
 
-AGENT:        "Use Share to broadcast findings. Use Tell to message a specific
-               participant. Use Ask to ask the facilitator a question."
-```
+Key invariant: agents read their own wiki and metrics files. The coach reads
+only the storyboard artifact (which it owns) and the template. Domain data flows
+through the message bus, not through the coach reading agent files.
 
-**Proposed layer 1 (descriptive — no overlap):**
+## Scope Boundary
 
-```
-FACILITATOR:  "Tell sends a direct message to one participant. Share broadcasts
-               to all. Redirect interrupts with a corrective message."
-
-AGENT:        "Share broadcasts to all participants. Tell sends a direct message
-               to one participant. Ask sends a question to the facilitator
-               (blocks until answered)."
-```
-
-Layer 4 (skill) then owns all imperative instructions:
-
-```
-Layer 4: "Use Tell to pose Q2 to each agent — ask them to report current metrics."
-```
-
-**Rejected: leaving system prompts unchanged.** Both layers would say "Use Tell
-to [verb]," violating the layering rule "no layer restates another's content."
-
-### Checklist Changes
-
-Read-do and do-confirm checklists gain orchestration-related verification
-concerns: mode detection occurred (read-do), orchestration tools were used for
-all coaching questions in facilitated mode, and Conclude was called
-(do-confirm).
-
-## Key Decisions
-
-| Decision           | Chosen                                 | Rejected                   | Why                                |
-| ------------------ | -------------------------------------- | -------------------------- | ---------------------------------- |
-| Context detection  | RollCall probe (tool-not-found = solo) | Separate sections; env var | Intrinsic, no coupling             |
-| Question delivery  | Mixed Tell + Share                     | All Share; all Tell        | Q1 broadcast; Q2-Q5 directed       |
-| Agent responses    | Share (broadcast)                      | Tell (direct)              | Cross-domain visibility            |
-| System prompts     | Refactor to descriptive                | Leave unchanged            | Prevents layer 1/4 overlap         |
-| Mechanics location | coaching-protocol.md                   | Inline in SKILL.md         | Protocol exists, missing mechanism |
-| Solo mode          | Preserved as fallback                  | Removed                    | Manual/dev use cases               |
+Only `SKILL.md` and `references/coaching-protocol.md` change. The
+FACILITATOR_SYSTEM_PROMPT, orchestration toolkit, workflow configs, and agent
+profiles remain unchanged — they work correctly. The design adds no new
+components, interfaces, or data structures. It restructures the instruction flow
+within existing skill files to leverage existing infrastructure.
