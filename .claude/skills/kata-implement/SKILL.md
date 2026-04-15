@@ -183,6 +183,8 @@ Append to the current week's log (see agent profile for the file path):
 - **Blockers encountered** — Plan deviations, codebase divergences, test
   failures, and how they were resolved
 - **Deferred specs** — Specs skipped and why (not ready, missing plan, etc.)
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
 
 ## What NOT to Do
 

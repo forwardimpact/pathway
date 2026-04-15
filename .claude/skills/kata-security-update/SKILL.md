@@ -136,3 +136,5 @@ Append to the current week's log (see agent profile for the file path):
 - **PR triage table** — Each PR with action, failed checks, and reason
 - **Compatibility blockers** — Packages closed due to Check 8
 - **Reverted merges** — PRs merged then reverted, with root cause
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol

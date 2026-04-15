@@ -123,6 +123,16 @@ commit changes, report your decision so the caller can act on it.
    spec stays at `spec draft` until a human approves it. Stop here — the plan is
    the staff engineer's job.
 
+## Memory: what to record
+
+Append to the current week's log (see agent profile for the file path):
+
+- **Specs written** — Spec number, name, and status
+- **Review results** — Specs reviewed and disposition (approved/changes needed)
+- **Deferred work** — Findings not yet captured as specs
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
+
 ## What NOT to Do
 
 The READ-DO checklist covers the core boundaries (spec only, no implementation

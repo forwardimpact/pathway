@@ -226,6 +226,8 @@ Append to the current week's log (see agent profile for the file path):
 - **Saturation notes** — Patterns confirmed, refuted, or newly emerged compared
   to prior cycles
 - **Observations for teammates** — Callouts for specific agents
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
 
 ## Analysis Principles
 

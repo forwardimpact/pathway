@@ -142,3 +142,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Completion status** — Whether the agent completed all tasks
 - **Key friction points** — Where the agent struggled most
 - **Issues created or updated** — Issue numbers and their categories
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
