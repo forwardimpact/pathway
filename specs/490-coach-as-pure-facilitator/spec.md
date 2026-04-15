@@ -149,10 +149,10 @@ when and why to use those tools in a storyboard meeting.
 
 ### Remove the standalone workflow and Assess section
 
-Delete `.github/workflows/improvement-coach.yml` and the `§ Assess` section
-from the agent profile. The coach's two remaining invocation paths — daily
-meeting and coaching session — both use `mode: "facilitate"`, and the profile
-should match that single identity.
+Delete `.github/workflows/improvement-coach.yml` and the `§ Assess` section from
+the agent profile. The coach's two remaining invocation paths — daily meeting
+and coaching session — both use `mode: "facilitate"`, and the profile should
+match that single identity.
 
 The solo activities that the standalone workflow enabled are reassigned:
 
@@ -173,8 +173,8 @@ eight and remove the standalone improvement-coach row from the workflows table.
 
 - `.claude/skills/kata-storyboard/SKILL.md` — add orchestration-aware process
   steps, add context detection (facilitated vs. solo), update checklists, add
-  coaching session scheduling as meeting outcome, remove Assess coupling in "When
-  to Use"
+  coaching session scheduling as meeting outcome, remove Assess coupling in
+  "When to Use"
 - `.claude/skills/kata-storyboard/references/coaching-protocol.md` — rewrite
   with explicit facilitation mechanics per question
 - `libraries/libeval/src/facilitator.js` — refactor `FACILITATOR_SYSTEM_PROMPT`
