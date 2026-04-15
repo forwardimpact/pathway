@@ -136,11 +136,15 @@ when and why to use those tools in a storyboard meeting.
   steps, add context detection (facilitated vs. solo), update checklists
 - `.claude/skills/kata-storyboard/references/coaching-protocol.md` — rewrite
   with explicit facilitation mechanics per question
+- `libraries/libeval/src/facilitator.js` — refactor `FACILITATOR_SYSTEM_PROMPT`
+  and `FACILITATED_AGENT_SYSTEM_PROMPT` from imperative to descriptive semantics
+  so layer 1 describes what tools are without overlapping layer 4's procedural
+  instructions
 
 ### Excluded
 
-- `libraries/libeval/src/facilitator.js` — orchestration infrastructure works
-  correctly; the bug is in instructions, not code
+- `libraries/libeval/src/facilitator.js` `Facilitator` class — orchestration
+  infrastructure works correctly; only the system prompt constants change
 - `libraries/libeval/src/orchestration-toolkit.js` — tools work correctly
 - `.github/workflows/daily-meeting.yml` — workflow configuration is correct
 - `.github/workflows/coaching-session.yml` — workflow configuration is correct
