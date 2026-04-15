@@ -18,3 +18,8 @@ runs:
     - name: Bootstrap
       shell: bash
       run: ./scripts/bootstrap.sh
+
+    - name: Push wiki changes
+      uses: ./.github/actions/post-run
+      with:
+        command: just wiki-push
