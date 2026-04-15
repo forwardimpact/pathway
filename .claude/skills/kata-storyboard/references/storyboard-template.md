@@ -5,8 +5,7 @@
 _The long-term direction that gives meaning to target conditions and
 experiments. Changes rarely — only when strategic direction shifts._
 
-> [Write the challenge here. One or two sentences describing the team's > > >
-> long-term direction.]
+> [Write the challenge here.]
 
 ## Target Condition
 
