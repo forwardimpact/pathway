@@ -140,8 +140,8 @@ agent-profiles:
   required: false
 ```
 
-3. Update the existing `agent-cwd` input (lines 23-25) — broaden the
-   description and add a default:
+3. Update the existing `agent-cwd` input (lines 23-25) — broaden the description
+   and add a default:
 
 ```yaml
 # Before
@@ -156,8 +156,8 @@ agent-cwd:
   default: "."
 ```
 
-Env block — remove the `AGENTS` line (line 112) and add `AGENT_PROFILES`.
-Leave the existing `AGENT_CWD` line (line 104) unchanged:
+Env block — remove the `AGENTS` line (line 112) and add `AGENT_PROFILES`. Leave
+the existing `AGENT_CWD` line (line 104) unchanged:
 
 ```yaml
 # Remove
@@ -219,14 +219,14 @@ option changes.
 
 ## Blast radius
 
-| File | Action |
-|---|---|
-| `libraries/libeval/bin/fit-eval.js` | Modified — option definition + example |
-| `libraries/libeval/src/commands/facilitate.js` | Modified — replace parser, update imports |
-| `libraries/libeval/src/facilitator.js` | Modified — simplify system prompt append |
-| `.github/actions/kata-action/action.yml` | Modified — inputs + env + facilitate branch |
-| `.github/workflows/daily-meeting.yml` | Modified — replace `agents` with `agent-profiles` |
-| `.github/workflows/coaching-session.yml` | Modified — replace `agents` with `agent-profiles` |
+| File                                           | Action                                            |
+| ---------------------------------------------- | ------------------------------------------------- |
+| `libraries/libeval/bin/fit-eval.js`            | Modified — option definition + example            |
+| `libraries/libeval/src/commands/facilitate.js` | Modified — replace parser, update imports         |
+| `libraries/libeval/src/facilitator.js`         | Modified — simplify system prompt append          |
+| `.github/actions/kata-action/action.yml`       | Modified — inputs + env + facilitate branch       |
+| `.github/workflows/daily-meeting.yml`          | Modified — replace `agents` with `agent-profiles` |
+| `.github/workflows/coaching-session.yml`       | Modified — replace `agents` with `agent-profiles` |
 
 No files created. No files deleted.
 

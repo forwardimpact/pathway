@@ -117,10 +117,13 @@ const definition = {
           type: "string",
           description: "Facilitator profile name",
         },
-        agents: {
+        "agent-profiles": {
           type: "string",
-          description:
-            "Agent configs: name1:cwd=/tmp/a:role=explorer,name2:cwd=/tmp/b:role=tester",
+          description: "Comma-separated agent profile names",
+        },
+        "agent-cwd": {
+          type: "string",
+          description: "Agent working directory (default: .)",
         },
       },
     },
@@ -135,7 +138,7 @@ const definition = {
     "fit-eval output --format=text < trace.ndjson",
     "fit-eval run --task-file=task.md --model=opus",
     "fit-eval supervise --task-file=task.md --supervisor-cwd=.",
-    'fit-eval facilitate --task-file=task.md --agents "explorer:cwd=/tmp/a,tester:cwd=/tmp/b"',
+    'fit-eval facilitate --task-file=task.md --agent-profiles "security-engineer,technical-writer"',
   ],
 };
 

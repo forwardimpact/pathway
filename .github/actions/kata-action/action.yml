@@ -21,8 +21,9 @@ inputs:
     required: false
     default: "."
   agent-cwd:
-    description: Agent working directory (for "supervise" mode)
+    description: Agent working directory (for supervise and facilitate modes)
     required: false
+    default: "."
   model:
     description: Claude model to use
     required: false
@@ -53,10 +54,8 @@ inputs:
       Facilitator profile name (passed as --facilitator-profile, facilitate mode
       only)
     required: false
-  agents:
-    description:
-      Comma-separated agent configs for facilitate mode (format
-      "name1:role=x,name2:role=y")
+  agent-profiles:
+    description: Comma-separated agent profile names for facilitate mode
     required: false
   task-amend:
     description: Additional text appended to the task prompt for steering
@@ -109,7 +108,7 @@ runs:
         SUPERVISOR_PROFILE: ${{ inputs.supervisor-profile }}
         AGENT_PROFILE: ${{ inputs.agent-profile }}
         FACILITATOR_PROFILE: ${{ inputs.facilitator-profile }}
-        AGENTS: ${{ inputs.agents }}
+        AGENT_PROFILES: ${{ inputs.agent-profiles }}
         TASK_AMEND: ${{ inputs.task-amend }}
         TRACE_ENABLED: ${{ inputs.trace }}
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
@@ -172,7 +171,8 @@ runs:
 
           bunx fit-eval facilitate \
             --facilitator-cwd="." \
-            --agents="$AGENTS" \
+            --agent-profiles="$AGENT_PROFILES" \
+            --agent-cwd="$AGENT_CWD" \
             --model="$MODEL" \
             "${args[@]}"
         else

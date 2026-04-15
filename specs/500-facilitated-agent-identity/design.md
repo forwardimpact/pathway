@@ -69,8 +69,8 @@ which agents need regardless of identity.
 **Rejected alternative — keep the identity prefix as defense-in-depth.**
 Duplicating identity across profile and prompt creates two sources of truth. If
 they diverge (e.g. profile renamed but prompt not updated), the agent receives
-contradictory identity signals. A single authoritative source — the profile —
-is both simpler and correct by construction.
+contradictory identity signals. A single authoritative source — the profile — is
+both simpler and correct by construction.
 
 ## Data Flow
 
@@ -107,14 +107,14 @@ facilitator broadcasts). Data reuse is a facilitation protocol concern — it
 governs how the facilitator's broadcast content is consumed, not whether agents
 know their identity. Solving identity first lets us observe whether diverse,
 domain-aware agents naturally reduce redundant data gathering before adding
-protocol-level instructions. Criterion 3 will be evaluated separately after
-this change lands and its trace impact is measured.
+protocol-level instructions. Criterion 3 will be evaluated separately after this
+change lands and its trace impact is measured.
 
 ## Success Criteria Mapping
 
-| Spec criterion | Addressed | Mechanism |
-|---|---|---|
-| 1. System prompt contains name/role | Yes | Profile loaded by SDK provides full identity |
-| 2. Domain-specific reporting | Yes | Profile skills list defines domain |
-| 3. Reuse facilitator data | No | Deferred — independent protocol concern |
-| 4. `bun run check` passes | Yes | Verified at implementation |
+| Spec criterion                      | Addressed | Mechanism                                    |
+| ----------------------------------- | --------- | -------------------------------------------- |
+| 1. System prompt contains name/role | Yes       | Profile loaded by SDK provides full identity |
+| 2. Domain-specific reporting        | Yes       | Profile skills list defines domain           |
+| 3. Reuse facilitator data           | No        | Deferred — independent protocol concern      |
+| 4. `bun run check` passes           | Yes       | Verified at implementation                   |
