@@ -1,23 +1,25 @@
-# Design 460 — Kata Storyboard and Metrics
+# Design 460 — Kata Coaching System
 
 ## Overview
 
-Three interconnected components: a metrics recording protocol (utility skill), a
-storyboard meeting protocol (entry-point skill), and holistic integration across
-14 entry-point skills and 6 agent profiles. The kata-action composite action
-gains facilitate mode support to enable the daily meeting workflow.
+Four interconnected components: a metrics recording protocol (utility skill), a
+coaching protocol reused for team meetings and 1-on-1 sessions (entry-point
+skill), a reframing of trace analysis as learner-driven, and holistic
+integration across 14 entry-point skills and 6 agent profiles.
 
 ## Component Map
 
 ```mermaid
 graph TD
-    KM["kata-metrics (utility skill)"] -->|protocol| EP["14 entry-point skills"]
+    KM["kata-metrics (utility)"] -->|protocol| EP["14 entry-point skills"]
     EP -->|"append CSV"| CSV["wiki/metrics/"]
-    KS["kata-storyboard (entry-point skill)"] -->|reads| CSV
+    KS["kata-storyboard (coaching protocol)"] -->|reads| CSV
     KS -->|writes| SB["wiki/storyboard-YYYY-MNN.md"]
-    F["Facilitator profile"] -->|uses| KS
-    A6["6 agent profiles + step 0"] -->|"reads (advisory)"| SB
-    WF["daily-meeting.yml"] -->|facilitate mode| KA["kata-action"]
+    IC["Improvement Coach"] -->|facilitates with| KS
+    A5["5 domain profiles + step 0"] -->|"reads (advisory)"| SB
+    A5 -->|"runs during 1-on-1"| KT["kata-trace"]
+    DM["daily-meeting.yml"] -->|facilitate| IC
+    CS["coaching-session.yml"] -->|"facilitate (1 agent)"| IC
 ```
 
 ## Component 1: Metrics Infrastructure (kata-metrics)
@@ -39,9 +41,8 @@ Long format, one row per data point. Six fields:
 | note   | string | Anomaly annotation (empty if ok) |
 
 **Decision: long format vs. wide format (columns per metric).** Long chosen —
-new metrics require no schema migration, each row is self-describing, and
-append-only semantics are preserved. Wide format rejected: adding a metric
-requires a new column header, breaking append-only writes.
+new metrics need no schema migration, each row is self-describing, append-only
+preserved. Wide rejected: new column headers break append-only writes.
 
 **Decision: CSV vs. JSONL vs. YAML.** CSV chosen — trivial append via `echo >>`,
 grep/awk work without parsers, tabular format maps to XmR charts. JSONL
@@ -64,10 +65,17 @@ each file is the header row — agents create header on first write.
 - `references/control-charts.md` — XmR chart construction, natural process
   limits, signal vs. noise
 
-## Component 2: Storyboard Meeting (kata-storyboard)
+## Component 2: Coaching Protocol (kata-storyboard)
 
-Entry-point skill referenced by the facilitator profile. Defines the Toyota Kata
-Storyboard protocol.
+Entry-point skill used by the improvement coach in two contexts:
+
+- **Team meeting** — coach facilitates, 5 domain agents participate, scope is
+  the team storyboard
+- **1-on-1 coaching** — coach facilitates, 1 domain agent participates and
+  analyzes its own trace via `kata-trace`
+
+Same five coaching kata questions in both contexts. The skill defines the
+storyboard artifact, the five-question protocol, and context-specific guidance.
 
 ### Storyboard Artifact
 
@@ -80,33 +88,54 @@ outcomes). Full template at `references/storyboard-template.md`.
 
 ### Meeting Protocol
 
-Two modes (planning and review) structured around the five coaching kata
-questions. Protocol is read-do for preparation, do-confirm for conclusion.
+Two modes (planning and review) for team meetings, plus 1-on-1 coaching mode.
+Protocol is read-do for preparation, do-confirm for conclusion.
 
-**Decision: protocol in skill file vs. inline in facilitator profile.** Skill
-chosen — reusable for future 1-on-1 coaching, keeps profile to ~60 lines, and
-follows the pattern where agents reference skills for procedures. Rejected:
-inline in profile — exceeds 200-line profile limit, prevents reuse.
+**Decision: single skill for both team and 1-on-1 vs. separate skills.** Single
+skill chosen — the five-question protocol is identical; only scope differs (team
+storyboard vs. individual trace). Separate skills would duplicate the protocol
+and risk divergence.
 
-### Facilitator Profile
+## Component 3: Coach/Learner Role Alignment
 
-`daily-meeting-facilitator.md` — skills: `kata-storyboard`, `kata-gh-cli`. No
-Assess section (coordination role, not domain). No Memory section (storyboard is
-the artifact). Constraints: 30-minute timeout, no code changes, no domain
-decisions.
+The improvement coach becomes a pure coaching role. Domain agents become
+learners who analyze their own work.
 
-**Decision: separate profile vs. shared with mode flag.** Separate chosen —
-clean role separation, no conditional logic, matches one-workflow-one-profile.
-Rejected: mode flag — risks facilitator drifting into domain work.
+### Improvement Coach Profile
 
-## Component 3: Skill Integration
+Restructured `improvement-coach.md`:
+
+- **Skills:** `kata-storyboard`, `kata-metrics`, `kata-spec`, `kata-review`,
+  `kata-gh-cli`. Removes `kata-trace` — learners run it, not the coach.
+- **Assess:** routes to coaching contexts — team storyboard meeting or 1-on-1
+  coaching with a selected agent.
+- **No separate facilitator profile** — the coach IS the facilitator.
+
+**Decision: improvement coach as facilitator vs. separate facilitator profile.**
+Coach chosen — Toyota Kata's coach role maps directly to the facilitator. The
+coach holds no domain state to "report" as a participant; its job is to ask the
+five questions. A separate profile would create a coordination-only role with no
+Toyota Kata analogue. Rejected: separate profile — adds a 7th agent that
+duplicates the coach's purpose.
+
+### Domain Agent Profiles (5 profiles)
+
+Each gains `kata-trace` in their skill list. During 1-on-1 coaching, the agent
+runs kata-trace on its own trace — the agent does the analysis and writes
+findings to its own memory. No memory routing needed.
+
+**Decision: agents run kata-trace vs. coach runs and routes findings.** Agents
+run it — Toyota Kata requires the learner to do the learning. Coach routing
+rejected: inverts the learner/coach relationship and requires a memory routing
+mechanism.
+
+## Component 4: Skill Integration
 
 Each of the 14 entry-point skills gains:
 
 1. **`references/metrics.md`** — 3–5 domain-specific metric suggestions. Each
-   entry: metric name (snake_case), unit, description, data source (which
-   command or check produces the number). Suggestions only — agents discover
-   useful metrics through practice.
+   entry: metric name (snake_case), unit, description, data source. Suggestions
+   only — agents discover useful metrics through practice.
 
 2. **Recording step** — one bullet added to "Memory: what to record":
 
@@ -115,11 +144,11 @@ Each of the 14 entry-point skills gains:
 
    Skills lacking a "Memory: what to record" section gain the full section.
 
-## Component 4: Agent Profile Changes
+## Component 5: Agent Profile Changes
 
-### Assess Step 0 (6 profiles)
+### Assess Step 0 (5 domain profiles)
 
-Each profile gains a step 0 before the existing numbered priority list:
+Each domain profile gains a step 0 before the existing numbered priority list:
 
 > 0\. **Read the storyboard.** Check `wiki/storyboard-YYYY-MNN.md` for this
 > month. If it exists, review the target condition and current obstacle. Weight
@@ -128,47 +157,43 @@ Each profile gains a step 0 before the existing numbered priority list:
 
 Advisory — urgency always overrides storyboard alignment.
 
-### Improvement Coach Addition
-
-`improvement-coach.md` gains `kata-metrics` in its skill list. The coach reads
-metrics across all agents when assessing whether experiments produce measurable
-improvement — cross-agent analysis beyond individual skill recording.
-
-## Component 5: Infrastructure
+## Component 6: Infrastructure
 
 ### kata-action Facilitate Mode
 
 The spec deferred this decision: "design will determine whether it needs
-changes." It does — the daily meeting workflow requires facilitate mode, and
-kata-action must support it to preserve trace capture and git identity setup.
+changes." It does — both workflows require facilitate mode, and kata-action must
+support it to preserve trace capture and git identity.
 
-**Decision: extend kata-action vs. separate action vs. direct fit-eval in
-workflow YAML.** Extend chosen — kata-action handles trace capture, git
-identity, and bootstrap; all workflows share it. Rejected: separate action —
-duplicates logic. Rejected: direct fit-eval — loses trace and identity
-infrastructure.
+**Decision: extend kata-action vs. direct fit-eval in workflow YAML.** Extend
+chosen — kata-action handles trace, identity, and bootstrap; all workflows share
+it. Rejected: direct fit-eval — loses trace capture and identity setup.
 
 Interface: `facilitator-profile` input (profile name) and `agents` input
 (comma-separated config matching fit-eval `--agents`). Trace split per
 participant like supervise mode.
 
-### Daily Meeting Workflow
+### Workflows
 
-`daily-meeting.yml` — scheduled 03:00 UTC daily, facilitate mode, all six agents
-as participants, daily-meeting-facilitator as orchestrator. Same GitHub App
-token, bootstrap, and artifact infrastructure as other kata workflows. 30-minute
-timeout with concurrency group.
+**`daily-meeting.yml`** — scheduled 03:00 UTC daily, facilitate mode.
+Improvement coach as facilitator, five domain agents as participants. Same
+GitHub App token, bootstrap, and artifact infrastructure. 30-minute timeout.
+
+**`coaching-session.yml`** — `workflow_dispatch` only, agent name as input.
+Facilitate mode with improvement coach as facilitator and the selected agent as
+sole participant. Triggered by the coach's regular `run`-mode workflow after
+selecting which agent to coach.
 
 ### Documentation
 
-- **KATA.md** — daily-meeting in Workflows table, new Metrics section, five-
-  question protocol reference
+- **KATA.md** — both workflows in table, Metrics section, coaching protocol
 - **MEMORY.md** — entries for `wiki/metrics/` and `wiki/storyboard-YYYY-MNN.md`
 
 ## What Does NOT Change
 
-- Existing agent schedules (04–11 UTC)
+- Existing domain agent schedules (04–11 UTC)
 - fit-eval CLI (facilitate implemented in spec 440)
+- kata-trace content (grounded theory, invariants, reports — only who runs it)
 - Individual agent autonomy (storyboard is advisory, urgency overrides)
 - Utility/leaf skills (kata-review, kata-ship, kata-gh-cli — no metrics)
 - Wiki summary and weekly log conventions

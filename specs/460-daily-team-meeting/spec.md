@@ -1,4 +1,4 @@
-# Spec 460 — Kata Storyboard and Metrics
+# Spec 460 — Kata Coaching System
 
 ## Problem
 
@@ -34,25 +34,38 @@ This creates three visible problems in the wiki:
   cannot build process behavior charts that reveal whether a process is stable
   or reacting to special causes.
 
+- **Inverted learner/coach relationship.** In Toyota Kata, the _learner_ does
+  the work and the _coach_ asks the questions. Currently the improvement coach
+  analyzes other agents' traces and holds findings in its own wiki summary. The
+  analyzed agent never sees its own trace — it learns nothing from the analysis.
+  This inverts Toyota Kata: the coach does the learning instead of the learner.
+  The improvement coach should be asking the five coaching kata questions while
+  the agent itself reflects on its own work.
+
 The Toyota Kata model prescribes a specific discipline: understand the direction
 (challenge), grasp the current condition (measured), establish a target
 condition (measurable), identify obstacles, and run experiments (PDSA cycles).
 The daily Kata Storyboard meeting reviews progress through five structured
-questions — not status updates. Spec 450 gave agents the ability to grasp _their
-own_ current condition. This spec gives the _team_ the structures needed to
-practice Toyota Kata as a team: a shared storyboard, measured data, and a
-disciplined daily review.
+questions — not status updates. The coaching kata is always a dialogue between a
+_coach_ who asks and a _learner_ who reflects. Spec 450 gave agents the ability
+to grasp _their own_ current condition. This spec gives the _team_ the
+structures needed to practice Toyota Kata fully: a shared storyboard, measured
+data, a disciplined daily review, and 1-on-1 coaching sessions where agents
+analyze their own work.
 
 ## Proposal
 
-Three additions form a cohesive system: a data recording protocol that all kata
-skills use (`kata-metrics`), a structured meeting skill built on that data
-(`kata-storyboard`), and holistic updates to every entry-point kata skill to
-participate in data collection.
+Four additions form a cohesive coaching system: a data recording protocol
+(`kata-metrics`), a coaching protocol used for both team meetings and 1-on-1
+sessions (`kata-storyboard`), a reframing of trace analysis as learner-driven
+coaching, and holistic updates to every entry-point kata skill.
 
 ```
-Current:  Agent wakes → reads wiki → assesses own domain → acts
-Proposed: Agents record metrics → Meeting reviews storyboard → agents read storyboard → assess → act
+Current:  Coach analyzes agent traces → findings stay in coach's memory
+          Agents wake → read wiki → assess own domain → act (in isolation)
+
+Proposed: Agents record metrics → Team storyboard reviews progress
+          Coach facilitates 1-on-1 → agent analyzes its own trace → agent learns
 ```
 
 ### kata-metrics — Time-series data recording
@@ -104,12 +117,13 @@ mandate them.
 **What the skill file does not contain:** specific metrics for any domain. Those
 live in each entry-point skill's `references/metrics.md`.
 
-### kata-storyboard — Team storyboard meeting
+### kata-storyboard — Coaching protocol
 
-A new entry-point skill defining the Toyota Kata Storyboard protocol for the
-daily team meeting. The facilitator agent profile references this skill instead
-of carrying an inline meeting procedure. This makes the protocol reusable — a
-future 1-on-1 coaching skill could share the same storyboard structure.
+A new entry-point skill defining the Toyota Kata Storyboard protocol. Used in
+two contexts: team storyboard meetings (improvement coach facilitates, five
+domain agents participate) and 1-on-1 coaching sessions (improvement coach
+facilitates, one domain agent participates and analyzes its own trace). The
+protocol is the same five questions in both contexts — only the scope differs.
 
 **The storyboard artifact.** The team maintains a monthly storyboard at
 `wiki/storyboard-YYYY-MNN.md` (e.g., `storyboard-2026-M04.md`) where NN is the
@@ -156,22 +170,29 @@ these questions, not status updates:
    experiment's results will be visible (next meeting, end of week, after a
    specific workflow run).
 
-**Meeting participants.** The daily meeting uses facilitate mode with all six
-agent profiles as participants: security-engineer, technical-writer,
-product-manager, staff-engineer, release-engineer, and improvement-coach. The
-daily-meeting-facilitator is the orchestrating role. This is a 7-agent session
-(1 facilitator + 6 participants) and must complete within the 30-minute workflow
-timeout.
+**Team meeting participants.** The daily team meeting uses facilitate mode with
+the improvement coach as facilitator and five domain agents as participants:
+security-engineer, technical-writer, product-manager, staff-engineer, and
+release-engineer. This is a 6-agent session (1 coach/facilitator + 5
+participants) and must complete within the 30-minute workflow timeout. The
+improvement coach does not participate as a domain expert — it coaches.
 
-**Meeting modes.** The meeting has two modes depending on storyboard state:
+**1-on-1 coaching participants.** A coaching session uses facilitate mode with
+the improvement coach as facilitator and one domain agent as participant. The
+agent selected as input to the coaching-session workflow. The agent runs
+`kata-trace` on its own recent trace during the session, guided by the coach's
+five questions. The agent writes findings to its own memory — no memory routing
+needed.
+
+**Meeting modes.** The storyboard skill defines two modes for team meetings:
 
 - **First meeting of the month (or no storyboard exists)** — Planning meeting.
-  The facilitator leads the team through establishing the challenge (if new),
-  setting the target condition, measuring the current condition, identifying
-  initial obstacles, and planning the first experiment. Creates
+  The coach leads the team through establishing the challenge (if new), setting
+  the target condition, measuring the current condition, identifying initial
+  obstacles, and planning the first experiment. Creates
   `wiki/storyboard-YYYY-MNN.md`.
-- **All other meetings** — Review meeting. The facilitator walks through the
-  five questions, updates the current condition with fresh metrics, records
+- **All other meetings** — Review meeting. The coach walks through the five
+  questions, updates the current condition with fresh metrics, records
   experiment outcomes, and starts the next experiment cycle.
 
 **What the skill file contains:**
@@ -204,7 +225,7 @@ Every entry-point kata skill (14 total) gains two things:
    | kata-product-evaluation | friction_points_found, tasks_completed_ratio                 |
    | kata-documentation      | pages_reviewed, accuracy_errors, days_since_topic_review     |
    | kata-wiki-curate        | stale_observations, summary_corrections, log_hygiene_issues  |
-   | kata-grasp              | traces_analyzed, findings_per_trace, invariant_pass_rate     |
+   | kata-trace              | traces_analyzed, findings_per_trace, invariant_pass_rate     |
    | kata-spec               | specs_in_backlog, days_in_draft                              |
    | kata-design             | designs_in_backlog, days_in_draft                            |
    | kata-plan               | plans_in_backlog, days_in_draft                              |
@@ -218,69 +239,100 @@ Every entry-point kata skill (14 total) gains two things:
    new "Memory: what to record" section. The specific metrics recorded per run
    are the agent's choice, informed by the skill's `references/metrics.md`.
 
+### Trace analysis as learner-driven coaching
+
+The `kata-trace` skill is reframed: domain agents run it on their own traces
+during 1-on-1 coaching sessions, not the improvement coach. The skill itself
+needs minimal content changes — the grounded theory methodology, invariant
+audit, and report structure are unchanged. What changes is _who runs it_ and
+_where findings go_.
+
+Currently the improvement coach's skill list includes `kata-trace` and its
+Assess section routes to trace analysis as a primary action. After this change:
+
+- **Five domain agents** each gain `kata-trace` in their skill list. During a
+  1-on-1 coaching session, the agent analyzes its own recent trace guided by the
+  coach's five questions. Findings go to the agent's own wiki memory.
+- **The improvement coach** loses `kata-trace` from its skill list. Its role
+  becomes purely coaching: facilitating team storyboard meetings and 1-on-1
+  coaching sessions using `kata-storyboard`. The coach's Assess section routes
+  to choosing which coaching context to run (team meeting or 1-on-1 with a
+  selected agent).
+
+This aligns with Toyota Kata: the coach asks, the learner reflects.
+
 ### Agent profile changes
 
-All six existing agent profiles (security-engineer, technical-writer,
-product-manager, staff-engineer, release-engineer, improvement-coach) gain a new
-Assess step 0 that reads the current month's storyboard and weights priority
-assessment toward actions that advance the team's target condition.
+All five domain agent profiles (security-engineer, technical-writer,
+product-manager, staff-engineer, release-engineer) gain:
 
-This step is advisory, not directive. The storyboard informs the agent's
+- **Assess step 0** — reads the current month's storyboard and weights priority
+  assessment toward actions that advance the team's target condition.
+- **`kata-trace`** in their skill list — used during 1-on-1 coaching sessions.
+
+Assess step 0 is advisory, not directive. The storyboard informs the agent's
 assessment but does not override it. If an agent discovers an urgent condition
 during its Assess phase (e.g., a critical CVE), it acts on that regardless of
 what the storyboard says — urgency always wins. The agent notes the deviation in
 its decision log with rationale.
 
-The improvement-coach profile additionally gains `kata-metrics` in its skill
-list. The coach needs to read metrics across all agents when analyzing traces
-and assessing whether experiments are producing measurable improvement — this is
-cross-agent analysis that goes beyond what individual entry-point skills record
-for their own domain.
+The **improvement-coach** profile is restructured:
 
-The new facilitator agent profile references `kata-storyboard` as its skill. The
-meeting procedure lives in the skill (not inline in the profile), keeping the
-profile focused on persona and constraints while making the protocol reusable
-for future 1-on-1 coaching.
+- **Skills** become `kata-storyboard`, `kata-metrics`, `kata-spec`,
+  `kata-review`, `kata-gh-cli`. Loses `kata-trace` (now run by learners, not the
+  coach).
+- **`kata-metrics`** — the coach reads metrics across all agents when reviewing
+  the storyboard, assessing whether experiments are producing measurable
+  improvement.
+- **Assess section** — routes to coaching contexts: team storyboard meeting or
+  1-on-1 coaching session with a selected agent.
+- **No separate facilitator profile** — the improvement coach IS the
+  facilitator, consistent with the Toyota Kata coaching role. The meeting
+  protocol lives in `kata-storyboard` (not inline in the profile), keeping the
+  profile focused on persona and constraints.
 
 ### Workflow scheduling
 
-The daily meeting runs before all individual agent workflows:
+Two new workflows, both using facilitate mode with the improvement coach:
 
-| Workflow          | Schedule            | Mode       |
-| ----------------- | ------------------- | ---------- |
-| **daily-meeting** | Daily 03:00 UTC     | facilitate |
-| security-engineer | Daily 04:07 UTC     | run        |
-| technical-writer  | Daily 05:37 UTC     | run        |
-| product-manager   | Daily 06:23 UTC     | run        |
-| staff-engineer    | Daily 07:11 UTC     | run        |
-| release-engineer  | Daily 08:43 UTC     | run        |
-| improvement-coach | Wed & Sat 10:47 UTC | run        |
+| Workflow             | Schedule            | Mode       | Participants    |
+| -------------------- | ------------------- | ---------- | --------------- |
+| **daily-meeting**    | Daily 03:00 UTC     | facilitate | 5 domain agents |
+| **coaching-session** | `workflow_dispatch` | facilitate | 1 agent (input) |
+
+The daily meeting runs before all individual agent workflows (04-11 UTC,
+unchanged). The coaching session is triggered on demand — the improvement
+coach's regular `run`-mode workflow selects which agent to coach and triggers
+the coaching-session workflow with the agent name as input.
+
+The existing improvement-coach workflow (Wed & Sat 10:47 UTC, `run` mode)
+remains. During its Assess phase, the coach either triggers a coaching session
+or reviews the team storyboard — it no longer runs trace analysis itself.
 
 ### What this is really about
 
-Toyota Kata is not a meeting format — it is a practice pattern. The storyboard
-is the visual management tool that makes the pattern tangible: challenge,
-current condition, target condition, obstacles, experiments. The five questions
-are the coaching protocol that keeps practitioners honest — no narrative status
-updates, only measured conditions and expected outcomes compared to actual
-outcomes.
+Toyota Kata is not a meeting format — it is a practice pattern with two distinct
+roles. The _coach_ asks the five questions. The _learner_ reflects, measures,
+and experiments. The coach never does the learner's work — that would rob the
+learner of the learning.
 
-The previous version of this spec proposed a standup-format meeting with a
-weekly task list. That format replicates the same antipattern Toyota Kata was
-designed to replace: meetings where people report what they did instead of
-examining whether their process is improving. The storyboard format forces the
-team to measure, predict, and learn.
+Previous versions of this spec had the improvement coach analyzing other agents'
+traces and holding findings in its own memory. That inverts the roles: the coach
+was doing the learning. This version corrects the inversion. The improvement
+coach facilitates — it asks the five questions during team meetings and 1-on-1
+coaching sessions. The domain agents do the actual reflection and analysis,
+including analyzing their own traces during coached sessions.
 
 The metrics infrastructure makes this possible. Without recorded data, the five
 questions produce the same prose answers agents already write in wiki summaries.
 With CSV time series per domain, agents can answer "what is the actual condition
-now?" with numbers, plot trends over time, and build process behavior charts
-that distinguish stable processes from ones reacting to special causes.
+now?" with numbers. The storyboard makes the pattern tangible: challenge,
+current condition, target condition, obstacles, experiments.
 
-This is not about adding ceremony. The daily meeting is short — five questions,
-data-grounded answers. It is about giving the team the structures Toyota Kata
-prescribes for systematic improvement: a shared challenge, measured conditions,
-deliberate experiments, and a daily review cycle that keeps everyone aligned.
+This is not about adding ceremony. It is about giving the team the structures
+Toyota Kata prescribes: a shared challenge, measured conditions, deliberate
+experiments, a daily review cycle, and a coaching relationship where the learner
+learns.
 
 ### What does not change
 
@@ -292,14 +344,9 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
   added alongside them, not a replacement.
 - **Decision logging.** Agents still log Surveyed/Alternatives/Chosen/Rationale.
   The storyboard becomes one of the things surveyed.
-
-### Future extensions
-
-- **1-on-1 Kata Coaching sessions.** The improvement coach could run facilitated
-  1-on-1 sessions with individual agents, walking through the five questions
-  against that agent's domain-specific storyboard. The `kata-storyboard` skill
-  is designed to be reusable for this purpose. This is a natural next step but
-  out of scope for this spec.
+- **kata-trace content.** The grounded theory methodology, invariant audit, and
+  report structure are unchanged. Only _who runs it_ and _where findings go_
+  change.
 
 ## Scope
 
@@ -307,7 +354,7 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
 
 **New skill files:**
 
-- `.claude/skills/kata-storyboard/SKILL.md` — storyboard meeting skill
+- `.claude/skills/kata-storyboard/SKILL.md` — coaching protocol (team + 1-on-1)
 - `.claude/skills/kata-storyboard/references/storyboard-template.md` — artifact
   template
 - `.claude/skills/kata-metrics/SKILL.md` — metrics recording protocol
@@ -327,7 +374,7 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
 - `.claude/skills/kata-product-evaluation/references/metrics.md`
 - `.claude/skills/kata-documentation/references/metrics.md`
 - `.claude/skills/kata-wiki-curate/references/metrics.md`
-- `.claude/skills/kata-grasp/references/metrics.md`
+- `.claude/skills/kata-trace/references/metrics.md`
 - `.claude/skills/kata-spec/references/metrics.md`
 - `.claude/skills/kata-design/references/metrics.md`
 - `.claude/skills/kata-plan/references/metrics.md`
@@ -337,45 +384,44 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
 
 - Each gains a metric recording bullet in "Memory: what to record"
 
-**New agent profiles:**
+**Modified agent profiles:**
 
-- `.claude/agents/daily-meeting-facilitator.md` — facilitator profile with
-  `kata-storyboard` skill
+- `.claude/agents/security-engineer.md` — Assess step 0, add `kata-trace`
+- `.claude/agents/technical-writer.md` — Assess step 0, add `kata-trace`
+- `.claude/agents/product-manager.md` — Assess step 0, add `kata-trace`
+- `.claude/agents/staff-engineer.md` — Assess step 0, add `kata-trace`
+- `.claude/agents/release-engineer.md` — Assess step 0, add `kata-trace`
+- `.claude/agents/improvement-coach.md` — restructured: replace `kata-trace`
+  with `kata-storyboard` + `kata-metrics`, rewrite Assess to route to coaching
+  contexts
 
-**Modified agent profiles (Assess step 0 + storyboard reading):**
+**New workflows:**
 
-- `.claude/agents/security-engineer.md`
-- `.claude/agents/technical-writer.md`
-- `.claude/agents/product-manager.md`
-- `.claude/agents/staff-engineer.md`
-- `.claude/agents/release-engineer.md`
-- `.claude/agents/improvement-coach.md` — also add `kata-metrics` to skill list
-
-**New workflow:**
-
-- `.github/workflows/daily-meeting.yml` — daily meeting using facilitate mode
+- `.github/workflows/daily-meeting.yml` — team storyboard using facilitate mode
+- `.github/workflows/coaching-session.yml` — 1-on-1 coaching using facilitate
+  mode, agent name as `workflow_dispatch` input
 
 **Documentation:**
 
 - `wiki/MEMORY.md` — document storyboard and metrics conventions
-- `KATA.md` — add storyboard meeting to Workflows table, add Metrics section,
-  describe the five-question protocol
+- `KATA.md` — add storyboard and coaching-session to Workflows table, add
+  Metrics section, describe coaching protocol
 
 **Wiki directory structure (created at runtime):**
 
 - `wiki/metrics/{agent}/{domain}/` — created by agents as they record metrics
-- `wiki/storyboard-YYYY-MNN.md` — created by facilitator during planning
-  meetings
+- `wiki/storyboard-YYYY-MNN.md` — created by coach during planning meetings
 
 ### Excluded
 
 - `kata-action` composite action — out of scope; design will determine whether
   it needs changes
 - `fit-eval` CLI — facilitate mode already implemented (spec 440)
-- Individual agent scheduling — times unchanged
+- Individual agent scheduling — domain agent times unchanged
 - Utility/leaf skills (`kata-review`, `kata-ship`, `kata-gh-cli`) — no metrics
   sections; they are not entry-point skills
-- 1-on-1 coaching sessions — future extension noted above
+- `kata-trace` content — grounded theory methodology unchanged; only who runs it
+  changes
 
 ## Dependencies
 
@@ -389,30 +435,35 @@ deliberate experiments, and a daily review cycle that keeps everyone aligned.
 1. **`kata-metrics` skill** exists with CSV schema, storage convention,
    recording protocol, metric design guidance, and process behavior chart
    guidance.
-2. **`kata-storyboard` skill** exists with the five-question meeting protocol
-   (planning and review modes), storyboard artifact template, and checklists.
+2. **`kata-storyboard` skill** exists with the five-question coaching protocol
+   (team meeting and 1-on-1 modes), storyboard artifact template, and
+   checklists.
 3. **Monthly storyboard creation** — the `kata-storyboard` skill includes
    instructions to create `wiki/storyboard-YYYY-MNN.md` with sections:
    Challenge, Target Condition, Current Condition, Obstacles, Experiments.
 4. **Storyboard review** — the skill includes instructions to walk through the
    five coaching kata questions, update the current condition with measured data
    from metrics CSVs, record experiment outcomes, and plan next experiments.
-5. **Metrics reference files** — all 14 entry-point kata skills carry a
+5. **1-on-1 coaching** — the `kata-storyboard` skill includes instructions for
+   coaching a single agent through trace analysis using the five questions.
+6. **Metrics reference files** — all 14 entry-point kata skills carry a
    `references/metrics.md` suggesting domain-appropriate metrics.
-6. **Metric recording** — all 14 entry-point kata skills include a metric
+7. **Metric recording** — all 14 entry-point kata skills include a metric
    recording step in their "Memory: what to record" section.
-7. **Agent profiles** — all six existing profiles (security-engineer,
-   technical-writer, product-manager, staff-engineer, release-engineer,
-   improvement-coach) include an Assess step 0 that reads the monthly storyboard
-   and weights priority assessment toward target-condition-aligned actions.
-8. **Facilitator profile** exists at
-   `.claude/agents/daily-meeting-facilitator.md` with `kata-storyboard` as its
-   skill.
-9. **Daily meeting workflow** exists at `.github/workflows/daily-meeting.yml`,
-   scheduled at 03:00 UTC daily, using facilitate mode with all six agents as
-   participants and the daily-meeting-facilitator as orchestrator.
-10. **MEMORY.md** documents both the `storyboard-YYYY-MNN.md` and
+8. **Domain agent profiles** — all five domain profiles include an Assess step 0
+   (storyboard reading) and `kata-trace` in their skill list.
+9. **Improvement coach profile** — restructured with `kata-storyboard` and
+   `kata-metrics` as primary skills, Assess routing to coaching contexts (team
+   meeting or 1-on-1), no longer carries `kata-trace`.
+10. **Daily meeting workflow** exists at `.github/workflows/daily-meeting.yml`,
+    scheduled at 03:00 UTC daily, using facilitate mode with five domain agents
+    as participants and the improvement coach as facilitator.
+11. **Coaching session workflow** exists at
+    `.github/workflows/coaching-session.yml`, triggered by `workflow_dispatch`
+    with agent name as input, using facilitate mode with the improvement coach
+    as facilitator and the selected agent as participant.
+12. **MEMORY.md** documents both the `storyboard-YYYY-MNN.md` and
     `wiki/metrics/` conventions.
-11. **KATA.md** includes the storyboard meeting, metrics infrastructure, and
-    five-question protocol.
-12. **`bun run check` and `bun run test` pass** with no regressions.
+13. **KATA.md** includes the storyboard meeting, coaching sessions, metrics
+    infrastructure, and five-question protocol.
+14. **`bun run check` and `bun run test` pass** with no regressions.
