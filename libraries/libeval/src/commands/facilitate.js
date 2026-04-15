@@ -37,8 +37,6 @@ function parseFacilitateOptions(values) {
   if (!profilesRaw) throw new Error("--agent-profiles is required");
   const agentCwd = resolve(values["agent-cwd"] ?? ".");
   const agentConfigs = parseAgentProfiles(profilesRaw, agentCwd);
-  if (agentConfigs.length < 1)
-    throw new Error("--agent-profiles must specify at least one profile");
 
   const maxTurnsRaw = values["max-turns"] ?? "20";
 
