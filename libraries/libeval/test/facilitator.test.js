@@ -82,7 +82,7 @@ describe("Facilitator - core orchestration", () => {
     const result = await facilitator.run("Quick task");
 
     assert.strictEqual(result.success, true);
-    assert.strictEqual(result.turns, 0);
+    assert.strictEqual(result.turns, 1);
     assert.strictEqual(
       agentStarted,
       false,

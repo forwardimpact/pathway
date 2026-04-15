@@ -24,7 +24,11 @@ export const FACILITATOR_SYSTEM_PROMPT =
   "Redirect interrupts a participant and replaces their current instructions. " +
   "RollCall lists available participants and their roles. " +
   "Conclude ends the session with a summary. " +
-  "Participants communicate with you via Share and may Ask you questions.";
+  "Participants communicate with you via Share and may Ask you questions. " +
+  "IMPORTANT: After sending messages via Tell or Share, stop making tool " +
+  "calls and produce a text response. The system will resume you with " +
+  "participant responses. Do not proceed to the next question or call " +
+  "Conclude until you have received responses from participants.";
 
 /** System prompt appended for facilitated agent runners. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =
@@ -113,28 +117,40 @@ export class Facilitator {
   async run(task) {
     this.emitOrchestratorEvent({ type: "session_start" });
 
+    // Launch agent loops first — they wait for messages via messageBus.
+    // This lets agents process Tell/Share messages that arrive during the
+    // facilitator's initial run, rather than after it completes.
+    const agentPromises = this.agents.map((a) => this.#runAgent(a));
+
     // Turn 0: facilitator receives the task
     this.facilitatorTurns++;
     await this.facilitatorRunner.run(task);
 
-    if (this.ctx.concluded) {
-      this.concludeResolve();
-      this.emitSummary({ success: true, turns: 0, summary: this.ctx.summary });
-      return { success: true, turns: 0 };
-    }
-
     // Handle redirect after turn 0
     await this.#processRedirect();
 
-    // Abort agents promptly when Conclude is called
+    if (this.ctx.concluded) {
+      // Facilitator concluded during its initial run. Let agents finish any
+      // in-progress work before returning — they may have received Tell/Share
+      // messages and started processing concurrently.
+      this.concludeResolve();
+      await Promise.allSettled(agentPromises);
+      this.emitSummary({
+        success: true,
+        turns: this.facilitatorTurns,
+        summary: this.ctx.summary,
+      });
+      return { success: true, turns: this.facilitatorTurns };
+    }
+
+    // Abort agents promptly when Conclude is called during the event loop
     this.concludePromise.then(() => {
       for (const agent of this.agents) {
         agent.runner.currentAbortController?.abort();
       }
     });
 
-    // Launch all loops concurrently
-    const agentPromises = this.agents.map((a) => this.#runAgent(a));
+    // Concurrent phase: facilitator event loop + already-running agent loops
     const facilitatorPromise = this.#facilitatorLoop();
 
     try {

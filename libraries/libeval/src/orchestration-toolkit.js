@@ -154,13 +154,13 @@ export function createFacilitatorToolServer(ctx) {
       ),
       tool(
         "Share",
-        "Broadcast a message to all participants.",
+        "Broadcast a message to all participants. After sending, stop making tool calls to receive responses.",
         { message: z.string() },
         createShareHandler(ctx, { from: "facilitator" }),
       ),
       tool(
         "Tell",
-        "Send a direct message to one participant.",
+        "Send a direct message to one participant. After sending, stop making tool calls to receive their response.",
         { message: z.string(), to: z.string() },
         createTellHandler(ctx, { from: "facilitator" }),
       ),
