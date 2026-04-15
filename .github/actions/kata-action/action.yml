@@ -9,7 +9,7 @@ inputs:
     description: Inline task text (mutually exclusive with task-file)
     required: false
   mode:
-    description: Execution mode — "run" (single agent) or "supervise"
+    description: Execution mode — "run", "supervise", or "facilitate"
     required: false
     default: "run"
   cwd:
@@ -47,6 +47,16 @@ inputs:
     required: false
   agent-profile:
     description: Agent profile name (passed as --agent to Claude CLI)
+    required: false
+  facilitator-profile:
+    description:
+      Facilitator profile name (passed as --facilitator-profile, facilitate mode
+      only)
+    required: false
+  agents:
+    description:
+      Comma-separated agent configs for facilitate mode (format
+      "name1:role=x,name2:role=y")
     required: false
   task-amend:
     description: Additional text appended to the task prompt for steering
@@ -98,6 +108,8 @@ runs:
         SUPERVISOR_TOOLS: ${{ inputs.supervisor-allowed-tools }}
         SUPERVISOR_PROFILE: ${{ inputs.supervisor-profile }}
         AGENT_PROFILE: ${{ inputs.agent-profile }}
+        FACILITATOR_PROFILE: ${{ inputs.facilitator-profile }}
+        AGENTS: ${{ inputs.agents }}
         TASK_AMEND: ${{ inputs.task-amend }}
         TRACE_ENABLED: ${{ inputs.trace }}
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
@@ -149,6 +161,20 @@ runs:
             --model="$MODEL" \
             --allowed-tools="$TOOLS" \
             "${args[@]}"
+        elif [ "$MODE" = "facilitate" ]; then
+          if [ -n "$FACILITATOR_PROFILE" ]; then
+            args+=("--facilitator-profile=$FACILITATOR_PROFILE")
+          fi
+
+          if [ "$MAX_TURNS" != "0" ]; then
+            args+=("--max-turns=$MAX_TURNS")
+          fi
+
+          bunx fit-eval facilitate \
+            --facilitator-cwd="." \
+            --agents="$AGENTS" \
+            --model="$MODEL" \
+            "${args[@]}"
         else
           if [ -n "$AGENT_PROFILE" ]; then
             args+=("--agent-profile=$AGENT_PROFILE")
@@ -180,6 +206,31 @@ runs:
         jq -c 'select(.source == "supervisor") | .event' "$TRACE_DIR/trace.ndjson" \
           > "$TRACE_DIR/supervisor-trace.ndjson"
 
+    - name: Split facilitated trace
+      if:
+        always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
+        steps.setup.outputs.trace-dir != ''
+      shell: bash
+      env:
+        TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
+      run: |
+        # Extract facilitator events
+        jq -c 'select(.source == "facilitator") | .event' "$TRACE_DIR/trace.ndjson" \
+          > "$TRACE_DIR/facilitator-trace.ndjson"
+        # Extract per-agent traces using jq --arg to avoid shell injection.
+        # Agent names come from trace .source fields which originate from
+        # workflow_dispatch input — sanitize by filtering to alphanumeric + hyphen.
+        jq -r 'select(.source != "facilitator") | .source' "$TRACE_DIR/trace.ndjson" \
+          | sort -u \
+          | grep -E '^[a-z][a-z0-9-]*$' \
+          | while IFS= read -r agent; do
+              jq -c --arg src "$agent" 'select(.source == $src) | .event' \
+                "$TRACE_DIR/trace.ndjson" > "$TRACE_DIR/${agent}-trace.ndjson"
+            done
+        # Also produce a combined agent trace for the agent-trace artifact
+        jq -c 'select(.source != "facilitator") | .event' "$TRACE_DIR/trace.ndjson" \
+          > "$TRACE_DIR/agent-trace.ndjson"
+
     - name: Upload agent trace
       if:
         always() && inputs.trace == 'true' && steps.setup.outputs.trace-dir !=
@@ -188,7 +239,7 @@ runs:
       with:
         name: agent-trace
         path: |
-          ${{ inputs.mode == 'supervise' && format('{0}/agent-trace.ndjson', steps.setup.outputs.trace-dir) || format('{0}/trace.ndjson', steps.setup.outputs.trace-dir) }}
+          ${{ (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && format('{0}/agent-trace.ndjson', steps.setup.outputs.trace-dir) || format('{0}/trace.ndjson', steps.setup.outputs.trace-dir) }}
 
     - name: Upload supervisor trace
       if:
@@ -199,10 +250,32 @@ runs:
         name: supervisor-trace
         path: ${{ steps.setup.outputs.trace-dir }}/supervisor-trace.ndjson
 
+    - name: Upload facilitator trace
+      if:
+        always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
+        steps.setup.outputs.trace-dir != ''
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: facilitator-trace
+        path: ${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
+
+    - name: Upload per-agent traces
+      if:
+        always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
+        steps.setup.outputs.trace-dir != ''
+      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      with:
+        name: per-agent-traces
+        path: |
+          ${{ steps.setup.outputs.trace-dir }}/*-trace.ndjson
+          !${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
+          !${{ steps.setup.outputs.trace-dir }}/agent-trace.ndjson
+          !${{ steps.setup.outputs.trace-dir }}/trace.ndjson
+
     - name: Upload combined trace
       if:
-        always() && inputs.trace == 'true' && inputs.mode == 'supervise' &&
-        steps.setup.outputs.trace-dir != ''
+        always() && inputs.trace == 'true' && (inputs.mode == 'supervise' ||
+        inputs.mode == 'facilitate') && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: combined-trace

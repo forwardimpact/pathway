@@ -1,0 +1,58 @@
+name: "Kata: Daily Meeting"
+
+on:
+  schedule:
+    # Daily at 03:00 UTC — before all individual agent workflows
+    - cron: "0 3 * * *"
+  workflow_dispatch:
+    inputs:
+      task-amend:
+        description: "Additional text appended to the task prompt for steering"
+        required: false
+        type: string
+
+concurrency:
+  group: daily-meeting
+  cancel-in-progress: true
+
+permissions:
+  contents: write
+
+jobs:
+  kata:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - name: Generate installation token
+        id: ci-app
+        uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
+        with:
+          app-id: ${{ secrets.CI_APP_ID }}
+          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          fetch-depth: 0
+          token: ${{ steps.ci-app.outputs.token }}
+          submodules: true
+
+      - uses: ./.github/actions/bootstrap
+
+      - name: Team Storyboard Meeting
+        uses: ./.github/actions/kata-action
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
+          CLAUDE_CODE_USE_BEDROCK: "0"
+        with:
+          app-id: ${{ secrets.CI_APP_ID }}
+          mode: "facilitate"
+          task-text: >-
+            Facilitate the team storyboard meeting. Walk through the five
+            coaching kata questions with all participants. Update the storyboard
+            with fresh metrics and experiment progress.
+          facilitator-profile: "improvement-coach"
+          agents: "security-engineer:role=security-engineer,technical-writer:role=technical-writer,product-manager:role=product-manager,staff-engineer:role=staff-engineer,release-engineer:role=release-engineer"
+          model: "opus"
+          max-turns: "200"
+          task-amend: ${{ inputs.task-amend }}
