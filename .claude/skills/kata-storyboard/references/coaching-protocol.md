@@ -22,6 +22,9 @@ Agents hear the same direction and can orient before the coach asks Q2.
 ## Question 2: What is the actual condition now?
 
 - Each agent reports measured data from their domain's metrics CSVs.
+- Run [`xmr.mjs`](../../kata-metrics/scripts/xmr.mjs) against each CSV to get
+  process limits and signals — see
+  [`kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).
 - The coach updates the Current Condition section with fresh numbers.
 - Use counts and durations — not narratives like "improving" or "stable."
 - Reference specific CSV files: `wiki/metrics/{agent}/{domain}/{YYYY}.csv`.

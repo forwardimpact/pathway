@@ -47,7 +47,7 @@ is the header row.
 See [`references/csv-schema.md`](references/csv-schema.md) for field
 definitions, types, and appending rules.
 
-## Process Behavior Charts
+## XmR Analysis
 
-See [`references/control-charts.md`](references/control-charts.md) for XmR chart
-construction, natural process limits, and signal detection.
+See [`references/xmr.md`](references/xmr.md) for chart construction, JSON
+report format, signal rules, and interpretation guidance.
