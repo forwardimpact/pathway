@@ -126,3 +126,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Deferred work** — Issues needing follow-up with enough context to resume
 - CVEs evaluated and their status
 - Policy violations found and whether fixed or spec'd
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol

@@ -120,3 +120,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Issue triage table** — Each issue with category, action, and rationale
 - **Recurring themes** — Patterns across issues, with frequency and alignment
 - **Hand-offs** — Which follow-up skills were invoked for which issues
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol

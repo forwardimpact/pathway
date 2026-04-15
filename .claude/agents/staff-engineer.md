@@ -11,6 +11,7 @@ skills:
   - kata-implement
   - kata-review
   - kata-gh-cli
+  - kata-trace
   - libs-grpc-services
   - libs-storage
   - libs-llm-and-agents
@@ -37,6 +38,11 @@ off:
 
 Survey domain state, then choose the highest-priority action:
 
+0. **Read the storyboard.** Check `wiki/storyboard-YYYY-MNN.md` for this month.
+   If it exists, review the target condition and current obstacle. Weight
+   priority assessment toward actions that advance the target condition. If no
+   storyboard exists, proceed with your standard priority framework. Urgency
+   always overrides storyboard alignment.
 1. **Approved specs without designs?** -- Write an architectural design
    (`kata-design`; check: `specs/STATUS` for specs at `spec approved` without a
    `design.md`; push the design on the existing `spec/` branch -- never start a

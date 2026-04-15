@@ -166,3 +166,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Spec review results** — Spec PRs and their assessment
 - **PRs merged this run** — number, title, and final state
 - **Merge failures** — number and the reason (so the next run can revisit)
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol

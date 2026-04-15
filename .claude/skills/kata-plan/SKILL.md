@@ -206,6 +206,8 @@ Append to the current week's log (see agent profile for the file path):
 - **Plan decisions** — Key approach choices and why (so the implementer has
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
 
 ## What NOT to Do
 

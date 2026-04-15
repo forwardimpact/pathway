@@ -13,8 +13,9 @@ pattern of _understand the direction_, _grasp the current condition_, _establish
 the next target condition_, and _experiment toward it_. Kata agents grasp the
 current condition (by analyzing execution traces of prior runs), establish
 target conditions (via specs), and experiment toward them (via implementation).
-Six scheduled workflows — one per agent — six agent personas, and seventeen
-skills form a self-reinforcing PDSA cycle.
+Eight workflows — six individual agent runs, one daily team meeting, and one
+on-demand coaching session — six agent personas, and nineteen skills form a
+self-reinforcing PDSA cycle.
 
 ## Architecture
 
@@ -73,21 +74,25 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 
 ## Workflows
 
-Six scheduled workflows span 04-11 UTC, one per agent. Times respect ordering
-constraints (security before product, product before planning, planning before
-release, all producers before the improvement coach). Off-minute schedules avoid
-API load spikes. All support `workflow_dispatch`, use concurrency groups, and
-have a 30-minute timeout. Each workflow sends the same generic task prompt; the
-agent's Assess section determines the actual action.
+Eight workflows: six individual agent runs spanning 04-11 UTC, one daily team
+meeting at 03:00 UTC, and one on-demand coaching session. Times respect ordering
+constraints (team meeting before individual runs, security before product,
+product before planning, planning before release, all producers before the
+improvement coach). Off-minute schedules avoid API load spikes. All support
+`workflow_dispatch`, use concurrency groups, and have a 30-minute timeout. Each
+workflow sends the same generic task prompt; the agent's Assess section
+determines the actual action.
 
-| Workflow              | Schedule            | Agent             |
-| --------------------- | ------------------- | ----------------- |
-| **security-engineer** | Daily 04:07 UTC     | security-engineer |
-| **technical-writer**  | Daily 05:37 UTC     | technical-writer  |
-| **product-manager**   | Daily 06:23 UTC     | product-manager   |
-| **staff-engineer**    | Daily 07:11 UTC     | staff-engineer    |
-| **release-engineer**  | Daily 08:43 UTC     | release-engineer  |
-| **improvement-coach** | Wed & Sat 10:47 UTC | improvement-coach |
+| Workflow              | Schedule            | Agent                                    |
+| --------------------- | ------------------- | ---------------------------------------- |
+| **daily-meeting**     | Daily 03:00 UTC     | improvement-coach (facilitates 5 agents) |
+| **coaching-session**  | `workflow_dispatch` | improvement-coach (facilitates 1 agent)  |
+| **security-engineer** | Daily 04:07 UTC     | security-engineer                        |
+| **technical-writer**  | Daily 05:37 UTC     | technical-writer                         |
+| **product-manager**   | Daily 06:23 UTC     | product-manager                          |
+| **staff-engineer**    | Daily 07:11 UTC     | staff-engineer                           |
+| **release-engineer**  | Daily 08:43 UTC     | release-engineer                         |
+| **improvement-coach** | Wed & Sat 10:47 UTC | improvement-coach                        |
 
 ## Skills
 
@@ -184,6 +189,19 @@ appends findings to the log, and updates the summary at the end. Entry-point
 skills must include a read step and a "Memory: what to record" section.
 Sub-skills and utility skills are exempt.
 
+## Metrics
+
+Agents record time-series data to `wiki/metrics/{agent}/{domain}/{YYYY}.csv`
+after each run. The `kata-metrics` skill defines the CSV schema (six fields:
+date, metric, value, unit, run, note), storage convention, and metric design
+guidance. Each entry-point skill carries a `references/metrics.md` suggesting
+domain-specific metrics.
+
+Metrics serve the coaching cycle: the team storyboard meeting (see Workflows
+table) uses metric data to answer "what is the actual condition now?" with
+numbers rather than narratives. Process behavior charts (XmR) built from the
+time series distinguish stable processes from those reacting to special causes.
+
 ## Authentication
 
 Workflows authenticate via the **GitHub App** (`forward-impact-ci`), not a PAT.
@@ -195,11 +213,12 @@ workflows.
 ## Accountability
 
 Cross-agent accountability runs through the `kata-trace` skill's invariant
-audit. The improvement coach verifies named per-agent invariants against the
-actual trace on every trace analysis cycle — e.g., that the product manager ran
-a contributor lookup before marking any non-CI-app PR mergeable. The canonical
-invariant list lives in `.claude/skills/kata-trace/references/invariants.md`.
-High-severity audit failures must result in a fix PR or spec.
+audit. Domain agents verify their own per-agent invariants against their own
+traces during 1-on-1 coaching sessions facilitated by the improvement coach —
+e.g., that the product manager ran a contributor lookup before marking any
+non-CI-app PR mergeable. The canonical invariant list lives in
+`.claude/skills/kata-trace/references/invariants.md`. High-severity audit
+failures must result in a fix PR or spec.
 
 ## Authoring Best Practices
 

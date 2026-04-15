@@ -159,3 +159,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Deferred work** — Issues needing follow-up with enough context to resume
 - **Accuracy errors** — Specific docs that diverged from source code
 - **Observations for teammates** — Callouts for agents whose work affects docs
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol

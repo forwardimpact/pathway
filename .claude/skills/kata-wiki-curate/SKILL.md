@@ -145,3 +145,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Stale observations** — Teammate observations >2 weeks old with no response
 - **MEMORY.md changes** — What was added/updated
 - **Observations for teammates** — Specific callouts based on wiki findings
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol

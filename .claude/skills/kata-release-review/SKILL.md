@@ -165,6 +165,8 @@ Append to the current week's log (see agent profile for the file path):
   status
 - **Publish failures** — Package and reason (so the next run can revisit)
 - **Main branch CI state** — Green or broken, and what was repaired
+- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
+  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
 
 ## Edge Cases
 

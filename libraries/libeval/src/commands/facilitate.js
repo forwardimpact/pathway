@@ -49,8 +49,8 @@ function parseFacilitateOptions(values) {
   if (!agentsRaw) throw new Error("--agents is required");
 
   const agentConfigs = parseAgentConfigs(agentsRaw);
-  if (agentConfigs.length < 2)
-    throw new Error("--agents must specify at least two agents");
+  if (agentConfigs.length < 1)
+    throw new Error("--agents must specify at least one agent");
 
   const maxTurnsRaw = values["max-turns"] ?? "20";
 
