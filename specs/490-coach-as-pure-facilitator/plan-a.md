@@ -124,8 +124,8 @@ skills:
 **2b. Delete the entire `## Assess` section (lines 29–48).**
 
 Remove from `## Assess` through the blank line before `## Constraints`. The
-coach has no standalone workflow to route — both invocation paths (daily meeting,
-coaching session) receive specific task prompts.
+coach has no standalone workflow to route — both invocation paths (daily
+meeting, coaching session) receive specific task prompts.
 
 **2c. Update the persona paragraph and Constraints section.**
 
@@ -147,18 +147,22 @@ All line references below are pre-edit positions (before 2a and 2b are applied).
 
 In Constraints (line 51), update the first constraint:
 
-**Before:** `- Analysis and improvement only — no merging PRs, no application logic changes`
+**Before:**
+`- Analysis and improvement only — no merging PRs, no application logic changes`
 
-**After:** `- Facilitation only — you ask questions, agents do domain work. No merging PRs, no application logic changes, no writing specs or fix PRs.`
+**After:**
+`- Facilitation only — you ask questions, agents do domain work. No merging PRs, no application logic changes, no writing specs or fix PRs.`
 
-Remove the constraint at line 61: `- Coaching only — you ask the five questions, you do not analyze traces yourself. Domain agents run `kata-trace` during 1-on-1 coaching sessions.` — this is now redundant with the updated first constraint.
+Remove the constraint at line 61:
+`- Coaching only — you ask the five questions, you do not analyze traces yourself. Domain agents run `kata-trace` during 1-on-1 coaching sessions.`
+— this is now redundant with the updated first constraint.
 
 ### Step 3: Rewrite the coaching protocol reference
 
 **File:** `.claude/skills/kata-storyboard/references/coaching-protocol.md`
 
-Full rewrite. The current file describes the five questions in passive voice with
-no facilitation mechanics. The new version adds a "Facilitation" subsection
+Full rewrite. The current file describes the five questions in passive voice
+with no facilitation mechanics. The new version adds a "Facilitation" subsection
 under each question specifying the exact tool the coach uses and how agents
 respond.
 
@@ -404,8 +408,8 @@ direct reads via step 3's fallback clause.
 
 **File:** `.github/workflows/improvement-coach.yml` — **delete entirely.**
 
-The coach's two remaining invocation paths (daily-meeting, coaching-session) both
-use `mode: "facilitate"` with specific task prompts. No standalone workflow
+The coach's two remaining invocation paths (daily-meeting, coaching-session)
+both use `mode: "facilitate"` with specific task prompts. No standalone workflow
 needed.
 
 ### Step 6: Update KATA.md
@@ -433,54 +437,57 @@ Four sub-changes:
 **Before:**
 
 > Eight workflows: six individual agent runs spanning 04-11 UTC, one daily team
-> meeting at 03:00 UTC, and one on-demand coaching session. Times respect ordering
-> constraints (team meeting before individual runs, security before product,
-> product before planning, planning before release, all producers before the
-> improvement coach). Off-minute schedules avoid API load spikes. All support
-> `workflow_dispatch`, use concurrency groups, and have a 30-minute timeout. Each
-> workflow sends the same generic task prompt; the agent's Assess section
-> determines the actual action.
+> meeting at 03:00 UTC, and one on-demand coaching session. Times respect
+> ordering constraints (team meeting before individual runs, security before
+> product, product before planning, planning before release, all producers
+> before the improvement coach). Off-minute schedules avoid API load spikes. All
+> support `workflow_dispatch`, use concurrency groups, and have a 30-minute
+> timeout. Each workflow sends the same generic task prompt; the agent's Assess
+> section determines the actual action.
 
 **After:**
 
 > Seven workflows: five individual agent runs spanning 04–09 UTC, one daily team
-> meeting at 03:00 UTC, and one on-demand coaching session. Times respect ordering
-> constraints (team meeting before individual runs, security before product,
-> product before planning, planning before release). Off-minute schedules avoid
-> API load spikes. All support `workflow_dispatch`, use concurrency groups, and
-> have a 30-minute timeout. Individual agent workflows send a generic task prompt;
-> the agent's Assess section determines the actual action. The daily meeting and
-> coaching session send specific task prompts to the improvement coach as
-> facilitator.
+> meeting at 03:00 UTC, and one on-demand coaching session. Times respect
+> ordering constraints (team meeting before individual runs, security before
+> product, product before planning, planning before release). Off-minute
+> schedules avoid API load spikes. All support `workflow_dispatch`, use
+> concurrency groups, and have a 30-minute timeout. Individual agent workflows
+> send a generic task prompt; the agent's Assess section determines the actual
+> action. The daily meeting and coaching session send specific task prompts to
+> the improvement coach as facilitator.
 
-**6c. Remove the standalone improvement-coach row from the workflows table
-(line 95).**
+**6c. Remove the standalone improvement-coach row from the workflows table (line
+95).**
 
-Delete: `| **improvement-coach** | Wed & Sat 10:47 UTC | improvement-coach                        |`
+Delete:
+`| **improvement-coach** | Wed & Sat 10:47 UTC | improvement-coach                        |`
 
 **6d. Update the agents table description for improvement-coach (line 73).**
 
 **Before:**
 
-> | **improvement-coach** | Study, Act     | Grasp current condition via traces, audit invariants, fix or spec       |
+> | **improvement-coach** | Study, Act | Grasp current condition via traces,
+> audit invariants, fix or spec |
 
 **After:**
 
-> | **improvement-coach** | Study          | Facilitate storyboard meetings and 1-on-1 coaching sessions             |
+> | **improvement-coach** | Study | Facilitate storyboard meetings and 1-on-1
+> coaching sessions |
 
 The coach no longer Acts (no fix PRs or specs) — it only Studies via
 facilitation.
 
 ## Blast Radius
 
-| File | Action |
-|------|--------|
-| `libraries/libeval/src/facilitator.js` | Modified (2 string constants) |
-| `.claude/agents/improvement-coach.md` | Modified (frontmatter, persona, remove Assess, update Constraints) |
-| `.claude/skills/kata-storyboard/references/coaching-protocol.md` | Replaced (full rewrite) |
-| `.claude/skills/kata-storyboard/SKILL.md` | Modified (When to Use, checklists, Process) |
-| `.github/workflows/improvement-coach.yml` | **Deleted** |
-| `KATA.md` | Modified (counts, table, descriptions) |
+| File                                                             | Action                                                             |
+| ---------------------------------------------------------------- | ------------------------------------------------------------------ |
+| `libraries/libeval/src/facilitator.js`                           | Modified (2 string constants)                                      |
+| `.claude/agents/improvement-coach.md`                            | Modified (frontmatter, persona, remove Assess, update Constraints) |
+| `.claude/skills/kata-storyboard/references/coaching-protocol.md` | Replaced (full rewrite)                                            |
+| `.claude/skills/kata-storyboard/SKILL.md`                        | Modified (When to Use, checklists, Process)                        |
+| `.github/workflows/improvement-coach.yml`                        | **Deleted**                                                        |
+| `KATA.md`                                                        | Modified (counts, table, descriptions)                             |
 
 No other files change. The `libraries/libeval/src/index.js` re-exports are
 unaffected (same constant names). No test files change (the constants have no
@@ -488,9 +495,9 @@ direct tests). The daily-meeting and coaching-session workflows are unchanged.
 
 ## Ordering
 
-Steps 1–4 are independent — no runtime or textual dependency between them.
-Step 5 (delete workflow) can happen at any time. Step 6 (KATA.md) depends on
-step 5 being decided (to get the count right) but not on any code change.
+Steps 1–4 are independent — no runtime or textual dependency between them. Step
+5 (delete workflow) can happen at any time. Step 6 (KATA.md) depends on step 5
+being decided (to get the count right) but not on any code change.
 
 All six steps can be executed in a single pass.
 
@@ -503,17 +510,17 @@ All six steps can be executed in a single pass.
    This is the intended effect — the first post-merge daily meeting is the
    verification that orchestration tools are used. Trace analysis of that run
    confirms success criterion 1.
-3. **Removing kata-spec from coach skills.** The coach can no longer write specs.
-   Per the spec, acting on findings routes to domain agents — this is intentional.
-   If a coaching session reveals a need for a spec, the coach tells the relevant
-   domain agent or staff-engineer.
+3. **Removing kata-spec from coach skills.** The coach can no longer write
+   specs. Per the spec, acting on findings routes to domain agents — this is
+   intentional. If a coaching session reveals a need for a spec, the coach tells
+   the relevant domain agent or staff-engineer.
 
 ## Libraries Used
 
 No shared `@forwardimpact/lib*` libraries are consumed by these changes. The
 `FACILITATOR_SYSTEM_PROMPT` and `FACILITATED_AGENT_SYSTEM_PROMPT` constants live
-in `libraries/libeval/src/facilitator.js` but the changes are string-value edits,
-not new library consumption.
+in `libraries/libeval/src/facilitator.js` but the changes are string-value
+edits, not new library consumption.
 
 ## Execution
 
