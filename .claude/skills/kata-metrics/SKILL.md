@@ -49,5 +49,5 @@ definitions, types, and appending rules.
 
 ## XmR Analysis
 
-See [`references/xmr.md`](references/xmr.md) for chart construction, JSON
-report format, signal rules, and interpretation guidance.
+See [`references/xmr.md`](references/xmr.md) for chart construction, JSON report
+format, signal rules, and interpretation guidance.

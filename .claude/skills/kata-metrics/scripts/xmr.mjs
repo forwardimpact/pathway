@@ -90,6 +90,7 @@ function streaks(dates, series, test, makeSignal) {
   return signals;
 }
 
+// eslint-disable-next-line complexity -- inherent to 4 XMR rules
 function detectSignals(dates, values, mrs, stats) {
   const { xBar, unpl, lnpl, url } = stats;
   const signals = [];
