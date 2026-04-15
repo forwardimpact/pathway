@@ -1,4 +1,4 @@
-# Spec 490 — Storyboard Skill Lacks Facilitation Instructions
+# Spec 490 — Improvement Coach as Pure Facilitator
 
 ## Problem
 
@@ -18,6 +18,25 @@ skill (layer 4) defines a self-sufficient solo procedure that never references
 those tools. See
 [KATA.md § Instruction layering](../../KATA.md#instruction-layering) for the
 five-layer model.
+
+A second, structural conflict reinforces the first: the improvement coach's
+agent profile contains an Assess section — a solo decision tree for the
+standalone `improvement-coach.yml` workflow (Wed & Sat 10:47 UTC). This Assess
+section loads in every invocation context, including facilitated daily meetings
+and 1-on-1 coaching sessions, where the task already specifies the action. The
+coach sees "Survey domain state, then choose the highest-priority action" when
+the workflow task says "Facilitate the team storyboard meeting." The storyboard
+skill's own "When to Use" section (line 19) says "Your Assess section routed you
+to a coaching context" — coupling it to the Assess decision tree rather than the
+workflow task.
+
+The standalone workflow exists so the coach can do two solo activities: (1)
+decide which agent needs a 1-on-1 and trigger the coaching-session workflow, and
+(2) act on findings from prior coaching sessions by writing fix PRs or specs.
+Both are solo work that conflicts with the facilitator identity established by
+spec 460. A facilitator that also writes fix PRs is wearing two hats — and the
+Assess section that routes between them pollutes the profile for the coach's
+primary job.
 
 ### The storyboard skill reads as a solo research procedure
 
@@ -128,18 +147,45 @@ prompt. The FACILITATOR_SYSTEM_PROMPT remains as-is (it correctly describes tool
 semantics at the relay layer). The skill gains the domain-specific procedure for
 when and why to use those tools in a storyboard meeting.
 
+### Remove the standalone workflow and Assess section
+
+Delete `.github/workflows/improvement-coach.yml` and the `§ Assess` section
+from the agent profile. The coach's two remaining invocation paths — daily
+meeting and coaching session — both use `mode: "facilitate"`, and the profile
+should match that single identity.
+
+The solo activities that the standalone workflow enabled are reassigned:
+
+- **Coaching session scheduling** moves to the daily storyboard meeting. The
+  meeting already reviews all agents' conditions on the storyboard — the coach
+  can trigger `coaching-session.yml` as a meeting outcome when it identifies an
+  agent that needs a 1-on-1.
+- **Acting on findings** (fix PRs, specs) routes to the relevant domain agent or
+  staff-engineer, not the coach. The coach facilitates; others implement.
+
+The storyboard skill's "When to Use" section must be updated to remove the
+Assess coupling. KATA.md must be updated to reflect seven workflows instead of
+eight and remove the standalone improvement-coach row from the workflows table.
+
 ## Scope
 
 ### Affected
 
 - `.claude/skills/kata-storyboard/SKILL.md` — add orchestration-aware process
-  steps, add context detection (facilitated vs. solo), update checklists
+  steps, add context detection (facilitated vs. solo), update checklists, add
+  coaching session scheduling as meeting outcome, remove Assess coupling in "When
+  to Use"
 - `.claude/skills/kata-storyboard/references/coaching-protocol.md` — rewrite
   with explicit facilitation mechanics per question
 - `libraries/libeval/src/facilitator.js` — refactor `FACILITATOR_SYSTEM_PROMPT`
   and `FACILITATED_AGENT_SYSTEM_PROMPT` from imperative to descriptive semantics
   so layer 1 describes what tools are without overlapping layer 4's procedural
   instructions
+- `.claude/agents/improvement-coach.md` — remove `§ Assess` section, update
+  profile description to reflect pure facilitator identity
+- `.github/workflows/improvement-coach.yml` — delete (standalone workflow)
+- `KATA.md` — update workflow count (7 not 8), remove standalone
+  improvement-coach row from workflows table, update prose references
 
 ### Excluded
 
@@ -148,8 +194,6 @@ when and why to use those tools in a storyboard meeting.
 - `libraries/libeval/src/orchestration-toolkit.js` — tools work correctly
 - `.github/workflows/daily-meeting.yml` — workflow configuration is correct
 - `.github/workflows/coaching-session.yml` — workflow configuration is correct
-- `.claude/agents/improvement-coach.md` — agent profile routing is correct
-- `FACILITATOR_SYSTEM_PROMPT` — relay-layer description is correct
 - Domain agent profiles — they receive correct facilitated agent system prompts
 
 ## Dependencies
@@ -168,4 +212,11 @@ when and why to use those tools in a storyboard meeting.
    each of the five questions — which tool the coach uses to pose the question
    and how agents respond.
 3. The read-do and do-confirm checklists include orchestration-specific items.
-4. `bun run check` and `bun run test` pass with no regressions.
+4. The improvement coach agent profile has no `§ Assess` section.
+5. `.github/workflows/improvement-coach.yml` is deleted.
+6. KATA.md reflects seven workflows and the standalone improvement-coach row is
+   removed from the workflows table.
+7. The storyboard process includes a step for the coach to trigger a
+   coaching-session workflow when a participant agent would benefit from a
+   1-on-1.
+8. `bun run check` and `bun run test` pass with no regressions.

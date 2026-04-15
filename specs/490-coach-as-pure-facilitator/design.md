@@ -1,4 +1,4 @@
-# Design 490 — Storyboard Facilitation Instructions
+# Design 490 — Improvement Coach as Pure Facilitator
 
 ## Problem (restated)
 
@@ -8,9 +8,17 @@ solo procedure and never wakes participant agents via the message bus.
 Compounding this, the system prompt constants (layer 1) use imperative phrasing
 ("Use Tell to...") that overlaps with the procedural role layer 4 should own.
 
+A structural conflict reinforces the layering gap: the coach's agent profile
+contains an Assess section — a solo decision tree for the standalone
+`improvement-coach.yml` workflow — that loads in every context, including
+facilitated meetings where the task already specifies the action. The standalone
+workflow and Assess section must be removed to align the profile with the coach's
+pure facilitator identity.
+
 ## Components
 
-Three change sites: two skill files, one code constant pair. No new files.
+Six change sites: two skill files, one code constant pair, one agent profile,
+one workflow deletion, one documentation file.
 
 ### SKILL.md — Session lifecycle and context detection
 
@@ -91,82 +99,75 @@ In 1-on-1 coaching, the same mechanism applies with a single participant.
 | Q4: Next step | Tell (obstacle owner) | Share | Experiment ownership is individual |
 | Q5: When can we see | Tell (experiment owner) | Share | Timeline is per-experiment |
 
-Agents respond via Share (broadcast) rather than Tell (direct to facilitator).
-This lets the facilitator and other agents see each response, enabling
-cross-domain awareness in team meetings. The facilitator's event-driven
-architecture already supports this — agent Share messages arrive in the
-facilitator's message queue and trigger a resume turn.
+Agents respond via Share so all participants see each response — cross-domain
+awareness in team meetings.
 
-**Rejected: Share all questions simultaneously.** Agents respond out of order
-and the coach cannot integrate Q2 answers before posing Q3.
+**Rejected: all-Share delivery.** Coach cannot integrate Q2 before posing Q3.
+**Rejected: all-Tell delivery.** Q1 broadcast beats N identical Tell calls.
+**Rejected: Tell responses.** Loses cross-domain visibility.
 
-**Rejected: Tell every question (no Share).** Q1 is context-setting —
-broadcasting is more efficient than N identical Tell calls.
+### Redirect
 
-**Rejected: agents respond via Tell (direct to facilitator).** Loses
-cross-domain visibility. In team meetings, agents benefit from hearing each
-other's responses.
-
-### Redirect — Corrective Intervention
-
-Redirect is available to the coach but not mapped to any coaching question. It
-interrupts an agent whose response drifts off-topic. The coaching protocol notes
-its availability without prescribing when.
-
-**Rejected: mapping Redirect to a specific question.** Redirect is corrective,
-not questioning.
+Available but unmapped to any question — corrective, not questioning. The
+protocol notes its availability without prescribing when.
 
 ### Solo Mode Fallback
 
-When orchestration tools are unavailable:
-
-- **Steps 2-3:** Coach reads metrics CSVs and agent wiki files directly (current
-  behavior preserved).
-- **Steps 1, 4, 5:** Unchanged in both modes (coach-owned actions).
+When orchestration tools are unavailable, steps 2-3 fall back to direct file
+reads (current behavior). Other steps are coach-owned and unchanged.
 
 **Rejected: remove solo mode.** Breaks manual and development use cases.
 
 ### System Prompt Refactoring
 
-Both constants shift from imperative to descriptive. Each tool description
-becomes a declarative statement of what the tool does — no "use X to..." phrasing
-remains at layer 1.
+Both constants shift from imperative to descriptive — each tool description
+becomes a declarative statement ("Tell sends a direct message to one
+participant") instead of a procedural instruction ("Use Tell to assign work").
+Layer 4 then owns all imperative phrasing without overlap.
 
-**Current layer 1 (imperative — overlaps layer 4):**
+**Current (imperative, overlaps layer 4):** "Use Tell to assign work…", "Use
+Share to broadcast…"
 
-```
-FACILITATOR:  "Use Tell to assign work to individual agents. Use Share to
-               broadcast to all. Use Redirect to interrupt and correct agents."
+**Proposed (descriptive, no overlap):** "Tell sends a direct message…", "Share
+broadcasts to all…"
 
-AGENT:        "Use Share to broadcast findings. Use Tell to message a specific
-               participant. Use Ask to ask the facilitator a question."
-```
-
-**Proposed layer 1 (descriptive — no overlap):**
-
-```
-FACILITATOR:  "Tell sends a direct message to one participant. Share broadcasts
-               to all. Redirect interrupts with a corrective message."
-
-AGENT:        "Share broadcasts to all participants. Tell sends a direct message
-               to one participant. Ask sends a question to the facilitator
-               (blocks until answered)."
-```
-
-Layer 4 (skill) then owns all imperative instructions:
-
-```
-Layer 4: "Use Tell to pose Q2 to each agent — ask them to report current metrics."
-```
-
-**Rejected: leaving system prompts unchanged.** Both layers would say "Use Tell
-to [verb]," violating the layering rule "no layer restates another's content."
+**Rejected: leaving prompts unchanged.** Both layers would say "Use Tell to
+[verb]," violating "no layer restates another's content."
 
 ### Checklist Changes
 
 Read-do and do-confirm checklists gain orchestration-related verification
 concerns: mode detection occurred (read-do), orchestration tools were used for
 all coaching questions in facilitated mode, and Conclude was called (do-confirm).
+
+### Agent Profile — Pure Facilitator Identity
+
+Delete `§ Assess` from `.claude/agents/improvement-coach.md`. The profile
+retains: frontmatter, persona, Voice, Constraints, and Memory. Update the
+description to reflect the pure facilitator role. Solo activities previously
+routed through Assess are reassigned: coaching session scheduling becomes a
+storyboard meeting outcome; acting on findings routes to domain agents or
+staff-engineer. The skill's "When to Use" section references the two facilitation
+contexts directly, removing the Assess coupling.
+
+### Workflow Deletion and KATA.md
+
+Delete `.github/workflows/improvement-coach.yml`. Update KATA.md: workflow count
+from eight to seven, remove the standalone improvement-coach row from the
+workflows table, remove the "all producers before the improvement coach"
+scheduling constraint.
+
+### Coaching Session Scheduling
+
+The storyboard process gains a team-meeting-only outcome: evaluate whether a
+participant would benefit from a 1-on-1 and trigger `coaching-session.yml` if
+warranted. Skipped in 1-on-1 sessions.
+
+**Rejected: always trigger after every meeting.** Coaching sessions are expensive
+(30-min timeout, Opus). Only trigger when the meeting surfaces a clear need.
+
+**Rejected: schedule outside the meeting.** The meeting is where all agents'
+conditions are visible.
 
 ## Key Decisions
 
@@ -178,3 +179,7 @@ all coaching questions in facilitated mode, and Conclude was called (do-confirm)
 | System prompts | Refactor to descriptive | Leave unchanged | Prevents layer 1/4 overlap |
 | Mechanics location | coaching-protocol.md | Inline in SKILL.md | Protocol exists, missing mechanism |
 | Solo mode | Preserved as fallback | Removed | Manual/dev use cases |
+| Standalone workflow | Remove | Keep with narrowed Assess | Coach is a facilitator, not a solo actor |
+| Assess section | Remove from profile | Keep for solo routing | Pollutes facilitation contexts |
+| Coaching scheduling | Meeting outcome | Separate scheduled workflow | Meeting is where conditions are visible |
+| Acting on findings | Route to domain agents | Coach implements | Facilitator identity, separation of concerns |
