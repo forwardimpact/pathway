@@ -108,6 +108,7 @@ export class AgentRunner {
           permissionMode: this.permissionMode,
           allowDangerouslySkipPermissions: true,
           abortController,
+          ...(this.mcpServers && { mcpServers: this.mcpServers }),
         },
       });
       return await this.#consumeQuery(iterator);

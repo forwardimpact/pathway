@@ -207,6 +207,44 @@ describe("AgentRunner", () => {
     assert.strictEqual(result.text, "Resumed");
   });
 
+  test("resume() passes mcpServers when configured", async () => {
+    let resumeCapture = null;
+
+    const initMessages = [
+      { type: "system", subtype: "init", session_id: "sess-mcp" },
+      { type: "result", subtype: "success", result: "First done" },
+    ];
+
+    let callCount = 0;
+    const query = async function* (params) {
+      callCount++;
+      if (callCount === 1) {
+        for (const m of initMessages) yield m;
+      } else {
+        resumeCapture = params;
+        yield { type: "result", subtype: "success", result: "Resumed" };
+      }
+    };
+
+    const mcpServers = { orchestration: { command: "test-server" } };
+    const output = new PassThrough();
+    const runner = new AgentRunner({
+      cwd: "/tmp",
+      query,
+      output,
+      mcpServers,
+    });
+
+    await runner.run("Initial task");
+    await runner.resume("Follow up");
+
+    assert.deepStrictEqual(
+      resumeCapture.options.mcpServers,
+      mcpServers,
+      "mcpServers must be passed on resume",
+    );
+  });
+
   test("drainOutput() returns buffered lines and clears buffer", async () => {
     const messages = [
       { type: "assistant", content: "Line 1" },
