@@ -14,7 +14,7 @@ the next target condition_, and _experiment toward it_. Kata agents grasp the
 current condition (by analyzing execution traces of prior runs), establish
 target conditions (via specs), and experiment toward them (via implementation).
 Seven workflows — five individual agent runs, one daily team meeting, and one
-on-demand coaching session — six agent personas, and nineteen skills form a
+on-demand coaching session — six agent personas, and eighteen skills form a
 self-reinforcing PDSA cycle.
 
 ## Architecture
@@ -99,38 +99,26 @@ facilitator.
 All Kata skills use the `kata-` prefix. Each owns exactly one PDSA phase (or
 none for utilities). Reading an agent's skill list reveals its phase coverage.
 
-**Plan**
-
-- `kata-design` — specs -> architectural design documents (max 200 lines)
-- `kata-plan` — designs -> executable plans
-
-**Do**
-
-- `kata-implement` — execute plans step by step
-- `kata-security-update` — Dependabot triage, vulnerability fixes
-- `kata-release-readiness` — rebase, lint fix
-- `kata-release-review` — version bumps, tagging, publish verification
-
-**Study**
-
-- `kata-security-audit` — seven-area security review
-- `kata-product-issue` — issue triage against product vision
-- `kata-product-pr` — PR merge gate (trust, type, CI, spec quality)
-- `kata-product-evaluation` — user testing sessions
-- `kata-documentation` — one topic deep per run
-- `kata-wiki-curate` — agent memory hygiene
-- `kata-trace` — go and see the work agents did via trace analysis and grounded
-  theory
-
-**Act**
-
-- `kata-spec` — write specs capturing WHAT/WHY
-
-**Utility**
-
-- `kata-gh-cli` — GitHub CLI patterns for CI
-- `kata-review` — grade a single artifact (leaf skill, never spawns sub-agents)
-- `kata-ship` — rebase, push, open PR, merge a feature branch
+| Skill                     | Phase   | Purpose                                       |
+| ------------------------- | ------- | --------------------------------------------- |
+| `kata-design`             | Plan    | Specs to architectural design documents       |
+| `kata-plan`               | Plan    | Designs to executable plans                   |
+| `kata-implement`          | Do      | Execute plans step by step                    |
+| `kata-security-update`    | Do      | Dependabot triage, vulnerability fixes        |
+| `kata-release-readiness`  | Do      | Rebase, lint fix, merge readiness             |
+| `kata-release-review`     | Do      | Version bumps, tagging, publish verification  |
+| `kata-security-audit`     | Study   | Seven-area security review                    |
+| `kata-product-issue`      | Study   | Issue triage against product vision           |
+| `kata-product-pr`         | Study   | PR merge gate (trust, type, CI, spec quality) |
+| `kata-product-evaluation` | Study   | User testing sessions                         |
+| `kata-documentation`      | Study   | One topic deep per run                        |
+| `kata-wiki-curate`        | Study   | Agent memory hygiene                          |
+| `kata-trace`              | Study   | Trace analysis via grounded theory            |
+| `kata-spec`               | Act     | Write specs capturing WHAT/WHY                |
+| `kata-metrics`            | Utility | Time-series recording and XmR analysis        |
+| `kata-review`             | Utility | Grade a single artifact (leaf, no sub-agents) |
+| `kata-ship`               | Utility | Rebase, push, open PR, merge a feature branch |
+| `kata-storyboard`         | Utility | Toyota Kata coaching protocol for meetings    |
 
 ## Trust Boundary
 

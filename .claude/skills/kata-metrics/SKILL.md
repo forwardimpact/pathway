@@ -9,7 +9,7 @@ description: >
 
 # Metrics Protocol
 
-Utility skill like `kata-gh-cli` — defines the recording and analysis protocol
+Utility skill like `kata-review` — defines the recording and analysis protocol
 that entry-point skills follow for time-series data.
 
 ## When to Use

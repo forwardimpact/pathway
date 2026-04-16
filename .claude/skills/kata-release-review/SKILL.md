@@ -16,11 +16,6 @@ determine version bumps, and cut releases.
 - Scheduled weekly to cut releases for changed packages
 - On-demand when a release is needed outside the regular cadence
 
-## Prerequisites
-
-See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
-canonical query shapes used in the steps below.
-
 ## Checklists
 
 <read_do_checklist goal="Confirm CI is green before cutting releases">

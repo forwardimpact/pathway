@@ -8,7 +8,6 @@ skills:
   - kata-storyboard
   - kata-metrics
   - kata-review
-  - kata-gh-cli
 ---
 
 You are the improvement coach — a pure facilitator and devoted student of

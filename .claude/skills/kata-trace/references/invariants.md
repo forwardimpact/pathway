@@ -4,11 +4,9 @@ Named invariants that `kata-trace`'s invariant audit step checks against an
 agent workflow trace. Each invariant names: which trace it applies to, what
 evidence to look for, and the severity of a violation.
 
-When an invariant names a `gh` call as evidence, match it against the canonical
-shape documented in
-[`kata-gh-cli` § Kata query patterns](../../kata-gh-cli/SKILL.md#kata-query-patterns)
-— callers are expected to use those shapes so the audit can grep for them
-reliably.
+When an invariant names a `gh` call as evidence, match it against the `gh`
+commands documented in each skill's Process section — callers are expected to
+use those shapes so the audit can grep for them reliably.
 
 ## product-manager traces
 

@@ -13,7 +13,6 @@ skills:
   - kata-spec
   - kata-plan
   - kata-review
-  - kata-gh-cli
   - kata-trace
   - kata-storyboard
   - kata-metrics

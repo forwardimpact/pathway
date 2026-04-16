@@ -44,11 +44,6 @@ do not attempt to finish it.
 Shipping a spec-tracked deliverable inherently means approving it. Step 2
 handles the `specs/STATUS` update before the mechanical ship process begins.
 
-## Prerequisites
-
-See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
-canonical `gh` query shapes used below.
-
 ## Checklists
 
 <do_confirm_checklist goal="Confirm the branch is safe to merge into main">
@@ -143,9 +138,7 @@ pr_number=$(gh pr list --head "$branch" --state open \
   --json number --jq '.[0].number')
 ```
 
-If `pr_number` is empty, create a new PR using the repo's house body template
-(see
-[`kata-gh-cli/references/commands.md`](../kata-gh-cli/references/commands.md)):
+If `pr_number` is empty, create a new PR:
 
 ```sh
 gh pr create --base main --head "$branch" \

@@ -1,6 +1,6 @@
 #!/usr/bin/env bash
 # Install the GitHub CLI (gh) from the official tarball.
-# Usage: install.sh [version]
+# Usage: install-gh.sh [version]
 #
 # The tarball method is preferred over apt-get because sandboxed environments
 # often fail GPG key verification.

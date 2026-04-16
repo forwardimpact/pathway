@@ -7,7 +7,6 @@ model: opus
 skills:
   - kata-release-readiness
   - kata-release-review
-  - kata-gh-cli
   - kata-trace
   - kata-storyboard
   - kata-metrics

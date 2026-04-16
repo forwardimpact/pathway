@@ -20,11 +20,6 @@ security policies.
 - Addressing npm audit findings or CVE advisories
 - Applying security patches to dependencies
 
-## Prerequisites
-
-See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
-canonical query shapes used in the steps below.
-
 ## Checklists
 
 <do_confirm_checklist goal="Verify dependency PR meets repo policies">

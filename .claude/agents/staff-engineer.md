@@ -10,7 +10,6 @@ skills:
   - kata-plan
   - kata-implement
   - kata-review
-  - kata-gh-cli
   - kata-trace
   - kata-storyboard
   - kata-metrics

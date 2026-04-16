@@ -26,10 +26,6 @@ checks happened on every PR that advanced to merge.
 
 ## Prerequisites
 
-See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
-canonical query shapes used in the steps below — in particular the contributor
-trust lookup, which the `kata-trace` invariant audit verifies against.
-
 All comment templates and the report format are in `references/templates.md`.
 
 ## Checklists
@@ -76,8 +72,7 @@ gh pr view <number> --json author --jq '.author.login'
 If `app/forward-impact-ci`, the PR is **trusted by definition** — skip the
 contributor lookup and proceed to Step 3.
 
-For all other authors, look up the top 7 human contributors (canonical shape:
-[`kata-gh-cli` § Contributor trust lookup](../kata-gh-cli/SKILL.md#contributor-trust-lookup-top-7-gate)):
+For all other authors, look up the top 7 human contributors:
 
 ```sh
 gh api repos/{owner}/{repo}/contributors \

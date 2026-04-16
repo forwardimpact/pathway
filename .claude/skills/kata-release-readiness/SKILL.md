@@ -28,11 +28,6 @@ branches, fix mechanical CI failures, and report status on each PR.
 
 </do_confirm_checklist>
 
-## Prerequisites
-
-See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
-canonical query shapes used in the steps below.
-
 ## Process
 
 ### Step 0: Read Memory

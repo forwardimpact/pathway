@@ -84,6 +84,10 @@ runs:
         git config user.name "${APP_SLUG}[bot]"
         git config user.email "${APP_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
 
+    - name: Install gh CLI
+      shell: bash
+      run: bash scripts/install-gh.sh
+
     - name: Setup trace directory
       if: inputs.trace == 'true'
       id: setup

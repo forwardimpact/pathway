@@ -39,9 +39,6 @@ triage decisions captured here.
 
 ## Prerequisites
 
-See [`kata-gh-cli`](../kata-gh-cli/SKILL.md) for `gh` installation and the
-canonical query shapes used in the steps below.
-
 All comment templates are in `references/templates.md`.
 
 ## Classification
