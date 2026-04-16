@@ -1,0 +1,37 @@
+{
+  "name": "@forwardimpact/libxmr",
+  "version": "0.1.0",
+  "description": "XmR control chart analysis for time-series CSV metrics",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./bin/fit-xmr.js": "./bin/fit-xmr.js"
+  },
+  "bin": {
+    "fit-xmr": "./bin/fit-xmr.js"
+  },
+  "files": [
+    "src/**/*.js",
+    "bin/**/*.js",
+    "README.md"
+  ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "bun run node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libcli": "^0.1.0"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.5"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

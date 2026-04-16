@@ -8,10 +8,12 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./bin/fit-eval.js": "./bin/fit-eval.js"
+    "./bin/fit-eval.js": "./bin/fit-eval.js",
+    "./bin/fit-trace.js": "./bin/fit-trace.js"
   },
   "bin": {
-    "fit-eval": "./bin/fit-eval.js"
+    "fit-eval": "./bin/fit-eval.js",
+    "fit-trace": "./bin/fit-trace.js"
   },
   "files": [
     "src/**/*.js",
@@ -28,6 +30,7 @@
   "dependencies": {
     "@anthropic-ai/claude-agent-sdk": "^0.2.98",
     "@forwardimpact/libcli": "^0.1.0",
+    "@forwardimpact/libconfig": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.22",
     "zod": "^3.23.0"
   },

@@ -136,13 +136,8 @@ The CLI is built on `@forwardimpact/librepl`, so every flag has a matching
 `/command` form inside the interactive REPL: `/help`, `/clear`, `/exit`,
 `/version`, `/data <path>`, `/streaming`.
 
-**Transport.** `npx fit-guide` calls the agent service via the unary RPC by
-default (`agent.ProcessUnary`). The streaming RPC (`agent.ProcessStream`) is
-opt-in via `--streaming` because some HTTP/2 proxies drop streamed responses;
-the unary path works in every environment that the agent client can reach.
-
-The CLI connects to the Agent gRPC service, maintains conversation context
-across turns, and persists session state locally.
+**Transport.** The CLI uses the unary RPC by default. The streaming RPC
+(`--streaming`) is opt-in because some HTTP/2 proxies drop streamed responses.
 
 ### Supporting CLI Tools
 
@@ -160,20 +155,17 @@ npx fit-rc status                        # Service health
 Guide requires the gRPC service stack to be running. Services are supervised by
 fit-rc and defined in `config/config.json`.
 
-### Service Lifecycle
+### Service Management
 
 ```sh
-npx fit-guide init      # First-run bootstrap (.env, config/)
-npx fit-codegen --all     # Generate gRPC stubs from installed packages
-npx fit-process-resources # Process knowledge HTML into typed resources
-npx fit-process-tools     # Register tool descriptors
-npx fit-process-graphs    # Build the RDF graph index
-npx fit-process-vectors   # Build the vector index
 npx fit-rc start          # Start all services
 npx fit-rc status         # Check service health
 npx fit-rc stop           # Stop all services
 npx fit-rc restart        # Restart all services
 ```
+
+For the full bootstrap sequence (init, codegen, processing), see §
+Initialization.
 
 ### Service Order
 
@@ -203,9 +195,7 @@ stack needs except your LLM credentials:
 | `LLM_TOKEN`, `LLM_BASE_URL`                    | **Set manually**    |
 
 `LLM_TOKEN` and `LLM_BASE_URL` point at any OpenAI-compatible chat completions
-endpoint (e.g. `https://models.github.ai/orgs/<org>` for GitHub Models). The
-agent service reads them from the process environment, so you can either add
-them to `.env` or export them in your shell — both work.
+endpoint. Set them in `.env` or export in your shell — both work.
 
 ---
 
@@ -293,54 +283,6 @@ agent delegation (`run_sub_agent`, `list_sub_agents`), and handoff control
 (`list_handoffs`, `run_handoff`).
 
 ---
-
-## Common Tasks
-
-### Quick Start (New Setup)
-
-```sh
-mkdir my-guide && cd my-guide
-npx fit-guide init      # Generate secrets, .env, and starter config/
-# Set LLM_TOKEN and LLM_BASE_URL in .env, then:
-npx fit-codegen --all     # Generate gRPC stubs
-npx fit-process-agents    # Register starter agents
-npx fit-process-resources # Process starter knowledge
-npx fit-process-tools     # Register starter tools
-npx fit-process-graphs    # Build the graph index
-npx fit-process-vectors   # Build the vector index (skip if no embeddings backend)
-npx fit-rc start          # Launch the service stack
-npx fit-guide             # Verify end-to-end
-```
-
-### Reset Everything
-
-```sh
-npx fit-rc stop
-rm -rf data/resources data/graphs data/vectors data/memories
-npx fit-process-agents && npx fit-process-resources && npx fit-process-tools \
-  && npx fit-process-graphs && npx fit-process-vectors
-npx fit-rc start
-```
-
-### Add a New Agent
-
-1. Create `config/agents/{name}.agent.md` with YAML front matter
-2. Run `npx fit-process-agents` to register it
-3. Reference from other agents' `handoffs` list
-
-### Add a New Tool
-
-1. Add tool definition to `config/tools.yml`
-2. Run `npx fit-process-tools` to register it
-3. Add tool name to agent definitions that should use it
-
-### Ingest New Knowledge
-
-1. Drop HTML files into `data/knowledge/` (or generate them with
-   `npx fit-terrain`)
-2. Run `npx fit-process-resources` to create resources
-3. Run `npx fit-process-graphs` to build graph index
-4. Run `npx fit-process-vectors` to build vector index
 
 ## Verification
 

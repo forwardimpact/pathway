@@ -1,0 +1,212 @@
+import { createWriteStream } from "node:fs";
+import { mkdir } from "node:fs/promises";
+import path from "node:path";
+import { pipeline } from "node:stream/promises";
+import { Readable } from "node:stream";
+
+const API = "https://api.github.com";
+
+/**
+ * GitHub API client for trace-related operations: listing workflow runs
+ * and downloading trace artifacts.
+ */
+export class TraceGitHub {
+  /**
+   * @param {object} deps
+   * @param {string} deps.token - GitHub token
+   * @param {string} deps.owner - Repository owner
+   * @param {string} deps.repo  - Repository name
+   */
+  constructor({ token, owner, repo }) {
+    this.token = token;
+    this.owner = owner;
+    this.repo = repo;
+  }
+
+  /**
+   * List recent workflow runs, optionally filtered by name pattern.
+   *
+   * @param {object} [opts]
+   * @param {string} [opts.pattern] - Case-insensitive substring to match workflow name (default: "kata")
+   * @param {number} [opts.limit=50] - Max runs to return from GitHub API
+   * @param {string} [opts.lookback="7d"] - How far back to search (e.g. "7d", "24h", "2w")
+   * @returns {Promise<object[]>} Array of {workflow, runId, status, conclusion, createdAt, branch, url}
+   */
+  async listRuns(opts = {}) {
+    const { pattern = "kata", limit = 50, lookback = "7d" } = opts;
+    const cutoff = parseLookback(lookback);
+
+    const params = new URLSearchParams({
+      per_page: String(Math.min(limit, 100)),
+    });
+    if (cutoff) {
+      params.set("created", `>=${cutoff}`);
+    }
+
+    const url = `${API}/repos/${this.owner}/${this.repo}/actions/runs?${params}`;
+    const data = await this.#get(url);
+    const runs = data.workflow_runs ?? [];
+
+    const re = new RegExp(pattern, "i");
+    return runs
+      .filter((r) => re.test(r.name))
+      .map((r) => ({
+        workflow: r.name,
+        runId: r.id,
+        status: r.status,
+        conclusion: r.conclusion,
+        createdAt: r.created_at,
+        branch: r.head_branch,
+        url: r.html_url,
+      }));
+  }
+
+  /**
+   * Download a trace artifact from a workflow run and extract it.
+   *
+   * Tries artifact names in order: combined-trace, agent-trace.
+   * The artifact zip is downloaded and extracted to the output directory.
+   *
+   * @param {number|string} runId
+   * @param {object} [opts]
+   * @param {string} [opts.dir] - Output directory (default: /tmp/trace-<runId>)
+   * @param {string} [opts.name] - Specific artifact name to download
+   * @returns {Promise<{dir: string, artifact: string, files: string[]}>}
+   */
+  async downloadTrace(runId, opts = {}) {
+    const dir = opts.dir ?? `/tmp/trace-${runId}`;
+    await mkdir(dir, { recursive: true });
+
+    // List artifacts for this run.
+    const url = `${API}/repos/${this.owner}/${this.repo}/actions/runs/${runId}/artifacts`;
+    const data = await this.#get(url);
+    const artifacts = data.artifacts ?? [];
+
+    // Find the trace artifact.
+    const preferredNames = opts.name
+      ? [opts.name]
+      : ["combined-trace", "agent-trace"];
+    let artifact = null;
+    for (const name of preferredNames) {
+      artifact = artifacts.find((a) => a.name === name);
+      if (artifact) break;
+    }
+
+    if (!artifact) {
+      const available = artifacts.map((a) => a.name).join(", ");
+      throw new Error(
+        `No trace artifact found for run ${runId}. Available: ${available || "none"}`,
+      );
+    }
+
+    // Download the zip.
+    const zipPath = path.join(dir, `${artifact.name}.zip`);
+    const downloadUrl = `${API}/repos/${this.owner}/${this.repo}/actions/artifacts/${artifact.id}/zip`;
+    const response = await fetch(downloadUrl, {
+      headers: this.#headers(),
+      redirect: "follow",
+    });
+    if (!response.ok) {
+      throw new Error(
+        `Failed to download artifact: ${response.status} ${response.statusText}`,
+      );
+    }
+
+    // Stream to disk then extract.
+    await pipeline(Readable.fromWeb(response.body), createWriteStream(zipPath));
+
+    const { execSync } = await import("node:child_process");
+    execSync(
+      `unzip -o -q ${JSON.stringify(zipPath)} -d ${JSON.stringify(dir)}`,
+    );
+
+    // List extracted files.
+    const { readdirSync } = await import("node:fs");
+    const files = readdirSync(dir).filter((f) => !f.endsWith(".zip"));
+
+    return { dir, artifact: artifact.name, files };
+  }
+
+  /**
+   * @param {string} url
+   * @returns {Promise<object>}
+   */
+  async #get(url) {
+    const response = await fetch(url, { headers: this.#headers() });
+    if (!response.ok) {
+      throw new Error(`GitHub API: ${response.status} ${response.statusText}`);
+    }
+    return response.json();
+  }
+
+  /** @returns {Record<string, string>} */
+  #headers() {
+    return {
+      Authorization: `Bearer ${this.token}`,
+      Accept: "application/vnd.github+json",
+      "X-GitHub-Api-Version": "2022-11-28",
+    };
+  }
+}
+
+/**
+ * Parse a lookback duration string into an ISO date string.
+ * Supports: Nd (days), Nh (hours), Nw (weeks).
+ * @param {string} lookback
+ * @returns {string|null} ISO date string or null if unparseable
+ */
+function parseLookback(lookback) {
+  const match = lookback.match(/^(\d+)([dhw])$/);
+  if (!match) return null;
+  const [, val, unit] = match;
+  const ms = { d: 86400000, h: 3600000, w: 604800000 }[unit];
+  return new Date(Date.now() - parseInt(val, 10) * ms).toISOString();
+}
+
+/**
+ * Parse a GitHub repository URL or "owner/repo" string.
+ * @param {string} remote - Git remote URL or owner/repo string
+ * @returns {{owner: string, repo: string}}
+ */
+export function parseGitRemote(remote) {
+  // SSH: git@github.com:owner/repo.git
+  const ssh = remote.match(/github\.com[:/]([^/]+)\/(.+?)(?:\.git)?$/);
+  if (ssh) return { owner: ssh[1], repo: ssh[2] };
+
+  // HTTPS: https://github.com/owner/repo
+  const https = remote.match(/github\.com\/([^/]+)\/(.+?)(?:\.git)?$/);
+  if (https) return { owner: https[1], repo: https[2] };
+
+  // Plain owner/repo format (no github.com prefix).
+  const simple = remote.match(/^([^/:@]+)\/([^/]+)$/);
+  if (simple) return { owner: simple[1], repo: simple[2] };
+
+  throw new Error(`Cannot parse GitHub remote: ${remote}`);
+}
+
+/**
+ * Create a TraceGitHub instance using libconfig for the token and
+ * git remote for the repo.
+ *
+ * @param {object} [opts]
+ * @param {string} [opts.repo] - "owner/repo" override (default: detect from git remote)
+ * @returns {Promise<TraceGitHub>}
+ */
+export async function createTraceGitHub(opts = {}) {
+  const { createScriptConfig } = await import("@forwardimpact/libconfig");
+  const config = await createScriptConfig("eval");
+  const token = config.ghToken();
+
+  let owner, repo;
+  if (opts.repo) {
+    ({ owner, repo } = parseGitRemote(opts.repo));
+  } else {
+    const { execSync } = await import("node:child_process");
+    const remote = execSync("git remote get-url origin", {
+      encoding: "utf8",
+    }).trim();
+    ({ owner, repo } = parseGitRemote(remote));
+  }
+
+  return new TraceGitHub({ token, owner, repo });
+}

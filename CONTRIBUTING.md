@@ -7,6 +7,9 @@ bun install
 just quickstart
 ```
 
+`LLM_TOKEN` and `LLM_BASE_URL` are always available in the shell environment —
+no manual key configuration needed. `libconfig` reads them automatically.
+
 ## Core Rules
 
 Organized by _when_ they apply, following Atul Gawande's _Checklist Manifesto_
@@ -15,20 +18,20 @@ memory, then pause and confirm.
 
 ### Invariants
 
-Architectural non-negotiables — the shape of the codebase, not per-contribution
-checks.
+Architectural non-negotiables — the shape of the codebase.
 
-- **OO+DI everywhere** — Constructor-injected dependencies. No module-level
-  singletons, no inline dependency creation. Factory functions (`createXxx`)
-  wire real implementations; tests inject mocks directly. See
-  [CLAUDE.md § OO+DI Architecture](CLAUDE.md#oodi-architecture) for patterns and
-  exceptions.
+- **OO+DI everywhere** — Classes accept collaborators through constructors.
+  Factory functions (`createXxx`) wire real implementations. Composition roots
+  (CLI `bin/` entry points) wire all instances. Tests bypass factories and
+  inject mocks directly. No module-level singletons, no inline dependency
+  creation. Exceptions: libskill (pure functions), libui (functional DOM),
+  libsecret (stateless crypto), libtype (generated protobuf) — pure stateless
+  functions do not need DI.
 - **No frameworks** — Vanilla JS, ESM modules only, no CommonJS.
 
 ### READ-DO
 
-Read every item before starting, and hold them while writing. Entry gate — don't
-start until all are internalized.
+Entry gate — read every item before starting.
 
 <read_do_checklist goal="Internalize constraints before writing code">
 
@@ -57,8 +60,7 @@ start until all are internalized.
 
 ### DO-CONFIRM
 
-Before committing, verify every item. Exit gate — don't proceed until all are
-confirmed.
+Exit gate — verify every item before committing.
 
 <do_confirm_checklist goal="Verify quality before committing">
 
@@ -70,18 +72,120 @@ confirmed.
 
 </do_confirm_checklist>
 
+## Structure
+
+### Monorepo layout
+
+```
+products/
+  map/       # fit-map — data product, validation, schema, starter YAML
+  pathway/   # fit-pathway — web app, CLI, formatters
+  basecamp/  # fit-basecamp — knowledge system, scheduler, macOS app
+  guide/     # fit-guide — LLM agent, artifact interpretation
+libraries/
+  lib*/      # shared infrastructure and domain libraries
+services/
+  agent/ graph/ llm/ memory/ pathway/ tool/ trace/ vector/ web/
+config/
+  config.json  # service definitions, model settings, eval config
+  tools.yml    # tool endpoint definitions
+  agents/      # agent prompt files (*.agent.md)
+data/
+  synthetic/   # synthetic data DSL and generated artifacts
+specs/
+  {feature}/   # feature specifications and plans
+wiki/          # GitHub wiki (cloned on demand) — shared agent memory
+website/       # public site content and docs
+```
+
+Git tracks `*.example.*` templates in `config/` — the live files above are
+gitignored and created from examples during setup.
+
+### Per-package layout
+
+Every package follows the same on-disk shape (spec 390). Source files live under
+`src/`; the package root carries only metadata and published non-source assets.
+
+```
+<package>/
+  package.json     Required
+  justfile         Per-package task runner (optional)
+  src/             All source files (index.js + any domain subdirs)
+  bin/             One file per declared CLI binary — thin entry points only
+  config/          Checked-in configuration files (optional)
+  macos/           Packaged macOS app bundle, if the package ships one (optional)
+  pkg/             Packaging / distribution artifacts, non-source (optional)
+  proto/           Protobuf source files (optional)
+  schema/          Published schemas (JSON Schema, SHACL, etc.) (optional)
+  starter/         Starter data that installs to a consumer's data dir (optional)
+  supabase/        Supabase edge project (optional)
+  templates/       Template files consumed at runtime (optional)
+  test/            Test files
+```
+
+Allowed root directories: `bin/`, `config/`, `macos/`, `pkg/`, `proto/`,
+`schema/`, `src/`, `starter/`, `supabase/`, `templates/`, `test/`. Source files
+live under `src/` — no `.js` or `.ts` files at the package root.
+
+`bin/` holds one file per CLI binary — thin scripts that parse argv and hand off
+to `src/`. Subcommand handlers live under `src/commands/`, package-internal
+helpers under `src/lib/`.
+
+Published `package.json` `main`, `bin`, and `exports` point at `src/`. Consumers
+import via subpath aliases (`@forwardimpact/libskill/derivation`) which the
+`exports` map resolves to `./src/derivation.js`. No build step, no root-level
+proxy file.
+
+### Services — the one exception
+
+Services keep `index.js` and `server.js` at the package root (loaded by fixed
+path from `config/config.example.json`). Additional source lives under `src/`.
+No `bin/` directory, no `src/index.js`.
+
+```
+services/<name>/
+  index.js   # Service definition / exports (fixed path)
+  server.js  # Entry point for the service process (fixed path)
+  proto/     # Protobuf source (optional — services/web is HTTP-only)
+  src/       # Any additional source files used by index.js/server.js
+  test/
+  package.json
+```
+
+### Per-package justfile
+
+A package may carry its own `justfile` for package-local tasks (e.g.
+`products/basecamp/justfile`). The top-level `justfile` remains the primary
+entry point.
+
+### Skill groups
+
+Library skills are organized into capability groups with corresponding skill
+files in [.claude/skills/](.claude/skills/):
+
+- **`libs-grpc-services`** — librpc, libconfig, libtelemetry, libtype,
+  libharness
+- **`libs-storage`** — libstorage, libindex, libresource, libpolicy, libgraph,
+  libvector
+- **`libs-llm-and-agents`** — libllm, libmemory, libprompt, libagent, libtool
+- **`libs-content`** — libui, libformat, libweb, libdoc, libtemplate
+- **`libs-cli-and-tooling`** — libcli, librepl, libutil, libsecret,
+  libsupervise, librc, libcodegen, libeval, libxmr
+- **`libs-synthetic-data`** — libsyntheticgen, libsyntheticprose,
+  libsyntheticrender, libterrain
+
+`libskill` retains its own skill (pure-function design, exempt from OO+DI).
+
 ## Pull Request Workflow
 
 All changes go through pull requests — never push directly to `main`.
 
 **Always commit your work before finishing a task.**
 
-**Exception:** The release engineer agent may push trivial CI fixes (formatting,
-lint, lock file drift) directly to `main` to unblock releases. This is limited
-to mechanical fixes that `bun run check:fix` can resolve — never logic, tests,
-or feature changes. See
-[.claude/agents/release-engineer.md](.claude/agents/release-engineer.md) for the
-full scope constraints.
+**Exception:** The release engineer may push trivial CI fixes (formatting, lint,
+lock file drift) directly to `main` — limited to what `bun run check:fix` can
+resolve. See
+[.claude/agents/release-engineer.md](.claude/agents/release-engineer.md).
 
 ## Git Conventions
 
@@ -92,8 +196,7 @@ Format: `type(scope): subject`
   or domain area (`security`) for specs
 - **Breaking**: add `!` after scope
 
-`spec` is for new specification documents in `specs/`. Use when proposing a
-change that requires design review before implementation (e.g.
+`spec` is for new specification documents in `specs/` (e.g.
 `spec(security): Supabase edge function hardening`).
 
 ### Releasing

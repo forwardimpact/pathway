@@ -178,6 +178,10 @@ cli-tiktoken:
 cli-unary:
     bunx --workspace=@forwardimpact/librpc fit-unary {{ARGS}}
 
+# XmR control chart analysis
+cli-xmr:
+    bunx --workspace=@forwardimpact/libxmr fit-xmr {{ARGS}}
+
 # ── Docs ──────────────────────────────────────────────────────────
 
 # Build documentation
@@ -193,6 +197,10 @@ docs-watch:
     bunx --workspace=@forwardimpact/libdoc docs-serve --watch
 
 # ── Quality ───────────────────────────────────────────────────────
+
+# Enforce instruction layer line limits (KATA.md § Instruction length)
+check-instructions:
+    bash scripts/check-instructions.sh
 
 # Run security audit (vulnerability + secret scanning)
 audit: audit-vulnerabilities audit-secrets

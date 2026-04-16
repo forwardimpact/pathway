@@ -192,11 +192,5 @@ Summarize what was done:
 
 ### Step 7: Update Memory
 
-After processing, update `wiki/downstream-skill.md` with:
-
-- What was processed (skill names and change summaries)
-- What was incorporated upstream
-- What was deferred and why
-
-Keep the note concise — just enough state to avoid re-processing the same
-changes. Do not maintain a detailed audit trail of every change.
+Update `wiki/downstream-skill.md` with what was processed, incorporated, and
+deferred. Keep it concise — just enough to avoid re-processing.

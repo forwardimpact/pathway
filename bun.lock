@@ -98,6 +98,7 @@
       "dependencies": {
         "@anthropic-ai/claude-agent-sdk": "^0.2.98",
         "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libconfig": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.22",
         "zod": "^3.23.0",
       },
@@ -470,6 +471,19 @@
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "hono": "^4.12.12",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.5",
+      },
+    },
+    "libraries/libxmr": {
+      "name": "@forwardimpact/libxmr",
+      "version": "0.1.0",
+      "bin": {
+        "fit-xmr": "./bin/fit-xmr.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libcli": "^0.1.0",
       },
       "devDependencies": {
         "@forwardimpact/libharness": "^0.1.5",
@@ -941,6 +955,8 @@
     "@forwardimpact/libvector": ["@forwardimpact/libvector@workspace:libraries/libvector"],
 
     "@forwardimpact/libweb": ["@forwardimpact/libweb@workspace:libraries/libweb"],
+
+    "@forwardimpact/libxmr": ["@forwardimpact/libxmr@workspace:libraries/libxmr"],
 
     "@forwardimpact/map": ["@forwardimpact/map@workspace:products/map"],
 

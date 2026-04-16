@@ -233,28 +233,41 @@ Lessons from trace analysis of agent workflow runs.
 
 ### Instruction layering
 
-Agent instructions span five layers, each owning a distinct concern:
+Agent instructions span seven layers, each owning a distinct concern:
 
 1. **libeval system prompt** — relay mechanics (how turns work, completion)
-2. **workflow task** — this run (which product, scenario, success criteria)
-3. **agent profile** — who you are (persona, voice, skill routing, constraints)
-4. **skills** — how to do it (procedures, templates, domain knowledge)
-5. **checklists** — did you do it (yes/no verification at pause points)
+2. **CLAUDE.md** — project identity (goal, users, products, distribution model,
+   documentation map)
+3. **CONTRIBUTING.md** — contribution standards (invariants, technical rules,
+   quality gates, git conventions, security)
+4. **workflow task** — this run (which product, scenario, success criteria)
+5. **agent profile** — who you are (persona, voice, skill routing, constraints)
+6. **skills** — how to do it (procedures, templates, domain knowledge)
+7. **checklists** — did you do it (yes/no verification at pause points)
 
-Layers 4 and 5 coexist in the same file (SKILL.md) but serve fundamentally
-different purposes. Skill instructions are _procedural_ — they teach, explain,
-and guide decisions. Checklists are _verificational_ — each item is a binary
-assertion that a prior step was completed, with no explanation of how.
+Layer 2 is auto-loaded via `settingSources: ["project"]`; layer 3 is referenced
+by layer 2 and read on demand. Layers 6 and 7 coexist in the same file
+(SKILL.md) but serve fundamentally different purposes — skill instructions are
+_procedural_ (they teach, explain, and guide decisions), checklists are
+_verificational_ (each item is a binary assertion that a prior step was
+completed, with no explanation of how). Similarly, CONTRIBUTING.md spans layers:
+its invariants and rules are layer 3 content, while its universal READ-DO and
+DO-CONFIRM checklists are layer 7 content.
 
 Rules:
 
 - No layer restates another's content. When two layers mention the same tool,
   use voice to separate them: layer 1 describes what a tool is ("ToolX sends a
-  message to ThingY"), layer 4 directs when to use it ("Use ToolX to deliver the
+  message to ThingY"), layer 6 directs when to use it ("Use ToolX to deliver the
   quarterly finance report to ThingY").
 - Agents follow the most specific layer. A skill that provides a complete
   procedure makes system-level tool descriptions invisible — tools not named in
   the skill procedure will not be used regardless of what layer 1 says.
+- CLAUDE.md orients — what the project is, who it serves, where to find things.
+  It never contains technical rules or step-by-step procedures.
+- CONTRIBUTING.md governs — how contributions must behave. All technical
+  invariants, quality commands, and policies live here. Domain-specific
+  procedures belong in skills.
 - Tasks name skills — they don't copy steps. Shared procedures belong in skills;
   per-run details belong in tasks.
 - Profiles define boundaries; skills define steps; checklists verify steps.
@@ -262,10 +275,25 @@ Rules:
   skill procedure above it. If a checklist item needs explanation, the procedure
   is incomplete.
 
+### Instruction length
+
+Auto-loaded layers consume context on every run. Keep them tight so agents spend
+tokens on the task, not on re-reading project boilerplate.
+
+| Layer              | Target | Loaded           |
+| ------------------ | ------ | ---------------- |
+| CLAUDE.md          | ≤ 200  | auto (every run) |
+| CONTRIBUTING.md    | ≤ 300  | on demand        |
+| Agent profile      | ≤ 100  | auto (every run) |
+| SKILL.md           | ≤ 200  | auto (per skill) |
+| SKILL.md (`fit-*`) | ≤ 300  | auto (per skill) |
+
+The same principle applies across layers: keep the main file to its concern;
+push supporting material into co-located references or linked documents.
+
 ### Skill structure
 
-SKILL.md is read on every run — aim for ~200 lines or fewer. Move supporting
-material into co-located subdirectories:
+Move supporting material out of SKILL.md into co-located subdirectories:
 
 ```text
 .claude/skills/<skill-name>/

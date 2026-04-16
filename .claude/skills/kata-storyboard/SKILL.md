@@ -34,7 +34,8 @@ the Participant Protocol when the coach poses questions via orchestration tools.
 - [ ] Read the current month's storyboard (`wiki/storyboard-YYYY-MNN.md`). If
       none exists, this is a planning meeting.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
-- [ ] Run `xmr.mjs` against each metrics CSV and record the JSON output.
+- [ ] Run `bunx fit-xmr analyze --format json` against each metrics CSV and
+      record the output.
 - [ ] For 1-on-1: identify the agent's most recent trace for analysis.
 
 </read_do_checklist>
@@ -105,17 +106,19 @@ try next? When will you know?
    exist, this is a planning meeting — create it from
    [`references/storyboard-template.md`](references/storyboard-template.md).
 3. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
-   `bun .claude/skills/kata-metrics/scripts/xmr.mjs wiki/metrics/{agent}/{domain}/{YYYY}.csv`
+   `bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --format json`
    Use `status`, `signals`, and `x_bar` from the JSON output when reporting the
-   Current Condition. If a metric returns `insufficient_data`, note it. In
-   facilitated mode, include XmR summaries in the Q2 Tell to each agent.
+   Condition. If a metric returns `insufficient_data`, note it. In facilitated
+   mode, include XmR summaries in the Q2 Tell to each agent.
 4. **Run the five questions.** Follow
    [`references/coaching-protocol.md`](references/coaching-protocol.md). In
    facilitated mode, use orchestration tools — Share to broadcast Q1, Tell to
    pose Q2–Q5 to individual agents, collect agent responses (agents respond via
    Share). In solo mode, read metrics and wiki files directly.
 5. **Update the storyboard.** Write updated Current Condition, Obstacles, and
-   Experiments sections back to the storyboard file.
+   Experiments sections. For each CSV-backed metric in the Current Condition
+   table, generate a sparkline with `bunx fit-xmr spark <csv> --metric <name>`
+   and write it to the Spark column.
 6. **Record coaching metrics.** Append coaching activity metrics (e.g.,
    `meetings_facilitated`, `experiments_active`, `agents_participating`) to
    `wiki/metrics/improvement-coach/coaching/{YYYY}.csv` per the

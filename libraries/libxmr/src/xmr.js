@@ -1,15 +1,12 @@
-#!/usr/bin/env node
-
 // XmR control chart analysis for Kata metrics CSV files.
-//
-// Usage: node xmr.mjs <csv-path>
-// Output: JSON control chart report to stdout.
-
-import { readFileSync } from "node:fs";
 
 const MIN_POINTS = 15;
 
-function parseCSV(text) {
+const EXPECTED_HEADER = "date,metric,value,unit,run,note";
+
+const ISO_DATE_RE = /^\d{4}-\d{2}-\d{2}$/;
+
+export function parseCSV(text) {
   const lines = text.trim().split("\n");
   if (lines.length < 2) return [];
   return lines.slice(1).map((line) => {
@@ -44,7 +41,7 @@ function round2(n) {
   return Math.round(n * 100) / 100;
 }
 
-function computeXmR(values) {
+export function computeXmR(values) {
   const n = values.length;
   const xBar = values.reduce((a, b) => a + b, 0) / n;
 
@@ -66,7 +63,6 @@ function computeXmR(values) {
 }
 
 // Detect streaks where a test function is true and emit one signal per streak.
-// Callback receives (dates, startIdx, endIdx, count, min, max).
 function streaks(dates, series, test, makeSignal) {
   const signals = [];
   let start = -1;
@@ -90,8 +86,8 @@ function streaks(dates, series, test, makeSignal) {
   return signals;
 }
 
-// eslint-disable-next-line complexity -- inherent to 4 XMR rules
-function detectSignals(dates, values, mrs, stats) {
+// eslint-disable-next-line complexity -- inherent to 4 XmR signal rules
+export function detectSignals(dates, values, mrs, stats) {
   const { xBar, unpl, lnpl, url } = stats;
   const signals = [];
 
@@ -196,9 +192,8 @@ function detectSignals(dates, values, mrs, stats) {
   );
 }
 
-function analyze(csvPath) {
-  const text = readFileSync(csvPath, "utf-8");
-  const rows = parseCSV(text);
+export function analyze(csvText) {
+  const rows = parseCSV(csvText);
 
   const groups = {};
   for (const row of rows) {
@@ -247,16 +242,102 @@ function analyze(csvPath) {
     });
   }
 
-  return {
-    source: csvPath,
-    generated: new Date().toISOString().slice(0, 10),
-    metrics,
-  };
+  return { metrics };
 }
 
-const csvPath = process.argv[2];
-if (!csvPath) {
-  console.error("Usage: xmr.mjs <csv-path>");
-  process.exit(1);
+export function validateCSV(text) {
+  const lines = text.trim().split("\n");
+  const errors = [];
+
+  if (lines[0].trim() !== EXPECTED_HEADER) {
+    errors.push({
+      line: 1,
+      message: `expected header "${EXPECTED_HEADER}", got "${lines[0].trim()}"`,
+    });
+  }
+
+  let dataRows = 0;
+  for (let i = 1; i < lines.length; i++) {
+    const line = lines[i];
+    if (line.trim() === "") continue;
+    dataRows++;
+    const row = parseCSV(EXPECTED_HEADER + "\n" + line)[0];
+    if (!row) continue;
+
+    if (!row.date || !ISO_DATE_RE.test(row.date)) {
+      errors.push({
+        line: i + 1,
+        field: "date",
+        message: `invalid ISO 8601 date "${row.date}"`,
+      });
+    }
+    if (!row.metric) {
+      errors.push({
+        line: i + 1,
+        field: "metric",
+        message: "missing metric name",
+      });
+    }
+    if (Number.isNaN(row.value)) {
+      errors.push({
+        line: i + 1,
+        field: "value",
+        message: `not a number "${lines[i].split(",")[2]}"`,
+      });
+    }
+    if (!row.unit) {
+      errors.push({ line: i + 1, field: "unit", message: "missing unit" });
+    }
+  }
+
+  return { valid: errors.length === 0, rows: dataRows, errors };
 }
-console.log(JSON.stringify(analyze(csvPath), null, 2));
+
+// Sparkline — 12 characters showing the last 12 points as bar heights.
+// 9 levels: space (empty), ▁▂▃▄▅▆▇█ (min to max).
+
+const BARS = " ▁▂▃▄▅▆▇█";
+
+export function sparkline(values) {
+  const last = values.slice(-12);
+
+  while (last.length < 12) {
+    last.unshift(null);
+  }
+
+  const nums = last.filter((v) => v !== null);
+  if (nums.length === 0) return "            ";
+
+  const min = Math.min(...nums);
+  const max = Math.max(...nums);
+  const range = max - min;
+
+  return last
+    .map((v) => {
+      if (v === null) return " ";
+      if (range === 0) return BARS[4];
+      return BARS[1 + Math.round(((v - min) / range) * 7)];
+    })
+    .join("");
+}
+
+export function listMetrics(csvText) {
+  const rows = parseCSV(csvText);
+
+  const groups = {};
+  for (const row of rows) {
+    if (!groups[row.metric]) groups[row.metric] = [];
+    groups[row.metric].push(row);
+  }
+
+  return Object.entries(groups).map(([name, group]) => {
+    group.sort((a, b) => a.date.localeCompare(b.date));
+    return {
+      metric: name,
+      unit: group[0].unit,
+      n: group.length,
+      from: group[0].date,
+      to: group[group.length - 1].date,
+    };
+  });
+}

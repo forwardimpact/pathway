@@ -6,11 +6,14 @@ process limits — no external targets needed.
 
 ## Usage
 
-Run the `xmr.mjs` script against any observation CSV:
+Run `fit-xmr analyze` against any observation CSV:
 
 ```sh
-bun .claude/skills/kata-metrics/scripts/xmr.mjs wiki/metrics/{agent}/{domain}/{YYYY}.csv
+bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv
 ```
+
+Other commands: `fit-xmr list` (metric inventory), `fit-xmr validate` (schema
+check). Run `fit-xmr --help` for details.
 
 Output is JSON to stdout. Pipe through `jq` or read directly.
 

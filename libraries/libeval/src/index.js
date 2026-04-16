@@ -1,4 +1,10 @@
 export { TraceCollector, createTraceCollector } from "./trace-collector.js";
+export { TraceQuery, createTraceQuery } from "./trace-query.js";
+export {
+  TraceGitHub,
+  createTraceGitHub,
+  parseGitRemote,
+} from "./trace-github.js";
 export { AgentRunner, createAgentRunner } from "./agent-runner.js";
 export {
   Supervisor,

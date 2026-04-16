@@ -121,51 +121,24 @@ Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
 ## Writing a Plan (HOW + WHEN)
 
 The plan translates an approved spec into concrete implementation steps.
-
 Structure and format are up to you — match the complexity of the change. The
-DO-CONFIRM checklist verifies these qualities; the guidance below explains what
-each one means in practice:
+DO-CONFIRM checklist verifies the qualities; key guidance on two items:
 
-- **Approach before details.** Open with the overall strategy and rationale
-  before diving into individual changes.
-- **Concrete changes.** Name exact file paths, functions, and code. Show
-  before/after when it clarifies intent. Each change should be independently
-  verifiable.
-- **Visible blast radius.** Make it easy to see which files are created,
-  modified, or deleted.
-- **Explicit ordering.** When changes have dependencies, state the order and why
-  it matters.
-- **Decisions explained.** When you make a non-obvious choice, say why briefly.
-  This prevents future re-debate.
-- **Risks surfaced.** Flag steps that require judgement, ambiguous decisions, or
-  unknowns. The implementer should never be surprised by a step.
-- **Libraries used.** Every plan must include a "Libraries used" section listing
-  the `@forwardimpact/lib*` packages the implementation will consume, with the
-  specific exports it will call (e.g., `libutil.Retry`, `libcli.Cli`,
-  `libtelemetry.createLogger`). If the plan uses no shared libraries, state that
-  explicitly — absence is a visible signal, not a default. This catches "write a
-  helper" steps that could be replaced by an existing library before
-  implementation starts, when substitution is cheap.
-- **Execution recommendation.** Close with a concrete recommendation on how to
-  execute the plan. Route each part to the agent whose skills match the work —
-  `staff-engineer` for code and infrastructure changes, `technical-writer` for
-  documentation changes (`website/`, wiki, root docs). For decomposed plans,
-  state which parts can run in parallel and which must run sequentially —
-  translate the dependency structure into an actionable execution strategy.
+- **Libraries used.** List every `@forwardimpact/lib*` package the
+  implementation will consume with specific exports. If none, state that
+  explicitly — absence is a signal, not a default.
+- **Execution recommendation.** Route parts to matching agents —
+  `staff-engineer` for code, `technical-writer` for docs. For decomposed plans,
+  state which parts can run in parallel vs sequentially.
 
 ## Reviewing a Plan
 
-Evaluate the plan against the qualities listed in "Writing a Plan" above, then
-run the DO-CONFIRM checklist at the top of this skill.
+Evaluate the plan against the DO-CONFIRM checklist. If all criteria are met,
+recommend approval. If any falls short, request changes — the plan stays at
+`plan draft` until resolved.
 
-If all criteria are met, recommend approval. If any criterion falls short,
-request changes — the plan stays at `plan draft` until issues are resolved.
-
-When multiple plan variants exist (plan-a, plan-b, etc.), note which variant is
-recommended. If none is explicitly selected, plan-a is the default.
-
-Approval is a human action — report your recommendation clearly. See
-`specs/STATUS` header for the full lifecycle.
+When multiple variants exist, note which is recommended (plan-a is the default).
+Approval is a human action — report clearly.
 
 ## Process
 
@@ -210,13 +183,3 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
-
-## What NOT to Do
-
-The READ-DO checklist covers the core boundaries (no spec writing, no
-implementation, one plan per spec). Additionally:
-
-- **Do not write a plan whose design is not yet approved.** The design must show
-  `design approved` in STATUS before planning begins.
-- **Do not use `plan.md` as a filename.** Always use `plan-a.md` (or
-  `plan-b.md`, etc.) for naming consistency.

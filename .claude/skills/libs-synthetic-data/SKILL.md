@@ -167,48 +167,14 @@ const formatter = new ContentFormatter(prettierFormat, logger);
 
 ### libterrain
 
-```javascript
-// Pipeline — accepts all pipeline dependencies
-import { Pipeline } from "@forwardimpact/libterrain/pipeline";
-const pipeline = new Pipeline({
-  dslParser,
-  entityGenerator,
-  proseEngine,
-  pathwayGenerator,
-  renderer,
-  validator,
-  formatter,
-  logger,
-});
-
-// loadToSupabase — accepts supabase client and options
-import { loadToSupabase } from "@forwardimpact/libterrain";
-await loadToSupabase(client, { dataDir });
-```
+See Recipe 3 for full `Pipeline` wiring. `loadToSupabase` accepts a Supabase
+client and `{ dataDir }` options.
 
 ## GetDX API References
 
-Synthetic data payloads conform to these GetDX Web API response schemas:
-
-- [teams.list](https://docs.getdx.com/webapi/methods/teams.list/) — team
-  hierarchy
-- [snapshots.list](https://docs.getdx.com/webapi/methods/snapshots.list/) —
-  survey snapshots
-- [snapshots.info](https://docs.getdx.com/webapi/methods/snapshots.info/) —
-  snapshot team scores
-- [snapshots.comments.list](https://docs.getdx.com/webapi/methods/snapshots.comments.list/)
-  — snapshot comments
-- [initiatives.list](https://docs.getdx.com/webapi/methods/initiatives.list/) —
-  initiatives
-- [initiatives.info](https://docs.getdx.com/webapi/methods/initiatives.info/) —
-  initiative detail
-- [initiatives.progressReport](https://docs.getdx.com/webapi/methods/initiatives.progressReport/)
-  — progress reports
-- [scorecards.list](https://docs.getdx.com/webapi/methods/scorecards.list/) —
-  scorecards
-- [scorecards.info](https://docs.getdx.com/webapi/methods/scorecards.info/) —
-  scorecard detail
-- [All methods](https://docs.getdx.com/webapi/methods/) — full API reference
+Synthetic data conforms to
+[GetDX Web API schemas](https://docs.getdx.com/webapi/methods/) (teams,
+snapshots, initiatives, scorecards).
 
 ## Verification
 

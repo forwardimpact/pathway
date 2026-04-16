@@ -22,9 +22,13 @@ in terms verifiable with data from metrics CSVs._
 _The measured state as of the last storyboard review. Updated daily using data
 from wiki/metrics/. Always numbers, not narratives._
 
-| Agent | Domain | Key metric | Value | Trend |
-| ----- | ------ | ---------- | ----- | ----- |
-|       |        |            |       |       |
+| Agent             | Domain  | Metric               | Value | Spark        |
+| ----------------- | ------- | -------------------- | ----- | ------------ |
+| security-engineer | audit   | open_vulnerabilities | 2     | ▆▆████▆▆▆▃▁▃ |
+| product-manager   | backlog | open_issues          | 13    | ▁▁▁▁▁██▁▁▁▁▅ |
+
+Spark: last 12 data points via `bunx fit-xmr spark <csv> --metric <name>`. Bar
+height scales from ▁ (min) to █ (max) within the metric's own range.
 
 **Last updated:** YYYY-MM-DD
 
