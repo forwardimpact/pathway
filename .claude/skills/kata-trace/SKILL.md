@@ -62,8 +62,9 @@ list recent runs and select using memory-informed rotation — see
 you selected and why.
 
 ```sh
-bunx fit-trace runs kata                   # list recent kata workflow runs
-bunx fit-trace runs kata --lookback 14d    # wider lookback window
+bunx fit-trace runs                        # list recent agent workflow runs (default)
+bunx fit-trace runs agent --lookback 14d   # wider lookback window
+bunx fit-trace runs kata                   # filter by a different workflow name substring
 ```
 
 ### 2. Download and Process the Trace

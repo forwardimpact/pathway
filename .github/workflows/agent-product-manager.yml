@@ -1,19 +1,20 @@
-name: "Kata: Coaching Session"
+name: "Agent: Product Manager"
 
 on:
+  schedule:
+    # Triage first in each shift so staff has fresh backlog. Paris (CEST) times below.
+    - cron: "23 1 * * *" # Night shift — 03:23 Paris, finishes before 07:00
+    - cron: "17 10 * * *" # Day shift   — 12:17 Paris, finishes before 15:00
+    - cron: "17 18 * * *" # Swing shift — 20:17 Paris, finishes before 23:00
   workflow_dispatch:
     inputs:
-      agent:
-        description: "Agent name to coach (e.g., security-engineer)"
-        required: true
-        type: string
       task-amend:
         description: "Additional text appended to the task prompt for steering"
         required: false
         type: string
 
 concurrency:
-  group: coaching-session
+  group: agent-product-manager
   cancel-in-progress: true
 
 permissions:
@@ -40,7 +41,7 @@ jobs:
         with:
           token: ${{ steps.ci-app.outputs.token }}
 
-      - name: 1-on-1 Coaching Session
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -48,14 +49,10 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          mode: "facilitate"
           task-text: >-
-            Facilitate a 1-on-1 coaching session with the participant agent.
-            Guide them through the five coaching kata questions. Have them
-            analyze their own most recent trace using kata-trace. Help them
-            identify obstacles and design their next experiment.
-          facilitator-profile: "improvement-coach"
-          agent-profiles: "${{ inputs.agent }}"
+            Assess the current state of your domain and act on the
+            highest-priority finding.
+          agent-profile: "product-manager"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

@@ -1,9 +1,10 @@
-name: "Kata: Product Manager"
+name: "Agent: Security Engineer"
 
 on:
   schedule:
-    # Daily at 06:23 UTC — triage after security, before planning
-    - cron: "23 6 * * *"
+    # Night shift only — review staff's new code after implementation.
+    # 02:53 UTC = 04:53 Paris (CEST) → finishes before 07:00 Paris.
+    - cron: "53 2 * * *"
   workflow_dispatch:
     inputs:
       task-amend:
@@ -12,7 +13,7 @@ on:
         type: string
 
 concurrency:
-  group: product-manager
+  group: agent-security-engineer
   cancel-in-progress: true
 
 permissions:
@@ -50,7 +51,7 @@ jobs:
           task-text: >-
             Assess the current state of your domain and act on the
             highest-priority finding.
-          agent-profile: "product-manager"
+          agent-profile: "security-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

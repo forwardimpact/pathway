@@ -1,9 +1,10 @@
-name: "Kata: Daily Meeting"
+name: "Agent: Technical Writer"
 
 on:
   schedule:
-    # Daily at 03:00 UTC — before all individual agent workflows
-    - cron: "0 3 * * *"
+    # Night shift only — review docs against staff's new code.
+    # 03:37 UTC = 05:37 Paris (CEST) → finishes before 07:00 Paris.
+    - cron: "37 3 * * *"
   workflow_dispatch:
     inputs:
       task-amend:
@@ -12,7 +13,7 @@ on:
         type: string
 
 concurrency:
-  group: daily-meeting
+  group: agent-technical-writer
   cancel-in-progress: true
 
 permissions:
@@ -39,7 +40,7 @@ jobs:
         with:
           token: ${{ steps.ci-app.outputs.token }}
 
-      - name: Team Storyboard Meeting
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -47,11 +48,10 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          mode: "facilitate"
           task-text: >-
-            Facilitate the team storyboard meeting.
-          facilitator-profile: "improvement-coach"
-          agent-profiles: "security-engineer,technical-writer,product-manager,staff-engineer,release-engineer"
+            Assess the current state of your domain and act on the
+            highest-priority finding.
+          agent-profile: "technical-writer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

@@ -1,9 +1,9 @@
-name: "Kata: Staff Engineer"
+name: "Kata: Storyboard"
 
 on:
   schedule:
-    # Daily at 07:11 UTC — plan and implement after triage
-    - cron: "11 7 * * *"
+    # Daily at 06:00 UTC = 08:00 Paris (CEST), after night shift finishes.
+    - cron: "0 6 * * *"
   workflow_dispatch:
     inputs:
       task-amend:
@@ -12,7 +12,7 @@ on:
         type: string
 
 concurrency:
-  group: staff-engineer
+  group: kata-storyboard
   cancel-in-progress: true
 
 permissions:
@@ -39,7 +39,7 @@ jobs:
         with:
           token: ${{ steps.ci-app.outputs.token }}
 
-      - name: Assess and Act
+      - name: Team Storyboard Meeting
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -47,10 +47,11 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
+          mode: "facilitate"
           task-text: >-
-            Assess the current state of your domain and act on the
-            highest-priority finding.
-          agent-profile: "staff-engineer"
+            Facilitate the team storyboard meeting.
+          facilitator-profile: "improvement-coach"
+          agent-profiles: "security-engineer,technical-writer,product-manager,staff-engineer,release-engineer"
           model: "opus"
-          max-turns: "0"
+          max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

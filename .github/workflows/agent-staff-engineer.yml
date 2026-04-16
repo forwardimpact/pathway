@@ -1,9 +1,11 @@
-name: "Kata: Technical Writer"
+name: "Agent: Staff Engineer"
 
 on:
   schedule:
-    # Daily at 05:37 UTC — curate and review before producers
-    - cron: "37 5 * * *"
+    # Plan and implement after triage in each shift. Paris (CEST) times below.
+    - cron: "11 2 * * *" # Night shift — 04:11 Paris, finishes before 07:00
+    - cron: "11 11 * * *" # Day shift   — 13:11 Paris, finishes before 15:00
+    - cron: "11 19 * * *" # Swing shift — 21:11 Paris, finishes before 23:00
   workflow_dispatch:
     inputs:
       task-amend:
@@ -12,7 +14,7 @@ on:
         type: string
 
 concurrency:
-  group: technical-writer
+  group: agent-staff-engineer
   cancel-in-progress: true
 
 permissions:
@@ -50,7 +52,7 @@ jobs:
           task-text: >-
             Assess the current state of your domain and act on the
             highest-priority finding.
-          agent-profile: "technical-writer"
+          agent-profile: "staff-engineer"
           model: "opus"
-          max-turns: "200"
+          max-turns: "0"
           task-amend: ${{ inputs.task-amend }}

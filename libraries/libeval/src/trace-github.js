@@ -27,13 +27,13 @@ export class TraceGitHub {
    * List recent workflow runs, optionally filtered by name pattern.
    *
    * @param {object} [opts]
-   * @param {string} [opts.pattern] - Case-insensitive substring to match workflow name (default: "kata")
+   * @param {string} [opts.pattern] - Case-insensitive substring to match workflow name (default: "agent")
    * @param {number} [opts.limit=50] - Max runs to return from GitHub API
    * @param {string} [opts.lookback="7d"] - How far back to search (e.g. "7d", "24h", "2w")
    * @returns {Promise<object[]>} Array of {workflow, runId, status, conclusion, createdAt, branch, url}
    */
   async listRuns(opts = {}) {
-    const { pattern = "kata", limit = 50, lookback = "7d" } = opts;
+    const { pattern = "agent", limit = 50, lookback = "7d" } = opts;
     const cutoff = parseLookback(lookback);
 
     const params = new URLSearchParams({

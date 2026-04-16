@@ -1,9 +1,11 @@
-name: "Kata: Security Engineer"
+name: "Agent: Release Engineer"
 
 on:
   schedule:
-    # Daily at 04:07 UTC — first agent in the cycle
-    - cron: "7 4 * * *"
+    # Release last in each shift, after implementation. Paris (CEST) times below.
+    - cron: "23 4 * * *" # Night shift — 06:23 Paris, finishes before 07:00
+    - cron: "23 12 * * *" # Day shift   — 14:23 Paris, finishes before 15:00
+    - cron: "23 20 * * *" # Swing shift — 22:23 Paris, finishes before 23:00
   workflow_dispatch:
     inputs:
       task-amend:
@@ -12,7 +14,7 @@ on:
         type: string
 
 concurrency:
-  group: security-engineer
+  group: agent-release-engineer
   cancel-in-progress: true
 
 permissions:
@@ -50,7 +52,7 @@ jobs:
           task-text: >-
             Assess the current state of your domain and act on the
             highest-priority finding.
-          agent-profile: "security-engineer"
+          agent-profile: "release-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}
