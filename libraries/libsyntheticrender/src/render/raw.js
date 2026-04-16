@@ -374,6 +374,12 @@ function renderSummitYAML(entities, files) {
 
 /**
  * Render individual people YAML files.
+ *
+ * Uses the `profiles/` prefix — NOT `people/` — because `people/` in Supabase
+ * Storage is reserved for roster uploads consumed by `transformPeople`.
+ * Placing individual person profiles under `people/` caused the seed command
+ * to pick a profile instead of the roster, leaving organization_people empty.
+ *
  * @param {object} entities
  * @param {Map<string,string>} files
  */
@@ -397,7 +403,7 @@ function renderPeopleYAML(entities, files) {
     };
 
     files.set(
-      `people/${person.id}.yaml`,
+      `profiles/${person.id}.yaml`,
       YAML.stringify(data, { lineWidth: 120 }),
     );
   }
@@ -409,7 +415,7 @@ function renderPeopleYAML(entities, files) {
     team: p.team_id,
     level: p.level,
   }));
-  files.set("people/index.json", JSON.stringify(index, null, 2));
+  files.set("profiles/index.json", JSON.stringify(index, null, 2));
 }
 
 /**

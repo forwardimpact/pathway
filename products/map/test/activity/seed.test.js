@@ -148,6 +148,27 @@ describe("activity/seed", () => {
     await rm(tmpDir, { recursive: true });
   });
 
+  test("upserts correct roster data into organization_people", async () => {
+    const data = await setupSeedDir();
+    const fake = createFakeSeedClient();
+    await seed({ data, supabase: fake });
+
+    // Verify the people upsert contains correct roster data
+    const peopleUpserts = fake.upsertCalls.filter(
+      (c) => c.table === "organization_people",
+    );
+    assert.ok(peopleUpserts.length > 0, "should upsert people from roster");
+
+    const rows = peopleUpserts.flatMap((c) => c.rows);
+    assert.strictEqual(rows.length, 1);
+    assert.strictEqual(rows[0].email, "a@x");
+    assert.strictEqual(rows[0].name, "A");
+    assert.strictEqual(rows[0].discipline, "se");
+    assert.strictEqual(rows[0].level, "J040");
+
+    await rm(tmpDir, { recursive: true });
+  });
+
   test("returns 1 when roster upload fails", async () => {
     const data = await setupSeedDir();
     const fake = createFakeSeedClient();
