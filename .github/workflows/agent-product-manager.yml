@@ -2,8 +2,8 @@ name: "Agent: Product Manager"
 
 on:
   schedule:
-    # Triage first in each shift, before planning. Paris (CEST) times below.
-    - cron: "11 3 * * *" # Night shift — 05:11 Paris, finishes before 07:00
+    # Triage first in each shift so staff has fresh backlog. Paris (CEST) times below.
+    - cron: "23 1 * * *" # Night shift — 03:23 Paris, finishes before 07:00
     - cron: "17 10 * * *" # Day shift   — 12:17 Paris, finishes before 15:00
     - cron: "17 18 * * *" # Swing shift — 20:17 Paris, finishes before 23:00
   workflow_dispatch:

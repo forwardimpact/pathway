@@ -3,7 +3,7 @@ name: "Agent: Staff Engineer"
 on:
   schedule:
     # Plan and implement after triage in each shift. Paris (CEST) times below.
-    - cron: "53 3 * * *" # Night shift — 05:53 Paris, finishes before 07:00
+    - cron: "11 2 * * *" # Night shift — 04:11 Paris, finishes before 07:00
     - cron: "11 11 * * *" # Day shift   — 13:11 Paris, finishes before 15:00
     - cron: "11 19 * * *" # Swing shift — 21:11 Paris, finishes before 23:00
   workflow_dispatch:

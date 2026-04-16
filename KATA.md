@@ -77,12 +77,15 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 Seven workflows run on a three-shift rhythm aligned to Europe/Paris time: a
 **night shift** finishes by 07:00, the **storyboard** runs at 08:00, a **day
 shift** finishes by 15:00, and a **swing shift** finishes by 23:00. Within each
-shift agents run in PDSA order (triage → plan/implement → release). Security and
-technical-writer run once daily on the night shift — dependency churn and
-documentation drift do not need intra-day cadence. Product-manager, staff-
-engineer, and release-engineer run every shift so triage, planning, and release
-throughput stay steady. Cron schedules are authored in UTC; Paris times below
-use CEST (UTC+2), the tighter summer constraint. All support
+shift agents form a producer → reviewer → shipper chain: product-manager triages
+and merges incoming work so staff-engineer has a fresh backlog, staff
+implements, and release-engineer ships. On the night shift — the full cycle
+before the morning storyboard — security-engineer and technical-writer slot in
+between staff and release so they can review the code staff just produced before
+it ships. Day and swing shifts skip the review pair; dependency churn and
+documentation drift do not need intra-day cadence, and CVE-driven work can run
+on demand via `workflow_dispatch`. Cron schedules are authored in UTC; Paris
+times below use CEST (UTC+2), the tighter summer constraint. All support
 `workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
 Individual agent workflows send a generic task prompt; the agent's Assess
 section determines the actual action. The storyboard and coaching session send
@@ -92,10 +95,10 @@ specific task prompts to the improvement coach as facilitator.
 | --------------------------- | ------------------------------------- | ---------------------------------------- |
 | **kata-storyboard**         | Daily 08:00                           | improvement-coach (facilitates 5 agents) |
 | **kata-coaching**           | `workflow_dispatch`                   | improvement-coach (facilitates 1 agent)  |
-| **agent-security-engineer** | Night 03:37                           | security-engineer                        |
-| **agent-technical-writer**  | Night 04:23                           | technical-writer                         |
-| **agent-product-manager**   | Night 05:11 · Day 12:17 · Swing 20:17 | product-manager                          |
-| **agent-staff-engineer**    | Night 05:53 · Day 13:11 · Swing 21:11 | staff-engineer                           |
+| **agent-product-manager**   | Night 03:23 · Day 12:17 · Swing 20:17 | product-manager                          |
+| **agent-staff-engineer**    | Night 04:11 · Day 13:11 · Swing 21:11 | staff-engineer                           |
+| **agent-security-engineer** | Night 04:53                           | security-engineer                        |
+| **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
 
 ## Skills

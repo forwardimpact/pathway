@@ -2,8 +2,9 @@ name: "Agent: Security Engineer"
 
 on:
   schedule:
-    # Night shift — once daily. 01:37 UTC = 03:37 Paris (CEST) → finishes before 07:00 Paris.
-    - cron: "37 1 * * *"
+    # Night shift only — review staff's new code after implementation.
+    # 02:53 UTC = 04:53 Paris (CEST) → finishes before 07:00 Paris.
+    - cron: "53 2 * * *"
   workflow_dispatch:
     inputs:
       task-amend:
