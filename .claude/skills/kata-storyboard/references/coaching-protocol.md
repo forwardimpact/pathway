@@ -17,7 +17,8 @@ directly.
 
 ## Question 2: What is the actual condition now?
 
-- Each agent reports measured data from their domain's metrics CSVs.
+- Each agent follows the Participant Protocol: measure with live data, record to
+  CSV, then report via Share.
 - Run [`xmr.mjs`](../../kata-metrics/scripts/xmr.mjs) against each CSV to get
   process limits and signals — see
   [`kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).

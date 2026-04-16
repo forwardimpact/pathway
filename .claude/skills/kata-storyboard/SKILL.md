@@ -2,23 +2,30 @@
 name: kata-storyboard
 description: >
   Toyota Kata coaching protocol for team storyboard meetings and 1-on-1
-  coaching sessions. The improvement coach facilitates; domain agents
-  participate. Same five coaching kata questions in both contexts.
+  coaching sessions. Shared by the improvement coach (facilitator) and all
+  domain agents (participants). Same five coaching kata questions in both
+  contexts.
 ---
 
 # Kata Storyboard
 
-Entry-point skill used by the improvement coach in two contexts — team
-storyboard meetings (5 domain agents) and 1-on-1 coaching sessions (1 domain
-agent analyzing its own trace). Both use the same five coaching kata questions.
+Shared entry-point skill for storyboard meetings. The improvement coach
+facilitates; domain agents participate. Both roles load this skill — the
+facilitator follows the Facilitator Process, participants follow the Participant
+Protocol. Both use the same five coaching kata questions.
 
 ## When to Use
 
-Entry-point skill for the improvement coach's two facilitation contexts: team
-storyboard meetings (daily-meeting workflow) and 1-on-1 coaching sessions
-(coaching-session workflow).
+**Facilitator**: Entry-point skill for the improvement coach's two facilitation
+contexts — team storyboard meetings (daily-meeting workflow) and 1-on-1 coaching
+sessions (coaching-session workflow).
+
+**Participant**: Loaded automatically when you join a storyboard meeting. Follow
+the Participant Protocol when the coach poses questions via orchestration tools.
 
 ## Checklists
+
+### Facilitator
 
 <read_do_checklist goal="Prepare for the coaching session">
 
@@ -40,10 +47,23 @@ storyboard meetings (daily-meeting workflow) and 1-on-1 coaching sessions
 - [ ] Current condition updated with numbers from metrics CSVs (not narrative).
 - [ ] Current condition includes XmR `status` and signal descriptions for each
       metric with sufficient data. Metrics with `insufficient_data` are noted.
+- [ ] Coaching metrics appended to CSV (see Facilitator Process step 6).
 - [ ] For team meetings: storyboard file updated and committed.
 - [ ] For 1-on-1: agent's findings written to its own memory.
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
 - [ ] In facilitated mode: Conclude called with session summary.
+
+</do_confirm_checklist>
+
+### Participant
+
+<do_confirm_checklist goal="Verify participation quality">
+
+- [ ] Q2 data gathered from live sources, not memory or prior logs.
+- [ ] Domain metrics appended to CSV before sharing (step 2).
+- [ ] Metrics reported via Share match the CSV rows just written.
+- [ ] Q3 obstacles grounded in data or trace findings, not narrative.
+- [ ] Q4 experiment has a recorded expected outcome.
 
 </do_confirm_checklist>
 
@@ -75,7 +95,7 @@ questions guide the agent's reflection: what were you trying to achieve? What
 actually happened (measured)? What obstacles did you encounter? What will you
 try next? When will you know?
 
-## Process
+## Facilitator Process
 
 1. **Detect mode.** Call RollCall. If it succeeds, you are in facilitated mode —
    use orchestration tools for all participant interaction. If the call fails
@@ -96,16 +116,44 @@ try next? When will you know?
    Share). In solo mode, read metrics and wiki files directly.
 5. **Update the storyboard.** Write updated Current Condition, Obstacles, and
    Experiments sections back to the storyboard file.
-6. **Evaluate coaching need (team meetings only).** Review the session's
+6. **Record coaching metrics.** Append coaching activity metrics (e.g.,
+   `meetings_facilitated`, `experiments_active`, `agents_participating`) to
+   `wiki/metrics/improvement-coach/coaching/{YYYY}.csv` per the
+   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. See
+   [`references/metrics.md`](references/metrics.md) for suggested metrics.
+7. **Evaluate coaching need (team meetings only).** Review the session's
    findings. If a participant would benefit from a 1-on-1 coaching session —
    persistent obstacles, unanalyzed traces, or stalled experiments — trigger
    `coaching-session.yml` via
    `gh workflow run coaching-session.yml -f agent=<name>`. Skip this step in
    1-on-1 sessions.
-7. **Commit.** Commit storyboard changes as part of the wiki push.
-8. **Conclude (facilitated mode only).** Call Conclude with a session summary
+8. **Commit.** Commit storyboard changes as part of the wiki push.
+9. **Conclude (facilitated mode only).** Call Conclude with a session summary
    covering: meeting type, key metrics reviewed, obstacles addressed,
    experiments planned, and any coaching session triggered.
+
+## Participant Protocol
+
+Follow these steps when participating in a storyboard meeting. You have full
+file-system access — use it to measure and record, not just report.
+
+1. **Prepare for Q2.** When the coach poses Q2 ("What is the actual condition
+   now?"), gather your domain's current measured state. Use live data (`gh`,
+   `bun`, repo files) — not memory or narrative.
+2. **Record metrics to CSV.** Before sharing your Q2 report, append one row per
+   metric to your domain's CSV at
+   `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv` per the
+   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. Create the directory and
+   header row if the file does not exist. This is the authoritative record —
+   your Share message summarizes it, the CSV persists it.
+3. **Share measured data.** Report numbers via Share. Reference the CSV rows you
+   just wrote. Use counts and durations — not narratives like "improving" or
+   "stable."
+4. **Ground obstacles in data.** For Q3, identify obstacles from the gap between
+   your measured current condition and the target. Prefer trace findings or live
+   run data over accumulated log narratives.
+5. **Propose testable experiments.** For Q4, propose small experiments with
+   expected outcomes that can be verified in one or two daily cycles.
 
 ## Memory: what to record
 
@@ -115,9 +163,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Current condition** — Key numbers from metrics CSVs reviewed
 - **Obstacle addressed** — Which obstacle was the focus
 - **Experiment status** — Outcome of prior experiment, next experiment planned
-- **Metrics** — Record coaching-specific measurements (e.g.,
-  `meetings_facilitated`, `experiments_active`) to
-  `wiki/metrics/improvement-coach/coaching/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. The coach records
-  coaching activity metrics, not domain metrics — domain agents record their own
-  domain metrics via their own entry-point skills.
+- **Metrics** — Facilitator: record coaching activity metrics per step 6.
+  Participants: record domain metrics per Participant Protocol step 2.
