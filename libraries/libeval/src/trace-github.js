@@ -47,6 +47,7 @@ export class TraceGitHub {
     const data = await this.#get(url);
     const runs = data.workflow_runs ?? [];
 
+    // eslint-disable-next-line security/detect-non-literal-regexp -- pattern is caller-controlled, not untrusted input
     const re = new RegExp(pattern, "i");
     return runs
       .filter((r) => re.test(r.name))

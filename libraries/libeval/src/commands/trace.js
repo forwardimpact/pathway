@@ -1,4 +1,4 @@
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync } from "node:fs";
 import { join } from "node:path";
 import { createTraceCollector } from "@forwardimpact/libeval";
 import { createTraceQuery } from "../trace-query.js";

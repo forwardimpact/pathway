@@ -449,20 +449,12 @@ describe("TraceQuery", () => {
   });
 
   describe("createTraceQuery", () => {
-    test("accepts a JSON string", () => {
-      const trace = buildTrace();
-      const q = createTraceQuery(JSON.stringify(trace));
-      assert.strictEqual(q.count(), 10);
-    });
-
-    test("accepts a plain object", () => {
-      const q = createTraceQuery(buildTrace());
-      assert.strictEqual(q.count(), 10);
-    });
-
-    test("returns a TraceQuery instance", () => {
-      const q = createTraceQuery(buildTrace());
-      assert.ok(q instanceof TraceQuery);
+    test("accepts JSON string and plain object, returns TraceQuery", () => {
+      for (const input of [JSON.stringify(buildTrace()), buildTrace()]) {
+        const q = createTraceQuery(input);
+        assert.ok(q instanceof TraceQuery);
+        assert.strictEqual(q.count(), 10);
+      }
     });
   });
 });
