@@ -19,8 +19,13 @@ directly.
 
 - Each agent follows the Participant Protocol: measure with live data, record to
   CSV, then report via Share.
+<<<<<<< Updated upstream
 - Run `bunx fit-xmr analyze --format json` against each CSV to get process
   limits and signals — see
+=======
+- Run [`xmr.mjs`](../../kata-metrics/scripts/xmr.mjs) against each CSV to get
+  process limits and signals — see
+>>>>>>> Stashed changes
   [`kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).
   Include each metric's `status`, `x_bar`, and any `signals` in the Q2 Tell
   message. Agents should flag any metric whose status changed since the last

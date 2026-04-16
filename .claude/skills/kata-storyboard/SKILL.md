@@ -116,9 +116,13 @@ try next? When will you know?
    pose Q2–Q5 to individual agents, collect agent responses (agents respond via
    Share). In solo mode, read metrics and wiki files directly.
 5. **Update the storyboard.** Write updated Current Condition, Obstacles, and
+<<<<<<< Updated upstream
    Experiments sections. For each CSV-backed metric in the Current Condition
    table, generate a sparkline with `bunx fit-xmr spark <csv> --metric <name>`
    and write it to the Spark column.
+=======
+   Experiments sections back to the storyboard file.
+>>>>>>> Stashed changes
 6. **Record coaching metrics.** Append coaching activity metrics (e.g.,
    `meetings_facilitated`, `experiments_active`, `agents_participating`) to
    `wiki/metrics/improvement-coach/coaching/{YYYY}.csv` per the

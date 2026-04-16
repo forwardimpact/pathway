@@ -295,7 +295,4 @@ npx fit-subjects fit:Skill              # Should list framework skill entities
 
 ## Documentation
 
-For deeper context beyond this skill's scope:
-
 - [Finding Your Bearing Guide](https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md)
-  — How Guide helps engineers navigate their engineering framework
