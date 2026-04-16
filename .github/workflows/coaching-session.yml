@@ -37,6 +37,8 @@ jobs:
           token: ${{ steps.ci-app.outputs.token }}
 
       - uses: ./.github/actions/bootstrap
+        with:
+          token: ${{ steps.ci-app.outputs.token }}
 
       - name: 1-on-1 Coaching Session
         uses: ./.github/actions/kata-action
