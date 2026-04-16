@@ -50,7 +50,7 @@ These are the canonical shapes Kata skills reuse. Match them exactly so the
 
 ### List open PRs for triage
 
-Used by `kata-product-classify` and `kata-release-readiness`.
+Used by `kata-product-pr` and `kata-release-readiness`.
 
 ```sh
 gh pr list --state open --base main \
@@ -66,7 +66,7 @@ gh pr list --author 'app/dependabot' --state open \
 
 ### Contributor trust lookup (top-7 gate)
 
-Used by `kata-product-classify` before any external PR is marked mergeable. The
+Used by `kata-product-pr` before any external PR is marked mergeable. The
 `kata-trace` invariant audit verifies this call ran for every non-CI-app PR.
 
 ```sh
@@ -104,7 +104,7 @@ gh pr close <number> --comment "..."
 
 ### List and view issues
 
-Used by `kata-product-triage`.
+Used by `kata-product-issue`.
 
 ```sh
 gh issue list --state open --limit 50 \

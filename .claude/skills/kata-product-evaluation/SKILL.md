@@ -121,7 +121,7 @@ Then for each actionable item:
 2. **Check duplicates** — Search existing open issues before creating new ones
 3. **Create or comment** — File a new issue or add a comment with new context on
    a matching existing issue. Issue body templates live in
-   `../kata-product-triage/references/templates.md` § New Issues from User
+   `../kata-product-issue/references/templates.md` § New Issues from User
    Testing
 4. **Summarize** — Add the item (with its issue number) to the summary table
 

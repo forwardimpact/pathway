@@ -1,9 +1,10 @@
 ---
-name: kata-product-triage
+name: kata-product-issue
 description: >
-  Classify open GitHub issues by product alignment and decide what action
-  each needs — trivial fix, spec, or out-of-scope. Produce a triage report
-  for the agent to act on. Does not implement fixes or write specs itself.
+  Triage open GitHub issues against the product vision. Classify each as
+  trivial fix, product-aligned spec, or out-of-scope, and produce a report
+  the agent acts on. Operates on issues only — PR mergeability is
+  kata-product-pr.
 ---
 
 # Product Issue Triage
@@ -19,9 +20,9 @@ triage decisions captured here.
 
 ## When to Use
 
-- Reviewing open issues for product alignment on a schedule
-- On-demand when specific issues need a product decision
-- Before any action is taken on an issue
+- A scheduled run finds open issues awaiting triage
+- A specific issue needs an on-demand product-alignment decision
+- Never for PRs — use [`kata-product-pr`](../kata-product-pr/SKILL.md)
 
 ## Checklists
 

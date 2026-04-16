@@ -114,8 +114,8 @@ none for utilities). Reading an agent's skill list reveals its phase coverage.
 **Study**
 
 - `kata-security-audit` — seven-area security review
-- `kata-product-triage` — issue classification
-- `kata-product-classify` — PR mergeability gate
+- `kata-product-issue` — issue triage against product vision
+- `kata-product-pr` — PR merge gate (trust, type, CI, spec quality)
 - `kata-product-evaluation` — user testing sessions
 - `kata-documentation` — one topic deep per run
 - `kata-wiki-curate` — agent memory hygiene
@@ -202,6 +202,12 @@ Metrics serve the coaching cycle: the team storyboard meeting (see Workflows
 table) uses metric data to answer "what is the actual condition now?" with
 numbers rather than narratives. Process behavior charts (XmR) built from the
 time series distinguish stable processes from those reacting to special causes.
+
+All agents — both facilitator and participants — load `kata-storyboard` and
+`kata-metrics`. During storyboard meetings, each participant records its own
+domain metrics to CSV before sharing them with the team, ensuring measurements
+persist as structured data rather than only as narrative in the storyboard
+markdown.
 
 ## Authentication
 

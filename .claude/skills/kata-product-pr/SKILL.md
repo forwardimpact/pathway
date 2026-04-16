@@ -1,16 +1,15 @@
 ---
-name: kata-product-classify
+name: kata-product-pr
 description: >
-  Classify open pull requests for mergeability — verify contributor trust,
-  parse PR type, check CI status, review spec quality on spec PRs, and merge
-  PRs that pass all gates.
+  Merge gate for open pull requests. Verify contributor trust, parse PR type,
+  check CI status, review spec quality, and merge PRs that pass all gates.
+  Operates on PRs only — issue triage is kata-product-issue.
 ---
 
-# Product PR Classification
+# Product PR Gate
 
-Triage all open pull requests, verify contributor trust, run the gate checks,
-produce a report stating which PRs are ready to merge, and merge those that pass
-all gates.
+Verify every open non-Dependabot PR against four gates (trust, type, CI, spec
+quality), produce a classification report, and merge those that pass.
 
 This skill handles **all non-Dependabot PRs** — both external contributions and
 PRs created by our own CI app (`forward-impact-ci`). Because external
@@ -21,9 +20,9 @@ checks happened on every PR that advanced to merge.
 
 ## When to Use
 
-- Reviewing open PRs for product alignment on a schedule
-- On-demand when specific PRs need a mergeability decision
-- Before any merge is performed
+- A scheduled run finds open PRs awaiting review
+- A specific PR needs an on-demand mergeability decision
+- Never for issues — use [`kata-product-issue`](../kata-product-issue/SKILL.md)
 
 ## Prerequisites
 
