@@ -37,11 +37,9 @@ GitHub comment and PR body with `— Technical Writer 📝`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Check the storyboard** (see
-   [shared protocol](references/memory-protocol.md)).
-1. **Stale or inaccurate cross-agent observations?** -- Curate the wiki
-   (`kata-wiki-curate`; check: agent summaries for unacknowledged observations,
-   stale data, or log hygiene issues)
+0. **Storyboard** — [memory-protocol.md](references/memory-protocol.md)
+1. **Stale or inaccurate cross-agent observations?** -- `kata-wiki-curate`
+   (check agent summaries for unacknowledged observations or stale data)
 2. **Documentation topic due for review?** -- Review one topic in depth
    (`kata-documentation`; check: coverage map in `wiki/technical-writer.md`)
 3. **Nothing actionable?** -- Report clean state

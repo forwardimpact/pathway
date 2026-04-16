@@ -84,75 +84,9 @@ filesystem access — the web app loads them to know which entities are availabl
 
 ---
 
-## CLI
+## CLI Reference
 
-### Framework commands
-
-```sh
-npx fit-map init                            # Create ./data/pathway/ with starter framework data
-npx fit-map validate                        # Validate all data (JSON schema + referential)
-npx fit-map validate --shacl                # Validate RDF/SHACL syntax
-npx fit-map validate --data=PATH            # Validate a specific data directory
-npx fit-map generate-index                  # Generate _index.yaml files for browser loading
-npx fit-map export                          # Render base entities to HTML microdata
-npx fit-map export --output=PATH            # Export to a custom directory
-```
-
-Validation output includes a data summary showing entity counts. Use this to
-quickly verify data is loading correctly after changes.
-
-### People commands
-
-```sh
-npx fit-map people validate <file>          # Validate a people file against the framework (no DB)
-npx fit-map people push <file>              # Store raw + upsert into activity.organization_people
-```
-
-`people validate` is a local pre-flight check — it never opens a Supabase
-connection. `people push` writes the raw file to the `raw` bucket for audit,
-then calls the shared `transformPeople` helper to upsert rows into
-`activity.organization_people` (manager-less rows first so foreign keys
-resolve). Both accept YAML or CSV with the same column names.
-
-### Activity commands
-
-Activity commands require the Supabase CLI. Install via Homebrew
-(`brew install supabase/tap/supabase`) or npm (`npm install supabase`) —
-`fit-map` finds either and falls back to `npx supabase` for the npm-local
-install. See the
-[leadership getting-started guide](../../website/docs/getting-started/leadership/index.md#activity-install-the-supabase-cli)
-for details.
-
-```sh
-npx fit-map activity start                  # Start the bundled local Supabase stack
-npx fit-map activity stop                   # Stop the local stack
-npx fit-map activity status                 # Report local stack health
-npx fit-map activity migrate                # Reset + re-apply migrations (drops data)
-npx fit-map activity transform              # Reprocess every raw document in the raw bucket
-npx fit-map activity transform people       # Reprocess only people
-npx fit-map activity transform getdx        # Reprocess only GetDX
-npx fit-map activity transform github       # Reprocess only GitHub webhooks
-npx fit-map activity verify                 # Smoke-test the activity database
-```
-
-The activity commands wrap the bundled Supabase project so consumers don't need
-to `cd` into `node_modules/@forwardimpact/map`. `activity transform` reads from
-the `raw` bucket and upserts on natural keys — safe to re-run. `activity verify`
-reads `organization_people` and at least one derived table and exits non-zero if
-either is empty.
-
-### GetDX commands
-
-```sh
-GETDX_API_TOKEN=xxx npx fit-map getdx sync  # Extract + transform GetDX snapshots
-```
-
-Fetches `teams.list`, `snapshots.list`, and `snapshots.info` for every undeleted
-snapshot, stores each response under `raw/getdx/`, and upserts
-`activity.getdx_teams`, `activity.getdx_snapshots`, and
-`activity.getdx_snapshot_team_scores`. The CLI and the hosted `getdx-sync` edge
-function run the same extract-and-transform code — pick whichever fits your
-deployment.
+See [`references/cli.md`](references/cli.md) for full command listings.
 
 ### Edge functions (hosted-only)
 
@@ -195,81 +129,10 @@ same YAML file. All entities have an `id` field used for cross-references.
 
 ---
 
-## Schema Definitions
+## Schema Definitions and Common Tasks
 
-### JSON Schema (`schema/json/`)
-
-Validates YAML structure. One schema per entity type.
-
-### RDF/SHACL (`schema/rdf/`)
-
-Semantic representation for linked data interoperability.
-
-**Schema synchronization:** When adding or modifying properties, update both
-`schema/json/` and `schema/rdf/` in the same commit. The two formats must stay
-in sync.
-
----
-
-## Common Tasks
-
-### Add a Skill
-
-1. Add skill to capability file:
-   `data/pathway/capabilities/{capability_id}.yaml`
-2. Add skill object with `id`, `name`, and `human:` section
-3. Include level descriptions for all five proficiency levels
-4. Reference skill in disciplines (coreSkills/supportingSkills/broadSkills)
-5. Add questions: `data/pathway/questions/skills/{skill_id}.yaml`
-6. Optionally add `agent:` section for AI coding agent support
-7. Run `npx fit-map validate`
-
-### Add Interview Questions
-
-Location:
-
-- Skills: `data/pathway/questions/skills/{skill_id}.yaml`
-- Behaviours: `data/pathway/questions/behaviours/{behaviour_id}.yaml`
-
-Required properties:
-
-| Property     | Description                                    |
-| ------------ | ---------------------------------------------- |
-| `id`         | Format: `{abbrev}_{level_abbrev}_{number}`     |
-| `text`       | Question text (second person, under 150 chars) |
-| `lookingFor` | 2-4 bullet points of good answer indicators    |
-
-### Add Agent Skill Section
-
-Add `agent:` section to skill in capability file:
-
-```yaml
-agent:
-  name: skill-name-kebab-case
-  description: Brief description
-  useWhen: When agents should apply this skill
-  stages:
-    plan:
-      focus: Planning objectives
-      activities: [...]
-      ready: [...]
-    code:
-      focus: Implementation objectives
-      activities: [...]
-      ready: [...]
-```
-
-### Add Tool Reference
-
-Add `toolReferences:` to skill in capability file:
-
-```yaml
-toolReferences:
-  - name: Langfuse
-    url: https://langfuse.com/docs
-    description: LLM observability platform
-    useWhen: Instrumenting AI applications
-```
+See [`references/tasks.md`](references/tasks.md) for schema locations and
+authoring tasks.
 
 ## Verification
 

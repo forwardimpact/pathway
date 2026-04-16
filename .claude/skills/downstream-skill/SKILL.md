@@ -50,14 +50,8 @@ Run this skill when:
 
 ### Step 1: Read Downstream Changelogs
 
-For each downstream installation, check for per-skill changelogs:
-
-```bash
-# List all skill changelogs in the installation
-for f in ~/Documents/Personal/.claude/skills/*/CHANGELOG.md; do
-  [ -f "$f" ] && echo "--- $f ---" && cat "$f"
-done
-```
+For each downstream installation, list all `CHANGELOG.md` files under the
+installation's `.claude/skills/` and read their contents.
 
 If no changelogs exist, the installation hasn't run the **upstream** skill yet.
 Report this and stop — do not try to infer changes without structured

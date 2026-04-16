@@ -42,19 +42,13 @@ every GitHub comment and PR body with `— Staff Engineer 🛠️`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Check the storyboard** (see
-   [shared protocol](references/memory-protocol.md)).
-1. **Approved specs without designs?** -- Write an architectural design
-   (`kata-design`; check: `specs/STATUS` for specs at `spec approved` without a
-   `design.md`; push the design on the existing `spec/` branch -- never start a
-   new branch)
-2. **Approved designs without plans?** -- Write an execution-ready plan
-   (`kata-plan`; check: `specs/STATUS` for specs at `design approved` without a
-   `plan-a.md`; push the plan on the existing `spec/` branch -- never start a
-   new branch)
-3. **Planned specs awaiting implementation?** -- Implement the lowest-ID planned
-   spec (`kata-implement`; check: `specs/STATUS` for specs in `planned`;
-   implement on a `feat/<spec-slug>` branch from `main`)
+0. **Storyboard** — [memory-protocol.md](references/memory-protocol.md)
+1. **Approved specs without designs?** -- `kata-design` on the existing `spec/`
+   branch (check `specs/STATUS` for `spec approved` without `design.md`)
+2. **Approved designs without plans?** -- `kata-plan` on the existing `spec/`
+   branch (check `specs/STATUS` for `design approved` without `plan-a.md`)
+3. **Planned specs awaiting implementation?** -- `kata-implement` on a
+   `feat/<spec-slug>` branch (check `specs/STATUS` for `planned`)
 4. **Nothing actionable?** -- Report clean state
 
 After choosing, follow the selected skill's full procedure.

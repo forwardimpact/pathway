@@ -17,22 +17,19 @@ check() {
 }
 
 # Layer 2 — project identity
-check CLAUDE.md 200
+check CLAUDE.md 192
 
 # Layer 3 — contribution standards
-check CONTRIBUTING.md 300
+check CONTRIBUTING.md 256
 
 # Layer 5 — agent profiles
 for f in .claude/agents/*.md; do
-  check "$f" 100
+  check "$f" 64
 done
 
-# Layer 6 — skills (fit-* published skills get 300; all others 200)
+# Layer 6 — skills
 for f in .claude/skills/*/SKILL.md; do
-  case "$f" in
-    .claude/skills/fit-*) check "$f" 300 ;;
-    *)                    check "$f" 200 ;;
-  esac
+  check "$f" 192
 done
 
 exit $status

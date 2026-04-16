@@ -187,11 +187,3 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
-
-## What NOT to Do
-
-The READ-DO checklist covers the core boundaries (read before coding, plan-only
-scope, execution order, default to plan-a). Additionally:
-
-- **Do not batch all changes into one commit.** Atomic commits make review,
-  bisection, and rollback possible.

@@ -171,20 +171,16 @@ above.
 
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
 - **Contribution standards** — [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Security policies** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
-- **Dependency policy** —
-  [CONTRIBUTING.md § Dependency Policy](CONTRIBUTING.md#dependency-policy)
+- **Security** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
+- **Dependency policy** — [CONTRIBUTING.md](CONTRIBUTING.md#dependency-policy)
 - **Repo self-maintenance** — [KATA.md](KATA.md)
-- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand; kata
-  agents read and write per-agent summaries and weekly logs here)
-- **Environment, services, tasks** —
-  [Operations Reference](website/docs/internals/operations/)
-- **Kata agent skills** — Security (audit, update), release (readiness, review),
-  documentation, and wiki curation in [.claude/skills/kata-\*](.claude/skills/)
+- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand)
+- **Operations** — [Operations Reference](website/docs/internals/operations/)
+- **Kata agent skills** — [.claude/skills/kata-\*](.claude/skills/)
 - **Codegen pipeline** — [Codegen Internals](website/docs/internals/codegen/)
 - **REPL API** — [librepl internals](website/docs/internals/librepl/)
-- **Getting started (contributors)** —
-  [website/docs/getting-started/contributors/](website/docs/getting-started/contributors/)
+- **Getting started** —
+  [contributors](website/docs/getting-started/contributors/)
 
 **External:**
 
@@ -193,5 +189,4 @@ above.
 - **Getting started (leadership)** —
   [website/docs/getting-started/leadership/](website/docs/getting-started/leadership/)
 - **User guides** — [website/docs/guides/](website/docs/guides/)
-- **Published skills** — [.claude/skills/](.claude/skills/) (`fit-*` entries,
-  externally consumable)
+- **Published skills** — [.claude/skills/fit-\*](.claude/skills/)

@@ -268,13 +268,12 @@ Rules:
 Auto-loaded layers consume context on every run. Keep them tight so agents spend
 tokens on the task, not on re-reading project boilerplate.
 
-| Layer              | Target | Loaded           |
-| ------------------ | ------ | ---------------- |
-| CLAUDE.md          | ≤ 200  | auto (every run) |
-| CONTRIBUTING.md    | ≤ 300  | on demand        |
-| Agent profile      | ≤ 100  | auto (every run) |
-| SKILL.md           | ≤ 200  | auto (per skill) |
-| SKILL.md (`fit-*`) | ≤ 300  | auto (per skill) |
+| Layer           | Target | Loaded           |
+| --------------- | ------ | ---------------- |
+| CLAUDE.md       | ≤ 192  | auto (every run) |
+| CONTRIBUTING.md | ≤ 256  | on demand        |
+| Agent profile   | ≤ 64   | auto (every run) |
+| SKILL.md        | ≤ 192  | auto (per skill) |
 
 The same principle applies across layers: keep the main file to its concern;
 push supporting material into co-located references or linked documents.

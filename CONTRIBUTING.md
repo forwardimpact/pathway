@@ -139,42 +139,8 @@ proxy file.
 ### Services — the one exception
 
 Services keep `index.js` and `server.js` at the package root (loaded by fixed
-path from `config/config.example.json`). Additional source lives under `src/`.
-No `bin/` directory, no `src/index.js`.
-
-```
-services/<name>/
-  index.js   # Service definition / exports (fixed path)
-  server.js  # Entry point for the service process (fixed path)
-  proto/     # Protobuf source (optional — services/web is HTTP-only)
-  src/       # Any additional source files used by index.js/server.js
-  test/
-  package.json
-```
-
-### Per-package justfile
-
-A package may carry its own `justfile` for package-local tasks (e.g.
-`products/basecamp/justfile`). The top-level `justfile` remains the primary
-entry point.
-
-### Skill groups
-
-Library skills are organized into capability groups with corresponding skill
-files in [.claude/skills/](.claude/skills/):
-
-- **`libs-grpc-services`** — librpc, libconfig, libtelemetry, libtype,
-  libharness
-- **`libs-storage`** — libstorage, libindex, libresource, libpolicy, libgraph,
-  libvector
-- **`libs-llm-and-agents`** — libllm, libmemory, libprompt, libagent, libtool
-- **`libs-content`** — libui, libformat, libweb, libdoc, libtemplate
-- **`libs-cli-and-tooling`** — libcli, librepl, libutil, libsecret,
-  libsupervise, librc, libcodegen, libeval, libxmr
-- **`libs-synthetic-data`** — libsyntheticgen, libsyntheticprose,
-  libsyntheticrender, libterrain
-
-`libskill` retains its own skill (pure-function design, exempt from OO+DI).
+path from `config/config.example.json`), plus `proto/`, `src/`, `test/`, and
+`package.json`. No `bin/` directory, no `src/index.js`.
 
 ## Pull Request Workflow
 
@@ -201,18 +167,12 @@ Format: `type(scope): subject`
 
 ### Releasing
 
-**Tag prefix** matches the directory name, not the package scope:
+Tag prefix matches the directory name: `libraries/libfoo` → `libfoo@v0.1.5`,
+`products/pathway` → `pathway@v0.25.0`, `services/agent` → `svcagent@v0.1.110`.
 
-- `libraries/libfoo` → `libfoo@v0.1.5`
-- `products/pathway` → `pathway@v0.25.0`
-- `services/agent` → `svcagent@v0.1.110`
-
-**Version rules** — pre-1.0 packages (`0.x.y`) bump patch for any change.
-Post-1.0 packages use semver: breaking=major, feat=minor, fix/refactor=patch.
-
-The release engineer agent handles version bumps, tagging, and publishing. See
-the [kata-release-review skill](.claude/skills/kata-release-review) for the full
-release procedure.
+Pre-1.0 packages bump patch for any change. Post-1.0: semver (breaking=major,
+feat=minor, fix/refactor=patch). The release engineer handles bumps, tagging,
+and publishing — see [kata-release-review](.claude/skills/kata-release-review).
 
 ## Quality Commands
 
@@ -270,31 +230,17 @@ Security policies apply to all contributors — human and agent.
 
 Every dependency belongs in one category. Apply in order — first match wins.
 
-| Category             | Rule                                                                                        | Field                                       | Examples                                         |
-| -------------------- | ------------------------------------------------------------------------------------------- | ------------------------------------------- | ------------------------------------------------ |
-| **Always needed**    | Imported synchronously at load time, unconditionally                                        | `dependencies`                              | yaml, mustache, marked, hono, @grpc/grpc-js, ajv |
-| **Backend-specific** | Only needed when a `process.env` value selects that backend; alternative backends exist     | `optionalDependencies` + dynamic `import()` | @aws-sdk/client-s3, @supabase/supabase-js        |
-| **Feature-gated**    | Only loaded when the user explicitly enables a feature; core functionality works without it | `optionalDependencies` + dynamic `import()` | apache-arrow, parquet-wasm, @faker-js/faker      |
-| **Build-tool**       | Used only by consumers who already have the tool installed (formatters, linters)            | `peerDependencies`                          | prettier                                         |
-| **Build-time only**  | Used in `bin/` scripts or code generation, never by library consumers                       | `devDependencies`                           | protobufjs-cli, @grpc/proto-loader               |
+- **Always needed** — imported synchronously at load time → `dependencies`
+- **Backend-specific** — selected by env var, alternatives exist →
+  `optionalDependencies` + dynamic `import()`
+- **Feature-gated** — user opts in, core works without it →
+  `optionalDependencies` + dynamic `import()`
+- **Build-tool** — consumers already have it → `peerDependencies`
+- **Build-time only** — `bin/` scripts or codegen only → `devDependencies`
 
 ### Optional Dependency Pattern
 
 Backend-specific and feature-gated dependencies must use dynamic `import()` at
-the point of use — never at the top of the module — wrapped in `try/catch` that
-throws a descriptive error:
-
-```js
-let createClient;
-try {
-  ({ createClient } = await import("@supabase/supabase-js"));
-} catch {
-  throw new Error(
-    "--load requires @supabase/supabase-js. Install with: bun add @supabase/supabase-js",
-  );
-}
-```
-
-The error message **must** name the feature that triggered the need, the
-package, and the exact install command. Never silently fall back or swallow the
-error — let the caller decide.
+the point of use — never at module top — wrapped in `try/catch` that throws
+naming the feature, the package, and the exact install command. Never silently
+fall back — let the caller decide.

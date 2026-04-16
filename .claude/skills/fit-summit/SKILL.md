@@ -104,148 +104,19 @@ Each view applies privacy rules based on the audience:
 
 ## CLI Reference
 
-### Global Options
-
-All commands accept these options:
-
-| Option            | Description                               |
-| ----------------- | ----------------------------------------- |
-| `--roster <path>` | Path to `summit.yaml` roster file         |
-| `--data <path>`   | Path to Map framework data directory      |
-| `--format <type>` | Output format: `text`, `json`, `markdown` |
-| `--help`          | Show command help                         |
-| `--version`       | Print version                             |
-
-### Coverage and Risks
-
-```sh
-npx fit-summit coverage <team>                  # Capability coverage heatmap
-npx fit-summit coverage <team> --evidenced      # Overlay practiced capability
-npx fit-summit coverage <team> --project <name> # Project-specific coverage
-npx fit-summit risks <team>                     # Structural risks (SPOFs, gaps, concentration)
-npx fit-summit risks <team> --evidenced         # Evidence-escalated risks
-npx fit-summit risks <team> --audience director # Director-level (anonymized)
-```
-
-### What-If Scenarios
-
-```sh
-npx fit-summit what-if <team> --remove 'Alice'
-npx fit-summit what-if <team> --add '{ discipline: software_engineering, level: J060, track: platform }'
-npx fit-summit what-if <team> --promote 'Bob'
-npx fit-summit what-if <team> --move 'Carol' --to other-team
-npx fit-summit what-if <team> --remove 'Alice' --focus delivery  # Focus diff on one capability
-```
-
-The `--add` flag takes a flow-style YAML job expression with `discipline`,
-`level`, and optionally `track`.
-
-### Growth and Trajectory
-
-```sh
-npx fit-summit growth <team>                    # Growth opportunities aligned with gaps
-npx fit-summit growth <team> --evidenced        # Exclude already-practiced skills
-npx fit-summit growth <team> --outcomes         # Weight by GetDX driver scores
-npx fit-summit trajectory <team>                # Quarterly capability evolution
-npx fit-summit trajectory <team> --quarters 8   # Look back 8 quarters
-```
-
-### Roster and Validation
-
-```sh
-npx fit-summit roster                           # Display current roster
-npx fit-summit validate                         # Validate roster against framework data
-```
-
-`validate` exits non-zero on errors — use it in CI or pre-commit hooks.
-
-### Team Comparison
-
-```sh
-npx fit-summit compare <team1> <team2>          # Diff coverage and risks
-npx fit-summit compare <team1> <team2> --audience director
-```
+See [`references/cli.md`](references/cli.md) for full command listings.
 
 ---
 
 ## Roster Format
 
-Summit reads a `summit.yaml` file with teams and optional projects:
-
-```yaml
-teams:
-  platform:
-    - name: Alice
-      email: alice@example.com
-      job:
-        discipline: software_engineering
-        level: J060
-        track: platform
-    - name: Bob
-      email: bob@example.com
-      job:
-        discipline: software_engineering
-        level: J040
-
-projects:
-  migration-q2:
-    - email: alice@example.com       # References a reporting team member
-      allocation: 0.6
-    - name: External Consultant      # Inline job definition
-      job:
-        discipline: software_engineering
-        level: J060
-        track: platform
-      allocation: 1.0
-```
-
-All disciplines, levels, and tracks referenced must exist in the Map framework
-data. Use `npx fit-summit validate` to check.
-
-Alternatively, Summit can load rosters directly from Map's activity layer
-(requires `MAP_SUPABASE_URL` and `MAP_SUPABASE_SERVICE_ROLE_KEY`), grouping
-`organization_people` by manager email to form reporting teams.
+See [`references/roster.md`](references/roster.md) for YAML format and examples.
 
 ---
 
 ## Common Workflows
 
-### "What happens if Alice leaves?"
-
-```sh
-npx fit-summit risks platform
-npx fit-summit what-if platform --remove 'Alice'
-```
-
-Compare the risk lists before and after to see which single points of failure
-emerge.
-
-### "Should we hire a senior or a mid-level?"
-
-```sh
-npx fit-summit what-if platform --add '{ discipline: software_engineering, level: J060 }'
-npx fit-summit what-if platform --add '{ discipline: software_engineering, level: J040 }'
-```
-
-Compare the coverage diff from each scenario to see which addresses more gaps.
-
-### "Where should this engineer focus their growth?"
-
-```sh
-npx fit-summit growth platform --evidenced --outcomes
-```
-
-Returns recommendations ranked by team impact, filtered by what the engineer has
-already demonstrated, and weighted by organizational driver scores.
-
-### "How has the team changed over time?"
-
-```sh
-npx fit-summit trajectory platform --quarters 8
-```
-
-Shows quarterly coverage snapshots with per-skill trend classification and
-roster changes (joins, leaves, promotions).
+See [`references/workflows.md`](references/workflows.md) for worked examples.
 
 ---
 

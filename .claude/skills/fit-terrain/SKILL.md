@@ -77,86 +77,14 @@ complete output set.
 
 ## CLI Reference
 
-```sh
-npx fit-terrain                     # Use cached prose (default, repeatable)
-npx fit-terrain --generate          # Generate prose via LLM (requires LLM_TOKEN)
-npx fit-terrain --no-prose          # Structural scaffolding only (no prose at all)
-npx fit-terrain --strict            # Fail on cache miss (with default cached mode)
-npx fit-terrain --load              # Load raw docs to Supabase Storage
-npx fit-terrain --only=pathway      # Render only one content type
-npx fit-terrain --dry-run           # Show what would be written
-npx fit-terrain --story=path        # Custom story DSL file
-npx fit-terrain --cache=path        # Custom prose cache file
-```
-
-### Content Types
-
-Use `--only=<type>` to generate a single content type:
-
-| Type       | Output Directory | Contents                        |
-| ---------- | ---------------- | ------------------------------- |
-| `html`     | `data/knowledge` | Articles, guides, FAQs, courses |
-| `pathway`  | `data/pathway`   | YAML framework files            |
-| `raw`      | `data/activity`  | Roster, GitHub events, evidence |
-| `markdown` | `data/personal`  | Briefings, notes, KB content    |
-
-### Prose Modes
-
-| Mode       | Flag         | Description                                  |
-| ---------- | ------------ | -------------------------------------------- |
-| `cached`   | _(default)_  | Read from `prose-cache.json` (no LLM needed) |
-| `generate` | `--generate` | Call LLM, write new entries to cache         |
-| `no-prose` | `--no-prose` | Structural scaffolding only, no prose at all |
+See [`references/cli.md`](references/cli.md) for full command listings.
 
 ---
 
 ## Terrain DSL
 
-Terrain files define a complete synthetic environment. This monorepo's terrain
-DSL is at `data/synthetic/story.dsl`. A minimal reference DSL ships with
-libsyntheticgen at `libraries/libsyntheticgen/data/default.dsl` for quick
-testing; projects provide their own DSL file.
-
-### Top-Level Blocks
-
-```dsl
-terrain Name {
-  domain "example.dev"
-  industry "technology"
-  seed 42
-
-  org hq { ... }
-  department engineering { ... }
-  team backend { ... }
-  people { ... }
-  project alpha { ... }
-  snapshots { ... }
-  scenario launch_push { ... }
-  framework { ... }
-  content guide_html { ... }
-  content basecamp_markdown { ... }
-}
-```
-
-### Key Blocks
-
-**org / department / team** — Organizational hierarchy with headcounts,
-managers, and repo assignments.
-
-**people** — Count, name theme, level distribution, discipline distribution.
-
-**project** — Cross-team initiatives with timelines and prose topics.
-
-**snapshots** — GetDX snapshot generation (quarterly intervals).
-
-**scenario** — Time-bounded effects on teams (commit volume, DX driver
-trajectories, evidence generation).
-
-**framework** — Full pathway framework: levels, capabilities with skills,
-behaviours, disciplines with skill tiers, tracks, drivers, and stages.
-
-**content** — Output content blocks specifying article/blog/FAQ counts, persona
-configurations, and briefing counts.
+See [`references/dsl.md`](references/dsl.md) for syntax, top-level blocks, and
+key block descriptions.
 
 ---
 
@@ -165,14 +93,8 @@ configurations, and briefing counts.
 Use `--story=path` to specify a custom terrain DSL file. Without `--story`, the
 CLI falls back to the minimal reference DSL bundled with the package.
 
-Generated output writes to `data/` directories in the current working directory:
-
-| Type       | Output Directory |
-| ---------- | ---------------- |
-| `html`     | `data/knowledge` |
-| `pathway`  | `data/pathway`   |
-| `raw`      | `data/activity`  |
-| `markdown` | `data/personal`  |
+Generated output writes to the `data/` directories listed under Content Types
+above.
 
 ---
 
@@ -186,27 +108,12 @@ When using `--generate`, prose is regenerated and the cache is written after
 generation completes. To do a full regeneration, delete the cache file first and
 run with `--generate`.
 
-To regenerate all prose, delete the cache file and run with `--generate`.
-
 ---
 
 ## Dataset Blocks
 
-The terrain DSL may include `dataset` and `output` blocks that use external
-tools (Synthea, SDV, Faker). Unavailable tools are automatically skipped with an
-info log — the pipeline continues and writes all other generated files normally.
-
-Tool availability:
-
-| Tool    | Requirement         | Always available? |
-| ------- | ------------------- | ----------------- |
-| Faker   | Built-in (pure JS)  | Yes               |
-| Synthea | Java + JAR file     | No                |
-| SDV     | Python + sdv module | No                |
-
-**Note:** The `--only` flag gates which render types execute (html, pathway,
-raw, markdown). It does **not** affect dataset generation — datasets run when
-present in the DSL but skip gracefully if the tool is unavailable.
+See [`references/datasets.md`](references/datasets.md) for external tool
+requirements.
 
 ---
 
