@@ -66,11 +66,11 @@ worktree.
 Three skills replace `git checkout -b` / `git checkout` with a call to
 `kata-worktree`:
 
-| Skill | Current | New |
-|-------|---------|-----|
-| `kata-implement` | Caller creates `feat/` branch | Insert worktree-create step before implementation |
-| `kata-release-readiness` | `git checkout <pr-branch>` per PR | Worktree per PR; cleanup after push |
-| `kata-security-update` | `git checkout -b fix/dependabot-N` | Worktree from Dependabot branch |
+| Skill                    | Current                            | New                                               |
+| ------------------------ | ---------------------------------- | ------------------------------------------------- |
+| `kata-implement`         | Caller creates `feat/` branch      | Insert worktree-create step before implementation |
+| `kata-release-readiness` | `git checkout <pr-branch>` per PR  | Worktree per PR; cleanup after push               |
+| `kata-security-update`   | `git checkout -b fix/dependabot-N` | Worktree from Dependabot branch                   |
 
 `kata-product-issue` changes only its hand-off wording (step 4) — the actual
 branch creation is done by the calling agent, which follows the agent profile
@@ -86,13 +86,13 @@ existing `spec/` branch" instead of assuming the agent already checked it out.
 Five profiles replace branch-switching language with worktree language in their
 Assess sections. The skill list for each gains `kata-worktree`.
 
-| Profile | Change |
-|---------|--------|
-| `staff-engineer` | "implement on a `feat/` branch" → "implement in a worktree on `feat/`"; "push on existing `spec/` branch" → "worktree for existing `spec/` branch" |
-| `security-engineer` | "`fix/` branch from `main`" → "worktree on `fix/`"; "`spec/` branch" → "worktree on `spec/`" |
-| `product-manager` | "trivial fix — `fix/` branch" → "worktree on `fix/`" |
-| `technical-writer` | Same pattern as security-engineer |
-| `release-engineer` | No Assess changes; add `kata-worktree` to skills |
+| Profile             | Change                                                                                                                                             |
+| ------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `staff-engineer`    | "implement on a `feat/` branch" → "implement in a worktree on `feat/`"; "push on existing `spec/` branch" → "worktree for existing `spec/` branch" |
+| `security-engineer` | "`fix/` branch from `main`" → "worktree on `fix/`"; "`spec/` branch" → "worktree on `spec/`"                                                       |
+| `product-manager`   | "trivial fix — `fix/` branch" → "worktree on `fix/`"                                                                                               |
+| `technical-writer`  | Same pattern as security-engineer                                                                                                                  |
+| `release-engineer`  | No Assess changes; add `kata-worktree` to skills                                                                                                   |
 
 ## Data Flow
 
@@ -138,12 +138,12 @@ from crashed prior runs.
 
 ## Success Criteria Mapping
 
-| Spec criterion | Addressed | Mechanism |
-|---------------|-----------|-----------|
-| 1. No `checkout -b` for branching | Yes | Skills call `worktree-create.sh` |
-| 2. `kata-worktree` skill exists | Yes | New utility skill with scripts |
-| 3. Ship guards main worktree | Yes | `kata-ship` worktree detection guard |
-| 4. Release readiness per-PR worktrees | Yes | `kata-release-readiness` loop change |
-| 5. bootstrap.sh simplified | Yes | Remove branch logic, add prune |
-| 6. No orphaned worktrees | Yes | Ship cleanup + bootstrap prune |
-| 7. Check and test pass | Yes | Verified at implementation |
+| Spec criterion                        | Addressed | Mechanism                            |
+| ------------------------------------- | --------- | ------------------------------------ |
+| 1. No `checkout -b` for branching     | Yes       | Skills call `worktree-create.sh`     |
+| 2. `kata-worktree` skill exists       | Yes       | New utility skill with scripts       |
+| 3. Ship guards main worktree          | Yes       | `kata-ship` worktree detection guard |
+| 4. Release readiness per-PR worktrees | Yes       | `kata-release-readiness` loop change |
+| 5. bootstrap.sh simplified            | Yes       | Remove branch logic, add prune       |
+| 6. No orphaned worktrees              | Yes       | Ship cleanup + bootstrap prune       |
+| 7. Check and test pass                | Yes       | Verified at implementation           |

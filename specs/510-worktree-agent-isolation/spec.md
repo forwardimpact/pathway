@@ -20,16 +20,16 @@ agents share a working tree.
 **Branch mutations span 8 skills and 5 agent profiles.** Branch operations
 (`git checkout -b`, `git checkout <branch>`, `git rebase`) appear in:
 
-| Location | Operation |
-|----------|-----------|
-| `kata-ship/SKILL.md:73` | Guard: `git branch --show-current` |
-| `kata-release-readiness/SKILL.md:73` | `git checkout <pr-branch>` per PR |
-| `kata-security-update/SKILL.md:108` | `git checkout -b fix/dependabot-N` |
-| `kata-product-issue/SKILL.md:107` | Hand-off to `fix/` branch |
-| `staff-engineer.md:50,54,58` | "push on existing `spec/` branch", "implement on `feat/` branch" |
-| `security-engineer.md:50–52` | `fix/` and `spec/` branches from `main` |
-| `product-manager.md:49` | "trivial fix — `fix/` branch" |
-| `technical-writer.md:52–54` | `fix/` and `spec/` branches from `main` |
+| Location                             | Operation                                                        |
+| ------------------------------------ | ---------------------------------------------------------------- |
+| `kata-ship/SKILL.md:73`              | Guard: `git branch --show-current`                               |
+| `kata-release-readiness/SKILL.md:73` | `git checkout <pr-branch>` per PR                                |
+| `kata-security-update/SKILL.md:108`  | `git checkout -b fix/dependabot-N`                               |
+| `kata-product-issue/SKILL.md:107`    | Hand-off to `fix/` branch                                        |
+| `staff-engineer.md:50,54,58`         | "push on existing `spec/` branch", "implement on `feat/` branch" |
+| `security-engineer.md:50–52`         | `fix/` and `spec/` branches from `main`                          |
+| `product-manager.md:49`              | "trivial fix — `fix/` branch"                                    |
+| `technical-writer.md:52–54`          | `fix/` and `spec/` branches from `main`                          |
 
 **Release readiness is the worst case.** The release engineer iterates over
 every open PR, checking out each branch in the main working tree to rebase it.
@@ -44,9 +44,9 @@ the tree on a non-main branch — a failure mode that should not be possible.
 
 **Facilitated meetings cannot do branch work.** During the daily storyboard
 meeting, five agents share the same filesystem via the `facilitate` mode. They
-currently only read wiki files and share observations. If the meeting or coaching
-sessions ever need to produce fix PRs or specs with branch work, the shared
-filesystem blocks it.
+currently only read wiki files and share observations. If the meeting or
+coaching sessions ever need to produce fix PRs or specs with branch work, the
+shared filesystem blocks it.
 
 ## Proposal
 
@@ -114,8 +114,8 @@ pending specs 260 or 480.
 1. No skill or agent profile contains `git checkout -b` or `git checkout`
    commands for branch switching (sparse file extraction via
    `git checkout <ref> -- <path>` is excluded from this criterion).
-2. `kata-worktree` skill exists with documented procedures for create, bootstrap,
-   and cleanup.
+2. `kata-worktree` skill exists with documented procedures for create,
+   bootstrap, and cleanup.
 3. `kata-ship` guards against shipping from the main worktree (not just from the
    `main` branch) and cleans up the worktree after merge.
 4. `kata-release-readiness` processes each PR in its own worktree without
