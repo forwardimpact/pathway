@@ -130,8 +130,10 @@ Append to the current week's log (see agent profile for the file path):
 - **Specs written** — Spec number, name, and status
 - **Review results** — Specs reviewed and disposition (approved/changes needed)
 - **Deferred work** — Findings not yet captured as specs
-- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
-  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
+- **Metrics** — Record at least one measurement to
+  `wiki/metrics/{agent}/{domain}/` per the
+  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
+  it with the header row. These feed XmR analysis in the storyboard meeting.
 
 ## What NOT to Do
 

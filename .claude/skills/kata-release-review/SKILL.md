@@ -165,8 +165,10 @@ Append to the current week's log (see agent profile for the file path):
   status
 - **Publish failures** — Package and reason (so the next run can revisit)
 - **Main branch CI state** — Green or broken, and what was repaired
-- **Metrics** — Record relevant measurements to `wiki/metrics/{agent}/{domain}/`
-  per the [`kata-metrics`](../kata-metrics/SKILL.md) protocol
+- **Metrics** — Record at least one measurement to
+  `wiki/metrics/{agent}/{domain}/` per the
+  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
+  it with the header row. These feed XmR analysis in the storyboard meeting.
 
 ## Edge Cases
 

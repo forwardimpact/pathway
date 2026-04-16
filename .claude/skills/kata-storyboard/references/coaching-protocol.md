@@ -3,9 +3,11 @@
 These questions structure every coaching interaction — team meetings and 1-on-1
 sessions. The coach asks, the learner(s) reflect.
 
-In facilitated mode, the coach communicates through orchestration tools. In solo
-mode, the coach reads data directly. The mechanism differs; the questions and
-their intent are identical.
+In facilitated mode: Q1 is broadcast via Share. Q2–Q5 are posed to individual
+agents via Tell; agents respond via Share. Collect all responses before
+advancing to the next question. The coach may use Redirect at any point to
+interrupt an agent that is off-track. In solo mode, the coach reads data
+directly.
 
 ## Question 1: What is the target condition?
 
@@ -13,30 +15,18 @@ their intent are identical.
 - Ground the conversation in where the team is headed.
 - If the target condition is unclear or expired, update it (planning mode).
 
-### Facilitation
-
-The coach broadcasts the target condition to all participants via **Share** —
-this is context-setting, not a question that requires individual responses.
-Agents hear the same direction and can orient before the coach asks Q2.
-
 ## Question 2: What is the actual condition now?
 
 - Each agent reports measured data from their domain's metrics CSVs.
 - Run [`xmr.mjs`](../../kata-metrics/scripts/xmr.mjs) against each CSV to get
   process limits and signals — see
   [`kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).
+  Include each metric's `status`, `x_bar`, and any `signals` in the Q2 Tell
+  message. Agents should flag any metric whose status changed since the last
+  meeting.
 - The coach updates the Current Condition section with fresh numbers.
 - Use counts and durations — not narratives like "improving" or "stable."
 - Reference specific CSV files: `wiki/metrics/{agent}/{domain}/{YYYY}.csv`.
-
-### Facilitation
-
-The coach poses Q2 to each agent individually via **Tell**. Include the
-facilitator's working directory path in each Tell message so agents can locate
-the repository checkout for direct measurement (e.g., `specs/STATUS`,
-`wiki/<agent>.md`). Each agent responds by broadcasting their domain metrics via
-**Share** — all participants see every response, enabling cross-domain
-awareness. The coach collects all responses before moving to Q3.
 
 ## Question 3: What obstacles are preventing us from reaching the target condition?
 
@@ -44,15 +34,13 @@ awareness. The coach collects all responses before moving to Q3.
   and target condition.
 - Obstacles are discovered through data and experiments, not hypothesized
   upfront.
+- The most reliable source for obstacles is trace analysis. Agents with a recent
+  `kata-trace` run should ground obstacle reports in trace findings. Agents
+  without a recent trace should measure from live run data (`gh run list`,
+  `bun audit`, `specs/STATUS`) rather than accumulated log narratives. Log
+  frequency != current impact.
 - The coach updates the Obstacles list and marks which obstacle the team is
   currently addressing.
-
-### Facilitation
-
-The coach poses Q3 to each agent individually via **Tell**. Each agent
-broadcasts identified obstacles via **Share**. The coach collects all responses,
-updates the storyboard's Obstacles section, and selects which obstacle the team
-addresses next.
 
 ## Question 4: What is the next step? What do you expect?
 
@@ -61,31 +49,12 @@ addresses next.
 - The expected outcome is recorded _before_ the experiment runs.
 - Experiments should be small and testable within one or two daily cycles.
 
-### Facilitation
-
-The coach addresses Q4 via **Tell** to the agent(s) owning the current obstacle.
-The agent broadcasts their proposed experiment and expected outcome via
-**Share**. The coach records the experiment in the storyboard before moving on.
-
 ## Question 5: When can we see what we learned from that step?
 
 - Establish when the experiment's results will be visible.
 - Typically: next meeting, end of week, or after a specific workflow run.
 - This creates the feedback loop — the next meeting opens by reviewing what was
   learned.
-
-### Facilitation
-
-The coach addresses Q5 via **Tell** to the experiment owner(s). The agent
-broadcasts the timeline via **Share**. The coach records the timeline in the
-storyboard.
-
-## Redirect
-
-Redirect is available but unmapped to a specific question. The coach may use
-**Redirect** at any point to interrupt an agent that is off-track or
-misunderstanding the question — it is corrective, not part of the standard
-questioning sequence.
 
 ## 1-on-1 Coaching Adaptation
 

@@ -27,6 +27,7 @@ storyboard meetings (daily-meeting workflow) and 1-on-1 coaching sessions
 - [ ] Read the current month's storyboard (`wiki/storyboard-YYYY-MNN.md`). If
       none exists, this is a planning meeting.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
+- [ ] Run `xmr.mjs` against each metrics CSV and record the JSON output.
 - [ ] For 1-on-1: identify the agent's most recent trace for analysis.
 
 </read_do_checklist>
@@ -37,6 +38,8 @@ storyboard meetings (daily-meeting workflow) and 1-on-1 coaching sessions
 - [ ] In facilitated mode: every coaching question reached participants via Tell
       or Share — no direct wiki/metrics file reads for domain data.
 - [ ] Current condition updated with numbers from metrics CSVs (not narrative).
+- [ ] Current condition includes XmR `status` and signal descriptions for each
+      metric with sufficient data. Metrics with `insufficient_data` are noted.
 - [ ] For team meetings: storyboard file updated and committed.
 - [ ] For 1-on-1: agent's findings written to its own memory.
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
@@ -81,22 +84,26 @@ try next? When will you know?
 2. **Read the storyboard.** Load `wiki/storyboard-YYYY-MNN.md`. If it does not
    exist, this is a planning meeting — create it from
    [`references/storyboard-template.md`](references/storyboard-template.md).
-3. **Run the five questions.** Follow
+3. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
+   `bun .claude/skills/kata-metrics/scripts/xmr.mjs wiki/metrics/{agent}/{domain}/{YYYY}.csv`
+   Use `status`, `signals`, and `x_bar` from the JSON output when reporting the
+   Current Condition. If a metric returns `insufficient_data`, note it. In
+   facilitated mode, include XmR summaries in the Q2 Tell to each agent.
+4. **Run the five questions.** Follow
    [`references/coaching-protocol.md`](references/coaching-protocol.md). In
-   facilitated mode, use the orchestration tools specified in each question's
-   Facilitation subsection — Share to broadcast Q1, Tell to pose Q2–Q5 to
-   individual agents, collect agent responses (agents respond via Share). In
-   solo mode, read metrics and wiki files directly.
-4. **Update the storyboard.** Write updated Current Condition, Obstacles, and
+   facilitated mode, use orchestration tools — Share to broadcast Q1, Tell to
+   pose Q2–Q5 to individual agents, collect agent responses (agents respond via
+   Share). In solo mode, read metrics and wiki files directly.
+5. **Update the storyboard.** Write updated Current Condition, Obstacles, and
    Experiments sections back to the storyboard file.
-5. **Evaluate coaching need (team meetings only).** Review the session's
+6. **Evaluate coaching need (team meetings only).** Review the session's
    findings. If a participant would benefit from a 1-on-1 coaching session —
    persistent obstacles, unanalyzed traces, or stalled experiments — trigger
    `coaching-session.yml` via
    `gh workflow run coaching-session.yml -f agent=<name>`. Skip this step in
    1-on-1 sessions.
-6. **Commit.** Commit storyboard changes as part of the wiki push.
-7. **Conclude (facilitated mode only).** Call Conclude with a session summary
+7. **Commit.** Commit storyboard changes as part of the wiki push.
+8. **Conclude (facilitated mode only).** Call Conclude with a session summary
    covering: meeting type, key metrics reviewed, obstacles addressed,
    experiments planned, and any coaching session triggered.
 
