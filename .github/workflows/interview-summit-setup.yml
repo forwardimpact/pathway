@@ -1,4 +1,4 @@
-name: "Kata: Guide Setup"
+name: "Interview: Summit Setup"
 
 on:
   workflow_dispatch: # Manual trigger for on-demand evaluation
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: guide-setup
+  group: interview-summit-setup
   cancel-in-progress: true
 
 permissions:
@@ -49,10 +49,20 @@ jobs:
         shell: bash
         run: |
           agent_dir=$(mktemp -d)
-          cp scenarios/guide-setup/agent/CLAUDE.md "$agent_dir/CLAUDE.md"
+
+          # Generate all synthetic data using cached prose — this produces
+          # data/pathway/ (framework) and data/activity/raw/activity/summit.yaml
+          # (roster).
+          bunx fit-terrain
+
+          mkdir -p "$agent_dir/data"
+          cp -r data/pathway "$agent_dir/data/pathway"
+          cp data/activity/raw/activity/summit.yaml "$agent_dir/summit.yaml"
+
+          cp scenarios/summit-setup/agent/CLAUDE.md "$agent_dir/CLAUDE.md"
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
 
-      - name: Evaluate Guide Setup
+      - name: Evaluate Summit Setup
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -63,7 +73,7 @@ jobs:
         with:
           app-id: ${{ secrets.CI_APP_ID }}
           mode: "supervise"
-          task-file: scenarios/guide-setup/task.md
+          task-file: scenarios/summit-setup/task.md
           supervisor-cwd: "."
           agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
           supervisor-profile: "product-manager"

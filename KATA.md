@@ -13,9 +13,9 @@ pattern of _understand the direction_, _grasp the current condition_, _establish
 the next target condition_, and _experiment toward it_. Kata agents grasp the
 current condition (by analyzing execution traces of prior runs), establish
 target conditions (via specs), and experiment toward them (via implementation).
-Seven workflows — five individual agent runs, one daily team meeting, and one
-on-demand coaching session — six agent personas, and eighteen skills form a
-self-reinforcing PDSA cycle.
+Seven workflows — five individual agent runs scheduled across three shifts, one
+daily team storyboard, and one on-demand coaching session — six agent personas,
+and eighteen skills form a self-reinforcing PDSA cycle.
 
 ## Architecture
 
@@ -74,25 +74,29 @@ exceeds an agent's scope, it writes a spec rather than attempting the fix.
 
 ## Workflows
 
-Seven workflows: five individual agent runs spanning 04–09 UTC, one daily team
-meeting at 03:00 UTC, and one on-demand coaching session. Times respect ordering
-constraints (team meeting before individual runs, security before product,
-product before planning, planning before release). Off-minute schedules avoid
-API load spikes. All support `workflow_dispatch`, use concurrency groups, and
-have a 30-minute timeout. Individual agent workflows send a generic task prompt;
-the agent's Assess section determines the actual action. The daily meeting and
-coaching session send specific task prompts to the improvement coach as
-facilitator.
+Seven workflows run on a three-shift rhythm aligned to Europe/Paris time: a
+**night shift** finishes by 07:00, the **storyboard** runs at 08:00, a **day
+shift** finishes by 15:00, and a **swing shift** finishes by 23:00. Within each
+shift agents run in PDSA order (triage → plan/implement → release). Security and
+technical-writer run once daily on the night shift — dependency churn and
+documentation drift do not need intra-day cadence. Product-manager, staff-
+engineer, and release-engineer run every shift so triage, planning, and release
+throughput stay steady. Cron schedules are authored in UTC; Paris times below
+use CEST (UTC+2), the tighter summer constraint. All support
+`workflow_dispatch`, use concurrency groups, and have a 30-minute timeout.
+Individual agent workflows send a generic task prompt; the agent's Assess
+section determines the actual action. The storyboard and coaching session send
+specific task prompts to the improvement coach as facilitator.
 
-| Workflow              | Schedule            | Agent                                    |
-| --------------------- | ------------------- | ---------------------------------------- |
-| **daily-meeting**     | Daily 03:00 UTC     | improvement-coach (facilitates 5 agents) |
-| **coaching-session**  | `workflow_dispatch` | improvement-coach (facilitates 1 agent)  |
-| **security-engineer** | Daily 04:07 UTC     | security-engineer                        |
-| **technical-writer**  | Daily 05:37 UTC     | technical-writer                         |
-| **product-manager**   | Daily 06:23 UTC     | product-manager                          |
-| **staff-engineer**    | Daily 07:11 UTC     | staff-engineer                           |
-| **release-engineer**  | Daily 08:43 UTC     | release-engineer                         |
+| Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
+| --------------------------- | ------------------------------------- | ---------------------------------------- |
+| **kata-storyboard**         | Daily 08:00                           | improvement-coach (facilitates 5 agents) |
+| **kata-coaching**           | `workflow_dispatch`                   | improvement-coach (facilitates 1 agent)  |
+| **agent-security-engineer** | Night 03:37                           | security-engineer                        |
+| **agent-technical-writer**  | Night 04:23                           | technical-writer                         |
+| **agent-product-manager**   | Night 05:11 · Day 12:17 · Swing 20:17 | product-manager                          |
+| **agent-staff-engineer**    | Night 05:53 · Day 13:11 · Swing 21:11 | staff-engineer                           |
+| **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
 
 ## Skills
 

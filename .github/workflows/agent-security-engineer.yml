@@ -1,19 +1,18 @@
-name: "Kata: Coaching Session"
+name: "Agent: Security Engineer"
 
 on:
+  schedule:
+    # Night shift — once daily. 01:37 UTC = 03:37 Paris (CEST) → finishes before 07:00 Paris.
+    - cron: "37 1 * * *"
   workflow_dispatch:
     inputs:
-      agent:
-        description: "Agent name to coach (e.g., security-engineer)"
-        required: true
-        type: string
       task-amend:
         description: "Additional text appended to the task prompt for steering"
         required: false
         type: string
 
 concurrency:
-  group: coaching-session
+  group: agent-security-engineer
   cancel-in-progress: true
 
 permissions:
@@ -40,7 +39,7 @@ jobs:
         with:
           token: ${{ steps.ci-app.outputs.token }}
 
-      - name: 1-on-1 Coaching Session
+      - name: Assess and Act
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -48,14 +47,10 @@ jobs:
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
           app-id: ${{ secrets.CI_APP_ID }}
-          mode: "facilitate"
           task-text: >-
-            Facilitate a 1-on-1 coaching session with the participant agent.
-            Guide them through the five coaching kata questions. Have them
-            analyze their own most recent trace using kata-trace. Help them
-            identify obstacles and design their next experiment.
-          facilitator-profile: "improvement-coach"
-          agent-profiles: "${{ inputs.agent }}"
+            Assess the current state of your domain and act on the
+            highest-priority finding.
+          agent-profile: "security-engineer"
           model: "opus"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

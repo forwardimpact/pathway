@@ -33,7 +33,7 @@ const definition = {
     {
       name: "runs",
       args: "[pattern]",
-      description: "List recent workflow runs (default pattern: kata)",
+      description: "List recent workflow runs (default pattern: agent)",
       options: {
         lookback: {
           type: "string",

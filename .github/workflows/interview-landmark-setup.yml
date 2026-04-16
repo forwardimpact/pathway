@@ -1,4 +1,4 @@
-name: "Kata: Summit Setup"
+name: "Interview: Landmark Setup"
 
 on:
   workflow_dispatch: # Manual trigger for on-demand evaluation
@@ -9,7 +9,7 @@ on:
         type: string
 
 concurrency:
-  group: summit-setup
+  group: interview-landmark-setup
   cancel-in-progress: true
 
 permissions:
@@ -51,18 +51,22 @@ jobs:
           agent_dir=$(mktemp -d)
 
           # Generate all synthetic data using cached prose — this produces
-          # data/pathway/ (framework) and data/activity/raw/activity/summit.yaml
-          # (roster).
+          # data/pathway/ (framework) and data/activity/ (roster, raw documents
+          # including GetDX snapshots, GitHub webhooks, evidence, and comments).
           bunx fit-terrain
 
           mkdir -p "$agent_dir/data"
           cp -r data/pathway "$agent_dir/data/pathway"
-          cp data/activity/raw/activity/summit.yaml "$agent_dir/summit.yaml"
+          cp -r data/activity "$agent_dir/data/activity"
 
-          cp scenarios/summit-setup/agent/CLAUDE.md "$agent_dir/CLAUDE.md"
+          # Install the Supabase CLI so the agent has it on PATH
+          # npm global install is blocked by supabase's postinstall script
+          bun install -g supabase
+
+          cp scenarios/landmark-setup/agent/CLAUDE.md "$agent_dir/CLAUDE.md"
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
 
-      - name: Evaluate Summit Setup
+      - name: Evaluate Landmark Setup
         uses: ./.github/actions/kata-action
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
@@ -73,7 +77,7 @@ jobs:
         with:
           app-id: ${{ secrets.CI_APP_ID }}
           mode: "supervise"
-          task-file: scenarios/summit-setup/task.md
+          task-file: scenarios/landmark-setup/task.md
           supervisor-cwd: "."
           agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
           supervisor-profile: "product-manager"

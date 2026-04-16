@@ -13,7 +13,7 @@ import { createTraceGitHub } from "../trace-github.js";
  */
 export async function runRunsCommand(values, args) {
   const gh = await createTraceGitHub({ repo: values.repo });
-  const pattern = args[0] ?? "kata";
+  const pattern = args[0] ?? "agent";
   const lookback = values.lookback ?? "7d";
   const runs = await gh.listRuns({ pattern, lookback });
   writeJSON(runs);

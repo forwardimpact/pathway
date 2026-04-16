@@ -17,8 +17,8 @@ Protocol. Both use the same five coaching kata questions.
 ## When to Use
 
 **Facilitator**: Entry-point skill for the improvement coach's two facilitation
-contexts — team storyboard meetings (daily-meeting workflow) and 1-on-1 coaching
-sessions (coaching-session workflow).
+contexts — team storyboard meetings (kata-storyboard workflow) and 1-on-1
+coaching sessions (kata-coaching workflow).
 
 **Participant**: Loaded automatically when you join a storyboard meeting. Follow
 the Participant Protocol when the coach poses questions via orchestration tools.
@@ -127,9 +127,8 @@ try next? When will you know?
 7. **Evaluate coaching need (team meetings only).** Review the session's
    findings. If a participant would benefit from a 1-on-1 coaching session —
    persistent obstacles, unanalyzed traces, or stalled experiments — trigger
-   `coaching-session.yml` via
-   `gh workflow run coaching-session.yml -f agent=<name>`. Skip this step in
-   1-on-1 sessions.
+   `kata-coaching.yml` via `gh workflow run kata-coaching.yml -f agent=<name>`.
+   Skip this step in 1-on-1 sessions.
 8. **Commit.** Commit storyboard changes as part of the wiki push.
 9. **Conclude (facilitated mode only).** Call Conclude with a session summary
    covering: meeting type, key metrics reviewed, obstacles addressed,

@@ -1,9 +1,11 @@
-name: "Kata: Product Manager"
+name: "Agent: Product Manager"
 
 on:
   schedule:
-    # Daily at 06:23 UTC — triage after security, before planning
-    - cron: "23 6 * * *"
+    # Triage first in each shift, before planning. Paris (CEST) times below.
+    - cron: "11 3 * * *" # Night shift — 05:11 Paris, finishes before 07:00
+    - cron: "17 10 * * *" # Day shift   — 12:17 Paris, finishes before 15:00
+    - cron: "17 18 * * *" # Swing shift — 20:17 Paris, finishes before 23:00
   workflow_dispatch:
     inputs:
       task-amend:
@@ -12,7 +14,7 @@ on:
         type: string
 
 concurrency:
-  group: product-manager
+  group: agent-product-manager
   cancel-in-progress: true
 
 permissions:
