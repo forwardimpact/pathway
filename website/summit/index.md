@@ -157,6 +157,13 @@ $ npx fit-summit risks platform
       broad skill for software_engineering discipline.
 ```
 
+The severity tag on single points of failure reflects the engineer's allocation
+to the team: **high** when allocation is below 0.5 (less than half-time),
+**medium** between 0.5 and 1.0 (part-time), and **low** at 1.0 (full-time). In
+reporting teams where members default to full allocation, every SPOF shows
+`[low]`. The tag differentiates in project teams where partial allocation makes
+a single point of failure more acute.
+
 ### What-If Scenarios
 
 Simulate roster changes and see their impact before anyone makes a decision.

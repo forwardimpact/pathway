@@ -88,6 +88,16 @@ vocabulary standards and validation.
 Run `npx fit-map validate` to confirm your framework data passes schema
 validation.
 
+To see which skills have markers defined, list skills from your framework data:
+
+```sh
+npx fit-pathway skill --list
+```
+
+The starter data ships `task_completion`, `planning`, and `incident_response`.
+If you have authored your own framework, your skill IDs will differ — use the
+IDs from your own capability YAML files in the commands below.
+
 ## 6. Run Landmark
 
 ```sh
