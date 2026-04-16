@@ -36,6 +36,8 @@ jobs:
           token: ${{ steps.ci-app.outputs.token }}
 
       - uses: ./.github/actions/bootstrap
+        with:
+          token: ${{ steps.ci-app.outputs.token }}
 
       - name: Assess and Act
         uses: ./.github/actions/kata-action

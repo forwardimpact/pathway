@@ -1,6 +1,14 @@
 name: Bootstrap
 description: Set up Bun, install just, and run just install
 
+inputs:
+  token:
+    description:
+      GitHub token with write access to the wiki. When provided, the wiki is
+      checked out into ./wiki and pushed back during post-run cleanup.
+    required: false
+    default: ""
+
 runs:
   using: composite
   steps:
@@ -15,11 +23,20 @@ runs:
         git config --global user.name "github-actions[bot]"
         git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
 
+    - name: Checkout wiki
+      if: inputs.token != ''
+      uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+      with:
+        repository: ${{ github.repository }}.wiki
+        path: wiki
+        token: ${{ inputs.token }}
+
     - name: Bootstrap
       shell: bash
       run: ./scripts/bootstrap.sh
 
     - name: Push wiki changes
+      if: inputs.token != ''
       uses: ./.github/actions/post-run
       with:
         command: just wiki-push

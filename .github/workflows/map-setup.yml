@@ -41,6 +41,8 @@ jobs:
           token: ${{ steps.ci-app.outputs.token }}
 
       - uses: ./.github/actions/bootstrap
+        with:
+          token: ${{ steps.ci-app.outputs.token }}
 
       - name: Prepare agent workspace
         id: agent-workspace
