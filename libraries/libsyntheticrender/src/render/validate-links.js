@@ -4,7 +4,7 @@
  * Checks that generated HTML files contain valid cross-file IRI links
  * and that every entity meets minimum link density requirements.
  *
- * @module libuniverse/render/validate-links
+ * @module libterrain/render/validate-links
  */
 
 /**
@@ -270,7 +270,7 @@ export function validateHTML(htmlFiles, domain) {
 }
 
 /**
- * Scan all HTML for itemid values outside the universe domain.
+ * Scan all HTML for itemid values outside the terrain domain.
  */
 function checkEnrichedIriNamespace(htmlFiles, domain) {
   const errors = [];

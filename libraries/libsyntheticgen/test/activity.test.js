@@ -22,7 +22,7 @@ function generateFromDsl(source) {
   return { ast, orgs, departments, teams, people, projects, activity };
 }
 
-const MINI_UNIVERSE = `universe test {
+const MINI_TERRAIN = `terrain test {
   domain "test.example"
   seed 42
 
@@ -142,7 +142,7 @@ const MINI_UNIVERSE = `universe test {
 describe("DSL distribution key validation", () => {
   test("rejects distribution keys that don't match framework levels", () => {
     const source = `
-      universe test {
+      terrain test {
         domain "Testing"
         org hq { name "HQ" }
         department eng {
@@ -171,7 +171,7 @@ describe("DSL distribution key validation", () => {
 
   test("accepts distribution keys matching framework levels", () => {
     const source = `
-      universe test {
+      terrain test {
         domain "Testing"
         org hq { name "HQ" }
         department eng {
@@ -196,15 +196,15 @@ describe("DSL distribution key validation", () => {
   });
 
   test("skips validation when framework has no levels", () => {
-    // MINI_UNIVERSE uses L1-L4 without framework levels — should still parse
-    assert.doesNotThrow(() => parse(tokenize(MINI_UNIVERSE)));
+    // MINI_TERRAIN uses L1-L4 without framework levels — should still parse
+    assert.doesNotThrow(() => parse(tokenize(MINI_TERRAIN)));
   });
 });
 
 describe("activity generation", () => {
   describe("deriveInitiatives", () => {
     test("generates initiatives from declining scenario drivers", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const initiatives = activity.initiatives;
       assert.ok(
         initiatives.length > 0,
@@ -223,7 +223,7 @@ describe("activity generation", () => {
     });
 
     test("generates initiatives from rising scenario drivers", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const risingInit = activity.initiatives.find(
         (i) => i._driver_id === "learning_culture",
       );
@@ -236,7 +236,7 @@ describe("activity generation", () => {
     });
 
     test("initiative has all required GetDX API fields", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const init = activity.initiatives[0];
       assert.ok(init.id);
       assert.ok(init.name);
@@ -259,7 +259,7 @@ describe("activity generation", () => {
 
   describe("deriveScorecards", () => {
     test("generates a scorecard per initiative", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const scorecardIds = new Set(activity.scorecards.map((s) => s.id));
       for (const init of activity.initiatives) {
         assert.ok(
@@ -270,7 +270,7 @@ describe("activity generation", () => {
     });
 
     test("scorecard has checks derived from driver skills", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const sc = activity.scorecards[0];
       assert.ok(sc.checks.length > 0, "scorecard should have checks");
       assert.ok(sc.levels.length === 3, "scorecard should have 3 levels");
@@ -280,7 +280,7 @@ describe("activity generation", () => {
 
   describe("generateCommentKeys", () => {
     test("generates comment keys for active snapshots", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       assert.ok(
         activity.commentKeys.length > 0,
         "should generate comment keys",
@@ -288,7 +288,7 @@ describe("activity generation", () => {
     });
 
     test("comment keys have required metadata", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const ck = activity.commentKeys[0];
       assert.ok(ck.snapshot_id);
       assert.ok(ck.email);
@@ -303,7 +303,7 @@ describe("activity generation", () => {
     });
 
     test("declining drivers weighted higher in comment selection", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       // The first snapshot overlaps with the "pressure" scenario (declining)
       const firstSnap = activity.snapshots[0];
       const firstSnapComments = activity.commentKeys.filter(
@@ -323,7 +323,7 @@ describe("activity generation", () => {
 
   describe("generateRosterSnapshots", () => {
     test("generates one roster snapshot per survey snapshot", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       assert.strictEqual(
         activity.rosterSnapshots.length,
         activity.snapshots.length,
@@ -331,14 +331,14 @@ describe("activity generation", () => {
     });
 
     test("first roster snapshot matches initial roster", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const first = activity.rosterSnapshots[0];
       assert.strictEqual(first.members, activity.roster.length);
       assert.strictEqual(first.changes.length, 0);
     });
 
     test("subsequent roster snapshots have changes", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       if (activity.rosterSnapshots.length > 1) {
         const second = activity.rosterSnapshots[1];
         assert.ok(
@@ -349,7 +349,7 @@ describe("activity generation", () => {
     });
 
     test("roster snapshot entries have required fields", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const entry = activity.rosterSnapshots[0].roster[0];
       assert.ok(entry.email);
       assert.ok(entry.name);
@@ -361,7 +361,7 @@ describe("activity generation", () => {
 
   describe("deriveProjectTeams", () => {
     test("generates project teams from DSL projects", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       assert.ok(
         activity.projectTeams.length > 0,
         "should generate project teams",
@@ -370,7 +370,7 @@ describe("activity generation", () => {
     });
 
     test("project team members have allocation", () => {
-      const { activity } = generateFromDsl(MINI_UNIVERSE);
+      const { activity } = generateFromDsl(MINI_TERRAIN);
       const pt = activity.projectTeams[0];
       assert.ok(pt.members.length > 0);
       for (const m of pt.members) {

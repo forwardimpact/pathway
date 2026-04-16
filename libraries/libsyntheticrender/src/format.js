@@ -1,7 +1,7 @@
 /**
  * Format generated content with Prettier before writing to disk.
  *
- * @module libuniverse/format
+ * @module libterrain/format
  */
 
 import { resolveConfig } from "prettier";

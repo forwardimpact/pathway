@@ -3,7 +3,7 @@
  *
  * Extracted from parser.js to reduce file length and complexity.
  *
- * @module libuniverse/dsl/parser-blocks
+ * @module libterrain/dsl/parser-blocks
  */
 
 /**

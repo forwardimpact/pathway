@@ -1,5 +1,5 @@
 #!/usr/bin/env python3
-"""Bridge between fit-universe and SDV."""
+"""Bridge between fit-terrain and SDV."""
 import json
 import sys
 import pandas as pd

@@ -1,8 +1,8 @@
 /**
- * DSL Tokenizer — converts universe DSL source to token stream.
+ * DSL Tokenizer — converts terrain DSL source to token stream.
  *
  * Token types:
- *   KEYWORD   - reserved words (universe, department, team, etc.)
+ *   KEYWORD   - reserved words (terrain, department, team, etc.)
  *   IDENT     - identifiers (variable / entity names)
  *   STRING    - double-quoted string literals
  *   NUMBER    - integer or decimal numbers
@@ -18,7 +18,7 @@
  */
 
 const KEYWORDS = new Set([
-  "universe",
+  "terrain",
   "domain",
   "industry",
   "seed",

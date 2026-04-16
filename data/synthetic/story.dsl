@@ -1,6 +1,6 @@
-// universe.dsl — BioNova synthetic data specification
+// terrain.dsl — BioNova synthetic data specification
 
-universe BioNova {
+terrain BioNova {
   domain "bionova.example"
   industry "pharmaceutical"
   seed 42

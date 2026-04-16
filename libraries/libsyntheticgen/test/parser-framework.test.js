@@ -6,7 +6,7 @@ import { parse } from "../src/dsl/parser.js";
 /**
  * Helper: tokenize then parse a DSL source string.
  * @param {string} source
- * @returns {import('../dsl/parser.js').UniverseAST}
+ * @returns {import('../dsl/parser.js').TerrainAST}
  */
 function parseDsl(source) {
   return parse(tokenize(source));
@@ -14,7 +14,7 @@ function parseDsl(source) {
 
 describe("parse — framework section", () => {
   test("parses proficiencies and maturities as arrays", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         proficiencies [awareness, foundational, working, practitioner, expert]
         maturities [emerging, developing, practicing, role_modeling, exemplifying]
@@ -37,7 +37,7 @@ describe("parse — framework section", () => {
   });
 
   test("parses levels with title, rank, experience", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         levels {
           J040 {
@@ -66,7 +66,7 @@ describe("parse — framework section", () => {
   });
 
   test("parses capabilities with skills", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         capabilities {
           coding {
@@ -87,7 +87,7 @@ describe("parse — framework section", () => {
   });
 
   test("parses behaviours", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         behaviours {
           collaboration {
@@ -105,7 +105,7 @@ describe("parse — framework section", () => {
   });
 
   test("parses disciplines with tiers and tracks", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         disciplines {
           backend_dev {
@@ -132,7 +132,7 @@ describe("parse — framework section", () => {
   });
 
   test("parses tracks", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         tracks {
           platform {
@@ -147,7 +147,7 @@ describe("parse — framework section", () => {
   });
 
   test("parses drivers with skills and behaviours", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       framework {
         drivers {
           code_quality {
@@ -166,7 +166,7 @@ describe("parse — framework section", () => {
   });
 
   test("initializes empty framework arrays by default", () => {
-    const ast = parseDsl("universe test { framework {} }");
+    const ast = parseDsl("terrain test { framework {} }");
     assert.deepStrictEqual(ast.framework.proficiencies, []);
     assert.deepStrictEqual(ast.framework.maturities, []);
     assert.deepStrictEqual(ast.framework.levels, []);

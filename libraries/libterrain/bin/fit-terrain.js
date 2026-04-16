@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 
-// fit-universe CLI — run with --help for usage.
+// fit-terrain CLI — run with --help for usage.
 
 import { readFileSync } from "node:fs";
 import { resolve, join, dirname } from "path";
@@ -49,7 +49,7 @@ const { version: VERSION } = JSON.parse(
 );
 
 const definition = {
-  name: "fit-universe",
+  name: "fit-terrain",
   version: VERSION,
   description: "Synthetic data generation pipeline",
   globalOptions: {
@@ -84,11 +84,11 @@ const definition = {
     json: { type: "boolean", description: "Output help as JSON" },
   },
   examples: [
-    "bunx fit-universe",
-    "bunx fit-universe --generate",
-    "bunx fit-universe --strict",
-    "bunx fit-universe --no-prose",
-    "bunx fit-universe --only=pathway",
+    "bunx fit-terrain",
+    "bunx fit-terrain --generate",
+    "bunx fit-terrain --strict",
+    "bunx fit-terrain --no-prose",
+    "bunx fit-terrain --only=pathway",
   ],
 };
 
@@ -372,7 +372,7 @@ async function main() {
 
   const { values } = parsed;
 
-  const config = await createScriptConfig("universe", {
+  const config = await createScriptConfig("terrain", {
     LLM_TOKEN: null,
     LLM_MODEL: "openai/gpt-4.1-mini",
     LLM_BASE_URL: null,
@@ -404,7 +404,7 @@ async function main() {
   );
 
   const pipeline = createPipeline({
-    logger: createLogger("universe"),
+    logger: createLogger("terrain"),
     mode,
     cachePath,
     strict: !!values.strict,
@@ -414,7 +414,7 @@ async function main() {
   });
 
   const result = await pipeline.run({
-    universePath:
+    storyPath:
       values.story || join(monorepoRoot, "data", "synthetic", "story.dsl"),
     only: values.only || null,
     schemaDir,
@@ -437,7 +437,7 @@ async function main() {
   printReport(result);
 }
 
-const logger = createLogger("universe");
+const logger = createLogger("terrain");
 
 main().catch((err) => {
   logger.exception("main", err);

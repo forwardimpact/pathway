@@ -5,7 +5,7 @@
  * framework → levels → behaviours → capabilities →
  * drivers → disciplines → tracks → self-assessments
  *
- * @module libuniverse/engine/pathway
+ * @module libterrain/engine/pathway
  */
 
 import { readFileSync } from "fs";

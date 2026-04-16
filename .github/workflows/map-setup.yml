@@ -51,7 +51,7 @@ jobs:
           agent_dir=$(mktemp -d)
 
           # Generate all synthetic data using cached prose
-          bunx fit-universe
+          bunx fit-terrain
 
           mkdir -p "$agent_dir/data"
           cp -r data/pathway "$agent_dir/data/pathway"

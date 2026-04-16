@@ -5,7 +5,7 @@
  * and builds all cross-entity relationships using seeded random for
  * reproducibility.
  *
- * @module libuniverse/render/link-assigner
+ * @module libterrain/render/link-assigner
  */
 
 import { createSeededRNG } from "@forwardimpact/libsyntheticgen/rng";

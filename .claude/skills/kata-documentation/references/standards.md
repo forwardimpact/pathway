@@ -32,7 +32,7 @@ website/docs/
     guide/                   Agent infrastructure, artifact interpretation
     landmark/                Analysis pipeline, view composition (planned)
     summit/                  Capability aggregation, scenario modeling
-    universe/                Synthetic data pipeline, DSL, prose engine
+    terrain/                 Synthetic data pipeline, DSL, prose engine
     operations/              Environment, services, and common tasks
 ```
 

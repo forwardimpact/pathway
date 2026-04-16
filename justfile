@@ -44,17 +44,17 @@ _quickstart-seed:
 
 # Generate synthetic data (cached prose)
 synthetic:
-    bunx fit-universe
+    bunx fit-terrain
     bunx fit-map generate-index
 
 # Generate synthetic data with LLM and update prose cache
 synthetic-update:
-    bunx fit-universe --generate
+    bunx fit-terrain --generate
     bunx fit-map generate-index
 
 # Generate synthetic data (structural only, no prose)
 synthetic-no-prose:
-    bunx fit-universe --no-prose
+    bunx fit-terrain --no-prose
     bunx fit-map generate-index
 
 # Generate all (types, services, clients)

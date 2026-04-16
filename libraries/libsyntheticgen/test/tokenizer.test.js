@@ -5,11 +5,11 @@ import { tokenize } from "../src/dsl/tokenizer.js";
 describe("tokenize", () => {
   describe("basic tokens", () => {
     test("tokenizes keywords", () => {
-      const tokens = tokenize("universe domain industry seed");
+      const tokens = tokenize("terrain domain industry seed");
       assert.deepStrictEqual(
         tokens.filter((t) => t.type !== "EOF"),
         [
-          { type: "KEYWORD", value: "universe", line: 1 },
+          { type: "KEYWORD", value: "terrain", line: 1 },
           { type: "KEYWORD", value: "domain", line: 1 },
           { type: "KEYWORD", value: "industry", line: 1 },
           { type: "KEYWORD", value: "seed", line: 1 },
@@ -73,7 +73,7 @@ describe("tokenize", () => {
     });
 
     test("distinguishes keywords from identifiers", () => {
-      const tokens = tokenize("universe myUniverse");
+      const tokens = tokenize("terrain myTerrain");
       assert.strictEqual(tokens[0].type, "KEYWORD");
       assert.strictEqual(tokens[1].type, "IDENT");
     });
@@ -123,23 +123,23 @@ describe("tokenize", () => {
 
   describe("comments", () => {
     test("skips single-line comments", () => {
-      const tokens = tokenize("universe // this is a comment\ndomain");
+      const tokens = tokenize("terrain // this is a comment\ndomain");
       const nonEof = tokens.filter((t) => t.type !== "EOF");
       assert.strictEqual(nonEof.length, 2);
-      assert.strictEqual(nonEof[0].value, "universe");
+      assert.strictEqual(nonEof[0].value, "terrain");
       assert.strictEqual(nonEof[1].value, "domain");
     });
 
     test("skips multi-line comments", () => {
-      const tokens = tokenize("universe /* multi\nline\ncomment */ domain");
+      const tokens = tokenize("terrain /* multi\nline\ncomment */ domain");
       const nonEof = tokens.filter((t) => t.type !== "EOF");
       assert.strictEqual(nonEof.length, 2);
-      assert.strictEqual(nonEof[0].value, "universe");
+      assert.strictEqual(nonEof[0].value, "terrain");
       assert.strictEqual(nonEof[1].value, "domain");
     });
 
     test("tracks line numbers through multi-line comments", () => {
-      const tokens = tokenize("universe\n/* line 2\nline 3 */\ndomain");
+      const tokens = tokenize("terrain\n/* line 2\nline 3 */\ndomain");
       const domainToken = tokens.find((t) => t.value === "domain");
       assert.strictEqual(domainToken.line, 4);
     });
@@ -180,14 +180,14 @@ describe("tokenize", () => {
 
   describe("line tracking", () => {
     test("tracks line numbers across newlines", () => {
-      const tokens = tokenize("universe\ndomain\nindustry");
+      const tokens = tokenize("terrain\ndomain\nindustry");
       assert.strictEqual(tokens[0].line, 1);
       assert.strictEqual(tokens[1].line, 2);
       assert.strictEqual(tokens[2].line, 3);
     });
 
     test("ignores carriage returns for line counting", () => {
-      const tokens = tokenize("universe\r\ndomain");
+      const tokens = tokenize("terrain\r\ndomain");
       assert.strictEqual(tokens[0].line, 1);
       assert.strictEqual(tokens[1].line, 2);
     });
@@ -237,21 +237,21 @@ describe("tokenize", () => {
 
   describe("EOF token", () => {
     test("always ends with EOF", () => {
-      const tokens = tokenize("universe");
+      const tokens = tokenize("terrain");
       assert.strictEqual(tokens[tokens.length - 1].type, "EOF");
     });
   });
 
   describe("complex input", () => {
-    test("tokenizes a minimal universe declaration", () => {
-      const input = `universe test_co {
+    test("tokenizes a minimal terrain declaration", () => {
+      const input = `terrain test_co {
         domain "engineering"
         seed 42
       }`;
       const tokens = tokenize(input);
       const types = tokens.map((t) => t.type);
       assert.deepStrictEqual(types, [
-        "KEYWORD", // universe
+        "KEYWORD", // terrain
         "IDENT", // test_co
         "LBRACE",
         "KEYWORD", // domain

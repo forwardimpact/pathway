@@ -1,7 +1,7 @@
 /**
  * Supabase Storage Loader — uploads raw documents to Supabase Storage.
  *
- * @module libuniverse/load
+ * @module libterrain/load
  */
 
 /**

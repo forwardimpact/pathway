@@ -1,7 +1,7 @@
 /**
  * Roster snapshot generation for activity data.
  *
- * @module libuniverse/engine/activity-roster
+ * @module libterrain/engine/activity-roster
  */
 
 const LEVEL_ORDER = ["J040", "J060", "J070", "J080", "J090"];
@@ -145,7 +145,7 @@ function simulateTransfers(rng, roster, teams, people) {
 
 /**
  * Generate quarterly roster snapshots for Summit trajectory.
- * @param {import('../dsl/parser.js').UniverseAST} ast
+ * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
  * @param {object[]} people
  * @param {object[]} teams

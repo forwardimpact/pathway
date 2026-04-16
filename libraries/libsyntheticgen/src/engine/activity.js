@@ -1,7 +1,7 @@
 /**
  * Activity generation — roster, teams, snapshots, scores, webhooks, evidence.
  *
- * @module libuniverse/engine/activity
+ * @module libterrain/engine/activity
  */
 
 import { generateWebhooks } from "./activity-webhooks.js";
@@ -48,7 +48,7 @@ const PROFICIENCY_ORDER = [
 
 /**
  * Generate all activity data from AST and entities.
- * @param {import('../dsl/parser.js').UniverseAST} ast
+ * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
  * @param {object[]} people
  * @param {object[]} teams

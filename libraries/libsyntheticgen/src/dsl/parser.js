@@ -1,7 +1,7 @@
 /**
- * DSL Parser — recursive-descent parser that produces a UniverseAST.
+ * DSL Parser — recursive-descent parser that produces a TerrainAST.
  *
- * @typedef {object} UniverseAST
+ * @typedef {object} TerrainAST
  * @property {string} name
  * @property {string} domain
  * @property {string} industry
@@ -23,9 +23,9 @@ import { createBlockParsers } from "./parser-blocks.js";
 import { createFrameworkParsers } from "./parser-framework.js";
 
 /**
- * Parse a token stream into a UniverseAST.
+ * Parse a token stream into a TerrainAST.
  * @param {import('./tokenizer.js').Token[]} tokens
- * @returns {UniverseAST}
+ * @returns {TerrainAST}
  */
 export function parse(tokens) {
   let pos = 0;
@@ -109,8 +109,8 @@ export function parse(tokens) {
   const blocks = createBlockParsers(helpers);
   const fw = createFrameworkParsers(helpers);
 
-  // Main: parse universe
-  expectKeyword("universe");
+  // Main: parse terrain
+  expectKeyword("terrain");
   const name = parseStringOrIdent();
   expect("LBRACE");
 

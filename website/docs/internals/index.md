@@ -61,9 +61,9 @@ detection, scenario modeling, and design principles.
 
 </a>
 
-<a href="/docs/internals/universe/">
+<a href="/docs/internals/terrain/">
 
-### Universe
+### Terrain
 
 Synthetic data pipeline — DSL parsing, entity generation, prose engine,
 rendering, and validation.

@@ -1,7 +1,7 @@
 /**
  * Pathway Renderer — converts LLM-generated JSON to YAML files.
  *
- * @module libuniverse/render/pathway
+ * @module libterrain/render/pathway
  */
 
 import YAML from "yaml";

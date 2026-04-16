@@ -91,7 +91,7 @@
     },
     "libraries/libeval": {
       "name": "@forwardimpact/libeval",
-      "version": "0.1.14",
+      "version": "0.1.15",
       "bin": {
         "fit-eval": "./bin/fit-eval.js",
       },
@@ -372,6 +372,30 @@
         "mustache": "^4.2.0",
       },
     },
+    "libraries/libterrain": {
+      "name": "@forwardimpact/libterrain",
+      "version": "0.1.15",
+      "bin": {
+        "fit-terrain": "./bin/fit-terrain.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libconfig": "^0.1.59",
+        "@forwardimpact/libllm": "^0.1.72",
+        "@forwardimpact/libprompt": "^0.1.0",
+        "@forwardimpact/libsyntheticgen": "^0.1.0",
+        "@forwardimpact/libsyntheticprose": "^0.1.0",
+        "@forwardimpact/libsyntheticrender": "^0.1.0",
+        "@forwardimpact/libtelemetry": "^0.1.23",
+        "@forwardimpact/libtemplate": "^0.2.0",
+      },
+      "optionalDependencies": {
+        "@supabase/supabase-js": "^2.103.0",
+      },
+      "peerDependencies": {
+        "prettier": "^3.0.0",
+      },
+    },
     "libraries/libtool": {
       "name": "@forwardimpact/libtool",
       "version": "0.1.14",
@@ -406,30 +430,6 @@
     "libraries/libui": {
       "name": "@forwardimpact/libui",
       "version": "1.1.6",
-    },
-    "libraries/libuniverse": {
-      "name": "@forwardimpact/libuniverse",
-      "version": "0.1.15",
-      "bin": {
-        "fit-universe": "./bin/fit-universe.js",
-      },
-      "dependencies": {
-        "@forwardimpact/libcli": "^0.1.0",
-        "@forwardimpact/libconfig": "^0.1.59",
-        "@forwardimpact/libllm": "^0.1.72",
-        "@forwardimpact/libprompt": "^0.1.0",
-        "@forwardimpact/libsyntheticgen": "^0.1.0",
-        "@forwardimpact/libsyntheticprose": "^0.1.0",
-        "@forwardimpact/libsyntheticrender": "^0.1.0",
-        "@forwardimpact/libtelemetry": "^0.1.23",
-        "@forwardimpact/libtemplate": "^0.2.0",
-      },
-      "optionalDependencies": {
-        "@supabase/supabase-js": "^2.103.0",
-      },
-      "peerDependencies": {
-        "prettier": "^3.0.0",
-      },
     },
     "libraries/libutil": {
       "name": "@forwardimpact/libutil",
@@ -928,13 +928,13 @@
 
     "@forwardimpact/libtemplate": ["@forwardimpact/libtemplate@workspace:libraries/libtemplate"],
 
+    "@forwardimpact/libterrain": ["@forwardimpact/libterrain@workspace:libraries/libterrain"],
+
     "@forwardimpact/libtool": ["@forwardimpact/libtool@workspace:libraries/libtool"],
 
     "@forwardimpact/libtype": ["@forwardimpact/libtype@workspace:libraries/libtype"],
 
     "@forwardimpact/libui": ["@forwardimpact/libui@workspace:libraries/libui"],
-
-    "@forwardimpact/libuniverse": ["@forwardimpact/libuniverse@workspace:libraries/libuniverse"],
 
     "@forwardimpact/libutil": ["@forwardimpact/libutil@workspace:libraries/libutil"],
 

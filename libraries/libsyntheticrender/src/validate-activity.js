@@ -4,7 +4,7 @@
  *
  * Extracted from validate.js to reduce file length.
  *
- * @module libuniverse/validate-activity
+ * @module libterrain/validate-activity
  */
 
 import { PROFICIENCY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";

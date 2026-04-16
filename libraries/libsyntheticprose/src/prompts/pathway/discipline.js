@@ -5,7 +5,7 @@ import { buildPriorContextLines } from "./prior-context.js";
  * Prompt template for a single discipline entity.
  *
  * @param {object} skeleton - Discipline skeleton from DSL
- * @param {object} ctx - Universe context (includes skillIds, behaviourIds, trackIds)
+ * @param {object} ctx - Terrain context (includes skillIds, behaviourIds, trackIds)
  * @param {object} schema - JSON schema for discipline
  * @returns {{ system: string, user: string }}
  */

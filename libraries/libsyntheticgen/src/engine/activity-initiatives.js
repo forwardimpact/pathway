@@ -1,7 +1,7 @@
 /**
  * Initiative and scorecard derivation for activity data.
  *
- * @module libuniverse/engine/activity-initiatives
+ * @module libterrain/engine/activity-initiatives
  */
 
 /**
@@ -132,7 +132,7 @@ function buildInitiative(params) {
 
 /**
  * Derive initiatives and scorecards from projects and scenarios.
- * @param {import('../dsl/parser.js').UniverseAST} ast
+ * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
  * @param {object[]} people
  * @param {object[]} teams

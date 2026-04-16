@@ -272,7 +272,7 @@ files in [.claude/skills/](.claude/skills/):
 - **`libs-cli-and-tooling`** — libcli, librepl, libutil, libsecret,
   libsupervise, librc, libcodegen, libeval
 - **`libs-synthetic-data`** — libsyntheticgen, libsyntheticprose,
-  libsyntheticrender, libuniverse
+  libsyntheticrender, libterrain
 
 `libskill` retains its own skill (pure-function design, exempt from OO+DI).
 

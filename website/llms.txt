@@ -16,6 +16,6 @@ data model is YAML-based and drives all products.
 - Guides: Authoring Frameworks, Agent Teams, Career Paths, Knowledge Systems,
   Engineering Signals, Team Capability, Finding Your Bearing
 - Reference: CLI, Core Model, Lifecycle, YAML Schema
-- Internals: Map, Pathway, libskill, Basecamp, Guide, Landmark, Summit, Universe
+- Internals: Map, Pathway, libskill, Basecamp, Guide, Landmark, Summit, Terrain
 
 ## Optional

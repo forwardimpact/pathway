@@ -1,7 +1,7 @@
 /**
  * Pipeline orchestrator — parse → generate → prose → render → validate.
  *
- * @module libuniverse/pipeline
+ * @module libterrain/pipeline
  */
 
 import { readFile } from "fs/promises";
@@ -335,17 +335,17 @@ export class Pipeline {
    * Run the full generation pipeline.
    *
    * @param {object} options
-   * @param {string} options.universePath - Path to the story DSL file
+   * @param {string} options.storyPath - Path to the story DSL file
    * @param {string} [options.only=null] - Render only a specific content type
    * @param {string|null} [options.schemaDir=null] - Path to JSON schema directory
    * @returns {Promise<{files: Map<string,string>, rawDocuments: Map<string,string>, entities: object, validation: object, stats: {prose: {hits: number, misses: number, generated: number}, files: number, rawDocuments: number}}>}
    */
   async run(options) {
-    const { universePath, only = null, schemaDir = null } = options;
+    const { storyPath, only = null, schemaDir = null } = options;
 
     // 1. Parse DSL
-    this.logger.info("pipeline", "Parsing universe DSL");
-    const source = await readFile(universePath, "utf-8");
+    this.logger.info("pipeline", "Parsing terrain DSL");
+    const source = await readFile(storyPath, "utf-8");
     const ast = this.dslParser.parse(source);
 
     // 2-4. Org-and-pathway generation (only when org blocks are present)

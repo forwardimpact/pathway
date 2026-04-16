@@ -1,13 +1,13 @@
 ---
-name: fit-universe
+name: fit-terrain
 description: >
   Generate synthetic data for development, testing, and demos. Use when
   creating example framework definitions, organizational documents, activity
-  records, or knowledge base content from a universe DSL file, or when
+  records, or knowledge base content from a terrain DSL file, or when
   testing pipeline changes end-to-end with synthetic datasets.
 ---
 
-# fit-universe CLI
+# fit-terrain CLI
 
 Generate synthetic data for the entire Forward Impact suite from a single DSL
 file. The CLI orchestrates parsing, entity generation, optional LLM prose, and
@@ -20,7 +20,7 @@ rendering into multiple output formats.
 - Producing organizational documents, activity records, and KB content
 - Bootstrapping a realistic environment for product evaluation or demos
 - Testing pipeline changes end-to-end
-- Writing or editing universe DSL files
+- Writing or editing terrain DSL files
 
 ---
 
@@ -30,7 +30,7 @@ rendering into multiple output formats.
 
 Generation flows through four stages:
 
-1. **DSL parsing** — the universe file is tokenized and parsed into an AST
+1. **DSL parsing** — the terrain file is tokenized and parsed into an AST
    containing organizational hierarchy, people, projects, framework definitions,
    and content specifications
 2. **Entity generation** — the AST is expanded deterministically (using a seeded
@@ -78,15 +78,15 @@ complete output set.
 ## CLI Reference
 
 ```sh
-npx fit-universe                     # Use cached prose (default, repeatable)
-npx fit-universe --generate          # Generate prose via LLM (requires LLM_TOKEN)
-npx fit-universe --no-prose          # Structural scaffolding only (no prose at all)
-npx fit-universe --strict            # Fail on cache miss (with default cached mode)
-npx fit-universe --load              # Load raw docs to Supabase Storage
-npx fit-universe --only=pathway      # Render only one content type
-npx fit-universe --dry-run           # Show what would be written
-npx fit-universe --story=path        # Custom story DSL file
-npx fit-universe --cache=path        # Custom prose cache file
+npx fit-terrain                     # Use cached prose (default, repeatable)
+npx fit-terrain --generate          # Generate prose via LLM (requires LLM_TOKEN)
+npx fit-terrain --no-prose          # Structural scaffolding only (no prose at all)
+npx fit-terrain --strict            # Fail on cache miss (with default cached mode)
+npx fit-terrain --load              # Load raw docs to Supabase Storage
+npx fit-terrain --only=pathway      # Render only one content type
+npx fit-terrain --dry-run           # Show what would be written
+npx fit-terrain --story=path        # Custom story DSL file
+npx fit-terrain --cache=path        # Custom prose cache file
 ```
 
 ### Content Types
@@ -110,9 +110,9 @@ Use `--only=<type>` to generate a single content type:
 
 ---
 
-## Universe DSL
+## Terrain DSL
 
-Universe files define a complete synthetic environment. This monorepo's universe
+Terrain files define a complete synthetic environment. This monorepo's terrain
 DSL is at `data/synthetic/story.dsl`. A minimal reference DSL ships with
 libsyntheticgen at `libraries/libsyntheticgen/data/default.dsl` for quick
 testing; projects provide their own DSL file.
@@ -120,7 +120,7 @@ testing; projects provide their own DSL file.
 ### Top-Level Blocks
 
 ```dsl
-universe Name {
+terrain Name {
   domain "example.dev"
   industry "technology"
   seed 42
@@ -162,7 +162,7 @@ configurations, and briefing counts.
 
 ## Data Resolution
 
-Use `--story=path` to specify a custom universe DSL file. Without `--story`, the
+Use `--story=path` to specify a custom terrain DSL file. Without `--story`, the
 CLI falls back to the minimal reference DSL bundled with the package.
 
 Generated output writes to `data/` directories in the current working directory:
@@ -179,7 +179,7 @@ Generated output writes to `data/` directories in the current working directory:
 ## Prose Cache
 
 The prose cache is stored at `data/synthetic/prose-cache.json`. This file is
-pre-populated for the BioNova universe. The default mode reads from it without
+pre-populated for the BioNova terrain. The default mode reads from it without
 LLM calls.
 
 When using `--generate`, prose is regenerated and the cache is written after
@@ -192,7 +192,7 @@ To regenerate all prose, delete the cache file and run with `--generate`.
 
 ## Dataset Blocks
 
-The universe DSL may include `dataset` and `output` blocks that use external
+The terrain DSL may include `dataset` and `output` blocks that use external
 tools (Synthea, SDV, Faker). Unavailable tools are automatically skipped with an
 info log — the pipeline continues and writes all other generated files normally.
 
@@ -216,7 +216,7 @@ Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate` mode.
 Set these environment variables before running:
 
 ```sh
-LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-universe --generate
+LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-terrain --generate
 ```
 
 The default cached mode requires no LLM credentials.
@@ -225,7 +225,7 @@ The default cached mode requires no LLM credentials.
 
 ## Logging
 
-Set `DEBUG=universe` for verbose debug output during generation. Operational
+Set `DEBUG=terrain` for verbose debug output during generation. Operational
 progress is logged to stderr via libtelemetry Logger (RFC 5424 format with
 timestamps). Stdout is reserved for file counts, validation results, and prose
 cache statistics.
@@ -258,6 +258,6 @@ npx fit-map validate
 
 For deeper context beyond this skill's scope:
 
-- [Universe Internals](https://www.forwardimpact.team/docs/internals/universe/index.md)
+- [Terrain Internals](https://www.forwardimpact.team/docs/internals/terrain/index.md)
   — Synthetic data pipeline architecture, DSL parsing, entity generation, prose
   engine, and rendering

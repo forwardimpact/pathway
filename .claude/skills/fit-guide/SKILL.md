@@ -337,7 +337,7 @@ npx fit-rc start
 ### Ingest New Knowledge
 
 1. Drop HTML files into `data/knowledge/` (or generate them with
-   `npx fit-universe`)
+   `npx fit-terrain`)
 2. Run `npx fit-process-resources` to create resources
 3. Run `npx fit-process-graphs` to build graph index
 4. Run `npx fit-process-vectors` to build vector index

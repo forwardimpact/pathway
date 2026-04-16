@@ -1,11 +1,11 @@
 ---
-title: Universe Internals
+title: Terrain Internals
 description: "Synthetic data pipeline — DSL parsing, entity generation, prose engine, rendering, and validation."
 ---
 
 ## Overview
 
-`fit-universe` generates synthetic data for the entire Forward Impact suite from
+`fit-terrain` generates synthetic data for the entire Forward Impact suite from
 a single DSL file. It produces career framework definitions, organizational
 documents, developer activity records, and personal knowledge base content --
 everything needed to develop, demo, or test the system without real data.
@@ -18,16 +18,16 @@ Generated output lands in `data/` at the monorepo root.
 
 ```sh
 # Generate structural data (no LLM needed)
-bunx fit-universe
+bunx fit-terrain
 
 # Generate with LLM-written prose (requires LLM_TOKEN)
-bunx fit-universe --generate
+bunx fit-terrain --generate
 
 # Preview what would be generated
-bunx fit-universe --dry-run
+bunx fit-terrain --dry-run
 
 # Generate only pathway framework data
-bunx fit-universe --only=pathway
+bunx fit-terrain --only=pathway
 ```
 
 ---
@@ -35,14 +35,14 @@ bunx fit-universe --only=pathway
 ## Pipeline Architecture
 
 The generation pipeline follows five stages orchestrated by the `Pipeline` class
-in `libraries/libuniverse/src/pipeline.js`:
+in `libraries/libterrain/src/pipeline.js`:
 
 ```
 parse -> generate -> prose -> render -> validate
 ```
 
-1. **Parse** -- `DslParser` reads the DSL file and produces a structured
-   universe definition
+1. **Parse** -- `DslParser` reads the DSL file and produces a structured terrain
+   definition
 2. **Generate** -- `EntityGenerator` creates structural entities (people, teams,
    repos, skills) from the parsed definition using a seeded RNG for
    reproducibility
@@ -54,11 +54,11 @@ parse -> generate -> prose -> render -> validate
    all generated outputs
 
 All collaborators are injected via constructor (OO+DI pattern). The composition
-root in `bin/fit-universe.js` wires real implementations.
+root in `bin/fit-terrain.js` wires real implementations.
 
 ### Library Structure
 
-Universe is split across three sub-libraries:
+Terrain is split across three sub-libraries:
 
 | Library              | Classes                                            | Purpose                            |
 | -------------------- | -------------------------------------------------- | ---------------------------------- |
@@ -66,18 +66,18 @@ Universe is split across three sub-libraries:
 | `libsyntheticprose`  | `ProseEngine`, `PathwayGenerator`                  | LLM prose and framework generation |
 | `libsyntheticrender` | `Renderer`, `ContentValidator`, `ContentFormatter` | Output rendering and validation    |
 
-The `libuniverse` package re-exports from all three and adds the `Pipeline`
+The `libterrain` package re-exports from all three and adds the `Pipeline`
 orchestrator.
 
 ---
 
-## Writing a Universe File
+## Writing a Terrain File
 
-A universe file defines the shape of the synthetic world. The default lives at
+A terrain file defines the shape of the synthetic world. The default lives at
 `data/synthetic/story.dsl`.
 
 ```dsl
-universe MyCompany {
+terrain MyCompany {
   domain "mycompany.dev"
   industry "fintech"
   seed 42
@@ -195,7 +195,7 @@ bunx fit-map validate --data=data/pathway
 Point to any DSL file with `--story=path`:
 
 ```sh
-bunx fit-universe --story=./my-story.dsl --generate
+bunx fit-terrain --story=./my-story.dsl --generate
 ```
 
 This is useful for generating data for different organizational shapes, team

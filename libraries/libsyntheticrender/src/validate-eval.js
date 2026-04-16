@@ -4,7 +4,7 @@
  * Validates that entity names and IRIs referenced in eval scenarios
  * exist in the generated data. Reports missing references.
  *
- * @module libuniverse/validate-eval
+ * @module libterrain/validate-eval
  */
 
 /**

@@ -1,7 +1,7 @@
 /**
  * Renderer — wraps all render functions behind a single class with DI.
  *
- * @module libuniverse/render/renderer
+ * @module libterrain/render/renderer
  */
 
 import { dirname, join } from "path";

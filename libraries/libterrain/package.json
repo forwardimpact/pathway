@@ -1,17 +1,17 @@
 {
-  "name": "@forwardimpact/libuniverse",
+  "name": "@forwardimpact/libterrain",
   "version": "0.1.15",
-  "description": "Synthetic data universe DSL and generation engine",
+  "description": "Synthetic terrain DSL and generation engine",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libuniverse"
+    "directory": "libraries/libterrain"
   },
   "type": "module",
   "main": "./src/index.js",
   "bin": {
-    "fit-universe": "./bin/fit-universe.js"
+    "fit-terrain": "./bin/fit-terrain.js"
   },
   "exports": {
     ".": "./src/index.js",

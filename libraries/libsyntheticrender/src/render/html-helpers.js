@@ -3,7 +3,7 @@
  *
  * Extracted from html.js to reduce file length.
  *
- * @module libuniverse/render/html-helpers
+ * @module libterrain/render/html-helpers
  */
 
 export const FAQ_QUESTIONS = [

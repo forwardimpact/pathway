@@ -1,7 +1,7 @@
 /**
  * Comment key generation for activity data.
  *
- * @module libuniverse/engine/activity-comments
+ * @module libterrain/engine/activity-comments
  */
 
 /** @param {import('./rng.js').SeededRNG} rng @param {Date} start @param {Date} end */
@@ -66,7 +66,7 @@ function collectCandidates(activeScenarios, people, teams, driverMap) {
 
 /**
  * Generate comment metadata for LLM prose generation.
- * @param {import('../dsl/parser.js').UniverseAST} ast
+ * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
  * @param {object[]} people
  * @param {object[]} teams

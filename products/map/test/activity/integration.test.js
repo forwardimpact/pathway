@@ -9,7 +9,7 @@ const parser = createDslParser();
 
 // Minimal DSL with framework levels matching distribution keys.
 const MINI_DSL = `
-  universe integration_test {
+  terrain integration_test {
     domain "Testing"
     seed 42
     org hq { name "HQ" }

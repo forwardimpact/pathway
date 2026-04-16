@@ -2,9 +2,9 @@
  * Industry Data — drug and platform definitions for synthetic knowledge graph.
  *
  * Provides deterministic drug pipeline and technology platform data
- * parameterized by the universe's industry and domain.
+ * parameterized by the terrain's industry and domain.
  *
- * @module libuniverse/render/industry-data
+ * @module libterrain/render/industry-data
  */
 
 /**

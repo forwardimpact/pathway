@@ -1,7 +1,7 @@
 /**
  * Entity generation — builds orgs, departments, teams, people, projects.
  *
- * @module libuniverse/engine/entities
+ * @module libterrain/engine/entities
  */
 
 import {
@@ -13,7 +13,7 @@ import {
 
 /**
  * Build all entities from AST and RNG.
- * @param {import('../dsl/parser.js').UniverseAST} ast
+ * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
  * @param {object} [logger] - Logger instance for warnings
  * @returns {{ orgs: object[], departments: object[], teams: object[], people: object[], projects: object[] }}

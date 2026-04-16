@@ -4,7 +4,7 @@ import { buildPreamble } from "./preamble.js";
  * Prompt template for framework.yaml metadata.
  *
  * @param {object} skeleton - Framework skeleton from DSL
- * @param {object} ctx - Universe context (domain, industry, frameworkName)
+ * @param {object} ctx - Terrain context (domain, industry, frameworkName)
  * @param {object} schema - JSON schema for framework entity
  * @returns {{ system: string, user: string }}
  */

@@ -5,7 +5,7 @@ import { MATURITY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";
  * Prompt template for a single behaviour entity.
  *
  * @param {object} skeleton - Behaviour skeleton { id, name }
- * @param {object} ctx - Universe context
+ * @param {object} ctx - Terrain context
  * @param {object} schema - JSON schema for behaviour
  * @returns {{ system: string, user: string }}
  */

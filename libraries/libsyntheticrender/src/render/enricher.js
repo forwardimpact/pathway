@@ -5,7 +5,7 @@
  * calls ProseEngine to generate rich prose with inline microdata,
  * and replaces placeholder content.
  *
- * @module libuniverse/render/enricher
+ * @module libterrain/render/enricher
  */
 
 /**
@@ -183,7 +183,7 @@ function buildEnrichContext(enrichKey, linked) {
  * Build the LLM prompt for enriching a prose block.
  * @param {object} ctx - Context from buildEnrichContext
  * @param {string} placeholder - Current placeholder text
- * @param {string} domain - Universe domain for IRI constraint
+ * @param {string} domain - Terrain domain for IRI constraint
  * @returns {object[]} Messages array for ProseEngine.generateStructured
  */
 function buildEnrichMessages(ctx, placeholder, domain) {
@@ -216,7 +216,7 @@ Output only the HTML content for the block — no wrapper tags.`;
 }
 
 /**
- * Strip or sanitize itemid attributes that don't match the universe domain.
+ * Strip or sanitize itemid attributes that don't match the terrain domain.
  * @param {string} html
  * @param {string} domain
  * @returns {string}
@@ -292,7 +292,7 @@ function balanceTags(html) {
  * @param {Map<string, string>} htmlFiles - filename → HTML content from Pass 1
  * @param {object} linked - LinkedEntities from link-assigner
  * @param {import('../engine/prose.js').ProseEngine} proseEngine
- * @param {string} domain - Universe domain
+ * @param {string} domain - Terrain domain
  * @param {object} logger - Logger instance
  * @returns {Promise<Map<string, string>>} filename → enriched HTML content
  */

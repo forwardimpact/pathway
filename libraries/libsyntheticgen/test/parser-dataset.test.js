@@ -8,14 +8,14 @@ function parseDsl(source) {
 }
 
 describe("dataset and output parsing", () => {
-  test("parses empty universe with no datasets", () => {
-    const ast = parseDsl("universe test {}");
+  test("parses empty terrain with no datasets", () => {
+    const ast = parseDsl("terrain test {}");
     assert.deepStrictEqual(ast.datasets, []);
     assert.deepStrictEqual(ast.outputs, []);
   });
 
   test("parses faker dataset block", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       dataset researchers {
         tool faker
         rows 100
@@ -37,7 +37,7 @@ describe("dataset and output parsing", () => {
   });
 
   test("parses synthea dataset block", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       dataset patients {
         tool synthea
         population 200
@@ -51,7 +51,7 @@ describe("dataset and output parsing", () => {
   });
 
   test("parses sdv dataset block", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       dataset claims {
         tool sdv
         metadata "schemas/meta.json"
@@ -69,7 +69,7 @@ describe("dataset and output parsing", () => {
   });
 
   test("parses output blocks", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       output patients json { path "out/patients.json" }
       output claims sql { path "out/claims.sql" table "my_claims" }
     }`);
@@ -85,7 +85,7 @@ describe("dataset and output parsing", () => {
     const formats = ["json", "yaml", "csv", "markdown", "parquet", "sql"];
     for (const fmt of formats) {
       const ast = parseDsl(
-        `universe test { output ds ${fmt} { path "out/file" } }`,
+        `terrain test { output ds ${fmt} { path "out/file" } }`,
       );
       assert.strictEqual(ast.outputs[0].format, fmt);
     }
@@ -93,27 +93,27 @@ describe("dataset and output parsing", () => {
 
   test("throws on unknown output format", () => {
     assert.throws(
-      () => parseDsl(`universe test { output ds xlsx { path "out/file" } }`),
+      () => parseDsl(`terrain test { output ds xlsx { path "out/file" } }`),
       /Unknown output format 'xlsx'/,
     );
   });
 
   test("throws on unknown keyword in dataset", () => {
     assert.throws(
-      () => parseDsl(`universe test { dataset x { tool faker bogus 5 } }`),
+      () => parseDsl(`terrain test { dataset x { tool faker bogus 5 } }`),
       /Unexpected 'bogus' in dataset/,
     );
   });
 
   test("throws on unknown keyword in output", () => {
     assert.throws(
-      () => parseDsl(`universe test { output ds json { path "x" bogus "y" } }`),
+      () => parseDsl(`terrain test { output ds json { path "x" bogus "y" } }`),
       /Unexpected 'bogus' in output/,
     );
   });
 
   test("parses mixed org and dataset blocks", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       domain "example.com"
       seed 42
       org hq { name "HQ" location "NYC" }
@@ -131,7 +131,7 @@ describe("dataset and output parsing", () => {
   });
 
   test("parses multiple dataset blocks", () => {
-    const ast = parseDsl(`universe test {
+    const ast = parseDsl(`terrain test {
       dataset a { tool faker rows 5 fields { x "string.uuid" } }
       dataset b { tool faker rows 10 fields { y "person.firstName" } }
     }`);

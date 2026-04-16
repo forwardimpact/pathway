@@ -28,7 +28,7 @@
     "test": "find ./tests ./libraries ./products ./services -name '*.test.js' -not -path '*/node_modules/*' | xargs bun run node --test --test-concurrency=0",
     "test:e2e": "bunx playwright test",
     "validate": "bunx fit-map validate",
-    "generate": "fit-universe"
+    "generate": "fit-terrain"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

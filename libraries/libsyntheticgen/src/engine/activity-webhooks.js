@@ -1,7 +1,7 @@
 /**
  * Webhook generation for activity data.
  *
- * @module libuniverse/engine/activity-webhooks
+ * @module libterrain/engine/activity-webhooks
  */
 
 import { generateHash } from "@forwardimpact/libutil";
@@ -239,7 +239,7 @@ function generatePREvents(
 
 /**
  * Generate all webhook events from scenarios.
- * @param {import('../dsl/parser.js').UniverseAST} ast
+ * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
  * @param {object[]} people
  * @param {object[]} teams

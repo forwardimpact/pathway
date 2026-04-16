@@ -1,7 +1,7 @@
 /**
  * Tier 0 — Deterministic Entity & Activity Generation (no LLM).
  *
- * @module libuniverse/engine/tier0
+ * @module libterrain/engine/tier0
  */
 
 import { createSeededRNG } from "./rng.js";
@@ -25,7 +25,7 @@ export class EntityGenerator {
 
   /**
    * Generate all entities and activity from a parsed AST.
-   * @param {import('../dsl/parser.js').UniverseAST} ast
+   * @param {import('../dsl/parser.js').TerrainAST} ast
    * @returns {object} Entity graph with activity data
    */
   generate(ast) {

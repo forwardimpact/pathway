@@ -5,7 +5,7 @@ import { PROFICIENCY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js
  * Prompt template for a single capability entity (with skills).
  *
  * @param {object} skeleton - Capability skeleton { id, name, skills, ordinalRank }
- * @param {object} ctx - Universe context
+ * @param {object} ctx - Terrain context
  * @param {object} schema - JSON schema for capability
  * @returns {{ system: string, user: string }}
  */

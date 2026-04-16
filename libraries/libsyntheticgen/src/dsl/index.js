@@ -17,9 +17,9 @@ export class DslParser {
   }
 
   /**
-   * Parse universe DSL source into an AST.
+   * Parse terrain DSL source into an AST.
    * @param {string} source - DSL source text
-   * @returns {import('./parser.js').UniverseAST}
+   * @returns {import('./parser.js').TerrainAST}
    */
   parse(source) {
     const tokens = this.tokenizeFn(source);

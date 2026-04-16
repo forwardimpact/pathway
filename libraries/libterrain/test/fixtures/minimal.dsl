@@ -1,4 +1,4 @@
-universe minimal {
+terrain minimal {
   domain "test.example"
   industry "technology"
   seed 42

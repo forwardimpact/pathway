@@ -1,7 +1,7 @@
 /**
  * Cross-content validation — pure function over the entity graph.
  *
- * @module libuniverse/validate
+ * @module libterrain/validate
  */
 
 import { PROFICIENCY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";

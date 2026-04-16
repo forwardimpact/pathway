@@ -222,7 +222,7 @@ export class ProseEngine {
  * @returns {ProseEngine}
  */
 export function createProseEngine(options) {
-  const logger = createLogger("universe");
+  const logger = createLogger("terrain");
   const promptLoader = new PromptLoader(join(__dirname, "..", "prompts"));
   return new ProseEngine({ ...options, promptLoader, logger });
 }

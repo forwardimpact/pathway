@@ -437,10 +437,11 @@ If you want to explore the activity layer before connecting real data sources,
 Map can populate the database with synthetic data — a realistic roster, GitHub
 events, and GetDX snapshots generated from a template.
 
-First, generate synthetic data (requires the `@forwardimpact/universe` package):
+First, generate synthetic data (requires the `@forwardimpact/libterrain`
+package):
 
 ```sh
-npx fit-universe data/synthetic/story.dsl
+npx fit-terrain data/synthetic/story.dsl
 ```
 
 Then seed the activity database:

@@ -1,7 +1,7 @@
 ---
 name: libs-synthetic-data
 description: >
-  Use when parsing or extending the universe DSL grammar, generating
+  Use when parsing or extending the terrain DSL grammar, generating
   deterministic entity graphs, producing LLM-generated prose or pathway
   frameworks, rendering synthetic data to HTML, Markdown, YAML, or raw
   formats, validating generated content integrity, or running the full
@@ -12,7 +12,7 @@ description: >
 
 ## When to Use
 
-- Parsing or extending the universe DSL grammar
+- Parsing or extending the terrain DSL grammar
 - Generating deterministic entity graphs (orgs, teams, people, projects)
 - Adding LLM-generated prose or pathway framework content
 - Rendering synthetic data to HTML, Markdown, YAML, or raw documents
@@ -26,17 +26,16 @@ description: >
 | libsyntheticgen    | Parse DSL grammar, generate deterministic entities, shared vocabulary | `DslParser`, `createDslParser`, `EntityGenerator`, `createEntityGenerator`, `createSeededRNG`, `PROFICIENCY_LEVELS` |
 | libsyntheticprose  | Generate LLM prose, pathway framework data, load schemas              | `ProseEngine`, `createProseEngine`, `PathwayGenerator`, `loadSchemas`                                               |
 | libsyntheticrender | Multi-format rendering, content validation, formatting                | `Renderer`, `createRenderer`, `ContentValidator`, `ContentFormatter`, `validateCrossContent`                        |
-| libuniverse        | Full parse-generate-render-validate pipeline, Supabase upload         | `Pipeline`, `loadToSupabase`                                                                                        |
+| libterrain         | Full parse-generate-render-validate pipeline, Supabase upload         | `Pipeline`, `loadToSupabase`                                                                                        |
 
 ## Decision Guide
 
 - **DSL files** — libsyntheticgen ships a minimal reference DSL
   (`libraries/libsyntheticgen/data/default.dsl`) for quick testing. Projects
   provide their own DSL file; this monorepo's is at `data/synthetic/story.dsl`.
-- **libsyntheticgen vs libuniverse** — Use `libsyntheticgen` directly when you
-  only need DSL parsing or entity generation without rendering. Use
-  `libuniverse` (Pipeline) when you want the full parse-generate-render-validate
-  flow.
+- **libsyntheticgen vs libterrain** — Use `libsyntheticgen` directly when you
+  only need DSL parsing or entity generation without rendering. Use `libterrain`
+  (Pipeline) when you want the full parse-generate-render-validate flow.
 - **libsyntheticprose** — Only needed when LLM-generated content is required.
   The pipeline works without it in "no-prose" mode. Prose is injected via DI,
   never imported directly by the renderer.
@@ -80,7 +79,7 @@ const logger = createLogger("gen");
 const parser = createDslParser();
 const generator = createEntityGenerator(logger);
 
-const source = await readFile("universe.dsl", "utf-8");
+const source = await readFile("story.dsl", "utf-8");
 const ast = parser.parse(source);
 const entities = generator.generate(ast);
 ```
@@ -102,7 +101,7 @@ const { files, linked } = renderer.renderHtml(entities, prose);
 import { createDslParser, createEntityGenerator } from "@forwardimpact/libsyntheticgen";
 import { ProseEngine, PathwayGenerator } from "@forwardimpact/libsyntheticprose";
 import { Renderer, ContentValidator, ContentFormatter } from "@forwardimpact/libsyntheticrender";
-import { Pipeline } from "@forwardimpact/libuniverse/pipeline";
+import { Pipeline } from "@forwardimpact/libterrain/pipeline";
 
 const pipeline = new Pipeline({
   dslParser: createDslParser(),
@@ -115,7 +114,7 @@ const pipeline = new Pipeline({
   logger,
 });
 
-const result = await pipeline.run({ universePath, schemaDir });
+const result = await pipeline.run({ storyPath, schemaDir });
 ```
 
 ## DI Wiring
@@ -166,11 +165,11 @@ import { ContentFormatter } from "@forwardimpact/libsyntheticrender";
 const formatter = new ContentFormatter(prettierFormat, logger);
 ```
 
-### libuniverse
+### libterrain
 
 ```javascript
 // Pipeline — accepts all pipeline dependencies
-import { Pipeline } from "@forwardimpact/libuniverse/pipeline";
+import { Pipeline } from "@forwardimpact/libterrain/pipeline";
 const pipeline = new Pipeline({
   dslParser,
   entityGenerator,
@@ -183,7 +182,7 @@ const pipeline = new Pipeline({
 });
 
 // loadToSupabase — accepts supabase client and options
-import { loadToSupabase } from "@forwardimpact/libuniverse";
+import { loadToSupabase } from "@forwardimpact/libterrain";
 await loadToSupabase(client, { dataDir });
 ```
 
@@ -217,8 +216,8 @@ Synthetic data payloads conform to these GetDX Web API response schemas:
 node --test libraries/libsyntheticgen/test/    # DSL + entity generation tests
 node --test libraries/libsyntheticprose/test/  # Prose engine + prompt builder tests
 node --test libraries/libsyntheticrender/test/ # Validation + rendering tests
-node --test libraries/libuniverse/test/        # Pipeline integration tests
-bunx fit-universe --dry-run                    # Full pipeline dry run
-bunx fit-universe --dry-run --only=html        # Single content type
+node --test libraries/libterrain/test/          # Pipeline integration tests
+bunx fit-terrain --dry-run                     # Full pipeline dry run
+bunx fit-terrain --dry-run --only=html         # Single content type
 bunx fit-map validate                          # Validate generated pathway data
 ```

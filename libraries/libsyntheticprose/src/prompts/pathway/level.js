@@ -8,7 +8,7 @@ import {
  * Prompt template for levels.yaml — all levels in a single call.
  *
  * @param {object[]} levels - Level skeletons from DSL
- * @param {object} ctx - Universe context
+ * @param {object} ctx - Terrain context
  * @param {object} schema - JSON schema for levels
  * @returns {{ system: string, user: string }}
  */

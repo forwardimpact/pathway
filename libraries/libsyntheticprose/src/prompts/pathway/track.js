@@ -5,7 +5,7 @@ import { buildPriorContextLines } from "./prior-context.js";
  * Prompt template for a single track entity.
  *
  * @param {object} skeleton - Track skeleton { id, name }
- * @param {object} ctx - Universe context (includes capabilityIds, behaviourIds)
+ * @param {object} ctx - Terrain context (includes capabilityIds, behaviourIds)
  * @param {object} schema - JSON schema for track
  * @returns {{ system: string, user: string }}
  */

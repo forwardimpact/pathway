@@ -1,7 +1,7 @@
 # User data
 data/
 data
-!libraries/libuniverse/data/
+!libraries/libterrain/data/
 !data/synthetic/
 
 # Generated code

@@ -5,8 +5,8 @@ description: Commands, arguments, and options for all Forward Impact CLI tools.
 
 > **Availability:** `fit-pathway`, `fit-map`, `fit-basecamp`, `fit-guide`,
 > `fit-landmark`, `fit-summit`, and `fit-rc` are published to npm and can be
-> installed standalone. `fit-doc` and `fit-universe` are monorepo-only tools
-> that require a full checkout of the
+> installed standalone. `fit-doc` and `fit-terrain` are monorepo-only tools that
+> require a full checkout of the
 > [monorepo](https://github.com/forwardimpact/monorepo).
 
 ## fit-map
@@ -349,20 +349,20 @@ npx fit-summit trajectory <team>                             # Capability over t
 
 ---
 
-## fit-universe
+## fit-terrain
 
-Synthetic data generation from a universe DSL file.
+Synthetic data generation from a terrain DSL file.
 
 ```sh
-npx fit-universe                     # Use cached prose (default)
-npx fit-universe --generate          # Generate prose via LLM
-npx fit-universe --no-prose          # Structural scaffolding only
-npx fit-universe --strict            # Fail on cache miss
-npx fit-universe --load              # Load raw docs to storage
-npx fit-universe --only=pathway      # Render only one content type
-npx fit-universe --dry-run           # Show what would be written
-npx fit-universe --story=path        # Custom story DSL file
-npx fit-universe --cache=path        # Custom prose cache file
+npx fit-terrain                      # Use cached prose (default)
+npx fit-terrain --generate           # Generate prose via LLM
+npx fit-terrain --no-prose           # Structural scaffolding only
+npx fit-terrain --strict             # Fail on cache miss
+npx fit-terrain --load               # Load raw docs to storage
+npx fit-terrain --only=pathway       # Render only one content type
+npx fit-terrain --dry-run            # Show what would be written
+npx fit-terrain --story=path         # Custom story DSL file
+npx fit-terrain --cache=path         # Custom prose cache file
 ```
 
 | Option           | Description                         |

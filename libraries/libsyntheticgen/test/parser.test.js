@@ -6,46 +6,46 @@ import { parse } from "../src/dsl/parser.js";
 /**
  * Helper: tokenize then parse a DSL source string.
  * @param {string} source
- * @returns {import('../dsl/parser.js').UniverseAST}
+ * @returns {import('../dsl/parser.js').TerrainAST}
  */
 function parseDsl(source) {
   return parse(tokenize(source));
 }
 
 describe("parse", () => {
-  describe("universe declaration", () => {
-    test("parses minimal universe with name", () => {
-      const ast = parseDsl("universe acme {}");
+  describe("terrain declaration", () => {
+    test("parses minimal terrain with name", () => {
+      const ast = parseDsl("terrain acme {}");
       assert.strictEqual(ast.name, "acme");
     });
 
-    test("parses universe with quoted name", () => {
-      const ast = parseDsl('universe "Acme Corp" {}');
+    test("parses terrain with quoted name", () => {
+      const ast = parseDsl('terrain "Acme Corp" {}');
       assert.strictEqual(ast.name, "Acme Corp");
     });
 
     test("parses domain", () => {
-      const ast = parseDsl('universe test { domain "engineering" }');
+      const ast = parseDsl('terrain test { domain "engineering" }');
       assert.strictEqual(ast.domain, "engineering");
     });
 
     test("parses industry", () => {
-      const ast = parseDsl('universe test { industry "pharma" }');
+      const ast = parseDsl('terrain test { industry "pharma" }');
       assert.strictEqual(ast.industry, "pharma");
     });
 
     test("parses seed", () => {
-      const ast = parseDsl("universe test { seed 123 }");
+      const ast = parseDsl("terrain test { seed 123 }");
       assert.strictEqual(ast.seed, 123);
     });
 
     test("defaults seed to 42", () => {
-      const ast = parseDsl("universe test {}");
+      const ast = parseDsl("terrain test {}");
       assert.strictEqual(ast.seed, 42);
     });
 
     test("parses domain, industry, and seed together", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         domain "engineering"
         industry "tech"
         seed 99
@@ -58,7 +58,7 @@ describe("parse", () => {
 
   describe("org structure", () => {
     test("parses single org", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         org acme {
           name "Acme Corp"
           location "New York"
@@ -71,7 +71,7 @@ describe("parse", () => {
     });
 
     test("parses multiple orgs", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         org alpha { name "Alpha" }
         org beta { name "Beta" }
       }`);
@@ -83,7 +83,7 @@ describe("parse", () => {
 
   describe("department and team structures", () => {
     test("parses department with name and headcount", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         department eng {
           name "Engineering"
           headcount 50
@@ -96,7 +96,7 @@ describe("parse", () => {
     });
 
     test("parses department with parent", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         department sub_eng {
           name "Sub Engineering"
           parent eng
@@ -106,7 +106,7 @@ describe("parse", () => {
     });
 
     test("parses teams within departments", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         department eng {
           name "Engineering"
           team frontend {
@@ -127,7 +127,7 @@ describe("parse", () => {
     });
 
     test("parses multiple teams in a department", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         department eng {
           name "Engineering"
           team alpha { name "Alpha" size 3 }
@@ -142,7 +142,7 @@ describe("parse", () => {
 
   describe("people section", () => {
     test("parses people with count and names", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         people {
           count 100
           names "greek"
@@ -153,7 +153,7 @@ describe("parse", () => {
     });
 
     test("parses people with distribution", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         people {
           count 50
           names "greek"
@@ -172,7 +172,7 @@ describe("parse", () => {
     });
 
     test("parses people with disciplines", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         people {
           count 50
           names "greek"
@@ -193,7 +193,7 @@ describe("parse", () => {
 
   describe("project section", () => {
     test("parses project with all fields", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         project alpha {
           name "Project Alpha"
           type "greenfield"
@@ -219,7 +219,7 @@ describe("parse", () => {
     });
 
     test("parses multiple projects", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         project a { name "A" type "greenfield" }
         project b { name "B" type "migration" }
       }`);
@@ -231,7 +231,7 @@ describe("parse", () => {
 
   describe("snapshots section", () => {
     test("parses snapshots with quarterly range and account_id", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         snapshots {
           quarterly_from 2024-01
           quarterly_to 2024-12
@@ -244,7 +244,7 @@ describe("parse", () => {
     });
 
     test("parses comments_per_snapshot", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         snapshots {
           quarterly_from 2024-01
           quarterly_to 2024-12
@@ -258,7 +258,7 @@ describe("parse", () => {
 
   describe("scenario section", () => {
     test("parses scenario with affects", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         scenario growth {
           name "Growth Phase"
           timerange_start 2024-01
@@ -285,7 +285,7 @@ describe("parse", () => {
     });
 
     test("parses scenario affect with dx_drivers", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         scenario test_scenario {
           name "Test"
           affect team_a {
@@ -308,7 +308,7 @@ describe("parse", () => {
 
   describe("content section", () => {
     test("parses content block", () => {
-      const ast = parseDsl(`universe test {
+      const ast = parseDsl(`terrain test {
         content kb {
           articles 10
           article_topics ["testing", "deployment"]
@@ -348,7 +348,7 @@ describe("parse", () => {
 
   describe("default AST values", () => {
     test("initializes empty arrays and nulls", () => {
-      const ast = parseDsl("universe empty {}");
+      const ast = parseDsl("terrain empty {}");
       assert.strictEqual(ast.domain, null);
       assert.strictEqual(ast.industry, null);
       assert.strictEqual(ast.people, null);
@@ -364,31 +364,31 @@ describe("parse", () => {
   });
 
   describe("error handling", () => {
-    test("throws on missing universe keyword", () => {
-      assert.throws(() => parseDsl("domain {}"), /Expected KEYWORD 'universe'/);
+    test("throws on missing terrain keyword", () => {
+      assert.throws(() => parseDsl("domain {}"), /Expected KEYWORD 'terrain'/);
     });
 
     test("throws on missing opening brace", () => {
-      assert.throws(() => parseDsl("universe test domain"), /Expected LBRACE/);
+      assert.throws(() => parseDsl("terrain test domain"), /Expected LBRACE/);
     });
 
     test("throws on unexpected keyword at top level", () => {
       assert.throws(
-        () => parseDsl("universe test { manager }"),
+        () => parseDsl("terrain test { manager }"),
         /Unexpected keyword 'manager' at top level/,
       );
     });
 
     test("throws on unexpected keyword in org", () => {
       assert.throws(
-        () => parseDsl("universe test { org x { size 5 } }"),
+        () => parseDsl("terrain test { org x { size 5 } }"),
         /Unexpected 'size' in org/,
       );
     });
 
     test("throws on unexpected keyword in department", () => {
       assert.throws(
-        () => parseDsl("universe test { department x { repos [] } }"),
+        () => parseDsl("terrain test { department x { repos [] } }"),
         /Unexpected 'repos' in department/,
       );
     });
@@ -396,21 +396,21 @@ describe("parse", () => {
     test("throws on unexpected keyword in team", () => {
       assert.throws(
         () =>
-          parseDsl("universe test { department x { team t { headcount 5 } } }"),
+          parseDsl("terrain test { department x { team t { headcount 5 } } }"),
         /Unexpected 'headcount' in team/,
       );
     });
 
     test("throws when expecting number but getting string", () => {
       assert.throws(
-        () => parseDsl('universe test { seed "abc" }'),
+        () => parseDsl('terrain test { seed "abc" }'),
         /Expected number/,
       );
     });
 
     test("throws when expecting string but getting number", () => {
       assert.throws(
-        () => parseDsl("universe test { domain 123 }"),
+        () => parseDsl("terrain test { domain 123 }"),
         /Expected STRING/,
       );
     });
