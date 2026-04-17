@@ -21,7 +21,7 @@
     "test": "bun run node --test test/*.test.js"
   },
   "dependencies": {
-    "marked": "^17.0.5",
+    "marked": "^18.0.1",
     "marked-terminal": "^7.3.0",
     "sanitize-html": "^2.17.3"
   },
