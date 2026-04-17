@@ -82,7 +82,7 @@ export class AgentRunner {
             disallowedTools: this.disallowedTools,
           }),
           ...(this.systemPrompt && { systemPrompt: this.systemPrompt }),
-          ...(this.agentProfile && { extraArgs: { agent: this.agentProfile } }),
+          ...(this.agentProfile && { agent: this.agentProfile }),
           ...(this.mcpServers && { mcpServers: this.mcpServers }),
         },
       });
