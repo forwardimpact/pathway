@@ -58,6 +58,16 @@ export function coverageToText(coverage, data) {
     lines.push("");
   }
 
+  const hasGaps = [...coverage.skills.values()].some(
+    (s) => s.headcountDepth === 0,
+  );
+  if (hasGaps) {
+    lines.push(
+      `  Run 'fit-summit growth ${coverage.teamId}' to see which development opportunities address these gaps.`,
+    );
+    lines.push("");
+  }
+
   return lines.join("\n");
 }
 
