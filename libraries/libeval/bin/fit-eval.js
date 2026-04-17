@@ -2,6 +2,7 @@
 
 import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
+import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
 import { runOutputCommand } from "../src/commands/output.js";
@@ -172,7 +173,8 @@ async function main() {
     process.exit(2);
   }
 
-  await handler(values, args);
+  const config = await createScriptConfig("eval");
+  await handler(values, args, { config });
 }
 
 main().catch((error) => {
