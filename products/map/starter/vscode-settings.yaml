@@ -1,1 +1,7 @@
-claude-code.permissions.defaultMode: acceptEdits
+chat.agent.enabled: true
+chat.agent.maxRequests: 999
+chat.extensionUnification.enabled: true
+chat.useClaudeMdFile: true
+chat.useAgentSkills: true
+chat.customAgentInSubagent.enabled: true
+chat.experimental.useSkillAdherencePrompt: true
