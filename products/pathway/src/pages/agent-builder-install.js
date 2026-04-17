@@ -117,6 +117,10 @@ export function createInstallSection({ discipline, track, siteUrl }) {
         { className: "agent-install-command" },
         p({ className: "agent-install-command-label" }, "Direct download"),
         createCommandPrompt(rawCommand),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Recommended. Installs everything: skills, agents, CLAUDE.md, and settings.",
+        ),
       ),
       div(
         { className: "agent-install-command" },
@@ -124,14 +128,17 @@ export function createInstallSection({ discipline, track, siteUrl }) {
         createCommandPrompt(apmCommand),
         p(
           { className: "text-muted agent-install-note" },
-          "apm unpack installs skills and agent profiles. Team instructions " +
-            "and Claude Code settings require the direct download path.",
+          "Installs skills and agents. Does not include CLAUDE.md or settings.",
         ),
       ),
       div(
         { className: "agent-install-command" },
         p({ className: "agent-install-command-label" }, "npx skills"),
         createCommandPrompt(skillsCommand),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Installs skills only. Does not include agents or CLAUDE.md.",
+        ),
       ),
     ),
   );
