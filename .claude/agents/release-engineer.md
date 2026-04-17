@@ -3,7 +3,6 @@ name: release-engineer
 description: >
   Repository release engineer. Keeps pull request branches merge-ready, cuts
   releases from main, and verifies publish workflows.
-model: claude-opus-4-6
 skills:
   - kata-release-readiness
   - kata-release-review
