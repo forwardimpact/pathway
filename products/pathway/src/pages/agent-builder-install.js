@@ -43,16 +43,18 @@ function normalizeSiteUrl(siteUrl) {
 }
 
 /**
- * Build the `apm install` command for a specific pack archive. Targets the
- * direct archive URL (rather than a registry-style shorthand) because it is
- * the most durable path through APM's evolving resolution logic and matches
- * the URL listed in the generated `apm.yml` manifest.
+ * Build the `apm unpack` command for a specific pack archive. APM packages
+ * are git repositories — `apm install` only accepts repo references, not
+ * direct archive URLs. For static-site distribution the correct path is
+ * `apm unpack`, which accepts local `.tar.gz` bundles.  We prepend a
+ * `curl` download step so the command is self-contained.
  * @param {string} siteUrl
  * @param {string} packName
  * @returns {string}
  */
 export function getApmInstallCommand(siteUrl, packName) {
-  return `apm install ${normalizeSiteUrl(siteUrl)}/packs/${packName}.tar.gz`;
+  const url = `${normalizeSiteUrl(siteUrl)}/packs/${packName}.tar.gz`;
+  return `curl -sLO ${url} && apm unpack ${packName}.tar.gz`;
 }
 
 /**

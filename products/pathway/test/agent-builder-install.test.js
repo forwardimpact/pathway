@@ -60,17 +60,17 @@ describe("agent-builder-install", () => {
   });
 
   describe("getApmInstallCommand", () => {
-    test("targets the direct pack archive URL", () => {
+    test("downloads then unpacks the archive via apm unpack", () => {
       assert.strictEqual(
         getApmInstallCommand("https://example.com", "se-platform"),
-        "apm install https://example.com/packs/se-platform.tar.gz",
+        "curl -sLO https://example.com/packs/se-platform.tar.gz && apm unpack se-platform.tar.gz",
       );
     });
 
     test("strips a trailing slash from the site URL", () => {
       assert.strictEqual(
         getApmInstallCommand("https://example.com/", "se-platform"),
-        "apm install https://example.com/packs/se-platform.tar.gz",
+        "curl -sLO https://example.com/packs/se-platform.tar.gz && apm unpack se-platform.tar.gz",
       );
     });
   });
@@ -167,7 +167,7 @@ describe("agent-builder-install", () => {
       }
     });
 
-    test("apm install command URL points at a real archive", async () => {
+    test("apm unpack command references a real archive", async () => {
       const packsDir = join(outputDir, "packs");
       const archives = new Set(await readdir(packsDir));
       const { humanDiscipline, humanTrack } = combinations[0];
@@ -176,9 +176,9 @@ describe("agent-builder-install", () => {
         "https://example.test",
         getPackName(humanDiscipline, humanTrack),
       );
-      // Extract the final path segment and verify it matches an archive.
-      const match = command.match(/\/packs\/([^/]+\.tar\.gz)$/);
-      assert.ok(match, "apm command should end with /packs/<name>.tar.gz");
+      // The curl portion downloads the archive; extract filename from URL.
+      const match = command.match(/\/packs\/([\w-]+\.tar\.gz)/);
+      assert.ok(match, "apm command should reference /packs/<name>.tar.gz");
       assert.ok(
         archives.has(match[1]),
         `apm command references ${match[1]} but packs/ contains: ${[...archives].join(", ")}`,

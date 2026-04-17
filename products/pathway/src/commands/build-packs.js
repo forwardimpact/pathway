@@ -266,7 +266,14 @@ async function archivePack(packDir, archivePath) {
   const files = await collectPaths(packDir);
   files.sort();
 
-  const tarBuf = execFileSync("tar", ["-cf", "-", "-C", packDir, ...files]);
+  const tarBuf = execFileSync("tar", [
+    "--no-recursion",
+    "-cf",
+    "-",
+    "-C",
+    packDir,
+    ...files,
+  ]);
   const gzBuf = execFileSync("gzip", ["-n"], { input: tarBuf });
   await writeFile(archivePath, gzBuf);
 
