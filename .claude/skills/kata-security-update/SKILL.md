@@ -109,6 +109,29 @@ gh pr create --title "chore(deps): <description> (fixed)" \
 gh pr close <number> --comment "Superseded by #<new-pr> with policy fixes."
 ```
 
+**Rebase on new branch** — only CI failure is `vulnerability-scanning` and the
+fix is already on `main` (stale audit base, not a PR-caused issue):
+
+```sh
+# Confirm: only vuln-scan fails and main has security fixes the PR base lacks
+git log --oneline origin/main ^<pr-merge-base> -- '**/package.json' bun.lock
+
+# If commits exist, rebase will fix the scan — create a superseding branch
+git fetch origin <dependabot-branch>
+git checkout -b chore/rebase-dependabot-<number> origin/<dependabot-branch>
+git rebase origin/main
+bun run check && bun run test && just audit
+git push -u origin chore/rebase-dependabot-<number>
+gh pr create --title "chore(deps): <original-title> (rebased)" \
+  --body "Rebases Dependabot PR #<number> on current main to pick up security fixes."
+gh pr close <number> --comment "Superseded by #<new-pr> — rebased on main to resolve stale vulnerability-scanning base."
+```
+
+> **Do not use `@dependabot rebase`.** GitHub Apps cannot trigger Dependabot
+> comment commands — the command will always fail with "only users with push
+> access." If a prior run already posted `@dependabot rebase` and received this
+> reply, use the "Rebase on new branch" flow above. Do not retry the comment.
+
 **Close** — policy violation cannot be fixed:
 
 ```sh
