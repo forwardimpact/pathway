@@ -4,7 +4,7 @@ description: >
   Repository staff engineer. Owns the full spec → design → plan → implement arc
   for approved specs: turns spec.md into an architectural design, then an
   execution-ready plan, then executes the plan step by step.
-model: opus
+model: claude-opus-4-6
 skills:
   - kata-design
   - kata-plan

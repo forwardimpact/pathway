@@ -4,7 +4,7 @@ description: >
   Repository technical writer. Reviews documentation for accuracy and
   staleness, curates agent memory for cross-team collaboration, and ensures
   the wiki remains a reliable coordination mechanism.
-model: opus
+model: claude-opus-4-6
 skills:
   - kata-documentation
   - kata-wiki-curate

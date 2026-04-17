@@ -5,7 +5,7 @@ description: >
   verifies contributor trust, and merges fix, bug, and spec PRs that pass all
   quality and security gates. Triages open issues — implements trivial fixes
   and writes specs for product-aligned requests.
-model: opus
+model: claude-opus-4-6
 skills:
   - kata-product-pr
   - kata-product-issue
