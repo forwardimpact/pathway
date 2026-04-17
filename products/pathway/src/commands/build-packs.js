@@ -98,7 +98,7 @@ async function writePackFiles({
   agentTemplate,
   claudeTemplate,
   skillTemplates,
-  claudeCodeSettings,
+  claudeSettings,
   vscodeSettings,
 }) {
   const claudeDir = join(packDir, ".claude");
@@ -159,7 +159,7 @@ async function writePackFiles({
   // Claude Code settings — matches the CLI path's generateClaudeCodeSettings
   // output format (no merge with existing files since the staging dir starts
   // empty).
-  const settings = { ...(claudeCodeSettings || {}) };
+  const settings = { ...(claudeSettings || {}) };
   await writeFile(
     join(claudeDir, "settings.json"),
     JSON.stringify(settings, null, 2) + "\n",
@@ -543,7 +543,7 @@ export async function generatePacks({
       agentTemplate,
       claudeTemplate,
       skillTemplates,
-      claudeCodeSettings: agentData.claudeCodeSettings,
+      claudeSettings: agentData.claudeSettings,
       vscodeSettings: agentData.vscodeSettings,
     });
 

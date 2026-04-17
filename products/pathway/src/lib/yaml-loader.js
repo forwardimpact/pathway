@@ -285,13 +285,13 @@ export async function loadAllData(dataDir = "./data") {
  * @returns {Promise<Object>}
  */
 export async function loadAgentDataBrowser(dataDir = "./data") {
-  const [disciplines, tracks, behaviours, claudeCodeSettings, vscodeSettings] =
+  const [disciplines, tracks, behaviours, claudeSettings, vscodeSettings] =
     await Promise.all([
       loadDisciplinesFromDir(`${dataDir}/disciplines`),
       loadTracksFromDir(`${dataDir}/tracks`),
       loadBehavioursFromDir(`${dataDir}/behaviours`),
-      tryLoadYamlFile(`${dataDir}/repository/claude-code-settings.yaml`).then(
-        (r) => r ?? tryLoadYamlFile(`${dataDir}/claude-code-settings.yaml`),
+      tryLoadYamlFile(`${dataDir}/repository/claude-settings.yaml`).then(
+        (r) => r ?? tryLoadYamlFile(`${dataDir}/claude-settings.yaml`),
       ),
       tryLoadYamlFile(`${dataDir}/repository/vscode-settings.yaml`).then(
         (r) => r ?? tryLoadYamlFile(`${dataDir}/vscode-settings.yaml`),
@@ -308,7 +308,7 @@ export async function loadAgentDataBrowser(dataDir = "./data") {
     behaviours: behaviours
       .filter((b) => b.agent)
       .map((b) => ({ id: b.id, ...b.agent })),
-    claudeCodeSettings: claudeCodeSettings || {},
+    claudeSettings: claudeSettings || {},
     vscodeSettings: vscodeSettings || {},
   };
 }

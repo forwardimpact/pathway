@@ -372,13 +372,13 @@ export class DataLoader {
       disciplineFiles,
       trackFiles,
       behaviourFiles,
-      claudeCodeSettings,
+      claudeSettings,
       vscodeSettings,
     ] = await Promise.all([
       this.#loadDisciplinesFromDir(disciplinesDir),
       this.#loadTracksFromDir(tracksDir),
       this.#loadBehavioursFromDir(behavioursDir),
-      this.#loadRepoFile(dataDir, "claude-code-settings.yaml", {}),
+      this.#loadRepoFile(dataDir, "claude-settings.yaml", {}),
       this.#loadRepoFile(dataDir, "vscode-settings.yaml", {}),
     ]);
 
@@ -407,7 +407,7 @@ export class DataLoader {
       disciplines,
       tracks,
       behaviours,
-      claudeCodeSettings,
+      claudeSettings,
       vscodeSettings,
     };
   }

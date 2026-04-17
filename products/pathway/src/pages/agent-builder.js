@@ -298,7 +298,7 @@ export async function renderAgentBuilder() {
         capabilities: data.capabilities,
         behaviours: data.behaviours,
         agentBehaviours: agentData.behaviours,
-        claudeCodeSettings: agentData.claudeCodeSettings,
+        claudeSettings: agentData.claudeSettings,
         vscodeSettings: agentData.vscodeSettings,
         templates,
       };
@@ -343,7 +343,7 @@ export async function renderAgentBuilder() {
         downloadButton: createDownloadButton(
           allProfiles,
           allSkillFiles,
-          agentData.claudeCodeSettings,
+          agentData.claudeSettings,
           agentData.vscodeSettings,
           templates,
           teamInstructionsContent,

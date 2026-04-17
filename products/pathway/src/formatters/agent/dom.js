@@ -16,7 +16,7 @@ import { formatAgentSkill } from "./skill.js";
  * @param {Object} deployment.profile - Agent profile
  * @param {Array} deployment.skills - Agent skills
  * @param {Array} [deployment.roleAgents] - Role variant agents (plan, review)
- * @param {Object} [deployment.claudeCodeSettings] - Claude Code settings to include in download
+ * @param {Object} [deployment.claudeSettings] - Claude Code settings to include in download
  * @param {string|null} [deployment.teamInstructions] - Team instructions content for CLAUDE.md
  * @returns {HTMLElement}
  */
@@ -24,7 +24,7 @@ export function agentDeploymentToDOM({
   profile,
   skills,
   roleAgents = [],
-  claudeCodeSettings = {},
+  claudeSettings = {},
   teamInstructions = null,
 }) {
   const profileContent = formatAgentProfile(profile);
@@ -38,7 +38,7 @@ export function agentDeploymentToDOM({
       profile,
       skills,
       roleAgents,
-      claudeCodeSettings,
+      claudeSettings,
       agentName,
       teamInstructions,
     ),
@@ -92,7 +92,7 @@ export function agentDeploymentToDOM({
  * @param {Object} profile - Agent profile
  * @param {Array} skills - Agent skills
  * @param {Array} roleAgents - Role variant agents
- * @param {Object} claudeCodeSettings - Claude Code settings to include
+ * @param {Object} claudeSettings - Claude Code settings to include
  * @param {string} agentName - Agent name for zip filename
  * @param {string|null} teamInstructions - Team instructions content for CLAUDE.md
  * @returns {HTMLElement}
@@ -101,7 +101,7 @@ function createDownloadButton(
   profile,
   skills,
   roleAgents,
-  claudeCodeSettings,
+  claudeSettings,
   agentName,
   teamInstructions,
 ) {
@@ -119,7 +119,7 @@ function createDownloadButton(
         profile,
         skills,
         roleAgents,
-        claudeCodeSettings,
+        claudeSettings,
         agentName,
         teamInstructions,
       );
@@ -172,7 +172,7 @@ function createRoleAgentCard(agent) {
  * @param {Object} profile - Agent profile
  * @param {Array} skills - Agent skills
  * @param {Array} roleAgents - Role variant agents
- * @param {Object} claudeCodeSettings - Claude Code settings to include
+ * @param {Object} claudeSettings - Claude Code settings to include
  * @param {string} agentName - Agent name for zip filename
  * @param {string|null} teamInstructions - Team instructions content for CLAUDE.md
  */
@@ -180,7 +180,7 @@ async function downloadAllAsZip(
   profile,
   skills,
   roleAgents,
-  claudeCodeSettings,
+  claudeSettings,
   agentName,
   teamInstructions,
 ) {
@@ -210,10 +210,10 @@ async function downloadAllAsZip(
   }
 
   // Add Claude Code settings
-  if (Object.keys(claudeCodeSettings).length > 0) {
+  if (Object.keys(claudeSettings).length > 0) {
     zip.file(
       ".claude/settings.json",
-      JSON.stringify(claudeCodeSettings, null, 2) + "\n",
+      JSON.stringify(claudeSettings, null, 2) + "\n",
     );
   }
 

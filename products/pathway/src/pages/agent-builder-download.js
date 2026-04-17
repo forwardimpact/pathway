@@ -51,13 +51,13 @@ function addSkillsToZip(zip, skillFiles, templates) {
 /**
  * Add Claude Code settings to a zip archive
  * @param {Object} zip - JSZip instance
- * @param {Object} claudeCodeSettings
+ * @param {Object} claudeSettings
  */
-function addSettingsToZip(zip, claudeCodeSettings, vscodeSettings) {
-  if (Object.keys(claudeCodeSettings).length > 0) {
+function addSettingsToZip(zip, claudeSettings, vscodeSettings) {
+  if (Object.keys(claudeSettings).length > 0) {
     zip.file(
       ".claude/settings.json",
-      JSON.stringify(claudeCodeSettings, null, 2) + "\n",
+      JSON.stringify(claudeSettings, null, 2) + "\n",
     );
   }
   if (Object.keys(vscodeSettings).length > 0) {
@@ -88,7 +88,7 @@ function downloadBlob(blob, filename) {
  * Create download button for agent profiles and skills
  * @param {Array} profiles - Agent profiles
  * @param {Array} skillFiles - Deduplicated skill files
- * @param {Object} claudeCodeSettings - Claude Code settings
+ * @param {Object} claudeSettings - Claude Code settings
  * @param {Object} vscodeSettings - VS Code settings
  * @param {{agent: string, skill: string}} templates - Mustache templates
  * @param {string|null} teamInstructionsContent - Rendered CLAUDE.md content
@@ -97,7 +97,7 @@ function downloadBlob(blob, filename) {
 export function createDownloadButton(
   profiles,
   skillFiles,
-  claudeCodeSettings,
+  claudeSettings,
   vscodeSettings,
   templates,
   teamInstructionsContent,
@@ -120,7 +120,7 @@ export function createDownloadButton(
       }
 
       addSkillsToZip(zip, skillFiles, templates);
-      addSettingsToZip(zip, claudeCodeSettings, vscodeSettings);
+      addSettingsToZip(zip, claudeSettings, vscodeSettings);
 
       if (teamInstructionsContent) {
         zip.file(".claude/CLAUDE.md", teamInstructionsContent);

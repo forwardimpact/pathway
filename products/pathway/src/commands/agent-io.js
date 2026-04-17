@@ -32,9 +32,9 @@ async function ensureDir(filePath) {
  * Generate Claude Code settings file
  * Merges with existing settings if file exists
  * @param {string} baseDir - Base output directory
- * @param {Object} claudeCodeSettings - Settings loaded from data
+ * @param {Object} claudeSettings - Settings loaded from data
  */
-export async function generateClaudeCodeSettings(baseDir, claudeCodeSettings) {
+export async function generateClaudeSettings(baseDir, claudeSettings) {
   const settingsPath = join(baseDir, ".claude", "settings.json");
 
   let settings = {};
@@ -43,7 +43,7 @@ export async function generateClaudeCodeSettings(baseDir, claudeCodeSettings) {
     settings = JSON.parse(content);
   }
 
-  const merged = { ...settings, ...claudeCodeSettings };
+  const merged = { ...settings, ...claudeSettings };
 
   await ensureDir(settingsPath);
   await writeFile(

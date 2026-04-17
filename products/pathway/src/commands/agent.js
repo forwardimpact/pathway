@@ -41,7 +41,7 @@ import {
 import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
 import { showAgentSummary, listAgentCombinations } from "./agent-list.js";
 import {
-  generateClaudeCodeSettings,
+  generateClaudeSettings,
   generateVscodeSettings,
   writeProfile,
   writeTeamInstructions,
@@ -226,7 +226,7 @@ async function handleAgent({
   await writeTeamInstructions(teamInstructions, baseDir, claudeTemplate);
   await writeProfile(profile, baseDir, agentTemplate);
   const fileCount = await writeSkills(skillFiles, baseDir, skillTemplates);
-  await generateClaudeCodeSettings(baseDir, agentData.claudeCodeSettings);
+  await generateClaudeSettings(baseDir, agentData.claudeSettings);
   await generateVscodeSettings(baseDir, agentData.vscodeSettings);
 
   process.stdout.write("\n");
