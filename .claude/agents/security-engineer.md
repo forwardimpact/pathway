@@ -4,7 +4,6 @@ description: >
   Repository security engineer. Applies security updates, triages Dependabot
   pull requests, audits supply chain and application security, and enforces
   dependency and CI policies.
-model: claude-opus-4-6
 skills:
   - kata-security-update
   - kata-security-audit
