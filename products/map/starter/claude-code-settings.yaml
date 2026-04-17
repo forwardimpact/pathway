@@ -1,1 +1,2 @@
-defaultMode: acceptEdits
+permissions:
+  defaultMode: acceptEdits
