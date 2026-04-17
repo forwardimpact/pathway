@@ -22,7 +22,7 @@
   },
   "dependencies": {
     "@forwardimpact/libconfig": "^0.1.58",
-    "hono": "^4.12.12"
+    "hono": "^4.12.14"
   },
   "repository": {
     "type": "git",
