@@ -1,13 +1,15 @@
 /**
  * Pack generation for Pathway distribution.
  *
- * Emits one pre-built agent/skill pack per valid discipline/track combination.
- * Each pack becomes its own `npx skills`-compatible repository at
- * `packs/{name}/.well-known/skills/`, with an aggregate repository at
- * `packs/.well-known/skills/` listing every skill from every pack.
- * An `apm.yml` for Microsoft APM is also written at the site root.
+ * Emits one pre-built agent/skill pack per valid discipline/track combination
+ * across three distribution channels:
+ *  - Raw — `.claude/` layout archived as `{name}.raw.tar.gz` (curl | tar)
+ *  - APM — `.apm/` layout archived as `{name}.apm.tar.gz` (apm unpack)
+ *  - Skills — `.well-known/skills/` repository (`npx skills add`)
  *
- * See specs/320-pathway-ecosystem-distribution for context.
+ * An `apm.yml` project manifest for Microsoft APM is written at the site root.
+ *
+ * See specs/520-apm-compatible-packs for context.
  *
  * Invoked from build.js after the distribution bundle has been generated.
  */
@@ -16,8 +18,6 @@ import { mkdir, rm, readFile, writeFile, readdir, cp } from "fs/promises";
 import { utimesSync } from "fs";
 import { join } from "path";
 import { execFileSync } from "child_process";
-import { createHash } from "crypto";
-
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { createDataLoader } from "@forwardimpact/map/loader";
 
@@ -33,6 +33,7 @@ import {
   toKebabCase,
 } from "@forwardimpact/libskill/agent";
 
+import { transformToApmLayout, archiveApmPack } from "./build-packs-apm.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import {
   formatAgentSkill,
@@ -218,7 +219,7 @@ function derivePackContent({
  * Recursively collect all paths (files and directories) under `dir`,
  * relative to `dir`, in sorted order.
  */
-async function collectPaths(dir, prefix = ".") {
+export async function collectPaths(dir, prefix = ".") {
   const entries = await readdir(dir, { withFileTypes: true });
   const result = [];
   for (const entry of entries) {
@@ -237,7 +238,7 @@ async function collectPaths(dir, prefix = ".") {
 /**
  * Set mtime and atime to the Unix epoch for every entry under `dir`.
  */
-async function resetTimestamps(dir) {
+export async function resetTimestamps(dir) {
   const epoch = new Date(0);
   const paths = await collectPaths(dir);
   for (const rel of paths) {
@@ -247,8 +248,7 @@ async function resetTimestamps(dir) {
 }
 
 /**
- * Archive a staged pack directory as a deterministic tar.gz and return its
- * sha256 digest.
+ * Archive a staged pack directory as a deterministic `.raw.tar.gz`.
  *
  * Determinism strategy (works on GNU tar and BSD tar):
  *  1. Reset all file timestamps to epoch via Node's utimesSync.
@@ -257,10 +257,9 @@ async function resetTimestamps(dir) {
  *  4. Pipe through `gzip -n` to suppress the gzip header timestamp.
  *
  * @param {string} packDir - Staging directory containing the pack files
- * @param {string} archivePath - Destination path for the tar.gz
- * @returns {Promise<string>} sha256 digest string (e.g. "sha256:abc...")
+ * @param {string} archivePath - Destination path for the `.raw.tar.gz`
  */
-async function archivePack(packDir, archivePath) {
+async function archiveRawPack(packDir, archivePath) {
   await resetTimestamps(packDir);
 
   const files = await collectPaths(packDir);
@@ -276,9 +275,6 @@ async function archivePack(packDir, archivePath) {
   ]);
   const gzBuf = execFileSync("gzip", ["-n"], { input: tarBuf });
   await writeFile(archivePath, gzBuf);
-
-  const bytes = await readFile(archivePath);
-  return "sha256:" + createHash("sha256").update(bytes).digest("hex");
 }
 
 /**
@@ -348,7 +344,7 @@ async function buildSkillEntry(skillDir, name) {
  * @returns {Promise<Array<{name: string, description: string, files: string[]}>>}
  *   The skill entries written, for use in the aggregate manifest.
  */
-async function writePackRepository(packsOutputDir, packStagingDir, packName) {
+async function writeSkillsPack(packsOutputDir, packStagingDir, packName) {
   const wellKnownDir = join(packsOutputDir, packName, ".well-known", "skills");
   await mkdir(wellKnownDir, { recursive: true });
 
@@ -390,7 +386,7 @@ async function writePackRepository(packsOutputDir, packStagingDir, packName) {
  * @param {string} packsOutputDir
  * @param {Array<{packName: string, entries: Array}>} allPackEntries
  */
-async function writeAggregateRepository(packsOutputDir, allPackEntries) {
+async function writeSkillsAggregate(packsOutputDir, allPackEntries) {
   const wellKnownDir = join(packsOutputDir, ".well-known", "skills");
   await mkdir(wellKnownDir, { recursive: true });
 
@@ -429,9 +425,9 @@ async function writeAggregateRepository(packsOutputDir, allPackEntries) {
 }
 
 /**
- * Write the Microsoft APM manifest at the site root.
+ * Write the Microsoft APM project manifest at the site root.
  * @param {string} outputDir
- * @param {Array<{name: string, description: string, url: string, digest: string}>} packs
+ * @param {Array<{name: string, description: string, url: string}>} packs
  * @param {string} version
  * @param {string} frameworkTitle
  */
@@ -441,14 +437,13 @@ async function writeApmManifest(outputDir, packs, version, frameworkTitle) {
     `version: ${version}`,
     `description: ${yamlQuote(`${frameworkTitle} agent teams for Claude Code`)}`,
     "",
-    "skills:",
+    "dependencies:",
+    "  apm:",
   ];
   for (const pack of packs) {
-    lines.push(`  - name: ${pack.name}`);
-    lines.push(`    description: ${yamlQuote(pack.description)}`);
-    lines.push(`    version: ${version}`);
-    lines.push(`    url: ${yamlQuote(pack.url)}`);
-    lines.push(`    digest: ${yamlQuote(pack.digest)}`);
+    lines.push(`    - name: ${pack.name}`);
+    lines.push(`      description: ${yamlQuote(pack.description)}`);
+    lines.push(`      url: ${yamlQuote(pack.url)}`);
   }
   lines.push("");
   await writeFile(join(outputDir, "apm.yml"), lines.join("\n"), "utf-8");
@@ -538,23 +533,32 @@ export async function generatePacks({
       claudeCodeSettings: agentData.claudeCodeSettings,
     });
 
-    const archivePath = join(packsDir, `${agentName}.tar.gz`);
-    const digest = await archivePack(packDir, archivePath);
+    // APM staging: transform .claude/ layout → .apm/ layout
+    const apmStagingDir = join(stagingDir, `${agentName}-apm`);
+    await mkdir(apmStagingDir, { recursive: true });
+    await transformToApmLayout(packDir, apmStagingDir, agentName, version);
+
+    // Archive both channels
+    const rawArchivePath = join(packsDir, `${agentName}.raw.tar.gz`);
+    await archiveRawPack(packDir, rawArchivePath);
+
+    const apmArchivePath = join(packsDir, `${agentName}.apm.tar.gz`);
+    await archiveApmPack(apmStagingDir, apmArchivePath);
 
     packs.push({
       name: agentName,
       description,
-      url: `${normalizedSiteUrl}/packs/${agentName}.tar.gz`,
-      digest,
+      url: `${normalizedSiteUrl}/packs/${agentName}.apm.tar.gz`,
     });
 
-    logger.info(`   ✓ packs/${agentName}.tar.gz`);
+    logger.info(`   ✓ packs/${agentName}.raw.tar.gz`);
+    logger.info(`   ✓ packs/${agentName}.apm.tar.gz`);
   }
 
   // Write per-pack skill repositories (one per discipline/track combination)
   const allPackEntries = [];
   for (const pack of packs) {
-    const entries = await writePackRepository(
+    const entries = await writeSkillsPack(
       packsDir,
       join(stagingDir, pack.name),
       pack.name,
@@ -566,7 +570,7 @@ export async function generatePacks({
   }
 
   // Write aggregate repository at packs/ level
-  await writeAggregateRepository(packsDir, allPackEntries);
+  await writeSkillsAggregate(packsDir, allPackEntries);
   logger.info("   ✓ packs/.well-known/skills/index.json (aggregate)");
 
   await rm(stagingDir, { recursive: true, force: true });

@@ -16,22 +16,23 @@ and the test/UI updates are independent once the rename lands.
 
 ### Created
 
-| File | Purpose |
-|---|---|
+| File                                               | Purpose                                                                                                                          |
+| -------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
 | `products/pathway/src/commands/build-packs-apm.js` | APM-specific logic: `transformToApmLayout` and `archiveApmPack` (extracted to stay within `build-packs.js` max-lines lint limit) |
 
 ### Modified
 
-| File | What changes |
-|---|---|
-| `products/pathway/src/commands/build-packs.js` | Rename `archivePack` → `archiveRawPack`, `writePackRepository` → `writeSkillsPack`, `writeAggregateRepository` → `writeSkillsAggregate`; rewrite `writeApmManifest`; export `collectPaths`, `resetTimestamps`, `slugify`; drop digest computation; update `generatePacks` orchestration |
-| `products/pathway/src/pages/agent-builder-install.js` | Rename `getApmInstallCommand` → `getApmCommand`, `getSkillsAddCommand` → `getSkillsCommand`; add `getRawCommand`; update archive extensions to `.apm.tar.gz` / `.raw.tar.gz`; add raw channel to install section UI |
-| `products/pathway/test/build-packs.test.js` | Update archive extension assertions from `.tar.gz` to `.raw.tar.gz`; add APM bundle tests (layout, manifest, determinism); update `apm.yml` assertions for new format |
-| `products/pathway/test/agent-builder-install.test.js` | Rename test references; update expected command strings; add `getRawCommand` tests |
+| File                                                  | What changes                                                                                                                                                                                                                                                                            |
+| ----------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `products/pathway/src/commands/build-packs.js`        | Rename `archivePack` → `archiveRawPack`, `writePackRepository` → `writeSkillsPack`, `writeAggregateRepository` → `writeSkillsAggregate`; rewrite `writeApmManifest`; export `collectPaths`, `resetTimestamps`, `slugify`; drop digest computation; update `generatePacks` orchestration |
+| `products/pathway/src/pages/agent-builder-install.js` | Rename `getApmInstallCommand` → `getApmCommand`, `getSkillsAddCommand` → `getSkillsCommand`; add `getRawCommand`; update archive extensions to `.apm.tar.gz` / `.raw.tar.gz`; add raw channel to install section UI                                                                     |
+| `products/pathway/test/build-packs.test.js`           | Update archive extension assertions from `.tar.gz` to `.raw.tar.gz`; add APM bundle tests (layout, manifest, determinism); update `apm.yml` assertions for new format                                                                                                                   |
+| `products/pathway/test/agent-builder-install.test.js` | Rename test references; update expected command strings; add `getRawCommand` tests                                                                                                                                                                                                      |
 
 ### Deleted
 
-*(none — old function names are replaced in-place, not deleted as separate symbols)*
+_(none — old function names are replaced in-place, not deleted as separate
+symbols)_
 
 ## Libraries Used
 
@@ -41,7 +42,9 @@ already present in `build-packs.js`:
 - `@forwardimpact/libtelemetry` — `createLogger`
 - `@forwardimpact/map/loader` — `createDataLoader`
 - `@forwardimpact/libtemplate` — `createTemplateLoader`
-- `@forwardimpact/libskill/agent` — `generateAgentProfile`, `deriveReferenceLevel`, `deriveAgentSkills`, `generateSkillMarkdown`, `interpolateTeamInstructions`, `getDisciplineAbbreviation`, `toKebabCase`
+- `@forwardimpact/libskill/agent` — `generateAgentProfile`,
+  `deriveReferenceLevel`, `deriveAgentSkills`, `generateSkillMarkdown`,
+  `interpolateTeamInstructions`, `getDisciplineAbbreviation`, `toKebabCase`
 
 The existing Node built-ins (`fs/promises`, `child_process`, `path`) continue to
 be used. The `crypto` import is removed from `build-packs.js` (digest
@@ -52,11 +55,11 @@ and `path` — all already available, no additions.
 
 ## Part Index
 
-| Part | Summary | Depends on |
-|---|---|---|
-| [plan-a-01.md](plan-a-01.md) | Rename existing functions for symmetric channel naming | — |
-| [plan-a-02.md](plan-a-02.md) | Add APM pipeline (layout transformer, archiveApmPack, rewrite writeApmManifest) | Part 01 |
-| [plan-a-03.md](plan-a-03.md) | Update tests and install section UI | Part 02 |
+| Part                         | Summary                                                                         | Depends on |
+| ---------------------------- | ------------------------------------------------------------------------------- | ---------- |
+| [plan-a-01.md](plan-a-01.md) | Rename existing functions for symmetric channel naming                          | —          |
+| [plan-a-02.md](plan-a-02.md) | Add APM pipeline (layout transformer, archiveApmPack, rewrite writeApmManifest) | Part 01    |
+| [plan-a-03.md](plan-a-03.md) | Update tests and install section UI                                             | Part 02    |
 
 ## Ordering and Dependencies
 

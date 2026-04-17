@@ -1,8 +1,8 @@
 # 520 — Plan Part 02: Add APM Pipeline
 
 Adds the three new pieces of logic identified in the design: layout transformer,
-`archiveApmPack`, and rewritten `writeApmManifest`. Also adds `getRawCommand`
-to the install module.
+`archiveApmPack`, and rewritten `writeApmManifest`. Also adds `getRawCommand` to
+the install module.
 
 ## Lint constraint: max-lines
 
@@ -12,10 +12,10 @@ stay within bounds, extract all APM-specific logic (`transformToApmLayout` and
 `archiveApmPack`) into a new sibling module `build-packs-apm.js`. This module
 exports two functions consumed by `generatePacks` in `build-packs.js`.
 
-| File | Responsibility |
-|---|---|
-| `build-packs.js` | Orchestration, raw channel, skills channel (unchanged size) |
-| `build-packs-apm.js` | `transformToApmLayout`, `archiveApmPack` |
+| File                 | Responsibility                                              |
+| -------------------- | ----------------------------------------------------------- |
+| `build-packs.js`     | Orchestration, raw channel, skills channel (unchanged size) |
+| `build-packs-apm.js` | `transformToApmLayout`, `archiveApmPack`                    |
 
 `build-packs-apm.js` imports `collectPaths`, `resetTimestamps`, and `slugify`
 from `build-packs.js`, so those three helpers must be exported (add `export`
@@ -25,7 +25,7 @@ keyword — no other changes).
 
 ### Step 1: Add `build-packs-apm.js` with layout transformer
 
-**File:** `products/pathway/src/commands/build-packs-apm.js` *(new)*
+**File:** `products/pathway/src/commands/build-packs-apm.js` _(new)_
 
 Create the file with the layout transformer function.
 
@@ -60,6 +60,7 @@ async function transformToApmLayout(claudeStagingDir, apmStagingDir) {
 ```
 
 **Key decisions:**
+
 - Separate staging directory — does not mutate the `.claude/` staging that
   `archiveRawPack` and `writeSkillsPack` still read.
 - Agent files get the `.agent.md` extension APM requires.
@@ -142,6 +143,7 @@ async function writeApmManifest(outputDir, packs, version, frameworkTitle) {
 ```
 
 **Changes from current:**
+
 - `skills:` → `dependencies:\n  apm:` (valid APM project manifest)
 - Indentation: pack entries are 4+2 spaces (under `apm:` list)
 - `version` and `digest` fields removed from per-pack entries
@@ -189,6 +191,7 @@ The `digest` field is dropped from the pack metadata object since
 computes or returns a digest either.
 
 Add a logger line for the APM bundle:
+
 ```js
     logger.info(`   ✓ packs/${agentName}.apm.tar.gz`);
 ```
@@ -224,9 +227,10 @@ function to derive and render all three commands:
   const skillsCommand = getSkillsCommand(siteUrl, packName);
 ```
 
-Update the `createInstallSection` return value. The current `agent-install-commands`
-div has two command blocks (APM, skills). Replace with three blocks (raw, APM,
-skills) and add a content-coverage note after the APM block:
+Update the `createInstallSection` return value. The current
+`agent-install-commands` div has two command blocks (APM, skills). Replace with
+three blocks (raw, APM, skills) and add a content-coverage note after the APM
+block:
 
 ```js
     div(
@@ -258,10 +262,11 @@ skills) and add a content-coverage note after the APM block:
 
 After this part, the source files are complete. Running the build manually
 should produce both `.raw.tar.gz` and `.apm.tar.gz` per pack, and the site-root
-`apm.yml` should use the `dependencies.apm` format. Tests will fail because
-they still assert against old expectations — that is resolved in part 03.
+`apm.yml` should use the `dependencies.apm` format. Tests will fail because they
+still assert against old expectations — that is resolved in part 03.
 
 Quick checks:
+
 ```
 # In a temp dir, run the build and inspect output
 ls packs/*.tar.gz        # should see both .raw.tar.gz and .apm.tar.gz per pack

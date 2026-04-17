@@ -11,8 +11,9 @@ import { generatePacks } from "../src/commands/build-packs.js";
 import { findValidCombinations } from "../src/commands/agent.js";
 import {
   getPackName,
-  getApmInstallCommand,
-  getSkillsAddCommand,
+  getRawCommand,
+  getApmCommand,
+  getSkillsCommand,
   createInstallSection,
 } from "../src/pages/agent-builder-install.js";
 
@@ -59,33 +60,49 @@ describe("agent-builder-install", () => {
     });
   });
 
-  describe("getApmInstallCommand", () => {
-    test("downloads then unpacks the archive via apm unpack", () => {
+  describe("getRawCommand", () => {
+    test("pipes download through tar for direct extraction", () => {
       assert.strictEqual(
-        getApmInstallCommand("https://example.com", "se-platform"),
-        "curl -sLO https://example.com/packs/se-platform.tar.gz && apm unpack se-platform.tar.gz",
+        getRawCommand("https://example.com", "se-platform"),
+        "curl -sL https://example.com/packs/se-platform.raw.tar.gz | tar xz",
       );
     });
 
     test("strips a trailing slash from the site URL", () => {
       assert.strictEqual(
-        getApmInstallCommand("https://example.com/", "se-platform"),
-        "curl -sLO https://example.com/packs/se-platform.tar.gz && apm unpack se-platform.tar.gz",
+        getRawCommand("https://example.com/", "se-platform"),
+        "curl -sL https://example.com/packs/se-platform.raw.tar.gz | tar xz",
       );
     });
   });
 
-  describe("getSkillsAddCommand", () => {
+  describe("getApmCommand", () => {
+    test("downloads then unpacks the APM bundle", () => {
+      assert.strictEqual(
+        getApmCommand("https://example.com", "se-platform"),
+        "curl -sLO https://example.com/packs/se-platform.apm.tar.gz && apm unpack se-platform.apm.tar.gz",
+      );
+    });
+
+    test("strips a trailing slash from the site URL", () => {
+      assert.strictEqual(
+        getApmCommand("https://example.com/", "se-platform"),
+        "curl -sLO https://example.com/packs/se-platform.apm.tar.gz && apm unpack se-platform.apm.tar.gz",
+      );
+    });
+  });
+
+  describe("getSkillsCommand", () => {
     test("points at the per-pack URL for well-known discovery", () => {
       assert.strictEqual(
-        getSkillsAddCommand("https://example.com", "se-platform"),
+        getSkillsCommand("https://example.com", "se-platform"),
         "npx skills add https://example.com/packs/se-platform",
       );
     });
 
     test("strips a trailing slash from the site URL", () => {
       assert.strictEqual(
-        getSkillsAddCommand("https://example.com/", "se-platform"),
+        getSkillsCommand("https://example.com/", "se-platform"),
         "npx skills add https://example.com/packs/se-platform",
       );
     });
@@ -155,11 +172,11 @@ describe("agent-builder-install", () => {
 
       const packsDir = join(outputDir, "packs");
       const archives = new Set(
-        (await readdir(packsDir)).filter((n) => n.endsWith(".tar.gz")),
+        (await readdir(packsDir)).filter((n) => n.endsWith(".raw.tar.gz")),
       );
 
       for (const { humanDiscipline, humanTrack } of combinations) {
-        const expected = `${getPackName(humanDiscipline, humanTrack)}.tar.gz`;
+        const expected = `${getPackName(humanDiscipline, humanTrack)}.raw.tar.gz`;
         assert.ok(
           archives.has(expected),
           `expected packs/${expected} to exist — UI pack-name derivation has drifted from build-packs.js`,
@@ -172,13 +189,13 @@ describe("agent-builder-install", () => {
       const archives = new Set(await readdir(packsDir));
       const { humanDiscipline, humanTrack } = combinations[0];
 
-      const command = getApmInstallCommand(
+      const command = getApmCommand(
         "https://example.test",
         getPackName(humanDiscipline, humanTrack),
       );
       // The curl portion downloads the archive; extract filename from URL.
-      const match = command.match(/\/packs\/([\w-]+\.tar\.gz)/);
-      assert.ok(match, "apm command should reference /packs/<name>.tar.gz");
+      const match = command.match(/\/packs\/([\w-]+\.apm\.tar\.gz)/);
+      assert.ok(match, "apm command should reference /packs/<name>.apm.tar.gz");
       assert.ok(
         archives.has(match[1]),
         `apm command references ${match[1]} but packs/ contains: ${[...archives].join(", ")}`,

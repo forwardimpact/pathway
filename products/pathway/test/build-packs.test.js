@@ -1,6 +1,7 @@
 /**
  * Tests for agent/skill pack generation in build.js.
  * Covers spec 320 — Pathway Ecosystem Distribution.
+ * APM bundle tests are in build-packs-apm.test.js (spec 520).
  */
 
 import { test, describe, before, after } from "node:test";
@@ -86,22 +87,24 @@ describe("generatePacks", () => {
     );
   });
 
-  test("emits one archive per valid combination under packs/", async () => {
+  test("emits one raw and one APM archive per valid combination", async () => {
     const packsDir = join(outputDir, "packs");
     const entries = await readdir(packsDir);
-    const archives = entries.filter((n) => n.endsWith(".tar.gz"));
-    assert.strictEqual(archives.length, validCombinations.length);
+    const rawArchives = entries.filter((n) => n.endsWith(".raw.tar.gz"));
+    const apmArchives = entries.filter((n) => n.endsWith(".apm.tar.gz"));
+    assert.strictEqual(rawArchives.length, validCombinations.length);
+    assert.strictEqual(apmArchives.length, validCombinations.length);
   });
 
   test("staging directory _packs/ is cleaned up", () => {
     assert.strictEqual(existsSync(join(outputDir, "_packs")), false);
   });
 
-  test("each archive expands to the Claude Code file layout", async () => {
+  test("each raw archive expands to the Claude Code file layout", async () => {
     const packsDir = join(outputDir, "packs");
     const entries = await readdir(packsDir);
-    const archive = entries.find((n) => n.endsWith(".tar.gz"));
-    assert.ok(archive, "expected at least one archive");
+    const archive = entries.find((n) => n.endsWith(".raw.tar.gz"));
+    assert.ok(archive, "expected at least one raw archive");
 
     const extractDir = mkdtempSync(join(tmpdir(), "fit-pathway-extract-"));
     try {
@@ -268,21 +271,19 @@ describe("generatePacks", () => {
   test("apm.yml is well-formed and lists every pack", async () => {
     const apm = await readFile(join(outputDir, "apm.yml"), "utf8");
     assert.match(apm, /^name: /m);
-    assert.match(apm, /^skills:$/m);
+    assert.match(apm, /^dependencies:$/m);
+    assert.match(apm, /^ {2}apm:$/m);
     assert.ok(
       apm.includes(`\nversion: ${pathwayPkg.version}\n`),
       "apm.yml must include pathway version",
     );
 
-    const nameCount = (apm.match(/^ {2}- name: /gm) || []).length;
+    const nameCount = (apm.match(/^ {4}- name: /gm) || []).length;
     assert.strictEqual(nameCount, validCombinations.length);
 
-    const urlCount = (apm.match(/^ {4}url: "https:\/\/example\.test/gm) || [])
+    const urlCount = (apm.match(/^ {6}url: "https:\/\/example\.test/gm) || [])
       .length;
     assert.strictEqual(urlCount, validCombinations.length);
-
-    const digestCount = (apm.match(/^ {4}digest: "sha256:/gm) || []).length;
-    assert.strictEqual(digestCount, validCombinations.length);
   });
 
   test("pack contents match CLI agent output for the same combination", async () => {
@@ -314,7 +315,7 @@ describe("generatePacks", () => {
       try {
         execFileSync("tar", [
           "-xzf",
-          join(outputDir, "packs", `${agentName}.tar.gz`),
+          join(outputDir, "packs", `${agentName}.raw.tar.gz`),
           "-C",
           extractDir,
         ]);
@@ -378,11 +379,15 @@ describe("generatePacks", () => {
     // Archives must be identical
     const firstEntries = (await readdir(join(outputDir, "packs"))).sort();
     const secondEntries = (await readdir(join(secondDir, "packs"))).sort();
-    const firstArchives = firstEntries.filter((n) => n.endsWith(".tar.gz"));
-    const secondArchives = secondEntries.filter((n) => n.endsWith(".tar.gz"));
-    assert.deepStrictEqual(firstArchives, secondArchives);
+    const firstRaw = firstEntries.filter((n) => n.endsWith(".raw.tar.gz"));
+    const secondRaw = secondEntries.filter((n) => n.endsWith(".raw.tar.gz"));
+    assert.deepStrictEqual(firstRaw, secondRaw);
 
-    for (const name of firstArchives) {
+    const firstApm = firstEntries.filter((n) => n.endsWith(".apm.tar.gz"));
+    const secondApm = secondEntries.filter((n) => n.endsWith(".apm.tar.gz"));
+    assert.deepStrictEqual(firstApm, secondApm);
+
+    for (const name of [...firstRaw, ...firstApm]) {
       const a = await readFile(join(outputDir, "packs", name));
       const b = await readFile(join(secondDir, "packs", name));
       assert.ok(a.equals(b), `archive ${name} differs between builds`);
@@ -429,8 +434,8 @@ describe("generatePacks", () => {
       assert.strictEqual(first, second, `manifest for ${packName} differs`);
     }
 
-    const firstApm = await readFile(join(outputDir, "apm.yml"), "utf8");
-    const secondApm = await readFile(join(secondDir, "apm.yml"), "utf8");
-    assert.strictEqual(firstApm, secondApm);
+    const firstApmYml = await readFile(join(outputDir, "apm.yml"), "utf8");
+    const secondApmYml = await readFile(join(secondDir, "apm.yml"), "utf8");
+    assert.strictEqual(firstApmYml, secondApmYml);
   });
 });

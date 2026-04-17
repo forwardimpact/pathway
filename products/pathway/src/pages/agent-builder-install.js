@@ -1,10 +1,10 @@
 /**
  * Agent builder install section
  *
- * Surfaces the ecosystem-tool install commands (Microsoft APM and
- * `npx skills`) for the currently selected discipline/track pack. The packs
+ * Surfaces the ecosystem-tool install commands (direct download, Microsoft APM,
+ * and `npx skills`) for the currently selected discipline/track pack. The packs
  * themselves are emitted by `fit-pathway build` when
- * `framework.distribution.siteUrl` is configured — see spec 320 and
+ * `framework.distribution.siteUrl` is configured — see spec 520 and
  * `products/pathway/src/commands/build-packs.js`. The pack name derivation
  * here must stay in sync with that generator so the command points at an
  * archive that actually exists on the deployed site.
@@ -43,18 +43,25 @@ function normalizeSiteUrl(siteUrl) {
 }
 
 /**
- * Build the `apm unpack` command for a specific pack archive. APM packages
- * are git repositories — `apm install` only accepts repo references, not
- * direct archive URLs. For static-site distribution the correct path is
- * `apm unpack`, which accepts local `.tar.gz` bundles.  We prepend a
- * `curl` download step so the command is self-contained.
+ * Build the `curl | tar` command for direct raw pack extraction.
  * @param {string} siteUrl
  * @param {string} packName
  * @returns {string}
  */
-export function getApmInstallCommand(siteUrl, packName) {
-  const url = `${normalizeSiteUrl(siteUrl)}/packs/${packName}.tar.gz`;
-  return `curl -sLO ${url} && apm unpack ${packName}.tar.gz`;
+export function getRawCommand(siteUrl, packName) {
+  const url = `${normalizeSiteUrl(siteUrl)}/packs/${packName}.raw.tar.gz`;
+  return `curl -sL ${url} | tar xz`;
+}
+
+/**
+ * Build the `apm unpack` command for a specific APM pack bundle.
+ * @param {string} siteUrl
+ * @param {string} packName
+ * @returns {string}
+ */
+export function getApmCommand(siteUrl, packName) {
+  const url = `${normalizeSiteUrl(siteUrl)}/packs/${packName}.apm.tar.gz`;
+  return `curl -sLO ${url} && apm unpack ${packName}.apm.tar.gz`;
 }
 
 /**
@@ -64,7 +71,7 @@ export function getApmInstallCommand(siteUrl, packName) {
  * @param {string} packName
  * @returns {string}
  */
-export function getSkillsAddCommand(siteUrl, packName) {
+export function getSkillsCommand(siteUrl, packName) {
   return `npx skills add ${normalizeSiteUrl(siteUrl)}/packs/${packName}`;
 }
 
@@ -82,8 +89,9 @@ export function createInstallSection({ discipline, track, siteUrl }) {
   if (!siteUrl) return null;
 
   const packName = getPackName(discipline, track);
-  const apmCommand = getApmInstallCommand(siteUrl, packName);
-  const skillsCommand = getSkillsAddCommand(siteUrl, packName);
+  const rawCommand = getRawCommand(siteUrl, packName);
+  const apmCommand = getApmCommand(siteUrl, packName);
+  const skillsCommand = getSkillsCommand(siteUrl, packName);
 
   return section(
     {
@@ -107,8 +115,18 @@ export function createInstallSection({ discipline, track, siteUrl }) {
       { className: "agent-install-commands" },
       div(
         { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "Direct download"),
+        createCommandPrompt(rawCommand),
+      ),
+      div(
+        { className: "agent-install-command" },
         p({ className: "agent-install-command-label" }, "Microsoft APM"),
         createCommandPrompt(apmCommand),
+        p(
+          { className: "text-muted agent-install-note" },
+          "apm unpack installs skills and agent profiles. Team instructions " +
+            "and Claude Code settings require the direct download path.",
+        ),
       ),
       div(
         { className: "agent-install-command" },

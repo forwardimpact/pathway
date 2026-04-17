@@ -25,8 +25,8 @@ Three separate issues prevent APM-based installation:
    `apm install`, which only accepts git references. The correct path for
    static-site distribution is `apm unpack`, which accepts local bundles.
 
-2. **Wrong manifest format.** `writeApmManifest` emits a custom `apm.yml` with
-   a `skills:` array containing `url:` and `digest:` fields. APM's actual
+2. **Wrong manifest format.** `writeApmManifest` emits a custom `apm.yml` with a
+   `skills:` array containing `url:` and `digest:` fields. APM's actual
    `apm.yml` is a package manifest with `name`, `version`, and optionally
    `dependencies`. The generated file is not a valid APM manifest and APM
    ignores it.
@@ -37,8 +37,8 @@ Three separate issues prevent APM-based installation:
    contain the deployed `.claude/` layout directly, which APM does not recognize
    as package content.
 
-The `npx skills` path and `curl | tar` extraction continue to work. Only the
-APM integration — one of the two ecosystem channels spec 320 established — is
+The `npx skills` path and `curl | tar` extraction continue to work. Only the APM
+integration — one of the two ecosystem channels spec 320 established — is
 broken.
 
 ## Why
@@ -47,8 +47,8 @@ broken.
 
 Organizations already using APM for prompt and skill management expect Pathway
 packs to be APM-compatible. The current failure means packs cannot participate
-in any APM workflow — not even the offline `apm unpack` path designed for
-static distribution.
+in any APM workflow — not even the offline `apm unpack` path designed for static
+distribution.
 
 ### APM has a built-in path for static distribution
 
@@ -75,10 +75,10 @@ format all change with no backwards-compatibility shims.
 ### Requirements
 
 1. **APM-compatible bundle per pack.** `fit-pathway build` must produce a
-   `.tar.gz` bundle at `packs/{name}.apm.tar.gz` for each valid
-   discipline/track combination. The bundle must use APM's package structure:
-   skills under `.apm/skills/{name}/`, agents under `.apm/agents/`, and an
-   `apm.yml` at the bundle root.
+   `.tar.gz` bundle at `packs/{name}.apm.tar.gz` for each valid discipline/track
+   combination. The bundle must use APM's package structure: skills under
+   `.apm/skills/{name}/`, agents under `.apm/agents/`, and an `apm.yml` at the
+   bundle root.
 
 2. **Valid package manifest inside each bundle.** Each bundle's `apm.yml` must
    be a valid APM package manifest with at least `name` and `version` fields.
@@ -100,15 +100,15 @@ format all change with no backwards-compatibility shims.
    may break.
 
 6. **Deterministic, reproducible bundles.** Two builds of the same framework
-   data at the same Pathway version must produce byte-identical APM bundles.
-   The existing deterministic archive strategy (epoch timestamps, sorted file
-   lists, `gzip -n`) applies to APM bundles as well.
+   data at the same Pathway version must produce byte-identical APM bundles. The
+   existing deterministic archive strategy (epoch timestamps, sorted file lists,
+   `gzip -n`) applies to APM bundles as well.
 
 7. **Clean break.** This is a breaking change to build output and internal APIs.
    Archive files are renamed from `{name}.tar.gz` to `{name}.raw.tar.gz` for
    symmetry with `{name}.apm.tar.gz`. All internal function names are renamed
-   for symmetric channel naming (raw/apm/skills). No old names are preserved,
-   no aliases, no re-exports. Tests are updated to match.
+   for symmetric channel naming (raw/apm/skills). No old names are preserved, no
+   aliases, no re-exports. Tests are updated to match.
 
 ### Scope
 
@@ -126,9 +126,9 @@ format all change with no backwards-compatibility shims.
 
 ### Content coverage
 
-APM's primitive types cover skills (`.apm/skills/`) and agents
-(`.apm/agents/`). Each skill's `scripts/`, `references/`, and other bundled
-resources are carried alongside `SKILL.md` and remain accessible after unpack.
+APM's primitive types cover skills (`.apm/skills/`) and agents (`.apm/agents/`).
+Each skill's `scripts/`, `references/`, and other bundled resources are carried
+alongside `SKILL.md` and remain accessible after unpack.
 
 Two files in the current pack have no usable APM primitive:
 
@@ -181,8 +181,8 @@ profiles but not team instructions or settings.
 ## References
 
 - Spec 320 — Pathway Ecosystem Distribution (parent spec, `plan implemented`)
-- [APM documentation](https://microsoft.github.io/apm/) — package format,
-  unpack command, bundle structure
+- [APM documentation](https://microsoft.github.io/apm/) — package format, unpack
+  command, bundle structure
 - [APM sample package](https://github.com/microsoft/apm-sample-package) —
   canonical `.apm/` directory layout
 - `products/pathway/src/commands/build-packs.js` — current pack generation

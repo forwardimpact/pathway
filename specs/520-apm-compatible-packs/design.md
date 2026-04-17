@@ -18,40 +18,40 @@ preserved, no aliases, no re-exports. Tests are updated to match.
 
 Three channels, symmetric naming:
 
-| Channel | Format | Artifact | Command |
-|---|---|---|---|
-| **Raw** | `.claude/` layout | `{name}.raw.tar.gz` | `curl \| tar` |
-| **APM** | `.apm/` layout | `{name}.apm.tar.gz` | `curl` + `apm unpack` |
-| **Skills** | `.well-known/skills/` | `{name}/` directory | `npx skills add` |
+| Channel    | Format                | Artifact            | Command               |
+| ---------- | --------------------- | ------------------- | --------------------- |
+| **Raw**    | `.claude/` layout     | `{name}.raw.tar.gz` | `curl \| tar`         |
+| **APM**    | `.apm/` layout        | `{name}.apm.tar.gz` | `curl` + `apm unpack` |
+| **Skills** | `.well-known/skills/` | `{name}/` directory | `npx skills add`      |
 
 ## Function Naming
 
 All pack pipeline functions follow the pattern `{verb}{Channel}Pack` or
 `{verb}{Channel}{Noun}`:
 
-| Function | Channel | File | Responsibility |
-|---|---|---|---|
-| `writePackFiles` | *(shared)* | `build-packs.js` | Write `.claude/` staging (input for all channels) |
-| `archiveRawPack` | Raw | `build-packs.js` | Archive `.claude/` staging → `.raw.tar.gz` |
-| `archiveApmPack` | APM | `build-packs.js` | Transform + archive → `.apm.tar.gz` |
-| `writeSkillsPack` | Skills | `build-packs.js` | Write per-pack `.well-known/skills/` |
-| `writeSkillsAggregate` | Skills | `build-packs.js` | Write aggregate `.well-known/skills/` |
-| `writeApmManifest` | APM | `build-packs.js` | Write site-root `apm.yml` |
-| `getRawCommand` | Raw | `agent-builder-install.js` | `curl -sL <url> \| tar xz` |
-| `getApmCommand` | APM | `agent-builder-install.js` | `curl -sLO <url> && apm unpack <file>` |
-| `getSkillsCommand` | Skills | `agent-builder-install.js` | `npx skills add <url>` |
+| Function               | Channel    | File                       | Responsibility                                    |
+| ---------------------- | ---------- | -------------------------- | ------------------------------------------------- |
+| `writePackFiles`       | _(shared)_ | `build-packs.js`           | Write `.claude/` staging (input for all channels) |
+| `archiveRawPack`       | Raw        | `build-packs.js`           | Archive `.claude/` staging → `.raw.tar.gz`        |
+| `archiveApmPack`       | APM        | `build-packs.js`           | Transform + archive → `.apm.tar.gz`               |
+| `writeSkillsPack`      | Skills     | `build-packs.js`           | Write per-pack `.well-known/skills/`              |
+| `writeSkillsAggregate` | Skills     | `build-packs.js`           | Write aggregate `.well-known/skills/`             |
+| `writeApmManifest`     | APM        | `build-packs.js`           | Write site-root `apm.yml`                         |
+| `getRawCommand`        | Raw        | `agent-builder-install.js` | `curl -sL <url> \| tar xz`                        |
+| `getApmCommand`        | APM        | `agent-builder-install.js` | `curl -sLO <url> && apm unpack <file>`            |
+| `getSkillsCommand`     | Skills     | `agent-builder-install.js` | `npx skills add <url>`                            |
 
 **Renamed from → to:**
 
-| Old name | New name |
-|---|---|
-| `archivePack` | `archiveRawPack` |
-| `writePackRepository` | `writeSkillsPack` |
-| `writeAggregateRepository` | `writeSkillsAggregate` |
-| `writeApmManifest` | `writeApmManifest` *(kept — already symmetric)* |
-| `getApmInstallCommand` | `getApmCommand` |
-| `getSkillsAddCommand` | `getSkillsCommand` |
-| *(none)* | `getRawCommand` *(new)* |
+| Old name                   | New name                                        |
+| -------------------------- | ----------------------------------------------- |
+| `archivePack`              | `archiveRawPack`                                |
+| `writePackRepository`      | `writeSkillsPack`                               |
+| `writeAggregateRepository` | `writeSkillsAggregate`                          |
+| `writeApmManifest`         | `writeApmManifest` _(kept — already symmetric)_ |
+| `getApmInstallCommand`     | `getApmCommand`                                 |
+| `getSkillsAddCommand`      | `getSkillsCommand`                              |
+| _(none)_                   | `getRawCommand` _(new)_                         |
 
 ## Components
 
@@ -73,11 +73,11 @@ flowchart TD
 
 Three new pieces of work, everything else is a rename:
 
-| New | Responsibility |
-|---|---|
-| **Layout Transformer** | Converts `.claude/` staging tree to `.apm/` layout |
-| **`archiveApmPack`** | Archives the `.apm/` staging as a deterministic tarball |
-| **`writeApmManifest`** (rewritten) | Emits a valid APM project manifest at the site root |
+| New                                | Responsibility                                          |
+| ---------------------------------- | ------------------------------------------------------- |
+| **Layout Transformer**             | Converts `.claude/` staging tree to `.apm/` layout      |
+| **`archiveApmPack`**               | Archives the `.apm/` staging as a deterministic tarball |
+| **`writeApmManifest`** (rewritten) | Emits a valid APM project manifest at the site root     |
 
 ## Layout Transformer
 
@@ -87,14 +87,14 @@ original.
 
 **Mapping rules:**
 
-| Source (`.claude/`) | Target (`.apm/` or root) |
-|---|---|
-| `agents/{name}.md` | `.apm/agents/{name}.agent.md` |
-| `skills/{name}/SKILL.md` | `.apm/skills/{name}/SKILL.md` |
-| `skills/{name}/scripts/*` | `.apm/skills/{name}/scripts/*` |
+| Source (`.claude/`)          | Target (`.apm/` or root)          |
+| ---------------------------- | --------------------------------- |
+| `agents/{name}.md`           | `.apm/agents/{name}.agent.md`     |
+| `skills/{name}/SKILL.md`     | `.apm/skills/{name}/SKILL.md`     |
+| `skills/{name}/scripts/*`    | `.apm/skills/{name}/scripts/*`    |
 | `skills/{name}/references/*` | `.apm/skills/{name}/references/*` |
-| `CLAUDE.md` | *(dropped — no APM primitive)* |
-| `settings.json` | *(dropped — no APM primitive)* |
+| `CLAUDE.md`                  | _(dropped — no APM primitive)_    |
+| `settings.json`              | _(dropped — no APM primitive)_    |
 
 The `.agent.md` extension is required by APM's agent detection. `CLAUDE.md` and
 `settings.json` have no usable APM equivalent — APM's instructions primitive

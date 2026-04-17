@@ -29,6 +29,7 @@ test("emits one raw and one APM archive per valid combination", async () => {
 #### 1b. Update archive extraction test
 
 The test "each archive expands to the Claude Code file layout" (line ~100):
+
 - Change `.tar.gz` filter to `.raw.tar.gz` to find the raw archive.
 
 #### 1c. Add APM bundle layout test
@@ -108,26 +109,32 @@ test("APM bundle skills match raw bundle skills", async () => {
 The test "apm.yml is well-formed and lists every pack" (line ~268):
 
 Replace:
+
 ```js
 assert.match(apm, /^skills:$/m);
 ```
+
 With:
+
 ```js
 assert.match(apm, /^dependencies:$/m);
 assert.match(apm, /^ {2}apm:$/m);
 ```
 
-Remove the `digest` count assertion (line ~284–285). The rewritten manifest
-has no digest fields.
+Remove the `digest` count assertion (line ~284–285). The rewritten manifest has
+no digest fields.
 
 Update the URL regex to match `.apm.tar.gz`:
+
 ```js
 const urlCount = (apm.match(/^ {6}url: "https:\/\/example\.test/gm) || []).length;
 ```
+
 Note indentation changes from 4 to 6 spaces (entries are under
 `dependencies.apm`).
 
 Update `- name:` indentation from 2 to 4 spaces:
+
 ```js
 const nameCount = (apm.match(/^ {4}- name: /gm) || []).length;
 ```
@@ -143,8 +150,8 @@ join(outputDir, "packs", `${agentName}.raw.tar.gz`),
 
 #### 1g. Update determinism test
 
-The test "second build produces byte-identical archives and manifests"
-(line ~364):
+The test "second build produces byte-identical archives and manifests" (line
+~364):
 
 Update the archive filter to check both `.raw.tar.gz` and `.apm.tar.gz`:
 
@@ -234,8 +241,8 @@ const archives = new Set(
 const expected = `${getPackName(humanDiscipline, humanTrack)}.raw.tar.gz`;
 ```
 
-The test "apm unpack command references a real archive" (line ~170): update
-the regex to match `.apm.tar.gz`:
+The test "apm unpack command references a real archive" (line ~170): update the
+regex to match `.apm.tar.gz`:
 
 ```js
 const match = command.match(/\/packs\/([\w-]+\.apm\.tar\.gz)/);
@@ -251,6 +258,7 @@ cd products/pathway && bun test test/build-packs.test.js test/agent-builder-inst
 ```
 
 All tests should pass. Specifically verify:
+
 - Raw archives: `.raw.tar.gz` with `.claude/` layout
 - APM archives: `.apm.tar.gz` with `.apm/` layout + `apm.yml`
 - Site-root `apm.yml`: `dependencies.apm` format, no digests
