@@ -55,6 +55,34 @@ export async function generateClaudeCodeSettings(baseDir, claudeCodeSettings) {
 }
 
 /**
+ * Generate VS Code settings file
+ * Merges with existing settings if file exists
+ * @param {string} baseDir - Base output directory
+ * @param {Object} vscodeSettings - Settings loaded from data
+ */
+export async function generateVscodeSettings(baseDir, vscodeSettings) {
+  if (!vscodeSettings || Object.keys(vscodeSettings).length === 0) return;
+
+  const settingsPath = join(baseDir, ".vscode", "settings.json");
+
+  let settings = {};
+  if (existsSync(settingsPath)) {
+    const content = await readFile(settingsPath, "utf-8");
+    settings = JSON.parse(content);
+  }
+
+  const merged = { ...settings, ...vscodeSettings };
+
+  await ensureDir(settingsPath);
+  await writeFile(
+    settingsPath,
+    JSON.stringify(merged, null, 2) + "\n",
+    "utf-8",
+  );
+  logger.info(formatSuccess(`Updated: ${settingsPath}`));
+}
+
+/**
  * Write agent profile to file
  * @param {Object} profile - Generated profile
  * @param {string} baseDir - Base output directory

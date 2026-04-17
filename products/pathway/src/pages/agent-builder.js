@@ -299,6 +299,7 @@ export async function renderAgentBuilder() {
         behaviours: data.behaviours,
         agentBehaviours: agentData.behaviours,
         claudeCodeSettings: agentData.claudeCodeSettings,
+        vscodeSettings: agentData.vscodeSettings,
         templates,
       };
 
@@ -343,6 +344,7 @@ export async function renderAgentBuilder() {
           allProfiles,
           allSkillFiles,
           agentData.claudeCodeSettings,
+          agentData.vscodeSettings,
           templates,
           teamInstructionsContent,
         ),

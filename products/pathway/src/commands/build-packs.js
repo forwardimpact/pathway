@@ -99,6 +99,7 @@ async function writePackFiles({
   claudeTemplate,
   skillTemplates,
   claudeCodeSettings,
+  vscodeSettings,
 }) {
   const claudeDir = join(packDir, ".claude");
   const agentsDir = join(claudeDir, "agents");
@@ -164,6 +165,18 @@ async function writePackFiles({
     JSON.stringify(settings, null, 2) + "\n",
     "utf-8",
   );
+
+  // VS Code settings — written at the pack root, adjacent to .claude/
+  const vsSettings = { ...(vscodeSettings || {}) };
+  if (Object.keys(vsSettings).length > 0) {
+    const vscodeDir = join(packDir, ".vscode");
+    await mkdir(vscodeDir, { recursive: true });
+    await writeFile(
+      join(vscodeDir, "settings.json"),
+      JSON.stringify(vsSettings, null, 2) + "\n",
+      "utf-8",
+    );
+  }
 }
 
 /**
@@ -531,6 +544,7 @@ export async function generatePacks({
       claudeTemplate,
       skillTemplates,
       claudeCodeSettings: agentData.claudeCodeSettings,
+      vscodeSettings: agentData.vscodeSettings,
     });
 
     // APM staging: transform .claude/ layout → .apm/ layout

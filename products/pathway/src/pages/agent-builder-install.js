@@ -119,7 +119,7 @@ export function createInstallSection({ discipline, track, siteUrl }) {
         createCommandPrompt(rawCommand),
         p(
           { className: "text-muted agent-install-note" },
-          "Recommended. Installs everything: skills, agents, CLAUDE.md, and settings.",
+          "Recommended. Installs everything: skills, agents, CLAUDE.md, and settings (Claude Code + VS Code).",
         ),
       ),
       div(

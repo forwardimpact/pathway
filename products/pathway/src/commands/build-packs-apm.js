@@ -62,7 +62,7 @@ export async function transformToApmLayout(
     await cp(join(srcAgentsDir, file), join(apmAgentsDir, apmName));
   }
 
-  // CLAUDE.md and settings.json are intentionally dropped — no APM primitive
+  // CLAUDE.md, settings.json, and .vscode/ are intentionally dropped — no APM primitive
 
   // Per-bundle apm.yml
   const apmYml = `name: ${packName}\nversion: ${version}\n`;
