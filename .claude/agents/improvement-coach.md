@@ -3,7 +3,7 @@ name: improvement-coach
 description: >
   Continuous improvement coach. Facilitates team storyboard meetings and
   1-on-1 coaching sessions using the Toyota Kata five-question protocol.
-model: opus
+model: claude-opus-4-6
 skills:
   - kata-storyboard
   - kata-metrics
