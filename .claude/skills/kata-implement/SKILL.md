@@ -153,10 +153,10 @@ After all tasks are complete, run the DO-CONFIRM checklist above.
 Follow the
 [`kata-review` caller protocol](../kata-review/references/caller-protocol.md) to
 launch a parallel panel of fresh sub-agents that each grade the full diff
-(`git diff origin/main...HEAD`). Provide each reviewer with spec path, plan
-path, and branch name so they can act independently. Tell each reviewer not to
-invoke `kata-implement`. Merge panel findings per the protocol, verify, and
-address all confirmed blocker/high/medium issues before pushing.
+(`git diff origin/main...HEAD`). Provide each reviewer with spec path, design
+path, plan path, and branch name so they can act independently. Tell each
+reviewer not to invoke `kata-implement`. Merge panel findings per the protocol,
+verify, and address all confirmed blocker/high/medium issues before pushing.
 
 Push all commits to the remote branch only after the panel review is clean.
 

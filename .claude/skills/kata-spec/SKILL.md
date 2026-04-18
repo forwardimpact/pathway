@@ -48,9 +48,10 @@ asked for. If they ask for a spec, write the spec and stop.
 - [ ] Success criteria are verifiable (a command, observable behaviour, or
       testable property).
 - [ ] No implementation details have leaked in (HOW belongs in the plan).
-- [ ] Clean sub-agent review panel via [`kata-review`](../kata-review/SKILL.md)
-      completed (fresh context, no prior bias, panel size per caller protocol)
-      and every **blocker**, **high**, and **medium** finding addressed.
+- [ ] Clean sub-agent review panel of `spec.md` via
+      [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
+      prior bias, panel size per caller protocol) and every **blocker**,
+      **high**, and **medium** finding addressed.
 
 </do_confirm_checklist>
 

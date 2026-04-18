@@ -330,10 +330,9 @@ Skills requiring independent review of their output must spawn a fresh sub-agent
 targeting a **leaf skill** (`kata-review`) whose process never spawns further
 sub-agents. This prevents infinite recursion. Defense-in-depth: the parent's
 review step also tells the sub-agent "do not invoke this skill." Callers spawn a
-**panel** of such leaf reviewers in parallel (3 for spec/design/plan, 5 for
-implement diffs) and merge findings by `(file:line, criterion)` with majority
-vote — panel size does not change the leaf invariant. See the `kata-review`
-caller protocol.
+**panel** of such leaf reviewers in parallel and merge findings by majority
+vote; panel size does not change the leaf invariant. See the `kata-review`
+caller protocol for panel sizes and merge algorithm.
 
 ### Shared patterns
 
