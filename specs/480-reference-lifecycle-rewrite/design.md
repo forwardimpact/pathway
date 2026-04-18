@@ -43,17 +43,17 @@ discipline-x-track model with phases guiding workflow focus.
 
 ### 2. Reference Index — `website/docs/reference/index.md`
 
-Update the Lifecycle card description. Replace "lifecycle stages" entity language
-with "workflow phases" guidance language.
+Update the Lifecycle card description. Replace "lifecycle stages" entity
+language with "workflow phases" guidance language.
 
 ### 3. Core Model — `website/docs/reference/model/index.md`
 
 Update the cross-link at the bottom from "Stages, handoffs, and checklists" to
 phase-based language matching the rewritten page.
 
-Additionally fix two stale stage references in the same file (lines 100 and
-289) that describe deleted entities. See Key Decision "Fix stale references in
-scoped files" below for rationale.
+Additionally fix two stale stage references in the same file (lines 100 and 289)
+that describe deleted entities. See Key Decision "Fix stale references in scoped
+files" below for rationale.
 
 ## Interfaces
 
@@ -136,14 +136,14 @@ generated per discipline x track. Lifecycle phases guide an agent's workflow
 focus (what to prioritize at each phase), not agent identity (which agent
 handles which phase).
 
-**Rejected: Keep the multi-agent handoff diagram with caveats.** Adding "this
-is conceptual, not how it actually works" caveats to a reference page
-undermines trust. Better to describe the actual model clearly.
+**Rejected: Keep the multi-agent handoff diagram with caveats.** Adding "this is
+conceptual, not how it actually works" caveats to a reference page undermines
+trust. Better to describe the actual model clearly.
 
 ## Scope Boundary
 
 - **In scope:** `lifecycle/index.md` rewrite, `reference/index.md` card update,
   `model/index.md` cross-link and stale stage references.
-- **Out of scope:** Other pages referencing lifecycle/stages (authoring-frameworks
-  guide, pathway internals, map overview, pathway overview). Those are separate
-  documentation updates.
+- **Out of scope:** Other pages referencing lifecycle/stages
+  (authoring-frameworks guide, pathway internals, map overview, pathway
+  overview). Those are separate documentation updates.
