@@ -45,10 +45,10 @@ apply alongside the skill-specific ones below.
 - [ ] Spec-specific verification commands from the plan pass.
 - [ ] Full diff reviewed against the spec's success criteria — every criterion
       met.
-- [ ] Clean sub-agent review of the full diff via
+- [ ] Clean sub-agent review panel of the full diff via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
-      prior bias) and every **blocker**, **high**, and **medium** finding
-      addressed.
+      prior bias, panel size per caller protocol) and every **blocker**,
+      **high**, and **medium** finding addressed.
 - [ ] Spec status set to `plan implemented` in `specs/STATUS`.
 
 </do_confirm_checklist>
@@ -148,17 +148,17 @@ For each task:
 
 After all tasks are complete, run the DO-CONFIRM checklist above.
 
-### 7. Clean sub-agent review
+### 7. Clean sub-agent review panel
 
 Follow the
 [`kata-review` caller protocol](../kata-review/references/caller-protocol.md) to
-launch a fresh sub-agent that grades the full diff
-(`git diff origin/main...HEAD`). Provide spec path, plan path, and branch name
-so the reviewer can act independently. Tell the reviewer not to invoke
-`kata-implement`. Verify findings, address all confirmed blocker/high/medium
-issues before pushing.
+launch a parallel panel of fresh sub-agents that each grade the full diff
+(`git diff origin/main...HEAD`). Provide each reviewer with spec path, design
+path, plan path, and branch name so they can act independently. Tell each
+reviewer not to invoke `kata-implement`. Merge panel findings per the protocol,
+verify, and address all confirmed blocker/high/medium issues before pushing.
 
-Push all commits to the remote branch only after the review is clean.
+Push all commits to the remote branch only after the panel review is clean.
 
 ## Handling Problems
 

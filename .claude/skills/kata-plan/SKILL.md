@@ -51,10 +51,10 @@ there is no architectural direction to translate into implementation steps.
       will consume is listed by package and by specific exports, or the section
       explicitly states no shared libraries are used.
 - [ ] Execution recommendation present (which agents, sequential vs parallel).
-- [ ] Clean sub-agent review of `plan-a.md` (and any parts) via
+- [ ] Clean sub-agent review panel of `plan-a.md` (and any parts) via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
-      prior bias) and every **blocker**, **high**, and **medium** finding
-      addressed.
+      prior bias, panel size per caller protocol) and every **blocker**,
+      **high**, and **medium** finding addressed.
 
 </do_confirm_checklist>
 
@@ -162,11 +162,12 @@ from prior `staff-engineer` entries.
    concrete steps. Each step should be independently verifiable. Surface risks
    explicitly. If the plan is large, decompose it into parts (see § Large plan
    decomposition).
-5. **Clean sub-agent review.** Follow the
+5. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-   to launch a fresh sub-agent that grades `plan-a.md` (and any `plan-a-NN.md`
-   parts). Tell the reviewer not to invoke `kata-plan`. Verify findings, address
-   all confirmed blocker/high/medium issues before advancing.
+   to launch a parallel panel of fresh sub-agents that each grade `plan-a.md`
+   (and any `plan-a-NN.md` parts). Tell each reviewer not to invoke `kata-plan`.
+   Merge panel findings per the protocol, verify, and address all confirmed
+   blocker/high/medium issues before advancing.
 6. **Present the plan.** Share it for feedback.
 7. **Update STATUS.** Set the spec to `plan draft` in `specs/STATUS`. The plan
    stays at `plan draft` until a human approves it.
