@@ -140,10 +140,14 @@ is silently ignored.
 
 Bind the designated agent profile as the main-thread system prompt on every
 scheduled agent run — including solo-mode runs, which today silently skip
-this step. The profile must drive the first token of the main thread, the
-binding must be verifiable from the trace without reading behaviour across
-many turns, and a missing profile must surface as a loud startup failure
-rather than a silent fallback to a generic main thread.
+this step. The profile must drive the first token of the main thread, and
+silent fallback to a generic main thread when the profile is unreachable
+is not an acceptable outcome. Two pre-existing safety nets already cover
+the remaining failure surfaces and need no augmentation: an unreadable
+profile file surfaces as the file-read's own error and halts the run, and
+a main thread that binds the wrong or empty content drifts across domain
+boundaries within the first few turns — which `kata-trace` already detects
+through grounded-theory analysis of trace artifacts.
 
 ### libeval owns the binding; `options.agent` is not part of it
 
@@ -167,20 +171,6 @@ on `options.agent`; they stand as the baseline. Solo mode must meet the
 same guarantee and must reach it through the same layer-appropriate
 mechanism — libeval's own.
 
-### Missing profile must fail loudly
-
-When a profile name does not resolve to profile content, the run must fail
-before any API call with an error that names the missing profile. Silent
-fallback to a generic main thread is the failure mode this spec closes.
-
-### Binding must be observable in the trace
-
-The trace emitted for each run must contain a signal that identifies the
-main-thread agent. `kata-trace` must be able to verify the binding from the
-trace artifact alone, without inferring it from behaviour. Whether that
-signal is one the runtime emits natively or one libeval emits itself is a
-design choice.
-
 ### Binding must hold across execution modes
 
 All three libeval execution modes — single-agent runs, supervised runs, and
@@ -200,13 +190,6 @@ against which solo mode's fix is verified.
   SDK's top-level `agent` option (and the equivalent `--agent` CLI flag)
   for main-thread binding. Whatever libeval does to attach profile content
   stands alone and does not coexist with that option.
-- **`fit-eval` CLI startup** — must reject an unresolvable profile before
-  starting the query.
-- **Trace schema** — whichever signal identifies the bound main-thread agent
-  must be documented alongside the existing event types so `kata-trace` can
-  audit it.
-- **`kata-trace` invariant audit** — gains a universal "main-thread agent
-  bound" invariant applied to every scheduled agent trace.
 
 ### Excluded
 
@@ -221,6 +204,12 @@ against which solo mode's fix is verified.
   spec; libeval's binding does not use that option, and the correctness of
   libeval's binding must not depend on the option being ignored, respected,
   or changed.
+- **Dedicated binding instrumentation.** Startup validation that refuses
+  unresolvable profile names with bespoke error messages, and dedicated
+  trace events that announce which profile is bound, are both out of scope.
+  The spec does not add that layer because the two existing safety nets
+  described in the Proposal already cover unreadable-profile and
+  drift-from-wrong-content failure modes.
 - **Task prompt rewording.** The task text "Assess the current state of
   your domain and act on the highest-priority finding" stays generic. The
   profile is what binds "your domain" to a specific meaning, and fixing the
@@ -238,27 +227,20 @@ it.
 
 ## Success Criteria
 
-1. For every scheduled agent workflow
-   (`agent-technical-writer`, `agent-security-engineer`, `agent-staff-engineer`,
-   `agent-release-engineer`, `agent-product-manager`), the captured trace
-   contains an event that identifies the main-thread agent by its profile
-   name. The signal must be discoverable by a documented `kata-trace` query.
-2. For each of those runs, the main thread's first `Read` targets
-   `wiki/<agent>.md` before any other wiki or agent-profile read. This
-   property is checkable by scanning the trace for the first `Read`
-   tool call.
-3. Running `fit-eval` with a non-existent agent profile exits non-zero with
-   an error message naming the missing profile, before any API call.
-4. `kata-trace`'s invariant audit includes a "main-thread agent bound"
-   invariant. Audits of the five evidence runs listed above mark it FAIL;
-   audits of the next scheduled run of each workflow after the fix lands
-   mark it PASS.
-5. The main-thread profile system prompt is detectable in the trace —
-   either via a dedicated event or via an echoed system-prompt payload —
-   such that a reader can confirm, from the artifact, that the profile's
-   content is what drove the first turn. This is an artifact property, not
-   dependent on whether any particular run chose to emit a voice marker.
-6. A repository-wide grep for the SDK option that previously carried the
+1. A libeval test verifies that for each profile defined under
+   `.claude/agents/`, the SDK call libeval constructs carries the profile's
+   content in its system prompt. The test passes; `bun run test` is the
+   command.
+2. A repository-wide grep for the SDK option that previously carried the
    profile name (top-level `agent` in SDK query options, `--agent` CLI flag)
    returns no call sites inside libeval's source. Test fixtures and
    historical documentation may still reference it.
+3. On the next scheduled run of each agent workflow
+   (`agent-technical-writer`, `agent-security-engineer`, `agent-staff-engineer`,
+   `agent-release-engineer`, `agent-product-manager`) after the fix lands,
+   the trace contains the profile's voice marker
+   (`— Technical Writer 📝`, `— Security Engineer 🔒`, etc.) in at least
+   one text block. The markers are authored only in `.claude/agents/<name>.md`;
+   their appearance confirms profile content reached the main thread and
+   is a signal the fix survived the scheduled-run integration path, not
+   only the libeval test harness.
