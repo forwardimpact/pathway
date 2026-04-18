@@ -4,9 +4,11 @@
 
 libeval owns main-thread profile binding. A new pure function,
 `composeProfilePrompt`, reads `.claude/agents/<name>.md` and returns an SDK
-`systemPrompt` value. All three execution modes route through
-`AgentRunner`, and `AgentRunner` becomes the single place that knows how to
-attach a profile. The SDK's top-level `agent` option and its `--agent` CLI
+`systemPrompt` value. Every command (`run`, `supervise`, `facilitate`) calls
+this function at startup for each main thread it creates, then passes the
+result into `AgentRunner` via the existing `systemPrompt` input.
+`AgentRunner` loses its `agentProfile` field and no longer sets the SDK's
+`options.agent`. The SDK's top-level `agent` option and its `--agent` CLI
 mirror are removed from libeval's source — they remain a subagent-registration
 concern for Claude Code itself, not a main-thread input we control.
 
@@ -15,7 +17,7 @@ concern for Claude Code itself, not a main-thread input we control.
 | Component | Role | Where it lives conceptually |
 | --- | --- | --- |
 | `composeProfilePrompt(name, { profilesDir })` | Pure: load + merge profile file into `{ type: "preset", preset: "claude_code", append: string }` | New module inside libeval (`src/profile-prompt.js`) |
-| `AgentRunner` | Continues to own the single SDK `query({ options })` call; gains a `profileName` input, drops `agentProfile`/`options.agent` | `libraries/libeval/src/agent-runner.js` |
+| `AgentRunner` | Continues to own the single SDK `query({ options })` call; drops the `agentProfile` constructor dep and the `options.agent` spread; accepts a pre-composed `systemPrompt` from callers | `libraries/libeval/src/agent-runner.js` |
 | `run` command | Loads the profile via `composeProfilePrompt` and passes the resulting `systemPrompt` to `AgentRunner`; stops forwarding `--agent` | `src/commands/run.js` |
 | `Supervisor` factory | Same load-and-pass pattern for both agent and supervisor runners; `AGENT_SYSTEM_PROMPT` becomes a trailer merged into the profile's `append`, not a replacement | `src/supervisor.js` |
 | `Facilitator` factory | Same pattern per agent config and for the facilitator runner; `FACILITATED_AGENT_SYSTEM_PROMPT` / `FACILITATOR_SYSTEM_PROMPT` become trailers | `src/facilitator.js` |
@@ -40,6 +42,11 @@ composeProfilePrompt(
 - `name` is the only identity the caller knows. The function never guesses,
   never falls back to a default profile, and never silently returns a prompt
   with empty `append`.
+- When a caller has no profile name to supply (e.g. `fit-eval run`
+  invoked without `--agent-profile`), it does not call the function at all
+  and passes `systemPrompt: undefined` to `AgentRunner`. That keeps ad-hoc
+  CLI usage working while guaranteeing that whenever a profile name _is_
+  supplied, its content reaches the system prompt.
 
 ## Data flow
 
@@ -139,9 +146,12 @@ the profile in supervised and facilitated modes.
 
 - `AgentRunner.agentProfile` and the `options.agent` spread in its `run()` /
   `resume()` calls.
-- `--agent-profile` and `--facilitator-profile` CLI flags' pass-through to
-  `options.agent`. The flags may keep their names at the CLI boundary, but
-  in libeval's source they now feed `composeProfilePrompt` and nothing else.
+- Internal routing of every profile-name CLI flag (`--agent-profile`,
+  `--agent-profiles`, `--supervisor-profile`, `--facilitator-profile`) into
+  SDK `options.agent`. The flags keep their names at the CLI boundary but
+  inside libeval they now feed `composeProfilePrompt` and nothing else —
+  satisfying success criterion #2 (no call site in libeval's source
+  references the SDK's top-level `agent` option or `--agent` CLI flag).
 - `AGENT_SYSTEM_PROMPT` etc. stay exported — they become trailer strings
   passed into `composeProfilePrompt`, not standalone `append` values.
 
