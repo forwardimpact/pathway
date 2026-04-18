@@ -11,7 +11,9 @@
  */
 
 import { Writable } from "node:stream";
+import { resolve } from "node:path";
 import { createAgentRunner } from "./agent-runner.js";
+import { composeProfilePrompt } from "./profile-prompt.js";
 import { TraceCollector } from "./trace-collector.js";
 import { SequenceCounter } from "./sequence-counter.js";
 import {
@@ -355,8 +357,9 @@ const devNull = new Writable({
  * @param {string[]} [deps.allowedTools]
  * @param {string[]} [deps.supervisorAllowedTools]
  * @param {string[]} [deps.supervisorDisallowedTools]
- * @param {string} [deps.supervisorProfile]
- * @param {string} [deps.agentProfile]
+ * @param {string} [deps.supervisorProfile] - Supervisor profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
+ * @param {string} [deps.agentProfile] - Agent profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
+ * @param {string} [deps.profilesDir] - Directory containing `<name>.md` profile files. Defaults to `<supervisorCwd>/.claude/agents`. Resolved once from the orchestrator's cwd so profiles travel with the project, not with a per-agent sandbox.
  * @returns {Supervisor}
  */
 export function createSupervisor({
@@ -371,7 +374,17 @@ export function createSupervisor({
   supervisorAllowedTools,
   supervisorProfile,
   agentProfile,
+  profilesDir,
 }) {
+  const resolvedProfilesDir =
+    profilesDir ?? resolve(supervisorCwd, ".claude/agents");
+  const systemPromptFor = (profile, trailer) =>
+    profile
+      ? composeProfilePrompt(profile, {
+          profilesDir: resolvedProfilesDir,
+          trailer,
+        })
+      : { type: "preset", preset: "claude_code", append: trailer };
   let supervisor;
   let supervisorRunner;
 
@@ -402,12 +415,7 @@ export function createSupervisor({
     allowedTools,
     onLine,
     settingSources: ["project"],
-    agentProfile,
-    systemPrompt: {
-      type: "preset",
-      preset: "claude_code",
-      append: AGENT_SYSTEM_PROMPT,
-    },
+    systemPrompt: systemPromptFor(agentProfile, AGENT_SYSTEM_PROMPT),
     mcpServers: { orchestration: agentServer },
   });
 
@@ -433,12 +441,7 @@ export function createSupervisor({
     disallowedTools,
     onLine,
     settingSources: ["project"],
-    agentProfile: supervisorProfile,
-    systemPrompt: {
-      type: "preset",
-      preset: "claude_code",
-      append: SUPERVISOR_SYSTEM_PROMPT,
-    },
+    systemPrompt: systemPromptFor(supervisorProfile, SUPERVISOR_SYSTEM_PROMPT),
     mcpServers: { orchestration: supervisorServer },
   });
 

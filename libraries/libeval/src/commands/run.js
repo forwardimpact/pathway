@@ -2,6 +2,7 @@ import { readFileSync, createWriteStream } from "node:fs";
 import { Writable } from "node:stream";
 import { resolve } from "node:path";
 import { createAgentRunner } from "../agent-runner.js";
+import { composeProfilePrompt } from "../profile-prompt.js";
 import { createTeeWriter } from "../tee-writer.js";
 import { SequenceCounter } from "../sequence-counter.js";
 
@@ -76,6 +77,12 @@ export async function runRunCommand(values, _args) {
     );
   };
 
+  const systemPrompt = agentProfile
+    ? composeProfilePrompt(agentProfile, {
+        profilesDir: resolve(cwd, ".claude/agents"),
+      })
+    : undefined;
+
   const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const runner = createAgentRunner({
     cwd,
@@ -86,7 +93,7 @@ export async function runRunCommand(values, _args) {
     allowedTools,
     onLine,
     settingSources: ["project"],
-    agentProfile,
+    systemPrompt,
   });
 
   const result = await runner.run(taskContent);

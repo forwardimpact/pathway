@@ -21,7 +21,6 @@ function applyDefaults(deps) {
     onBatch: deps.onBatch ?? null,
     batchSize: deps.batchSize ?? 3,
     settingSources: deps.settingSources ?? [],
-    agentProfile: deps.agentProfile ?? null,
     systemPrompt: deps.systemPrompt ?? null,
     disallowedTools: deps.disallowedTools ?? [],
     mcpServers: deps.mcpServers ?? null,
@@ -42,7 +41,6 @@ export class AgentRunner {
    * @param {function} [deps.onBatch] - Async callback invoked with a batch of NDJSON lines at flush boundaries: every `batchSize` assistant text blocks, the terminal `result` message, and — on iterator crash/abort — once more in a final flush carrying any lines that never reached a boundary. Receives `(lines, { abort })` where calling `abort()` stops the in-flight SDK session via the AbortController. Optional; assignable at runtime so the Supervisor can swap it per turn.
    * @param {number} [deps.batchSize] - Assistant text-block messages to accumulate before firing onBatch. Tool-only assistant messages ride along without counting. Default 3: the supervisor reviews the agent every three text turns instead of every turn. The terminal `result` always flushes regardless of count.
    * @param {string[]} [deps.settingSources] - SDK setting sources (e.g. ['project'] to load CLAUDE.md)
-   * @param {string} [deps.agentProfile] - Agent profile name to pass as --agent to the Claude CLI
    * @param {string|object} [deps.systemPrompt] - SDK system prompt (string replaces default; {type:'preset', preset:'claude_code', append} appends)
    * @param {string[]} [deps.disallowedTools] - Tools to explicitly remove from the model's context
    * @param {Record<string, object>} [deps.mcpServers] - MCP server configs to pass to the SDK query
@@ -82,7 +80,6 @@ export class AgentRunner {
             disallowedTools: this.disallowedTools,
           }),
           ...(this.systemPrompt && { systemPrompt: this.systemPrompt }),
-          ...(this.agentProfile && { agent: this.agentProfile }),
           ...(this.mcpServers && { mcpServers: this.mcpServers }),
         },
       });
