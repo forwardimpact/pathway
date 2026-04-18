@@ -58,10 +58,10 @@ spec's scope is too broad and should be narrowed.
       and data structures but not file-level changes, execution ordering, or
       implementation steps (those belong in the plan).
 - [ ] Under 200 lines total.
-- [ ] Clean sub-agent review of `design.md` via
+- [ ] Clean sub-agent review panel of `design.md` via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
-      prior bias) and every **blocker**, **high**, and **medium** finding
-      addressed.
+      prior bias, panel size per caller protocol) and every **blocker**,
+      **high**, and **medium** finding addressed.
 
 </do_confirm_checklist>
 
@@ -138,11 +138,12 @@ from prior `staff-engineer` entries.
 4. **Write the design.** Create `design.md` in the spec directory. Focus on
    direction, decisions, and diagrams. Stay under 200 lines. Each architectural
    choice should name a rejected alternative.
-5. **Clean sub-agent review.** Follow the
+5. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-   to launch a fresh sub-agent that grades `design.md`. Tell the reviewer not to
-   invoke `kata-design`. Verify findings, address all confirmed
-   blocker/high/medium issues before advancing.
+   to launch a parallel panel of fresh sub-agents that each grade `design.md`.
+   Tell each reviewer not to invoke `kata-design`. Merge panel findings per the
+   protocol, verify, and address all confirmed blocker/high/medium issues before
+   advancing.
 6. **Present the design.** Share it for feedback. Iterate until satisfied. The
    design stays at `design draft` until a human approves it.
 7. **Update STATUS.** Set the spec to `design draft` in `specs/STATUS`.

@@ -48,9 +48,9 @@ asked for. If they ask for a spec, write the spec and stop.
 - [ ] Success criteria are verifiable (a command, observable behaviour, or
       testable property).
 - [ ] No implementation details have leaked in (HOW belongs in the plan).
-- [ ] Clean sub-agent review via [`kata-review`](../kata-review/SKILL.md)
-      completed (fresh context, no prior bias) and every **blocker**, **high**,
-      and **medium** finding addressed.
+- [ ] Clean sub-agent review panel via [`kata-review`](../kata-review/SKILL.md)
+      completed (fresh context, no prior bias, panel size per caller protocol)
+      and every **blocker**, **high**, and **medium** finding addressed.
 
 </do_confirm_checklist>
 
@@ -114,11 +114,12 @@ commit changes, report your decision so the caller can act on it.
 3. **Write the spec.** Focus on WHAT and WHY. Do not include implementation
    details — those go in the plan.
 4. **Update STATUS.** Add the spec to `specs/STATUS` with `spec draft`.
-5. **Clean sub-agent review.** Follow the
+5. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-   to launch a fresh sub-agent that grades `spec.md`. Tell the reviewer not to
-   invoke `kata-spec`. Verify findings, address all confirmed
-   blocker/high/medium issues before advancing.
+   to launch a parallel panel of fresh sub-agents that each grade `spec.md`.
+   Tell each reviewer not to invoke `kata-spec`. Merge panel findings per the
+   protocol, verify, and address all confirmed blocker/high/medium issues before
+   advancing.
 6. **Present the spec.** Share it for feedback. Iterate until satisfied. The
    spec stays at `spec draft` until a human approves it. Stop here — the plan is
    the staff engineer's job.
