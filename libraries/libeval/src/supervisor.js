@@ -378,13 +378,15 @@ export function createSupervisor({
 }) {
   const resolvedProfilesDir =
     profilesDir ?? resolve(supervisorCwd, ".claude/agents");
-  const systemPromptFor = (profile, trailer) =>
-    profile
+  const systemPromptFor = (profile, trailer) => {
+    if (!trailer) throw new Error("trailer is required");
+    return profile
       ? composeProfilePrompt(profile, {
           profilesDir: resolvedProfilesDir,
           trailer,
         })
       : { type: "preset", preset: "claude_code", append: trailer };
+  };
   let supervisor;
   let supervisorRunner;
 

@@ -433,13 +433,15 @@ export function createFacilitator({
 }) {
   const resolvedProfilesDir =
     profilesDir ?? resolve(facilitatorCwd, ".claude/agents");
-  const systemPromptFor = (profile, trailer) =>
-    profile
+  const systemPromptFor = (profile, trailer) => {
+    if (!trailer) throw new Error("trailer is required");
+    return profile
       ? composeProfilePrompt(profile, {
           profilesDir: resolvedProfilesDir,
           trailer,
         })
       : { type: "preset", preset: "claude_code", append: trailer };
+  };
   const ctx = createOrchestrationContext();
   const messageBus = createMessageBus({
     participants: ["facilitator", ...agentConfigs.map((a) => a.name)],
