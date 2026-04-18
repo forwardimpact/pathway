@@ -6,8 +6,12 @@ Scheduled Kata agents are not adopting their `.claude/agents/<name>.md` profile
 as the main-thread system prompt. The main thread runs as a generic
 Claude Code session that happens to know `<name>` is a registered subagent. PR
 [#409] (2026-04-17) switched libeval from `extraArgs: { agent }` to the SDK's
-top-level `agent` option expecting this to bind the profile; traces from five
-runs spanning four agents on the next night shift show it did not.
+top-level `options.agent` expecting this to bind the profile; traces from
+five runs spanning four agents on the next night shift show it did not.
+The `options.agent` route is the wrong integration point for libeval's
+needs — evidence in this spec establishes it as unreliable for main-thread
+binding across SDK 0.2.98–0.2.112, and libeval should stop depending on it
+even if a future SDK version makes it work.
 
 [#409]: https://github.com/forwardimpact/monorepo/pull/409
 
@@ -61,14 +65,18 @@ All profiles registered as subagents; none bound as the main-thread agent.
 The per-turn `agent_type` field described in `sdk.d.ts` as "Present … on the
 main thread of a session started with --agent" never appears.
 
-**SDK expectation mismatch.** `@anthropic-ai/claude-agent-sdk@0.2.112`
-documents the top-level `agent` option as: "The agent must be defined either
-in the `agents` option or in settings." libeval passes `agent: "<name>"` but
-does not pass `agents: { "<name>": { prompt, description, … } }`. The
-`settings` fallback path reads subagent definitions from
-`.claude/agents/*.md`, but the observed behaviour shows those definitions are
-applied to the _subagent registry_ (for the `Task`/`Agent` tool), not to the
-_main-thread system prompt_.
+**The `options.agent` contract is underspecified for this use case.**
+`@anthropic-ai/claude-agent-sdk@0.2.112` documents the top-level `agent`
+option as: "The agent must be defined either in the `agents` option or in
+settings." libeval passes `agent: "<name>"` but does not pass
+`agents: { "<name>": { prompt, description, … } }`. The `settings` fallback
+path reads subagent definitions from `.claude/agents/*.md`, but the
+observed behaviour shows those definitions are applied to the _subagent
+registry_ (for the `Task`/`Agent` tool), not to the _main-thread system
+prompt_. The option has also shifted behaviour across SDK versions —
+PR [#409] was itself a response to a behaviour change between 0.2.98 and
+0.2.112. Treat `options.agent` as unreliable infrastructure for
+main-thread binding regardless of SDK version.
 
 **All five runs completed successfully at the API level** — the bug is
 silent. No validation error, no warning. The only visible signal is
@@ -98,11 +106,14 @@ prompt at session start, not through a tool call.
 
 **The difference is at session start, not at task time.** Facilitated and
 supervised modes compose the profile into the main-thread system prompt
-before the first turn; solo mode does not. The `agent` option alone — the
+before the first turn; solo mode does not. `options.agent` alone — the
 approach PR [#409] reached for — is not what distinguishes a working run
 from a broken one in this SDK version; some additional session-start
 composition, already present in the facilitated and supervised call sites,
-is. Solo mode is the single outlier among the three execution modes.
+is. Solo mode is the single outlier among the three execution modes. The
+working modes' correctness does _not_ depend on `options.agent` being
+respected by the SDK, which is why their binding holds even when the option
+is silently ignored.
 
 ### Impact
 
@@ -134,14 +145,27 @@ binding must be verifiable from the trace without reading behaviour across
 many turns, and a missing profile must surface as a loud startup failure
 rather than a silent fallback to a generic main thread.
 
-### Binding must be explicit
+### libeval owns the binding; `options.agent` is not part of it
 
-Passing a profile name alone is not enough — the invariant behind this spec
-is that whatever the runtime needs to attach profile content to the main
-thread, libeval must supply it. The current solo-mode path has been
-observed to produce an unbound main thread while reporting success.
-Facilitated and supervised modes already bind correctly and stand as the
-baseline; solo mode must meet the same guarantee.
+libeval must attach profile content to the main thread at its own layer,
+using inputs it controls directly. Passing the profile's name via
+`options.agent` (or the equivalent CLI flag) has been observed to silently
+not bind across SDK 0.2.98–0.2.112 and must be treated as unreliable for
+this purpose regardless of SDK version. Two consequences follow:
+
+1. Solo-mode runs today produce an unbound main thread while reporting
+   success. That cannot continue.
+2. If a future SDK version makes `options.agent` reliably attach profile
+   content, libeval's own binding path would _duplicate_ that work —
+   potentially stacking two copies of the same profile in the system prompt,
+   or producing conflicting tool/model restrictions. libeval must not rely
+   on the option, and must not set the option alongside its own binding, to
+   avoid either failure mode.
+
+Facilitated and supervised modes already bind correctly without depending
+on `options.agent`; they stand as the baseline. Solo mode must meet the
+same guarantee and must reach it through the same layer-appropriate
+mechanism — libeval's own.
 
 ### Missing profile must fail loudly
 
@@ -170,9 +194,12 @@ against which solo mode's fix is verified.
 
 ### Affected
 
-- **libeval main-thread profile loading** — the path that currently passes
-  `agent: <name>` to the SDK, across all execution modes (run, supervise,
-  facilitate).
+- **libeval main-thread profile loading** — all three execution modes (run,
+  supervise, facilitate) across their respective main threads.
+- **Use of `options.agent` inside libeval** — libeval must stop passing the
+  SDK's top-level `agent` option (and the equivalent `--agent` CLI flag)
+  for main-thread binding. Whatever libeval does to attach profile content
+  stands alone and does not coexist with that option.
 - **`fit-eval` CLI startup** — must reject an unresolvable profile before
   starting the query.
 - **Trace schema** — whichever signal identifies the bound main-thread agent
@@ -187,10 +214,13 @@ against which solo mode's fix is verified.
   as written. This spec changes how they are loaded, not what they say.
 - **Subagent registration.** The existing mechanism for making `Explore`,
   `Plan`, `improvement-coach`, etc. available via the `Task`/`Agent` tool
-  continues to work as today.
-- **SDK upstream fixes.** If investigation shows the SDK itself has a bug,
-  the upstream fix is out of scope — this spec delivers a workaround in
-  libeval that holds regardless of SDK behaviour.
+  continues to work as today. The Task/Agent tool's use of agent names is a
+  separate concern from main-thread binding.
+- **Future SDK behaviour of `options.agent`.** Whether a later SDK version
+  makes the option reliable for main-thread binding does not affect this
+  spec; libeval's binding does not use that option, and the correctness of
+  libeval's binding must not depend on the option being ignored, respected,
+  or changed.
 - **Task prompt rewording.** The task text "Assess the current state of
   your domain and act on the highest-priority finding" stays generic. The
   profile is what binds "your domain" to a specific meaning, and fixing the
@@ -201,8 +231,10 @@ against which solo mode's fix is verified.
 
 ## Dependencies
 
-None blocking. [#409] merged a related libeval change; the evidence in this
-spec shows it was necessary but not sufficient.
+None blocking. [#409] merged a prior libeval change that routed through
+`options.agent`; the evidence in this spec shows that integration point is
+unreliable and the spec's direction is to move off it rather than refine
+it.
 
 ## Success Criteria
 
@@ -226,3 +258,7 @@ spec shows it was necessary but not sufficient.
    such that a reader can confirm, from the artifact, that the profile's
    content is what drove the first turn. This is an artifact property, not
    dependent on whether any particular run chose to emit a voice marker.
+6. A repository-wide grep for the SDK option that previously carried the
+   profile name (top-level `agent` in SDK query options, `--agent` CLI flag)
+   returns no call sites inside libeval's source. Test fixtures and
+   historical documentation may still reference it.
