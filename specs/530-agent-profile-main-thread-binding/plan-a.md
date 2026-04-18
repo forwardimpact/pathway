@@ -50,12 +50,16 @@ frontmatter, one without. Tests:
 - Concatenates trailer with blank-line separator when provided; no trailing
   whitespace mismatch when omitted.
 - Throws `ENOENT` for a missing profile file.
-- **Spec SC#1 coverage (loop test):** `readdirSync(".claude/agents")`, filter
-  `*.md`, for each file assert
-  `composeProfilePrompt(basename, { profilesDir: ".claude/agents" }).append`
-  contains a non-trivial substring of the real profile body (e.g. first 40
-  chars of the file past frontmatter). This walks every live profile and
-  fails the build if any profile stops being loadable.
+- **Spec SC#1 coverage (loop test):** Resolve the profiles directory via
+  `fileURLToPath(new URL("../../../.claude/agents", import.meta.url))` so
+  the path is anchored to the test file's location and independent of
+  `bun test` cwd. `readdirSync` that dir, filter `.md` files (no
+  subdirectory filtering needed — `.claude/agents/references/` is a
+  directory and will not match). For each file assert
+  `composeProfilePrompt(basename, { profilesDir }).append` contains a
+  non-trivial substring of the real profile body (e.g. first 40 chars of
+  the file past frontmatter). This walks every live profile and fails the
+  build if any profile stops being loadable.
 
 ### Step 2 — `AgentRunner` cleanup (`src/agent-runner.js`)
 
@@ -106,9 +110,10 @@ composer and nothing else. `parseRunOptions` is unchanged.
 
 ### Step 4 — Wire `supervisor.js` through the composer
 
-Depends on: Step 1, Step 2.
+Depends on: Step 1.
 
-At the supervisor factory (~L390–443):
+At the two `systemPrompt:` blocks inside `createSupervisor` (one for the
+agent runner, one for the supervisor runner — currently at L406 and L437):
 
 - Remove `agentProfile` and `supervisorProfile` from the `createAgentRunner`
   argument objects.
@@ -134,9 +139,11 @@ updated to say "resolved into the main-thread system prompt via
 
 ### Step 5 — Wire `facilitator.js` through the composer
 
-Depends on: Step 1, Step 2.
+Depends on: Step 1.
 
-At the facilitator factory (~L440–500):
+At the two `systemPrompt:` blocks inside `createFacilitator` — the per-agent
+runner inside `agents.map(...)` (currently at L475) and the facilitator
+runner itself (currently at L495):
 
 - For each agent runner in the `agents.map(...)` block: remove
   `agentProfile: config.agentProfile`; replace the static `systemPrompt`
@@ -151,37 +158,50 @@ At the facilitator factory (~L440–500):
 
 Depends on: Steps 3–5.
 
-Verify — and document in the commit message — that:
+Audit-only step — no code change expected. Verify — and record the
+findings in the commit message — that:
 
 - `bin/fit-eval.js` still exposes `--agent-profile`, `--supervisor-profile`,
   `--facilitator-profile`, `--agent-profiles` (unchanged — that is the CLI
   boundary per the design).
 - No command file passes `options.agent` or the SDK's top-level `agent`
   option into `createAgentRunner`. The `agentProfile` locals in `run.js`,
-  `supervise.js`, and `facilitate.js` feed only `composeProfilePrompt`.
-- `commands/supervise.js` `opts.agentProfile` and `opts.supervisorProfile`
-  feed the supervisor factory's new signature unchanged at the CLI layer.
+  `supervise.js`, and `facilitate.js` feed only `composeProfilePrompt` or
+  the factory signatures updated in Steps 4 and 5.
+- Factory signatures in `supervisor.js` and `facilitator.js` default
+  `profilesDir` to `<cwd>/.claude/agents`, so command files pass nothing
+  new across the boundary.
 
-No code change expected in this step beyond whatever minor rewiring Steps
-3–5 already required in the command files; this step is a grep-and-read
-confirmation.
+If the audit uncovers a path the plan missed, surface it as a deviation
+note on the implementation PR rather than editing silently.
 
 ### Step 7 — Grep verification for Spec SC#2
 
 Depends on: Steps 2–6.
 
-Run these greps and confirm zero matches inside `libraries/libeval/src/`
-and `libraries/libeval/bin/`:
+Spec SC#2 targets the SDK binding surface, not the `agentProfile`
+identifier used as a local or CLI argument name (which is fine to keep —
+it feeds `composeProfilePrompt` and nothing else). The greps below must
+return zero matches inside `libraries/libeval/src/` and
+`libraries/libeval/bin/`:
 
 ```
-rg -n "\bagent:\s*[A-Za-z]" libraries/libeval/src libraries/libeval/bin
-rg -n "agentProfile" libraries/libeval/src libraries/libeval/bin
-rg -n "\"--agent\"" libraries/libeval/src libraries/libeval/bin
+# SDK query option shape: object literal key "agent:" followed by an
+# identifier (captures both `agent: agentProfile` and
+# `agent: this.agentProfile`).
+rg -n "[{,]\s*agent:\s*[A-Za-z_.]" libraries/libeval/src libraries/libeval/bin
+
+# Old extraArgs shape, in case any path still forwards the flag.
+rg -n "extraArgs.*agent" libraries/libeval/src libraries/libeval/bin
+
+# Literal --agent flag pass-through.
+rg -n '"--agent"' libraries/libeval/src libraries/libeval/bin
 ```
 
-Tests and fixtures may still reference the old shape when stubbing
-historical SDK options — those matches are acceptable. Record the greps in
-the final commit body so the reviewer can replay them.
+The `agentProfile` name itself remains (as a variable holding the profile
+name to hand to `composeProfilePrompt`) and is not searched for. Tests and
+fixtures are out of scope for these greps. Record the exact commands in
+the commit body so the reviewer can replay them.
 
 ## Files touched
 
@@ -190,23 +210,24 @@ the final commit body so the reviewer can replay them.
   `libraries/libeval/test/fixtures/profile-prompt/*`.
 - **Modified:** `libraries/libeval/src/agent-runner.js`,
   `libraries/libeval/src/commands/run.js`,
-  `libraries/libeval/src/commands/supervise.js` (signature pass-through only),
-  `libraries/libeval/src/commands/facilitate.js` (signature pass-through only),
   `libraries/libeval/src/supervisor.js`,
   `libraries/libeval/src/facilitator.js`,
   `libraries/libeval/src/index.js` (export).
 - **Deleted:** none.
+- **Not modified:** `libraries/libeval/src/commands/supervise.js` and
+  `libraries/libeval/src/commands/facilitate.js` are inspected in Step 6
+  but do not need edits given the `profilesDir` default in the factory
+  signatures.
 
 ## Test additions
 
 - `test/profile-prompt.test.js` — unit tests for the composer, including the
   SC#1 loop over `.claude/agents/*.md`.
-- Existing tests that stub `AgentRunner` with `agentProfile` (likely in
-  `test/agent-runner.test.js`, `test/supervisor-*.test.js`,
-  `test/facilitator*.test.js`, `test/mock-runner.js`) must be updated to stop
-  passing `agentProfile` and either pass a precomposed `systemPrompt` or
-  leave `systemPrompt` unset. Inventory these at implementation time with
-  `rg agentProfile libraries/libeval/test/`.
+- A grep at plan-writing time (`rg -n agentProfile libraries/libeval/test/`)
+  returns zero matches today, so **no existing test files need updates**.
+  The implementer should re-run that grep after Step 2 to confirm the
+  assumption still holds; if any test has gained an `agentProfile` stub in
+  the meantime, update it to stop passing the field.
 
 ## Libraries used
 
@@ -224,11 +245,12 @@ exercise it without DI scaffolding.
   not directly unit-testable without a live SDK call. SC#3 is the
   end-to-end verifier — first night-shift run after merge either emits
   voice markers or does not.
-- **Test stubs for `AgentRunner`.** Existing tests pass `agentProfile` into
-  the constructor. They will keep passing silently because
-  `applyDefaults` previously accepted the field, but after Step 2 any test
-  that asserts `options.agent` was forwarded into the SDK query will fail.
-  Step 2 includes an inventory pass to update them.
+- **Test stubs for `AgentRunner` (verified absent).** A grep at
+  plan-writing time showed zero test files reference `agentProfile`, so
+  there is nothing to retrofit. Risk retained as a re-verification
+  checkpoint: if a test gained an `agentProfile` stub between plan writing
+  and implementation, the `applyDefaults` removal in Step 2 will make that
+  test silently pass without binding and it must be updated.
 - **Non-main-thread uses of `options.agent`.** Subagent dispatch via the
   `Task`/`Agent` tool is out of scope (spec § Excluded), but a stray
   `options.agent` inside supervisor/facilitator code paths that is _not_
@@ -245,10 +267,12 @@ exercise it without DI scaffolding.
 
 Single `staff-engineer` run on branch `feat/530-agent-profile-main-thread-binding`.
 Do not decompose. The change is tightly coupled (one module + five wiring
-sites + test updates) and the whole diff must land together so greps pass.
-Steps 1 and 2 are independent; Steps 3–5 depend on both; Steps 6–7 are the
-tail audit. Implementer runs `bun run check` and `bun run test` after each
-wiring step and once at the end.
+sites + the test file) and the whole diff must land together so the Step 7
+greps pass. Steps 1 and 2 are independent prerequisites; Steps 3, 4, and 5
+each depend on Step 1 only and may be completed in any order; Step 6 is an
+audit that depends on Steps 3–5; Step 7 is the final grep check.
+Implementer runs `bun run check` and `bun run test` after each wiring step
+and once at the end.
 
 SC#3 (voice-marker appearance in scheduled runs) is end-to-end and observed
 after the fix lands in `main`. Note it in the implementation PR body as a
