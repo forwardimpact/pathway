@@ -1,7 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 
-import { parseGitRemote } from "@forwardimpact/libeval";
+import { createTraceGitHub, parseGitRemote } from "@forwardimpact/libeval";
 
 describe("parseGitRemote", () => {
   test("parses SSH remote", () => {
@@ -44,5 +44,31 @@ describe("parseGitRemote", () => {
     const result = parseGitRemote("git@github.com:acme/widgets.git");
     assert.strictEqual(result.owner, "acme");
     assert.strictEqual(result.repo, "widgets");
+  });
+});
+
+describe("createTraceGitHub", () => {
+  test("throws a clear error when called with no arguments", async () => {
+    await assert.rejects(
+      () => createTraceGitHub(),
+      /token is required.*Config\.ghToken/,
+    );
+  });
+
+  test("throws a clear error when token is missing", async () => {
+    await assert.rejects(
+      () => createTraceGitHub({ repo: "owner/repo" }),
+      /token is required.*Config\.ghToken/,
+    );
+  });
+
+  test("returns a TraceGitHub with the provided token and parsed repo", async () => {
+    const gh = await createTraceGitHub({
+      token: "ghp_fake",
+      repo: "forwardimpact/monorepo",
+    });
+    assert.strictEqual(gh.token, "ghp_fake");
+    assert.strictEqual(gh.owner, "forwardimpact");
+    assert.strictEqual(gh.repo, "monorepo");
   });
 });

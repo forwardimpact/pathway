@@ -10,9 +10,13 @@ import { createTraceGitHub } from "../trace-github.js";
  * List recent workflow runs matching a pattern.
  * @param {object} values - Parsed option values
  * @param {string[]} args - [pattern?]
+ * @param {{config: import("@forwardimpact/libconfig").Config}} ctx
  */
-export async function runRunsCommand(values, args) {
-  const gh = await createTraceGitHub({ repo: values.repo });
+export async function runRunsCommand(values, args, ctx) {
+  const gh = await createTraceGitHub({
+    token: ctx.config.ghToken(),
+    repo: values.repo,
+  });
   const pattern = args[0] ?? "agent";
   const lookback = values.lookback ?? "7d";
   const runs = await gh.listRuns({ pattern, lookback });
@@ -23,9 +27,13 @@ export async function runRunsCommand(values, args) {
  * Download a trace artifact and auto-convert to structured JSON.
  * @param {object} values - Parsed option values
  * @param {string[]} args - [run-id]
+ * @param {{config: import("@forwardimpact/libconfig").Config}} ctx
  */
-export async function runDownloadCommand(values, args) {
-  const gh = await createTraceGitHub({ repo: values.repo });
+export async function runDownloadCommand(values, args, ctx) {
+  const gh = await createTraceGitHub({
+    token: ctx.config.ghToken(),
+    repo: values.repo,
+  });
   const result = await gh.downloadTrace(args[0], {
     dir: values.dir,
     name: values.artifact,

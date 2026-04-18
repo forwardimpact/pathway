@@ -186,21 +186,30 @@ export function parseGitRemote(remote) {
 }
 
 /**
- * Create a TraceGitHub instance using libconfig for the token and
- * git remote for the repo.
+ * Create a TraceGitHub instance. The caller is responsible for resolving
+ * the GitHub token — typically via `Config.ghToken()` — so credential
+ * loading stays at the CLI entry point.
  *
- * @param {object} [opts]
+ * Breaking change from the prior signature: `token` is now a required
+ * caller input. Construct a `Config` via `@forwardimpact/libconfig` and
+ * pass `config.ghToken()`.
+ *
+ * @param {object} opts
+ * @param {string} opts.token - GitHub token (e.g. from `Config.ghToken()`)
  * @param {string} [opts.repo] - "owner/repo" override (default: detect from git remote)
  * @returns {Promise<TraceGitHub>}
  */
 export async function createTraceGitHub(opts = {}) {
-  const { createScriptConfig } = await import("@forwardimpact/libconfig");
-  const config = await createScriptConfig("eval");
-  const token = config.ghToken();
+  const { token, repo: repoOverride } = opts;
+  if (!token) {
+    throw new Error(
+      "createTraceGitHub: token is required (pass Config.ghToken())",
+    );
+  }
 
   let owner, repo;
-  if (opts.repo) {
-    ({ owner, repo } = parseGitRemote(opts.repo));
+  if (repoOverride) {
+    ({ owner, repo } = parseGitRemote(repoOverride));
   } else {
     const { execSync } = await import("node:child_process");
     const remote = execSync("git remote get-url origin", {
