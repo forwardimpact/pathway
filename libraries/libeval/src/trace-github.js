@@ -190,13 +190,22 @@ export function parseGitRemote(remote) {
  * the GitHub token — typically via `Config.ghToken()` — so credential
  * loading stays at the CLI entry point.
  *
+ * Breaking change from the prior signature: `token` is now a required
+ * caller input. Construct a `Config` via `@forwardimpact/libconfig` and
+ * pass `config.ghToken()`.
+ *
  * @param {object} opts
  * @param {string} opts.token - GitHub token (e.g. from `Config.ghToken()`)
  * @param {string} [opts.repo] - "owner/repo" override (default: detect from git remote)
  * @returns {Promise<TraceGitHub>}
  */
-export async function createTraceGitHub(opts) {
+export async function createTraceGitHub(opts = {}) {
   const { token, repo: repoOverride } = opts;
+  if (!token) {
+    throw new Error(
+      "createTraceGitHub: token is required (pass Config.ghToken())",
+    );
+  }
 
   let owner, repo;
   if (repoOverride) {
