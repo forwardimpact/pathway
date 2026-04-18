@@ -74,6 +74,36 @@ _main-thread system prompt_.
 silent. No validation error, no warning. The only visible signal is
 behavioural drift across many turns.
 
+### Contrast — facilitated mode works
+
+The daily storyboard meeting uses libeval's `facilitate` execution mode,
+which wires its agents with a different SDK option shape. Run
+[24554487708] (2026-04-17 07:58, 10 hours _before_ PR #409 merged) shows
+perfect persona adoption across all five facilitated agents:
+
+[24554487708]: https://github.com/forwardimpact/monorepo/actions/runs/24554487708
+
+| Signal | Solo runs (5 sampled) | Facilitated run (5 agents) |
+| --- | --- | --- |
+| Read own `wiki/<agent>.md` before first domain action | 0 / 5 | **5 / 5** |
+| First tool call in-domain | 0 / 5 | **5 / 5** |
+| Emitted profile voice marker (🌱 🔒 🚀 📝 📊) | 0 / 5 | **5 / 5** |
+| Drift to other profile | 4 / 5 (all to product-manager) | 0 / 5 |
+
+Voice markers like `— Technical Writer 📝` are authored only in
+`.claude/agents/<name>.md`. No facilitated agent _Read_ its own profile file
+during the run, yet every one of them emitted the correct marker. The
+profile content therefore reaches facilitated agents through the system
+prompt at session start, not through a tool call.
+
+**The difference is at session start, not at task time.** Facilitated and
+supervised modes compose the profile into the main-thread system prompt
+before the first turn; solo mode does not. The `agent` option alone — the
+approach PR [#409] reached for — is not what distinguishes a working run
+from a broken one in this SDK version; some additional session-start
+composition, already present in the facilitated and supervised call sites,
+is. Solo mode is the single outlier among the three execution modes.
+
 ### Impact
 
 - **Persona-enforced scope constraints are not in force.** Each profile
@@ -98,18 +128,20 @@ behavioural drift across many turns.
 ## Proposal
 
 Bind the designated agent profile as the main-thread system prompt on every
-scheduled agent run. The profile must drive the first token of the main
-thread, the binding must be verifiable from the trace without reading
-behaviour across many turns, and a missing profile must surface as a loud
-startup failure rather than a silent fallback to a generic main thread.
+scheduled agent run — including solo-mode runs, which today silently skip
+this step. The profile must drive the first token of the main thread, the
+binding must be verifiable from the trace without reading behaviour across
+many turns, and a missing profile must surface as a loud startup failure
+rather than a silent fallback to a generic main thread.
 
 ### Binding must be explicit
 
 Passing a profile name alone is not enough — the invariant behind this spec
 is that whatever the runtime needs to attach profile content to the main
-thread, libeval must supply it. The current behaviour (naming the profile
-and expecting the SDK's settings layer to resolve it) has been observed to
-produce an unbound main thread while reporting success.
+thread, libeval must supply it. The current solo-mode path has been
+observed to produce an unbound main thread while reporting success.
+Facilitated and supervised modes already bind correctly and stand as the
+baseline; solo mode must meet the same guarantee.
 
 ### Missing profile must fail loudly
 
@@ -130,7 +162,9 @@ design choice.
 All three libeval execution modes — single-agent runs, supervised runs, and
 facilitated multi-agent sessions — must bind their respective main-thread
 profiles with the same guarantees. In supervised and facilitated modes, each
-independent main thread must bind its own profile independently.
+independent main thread must bind its own profile independently. The
+existing behaviour of supervised and facilitated modes is the baseline
+against which solo mode's fix is verified.
 
 ## Scope
 
