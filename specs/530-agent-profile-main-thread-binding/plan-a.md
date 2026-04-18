@@ -27,8 +27,9 @@ composeProfilePrompt(name, { profilesDir, trailer })
 
 Behaviour:
 
-- Reads `${profilesDir}/${name}.md` with `readFileSync(path, "utf8")`. Missing
-  file propagates `ENOENT` unchanged (first safety net).
+- Reads `join(profilesDir, `${name}.md`)` with `readFileSync(path, "utf8")`
+  using `node:path`'s `join`. Missing file propagates `ENOENT` unchanged
+  (first safety net).
 - Strips YAML frontmatter. Recognise the fence pattern: file begins with
   `---\n`, a second `\n---\n` terminates it. If the file lacks frontmatter,
   the entire body is used.
@@ -36,9 +37,10 @@ Behaviour:
   `trailer` when trailer is a non-empty string; otherwise just the body.
 - No fallback, no default profile, no catch-around-read.
 
-**Export** from `/home/user/monorepo/libraries/libeval/src/index.js` alongside
-`createAgentRunner` so callers outside libeval could depend on it (consistency
-with existing public surface).
+**Export** from `/home/user/monorepo/libraries/libeval/src/index.js` by
+adding `export { composeProfilePrompt } from "./profile-prompt.js";`
+alongside the existing `createAgentRunner` re-export. No other index.js
+lines change.
 
 **Create** `/home/user/monorepo/libraries/libeval/test/profile-prompt.test.js`.
 Fixtures live alongside in `test/fixtures/profile-prompt/` — one with
@@ -127,8 +129,12 @@ agent runner, one for the supervisor runner — currently at L406 and L437):
 - Same shape for the supervisor runner using `supervisorProfile` and
   `SUPERVISOR_SYSTEM_PROMPT` as trailer.
 - Add `profilesDir` to the factory's dep signature with default
-  `resolve(agentCwd, ".claude/agents")`; accept an override from callers for
-  test injection symmetry.
+  `resolve(supervisorCwd, ".claude/agents")`; accept an override from
+  callers for test injection symmetry. **Resolution rule:** `profilesDir`
+  is a single value for the whole session, resolved from the
+  orchestrator's cwd (the supervisor's cwd here), not from the agent
+  runner's cwd — profiles are project-level content and must not follow an
+  agent into a sandbox or worktree.
 - Import `composeProfilePrompt` from `./profile-prompt.js`.
 
 The `AGENT_SYSTEM_PROMPT` / `SUPERVISOR_SYSTEM_PROMPT` exports stay — they
@@ -152,7 +158,11 @@ runner itself (currently at L495):
   otherwise keep today's plain-trailer shape.
 - Facilitator runner: same replacement with `facilitatorProfile` and
   `FACILITATOR_SYSTEM_PROMPT` as trailer.
-- Accept a `profilesDir` dep with the same default pattern as Step 4.
+- Add `profilesDir` to the factory's dep signature with default
+  `resolve(facilitatorCwd, ".claude/agents")`. Same resolution rule as
+  Step 4: `profilesDir` is a single value for the whole session, resolved
+  from `facilitatorCwd`, not from each agent's `config.cwd` (which may
+  point to per-agent sandboxes).
 
 ### Step 6 — CLI flag audit (`bin/fit-eval.js`, `commands/*.js`)
 
@@ -186,10 +196,12 @@ return zero matches inside `libraries/libeval/src/` and
 `libraries/libeval/bin/`:
 
 ```
-# SDK query option shape: object literal key "agent:" followed by an
-# identifier (captures both `agent: agentProfile` and
-# `agent: this.agentProfile`).
-rg -n "[{,]\s*agent:\s*[A-Za-z_.]" libraries/libeval/src libraries/libeval/bin
+# SDK query option shape: the "agent:" key bound to an identifier,
+# matching across lines so a multi-line object literal cannot hide a
+# regression. Captures `agent: agentProfile`, `agent: this.agentProfile`,
+# and multi-line `{\n  agent: foo\n}` variants.
+rg -Un --multiline --pcre2 "(?:^|[{,])\s*\n?\s*agent:\s*[A-Za-z_.]" \
+  libraries/libeval/src libraries/libeval/bin
 
 # Old extraArgs shape, in case any path still forwards the flag.
 rg -n "extraArgs.*agent" libraries/libeval/src libraries/libeval/bin
@@ -197,6 +209,10 @@ rg -n "extraArgs.*agent" libraries/libeval/src libraries/libeval/bin
 # Literal --agent flag pass-through.
 rg -n '"--agent"' libraries/libeval/src libraries/libeval/bin
 ```
+
+Then open every file under `libraries/libeval/src` and search visually for
+any `agent:` key in an options object the implementer did not expect —
+regex coverage is a floor, not a ceiling.
 
 The `agentProfile` name itself remains (as a variable holding the profile
 name to hand to `composeProfilePrompt`) and is not searched for. Tests and
