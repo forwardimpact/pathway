@@ -2,7 +2,7 @@
 
 ## Problem Restated
 
-The improvement-coach agent spends ~76K tokens and ~97 turns launching Explore
+The improvement-coach agent spends 40-76K tokens and 97+ turns launching Explore
 subagents to learn architecture already present in CLAUDE.md. Sessions hit the
 50-turn limit before completing real work. The cause is missing guidance on when
 existing context suffices versus when exploration is warranted.
@@ -110,13 +110,9 @@ the expensive one first.
   CONTRIBUTING.md Agent Context Efficiency section.
 - **Out of scope:** Changes to other agent profiles, Explore subagent behaviour,
   max_turns configuration, enforcement mechanisms.
-- The spec's "Step 0" framing is preserved in spirit but placed as a profile
-  section rather than a numbered step, since the improvement-coach profile has
-  no process steps — those live in skills.
-
 ## Verification
 
-The design enables the spec's success criteria without adding verification
-mechanisms. Measurement uses existing trace analysis (kata-trace) to compare
-pre/post token consumption and turn counts during the initial context
-establishment phase of improvement-coach sessions.
+No new verification tooling is introduced. The spec's success criteria
+(turn counts, token consumption, analysis quality) are measurable through
+existing trace infrastructure already used by the improvement coach's
+coaching cycle.
