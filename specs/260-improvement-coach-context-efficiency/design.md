@@ -85,12 +85,13 @@ canonical location for contributor conventions and is referenced by CLAUDE.md.
 All agents inherit it. Placing the pattern here makes it discoverable during
 code review and agent authoring.
 
-**Rejected: CLAUDE.md directly.** CLAUDE.md documents the system; CONTRIBUTING.md
-documents how to contribute to it. Agent authoring guidance belongs in the
-latter.
+**Rejected: CLAUDE.md directly.** CLAUDE.md documents the system;
+CONTRIBUTING.md documents how to contribute to it. Agent authoring guidance
+belongs in the latter.
 
-**Rejected: A new shared reference file.** Over-engineering for a three-paragraph
-convention. CONTRIBUTING.md already groups this type of guidance.
+**Rejected: A new shared reference file.** Over-engineering for a
+three-paragraph convention. CONTRIBUTING.md already groups this type of
+guidance.
 
 ### Escalation criteria specificity
 
@@ -110,9 +111,9 @@ the expensive one first.
   CONTRIBUTING.md Agent Context Efficiency section.
 - **Out of scope:** Changes to other agent profiles, Explore subagent behaviour,
   max_turns configuration, enforcement mechanisms.
+
 ## Verification
 
-No new verification tooling is introduced. The spec's success criteria
-(turn counts, token consumption, analysis quality) are measurable through
-existing trace infrastructure already used by the improvement coach's
-coaching cycle.
+No new verification tooling is introduced. The spec's success criteria (turn
+counts, token consumption, analysis quality) are measurable through existing
+trace infrastructure already used by the improvement coach's coaching cycle.
