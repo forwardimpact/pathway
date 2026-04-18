@@ -7,7 +7,9 @@
  */
 
 import { Writable } from "node:stream";
+import { resolve } from "node:path";
 import { createAgentRunner } from "./agent-runner.js";
+import { composeProfilePrompt } from "./profile-prompt.js";
 import { SequenceCounter } from "./sequence-counter.js";
 import { createMessageBus } from "./message-bus.js";
 import {
@@ -415,7 +417,8 @@ const devNull = new Writable({
  * @param {import("stream").Writable} deps.output
  * @param {string} [deps.model]
  * @param {number} [deps.maxTurns]
- * @param {string} [deps.facilitatorProfile]
+ * @param {string} [deps.facilitatorProfile] - Facilitator profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
+ * @param {string} [deps.profilesDir] - Directory containing `<name>.md` profile files. Defaults to `<facilitatorCwd>/.claude/agents`. Resolved once from the facilitator's cwd so profiles travel with the project, not with per-agent sandboxes.
  * @returns {Facilitator}
  */
 export function createFacilitator({
@@ -426,7 +429,19 @@ export function createFacilitator({
   model,
   maxTurns,
   facilitatorProfile,
+  profilesDir,
 }) {
+  const resolvedProfilesDir =
+    profilesDir ?? resolve(facilitatorCwd, ".claude/agents");
+  const systemPromptFor = (profile, trailer) => {
+    if (!trailer) throw new Error("trailer is required");
+    return profile
+      ? composeProfilePrompt(profile, {
+          profilesDir: resolvedProfilesDir,
+          trailer,
+        })
+      : { type: "preset", preset: "claude_code", append: trailer };
+  };
   const ctx = createOrchestrationContext();
   const messageBus = createMessageBus({
     participants: ["facilitator", ...agentConfigs.map((a) => a.name)],
@@ -471,12 +486,10 @@ export function createFacilitator({
       onLine: (line) => facilitator.emitLine(config.name, line),
       mcpServers: { orchestration: agentServer },
       settingSources: ["project"],
-      agentProfile: config.agentProfile,
-      systemPrompt: {
-        type: "preset",
-        preset: "claude_code",
-        append: FACILITATED_AGENT_SYSTEM_PROMPT,
-      },
+      systemPrompt: systemPromptFor(
+        config.agentProfile,
+        FACILITATED_AGENT_SYSTEM_PROMPT,
+      ),
     });
 
     return { name: config.name, role: config.role, runner };
@@ -491,12 +504,10 @@ export function createFacilitator({
     onLine: (line) => facilitator.emitLine("facilitator", line),
     mcpServers: { orchestration: facilitatorServer },
     settingSources: ["project"],
-    agentProfile: facilitatorProfile,
-    systemPrompt: {
-      type: "preset",
-      preset: "claude_code",
-      append: FACILITATOR_SYSTEM_PROMPT,
-    },
+    systemPrompt: systemPromptFor(
+      facilitatorProfile,
+      FACILITATOR_SYSTEM_PROMPT,
+    ),
   });
 
   facilitator = new Facilitator({
