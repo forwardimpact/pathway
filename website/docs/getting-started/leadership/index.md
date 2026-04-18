@@ -414,23 +414,6 @@ curl -X POST \
   https://<project-ref>.supabase.co/functions/v1/transform
 ```
 
-### Activity: verify the data
-
-Once people are pushed and at least one ingestion command has run, verify the
-database with a single command:
-
-```sh
-npx fit-map activity verify
-```
-
-`fit-map activity verify` reads `activity.organization_people` and at least one
-derived table, prints the row counts it found, and exits 0 if both are
-populated. If either is empty it exits non-zero with a message pointing at the
-step that didn't run.
-
-If verification passes, your activity layer is ready for Landmark, Summit, and
-Guide.
-
 ### Trying the activity layer with synthetic data
 
 If you want to explore the activity layer before connecting real data sources,
@@ -455,6 +438,23 @@ verifies the result. The database will contain realistic but fictional data you
 can query with Landmark or Summit. When you are ready to switch to real data,
 push your actual roster with `npx fit-map people push` — it overwrites the
 synthetic entries.
+
+### Activity: verify the data
+
+Once people are pushed and at least one data source is available — either from
+real ingestion commands above or from `activity seed` — verify the database:
+
+```sh
+npx fit-map activity verify
+```
+
+`fit-map activity verify` reads `activity.organization_people` and at least one
+derived table (`getdx_snapshots` or `github_events`), prints the row counts it
+found, and exits 0 if both are populated. If either is empty it exits non-zero
+with a message pointing at the step that didn't run.
+
+If verification passes, your activity layer is ready for Landmark, Summit, and
+Guide.
 
 ---
 
