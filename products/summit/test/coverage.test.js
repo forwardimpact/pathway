@@ -13,6 +13,7 @@ import { TeamNotFoundError } from "../src/aggregation/errors.js";
 import { parseRosterYaml } from "../src/roster/yaml.js";
 import { Audience, withAudienceFilter } from "../src/lib/audience.js";
 import { coverageToJson } from "../src/formatters/coverage/json.js";
+import { coverageToText } from "../src/formatters/coverage/text.js";
 
 const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
 
@@ -200,4 +201,38 @@ test("coverageToJson round-trips through JSON.stringify", async () => {
   assert.equal(roundTrip.team, "platform");
   assert.equal(roundTrip.type, "reporting");
   assert.ok(roundTrip.coverage.task_completion);
+});
+
+test("coverageToText includes growth hint when gaps are present", async () => {
+  const data = await loadData();
+  const roster = parseRosterYaml(FIXTURE_ROSTER);
+  const resolved = resolveTeam(roster, data, { teamId: "platform" });
+  const coverage = computeCoverage(resolved, data);
+
+  // The platform team has incident_response at depth 0 — a gap.
+  assert.equal(coverage.skills.get("incident_response").headcountDepth, 0);
+
+  const text = coverageToText(coverage, data);
+  assert.ok(
+    text.includes("fit-summit growth platform"),
+    "output should hint at the growth command when gaps exist",
+  );
+});
+
+test("coverageToText omits growth hint when no gaps are present", async () => {
+  const data = await loadData();
+  const roster = parseRosterYaml(FIXTURE_ROSTER);
+  const resolved = resolveTeam(roster, data, { teamId: "platform" });
+  const coverage = computeCoverage(resolved, data);
+
+  // Remove all gap skills so no hint should appear.
+  for (const [id, skill] of coverage.skills) {
+    if (skill.headcountDepth === 0) coverage.skills.delete(id);
+  }
+
+  const text = coverageToText(coverage, data);
+  assert.ok(
+    !text.includes("fit-summit growth"),
+    "output should not hint at growth when there are no gaps",
+  );
 });
