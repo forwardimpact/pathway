@@ -9,8 +9,10 @@
 #   plan	draft			Plan is being written
 #   plan	approved		Human approved — ready for implementation
 #   plan	implemented		Implementation complete
+#   {phase}	cancelled		Spec cancelled during {phase} — no further work planned
 #
 # Lifecycle: spec draft → spec approved → design draft → design approved → plan draft → plan approved → plan implemented
+# Any row may transition to {phase} cancelled at any point; cancelled is terminal.
 # One row per spec, updated in place.
 
 010	plan	implemented
@@ -43,7 +45,7 @@
 230	plan	implemented
 240	plan	implemented
 250	plan	implemented
-260	design	draft
+260	design	cancelled
 270	plan	implemented
 280	plan	implemented
 290	plan	implemented
