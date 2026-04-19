@@ -27,6 +27,10 @@ there is no architectural direction to translate into implementation steps.
 
 <read_do_checklist goal="Internalize plan-writing boundaries before starting">
 
+- [ ] Read `specs/STATUS` directly from disk — confirm this spec is at
+      `design approved`. Do not rely on the wiki, prior session memory, or PR
+      descriptions to establish the current phase; those sources can lag or
+      contain phantoms.
 - [ ] A plan requires an approved design — if no approved design exists, stop.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.

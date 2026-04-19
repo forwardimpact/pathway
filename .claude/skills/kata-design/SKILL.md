@@ -37,6 +37,10 @@ spec's scope is too broad and should be narrowed.
 
 <read_do_checklist goal="Internalize design-writing boundaries before starting">
 
+- [ ] Read `specs/STATUS` directly from disk — confirm this spec is at
+      `spec approved`. Do not rely on the wiki, prior session memory, or PR
+      descriptions to establish the current phase; those sources can lag or
+      contain phantoms.
 - [ ] A design requires an approved spec — if no approved spec exists, stop.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
@@ -62,6 +66,8 @@ spec's scope is too broad and should be narrowed.
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,
       **high**, and **medium** finding addressed.
+- [ ] Run `bun run format:fix` before pushing — commit any changes the
+      formatter makes.
 
 </do_confirm_checklist>
 
