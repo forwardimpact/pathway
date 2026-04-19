@@ -10,10 +10,15 @@ products/map/
   src/              Pure data model
     loader.js       YAML file loading and parsing
     validation.js   Referential integrity and data validation
+    validation/     Per-entity validation modules
     schema-validation.js  JSON Schema validation
     levels.js       Type definitions, skill proficiencies, behaviour maturities
     modifiers.js    Capability and skill modifier utilities
     index-generator.js  Browser index generation
+    renderer.js     HTML rendering for index output
+    exporter.js     Data export utilities
+    iri.js          IRI (Internationalized Resource Identifier) helpers
+    view-builders/  Per-entity view builder modules
     index.js        Public API exports
   src/activity/     Node-only operational helpers
     validate/       Local-only people validation (uses ../loader.js)
@@ -22,6 +27,8 @@ products/map/
       snapshots.js  GetDX snapshot queries
       evidence.js   Evidence queries
       artifacts.js  GitHub artifact queries
+      comments.js   GetDX snapshot comment queries
+      initiatives.js  GetDX initiative queries
   src/commands/     CLI subcommand handlers (activity, getdx, init, people,
                     validate-shacl)
   src/lib/          Package-internal helpers (client, package-root, supabase-cli)
@@ -140,17 +147,22 @@ Supabase directly.
 
 All query functions take a `supabase` client as their first parameter.
 
-| Module         | Function                                                        | Purpose                                            |
-| -------------- | --------------------------------------------------------------- | -------------------------------------------------- |
-| `org.js`       | `getOrganization(supabase)`                                     | All people from `organization_people`              |
-| `org.js`       | `getTeam(supabase, managerEmail)`                               | Recursive walk of `manager_email` hierarchy        |
-| `snapshots.js` | `listSnapshots(supabase)`                                       | All snapshots ordered by `scheduled_for`           |
-| `snapshots.js` | `getSnapshotScores(supabase, snapshotId, { managerEmail })`     | Team scores, optionally filtered by manager's team |
-| `snapshots.js` | `getItemTrend(supabase, itemId, { managerEmail })`              | Score trajectory across snapshots                  |
-| `snapshots.js` | `getSnapshotComparison(supabase, snapshotId, { managerEmail })` | Scores with comparative metrics                    |
-| `evidence.js`  | `getEvidence(supabase, { skillId, email })`                     | Evidence rows, filtered by skill or person         |
-| `evidence.js`  | `getPracticePatterns(supabase, { skillId, managerEmail })`      | Aggregated evidence across a manager's team        |
-| `artifacts.js` | `getArtifacts(supabase, { email, type })`                       | GitHub artifacts, filtered by person or type       |
+| Module           | Function                                                        | Purpose                                            |
+| ---------------- | --------------------------------------------------------------- | -------------------------------------------------- |
+| `org.js`         | `getOrganization(supabase)`                                     | All people from `organization_people`              |
+| `org.js`         | `getTeam(supabase, managerEmail)`                               | Recursive walk of `manager_email` hierarchy        |
+| `org.js`         | `getPerson(supabase, email)`                                    | Single person by email                             |
+| `snapshots.js`   | `listSnapshots(supabase)`                                       | All snapshots ordered by `scheduled_for`           |
+| `snapshots.js`   | `getSnapshotScores(supabase, snapshotId, { managerEmail })`     | Team scores, optionally filtered by manager's team |
+| `snapshots.js`   | `getItemTrend(supabase, itemId, { managerEmail })`              | Score trajectory across snapshots                  |
+| `snapshots.js`   | `getSnapshotComparison(supabase, snapshotId, { managerEmail })` | Scores with comparative metrics                    |
+| `evidence.js`    | `getEvidence(supabase, { skillId, email })`                     | Evidence rows, filtered by skill or person         |
+| `evidence.js`    | `getPracticePatterns(supabase, { skillId, managerEmail })`      | Aggregated evidence across a manager's team        |
+| `artifacts.js`   | `getArtifacts(supabase, { email, type })`                       | GitHub artifacts, filtered by person or type       |
+| `artifacts.js`   | `getUnscoredArtifacts(supabase, { email, type })`               | Artifacts without evidence scores                  |
+| `comments.js`    | `getSnapshotComments(supabase, { snapshotId, managerEmail })`   | GetDX snapshot comments                            |
+| `initiatives.js` | `listInitiatives(supabase, { managerEmail })`                   | GetDX initiatives                                  |
+| `initiatives.js` | `getInitiative(supabase, id)`                                   | Single initiative by ID                            |
 
 ---
 
@@ -169,12 +181,14 @@ marker evidence for its contributing skills.
 
 The data product serves five consumers through two interfaces:
 
-| Product      | Layer    | Consumes                                               |
-| ------------ | -------- | ------------------------------------------------------ |
-| **Guide**    | Activity | Artifacts (reads), evidence (writes), markers (reads)  |
-| **Pathway**  | Pure     | Framework schema (skills, disciplines, levels, tracks) |
-| **Basecamp** | Pure     | Framework schema                                       |
-| **libskill** | Pure     | Framework schema for derivation                        |
+| Product      | Layer         | Consumes                                                           |
+| ------------ | ------------- | ------------------------------------------------------------------ |
+| **Guide**    | Activity      | Artifacts (reads), evidence (writes), markers (reads)              |
+| **Pathway**  | Pure          | Framework schema (skills, disciplines, levels, tracks)             |
+| **Basecamp** | Pure          | Framework schema                                                   |
+| **libskill** | Pure          | Framework schema for derivation                                    |
+| **Summit**   | Pure+Activity | Framework schema, org queries, snapshots, evidence                 |
+| **Landmark** | Activity      | Org queries, snapshots, evidence, artifacts, comments, initiatives |
 
 Both layers ship with `@forwardimpact/map` on npm. Pure-layer consumers import
 the framework loader and validation modules. Activity-layer consumers import
@@ -190,7 +204,8 @@ to stand up the database.
 // Pure layer imports
 import { createDataLoader } from "@forwardimpact/map";
 import { validateAllData } from "@forwardimpact/map/validation";
-import { SKILL_PROFICIENCIES, BEHAVIOUR_MATURITIES } from "@forwardimpact/map/levels";
+import { SkillProficiency, SKILL_PROFICIENCY_ORDER } from "@forwardimpact/map/levels";
+import { BehaviourMaturity, BEHAVIOUR_MATURITY_ORDER } from "@forwardimpact/map/levels";
 
 const loader = createDataLoader({ dataDir: "./data" });
 const data = await loader.load();
