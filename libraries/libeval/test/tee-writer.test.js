@@ -456,6 +456,37 @@ describe("TeeWriter", () => {
     assert.ok(!toolLine.includes('"'));
   });
 
+  test("simplifies mcp__*__* tool names in the text stream", async () => {
+    const fileStream = new PassThrough();
+    const textStream = new PassThrough();
+    const writer = new TeeWriter({ fileStream, textStream, mode: "raw" });
+
+    const event = JSON.stringify({
+      source: "orchestrator",
+      seq: 0,
+      event: {
+        type: "assistant",
+        message: {
+          content: [
+            {
+              type: "tool_use",
+              id: "t1",
+              name: "mcp__orchestration__Tell",
+              input: { to: "staff-engineer", message: "go" },
+            },
+          ],
+          usage: { input_tokens: 1, output_tokens: 1 },
+        },
+      },
+    });
+
+    await writeLines(writer, [event]);
+
+    const plain = stripAnsi(collect(textStream));
+    assert.ok(plain.includes("Tell: to staff-engineer"));
+    assert.ok(!plain.includes("mcp__orchestration__Tell"));
+  });
+
   test("defaults to raw mode", () => {
     const writer = new TeeWriter({
       fileStream: new PassThrough(),

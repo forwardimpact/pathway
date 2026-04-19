@@ -77,8 +77,24 @@ const HINT_HANDLERS = {
 };
 
 /**
+ * Strip the `mcp__<server>__` prefix from MCP-namespaced tool names so logs
+ * show the bare method (e.g. `mcp__orchestration__Tell` → `Tell`). Non-MCP
+ * names and malformed inputs pass through unchanged.
+ * @param {string} name
+ * @returns {string}
+ */
+export function simplifyToolName(name) {
+  if (!name) return "";
+  if (!name.startsWith("mcp__")) return name;
+  const parts = name.split("__");
+  if (parts.length < 3) return name;
+  return parts.slice(2).join("__");
+}
+
+/**
  * MCP-prefixed tool names (e.g. `mcp__orchestration__Tell`) take a different
- * handler path: strip the prefix, then optionally decorate with `to/from`.
+ * handler path. The method name itself is surfaced via `simplifyToolName`,
+ * so this only adds the `to/from` decorators for orchestration calls.
  * Returns null if the name does not match any MCP prefix.
  * @param {string} name
  * @param {object} input
@@ -86,14 +102,13 @@ const HINT_HANDLERS = {
  */
 function hintForMcp(name, input) {
   if (name.startsWith("mcp__orchestration__")) {
-    const method = name.slice("mcp__orchestration__".length);
-    const parts = [method];
+    const parts = [];
     if (input.to) parts.push(`to ${sanitize(input.to)}`);
     if (input.from) parts.push(`from ${sanitize(input.from)}`);
     return truncate(parts.join(" "));
   }
-  if (name.startsWith("mcp__github__")) {
-    return name.slice("mcp__github__".length);
+  if (name.startsWith("mcp__")) {
+    return "";
   }
   return null;
 }

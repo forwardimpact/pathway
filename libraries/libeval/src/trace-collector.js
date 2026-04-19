@@ -14,7 +14,11 @@ import {
   renderToolCallLine,
   renderToolResultLine,
 } from "./render/line-renderer.js";
-import { hintForCall, previewForResult } from "./render/tool-hints.js";
+import {
+  hintForCall,
+  previewForResult,
+  simplifyToolName,
+} from "./render/tool-hints.js";
 import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
 export class TraceCollector {
@@ -252,7 +256,7 @@ export class TraceCollector {
             out.push(
               renderToolCallLine({
                 source: turn.source,
-                toolName: block.name,
+                toolName: simplifyToolName(block.name),
                 hint: hintForCall(block.name, block.input),
                 withPrefix,
               }),
