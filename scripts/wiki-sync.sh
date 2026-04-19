@@ -34,7 +34,8 @@ git fetch origin master
 if [ "$MODE" = "pull" ]; then
     if ! git rebase origin/master; then
         git rebase --abort || true
-        git reset --hard origin/master
+        echo "wiki-sync: rebase conflict on pull — local divergence detected; resolve manually or push first" >&2
+        exit 1
     fi
     exit 0
 fi
