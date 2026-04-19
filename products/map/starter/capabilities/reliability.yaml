@@ -83,15 +83,13 @@ skills:
       useWhen: |
         Handling production issues, investigating failures, or improving
         incident response processes.
-      stages:
-        code:
-          focus: |
-            Implement fixes for identified issues. Ensure changes are tested
-            and do not introduce regressions.
-          readChecklist:
-            - Understand the root cause of the incident
-            - Review affected systems and dependencies
-          confirmChecklist:
-            - Fix addresses the root cause
-            - Changes are tested
-            - Monitoring confirms resolution
+      focus: |
+        Implement fixes for identified issues. Ensure changes are tested
+        and do not introduce regressions.
+      readChecklist:
+        - Understand the root cause of the incident
+        - Review affected systems and dependencies
+      confirmChecklist:
+        - Fix addresses the root cause
+        - Changes are tested
+        - Monitoring confirms resolution

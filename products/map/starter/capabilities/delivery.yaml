@@ -71,18 +71,16 @@ skills:
         verification.
       useWhen: |
         Implementing features, fixing bugs, or completing any defined work item.
-      stages:
-        code:
-          focus: |
-            Implement the solution according to requirements. Write clean,
-            tested code that meets acceptance criteria.
-          readChecklist:
-            - Understand the requirements and acceptance criteria
-            - Review relevant existing code and patterns
-          confirmChecklist:
-            - Code compiles and passes tests
-            - Acceptance criteria are met
-            - Changes are documented
+      focus: |
+        Implement the solution according to requirements. Write clean,
+        tested code that meets acceptance criteria.
+      readChecklist:
+        - Understand the requirements and acceptance criteria
+        - Review relevant existing code and patterns
+      confirmChecklist:
+        - Code compiles and passes tests
+        - Acceptance criteria are met
+        - Changes are documented
 
   - id: planning
     name: Planning
@@ -137,14 +135,12 @@ skills:
         delivery.
       useWhen: |
         Planning features, creating implementation plans, or sequencing work.
-      stages:
-        code:
-          focus: |
-            Follow the implementation plan. Track progress and flag deviations
-            from the plan early.
-          readChecklist:
-            - Review the implementation plan
-            - Understand task dependencies and ordering
-          confirmChecklist:
-            - Plan steps are completed in order
-            - Deviations from the plan are documented
+      focus: |
+        Follow the implementation plan. Track progress and flag deviations
+        from the plan early.
+      readChecklist:
+        - Review the implementation plan
+        - Understand task dependencies and ordering
+      confirmChecklist:
+        - Plan steps are completed in order
+        - Deviations from the plan are documented
