@@ -8,6 +8,11 @@
 
 const DEFAULT_ALLOWED_TOOLS = ["Bash", "Read", "Glob", "Grep", "Write", "Edit"];
 
+// fit-eval and kata-action run headless in CI/CD with no human to answer
+// permission prompts. The SDK is always launched in bypass mode — not
+// overridable — so a future caller can't accidentally reduce permissions.
+const PERMISSION_MODE = "bypassPermissions";
+
 function applyDefaults(deps) {
   return {
     cwd: deps.cwd,
@@ -16,7 +21,6 @@ function applyDefaults(deps) {
     model: deps.model ?? "opus",
     maxTurns: deps.maxTurns ?? 50,
     allowedTools: deps.allowedTools ?? DEFAULT_ALLOWED_TOOLS,
-    permissionMode: deps.permissionMode ?? "bypassPermissions",
     onLine: deps.onLine ?? null,
     onBatch: deps.onBatch ?? null,
     batchSize: deps.batchSize ?? 3,
@@ -36,7 +40,6 @@ export class AgentRunner {
    * @param {string} [deps.model] - Claude model identifier
    * @param {number} [deps.maxTurns] - Maximum agentic turns
    * @param {string[]} [deps.allowedTools] - Tools the agent may use
-   * @param {string} [deps.permissionMode] - SDK permission mode
    * @param {function} [deps.onLine] - Callback invoked with each NDJSON line as it's produced
    * @param {function} [deps.onBatch] - Async callback invoked with a batch of NDJSON lines at flush boundaries: every `batchSize` assistant text blocks, the terminal `result` message, and — on iterator crash/abort — once more in a final flush carrying any lines that never reached a boundary. Receives `(lines, { abort })` where calling `abort()` stops the in-flight SDK session via the AbortController. Optional; assignable at runtime so the Supervisor can swap it per turn.
    * @param {number} [deps.batchSize] - Assistant text-block messages to accumulate before firing onBatch. Tool-only assistant messages ride along without counting. Default 3: the supervisor reviews the agent every three text turns instead of every turn. The terminal `result` always flushes regardless of count.
@@ -72,7 +75,7 @@ export class AgentRunner {
           allowedTools: this.allowedTools,
           ...(this.maxTurns > 0 && { maxTurns: this.maxTurns }),
           model: this.model,
-          permissionMode: this.permissionMode,
+          permissionMode: PERMISSION_MODE,
           allowDangerouslySkipPermissions: true,
           settingSources: this.settingSources,
           abortController,
@@ -102,7 +105,7 @@ export class AgentRunner {
         prompt,
         options: {
           resume: this.sessionId,
-          permissionMode: this.permissionMode,
+          permissionMode: PERMISSION_MODE,
           allowDangerouslySkipPermissions: true,
           abortController,
           ...(this.mcpServers && { mcpServers: this.mcpServers }),
