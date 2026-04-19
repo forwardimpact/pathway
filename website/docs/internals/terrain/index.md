@@ -143,8 +143,8 @@ terrain MyCompany {
 ### Framework data (`data/pathway/`)
 
 Complete YAML files matching the Map schema -- levels, capabilities with skills,
-disciplines, behaviours, tracks, stages, and drivers. These files are valid
-input for `fit-pathway` and `fit-map validate`.
+disciplines, behaviours, tracks, and drivers. These files are valid input for
+`fit-pathway` and `fit-map validate`.
 
 ### Organizational documents (`data/organizational/`)
 

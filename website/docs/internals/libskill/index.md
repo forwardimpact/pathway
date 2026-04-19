@@ -5,20 +5,27 @@ description: "Derivation engine — key functions, module index, imports, and te
 
 ## Module Index
 
-| Module               | Purpose                                                 |
-| -------------------- | ------------------------------------------------------- |
-| `src/derivation.js`  | Core derivation functions (skills, behaviours, drivers) |
-| `src/agent.js`       | Agent profile generation                                |
-| `src/job.js`         | Job preparation for display                             |
-| `src/job-cache.js`   | Job caching for performance                             |
-| `src/interview.js`   | Interview question selection                            |
-| `src/progression.js` | Career path analysis and gap identification             |
-| `src/checklist.js`   | Stage transition checklist derivation                   |
-| `src/toolkit.js`     | Tool derivation from skill references                   |
-| `src/profile.js`     | Profile filtering (human + agent)                       |
-| `src/modifiers.js`   | Capability and skill modifier resolution                |
-| `src/matching.js`    | Job matching and gap analysis                           |
-| `src/policies/`      | Ordering, sorting, filtering, and threshold policies    |
+| Module                               | Purpose                                                 |
+| ------------------------------------ | ------------------------------------------------------- |
+| `src/derivation.js`                  | Core derivation functions (skills, behaviours, drivers) |
+| `src/derivation-responsibilities.js` | Responsibility derivation from capabilities             |
+| `src/derivation-validation.js`       | Derivation input validation                             |
+| `src/agent.js`                       | Agent profile generation                                |
+| `src/agent-validation.js`            | Agent derivation input validation                       |
+| `src/job.js`                         | Job preparation for display                             |
+| `src/job-cache.js`                   | Job caching for performance                             |
+| `src/interview.js`                   | Interview question selection                            |
+| `src/interview-helpers.js`           | Interview question utilities                            |
+| `src/interview-selection.js`         | Interview question filtering and selection              |
+| `src/interview-specialized.js`       | Specialized interview question generation               |
+| `src/progression.js`                 | Career path analysis and gap identification             |
+| `src/checklist.js`                   | Skill checklist formatting as markdown                  |
+| `src/toolkit.js`                     | Tool derivation from skill references                   |
+| `src/profile.js`                     | Profile filtering (human + agent)                       |
+| `src/modifiers.js`                   | Capability and skill modifier resolution                |
+| `src/matching.js`                    | Job matching and gap analysis                           |
+| `src/matching-development.js`        | Development plan generation from gap analysis           |
+| `src/policies/`                      | Ordering, sorting, filtering, and threshold policies    |
 
 libskill is pure-function by design and intentionally exempt from OO+DI. All
 functions are stateless and side-effect-free.
@@ -87,39 +94,11 @@ for every skill in the discipline. Behaviours are derived by
 
 ---
 
-## Lifecycle Key Functions
+## Checklist Formatting
 
-| Function                | Module                | Purpose                               |
-| ----------------------- | --------------------- | ------------------------------------- |
-| `deriveChecklist()`     | checklist.js          | Derive stage transition checklists    |
-| `getStageOrder()`       | policies/orderings.js | Return stage ordering for comparisons |
-| `compareByStageOrder()` | policies/orderings.js | Sort stages by lifecycle order        |
-
-### Lifecycle Data Structure
-
-```javascript
-// Stage definition (from stages.yaml)
-{
-  id: "code",
-  name: "Code",
-  emojiIcon: "...",
-  description: "Implement the solution and write tests",
-  constraints: ["Cannot change architecture", ...],
-  handoffs: [
-    { name: "Request Review", targetStage: "review", prompt: "..." }
-  ]
-}
-
-// Derived checklist output
-{
-  readChecklist: [
-    { skill: { id, name }, capability: { id, name, emojiIcon }, items: [...] }
-  ],
-  confirmChecklist: [
-    { skill: { id, name }, capability: { id, name, emojiIcon }, items: [...] }
-  ]
-}
-```
+`formatChecklistMarkdown()` in `checklist.js` renders skill checklists as
+markdown. Input is an array of `{ skill, capability, items }` entries; output is
+a markdown string with capability emoji headers and checkbox lists.
 
 ---
 
@@ -140,8 +119,8 @@ import { prepareAgentProfile } from "@forwardimpact/libskill/profile";
 // Agent derivation
 import { deriveReferenceLevel, deriveAgentSkills } from "@forwardimpact/libskill/agent";
 
-// Lifecycle
-import { deriveChecklist } from "@forwardimpact/libskill/checklist";
+// Checklist formatting
+import { formatChecklistMarkdown } from "@forwardimpact/libskill/checklist";
 
 // Career progression
 import { analyzeProgression } from "@forwardimpact/libskill/progression";

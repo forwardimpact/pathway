@@ -70,6 +70,15 @@ rendering, and validation.
 
 </a>
 
+<a href="/docs/internals/landmark/">
+
+### Landmark
+
+Analysis pipeline — read-only CLI over Map's activity schema, join contracts,
+Summit import pattern, and testing strategy.
+
+</a>
+
 <a href="/docs/internals/codegen/">
 
 ### Codegen
@@ -85,6 +94,15 @@ generation, and installation-specific design.
 
 CLI development patterns — help text, argument parsing, error handling, summary
 rendering, Logger conventions, and composition with other libraries.
+
+</a>
+
+<a href="/docs/internals/librepl/">
+
+### librepl
+
+Interactive REPL framework — Repl class, custom commands, state persistence, and
+dual-mode (interactive/piped) CLI interfaces.
 
 </a>
 

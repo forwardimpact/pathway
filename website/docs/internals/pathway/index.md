@@ -22,6 +22,9 @@ products/pathway/src/
   components/     Reusable UI components
   css/            Stylesheets
   formatters/     Output formatting (core layer)
+    shared.js     Shared format helpers (no DOM)
+    template-preprocess.js  Template variable preparation
+    json-ld.js    JSON-LD structured data output
     agent/        Agent profile formatters
     behaviour/    Behaviour formatters
     discipline/   Discipline formatters
@@ -32,7 +35,6 @@ products/pathway/src/
     progress/     Progression formatters
     questions/    Question formatters
     skill/        Skill formatters
-    stage/        Stage formatters
     tool/         Tool formatters
     toolkit/      Toolkit formatters
     track/        Track formatters
@@ -99,7 +101,6 @@ export function skillProficiencyMarkdown(level) {
 | Progress   | `formatters/progress/`   | Progression and gap formatting     |
 | Questions  | `formatters/questions/`  | Question display formatting        |
 | Skill      | `formatters/skill/`      | Level badges, matrix tables        |
-| Stage      | `formatters/stage/`      | Stage cards, lifecycle flow        |
 | Tool       | `formatters/tool/`       | Tool list formatting               |
 | Toolkit    | `formatters/toolkit/`    | Toolkit grouping and display       |
 | Track      | `formatters/track/`      | Modifier display, track cards      |
@@ -113,14 +114,24 @@ client-side.
 
 ### Pages
 
-| Page       | URL Pattern                         | Displays                              |
-| ---------- | ----------------------------------- | ------------------------------------- |
-| Landing    | `/`                                 | Overview and navigation               |
-| Discipline | `/discipline/{id}`                  | Discipline details                    |
-| Job        | `/job/{discipline}/{level}/{track}` | Full job definition                   |
-| Skill      | `/skill/{id}`                       | Skill details with level descriptions |
-| Behaviour  | `/behaviour/{id}`                   | Behaviour with maturity descriptions  |
-| Stage      | `/stage/{id}`                       | Lifecycle stage details               |
+| Page              | URL Pattern                         | Displays                              |
+| ----------------- | ----------------------------------- | ------------------------------------- |
+| Landing           | `/`                                 | Overview and navigation               |
+| Discipline        | `/discipline/{id}`                  | Discipline details                    |
+| Job               | `/job/{discipline}/{level}/{track}` | Full job definition                   |
+| Skill             | `/skill/{id}`                       | Skill details with level descriptions |
+| Behaviour         | `/behaviour/{id}`                   | Behaviour with maturity descriptions  |
+| Level             | `/level/{id}`                       | Level details                         |
+| Track             | `/track/{id}`                       | Track details                         |
+| Tool              | `/tool/{id}`                        | Tool details                          |
+| Driver            | `/driver/{id}`                      | Driver details                        |
+| Interview         | `/interview`                        | Interview question display            |
+| Progress          | `/progress`                         | Career progression and gap analysis   |
+| Self Assessment   | `/self-assessment`                  | Self-assessment workflow              |
+| Agent Builder     | `/agent-builder`                    | Agent profile generation              |
+| Interview Builder | `/interview-builder`                | Interview question builder            |
+| Job Builder       | `/job-builder`                      | Job definition builder                |
+| Progress Builder  | `/progress-builder`                 | Progression analysis builder          |
 
 ### Components
 
@@ -161,21 +172,43 @@ Presentation layer -- formatters, pages, components.
 
 Agent output uses Mustache templates in `products/pathway/templates/`.
 
+### Available Templates
+
+| Template                      | Purpose                              |
+| ----------------------------- | ------------------------------------ |
+| `agent.template.md`           | Agent profile with YAML front matter |
+| `skill.template.md`           | Skill document with checklists       |
+| `skill-reference.template.md` | Skill implementation reference       |
+| `job.template.md`             | Job definition document              |
+| `claude.template.md`          | Claude agent profile                 |
+
 ### Agent Profile Template (`agent.template.md`)
 
-| Variable           | Source                             |
-| ------------------ | ---------------------------------- |
-| `{roleTitle}`      | Generated from discipline + track  |
-| `{specialization}` | Track name or discipline specialty |
-| `{skills}`         | Filtered and sorted skill list     |
-| `{behaviours}`     | Working style entries              |
-| `{constraints}`    | Stage constraints                  |
-| `{handoffs}`       | Stage transition definitions       |
+| Variable                    | Source                                  |
+| --------------------------- | --------------------------------------- |
+| `{{title}}`                 | Generated role title                    |
+| `{{name}}`                  | Agent name (YAML front matter)          |
+| `{{{description}}}`         | Role description (YAML front matter)    |
+| `{{{identity}}}`            | Core identity statement                 |
+| `{{{priority}}}`            | Priority guidance                       |
+| `{{{roleContext}}}`         | Role-specific context                   |
+| `{{workingStyles}}`         | Working style entries (title + content) |
+| `{{skillIndex}}`            | Filtered skill table (name + useWhen)   |
+| `{{disciplineConstraints}}` | Discipline-derived constraints          |
+| `{{trackConstraints}}`      | Track-derived constraints               |
 
 ### Skill Document Template (`skill.template.md`)
 
-Variables: `skillName`, `description`, `useWhen`, `stages` (with `focus`,
-`activities`, `ready` per stage).
+| Variable               | Source                                |
+| ---------------------- | ------------------------------------- |
+| `{{name}}`             | Skill name (YAML front matter)        |
+| `{{{description}}}`    | Skill description (YAML front matter) |
+| `{{{useWhen}}}`        | When-to-use guidance                  |
+| `{{{instructions}}}`   | Detailed instructions                 |
+| `{{toolReferences}}`   | Required tools table (name + useWhen) |
+| `{{{focus}}}`          | Focus guidance                        |
+| `{{readChecklist}}`    | Read-do checklist items               |
+| `{{confirmChecklist}}` | Do-confirm checklist items            |
 
 Template substitution is handled by Mustache rendering in the agent formatter
 module.

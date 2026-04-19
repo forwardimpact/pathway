@@ -31,7 +31,7 @@ each is executed via the Tool service. Available tool types include:
 - **Agent delegation** -- `list_sub_agents`, `run_sub_agent` for isolated task
   delegation; `list_handoffs`, `run_handoff` for conversation handoffs
 
-Tool descriptors are defined in `config/tools.yml`, which maps tool names to
+Tool descriptors are defined in `starter/tools.yml`, which maps tool names to
 descriptions, parameters, and evaluation criteria. The Tool service resolves
 tool calls to the appropriate backend (graph, vector, or agent service).
 
@@ -79,10 +79,10 @@ dependency order:
 
 | Order | Service | Purpose                                  | Port |
 | ----- | ------- | ---------------------------------------- | ---- |
-| 1     | tei     | Text Embeddings Inference (local)        | 8090 |
-| 2     | trace   | Distributed tracing                      | 3002 |
-| 3     | vector  | Vector similarity search                 | 3003 |
-| 4     | graph   | RDF triple store and SPARQL queries      | 3004 |
+| 1     | trace   | Distributed tracing                      | 3002 |
+| 2     | vector  | Vector similarity search                 | 3003 |
+| 3     | graph   | RDF triple store and SPARQL queries      | 3004 |
+| 4     | pathway | Framework data service                   | 3009 |
 | 5     | llm     | LLM inference proxy                      | 3005 |
 | 6     | memory  | Conversation history and token budgeting | 3006 |
 | 7     | tool    | Tool call resolution and execution       | 3007 |
@@ -96,7 +96,7 @@ Start all services with `npx fit-rc start` (external) or `just rc-start`
 
 ## Agent Configuration
 
-Agent definitions live in `config/agents/` as Markdown files with YAML front
+Agent definitions live in `starter/agents/` as Markdown files with YAML front
 matter:
 
 ```markdown
@@ -136,13 +136,12 @@ You create execution plans for knowledge queries...
 | planner    | `planner.agent.md`    | Query analysis, plan creation  |
 | researcher | `researcher.agent.md` | Data retrieval, fact gathering |
 | editor     | `editor.agent.md`     | Response synthesis, formatting |
-| eval_judge | `eval_judge.agent.md` | Evaluation judging for evals   |
 
 ---
 
 ## Tool Descriptors
 
-`config/tools.yml` maps tool names to their specifications:
+`starter/tools.yml` maps tool names to their specifications:
 
 ```yaml
 get_ontology:
@@ -168,10 +167,9 @@ to select and call tools correctly.
 
 | Path                  | Purpose                          |
 | --------------------- | -------------------------------- |
-| `config/agents/`      | Agent prompt files (\*.agent.md) |
-| `config/tools.yml`    | Tool endpoint definitions        |
-| `config/config.json`  | Service and model configuration  |
-| `data/knowledge/`     | Processed knowledge base content |
+| `starter/agents/`     | Agent prompt files (\*.agent.md) |
+| `starter/tools.yml`   | Tool endpoint definitions        |
+| `starter/config.json` | Service and model configuration  |
 | `products/guide/bin/` | CLI entry point (fit-guide)      |
 
 ---
