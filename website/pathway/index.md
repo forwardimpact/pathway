@@ -18,9 +18,9 @@ hero:
 ---
 
 > Pathway is your interface to the engineering framework. Feed it a discipline,
-> a track, and a level — and it produces a complete job definition. Swap the
-> level for a lifecycle stage and you get an agent profile instead. Same data,
-> same formula, different outputs.
+> a track, and a level — and it produces a complete job definition. Drop the
+> level and you get an agent profile instead. Same data, same formula, different
+> outputs.
 
 ### What you get
 
@@ -42,8 +42,8 @@ areas.
 **Managers** building job descriptions. Select a discipline, track, and level —
 Pathway generates a complete, consistent job definition.
 
-**Teams adopting AI agents.** Generate VS Code agent profiles and skill files
-that match your engineering standards, constrained by lifecycle stage.
+**Teams adopting AI agents.** Generate Claude Code agent profiles and skill files
+that match your engineering standards.
 
 ---
 

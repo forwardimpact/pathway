@@ -51,8 +51,7 @@ activity schema.
 
 ```
 data/
-├── levels.yaml           # Career levels (L1–L5)
-├── stages.yaml           # Engineering lifecycle phases
+├── levels.yaml           # Career levels (e.g. J040, J060)
 ├── drivers.yaml          # Organizational outcomes
 ├── disciplines/          # Engineering specialties
 ├── tracks/               # Work context modifiers
