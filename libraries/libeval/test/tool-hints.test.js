@@ -1,7 +1,11 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 
-import { hintForCall, previewForResult } from "../src/render/tool-hints.js";
+import {
+  hintForCall,
+  previewForResult,
+  simplifyToolName,
+} from "../src/render/tool-hints.js";
 
 /**
  * Assert a hint contains no `{`, `}`, or `"` characters — success criterion #2.
@@ -140,29 +144,29 @@ describe("hintForCall", () => {
     assert.strictEqual(hint, "summarise the diff");
   });
 
-  test("mcp__orchestration__RollCall — renders method name", () => {
+  test("mcp__orchestration__RollCall — no decorators, empty hint", () => {
     const hint = hintForCall("mcp__orchestration__RollCall", {});
-    assert.strictEqual(hint, "RollCall");
+    assert.strictEqual(hint, "");
   });
 
-  test("mcp__orchestration__Tell — renders method + to", () => {
+  test("mcp__orchestration__Tell — renders to decorator only", () => {
     const hint = hintForCall("mcp__orchestration__Tell", {
       to: "staff-engineer",
       message: "go",
     });
-    assert.strictEqual(hint, "Tell to staff-engineer");
+    assert.strictEqual(hint, "to staff-engineer");
   });
 
-  test("mcp__orchestration__Share — renders method name", () => {
+  test("mcp__orchestration__Share — no decorators, empty hint", () => {
     const hint = hintForCall("mcp__orchestration__Share", {
       message: 'Say "hello"',
     });
-    assert.strictEqual(hint, "Share");
+    assert.strictEqual(hint, "");
   });
 
-  test("mcp__github__list_branches — renders method name", () => {
+  test("mcp__github__list_branches — no decorators, empty hint", () => {
     const hint = hintForCall("mcp__github__list_branches", { owner: "foo" });
-    assert.strictEqual(hint, "list_branches");
+    assert.strictEqual(hint, "");
   });
 
   test("unknown tool — returns empty string", () => {
@@ -186,6 +190,33 @@ describe("hintForCall", () => {
     for (const [name, input] of cases) {
       assertNoJsonPunctuation(hintForCall(name, input));
     }
+  });
+});
+
+describe("simplifyToolName", () => {
+  test("strips mcp__orchestration__ prefix", () => {
+    assert.strictEqual(simplifyToolName("mcp__orchestration__Tell"), "Tell");
+  });
+
+  test("strips mcp__github__ prefix", () => {
+    assert.strictEqual(
+      simplifyToolName("mcp__github__list_branches"),
+      "list_branches",
+    );
+  });
+
+  test("preserves method with embedded __", () => {
+    assert.strictEqual(simplifyToolName("mcp__server__foo__bar"), "foo__bar");
+  });
+
+  test("non-mcp names pass through unchanged", () => {
+    assert.strictEqual(simplifyToolName("Bash"), "Bash");
+    assert.strictEqual(simplifyToolName("TodoWrite"), "TodoWrite");
+  });
+
+  test("empty and malformed names return safely", () => {
+    assert.strictEqual(simplifyToolName(""), "");
+    assert.strictEqual(simplifyToolName("mcp__only"), "mcp__only");
   });
 });
 

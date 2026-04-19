@@ -22,7 +22,11 @@ import {
   renderToolCallLine,
   renderToolResultLine,
 } from "./render/line-renderer.js";
-import { hintForCall, previewForResult } from "./render/tool-hints.js";
+import {
+  hintForCall,
+  previewForResult,
+  simplifyToolName,
+} from "./render/tool-hints.js";
 import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
 export class TeeWriter extends Writable {
@@ -144,7 +148,7 @@ export class TeeWriter extends Writable {
             this.textStream.write(
               renderToolCallLine({
                 source: turn.source,
-                toolName: block.name,
+                toolName: simplifyToolName(block.name),
                 hint: hintForCall(block.name, block.input),
                 withPrefix,
               }),
