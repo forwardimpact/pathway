@@ -42,8 +42,8 @@ areas.
 **Managers** building job descriptions. Select a discipline, track, and level —
 Pathway generates a complete, consistent job definition.
 
-**Teams adopting AI agents.** Generate Claude Code agent profiles and skill files
-that match your engineering standards.
+**Teams adopting AI agents.** Generate Claude Code agent profiles and skill
+files that match your engineering standards.
 
 ---
 
