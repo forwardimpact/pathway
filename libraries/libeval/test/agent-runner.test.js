@@ -80,7 +80,6 @@ describe("AgentRunner", () => {
       "Write",
       "Edit",
     ]);
-    assert.strictEqual(runner.permissionMode, "bypassPermissions");
     assert.deepStrictEqual(runner.settingSources, []);
     assert.strictEqual(runner.sessionId, null);
   });
@@ -145,7 +144,6 @@ describe("AgentRunner", () => {
       model: "sonnet",
       maxTurns: 10,
       allowedTools: ["Read", "Grep"],
-      permissionMode: "plan",
       settingSources: ["project"],
     });
 
@@ -156,7 +154,7 @@ describe("AgentRunner", () => {
     assert.strictEqual(captured.options.model, "sonnet");
     assert.strictEqual(captured.options.maxTurns, 10);
     assert.deepStrictEqual(captured.options.allowedTools, ["Read", "Grep"]);
-    assert.strictEqual(captured.options.permissionMode, "plan");
+    assert.strictEqual(captured.options.permissionMode, "bypassPermissions");
     assert.strictEqual(captured.options.allowDangerouslySkipPermissions, true);
     assert.deepStrictEqual(captured.options.settingSources, ["project"]);
   });
