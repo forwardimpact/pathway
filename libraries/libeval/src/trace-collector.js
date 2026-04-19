@@ -3,7 +3,20 @@
  *
  * Accepts one NDJSON line at a time via addLine(), then produces either a
  * structured JSON trace (toJSON) or human-readable text (toText).
+ *
+ * Human text rendering is delegated to the pure modules under `./render/`
+ * so the live `TeeWriter` stream and the offline `toText()` replay share
+ * one formatting path (spec 540).
  */
+
+import {
+  renderTextLine,
+  renderToolCallLine,
+  renderToolResultLine,
+} from "./render/line-renderer.js";
+import { hintForCall, previewForResult } from "./render/tool-hints.js";
+import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
+
 export class TraceCollector {
   /**
    * @param {object} [deps]
@@ -38,11 +51,20 @@ export class TraceCollector {
       return;
     }
 
-    // Unwrap combined supervised trace format {source, turn, event}.
-    // The Supervisor emits this wrapper; when replayed through addLine the
-    // inner event is the one we need.
+    // Unwrap combined supervised trace format {source, seq, event}. The
+    // Supervisor / Facilitator emits this wrapper; when replayed through
+    // addLine the inner event is the one we care about. Carry the envelope
+    // `source` onto each new turn so the renderer can color it correctly.
+    let source = null;
     if (event.event && !event.type && typeof event.source === "string") {
+      source = event.source;
       event = event.event;
+    }
+
+    // Orchestrator lifecycle events carry no content and are suppressed
+    // from turns entirely — the NDJSON artifact keeps them separately.
+    if (source === "orchestrator" && isSuppressedOrchestratorEvent(event)) {
+      return;
     }
 
     switch (event.type) {
@@ -50,10 +72,10 @@ export class TraceCollector {
         this.handleSystem(event);
         break;
       case "assistant":
-        this.handleAssistant(event);
+        this.handleAssistant(event, source);
         break;
       case "user":
-        this.handleUser(event);
+        this.handleUser(event, source);
         break;
       case "result":
         this.handleResult(event);
@@ -81,8 +103,9 @@ export class TraceCollector {
 
   /**
    * @param {object} event
+   * @param {string|null} source
    */
-  handleAssistant(event) {
+  handleAssistant(event, source) {
     const message = event.message;
     if (!message) return;
 
@@ -114,6 +137,7 @@ export class TraceCollector {
     this.turns.push({
       index: this.turnIndex++,
       role: "assistant",
+      source,
       content,
       usage,
     });
@@ -121,8 +145,9 @@ export class TraceCollector {
 
   /**
    * @param {object} event
+   * @param {string|null} source
    */
-  handleUser(event) {
+  handleUser(event, source) {
     const message = event.message;
     if (!message) return;
 
@@ -134,6 +159,7 @@ export class TraceCollector {
         this.turns.push({
           index: this.turnIndex++,
           role: "tool_result",
+          source,
           toolUseId: item.tool_use_id ?? null,
           content:
             typeof item.content === "string"
@@ -197,48 +223,71 @@ export class TraceCollector {
   }
 
   /**
-   * Return human-readable text for workflow logs.
-   * @returns {string} Formatted text output
+   * Render the accumulated turns as human-readable text — the same path the
+   * live `TeeWriter` stream uses, so `fit-eval output --format=text` over a
+   * captured trace reproduces what the live workflow log showed.
+   *
+   * Source prefixes are emitted whenever at least one turn has a non-null
+   * source (supervised / facilitated traces). A pure `run` trace has no
+   * envelope, all turn sources are null, and the renderer drops the prefix.
+   *
+   * @returns {string} Formatted text output including ANSI escapes
    */
   toText() {
-    const lines = [];
+    const withPrefix = this.turns.some((t) => t.source);
+    const out = [];
 
     for (const turn of this.turns) {
       if (turn.role === "assistant") {
         for (const block of turn.content) {
           if (block.type === "text") {
-            lines.push(block.text);
+            out.push(
+              renderTextLine({
+                source: turn.source,
+                text: block.text,
+                withPrefix,
+              }),
+            );
           } else if (block.type === "tool_use") {
-            const inputSummary = summarizeInput(block.input);
-            lines.push(`> Tool: ${block.name} ${inputSummary}`);
+            out.push(
+              renderToolCallLine({
+                source: turn.source,
+                toolName: block.name,
+                hint: hintForCall(block.name, block.input),
+                withPrefix,
+              }),
+            );
           }
         }
+      } else if (turn.role === "tool_result") {
+        out.push(
+          renderToolResultLine({
+            source: turn.source,
+            preview: previewForResult(turn.content, turn.isError),
+            withPrefix,
+          }),
+        );
       }
     }
 
+    // Trailing result block — the one summary line humans want (spec 540).
+    let tail = "";
     if (this.result) {
       const duration = formatDuration(this.result.durationMs);
       const cost = Number(this.result.totalCostUsd).toFixed(4);
-      lines.push("");
-      lines.push(
-        `--- Result: ${this.result.result} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`,
-      );
+      tail =
+        "\n" +
+        `--- Result: ${this.result.result} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`;
     }
 
-    return lines.join("\n");
+    // Each rendered line already ends with `\n`; concatenate, drop the
+    // trailing newline, then append the tail so the output shape stays
+    // compatible with existing consumers (no double-blank line before
+    // the result footer when there are turns, no leading blank when there
+    // are not).
+    const body = out.join("").replace(/\n$/, "");
+    return body + tail;
   }
-}
-
-/**
- * Summarize tool input for text display, truncated to keep logs readable.
- * @param {object} input - Tool input object
- * @returns {string} Truncated summary
- */
-function summarizeInput(input) {
-  if (!input || typeof input !== "object") return "";
-  const json = JSON.stringify(input);
-  if (json.length <= 200) return json;
-  return json.slice(0, 197) + "...";
 }
 
 /**

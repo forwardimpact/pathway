@@ -7,11 +7,23 @@
  * parameter controls display formatting: multi-participant modes show
  * source labels on content lines.
  *
+ * Human text rendering is delegated to the pure modules under `./render/`
+ * so the live stream and the offline `TraceCollector.toText()` replay share
+ * one formatting path (spec 540). The NDJSON going to `fileStream` is
+ * untouched — only what reaches `textStream` changes.
+ *
  * Follows OO+DI: constructor injection, factory function, tests bypass factory.
  */
 
 import { Writable } from "node:stream";
 import { TraceCollector } from "./trace-collector.js";
+import {
+  renderTextLine,
+  renderToolCallLine,
+  renderToolResultLine,
+} from "./render/line-renderer.js";
+import { hintForCall, previewForResult } from "./render/tool-hints.js";
+import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
 export class TeeWriter extends Writable {
   /**
@@ -29,8 +41,6 @@ export class TeeWriter extends Writable {
     this.mode = mode ?? "raw";
     this.collector = new TraceCollector();
     this.turnsEmitted = 0;
-    this.lastSource = null;
-    this.partial = "";
   }
 
   /**
@@ -39,7 +49,7 @@ export class TeeWriter extends Writable {
    * @param {function} callback
    */
   _write(chunk, encoding, callback) {
-    const str = this.partial + chunk.toString();
+    const str = (this.partial ?? "") + chunk.toString();
     const lines = str.split("\n");
     this.partial = lines.pop() ?? "";
 
@@ -55,16 +65,25 @@ export class TeeWriter extends Writable {
    * @param {function} callback
    */
   _final(callback) {
-    if (this.partial.trim()) {
+    if (this.partial && this.partial.trim()) {
       this.fileStream.write(this.partial + "\n");
       this.processLine(this.partial);
     }
 
-    if (this.mode === "raw" && this.collector.result) {
+    // Emit the trailing `--- Result: ... ---` footer — the one summary line
+    // humans want (spec 540). This is the same tail TraceCollector.toText()
+    // appends, so the live stream and the offline replay stay in sync
+    // (spec 540 criterion #6). The superseded `--- Evaluation ... ---`
+    // footer is gone in every mode.
+    if (this.collector.result) {
       const text = this.collector.toText();
       const idx = text.lastIndexOf("\n---");
       if (idx !== -1) {
-        this.textStream.write(text.slice(idx) + "\n");
+        // Slice past the leading `\n` — the previously-streamed body
+        // already ended with its own newline, so re-emitting `\n---` here
+        // would produce a blank line before the footer and desync from
+        // the offline replay (spec 540 #6).
+        this.textStream.write(text.slice(idx + 1) + "\n");
       }
     }
 
@@ -85,19 +104,15 @@ export class TeeWriter extends Writable {
 
     // Universal envelope: { source, seq, event }
     if (parsed.event) {
-      // Orchestrator summary event
-      if (parsed.source === "orchestrator" && parsed.event.type === "summary") {
-        const status = parsed.event.success ? "completed" : "incomplete";
-        this.textStream.write(
-          `\n--- Evaluation ${status} after ${parsed.event.turns} turns ---\n`,
-        );
+      // Orchestrator lifecycle events are suppressed from the text stream
+      // entirely (spec 540). They still reached fileStream above.
+      if (
+        parsed.source === "orchestrator" &&
+        isSuppressedOrchestratorEvent(parsed.event)
+      ) {
         return;
       }
-
-      if (parsed.source && parsed.source !== this.lastSource) {
-        this.lastSource = parsed.source;
-      }
-      this.collector.addLine(JSON.stringify(parsed.event));
+      this.collector.addLine(line);
       this.flushTurns();
       return;
     }
@@ -112,36 +127,41 @@ export class TeeWriter extends Writable {
    */
   flushTurns() {
     const turns = this.collector.turns;
-    const prefix =
-      this.mode === "supervised" && this.lastSource
-        ? `[${this.lastSource}] `
-        : "";
+    const withPrefix = this.mode !== "raw";
     while (this.turnsEmitted < turns.length) {
       const turn = turns[this.turnsEmitted++];
       if (turn.role === "assistant") {
         for (const block of turn.content) {
           if (block.type === "text") {
-            this.textStream.write(`${prefix}${block.text}\n`);
+            this.textStream.write(
+              renderTextLine({
+                source: turn.source,
+                text: block.text,
+                withPrefix,
+              }),
+            );
           } else if (block.type === "tool_use") {
-            const input = summarizeInput(block.input);
-            this.textStream.write(`${prefix}> Tool: ${block.name} ${input}\n`);
+            this.textStream.write(
+              renderToolCallLine({
+                source: turn.source,
+                toolName: block.name,
+                hint: hintForCall(block.name, block.input),
+                withPrefix,
+              }),
+            );
           }
         }
+      } else if (turn.role === "tool_result") {
+        this.textStream.write(
+          renderToolResultLine({
+            source: turn.source,
+            preview: previewForResult(turn.content, turn.isError),
+            withPrefix,
+          }),
+        );
       }
     }
   }
-}
-
-/**
- * Summarize tool input for text display, truncated to keep logs readable.
- * @param {object} input - Tool input object
- * @returns {string} Truncated summary
- */
-function summarizeInput(input) {
-  if (!input || typeof input !== "object") return "";
-  const json = JSON.stringify(input);
-  if (json.length <= 200) return json;
-  return json.slice(0, 197) + "...";
 }
 
 /**

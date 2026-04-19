@@ -354,12 +354,24 @@ describe("TraceCollector", () => {
       assert.ok(text.includes("No security issues found"));
     });
 
-    test("includes tool call summaries", () => {
+    test("includes tool call lines in the new `<Tool>: <hint>` shape", () => {
       const collector = collectFixture();
       const text = collector.toText();
 
-      assert.ok(text.includes("> Tool: Bash"));
-      assert.ok(text.includes("ls -la"));
+      // Spec 540: tool-call lines pair the tool name with a colon and the
+      // sanitized hint — no leading marker, no JSON punctuation.
+      assert.ok(text.includes("Bash: ls -la"));
+      assert.ok(!text.includes("> Bash"));
+      assert.ok(!text.includes("{"));
+    });
+
+    test("includes a tool_result preview line tied to each tool call", () => {
+      const collector = collectFixture();
+      const text = collector.toText();
+
+      // The fixture's tool_result content begins with `total 42\n...`.
+      // Preview is the first non-blank line, rendered as `  Result: total 42`.
+      assert.ok(text.includes("Result: total 42"));
     });
 
     test("includes result summary line", () => {
@@ -372,7 +384,7 @@ describe("TraceCollector", () => {
       assert.ok(text.includes("Duration: 5s"));
     });
 
-    test("truncates long tool input summaries", () => {
+    test("truncates long tool input hints", () => {
       const collector = new TraceCollector();
       const longCommand = "x".repeat(300);
       collector.addLine(
@@ -391,11 +403,16 @@ describe("TraceCollector", () => {
       );
 
       const text = collector.toText();
-      assert.ok(text.includes("> Tool: Bash"));
-      assert.ok(text.includes("..."));
-      // Total line should be truncated, not the full 300+ chars
-      const toolLine = text.split("\n").find((l) => l.startsWith("> Tool:"));
-      assert.ok(toolLine.length < 250);
+      // New shape: `Bash: <hint>` where the hint is truncated with `...`.
+      // We look for the hint ending (strip ANSI first so the escape bytes
+      // don't inflate the visible length).
+      // eslint-disable-next-line no-control-regex -- ANSI SGR stripping is intentional.
+      const plain = text.replace(/\u001b\[[0-9;]*m/g, "");
+      const toolLine = plain.split("\n").find((l) => l.startsWith("Bash:"));
+      assert.ok(toolLine, "expected a `Bash:` line");
+      assert.ok(toolLine.includes("..."));
+      // Full 300-char command must not survive unchanged.
+      assert.ok(toolLine.length < 100);
     });
 
     test("returns empty string for empty input", () => {
