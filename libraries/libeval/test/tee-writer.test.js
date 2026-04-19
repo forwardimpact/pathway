@@ -15,6 +15,17 @@ function collect(stream) {
 }
 
 /**
+ * Strip ANSI SGR escapes for assertions that care about the line shape, not
+ * the color bytes. The rendering path deliberately keeps both sides
+ * identical modulo these escapes (spec 540 criterion #6).
+ * @param {string} s
+ */
+function stripAnsi(s) {
+  // eslint-disable-next-line no-control-regex -- ANSI SGR detection is exactly what we want here.
+  return s.replace(/\u001b\[[0-9;]*m/g, "");
+}
+
+/**
  * Write lines to a TeeWriter and wait for it to finish.
  * @param {TeeWriter} writer
  * @param {string[]} lines - JSON lines to write
@@ -108,9 +119,12 @@ describe("TeeWriter", () => {
     const fileLines = fileData.trim().split("\n");
     assert.strictEqual(fileLines.length, 4);
 
-    // Text should contain human-readable output
-    assert.ok(textData.includes("Hello world"));
-    assert.ok(textData.includes("> Tool: Bash"));
+    // New shape: `<Tool>: <hint>` only, no JSON punctuation.
+    const plain = stripAnsi(textData);
+    assert.ok(plain.includes("Hello world"));
+    assert.ok(plain.includes("Bash: ls"));
+    assert.ok(!plain.includes('"command"'));
+    assert.ok(!plain.includes("{"));
   });
 
   test("streams text incrementally as events arrive", async () => {
@@ -133,7 +147,7 @@ describe("TeeWriter", () => {
     );
 
     const firstText = collect(textStream);
-    assert.ok(firstText.includes("First message"));
+    assert.ok(stripAnsi(firstText).includes("First message"));
 
     writer.write(
       JSON.stringify({
@@ -150,12 +164,12 @@ describe("TeeWriter", () => {
     );
 
     const secondText = collect(textStream);
-    assert.ok(secondText.includes("Second message"));
+    assert.ok(stripAnsi(secondText).includes("Second message"));
 
     await new Promise((resolve) => writer.end(resolve));
   });
 
-  test("supervised mode shows source labels and unwraps events", async () => {
+  test("supervised mode shows source labels and colors", async () => {
     const fileStream = new PassThrough();
     const textStream = new PassThrough();
     const writer = new TeeWriter({
@@ -187,11 +201,6 @@ describe("TeeWriter", () => {
           },
         },
       }),
-      JSON.stringify({
-        source: "orchestrator",
-        seq: 2,
-        event: { type: "summary", success: true, turns: 1 },
-      }),
     ];
 
     await writeLines(writer, events);
@@ -200,15 +209,17 @@ describe("TeeWriter", () => {
     const textData = collect(textStream);
 
     const fileLines = fileData.trim().split("\n");
-    assert.strictEqual(fileLines.length, 3);
+    assert.strictEqual(fileLines.length, 2);
     assert.strictEqual(JSON.parse(fileLines[0]).source, "agent");
 
-    assert.ok(textData.includes("[agent] Working on it"));
-    assert.ok(textData.includes("[supervisor] Looks good"));
-    assert.ok(textData.includes("Evaluation completed after 1 turns"));
+    const plain = stripAnsi(textData);
+    assert.ok(plain.includes("agent: Working on it"));
+    assert.ok(plain.includes("supervisor: Looks good"));
+    // Color bytes present — the raw textData has ESC sequences.
+    assert.ok(textData.includes("\u001b["), "expected ANSI escapes");
   });
 
-  test("supervised mode shows incomplete status on failure", async () => {
+  test("suppresses the six orchestrator lifecycle events from textStream", async () => {
     const fileStream = new PassThrough();
     const textStream = new PassThrough();
     const writer = new TeeWriter({
@@ -217,19 +228,36 @@ describe("TeeWriter", () => {
       mode: "supervised",
     });
 
-    await writeLines(writer, [
+    const suppressed = [
+      "session_start",
+      "agent_start",
+      "ask_received",
+      "ask_answered",
+      "redirect",
+      "summary",
+    ];
+    const events = suppressed.map((type, i) =>
       JSON.stringify({
         source: "orchestrator",
-        seq: 0,
-        event: { type: "summary", success: false, turns: 5 },
+        seq: i,
+        event: { type, success: true, turns: 1 },
       }),
-    ]);
+    );
 
+    await writeLines(writer, events);
+
+    const fileData = collect(fileStream);
     const textData = collect(textStream);
-    assert.ok(textData.includes("Evaluation incomplete after 5 turns"));
+
+    // All six stay in the fileStream — the NDJSON artifact is unchanged.
+    assert.strictEqual(fileData.trim().split("\n").length, suppressed.length);
+
+    // None of the six render to textStream, and the old footer is gone.
+    assert.strictEqual(stripAnsi(textData).trim(), "");
+    assert.ok(!textData.includes("--- Evaluation"));
   });
 
-  test("supervised mode only shows source label on change", async () => {
+  test("retains the source: prefix even with color bytes", async () => {
     const fileStream = new PassThrough();
     const textStream = new PassThrough();
     const writer = new TeeWriter({
@@ -240,24 +268,13 @@ describe("TeeWriter", () => {
 
     const events = [
       JSON.stringify({
-        source: "agent",
+        source: "staff-engineer",
         seq: 0,
         event: {
           type: "assistant",
           message: {
-            content: [{ type: "text", text: "Step 1" }],
-            usage: { input_tokens: 10, output_tokens: 5 },
-          },
-        },
-      }),
-      JSON.stringify({
-        source: "agent",
-        seq: 1,
-        event: {
-          type: "assistant",
-          message: {
-            content: [{ type: "text", text: "Step 2" }],
-            usage: { input_tokens: 10, output_tokens: 5 },
+            content: [{ type: "text", text: "hi" }],
+            usage: { input_tokens: 1, output_tokens: 1 },
           },
         },
       }),
@@ -266,8 +283,116 @@ describe("TeeWriter", () => {
     await writeLines(writer, events);
 
     const textData = collect(textStream);
-    assert.ok(textData.includes("[agent] Step 1"));
-    assert.ok(textData.includes("[agent] Step 2"));
+    // Prefix sits OUTSIDE the color escape so grep/color-stripped views
+    // still see it.
+    // eslint-disable-next-line no-control-regex -- ANSI SGR detection is the assertion.
+    assert.match(textData, /^staff-engineer: \u001b\[/);
+  });
+
+  test("renders tool results tied to each tool call, errors in red", async () => {
+    const fileStream = new PassThrough();
+    const textStream = new PassThrough();
+    const writer = new TeeWriter({
+      fileStream,
+      textStream,
+      mode: "supervised",
+    });
+
+    const events = [
+      // Successful Bash call
+      JSON.stringify({
+        source: "staff-engineer",
+        seq: 0,
+        event: {
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "tool_use",
+                id: "t1",
+                name: "Bash",
+                input: { command: "pwd" },
+              },
+            ],
+            usage: { input_tokens: 1, output_tokens: 1 },
+          },
+        },
+      }),
+      JSON.stringify({
+        source: "staff-engineer",
+        seq: 1,
+        event: {
+          type: "user",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "tool_result",
+                tool_use_id: "t1",
+                content: "/home/user",
+              },
+            ],
+          },
+        },
+      }),
+      // Failed Read call
+      JSON.stringify({
+        source: "staff-engineer",
+        seq: 2,
+        event: {
+          type: "assistant",
+          message: {
+            content: [
+              {
+                type: "tool_use",
+                id: "t2",
+                name: "Read",
+                input: { file_path: "/nope" },
+              },
+            ],
+            usage: { input_tokens: 1, output_tokens: 1 },
+          },
+        },
+      }),
+      JSON.stringify({
+        source: "staff-engineer",
+        seq: 3,
+        event: {
+          type: "user",
+          message: {
+            role: "user",
+            content: [
+              {
+                type: "tool_result",
+                tool_use_id: "t2",
+                is_error: true,
+                content: "ENOENT: no such file",
+              },
+            ],
+          },
+        },
+      }),
+    ];
+
+    await writeLines(writer, events);
+
+    const textData = collect(textStream);
+    const plain = stripAnsi(textData);
+
+    assert.ok(plain.includes("Bash: pwd"));
+    assert.ok(plain.includes("Result: /home/user"));
+    assert.ok(plain.includes("Read: /nope"));
+    assert.ok(plain.includes("Error: ENOENT: no such file"));
+
+    // The error preview line carries the reserved red escape.
+    const errorLine = textData
+      .split("\n")
+      .find((l) => l.includes("Error: ENOENT"));
+    assert.ok(errorLine, "error preview line should be present");
+    assert.ok(
+      errorLine.includes("\u001b[38;2;241;76;76m"),
+      "error line should carry the reserved red escape",
+    );
   });
 
   test("handles partial lines across chunks", async () => {
@@ -293,15 +418,14 @@ describe("TeeWriter", () => {
     await new Promise((resolve) => writer.end(resolve));
 
     const textData = collect(textStream);
-    assert.ok(textData.includes("Split message"));
+    assert.ok(stripAnsi(textData).includes("Split message"));
   });
 
-  test("truncates long tool input", async () => {
+  test('no tool-call line contains { or " from the input object', async () => {
     const fileStream = new PassThrough();
     const textStream = new PassThrough();
     const writer = new TeeWriter({ fileStream, textStream, mode: "raw" });
 
-    const longInput = { command: "x".repeat(300) };
     const event = JSON.stringify({
       source: "agent",
       seq: 0,
@@ -309,9 +433,14 @@ describe("TeeWriter", () => {
         type: "assistant",
         message: {
           content: [
-            { type: "tool_use", id: "t1", name: "Bash", input: longInput },
+            {
+              type: "tool_use",
+              id: "t1",
+              name: "Bash",
+              input: { command: 'echo "hello {world}"' },
+            },
           ],
-          usage: { input_tokens: 10, output_tokens: 5 },
+          usage: { input_tokens: 1, output_tokens: 1 },
         },
       },
     });
@@ -319,10 +448,12 @@ describe("TeeWriter", () => {
     await writeLines(writer, [event]);
 
     const textData = collect(textStream);
-    assert.ok(textData.includes("> Tool: Bash"));
-    assert.ok(textData.includes("..."));
-    const toolLine = textData.split("\n").find((l) => l.startsWith("> Tool:"));
-    assert.ok(toolLine.length < 250);
+    const plain = stripAnsi(textData);
+    const toolLine = plain.split("\n").find((l) => l.startsWith("Bash:"));
+    assert.ok(toolLine);
+    assert.ok(!toolLine.includes("{"));
+    assert.ok(!toolLine.includes("}"));
+    assert.ok(!toolLine.includes('"'));
   });
 
   test("defaults to raw mode", () => {
