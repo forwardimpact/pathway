@@ -66,8 +66,8 @@ spec's scope is too broad and should be narrowed.
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,
       **high**, and **medium** finding addressed.
-- [ ] Run `bun run format:fix` before pushing — commit any changes the
-      formatter makes.
+- [ ] Run `bun run format:fix` before pushing — commit any changes the formatter
+      makes.
 
 </do_confirm_checklist>
 
