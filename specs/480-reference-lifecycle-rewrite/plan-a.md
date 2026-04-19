@@ -93,8 +93,8 @@ Handoffs are the transitions between phases. Each phase defines triggers that
 specify where work flows next.
 ```
 
-**Sub-headings (lines 41, 48, 55, 63, 69, 77):** Rename from
-`### Specify Stage` → `### Specify Phase`, etc. for all six.
+**Sub-headings (lines 41, 48, 55, 63, 69, 77):** Rename from `### Specify Stage`
+→ `### Specify Phase`, etc. for all six.
 
 **Table contents:** Keep all handoff tables unchanged — the target columns and
 trigger descriptions are accurate for phases.
@@ -349,11 +349,11 @@ files.
 
 ## Blast Radius
 
-| File | Action |
-| ---- | ------ |
-| `website/docs/reference/lifecycle/index.md` | Modified (full rewrite) |
-| `website/docs/reference/index.md` | Modified (frontmatter + card description) |
-| `website/docs/reference/model/index.md` | Modified (4 line edits) |
+| File                                        | Action                                    |
+| ------------------------------------------- | ----------------------------------------- |
+| `website/docs/reference/lifecycle/index.md` | Modified (full rewrite)                   |
+| `website/docs/reference/index.md`           | Modified (frontmatter + card description) |
+| `website/docs/reference/model/index.md`     | Modified (4 line edits)                   |
 
 No files created. No files deleted. No files outside `website/docs/reference/`
 touched.
@@ -361,13 +361,13 @@ touched.
 ## Risks
 
 1. **Lifecycle page linked from outside scoped files.** The spec lists three
-   in-scope files but other pages (authoring-frameworks guide, pathway internals,
-   pathway overview) may link to lifecycle content. Mitigation: the URL
-   `/docs/reference/lifecycle/` is preserved — only the content changes, not the
-   path. External links remain valid.
+   in-scope files but other pages (authoring-frameworks guide, pathway
+   internals, pathway overview) may link to lifecycle content. Mitigation: the
+   URL `/docs/reference/lifecycle/` is preserved — only the content changes, not
+   the path. External links remain valid.
 
-2. **"Stage" appears in non-lifecycle contexts.** Some pages use "stage" in CI/CD
-   pipeline context (e.g., "deploy stage" meaning a CI stage). The grep
+2. **"Stage" appears in non-lifecycle contexts.** Some pages use "stage" in
+   CI/CD pipeline context (e.g., "deploy stage" meaning a CI stage). The grep
    verification in Step 3 is scoped to `model/index.md` only — do not blindly
    remove "stage" from unrelated contexts.
 
@@ -387,6 +387,6 @@ Step 4 must run last.
 
 ## Execution
 
-Single agent: `technical-writer`. Sequential execution, no decomposition
-needed — total change is ~150 lines of Markdown across three files. Estimated
+Single agent: `technical-writer`. Sequential execution, no decomposition needed
+— total change is ~150 lines of Markdown across three files. Estimated
 implementation: one session.
