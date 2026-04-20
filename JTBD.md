@@ -73,9 +73,9 @@ and measures outcomes without blaming individuals.
 
 ---
 
-## Developers
+## Engineers
 
-Developers understand expectations, find growth areas, stay prepared for daily
+Engineers understand expectations, find growth areas, stay prepared for daily
 work, and receive guidance grounded in their organization's framework.
 
 ### Understand Expectations

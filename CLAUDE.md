@@ -54,7 +54,8 @@ your engineering framework in context. [Overview](website/guide/index.md) ·
 
 Helps leadership and engineers answer _what milestones has my engineering
 reached?_ Analysis layer combining GitHub artifact evidence with GetDX
-snapshots. No LLM calls. [Overview](website/landmark/index.md)
+snapshots. No LLM calls. [Overview](website/landmark/index.md) ·
+[Internals](website/docs/internals/landmark/index.md)
 
 ### Summit — `fit-summit`
 
@@ -184,9 +185,7 @@ above.
 
 **External:**
 
-- **Getting started (engineers)** —
-  [website/docs/getting-started/engineers/](website/docs/getting-started/engineers/)
-- **Getting started (leadership)** —
-  [website/docs/getting-started/leadership/](website/docs/getting-started/leadership/)
+- **Getting started** — [engineers](website/docs/getting-started/engineers/),
+  [leadership](website/docs/getting-started/leadership/)
 - **User guides** — [website/docs/guides/](website/docs/guides/)
 - **Published skills** — [.claude/skills/fit-\*](.claude/skills/)
