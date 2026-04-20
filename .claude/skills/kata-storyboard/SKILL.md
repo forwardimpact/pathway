@@ -51,6 +51,9 @@ the Participant Protocol when the coach poses questions via orchestration tools.
 - [ ] Coaching metrics appended to CSV (see Facilitator Process step 6).
 - [ ] For team meetings: storyboard file updated and committed.
 - [ ] For 1-on-1: agent's findings written to its own memory.
+- [ ] Weekly log updated: append a `## YYYY-MM-DD` heading to the current week's
+      log file recording meeting type, key metrics reviewed, obstacle addressed,
+      and experiment committed. (Memory section lists full detail.)
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
 - [ ] In facilitated mode: Conclude called with session summary.
 
