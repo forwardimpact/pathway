@@ -84,10 +84,9 @@ work, and receive guidance grounded in their organization's framework.
   definition by discipline, track, and level, **so that** I know precisely what
   skill proficiencies and behaviour maturities are expected of me. → **Pathway**
 
-- **When** I'm working through a lifecycle stage (specify, plan, code, review,
-  deploy), **I want to** see the checklist items relevant to my proficiency
-  level, **so that** I know what "done well" looks like at my stage of growth. →
-  **Pathway**
+- **When** I'm applying a skill, **I want to** see the read-do and confirm
+  checklists for my proficiency level, **so that** I know what "done well" looks
+  like at my current level of mastery. → **Pathway**
 
 - **When** I encounter vocabulary like "independently" or "with guidance," **I
   want to** understand the precise autonomy and scope each level implies, **so
@@ -144,9 +143,9 @@ standards that humans use, so human-agent collaboration is coherent.
 ### Receive Operational Context
 
 - **When** I'm initialized for a task, **I want to** receive a SKILL.md file
-  with stage-specific focus, activities, and ready-when criteria, **so that** I
-  know exactly what is expected and what "done" looks like for this stage. →
-  **Pathway**
+  with phase-specific focus, read-do checklist, and confirm checklist, **so
+  that** I know exactly what is expected and what "done" looks like for this
+  phase of work. → **Pathway**
 
 - **When** I need to understand my role's working style and constraints, **I
   want to** receive an `.agent.md` profile derived from the same discipline,
@@ -158,20 +157,20 @@ standards that humans use, so human-agent collaboration is coherent.
   progressively deepen my understanding without encountering contributor-only
   internals. → **Docs**
 
-### Operate Within Stage Boundaries
+### Operate Within Phase Boundaries
 
-- **When** I'm assigned to the specify stage, **I want to** only perform
+- **When** I'm assigned to the spec phase, **I want to** only perform
   specification work (define what and why), **so that** I don't prematurely
   commit to architecture or write code before the problem is understood. →
   **Pathway**
 
-- **When** I'm assigned to the code stage, **I want to** implement within the
-  plan's architecture, **so that** I deliver predictably against decisions
-  already made in earlier stages. → **Pathway**
+- **When** I'm assigned to the implement phase, **I want to** implement within
+  the plan's architecture, **so that** I deliver predictably against decisions
+  already made in earlier phases. → **Pathway**
 
-- **When** I complete my stage's work, **I want to** hand off cleanly with
-  structured outputs (spec, plan, code, review), **so that** the next stage
-  agent can continue without ambiguity. → **Pathway**
+- **When** I complete my phase's work, **I want to** hand off cleanly with
+  structured outputs (spec, design, plan, or implementation), **so that** the
+  next phase agent can continue without ambiguity. → **Pathway**
 
 ### Interpret and Produce Evidence
 
