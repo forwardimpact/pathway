@@ -214,10 +214,11 @@ audit-vulnerabilities:
 # Scan repository for leaked secrets
 audit-secrets:
     #!/usr/bin/env bash
-    if command -v gitleaks >/dev/null 2>&1; then \
-        gitleaks detect --source . --verbose; \
-    else \
-        echo "Warning: gitleaks not installed, skipping secret scan"; \
+    if command -v gitleaks >/dev/null 2>&1; then
+        gitleaks detect --source . --verbose
+    else
+        echo "Error: gitleaks not installed — install it (brew install gitleaks) or skip with: just audit-vulnerabilities" >&2
+        exit 1
     fi
 
 # ── Environment ───────────────────────────────────────────────────
