@@ -45,6 +45,13 @@ gh pr list --state open --base main \
 
 Skip PRs authored by `app/dependabot` (handled by `kata-security-update`).
 
+**Branch-specific check:** `--state open` has timing lag and misses PRs created
+mid-session. Before asserting a branch has no associated PR, verify with:
+
+```sh
+gh pr list --state all --head <branch-name>
+```
+
 ### Step 2: Assess Each PR
 
 ```sh
