@@ -47,7 +47,7 @@ Browse your engineering framework:
 
 ```sh
 npx fit-pathway discipline --list
-npx fit-pathway job software_engineering L3
+npx fit-pathway job software_engineering J060
 ```
 
 Guide requires a running service stack — see the
