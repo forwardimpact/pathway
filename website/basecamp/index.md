@@ -44,7 +44,7 @@ quietly in the background and keeps getting smarter about your work.
 
 ---
 
-## Built-in Skills
+## Core Skills
 
 | Skill                    | What it does                                   |
 | ------------------------ | ---------------------------------------------- |
@@ -85,7 +85,7 @@ If your network requires a custom CA bundle, add an `env` block to
 npx fit-basecamp init ~/Documents/Team   # Initialize knowledge base
 npx fit-basecamp daemon                  # Start the scheduler
 npx fit-basecamp status                  # Check what's happening
-npx fit-basecamp wake sync-mail          # Wake a specific agent now
+npx fit-basecamp wake postman             # Wake a specific agent now
 ```
 
 ### macOS Privacy & Security

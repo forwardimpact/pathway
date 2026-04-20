@@ -37,7 +37,7 @@ hero:
 Optional enhancements (require Map's activity layer):
 
 - `--evidenced` — compares derived coverage against practiced capability from
-  Guide's evidence rows.
+  Map's evidence data.
 - `--outcomes` — weights growth recommendations by GetDX driver scores.
 
 Without these flags, Summit is fully local and instant — Map data plus a roster.
