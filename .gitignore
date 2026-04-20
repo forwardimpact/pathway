@@ -15,8 +15,14 @@ generated/
 *.pfx
 *.p8
 *.jks
+*.keystore
 credentials.json
 service-account.json
+token.json
+.npmrc
+id_rsa
+id_ed25519
+id_ecdsa
 
 # Environment files (use *.example templates)
 **/.env
