@@ -37,10 +37,10 @@ spec's scope is too broad and should be narrowed.
 
 <read_do_checklist goal="Internalize design-writing boundaries before starting">
 
-- [ ] Read `specs/STATUS` directly from disk — confirm this spec is at
-      `spec approved`. Do not rely on the wiki, prior session memory, or PR
-      descriptions to establish the current phase; those sources can lag or
-      contain phantoms.
+- [ ] Read `specs/STATUS` from main via `git show main:specs/STATUS` — confirm
+      this spec is at `spec approved`. Do not read the working-tree file: branch
+      checkouts reflect branch state, not the authoritative lifecycle. Do not
+      rely on the wiki, prior session memory, or PR descriptions.
 - [ ] A design requires an approved spec — if no approved spec exists, stop.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
