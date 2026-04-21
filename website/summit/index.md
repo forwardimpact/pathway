@@ -168,6 +168,10 @@ a single point of failure more acute.
 
 Simulate roster changes and see their impact before anyone makes a decision.
 
+Adding an engineer may resolve existing risks, but can also introduce new ones
+(for example, two engineers at the same level creates a concentration risk in
+skills neither covers at working+). Summit shows both directions:
+
 ```
 $ npx fit-summit what-if platform --add "{ discipline: software_engineering, level: J060 }"
 
@@ -178,7 +182,13 @@ $ npx fit-summit what-if platform --add "{ discipline: software_engineering, lev
 
   Risk changes:
     - task_completion no longer single point of failure
+    + incident_response concentration risk: 2 engineers, none at working+
 ```
+
+`-` lines are risks resolved by the change. `+` lines are risks the change
+introduces. A hire that looks straightforwardly positive can still surface
+second-order gaps — Summit shows both so you can make the decision with the full
+picture.
 
 ---
 
