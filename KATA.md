@@ -292,17 +292,23 @@ Rules:
 ### Instruction length
 
 Auto-loaded layers consume context on every run. Keep them tight so agents spend
-tokens on the task, not on re-reading project boilerplate.
+tokens on the task, not on re-reading project boilerplate. Limits enforced by
+`scripts/check-instructions.mjs`:
 
-| Layer           | Target | Loaded           |
-| --------------- | ------ | ---------------- |
-| CLAUDE.md       | ≤ 192  | auto (every run) |
-| CONTRIBUTING.md | ≤ 256  | on demand        |
-| Agent profile   | ≤ 64   | auto (every run) |
-| SKILL.md        | ≤ 192  | auto (per skill) |
+| Layer                    | Target      | Loaded           |
+| ------------------------ | ----------- | ---------------- |
+| L2 CLAUDE.md             | ≤ 192 lines | auto (every run) |
+| L3 CONTRIBUTING.md       | ≤ 256 lines | on demand        |
+| L5 Agent profile         | ≤ 64 lines  | auto (every run) |
+| L6 SKILL.md              | ≤ 192 lines | auto (per skill) |
+| L7 Skill reference file  | ≤ 128 lines | on demand        |
+| L8 Checklist (per block) | ≤ 9 items   | auto (per skill) |
 
 The same principle applies across layers: keep the main file to its concern;
-push supporting material into co-located references or linked documents.
+push supporting material into co-located references or linked documents. L8 is
+gated by item count rather than line count because wrapped-line length is a
+formatting artifact, not cognitive load — nine binary assertions is the ceiling
+regardless of how wide they are.
 
 ### Skill structure
 

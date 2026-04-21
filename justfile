@@ -198,9 +198,9 @@ docs-watch:
 
 # ── Quality ───────────────────────────────────────────────────────
 
-# Enforce instruction layer line limits (KATA.md § Instruction length)
+# Enforce instruction layer limits (KATA.md § Instruction length)
 check-instructions:
-    bash scripts/check-instructions.sh
+    node scripts/check-instructions.mjs
 
 # Run security audit (vulnerability + secret scanning)
 audit: audit-vulnerabilities audit-secrets

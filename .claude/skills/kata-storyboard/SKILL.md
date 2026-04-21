@@ -45,9 +45,9 @@ the Participant Protocol when the coach poses questions via orchestration tools.
 - [ ] All five coaching kata questions were addressed.
 - [ ] In facilitated mode: every coaching question reached participants via Tell
       or Share — no direct wiki/metrics file reads for domain data.
-- [ ] Current condition updated with numbers from metrics CSVs (not narrative).
-- [ ] Current condition includes XmR `status` and signal descriptions for each
-      metric with sufficient data. Metrics with `insufficient_data` are noted.
+- [ ] Current condition updated with numbers from metrics CSVs (not narrative),
+      including XmR `status` and signal descriptions for each metric with
+      sufficient data. Metrics with `insufficient_data` are noted.
 - [ ] Coaching metrics appended to CSV (see Facilitator Process step 6).
 - [ ] For team meetings: storyboard file updated and committed.
 - [ ] For 1-on-1: agent's findings written to its own memory.
