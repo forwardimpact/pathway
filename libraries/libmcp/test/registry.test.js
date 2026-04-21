@@ -205,10 +205,30 @@ describe("registerToolsFromConfig", () => {
 describe("buildZodSchema", () => {
   test("excludes system fields", () => {
     const fields = {
-      input: { type: "string", optional: false, repeated: true, description: "query" },
-      filter: { type: "message", optional: true, repeated: false, description: null },
-      llm_token: { type: "string", optional: true, repeated: false, description: null },
-      resource_id: { type: "string", optional: true, repeated: false, description: null },
+      input: {
+        type: "string",
+        optional: false,
+        repeated: true,
+        description: "query",
+      },
+      filter: {
+        type: "message",
+        optional: true,
+        repeated: false,
+        description: null,
+      },
+      llm_token: {
+        type: "string",
+        optional: true,
+        repeated: false,
+        description: null,
+      },
+      resource_id: {
+        type: "string",
+        optional: true,
+        repeated: false,
+        description: null,
+      },
     };
     const schema = buildZodSchema(fields);
     assert.ok(!schema.filter);
@@ -218,8 +238,18 @@ describe("buildZodSchema", () => {
 
   test("excludes message-type fields", () => {
     const fields = {
-      name: { type: "string", optional: false, repeated: false, description: "a name" },
-      nested: { type: "message", optional: false, repeated: false, description: null },
+      name: {
+        type: "string",
+        optional: false,
+        repeated: false,
+        description: "a name",
+      },
+      nested: {
+        type: "message",
+        optional: false,
+        repeated: false,
+        description: null,
+      },
     };
     const schema = buildZodSchema(fields);
     assert.ok(schema.name);
@@ -228,9 +258,24 @@ describe("buildZodSchema", () => {
 
   test("includes user-facing fields", () => {
     const fields = {
-      discipline: { type: "string", optional: false, repeated: false, description: "Discipline" },
-      level: { type: "string", optional: false, repeated: false, description: "Level" },
-      track: { type: "string", optional: true, repeated: false, description: "Track" },
+      discipline: {
+        type: "string",
+        optional: false,
+        repeated: false,
+        description: "Discipline",
+      },
+      level: {
+        type: "string",
+        optional: false,
+        repeated: false,
+        description: "Level",
+      },
+      track: {
+        type: "string",
+        optional: true,
+        repeated: false,
+        description: "Track",
+      },
     };
     const schema = buildZodSchema(fields);
     assert.ok(schema.discipline);
@@ -240,7 +285,12 @@ describe("buildZodSchema", () => {
 
   test("repeated field gets union type", () => {
     const fields = {
-      input: { type: "string", optional: false, repeated: true, description: "query" },
+      input: {
+        type: "string",
+        optional: false,
+        repeated: true,
+        description: "query",
+      },
     };
     const schema = buildZodSchema(fields);
     assert.ok(schema.input);

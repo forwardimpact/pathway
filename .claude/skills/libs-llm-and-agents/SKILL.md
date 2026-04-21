@@ -19,13 +19,13 @@ description: >
 
 ## Libraries
 
-| Library   | Capabilities                                                   | Key Exports                                                                               |
-| --------- | -------------------------------------------------------------- | ----------------------------------------------------------------------------------------- |
-| libllm    | Send completions and embeddings to OpenAI-compatible endpoints | `LlmApi`, `createLlmApi`, `normalizeVector`, `getBudget`                                  |
-| libmemory | Token-budgeted context window construction                     | `MemoryWindow`, `getModelBudget`                                                          |
-| libprompt | Load and render .prompt.md templates with Mustache             | `PromptLoader`, `createPromptLoader`                                                      |
-| libagent  | Multi-turn conversation orchestration with tools               | `AgentMind`, `AgentHands`                                                                 |
-| libmcp    | Config-driven gRPC-to-MCP tool registration from codegen metadata | `registerToolsFromConfig`                                                                 |
+| Library   | Capabilities                                                      | Key Exports                                              |
+| --------- | ----------------------------------------------------------------- | -------------------------------------------------------- |
+| libllm    | Send completions and embeddings to OpenAI-compatible endpoints    | `LlmApi`, `createLlmApi`, `normalizeVector`, `getBudget` |
+| libmemory | Token-budgeted context window construction                        | `MemoryWindow`, `getModelBudget`                         |
+| libprompt | Load and render .prompt.md templates with Mustache                | `PromptLoader`, `createPromptLoader`                     |
+| libagent  | Multi-turn conversation orchestration with tools                  | `AgentMind`, `AgentHands`                                |
+| libmcp    | Config-driven gRPC-to-MCP tool registration from codegen metadata | `registerToolsFromConfig`                                |
 
 ## Decision Guide
 

@@ -111,6 +111,7 @@ function createMockDeps(opts = {}) {
     healthDefinition: createMockHealthDefinition(),
     fs: createMockFs(),
     fetch: opts.fetch || createMockFetch(true),
+    queryDataInventory: async () => ({ resources: 0, triples: 0 }),
   };
 }
 

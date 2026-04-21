@@ -192,6 +192,7 @@ async function checkAnthropicToken(config) {
  * @param {object} [deps.grpc] - @grpc/grpc-js module (default: real grpc)
  * @param {object} [deps.healthDefinition] - Health service definition (default: real def)
  * @param {Function} [deps.fetch] - Fetch function (default: global fetch)
+ * @param {Function} [deps.queryDataInventory] - Data inventory query (default: real query)
  * @returns {Promise<object>} Status result object
  */
 export async function runStatus(deps) {
@@ -209,9 +210,10 @@ export async function runStatus(deps) {
   );
 
   // Data inventory — only query if graph is reachable
+  const queryFn = deps.queryDataInventory || queryDataInventory;
   let dataCounts = { resources: 0, triples: 0 };
   if (services.graph?.status === "ok") {
-    dataCounts = await queryDataInventory(configs.graph);
+    dataCounts = await queryFn(configs.graph);
   }
   const data = { ...dataCounts };
 

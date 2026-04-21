@@ -208,10 +208,7 @@ describe("MCP service", () => {
       const result = await callTool(server, "search_content", {
         input: "test query",
       });
-      assert.strictEqual(
-        clients.vector.SearchContent.mock.calls.length,
-        1,
-      );
+      assert.strictEqual(clients.vector.SearchContent.mock.calls.length, 1);
       assert.ok(result.content[0].text.includes("result1"));
     });
 
@@ -225,10 +222,7 @@ describe("MCP service", () => {
         discipline: "fde",
         level: "l3",
       });
-      assert.strictEqual(
-        clients.pathway.DescribeJob.mock.calls.length,
-        1,
-      );
+      assert.strictEqual(clients.pathway.DescribeJob.mock.calls.length, 1);
       assert.deepStrictEqual(result, {
         content: [{ type: "text", text: "pathway-job-ttl" }],
       });

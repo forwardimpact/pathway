@@ -13,7 +13,6 @@ export function registerToolsFromConfig(server, config, clients) {
   const tools = config.tools;
   if (!tools || Object.keys(tools).length === 0) return;
 
-  let count = 0;
   for (const [toolName, endpoint] of Object.entries(tools)) {
     const [packageName, serviceName, methodName] = endpoint.method.split(".");
     const serviceKey = `${packageName}.${serviceName}`;
@@ -66,6 +65,5 @@ export function registerToolsFromConfig(server, config, clients) {
         ],
       };
     });
-    count++;
   }
 }

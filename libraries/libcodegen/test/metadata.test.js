@@ -31,7 +31,14 @@ function discoverProtoDirs() {
 
 function createBase() {
   const protoDirs = discoverProtoDirs();
-  return new CodegenBase(protoDirs, projectRoot, path, mustache, protoLoader, fs);
+  return new CodegenBase(
+    protoDirs,
+    projectRoot,
+    path,
+    mustache,
+    protoLoader,
+    fs,
+  );
 }
 
 describe("CodegenBase.parseMetadata", () => {

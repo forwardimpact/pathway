@@ -1,9 +1,6 @@
 import fs from "node:fs/promises";
 import { resolve } from "node:path";
-import {
-  generateSecret,
-  updateEnvFile,
-} from "@forwardimpact/libsecret";
+import { generateSecret, updateEnvFile } from "@forwardimpact/libsecret";
 import {
   SummaryRenderer,
   formatHeader,
