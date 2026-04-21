@@ -27,7 +27,8 @@ for f in .claude/agents/*.md; do
   check "$f" 64
 done
 
-# Layer 6 — skills
+# Layer 6 — skill procedure (SKILL.md). Layer 7 (references/) has no limit —
+# that's where overflow goes, read on demand.
 for f in .claude/skills/*/SKILL.md; do
   check "$f" 192
 done

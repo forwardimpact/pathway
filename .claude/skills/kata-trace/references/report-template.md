@@ -71,13 +71,14 @@ the core. Reference the categories it connects.>
 <For each category with an instruction-layer root cause, map it to the
 layer and state the evidence. Not every category maps to a layer — only
 attribute when the evidence supports it. See KATA.md § Instruction layering
-for the five-layer model.>
+for the eight-layer model.>
 
-| Category | Layer              | Evidence                        | Fix Shape    |
-| -------- | ------------------ | ------------------------------- | ------------ |
-| TASK_... | L2 (workflow task) | Turn NN: agent cites singular   | Trivial fix  |
-| CRED_... | L4 (skill)         | No diagnostic step in skill doc | Improvement  |
-| BUDGET.. | None (infra)       | Hardcoded maxTurns in JS        | Trivial fix  |
+| Category | Layer                  | Evidence                        | Fix Shape   |
+| -------- | ---------------------- | ------------------------------- | ----------- |
+| TASK_... | L4 (workflow task)     | Turn NN: agent cites singular   | Trivial fix |
+| CRED_... | L6 (skill procedure)   | No diagnostic step in SKILL.md  | Improvement |
+| TMPL_... | L7 (skill references)  | Outdated template in references | Trivial fix |
+| BUDGET.. | None (infra)           | Hardcoded maxTurns in JS        | Trivial fix |
 
 ### Actionable Findings
 
