@@ -51,7 +51,7 @@
     "@forwardimpact/libtype": "^0.1.63",
     "@forwardimpact/libutil": "^0.1.64",
     "@forwardimpact/svcgraph": "^0.1.60",
-    "@forwardimpact/svcmcp": "workspace:*",
+    "@forwardimpact/svcmcp": "^0.1.0",
     "@forwardimpact/svctrace": "^0.1.34",
     "@forwardimpact/svcvector": "^0.1.111"
   },

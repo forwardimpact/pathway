@@ -1,23 +1,33 @@
 {
   "name": "@forwardimpact/svcmcp",
   "version": "0.1.0",
+  "description": "Unified MCP server for Guide tools",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./index.js",
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "files": [
     "index.js",
     "server.js",
     "prompts/"
   ],
   "dependencies": {
-    "@forwardimpact/libconfig": "workspace:*",
-    "@forwardimpact/libmcp": "workspace:*",
-    "@forwardimpact/librpc": "workspace:*",
-    "@forwardimpact/libtelemetry": "workspace:*",
-    "@forwardimpact/libtype": "workspace:*",
+    "@forwardimpact/libconfig": "^0.1.67",
+    "@forwardimpact/libmcp": "^0.1.0",
+    "@forwardimpact/librpc": "^0.1.92",
+    "@forwardimpact/libtelemetry": "^0.1.35",
+    "@forwardimpact/libtype": "^0.1.68",
     "@modelcontextprotocol/sdk": "^1.29.0"
   },
   "devDependencies": {
-    "@forwardimpact/libharness": "workspace:*"
+    "@forwardimpact/libharness": "^0.1.13"
+  },
+  "publishConfig": {
+    "access": "public"
   },
   "scripts": {
     "test": "bun run node --test test/*.test.js"
