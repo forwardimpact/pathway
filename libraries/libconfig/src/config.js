@@ -19,9 +19,11 @@ export class Config {
   // Getter methods read via #env(), which checks process.env first —
   // so shell-exported credentials still work; .env is the fallback.
   static #CREDENTIAL_KEYS = new Set([
+    "ANTHROPIC_API_KEY",
     "GITHUB_CLIENT_ID",
     "GITHUB_TOKEN",
     "LLM_TOKEN",
+    "MCP_TOKEN",
     "JWT_SECRET",
     "JWT_ANON_KEY",
     "JWT_AUTH_URL",
@@ -145,6 +147,11 @@ export class Config {
     );
   }
 
+  /** @returns {string} MCP bearer token */
+  mcpToken() {
+    return this.#resolve("MCP_TOKEN");
+  }
+
   /** @returns {string} JWT secret for HS256 signature verification */
   jwtSecret() {
     return this.#resolve("JWT_SECRET");
@@ -162,6 +169,49 @@ export class Config {
       stripTrailingSlashes,
       () => "http://localhost:9999",
     );
+  }
+
+  /**
+   * Returns a usable Anthropic credential. Resolution order: env var →
+   * OAuth store (refresh if expired) → typed error. Callers do not branch
+   * on the source.
+   * @returns {Promise<string>}
+   */
+  async anthropicToken() {
+    const envKey = this.#env("ANTHROPIC_API_KEY");
+    if (envKey) return envKey;
+
+    const oauth = await this.#readOAuthToken();
+    if (!oauth) {
+      throw new Error(
+        "Not authenticated. Run `fit-guide login` or set ANTHROPIC_API_KEY.",
+      );
+    }
+
+    if (Date.now() >= oauth.expires_at - 5 * 60 * 1000) {
+      const refreshed = await this.#refreshOAuthToken(oauth.refresh_token);
+      await this.#writeOAuthToken(refreshed);
+      return refreshed.access_token;
+    }
+
+    return oauth.access_token;
+  }
+
+  /**
+   * Persists an OAuth credential (called by the login flow).
+   * @param {{ access_token: string, refresh_token: string, expires_at: number }} tokenData
+   * @returns {Promise<void>}
+   */
+  async writeOAuthCredential(tokenData) {
+    await this.#writeOAuthToken(tokenData);
+  }
+
+  /**
+   * Clears the persisted OAuth credential (called by the logout flow).
+   * @returns {Promise<void>}
+   */
+  async clearOAuthCredential() {
+    await this.#clearOAuthToken();
   }
 
   /**
@@ -190,6 +240,59 @@ export class Config {
     this.#envOverrides = {};
     this.#fileData = null;
     this.#storage = null;
+  }
+
+  /** @returns {Promise<object|null>} OAuth token tuple or null */
+  async #readOAuthToken() {
+    try {
+      const data = await this.#storage.get("anthropic-oauth.json");
+      if (!data?.access_token) return null;
+      return data;
+    } catch {
+      return null;
+    }
+  }
+
+  /** @param {{ access_token: string, refresh_token: string, expires_at: number }} data */
+  async #writeOAuthToken(data) {
+    await this.#storage.put("anthropic-oauth.json", data);
+  }
+
+  async #clearOAuthToken() {
+    try {
+      await this.#storage.delete("anthropic-oauth.json");
+    } catch {
+      // no-op if absent
+    }
+  }
+
+  /**
+   * Exchanges a refresh token for a new access token at Anthropic's
+   * token endpoint.
+   * @param {string} refreshToken
+   * @returns {Promise<{ access_token: string, refresh_token: string, expires_at: number }>}
+   */
+  async #refreshOAuthToken(refreshToken) {
+    const tokenUrl =
+      this.#process.env.ANTHROPIC_OAUTH_TOKEN_URL ||
+      "https://auth.anthropic.com/oauth/token";
+    const res = await fetch(tokenUrl, {
+      method: "POST",
+      headers: { "Content-Type": "application/x-www-form-urlencoded" },
+      body: new URLSearchParams({
+        grant_type: "refresh_token",
+        refresh_token: refreshToken,
+      }),
+    });
+    if (!res.ok) {
+      throw new Error(`Token refresh failed: ${res.status}`);
+    }
+    const body = await res.json();
+    return {
+      access_token: body.access_token,
+      refresh_token: body.refresh_token ?? refreshToken,
+      expires_at: Date.now() + (body.expires_in ?? 3600) * 1000,
+    };
   }
 
   /**
