@@ -156,7 +156,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
     }
   });
 
-  test("anthropicToken() throws on failed refresh", async () => {
+  test("anthropicToken() clears token and throws on failed refresh", async () => {
     const storage = createMockStorage();
     storage.data.set(
       "anthropic-oauth.json",
@@ -184,8 +184,10 @@ describe("libconfig - Anthropic and MCP credentials", () => {
         mockStorageFn(storage),
       );
       await assert.rejects(() => config.anthropicToken(), {
-        message: "Token refresh failed: 401",
+        message: "Session expired. Run `fit-guide login` to re-authenticate.",
       });
+      // Verify the stale token was cleared
+      assert.strictEqual(storage.data.has("anthropic-oauth.json"), false);
     } finally {
       globalThis.fetch = originalFetch;
     }

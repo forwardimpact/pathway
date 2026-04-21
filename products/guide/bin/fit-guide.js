@@ -189,11 +189,30 @@ function printStatusSummary(summary, result) {
 // Chat handler (default command) — Claude Agent SDK
 // ---------------------------------------------------------------------------
 
+async function fetchGuidePrompt(mcpUrl, mcpToken) {
+  const res = await fetch(mcpUrl, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+      Authorization: `Bearer ${mcpToken}`,
+    },
+    body: JSON.stringify({
+      jsonrpc: "2.0",
+      id: 1,
+      method: "prompts/get",
+      params: { name: "guide-default" },
+    }),
+  });
+  if (!res.ok) return null;
+  const body = await res.json();
+  const text = body?.result?.messages?.[0]?.content?.text;
+  return text || null;
+}
+
 async function handleChat(input) {
   const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const { createServiceConfig } = await import("@forwardimpact/libconfig");
-  const { readFile } = await import("node:fs/promises");
-  const path = await import("node:path");
+  const { createStorage } = await import("@forwardimpact/libstorage");
 
   const config = await createServiceConfig("mcp");
 
@@ -203,25 +222,14 @@ async function handleChat(input) {
   const mcpUrl = config.url; // SERVICE_MCP_URL
   const mcpToken = config.mcpToken();
 
-  // Load guide-default prompt from the MCP server's prompt file
-  const promptPath = path.join(
-    __dirname,
-    "..",
-    "..",
-    "..",
-    "services",
-    "mcp",
-    "prompts",
-    "guide-default.md",
-  );
-  let systemPrompt;
-  try {
-    systemPrompt = await readFile(promptPath, "utf8");
-  } catch {
-    // Fallback for npm installs where services/ is not available:
-    // fetch from the MCP endpoint if running
-    systemPrompt =
-      "You are Guide, an engineering framework knowledge agent. Use the available tools to answer questions about skills, levels, behaviours, and career progression.";
+  // Fetch guide-default prompt from the MCP endpoint
+  const systemPrompt = await fetchGuidePrompt(mcpUrl, mcpToken);
+  if (!systemPrompt) {
+    process.stderr.write(
+      "Could not fetch guide-default prompt from MCP endpoint.\n" +
+        "Ensure the MCP service is running: npx fit-rc start\n",
+    );
+    process.exit(1);
   }
 
   const iterator = query({
@@ -238,11 +246,21 @@ async function handleChat(input) {
     },
   });
 
+  let sessionId = null;
   for await (const message of iterator) {
+    if (message.type === "system" && message.subtype === "init") {
+      sessionId = message.session_id;
+    }
     if (message.type === "result") {
       process.stdout.write(message.result ?? "");
       process.stdout.write("\n");
     }
+  }
+
+  // Persist session ID for resume
+  if (sessionId) {
+    const storage = createStorage("cli");
+    await storage.put("last-session-id", sessionId);
   }
 }
 

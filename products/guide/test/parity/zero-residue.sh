@@ -2,7 +2,7 @@
 set -euo pipefail
 
 # Deleted package names — must not appear outside allowed locations
-PACKAGES="libagent|libmemory|svcagent|svcmemory|svcllm|svctool"
+PACKAGES="libagent|libllm|libmemory|svcagent|svcmemory|svcllm|svctool"
 
 # Allowed locations: specs, generated output, node_modules, lockfiles,
 # build artifacts, temporary dirs, wiki history logs, this script itself,

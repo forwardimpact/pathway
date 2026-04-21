@@ -47,6 +47,13 @@ export function createMcpService({
     const port = config.port || 3009;
     const expectedToken = config.mcpToken();
 
+    // Create transport once — stateless mode (no session ID).
+    // connect() binds the McpServer to this single transport.
+    const transport = new StreamableHTTPServerTransport({
+      sessionIdGenerator: undefined,
+    });
+    await mcpServer.connect(transport);
+
     const httpServer = createServer(async (req, res) => {
       // Health endpoint — no auth required
       if (req.url === "/health" && req.method === "GET") {
@@ -63,10 +70,6 @@ export function createMcpService({
         return;
       }
 
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: undefined,
-      });
-      await mcpServer.connect(transport);
       await transport.handleRequest(req, res);
     });
 

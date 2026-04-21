@@ -1,48 +1,31 @@
-# Agent Configuration
+# Configuration
 
-### Agent Definitions (`config/agents/`)
+### Agent Instructions
 
-Agent files use YAML front matter + Markdown body:
+Guide uses a single `guide-default` prompt served by the MCP endpoint. The
+prompt defines the agent's workflow (orient → query → synthesize), tool
+selection guidance, and response format rules.
 
-```yaml
----
-name: planner
-description: Analyzes queries and creates execution plans.
-infer: false
-tools:
-  - get_ontology
-  - list_handoffs
-  - run_handoff
-handoffs:
-  - label: researcher
-    agent: researcher
-    prompt: |
-      Execute the plan below.
----
+The prompt lives at `services/mcp/prompts/guide-default.md` in the monorepo and
+is served to all three surfaces via MCP `prompts/get`.
 
-# Planner Agent
+### Service Configuration (`config/config.json`)
 
-[Agent instructions in Markdown...]
+Controls the service startup order for `fit-rc`:
+
+```json
+{
+  "init": {
+    "services": [
+      { "name": "trace", "command": "..." },
+      { "name": "vector", "command": "..." },
+      { "name": "graph", "command": "..." },
+      { "name": "pathway", "command": "..." },
+      { "name": "mcp", "command": "..." },
+      { "name": "web", "command": "..." }
+    ]
+  }
+}
 ```
 
-Key fields:
-
-| Field      | Purpose                                   |
-| ---------- | ----------------------------------------- |
-| `name`     | Agent identifier                          |
-| `infer`    | Whether agent can be spawned as sub-agent |
-| `tools`    | List of tool names this agent can call    |
-| `handoffs` | Agents this agent can hand off to         |
-
-Default agents: **planner** (creates plans), **researcher** (retrieves data),
-**editor** (synthesizes responses).
-
-To restore the starter agents, delete `config/agents/` and re-run
-`npx fit-guide init`.
-
-### Tool Descriptors (`config/tools.yml`)
-
-Maps tool names to descriptions and parameters. Tools include graph queries
-(`get_ontology`, `get_subjects`, `query_by_pattern`), search (`search_content`),
-agent delegation (`run_sub_agent`, `list_sub_agents`), and handoff control
-(`list_handoffs`, `run_handoff`).
+To restore the starter config, delete `config/` and re-run `npx fit-guide init`.

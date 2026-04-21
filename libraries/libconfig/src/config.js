@@ -189,9 +189,16 @@ export class Config {
     }
 
     if (Date.now() >= oauth.expires_at - 5 * 60 * 1000) {
-      const refreshed = await this.#refreshOAuthToken(oauth.refresh_token);
-      await this.#writeOAuthToken(refreshed);
-      return refreshed.access_token;
+      try {
+        const refreshed = await this.#refreshOAuthToken(oauth.refresh_token);
+        await this.#writeOAuthToken(refreshed);
+        return refreshed.access_token;
+      } catch {
+        await this.#clearOAuthToken();
+        throw new Error(
+          "Session expired. Run `fit-guide login` to re-authenticate.",
+        );
+      }
     }
 
     return oauth.access_token;

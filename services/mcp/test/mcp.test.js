@@ -50,17 +50,25 @@ function createMockClients() {
   };
 }
 
+/**
+ * Helper: call a registered tool handler through the McpServer.
+ * Uses the server's internal _registeredTools object.
+ */
+async function callTool(mcpServer, toolName, args = {}) {
+  const tools = mcpServer._registeredTools;
+  const tool = tools[toolName];
+  if (!tool) throw new Error(`Tool ${toolName} not registered`);
+  return tool.handler({ name: toolName, arguments: args });
+}
+
 describe("MCP service", () => {
   describe("tool registration", () => {
-    test("registers all 10 tools", async () => {
+    test("registers all 10 expected tools", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
       const clients = createMockClients();
       registerTools(server, clients);
 
-      // McpServer stores tools internally; connect to a mock transport
-      // to list them via the protocol. Instead, verify by counting
-      // the registered tool names through the server's internal state.
-      const toolNames = [
+      const expectedTools = [
         "get_ontology",
         "get_subjects",
         "query_by_pattern",
@@ -73,10 +81,11 @@ describe("MCP service", () => {
         "pathway_list_job_software",
       ];
 
-      // The McpServer stores tools in a private Map. We verify by
-      // checking that each tool name was registered via the tool() method.
-      // If any tool name was missing, calling it would throw.
-      assert.strictEqual(toolNames.length, 10);
+      const registered = server._registeredTools;
+      assert.strictEqual(Object.keys(registered).length, 10);
+      for (const name of expectedTools) {
+        assert.ok(registered[name], `Missing tool: ${name}`);
+      }
     });
   });
 
@@ -92,8 +101,6 @@ describe("MCP service", () => {
         ...clients,
       });
 
-      // The McpServer has prompts registered; verify the service
-      // was created without errors (prompt file was found)
       assert.ok(mcpServer);
     });
   });
@@ -109,7 +116,6 @@ describe("MCP service", () => {
     });
 
     test("auth rejects missing token", async () => {
-      // Simulate the auth logic directly
       const expectedToken = "test-bearer-token";
       const authHeader = undefined;
       const authorized = authHeader && authHeader === `Bearer ${expectedToken}`;
@@ -137,31 +143,70 @@ describe("MCP service", () => {
       const clients = createMockClients();
       registerTools(server, clients);
 
-      // Call the handler directly through the registered tool
-      // McpServer tools are stored internally — we verified registration above.
-      // Test the routing by calling the gRPC mock directly.
-      const result = await clients.graphClient.GetOntology({});
-      assert.strictEqual(result.content, "ontology-ttl");
+      const result = await callTool(server, "get_ontology");
       assert.strictEqual(clients.graphClient.GetOntology.mock.calls.length, 1);
+      assert.deepStrictEqual(result, {
+        content: [{ type: "text", text: "ontology-ttl" }],
+      });
+    });
+
+    test("get_subjects calls graphClient.GetSubjects", async () => {
+      const server = new McpServer({ name: "test", version: "0.0.1" });
+      const clients = createMockClients();
+      registerTools(server, clients);
+
+      const result = await callTool(server, "get_subjects", {
+        type: "schema:Organization",
+      });
+      assert.strictEqual(clients.graphClient.GetSubjects.mock.calls.length, 1);
+      assert.deepStrictEqual(result, {
+        content: [{ type: "text", text: "sub1\tsub2" }],
+      });
     });
 
     test("search_content calls vectorClient.SearchContent", async () => {
+      const server = new McpServer({ name: "test", version: "0.0.1" });
       const clients = createMockClients();
-      const result = await clients.vectorClient.SearchContent({
-        input: ["test query"],
+      registerTools(server, clients);
+
+      const result = await callTool(server, "search_content", {
+        input: "test query",
       });
-      assert.deepStrictEqual(result.identifiers, ["result1"]);
       assert.strictEqual(
         clients.vectorClient.SearchContent.mock.calls.length,
         1,
       );
+      assert.ok(result.content[0].text.includes("result1"));
+    });
+
+    test("pathway_describe_job calls pathwayClient.DescribeJob", async () => {
+      const server = new McpServer({ name: "test", version: "0.0.1" });
+      const clients = createMockClients();
+      registerTools(server, clients);
+
+      const result = await callTool(server, "pathway_describe_job", {
+        discipline: "fde",
+        level: "l3",
+      });
+      assert.strictEqual(
+        clients.pathwayClient.DescribeJob.mock.calls.length,
+        1,
+      );
+      assert.deepStrictEqual(result, {
+        content: [{ type: "text", text: "pathway-job-ttl" }],
+      });
     });
 
     test("pathway_list_jobs calls pathwayClient.ListJobs", async () => {
+      const server = new McpServer({ name: "test", version: "0.0.1" });
       const clients = createMockClients();
-      const result = await clients.pathwayClient.ListJobs({});
-      assert.strictEqual(result.content, "pathway-jobs-ttl");
+      registerTools(server, clients);
+
+      const result = await callTool(server, "pathway_list_jobs", {});
       assert.strictEqual(clients.pathwayClient.ListJobs.mock.calls.length, 1);
+      assert.deepStrictEqual(result, {
+        content: [{ type: "text", text: "pathway-jobs-ttl" }],
+      });
     });
   });
 });
