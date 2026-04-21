@@ -228,26 +228,41 @@ Lessons from trace analysis of agent workflow runs.
 
 ### Instruction layering
 
-Agent instructions span seven layers, each owning a distinct concern:
+Agent instructions span eight layers, each owning a distinct concern. Layers
+ascend from most general (every agent, every run) to most specific (one step,
+one pause point):
 
-1. **libeval system prompt** — relay mechanics (how turns work, completion)
-2. **CLAUDE.md** — project identity (goal, users, products, distribution model,
-   documentation map)
-3. **CONTRIBUTING.md** — contribution standards (invariants, technical rules,
-   quality gates, git conventions, security)
-4. **workflow task** — this run (which product, scenario, success criteria)
-5. **agent profile** — who you are (persona, voice, skill routing, constraints)
-6. **skills** — how to do it (procedures, templates, domain knowledge)
-7. **checklists** — did you do it (yes/no verification at pause points)
+1. **libeval system prompt** — relay mechanics. How turns, tool calls, and
+   completion signalling work. Loaded once per session by the runner.
+2. **CLAUDE.md** — project identity. Goal, users, products, distribution model,
+   documentation map. Auto-loaded every run via `settingSources: ["project"]`.
+3. **CONTRIBUTING.md** — contribution standards. Invariants, technical rules,
+   quality gates, git conventions, security. Referenced by layer 2 and read on
+   demand.
+4. **workflow task** — this run. Which product, scenario, success criteria.
+   Passed in by the workflow YAML.
+5. **agent profile** — who you are. Persona, voice, skill routing, scope
+   constraints. Auto-loaded every run.
+6. **skill procedure (SKILL.md)** — how to do it. Decision-making, sequencing,
+   and rationale that teaches the agent what to do and why. Auto-loaded per
+   skill.
+7. **skill references (references/)** — data the procedure consults. Templates,
+   worked examples, invariant tables, metric definitions, lookup data. Read on
+   demand when SKILL.md points to them.
+8. **checklists** — did you do it. Binary verification at natural pause points,
+   with no explanation of how. Embedded in SKILL.md (domain-specific) or
+   CONTRIBUTING.md (universal).
 
-Layer 2 is auto-loaded via `settingSources: ["project"]`; layer 3 is referenced
-by layer 2 and read on demand. Layers 6 and 7 coexist in the same file
-(SKILL.md) but serve fundamentally different purposes — skill instructions are
-_procedural_ (they teach, explain, and guide decisions), checklists are
-_verificational_ (each item is a binary assertion that a prior step was
-completed, with no explanation of how). Similarly, CONTRIBUTING.md spans layers:
-its invariants and rules are layer 3 content, while its universal READ-DO and
-DO-CONFIRM checklists are layer 7 content.
+Layers 6, 7, and 8 all live inside a skill but serve fundamentally different
+concerns. Layer 6 is _procedural_ — it teaches, explains, and guides decisions.
+Layer 7 is _declarative_ — it supplies the data a procedure consults, without
+prescribing steps. Layer 8 is _verificational_ — each item is a binary assertion
+that a prior step was completed. Layer 7 earns its own slot because a defect in
+a template, example, or data table is a different class of problem from a defect
+in the procedure that consults it — trace attribution must distinguish "wrong
+procedure" from "stale data" from "missing verification". Similarly,
+CONTRIBUTING.md spans layers: its invariants and rules are layer 3 content,
+while its universal READ-DO and DO-CONFIRM checklists are layer 8 content.
 
 Rules:
 
@@ -255,9 +270,9 @@ Rules:
   use voice to separate them: layer 1 describes what a tool is ("ToolX sends a
   message to ThingY"), layer 6 directs when to use it ("Use ToolX to deliver the
   quarterly finance report to ThingY").
-- Agents follow the most specific layer. A skill that provides a complete
-  procedure makes system-level tool descriptions invisible — tools not named in
-  the skill procedure will not be used regardless of what layer 1 says.
+- Agents follow the most specific layer. A skill procedure that provides
+  complete steps makes system-level tool descriptions invisible — tools not
+  named in the procedure will not be used regardless of what layer 1 says.
 - CLAUDE.md orients — what the project is, who it serves, where to find things.
   It never contains technical rules or step-by-step procedures.
 - CONTRIBUTING.md governs — how contributions must behave. All technical
@@ -265,7 +280,11 @@ Rules:
   procedures belong in skills.
 - Tasks name skills — they don't copy steps. Shared procedures belong in skills;
   per-run details belong in tasks.
-- Profiles define boundaries; skills define steps; checklists verify steps.
+- Profiles define boundaries; skill procedures define steps; references supply
+  data; checklists verify steps.
+- A reference file is declarative, not procedural. It supplies templates,
+  examples, or data tables that the procedure consults. If a reference starts
+  prescribing steps, that content belongs in SKILL.md.
 - A checklist item must never teach how to do something — that belongs in the
   skill procedure above it. If a checklist item needs explanation, the procedure
   is incomplete.
@@ -273,17 +292,23 @@ Rules:
 ### Instruction length
 
 Auto-loaded layers consume context on every run. Keep them tight so agents spend
-tokens on the task, not on re-reading project boilerplate.
+tokens on the task, not on re-reading project boilerplate. Limits enforced by
+`scripts/check-instructions.mjs`:
 
-| Layer           | Target | Loaded           |
-| --------------- | ------ | ---------------- |
-| CLAUDE.md       | ≤ 192  | auto (every run) |
-| CONTRIBUTING.md | ≤ 256  | on demand        |
-| Agent profile   | ≤ 64   | auto (every run) |
-| SKILL.md        | ≤ 192  | auto (per skill) |
+| Layer                    | Target      | Loaded           |
+| ------------------------ | ----------- | ---------------- |
+| L2 CLAUDE.md             | ≤ 192 lines | auto (every run) |
+| L3 CONTRIBUTING.md       | ≤ 256 lines | on demand        |
+| L5 Agent profile         | ≤ 64 lines  | auto (every run) |
+| L6 SKILL.md              | ≤ 192 lines | auto (per skill) |
+| L7 Skill reference file  | ≤ 128 lines | on demand        |
+| L8 Checklist (per block) | ≤ 9 items   | auto (per skill) |
 
 The same principle applies across layers: keep the main file to its concern;
-push supporting material into co-located references or linked documents.
+push supporting material into co-located references or linked documents. L8 is
+gated by item count rather than line count because wrapped-line length is a
+formatting artifact, not cognitive load — nine binary assertions is the ceiling
+regardless of how wide they are.
 
 ### Skill structure
 
@@ -304,9 +329,9 @@ below).
 
 ### Checklists
 
-Checklists are the lowest instruction layer — they verify that higher layers
-were followed without restating them. Two tagged types serve as gates at natural
-pause points:
+Checklists are the lowest instruction layer (layer 8) — they verify that higher
+layers were followed without restating them. Two tagged types serve as gates at
+natural pause points:
 
 - **`<read_do_checklist>`** — Entry gate. Read each item, then do it.
 - **`<do_confirm_checklist>`** — Exit gate. Do from memory, then confirm every

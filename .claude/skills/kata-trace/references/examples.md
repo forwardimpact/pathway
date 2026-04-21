@@ -86,11 +86,20 @@ After selective coding, map each category to an instruction layer:
 
 ```
 Category: TASK_AMBIGUITY_PARALYSIS
-  Layer: L2 (workflow task)
+  Layer: L4 (workflow task)
   Evidence: Turn 24 — agent cites singular "an" from task text
     "Implement an approved plan" as reason for asking instead of acting.
   Fix shape: Trivial fix — reword task to include selection criteria
     ("implement the highest-priority planned spec").
+
+Category: STALE_INVARIANT_TABLE
+  Layer: L7 (skill references)
+  Evidence: Turn 31 — agent searched for a `gh pr list` call as required by
+    kata-trace/references/invariants.md, but the product-manager skill now
+    uses `gh search issues`. The invariant table was not updated when the
+    procedure changed.
+  Fix shape: Trivial fix — update invariants.md to match the current gh
+    command shape.
 
 Category: STALE_STATUS_FILE
   Layer: None (data integrity)

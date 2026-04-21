@@ -31,19 +31,15 @@ Minimum 15 data points before computing meaningful limits.
 
 ## Signal Rules
 
-| Rule             | Code               | Meaning                                |
-| ---------------- | ------------------ | -------------------------------------- |
-| Point above UNPL | `point_above_unpl` | Value exceeds upper natural limit      |
-| Point below LNPL | `point_below_lnpl` | Value below lower natural limit        |
-| Run above X-bar  | `run_above`        | 8+ consecutive points above X-bar      |
-| Run below X-bar  | `run_below`        | 8+ consecutive points below X-bar      |
-| Trend up         | `trend_up`         | 6+ consecutive increases               |
-| Trend down       | `trend_down`       | 6+ consecutive decreases               |
-| mR above URL     | `mr_above_url`     | Moving range exceeds upper range limit |
-
-- **Within limits, no patterns** — stable/predictable process. Variation is
-  routine. Do not react to individual points.
-- **Any signal** — special cause present. Investigate what changed.
+| Rule               | Meaning                                |
+| ------------------ | -------------------------------------- |
+| `point_above_unpl` | Value exceeds upper natural limit      |
+| `point_below_lnpl` | Value below lower natural limit        |
+| `run_above`        | 8+ consecutive points above X-bar      |
+| `run_below`        | 8+ consecutive points below X-bar      |
+| `trend_up`         | 6+ consecutive increases               |
+| `trend_down`       | 6+ consecutive decreases               |
+| `mr_above_url`     | Moving range exceeds upper range limit |
 
 ## JSON Report Format
 

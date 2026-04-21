@@ -116,19 +116,23 @@ actionable (implies concrete change). See `references/examples.md`.
 
 ### 5. Attribute to Instruction Layers
 
-For each category, ask: which instruction layer is the root cause? See
-[KATA.md § Instruction layering](../../../KATA.md). Quick reference:
+For each category, ask: which instruction layer is the root cause? See the
+eight-layer model in [KATA.md § Instruction layering](../../../KATA.md).
 
-| Layer              | Typical fix                                    |
-| ------------------ | ---------------------------------------------- |
-| L1 (system prompt) | Infrastructure fix (relay code, supervisor.js) |
-| L2 (workflow task) | Reword task text in workflow YAML              |
-| L3 (agent profile) | Edit profile .md                               |
-| L4 (skill)         | Improvement or trivial fix depending on scope  |
-| L5 (checklist)     | Add or edit checklist item                     |
+| Layer                 | Typical fix                                    |
+| --------------------- | ---------------------------------------------- |
+| L1 (system prompt)    | Infrastructure fix (relay code, supervisor.js) |
+| L2 (CLAUDE.md)        | Edit project identity doc                      |
+| L3 (CONTRIBUTING.md)  | Edit invariant, rule, or policy                |
+| L4 (workflow task)    | Reword task text in workflow YAML              |
+| L5 (agent profile)    | Edit profile .md                               |
+| L6 (skill procedure)  | Edit SKILL.md procedure                        |
+| L7 (skill references) | Edit template, example, or data table          |
+| L8 (checklist)        | Add or edit checklist item                     |
 
-Not every finding maps to a layer. Attribute only when evidence supports it.
-Prefer the highest layer where the defect originates.
+Attribute only when evidence supports it. Prefer the highest layer where the
+defect originates. For L6 vs L7: "wrong procedure" is L6; "sound procedure,
+stale/wrong data" is L7.
 
 ### 6. Categorize Findings
 
