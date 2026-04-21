@@ -73,13 +73,24 @@ moves:
    domain-bearing services — graph, vector, pathway, and web — and make
    them reachable over the Model Context Protocol. Conversation history
    moves into the Claude Agent SDK's built-in session management; the
-   bespoke `memory` service is retired. The existing `tool` service is
-   replaced by an MCP gateway that routes tool calls from any MCP-speaking
-   client to these backends.
+   bespoke `memory` service is deleted. The bespoke `tool` service is
+   deleted and replaced by an MCP gateway that routes tool calls from any
+   MCP-speaking client to these backends.
 
 The combined effect: Guide's value (framework data, curated tools, agent
 instructions) is decoupled from a specific harness and becomes reachable from
 any Claude-native surface.
+
+### Clean break, zero tech debt
+
+This is a clean-break implementation. Every component listed as retired below
+is **deleted in full from the monorepo** in the same change that introduces
+its replacement. No compatibility shims, no parallel code paths, no adapters
+bridging the old and new harnesses, no deprecation window. The explicit goal
+is to leave the codebase with zero tech debt from the prior architecture.
+Users on the old OpenAI-compatible path upgrade in a single step; the new
+CLI does not attempt to read or honour prior `LLM_TOKEN`-shaped
+configuration.
 
 ### Three equally capable interfaces
 
@@ -104,16 +115,17 @@ attached), not to what Guide can do.
 ### Included
 
 - **Harness migration** — `fit-guide` CLI rebuilt on the Claude Agent SDK.
-  The bespoke harness is retired: `libraries/libagent`, `services/agent`,
-  `libraries/libmemory`, and `services/memory`. Conversation windowing,
-  token budgeting, tool-call-integrity preservation, and per-conversation
-  persistence are all supplied by the SDK — automatic compaction and
-  context editing for windowing, session JSONL + `resume` for persistence.
+  `libraries/libagent`, `services/agent`, `libraries/libmemory`, and
+  `services/memory` are deleted from the monorepo in full. Conversation
+  windowing, token budgeting, tool-call-integrity preservation, and
+  per-conversation persistence are all supplied by the SDK — automatic
+  compaction and context editing for windowing, session JSONL + `resume`
+  for persistence.
 - **LLM integration** — LLM calls handled by the Claude Agent SDK directly.
   Anthropic API is the baseline provider that must work at acceptance; AWS
   Bedrock is an additional supported target and is a design decision (see
-  Open Questions). The OpenAI-compatible abstraction (`libraries/libllm`,
-  `services/llm`) is retired.
+  Open Questions). `libraries/libllm` and `services/llm` are deleted from
+  the monorepo in full.
 - **Retained backend services** — `graph`, `vector`, `pathway`, and `web`
   continue to exist as services; their role in the new architecture
   (direct gRPC backend or MCP-exposed) is settled in design. `trace` is
@@ -123,10 +135,11 @@ attached), not to what Guide can do.
   new endpoint, or explicitly retired. Retired tools must be listed in the
   design with a rationale; any tool neither exposed nor listed-as-retired is
   a regression.
-- **Tool service rewrite** — `services/tool` is replaced by an MCP gateway
-  that exposes Guide's backend services as MCP tools and resources. The
-  `starter/config.json` tool-endpoint map is superseded by MCP tool
-  definitions.
+- **Tool service rewrite** — The current `services/tool` bespoke gRPC
+  dispatcher is deleted in full. An MCP gateway — the sole tool-routing
+  layer going forward — exposes Guide's backend services as MCP tools and
+  resources. The `starter/config.json` tool-endpoint map is deleted;
+  MCP tool definitions take its place.
 - **Shared agent instructions** — The planner/researcher/editor instructions
   currently in `products/guide/starter/agents/*.agent.md` are delivered to
   all three surfaces such that every surface operates under the same
@@ -164,12 +177,14 @@ attached), not to what Guide can do.
 ## Success Criteria
 
 1. **SDK-based CLI.** `fit-guide` CLI launches a conversation using the
-   Claude Agent SDK. No Guide code path, in normal CLI operation, runs the
-   bespoke orchestration loop previously in `libraries/libagent` and
-   `services/agent`.
-2. **Anthropic-first LLM path.** No Guide code path, in normal operation,
-   calls an OpenAI-compatible `/chat/completions` endpoint or loads
-   `libraries/libllm` / `services/llm`.
+   Claude Agent SDK. `libraries/libagent`, `libraries/libmemory`,
+   `services/agent`, and `services/memory` no longer exist in the monorepo
+   — neither as source directories, package.json workspace entries, nor as
+   imports from any remaining code.
+2. **Anthropic-first LLM path.** `libraries/libllm` and `services/llm` no
+   longer exist in the monorepo. No remaining Guide code path calls an
+   OpenAI-compatible `/chat/completions` endpoint, reads an `LLM_TOKEN`
+   environment variable, or imports the removed packages.
 3. **MCP endpoint — tool coverage.** A running Guide stack exposes an MCP
    endpoint. Listing tools on the endpoint with a standard MCP client returns
    a set such that for every tool in `products/guide/starter/tools.yml` at
@@ -177,9 +192,10 @@ attached), not to what Guide can do.
    the endpoint, or (b) the tool is recorded as retired in `design.md` with
    a rationale. A tool that is neither present nor recorded-as-retired is a
    failed criterion.
-4. **Tool service replaced.** `services/tool` no longer exists as a
-   standalone gRPC dispatcher. The `starter/config.json` tool-endpoint map
-   is removed or superseded by MCP tool definitions.
+4. **Tool service replaced.** The pre-pivot `services/tool` bespoke gRPC
+   dispatcher no longer exists in the monorepo, and `starter/config.json`'s
+   tool-endpoint map is removed. The MCP gateway is the sole tool-routing
+   layer; no code imports or invokes the removed dispatcher.
 5. **CLI via MCP.** `fit-guide` CLI answers framework questions correctly
    using only the MCP endpoint for tools (no direct gRPC-to-tool-service
    path).
@@ -207,7 +223,13 @@ attached), not to what Guide can do.
 11. **Status command still works.** The `fit-guide status` command
     (spec 370) reports readiness accurately under the new service
     composition, including a health signal for the MCP endpoint.
-12. **Quality gates.** `bun run check` and `bun run test` pass with no
+12. **Zero residue.** No compatibility shim, adapter, or fallback bridging
+    the old harness to the new one exists in the monorepo after the pivot.
+    A grep for the names of the deleted packages
+    (`libagent`, `libmemory`, `libllm`, the deleted service directories)
+    returns no matches outside the spec / design / plan artefacts and the
+    commit history.
+13. **Quality gates.** `bun run check` and `bun run test` pass with no
     regressions.
 
 ## Open questions
@@ -229,6 +251,9 @@ whether the spec should advance.
 - **Authentication mechanism** (gates SC10) — OAuth, API key, mutual TLS,
   or per-surface differences, consistent with working for both a local-dev
   CLI and a remote Connector.
-- **Migration path for existing CLI users** — Existing `fit-guide` users
-  have `LLM_TOKEN` configured against an OpenAI-compatible endpoint.
-  Upgrade experience and deprecation window.
+- **First-run experience for existing CLI users** — The upgrade is a
+  clean break: there is no deprecation window and the new CLI does not
+  read prior `LLM_TOKEN` configuration. Design decides how the new CLI
+  communicates the required reconfiguration on first run (error text,
+  setup prompt, pointer to updated docs) so the break is obvious and
+  painless rather than silent.
