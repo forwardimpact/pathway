@@ -1,5 +1,4 @@
 import { services } from "@forwardimpact/librpc";
-import { llm } from "@forwardimpact/libtype";
 
 const { VectorBase } = services;
 
@@ -8,22 +7,22 @@ const { VectorBase } = services;
  */
 export class VectorService extends VectorBase {
   #vectorIndex;
-  #llmClient;
+  #embeddingFn;
 
   /**
    * Creates a new Vector service instance
    * @param {import("@forwardimpact/libconfig").ServiceConfigInterface} config - Service configuration object
    * @param {import("@forwardimpact/libvector").VectorIndexInterface} vectorIndex - Pre-initialized vector index
-   * @param {object} llmClient - LLM service client for embeddings
+   * @param {(input: string[]) => Promise<{data: Array<{embedding: number[]}>}>} embeddingFn - Returns embeddings for input texts
    * @param {Function} logFn - Optional logging function
    */
-  constructor(config, vectorIndex, llmClient, logFn) {
+  constructor(config, vectorIndex, embeddingFn, logFn) {
     super(config, logFn);
     if (!vectorIndex) throw new Error("vectorIndex is required");
-    if (!llmClient) throw new Error("llmClient is required");
+    if (!embeddingFn) throw new Error("embeddingFn is required");
 
     this.#vectorIndex = vectorIndex;
-    this.#llmClient = llmClient;
+    this.#embeddingFn = embeddingFn;
   }
 
   /**
@@ -32,11 +31,10 @@ export class VectorService extends VectorBase {
    * @returns {Promise<import("@forwardimpact/libtype").tool.ToolCallResult>} Query results with resource identifiers
    */
   async SearchContent(req) {
-    const embeddingRequest = llm.EmbeddingsRequest.fromObject(req);
-    const embeddings = await this.#llmClient.CreateEmbeddings(embeddingRequest);
+    const embeddings = await this.#embeddingFn(req.input);
 
     if (!embeddings.data?.length) {
-      throw new Error("No embeddings returned from LLM service");
+      throw new Error("No embeddings returned");
     }
 
     const vectors = embeddings.data.map((item) => item.embedding);

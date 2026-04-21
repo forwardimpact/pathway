@@ -20,20 +20,8 @@
         "command": "node -e \"import('@forwardimpact/svcpathway/server.js')\""
       },
       {
-        "name": "llm",
-        "command": "node -e \"import('@forwardimpact/svcllm/server.js')\""
-      },
-      {
-        "name": "memory",
-        "command": "node -e \"import('@forwardimpact/svcmemory/server.js')\""
-      },
-      {
-        "name": "tool",
-        "command": "node -e \"import('@forwardimpact/svctool/server.js')\""
-      },
-      {
-        "name": "agent",
-        "command": "node -e \"import('@forwardimpact/svcagent/server.js')\""
+        "name": "mcp",
+        "command": "node -e \"import('@forwardimpact/svcmcp/server.js')\""
       },
       {
         "name": "web",
@@ -41,76 +29,5 @@
       }
     ]
   },
-  "service": {
-    "agent": {
-      "agent": "common.Agent.planner",
-      "model": "openai/gpt-4o"
-    },
-    "llm": {
-      "temperature": 0.32
-    },
-    "memory": {
-      "max_tokens": 4096
-    },
-    "tool": {
-      "endpoints": {
-        "get_ontology": {
-          "method": "graph.Graph.GetOntology",
-          "request": "common.Empty"
-        },
-        "get_subjects": {
-          "method": "graph.Graph.GetSubjects",
-          "request": "graph.SubjectsQuery"
-        },
-        "query_by_pattern": {
-          "method": "graph.Graph.QueryByPattern",
-          "request": "graph.PatternQuery"
-        },
-        "search_content": {
-          "method": "vector.Vector.SearchContent",
-          "request": "vector.TextQuery"
-        },
-        "list_sub_agents": {
-          "method": "agent.Agent.ListSubAgents",
-          "request": "common.Empty"
-        },
-        "run_sub_agent": {
-          "method": "agent.Agent.RunSubAgent",
-          "request": "agent.RunSubAgentRequest"
-        },
-        "list_handoffs": {
-          "method": "agent.Agent.ListHandoffs",
-          "request": "agent.ListHandoffsRequest"
-        },
-        "run_handoff": {
-          "method": "agent.Agent.RunHandoff",
-          "request": "agent.RunHandoffRequest"
-        },
-        "pathway_list_jobs": {
-          "method": "pathway.Pathway.ListJobs",
-          "request": "pathway.ListJobsRequest"
-        },
-        "pathway_describe_job": {
-          "method": "pathway.Pathway.DescribeJob",
-          "request": "pathway.DescribeJobRequest"
-        },
-        "pathway_list_agent_profiles": {
-          "method": "pathway.Pathway.ListAgentProfiles",
-          "request": "pathway.ListAgentProfilesRequest"
-        },
-        "pathway_describe_agent_profile": {
-          "method": "pathway.Pathway.DescribeAgentProfile",
-          "request": "pathway.DescribeAgentProfileRequest"
-        },
-        "pathway_describe_progression": {
-          "method": "pathway.Pathway.DescribeProgression",
-          "request": "pathway.DescribeProgressionRequest"
-        },
-        "pathway_list_job_software": {
-          "method": "pathway.Pathway.ListJobSoftware",
-          "request": "pathway.ListJobSoftwareRequest"
-        }
-      }
-    }
-  }
+  "service": {}
 }

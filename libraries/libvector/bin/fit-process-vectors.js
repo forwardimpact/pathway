@@ -2,7 +2,6 @@
 import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
 import { createScriptConfig } from "@forwardimpact/libconfig";
-import { createLlmApi } from "@forwardimpact/libllm";
 import { createResourceIndex } from "@forwardimpact/libresource";
 import { createStorage } from "@forwardimpact/libstorage";
 import { createLogger } from "@forwardimpact/libtelemetry";
@@ -27,6 +26,23 @@ const definition = {
 const cli = createCli(definition);
 const logger = createLogger("vectors");
 
+function createEmbeddingClient(token, baseUrl) {
+  return {
+    async createEmbeddings(input) {
+      const res = await fetch(`${baseUrl}/v1/embeddings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ input, model: "default" }),
+      });
+      if (!res.ok) throw new Error(`Embedding request failed: ${res.status}`);
+      return res.json();
+    },
+  };
+}
+
 /**
  * Processes resources into vector embeddings
  * @returns {Promise<void>}
@@ -41,10 +57,8 @@ async function main() {
 
   const resourceIndex = createResourceIndex("resources");
   const vectorIndex = new VectorIndex(vectorStorage);
-  const llm = createLlmApi(
+  const llm = createEmbeddingClient(
     await config.llmToken(),
-    undefined,
-    config.llmBaseUrl(),
     config.embeddingBaseUrl(),
   );
 

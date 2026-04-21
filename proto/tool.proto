@@ -4,10 +4,6 @@ package tool;
 
 import "resource.proto";
 
-service Tool {
-  rpc CallTool(ToolCall) returns (ToolCallResult);
-}
-
 // Generic query types
 
 message QueryFilter {

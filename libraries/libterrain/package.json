@@ -26,7 +26,6 @@
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libconfig": "^0.1.59",
-    "@forwardimpact/libllm": "^0.1.72",
     "@forwardimpact/libprompt": "^0.1.0",
     "@forwardimpact/libsyntheticgen": "^0.1.0",
     "@forwardimpact/libsyntheticprose": "^0.1.0",

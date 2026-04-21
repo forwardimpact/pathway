@@ -3,7 +3,6 @@ import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { createScriptConfig } from "@forwardimpact/libconfig";
-import { createLlmApi } from "@forwardimpact/libllm";
 import { createStorage } from "@forwardimpact/libstorage";
 import { VectorIndex } from "@forwardimpact/libvector/index/vector.js";
 
@@ -27,6 +26,23 @@ const definition = {
 const cli = createCli(definition);
 const logger = createLogger("search");
 
+function createEmbeddingClient(token, baseUrl) {
+  return {
+    async createEmbeddings(input) {
+      const res = await fetch(`${baseUrl}/v1/embeddings`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ input, model: "default" }),
+      });
+      if (!res.ok) throw new Error(`Embedding request failed: ${res.status}`);
+      return res.json();
+    },
+  };
+}
+
 /**
  * Searches vector index by embedding a query string
  * @returns {Promise<void>}
@@ -45,10 +61,8 @@ async function main() {
   const storage = createStorage("vectors");
   const vectorIndex = new VectorIndex(storage);
 
-  const llm = createLlmApi(
+  const llm = createEmbeddingClient(
     await config.llmToken(),
-    undefined,
-    config.llmBaseUrl(),
     config.embeddingBaseUrl(),
   );
 

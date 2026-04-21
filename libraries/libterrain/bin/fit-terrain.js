@@ -100,21 +100,24 @@ const cli = createCli(definition);
  * @returns {Promise<object|null>}
  */
 async function resolveLlmApi(config) {
-  const { createLlmApi } = await import("@forwardimpact/libllm");
   const token = await config.llmToken();
   const baseUrl = config.llmBaseUrl();
-  let embeddingBaseUrl;
-  try {
-    embeddingBaseUrl = config.embeddingBaseUrl();
-  } catch {
-    embeddingBaseUrl = baseUrl;
-  }
-  return createLlmApi(
-    token,
-    config.LLM_MODEL || "openai/gpt-4.1-mini",
-    baseUrl,
-    embeddingBaseUrl,
-  );
+  const model = config.LLM_MODEL || "openai/gpt-4.1-mini";
+
+  return {
+    async createCompletions({ messages, max_tokens }) {
+      const res = await fetch(`${baseUrl}/v1/chat/completions`, {
+        method: "POST",
+        headers: {
+          "Content-Type": "application/json",
+          Authorization: `Bearer ${token}`,
+        },
+        body: JSON.stringify({ model, messages, max_tokens }),
+      });
+      if (!res.ok) throw new Error(`LLM request failed: ${res.status}`);
+      return res.json();
+    },
+  };
 }
 
 /**

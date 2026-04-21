@@ -1,20 +1,16 @@
 #!/usr/bin/env node
 /**
- * fit-guide CLI
+ * fit-guide CLI — Claude Agent SDK harness
  *
- * Conversational agent interface for the Guide knowledge platform.
- *
- * Usage:
- *   npx fit-guide
- *   echo "Tell me about the company" | npx fit-guide
+ * Engineering framework knowledge agent reachable from three surfaces:
+ * this CLI, Claude Code (MCP), and Claude Chat (Connector).
  */
 
-import fs from "fs/promises";
-import { homedir } from "os";
-import { resolve } from "path";
-import { readFileSync } from "fs";
-import { fileURLToPath } from "url";
-import { dirname, join } from "path";
+import { Buffer } from "node:buffer";
+import { readFileSync } from "node:fs";
+import fs from "node:fs/promises";
+import { resolve, dirname, join } from "node:path";
+import { fileURLToPath } from "node:url";
 
 import {
   createCli,
@@ -24,7 +20,6 @@ import {
   formatError,
   formatBullet,
 } from "@forwardimpact/libcli";
-import { Repl } from "@forwardimpact/librepl";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -35,54 +30,125 @@ const VERSION = JSON.parse(
 const definition = {
   name: "fit-guide",
   version: VERSION,
-  description: "Conversational agent for the Guide knowledge platform",
+  description: "Engineering framework knowledge agent",
   commands: [
+    { name: "login", description: "Authenticate with Anthropic" },
+    { name: "logout", description: "Clear stored credentials" },
+    { name: "resume", description: "Resume previous conversation" },
+    { name: "init", description: "Initialize Guide configuration" },
     { name: "status", description: "Check system readiness" },
-    { name: "init", description: "Generate secrets, .env, and config" },
   ],
   globalOptions: {
     data: {
       type: "string",
-      description: "Path to framework data directory",
+      short: "d",
+      description: "Path to framework data",
     },
-    streaming: {
-      type: "boolean",
-      description: "Use streaming agent endpoint",
-    },
-    json: {
-      type: "boolean",
-      description: "Output as JSON",
-    },
-    help: { type: "boolean", short: "h", description: "Show this help" },
+    json: { type: "boolean", description: "Output as JSON" },
+    help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", description: "Show version" },
   },
   examples: [
     "npx fit-guide status",
-    "npx fit-guide status --json",
-    "npx fit-guide init",
-    'echo "Tell me about the company" | npx fit-guide',
+    "npx fit-guide login",
+    'echo "What skills does a senior SE need?" | npx fit-guide',
   ],
 };
 
 const cli = createCli(definition);
 
-const usage = `**fit-guide** — Conversational agent for the Guide knowledge platform
+// ---------------------------------------------------------------------------
+// Init command
+// ---------------------------------------------------------------------------
 
-Send conversational messages to the Agent service for processing.
-The agent maintains conversation context across multiple turns.
+async function runInit() {
+  const { generateSecret, updateEnvFile } =
+    await import("@forwardimpact/libsecret");
 
-**Examples:**
+  const mcpToken = generateSecret();
 
-    echo "Tell me about the company" | npx fit-guide
-    printf "What is microservices?\\nWhat are the benefits?\\n" | npx fit-guide
+  await updateEnvFile("MCP_TOKEN", mcpToken);
 
-Documentation: https://www.forwardimpact.team/guide`;
+  const serviceUrls = {
+    SERVICE_MCP_URL: "http://localhost:3009",
+    SERVICE_WEB_URL: "http://localhost:3001",
+    SERVICE_VECTOR_URL: "grpc://localhost:3005",
+    SERVICE_GRAPH_URL: "grpc://localhost:3006",
+    SERVICE_TRACE_URL: "grpc://localhost:3008",
+    SERVICE_PATHWAY_URL: "grpc://localhost:3010",
+    EMBEDDING_BASE_URL: "http://localhost:8080",
+  };
 
-/**
- * Prints the status result using SummaryRenderer.
- * @param {import("@forwardimpact/libcli").SummaryRenderer} summary
- * @param {object} result - Status result from runStatus
- */
+  for (const [key, url] of Object.entries(serviceUrls)) {
+    await updateEnvFile(key, url);
+  }
+
+  const summary = new SummaryRenderer({ process });
+  summary.render({
+    title: formatHeader("Environment (.env)"),
+    items: [
+      { label: "MCP_TOKEN", description: "generated" },
+      { label: "Service URLs", description: "ports 3001–3010" },
+      {
+        label: "ANTHROPIC_API_KEY",
+        description: "set manually or run fit-guide login",
+      },
+    ],
+  });
+  process.stdout.write("\n");
+
+  // Copy starter config into ./config/ (config.json only)
+  const starterDir = new URL("../starter", import.meta.url).pathname;
+  const configDir = resolve("config");
+
+  try {
+    await fs.access(starterDir);
+  } catch {
+    process.stderr.write(
+      formatError("Starter data not found in package.") + "\n",
+    );
+    process.exit(1);
+  }
+
+  try {
+    await fs.access(configDir);
+    process.stdout.write(
+      formatBullet("config/ already exists, skipping starter copy.", 0) + "\n",
+    );
+  } catch {
+    await fs.cp(starterDir, configDir, { recursive: true });
+    process.stdout.write(
+      formatSuccess("config/ created with starter configuration.") + "\n",
+    );
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Login command (OAuth PKCE)
+// ---------------------------------------------------------------------------
+
+async function runLogin() {
+  const { login } = await import("../src/lib/login.js");
+  const { createServiceConfig } = await import("@forwardimpact/libconfig");
+  const config = await createServiceConfig("mcp");
+  await login(config);
+}
+
+// ---------------------------------------------------------------------------
+// Logout command
+// ---------------------------------------------------------------------------
+
+async function runLogout() {
+  const { createServiceConfig } = await import("@forwardimpact/libconfig");
+  const config = await createServiceConfig("mcp");
+  await config.clearOAuthCredential();
+  process.stdout.write("Logged out. Stored credential removed.\n");
+}
+
+// ---------------------------------------------------------------------------
+// Status command
+// ---------------------------------------------------------------------------
+
 function printStatusSummary(summary, result) {
   summary.render({
     title: "Services",
@@ -99,7 +165,6 @@ function printStatusSummary(summary, result) {
     items: [
       { label: "resources", description: String(result.data.resources) },
       { label: "triples", description: String(result.data.triples) },
-      { label: "agents", description: String(result.data.agents) },
     ],
   });
 
@@ -107,7 +172,12 @@ function printStatusSummary(summary, result) {
 
   summary.render({
     title: "Credentials",
-    items: [{ label: "LLM_TOKEN", description: result.credentials.LLM_TOKEN }],
+    items: [
+      {
+        label: "ANTHROPIC_API_KEY",
+        description: result.credentials.ANTHROPIC_API_KEY,
+      },
+    ],
   });
 
   process.stdout.write("\n");
@@ -115,207 +185,132 @@ function printStatusSummary(summary, result) {
   process.stdout.write(`Status: ${result.verdict}\n`);
 }
 
-// Module-level service handles, populated by setup() after CLI args are parsed.
-// Kept outside REPL state so they aren't serialized to storage.
-let dataDir = null;
-let useStreaming = false;
-let agentClient = null;
-let agentConfig = null;
-let logger = null;
+// ---------------------------------------------------------------------------
+// Chat handler (default command) — Claude Agent SDK
+// ---------------------------------------------------------------------------
 
-/**
- * Generates secrets, writes .env, and copies starter config into ./config/.
- * @returns {Promise<void>}
- */
-async function runInit() {
-  const { generateJWT, generateSecret, getOrGenerateSecret, updateEnvFile } =
-    await import("@forwardimpact/libsecret");
-
-  const serviceSecret = generateSecret();
-  const jwtSecret = await getOrGenerateSecret("JWT_SECRET", () =>
-    generateSecret(32),
-  );
-  const jwtAnonKey = generateJWT(
-    {
-      iss: "supabase",
-      iat: Math.floor(Date.now() / 1000),
-      exp: Math.floor(Date.now() / 1000) + 10 * 365 * 24 * 60 * 60,
-      role: "anon",
-    },
-    jwtSecret,
-  );
-
-  await updateEnvFile("SERVICE_SECRET", serviceSecret);
-  await updateEnvFile("JWT_SECRET", jwtSecret);
-  await updateEnvFile("JWT_ANON_KEY", jwtAnonKey);
-
-  // Assign unique ports so services don't all bind to the default 3000
-  const serviceUrls = {
-    SERVICE_WEB_URL: "http://localhost:3001",
-    SERVICE_AGENT_URL: "grpc://localhost:3002",
-    SERVICE_MEMORY_URL: "grpc://localhost:3003",
-    SERVICE_LLM_URL: "grpc://localhost:3004",
-    SERVICE_VECTOR_URL: "grpc://localhost:3005",
-    SERVICE_GRAPH_URL: "grpc://localhost:3006",
-    SERVICE_TOOL_URL: "grpc://localhost:3007",
-    SERVICE_TRACE_URL: "grpc://localhost:3008",
-  };
-
-  for (const [key, url] of Object.entries(serviceUrls)) {
-    await updateEnvFile(key, url);
-  }
-
-  const initSummary = new SummaryRenderer({ process });
-  initSummary.render({
-    title: formatHeader("Environment (.env)"),
-    items: [
-      { label: "SERVICE_SECRET", description: "updated" },
-      { label: "JWT_SECRET", description: "set" },
-      { label: "JWT_ANON_KEY", description: "updated" },
-      { label: "Service URLs", description: "ports 3001\u20133008" },
-    ],
-  });
-  process.stdout.write("\n");
-
-  // Copy starter config into ./config/ (config.json, agents/, tools.yml)
-  const starterDir = new URL("../starter", import.meta.url).pathname;
-  const configDir = resolve("config");
-
-  try {
-    await fs.access(starterDir);
-  } catch {
-    process.stderr.write(
-      formatError("Starter data not found in package.") + "\n",
-    );
-    process.stderr.write(
-      "This may indicate a corrupted package installation.\n",
-    );
-    process.exit(1);
-  }
-
-  try {
-    await fs.access(configDir);
-    process.stdout.write(
-      formatBullet("config/ already exists, skipping starter copy.", 0) + "\n",
-    );
-  } catch {
-    await fs.cp(starterDir, configDir, { recursive: true });
-    process.stdout.write(
-      formatSuccess("config/ created with starter configuration.") + "\n\n",
-    );
-    process.stdout.write(`  config/
-  \u251C\u2500\u2500 config.json                  # Service configuration
-  \u251C\u2500\u2500 agents/
-  \u2502   \u251C\u2500\u2500 planner.agent.md         # Plans retrieval strategy
-  \u2502   \u251C\u2500\u2500 researcher.agent.md      # Retrieves data
-  \u2502   \u2514\u2500\u2500 editor.agent.md          # Synthesizes response
-  \u2514\u2500\u2500 tools.yml                    # Tool definitions\n`);
-  }
-}
-
-/**
- * Resolves the data directory, validates the local config, and wires up the
- * agent service client. Runs after CLI flag handlers, before the REPL loop.
- * @returns {Promise<void>}
- */
-async function setupServices() {
-  // Onboarding check — guide the user if --init has never been run
-  try {
-    await fs.access(resolve("config", "config.json"));
-  } catch {
-    process.stdout.write(
-      formatHeader(
-        "fit-guide \u2014 Conversational agent for the Guide knowledge platform",
-      ) + "\n\n",
-    );
-    process.stdout.write(
-      "Run npx fit-guide init to generate configuration, then\n",
-    );
-    process.stdout.write("npx fit-rc start to launch the service stack.\n\n");
-    process.stdout.write(
-      "Documentation: https://www.forwardimpact.team/guide\n",
-    );
-    process.stdout.write("Run npx fit-guide --help for CLI options.\n");
-    process.exit(1);
-  }
-
+async function handleChat(input) {
+  const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const { createServiceConfig } = await import("@forwardimpact/libconfig");
-  const { createClient, createTracer } = await import("@forwardimpact/librpc");
-  const { createLogger } = await import("@forwardimpact/libtelemetry");
-  const { Finder } = await import("@forwardimpact/libutil");
+  const { readFile } = await import("node:fs/promises");
+  const path = await import("node:path");
 
-  logger = createLogger("cli");
+  const config = await createServiceConfig("mcp");
 
-  if (!dataDir) {
-    const finder = new Finder(fs, logger, process);
-    try {
-      dataDir = finder.findData("data", homedir());
-    } catch {
-      throw new Error(
-        "No data directory found. Use --data <path> to specify location.",
-      );
-    }
-  }
+  // Set the Anthropic credential for the SDK
+  process.env.ANTHROPIC_API_KEY = await config.anthropicToken();
 
-  agentConfig = await createServiceConfig("agent");
-  const tracer = await createTracer("cli");
-  agentClient = await createClient("agent", logger, tracer);
-}
+  const mcpUrl = config.url; // SERVICE_MCP_URL
+  const mcpToken = config.mcpToken();
 
-/**
- * Sends a user prompt to the agent service via either the streaming or unary
- * RPC and writes the response back through the REPL output stream.
- * @param {string} prompt - The user's input prompt
- * @param {object} state - REPL state (carries resource_id across turns)
- * @param {import("stream").Writable} outputStream - Stream to write results to
- * @returns {Promise<void>}
- */
-async function handlePrompt(prompt, state, outputStream) {
-  const { agent, common } = await import("@forwardimpact/libtype");
-
-  const userMessage = common.Message.fromObject({
-    role: "user",
-    content: prompt,
-  });
-  const request = agent.AgentRequest.fromObject({
-    messages: [userMessage],
-    llm_token: await agentConfig.llmToken(),
-    resource_id: state.resource_id,
-    model: agentConfig.model,
-    agent: agentConfig.agent,
-  });
-
-  const rpcName = useStreaming ? "ProcessStream" : "ProcessUnary";
-
+  // Load guide-default prompt from the MCP server's prompt file
+  const promptPath = path.join(
+    __dirname,
+    "..",
+    "..",
+    "..",
+    "services",
+    "mcp",
+    "prompts",
+    "guide-default.md",
+  );
+  let systemPrompt;
   try {
-    if (useStreaming) {
-      const stream = agentClient.ProcessStream(request);
-      for await (const response of stream) {
-        if (response.resource_id) {
-          state.resource_id = response.resource_id;
-        }
-        if (response.messages?.length > 0) {
-          const text = response.messages.map((msg) => msg.content).join("\n");
-          outputStream.write(text);
-        }
-      }
-    } else {
-      const response = await agentClient.ProcessUnary(request);
-      if (response.resource_id) {
-        state.resource_id = response.resource_id;
-      }
-      if (response.messages?.length > 0) {
-        const text = response.messages.map((msg) => msg.content).join("\n");
-        outputStream.write(text);
-      }
+    systemPrompt = await readFile(promptPath, "utf8");
+  } catch {
+    // Fallback for npm installs where services/ is not available:
+    // fetch from the MCP endpoint if running
+    systemPrompt =
+      "You are Guide, an engineering framework knowledge agent. Use the available tools to answer questions about skills, levels, behaviours, and career progression.";
+  }
+
+  const iterator = query({
+    prompt: input,
+    options: {
+      model: process.env.GUIDE_MODEL || "claude-sonnet-4-6",
+      systemPrompt,
+      mcpServers: {
+        guide: {
+          url: mcpUrl,
+          headers: { Authorization: `Bearer ${mcpToken}` },
+        },
+      },
+    },
+  });
+
+  for await (const message of iterator) {
+    if (message.type === "result") {
+      process.stdout.write(message.result ?? "");
+      process.stdout.write("\n");
     }
-  } catch (err) {
-    logger.exception(rpcName, err);
-    throw err;
   }
 }
 
-// Parse CLI flags before entering the REPL
+// ---------------------------------------------------------------------------
+// Resume handler
+// ---------------------------------------------------------------------------
+
+async function handleResume(input) {
+  const { query } = await import("@anthropic-ai/claude-agent-sdk");
+  const { createServiceConfig } = await import("@forwardimpact/libconfig");
+  const { createStorage } = await import("@forwardimpact/libstorage");
+
+  const config = await createServiceConfig("mcp");
+  process.env.ANTHROPIC_API_KEY = await config.anthropicToken();
+
+  const mcpUrl = config.url;
+  const mcpToken = config.mcpToken();
+
+  // Read last session ID from storage
+  const storage = createStorage("cli");
+  let sessionId;
+  try {
+    sessionId = await storage.get("last-session-id");
+  } catch {
+    process.stderr.write("No previous session found.\n");
+    process.exit(1);
+  }
+
+  const iterator = query({
+    prompt: input || "Continue where we left off.",
+    options: {
+      resume: sessionId,
+      mcpServers: {
+        guide: {
+          url: mcpUrl,
+          headers: { Authorization: `Bearer ${mcpToken}` },
+        },
+      },
+    },
+  });
+
+  for await (const message of iterator) {
+    if (message.type === "result") {
+      process.stdout.write(message.result ?? "");
+      process.stdout.write("\n");
+    }
+  }
+}
+
+// ---------------------------------------------------------------------------
+// First-run UX
+// ---------------------------------------------------------------------------
+
+function checkFirstRun() {
+  if (process.env.LLM_TOKEN && !process.env.ANTHROPIC_API_KEY) {
+    process.stderr.write(
+      "Guide has moved to Anthropic. LLM_TOKEN is no longer used.\n\n" +
+        "  Run: fit-guide init    (regenerates .env)\n" +
+        "  Then: fit-guide login  (or set ANTHROPIC_API_KEY)\n",
+    );
+    process.exit(1);
+  }
+}
+
+// ---------------------------------------------------------------------------
+// Main
+// ---------------------------------------------------------------------------
+
 const parsed = cli.parse(process.argv.slice(2));
 if (!parsed) process.exit(0);
 
@@ -327,16 +322,17 @@ if (command === "init") {
   process.exit(0);
 }
 
-if (command === "status") {
-  try {
-    await fs.access(resolve("config", "config.json"));
-  } catch {
-    cli.error(
-      "No config found. Run npx fit-guide init to generate configuration.",
-    );
-    process.exit(1);
-  }
+if (command === "login") {
+  await runLogin();
+  process.exit(0);
+}
 
+if (command === "logout") {
+  await runLogout();
+  process.exit(0);
+}
+
+if (command === "status") {
   const { runStatus } = await import("../src/lib/status.js");
   const { createServiceConfig } = await import("@forwardimpact/libconfig");
   const { healthDefinition } = await import("@forwardimpact/librpc");
@@ -360,35 +356,29 @@ if (command === "status") {
   process.exit(result.verdict === "ready" ? 0 : 1);
 }
 
-if (values.data) dataDir = resolve(values.data);
-if (values.streaming) useStreaming = true;
+if (command === "resume") {
+  checkFirstRun();
+  const input = positionals.slice(1).join(" ");
+  await handleResume(input);
+  process.exit(0);
+}
 
-const { createStorage } = await import("@forwardimpact/libstorage");
-const storage = createStorage("cli");
+// Default: interactive chat
+checkFirstRun();
 
-const repl = new Repl({
-  prompt: "> ",
-  usage,
-  storage,
-  state: {
-    resource_id: null,
-  },
-  commands: {},
-  setup: setupServices,
-  onLine: handlePrompt,
-});
-
-try {
-  await repl.start();
-} catch (err) {
-  cli.error(`Failed to connect to the Guide service stack.
-
-Error: ${err.message}
-
-Ensure all required services are running:
-  agent, llm, memory, graph, vector, tool, trace, web
-
-Start the service stack: npx fit-rc start
-Documentation: https://www.forwardimpact.team/guide`);
+// Read input from stdin (piped) or positional args
+let input;
+if (!process.stdin.isTTY) {
+  const chunks = [];
+  for await (const chunk of process.stdin) {
+    chunks.push(chunk);
+  }
+  input = Buffer.concat(chunks).toString("utf8").trim();
+} else if (positionals.length > 0) {
+  input = positionals.join(" ");
+} else {
+  cli.error("Expected a question via pipe or as arguments.");
   process.exit(1);
 }
+
+await handleChat(input);

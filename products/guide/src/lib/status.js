@@ -43,17 +43,17 @@ function checkGrpcHealth(grpcMod, healthDef, config, timeoutMs = 2000) {
 }
 
 /**
- * Checks the web service via HTTP /web/health.
- * @param {object} config - Service config with url property
+ * Checks an HTTP service via its /health endpoint.
+ * @param {string} healthUrl - Full URL to the health endpoint
  * @param {Function} fetchFn - Fetch implementation
  * @param {number} timeoutMs - Timeout in milliseconds
  * @returns {Promise<string>} "ok" or "unreachable"
  */
-function checkWebHealth(config, fetchFn = fetch, timeoutMs = 2000) {
+function checkHttpHealth(healthUrl, fetchFn = fetch, timeoutMs = 2000) {
   return new Promise((resolve) => {
     const controller = new AbortController();
     const timer = setTimeout(() => controller.abort(), timeoutMs);
-    fetchFn(`${config.url}/web/health`, { signal: controller.signal })
+    fetchFn(healthUrl, { signal: controller.signal })
       .then((res) => {
         clearTimeout(timer);
         resolve(res.ok ? "ok" : "unreachable");
@@ -96,40 +96,14 @@ async function queryDataInventory(graphConfig) {
   }
 }
 
-/**
- * Counts *.agent.md files in config/agents/.
- * @param {object} fsModule - Node fs/promises module
- * @returns {Promise<number>}
- */
-async function countAgents(fsModule) {
-  try {
-    const entries = await fsModule.readdir("config/agents");
-    return entries.filter((f) => f.endsWith(".agent.md")).length;
-  } catch {
-    return 0;
-  }
-}
+const SERVICE_NAMES = ["graph", "vector", "pathway", "mcp", "trace", "web"];
 
-const SERVICE_NAMES = [
-  "agent",
-  "llm",
-  "memory",
-  "graph",
-  "vector",
-  "tool",
-  "trace",
-  "web",
-];
+const GRPC_SERVICES = ["graph", "vector", "pathway", "trace"];
 
-const GRPC_SERVICES = [
-  "agent",
-  "llm",
-  "memory",
-  "graph",
-  "vector",
-  "tool",
-  "trace",
-];
+const HTTP_SERVICES = {
+  mcp: "/health",
+  web: "/web/health",
+};
 
 /**
  * Loads configs for all services, tracking failures gracefully.
@@ -167,10 +141,17 @@ async function checkAllServices(
       s,
     ]);
   });
-  if (configErrors.has("web")) {
-    checks.push(Promise.resolve(["web", "unreachable"]));
-  } else {
-    checks.push(checkWebHealth(configs.web, fetchFn).then((s) => ["web", s]));
+
+  for (const [name, healthPath] of Object.entries(HTTP_SERVICES)) {
+    if (configErrors.has(name)) {
+      checks.push(Promise.resolve([name, "unreachable"]));
+    } else {
+      checks.push(
+        checkHttpHealth(`${configs[name].url}${healthPath}`, fetchFn).then(
+          (s) => [name, s],
+        ),
+      );
+    }
   }
 
   const results = await Promise.allSettled(checks);
@@ -187,13 +168,13 @@ async function checkAllServices(
 }
 
 /**
- * Checks LLM credential availability.
- * @param {object} llmConfig - LLM service config
+ * Checks Anthropic credential availability.
+ * @param {object} config - Any loaded config (has anthropicToken method)
  * @returns {Promise<string>} "configured" or "missing"
  */
-async function checkLlmToken(llmConfig) {
+async function checkAnthropicToken(config) {
   try {
-    const token = await llmConfig.llmToken();
+    const token = await config.anthropicToken();
     return token ? "configured" : "missing";
   } catch {
     return "missing";
@@ -229,16 +210,17 @@ export async function runStatus(deps) {
   if (services.graph?.status === "ok") {
     dataCounts = await queryDataInventory(configs.graph);
   }
-  const agents = await countAgents(deps.fs);
-  const data = { ...dataCounts, agents };
+  const data = { ...dataCounts };
 
-  const llmTokenStatus = configErrors.has("llm")
-    ? "missing"
-    : await checkLlmToken(configs.llm);
-  const credentials = { LLM_TOKEN: llmTokenStatus };
+  // Credential check — use any available config
+  const anyConfig = configs.mcp || configs.graph || Object.values(configs)[0];
+  const anthropicTokenStatus = anyConfig
+    ? await checkAnthropicToken(anyConfig)
+    : "missing";
+  const credentials = { ANTHROPIC_API_KEY: anthropicTokenStatus };
 
   const allServicesOk = Object.values(services).every((s) => s.status === "ok");
-  const credentialsOk = credentials.LLM_TOKEN === "configured";
+  const credentialsOk = credentials.ANTHROPIC_API_KEY === "configured";
   const verdict = allServicesOk && credentialsOk ? "ready" : "not ready";
 
   return { services, data, credentials, verdict };

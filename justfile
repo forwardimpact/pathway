@@ -80,18 +80,14 @@ codegen-definition:
 # ── Process ───────────────────────────────────────────────────────
 
 # Process all resources
-process: export-framework process-agents process-resources process-tools process-graphs process-vectors
+process: export-framework process-resources process-tools process-graphs process-vectors
 
 # Process without vectors
-process-fast: export-framework process-agents process-resources process-tools process-graphs
+process-fast: export-framework process-resources process-tools process-graphs
 
 # Export framework entities to HTML/microdata
 export-framework:
     bunx --workspace=@forwardimpact/map fit-map export
-
-# Process assistant definitions
-process-agents:
-    bunx --workspace=@forwardimpact/libagent fit-process-agents
 
 # Process knowledge resources
 process-resources:
@@ -161,14 +157,6 @@ cli-subjects:
 # Trace visualization
 cli-visualize:
     bunx --workspace=@forwardimpact/libtelemetry fit-visualize {{ARGS}}
-
-# Fetch memory window as JSON
-cli-window:
-    bunx --workspace=@forwardimpact/libmemory fit-window {{ARGS}}
-
-# Send window to LLM API
-cli-completion:
-    bunx --workspace=@forwardimpact/libllm fit-completion {{ARGS}}
 
 # Token counting
 cli-tiktoken:

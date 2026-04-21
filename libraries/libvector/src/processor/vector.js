@@ -13,7 +13,7 @@ export class VectorProcessor extends ProcessorBase {
    * Creates a new VectorProcessor instance
    * @param {import("@forwardimpact/libvector").VectorIndex} vectorIndex - The vector index to store content embeddings
    * @param {import("@forwardimpact/libresource").ResourceIndex} resourceIndex - ResourceIndex instance to process resources from
-   * @param {import("@forwardimpact/libllm").LlmApi} llm - LLM client instance for embedding generation
+   * @param {{ createEmbeddings: (input: string[]) => Promise<{data: Array<{embedding: number[]}>}> }} llm - Embedding client
    * @param {import("@forwardimpact/libutil").Logger} logger - Logger instance for debug output
    */
   constructor(vectorIndex, resourceIndex, llm, logger) {

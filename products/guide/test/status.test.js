@@ -9,54 +9,47 @@ import { runStatus } from "../src/lib/status.js";
  */
 function createMockConfigFactory(overrides = {}) {
   const defaults = {
-    agent: {
-      name: "agent",
-      host: "localhost",
-      port: 3002,
-      url: "grpc://localhost:3002",
-    },
-    llm: {
-      name: "llm",
-      host: "localhost",
-      port: 3004,
-      url: "grpc://localhost:3004",
-      llmToken: async () => "test-token",
-    },
-    memory: {
-      name: "memory",
-      host: "localhost",
-      port: 3003,
-      url: "grpc://localhost:3003",
-    },
     graph: {
       name: "graph",
       host: "localhost",
       port: 3006,
       url: "grpc://localhost:3006",
+      anthropicToken: async () => "test-anthropic-key",
     },
     vector: {
       name: "vector",
       host: "localhost",
       port: 3005,
       url: "grpc://localhost:3005",
+      anthropicToken: async () => "test-anthropic-key",
     },
-    tool: {
-      name: "tool",
+    pathway: {
+      name: "pathway",
       host: "localhost",
-      port: 3007,
-      url: "grpc://localhost:3007",
+      port: 3010,
+      url: "grpc://localhost:3010",
+      anthropicToken: async () => "test-anthropic-key",
+    },
+    mcp: {
+      name: "mcp",
+      host: "localhost",
+      port: 3009,
+      url: "http://localhost:3009",
+      anthropicToken: async () => "test-anthropic-key",
     },
     trace: {
       name: "trace",
       host: "localhost",
       port: 3008,
       url: "grpc://localhost:3008",
+      anthropicToken: async () => "test-anthropic-key",
     },
     web: {
       name: "web",
       host: "localhost",
       port: 3001,
       url: "http://localhost:3001",
+      anthropicToken: async () => "test-anthropic-key",
     },
   };
 
@@ -80,7 +73,6 @@ function createMockGrpc(unreachable = new Set()) {
           this.#uri = uri;
         }
         Check(_req, _opts, callback) {
-          // Derive service name from port for matching
           const isUnreachable = [...unreachable].some((name) =>
             this.#uri.includes(name),
           );
@@ -99,9 +91,6 @@ function createMockGrpc(unreachable = new Set()) {
   };
 }
 
-/**
- * Creates a mock health definition (pass-through, just needs the shape).
- */
 function createMockHealthDefinition() {
   return {
     Check: {
@@ -112,30 +101,12 @@ function createMockHealthDefinition() {
   };
 }
 
-/**
- * Creates mock fs module.
- * @param {string[]} agentFiles - Files to return from readdir
- */
-function createMockFs(
-  agentFiles = ["planner.agent.md", "researcher.agent.md"],
-) {
+function createMockFs() {
   return {
-    readdir: async () => agentFiles,
+    readdir: async () => [],
   };
 }
 
-/**
- * Builds a complete mock deps object.
- * @param {object} [opts] - Options
- * @param {Set<string>} [opts.unreachable] - Unreachable service names
- * @param {object} [opts.configOverrides] - Per-service config overrides
- * @param {string[]} [opts.agentFiles] - Agent files for fs mock
- * @returns {object} deps for runStatus
- */
-/**
- * Creates a mock fetch that returns ok for /web/health.
- * @param {boolean} [ok=true] - Whether the response should be ok
- */
 function createMockFetch(ok = true) {
   return async () => ({ ok });
 }
@@ -145,7 +116,7 @@ function createMockDeps(opts = {}) {
     createServiceConfig: createMockConfigFactory(opts.configOverrides),
     grpc: createMockGrpc(opts.unreachable),
     healthDefinition: createMockHealthDefinition(),
-    fs: createMockFs(opts.agentFiles),
+    fs: createMockFs(),
     fetch: opts.fetch || createMockFetch(true),
   };
 }
@@ -159,41 +130,40 @@ describe("runStatus", () => {
     for (const [, info] of Object.entries(result.services)) {
       assert.strictEqual(info.status, "ok");
     }
-    assert.strictEqual(result.credentials.LLM_TOKEN, "configured");
-    assert.strictEqual(result.data.agents, 2);
+    assert.strictEqual(result.credentials.ANTHROPIC_API_KEY, "configured");
   });
 
   test("one service unreachable: not ready", async () => {
-    // Make the mock client detect "agent" in the URI
     const deps = createMockDeps({
       configOverrides: {
-        agent: {
-          name: "agent",
-          host: "agent.guide.local",
-          port: 3002,
-          url: "grpc://agent.guide.local:3002",
+        graph: {
+          name: "graph",
+          host: "graph.guide.local",
+          port: 3006,
+          url: "grpc://graph.guide.local:3006",
+          anthropicToken: async () => "test-key",
         },
       },
-      unreachable: new Set(["agent"]),
+      unreachable: new Set(["graph"]),
     });
 
     const result = await runStatus(deps);
 
     assert.strictEqual(result.verdict, "not ready");
-    assert.strictEqual(result.services.agent.status, "unreachable");
-    assert.strictEqual(result.services.llm.status, "ok");
+    assert.strictEqual(result.services.graph.status, "unreachable");
+    assert.strictEqual(result.services.vector.status, "ok");
   });
 
-  test("LLM_TOKEN missing: not ready", async () => {
+  test("ANTHROPIC_API_KEY missing: not ready", async () => {
     const deps = createMockDeps({
       configOverrides: {
-        llm: {
-          name: "llm",
+        mcp: {
+          name: "mcp",
           host: "localhost",
-          port: 3004,
-          url: "grpc://localhost:3004",
-          llmToken: async () => {
-            throw new Error("LLM_TOKEN not set");
+          port: 3009,
+          url: "http://localhost:3009",
+          anthropicToken: async () => {
+            throw new Error("Not authenticated");
           },
         },
       },
@@ -202,20 +172,7 @@ describe("runStatus", () => {
     const result = await runStatus(deps);
 
     assert.strictEqual(result.verdict, "not ready");
-    assert.strictEqual(result.credentials.LLM_TOKEN, "missing");
-  });
-
-  test("zero data counts do not affect verdict", async () => {
-    // All services ok, credentials ok, but no agent files
-    const deps = createMockDeps({ agentFiles: [] });
-    const result = await runStatus(deps);
-
-    assert.strictEqual(result.verdict, "ready");
-    assert.strictEqual(result.data.agents, 0);
-    // resources/triples are 0 because graph data query is skipped in test
-    // (no real GraphClient), which is fine — they default to 0
-    assert.strictEqual(result.data.resources, 0);
-    assert.strictEqual(result.data.triples, 0);
+    assert.strictEqual(result.credentials.ANTHROPIC_API_KEY, "missing");
   });
 
   test("result serializes to expected JSON shape", async () => {
@@ -229,10 +186,9 @@ describe("runStatus", () => {
     assert.ok(parsed.data);
     assert.ok(parsed.credentials);
     assert.ok(parsed.verdict);
-    assert.strictEqual(typeof parsed.services.agent.url, "string");
-    assert.strictEqual(typeof parsed.services.agent.status, "string");
+    assert.strictEqual(typeof parsed.services.graph.url, "string");
+    assert.strictEqual(typeof parsed.services.graph.status, "string");
     assert.strictEqual(typeof parsed.data.resources, "number");
     assert.strictEqual(typeof parsed.data.triples, "number");
-    assert.strictEqual(typeof parsed.data.agents, "number");
   });
 });

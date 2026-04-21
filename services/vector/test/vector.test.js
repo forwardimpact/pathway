@@ -1,12 +1,9 @@
-import { test, describe, beforeEach } from "node:test";
+import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
 // Module under test
 import { VectorService } from "../index.js";
-import {
-  createMockConfig,
-  createMockLlmClient,
-} from "@forwardimpact/libharness";
+import { createMockConfig } from "@forwardimpact/libharness";
 
 describe("vector service", () => {
   describe("VectorService", () => {
@@ -23,8 +20,7 @@ describe("vector service", () => {
     });
 
     test("VectorService constructor accepts expected parameters", () => {
-      // Test constructor signature by checking parameter count
-      assert.strictEqual(VectorService.length, 4); // config, contentIndex, llmClient, logFn
+      assert.strictEqual(VectorService.length, 4); // config, vectorIndex, embeddingFn, logFn
     });
 
     test("VectorService has proper method signatures", () => {
@@ -37,7 +33,7 @@ describe("vector service", () => {
   describe("VectorService business logic", () => {
     let mockConfig;
     let mockContentIndex;
-    let mockLlmClient;
+    let mockEmbeddingFn;
 
     beforeEach(() => {
       mockConfig = createMockConfig("vector", {
@@ -49,14 +45,18 @@ describe("vector service", () => {
         queryItems: async () => [{ toString: () => "msg1" }],
       };
 
-      mockLlmClient = createMockLlmClient();
+      mockEmbeddingFn = mock.fn(() =>
+        Promise.resolve({
+          data: [{ embedding: [0.1, 0.2, 0.3] }],
+        }),
+      );
     });
 
     test("creates service instance with index", () => {
       const service = new VectorService(
         mockConfig,
         mockContentIndex,
-        mockLlmClient,
+        mockEmbeddingFn,
       );
 
       assert.ok(service);
@@ -67,11 +67,11 @@ describe("vector service", () => {
       const service = new VectorService(
         mockConfig,
         mockContentIndex,
-        mockLlmClient,
+        mockEmbeddingFn,
       );
 
       const result = await service.SearchContent({
-        text: "test query",
+        input: ["test query"],
         filter: { threshold: 0.3, limit: 10 },
       });
 
@@ -83,11 +83,11 @@ describe("vector service", () => {
       const service = new VectorService(
         mockConfig,
         mockContentIndex,
-        mockLlmClient,
+        mockEmbeddingFn,
       );
 
       const result = await service.SearchContent({
-        text: "test query",
+        input: ["test query"],
       });
 
       assert.ok(result);
