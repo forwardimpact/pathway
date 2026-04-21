@@ -38,8 +38,8 @@ Authentication: one static bearer token (`MCP_TOKEN`) verified on the
 an init-time secret registered by every surface.
 
 **Rejected — one MCP server per backend.** Forces every surface to register four
-URLs and four secrets. One gateway has the smallest moving-parts footprint
-(resolves open question "MCP gateway shape").
+URLs and four secrets. One gateway has the smallest footprint (resolves "MCP
+gateway shape").
 
 **Rejected — SDK in-process MCP (`createSdkMcpServer`).** Works only inside the
 CLI. Claude Code and Claude Chat cannot attach to an in-process server, so
@@ -105,9 +105,8 @@ Headless environments (no browser) use the same three components, substituting a
 "paste the callback URL" prompt for the listener-bound browser step. The
 endpoints and token store are identical.
 
-**Rejected — API-key-only `login`.** Does not match "similar to Claude Code
-login". `ANTHROPIC_API_KEY` covers the env-var path for users who prefer it;
-`login` exists for the browser case.
+**Rejected — API-key-only `login`.** `ANTHROPIC_API_KEY` covers the env-var
+path; `login` exists for the browser-based flow analogous to `claude login`.
 
 ### 5. Retired packages (deleted same commit)
 
@@ -129,16 +128,21 @@ No adapters, no shims, no deprecation window. The new `.env` shape carries
 
 ## Agent instructions
 
-One prompt, `guide-default`, served via MCP `prompts/get`. Collapses the planner
-→ researcher → editor chain into a single-agent system prompt that retains the
-workflow (explore ontology → query → synthesize; never fabricate). The three
-personas existed to constrain weaker models; on frontier Claude with the SDK's
-tool loop, one prompt achieves the same constraint with fewer moving parts.
-Resolves open question "agent pipeline representation".
+One prompt, `guide-default`, collapses the planner → researcher → editor chain
+into a single-agent system prompt that retains the workflow (explore ontology →
+query → synthesize; never fabricate). The three personas existed to constrain
+weaker models; on frontier Claude with the SDK's tool loop, one prompt achieves
+the same constraint with fewer moving parts. Resolves open question "agent
+pipeline representation". Delivery differs by surface:
 
-**Rejected — SDK subagents for planner/researcher/editor.** Preserves three
-personas but doubles prompt surface and adds handoff plumbing; parity fixtures
-do not require it.
+- **CLI** — fetches `guide-default` via MCP `prompts/get` and passes it as the
+  SDK `system` parameter.
+- **Claude Code** — the published `fit-guide` skill carries the prompt text;
+  Claude Code injects it as the agent's system instructions.
+- **Claude Chat** — Connector configuration embeds the prompt as the system turn.
+
+**Rejected — SDK subagents for planner/researcher/editor.** Doubles prompt
+surface and adds handoff plumbing; parity fixtures do not require it.
 
 ## Tool coverage
 
@@ -163,39 +167,34 @@ service as today.
 | Claude Code     | Host credential (not Guide's concern)       | Bearer `MCP_TOKEN` in MCP config    |
 | Claude Chat     | Host credential (not Guide's concern)       | Bearer `MCP_TOKEN` in Connector     |
 
-One shared bearer secret, presented on each surface's MCP transport. `mcp`
-returns `401` for anything else. Resolves open question "Authentication
-mechanism".
+One shared bearer secret on each surface's MCP transport. `mcp` returns `401`
+for anything else. Resolves open question "Authentication mechanism".
 
-**Rejected — per-surface OAuth to the MCP endpoint.** Adds ceremony for the
-local-dev CLI to no gain — the token already lives in `.env`.
+**Rejected — per-surface OAuth to MCP.** The token already lives in `.env`.
 
 ## Provider scope
 
-Anthropic API is the sole supported provider at acceptance. AWS Bedrock is
-explicitly **out of scope** (resolves open question "additional provider
-targets"); the Claude Agent SDK's provider abstraction leaves room for a
-follow-up to add it without touching `libconfig`'s credential interface.
+Anthropic API is the sole supported provider at acceptance. AWS Bedrock is **out
+of scope** (resolves open question "additional provider targets"); the SDK's
+provider abstraction leaves room for a follow-up without touching `libconfig`.
 
 ## Parity rubric (SC8)
 
-A fixture set of ten representative Guide questions, each shaped
-`{ id, question, expected_answer_substance, expected_tools }`. At acceptance,
-each fixture runs on all three surfaces against one Guide stack and passes only
-if all three hold: (a) answer substance matches the reference (LLM-judged), (b)
-observed tool-call set ⊇ `expected_tools`, (c) every factual claim cites a URI
-or snippet present in retrieved data. Fixture file and per-surface runner live
-under Guide's test tree; exact paths are plan-level.
+Ten representative Guide questions, each shaped
+`{ id, question, expected_answer_substance, expected_tools }`. Each fixture runs
+on all three surfaces and passes only if: (a) answer substance matches the
+reference (LLM-judged), (b) observed tool-call set ⊇ `expected_tools`, (c)
+every factual claim cites a URI or snippet in retrieved data. Fixture file and
+per-surface runner live under Guide's test tree; exact paths are plan-level.
 
-Fixtures span discipline lookup, level progression, job description, capability
-→ skills traversal, behaviour lookup, semantic search, software toolkit,
+Fixtures span discipline lookup, level progression, job description, capability →
+skills traversal, behaviour lookup, semantic search, software toolkit,
 agent-profile lookup, ontology discovery, multi-hop graph + vector.
 
 ## First-run UX & status
 
-On a missing `.env`, the CLI exits with a pointer to `fit-guide init`,
-`fit-guide login` (or `ANTHROPIC_API_KEY`), and the service-stack start command.
-`LLM_TOKEN` is never read; the break from the old shape is surfaced by the
-pointer, not by silent compatibility. `fit-guide status` reports three
-independent health blocks — credentials, MCP endpoint `/health`, and backend
-service gRPC health — and is green only when all three are.
+On a missing `.env`, the CLI exits with a pointer to `fit-guide init` and
+`fit-guide login` (or `ANTHROPIC_API_KEY`). `LLM_TOKEN` is never read; the break
+is surfaced by the pointer, not by silent compatibility. `fit-guide status`
+reports three health blocks — credentials, MCP `/health`, and backend gRPC
+health — green only when all three pass.
