@@ -85,7 +85,7 @@ products/
 libraries/
   lib*/      # shared infrastructure and domain libraries
 services/
-  graph/ mcp/ pathway/ trace/ vector/ web/
+  graph/ mcp/ pathway/ trace/ vector/
 config/
   config.json  # service definitions
 data/

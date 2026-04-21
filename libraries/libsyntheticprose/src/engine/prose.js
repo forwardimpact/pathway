@@ -1,7 +1,7 @@
 /**
  * Prose Engine — LLM-assisted prose generation with cache.
  *
- * Uses libllm for completions, libutil for cache key hashing,
+ * Uses an LLM client for completions, libutil for cache key hashing,
  * and libprompt for prompt template loading.
  */
 
@@ -20,7 +20,7 @@ export class ProseEngine {
    * @param {string} options.cachePath      Path to prose cache JSON file
    * @param {string} options.mode           "cached" | "generate" | "no-prose"
    * @param {boolean} [options.strict]      Fail on cache miss
-   * @param {import('@forwardimpact/libllm').LlmApi} options.llmApi
+   * @param {{ createCompletions: Function }} options.llmApi
    *        Pre-configured LLM client — required when mode is "generate"
    * @param {import('@forwardimpact/libprompt').PromptLoader} options.promptLoader
    *        Prompt template loader
@@ -71,7 +71,7 @@ export class ProseEngine {
       return null;
     }
 
-    // Tier 1: generate via libllm
+    // Tier 1: generate via LLM
     const prose = await this.#callLlm(key, context);
     this.stats.generated++;
     if (prose) {
@@ -218,7 +218,7 @@ export class ProseEngine {
  * @param {string} options.cachePath - Path to prose cache JSON file
  * @param {string} options.mode - "cached" | "generate" | "no-prose"
  * @param {boolean} [options.strict] - Fail on cache miss
- * @param {import('@forwardimpact/libllm').LlmApi} [options.llmApi] - LLM client
+ * @param {{ createCompletions: Function }} [options.llmApi] - LLM client
  * @returns {ProseEngine}
  */
 export function createProseEngine(options) {

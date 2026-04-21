@@ -95,8 +95,7 @@ dependency order:
 | 2     | vector  | gRPC     | Vector similarity search    | 3002 |
 | 3     | graph   | gRPC     | RDF triple store            | 3003 |
 | 4     | pathway | gRPC     | Framework data service      | 3004 |
-| 5     | web     | HTTP     | Health endpoint             | 3005 |
-| 6     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3006 |
+| 5     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3005 |
 
 Start all services with `npx fit-rc start` (external) or `just rc-start`
 (internal contributors).

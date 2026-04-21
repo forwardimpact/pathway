@@ -44,7 +44,7 @@ export function createMcpService({
 
   async function start() {
     const host = config.host || "0.0.0.0";
-    const port = config.port || 3006;
+    const port = config.port || 3005;
     const expectedToken = config.mcpToken();
 
     // Create transport once — stateless mode (no session ID).

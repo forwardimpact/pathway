@@ -37,18 +37,11 @@ function createMockConfigFactory(overrides = {}) {
       url: "grpc://localhost:3004",
       anthropicToken: async () => "test-anthropic-key",
     },
-    web: {
-      name: "web",
-      host: "localhost",
-      port: 3005,
-      url: "http://localhost:3005",
-      anthropicToken: async () => "test-anthropic-key",
-    },
     mcp: {
       name: "mcp",
       host: "localhost",
-      port: 3006,
-      url: "http://localhost:3006",
+      port: 3005,
+      url: "http://localhost:3005",
       anthropicToken: async () => "test-anthropic-key",
     },
   };
@@ -160,8 +153,8 @@ describe("runStatus", () => {
         mcp: {
           name: "mcp",
           host: "localhost",
-          port: 3006,
-          url: "http://localhost:3006",
+          port: 3005,
+          url: "http://localhost:3005",
           anthropicToken: async () => {
             throw new Error("Not authenticated");
           },

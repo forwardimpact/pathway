@@ -53,8 +53,7 @@
     "@forwardimpact/svcgraph": "^0.1.60",
     "@forwardimpact/svcmcp": "workspace:*",
     "@forwardimpact/svctrace": "^0.1.34",
-    "@forwardimpact/svcvector": "^0.1.111",
-    "@forwardimpact/svcweb": "^0.1.5"
+    "@forwardimpact/svcvector": "^0.1.111"
   },
   "publishConfig": {
     "access": "public"
