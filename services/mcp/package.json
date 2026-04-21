@@ -1,0 +1,25 @@
+{
+  "name": "@forwardimpact/svcmcp",
+  "version": "0.1.0",
+  "type": "module",
+  "main": "./index.js",
+  "files": [
+    "index.js",
+    "server.js",
+    "tools.js",
+    "prompts/"
+  ],
+  "dependencies": {
+    "@forwardimpact/libconfig": "workspace:*",
+    "@forwardimpact/librpc": "workspace:*",
+    "@forwardimpact/libtelemetry": "workspace:*",
+    "@forwardimpact/libtype": "workspace:*",
+    "@modelcontextprotocol/sdk": "^1.29.0"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "workspace:*"
+  },
+  "scripts": {
+    "test": "bun run node --test test/*.test.js"
+  }
+}
