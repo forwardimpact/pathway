@@ -187,8 +187,8 @@ $ npx fit-summit what-if platform --add "{ discipline: software_engineering, lev
 
 `-` lines are risks resolved by the change. `+` lines are risks the change
 introduces. A hire that looks straightforwardly positive can still surface
-second-order gaps — Summit shows both so you can make the decision with the
-full picture.
+second-order gaps — Summit shows both so you can make the decision with the full
+picture.
 
 ---
 
