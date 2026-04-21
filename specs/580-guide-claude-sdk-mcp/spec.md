@@ -70,9 +70,11 @@ moves:
    remaining job is to supply domain knowledge, tools, and instructions.
 
 2. **Expose Guide's knowledge services as MCP endpoints.** Retain the
-   domain-bearing services — graph, vector, pathway, memory, web — and make
-   them reachable over the Model Context Protocol. The existing `tool` service
-   is replaced by an MCP gateway that routes tool calls from any MCP-speaking
+   domain-bearing services — graph, vector, pathway, and web — and make
+   them reachable over the Model Context Protocol. Conversation history
+   moves into the Claude Agent SDK's built-in session management; the
+   bespoke `memory` service is retired. The existing `tool` service is
+   replaced by an MCP gateway that routes tool calls from any MCP-speaking
    client to these backends.
 
 The combined effect: Guide's value (framework data, curated tools, agent
@@ -102,19 +104,20 @@ attached), not to what Guide can do.
 ### Included
 
 - **Harness migration** — `fit-guide` CLI rebuilt on the Claude Agent SDK.
-  The bespoke harness is retired: `libraries/libagent`, `services/agent`, and
-  `libraries/libmemory` (whose memory windowing and token budgeting are
-  subsumed by the SDK).
+  The bespoke harness is retired: `libraries/libagent`, `services/agent`,
+  `libraries/libmemory`, and `services/memory`. Conversation windowing,
+  token budgeting, tool-call-integrity preservation, and per-conversation
+  persistence are all supplied by the SDK — automatic compaction and
+  context editing for windowing, session JSONL + `resume` for persistence.
 - **LLM integration** — LLM calls handled by the Claude Agent SDK directly.
   Anthropic API is the baseline provider that must work at acceptance; AWS
   Bedrock is an additional supported target and is a design decision (see
   Open Questions). The OpenAI-compatible abstraction (`libraries/libllm`,
   `services/llm`) is retired.
-- **Retained backend services** — `graph`, `vector`, `pathway`, `memory`, and
-  `web` continue to exist as services; their role in the new architecture
-  (direct gRPC backend, MCP resource, or retirement for `memory` specifically)
-  is settled in design. `trace` is retained for observability unless design
-  justifies otherwise.
+- **Retained backend services** — `graph`, `vector`, `pathway`, and `web`
+  continue to exist as services; their role in the new architecture
+  (direct gRPC backend or MCP-exposed) is settled in design. `trace` is
+  retained for observability unless design justifies otherwise.
 - **MCP exposure** — Every tool currently listed in
   `products/guide/starter/tools.yml` is either exposed as an MCP tool on the
   new endpoint, or explicitly retired. Retired tools must be listed in the
@@ -152,9 +155,11 @@ attached), not to what Guide can do.
 - **New tools or new domain behaviour** — The pivot preserves the existing
   tool set. Adding tools, changing the agent pipeline (e.g. new specialist
   agents), or extending the knowledge graph are separate specs.
-- **Conversation persistence beyond what the SDK provides** — Out of scope
-  for this spec. Cross-session or cross-surface persistence is a follow-up
-  spec if needed once the SDK's behaviour is measured in practice.
+- **Cross-surface shared conversation history** — The SDK persists sessions
+  per-machine per-cwd. Sharing a single conversation across the CLI, Claude
+  Code, and Claude Chat is out of scope; each surface maintains its own
+  history. A follow-up spec can revisit this backed by Anthropic's memory
+  tool if a need materialises.
 
 ## Success Criteria
 
@@ -210,13 +215,9 @@ attached), not to what Guide can do.
 Each item below is a decision the design must make visibly; none affect
 whether the spec should advance.
 
-- **Memory service boundary** (gates SC3) — The Claude Agent SDK manages
-  conversation memory itself. `memory` is retained in-scope (see Included),
-  but its new role — MCP resource, shared cross-surface state, or
-  retirement in favour of SDK memory — is a design decision.
 - **MCP gateway shape** (gates SC3, SC10) — One unified MCP server that fans
-  out to graph, vector, pathway, and memory, or one MCP server per backend
-  with clients connecting to multiple. Affects deployment, auth, and
+  out to graph, vector, and pathway, or one MCP server per backend with
+  clients connecting to multiple. Affects deployment, auth, and
   discoverability.
 - **Agent pipeline representation** — Planner → researcher → editor can map
   to SDK subagents, MCP prompts, a single agent with structured
