@@ -70,7 +70,7 @@ git push origin main
 | ------------------ | ---------- | ------------------- |
 | `libraries/libfoo` | `libfoo`   | `libfoo@v0.1.5`     |
 | `products/pathway` | `pathway`  | `pathway@v0.25.0`   |
-| `services/agent`   | `svcagent` | `svcagent@v0.1.110` |
+| `services/trace`   | `svctrace` | `svctrace@v0.1.110` |
 
 ### Version Rules
 

@@ -38,7 +38,7 @@ just env-reset docker-native && just rc-start  # docker networking, MinIO storag
 ```sh
 just env-setup     # Reset from examples, generate secrets and storage creds
 just env-reset     # Copy .env.local.example → .env
-just env-secrets   # Generate SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY
+just env-secrets   # Generate SERVICE_SECRET, JWT_SECRET
 just env-storage   # Generate storage backend credentials
 just env-github    # GitHub token utility
 ```

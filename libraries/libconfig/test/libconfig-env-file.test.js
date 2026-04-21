@@ -35,7 +35,7 @@ describe("libconfig - .env file loading", () => {
   }
 
   test("loads allowed keys from .env file", async () => {
-    writeEnvFile("JWT_SECRET=from-env-file\nLLM_TOKEN=my-llm-token\n");
+    writeEnvFile("GITHUB_TOKEN=from-env-file\nLLM_TOKEN=my-llm-token\n");
 
     const config = await createConfig(
       "test",
@@ -45,28 +45,28 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "from-env-file");
+    assert.strictEqual(config.ghToken(), "from-env-file");
     const token = await config.llmToken();
     assert.strictEqual(token, "my-llm-token");
   });
 
   test("process.env takes precedence over .env file", async () => {
-    writeEnvFile("JWT_SECRET=file-value\n");
+    writeEnvFile("GITHUB_TOKEN=file-value\n");
 
     const config = await createConfig(
       "test",
       "svc",
       {},
-      createProcess({ JWT_SECRET: "env-value" }),
+      createProcess({ GITHUB_TOKEN: "env-value" }),
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "env-value");
+    assert.strictEqual(config.ghToken(), "env-value");
   });
 
   test("loads non-allowed keys into process.env", async () => {
     writeEnvFile(
-      "SERVICE_SECRET=my-secret\nSERVICE_AGENT_URL=grpc://localhost:3002\nJWT_SECRET=allowed\n",
+      "SERVICE_SECRET=my-secret\nSERVICE_MCP_URL=http://localhost:3005\nGITHUB_TOKEN=allowed\n",
     );
 
     const mockProcess = createProcess();
@@ -78,11 +78,11 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "allowed");
+    assert.strictEqual(config.ghToken(), "allowed");
     assert.strictEqual(mockProcess.env.SERVICE_SECRET, "my-secret");
     assert.strictEqual(
-      mockProcess.env.SERVICE_AGENT_URL,
-      "grpc://localhost:3002",
+      mockProcess.env.SERVICE_MCP_URL,
+      "http://localhost:3005",
     );
   });
 
@@ -97,7 +97,7 @@ describe("libconfig - .env file loading", () => {
 
   test("skips comments and blank lines", async () => {
     writeEnvFile(
-      "# This is a comment\n\n  \nJWT_SECRET=secret-value\n# another comment\n",
+      "# This is a comment\n\n  \nGITHUB_TOKEN=secret-value\n# another comment\n",
     );
 
     const config = await createConfig(
@@ -108,12 +108,12 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "secret-value");
+    assert.strictEqual(config.ghToken(), "secret-value");
   });
 
   test("strips surrounding quotes from values", async () => {
     writeEnvFile(
-      "JWT_SECRET=\"double-quoted\"\nGITHUB_TOKEN='single-quoted'\n",
+      "GITHUB_TOKEN=\"double-quoted\"\nLLM_TOKEN='single-quoted'\n",
     );
 
     const config = await createConfig(
@@ -124,12 +124,13 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "double-quoted");
-    assert.strictEqual(config.ghToken(), "single-quoted");
+    assert.strictEqual(config.ghToken(), "double-quoted");
+    const token = await config.llmToken();
+    assert.strictEqual(token, "single-quoted");
   });
 
   test("handles values containing equals signs", async () => {
-    writeEnvFile("JWT_SECRET=abc=def=ghi\n");
+    writeEnvFile("GITHUB_TOKEN=abc=def=ghi\n");
 
     const config = await createConfig(
       "test",
@@ -139,7 +140,7 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "abc=def=ghi");
+    assert.strictEqual(config.ghToken(), "abc=def=ghi");
   });
 
   test("continues gracefully when .env file does not exist", async () => {
@@ -154,8 +155,8 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.throws(() => config.jwtSecret(), {
-      message: "JWT_SECRET not found in environment",
+    assert.throws(() => config.ghToken(), {
+      message: "GITHUB_TOKEN not found in environment",
     });
   });
 
@@ -165,7 +166,7 @@ describe("libconfig - .env file loading", () => {
       return;
     }
 
-    writeEnvFile("JWT_SECRET=secret\n");
+    writeEnvFile("GITHUB_TOKEN=secret\n");
     chmodSync(envPath, 0o000);
 
     await assert.rejects(
@@ -178,7 +179,7 @@ describe("libconfig - .env file loading", () => {
   });
 
   test("does not set .env values on the data object", async () => {
-    writeEnvFile("JWT_SECRET=secret\nGITHUB_TOKEN=token\n");
+    writeEnvFile("GITHUB_TOKEN=token\nLLM_TOKEN=llm\n");
 
     const config = await createConfig(
       "test",
@@ -189,12 +190,12 @@ describe("libconfig - .env file loading", () => {
     );
 
     // These should only be accessible via getter methods, not as properties
-    assert.strictEqual(config.JWT_SECRET, undefined);
     assert.strictEqual(config.GITHUB_TOKEN, undefined);
+    assert.strictEqual(config.LLM_TOKEN, undefined);
   });
 
   test("reset clears .env overrides", async () => {
-    writeEnvFile("JWT_SECRET=from-file\n");
+    writeEnvFile("GITHUB_TOKEN=from-file\n");
 
     const config = await createConfig(
       "test",
@@ -204,26 +205,24 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "from-file");
+    assert.strictEqual(config.ghToken(), "from-file");
     config.reset();
 
     // After reset, .env overrides are cleared and no process env either
-    assert.throws(() => config.jwtSecret(), {
-      message: "JWT_SECRET not found in environment",
+    assert.throws(() => config.ghToken(), {
+      message: "GITHUB_TOKEN not found in environment",
     });
   });
 
   test("loads all allowed keys", async () => {
     writeEnvFile(
       [
-        "GITHUB_CLIENT_ID=client-id",
         "GITHUB_TOKEN=gh-token",
         "LLM_TOKEN=llm-tok",
         "LLM_BASE_URL=https://llm.example.com",
         "EMBEDDING_BASE_URL=https://embed.example.com",
-        "JWT_SECRET=jwt-sec",
-        "JWT_ANON_KEY=anon-key",
-        "JWT_AUTH_URL=https://auth.example.com",
+        "MCP_TOKEN=mcp-tok",
+        "ANTHROPIC_API_KEY=sk-ant-test",
       ].join("\n"),
     );
 
@@ -235,18 +234,15 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.ghClientId(), "client-id");
     assert.strictEqual(config.ghToken(), "gh-token");
     assert.strictEqual(await config.llmToken(), "llm-tok");
     assert.strictEqual(config.llmBaseUrl(), "https://llm.example.com");
     assert.strictEqual(config.embeddingBaseUrl(), "https://embed.example.com");
-    assert.strictEqual(config.jwtSecret(), "jwt-sec");
-    assert.strictEqual(config.jwtAnonKey(), "anon-key");
-    assert.strictEqual(config.jwtAuthUrl(), "https://auth.example.com");
+    assert.strictEqual(config.mcpToken(), "mcp-tok");
   });
 
   test("values do not leak via Object.keys or JSON.stringify", async () => {
-    writeEnvFile("JWT_SECRET=secret\nGITHUB_TOKEN=token\n");
+    writeEnvFile("GITHUB_TOKEN=token\nLLM_TOKEN=secret\n");
 
     const config = await createConfig(
       "test",
@@ -256,15 +252,15 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.ok(!Object.keys(config).includes("JWT_SECRET"));
     assert.ok(!Object.keys(config).includes("GITHUB_TOKEN"));
+    assert.ok(!Object.keys(config).includes("LLM_TOKEN"));
     const serialized = JSON.stringify(config);
-    assert.ok(!serialized.includes("secret"));
     assert.ok(!serialized.includes("token"));
+    assert.ok(!serialized.includes("secret"));
   });
 
   test("strips export prefix on keys", async () => {
-    writeEnvFile("export JWT_SECRET=exported-value\n");
+    writeEnvFile("export GITHUB_TOKEN=exported-value\n");
 
     const config = await createConfig(
       "test",
@@ -274,14 +270,14 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "exported-value");
+    assert.strictEqual(config.ghToken(), "exported-value");
   });
 
   test("handles adversarial values safely", async () => {
     writeEnvFile(
       [
-        "JWT_SECRET=value\x00with-null",
-        "GITHUB_TOKEN=" + "a".repeat(10000),
+        "GITHUB_TOKEN=value\x00with-null",
+        "LLM_TOKEN=" + "a".repeat(10000),
       ].join("\n"),
     );
 
@@ -293,7 +289,8 @@ describe("libconfig - .env file loading", () => {
       mockStorageFn,
     );
 
-    assert.strictEqual(config.jwtSecret(), "value\x00with-null");
-    assert.strictEqual(config.ghToken().length, 10000);
+    assert.strictEqual(config.ghToken(), "value\x00with-null");
+    const token = await config.llmToken();
+    assert.strictEqual(token.length, 10000);
   });
 });

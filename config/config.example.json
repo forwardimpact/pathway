@@ -32,24 +32,8 @@
         "command": "node --watch services/pathway/server.js"
       },
       {
-        "name": "llm",
-        "command": "node --watch services/llm/server.js"
-      },
-      {
-        "name": "memory",
-        "command": "node --watch services/memory/server.js"
-      },
-      {
-        "name": "tool",
-        "command": "node --watch services/tool/server.js"
-      },
-      {
-        "name": "agent",
-        "command": "node --watch services/agent/server.js"
-      },
-      {
-        "name": "web",
-        "command": "node --watch services/web/server.js"
+        "name": "mcp",
+        "command": "node --watch services/mcp/server.js"
       }
     ]
   },
@@ -69,21 +53,7 @@
         "base_url": "https://api.getdx.com"
       }
     },
-    "agent": {
-      "agent": "common.Agent.planner",
-      "model": "openai/gpt-4o"
-    },
-    "llm": {
-      "temperature": 0.32
-    },
-    "memory": {
-      "max_tokens": 4096
-    },
     "tool": {
-      "filter": {
-        "threshold": 0.64,
-        "max_tokens": 8000
-      },
       "endpoints": {
         "get_ontology": {
           "method": "graph.Graph.GetOntology",
@@ -100,22 +70,6 @@
         "search_content": {
           "method": "vector.Vector.SearchContent",
           "request": "vector.TextQuery"
-        },
-        "list_sub_agents": {
-          "method": "agent.Agent.ListSubAgents",
-          "request": "common.Empty"
-        },
-        "run_sub_agent": {
-          "method": "agent.Agent.RunSubAgent",
-          "request": "agent.RunSubAgentRequest"
-        },
-        "list_handoffs": {
-          "method": "agent.Agent.ListHandoffs",
-          "request": "agent.ListHandoffsRequest"
-        },
-        "run_handoff": {
-          "method": "agent.Agent.RunHandoff",
-          "request": "agent.RunHandoffRequest"
         },
         "pathway_list_jobs": {
           "method": "pathway.Pathway.ListJobs",

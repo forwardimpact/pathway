@@ -296,20 +296,6 @@ storage-download:
 storage-list:
     bunx --workspace=@forwardimpact/libstorage fit-storage list
 
-# ── Auth ──────────────────────────────────────────────────────────
-
-# Start auth backend containers
-auth-start PROFILE="gotrue":
-    docker compose --profile {{PROFILE}} up -d auth-{{PROFILE}}
-
-# Stop auth backend containers
-auth-stop:
-    docker compose --profile gotrue --profile supabase down
-
-# Create demo auth user
-auth-user:
-    bun scripts/auth-user.js
-
 # ── Activity Seed ─────────────────────────────────────────────────
 
 # Seed the activity database from synthetic data (requires Supabase running)

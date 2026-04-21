@@ -253,12 +253,6 @@ describe("libconfig - Config methods", () => {
     );
   });
 
-  test("ghClientId throws when not set in environment", () => {
-    assert.throws(() => config.ghClientId(), {
-      message: "GITHUB_CLIENT_ID not found in environment",
-    });
-  });
-
   test("llmToken returns from environment", async () => {
     const token = await config.llmToken();
     assert.strictEqual(token, "llm-token-123");

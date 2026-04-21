@@ -20,13 +20,9 @@ export class Config {
   // so shell-exported credentials still work; .env is the fallback.
   static #CREDENTIAL_KEYS = new Set([
     "ANTHROPIC_API_KEY",
-    "GITHUB_CLIENT_ID",
     "GITHUB_TOKEN",
     "LLM_TOKEN",
     "MCP_TOKEN",
-    "JWT_SECRET",
-    "JWT_ANON_KEY",
-    "JWT_AUTH_URL",
   ]);
 
   // Cached credential values — populated on first access via getter methods
@@ -91,7 +87,7 @@ export class Config {
 
     // 3. Environment overrides — SERVICE_{NAME}_{PARAM} env vars win over
     //    config file values. These are on process.env (set by shell or by
-    //    #loadEnvFile for non-credential keys like SERVICE_AGENT_URL).
+    //    #loadEnvFile for non-credential keys like SERVICE_MCP_URL).
     for (const param of Object.keys(data)) {
       const varName = `${namespaceUpper}_${nameUpper}_${param.toUpperCase()}`;
       if (this.#process.env[varName] !== undefined) {
@@ -114,11 +110,6 @@ export class Config {
 
     // Expose merged config as instance properties (url, host, port, model, etc.)
     Object.assign(this, data);
-  }
-
-  /** @returns {string} GitHub client ID */
-  ghClientId() {
-    return this.#resolve("GITHUB_CLIENT_ID");
   }
 
   /** @returns {string} GitHub token */
@@ -150,25 +141,6 @@ export class Config {
   /** @returns {string} MCP bearer token */
   mcpToken() {
     return this.#resolve("MCP_TOKEN");
-  }
-
-  /** @returns {string} JWT secret for HS256 signature verification */
-  jwtSecret() {
-    return this.#resolve("JWT_SECRET");
-  }
-
-  /** @returns {string} JWT anon key for unauthenticated Supabase access */
-  jwtAnonKey() {
-    return this.#resolve("JWT_ANON_KEY");
-  }
-
-  /** @returns {string} JWT auth service URL (defaults to http://localhost:9999) */
-  jwtAuthUrl() {
-    return this.#resolve(
-      "JWT_AUTH_URL",
-      stripTrailingSlashes,
-      () => "http://localhost:9999",
-    );
   }
 
   /**
