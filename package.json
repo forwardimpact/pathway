@@ -21,7 +21,7 @@
     "dev": "bunx fit-pathway dev",
     "check": "bun run format && bun run lint && node scripts/check-instructions.mjs",
     "check:fix": "bun run format:fix && bun run lint:fix",
-    "lint": "eslint .",
+    "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
     "format": "prettier --check --log-level warn .",
     "format:fix": "prettier --write .",
