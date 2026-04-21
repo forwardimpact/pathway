@@ -132,12 +132,12 @@ Guide requires the service stack to be running. Services are supervised by
 
 | Order | Service | Protocol | Purpose                     | Port |
 | ----- | ------- | -------- | --------------------------- | ---- |
-| 1     | trace   | gRPC     | Distributed tracing         | 3008 |
-| 2     | vector  | gRPC     | Vector similarity search    | 3005 |
-| 3     | graph   | gRPC     | RDF triple store            | 3006 |
-| 4     | pathway | gRPC     | Framework data service      | 3010 |
-| 5     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3009 |
-| 6     | web     | HTTP     | Health endpoint             | 3001 |
+| 1     | trace   | gRPC     | Distributed tracing         | 3001 |
+| 2     | vector  | gRPC     | Vector similarity search    | 3002 |
+| 3     | graph   | gRPC     | RDF triple store            | 3003 |
+| 4     | pathway | gRPC     | Framework data service      | 3004 |
+| 5     | web     | HTTP     | Health endpoint             | 3005 |
+| 6     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3006 |
 
 ### Service Management
 
@@ -155,7 +155,7 @@ For Claude Code, register the MCP endpoint in your MCP server config:
 ```json
 {
   "guide": {
-    "url": "http://localhost:3009",
+    "url": "http://localhost:3006",
     "headers": { "Authorization": "Bearer <MCP_TOKEN>" }
   }
 }

@@ -70,12 +70,12 @@ async function runInit() {
   await updateEnvFile("MCP_TOKEN", mcpToken);
 
   const serviceUrls = {
-    SERVICE_MCP_URL: "http://localhost:3009",
-    SERVICE_WEB_URL: "http://localhost:3001",
-    SERVICE_VECTOR_URL: "grpc://localhost:3005",
-    SERVICE_GRAPH_URL: "grpc://localhost:3006",
-    SERVICE_TRACE_URL: "grpc://localhost:3008",
-    SERVICE_PATHWAY_URL: "grpc://localhost:3010",
+    SERVICE_TRACE_URL: "grpc://localhost:3001",
+    SERVICE_VECTOR_URL: "grpc://localhost:3002",
+    SERVICE_GRAPH_URL: "grpc://localhost:3003",
+    SERVICE_PATHWAY_URL: "grpc://localhost:3004",
+    SERVICE_WEB_URL: "http://localhost:3005",
+    SERVICE_MCP_URL: "http://localhost:3006",
     EMBEDDING_BASE_URL: "http://localhost:8080",
   };
 
@@ -88,7 +88,7 @@ async function runInit() {
     title: formatHeader("Environment (.env)"),
     items: [
       { label: "MCP_TOKEN", description: "generated" },
-      { label: "Service URLs", description: "ports 3001–3010" },
+      { label: "Service URLs", description: "ports 3001–3006" },
       {
         label: "ANTHROPIC_API_KEY",
         description: "set manually or run fit-guide login",

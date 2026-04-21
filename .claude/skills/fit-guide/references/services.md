@@ -4,12 +4,12 @@
 
 Services start in dependency order (defined in `config/config.json`):
 
-1. **trace** — Distributed tracing (gRPC, port 3008)
-2. **vector** — Embedding vector store (gRPC, port 3005)
-3. **graph** — RDF knowledge graph (gRPC, port 3006)
-4. **pathway** — Framework data service (gRPC, port 3010)
-5. **mcp** — MCP tool and prompt gateway (HTTP+SSE, port 3009)
-6. **web** — Health endpoint (HTTP, port 3001)
+1. **trace** — Distributed tracing (gRPC, port 3001)
+2. **vector** — Embedding vector store (gRPC, port 3002)
+3. **graph** — RDF knowledge graph (gRPC, port 3003)
+4. **pathway** — Framework data service (gRPC, port 3004)
+5. **web** — Health endpoint (HTTP, port 3005)
+6. **mcp** — MCP tool and prompt gateway (HTTP+SSE, port 3006)
 
 ### Environment
 

@@ -20,12 +20,12 @@
         "command": "node -e \"import('@forwardimpact/svcpathway/server.js')\""
       },
       {
-        "name": "mcp",
-        "command": "node -e \"import('@forwardimpact/svcmcp/server.js')\""
-      },
-      {
         "name": "web",
         "command": "node -e \"import('@forwardimpact/svcweb/server.js')\""
+      },
+      {
+        "name": "mcp",
+        "command": "node -e \"import('@forwardimpact/svcmcp/server.js')\""
       }
     ]
   },

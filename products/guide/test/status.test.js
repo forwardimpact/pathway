@@ -9,46 +9,46 @@ import { runStatus } from "../src/lib/status.js";
  */
 function createMockConfigFactory(overrides = {}) {
   const defaults = {
-    graph: {
-      name: "graph",
+    trace: {
+      name: "trace",
       host: "localhost",
-      port: 3006,
-      url: "grpc://localhost:3006",
+      port: 3001,
+      url: "grpc://localhost:3001",
       anthropicToken: async () => "test-anthropic-key",
     },
     vector: {
       name: "vector",
       host: "localhost",
-      port: 3005,
-      url: "grpc://localhost:3005",
+      port: 3002,
+      url: "grpc://localhost:3002",
+      anthropicToken: async () => "test-anthropic-key",
+    },
+    graph: {
+      name: "graph",
+      host: "localhost",
+      port: 3003,
+      url: "grpc://localhost:3003",
       anthropicToken: async () => "test-anthropic-key",
     },
     pathway: {
       name: "pathway",
       host: "localhost",
-      port: 3010,
-      url: "grpc://localhost:3010",
-      anthropicToken: async () => "test-anthropic-key",
-    },
-    mcp: {
-      name: "mcp",
-      host: "localhost",
-      port: 3009,
-      url: "http://localhost:3009",
-      anthropicToken: async () => "test-anthropic-key",
-    },
-    trace: {
-      name: "trace",
-      host: "localhost",
-      port: 3008,
-      url: "grpc://localhost:3008",
+      port: 3004,
+      url: "grpc://localhost:3004",
       anthropicToken: async () => "test-anthropic-key",
     },
     web: {
       name: "web",
       host: "localhost",
-      port: 3001,
-      url: "http://localhost:3001",
+      port: 3005,
+      url: "http://localhost:3005",
+      anthropicToken: async () => "test-anthropic-key",
+    },
+    mcp: {
+      name: "mcp",
+      host: "localhost",
+      port: 3006,
+      url: "http://localhost:3006",
       anthropicToken: async () => "test-anthropic-key",
     },
   };
@@ -139,8 +139,8 @@ describe("runStatus", () => {
         graph: {
           name: "graph",
           host: "graph.guide.local",
-          port: 3006,
-          url: "grpc://graph.guide.local:3006",
+          port: 3003,
+          url: "grpc://graph.guide.local:3003",
           anthropicToken: async () => "test-key",
         },
       },
@@ -160,8 +160,8 @@ describe("runStatus", () => {
         mcp: {
           name: "mcp",
           host: "localhost",
-          port: 3009,
-          url: "http://localhost:3009",
+          port: 3006,
+          url: "http://localhost:3006",
           anthropicToken: async () => {
             throw new Error("Not authenticated");
           },

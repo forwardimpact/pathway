@@ -54,7 +54,7 @@ credentials works out of the box.
 `config/config.json` controls service startup and runtime behaviour:
 
 - `init.services` — Ordered list of services for `fit-rc` to supervise (tei,
-  trace, vector, graph, pathway, mcp, web)
+  trace, vector, graph, pathway, web, mcp)
 - `init.log_dir` / `init.shutdown_timeout` — Logging and shutdown
 - `service.*` — Per-service settings
 - `evals` — Evaluation models and judge model
@@ -74,8 +74,8 @@ bunx fit-rc status             # Show service status  (or: just rc-status)
 bunx fit-rc start tei          # Start a single service
 ```
 
-Services run on localhost in local mode (ports 3002–3008 for gRPC, 3001 for web,
-8090 for TEI embeddings). Port mapping is in `.env.local`.
+Services run on localhost in local mode (ports 3001–3006, 8090 for TEI
+embeddings). Port mapping is in `.env.local`.
 
 TEI (Text Embeddings Inference) provides local embeddings:
 
