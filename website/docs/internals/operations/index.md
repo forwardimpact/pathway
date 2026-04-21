@@ -40,11 +40,11 @@ just env-setup     # Reset from examples, generate secrets and storage creds
 just env-reset     # Copy .env.local.example → .env
 just env-secrets   # Generate SERVICE_SECRET, JWT_SECRET, JWT_ANON_KEY
 just env-storage   # Generate storage backend credentials
-just env-github    # GitHub token utility (LLM_TOKEN, LLM_BASE_URL)
+just env-github    # GitHub token utility
 ```
 
-`LLM_TOKEN` and `LLM_BASE_URL` are always set in the environment (provided by
-the hosting platform or `.env`). Any code using `libconfig` to access LLM
+`ANTHROPIC_API_KEY` is set in the environment (provided by the hosting platform,
+`.env`, or `fit-guide login`). Any code using `libconfig` to access Anthropic
 credentials works out of the box.
 
 ---
@@ -54,17 +54,10 @@ credentials works out of the box.
 `config/config.json` controls service startup and runtime behaviour:
 
 - `init.services` — Ordered list of services for `fit-rc` to supervise (tei,
-  trace, vector, graph, llm, memory, tool, agent, web)
+  trace, vector, graph, pathway, mcp, web)
 - `init.log_dir` / `init.shutdown_timeout` — Logging and shutdown
-- `service.*` — Per-service settings (model, temperature, max_tokens, tool
-  filter thresholds, tool endpoints)
+- `service.*` — Per-service settings
 - `evals` — Evaluation models and judge model
-
-`config/tools.yml` — Tool endpoint definitions (purpose, parameters, evaluation
-criteria) used by the tool service.
-
-`config/agents/*.agent.md` — Agent prompt files (planner, researcher, editor,
-eval_judge). Reset from examples with `just config-reset`.
 
 ---
 

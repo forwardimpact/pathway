@@ -1,0 +1,62 @@
+[
+  {
+    "id": "discipline-lookup",
+    "question": "What skills does a software-engineering discipline require at senior level?",
+    "expected_tools": ["pathway_describe_job"],
+    "expected_substance": "Lists skills from the software-engineering senior job definition with proficiency levels"
+  },
+  {
+    "id": "level-progression",
+    "question": "What changes between mid and senior for platform engineering?",
+    "expected_tools": ["pathway_describe_progression"],
+    "expected_substance": "Shows skill and behaviour deltas between mid and senior for platform engineering"
+  },
+  {
+    "id": "job-description",
+    "question": "Describe the job for a senior software engineer on the product track.",
+    "expected_tools": ["pathway_describe_job"],
+    "expected_substance": "Full job description including skills, behaviours, responsibilities for senior SE product track"
+  },
+  {
+    "id": "capability-skills",
+    "question": "What skills make up the technical excellence capability?",
+    "expected_tools": ["get_ontology", "query_by_pattern"],
+    "expected_substance": "Lists skills under the technical-excellence capability with descriptions"
+  },
+  {
+    "id": "behaviour-lookup",
+    "question": "What does practicing maturity look like for collaboration?",
+    "expected_tools": ["query_by_pattern"],
+    "expected_substance": "Describes the practicing maturity level for the collaboration behaviour"
+  },
+  {
+    "id": "semantic-search",
+    "question": "How should an engineer approach code review?",
+    "expected_tools": ["search_content"],
+    "expected_substance": "Synthesizes guidance on code review from retrieved framework content"
+  },
+  {
+    "id": "software-toolkit",
+    "question": "What tools does a senior data engineer use?",
+    "expected_tools": ["pathway_list_job_software"],
+    "expected_substance": "Lists software tools for the senior data-engineering job"
+  },
+  {
+    "id": "agent-profile",
+    "question": "What are the agent profiles for software engineering on the IC track?",
+    "expected_tools": ["pathway_list_agent_profiles"],
+    "expected_substance": "Lists agent profile definitions for software-engineering IC"
+  },
+  {
+    "id": "ontology-discovery",
+    "question": "What entity types and relationships exist in the knowledge graph?",
+    "expected_tools": ["get_ontology"],
+    "expected_substance": "Returns the full ontology with entity types and predicates"
+  },
+  {
+    "id": "multi-hop",
+    "question": "For a senior platform engineer on the IC track, which skills changed from mid level and what behaviours are expected?",
+    "expected_tools": ["pathway_describe_progression", "pathway_describe_job"],
+    "expected_substance": "Combines progression delta with job description to show both skill changes and behaviour expectations"
+  }
+]

@@ -114,40 +114,32 @@ it, imports fail with a missing module error.
 
 The `init` step generates:
 
-- `.env` — service secrets and port assignments
-- `config/config.json` — service configuration with agent, LLM, memory, and tool
-  settings
-- `config/agents/` — agent definitions (planner, researcher, editor)
-- `config/tools.yml` — tool descriptors for the agent pipeline
+- `.env` — service secrets (`MCP_TOKEN`) and port assignments
+- `config/config.json` — service startup configuration
 
-### Configure LLM credentials
+### Configure credentials
 
-Guide needs access to an LLM provider. Open `.env` in your editor and append:
+Guide runs on the Anthropic API. Authenticate using one of:
 
-```
-LLM_TOKEN=your-api-key
-LLM_BASE_URL=https://api.openai.com/v1
+```sh
+npx fit-guide login       # OAuth PKCE flow (recommended)
 ```
 
-Replace the values with your actual API key and provider endpoint. Guide uses
-the OpenAI-compatible `/chat/completions` and `/embeddings` endpoints, so any
-compatible provider works (OpenAI, Azure, GitHub Models, etc.). Guide validates
-these on startup and reports which variables are missing.
+Or set `ANTHROPIC_API_KEY` in `.env` manually. Guide validates credentials on
+startup and reports if they are missing.
 
 ### Process data
 
-Before starting the services, process the framework data and agent definitions
-into the indexes that Guide's services read at runtime:
+Before starting the services, process the framework data into the indexes that
+Guide's services read at runtime:
 
 ```sh
-npx fit-process-agents    # provided by @forwardimpact/libagent
 npx fit-process-resources # provided by @forwardimpact/libresource
 npx fit-process-graphs    # provided by @forwardimpact/libgraph
 ```
 
-These steps transform your `config/agents/` and `data/pathway/` into the
-resource index, knowledge store, and graph index. Re-run them whenever you
-update framework data or agent definitions.
+These steps transform your `data/pathway/` into the resource index, knowledge
+store, and graph index. Re-run them whenever you update framework data.
 
 ### Start the service stack
 
@@ -309,31 +301,32 @@ background work. The CLI scheduler works on any platform.
 ### Guide: configuration errors on startup
 
 Guide validates configuration before connecting. If you see errors about missing
-`service.agent.agent`, `service.agent.model`, `LLM_TOKEN`, or `LLM_BASE_URL`,
-check that:
+`ANTHROPIC_API_KEY` or `MCP_TOKEN`, check that:
 
-1. You ran `npx fit-guide init` (creates `config/config.json` with the `service`
-   section)
-2. Your `.env` file contains `LLM_TOKEN` and `LLM_BASE_URL`
+1. You ran `npx fit-guide init` (creates `.env` with `MCP_TOKEN`)
+2. You ran `npx fit-guide login` or set `ANTHROPIC_API_KEY` in `.env`
 
-### Guide: `Agent not found` error
+### Guide: `Not authenticated` error
 
-An `Agent not found: common.Agent.planner` error means the resource index has
-not been populated. Run the processing pipeline:
+Run `npx fit-guide login` to authenticate with Anthropic, or set
+`ANTHROPIC_API_KEY` in `.env`.
+
+### Guide: data not found
+
+If Guide cannot answer questions, the knowledge indexes may not be populated.
+Run the processing pipeline:
 
 ```sh
-npx fit-process-agents
 npx fit-process-resources
 npx fit-process-graphs
 ```
 
 Then restart the services.
 
-### Guide: `13 INTERNAL` gRPC error
+### Guide: MCP endpoint unreachable
 
-A `13 INTERNAL` error during a conversation usually means the LLM service cannot
-reach the provider. Verify that `LLM_TOKEN` and `LLM_BASE_URL` are correct in
-`.env`, then restart the services:
+Verify the MCP service is running. Check `npx fit-guide status` for health
+information, then restart the services:
 
 ```sh
 npx fit-rc stop && npx fit-rc start

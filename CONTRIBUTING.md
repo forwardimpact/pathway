@@ -7,8 +7,8 @@ bun install
 just quickstart
 ```
 
-`LLM_TOKEN` and `LLM_BASE_URL` are always available in the shell environment —
-no manual key configuration needed. `libconfig` reads them automatically.
+`ANTHROPIC_API_KEY` is available in the shell environment — no manual key
+configuration needed. `libconfig` reads it automatically.
 
 ## Core Rules
 
@@ -85,11 +85,9 @@ products/
 libraries/
   lib*/      # shared infrastructure and domain libraries
 services/
-  agent/ graph/ llm/ memory/ pathway/ tool/ trace/ vector/ web/
+  graph/ mcp/ pathway/ trace/ vector/ web/
 config/
-  config.json  # service definitions, model settings, eval config
-  tools.yml    # tool endpoint definitions
-  agents/      # agent prompt files (*.agent.md)
+  config.json  # service definitions
 data/
   synthetic/   # synthetic data DSL and generated artifacts
 specs/
@@ -168,7 +166,7 @@ Format: `type(scope): subject`
 ### Releasing
 
 Tag prefix matches the directory name: `libraries/libfoo` → `libfoo@v0.1.5`,
-`products/pathway` → `pathway@v0.25.0`, `services/agent` → `svcagent@v0.1.110`.
+`products/pathway` → `pathway@v0.25.0`, `services/graph` → `svcgraph@v0.1.60`.
 
 Pre-1.0 packages bump patch for any change. Post-1.0: semver (breaking=major,
 feat=minor, fix/refactor=patch). The release engineer handles bumps, tagging,

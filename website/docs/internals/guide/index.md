@@ -1,39 +1,59 @@
 ---
 title: Guide Internals
-description: "Agent infrastructure — orchestration pipeline, tool execution, knowledge pipeline, conversation memory, and service stack."
+description: "Agent infrastructure — Claude Agent SDK harness, MCP endpoint, knowledge pipeline, and service stack."
 ---
 
 ## Architecture
 
 Guide is an AI agent that understands your organization's engineering framework
-and reasons about it in context. It operates through a multi-agent orchestration
-pipeline backed by a service stack of specialized microservices.
+and reasons about it in context. It runs on the Claude Agent SDK and exposes its
+knowledge services through a Model Context Protocol (MCP) endpoint, making it
+accessible from three surfaces:
 
-The core orchestration follows a planner -> researcher -> editor pipeline:
+- **`fit-guide` CLI** — Reference implementation built on the Claude Agent SDK.
+- **Claude Code** — Connects to Guide's MCP endpoint as an MCP server.
+- **Claude Chat** — Connects via a Claude Connector backed by the MCP endpoint.
 
-1. **Planner** -- Analyzes the user's query, consults the ontology, classifies
-   the query type, and defines success criteria for the researcher.
-2. **Researcher** -- Executes the plan by calling tools (graph queries, vector
-   search, agent delegation) to gather facts and evidence.
-3. **Editor** -- Synthesizes the researcher's findings into a coherent response
-   for the user.
+All three surfaces share the same tools, the same agent instructions
+(`guide-default` prompt), and the same knowledge backends.
 
 ---
 
-## Tool Execution
+## MCP Endpoint
 
-Agents call tools during conversation turns. When the LLM returns tool calls,
-each is executed via the Tool service. Available tool types include:
+The `mcp` service is an HTTP+SSE MCP server built on
+`@modelcontextprotocol/sdk`. It exposes 10 tools and the `guide-default` prompt.
+All three surfaces connect to this endpoint with a bearer token (`MCP_TOKEN`).
+The `/health` probe is unauthenticated.
 
-- **Graph queries** -- `get_ontology`, `get_subjects`, `query_by_pattern` for
-  structured knowledge graph lookups
-- **Vector search** -- Semantic similarity search across embedded documents
-- **Agent delegation** -- `list_sub_agents`, `run_sub_agent` for isolated task
-  delegation; `list_handoffs`, `run_handoff` for conversation handoffs
+---
 
-Tool descriptors are defined in `starter/tools.yml`, which maps tool names to
-descriptions, parameters, and evaluation criteria. The Tool service resolves
-tool calls to the appropriate backend (graph, vector, or agent service).
+## Tools
+
+| MCP tool                         | Backend | gRPC method            |
+| -------------------------------- | ------- | ---------------------- |
+| `get_ontology`                   | graph   | `GetOntology`          |
+| `get_subjects`                   | graph   | `GetSubjects`          |
+| `query_by_pattern`               | graph   | `QueryByPattern`       |
+| `search_content`                 | vector  | `SearchContent`        |
+| `pathway_list_jobs`              | pathway | `ListJobs`             |
+| `pathway_describe_job`           | pathway | `DescribeJob`          |
+| `pathway_list_agent_profiles`    | pathway | `ListAgentProfiles`    |
+| `pathway_describe_agent_profile` | pathway | `DescribeAgentProfile` |
+| `pathway_describe_progression`   | pathway | `DescribeProgression`  |
+| `pathway_list_job_software`      | pathway | `ListJobSoftware`      |
+
+---
+
+## Agent Instructions
+
+A single `guide-default` prompt serves all three surfaces. It collapses the
+former planner → researcher → editor chain into one agent with a structured
+workflow: orient (ontology) → query (tools) → synthesize (grounded answer).
+
+The prompt is served by the MCP server via `prompts/get` and loaded by the CLI
+as the SDK `systemPrompt`. Claude Code and Claude Chat receive it through their
+respective configuration mechanisms.
 
 ---
 
@@ -46,136 +66,67 @@ HTML files -> typed resources -> RDF triples (graph store)
 
 Documents are processed through a dual-index pipeline:
 
-1. **Extraction** -- HTML files are parsed and typed as resources (articles,
+1. **Extraction** — HTML files are parsed and typed as resources (articles,
    guides, FAQs, etc.)
-2. **Graph indexing** -- Resources are converted to RDF triples and stored in
-   the graph service for precise structured lookups
-3. **Vector indexing** -- Resources are embedded via TEI (Text Embeddings
+2. **Graph indexing** — Resources are converted to RDF triples and stored in the
+   graph service for precise structured lookups
+3. **Vector indexing** — Resources are embedded via TEI (Text Embeddings
    Inference) and stored in the vector service for fuzzy semantic retrieval
-
-This dual index enables both precise graph queries ("what skills does the
-platform track modify?") and fuzzy semantic retrieval ("how should I approach
-system design?").
 
 ---
 
-## Conversation Memory
+## Session Persistence
 
-Memory is built newest-first within a token budget. The memory service maintains
-conversation history per resource (session), and when constructing the context
-window:
-
-- Messages are added from newest to oldest until the token budget is exhausted
-- Tool call/response pairs are never split -- both are included or both are
-  excluded
-- System messages and the current user message always fit within budget
+The Claude Agent SDK manages conversation history through JSONL session files
+and automatic context compaction. `fit-guide resume` continues a previous
+session. Each surface maintains its own history — cross-surface sharing is out
+of scope.
 
 ---
 
 ## Service Stack
 
-Guide requires the full service stack, supervised by `fit-rc`. Services start in
+Guide requires the service stack, supervised by `fit-rc`. Services start in
 dependency order:
 
-| Order | Service | Purpose                                  | Port |
-| ----- | ------- | ---------------------------------------- | ---- |
-| 1     | trace   | Distributed tracing                      | 3002 |
-| 2     | vector  | Vector similarity search                 | 3003 |
-| 3     | graph   | RDF triple store and SPARQL queries      | 3004 |
-| 4     | pathway | Framework data service                   | 3009 |
-| 5     | llm     | LLM inference proxy                      | 3005 |
-| 6     | memory  | Conversation history and token budgeting | 3006 |
-| 7     | tool    | Tool call resolution and execution       | 3007 |
-| 8     | agent   | Agent orchestration and handoffs         | 3008 |
-| 9     | web     | HTTP API and web interface               | 3001 |
+| Order | Service | Protocol | Purpose                     | Port |
+| ----- | ------- | -------- | --------------------------- | ---- |
+| 1     | trace   | gRPC     | Distributed tracing         | 3008 |
+| 2     | vector  | gRPC     | Vector similarity search    | 3005 |
+| 3     | graph   | gRPC     | RDF triple store            | 3006 |
+| 4     | pathway | gRPC     | Framework data service      | 3010 |
+| 5     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3009 |
+| 6     | web     | HTTP     | Health endpoint             | 3001 |
 
 Start all services with `npx fit-rc start` (external) or `just rc-start`
 (internal contributors).
 
 ---
 
-## Agent Configuration
+## Authentication
 
-Agent definitions live in `starter/agents/` as Markdown files with YAML front
-matter:
+| Surface         | LLM auth                     | MCP auth           |
+| --------------- | ---------------------------- | ------------------ |
+| `fit-guide` CLI | `ANTHROPIC_API_KEY` or OAuth | Bearer `MCP_TOKEN` |
+| Claude Code     | Host credential              | Bearer `MCP_TOKEN` |
+| Claude Chat     | Host credential              | Bearer `MCP_TOKEN` |
 
-```markdown
----
-name: planner
-description: Analyzes queries and creates execution plans.
-infer: false
-tools:
-  - get_ontology
-  - list_handoffs
-  - run_handoff
-handoffs:
-  - label: researcher
-    agent: researcher
-    prompt: Execute the plan below.
----
-
-# Planner Agent
-
-You create execution plans for knowledge queries...
-```
-
-### Key Fields
-
-| Field         | Purpose                                               |
-| ------------- | ----------------------------------------------------- |
-| `name`        | Agent identifier                                      |
-| `infer`       | Whether to use tool inference (vs explicit tool list) |
-| `tools`       | Explicit list of available tools                      |
-| `handoffs`    | Other agents this agent can delegate to               |
-| `description` | Short description for tool listings                   |
-
-### Default Agents
-
-| Agent      | File                  | Role                           |
-| ---------- | --------------------- | ------------------------------ |
-| planner    | `planner.agent.md`    | Query analysis, plan creation  |
-| researcher | `researcher.agent.md` | Data retrieval, fact gathering |
-| editor     | `editor.agent.md`     | Response synthesis, formatting |
-
----
-
-## Tool Descriptors
-
-`starter/tools.yml` maps tool names to their specifications:
-
-```yaml
-get_ontology:
-  purpose: Returns the complete schema vocabulary...
-  applicability: Required before constructing structured queries...
-  instructions: No input parameters...
-  evaluation: Complete schema showing available types and predicates.
-  parameters: {}
-
-get_subjects:
-  purpose: Lists entity URIs in the graph, optionally filtered by type.
-  parameters:
-    type: Entity type URI to filter by
-```
-
-Each tool descriptor includes `purpose`, `applicability`, `instructions`,
-`evaluation` criteria, and `parameters` -- providing the LLM with enough context
-to select and call tools correctly.
+`fit-guide login` runs an OAuth PKCE flow against Anthropic's auth endpoint.
+`ANTHROPIC_API_KEY` works as an environment variable alternative.
 
 ---
 
 ## Data Directories
 
-| Path                  | Purpose                          |
-| --------------------- | -------------------------------- |
-| `starter/agents/`     | Agent prompt files (\*.agent.md) |
-| `starter/tools.yml`   | Tool endpoint definitions        |
-| `starter/config.json` | Service and model configuration  |
-| `products/guide/bin/` | CLI entry point (fit-guide)      |
+| Path                  | Purpose                       |
+| --------------------- | ----------------------------- |
+| `starter/config.json` | Service startup configuration |
+| `products/guide/bin/` | CLI entry point (fit-guide)   |
 
 ---
 
 ## Related Documentation
 
-- [Map Internals](/docs/internals/map/) -- Data contracts consumed by Guide
-- [Finding Your Bearing Guide](/docs/guides/finding-your-bearing/) --
-  User-facing Guide documentation
+- [Map Internals](/docs/internals/map/) — Data contracts consumed by Guide
+- [Finding Your Bearing Guide](/docs/guides/finding-your-bearing/) — User-facing
+  Guide documentation
