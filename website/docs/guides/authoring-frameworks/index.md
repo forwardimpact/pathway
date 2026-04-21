@@ -1,6 +1,6 @@
 ---
 title: "Authoring Frameworks"
-description: "Write career framework definitions in YAML — disciplines, levels, tracks, capabilities, skills, behaviours, stages, and drivers."
+description: "Write career framework definitions in YAML — disciplines, levels, tracks, capabilities, skills, behaviours, and drivers."
 ---
 
 A career framework is a set of YAML files that define what good engineering
