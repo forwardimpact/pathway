@@ -9,7 +9,8 @@
   "exports": {
     ".": "./src/index.js",
     "./client.js": "./src/client.js",
-    "./base.js": "./src/base.js"
+    "./base.js": "./src/base.js",
+    "./package.json": "./package.json"
   },
   "bin": {
     "fit-unary": "./bin/fit-unary.js"
