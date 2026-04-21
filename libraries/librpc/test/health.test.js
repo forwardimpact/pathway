@@ -100,7 +100,7 @@ describe("Server health registration", () => {
       }),
     };
 
-    const mockConfig = createMockConfig("memory", {
+    const mockConfig = createMockConfig("graph", {
       host: "0.0.0.0",
       port: 5000,
     });
@@ -139,7 +139,7 @@ describe("Server health registration", () => {
       }),
     };
 
-    const mockConfig = createMockConfig("memory", {
+    const mockConfig = createMockConfig("graph", {
       host: "0.0.0.0",
       port: 5000,
     });
@@ -159,7 +159,7 @@ describe("Server health registration", () => {
 
     await server.start();
 
-    const handlers = createHealthHandlers("Memory");
+    const handlers = createHealthHandlers("Graph");
     const initialCount = authCallCount;
     handlers.Check({ request: { service: "" } }, (err, response) => {
       assert.strictEqual(err, null);

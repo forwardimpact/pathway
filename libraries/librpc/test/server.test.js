@@ -26,7 +26,7 @@ describe("Server", () => {
       }),
     };
 
-    mockConfig = createMockConfig("memory", { host: "0.0.0.0", port: 5000 });
+    mockConfig = createMockConfig("graph", { host: "0.0.0.0", port: 5000 });
     mockGrpcFn = createMockGrpcFn();
     mockAuthFn = createMockAuthFn();
     mockLogFn = createMockLogger();

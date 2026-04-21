@@ -20,7 +20,7 @@ describe("Client", () => {
 
   beforeEach(() => {
     mockConfig = {
-      name: "memory", // Use a valid service name that exists in definitions
+      name: "graph", // Use a valid service name that exists in definitions
       host: "0.0.0.0",
       port: 5000,
     };
