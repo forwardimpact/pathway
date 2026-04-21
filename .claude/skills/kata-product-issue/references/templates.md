@@ -74,8 +74,14 @@ EOF
 )"
 ```
 
-Spec PRs replace the Test plan with a short Review section pointing reviewers at
-`kata-spec` for the review process.
+Spec PRs replace the Test plan with a Review section:
+
+```markdown
+## Review
+
+Spec for issue #<number>. Needs review before implementation — see the
+`kata-spec` skill for the review process.
+```
 
 ## New Issues from User Testing
 
