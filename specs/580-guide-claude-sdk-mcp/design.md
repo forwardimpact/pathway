@@ -12,7 +12,7 @@ is deleted in the same change that introduces its replacement.
 
 ```mermaid
 graph LR
-  CLI[fit-guide CLI<br/>Claude Agent SDK] -->|HTTP MCP · Bearer| MCP[guide-mcp]
+  CLI[fit-guide CLI<br/>Claude Agent SDK] -->|HTTP MCP · Bearer| MCP[mcp]
   CC[Claude Code] -->|HTTP MCP · Bearer| MCP
   Chat[Claude Chat Connector] -->|HTTP MCP · Bearer| MCP
   MCP -->|gRPC| G[graph] & V[vector] & P[pathway] & W[web]
@@ -22,16 +22,20 @@ graph LR
 `trace` is retained unchanged for cross-service observability; it is not on the
 request path and is omitted from the diagram.
 
-### 1. `services/guide-mcp` — unified HTTP MCP server (new)
+### 1. `services/mcp` — unified HTTP MCP server (new)
 
 Single HTTP+SSE MCP server on one port, built on `@modelcontextprotocol/sdk`.
 Exposes every retained Guide tool, the `guide-default` prompt, and a `/health`
 probe. Fans out to the existing `graph`, `vector`, `pathway`, and `web` gRPC
 services — those services are unchanged.
 
-Authentication: one static bearer token (`GUIDE_MCP_TOKEN`) verified on the
-`Authorization` header. Token is an init-time secret registered by every
-surface.
+Configuration follows the standard libconfig `SERVICE_MCP_*` convention
+(`SERVICE_MCP_URL`, `SERVICE_MCP_HOST`, `SERVICE_MCP_PORT`), consistent with
+every other service (`SERVICE_GRAPH_*`, `SERVICE_VECTOR_*`, etc.).
+
+Authentication: one static bearer token (`MCP_TOKEN`) verified on the
+`Authorization` header, resolved through libconfig's credential store. Token is
+an init-time secret registered by every surface.
 
 **Rejected — one MCP server per backend.** Forces every surface to register four
 URLs and four secrets. One gateway has the smallest moving-parts footprint
@@ -44,7 +48,7 @@ parity on those surfaces is impossible without a remote endpoint.
 ### 2. `fit-guide` CLI rewrite — Claude Agent SDK harness
 
 The CLI becomes a thin driver around `@anthropic-ai/claude-agent-sdk`'s
-`query()`: wire the Anthropic credential, register `guide-mcp` as a remote MCP
+`query()`: wire the Anthropic credential, register `mcp` as a remote MCP
 server, fetch `guide-default` as the system prompt, stream the reply. Session
 persistence (JSONL + `resume`), context compaction, and tool dispatch come from
 the SDK.
@@ -68,11 +72,11 @@ Two new methods on the existing `Config` class — no new library.
   preferring the env-var form when both exist and raising a typed "not
   authenticated" error when neither is. This is the "transparently managed by
   libconfig" contract the spec asks for.
-- `Config#guideMcpToken(): string` — returns the bearer token used by all three
-  surfaces to call `guide-mcp`.
+- `Config#mcpToken(): string` — returns the bearer token used by all three
+  surfaces to call `mcp`.
 
 Credential stores: the existing env-var store for `ANTHROPIC_API_KEY` and
-`GUIDE_MCP_TOKEN`, and a new typed OAuth resource shaped
+`MCP_TOKEN`, and a new typed OAuth resource shaped
 `{ access_token, refresh_token, expires_at }`, owned by libconfig and refreshed
 on read when expired. Missing or corrupt OAuth resource is treated as "not
 logged in". The OpenAI-path credentials the old harness owned are dropped from
@@ -115,12 +119,12 @@ login". `ANTHROPIC_API_KEY` covers the env-var path for users who prefer it;
 | `services/agent`                    | SDK in the CLI process               |
 | `services/memory`                   | SDK session store                    |
 | `services/llm`                      | SDK → Anthropic API                  |
-| `services/tool`                     | `guide-mcp` MCP tools                |
+| `services/tool`                     | `mcp` MCP tools                |
 | `starter/agents/*.agent.md`         | `guide-default` prompt served by MCP |
 | `starter/config.json` endpoints map | MCP tool definitions                 |
 
 No adapters, no shims, no deprecation window. The new `.env` shape carries
-`GUIDE_MCP_URL`, `GUIDE_MCP_TOKEN`, and an `ANTHROPIC_API_KEY` placeholder;
+`SERVICE_MCP_URL`, `MCP_TOKEN`, and an `ANTHROPIC_API_KEY` placeholder;
 `LLM_TOKEN` in a user's old `.env` is simply ignored because no code reads it.
 
 ## Agent instructions
@@ -155,11 +159,11 @@ service as today.
 
 | Surface         | LLM auth                                    | MCP auth                                  |
 | --------------- | ------------------------------------------- | ----------------------------------------- |
-| `fit-guide` CLI | `libconfig.anthropicToken()` (env or OAuth) | Bearer `GUIDE_MCP_TOKEN` from `libconfig` |
-| Claude Code     | Host credential (not Guide's concern)       | Bearer `GUIDE_MCP_TOKEN` in MCP config    |
-| Claude Chat     | Host credential (not Guide's concern)       | Bearer `GUIDE_MCP_TOKEN` in Connector     |
+| `fit-guide` CLI | `libconfig.anthropicToken()` (env or OAuth) | Bearer `MCP_TOKEN` from `libconfig` |
+| Claude Code     | Host credential (not Guide's concern)       | Bearer `MCP_TOKEN` in MCP config    |
+| Claude Chat     | Host credential (not Guide's concern)       | Bearer `MCP_TOKEN` in Connector     |
 
-One shared bearer secret, presented on each surface's MCP transport. `guide-mcp`
+One shared bearer secret, presented on each surface's MCP transport. `mcp`
 returns `401` for anything else. Resolves open question "Authentication
 mechanism".
 
