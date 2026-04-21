@@ -2,13 +2,13 @@
 
 ## Scope
 
-Create a new HTTP+SSE MCP server that exposes Guide's 10 retained tools and
-the `guide-default` prompt. The server fans out to the existing `graph`,
-`vector`, and `pathway` gRPC backends. Bearer-token authentication on every
-request. The `web` service is retained (Part 3 removes its agent dependency)
-but no MCP tool currently routes to it — the design's component diagram
-includes it for architectural completeness. This service has no `proto/`
-directory (it speaks HTTP+SSE, not gRPC).
+Create a new HTTP+SSE MCP server that exposes Guide's 10 retained tools and the
+`guide-default` prompt. The server fans out to the existing `graph`, `vector`,
+and `pathway` gRPC backends. Bearer-token authentication on every request. The
+`web` service is retained (Part 3 removes its agent dependency) but no MCP tool
+currently routes to it — the design's component diagram includes it for
+architectural completeness. This service has no `proto/` directory (it speaks
+HTTP+SSE, not gRPC).
 
 ## Prerequisites
 
@@ -112,6 +112,7 @@ await service.start();
 ```
 
 Configuration follows the standard `SERVICE_MCP_*` convention:
+
 - `SERVICE_MCP_HOST` (default `0.0.0.0`)
 - `SERVICE_MCP_PORT` (default `3009`)
 - `SERVICE_MCP_URL` resolved by libconfig
@@ -131,6 +132,7 @@ Key responsibilities:
    `prompts/guide-default.md` from disk and returns it as a text message.
 
 4. **Start HTTP server** with bearer-token middleware:
+
    ```javascript
    import { StreamableHTTPServerTransport }
      from "@modelcontextprotocol/sdk/server/streamableHttp.js";
@@ -160,6 +162,7 @@ Key responsibilities:
 **Created:** `services/mcp/tools.js`
 
 Each tool is registered with a JSON Schema input definition and a handler that:
+
 1. Validates input (MCP SDK handles schema validation)
 2. Creates a gRPC request message via `@forwardimpact/libtype`
 3. Calls the appropriate gRPC client method
@@ -167,18 +170,18 @@ Each tool is registered with a JSON Schema input definition and a handler that:
 
 **Tool table:**
 
-| MCP tool | gRPC client | Method | Input schema |
-|----------|-------------|--------|--------------|
-| `get_ontology` | graph | `GetOntology` | `{}` |
-| `get_subjects` | graph | `GetSubjects` | `{ type?: string }` |
-| `query_by_pattern` | graph | `QueryByPattern` | `{ subject?: string, predicate?: string, object?: string }` |
-| `search_content` | vector | `SearchContent` | `{ input: string[] }` (proto field: `repeated string input`) |
-| `pathway_list_jobs` | pathway | `ListJobs` | `{ discipline?: string }` |
-| `pathway_describe_job` | pathway | `DescribeJob` | `{ discipline: string, level: string, track?: string }` |
-| `pathway_list_agent_profiles` | pathway | `ListAgentProfiles` | `{ discipline?: string }` |
-| `pathway_describe_agent_profile` | pathway | `DescribeAgentProfile` | `{ discipline: string, track: string }` (no `level`/`stage` — field 3 reserved) |
-| `pathway_describe_progression` | pathway | `DescribeProgression` | `{ discipline: string, from_level: string, to_level: string, track?: string }` |
-| `pathway_list_job_software` | pathway | `ListJobSoftware` | `{ discipline: string, level: string, track?: string }` |
+| MCP tool                         | gRPC client | Method                 | Input schema                                                                    |
+| -------------------------------- | ----------- | ---------------------- | ------------------------------------------------------------------------------- |
+| `get_ontology`                   | graph       | `GetOntology`          | `{}`                                                                            |
+| `get_subjects`                   | graph       | `GetSubjects`          | `{ type?: string }`                                                             |
+| `query_by_pattern`               | graph       | `QueryByPattern`       | `{ subject?: string, predicate?: string, object?: string }`                     |
+| `search_content`                 | vector      | `SearchContent`        | `{ input: string[] }` (proto field: `repeated string input`)                    |
+| `pathway_list_jobs`              | pathway     | `ListJobs`             | `{ discipline?: string }`                                                       |
+| `pathway_describe_job`           | pathway     | `DescribeJob`          | `{ discipline: string, level: string, track?: string }`                         |
+| `pathway_list_agent_profiles`    | pathway     | `ListAgentProfiles`    | `{ discipline?: string }`                                                       |
+| `pathway_describe_agent_profile` | pathway     | `DescribeAgentProfile` | `{ discipline: string, track: string }` (no `level`/`stage` — field 3 reserved) |
+| `pathway_describe_progression`   | pathway     | `DescribeProgression`  | `{ discipline: string, from_level: string, to_level: string, track?: string }`  |
+| `pathway_list_job_software`      | pathway     | `ListJobSoftware`      | `{ discipline: string, level: string, track?: string }`                         |
 
 Handler pattern (representative):
 
@@ -224,32 +227,32 @@ export function registerTools(server, { graphClient, vectorClient, pathwayClient
 
 **Created:** `services/mcp/test/mcp.test.js`
 
-| Test | Setup | Assertion |
-|------|-------|-----------|
-| All 10 tools registered | Create server, list tools | Tool count = 10, names match table |
-| `guide-default` prompt registered | List prompts | Contains `guide-default` |
-| `guide-default` prompt returns text | Get prompt | Content is non-empty string with key instructions |
-| Auth rejects missing token | HTTP request without Authorization | 401 response |
-| Auth rejects wrong token | Authorization with bad token | 401 response |
-| Auth accepts valid token | Authorization with correct token | Request proceeds |
-| Health endpoint needs no auth | GET /health without token | 200 response |
-| Tool handler routes to correct backend | Call `get_ontology` with mock graph client | `graphClient.GetOntology` called |
-| Tool handler routes pathway tools | Call `pathway_list_jobs` with mock pathway client | `pathwayClient.ListJobs` called |
-| Tool handler routes vector tools | Call `search_content` with mock vector client | `vectorClient.SearchContent` called |
+| Test                                   | Setup                                             | Assertion                                         |
+| -------------------------------------- | ------------------------------------------------- | ------------------------------------------------- |
+| All 10 tools registered                | Create server, list tools                         | Tool count = 10, names match table                |
+| `guide-default` prompt registered      | List prompts                                      | Contains `guide-default`                          |
+| `guide-default` prompt returns text    | Get prompt                                        | Content is non-empty string with key instructions |
+| Auth rejects missing token             | HTTP request without Authorization                | 401 response                                      |
+| Auth rejects wrong token               | Authorization with bad token                      | 401 response                                      |
+| Auth accepts valid token               | Authorization with correct token                  | Request proceeds                                  |
+| Health endpoint needs no auth          | GET /health without token                         | 200 response                                      |
+| Tool handler routes to correct backend | Call `get_ontology` with mock graph client        | `graphClient.GetOntology` called                  |
+| Tool handler routes pathway tools      | Call `pathway_list_jobs` with mock pathway client | `pathwayClient.ListJobs` called                   |
+| Tool handler routes vector tools       | Call `search_content` with mock vector client     | `vectorClient.SearchContent` called               |
 
 Mock gRPC clients return canned proto responses. Use `@forwardimpact/libharness`
 for config mocks.
 
 ## Files changed
 
-| Action | Path |
-|--------|------|
-| Created | `services/mcp/package.json` |
-| Created | `services/mcp/server.js` |
-| Created | `services/mcp/index.js` |
-| Created | `services/mcp/tools.js` |
+| Action  | Path                                    |
+| ------- | --------------------------------------- |
+| Created | `services/mcp/package.json`             |
+| Created | `services/mcp/server.js`                |
+| Created | `services/mcp/index.js`                 |
+| Created | `services/mcp/tools.js`                 |
 | Created | `services/mcp/prompts/guide-default.md` |
-| Created | `services/mcp/test/mcp.test.js` |
+| Created | `services/mcp/test/mcp.test.js`         |
 
 ## Verification
 

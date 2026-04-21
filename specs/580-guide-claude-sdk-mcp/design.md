@@ -48,8 +48,8 @@ parity on those surfaces is impossible without a remote endpoint.
 ### 2. `fit-guide` CLI rewrite — Claude Agent SDK harness
 
 The CLI becomes a thin driver around `@anthropic-ai/claude-agent-sdk`'s
-`query()`: wire the Anthropic credential, register `mcp` as a remote MCP
-server, fetch `guide-default` as the system prompt, stream the reply. Session
+`query()`: wire the Anthropic credential, register `mcp` as a remote MCP server,
+fetch `guide-default` as the system prompt, stream the reply. Session
 persistence (JSONL + `resume`), context compaction, and tool dispatch come from
 the SDK.
 
@@ -118,7 +118,7 @@ path; `login` exists for the browser-based flow analogous to `claude login`.
 | `services/agent`                    | SDK in the CLI process               |
 | `services/memory`                   | SDK session store                    |
 | `services/llm`                      | SDK → Anthropic API                  |
-| `services/tool`                     | `mcp` MCP tools                |
+| `services/tool`                     | `mcp` MCP tools                      |
 | `starter/agents/*.agent.md`         | `guide-default` prompt served by MCP |
 | `starter/config.json` endpoints map | MCP tool definitions                 |
 
@@ -139,7 +139,8 @@ pipeline representation". Delivery differs by surface:
   SDK `system` parameter.
 - **Claude Code** — the published `fit-guide` skill carries the prompt text;
   Claude Code injects it as the agent's system instructions.
-- **Claude Chat** — Connector configuration embeds the prompt as the system turn.
+- **Claude Chat** — Connector configuration embeds the prompt as the system
+  turn.
 
 **Rejected — SDK subagents for planner/researcher/editor.** Doubles prompt
 surface and adds handoff plumbing; parity fixtures do not require it.
@@ -161,8 +162,8 @@ service as today.
 
 ## Authentication per surface
 
-| Surface         | LLM auth                                    | MCP auth                                  |
-| --------------- | ------------------------------------------- | ----------------------------------------- |
+| Surface         | LLM auth                                    | MCP auth                            |
+| --------------- | ------------------------------------------- | ----------------------------------- |
 | `fit-guide` CLI | `libconfig.anthropicToken()` (env or OAuth) | Bearer `MCP_TOKEN` from `libconfig` |
 | Claude Code     | Host credential (not Guide's concern)       | Bearer `MCP_TOKEN` in MCP config    |
 | Claude Chat     | Host credential (not Guide's concern)       | Bearer `MCP_TOKEN` in Connector     |
@@ -183,12 +184,12 @@ provider abstraction leaves room for a follow-up without touching `libconfig`.
 Ten representative Guide questions, each shaped
 `{ id, question, expected_answer_substance, expected_tools }`. Each fixture runs
 on all three surfaces and passes only if: (a) answer substance matches the
-reference (LLM-judged), (b) observed tool-call set ⊇ `expected_tools`, (c)
-every factual claim cites a URI or snippet in retrieved data. Fixture file and
+reference (LLM-judged), (b) observed tool-call set ⊇ `expected_tools`, (c) every
+factual claim cites a URI or snippet in retrieved data. Fixture file and
 per-surface runner live under Guide's test tree; exact paths are plan-level.
 
-Fixtures span discipline lookup, level progression, job description, capability →
-skills traversal, behaviour lookup, semantic search, software toolkit,
+Fixtures span discipline lookup, level progression, job description, capability
+→ skills traversal, behaviour lookup, semantic search, software toolkit,
 agent-profile lookup, ontology discovery, multi-hop graph + vector.
 
 ## First-run UX & status

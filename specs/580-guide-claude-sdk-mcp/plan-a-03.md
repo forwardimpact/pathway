@@ -18,20 +18,20 @@ Parts 1 and 2 complete (libconfig credentials + MCP server exist).
 **Before deleting anything**, move the shared message types out of
 `services/tool/`:
 
-1. Create `proto/` at the repo root (the codegen's `discoverProtoDirs()`
-   already checks `{projectRoot}/proto/`).
+1. Create `proto/` at the repo root (the codegen's `discoverProtoDirs()` already
+   checks `{projectRoot}/proto/`).
 2. Copy `services/tool/proto/tool.proto` → `proto/tool.proto`.
 3. Remove the `service Tool { rpc CallTool ... }` block from the copied file —
    only message types (`QueryFilter`, `ToolProp`, `ToolParam`, `ToolFunction`,
    `ToolCall`, `ToolCallResult`, `ToolCallMessage`) remain.
-4. Run `just codegen` — verify all 38+ files regenerate without errors. The
-   tool service base/client will no longer be generated (no service definition);
-   the message types will still appear in `generated/types/types.js`.
+4. Run `just codegen` — verify all 38+ files regenerate without errors. The tool
+   service base/client will no longer be generated (no service definition); the
+   message types will still appear in `generated/types/types.js`.
 
 **Files changed:**
 
-| Action | Path |
-|--------|------|
+| Action  | Path                                    |
+| ------- | --------------------------------------- |
 | Created | `proto/tool.proto` (message types only) |
 
 ### Step 2 — Fix vector service (remove svcllm dependency)
@@ -41,6 +41,7 @@ Replace the gRPC-to-gRPC-to-HTTP chain with a direct HTTP call to TEI.
 **Modified:** `services/vector/index.js`
 
 Before:
+
 ```javascript
 import { llm } from "@forwardimpact/libtype";
 // ...
@@ -55,6 +56,7 @@ async SearchContent(req) {
 ```
 
 After:
+
 ```javascript
 constructor(config, vectorIndex, embeddingFn, logFn) {
   this.#embeddingFn = embeddingFn;
@@ -78,12 +80,14 @@ that the current code already consumes via `embeddings.data.map()`.
 **Modified:** `services/vector/server.js`
 
 Before:
+
 ```javascript
 const llmClient = await createClient("llm", logger, tracer);
 const service = new VectorService(config, vectorIndex, llmClient);
 ```
 
 After:
+
 ```javascript
 const embeddingBaseUrl = process.env.EMBEDDING_BASE_URL || 'http://localhost:8080';
 
@@ -103,35 +107,35 @@ const service = new VectorService(config, vectorIndex, createEmbeddings);
 
 **Note:** `services/vector/package.json` does not list `@forwardimpact/svcllm`
 as a dependency — the LLM service is reached at runtime via
-`createClient("llm")` from `librpc`. Removing the `createClient("llm")` call
-and the `llm` type import from `libtype` is sufficient.
+`createClient("llm")` from `librpc`. Removing the `createClient("llm")` call and
+the `llm` type import from `libtype` is sufficient.
 
 **Modified:** `services/vector/test/vector.test.js` — update mocks: replace
-`llmClient` mock with `embeddingFn` mock returning a canned embeddings
-response.
+`llmClient` mock with `embeddingFn` mock returning a canned embeddings response.
 
 ### Step 3 — Fix web service (remove svcagent dependency)
 
 **Modified:** `services/web/server.js`
 
 Remove:
+
 ```javascript
 const client = await createClient("agent", logger, tracer);
 ```
 
 Pass `null` or omit the agent client. Read the full web service source to
-identify all endpoints. Remove or stub the `/web/api/chat` endpoint that
-depends on the agent client. Retain the health endpoint and any other
-non-agent endpoints.
+identify all endpoints. Remove or stub the `/web/api/chat` endpoint that depends
+on the agent client. Retain the health endpoint and any other non-agent
+endpoints.
 
 **Modified:** `services/web/index.js`
 
-Remove the `client.ProcessStream()` call path. If the chat endpoint is the
-only functional endpoint, replace it with a message pointing users to the
-three new surfaces (CLI, Claude Code, Claude Chat).
+Remove the `client.ProcessStream()` call path. If the chat endpoint is the only
+functional endpoint, replace it with a message pointing users to the three new
+surfaces (CLI, Claude Code, Claude Chat).
 
-**Note:** `services/web/package.json` does not list `@forwardimpact/svcagent`
-as a dependency — the agent client is reached via `createClient("agent")` from
+**Note:** `services/web/package.json` does not list `@forwardimpact/svcagent` as
+a dependency — the agent client is reached via `createClient("agent")` from
 `librpc`. Remove that call from `server.js` and the `agent`/`common` type
 imports from `index.js`.
 
@@ -143,14 +147,14 @@ Complete rewrite. The CLI becomes a thin driver around the Claude Agent SDK.
 
 **Command structure:**
 
-| Command | Description |
-|---------|-------------|
-| (default) | Interactive chat via Agent SDK `query()` |
-| `login` | OAuth PKCE flow → persist credential |
-| `logout` | Clear persisted credential |
-| `resume` | Resume last session via SDK `resume` |
-| `init` | Generate `.env` and starter config (updated) |
-| `status` | Check credentials, MCP health, backend health |
+| Command   | Description                                   |
+| --------- | --------------------------------------------- |
+| (default) | Interactive chat via Agent SDK `query()`      |
+| `login`   | OAuth PKCE flow → persist credential          |
+| `logout`  | Clear persisted credential                    |
+| `resume`  | Resume last session via SDK `resume`          |
+| `init`    | Generate `.env` and starter config (updated)  |
+| `status`  | Check credentials, MCP health, backend health |
 
 **CLI definition:**
 
@@ -220,10 +224,10 @@ async function handleChat(input, config) {
 }
 ```
 
-The exact streaming output handling will match the SDK's message format —
-adapt from the patterns in `libeval/src/agent-runner.js`. If the SDK provides
-a higher-level streaming renderer or a credential option (avoiding
-`process.env` mutation), prefer that.
+The exact streaming output handling will match the SDK's message format — adapt
+from the patterns in `libeval/src/agent-runner.js`. If the SDK provides a
+higher-level streaming renderer or a credential option (avoiding `process.env`
+mutation), prefer that.
 
 **First-run UX:**
 
@@ -263,6 +267,7 @@ if (process.env.LLM_TOKEN && !process.env.ANTHROPIC_API_KEY) {
 Three collaborating components per the design:
 
 1. **PKCE initiator:**
+
    ```javascript
    import { randomBytes, createHash } from 'node:crypto';
 
@@ -275,6 +280,7 @@ Three collaborating components per the design:
    ```
 
 2. **Loopback callback listener:**
+
    ```javascript
    import { createServer } from 'node:http';
 
@@ -331,6 +337,7 @@ Three collaborating components per the design:
    ```
 
 **Login flow:**
+
 ```javascript
 const pkce = createPkce();
 const { port, codePromise } = await startCallbackServer(pkce.state);
@@ -420,51 +427,53 @@ Remove: `LLM_TOKEN`, `SERVICE_AGENT_URL`, `SERVICE_MEMORY_URL`,
 
 **Modified:** `products/guide/starter/config.json`
 
-Remove from `init.services`: `llm`, `memory`, `tool`, `agent`.
-Add to `init.services`: `mcp` (after pathway, before web).
+Remove from `init.services`: `llm`, `memory`, `tool`, `agent`. Add to
+`init.services`: `mcp` (after pathway, before web).
 
 New service startup order:
+
 ```
 trace → vector → graph → pathway → mcp → web
 ```
 
 Remove the `service.tool.endpoints` map entirely (MCP handles tool routing).
-Remove `service.agent` config block (model, agent settings).
-Add `service.mcp` config block (minimal — port comes from env).
+Remove `service.agent` config block (model, agent settings). Add `service.mcp`
+config block (minimal — port comes from env).
 
 ### Step 10 — Delete retired packages
 
 Delete these directories in full:
 
-| Directory | Package |
-|-----------|---------|
-| `libraries/libagent/` | `@forwardimpact/libagent` |
+| Directory              | Package                    |
+| ---------------------- | -------------------------- |
+| `libraries/libagent/`  | `@forwardimpact/libagent`  |
 | `libraries/libmemory/` | `@forwardimpact/libmemory` |
-| `libraries/libllm/` | `@forwardimpact/libllm` |
-| `services/agent/` | `@forwardimpact/svcagent` |
-| `services/memory/` | `@forwardimpact/svcmemory` |
-| `services/llm/` | `@forwardimpact/svcllm` |
-| `services/tool/` | `@forwardimpact/svctool` |
+| `libraries/libllm/`    | `@forwardimpact/libllm`    |
+| `services/agent/`      | `@forwardimpact/svcagent`  |
+| `services/memory/`     | `@forwardimpact/svcmemory` |
+| `services/llm/`        | `@forwardimpact/svcllm`    |
+| `services/tool/`       | `@forwardimpact/svctool`   |
 
 Delete from `products/guide/`:
 
-| Path | Reason |
-|------|--------|
-| `starter/agents/planner.agent.md` | Replaced by `guide-default` prompt |
-| `starter/agents/researcher.agent.md` | Same |
-| `starter/agents/editor.agent.md` | Same |
-| `starter/tools.yml` | Tool definitions now live in `services/mcp/tools.js`; `fit-guide init` no longer copies this file |
+| Path                                 | Reason                                                                                            |
+| ------------------------------------ | ------------------------------------------------------------------------------------------------- |
+| `starter/agents/planner.agent.md`    | Replaced by `guide-default` prompt                                                                |
+| `starter/agents/researcher.agent.md` | Same                                                                                              |
+| `starter/agents/editor.agent.md`     | Same                                                                                              |
+| `starter/tools.yml`                  | Tool definitions now live in `services/mcp/tools.js`; `fit-guide init` no longer copies this file |
 
 **Retained** in `products/guide/proto/`:
 
-| Path | Reason |
-|------|--------|
-| `proto/common.proto` | Imported by `graph.proto` and `pathway.proto` (both retained). Must stay. |
-| `proto/resource.proto` | Imported by `tool.proto` and `common.proto` (both retained). Must stay. |
+| Path                   | Reason                                                                    |
+| ---------------------- | ------------------------------------------------------------------------- |
+| `proto/common.proto`   | Imported by `graph.proto` and `pathway.proto` (both retained). Must stay. |
+| `proto/resource.proto` | Imported by `tool.proto` and `common.proto` (both retained). Must stay.   |
 
 ### Step 11 — Update `products/guide/package.json`
 
 Remove dependencies:
+
 - `@forwardimpact/libagent`
 - `@forwardimpact/libmemory`
 - `@forwardimpact/libllm`
@@ -472,18 +481,21 @@ Remove dependencies:
 - `@forwardimpact/svcllm`
 - `@forwardimpact/svcmemory`
 - `@forwardimpact/svctool`
-- `@forwardimpact/librepl` (the current CLI imports `Repl` from librepl at line 27; the rewrite replaces this with the SDK's conversation loop)
+- `@forwardimpact/librepl` (the current CLI imports `Repl` from librepl at line
+  27; the rewrite replaces this with the SDK's conversation loop)
 
 Add dependencies:
+
 - `@anthropic-ai/claude-agent-sdk`
-- `@forwardimpact/svcmcp` (for type references / config only, not runtime import)
+- `@forwardimpact/svcmcp` (for type references / config only, not runtime
+  import)
 
 ### Step 12 — Fix cascading dependency: libresource
 
 **Modified:** `libraries/libresource/package.json`
 
-Remove `@forwardimpact/libllm` from `dependencies`. No code changes needed —
-the import was never used.
+Remove `@forwardimpact/libllm` from `dependencies`. No code changes needed — the
+import was never used.
 
 ### Step 13 — Fix cascading dependency: libterrain
 
@@ -538,11 +550,13 @@ This preserves the same interface (`createCompletions()`) that
 Replace the top-level import at line 5:
 
 Before:
+
 ```javascript
 import { createLlmApi } from "@forwardimpact/libllm";
 ```
 
 After — same inline HTTP client pattern as the libterrain fix:
+
 ```javascript
 function createLlmApi(token, model, baseUrl) {
   return {
@@ -564,17 +578,21 @@ line 6.
 
 **Modified:** `libraries/libvector/src/processor/vector.js` — update JSDoc
 `@param` type annotation at line 16: change
-`{import("@forwardimpact/libllm").LlmApi}` to `{object}` with inline
-description of the expected `createEmbeddings` method.
+`{import("@forwardimpact/libllm").LlmApi}` to `{object}` with inline description
+of the expected `createEmbeddings` method.
 
 ### Step 15 — Remove justfile references
 
 **Modified:** `justfile`
 
 Remove recipes that invoke deleted CLI tools (confirmed present):
-- Line 94: `bunx --workspace=@forwardimpact/libagent fit-process-agents` (and its recipe)
-- Line 167: `bunx --workspace=@forwardimpact/libmemory fit-window` (and its recipe)
-- Line 171: `bunx --workspace=@forwardimpact/libllm fit-completion` (and its recipe)
+
+- Line 94: `bunx --workspace=@forwardimpact/libagent fit-process-agents` (and
+  its recipe)
+- Line 167: `bunx --workspace=@forwardimpact/libmemory fit-window` (and its
+  recipe)
+- Line 171: `bunx --workspace=@forwardimpact/libllm fit-completion` (and its
+  recipe)
 
 ### Step 15 — Run codegen and install
 
@@ -584,6 +602,7 @@ just codegen         # regenerate with tool.proto in new location, deleted proto
 ```
 
 Verify:
+
 - `generated/types/types.js` compiles without errors
 - No `agent`, `llm`, `memory` service bases/clients in `generated/services/`
 - `tool` service base/client no longer generated (service block removed)
@@ -593,14 +612,14 @@ Verify:
 ### Step 16 — Tests
 
 **Modified:** `products/guide/test/status.test.js` — update mocks to match new
-service list (remove agent, memory, llm, tool; add mcp). Update credential
-check from `LLM_TOKEN` to `anthropicToken()`.
+service list (remove agent, memory, llm, tool; add mcp). Update credential check
+from `LLM_TOKEN` to `anthropicToken()`.
 
-**Created:** `products/guide/test/cli.test.js` — test CLI parse for new
-commands (login, logout, resume, init, status). Test first-run UX error
-messages.
+**Created:** `products/guide/test/cli.test.js` — test CLI parse for new commands
+(login, logout, resume, init, status). Test first-run UX error messages.
 
 Run:
+
 ```bash
 bun test products/guide/
 bun test services/vector/
@@ -612,36 +631,36 @@ bun run test
 
 ## Files changed
 
-| Action | Path |
-|--------|------|
-| Created | `proto/tool.proto` |
-| Modified | `services/vector/index.js` |
-| Modified | `services/vector/server.js` |
-| Modified | `services/vector/test/vector.test.js` |
-| Modified | `services/web/server.js` |
-| Modified | `services/web/index.js` |
-| Modified | `products/guide/bin/fit-guide.js` (full rewrite) |
-| Created | `products/guide/src/lib/login.js` |
-| Modified | `products/guide/src/lib/status.js` |
-| Modified | `products/guide/package.json` |
-| Modified | `products/guide/starter/config.json` |
-| Modified | `products/guide/test/status.test.js` |
-| Created | `products/guide/test/cli.test.js` |
-| Modified | `libraries/libresource/package.json` |
-| Modified | `libraries/libterrain/bin/fit-terrain.js` |
-| Modified | `libraries/libterrain/package.json` |
-| Modified | `libraries/libvector/bin/fit-process-vectors.js` |
-| Modified | `libraries/libvector/bin/fit-search.js` |
-| Modified | `libraries/libvector/src/processor/vector.js` |
-| Modified | `justfile` |
-| Deleted | `libraries/libagent/` (entire directory) |
-| Deleted | `libraries/libmemory/` (entire directory) |
-| Deleted | `libraries/libllm/` (entire directory) |
-| Deleted | `services/agent/` (entire directory) |
-| Deleted | `services/memory/` (entire directory) |
-| Deleted | `services/llm/` (entire directory) |
-| Deleted | `services/tool/` (entire directory) |
-| Deleted | `products/guide/starter/agents/` (entire directory) |
+| Action   | Path                                                |
+| -------- | --------------------------------------------------- |
+| Created  | `proto/tool.proto`                                  |
+| Modified | `services/vector/index.js`                          |
+| Modified | `services/vector/server.js`                         |
+| Modified | `services/vector/test/vector.test.js`               |
+| Modified | `services/web/server.js`                            |
+| Modified | `services/web/index.js`                             |
+| Modified | `products/guide/bin/fit-guide.js` (full rewrite)    |
+| Created  | `products/guide/src/lib/login.js`                   |
+| Modified | `products/guide/src/lib/status.js`                  |
+| Modified | `products/guide/package.json`                       |
+| Modified | `products/guide/starter/config.json`                |
+| Modified | `products/guide/test/status.test.js`                |
+| Created  | `products/guide/test/cli.test.js`                   |
+| Modified | `libraries/libresource/package.json`                |
+| Modified | `libraries/libterrain/bin/fit-terrain.js`           |
+| Modified | `libraries/libterrain/package.json`                 |
+| Modified | `libraries/libvector/bin/fit-process-vectors.js`    |
+| Modified | `libraries/libvector/bin/fit-search.js`             |
+| Modified | `libraries/libvector/src/processor/vector.js`       |
+| Modified | `justfile`                                          |
+| Deleted  | `libraries/libagent/` (entire directory)            |
+| Deleted  | `libraries/libmemory/` (entire directory)           |
+| Deleted  | `libraries/libllm/` (entire directory)              |
+| Deleted  | `services/agent/` (entire directory)                |
+| Deleted  | `services/memory/` (entire directory)               |
+| Deleted  | `services/llm/` (entire directory)                  |
+| Deleted  | `services/tool/` (entire directory)                 |
+| Deleted  | `products/guide/starter/agents/` (entire directory) |
 
 ## Verification
 

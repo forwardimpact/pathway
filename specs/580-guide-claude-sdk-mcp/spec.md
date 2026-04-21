@@ -150,11 +150,11 @@ attached), not to what Guide can do.
   three surfaces such that every surface operates under the same instructions.
   The delivery mechanism is a design decision.
 - **Authentication** — Two distinct auth concerns: (a) **LLM auth** — the CLI
-  authenticates with the Anthropic API via OAuth or `ANTHROPIC_API_KEY`,
-  managed through `libconfig`; Claude Code and Claude Chat use their host
-  credentials. (b) **MCP auth** — each of the three surfaces presents a bearer
-  token to the MCP endpoint; unauthenticated requests are rejected. Both
-  concerns have a documented auth path per surface.
+  authenticates with the Anthropic API via OAuth or `ANTHROPIC_API_KEY`, managed
+  through `libconfig`; Claude Code and Claude Chat use their host credentials.
+  (b) **MCP auth** — each of the three surfaces presents a bearer token to the
+  MCP endpoint; unauthenticated requests are rejected. Both concerns have a
+  documented auth path per surface.
 - **Documentation** — The published `fit-guide` skill
   (`.claude/skills/fit-guide/`), the Guide overview (`website/guide/`), the
   internals page (`website/docs/internals/guide/`), and getting-started flows
@@ -254,8 +254,8 @@ the spec should advance.
   required at acceptance (see Included). Whether AWS Bedrock is a supported
   target at acceptance, and how credentials and selection are exposed, is open.
 - **Authentication mechanism for MCP** (gates SC10) — Bearer token, mutual TLS,
-  or per-surface differences for MCP endpoint access. LLM auth is settled:
-  OAuth PKCE or `ANTHROPIC_API_KEY` via `libconfig`.
+  or per-surface differences for MCP endpoint access. LLM auth is settled: OAuth
+  PKCE or `ANTHROPIC_API_KEY` via `libconfig`.
 - **First-run experience for existing CLI users** — The upgrade is a clean
   break: there is no deprecation window and the new CLI does not read prior
   `LLM_TOKEN` configuration. Design decides how the new CLI communicates the

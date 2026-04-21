@@ -18,21 +18,23 @@ Parts 1–3 complete (code is in its final state).
 
 Replace the entire architecture section. Key changes:
 
-| Section | Before | After |
-|---------|--------|-------|
-| Agent orchestration | Planner → researcher → editor pipeline | Single-agent Claude Agent SDK with `guide-default` prompt |
-| Service stack | 9 services (trace, vector, graph, pathway, llm, memory, tool, agent, web) | 6 services (trace, vector, graph, pathway, mcp, web) |
-| Tool list | 14 tools including 4 agent-orchestration tools | 10 tools (4 retired: `list_sub_agents`, `run_sub_agent`, `list_handoffs`, `run_handoff`) |
-| Surfaces | CLI only | CLI, Claude Code, Claude Chat |
-| Credentials | `LLM_TOKEN` for OpenAI-compatible endpoint | `ANTHROPIC_API_KEY` or OAuth via `fit-guide login` |
-| Memory | Custom windowing in libmemory | SDK compaction + JSONL sessions |
+| Section             | Before                                                                    | After                                                                                    |
+| ------------------- | ------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
+| Agent orchestration | Planner → researcher → editor pipeline                                    | Single-agent Claude Agent SDK with `guide-default` prompt                                |
+| Service stack       | 9 services (trace, vector, graph, pathway, llm, memory, tool, agent, web) | 6 services (trace, vector, graph, pathway, mcp, web)                                     |
+| Tool list           | 14 tools including 4 agent-orchestration tools                            | 10 tools (4 retired: `list_sub_agents`, `run_sub_agent`, `list_handoffs`, `run_handoff`) |
+| Surfaces            | CLI only                                                                  | CLI, Claude Code, Claude Chat                                                            |
+| Credentials         | `LLM_TOKEN` for OpenAI-compatible endpoint                                | `ANTHROPIC_API_KEY` or OAuth via `fit-guide login`                                       |
+| Memory              | Custom windowing in libmemory                                             | SDK compaction + JSONL sessions                                                          |
 
 Add sections for:
+
 - How to connect via Claude Code (MCP server config)
 - How to connect via Claude Chat (Connector setup)
 - MCP endpoint configuration (`SERVICE_MCP_URL`, `MCP_TOKEN`)
 
 Remove references to:
+
 - `*.agent.md` config files
 - `config.json` tool endpoint map
 - `LLM_TOKEN`, `LLM_BASE_URL`
@@ -56,14 +58,9 @@ Full rewrite of the architecture section:
 
 1. **Architecture diagram** — MCP server + SDK (replace the planner/researcher/
    editor diagram).
-2. **Service table** — 6 services with ports:
-   | Service | Port | Protocol |
-   |---------|------|----------|
-   | trace | 3008 | gRPC |
-   | vector | 3005 | gRPC |
-   | graph | 3006 | gRPC |
-   | pathway | 3010 | gRPC |
-   | mcp | 3009 | HTTP+SSE |
+2. **Service table** — 6 services with ports: | Service | Port | Protocol |
+   |---------|------|----------| | trace | 3008 | gRPC | | vector | 3005 | gRPC
+   | | graph | 3006 | gRPC | | pathway | 3010 | gRPC | | mcp | 3009 | HTTP+SSE |
    | web | 3001 | HTTP |
 3. **Tool table** — 10 tools with backend mapping.
 4. **Authentication** — per-surface bearer-token model.
@@ -78,6 +75,7 @@ format, tool descriptor YAML format, bespoke memory windowing.
 **Modified:** `website/docs/getting-started/engineers/index.md` (or equivalent)
 
 Update the Guide setup flow for engineers:
+
 1. `npm install @forwardimpact/guide`
 2. `npx fit-guide init`
 3. `npx fit-guide login` (or set `ANTHROPIC_API_KEY`)
@@ -89,6 +87,7 @@ Remove references to `LLM_TOKEN`, GitHub Models, OpenAI-compatible setup.
 equivalent)
 
 Update the dev setup flow:
+
 1. `bun install`
 2. `just quickstart` (includes codegen)
 3. Configure `.env` with `ANTHROPIC_API_KEY` and `MCP_TOKEN`
@@ -100,23 +99,27 @@ The zero-residue check (Step 7) will fail unless these files are updated to
 remove references to deleted packages. Each file has confirmed matches:
 
 **Modified:** `CONTRIBUTING.md`
+
 - Line 10: remove `LLM_TOKEN and LLM_BASE_URL` reference (or update to
   `ANTHROPIC_API_KEY`)
-- Line 88 (approx): update services directory listing — remove `agent/`,
-  `llm/`, `memory/`, `tool/`; add `mcp/`
-- Line 171: update release example — replace `services/agent → svcagent` with
-  a retained service example
+- Line 88 (approx): update services directory listing — remove `agent/`, `llm/`,
+  `memory/`, `tool/`; add `mcp/`
+- Line 171: update release example — replace `services/agent → svcagent` with a
+  retained service example
 
 **Modified:** `website/docs/internals/operations/index.md`
+
 - Remove `LLM_TOKEN` references; replace with `ANTHROPIC_API_KEY` and
   `MCP_TOKEN` as applicable
 
 **Modified:** `website/docs/internals/codegen/index.md`
-- Update the proto source table to reflect deleted packages (agent, llm,
-  memory, tool) and the new `proto/tool.proto` shared location
+
+- Update the proto source table to reflect deleted packages (agent, llm, memory,
+  tool) and the new `proto/tool.proto` shared location
 
 **Modified:** `website/docs/internals/terrain/index.md` (if it references
 `LLM_TOKEN`)
+
 - Replace with current credential guidance
 
 ### Step 6 — Create parity rubric fixtures
@@ -200,9 +203,8 @@ A test script that:
 2. For each fixture, sends the question to a specified surface.
 3. Captures the answer text and the set of tool calls made.
 4. Evaluates three criteria:
-   - **Substance** — LLM-judged: does the answer match
-     `expected_substance`? (Use a simple Anthropic API call with a grading
-     prompt.)
+   - **Substance** — LLM-judged: does the answer match `expected_substance`?
+     (Use a simple Anthropic API call with a grading prompt.)
    - **Tool coverage** — observed tool-call set ⊇ `expected_tools`.
    - **Grounding** — every factual claim in the answer cites a URI or snippet
      from tool results (LLM-judged).
@@ -212,10 +214,9 @@ Surface adapters:
 
 - **CLI** — spawn `fit-guide` with the question as stdin, capture stdout and
   tool-call log from the SDK session JSONL.
-- **Claude Code** — use `query()` with the MCP server config, capture
-  messages.
-- **Claude Chat** — manual or via API if Connector provides programmatic
-  access; document manual steps if no API.
+- **Claude Code** — use `query()` with the MCP server config, capture messages.
+- **Claude Chat** — manual or via API if Connector provides programmatic access;
+  document manual steps if no API.
 
 The runner is invoked manually at acceptance, not in CI (requires live services
 and LLM access).
@@ -252,9 +253,10 @@ fi
 echo "PASS: zero residue"
 ```
 
-Covers SC12. Any match outside spec/plan/design artifacts, generated output,
-and git history is a failure. CONTRIBUTING.md and operations/codegen/terrain docs are updated in Step 5;
-the zero-residue check runs after all documentation steps are complete.
+Covers SC12. Any match outside spec/plan/design artifacts, generated output, and
+git history is a failure. CONTRIBUTING.md and operations/codegen/terrain docs
+are updated in Step 5; the zero-residue check runs after all documentation steps
+are complete.
 
 ### Step 8 — Final quality gates
 
@@ -267,20 +269,20 @@ bash products/guide/test/parity/zero-residue.sh  # no residue
 
 ## Files changed
 
-| Action | Path |
-|--------|------|
-| Modified | `.claude/skills/fit-guide/SKILL.md` |
-| Modified | `website/guide/index.md` |
-| Modified | `website/docs/internals/guide/index.md` |
-| Modified | `website/docs/getting-started/engineers/index.md` (if exists) |
-| Modified | `website/docs/getting-started/contributors/index.md` (if exists) |
-| Modified | `CONTRIBUTING.md` |
-| Modified | `website/docs/internals/operations/index.md` |
-| Modified | `website/docs/internals/codegen/index.md` |
+| Action   | Path                                                                |
+| -------- | ------------------------------------------------------------------- |
+| Modified | `.claude/skills/fit-guide/SKILL.md`                                 |
+| Modified | `website/guide/index.md`                                            |
+| Modified | `website/docs/internals/guide/index.md`                             |
+| Modified | `website/docs/getting-started/engineers/index.md` (if exists)       |
+| Modified | `website/docs/getting-started/contributors/index.md` (if exists)    |
+| Modified | `CONTRIBUTING.md`                                                   |
+| Modified | `website/docs/internals/operations/index.md`                        |
+| Modified | `website/docs/internals/codegen/index.md`                           |
 | Modified | `website/docs/internals/terrain/index.md` (if references LLM_TOKEN) |
-| Created | `products/guide/test/parity/fixtures.json` |
-| Created | `products/guide/test/parity/runner.js` |
-| Created | `products/guide/test/parity/zero-residue.sh` |
+| Created  | `products/guide/test/parity/fixtures.json`                          |
+| Created  | `products/guide/test/parity/runner.js`                              |
+| Created  | `products/guide/test/parity/zero-residue.sh`                        |
 
 ## Verification
 
