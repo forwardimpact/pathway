@@ -34,6 +34,7 @@ async function main() {
     generateSecret(32),
   );
   const databasePassword = generateSecret(16);
+  const mcpToken = generateSecret();
 
   // Map Supabase service-role key for local development.
   // Local Supabase uses a hardcoded demo JWT secret (not our JWT_SECRET).
@@ -53,7 +54,7 @@ async function main() {
 
   if (values.output) {
     // Write key=value pairs to output file
-    const content = `service_secret=${serviceSecret}\njwt_secret=${jwtSecret}\ndatabase_password=${databasePassword}\nmap_supabase_service_role_key=${mapServiceRoleKey}\n`;
+    const content = `service_secret=${serviceSecret}\njwt_secret=${jwtSecret}\ndatabase_password=${databasePassword}\nmcp_token=${mcpToken}\nmap_supabase_service_role_key=${mapServiceRoleKey}\n`;
     await writeFile(values.output, content);
 
     if (values["add-mask"]) {
@@ -61,6 +62,7 @@ async function main() {
       console.log(`::add-mask::${serviceSecret}`);
       console.log(`::add-mask::${jwtSecret}`);
       console.log(`::add-mask::${databasePassword}`);
+      console.log(`::add-mask::${mcpToken}`);
       console.log(`::add-mask::${mapServiceRoleKey}`);
     }
     return;
@@ -70,11 +72,13 @@ async function main() {
   await updateEnvFile("SERVICE_SECRET", serviceSecret);
   await updateEnvFile("JWT_SECRET", jwtSecret);
   await updateEnvFile("DATABASE_PASSWORD", databasePassword);
+  await updateEnvFile("MCP_TOKEN", mcpToken);
   await updateEnvFile("MAP_SUPABASE_SERVICE_ROLE_KEY", mapServiceRoleKey);
 
   console.log("SERVICE_SECRET was updated in .env");
   console.log("JWT_SECRET is set in .env");
   console.log("DATABASE_PASSWORD was updated in .env");
+  console.log("MCP_TOKEN was updated in .env");
   console.log("MAP_SUPABASE_SERVICE_ROLE_KEY was updated in .env");
 }
 

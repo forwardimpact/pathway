@@ -6,11 +6,11 @@
   "files": [
     "index.js",
     "server.js",
-    "tools.js",
     "prompts/"
   ],
   "dependencies": {
     "@forwardimpact/libconfig": "workspace:*",
+    "@forwardimpact/libmcp": "workspace:*",
     "@forwardimpact/librpc": "workspace:*",
     "@forwardimpact/libtelemetry": "workspace:*",
     "@forwardimpact/libtype": "workspace:*",

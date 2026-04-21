@@ -12,12 +12,16 @@ service Graph {
 }
 
 message PatternQuery {
+  // Subject URI or '?' wildcard to match any subject
   string subject = 1;
+  // Predicate URI or '?' wildcard to match any relationship
   string predicate = 2;
+  // Object URI, literal value, or '?' wildcard to match any object
   string object = 3;
   optional tool.QueryFilter filter = 4;
 }
 
 message SubjectsQuery {
+  // Entity type URI to filter by (e.g. a class from the ontology)
   optional string type = 1;
 }

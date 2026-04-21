@@ -260,7 +260,7 @@ export class GraphIndex extends IndexBase {
     let identifiers = this.#findMatchingIdentifiers(matchingSubjects);
 
     // Apply shared filters
-    const { prefix, limit, max_tokens } = filter;
+    const { prefix, limit, max_tokens } = filter || {};
 
     if (prefix) {
       identifiers = identifiers.filter((identifier) =>

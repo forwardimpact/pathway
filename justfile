@@ -80,10 +80,10 @@ codegen-definition:
 # ── Process ───────────────────────────────────────────────────────
 
 # Process all resources
-process: export-framework process-resources process-tools process-graphs process-vectors
+process: export-framework process-resources process-graphs process-vectors
 
 # Process without vectors
-process-fast: export-framework process-resources process-tools process-graphs
+process-fast: export-framework process-resources process-graphs
 
 # Export framework entities to HTML/microdata
 export-framework:
@@ -92,10 +92,6 @@ export-framework:
 # Process knowledge resources
 process-resources:
     bunx --workspace=@forwardimpact/libresource fit-process-resources
-
-# Process tool definitions
-process-tools:
-    bunx fit-process-tools
 
 # Process vector indices
 process-vectors:
@@ -233,7 +229,6 @@ env-github:
 # Reset config files from examples
 config-reset:
     cp config/config.example.json config/config.json
-    cp config/tools.example.yml config/tools.yml
     #!/usr/bin/env bash
     for file in config/agents/*.agent.example.md; do [ -f "$file" ] && cp -f "$file" "${file%.example.md}.md" || true; done
 

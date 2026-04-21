@@ -1,0 +1,29 @@
+{
+  "name": "@forwardimpact/libmcp",
+  "version": "0.1.0",
+  "description": "MCP tool registry — config-driven gRPC-to-MCP tool registration",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "type": "module",
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
+  "files": [
+    "src/**/*.js"
+  ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "bun run node --test test/*.test.js"
+  },
+  "dependencies": {
+    "@forwardimpact/libtype": "^0.1.0",
+    "zod": "^3.24.0"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

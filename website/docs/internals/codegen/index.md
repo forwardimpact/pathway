@@ -129,8 +129,9 @@ External users follow this workflow to add a custom gRPC service:
 2. **Run codegen** — `npx fit-codegen --all` discovers the new proto
    automatically
 3. **Implement the server** — create a service using the generated base class
-4. **Register the tool** — add a tool endpoint mapping in `config/config.json`
-   and a tool descriptor in `config/tools.yml`
+4. **Register the tool** — add a tool endpoint entry to `service.mcp.tools` in
+   `config/config.json` with the method path and a description. Parameters are
+   derived automatically from the proto definition at codegen time
 5. **Use the client** — `createClient("custom")` from `librpc` returns a
    configured client
 

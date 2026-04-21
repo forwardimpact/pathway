@@ -29,12 +29,13 @@ const logger = createLogger("vectors");
 function createEmbeddingClient(token, baseUrl) {
   return {
     async createEmbeddings(input) {
+      const headers = { "Content-Type": "application/json" };
+      if (token) {
+        headers.Authorization = `Bearer ${token}`;
+      }
       const res = await fetch(`${baseUrl}/v1/embeddings`, {
         method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
+        headers,
         body: JSON.stringify({ input, model: "default" }),
       });
       if (!res.ok) throw new Error(`Embedding request failed: ${res.status}`);
@@ -57,10 +58,13 @@ async function main() {
 
   const resourceIndex = createResourceIndex("resources");
   const vectorIndex = new VectorIndex(vectorStorage);
-  const llm = createEmbeddingClient(
-    await config.llmToken(),
-    config.embeddingBaseUrl(),
-  );
+  let embeddingToken = null;
+  try {
+    embeddingToken = await config.llmToken();
+  } catch {
+    // LLM_TOKEN not set — auth is optional for local TEI
+  }
+  const llm = createEmbeddingClient(embeddingToken, config.embeddingBaseUrl());
 
   const processor = new VectorProcessor(
     vectorIndex,

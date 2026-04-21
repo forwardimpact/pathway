@@ -1,5 +1,31 @@
 import { execFile } from "node:child_process";
 import { fileURLToPath } from "node:url";
+import protobuf from "protobufjs";
+
+/** Convert camelCase to snake_case (protobufjs normalizes field names) */
+function camelToSnake(str) {
+  return str.replace(/[A-Z]/g, (ch) => `_${ch.toLowerCase()}`);
+}
+
+// Protobufjs scalar type names are already human-readable (string, int32, bool, etc.)
+// so most pass through as-is. This map handles any aliases needed.
+const PBJS_TYPE_MAP = {
+  string: "string",
+  int32: "int32",
+  int64: "int64",
+  uint32: "uint32",
+  uint64: "uint64",
+  sint32: "sint32",
+  sint64: "sint64",
+  fixed32: "fixed32",
+  fixed64: "fixed64",
+  sfixed32: "sfixed32",
+  sfixed64: "sfixed64",
+  float: "float",
+  double: "double",
+  bool: "bool",
+  bytes: "bytes",
+};
 
 /**
  * Base class for code generation utilities providing shared functionality
@@ -240,6 +266,75 @@ export class CodegenBase {
         isLast: index === array.length - 1,
       })),
     };
+  }
+
+  /**
+   * Parse metadata for a proto file: service methods with request type fields.
+   * Uses protobufjs for field types, optionality, and comments.
+   * @param {string} protoPath - Absolute path to .proto file
+   * @returns {{packageName:string, serviceName:string, methods:object}|null}
+   */
+  parseMetadata(protoPath) {
+    const parsed = this.parseProtoFile(protoPath);
+    if (!parsed) return null;
+
+    const { packageName, serviceName, methods: parsedMethods } = parsed;
+
+    // Load with protobufjs for field types, optionality, and comments
+    const root = new protobuf.Root();
+    root.resolvePath = (origin, target) => {
+      for (const dir of this.includeDirs) {
+        const candidate = this.#path.join(dir, target);
+        if (this.#fs.existsSync(candidate)) return candidate;
+      }
+      return target;
+    };
+    root.loadSync(protoPath, { alternateCommentMode: true });
+    root.resolveAll();
+
+    const methods = {};
+    for (const method of parsedMethods) {
+      const reqTypeName = `${method.requestTypeNamespace}.${method.requestType}`;
+      let pbjsType = null;
+      try {
+        pbjsType = root.lookupType(reqTypeName);
+      } catch {
+        try {
+          pbjsType = root.lookupType(method.requestType);
+        } catch {
+          // no type found
+        }
+      }
+
+      const fields = {};
+      if (pbjsType) {
+        for (const [camelName, field] of Object.entries(pbjsType.fields)) {
+          const name = camelToSnake(camelName);
+          // Map protobufjs type to simple type name
+          const typeName = field.resolvedType
+            ? "message"
+            : PBJS_TYPE_MAP[field.type] || field.type;
+
+          // proto3 optional uses synthetic oneofs named _fieldname
+          const hasOptionalKeyword =
+            pbjsType.oneofs?.[`_${camelName}`] !== undefined;
+
+          fields[name] = {
+            type: typeName,
+            optional: hasOptionalKeyword,
+            repeated: field.repeated || false,
+            description: field.comment || null,
+          };
+        }
+      }
+
+      methods[method.name] = {
+        requestType: `${method.requestTypeNamespace}.${method.requestType}`,
+        fields,
+      };
+    }
+
+    return { packageName, serviceName, methods };
   }
 
   /**

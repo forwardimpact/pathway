@@ -2,34 +2,76 @@ import { test, describe, mock } from "node:test";
 import assert from "node:assert";
 
 import { createMcpService } from "../index.js";
-import { registerTools } from "../tools.js";
+import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 import { McpServer } from "@modelcontextprotocol/sdk/server/mcp.js";
 
-/** Mock config with mcpToken() */
+/** Mock config with mcpToken() and tools */
 function createMockConfig() {
   return {
     host: "127.0.0.1",
     port: 0,
     mcpToken: () => "test-bearer-token",
+    tools: {
+      get_ontology: {
+        method: "graph.Graph.GetOntology",
+        description: "Returns all entity types.",
+      },
+      get_subjects: {
+        method: "graph.Graph.GetSubjects",
+        description: "Lists entity URIs.",
+      },
+      query_by_pattern: {
+        method: "graph.Graph.QueryByPattern",
+        description: "Retrieves structured data.",
+      },
+      search_content: {
+        method: "vector.Vector.SearchContent",
+        description: "Semantic search.",
+      },
+      pathway_list_jobs: {
+        method: "pathway.Pathway.ListJobs",
+        description: "List jobs.",
+      },
+      pathway_describe_job: {
+        method: "pathway.Pathway.DescribeJob",
+        description: "Describe a job.",
+      },
+      pathway_list_agent_profiles: {
+        method: "pathway.Pathway.ListAgentProfiles",
+        description: "List agent profiles.",
+      },
+      pathway_describe_agent_profile: {
+        method: "pathway.Pathway.DescribeAgentProfile",
+        description: "Describe agent profile.",
+      },
+      pathway_describe_progression: {
+        method: "pathway.Pathway.DescribeProgression",
+        description: "Compute progression delta.",
+      },
+      pathway_list_job_software: {
+        method: "pathway.Pathway.ListJobSoftware",
+        description: "List job software.",
+      },
+    },
   };
 }
 
-/** Mock gRPC clients returning canned responses */
+/** Mock gRPC clients keyed by package name */
 function createMockClients() {
   return {
-    graphClient: {
+    graph: {
       GetOntology: mock.fn(() => Promise.resolve({ content: "ontology-ttl" })),
       GetSubjects: mock.fn(() => Promise.resolve({ content: "sub1\tsub2" })),
       QueryByPattern: mock.fn(() =>
         Promise.resolve({ identifiers: ["id1", "id2"] }),
       ),
     },
-    vectorClient: {
+    vector: {
       SearchContent: mock.fn(() =>
         Promise.resolve({ identifiers: ["result1"] }),
       ),
     },
-    pathwayClient: {
+    pathway: {
       ListJobs: mock.fn(() => Promise.resolve({ content: "pathway-jobs-ttl" })),
       DescribeJob: mock.fn(() =>
         Promise.resolve({ content: "pathway-job-ttl" }),
@@ -65,8 +107,9 @@ describe("MCP service", () => {
   describe("tool registration", () => {
     test("registers all 10 expected tools", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
+      const config = createMockConfig();
       const clients = createMockClients();
-      registerTools(server, clients);
+      registerToolsFromConfig(server, config, clients);
 
       const expectedTools = [
         "get_ontology",
@@ -89,29 +132,19 @@ describe("MCP service", () => {
     });
   });
 
-  describe("prompt registration", () => {
-    test("guide-default prompt loads from disk", async () => {
-      const config = createMockConfig();
-      const clients = createMockClients();
-      const logger = { info: mock.fn() };
-
-      const { mcpServer } = createMcpService({
-        config,
-        logger,
-        ...clients,
-      });
-
-      assert.ok(mcpServer);
-    });
-  });
-
   describe("HTTP server", () => {
     test("factory returns start function", async () => {
       const config = createMockConfig();
       const clients = createMockClients();
       const logger = { info: mock.fn() };
 
-      const { start } = createMcpService({ config, logger, ...clients });
+      const { start } = createMcpService({
+        config,
+        logger,
+        graphClient: clients.graph,
+        vectorClient: clients.vector,
+        pathwayClient: clients.pathway,
+      });
       assert.strictEqual(typeof start, "function");
     });
 
@@ -138,58 +171,62 @@ describe("MCP service", () => {
   });
 
   describe("tool handlers route to correct backend", () => {
-    test("get_ontology calls graphClient.GetOntology", async () => {
+    test("get_ontology calls graph.GetOntology", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
+      const config = createMockConfig();
       const clients = createMockClients();
-      registerTools(server, clients);
+      registerToolsFromConfig(server, config, clients);
 
       const result = await callTool(server, "get_ontology");
-      assert.strictEqual(clients.graphClient.GetOntology.mock.calls.length, 1);
+      assert.strictEqual(clients.graph.GetOntology.mock.calls.length, 1);
       assert.deepStrictEqual(result, {
         content: [{ type: "text", text: "ontology-ttl" }],
       });
     });
 
-    test("get_subjects calls graphClient.GetSubjects", async () => {
+    test("get_subjects calls graph.GetSubjects", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
+      const config = createMockConfig();
       const clients = createMockClients();
-      registerTools(server, clients);
+      registerToolsFromConfig(server, config, clients);
 
       const result = await callTool(server, "get_subjects", {
         type: "schema:Organization",
       });
-      assert.strictEqual(clients.graphClient.GetSubjects.mock.calls.length, 1);
+      assert.strictEqual(clients.graph.GetSubjects.mock.calls.length, 1);
       assert.deepStrictEqual(result, {
         content: [{ type: "text", text: "sub1\tsub2" }],
       });
     });
 
-    test("search_content calls vectorClient.SearchContent", async () => {
+    test("search_content calls vector.SearchContent", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
+      const config = createMockConfig();
       const clients = createMockClients();
-      registerTools(server, clients);
+      registerToolsFromConfig(server, config, clients);
 
       const result = await callTool(server, "search_content", {
         input: "test query",
       });
       assert.strictEqual(
-        clients.vectorClient.SearchContent.mock.calls.length,
+        clients.vector.SearchContent.mock.calls.length,
         1,
       );
       assert.ok(result.content[0].text.includes("result1"));
     });
 
-    test("pathway_describe_job calls pathwayClient.DescribeJob", async () => {
+    test("pathway_describe_job calls pathway.DescribeJob", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
+      const config = createMockConfig();
       const clients = createMockClients();
-      registerTools(server, clients);
+      registerToolsFromConfig(server, config, clients);
 
       const result = await callTool(server, "pathway_describe_job", {
         discipline: "fde",
         level: "l3",
       });
       assert.strictEqual(
-        clients.pathwayClient.DescribeJob.mock.calls.length,
+        clients.pathway.DescribeJob.mock.calls.length,
         1,
       );
       assert.deepStrictEqual(result, {
@@ -197,13 +234,14 @@ describe("MCP service", () => {
       });
     });
 
-    test("pathway_list_jobs calls pathwayClient.ListJobs", async () => {
+    test("pathway_list_jobs calls pathway.ListJobs", async () => {
       const server = new McpServer({ name: "test", version: "0.0.1" });
+      const config = createMockConfig();
       const clients = createMockClients();
-      registerTools(server, clients);
+      registerToolsFromConfig(server, config, clients);
 
       const result = await callTool(server, "pathway_list_jobs", {});
-      assert.strictEqual(clients.pathwayClient.ListJobs.mock.calls.length, 1);
+      assert.strictEqual(clients.pathway.ListJobs.mock.calls.length, 1);
       assert.deepStrictEqual(result, {
         content: [{ type: "text", text: "pathway-jobs-ttl" }],
       });

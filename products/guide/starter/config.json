@@ -25,5 +25,50 @@
       }
     ]
   },
-  "service": {}
+  "service": {
+    "mcp": {
+      "tools": {
+        "get_ontology": {
+          "method": "graph.Graph.GetOntology",
+          "description": "Returns all entity types and relationship predicates in the knowledge graph."
+        },
+        "get_subjects": {
+          "method": "graph.Graph.GetSubjects",
+          "description": "Lists entity URIs in the graph, optionally filtered by type."
+        },
+        "query_by_pattern": {
+          "method": "graph.Graph.QueryByPattern",
+          "description": "Retrieves structured data by traversing graph relationships using triple patterns."
+        },
+        "search_content": {
+          "method": "vector.Vector.SearchContent",
+          "description": "Find detailed content using semantic similarity search."
+        },
+        "pathway_list_jobs": {
+          "method": "pathway.Pathway.ListJobs",
+          "description": "List jobs (discipline x level x track) defined in the pathway framework."
+        },
+        "pathway_describe_job": {
+          "method": "pathway.Pathway.DescribeJob",
+          "description": "Describe a job at (discipline, level, optional track) including skills, behaviours, and responsibilities."
+        },
+        "pathway_list_agent_profiles": {
+          "method": "pathway.Pathway.ListAgentProfiles",
+          "description": "List static agent profile (discipline, track) combinations."
+        },
+        "pathway_describe_agent_profile": {
+          "method": "pathway.Pathway.DescribeAgentProfile",
+          "description": "Describe stage agent profiles for a (discipline, track)."
+        },
+        "pathway_describe_progression": {
+          "method": "pathway.Pathway.DescribeProgression",
+          "description": "Compute the progression delta between two levels of the same discipline."
+        },
+        "pathway_list_job_software": {
+          "method": "pathway.Pathway.ListJobSoftware",
+          "description": "List the software toolkit derived for a job."
+        }
+      }
+    }
+  }
 }

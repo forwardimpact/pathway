@@ -171,18 +171,31 @@ export class ServiceManager {
    * @param {string} name - Service name
    * @param {string} cmd - Command to execute
    * @param {"up"|"down"} direction - Lifecycle direction
+   * @param {{ optional?: boolean }} [opts]
    * @returns {Promise<void>}
    */
-  async runOneshot(name, cmd, direction) {
+  async runOneshot(name, cmd, direction, { optional = false } = {}) {
+    const timeoutMs = optional ? 30_000 : 120_000;
     this.#logger.info(name, "Running oneshot", { direction, cmd });
     try {
-      this.#execSync(cmd, { stdio: "inherit", shell: true });
+      this.#execSync(cmd, {
+        stdio: "inherit",
+        shell: true,
+        timeout: timeoutMs,
+      });
       this.#logger.info(name, "Oneshot completed", { direction });
     } catch (err) {
-      this.#logger.error(name, "Oneshot failed", {
-        direction,
-        exit: err.status,
-      });
+      if (err.killed) {
+        this.#logger.error(name, "Oneshot timed out", {
+          direction,
+          timeout_ms: timeoutMs,
+        });
+      } else {
+        this.#logger.error(name, "Oneshot failed", {
+          direction,
+          exit: err.status,
+        });
+      }
       throw err;
     }
   }
@@ -260,7 +273,9 @@ export class ServiceManager {
       if (svc.type === "oneshot") {
         if (svc.up) {
           try {
-            await this.runOneshot(svc.name, svc.up, "up");
+            await this.runOneshot(svc.name, svc.up, "up", {
+              optional: svc.optional,
+            });
           } catch (err) {
             if (svc.optional) {
               this.#logger.info(
@@ -316,7 +331,10 @@ export class ServiceManager {
 
     for (const svc of services) {
       if (svc.type === "oneshot") {
-        if (svc.down) await this.runOneshot(svc.name, svc.down, "down");
+        if (svc.down)
+          await this.runOneshot(svc.name, svc.down, "down", {
+            optional: svc.optional,
+          });
       } else {
         try {
           const response = await this.#sendCommand(paths.socketPath, {

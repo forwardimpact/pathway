@@ -71,29 +71,33 @@ function checkHttpHealth(healthUrl, fetchFn = fetch, timeoutMs = 2000) {
  * @returns {Promise<{resources: number, triples: number}>}
  */
 async function queryDataInventory(graphConfig) {
+  const { clients } = await import("@forwardimpact/librpc");
+  const { GraphClient } = clients;
+  const { graph } = await import("@forwardimpact/libtype");
+
+  const client = new GraphClient(graphConfig);
+
+  let resources = 0;
   try {
-    const { clients } = await import("@forwardimpact/librpc");
-    const { GraphClient } = clients;
-    const { graph } = await import("@forwardimpact/libtype");
-
-    const client = new GraphClient(graphConfig);
-
     const subjectsReq = graph.SubjectsQuery.fromObject({});
     const subjectsRes = await client.GetSubjects(subjectsReq);
-    const resourceCount = subjectsRes.content
+    resources = subjectsRes.content
       ? subjectsRes.content.split("\n").filter(Boolean).length
       : 0;
+  } catch {
+    // Graph GetSubjects unavailable
+  }
 
+  let triples = 0;
+  try {
     const patternReq = graph.PatternQuery.fromObject({});
     const patternRes = await client.QueryByPattern(patternReq);
-    const tripleCount = patternRes.identifiers
-      ? patternRes.identifiers.length
-      : 0;
-
-    return { resources: resourceCount, triples: tripleCount };
+    triples = patternRes.identifiers ? patternRes.identifiers.length : 0;
   } catch {
-    return { resources: 0, triples: 0 };
+    // Graph QueryByPattern unavailable
   }
+
+  return { resources, triples };
 }
 
 const SERVICE_NAMES = ["trace", "vector", "graph", "pathway", "mcp"];

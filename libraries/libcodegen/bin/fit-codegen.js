@@ -16,6 +16,7 @@ import {
   CodegenTypes,
   CodegenServices,
   CodegenDefinitions,
+  CodegenMetadata,
 } from "@forwardimpact/libcodegen";
 import { createStorage } from "@forwardimpact/libstorage";
 
@@ -38,6 +39,10 @@ const definition = {
     definition: {
       type: "boolean",
       description: "Generate service definitions only",
+    },
+    metadata: {
+      type: "boolean",
+      description: "Generate field metadata only",
     },
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
@@ -102,9 +107,14 @@ function parseFlags() {
     doServices: doAll || values.service,
     doClients: doAll || values.client,
     doDefinitions: doAll || values.definition,
+    doMetadata: doAll || values.metadata,
     hasGenerationFlags() {
       return (
-        this.doTypes || this.doServices || this.doClients || this.doDefinitions
+        this.doTypes ||
+        this.doServices ||
+        this.doClients ||
+        this.doDefinitions ||
+        this.doMetadata
       );
     },
   };
@@ -174,6 +184,7 @@ function createCodegen(
     types: new CodegenTypes(base),
     services: new CodegenServices(base),
     definitions: new CodegenDefinitions(base),
+    metadata: new CodegenMetadata(base),
   };
 }
 
@@ -237,6 +248,7 @@ function printSummary(sourcePath, flags) {
     flags.doServices && "services",
     flags.doClients && "clients",
     flags.doDefinitions && "definitions",
+    flags.doMetadata && "metadata",
   ].filter(Boolean);
   process.stdout.write(
     `\nCode generation complete (${generated.join(", ")}).\n`,
@@ -264,6 +276,9 @@ async function executeGeneration(codegens, sourcePath, flags) {
   }
   if (flags.doDefinitions) {
     tasks.push(codegens.definitions.run(sourcePath));
+  }
+  if (flags.doMetadata) {
+    tasks.push(codegens.metadata.run(sourcePath));
   }
 
   await Promise.all(tasks);
@@ -294,7 +309,7 @@ async function runCodegen(protoDirs, projectRoot, finder) {
 
   if (!parsedFlags.hasGenerationFlags()) {
     cli.usageError(
-      "no generation flags specified (use --all, --type, --service, --client, or --definition)",
+      "no generation flags specified (use --all, --type, --service, --client, --definition, or --metadata)",
     );
     process.exit(2);
   }

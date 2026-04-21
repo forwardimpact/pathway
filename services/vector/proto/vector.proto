@@ -9,6 +9,7 @@ service Vector {
 }
 
 message TextQuery {
+  // Text queries to search for using semantic similarity
   repeated string input = 1;
   optional tool.QueryFilter filter = 2;
   optional string llm_token = 3;

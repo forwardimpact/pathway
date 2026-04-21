@@ -6,6 +6,9 @@ import * as types from "./generated/types/types.js";
 // Export everything from generated types (includes both core and tool namespaces)
 export * from "./generated/types/types.js";
 
+// Export codegen metadata for config-driven tool registration
+export { metadata } from "./generated/types/metadata.js";
+
 // Core namespaces only (tools and any experimental namespaces are excluded intentionally)
 const {
   common = {},

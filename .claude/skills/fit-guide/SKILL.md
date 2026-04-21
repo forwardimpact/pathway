@@ -107,10 +107,9 @@ What `init` produces:
 After init, authenticate and set up the stack:
 
 ```sh
-npx fit-codegen --all       # Generate gRPC stubs
+npx fit-codegen --all       # Generate gRPC stubs and field metadata
 npx fit-guide login         # OAuth PKCE login (or set ANTHROPIC_API_KEY in .env)
 npx fit-process-resources   # Process starter knowledge HTML
-npx fit-process-tools       # Register starter tool descriptors
 npx fit-process-graphs      # Build the RDF index
 npx fit-process-vectors     # Build the vector index (skip if no embeddings backend)
 npx fit-rc start            # Launch the service stack

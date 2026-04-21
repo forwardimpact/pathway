@@ -25,7 +25,7 @@ description: >
 | libmemory | Token-budgeted context window construction                     | `MemoryWindow`, `getModelBudget`                                                          |
 | libprompt | Load and render .prompt.md templates with Mustache             | `PromptLoader`, `createPromptLoader`                                                      |
 | libagent  | Multi-turn conversation orchestration with tools               | `AgentMind`, `AgentHands`                                                                 |
-| libtool   | Dispatch tool calls, generate tool schemas from protobuf       | `ToolProcessor`, `mapFieldToSchema`, `generateSchemaFromProtobuf`, `buildToolDescription` |
+| libmcp    | Config-driven gRPC-to-MCP tool registration from codegen metadata | `registerToolsFromConfig`                                                                 |
 
 ## Decision Guide
 
@@ -38,10 +38,9 @@ description: >
 - **libmemory** — Used internally by `AgentMind`. Access `MemoryWindow` directly
   only when building custom memory strategies or non-standard context window
   layouts.
-- **libtool vs libagent** — `ToolProcessor` for binding a protobuf tool service
-  into an LLM-callable tool schema and dispatching individual tool calls.
-  `AgentMind` for running the full conversation loop that invokes tools via
-  `AgentHands`.
+- **libmcp vs libagent** — `registerToolsFromConfig` for config-driven
+  registration of gRPC methods as MCP tools using codegen metadata. `AgentMind`
+  for running the full conversation loop that invokes tools via `AgentHands`.
 
 ## Composition Recipes
 
@@ -86,14 +85,16 @@ const window = new MemoryWindow(resourceId, resourceIndex, memoryIndex);
 const { messages, tools } = await window.build("gpt-4", 1000);
 ```
 
-### Recipe 4: Generate tool schema from protobuf
+### Recipe 4: Register tools from config
 
 ```javascript
-import { ToolProcessor, generateSchemaFromProtobuf } from "@forwardimpact/libtool";
+import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 
-const schema = generateSchemaFromProtobuf(protoDefinition);
-const processor = new ToolProcessor(toolClient, logger);
-const result = await processor.dispatch(toolCall);
+registerToolsFromConfig(server, config, {
+  graph: graphClient,
+  vector: vectorClient,
+  pathway: pathwayClient,
+});
 ```
 
 ## DI Wiring
@@ -138,16 +139,15 @@ const agent = new AgentMind(memoryClient, llmClient, toolClient);
 const response = await agent.process({ resourceId, content });
 ```
 
-### libtool
+### libmcp
 
 ```javascript
-// ToolProcessor — accepts toolClient and logger
-const processor = new ToolProcessor(toolClient, logger);
-const result = await processor.dispatch(toolCall);
+// registerToolsFromConfig — registers all tools from config onto an McpServer
+import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 
-// generateSchemaFromProtobuf — pure function
-const schema = generateSchemaFromProtobuf(protoDefinition);
-
-// buildToolDescription — pure function
-const description = buildToolDescription(toolName, schema);
+registerToolsFromConfig(server, config, {
+  graph: graphClient,
+  vector: vectorClient,
+  pathway: pathwayClient,
+});
 ```
