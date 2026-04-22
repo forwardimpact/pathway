@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/svcmcp",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Unified MCP server for Guide tools",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",

@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsyntheticprose",
-  "version": "0.1.13",
+  "version": "0.1.14",
   "description": "LLM-based prose and pathway generation for synthetic data",
   "license": "Apache-2.0",
   "repository": {
