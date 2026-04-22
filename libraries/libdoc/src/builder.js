@@ -205,16 +205,21 @@ export class DocsBuilder {
     const segments = urlPath.split("/").filter(Boolean);
     if (segments.length < 2) return "";
 
+    const breadcrumbLabel = (title) => {
+      const colonIdx = title.indexOf(": ");
+      return colonIdx !== -1 ? title.slice(colonIdx + 2) : title;
+    };
+
     const parts = [];
     for (let i = 0; i < segments.length - 1; i++) {
       const ancestorPath = "/" + segments.slice(0, i + 1).join("/") + "/";
       const title = pageTitles.get(ancestorPath) || segments[i];
-      parts.push(`<a href="${ancestorPath}">${title}</a>`);
+      parts.push(`<a href="${ancestorPath}">${breadcrumbLabel(title)}</a>`);
     }
 
     const currentTitle =
       pageTitles.get(urlPath) || segments[segments.length - 1];
-    parts.push(`<span>${currentTitle}</span>`);
+    parts.push(`<span>${breadcrumbLabel(currentTitle)}</span>`);
 
     return parts.join(" / ");
   }
