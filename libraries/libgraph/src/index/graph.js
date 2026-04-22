@@ -71,6 +71,15 @@ export class GraphIndex extends IndexBase {
   }
 
   /**
+   * Returns all quads from the graph store
+   * @returns {Promise<import("n3").Quad[]>} Array of all quads
+   */
+  async getAllQuads() {
+    if (!this.loaded) await this.loadData();
+    return this.#graph.getQuads(null, null, null);
+  }
+
+  /**
    * Normalizes a query pattern by converting wildcards to null
    * @param {object} pattern - Raw query pattern
    * @returns {object} Normalized pattern with wildcards converted to null

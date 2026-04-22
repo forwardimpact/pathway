@@ -4,6 +4,9 @@
   "workspaces": {
     "": {
       "name": "forwardimpact-monorepo",
+      "dependencies": {
+        "forwardimpact-monorepo": ".",
+      },
       "devDependencies": {
         "@eslint/js": "^10.0.1",
         "@playwright/test": "^1.59.1",
@@ -359,7 +362,7 @@
     },
     "libraries/libtype": {
       "name": "@forwardimpact/libtype",
-      "version": "0.1.69",
+      "version": "0.1.70",
       "dependencies": {
         "@forwardimpact/libsecret": "^0.1.3",
         "@forwardimpact/libutil": "^0.1.60",
@@ -389,7 +392,7 @@
     },
     "libraries/libvector": {
       "name": "@forwardimpact/libvector",
-      "version": "0.1.83",
+      "version": "0.1.84",
       "bin": {
         "fit-process-vectors": "./bin/fit-process-vectors.js",
         "fit-search": "./bin/fit-search.js",
@@ -431,7 +434,7 @@
     },
     "products/guide": {
       "name": "@forwardimpact/guide",
-      "version": "0.1.26",
+      "version": "0.1.27",
       "bin": {
         "fit-guide": "./bin/fit-guide.js",
       },
@@ -1297,6 +1300,8 @@
     "flatted": ["flatted@3.4.2", "", {}, "sha512-PjDse7RzhcPkIJwy5t7KPWQSZ9cAbzQXcafsetQoD7sOJRQlGikNbx7yZp2OotDnJyrDcbyRq3Ttb18iYOqkxA=="],
 
     "forwarded": ["forwarded@0.2.0", "", {}, "sha512-buRG0fpBtRHSTCOASe6hD258tEubFoRLb4ZNA6NxMVHNw2gOcwHo9wyablzMzOA5z9xA9L1KNjk/Nt6MT9aYow=="],
+
+    "forwardimpact-monorepo": ["forwardimpact-monorepo@root:", {}],
 
     "fresh": ["fresh@2.0.0", "", {}, "sha512-Rx/WycZ60HOaqLKAi6cHRKKI7zxWbJ31MhntmtwMoaTeF7XFH9hhBp8vITaMidfljRQ6eYWCKkaTK+ykVJHP2A=="],
 

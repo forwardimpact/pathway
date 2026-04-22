@@ -81,11 +81,6 @@ export class GraphProcessor extends ProcessorBase {
     }
 
     await this.#targetIndex.add(item.identifier, quads);
-
-    // Update ontology with quad information
-    for (const quad of quads) {
-      this.#ontologyProcessor.process(quad);
-    }
   }
 
   /**
@@ -177,7 +172,24 @@ export class GraphProcessor extends ProcessorBase {
     // 5. Use ProcessorBase to handle the batch processing
     await super.process(resourcesToProcess);
 
-    // 6. Save the ontology after processing all items
+    // 6. Rebuild ontology from ALL quads in graph index, not just newly
+    //    processed ones. Without this, re-runs skip existing resources via the
+    //    dedup filter, leaving the ontology processor empty and overwriting
+    //    ontology.ttl with an empty file.
+    this.#ontologyProcessor = new OntologyProcessor();
+    const allQuads = await this.#targetIndex.getAllQuads();
+    allQuads.sort((a, b) => {
+      const aIsType = this.#isTypePredicate(a.predicate.value);
+      const bIsType = this.#isTypePredicate(b.predicate.value);
+      if (aIsType && !bIsType) return -1;
+      if (!aIsType && bIsType) return 1;
+      return 0;
+    });
+    for (const quad of allQuads) {
+      this.#ontologyProcessor.process(quad);
+    }
+
+    // 7. Save the ontology after processing all items
     await this.saveOntology();
   }
 }

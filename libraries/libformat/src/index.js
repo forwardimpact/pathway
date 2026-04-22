@@ -211,6 +211,101 @@ export class TerminalFormatter {
 }
 
 /**
+ * Formats agent trace output (thinking and tool calls) for the terminal.
+ *
+ * Renders Claude Agent SDK assistant message content blocks as plain
+ * ANSI-styled text: thinking in dim, tool calls as bold name with params.
+ *
+ * Every output section is self-contained: content followed by a blank
+ * separator line. This single rule governs all spacing — callers never
+ * need to inject gaps between sections.
+ *
+ *   thinking text...         ← section (indent, dim)
+ *                            ← separator
+ *   ⏺ tool_name(params)     ← section (marker)
+ *                            ← separator
+ *   ⏺                       ← result marker section
+ *                            ← separator (result content follows via caller)
+ */
+export class AgentTraceFormatter {
+  #output;
+  #indent;
+  #marker;
+
+  /**
+   * Creates an agent trace formatter
+   * @param {import("stream").Writable} output - Writable stream for trace output (typically process.stderr)
+   * @param {{indent?: string, marker?: string}} [options] - Formatting options
+   */
+  constructor(output, options = {}) {
+    if (!output) throw new Error("output dependency is required");
+    this.#output = output;
+    this.#indent = options.indent || "";
+    this.#marker = options.marker || "";
+  }
+
+  /**
+   * Writes a single section: content line(s) followed by a blank separator.
+   * @param {string} text - Section content (no trailing newline needed)
+   */
+  #writeSection(text) {
+    this.#output.write(`${text}\n\n`);
+  }
+
+  /**
+   * Formats tool input as a compact parameter string.
+   * @param {unknown} input - Tool input object
+   * @returns {string} Formatted parameter string
+   */
+  formatToolInput(input) {
+    if (!input || typeof input !== "object") return "";
+    const entries = Object.entries(input);
+    if (entries.length === 0) return "";
+    return entries
+      .map(([key, value]) => {
+        const formatted =
+          typeof value === "string"
+            ? `"${value.length > 60 ? value.slice(0, 57) + "..." : value}"`
+            : JSON.stringify(value);
+        return `${key}: ${formatted}`;
+      })
+      .join(", ");
+  }
+
+  /**
+   * Writes formatted trace output for an array of content blocks.
+   * Each thinking block and each tool call is its own section.
+   * @param {Array<{type: string, thinking?: string, name?: string, input?: unknown}>} blocks - Content blocks from an assistant message
+   */
+  writeBlocks(blocks) {
+    if (!blocks) return;
+    for (const block of blocks) {
+      if (block.type === "thinking" && block.thinking) {
+        const text = this.#indent
+          ? block.thinking.replace(/^/gm, this.#indent)
+          : block.thinking;
+        this.#writeSection(`\x1b[2m${text}\x1b[0m`);
+      }
+      if (block.type === "tool_use" || block.type === "mcp_tool_use") {
+        const name = block.name.replace(/^mcp__[^_]+__/, "");
+        const params = this.formatToolInput(block.input);
+        this.#writeSection(
+          `${this.#marker}\x1b[1m${name}\x1b[0m(${params})`,
+        );
+      }
+    }
+  }
+
+  /**
+   * Returns the marker string for use as an inline prefix.
+   * @returns {string} The marker string, or empty if none configured
+   */
+  get marker() {
+    return this.#marker;
+  }
+}
+
+/**
  * Creates an HTML formatter with automatically injected dependencies
  * @returns {HtmlFormatter} Configured HTML formatter instance
  */
@@ -224,4 +319,14 @@ export function createHtmlFormatter() {
  */
 export function createTerminalFormatter() {
   return new TerminalFormatter({ Marked: Marked }, markedTerminal);
+}
+
+/**
+ * Creates an agent trace formatter with automatically injected dependencies
+ * @param {import("stream").Writable} output - Writable stream for trace output
+ * @param {{indent?: string, marker?: string}} [options] - Formatting options
+ * @returns {AgentTraceFormatter} Configured agent trace formatter instance
+ */
+export function createAgentTraceFormatter(output, options) {
+  return new AgentTraceFormatter(output, options);
 }

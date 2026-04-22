@@ -6,92 +6,49 @@ import { fileURLToPath } from "node:url";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const cliPath = join(__dirname, "..", "bin", "fit-guide.js");
-const commandsDir = join(__dirname, "..", "src", "commands");
-
-function readCommand(name) {
-  return readFileSync(join(commandsDir, `${name}.js`), "utf8");
-}
+const source = readFileSync(cliPath, "utf8");
 
 describe("fit-guide CLI", () => {
-  test("CLI entry point exists and is valid JS", () => {
-    const source = readFileSync(cliPath, "utf8");
+  test("entry point has shebang and uses librepl", () => {
     assert.ok(source.includes("#!/usr/bin/env node"));
-    assert.ok(source.includes("createCli"));
-  });
-
-  test("CLI defines expected commands", () => {
-    const source = readFileSync(cliPath, "utf8");
-    for (const cmd of ["login", "logout", "clear", "init", "status"]) {
-      assert.ok(source.includes(`name: "${cmd}"`), `Missing command: ${cmd}`);
-    }
-  });
-
-  test("CLI imports command handlers from src/commands", () => {
-    const source = readFileSync(cliPath, "utf8");
-    assert.ok(source.includes("../src/commands/init.js"));
-    assert.ok(source.includes("../src/commands/resume.js"));
-    assert.ok(source.includes("../src/commands/clear.js"));
-    assert.ok(source.includes("../src/commands/status.js"));
-  });
-
-  test("resume command imports Claude Agent SDK", () => {
-    const source = readCommand("resume");
-    assert.ok(source.includes("@anthropic-ai/claude-agent-sdk"));
-  });
-
-  test("resume command drives a librepl Repl", () => {
-    const source = readCommand("resume");
     assert.ok(source.includes("@forwardimpact/librepl"));
     assert.ok(source.includes("new Repl"));
     assert.ok(source.includes("repl.start"));
   });
 
-  test("CLI checks for LLM_TOKEN migration", () => {
-    const source = readFileSync(cliPath, "utf8");
-    assert.ok(source.includes("LLM_TOKEN"));
-    assert.ok(source.includes("no longer used"));
+  test("defines expected commands", () => {
+    for (const cmd of ["login", "logout", "init", "status", "version"]) {
+      assert.ok(source.includes(`${cmd}:`), `Missing command: ${cmd}`);
+    }
   });
 
-  test("resume command fetches prompt from MCP endpoint", () => {
-    const source = readCommand("resume");
+  test("uses Claude Agent SDK", () => {
+    assert.ok(source.includes("@anthropic-ai/claude-agent-sdk"));
+    assert.ok(source.includes("query("));
+  });
+
+  test("fetches prompt from MCP endpoint", () => {
     assert.ok(source.includes("prompts/get"));
     assert.ok(source.includes("guide-default"));
   });
 
-  test("resume command tracks session ID across turns", () => {
-    const source = readCommand("resume");
+  test("tracks session ID across turns", () => {
     assert.ok(source.includes("sessionId"));
     assert.ok(source.includes("session_id"));
     assert.ok(source.includes("options.resume = state.sessionId"));
   });
 
-  test("clear command wipes stored state before resuming", () => {
-    const source = readCommand("clear");
-    const deleteIdx = source.indexOf("storage.delete(");
-    const resumeCallIdx = source.indexOf("runResumeCommand()");
-    assert.ok(deleteIdx !== -1, "clear should call storage.delete");
-    assert.ok(resumeCallIdx !== -1, "clear should call runResumeCommand()");
-    assert.ok(
-      deleteIdx < resumeCallIdx,
-      "storage.delete must run before runResumeCommand",
-    );
+  test("checks for LLM_TOKEN migration", () => {
+    assert.ok(source.includes("LLM_TOKEN"));
+    assert.ok(source.includes("no longer used"));
   });
 
-  test("no subcommand falls through to runResumeCommand", () => {
-    const source = readFileSync(cliPath, "utf8");
-    const clearIdx = source.indexOf('command === "clear"');
-    const defaultResumeIdx = source.indexOf("await runResumeCommand()");
-    assert.ok(clearIdx !== -1, "clear branch must exist");
-    assert.ok(defaultResumeIdx !== -1, "default must call runResumeCommand");
+  test("no process.exit(0) after repl.start()", () => {
+    const startIdx = source.lastIndexOf("repl.start()");
+    const afterStart = source.slice(startIdx);
     assert.ok(
-      clearIdx < defaultResumeIdx,
-      "runResumeCommand must appear after all named-command branches (fallthrough default)",
+      !afterStart.includes("process.exit"),
+      "process.exit must not follow repl.start — librepl manages the lifecycle",
     );
-  });
-
-  test("init command generates SERVICE_SECRET", () => {
-    const source = readCommand("init");
-    assert.ok(source.includes("SERVICE_SECRET"));
-    assert.ok(source.includes("generateSecret"));
   });
 });

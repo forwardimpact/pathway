@@ -16,6 +16,7 @@ import { createTerminalFormatter } from "@forwardimpact/libformat";
  * @property {string} [usage] - Static help text to show before the command list
  * @property {{[key: string]: any}} [state] - Definition of state and its initial values
  * @property {import("@forwardimpact/libstorage").StorageInterface} [storage] - Storage interface for state persistence
+ * @property {string} [indent=""] - String to prefix each line of output (e.g. "  " for two-space indent)
  */
 
 /**
@@ -194,16 +195,32 @@ export class Repl {
   async #output(output) {
     if (!output) return;
 
-    let firstChunk = true;
+    const indent = this.#app.indent || "";
+    let firstLine = true;
 
     for await (const chunk of output) {
-      if (firstChunk) {
-        this.#process.stdout.write("\n");
-        firstChunk = false;
-      }
       const text = chunk.toString();
       if (text) {
-        this.#process.stdout.write(this.#formatter.format(text));
+        let formatted = this.#formatter.format(text);
+        if (indent) {
+          if (firstLine) {
+            // Skip indent on the first line — the caller may have
+            // already written a prefix (e.g. a marker) at column 0.
+            const nlPos = formatted.indexOf("\n");
+            if (nlPos === -1) {
+              firstLine = false;
+            } else {
+              const rest = formatted.slice(nlPos + 1);
+              formatted =
+                formatted.slice(0, nlPos + 1) +
+                (rest ? rest.replace(/^/gm, indent) : "");
+              firstLine = false;
+            }
+          } else {
+            formatted = formatted.replace(/^/gm, indent);
+          }
+        }
+        this.#process.stdout.write(formatted);
       }
     }
   }

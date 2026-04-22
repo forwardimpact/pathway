@@ -2,7 +2,11 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
-import { HtmlFormatter, TerminalFormatter } from "../src/index.js";
+import {
+  AgentTraceFormatter,
+  HtmlFormatter,
+  TerminalFormatter,
+} from "../src/index.js";
 
 describe("libformat", () => {
   describe("HtmlFormatter", () => {
@@ -172,6 +176,179 @@ describe("libformat", () => {
     test("handles empty input", () => {
       const terminal = terminalFormatter.format("");
       assert.strictEqual(typeof terminal, "string");
+    });
+  });
+
+  describe("AgentTraceFormatter", () => {
+    let chunks, output, formatter;
+
+    /** Joins all written chunks into a single string for assertions. */
+    function written() {
+      return chunks.join("");
+    }
+
+    beforeEach(() => {
+      chunks = [];
+      output = { write: (data) => chunks.push(data) };
+      formatter = new AgentTraceFormatter(output);
+    });
+
+    // -- Section spacing rule -----------------------------------------------
+    // Every section (thinking, tool call, result marker) ends with \n\n.
+
+    test("every thinking section ends with blank separator", () => {
+      formatter.writeBlocks([{ type: "thinking", thinking: "hmm" }]);
+      assert.ok(written().endsWith("\n\n"));
+    });
+
+    test("every tool call section ends with blank separator", () => {
+      formatter.writeBlocks([
+        { type: "tool_use", name: "Read", input: {} },
+      ]);
+      assert.ok(written().endsWith("\n\n"));
+    });
+
+    test("marker getter returns configured marker", () => {
+      const f = new AgentTraceFormatter(output, { marker: "⏺" });
+      assert.strictEqual(f.marker, "⏺");
+    });
+
+    // -- Thinking -----------------------------------------------------------
+
+    test("renders thinking in dim text", () => {
+      formatter.writeBlocks([{ type: "thinking", thinking: "Let me check" }]);
+      assert.strictEqual(written(), "\x1b[2mLet me check\x1b[0m\n\n");
+    });
+
+    test("skips thinking blocks with empty content", () => {
+      formatter.writeBlocks([{ type: "thinking", thinking: "" }]);
+      assert.strictEqual(chunks.length, 0);
+    });
+
+    test("indents thinking when indent option is set", () => {
+      const f = new AgentTraceFormatter(output, { indent: "  " });
+      f.writeBlocks([
+        { type: "thinking", thinking: "line one\nline two" },
+      ]);
+      assert.strictEqual(
+        written(),
+        "\x1b[2m  line one\n  line two\x1b[0m\n\n",
+      );
+    });
+
+    // -- Tool calls ---------------------------------------------------------
+
+    test("renders tool_use with bold name and params", () => {
+      formatter.writeBlocks([
+        { type: "tool_use", name: "Read", input: { file_path: "/tmp/a.js" } },
+      ]);
+      assert.strictEqual(
+        written(),
+        '\x1b[1mRead\x1b[0m(file_path: "/tmp/a.js")\n\n',
+      );
+    });
+
+    test("strips mcp prefix from mcp_tool_use names", () => {
+      formatter.writeBlocks([
+        {
+          type: "mcp_tool_use",
+          name: "mcp__guide__search_content",
+          input: { input: "tools" },
+        },
+      ]);
+      assert.strictEqual(
+        written(),
+        '\x1b[1msearch_content\x1b[0m(input: "tools")\n\n',
+      );
+    });
+
+    test("truncates long string values in tool input", () => {
+      const long = "a".repeat(80);
+      formatter.writeBlocks([
+        { type: "tool_use", name: "Grep", input: { pattern: long } },
+      ]);
+      assert.ok(written().includes("aaa..."));
+      assert.ok(!written().includes(long));
+    });
+
+    test("renders non-string tool input as JSON", () => {
+      formatter.writeBlocks([
+        { type: "tool_use", name: "Bash", input: { timeout: 5000 } },
+      ]);
+      assert.strictEqual(
+        written(),
+        "\x1b[1mBash\x1b[0m(timeout: 5000)\n\n",
+      );
+    });
+
+    test("handles tool_use with empty input", () => {
+      formatter.writeBlocks([
+        { type: "tool_use", name: "List", input: {} },
+      ]);
+      assert.strictEqual(written(), "\x1b[1mList\x1b[0m()\n\n");
+    });
+
+    test("does not indent tool_use blocks", () => {
+      const f = new AgentTraceFormatter(output, { indent: "  " });
+      f.writeBlocks([
+        { type: "tool_use", name: "Read", input: { file_path: "/a" } },
+      ]);
+      assert.ok(!written().startsWith("  "));
+    });
+
+    // -- Marker -------------------------------------------------------------
+
+    test("marker is inline with each tool call", () => {
+      const f = new AgentTraceFormatter(output, { marker: "⏺ " });
+      f.writeBlocks([
+        { type: "tool_use", name: "A", input: {} },
+        { type: "tool_use", name: "B", input: {} },
+      ]);
+      const lines = written().split("\n").filter(Boolean);
+      assert.ok(lines[0].startsWith("⏺ "));
+      assert.ok(lines[1].startsWith("⏺ "));
+    });
+
+    test("marker does not apply to thinking blocks", () => {
+      const f = new AgentTraceFormatter(output, { marker: "⏺ " });
+      f.writeBlocks([{ type: "thinking", thinking: "hmm" }]);
+      assert.ok(!written().includes("⏺"));
+    });
+
+    // -- Marker getter -------------------------------------------------------
+
+    test("marker getter returns empty string when not configured", () => {
+      assert.strictEqual(formatter.marker, "");
+    });
+
+    // -- Edge cases ---------------------------------------------------------
+
+    test("handles null and undefined blocks", () => {
+      formatter.writeBlocks(null);
+      formatter.writeBlocks(undefined);
+      assert.strictEqual(chunks.length, 0);
+    });
+
+    test("ignores text blocks", () => {
+      formatter.writeBlocks([{ type: "text", text: "Hello" }]);
+      assert.strictEqual(chunks.length, 0);
+    });
+
+    test("renders mixed blocks in order with separators", () => {
+      formatter.writeBlocks([
+        { type: "thinking", thinking: "Planning" },
+        { type: "tool_use", name: "Read", input: { file_path: "/a" } },
+      ]);
+      const text = written();
+      assert.ok(text.indexOf("Planning") < text.indexOf("Read"));
+      // Two sections, each ending with \n\n
+      assert.strictEqual(text.match(/\n\n/g).length, 2);
+    });
+
+    test("formatToolInput handles null and non-object input", () => {
+      assert.strictEqual(formatter.formatToolInput(null), "");
+      assert.strictEqual(formatter.formatToolInput("string"), "");
+      assert.strictEqual(formatter.formatToolInput(42), "");
     });
   });
 });
