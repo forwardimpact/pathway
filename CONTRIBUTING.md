@@ -62,13 +62,16 @@ Entry gate — read every item before starting.
 
 Exit gate — verify every item before committing.
 
-<do_confirm_checklist goal="Verify quality before committing">
+<do_confirm_checklist goal="Verify quality and publish before finishing">
 
 - [ ] `bun run check` passes — format and lint, all file types.
 - [ ] `bun run test` passes — new logic has tests.
 - [ ] My diff only contains changes the task required — no unrequested
       refactors, no scope creep.
 - [ ] Commit format: `type(scope): subject` (see § Git Conventions).
+- [ ] If the run produced commits: branch pushed with `git push -u origin` and
+      PR URL captured in output. Exception: release engineer's direct-to-`main`
+      CI fixes.
 
 </do_confirm_checklist>
 
@@ -144,7 +147,9 @@ path from `config/config.example.json`), plus `proto/`, `src/`, `test/`, and
 
 All changes go through pull requests — never push directly to `main`.
 
-**Always commit your work before finishing a task.**
+**Always commit, push, and open a PR before finishing a task.** A local commit
+on a scheduled-run ephemeral runner is lost work — the PR URL is the only valid
+"done" signal. Commit alone is not finishing.
 
 **Exception:** The release engineer may push trivial CI fixes (formatting, lint,
 lock file drift) directly to `main` — limited to what `bun run check:fix` can
