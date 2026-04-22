@@ -1,6 +1,7 @@
 # libstorage
 
-Storage abstraction layer supporting local filesystem, S3, and Supabase backends.
+Storage abstraction layer supporting local filesystem, S3, and Supabase
+backends.
 
 ## Getting Started
 

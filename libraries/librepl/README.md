@@ -1,6 +1,7 @@
 # librepl
 
-Interactive REPL with command handling, state persistence, and terminal formatting.
+Interactive REPL with command handling, state persistence, and terminal
+formatting.
 
 ## Getting Started
 

@@ -1,6 +1,7 @@
 # libterrain
 
-Synthetic terrain DSL and generation engine — orchestrates the full synthetic data pipeline.
+Synthetic terrain DSL and generation engine — orchestrates the full synthetic
+data pipeline.
 
 ## Getting Started
 

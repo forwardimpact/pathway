@@ -1,6 +1,7 @@
 # libutil
 
-Utility functions and helpers — token counting, file discovery, retries, and bundle downloading.
+Utility functions and helpers — token counting, file discovery, retries, and
+bundle downloading.
 
 ## Getting Started
 

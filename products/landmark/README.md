@@ -1,6 +1,7 @@
 # Landmark
 
-Engineering milestone analysis combining GitHub artifact evidence with GetDX snapshots.
+Engineering milestone analysis combining GitHub artifact evidence with GetDX
+snapshots.
 
 ## Getting Started
 

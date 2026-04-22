@@ -18,10 +18,10 @@ data/resources/*.json  ──>  TEI (BAAI/bge-small-en-v1.5)  ──>  data/vect
 
 Two separate concerns use TEI:
 
-| Concern | When | Who calls TEI |
-| --- | --- | --- |
-| **Batch indexing** | `fit-process-vectors` | CLI → TEI `/v1/embeddings` |
-| **Query embedding** | Runtime search | vector service → TEI `/v1/embeddings` |
+| Concern             | When                  | Who calls TEI                         |
+| ------------------- | --------------------- | ------------------------------------- |
+| **Batch indexing**  | `fit-process-vectors` | CLI → TEI `/v1/embeddings`            |
+| **Query embedding** | Runtime search        | vector service → TEI `/v1/embeddings` |
 
 Both read `EMBEDDING_BASE_URL` from `.env` (default `http://localhost:8090`).
 Authentication is not required for local TEI.
@@ -30,8 +30,8 @@ Authentication is not required for local TEI.
 
 ## TEI (Text Embeddings Inference)
 
-TEI is a Rust binary from HuggingFace that serves embedding models over HTTP.
-It must be running before batch processing or query-time search will work.
+TEI is a Rust binary from HuggingFace that serves embedding models over HTTP. It
+must be running before batch processing or query-time search will work.
 
 ### Installation
 
@@ -69,9 +69,9 @@ text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-outp
 
 ### Running Under fit-rc
 
-TEI is registered as an optional supervised service in `config/config.json`. When
-running the full service stack for development, fit-rc keeps TEI alive alongside
-the other services:
+TEI is registered as an optional supervised service in `config/config.json`.
+When running the full service stack for development, fit-rc keeps TEI alive
+alongside the other services:
 
 ```sh
 bunx fit-rc start              # Starts all services including TEI
@@ -159,13 +159,13 @@ Each line in `data/vectors/index.jsonl` is a self-contained JSON record:
 
 ## Components
 
-| Component | Location | Role |
-| --- | --- | --- |
-| `VectorProcessor` | `libraries/libvector/src/processor/` | Batch embedding pipeline (extends `ProcessorBase`) |
-| `VectorIndex` | `libraries/libvector/src/index/` | JSONL-backed index with dot-product search |
-| `fit-process-vectors` | `libraries/libvector/bin/` | CLI for batch processing |
-| `fit-search` | `libraries/libvector/bin/` | CLI for ad-hoc similarity search |
-| vector service | `services/vector/` | gRPC service that loads the index and serves queries |
+| Component             | Location                             | Role                                                 |
+| --------------------- | ------------------------------------ | ---------------------------------------------------- |
+| `VectorProcessor`     | `libraries/libvector/src/processor/` | Batch embedding pipeline (extends `ProcessorBase`)   |
+| `VectorIndex`         | `libraries/libvector/src/index/`     | JSONL-backed index with dot-product search           |
+| `fit-process-vectors` | `libraries/libvector/bin/`           | CLI for batch processing                             |
+| `fit-search`          | `libraries/libvector/bin/`           | CLI for ad-hoc similarity search                     |
+| vector service        | `services/vector/`                   | gRPC service that loads the index and serves queries |
 
 ---
 
@@ -177,8 +177,8 @@ Each line in `data/vectors/index.jsonl` is a self-contained JSON record:
 **No resources to process** — Run `just process-resources` first. The vector
 processor reads from `data/resources/`.
 
-**Empty vector index** — Resources with empty or null content are skipped. Verify
-`data/resources/` contains files with non-empty content fields.
+**Empty vector index** — Resources with empty or null content are skipped.
+Verify `data/resources/` contains files with non-empty content fields.
 
 **Model download stalls** — The first TEI startup downloads the model from
 HuggingFace. Check network access and `~/.cache/huggingface/` for partial

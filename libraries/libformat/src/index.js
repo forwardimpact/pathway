@@ -289,9 +289,7 @@ export class AgentTraceFormatter {
       if (block.type === "tool_use" || block.type === "mcp_tool_use") {
         const name = block.name.replace(/^mcp__[^_]+__/, "");
         const params = this.formatToolInput(block.input);
-        this.#writeSection(
-          `${this.#marker}\x1b[1m${name}\x1b[0m(${params})`,
-        );
+        this.#writeSection(`${this.#marker}\x1b[1m${name}\x1b[0m(${params})`);
       }
     }
   }

@@ -202,9 +202,7 @@ describe("libformat", () => {
     });
 
     test("every tool call section ends with blank separator", () => {
-      formatter.writeBlocks([
-        { type: "tool_use", name: "Read", input: {} },
-      ]);
+      formatter.writeBlocks([{ type: "tool_use", name: "Read", input: {} }]);
       assert.ok(written().endsWith("\n\n"));
     });
 
@@ -227,13 +225,8 @@ describe("libformat", () => {
 
     test("indents thinking when indent option is set", () => {
       const f = new AgentTraceFormatter(output, { indent: "  " });
-      f.writeBlocks([
-        { type: "thinking", thinking: "line one\nline two" },
-      ]);
-      assert.strictEqual(
-        written(),
-        "\x1b[2m  line one\n  line two\x1b[0m\n\n",
-      );
+      f.writeBlocks([{ type: "thinking", thinking: "line one\nline two" }]);
+      assert.strictEqual(written(), "\x1b[2m  line one\n  line two\x1b[0m\n\n");
     });
 
     // -- Tool calls ---------------------------------------------------------
@@ -275,16 +268,11 @@ describe("libformat", () => {
       formatter.writeBlocks([
         { type: "tool_use", name: "Bash", input: { timeout: 5000 } },
       ]);
-      assert.strictEqual(
-        written(),
-        "\x1b[1mBash\x1b[0m(timeout: 5000)\n\n",
-      );
+      assert.strictEqual(written(), "\x1b[1mBash\x1b[0m(timeout: 5000)\n\n");
     });
 
     test("handles tool_use with empty input", () => {
-      formatter.writeBlocks([
-        { type: "tool_use", name: "List", input: {} },
-      ]);
+      formatter.writeBlocks([{ type: "tool_use", name: "List", input: {} }]);
       assert.strictEqual(written(), "\x1b[1mList\x1b[0m()\n\n");
     });
 

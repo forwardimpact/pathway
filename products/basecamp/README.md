@@ -1,6 +1,7 @@
 # Basecamp
 
-Personal operations center — scheduled AI agents, knowledge graphs, and daily briefings.
+Personal operations center — scheduled AI agents, knowledge graphs, and daily
+briefings.
 
 ## Getting Started
 

@@ -1,6 +1,7 @@
 # Summit
 
-Team capability planning from skill data — skill matrices, coverage gaps, risks, and staffing scenarios.
+Team capability planning from skill data — skill matrices, coverage gaps, risks,
+and staffing scenarios.
 
 ## Getting Started
 
