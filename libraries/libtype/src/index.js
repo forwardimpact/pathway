@@ -13,11 +13,8 @@ export { metadata } from "./generated/types/metadata.js";
 const {
   common = {},
   resource = {},
-  agent = {},
-  llm = {},
   vector = {},
   graph = {},
-  memory = {},
   tool = {},
   trace = {},
 } = types;
@@ -76,7 +73,6 @@ function withIdentifier(parent, subjects) {
   }
 }
 
-common.Agent.prototype.withIdentifier = withIdentifier;
 common.Conversation.prototype.withIdentifier = withIdentifier;
 common.Message.prototype.withIdentifier = withIdentifier;
 tool.ToolFunction.prototype.withIdentifier = withIdentifier;
@@ -137,19 +133,6 @@ common.Conversation.fromObject = function (object) {
 };
 
 /**
- * Monkey-patches for common.Agent
- */
-const AgentCtor = common.Agent;
-const AgentfromObject = AgentCtor.fromObject;
-
-// Monkey-patch Agent.fromObject to apply identifier
-common.Agent.fromObject = function (object) {
-  const typed = AgentfromObject(object);
-  typed.withIdentifier();
-  return typed;
-};
-
-/**
  * Monkey-patches for tool.ToolFunction
  */
 const ToolFunctionCtor = tool.ToolFunction;
@@ -190,11 +173,8 @@ export {
   // Export all namespaces with any applied patches
   common,
   resource,
-  agent,
-  llm,
   vector,
   graph,
-  memory,
   tool,
   trace,
 };

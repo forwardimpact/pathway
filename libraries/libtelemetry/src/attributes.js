@@ -19,10 +19,6 @@ export const TELEMETRY_ATTRIBUTES_MAP = [
   { key: "tools", type: "count" },
   { key: "tool_call_id", type: "string" },
 
-  // Agent/handoff identification
-  { key: "agent_id", type: "string" },
-  { key: "label", type: "string" },
-
   // Query
   { key: "input", type: "first" },
   { key: "subject", type: "string" },

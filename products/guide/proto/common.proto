@@ -36,7 +36,6 @@ message Embeddings {
 
 message Conversation {
   resource.Identifier id = 1;
-  optional string agent_id = 2;
 }
 
 message Message {
@@ -45,20 +44,4 @@ message Message {
   string content = 3;
   repeated tool.ToolCall tool_calls = 4;
   optional string tool_call_id = 5;
-}
-
-message Handoff {
-  string label = 1;
-  string agent = 2;
-  string prompt = 3;
-}
-
-message Agent {
-  resource.Identifier id = 1;
-  string name = 2;
-  string description = 3;
-  bool infer = 4;
-  repeated string tools = 5;
-  repeated Handoff handoffs = 6;
-  string content = 7;
 }
