@@ -48,20 +48,20 @@ on macOS additionally get a zero-Node option via Homebrew.
 Three new capabilities:
 
 1. **Native binary build targets.** Each `fit-*` CLI has a single documented
-   build entry point that produces a fully-bundled standalone native executable —
-   no Node, no Bun, no runtime dependency on user-side tooling. The executables
-   cover all seven current CLIs (`fit-map`, `fit-pathway`, `fit-basecamp`,
-   `fit-guide`, `fit-landmark`, `fit-summit`, `fit-codegen`). The build toolchain
-   and entry-point naming are design decisions.
+   build entry point that produces a fully-bundled standalone native executable
+   — no Node, no Bun, no runtime dependency on user-side tooling. The
+   executables cover all seven current CLIs (`fit-map`, `fit-pathway`,
+   `fit-basecamp`, `fit-guide`, `fit-landmark`, `fit-summit`, `fit-codegen`).
+   The build toolchain and entry-point naming are design decisions.
 2. **Release-workflow artifact publishing.** Release automation, triggered on
    release tag, builds the binaries and attaches them to the GitHub release as
    downloadable assets, one per CLI per target triple. The CI platform and
    workflow layout are design decisions.
 3. **Homebrew tap distribution.** A Homebrew tap exposes one installable package
    per CLI. Each package installs its matching GitHub release artifact and
-   places the binary on the user's `PATH`. Tap location, packaging format
-   (cask vs. formula), and release-sync mechanism are design decisions (see
-   Open Questions).
+   places the binary on the user's `PATH`. Tap location, packaging format (cask
+   vs. formula), and release-sync mechanism are design decisions (see Open
+   Questions).
 
 The intent is deliberately narrow: preserve every existing install path,
 behaviour, and CLI surface unchanged, and add one new way to get the same
@@ -118,22 +118,23 @@ executables onto a macOS machine without installing Node.
 3. A Homebrew tap contains one installable package per CLI. Each package
    references the GitHub release artifact for the CLI and target triple.
 4. On a clean macOS arm64 machine with Homebrew installed but no Node and no
-   Bun, running `brew install <tap>/fit-<cli>` for each of the seven CLIs
-   leaves each corresponding `fit-<cli>` command on `PATH` answering `--help`.
-   The concrete tap path is fixed by design.
+   Bun, running `brew install <tap>/fit-<cli>` for each of the seven CLIs leaves
+   each corresponding `fit-<cli>` command on `PATH` answering `--help`. The
+   concrete tap path is fixed by design.
 5. After installing `fit-guide` exclusively via brew — no npm, no post-install
-   command — the user can run `fit-guide --help` and every user-visible
-   command documented in the [Guide Overview](../../website/guide/index.md) with
-   no additional install step. No `fit-codegen` invocation, `npm install`, or
+   command — the user can run `fit-guide --help` and every user-visible command
+   documented in the [Guide Overview](../../website/guide/index.md) with no
+   additional install step. No `fit-codegen` invocation, `npm install`, or
    toolchain step is required from the user between `brew install` and first
    successful command.
-6. Every per-product Overview page linked from [`CLAUDE.md` § Products](../../CLAUDE.md)
-   for a CLI in scope carries a "Install" section (or equivalent) that
-   documents the brew install command alongside the existing npm flow.
+6. Every per-product Overview page linked from
+   [`CLAUDE.md` § Products](../../CLAUDE.md) for a CLI in scope carries a
+   "Install" section (or equivalent) that documents the brew install command
+   alongside the existing npm flow.
 7. The existing npm distribution is unchanged: for each of the seven CLIs,
-   `npm install` followed by `npx fit-<cli> --help` succeeds on a reference
-   Node LTS environment after the release that ships the brew channel. No
-   `bin` script, `package.json` `bin` entry, or shebang has changed.
+   `npm install` followed by `npx fit-<cli> --help` succeeds on a reference Node
+   LTS environment after the release that ships the brew channel. No `bin`
+   script, `package.json` `bin` entry, or shebang has changed.
 
 ## Open questions
 
@@ -149,15 +150,15 @@ Each item below is a decision the design must make; none block the spec.
 - **Tap repository location.** A separate Forward Impact tap repo published to
   from this monorepo, vs. a tap subdirectory inside the monorepo that a release
   job syncs outward. Affects release automation and tap discoverability.
-- **Version sync between npm and brew.** How a release tag that publishes to
-  npm also updates package hashes and version strings in the tap — one
-  workflow, two workflows, or a follow-up job. Design must state the mechanism
-  so a single release does not leave the two channels on different versions.
-- **Non-arm64 macOS and Linux behaviour.** Whether `brew install` on a
-  non-arm64 macOS machine or on Linuxbrew fails fast with a clear message,
-  falls back to advising the npm path, or ships an Intel/Linux build. The spec
-  requires arm64-only at acceptance; the failure mode on other architectures is
-  a design decision.
+- **Version sync between npm and brew.** How a release tag that publishes to npm
+  also updates package hashes and version strings in the tap — one workflow, two
+  workflows, or a follow-up job. Design must state the mechanism so a single
+  release does not leave the two channels on different versions.
+- **Non-arm64 macOS and Linux behaviour.** Whether `brew install` on a non-arm64
+  macOS machine or on Linuxbrew fails fast with a clear message, falls back to
+  advising the npm path, or ships an Intel/Linux build. The spec requires
+  arm64-only at acceptance; the failure mode on other architectures is a design
+  decision.
 - **`fit-guide` codegen mechanism.** The spec requires zero second-step install
   for `fit-guide`; the design chooses between bundling generated artifacts into
   the binary, having `fit-guide` invoke a bundled `fit-codegen` transparently,

@@ -41,8 +41,8 @@ Exact flag set is a plan concern.
 | Startup budget | `--help` in < 500 ms cold on an M-series mac, CI-gated           |
 
 "Phase 2" throughout this design is a placeholder for a follow-up spec that
-promotes `bun-darwin-x64` from pre-reserved (target name wired in the recipe,
-no CI job) to acceptance (built, released, tapped). No Phase 2 work lands here.
+promotes `bun-darwin-x64` from pre-reserved (target name wired in the recipe, no
+CI job) to acceptance (built, released, tapped). No Phase 2 work lands here.
 
 **Rejected — one recipe per CLI.** Seven near-identical recipes duplicate the
 flag set; a parameterized recipe keeps flags in one place.
@@ -125,9 +125,9 @@ install prebuilt artifacts. Our binaries ship prebuilt from CI, and casks unlock
 
 **Update automation — chosen: PR via PAT.** The `tap-pr` job proposes a cask
 update against `forwardimpact/homebrew-tap` via a pull request that carries the
-new `version` and `sha256`. Authentication is a repo secret
-`HOMEBREW_TAP_PAT` scoped to the tap repo only. PR title, body, and commit
-message shape are plan concerns.
+new `version` and `sha256`. Authentication is a repo secret `HOMEBREW_TAP_PAT`
+scoped to the tap repo only. PR title, body, and commit message shape are plan
+concerns.
 
 **Rejected — `homebrew-releaser` action.** Opinionated about formula shape,
 inflexible for per-cask `arch` gating, and hides the diff from review.
@@ -180,9 +180,9 @@ drift from `package.json`; the tag already serialises the version.
 Spec SC6 requires every affected product's Overview page to document the brew
 install flow. Each `website/<product>/index.md` gains an **Install** section (or
 extends the existing one) with two blocks: npm (unchanged) and brew (the
-`brew tap` + `brew install` invocation and the Gatekeeper-warning caveat).
-Docs live in the monorepo and ship through the existing website workflow — no
-new publishing surface.
+`brew tap` + `brew install` invocation and the Gatekeeper-warning caveat). Docs
+live in the monorepo and ship through the existing website workflow — no new
+publishing surface.
 
 **Rejected — a single shared install page.** Per-product pages are the entry
 points external users land on; cross-linking to a shared page doubles the click
