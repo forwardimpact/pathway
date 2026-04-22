@@ -41,8 +41,7 @@ every GitHub comment and PR body with `— Staff Engineer 🛠️`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Storyboard** —
-   [memory-protocol.md](.claude/agents/references/memory-protocol.md)
+0. **Storyboard** — [memory](.claude/agents/references/memory-protocol.md)
 1. **Approved specs without designs?** -- `kata-design` on the existing `spec/`
    branch (check `specs/STATUS` for `spec approved` without `design.md`)
 2. **Approved designs without plans?** -- `kata-plan` on the existing `spec/`
