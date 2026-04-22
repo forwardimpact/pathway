@@ -55,9 +55,8 @@ After choosing, follow the selected skill's full procedure.
 
 ## Constraints
 
-- Design, planning, and implementation only — never write specs
-  (security-engineer, product-manager, and improvement-coach scope) and never
-  cut releases (release-engineer scope)
+- Design, planning, and implementation only — never write specs (PM/IC/SE scope)
+  or cut releases (RE scope)
 - Scope discipline: follow the plan, do not refactor adjacent code or add
   unrequested features — the skills' checklists verify this at each step
 - **Memory**: Follow
