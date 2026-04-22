@@ -34,31 +34,16 @@ export function createMockResourceIndex(options = {}) {
     /**
      * Sets up default test resources
      * @param {object} setupOptions - Setup options
-     * @param {string[]} [setupOptions.tools] - Tool names for agent
+     * @param {string[]} [setupOptions.tools] - Tool names to seed
      * @param {string} [setupOptions.conversationId] - Conversation ID
-     * @param {string} [setupOptions.agentId] - Agent ID
      */
     setupDefaults(setupOptions = {}) {
-      const {
-        tools = [],
-        conversationId = "test-conversation",
-        agentId = "test-agent",
-      } = setupOptions;
+      const { tools = [], conversationId = "test-conversation" } = setupOptions;
 
       resources.set(
         conversationId,
         common.Conversation.fromObject({
           id: { name: conversationId },
-          agent_id: `common.Agent.${agentId}`,
-        }),
-      );
-
-      resources.set(
-        `common.Agent.${agentId}`,
-        common.Agent.fromObject({
-          id: { name: agentId, tokens: 50 },
-          tools,
-          content: "You are a test agent.",
         }),
       );
 
@@ -102,7 +87,7 @@ export function createMockResourceIndex(options = {}) {
     },
   };
 
-  if (options.tools || options.conversationId || options.agentId) {
+  if (options.tools || options.conversationId) {
     index.setupDefaults(options);
   }
 
