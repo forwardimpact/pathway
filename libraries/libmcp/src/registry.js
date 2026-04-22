@@ -8,8 +8,14 @@ import { buildZodSchema } from "./schema.js";
  * @param {import("@modelcontextprotocol/sdk/server/mcp.js").McpServer} server
  * @param {object} config - Config instance with .tools (from createServiceConfig("mcp"))
  * @param {object} clients - gRPC clients keyed by package name (e.g. { graph, vector, pathway })
+ * @param {object} [resourceIndex] - Optional ResourceIndex for resolving identifiers to content
  */
-export function registerToolsFromConfig(server, config, clients) {
+export function registerToolsFromConfig(
+  server,
+  config,
+  clients,
+  resourceIndex = null,
+) {
   const tools = config.tools;
   if (!tools || Object.keys(tools).length === 0) return;
 
@@ -59,11 +65,31 @@ export function registerToolsFromConfig(server, config, clients) {
           {
             type: "text",
             text: result.identifiers?.length
-              ? JSON.stringify(result.identifiers)
+              ? await resolveIdentifiers(result.identifiers, resourceIndex)
               : result.content || "",
           },
         ],
       };
     });
   }
+}
+
+/**
+ * Resolves resource identifiers to full content via ResourceIndex.
+ * Falls back to JSON.stringify when no resourceIndex is provided.
+ * @param {object[]} identifiers - Array of resource identifiers
+ * @param {object|null} resourceIndex - ResourceIndex instance or null
+ * @returns {Promise<string>} Resolved content or JSON fallback
+ */
+async function resolveIdentifiers(identifiers, resourceIndex) {
+  if (!resourceIndex) return JSON.stringify(identifiers);
+
+  const ids = identifiers.map((id) => String(id));
+  const resources = await resourceIndex.get(ids, "common.System.root");
+  const content = resources
+    .map((r) => r.content)
+    .filter((text) => text && text.length > 0)
+    .join("\n\n");
+
+  return content || "No results found.";
 }

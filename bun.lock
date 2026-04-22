@@ -553,6 +553,7 @@
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.67",
         "@forwardimpact/libmcp": "^0.1.0",
+        "@forwardimpact/libresource": "^0.1.0",
         "@forwardimpact/librpc": "^0.1.92",
         "@forwardimpact/libtelemetry": "^0.1.35",
         "@forwardimpact/libtype": "^0.1.68",

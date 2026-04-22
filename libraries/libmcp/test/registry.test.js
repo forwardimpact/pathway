@@ -163,7 +163,7 @@ describe("registerToolsFromConfig", () => {
     });
   });
 
-  test("handler returns identifiers JSON when present", async () => {
+  test("handler returns identifiers JSON when no resourceIndex", async () => {
     const server = createMockServer();
     const config = createTestConfig();
     const clients = createMockClients();
@@ -172,6 +172,41 @@ describe("registerToolsFromConfig", () => {
     const result = await server._registeredTools.query_by_pattern.handler({});
     assert.ok(result.content[0].text.includes("id1"));
     assert.ok(result.content[0].text.includes("id2"));
+  });
+
+  test("handler resolves identifiers via resourceIndex", async () => {
+    const mockResourceIndex = {
+      get: mock.fn(() =>
+        Promise.resolve([
+          { content: "content-for-id1" },
+          { content: "content-for-id2" },
+        ]),
+      ),
+    };
+    const server = createMockServer();
+    const config = createTestConfig();
+    const clients = createMockClients();
+    registerToolsFromConfig(server, config, clients, mockResourceIndex);
+
+    const result = await server._registeredTools.query_by_pattern.handler({});
+    assert.strictEqual(
+      result.content[0].text,
+      "content-for-id1\n\ncontent-for-id2",
+    );
+    assert.strictEqual(mockResourceIndex.get.mock.calls.length, 1);
+  });
+
+  test("handler returns fallback when resourceIndex resolves empty", async () => {
+    const mockResourceIndex = {
+      get: mock.fn(() => Promise.resolve([])),
+    };
+    const server = createMockServer();
+    const config = createTestConfig();
+    const clients = createMockClients();
+    registerToolsFromConfig(server, config, clients, mockResourceIndex);
+
+    const result = await server._registeredTools.query_by_pattern.handler({});
+    assert.strictEqual(result.content[0].text, "No results found.");
   });
 
   test("handler wraps single value for repeated field into array", async () => {

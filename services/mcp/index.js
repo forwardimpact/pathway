@@ -19,7 +19,7 @@ const __dirname = path.dirname(fileURLToPath(import.meta.url));
  * the prompt in one session, then the Agent SDK opens a second session for
  * tool use.
  *
- * @param {{ config: object, logger: object, graphClient: object, vectorClient: object, pathwayClient: object }} deps
+ * @param {{ config: object, logger: object, graphClient: object, vectorClient: object, pathwayClient: object, resourceIndex: object }} deps
  * @returns {{ start: () => Promise<void> }}
  */
 export function createMcpService({
@@ -28,31 +28,33 @@ export function createMcpService({
   graphClient,
   vectorClient,
   pathwayClient,
+  resourceIndex,
 }) {
   const promptPath = path.join(__dirname, "prompts", "guide-default.md");
 
   /** Creates a fully wired McpServer instance. */
-  function createSessionServer() {
+  function createSessionServer(promptText) {
     const server = new McpServer({ name: "guide", version: "0.1.0" });
-    registerToolsFromConfig(server, config, {
-      graph: graphClient,
-      vector: vectorClient,
-      pathway: pathwayClient,
-    });
+    registerToolsFromConfig(
+      server,
+      config,
+      { graph: graphClient, vector: vectorClient, pathway: pathwayClient },
+      resourceIndex,
+    );
     server.prompt(
       "guide-default",
       "Single-agent system prompt for Guide — engineering framework knowledge agent.",
-      async () => {
-        const text = await readFile(promptPath, "utf8");
-        return {
-          messages: [{ role: "user", content: { type: "text", text } }],
-        };
-      },
+      () => ({
+        messages: [
+          { role: "user", content: { type: "text", text: promptText } },
+        ],
+      }),
     );
     return server;
   }
 
   async function start() {
+    const promptText = await readFile(promptPath, "utf8");
     const host = config.host || "0.0.0.0";
     const port = config.port || 3005;
     const expectedToken = config.mcpToken();
@@ -81,6 +83,7 @@ export function createMcpService({
 
       if (sessionId && sessions.has(sessionId)) {
         const session = sessions.get(sessionId);
+        session.lastActivity = Date.now();
         try {
           await session.transport.handleRequest(req, res);
         } catch (err) {
@@ -104,7 +107,7 @@ export function createMcpService({
       const transport = new StreamableHTTPServerTransport({
         sessionIdGenerator: () => crypto.randomUUID(),
       });
-      const server = createSessionServer();
+      const server = createSessionServer(promptText);
 
       transport.onclose = () => {
         const sid = transport.sessionId;
@@ -135,28 +138,51 @@ export function createMcpService({
       // After the initialize is handled, the transport has a session ID
       const newSessionId = transport.sessionId;
       if (newSessionId) {
-        sessions.set(newSessionId, { transport, server });
+        sessions.set(newSessionId, {
+          transport,
+          server,
+          lastActivity: Date.now(),
+        });
       }
     });
 
     httpServer.on("error", (err) => {
+      logger.error(`HTTP server error: ${err.message}`);
       if (err.code === "EADDRINUSE") {
-        logger.error(`Port ${port} is already in use`);
-      } else {
-        logger.error(`HTTP server error: ${err.message}`);
+        process.exit(1);
       }
-      process.exit(1);
     });
 
     httpServer.listen(port, host, () => {
       logger.info(`MCP server listening on ${host}:${port}`);
     });
 
-    const shutdown = () => {
-      logger.info("Shutting down MCP server");
-      for (const session of sessions.values()) {
-        session.server.close();
+    // Reap sessions that haven't seen activity in 30 minutes
+    const SESSION_IDLE_MS = 30 * 60 * 1000;
+    const sweepTimer = setInterval(() => {
+      const now = Date.now();
+      for (const [sid, session] of sessions) {
+        if (now - session.lastActivity > SESSION_IDLE_MS) {
+          logger.info(`Reaping idle session ${sid}`);
+          session.server.close();
+        }
       }
+    }, 60_000);
+    sweepTimer.unref();
+
+    const shutdown = async () => {
+      logger.info("Shutting down MCP server");
+      clearInterval(sweepTimer);
+
+      const forceExit = setTimeout(() => {
+        logger.error("Shutdown timed out, forcing exit");
+        process.exit(1);
+      }, 5000);
+      forceExit.unref();
+
+      await Promise.allSettled(
+        [...sessions.values()].map((s) => s.server.close()),
+      );
       sessions.clear();
       httpServer.close();
     };
