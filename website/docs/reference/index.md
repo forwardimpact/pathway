@@ -1,6 +1,6 @@
 ---
 title: Reference
-description: Lookup material — CLI commands, entity model, lifecycle stages, and YAML schema format.
+description: Lookup material — CLI commands, entity model, lifecycle phases, and YAML schema format.
 layout: product
 toc: false
 ---
@@ -29,8 +29,8 @@ behaviours, and drivers. How they combine into job definitions.
 
 ### Lifecycle
 
-The engineering lifecycle — specify, plan, scaffold, code, review, deploy — with
-handoffs, constraints, and checklists.
+Workflow phases — specify, plan, scaffold, code, review, deploy — with handoff
+triggers, constraints, and checklists.
 
 </a>
 

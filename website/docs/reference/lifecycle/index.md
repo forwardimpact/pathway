@@ -1,17 +1,20 @@
 ---
 title: Lifecycle
-description: Engineering lifecycle stages, handoffs, constraints, and transition checklists.
+description: Engineering lifecycle phases — workflow guidance for handoffs, constraints, and checklists.
 ---
 
 ## Overview
 
-The lifecycle model defines six stages that engineering work moves through, from
-specification to deployment. Each stage has defined constraints, handoff
-conditions, and checklists that ensure quality transitions.
+The lifecycle model describes six phases that engineering work moves through,
+from specification to deployment. Each phase has handoff triggers, constraints,
+and checklists that guide quality transitions.
+
+Phases are conceptual workflow vocabulary — they describe what kind of work is
+happening and what discipline applies, not data entities backed by YAML files.
 
 ---
 
-## The Six Stages
+## The Six Phases
 
 ```mermaid
 flowchart LR
@@ -22,7 +25,7 @@ flowchart LR
     review --> deploy["Deploy"]
 ```
 
-| Stage        | Purpose                                               |
+| Phase        | Purpose                                               |
 | ------------ | ----------------------------------------------------- |
 | **specify**  | Define WHAT users need and WHY                        |
 | **plan**     | Design HOW to build (architecture, technical choices) |
@@ -35,24 +38,24 @@ flowchart LR
 
 ## Handoffs
 
-Handoffs are the transitions between stages. Each stage defines named handoffs
-that specify where work can flow next.
+Handoffs are the transitions between phases. Each phase defines triggers that
+specify where work flows next.
 
-### Specify Stage
+### Specify Phase
 
 | Handoff                 | Target  | Trigger                  |
 | ----------------------- | ------- | ------------------------ |
 | Refine/Alternative Spec | specify | Requirements need rework |
 | Plan                    | plan    | Spec accepted            |
 
-### Plan Stage
+### Plan Phase
 
 | Handoff                 | Target   | Trigger             |
 | ----------------------- | -------- | ------------------- |
 | Refine/Alternative Plan | plan     | Design needs rework |
 | Scaffold                | scaffold | Plan accepted       |
 
-### Scaffold Stage
+### Scaffold Phase
 
 | Handoff     | Target   | Trigger                                     |
 | ----------- | -------- | ------------------------------------------- |
@@ -60,13 +63,13 @@ that specify where work can flow next.
 | Update Plan | plan     | Plan needs revision based on setup findings |
 | Code        | code     | Environment ready                           |
 
-### Code Stage
+### Code Phase
 
 | Handoff        | Target | Trigger                                |
 | -------------- | ------ | -------------------------------------- |
 | Request Review | review | Implementation complete, tests passing |
 
-### Review Stage
+### Review Phase
 
 | Handoff           | Target | Trigger                               |
 | ----------------- | ------ | ------------------------------------- |
@@ -74,7 +77,7 @@ that specify where work can flow next.
 | Needs Re-planning | plan   | Fundamental problems require redesign |
 | Deploy            | deploy | Review approved                       |
 
-### Deploy Stage
+### Deploy Phase
 
 | Handoff      | Target | Trigger                      |
 | ------------ | ------ | ---------------------------- |
@@ -84,11 +87,11 @@ that specify where work can flow next.
 
 ## Constraints
 
-Each stage defines constraints that limit what actions are allowed. Constraints
-are especially important for AI agents -- they prevent scope creep and ensure
+Each phase defines constraints that limit what actions are allowed. Constraints
+are especially important for AI agents — they prevent scope creep and ensure
 agents stay within their authorized boundaries.
 
-| Stage        | Cannot                                        |
+| Phase        | Cannot                                        |
 | ------------ | --------------------------------------------- |
 | **specify**  | Write code, make architectural decisions      |
 | **plan**     | Commit code, go beyond specified requirements |
@@ -101,8 +104,9 @@ agents stay within their authorized boundaries.
 
 ## Checklists
 
-Checklists ensure quality at stage transitions. They are derived dynamically
-from capability definitions based on the job's skill proficiencies.
+Checklists ensure quality at phase transitions. Each skill defines its own
+checklist items as flat fields in the agent section of the skill's YAML
+definition.
 
 ### Two Types
 
@@ -111,23 +115,24 @@ from capability definitions based on the job's skill proficiencies.
 | **Read-Then-Do**    | Before starting work | Prerequisites and preparation |
 | **Do-Then-Confirm** | Before handing off   | Verification criteria         |
 
-### How Checklists Are Derived
+Read-then-do checklists are entry gates — read each item, then do it.
+Do-then-confirm checklists are exit gates — do from memory, then confirm every
+item before crossing a boundary.
 
-```
-Checklist = Stage x Skill Matrix x Capability Definitions
-```
+### How Checklists Are Defined
 
-For each stage:
+Skills define checklists as flat fields in their agent section:
 
-1. Take all skills in the derived skill matrix
-2. Look up the stage definition in the skill's capability
-3. Extract `readChecklist` and `confirmChecklist` items matching the derived
-   skill proficiency
-4. Group items by skill and capability
+- `agent.readChecklist` — items for the read-then-do gate
+- `agent.confirmChecklist` — items for the do-then-confirm gate
+
+These fields live directly on each skill, not derived from a phase x skill
+matrix. Capability authors write checklist items at each proficiency level; the
+agent's derived proficiency determines which items apply.
 
 ### Example
 
-Given a "code" stage for a practitioner-level CI/CD skill:
+Given a practitioner-level CI/CD skill:
 
 **Read-Then-Do (before coding):**
 
@@ -143,40 +148,22 @@ Given a "code" stage for a practitioner-level CI/CD skill:
 
 ---
 
-## Stages and Agents
+## Phases and Agents
 
-Each lifecycle stage can produce a dedicated AI agent with:
+Agents are generated per discipline and track — one agent per combination, not
+one per lifecycle phase. Phases guide an agent's workflow focus: what to
+prioritize, what constraints apply, and which checklist items are relevant at
+each point in the work.
 
-- **Focused skill set** -- Only skills relevant to that stage
-- **Stage constraints** -- Hard boundaries on agent actions
-- **Tool set** -- Tools appropriate for the stage
-- **Handoff prompts** -- Conditions that trigger stage transitions
-
-This enables a multi-agent workflow where different agents handle different
-lifecycle phases, each with appropriate permissions and knowledge.
-
-```mermaid
-flowchart TD
-    subgraph "Agent Team"
-        sa["Specify Agent"]
-        pa["Plan Agent"]
-        ca["Code Agent"]
-        ra["Review Agent"]
-        da["Deploy Agent"]
-    end
-    sa -->|handoff| pa
-    pa -->|handoff| ca
-    ca -->|handoff| ra
-    ra -->|handoff| da
-    ra -.->|changes needed| ca
-    ra -.->|re-plan| pa
-```
-
-Generate agent teams for a discipline and track:
+Generate an agent profile for a discipline and track:
 
 ```sh
 npx fit-pathway agent <discipline> --track=<track> --output=./agents
 ```
+
+The generated profile includes the agent's full skill set, checklist items, and
+behavioural expectations. Phases are not an input to agent generation — they
+describe the workflow context in which the agent operates.
 
 See [CLI Reference](/docs/reference/cli/) for the full `agent` command.
 
@@ -184,5 +171,5 @@ See [CLI Reference](/docs/reference/cli/) for the full `agent` command.
 
 ## Related Documentation
 
-- [Core Model](/docs/reference/model/) -- Entity overview and derivation formula
-- [Agent Teams](/docs/guides/agent-teams/) -- Building and using agent teams
+- [Core Model](/docs/reference/model/) — Entity overview and derivation formula
+- [Agent Teams](/docs/guides/agent-teams/) — Building and using agent teams
