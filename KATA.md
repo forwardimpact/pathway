@@ -53,10 +53,11 @@ graph LR
 - **Study** — Analyze outputs from Do. Four streams: security posture audits,
   external feedback triage, documentation review (one topic deep per cycle), and
   trace analysis (one trace deep per cycle via grounded theory).
-- **Act** — Convert findings into action. Trivial findings become fix PRs
-  directly; structural findings become new `spec.md` documents entering the
-  backlog. Fix PRs (`fix/` branches) and specs (`spec/` branches) are never
-  mixed.
+- **Act** — Convert findings into action. Trivial findings become **pushed fix
+  PRs** directly; structural findings become new `spec.md` documents on **pushed
+  spec branches** entering the backlog. A local commit is not a PR — the URL is
+  the only valid completion signal. Fix PRs (`fix/` branches) and specs (`spec/`
+  branches) are never mixed.
 
 ## Agents
 
@@ -171,7 +172,9 @@ through the autonomous pipeline — specs merge only the document, not code.
 
 Agents share persistent memory via the **GitHub wiki** at `wiki/`. Cloned on
 demand and synced by `just wiki-pull` (on `SessionStart`) and `just wiki-push`
-(on `Stop`).
+(on `Stop`). The wiki is a separate checkout, not a git submodule — `wiki/` is
+gitignored in the main repo. Wiki commits are published only by the `Stop` hook;
+never `git add wiki` into a main-repo commit.
 
 Each agent maintains two file types:
 
@@ -349,6 +352,16 @@ Entry-point skills embed domain-specific checklists; universal checklists live
 in CONTRIBUTING.md. See [CHECKLISTS.md](CHECKLISTS.md) for design rules, type
 selection, and authoring guidance.
 
+### Publishing as a gate
+
+Autonomous agents default to human-loop handoff phrasing ("ready for PR when
+you'd like me to push") when no exit criterion requires external state change —
+they finish at the last locally-verifiable action. Any skill whose output is
+code (`fix/` or `spec/` branches) must rely on the universal DO-CONFIRM's push +
+PR item as its publishing gate; publishing steps described only in L6 procedural
+prose correlate with agents stopping after local commit on ephemeral runners,
+losing the work.
+
 ### Recursion-safe self-review
 
 Skills requiring independent review of their output must spawn a fresh sub-agent
@@ -363,7 +376,9 @@ caller protocol for panel sizes and merge algorithm.
 
 Use identical wording for shared structural elements (memory instructions,
 prerequisites, section headings) across all agents and skills. Inconsistent
-wording correlated with agents skipping steps in trace analysis.
+wording correlated with agents skipping steps in trace analysis. Act-phase
+skills (those producing `fix/` or `spec/` branches) defer to the universal
+DO-CONFIRM for publishing — no skill restates the push + PR gate.
 
 ### SDK caveat
 
