@@ -21,7 +21,7 @@ describe("fit-guide CLI", () => {
 
   test("CLI defines expected commands", () => {
     const source = readFileSync(cliPath, "utf8");
-    for (const cmd of ["login", "logout", "resume", "init", "status"]) {
+    for (const cmd of ["login", "logout", "clear", "init", "status"]) {
       assert.ok(source.includes(`name: "${cmd}"`), `Missing command: ${cmd}`);
     }
   });
@@ -29,13 +29,21 @@ describe("fit-guide CLI", () => {
   test("CLI imports command handlers from src/commands", () => {
     const source = readFileSync(cliPath, "utf8");
     assert.ok(source.includes("../src/commands/init.js"));
-    assert.ok(source.includes("../src/commands/chat.js"));
+    assert.ok(source.includes("../src/commands/resume.js"));
+    assert.ok(source.includes("../src/commands/clear.js"));
     assert.ok(source.includes("../src/commands/status.js"));
   });
 
-  test("chat command imports Claude Agent SDK", () => {
-    const source = readCommand("chat");
+  test("resume command imports Claude Agent SDK", () => {
+    const source = readCommand("resume");
     assert.ok(source.includes("@anthropic-ai/claude-agent-sdk"));
+  });
+
+  test("resume command drives a librepl Repl", () => {
+    const source = readCommand("resume");
+    assert.ok(source.includes("@forwardimpact/librepl"));
+    assert.ok(source.includes("new Repl"));
+    assert.ok(source.includes("repl.start"));
   });
 
   test("CLI checks for LLM_TOKEN migration", () => {
@@ -44,16 +52,23 @@ describe("fit-guide CLI", () => {
     assert.ok(source.includes("no longer used"));
   });
 
-  test("chat command fetches prompt from MCP endpoint", () => {
-    const source = readCommand("chat");
+  test("resume command fetches prompt from MCP endpoint", () => {
+    const source = readCommand("resume");
     assert.ok(source.includes("prompts/get"));
     assert.ok(source.includes("guide-default"));
   });
 
-  test("chat command persists session ID for resume", () => {
-    const source = readCommand("chat");
-    assert.ok(source.includes("last-session-id"));
+  test("resume command tracks session ID across turns", () => {
+    const source = readCommand("resume");
+    assert.ok(source.includes("sessionId"));
     assert.ok(source.includes("session_id"));
+    assert.ok(source.includes("options.resume = state.sessionId"));
+  });
+
+  test("clear command wipes stored state before resuming", () => {
+    const source = readCommand("clear");
+    assert.ok(source.includes("storage.delete"));
+    assert.ok(source.includes("runResumeCommand"));
   });
 
   test("init command generates SERVICE_SECRET", () => {

@@ -441,6 +441,7 @@
         "@forwardimpact/libcodegen": "^0.1.32",
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librc": "^0.1.16",
+        "@forwardimpact/librepl": "^0.1.6",
         "@forwardimpact/librpc": "^0.1.77",
         "@forwardimpact/libsecret": "^0.1.7",
         "@forwardimpact/libstorage": "^0.1.53",
