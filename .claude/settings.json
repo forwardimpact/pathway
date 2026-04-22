@@ -4,7 +4,12 @@
   },
   "permissions": {
     "defaultMode": "acceptEdits",
-    "allow": ["Edit(.claude/**)", "Write(.claude/**)", "Bash(sed:*.claude/**)"]
+    "allow": [
+      "Edit(.claude/skills/**)",
+      "Edit(.claude/agents/**)",
+      "Write(.claude/skills/**)",
+      "Write(.claude/agents/**)"
+    ]
   },
   "hooks": {
     "SessionStart": [
