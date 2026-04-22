@@ -1,7 +1,11 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 
-import { createTraceGitHub, parseGitRemote } from "@forwardimpact/libeval";
+import {
+  createTraceGitHub,
+  detectRepoSlug,
+  parseGitRemote,
+} from "@forwardimpact/libeval";
 
 describe("parseGitRemote", () => {
   test("parses SSH remote", () => {
@@ -44,6 +48,51 @@ describe("parseGitRemote", () => {
     const result = parseGitRemote("git@github.com:acme/widgets.git");
     assert.strictEqual(result.owner, "acme");
     assert.strictEqual(result.repo, "widgets");
+  });
+});
+
+describe("detectRepoSlug", () => {
+  function withEnv(vars, fn) {
+    const saved = {};
+    for (const key of Object.keys(vars)) {
+      saved[key] = process.env[key];
+      if (vars[key] === undefined) delete process.env[key];
+      else process.env[key] = vars[key];
+    }
+    try {
+      return fn();
+    } finally {
+      for (const key of Object.keys(saved)) {
+        if (saved[key] === undefined) delete process.env[key];
+        else process.env[key] = saved[key];
+      }
+    }
+  }
+
+  test("reads GITHUB_REPOSITORY when set", () => {
+    const result = withEnv(
+      { GITHUB_REPOSITORY: "forwardimpact/monorepo" },
+      () => detectRepoSlug(),
+    );
+    assert.strictEqual(result.owner, "forwardimpact");
+    assert.strictEqual(result.repo, "monorepo");
+  });
+
+  test("ignores blank GITHUB_REPOSITORY and falls back to git remote", () => {
+    const result = withEnv({ GITHUB_REPOSITORY: "   " }, () =>
+      detectRepoSlug(),
+    );
+    assert.ok(result.owner);
+    assert.ok(result.repo);
+  });
+
+  test("falls back to git remote when GITHUB_REPOSITORY is unset", () => {
+    const result = withEnv({ GITHUB_REPOSITORY: undefined }, () =>
+      detectRepoSlug(),
+    );
+    // We're running inside this monorepo, so origin should resolve.
+    assert.ok(result.owner);
+    assert.ok(result.repo);
   });
 });
 
