@@ -15,10 +15,17 @@ wiki-pull:
 wiki-push:
     bash scripts/wiki-sync.sh push
 
-# Install dependencies and generate code
-install: wiki-pull
+# Install dependencies and tooling
+install: wiki-pull install-bun install-gh
+
+# Install bun dependencies and generate code
+install-bun:
     bun install --frozen-lockfile
     bunx --workspace=@forwardimpact/libcodegen fit-codegen --all
+
+# Install the GitHub CLI (gh)
+install-gh:
+    bash scripts/install-gh.sh
 
 # Bootstrap from scratch
 quickstart: env-setup synthetic data-init codegen process-fast _quickstart-seed
