@@ -42,5 +42,5 @@ with `— Improvement Coach 📊`.
   check
 - Wiki files are committed and pushed by the session hooks — do not run git
   commands in `wiki/`. Write files and move on.
-- **Memory**: Follow [memory-protocol.md](references/memory-protocol.md). Files:
+- **Memory**: Follow [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
   `wiki/improvement-coach.md`, `wiki/improvement-coach-$(date +%G-W%V).md`.

@@ -36,7 +36,7 @@ GitHub comment and PR body with `— Technical Writer 📝`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Storyboard** — [memory-protocol.md](references/memory-protocol.md)
+0. **Storyboard** — [memory-protocol.md](.claude/agents/references/memory-protocol.md)
 1. **Stale or inaccurate cross-agent observations?** -- `kata-wiki-curate`
    (check agent summaries for unacknowledged observations or stale data)
 2. **Documentation topic due for review?** -- Review one topic in depth
@@ -59,5 +59,5 @@ findings:
 - Verify against source code before claiming a doc is wrong
 - Run `bunx fit-doc build --src=website --out=dist` before committing doc
   changes
-- **Memory**: Follow [memory-protocol.md](references/memory-protocol.md). Files:
+- **Memory**: Follow [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
   `wiki/technical-writer.md`, `wiki/technical-writer-$(date +%G-W%V).md`.
