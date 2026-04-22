@@ -78,10 +78,12 @@ export function createSupabaseCli({
     const desc = await resolve();
     if (!desc) {
       throw new Error(
-        "Could not find the `supabase` CLI. Install it via Homebrew " +
-          "(`brew install supabase/tap/supabase`) or npm " +
+        "Could not find the `supabase` CLI on PATH. Install it via Homebrew " +
+          "(`brew install supabase/tap/supabase`), npm " +
           "(`npm install supabase` in this project, or `npm install -g supabase`), " +
-          `then retry. See ${SUPABASE_INSTALL_URL}.`,
+          "or bun (`bun install -g supabase` — ensure the bun global bin " +
+          "directory is on PATH). Verify the install with `which supabase`. " +
+          `See ${SUPABASE_INSTALL_URL}.`,
       );
     }
 
@@ -102,10 +104,12 @@ export function createSupabaseCli({
     const desc = await resolve();
     if (!desc) {
       throw new Error(
-        "Could not find the `supabase` CLI. Install it via Homebrew " +
-          "(`brew install supabase/tap/supabase`) or npm " +
+        "Could not find the `supabase` CLI on PATH. Install it via Homebrew " +
+          "(`brew install supabase/tap/supabase`), npm " +
           "(`npm install supabase` in this project, or `npm install -g supabase`), " +
-          `then retry. See ${SUPABASE_INSTALL_URL}.`,
+          "or bun (`bun install -g supabase` — ensure the bun global bin " +
+          "directory is on PATH). Verify the install with `which supabase`. " +
+          `See ${SUPABASE_INSTALL_URL}.`,
       );
     }
 
