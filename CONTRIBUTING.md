@@ -69,9 +69,9 @@ Exit gate — verify every item before committing.
 - [ ] My diff only contains changes the task required — no unrequested
       refactors, no scope creep.
 - [ ] Commit format: `type(scope): subject` (see § Git Conventions).
-- [ ] If the run produced commits on a `fix/` or `spec/` branch: branch pushed
-      (`git push -u origin <branch>`) and PR URL captured in output. Exception:
-      release engineer's direct-to-`main` CI fixes.
+- [ ] If the run produced commits: branch pushed with `git push -u origin` and
+      PR URL captured in output. Exception: release engineer's direct-to-`main`
+      CI fixes.
 
 </do_confirm_checklist>
 
