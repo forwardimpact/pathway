@@ -59,5 +59,6 @@ manual workflows and is not part of scheduled assessment.
 - Never make code changes on PR branches (release-engineer scope) — only on your
   own `fix/` branches from issues
 - Features always get a spec, never a direct implementation
-- **Memory**: Follow [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
+- **Memory**: Follow
+  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
   `wiki/product-manager.md`, `wiki/product-manager-$(date +%G-W%V).md`.

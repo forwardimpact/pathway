@@ -57,5 +57,6 @@ After choosing, follow the selected skill's full procedure. For audit findings:
 - Never weaken existing security policies
 - Never change a SHA pin to a tag reference
 - Never skip spec PRs — if findings need specs, file them
-- **Memory**: Follow [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
+- **Memory**: Follow
+  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
   `wiki/security-engineer.md`, `wiki/security-engineer-$(date +%G-W%V).md`.
