@@ -198,9 +198,15 @@ audit: audit-vulnerabilities audit-secrets
 
 # Check dependencies for known vulnerabilities
 audit-vulnerabilities:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    # Replace bun workspace protocol with plain wildcard for npm compatibility
+    find . -name package.json -not -path '*/node_modules/*' -exec \
+      sed -i 's/"workspace:\*"/"*"/g' {} +
     npm install --package-lock-only --ignore-scripts 2>/dev/null
     npm audit --audit-level=high --omit=dev --workspaces
     rm -f package-lock.json
+    git checkout -- '*/package.json' package.json 2>/dev/null || true
 
 # Scan repository for leaked secrets
 audit-secrets:

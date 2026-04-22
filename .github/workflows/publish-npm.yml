@@ -54,30 +54,33 @@ jobs:
         run: bun run test
 
       - name: Smoke test npm package
+        env:
+          NPM_NAME: ${{ steps.package.outputs.npm_name }}
         run: |
           PACK_DIR=$(mktemp -d)
-          TARBALL=$(npm pack --workspace=${{ steps.package.outputs.npm_name }} --pack-destination="$PACK_DIR")
+          TARBALL=$(npm pack --workspace="$NPM_NAME" --pack-destination="$PACK_DIR")
           cd "$PACK_DIR"
           npm init -y
           npm install "$TARBALL"
           # Verify the main entry point is resolvable (skip for bin-only or subpath-only packages)
-          HAS_MAIN=$(node -e "const p=JSON.parse(require('fs').readFileSync('node_modules/${{ steps.package.outputs.npm_name }}/package.json','utf8')); if(p.main||(p.exports&&(typeof p.exports==='string'||p.exports['.']))) console.log('yes')")
+          HAS_MAIN=$(node -e "const p=JSON.parse(require('fs').readFileSync('node_modules/' + process.env.NPM_NAME + '/package.json','utf8')); if(p.main||(p.exports&&(typeof p.exports==='string'||p.exports['.']))) console.log('yes')")
           if [ -n "$HAS_MAIN" ]; then
-            node -e "require.resolve('${{ steps.package.outputs.npm_name }}')"
+            node -e "require.resolve(process.env.NPM_NAME)"
           fi
           # Verify CLI entry point file exists (don't execute — workspace deps missing in isolation)
-          BIN=$(node -e "const p=JSON.parse(require('fs').readFileSync('node_modules/${{ steps.package.outputs.npm_name }}/package.json','utf8')); const b=Object.values(p.bin||{})[0]; if(b) console.log(b)")
+          BIN=$(node -e "const p=JSON.parse(require('fs').readFileSync('node_modules/' + process.env.NPM_NAME + '/package.json','utf8')); const b=Object.values(p.bin||{})[0]; if(b) console.log(b)")
           if [ -n "$BIN" ]; then
-            test -f "node_modules/${{ steps.package.outputs.npm_name }}/$BIN"
+            test -f "node_modules/$NPM_NAME/$BIN"
           fi
           rm -rf "$PACK_DIR"
 
       - name: Copy LICENSE to package
-        run: cp LICENSE ${{ steps.package.outputs.dir_name }}/
+        env:
+          DIR_NAME: ${{ steps.package.outputs.dir_name }}
+        run: cp LICENSE "$DIR_NAME"/
 
       - name: Publish to npm
-        run:
-          npm publish --workspace=${{ steps.package.outputs.npm_name }}
-          --access=public
         env:
           NODE_AUTH_TOKEN: ${{ secrets.NPM_TOKEN }}
+          NPM_NAME: ${{ steps.package.outputs.npm_name }}
+        run: npm publish --workspace="$NPM_NAME" --access=public
