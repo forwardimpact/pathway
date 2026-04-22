@@ -155,13 +155,13 @@ automatically from `.env`. Stop them with `npx fit-rc stop`.
 
 ```sh
 npx fit-guide                                        # Start interactive conversation
-echo "What skills should I focus on for L3?" | npx fit-guide  # Pipe a question
+echo "What skills should I focus on for J060?" | npx fit-guide  # Pipe a question
 ```
 
 Example pipe-mode output:
 
 ```
-L3 engineers in your organization focus on three skill areas:
+Level II engineers in your organization focus on three skill areas:
 
 **System Design** — Design components that interact with other teams'
 services, make technology choices within your domain, and document
@@ -175,7 +175,7 @@ practices.
 monitoring and alerting, and participate in incident response rotations.
 
 Based on your current profile, prioritize System Design and Technical
-Leadership to close the gap to L3.
+Leadership to close the gap to Level II.
 ```
 
 Guide reasons about your organization's specific skill definitions, behaviour

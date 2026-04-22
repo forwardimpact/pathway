@@ -53,7 +53,7 @@ Use `--data` to override, pointing to the `pathway` subdirectory directly:
 
 ```sh
 npx fit-pathway discipline --list --data=./data/pathway
-npx fit-pathway job software_engineering L3 --data=./custom-path/pathway
+npx fit-pathway job software_engineering J060 --data=./custom-path/pathway
 ```
 
 ### Entity Browsing

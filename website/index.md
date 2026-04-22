@@ -178,8 +178,8 @@ Install the CLI and explore what's available:
 
 ```sh
 npx fit-pathway skill --list        # Browse all skills
-npx fit-pathway job se L3            # Generate a job definition
-npx fit-pathway agent se --track=dx  # Generate agent profiles
+npx fit-pathway job software_engineering J060          # Generate a job definition
+npx fit-pathway agent software_engineering --track=platform  # Generate agent profiles
 ```
 
 ### For personal productivity
