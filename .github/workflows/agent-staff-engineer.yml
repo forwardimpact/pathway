@@ -54,5 +54,5 @@ jobs:
             highest-priority finding.
           agent-profile: "staff-engineer"
           model: "claude-opus-4-6"
-          max-turns: "0"
+          max-turns: "300"
           task-amend: ${{ inputs.task-amend }}
