@@ -38,7 +38,7 @@ export class AgentRunner {
    * @param {function} deps.query - SDK query function (injected for testing)
    * @param {import("stream").Writable} deps.output - Stream to emit NDJSON to
    * @param {string} [deps.model] - Claude model identifier
-   * @param {number} [deps.maxTurns] - Maximum agentic turns
+   * @param {number} [deps.maxTurns] - Maximum agentic turns; 0 means unlimited
    * @param {string[]} [deps.allowedTools] - Tools the agent may use
    * @param {function} [deps.onLine] - Callback invoked with each NDJSON line as it's produced
    * @param {function} [deps.onBatch] - Async callback invoked with a batch of NDJSON lines at flush boundaries: every `batchSize` assistant text blocks, the terminal `result` message, and — on iterator crash/abort — once more in a final flush carrying any lines that never reached a boundary. Receives `(lines, { abort })` where calling `abort()` stops the in-flight SDK session via the AbortController. Optional; assignable at runtime so the Supervisor can swap it per turn.
@@ -73,7 +73,8 @@ export class AgentRunner {
         options: {
           cwd: this.cwd,
           allowedTools: this.allowedTools,
-          ...(this.maxTurns > 0 && { maxTurns: this.maxTurns }),
+          maxTurns:
+            this.maxTurns === 0 ? Number.MAX_SAFE_INTEGER : this.maxTurns,
           model: this.model,
           permissionMode: PERMISSION_MODE,
           allowDangerouslySkipPermissions: true,

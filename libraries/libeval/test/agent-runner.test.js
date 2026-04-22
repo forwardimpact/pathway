@@ -159,6 +159,28 @@ describe("AgentRunner", () => {
     assert.deepStrictEqual(captured.options.settingSources, ["project"]);
   });
 
+  test("run() forwards maxTurns=0 as MAX_SAFE_INTEGER (unlimited)", async () => {
+    let captured = null;
+    const query = mockQuery(
+      [{ type: "result", subtype: "success", result: "OK" }],
+      (params) => {
+        captured = params;
+      },
+    );
+
+    const output = new PassThrough();
+    const runner = new AgentRunner({
+      cwd: "/work",
+      query,
+      output,
+      maxTurns: 0,
+    });
+
+    await runner.run("Task");
+
+    assert.strictEqual(captured.options.maxTurns, Number.MAX_SAFE_INTEGER);
+  });
+
   test("run() returns success=false on non-success subtype", async () => {
     const messages = [{ type: "result", subtype: "error", result: "Stopped" }];
 
