@@ -54,6 +54,26 @@ npx fit-map validate
 
 ---
 
+## Activity Data
+
+Beyond framework definitions, Map maintains an activity layer for operational
+measurements. While the YAML files above are authored by hand, activity data is
+ingested from external systems and stored in a Supabase database:
+
+- **Organization people** — roster records with manager links and Pathway job
+  profiles
+- **GitHub activity** — events and derived artifacts for marker evidence
+  analysis
+- **Evidence records** — artifacts linked to framework skill markers
+- **GetDX snapshots** — quarterly developer-experience team scores and comments
+
+The activity layer powers Landmark (signal analysis) and Summit (team capability
+modelling). See the
+[Map getting-started guide for leadership](/docs/getting-started/leadership/map/#activity-install-the-supabase-cli)
+for setup instructions.
+
+---
+
 ## Framework Configuration
 
 Every framework needs a `framework.yaml` at the root of the data directory. It

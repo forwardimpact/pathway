@@ -8,8 +8,8 @@ hero:
   alt: An engineer, an AI robot, and a business professional setting up an A-frame tent together
   subtitle: Set up camp. Basecamp is your personal operations center — it syncs your email and calendar, builds a knowledge graph, drafts responses, prepares meeting briefs, and organizes your files. All running as scheduled AI tasks in the background.
   cta:
-    - label: For Engineers
-      href: /docs/getting-started/engineers/
+    - label: View on GitHub
+      href: https://github.com/forwardimpact/monorepo/tree/main/products/basecamp
     - label: View on npm
       href: https://www.npmjs.com/package/@forwardimpact/basecamp
       secondary: true
@@ -79,23 +79,36 @@ If your network requires a custom CA bundle, add an `env` block to
 
 ---
 
-## Quick Start
+## Getting Started
 
 ```sh
+npm install @forwardimpact/basecamp
 npx fit-basecamp init ~/Documents/Team   # Initialize knowledge base
 npx fit-basecamp daemon                  # Start the scheduler
 npx fit-basecamp status                  # Check what's happening
-npx fit-basecamp wake postman             # Wake a specific agent now
 ```
 
 ### macOS Privacy & Security
 
 Basecamp agents need access to specific folders (Documents, Mail, Calendar).
 When macOS prompts, grant only the folders each process needs via **System
-Settings → Privacy & Security → Files & Folders**:
+Settings > Privacy & Security > Files & Folders**:
 
 - **Basecamp.app** — the TCC responsible process (Swift launcher)
 - **node** — runs skill scripts with `#!/usr/bin/env node` shebangs
 - **"2.1.72"** (or another version number) — this is the **Claude Code CLI**.
   macOS shows its version string instead of a name. Safe to grant per-folder
   access.
+
+<div class="grid">
+
+<a href="/docs/getting-started/engineers/basecamp/">
+
+### Engineers
+
+Initialize your personal knowledge base, configure background AI tasks, and
+start the scheduler.
+
+</a>
+
+</div>

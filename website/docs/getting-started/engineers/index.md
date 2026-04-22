@@ -1,370 +1,51 @@
 ---
 title: "Getting Started: Engineers"
-description: "Browse career paths with Pathway, get AI guidance with Guide, check your evidence with Landmark, and set up your knowledge base with Basecamp."
+description: "Get up and running with the Forward Impact CLI tools — browse careers, get AI guidance, check evidence, and manage your knowledge base."
+layout: product
+toc: false
 ---
 
-Get up and running with the Forward Impact CLI tools. This guide covers browsing
-your career framework, generating AI agent teams, getting framework-aware
-guidance, checking your evidence and growth data, and managing your personal
-knowledge base.
+Get up and running with the Forward Impact CLI tools. Each guide covers one
+product from install to first use.
 
-## Prerequisites
+**Prerequisites for all guides:** Node.js 18+ and npm.
 
-- Node.js 18+
-- npm
+<div class="grid">
 
-## Install
+<a href="/docs/getting-started/engineers/pathway/">
 
-```sh
-npm install @forwardimpact/pathway @forwardimpact/guide @forwardimpact/landmark @forwardimpact/basecamp
-```
+### Pathway
 
-This gives you four CLI tools:
+Browse career paths, generate AI agent teams, and explore job definitions from
+the CLI and web app.
 
-- `fit-pathway` — browse job definitions and generate agent teams
-- `fit-guide` — AI agent that understands your engineering framework
-- `fit-landmark` — check your evidence, readiness, and growth timeline
-- `fit-basecamp` — personal knowledge base with scheduled AI tasks
+</a>
 
----
+<a href="/docs/getting-started/engineers/guide/">
 
-## Pathway
+### Guide
 
-Pathway is your interface to the engineering framework. Browse job definitions,
-explore career progression, and generate AI agent teams matched to your role.
+Set up the AI agent that understands your engineering framework — onboarding,
+career advice, skill assessment, and contextual help.
 
-### Initialize framework data
+</a>
 
-If your organization hasn't provided a framework data bundle, bootstrap starter
-data to explore with:
+<a href="/docs/getting-started/engineers/landmark/">
 
-```sh
-npx fit-map init
-```
+### Landmark
 
-This creates `./data/pathway/` with a complete starter framework. If your
-organization distributes a framework bundle, follow their installation
-instructions instead — typically a one-line `curl | bash` install script that
-places data at `~/.fit/data/pathway/`.
+Check your evidence record, promotion readiness, growth timeline, and skill
+coverage against your framework markers.
 
-#### Data directory resolution
+</a>
 
-The CLI resolves the data directory by walking upward from the current working
-directory looking for a `data/pathway/` folder. To override, use the `--data`
-flag:
+<a href="/docs/getting-started/engineers/basecamp/">
 
-```sh
-npx fit-pathway discipline --list --data=./my-data/pathway
-```
+### Basecamp
 
-### Browse your job definition
+Initialize your personal knowledge base, configure background AI tasks, and
+start the scheduler.
 
-Use the Pathway CLI to explore the engineering framework your organization has
-defined.
+</a>
 
-```sh
-npx fit-pathway discipline --list    # See available disciplines
-npx fit-pathway level --list         # See available levels
-npx fit-pathway track --list         # See available tracks
-```
-
-Generate a complete job definition by combining a discipline, level, and
-optional track:
-
-```sh
-npx fit-pathway job software_engineering J040 --track=platform
-```
-
-This produces a full view of the skills, behaviours, and expectations for that
-role.
-
-### Generate agent teams
-
-Create AI agent definitions matched to your role's skill profile:
-
-```sh
-npx fit-pathway agent software_engineering --track=platform --output=./agents
-```
-
-This generates a set of `.agent.md` files and a `skills/` directory. Each agent
-file defines a persona with specific capabilities. The skills directory contains
-`SKILL.md` files that agents use as operational context — the same skill
-definitions humans reference, formatted for AI consumption.
-
-Copy the output into your project's `.claude/` or equivalent agent configuration
-directory.
-
----
-
-## Guide
-
-Guide is a conversational AI agent that understands your organization's
-engineering framework. It helps you onboard, find growth areas, and interpret
-engineering artifacts against your skill markers.
-
-### Install and configure
-
-```sh
-npx fit-codegen --all    # provided by @forwardimpact/libcodegen (a dependency of guide)
-npx fit-guide init
-```
-
-The `fit-codegen` step generates gRPC service clients that Guide needs. Without
-it, imports fail with a missing module error.
-
-The `init` step generates:
-
-- `.env` — service secrets (`MCP_TOKEN`) and port assignments
-- `config/config.json` — service startup configuration
-
-### Configure credentials
-
-Guide runs on the Anthropic API. Authenticate using one of:
-
-```sh
-npx fit-guide login       # OAuth PKCE flow (recommended)
-```
-
-Or set `ANTHROPIC_API_KEY` in `.env` manually. Guide validates credentials on
-startup and reports if they are missing.
-
-### Process data
-
-Before starting the services, process the framework data into the indexes that
-Guide's services read at runtime:
-
-```sh
-npx fit-process-resources # provided by @forwardimpact/libresource
-npx fit-process-graphs    # provided by @forwardimpact/libgraph
-```
-
-These steps transform your `data/pathway/` into the resource index, knowledge
-store, and graph index. Re-run them whenever you update framework data.
-
-### Start the service stack
-
-```sh
-npx fit-rc start          # provided by @forwardimpact/librc
-```
-
-This supervises all required microservices (trace, vector, graph, llm, memory,
-tool, agent, web) in dependency order. Configuration and secrets are read
-automatically from `.env`. Stop them with `npx fit-rc stop`.
-
-### Usage
-
-```sh
-npx fit-guide                                        # Start interactive conversation
-echo "What skills should I focus on for J060?" | npx fit-guide  # Pipe a question
-```
-
-Example pipe-mode output:
-
-```
-Level II engineers in your organization focus on three skill areas:
-
-**System Design** — Design components that interact with other teams'
-services, make technology choices within your domain, and document
-architectural decisions.
-
-**Technical Leadership** — Lead small cross-functional projects, unblock
-peers on technical decisions, and mentor junior engineers on best
-practices.
-
-**Operational Awareness** — Own reliability for your services, set up
-monitoring and alerting, and participate in incident response rotations.
-
-Based on your current profile, prioritize System Design and Technical
-Leadership to close the gap to Level II.
-```
-
-Guide reasons about your organization's specific skill definitions, behaviour
-expectations, and markers — not generic career advice.
-
----
-
-## Landmark
-
-Landmark requires Map's activity layer (Supabase). If your organization has
-already set this up, Landmark works immediately. If not, see the
-[Landmark quickstart](/docs/guides/landmark-quickstart/) or the
-[leadership getting-started](/docs/getting-started/leadership/) for activity
-layer setup. One command works without Supabase: `marker` reads directly from
-your framework YAML.
-
-With the activity layer in place, Landmark gives you visibility into your own
-practice evidence and growth data — showing what your engineering record looks
-like against your framework's markers.
-
-### Browse marker definitions
-
-Look up the observable indicators defined for any skill — useful for
-understanding what evidence is expected at each proficiency level:
-
-```sh
-npx fit-landmark marker task_completion
-npx fit-landmark marker task_completion --level working
-```
-
-### Check your evidence
-
-See which markers have evidence linked to your work:
-
-```sh
-npx fit-landmark evidence --email you@example.com
-npx fit-landmark evidence --skill system_design --email you@example.com
-```
-
-Each row shows the artifact, the marker it matched, and Guide's rationale.
-Filter by `--skill` to focus on a specific area.
-
-### View your skill coverage
-
-See how complete your evidence record is across all expected skills:
-
-```sh
-npx fit-landmark coverage --email you@example.com
-```
-
-Coverage shows evidenced artifacts versus total expected markers — a quick gauge
-of where your record is strong and where it has gaps.
-
-### Check promotion readiness
-
-See which next-level markers you have already evidenced and which are still
-outstanding:
-
-```sh
-npx fit-landmark readiness --email you@example.com
-npx fit-landmark readiness --email you@example.com --target J060
-```
-
-Without `--target`, readiness checks against the next level above your current
-level. With `--target`, you can check against any specific level — useful for
-planning a multi-level trajectory.
-
-### Track your growth timeline
-
-See how your evidence has accumulated over time, aggregated by quarter:
-
-```sh
-npx fit-landmark timeline --email you@example.com
-npx fit-landmark timeline --email you@example.com --skill system_design
-```
-
-Timelines help you see whether growth is accelerating, stalling, or concentrated
-in one area. Add `--skill` to focus on a specific capability.
-
-### Read your voice comments
-
-See your own GetDX snapshot comments in a timeline view alongside evidence
-context:
-
-```sh
-npx fit-landmark voice --email you@example.com
-```
-
-All Landmark commands support `--format text|json|markdown`.
-
----
-
-## Basecamp
-
-Basecamp is your personal operations center. It syncs email and calendar, builds
-a knowledge graph, drafts responses, and prepares meeting briefings.
-
-### Initialize a knowledge base
-
-```sh
-npx fit-basecamp init ~/Documents/Personal
-```
-
-### Check status
-
-```sh
-npx fit-basecamp status
-```
-
-### Run the scheduler
-
-```sh
-npx fit-basecamp daemon
-```
-
-Basecamp runs as a macOS status menu app with scheduled AI tasks handling
-background work. The CLI scheduler works on any platform.
-
----
-
-## Troubleshooting
-
-### Guide: configuration errors on startup
-
-Guide validates configuration before connecting. If you see errors about missing
-`ANTHROPIC_API_KEY` or `MCP_TOKEN`, check that:
-
-1. You ran `npx fit-guide init` (creates `.env` with `MCP_TOKEN`)
-2. You ran `npx fit-guide login` or set `ANTHROPIC_API_KEY` in `.env`
-
-### Guide: `Not authenticated` error
-
-Run `npx fit-guide login` to authenticate with Anthropic, or set
-`ANTHROPIC_API_KEY` in `.env`.
-
-### Guide: data not found
-
-If Guide cannot answer questions, the knowledge indexes may not be populated.
-Run the processing pipeline:
-
-```sh
-npx fit-process-resources
-npx fit-process-graphs
-```
-
-Then restart the services.
-
-### Guide: MCP endpoint unreachable
-
-Verify the MCP service is running. Check `npx fit-guide status` for health
-information, then restart the services:
-
-```sh
-npx fit-rc stop && npx fit-rc start
-```
-
-### Guide: missing module errors after install
-
-Run code generation first — Guide depends on generated gRPC clients:
-
-```sh
-npx fit-codegen --all
-```
-
-### Guide: service startup failures
-
-Check service logs for the failing service:
-
-```sh
-ls data/logs/          # List available service log directories
-cat data/logs/llm/current   # View the LLM service log (example)
-```
-
-Each microservice writes to `data/logs/{service}/current`. Common causes are
-missing environment variables or port conflicts.
-
----
-
-## Next steps
-
-- [Agent teams](/docs/guides/agent-teams/) — configure and customize generated
-  agents
-- [Finding your bearing](/docs/guides/finding-your-bearing/) — Guide usage and
-  configuration
-- [Landmark quickstart](/docs/guides/landmark-quickstart/) — step-by-step guide
-  from install to a working health view
-- [Knowledge systems](/docs/guides/knowledge-systems/) — deep dive into Basecamp
-  features
-- [Career paths](/docs/guides/career-paths/) — understand progression and skill
-  development
-- [CLI reference](/docs/reference/cli/) — full command documentation for all
-  tools
+</div>

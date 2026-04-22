@@ -8,10 +8,8 @@ hero:
   alt: An engineer, an AI robot, and a business professional stand at the base of mountains, studying the trail ahead
   subtitle: Navigate engineering skills and careers with clarity. Whether you're an engineer exploring career progression, a manager building job descriptions, or a team lead deploying AI coding agents — Pathway delivers it through a web app, a CLI, and a static site generator.
   cta:
-    - label: For Leadership
-      href: /docs/getting-started/leadership/
-    - label: For Engineers
-      href: /docs/getting-started/engineers/
+    - label: View on GitHub
+      href: https://github.com/forwardimpact/monorepo/tree/main/products/pathway
     - label: View on npm
       href: https://www.npmjs.com/package/@forwardimpact/pathway
       secondary: true
@@ -61,11 +59,32 @@ The interactive browser gives you:
 
 ---
 
-## Quick Start
+## Getting Started
 
 ```sh
+npm install @forwardimpact/pathway
 npx fit-pathway dev                                       # Launch web app
 npx fit-pathway job software_engineering J060 --track=platform  # Job definition
-npx fit-pathway agent software_engineering --track=platform   # Agent profiles
-npx fit-pathway build --url=https://pathway.myorg.com         # Static site
 ```
+
+<div class="grid">
+
+<a href="/docs/getting-started/leadership/pathway/">
+
+### Leadership
+
+Preview your framework in the browser, generate job definitions, and create
+interview question sets.
+
+</a>
+
+<a href="/docs/getting-started/engineers/pathway/">
+
+### Engineers
+
+Browse career paths, generate AI agent teams, and explore job definitions from
+the CLI and web app.
+
+</a>
+
+</div>

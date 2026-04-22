@@ -8,8 +8,8 @@ hero:
   alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
   subtitle: Map is the data product for the FIT suite. It defines your framework in plain YAML and stores operational signals — organization hierarchy, GitHub activity, and GetDX snapshot results — in one model.
   cta:
-    - label: For Leadership
-      href: /docs/getting-started/leadership/
+    - label: View on GitHub
+      href: https://github.com/forwardimpact/monorepo/tree/main/products/map
     - label: View on npm
       href: https://www.npmjs.com/package/@forwardimpact/map
       secondary: true
@@ -42,45 +42,23 @@ for product and analytics use cases.
 
 ---
 
-## How Data is Organized
-
-Framework definitions live in YAML. Operational measurements are stored in Map's
-activity schema.
-
-### Framework data (YAML)
-
-```
-data/
-├── levels.yaml           # Career levels (e.g. J040, J060)
-├── drivers.yaml          # Organizational outcomes
-├── disciplines/          # Engineering specialties
-├── tracks/               # Work context modifiers
-├── behaviours/           # Approaches to work
-├── capabilities/         # Skill groups with responsibilities
-└── questions/            # Interview questions
-```
-
-### Activity data (ingested)
-
-- Organization people records with manager links
-- GitHub events and derived artifacts for marker analysis
-- Evidence records linking artifacts to skill markers
-- GetDX team catalog and snapshot score imports
-
----
-
-## Quick Start
-
-Validate your data to make sure everything is connected:
+## Getting Started
 
 ```sh
+npm install @forwardimpact/map
+npx fit-map init
 npx fit-map validate
 ```
 
-Browse what's defined:
+<div class="grid">
 
-```sh
-npx fit-pathway skill --list       # All skills
-npx fit-pathway discipline --list  # Engineering specialties
-npx fit-pathway level --list       # Career levels
-```
+<a href="/docs/getting-started/leadership/map/">
+
+### Leadership
+
+Initialize your framework, validate schemas, set up the activity layer, and
+ingest operational signals from GitHub and GetDX.
+
+</a>
+
+</div>

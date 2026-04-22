@@ -6,8 +6,8 @@ toc: false
 hero:
   subtitle: Summit treats a team as a system, not a collection of individuals. It aggregates skill matrices into capability coverage, structural risks, and what-if staffing scenarios so leaders can build teams that succeed.
   cta:
-    - label: For Leadership
-      href: /docs/getting-started/leadership/
+    - label: View on GitHub
+      href: https://github.com/forwardimpact/monorepo/tree/main/products/summit
     - label: View on npm
       href: https://www.npmjs.com/package/@forwardimpact/summit
       secondary: true
@@ -41,52 +41,6 @@ Optional enhancements (require Map's activity layer):
 - `--outcomes` — weights growth recommendations by GetDX driver scores.
 
 Without these flags, Summit is fully local and instant — Map data plus a roster.
-
-### Install
-
-```
-npm install @forwardimpact/summit
-```
-
-### Getting started
-
-Create a roster file `summit.yaml`:
-
-```yaml
-teams:
-  platform:
-    - name: Alice
-      email: alice@example.com
-      job:
-        discipline: software_engineering
-        level: J060
-        track: platform
-    - name: Bob
-      email: bob@example.com
-      job: { discipline: software_engineering, level: J060 }
-
-projects:
-  migration-q2:
-    - email: alice@example.com
-      allocation: 0.6
-    - name: External Consultant
-      job: { discipline: software_engineering, level: J060, track: platform }
-      allocation: 1.0
-```
-
-Summit automatically looks for Map framework data in `data/pathway/` relative to
-the current working directory. If your framework data lives elsewhere, pass
-`--data ./path/to/data/pathway` to any command.
-
-Then run Summit against your Map data directory:
-
-```
-npx fit-summit roster --roster ./summit.yaml
-npx fit-summit coverage platform --roster ./summit.yaml
-npx fit-summit risks platform --roster ./summit.yaml
-npx fit-summit what-if platform --add "{ discipline: software_engineering, level: J060 }" --roster ./summit.yaml
-npx fit-summit growth platform --roster ./summit.yaml
-```
 
 ---
 
@@ -215,3 +169,26 @@ monitoring tool.
 individual shortcomings. When Summit identifies a gap, it's a team gap — a
 structural fact about composition. The `--audience director` flag strips
 individual names entirely from cross-team planning views.
+
+---
+
+## Getting Started
+
+```sh
+npm install @forwardimpact/summit
+npx fit-summit coverage platform --roster ./summit.yaml
+npx fit-summit risks platform --roster ./summit.yaml
+```
+
+<div class="grid">
+
+<a href="/docs/getting-started/leadership/summit/">
+
+### Leadership
+
+Create a roster, model team capability, run what-if staffing scenarios, and
+track trajectory over time.
+
+</a>
+
+</div>

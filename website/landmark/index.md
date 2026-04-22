@@ -6,10 +6,8 @@ toc: false
 hero:
   subtitle: Landmark is the analysis layer for engineering-system signals. It reads Map data to show marker evidence, practice patterns, and snapshot trends for manager-defined teams.
   cta:
-    - label: For Leadership
-      href: /docs/getting-started/leadership/
-    - label: For Engineers
-      href: /docs/getting-started/engineers/
+    - label: View on GitHub
+      href: https://github.com/forwardimpact/monorepo/tree/main/products/landmark
     - label: View on npm
       href: https://www.npmjs.com/package/@forwardimpact/landmark
       secondary: true
@@ -115,6 +113,37 @@ GetDX + GitHub → Map (ingest + store) → Landmark (analyze + present)
 
 Health works without Summit — it shows driver scores, evidence, and comments.
 Growth recommendations appear when Summit is installed.
+
+---
+
+## Getting Started
+
+```sh
+npm install @forwardimpact/landmark
+npx fit-landmark marker task_completion
+```
+
+<div class="grid">
+
+<a href="/docs/getting-started/leadership/landmark/">
+
+### Leadership
+
+Analyze engineering signals — marker evidence, snapshot trends, practice
+patterns, team health, and engineer voice.
+
+</a>
+
+<a href="/docs/getting-started/engineers/landmark/">
+
+### Engineers
+
+Check your evidence record, promotion readiness, growth timeline, and skill
+coverage against your framework markers.
+
+</a>
+
+</div>
 
 ---
 
