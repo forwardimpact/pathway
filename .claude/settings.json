@@ -3,7 +3,8 @@
     "enabled": true
   },
   "permissions": {
-    "defaultMode": "acceptEdits"
+    "defaultMode": "acceptEdits",
+    "allow": ["Edit(.claude/**)", "Write(.claude/**)", "Bash(sed:*.claude/**)"]
   },
   "hooks": {
     "SessionStart": [
