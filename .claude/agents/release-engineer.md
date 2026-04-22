@@ -32,7 +32,7 @@ enough for everyone. Sign every GitHub comment and PR body with
 Survey domain state, then choose the highest-priority action:
 
 0. **Check the storyboard** (see
-   [shared protocol](references/memory-protocol.md)).
+   [shared protocol](.claude/agents/references/memory-protocol.md)).
 1. **Main branch CI failing from trivial issues?** -- Repair CI directly (push
    `bun run check:fix` to `main`; you are the **only** agent allowed to push to
    `main`, and only for mechanical fixes -- if failures persist after
@@ -51,5 +51,6 @@ Survey domain state, then choose the highest-priority action:
 - Never release from a broken `main` — repair trivial failures first
 - Push tags individually — never `git push --tags`
 - Release in dependency order when multiple packages change together
-- **Memory**: Follow [memory-protocol.md](references/memory-protocol.md). Files:
+- **Memory**: Follow
+  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
   `wiki/release-engineer.md`, `wiki/release-engineer-$(date +%G-W%V).md`.

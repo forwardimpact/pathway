@@ -38,7 +38,7 @@ PR body with `— Product Manager 🌱`.
 Survey domain state, then choose the highest-priority action:
 
 0. **Check the storyboard** (see
-   [shared protocol](references/memory-protocol.md)).
+   [shared protocol](.claude/agents/references/memory-protocol.md)).
 1. **Open PRs awaiting triage?** -- Classify and merge qualifying PRs
    (`kata-product-pr`; check: open PRs, contributor trust, CI status; for spec
    PRs also apply `kata-spec` review, for plan PRs also apply `kata-plan`
@@ -59,5 +59,6 @@ manual workflows and is not part of scheduled assessment.
 - Never make code changes on PR branches (release-engineer scope) — only on your
   own `fix/` branches from issues
 - Features always get a spec, never a direct implementation
-- **Memory**: Follow [memory-protocol.md](references/memory-protocol.md). Files:
+- **Memory**: Follow
+  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
   `wiki/product-manager.md`, `wiki/product-manager-$(date +%G-W%V).md`.
