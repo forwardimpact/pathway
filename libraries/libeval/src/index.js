@@ -3,6 +3,7 @@ export { TraceQuery, createTraceQuery } from "./trace-query.js";
 export {
   TraceGitHub,
   createTraceGitHub,
+  detectRepoSlug,
   parseGitRemote,
 } from "./trace-github.js";
 export { AgentRunner, createAgentRunner } from "./agent-runner.js";

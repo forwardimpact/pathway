@@ -42,7 +42,8 @@ const definition = {
         },
         repo: {
           type: "string",
-          description: "GitHub repo override (default: git remote)",
+          description:
+            "GitHub repo override (default: $GITHUB_REPOSITORY or 'origin' git remote)",
         },
       },
     },
@@ -55,7 +56,8 @@ const definition = {
         artifact: { type: "string", description: "Artifact name override" },
         repo: {
           type: "string",
-          description: "GitHub repo override (default: git remote)",
+          description:
+            "GitHub repo override (default: $GITHUB_REPOSITORY or 'origin' git remote)",
         },
       },
     },

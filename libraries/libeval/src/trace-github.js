@@ -1,3 +1,4 @@
+import { execSync } from "node:child_process";
 import { createWriteStream } from "node:fs";
 import { mkdir } from "node:fs/promises";
 import path from "node:path";
@@ -116,7 +117,6 @@ export class TraceGitHub {
     // Stream to disk then extract.
     await pipeline(Readable.fromWeb(response.body), createWriteStream(zipPath));
 
-    const { execSync } = await import("node:child_process");
     execSync(
       `unzip -o -q ${JSON.stringify(zipPath)} -d ${JSON.stringify(dir)}`,
     );
@@ -182,7 +182,49 @@ export function parseGitRemote(remote) {
   const simple = remote.match(/^([^/:@]+)\/([^/]+)$/);
   if (simple) return { owner: simple[1], repo: simple[2] };
 
+  // Generic URL fallback: any remote whose path ends in /owner/repo(.git)?
+  // Covers GitHub Enterprise, proxied git URLs, and mirrors.
+  const generic = remote.match(/[/:]([^/:@?#]+)\/([^/:@?#]+?)(?:\.git)?\/?$/);
+  if (generic) return { owner: generic[1], repo: generic[2] };
+
   throw new Error(`Cannot parse GitHub remote: ${remote}`);
+}
+
+/**
+ * Detect the current GitHub repository slug as `{owner, repo}`.
+ *
+ * Resolution order:
+ *   1. `GITHUB_REPOSITORY` env var (set automatically by GitHub Actions).
+ *   2. `git remote get-url origin` in the current working directory.
+ *
+ * @returns {{owner: string, repo: string}}
+ * @throws {Error} with a clear message if neither source yields a parseable slug.
+ */
+export function detectRepoSlug() {
+  const env = process.env.GITHUB_REPOSITORY;
+  if (env && env.trim()) {
+    return parseGitRemote(env.trim());
+  }
+
+  let remote;
+  try {
+    remote = execSync("git remote get-url origin", {
+      encoding: "utf8",
+      stdio: ["ignore", "pipe", "ignore"],
+    }).trim();
+  } catch {
+    throw new Error(
+      "Cannot detect repository: set --repo <owner/repo>, export GITHUB_REPOSITORY, or run inside a git checkout with an 'origin' remote.",
+    );
+  }
+
+  if (!remote) {
+    throw new Error(
+      "Cannot detect repository: 'git remote get-url origin' returned an empty value. Pass --repo <owner/repo> or set GITHUB_REPOSITORY.",
+    );
+  }
+
+  return parseGitRemote(remote);
 }
 
 /**
@@ -207,16 +249,9 @@ export async function createTraceGitHub(opts = {}) {
     );
   }
 
-  let owner, repo;
-  if (repoOverride) {
-    ({ owner, repo } = parseGitRemote(repoOverride));
-  } else {
-    const { execSync } = await import("node:child_process");
-    const remote = execSync("git remote get-url origin", {
-      encoding: "utf8",
-    }).trim();
-    ({ owner, repo } = parseGitRemote(remote));
-  }
+  const { owner, repo } = repoOverride
+    ? parseGitRemote(repoOverride)
+    : detectRepoSlug();
 
   return new TraceGitHub({ token, owner, repo });
 }
