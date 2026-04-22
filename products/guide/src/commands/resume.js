@@ -121,7 +121,7 @@ export async function runResumeCommand() {
           state.sessionId = message.session_id;
         }
         if (message.type === "result" && message.result) {
-          outputStream.write(message.result);
+          outputStream.write(`${message.result}\n`);
         }
       }
     },

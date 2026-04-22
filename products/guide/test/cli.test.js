@@ -67,8 +67,26 @@ describe("fit-guide CLI", () => {
 
   test("clear command wipes stored state before resuming", () => {
     const source = readCommand("clear");
-    assert.ok(source.includes("storage.delete"));
-    assert.ok(source.includes("runResumeCommand"));
+    const deleteIdx = source.indexOf("storage.delete(");
+    const resumeCallIdx = source.indexOf("runResumeCommand()");
+    assert.ok(deleteIdx !== -1, "clear should call storage.delete");
+    assert.ok(resumeCallIdx !== -1, "clear should call runResumeCommand()");
+    assert.ok(
+      deleteIdx < resumeCallIdx,
+      "storage.delete must run before runResumeCommand",
+    );
+  });
+
+  test("no subcommand falls through to runResumeCommand", () => {
+    const source = readFileSync(cliPath, "utf8");
+    const clearIdx = source.indexOf('command === "clear"');
+    const defaultResumeIdx = source.indexOf("await runResumeCommand()");
+    assert.ok(clearIdx !== -1, "clear branch must exist");
+    assert.ok(defaultResumeIdx !== -1, "default must call runResumeCommand");
+    assert.ok(
+      clearIdx < defaultResumeIdx,
+      "runResumeCommand must appear after all named-command branches (fallthrough default)",
+    );
   });
 
   test("init command generates SERVICE_SECRET", () => {
