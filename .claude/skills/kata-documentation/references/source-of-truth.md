@@ -10,7 +10,6 @@ source. Never trust documentation alone — read the code.
 | Disciplines           | `data/pathway/disciplines/`               |
 | Tracks                | `data/pathway/tracks/`                    |
 | Levels                | `data/pathway/levels.yaml`                |
-| Stages                | `data/pathway/stages.yaml`                |
 | Drivers               | `data/pathway/drivers.yaml`               |
 | Job derivation        | `libraries/libskill/src/job.js`           |
 | Agent derivation      | `libraries/libskill/src/agent.js`         |
