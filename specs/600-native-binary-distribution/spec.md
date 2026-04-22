@@ -95,11 +95,10 @@ executables onto a macOS machine without installing Node.
   raw tarballs, or none of the above is out of scope. Linux users continue via
   the existing npm channel for now.
 - **Code signing and notarization.** Unsigned binaries will trigger Gatekeeper
-  warnings on macOS and need a user-side bypass (right-click open, or
-  `xattr -d com.apple.quarantine`). The security and UX implications are real
-  but resolving them — Developer ID certificate, notarization pipeline, hardened
-  runtime, stapling — is deferred to a follow-up spec. This spec must not claim
-  signing as complete.
+  warnings on macOS that the user must acknowledge before first run. The
+  security and UX implications are real but resolving them — Developer ID
+  certificate, notarization pipeline, hardened runtime, stapling — is deferred
+  to a follow-up spec. This spec must not claim signing as complete.
 - **Replacing or modifying the existing npm channel.** `npm install` /
   `npx fit-*` continues to work identically. No CLI is removed from npm, no
   shebang is rewritten, and no existing user workflow changes.
@@ -131,6 +130,10 @@ executables onto a macOS machine without installing Node.
 6. Every per-product Overview page linked from [`CLAUDE.md` § Products](../../CLAUDE.md)
    for a CLI in scope carries a "Install" section (or equivalent) that
    documents the brew install command alongside the existing npm flow.
+7. The existing npm distribution is unchanged: for each of the seven CLIs,
+   `npm install` followed by `npx fit-<cli> --help` succeeds on a reference
+   Node LTS environment after the release that ships the brew channel. No
+   `bin` script, `package.json` `bin` entry, or shebang has changed.
 
 ## Open questions
 
@@ -146,10 +149,10 @@ Each item below is a decision the design must make; none block the spec.
 - **Tap repository location.** A separate Forward Impact tap repo published to
   from this monorepo, vs. a tap subdirectory inside the monorepo that a release
   job syncs outward. Affects release automation and tap discoverability.
-- **Version sync between npm and brew.** How a release tag that publishes to npm
-  also updates cask SHAs and version strings in the tap — one workflow, two
-  workflows, or a follow-up job. Design must state the mechanism so a single
-  release does not leave the two channels on different versions.
+- **Version sync between npm and brew.** How a release tag that publishes to
+  npm also updates package hashes and version strings in the tap — one
+  workflow, two workflows, or a follow-up job. Design must state the mechanism
+  so a single release does not leave the two channels on different versions.
 - **Non-arm64 macOS and Linux behaviour.** Whether `brew install` on a
   non-arm64 macOS machine or on Linuxbrew fails fast with a clear message,
   falls back to advising the npm path, or ships an Intel/Linux build. The spec

@@ -33,19 +33,26 @@ bun's compile bundler for a CLI × target triple. A top-level `build-binaries`
 recipe fans out over the seven CLIs for the default target (`darwin-arm64`).
 Exact flag set is a plan concern.
 
-| Field          | Value                                                     |
-| -------------- | --------------------------------------------------------- |
-| Target triple  | `bun-darwin-arm64` (acceptance); `bun-darwin-x64` Phase 2 |
-| Output path    | `dist/binaries/<cli>-<os>-<arch>`                         |
-| Size ceiling   | 150 MB per binary (bun runtime ~60 MB + app code/deps)    |
-| Startup budget | `--help` in < 500 ms cold on an M-series mac              |
+| Field          | Value                                                            |
+| -------------- | ---------------------------------------------------------------- |
+| Target triple  | `bun-darwin-arm64` (acceptance); `bun-darwin-x64` Phase 2        |
+| Output path    | `dist/binaries/<cli>-<os>-<arch>`                                |
+| Size ceiling   | 150 MB per binary (bun runtime ~60 MB + app code/deps), CI-gated |
+| Startup budget | `--help` in < 500 ms cold on an M-series mac, CI-gated           |
+
+"Phase 2" throughout this design is a placeholder for a follow-up spec that
+promotes `bun-darwin-x64` from pre-reserved (target name wired in the recipe,
+no CI job) to acceptance (built, released, tapped). No Phase 2 work lands here.
 
 **Rejected — one recipe per CLI.** Seven near-identical recipes duplicate the
 flag set; a parameterized recipe keeps flags in one place.
 
 **Rejected — `pkg`/`nexe` bundlers.** Bun already produces single-file
-executables and is our primary runtime; a second toolchain adds surface for no
-gain.
+executables and is our primary runtime; a second toolchain adds a parallel
+dependency graph without a smaller or faster output than `bun build --compile`.
+
+**Rejected — no budgets.** Without size/startup ceilings, bundled deps drift
+silently; a cheap CI check at the build step catches regressions before release.
 
 **Codegen as build prerequisite.** `build-binary` depends on `codegen` (the
 existing `just codegen` recipe that runs `fit-codegen --all`). Generated gRPC
@@ -122,9 +129,8 @@ new `version` and `sha256`. Authentication is a repo secret
 `HOMEBREW_TAP_PAT` scoped to the tap repo only. PR title, body, and commit
 message shape are plan concerns.
 
-**Rejected — `homebrew-releaser` action.** Opinionated about formula shape, less
-flexible for per-cask `arch` gating, and hides the diff from review.
-
+**Rejected — `homebrew-releaser` action.** Opinionated about formula shape,
+inflexible for per-cask `arch` gating, and hides the diff from review.
 **Rejected — manual updates.** Guarantees drift between npm and brew versions.
 
 ## Component 4 — fit-guide codegen story
