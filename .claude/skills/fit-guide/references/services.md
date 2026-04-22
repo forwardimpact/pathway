@@ -8,7 +8,7 @@ Services start in dependency order (defined in `config/config.json`):
 2. **vector** — Embedding vector store (gRPC, port 3002)
 3. **graph** — RDF knowledge graph (gRPC, port 3003)
 4. **pathway** — Framework data service (gRPC, port 3004)
-5. **mcp** — MCP tool and prompt gateway (HTTP+SSE, port 3005)
+5. **mcp** — MCP tool and prompt gateway (Streamable HTTP, port 3005)
 
 ### Environment
 

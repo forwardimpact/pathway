@@ -21,8 +21,7 @@ Controls the service startup order for `fit-rc`:
       { "name": "vector", "command": "..." },
       { "name": "graph", "command": "..." },
       { "name": "pathway", "command": "..." },
-      { "name": "mcp", "command": "..." },
-      { "name": "web", "command": "..." }
+      { "name": "mcp", "command": "..." }
     ]
   }
 }

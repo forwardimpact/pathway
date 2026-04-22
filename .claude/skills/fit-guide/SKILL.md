@@ -129,13 +129,13 @@ See [`references/cli.md`](references/cli.md) for full command listings.
 Guide requires the service stack to be running. Services are supervised by
 `fit-rc` and defined in `config/config.json`.
 
-| Order | Service | Protocol | Purpose                     | Port |
-| ----- | ------- | -------- | --------------------------- | ---- |
-| 1     | trace   | gRPC     | Distributed tracing         | 3001 |
-| 2     | vector  | gRPC     | Vector similarity search    | 3002 |
-| 3     | graph   | gRPC     | RDF triple store            | 3003 |
-| 4     | pathway | gRPC     | Framework data service      | 3004 |
-| 5     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3005 |
+| Order | Service | Protocol        | Purpose                     | Port |
+| ----- | ------- | --------------- | --------------------------- | ---- |
+| 1     | trace   | gRPC            | Distributed tracing         | 3001 |
+| 2     | vector  | gRPC            | Vector similarity search    | 3002 |
+| 3     | graph   | gRPC            | RDF triple store            | 3003 |
+| 4     | pathway | gRPC            | Framework data service      | 3004 |
+| 5     | mcp     | Streamable HTTP | MCP tool and prompt gateway | 3005 |
 
 ### Service Management
 
