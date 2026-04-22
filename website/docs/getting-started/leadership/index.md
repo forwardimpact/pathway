@@ -245,15 +245,15 @@ Create a `people.yaml` file with your roster:
   name: Ada Lovelace
   github_username: adalovelace
   discipline: software_engineering
-  level: L4
+  level: J040
   track: platform
   manager_email: charles@example.com
 
 - email: charles@example.com
   name: Charles Babbage
   github_username: cbabbage
-  discipline: engineering_management
-  level: L5
+  discipline: software_engineering
+  level: J060
   manager_email: null
 ```
 
@@ -480,7 +480,7 @@ Generate a complete job definition by combining a discipline, level, and
 optional track:
 
 ```sh
-npx fit-pathway job software_engineering L3 --track=platform
+npx fit-pathway job software_engineering J060 --track=platform
 ```
 
 ### Generate interview questions
@@ -488,7 +488,7 @@ npx fit-pathway job software_engineering L3 --track=platform
 Create role-specific interview question sets:
 
 ```sh
-npx fit-pathway question software_engineering L3
+npx fit-pathway question software_engineering J060
 ```
 
 ---
