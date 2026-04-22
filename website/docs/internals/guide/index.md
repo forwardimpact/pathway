@@ -93,12 +93,12 @@ of scope.
 Guide requires the service stack, supervised by `fit-rc`. Services start in
 dependency order:
 
-| Order | Service | Protocol | Purpose                     | Port |
-| ----- | ------- | -------- | --------------------------- | ---- |
-| 1     | trace   | gRPC     | Distributed tracing         | 3001 |
-| 2     | vector  | gRPC     | Vector similarity search    | 3002 |
-| 3     | graph   | gRPC     | RDF triple store            | 3003 |
-| 4     | pathway | gRPC     | Framework data service      | 3004 |
+| Order | Service | Protocol        | Purpose                     | Port |
+| ----- | ------- | --------------- | --------------------------- | ---- |
+| 1     | trace   | gRPC            | Distributed tracing         | 3001 |
+| 2     | vector  | gRPC            | Vector similarity search    | 3002 |
+| 3     | graph   | gRPC            | RDF triple store            | 3003 |
+| 4     | pathway | gRPC            | Framework data service      | 3004 |
 | 5     | mcp     | Streamable HTTP | MCP tool and prompt gateway | 3005 |
 
 Start all services with `npx fit-rc start` (external) or `just rc-start`
