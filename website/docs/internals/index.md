@@ -106,6 +106,15 @@ dual-mode (interactive/piped) CLI interfaces.
 
 </a>
 
+<a href="/docs/internals/vectors/">
+
+### Vectors
+
+Vector embedding pipeline — TEI setup, resource processing, index format, and
+integration with the vector service.
+
+</a>
+
 <a href="/docs/internals/operations/">
 
 ### Operations

@@ -354,6 +354,6 @@ supabase-setup: supabase-up
 tei-install:
     cargo install --git https://github.com/huggingface/text-embeddings-inference --features candle text-embeddings-router
 
-# Start TEI embedding service
+# Start TEI embedding service (foreground, Ctrl-C to stop)
 tei-start:
-    bunx fit-rc start tei
+    text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-output
