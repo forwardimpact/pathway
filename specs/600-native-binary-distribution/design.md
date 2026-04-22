@@ -28,10 +28,10 @@ ES module — it becomes the `bun build --compile` entry unchanged. The
 `#!/usr/bin/env node` shebang is a no-op in a compiled binary and the npm path
 keeps using it, so no source rewrite is needed.
 
-**Recipe shape.** One **parameterized recipe** `build-binary CLI TARGET` drives
-`bun build --compile --minify --sourcemap=none --target=bun-<TARGET>`. A
-top-level `build-binaries` recipe fans out over the seven CLIs for the default
-target (`darwin-arm64`).
+**Recipe shape.** One **parameterized recipe** `build-binary CLI TARGET` invokes
+bun's compile bundler for a CLI × target triple. A top-level `build-binaries`
+recipe fans out over the seven CLIs for the default target (`darwin-arm64`).
+Exact flag set is a plan concern.
 
 | Field          | Value                                                     |
 | -------------- | --------------------------------------------------------- |
@@ -84,8 +84,8 @@ keeping one trigger shape means one `git tag` launches both channels.
 **Artifact naming.** `fit-<cli>-<version>-<os>-<arch>` (e.g.
 `fit-pathway-0.25.32-darwin-arm64`). Version in the filename keeps old release
 assets immutable and gives casks a stable, versioned URL. A matching `.sha256`
-sidecar is uploaded alongside each binary via
-`shasum -a 256 <file> > <file>.sha256`.
+sidecar is uploaded alongside each binary so casks can pin the hash without a
+separate manifest file.
 
 **Interaction with `publish-npm.yml`.** Two independent workflows on the same
 trigger; both read `products/<cli>/package.json` for the version, so npm and
@@ -116,10 +116,11 @@ install prebuilt artifacts. Our binaries ship prebuilt from CI, and casks unlock
 | `livecheck`  | GitHub Releases API, `<cli>@v*` tag series                                |
 | `zap`        | no-op — CLIs are stateless; user data in `data/*` is theirs               |
 
-**Update automation — chosen: PR via PAT.** The `tap-pr` job clones
-`forwardimpact/homebrew-tap`, updates `version` and `sha256` in the relevant
-`Casks/fit-<cli>.rb`, and opens a PR `chore: bump fit-<cli> to <version>`. Repo
-secret `HOMEBREW_TAP_PAT` scopes to the tap repo only.
+**Update automation — chosen: PR via PAT.** The `tap-pr` job proposes a cask
+update against `forwardimpact/homebrew-tap` via a pull request that carries the
+new `version` and `sha256`. Authentication is a repo secret
+`HOMEBREW_TAP_PAT` scoped to the tap repo only. PR title, body, and commit
+message shape are plan concerns.
 
 **Rejected — `homebrew-releaser` action.** Opinionated about formula shape, less
 flexible for per-cask `arch` gating, and hides the diff from review.
@@ -156,25 +157,37 @@ expansion, not a redesign.
 
 ## Component 6 — Version sync (single source of truth)
 
-The **git tag** `<cli>@v<version>` is the single source of truth. Flow:
+The **git tag** `<cli>@v<version>` is the single source of truth for both
+channels. `publish-npm.yml` and `publish-brew.yml` resolve the version from the
+same `products/<cli>/package.json` at the tagged commit; since both read the
+same file in the same commit, npm and brew cannot carry different version
+numbers for a given tag. The two channels can lag only in publication timing —
+npm publishes directly, while brew publication waits on the tap PR being merged
+by a human. No cross-workflow state is shared; the invariant is enforced by the
+common tag + common file.
 
-1. Developer runs release-please (or `git tag cli@vX.Y.Z`).
-2. Tag push fires both `publish-npm.yml` and `publish-brew.yml`.
-3. `publish-npm.yml` reads `products/<cli>/package.json` and publishes to npm.
-4. `publish-brew.yml` reads the same `package.json`, builds binaries, uploads
-   release assets, and opens the tap PR using that version.
-5. Merging the tap PR makes `brew upgrade` available.
+**Rejected — a release manifest file.** Adds a second source of truth that can
+drift from `package.json`; the tag already serialises the version.
 
-Both workflows read the same file in the same commit — versions cannot diverge,
-only timing (tap PR awaits human merge).
+## Component 7 — Per-product documentation
+
+Spec SC6 requires every affected product's Overview page to document the brew
+install flow. Each `website/<product>/index.md` gains an **Install** section (or
+extends the existing one) with two blocks: npm (unchanged) and brew (the
+`brew tap` + `brew install` invocation and the Gatekeeper-warning caveat).
+Docs live in the monorepo and ship through the existing website workflow — no
+new publishing surface.
+
+**Rejected — a single shared install page.** Per-product pages are the entry
+points external users land on; cross-linking to a shared page doubles the click
+count on the first-install path.
 
 ## Open questions for plan phase
 
-- **Exact justfile syntax** for the `build-binaries` fan-out over the CLI list.
-- **Exact workflow YAML**, including bun-install cache keys across matrix jobs.
-- **Tap repo bootstrap**: `forwardimpact/homebrew-tap` creation,
-  `HOMEBREW_TAP_PAT` provisioning, seeding initial cask files.
-- **Gatekeeper UX copy** on per-product Overview pages — exact
-  `xattr -d com.apple.quarantine` guidance (signing is deferred per spec).
-- **Release-notes template** — whether `publish-brew.yml` appends a brew install
-  snippet to the `gh release` body.
+- **Tap repo bootstrap.** Whether `forwardimpact/homebrew-tap` is created fresh,
+  seeded with empty casks the first release populates, or seeded with a manual
+  initial cask. Bootstrapping only happens once, but it changes which CI steps
+  are idempotent vs. first-run-only.
+- **Gatekeeper UX copy baseline.** Signing is deferred per spec; the design
+  commits to a caveat block on Overview pages, but the exact wording and where
+  it sits relative to the install command is a plan concern.
