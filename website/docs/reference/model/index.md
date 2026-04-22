@@ -97,7 +97,7 @@ Capabilities also define:
 - **professionalResponsibilities** -- IC role expectations per skill proficiency
 - **managementResponsibilities** -- Manager role expectations per skill
   proficiency
-- **checklists** -- Stage handoff items per skill proficiency
+- **checklists** — Phase transition items per skill proficiency
 
 ---
 
@@ -286,9 +286,9 @@ meaningful differentiation between tracks.
 | Capability         | What it does                                             |
 | ------------------ | -------------------------------------------------------- |
 | **Job derivation** | Complete role definitions with skills and behaviours     |
-| **Agent profiles** | Stage-specific agent instructions for AI assistants      |
+| **Agent profiles** | Agent instructions derived from discipline and track     |
 | **Skill matrices** | Derived skill proficiencies with track modifiers applied |
-| **Checklists**     | Stage transition criteria from capability definitions    |
+| **Checklists**     | Phase transition criteria from capability definitions    |
 | **Progression**    | Career path analysis and gap identification              |
 | **Interviews**     | Role-specific question selection                         |
 | **Job matching**   | Gap analysis between current and target roles            |
@@ -297,7 +297,7 @@ meaningful differentiation between tracks.
 
 ## Related Documentation
 
-- [Lifecycle](/docs/reference/lifecycle/) -- Stages, handoffs, and checklists
+- [Lifecycle](/docs/reference/lifecycle/) — Phases, handoffs, and checklists
 - [Career Paths](/docs/guides/career-paths/) -- Using progression and gap
   analysis
 - [Agent Teams](/docs/guides/agent-teams/) -- Agent profile generation
