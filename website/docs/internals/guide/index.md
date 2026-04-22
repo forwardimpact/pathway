@@ -21,14 +21,18 @@ All three surfaces share the same tools, the same agent instructions
 
 ## MCP Endpoint
 
-The `mcp` service is an HTTP+SSE MCP server built on
-`@modelcontextprotocol/sdk`. It exposes 10 tools and the `guide-default` prompt.
+The `mcp` service is a Streamable HTTP MCP server built on
+`@modelcontextprotocol/sdk`. It exposes tools and the `guide-default` prompt.
 All three surfaces connect to this endpoint with a bearer token (`MCP_TOKEN`).
 The `/health` probe is unauthenticated.
 
 ---
 
 ## Tools
+
+Tools are registered at startup from `config.json` via `registerToolsFromConfig`
+(`@forwardimpact/libmcp`). Each entry maps an MCP tool name to a gRPC method on
+a backend service. The starter template ships these defaults:
 
 | MCP tool                         | Backend | gRPC method            |
 | -------------------------------- | ------- | ---------------------- |
@@ -89,13 +93,13 @@ of scope.
 Guide requires the service stack, supervised by `fit-rc`. Services start in
 dependency order:
 
-| Order | Service | Protocol | Purpose                     | Port |
-| ----- | ------- | -------- | --------------------------- | ---- |
-| 1     | trace   | gRPC     | Distributed tracing         | 3001 |
-| 2     | vector  | gRPC     | Vector similarity search    | 3002 |
-| 3     | graph   | gRPC     | RDF triple store            | 3003 |
-| 4     | pathway | gRPC     | Framework data service      | 3004 |
-| 5     | mcp     | HTTP+SSE | MCP tool and prompt gateway | 3005 |
+| Order | Service | Protocol        | Purpose                     | Port |
+| ----- | ------- | --------------- | --------------------------- | ---- |
+| 1     | trace   | gRPC            | Distributed tracing         | 3001 |
+| 2     | vector  | gRPC            | Vector similarity search    | 3002 |
+| 3     | graph   | gRPC            | RDF triple store            | 3003 |
+| 4     | pathway | gRPC            | Framework data service      | 3004 |
+| 5     | mcp     | Streamable HTTP | MCP tool and prompt gateway | 3005 |
 
 Start all services with `npx fit-rc start` (external) or `just rc-start`
 (internal contributors).
