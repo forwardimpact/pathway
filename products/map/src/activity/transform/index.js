@@ -8,16 +8,18 @@
 import { transformAllGitHub } from "./github.js";
 import { transformAllGetDX } from "./getdx.js";
 import { transformPeople } from "./people.js";
+import { transformEvidence } from "./evidence.js";
 
 /**
  * Run all transforms in dependency order.
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @returns {Promise<{people: object, getdx: object, github: object}>}
+ * @returns {Promise<{people: object, getdx: object, github: object, evidence: object}>}
  */
 export async function transformAll(supabase) {
   const people = await transformPeople(supabase);
   const getdx = await transformAllGetDX(supabase);
   const github = await transformAllGitHub(supabase);
+  const evidence = await transformEvidence(supabase);
 
-  return { people, getdx, github };
+  return { people, getdx, github, evidence };
 }

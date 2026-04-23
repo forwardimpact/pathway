@@ -284,7 +284,7 @@ function renderGetDXComments(entities, files, proseMap) {
     });
 
     files.set(
-      `getdx/snapshots/${snapshotId}/comments.json`,
+      `getdx/snapshots-comments/${snapshotId}.json`,
       JSON.stringify({ ok: true, comments }, null, 2),
     );
   }

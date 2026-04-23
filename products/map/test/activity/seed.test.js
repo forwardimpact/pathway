@@ -32,8 +32,11 @@ function createFakeSeedClient() {
           },
           async download(path) {
             const uploaded = uploads.find((u) => u.path === path);
+            if (!uploaded) {
+              return { data: null, error: { message: `${path} not found` } };
+            }
             return {
-              data: { text: async () => uploaded?.content || "" },
+              data: { text: async () => uploaded.content },
               error: null,
             };
           },

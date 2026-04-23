@@ -4,6 +4,7 @@ import { transformAll } from "@forwardimpact/map/activity/transform";
 import { transformPeople } from "@forwardimpact/map/activity/transform/people";
 import { transformAllGetDX } from "@forwardimpact/map/activity/transform/getdx";
 import { transformAllGitHub } from "@forwardimpact/map/activity/transform/github";
+import { transformEvidence } from "@forwardimpact/map/activity/transform/evidence";
 import { getOrganization } from "@forwardimpact/map/activity/queries/org";
 import {
   formatHeader,
@@ -66,6 +67,15 @@ export async function transform(target, supabase) {
       report("github", summarizeCounts(r));
       return r.errors.length === 0 ? 0 : 1;
     }
+    case "evidence": {
+      const r = await transformEvidence(supabase);
+      report("evidence", {
+        inserted: r.inserted,
+        skipped: r.skipped,
+        errors: r.errors.length,
+      });
+      return r.errors.length === 0 ? 0 : 1;
+    }
     case "all":
     case undefined: {
       const r = await transformAll(supabase);
@@ -75,10 +85,16 @@ export async function transform(target, supabase) {
       });
       report("getdx", summarizeCounts(r.getdx));
       report("github", summarizeCounts(r.github));
+      report("evidence", {
+        inserted: r.evidence.inserted,
+        skipped: r.evidence.skipped,
+        errors: r.evidence.errors.length,
+      });
       const ok =
         r.people.errors.length === 0 &&
         r.getdx.errors.length === 0 &&
-        r.github.errors.length === 0;
+        r.github.errors.length === 0 &&
+        r.evidence.errors.length === 0;
       return ok ? 0 : 1;
     }
     default:
@@ -102,12 +118,27 @@ export async function verify(supabase) {
     .select("*", { count: "exact", head: true });
   if (eventErr) throw new Error(`github_events: ${eventErr.message}`);
 
+  const { count: evidenceCount, error: evidErr } = await supabase
+    .from("evidence")
+    .select("*", { count: "exact", head: true });
+  if (evidErr) throw new Error(`evidence: ${evidErr.message}`);
+
+  const { count: commentCount, error: comErr } = await supabase
+    .from("getdx_snapshot_comments")
+    .select("*", { count: "exact", head: true });
+  if (comErr) throw new Error(`getdx_snapshot_comments: ${comErr.message}`);
+
   summary.render({
     title: formatHeader("Activity tables"),
     items: [
       { label: "organization_people", description: `${people.length} rows` },
       { label: "getdx_snapshots", description: `${snapshotCount ?? 0} rows` },
       { label: "github_events", description: `${eventCount ?? 0} rows` },
+      { label: "evidence", description: `${evidenceCount ?? 0} rows` },
+      {
+        label: "getdx_snapshot_comments",
+        description: `${commentCount ?? 0} rows`,
+      },
     ],
   });
 
@@ -187,6 +218,11 @@ export async function seed({ data, supabase }) {
   });
   report("Transform getdx", summarizeCounts(result.getdx));
   report("Transform github", summarizeCounts(result.github));
+  report("Transform evidence", {
+    inserted: result.evidence.inserted,
+    skipped: result.evidence.skipped,
+    errors: result.evidence.errors.length,
+  });
 
   // 4. Verify
   return verify(supabase);
