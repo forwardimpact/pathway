@@ -113,9 +113,9 @@ export class Config {
     Object.assign(this, data);
   }
 
-  /** @returns {string} GitHub token (GITHUB_TOKEN, or GH_TOKEN as fallback) */
+  /** @returns {string} GitHub token (GH_TOKEN, or GITHUB_TOKEN as fallback) */
   ghToken() {
-    return this.#resolve(["GITHUB_TOKEN", "GH_TOKEN"]);
+    return this.#resolve(["GH_TOKEN", "GITHUB_TOKEN"]);
   }
 
   /** @returns {Promise<string>} LLM API token (async for caller compatibility) */
