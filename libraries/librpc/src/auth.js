@@ -101,14 +101,21 @@ export class HmacAuth {
         };
       }
 
-      // Verify HMAC signature
+      // Verify HMAC signature (timing-safe comparison)
       const payload = `${serviceId}:${timestamp}`;
       const expectedSignature = crypto
         .createHmac("sha256", this.#secret)
         .update(payload)
         .digest("hex");
 
-      if (providedSignature !== expectedSignature) {
+      const signaturesMatch =
+        providedSignature.length === expectedSignature.length &&
+        crypto.timingSafeEqual(
+          Buffer.from(providedSignature),
+          Buffer.from(expectedSignature),
+        );
+
+      if (!signaturesMatch) {
         return {
           isValid: false,
           serviceId: null,
