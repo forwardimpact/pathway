@@ -296,10 +296,16 @@ evidence function is shared.
   rewritten to match the new vocabulary and to name the Ask/Answer contract
   descriptively in generic, domain-agnostic language — no kata references, no
   skill names, no domain vocabulary. The `Facilitator` participant config
-  gains an optional `sessionBootstrap: string?` field; when provided,
+  gains an optional `systemPromptAmend: string?` field; when provided,
   libeval concatenates it after `FACILITATED_AGENT_SYSTEM_PROMPT` at the
   `systemPromptFor` call site so consumers can supply participant framing
-  without libeval knowing its content.
+  without libeval knowing its content. The existing CLI-only `--task-amend`
+  concatenation in `libraries/libeval/src/commands/{run,supervise,facilitate}.js`
+  is promoted to a public config field (`taskAmend: string?`) on the
+  `Facilitator`, `Supervisor`, and `AgentRunner` configs; the CLI flag
+  becomes a thin mapping onto the config field. `taskAmend` (task-content
+  level) and `systemPromptAmend` (system-prompt level) form one naming
+  family of consumer-controlled append surfaces.
 - `libraries/libeval/src/supervisor.js` — parallel changes for supervision mode:
   pending-ask registry, turn-complete guard, updated `SUPERVISOR_SYSTEM_PROMPT`
   and `AGENT_SYSTEM_PROMPT`.
@@ -319,11 +325,11 @@ evidence function is shared.
   `references/metrics.md`, and `references/storyboard-template.md` are
   redistributed into the new structure. `SKILL.md` Facilitator Process gains
   a step describing how the coach derives a participant-side summary from the
-  relevant overlay and passes it as `sessionBootstrap` to libeval's
+  relevant overlay and passes it as `systemPromptAmend` to libeval's
   `Facilitator` participant config.
 - `.github/workflows/kata-coaching.yml` — `task-text` rewritten to carry the
   coaching framing (mode, target participant, pointer to `kata-session`,
-  participant-side summary to be passed through as `sessionBootstrap`). Does
+  participant-side summary to be passed through as `systemPromptAmend`). Does
   not prescribe Q1 content, does not assign participant-side work, does not
   carry enforcement phrasing. Not reduced to a single sentence; shape need
   not match `kata-storyboard.yml`.
@@ -338,12 +344,13 @@ evidence function is shared.
   facilitated-mode and supervised-mode protocol-violation invariants (counts of
   `protocol_violation` trace events plus `Conclude` cardinality).
 - The participant-side coaching-framing delivery surface: libeval exposes a
-  generic `sessionBootstrap: string?` pass-through on the `Facilitator`
-  participant config (libeval stays domain-agnostic); the coaching framing
-  originates in `kata-coaching.yml` `task-text` and is propagated to
-  participants by the facilitator agent, which derives participant-side
-  content from the `kata-session` skill and passes it through libeval's
-  pass-through field.
+  generic `systemPromptAmend: string?` pass-through on the `Facilitator`
+  participant config, paired with the promoted `taskAmend: string?` config
+  field that harmonises with the existing `--task-amend` CLI flag (libeval
+  stays domain-agnostic). The coaching framing originates in
+  `kata-coaching.yml` `task-text` and is propagated to participants by the
+  facilitator agent, which derives participant-side content from the
+  `kata-session` skill and passes it through libeval's pass-through field.
 
 ### Excluded
 
@@ -379,7 +386,7 @@ evidence function is shared.
   is preserved.
 - **Spec 500** (`plan implemented`) — facilitated-agent identity. Unchanged;
   the participant-side coaching-framing surface this spec selects
-  (libeval's generic `sessionBootstrap` pass-through populated by the
+  (libeval's generic `systemPromptAmend` pass-through populated by the
   facilitator) sits alongside the identity surface, not inside it.
 
 ## Success Criteria
@@ -441,27 +448,35 @@ properties compose into the intended runtime behaviour; it is not a criterion.
 
 7. **Participant-side coaching framing is delivered via a consumer-controlled
    pass-through, not via libeval's system prompt or the coach's first `Ask`.**
-   Libeval's `Facilitator` participant config exposes a `sessionBootstrap:
+   Libeval's `Facilitator` participant config exposes a `systemPromptAmend:
    string?` field; when provided, libeval concatenates it after
    `FACILITATED_AGENT_SYSTEM_PROMPT` at construction time so every participant
-   receives it before `messageBus.waitForMessages` returns. The coaching
-   framing itself (mode, target, pointer to `kata-session`, participant-side
-   summary) originates in `.github/workflows/kata-coaching.yml` `task-text`
-   and is propagated to participants by the facilitator as derived from the
-   `kata-session` skill. Libeval knows nothing about the string's content.
-   Checkable by (a) a libeval test asserting a provided `sessionBootstrap`
-   appears in the participant runner's system prompt before
-   `messageBus.waitForMessages` returns and an omitted one leaves the prompt
-   purely generic, (b) `kata-session/SKILL.md` containing a Facilitator
-   Process step that constructs and passes the bootstrap, and (c)
-   `kata-coaching.yml` `task-text` priming that step.
+   receives it before `messageBus.waitForMessages` returns. The field is
+   named to harmonise with the existing `--task-amend` CLI flag, which this
+   spec promotes into a public `taskAmend: string?` config field on the
+   `Facilitator`, `Supervisor`, and `AgentRunner` configs (the CLI flag
+   becomes a thin mapping onto it). `taskAmend` (task-content level) and
+   `systemPromptAmend` (system-prompt level) form one naming family of
+   consumer-controlled append surfaces. The coaching framing itself (mode,
+   target, pointer to `kata-session`, participant-side summary) originates
+   in `.github/workflows/kata-coaching.yml` `task-text` and is propagated to
+   participants by the facilitator as derived from the `kata-session` skill.
+   Libeval knows nothing about either string's content. Checkable by (a) a
+   libeval test asserting a provided `systemPromptAmend` appears in the
+   participant runner's system prompt before `messageBus.waitForMessages`
+   returns and an omitted one leaves the prompt purely generic, (b) a
+   libeval test asserting the promoted `taskAmend` config field produces the
+   same concatenation semantics that the CLI flag produced previously,
+   (c) `kata-session/SKILL.md` containing a Facilitator Process step that
+   constructs and passes `systemPromptAmend`, and (d) `kata-coaching.yml`
+   `task-text` priming that step.
 
 8. **Coaching workflow task-text primes the facilitator without prescribing
    participant work.** `.github/workflows/kata-coaching.yml` `task-text`
    carries the coaching framing that libeval's generic prompts deliberately
    omit: mode (1-on-1), target participant, pointer to `kata-session`, and
    the participant-side summary the coach should pass through as
-   `sessionBootstrap`. It must not prescribe Q1 content (the skill supplies
+   `systemPromptAmend`. It must not prescribe Q1 content (the skill supplies
    wording), must not assign participant-side work (no "have them analyze
    their trace using kata-trace"), must not name tools the participant should
    use, and must not carry enforcement phrasing ("stop making tool calls",
