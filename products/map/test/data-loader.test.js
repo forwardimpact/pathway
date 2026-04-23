@@ -1,5 +1,9 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import {
+  assertThrowsMessage,
+  assertRejectsMessage,
+} from "@forwardimpact/libharness";
 
 import { DataLoader } from "../src/loader.js";
 
@@ -21,11 +25,17 @@ describe("DataLoader", () => {
 
   describe("constructor validation", () => {
     test("throws when fs is missing", () => {
-      assert.throws(() => new DataLoader(null, mockParser), /fs is required/);
+      assertThrowsMessage(
+        () => new DataLoader(null, mockParser),
+        /fs is required/,
+      );
     });
 
     test("throws when parser is missing", () => {
-      assert.throws(() => new DataLoader(mockFs, null), /parser is required/);
+      assertThrowsMessage(
+        () => new DataLoader(mockFs, null),
+        /parser is required/,
+      );
     });
 
     test("creates instance with valid dependencies", () => {
@@ -59,7 +69,7 @@ describe("DataLoader", () => {
       };
 
       const loader = new DataLoader(mockFs, mockParser);
-      await assert.rejects(
+      await assertRejectsMessage(
         () => loader.loadYamlFile("/missing.yaml"),
         /ENOENT/,
       );

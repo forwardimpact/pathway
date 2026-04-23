@@ -21,7 +21,7 @@
       "name": "@forwardimpact/libcli",
       "version": "0.1.3",
       "devDependencies": {
-        "@forwardimpact/libharness": "^0.1.5",
+        "@forwardimpact/libharness": "^0.1.14",
       },
     },
     "libraries/libcodegen": {
@@ -51,7 +51,7 @@
         "@forwardimpact/libstorage": "^0.1.53",
       },
       "devDependencies": {
-        "@forwardimpact/libharness": "^0.1.5",
+        "@forwardimpact/libharness": "^0.1.14",
       },
     },
     "libraries/libdoc": {
@@ -70,6 +70,9 @@
         "marked-highlight": "^2.2.4",
         "mustache": "^4.2.0",
         "yaml": "^2.8.3",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
       },
       "peerDependencies": {
         "prettier": "^3.0.0",
@@ -122,7 +125,7 @@
         "n3": "^2.0.3",
       },
       "devDependencies": {
-        "@forwardimpact/libharness": "^0.1.5",
+        "@forwardimpact/libharness": "^0.1.14",
         "@forwardimpact/libutil": "^0.1.60",
       },
     },
@@ -140,7 +143,7 @@
         "@forwardimpact/libtype": "^0.1.63",
       },
       "devDependencies": {
-        "@forwardimpact/libharness": "^0.1.5",
+        "@forwardimpact/libharness": "^0.1.14",
       },
     },
     "libraries/libmcp": {
@@ -149,6 +152,9 @@
       "dependencies": {
         "@forwardimpact/libtype": "^0.1.0",
         "zod": "^3.24.0",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
       },
     },
     "libraries/libpolicy": {
@@ -244,6 +250,9 @@
       "dependencies": {
         "@forwardimpact/map": "^0.13.0",
       },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
     },
     "libraries/libstorage": {
       "name": "@forwardimpact/libstorage",
@@ -286,6 +295,9 @@
         "@forwardimpact/libutil": "^0.1.61",
         "seedrandom": "^3.0.5",
       },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
       "optionalDependencies": {
         "@faker-js/faker": "^10.4.0",
       },
@@ -310,6 +322,9 @@
         "@forwardimpact/libtemplate": "^0.2.0",
         "yaml": "^2.8.3",
       },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
       "optionalDependencies": {
         "apache-arrow": "^21.1.0",
         "parquet-wasm": "^0.7.1",
@@ -330,7 +345,7 @@
         "jmespath": "^0.16.0",
       },
       "devDependencies": {
-        "@forwardimpact/libharness": "^0.1.5",
+        "@forwardimpact/libharness": "^0.1.14",
       },
     },
     "libraries/libtemplate": {
@@ -535,6 +550,9 @@
         "@forwardimpact/libutil": "^0.1.72",
         "@forwardimpact/map": "^0.15.18",
         "yaml": "^2.8.3",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
       },
       "optionalDependencies": {
         "@supabase/supabase-js": "^2.103.3",
