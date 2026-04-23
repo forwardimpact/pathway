@@ -7,19 +7,25 @@ exist and WHERE they interact.
 
 ```mermaid
 graph LR
-  MR[monorepo<br/>justfile] -->|bun build --compile| BIN[dist/binaries/<br/>fit-*-darwin-arm64]
+  MR[monorepo<br/>justfile] -->|bun build --compile| BIN[dist/binaries/<br/>Mach-Os<br/>per product, service,<br/>library CLI]
+  BIN -->|build-app.sh × 6| APPS[dist/apps/<br/>fit-*.app × 6]
+  BIN -->|build-app.sh| SVC[dist/apps/<br/>FIT Services.app]
+  BIN -->|build-app.sh| UTIL[dist/apps/<br/>FIT Utilities.app]
+  LIB[libraries/libmacos<br/>build-app.sh,<br/>templates, FFI] -.->|shared recipe| MR
   Tag[release tag<br/>cli@vX.Y.Z] -->|triggers| WF[publish-brew.yml]
-  WF -->|build on macos-14| BIN
-  WF -->|gh release upload| REL[GitHub Release assets]
+  WF -->|build on macos-14| APPS
+  WF -->|gh release upload| REL[GitHub Release<br/>*.app.zip assets]
   WF -->|PR via PAT| TAP[forwardimpact/<br/>homebrew-tap]
   User[macOS arm64 user] -->|brew install| TAP
   TAP -->|cask url| REL
 ```
 
-Three cooperating surfaces: a **local build pipeline** (justfile + bun) used by
-contributors and CI, a **release workflow** that uploads artifacts and opens a
-cask-update PR, and a **separate tap repository** users tap. The existing npm
-path is untouched.
+Four cooperating surfaces: a **local build pipeline** (justfile + bun +
+`libmacos/scripts/build-app.sh`) used by contributors and CI, a **bundle
+assembler** in `libraries/libmacos/` that every release artifact flows
+through, a **release workflow** that uploads `.app.zip` artifacts and opens
+cask-update PRs, and a **separate tap repository** with eight casks users
+tap. The existing npm path is untouched.
 
 ## Component 1 — Native binary build (justfile)
 
@@ -43,6 +49,25 @@ Exact flag set is a plan concern.
 "Phase 2" throughout this design is a placeholder for a follow-up spec that
 promotes `bun-darwin-x64` from pre-reserved (target name wired in the recipe, no
 CI job) to acceptance (built, released, tapped). No Phase 2 work lands here.
+
+**Compilation is intermediate; bundles are the release artifact.**
+`build-binary` runs `bun build --compile` to produce Mach-Os in
+`dist/binaries/`. Those Mach-Os are **inputs** to Component 8 (bundle
+assembly) and are never themselves release artifacts. The final `.app`
+bundles at `dist/apps/` are what Component 2's release workflow uploads.
+
+**Three fan-out targets.** `build-binaries` fans out into three recipes:
+
+- `build-product-binaries` — six Mach-Os, one per product (basecamp, guide,
+  landmark, map, pathway, summit).
+- `build-service-binaries` — five Mach-Os from `services/*` (graph, mcp,
+  pathway, trace, vector), each named `fit-service-<name>`.
+- `build-utility-binaries` — ~20 Mach-Os from `libraries/*` that declare a
+  `bin` field (`fit-codegen`, `fit-terrain`, `fit-eval`, `fit-doc`, `fit-rc`,
+  `fit-xmr`, `fit-storage`, `fit-logger`, `fit-svscan`, `fit-trace`,
+  `fit-visualize`, `fit-query`, `fit-subjects`, `fit-process-graphs`,
+  `fit-process-resources`, `fit-process-vectors`, `fit-search`, `fit-unary`,
+  `fit-tiktoken`, `fit-download-bundle`).
 
 **Rejected — one recipe per CLI.** Seven near-identical recipes duplicate the
 flag set; a parameterized recipe keeps flags in one place.
@@ -101,27 +126,44 @@ brew cannot diverge.
 ## Component 3 — Homebrew tap and casks
 
 **Tap repository.** Separate repo `forwardimpact/homebrew-tap`. Users run
-`brew tap forwardimpact/tap` then `brew install forwardimpact/tap/fit-pathway`.
+`brew tap forwardimpact/tap` then
+`brew install --cask forwardimpact/tap/fit-pathway`.
 
 **Rejected — tap directory inside this monorepo.** Brew only taps repos, not
 subdirectories; users would need a brittle custom tap URL. A separate repo also
 lets casks be updated without a monorepo PR cycle.
 
 **Cask vs formula.** Casks, not formulae. Formulae compile from source; casks
-install prebuilt artifacts. Our binaries ship prebuilt from CI, and casks unlock
-`depends_on arch:` gating.
+install prebuilt artifacts. Our bundles ship prebuilt from CI, casks unlock
+`depends_on arch:` gating, and the cask `app` stanza installs `.app` bundles
+to `/Applications/` out of the box.
 
-**Cask shape.** One cask per CLI at `Casks/fit-<cli>.rb`:
+**Tap layout — eight casks.** Six product casks plus two shared-bundle casks:
 
-| Field        | Value                                                                     |
-| ------------ | ------------------------------------------------------------------------- |
-| `version`    | npm package version (e.g. `"0.25.32"`)                                    |
-| `sha256`     | sha256 of the arm64 binary                                                |
-| `url`        | `…/releases/download/<cli>@v#{version}/fit-<cli>-#{version}-darwin-arm64` |
-| `binary`     | artifact, renamed to `fit-<cli>` on install                               |
-| `depends_on` | `arch: :arm64` — blocks install on non-arm64                              |
-| `livecheck`  | GitHub Releases API, `<cli>@v*` tag series                                |
-| `zap`        | no-op — CLIs are stateless; user data in `data/*` is theirs               |
+- `fit-basecamp.rb`, `fit-guide.rb`, `fit-landmark.rb`, `fit-map.rb`,
+  `fit-pathway.rb`, `fit-summit.rb` — per-product casks.
+- `fit-services.rb` — installs `FIT Services.app` (gRPC servers).
+- `fit-utilities.rb` — installs `FIT Utilities.app` (library CLIs, including
+  `fit-codegen`, `fit-terrain`, `fit-eval`, etc.).
+
+Each product cask declares `depends_on cask: ["forwardimpact/tap/fit-services",
+"forwardimpact/tap/fit-utilities"]`, so a single `brew install --cask
+forwardimpact/tap/fit-<product>` pulls in the full runtime. Users who only want
+the library CLIs install `fit-utilities` directly.
+
+**Cask shape.** One cask per bundle:
+
+| Field        | Value                                                                                                                                                                                          |
+| ------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `version`    | npm package version (e.g. `"0.25.32"`)                                                                                                                                                         |
+| `sha256`     | sha256 of the arm64 `.app.zip`                                                                                                                                                                 |
+| `url`        | `…/releases/download/<bundle>@v#{version}/<Bundle>.app-#{version}-darwin-arm64.zip`                                                                                                            |
+| `app`        | `"<Bundle>.app"` — installs into `/Applications/Forward Impact/`                                                                                                                              |
+| `binary`     | `"#{appdir}/Forward Impact/<Bundle>.app/Contents/MacOS/fit-<cli>"` — one `binary` line per CLI exposed by the bundle; for `fit-services` and `fit-utilities`, one line per Mach-O in `MacOS/` |
+| `depends_on` | `arch: :arm64` + for product casks, `cask: ["forwardimpact/tap/fit-services", "forwardimpact/tap/fit-utilities"]`                                                                             |
+| `livecheck`  | GitHub Releases API, `<bundle>@v*` tag series                                                                                                                                                  |
+| `uninstall`  | `quit "com.forwardimpact.<bundle>"` for GUI bundles; (none) for headless                                                                                                                       |
+| `zap`        | `trash: ~/Library/Preferences/com.forwardimpact.<bundle>.plist` + any bundle-specific caches                                                                                                   |
 
 **Update automation — chosen: PR via PAT.** The `tap-pr` job proposes a cask
 update against `forwardimpact/homebrew-tap` via a pull request that carries the
@@ -187,6 +229,126 @@ publishing surface.
 **Rejected — a single shared install page.** Per-product pages are the entry
 points external users land on; cross-linking to a shared page doubles the click
 count on the first-install path.
+
+## Component 8 — macOS `.app` bundle assembly
+
+Every release artifact is a `.app` bundle. Bundle assembly is a single script
+— `libraries/libmacos/scripts/build-app.sh` (see Component 9) — invoked
+eight times per release set (six product bundles, `FIT Services.app`,
+`FIT Utilities.app`).
+
+**Bundle layout.** Each bundle follows the standard macOS shape:
+
+```
+<Bundle>.app/
+  Contents/
+    Info.plist                          # from libmacos template, per-bundle substitutions
+    MacOS/
+      <primary-executable>              # CFBundleExecutable
+      <additional Mach-Os for shared bundles>
+    Resources/
+      <per-bundle resources, e.g. icons, templates>
+    _CodeSignature/                     # produced by codesign
+```
+
+Per-bundle specifics:
+
+| Bundle              | `CFBundleIdentifier`           | `CFBundleExecutable` | Extras in `MacOS/`                                |
+| ------------------- | ------------------------------ | -------------------- | ------------------------------------------------- |
+| `fit-basecamp.app`  | `com.forwardimpact.basecamp`   | `Basecamp` (Swift)   | `fit-basecamp` (bun scheduler)                    |
+| `fit-guide.app`     | `com.forwardimpact.guide`      | `fit-guide`          | —                                                 |
+| `fit-landmark.app`  | `com.forwardimpact.landmark`   | `fit-landmark`       | —                                                 |
+| `fit-map.app`       | `com.forwardimpact.map`        | `fit-map`            | —                                                 |
+| `fit-pathway.app`   | `com.forwardimpact.pathway`    | `fit-pathway`        | —                                                 |
+| `fit-summit.app`    | `com.forwardimpact.summit`     | `fit-summit`         | —                                                 |
+| `FIT Services.app`  | `com.forwardimpact.services`   | `fit-service-graph`  | `fit-service-{mcp,pathway,trace,vector}`          |
+| `FIT Utilities.app` | `com.forwardimpact.utilities`  | `fit-codegen`        | 19 other `fit-*` library CLIs                     |
+
+`FIT Services.app` and `FIT Utilities.app` are bundles-as-container:
+`CFBundleExecutable` names a single "primary" Mach-O to satisfy the bundle
+shape, but every Mach-O in `Contents/MacOS/` is independently exposed via
+its cask's `binary` stanza (Component 3).
+
+**Hardening.** After assembly, each bundle is ad-hoc codesigned:
+
+```
+codesign --force --sign - \
+  --entitlements <bundle-entitlements>.plist \
+  --options runtime \
+  --identifier com.forwardimpact.<name> \
+  --deep \
+  dist/apps/<Bundle>.app
+```
+
+`--identifier` fixes the designated requirement, so TCC grants keyed on
+the bundle ID survive rebuilds. `--options runtime` enables Hardened
+Runtime so the JIT entitlement applies and the later Developer ID spec is
+a pure identity swap. `--deep` recursively signs every Mach-O under
+`Contents/MacOS/`, giving `FIT Services.app` and `FIT Utilities.app` a
+single codesign pass over their multi-executable contents.
+
+**Rejected — bare Mach-Os with `__TEXT,__info_plist` embedding.** An
+earlier iteration of this design proposed splicing `Info.plist` into the
+Mach-O section table. That required an Xcode-CLI-tools spike, was fragile
+against future bun runtime changes, and left Homebrew without a clean
+PATH symlink story. Bundles eliminate the whole problem — `Info.plist`
+lives on disk at `Contents/Info.plist`.
+
+**Rejected — one `.app` per library CLI.** Would produce ~20 `fit-*.app`
+bundles from `libraries/` plus five from `services/`. Each would need
+its own Info.plist, entitlements, codesign pass, and Homebrew cask;
+coarsening into two shared bundles cuts signing surface from 31 to 8
+without losing TCC granularity (none of the library CLIs or services
+request TCC resources today).
+
+**Rejected — skip hardening under ad-hoc signing.** The follow-up
+Developer ID spec would have to re-add every metadata piece and force a
+cdhash change across every previously-installed user, wiping TCC grants.
+Landing hardening now is near-free and forward-compatible.
+
+## Component 9 — Shared `libraries/libmacos`
+
+New library: `libraries/libmacos/`. Owns every piece of macOS-specific
+surface shared across bundles.
+
+| Module                             | Contents                                                                                                                          |
+| ---------------------------------- | --------------------------------------------------------------------------------------------------------------------------------- |
+| `src/posix-spawn.js`               | Bun FFI wrapper around `posix_spawn` + `responsibility_spawnattrs_setdisclaim`. Lifted verbatim from `products/basecamp/src/posix-spawn.js`. |
+| `src/tcc-responsibility.js`        | Higher-level helper: spawn a child, disclaim TCC responsibility, return a Promise for exit code. Wraps `posix-spawn.js`.          |
+| `scripts/build-app.sh`             | **Bundle assembler.** Generalized from `products/basecamp/pkg/macos/build-app.sh`. Parameterized on bundle name, identifier, executable list, entitlements path, resource list, version. |
+| `scripts/sign-app.sh`              | Ad-hoc `codesign --force --sign - --options runtime --deep --identifier <id> --entitlements <path>` wrapper. Invoked by `build-app.sh` as its final stage. |
+| `templates/entitlements.plist`     | Default entitlements (JIT + disable-library-validation only).                                                                     |
+| `templates/entitlements-gui.plist` | Extended template for GUI bundles that need Calendar/Contacts/Network access; seeded from basecamp's current `Basecamp.entitlements`. |
+| `templates/Info.plist.hbs`         | `Info.plist` template with `{{bundleId}}`, `{{bundleName}}`, `{{executable}}`, `{{version}}`, `{{minOS}}`, `{{lsuiElement}}` placeholders. |
+
+**Adoption.** Basecamp is the first consumer. Its current
+`src/posix-spawn.js` becomes `import { spawn } from "libmacos/spawn"`.
+Its `pkg/macos/build-app.sh` is deleted; basecamp's justfile `build-app`
+recipe calls `libmacos/scripts/build-app.sh` with basecamp-specific
+arguments (Swift launcher as `CFBundleExecutable`, `fit-basecamp` as a
+secondary Mach-O in `Contents/MacOS/`, `Basecamp.entitlements` as the
+entitlements path, `LSUIElement=true`). The other five products,
+`FIT Services.app`, and `FIT Utilities.app` call the same script with
+their own arguments.
+
+**Scope boundary.** `libmacos` does **not** own:
+
+- Swift launcher source — basecamp's Swift target stays with basecamp.
+- `.pkg` installer flow — basecamp's `build-pkg.sh` stays with basecamp
+  for as long as the `.pkg` channel remains; spec 600's distribution
+  channel is Homebrew.
+- Developer ID signing / notarization — follow-up spec.
+
+**Rejected — put this in `libcli` or `libbuild`.** `libcli` is
+cross-platform, and consuming a macOS-only FFI would bleed Darwin code
+into every CLI's import graph. A dedicated `libmacos` library makes the
+boundary obvious and lets `libmacos/package.json` declare
+`"os": ["darwin"]`.
+
+**Rejected — leave `build-app.sh` in basecamp and have each bundle copy
+it.** Eight copies of a 70-line assembler script guarantee drift. Lifting
+into libmacos is the natural home given `posix-spawn.js` and the
+templates already want to live there.
 
 ## Open questions for plan phase
 
