@@ -3,12 +3,14 @@
     "enabled": true
   },
   "permissions": {
-    "defaultMode": "acceptEdits",
+    "defaultMode": "bypassPermissions",
     "allow": [
-      "Edit(.claude/skills/**)",
       "Edit(.claude/agents/**)",
-      "Write(.claude/skills/**)",
-      "Write(.claude/agents/**)"
+      "Edit(.claude/commands/**)",
+      "Edit(.claude/skills/**)",
+      "Write(.claude/agents/**)",
+      "Write(.claude/commands/**)",
+      "Write(.claude/skills/**)"
     ]
   },
   "hooks": {

@@ -2,11 +2,15 @@
 
 ## Overview
 
-Three components turn the undocumented `dangerouslyDisableSandbox` + heredoc
-pattern (proven by product-manager run `24757518688`) into a supported,
-auditable write path: a path-gated wrapper script, a canonical agent reference,
-and a kata-trace invariant. `.claude/settings.json` is cleaned of the four dead
-allow rules so the settings file describes actual capability.
+Three components bridge the `.claude/**` write gap until Anthropic issues
+[claude-code#38806](https://github.com/anthropics/claude-code/issues/38806)
+(regression in v2.1.78 where documented `bypassPermissions` exemptions for
+`.claude/commands|agents|skills` are not honored): a path-gated wrapper script,
+a canonical agent reference, and a kata-trace invariant. In parallel,
+`.claude/settings.json` is moved to the configuration Anthropic's docs prescribe
+for that exemption, so the settings file is correct at the target state and no
+edit is required once the upstream regression is fixed. The wrapper retires by
+deletion; settings stay as-is.
 
 ## Architecture
 
@@ -48,11 +52,27 @@ Bash-tool shape, stdin-delivered content, sandbox-disabled), the refusal surface
 (what is out of scope and what a refused write looks like), and a pointer to the
 kata-trace invariant enforcing uniform use. Wording is plan-level.
 
-### 3. `.claude/settings.json` — honest capability
+### 3. `.claude/settings.json` — target-state configuration
 
-The four allow rules added by PR #470 are removed. Nothing is added. The file
-then accurately reflects runtime behaviour: the hardcoded ask-level guard on
-`.claude/**` is unchanged, and no allow rule claims otherwise.
+`defaultMode` moves from `acceptEdits` to `bypassPermissions`. The
+`permissions.allow` list is rewritten to the three `.claude/` subpaths
+Anthropic's docs enumerate as exempt in `bypassPermissions` mode
+(`.claude/commands/**`, `.claude/agents/**`, `.claude/skills/**`, each for
+`Edit` and `Write`).
+
+These rules do not grant writes today — the same regression the spec documents
+still blocks them. They will grant writes the moment
+[claude-code#38806](https://github.com/anthropics/claude-code/issues/38806)
+lands, at which point the wrapper becomes redundant and is retired. The settings
+file is therefore correct at target state on day one; retirement requires no
+settings edit.
+
+This sits in tension with SC3 as literally read: every allow entry must grant
+writes under trace evidence today. The design reads SC3's intent ("settings must
+not lie about capability") as honored when rules match Anthropic's published
+exemption contract, even when a current regression prevents the contract from
+being fulfilled. PR #470's rules were aspirational with no documented basis; the
+new rules track documented behaviour.
 
 ### 4. kata-trace invariant — uniform use
 
@@ -92,11 +112,14 @@ Alternatives considered:
   `.claude/**` content until the hook fires at Stop. If the run dies before
   Stop, writes are lost. Adds hook surface that duplicates the git commit
   boundary already enforced by wrapper writes.
-- **Runtime/permission-mode change (per spec candidate 3).** Rejected. Commit
-  `67e0825b` already tried a settings-layer fix and the trace proved it inert.
-  No known runtime configuration toggles the hardcoded `.claude/**` ask-level
-  guard. Pursuing one is a research task with an unknown landing date; this spec
-  needs a mechanism now.
+- **Runtime/permission-mode change alone (per spec candidate 3).** Rejected as
+  sufficient. Anthropic's docs prescribe `bypassPermissions` with
+  `.claude/commands|agents|skills` exempt — Component 3 adopts it — but it is
+  inert today due to regression
+  [claude-code#38806](https://github.com/anthropics/claude-code/issues/38806)
+  (open, no fix ETA). PR #470's prior settings-layer attempt used the wrong
+  shape and the trace proved it inert. The wrapper bridges until the regression
+  is fixed, then retires.
 - **Human-only edits (per spec candidate 4).** Rejected. Fails SC2 — the spec
   requires a newly-scheduled agent run to complete a `.claude/**` edit without
   human intervention. Also accepts permanent latency for 47 files.
@@ -131,46 +154,45 @@ Alternative — string-prefix match on the caller-supplied path. Rejected. Any
 accidental `..` segment or symlink slips the gate. Plan selects the resolver
 tool and syntax.
 
-### Remove dead rules, do not replace them
+### Configure for target state, not runtime-today
 
 Alternatives:
 
+- **Strict SC3-today: remove all allow rules, add none.** Rejected. Correct in
+  isolation but would need a second edit (adding the documented allow rules)
+  when #38806 lands. Front-loading the target configuration eliminates that
+  migration step; the rules advertise capability the runtime is documented to
+  grant, not a fabricated guess.
 - **Add `Bash(bash scripts/claude-write.sh *)` to allow.** Rejected at design
-  level pending plan-time evidence. The runtime may or may not ask before a
-  whitelisted Bash invocation with `dangerouslyDisableSandbox: true`; the
-  current trace evidence (product-manager run `24757518688`) is on a bare
-  `sed -i` call without an allow rule, and it succeeded. Plan decides whether an
-  allow rule is needed; design requires only that whatever is listed corresponds
-  to observed behaviour.
+  level pending plan-time evidence. Plan decides whether the Bash invocation
+  itself needs an allow entry; the trace evidence (product-manager run
+  `24757518688`) succeeded without one.
 
-## Data flow — a `.claude/**` edit
+### Retirement
 
-```mermaid
-sequenceDiagram
-  participant Skill
-  participant Agent
-  participant Bash
-  participant Script as claude-write.sh
-  participant Git
+The wrapper and its supporting machinery are designed to be deleted:
 
-  Skill->>Agent: Edit .claude/** per self-maintenance.md
-  Agent->>Bash: Bash tool, sandbox disabled,<br/>invoke wrapper with target + content
-  Bash->>Script: exec with content on stdin
-  Script->>Script: resolve target, check inside .claude/
-  Script->>Git: write file (working tree)
-  Script-->>Agent: exit 0 on success / 1 on refusal
-  Agent->>Git: git add + commit + push
-  Git->>Git: PR → human review → merge
-```
+- Delete `scripts/claude-write.sh`.
+- Delete `.claude/agents/references/self-maintenance.md`.
+- Remove the kata-trace cross-cutting invariant from `invariants.md`.
+- Remove skill citations (one-line pointers in each citing skill's Process
+  section).
+
+`.claude/settings.json` is unchanged at retirement — it was written to the
+target state in Component 3.
+
+Trigger: #38806 closes and a test `Edit`/`Write` on `.claude/skills/**`
+succeeds. The kata-trace invariant's zero-use window across a week confirms the
+wrapper is no longer reached, and it is deleted.
 
 ## Success-criteria alignment
 
-| SC  | How the design satisfies it                                                                                                                                        |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| 1   | `.claude/agents/references/self-maintenance.md` is the canonical reference, located on existing agent startup surface.                                             |
-| 2   | Wrapper + heredoc Bash call is the documented invocation; trace shows the tool call and no permission-denial error.                                                |
-| 3   | Settings file has the four dead rules removed; no contradicting rule remains.                                                                                      |
-| 4   | Plan reopens #441 and closes it via the wrapper path, trace-verified.                                                                                              |
-| 5   | kata-trace emits a two-week comparative report of `.claude/**` permission-denial counts into `wiki/metrics/improvement-coach/`; wrapper path yields zero post-fix. |
-| 6   | kata-trace invariant enforces wrapper use; no skill invents its own escape hatch.                                                                                  |
-| 7   | Wrapper is a dormant script; `fit-map validate`, `just quickstart`, wiki pipelines are unchanged.                                                                  |
+| SC  | How the design satisfies it                                                                                                                                                         |
+| --- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `.claude/agents/references/self-maintenance.md` is the canonical reference, located on existing agent startup surface.                                                              |
+| 2   | Wrapper + heredoc Bash call is the documented invocation; trace shows the tool call and no permission-denial error.                                                                 |
+| 3   | Settings file tracks Anthropic's documented exemption contract; PR #470's aspirational rules replaced with ones grounded in docs. Design reinterprets SC3 intent — see Component 3. |
+| 4   | Plan reopens #441 and closes it via the wrapper path, trace-verified.                                                                                                               |
+| 5   | kata-trace emits a two-week comparative report of `.claude/**` permission-denial counts into `wiki/metrics/improvement-coach/`; wrapper path yields zero post-fix.                  |
+| 6   | kata-trace invariant enforces wrapper use; no skill invents its own escape hatch.                                                                                                   |
+| 7   | Wrapper is a dormant script; `fit-map validate`, `just quickstart`, wiki pipelines are unchanged.                                                                                   |
