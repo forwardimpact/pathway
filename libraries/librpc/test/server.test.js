@@ -2,14 +2,7 @@ import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
 import { Server } from "../src/index.js";
-import {
-  createMockConfig,
-  createMockGrpcFn,
-  createMockObserverFn,
-  createMockAuthFn,
-  createMockLogger,
-  createMockTracer,
-} from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockAuthFn, createMockConfig, createMockGrpcFn, createMockLogger, createMockObserverFn, createMockTracer } from "@forwardimpact/libharness";
 
 describe("Server", () => {
   let mockService;
@@ -34,7 +27,7 @@ describe("Server", () => {
   });
 
   test("should require service parameter", () => {
-    assert.throws(
+    assertThrowsMessage(
       () =>
         new Server(
           null,
@@ -50,7 +43,7 @@ describe("Server", () => {
   });
 
   test("should require config parameter", () => {
-    assert.throws(
+    assertThrowsMessage(
       () =>
         new Server(
           mockService,

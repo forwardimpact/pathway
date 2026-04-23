@@ -1,39 +1,40 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
 import { DocsBuilder, DocsServer } from "../src/index.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 test("DocsBuilder constructor validates dependencies", () => {
-  assert.throws(
+  assertThrowsMessage(
     () => new DocsBuilder(null, null, null, null, null, null),
     /fs is required/,
   );
 
   const mockFs = {};
-  assert.throws(
+  assertThrowsMessage(
     () => new DocsBuilder(mockFs, null, null, null, null, null),
     /path is required/,
   );
 
   const mockPath = {};
-  assert.throws(
+  assertThrowsMessage(
     () => new DocsBuilder(mockFs, mockPath, null, null, null, null),
     /markedParser is required/,
   );
 
   const mockMarked = Object.assign(() => {}, { use: () => {} });
-  assert.throws(
+  assertThrowsMessage(
     () => new DocsBuilder(mockFs, mockPath, mockMarked, null, null, null),
     /matterParser is required/,
   );
 
   const mockMatter = () => {};
-  assert.throws(
+  assertThrowsMessage(
     () => new DocsBuilder(mockFs, mockPath, mockMarked, mockMatter, null, null),
     /mustacheRender is required/,
   );
 
   const mockMustache = () => {};
-  assert.throws(
+  assertThrowsMessage(
     () =>
       new DocsBuilder(
         mockFs,
@@ -59,10 +60,10 @@ test("DocsBuilder constructor validates dependencies", () => {
 });
 
 test("DocsServer constructor validates dependencies", () => {
-  assert.throws(() => new DocsServer(null, null, null, null), /fs is required/);
+  assertThrowsMessage(() => new DocsServer(null, null, null, null), /fs is required/);
 
   const mockFs = {};
-  assert.throws(
+  assertThrowsMessage(
     () => new DocsServer(mockFs, null, null, null),
     /builder is required/,
   );

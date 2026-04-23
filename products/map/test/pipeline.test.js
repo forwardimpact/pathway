@@ -38,44 +38,13 @@ import { GraphProcessor } from "@forwardimpact/libgraph/processor/graph.js";
 import { Exporter } from "../src/exporter.js";
 import { createRenderer } from "../src/renderer.js";
 import { skillIri } from "../src/iri.js";
+import { PIPELINE_DATA as DATA } from "./fixtures.js";
 
 const SILENT_LOGGER = {
   debug: () => {},
   info: () => {},
   warn: () => {},
   error: () => {},
-};
-
-const DATA = {
-  capabilities: [{ id: "delivery", name: "Delivery", description: "..." }],
-  skills: [
-    {
-      id: "planning",
-      name: "Planning",
-      capability: "delivery",
-      description: "Plan work.",
-      proficiencyDescriptions: { working: "..." },
-    },
-  ],
-  disciplines: [
-    {
-      id: "software_engineering",
-      specialization: "Software Engineering",
-      coreSkills: ["planning"],
-      description: "...",
-    },
-  ],
-  tracks: [],
-  drivers: [],
-  behaviours: [],
-  levels: [
-    {
-      id: "J040",
-      professionalTitle: "Level I",
-      qualificationSummary: "Entry.",
-      ordinalRank: 1,
-    },
-  ],
 };
 
 /**

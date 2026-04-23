@@ -2,6 +2,7 @@ import { describe, test, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { ServiceManager } from "../src/manager.js";
+import { assertRejectsMessage } from "@forwardimpact/libharness";
 
 describe("ServiceManager - stop, status, filtering", () => {
   let mockConfig;
@@ -218,7 +219,7 @@ describe("ServiceManager - stop, status, filtering", () => {
 
     test("throws for unknown service name", async () => {
       const manager = new ServiceManager(mockConfig, mockLogger, mockDeps);
-      await assert.rejects(
+      await assertRejectsMessage(
         () => manager.status("unknown"),
         /Unknown service: unknown/,
       );
@@ -262,7 +263,7 @@ describe("ServiceManager - stop, status, filtering", () => {
 
     test("start throws for unknown service name", async () => {
       const manager = new ServiceManager(mockConfig, mockLogger, mockDeps);
-      await assert.rejects(
+      await assertRejectsMessage(
         () => manager.start("unknown"),
         /Unknown service: unknown/,
       );
@@ -328,7 +329,7 @@ describe("ServiceManager - stop, status, filtering", () => {
 
     test("stop throws for unknown service name", async () => {
       const manager = new ServiceManager(mockConfig, mockLogger, mockDeps);
-      await assert.rejects(
+      await assertRejectsMessage(
         () => manager.stop("unknown"),
         /Unknown service: unknown/,
       );

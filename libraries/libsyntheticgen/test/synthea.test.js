@@ -1,18 +1,19 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { SyntheaTool } from "../src/tools/synthea.js";
+import { assertRejectsMessage, assertThrowsMessage } from "@forwardimpact/libharness";
 
 const logger = { info() {}, error() {} };
 
 describe("SyntheaTool", () => {
   test("requires all dependencies", () => {
-    assert.throws(() => new SyntheaTool({}), /requires logger/);
-    assert.throws(() => new SyntheaTool({ logger }), /requires syntheaJar/);
-    assert.throws(
+    assertThrowsMessage(() => new SyntheaTool({}), /requires logger/);
+    assertThrowsMessage(() => new SyntheaTool({ logger }), /requires syntheaJar/);
+    assertThrowsMessage(
       () => new SyntheaTool({ logger, syntheaJar: "/path.jar" }),
       /requires execFileFn/,
     );
-    assert.throws(
+    assertThrowsMessage(
       () =>
         new SyntheaTool({
           logger,
@@ -32,7 +33,7 @@ describe("SyntheaTool", () => {
       },
       fsFns: { readFile: async () => Buffer.from("") },
     });
-    await assert.rejects(
+    await assertRejectsMessage(
       () => tool.checkAvailability(),
       /Synthea requires Java/,
     );

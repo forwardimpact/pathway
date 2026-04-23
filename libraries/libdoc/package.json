@@ -42,6 +42,9 @@
   "peerDependencies": {
     "prettier": "^3.0.0"
   },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
+  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"

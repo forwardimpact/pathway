@@ -5,6 +5,7 @@ import { parse } from "../src/dsl/parser.js";
 import { createSeededRNG } from "../src/engine/rng.js";
 import { buildEntities } from "../src/engine/entities.js";
 import { generateActivity } from "../src/engine/activity.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 /**
  * Helper: parse DSL, build entities, generate activity.
@@ -163,7 +164,7 @@ describe("DSL distribution key validation", () => {
         }
       }
     `;
-    assert.throws(
+    assertThrowsMessage(
       () => parse(tokenize(source)),
       /distribution key "L1" does not match any framework level/,
     );

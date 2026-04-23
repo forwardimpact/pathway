@@ -24,7 +24,7 @@
     "@forwardimpact/libtype": "^0.1.63"
   },
   "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.5"
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"

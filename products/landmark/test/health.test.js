@@ -4,47 +4,11 @@ import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runHealthCommand } from "../src/commands/health.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
+import { MAP_DATA, SCORES, SNAPSHOTS, TEAM } from "./fixtures.js";
 
-const TEAM = [
-  {
-    email: "alice@example.com",
-    name: "Alice",
-    discipline: "software_engineering",
-    level: "J040",
-    track: "platform",
-  },
-  {
-    email: "bob@example.com",
-    name: "Bob",
-    discipline: "software_engineering",
-    level: "J060",
-    track: null,
-  },
-];
+const HEALTH_SNAPSHOTS = [SNAPSHOTS[0]];
 
-const SNAPSHOTS = [
-  {
-    snapshot_id: "snap-1",
-    scheduled_for: "2025-03-15",
-    completed_at: "2025-03-20",
-  },
-];
-
-const SCORES = [
-  {
-    snapshot_id: "snap-1",
-    item_id: "quality",
-    item_name: "Quality",
-    score: 42,
-    vs_prev: -5,
-    vs_org: -10,
-    vs_50th: -8,
-    vs_75th: -25,
-    vs_90th: -40,
-  },
-];
-
-const EVIDENCE = [
+const HEALTH_EVIDENCE = [
   {
     skill_id: "task_completion",
     level_id: "working",
@@ -71,63 +35,11 @@ const EVIDENCE = [
   },
 ];
 
-const MAP_DATA = {
-  drivers: [
-    {
-      id: "quality",
-      name: "Quality",
-      contributingSkills: ["task_completion", "planning"],
-      contributingBehaviours: ["systems_thinking"],
-    },
-    {
-      id: "reliability",
-      name: "Reliability",
-      contributingSkills: ["incident_response"],
-      contributingBehaviours: ["systems_thinking"],
-    },
-  ],
-  skills: [
-    { id: "task_completion", name: "Task Completion" },
-    { id: "planning", name: "Planning" },
-    { id: "incident_response", name: "Incident Response" },
-  ],
-  levels: [
-    {
-      id: "J040",
-      ordinalRank: 1,
-      baseSkillProficiencies: {
-        primary: "foundational",
-        secondary: "awareness",
-        broad: "awareness",
-      },
-    },
-    {
-      id: "J060",
-      ordinalRank: 2,
-      baseSkillProficiencies: {
-        primary: "working",
-        secondary: "foundational",
-        broad: "awareness",
-      },
-    },
-  ],
-  disciplines: [
-    {
-      id: "software_engineering",
-      coreSkills: ["task_completion"],
-      supportingSkills: ["planning"],
-      broadSkills: ["incident_response"],
-    },
-  ],
-  tracks: [{ id: "platform", skillModifiers: {} }],
-  capabilities: [],
-};
-
 function stubQueries({
   team = TEAM,
-  snapshots = SNAPSHOTS,
+  snapshots = HEALTH_SNAPSHOTS,
   scores = SCORES,
-  evidence = EVIDENCE,
+  evidence = HEALTH_EVIDENCE,
 } = {}) {
   return createMockQueries({
     getOrganization: team,

@@ -4,60 +4,10 @@ import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runPracticedCommand } from "../src/commands/practiced.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
+import { MAP_DATA, PATTERNS, TEAM } from "./fixtures.js";
 
-const MAP_DATA = {
-  levels: [
-    {
-      id: "J040",
-      ordinalRank: 1,
-      baseSkillProficiencies: {
-        primary: "foundational",
-        secondary: "awareness",
-        broad: "awareness",
-      },
-    },
-    {
-      id: "J060",
-      ordinalRank: 2,
-      baseSkillProficiencies: {
-        primary: "working",
-        secondary: "foundational",
-        broad: "awareness",
-      },
-    },
-  ],
-  disciplines: [
-    {
-      id: "software_engineering",
-      coreSkills: ["task_completion"],
-      supportingSkills: ["planning"],
-      broadSkills: ["incident_response"],
-    },
-  ],
-  tracks: [{ id: "platform", skillModifiers: {} }],
-  skills: [
-    { id: "task_completion", name: "Task Completion" },
-    { id: "planning", name: "Planning" },
-    { id: "incident_response", name: "Incident Response" },
-  ],
-  capabilities: [],
-};
-
-const TEAM = [
-  {
-    email: "alice@example.com",
-    name: "Alice",
-    discipline: "software_engineering",
-    level: "J040",
-    track: "platform",
-  },
-  {
-    email: "bob@example.com",
-    name: "Bob",
-    discipline: "software_engineering",
-    level: "J060",
-    track: null,
-  },
+const PRACTICED_TEAM = [
+  ...TEAM,
   {
     email: "carol@example.com",
     name: "Carol",
@@ -67,12 +17,14 @@ const TEAM = [
   },
 ];
 
-const PATTERNS = [
-  { skill_id: "task_completion", matched: 5, unmatched: 2, total: 7 },
+// Override planning pattern to matched: 0 so the skill is flagged
+// "on paper only" (derived but unevidenced).
+const PRACTICED_PATTERNS = [
+  PATTERNS[0],
   { skill_id: "planning", matched: 0, unmatched: 1, total: 1 },
 ];
 
-function stubQueries({ team = TEAM, patterns = PATTERNS } = {}) {
+function stubQueries({ team = PRACTICED_TEAM, patterns = PRACTICED_PATTERNS } = {}) {
   return createMockQueries({
     getTeam: team,
     getPracticePatterns: patterns,

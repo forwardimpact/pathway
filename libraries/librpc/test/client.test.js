@@ -3,12 +3,7 @@ import assert from "node:assert";
 import { PassThrough } from "stream";
 
 import { Client } from "../src/index.js";
-import {
-  createMockGrpcFn,
-  createMockObserverFn,
-  createMockAuthFn,
-  createMockLogger,
-} from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockAuthFn, createMockGrpcFn, createMockLogger, createMockObserverFn } from "@forwardimpact/libharness";
 
 describe("Client", () => {
   let mockConfig;
@@ -58,7 +53,7 @@ describe("Client", () => {
   });
 
   test("should require config parameter", () => {
-    assert.throws(
+    assertThrowsMessage(
       () =>
         new Client(
           null,

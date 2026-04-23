@@ -1,8 +1,10 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { assertRejectsMessage } from "@forwardimpact/libharness";
 
 import { runInitiativeCommand } from "../src/commands/initiative.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
+import { MAP_DATA } from "./fixtures.js";
 
 const INITIATIVES = [
   {
@@ -33,20 +35,13 @@ const INITIATIVES = [
   },
 ];
 
+// Initiative-specific snapshot IDs (snap-q4/snap-q1) keyed to the stub's
+// per-snapshot score switch below. Distinct from fixtures.SNAPSHOTS which
+// uses snap-1/snap-2.
 const SNAPSHOTS = [
   { snapshot_id: "snap-q4", scheduled_for: "2024-12-15" },
   { snapshot_id: "snap-q1", scheduled_for: "2025-03-15" },
 ];
-
-const MAP_DATA = {
-  drivers: [
-    {
-      id: "quality",
-      name: "Quality",
-      contributingSkills: ["task_completion", "planning"],
-    },
-  ],
-};
 
 function stubQueries({
   initiatives = INITIATIVES,
@@ -164,7 +159,7 @@ describe("initiative impact", () => {
 
 describe("initiative subcommand validation", () => {
   it("throws for unknown subcommand", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runInitiativeCommand({
           args: ["bogus"],

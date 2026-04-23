@@ -32,6 +32,6 @@
     "access": "public"
   },
   "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.5"
+    "@forwardimpact/libharness": "^0.1.14"
   }
 }

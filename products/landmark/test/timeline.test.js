@@ -1,10 +1,16 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
-import { createMockQueries } from "@forwardimpact/libharness";
+import {
+  assertRejectsMessage,
+  createMockQueries,
+} from "@forwardimpact/libharness";
 
 import { runTimelineCommand } from "../src/commands/timeline.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
 
+// Timeline-specific evidence: spans multiple quarters (2024-Q3 through 2025-Q1)
+// to exercise quarterly grouping. Distinct from fixtures.EVIDENCE_ROWS which
+// tests skill/level matching rather than quarter boundaries.
 const EVIDENCE = [
   {
     skill_id: "planning",
@@ -70,7 +76,7 @@ describe("timeline command", () => {
   });
 
   it("throws when --email is missing", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runTimelineCommand({
           options: {},

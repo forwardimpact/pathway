@@ -1,8 +1,5 @@
-import { test } from "node:test";
+import { before, test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
-
-import { createDataLoader } from "@forwardimpact/map/loader";
 
 import { parseRosterYaml } from "../src/roster/yaml.js";
 import {
@@ -16,11 +13,9 @@ import {
   ScenarioError,
   ScenarioType,
 } from "../src/aggregation/scenarios.js";
-import { computeCoverage, resolveTeam } from "../src/aggregation/coverage.js";
-import { detectRisks } from "../src/aggregation/risks.js";
 import { UnknownJobFieldError } from "../src/aggregation/errors.js";
 
-const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
+import { loadStarterData, snapshot } from "./fixtures.js";
 
 const FIXTURE_YAML = `
 teams:
@@ -33,9 +28,11 @@ teams:
       job: { discipline: software_engineering, level: J040 }
 `;
 
-async function loadData() {
-  return createDataLoader().loadAllData(FIXTURE_DATA);
-}
+let data;
+
+before(async () => {
+  ({ data } = await loadStarterData());
+});
 
 test("parseJobExpression accepts flow YAML", () => {
   const job = parseJobExpression(
@@ -79,8 +76,7 @@ test("parseScenario parses --add with allocation", () => {
   assert.equal(scenario.projectId, "p");
 });
 
-test("applyScenario add: team grows by one member", async () => {
-  const data = await loadData();
+test("applyScenario add: team grows by one member", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
   const scenario = parseScenario(
     {
@@ -94,15 +90,13 @@ test("applyScenario add: team grows by one member", async () => {
   assert.equal(roster.teams.get("a").members.length, 2);
 });
 
-test("applyScenario remove: throws on unknown name", async () => {
-  const data = await loadData();
+test("applyScenario remove: throws on unknown name", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
   const scenario = parseScenario({ remove: "Nonexistent" }, { teamId: "a" });
   assert.throws(() => applyScenario(roster, data, scenario), ScenarioError);
 });
 
-test("applyScenario remove: drops the named member", async () => {
-  const data = await loadData();
+test("applyScenario remove: drops the named member", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
   const scenario = parseScenario({ remove: "Alice" }, { teamId: "a" });
   const mutated = applyScenario(roster, data, scenario);
@@ -110,8 +104,7 @@ test("applyScenario remove: drops the named member", async () => {
   assert.equal(mutated.teams.get("a").members[0].name, "Bob");
 });
 
-test("applyScenario promote: bumps level to the next rung", async () => {
-  const data = await loadData();
+test("applyScenario promote: bumps level to the next rung", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
   const scenario = parseScenario({ promote: "Bob" }, { teamId: "a" });
   const mutated = applyScenario(roster, data, scenario);
@@ -119,16 +112,14 @@ test("applyScenario promote: bumps level to the next rung", async () => {
   assert.equal(bob.job.level, "J060");
 });
 
-test("applyScenario promote: errors at top level", async () => {
-  const data = await loadData();
+test("applyScenario promote: errors at top level", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
   // Alice is already at J060 (top of starter); promote should error.
   const scenario = parseScenario({ promote: "Alice" }, { teamId: "a" });
   assert.throws(() => applyScenario(roster, data, scenario), ScenarioError);
 });
 
-test("applyScenario move: relocates between reporting teams", async () => {
-  const data = await loadData();
+test("applyScenario move: relocates between reporting teams", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -146,18 +137,17 @@ teams:
   assert.equal(mutated.teams.get("b").members.length, 2);
 });
 
-test("diffCoverage tracks headcount direction", async () => {
-  const data = await loadData();
+test("diffCoverage tracks headcount direction", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
-  const before = computeSnapshot(roster, data);
+  const baseline = snapshot(roster, data, "a");
   const scenario = parseScenario(
     { add: "{ discipline: software_engineering, level: J060 }" },
     { teamId: "a" },
   );
   const mutated = applyScenario(roster, data, scenario);
-  const after = computeSnapshot(mutated, data);
+  const after = snapshot(mutated, data, "a");
 
-  const diff = diffCoverage(before.coverage, after.coverage);
+  const diff = diffCoverage(baseline.coverage, after.coverage);
   const task = diff.capabilityChanges.find(
     (c) => c.skillId === "task_completion",
   );
@@ -166,10 +156,9 @@ test("diffCoverage tracks headcount direction", async () => {
   assert.equal(task.direction, "up");
 });
 
-test("diffRisks finds resolved and new risks", async () => {
-  const data = await loadData();
+test("diffRisks finds resolved and new risks", () => {
   const roster = parseRosterYaml(FIXTURE_YAML);
-  const before = computeSnapshot(roster, data);
+  const baseline = snapshot(roster, data, "a");
   // Add a second J060 — task_completion SPOF goes from 1 → 2, so the
   // SPOF disappears.
   const scenario = parseScenario(
@@ -177,16 +166,9 @@ test("diffRisks finds resolved and new risks", async () => {
     { teamId: "a" },
   );
   const mutated = applyScenario(roster, data, scenario);
-  const after = computeSnapshot(mutated, data);
+  const after = snapshot(mutated, data, "a");
 
-  const risks = diffRisks(before.risks, after.risks);
+  const risks = diffRisks(baseline.risks, after.risks);
   const removed = risks.removed.singlePoints.map((r) => r.skillId);
   assert.ok(removed.includes("task_completion"));
 });
-
-function computeSnapshot(roster, data) {
-  const resolved = resolveTeam(roster, data, { teamId: "a" });
-  const coverage = computeCoverage(resolved, data);
-  const risks = detectRisks({ resolvedTeam: resolved, coverage, data });
-  return { resolved, coverage, risks };
-}

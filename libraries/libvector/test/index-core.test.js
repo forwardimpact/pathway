@@ -3,7 +3,7 @@ import assert from "node:assert";
 
 import { VectorIndex } from "../src/index/vector.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
 
 describe("VectorIndex - Core Functionality", () => {
   let vectorIndex;
@@ -16,7 +16,7 @@ describe("VectorIndex - Core Functionality", () => {
 
   describe("Constructor and Properties", () => {
     test("constructor validates storage parameter", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new VectorIndex(null),
         /storage is required/,
         "Should throw for missing storage",

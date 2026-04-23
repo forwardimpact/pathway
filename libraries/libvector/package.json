@@ -35,7 +35,7 @@
   },
   "devDependencies": {
     "@forwardimpact/libutil": "^0.1.60",
-    "@forwardimpact/libharness": "^0.1.5"
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"

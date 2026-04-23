@@ -6,7 +6,7 @@ import {
   createServiceConfig,
   createExtensionConfig,
 } from "../src/index.js";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
 
 describe("libconfig - Config", () => {
   let mockProcess;
@@ -259,7 +259,7 @@ describe("libconfig - Config methods", () => {
   });
 
   test("llmBaseUrl throws when not set", () => {
-    assert.throws(
+    assertThrowsMessage(
       () => config.llmBaseUrl(),
       /LLM_BASE_URL not found in environment/,
     );

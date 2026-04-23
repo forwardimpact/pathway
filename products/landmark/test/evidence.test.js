@@ -4,39 +4,7 @@ import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runEvidenceCommand } from "../src/commands/evidence.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
-
-const EVIDENCE_ROWS = [
-  {
-    skill_id: "task_completion",
-    level_id: "working",
-    marker_text: "Delivered a feature",
-    matched: true,
-    artifact_id: "art-1",
-    rationale: "Clean delivery",
-    created_at: "2025-01-15T00:00:00Z",
-    github_artifacts: { email: "alice@example.com" },
-  },
-  {
-    skill_id: "task_completion",
-    level_id: "foundational",
-    marker_text: "Small feature",
-    matched: false,
-    artifact_id: "art-2",
-    rationale: null,
-    created_at: "2025-01-10T00:00:00Z",
-    github_artifacts: { email: "alice@example.com" },
-  },
-  {
-    skill_id: "planning",
-    level_id: "awareness",
-    marker_text: "Followed plan",
-    matched: true,
-    artifact_id: "art-3",
-    rationale: "On track",
-    created_at: "2025-02-01T00:00:00Z",
-    github_artifacts: { email: "alice@example.com" },
-  },
-];
+import { EVIDENCE_ROWS } from "./fixtures.js";
 
 function stubQueries({ evidence = EVIDENCE_ROWS } = {}) {
   return createMockQueries({

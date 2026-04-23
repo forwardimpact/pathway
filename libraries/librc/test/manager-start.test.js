@@ -2,6 +2,7 @@ import { describe, test, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { ServiceManager } from "../src/manager.js";
+import { assertRejectsMessage, assertThrowsMessage } from "@forwardimpact/libharness";
 
 describe("ServiceManager - constructor, paths, running, start", () => {
   let mockConfig;
@@ -64,11 +65,11 @@ describe("ServiceManager - constructor, paths, running, start", () => {
 
   describe("constructor", () => {
     test("throws if config is missing", () => {
-      assert.throws(() => new ServiceManager(), /config is required/);
+      assertThrowsMessage(() => new ServiceManager(), /config is required/);
     });
 
     test("throws if logger is missing", () => {
-      assert.throws(() => new ServiceManager(mockConfig), /logger is required/);
+      assertThrowsMessage(() => new ServiceManager(mockConfig), /logger is required/);
     });
 
     test("creates instance with valid parameters", () => {
@@ -241,7 +242,7 @@ describe("ServiceManager - constructor, paths, running, start", () => {
         },
       };
       const manager = new ServiceManager(config, mockLogger, deps);
-      await assert.rejects(() => manager.start(), /Command failed/);
+      await assertRejectsMessage(() => manager.start(), /Command failed/);
     });
 
     test("skips optional longrun service when add fails", async () => {

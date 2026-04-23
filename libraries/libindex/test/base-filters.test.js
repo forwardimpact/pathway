@@ -3,7 +3,7 @@ import assert from "node:assert";
 
 import { IndexBase } from "../src/index.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { assertRejectsMessage, createMockStorage } from "@forwardimpact/libharness";
 
 class TestIndex extends IndexBase {
   constructor(storage, indexKey = "test.jsonl") {
@@ -278,7 +278,7 @@ describe("IndexBase - Filters and Edge Cases", () => {
 
   describe("Error Handling and Edge Cases", () => {
     test("get throws error for non-array ids parameter", async () => {
-      await assert.rejects(
+      await assertRejectsMessage(
         async () => await testIndex.get("not-an-array"),
         /ids must be an array or null/,
         "Should throw for non-array ids",

@@ -2,6 +2,7 @@ import { describe, test } from "node:test";
 import assert from "node:assert";
 import { tokenize } from "../src/dsl/tokenizer.js";
 import { parse } from "../src/dsl/parser.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 function parseDsl(source) {
   return parse(tokenize(source));
@@ -92,21 +93,21 @@ describe("dataset and output parsing", () => {
   });
 
   test("throws on unknown output format", () => {
-    assert.throws(
+    assertThrowsMessage(
       () => parseDsl(`terrain test { output ds xlsx { path "out/file" } }`),
       /Unknown output format 'xlsx'/,
     );
   });
 
   test("throws on unknown keyword in dataset", () => {
-    assert.throws(
+    assertThrowsMessage(
       () => parseDsl(`terrain test { dataset x { tool faker bogus 5 } }`),
       /Unexpected 'bogus' in dataset/,
     );
   });
 
   test("throws on unknown keyword in output", () => {
-    assert.throws(
+    assertThrowsMessage(
       () => parseDsl(`terrain test { output ds json { path "x" bogus "y" } }`),
       /Unexpected 'bogus' in output/,
     );

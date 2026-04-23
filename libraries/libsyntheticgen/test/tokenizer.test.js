@@ -1,6 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { tokenize } from "../src/dsl/tokenizer.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 describe("tokenize", () => {
   describe("basic tokens", () => {
@@ -207,11 +208,11 @@ describe("tokenize", () => {
     });
 
     test("throws on unknown characters", () => {
-      assert.throws(() => tokenize("~"), /Unexpected character '~'/);
+      assertThrowsMessage(() => tokenize("~"), /Unexpected character '~'/);
     });
 
     test("throws on unknown character with line number", () => {
-      assert.throws(() => tokenize("\n\n~"), /at line 3/);
+      assertThrowsMessage(() => tokenize("\n\n~"), /at line 3/);
     });
   });
 

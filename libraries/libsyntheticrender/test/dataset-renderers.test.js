@@ -1,6 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { renderDataset } from "../src/render/dataset-renderers.js";
+import { assertRejectsMessage } from "@forwardimpact/libharness";
 
 const FIXTURE = {
   name: "test_records",
@@ -205,7 +206,7 @@ describe("dataset renderers", () => {
 
   describe("dispatch", () => {
     test("throws on unknown format", async () => {
-      await assert.rejects(
+      await assertRejectsMessage(
         () => renderDataset(FIXTURE, "xlsx", { path: "x" }),
         /Unknown format: xlsx/,
       );

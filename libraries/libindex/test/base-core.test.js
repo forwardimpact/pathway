@@ -3,7 +3,7 @@ import assert from "node:assert";
 
 import { IndexBase } from "../src/index.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
 
 class TestIndex extends IndexBase {
   constructor(storage, indexKey = "test.jsonl") {
@@ -31,7 +31,7 @@ describe("IndexBase - Core Functionality", () => {
 
   describe("Constructor and Properties", () => {
     test("constructor validates storage parameter", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new TestIndex(null),
         /storage is required/,
         "Should throw for missing storage",

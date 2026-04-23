@@ -3,7 +3,7 @@ import assert from "node:assert";
 
 import { TraceIndex } from "../src/index/trace.js";
 import { trace } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
 
 describe("TraceIndex - Core", () => {
   let traceIndex;
@@ -16,7 +16,7 @@ describe("TraceIndex - Core", () => {
 
   describe("Constructor and Inheritance", () => {
     test("constructor validates storage parameter", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new TraceIndex(null),
         /storage is required/,
         "Should throw for missing storage",

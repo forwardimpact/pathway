@@ -3,6 +3,7 @@ import assert from "node:assert";
 
 import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 import { buildZodSchema } from "../src/schema.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 /** Minimal mock McpServer that records tool() calls */
 function createMockServer() {
@@ -119,7 +120,7 @@ describe("registerToolsFromConfig", () => {
 
   test("throws for unknown method not in metadata", () => {
     const server = createMockServer();
-    assert.throws(
+    assertThrowsMessage(
       () =>
         registerToolsFromConfig(
           server,
@@ -132,7 +133,7 @@ describe("registerToolsFromConfig", () => {
 
   test("throws for missing client", () => {
     const server = createMockServer();
-    assert.throws(
+    assertThrowsMessage(
       () =>
         registerToolsFromConfig(
           server,

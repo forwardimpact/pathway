@@ -5,7 +5,7 @@ import { Store, DataFactory } from "n3";
 import { GraphIndex } from "../src/index/graph.js";
 import { parseGraphQuery } from "../src/index.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
 
 const { namedNode, literal } = DataFactory;
 
@@ -265,22 +265,22 @@ describe("GraphIndex - Filters and parseGraphQuery", () => {
     });
 
     test("throws error for empty line", () => {
-      assert.throws(() => parseGraphQuery(""), /line cannot be empty/);
+      assertThrowsMessage(() => parseGraphQuery(""), /line cannot be empty/);
     });
 
     test("throws error for non-string input", () => {
-      assert.throws(() => parseGraphQuery(null), /line must be a string/);
+      assertThrowsMessage(() => parseGraphQuery(null), /line must be a string/);
     });
 
     test("throws error for wrong number of parts", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseGraphQuery("person:john foaf:name"),
         /Expected 3 parts/,
       );
     });
 
     test("throws error for unterminated quotes", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseGraphQuery('person:john foaf:name "unterminated'),
         /Unterminated quoted string/,
       );

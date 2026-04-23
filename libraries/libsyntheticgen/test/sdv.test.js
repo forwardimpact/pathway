@@ -1,14 +1,15 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { SdvTool } from "../src/tools/sdv.js";
+import { assertRejectsMessage, assertThrowsMessage } from "@forwardimpact/libharness";
 
 const logger = { info() {}, error() {} };
 
 describe("SdvTool", () => {
   test("requires all dependencies", () => {
-    assert.throws(() => new SdvTool({}), /requires logger/);
-    assert.throws(() => new SdvTool({ logger }), /requires execFileFn/);
-    assert.throws(
+    assertThrowsMessage(() => new SdvTool({}), /requires logger/);
+    assertThrowsMessage(() => new SdvTool({ logger }), /requires execFileFn/);
+    assertThrowsMessage(
       () => new SdvTool({ logger, execFileFn: async () => {} }),
       /requires fsFns/,
     );
@@ -22,7 +23,7 @@ describe("SdvTool", () => {
       },
       fsFns: { writeFile: async () => {}, rm: async () => {} },
     });
-    await assert.rejects(
+    await assertRejectsMessage(
       () => tool.checkAvailability(),
       /SDV requires Python 3/,
     );

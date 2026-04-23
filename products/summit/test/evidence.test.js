@@ -1,8 +1,5 @@
-import { test } from "node:test";
+import { before, test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
-
-import { createDataLoader } from "@forwardimpact/map/loader";
 
 import { parseRosterYaml } from "../src/roster/yaml.js";
 import { computeCoverage, resolveTeam } from "../src/aggregation/coverage.js";
@@ -15,11 +12,13 @@ import {
 } from "../src/evidence/index.js";
 import { SupabaseUnavailableError } from "../src/lib/supabase.js";
 
-const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
+import { loadStarterData } from "./fixtures.js";
 
-async function loadData() {
-  return createDataLoader().loadAllData(FIXTURE_DATA);
-}
+let data;
+
+before(async () => {
+  ({ data } = await loadStarterData());
+});
 
 test("loadEvidence transforms evidence rows into an EvidenceMap", async () => {
   const fakeRows = [
@@ -57,8 +56,7 @@ test("loadEvidence transforms evidence rows into an EvidenceMap", async () => {
   assert.equal(task.practitioners.size, 2);
 });
 
-test("decorateCoverageWithEvidence attaches evidencedDepth per skill", async () => {
-  const data = await loadData();
+test("decorateCoverageWithEvidence attaches evidencedDepth per skill", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -86,8 +84,7 @@ teams:
   assert.equal(planning.evidencedDepth, 0);
 });
 
-test("decorateRisksWithEvidence flips a skill into SPOF when only one practitioner", async () => {
-  const data = await loadData();
+test("decorateRisksWithEvidence flips a skill into SPOF when only one practitioner", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -133,8 +130,7 @@ test("EvidenceUnavailableError is a SupabaseUnavailableError", () => {
   assert.ok(err.code === "SUMMIT_EVIDENCE_UNAVAILABLE");
 });
 
-test("decorateRisksWithEvidence ignores practitioners outside the team", async () => {
-  const data = await loadData();
+test("decorateRisksWithEvidence ignores practitioners outside the team", () => {
   const roster = parseRosterYaml(`
 teams:
   a:

@@ -6,34 +6,11 @@ import {
   collectDriverWarnings,
 } from "../src/commands/snapshot.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
-import { createMockQueries } from "@forwardimpact/libharness";
-
-const SNAPSHOTS = [
-  {
-    snapshot_id: "snap-1",
-    scheduled_for: "2025-03-15",
-    completed_at: "2025-03-20",
-  },
-  {
-    snapshot_id: "snap-2",
-    scheduled_for: "2024-12-15",
-    completed_at: "2025-01-05",
-  },
-];
-
-const SCORES = [
-  {
-    snapshot_id: "snap-1",
-    item_id: "quality",
-    item_name: "Quality",
-    score: 42,
-    vs_prev: -5,
-    vs_org: -10,
-    vs_50th: -8,
-    vs_75th: -25,
-    vs_90th: -40,
-  },
-];
+import {
+  assertRejectsMessage,
+  createMockQueries,
+} from "@forwardimpact/libharness";
+import { MAP_DATA, SCORES, SNAPSHOTS } from "./fixtures.js";
 
 const TREND = [
   {
@@ -47,10 +24,6 @@ const TREND = [
     getdx_snapshots: { scheduled_for: "2025-03-15" },
   },
 ];
-
-const MAP_DATA = {
-  drivers: [{ id: "quality", name: "Quality" }],
-};
 
 function stubQueries({
   snapshots = SNAPSHOTS,
@@ -107,7 +80,7 @@ describe("snapshot show", () => {
   });
 
   it("throws when --snapshot is missing", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runSnapshotCommand({
           args: ["show"],
@@ -137,7 +110,7 @@ describe("snapshot trend", () => {
   });
 
   it("throws when --item is missing", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runSnapshotCommand({
           args: ["trend"],
@@ -182,7 +155,7 @@ describe("collectDriverWarnings", () => {
 
 describe("snapshot subcommand validation", () => {
   it("throws for unknown subcommand", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runSnapshotCommand({
           args: ["bogus"],

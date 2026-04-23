@@ -1,11 +1,27 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { transformGitHubWebhook } from "@forwardimpact/map/activity/transform/github";
+import { createMockSupabaseClient } from "@forwardimpact/libharness";
 
-function createFakeClient(storedDocument) {
-  const upsertCalls = [];
+/**
+ * Wraps `createMockSupabaseClient` to add a chainable
+ * `.select().eq().single()` for `organization_people` (the only pattern the
+ * shared helper does not cover natively). Storage + upsert-tracking come from
+ * the shared helper via `mock.calls.upsert`.
+ */
+function createFakeClient(storedDocument, path = "github/event.json") {
+  const mock = createMockSupabaseClient({ files: { [path]: storedDocument } });
+  const baseFrom = mock.from.bind(mock);
+
   return {
-    upsertCalls,
+    ...mock,
+    get upsertCalls() {
+      return mock.calls.upsert.map((c) => ({
+        table: c.table,
+        row: Array.isArray(c.rows) ? c.rows[0] : c.rows,
+        onConflict: c.onConflict,
+      }));
+    },
     from(table) {
       if (table === "organization_people") {
         return {
@@ -20,24 +36,7 @@ function createFakeClient(storedDocument) {
           },
         };
       }
-      return {
-        async upsert(row, opts) {
-          upsertCalls.push({ table, row, onConflict: opts.onConflict });
-          return { error: null };
-        },
-      };
-    },
-    storage: {
-      from() {
-        return {
-          async download() {
-            return {
-              data: { text: async () => storedDocument },
-              error: null,
-            };
-          },
-        };
-      },
+      return baseFrom(table);
     },
   };
 }
@@ -67,7 +66,7 @@ describe("activity/transform/github", () => {
         },
       },
     });
-    const fake = createFakeClient(raw);
+    const fake = createFakeClient(raw, "github/1.json");
     const result = await transformGitHubWebhook(fake, "github/1.json");
     assert.strictEqual(result.event, true);
     assert.strictEqual(result.artifacts, 1);
@@ -96,7 +95,7 @@ describe("activity/transform/github", () => {
         },
       },
     });
-    const fake = createFakeClient(raw);
+    const fake = createFakeClient(raw, "github/2.json");
     const result = await transformGitHubWebhook(fake, "github/2.json");
     assert.strictEqual(result.event, true);
     assert.strictEqual(result.artifacts, 1);
@@ -135,7 +134,7 @@ describe("activity/transform/github", () => {
         ],
       },
     });
-    const fake = createFakeClient(raw);
+    const fake = createFakeClient(raw, "github/3.json");
     const result = await transformGitHubWebhook(fake, "github/3.json");
     assert.strictEqual(result.event, true);
     assert.strictEqual(result.artifacts, 2);

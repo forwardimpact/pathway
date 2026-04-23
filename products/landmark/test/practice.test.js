@@ -4,11 +4,7 @@ import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runPracticeCommand } from "../src/commands/practice.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
-
-const PATTERNS = [
-  { skill_id: "task_completion", matched: 5, unmatched: 2, total: 7 },
-  { skill_id: "planning", matched: 1, unmatched: 3, total: 4 },
-];
+import { PATTERNS } from "./fixtures.js";
 
 function stubQueries({ patterns = PATTERNS } = {}) {
   return createMockQueries({ getPracticePatterns: patterns });

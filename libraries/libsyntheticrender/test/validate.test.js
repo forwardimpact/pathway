@@ -1,6 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { validateCrossContent, ContentValidator } from "../src/validate.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 /**
  * Build minimal valid entities for testing.
@@ -384,7 +385,7 @@ describe("validateCrossContent", () => {
 
 describe("ContentValidator", () => {
   test("throws when logger is not provided", () => {
-    assert.throws(() => new ContentValidator(), /logger is required/);
+    assertThrowsMessage(() => new ContentValidator(), /logger is required/);
   });
 
   test("validates entities using validate method", () => {

@@ -32,7 +32,7 @@
     "@forwardimpact/libtelemetry": "^0.1.22"
   },
   "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.5"
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"
