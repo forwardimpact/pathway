@@ -27,22 +27,9 @@ export function createMockSupabaseClient({ tables = {}, files = {} } = {}) {
     list: [],
   };
 
-  const defaultTableHandler = {
-    async select() {
-      return { data: [], error: null };
-    },
-    async insert(rows) {
-      calls.insert.push({ rows });
-      return { data: rows, error: null };
-    },
-    async upsert(rows, opts) {
-      calls.upsert.push({ rows, onConflict: opts?.onConflict });
-      return { data: rows, error: null };
-    },
-    async delete() {
-      return { error: null };
-    },
-  };
+  function record(kind, entry) {
+    calls[kind].push(entry);
+  }
 
   return {
     calls,
@@ -50,24 +37,29 @@ export function createMockSupabaseClient({ tables = {}, files = {} } = {}) {
       const override = tables[table] ?? {};
       return {
         async select(...args) {
-          calls.select.push({ table, args });
+          record("select", { table, args });
           if (override.select) return override.select(...args);
-          return defaultTableHandler.select(...args);
+          return { data: [], error: null };
         },
-        async insert(...args) {
-          calls.insert.push({ table, args });
-          if (override.insert) return override.insert(...args);
-          return defaultTableHandler.insert(...args);
+        async insert(rows, opts) {
+          record("insert", { table, rows, options: opts });
+          if (override.insert) return override.insert(rows, opts);
+          return { data: rows, error: null };
         },
-        async upsert(...args) {
-          calls.upsert.push({ table, args });
-          if (override.upsert) return override.upsert(...args);
-          return defaultTableHandler.upsert(...args);
+        async upsert(rows, opts) {
+          record("upsert", {
+            table,
+            rows,
+            onConflict: opts?.onConflict,
+            options: opts,
+          });
+          if (override.upsert) return override.upsert(rows, opts);
+          return { data: rows, error: null };
         },
         async delete(...args) {
-          calls.delete.push({ table, args });
+          record("delete", { table, args });
           if (override.delete) return override.delete(...args);
-          return defaultTableHandler.delete(...args);
+          return { error: null };
         },
       };
     },
@@ -75,7 +67,7 @@ export function createMockSupabaseClient({ tables = {}, files = {} } = {}) {
       from() {
         return {
           async list(prefix) {
-            calls.list.push({ prefix });
+            record("list", { prefix });
             const names = Object.keys(files)
               .filter((k) => k.startsWith(prefix))
               .map((k) => ({
@@ -85,7 +77,7 @@ export function createMockSupabaseClient({ tables = {}, files = {} } = {}) {
             return { data: names, error: null };
           },
           async download(path) {
-            calls.download.push({ path });
+            record("download", { path });
             const content = files[path];
             if (content === undefined) {
               return { data: null, error: { message: "not found" } };

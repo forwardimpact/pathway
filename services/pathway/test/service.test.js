@@ -3,28 +3,16 @@ import assert from "node:assert";
 import pkg from "n3";
 
 import { PathwayService } from "../index.js";
-import { createMockConfig } from "@forwardimpact/libharness";
+import {
+  createMockConfig,
+  createTurtleHelpers,
+} from "@forwardimpact/libharness";
 
 const { Parser } = pkg;
 const FIT = "https://www.forwardimpact.team/schema/rdf/";
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-function parseQuads(turtle) {
-  return new Parser({ format: "Turtle" }).parse(turtle);
-}
-
-function findAll(quads, { subject, predicate, object } = {}) {
-  return quads.filter(
-    (q) =>
-      (!subject || q.subject.value === subject) &&
-      (!predicate || q.predicate.value === predicate) &&
-      (!object || q.object.value === object),
-  );
-}
-
-function findOne(quads, pattern) {
-  return findAll(quads, pattern)[0];
-}
+const { parseQuads, findAll, findOne } = createTurtleHelpers(Parser);
 
 // --- Hand-built minimal framework data -----------------------------------
 

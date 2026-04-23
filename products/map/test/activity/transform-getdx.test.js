@@ -1,49 +1,10 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { transformAllGetDX } from "@forwardimpact/map/activity/transform/getdx";
+import { createMockSupabaseClient } from "@forwardimpact/libharness";
 
-function createFakeClient({ rawFiles }) {
-  const upsertCalls = [];
-  return {
-    upsertCalls,
-    from(table) {
-      if (table === "organization_people") {
-        return {
-          async select() {
-            return { data: [], error: null };
-          },
-        };
-      }
-      return {
-        async upsert(rows, opts) {
-          upsertCalls.push({ table, rows, onConflict: opts?.onConflict });
-          return { error: null };
-        },
-      };
-    },
-    storage: {
-      from() {
-        return {
-          async list(prefix) {
-            const names = Object.keys(rawFiles)
-              .filter((k) => k.startsWith(prefix))
-              .map((k) => ({
-                name: k.slice(prefix.length),
-                created_at: "z",
-              }));
-            return { data: names, error: null };
-          },
-          async download(path) {
-            return {
-              data: { text: async () => rawFiles[path] },
-              error: null,
-            };
-          },
-        };
-      },
-    },
-  };
-}
+const createFakeClient = ({ rawFiles }) =>
+  createMockSupabaseClient({ files: rawFiles });
 
 describe("activity/transform/getdx", () => {
   test("transformAllGetDX imports teams, snapshots, and scores", async () => {
