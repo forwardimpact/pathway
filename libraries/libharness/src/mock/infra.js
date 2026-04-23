@@ -104,7 +104,10 @@ export function createMockSupabaseClient({ tables = {}, files = {} } = {}) {
  * @param {string} [options.format="Turtle"] - Parser format.
  * @returns {object} { parseQuads, findAll, findOne }
  */
-export function createTurtleHelpers(ParserOrInstance, { format = "Turtle" } = {}) {
+export function createTurtleHelpers(
+  ParserOrInstance,
+  { format = "Turtle" } = {},
+) {
   const isClass =
     typeof ParserOrInstance === "function" &&
     ParserOrInstance.prototype &&

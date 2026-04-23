@@ -15,10 +15,7 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { TeeWriter, TraceCollector } from "@forwardimpact/libeval";
-import {
-  collectStream as collect,
-  stripAnsi,
-} from "@forwardimpact/libharness";
+import { collectStream as collect, stripAnsi } from "@forwardimpact/libharness";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 

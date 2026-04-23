@@ -19,7 +19,7 @@
     "prestart": "bunx fit-pathway build",
     "start": "bunx serve public",
     "dev": "bunx fit-pathway dev",
-    "check": "bun run format && bun run lint && node scripts/check-instructions.mjs",
+    "check": "bun run format && bun run lint && node scripts/check-instructions.mjs && node scripts/check-libharness.mjs",
     "check:fix": "bun run format:fix && bun run lint:fix",
     "lint": "eslint . --max-warnings 0",
     "lint:fix": "eslint . --fix",
