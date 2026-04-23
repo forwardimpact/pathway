@@ -63,9 +63,9 @@ store, and graph index. Re-run them whenever you update framework data.
 npx fit-rc start          # provided by @forwardimpact/librc
 ```
 
-This supervises all required microservices (trace, vector, graph, llm, memory,
-tool, agent, web) in dependency order. Configuration and secrets are read
-automatically from `.env`. Stop them with `npx fit-rc stop`.
+This supervises all required microservices (trace, vector, graph, pathway, mcp)
+in dependency order. Configuration and secrets are read automatically from
+`.env`. Stop them with `npx fit-rc stop`.
 
 ## Usage
 
@@ -149,7 +149,7 @@ Check service logs for the failing service:
 
 ```sh
 ls data/logs/          # List available service log directories
-cat data/logs/llm/current   # View the LLM service log (example)
+cat data/logs/trace/current  # View the trace service log (example)
 ```
 
 Each microservice writes to `data/logs/{service}/current`. Common causes are
