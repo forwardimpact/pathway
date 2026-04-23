@@ -68,6 +68,9 @@ playwright-report/
 node_modules/
 package-lock.json
 
+# Lint cache
+.eslintcache
+
 # Supabase local state
 **/.branches/
 **/.temp/
