@@ -1,4 +1,4 @@
-# Spec 620 — Facilitated Tell→Share Response Protocol for 1-on-1 Coaching
+# Spec 620 — Request–Response Primitives for libeval Orchestration
 
 ## Problem
 
@@ -185,178 +185,269 @@ SDK's success flag reports a green run.
 
 ## Proposal
 
-Make the Tell→Share response protocol a first-class, mandatory contract in
-facilitated mode — stated once at the lowest applicable layer, reinforced once
-at the skill layer, and testable via an invariant. Remove the workflow task-text
-that over-directs Q1 so the coaching procedure matches the skill.
+The Tell→Share stall is a symptom, not a root cause. `Tell` and `Share` are
+one-way messaging primitives that encode no request-response obligation; the
+participant has no structural reason to reply. A four-layer defence-in-depth
+that restates the rule in prose every time a facilitator sends a question is
+evidence of the primitive, not the instructions, being wrong. Any future
+facilitator, model update, or prompt edit re-introduces the same deadlock.
 
-### A symmetric participant protocol rule
+Fix the primitives. Reify the request-response contract in the libeval tool
+surface on both facilitated and supervised sides, enforce it at the runtime, and
+collapse the four prose layers into two short descriptive ones framed by the new
+vocabulary.
 
-The facilitator's system prompt already enforces a round-trip expectation on its
-own side (`facilitator.js:30-33`). The participant side must gain the symmetric
-rule: when the facilitator sends a `Tell`, the participant's turn is not
-complete until the participant has called `Share` with its response. This rule
-is generic to facilitated mode — not specific to storyboards or to coaching —
-and therefore belongs at the lowest instruction layer that is universal to all
-facilitated agents. Which exact layer carries the rule (tool description,
-facilitated-agent system prompt, skill Participant Protocol, or several in
-combination) is a design decision.
+### Request–response primitive pair
 
-### Universal Participant Protocol in `kata-storyboard`
+Replace the current messaging primitives with a pair that encodes the contract:
 
-The `kata-storyboard` skill's Participant Protocol must apply to both team
-storyboard and 1-on-1 coaching contexts. The protocol must state the Tell→Share
-response rule in a form that is not conditional on the meeting mode. The "1-on-1
-Coaching Adaptation" section must explicitly invoke the Participant Protocol
-rather than implying its inheritance.
+- **`Ask(to?, question)`** — the authoritative speech act. Sending an `Ask`
+  registers a pending-ask record in the orchestration context keyed by the
+  addressee. The asker's turn ends after the call (same as today's `Tell`).
+- **`Answer(message)`** — the symmetric reply. Resolves the pending-ask from the
+  asker's counterpart. On the participant side this replaces `Share`-as-
+  response; on the supervisor/facilitator side this replaces the implicit text
+  relay.
+- **`Announce(message)`** — no-reply broadcast (the legitimate use of today's
+  `Share`). Clearly distinguished from `Ask`.
+- `Redirect`, `Conclude`, `RollCall` are unchanged in semantics but renamed or
+  retained consistently across both modes.
 
-Participants in 1-on-1 coaching must load the `kata-storyboard` skill (today
-they do not) so that the Participant Protocol is in their context. The mechanism
-— whether the facilitator's opening `Tell` instructs the participant to load the
-skill, whether the workflow task injects the skill directly into the agent
-session, or whether the coach includes the protocol verbatim in its first `Tell`
-— is a design decision.
+The vocabulary is shared between supervision and facilitation. Supervision is
+1:1 with a single pending-ask slot; facilitation is 1:N with one slot per
+addressed participant.
+
+### Runtime enforcement of the contract
+
+`Facilitator` and `Supervisor` track `ctx.pendingAsks` — a map keyed by
+addressee, value holding the ask id and question. The agent outer loop
+(`#runAgent` in `facilitator.js`, the equivalent loop in `supervisor.js`) must
+not emit `lifecycle:turn_complete` while the agent has an outstanding ask.
+
+When an agent ends a turn with a pending ask:
+
+1. Inject a bounded synthetic reminder and resume the agent once.
+2. If the ask is still pending after the resume, emit a `protocol_violation`
+   event on the trace and permit turn completion so the session can advance (the
+   facilitator sees a null response and may Redirect or Conclude).
+
+Keeping the session live and keeping the violation visible are orthogonal — both
+are required. The silent deadlock is structurally impossible, and the violation
+is a first-class trace fact rather than an inference.
+
+### Session-bootstrap delivery of the Participant Protocol
+
+The Participant Protocol reaches 1-on-1 participants via the participant's
+initial system prompt, which the facilitator controls via
+`createFacilitatedAgentToolServer` / the runner's `systemPrompt`. Candidate
+surfaces — a short Participant-Protocol summary appended to
+`FACILITATED_AGENT_SYSTEM_PROMPT`, an initial bootstrap user message synthesised
+by `#runAgent` before the first `Ask` is delivered, or a direct skill-load
+directive — are enumerated without ranking; which surface is chosen is a design
+decision. Delivery via the coach's first `Ask` is rejected: it uses the very
+protocol that's being bootstrapped.
+
+### Skill restructure: `kata-storyboard` → `kata-session`
+
+The current skill name ties a generic coaching protocol to a single artifact
+(the monthly storyboard) used in only one of the two meeting modes. Rename the
+skill to `kata-session` with a mode-agnostic procedure and two mode-specific
+references:
+
+- `SKILL.md` — the five kata questions, the Ask/Answer turn-taking contract,
+  Conclude.
+- `references/team-storyboard.md` — storyboard artifact, XmR, CSV metrics,
+  planning vs. review branch (content migrated from today's Facilitator Process
+  steps and team-scoped pieces of `coaching-protocol.md`).
+- `references/one-on-one.md` — participant-trace overlay (content migrated from
+  today's "1-on-1 Coaching Adaptation" section).
+
+All references to `kata-storyboard` across the repo (KATA.md, agent profiles,
+workflows, prior spec designs that are live history) update to `kata-session`.
 
 ### Reduced task-text for `kata-coaching.yml`
 
-The coaching workflow's `task-text` must not prescribe Q1 content or dictate
-tool usage on the participant's behalf. It should match the shape of the
-storyboard workflow's task-text (one sentence, skill-dispatch only). The
-trace-analysis step belongs inside Q2 as the skill already describes it
-(`coaching-protocol.md:62-68`), not as a Q1 work assignment.
+Unchanged in rationale from the prior draft of this spec: one sentence, skill
+dispatch only, no Q1 prescription and no participant-side work assignment.
+Matches the shape of `kata-storyboard.yml`.
 
-### Invariant that makes the hang loud
+### Structured protocol-violation invariants
 
-The kata-trace invariant catalogue must carry a named facilitated-mode
-completeness invariant. The WHAT: a facilitated-mode run is incomplete when an
-addressed participant never `Share`s or when `Conclude` is not called exactly
-once. The WHY: the Agent SDK's `result: success` flag does not reflect coaching
-completion, so monitoring that trusts it silently misses the failure mode
-documented above.
+The kata-trace invariant catalogue gains two named entries whose evidence is the
+count of `protocol_violation` trace events in a combined trace, plus the
+`Conclude` cardinality check. One entry per mode (facilitated, supervised); the
+evidence function is shared.
 
 ## Scope
 
 ### Included
 
-- `libraries/libeval/src/facilitator.js` — `FACILITATED_AGENT_SYSTEM_PROMPT`.
-  Whether the Tell→Share rule lives here, elsewhere, or in several places is a
-  design decision.
-- `libraries/libeval/src/orchestration-toolkit.js` — agent-side `Share` and
-  `Tell` tool descriptions (`createFacilitatedAgentToolServer`). Facilitator-
-  side descriptions are unchanged.
-- `.claude/skills/kata-storyboard/SKILL.md` — Participant Protocol
-  universalisation and 1-on-1 Coaching Adaptation section.
-- `.claude/skills/kata-storyboard/references/coaching-protocol.md` — if the
-  Tell→Share rule is restated here for coach consumption, it must remain
-  consistent with the Participant Protocol wording.
-- `.github/workflows/kata-coaching.yml` — `task-text` input.
-- `.claude/skills/kata-trace/references/invariants.md` — new invariant for
-  facilitated-mode completeness.
-- The repository artifact through which participants in 1-on-1 coaching obtain
-  the `kata-storyboard` Participant Protocol in their context. Candidate
-  surfaces, enumerated without ranking: the `kata-coaching.yml` workflow
-  `task-text`, a new participant-profile addendum in `.claude/agents/`, the
-  facilitator's opening-`Tell` template inside the skill, or a direct
-  `Skill("kata-storyboard")` load from the participant's session. Which surface
+- `libraries/libeval/src/orchestration-toolkit.js` — full rewrite of the four
+  tool-server factories (`createSupervisorToolServer`,
+  `createSupervisedAgentToolServer`, `createFacilitatorToolServer`,
+  `createFacilitatedAgentToolServer`) to expose `Ask` / `Answer` / `Announce` in
+  place of `Tell` / `Share` and the participant-side blocking `Ask`. Handler
+  factories (`createAskHandler`, `createAnswerHandler`, `createAnnounceHandler`)
+  and the orchestration context now track `pendingAsks`.
+- `libraries/libeval/src/facilitator.js` — `Facilitator` class gains the
+  pending-ask registry, the `#runAgent` turn-complete guard with bounded
+  resume-once behaviour, and emits `protocol_violation` trace events.
+  `FACILITATOR_SYSTEM_PROMPT` and `FACILITATED_AGENT_SYSTEM_PROMPT` are
+  rewritten to match the new vocabulary and to name the Ask/Answer contract
+  descriptively.
+- `libraries/libeval/src/supervisor.js` — parallel changes for supervision mode:
+  pending-ask registry, turn-complete guard, updated `SUPERVISOR_SYSTEM_PROMPT`
+  and `AGENT_SYSTEM_PROMPT`.
+- `libraries/libeval/src/message-bus.js` — `tell` / `share` methods renamed or
+  augmented so the bus speaks the new vocabulary; message tag shape (`[direct]`
+  / `[shared]`) is a design decision.
+- `libraries/libeval/src/index.js` — exports.
+- `libraries/libeval/test/**` — new and updated tests for `Ask` / `Answer` /
+  `Announce`, pending-ask tracking, turn-complete guard, and
+  `protocol_violation` emission. Affected: `orchestration-toolkit.test.js`,
+  `facilitator.test.js`, `facilitator-messaging.test.js`,
+  `supervisor-*.test.js`, `message-bus.test.js`.
+- `.claude/skills/kata-storyboard/` — renamed to `.claude/skills/kata-session/`
+  with `SKILL.md` holding the mode-agnostic procedure, and
+  `references/team-storyboard.md` + `references/one-on-one.md` carrying the
+  mode-specific overlays. Existing `references/coaching-protocol.md`,
+  `references/metrics.md`, and `references/storyboard-template.md` are
+  redistributed into the new structure.
+- `.github/workflows/kata-coaching.yml` — `task-text` reduced to single-sentence
+  skill dispatch.
+- `.github/workflows/kata-storyboard.yml` — any skill-name references updated;
+  workflow behaviour otherwise unchanged.
+- `.claude/agents/*.md` — agent profiles referencing `kata-storyboard`
+  (improvement-coach, staff-engineer, security-engineer, release-engineer,
+  technical-writer, product-manager) update to `kata-session`.
+- `.claude/agents/references/memory-protocol.md` — skill name reference update.
+- `KATA.md` — Skills table entry updated to `kata-session`.
+- `.claude/skills/kata-trace/references/invariants.md` — two new entries:
+  facilitated-mode and supervised-mode protocol-violation invariants (counts of
+  `protocol_violation` trace events plus `Conclude` cardinality).
+- The participant-side Participant-Protocol delivery surface, chosen from:
+  `FACILITATED_AGENT_SYSTEM_PROMPT` append, a bootstrap user message synthesised
+  by `#runAgent` before the first Ask arrives, or workflow input. Which surface
   is chosen is a design decision.
 
 ### Excluded
 
-- **Facilitator-side system prompt and tool descriptions.** The facilitator's
-  "stop making tool calls and wait for responses" instruction
-  (`facilitator.js:30-33`) is correct as written; its side of the contract is
-  already enforced. This spec only adds the symmetric participant-side rule.
-- **The `Facilitator` class orchestration logic.** Loop mechanics,
-  `#facilitatorLoop`, `#runAgent`, and the `messageBus` are correct given a
-  participant that honours the protocol. No behavioural change is required
-  there.
-- **The `kata-storyboard.yml` workflow.** Team storyboards work today; no change
-  to their workflow is in scope.
-- **Spec 490** (already `plan implemented`). That spec established the coach as
-  a pure facilitator and added orchestration-awareness to the skill on the
-  facilitator side. This spec is the complementary participant-side fix it did
-  not cover.
-- **A general redesign of facilitated-mode agent identity.** Spec 500
-  (facilitated-agent identity) stays in scope for identity; this spec only adds
-  a single protocol rule.
-- **Automatic retry / timeout shortening on stalled coaching runs.** The
-  completeness invariant in Success Criterion 3 makes the hang loud; behavioural
-  recovery (shorter timeout, retry, redirect) is a separate concern.
+- **Facilitated-agent identity (spec 500 scope).** The participant's persona,
+  voice, and scope constraints stay as-is. Only its tool surface and system-
+  prompt framing change.
+- **Facilitator-as-pure-orchestrator posture (spec 490 scope).** That spec
+  established the coach as a pure facilitator with orchestration-tool-only
+  interaction. This spec refines the vocabulary of those tools; it does not
+  revert the posture. Prompt text introduced by spec 490 is rewritten to the new
+  vocabulary, not removed.
+- **Behavioural recovery strategies.** Shorter timeouts, automatic retry on
+  protocol_violation, or re-dispatching a stalled coaching session are out of
+  scope. The runtime's one bounded resume-once is the only recovery action;
+  further escalation is a separate spec.
+- **`agent-runner.js` core loop.** Per-turn mechanics of the individual agent
+  runner are unchanged. The orchestrator (Facilitator / Supervisor) reads ctx at
+  existing checkpoints; no new callbacks into the runner are introduced.
+- **Trace format changes beyond the new `protocol_violation` event type.**
+  Existing tool-call records, message tags, and orchestrator events keep their
+  shapes.
+- **New facilitated workflows or agents.** No new workflow, no new agent
+  persona. Scope is limited to the two existing facilitated workflows
+  (`kata-storyboard.yml`, `kata-coaching.yml`) and the supervised mode consumed
+  by `fit-eval supervise`.
 
 ## Dependencies
 
-- **Spec 460** (`plan implemented`) — `kata-storyboard` skill exists.
-- **Spec 490** (`plan implemented`) — facilitator-side orchestration awareness.
-  This spec is the participant-side counterpart.
-- **Spec 500** (`plan implemented`) — facilitated-agent identity, which
-  determines how participants receive their initial instruction surface.
+- **Spec 460** (`plan implemented`) — `kata-storyboard` skill exists and is
+  renamed by this spec.
+- **Spec 490** (`plan implemented`) — facilitator-as-pure-orchestrator posture.
+  This spec refines the vocabulary that spec 490 introduced; the posture itself
+  is preserved.
+- **Spec 500** (`plan implemented`) — facilitated-agent identity. Unchanged; the
+  Participant Protocol delivery surface this spec selects sits alongside the
+  identity surface, not inside it.
 
 ## Success Criteria
 
 The spec is done when these **artifact properties** hold. Each criterion is a
-property of a file in the repository after the change, checkable without
-scheduling a workflow run. A validation run against `kata-coaching.yml` (see the
-Validation note at the end of this section) is the one-time confirmation that
-the artifact properties produce the intended runtime behaviour — it is not
-itself a success criterion.
+property of a file or a testable runtime behaviour, checkable without scheduling
+a workflow run. The validation note at the end confirms that the artifact
+properties compose into the intended runtime behaviour; it is not a criterion.
 
-1. **Participant-side protocol rule exists in the instruction surface a
-   facilitated participant is guaranteed to read before acting.** The rule
-   states that a `Tell` from the facilitator requires a `Share` response before
-   the participant's turn is complete, symmetric to the facilitator's existing
-   "do not proceed until you have received responses" rule in
-   `libraries/libeval/src/facilitator.js` `FACILITATOR_SYSTEM_PROMPT`. Checkable
-   by reading the chosen surface(s) once the design is settled.
+1. **The new primitive vocabulary is the only tool surface.**
+   `orchestration-toolkit.js` exposes `Ask`, `Answer`, `Announce`, `Redirect`,
+   `Conclude`, `RollCall` across both facilitator and supervisor tool servers
+   and their counterparts on the participant / agent side. `Tell`, `Share`, and
+   the participant-side blocking `Ask` (as a distinct tool) are removed — no
+   aliases, no compatibility shims. Checkable by reading the file.
 
-2. **`kata-storyboard` Participant Protocol applies to both meeting types.**
-   `.claude/skills/kata-storyboard/SKILL.md` § Participant Protocol contains the
-   Tell→Share response rule in mode-agnostic form, and the 1-on-1 adaptation in
-   `references/coaching-protocol.md` § 1-on-1 Coaching Adaptation explicitly
-   invokes the Participant Protocol. Checkable by reading the two files.
+2. **Pending-ask tracking is structural, not inferred.** The orchestration
+   context exposes a `pendingAsks` map populated by the `Ask` handler and
+   cleared by the `Answer` handler. Tests in
+   `libraries/libeval/test/orchestration-toolkit.test.js` assert the map's
+   transitions. Checkable by reading the tests and running them.
 
-3. **Facilitated-mode completeness invariant is catalogued.** A named invariant
-   exists in `.claude/skills/kata-trace/references/invariants.md` whose WHAT and
-   evidence queries together detect a facilitated run in which an addressed
-   participant has zero `Share` calls or in which `Conclude` was not called
-   exactly once. Checkable by reading the invariant entry and running its own
-   documented evidence query against the baseline artifacts listed in the entry.
+3. **Runtime refuses silent turn-completion while an ask is pending.** The
+   `#runAgent` loop in `facilitator.js` (and the equivalent in `supervisor.js`)
+   injects exactly one synthetic reminder on first detection of a pending ask at
+   turn-end, then on a second detection emits a `protocol_violation` trace event
+   and permits the turn to complete so the session can advance. Covered by a
+   test that drives an agent which ignores the first `Ask`, observes the
+   synthetic reminder, ignores again, and verifies the `protocol_violation`
+   event appears exactly once and the session does not deadlock.
 
-4. **Coaching workflow task-text does not prescribe Q1 content.**
-   `.github/workflows/kata-coaching.yml` `task-text` does not dictate which
-   question to ask first, does not specify which tools the participant should
-   use, and does not assign participant-side work. Checkable by reading the
-   workflow file; the shape matches `.github/workflows/kata-storyboard.yml` in
-   its delegation to the skill.
+4. **System prompts match the new vocabulary and are descriptive, not
+   enforcing.** `FACILITATOR_SYSTEM_PROMPT`, `FACILITATED_AGENT_SYSTEM_PROMPT`,
+   `SUPERVISOR_SYSTEM_PROMPT`, and `AGENT_SYSTEM_PROMPT` name the `Ask` /
+   `Answer` / `Announce` primitives. No prompt contains "then Share", "respond
+   via Share", "stop making tool calls", or equivalent enforcing phrases —
+   runtime enforcement replaces them. Checkable by reading `facilitator.js` and
+   `supervisor.js`.
 
-5. **Participants in 1-on-1 coaching are delivered the Participant Protocol.**
-   The repository artifact responsible for participant context in 1-on-1 mode —
-   whichever surface the design selects (workflow input, facilitator opening
-   template, agent profile, or direct skill load) — contains or references the
-   `kata-storyboard` Participant Protocol such that a participant reading its
-   initial instruction surface has the Tell→Share rule in scope. Checkable by
-   reading that one file; no live trace needed.
+5. **`kata-session` skill replaces `kata-storyboard` with a mode-agnostic
+   procedure.** The directory `.claude/skills/kata-session/` exists with
+   `SKILL.md` (mode-agnostic: five questions, Ask/Answer contract, Conclude),
+   `references/team-storyboard.md` (storyboard overlay), and
+   `references/one-on-one.md` (participant-trace overlay).
+   `.claude/skills/kata-storyboard/` does not exist. Checkable by `ls` and by
+   reading the SKILL.md front-matter name field.
 
-6. **The team-storyboard workflow artifacts are unchanged in shape.**
-   `.github/workflows/kata-storyboard.yml` and the facilitator-side
-   `FACILITATOR_SYSTEM_PROMPT`, Facilitator tool-server descriptions, and
-   Facilitator Process steps in `kata-storyboard/SKILL.md` are unchanged except
-   where this spec explicitly touches them (Participant Protocol and 1-on-1
-   Coaching Adaptation). Checkable by diff of the workflow, `facilitator.js`,
-   and the Facilitator Process section.
+6. **All repo references to the old name are updated.** No file under
+   `.claude/`, `.github/`, `KATA.md`, or `website/docs/` contains the string
+   `kata-storyboard` except in historical spec/design artifacts under `specs/`
+   that document prior work. Checkable by `grep -rn kata-storyboard`.
 
-7. **Existing facilitated-mode tests pass.** `bun run check` and `bun run test`
-   pass with no regressions. Tests under
-   `libraries/libeval/test/orchestration-toolkit.test.js` and any test that
-   exercises `FACILITATED_AGENT_SYSTEM_PROMPT` or the agent-side `Share`/`Tell`
-   tool descriptions still pass; new tests cover any new behaviour the design
-   introduces.
+7. **Participant Protocol is delivered via a session-bootstrap surface, not via
+   the coach's first `Ask`.** Whichever surface the design selects (system
+   prompt append, bootstrap user message, or workflow input), a participant in a
+   1-on-1 session has the Participant Protocol in its context before the first
+   `Ask` from the facilitator is delivered. Checkable by reading the selected
+   surface and by a test that asserts the surface is loaded into the
+   participant's runner before `messageBus.waitForMessages` returns.
 
-**Validation note (not a criterion).** Once the seven criteria above hold,
+8. **Coaching workflow task-text is a single-sentence skill dispatch.**
+   `.github/workflows/kata-coaching.yml` `task-text` does not prescribe Q1
+   content, does not name tools the participant should use, and does not assign
+   participant-side work. Shape matches `kata-storyboard.yml`. Checkable by
+   reading the workflow.
+
+9. **Protocol-violation invariants are catalogued for both modes.**
+   `.claude/skills/kata-trace/references/invariants.md` contains one entry per
+   mode (facilitated, supervised). Each entry's evidence query counts
+   `protocol_violation` events in the combined trace and asserts `Conclude`
+   cardinality equals 1 on success. Checkable by reading the entries and running
+   their documented queries against the baseline artifacts.
+
+10. **Test suite passes with new coverage.** `bun run check` and `bun run test`
+    pass. New tests cover: `Ask` registers pending, `Answer` clears pending,
+    `Announce` does not, the turn-complete guard in both modes, the
+    `protocol_violation` event shape, and the `messageBus`/tool-server rename
+    migration.
+
+**Validation note (not a criterion).** Once the ten criteria above hold,
 schedule one `kata-coaching.yml` run against the staff-engineer (same agent as
-the two failing runs `24850558182` and `24844117144`) and one
-`kata-storyboard.yml` run, download both combined traces, and confirm: (a) the
-new invariant in criterion 3 reports no violation on either, and (b) the
-coaching run contains at least one `Share` from the participant and exactly one
-`Conclude`. This is a one-time check that the artifact properties compose into
-the intended runtime behaviour. Persistent monitoring is handled by criterion
-3's invariant, not by repeated manual runs.
+the two failing runs `24850558182` and `24844117144`), one `kata-storyboard.yml`
+run, and one supervised run of an arbitrary agent. Download all three combined
+traces and confirm: (a) the new invariants in criterion 9 report no violations
+on any of the three, (b) the coaching run contains at least one `Answer` from
+the participant and exactly one `Conclude`, and (c) no run exhibits silent
+deadlock. Persistent monitoring is the invariants, not manual runs.
