@@ -2,12 +2,16 @@ import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { createAuth, HmacAuth } from "../src/index.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 describe("Auth", () => {
   describe("HmacAuth", () => {
     test("should throw if secret is missing or too short", () => {
-      assert.throws(() => new HmacAuth(), /Secret must be a non-empty string/);
-      assert.throws(
+      assertThrowsMessage(
+        () => new HmacAuth(),
+        /Secret must be a non-empty string/,
+      );
+      assertThrowsMessage(
         () => new HmacAuth("short"),
         /Secret must be at least 32 characters long/,
       );
@@ -71,7 +75,7 @@ describe("Auth", () => {
 
     test("should throw if SERVICE_SECRET is missing", () => {
       delete process.env.SERVICE_SECRET;
-      assert.throws(
+      assertThrowsMessage(
         () => createAuth("test"),
         /SERVICE_SECRET environment variable is required/,
       );

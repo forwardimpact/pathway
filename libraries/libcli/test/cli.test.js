@@ -3,6 +3,7 @@ import assert from "node:assert";
 
 import { Cli } from "../src/cli.js";
 import { HelpRenderer } from "../src/help.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 function createProc() {
   return {
@@ -116,7 +117,7 @@ describe("Cli", () => {
   describe("legacy schema rejection", () => {
     test("throws on definition with legacy options field", () => {
       const proc = createProc();
-      assert.throws(
+      assertThrowsMessage(
         () =>
           new Cli(
             { name: "old", options: { help: { type: "boolean" } } },
@@ -236,7 +237,7 @@ describe("Cli", () => {
   describe("option name collision", () => {
     test("throws on command option colliding with global option", () => {
       const proc = createProc();
-      assert.throws(
+      assertThrowsMessage(
         () =>
           new Cli(
             {

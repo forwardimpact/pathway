@@ -1,18 +1,18 @@
-import { test, describe, mock } from "node:test";
+import { test, describe } from "node:test";
 import assert from "node:assert";
 
 import { createConfig } from "../src/index.js";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { createMockStorage, spy } from "@forwardimpact/libharness";
 
 describe("libconfig - Config getters", () => {
   const mockStorageFn = () =>
     createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
 
   test("init returns init config from file data", async () => {
     const mockStorage = createMockStorage({
-      get: mock.fn(() =>
+      get: spy(() =>
         Promise.resolve({
           init: {
             log_dir: "data/logs",
@@ -24,7 +24,7 @@ describe("libconfig - Config getters", () => {
     });
 
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {},
     };
 
@@ -43,11 +43,11 @@ describe("libconfig - Config getters", () => {
 
   test("init returns null when not present in file", async () => {
     const mockStorage = createMockStorage({
-      get: mock.fn(() => Promise.resolve({})),
+      get: spy(() => Promise.resolve({})),
     });
 
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {},
     };
 
@@ -64,12 +64,12 @@ describe("libconfig - Config getters", () => {
 
   test("rootDir returns parent of config directory", async () => {
     const mockStorage = createMockStorage({
-      get: mock.fn(() => Promise.resolve({})),
-      path: mock.fn(() => "/project/root/config"),
+      get: spy(() => Promise.resolve({})),
+      path: spy(() => "/project/root/config"),
     });
 
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {},
     };
 
@@ -86,7 +86,7 @@ describe("libconfig - Config getters", () => {
 
   test("ghToken throws when not set in environment", async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {},
     };
 
@@ -104,7 +104,7 @@ describe("libconfig - Config getters", () => {
 
   test("ghToken returns from environment", async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: { GITHUB_TOKEN: "gh-token-xyz" },
     };
 
@@ -120,7 +120,7 @@ describe("libconfig - Config getters", () => {
 
   test("ghToken falls back to GH_TOKEN when GITHUB_TOKEN is unset", async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: { GH_TOKEN: "gh-cli-token" },
     };
 
@@ -136,7 +136,7 @@ describe("libconfig - Config getters", () => {
 
   test("ghToken prefers GITHUB_TOKEN when both are set", async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: { GITHUB_TOKEN: "github-token", GH_TOKEN: "gh-token" },
     };
 
@@ -152,7 +152,7 @@ describe("libconfig - Config getters", () => {
 
   test("llmToken throws when not set in environment", async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {},
     };
 
@@ -170,7 +170,7 @@ describe("libconfig - Config getters", () => {
 
   test("llmBaseUrl returns custom URL from environment", async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: { LLM_BASE_URL: "https://custom.api.com" },
     };
 

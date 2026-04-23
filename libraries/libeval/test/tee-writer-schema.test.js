@@ -8,21 +8,11 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { TeeWriter } from "@forwardimpact/libeval";
-
-function collect(stream) {
-  const data = stream.read();
-  return data ? data.toString() : "";
-}
-
-function stripAnsi(s) {
-  // eslint-disable-next-line no-control-regex -- ANSI SGR detection is intentional.
-  return s.replace(/\[[0-9;]*m/g, "");
-}
-
-async function writeLines(writer, lines) {
-  for (const line of lines) writer.write(line + "\n");
-  await new Promise((resolve) => writer.end(resolve));
-}
+import {
+  collectStream as collect,
+  stripAnsi,
+  writeLines,
+} from "@forwardimpact/libharness";
 
 describe("TeeWriter v1.1 schema rendering", () => {
   test("renders system turns with subtype label", async () => {

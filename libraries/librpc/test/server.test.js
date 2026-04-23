@@ -1,14 +1,16 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { Server } from "../src/index.js";
 import {
+  assertThrowsMessage,
+  createMockAuthFn,
   createMockConfig,
   createMockGrpcFn,
-  createMockObserverFn,
-  createMockAuthFn,
   createMockLogger,
+  createMockObserverFn,
   createMockTracer,
+  spy,
 } from "@forwardimpact/libharness";
 
 describe("Server", () => {
@@ -34,7 +36,7 @@ describe("Server", () => {
   });
 
   test("should require service parameter", () => {
-    assert.throws(
+    assertThrowsMessage(
       () =>
         new Server(
           null,
@@ -50,7 +52,7 @@ describe("Server", () => {
   });
 
   test("should require config parameter", () => {
-    assert.throws(
+    assertThrowsMessage(
       () =>
         new Server(
           mockService,
@@ -81,7 +83,7 @@ describe("Server", () => {
   });
 
   test("should call service methods during setup", async () => {
-    const getHandlersSpy = mock.fn(() => ({
+    const getHandlersSpy = spy(() => ({
       TestMethod: async () => ({ result: "test" }),
     }));
 

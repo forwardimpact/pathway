@@ -15,25 +15,9 @@ import path from "node:path";
 import { fileURLToPath } from "node:url";
 
 import { TeeWriter, TraceCollector } from "@forwardimpact/libeval";
+import { collectStream as collect, stripAnsi } from "@forwardimpact/libharness";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
-
-/**
- * @param {PassThrough} stream
- * @returns {string}
- */
-function collect(stream) {
-  const data = stream.read();
-  return data ? data.toString() : "";
-}
-
-/**
- * @param {string} s
- */
-function stripAnsi(s) {
-  // eslint-disable-next-line no-control-regex -- ANSI SGR detection is intentional.
-  return s.replace(/\u001b\[[0-9;]*m/g, "");
-}
 
 describe("spec 540 fixture equivalence", () => {
   test("live TeeWriter text equals offline toText() replay", async () => {

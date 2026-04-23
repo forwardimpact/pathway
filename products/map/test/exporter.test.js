@@ -15,76 +15,9 @@ import { MicrodataRdfParser } from "microdata-rdf-streaming-parser";
 import { Exporter } from "../src/exporter.js";
 import { createRenderer } from "../src/renderer.js";
 import { VOCAB_BASE } from "../src/iri.js";
+import { DATA } from "./fixtures.js";
 
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
-
-const DATA = {
-  capabilities: [
-    {
-      id: "delivery",
-      name: "Delivery",
-      description: "Shipping value.",
-      professionalResponsibilities: { working: "Own delivery." },
-    },
-  ],
-  skills: [
-    {
-      id: "planning",
-      name: "Planning",
-      capability: "delivery",
-      description: "Plan work.",
-      proficiencyDescriptions: { working: "..." },
-      toolReferences: [
-        {
-          name: "Linear",
-          url: "https://linear.app",
-          description: "Issue tracker.",
-          useWhen: "Always.",
-        },
-      ],
-    },
-  ],
-  disciplines: [
-    {
-      id: "software_engineering",
-      specialization: "Software Engineering",
-      coreSkills: ["planning"],
-      description: "...",
-    },
-  ],
-  tracks: [
-    {
-      id: "platform",
-      name: "Platform",
-      description: "...",
-      skillModifiers: { planning: 1 },
-    },
-  ],
-  drivers: [
-    {
-      id: "quality",
-      name: "Quality",
-      description: "...",
-      contributingSkills: ["planning"],
-    },
-  ],
-  behaviours: [
-    {
-      id: "systems_thinking",
-      name: "Think in Systems",
-      description: "...",
-      maturityDescriptions: { emerging: "..." },
-    },
-  ],
-  levels: [
-    {
-      id: "J040",
-      professionalTitle: "Level I",
-      qualificationSummary: "Entry.",
-      ordinalRank: 1,
-    },
-  ],
-};
 
 let outputDir;
 

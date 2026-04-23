@@ -8,36 +8,24 @@ import {
   loadPeopleFile,
   validatePeople,
 } from "@forwardimpact/map/activity/validate/people";
+import { PEOPLE_VALID, PEOPLE_UNKNOWN_LEVEL } from "../fixtures.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const STARTER_DIR = resolve(__dirname, "../..", "starter");
 
 describe("activity/validate/people", () => {
   test("validatePeople flags unknown levels", async () => {
-    const people = [
-      {
-        email: "a@x",
-        name: "A",
-        discipline: "software_engineering",
-        level: "L999",
-      },
-    ];
-    const { valid, errors } = await validatePeople(people, STARTER_DIR);
+    const { valid, errors } = await validatePeople(
+      PEOPLE_UNKNOWN_LEVEL,
+      STARTER_DIR,
+    );
     assert.strictEqual(valid.length, 0);
     assert.strictEqual(errors.length, 1);
     assert.match(errors[0].message, /unknown level/);
   });
 
   test("validatePeople accepts valid people", async () => {
-    const people = [
-      {
-        email: "a@x",
-        name: "A",
-        discipline: "software_engineering",
-        level: "J040",
-      },
-    ];
-    const { valid, errors } = await validatePeople(people, STARTER_DIR);
+    const { valid, errors } = await validatePeople(PEOPLE_VALID, STARTER_DIR);
     assert.strictEqual(valid.length, 1);
     assert.strictEqual(errors.length, 0);
   });

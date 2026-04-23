@@ -9,6 +9,7 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { EventEmitter } from "node:events";
+import { assertRejectsMessage } from "@forwardimpact/libharness";
 
 import { createSupabaseCli } from "../src/lib/supabase-cli.js";
 import { getPackageRoot } from "../src/lib/package-root.js";
@@ -182,7 +183,7 @@ describe("supabase-cli", () => {
       { kind: "exit", code: 2 }, // actual db reset
     ]);
     const cli = createSupabaseCli({ spawnFn });
-    await assert.rejects(
+    await assertRejectsMessage(
       () => cli.run(["db", "reset"]),
       /supabase db reset exited 2/,
     );

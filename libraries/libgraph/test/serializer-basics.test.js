@@ -2,6 +2,7 @@ import { test, describe } from "node:test";
 import assert from "node:assert";
 
 import { ShaclSerializer } from "../src/serializer.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 describe("ShaclSerializer - basics", () => {
   let serializer;
@@ -16,14 +17,14 @@ describe("ShaclSerializer - basics", () => {
   describe("serialize - validation and empty data", () => {
     test("throws error for null ontologyData", () => {
       serializer = new ShaclSerializer();
-      assert.throws(() => {
+      assertThrowsMessage(() => {
         serializer.serialize(null);
       }, /ontologyData is required/);
     });
 
     test("throws error for undefined ontologyData", () => {
       serializer = new ShaclSerializer();
-      assert.throws(() => {
+      assertThrowsMessage(() => {
         serializer.serialize(undefined);
       }, /ontologyData is required/);
     });

@@ -1,5 +1,6 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import { spy } from "@forwardimpact/libharness";
 
 // Module under test
 import { Retry } from "../src/retry.js";
@@ -29,7 +30,7 @@ describe("Retry", () => {
       statusText: "Too Many Requests",
     };
 
-    const mockFetch = mock.fn(() => Promise.resolve(retryResponse));
+    const mockFetch = spy(() => Promise.resolve(retryResponse));
 
     const response = await retry.execute(mockFetch);
 
@@ -47,11 +48,11 @@ describe("Retry", () => {
     const successResponse = {
       ok: true,
       status: 200,
-      json: mock.fn(() => Promise.resolve({ data: "success" })),
+      json: spy(() => Promise.resolve({ data: "success" })),
     };
 
     let callCount = 0;
-    const mockFetch = mock.fn(() => {
+    const mockFetch = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve(retryResponse);
@@ -75,11 +76,11 @@ describe("Retry", () => {
     const successResponse = {
       ok: true,
       status: 200,
-      json: mock.fn(() => Promise.resolve({ data: "success" })),
+      json: spy(() => Promise.resolve({ data: "success" })),
     };
 
     let callCount = 0;
-    const mockFetch = mock.fn(() => {
+    const mockFetch = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve(retryResponse);
@@ -103,11 +104,11 @@ describe("Retry", () => {
     const successResponse = {
       ok: true,
       status: 200,
-      json: mock.fn(() => Promise.resolve({ data: "success" })),
+      json: spy(() => Promise.resolve({ data: "success" })),
     };
 
     let callCount = 0;
-    const mockFetch = mock.fn(() => {
+    const mockFetch = spy(() => {
       callCount++;
       if (callCount <= 2) {
         return Promise.resolve(retryResponse);
@@ -126,11 +127,11 @@ describe("Retry", () => {
     const successResponse = {
       ok: true,
       status: 200,
-      json: mock.fn(() => Promise.resolve({ data: "success" })),
+      json: spy(() => Promise.resolve({ data: "success" })),
     };
 
     let callCount = 0;
-    const mockFetch = mock.fn(() => {
+    const mockFetch = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.reject(new Error("Network error: Connection refused"));
@@ -152,7 +153,7 @@ describe("Retry", () => {
       statusText: "Bad Request",
     };
 
-    const mockFetch = mock.fn(() => Promise.resolve(errorResponse));
+    const mockFetch = spy(() => Promise.resolve(errorResponse));
 
     const response = await retry.execute(mockFetch);
 
@@ -168,7 +169,7 @@ describe("Retry", () => {
       statusText: "Internal Server Error",
     };
 
-    const mockFetch = mock.fn(() => Promise.resolve(errorResponse));
+    const mockFetch = spy(() => Promise.resolve(errorResponse));
 
     const response = await retry.execute(mockFetch);
 
@@ -181,10 +182,10 @@ describe("Retry", () => {
     const successResponse = {
       ok: true,
       status: 200,
-      json: mock.fn(() => Promise.resolve({ data: "success" })),
+      json: spy(() => Promise.resolve({ data: "success" })),
     };
 
-    const mockFetch = mock.fn(() => Promise.resolve(successResponse));
+    const mockFetch = spy(() => Promise.resolve(successResponse));
 
     const result = await retry.execute(mockFetch);
 

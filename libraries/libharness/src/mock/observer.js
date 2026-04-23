@@ -1,5 +1,4 @@
-import { mock } from "node:test";
-
+import { spy } from "./spy.js";
 /**
  * Creates a mock observer factory
  * @param {object} logger - Logger to use (optional)
@@ -7,9 +6,9 @@ import { mock } from "node:test";
  */
 export function createMockObserverFn(logger = null) {
   const mockLogger = logger || {
-    debug: mock.fn(),
-    info: mock.fn(),
-    error: mock.fn(),
+    debug: spy(),
+    info: spy(),
+    error: spy(),
   };
 
   return () => ({
@@ -33,20 +32,20 @@ export function createMockObserverFn(logger = null) {
  */
 export function createMockTracer(overrides = {}) {
   return {
-    startSpan: mock.fn((name, options = {}) => ({
+    startSpan: spy((name, options = {}) => ({
       span_id: `span-${Date.now()}`,
       trace_id: `trace-${Date.now()}`,
       name,
       ...options,
     })),
-    startClientSpan: mock.fn((_service, _method) => ({
+    startClientSpan: spy((_service, _method) => ({
       span: {
         span_id: `client-span-${Date.now()}`,
         trace_id: `trace-${Date.now()}`,
       },
       metadata: { get: () => [], set: () => {} },
     })),
-    startServerSpan: mock.fn((_service, _method, _request, metadata) => ({
+    startServerSpan: spy((_service, _method, _request, metadata) => ({
       span_id: `server-span-${Date.now()}`,
       trace_id: metadata?.get?.("x-trace-id")?.[0] || `trace-${Date.now()}`,
     })),
@@ -54,8 +53,8 @@ export function createMockTracer(overrides = {}) {
       run: (span, fn) => fn(),
       getStore: () => null,
     }),
-    endSpan: mock.fn(),
-    recordError: mock.fn(),
+    endSpan: spy(),
+    recordError: spy(),
     ...overrides,
   };
 }

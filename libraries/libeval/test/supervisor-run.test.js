@@ -9,22 +9,9 @@ import {
   createAskHandler,
 } from "../src/orchestration-toolkit.js";
 import { createMockRunner } from "./mock-runner.js";
+import { createToolUseMsg } from "@forwardimpact/libharness";
 
-function concludeMsg(summary) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: "conclude-1",
-          name: "Conclude",
-          input: { summary },
-        },
-      ],
-    },
-  };
-}
+const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
 
 describe("Supervisor - run and turns", () => {
   test("constructor throws on missing agentRunner", () => {

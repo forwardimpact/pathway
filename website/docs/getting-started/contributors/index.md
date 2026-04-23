@@ -57,7 +57,7 @@ bun run test
 ```
 
 `bun run check` runs formatting (Prettier) and linting (ESLint) sequentially so
-failures are easy to spot. `bun run test` runs unit tests (`node --test`)
+failures are easy to spot. `bun run test` runs unit tests (`bun test`)
 separately so test output does not bury check failures.
 
 To auto-fix formatting and lint issues:

@@ -1,28 +1,25 @@
-import { test } from "node:test";
+import { before, test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
-
-import { createDataLoader } from "@forwardimpact/map/loader";
 
 import {
   computeGrowthAlignment,
   GrowthContractError,
 } from "../src/aggregation/growth.js";
 
-const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
+import { loadStarterData } from "./fixtures.js";
 
-async function loadData() {
-  return createDataLoader().loadAllData(FIXTURE_DATA);
-}
+let mapData;
 
-test("computeGrowthAlignment returns [] for empty team", async () => {
-  const mapData = await loadData();
+before(async () => {
+  ({ data: mapData } = await loadStarterData());
+});
+
+test("computeGrowthAlignment returns [] for empty team", () => {
   const result = computeGrowthAlignment({ team: [], mapData });
   assert.deepEqual(result, []);
 });
 
-test("computeGrowthAlignment surfaces critical gaps first", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment surfaces critical gaps first", () => {
   const team = [
     {
       email: "a@example.com",
@@ -43,8 +40,7 @@ test("computeGrowthAlignment surfaces critical gaps first", async () => {
   assert.ok(critical.length >= 3);
 });
 
-test("computeGrowthAlignment ranks candidates by proximity", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment ranks candidates by proximity", () => {
   const team = [
     {
       email: "senior@example.com",
@@ -65,8 +61,7 @@ test("computeGrowthAlignment ranks candidates by proximity", async () => {
   assert.equal(planning.candidates[0].email, "senior@example.com");
 });
 
-test("computeGrowthAlignment throws GrowthContractError on unknown discipline", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment throws GrowthContractError on unknown discipline", () => {
   const team = [
     {
       email: "x@example.com",
@@ -80,8 +75,7 @@ test("computeGrowthAlignment throws GrowthContractError on unknown discipline", 
   );
 });
 
-test("computeGrowthAlignment attaches null driverContext for every rec in Part 05", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment attaches null driverContext for every rec in Part 05", () => {
   const team = [
     {
       email: "a@example.com",
@@ -95,11 +89,10 @@ test("computeGrowthAlignment attaches null driverContext for every rec in Part 0
   }
 });
 
-test("computeGrowthAlignment signature — accepts a single destructured param", async () => {
+test("computeGrowthAlignment signature — accepts a single destructured param", () => {
   // Function accepts team / mapData / evidence / driverScores as
   // destructured options; with a default of `{}`, Function.length is 0.
   // Just exercise the full signature to ensure it doesn't throw.
-  const mapData = await loadData();
   const recs = computeGrowthAlignment({
     team: [],
     mapData,
@@ -109,8 +102,7 @@ test("computeGrowthAlignment signature — accepts a single destructured param",
   assert.deepEqual(recs, []);
 });
 
-test("computeGrowthAlignment recommendations expose `skill` per spec.md:583", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment recommendations expose `skill` per spec.md:583", () => {
   const team = [
     {
       email: "a@example.com",
@@ -135,8 +127,7 @@ test("computeGrowthAlignment recommendations expose `skill` per spec.md:583", as
   }
 });
 
-test("computeGrowthAlignment attaches driverContext when driverScores passed", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment attaches driverContext when driverScores passed", () => {
   const team = [
     {
       email: "a@example.com",
@@ -165,8 +156,7 @@ test("computeGrowthAlignment attaches driverContext when driverScores passed", a
   );
 });
 
-test("computeGrowthAlignment outcome weighting reorders within a tier", async () => {
-  const mapData = await loadData();
+test("computeGrowthAlignment outcome weighting reorders within a tier", () => {
   const team = [
     {
       email: "a@example.com",

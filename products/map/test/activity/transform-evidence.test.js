@@ -1,7 +1,14 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { transformEvidence } from "@forwardimpact/map/activity/transform/evidence";
+import { createMockSupabaseClient } from "@forwardimpact/libharness";
+import { makeEvidenceRow, makeArtifact } from "../fixtures.js";
 
+/**
+ * transform/evidence.js chains `.delete().eq()` and `.select().not()`, neither
+ * covered by `createMockSupabaseClient`. The storage download IS covered, so
+ * we delegate that to the shared mock and hand-roll the table chains here.
+ */
 function createFakeClient({
   evidenceJson = null,
   artifacts = [],
@@ -10,6 +17,11 @@ function createFakeClient({
 } = {}) {
   const deleteCalls = [];
   const insertCalls = [];
+
+  const files = throwOnDownload
+    ? {}
+    : { "getdx/evidence.json": JSON.stringify(evidenceJson) };
+  const storageMock = createMockSupabaseClient({ files });
 
   return {
     deleteCalls,
@@ -36,10 +48,7 @@ function createFakeClient({
           select() {
             return {
               not() {
-                return {
-                  data: artifacts,
-                  error: null,
-                };
+                return { data: artifacts, error: null };
               },
             };
           },
@@ -47,23 +56,7 @@ function createFakeClient({
       }
       return {};
     },
-    storage: {
-      from() {
-        return {
-          async download() {
-            if (throwOnDownload) {
-              return { data: null, error: { message: "not found" } };
-            }
-            return {
-              data: {
-                text: async () => JSON.stringify(evidenceJson),
-              },
-              error: null,
-            };
-          },
-        };
-      },
-    },
+    storage: storageMock.storage,
   };
 }
 
@@ -72,51 +65,37 @@ describe("activity/transform/evidence", () => {
     const fake = createFakeClient({
       evidenceJson: {
         evidence: [
-          {
-            person_email: "ada@example.com",
-            skill_id: "testing",
-            proficiency: "working",
-            observed_at: "2026-01-01T00:00:00Z",
-          },
-          {
-            person_email: "ada@example.com",
+          makeEvidenceRow(),
+          makeEvidenceRow({
             skill_id: "code-review",
             proficiency: "practitioner",
             observed_at: "2026-01-02T00:00:00Z",
-          },
-          {
+          }),
+          makeEvidenceRow({
             person_email: "bob@example.com",
-            skill_id: "testing",
             proficiency: "foundational",
             observed_at: "2026-01-03T00:00:00Z",
-          },
-          {
+          }),
+          makeEvidenceRow({
             person_email: "unknown@example.com",
-            skill_id: "testing",
             proficiency: "awareness",
             observed_at: "2026-01-04T00:00:00Z",
-          },
+          }),
         ],
       },
       artifacts: [
-        {
-          artifact_id: "a1",
-          email: "ada@example.com",
-          artifact_type: "pull_request",
-          metadata: { title: "Fix auth" },
-        },
-        {
+        makeArtifact({ metadata: { title: "Fix auth" } }),
+        makeArtifact({
           artifact_id: "a2",
-          email: "ada@example.com",
           artifact_type: "commit",
           metadata: { message: "feat: add tests" },
-        },
-        {
+        }),
+        makeArtifact({
           artifact_id: "b1",
           email: "bob@example.com",
           artifact_type: "review",
           metadata: {},
-        },
+        }),
       ],
     });
 
@@ -150,24 +129,8 @@ describe("activity/transform/evidence", () => {
 
   test("idempotency: delete runs before insert on each call", async () => {
     const fake = createFakeClient({
-      evidenceJson: {
-        evidence: [
-          {
-            person_email: "ada@example.com",
-            skill_id: "testing",
-            proficiency: "working",
-            observed_at: "2026-01-01T00:00:00Z",
-          },
-        ],
-      },
-      artifacts: [
-        {
-          artifact_id: "a1",
-          email: "ada@example.com",
-          artifact_type: "pull_request",
-          metadata: { title: "PR" },
-        },
-      ],
+      evidenceJson: { evidence: [makeEvidenceRow()] },
+      artifacts: [makeArtifact()],
     });
 
     await transformEvidence(fake);
@@ -197,45 +160,28 @@ describe("activity/transform/evidence", () => {
     const fake = createFakeClient({
       evidenceJson: {
         evidence: [
-          {
-            person_email: "a@x.com",
-            skill_id: "s1",
-            proficiency: "working",
-            observed_at: "2026-01-01T00:00:00Z",
-          },
-          {
-            person_email: "b@x.com",
-            skill_id: "s2",
-            proficiency: "working",
-            observed_at: "2026-01-01T00:00:00Z",
-          },
-          {
-            person_email: "c@x.com",
-            skill_id: "s3",
-            proficiency: "working",
-            observed_at: "2026-01-01T00:00:00Z",
-          },
+          makeEvidenceRow({ person_email: "a@x.com", skill_id: "s1" }),
+          makeEvidenceRow({ person_email: "b@x.com", skill_id: "s2" }),
+          makeEvidenceRow({ person_email: "c@x.com", skill_id: "s3" }),
         ],
       },
       artifacts: [
-        {
-          artifact_id: "a1",
+        makeArtifact({
           email: "a@x.com",
-          artifact_type: "pull_request",
           metadata: { title: "Has title", message: "Has message" },
-        },
-        {
+        }),
+        makeArtifact({
           artifact_id: "b1",
           email: "b@x.com",
           artifact_type: "commit",
           metadata: { message: "Only message" },
-        },
-        {
+        }),
+        makeArtifact({
           artifact_id: "c1",
           email: "c@x.com",
           artifact_type: "review",
           metadata: {},
-        },
+        }),
       ],
     });
 
@@ -249,24 +195,8 @@ describe("activity/transform/evidence", () => {
 
   test("insert error returns zero inserted and reports the error", async () => {
     const fake = createFakeClient({
-      evidenceJson: {
-        evidence: [
-          {
-            person_email: "ada@example.com",
-            skill_id: "testing",
-            proficiency: "working",
-            observed_at: "2026-01-01T00:00:00Z",
-          },
-        ],
-      },
-      artifacts: [
-        {
-          artifact_id: "a1",
-          email: "ada@example.com",
-          artifact_type: "pull_request",
-          metadata: { title: "PR" },
-        },
-      ],
+      evidenceJson: { evidence: [makeEvidenceRow()] },
+      artifacts: [makeArtifact()],
       insertError: { message: "permission denied" },
     });
 
@@ -281,14 +211,7 @@ describe("activity/transform/evidence", () => {
   test("empty evidence array: deletes and returns zeros", async () => {
     const fake = createFakeClient({
       evidenceJson: { evidence: [] },
-      artifacts: [
-        {
-          artifact_id: "a1",
-          email: "ada@example.com",
-          artifact_type: "pull_request",
-          metadata: { title: "PR" },
-        },
-      ],
+      artifacts: [makeArtifact()],
     });
 
     const result = await transformEvidence(fake);

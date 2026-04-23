@@ -13,7 +13,7 @@
   "scripts": {
     "dev": "node --watch server.js",
     "start": "bun server.js",
-    "test": "bun run node --test test/*.test.js"
+    "test": "bun test test/*.test.js"
   },
   "dependencies": {
     "@forwardimpact/libconfig": "^0.1.58",
@@ -26,7 +26,7 @@
     "n3": "^2.0.3"
   },
   "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.5"
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "files": [
     "proto/",

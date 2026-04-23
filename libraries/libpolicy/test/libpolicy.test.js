@@ -1,9 +1,9 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
 import { Policy } from "../src/index.js";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { createMockStorage, spy } from "@forwardimpact/libharness";
 
 describe("libpolicy", () => {
   describe("Policy", () => {
@@ -12,11 +12,11 @@ describe("libpolicy", () => {
 
     beforeEach(() => {
       mockStorage = createMockStorage({
-        get: mock.fn(() => Promise.resolve(Buffer.from("test data"))),
-        list: mock.fn(() => Promise.resolve([])),
-        path: mock.fn((key) => `/test/base/${key}`),
-        ensureBucket: mock.fn(() => Promise.resolve(false)),
-        bucketExists: mock.fn(() => Promise.resolve(true)),
+        get: spy(() => Promise.resolve(Buffer.from("test data"))),
+        list: spy(() => Promise.resolve([])),
+        path: spy((key) => `/test/base/${key}`),
+        ensureBucket: spy(() => Promise.resolve(false)),
+        bucketExists: spy(() => Promise.resolve(true)),
       });
 
       policy = new Policy(mockStorage);
@@ -162,21 +162,21 @@ describe("libpolicy", () => {
     test("demonstrates TODO.md example usage", async () => {
       // Mock storage factory similar to the TODO.md example
       const mockStorage = {
-        put: mock.fn(() => Promise.resolve()),
-        get: mock.fn(() => Promise.resolve(Buffer.from("test data"))),
-        delete: mock.fn(() => Promise.resolve()),
-        exists: mock.fn(() => Promise.resolve(true)),
-        findByExtension: mock.fn(() => Promise.resolve([])),
-        getMany: mock.fn(() => Promise.resolve({})),
-        findByPrefix: mock.fn(() => Promise.resolve([])),
-        list: mock.fn(() => Promise.resolve([])),
-        path: mock.fn((key) => `/test/base/${key}`),
-        ensureBucket: mock.fn(() => Promise.resolve(false)),
-        bucketExists: mock.fn(() => Promise.resolve(true)),
+        put: spy(() => Promise.resolve()),
+        get: spy(() => Promise.resolve(Buffer.from("test data"))),
+        delete: spy(() => Promise.resolve()),
+        exists: spy(() => Promise.resolve(true)),
+        findByExtension: spy(() => Promise.resolve([])),
+        getMany: spy(() => Promise.resolve({})),
+        findByPrefix: spy(() => Promise.resolve([])),
+        list: spy(() => Promise.resolve([])),
+        path: spy((key) => `/test/base/${key}`),
+        ensureBucket: spy(() => Promise.resolve(false)),
+        bucketExists: spy(() => Promise.resolve(true)),
       };
 
       // Mock storageFactory to return our mock storage
-      const mockStorageFactory = mock.fn(() => mockStorage);
+      const mockStorageFactory = spy(() => mockStorage);
 
       // Example usage from TODO.md
       const storage = mockStorageFactory("policies");

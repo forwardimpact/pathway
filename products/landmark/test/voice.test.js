@@ -1,57 +1,21 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import {
+  assertRejectsMessage,
+  createMockQueries,
+} from "@forwardimpact/libharness";
 
 import { runVoiceCommand } from "../src/commands/voice.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
-
-const COMMENTS = [
-  {
-    comment_id: "c1",
-    snapshot_id: "snap-1",
-    email: "alice@example.com",
-    text: "Estimation is always off, we overcommit every sprint",
-    timestamp: "2025-03-10T00:00:00Z",
-    getdx_snapshots: { scheduled_for: "2025-Q1" },
-  },
-  {
-    comment_id: "c2",
-    snapshot_id: "snap-1",
-    email: "bob@example.com",
-    text: "Incident response is painful, no runbook for the payment service",
-    timestamp: "2025-03-11T00:00:00Z",
-    getdx_snapshots: { scheduled_for: "2025-Q1" },
-  },
-  {
-    comment_id: "c3",
-    snapshot_id: "snap-2",
-    email: "alice@example.com",
-    text: "Planning process improved this quarter",
-    timestamp: "2024-12-10T00:00:00Z",
-    getdx_snapshots: { scheduled_for: "2024-Q4" },
-  },
-];
-
-const MAP_DATA = {
-  drivers: [
-    {
-      id: "quality",
-      name: "Quality",
-      contributingSkills: ["task_completion", "planning"],
-    },
-  ],
-};
+import { COMMENTS, MAP_DATA } from "./fixtures.js";
 
 function stubQueries({ comments = COMMENTS, evidence = [] } = {}) {
-  return {
-    getSnapshotComments: async () => comments,
-    getEvidence: async () => evidence,
-    listSnapshots: async () => [
-      { snapshot_id: "snap-1", scheduled_for: "2025-Q1" },
-    ],
-    getSnapshotScores: async () => [
-      { item_id: "quality", score: 42, vs_org: -10 },
-    ],
-  };
+  return createMockQueries({
+    getSnapshotComments: comments,
+    getEvidence: evidence,
+    listSnapshots: [{ snapshot_id: "snap-1", scheduled_for: "2025-Q1" }],
+    getSnapshotScores: [{ item_id: "quality", score: 42, vs_org: -10 }],
+  });
 }
 
 describe("voice --email", () => {
@@ -136,7 +100,7 @@ describe("voice --manager", () => {
 
 describe("voice validation", () => {
   it("throws when neither --email nor --manager is set", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runVoiceCommand({
           options: {},

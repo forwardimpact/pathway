@@ -1,7 +1,10 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 // Module under test
 import { Repl } from "../src/index.js";
@@ -99,7 +102,7 @@ describe("librepl", () => {
     });
 
     test("requires formatter dependency", () => {
-      assert.throws(() => {
+      assertThrowsMessage(() => {
         new Repl({}, null, mockReadline, mockProcess, mockOs);
       }, /formatter dependency is required/);
     });

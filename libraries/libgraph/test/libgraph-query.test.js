@@ -4,7 +4,10 @@ import { Store, DataFactory } from "n3";
 
 import { GraphIndex } from "../src/index/graph.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 const { namedNode, literal } = DataFactory;
 
@@ -312,19 +315,19 @@ describe("GraphIndex - Essential Functionality", () => {
   });
 
   test("constructor validation works correctly", () => {
-    assert.throws(
+    assertThrowsMessage(
       () => new GraphIndex(null, new Store(), {}),
       /storage is required/,
       "Should throw for missing storage",
     );
 
-    assert.throws(
+    assertThrowsMessage(
       () => new GraphIndex(mockStorage, null, {}),
       /store must be an N3 Store instance/,
       "Should throw for missing store",
     );
 
-    assert.throws(
+    assertThrowsMessage(
       () => new GraphIndex(mockStorage, {}, {}),
       /store must be an N3 Store instance/,
       "Should throw for invalid store",

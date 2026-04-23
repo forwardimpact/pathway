@@ -2,6 +2,7 @@ import { describe, test } from "node:test";
 import assert from "node:assert";
 import { tokenize } from "../src/dsl/tokenizer.js";
 import { parse } from "../src/dsl/parser.js";
+import { assertThrowsMessage } from "@forwardimpact/libharness";
 
 /**
  * Helper: tokenize then parse a DSL source string.
@@ -365,36 +366,42 @@ describe("parse", () => {
 
   describe("error handling", () => {
     test("throws on missing terrain keyword", () => {
-      assert.throws(() => parseDsl("domain {}"), /Expected KEYWORD 'terrain'/);
+      assertThrowsMessage(
+        () => parseDsl("domain {}"),
+        /Expected KEYWORD 'terrain'/,
+      );
     });
 
     test("throws on missing opening brace", () => {
-      assert.throws(() => parseDsl("terrain test domain"), /Expected LBRACE/);
+      assertThrowsMessage(
+        () => parseDsl("terrain test domain"),
+        /Expected LBRACE/,
+      );
     });
 
     test("throws on unexpected keyword at top level", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseDsl("terrain test { manager }"),
         /Unexpected keyword 'manager' at top level/,
       );
     });
 
     test("throws on unexpected keyword in org", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseDsl("terrain test { org x { size 5 } }"),
         /Unexpected 'size' in org/,
       );
     });
 
     test("throws on unexpected keyword in department", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseDsl("terrain test { department x { repos [] } }"),
         /Unexpected 'repos' in department/,
       );
     });
 
     test("throws on unexpected keyword in team", () => {
-      assert.throws(
+      assertThrowsMessage(
         () =>
           parseDsl("terrain test { department x { team t { headcount 5 } } }"),
         /Unexpected 'headcount' in team/,
@@ -402,14 +409,14 @@ describe("parse", () => {
     });
 
     test("throws when expecting number but getting string", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseDsl('terrain test { seed "abc" }'),
         /Expected number/,
       );
     });
 
     test("throws when expecting string but getting number", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => parseDsl("terrain test { domain 123 }"),
         /Expected STRING/,
       );

@@ -1,9 +1,13 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 import { Store, DataFactory } from "n3";
 
 import { GraphIndex } from "../src/index/graph.js";
-import { createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+  spy,
+} from "@forwardimpact/libharness";
 
 const { namedNode, literal } = DataFactory;
 
@@ -21,7 +25,7 @@ describe("GraphIndex - Constructor and Data Loading", () => {
 
   describe("Constructor and Properties", () => {
     test("constructor validates storage parameter", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new GraphIndex(null, n3Store),
         /storage is required/,
         "Should throw for missing storage",
@@ -29,13 +33,13 @@ describe("GraphIndex - Constructor and Data Loading", () => {
     });
 
     test("constructor validates store parameter", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new GraphIndex(mockStorage, null),
         /store must be an N3 Store instance/,
         "Should throw for missing store",
       );
 
-      assert.throws(
+      assertThrowsMessage(
         () => new GraphIndex(mockStorage, {}),
         /store must be an N3 Store instance/,
         "Should throw for invalid store",
@@ -65,7 +69,7 @@ describe("GraphIndex - Constructor and Data Loading", () => {
 
   describe("Data Loading", () => {
     test("loadData initializes empty index when file doesn't exist", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(false));
+      mockStorage.exists = spy(() => Promise.resolve(false));
 
       await graphIndex.loadData();
 
@@ -108,8 +112,8 @@ describe("GraphIndex - Constructor and Data Loading", () => {
         },
       ];
 
-      mockStorage.exists = mock.fn(() => Promise.resolve(true));
-      mockStorage.get = mock.fn(() => Promise.resolve(testData));
+      mockStorage.exists = spy(() => Promise.resolve(true));
+      mockStorage.get = spy(() => Promise.resolve(testData));
 
       await graphIndex.loadData();
 
@@ -143,7 +147,7 @@ describe("GraphIndex - Constructor and Data Loading", () => {
     });
 
     test("loadData is idempotent", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(false));
+      mockStorage.exists = spy(() => Promise.resolve(false));
 
       await graphIndex.loadData();
       mockStorage.exists.mock.resetCalls();
@@ -174,8 +178,8 @@ describe("GraphIndex - Constructor and Data Loading", () => {
         },
       ];
 
-      mockStorage.exists = mock.fn(() => Promise.resolve(true));
-      mockStorage.get = mock.fn(() => Promise.resolve(initialData));
+      mockStorage.exists = spy(() => Promise.resolve(true));
+      mockStorage.get = spy(() => Promise.resolve(initialData));
 
       await graphIndex.loadData();
 
@@ -200,7 +204,7 @@ describe("GraphIndex - Constructor and Data Loading", () => {
         },
       ];
 
-      mockStorage.get = mock.fn(() => Promise.resolve(newData));
+      mockStorage.get = spy(() => Promise.resolve(newData));
 
       // Create a fresh instance with a fresh store to test reload behavior
       const freshStore = new Store();

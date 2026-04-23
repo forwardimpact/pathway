@@ -3,28 +3,18 @@ import assert from "node:assert";
 import pkg from "n3";
 
 import { PathwayService } from "../index.js";
-import { createMockConfig } from "@forwardimpact/libharness";
+import {
+  assertRejectsMessage,
+  assertThrowsMessage,
+  createMockConfig,
+  createTurtleHelpers,
+} from "@forwardimpact/libharness";
 
 const { Parser } = pkg;
 const FIT = "https://www.forwardimpact.team/schema/rdf/";
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-function parseQuads(turtle) {
-  return new Parser({ format: "Turtle" }).parse(turtle);
-}
-
-function findAll(quads, { subject, predicate, object } = {}) {
-  return quads.filter(
-    (q) =>
-      (!subject || q.subject.value === subject) &&
-      (!predicate || q.predicate.value === predicate) &&
-      (!object || q.object.value === object),
-  );
-}
-
-function findOne(quads, pattern) {
-  return findAll(quads, pattern)[0];
-}
+const { parseQuads, findAll, findOne } = createTurtleHelpers(Parser);
 
 // --- Hand-built minimal framework data -----------------------------------
 
@@ -153,12 +143,15 @@ describe("PathwayService", () => {
 
   test("constructor rejects missing data bundle pieces", () => {
     const config = createMockConfig("pathway");
-    assert.throws(() => new PathwayService(config, {}), /data is required/);
-    assert.throws(
+    assertThrowsMessage(
+      () => new PathwayService(config, {}),
+      /data is required/,
+    );
+    assertThrowsMessage(
       () => new PathwayService(config, { data: {} }),
       /agentData is required/,
     );
-    assert.throws(
+    assertThrowsMessage(
       () => new PathwayService(config, { data: {}, agentData: {} }),
       /skillsWithAgent is required/,
     );
@@ -255,7 +248,7 @@ describe("PathwayService RPCs", () => {
   });
 
   test("DescribeJob throws for unknown discipline", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () => service.DescribeJob({ discipline: "no-such", level: "l2" }),
       /Unknown discipline/,
     );

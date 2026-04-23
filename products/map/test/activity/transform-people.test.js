@@ -1,40 +1,16 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
 import { transformPeople } from "@forwardimpact/map/activity/transform/people";
+import { createMockSupabaseClient } from "@forwardimpact/libharness";
 
 function createFakeClient({ peopleYaml }) {
-  const upsertCalls = [];
+  const client = createMockSupabaseClient({
+    files: { "people/latest.yaml": peopleYaml },
+  });
   return {
-    upsertCalls,
-    from(table) {
-      assert.strictEqual(table, "organization_people");
-      return {
-        async upsert(rows, opts) {
-          upsertCalls.push({ rows, onConflict: opts.onConflict });
-          return { error: null };
-        },
-      };
-    },
-    storage: {
-      from(bucket) {
-        assert.strictEqual(bucket, "raw");
-        return {
-          async list() {
-            return {
-              data: [
-                { name: "latest.yaml", created_at: "2026-01-01T00:00:00Z" },
-              ],
-              error: null,
-            };
-          },
-          async download() {
-            return {
-              data: { text: async () => peopleYaml },
-              error: null,
-            };
-          },
-        };
-      },
+    ...client,
+    get upsertCalls() {
+      return client.calls.upsert;
     },
   };
 }

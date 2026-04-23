@@ -1,5 +1,6 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import { spy } from "@forwardimpact/libharness";
 
 import {
   LocalStorage,
@@ -64,14 +65,14 @@ describe("SupabaseStorage", () => {
   let supabaseStorage;
 
   beforeEach(() => {
-    mockClient = { send: mock.fn(() => Promise.resolve()) };
+    mockClient = { send: spy(() => Promise.resolve()) };
     mockCommands = {
-      PutObjectCommand: mock.fn((params) => ({ params })),
-      GetObjectCommand: mock.fn((params) => ({ params })),
-      DeleteObjectCommand: mock.fn((params) => ({ params })),
-      HeadObjectCommand: mock.fn((params) => ({ params })),
-      HeadBucketCommand: mock.fn((params) => ({ params })),
-      ListObjectsV2Command: mock.fn((params) => ({ params })),
+      PutObjectCommand: spy((params) => ({ params })),
+      GetObjectCommand: spy((params) => ({ params })),
+      DeleteObjectCommand: spy((params) => ({ params })),
+      HeadObjectCommand: spy((params) => ({ params })),
+      HeadBucketCommand: spy((params) => ({ params })),
+      ListObjectsV2Command: spy((params) => ({ params })),
     };
 
     supabaseStorage = new SupabaseStorage(
@@ -102,7 +103,7 @@ describe("SupabaseStorage", () => {
   });
 
   test("ensureBucket creates bucket via REST API when successful", async () => {
-    global.fetch = mock.fn(() =>
+    global.fetch = spy(() =>
       Promise.resolve({
         ok: true,
         status: 200,
@@ -124,7 +125,7 @@ describe("SupabaseStorage", () => {
   });
 
   test("ensureBucket returns false on 409 Conflict", async () => {
-    global.fetch = mock.fn(() =>
+    global.fetch = spy(() =>
       Promise.resolve({
         ok: false,
         status: 409,
@@ -138,7 +139,7 @@ describe("SupabaseStorage", () => {
   });
 
   test("ensureBucket returns false on Duplicate error in body", async () => {
-    global.fetch = mock.fn(() =>
+    global.fetch = spy(() =>
       Promise.resolve({
         ok: false,
         status: 400,
@@ -152,7 +153,7 @@ describe("SupabaseStorage", () => {
   });
 
   test("ensureBucket throws on other errors", async () => {
-    global.fetch = mock.fn(() =>
+    global.fetch = spy(() =>
       Promise.resolve({
         ok: false,
         status: 500,

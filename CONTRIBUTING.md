@@ -45,6 +45,10 @@ Entry gate — read every item before starting.
       `libraries/` and the `libs-*` skill group that covers the task. If a
       shared library already provides the capability, use it. If not, note that
       in the commit or plan so future contributors don't re-search.
+- [ ] **Search libharness first for test helpers.** Before writing a mock or
+      fixture in a test, check `libraries/libharness/src/index.js`. Reuse what
+      exists; extend libharness in the same PR when duplication would cross two
+      files.
 - [ ] **Simple over easy.** Reduce complexity, don't relocate it. Three similar
       lines beat a premature abstraction. If tempted to extract a helper for a
       single use, inline it. If tempted to add configuration for a single
@@ -66,6 +70,9 @@ Exit gate — verify every item before committing.
 
 - [ ] `bun run check` passes — format and lint, all file types.
 - [ ] `bun run test` passes — new logic has tests.
+- [ ] No new inline mock/fixture helpers that libharness already provides.
+      Touched test files import from `@forwardimpact/libharness` instead of
+      redefining `createMock*`, `make*`, or `stubQueries`.
 - [ ] My diff only contains changes the task required — no unrequested
       refactors, no scope creep.
 - [ ] Commit format: `type(scope): subject` (see § Git Conventions).

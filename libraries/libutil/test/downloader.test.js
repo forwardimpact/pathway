@@ -1,7 +1,6 @@
 import { strict as assert } from "node:assert";
-import { test, describe, beforeEach, mock } from "node:test";
-
-import { createSilentLogger } from "@forwardimpact/libharness";
+import { test, describe, beforeEach } from "node:test";
+import { createSilentLogger, spy } from "@forwardimpact/libharness";
 
 import { BundleDownloader } from "../src/downloader.js";
 
@@ -32,11 +31,11 @@ describe("BundleDownloader", () => {
     };
 
     mockExtractor = {
-      extract: mock.fn(async () => {}),
+      extract: spy(async () => {}),
     };
     mockLogger = createSilentLogger();
     mockFinder = {
-      createPackageSymlinks: mock.fn(async () => {}),
+      createPackageSymlinks: spy(async () => {}),
     };
     mockProcess = {
       env: { STORAGE_TYPE: "s3" },
@@ -187,7 +186,7 @@ describe("BundleDownloader", () => {
 
   test("skips download when STORAGE_TYPE is local", async () => {
     mockProcess.env.STORAGE_TYPE = "local";
-    mockRemoteStorage.exists = mock.fn(async () => true);
+    mockRemoteStorage.exists = spy(async () => true);
 
     const download = new BundleDownloader(
       mockStorageFactory,
@@ -205,7 +204,7 @@ describe("BundleDownloader", () => {
 
   test("downloads when STORAGE_TYPE is s3", async () => {
     mockProcess.env.STORAGE_TYPE = "s3";
-    mockRemoteStorage.exists = mock.fn(async () => true);
+    mockRemoteStorage.exists = spy(async () => true);
 
     const download = new BundleDownloader(
       mockStorageFactory,

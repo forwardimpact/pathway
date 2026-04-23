@@ -1,17 +1,36 @@
+/**
+ * Thin wrappers around @forwardimpact/libharness pathway atoms that preserve
+ * libskill-specific defaults (e.g. the `specialization` field on disciplines,
+ * the populated `expectations` shape on levels, and the capability/skill ids
+ * that libskill derivation tests reason about).
+ *
+ * New tests should prefer calling the libharness atoms directly; these
+ * `make*` names exist for backward compat with the existing libskill suite.
+ */
+import {
+  createTestDiscipline,
+  createTestLevel,
+  createTestTrack,
+  createTestSkill,
+  createTestBehaviour,
+  createTestCapability,
+  createTestDriver,
+} from "@forwardimpact/libharness";
+
+const DEFAULT_LEVEL_EXPECTATIONS = {
+  impactScope: "team",
+  autonomyExpectation: "independently",
+  influenceScope: "team",
+  complexityHandled: "moderate",
+};
+
 export function makeDiscipline(overrides = {}) {
-  return {
-    id: "software_engineering",
-    roleTitle: "Software Engineer",
+  return createTestDiscipline({
     specialization: "Software Engineering",
-    isManagement: false,
-    isProfessional: true,
-    coreSkills: ["coding", "testing"],
     supportingSkills: ["ci_cd", "monitoring"],
     broadSkills: ["documentation"],
-    behaviourModifiers: {},
-    validTracks: [],
     ...overrides,
-  };
+  });
 }
 
 export function makeManagementDiscipline(overrides = {}) {
@@ -31,25 +50,11 @@ export function makeManagementDiscipline(overrides = {}) {
 }
 
 export function makeLevel(overrides = {}) {
-  return {
+  return createTestLevel({
     id: "level_3",
-    professionalTitle: "Level III",
-    managementTitle: "Manager",
-    ordinalRank: 3,
-    baseSkillProficiencies: {
-      primary: "working",
-      secondary: "foundational",
-      broad: "awareness",
-    },
-    baseBehaviourMaturity: "developing",
-    expectations: {
-      impactScope: "team",
-      autonomyExpectation: "independently",
-      influenceScope: "team",
-      complexityHandled: "moderate",
-    },
+    expectations: { ...DEFAULT_LEVEL_EXPECTATIONS },
     ...overrides,
-  };
+  });
 }
 
 export function makeSeniorLevel(overrides = {}) {
@@ -85,23 +90,20 @@ export function makeJuniorLevel(overrides = {}) {
 }
 
 export function makeTrack(overrides = {}) {
-  return {
-    id: "platform",
-    name: "Platform",
+  return createTestTrack({
     description: "Platform engineering track",
     skillModifiers: { scale: 1 },
     behaviourModifiers: { collaboration: 1 },
     ...overrides,
-  };
+  });
 }
 
 export function makeSkills() {
   return [
-    {
+    createTestSkill({
       id: "coding",
       name: "Coding",
       capability: "delivery",
-      isHumanOnly: false,
       proficiencyDescriptions: {
         awareness: "Understands basic coding",
         foundational: "Writes simple code",
@@ -109,108 +111,59 @@ export function makeSkills() {
         practitioner: "Designs systems",
         expert: "Defines coding standards",
       },
-    },
-    {
-      id: "testing",
-      name: "Testing",
-      capability: "delivery",
-      isHumanOnly: false,
-      proficiencyDescriptions: {
-        awareness: "Understands testing",
-        foundational: "Writes unit tests",
-        working: "Designs test strategies",
-        practitioner: "Leads testing practice",
-        expert: "Defines testing culture",
-      },
-    },
-    {
-      id: "ci_cd",
-      name: "CI/CD",
-      capability: "delivery",
-      isHumanOnly: false,
-      proficiencyDescriptions: {
-        awareness: "Understands CI/CD",
-        foundational: "Uses pipelines",
-        working: "Configures pipelines",
-        practitioner: "Designs CI/CD systems",
-        expert: "Defines CI/CD strategy",
-      },
-    },
-    {
+    }),
+    createTestSkill({ id: "testing", name: "Testing", capability: "delivery" }),
+    createTestSkill({ id: "ci_cd", name: "CI/CD", capability: "delivery" }),
+    createTestSkill({
       id: "monitoring",
       name: "Monitoring",
       capability: "reliability",
-      isHumanOnly: false,
-      proficiencyDescriptions: {
-        awareness: "Understands monitoring",
-        foundational: "Uses dashboards",
-        working: "Configures alerts",
-        practitioner: "Designs observability",
-        expert: "Defines monitoring strategy",
-      },
-    },
-    {
+    }),
+    createTestSkill({
       id: "documentation",
       name: "Documentation",
       capability: "documentation",
-      isHumanOnly: false,
       proficiencyDescriptions: {
         awareness: "Reads docs",
         foundational: "Writes basic docs",
         working: "Maintains documentation",
       },
-    },
-    {
+    }),
+    createTestSkill({
       id: "capacity_planning",
       name: "Capacity Planning",
       capability: "scale",
-      isHumanOnly: false,
-      proficiencyDescriptions: {
-        awareness: "Understands capacity",
-        foundational: "Estimates capacity",
-        working: "Plans capacity",
-        practitioner: "Leads capacity planning",
-        expert: "Defines capacity strategy",
-      },
-    },
-    {
+    }),
+    createTestSkill({
       id: "load_balancing",
       name: "Load Balancing",
       capability: "scale",
-      isHumanOnly: false,
-      proficiencyDescriptions: {
-        awareness: "Understands load balancing",
-        foundational: "Configures basic LB",
-        working: "Designs LB strategies",
-      },
-    },
-    {
+    }),
+    createTestSkill({
       id: "people_management",
       name: "People Management",
       capability: "people",
       isHumanOnly: true,
       proficiencyDescriptions: {},
-    },
-    {
+    }),
+    createTestSkill({
       id: "delivery_mgmt",
       name: "Delivery Management",
       capability: "process",
-      isHumanOnly: false,
       proficiencyDescriptions: {},
-    },
-    {
+    }),
+    createTestSkill({
       id: "process_design",
       name: "Process Design",
       capability: "process",
-      isHumanOnly: false,
       proficiencyDescriptions: {},
-    },
+    }),
   ];
 }
 
 export function makeBehaviours() {
   return [
-    {
+    createTestBehaviour({
       id: "collaboration",
       name: "Collaboration",
       maturityDescriptions: {
@@ -220,8 +173,8 @@ export function makeBehaviours() {
         role_modeling: "Models collaboration",
         exemplifying: "Shapes collaborative culture",
       },
-    },
-    {
+    }),
+    createTestBehaviour({
       id: "ownership",
       name: "Ownership",
       maturityDescriptions: {
@@ -231,16 +184,15 @@ export function makeBehaviours() {
         role_modeling: "Models ownership",
         exemplifying: "Shapes ownership culture",
       },
-    },
+    }),
   ];
 }
 
 export function makeCapabilities() {
   return [
-    {
+    createTestCapability({
       id: "delivery",
       name: "Delivery",
-      emojiIcon: "\u{1F680}",
       ordinalRank: 1,
       professionalResponsibilities: {
         foundational: "Delivers assigned tasks",
@@ -254,8 +206,8 @@ export function makeCapabilities() {
         practitioner: "Leads delivery org-wide",
         expert: "Defines delivery culture",
       },
-    },
-    {
+    }),
+    createTestCapability({
       id: "scale",
       name: "Scale",
       emojiIcon: "\u{1F4C8}",
@@ -267,11 +219,11 @@ export function makeCapabilities() {
         expert: "Defines scale strategy",
       },
       managementResponsibilities: {},
-    },
-    {
+    }),
+    createTestCapability({
       id: "reliability",
       name: "Reliability",
-      emojiIcon: "\u{1F6E1}\uFE0F",
+      emojiIcon: "\u{1F6E1}️",
       ordinalRank: 3,
       professionalResponsibilities: {
         foundational: "Follows reliability practices",
@@ -280,8 +232,8 @@ export function makeCapabilities() {
         expert: "Defines reliability strategy",
       },
       managementResponsibilities: {},
-    },
-    {
+    }),
+    createTestCapability({
       id: "documentation",
       name: "Documentation",
       emojiIcon: "\u{1F4DD}",
@@ -293,23 +245,22 @@ export function makeCapabilities() {
         expert: "Defines documentation strategy",
       },
       managementResponsibilities: {},
-    },
+    }),
   ];
 }
 
 export function makeDrivers() {
   return [
-    {
+    createTestDriver({
       id: "velocity",
-      name: "Velocity",
       contributingSkills: ["coding", "testing", "ci_cd"],
       contributingBehaviours: ["ownership"],
-    },
-    {
+    }),
+    createTestDriver({
       id: "stability",
       name: "Stability",
       contributingSkills: ["monitoring", "capacity_planning"],
       contributingBehaviours: ["collaboration", "ownership"],
-    },
+    }),
   ];
 }

@@ -1,5 +1,6 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import { spy } from "@forwardimpact/libharness";
 
 import { LocalStorage } from "../src/index.js";
 
@@ -9,19 +10,19 @@ describe("LocalStorage", () => {
 
   beforeEach(() => {
     mockFs = {
-      mkdir: mock.fn(() => Promise.resolve()),
-      writeFile: mock.fn(() => Promise.resolve()),
-      appendFile: mock.fn(() => Promise.resolve()),
-      readFile: mock.fn(() => Promise.resolve(Buffer.from("test data"))),
-      unlink: mock.fn(() => Promise.resolve()),
-      access: mock.fn(() => Promise.resolve()),
-      stat: mock.fn(() =>
+      mkdir: spy(() => Promise.resolve()),
+      writeFile: spy(() => Promise.resolve()),
+      appendFile: spy(() => Promise.resolve()),
+      readFile: spy(() => Promise.resolve(Buffer.from("test data"))),
+      unlink: spy(() => Promise.resolve()),
+      access: spy(() => Promise.resolve()),
+      stat: spy(() =>
         Promise.resolve({
           birthtime: new Date("2024-01-01T00:00:00Z"),
           mtime: new Date("2024-01-01T00:00:00Z"),
         }),
       ),
-      readdir: mock.fn(() =>
+      readdir: spy(() =>
         Promise.resolve([
           { name: "file1.txt", isFile: () => true, isDirectory: () => false },
           { name: "subdir", isFile: () => false, isDirectory: () => true },
@@ -55,7 +56,7 @@ describe("LocalStorage", () => {
 
   test("get parses JSON files automatically", async () => {
     const jsonData = { name: "test", value: 42 };
-    mockFs.readFile = mock.fn(() =>
+    mockFs.readFile = spy(() =>
       Promise.resolve(Buffer.from(JSON.stringify(jsonData))),
     );
 
@@ -71,7 +72,7 @@ describe("LocalStorage", () => {
       { id: 2, name: "second" },
     ];
     const jsonlContent = jsonlData.map((obj) => JSON.stringify(obj)).join("\n");
-    mockFs.readFile = mock.fn(() => Promise.resolve(Buffer.from(jsonlContent)));
+    mockFs.readFile = spy(() => Promise.resolve(Buffer.from(jsonlContent)));
 
     const result = await localStorage.get("data.jsonl");
 
@@ -80,7 +81,7 @@ describe("LocalStorage", () => {
   });
 
   test("get returns empty object for empty JSON files", async () => {
-    mockFs.readFile = mock.fn(() => Promise.resolve(Buffer.from("")));
+    mockFs.readFile = spy(() => Promise.resolve(Buffer.from("")));
 
     const result = await localStorage.get("empty.json");
 
@@ -88,7 +89,7 @@ describe("LocalStorage", () => {
   });
 
   test("get returns empty array for empty JSON Lines files", async () => {
-    mockFs.readFile = mock.fn(() => Promise.resolve(Buffer.from("")));
+    mockFs.readFile = spy(() => Promise.resolve(Buffer.from("")));
 
     const result = await localStorage.get("empty.jsonl");
 
@@ -133,7 +134,7 @@ describe("LocalStorage", () => {
   });
 
   test("exists returns false when file missing", async () => {
-    mockFs.access = mock.fn(() => Promise.reject(new Error("Not found")));
+    mockFs.access = spy(() => Promise.reject(new Error("Not found")));
 
     const exists = await localStorage.exists("file.txt");
 
@@ -158,7 +159,7 @@ describe("LocalStorage", () => {
   });
 
   test("ensureBucket returns true when directory is created", async () => {
-    mockFs.access = mock.fn(() => Promise.reject(new Error("Not found")));
+    mockFs.access = spy(() => Promise.reject(new Error("Not found")));
 
     const created = await localStorage.ensureBucket();
 
@@ -179,7 +180,7 @@ describe("LocalStorage", () => {
   });
 
   test("bucketExists returns false when directory missing", async () => {
-    mockFs.access = mock.fn(() => Promise.reject(new Error("Not found")));
+    mockFs.access = spy(() => Promise.reject(new Error("Not found")));
 
     const exists = await localStorage.bucketExists();
 
@@ -188,7 +189,7 @@ describe("LocalStorage", () => {
   });
 
   test("getMany retrieves multiple items by keys", async () => {
-    mockFs.readFile = mock.fn((path) => {
+    mockFs.readFile = spy((path) => {
       if (path.includes("file1.txt")) return Promise.resolve("content1");
       if (path.includes("file2.txt")) return Promise.resolve("content2");
       return Promise.reject({ code: "ENOENT" });
@@ -208,9 +209,7 @@ describe("LocalStorage", () => {
   });
 
   test("getMany handles errors other than ENOENT", async () => {
-    mockFs.readFile = mock.fn(() =>
-      Promise.reject(new Error("Permission denied")),
-    );
+    mockFs.readFile = spy(() => Promise.reject(new Error("Permission denied")));
 
     await assert.rejects(() => localStorage.getMany(["file1.txt"]), {
       message: "Permission denied",
@@ -218,7 +217,7 @@ describe("LocalStorage", () => {
   });
 
   test("findByPrefix finds keys with specified prefix", async () => {
-    mockFs.readdir = mock.fn((path) => {
+    mockFs.readdir = spy((path) => {
       if (path === "/test/base") {
         return Promise.resolve([
           {
@@ -241,7 +240,7 @@ describe("LocalStorage", () => {
       return Promise.resolve([]);
     });
 
-    mockFs.stat = mock.fn((path) => {
+    mockFs.stat = spy((path) => {
       const timestamps = {
         "/test/base/common.File.hash001.txt": new Date("2024-01-01T00:00:00Z"),
         "/test/base/common.File.hash002.txt": new Date("2024-01-02T00:00:00Z"),
@@ -262,7 +261,7 @@ describe("LocalStorage", () => {
   });
 
   test("findByExtension method", async () => {
-    mockFs.readdir = mock.fn((path) => {
+    mockFs.readdir = spy((path) => {
       if (path === "/test/base") {
         return Promise.resolve([
           { name: "file1.txt", isDirectory: () => false, isFile: () => true },
@@ -277,7 +276,7 @@ describe("LocalStorage", () => {
       return Promise.resolve([]);
     });
 
-    mockFs.stat = mock.fn((path) => {
+    mockFs.stat = spy((path) => {
       const timestamps = {
         "/test/base/file1.txt": new Date("2024-01-01T00:00:00Z"),
         "/test/base/file2.json": new Date("2024-01-02T00:00:00Z"),
@@ -295,7 +294,7 @@ describe("LocalStorage", () => {
   });
 
   test("list returns files in chronological order (oldest first)", async () => {
-    mockFs.readdir = mock.fn((path) => {
+    mockFs.readdir = spy((path) => {
       if (path === "/test/base") {
         return Promise.resolve([
           {
@@ -318,7 +317,7 @@ describe("LocalStorage", () => {
       return Promise.resolve([]);
     });
 
-    mockFs.stat = mock.fn((path) => {
+    mockFs.stat = spy((path) => {
       const timestamps = {
         "/test/base/newest.txt": new Date("2024-01-03T00:00:00Z"),
         "/test/base/oldest.txt": new Date("2024-01-01T00:00:00Z"),

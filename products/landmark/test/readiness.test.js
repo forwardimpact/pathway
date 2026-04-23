@@ -1,108 +1,13 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runReadinessCommand } from "../src/commands/readiness.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
-
-const MAP_DATA = {
-  levels: [
-    {
-      id: "J040",
-      professionalTitle: "Level I",
-      ordinalRank: 1,
-      baseSkillProficiencies: {
-        primary: "foundational",
-        secondary: "awareness",
-        broad: "awareness",
-      },
-    },
-    {
-      id: "J060",
-      professionalTitle: "Level II",
-      ordinalRank: 2,
-      baseSkillProficiencies: {
-        primary: "working",
-        secondary: "foundational",
-        broad: "awareness",
-      },
-    },
-  ],
-  disciplines: [
-    {
-      id: "software_engineering",
-      coreSkills: ["task_completion"],
-      supportingSkills: ["planning"],
-      broadSkills: ["incident_response"],
-    },
-  ],
-  tracks: [{ id: "platform", skillModifiers: {} }],
-  skills: [
-    {
-      id: "task_completion",
-      name: "Task Completion",
-      markers: {
-        awareness: {
-          human: ["Closed a task by following a runbook"],
-          agent: ["Applied an existing pattern"],
-        },
-        foundational: {
-          human: [
-            "Delivered a small feature",
-            "Estimated and completed a task",
-          ],
-          agent: ["Single-file change passes CI"],
-        },
-        working: {
-          human: [
-            "Delivered feature end-to-end",
-            "Resolved production issue within SLA",
-          ],
-          agent: ["Multi-file change passes CI"],
-        },
-      },
-    },
-    {
-      id: "planning",
-      name: "Planning",
-      markers: {
-        awareness: {
-          human: ["Followed a project plan"],
-          agent: ["Executed prescribed steps"],
-        },
-        foundational: {
-          human: ["Created a task breakdown"],
-          agent: ["Generated an implementation plan"],
-        },
-        working: {
-          human: ["Planned and delivered across sprints"],
-          agent: ["Multi-part plan with dependencies"],
-        },
-      },
-    },
-    {
-      id: "incident_response",
-      name: "Incident Response",
-      markers: {
-        awareness: {
-          human: ["Followed escalation procedure"],
-          agent: ["Identified failing health check"],
-        },
-        foundational: {
-          human: ["Gathered diagnostic info"],
-          agent: ["Collected log entries"],
-        },
-        working: {
-          human: ["Led incident response"],
-          agent: ["Diagnosed production issue"],
-        },
-      },
-    },
-  ],
-  capabilities: [],
-};
+import { MAP_DATA } from "./fixtures.js";
 
 function stubQueries({ person = undefined, evidence = [] } = {}) {
-  return {
+  return createMockQueries({
     getPerson: async (_sb, email) => {
       if (person === null) return null;
       return (
@@ -115,8 +20,8 @@ function stubQueries({ person = undefined, evidence = [] } = {}) {
         }
       );
     },
-    getEvidence: async () => evidence,
-  };
+    getEvidence: evidence,
+  });
 }
 
 describe("readiness command", () => {

@@ -18,13 +18,13 @@
     "node": ">=18.0.0"
   },
   "scripts": {
-    "test": "bun run node --test test/*.test.js"
+    "test": "bun test test/*.test.js"
   },
   "dependencies": {
     "@forwardimpact/libstorage": "^0.1.53"
   },
   "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.5"
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"

@@ -1,9 +1,13 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { VectorIndex } from "../src/index/vector.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+  spy,
+} from "@forwardimpact/libharness";
 
 describe("VectorIndex - Core Functionality", () => {
   let vectorIndex;
@@ -16,7 +20,7 @@ describe("VectorIndex - Core Functionality", () => {
 
   describe("Constructor and Properties", () => {
     test("constructor validates storage parameter", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new VectorIndex(null),
         /storage is required/,
         "Should throw for missing storage",
@@ -46,7 +50,7 @@ describe("VectorIndex - Core Functionality", () => {
 
   describe("Data Loading", () => {
     test("loadData initializes empty index when file doesn't exist", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(false));
+      mockStorage.exists = spy(() => Promise.resolve(false));
 
       await vectorIndex.loadData();
 
@@ -77,8 +81,8 @@ describe("VectorIndex - Core Functionality", () => {
         },
       ];
 
-      mockStorage.exists = mock.fn(() => Promise.resolve(true));
-      mockStorage.get = mock.fn(() => Promise.resolve(testData));
+      mockStorage.exists = spy(() => Promise.resolve(true));
+      mockStorage.get = spy(() => Promise.resolve(testData));
 
       await vectorIndex.loadData();
 
@@ -107,7 +111,7 @@ describe("VectorIndex - Core Functionality", () => {
     });
 
     test("loadData is idempotent", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(false));
+      mockStorage.exists = spy(() => Promise.resolve(false));
 
       await vectorIndex.loadData();
       mockStorage.exists.mock.resetCalls();

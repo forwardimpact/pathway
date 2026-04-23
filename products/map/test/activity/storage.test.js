@@ -1,5 +1,6 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import { assertRejectsMessage } from "@forwardimpact/libharness";
 import {
   storeRaw,
   readRaw,
@@ -66,7 +67,7 @@ describe("activity/storage", () => {
   });
 
   test("readRaw throws on missing file", async () => {
-    await assert.rejects(() => readRaw(fake, "nope"), /not found/);
+    await assertRejectsMessage(() => readRaw(fake, "nope"), /not found/);
   });
 
   test("storeRaw returns error when upload fails", async () => {

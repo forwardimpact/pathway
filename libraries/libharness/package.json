@@ -14,7 +14,7 @@
     "README.md"
   ],
   "scripts": {
-    "test": "bun run node --test test/*.test.js"
+    "test": "bun test test/*.test.js"
   },
   "keywords": [
     "test",

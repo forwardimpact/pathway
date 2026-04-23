@@ -1,5 +1,4 @@
-import { mock } from "node:test";
-
+import { spy } from "./spy.js";
 /**
  * Creates a mock logger with call tracking
  * @param {object} options - Logger options
@@ -11,7 +10,7 @@ export function createMockLogger(options = {}) {
   const capture = options.captureOutput ?? false;
 
   const createMethod = (level) =>
-    mock.fn((appId, msg, attributes) => {
+    spy((appId, msg, attributes) => {
       if (capture) {
         logs.push({ level, appId, msg, attributes });
       }

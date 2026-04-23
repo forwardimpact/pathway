@@ -1,33 +1,19 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import {
+  assertRejectsMessage,
+  createMockQueries,
+} from "@forwardimpact/libharness";
 
 import { runOrgCommand } from "../src/commands/org.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
-
-const PEOPLE = [
-  {
-    email: "alice@example.com",
-    name: "Alice",
-    discipline: "software_engineering",
-    level: "J040",
-    track: null,
-    manager_email: null,
-  },
-  {
-    email: "bob@example.com",
-    name: "Bob",
-    discipline: "software_engineering",
-    level: "J060",
-    track: "platform",
-    manager_email: "alice@example.com",
-  },
-];
+import { PEOPLE } from "./fixtures.js";
 
 function stubQueries({ org = PEOPLE, team = PEOPLE } = {}) {
-  return {
-    getOrganization: async () => org,
-    getTeam: async (_sb, _email) => team,
-  };
+  return createMockQueries({
+    getOrganization: org,
+    getTeam: team,
+  });
 }
 
 describe("org show", () => {
@@ -82,7 +68,7 @@ describe("org team", () => {
   });
 
   it("throws when --manager is missing", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runOrgCommand({
           args: ["team"],
@@ -98,7 +84,7 @@ describe("org team", () => {
 
 describe("org subcommand validation", () => {
   it("throws for unknown subcommand", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runOrgCommand({
           args: ["bogus"],

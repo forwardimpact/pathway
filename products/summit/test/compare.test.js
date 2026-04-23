@@ -1,22 +1,18 @@
-import { test } from "node:test";
+import { before, test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
-
-import { createDataLoader } from "@forwardimpact/map/loader";
 
 import { parseRosterYaml } from "../src/roster/yaml.js";
-import { computeCoverage, resolveTeam } from "../src/aggregation/coverage.js";
-import { detectRisks } from "../src/aggregation/risks.js";
 import { diffCoverage, diffRisks } from "../src/aggregation/what-if.js";
 
-const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
+import { loadStarterData, snapshot } from "./fixtures.js";
 
-async function loadData() {
-  return createDataLoader().loadAllData(FIXTURE_DATA);
-}
+let data;
 
-test("diffCoverage across two teams shows per-skill differences", async () => {
-  const data = await loadData();
+before(async () => {
+  ({ data } = await loadStarterData());
+});
+
+test("diffCoverage across two teams shows per-skill differences", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -38,8 +34,7 @@ teams:
   assert.equal(task.direction, "down");
 });
 
-test("diffRisks identifies risks that disappear across teams", async () => {
-  const data = await loadData();
+test("diffRisks identifies risks that disappear across teams", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -61,10 +56,3 @@ teams:
   const removedIds = risks.removed.singlePoints.map((s) => s.skillId);
   assert.ok(removedIds.includes("task_completion"));
 });
-
-function snapshot(roster, data, teamId) {
-  const resolved = resolveTeam(roster, data, { teamId });
-  const coverage = computeCoverage(resolved, data);
-  const risks = detectRisks({ resolvedTeam: resolved, coverage, data });
-  return { resolved, coverage, risks };
-}

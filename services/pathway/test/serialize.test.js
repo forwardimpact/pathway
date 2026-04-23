@@ -10,32 +10,13 @@ import {
   progressionToTurtle,
   jobSoftwareToTurtle,
 } from "../src/serialize.js";
+import { createTurtleHelpers } from "@forwardimpact/libharness";
 
 const { Parser } = pkg;
 const FIT = "https://www.forwardimpact.team/schema/rdf/";
 const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
-function parseQuads(turtle) {
-  return new Parser({ format: "Turtle" }).parse(turtle);
-}
-
-function findOne(quads, { subject, predicate, object } = {}) {
-  return quads.find(
-    (q) =>
-      (!subject || q.subject.value === subject) &&
-      (!predicate || q.predicate.value === predicate) &&
-      (!object || q.object.value === object),
-  );
-}
-
-function findAll(quads, { subject, predicate, object } = {}) {
-  return quads.filter(
-    (q) =>
-      (!subject || q.subject.value === subject) &&
-      (!predicate || q.predicate.value === predicate) &&
-      (!object || q.object.value === object),
-  );
-}
+const { parseQuads, findAll, findOne } = createTurtleHelpers(Parser);
 
 const fakeJob = {
   id: "fde-l3-forward_deployed",

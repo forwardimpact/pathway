@@ -1,8 +1,5 @@
-import { test } from "node:test";
+import { before, test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
-
-import { createDataLoader } from "@forwardimpact/map/loader";
 
 import { parseRosterYaml } from "../src/roster/yaml.js";
 import { computeCoverage, resolveTeam } from "../src/aggregation/coverage.js";
@@ -13,14 +10,15 @@ import {
 } from "../src/aggregation/risks.js";
 import { Audience, withAudienceFilter } from "../src/lib/audience.js";
 
-const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
+import { loadStarterData } from "./fixtures.js";
 
-async function loadData() {
-  return createDataLoader().loadAllData(FIXTURE_DATA);
-}
+let data;
 
-test("detectSinglePointsOfFailure: skill with exactly one working+ holder", async () => {
-  const data = await loadData();
+before(async () => {
+  ({ data } = await loadStarterData());
+});
+
+test("detectSinglePointsOfFailure: skill with exactly one working+ holder", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -41,8 +39,7 @@ teams:
   assert.equal(task.holder.email, "bob@example.com");
 });
 
-test("detectSinglePointsOfFailure severity tiers reflect allocation", async () => {
-  const data = await loadData();
+test("detectSinglePointsOfFailure severity tiers reflect allocation", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -62,8 +59,7 @@ projects:
   assert.equal(task.severity, "high");
 });
 
-test("detectCriticalGaps cites discipline reason for zero-depth skills", async () => {
-  const data = await loadData();
+test("detectCriticalGaps cites discipline reason for zero-depth skills", () => {
   // All team members at J040 → task_completion foundational, planning
   // awareness, incident_response awareness. No skill at working+ → every
   // discipline skill is a critical gap.
@@ -87,8 +83,7 @@ teams:
   assert.ok(/software_engineering/.test(incident.reason));
 });
 
-test("detectRisks on a zero-member team returns empty arrays", async () => {
-  const data = await loadData();
+test("detectRisks on a zero-member team returns empty arrays", () => {
   const resolved = {
     id: "empty",
     type: "reporting",
@@ -103,8 +98,7 @@ test("detectRisks on a zero-member team returns empty arrays", async () => {
   assert.equal(risks.concentrationRisks.length, 0);
 });
 
-test("audience filter drops holder identity for SPOFs", async () => {
-  const data = await loadData();
+test("audience filter drops holder identity for SPOFs", () => {
   const roster = parseRosterYaml(`
 teams:
   a:

@@ -1,39 +1,23 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { assertRejectsMessage } from "@forwardimpact/libharness";
 
 import { runMarkerCommand } from "../src/commands/marker.js";
+import { MAP_DATA } from "./fixtures.js";
 
+// Marker tests exercise per-skill marker lookup. We derive two variants from
+// the shared MAP_DATA: one where task_completion keeps its markers but
+// planning has no markers block, and one where no skill has any markers.
 const MAP_DATA_WITH_MARKERS = {
+  ...MAP_DATA,
   skills: [
-    {
-      id: "task_completion",
-      name: "Task Completion",
-      markers: {
-        awareness: {
-          human: ["Closed an assigned task by following a documented runbook"],
-          agent: [
-            "Completed a task by applying an existing pattern from the codebase",
-          ],
-        },
-        working: {
-          human: [
-            "Delivered a feature end-to-end with no revision to the initial design",
-          ],
-          agent: [
-            "Completed a multi-file change that passes CI without human rework",
-          ],
-        },
-      },
-    },
-    {
-      id: "planning",
-      name: "Planning",
-      // No markers
-    },
+    MAP_DATA.skills.find((s) => s.id === "task_completion"),
+    { id: "planning", name: "Planning" /* No markers */ },
   ],
 };
 
 const MAP_DATA_NO_MARKERS = {
+  ...MAP_DATA,
   skills: [
     { id: "task_completion", name: "Task Completion" },
     { id: "planning", name: "Planning" },
@@ -110,7 +94,7 @@ describe("marker command", () => {
   });
 
   it("throws when skill id is missing", async () => {
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         runMarkerCommand({
           args: [],

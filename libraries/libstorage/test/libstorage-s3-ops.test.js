@@ -1,5 +1,6 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import { spy } from "@forwardimpact/libharness";
 
 import { S3Storage } from "../src/index.js";
 
@@ -10,38 +11,36 @@ describe("S3Storage - operations", () => {
 
   beforeEach(() => {
     mockClient = {
-      send: mock.fn(() =>
-        Promise.resolve({ Body: [Buffer.from("test data")] }),
-      ),
+      send: spy(() => Promise.resolve({ Body: [Buffer.from("test data")] })),
     };
 
     // Mock commands as constructor functions
     mockCommands = {
-      PutObjectCommand: mock.fn(function (params) {
+      PutObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      GetObjectCommand: mock.fn(function (params) {
+      GetObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      DeleteObjectCommand: mock.fn(function (params) {
+      DeleteObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      HeadObjectCommand: mock.fn(function (params) {
+      HeadObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      ListObjectsV2Command: mock.fn(function (params) {
+      ListObjectsV2Command: spy(function (params) {
         this.params = params;
         return this;
       }),
-      CreateBucketCommand: mock.fn(function (params) {
+      CreateBucketCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      HeadBucketCommand: mock.fn(function (params) {
+      HeadBucketCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
@@ -51,7 +50,7 @@ describe("S3Storage - operations", () => {
   });
 
   test("find lists objects with extension", async () => {
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Contents: [
           { Key: "test-prefix/file1.txt" },
@@ -90,7 +89,7 @@ describe("S3Storage - operations", () => {
     // Mock HeadBucketCommand to fail (bucket doesn't exist)
     // Mock CreateBucketCommand to succeed (bucket created)
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         // First call is HeadBucketCommand - bucket doesn't exist
@@ -112,7 +111,7 @@ describe("S3Storage - operations", () => {
     error.Code = "NoSuchBucket";
 
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.reject(error);
@@ -130,7 +129,7 @@ describe("S3Storage - operations", () => {
     error.$metadata = { httpStatusCode: 404 };
 
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.reject(error);
@@ -153,7 +152,7 @@ describe("S3Storage - operations", () => {
   test("bucketExists returns false when bucket not found", async () => {
     const error = new Error("Not found");
     error.name = "NotFound";
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const exists = await s3Storage.bucketExists();
 
@@ -163,7 +162,7 @@ describe("S3Storage - operations", () => {
   test("bucketExists returns false when 404 status", async () => {
     const error = new Error("Not found");
     error.$metadata = { httpStatusCode: 404 };
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const exists = await s3Storage.bucketExists();
 
@@ -180,7 +179,7 @@ describe("S3Storage - operations", () => {
   test("isHealthy returns true when bucket not found (service reachable)", async () => {
     const error = new Error("Not found");
     error.name = "NotFound";
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const healthy = await s3Storage.isHealthy();
 
@@ -190,7 +189,7 @@ describe("S3Storage - operations", () => {
   test("isHealthy returns true when bucket 404 (service reachable)", async () => {
     const error = new Error("Not found");
     error.$metadata = { httpStatusCode: 404 };
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const healthy = await s3Storage.isHealthy();
 
@@ -200,7 +199,7 @@ describe("S3Storage - operations", () => {
   test("isHealthy returns false on connection error", async () => {
     const error = new Error("Connection refused");
     error.code = "ECONNREFUSED";
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const healthy = await s3Storage.isHealthy();
 
@@ -210,7 +209,7 @@ describe("S3Storage - operations", () => {
   test("isHealthy returns false on authentication error", async () => {
     const error = new Error("Access denied");
     error.name = "AccessDenied";
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const healthy = await s3Storage.isHealthy();
 
@@ -218,7 +217,7 @@ describe("S3Storage - operations", () => {
   });
 
   test("getMany retrieves multiple items by keys", async () => {
-    mockClient.send = mock.fn((command) => {
+    mockClient.send = spy((command) => {
       if (command.params && command.params.Key === "test-prefix/file1.txt") {
         return Promise.resolve({ Body: [Buffer.from("content1")] });
       }
@@ -244,9 +243,7 @@ describe("S3Storage - operations", () => {
   });
 
   test("getMany handles errors other than NoSuchKey", async () => {
-    mockClient.send = mock.fn(() =>
-      Promise.reject(new Error("Permission denied")),
-    );
+    mockClient.send = spy(() => Promise.reject(new Error("Permission denied")));
 
     await assert.rejects(() => s3Storage.getMany(["file1.txt"]), {
       message: "Permission denied",
@@ -254,7 +251,7 @@ describe("S3Storage - operations", () => {
   });
 
   test("findByPrefix finds keys with specified prefix", async () => {
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Contents: [
           { Key: "test-prefix/common.File.hash001.txt" },
@@ -280,7 +277,7 @@ describe("S3Storage - operations", () => {
 
   test("findByPrefix handles pagination", async () => {
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve({

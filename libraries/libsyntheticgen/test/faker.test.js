@@ -1,6 +1,10 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { FakerTool } from "../src/tools/faker.js";
+import {
+  assertRejectsMessage,
+  assertThrowsMessage,
+} from "@forwardimpact/libharness";
 
 const logger = {
   info() {},
@@ -9,7 +13,7 @@ const logger = {
 
 describe("FakerTool", () => {
   test("requires logger", () => {
-    assert.throws(() => new FakerTool({}), /requires logger/);
+    assertThrowsMessage(() => new FakerTool({}), /requires logger/);
   });
 
   test("checkAvailability returns true", async () => {
@@ -70,7 +74,7 @@ describe("FakerTool", () => {
 
   test("throws on unknown provider", async () => {
     const tool = new FakerTool({ logger });
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         tool.generate({
           name: "bad",
@@ -84,7 +88,7 @@ describe("FakerTool", () => {
 
   test("throws on non-function provider", async () => {
     const tool = new FakerTool({ logger });
-    await assert.rejects(
+    await assertRejectsMessage(
       () =>
         tool.generate({
           name: "bad",

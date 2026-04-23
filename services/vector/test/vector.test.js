@@ -1,9 +1,9 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
 import { VectorService } from "../index.js";
-import { createMockConfig } from "@forwardimpact/libharness";
+import { createMockConfig, spy } from "@forwardimpact/libharness";
 
 describe("vector service", () => {
   describe("VectorService", () => {
@@ -45,7 +45,7 @@ describe("vector service", () => {
         queryItems: async () => [{ toString: () => "msg1" }],
       };
 
-      mockEmbeddingFn = mock.fn(() =>
+      mockEmbeddingFn = spy(() =>
         Promise.resolve({
           data: [{ embedding: [0.1, 0.2, 0.3] }],
         }),

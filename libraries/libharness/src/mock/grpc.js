@@ -1,5 +1,4 @@
-import { mock } from "node:test";
-
+import { spy } from "./spy.js";
 /**
  * Creates a mock gRPC factory function
  * @param {object} overrides - Method overrides
@@ -9,21 +8,21 @@ export function createMockGrpcFn(overrides = {}) {
   const mockGrpc = {
     Server: function () {
       return {
-        addService: mock.fn(),
-        bindAsync: mock.fn((uri, creds, callback) => callback(null, 5000)),
-        tryShutdown: mock.fn((callback) => callback()),
+        addService: spy(),
+        bindAsync: spy((uri, creds, callback) => callback(null, 5000)),
+        tryShutdown: spy((callback) => callback()),
         ...overrides.server,
       };
     },
-    loadPackageDefinition: mock.fn(() => ({
+    loadPackageDefinition: spy(() => ({
       test: { Test: { service: {} } },
     })),
-    makeGenericClientConstructor: mock.fn(() => function () {}),
+    makeGenericClientConstructor: spy(() => function () {}),
     ServerCredentials: {
-      createInsecure: mock.fn(),
+      createInsecure: spy(),
     },
     credentials: {
-      createInsecure: mock.fn(),
+      createInsecure: spy(),
     },
     status: {
       OK: 0,
@@ -48,7 +47,7 @@ export function createMockGrpcFn(overrides = {}) {
   };
 
   const mockProtoLoader = {
-    loadSync: mock.fn(() => ({})),
+    loadSync: spy(() => ({})),
     ...overrides.protoLoader,
   };
 

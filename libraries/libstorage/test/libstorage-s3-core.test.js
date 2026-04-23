@@ -1,5 +1,6 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
+import { spy } from "@forwardimpact/libharness";
 
 import { S3Storage } from "../src/index.js";
 
@@ -10,38 +11,36 @@ describe("S3Storage", () => {
 
   beforeEach(() => {
     mockClient = {
-      send: mock.fn(() =>
-        Promise.resolve({ Body: [Buffer.from("test data")] }),
-      ),
+      send: spy(() => Promise.resolve({ Body: [Buffer.from("test data")] })),
     };
 
     // Mock commands as constructor functions
     mockCommands = {
-      PutObjectCommand: mock.fn(function (params) {
+      PutObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      GetObjectCommand: mock.fn(function (params) {
+      GetObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      DeleteObjectCommand: mock.fn(function (params) {
+      DeleteObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      HeadObjectCommand: mock.fn(function (params) {
+      HeadObjectCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      ListObjectsV2Command: mock.fn(function (params) {
+      ListObjectsV2Command: spy(function (params) {
         this.params = params;
         return this;
       }),
-      CreateBucketCommand: mock.fn(function (params) {
+      CreateBucketCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
-      HeadBucketCommand: mock.fn(function (params) {
+      HeadBucketCommand: spy(function (params) {
         this.params = params;
         return this;
       }),
@@ -66,7 +65,7 @@ describe("S3Storage", () => {
   });
 
   test("get sends GetObjectCommand and concatenates chunks", async () => {
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Body: [Buffer.from("chunk1"), Buffer.from("chunk2")],
       }),
@@ -82,7 +81,7 @@ describe("S3Storage", () => {
 
   test("get parses JSON files automatically", async () => {
     const jsonData = { name: "test", value: 42 };
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Body: [Buffer.from(JSON.stringify(jsonData))],
       }),
@@ -100,7 +99,7 @@ describe("S3Storage", () => {
       { id: 2, name: "second" },
     ];
     const jsonlContent = jsonlData.map((obj) => JSON.stringify(obj)).join("\n");
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Body: [Buffer.from(jsonlContent)],
       }),
@@ -113,7 +112,7 @@ describe("S3Storage", () => {
   });
 
   test("get returns empty object for empty JSON files", async () => {
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Body: [Buffer.from("")],
       }),
@@ -125,7 +124,7 @@ describe("S3Storage", () => {
   });
 
   test("get returns empty array for empty JSON Lines files", async () => {
-    mockClient.send = mock.fn(() =>
+    mockClient.send = spy(() =>
       Promise.resolve({
         Body: [Buffer.from("")],
       }),
@@ -139,7 +138,7 @@ describe("S3Storage", () => {
   test("append reads existing data and puts combined data", async () => {
     // Mock first call to get existing data, second call for put
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve({
@@ -160,7 +159,7 @@ describe("S3Storage", () => {
   test("append handles non-existent file", async () => {
     // Mock get to fail with 404, then succeed for put
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         const error = new Error("Not found");
@@ -181,7 +180,7 @@ describe("S3Storage", () => {
   test("append automatically adds newline characters", async () => {
     // Mock get to return existing data, then put for append
     let callCount = 0;
-    mockClient.send = mock.fn(() => {
+    mockClient.send = spy(() => {
       callCount++;
       if (callCount === 1) {
         return Promise.resolve({
@@ -226,7 +225,7 @@ describe("S3Storage", () => {
   test("exists returns false when NotFound error", async () => {
     const error = new Error("Not found");
     error.name = "NotFound";
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const exists = await s3Storage.exists("file.txt");
 
@@ -236,7 +235,7 @@ describe("S3Storage", () => {
   test("exists returns false when 404 status", async () => {
     const error = new Error("Not found");
     error.$metadata = { httpStatusCode: 404 };
-    mockClient.send = mock.fn(() => Promise.reject(error));
+    mockClient.send = spy(() => Promise.reject(error));
 
     const exists = await s3Storage.exists("file.txt");
 

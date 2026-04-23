@@ -3,9 +3,9 @@ import assert from "node:assert";
 import { EventEmitter } from "node:events";
 
 import { SupervisionTree } from "../src/tree.js";
+import { createSilentLogger } from "@forwardimpact/libharness";
 
-const noop = () => {};
-const mockLogger = { info: noop, debug: noop, warn: noop, error: noop };
+const mockLogger = createSilentLogger();
 
 describe("SupervisionTree", () => {
   describe("constructor", () => {

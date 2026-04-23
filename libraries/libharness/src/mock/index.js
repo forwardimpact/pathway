@@ -25,3 +25,12 @@ export {
 } from "./clients.js";
 export { createMockServiceCallbacks } from "./service-callbacks.js";
 export { createMockFs } from "./fs.js";
+export { spy } from "./spy.js";
+export {
+  createMockSupabaseClient,
+  createTurtleHelpers,
+  createMockProcess,
+  withSilentConsole,
+  createMockS3Client,
+  createMockQueries,
+} from "./infra.js";

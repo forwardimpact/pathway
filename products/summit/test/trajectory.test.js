@@ -1,8 +1,5 @@
-import { test } from "node:test";
+import { before, test } from "node:test";
 import assert from "node:assert/strict";
-import { join } from "node:path";
-
-import { createDataLoader } from "@forwardimpact/map/loader";
 
 import { parseRosterYaml } from "../src/roster/yaml.js";
 import {
@@ -11,11 +8,13 @@ import {
 } from "../src/aggregation/trajectory.js";
 import { listCommits, showFileAt } from "../src/git/history.js";
 
-const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
+import { loadStarterData } from "./fixtures.js";
 
-async function loadData() {
-  return createDataLoader().loadAllData(FIXTURE_DATA);
-}
+let data;
+
+before(async () => {
+  ({ data } = await loadStarterData());
+});
 
 test("bucketCommitsByQuarter groups commits by calendar quarter", () => {
   const commits = [
@@ -63,8 +62,7 @@ test("showFileAt returns stubbed content", async () => {
   assert.ok(content.includes("teams:"));
 });
 
-test("computeTrajectory builds quarterly coverage and identifies persistent gaps", async () => {
-  const data = await loadData();
+test("computeTrajectory builds quarterly coverage and identifies persistent gaps", () => {
   const q1 = parseRosterYaml(`
 teams:
   a:

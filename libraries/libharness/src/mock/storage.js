@@ -1,5 +1,4 @@
-import { mock } from "node:test";
-
+import { spy } from "./spy.js";
 /**
  * Creates a mock storage instance with tracking
  * @param {object} overrides - Method overrides
@@ -10,8 +9,8 @@ export function createMockStorage(overrides = {}) {
 
   return {
     data,
-    exists: mock.fn((key) => Promise.resolve(data.has(key))),
-    get: mock.fn((key) => {
+    exists: spy((key) => Promise.resolve(data.has(key))),
+    get: spy((key) => {
       const value = data.get(key);
       if (!value) return Promise.reject(new Error("Not found"));
 
@@ -24,20 +23,20 @@ export function createMockStorage(overrides = {}) {
       }
       return Promise.resolve(value);
     }),
-    put: mock.fn((key, value) => {
+    put: spy((key, value) => {
       data.set(key, value);
       return Promise.resolve();
     }),
-    append: mock.fn((key, value) => {
+    append: spy((key, value) => {
       const existing = data.get(key) || "";
       data.set(key, existing ? `${existing}\n${value}` : value);
       return Promise.resolve();
     }),
-    delete: mock.fn((key) => {
+    delete: spy((key) => {
       data.delete(key);
       return Promise.resolve();
     }),
-    findByPrefix: mock.fn(() => Promise.resolve([])),
+    findByPrefix: spy(() => Promise.resolve([])),
     ...overrides,
   };
 }

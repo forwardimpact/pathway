@@ -4,7 +4,10 @@ import assert from "node:assert";
 import { TraceVisualizer } from "../src/visualizer.js";
 import { TraceIndex } from "../src/index/trace.js";
 import { trace } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 describe("TraceVisualizer - basics", () => {
   let traceIndex;
@@ -20,7 +23,7 @@ describe("TraceVisualizer - basics", () => {
 
   describe("Constructor", () => {
     test("throws error when traceIndex is not provided", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new TraceVisualizer(null),
         /traceIndex is required/,
         "Should throw when traceIndex is null",
@@ -28,7 +31,7 @@ describe("TraceVisualizer - basics", () => {
     });
 
     test("throws error when traceIndex is undefined", () => {
-      assert.throws(
+      assertThrowsMessage(
         () => new TraceVisualizer(undefined),
         /traceIndex is required/,
         "Should throw when traceIndex is undefined",

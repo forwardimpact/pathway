@@ -25,7 +25,7 @@ products/landmark/
       summit.js           Dynamic import wrapper for Summit's growth function
     commands/             One file per top-level command
     formatters/           One file per command (toText, toJson, toMarkdown)
-  test/                   node:test with stub queries, no network
+  test/                   bun test with stub queries, no network
 ```
 
 ## Data Contracts

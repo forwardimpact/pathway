@@ -1,8 +1,9 @@
-import { test, describe, mock } from "node:test";
+import { test, describe } from "node:test";
 import assert from "node:assert";
 
 import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 import { buildZodSchema } from "../src/schema.js";
+import { assertThrowsMessage, spy } from "@forwardimpact/libharness";
 
 /** Minimal mock McpServer that records tool() calls */
 function createMockServer() {
@@ -66,32 +67,28 @@ function createTestConfig() {
 function createMockClients() {
   return {
     graph: {
-      GetOntology: mock.fn(() => Promise.resolve({ content: "ontology-ttl" })),
-      GetSubjects: mock.fn(() => Promise.resolve({ content: "sub1\tsub2" })),
-      QueryByPattern: mock.fn(() =>
+      GetOntology: spy(() => Promise.resolve({ content: "ontology-ttl" })),
+      GetSubjects: spy(() => Promise.resolve({ content: "sub1\tsub2" })),
+      QueryByPattern: spy(() =>
         Promise.resolve({ identifiers: ["id1", "id2"] }),
       ),
     },
     vector: {
-      SearchContent: mock.fn(() =>
-        Promise.resolve({ identifiers: ["result1"] }),
-      ),
+      SearchContent: spy(() => Promise.resolve({ identifiers: ["result1"] })),
     },
     pathway: {
-      ListJobs: mock.fn(() => Promise.resolve({ content: "jobs-ttl" })),
-      DescribeJob: mock.fn(() => Promise.resolve({ content: "job-ttl" })),
-      ListAgentProfiles: mock.fn(() =>
+      ListJobs: spy(() => Promise.resolve({ content: "jobs-ttl" })),
+      DescribeJob: spy(() => Promise.resolve({ content: "job-ttl" })),
+      ListAgentProfiles: spy(() =>
         Promise.resolve({ content: "profiles-ttl" }),
       ),
-      DescribeAgentProfile: mock.fn(() =>
+      DescribeAgentProfile: spy(() =>
         Promise.resolve({ content: "profile-ttl" }),
       ),
-      DescribeProgression: mock.fn(() =>
+      DescribeProgression: spy(() =>
         Promise.resolve({ content: "progression-ttl" }),
       ),
-      ListJobSoftware: mock.fn(() =>
-        Promise.resolve({ content: "software-ttl" }),
-      ),
+      ListJobSoftware: spy(() => Promise.resolve({ content: "software-ttl" })),
     },
   };
 }
@@ -119,7 +116,7 @@ describe("registerToolsFromConfig", () => {
 
   test("throws for unknown method not in metadata", () => {
     const server = createMockServer();
-    assert.throws(
+    assertThrowsMessage(
       () =>
         registerToolsFromConfig(
           server,
@@ -132,7 +129,7 @@ describe("registerToolsFromConfig", () => {
 
   test("throws for missing client", () => {
     const server = createMockServer();
-    assert.throws(
+    assertThrowsMessage(
       () =>
         registerToolsFromConfig(
           server,
@@ -176,7 +173,7 @@ describe("registerToolsFromConfig", () => {
 
   test("handler resolves identifiers via resourceIndex", async () => {
     const mockResourceIndex = {
-      get: mock.fn(() =>
+      get: spy(() =>
         Promise.resolve([
           { content: "content-for-id1" },
           { content: "content-for-id2" },
@@ -198,7 +195,7 @@ describe("registerToolsFromConfig", () => {
 
   test("handler returns fallback when resourceIndex resolves empty", async () => {
     const mockResourceIndex = {
-      get: mock.fn(() => Promise.resolve([])),
+      get: spy(() => Promise.resolve([])),
     };
     const server = createMockServer();
     const config = createTestConfig();
