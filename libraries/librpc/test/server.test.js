@@ -2,7 +2,15 @@ import { test, describe, beforeEach, mock } from "node:test";
 import assert from "node:assert";
 
 import { Server } from "../src/index.js";
-import { assertThrowsMessage, createMockAuthFn, createMockConfig, createMockGrpcFn, createMockLogger, createMockObserverFn, createMockTracer } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockAuthFn,
+  createMockConfig,
+  createMockGrpcFn,
+  createMockLogger,
+  createMockObserverFn,
+  createMockTracer,
+} from "@forwardimpact/libharness";
 
 describe("Server", () => {
   let mockService;

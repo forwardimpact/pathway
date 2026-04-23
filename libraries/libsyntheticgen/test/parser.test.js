@@ -366,11 +366,17 @@ describe("parse", () => {
 
   describe("error handling", () => {
     test("throws on missing terrain keyword", () => {
-      assertThrowsMessage(() => parseDsl("domain {}"), /Expected KEYWORD 'terrain'/);
+      assertThrowsMessage(
+        () => parseDsl("domain {}"),
+        /Expected KEYWORD 'terrain'/,
+      );
     });
 
     test("throws on missing opening brace", () => {
-      assertThrowsMessage(() => parseDsl("terrain test domain"), /Expected LBRACE/);
+      assertThrowsMessage(
+        () => parseDsl("terrain test domain"),
+        /Expected LBRACE/,
+      );
     });
 
     test("throws on unexpected keyword at top level", () => {

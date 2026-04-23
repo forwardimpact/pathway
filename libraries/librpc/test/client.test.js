@@ -3,7 +3,13 @@ import assert from "node:assert";
 import { PassThrough } from "stream";
 
 import { Client } from "../src/index.js";
-import { assertThrowsMessage, createMockAuthFn, createMockGrpcFn, createMockLogger, createMockObserverFn } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockAuthFn,
+  createMockGrpcFn,
+  createMockLogger,
+  createMockObserverFn,
+} from "@forwardimpact/libharness";
 
 describe("Client", () => {
   let mockConfig;

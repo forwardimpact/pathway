@@ -3,7 +3,12 @@ import assert from "node:assert";
 import pkg from "n3";
 
 import { PathwayService } from "../index.js";
-import { assertRejectsMessage, assertThrowsMessage, createMockConfig, createTurtleHelpers } from "@forwardimpact/libharness";
+import {
+  assertRejectsMessage,
+  assertThrowsMessage,
+  createMockConfig,
+  createTurtleHelpers,
+} from "@forwardimpact/libharness";
 
 const { Parser } = pkg;
 const FIT = "https://www.forwardimpact.team/schema/rdf/";
@@ -138,7 +143,10 @@ describe("PathwayService", () => {
 
   test("constructor rejects missing data bundle pieces", () => {
     const config = createMockConfig("pathway");
-    assertThrowsMessage(() => new PathwayService(config, {}), /data is required/);
+    assertThrowsMessage(
+      () => new PathwayService(config, {}),
+      /data is required/,
+    );
     assertThrowsMessage(
       () => new PathwayService(config, { data: {} }),
       /agentData is required/,

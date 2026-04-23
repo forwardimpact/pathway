@@ -1,7 +1,10 @@
 import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
-import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 // Module under test
 import { Repl } from "../src/index.js";

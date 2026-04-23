@@ -60,7 +60,10 @@ test("DocsBuilder constructor validates dependencies", () => {
 });
 
 test("DocsServer constructor validates dependencies", () => {
-  assertThrowsMessage(() => new DocsServer(null, null, null, null), /fs is required/);
+  assertThrowsMessage(
+    () => new DocsServer(null, null, null, null),
+    /fs is required/,
+  );
 
   const mockFs = {};
   assertThrowsMessage(

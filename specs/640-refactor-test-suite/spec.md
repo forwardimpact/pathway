@@ -287,40 +287,72 @@ First execution pass on branch `claude/refactor-test-suite-Fx4EQ`:
 
 Measured deltas:
 
-| Metric                                           | Before     | After                        |
-| ------------------------------------------------ | ---------- | ---------------------------- |
-| Test files importing `@forwardimpact/libharness` | 37 (17.5%) | **63 (29.9%)**               |
-| Total LOC in test files                          | 45,456     | 45,109                       |
-| Full `bun run test` wall-clock (serial)          | 16.3 s     | 18.2 s                       |
-| Test count                                       | 2,405      | 2,405 (1 skipped both sides) |
+| Metric                                             | Before     | After                         |
+| -------------------------------------------------- | ---------- | ----------------------------- |
+| Test files importing `@forwardimpact/libharness`   | 37 (17.5%) | **85 (40.9%)**                |
+| Files using `assertThrowsMessage`/`RejectsMessage` | 0          | **40**                        |
+| Total LOC in test files                            | 45,456     | 44,312 (−1,144)               |
+| Test file count                                    | 211        | 208 (3 schema-sibling merges) |
+| Full `bun run test` wall-clock (serial)            | 16.3 s     | ~18 s (noise-bound)           |
+| Test count                                         | 2,405      | 2,405 (1 skipped both sides)  |
 
-**Note on concurrency:** the earlier claim that `--test-concurrency=0` was
-hurting wall-clock turned out to be wrong for this hardware. Benchmarked on 16
-cores: `=0` (serial) runs in 16.3 s, default parallel is 18.2 s, `=16` is 18.1
-s. Process-fork-per-file dominates; parallelism costs more than it saves. Keep
-serial.
+**Second pass (parallel sub-agent sweep)**
+
+After the first pass I spawned six focused sub-agents in parallel, each
+constrained to a non-overlapping scope, and they delivered the bulk of the
+remaining migrations:
+
+- `products/landmark/test/fixtures.js` created; 11 test files refactored to
+  import `PEOPLE`/`TEAM`/`SNAPSHOTS`/`SCORES`/`EVIDENCE_ROWS`/`COMMENTS`/
+  `PATTERNS`/`MAP_DATA` from the shared module.
+- `products/summit/test/fixtures.js` created with `loadStarterData()` using
+  `memoizeAsync` to cache the starter YAML load across the 9 summit test files
+  plus shared `FIXTURE_ROSTER` and `snapshot(roster, data, teamId)` helpers.
+  Per-test framework re-parse dropped from ~20–27 ms to ~1–3 ms.
+- `products/map/test/fixtures.js` created with shared `DATA`, `PIPELINE_DATA`,
+  `PEOPLE_VALID`, `PEOPLE_UNKNOWN_LEVEL`, `makeEvidenceRow`, `makeArtifact`.
+  Activity tests migrated to `createMockSupabaseClient`; `exporter`, `pipeline`,
+  `validate-people`, `transform-github` migrated.
+- `libraries/libskill/test/derivation-fixtures.js` rewritten as thin wrappers
+  around libharness pathway atoms (315 → 266 LOC); `job.test.js` inline fixtures
+  deleted (161 → 49 LOC).
+- `tests/model-fixtures.js` rewritten to compose from libharness atoms (176 →
+  114 LOC).
+- Mechanical `assertThrowsMessage`/`assertRejectsMessage` sweep across libcli,
+  libconfig, libdoc, libgraph, libindex, libmcp, librc, librepl, librpc,
+  libsyntheticgen, libsyntheticrender, libtelemetry, libvector, and
+  `services/pathway` (~77 call sites converted, devDeps added to 14 packages).
+
+### Wall-clock is dominated by Node per-file fork overhead
+
+On this 16-core machine, 211 test files × ~90 ms of Node boot per file = ~19 s
+of pure startup, which matches the observed wall-clock. Measured:
+
+- `--test-concurrency=0` (serial fork-per-file): 16–18 s
+- default parallel: 18–19 s
+- `--experimental-test-isolation=none` (everything in one process): 27 s
+  single-threaded — module caching helps but async serialization hurts more
+- `bun test`: 12 s — but `node:test`'s `mock.fn` throws `NotImplementedError`
+  under bun ([bun#5090](https://github.com/oven-sh/bun/issues/5090)), and
+  libharness relies heavily on `mock.fn`
+
+So wall-clock speedups only come from reducing file count. This pass merged
+three schema/messaging sibling pairs in libeval (saving ~280 ms) — a small
+sample to validate that approach; a larger consolidation of the 23 libeval test
+files and the 8 libtelemetry visualizer tests into 5–10 combined files would
+reasonably save ~3 s. That's deferred pending a judgement call on whether
+collapsed files hurt discoverability.
 
 ### Still open
 
-Items from the spec not yet actioned in this pass:
-
-- libskill `derivation-fixtures.js` migration to `createTestFramework` — field
-  shapes (`specialization`, `expectations`) differ from the libharness atoms.
-  Needs cross-walk.
-- Summit starter-framework caching with `memoizeAsync` — deferred; 27 call sites
-  touch the data loader and some tests mutate data, so each call site needs
-  individual review.
 - libprompt / libtemplate / libsyntheticprose tmpdir → `createMockFs` — blocked
-  by source changes: `PromptLoader`, `TemplateLoader`, and `ProseEngine` all
-  hardcode `readFileSync` from `node:fs` rather than accepting a fs dep. Source
-  refactor required first.
-- Large file splits (libeval `tee-writer` 474 LOC, `trace-query` 460 LOC,
-  `supervisor-output` 453 LOC; libindex `base-filters` 450 LOC; libtelemetry
-  `visualizer-edge-cases` 411 LOC) — cosmetic-only; deferred.
-- Coverage cuts deferred pending discussion — the original audit was over-eager:
-  `libutil.test.js` (3 tests) and `guide/test/cli.test.js` (source scrape) both
-  turned out to cover distinct surfaces on closer read. Merge
-  `trace-query.test.js` + `trace-query-v1.1.test.js` remains a candidate but
-  they use slightly different trace shapes.
-- `assertThrowsMessage` / `assertRejectsMessage` adoption (0 → N) — pure
-  ergonomic win, safe sweep; not yet done.
+  by source refactor: `PromptLoader`, `TemplateLoader`, and `ProseEngine`
+  hardcode `readFileSync` from `node:fs` rather than accepting a fs dep.
+- Remaining file consolidation (libeval supervisor-_, libtelemetry visualizer-_)
+  — would move wall-clock, deferred on aesthetic grounds.
+- `bun test` migration — blocked on a `mock.fn` shim in libharness that bridges
+  to `bun:test`'s `mock`. Plausible but invasive.
+- Coverage cuts remain unlikely to pay off: the original audit's candidates
+  (`libutil.test.js`, `guide/test/cli.test.js`, `trace-query.test.js` +
+  `trace-query-v1.1.test.js`) all turned out to cover distinct surfaces on
+  closer inspection.

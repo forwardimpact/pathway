@@ -7,7 +7,10 @@ import { assertThrowsMessage } from "@forwardimpact/libharness";
 describe("Auth", () => {
   describe("HmacAuth", () => {
     test("should throw if secret is missing or too short", () => {
-      assertThrowsMessage(() => new HmacAuth(), /Secret must be a non-empty string/);
+      assertThrowsMessage(
+        () => new HmacAuth(),
+        /Secret must be a non-empty string/,
+      );
       assertThrowsMessage(
         () => new HmacAuth("short"),
         /Secret must be at least 32 characters long/,

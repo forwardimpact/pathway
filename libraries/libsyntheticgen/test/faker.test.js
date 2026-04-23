@@ -1,7 +1,10 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { FakerTool } from "../src/tools/faker.js";
-import { assertRejectsMessage, assertThrowsMessage } from "@forwardimpact/libharness";
+import {
+  assertRejectsMessage,
+  assertThrowsMessage,
+} from "@forwardimpact/libharness";
 
 const logger = {
   info() {},

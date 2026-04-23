@@ -1,14 +1,20 @@
 import { describe, test } from "node:test";
 import assert from "node:assert";
 import { SyntheaTool } from "../src/tools/synthea.js";
-import { assertRejectsMessage, assertThrowsMessage } from "@forwardimpact/libharness";
+import {
+  assertRejectsMessage,
+  assertThrowsMessage,
+} from "@forwardimpact/libharness";
 
 const logger = { info() {}, error() {} };
 
 describe("SyntheaTool", () => {
   test("requires all dependencies", () => {
     assertThrowsMessage(() => new SyntheaTool({}), /requires logger/);
-    assertThrowsMessage(() => new SyntheaTool({ logger }), /requires syntheaJar/);
+    assertThrowsMessage(
+      () => new SyntheaTool({ logger }),
+      /requires syntheaJar/,
+    );
     assertThrowsMessage(
       () => new SyntheaTool({ logger, syntheaJar: "/path.jar" }),
       /requires execFileFn/,

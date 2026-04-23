@@ -6,7 +6,10 @@ import {
   createServiceConfig,
   createExtensionConfig,
 } from "../src/index.js";
-import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 describe("libconfig - Config", () => {
   let mockProcess;

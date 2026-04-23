@@ -2,7 +2,10 @@ import { describe, test, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { ServiceManager } from "../src/manager.js";
-import { assertRejectsMessage, assertThrowsMessage } from "@forwardimpact/libharness";
+import {
+  assertRejectsMessage,
+  assertThrowsMessage,
+} from "@forwardimpact/libharness";
 
 describe("ServiceManager - constructor, paths, running, start", () => {
   let mockConfig;
@@ -69,7 +72,10 @@ describe("ServiceManager - constructor, paths, running, start", () => {
     });
 
     test("throws if logger is missing", () => {
-      assertThrowsMessage(() => new ServiceManager(mockConfig), /logger is required/);
+      assertThrowsMessage(
+        () => new ServiceManager(mockConfig),
+        /logger is required/,
+      );
     });
 
     test("creates instance with valid parameters", () => {

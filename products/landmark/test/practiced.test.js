@@ -24,7 +24,10 @@ const PRACTICED_PATTERNS = [
   { skill_id: "planning", matched: 0, unmatched: 1, total: 1 },
 ];
 
-function stubQueries({ team = PRACTICED_TEAM, patterns = PRACTICED_PATTERNS } = {}) {
+function stubQueries({
+  team = PRACTICED_TEAM,
+  patterns = PRACTICED_PATTERNS,
+} = {}) {
   return createMockQueries({
     getTeam: team,
     getPracticePatterns: patterns,

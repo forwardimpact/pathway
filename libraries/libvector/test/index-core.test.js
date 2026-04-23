@@ -3,7 +3,10 @@ import assert from "node:assert";
 
 import { VectorIndex } from "../src/index/vector.js";
 import { resource } from "@forwardimpact/libtype";
-import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 describe("VectorIndex - Core Functionality", () => {
   let vectorIndex;

@@ -3,7 +3,10 @@ import assert from "node:assert";
 import { Store, DataFactory } from "n3";
 
 import { GraphIndex } from "../src/index/graph.js";
-import { assertThrowsMessage, createMockStorage } from "@forwardimpact/libharness";
+import {
+  assertThrowsMessage,
+  createMockStorage,
+} from "@forwardimpact/libharness";
 
 const { namedNode, literal } = DataFactory;
 
