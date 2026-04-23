@@ -5,16 +5,15 @@ WHICH/WHERE. This plan captures HOW to implement and WHEN to sequence changes.
 
 ## Approach
 
-The implementation has six steps: libmacos extraction (1a), bundle build
-recipes (1b), release workflow (2), basecamp TCC verification (2b), tap
-repository (3), and documentation (4). Step 1a lands first and blocks all
-other bundle-assembly work. Steps 1b and 2 are strictly sequential. Step 3
-(tap repo) can run in parallel with steps 1–2 since it creates an external
-repo with placeholder casks. Step 4 (docs) can run in parallel with step 3.
-Step 2b (manual TCC verification) runs before the first `basecamp@v*` tag
-is pushed through the new workflow. The tap repo and `HOMEBREW_TAP_PAT`
-secret must both exist before the first real release tag is pushed —
-otherwise the `tap-pr` job fails.
+The implementation has six steps: libmacos extraction (1a), bundle build recipes
+(1b), release workflow (2), basecamp TCC verification (2b), tap repository (3),
+and documentation (4). Step 1a lands first and blocks all other bundle-assembly
+work. Steps 1b and 2 are strictly sequential. Step 3 (tap repo) can run in
+parallel with steps 1–2 since it creates an external repo with placeholder
+casks. Step 4 (docs) can run in parallel with step 3. Step 2b (manual TCC
+verification) runs before the first `basecamp@v*` tag is pushed through the new
+workflow. The tap repo and `HOMEBREW_TAP_PAT` secret must both exist before the
+first real release tag is pushed — otherwise the `tap-pr` job fails.
 
 The fit-guide codegen story resolves automatically: `just codegen` runs before
 `bun build --compile`, so generated gRPC clients are bundled into every binary
@@ -25,12 +24,11 @@ via bun's import-graph traversal. No special handling needed — the existing
 
 **Naming convention (deliberate design divergence).** The design specifies
 output path `dist/binaries/<cli>-<os>-<arch>` for Mach-Os and `dist/apps/` for
-`.app` bundles. This plan uses `dist/binaries/fit-<cli>-bun-darwin-arm64` as
-the local Mach-O output — the `bun-` prefix is bun's target triple convention
-and is required by the `--target` flag. Bundle assembly then reads from
-`dist/binaries/` and writes `dist/apps/<Bundle>.app`. The `release-assets`
-job zips each `.app` and uploads as
-`<Bundle>.app-<version>-darwin-arm64.zip`.
+`.app` bundles. This plan uses `dist/binaries/fit-<cli>-bun-darwin-arm64` as the
+local Mach-O output — the `bun-` prefix is bun's target triple convention and is
+required by the `--target` flag. Bundle assembly then reads from
+`dist/binaries/` and writes `dist/apps/<Bundle>.app`. The `release-assets` job
+zips each `.app` and uploads as `<Bundle>.app-<version>-darwin-arm64.zip`.
 
 ## Step 1a — Extract `libraries/libmacos`
 
@@ -44,53 +42,50 @@ migrate basecamp to consume it. This step blocks Step 1b onward.
 - Move `products/basecamp/src/posix-spawn.js` →
   `libraries/libmacos/src/posix-spawn.js`. Rewrite basecamp's imports
   (`products/basecamp/src/agent-runner.js` and any other caller). Add
-  `libraries/libmacos/src/tcc-responsibility.js` — a thin wrapper that
-  spawns a child, disclaims TCC responsibility, and returns an
-  exit-code Promise.
+  `libraries/libmacos/src/tcc-responsibility.js` — a thin wrapper that spawns a
+  child, disclaims TCC responsibility, and returns an exit-code Promise.
 - Generalize `products/basecamp/pkg/macos/build-app.sh` into
-  `libraries/libmacos/scripts/build-app.sh` accepting:
-  `--bundle-name`, `--bundle-id`, `--primary-exec`, `--extra-exec`
-  (repeatable), `--info-plist`, `--entitlements`, `--resource`
-  (repeatable), `--version`, `--out-dir`. Output path
-  `<out-dir>/<bundle-name>.app`.
-- Extract the codesign call into `libraries/libmacos/scripts/sign-app.sh`
-  and have `build-app.sh` invoke it as its final stage.
+  `libraries/libmacos/scripts/build-app.sh` accepting: `--bundle-name`,
+  `--bundle-id`, `--primary-exec`, `--extra-exec` (repeatable), `--info-plist`,
+  `--entitlements`, `--resource` (repeatable), `--version`, `--out-dir`. Output
+  path `<out-dir>/<bundle-name>.app`.
+- Extract the codesign call into `libraries/libmacos/scripts/sign-app.sh` and
+  have `build-app.sh` invoke it as its final stage.
 - Commit default templates:
   - `templates/entitlements.plist` — JIT +
     `com.apple.security.cs.disable-library-validation` only.
   - `templates/entitlements-gui.plist` — seeded from basecamp's current
     `Basecamp.entitlements` (Calendar, Contacts, Network).
-  - `templates/Info.plist.hbs` — template with `{{bundleId}}`,
-    `{{bundleName}}`, `{{executable}}`, `{{version}}`, `{{minOS}}`,
-    `{{lsuiElement}}` placeholders.
-- Delete `products/basecamp/pkg/macos/build-app.sh`. Update basecamp's
-  justfile `build-app` recipe to call `libraries/libmacos/scripts/build-app.sh`
-  with basecamp-specific arguments (Swift launcher as `CFBundleExecutable`,
-  `fit-basecamp` as a secondary Mach-O, `Basecamp.entitlements` as
-  entitlements path, `LSUIElement=true`).
-- Preserve basecamp's existing `.pkg` flow: `pkg/macos/build-pkg.sh`
-  currently depends on `dist/Basecamp.app` being produced by the
-  now-retired `build-app.sh`. The rewired `build-app` recipe must
-  produce a bundle at the same path (`dist/Basecamp.app`) so
-  `build-pkg.sh` keeps working unchanged. If the shared
-  `libmacos/scripts/build-app.sh` output path differs, add a thin
+  - `templates/Info.plist.hbs` — template with `{{bundleId}}`, `{{bundleName}}`,
+    `{{executable}}`, `{{version}}`, `{{minOS}}`, `{{lsuiElement}}`
+    placeholders.
+- Delete `products/basecamp/pkg/macos/build-app.sh`. Update basecamp's justfile
+  `build-app` recipe to call `libraries/libmacos/scripts/build-app.sh` with
+  basecamp-specific arguments (Swift launcher as `CFBundleExecutable`,
+  `fit-basecamp` as a secondary Mach-O, `Basecamp.entitlements` as entitlements
+  path, `LSUIElement=true`).
+- Preserve basecamp's existing `.pkg` flow: `pkg/macos/build-pkg.sh` currently
+  depends on `dist/Basecamp.app` being produced by the now-retired
+  `build-app.sh`. The rewired `build-app` recipe must produce a bundle at the
+  same path (`dist/Basecamp.app`) so `build-pkg.sh` keeps working unchanged. If
+  the shared `libmacos/scripts/build-app.sh` output path differs, add a thin
   basecamp-local recipe that copies / symlinks to the legacy path.
 
 ### Files
 
-| File                                                  | Action                                               |
-| ----------------------------------------------------- | ---------------------------------------------------- |
-| `libraries/libmacos/package.json`                     | Created — `"os": ["darwin"]`                         |
-| `libraries/libmacos/src/posix-spawn.js`               | Created — moved from `products/basecamp/src/`        |
-| `libraries/libmacos/src/tcc-responsibility.js`        | Created                                              |
-| `libraries/libmacos/scripts/build-app.sh`             | Created — generalized from basecamp's `build-app.sh` |
-| `libraries/libmacos/scripts/sign-app.sh`              | Created                                              |
-| `libraries/libmacos/templates/entitlements.plist`     | Created                                              |
-| `libraries/libmacos/templates/entitlements-gui.plist` | Created — seeded from `Basecamp.entitlements`        |
-| `libraries/libmacos/templates/Info.plist.hbs`         | Created                                              |
-| `products/basecamp/src/posix-spawn.js`                | Deleted — moved to libmacos                          |
-| `products/basecamp/src/agent-runner.js`               | Modified — import from `libmacos`                    |
-| `products/basecamp/pkg/macos/build-app.sh`            | Deleted — superseded by `libmacos/scripts/build-app.sh` |
+| File                                                  | Action                                                              |
+| ----------------------------------------------------- | ------------------------------------------------------------------- |
+| `libraries/libmacos/package.json`                     | Created — `"os": ["darwin"]`                                        |
+| `libraries/libmacos/src/posix-spawn.js`               | Created — moved from `products/basecamp/src/`                       |
+| `libraries/libmacos/src/tcc-responsibility.js`        | Created                                                             |
+| `libraries/libmacos/scripts/build-app.sh`             | Created — generalized from basecamp's `build-app.sh`                |
+| `libraries/libmacos/scripts/sign-app.sh`              | Created                                                             |
+| `libraries/libmacos/templates/entitlements.plist`     | Created                                                             |
+| `libraries/libmacos/templates/entitlements-gui.plist` | Created — seeded from `Basecamp.entitlements`                       |
+| `libraries/libmacos/templates/Info.plist.hbs`         | Created                                                             |
+| `products/basecamp/src/posix-spawn.js`                | Deleted — moved to libmacos                                         |
+| `products/basecamp/src/agent-runner.js`               | Modified — import from `libmacos`                                   |
+| `products/basecamp/pkg/macos/build-app.sh`            | Deleted — superseded by `libmacos/scripts/build-app.sh`             |
 | `products/basecamp/justfile`                          | Modified — `build-app` recipe calls `libmacos/scripts/build-app.sh` |
 
 ### Verification
@@ -107,8 +102,8 @@ bun test
 
 ### Agent & parallelism
 
-**Agent:** staff-engineer.
-**Parallelism:** First step. Blocks Step 1b, Step 2, Step 2b.
+**Agent:** staff-engineer. **Parallelism:** First step. Blocks Step 1b, Step 2,
+Step 2b.
 
 ## Step 1b — Bundle recipes in root justfile
 
@@ -119,12 +114,12 @@ Replaces the original Step 1. Drive every bundle through
 
 `NAME` is the full binary name (e.g. `fit-pathway`, `fit-service-graph`,
 `fit-codegen`). The recipe resolves the entry file by scanning every
-`package.json` under `products/`, `services/`, and `libraries/` for a
-`bin` field whose key matches `NAME`, and uses the path that field points
-at as the bun-compile entry. This replaces heuristic-based path guessing
-(like "`libraries/lib<NAME>/bin/fit-<NAME>.js`"), which fails for the many
-library CLIs whose library name doesn't match the CLI name (e.g. `fit-trace`
-lives in `libeval`, `fit-process-graphs` in `libgraph`, `fit-visualize` in
+`package.json` under `products/`, `services/`, and `libraries/` for a `bin`
+field whose key matches `NAME`, and uses the path that field points at as the
+bun-compile entry. This replaces heuristic-based path guessing (like
+"`libraries/lib<NAME>/bin/fit-<NAME>.js`"), which fails for the many library
+CLIs whose library name doesn't match the CLI name (e.g. `fit-trace` lives in
+`libeval`, `fit-process-graphs` in `libgraph`, `fit-visualize` in
 `libtelemetry`).
 
 ```just
@@ -163,24 +158,22 @@ build-binary NAME TARGET="bun-darwin-arm64":
   is already in `.gitignore`. The bundle-assembly step (`build-app-*` below)
   reads from this path.
 
-**Prerequisite for services.** Today `services/<name>/package.json` has no
-`bin` field — each service runs via `bun server.js`. Step 1b adds
+**Prerequisite for services.** Today `services/<name>/package.json` has no `bin`
+field — each service runs via `bun server.js`. Step 1b adds
 `"bin": { "fit-service-<name>": "./server.js" }` to each of the five service
 packages so the same `build-binary` recipe drives them uniformly.
 
-**Codegen.** `build-binary` does not depend on `codegen` as an individual
-recipe — the `build-binaries` fan-out below depends on `codegen` for local
-use, and CI's bootstrap action runs `fit-codegen --all` before the bundle
-job. A contributor running `just build-binary fit-guide` on a tree without
-generated code gets a broken binary; the fan-out is the documented entry
-point.
+**Codegen.** `build-binary` does not depend on `codegen` as an individual recipe
+— the `build-binaries` fan-out below depends on `codegen` for local use, and
+CI's bootstrap action runs `fit-codegen --all` before the bundle job. A
+contributor running `just build-binary fit-guide` on a tree without generated
+code gets a broken binary; the fan-out is the documented entry point.
 
 ### Recipe: `build-binaries`
 
-Each fan-out below uses the real binary names declared in each
-package.json's `bin` field — no aliasing or rename machinery. Service
-binaries get the `fit-service-` prefix so they don't collide with any
-product or library CLI.
+Each fan-out below uses the real binary names declared in each package.json's
+`bin` field — no aliasing or rename machinery. Service binaries get the
+`fit-service-` prefix so they don't collide with any product or library CLI.
 
 ```just
 # Build all Mach-Os for the default target
@@ -228,12 +221,11 @@ build-utility-binaries:
     just build-binary fit-download-bundle
 ```
 
-Sequential execution is intentional — parallel `bun build --compile` can
-exhaust memory on CI runners (each embeds the ~60 MB bun runtime).
-`codegen` runs first so generated gRPC code is current. The canonical
-utility list above must be verified against
-`libraries/*/package.json` during Step 1a implementation and updated if
-any library's `bin` set has changed since this plan was written.
+Sequential execution is intentional — parallel `bun build --compile` can exhaust
+memory on CI runners (each embeds the ~60 MB bun runtime). `codegen` runs first
+so generated gRPC code is current. The canonical utility list above must be
+verified against `libraries/*/package.json` during Step 1a implementation and
+updated if any library's `bin` set has changed since this plan was written.
 
 ### Recipes: `build-app-*`
 
@@ -296,54 +288,53 @@ build-apps: build-binaries
 Create `Info.plist` and `entitlements.plist` alongside each bundle's source
 tree:
 
-- `products/<name>/macos/Info.plist` for the five non-basecamp products —
-  render `libmacos/templates/Info.plist.hbs` with
-  `bundleId=com.forwardimpact.<name>`, `executable=fit-<name>`,
-  `minOS=13.0`, no `NS*UsageDescription` entries. Basecamp already has
-  `products/basecamp/macos/Info.plist` — leave it alone.
-- `products/<name>/macos/entitlements.plist` for the five non-basecamp
-  products — copy `libmacos/templates/entitlements.plist` (JIT +
+- `products/<name>/macos/Info.plist` for the five non-basecamp products — render
+  `libmacos/templates/Info.plist.hbs` with `bundleId=com.forwardimpact.<name>`,
+  `executable=fit-<name>`, `minOS=13.0`, no `NS*UsageDescription` entries.
+  Basecamp already has `products/basecamp/macos/Info.plist` — leave it alone.
+- `products/<name>/macos/entitlements.plist` for the five non-basecamp products
+  — copy `libmacos/templates/entitlements.plist` (JIT +
   disable-library-validation). Basecamp continues to reference
   `products/basecamp/macos/Basecamp.entitlements`.
-- `services/macos/Info.plist` and `services/macos/entitlements.plist` —
-  metadata for `FIT Services.app`. Identifier `com.forwardimpact.services`,
+- `services/macos/Info.plist` and `services/macos/entitlements.plist` — metadata
+  for `FIT Services.app`. Identifier `com.forwardimpact.services`,
   `CFBundleExecutable=fit-service-graph`.
 - `libraries/macos/Info.plist` and `libraries/macos/entitlements.plist` —
-  metadata for `FIT Utilities.app`. Identifier
-  `com.forwardimpact.utilities`, `CFBundleExecutable=fit-codegen`.
+  metadata for `FIT Utilities.app`. Identifier `com.forwardimpact.utilities`,
+  `CFBundleExecutable=fit-codegen`.
 
 ### Service compile targets
 
-Each `services/<name>/package.json` needs a `bin` entry or the equivalent
-so `build-binary <name>` finds an entry point that compiles to
+Each `services/<name>/package.json` needs a `bin` entry or the equivalent so
+`build-binary <name>` finds an entry point that compiles to
 `fit-service-<name>`. Add per-service `bin` fields during Step 1b
 implementation.
 
 ### Recipe placement
 
-Add the binary and bundle recipes under a new `# ── Bundles` section after
-the existing `# ── CLI` section of the root justfile.
+Add the binary and bundle recipes under a new `# ── Bundles` section after the
+existing `# ── CLI` section of the root justfile.
 
 ### Files
 
-| File                                              | Action                                         |
-| ------------------------------------------------- | ---------------------------------------------- |
-| `justfile`                                        | Modified — add binary and bundle recipes       |
-| `products/guide/macos/Info.plist`                 | Created                                        |
-| `products/guide/macos/entitlements.plist`         | Created                                        |
-| `products/landmark/macos/Info.plist`              | Created                                        |
-| `products/landmark/macos/entitlements.plist`      | Created                                        |
-| `products/map/macos/Info.plist`                   | Created                                        |
-| `products/map/macos/entitlements.plist`           | Created                                        |
-| `products/pathway/macos/Info.plist`               | Created                                        |
-| `products/pathway/macos/entitlements.plist`       | Created                                        |
-| `products/summit/macos/Info.plist`                | Created                                        |
-| `products/summit/macos/entitlements.plist`        | Created                                        |
-| `services/macos/Info.plist`                       | Created                                        |
-| `services/macos/entitlements.plist`               | Created                                        |
-| `libraries/macos/Info.plist`                      | Created                                        |
-| `libraries/macos/entitlements.plist`              | Created                                        |
-| `services/*/package.json`                         | Modified — add `bin` fields for compile target |
+| File                                         | Action                                         |
+| -------------------------------------------- | ---------------------------------------------- |
+| `justfile`                                   | Modified — add binary and bundle recipes       |
+| `products/guide/macos/Info.plist`            | Created                                        |
+| `products/guide/macos/entitlements.plist`    | Created                                        |
+| `products/landmark/macos/Info.plist`         | Created                                        |
+| `products/landmark/macos/entitlements.plist` | Created                                        |
+| `products/map/macos/Info.plist`              | Created                                        |
+| `products/map/macos/entitlements.plist`      | Created                                        |
+| `products/pathway/macos/Info.plist`          | Created                                        |
+| `products/pathway/macos/entitlements.plist`  | Created                                        |
+| `products/summit/macos/Info.plist`           | Created                                        |
+| `products/summit/macos/entitlements.plist`   | Created                                        |
+| `services/macos/Info.plist`                  | Created                                        |
+| `services/macos/entitlements.plist`          | Created                                        |
+| `libraries/macos/Info.plist`                 | Created                                        |
+| `libraries/macos/entitlements.plist`         | Created                                        |
+| `services/*/package.json`                    | Modified — add `bin` fields for compile target |
 
 ### Verification
 
@@ -384,17 +375,17 @@ Create `.github/workflows/publish-brew.yml` triggered by release tags.
 
 ### Key design decisions
 
-**Single-bundle build per tag.** The workflow extracts the bundle name from
-the tag and builds only that bundle. Tag shapes:
+**Single-bundle build per tag.** The workflow extracts the bundle name from the
+tag and builds only that bundle. Tag shapes:
 
 - `<product>@v*` (e.g. `pathway@v0.25.32`) — builds `fit-<product>.app` via
   `just build-app-product <product>`.
 - `services@v*` — builds `FIT Services.app` via `just build-app-services`.
 - `utilities@v*` — builds `FIT Utilities.app` via `just build-app-utilities`.
 
-This matches `publish-npm.yml`'s per-package tag semantics — a tag releases
-one artifact, not the full set. Building everything per tag would pollute
-each release with unrelated assets and waste expensive macOS runner minutes.
+This matches `publish-npm.yml`'s per-package tag semantics — a tag releases one
+artifact, not the full set. Building everything per tag would pollute each
+release with unrelated assets and waste expensive macOS runner minutes.
 
 **Codegen chain.** The bootstrap action runs `./scripts/bootstrap.sh` which
 calls `just install` → `install-bun` → `fit-codegen --all`. This ensures
@@ -591,16 +582,15 @@ jobs:
 
 ### Cask update approach
 
-The workflow updates only `version` and `sha256` lines in place via `sed
--i`. It does **not** regenerate the full cask body. Rationale: the eight
-casks (six product + `fit-services` + `fit-utilities`) differ from each
-other in ways the release workflow shouldn't re-derive every tag — product
-casks declare a `depends_on cask:` list pointing at the shared-bundle
-casks, and the two shared casks enumerate many `binary` stanza lines (one
-per Mach-O they expose). Those structural pieces live in the tap repo
-(seeded by Step 3) and are edited there by humans when the bundle contents
-change. The release workflow's responsibility is narrow: bump the version
-string and hash when a new `.app.zip` ships.
+The workflow updates only `version` and `sha256` lines in place via `sed -i`. It
+does **not** regenerate the full cask body. Rationale: the eight casks (six
+product + `fit-services` + `fit-utilities`) differ from each other in ways the
+release workflow shouldn't re-derive every tag — product casks declare a
+`depends_on cask:` list pointing at the shared-bundle casks, and the two shared
+casks enumerate many `binary` stanza lines (one per Mach-O they expose). Those
+structural pieces live in the tap repo (seeded by Step 3) and are edited there
+by humans when the bundle contents change. The release workflow's responsibility
+is narrow: bump the version string and hash when a new `.app.zip` ships.
 
 ### Livecheck strategy
 
@@ -646,36 +636,35 @@ scope and rotation cadence.
 
 - Push a test tag (e.g. `pathway@v0.0.0-test.1`) and verify:
   1. Single bundle (`fit-pathway.app`) built, no other bundles touched.
-  2. Release created with asset name `fit-pathway-0.0.0-test.1-darwin-arm64.zip`.
+  2. Release created with asset name
+     `fit-pathway-0.0.0-test.1-darwin-arm64.zip`.
   3. `codesign --verify --deep --strict` passes in CI log.
   4. `--help` smoke test exits 0.
   5. Tap PR opens and updates only `version` and `sha256` lines in
-     `Casks/fit-pathway.rb`; `depends_on cask:`, `binary`, and
-     `livecheck` stanzas are preserved unchanged.
-- Repeat with `services@v0.0.0-test.1` and `utilities@v0.0.0-test.1` to
-  cover the shared-bundle paths.
+     `Casks/fit-pathway.rb`; `depends_on cask:`, `binary`, and `livecheck`
+     stanzas are preserved unchanged.
+- Repeat with `services@v0.0.0-test.1` and `utilities@v0.0.0-test.1` to cover
+  the shared-bundle paths.
 - Delete test tags and releases after verification.
 
 ## Step 2b — Verify basecamp's TCC responsibility chain
 
-Before shipping any real `basecamp@v*` tag through the new workflow,
-confirm the shared `libmacos/scripts/build-app.sh` produces a
-`fit-basecamp.app` bundle that still inherits Calendar and Contacts
-grants from macOS TCC.
+Before shipping any real `basecamp@v*` tag through the new workflow, confirm the
+shared `libmacos/scripts/build-app.sh` produces a `fit-basecamp.app` bundle that
+still inherits Calendar and Contacts grants from macOS TCC.
 
 ### Actions
 
 - Build `fit-basecamp.app` via `just build-app-product basecamp`.
-- On a macOS 14+ machine that has already granted Basecamp Calendar and
-  Contacts access via a previous `.pkg` install: fully uninstall the
-  `.pkg`-installed Basecamp, install the newly-built `.app` via the
-  local Homebrew cask from a clone of the tap
-  (`brew install --cask ./Casks/fit-basecamp.rb`). Launch the app,
-  trigger a calendar sync via the scheduler, verify no TCC prompt
-  appears and the sync succeeds.
+- On a macOS 14+ machine that has already granted Basecamp Calendar and Contacts
+  access via a previous `.pkg` install: fully uninstall the `.pkg`-installed
+  Basecamp, install the newly-built `.app` via the local Homebrew cask from a
+  clone of the tap (`brew install --cask ./Casks/fit-basecamp.rb`). Launch the
+  app, trigger a calendar sync via the scheduler, verify no TCC prompt appears
+  and the sync succeeds.
 - Repeat after bumping basecamp's patch version in `package.json` and
-  rebuilding + reinstalling: no re-prompt is expected because the
-  bundle identifier is stable.
+  rebuilding + reinstalling: no re-prompt is expected because the bundle
+  identifier is stable.
 
 ### Verification
 
@@ -691,10 +680,9 @@ Record the test outcome in the implementation PR's description.
 
 ### Agent & parallelism
 
-**Agent:** staff-engineer + human tester.
-**Parallelism:** Runs before the first `basecamp@v*` tag is pushed
-through the new workflow. Blocks that tag; does not block Step 3 or
-Step 4.
+**Agent:** staff-engineer + human tester. **Parallelism:** Runs before the first
+`basecamp@v*` tag is pushed through the new workflow. Blocks that tag; does not
+block Step 3 or Step 4.
 
 ## Step 3 — Bootstrap Homebrew tap repository
 
@@ -721,8 +709,8 @@ forwardimpact/homebrew-tap/
 
 ### Initial cask content — product cask template
 
-Each product cask installs a `.app` bundle, symlinks its CLI onto PATH,
-and declares `depends_on cask:` on the two shared-bundle casks:
+Each product cask installs a `.app` bundle, symlinks its CLI onto PATH, and
+declares `depends_on cask:` on the two shared-bundle casks:
 
 ```ruby
 cask "fit-pathway" do
@@ -755,9 +743,9 @@ end
 
 ### Initial cask content — shared bundle cask template
 
-`fit-services.rb` and `fit-utilities.rb` install their respective shared
-bundles and enumerate every Mach-O inside `Contents/MacOS/` as a separate
-`binary` stanza so all exposed CLIs land on PATH:
+`fit-services.rb` and `fit-utilities.rb` install their respective shared bundles
+and enumerate every Mach-O inside `Contents/MacOS/` as a separate `binary`
+stanza so all exposed CLIs land on PATH:
 
 ```ruby
 cask "fit-utilities" do
@@ -807,15 +795,15 @@ cask "fit-utilities" do
 end
 ```
 
-`fit-services.rb` follows the same shape with five `binary` stanzas for the
-gRPC servers (`fit-service-{graph,mcp,pathway,trace,vector}`).
+`fit-services.rb` follows the same shape with five `binary` stanzas for the gRPC
+servers (`fit-service-{graph,mcp,pathway,trace,vector}`).
 
-Each product cask gets a tailored `desc` matching the product tagline from
-its Overview page. The all-zero `sha256` placeholder is safe — no release
-asset exists at `v0.0.0`, so `brew install` would fail with a download
-error, not an integrity bypass. The placeholder's quoted-string form
-matches the shape Step 2's `sed -i` cask-update edits on first release,
-so the initial `version` / `sha256` bump is mechanical.
+Each product cask gets a tailored `desc` matching the product tagline from its
+Overview page. The all-zero `sha256` placeholder is safe — no release asset
+exists at `v0.0.0`, so `brew install` would fail with a download error, not an
+integrity bypass. The placeholder's quoted-string form matches the shape Step
+2's `sed -i` cask-update edits on first release, so the initial `version` /
+`sha256` bump is mechanical.
 
 ### README.md content
 
@@ -840,9 +828,9 @@ brew info forwardimpact/tap/fit-pathway
 
 ## Step 4 — Product overview documentation
 
-Add a brew install section to each of the six product Overview pages and to
-the codegen internals page. Each page gets a "Getting Started" section
-update showing both npm and brew paths.
+Add a brew install section to each of the six product Overview pages and to the
+codegen internals page. Each page gets a "Getting Started" section update
+showing both npm and brew paths.
 
 ### Pattern
 
@@ -881,19 +869,18 @@ brew install --cask forwardimpact/tap/fit-pathway
 fit-pathway dev
 ```
 
-Installing any product cask automatically pulls in the shared
-`fit-services` and `fit-utilities` casks via `depends_on`. The
-`fit-pathway.app` bundle lands in `/Applications/Forward Impact/` and
-the `fit-pathway` CLI is symlinked onto `PATH`.
+Installing any product cask automatically pulls in the shared `fit-services` and
+`fit-utilities` casks via `depends_on`. The `fit-pathway.app` bundle lands in
+`/Applications/Forward Impact/` and the `fit-pathway` CLI is symlinked onto
+`PATH`.
 
-> **Unsigned bundle.** This bundle is ad-hoc signed but not yet Developer
-> ID signed or notarized. macOS will show a Gatekeeper warning on first
-> launch for each newly-installed bundle (the product bundle plus the
-> two shared bundles). To allow them: open **System Settings → Privacy
-> & Security → Open Anyway**. Once approved, TCC permission grants and
-> Gatekeeper approvals persist across `brew upgrade` — you won't be
-> re-prompted. A follow-up release will add Developer ID signing to
-> skip the Gatekeeper step entirely.
+> **Unsigned bundle.** This bundle is ad-hoc signed but not yet Developer ID
+> signed or notarized. macOS will show a Gatekeeper warning on first launch for
+> each newly-installed bundle (the product bundle plus the two shared bundles).
+> To allow them: open **System Settings → Privacy & Security → Open Anyway**.
+> Once approved, TCC permission grants and Gatekeeper approvals persist across
+> `brew upgrade` — you won't be re-prompted. A follow-up release will add
+> Developer ID signing to skip the Gatekeeper step entirely.
 
 ````
 
@@ -912,8 +899,8 @@ fit-guide init
 ````
 
 Generated gRPC clients are bundled into the brew binary — no `fit-codegen` step
-needed. The gRPC service bundles (graph, mcp, pathway, trace, vector)
-install via the `fit-services` shared cask pulled in by `depends_on`.
+needed. The gRPC service bundles (graph, mcp, pathway, trace, vector) install
+via the `fit-services` shared cask pulled in by `depends_on`.
 
 ````
 
@@ -936,8 +923,8 @@ brew install --cask forwardimpact/tap/fit-utilities
 fit-codegen --all
 ````
 
-Installing any product cask (e.g. `fit-guide`) also installs
-`fit-utilities` automatically via `depends_on`.
+Installing any product cask (e.g. `fit-guide`) also installs `fit-utilities`
+automatically via `depends_on`.
 
 ```
 
