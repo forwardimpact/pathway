@@ -45,8 +45,9 @@ teammates' summaries). Then read every file in `wiki/`:
 - `wiki/MEMORY.md`
 - `wiki/Home.md`
 
-> **`.claude/**`writes:** If this run edits files under`.claude/agents/`or`.claude/skills/`,
-> follow [self-maintenance.md](../../agents/references/self-maintenance.md).
+> **Writing under `.claude/`:** If this run edits files under `.claude/agents/`
+> or `.claude/skills/`, follow
+> [self-maintenance.md](../../agents/references/self-maintenance.md).
 
 ### Step 1: Summary accuracy
 

@@ -70,8 +70,8 @@ Each run covers **one topic** in depth.
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Find last review dates per topic in the coverage map.
 
-> **`.claude/**`writes:** If this run edits files under`.claude/skills/`, follow
-> [self-maintenance.md](../../agents/references/self-maintenance.md).
+> **Writing under `.claude/`:** If this run edits files under `.claude/skills/`,
+> follow [self-maintenance.md](../../agents/references/self-maintenance.md).
 
 ### Topic selection
 
