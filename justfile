@@ -240,8 +240,9 @@ env-github:
     bun scripts/env-github.js
 
 # Reset config files from examples
+# config/config.example.json was removed in spec 580 (commit a353a4ab); cp removed accordingly.
+# Agent example loop is guarded and safe if config/agents/ is absent.
 config-reset:
-    cp config/config.example.json config/config.json
     #!/usr/bin/env bash
     for file in config/agents/*.agent.example.md; do [ -f "$file" ] && cp -f "$file" "${file%.example.md}.md" || true; done
 
