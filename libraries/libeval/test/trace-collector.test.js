@@ -220,11 +220,15 @@ describe("TraceCollector", () => {
 
       const trace = collector.toJSON();
       assert.strictEqual(trace.metadata.sessionId, "sess-supervised");
-      assert.strictEqual(trace.turns.length, 2);
-      assert.strictEqual(trace.turns[0].role, "assistant");
-      assert.strictEqual(trace.turns[0].content[0].text, "I ran the tests.");
-      assert.strictEqual(trace.turns[1].role, "tool_result");
-      assert.strictEqual(trace.turns[1].content, "All tests passed");
+      // init now always produces a system turn → assistant + tool_result + system = 3
+      assert.strictEqual(trace.turns.length, 3);
+      assert.strictEqual(trace.turns[0].role, "system");
+      assert.strictEqual(trace.turns[0].subtype, "init");
+      assert.strictEqual(trace.turns[0].source, "agent");
+      assert.strictEqual(trace.turns[1].role, "assistant");
+      assert.strictEqual(trace.turns[1].content[0].text, "I ran the tests.");
+      assert.strictEqual(trace.turns[2].role, "tool_result");
+      assert.strictEqual(trace.turns[2].content, "All tests passed");
       assert.strictEqual(trace.summary.result, "success");
       assert.strictEqual(trace.summary.totalCostUsd, 0.44);
     });
@@ -312,12 +316,13 @@ describe("TraceCollector", () => {
       const collector = collectFixture();
       const trace = collector.toJSON();
 
-      assert.strictEqual(trace.version, "1.0.0");
+      assert.strictEqual(trace.version, "1.1.0");
       assert.strictEqual(trace.metadata.sessionId, "abc-123");
       assert.strictEqual(trace.metadata.model, "claude-opus-4-6");
       assert.strictEqual(trace.metadata.claudeCodeVersion, "2.1.87");
       assert.strictEqual(trace.metadata.tools.length, 6);
       assert.ok(trace.turns.length > 0);
+      assert.ok(trace.initEvent);
       assert.strictEqual(trace.summary.result, "success");
       assert.strictEqual(trace.summary.totalCostUsd, 0.0523);
       assert.strictEqual(trace.summary.numTurns, 3);
@@ -336,8 +341,9 @@ describe("TraceCollector", () => {
       const collector = new TraceCollector();
       const trace = collector.toJSON();
 
-      assert.strictEqual(trace.version, "1.0.0");
+      assert.strictEqual(trace.version, "1.1.0");
       assert.strictEqual(trace.metadata.sessionId, null);
+      assert.strictEqual(trace.initEvent, null);
       assert.strictEqual(trace.turns.length, 0);
       assert.strictEqual(trace.summary.result, "unknown");
     });

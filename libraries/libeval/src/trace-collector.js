@@ -37,6 +37,8 @@ export class TraceCollector {
     this.result = null;
     /** @type {number} */
     this.turnIndex = 0;
+    /** @type {object|null} */
+    this.initEvent = null;
   }
 
   /**
@@ -73,7 +75,7 @@ export class TraceCollector {
 
     switch (event.type) {
       case "system":
-        this.handleSystem(event);
+        this.handleSystem(event, source);
         break;
       case "assistant":
         this.handleAssistant(event, source);
@@ -91,8 +93,11 @@ export class TraceCollector {
 
   /**
    * @param {object} event
+   * @param {string|null} source
    */
-  handleSystem(event) {
+  handleSystem(event, source) {
+    const { type: _type, ...payload } = event;
+
     if (event.subtype === "init") {
       this.metadata = {
         timestamp: event.timestamp ?? this.now(),
@@ -102,7 +107,16 @@ export class TraceCollector {
         tools: event.tools ?? [],
         permissionMode: event.permissionMode ?? null,
       };
+      this.initEvent = payload;
     }
+
+    this.turns.push({
+      index: this.turnIndex++,
+      role: "system",
+      source,
+      subtype: event.subtype ?? null,
+      data: payload,
+    });
   }
 
   /**
@@ -158,6 +172,19 @@ export class TraceCollector {
     const contentItems = message.content;
     if (!Array.isArray(contentItems)) return;
 
+    const textBlocks = contentItems
+      .filter((item) => item.type === "text")
+      .map((item) => ({ type: "text", text: item.text }));
+
+    if (textBlocks.length > 0) {
+      this.turns.push({
+        index: this.turnIndex++,
+        role: "user",
+        source,
+        content: textBlocks,
+      });
+    }
+
     for (const item of contentItems) {
       if (item.type === "tool_result") {
         this.turns.push({
@@ -204,7 +231,7 @@ export class TraceCollector {
    */
   toJSON() {
     return {
-      version: "1.0.0",
+      version: "1.1.0",
       metadata: this.metadata ?? {
         timestamp: this.now(),
         sessionId: null,
@@ -213,6 +240,7 @@ export class TraceCollector {
         tools: [],
         permissionMode: null,
       },
+      initEvent: this.initEvent ?? null,
       turns: this.turns,
       summary: this.result ?? {
         result: "unknown",
@@ -271,6 +299,27 @@ export class TraceCollector {
             withPrefix,
           }),
         );
+      } else if (turn.role === "system") {
+        const label = turn.subtype ?? "system";
+        out.push(
+          renderTextLine({
+            source: turn.source,
+            text: `[${label}]`,
+            withPrefix,
+          }),
+        );
+      } else if (turn.role === "user") {
+        for (const block of turn.content) {
+          if (block.type === "text") {
+            out.push(
+              renderTextLine({
+                source: turn.source,
+                text: `[user] ${block.text}`,
+                withPrefix,
+              }),
+            );
+          }
+        }
       }
     }
 

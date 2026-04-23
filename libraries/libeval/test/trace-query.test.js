@@ -10,7 +10,7 @@ import { TraceQuery, createTraceQuery } from "@forwardimpact/libeval";
  */
 function buildTrace(overrides = {}) {
   return {
-    version: "1.0.0",
+    version: "1.1.0",
     metadata: {
       timestamp: "2026-01-01T00:00:00Z",
       sessionId: "test-session",

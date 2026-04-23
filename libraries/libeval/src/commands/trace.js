@@ -3,6 +3,7 @@ import { join } from "node:path";
 import { createTraceCollector } from "@forwardimpact/libeval";
 import { createTraceQuery } from "../trace-query.js";
 import { createTraceGitHub } from "../trace-github.js";
+import { stripSignatures } from "../signature-filter.js";
 
 // --- GitHub commands ---
 
@@ -20,7 +21,7 @@ export async function runRunsCommand(values, args, ctx) {
   const pattern = args[0] ?? "agent";
   const lookback = values.lookback ?? "7d";
   const runs = await gh.listRuns({ pattern, lookback });
-  writeJSON(runs);
+  writeJSON(runs, values);
 }
 
 /**
@@ -51,14 +52,14 @@ export async function runDownloadCommand(values, args, ctx) {
     result.files.push("structured.json");
   }
 
-  writeJSON(result);
+  writeJSON(result, values);
 }
 
 // --- Query commands ---
 
 /** @param {object} values @param {string[]} args - [file] */
 export async function runOverviewCommand(values, args) {
-  writeJSON(loadTrace(args[0]).overview());
+  writeJSON(loadTrace(args[0]).overview(), values);
 }
 
 /** @param {object} values @param {string[]} args - [file] */
@@ -70,48 +71,53 @@ export async function runCountCommand(values, args) {
 export async function runBatchCommand(values, args) {
   writeJSON(
     loadTrace(args[0]).batch(parseInt(args[1], 10), parseInt(args[2], 10)),
+    values,
   );
 }
 
 /** @param {object} values @param {string[]} args - [file, N?] */
 export async function runHeadCommand(values, args) {
   const n = args[1] ? parseInt(args[1], 10) : 10;
-  writeJSON(loadTrace(args[0]).head(n));
+  writeJSON(loadTrace(args[0]).head(n), values);
 }
 
 /** @param {object} values @param {string[]} args - [file, N?] */
 export async function runTailCommand(values, args) {
   const n = args[1] ? parseInt(args[1], 10) : 10;
-  writeJSON(loadTrace(args[0]).tail(n));
+  writeJSON(loadTrace(args[0]).tail(n), values);
 }
 
 /** @param {object} values @param {string[]} args - [file, pattern] */
 export async function runSearchCommand(values, args) {
   const limit = values.limit ? parseInt(values.limit, 10) : 50;
   const context = values.context ? parseInt(values.context, 10) : 0;
-  writeJSON(loadTrace(args[0]).search(args[1], { limit, context }));
+  const full = values.full ?? false;
+  writeJSON(
+    loadTrace(args[0]).search(args[1], { limit, context, full }),
+    values,
+  );
 }
 
 /** @param {object} values @param {string[]} args - [file] */
 export async function runToolsCommand(values, args) {
-  writeJSON(loadTrace(args[0]).toolFrequency());
+  writeJSON(loadTrace(args[0]).toolFrequency(), values);
 }
 
 /** @param {object} values @param {string[]} args - [file, name] */
 export async function runToolCommand(values, args) {
-  writeJSON(loadTrace(args[0]).tool(args[1]));
+  writeJSON(loadTrace(args[0]).tool(args[1]), values);
 }
 
 /** @param {object} values @param {string[]} args - [file] */
 export async function runErrorsCommand(values, args) {
-  writeJSON(loadTrace(args[0]).errors());
+  writeJSON(loadTrace(args[0]).errors(), values);
 }
 
 /** @param {object} values @param {string[]} args - [file] */
 export async function runReasoningCommand(values, args) {
   const from = values.from ? parseInt(values.from, 10) : undefined;
   const to = values.to ? parseInt(values.to, 10) : undefined;
-  writeJSON(loadTrace(args[0]).reasoning({ from, to }));
+  writeJSON(loadTrace(args[0]).reasoning({ from, to }), values);
 }
 
 /** @param {object} values @param {string[]} args - [file] */
@@ -122,7 +128,26 @@ export async function runTimelineCommand(values, args) {
 
 /** @param {object} values @param {string[]} args - [file] */
 export async function runStatsCommand(values, args) {
-  writeJSON(loadTrace(args[0]).stats());
+  writeJSON(loadTrace(args[0]).stats(), values);
+}
+
+/** @param {object} values @param {string[]} args - [file] */
+export async function runInitCommand(values, args) {
+  writeJSON(loadTrace(args[0]).init(), values);
+}
+
+/** @param {object} values @param {string[]} args - [file, index] */
+export async function runTurnCommand(values, args) {
+  writeJSON(loadTrace(args[0]).turn(parseInt(args[1], 10)), values);
+}
+
+/** @param {object} values @param {string[]} args - [file] */
+export async function runFilterCommand(values, args) {
+  const opts = {};
+  if (values.role) opts.role = values.role;
+  if (values.tool) opts.toolName = values.tool;
+  if (values.error) opts.isError = true;
+  writeJSON(loadTrace(args[0]).filter(opts), values);
 }
 
 // --- Shared helpers ---
@@ -151,7 +176,14 @@ function loadTrace(file) {
   return createTraceQuery(collector.toJSON());
 }
 
-/** @param {object} data */
-function writeJSON(data) {
-  process.stdout.write(JSON.stringify(data, null, 2) + "\n");
+/**
+ * Write JSON output to stdout. By default strips `thinking.signature`
+ * base64 blobs from the payload so they don't dominate terminal output;
+ * pass `--signatures` (surfaced as `values.signatures`) to keep them.
+ * @param {*} data
+ * @param {object} [values]
+ */
+function writeJSON(data, values = {}) {
+  const output = values.signatures ? data : stripSignatures(data);
+  process.stdout.write(JSON.stringify(output, null, 2) + "\n");
 }

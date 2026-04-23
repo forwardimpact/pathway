@@ -1,5 +1,6 @@
 export { TraceCollector, createTraceCollector } from "./trace-collector.js";
 export { TraceQuery, createTraceQuery } from "./trace-query.js";
+export { stripSignatures } from "./signature-filter.js";
 export {
   TraceGitHub,
   createTraceGitHub,

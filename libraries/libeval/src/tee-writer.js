@@ -163,6 +163,27 @@ export class TeeWriter extends Writable {
             withPrefix,
           }),
         );
+      } else if (turn.role === "system") {
+        const label = turn.subtype ?? "system";
+        this.textStream.write(
+          renderTextLine({
+            source: turn.source,
+            text: `[${label}]`,
+            withPrefix,
+          }),
+        );
+      } else if (turn.role === "user") {
+        for (const block of turn.content) {
+          if (block.type === "text") {
+            this.textStream.write(
+              renderTextLine({
+                source: turn.source,
+                text: `[user] ${block.text}`,
+                withPrefix,
+              }),
+            );
+          }
+        }
       }
     }
   }
