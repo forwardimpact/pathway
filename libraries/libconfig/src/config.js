@@ -20,6 +20,7 @@ export class Config {
   // so shell-exported credentials still work; .env is the fallback.
   static #CREDENTIAL_KEYS = new Set([
     "ANTHROPIC_API_KEY",
+    "GH_TOKEN",
     "GITHUB_TOKEN",
     "LLM_TOKEN",
     "MCP_TOKEN",
@@ -112,9 +113,14 @@ export class Config {
     Object.assign(this, data);
   }
 
-  /** @returns {string} GitHub token */
+  /** @returns {string} GitHub token (GITHUB_TOKEN, or GH_TOKEN as fallback) */
   ghToken() {
-    return this.#resolve("GITHUB_TOKEN");
+    if (this.#cache.has("GITHUB_TOKEN")) return this.#cache.get("GITHUB_TOKEN");
+    const value = this.#env("GITHUB_TOKEN") ?? this.#env("GH_TOKEN");
+    if (!value) throw new Error("GITHUB_TOKEN not found in environment");
+    const trimmed = value.trim();
+    this.#cache.set("GITHUB_TOKEN", trimmed);
+    return trimmed;
   }
 
   /** @returns {Promise<string>} LLM API token (async for caller compatibility) */

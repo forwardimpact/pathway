@@ -118,6 +118,38 @@ describe("libconfig - Config getters", () => {
     assert.strictEqual(config.ghToken(), "gh-token-xyz");
   });
 
+  test("ghToken falls back to GH_TOKEN when GITHUB_TOKEN is unset", async () => {
+    const mockProcess = {
+      cwd: mock.fn(() => "/test/dir"),
+      env: { GH_TOKEN: "gh-cli-token" },
+    };
+
+    const config = await createConfig(
+      "test",
+      "myservice",
+      {},
+      mockProcess,
+      mockStorageFn,
+    );
+    assert.strictEqual(config.ghToken(), "gh-cli-token");
+  });
+
+  test("ghToken prefers GITHUB_TOKEN when both are set", async () => {
+    const mockProcess = {
+      cwd: mock.fn(() => "/test/dir"),
+      env: { GITHUB_TOKEN: "github-token", GH_TOKEN: "gh-token" },
+    };
+
+    const config = await createConfig(
+      "test",
+      "myservice",
+      {},
+      mockProcess,
+      mockStorageFn,
+    );
+    assert.strictEqual(config.ghToken(), "github-token");
+  });
+
   test("llmToken throws when not set in environment", async () => {
     const mockProcess = {
       cwd: mock.fn(() => "/test/dir"),

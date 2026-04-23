@@ -64,6 +64,16 @@ describe("libconfig - .env file loading", () => {
     assert.strictEqual(config.ghToken(), "env-value");
   });
 
+  test("GH_TOKEN from .env file is treated as a credential", async () => {
+    writeEnvFile("GH_TOKEN=gh-cli-value\n");
+
+    const proc = createProcess();
+    const config = await createConfig("test", "svc", {}, proc, mockStorageFn);
+
+    assert.strictEqual(config.ghToken(), "gh-cli-value");
+    assert.strictEqual(proc.env.GH_TOKEN, undefined);
+  });
+
   test("loads non-allowed keys into process.env", async () => {
     writeEnvFile(
       "SERVICE_SECRET=my-secret\nSERVICE_MCP_URL=http://localhost:3005\nGITHUB_TOKEN=allowed\n",
