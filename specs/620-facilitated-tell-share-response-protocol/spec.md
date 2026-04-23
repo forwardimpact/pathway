@@ -210,8 +210,8 @@ Replace the current messaging primitives with a pair that encodes the contract:
   relay.
 - **`Announce(message)`** — no-reply broadcast (the legitimate use of today's
   `Share`). Clearly distinguished from `Ask`.
-- `Redirect`, `Conclude`, `RollCall` retain their current names and semantics
-  in both modes.
+- `Redirect`, `Conclude`, `RollCall` retain their current names and semantics in
+  both modes.
 
 The vocabulary is shared between supervision and facilitation. Supervision is
 1:1 with a single pending-ask slot; facilitation is 1:N with one slot per
@@ -221,19 +221,18 @@ addressed participant.
 
 The orchestrator (facilitator or supervisor) tracks outstanding asks per
 addressee and refuses to finalise an agent's turn while that agent has an
-unanswered ask. Recovery is bounded: exactly one nudge to answer, and if the
-ask is still outstanding after that, the orchestrator emits a
-`protocol_violation` trace event and allows the turn to complete so the
-session can advance (the facilitator sees a null response and may Redirect
-or Conclude).
+unanswered ask. Recovery is bounded: exactly one nudge to answer, and if the ask
+is still outstanding after that, the orchestrator emits a `protocol_violation`
+trace event and allows the turn to complete so the session can advance (the
+facilitator sees a null response and may Redirect or Conclude).
 
-Keeping the session live and keeping the violation visible are orthogonal —
-both are required. Silent deadlock becomes structurally impossible, and the
-violation becomes a first-class trace fact rather than an inference. The
-specific data structures, call sites, and nudge mechanism are design
-decisions; see design.md.
+Keeping the session live and keeping the violation visible are orthogonal — both
+are required. Silent deadlock becomes structurally impossible, and the violation
+becomes a first-class trace fact rather than an inference. The specific data
+structures, call sites, and nudge mechanism are design decisions; see design.md.
 
 ### Participant-side coaching framing reaches participants via a generic,
+
 consumer-controlled pass-through
 
 Libeval stays domain-agnostic: its system prompts describe only the
@@ -241,10 +240,10 @@ Ask/Answer/Announce contract in generic language and name no specific skill,
 kata concept, or domain vocabulary. Coaching framing (mode, target, protocol
 pointer, participant-side summary) travels from the workflow into the
 facilitator's context, and the facilitator propagates it to each participant
-through a generic pass-through field on libeval's participant config.
-Delivery via the coach's first `Ask` is rejected: it uses the very protocol
-that's being bootstrapped. The specific field name, concatenation order,
-and CLI-to-config mapping are design decisions; see design.md.
+through a generic pass-through field on libeval's participant config. Delivery
+via the coach's first `Ask` is rejected: it uses the very protocol that's being
+bootstrapped. The specific field name, concatenation order, and CLI-to-config
+mapping are design decisions; see design.md.
 
 ### Skill restructure: `kata-storyboard` → `kata-session`
 
@@ -267,13 +266,13 @@ workflows, prior spec designs that are live history) update to `kata-session`.
 ### Rewritten task-text for `kata-coaching.yml`
 
 The coaching workflow's `task-text` primes the facilitator with the coaching
-framing libeval's generic prompts deliberately omit — mode, target
-participant, pointer to `kata-session`, and the participant-side summary the
-coach will propagate. It must not prescribe Q1 content, must not assign
-participant-side work, must not name participant tools, and must not carry
-enforcement phrasing. Because libeval is now generic, domain framing is
-expected to live here; the task-text is not reduced to a single sentence and
-its shape need not match `kata-storyboard.yml`.
+framing libeval's generic prompts deliberately omit — mode, target participant,
+pointer to `kata-session`, and the participant-side summary the coach will
+propagate. It must not prescribe Q1 content, must not assign participant-side
+work, must not name participant tools, and must not carry enforcement phrasing.
+Because libeval is now generic, domain framing is expected to live here; the
+task-text is not reduced to a single sentence and its shape need not match
+`kata-storyboard.yml`.
 
 ### Structured protocol-violation invariants
 
@@ -286,52 +285,49 @@ evidence function is shared.
 
 ### Included
 
-- `libraries/libeval/src/orchestration-toolkit.js` — the tool surface for
-  both facilitator and supervisor modes switches to `Ask` / `Answer` /
-  `Announce`. `Tell`, `Share`, and the participant-side blocking `Ask`
-  are removed with no aliases or compatibility shims.
+- `libraries/libeval/src/orchestration-toolkit.js` — the tool surface for both
+  facilitator and supervisor modes switches to `Ask` / `Answer` / `Announce`.
+  `Tell`, `Share`, and the participant-side blocking `Ask` are removed with no
+  aliases or compatibility shims.
 - `libraries/libeval/src/facilitator.js` and
-  `libraries/libeval/src/supervisor.js` — both orchestrators gain
-  pending-ask tracking and a turn-complete guard with bounded single
-  recovery and `protocol_violation` trace emission (observable properties
-  asserted by SC 2 and SC 3). `FACILITATOR_SYSTEM_PROMPT`,
-  `FACILITATED_AGENT_SYSTEM_PROMPT`, `SUPERVISOR_SYSTEM_PROMPT`, and
-  `AGENT_SYSTEM_PROMPT` are rewritten to match the new vocabulary in
-  generic, domain-agnostic language — no skill names, no kata concepts, no
-  domain vocabulary. The `Facilitator` participant config exposes a
-  generic `systemPromptAmend: string?` pass-through so consumers can
+  `libraries/libeval/src/supervisor.js` — both orchestrators gain pending-ask
+  tracking and a turn-complete guard with bounded single recovery and
+  `protocol_violation` trace emission (observable properties asserted by SC 2
+  and SC 3). `FACILITATOR_SYSTEM_PROMPT`, `FACILITATED_AGENT_SYSTEM_PROMPT`,
+  `SUPERVISOR_SYSTEM_PROMPT`, and `AGENT_SYSTEM_PROMPT` are rewritten to match
+  the new vocabulary in generic, domain-agnostic language — no skill names, no
+  kata concepts, no domain vocabulary. The `Facilitator` participant config
+  exposes a generic `systemPromptAmend: string?` pass-through so consumers can
   supply participant framing; libeval treats its content as opaque. The
   `taskAmend` concatenation currently performed by
-  `libraries/libeval/src/commands/*` is exposed in the same shape as a
-  public config field on `Facilitator`, `Supervisor`, and `AgentRunner`,
-  with the CLI flag driving that field. `taskAmend` (task-content level)
-  and `systemPromptAmend` (system-prompt level) share one naming family.
+  `libraries/libeval/src/commands/*` is exposed in the same shape as a public
+  config field on `Facilitator`, `Supervisor`, and `AgentRunner`, with the CLI
+  flag driving that field. `taskAmend` (task-content level) and
+  `systemPromptAmend` (system-prompt level) share one naming family.
 - `libraries/libeval/src/message-bus.js` — bus API updated to the new
-  vocabulary; existing `tell` / `share` methods are removed in favour of
-  `ask` / `answer` / `announce` counterparts. Message-tag shape is a
-  design decision.
-- `libraries/libeval/src/index.js` — public exports reflect the new
-  vocabulary and the new config fields.
-- `libraries/libeval/test/**` — test coverage updated and extended for the
-  new primitives, pending-ask transitions, turn-complete guard,
-  `protocol_violation` event emission, and the `taskAmend` /
-  `systemPromptAmend` pass-throughs. File-level test decomposition is a
-  plan decision.
+  vocabulary; existing `tell` / `share` methods are removed in favour of `ask` /
+  `answer` / `announce` counterparts. Message-tag shape is a design decision.
+- `libraries/libeval/src/index.js` — public exports reflect the new vocabulary
+  and the new config fields.
+- `libraries/libeval/test/**` — test coverage updated and extended for the new
+  primitives, pending-ask transitions, turn-complete guard, `protocol_violation`
+  event emission, and the `taskAmend` / `systemPromptAmend` pass-throughs.
+  File-level test decomposition is a plan decision.
 - `.claude/skills/kata-storyboard/` — renamed to `.claude/skills/kata-session/`
   with `SKILL.md` holding the mode-agnostic procedure, and
   `references/team-storyboard.md` + `references/one-on-one.md` carrying the
   mode-specific overlays. Existing `references/coaching-protocol.md`,
   `references/metrics.md`, and `references/storyboard-template.md` are
-  redistributed into the new structure. `SKILL.md` Facilitator Process gains
-  a step describing how the coach derives a participant-side summary from the
+  redistributed into the new structure. `SKILL.md` Facilitator Process gains a
+  step describing how the coach derives a participant-side summary from the
   relevant overlay and passes it as `systemPromptAmend` to libeval's
   `Facilitator` participant config.
 - `.github/workflows/kata-coaching.yml` — `task-text` rewritten to carry the
   coaching framing (mode, target participant, pointer to `kata-session`,
   participant-side summary to be passed through as `systemPromptAmend`). Does
   not prescribe Q1 content, does not assign participant-side work, does not
-  carry enforcement phrasing. Not reduced to a single sentence; shape need
-  not match `kata-storyboard.yml`.
+  carry enforcement phrasing. Not reduced to a single sentence; shape need not
+  match `kata-storyboard.yml`.
 - `.github/workflows/kata-storyboard.yml` — any skill-name references updated;
   workflow behaviour otherwise unchanged.
 - `.claude/agents/*.md` — agent profiles referencing `kata-storyboard`
@@ -375,10 +371,10 @@ evidence function is shared.
 - **Spec 490** (`plan implemented`) — facilitator-as-pure-orchestrator posture.
   This spec refines the vocabulary that spec 490 introduced; the posture itself
   is preserved.
-- **Spec 500** (`plan implemented`) — facilitated-agent identity. Unchanged;
-  the participant-side coaching-framing surface this spec selects
-  (libeval's generic `systemPromptAmend` pass-through populated by the
-  facilitator) sits alongside the identity surface, not inside it.
+- **Spec 500** (`plan implemented`) — facilitated-agent identity. Unchanged; the
+  participant-side coaching-framing surface this spec selects (libeval's generic
+  `systemPromptAmend` pass-through populated by the facilitator) sits alongside
+  the identity surface, not inside it.
 
 ## Success Criteria
 
@@ -400,26 +396,25 @@ properties compose into the intended runtime behaviour; it is not a criterion.
    `libraries/libeval/test/orchestration-toolkit.test.js` assert the map's
    transitions. Checkable by reading the tests and running them.
 
-3. **Runtime refuses silent turn-completion while an ask is pending.** In
-   both facilitated and supervised modes, the orchestrator's agent loop
-   injects exactly one synthetic reminder on first detection of a pending
-   ask at turn-end, then on a second detection emits a `protocol_violation`
-   trace event and permits the turn to complete so the session can advance.
-   Covered by a test that drives an agent which ignores the first `Ask`,
-   observes the synthetic reminder, ignores again, and verifies the
-   `protocol_violation` event appears exactly once and the session does
-   not deadlock.
+3. **Runtime refuses silent turn-completion while an ask is pending.** In both
+   facilitated and supervised modes, the orchestrator's agent loop injects
+   exactly one synthetic reminder on first detection of a pending ask at
+   turn-end, then on a second detection emits a `protocol_violation` trace event
+   and permits the turn to complete so the session can advance. Covered by a
+   test that drives an agent which ignores the first `Ask`, observes the
+   synthetic reminder, ignores again, and verifies the `protocol_violation`
+   event appears exactly once and the session does not deadlock.
 
-4. **System prompts match the new vocabulary, are descriptive not enforcing,
-   and stay domain-agnostic.** `FACILITATOR_SYSTEM_PROMPT`,
+4. **System prompts match the new vocabulary, are descriptive not enforcing, and
+   stay domain-agnostic.** `FACILITATOR_SYSTEM_PROMPT`,
    `FACILITATED_AGENT_SYSTEM_PROMPT`, `SUPERVISOR_SYSTEM_PROMPT`, and
    `AGENT_SYSTEM_PROMPT` name the `Ask` / `Answer` / `Announce` primitives in
    generic language. No prompt contains enforcing phrases (e.g. "then Share",
-   "respond via Share", "stop making tool calls") — runtime enforcement
-   replaces them. No prompt names a specific skill, a coaching/storyboard
-   domain concept, or artifact vocabulary; libeval is a generic library and
-   its prompts must stay domain-agnostic. Checkable by reading the four
-   prompt constants in `facilitator.js` and `supervisor.js`.
+   "respond via Share", "stop making tool calls") — runtime enforcement replaces
+   them. No prompt names a specific skill, a coaching/storyboard domain concept,
+   or artifact vocabulary; libeval is a generic library and its prompts must
+   stay domain-agnostic. Checkable by reading the four prompt constants in
+   `facilitator.js` and `supervisor.js`.
 
 5. **`kata-session` skill replaces `kata-storyboard` with a mode-agnostic
    procedure.** The directory `.claude/skills/kata-session/` exists with
@@ -435,33 +430,32 @@ properties compose into the intended runtime behaviour; it is not a criterion.
    that document prior work. Checkable by `grep -rn kata-storyboard`.
 
 7. **Participant-side coaching framing is delivered via a consumer-controlled
-   pass-through, not via libeval's system prompt or the coach's first
-   `Ask`.** Libeval exposes two public, consumer-controlled append surfaces
-   in a single naming family: one at task-content level (the existing
-   `--task-amend` promoted from CLI-only to the programmatic config) and one
-   at system-prompt level (new). Both accept opaque strings; libeval never
-   inspects their content. The coaching framing itself (mode, target,
-   pointer to `kata-session`, participant-side summary) originates in
+   pass-through, not via libeval's system prompt or the coach's first `Ask`.**
+   Libeval exposes two public, consumer-controlled append surfaces in a single
+   naming family: one at task-content level (the existing `--task-amend`
+   promoted from CLI-only to the programmatic config) and one at system-prompt
+   level (new). Both accept opaque strings; libeval never inspects their
+   content. The coaching framing itself (mode, target, pointer to
+   `kata-session`, participant-side summary) originates in
    `.github/workflows/kata-coaching.yml` `task-text` and is propagated to
    participants by the facilitator as derived from the `kata-session` skill.
-   Checkable by (a) a libeval test asserting that a provided
-   system-prompt-level addendum reaches the participant's system prompt
-   before the first `Ask` is delivered, and that the absence of one leaves
-   the prompt purely generic; (b) a libeval test asserting that the promoted
-   task-content-level config field produces the same concatenation semantics
-   that the CLI flag produced previously; (c) `kata-session/SKILL.md`
-   containing a Facilitator Process step that constructs and passes the
-   participant-side summary; and (d) `kata-coaching.yml` `task-text`
-   priming that step. Specific field names are a design decision.
+   Checkable by (a) a libeval test asserting that a provided system-prompt-level
+   addendum reaches the participant's system prompt before the first `Ask` is
+   delivered, and that the absence of one leaves the prompt purely generic; (b)
+   a libeval test asserting that the promoted task-content-level config field
+   produces the same concatenation semantics that the CLI flag produced
+   previously; (c) `kata-session/SKILL.md` containing a Facilitator Process step
+   that constructs and passes the participant-side summary; and (d)
+   `kata-coaching.yml` `task-text` priming that step. Specific field names are a
+   design decision.
 
-8. **Coaching workflow task-text does not over-direct the facilitator or
-   assign participant work.** `.github/workflows/kata-coaching.yml`
-   `task-text` does not prescribe Q1 content, does not assign
-   participant-side work (no "have them analyze their trace using
-   kata-trace"), does not name tools the participant should use, and does
-   not carry enforcement phrasing ("stop making tool calls", "then Share").
-   Checkable by reading the workflow. (SC 7 covers the positive content the
-   task-text carries.)
+8. **Coaching workflow task-text does not over-direct the facilitator or assign
+   participant work.** `.github/workflows/kata-coaching.yml` `task-text` does
+   not prescribe Q1 content, does not assign participant-side work (no "have
+   them analyze their trace using kata-trace"), does not name tools the
+   participant should use, and does not carry enforcement phrasing ("stop making
+   tool calls", "then Share"). Checkable by reading the workflow. (SC 7 covers
+   the positive content the task-text carries.)
 
 9. **Protocol-violation invariants are catalogued for both modes.**
    `.claude/skills/kata-trace/references/invariants.md` contains one entry per
