@@ -86,12 +86,12 @@ error if neither exists. This covers the seven CLIs without a lookup table.
 **Codegen dependency (design divergence).** The design says `build-binary`
 depends on `codegen`. This plan breaks that dependency on the individual recipe
 to avoid re-running codegen seven times in the CI matrix. Instead, `codegen`
-runs once before the matrix: the CI workflow runs it via `bootstrap` → `just
-install` → `install-bun` → `fit-codegen --all`, and the `build-binaries`
+runs once before the matrix: the CI workflow runs it via `bootstrap` →
+`just install` → `install-bun` → `fit-codegen --all`, and the `build-binaries`
 fan-out recipe depends on `codegen` for local use. Risk: a contributor running
 `just build-binary guide` without codegen gets a broken binary. This is
-acceptable — the fan-out recipe is the documented entry point, not the
-per-CLI recipe.
+acceptable — the fan-out recipe is the documented entry point, not the per-CLI
+recipe.
 
 **Size gate.** The recipe checks the binary against the design's 150 MB ceiling
 and fails if exceeded. Uses `stat -f%z` (macOS) with `stat -c%s` (Linux)
@@ -123,8 +123,8 @@ Add both recipes under a new `# ── Binaries` section after the existing
 
 ### Files
 
-| File | Action |
-| ---- | ------ |
+| File       | Action                                                     |
+| ---------- | ---------------------------------------------------------- |
 | `justfile` | Modified — add `build-binary` and `build-binaries` recipes |
 
 ### Verification
@@ -336,10 +336,10 @@ jobs:
 
 The cask is generated using a quoted heredoc (`<< 'TEMPLATE'`) piped through
 `sed`. The quoted delimiter prevents shell expansion of `#{version}` (Ruby
-interpolation that must survive literally). Shell variables (`VERSION`, `SHA256`,
-`CLI_NAME`) are injected via sed placeholders (`__VERSION__`, `__SHA256__`,
-`__CLI__`). This avoids the fragile mixing of shell `${}` and Ruby `#{}`
-expansion.
+interpolation that must survive literally). Shell variables (`VERSION`,
+`SHA256`, `CLI_NAME`) are injected via sed placeholders (`__VERSION__`,
+`__SHA256__`, `__CLI__`). This avoids the fragile mixing of shell `${}` and Ruby
+`#{}` expansion.
 
 ### Livecheck strategy
 
@@ -361,8 +361,8 @@ per-CLI regex.
 
 Resolve at implementation time from versions already in use:
 
-| Action | Current pin source |
-| ------ | ------------------ |
+| Action             | Current pin source                  |
+| ------------------ | ----------------------------------- |
 | `actions/checkout` | `publish-npm.yml`: `de0fac2e…` (v6) |
 
 No `upload-artifact`/`download-artifact` needed — the simplified 2-job workflow
@@ -371,14 +371,14 @@ uses `gh release download` instead of artifact transfer.
 ### Secret: `HOMEBREW_TAP_PAT`
 
 A GitHub Personal Access Token (classic) scoped to `repo` on
-`forwardimpact/homebrew-tap`. Must be added to the monorepo's repository
-secrets before the first release tag. Add a comment in the workflow documenting
-the scope and rotation cadence.
+`forwardimpact/homebrew-tap`. Must be added to the monorepo's repository secrets
+before the first release tag. Add a comment in the workflow documenting the
+scope and rotation cadence.
 
 ### Files
 
-| File | Action |
-| ---- | ------ |
+| File                                 | Action  |
+| ------------------------------------ | ------- |
 | `.github/workflows/publish-brew.yml` | Created |
 
 ### Verification
@@ -478,14 +478,15 @@ existing npm install block in the "Getting Started" section:
 
 **Before** (example from `website/pathway/index.md`):
 
-```md
+````md
 ## Getting Started
 
 ```sh
 npm install @forwardimpact/pathway
 npx fit-pathway dev
-```
-```
+````
+
+````
 
 **After:**
 
@@ -497,7 +498,7 @@ npx fit-pathway dev
 ```sh
 npm install @forwardimpact/pathway
 npx fit-pathway dev
-```
+````
 
 ### Install via Homebrew (macOS arm64)
 
@@ -511,7 +512,8 @@ fit-pathway dev
 > will show a Gatekeeper warning on first run. To allow it: open **System
 > Settings → Privacy & Security**, scroll to the "fit-pathway was blocked"
 > message, and click **Open Anyway**. A follow-up release will add signing.
-```
+
+````
 
 ### fit-guide special case
 
@@ -525,11 +527,12 @@ codegen → init). The brew section omits the codegen step:
 brew tap forwardimpact/tap
 brew install forwardimpact/tap/fit-guide
 fit-guide init
-```
+````
 
 Generated gRPC clients are bundled into the brew binary — no `fit-codegen` step
 needed.
-```
+
+````
 
 ### fit-codegen
 
@@ -546,7 +549,8 @@ External users on macOS can also install fit-codegen directly:
 brew tap forwardimpact/tap
 brew install forwardimpact/tap/fit-codegen
 fit-codegen --all
-```
+````
+
 ```
 
 ### Files
@@ -636,3 +640,4 @@ the release engineer.
 **Recommended:** Staff engineer implements steps 1–2 and opens the PR, creates
 the tap repo (step 3) in parallel, then signals technical writer to start step
 4. If a single agent executes all four, run steps 1 → 2 → 3 → 4 sequentially.
+```
