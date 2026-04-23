@@ -53,6 +53,7 @@
     "./activity/transform/github": "./src/activity/transform/github.js",
     "./activity/transform/getdx": "./src/activity/transform/getdx.js",
     "./activity/transform/people": "./src/activity/transform/people.js",
+    "./activity/transform/evidence": "./src/activity/transform/evidence.js",
     "./activity/transform": "./src/activity/transform/index.js"
   },
   "dependencies": {
