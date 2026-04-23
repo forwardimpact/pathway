@@ -1,12 +1,6 @@
 # Design 620 — Request–Response Primitives for libeval Orchestration
 
-## Problem (restated)
-
-The Tell→Share stall is a symptom of messaging primitives that encode no
-request-response obligation. Four-layer prose defence-in-depth was the prior
-fix; it is brittle and survives only as long as every layer keeps restating the
-rule. Reshape the primitives so the contract is structural, not taught, and
-collapse the prose layers.
+Spec: [`spec.md`](./spec.md).
 
 ## Components
 
@@ -16,11 +10,11 @@ one reference (L7). Layer numbers per
 
 | Layer | Component                                                                               | Role                                                   |
 | ----- | --------------------------------------------------------------------------------------- | ------------------------------------------------------ |
-| L1    | `OrchestrationToolkit` — tool-server factories, handler factories, `ctx.pendingAsks`    | Tool surface, pending-ask state, violation emission    |
-| L1    | `Facilitator` / `Supervisor` — `#runAgent` turn-complete guard, system prompts, msg bus | Runtime enforcement; descriptive system-prompt framing |
+| L1    | `OrchestrationToolkit` — tool-server factories, handler factories, `pendingAsks` context state | Tool surface, pending-ask state, violation emission |
+| L1    | `Facilitator` / `Supervisor` — agent loop with turn-complete guard; domain-agnostic system prompts; `systemPromptAmend` / `taskAmend` pass-throughs; message bus | Runtime enforcement; generic system-prompt framing; consumer-controlled append surfaces |
 | L6    | `kata-session/SKILL.md` (renamed from `kata-storyboard`)                                | Mode-agnostic five-question procedure + Ask/Answer     |
 | L7    | `kata-session/references/{team-storyboard,one-on-one}.md`                               | Mode-specific overlays                                 |
-| L4    | `.github/workflows/kata-coaching.yml` `task-text`                                       | Single-sentence skill dispatch                         |
+| L4    | `.github/workflows/kata-coaching.yml` `task-text`                                       | Coaching framing into the facilitator                  |
 | L7    | `kata-trace/references/invariants.md`                                                   | Two `protocol_violation` invariants (facil. + superv.) |
 
 ## Architecture
@@ -50,19 +44,19 @@ Unnecessary asymmetry — the from/to arguments already distinguish roles.
 
 ### Pending-ask registry and turn-complete guard
 
-The orchestrator's agent loop (`#runAgent` in `facilitator.js`, equivalent loop
-in `supervisor.js`) becomes the enforcement site. Before emitting
-`lifecycle:turn_complete`, it consults `ctx.pendingAsks`.
+The orchestrator's agent loop (in both `Facilitator` and `Supervisor`) is
+the enforcement site: before emitting `lifecycle:turn_complete`, it consults
+`ctx.pendingAsks`.
 
 ```mermaid
 sequenceDiagram
     participant F as Facilitator
-    participant R as #runAgent
+    participant R as agent loop
     participant P as Participant
     participant T as Trace
 
     F->>R: Ask(to=P, question)
-    Note over R: ctx.pendingAsks.set(P, ask)
+    Note over R: pendingAsks.set(P, ask)
     R->>P: deliver as user turn
     P->>P: produce text, no Answer
     Note over R: turn ends; pendingAsks.has(P)?
@@ -73,34 +67,31 @@ sequenceDiagram
     R-->>F: null Answer via messageBus
 ```
 
-If the participant calls `Answer(message)` at any point, the handler clears the
-entry, routes the message to the asker via `messageBus`, and the runtime
+If the participant calls `Answer(message)`, the handler clears the entry,
+routes the message to the asker via `messageBus`, and the runtime
 short-circuits the reminder/violation path.
 
-**Rejected: block `turn_complete` forever** (same deadlock, moved from prompt to
-runtime). **Rejected: zero retries** (wastes a turn the LLM would have recovered
-with a nudge). **Rejected: unbounded retries** (silent budget burn). One
+**Rejected:** block `turn_complete` forever (same deadlock); zero retries
+(wastes a recoverable turn); unbounded retries (silent budget burn). One
 reminder + one trace event is the bounded cost/signal balance.
 
 ### Supervisor parity
 
-Supervision gets the same vocabulary. Today the supervisor has `Redirect` +
-`Conclude` only; supervised agents have a blocking `Ask`. The new shape:
+Supervision adopts the same vocabulary. The new tool surface:
 
 - **Supervisor:** `Ask`, `Announce`, `Redirect`, `Conclude`, `RollCall`.
 - **Supervised agent:** `Ask`, `Answer`, `Announce`, `RollCall`.
 
 Either side can ask; either side must answer. The supervised-agent's historic
-blocking `Ask` (agent waits mid-tool-call for supervisor's text) becomes a
-regular `Ask` that registers pending on the supervisor. The supervisor's
-implicit text-relay reply becomes an explicit `Answer` call. This removes the
-special-case blocking path in `agent-runner.js`; all replies flow through the
-same `Answer` → `messageBus` route.
+blocking `Ask` (which waited mid-tool-call for the supervisor's text) is
+replaced at the toolkit layer by a non-blocking `Ask` that registers
+pending on the supervisor; the supervisor's implicit text-relay reply
+becomes an explicit `Answer`. Per-turn mechanics of `agent-runner.js` are
+unchanged (spec § Excluded); replacement happens in the tool-server
+factories and the orchestrator loop.
 
 **Rejected: leave supervision untouched.** Two vocabularies across libeval is
-worse than one. The runtime cost of parity is small (same handlers, different
-wiring); the skill-authoring cost of two vocabularies is large (every future
-skill must learn both).
+worse than one. Skill-authoring cost of two vocabularies is large.
 
 ### System-prompt framing
 
@@ -117,48 +108,27 @@ the spec set out to dismantle.
 
 ### Participant Protocol delivery
 
-Libeval is a generic library; its system prompts must not name or assume any
-specific skill. `FACILITATED_AGENT_SYSTEM_PROMPT` describes only the
-`Ask`/`Answer`/`Announce` contract in generic language — no "Participant
-Protocol" as a proper noun, no `kata-session` pointer, no coaching, storyboard,
-CSV, or XmR vocabulary. The prompt steers strongly toward the request-response
-pattern but stays domain-agnostic.
+Libeval's four system prompts stay domain-agnostic (see § System-prompt
+framing). Coaching-specific participant framing travels
+`task-text → facilitator → libeval pass-through` to each participant's
+system prompt:
 
-Chosen: the coaching-specific participant framing travels via the workflow
-`task-text` → facilitator → a new libeval pass-through field. Libeval's
-participant config gains a `systemPromptAmend: string?` field; libeval
-concatenates it after `FACILITATED_AGENT_SYSTEM_PROMPT` at the
-`systemPromptFor` call site (`facilitator.js:489-492`). `kata-coaching.yml`
-`task-text` carries the coaching framing (mode, target, protocol pointer)
-that primes the facilitator, and `kata-session/SKILL.md` Facilitator Process
-tells the coach how to derive a participant-side summary from
-`references/one-on-one.md` or `references/team-storyboard.md` and pass it as
-`systemPromptAmend`. Trace-clean (no synthetic user turn), non-circular
-(delivered before any `Ask`), no bleed into solo runs.
+- **`systemPromptAmend: string?`** on the `Facilitator` participant config —
+  opaque addendum concatenated after `FACILITATED_AGENT_SYSTEM_PROMPT` before
+  any `Ask` is delivered.
+- **`taskAmend: string?`** on the `Facilitator`, `Supervisor`, and
+  `AgentRunner` configs — promotes libeval's existing CLI-only
+  `--task-amend` concatenation to a public config field; the CLI flag drives
+  it. Same shape across all three orchestrators.
 
-Name chosen to pair with libeval's existing task-content append surface.
-Today `fit-eval run|supervise|facilitate --task-amend <text>` concatenates
-text onto the invoked agent's task content (see
-`libraries/libeval/src/commands/{run,supervise,facilitate}.js`) — a
-CLI-only mechanism that the CLI applies before calling
-`createFacilitator`/`createSupervisor`. This spec promotes that concatenation
-into libeval's programmatic config as a public `taskAmend: string?` field,
-and introduces the parallel `systemPromptAmend: string?` for system-prompt
-append. The two fields form one naming family operating at two prompt
-levels: `taskAmend` (user/task-content level) and `systemPromptAmend`
-(system-prompt level). CLI flags (`--task-amend`, and optionally a future
-`--system-prompt-amend`) become thin mappings onto these config fields.
+`taskAmend` (task-content level) and `systemPromptAmend` (system-prompt
+level) form one naming family of consumer-controlled append surfaces.
 
-**Rejected:** append the Participant Protocol — or a pointer to `kata-session`
-— to `FACILITATED_AGENT_SYSTEM_PROMPT` (couples a generic library to a
-specific skill; regresses libeval's domain-agnostic posture); coach's first
-`Ask` (circular — bootstraps with the very protocol being bootstrapped);
-agent-profile addendum (bleeds into solo runs); synthetic bootstrap user
-message (pollutes the trace with orchestrator-authored user turns);
-bespoke name unrelated to `taskAmend` (misses the chance to harmonise the
-two consumer-controlled append surfaces into one naming family). The
-pass-through field keeps libeval generic while giving the consumer full
-authority over participant framing.
+**Rejected:** append the coaching protocol (or a `kata-session` pointer)
+directly to `FACILITATED_AGENT_SYSTEM_PROMPT` (couples a generic library to
+a specific skill); coach's first `Ask` (circular); agent-profile addendum
+(bleeds into solo runs); synthetic bootstrap user message (pollutes the
+trace); bespoke name unrelated to `taskAmend` (misses the harmonisation).
 
 ### Skill restructure: `kata-storyboard` → `kata-session`
 
@@ -181,17 +151,11 @@ instruction-layer kludge this spec dismantles.
 
 ### Coaching workflow task-text
 
-`kata-coaching.yml` `task-text` primes the facilitator with the coaching
-framing that libeval's generic prompts deliberately omit: mode (1-on-1),
-target participant, pointer to `kata-session`, and the participant-side
-summary the coach should pass through as `systemPromptAmend`. It must not
-prescribe participant-side work (the original `kata-trace` front-load that
-caused run `24850558182` to burn its turn budget), must not prescribe Q1
-content (the skill supplies wording), and must not carry enforcement phrasing
-("stop making tool calls", "then Share") — the runtime owns the contract.
-Because libeval is now generic, domain framing is expected to live here; the
-task-text is not reduced to a single sentence, and its shape no longer needs
-to match `kata-storyboard.yml`. Spec SC 8.
+`kata-coaching.yml` `task-text` is the source of the coaching framing
+libeval's generic prompts omit. Shape: mode, target participant, pointer to
+`kata-session`, and the participant-side summary to pass through as
+`systemPromptAmend`. Spec § Rewritten task-text and SC 7/SC 8 own the
+constraints on what it may and may not contain.
 
 ### Protocol-violation invariants
 
@@ -211,21 +175,13 @@ necessary — the runtime emits structured events that are a direct match.
 
 ## Key Decisions
 
-| Decision                      | Chosen                                                                     | Rejected                                                      | Why                                              |
-| ----------------------------- | -------------------------------------------------------------------------- | ------------------------------------------------------------- | ------------------------------------------------ |
-| Primitive set                 | `Ask` / `Answer` / `Announce` (+ Redirect/Conclude/RollCall), shared modes | Keep `Tell`/`Share`; add alongside; mode-specific names       | One vocabulary; contract encoded structurally    |
-| Enforcement site              | `#runAgent` turn-complete guard + `protocol_violation` event               | Prose in four layers; auto-repair that masks violation        | Structural contract; violation remains loud      |
-| Retry policy                  | One synthetic reminder, then advance + trace event                         | Unbounded retry; no retry; block forever                      | Bounded cost, non-deadlocking, audible           |
-| Supervision parity            | Same vocabulary as facilitation                                            | Leave supervision's `Redirect`+`Conclude`+blocking-Ask        | Single vocabulary across libeval                 |
-| System-prompt posture         | Descriptive framing only; generic language; no skill names or domain vocabulary | Keep "then Share" / "do not proceed" as belt-and-suspenders; name `kata-session` in libeval prompt | No contradiction risk; runtime owns the contract; libeval stays generic |
-| Participant-Protocol delivery | Workflow `task-text` → facilitator → libeval `systemPromptAmend` pass-through (paired with promoted `taskAmend` config) | Append to libeval prompt (couples library to skill); coach first-Ask; agent-profile; synthetic user bootstrap; bespoke name unrelated to `taskAmend` | libeval stays generic; non-circular, trace-clean, no solo-run bleed; one naming family for both append surfaces |
-| Skill name                    | `kata-session`                                                             | `kata-storyboard` retained                                    | Name matches the skill's actual scope            |
-| Invariant source              | `protocol_violation` events from runtime                                   | Set-difference inference over Ask/Answer calls                | Direct signal vs. inferred                       |
-
-## Out of Scope
-
-Per spec 620: facilitated-agent identity (spec 500), the pure-facilitator
-posture itself (spec 490 — this spec refines its vocabulary, does not revert
-it), behavioural recovery beyond the bounded single retry, `agent-runner.js`
-per-turn mechanics, trace-format changes beyond the new `protocol_violation`
-event type, and any new workflows or agent personas.
+| Decision             | Chosen                                                                    | Rejected                                                | Why                                                       |
+| -------------------- | ------------------------------------------------------------------------- | ------------------------------------------------------- | --------------------------------------------------------- |
+| Primitive set        | `Ask` / `Answer` / `Announce` + Redirect/Conclude/RollCall, shared modes  | Keep `Tell`/`Share`; add alongside; mode-specific names | One vocabulary; contract encoded structurally             |
+| Enforcement site     | Orchestrator turn-complete guard + `protocol_violation` event             | Prose in four prompt layers; auto-repair                | Structural contract; violation stays loud                 |
+| Retry policy         | One synthetic reminder, then advance + trace event                        | Unbounded retry; no retry; block forever                | Bounded, non-deadlocking, audible                         |
+| Supervision parity   | Same vocabulary as facilitation                                           | Leave supervision's `Redirect`+`Conclude`+blocking-Ask  | One vocabulary across libeval                             |
+| Prompt posture       | Descriptive only; generic language; no skill names or domain vocabulary   | Enforcement phrases; name `kata-session` in libeval     | Runtime owns the contract; libeval stays generic          |
+| Participant framing  | `task-text` → facilitator → libeval `systemPromptAmend` + `taskAmend`     | Append to libeval prompt; first-`Ask`; profile; bootstrap user msg | Library stays generic; one naming family for both amends |
+| Skill name           | `kata-session`                                                            | `kata-storyboard` retained                              | Name matches the skill's actual scope                     |
+| Invariant source     | `protocol_violation` events from runtime                                  | Set-difference inference over Ask/Answer calls          | Direct signal vs. inferred                                |
