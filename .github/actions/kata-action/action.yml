@@ -141,9 +141,13 @@ runs:
           args+=("--output=$TRACE_DIR/trace.ndjson")
         fi
 
-        if [ "$MODE" = "supervise" ]; then
-          agent_cwd="${AGENT_CWD:-$(mktemp -d)}"
+        # Mode-invariant flags. --max-turns is always forwarded; the CLI
+        # treats "0" as unlimited, while omitting the flag silently falls
+        # back to the SDK's ~50-turn cap.
+        args+=("--max-turns=$MAX_TURNS")
+        args+=("--model=$MODEL")
 
+        if [ "$MODE" = "supervise" ]; then
           if [ -n "$SUPERVISOR_PROFILE" ]; then
             args+=("--supervisor-profile=$SUPERVISOR_PROFILE")
           fi
@@ -154,14 +158,9 @@ runs:
             args+=("--agent-profile=$AGENT_PROFILE")
           fi
 
-          if [ "$MAX_TURNS" != "0" ]; then
-            args+=("--max-turns=$MAX_TURNS")
-          fi
-
           bunx fit-eval supervise \
             --supervisor-cwd="$SUPERVISOR_CWD" \
-            --agent-cwd="$agent_cwd" \
-            --model="$MODEL" \
+            --agent-cwd="$AGENT_CWD" \
             --allowed-tools="$TOOLS" \
             "${args[@]}"
         elif [ "$MODE" = "facilitate" ]; then
@@ -169,28 +168,18 @@ runs:
             args+=("--facilitator-profile=$FACILITATOR_PROFILE")
           fi
 
-          if [ "$MAX_TURNS" != "0" ]; then
-            args+=("--max-turns=$MAX_TURNS")
-          fi
-
           bunx fit-eval facilitate \
             --facilitator-cwd="." \
             --agent-profiles="$AGENT_PROFILES" \
             --agent-cwd="$AGENT_CWD" \
-            --model="$MODEL" \
             "${args[@]}"
         else
           if [ -n "$AGENT_PROFILE" ]; then
             args+=("--agent-profile=$AGENT_PROFILE")
           fi
 
-          if [ "$MAX_TURNS" != "0" ]; then
-            args+=("--max-turns=$MAX_TURNS")
-          fi
-
           bunx fit-eval run \
             --cwd="$CWD" \
-            --model="$MODEL" \
             --allowed-tools="$TOOLS" \
             "${args[@]}"
         fi
