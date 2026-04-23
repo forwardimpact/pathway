@@ -1,5 +1,4 @@
-import { mock } from "node:test";
-
+import { spy } from "./spy.js";
 /**
  * Creates a mock filesystem backed by an in-memory Map
  * @param {Object<string, string>} files - Initial file contents keyed by path
@@ -20,7 +19,7 @@ export function createMockFs(files = {}) {
   return {
     data,
     dirs,
-    readFile: mock.fn(async (path, encoding) => {
+    readFile: spy(async (path, encoding) => {
       const content = data.get(path);
       if (content === undefined) {
         const err = new Error(
@@ -31,13 +30,13 @@ export function createMockFs(files = {}) {
       }
       return encoding ? content : Buffer.from(content);
     }),
-    writeFile: mock.fn(async (path, content) => {
+    writeFile: spy(async (path, content) => {
       data.set(
         path,
         typeof content === "string" ? content : content.toString(),
       );
     }),
-    readdir: mock.fn(async (path) => {
+    readdir: spy(async (path) => {
       const entries = [];
       const prefix = path.endsWith("/") ? path : `${path}/`;
       for (const key of data.keys()) {
@@ -51,7 +50,7 @@ export function createMockFs(files = {}) {
       }
       return entries;
     }),
-    stat: mock.fn(async (path) => {
+    stat: spy(async (path) => {
       if (data.has(path)) {
         return { isFile: () => true, isDirectory: () => false };
       }
@@ -64,10 +63,10 @@ export function createMockFs(files = {}) {
       err.code = "ENOENT";
       throw err;
     }),
-    mkdir: mock.fn(async (path) => {
+    mkdir: spy(async (path) => {
       dirs.add(path);
     }),
-    access: mock.fn(async (path) => {
+    access: spy(async (path) => {
       if (!data.has(path) && !dirs.has(path)) {
         const err = new Error(
           `ENOENT: no such file or directory, access '${path}'`,
@@ -76,7 +75,7 @@ export function createMockFs(files = {}) {
         throw err;
       }
     }),
-    copyFile: mock.fn(async (src, dest) => {
+    copyFile: spy(async (src, dest) => {
       const content = data.get(src);
       if (content === undefined) {
         const err = new Error(
@@ -87,8 +86,8 @@ export function createMockFs(files = {}) {
       }
       data.set(dest, content);
     }),
-    existsSync: mock.fn((path) => data.has(path) || dirs.has(path)),
-    readFileSync: mock.fn((path, encoding) => {
+    existsSync: spy((path) => data.has(path) || dirs.has(path)),
+    readFileSync: spy((path, encoding) => {
       const content = data.get(path);
       if (content === undefined) {
         const err = new Error(
@@ -99,13 +98,13 @@ export function createMockFs(files = {}) {
       }
       return encoding ? content : Buffer.from(content);
     }),
-    writeFileSync: mock.fn((path, content) => {
+    writeFileSync: spy((path, content) => {
       data.set(
         path,
         typeof content === "string" ? content : content.toString(),
       );
     }),
-    mkdirSync: mock.fn((path) => {
+    mkdirSync: spy((path) => {
       dirs.add(path);
     }),
   };

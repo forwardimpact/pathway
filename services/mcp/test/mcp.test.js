@@ -1,5 +1,6 @@
-import { test, describe, mock } from "node:test";
+import { test, describe } from "node:test";
 import assert from "node:assert";
+import { spy } from "@forwardimpact/libharness";
 
 import { createMcpService } from "../index.js";
 import { registerToolsFromConfig } from "@forwardimpact/libmcp";
@@ -60,34 +61,28 @@ function createMockConfig() {
 function createMockClients() {
   return {
     graph: {
-      GetOntology: mock.fn(() => Promise.resolve({ content: "ontology-ttl" })),
-      GetSubjects: mock.fn(() => Promise.resolve({ content: "sub1\tsub2" })),
-      QueryByPattern: mock.fn(() =>
+      GetOntology: spy(() => Promise.resolve({ content: "ontology-ttl" })),
+      GetSubjects: spy(() => Promise.resolve({ content: "sub1\tsub2" })),
+      QueryByPattern: spy(() =>
         Promise.resolve({ identifiers: ["id1", "id2"] }),
       ),
     },
     vector: {
-      SearchContent: mock.fn(() =>
-        Promise.resolve({ identifiers: ["result1"] }),
-      ),
+      SearchContent: spy(() => Promise.resolve({ identifiers: ["result1"] })),
     },
     pathway: {
-      ListJobs: mock.fn(() => Promise.resolve({ content: "pathway-jobs-ttl" })),
-      DescribeJob: mock.fn(() =>
-        Promise.resolve({ content: "pathway-job-ttl" }),
-      ),
-      ListAgentProfiles: mock.fn(() =>
+      ListJobs: spy(() => Promise.resolve({ content: "pathway-jobs-ttl" })),
+      DescribeJob: spy(() => Promise.resolve({ content: "pathway-job-ttl" })),
+      ListAgentProfiles: spy(() =>
         Promise.resolve({ content: "agent-profiles-ttl" }),
       ),
-      DescribeAgentProfile: mock.fn(() =>
+      DescribeAgentProfile: spy(() =>
         Promise.resolve({ content: "agent-profile-ttl" }),
       ),
-      DescribeProgression: mock.fn(() =>
+      DescribeProgression: spy(() =>
         Promise.resolve({ content: "progression-ttl" }),
       ),
-      ListJobSoftware: mock.fn(() =>
-        Promise.resolve({ content: "software-ttl" }),
-      ),
+      ListJobSoftware: spy(() => Promise.resolve({ content: "software-ttl" })),
     },
   };
 }
@@ -136,7 +131,7 @@ describe("MCP service", () => {
     test("factory returns start function", async () => {
       const config = createMockConfig();
       const clients = createMockClients();
-      const logger = { info: mock.fn() };
+      const logger = { info: spy() };
 
       const { start } = createMcpService({
         config,

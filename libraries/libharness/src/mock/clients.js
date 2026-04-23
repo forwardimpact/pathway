@@ -1,4 +1,4 @@
-import { mock } from "node:test";
+import { spy } from "./spy.js";
 import { common } from "@forwardimpact/libtype";
 
 /**
@@ -8,13 +8,13 @@ import { common } from "@forwardimpact/libtype";
  */
 export function createMockMemoryClient(overrides = {}) {
   return {
-    GetWindow: mock.fn(() =>
+    GetWindow: spy(() =>
       Promise.resolve({
         messages: [{ role: "system", content: "You are an assistant" }],
         tools: [],
       }),
     ),
-    AppendMemory: mock.fn(() => Promise.resolve({ accepted: "test-id" })),
+    AppendMemory: spy(() => Promise.resolve({ accepted: "test-id" })),
     ...overrides,
   };
 }
@@ -26,7 +26,7 @@ export function createMockMemoryClient(overrides = {}) {
  */
 export function createMockLlmClient(overrides = {}) {
   return {
-    CreateCompletions: mock.fn(() =>
+    CreateCompletions: spy(() =>
       Promise.resolve({
         id: "test-completion",
         choices: [
@@ -40,7 +40,7 @@ export function createMockLlmClient(overrides = {}) {
         usage: { total_tokens: 100 },
       }),
     ),
-    CreateEmbeddings: mock.fn(() =>
+    CreateEmbeddings: spy(() =>
       Promise.resolve({
         data: [{ index: 0, embedding: [0.1, 0.2, 0.3] }],
       }),
@@ -56,7 +56,7 @@ export function createMockLlmClient(overrides = {}) {
  */
 export function createMockAgentClient(overrides = {}) {
   return {
-    ProcessUnary: mock.fn(() =>
+    ProcessUnary: spy(() =>
       Promise.resolve({
         resource_id: "test-conversation",
         choices: [
@@ -69,7 +69,7 @@ export function createMockAgentClient(overrides = {}) {
         ],
       }),
     ),
-    ProcessStream: mock.fn(),
+    ProcessStream: spy(),
     ...overrides,
   };
 }
@@ -81,7 +81,7 @@ export function createMockAgentClient(overrides = {}) {
  */
 export function createMockTraceClient(overrides = {}) {
   return {
-    RecordSpan: mock.fn(() => Promise.resolve()),
+    RecordSpan: spy(() => Promise.resolve()),
     ...overrides,
   };
 }
@@ -93,7 +93,7 @@ export function createMockTraceClient(overrides = {}) {
  */
 export function createMockVectorClient(overrides = {}) {
   return {
-    SearchContent: mock.fn(() =>
+    SearchContent: spy(() =>
       Promise.resolve({
         identifiers: [],
       }),
@@ -109,7 +109,7 @@ export function createMockVectorClient(overrides = {}) {
  */
 export function createMockGraphClient(overrides = {}) {
   return {
-    QueryByPattern: mock.fn(() =>
+    QueryByPattern: spy(() =>
       Promise.resolve({
         identifiers: [],
       }),
@@ -125,7 +125,7 @@ export function createMockGraphClient(overrides = {}) {
  */
 export function createMockToolClient(overrides = {}) {
   return {
-    CallTool: mock.fn(() =>
+    CallTool: spy(() =>
       Promise.resolve({
         content: "Tool result",
       }),

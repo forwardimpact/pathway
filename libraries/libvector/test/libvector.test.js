@@ -1,10 +1,10 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 // Module under test
 import { VectorIndex } from "../src/index/vector.js";
 import { resource } from "@forwardimpact/libtype";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { createMockStorage, spy } from "@forwardimpact/libharness";
 
 describe("libvector", () => {
   describe("VectorIndex", () => {
@@ -13,8 +13,8 @@ describe("libvector", () => {
 
     beforeEach(() => {
       mockStorage = createMockStorage({
-        exists: mock.fn(() => Promise.resolve(true)),
-        get: mock.fn(() => Promise.resolve(Buffer.from(""))),
+        exists: spy(() => Promise.resolve(true)),
+        get: spy(() => Promise.resolve(Buffer.from(""))),
       });
 
       vectorIndex = new VectorIndex(mockStorage);
@@ -80,7 +80,7 @@ describe("libvector", () => {
       };
 
       // Mock storage.get() to return parsed JSON array for .jsonl files
-      mockStorage.get = mock.fn(() => Promise.resolve([testData]));
+      mockStorage.get = spy(() => Promise.resolve([testData]));
 
       await vectorIndex.loadData();
       const result = await vectorIndex.get(["Message.test-1"]);

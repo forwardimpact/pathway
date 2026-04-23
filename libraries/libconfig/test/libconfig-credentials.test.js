@@ -1,12 +1,12 @@
-import { test, describe, mock } from "node:test";
+import { test, describe } from "node:test";
 import assert from "node:assert";
 
 import { createConfig } from "../src/index.js";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { createMockStorage, spy } from "@forwardimpact/libharness";
 
 describe("libconfig - Anthropic and MCP credentials", () => {
   const baseMockProcess = () => ({
-    cwd: mock.fn(() => "/test/dir"),
+    cwd: spy(() => "/test/dir"),
     env: {},
   });
 
@@ -16,7 +16,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
    */
   const mockStorageFn = (storage) => () => {
     const originalPut = storage.put.bind(storage);
-    storage.put = mock.fn((key, value) => {
+    storage.put = spy((key, value) => {
       const toStore =
         key.endsWith(".json") && typeof value !== "string"
           ? JSON.stringify(value)
@@ -28,7 +28,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
 
   test("mcpToken() returns value from environment", async () => {
     const storage = createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
     const proc = baseMockProcess();
     proc.env.MCP_TOKEN = "mcp-secret-123";
@@ -45,7 +45,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
 
   test("mcpToken() throws when absent", async () => {
     const storage = createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
     const config = await createConfig(
       "test",
@@ -61,7 +61,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
 
   test("anthropicToken() prefers env var over OAuth", async () => {
     const storage = createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
     const proc = baseMockProcess();
     proc.env.ANTHROPIC_API_KEY = "sk-ant-env-key";
@@ -124,7 +124,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
     proc.env.ANTHROPIC_OAUTH_TOKEN_URL = "http://mock-auth/oauth/token";
 
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = mock.fn(() =>
+    globalThis.fetch = spy(() =>
       Promise.resolve({
         ok: true,
         json: () =>
@@ -171,9 +171,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
     proc.env.ANTHROPIC_OAUTH_TOKEN_URL = "http://mock-auth/oauth/token";
 
     const originalFetch = globalThis.fetch;
-    globalThis.fetch = mock.fn(() =>
-      Promise.resolve({ ok: false, status: 401 }),
-    );
+    globalThis.fetch = spy(() => Promise.resolve({ ok: false, status: 401 }));
 
     try {
       const config = await createConfig(
@@ -210,7 +208,7 @@ describe("libconfig - Anthropic and MCP credentials", () => {
 
   test("writeOAuthCredential() persists token", async () => {
     const storage = createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
     const config = await createConfig(
       "test",

@@ -1,4 +1,4 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 import { PassThrough } from "stream";
 
@@ -9,6 +9,7 @@ import {
   createMockGrpcFn,
   createMockLogger,
   createMockObserverFn,
+  spy,
 } from "@forwardimpact/libharness";
 
 describe("Client", () => {
@@ -27,8 +28,8 @@ describe("Client", () => {
     };
 
     mockClientInstance = {
-      TestMethod: mock.fn((_req, _meta, cb) => cb(null, { result: "success" })),
-      StreamMethod: mock.fn((_req, _meta) => {
+      TestMethod: spy((_req, _meta, cb) => cb(null, { result: "success" })),
+      StreamMethod: spy((_req, _meta) => {
         const stream = new PassThrough({ objectMode: true });
         process.nextTick(() => {
           stream.emit("metadata", {});
@@ -43,7 +44,7 @@ describe("Client", () => {
     mockGrpcFn = createMockGrpcFn({
       grpc: {
         Metadata: class {},
-        makeGenericClientConstructor: mock.fn(() => {
+        makeGenericClientConstructor: spy(() => {
           return function () {
             return mockClientInstance;
           };

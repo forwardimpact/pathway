@@ -1,4 +1,4 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { IndexBase } from "../src/index.js";
@@ -6,6 +6,7 @@ import { resource } from "@forwardimpact/libtype";
 import {
   assertThrowsMessage,
   createMockStorage,
+  spy,
 } from "@forwardimpact/libharness";
 
 class TestIndex extends IndexBase {
@@ -64,7 +65,7 @@ describe("IndexBase - Core Functionality", () => {
 
   describe("Data Loading", () => {
     test("loadData initializes empty index when file doesn't exist", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(false));
+      mockStorage.exists = spy(() => Promise.resolve(false));
 
       await testIndex.loadData();
 
@@ -95,8 +96,8 @@ describe("IndexBase - Core Functionality", () => {
         },
       ];
 
-      mockStorage.exists = mock.fn(() => Promise.resolve(true));
-      mockStorage.get = mock.fn(() => Promise.resolve(testData));
+      mockStorage.exists = spy(() => Promise.resolve(true));
+      mockStorage.get = spy(() => Promise.resolve(testData));
 
       await testIndex.loadData();
 
@@ -125,7 +126,7 @@ describe("IndexBase - Core Functionality", () => {
     });
 
     test("loadData is idempotent", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(false));
+      mockStorage.exists = spy(() => Promise.resolve(false));
 
       await testIndex.loadData();
       mockStorage.exists.mock.resetCalls();

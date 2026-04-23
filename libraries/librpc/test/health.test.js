@@ -64,31 +64,31 @@ describe("healthDefinition", () => {
 });
 
 describe("createHealthHandlers", () => {
-  test("empty service name returns SERVING", (_, done) => {
-    const handlers = createHealthHandlers("Graph");
-    handlers.Check({ request: { service: "" } }, (err, response) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(response.status, ServingStatus.SERVING);
-      done();
+  function checkAsync(handlers, service) {
+    return new Promise((resolve, reject) => {
+      handlers.Check({ request: { service } }, (err, response) => {
+        if (err) reject(err);
+        else resolve(response);
+      });
     });
+  }
+
+  test("empty service name returns SERVING", async () => {
+    const handlers = createHealthHandlers("Graph");
+    const response = await checkAsync(handlers, "");
+    assert.strictEqual(response.status, ServingStatus.SERVING);
   });
 
-  test("matching service name returns SERVING", (_, done) => {
+  test("matching service name returns SERVING", async () => {
     const handlers = createHealthHandlers("Graph");
-    handlers.Check({ request: { service: "Graph" } }, (err, response) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(response.status, ServingStatus.SERVING);
-      done();
-    });
+    const response = await checkAsync(handlers, "Graph");
+    assert.strictEqual(response.status, ServingStatus.SERVING);
   });
 
-  test("unknown service name returns SERVICE_UNKNOWN", (_, done) => {
+  test("unknown service name returns SERVICE_UNKNOWN", async () => {
     const handlers = createHealthHandlers("Graph");
-    handlers.Check({ request: { service: "Nonexistent" } }, (err, response) => {
-      assert.strictEqual(err, null);
-      assert.strictEqual(response.status, ServingStatus.SERVICE_UNKNOWN);
-      done();
-    });
+    const response = await checkAsync(handlers, "Nonexistent");
+    assert.strictEqual(response.status, ServingStatus.SERVICE_UNKNOWN);
   });
 });
 

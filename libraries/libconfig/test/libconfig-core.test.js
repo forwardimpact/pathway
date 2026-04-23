@@ -1,4 +1,4 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import {
@@ -9,6 +9,7 @@ import {
 import {
   assertThrowsMessage,
   createMockStorage,
+  spy,
 } from "@forwardimpact/libharness";
 
 describe("libconfig - Config", () => {
@@ -17,11 +18,11 @@ describe("libconfig - Config", () => {
 
   beforeEach(() => {
     mockStorage = createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
 
     mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {
         TEST_VAR: "test-value",
       },
@@ -151,7 +152,7 @@ describe("libconfig - Config", () => {
   });
 
   test("accepts optional storageFn parameter", async () => {
-    const mockStorageFn = mock.fn(() => ({
+    const mockStorageFn = spy(() => ({
       exists: () => Promise.resolve(false),
       get: () => Promise.resolve(Buffer.from("test: value")),
     }));
@@ -236,7 +237,7 @@ describe("libconfig - Config methods", () => {
 
   beforeEach(async () => {
     const mockProcess = {
-      cwd: mock.fn(() => "/test/dir"),
+      cwd: spy(() => "/test/dir"),
       env: {
         LLM_TOKEN: "llm-token-123",
       },
@@ -244,7 +245,7 @@ describe("libconfig - Config methods", () => {
 
     const mockStorageFn = () =>
       createMockStorage({
-        get: mock.fn(() => Promise.resolve("")),
+        get: spy(() => Promise.resolve("")),
       });
 
     config = await createConfig(
@@ -299,7 +300,7 @@ describe("libconfig - Config methods", () => {
     const proc = { cwd: () => "/test/dir", env: {} };
     const storageFn = () =>
       createMockStorage({
-        get: mock.fn(() => Promise.resolve("")),
+        get: spy(() => Promise.resolve("")),
       });
 
     const config = await createServiceConfig(
@@ -318,7 +319,7 @@ describe("libconfig - Config methods", () => {
     const proc = { cwd: () => "/test/dir", env: {} };
     const storageFn = () =>
       createMockStorage({
-        get: mock.fn(() => Promise.resolve("")),
+        get: spy(() => Promise.resolve("")),
       });
 
     const config = await createExtensionConfig(

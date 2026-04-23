@@ -3,12 +3,13 @@
  *
  * Tests environment building and agent wake logic.
  */
-import { test, describe, mock, before, after } from "node:test";
+import { test, describe, before, after } from "node:test";
 import assert from "node:assert";
 import { mkdirSync, rmSync } from "node:fs";
 import { join } from "node:path";
 import { tmpdir } from "node:os";
 import { AgentRunner } from "../src/agent-runner.js";
+import { spy } from "@forwardimpact/libharness";
 
 const TEST_KB = join(tmpdir(), "basecamp-test-kb");
 
@@ -45,8 +46,8 @@ function createMockSpawn({
 
 function createMockStateManager() {
   return {
-    save: mock.fn(),
-    updateAgentState: mock.fn(),
+    save: spy(),
+    updateAgentState: spy(),
   };
 }
 

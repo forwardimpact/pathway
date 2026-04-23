@@ -1,4 +1,4 @@
-import { test, describe, beforeEach, mock } from "node:test";
+import { test, describe, beforeEach } from "node:test";
 import assert from "node:assert";
 
 import { IndexBase } from "../src/index.js";
@@ -6,6 +6,7 @@ import { resource } from "@forwardimpact/libtype";
 import {
   assertRejectsMessage,
   createMockStorage,
+  spy,
 } from "@forwardimpact/libharness";
 
 class TestIndex extends IndexBase {
@@ -202,8 +203,8 @@ describe("IndexBase - Implementation and Edge Cases", () => {
     });
 
     test("loadData handles storage with empty array", async () => {
-      mockStorage.exists = mock.fn(() => Promise.resolve(true));
-      mockStorage.get = mock.fn(() => Promise.resolve([]));
+      mockStorage.exists = spy(() => Promise.resolve(true));
+      mockStorage.get = spy(() => Promise.resolve([]));
 
       await testIndex.loadData();
 
@@ -224,8 +225,8 @@ describe("IndexBase - Implementation and Edge Cases", () => {
         },
       ];
 
-      mockStorage.exists = mock.fn(() => Promise.resolve(true));
-      mockStorage.get = mock.fn(() => Promise.resolve(testData));
+      mockStorage.exists = spy(() => Promise.resolve(true));
+      mockStorage.get = spy(() => Promise.resolve(testData));
 
       await testIndex.loadData();
 

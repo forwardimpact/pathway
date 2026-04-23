@@ -1,16 +1,16 @@
-import { describe, test, mock } from "node:test";
+import { describe, test } from "node:test";
 import assert from "node:assert";
 
 // Module under test
 import { createBundleDownloader } from "../src/index.js";
-import { createSilentLogger } from "@forwardimpact/libharness";
+import { createSilentLogger, spy } from "@forwardimpact/libharness";
 
 const mockLogger = createSilentLogger();
 
 describe("libutil", () => {
   describe("createBundleDownloader", () => {
     test("creates BundleDownloader instance with correct dependencies", () => {
-      const mockStorageFactory = mock.fn();
+      const mockStorageFactory = spy();
 
       const downloader = createBundleDownloader(mockStorageFactory, mockLogger);
 
@@ -26,7 +26,7 @@ describe("libutil", () => {
     });
 
     test("validates logger parameter", () => {
-      const mockStorageFactory = mock.fn();
+      const mockStorageFactory = spy();
       assert.throws(() => createBundleDownloader(mockStorageFactory, null), {
         message: /logger is required/,
       });

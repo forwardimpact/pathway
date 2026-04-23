@@ -1,11 +1,11 @@
-import { test, describe, mock, afterEach } from "node:test";
+import { test, describe, afterEach } from "node:test";
 import assert from "node:assert";
 import { writeFileSync, mkdirSync, rmSync, chmodSync } from "node:fs";
 import path from "node:path";
 import { tmpdir } from "node:os";
 
 import { createConfig } from "../src/index.js";
-import { createMockStorage } from "@forwardimpact/libharness";
+import { createMockStorage, spy } from "@forwardimpact/libharness";
 
 describe("libconfig - .env file loading", () => {
   const testDir = path.join(tmpdir(), `libconfig-env-test-${process.pid}`);
@@ -13,7 +13,7 @@ describe("libconfig - .env file loading", () => {
 
   const mockStorageFn = () =>
     createMockStorage({
-      get: mock.fn(() => Promise.resolve("")),
+      get: spy(() => Promise.resolve("")),
     });
 
   const createProcess = (env = {}) => ({
@@ -168,11 +168,9 @@ describe("libconfig - .env file loading", () => {
     });
   });
 
-  test("throws on non-ENOENT errors (e.g. permission denied)", async (t) => {
-    if (process.getuid?.() === 0) {
-      t.skip("cannot enforce file permissions as root");
-      return;
-    }
+  test("throws on non-ENOENT errors (e.g. permission denied)", async () => {
+    // Cannot enforce file permissions as root — early return acts as skip.
+    if (process.getuid?.() === 0) return;
 
     writeEnvFile("GITHUB_TOKEN=secret\n");
     chmodSync(envPath, 0o000);

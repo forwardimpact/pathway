@@ -1,11 +1,11 @@
-import { test, describe, beforeEach, afterEach, mock } from "node:test";
+import { test, describe, beforeEach, afterEach } from "node:test";
 import assert from "node:assert";
 import fs from "fs";
 import fsPromises from "fs/promises";
 import path from "path";
 import { fileURLToPath } from "url";
 
-import { createMockLogger } from "@forwardimpact/libharness";
+import { createMockLogger, spy } from "@forwardimpact/libharness";
 
 // Module under test
 import { Finder } from "../src/finder.js";
@@ -202,7 +202,7 @@ describe("Finder", () => {
     test("creates symlinks when project root is found", async () => {
       // Mock findProjectRoot to return a valid path
       const originalFindProjectRoot = finder.findProjectRoot;
-      finder.findProjectRoot = mock.fn(() => {
+      finder.findProjectRoot = spy(() => {
         const projectRoot = path.join(tempDir, "project");
         const packagesDir = path.join(projectRoot, "packages");
         fs.mkdirSync(path.join(packagesDir, "libtype"), { recursive: true });
@@ -230,7 +230,7 @@ describe("Finder", () => {
 
       // Mock findProjectRoot
       const originalFindProjectRoot = finder.findProjectRoot;
-      finder.findProjectRoot = mock.fn(() => projectRoot);
+      finder.findProjectRoot = spy(() => projectRoot);
 
       const generatedPath = path.join(tempDir, "generated");
       fs.mkdirSync(generatedPath, { recursive: true });

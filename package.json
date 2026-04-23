@@ -25,7 +25,7 @@
     "lint:fix": "eslint . --fix",
     "format": "prettier --check --log-level warn .",
     "format:fix": "prettier --write .",
-    "test": "find ./tests ./libraries ./products ./services -name '*.test.js' -not -path '*/node_modules/*' | xargs bun run node --test --test-concurrency=0",
+    "test": "find ./tests ./libraries ./products ./services -name '*.test.js' -not -path '*/node_modules/*' | xargs bun test",
     "test:e2e": "bunx playwright test",
     "validate": "bunx fit-map validate",
     "generate": "fit-terrain"
