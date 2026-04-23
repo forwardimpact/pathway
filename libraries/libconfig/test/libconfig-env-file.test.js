@@ -164,7 +164,7 @@ describe("libconfig - .env file loading", () => {
     );
 
     assert.throws(() => config.ghToken(), {
-      message: "GITHUB_TOKEN not found in environment",
+      message: "GH_TOKEN not found in environment",
     });
   });
 
@@ -216,7 +216,7 @@ describe("libconfig - .env file loading", () => {
 
     // After reset, .env overrides are cleared and no process env either
     assert.throws(() => config.ghToken(), {
-      message: "GITHUB_TOKEN not found in environment",
+      message: "GH_TOKEN not found in environment",
     });
   });
 

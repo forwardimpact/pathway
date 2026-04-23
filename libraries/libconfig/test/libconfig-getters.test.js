@@ -98,27 +98,11 @@ describe("libconfig - Config getters", () => {
       mockStorageFn,
     );
     assert.throws(() => config.ghToken(), {
-      message: "GITHUB_TOKEN not found in environment",
+      message: "GH_TOKEN not found in environment",
     });
   });
 
   test("ghToken returns from environment", async () => {
-    const mockProcess = {
-      cwd: spy(() => "/test/dir"),
-      env: { GITHUB_TOKEN: "gh-token-xyz" },
-    };
-
-    const config = await createConfig(
-      "test",
-      "myservice",
-      {},
-      mockProcess,
-      mockStorageFn,
-    );
-    assert.strictEqual(config.ghToken(), "gh-token-xyz");
-  });
-
-  test("ghToken falls back to GH_TOKEN when GITHUB_TOKEN is unset", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
       env: { GH_TOKEN: "gh-cli-token" },
@@ -134,7 +118,23 @@ describe("libconfig - Config getters", () => {
     assert.strictEqual(config.ghToken(), "gh-cli-token");
   });
 
-  test("ghToken prefers GITHUB_TOKEN when both are set", async () => {
+  test("ghToken falls back to GITHUB_TOKEN when GH_TOKEN is unset", async () => {
+    const mockProcess = {
+      cwd: spy(() => "/test/dir"),
+      env: { GITHUB_TOKEN: "actions-token" },
+    };
+
+    const config = await createConfig(
+      "test",
+      "myservice",
+      {},
+      mockProcess,
+      mockStorageFn,
+    );
+    assert.strictEqual(config.ghToken(), "actions-token");
+  });
+
+  test("ghToken prefers GH_TOKEN when both are set", async () => {
     const mockProcess = {
       cwd: spy(() => "/test/dir"),
       env: { GITHUB_TOKEN: "github-token", GH_TOKEN: "gh-token" },
@@ -147,7 +147,7 @@ describe("libconfig - Config getters", () => {
       mockProcess,
       mockStorageFn,
     );
-    assert.strictEqual(config.ghToken(), "github-token");
+    assert.strictEqual(config.ghToken(), "gh-token");
   });
 
   test("llmToken throws when not set in environment", async () => {
