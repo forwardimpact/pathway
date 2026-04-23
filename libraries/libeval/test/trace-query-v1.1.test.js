@@ -184,6 +184,14 @@ describe("TraceQuery v1.1 introspection", () => {
       assert.strictEqual(errs[0].index, 5);
     });
 
+    test("composes role + toolName (assistant turns only)", () => {
+      const q = new TraceQuery(buildTrace({ turns: mixedTurns() }));
+      const hits = q.filter({ role: "assistant", toolName: "Bash" });
+      assert.strictEqual(hits.length, 1);
+      assert.strictEqual(hits[0].index, 2);
+      assert.strictEqual(hits[0].content[0].name, "Bash");
+    });
+
     test("toolName + isError returns empty (documented limitation)", () => {
       const q = new TraceQuery(buildTrace({ turns: mixedTurns() }));
       const result = q.filter({ toolName: "Bash", isError: true });

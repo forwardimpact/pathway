@@ -167,7 +167,8 @@ const definition = {
         },
         error: {
           type: "boolean",
-          description: "Error tool_result turns only",
+          description:
+            "Error tool_result turns only (flag-only; for non-errors use the API)",
         },
       },
     },

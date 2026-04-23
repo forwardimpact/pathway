@@ -62,13 +62,21 @@ export class TraceQuery {
    * combined as AND. `tool()` and `errors()` remain as convenience
    * shortcuts for pre-existing workflows.
    *
+   * `toolName` matches assistant turns only. Applying `toolName` without
+   * `role: "assistant"` still drops every non-assistant turn, because
+   * resolving tool_use → tool_result pairs requires the `tool()` method.
+   * `isError` matches tool_result turns only. Combining `toolName` with
+   * `isError` therefore always returns `[]` (no turn is both assistant
+   * and tool_result) — use `tool(name)` for "errors from Bash"–shaped
+   * queries.
+   *
    * @param {object} [opts]
-   * @param {string} [opts.role] - Exact role match
+   * @param {string} [opts.role] - Exact role match (system | user |
+   *   assistant | tool_result).
    * @param {string} [opts.toolName] - Matches assistant turns with a
-   *   tool_use block of this name. tool_result turns cannot be matched
-   *   here (no toolName field); use `tool()` for resolved pairs.
+   *   tool_use block of this name. Drops all non-assistant turns.
    * @param {boolean} [opts.isError] - Matches tool_result turns by
-   *   `isError` value.
+   *   `isError` value. Drops all non-tool_result turns.
    * @returns {object[]}
    */
   filter(opts = {}) {
