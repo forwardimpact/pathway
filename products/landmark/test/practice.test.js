@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runPracticeCommand } from "../src/commands/practice.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -10,7 +11,7 @@ const PATTERNS = [
 ];
 
 function stubQueries({ patterns = PATTERNS } = {}) {
-  return { getPracticePatterns: async () => patterns };
+  return createMockQueries({ getPracticePatterns: patterns });
 }
 
 describe("practice command", () => {

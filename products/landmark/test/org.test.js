@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runOrgCommand } from "../src/commands/org.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -24,10 +25,10 @@ const PEOPLE = [
 ];
 
 function stubQueries({ org = PEOPLE, team = PEOPLE } = {}) {
-  return {
-    getOrganization: async () => org,
-    getTeam: async (_sb, _email) => team,
-  };
+  return createMockQueries({
+    getOrganization: org,
+    getTeam: team,
+  });
 }
 
 describe("org show", () => {

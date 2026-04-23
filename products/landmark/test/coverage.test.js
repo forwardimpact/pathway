@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runCoverageCommand } from "../src/commands/coverage.js";
 
@@ -27,11 +28,11 @@ function stubQueries({
   artifacts = ARTIFACTS,
   unscored = UNSCORED,
 } = {}) {
-  return {
-    getPerson: async () => person,
-    getArtifacts: async () => artifacts,
-    getUnscoredArtifacts: async () => unscored,
-  };
+  return createMockQueries({
+    getPerson: person,
+    getArtifacts: artifacts,
+    getUnscoredArtifacts: unscored,
+  });
 }
 
 describe("coverage command", () => {

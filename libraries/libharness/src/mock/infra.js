@@ -180,6 +180,22 @@ export async function withSilentConsole(fn) {
 }
 
 /**
+ * Creates a bag of async query stubs from a plain values object. A function
+ * value is passed through untouched; anything else becomes an async function
+ * returning that value. Collapses landmark-style `stubQueries` boilerplate.
+ *
+ * @param {Record<string, unknown>} values
+ * @returns {Record<string, Function>}
+ */
+export function createMockQueries(values = {}) {
+  const out = {};
+  for (const [key, val] of Object.entries(values)) {
+    out[key] = typeof val === "function" ? val : async () => val;
+  }
+  return out;
+}
+
+/**
  * Creates a minimal mock S3 client that records command sends and returns a
  * configurable response.
  *

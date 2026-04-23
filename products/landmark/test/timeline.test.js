@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runTimelineCommand } from "../src/commands/timeline.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -38,7 +39,7 @@ const EVIDENCE = [
 ];
 
 function stubQueries({ evidence = EVIDENCE } = {}) {
-  return { getEvidence: async () => evidence };
+  return createMockQueries({ getEvidence: evidence });
 }
 
 describe("timeline command", () => {

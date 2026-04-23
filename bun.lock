@@ -476,6 +476,9 @@
         "@forwardimpact/summit": "^0.1.0",
         "@supabase/supabase-js": "^2.103.3",
       },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
     },
     "products/map": {
       "name": "@forwardimpact/map",

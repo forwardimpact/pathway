@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runReadinessCommand } from "../src/commands/readiness.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -102,7 +103,7 @@ const MAP_DATA = {
 };
 
 function stubQueries({ person = undefined, evidence = [] } = {}) {
-  return {
+  return createMockQueries({
     getPerson: async (_sb, email) => {
       if (person === null) return null;
       return (
@@ -115,8 +116,8 @@ function stubQueries({ person = undefined, evidence = [] } = {}) {
         }
       );
     },
-    getEvidence: async () => evidence,
-  };
+    getEvidence: evidence,
+  });
 }
 
 describe("readiness command", () => {

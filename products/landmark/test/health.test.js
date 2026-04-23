@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runHealthCommand } from "../src/commands/health.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -128,13 +129,13 @@ function stubQueries({
   scores = SCORES,
   evidence = EVIDENCE,
 } = {}) {
-  return {
-    getOrganization: async () => team,
-    getTeam: async () => team,
-    listSnapshots: async () => snapshots,
-    getSnapshotScores: async () => scores,
-    getEvidence: async () => evidence,
-  };
+  return createMockQueries({
+    getOrganization: team,
+    getTeam: team,
+    listSnapshots: snapshots,
+    getSnapshotScores: scores,
+    getEvidence: evidence,
+  });
 }
 
 function summitPresent(_params) {

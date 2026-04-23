@@ -6,6 +6,7 @@ import {
   collectDriverWarnings,
 } from "../src/commands/snapshot.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 const SNAPSHOTS = [
   {
@@ -56,12 +57,12 @@ function stubQueries({
   scores = SCORES,
   trend = TREND,
 } = {}) {
-  return {
-    listSnapshots: async () => snapshots,
-    getSnapshotScores: async () => scores,
-    getItemTrend: async () => trend,
-    getSnapshotComparison: async () => scores,
-  };
+  return createMockQueries({
+    listSnapshots: snapshots,
+    getSnapshotScores: scores,
+    getItemTrend: trend,
+    getSnapshotComparison: scores,
+  });
 }
 
 describe("snapshot list", () => {

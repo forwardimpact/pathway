@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runEvidenceCommand } from "../src/commands/evidence.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -38,15 +39,15 @@ const EVIDENCE_ROWS = [
 ];
 
 function stubQueries({ evidence = EVIDENCE_ROWS } = {}) {
-  return {
-    getEvidence: async () => evidence,
-    getArtifacts: async () => [
+  return createMockQueries({
+    getEvidence: evidence,
+    getArtifacts: [
       { artifact_id: "art-1" },
       { artifact_id: "art-2" },
       { artifact_id: "art-3" },
     ],
-    getUnscoredArtifacts: async () => [{ artifact_id: "art-2" }],
-  };
+    getUnscoredArtifacts: [{ artifact_id: "art-2" }],
+  });
 }
 
 describe("evidence command", () => {

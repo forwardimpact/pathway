@@ -1,5 +1,6 @@
 import { describe, it } from "node:test";
 import assert from "node:assert/strict";
+import { createMockQueries } from "@forwardimpact/libharness";
 
 import { runVoiceCommand } from "../src/commands/voice.js";
 import { EMPTY_STATES } from "../src/lib/empty-state.js";
@@ -42,16 +43,12 @@ const MAP_DATA = {
 };
 
 function stubQueries({ comments = COMMENTS, evidence = [] } = {}) {
-  return {
-    getSnapshotComments: async () => comments,
-    getEvidence: async () => evidence,
-    listSnapshots: async () => [
-      { snapshot_id: "snap-1", scheduled_for: "2025-Q1" },
-    ],
-    getSnapshotScores: async () => [
-      { item_id: "quality", score: 42, vs_org: -10 },
-    ],
-  };
+  return createMockQueries({
+    getSnapshotComments: comments,
+    getEvidence: evidence,
+    listSnapshots: [{ snapshot_id: "snap-1", scheduled_for: "2025-Q1" }],
+    getSnapshotScores: [{ item_id: "quality", score: 42, vs_org: -10 }],
+  });
 }
 
 describe("voice --email", () => {

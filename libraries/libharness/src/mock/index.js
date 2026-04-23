@@ -31,4 +31,5 @@ export {
   createMockProcess,
   withSilentConsole,
   createMockS3Client,
+  createMockQueries,
 } from "./infra.js";
