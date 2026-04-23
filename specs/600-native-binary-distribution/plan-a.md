@@ -68,6 +68,13 @@ migrate basecamp to consume it. This step blocks Step 1b onward.
   with basecamp-specific arguments (Swift launcher as `CFBundleExecutable`,
   `fit-basecamp` as a secondary Mach-O, `Basecamp.entitlements` as
   entitlements path, `LSUIElement=true`).
+- Preserve basecamp's existing `.pkg` flow: `pkg/macos/build-pkg.sh`
+  currently depends on `dist/Basecamp.app` being produced by the
+  now-retired `build-app.sh`. The rewired `build-app` recipe must
+  produce a bundle at the same path (`dist/Basecamp.app`) so
+  `build-pkg.sh` keeps working unchanged. If the shared
+  `libmacos/scripts/build-app.sh` output path differs, add a thin
+  basecamp-local recipe that copies / symlinks to the legacy path.
 
 ### Files
 
@@ -110,24 +117,31 @@ Replaces the original Step 1. Drive every bundle through
 
 ### Recipe: `build-binary`
 
+`NAME` is the full binary name (e.g. `fit-pathway`, `fit-service-graph`,
+`fit-codegen`). The recipe resolves the entry file by scanning every
+`package.json` under `products/`, `services/`, and `libraries/` for a
+`bin` field whose key matches `NAME`, and uses the path that field points
+at as the bun-compile entry. This replaces heuristic-based path guessing
+(like "`libraries/lib<NAME>/bin/fit-<NAME>.js`"), which fails for the many
+library CLIs whose library name doesn't match the CLI name (e.g. `fit-trace`
+lives in `libeval`, `fit-process-graphs` in `libgraph`, `fit-visualize` in
+`libtelemetry`).
+
 ```just
-# Build a standalone native Mach-O for a product, service, or library CLI
+# Build a standalone native Mach-O. NAME is a full bin name like fit-codegen.
 build-binary NAME TARGET="bun-darwin-arm64":
     #!/usr/bin/env bash
     set -euo pipefail
-    # Resolve entry point — products, then services, then libraries
-    ENTRY="products/{{NAME}}/bin/fit-{{NAME}}.js"
-    OUT_NAME="fit-{{NAME}}"
-    if [ ! -f "$ENTRY" ]; then
-      ENTRY="services/{{NAME}}/server.js"
-      OUT_NAME="fit-service-{{NAME}}"
-    fi
-    if [ ! -f "$ENTRY" ]; then
-      ENTRY="libraries/lib{{NAME}}/bin/fit-{{NAME}}.js"
-      OUT_NAME="fit-{{NAME}}"
-    fi
-    if [ ! -f "$ENTRY" ]; then
-      echo "Error: no entry point found for {{NAME}}" >&2
+    ENTRY=""
+    for PKG in products/*/package.json services/*/package.json libraries/*/package.json; do
+      REL=$(jq -r --arg n "{{NAME}}" '.bin[$n] // empty' "$PKG" 2>/dev/null)
+      if [ -n "$REL" ]; then
+        ENTRY="$(dirname "$PKG")/$REL"
+        break
+      fi
+    done
+    if [ -z "$ENTRY" ] || [ ! -f "$ENTRY" ]; then
+      echo "Error: no package.json declares bin[{{NAME}}] with an existing entry" >&2
       exit 1
     fi
     mkdir -p dist/binaries
@@ -135,102 +149,91 @@ build-binary NAME TARGET="bun-darwin-arm64":
       --target "{{TARGET}}" \
       --no-compile-autoload-dotenv \
       --no-compile-autoload-bunfig \
-      --outfile "dist/binaries/${OUT_NAME}-{{TARGET}}" \
+      --outfile "dist/binaries/{{NAME}}-{{TARGET}}" \
       "$ENTRY"
-    # Size gate (design: 150 MB ceiling)
-    SIZE=$(stat -f%z "dist/binaries/${OUT_NAME}-{{TARGET}}" 2>/dev/null \
-        || stat -c%s "dist/binaries/${OUT_NAME}-{{TARGET}}")
-    MAX=$((150 * 1024 * 1024))
-    if [ "$SIZE" -gt "$MAX" ]; then
-      echo "Error: ${OUT_NAME} binary is $(( SIZE / 1024 / 1024 )) MB (ceiling: 150 MB)" >&2
-      exit 1
-    fi
-    echo "${OUT_NAME}: $(( SIZE / 1024 / 1024 )) MB"
 ```
 
 **Flags explained:**
 
-- `--target` — sets the output platform triple; defaults to `bun-darwin-arm64`
-  per the design. Phase 2 passes `bun-darwin-x64`.
+- `--target` — sets the output platform triple; defaults to `bun-darwin-arm64`.
 - `--no-compile-autoload-dotenv` / `--no-compile-autoload-bunfig` — CLIs must
   not read `.env` or `bunfig.toml` from the user's working directory; they have
   their own config mechanisms (`fit-rc`, `config.json`).
 - `--outfile dist/binaries/<name>-<target>` — deterministic output path. `dist/`
-  is already in `.gitignore` (line 57). The local filename uses bun's target
-  triple (`bun-darwin-arm64`) because that's what `--target` requires. The
-  bundle-assembly step (`build-app-*` below) reads from this path.
+  is already in `.gitignore`. The bundle-assembly step (`build-app-*` below)
+  reads from this path.
 
-**Entry point resolution:** Six product CLIs live under
-`products/<name>/bin/fit-<name>.js`. Five gRPC services live under
-`services/<name>/server.js` and compile to `fit-service-<name>`. Library CLIs
-live under `libraries/lib<name>/bin/fit-<name>.js` (`fit-codegen`,
-`fit-terrain`, `fit-eval`, etc.). The recipe checks products, then services,
-then libraries, and fails with a clear error if none match.
+**Prerequisite for services.** Today `services/<name>/package.json` has no
+`bin` field — each service runs via `bun server.js`. Step 1b adds
+`"bin": { "fit-service-<name>": "./server.js" }` to each of the five service
+packages so the same `build-binary` recipe drives them uniformly.
 
-**Codegen dependency (design divergence).** The design says `build-binary`
-depends on `codegen`. This plan breaks that dependency on the individual recipe
-to avoid re-running codegen seven times in the CI matrix. Instead, `codegen`
-runs once before the matrix: the CI workflow runs it via `bootstrap` →
-`just install` → `install-bun` → `fit-codegen --all`, and the `build-binaries`
-fan-out recipe depends on `codegen` for local use. Risk: a contributor running
-`just build-binary guide` without codegen gets a broken binary. This is
-acceptable — the fan-out recipe is the documented entry point, not the per-CLI
-recipe.
-
-**Size gate.** The recipe checks the binary against the design's 150 MB ceiling
-and fails if exceeded. Uses `stat -f%z` (macOS) with `stat -c%s` (Linux)
-fallback.
+**Codegen.** `build-binary` does not depend on `codegen` as an individual
+recipe — the `build-binaries` fan-out below depends on `codegen` for local
+use, and CI's bootstrap action runs `fit-codegen --all` before the bundle
+job. A contributor running `just build-binary fit-guide` on a tree without
+generated code gets a broken binary; the fan-out is the documented entry
+point.
 
 ### Recipe: `build-binaries`
 
+Each fan-out below uses the real binary names declared in each
+package.json's `bin` field — no aliasing or rename machinery. Service
+binaries get the `fit-service-` prefix so they don't collide with any
+product or library CLI.
+
 ```just
-# Build all Mach-Os for the default target — products, services, library CLIs
+# Build all Mach-Os for the default target
 build-binaries: codegen build-product-binaries build-service-binaries build-utility-binaries
 
 build-product-binaries:
-    just build-binary basecamp
-    just build-binary guide
-    just build-binary landmark
-    just build-binary map
-    just build-binary pathway
-    just build-binary summit
+    just build-binary fit-basecamp
+    just build-binary fit-guide
+    just build-binary fit-landmark
+    just build-binary fit-map
+    just build-binary fit-pathway
+    just build-binary fit-summit
 
 build-service-binaries:
-    just build-binary graph
-    just build-binary mcp
-    just build-binary pathway-service  # services/pathway renamed target to avoid collision
-    just build-binary trace
-    just build-binary vector
+    just build-binary fit-service-graph
+    just build-binary fit-service-mcp
+    just build-binary fit-service-pathway
+    just build-binary fit-service-trace
+    just build-binary fit-service-vector
 
 build-utility-binaries:
-    just build-binary codegen
-    just build-binary terrain
-    just build-binary eval
-    just build-binary doc
-    just build-binary rc
-    just build-binary xmr
-    just build-binary storage
-    just build-binary logger
-    just build-binary svscan
-    just build-binary trace-util  # libeval's fit-trace, disambiguated
-    just build-binary visualize
-    just build-binary query
-    just build-binary subjects
-    just build-binary process-graphs
-    just build-binary process-resources
-    just build-binary process-vectors
-    just build-binary search
-    just build-binary unary
-    just build-binary tiktoken
-    just build-binary download-bundle
+    # Enumerated from `libraries/*/package.json` bin fields at Step 1a time.
+    # Every addition or removal here MUST be mirrored in the `binary` stanza
+    # list of Casks/fit-utilities.rb (Step 3) — the two lists are the single
+    # source of truth for "what ends up on PATH via fit-utilities".
+    just build-binary fit-codegen
+    just build-binary fit-terrain
+    just build-binary fit-eval
+    just build-binary fit-doc
+    just build-binary fit-rc
+    just build-binary fit-xmr
+    just build-binary fit-storage
+    just build-binary fit-logger
+    just build-binary fit-svscan
+    just build-binary fit-trace
+    just build-binary fit-visualize
+    just build-binary fit-query
+    just build-binary fit-subjects
+    just build-binary fit-process-graphs
+    just build-binary fit-process-resources
+    just build-binary fit-process-vectors
+    just build-binary fit-search
+    just build-binary fit-unary
+    just build-binary fit-tiktoken
+    just build-binary fit-download-bundle
 ```
 
 Sequential execution is intentional — parallel `bun build --compile` can
-exhaust memory on CI runners (each embeds the ~60 MB bun runtime). `codegen`
-runs first to ensure generated gRPC code is current. The exact list of
-services and library CLIs, and any target-name disambiguation, is resolved
-during Step 1a/1b implementation from `services/*/package.json` and
-`libraries/*/package.json` `bin` fields.
+exhaust memory on CI runners (each embeds the ~60 MB bun runtime).
+`codegen` runs first so generated gRPC code is current. The canonical
+utility list above must be verified against
+`libraries/*/package.json` during Step 1a implementation and updated if
+any library's `bin` set has changed since this plan was written.
 
 ### Recipes: `build-app-*`
 
@@ -357,7 +360,7 @@ codesign -d --entitlements - dist/apps/fit-pathway.app
 codesign --verify --deep --strict dist/apps/fit-pathway.app
 # Expect: exit 0
 ./dist/apps/fit-pathway.app/Contents/MacOS/fit-pathway --help
-# Expect: pathway help output, exit 0 in < 500 ms
+# Expect: pathway help output, exit 0
 
 # Build every bundle
 just build-apps
@@ -365,9 +368,12 @@ ls dist/apps/
 # Expect: fit-basecamp.app, fit-guide.app, fit-landmark.app, fit-map.app,
 #         fit-pathway.app, fit-summit.app, FIT Services.app, FIT Utilities.app
 
-# cdhash stability check (CI gate)
+# cdhash stability check (CI gate): rebuild from the same tree twice and
+# compare the signed cdhash. No stash — the tree is unchanged between
+# invocations; the build must be deterministic on its own.
 BASELINE=$(codesign -dvvv dist/apps/fit-pathway.app 2>&1 | grep CDHash)
-git stash && just build-app-product pathway && git stash pop
+rm -rf dist/apps/fit-pathway.app dist/binaries/fit-pathway-bun-darwin-arm64
+just build-app-product pathway
 AFTER=$(codesign -dvvv dist/apps/fit-pathway.app 2>&1 | grep CDHash)
 [ "$BASELINE" = "$AFTER" ] || { echo "cdhash drift"; exit 1; }
 ```
@@ -721,7 +727,7 @@ and declares `depends_on cask:` on the two shared-bundle casks:
 ```ruby
 cask "fit-pathway" do
   version "0.0.0"
-  sha256 :no_check
+  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
 
   url "https://github.com/forwardimpact/monorepo/releases/download/pathway@v#{version}/fit-pathway-#{version}-darwin-arm64.zip"
   name "Forward Impact Pathway"
@@ -756,7 +762,7 @@ bundles and enumerate every Mach-O inside `Contents/MacOS/` as a separate
 ```ruby
 cask "fit-utilities" do
   version "0.0.0"
-  sha256 :no_check
+  sha256 "0000000000000000000000000000000000000000000000000000000000000000"
 
   url "https://github.com/forwardimpact/monorepo/releases/download/utilities@v#{version}/fit-utilities-#{version}-darwin-arm64.zip"
   name "Forward Impact Utilities"
@@ -805,9 +811,11 @@ end
 gRPC servers (`fit-service-{graph,mcp,pathway,trace,vector}`).
 
 Each product cask gets a tailored `desc` matching the product tagline from
-its Overview page. The `sha256 :no_check` placeholder is safe — no release
+its Overview page. The all-zero `sha256` placeholder is safe — no release
 asset exists at `v0.0.0`, so `brew install` would fail with a download
-error, not an integrity bypass.
+error, not an integrity bypass. The placeholder's quoted-string form
+matches the shape Step 2's `sed -i` cask-update edits on first release,
+so the initial `version` / `sha256` bump is mechanical.
 
 ### README.md content
 
@@ -832,9 +840,9 @@ brew info forwardimpact/tap/fit-pathway
 
 ## Step 4 — Product overview documentation
 
-Add a brew install section to each of the seven product Overview pages and to
-the codegen internals page. Each page gets a "Getting Started" section update
-showing both npm and brew paths.
+Add a brew install section to each of the six product Overview pages and to
+the codegen internals page. Each page gets a "Getting Started" section
+update showing both npm and brew paths.
 
 ### Pattern
 
@@ -954,17 +962,25 @@ Installing any product cask (e.g. `fit-guide`) also installs
   are modified by this plan. Existing `publish-npm.yml` and CI quality checks
   exercise the npm path — no new verification needed.
 
+### Agent & parallelism
+
+**Agent:** technical-writer.
+**Parallelism:** Can start once the tap path (`forwardimpact/tap`) and
+cask names (e.g. `fit-pathway`, `fit-utilities`) are fixed by Step 3.
+Runs in parallel with Steps 1b–2; does not block any tag push.
+
 ## Risks
 
 1. **Binary size.** Each binary embeds the bun runtime (~60 MB) plus bundled
-   dependencies. The 150 MB ceiling from the design is enforced by the
-   `build-binary` recipe's size gate. If a CLI exceeds it, the build fails
-   immediately.
+   dependencies. Neither spec nor design pins an acceptance ceiling; size is
+   treated as observable, not gated. If a bundle grows enough to affect
+   Homebrew download times or cask-upgrade reliability, revisit in a
+   follow-up and propose a ceiling there.
 2. **Symlink resolution.** The `generated/` symlink in `librpc/src/generated` →
    `<repo>/generated/` must be resolved by bun's bundler at compile time.
    Confirmed working by basecamp's `build-scheduler` recipe
-   (`products/basecamp/justfile:35`). Detectable in Step 1 verification if it
-   ever regresses.
+   (`products/basecamp/justfile:35`). Detectable in Step 1b verification if
+   it ever regresses.
 3. **Tag collision.** `publish-brew.yml` and `publish-npm.yml` both fire on
    `*@v*`. They're independent, but if `publish-brew.yml` fails, the npm release
    ships without a brew release. Mitigation: the tap PR is the human gate — a
@@ -979,10 +995,10 @@ Installing any product cask (e.g. `fit-guide`) also installs
 6. **Gatekeeper friction.** Unsigned binaries require manual approval on first
    run. Mitigation: every Overview page carries the caveat with step-by-step
    instructions. Signing is explicitly deferred per spec.
-7. **Startup budget.** The design specifies a 500 ms cold-start budget for
-   `--help`. The CI smoke test runs `--help` but does not time it (timing on
-   shared CI runners is unreliable). Startup budget enforcement is deferred to
-   manual acceptance testing on dedicated hardware.
+7. **Cold-start performance.** Neither spec nor design pins a `--help`
+   startup budget. CI smoke-tests `--help` for correctness; any regression
+   large enough to affect interactive feel is expected to surface in
+   manual acceptance testing on dedicated hardware before release.
 8. **SC5 acceptance.** The CI smoke test runs `--help` only. Full SC5 coverage
    (every user-visible Guide command works without codegen) requires manual
    acceptance testing on a clean macOS machine with no Node/Bun on PATH. The

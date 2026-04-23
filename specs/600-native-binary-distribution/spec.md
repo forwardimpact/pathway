@@ -47,35 +47,34 @@ on macOS additionally get a zero-Node option via Homebrew.
 
 Four new capabilities:
 
-1. **macOS `.app` bundle build targets.** Every compiled artifact ships as a
-   real macOS `.app` bundle, not a bare Mach-O. Three categories of bundle are
-   produced: (a) one per-product bundle for each of the six products
-   (`fit-basecamp.app`, `fit-guide.app`, `fit-landmark.app`, `fit-map.app`,
-   `fit-pathway.app`, `fit-summit.app`), (b) a shared `FIT Services.app`
-   containing the gRPC servers from `services/`, (c) a shared `FIT Utilities.app`
-   containing the library CLIs from `libraries/*` that have a `bin` field
-   (including `fit-codegen`, `fit-terrain`, `fit-eval`, and the rest). Each
-   bundle carries its own `Contents/Info.plist`, `entitlements.plist`, and
-   ad-hoc code signature with a stable `CFBundleIdentifier`. No Node, no Bun,
-   no runtime dependency on user-side tooling.
+1. **macOS `.app` bundle build targets.** Every compiled artifact ships as
+   a real macOS `.app` bundle, not a bare Mach-O. Three categories of bundle
+   are produced: (a) one per-product bundle for each of the six products,
+   (b) a shared bundle containing every gRPC server under `services/`,
+   (c) a shared bundle containing every library CLI under `libraries/*`
+   that has a `bin` field. Each bundle carries its own `Info.plist`,
+   entitlements, and ad-hoc code signature. The exact bundle names,
+   identifiers, and the enumeration of library CLIs that go into the
+   shared bundles are design decisions. No Node, no Bun, no runtime
+   dependency on user-side tooling.
 2. **Release-workflow artifact publishing.** Release automation, triggered on
    release tag, builds the bundles and attaches them to the GitHub release as
    downloadable assets, one `.app.zip` per bundle per target triple. The CI
    platform and workflow layout are design decisions.
-3. **Homebrew tap distribution.** A Homebrew tap exposes eight cask packages:
-   one per product bundle plus `fit-services` and `fit-utilities` for the two
-   shared bundles. Each product cask `depends_on` the two shared-bundle casks,
-   and every cask's `binary` stanza symlinks the `fit-*` Mach-Os out of
-   `Contents/MacOS/` onto the user's `PATH`.
-4. **macOS TCC compatibility.** Each bundle carries a stable
-   `CFBundleIdentifier`-based designated requirement across rebuilds, declares
-   the entitlements bun's JavaScriptCore JIT needs
-   (`com.apple.security.cs.allow-jit`,
-   `com.apple.security.cs.disable-library-validation`), and exposes any
-   `NS*UsageDescription` strings via `Contents/Info.plist` for TCC-gated
-   resources the bundle's executables access. Adding Developer ID signing +
-   notarization in a follow-up spec is a drop-in **replacement of the signing
-   identity**, not a rebuild of the metadata layer.
+3. **Homebrew tap distribution.** A Homebrew tap exposes one cask per
+   bundle: a product cask for each of the six products plus one cask for
+   each shared bundle. Installing a product cask transitively installs the
+   two shared-bundle casks, and every `fit-*` CLI the bundles surface ends
+   up on the user's `PATH`. Tap location, cask names, and the specific
+   Homebrew stanzas used are design decisions.
+4. **macOS TCC compatibility.** Each bundle carries a stable, content-hash-
+   independent designated requirement across rebuilds, is ad-hoc signed
+   with Hardened Runtime enabled, and declares the entitlements bun's
+   JavaScriptCore JIT needs. Bundles whose executables access TCC-gated
+   resources (Calendar, Contacts, etc.) also carry the usage-description
+   strings macOS requires before prompting. Adding Developer ID signing
+   and notarization in a follow-up spec is a drop-in **replacement of the
+   signing identity**, not a rebuild of the metadata layer.
 
 The intent is deliberately narrow: preserve every existing install path,
 behaviour, and CLI surface unchanged, and add one new way to get the same
@@ -85,12 +84,16 @@ executables onto a macOS machine without installing Node.
 
 ### Included
 
-- All seven `fit-*` CLIs listed above, each buildable as a standalone native
-  binary.
+- Every `fit-*` CLI listed in the Problem section plus every gRPC service
+  under `services/` and every library CLI under `libraries/*` with a `bin`
+  field is reachable through the new channel — either as the primary
+  executable of a per-product bundle, or as a named Mach-O inside one of
+  the two shared bundles.
 - macOS arm64 as the primary and required target at acceptance.
-- A release automation workflow that builds the binaries on release tag and
+- A release automation workflow that builds the bundles on release tag and
   attaches them to the GitHub release.
-- A Homebrew tap with one installable package per CLI.
+- A Homebrew tap with one cask per bundle (six product casks plus the two
+  shared-bundle casks).
 - Documentation of the brew install flow on the per-product Overview pages
   linked from [`CLAUDE.md` § Products](../../CLAUDE.md) for every affected
   product.
@@ -121,13 +124,18 @@ executables onto a macOS machine without installing Node.
   with the minimal JIT entitlement set and no usage-description strings.
   Adding new TCC-gated resources to any CLI is a per-bundle change, not a
   spec-600 concern.
-- **Symlink-from-Terminal TCC responsibility.** When a user invokes a CLI
-  via its PATH symlink (`/usr/local/bin/fit-<cli>` → the `.app` bundle's
-  `Contents/MacOS/fit-<cli>`), Terminal becomes the TCC-responsible process
-  rather than the bundle. This only matters for CLIs that request
-  TCC-gated resources and is out of scope; `fit-basecamp`'s scheduler is
-  invoked by `fit-basecamp.app`, not from Terminal, so its TCC grants
-  attach to the bundle correctly.
+- **Fixing Terminal-inherited TCC responsibility for PATH symlinks.**
+  Capability #3 requires that every CLI still be invokable from Terminal
+  through the cask's `binary` symlink; that is in scope and must work.
+  What is **out** of scope is changing which process macOS considers
+  TCC-responsible in that case: when the CLI launches via the symlink,
+  Terminal (not the bundle) is the responsible process, which only
+  matters for CLIs that actively request TCC-gated resources like
+  Calendar or Contacts. No non-basecamp CLI does so today, and
+  `fit-basecamp`'s scheduler is launched by the `fit-basecamp.app`
+  bundle rather than from Terminal, so its TCC grants already attach
+  to the bundle correctly. Adding a self-disclaim helper for a future
+  Terminal-invoked TCC-gated CLI is deferred.
 - **Replacing or modifying the existing npm channel.** `npm install` /
   `npx fit-*` continues to work identically. No CLI is removed from npm, no
   shebang is rewritten, and no existing user workflow changes.
@@ -137,19 +145,23 @@ executables onto a macOS machine without installing Node.
 ## Success Criteria
 
 1. A single documented build entry point produces a standalone macOS arm64
-   native binary for each of the seven `fit-*` CLIs. Each binary runs its
-   `--help` successfully on a macOS arm64 machine that has neither `node` nor
-   `bun` on `PATH`.
-2. A release-automation workflow, triggered by a release tag, builds the full
-   binary set and attaches the binaries to the GitHub release as downloadable
-   assets, with a deterministic asset-name scheme that identifies the CLI and
-   target triple.
-3. A Homebrew tap contains one installable package per CLI. Each package
-   references the GitHub release artifact for the CLI and target triple.
-4. On a clean macOS arm64 machine with Homebrew installed but no Node and no
-   Bun, running `brew install <tap>/fit-<cli>` for each of the seven CLIs leaves
-   each corresponding `fit-<cli>` command on `PATH` answering `--help`. The
-   concrete tap path is fixed by design.
+   release artifact for each of the eight bundles in scope (six per-product
+   plus the two shared bundles). Every `fit-*` CLI surfaced by those
+   bundles runs its `--help` successfully on a macOS arm64 machine that
+   has neither `node` nor `bun` on `PATH`.
+2. A release-automation workflow, triggered by a release tag, builds the
+   artifact for that tag and attaches it to the GitHub release as a
+   downloadable asset, with a deterministic asset-name scheme that
+   identifies the bundle and target triple.
+3. A Homebrew tap contains one cask per bundle. Each cask references the
+   GitHub release artifact for that bundle and target triple, and product
+   casks declare a dependency on the two shared-bundle casks so installing
+   a product cask delivers the full runtime.
+4. On a clean macOS arm64 machine with Homebrew installed but no Node and
+   no Bun, running the brew install command published on each affected
+   product's Overview page leaves every `fit-*` CLI surfaced by the
+   bundles on the user's `PATH`, each answering `--help`. The concrete tap
+   path and cask names are fixed by design.
 5. After installing `fit-guide` exclusively via brew — no npm, no post-install
    command — the user can run `fit-guide --help` and every user-visible command
    documented in the [Guide Overview](../../website/guide/index.md) with no
@@ -164,31 +176,32 @@ executables onto a macOS machine without installing Node.
    `npm install` followed by `npx fit-<cli> --help` succeeds on a reference Node
    LTS environment after the release that ships the brew channel. No `bin`
    script, `package.json` `bin` entry, or shebang has changed.
-8. **Stable bundle identity.** Rebuilding any bundle from the same source tree
-   and re-installing via `brew upgrade` on a machine that previously granted a
-   TCC permission keeps the grant — the user is not re-prompted. Verified by:
-   `codesign -dvvv <Bundle>.app` shows
-   `Identifier=com.forwardimpact.<bundle>`, and the bundle's signed cdhash is
-   stable across clean rebuilds of the same commit.
-9. **Entitlements and Info.plist present on every bundle.** For each of the
-   eight bundles (six product bundles, `FIT Services.app`, `FIT Utilities.app`),
-   `Contents/Info.plist` contains `CFBundleIdentifier =
-   com.forwardimpact.<bundle>` and `CFBundleShortVersionString` matching the
-   release tag; `codesign -d --entitlements - <Bundle>.app` prints an
-   entitlements plist containing `com.apple.security.cs.allow-jit`.
-10. **`fit-basecamp` TCC responsibility chain intact.** The `fit-basecamp.app`
-    bundle built through the shared bundle-assembly recipe still inherits TCC
-    grants when launched, and its scheduler still disclaims responsibility
-    when spawning `claude`. Verified by: Basecamp's existing Calendar and
-    Contacts integration continues to work after migrating to the shared
-    recipe.
-11. **Homebrew cask install adds CLIs to PATH.** After
-    `brew install --cask forwardimpact/tap/fit-<product>` for any product,
-    both `/Applications/Forward Impact/fit-<product>.app` and
-    `/usr/local/bin/fit-<product>` exist, and the CLI answers `--help`
-    successfully. The product cask's `depends_on` pulls in the
-    `fit-services` and `fit-utilities` casks automatically, leaving the
-    shared-bundle CLIs (e.g. `fit-codegen`, `fit-terrain`) on PATH as well.
+8. **Stable bundle identity.** Rebuilding any bundle from the same source
+   tree and re-installing via `brew upgrade` on a machine that previously
+   granted it a TCC permission keeps the grant — the user is not
+   re-prompted. The bundle's designated-requirement identity is stable
+   across rebuilds of the same commit.
+9. **Entitlements and Info.plist present on every bundle.** Every bundle
+   carries a `Contents/Info.plist` declaring a bundle identifier and a
+   version string matching the release tag, and is ad-hoc signed with an
+   entitlements set that unlocks bun's JavaScriptCore JIT under Hardened
+   Runtime. The exact identifier scheme, entitlement keys, and
+   verification commands are design decisions.
+10. **`fit-basecamp` TCC responsibility chain intact.** Basecamp's existing
+    Calendar and Contacts integration continues to work after migrating to
+    the shared bundle-assembly recipe, and its scheduler still disclaims
+    TCC responsibility when spawning `claude`. Verified by a manual
+    hardware test on macOS 14+ that launches the rebuilt bundle, triggers
+    a calendar sync, and observes no TCC prompt plus a
+    responsible-process lookup that resolves to the basecamp bundle
+    (specific `log stream` predicate is a plan decision).
+11. **Homebrew cask install surfaces every CLI on `PATH`.** After the
+    documented `brew install` command for any product cask runs on a
+    clean macOS arm64 machine, every `fit-*` CLI surfaced by that product
+    and by the two shared bundles that `depends_on` pulls in is on the
+    user's `PATH` and answers `--help`. The specific `/Applications/…`
+    install location and the PATH-symlink directory are Homebrew-prefix
+    dependent and are design decisions, not acceptance literals.
 
 ## Open questions
 
