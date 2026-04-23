@@ -71,7 +71,7 @@ bun run check:fix
 ```
 products/       Six products (map, pathway, basecamp, guide, summit, landmark)
 libraries/      Shared libraries (libskill, libui, libdoc, etc.)
-services/       gRPC microservices (agent, graph, llm, memory, etc.)
+services/       gRPC microservices (trace, vector, graph, pathway, mcp)
 data/           Generated and framework data
 config/         Service and tool configuration
 specs/          Feature specifications and plans
