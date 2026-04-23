@@ -15,6 +15,10 @@ wiki-pull:
 wiki-push:
     bash scripts/wiki-sync.sh push
 
+# Audit agent memory against the wiki contract
+wiki-audit:
+    bash scripts/wiki-audit.sh
+
 # Install dependencies and tooling
 install: wiki-pull install-bun install-gh
 
