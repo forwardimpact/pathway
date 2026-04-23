@@ -14,38 +14,10 @@ import {
   createRedirectHandler,
 } from "../src/orchestration-toolkit.js";
 import { createMockRunner } from "./mock-runner.js";
+import { createToolUseMsg } from "@forwardimpact/libharness";
 
-function concludeMsg(summary) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: "conclude-1",
-          name: "Conclude",
-          input: { summary },
-        },
-      ],
-    },
-  };
-}
-
-function redirectMsg(message) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: "redirect-1",
-          name: "Redirect",
-          input: { message },
-        },
-      ],
-    },
-  };
-}
+const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
+const redirectMsg = (message) => createToolUseMsg("Redirect", { message });
 
 describe("Supervisor - output and events", () => {
   test("output contains tagged lines with correct source and seq", async () => {

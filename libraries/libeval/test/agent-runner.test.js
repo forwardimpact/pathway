@@ -3,21 +3,7 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { AgentRunner, createAgentRunner } from "@forwardimpact/libeval";
-
-/**
- * Create a mock query function that yields canned messages.
- * @param {object[]} messages - Messages to yield
- * @param {function} [captureOptions] - Callback to capture query options
- * @returns {function}
- */
-function mockQuery(messages, captureOptions) {
-  return async function* (params) {
-    if (captureOptions) captureOptions(params);
-    for (const msg of messages) {
-      yield msg;
-    }
-  };
-}
+import { createMockAgentQuery as mockQuery } from "@forwardimpact/libharness";
 
 /**
  * Collect all NDJSON lines written to a PassThrough stream.

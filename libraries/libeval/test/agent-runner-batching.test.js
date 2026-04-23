@@ -3,24 +3,12 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { AgentRunner } from "@forwardimpact/libeval";
+import {
+  createMockAgentQuery as mockQuery,
+  createTextBlockMsg,
+} from "@forwardimpact/libharness";
 
-/**
- * Create a mock query function that yields canned messages.
- * @param {object[]} messages - Messages to yield
- * @returns {function}
- */
-function mockQuery(messages) {
-  return async function* () {
-    for (const msg of messages) {
-      yield msg;
-    }
-  };
-}
-
-const textBlock = (t) => ({
-  type: "assistant",
-  message: { content: [{ type: "text", text: t }] },
-});
+const textBlock = (t) => createTextBlockMsg(t);
 
 const toolOnly = (name) => ({
   type: "assistant",

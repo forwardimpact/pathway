@@ -9,38 +9,11 @@ import {
 } from "../src/orchestration-toolkit.js";
 import { MessageBus } from "../src/message-bus.js";
 import { createMockRunner } from "./mock-runner.js";
+import { createToolUseMsg } from "@forwardimpact/libharness";
 
-function concludeMsg(summary) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: "conclude-1",
-          name: "Conclude",
-          input: { summary },
-        },
-      ],
-    },
-  };
-}
-
-function tellMsg(to, message) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: `tell-${to}`,
-          name: "Tell",
-          input: { to, message },
-        },
-      ],
-    },
-  };
-}
+const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
+const tellMsg = (to, message) =>
+  createToolUseMsg("Tell", { to, message }, { id: `tell-${to}` });
 
 describe("Facilitator - core orchestration", () => {
   test("turn 0 Conclude: no agents start", async () => {

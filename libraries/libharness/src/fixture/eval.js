@@ -120,21 +120,27 @@ export function createTestTrace(overrides = {}) {
 }
 
 /**
- * Creates an async-generator agent query stub yielding a canned sequence of
- * messages, optionally capturing the params it was invoked with.
+ * Creates an async-generator agent query stub. The shape of `messages`
+ * determines per-call behaviour:
+ *  - Flat array of message objects: yielded on every invocation.
+ *  - Array of arrays (batches): the Nth invocation yields messages from the
+ *    Nth batch. Subsequent calls past the last batch repeat the last one.
  *
- * @param {Array<object | object[]>} messageBatches - Each batch is yielded in turn.
- *   A batch can be an array of messages or a single message.
- * @param {(params: object) => void} [onParams] - Invoked with the call params.
+ * @param {object[] | object[][]} messages
+ * @param {(params: object) => void} [onParams] - Invoked with call params.
  * @returns {Function} Async generator mimicking `query({...})`.
  */
-export function createMockAgentQuery(messageBatches, onParams) {
+export function createMockAgentQuery(messages, onParams) {
+  const isBatched = Array.isArray(messages[0]);
   let callIndex = 0;
   return async function* mockQuery(params) {
     if (onParams) onParams(params);
-    const batch = messageBatches[callIndex] ?? messageBatches[messageBatches.length - 1] ?? [];
+    if (!isBatched) {
+      for (const msg of messages) yield msg;
+      return;
+    }
+    const batch = messages[callIndex] ?? messages[messages.length - 1] ?? [];
     callIndex += 1;
-    const messages = Array.isArray(batch) ? batch : [batch];
-    for (const msg of messages) yield msg;
+    for (const msg of batch) yield msg;
   };
 }

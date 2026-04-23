@@ -9,43 +9,13 @@ import {
   createRedirectHandler,
 } from "../src/orchestration-toolkit.js";
 import { createMockRunner } from "./mock-runner.js";
+import {
+  createToolUseMsg,
+  createTextBlockMsg as textBlock,
+} from "@forwardimpact/libharness";
 
-const textBlock = (t) => ({
-  type: "assistant",
-  message: { content: [{ type: "text", text: t }] },
-});
-
-function concludeMsg(summary) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: "conclude-1",
-          name: "Conclude",
-          input: { summary },
-        },
-      ],
-    },
-  };
-}
-
-function redirectMsg(message) {
-  return {
-    type: "assistant",
-    message: {
-      content: [
-        {
-          type: "tool_use",
-          id: "redirect-1",
-          name: "Redirect",
-          input: { message },
-        },
-      ],
-    },
-  };
-}
+const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
+const redirectMsg = (message) => createToolUseMsg("Redirect", { message });
 
 describe("Supervisor - batching at the default batchSize", () => {
   test("mid-turn review fires once per 3 agent text messages", async () => {

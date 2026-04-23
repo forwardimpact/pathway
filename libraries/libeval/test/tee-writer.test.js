@@ -3,39 +3,11 @@ import assert from "node:assert";
 import { PassThrough } from "node:stream";
 
 import { TeeWriter, createTeeWriter } from "@forwardimpact/libeval";
-
-/**
- * Collect all data written to a PassThrough stream as a string.
- * @param {PassThrough} stream
- * @returns {string}
- */
-function collect(stream) {
-  const data = stream.read();
-  return data ? data.toString() : "";
-}
-
-/**
- * Strip ANSI SGR escapes for assertions that care about the line shape, not
- * the color bytes. The rendering path deliberately keeps both sides
- * identical modulo these escapes (spec 540 criterion #6).
- * @param {string} s
- */
-function stripAnsi(s) {
-  // eslint-disable-next-line no-control-regex -- ANSI SGR detection is exactly what we want here.
-  return s.replace(/\u001b\[[0-9;]*m/g, "");
-}
-
-/**
- * Write lines to a TeeWriter and wait for it to finish.
- * @param {TeeWriter} writer
- * @param {string[]} lines - JSON lines to write
- */
-async function writeLines(writer, lines) {
-  for (const line of lines) {
-    writer.write(line + "\n");
-  }
-  await new Promise((resolve) => writer.end(resolve));
-}
+import {
+  collectStream as collect,
+  stripAnsi,
+  writeLines,
+} from "@forwardimpact/libharness";
 
 describe("TeeWriter", () => {
   test("constructor throws on missing fileStream", () => {

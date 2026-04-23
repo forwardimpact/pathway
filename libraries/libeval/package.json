@@ -34,6 +34,9 @@
     "@forwardimpact/libtelemetry": "^0.1.22",
     "zod": "^4.3.6"
   },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
+  },
   "publishConfig": {
     "access": "public"
   }

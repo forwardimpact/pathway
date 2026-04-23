@@ -89,6 +89,9 @@
         "@forwardimpact/libtelemetry": "^0.1.22",
         "zod": "^4.3.6",
       },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
     },
     "libraries/libformat": {
       "name": "@forwardimpact/libformat",
@@ -216,7 +219,7 @@
     },
     "libraries/librpc": {
       "name": "@forwardimpact/librpc",
-      "version": "0.1.93",
+      "version": "0.1.94",
       "bin": {
         "fit-unary": "./bin/fit-unary.js",
       },
@@ -476,7 +479,7 @@
     },
     "products/map": {
       "name": "@forwardimpact/map",
-      "version": "0.15.29",
+      "version": "0.15.30",
       "bin": {
         "fit-map": "./bin/fit-map.js",
       },
