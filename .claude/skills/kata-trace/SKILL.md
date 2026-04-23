@@ -75,15 +75,15 @@ Download the trace artifact and auto-convert to structured JSON:
 bunx fit-trace download <run-id>           # → /tmp/trace-<run-id>/structured.json
 ```
 
-If no artifacts exist, pick a different run and note why. Query the trace with
-`fit-trace` commands — `overview`, `count`, `timeline`, `batch`, `head`, `tail`,
-`search`, `tool`, `errors`, `reasoning`, `tools`, `stats`:
+If no artifacts exist, pick a different run and note why. Query with `fit-trace`
+— `overview`, `count`, `timeline`, `batch`, `head`, `tail`, `search` (`--full`
+for full content blocks), `tool`, `errors`, `reasoning`, `tools`, `stats`,
+`init` (system/init event), `turn <index>`, `filter --role|--tool|--error`.
+`thinking.signature` blobs strip by default — pass `--signatures` to keep them.
 
 ```sh
 bunx fit-trace overview /tmp/trace-<run-id>/structured.json
-bunx fit-trace timeline /tmp/trace-<run-id>/structured.json
-bunx fit-trace batch /tmp/trace-<run-id>/structured.json 0 20
-bunx fit-trace search /tmp/trace-<run-id>/structured.json 'error|fail'
+bunx fit-trace filter /tmp/trace-<run-id>/structured.json --role system
 ```
 
 ### 3. Observe the Work (Open Coding + Memos)

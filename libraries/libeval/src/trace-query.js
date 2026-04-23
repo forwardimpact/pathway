@@ -17,16 +17,88 @@ export class TraceQuery {
   }
 
   /**
-   * High-level overview: metadata, summary, turn count, and tool frequency.
+   * High-level overview: metadata, summary, turn count, tool frequency,
+   * and the first user message text (taskPrompt) when present.
    * @returns {object}
    */
   overview() {
+    const firstUser = this.turns.find((t) => t.role === "user");
+    const taskPrompt = firstUser
+      ? firstUser.content
+          .filter((b) => b.type === "text")
+          .map((b) => b.text)
+          .join("\n")
+      : null;
     return {
       metadata: this.metadata,
       summary: this.summary,
       turnCount: this.turns.length,
       tools: this.toolFrequency(),
+      taskPrompt,
     };
+  }
+
+  /**
+   * Full system/init event — the single most diagnostic message for
+   * root-cause analysis. Returns null for traces collected before this
+   * field existed.
+   * @returns {object|null}
+   */
+  init() {
+    return this.trace.initEvent ?? null;
+  }
+
+  /**
+   * Retrieve a single turn by its index.
+   * @param {number} index
+   * @returns {object|null}
+   */
+  turn(index) {
+    return this.turns.find((t) => t.index === index) ?? null;
+  }
+
+  /**
+   * Filter turns by composable structural criteria. All criteria are
+   * combined as AND. `tool()` and `errors()` remain as convenience
+   * shortcuts for pre-existing workflows.
+   *
+   * `toolName` matches assistant turns only. Applying `toolName` without
+   * `role: "assistant"` still drops every non-assistant turn, because
+   * resolving tool_use → tool_result pairs requires the `tool()` method.
+   * `isError` matches tool_result turns only. Combining `toolName` with
+   * `isError` therefore always returns `[]` (no turn is both assistant
+   * and tool_result) — use `tool(name)` for "errors from Bash"–shaped
+   * queries.
+   *
+   * @param {object} [opts]
+   * @param {string} [opts.role] - Exact role match (system | user |
+   *   assistant | tool_result).
+   * @param {string} [opts.toolName] - Matches assistant turns with a
+   *   tool_use block of this name. Drops all non-assistant turns.
+   * @param {boolean} [opts.isError] - Matches tool_result turns by
+   *   `isError` value. Drops all non-tool_result turns.
+   * @returns {object[]}
+   */
+  filter(opts = {}) {
+    const { role, toolName, isError } = opts;
+    return this.turns.filter((turn) => {
+      if (role !== undefined && turn.role !== role) return false;
+      if (isError !== undefined) {
+        if (turn.role !== "tool_result") return false;
+        if (turn.isError !== isError) return false;
+      }
+      if (toolName !== undefined) {
+        if (turn.role === "assistant") {
+          const has = turn.content.some(
+            (b) => b.type === "tool_use" && b.name === toolName,
+          );
+          if (!has) return false;
+        } else {
+          return false;
+        }
+      }
+      return true;
+    });
   }
 
   /** @returns {number} */
@@ -73,16 +145,18 @@ export class TraceQuery {
    * @param {object} [opts]
    * @param {number} [opts.context=0] - Number of surrounding turns to include
    * @param {number} [opts.limit=50] - Max results
+   * @param {boolean} [opts.full=false] - Emit full content block text in
+   *   match descriptions instead of the default narrow excerpt window.
    * @returns {object[]} Array of {turn, matches, context?}
    */
   search(pattern, opts = {}) {
-    const { context = 0, limit = 50 } = opts;
+    const { context = 0, limit = 50, full = false } = opts;
     // eslint-disable-next-line security/detect-non-literal-regexp -- pattern is caller-controlled, not untrusted input
     const re = new RegExp(pattern, "gi");
     const hits = [];
 
     for (const turn of this.turns) {
-      const matches = matchTurn(turn, re);
+      const matches = matchTurn(turn, re, full);
       if (matches.length > 0) {
         const entry = { turn, matches };
         if (context > 0) {
@@ -273,38 +347,77 @@ export class TraceQuery {
  * Search a single turn for regex matches. Returns array of match descriptions.
  * @param {object} turn
  * @param {RegExp} re
+ * @param {boolean} [full=false] - Emit full block text instead of an excerpt.
  * @returns {string[]}
  */
-function matchTurn(turn, re) {
+function matchTurn(turn, re, full = false) {
+  if (turn.role === "assistant") return matchAssistantTurn(turn, re, full);
+  if (turn.role === "tool_result") return matchToolResultTurn(turn, re, full);
+  if (turn.role === "user") return matchUserTurn(turn, re, full);
+  return [];
+}
+
+function matchAssistantTurn(turn, re, full) {
   const matches = [];
-  if (turn.role === "assistant") {
-    for (const block of turn.content) {
-      if (block.type === "text" && re.test(block.text)) {
-        re.lastIndex = 0;
-        matches.push(`text: ${excerptAround(block.text, re)}`);
-      }
-      if (block.type === "tool_use") {
-        if (re.test(block.name)) {
-          re.lastIndex = 0;
-          matches.push(`tool_name: ${block.name}`);
-        }
-        const inputStr = JSON.stringify(block.input);
-        if (re.test(inputStr)) {
-          re.lastIndex = 0;
-          matches.push(
-            `tool_input(${block.name}): ${excerptAround(inputStr, re)}`,
-          );
-        }
-      }
-    }
-  } else if (turn.role === "tool_result") {
-    const content = turn.content ?? "";
-    if (re.test(content)) {
-      re.lastIndex = 0;
-      matches.push(`result: ${excerptAround(content, re)}`);
+  for (const block of turn.content) {
+    if (block.type === "text") {
+      const desc = describeText(block.text, re, "text", full);
+      if (desc) matches.push(desc);
+    } else if (block.type === "tool_use") {
+      matches.push(...matchToolUseBlock(block, re, full));
     }
   }
   return matches;
+}
+
+function matchToolUseBlock(block, re, full) {
+  const matches = [];
+  if (re.test(block.name)) {
+    re.lastIndex = 0;
+    matches.push(`tool_name: ${block.name}`);
+  }
+  const inputStr = JSON.stringify(block.input);
+  const inputDesc = describeText(
+    inputStr,
+    re,
+    `tool_input(${block.name})`,
+    full,
+  );
+  if (inputDesc) matches.push(inputDesc);
+  return matches;
+}
+
+function matchToolResultTurn(turn, re, full) {
+  const content = turn.content ?? "";
+  const desc = describeText(content, re, "result", full);
+  return desc ? [desc] : [];
+}
+
+function matchUserTurn(turn, re, full) {
+  const matches = [];
+  for (const block of turn.content ?? []) {
+    if (block.type === "text") {
+      const desc = describeText(block.text, re, "user_text", full);
+      if (desc) matches.push(desc);
+    }
+  }
+  return matches;
+}
+
+/**
+ * Return a `<prefix>: <text-or-excerpt>` description when `text` matches
+ * the regex, or null when it does not. Centralises the full-vs-excerpt
+ * choice so each call site just supplies its prefix.
+ * @param {string} text
+ * @param {RegExp} re
+ * @param {string} prefix
+ * @param {boolean} full
+ * @returns {string|null}
+ */
+function describeText(text, re, prefix, full) {
+  if (!re.test(text)) return null;
+  re.lastIndex = 0;
+  return `${prefix}: ${full ? text : excerptAround(text, re)}`;
 }
 
 /**

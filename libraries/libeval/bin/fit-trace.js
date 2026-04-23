@@ -20,6 +20,9 @@ import {
   runReasoningCommand,
   runTimelineCommand,
   runStatsCommand,
+  runInitCommand,
+  runTurnCommand,
+  runFilterCommand,
 } from "../src/commands/trace.js";
 
 const { version: VERSION } = JSON.parse(
@@ -99,6 +102,10 @@ const definition = {
           type: "string",
           description: "Surrounding turns per hit (default: 0)",
         },
+        full: {
+          type: "boolean",
+          description: "Full content block in match descriptions",
+        },
       },
     },
     {
@@ -135,11 +142,45 @@ const definition = {
       args: "<file>",
       description: "Token usage and cost breakdown",
     },
+    {
+      name: "init",
+      args: "<file>",
+      description: "Full system/init event",
+    },
+    {
+      name: "turn",
+      args: "<file> <index>",
+      description: "Single turn by index",
+    },
+    {
+      name: "filter",
+      args: "<file>",
+      description: "Filter turns by structural properties",
+      options: {
+        role: {
+          type: "string",
+          description: "Turn role (system, user, assistant, tool_result)",
+        },
+        tool: {
+          type: "string",
+          description: "Tool name (matches assistant turns)",
+        },
+        error: {
+          type: "boolean",
+          description:
+            "Error tool_result turns only (flag-only; for non-errors use the API)",
+        },
+      },
+    },
   ],
   globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },
+    signatures: {
+      type: "boolean",
+      description: "Include thinking.signature blobs in output",
+    },
   },
   examples: [
     "fit-trace runs --lookback 7d",
@@ -149,6 +190,11 @@ const definition = {
     "fit-trace search structured.json 'error|fail' --context 1",
     "fit-trace tool structured.json Bash",
     "fit-trace batch structured.json 0 20",
+    "fit-trace init structured.json",
+    "fit-trace turn structured.json 3",
+    "fit-trace filter structured.json --role system",
+    "fit-trace filter structured.json --tool Bash --role assistant",
+    "fit-trace search structured.json 'error' --full",
   ],
 };
 
@@ -170,6 +216,9 @@ const COMMANDS = {
   reasoning: runReasoningCommand,
   timeline: runTimelineCommand,
   stats: runStatsCommand,
+  init: runInitCommand,
+  turn: runTurnCommand,
+  filter: runFilterCommand,
 };
 
 async function main() {
