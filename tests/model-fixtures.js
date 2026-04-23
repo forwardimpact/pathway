@@ -11,14 +11,32 @@ import {
 import { Capability } from "@forwardimpact/map/levels";
 
 export const testSkills = [
-  createTestSkill({ id: "skill_a", name: "Skill A", capability: Capability.SCALE }),
-  createTestSkill({ id: "skill_b", name: "Skill B", capability: Capability.AI, proficiencyDescriptions: {} }),
-  createTestSkill({ id: "skill_c", name: "Skill C", capability: Capability.PEOPLE, proficiencyDescriptions: {} }),
+  createTestSkill({
+    id: "skill_a",
+    name: "Skill A",
+    capability: Capability.SCALE,
+  }),
+  createTestSkill({
+    id: "skill_b",
+    name: "Skill B",
+    capability: Capability.AI,
+    proficiencyDescriptions: {},
+  }),
+  createTestSkill({
+    id: "skill_c",
+    name: "Skill C",
+    capability: Capability.PEOPLE,
+    proficiencyDescriptions: {},
+  }),
 ];
 
 export const testBehaviours = [
   createTestBehaviour({ id: "behaviour_x", name: "Behaviour X" }),
-  createTestBehaviour({ id: "behaviour_y", name: "Behaviour Y", maturityDescriptions: {} }),
+  createTestBehaviour({
+    id: "behaviour_y",
+    name: "Behaviour Y",
+    maturityDescriptions: {},
+  }),
 ];
 
 export const testDiscipline = createTestDiscipline({
@@ -43,7 +61,11 @@ export const testTrack = createTestTrack({
 export const testLevel = createTestLevel({
   id: "test_level",
   ordinalRank: 3,
-  baseSkillProficiencies: { primary: "practitioner", secondary: "working", broad: "foundational" },
+  baseSkillProficiencies: {
+    primary: "practitioner",
+    secondary: "working",
+    broad: "foundational",
+  },
   baseBehaviourMaturity: "practicing",
 });
 
@@ -83,5 +105,10 @@ export const testCategories = [
       expert: "Shape organizational AI strategy",
     },
   }),
-  createTestCapability({ id: "people", name: "People", emojiIcon: "\u{1F465}", ordinalRank: 3 }),
+  createTestCapability({
+    id: "people",
+    name: "People",
+    emojiIcon: "\u{1F465}",
+    ordinalRank: 3,
+  }),
 ];

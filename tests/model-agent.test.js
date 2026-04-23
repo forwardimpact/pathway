@@ -1,6 +1,8 @@
 import { describe, it } from "node:test";
 import assert from "node:assert";
 
+import { assertThrowsMessage } from "@forwardimpact/libharness";
+
 import {
   deriveReferenceLevel,
   interpolateTeamInstructions,
@@ -117,8 +119,14 @@ describe("Agent Module", () => {
     });
 
     it("throws when no levels provided", () => {
-      assert.throws(() => deriveReferenceLevel([]), /No levels configured/);
-      assert.throws(() => deriveReferenceLevel(null), /No levels configured/);
+      assertThrowsMessage(
+        () => deriveReferenceLevel([]),
+        /No levels configured/,
+      );
+      assertThrowsMessage(
+        () => deriveReferenceLevel(null),
+        /No levels configured/,
+      );
     });
 
     it("works with single level", () => {
