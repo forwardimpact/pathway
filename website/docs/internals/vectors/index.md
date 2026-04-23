@@ -69,9 +69,19 @@ text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-outp
 
 ### Running Under fit-rc
 
-TEI is registered as an optional supervised service in `config/config.json`.
-When running the full service stack for development, fit-rc keeps TEI alive
-alongside the other services:
+For supervised operation, add a TEI entry to `config/config.json` under
+`init.services`. The base config created by `fit-guide init` does not include
+TEI — add the entry manually:
+
+```json
+{
+  "name": "tei",
+  "command": "text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-output",
+  "optional": true
+}
+```
+
+Once registered, fit-rc keeps TEI alive alongside the other services:
 
 ```sh
 bunx fit-rc start              # Starts all services including TEI
@@ -81,9 +91,7 @@ bunx fit-rc stop tei           # Stop TEI
 ```
 
 Because the service is marked `optional`, fit-rc skips it with a warning if
-`text-embeddings-router` is not installed. The external
-[starter config](../../../products/guide/starter/config.json) does not include
-TEI — it is too heavy a dependency for a quick-start install.
+`text-embeddings-router` is not installed.
 
 ### Docker
 
