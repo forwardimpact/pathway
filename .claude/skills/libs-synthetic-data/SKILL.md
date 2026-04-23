@@ -179,11 +179,11 @@ snapshots, initiatives, scorecards).
 ## Verification
 
 ```sh
-node --test libraries/libsyntheticgen/test/    # DSL + entity generation tests
-node --test libraries/libsyntheticprose/test/  # Prose engine + prompt builder tests
-node --test libraries/libsyntheticrender/test/ # Validation + rendering tests
-node --test libraries/libterrain/test/          # Pipeline integration tests
-bunx fit-terrain --dry-run                     # Full pipeline dry run
-bunx fit-terrain --dry-run --only=html         # Single content type
-bunx fit-map validate                          # Validate generated pathway data
+bun test libraries/libsyntheticgen/test/    # DSL + entity generation tests
+bun test libraries/libsyntheticprose/test/  # Prose engine + prompt builder tests
+bun test libraries/libsyntheticrender/test/ # Validation + rendering tests
+bun test libraries/libterrain/test/         # Pipeline integration tests
+bunx fit-terrain --dry-run                  # Full pipeline dry run
+bunx fit-terrain --dry-run --only=html      # Single content type
+bunx fit-map validate                       # Validate generated pathway data
 ```

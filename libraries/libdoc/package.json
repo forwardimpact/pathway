@@ -26,7 +26,7 @@
     "./frontmatter": "./src/frontmatter.js"
   },
   "scripts": {
-    "test": "bun run node --test test/*.test.js"
+    "test": "bun test test/*.test.js"
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",

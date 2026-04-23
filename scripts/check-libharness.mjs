@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 // Flag test files that inline a mock/fixture helper already available in
-// libharness (spec 620). Called from `bun run check`.
+// libharness (spec 640). Called from `bun run check`.
 
 import { readFile } from "node:fs/promises";
 import { execSync } from "node:child_process";
@@ -53,6 +53,26 @@ const libharnessExports = [
   "createTestPerson",
   "createTestRoster",
   "createTestEvidenceRow",
+  "createTestSkillWithMarkers",
+  "createTestLevel",
+  "createTestLevels",
+  "createTestSkill",
+  "createTestSkills",
+  "createTestDiscipline",
+  "createTestTrack",
+  "createTestBehaviour",
+  "createTestBehaviours",
+  "createTestCapability",
+  "createTestDriver",
+  "createTestTrace",
+  "collectStream",
+  "collectLines",
+  "stripAnsi",
+  "writeLines",
+  "memoizeAsync",
+  "memoizeOnSubject",
+  "createDeferred",
+  "spy",
 ];
 
 const files = execSync(
@@ -98,6 +118,20 @@ for (const file of files) {
   // libharness import at all.
   if (/class\s+MockStorage\b/.test(text) && !imports) {
     findings.push("inline class MockStorage — use createMockStorage");
+  }
+  // mock.fn from node:test is not portable to bun test. Use spy() from
+  // libharness instead (spec 650).
+  if (/\bmock\.fn\s*\(/.test(text)) {
+    findings.push(
+      "mock.fn from node:test is not bun-compatible — use spy from libharness",
+    );
+  }
+  // Callback-style test signatures (test("...", (_, done) => {...})) don't
+  // work under bun test. Convert to async.
+  if (/\btest\s*\([^,)]*,\s*\([^)]*,\s*done\s*\)/.test(text)) {
+    findings.push(
+      "test(..., (_, done) => …) is not bun-compatible — rewrite as async",
+    );
   }
 
   for (const finding of findings) {
