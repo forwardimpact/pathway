@@ -10,13 +10,15 @@ WIKI_URL="https://github.com/forwardimpact/monorepo.wiki.git"
 
 # The wiki remote is a raw https://github.com/... URL and bypasses the local
 # git proxy that serves the main repo. Without credentials, git prompts for a
-# username and fails in non-TTY environments (CI, agent sessions). When
-# GITHUB_TOKEN is present, wire it in via an inline credential helper so
-# clone/fetch/push authenticate without writing the token into .git/config.
+# username and fails in non-TTY environments (CI, agent sessions). When a
+# token is present (GITHUB_TOKEN from Actions, GH_TOKEN from gh CLI), wire it
+# in via an inline credential helper so clone/fetch/push authenticate without
+# writing the token into .git/config. The helper expands the vars in the
+# subshell git spawns, so whichever one is set at invocation time wins.
 auth_git() {
-    if [ -n "${GITHUB_TOKEN:-}" ]; then
+    if [ -n "${GITHUB_TOKEN:-}" ] || [ -n "${GH_TOKEN:-}" ]; then
         git -c credential.helper= \
-            -c 'credential.helper=!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' \
+            -c 'credential.helper=!f() { echo username=x-access-token; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f' \
             "$@"
     else
         git "$@"
