@@ -115,22 +115,17 @@ export class Config {
 
   /** @returns {string} GitHub token (GITHUB_TOKEN, or GH_TOKEN as fallback) */
   ghToken() {
-    if (this.#cache.has("GITHUB_TOKEN")) return this.#cache.get("GITHUB_TOKEN");
-    const value = this.#env("GITHUB_TOKEN") ?? this.#env("GH_TOKEN");
-    if (!value) throw new Error("GITHUB_TOKEN not found in environment");
-    const trimmed = value.trim();
-    this.#cache.set("GITHUB_TOKEN", trimmed);
-    return trimmed;
+    return this.#resolve(["GITHUB_TOKEN", "GH_TOKEN"]);
   }
 
   /** @returns {Promise<string>} LLM API token (async for caller compatibility) */
   async llmToken() {
-    return this.#resolve("LLM_TOKEN");
+    return this.#resolve(["LLM_TOKEN"]);
   }
 
   /** @returns {string} LLM API base URL with trailing slashes removed */
   llmBaseUrl() {
-    return this.#resolve("LLM_BASE_URL", stripTrailingSlashes);
+    return this.#resolve(["LLM_BASE_URL"], stripTrailingSlashes);
   }
 
   /**
@@ -139,14 +134,15 @@ export class Config {
    * @returns {string}
    */
   embeddingBaseUrl() {
-    return this.#resolve("EMBEDDING_BASE_URL", stripTrailingSlashes, () =>
-      this.llmBaseUrl(),
+    return this.#resolve(
+      ["EMBEDDING_BASE_URL", "LLM_BASE_URL"],
+      stripTrailingSlashes,
     );
   }
 
   /** @returns {string} MCP bearer token */
   mcpToken() {
-    return this.#resolve("MCP_TOKEN");
+    return this.#resolve(["MCP_TOKEN"]);
   }
 
   /**
@@ -293,32 +289,30 @@ export class Config {
   }
 
   /**
-   * Cached lookup: read from env, apply optional transform, cache, and
-   * return. If the env var is unset, calls fallback or throws.
-   * @param {string} key - Environment variable name
+   * Cached lookup across one or more environment variable names. Returns
+   * the first set value (in array order), trimmed and optionally
+   * transformed. The first name is the cache key and error label.
+   * Throws if none of the names is set.
+   * @param {string[]} keys - Environment variable names in priority order
    * @param {((v: string) => string)|null} [transform] - Optional value transform (e.g. strip slashes)
-   * @param {(() => string)|null} [fallback] - Returns default when key is missing; omit to throw
    * @returns {string}
    * @private
    */
-  #resolve(key, transform = null, fallback = null) {
-    if (this.#cache.has(key)) return this.#cache.get(key);
+  #resolve(keys, transform = null) {
+    const [cacheKey] = keys;
+    if (this.#cache.has(cacheKey)) return this.#cache.get(cacheKey);
 
-    let value = this.#env(key);
-    if (value) {
-      value = value.trim();
-      if (transform) value = transform(value);
-      this.#cache.set(key, value);
-      return value;
+    for (const key of keys) {
+      const raw = this.#env(key);
+      if (raw) {
+        let value = raw.trim();
+        if (transform) value = transform(value);
+        this.#cache.set(cacheKey, value);
+        return value;
+      }
     }
 
-    if (fallback) {
-      const resolved = fallback();
-      this.#cache.set(key, resolved);
-      return resolved;
-    }
-
-    throw new Error(`${key} not found in environment`);
+    throw new Error(`${cacheKey} not found in environment`);
   }
 
   /**
