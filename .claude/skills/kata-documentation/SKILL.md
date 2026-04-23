@@ -70,6 +70,9 @@ Each run covers **one topic** in depth.
 Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Find last review dates per topic in the coverage map.
 
+> **`.claude/**`writes:** If this run edits files under`.claude/skills/`, follow
+> [self-maintenance.md](../../agents/references/self-maintenance.md).
+
 ### Topic selection
 
 1. Build coverage map — never-reviewed topics go first, then oldest.
