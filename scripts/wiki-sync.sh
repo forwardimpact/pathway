@@ -8,6 +8,21 @@ MODE="${1:-pull}"
 WIKI_DIR="wiki"
 WIKI_URL="https://github.com/forwardimpact/monorepo.wiki.git"
 
+# The wiki remote is a raw https://github.com/... URL and bypasses the local
+# git proxy that serves the main repo. Without credentials, git prompts for a
+# username and fails in non-TTY environments (CI, agent sessions). When
+# GITHUB_TOKEN is present, wire it in via an inline credential helper so
+# clone/fetch/push authenticate without writing the token into .git/config.
+auth_git() {
+    if [ -n "${GITHUB_TOKEN:-}" ]; then
+        git -c credential.helper= \
+            -c 'credential.helper=!f() { echo username=x-access-token; echo password=$GITHUB_TOKEN; }; f' \
+            "$@"
+    else
+        git "$@"
+    fi
+}
+
 # ── Init: clone if missing ──
 # CI workflows pre-checkout the wiki with an authenticated token; skip the
 # clone when the wiki directory is already a git repo (handles both a
@@ -15,7 +30,7 @@ WIKI_URL="https://github.com/forwardimpact/monorepo.wiki.git"
 # checkout). For local dev without network, anonymous clone failure is
 # non-fatal — bootstrap continues without a wiki.
 if ! git -C "$WIKI_DIR" rev-parse --git-dir >/dev/null 2>&1; then
-    if ! git clone "$WIKI_URL" "$WIKI_DIR"; then
+    if ! auth_git clone "$WIKI_URL" "$WIKI_DIR"; then
         echo "wiki-sync: could not clone wiki, skipping" >&2
         exit 0
     fi
@@ -28,7 +43,7 @@ git config user.name  "$(cd .. && git config user.name)"
 git config user.email "$(cd .. && git config user.email)"
 
 # ── Fetch latest ──
-git fetch origin master
+auth_git fetch origin master
 
 # ── Pull mode: rebase onto remote ──
 if [ "$MODE" = "pull" ]; then
@@ -51,4 +66,4 @@ if ! git rebase origin/master; then
     git rebase --abort || true
     git merge origin/master -X ours --no-edit
 fi
-git push origin master
+auth_git push origin master
