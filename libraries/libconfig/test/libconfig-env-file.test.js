@@ -68,13 +68,7 @@ describe("libconfig - .env file loading", () => {
     writeEnvFile("GH_TOKEN=gh-cli-value\n");
 
     const proc = createProcess();
-    const config = await createConfig(
-      "test",
-      "svc",
-      {},
-      proc,
-      mockStorageFn,
-    );
+    const config = await createConfig("test", "svc", {}, proc, mockStorageFn);
 
     assert.strictEqual(config.ghToken(), "gh-cli-value");
     assert.strictEqual(proc.env.GH_TOKEN, undefined);
