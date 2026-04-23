@@ -61,6 +61,9 @@ Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Extract specs previously implemented and any blockers
 from prior `staff-engineer` entries.
 
+> **Writing under `.claude/`:** If the plan targets files there, follow
+> [self-maintenance.md](../../agents/references/self-maintenance.md).
+
 ### 1. Study the spec deeply
 
 Read every file in the spec directory — `spec.md`, all `plan-*.md` files, and
