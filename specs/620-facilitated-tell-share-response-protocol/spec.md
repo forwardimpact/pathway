@@ -294,7 +294,12 @@ evidence function is shared.
   resume-once behaviour, and emits `protocol_violation` trace events.
   `FACILITATOR_SYSTEM_PROMPT` and `FACILITATED_AGENT_SYSTEM_PROMPT` are
   rewritten to match the new vocabulary and to name the Ask/Answer contract
-  descriptively.
+  descriptively in generic, domain-agnostic language — no kata references, no
+  skill names, no domain vocabulary. The `Facilitator` participant config
+  gains an optional `sessionBootstrap: string?` field; when provided,
+  libeval concatenates it after `FACILITATED_AGENT_SYSTEM_PROMPT` at the
+  `systemPromptFor` call site so consumers can supply participant framing
+  without libeval knowing its content.
 - `libraries/libeval/src/supervisor.js` — parallel changes for supervision mode:
   pending-ask registry, turn-complete guard, updated `SUPERVISOR_SYSTEM_PROMPT`
   and `AGENT_SYSTEM_PROMPT`.
@@ -312,9 +317,16 @@ evidence function is shared.
   `references/team-storyboard.md` + `references/one-on-one.md` carrying the
   mode-specific overlays. Existing `references/coaching-protocol.md`,
   `references/metrics.md`, and `references/storyboard-template.md` are
-  redistributed into the new structure.
-- `.github/workflows/kata-coaching.yml` — `task-text` reduced to single-sentence
-  skill dispatch.
+  redistributed into the new structure. `SKILL.md` Facilitator Process gains
+  a step describing how the coach derives a participant-side summary from the
+  relevant overlay and passes it as `sessionBootstrap` to libeval's
+  `Facilitator` participant config.
+- `.github/workflows/kata-coaching.yml` — `task-text` rewritten to carry the
+  coaching framing (mode, target participant, pointer to `kata-session`,
+  participant-side summary to be passed through as `sessionBootstrap`). Does
+  not prescribe Q1 content, does not assign participant-side work, does not
+  carry enforcement phrasing. Not reduced to a single sentence; shape need
+  not match `kata-storyboard.yml`.
 - `.github/workflows/kata-storyboard.yml` — any skill-name references updated;
   workflow behaviour otherwise unchanged.
 - `.claude/agents/*.md` — agent profiles referencing `kata-storyboard`
@@ -325,10 +337,13 @@ evidence function is shared.
 - `.claude/skills/kata-trace/references/invariants.md` — two new entries:
   facilitated-mode and supervised-mode protocol-violation invariants (counts of
   `protocol_violation` trace events plus `Conclude` cardinality).
-- The participant-side Participant-Protocol delivery surface, chosen from:
-  `FACILITATED_AGENT_SYSTEM_PROMPT` append, a bootstrap user message synthesised
-  by `#runAgent` before the first Ask arrives, or workflow input. Which surface
-  is chosen is a design decision.
+- The participant-side coaching-framing delivery surface: libeval exposes a
+  generic `sessionBootstrap: string?` pass-through on the `Facilitator`
+  participant config (libeval stays domain-agnostic); the coaching framing
+  originates in `kata-coaching.yml` `task-text` and is propagated to
+  participants by the facilitator agent, which derives participant-side
+  content from the `kata-session` skill and passes it through libeval's
+  pass-through field.
 
 ### Excluded
 
@@ -362,9 +377,10 @@ evidence function is shared.
 - **Spec 490** (`plan implemented`) — facilitator-as-pure-orchestrator posture.
   This spec refines the vocabulary that spec 490 introduced; the posture itself
   is preserved.
-- **Spec 500** (`plan implemented`) — facilitated-agent identity. Unchanged; the
-  Participant Protocol delivery surface this spec selects sits alongside the
-  identity surface, not inside it.
+- **Spec 500** (`plan implemented`) — facilitated-agent identity. Unchanged;
+  the participant-side coaching-framing surface this spec selects
+  (libeval's generic `sessionBootstrap` pass-through populated by the
+  facilitator) sits alongside the identity surface, not inside it.
 
 ## Success Criteria
 
@@ -395,13 +411,20 @@ properties compose into the intended runtime behaviour; it is not a criterion.
    synthetic reminder, ignores again, and verifies the `protocol_violation`
    event appears exactly once and the session does not deadlock.
 
-4. **System prompts match the new vocabulary and are descriptive, not
-   enforcing.** `FACILITATOR_SYSTEM_PROMPT`, `FACILITATED_AGENT_SYSTEM_PROMPT`,
-   `SUPERVISOR_SYSTEM_PROMPT`, and `AGENT_SYSTEM_PROMPT` name the `Ask` /
-   `Answer` / `Announce` primitives. No prompt contains "then Share", "respond
-   via Share", "stop making tool calls", or equivalent enforcing phrases —
-   runtime enforcement replaces them. Checkable by reading `facilitator.js` and
-   `supervisor.js`.
+4. **System prompts match the new vocabulary, are descriptive not enforcing,
+   and stay domain-agnostic.** `FACILITATOR_SYSTEM_PROMPT`,
+   `FACILITATED_AGENT_SYSTEM_PROMPT`, `SUPERVISOR_SYSTEM_PROMPT`, and
+   `AGENT_SYSTEM_PROMPT` name the `Ask` / `Answer` / `Announce` primitives in
+   generic language. No prompt contains "then Share", "respond via Share",
+   "stop making tool calls", or equivalent enforcing phrases — runtime
+   enforcement replaces them. No prompt names a specific skill
+   (`kata-session`, `kata-storyboard`, any `kata-*`), a domain concept
+   ("Participant Protocol" as a proper noun, "five questions", "coaching",
+   "storyboard"), or artifact vocabulary ("CSV", "XmR"). Libeval is a generic
+   library and its prompts must stay domain-agnostic. Checkable by reading
+   `facilitator.js` and `supervisor.js`, and by
+   `grep -nE 'kata-|Participant Protocol|five questions|coaching|storyboard|CSV|XmR' libraries/libeval/src/`
+   returning no hits.
 
 5. **`kata-session` skill replaces `kata-storyboard` with a mode-agnostic
    procedure.** The directory `.claude/skills/kata-session/` exists with
@@ -416,19 +439,36 @@ properties compose into the intended runtime behaviour; it is not a criterion.
    `kata-storyboard` except in historical spec/design artifacts under `specs/`
    that document prior work. Checkable by `grep -rn kata-storyboard`.
 
-7. **Participant Protocol is delivered via a session-bootstrap surface, not via
-   the coach's first `Ask`.** Whichever surface the design selects (system
-   prompt append, bootstrap user message, or workflow input), a participant in a
-   1-on-1 session has the Participant Protocol in its context before the first
-   `Ask` from the facilitator is delivered. Checkable by reading the selected
-   surface and by a test that asserts the surface is loaded into the
-   participant's runner before `messageBus.waitForMessages` returns.
+7. **Participant-side coaching framing is delivered via a consumer-controlled
+   pass-through, not via libeval's system prompt or the coach's first `Ask`.**
+   Libeval's `Facilitator` participant config exposes a `sessionBootstrap:
+   string?` field; when provided, libeval concatenates it after
+   `FACILITATED_AGENT_SYSTEM_PROMPT` at construction time so every participant
+   receives it before `messageBus.waitForMessages` returns. The coaching
+   framing itself (mode, target, pointer to `kata-session`, participant-side
+   summary) originates in `.github/workflows/kata-coaching.yml` `task-text`
+   and is propagated to participants by the facilitator as derived from the
+   `kata-session` skill. Libeval knows nothing about the string's content.
+   Checkable by (a) a libeval test asserting a provided `sessionBootstrap`
+   appears in the participant runner's system prompt before
+   `messageBus.waitForMessages` returns and an omitted one leaves the prompt
+   purely generic, (b) `kata-session/SKILL.md` containing a Facilitator
+   Process step that constructs and passes the bootstrap, and (c)
+   `kata-coaching.yml` `task-text` priming that step.
 
-8. **Coaching workflow task-text is a single-sentence skill dispatch.**
-   `.github/workflows/kata-coaching.yml` `task-text` does not prescribe Q1
-   content, does not name tools the participant should use, and does not assign
-   participant-side work. Shape matches `kata-storyboard.yml`. Checkable by
-   reading the workflow.
+8. **Coaching workflow task-text primes the facilitator without prescribing
+   participant work.** `.github/workflows/kata-coaching.yml` `task-text`
+   carries the coaching framing that libeval's generic prompts deliberately
+   omit: mode (1-on-1), target participant, pointer to `kata-session`, and
+   the participant-side summary the coach should pass through as
+   `sessionBootstrap`. It must not prescribe Q1 content (the skill supplies
+   wording), must not assign participant-side work (no "have them analyze
+   their trace using kata-trace"), must not name tools the participant should
+   use, and must not carry enforcement phrasing ("stop making tool calls",
+   "then Share"). The shape does not need to match `kata-storyboard.yml` —
+   the coaching workflow's task-text is expected to be longer because libeval
+   is now generic and domain framing lives here. Checkable by reading the
+   workflow.
 
 9. **Protocol-violation invariants are catalogued for both modes.**
    `.claude/skills/kata-trace/references/invariants.md` contains one entry per
