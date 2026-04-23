@@ -37,8 +37,10 @@ If time-constrained, prioritize `summary-accuracy` and `observation-follow-up`.
 
 ### Step 0: Read Memory
 
-Read memory per the agent profile (your summary, the current week's log, and
-teammates' summaries). Then read every file in `wiki/`:
+Read memory per the agent profile (your summary, the current week's log, and —
+because this skill is a named Tier 2 reader — all teammate summaries, all
+current-week logs, `wiki/MEMORY.md`, and `wiki/Home.md`). Then read every file
+in `wiki/`:
 
 - All agent summary files (`wiki/<agent>.md`)
 - The current week's log for each agent (`wiki/<agent>-$(date +%G-W%V).md`)
@@ -62,6 +64,10 @@ For each agent, compare the summary against the most recent weekly log entries:
   in subsequent logs? Remove resolved blockers.
 - **Stale summaries** — Flag any agent whose summary shows a "Last run" date
   more than 7 days ago with no new weekly log entries.
+- **Contract conformance** — When `just wiki-audit` is available (added by spec
+  590 part 02), run it and fix any summary failures directly in the summary
+  file. The curator is the only agent that rewrites summaries; other agents
+  propose edits via observations.
 
 Fix inaccuracies directly in the summary files.
 
@@ -115,8 +121,13 @@ agents or the whole team:
 - Breaking changes that affect agent workflows
 - Policy changes that need cross-agent awareness
 
-Ensure these appear in MEMORY.md under a visible section, or in every affected
-agent's summary under "Observations for teammates."
+The **required destination** is `wiki/MEMORY.md`'s `## Cross-Cutting Priorities`
+table. Add an entry with the schema (Item / Agents / Owner / Status / Added).
+Mirroring an item into an affected agent's `Observations for Teammates` is
+**conditional** — only when the agent needs context beyond what the index entry
+conveys.
+
+Resolved items: remove from the priority table within one curation cycle.
 
 ## Output
 

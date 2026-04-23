@@ -1,18 +1,32 @@
 # Shared Agent Protocol
 
-## Memory
+## Memory Tiers
 
-### Before starting work
+```mermaid
+graph TD
+  A[Agent Startup] --> T1[Tier 1 — Always]
+  T1 --> F1["wiki/{self}.md"]
+  T1 --> F2[wiki/MEMORY.md]
+  T1 --> F3["wiki/storyboard-YYYY-MNN.md (if exists)"]
+  A --> T2[Tier 2 — Opt-In]
+  T2 --> F4["Teammate summaries"]
+  T2 --> F5["Weekly logs"]
+```
 
-1. Read `wiki/{agent}.md` and the other agent summaries for cross-agent context.
-2. Check `wiki/storyboard-YYYY-MNN.md` for this month.
-   - **Storyboard exists** — review the target condition and current obstacle;
-     weight priority assessment toward actions that advance the target
-     condition.
-   - **No storyboard** — proceed with your standard priority framework.
-   - Urgency always overrides storyboard alignment.
+**Tier 1 (always, every run):** own summary, MEMORY.md, current storyboard —
+three files that do not grow with agent count or week count.
 
-### During each run
+**Tier 2 (opt-in):**
+
+- **Teammate summaries** — read only when coordinating with a named agent or
+  investigating a priority-index item that names them.
+- **Weekly logs** — read only when the skill is `kata-wiki-curate`,
+  `kata-trace`, or `kata-storyboard`, or when explicitly investigating a
+  historical decision.
+
+Skills that need Tier 2 files declare it in their own Step 0.
+
+## During Each Run
 
 Append a new `## YYYY-MM-DD` section at the end of the current week's log:
 
@@ -30,10 +44,57 @@ open with a `### Decision` subheading containing:
 | **Chosen**       | What action was selected and which skill was invoked |
 | **Rationale**    | Why this action over the alternatives                |
 
-### After each run
+## After Each Run
 
 Update `wiki/{agent}.md` with:
 
 1. Actions taken
 2. Observations for teammates
 3. Open blockers
+
+## Summary Contract
+
+Each `wiki/<agent>.md` conforms to a mechanically-checkable contract.
+
+**Permitted sections (in order):**
+
+1. `# {Agent Title} — Summary` (H1, exactly one)
+2. `**Last run**:` line — date and one-line description
+3. Agent-specific state section(s) using H2
+4. `## Open Blockers` — currently-blocking items only
+5. `## Observations for Teammates` — items not yet promoted to the priority
+   index; agent-to-agent callouts
+
+**Excluded from summaries** (with correct homes):
+
+- Historical audit data (previously tracked PRs, resolved blockers, evaluation
+  history) → weekly log
+- Storyboard commitments → storyboard file
+- Policy clarifications → CONTRIBUTING.md or skill docs
+- Metrics tables → CSV under `wiki/metrics/{agent}/{domain}/`
+
+**Line budget: 80 lines.** Checked mechanically: `wc -l wiki/<agent>.md ≤ 80`.
+Summaries are state, not history. The line budget forces the discipline.
+
+## Weekly Log Contract
+
+Weekly logs (`wiki/<agent>-YYYY-Www.md`) are:
+
+- **Append-only audit records** — no edits to past entries except format fixes.
+- **Tier 2** — not in the default startup load.
+- **Named readers:** `kata-wiki-curate` (always), `kata-storyboard` (for
+  experiment verification), agents explicitly investigating past decisions.
+- **Format:** `## YYYY-MM-DD` / `### {Subsection}` structure.
+- **No line budget** — write-once records off the critical startup path.
+
+## Cross-Cutting Priority Index
+
+`wiki/MEMORY.md` is the canonical location for cross-cutting items that affect
+multiple agents or the whole team.
+
+**Schema:** table row with fields Item / Agents / Owner / Status / Added.
+Maximum 10 active entries. Explicit empty state: a row reading
+`| *None* | — | — | — | — |` (distinguishes "no items" from "not tracked yet").
+
+`kata-wiki-curate` is the authoritative writer; any agent may propose an entry
+but the curator verifies. Resolved items are removed within one curation cycle.
