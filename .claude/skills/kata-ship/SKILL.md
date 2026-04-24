@@ -62,6 +62,11 @@ handles the `specs/STATUS` update before the mechanical ship process begins.
 
 ## Process
 
+Run the steps back-to-back as a pipeline. Short status updates are fine, but
+don't narrate or pause between every step — stop only on a real blocker
+(conflicts, failing checks, unexpected state). Batch independent commands in a
+single turn where possible (e.g. guard + fetch, probe PR + push).
+
 ### Step 1: Guard
 
 ```sh
@@ -112,6 +117,10 @@ a conflict is substantive and cannot be resolved mechanically, abort with
 `git rebase --abort` and stop.
 
 ### Step 4: Run Checks
+
+If `bun run check` and `bun run test` already passed in this session on the
+same commits that just rebased cleanly (no new files, no conflict resolutions),
+trust that result and skip ahead to Step 5. Otherwise:
 
 ```sh
 bun run check:fix    # auto-fix format and lint
