@@ -275,7 +275,14 @@ export function createSupervisedAgentToolServer(ctx) {
 }
 
 /**
- * Facilitator tools: Ask + Announce + Conclude + Redirect + RollCall.
+ * Facilitator tools: Ask + Announce + Conclude + RollCall.
+ *
+ * Redirect is intentionally omitted. In facilitated mode the facilitator
+ * can re-Ask a participant to course-correct — Ask overwrites the pending
+ * slot, giving the agent a proper round-trip path. Redirect (abort +
+ * direct message) belongs in supervised mode where a single agent is
+ * steered by a supervisor.
+ *
  * @param {object} ctx - Orchestration context
  * @returns {object} MCP server config (type: "sdk")
  */
@@ -300,12 +307,6 @@ export function createFacilitatorToolServer(ctx) {
         "End the session with a summary.",
         { summary: z.string() },
         createConcludeHandler(ctx),
-      ),
-      tool(
-        "Redirect",
-        "Interrupt a participant with replacement instructions. Use to='all' for all participants or a specific name.",
-        { message: z.string(), to: z.string().optional() },
-        createRedirectHandler(ctx),
       ),
       tool(
         "RollCall",

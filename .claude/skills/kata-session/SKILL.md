@@ -101,9 +101,9 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
 ## Facilitator Process
 
 1. **Detect mode.** Call RollCall. If it succeeds, you are in facilitated mode —
-   use orchestration tools (`Ask`, `Answer`, `Announce`, `Conclude`, `Redirect`)
-   for all participant interaction. If the call fails with tool-not-found, you
-   are in solo mode — use direct file reads.
+   use orchestration tools (`Ask`, `Answer`, `Announce`, `Conclude`) for all
+   participant interaction. If the call fails with tool-not-found, you are in
+   solo mode — use direct file reads.
 2. **Select the overlay.** For team storyboard runs, load
    [`references/team-storyboard.md`](references/team-storyboard.md). For 1-on-1
    coaching runs, load [`references/one-on-one.md`](references/one-on-one.md).
