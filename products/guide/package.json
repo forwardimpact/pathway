@@ -39,7 +39,7 @@
     "node": ">=18.0.0"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "^0.2.112",
+    "@anthropic-ai/claude-agent-sdk": "^0.2.119",
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libcodegen": "^0.1.32",
     "@forwardimpact/librc": "^0.1.16",
