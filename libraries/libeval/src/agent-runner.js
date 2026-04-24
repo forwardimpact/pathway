@@ -110,6 +110,7 @@ export class AgentRunner {
         prompt,
         options: {
           resume: this.sessionId,
+          model: this.model,
           permissionMode: PERMISSION_MODE,
           allowDangerouslySkipPermissions: true,
           abortController,
