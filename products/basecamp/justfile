@@ -55,7 +55,6 @@ build-app: build
     ICON_DIR="../../design/icons"
     bash ../../libraries/libmacos/scripts/build-app.sh \
       --bundle-name "Basecamp" \
-      --bundle-id "{{ plist_name }}" \
       --primary-exec "{{ dist_dir }}/{{ launcher }}" \
       --extra-exec "{{ dist_dir }}/{{ app_name }}" \
       --info-plist "macos/Info.plist" \

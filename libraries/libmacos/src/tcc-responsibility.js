@@ -1,21 +1,22 @@
 // @ts-check
 
-import { spawn, waitForExit, readOutput } from "./posix-spawn.js";
-
 /**
- * Spawn a child process that disclaims TCC responsibility back to the
- * calling bundle, wait for it to exit, and return the result.
+ * Create a TCC-disclaiming spawn function from the given posix-spawn primitives.
  *
- * @param {string} executable - Absolute path to the executable
- * @param {string[]} args - Arguments (argv[0] should be the executable name)
- * @param {Record<string, string>} [env] - Environment (defaults to current)
- * @param {string} [cwd] - Working directory for the child process
- * @returns {Promise<{ exitCode: number, stdout: string, stderr: string }>}
+ * @param {{ spawn: Function, waitForExit: Function, readOutput: Function }} deps
+ * @returns {(executable: string, args: string[], env?: Record<string, string>, cwd?: string) => Promise<{ exitCode: number, stdout: string, stderr: string }>}
  */
-export async function spawnWithTccDisclaim(executable, args, env, cwd) {
-  const { pid, stdoutFile, stderrFile } = spawn(executable, args, env, cwd);
-  const exitCode = await waitForExit(pid);
-  const stdout = readOutput(stdoutFile);
-  const stderr = readOutput(stderrFile);
-  return { exitCode, stdout, stderr };
+export function createTccSpawn(deps) {
+  return async function spawnWithTccDisclaim(executable, args, env, cwd) {
+    const { pid, stdoutFile, stderrFile } = deps.spawn(
+      executable,
+      args,
+      env,
+      cwd,
+    );
+    const exitCode = await deps.waitForExit(pid);
+    const stdout = deps.readOutput(stdoutFile);
+    const stderr = deps.readOutput(stderrFile);
+    return { exitCode, stdout, stderr };
+  };
 }

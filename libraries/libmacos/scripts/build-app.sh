@@ -1,23 +1,21 @@
 #!/bin/bash
-set -e
+set -euo pipefail
 
 # Assemble a macOS .app bundle from compiled binaries and resources.
 #
 # Usage: build-app.sh [options]
 #   --bundle-name NAME        Bundle directory name (e.g. "Basecamp" → Basecamp.app)
-#   --bundle-id ID            CFBundleIdentifier (e.g. com.forwardimpact.basecamp)
 #   --primary-exec PATH       Path to the primary executable (becomes CFBundleExecutable)
 #   --extra-exec PATH         Additional executable to place in Contents/MacOS/ (repeatable)
 #   --info-plist PATH         Path to Info.plist to embed
 #   --entitlements PATH       Path to entitlements plist for ad-hoc codesigning
 #   --resource PATH           Path to copy into Contents/Resources/ (repeatable)
-#   --version VERSION         Version string (informational only)
+#   --version VERSION         Version string (informational only, logged but not embedded)
 #   --out-dir DIR             Output directory (default: dist/apps)
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 
 BUNDLE_NAME=""
-BUNDLE_ID=""
 PRIMARY_EXEC=""
 EXTRA_EXECS=()
 INFO_PLIST=""
@@ -29,7 +27,6 @@ OUT_DIR="dist/apps"
 while [[ $# -gt 0 ]]; do
   case "$1" in
     --bundle-name)   BUNDLE_NAME="$2";   shift 2 ;;
-    --bundle-id)     BUNDLE_ID="$2";     shift 2 ;;
     --primary-exec)  PRIMARY_EXEC="$2";  shift 2 ;;
     --extra-exec)    EXTRA_EXECS+=("$2"); shift 2 ;;
     --info-plist)    INFO_PLIST="$2";    shift 2 ;;
@@ -59,7 +56,7 @@ fi
 APP_DIR="$OUT_DIR/${BUNDLE_NAME}.app"
 
 echo ""
-echo "Assembling ${BUNDLE_NAME}.app..."
+echo "Assembling ${BUNDLE_NAME}.app${VERSION:+ v${VERSION}}..."
 
 # --- Clean previous build ----------------------------------------------------
 

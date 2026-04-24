@@ -19,8 +19,14 @@
     "scripts/**/*.sh",
     "templates/**"
   ],
+  "scripts": {
+    "test": "bun test test/*.test.js"
+  },
   "engines": {
     "bun": ">=1.2.0"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"

@@ -149,6 +149,9 @@
     "libraries/libmacos": {
       "name": "@forwardimpact/libmacos",
       "version": "0.1.0",
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
     },
     "libraries/libmcp": {
       "name": "@forwardimpact/libmcp",
