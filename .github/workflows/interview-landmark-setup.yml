@@ -81,7 +81,7 @@ jobs:
           supervisor-cwd: "."
           agent-cwd: ${{ steps.agent-workspace.outputs.dir }}
           supervisor-profile: "product-manager"
-          model: "opus"
+          model: "claude-opus-4-7[1m]"
           max-turns: "200"
           allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,WebFetch,WebSearch"
           supervisor-allowed-tools: "Bash,Read,Glob,Grep,Write,Edit,Skill,TodoWrite"
