@@ -30,8 +30,8 @@ The leadership getting-started guide
 full end-to-end walkthrough, but the product page Quick Start does not signal
 that a second, longer path exists. The single "Leadership" card below Quick
 Start reads as an audience filter ("this guide is for leaders"), not as "the
-rest of the walkthrough lives here." Users following the Quick Start alone
-reach `validate` and stop.
+rest of the walkthrough lives here." Users following the Quick Start alone reach
+`validate` and stop.
 
 Source: issue #432, user testing of the `fit-map first-run` evaluation scenario
 (2026-04-19). The stale `stages.yaml` directory listing referenced in the
@@ -42,11 +42,11 @@ scope.
 
 In scope — `website/map/index.md`:
 
-| Component                    | What must change                                                                                                     |
-| ---------------------------- | -------------------------------------------------------------------------------------------------------------------- |
-| Quick Start section          | A first-time user reading the Quick Start can reach the activity-layer workflow that culminates in `fit-map activity verify`. The design decides whether the commands appear inline or via a labelled link; this spec does not prescribe the content layout. |
-| Supabase prerequisite        | The Supabase requirement (CLI install + running instance) is surfaced in the Quick Start reading path before any command that depends on it. |
-| Env-var handoff              | `MAP_SUPABASE_URL` and `MAP_SUPABASE_SERVICE_ROLE_KEY` are visible (or reachable via a labelled link) on the Quick Start reading path before any command that requires them. |
+| Component             | What must change                                                                                                                                                                                                                                             |
+| --------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Quick Start section   | A first-time user reading the Quick Start can reach the activity-layer workflow that culminates in `fit-map activity verify`. The design decides whether the commands appear inline or via a labelled link; this spec does not prescribe the content layout. |
+| Supabase prerequisite | The Supabase requirement (CLI install + running instance) is surfaced in the Quick Start reading path before any command that depends on it.                                                                                                                 |
+| Env-var handoff       | `MAP_SUPABASE_URL` and `MAP_SUPABASE_SERVICE_ROLE_KEY` are visible (or reachable via a labelled link) on the Quick Start reading path before any command that requires them.                                                                                 |
 
 Out of scope:
 
@@ -63,9 +63,9 @@ Out of scope:
 The design (WHICH/WHERE) must choose between two approaches and justify the
 trade-off:
 
-| Approach                     | Trade-off                                                                                                                |
-| ---------------------------- | ------------------------------------------------------------------------------------------------------------------------ |
-| Inline the walkthrough       | One-page reading path, but duplicates content from the leadership guide and risks drift between the two.                  |
+| Approach                          | Trade-off                                                                                                                        |
+| --------------------------------- | -------------------------------------------------------------------------------------------------------------------------------- |
+| Inline the walkthrough            | One-page reading path, but duplicates content from the leadership guide and risks drift between the two.                         |
 | Link prominently from Quick Start | Single source of truth, but requires the user to navigate; link placement and labelling must make the activity layer unmissable. |
 
 Either approach satisfies the success criteria below. The design must state the
@@ -74,13 +74,13 @@ link) strategy.
 
 ## Success criteria
 
-| #   | Claim                                                                                                  | Verification                                                                                                    |
-| --- | ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------- |
-| 1   | A reviewer following only the links and commands within the Quick Start section reaches `fit-map activity verify`. | A human reviewer starts at `website/map/index.md` Quick Start, follows only links that appear within that section, and runs each shown command against a clean checkout. Pass: the reviewer executes `fit-map activity verify` and it exits 0. Fail: the reviewer must search elsewhere on the site for a missing command or link. |
-| 2   | The Supabase prerequisite is surfaced on the Quick Start reading path before any command that depends on it. | In the reading order of `website/map/index.md`, the string `supabase` (case-insensitive) appears before the first occurrence of `fit-map activity` — in the product page itself or in a page reachable by a labelled link from Quick Start. |
-| 3   | `MAP_SUPABASE_URL` and `MAP_SUPABASE_SERVICE_ROLE_KEY` are reachable from the Quick Start reading path before the user would hit an env-var error. | Both env-var names appear in `website/map/index.md` or in a page reachable by a labelled link from Quick Start, before any command that would fail without them. |
-| 4   | The activity-layer entry point is reachable from the Quick Start section itself, not only via the audience-filter card below it. | `website/map/index.md`: the Quick Start section contains either activity-layer commands inline or a labelled link whose text names the activity layer (not only a generic "Leadership" audience label). |
-| 5   | No `stages.yaml` reference appears on the Map product page.                                            | `grep -F stages.yaml website/map/index.md` returns empty (regression guard; condition already met at spec authoring). |
+| #   | Claim                                                                                                                                              | Verification                                                                                                                                                                                                                                                                                                                       |
+| --- | -------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | A reviewer following only the links and commands within the Quick Start section reaches `fit-map activity verify`.                                 | A human reviewer starts at `website/map/index.md` Quick Start, follows only links that appear within that section, and runs each shown command against a clean checkout. Pass: the reviewer executes `fit-map activity verify` and it exits 0. Fail: the reviewer must search elsewhere on the site for a missing command or link. |
+| 2   | The Supabase prerequisite is surfaced on the Quick Start reading path before any command that depends on it.                                       | In the reading order of `website/map/index.md`, the string `supabase` (case-insensitive) appears before the first occurrence of `fit-map activity` — in the product page itself or in a page reachable by a labelled link from Quick Start.                                                                                        |
+| 3   | `MAP_SUPABASE_URL` and `MAP_SUPABASE_SERVICE_ROLE_KEY` are reachable from the Quick Start reading path before the user would hit an env-var error. | Both env-var names appear in `website/map/index.md` or in a page reachable by a labelled link from Quick Start, before any command that would fail without them.                                                                                                                                                                   |
+| 4   | The activity-layer entry point is reachable from the Quick Start section itself, not only via the audience-filter card below it.                   | `website/map/index.md`: the Quick Start section contains either activity-layer commands inline or a labelled link whose text names the activity layer (not only a generic "Leadership" audience label).                                                                                                                            |
+| 5   | No `stages.yaml` reference appears on the Map product page.                                                                                        | `grep -F stages.yaml website/map/index.md` returns empty (regression guard; condition already met at spec authoring).                                                                                                                                                                                                              |
 
 ## Non-goals
 
