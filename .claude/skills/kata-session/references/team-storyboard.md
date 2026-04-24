@@ -1,9 +1,7 @@
 # Team Storyboard Overlay
 
 Applies to `kata-storyboard.yml` runs: the improvement coach facilitates a
-monthly team storyboard meeting with multiple participants. Each participant
-receives the participant-side summary through libeval's `systemPromptAmend`
-before the first `Ask`.
+monthly team storyboard meeting with multiple participants.
 
 ## Artifact
 
@@ -59,12 +57,9 @@ For each CSV-backed metric in the Current Condition table, generate a sparkline
 with `bunx fit-xmr spark <csv> --metric <name>` and write it to the Spark
 column.
 
-## Participant-side summary (`systemPromptAmend`)
+## Participant briefing template
 
-Use this template verbatim when populating the participant config:
-
-> "You are joining a team storyboard meeting. The coach will Ask you five
-> questions via the orchestration `Ask` tool. Reply to each with `Answer`.
-> Before answering Q2, record your domain metrics to
+> "You are joining a team storyboard meeting. I will Ask you five questions;
+> reply to each with Answer. Before answering Q2, record your domain metrics to
 > `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv`; your Answer references the
 > CSV row."

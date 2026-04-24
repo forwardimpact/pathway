@@ -2,8 +2,8 @@
 name: kata-session
 description: >
   Toyota Kata coaching protocol for facilitated sessions. Used by the
-  improvement coach (facilitator) and by domain agents who participate via
-  libeval's Ask/Answer/Announce tools. Same five coaching kata questions
+  improvement coach (facilitator) and by domain agents who participate via the
+  Ask/Answer/Announce orchestration tools. Same five coaching kata questions
   across team storyboard meetings and 1-on-1 coaching sessions; mode-specific
   guidance lives in references/team-storyboard.md and references/one-on-one.md.
 ---
@@ -28,9 +28,9 @@ Two mode overlays describe the mode-specific artifact surface:
 contexts — team storyboard meetings (`kata-storyboard.yml` workflow) and 1-on-1
 coaching sessions (`kata-coaching.yml` workflow).
 
-**Participant**: The coach passes a participant-side summary through libeval's
-`systemPromptAmend` before the first `Ask`. You do not load this skill in
-participant runs; respond to each Ask with Answer per the summary you receive.
+**Participant**: Answer each `Ask` with `Answer`. The coach's session-open
+briefing is sufficient for most runs; load this skill only if you need the full
+Participant Protocol below.
 
 ## Checklists
 
@@ -53,9 +53,7 @@ participant runs; respond to each Ask with Answer per the summary you receive.
 <do_confirm_checklist goal="Verify coaching session quality">
 
 - [ ] All five coaching kata questions were addressed.
-- [ ] Every `Ask` received an `Answer`, or surfaced a `protocol_violation` trace
-      event. The runtime — not the coach — enforces the relay; the coach
-      confirms it happened.
+- [ ] Every `Ask` received an `Answer`.
 - [ ] Current condition updated with numbers from metrics CSVs (not narrative),
       including XmR `status` and signal descriptions for each metric with
       sufficient data. Metrics with `insufficient_data` are noted.
@@ -106,26 +104,24 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    use orchestration tools (`Ask`, `Answer`, `Announce`, `Conclude`, `Redirect`)
    for all participant interaction. If the call fails with tool-not-found, you
    are in solo mode — use direct file reads.
-2. **Select the overlay.** For `kata-storyboard.yml` runs, load
-   [`references/team-storyboard.md`](references/team-storyboard.md). For
-   `kata-coaching.yml` runs, load
-   [`references/one-on-one.md`](references/one-on-one.md). The overlay owns the
-   mode-specific artifact surface, the question wording, and the
-   participant-side summary template.
-3. **Propagate participant framing.** Derive a short participant-side summary
-   from the overlay (one paragraph that names the mode and the Ask/Answer
-   contract) and pass it to libeval as `systemPromptAmend` on each participant's
-   config. libeval treats the string as opaque and appends it to each
-   participant's system prompt before the first `Ask`.
+2. **Select the overlay.** For team storyboard runs, load
+   [`references/team-storyboard.md`](references/team-storyboard.md). For 1-on-1
+   coaching runs, load [`references/one-on-one.md`](references/one-on-one.md).
+   The overlay owns the mode-specific artifact surface, the question wording,
+   and the participant briefing template.
+3. **Brief participants.** Deliver the overlay's briefing template before Q1.
+   Team mode: broadcast once via `Announce` at session open. 1-on-1 mode:
+   prepend it to the Q1 `Ask` body.
 4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
    `bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --format json`.
    Use `status`, `signals`, and `x_bar` from the JSON output when reporting the
    Condition. If a metric returns `insufficient_data`, note it. In facilitated
    mode, include XmR summaries in the Q2 `Ask` to each agent.
-5. **Run the five questions.** Follow the overlay's wording. In facilitated mode
-   use `Ask` to pose each question and collect `Answer` replies before
-   advancing. Use `Announce` for team-wide context. In solo mode, read metrics
-   and wiki files directly.
+5. **Run the five questions.** Follow the overlay's wording. In facilitated
+   mode, pose each question via `Ask` and collect `Answer` replies before
+   advancing. Use `Announce` for between-question transitions or any status that
+   would otherwise repeat into every `Ask`. In solo mode, read metrics and wiki
+   files directly.
 6. **Update artifacts.** Write back whatever the overlay prescribes — for team
    mode, the storyboard file; for 1-on-1, the participant's memory.
 7. **Record coaching metrics.** Append coaching activity metrics (e.g.,
@@ -145,8 +141,8 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
 
 ## Participant Protocol
 
-Participants receive the mode summary via `systemPromptAmend`, not by loading
-this skill directly. The generic pattern below applies in both modes.
+The generic pattern below applies in both modes. It expands the session-open
+briefing participants receive from the coach.
 
 1. **Prepare for Q2.** When the coach poses Q2 via `Ask`, gather your domain's
    current measured state. Use live data (`gh`, `bun`, repo files) — not memory

@@ -50,16 +50,8 @@ jobs:
           app-id: ${{ secrets.CI_APP_ID }}
           mode: "facilitate"
           task-text: >-
-            Facilitate a 1-on-1 coaching session in kata-session mode with
-            target participant "${{ inputs.agent }}". Load the kata-session
-            skill. Its one-on-one overlay
-            (.claude/skills/kata-session/references/one-on-one.md) describes the
-            session shape, the five-question wording for 1-on-1 mode, and a
-            participant-side summary template. Before the first Ask, derive the
-            participant-side summary from the one-on-one overlay and pass it to
-            libeval as systemPromptAmend on the participant config. libeval
-            delivers it into the participant's system prompt before any Ask is
-            sent.
+            Facilitate a one-on-one Kata coaching session with "${{ inputs.agent
+            }}".
           facilitator-profile: "improvement-coach"
           agent-profiles: "${{ inputs.agent }}"
           model: "claude-opus-4-6"
