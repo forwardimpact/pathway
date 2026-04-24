@@ -1,8 +1,7 @@
 # Team Storyboard Overlay
 
 Applies to `kata-storyboard.yml` runs: the improvement coach facilitates a
-monthly team storyboard meeting with multiple participants. Each participant is
-briefed by the coach inside the first `Ask`.
+monthly team storyboard meeting with multiple participants.
 
 ## Artifact
 
@@ -58,11 +57,7 @@ For each CSV-backed metric in the Current Condition table, generate a sparkline
 with `bunx fit-xmr spark <csv> --metric <name>` and write it to the Spark
 column.
 
-## Participant briefing
-
-Broadcast this once via `Announce` at session open, before the first Q1 `Ask`
-round. One broadcast reaches every participant, so Q1 Asks carry only the
-question:
+## Participant briefing template
 
 > "You are joining a team storyboard meeting. I will Ask you five questions;
 > reply to each with Answer. Before answering Q2, record your domain metrics to

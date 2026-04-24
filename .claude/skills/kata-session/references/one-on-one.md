@@ -1,8 +1,7 @@
 # 1-on-1 Coaching Overlay
 
 Applies to `kata-coaching.yml` runs: the improvement coach facilitates a 1-on-1
-session with one domain agent. The participant does not load this skill directly
-— the coach briefs them inside the first `Ask`.
+session with one domain agent.
 
 ## Session Shape
 
@@ -29,9 +28,7 @@ The participant runs `kata-trace` against its own agent's trace artifact. The
 coach does not pre-load the trace content into the participant's context; the
 participant fetches it under Q2.
 
-## Participant briefing
-
-Prepend this to the Q1 question body when you make the first `Ask`:
+## Participant briefing template
 
 > "You are in a 1-on-1 coaching session. I will Ask you five questions; reply to
 > each with Answer. Under Q2, run `kata-trace` on your most recent workflow
