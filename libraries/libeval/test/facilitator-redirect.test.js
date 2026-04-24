@@ -6,7 +6,6 @@ import { Facilitator } from "@forwardimpact/libeval";
 import {
   createOrchestrationContext,
   createConcludeHandler,
-  createRedirectHandler,
   createAskHandler,
   createAnswerHandler,
 } from "../src/orchestration-toolkit.js";
@@ -19,8 +18,6 @@ const askMsg = (to, question) =>
   createToolUseMsg("Ask", { to, question }, { id: `ask-${to}` });
 const answerMsg = (message) =>
   createToolUseMsg("Answer", { message }, { id: "answer-1" });
-const redirectMsg = (to, message) =>
-  createToolUseMsg("Redirect", { to, message }, { id: "redirect-1" });
 
 function seedCtx(participants) {
   const ctx = createOrchestrationContext();
@@ -30,30 +27,28 @@ function seedCtx(participants) {
   return { ctx, messageBus };
 }
 
-describe("Facilitator - redirect creates pending ask", () => {
-  test("agent can Answer after being redirected", async () => {
+describe("Facilitator - re-Ask recovery", () => {
+  test("re-Ask overwrites consumed slot so agent can Answer", async () => {
     const { ctx, messageBus } = seedCtx(["facilitator", "agent-1"]);
     const concludeHandler = createConcludeHandler(ctx);
     const askHandler = createAskHandler(ctx, {
       from: "facilitator",
       defaultTo: undefined,
     });
-    const redirectHandler = createRedirectHandler(ctx);
 
-    // Turn 0: Ask agent-1
-    // Turn 1 (after premature answer): Redirect agent-1
+    // Turn 0: Ask agent-1 "What is 2+2?"
+    // Turn 1 (after premature answer): Ask agent-1 again
     // Turn 2 (after correct answer): Conclude
     const facilitatorRunner = createMockRunner(
-      [{ text: "Asking" }, { text: "Redirecting" }, { text: "Done" }],
+      [{ text: "Asking" }, { text: "Re-asking" }, { text: "Done" }],
       [
         [askMsg("agent-1", "What is 2+2?")],
-        [redirectMsg("agent-1", "Actually, what is 3+3?")],
+        [askMsg("agent-1", "Please answer: what is 2+2?")],
         [concludeMsg("Complete")],
       ],
       {
         toolDispatcher: {
           Ask: (input) => askHandler(input),
-          Redirect: (input) => redirectHandler(input),
           Conclude: (input) => concludeHandler(input),
         },
       },
@@ -61,10 +56,10 @@ describe("Facilitator - redirect creates pending ask", () => {
 
     const agent1AnswerHandler = createAnswerHandler(ctx, { from: "agent-1" });
     // Run 0: premature answer consuming the Ask slot
-    // Resume (after redirect): correct answer — should succeed
+    // Resume (after re-Ask): correct answer — should succeed
     const agent1Runner = createMockRunner(
-      [{ text: "Ready" }, { text: "Six" }],
-      [[answerMsg("Ready")], [answerMsg("6")]],
+      [{ text: "Ready" }, { text: "Four" }],
+      [[answerMsg("Ready")], [answerMsg("4")]],
       { toolDispatcher: { Answer: (i) => agent1AnswerHandler(i) } },
     );
 
@@ -78,12 +73,12 @@ describe("Facilitator - redirect creates pending ask", () => {
       ctx,
     });
 
-    const result = await facilitator.run("Test redirect creates ask");
+    const result = await facilitator.run("Test re-Ask recovery");
 
     assert.strictEqual(result.success, true);
     assert.ok(
       !ctx.pendingAsks.has("agent-1"),
-      "pending ask should be cleared after agent answered the redirect",
+      "pending ask should be cleared after agent answered the re-Ask",
     );
   });
 });

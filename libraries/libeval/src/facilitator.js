@@ -286,16 +286,6 @@ export class Facilitator {
       if (target) {
         target.runner.currentAbortController?.abort();
       }
-      // Create a pending Ask so the redirected agent can Answer.
-      // Without this, a Redirect after a consumed Ask leaves the agent
-      // unable to respond — Answer returns "No pending ask to answer."
-      const askId = ++this.ctx.askIdCounter;
-      this.ctx.pendingAsks.set(redirect.to, {
-        askId,
-        askerName: "facilitator",
-        question: redirect.message,
-        reminded: false,
-      });
       this.messageBus.direct("facilitator", redirect.to, redirect.message);
     }
   }
