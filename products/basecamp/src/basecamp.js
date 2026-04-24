@@ -30,7 +30,7 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 
 const logger = createLogger("basecamp");
 
-import * as posixSpawn from "./posix-spawn.js";
+import * as posixSpawn from "@forwardimpact/libmacos/posix-spawn";
 import { StateManager } from "./state-manager.js";
 import { AgentRunner } from "./agent-runner.js";
 import { Scheduler } from "./scheduler.js";

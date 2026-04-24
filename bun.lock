@@ -146,6 +146,10 @@
         "@forwardimpact/libharness": "^0.1.14",
       },
     },
+    "libraries/libmacos": {
+      "name": "@forwardimpact/libmacos",
+      "version": "0.1.0",
+    },
     "libraries/libmcp": {
       "name": "@forwardimpact/libmcp",
       "version": "0.1.2",
@@ -447,6 +451,7 @@
       },
       "dependencies": {
         "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libmacos": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.33",
       },
     },
@@ -808,6 +813,8 @@
     "@forwardimpact/libharness": ["@forwardimpact/libharness@workspace:libraries/libharness"],
 
     "@forwardimpact/libindex": ["@forwardimpact/libindex@workspace:libraries/libindex"],
+
+    "@forwardimpact/libmacos": ["@forwardimpact/libmacos@workspace:libraries/libmacos"],
 
     "@forwardimpact/libmcp": ["@forwardimpact/libmcp@workspace:libraries/libmcp"],
 
