@@ -29,7 +29,7 @@ function parseSuperviseOptions(values) {
     agentCwd: resolve(
       values["agent-cwd"] ?? mkdtempSync(join(tmpdir(), "fit-eval-agent-")),
     ),
-    model: values.model ?? "opus",
+    model: values.model ?? "claude-opus-4-7[1m]",
     maxTurns: (() => {
       const raw = values["max-turns"] ?? "20";
       return raw === "0" ? 0 : parseInt(raw, 10);

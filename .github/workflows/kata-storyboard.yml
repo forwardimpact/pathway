@@ -52,6 +52,6 @@ jobs:
             Facilitate a team Kata storyboard session.
           facilitator-profile: "improvement-coach"
           agent-profiles: "security-engineer,technical-writer,product-manager,staff-engineer,release-engineer"
-          model: "opus"
+          model: "claude-opus-4-7[1m]"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

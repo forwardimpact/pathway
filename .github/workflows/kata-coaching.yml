@@ -54,6 +54,6 @@ jobs:
             }}".
           facilitator-profile: "improvement-coach"
           agent-profiles: "${{ inputs.agent }}"
-          model: "opus"
+          model: "claude-opus-4-7[1m]"
           max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

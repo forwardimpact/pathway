@@ -56,7 +56,7 @@ describe("AgentRunner", () => {
       query: async function* () {},
       output: new PassThrough(),
     });
-    assert.strictEqual(runner.model, "opus");
+    assert.strictEqual(runner.model, "claude-opus-4-7[1m]");
     assert.strictEqual(runner.maxTurns, 50);
     assert.deepStrictEqual(runner.allowedTools, [
       "Bash",
@@ -208,7 +208,7 @@ describe("AgentRunner", () => {
     const result = await runner.resume("Follow up");
 
     assert.strictEqual(resumeCapture.options.resume, "sess-42");
-    assert.strictEqual(resumeCapture.options.model, "opus");
+    assert.strictEqual(resumeCapture.options.model, "claude-opus-4-7[1m]");
     assert.strictEqual(resumeCapture.prompt, "Follow up");
     assert.strictEqual(result.success, true);
     assert.strictEqual(result.text, "Resumed");

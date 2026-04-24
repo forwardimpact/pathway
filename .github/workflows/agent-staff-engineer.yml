@@ -53,6 +53,6 @@ jobs:
             Assess the current state of your domain and act on the
             highest-priority finding.
           agent-profile: "staff-engineer"
-          model: "opus"
+          model: "claude-opus-4-7[1m]"
           max-turns: "0"
           task-amend: ${{ inputs.task-amend }}

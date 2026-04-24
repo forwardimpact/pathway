@@ -27,7 +27,7 @@ inputs:
   model:
     description: Claude model to use
     required: false
-    default: "opus"
+    default: "claude-opus-4-7[1m]"
   max-turns:
     description: Maximum turns (0 = unlimited)
     required: false

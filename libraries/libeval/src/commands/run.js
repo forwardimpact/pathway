@@ -27,7 +27,7 @@ function parseRunOptions(values) {
     taskContent,
     taskAmend,
     cwd: resolve(values.cwd ?? "."),
-    model: values.model ?? "opus",
+    model: values.model ?? "claude-opus-4-7[1m]",
     maxTurns: maxTurnsRaw === "0" ? 0 : parseInt(maxTurnsRaw, 10),
     outputPath: values.output,
     agentProfile: values["agent-profile"] ?? undefined,

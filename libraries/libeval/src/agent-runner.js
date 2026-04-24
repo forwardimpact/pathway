@@ -18,7 +18,7 @@ function applyDefaults(deps) {
     cwd: deps.cwd,
     query: deps.query,
     output: deps.output,
-    model: deps.model ?? "opus",
+    model: deps.model ?? "claude-opus-4-7[1m]",
     maxTurns: deps.maxTurns ?? 50,
     allowedTools: deps.allowedTools ?? DEFAULT_ALLOWED_TOOLS,
     onLine: deps.onLine ?? null,

@@ -44,7 +44,7 @@ function parseFacilitateOptions(values) {
     taskAmend,
     agentConfigs,
     facilitatorCwd: resolve(values["facilitator-cwd"] ?? "."),
-    model: values.model ?? "opus",
+    model: values.model ?? "claude-opus-4-7[1m]",
     maxTurns: maxTurnsRaw === "0" ? 0 : parseInt(maxTurnsRaw, 10),
     outputPath: values.output,
     facilitatorProfile: values["facilitator-profile"] ?? undefined,
