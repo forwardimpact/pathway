@@ -62,8 +62,8 @@ handles the `specs/STATUS` update before the mechanical ship process begins.
 
 ## Process
 
-Run steps back-to-back; pause only on real blockers (conflicts, failing
-checks, unexpected state). Batch independent commands where possible.
+Run steps back-to-back; pause only on real blockers (conflicts, failing checks,
+unexpected state). Batch independent commands where possible.
 
 ### Step 1: Guard
 
@@ -116,8 +116,8 @@ a conflict is substantive and cannot be resolved mechanically, abort with
 
 ### Step 4: Run Checks
 
-Skip if `check` and `test` already passed this session and the rebase was
-clean. Otherwise:
+Skip if `check` and `test` already passed this session and the rebase was clean.
+Otherwise:
 
 ```sh
 bun run check:fix    # auto-fix format and lint
