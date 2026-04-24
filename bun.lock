@@ -46,7 +46,7 @@
     },
     "libraries/libconfig": {
       "name": "@forwardimpact/libconfig",
-      "version": "0.1.68",
+      "version": "0.1.69",
       "dependencies": {
         "@forwardimpact/libstorage": "^0.1.53",
       },
@@ -63,7 +63,7 @@
       "dependencies": {
         "@forwardimpact/libcli": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.22",
-        "@hono/node-server": "^1.19.14",
+        "@hono/node-server": "^2.0.0",
         "hono": "^4.12.14",
         "marked": "^17.0.5",
         "marked-gfm-heading-id": "^4.1.4",
@@ -80,7 +80,7 @@
     },
     "libraries/libeval": {
       "name": "@forwardimpact/libeval",
-      "version": "0.1.20",
+      "version": "0.1.21",
       "bin": {
         "fit-eval": "./bin/fit-eval.js",
         "fit-trace": "./bin/fit-trace.js",
@@ -316,7 +316,7 @@
     },
     "libraries/libsyntheticrender": {
       "name": "@forwardimpact/libsyntheticrender",
-      "version": "0.1.13",
+      "version": "0.1.14",
       "dependencies": {
         "@forwardimpact/libsyntheticgen": "^0.1.0",
         "@forwardimpact/libtemplate": "^0.2.0",

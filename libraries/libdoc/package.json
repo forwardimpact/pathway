@@ -31,7 +31,7 @@
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.22",
-    "@hono/node-server": "^1.19.14",
+    "@hono/node-server": "^2.0.0",
     "hono": "^4.12.14",
     "marked": "^17.0.5",
     "marked-gfm-heading-id": "^4.1.4",
