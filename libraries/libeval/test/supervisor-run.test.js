@@ -7,11 +7,28 @@ import {
   createOrchestrationContext,
   createConcludeHandler,
   createAskHandler,
+  createAnswerHandler,
 } from "../src/orchestration-toolkit.js";
+import { MessageBus } from "../src/message-bus.js";
 import { createMockRunner } from "./mock-runner.js";
 import { createToolUseMsg } from "@forwardimpact/libharness";
 
 const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
+const askMsg = (question) =>
+  createToolUseMsg("Ask", { question }, { id: "ask-1" });
+const answerMsg = (message) =>
+  createToolUseMsg("Answer", { message }, { id: "answer-1" });
+
+function seedSupervise() {
+  const ctx = createOrchestrationContext();
+  const messageBus = new MessageBus({ participants: ["supervisor", "agent"] });
+  ctx.messageBus = messageBus;
+  ctx.participants = [
+    { name: "supervisor", role: "supervisor" },
+    { name: "agent", role: "agent" },
+  ];
+  return { ctx, messageBus };
+}
 
 describe("Supervisor - run and turns", () => {
   test("constructor throws on missing agentRunner", () => {
@@ -48,7 +65,7 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("completes on Conclude tool call from supervisor at turn 0", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedSupervise();
     const concludeHandler = createConcludeHandler(ctx);
 
     const agentRunner = createMockRunner([]);
@@ -70,6 +87,7 @@ describe("Supervisor - run and turns", () => {
       output,
       maxTurns: 10,
       ctx,
+      messageBus,
     });
 
     const result = await supervisor.run("Install stuff");
@@ -80,7 +98,7 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("completes after one agent turn", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedSupervise();
     const concludeHandler = createConcludeHandler(ctx);
 
     const agentRunner = createMockRunner([
@@ -107,6 +125,7 @@ describe("Supervisor - run and turns", () => {
       output,
       maxTurns: 10,
       ctx,
+      messageBus,
     });
 
     const result = await supervisor.run("Install stuff");
@@ -116,7 +135,7 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("relays only the last assistant text block to the agent", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedSupervise();
     const concludeHandler = createConcludeHandler(ctx);
 
     const supervisorMessages = [
@@ -174,6 +193,7 @@ describe("Supervisor - run and turns", () => {
       output,
       maxTurns: 10,
       ctx,
+      messageBus,
     });
 
     await supervisor.run("Evaluate the product");
@@ -189,7 +209,7 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("runs multiple turns before completion", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedSupervise();
     const concludeHandler = createConcludeHandler(ctx);
 
     const agentRunner = createMockRunner([
@@ -220,6 +240,7 @@ describe("Supervisor - run and turns", () => {
       output,
       maxTurns: 10,
       ctx,
+      messageBus,
     });
 
     const result = await supervisor.run("Do the work");
@@ -229,6 +250,7 @@ describe("Supervisor - run and turns", () => {
   });
 
   test("enforces maxTurns limit", async () => {
+    const { ctx, messageBus } = seedSupervise();
     const agentRunner = createMockRunner([
       { text: "Turn 1" },
       { text: "Turn 2" },
@@ -246,6 +268,8 @@ describe("Supervisor - run and turns", () => {
       supervisorRunner,
       output,
       maxTurns: 2,
+      ctx,
+      messageBus,
     });
 
     const result = await supervisor.run("Endless task");
@@ -254,55 +278,62 @@ describe("Supervisor - run and turns", () => {
     assert.strictEqual(result.turns, 2);
   });
 
-  test("agent Ask tool blocks until supervisor answers", async () => {
-    const ctx = createOrchestrationContext();
+  test("agent Ask → supervisor Answer round-trip", async () => {
+    const { ctx, messageBus } = seedSupervise();
     const concludeHandler = createConcludeHandler(ctx);
-
-    // The agent calls Ask on its first turn. The onAsk callback runs
-    // the supervisor inline and returns the answer.
-    let askAnswer = null;
-    const askHandler = createAskHandler(ctx, {
-      onAsk: async (question) => {
-        // Simulate supervisor answering the question
-        return `The answer to "${question}" is: use npm install.`;
-      },
+    const agentAskHandler = createAskHandler(ctx, {
+      from: "agent",
+      defaultTo: "supervisor",
+    });
+    const supervisorAnswerHandler = createAnswerHandler(ctx, {
+      from: "supervisor",
     });
 
-    // Agent messages: first message has a text block (triggers onBatch),
-    // followed by an Ask tool_use. The Ask handler runs synchronously
-    // from the agent's perspective.
+    // Agent turn 1: calls Ask(question). Turn ends.
     const agentMessages = [
       [
         {
           type: "assistant",
           message: {
-            content: [
-              {
-                type: "tool_use",
-                id: "ask-1",
-                name: "Ask",
-                input: { question: "Should I use npm or yarn?" },
-              },
-            ],
+            content: [{ type: "text", text: "I have a question." }],
           },
         },
+        askMsg("Should I use npm or yarn?"),
       ],
     ];
 
-    const agentRunner = createMockRunner([{ text: "Done" }], agentMessages, {
-      toolDispatcher: {
-        Ask: async (input) => {
-          const result = await askHandler(input);
-          askAnswer = result.content[0].text;
-        },
-      },
-    });
-
-    const supervisorRunner = createMockRunner(
-      [{ text: "Install the packages." }, { text: "Good" }],
-      [undefined, [concludeMsg("Complete")]],
+    const agentRunner = createMockRunner(
+      [{ text: "Asked" }, { text: "Got the answer, proceeding." }],
+      [
+        ...agentMessages,
+        [
+          {
+            type: "assistant",
+            message: {
+              content: [{ type: "text", text: "Got the answer, proceeding." }],
+            },
+          },
+        ],
+      ],
       {
         toolDispatcher: {
+          Ask: (input) => agentAskHandler(input),
+        },
+      },
+    );
+
+    // Supervisor turn 0: relay task. Supervisor turn 1: Answer the agent's
+    // question. Supervisor turn 2: Conclude.
+    const supervisorRunner = createMockRunner(
+      [
+        { text: "Install the packages." },
+        { text: "Use npm install." },
+        { text: "Good" },
+      ],
+      [undefined, [answerMsg("Use npm install.")], [concludeMsg("Complete")]],
+      {
+        toolDispatcher: {
+          Answer: (input) => supervisorAnswerHandler(input),
           Conclude: (input) => concludeHandler(input),
         },
       },
@@ -315,15 +346,13 @@ describe("Supervisor - run and turns", () => {
       output,
       maxTurns: 10,
       ctx,
+      messageBus,
     });
 
     const result = await supervisor.run("Install task");
 
     assert.strictEqual(result.success, true);
-    assert.ok(askAnswer, "Ask handler should have been called");
-    assert.ok(
-      askAnswer.includes("npm install"),
-      "Answer should contain the supervisor's response",
-    );
+    // After Answer, the pending ask entry keyed by "supervisor" is cleared.
+    assert.strictEqual(ctx.pendingAsks.has("supervisor"), false);
   });
 });

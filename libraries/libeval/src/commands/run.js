@@ -21,11 +21,11 @@ function parseRunOptions(values) {
 
   const maxTurnsRaw = values["max-turns"] ?? "50";
   const taskAmend = values["task-amend"] ?? undefined;
-  let taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
-  if (taskAmend) taskContent += `\n\n${taskAmend}`;
+  const taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
 
   return {
     taskContent,
+    taskAmend,
     cwd: resolve(values.cwd ?? "."),
     model: values.model ?? "opus",
     maxTurns: maxTurnsRaw === "0" ? 0 : parseInt(maxTurnsRaw, 10),
@@ -49,6 +49,7 @@ function parseRunOptions(values) {
 export async function runRunCommand(values, _args) {
   const {
     taskContent,
+    taskAmend,
     cwd,
     model,
     maxTurns,
@@ -94,6 +95,7 @@ export async function runRunCommand(values, _args) {
     onLine,
     settingSources: ["project"],
     systemPrompt,
+    taskAmend,
   });
 
   const result = await runner.run(taskContent);

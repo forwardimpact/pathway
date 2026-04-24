@@ -195,7 +195,7 @@ describe("hintForCall", () => {
 
 describe("simplifyToolName", () => {
   test("strips mcp__orchestration__ prefix", () => {
-    assert.strictEqual(simplifyToolName("mcp__orchestration__Tell"), "Tell");
+    assert.strictEqual(simplifyToolName("mcp__orchestration__Ask"), "Ask");
   });
 
   test("strips mcp__github__ prefix", () => {

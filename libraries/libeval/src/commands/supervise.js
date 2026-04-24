@@ -20,11 +20,11 @@ function parseSuperviseOptions(values) {
   const supervisorAllowedToolsRaw = values["supervisor-allowed-tools"];
 
   const taskAmend = values["task-amend"] ?? undefined;
-  let taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
-  if (taskAmend) taskContent += `\n\n${taskAmend}`;
+  const taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
 
   return {
     taskContent,
+    taskAmend,
     supervisorCwd: resolve(values["supervisor-cwd"] ?? "."),
     agentCwd: resolve(
       values["agent-cwd"] ?? mkdtempSync(join(tmpdir(), "fit-eval-agent-")),
@@ -83,6 +83,7 @@ export async function runSuperviseCommand(values, _args) {
     supervisorAllowedTools: opts.supervisorAllowedTools,
     supervisorProfile: opts.supervisorProfile,
     agentProfile: opts.agentProfile,
+    taskAmend: opts.taskAmend,
   });
 
   const result = await supervisor.run(opts.taskContent);

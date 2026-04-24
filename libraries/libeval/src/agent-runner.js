@@ -28,6 +28,7 @@ function applyDefaults(deps) {
     systemPrompt: deps.systemPrompt ?? null,
     disallowedTools: deps.disallowedTools ?? [],
     mcpServers: deps.mcpServers ?? null,
+    taskAmend: deps.taskAmend ?? null,
   };
 }
 
@@ -67,9 +68,12 @@ export class AgentRunner {
   async run(task) {
     const abortController = new AbortController();
     this.currentAbortController = abortController;
+    const effectiveTask = this.taskAmend
+      ? `${task}\n\n${this.taskAmend}`
+      : task;
     try {
       const iterator = this.query({
-        prompt: task,
+        prompt: effectiveTask,
         options: {
           cwd: this.cwd,
           allowedTools: this.allowedTools,

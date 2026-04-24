@@ -10,7 +10,7 @@ skills:
   - kata-spec
   - kata-review
   - kata-trace
-  - kata-storyboard
+  - kata-session
   - kata-metrics
 ---
 

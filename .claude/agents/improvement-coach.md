@@ -4,7 +4,7 @@ description: >
   Continuous improvement coach. Facilitates team storyboard meetings and
   1-on-1 coaching sessions using the Toyota Kata five-question protocol.
 skills:
-  - kata-storyboard
+  - kata-session
   - kata-metrics
   - kata-review
 ---

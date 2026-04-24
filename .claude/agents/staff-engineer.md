@@ -10,7 +10,7 @@ skills:
   - kata-implement
   - kata-review
   - kata-trace
-  - kata-storyboard
+  - kata-session
   - kata-metrics
   - libs-grpc-services
   - libs-storage

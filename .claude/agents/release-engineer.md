@@ -7,7 +7,7 @@ skills:
   - kata-release-readiness
   - kata-release-review
   - kata-trace
-  - kata-storyboard
+  - kata-session
   - kata-metrics
 ---
 
