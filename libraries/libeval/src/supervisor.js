@@ -4,8 +4,11 @@
  * introduces itself, and delegates work to the agent. The loop then alternates:
  * agent → supervisor → agent.
  *
- * Signaling uses orchestration tools (Conclude, Redirect, Ask) via in-process
- * MCP servers. No text-token detection.
+ * Signaling uses orchestration tools (Ask / Answer / Announce / Redirect /
+ * Conclude) via in-process MCP servers. The Ask/Answer contract is enforced
+ * at turn boundaries: an unanswered Ask triggers one synthetic reminder and
+ * then a `protocol_violation` trace event plus a null-answer injection so the
+ * session advances without silent deadlock.
  *
  * Follows OO+DI: constructor injection, factory function, tests bypass factory.
  */
@@ -16,27 +19,30 @@ import { createAgentRunner } from "./agent-runner.js";
 import { composeProfilePrompt } from "./profile-prompt.js";
 import { TraceCollector } from "./trace-collector.js";
 import { SequenceCounter } from "./sequence-counter.js";
+import { createMessageBus } from "./message-bus.js";
 import {
   createOrchestrationContext,
   createSupervisorToolServer,
   createSupervisedAgentToolServer,
+  checkPendingAsk,
 } from "./orchestration-toolkit.js";
+import { formatMessages } from "./orchestrator-helpers.js";
 
 /** System prompt appended for the supervisor runner in supervise mode. */
 export const SUPERVISOR_SYSTEM_PROMPT =
-  "You relay messages to one persistent agent session — your only output " +
-  "channel. Spawning sub-agents or restarting the agent is blocked. Do not " +
-  "do the work yourself. Reply briefly to let the agent continue. Use your " +
-  "Redirect tool to interrupt and correct the agent. Use your Conclude tool " +
-  "with a summary when the task is fully done. Only your final message each " +
-  "turn is relayed.";
+  "You supervise one agent. " +
+  "Ask sends a question to the agent; the reply arrives via Answer. " +
+  "Answer replies to an ask the agent addressed to you. " +
+  "Announce sends a message with no reply obligation. " +
+  "Redirect interrupts the agent with replacement instructions. " +
+  "Conclude ends the session with a summary.";
 
 /** System prompt appended for the agent runner in supervise mode. */
 export const AGENT_SYSTEM_PROMPT =
-  "A supervisor watches your work and may interrupt with new instructions " +
-  "mid-task. Treat any new prompt as authoritative and adjust course. " +
-  "When uncertain, use your Ask tool to ask the supervisor a clarifying " +
-  "question — you will receive a direct answer.";
+  "A supervisor watches your work. " +
+  "Answer replies to an ask addressed to you. " +
+  "Ask sends a question to the supervisor; the reply arrives via Answer. " +
+  "Announce sends a message with no reply expected.";
 
 /**
  * Maximum number of mid-turn interventions allowed within a single agent turn.
@@ -54,8 +60,18 @@ export class Supervisor {
    * @param {import("stream").Writable} deps.output - Stream to emit tagged NDJSON to
    * @param {number} [deps.maxTurns] - Maximum supervisor ↔ agent exchanges
    * @param {object} [deps.ctx] - Orchestration context (injected by factory)
+   * @param {import("./message-bus.js").MessageBus} [deps.messageBus] - Two-participant message bus ("supervisor" / "agent")
+   * @param {string} [deps.taskAmend] - Opaque addendum appended to the task before delivery.
    */
-  constructor({ agentRunner, supervisorRunner, output, maxTurns, ctx }) {
+  constructor({
+    agentRunner,
+    supervisorRunner,
+    output,
+    maxTurns,
+    ctx,
+    messageBus,
+    taskAmend,
+  }) {
     if (!agentRunner) throw new Error("agentRunner is required");
     if (!supervisorRunner) throw new Error("supervisorRunner is required");
     if (!output) throw new Error("output is required");
@@ -64,7 +80,11 @@ export class Supervisor {
     this.output = output;
     this.maxTurns = maxTurns ?? 100;
     this.ctx = ctx ?? createOrchestrationContext();
+    this.messageBus =
+      messageBus ?? createMessageBus({ participants: ["supervisor", "agent"] });
+    if (!this.ctx.messageBus) this.ctx.messageBus = this.messageBus;
     this.counter = new SequenceCounter();
+    this.taskAmend = taskAmend ?? null;
     /** @type {"agent"|"supervisor"} */
     this.currentSource = "agent";
     /** @type {number} */
@@ -77,9 +97,10 @@ export class Supervisor {
    * @returns {Promise<{success: boolean, turns: number}>}
    */
   async run(task) {
+    const initialTask = this.taskAmend ? `${task}\n\n${this.taskAmend}` : task;
     this.currentSource = "supervisor";
     this.currentTurn = 0;
-    let supervisorResult = await this.supervisorRunner.run(task);
+    let supervisorResult = await this.supervisorRunner.run(initialTask);
 
     if (supervisorResult.error) {
       this.emitSummary({ success: false, turns: 0 });
@@ -95,8 +116,7 @@ export class Supervisor {
     const turnLimit = this.maxTurns === 0 ? Infinity : this.maxTurns;
     for (let turn = 1; turn <= turnLimit; turn++) {
       const relay =
-        pendingRelay ??
-        this.extractLastText(this.supervisorRunner, supervisorResult.text);
+        pendingRelay ?? this.#buildInitialRelay(supervisorResult.text);
 
       const turnOutcome = await this.#runAgentTurn(turn, relay);
       if (turnOutcome.exit) return turnOutcome.exit;
@@ -111,6 +131,22 @@ export class Supervisor {
     return { success: false, turns: this.maxTurns };
   }
 
+  #buildInitialRelay(fallbackText) {
+    const queued = this.messageBus.drain("agent");
+    if (queued.length > 0) return formatMessages(queued);
+    return this.extractLastText(this.supervisorRunner, fallbackText);
+  }
+
+  #checkAsk(name) {
+    return checkPendingAsk({
+      ctx: this.ctx,
+      messageBus: this.messageBus,
+      addresseeName: name,
+      mode: "supervised",
+      emitViolation: (e) => this.emitOrchestratorEvent(e),
+    });
+  }
+
   /**
    * Drive the agent through one turn, allowing the supervisor to interrupt
    * via the Redirect tool. Returns either an `exit` outcome (the loop should
@@ -122,6 +158,7 @@ export class Supervisor {
   async #runAgentTurn(turn, initialRelay) {
     let relay = initialRelay;
     let interventions = 0;
+    let agentCalled = this.agentRunner.sessionId !== null;
 
     this.agentRunner.onBatch = (batchLines, ctx) =>
       this.#midTurnReview(turn, batchLines, ctx);
@@ -130,10 +167,10 @@ export class Supervisor {
       while (true) {
         this.currentSource = "agent";
         this.currentTurn = turn;
-        const isFirstAgentCall = turn === 1 && interventions === 0;
-        const agentResult = isFirstAgentCall
-          ? await this.agentRunner.run(relay)
-          : await this.agentRunner.resume(relay);
+        const agentResult = agentCalled
+          ? await this.agentRunner.resume(relay)
+          : await this.agentRunner.run(relay);
+        agentCalled = true;
 
         if (agentResult.error && !agentResult.aborted) {
           this.emitSummary({ success: false, turns: turn });
@@ -160,6 +197,14 @@ export class Supervisor {
           relay = redirect.message;
           this.emitOrchestratorEvent({ type: "intervention_relayed", turn });
           continue;
+        }
+
+        if (this.#checkAsk("agent") === "recheck" && !this.ctx.concluded) {
+          const reminders = this.messageBus.drain("agent");
+          if (reminders.length > 0) {
+            relay = formatMessages(reminders);
+            continue;
+          }
         }
 
         return { exit: null };
@@ -209,14 +254,20 @@ export class Supervisor {
    * @returns {Promise<{exit: {success: boolean, turns: number}|null, supervisorResult?: object, relay?: string}>}
    */
   async #endOfTurnReview(turn) {
+    const queuedForSupervisor = this.messageBus.drain("supervisor");
     const agentTranscript = this.extractTranscript(this.agentRunner);
     this.currentSource = "supervisor";
     this.currentTurn = turn;
     this.ctx.redirect = null;
 
-    const supervisorResult = await this.supervisorRunner.resume(
-      `The agent reported:\n\n${agentTranscript}\n\nReview the agent's work and decide how to proceed.`,
-    );
+    const reviewPrompt =
+      queuedForSupervisor.length > 0
+        ? `The agent reported:\n\n${agentTranscript}\n\n` +
+          `Agent messages:\n${formatMessages(queuedForSupervisor)}\n\n` +
+          `Review and decide how to proceed.`
+        : `The agent reported:\n\n${agentTranscript}\n\nReview the agent's work and decide how to proceed.`;
+
+    let supervisorResult = await this.supervisorRunner.resume(reviewPrompt);
 
     if (supervisorResult.error) {
       this.emitSummary({ success: false, turns: turn });
@@ -232,13 +283,34 @@ export class Supervisor {
       return { exit: { success: true, turns: turn } };
     }
 
+    if (this.#checkAsk("supervisor") === "recheck" && !this.ctx.concluded) {
+      const reminders = this.messageBus.drain("supervisor");
+      if (reminders.length > 0) {
+        supervisorResult = await this.supervisorRunner.resume(
+          formatMessages(reminders),
+        );
+        if (this.ctx.concluded) {
+          this.emitSummary({
+            success: true,
+            turns: turn,
+            summary: this.ctx.summary,
+          });
+          return { exit: { success: true, turns: turn } };
+        }
+        this.#checkAsk("supervisor");
+      }
+    }
+
     if (this.ctx.redirect) {
       const redirect = this.ctx.redirect;
       this.ctx.redirect = null;
       return { exit: null, supervisorResult, relay: redirect.message };
     }
 
-    return { exit: null, supervisorResult };
+    const queuedForAgent = this.messageBus.drain("agent");
+    const relay =
+      queuedForAgent.length > 0 ? formatMessages(queuedForAgent) : undefined;
+    return { exit: null, supervisorResult, relay };
   }
 
   /**
@@ -360,6 +432,7 @@ const devNull = new Writable({
  * @param {string} [deps.supervisorProfile] - Supervisor profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
  * @param {string} [deps.agentProfile] - Agent profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
  * @param {string} [deps.profilesDir] - Directory containing `<name>.md` profile files. Defaults to `<supervisorCwd>/.claude/agents`. Resolved once from the orchestrator's cwd so profiles travel with the project, not with a per-agent sandbox.
+ * @param {string} [deps.taskAmend] - Opaque addendum appended to the task before delivery.
  * @returns {Supervisor}
  */
 export function createSupervisor({
@@ -375,6 +448,7 @@ export function createSupervisor({
   supervisorProfile,
   agentProfile,
   profilesDir,
+  taskAmend,
 }) {
   const resolvedProfilesDir =
     profilesDir ?? resolve(supervisorCwd, ".claude/agents");
@@ -388,23 +462,19 @@ export function createSupervisor({
       : { type: "preset", preset: "claude_code", append: trailer };
   };
   let supervisor;
-  let supervisorRunner;
 
   const ctx = createOrchestrationContext();
+  const messageBus = createMessageBus({
+    participants: ["supervisor", "agent"],
+  });
+  ctx.messageBus = messageBus;
+  ctx.participants = [
+    { name: "supervisor", role: "supervisor" },
+    { name: "agent", role: "agent" },
+  ];
 
   const supervisorServer = createSupervisorToolServer(ctx);
-  const agentServer = createSupervisedAgentToolServer(ctx, {
-    onAsk: async (question) => {
-      supervisor.currentSource = "supervisor";
-      supervisor.emitOrchestratorEvent({ type: "ask_received" });
-      await supervisorRunner.resume(
-        `The agent asks: "${question}"\n\nAnswer the question directly.`,
-      );
-      supervisor.currentSource = "agent";
-      supervisor.emitOrchestratorEvent({ type: "ask_answered" });
-      return supervisor.extractLastText(supervisorRunner, "No answer.");
-    },
-  });
+  const agentServer = createSupervisedAgentToolServer(ctx);
 
   const onLine = (line) => supervisor.emitLine(line);
 
@@ -426,7 +496,7 @@ export function createSupervisor({
     ? [...new Set([...defaultDisallowed, ...supervisorDisallowedTools])]
     : defaultDisallowed;
 
-  supervisorRunner = createAgentRunner({
+  const supervisorRunner = createAgentRunner({
     cwd: supervisorCwd,
     query,
     output: devNull,
@@ -453,6 +523,8 @@ export function createSupervisor({
     output,
     maxTurns,
     ctx,
+    messageBus,
+    taskAmend,
   });
   return supervisor;
 }

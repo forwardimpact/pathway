@@ -21,8 +21,8 @@ three files that do not grow with agent count or week count.
 - **Teammate summaries** — read only when coordinating with a named agent or
   investigating a priority-index item that names them.
 - **Weekly logs** — read only when the skill is `kata-wiki-curate`,
-  `kata-trace`, or `kata-storyboard`, or when explicitly investigating a
-  historical decision.
+  `kata-trace`, or `kata-session`, or when explicitly investigating a historical
+  decision.
 
 Skills that need Tier 2 files declare it in their own Step 0.
 
@@ -82,8 +82,8 @@ Weekly logs (`wiki/<agent>-YYYY-Www.md`) are:
 
 - **Append-only audit records** — no edits to past entries except format fixes.
 - **Tier 2** — not in the default startup load.
-- **Named readers:** `kata-wiki-curate` (always), `kata-storyboard` (for
-  experiment verification), agents explicitly investigating past decisions.
+- **Named readers:** `kata-wiki-curate` (always), `kata-session` (for experiment
+  verification), agents explicitly investigating past decisions.
 - **Format:** `## YYYY-MM-DD` / `### {Subsection}` structure.
 - **No line budget** — write-once records off the critical startup path.
 

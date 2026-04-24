@@ -78,7 +78,7 @@ const HINT_HANDLERS = {
 
 /**
  * Strip the `mcp__<server>__` prefix from MCP-namespaced tool names so logs
- * show the bare method (e.g. `mcp__orchestration__Tell` → `Tell`). Non-MCP
+ * show the bare method (e.g. `mcp__orchestration__Ask` → `Ask`). Non-MCP
  * names and malformed inputs pass through unchanged.
  * @param {string} name
  * @returns {string}
@@ -92,7 +92,7 @@ export function simplifyToolName(name) {
 }
 
 /**
- * MCP-prefixed tool names (e.g. `mcp__orchestration__Tell`) take a different
+ * MCP-prefixed tool names (e.g. `mcp__orchestration__Ask`) take a different
  * handler path. The method name itself is surfaced via `simplifyToolName`,
  * so this only adds the `to/from` decorators for orchestration calls.
  * Returns null if the name does not match any MCP prefix.
@@ -121,7 +121,7 @@ function hintForMcp(name, input) {
  * ends with `sanitize`, so the output is guaranteed free of `{`, `}`, `"`
  * from the input object (success criterion #2).
  *
- * @param {string} name - Tool name (e.g. "Bash", "Read", "mcp__orchestration__Tell")
+ * @param {string} name - Tool name (e.g. "Bash", "Read", "mcp__orchestration__Ask")
  * @param {object|null|undefined} input - Raw tool input object from the trace
  * @returns {string} One-line hint, or "" when no rule matches
  */

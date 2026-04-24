@@ -1,9 +1,8 @@
 /**
- * Facilitator — orchestrates multi-agent concurrent sessions with tool-based
- * communication. Manages N agent sessions and one facilitator LLM session,
- * communicating through OrchestrationToolkit primitives and the MessageBus.
- *
- * Follows OO+DI: constructor injection, factory function, tests bypass factory.
+ * Facilitator — N agent sessions + one facilitator LLM session. The Ask/Answer
+ * contract is enforced at turn boundaries via checkPendingAsk: one synthetic
+ * reminder, then a `protocol_violation` event plus a null-answer injection so
+ * the session advances instead of deadlocking.
  */
 
 import { Writable } from "node:stream";
@@ -16,62 +15,26 @@ import {
   createOrchestrationContext,
   createFacilitatorToolServer,
   createFacilitatedAgentToolServer,
+  checkPendingAsk,
 } from "./orchestration-toolkit.js";
+import { createAsyncQueue, formatMessages } from "./orchestrator-helpers.js";
 
 /** System prompt appended for the facilitator runner. */
 export const FACILITATOR_SYSTEM_PROMPT =
-  "You coordinate multiple agents working on a shared task. " +
-  "Tell sends a direct message to one participant. " +
-  "Share broadcasts a message to all participants. " +
-  "Redirect interrupts a participant and replaces their current instructions. " +
-  "RollCall lists available participants and their roles. " +
-  "Conclude ends the session with a summary. " +
-  "Participants communicate with you via Share and may Ask you questions. " +
-  "IMPORTANT: After sending messages via Tell or Share, stop making tool " +
-  "calls and produce a text response. The system will resume you with " +
-  "participant responses. Do not proceed to the next question or call " +
-  "Conclude until you have received responses from participants.";
+  "You coordinate multiple participants. " +
+  "Ask sends a question to a participant; omit the addressee to broadcast. " +
+  "Announce sends a message with no reply obligation. " +
+  "Redirect interrupts a participant with replacement instructions. " +
+  "RollCall lists participants. " +
+  "Conclude ends the session with a summary.";
 
 /** System prompt appended for facilitated agent runners. */
 export const FACILITATED_AGENT_SYSTEM_PROMPT =
-  "You are one of several agents working on a shared task under a " +
-  "facilitator's coordination. " +
-  "Share broadcasts your message to all participants. " +
-  "Tell sends a direct message to one participant. " +
-  "Ask sends a question to the facilitator — you block until answered. " +
-  "RollCall lists available participants and their roles. " +
-  "The facilitator may Redirect you with new instructions " +
-  "— treat redirections as authoritative.";
-
-function createAsyncQueue() {
-  const items = [];
-  let waiter = null;
-  let closed = false;
-  return {
-    enqueue(item) {
-      items.push(item);
-      if (waiter) {
-        waiter();
-        waiter = null;
-      }
-    },
-    async dequeue() {
-      if (items.length > 0) return items.shift();
-      if (closed) return null;
-      await new Promise((resolve) => {
-        waiter = resolve;
-      });
-      return items.length > 0 ? items.shift() : null;
-    },
-    close() {
-      closed = true;
-      if (waiter) {
-        waiter();
-        waiter = null;
-      }
-    },
-  };
-}
+  "You participate in a coordinated session. " +
+  "Answer replies to an ask addressed to you. " +
+  "Ask sends a question to another participant. " +
+  "Announce broadcasts a message. " +
+  "RollCall lists participants.";
 
 export class Facilitator {
   /**
@@ -83,6 +46,7 @@ export class Facilitator {
    * @param {number} [deps.maxTurns]
    * @param {object} [deps.ctx]
    * @param {object} [deps.eventQueue]
+   * @param {string} [deps.taskAmend] - Opaque addendum appended to the task before delivery.
    */
   constructor({
     facilitatorRunner,
@@ -92,6 +56,7 @@ export class Facilitator {
     maxTurns,
     ctx,
     eventQueue,
+    taskAmend,
   }) {
     this.facilitatorRunner = facilitatorRunner;
     this.agents = agents;
@@ -102,6 +67,7 @@ export class Facilitator {
     this.counter = new SequenceCounter();
     this.eventQueue = eventQueue ?? createAsyncQueue();
     this.facilitatorTurns = 0;
+    this.taskAmend = taskAmend ?? null;
 
     let resolve;
     const promise = new Promise((r) => {
@@ -119,21 +85,23 @@ export class Facilitator {
   async run(task) {
     this.emitOrchestratorEvent({ type: "session_start" });
 
+    const initialTask = this.taskAmend ? `${task}\n\n${this.taskAmend}` : task;
+
     // Launch agent loops first — they wait for messages via messageBus.
-    // This lets agents process Tell/Share messages that arrive during the
-    // facilitator's initial run, rather than after it completes.
+    // This lets agents process Ask/Announce messages that arrive during
+    // the facilitator's initial run, rather than after it completes.
     const agentPromises = this.agents.map((a) => this.#runAgent(a));
 
     // Turn 0: facilitator receives the task
     this.facilitatorTurns++;
-    await this.facilitatorRunner.run(task);
+    await this.facilitatorRunner.run(initialTask);
 
     // Handle redirect after turn 0
     await this.#processRedirect();
 
     if (this.ctx.concluded) {
       // Facilitator concluded during its initial run. Let agents finish any
-      // in-progress work before returning — they may have received Tell/Share
+      // in-progress work before returning — they may have received Ask/Answer
       // messages and started processing concurrently.
       this.concludeResolve();
       await Promise.allSettled(agentPromises);
@@ -177,6 +145,26 @@ export class Facilitator {
     return result;
   }
 
+  #checkAsk(name) {
+    return checkPendingAsk({
+      ctx: this.ctx,
+      messageBus: this.messageBus,
+      addresseeName: name,
+      mode: "facilitated",
+      emitViolation: (e) => this.emitOrchestratorEvent(e),
+    });
+  }
+
+  async #enforcePendingAsk(agent) {
+    if (this.#checkAsk(agent.name) !== "recheck") return;
+    if (this.ctx.concluded) return;
+    const reminders = this.messageBus.drain(agent.name);
+    if (reminders.length === 0) return;
+    await agent.runner.resume(formatMessages(reminders));
+    if (this.ctx.concluded) return;
+    this.#checkAsk(agent.name);
+  }
+
   /**
    * Agent outer loop — waits for messages, runs/resumes the agent.
    * @param {{name: string, role: string, runner: import("./agent-runner.js").AgentRunner}} agent
@@ -196,7 +184,9 @@ export class Facilitator {
       type: "agent_start",
       agent: agent.name,
     });
-    await agent.runner.run(this.#formatMessages(messages));
+    await agent.runner.run(formatMessages(messages));
+    if (this.ctx.concluded) return;
+    await this.#enforcePendingAsk(agent);
     if (this.ctx.concluded) return;
     this.eventQueue.enqueue({
       type: "lifecycle",
@@ -216,7 +206,9 @@ export class Facilitator {
         messages = this.messageBus.drain(agent.name);
         if (messages.length === 0) break;
       }
-      await agent.runner.resume(this.#formatMessages(messages));
+      await agent.runner.resume(formatMessages(messages));
+      if (this.ctx.concluded) break;
+      await this.#enforcePendingAsk(agent);
       if (this.ctx.concluded) break;
       this.eventQueue.enqueue({
         type: "lifecycle",
@@ -239,46 +231,14 @@ export class Facilitator {
 
   async #handleEvent(event) {
     switch (event.type) {
-      case "ask": {
-        if (this.ctx.concluded) {
-          event.resolve("Session has concluded.");
-          break;
-        }
-        this.facilitatorTurns++;
-        this.emitOrchestratorEvent({
-          type: "ask_received",
-          from: event.from,
-        });
-        await this.facilitatorRunner.resume(
-          `Agent "${event.from}" asks: "${event.question}"\nAnswer the question.`,
-        );
-        const answer = this.extractLastText(
-          this.facilitatorRunner,
-          "No answer.",
-        );
-        this.emitOrchestratorEvent({
-          type: "ask_answered",
-          from: event.from,
-        });
-        event.resolve(answer);
-        await this.#processRedirect();
-        break;
-      }
-      case "messages": {
-        const msgs = this.messageBus.drain("facilitator");
-        if (msgs.length === 0) break;
-        this.facilitatorTurns++;
-        await this.facilitatorRunner.resume(this.#formatMessages(msgs));
-        await this.#processRedirect();
-        break;
-      }
+      case "messages":
       case "lifecycle": {
-        // Check for pending shared messages for the facilitator
         const msgs = this.messageBus.drain("facilitator");
         if (msgs.length === 0) break;
         this.facilitatorTurns++;
-        await this.facilitatorRunner.resume(this.#formatMessages(msgs));
+        await this.facilitatorRunner.resume(formatMessages(msgs));
         await this.#processRedirect();
+        if (!this.ctx.concluded) await this.#enforceFacilitatorPendingAsk();
         break;
       }
     }
@@ -287,6 +247,18 @@ export class Facilitator {
       this.concludeResolve();
       this.eventQueue.close();
     }
+  }
+
+  async #enforceFacilitatorPendingAsk() {
+    if (this.#checkAsk("facilitator") !== "recheck") return;
+    if (this.ctx.concluded) return;
+    const reminders = this.messageBus.drain("facilitator");
+    if (reminders.length === 0) return;
+    this.facilitatorTurns++;
+    await this.facilitatorRunner.resume(formatMessages(reminders));
+    await this.#processRedirect();
+    if (this.ctx.concluded) return;
+    this.#checkAsk("facilitator");
   }
 
   /**
@@ -307,37 +279,17 @@ export class Facilitator {
       for (const agent of this.agents) {
         agent.runner.currentAbortController?.abort();
       }
-      this.messageBus.share("facilitator", redirect.message);
+      this.messageBus.announce("facilitator", redirect.message);
     } else if (redirect.to) {
       // Abort specific agent and deliver via direct message
       const target = this.agents.find((a) => a.name === redirect.to);
       if (target) {
         target.runner.currentAbortController?.abort();
       }
-      this.messageBus.tell("facilitator", redirect.to, redirect.message);
+      this.messageBus.direct("facilitator", redirect.to, redirect.message);
     }
   }
 
-  /**
-   * Format messages for an agent prompt.
-   * @param {Array<{from: string, text: string, direct: boolean}>} messages
-   * @returns {string}
-   */
-  #formatMessages(messages) {
-    return messages
-      .map((m) => {
-        const tag = m.direct ? "[direct]" : "[shared]";
-        return `${tag} ${m.from}: ${m.text}`;
-      })
-      .join("\n");
-  }
-
-  /**
-   * Extract the last assistant text block from a runner's buffer.
-   * @param {import("./agent-runner.js").AgentRunner} runner
-   * @param {string} fallback
-   * @returns {string}
-   */
   extractLastText(runner, fallback) {
     const lines = runner.buffer;
     for (let i = lines.length - 1; i >= 0; i--) {
@@ -412,13 +364,14 @@ const devNull = new Writable({
  * Factory function — wires all participants with MCP servers.
  * @param {object} deps
  * @param {string} deps.facilitatorCwd
- * @param {Array<{name: string, role: string, cwd?: string, maxTurns?: number, allowedTools?: string[], agentProfile?: string}>} deps.agentConfigs
+ * @param {Array<{name: string, role: string, cwd?: string, maxTurns?: number, allowedTools?: string[], agentProfile?: string, systemPromptAmend?: string}>} deps.agentConfigs
  * @param {function} deps.query
  * @param {import("stream").Writable} deps.output
  * @param {string} [deps.model]
  * @param {number} [deps.maxTurns]
  * @param {string} [deps.facilitatorProfile] - Facilitator profile name; resolved into the main-thread system prompt via `composeProfilePrompt`.
  * @param {string} [deps.profilesDir] - Directory containing `<name>.md` profile files. Defaults to `<facilitatorCwd>/.claude/agents`. Resolved once from the facilitator's cwd so profiles travel with the project, not with per-agent sandboxes.
+ * @param {string} [deps.taskAmend] - Opaque addendum appended to the task before delivery.
  * @returns {Facilitator}
  */
 export function createFacilitator({
@@ -430,6 +383,7 @@ export function createFacilitator({
   maxTurns,
   facilitatorProfile,
   profilesDir,
+  taskAmend,
 }) {
   const resolvedProfilesDir =
     profilesDir ?? resolve(facilitatorCwd, ".claude/agents");
@@ -461,20 +415,11 @@ export function createFacilitator({
   const agents = agentConfigs.map((config) => {
     const agentServer = createFacilitatedAgentToolServer(ctx, {
       from: config.name,
-      onAsk: async (question) => {
-        let resolve;
-        const promise = new Promise((r) => {
-          resolve = r;
-        });
-        eventQueue.enqueue({
-          type: "ask",
-          from: config.name,
-          question,
-          resolve,
-        });
-        return promise;
-      },
     });
+
+    const agentTrailer = config.systemPromptAmend
+      ? `${FACILITATED_AGENT_SYSTEM_PROMPT}\n\n${config.systemPromptAmend}`
+      : FACILITATED_AGENT_SYSTEM_PROMPT;
 
     const runner = createAgentRunner({
       cwd: config.cwd ?? facilitatorCwd,
@@ -486,10 +431,7 @@ export function createFacilitator({
       onLine: (line) => facilitator.emitLine(config.name, line),
       mcpServers: { orchestration: agentServer },
       settingSources: ["project"],
-      systemPrompt: systemPromptFor(
-        config.agentProfile,
-        FACILITATED_AGENT_SYSTEM_PROMPT,
-      ),
+      systemPrompt: systemPromptFor(config.agentProfile, agentTrailer),
     });
 
     return { name: config.name, role: config.role, runner };
@@ -518,6 +460,7 @@ export function createFacilitator({
     maxTurns,
     ctx,
     eventQueue,
+    taskAmend,
   });
   return facilitator;
 }

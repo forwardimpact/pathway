@@ -1,0 +1,178 @@
+---
+name: kata-session
+description: >
+  Toyota Kata coaching protocol for facilitated sessions. Used by the
+  improvement coach (facilitator) and by domain agents who participate via
+  libeval's Ask/Answer/Announce tools. Same five coaching kata questions
+  across team storyboard meetings and 1-on-1 coaching sessions; mode-specific
+  guidance lives in references/team-storyboard.md and references/one-on-one.md.
+---
+
+# Kata Session
+
+Shared entry-point skill for Toyota Kata coaching sessions. The improvement
+coach facilitates; domain agents participate. The coach follows the Facilitator
+Process; participants follow the Participant Protocol. Both roles share the same
+five coaching kata questions.
+
+Two mode overlays describe the mode-specific artifact surface:
+
+- Team storyboard meetings —
+  [`references/team-storyboard.md`](references/team-storyboard.md)
+- 1-on-1 coaching sessions —
+  [`references/one-on-one.md`](references/one-on-one.md)
+
+## When to Use
+
+**Facilitator**: Entry-point skill for the improvement coach's two facilitation
+contexts — team storyboard meetings (`kata-storyboard.yml` workflow) and 1-on-1
+coaching sessions (`kata-coaching.yml` workflow).
+
+**Participant**: The coach passes a participant-side summary through libeval's
+`systemPromptAmend` before the first `Ask`. You do not load this skill in
+participant runs; respond to each Ask with Answer per the summary you receive.
+
+## Checklists
+
+### Facilitator
+
+<read_do_checklist goal="Prepare for the coaching session">
+
+- [ ] Detect mode: call RollCall — success means facilitated mode,
+      tool-not-found means solo mode.
+- [ ] Pick the overlay that matches the mode
+      ([`references/team-storyboard.md`](references/team-storyboard.md) or
+      [`references/one-on-one.md`](references/one-on-one.md)) and follow its
+      artifact guidance.
+- [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
+- [ ] Run `bunx fit-xmr analyze --format json` against each metrics CSV and
+      record the output.
+
+</read_do_checklist>
+
+<do_confirm_checklist goal="Verify coaching session quality">
+
+- [ ] All five coaching kata questions were addressed.
+- [ ] Every `Ask` received an `Answer`, or surfaced a `protocol_violation` trace
+      event. The runtime — not the coach — enforces the relay; the coach
+      confirms it happened.
+- [ ] Current condition updated with numbers from metrics CSVs (not narrative),
+      including XmR `status` and signal descriptions for each metric with
+      sufficient data. Metrics with `insufficient_data` are noted.
+- [ ] Coaching metrics appended to CSV (see Facilitator Process step 6).
+- [ ] For team meetings: storyboard file updated and committed.
+- [ ] For 1-on-1: agent's findings written to its own memory.
+- [ ] Weekly log updated: append a `## YYYY-MM-DD` heading to the current week's
+      log file recording meeting type, key metrics reviewed, obstacle addressed,
+      and experiment committed. (Memory section lists full detail.)
+- [ ] Experiment expected outcome recorded _before_ the experiment runs.
+- [ ] In facilitated mode: `Conclude` called with session summary.
+
+</do_confirm_checklist>
+
+### Participant
+
+<do_confirm_checklist goal="Verify participation quality">
+
+- [ ] Q2 data gathered from live sources, not memory or prior logs.
+- [ ] Domain metrics appended to CSV before answering (step 2).
+- [ ] Metrics reported via `Answer` match the CSV rows just written.
+- [ ] Q3 obstacles grounded in data or trace findings, not narrative.
+- [ ] Q4 experiment has a recorded expected outcome.
+
+</do_confirm_checklist>
+
+## The Five Kata Questions
+
+These questions structure every coaching interaction — team meetings and 1-on-1
+sessions. The coach asks via `Ask`; the participant replies via `Answer`.
+
+1. **What is the target condition?** Ground the conversation in where the team
+   (or the agent) is headed.
+2. **What is the actual condition now?** Measured, not narrative — counts and
+   durations from live data, recorded in CSV.
+3. **What obstacles prevent us from reaching the target?** Identified from the
+   gap between current and target, grounded in data or trace findings.
+4. **What is the next step? What do you expect?** The expected outcome is
+   recorded _before_ the experiment runs.
+5. **When can we see what we learned from that step?** Establish the feedback
+   loop — the next meeting opens by reviewing what was learned.
+
+Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
+
+## Facilitator Process
+
+1. **Detect mode.** Call RollCall. If it succeeds, you are in facilitated mode —
+   use orchestration tools (`Ask`, `Answer`, `Announce`, `Conclude`, `Redirect`)
+   for all participant interaction. If the call fails with tool-not-found, you
+   are in solo mode — use direct file reads.
+2. **Select the overlay.** For `kata-storyboard.yml` runs, load
+   [`references/team-storyboard.md`](references/team-storyboard.md). For
+   `kata-coaching.yml` runs, load
+   [`references/one-on-one.md`](references/one-on-one.md). The overlay owns the
+   mode-specific artifact surface, the question wording, and the
+   participant-side summary template.
+3. **Propagate participant framing.** Derive a short participant-side summary
+   from the overlay (one paragraph that names the mode and the Ask/Answer
+   contract) and pass it to libeval as `systemPromptAmend` on each participant's
+   config. libeval treats the string as opaque and appends it to each
+   participant's system prompt before the first `Ask`.
+4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
+   `bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --format json`.
+   Use `status`, `signals`, and `x_bar` from the JSON output when reporting the
+   Condition. If a metric returns `insufficient_data`, note it. In facilitated
+   mode, include XmR summaries in the Q2 `Ask` to each agent.
+5. **Run the five questions.** Follow the overlay's wording. In facilitated mode
+   use `Ask` to pose each question and collect `Answer` replies before
+   advancing. Use `Announce` for team-wide context. In solo mode, read metrics
+   and wiki files directly.
+6. **Update artifacts.** Write back whatever the overlay prescribes — for team
+   mode, the storyboard file; for 1-on-1, the participant's memory.
+7. **Record coaching metrics.** Append coaching activity metrics (e.g.,
+   `meetings_facilitated`, `experiments_active`, `agents_participating`) to
+   `wiki/metrics/improvement-coach/coaching/{YYYY}.csv` per the
+   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. See
+   [`references/metrics.md`](references/metrics.md) for suggested metrics.
+8. **Evaluate coaching need (team meetings only).** Review the session's
+   findings. If a participant would benefit from a 1-on-1 coaching session —
+   persistent obstacles, unanalyzed traces, or stalled experiments — trigger
+   `kata-coaching.yml` via `gh workflow run kata-coaching.yml -f agent=<name>`.
+   Skip this step in 1-on-1 sessions.
+9. **Commit.** Commit artifact changes as part of the wiki push.
+10. **Conclude (facilitated mode only).** Call `Conclude` with a session summary
+    covering: meeting type, key metrics reviewed, obstacles addressed,
+    experiments planned, and any coaching session triggered.
+
+## Participant Protocol
+
+Participants receive the mode summary via `systemPromptAmend`, not by loading
+this skill directly. The generic pattern below applies in both modes.
+
+1. **Prepare for Q2.** When the coach poses Q2 via `Ask`, gather your domain's
+   current measured state. Use live data (`gh`, `bun`, repo files) — not memory
+   or narrative.
+2. **Record metrics to CSV.** Before answering, append one row per metric to
+   your domain's CSV at `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv` per the
+   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. Create the directory and
+   header row if the file does not exist. The CSV is the authoritative record;
+   your `Answer` summarizes it.
+3. **Answer with measured data.** Report numbers via `Answer`. Reference the CSV
+   rows you just wrote. Use counts and durations — not narratives like
+   "improving" or "stable." Use `Announce` only when you have unsolicited
+   team-wide context.
+4. **Ground obstacles in data.** For Q3, identify obstacles from the gap between
+   your measured current condition and the target. Prefer trace findings or live
+   run data over accumulated log narratives.
+5. **Propose testable experiments.** For Q4, propose small experiments with
+   expected outcomes that can be verified in one or two daily cycles.
+
+## Memory: what to record
+
+Append to the current week's log (see agent profile for the file path):
+
+- **Session type** — Team storyboard, review, or 1-on-1 (with which agent)
+- **Current condition** — Key numbers from metrics CSVs reviewed
+- **Obstacle addressed** — Which obstacle was the focus
+- **Experiment status** — Outcome of prior experiment, next experiment planned
+- **Metrics** — Facilitator: record coaching activity metrics per step 7.
+  Participants: record domain metrics per Participant Protocol step 2.

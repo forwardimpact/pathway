@@ -7,25 +7,34 @@ import {
   createOrchestrationContext,
   createConcludeHandler,
   createRollCallHandler,
+  createAskHandler,
+  createAnswerHandler,
+  createAnnounceHandler,
 } from "../src/orchestration-toolkit.js";
 import { MessageBus } from "../src/message-bus.js";
 import { createMockRunner } from "./mock-runner.js";
 import { createToolUseMsg } from "@forwardimpact/libharness";
 
 const concludeMsg = (summary) => createToolUseMsg("Conclude", { summary });
-const tellMsg = (to, message) =>
-  createToolUseMsg("Tell", { to, message }, { id: `tell-${to}` });
-const shareMsg = (message) =>
-  createToolUseMsg("Share", { message }, { id: "share-1" });
+const askMsg = (to, question) =>
+  createToolUseMsg("Ask", { to, question }, { id: `ask-${to}` });
+const answerMsg = (message) =>
+  createToolUseMsg("Answer", { message }, { id: "answer-1" });
+const announceMsg = (message) =>
+  createToolUseMsg("Announce", { message }, { id: "announce-1" });
+
+function seedCtx(participants) {
+  const ctx = createOrchestrationContext();
+  const messageBus = new MessageBus({ participants });
+  ctx.messageBus = messageBus;
+  ctx.participants = participants.map((name) => ({ name, role: name }));
+  return { ctx, messageBus };
+}
 
 describe("Facilitator - core orchestration", () => {
   test("turn 0 Conclude: no agents start", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedCtx(["facilitator", "agent-1"]);
     const concludeHandler = createConcludeHandler(ctx);
-    const messageBus = new MessageBus({
-      participants: ["facilitator", "agent-1"],
-    });
-    ctx.messageBus = messageBus;
 
     const facilitatorRunner = createMockRunner(
       [{ text: "Done immediately" }],
@@ -67,22 +76,19 @@ describe("Facilitator - core orchestration", () => {
   });
 
   test("lazy start: agents only start when they receive a message", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedCtx(["facilitator", "agent-1", "agent-2"]);
     const concludeHandler = createConcludeHandler(ctx);
-    const messageBus = new MessageBus({
-      participants: ["facilitator", "agent-1", "agent-2"],
+    const askHandler = createAskHandler(ctx, {
+      from: "facilitator",
+      defaultTo: undefined,
     });
-    ctx.messageBus = messageBus;
 
-    // Facilitator tells agent-1 in turn 0, then concludes when agent-1's
-    // lifecycle event triggers a facilitator turn
     const facilitatorRunner = createMockRunner(
       [{ text: "Assigning work" }, { text: "Done" }],
-      [[tellMsg("agent-1", "Explore the docs")], [concludeMsg("All done")]],
+      [[askMsg("agent-1", "Explore the docs")], [concludeMsg("All done")]],
       {
         toolDispatcher: {
-          Tell: (input) =>
-            messageBus.tell("facilitator", input.to, input.message),
+          Ask: (input) => askHandler(input),
           Conclude: (input) => concludeHandler(input),
         },
       },
@@ -90,12 +96,19 @@ describe("Facilitator - core orchestration", () => {
 
     let agent1Started = false;
     let agent2Started = false;
-    const agent1Runner = createMockRunner([{ text: "Found docs" }]);
+    const agent1AnswerHandler = createAnswerHandler(ctx, { from: "agent-1" });
+    const agent1Runner = createMockRunner(
+      [{ text: "Found docs" }],
+      [[answerMsg("Found the docs")]],
+      {
+        toolDispatcher: {
+          Answer: (input) => agent1AnswerHandler(input),
+        },
+      },
+    );
     const origRun1 = agent1Runner.run;
     agent1Runner.run = async (task) => {
       agent1Started = true;
-      // Agent sends findings back to facilitator only (not agent-2)
-      messageBus.tell("agent-1", "facilitator", "Found the docs");
       return origRun1.call(agent1Runner, task);
     };
     const agent2Runner = createMockRunner([{ text: "Never called" }]);
@@ -130,31 +143,38 @@ describe("Facilitator - core orchestration", () => {
   });
 
   test("trace uses universal { source, seq, event } envelope", async () => {
-    const ctx = createOrchestrationContext();
+    const { ctx, messageBus } = seedCtx(["facilitator", "agent-1"]);
     const concludeHandler = createConcludeHandler(ctx);
-    const messageBus = new MessageBus({
-      participants: ["facilitator", "agent-1"],
+    const askHandler = createAskHandler(ctx, {
+      from: "facilitator",
+      defaultTo: undefined,
     });
-    ctx.messageBus = messageBus;
 
     const facilitatorRunner = createMockRunner(
       [{ text: "Go" }, { text: "Done" }],
-      [[tellMsg("agent-1", "Do work")], [concludeMsg("Complete")]],
+      [[askMsg("agent-1", "Do work")], [concludeMsg("Complete")]],
       {
         toolDispatcher: {
-          Tell: (input) =>
-            messageBus.tell("facilitator", input.to, input.message),
+          Ask: (input) => askHandler(input),
           Conclude: (input) => concludeHandler(input),
         },
       },
     );
 
-    const agentRunner = createMockRunner([{ text: "Working" }]);
-    const origRun = agentRunner.run;
-    agentRunner.run = async (task) => {
-      messageBus.share("agent-1", "Done working");
-      return origRun.call(agentRunner, task);
-    };
+    const agentAnnounceHandler = createAnnounceHandler(ctx, {
+      from: "agent-1",
+    });
+    const agentAnswerHandler = createAnswerHandler(ctx, { from: "agent-1" });
+    const agentRunner = createMockRunner(
+      [{ text: "Working" }],
+      [[answerMsg("Done working"), announceMsg("Heads up")]],
+      {
+        toolDispatcher: {
+          Answer: (input) => agentAnswerHandler(input),
+          Announce: (input) => agentAnnounceHandler(input),
+        },
+      },
+    );
 
     const output = new PassThrough();
     const facilitator = new Facilitator({
@@ -198,19 +218,18 @@ describe("Facilitator - core orchestration", () => {
   });
 
   test("fail-fast: agent error aborts all sessions", async () => {
-    const ctx = createOrchestrationContext();
-    const messageBus = new MessageBus({
-      participants: ["facilitator", "agent-1", "agent-2"],
+    const { ctx, messageBus } = seedCtx(["facilitator", "agent-1", "agent-2"]);
+    const askHandler = createAskHandler(ctx, {
+      from: "facilitator",
+      defaultTo: undefined,
     });
-    ctx.messageBus = messageBus;
 
     const facilitatorRunner = createMockRunner(
       [{ text: "Assigning" }],
-      [[tellMsg("agent-1", "Do work"), tellMsg("agent-2", "Do work")]],
+      [[askMsg("agent-1", "Do work"), askMsg("agent-2", "Do work")]],
       {
         toolDispatcher: {
-          Tell: (input) =>
-            messageBus.tell("facilitator", input.to, input.message),
+          Ask: (input) => askHandler(input),
         },
       },
     );
@@ -243,25 +262,23 @@ describe("Facilitator - core orchestration", () => {
 });
 
 describe("Facilitator - messaging", () => {
-  test("Tell delivers message to specific agent", async () => {
-    const ctx = createOrchestrationContext();
+  test("Ask delivers question to a specific agent and Answer clears it", async () => {
+    const { ctx, messageBus } = seedCtx(["facilitator", "agent-1", "agent-2"]);
     const concludeHandler = createConcludeHandler(ctx);
-    const messageBus = new MessageBus({
-      participants: ["facilitator", "agent-1", "agent-2"],
+    const askHandler = createAskHandler(ctx, {
+      from: "facilitator",
+      defaultTo: undefined,
     });
-    ctx.messageBus = messageBus;
 
-    // Facilitator tells both agents in turn 0, then concludes when lifecycle triggers
     const facilitatorRunner = createMockRunner(
       [{ text: "Assigning" }, { text: "Done" }],
       [
-        [tellMsg("agent-1", "Do task A"), tellMsg("agent-2", "Do task B")],
+        [askMsg("agent-1", "Do task A"), askMsg("agent-2", "Do task B")],
         [concludeMsg("Complete")],
       ],
       {
         toolDispatcher: {
-          Tell: (input) =>
-            messageBus.tell("facilitator", input.to, input.message),
+          Ask: (input) => askHandler(input),
           Conclude: (input) => concludeHandler(input),
         },
       },
@@ -269,14 +286,23 @@ describe("Facilitator - messaging", () => {
 
     let agent1Task = null;
     let agent2Task = null;
-    const agent1Runner = createMockRunner([{ text: "Did A" }]);
+    const agent1AnswerHandler = createAnswerHandler(ctx, { from: "agent-1" });
+    const agent2AnswerHandler = createAnswerHandler(ctx, { from: "agent-2" });
+    const agent1Runner = createMockRunner(
+      [{ text: "Did A" }],
+      [[answerMsg("A done")]],
+      { toolDispatcher: { Answer: (i) => agent1AnswerHandler(i) } },
+    );
     const origRun1 = agent1Runner.run;
     agent1Runner.run = async (task) => {
       agent1Task = task;
-      messageBus.share("agent-1", "A done");
       return origRun1.call(agent1Runner, task);
     };
-    const agent2Runner = createMockRunner([{ text: "Did B" }]);
+    const agent2Runner = createMockRunner(
+      [{ text: "Did B" }],
+      [[answerMsg("B done")]],
+      { toolDispatcher: { Answer: (i) => agent2AnswerHandler(i) } },
+    );
     const origRun2 = agent2Runner.run;
     agent2Runner.run = async (task) => {
       agent2Task = task;
@@ -302,21 +328,19 @@ describe("Facilitator - messaging", () => {
     assert.ok(agent2Task && agent2Task.includes("Do task B"));
   });
 
-  test("Share delivers to all participants except sender", async () => {
-    const ctx = createOrchestrationContext();
+  test("Announce delivers to all participants except sender", async () => {
+    const { ctx, messageBus } = seedCtx(["facilitator", "agent-1", "agent-2"]);
     const concludeHandler = createConcludeHandler(ctx);
-    const messageBus = new MessageBus({
-      participants: ["facilitator", "agent-1", "agent-2"],
+    const announceHandler = createAnnounceHandler(ctx, {
+      from: "facilitator",
     });
-    ctx.messageBus = messageBus;
 
-    // Facilitator broadcasts in turn 0, then concludes when lifecycle triggers
     const facilitatorRunner = createMockRunner(
       [{ text: "Broadcasting" }, { text: "Done" }],
-      [[shareMsg("Everyone listen")], [concludeMsg("Complete")]],
+      [[announceMsg("Everyone listen")], [concludeMsg("Complete")]],
       {
         toolDispatcher: {
-          Share: (input) => messageBus.share("facilitator", input.message),
+          Announce: (input) => announceHandler(input),
           Conclude: (input) => concludeHandler(input),
         },
       },
@@ -328,7 +352,8 @@ describe("Facilitator - messaging", () => {
     const origRun1 = agent1Runner.run;
     agent1Runner.run = async (task) => {
       agent1Task = task;
-      messageBus.share("agent-1", "Acknowledged");
+      // Wake the facilitator so it can emit its Conclude turn.
+      messageBus.announce("agent-1", "Acknowledged");
       return origRun1.call(agent1Runner, task);
     };
     const agent2Runner = createMockRunner([{ text: "Heard" }]);
@@ -355,11 +380,11 @@ describe("Facilitator - messaging", () => {
 
     assert.ok(
       agent1Task && agent1Task.includes("Everyone listen"),
-      "agent-1 should receive the broadcast",
+      "agent-1 should receive the announcement",
     );
     assert.ok(
       agent2Task && agent2Task.includes("Everyone listen"),
-      "agent-2 should receive the broadcast",
+      "agent-2 should receive the announcement",
     );
   });
 

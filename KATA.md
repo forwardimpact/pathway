@@ -126,7 +126,7 @@ none for utilities). Reading an agent's skill list reveals its phase coverage.
 | `kata-metrics`            | Utility | Time-series recording and XmR analysis        |
 | `kata-review`             | Utility | Grade a single artifact (leaf, no sub-agents) |
 | `kata-ship`               | Utility | Rebase, push, open PR, merge a feature branch |
-| `kata-storyboard`         | Utility | Toyota Kata coaching protocol for meetings    |
+| `kata-session`            | Utility | Toyota Kata coaching protocol for sessions    |
 
 ## Trust Boundary
 
@@ -201,7 +201,7 @@ table) uses metric data to answer "what is the actual condition now?" with
 numbers rather than narratives. Process behavior charts (XmR) built from the
 time series distinguish stable processes from those reacting to special causes.
 
-All agents — both facilitator and participants — load `kata-storyboard` and
+All agents — both facilitator and participants — load `kata-session` and
 `kata-metrics`. During storyboard meetings, each participant records its own
 domain metrics to CSV before sharing them with the team, ensuring measurements
 persist as structured data rather than only as narrative in the storyboard

@@ -30,8 +30,7 @@ function parseFacilitateOptions(values) {
     throw new Error("--task-file or --task-text is required");
 
   const taskAmend = values["task-amend"] ?? undefined;
-  let taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
-  if (taskAmend) taskContent += `\n\n${taskAmend}`;
+  const taskContent = taskFile ? readFileSync(taskFile, "utf8") : taskText;
 
   const profilesRaw = values["agent-profiles"];
   if (!profilesRaw) throw new Error("--agent-profiles is required");
@@ -42,6 +41,7 @@ function parseFacilitateOptions(values) {
 
   return {
     taskContent,
+    taskAmend,
     agentConfigs,
     facilitatorCwd: resolve(values["facilitator-cwd"] ?? "."),
     model: values.model ?? "opus",
@@ -82,6 +82,7 @@ export async function runFacilitateCommand(values, _args) {
     model: opts.model,
     maxTurns: opts.maxTurns,
     facilitatorProfile: opts.facilitatorProfile,
+    taskAmend: opts.taskAmend,
   });
 
   const result = await facilitator.run(opts.taskContent);
