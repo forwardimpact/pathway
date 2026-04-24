@@ -49,7 +49,7 @@ jobs:
           app-id: ${{ secrets.CI_APP_ID }}
           mode: "facilitate"
           task-text: >-
-            Team Kata storyboard session.
+            Facilitate a team Kata storyboard session.
           facilitator-profile: "improvement-coach"
           agent-profiles: "security-engineer,technical-writer,product-manager,staff-engineer,release-engineer"
           model: "claude-opus-4-6"
