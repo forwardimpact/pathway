@@ -45,15 +45,13 @@ there is no architectural direction to translate into implementation steps.
 
 <do_confirm_checklist goal="Verify plan quality before recommending approval">
 
-- [ ] Approach and rationale stated before details.
+- [ ] One-paragraph approach. More rationale than that belongs in the design.
 - [ ] Changes are concrete — exact file paths, functions, before/after.
 - [ ] Blast radius visible — created, modified, and deleted files clear.
 - [ ] Ordering explicit with stated dependencies.
-- [ ] Non-obvious decisions explained.
-- [ ] Risks surfaced — no step should surprise the implementer.
-- [ ] Libraries-used section present. Every shared library the implementation
-      will consume is listed by package and by specific exports, or the section
-      explicitly states no shared libraries are used.
+- [ ] No per-step rationale paragraphs.
+- [ ] Risks list only items the implementer cannot see from the plan itself.
+- [ ] Libraries used is one line (packages + exports, or `none`).
 - [ ] Execution recommendation present (which agents, sequential vs parallel).
 - [ ] Clean sub-agent review panel of `plan-a.md` (and any parts) via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
@@ -102,38 +100,43 @@ plan-a-03.md    ← part 3 (independently executable)
 
 **Rules for decomposition:**
 
-- `plan-a.md` contains the overall approach, rationale, cross-cutting concerns,
-  and a numbered index linking to each part with a one-line summary.
-- Each part (`plan-a-NN.md`) is independently executable — it has its own scope,
-  file list, ordering, and verification steps. The implementer can complete and
-  commit each part without needing the others to be finished.
-- Parts are numbered in execution order. State inter-part dependencies
-  explicitly (e.g., "part 02 depends on part 01 for the new type definitions").
-- A single-part plan does not need decomposition — only decompose when there is
-  a concrete benefit (size, independence, parallelism).
-- The overview (`plan-a.md`) must include an **Execution** section that
-  translates the dependency graph into a concrete execution recommendation. When
-  parts are independent after a shared prerequisite, recommend launching them as
-  concurrent sub-agents once the prerequisite merges. When parts are strictly
-  sequential, say so. Route each part to the agent whose skills match the work:
-  `staff-engineer` for code and infrastructure, `technical-writer` for
-  documentation (`website/`, wiki, CLAUDE.md, CONTRIBUTING.md). A single plan
-  may use both agents for different parts.
+- `plan-a.md` holds the approach, cross-cutting concerns, and a numbered index
+  with a one-line summary per part.
+- Each `plan-a-NN.md` is independently executable (its own scope, files,
+  ordering, verification) and numbered in execution order. State inter-part
+  dependencies explicitly.
+- Decompose only when there is concrete benefit (size, independence,
+  parallelism).
+- `plan-a.md` includes an **Execution** section: which parts run in parallel vs
+  sequentially, and which agent each part routes to (`staff-engineer` for code,
+  `technical-writer` for docs). A plan may use both.
 
 Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
 
 ## Writing a Plan (HOW + WHEN)
 
-The plan translates an approved spec into concrete implementation steps.
-Structure and format are up to you — match the complexity of the change. The
-DO-CONFIRM checklist verifies the qualities; key guidance on two items:
+The plan translates an approved design into concrete implementation steps.
 
-- **Libraries used.** List every `@forwardimpact/lib*` package the
-  implementation will consume with specific exports. If none, state that
-  explicitly — absence is a signal, not a default.
+- **No re-introduction.** A plan's job is to let a trusted agent execute without
+  re-reading the spec or design. Reference them by link; do not restate them.
+  The "Approach" section is one paragraph — if more rationale is needed, the
+  decisions belong in the design.
+- **Per-step shape.** Each step is a heading plus: one sentence of intent; a
+  file list (created / modified / deleted); the concrete change (code block,
+  table, or bullet list); one line of verification. No per-step rationale
+  paragraphs — decisions live in the Approach paragraph or the design.
+- **Libraries used.** One line: `Libraries used: libfoo (a, b), libbar (c).` or
+  `Libraries used: none.` No section heading, no paragraph.
+- **Risks.** List risks the implementer cannot see from reading the plan. If the
+  mitigation is "do the plan correctly", it is not a risk.
 - **Execution recommendation.** Route parts to matching agents —
   `staff-engineer` for code, `technical-writer` for docs. For decomposed plans,
   state which parts can run in parallel vs sequentially.
+
+**Form follows content.** Prefer tables for lists with shared structure (files,
+steps, parts). Prefer bullets for flat facts. Use prose only for the narrative
+thread between them. If a paragraph could be a row, make it a row. Do not
+restate what the artifact already shows.
 
 ## Reviewing a Plan
 
@@ -154,27 +157,18 @@ from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** A plan requires `design approved` in `specs/STATUS`. If
-   the spec is still at `spec draft`, `spec approved`, or `design draft`, stop —
-   the design must be approved first.
-2. **Study the spec and design.** Read `spec.md` and `design.md` end to end. You
-   should be able to restate the problem, scope, success criteria, and
-   architectural direction without referring back.
-3. **Research the codebase.** Read the files the plan will target. Verify
-   current state matches what the spec assumes.
-4. **Write the plan.** Create `plan-a.md`. Translate the approved spec into
-   concrete steps. Each step should be independently verifiable. Surface risks
-   explicitly. If the plan is large, decompose it into parts (see § Large plan
-   decomposition).
+1. **Find the spec.** Requires `design approved` in `specs/STATUS`; otherwise
+   stop.
+2. **Study the spec and design.** Read both end to end.
+3. **Research the codebase.** Read the files the plan will target.
+4. **Write the plan.** Create `plan-a.md`. Each step independently verifiable.
+   Decompose into parts if large (see § Large plan decomposition).
 5. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-   to launch a parallel panel of fresh sub-agents that each grade `plan-a.md`
-   (and any `plan-a-NN.md` parts). Tell each reviewer not to invoke `kata-plan`.
-   Merge panel findings per the protocol, verify, and address all confirmed
-   blocker/high/medium issues before advancing.
-6. **Present the plan.** Share it for feedback.
-7. **Update STATUS.** Set the spec to `plan draft` in `specs/STATUS`. The plan
-   stays at `plan draft` until a human approves it.
+   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
+   Tell each reviewer not to invoke `kata-plan`. Address every confirmed
+   blocker/high/medium finding before advancing.
+6. **Present the plan.** Iterate until satisfied.
+7. **Update STATUS.** Set the spec to `plan draft` in `specs/STATUS`.
 
 ## Memory: what to record
 

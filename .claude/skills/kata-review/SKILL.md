@@ -78,45 +78,21 @@ optional.
 
 ## Artifact Criteria
 
+Grade each artifact against its skill's DO-CONFIRM checklist. The deltas below
+are review-specific additions on top of the checklist.
+
 ### spec.md
 
-Match the qualities in
-[`kata-spec` § Writing a Spec](../kata-spec/SKILL.md#writing-a-spec-what-and-why)
-and that skill's DO-CONFIRM checklist. Look for:
-
-- Problem stated first with concrete evidence (errors, metrics, examples)
-- Specific scope (files, APIs, entities) with explicit exclusions
-- Verifiable success criteria
-- No implementation details (HOW/WHEN belongs in the plan, WHICH/WHERE in the
-  design)
+Skill: [`kata-spec`](../kata-spec/SKILL.md). No review-specific deltas.
 
 ### design.md
 
-Match the qualities in
-[`kata-design` § Writing a Design](../kata-design/SKILL.md#writing-a-design-which--where)
-and that skill's DO-CONFIRM checklist. Look for:
-
-- Components, interfaces, and data flow stated before detail
-- Key decisions name a rejected alternative and why
-- Mermaid diagrams used where they clarify structure
-- Stays within spec scope — no scope expansion
-- Stays at the architectural level — names components, classes, interfaces, and
-  data structures but not file-level changes, execution ordering, or steps
-- Under 200 lines total (violation is a **Blocker**)
+Skill: [`kata-design`](../kata-design/SKILL.md). Delta: **over 200 lines is a
+Blocker.**
 
 ### plan-a.md (and parts)
 
-Match the qualities in
-[`kata-plan` § Writing a Plan](../kata-plan/SKILL.md#writing-a-plan-how--when)
-and that skill's DO-CONFIRM checklist. Look for:
-
-- Approach and rationale stated before details
-- Concrete changes (file paths, function names, before/after)
-- Visible blast radius (created / modified / deleted files)
-- Explicit ordering with stated dependencies
-- Non-obvious decisions explained
-- Risks surfaced
-- Execution recommendation present
+Skill: [`kata-plan`](../kata-plan/SKILL.md). No review-specific deltas.
 
 ### Implementation diff
 
@@ -156,7 +132,9 @@ Return findings grouped by severity exactly in this shape:
 - ...
 ```
 
-Be honest and specific. Do not invent findings to look thorough. Do not
+Each finding is one line: `file:line — criterion — one-sentence reason`. No
+preamble, no summary, no conclusion. The severity headers are the only prose. Be
+honest and specific. Do not invent findings to look thorough. Do not
 rubber-stamp.
 
 ## What NOT to Do

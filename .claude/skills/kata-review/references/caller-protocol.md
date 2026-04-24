@@ -7,10 +7,9 @@ Shared protocol for callers of `kata-review`. Used by:
 
 ## Why a panel
 
-Sub-agent reviewers spawn cold and can misread intent, miss surrounding code, or
-flag false positives. Independent reviewers produce uncorrelated errors: a
-finding flagged by ≥⌈N/2⌉ reviewers is high-signal; a singleton is likely noise
-but must still be verified. Odd N enables majority voting.
+Cold sub-agents produce uncorrelated errors. A finding flagged by ≥⌈N/2⌉
+reviewers is high-signal; singletons get verified but often prove noise. Odd N
+enables majority voting.
 
 ## Panel size
 
@@ -48,47 +47,25 @@ an implicit second pass at the next phase.
 
 ## How to merge findings
 
-`kata-review` emits findings grouped under `### Blocker` / `### High` /
-`### Medium` / `### Low` headers, with each row shaped
-`<file:line> — <criterion> — <one-sentence reason>` (or `<commit-hash>` in place
-of `file:line` when a reviewer cites a commit).
+Findings arrive under `### Blocker` / `### High` / `### Medium` / `### Low`,
+each row shaped `<file:line> — <criterion> — <one-sentence reason>` (or a commit
+hash in place of `file:line` for diffs).
 
-1. **Group semantically, not by string equality.** Two findings are the same
-   when they cite the same `file:line` (or commit hash, or nearby lines in the
-   same hunk) _and_ raise the same underlying concern. The `<criterion>` phrase
-   is free-form; merge findings that describe the same defect in different
-   words. When in doubt, merge — a combined finding is easier to verify than two
-   near-duplicates.
-
-2. **Record the vote count** per unique finding (how many of N reviewers flagged
-   it) and the severity each flagging reviewer assigned (read from the
-   `### <Level>` section header the finding appeared under in that reviewer's
-   report).
-
-3. **Pick severity by mode, tie-breaking high.** Use the most common severity
-   among the reviewers who flagged the finding. If two severities tie, pick the
-   higher one to stay cautious. A Blocker flagged by 1 of 5 with four silent
-   reviewers is a Blocker at vote 1 — the vote count, not the severity, reflects
-   how many reviewers saw it.
-
-4. **Partition the merged list** by vote count:
-   - **Consensus (≥⌈N/2⌉ votes)** — the panel's verdict. Verify and address
-     every confirmed blocker/high/medium finding in the same turn, without
-     pausing; see `How to handle findings` below.
-   - **Minority (>1 and <⌈N/2⌉ votes)** — for N=5 this is the 2-vote band; for
-     N=3 panels this bucket is empty and findings are either Consensus or
-     Singleton. Verify with extra care — a 2-of-5 finding is often a real edge
-     case only some reviewers spotted.
-   - **Singleton (1 vote)** — likely false positive, but not dismissed silently.
-     Verify each; address or record the rationale for dismissal.
-
-5. **Scope-creep guard.** Dismiss by default any finding that raises a concern
-   outside the artifact's declared scope (spec scope for design/plan, plan scope
-   for diffs). For a spec review there is no prior scope document — use the
-   user's stated intent instead. This guard does **not** override kata-review's
-   own scope-creep criterion for diffs ("the diff refactors or adds unrelated
-   changes"); consensus findings of that kind remain Consensus and must be
-   addressed.
+1. **Group semantically.** Merge findings citing the same `file:line` (or nearby
+   lines in the same hunk) that raise the same concern, even if worded
+   differently. When in doubt, merge.
+2. **Record vote count and each flagging reviewer's severity.**
+3. **Pick severity by mode; tie-break high.** Vote count reflects reach;
+   severity reflects seriousness.
+4. **Partition by vote count:**
+   - **Consensus (≥⌈N/2⌉):** verify and address all confirmed blocker/high/
+     medium findings in the same turn.
+   - **Minority (>1, <⌈N/2⌉):** empty for N=3. For N=5, verify with extra care.
+   - **Singleton (1):** verify each; address or record dismissal rationale.
+5. **Scope-creep guard.** Dismiss findings raising concerns outside the
+   artifact's declared scope (spec scope for design/plan, plan scope for diffs;
+   user intent for specs). Exception: consensus "scope-creep in the diff"
+   findings stand.
 
 ## Why this is safe
 
