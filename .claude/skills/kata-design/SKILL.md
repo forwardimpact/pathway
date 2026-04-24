@@ -20,11 +20,6 @@ the plan translates those into file-level changes and execution ordering.
 **A design requires an existing approved spec.** Without an approved spec there
 is no commitment to implement, and a design has nothing to shape.
 
-**200-line limit.** A design document must not exceed 200 lines of markdown text
-or Mermaid diagrams. This constraint is the point — it forces the author to
-communicate direction, not detail. If a design genuinely needs more space, the
-spec's scope is too broad and should be narrowed.
-
 ## When to Use
 
 - Turning an approved spec (`spec approved` in STATUS) into an architectural
@@ -73,39 +68,31 @@ spec's scope is too broad and should be narrowed.
 
 ## Naming Convention
 
-The design is always **`design.md`**. There are no variants and no decomposition
-— a design that cannot fit in 200 lines signals that the spec should be
-narrowed, not that the design should be split.
+The design is always **`design.md`**. No variants, no decomposition — if a
+design cannot fit in 200 lines, narrow the spec instead.
 
 ## Writing a Design (WHICH + WHERE)
 
 The design answers: which components exist, where they interact, and what
 interfaces connect them — and why this architecture over alternatives.
 
-Structure and format are up to you — match the complexity of the change. The
-DO-CONFIRM checklist verifies these qualities; the guidance below explains what
-each one means in practice:
+- **Architecture, not execution.** Name components, interfaces, data flow. Do
+  not specify file-level changes or execution ordering — those belong in the
+  plan.
+- **Decisions with trade-offs.** Each architectural choice names at least one
+  rejected alternative and why.
+- **One home per decision.** If a decision has a `## Key Decisions` table row,
+  do not also write a `Rejected:` paragraph under its section. Table or prose,
+  not both.
+- **Visual when possible.** Mermaid diagrams for component relationships, data
+  flow, state machines, sequence diagrams.
+- **Scope-faithful.** Stay within the spec's scope. If scope should change,
+  return the spec to draft rather than expanding silently.
 
-- **Architecture over execution.** Name components, classes, interfaces, data
-  structures, and their interactions. Do not specify file-level changes,
-  execution ordering, or implementation steps — those belong in the plan. The
-  boundary: a design names _what exists and how it connects_; a plan names
-  _which files change and in what order_.
-- **Decisions with trade-offs.** Each architectural choice should name at least
-  one rejected alternative and why it was rejected. This is the primary review
-  leverage point — a reviewer can redirect a decision here at low cost, versus
-  after a full plan is written.
-- **Visual when possible.** Use Mermaid diagrams for component relationships,
-  data flow, state machines, and sequence diagrams. A diagram that replaces two
-  paragraphs of prose is always a win.
-- **Scope-faithful.** Stay within the spec's declared scope. If the design
-  reveals that the scope should change, return the spec to draft rather than
-  expanding silently.
-- **Plan-enabling.** After reading the design, a planner should know which
-  components to build, what interfaces they expose, and how data flows between
-  them — without ambiguity. The planner's job is to translate those into
-  file-level changes and execution ordering, not to make architectural
-  decisions.
+**Form follows content.** Prefer tables for lists with shared structure
+(components, decisions). Prefer bullets for flat facts. Use prose only for the
+narrative thread between them. If a paragraph could be a row, make it a row. Do
+not restate what the artifact already shows.
 
 ## Status
 
@@ -134,24 +121,17 @@ from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** A design requires `spec approved` in `specs/STATUS`. If
-   the spec is still at `spec draft` or missing, stop — it must be approved
-   first.
-2. **Study the spec.** Read `spec.md` end to end. You should be able to restate
-   the problem, scope, and success criteria without referring back.
-3. **Research the codebase.** Read the code areas the spec targets. Understand
-   current architecture, patterns, and constraints that will shape the design.
-4. **Write the design.** Create `design.md` in the spec directory. Focus on
-   direction, decisions, and diagrams. Stay under 200 lines. Each architectural
-   choice should name a rejected alternative.
+1. **Find the spec.** Requires `spec approved` in `specs/STATUS`; otherwise
+   stop.
+2. **Study the spec.** Read `spec.md` end to end.
+3. **Research the codebase.** Read the code areas the spec targets.
+4. **Write the design.** Stay under 200 lines. Each architectural choice names a
+   rejected alternative.
 5. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-   to launch a parallel panel of fresh sub-agents that each grade `design.md`.
-   Tell each reviewer not to invoke `kata-design`. Merge panel findings per the
-   protocol, verify, and address all confirmed blocker/high/medium issues before
-   advancing.
-6. **Present the design.** Share it for feedback. Iterate until satisfied. The
-   design stays at `design draft` until a human approves it.
+   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
+   Tell each reviewer not to invoke `kata-design`. Address every confirmed
+   blocker/high/medium finding before advancing.
+6. **Present the design.** Iterate until satisfied.
 7. **Update STATUS.** Set the spec to `design draft` in `specs/STATUS`.
 
 ## Memory: what to record
@@ -166,15 +146,3 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
-
-## What NOT to Do
-
-The READ-DO checklist covers the core boundaries (no spec writing, no plan
-writing, one design per spec). Additionally:
-
-- **Do not write a design whose spec is not yet approved.** The spec must show
-  `spec approved` in STATUS before designing begins.
-- **Do not exceed 200 lines.** If the design needs more, narrow the spec.
-- **Do not include file-level execution detail.** File changes, execution
-  ordering, and implementation steps belong in the plan. Naming components,
-  interfaces, and data structures is expected — that is the design's job.

@@ -70,23 +70,18 @@ Number directories sequentially. Use the next available number.
 
 The spec answers two questions: what are we changing, and why does it matter?
 
-Structure and format are up to you — adapt to whatever best serves the content.
-Focus on these qualities:
+- **Problem first.** Evidence before proposal — errors, metrics, examples.
+- **Specific scope.** Name affected files, APIs, entities; state what is
+  excluded.
+- **Verifiable success.** Each criterion is a claim plus the command or path
+  that verifies it. One sentence each. No rationale, no alternatives considered.
+- **No HOW.** Name what each component does, not which mechanism implements it.
+  Tool selection and sequencing belong in the design and plan.
 
-- **Problem first.** The reader should feel the pain or see the opportunity
-  before encountering any proposal. Back it up with evidence — errors, metrics,
-  audit findings, examples of current behaviour.
-- **Specific scope.** Name the files, APIs, entities, or behaviours affected.
-  Make clear what is and is not included. Vague specs produce vague work.
-- **Verifiable success.** Define what "done" looks like in terms someone can
-  check at implementation time — a file that exists, a property of the code, a
-  command that succeeds. Avoid criteria that describe ongoing runtime behaviour
-  observable only across multiple runs; reframe those as properties of the
-  artifacts that produce the behaviour.
-- **No HOW.** If you find yourself describing implementation steps, stop and
-  save it for the plan. Name what each phase or component does, not which
-  mechanism implements it — tool selection and sequencing belong in the design
-  and plan. The spec should remain stable as implementation details change.
+**Form follows content.** Prefer tables for lists with shared structure (files,
+criteria, alternatives). Prefer bullets for flat facts. Use prose only for the
+narrative thread between them. If a paragraph could be a row, make it a row. Do
+not restate what the artifact already shows.
 
 ## Status
 
@@ -106,24 +101,17 @@ commit changes, report your decision so the caller can act on it.
 
 ## Process
 
-1. **Clarify first.** Ask the user (or upstream finding source) questions before
-   writing anything. Understand the motivation, desired scope, constraints, and
-   what success looks like. A brief conversation up front prevents major
-   rewrites later.
-2. **Research.** Read relevant code, data files, and existing specs. Understand
-   the current state before proposing changes.
-3. **Write the spec.** Focus on WHAT and WHY. Do not include implementation
-   details — those go in the plan.
+1. **Clarify first.** Ask about motivation, scope, constraints, and success
+   before writing.
+2. **Research.** Read relevant code, data, and existing specs.
+3. **Write the spec.** WHAT and WHY only.
 4. **Update STATUS.** Add the spec to `specs/STATUS` with `spec draft`.
 5. **Clean sub-agent review panel.** Follow the
-   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md)
-   to launch a parallel panel of fresh sub-agents that each grade `spec.md`.
-   Tell each reviewer not to invoke `kata-spec`. Merge panel findings per the
-   protocol, verify, and address all confirmed blocker/high/medium issues before
-   advancing.
-6. **Present the spec.** Share it for feedback. Iterate until satisfied. The
-   spec stays at `spec draft` until a human approves it. Stop here — the plan is
-   the staff engineer's job.
+   [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
+   Tell each reviewer not to invoke `kata-spec`. Address every confirmed
+   blocker/high/medium finding before advancing.
+6. **Present the spec.** Iterate until satisfied. Stop at `spec draft` — the
+   plan is the staff engineer's job.
 
 ## Memory: what to record
 
@@ -136,11 +124,3 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
-
-## What NOT to Do
-
-The READ-DO checklist covers the core boundaries (spec only, no implementation
-details, evaluate don't rewrite). Additionally:
-
-- **Do not approve without reading.** Every criterion must be checked against
-  the actual content.
