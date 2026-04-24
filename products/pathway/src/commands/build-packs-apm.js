@@ -1,9 +1,9 @@
 /**
  * APM-specific pack logic for Pathway distribution.
  *
- * Transforms a `.claude/` staging directory into APM's `.apm/` package layout
- * and archives it as a deterministic `.apm.tar.gz` bundle. Consumed by
- * `generatePacks` in `build-packs.js`.
+ * Stages an APM-compatible bundle from a `.claude/` staging directory. The
+ * bundle uses APM's deployed layout (`.claude/skills/`, `.claude/agents/`)
+ * with an enriched `apm.lock.yaml` so that `apm unpack` works out of the box.
  *
  * See specs/520-apm-compatible-packs for context.
  */
@@ -15,58 +15,108 @@ import { execFileSync } from "child_process";
 import { collectPaths, resetTimestamps } from "./build-packs.js";
 
 /**
- * Transform a `.claude/` staging directory into APM's `.apm/` package layout.
- *
- * Mapping rules:
- *  - `.claude/skills/{name}/` → `.apm/skills/{name}/`
- *  - `.claude/agents/{name}.md` → `.apm/agents/{name}.agent.md`
- *  - `CLAUDE.md` and `settings.json` are dropped (no APM primitive).
- *
- * A per-bundle `apm.yml` with `name` and `version` is written at the staging
- * root.
- *
- * @param {string} claudeStagingDir - The `.claude/` staging directory
- * @param {string} apmStagingDir - Destination for the `.apm/` layout
- * @param {string} packName - Pack name for the `apm.yml` manifest
- * @param {string} version - Version string for the `apm.yml` manifest
+ * Recursively collect all file paths under `dir`, relative to `dir`, sorted.
+ * @param {string} dir
+ * @param {string} [prefix]
+ * @returns {Promise<string[]>}
  */
-export async function transformToApmLayout(
+async function collectFiles(dir, prefix = "") {
+  const entries = await readdir(dir, { withFileTypes: true });
+  const result = [];
+  for (const entry of entries) {
+    const rel = prefix ? `${prefix}/${entry.name}` : entry.name;
+    if (entry.isDirectory()) {
+      result.push(...(await collectFiles(join(dir, entry.name), rel)));
+    } else {
+      result.push(rel);
+    }
+  }
+  return result.sort();
+}
+
+/**
+ * Stage an APM-compatible bundle from a `.claude/` staging directory.
+ *
+ * Copies skills and agents into the deployed `.claude/` layout (the same
+ * layout `apm install` produces for the Claude target) and generates an
+ * enriched `apm.lock.yaml` that `apm unpack` requires.
+ *
+ * Files without an APM primitive (`CLAUDE.md`, `settings.json`, `.vscode/`)
+ * are intentionally excluded.
+ *
+ * @param {string} claudeStagingDir - The raw pack staging directory
+ * @param {string} apmStagingDir - Destination for the APM bundle
+ * @param {string} packName - Pack name for the lock file
+ * @param {string} version - Version string for the lock file
+ */
+export async function stageApmBundle(
   claudeStagingDir,
   apmStagingDir,
   packName,
   version,
 ) {
-  const apmSkillsDir = join(apmStagingDir, ".apm", "skills");
-  const apmAgentsDir = join(apmStagingDir, ".apm", "agents");
-  await mkdir(apmSkillsDir, { recursive: true });
-  await mkdir(apmAgentsDir, { recursive: true });
-
-  // Copy skills: .claude/skills/{name}/ → .apm/skills/{name}/
   const srcSkillsDir = join(claudeStagingDir, ".claude", "skills");
+  const srcAgentsDir = join(claudeStagingDir, ".claude", "agents");
+  const destSkillsDir = join(apmStagingDir, ".claude", "skills");
+  const destAgentsDir = join(apmStagingDir, ".claude", "agents");
+
+  await mkdir(destSkillsDir, { recursive: true });
+  await mkdir(destAgentsDir, { recursive: true });
+
+  // Copy skills (unchanged layout)
   const skillDirs = (
     await readdir(srcSkillsDir, { withFileTypes: true })
   ).filter((e) => e.isDirectory());
   for (const dir of skillDirs) {
-    await cp(join(srcSkillsDir, dir.name), join(apmSkillsDir, dir.name), {
+    await cp(join(srcSkillsDir, dir.name), join(destSkillsDir, dir.name), {
       recursive: true,
     });
   }
 
-  // Copy agents: .claude/agents/{name}.md → .apm/agents/{name}.agent.md
-  const srcAgentsDir = join(claudeStagingDir, ".claude", "agents");
+  // Copy agents (unchanged — .md extension, no .agent.md rename)
   const agentFiles = (await readdir(srcAgentsDir)).filter((f) =>
     f.endsWith(".md"),
   );
   for (const file of agentFiles) {
-    const apmName = file.replace(/\.md$/, ".agent.md");
-    await cp(join(srcAgentsDir, file), join(apmAgentsDir, apmName));
+    await cp(join(srcAgentsDir, file), join(destAgentsDir, file));
   }
 
-  // CLAUDE.md, settings.json, and .vscode/ are intentionally dropped — no APM primitive
+  // Build deployed file list for the lock file
+  const deployedFiles = [];
+  for (const file of await collectFiles(destSkillsDir)) {
+    deployedFiles.push(`.claude/skills/${file}`);
+  }
+  for (const file of await collectFiles(destAgentsDir)) {
+    deployedFiles.push(`.claude/agents/${file}`);
+  }
+  deployedFiles.sort();
 
-  // Per-bundle apm.yml
-  const apmYml = `name: ${packName}\nversion: ${version}\n`;
-  await writeFile(join(apmStagingDir, "apm.yml"), apmYml, "utf-8");
+  // Enriched apm.lock.yaml — required for `apm unpack`.
+  // Use epoch timestamp for deterministic, reproducible builds (same strategy
+  // as the archive file timestamps).
+  const epoch = new Date(0).toISOString();
+  const lockLines = [
+    `lockfile_version: '1'`,
+    `generated_at: '${epoch}'`,
+    `pack:`,
+    `  format: apm`,
+    `  target: claude`,
+    `  packed_at: '${epoch}'`,
+    `dependencies:`,
+    `- repo_url: _local/${packName}`,
+    `  version: '${version}'`,
+    `  package_type: apm_package`,
+    `  depth: 1`,
+    `  deployed_files:`,
+    ...deployedFiles.map((f) => `  - ${f}`),
+    `local_deployed_files: []`,
+    ``,
+  ];
+  await writeFile(
+    join(apmStagingDir, "apm.lock.yaml"),
+    lockLines.join("\n"),
+    "utf-8",
+  );
 }
 
 /**

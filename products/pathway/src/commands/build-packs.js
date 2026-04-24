@@ -4,7 +4,7 @@
  * Emits one pre-built agent/skill pack per valid discipline/track combination
  * across three distribution channels:
  *  - Raw — `.claude/` layout archived as `{name}.raw.tar.gz` (curl | tar)
- *  - APM — `.apm/` layout archived as `{name}.apm.tar.gz` (apm unpack)
+ *  - APM — deployed `.claude/` layout + `apm.lock.yaml` as `{name}.apm.tar.gz` (apm unpack)
  *  - Skills — `.well-known/skills/` repository (`npx skills add`)
  *
  * An `apm.yml` project manifest for Microsoft APM is written at the site root.
@@ -33,7 +33,7 @@ import {
   toKebabCase,
 } from "@forwardimpact/libskill/agent";
 
-import { transformToApmLayout, archiveApmPack } from "./build-packs-apm.js";
+import { stageApmBundle, archiveApmPack } from "./build-packs-apm.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import {
   formatAgentSkill,
@@ -547,10 +547,10 @@ export async function generatePacks({
       vscodeSettings: agentData.vscodeSettings,
     });
 
-    // APM staging: transform .claude/ layout → .apm/ layout
+    // APM staging: deployed .claude/ layout + enriched apm.lock.yaml
     const apmStagingDir = join(stagingDir, `${agentName}-apm`);
     await mkdir(apmStagingDir, { recursive: true });
-    await transformToApmLayout(packDir, apmStagingDir, agentName, version);
+    await stageApmBundle(packDir, apmStagingDir, agentName, version);
 
     // Archive both channels
     const rawArchivePath = join(packsDir, `${agentName}.raw.tar.gz`);

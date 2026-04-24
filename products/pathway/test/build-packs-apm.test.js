@@ -68,7 +68,7 @@ describe("APM bundles", () => {
     if (workDir) rmSync(workDir, { recursive: true, force: true });
   });
 
-  test("each APM bundle expands to the APM package layout", async () => {
+  test("each APM bundle uses deployed .claude/ layout with apm.lock.yaml", async () => {
     const packsDir = join(outputDir, "packs");
     const entries = await readdir(packsDir);
     const archive = entries.find((n) => n.endsWith(".apm.tar.gz"));
@@ -77,36 +77,54 @@ describe("APM bundles", () => {
     const extractDir = mkdtempSync(join(tmpdir(), "fit-pathway-apm-extract-"));
     try {
       execFileSync("tar", ["-xzf", join(packsDir, archive), "-C", extractDir]);
-      assert.ok(existsSync(join(extractDir, ".apm", "skills")));
-      assert.ok(existsSync(join(extractDir, ".apm", "agents")));
-      assert.ok(existsSync(join(extractDir, "apm.yml")));
 
-      // Agents use .agent.md extension
-      const agents = await readdir(join(extractDir, ".apm", "agents"));
-      for (const agent of agents) {
-        assert.ok(
-          agent.endsWith(".agent.md"),
-          `agent ${agent} should have .agent.md extension`,
-        );
-      }
+      // Deployed layout: .claude/skills/ and .claude/agents/
+      assert.ok(existsSync(join(extractDir, ".claude", "skills")));
+      assert.ok(existsSync(join(extractDir, ".claude", "agents")));
 
-      // Per-bundle apm.yml has name and version
-      const apmYml = await readFile(join(extractDir, "apm.yml"), "utf8");
-      assert.match(apmYml, /^name: /m);
-      assert.match(apmYml, /^version: /m);
+      // Enriched lock file required by apm unpack
+      assert.ok(existsSync(join(extractDir, "apm.lock.yaml")));
 
-      // CLAUDE.md and settings.json must NOT be present in APM bundle
+      const lockContent = await readFile(
+        join(extractDir, "apm.lock.yaml"),
+        "utf8",
+      );
+      assert.match(lockContent, /^lockfile_version: '1'/m);
+      assert.match(lockContent, /^pack:$/m);
+      assert.match(lockContent, /^\s+format: apm$/m);
+      assert.match(lockContent, /^\s+target: claude$/m);
+      assert.match(lockContent, /^dependencies:$/m);
+      assert.match(lockContent, /deployed_files:/m);
+
+      // Must NOT contain .apm/ source layout or per-bundle apm.yml
       assert.strictEqual(
-        existsSync(join(extractDir, ".claude")),
+        existsSync(join(extractDir, ".apm")),
         false,
-        "APM bundle must not contain .claude/ directory",
+        "APM bundle must not contain .apm/ source directory",
+      );
+      assert.strictEqual(
+        existsSync(join(extractDir, "apm.yml")),
+        false,
+        "APM bundle must not contain per-bundle apm.yml",
+      );
+
+      // CLAUDE.md and settings.json must not be present
+      assert.strictEqual(
+        existsSync(join(extractDir, ".claude", "CLAUDE.md")),
+        false,
+        "APM bundle must not contain CLAUDE.md",
+      );
+      assert.strictEqual(
+        existsSync(join(extractDir, ".claude", "settings.json")),
+        false,
+        "APM bundle must not contain settings.json",
       );
     } finally {
       rmSync(extractDir, { recursive: true, force: true });
     }
   });
 
-  test("APM bundle content matches raw bundle content", async () => {
+  test("APM bundle skills and agents match raw bundle content", async () => {
     const packsDir = join(outputDir, "packs");
     const { discipline, track } = validCombinations[0];
     const abbrev = getDisciplineAbbreviation(discipline.id);
@@ -128,9 +146,9 @@ describe("APM bundles", () => {
         apmDir,
       ]);
 
-      // Each skill's SKILL.md content must be identical
+      // Skills must be identical between raw and APM bundles
       const rawSkills = await readdir(join(rawDir, ".claude", "skills"));
-      const apmSkills = await readdir(join(apmDir, ".apm", "skills"));
+      const apmSkills = await readdir(join(apmDir, ".claude", "skills"));
       assert.deepStrictEqual(rawSkills.sort(), apmSkills.sort());
 
       for (const skill of rawSkills) {
@@ -139,7 +157,7 @@ describe("APM bundles", () => {
           "utf8",
         );
         const apmContent = await readFile(
-          join(apmDir, ".apm", "skills", skill, "SKILL.md"),
+          join(apmDir, ".claude", "skills", skill, "SKILL.md"),
           "utf8",
         );
         assert.strictEqual(
@@ -149,30 +167,76 @@ describe("APM bundles", () => {
         );
       }
 
-      // Agent profile content must be identical (accounting for .agent.md rename)
+      // Agents must be identical (same .md filenames, same content)
       const rawAgents = await readdir(join(rawDir, ".claude", "agents"));
-      const apmAgents = await readdir(join(apmDir, ".apm", "agents"));
-      assert.strictEqual(rawAgents.length, apmAgents.length);
+      const apmAgents = await readdir(join(apmDir, ".claude", "agents"));
+      assert.deepStrictEqual(rawAgents.sort(), apmAgents.sort());
 
-      for (const rawFile of rawAgents) {
-        const apmFile = rawFile.replace(/\.md$/, ".agent.md");
+      for (const file of rawAgents) {
         const rawContent = await readFile(
-          join(rawDir, ".claude", "agents", rawFile),
+          join(rawDir, ".claude", "agents", file),
           "utf8",
         );
         const apmContent = await readFile(
-          join(apmDir, ".apm", "agents", apmFile),
+          join(apmDir, ".claude", "agents", file),
           "utf8",
         );
         assert.strictEqual(
           rawContent,
           apmContent,
-          `agent ${rawFile} content differs`,
+          `agent ${file} content differs`,
         );
       }
     } finally {
       rmSync(rawDir, { recursive: true, force: true });
       rmSync(apmDir, { recursive: true, force: true });
+    }
+  });
+
+  test("apm.lock.yaml deployed_files lists all bundle files", async () => {
+    const packsDir = join(outputDir, "packs");
+    const { discipline, track } = validCombinations[0];
+    const abbrev = getDisciplineAbbreviation(discipline.id);
+    const packName = `${abbrev}-${toKebabCase(track.id)}`;
+
+    const extractDir = mkdtempSync(join(tmpdir(), "fit-pathway-apm-lock-"));
+    try {
+      execFileSync("tar", [
+        "-xzf",
+        join(packsDir, `${packName}.apm.tar.gz`),
+        "-C",
+        extractDir,
+      ]);
+
+      const lockContent = await readFile(
+        join(extractDir, "apm.lock.yaml"),
+        "utf8",
+      );
+
+      // Every .claude/ file in the bundle must appear in deployed_files
+      const actualFiles = [];
+      const walk = async (dir, prefix) => {
+        const entries = await readdir(dir, { withFileTypes: true });
+        for (const entry of entries) {
+          const rel = `${prefix}/${entry.name}`;
+          if (entry.isDirectory()) {
+            await walk(join(dir, entry.name), rel);
+          } else {
+            actualFiles.push(rel);
+          }
+        }
+      };
+      await walk(join(extractDir, ".claude"), ".claude");
+      actualFiles.sort();
+
+      for (const file of actualFiles) {
+        assert.ok(
+          lockContent.includes(`- ${file}`),
+          `deployed_files should list ${file}`,
+        );
+      }
+    } finally {
+      rmSync(extractDir, { recursive: true, force: true });
     }
   });
 });
