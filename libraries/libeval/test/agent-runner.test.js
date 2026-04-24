@@ -208,6 +208,7 @@ describe("AgentRunner", () => {
     const result = await runner.resume("Follow up");
 
     assert.strictEqual(resumeCapture.options.resume, "sess-42");
+    assert.strictEqual(resumeCapture.options.model, "opus");
     assert.strictEqual(resumeCapture.prompt, "Follow up");
     assert.strictEqual(result.success, true);
     assert.strictEqual(result.text, "Resumed");
