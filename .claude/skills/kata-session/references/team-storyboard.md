@@ -60,8 +60,9 @@ column.
 
 ## Participant briefing
 
-Prepend this to the Q1 question body when you make the first `Ask` to each
-participant:
+Broadcast this once via `Announce` at session open, before the first Q1 `Ask`
+round. One broadcast reaches every participant, so Q1 Asks carry only the
+question:
 
 > "You are joining a team storyboard meeting. I will Ask you five questions;
 > reply to each with Answer. Before answering Q2, record your domain metrics to

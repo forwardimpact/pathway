@@ -28,9 +28,9 @@ Two mode overlays describe the mode-specific artifact surface:
 contexts — team storyboard meetings (`kata-storyboard.yml` workflow) and 1-on-1
 coaching sessions (`kata-coaching.yml` workflow).
 
-**Participant**: You do not load this skill directly. The coach briefs you
-inside the first `Ask` — the Q1 question body is preceded by a short framing
-sentence. Answer each `Ask` with `Answer`.
+**Participant**: You do not load this skill directly. The coach briefs you at
+session open — in team mode via an `Announce` before the first `Ask` round, in
+1-on-1 mode inside the Q1 `Ask` body. Answer each `Ask` with `Answer`.
 
 ## Checklists
 
@@ -109,12 +109,13 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    coaching runs, load [`references/one-on-one.md`](references/one-on-one.md).
    The overlay owns the mode-specific artifact surface, the question wording,
    and the participant briefing template.
-3. **Brief each participant inside the first `Ask`.** Prepend the overlay's
-   briefing sentence to the Q1 question body, so each participant's first
-   message is "briefing + Q1" in a single `Ask`. Their `Answer` to Q1 closes the
-   first request-response round and confirms they have the framing. `Redirect`
-   is for interrupting an in-flight participant mid-session, not for opening
-   framing.
+3. **Brief participants.** Deliver the overlay's briefing before Q1. In team
+   mode, send it via a single `Announce` at session open — one broadcast covers
+   all participants and avoids repeating the same framing in every Q1 `Ask`. In
+   1-on-1 mode, prepend it to the Q1 question body, since there is only one
+   participant and folding the briefing into Q1's `Ask` closes the first
+   request-response round on the first beat. `Redirect` is for interrupting an
+   in-flight participant mid-session, not for opening framing.
 4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
    `bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --format json`.
    Use `status`, `signals`, and `x_bar` from the JSON output when reporting the
@@ -122,8 +123,10 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    mode, include XmR summaries in the Q2 `Ask` to each agent.
 5. **Run the five questions.** Follow the overlay's wording. In facilitated mode
    use `Ask` to pose each question and collect `Answer` replies before
-   advancing. Use `Announce` for team-wide context. In solo mode, read metrics
-   and wiki files directly.
+   advancing. Use `Announce` for team-wide context that applies to every
+   participant (session framing at open, between-question transitions, shared
+   status) — anything that would otherwise be duplicated into each `Ask`. In
+   solo mode, read metrics and wiki files directly.
 6. **Update artifacts.** Write back whatever the overlay prescribes — for team
    mode, the storyboard file; for 1-on-1, the participant's memory.
 7. **Record coaching metrics.** Append coaching activity metrics (e.g.,
@@ -143,7 +146,8 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
 
 ## Participant Protocol
 
-Participants receive the mode briefing inside the coach's first `Ask`, not by
+Participants receive the mode briefing from the coach at session open — via
+`Announce` in team mode, or inside the Q1 `Ask` body in 1-on-1 mode — not by
 loading this skill directly. The generic pattern below applies in both modes.
 
 1. **Prepare for Q2.** When the coach poses Q2 via `Ask`, gather your domain's
