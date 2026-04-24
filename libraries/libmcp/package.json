@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libmcp",
-  "version": "0.1.2",
+  "version": "0.1.3",
   "description": "MCP tool registry — config-driven gRPC-to-MCP tool registration",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
