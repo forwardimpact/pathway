@@ -128,7 +128,7 @@ export function createInstallSection({ discipline, track, siteUrl }) {
         createCommandPrompt(apmCommand),
         p(
           { className: "text-muted agent-install-note" },
-          "Installs skills and agents. Does not include CLAUDE.md or settings.",
+          "Installs skills, agents, and team instructions. Does not include settings.",
         ),
       ),
       div(

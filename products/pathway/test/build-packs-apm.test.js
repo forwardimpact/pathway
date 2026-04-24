@@ -108,12 +108,13 @@ describe("APM bundles", () => {
         "APM bundle must not contain per-bundle apm.yml",
       );
 
-      // CLAUDE.md and settings.json must not be present
-      assert.strictEqual(
+      // CLAUDE.md (team instructions) must be present
+      assert.ok(
         existsSync(join(extractDir, ".claude", "CLAUDE.md")),
-        false,
-        "APM bundle must not contain CLAUDE.md",
+        "APM bundle must contain CLAUDE.md",
       );
+
+      // settings.json must not be present
       assert.strictEqual(
         existsSync(join(extractDir, ".claude", "settings.json")),
         false,
@@ -187,6 +188,17 @@ describe("APM bundles", () => {
           `agent ${file} content differs`,
         );
       }
+
+      // CLAUDE.md (team instructions) must be identical
+      const rawClaude = await readFile(
+        join(rawDir, ".claude", "CLAUDE.md"),
+        "utf8",
+      );
+      const apmClaude = await readFile(
+        join(apmDir, ".claude", "CLAUDE.md"),
+        "utf8",
+      );
+      assert.strictEqual(rawClaude, apmClaude, "CLAUDE.md content differs");
     } finally {
       rmSync(rawDir, { recursive: true, force: true });
       rmSync(apmDir, { recursive: true, force: true });

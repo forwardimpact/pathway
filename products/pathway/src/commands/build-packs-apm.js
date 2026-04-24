@@ -8,7 +8,8 @@
  * See specs/520-apm-compatible-packs for context.
  */
 
-import { mkdir, readdir, cp, writeFile } from "fs/promises";
+import { mkdir, readdir, cp, writeFile, copyFile } from "fs/promises";
+import { existsSync } from "fs";
 import { join } from "path";
 import { execFileSync } from "child_process";
 
@@ -41,8 +42,9 @@ async function collectFiles(dir, prefix = "") {
  * layout `apm install` produces for the Claude target) and generates an
  * enriched `apm.lock.yaml` that `apm unpack` requires.
  *
- * Files without an APM primitive (`CLAUDE.md`, `settings.json`, `.vscode/`)
- * are intentionally excluded.
+ * Files without an APM primitive (`settings.json`, `.vscode/`) are
+ * intentionally excluded. `CLAUDE.md` (team instructions) is included
+ * because it provides essential project-level context for agent teams.
  *
  * @param {string} claudeStagingDir - The raw pack staging directory
  * @param {string} apmStagingDir - Destination for the APM bundle
@@ -81,8 +83,18 @@ export async function stageApmBundle(
     await cp(join(srcAgentsDir, file), join(destAgentsDir, file));
   }
 
+  // Copy CLAUDE.md (team instructions) if present
+  const srcClaudeMd = join(claudeStagingDir, ".claude", "CLAUDE.md");
+  const destClaudeDir = join(apmStagingDir, ".claude");
+  if (existsSync(srcClaudeMd)) {
+    await copyFile(srcClaudeMd, join(destClaudeDir, "CLAUDE.md"));
+  }
+
   // Build deployed file list for the lock file
   const deployedFiles = [];
+  if (existsSync(join(destClaudeDir, "CLAUDE.md"))) {
+    deployedFiles.push(".claude/CLAUDE.md");
+  }
   for (const file of await collectFiles(destSkillsDir)) {
     deployedFiles.push(`.claude/skills/${file}`);
   }
