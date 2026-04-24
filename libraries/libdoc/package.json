@@ -33,7 +33,7 @@
     "@forwardimpact/libtelemetry": "^0.1.22",
     "@hono/node-server": "^1.19.14",
     "hono": "^4.12.14",
-    "marked": "^17.0.5",
+    "marked": "^18.0.2",
     "marked-gfm-heading-id": "^4.1.4",
     "marked-highlight": "^2.2.4",
     "mustache": "^4.2.0",
