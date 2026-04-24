@@ -2,7 +2,7 @@
 
 Applies to `kata-storyboard.yml` runs: the improvement coach facilitates a
 monthly team storyboard meeting with multiple participants. Each participant is
-briefed by the coach via `Redirect` before the first `Ask`.
+briefed by the coach inside the first `Ask`.
 
 ## Artifact
 
@@ -60,7 +60,8 @@ column.
 
 ## Participant briefing
 
-Send this via `Redirect` to each participant before the first `Ask`:
+Prepend this to the Q1 question body when you make the first `Ask` to each
+participant:
 
 > "You are joining a team storyboard meeting. I will Ask you five questions;
 > reply to each with Answer. Before answering Q2, record your domain metrics to

@@ -2,7 +2,7 @@
 
 Applies to `kata-coaching.yml` runs: the improvement coach facilitates a 1-on-1
 session with one domain agent. The participant does not load this skill directly
-— the coach briefs them via `Redirect` before the first `Ask`.
+— the coach briefs them inside the first `Ask`.
 
 ## Session Shape
 
@@ -31,7 +31,7 @@ participant fetches it under Q2.
 
 ## Participant briefing
 
-Send this via `Redirect` to the participant before the first `Ask`:
+Prepend this to the Q1 question body when you make the first `Ask`:
 
 > "You are in a 1-on-1 coaching session. I will Ask you five questions; reply to
 > each with Answer. Under Q2, run `kata-trace` on your most recent workflow
