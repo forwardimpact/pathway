@@ -50,24 +50,24 @@ files valuable in the first place.
 Every layer assumes exactly one reference per skill, so lifting the cap is a
 schema change that cascades through each:
 
-| Layer              | Location                                                 | Current behaviour                                                 |
-| ------------------ | -------------------------------------------------------- | ----------------------------------------------------------------- |
-| Schema             | `products/map/src/validation/skill.js`                   | Validates `implementationReference` as an optional string         |
-| Loader             | `products/map/src/loader.js`                             | Destructures the single field into the skill record               |
-| Render             | `libraries/libskill/src/agent.js`                        | Carries one `implementationReference` field into the model        |
-| Agent formatter    | `products/pathway/src/formatters/agent/skill.js`         | `formatReference(skill, template)` returns one string             |
-| Skill view-model   | `products/pathway/src/formatters/skill/shared.js`        | `implementationReference` property on the view-model type         |
-| Skill markdown     | `products/pathway/src/formatters/skill/markdown.js`      | Emits the single field into the markdown output                   |
-| Skill DOM          | `products/pathway/src/formatters/skill/dom.js`           | Emits the single field into the HTML preview                      |
-| Template           | `products/pathway/templates/skill-reference.template.md` | `# {title} — Reference` followed by `{implementationReference}`   |
-| Writer             | `products/pathway/src/commands/agent-io.js`              | Writes hard-coded `references/REFERENCE.md`                       |
-| Build              | `products/pathway/src/commands/build-packs.js`           | Same hard-coded path in the pack build loop                       |
-| Web view           | `products/pathway/src/pages/agent-builder-preview.js`    | Reads the single field into preview output                        |
-| Web view           | `products/pathway/src/pages/agent-builder-download.js`   | Reads the single field into downloaded zip                        |
-| YAML load          | `products/pathway/src/lib/yaml-loader.js`                | Mirrors Map's single-field shape                                  |
-| Deprecated hint    | `products/map/src/validation/skill.js`                   | Maps legacy `reference` → `implementationReference`               |
-| Authoring guide    | `website/docs/guides/authoring-frameworks/index.md`      | Teaches `implementationReference` and shows YAML example          |
-| Generator mapping  | `website/docs/guides/agent-teams/index.md`               | Table row mapping `implementationReference` to `REFERENCE.md`     |
+| Layer             | Location                                                 | Current behaviour                                               |
+| ----------------- | -------------------------------------------------------- | --------------------------------------------------------------- |
+| Schema            | `products/map/src/validation/skill.js`                   | Validates `implementationReference` as an optional string       |
+| Loader            | `products/map/src/loader.js`                             | Destructures the single field into the skill record             |
+| Render            | `libraries/libskill/src/agent.js`                        | Carries one `implementationReference` field into the model      |
+| Agent formatter   | `products/pathway/src/formatters/agent/skill.js`         | `formatReference(skill, template)` returns one string           |
+| Skill view-model  | `products/pathway/src/formatters/skill/shared.js`        | `implementationReference` property on the view-model type       |
+| Skill markdown    | `products/pathway/src/formatters/skill/markdown.js`      | Emits the single field into the markdown output                 |
+| Skill DOM         | `products/pathway/src/formatters/skill/dom.js`           | Emits the single field into the HTML preview                    |
+| Template          | `products/pathway/templates/skill-reference.template.md` | `# {title} — Reference` followed by `{implementationReference}` |
+| Writer            | `products/pathway/src/commands/agent-io.js`              | Writes hard-coded `references/REFERENCE.md`                     |
+| Build             | `products/pathway/src/commands/build-packs.js`           | Same hard-coded path in the pack build loop                     |
+| Web view          | `products/pathway/src/pages/agent-builder-preview.js`    | Reads the single field into preview output                      |
+| Web view          | `products/pathway/src/pages/agent-builder-download.js`   | Reads the single field into downloaded zip                      |
+| YAML load         | `products/pathway/src/lib/yaml-loader.js`                | Mirrors Map's single-field shape                                |
+| Deprecated hint   | `products/map/src/validation/skill.js`                   | Maps legacy `reference` → `implementationReference`             |
+| Authoring guide   | `website/docs/guides/authoring-frameworks/index.md`      | Teaches `implementationReference` and shows YAML example        |
+| Generator mapping | `website/docs/guides/agent-teams/index.md`               | Table row mapping `implementationReference` to `REFERENCE.md`   |
 
 ### The `<scaffolding_steps>` rule is obsolete
 
@@ -85,10 +85,10 @@ The Map skill schema drops `skill.implementationReference` (string) and adds
 `skill.references` (optional array). Each entry is an object with three required
 fields:
 
-| Field   | Type   | Purpose                                                       |
-| ------- | ------ | ------------------------------------------------------------- |
-| `name`  | string | Filename stem — becomes `references/{name}.md` on disk        |
-| `title` | string | Document title — rendered as `# {title}` at the top of file   |
+| Field   | Type   | Purpose                                                                                                |
+| ------- | ------ | ------------------------------------------------------------------------------------------------------ |
+| `name`  | string | Filename stem — becomes `references/{name}.md` on disk                                                 |
+| `title` | string | Document title — rendered as `# {title}` at the top of file                                            |
 | `body`  | string | Reference content (markdown body, rendered verbatim below the title with no trimming or normalization) |
 
 Example YAML:
@@ -114,23 +114,23 @@ A skill with no `references` (field absent, `null`, or empty array) emits no
 The filename `REFERENCE.md` is no longer produced by the generator.
 
 The `references/` directory is owned by the generator. When regenerating a
-skill, any pre-existing `references/*.md` files — including hand-authored ones
-— are overwritten or removed so the directory contents exactly match the
-current YAML. Skill authors who need ongoing hand-authored content must express
-it as a `references:` entry.
+skill, any pre-existing `references/*.md` files — including hand-authored ones —
+are overwritten or removed so the directory contents exactly match the current
+YAML. Skill authors who need ongoing hand-authored content must express it as a
+`references:` entry.
 
 ### 2. Validation rules
 
-| Rule                                  | Applies to                 | Failure mode                                                                    |
-| ------------------------------------- | -------------------------- | ------------------------------------------------------------------------------- |
-| `references` is optional              | `skill`                    | Absent, `null`, or empty array are all valid and produce no files               |
-| If present, must be an array          | `skill.references`         | `INVALID_VALUE` at `{path}.references`                                          |
-| `name` present and a string           | each entry                 | `MISSING_REQUIRED` / `INVALID_VALUE` at `{path}.references[i].name`             |
-| `name` matches `^[a-z0-9][a-z0-9_-]*$` with length 1–64 | each entry | `INVALID_VALUE` at `{path}.references[i].name` — covers `/`, `..`, `.`, null byte, uppercase, spaces, unicode, emoji, and length overflow in a single rule |
-| `name` unique within the skill, compared case-insensitively | `skill.references` | `INVALID_VALUE` at `{path}.references[i].name` on duplicate or case-only collision (e.g. `foo` and `Foo`) — prevents filesystem collisions on case-insensitive filesystems |
-| `title` present and a non-empty string | each entry                | `MISSING_REQUIRED` / `INVALID_VALUE` at `{path}.references[i].title`            |
-| `body` present and a non-empty string | each entry                 | `MISSING_REQUIRED` / `INVALID_VALUE` at `{path}.references[i].body` (whitespace-only is treated as empty) |
-| `implementationReference` is rejected  | `skill`                   | `INVALID_FIELD` at `{path}.implementationReference` with a message pointing to `references`. This rule is required — the friendly error message must fire for any skill that still uses the removed field. |
+| Rule                                                        | Applies to         | Failure mode                                                                                                                                                                                               |
+| ----------------------------------------------------------- | ------------------ | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `references` is optional                                    | `skill`            | Absent, `null`, or empty array are all valid and produce no files                                                                                                                                          |
+| If present, must be an array                                | `skill.references` | `INVALID_VALUE` at `{path}.references`                                                                                                                                                                     |
+| `name` present and a string                                 | each entry         | `MISSING_REQUIRED` / `INVALID_VALUE` at `{path}.references[i].name`                                                                                                                                        |
+| `name` matches `^[a-z0-9][a-z0-9_-]*$` with length 1–64     | each entry         | `INVALID_VALUE` at `{path}.references[i].name` — covers `/`, `..`, `.`, null byte, uppercase, spaces, unicode, emoji, and length overflow in a single rule                                                 |
+| `name` unique within the skill, compared case-insensitively | `skill.references` | `INVALID_VALUE` at `{path}.references[i].name` on duplicate or case-only collision (e.g. `foo` and `Foo`) — prevents filesystem collisions on case-insensitive filesystems                                 |
+| `title` present and a non-empty string                      | each entry         | `MISSING_REQUIRED` / `INVALID_VALUE` at `{path}.references[i].title`                                                                                                                                       |
+| `body` present and a non-empty string                       | each entry         | `MISSING_REQUIRED` / `INVALID_VALUE` at `{path}.references[i].body` (whitespace-only is treated as empty)                                                                                                  |
+| `implementationReference` is rejected                       | `skill`            | `INVALID_FIELD` at `{path}.implementationReference` with a message pointing to `references`. This rule is required — the friendly error message must fire for any skill that still uses the removed field. |
 
 Two adjacent changes to the existing deprecated-field machinery in
 `products/map/src/validation/skill.js`, independent of the rule above:
@@ -139,9 +139,8 @@ Two adjacent changes to the existing deprecated-field machinery in
   re-homed onto `body`.
 - The existing deprecated-field entry for legacy `reference` currently reads
   "Use `skill.implementationReference` instead." Its hint text is updated to
-  point at `skill.references`. The entry itself stays — removing it would
-  drop the helpful error for any framework still using the older legacy
-  name.
+  point at `skill.references`. The entry itself stays — removing it would drop
+  the helpful error for any framework still using the older legacy name.
 
 ### 3. Output shape
 
@@ -158,10 +157,10 @@ For each entry in `skill.references`, the generator writes
 trimming, no collapsing of trailing newlines. Authors control the exact tail of
 each file.
 
-No index file is synthesized. Reference discovery is author-driven: agents
-find references by following pointers the author writes in `SKILL.md`
-(via `skill.instructions` or `agent.focus`). Automatic index generation is
-out of scope (see § Excluded).
+No index file is synthesized. Reference discovery is author-driven: agents find
+references by following pointers the author writes in `SKILL.md` (via
+`skill.instructions` or `agent.focus`). Automatic index generation is out of
+scope (see § Excluded).
 
 ## Scope
 
@@ -182,15 +181,13 @@ out of scope (see § Excluded).
 - Pathway template `products/pathway/templates/skill-reference.template.md`
 - File-writing loops in `products/pathway/src/commands/agent-io.js` and
   `products/pathway/src/commands/build-packs.js`
-- Web preview/download in
-  `products/pathway/src/pages/agent-builder-preview.js` and
-  `products/pathway/src/pages/agent-builder-download.js`
+- Web preview/download in `products/pathway/src/pages/agent-builder-preview.js`
+  and `products/pathway/src/pages/agent-builder-download.js`
 - Pathway YAML loader `products/pathway/src/lib/yaml-loader.js`
-- Authoring documentation:
-  `website/docs/guides/authoring-frameworks/index.md` (teaches the field and
-  shows a YAML example) and `website/docs/guides/agent-teams/index.md` (the
-  generator-mapping table that names `implementationReference` and
-  `REFERENCE.md`)
+- Authoring documentation: `website/docs/guides/authoring-frameworks/index.md`
+  (teaches the field and shows a YAML example) and
+  `website/docs/guides/agent-teams/index.md` (the generator-mapping table that
+  names `implementationReference` and `REFERENCE.md`)
 - Starter framework YAML under `products/map/starter/` — at least one starter
   skill gains a `references:` array so the feature is exercised in-tree
 - Generated `<skillDir>/references/*.md` outputs
@@ -199,10 +196,10 @@ out of scope (see § Excluded).
 
 - `skill.toolReferences` — unrelated field; not renamed or restructured
 - `skill.instructions`, `skill.installScript`, and `skill.agent.*` — untouched
-- `SKILL.md` template and front matter shape — unchanged. The generator does
-  not auto-inject a "References" section into `SKILL.md`; authors point agents
-  at references through the existing `skill.instructions` and `agent.focus`
-  content they already write
+- `SKILL.md` template and front matter shape — unchanged. The generator does not
+  auto-inject a "References" section into `SKILL.md`; authors point agents at
+  references through the existing `skill.instructions` and `agent.focus` content
+  they already write
 - Per-reference metadata beyond `{ name, title, body }` (e.g. `useWhen`, tags) —
   can be added later if demand is demonstrated
 - Auto-generated discovery index (e.g. `references/INDEX.md`) — authors may add
@@ -222,10 +219,10 @@ out of scope (see § Excluded).
    order, with no extra files. Each file begins with `# {title}` followed by a
    blank line and the entry's `body` written verbatim.
 
-2. A Map YAML file containing `implementationReference` fails `bunx fit-map
-   validate` with an `INVALID_FIELD` error at `…implementationReference`
-   whose message names `references`. No `REFERENCE.md` is generated for such
-   inputs.
+2. A Map YAML file containing `implementationReference` fails
+   `bunx fit-map validate` with an `INVALID_FIELD` error at
+   `…implementationReference` whose message names `references`. No
+   `REFERENCE.md` is generated for such inputs.
 
 3. Each of the following fails validation with the specified error code and
    path:
@@ -243,9 +240,9 @@ out of scope (see § Excluded).
    produces no `<skillDir>/references/` directory.
 
 5. At least one starter skill under `products/map/starter/` declares a
-   `references:` array with two or more entries, and `bunx fit-map validate`
-   on `products/map/starter/` passes. Running the generator over the starter
-   data produces the corresponding multi-file `references/` directory in the
+   `references:` array with two or more entries, and `bunx fit-map validate` on
+   `products/map/starter/` passes. Running the generator over the starter data
+   produces the corresponding multi-file `references/` directory in the
    generated skill, demonstrating the feature end-to-end.
 
 6. Regenerating an existing skill whose `<skillDir>/references/` directory
@@ -253,12 +250,11 @@ out of scope (see § Excluded).
    whose contents match the YAML exactly (stale files are removed or
    overwritten).
 
-7. The identifier `implementationReference` and the string
-   `<scaffolding_steps>` do not appear under `products/map/src/`,
-   `products/pathway/src/`, `products/pathway/templates/`,
-   `libraries/libskill/src/`, or `website/docs/guides/` after the change,
-   except for:
+7. The identifier `implementationReference` and the string `<scaffolding_steps>`
+   do not appear under `products/map/src/`, `products/pathway/src/`,
+   `products/pathway/templates/`, `libraries/libskill/src/`, or
+   `website/docs/guides/` after the change, except for:
    - the single validation rule in `products/map/src/validation/skill.js` that
      rejects the removed field (criterion 2), and
-   - test fixtures that include `implementationReference` as rejected input
-     for criterion 2.
+   - test fixtures that include `implementationReference` as rejected input for
+     criterion 2.
