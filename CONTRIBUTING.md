@@ -87,13 +87,14 @@ Exit gate — verify every item before committing.
 ### Monorepo layout
 
 ```
+.claude/       # agent and skills, edited via scripts/claude-write.sh
 products/
-  map/       # fit-map — data product, validation, schema, starter YAML
-  pathway/   # fit-pathway — web app, CLI, formatters
-  basecamp/  # fit-basecamp — knowledge system, scheduler, macOS app
-  guide/     # fit-guide — LLM agent, artifact interpretation
+  map/         # fit-map — data product, validation, schema, starter YAML
+  pathway/     # fit-pathway — web app, CLI, formatters
+  basecamp/    # fit-basecamp — knowledge system, scheduler, macOS app
+  guide/       # fit-guide — LLM agent, artifact interpretation
 libraries/
-  lib*/      # shared infrastructure and domain libraries
+  lib*/        # shared infrastructure and domain libraries
 services/
   graph/ mcp/ pathway/ trace/ vector/
 config/
@@ -112,7 +113,7 @@ gitignored and created from examples during setup.
 ### Per-package layout
 
 Every package follows the same on-disk shape (spec 390). Source files live under
-`src/`; the package root carries only metadata and published non-source assets.
+`src/` — no `.js` or `.ts` files at the package root.
 
 ```
 <package>/
@@ -131,24 +132,21 @@ Every package follows the same on-disk shape (spec 390). Source files live under
   test/            Test files
 ```
 
-Allowed root directories: `bin/`, `config/`, `macos/`, `pkg/`, `proto/`,
-`schema/`, `src/`, `starter/`, `supabase/`, `templates/`, `test/`. Source files
-live under `src/` — no `.js` or `.ts` files at the package root.
-
-`bin/` holds one file per CLI binary — thin scripts that parse argv and hand off
-to `src/`. Subcommand handlers live under `src/commands/`, package-internal
-helpers under `src/lib/`.
-
-Published `package.json` `main`, `bin`, and `exports` point at `src/`. Consumers
-import via subpath aliases (`@forwardimpact/libskill/derivation`) which the
-`exports` map resolves to `./src/derivation.js`. No build step, no root-level
-proxy file.
+Subcommand handlers live under `src/commands/`, helpers under `src/lib/`.
+Published `exports` point at `src/` — consumers import via subpath aliases
+resolved by the `exports` map. No build step, no root-level proxy file.
 
 ### Services — the one exception
 
 Services keep `index.js` and `server.js` at the package root (loaded by fixed
 path from `config/config.example.json`), plus `proto/`, `src/`, `test/`, and
 `package.json`. No `bin/` directory, no `src/index.js`.
+
+### `.claude/` — agent configuration
+
+`Edit` and `Write` are denied on `.claude/**` paths. Use
+[`scripts/claude-write.sh`](.claude/agents/references/self-maintenance.md)
+instead.
 
 ## Pull Request Workflow
 

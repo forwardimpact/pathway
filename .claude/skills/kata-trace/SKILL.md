@@ -63,7 +63,6 @@ you selected and why.
 
 ```sh
 bunx fit-trace runs                        # list recent agent workflow runs (default)
-bunx fit-trace runs agent --lookback 14d   # wider lookback window
 bunx fit-trace runs kata                   # filter by a different workflow name substring
 ```
 
@@ -83,7 +82,6 @@ for full content blocks), `tool`, `errors`, `reasoning`, `tools`, `stats`,
 
 ```sh
 bunx fit-trace overview /tmp/trace-<run-id>/structured.json
-bunx fit-trace filter /tmp/trace-<run-id>/structured.json --role system
 ```
 
 ### 3. Observe the Work (Open Coding + Memos)
@@ -165,6 +163,9 @@ Act on findings:
 
 Every PR branches directly from `main`.
 
+> **Writing under `.claude/`:** If a fix targets `.claude/`, follow
+> [self-maintenance.md](../../agents/references/self-maintenance.md).
+
 ## Memory: what to record
 
 Append to the current week's log (see agent profile for the file path):
@@ -188,5 +189,4 @@ The READ-DO checklist covers grounded theory fundamentals. Additional guidance:
 - **Count what matters.** Token usage, retry counts, wasted turns, cost.
 - **Compare to intent.** Read the skill docs, compare to actual execution.
 - **Maintain traceability.** Proposition → category → code → turn number.
-- **Attribute to instruction layers.** Name the layer when a failure's root
-  cause is an instruction defect. Prefer upstream layers.
+- **Attribute to instruction layers.** Prefer upstream layers.
