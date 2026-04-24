@@ -78,7 +78,7 @@ const HINT_HANDLERS = {
 
 /**
  * Strip the `mcp__<server>__` prefix from MCP-namespaced tool names so logs
- * show the bare method (e.g. `mcp__orchestration__Ask` → `Tell`). Non-MCP
+ * show the bare method (e.g. `mcp__orchestration__Ask` → `Ask`). Non-MCP
  * names and malformed inputs pass through unchanged.
  * @param {string} name
  * @returns {string}

@@ -149,16 +149,16 @@ describe("hintForCall", () => {
     assert.strictEqual(hint, "");
   });
 
-  test("mcp__orchestration__Tell — renders to decorator only", () => {
-    const hint = hintForCall("mcp__orchestration__Tell", {
+  test("mcp__orchestration__Ask — renders to decorator only", () => {
+    const hint = hintForCall("mcp__orchestration__Ask", {
       to: "staff-engineer",
-      message: "go",
+      question: "go",
     });
     assert.strictEqual(hint, "to staff-engineer");
   });
 
-  test("mcp__orchestration__Share — no decorators, empty hint", () => {
-    const hint = hintForCall("mcp__orchestration__Share", {
+  test("mcp__orchestration__Announce — no decorators, empty hint", () => {
+    const hint = hintForCall("mcp__orchestration__Announce", {
       message: 'Say "hello"',
     });
     assert.strictEqual(hint, "");

@@ -25,8 +25,8 @@ Two mode overlays describe the mode-specific artifact surface:
 ## When to Use
 
 **Facilitator**: Entry-point skill for the improvement coach's two facilitation
-contexts — team storyboard meetings (kata-storyboard workflow) and 1-on-1
-coaching sessions (kata-coaching workflow).
+contexts — team storyboard meetings (`kata-storyboard.yml` workflow) and 1-on-1
+coaching sessions (`kata-coaching.yml` workflow).
 
 **Participant**: The coach passes a participant-side summary through libeval's
 `systemPromptAmend` before the first `Ask`. You do not load this skill in
