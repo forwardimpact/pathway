@@ -20,13 +20,12 @@ guidance.
 
 The derivation engine produces parallel outputs from shared inputs:
 
-| Aspect       | Human Output                                  | Agent Output                                      |
-| ------------ | --------------------------------------------- | ------------------------------------------------- |
-| Skills       | Job description with proficiency expectations | SKILL.md files with agent-specific markers        |
-| Behaviours   | Behavioural expectations by maturity          | Working style directives for the agent            |
-| Capabilities | Responsibility areas and scope                | Focused capability constraints                    |
-| Stages       | Lifecycle phase expectations                  | Stage-specific agent with handoffs and checklists |
-| Tools        | Tool proficiency expectations                 | Tool references and installation scripts          |
+| Aspect       | Human Output                                  | Agent Output                               |
+| ------------ | --------------------------------------------- | ------------------------------------------ |
+| Skills       | Job description with proficiency expectations | SKILL.md files with agent-specific markers |
+| Behaviours   | Behavioural expectations by maturity          | Working style directives for the agent     |
+| Capabilities | Responsibility areas and scope                | Focused capability constraints             |
+| Tools        | Tool proficiency expectations                 | Tool references and installation scripts   |
 
 ### Reference Level Selection
 
@@ -45,39 +44,44 @@ graph LR
     B --> C[Sort by Priority]
     C --> D[Focus on Discipline]
     D --> E[Apply Working Styles]
-    E --> F[Agent Profiles]
+    E --> F[Agent Profile]
 ```
 
 1. **Filter** — Select skills relevant to the discipline and track. Remove
    `isHumanOnly` skills (mentoring, physical presence).
 2. **Sort** — Order skills by importance: core → supporting → broad →
    track-added.
-3. **Focus** — Limit the skill matrix to the most relevant skills per stage.
+3. **Focus** — Apply the discipline's skill matrix to the agent profile.
 4. **Style** — Translate top behaviours by maturity into working style
    directives.
-5. **Output** — Produce `.agent.md` team files and individual `SKILL.md` files.
+5. **Output** — Produce one `.claude/agents/{role}.md` profile and the
+   corresponding `.claude/skills/*/SKILL.md` files.
 
 ### Commands
 
-Generate agent profiles for a discipline and track:
+Generate an agent profile for a discipline and track:
 
 ```sh
-npx fit-pathway agent software_engineering --track=platform --output=./agents
+npx fit-pathway agent software_engineering --track=platform --output=./out
 ```
 
 Output directory structure:
 
 ```
-./agents/
-├── specify.agent.md
-├── plan.agent.md
-├── code.agent.md
-├── review.agent.md
-└── skills/
-    ├── ARCHITECTURE-DESIGN.md
-    ├── CODE-QUALITY.md
-    └── ...
+./out/
+└── .claude/
+    ├── CLAUDE.md
+    ├── agents/
+    │   └── software-engineer--platform.md
+    └── skills/
+        ├── task-completion/SKILL.md
+        ├── incident-response/SKILL.md
+        └── ...
 ```
+
+The agent name is derived from the discipline's `roleTitle`, suffixed with
+`--{track}` when a track is set (e.g. `software-engineer--platform`,
+`data-engineer`). Trackless (generalist) configurations omit the suffix.
 
 Preview without writing files:
 
@@ -104,7 +108,7 @@ Information never flows upward.
 | Layer                 | File                        | Answers                                         | Loaded by            |
 | --------------------- | --------------------------- | ----------------------------------------------- | -------------------- |
 | **Team instructions** | `.claude/CLAUDE.md`         | What platform? What conventions? What env vars? | Every agent, always  |
-| **Agent profile**     | `.claude/agents/*.agent.md` | Who am I? What stage? What constraints?         | One agent at a time  |
+| **Agent profile**     | `.claude/agents/*.md`       | Who am I? What constraints? What working style? | One agent at a time  |
 | **Skill**             | `.claude/skills/*/SKILL.md` | How do I do X? What must I verify?              | On demand, per skill |
 
 ### How YAML Fields Map to Layers
@@ -112,28 +116,26 @@ Information never flows upward.
 Each layer draws from specific fields in the framework YAML. Understanding where
 each field ends up helps you decide where to put new content.
 
-| Source File           | YAML Field                         | Exported To                                   | Layer             |
-| --------------------- | ---------------------------------- | --------------------------------------------- | ----------------- |
-| `tracks/*.yaml`       | `agent.teamInstructions`           | `.claude/CLAUDE.md`                           | Team instructions |
-| `disciplines/*.yaml`  | `agent.identity`                   | `.agent.md` → identity section                | Agent profile     |
-| `disciplines/*.yaml`  | `agent.priority`                   | `.agent.md` → priority section                | Agent profile     |
-| `disciplines/*.yaml`  | `agent.constraints`                | `.agent.md` → constraints list                | Agent profile     |
-| `tracks/*.yaml`       | `agent.identity`                   | `.agent.md` → identity (overrides discipline) | Agent profile     |
-| `tracks/*.yaml`       | `agent.priority`                   | `.agent.md` → priority (overrides discipline) | Agent profile     |
-| `tracks/*.yaml`       | `agent.constraints`                | `.agent.md` → constraints (appended)          | Agent profile     |
-| `tracks/*.yaml`       | `roleContext`                      | `.agent.md` → role context section            | Agent profile     |
-| `behaviours/*.yaml`   | `agent.workingStyle`               | `.agent.md` → working style bullets           | Agent profile     |
-| `stages.yaml`         | `description`                      | `.agent.md` → stage description               | Agent profile     |
-| `stages.yaml`         | `constraints`                      | `.agent.md` → constraints list                | Agent profile     |
-| `stages.yaml`         | `returnFormat`                     | `.agent.md` → return format                   | Agent profile     |
-| `stages.yaml`         | `handoffs`                         | `.agent.md` → stage transitions               | Agent profile     |
-| `capabilities/*.yaml` | `skills[].agent.stages`            | `SKILL.md` → checklists                       | Skill             |
-| `capabilities/*.yaml` | `skills[].agent.description`       | `SKILL.md` → description                      | Skill             |
-| `capabilities/*.yaml` | `skills[].toolReferences`          | `SKILL.md` → tools section                    | Skill             |
-| `capabilities/*.yaml` | `skills[].markers`                 | `SKILL.md` → markers section                  | Skill             |
-| `capabilities/*.yaml` | `skills[].instructions`            | `SKILL.md` → instructions                     | Skill             |
-| `capabilities/*.yaml` | `skills[].installScript`           | `skills/*/scripts/install.sh`                 | Skill             |
-| `capabilities/*.yaml` | `skills[].implementationReference` | `skills/*/references/REFERENCE.md`            | Skill             |
+| Source File           | YAML Field                         | Exported To                               | Layer             |
+| --------------------- | ---------------------------------- | ----------------------------------------- | ----------------- |
+| `tracks/*.yaml`       | `agent.teamInstructions`           | `.claude/CLAUDE.md`                       | Team instructions |
+| `disciplines/*.yaml`  | `agent.identity`                   | profile → identity section                | Agent profile     |
+| `disciplines/*.yaml`  | `agent.priority`                   | profile → priority section                | Agent profile     |
+| `disciplines/*.yaml`  | `agent.constraints`                | profile → constraints list                | Agent profile     |
+| `tracks/*.yaml`       | `agent.identity`                   | profile → identity (overrides discipline) | Agent profile     |
+| `tracks/*.yaml`       | `agent.priority`                   | profile → priority (overrides discipline) | Agent profile     |
+| `tracks/*.yaml`       | `agent.constraints`                | profile → constraints (appended)          | Agent profile     |
+| `tracks/*.yaml`       | `roleContext`                      | profile → role context section            | Agent profile     |
+| `behaviours/*.yaml`   | `agent.workingStyle`               | profile → working style bullets           | Agent profile     |
+| `capabilities/*.yaml` | `skills[].agent.focus`             | `SKILL.md` → focus                        | Skill             |
+| `capabilities/*.yaml` | `skills[].agent.readChecklist`     | `SKILL.md` → READ-DO checklist            | Skill             |
+| `capabilities/*.yaml` | `skills[].agent.confirmChecklist`  | `SKILL.md` → DO-CONFIRM checklist         | Skill             |
+| `capabilities/*.yaml` | `skills[].agent.description`       | `SKILL.md` → description                  | Skill             |
+| `capabilities/*.yaml` | `skills[].toolReferences`          | `SKILL.md` → tools section                | Skill             |
+| `capabilities/*.yaml` | `skills[].markers`                 | `SKILL.md` → markers section              | Skill             |
+| `capabilities/*.yaml` | `skills[].instructions`            | `SKILL.md` → instructions                 | Skill             |
+| `capabilities/*.yaml` | `skills[].installScript`           | `skills/*/scripts/install.sh`             | Skill             |
+| `capabilities/*.yaml` | `skills[].implementationReference` | `skills/*/references/REFERENCE.md`        | Skill             |
 
 **Key patterns:**
 
@@ -142,15 +144,15 @@ each field ends up helps you decide where to put new content.
   platform track and a forward-deployed track serve different conventions.
 - `agent.identity` on a track _overrides_ the discipline's identity. Use this
   when the track fundamentally changes how the agent introduces itself.
-- `agent.constraints` from discipline, track, and stage are all _appended_ —
-  they are additive, not overriding.
+- `agent.constraints` from discipline and track are _appended_ — they are
+  additive, not overriding.
 - `roleContext` is a shared field (used in both human job descriptions and agent
   profiles). It is not inside the `agent:` section.
 
 ### Layer 1: Team Instructions (CLAUDE.md)
 
-**Purpose:** Cross-cutting facts that every agent needs regardless of stage or
-skill. Written once, read by all.
+**Purpose:** Cross-cutting facts that every agent needs regardless of which
+skill is loaded. Written once, read by all.
 
 **Include:**
 
@@ -167,7 +169,6 @@ skill. Written once, read by all.
 
 - Step-by-step procedures (belongs in skills)
 - Role identity or working style (belongs in agent profiles)
-- Stage-specific constraints (belongs in agent profiles)
 - Code examples (belongs in skill references)
 
 **Style:** Terse, declarative, factual. Use tables for structured data. No
@@ -211,17 +212,14 @@ yourself updating three or more skills, the fact belongs here instead.
 
 ### Layer 2: Agent Profiles
 
-**Purpose:** Define who the agent is, what stage of work it performs, and how it
-should behave. Each profile is a persona with constraints.
+**Purpose:** Define who the agent is and how it should behave. Each profile is a
+persona with constraints — one agent per discipline (with optional track
+modifier), carrying the full skill matrix for that role.
 
 **Include:**
 
 - Core identity (role description, working style, priorities)
-- Stage definition (what this agent does: specify, plan, scaffold, code, review,
-  deploy)
-- Stage transitions (what comes next, entry criteria for the next stage)
 - Skill assignments (which skills this agent should load)
-- Return format (what the agent should output when done)
 - Constraints (what the agent must not do)
 
 **Exclude:**
@@ -241,11 +239,12 @@ belongs in a skill.
 #### Example
 
 ```markdown
-# Code Agent
+# Software Engineer (Platform)
 
 ## Role
 
-Senior software engineer implementing solutions from approved plans.
+Senior software engineer building shared platform capabilities for other
+engineering teams.
 
 ## Working Style
 
@@ -261,19 +260,9 @@ Senior software engineer implementing solutions from approved plans.
 
 ## Constraints
 
-- Do not change architecture decisions made during planning
-- Do not skip tests
-- Implement exactly what the plan specifies
-
-## Return Format
-
-- List of files changed
-- Test results summary
-- Any deviations from the plan noted
-
-## Handoff
-
-When implementation is complete and tests pass → request review.
+- Maintain backward compatibility for downstream consumers
+- Document breaking changes with migration guides
+- Test changes against consumer use cases
 ```
 
 ### Layer 3: Skills (SKILL.md)
@@ -285,7 +274,7 @@ Each skill teaches one thing well.
 
 - Step-by-step instructions for the skill's domain
 - Required tools with "use when" descriptions
-- Stage checklists (`readChecklist` and `confirmChecklist`)
+- READ-DO and DO-CONFIRM checklists (`readChecklist` and `confirmChecklist`)
 - Install scripts for prerequisites
 - Implementation references with code examples
 
@@ -328,16 +317,12 @@ single-line pointer is acceptable — but never duplicate the procedure.
 - GitHub Actions — CI/CD automation
 - Docker — Container builds for deployment
 
-## Stages
-
-### Code
-
-**Read before starting:**
+## Read before starting
 
 - Understand the current pipeline configuration
 - Identify which tests need CI integration
 
-**Confirm before handoff:**
+## Confirm before handoff
 
 - Pipeline runs successfully
 - All tests pass before merge

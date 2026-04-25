@@ -18,7 +18,6 @@ specific location:
 data/
 ├── framework.yaml              # Framework metadata and display config
 ├── levels.yaml                 # Career levels (collection file)
-├── stages.yaml                 # Engineering lifecycle phases (collection file)
 ├── drivers.yaml                # Organizational outcomes (collection file)
 ├── disciplines/                # Engineering specialties (one file each)
 │   ├── software_engineering.yaml
@@ -38,7 +37,7 @@ data/
 
 Single-entity files (disciplines, tracks, behaviours, capabilities) are named by
 identifier — `disciplines/software_engineering.yaml`. Collection files (levels,
-stages, drivers) contain all entries in one file.
+drivers) contain all entries in one file.
 
 Initialize a data directory with example content:
 
@@ -404,12 +403,11 @@ All subfields are optional:
   fundamentally changes how the agent introduces itself. Supports `{roleTitle}`
   and `{specialization}` template variables.
 - `priority`: Overrides the discipline's `agent.priority`.
-- `constraints`: Appended to the discipline and stage constraints (not replacing
-  them).
+- `constraints`: Appended to the discipline's constraints (not replacing them).
 - `teamInstructions`: Markdown content written to `.claude/CLAUDE.md` in the
   exported agent team. This is the only field that produces team-level
   instructions. Use it for cross-cutting platform facts, conventions, and skill
-  coordination tables — content every agent needs regardless of stage. See the
+  coordination tables — content every agent needs. See the
   [Agent Teams guide](/docs/guides/agent-teams/#layer-1-team-instructions-claudemd)
   for what to include and exclude.
 
@@ -524,8 +522,8 @@ skills:
 ### Adding Agent Content
 
 The `agent:` section turns a human skill definition into operational guidance
-for AI agents. It includes a name, description, when to use the skill, and
-stage-specific checklists:
+for AI agents. It includes a name, description, when to use the skill, the
+agent's primary focus, and READ-DO / DO-CONFIRM checklists:
 
 ```yaml
 skills:
@@ -543,15 +541,13 @@ skills:
       name: task-execution
       description: Breaking down and completing engineering tasks
       useWhen: Implementing features, fixing bugs, or completing work
-      stages:
-        code:
-          focus: Complete implementation with tests
-          readChecklist:
-            - Read the requirements or issue description
-            - Identify affected files and dependencies
-          confirmChecklist:
-            - All tests pass
-            - Code follows project conventions
+      focus: Complete implementation with tests
+      readChecklist:
+        - Read the requirements or issue description
+        - Identify affected files and dependencies
+      confirmChecklist:
+        - All tests pass
+        - Code follows project conventions
 ```
 
 ### Writing Good Checklists
@@ -683,31 +679,15 @@ skills:
       name: ai-evaluation-observability
       description: Guide for building AI evaluation systems
       useWhen: Instrumenting AI applications or creating evaluation datasets
-      stages:
-        specify:
-          focus: Define evaluation requirements
-          readChecklist:
-            - Identify quality dimensions that matter
-            - Document expected inputs, outputs, and criteria
-          confirmChecklist:
-            - Quality dimensions are documented
-            - Evaluation criteria are clear
-        scaffold:
-          focus: Set up evaluation environment
-          readChecklist:
-            - Install evaluation tools
-            - Configure API keys
-          confirmChecklist:
-            - SDK installed and connected
-            - Environment is reproducible
-        code:
-          focus: Implement tracing, datasets, and evaluators
-          readChecklist:
-            - Instrument application with tracing
-            - Create datasets from production data
-          confirmChecklist:
-            - Tracing captures execution flow
-            - Evaluators produce consistent scores
+      focus: Implement tracing, golden datasets, and evaluators
+      readChecklist:
+        - Instrument the application with tracing before building evaluators
+        - Create datasets from real production data, not synthetic examples
+        - Identify quality dimensions and evaluation criteria upfront
+      confirmChecklist:
+        - Tracing captures execution flow
+        - Evaluators produce consistent scores
+        - Quality dimensions are documented
     instructions: |
       Focus on tracing first — instrument the application before
       building evaluators. Create golden datasets from real
@@ -774,103 +754,6 @@ agent:
 all five levels)
 
 **Optional:** `id`, `agent` (with `title` and `workingStyle`)
-
----
-
-## Stages
-
-Stages define the engineering lifecycle — the phases work moves through from
-specification to deployment. Agents use stages to understand what they should
-and should not do at each phase.
-
-### Standard Stages
-
-| Stage      | Purpose                             |
-| ---------- | ----------------------------------- |
-| `specify`  | Author requirements and criteria    |
-| `plan`     | Design solutions, create plans      |
-| `scaffold` | Generate project structure          |
-| `code`     | Implement solutions and write tests |
-| `review`   | Review code for correctness         |
-| `deploy`   | Ship changes to production          |
-
-### Example
-
-```yaml
-# data/stages.yaml
-- id: code
-  name: Code
-  emojiIcon: "💻"
-  summary:
-    Implements solutions and writes tests
-  description:
-    Your primary task is to implement the solution and write tests.
-    Follow the plan from the previous stage.
-  constraints:
-    - Do not change architecture decisions made during planning
-    - Implement exactly what the plan specifies
-    - Do not change specs without consulting the planner
-  readChecklist:
-    - Read the plan or specification
-    - Identify affected files and dependencies
-    - Understand the current test coverage
-  confirmChecklist:
-    - All tests pass
-    - Code follows project conventions
-    - No security vulnerabilities introduced
-    - Implementation matches the plan
-  returnFormat:
-    - List of files changed
-    - Test results summary
-    - Any deviations from the plan noted
-  handoffs:
-    - targetStage: review
-      label: Request Review
-      prompt:
-        Implementation complete and all tests passing.
-        Ready for code review.
-
-- id: review
-  name: Review
-  emojiIcon: "🔍"
-  summary:
-    Reviews code for correctness and style
-  description:
-    You review code changes for correctness, style, and adherence
-    to the plan. Provide constructive feedback.
-  constraints:
-    - Do not make implementation changes during review
-    - Do not approve if tests fail
-  readChecklist:
-    - Read the plan or specification
-    - Review the code changes
-    - Check test coverage
-  confirmChecklist:
-    - Implementation matches the plan
-    - No logical errors or edge cases missed
-    - Code follows conventions
-    - Tests pass
-  handoffs:
-    - targetStage: deploy
-      label: Approve for Deploy
-      prompt: Code review complete. Changes approved for deployment.
-    - targetStage: code
-      label: Request Changes
-      prompt: Changes needed before approval.
-```
-
-**Required:** `id`, `name`
-
-**Optional:** `emojiIcon`, `description`, `summary`, `handoffs`, `constraints`,
-`readChecklist`, `confirmChecklist`, `returnFormat`
-
-### Field Details
-
-- `constraints`: What the agent must not do at this stage
-- `readChecklist`: What to read or understand before starting
-- `confirmChecklist`: What to verify before handoff
-- `returnFormat`: What output the agent should provide
-- `handoffs`: Transitions to next stages with labels and prompts
 
 ---
 
