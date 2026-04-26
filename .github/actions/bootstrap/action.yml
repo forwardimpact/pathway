@@ -3,9 +3,7 @@ description: Set up Bun, install just, and run just install
 
 inputs:
   token:
-    description:
-      GitHub token with write access to the wiki. When provided, the wiki is
-      checked out into ./wiki and pushed back during post-run cleanup.
+    description: GitHub token with write access to the wiki. When provided, the wiki is checked out into ./wiki and pushed back during post-run cleanup.
     required: false
     default: ""
 

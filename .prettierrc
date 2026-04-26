@@ -6,6 +6,12 @@
       "options": {
         "embeddedLanguageFormatting": "off"
       }
+    },
+    {
+      "files": [".github/**/*.yml", ".github/**/*.yaml"],
+      "options": {
+        "printWidth": 999
+      }
     }
   ]
 }
