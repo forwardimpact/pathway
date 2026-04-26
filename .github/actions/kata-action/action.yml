@@ -37,22 +37,16 @@ inputs:
     required: false
     default: "Bash,Read,Glob,Grep,Write,Edit,Agent,TodoWrite"
   supervisor-allowed-tools:
-    description:
-      Comma-separated list of allowed tools for the supervisor (supervise mode
-      only)
+    description: Comma-separated list of allowed tools for the supervisor (supervise mode only)
     required: false
   supervisor-profile:
-    description:
-      Supervisor agent profile name (passed as --agent to Claude CLI, supervise
-      mode only)
+    description: Supervisor agent profile name (passed as --agent to Claude CLI, supervise mode only)
     required: false
   agent-profile:
     description: Agent profile name (passed as --agent to Claude CLI)
     required: false
   facilitator-profile:
-    description:
-      Facilitator profile name (passed as --facilitator-profile, facilitate mode
-      only)
+    description: Facilitator profile name (passed as --facilitator-profile, facilitate mode only)
     required: false
   agent-profiles:
     description: Comma-separated agent profile names for facilitate mode
@@ -185,9 +179,7 @@ runs:
         fi
 
     - name: Split supervised trace
-      if:
-        always() && inputs.trace == 'true' && inputs.mode == 'supervise' &&
-        steps.setup.outputs.trace-dir != ''
+      if: always() && inputs.trace == 'true' && inputs.mode == 'supervise' && steps.setup.outputs.trace-dir != ''
       shell: bash
       env:
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
@@ -200,9 +192,7 @@ runs:
           > "$TRACE_DIR/supervisor-trace.ndjson"
 
     - name: Split facilitated trace
-      if:
-        always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
-        steps.setup.outputs.trace-dir != ''
+      if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
       shell: bash
       env:
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
@@ -225,9 +215,7 @@ runs:
           > "$TRACE_DIR/agent-trace.ndjson"
 
     - name: Upload agent trace
-      if:
-        always() && inputs.trace == 'true' && steps.setup.outputs.trace-dir !=
-        ''
+      if: always() && inputs.trace == 'true' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: agent-trace
@@ -235,27 +223,21 @@ runs:
           ${{ (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && format('{0}/agent-trace.ndjson', steps.setup.outputs.trace-dir) || format('{0}/trace.ndjson', steps.setup.outputs.trace-dir) }}
 
     - name: Upload supervisor trace
-      if:
-        always() && inputs.trace == 'true' && inputs.mode == 'supervise' &&
-        steps.setup.outputs.trace-dir != ''
+      if: always() && inputs.trace == 'true' && inputs.mode == 'supervise' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: supervisor-trace
         path: ${{ steps.setup.outputs.trace-dir }}/supervisor-trace.ndjson
 
     - name: Upload facilitator trace
-      if:
-        always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
-        steps.setup.outputs.trace-dir != ''
+      if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: facilitator-trace
         path: ${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
 
     - name: Upload per-agent traces
-      if:
-        always() && inputs.trace == 'true' && inputs.mode == 'facilitate' &&
-        steps.setup.outputs.trace-dir != ''
+      if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: per-agent-traces
@@ -266,9 +248,7 @@ runs:
           !${{ steps.setup.outputs.trace-dir }}/trace.ndjson
 
     - name: Upload combined trace
-      if:
-        always() && inputs.trace == 'true' && (inputs.mode == 'supervise' ||
-        inputs.mode == 'facilitate') && steps.setup.outputs.trace-dir != ''
+      if: always() && inputs.trace == 'true' && (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: combined-trace

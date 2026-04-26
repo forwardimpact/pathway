@@ -50,8 +50,7 @@ jobs:
         with:
           app-id: ${{ secrets.CI_APP_ID }}
           task-text: >-
-            Assess the current state of your domain and act on the
-            highest-priority finding.
+            Assess the current state of your domain and act on the highest-priority finding.
           agent-profile: "staff-engineer"
           model: "claude-opus-4-7[1m]"
           max-turns: "0"

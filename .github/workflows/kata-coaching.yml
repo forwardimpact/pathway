@@ -50,8 +50,7 @@ jobs:
           app-id: ${{ secrets.CI_APP_ID }}
           mode: "facilitate"
           task-text: >-
-            Facilitate a one-on-one Kata coaching session with "${{ inputs.agent
-            }}".
+            Facilitate a one-on-one Kata coaching session with "${{ inputs.agent }}".
           facilitator-profile: "improvement-coach"
           agent-profiles: "${{ inputs.agent }}"
           model: "claude-opus-4-7[1m]"
