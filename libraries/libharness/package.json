@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libharness",
-  "version": "0.1.15",
+  "version": "0.1.16",
   "description": "Shared test harness and mock infrastructure for the Forward Impact monorepo",
   "type": "module",
   "main": "./src/index.js",
