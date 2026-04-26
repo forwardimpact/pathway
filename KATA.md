@@ -10,9 +10,10 @@ Kata is the Forward Impact repo self-maintenance system: autonomous agents on
 GitHub Actions that keep the codebase secure, release-ready, and steadily
 improving. The name follows Toyota Kata — agents grasp the current condition
 (via prior-run traces), establish target conditions (via specs), and experiment
-toward them (via implementation). Seven workflows (five agent runs across three
-shifts, a daily storyboard, an on-demand coaching session), six agent personas,
-and eighteen skills form a self-reinforcing PDSA cycle.
+toward them (via implementation). Eight workflows (five scheduled agent runs
+across three shifts, a daily storyboard, an on-demand coaching session, an
+event-driven conversation responder), six agent personas, and eighteen skills
+form a self-reinforcing PDSA cycle.
 
 ## Architecture
 
@@ -65,18 +66,21 @@ agent writes a spec rather than attempting the fix.
 
 ## Workflows
 
-Seven workflows run on a three-shift Europe/Paris rhythm: **night** by 07:00,
-**storyboard** at 08:00, **day** by 15:00, **swing** by 23:00. Each shift forms
-a producer → reviewer → shipper chain: product-manager triages and merges so
-staff has a fresh backlog, staff implements, release ships. The night shift —
+Seven scheduled workflows run on a three-shift Europe/Paris rhythm: **night** by
+07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00. Each shift
+forms a producer → reviewer → shipper chain: product-manager triages and merges
+so staff has a fresh backlog, staff implements, release ships. The night shift —
 the full cycle before the morning storyboard — slots security-engineer and
 technical-writer between staff and release to review code before it ships; day
 and swing skip the review pair (dependency churn and doc drift need no intra-day
 cadence; CVE-driven work runs on demand). Crons are authored in UTC; Paris times
-below use CEST (UTC+2), the tighter summer bound. All workflows support
-`workflow_dispatch`, use concurrency groups, and time out at 30 minutes. Agent
-workflows send a generic prompt; the agent's Assess section picks the action.
-Storyboard and coaching send specific prompts to the improvement coach.
+below use CEST (UTC+2), the tighter summer bound. An eighth workflow,
+**agent-conversation**, runs on PR comments, new discussions, and discussion
+comments — the product manager facilitates and routes the comment to the
+participant best suited to respond. All workflows support `workflow_dispatch`,
+use concurrency groups, and time out at 30 minutes. Agent workflows send a
+generic prompt; the agent's Assess section picks the action. Storyboard and
+coaching send specific prompts to the improvement coach.
 
 | Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
 | --------------------------- | ------------------------------------- | ---------------------------------------- |
@@ -87,6 +91,7 @@ Storyboard and coaching send specific prompts to the improvement coach.
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
 | **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
+| **agent-conversation**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
 
 ## Skills
 
@@ -191,6 +196,29 @@ Each run generates a 1-hour installation token via
 `actions/create-github-app-token` — no long-lived secrets to rotate. The token
 must generate before `actions/checkout` so checkout-token writes trigger
 downstream workflows.
+
+### GitHub App setup
+
+Register `forward-impact-ci` as an organization-owned GitHub App, install it on
+the monorepo, and grant these **repository permissions** (least-privilege — each
+maps to at least one workflow):
+
+| Permission    | Why                                                               |
+| ------------- | ----------------------------------------------------------------- |
+| Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches       |
+| Pull requests | Open, comment, merge PRs (release-engineer, product-manager)      |
+| Issues        | Triage, label, comment (product-manager)                          |
+| Discussions   | Reply on discussions and discussion comments (agent-conversation) |
+| Workflows     | Token-driven pushes re-trigger downstream workflows               |
+| Metadata      | Required by GitHub                                                |
+
+Subscribe the App to the **Issue comment**, **Pull request review**, **Pull
+request review comment**, **Discussion**, and **Discussion comment** events so
+`agent-conversation` fires. Two repository secrets carry the App identity:
+`CI_APP_ID` and `CI_APP_PRIVATE_KEY`. `ANTHROPIC_API_KEY` is a separate secret
+consumed only by `kata-action`. The interview workflows use a second App
+(`LLM_APP_ID` / `LLM_APP_PRIVATE_KEY`) and `publish-npm` uses `NPM_TOKEN`;
+neither is required for Kata.
 
 ## Accountability
 
