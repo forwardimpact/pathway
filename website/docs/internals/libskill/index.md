@@ -40,11 +40,11 @@ Every skill goes through a four-step derivation pipeline.
 
 Each discipline classifies every skill into one of three tiers:
 
-| Tier             | Constant    | Purpose                        |
-| ---------------- | ----------- | ------------------------------ |
-| coreSkills       | `PRIMARY`   | Deepest expertise for the role |
-| supportingSkills | `SECONDARY` | Supporting capability          |
-| broadSkills      | `BROAD`     | General awareness              |
+| Tier             | Constant     | Purpose                        |
+| ---------------- | ------------ | ------------------------------ |
+| coreSkills       | `CORE`       | Deepest expertise for the role |
+| supportingSkills | `SUPPORTING` | Supporting capability          |
+| broadSkills      | `BROAD`      | General awareness              |
 
 A lookup map is built once per discipline via `buildSkillTypeMap()` for O(1)
 access during derivation. Individual lookups use `getSkillTypeForDiscipline()`.

@@ -72,13 +72,13 @@ fit:validTracks a rdf:Property ;
 
 fit:coreSkills a rdf:Property ;
     rdfs:label "coreSkills"@en ;
-    rdfs:comment "Primary skills for deep expertise (references skill IDs)"@en ;
+    rdfs:comment "Core skills requiring deep expertise (references skill IDs)"@en ;
     rdfs:domain fit:Discipline ;
     rdfs:range fit:Skill .
 
 fit:supportingSkills a rdf:Property ;
     rdfs:label "supportingSkills"@en ;
-    rdfs:comment "Secondary skills for supporting capabilities (references skill IDs)"@en ;
+    rdfs:comment "Supporting skills for solid competence in related capabilities (references skill IDs)"@en ;
     rdfs:domain fit:Discipline ;
     rdfs:range fit:Skill .
 
@@ -207,14 +207,14 @@ fit:DisciplineShape a sh:NodeShape ;
         sh:pattern "^[a-z][a-z0-9_]*$" ;
         sh:minCount 1 ;
         sh:name "coreSkills" ;
-        sh:description "Primary skills for deep expertise (skill IDs)" ;
+        sh:description "Core skills requiring deep expertise (skill IDs)" ;
     ] ;
     sh:property [
         sh:path fit:supportingSkills ;
         sh:datatype xsd:string ;
         sh:pattern "^[a-z][a-z0-9_]*$" ;
         sh:name "supportingSkills" ;
-        sh:description "Secondary skills for supporting capabilities (skill IDs)" ;
+        sh:description "Supporting skills for solid competence in related capabilities (skill IDs)" ;
     ] ;
     sh:property [
         sh:path fit:broadSkills ;

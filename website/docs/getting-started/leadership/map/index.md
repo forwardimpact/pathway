@@ -65,8 +65,8 @@ baseline expectations for skill proficiency and behaviour maturity.
   managementTitle: Associate
   ordinalRank: 1
   baseSkillProficiencies:
-    primary: foundational
-    secondary: awareness
+    core: foundational
+    supporting: awareness
     broad: awareness
   baseBehaviourMaturity: emerging
 
@@ -75,8 +75,8 @@ baseline expectations for skill proficiency and behaviour maturity.
   managementTitle: Senior Associate
   ordinalRank: 2
   baseSkillProficiencies:
-    primary: working
-    secondary: foundational
+    core: working
+    supporting: foundational
     broad: awareness
   baseBehaviourMaturity: developing
 ```
