@@ -5,6 +5,7 @@ wiki
 **/*.template.md
 **/*.template.html
 **/*.proto
+**/*.hbs
 **/Dockerfile
 **/justfile
 **/*.conf

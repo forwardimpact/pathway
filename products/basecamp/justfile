@@ -50,7 +50,21 @@ build: prepare-template build-scheduler build-launcher
 
 # Assemble Basecamp.app bundle
 build-app: build
-    bash pkg/macos/build-app.sh
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ICON_DIR="../../design/icons"
+    bash ../../libraries/libmacos/scripts/build-app.sh \
+      --bundle-name "Basecamp" \
+      --primary-exec "{{ dist_dir }}/{{ launcher }}" \
+      --extra-exec "{{ dist_dir }}/{{ app_name }}" \
+      --info-plist "macos/Info.plist" \
+      --entitlements "macos/Basecamp.entitlements" \
+      --resource "config" \
+      --resource "templates" \
+      --resource "$ICON_DIR/basecamp-flat.svg" \
+      --resource "$ICON_DIR/basecamp.svg" \
+      --version "{{ version }}" \
+      --out-dir "{{ dist_dir }}"
 
 # Build macOS installer package (.pkg)
 pkg: build-app

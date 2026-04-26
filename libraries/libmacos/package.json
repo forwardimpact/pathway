@@ -1,0 +1,34 @@
+{
+  "name": "@forwardimpact/libmacos",
+  "version": "0.1.0",
+  "description": "macOS bundle assembly, code signing, and TCC responsibility helpers",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
+  "type": "module",
+  "os": [
+    "darwin"
+  ],
+  "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./posix-spawn": "./src/posix-spawn.js",
+    "./tcc-responsibility": "./src/tcc-responsibility.js"
+  },
+  "files": [
+    "src/**/*.js",
+    "scripts/**/*.sh",
+    "templates/**"
+  ],
+  "scripts": {
+    "test": "bun test test/*.test.js"
+  },
+  "engines": {
+    "bun": ">=1.2.0"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
+  },
+  "publishConfig": {
+    "access": "public"
+  }
+}

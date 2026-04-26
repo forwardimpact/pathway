@@ -106,7 +106,9 @@ export function readOutput(filePath) {
   } finally {
     try {
       unlinkSync(filePath);
-    } catch {}
+    } catch {
+      // temp file may already be gone
+    }
   }
 }
 
@@ -182,10 +184,14 @@ export function spawn(executable, args, env, cwd) {
   if (result !== 0) {
     try {
       unlinkSync(stdoutFile);
-    } catch {}
+    } catch {
+      // cleanup best-effort
+    }
     try {
       unlinkSync(stderrFile);
-    } catch {}
+    } catch {
+      // cleanup best-effort
+    }
     throw new Error(`posix_spawn failed with error code ${result}`);
   }
 

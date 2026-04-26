@@ -125,8 +125,26 @@ function compileLauncher() {
 function buildApp() {
   console.log("\nAssembling Basecamp.app...");
 
-  const buildApp = join(__dirname, "macos", "build-app.sh");
-  run(`bash "${buildApp}"`, { cwd: PROJECT_DIR });
+  const LIBMACOS = join(PROJECT_DIR, "..", "..", "libraries", "libmacos");
+  const script = join(LIBMACOS, "scripts", "build-app.sh");
+  const iconDir = join(PROJECT_DIR, "..", "..", "design", "icons");
+  run(
+    [
+      `bash "${script}"`,
+      `--bundle-name "Basecamp"`,
+      `--primary-exec "${join(DIST_DIR, LAUNCHER_NAME)}"`,
+      `--extra-exec "${join(DIST_DIR, APP_NAME)}"`,
+      `--info-plist "${join(PROJECT_DIR, "macos", "Info.plist")}"`,
+      `--entitlements "${join(PROJECT_DIR, "macos", "Basecamp.entitlements")}"`,
+      `--resource "${join(PROJECT_DIR, "config")}"`,
+      `--resource "${join(PROJECT_DIR, "templates")}"`,
+      `--resource "${join(iconDir, "basecamp-flat.svg")}"`,
+      `--resource "${join(iconDir, "basecamp.svg")}"`,
+      `--version "${VERSION}"`,
+      `--out-dir "${DIST_DIR}"`,
+    ].join(" "),
+    { cwd: PROJECT_DIR },
+  );
 }
 
 // ---------------------------------------------------------------------------
