@@ -59,15 +59,20 @@ jobs:
           EVENT_NAME: ${{ github.event_name }}
         with:
           app-id: ${{ secrets.CI_APP_ID }}
+          mode: "facilitate"
           task-text: >-
             A new comment was posted on PR #${{ github.event.issue.number || github.event.pull_request.number }}
             by @${{ github.event.comment.user.login || github.event.review.user.login }}
             (user type: ${{ github.event.comment.user.type || github.event.review.user.type }};
             event: ${{ github.event_name }}).
             Comment URL: ${{ github.event.comment.html_url || github.event.review.html_url }}.
-            Assess the comment and act on it, but only if the author is a trusted
-            contributor and not a bot. If the author is a bot or not trusted,
-            stop immediately without taking any action.
-          agent-profile: "product-manager"
+            As facilitator, first verify the comment author is a trusted
+            contributor and not a bot — if not, stop immediately without
+            engaging any participant. Otherwise decide which participant agent
+            is most appropriate to handle the comment based on its content and
+            their domain, then ask that single agent to assess the comment and
+            act on it.
+          facilitator-profile: "product-manager"
+          agent-profiles: "release-engineer,security-engineer,staff-engineer,technical-writer"
           model: "claude-opus-4-7[1m]"
           max-turns: "200"
