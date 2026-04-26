@@ -141,7 +141,10 @@ describe("validateSkill — references field", () => {
     assert.ok(err, "expected MISSING_REQUIRED on missing name");
   });
 
-  test("duplicate names rejected", () => {
+  test("exact-duplicate names rejected via seenNames Set", () => {
+    // Both entries pass the regex, so the duplicate path in seenNames is
+    // the rule that fires. Distinct from the case-only test below, which
+    // is caught earlier by the lowercase-only regex.
     const { errors } = validateSkill(
       baseSkill({
         references: [
@@ -153,9 +156,16 @@ describe("validateSkill — references field", () => {
     );
     const err = findError(errors, "INVALID_VALUE", ".references[1].name");
     assert.ok(err, "expected INVALID_VALUE on duplicate name");
+    assert.match(err.message, /[Dd]uplicate/, "message names duplicate");
   });
 
-  test("case-only collision rejected (foo vs Foo)", () => {
+  test("case-only collision rejected (foo vs Foo) — by regex, not seenNames", () => {
+    // Spec criterion 3 requires "duplicate `name` values within one skill,
+    // including case-only collisions (foo vs Foo)" → INVALID_VALUE at
+    // .references[i].name. Implementation enforces this by rejecting any
+    // uppercase letter in the regex (Foo fails) — so the dedicated
+    // case-insensitive comparison is defence-in-depth for any future regex
+    // relaxation. Either way, the second entry must error.
     const { errors } = validateSkill(
       baseSkill({
         references: [
@@ -169,7 +179,6 @@ describe("validateSkill — references field", () => {
       (e) =>
         e.type === "INVALID_VALUE" && e.path.includes(".references[1].name"),
     );
-    // Note: "Foo" trips uppercase regex first; either way, the second entry must error.
     assert.ok(err, "expected validation error on second `Foo` entry");
   });
 
