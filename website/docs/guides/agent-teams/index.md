@@ -116,26 +116,26 @@ Information never flows upward.
 Each layer draws from specific fields in the framework YAML. Understanding where
 each field ends up helps you decide where to put new content.
 
-| Source File           | YAML Field                         | Exported To                               | Layer             |
-| --------------------- | ---------------------------------- | ----------------------------------------- | ----------------- |
-| `tracks/*.yaml`       | `agent.teamInstructions`           | `.claude/CLAUDE.md`                       | Team instructions |
-| `disciplines/*.yaml`  | `agent.identity`                   | profile → identity section                | Agent profile     |
-| `disciplines/*.yaml`  | `agent.priority`                   | profile → priority section                | Agent profile     |
-| `disciplines/*.yaml`  | `agent.constraints`                | profile → constraints list                | Agent profile     |
-| `tracks/*.yaml`       | `agent.identity`                   | profile → identity (overrides discipline) | Agent profile     |
-| `tracks/*.yaml`       | `agent.priority`                   | profile → priority (overrides discipline) | Agent profile     |
-| `tracks/*.yaml`       | `agent.constraints`                | profile → constraints (appended)          | Agent profile     |
-| `tracks/*.yaml`       | `roleContext`                      | profile → role context section            | Agent profile     |
-| `behaviours/*.yaml`   | `agent.workingStyle`               | profile → working style bullets           | Agent profile     |
-| `capabilities/*.yaml` | `skills[].agent.focus`             | `SKILL.md` → focus                        | Skill             |
-| `capabilities/*.yaml` | `skills[].agent.readChecklist`     | `SKILL.md` → READ-DO checklist            | Skill             |
-| `capabilities/*.yaml` | `skills[].agent.confirmChecklist`  | `SKILL.md` → DO-CONFIRM checklist         | Skill             |
-| `capabilities/*.yaml` | `skills[].agent.description`       | `SKILL.md` → description                  | Skill             |
-| `capabilities/*.yaml` | `skills[].toolReferences`          | `SKILL.md` → tools section                | Skill             |
-| `capabilities/*.yaml` | `skills[].markers`                 | `SKILL.md` → markers section              | Skill             |
-| `capabilities/*.yaml` | `skills[].instructions`            | `SKILL.md` → instructions                 | Skill             |
-| `capabilities/*.yaml` | `skills[].installScript`           | `skills/*/scripts/install.sh`             | Skill             |
-| `capabilities/*.yaml` | `skills[].implementationReference` | `skills/*/references/REFERENCE.md`        | Skill             |
+| Source File           | YAML Field                        | Exported To                                          | Layer             |
+| --------------------- | --------------------------------- | ---------------------------------------------------- | ----------------- |
+| `tracks/*.yaml`       | `agent.teamInstructions`          | `.claude/CLAUDE.md`                                  | Team instructions |
+| `disciplines/*.yaml`  | `agent.identity`                  | profile → identity section                           | Agent profile     |
+| `disciplines/*.yaml`  | `agent.priority`                  | profile → priority section                           | Agent profile     |
+| `disciplines/*.yaml`  | `agent.constraints`               | profile → constraints list                           | Agent profile     |
+| `tracks/*.yaml`       | `agent.identity`                  | profile → identity (overrides discipline)            | Agent profile     |
+| `tracks/*.yaml`       | `agent.priority`                  | profile → priority (overrides discipline)            | Agent profile     |
+| `tracks/*.yaml`       | `agent.constraints`               | profile → constraints (appended)                     | Agent profile     |
+| `tracks/*.yaml`       | `roleContext`                     | profile → role context section                       | Agent profile     |
+| `behaviours/*.yaml`   | `agent.workingStyle`              | profile → working style bullets                      | Agent profile     |
+| `capabilities/*.yaml` | `skills[].agent.focus`            | `SKILL.md` → focus                                   | Skill             |
+| `capabilities/*.yaml` | `skills[].agent.readChecklist`    | `SKILL.md` → READ-DO checklist                       | Skill             |
+| `capabilities/*.yaml` | `skills[].agent.confirmChecklist` | `SKILL.md` → DO-CONFIRM checklist                    | Skill             |
+| `capabilities/*.yaml` | `skills[].agent.description`      | `SKILL.md` → description                             | Skill             |
+| `capabilities/*.yaml` | `skills[].toolReferences`         | `SKILL.md` → tools section                           | Skill             |
+| `capabilities/*.yaml` | `skills[].markers`                | `SKILL.md` → markers section                         | Skill             |
+| `capabilities/*.yaml` | `skills[].instructions`           | `SKILL.md` → instructions                            | Skill             |
+| `capabilities/*.yaml` | `skills[].installScript`          | `skills/*/scripts/install.sh`                        | Skill             |
+| `capabilities/*.yaml` | `skills[].references[]`           | `skills/*/references/{name}.md` (one file per entry) | Skill             |
 
 **Key patterns:**
 

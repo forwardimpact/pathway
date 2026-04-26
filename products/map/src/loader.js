@@ -107,7 +107,7 @@ export class DataLoader {
             agent,
             instructions,
             installScript,
-            implementationReference,
+            references,
             toolReferences,
             markers,
           } = skill;
@@ -121,7 +121,7 @@ export class DataLoader {
             ...(agent && { agent }),
             ...(instructions && { instructions }),
             ...(installScript && { installScript }),
-            ...(implementationReference && { implementationReference }),
+            ...(references && references.length > 0 && { references }),
             ...(toolReferences && { toolReferences }),
             ...(markers && { markers }),
           });

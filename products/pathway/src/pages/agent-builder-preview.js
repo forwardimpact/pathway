@@ -50,10 +50,10 @@ function buildSkillFileCard(skill, templates) {
     });
   }
 
-  if (skill.implementationReference) {
+  for (const ref of skill.references || []) {
     files.push({
-      filename: `${skill.dirname}/references/REFERENCE.md`,
-      content: formatReference(skill, templates.reference),
+      filename: `${skill.dirname}/references/${ref.name}.md`,
+      content: formatReference(ref, templates.reference),
       language: "markdown",
     });
   }

@@ -584,7 +584,7 @@ readChecklist:
 - One action per item, one line (≤ 120 chars ideal, ≤ 200 max)
 - Start with a verb: Read, Create, Verify, Configure, Install
 - Move explanatory context to the skill's `instructions` field
-- Move code examples to `implementationReference`
+- Move code examples to a `references:` entry's `body`
 - If an item contains "because," "note that," or "when X then Y" — it is too
   long. Split it or move the explanation.
 
@@ -661,7 +661,7 @@ pipelines" — not "Tries hard to learn about pipelines."
 ### Advanced Skill Fields
 
 For skills that need richer structure, additional fields support instructions,
-install scripts, and implementation references:
+install scripts, and reference documents:
 
 ```yaml
 skills:
@@ -694,8 +694,11 @@ skills:
       production data, not synthetic examples.
     installScript: |
       uv sync
-    implementationReference: |
-      See the Langfuse Python SDK docs for tracing patterns.
+    references:
+      - name: tracing
+        title: Langfuse Tracing
+        body: |
+          See the Langfuse Python SDK docs for tracing patterns.
 ```
 
 ---

@@ -102,9 +102,25 @@
           "type": "string",
           "description": "Shell commands for environment setup, exported to scripts/install.sh"
         },
-        "implementationReference": {
-          "type": "string",
-          "description": "Code examples and detailed reference material, exported to references/REFERENCE.md"
+        "implementationReference": {},
+        "references": {
+          "type": "array",
+          "description": "Reference documents emitted to references/{name}.md",
+          "items": {
+            "type": "object",
+            "required": ["name", "title", "body"],
+            "additionalProperties": false,
+            "properties": {
+              "name": {
+                "type": "string",
+                "pattern": "^[a-z0-9][a-z0-9_-]*$",
+                "minLength": 1,
+                "maxLength": 64
+              },
+              "title": { "type": "string", "minLength": 1 },
+              "body": { "type": "string", "minLength": 1 }
+            }
+          }
         },
         "markers": {
           "$ref": "#/$defs/skillMarkers",

@@ -43,7 +43,7 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           agent,
           instructions,
           installScript,
-          implementationReference,
+          references,
           toolReferences,
         } = skill;
         allSkills.push({
@@ -58,8 +58,8 @@ async function loadSkillsFromCapabilities(capabilitiesDir) {
           // Include agent skill content fields
           ...(instructions && { instructions }),
           ...(installScript && { installScript }),
-          // Include implementation reference and tool references (shared by human and agent)
-          ...(implementationReference && { implementationReference }),
+          // Reference documents (each entry → references/{name}.md)
+          ...(references && references.length > 0 && { references }),
           ...(toolReferences && { toolReferences }),
         });
       }

@@ -12,9 +12,6 @@ description: {{{description}}}{{#hasUseWhen}} Use when {{{useWhen}}}{{/hasUseWhe
 {{#hasInstallScript}}
 Run this to install prerequisites: `scripts/install.sh`
 {{/hasInstallScript}}
-{{#hasReference}}
-See [implementation reference](references/REFERENCE.md) for code examples.
-{{/hasReference}}
 {{#hasUseWhen}}
 
 ## When to use this skill

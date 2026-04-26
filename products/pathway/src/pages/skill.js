@@ -12,10 +12,15 @@ import { skillToDOM } from "../formatters/skill/dom.js";
 import { skillToCardConfig } from "../lib/card-mappers.js";
 import { getCapabilityEmoji, getConceptEmoji } from "@forwardimpact/map/levels";
 import { generateSkillMarkdown } from "@forwardimpact/libskill/agent";
-import { formatAgentSkill } from "../formatters/agent/skill.js";
+import {
+  formatAgentSkill,
+  formatReference,
+} from "../formatters/agent/skill.js";
 
 /** @type {string|null} Cached skill template */
 let skillTemplateCache = null;
+/** @type {string|null} Cached reference template */
+let referenceTemplateCache = null;
 
 /**
  * Load skill Mustache template with caching
@@ -27,6 +32,18 @@ async function getSkillTemplate() {
     skillTemplateCache = await res.text();
   }
   return skillTemplateCache;
+}
+
+/**
+ * Load reference Mustache template with caching
+ * @returns {Promise<string>}
+ */
+async function getReferenceTemplate() {
+  if (!referenceTemplateCache) {
+    const res = await fetch("./templates/skill-reference.template.md");
+    referenceTemplateCache = await res.text();
+  }
+  return referenceTemplateCache;
 }
 
 /**
@@ -99,12 +116,23 @@ export async function renderSkillDetail(params) {
 
   // Generate SKILL.md content if skill has an agent section
   let agentSkillContent;
+  let referenceContents;
   if (skill.agent) {
     const template = await getSkillTemplate();
     const skillData = generateSkillMarkdown({
       skillData: skill,
     });
     agentSkillContent = formatAgentSkill(skillData, template);
+
+    if (skill.references && skill.references.length > 0) {
+      const refTemplate = await getReferenceTemplate();
+      referenceContents = new Map(
+        skill.references.map((ref) => [
+          ref.name,
+          formatReference(ref, refTemplate),
+        ]),
+      );
+    }
   }
 
   // Use DOM formatter - it handles transformation internally
@@ -115,6 +143,7 @@ export async function renderSkillDetail(params) {
       drivers: data.drivers,
       capabilities: data.capabilities,
       agentSkillContent,
+      referenceContents,
     }),
   );
 }

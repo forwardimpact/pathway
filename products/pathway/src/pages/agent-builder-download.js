@@ -38,11 +38,10 @@ function addSkillsToZip(zip, skillFiles, templates) {
       );
     }
 
-    if (skill.implementationReference) {
-      const refContent = formatReference(skill, templates.reference);
+    for (const ref of skill.references || []) {
       zip.file(
-        `.claude/skills/${skill.dirname}/references/REFERENCE.md`,
-        refContent,
+        `.claude/skills/${skill.dirname}/references/${ref.name}.md`,
+        formatReference(ref, templates.reference),
       );
     }
   }

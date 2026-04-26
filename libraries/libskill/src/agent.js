@@ -159,7 +159,7 @@ export function generateSkillMarkdown({ skillData }) {
     confirmChecklist: agent.confirmChecklist || [],
     instructions: skillData.instructions || "",
     installScript: skillData.installScript || "",
-    implementationReference: skillData.implementationReference || "",
+    references: skillData.references || [],
     toolReferences: skillData.toolReferences || [],
     dirname: agent.name,
   };
