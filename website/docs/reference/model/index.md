@@ -165,7 +165,7 @@ behaviour maturity:
 
 The starter framework ships with two levels. Your framework may define more.
 
-| Level | Primary      | Secondary    | Broad     | Base Behaviour |
+| Level | Core         | Supporting   | Broad     | Base Behaviour |
 | ----- | ------------ | ------------ | --------- | -------------- |
 | J040  | foundational | awareness    | awareness | emerging       |
 | J060  | working      | foundational | awareness | developing     |
@@ -176,12 +176,12 @@ The starter framework ships with two levels. Your framework may define more.
 
 ### Skill Derivation Steps
 
-1. **Determine skill type** -- Is this skill primary, secondary, or broad for
-   the discipline? Each discipline classifies every skill into one of three
-   tiers: core (primary), supporting (secondary), or broad.
+1. **Determine skill tier** -- Is this skill core, supporting, or broad for the
+   discipline? Each discipline classifies every skill into one of three tiers:
+   core, supporting, or broad.
 
 2. **Get base proficiency** -- Look up the level's base proficiency for that
-   skill type. For example, J060 maps primary skills to `working`, secondary to
+   skill tier. For example, J060 maps core skills to `working`, supporting to
    `foundational`, and broad to `awareness`.
 
 3. **Apply track modifier** -- Add the track's modifier for the skill's
@@ -197,14 +197,14 @@ The starter framework ships with two levels. Your framework may define more.
 
 ### Complete Derivation Example
 
-| Input      | Value                                                           |
-| ---------- | --------------------------------------------------------------- |
-| Discipline | Software Engineering                                            |
-| Level      | J060 (primary=working, secondary=foundational, broad=awareness) |
-| Track      | Platform (delivery: +1, reliability: +1)                        |
-| Skill      | Task Completion (capability: delivery, tier: supportingSkills)  |
+| Input      | Value                                                          |
+| ---------- | -------------------------------------------------------------- |
+| Discipline | Software Engineering                                           |
+| Level      | J060 (core=working, supporting=foundational, broad=awareness)  |
+| Track      | Platform (delivery: +1, reliability: +1)                       |
+| Skill      | Task Completion (capability: delivery, tier: supportingSkills) |
 
-1. **Skill type**: secondary (supporting skill)
+1. **Skill tier**: supporting
 2. **Base proficiency**: foundational (index 1)
 3. **Modifier**: +1 (delivery capability)
 4. **Cap check**: working (index 2) <= max base working (index 2) -- OK

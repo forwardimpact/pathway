@@ -121,11 +121,11 @@ export function levelToCardConfig(level) {
     badges: [createBadge(level.id, "default")],
     meta: [
       createBadge(
-        `Primary: ${formatLevel(level.baseSkillProficiencies?.primary)}`,
+        `Core: ${formatLevel(level.baseSkillProficiencies?.core)}`,
         "primary",
       ),
       createBadge(
-        `Secondary: ${formatLevel(level.baseSkillProficiencies?.secondary)}`,
+        `Supporting: ${formatLevel(level.baseSkillProficiencies?.supporting)}`,
         "secondary",
       ),
       createBadge(

@@ -31,7 +31,7 @@ The derivation engine produces parallel outputs from shared inputs:
 
 When generating agent profiles, the engine automatically selects the reference
 level for each skill — the proficiency level that best represents competent,
-independent work. It picks the first level where primary skills reach
+independent work. It picks the first level where core skills reach
 `practitioner`, falling back to `working`, then the middle level. Agents are
 configured to operate at a consistently capable level rather than at the
 extremes of awareness or expert.

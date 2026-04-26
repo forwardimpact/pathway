@@ -10,27 +10,27 @@ import {
 
 describe("Agent Module", () => {
   describe("deriveReferenceLevel", () => {
-    it("selects first level with practitioner-level primary skills", () => {
+    it("selects first level with practitioner-level core skills", () => {
       const levels = [
         {
           id: "junior",
           ordinalRank: 1,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
         {
           id: "mid",
           ordinalRank: 2,
-          baseSkillProficiencies: { primary: "working" },
+          baseSkillProficiencies: { core: "working" },
         },
         {
           id: "senior",
           ordinalRank: 3,
-          baseSkillProficiencies: { primary: "practitioner" },
+          baseSkillProficiencies: { core: "practitioner" },
         },
         {
           id: "staff",
           ordinalRank: 4,
-          baseSkillProficiencies: { primary: "expert" },
+          baseSkillProficiencies: { core: "expert" },
         },
       ];
       const result = deriveReferenceLevel(levels);
@@ -42,17 +42,17 @@ describe("Agent Module", () => {
         {
           id: "junior",
           ordinalRank: 1,
-          baseSkillProficiencies: { primary: "awareness" },
+          baseSkillProficiencies: { core: "awareness" },
         },
         {
           id: "mid",
           ordinalRank: 2,
-          baseSkillProficiencies: { primary: "working" },
+          baseSkillProficiencies: { core: "working" },
         },
         {
           id: "senior",
           ordinalRank: 3,
-          baseSkillProficiencies: { primary: "working" },
+          baseSkillProficiencies: { core: "working" },
         },
       ];
       const result = deriveReferenceLevel(levels);
@@ -64,27 +64,27 @@ describe("Agent Module", () => {
         {
           id: "G1",
           ordinalRank: 1,
-          baseSkillProficiencies: { primary: "awareness" },
+          baseSkillProficiencies: { core: "awareness" },
         },
         {
           id: "G2",
           ordinalRank: 2,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
         {
           id: "G3",
           ordinalRank: 3,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
         {
           id: "G4",
           ordinalRank: 4,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
         {
           id: "G5",
           ordinalRank: 5,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
       ];
       const result = deriveReferenceLevel(levels);
@@ -96,22 +96,22 @@ describe("Agent Module", () => {
         {
           id: "staff",
           ordinalRank: 4,
-          baseSkillProficiencies: { primary: "expert" },
+          baseSkillProficiencies: { core: "expert" },
         },
         {
           id: "junior",
           ordinalRank: 1,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
         {
           id: "senior",
           ordinalRank: 3,
-          baseSkillProficiencies: { primary: "practitioner" },
+          baseSkillProficiencies: { core: "practitioner" },
         },
         {
           id: "mid",
           ordinalRank: 2,
-          baseSkillProficiencies: { primary: "working" },
+          baseSkillProficiencies: { core: "working" },
         },
       ];
       const result = deriveReferenceLevel(levels);
@@ -134,7 +134,7 @@ describe("Agent Module", () => {
         {
           id: "only",
           ordinalRank: 1,
-          baseSkillProficiencies: { primary: "awareness" },
+          baseSkillProficiencies: { core: "awareness" },
         },
       ];
       const result = deriveReferenceLevel(levels);
@@ -147,17 +147,17 @@ describe("Agent Module", () => {
         {
           id: "Band-A",
           ordinalRank: 1,
-          baseSkillProficiencies: { primary: "foundational" },
+          baseSkillProficiencies: { core: "foundational" },
         },
         {
           id: "Band-B",
           ordinalRank: 2,
-          baseSkillProficiencies: { primary: "working" },
+          baseSkillProficiencies: { core: "working" },
         },
         {
           id: "Band-C",
           ordinalRank: 3,
-          baseSkillProficiencies: { primary: "practitioner" },
+          baseSkillProficiencies: { core: "practitioner" },
         },
       ];
       const result = deriveReferenceLevel(levels);

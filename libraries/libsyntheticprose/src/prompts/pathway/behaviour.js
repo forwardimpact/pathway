@@ -50,7 +50,7 @@ export function buildBehaviourPrompt(skeleton, ctx, schema, priorOutput) {
             ...(Array.isArray(priorOutput.levels)
               ? priorOutput.levels.map(
                   (l) =>
-                    `- ${l.id}: ${l.professionalTitle || l.id} (primary: ${l.baseSkillProficiencies?.primary || "N/A"})`,
+                    `- ${l.id}: ${l.professionalTitle || l.id} (core: ${l.baseSkillProficiencies?.core || "N/A"})`,
                 )
               : []),
           ]

@@ -47,20 +47,20 @@
         },
         "baseSkillProficiencies": {
           "type": "object",
-          "description": "Base skill proficiencys by skill tier for this level",
-          "required": ["primary", "secondary", "broad"],
+          "description": "Base skill proficiencies by skill tier for this level",
+          "required": ["core", "supporting", "broad"],
           "properties": {
-            "primary": {
+            "core": {
               "$ref": "#/$defs/skillProficiency",
-              "description": "Level for core/primary skills"
+              "description": "Proficiency expected for core skills"
             },
-            "secondary": {
+            "supporting": {
               "$ref": "#/$defs/skillProficiency",
-              "description": "Level for supporting/secondary skills"
+              "description": "Proficiency expected for supporting skills"
             },
             "broad": {
               "$ref": "#/$defs/skillProficiency",
-              "description": "Level for broad skills"
+              "description": "Proficiency expected for broad skills"
             }
           },
           "additionalProperties": false

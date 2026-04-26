@@ -63,9 +63,9 @@ describe("Profile Module", () => {
   describe("filterHighestLevel (from policies)", () => {
     it("keeps only skills at the highest level", () => {
       const skillMatrix = [
-        { skillId: "a", type: "primary", proficiency: "practitioner" },
+        { skillId: "a", type: "core", proficiency: "practitioner" },
         { skillId: "b", type: "broad", proficiency: "practitioner" },
-        { skillId: "c", type: "secondary", proficiency: "working" },
+        { skillId: "c", type: "supporting", proficiency: "working" },
         { skillId: "d", type: "broad", proficiency: "foundational" },
       ];
       const result = filterHighestLevel(skillMatrix);
@@ -85,7 +85,7 @@ describe("Profile Module", () => {
       const skillMatrix = [
         {
           skillId: "a",
-          type: "primary",
+          type: "core",
           isHumanOnly: false,
           proficiency: "practitioner",
         },
@@ -97,7 +97,7 @@ describe("Profile Module", () => {
         },
         {
           skillId: "c",
-          type: "secondary",
+          type: "supporting",
           isHumanOnly: true,
           proficiency: "practitioner",
         },

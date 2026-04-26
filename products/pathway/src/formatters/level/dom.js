@@ -74,14 +74,14 @@ function createBaseProfileSection(view) {
         heading2({ className: "section-title" }, "Base Skill Proficiencies"),
         table(
           { className: "level-table" },
-          thead({}, tr({}, th({}, "Type"), th({}, "Level"))),
+          thead({}, tr({}, th({}, "Tier"), th({}, "Level"))),
           tbody(
             {},
-            createProficiencyRow("Primary", "badge-primary", profs.primary),
+            createProficiencyRow("Core", "badge-primary", profs.core),
             createProficiencyRow(
-              "Secondary",
+              "Supporting",
               "badge-secondary",
-              profs.secondary,
+              profs.supporting,
             ),
             createProficiencyRow("Broad", "badge-broad", profs.broad),
           ),

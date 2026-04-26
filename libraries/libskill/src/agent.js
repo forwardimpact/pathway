@@ -27,7 +27,7 @@ import { SkillProficiency } from "@forwardimpact/map/levels";
  * Derive the reference level for agent generation.
  *
  * The reference level determines the skill and behaviour expectations for agents.
- * We select the first level where primary skills reach "practitioner" level,
+ * We select the first level where core skills reach "practitioner" level,
  * as this represents substantive senior-level expertise suitable for AI agents.
  *
  * @param {Array<Object>} levels - Array of level definitions
@@ -42,12 +42,12 @@ export function deriveReferenceLevel(levels) {
   const sorted = [...levels].sort((a, b) => a.ordinalRank - b.ordinalRank);
 
   const practitionerLevel = sorted.find(
-    (g) => g.baseSkillProficiencies?.primary === SkillProficiency.PRACTITIONER,
+    (g) => g.baseSkillProficiencies?.core === SkillProficiency.PRACTITIONER,
   );
   if (practitionerLevel) return practitionerLevel;
 
   const workingLevel = sorted.find(
-    (g) => g.baseSkillProficiencies?.primary === SkillProficiency.WORKING,
+    (g) => g.baseSkillProficiencies?.core === SkillProficiency.WORKING,
   );
   if (workingLevel) return workingLevel;
 

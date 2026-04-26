@@ -37,10 +37,10 @@ export { deriveResponsibilities } from "./derivation-responsibilities.js";
 export function buildSkillTypeMap(discipline) {
   const map = new Map();
   for (const id of discipline.coreSkills || []) {
-    map.set(id, SkillType.PRIMARY);
+    map.set(id, SkillType.CORE);
   }
   for (const id of discipline.supportingSkills || []) {
-    map.set(id, SkillType.SECONDARY);
+    map.set(id, SkillType.SUPPORTING);
   }
   for (const id of discipline.broadSkills || []) {
     map.set(id, SkillType.BROAD);
@@ -49,17 +49,17 @@ export function buildSkillTypeMap(discipline) {
 }
 
 /**
- * Determine the skill type (primary/secondary/broad) for a skill within a discipline
+ * Determine the skill tier (core/supporting/broad) for a skill within a discipline
  * @param {import('@forwardimpact/map/levels').Discipline} discipline - The discipline
  * @param {string} skillId - The skill ID
- * @returns {string|null} The skill type or null if skill not in discipline
+ * @returns {string|null} The skill tier or null if skill not in discipline
  */
 export function getSkillTypeForDiscipline({ discipline, skillId }) {
   if (discipline.coreSkills?.includes(skillId)) {
-    return SkillType.PRIMARY;
+    return SkillType.CORE;
   }
   if (discipline.supportingSkills?.includes(skillId)) {
-    return SkillType.SECONDARY;
+    return SkillType.SUPPORTING;
   }
   if (discipline.broadSkills?.includes(skillId)) {
     return SkillType.BROAD;
@@ -73,16 +73,14 @@ export function getSkillTypeForDiscipline({ discipline, skillId }) {
  * @returns {number} The highest base skill proficiency index
  */
 export function findMaxBaseSkillProficiency(level) {
-  const primaryIndex = getSkillProficiencyIndex(
-    level.baseSkillProficiencies.primary,
-  );
-  const secondaryIndex = getSkillProficiencyIndex(
-    level.baseSkillProficiencies.secondary,
+  const coreIndex = getSkillProficiencyIndex(level.baseSkillProficiencies.core);
+  const supportingIndex = getSkillProficiencyIndex(
+    level.baseSkillProficiencies.supporting,
   );
   const broadIndex = getSkillProficiencyIndex(
     level.baseSkillProficiencies.broad,
   );
-  return Math.max(primaryIndex, secondaryIndex, broadIndex);
+  return Math.max(coreIndex, supportingIndex, broadIndex);
 }
 
 /**

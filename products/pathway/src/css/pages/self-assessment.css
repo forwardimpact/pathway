@@ -268,11 +268,11 @@
     background: #f0fdf4;
   }
 
-  .assessment-item.relevance-primary {
+  .assessment-item.relevance-core {
     border-left-color: var(--color-primary-skill);
   }
 
-  .assessment-item.relevance-secondary {
+  .assessment-item.relevance-supporting {
     border-left-color: var(--color-secondary);
   }
 
@@ -280,8 +280,8 @@
     border-left-color: var(--color-broad);
   }
 
-  .assessment-item.assessed.relevance-primary,
-  .assessment-item.assessed.relevance-secondary,
+  .assessment-item.assessed.relevance-core,
+  .assessment-item.assessed.relevance-supporting,
   .assessment-item.assessed.relevance-broad {
     background: #f0fdf4;
   }

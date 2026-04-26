@@ -21,23 +21,23 @@ import {
 
 describe("Derivation", () => {
   describe("getSkillTypeForDiscipline", () => {
-    it("identifies primary skills", () => {
+    it("identifies core skills", () => {
       assert.strictEqual(
         getSkillTypeForDiscipline({
           discipline: testDiscipline,
           skillId: "skill_a",
         }),
-        "primary",
+        "core",
       );
     });
 
-    it("identifies secondary skills", () => {
+    it("identifies supporting skills", () => {
       assert.strictEqual(
         getSkillTypeForDiscipline({
           discipline: testDiscipline,
           skillId: "skill_b",
         }),
-        "secondary",
+        "supporting",
       );
     });
 
@@ -63,7 +63,7 @@ describe("Derivation", () => {
   });
 
   describe("deriveSkillProficiency", () => {
-    it("derives correct level for primary skill with modifier capped at level max", () => {
+    it("derives correct level for core skill with modifier capped at level max", () => {
       // Primary skill (practitioner) + modifier (+1 from scale capability)
       // Cap: max base level for level is practitioner, so capped at practitioner
       const level = deriveSkillProficiency({
@@ -76,7 +76,7 @@ describe("Derivation", () => {
       assert.strictEqual(level, "practitioner");
     });
 
-    it("derives correct level for secondary skill with negative modifier", () => {
+    it("derives correct level for supporting skill with negative modifier", () => {
       // Secondary skill (working) + modifier (-1 from ai capability) = foundational
       const level = deriveSkillProficiency({
         discipline: testDiscipline,
@@ -115,8 +115,8 @@ describe("Derivation", () => {
       const expertLevel = {
         ...testLevel,
         baseSkillProficiencies: {
-          primary: "expert",
-          secondary: "expert",
+          core: "expert",
+          supporting: "expert",
           broad: "expert",
         },
       };
@@ -132,12 +132,12 @@ describe("Derivation", () => {
     });
 
     it("allows positive modifier up to level max when base is lower", () => {
-      // Create a level where expert is the max, but secondary is lower
+      // Create a level where expert is the max, but supporting is lower
       const mixedLevel = {
         ...testLevel,
         baseSkillProficiencies: {
-          primary: "expert",
-          secondary: "practitioner",
+          core: "expert",
+          supporting: "practitioner",
           broad: "working",
         },
       };
@@ -151,7 +151,7 @@ describe("Derivation", () => {
         discipline: testDiscipline,
         level: mixedLevel,
         track: trackWithAiBoost,
-        skillId: "skill_b", // secondary skill with AI capability
+        skillId: "skill_b", // supporting skill with AI capability
         skills: testSkills,
       });
       assert.strictEqual(level, "expert");
@@ -163,8 +163,8 @@ describe("Derivation", () => {
       const capLevel = {
         ...testLevel,
         baseSkillProficiencies: {
-          primary: "practitioner",
-          secondary: "working",
+          core: "practitioner",
+          supporting: "working",
           broad: "awareness",
         },
       };
@@ -176,7 +176,7 @@ describe("Derivation", () => {
         discipline: testDiscipline,
         level: capLevel,
         track: trackWithAiBoost,
-        skillId: "skill_b", // secondary skill with AI capability
+        skillId: "skill_b", // supporting skill with AI capability
         skills: testSkills,
       });
       // working (2) + 2 = expert (4), but capped at practitioner (3)
@@ -260,7 +260,7 @@ describe("Derivation", () => {
       assert.strictEqual(matrix.length, 3); // All 3 skills in discipline
 
       const skillA = matrix.find((s) => s.skillId === "skill_a");
-      assert.strictEqual(skillA.type, "primary");
+      assert.strictEqual(skillA.type, "core");
       // Primary skill with +1 modifier capped at level max (practitioner)
       assert.strictEqual(skillA.proficiency, "practitioner");
     });
@@ -324,7 +324,7 @@ describe("Derivation", () => {
 
       assert.strictEqual(skillIds.length, 3);
       assert.ok(skillIds.includes("skill_a")); // core
-      assert.ok(skillIds.includes("skill_b")); // secondary
+      assert.ok(skillIds.includes("skill_b")); // supporting
       assert.ok(skillIds.includes("skill_c")); // broad
     });
 

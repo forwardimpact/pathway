@@ -44,10 +44,9 @@ and agent profile generation. Two audiences use `fit-pathway` differently:
 A job is derived in real-time from three inputs: **discipline**, **level**, and
 optionally **track**. For each skill in the discipline:
 
-1. The skill's tier determines its type — core (primary), supporting
-   (secondary), or broad
-2. The level's base proficiency for that type sets the starting point (e.g.
-   "foundational" for primary skills at J060)
+1. The skill's tier in the discipline — core, supporting, or broad
+2. The level's base proficiency for that tier sets the starting point (e.g.
+   "foundational" for core skills at J060)
 3. Track modifiers shift proficiency up or down **per capability** — a platform
    track with `scale: +1` raises all skills in the scale capability by one
    level, while `delivery: -1` lowers delivery skills
@@ -64,12 +63,12 @@ base discipline — are added as broad-type "track-added" skills.
 
 Agent profiles reuse job derivation with three additions:
 
-1. **Reference level** is auto-selected — the first level where primary skills
+1. **Reference level** is auto-selected — the first level where core skills
    reach "practitioner", falling back to "working", then the middle level
 2. **Skill filtering** removes `isHumanOnly` skills (physical presence,
    emotional judgment)
 3. **Skill focusing** limits the matrix to the most relevant skills per stage,
-   sorted by type (primary → secondary → broad → track-added)
+   sorted by tier (core → supporting → broad → track-added)
 
 Working styles are derived from the top behaviours by maturity — behaviours with
 positive track modifiers become personality traits that shape the agent's

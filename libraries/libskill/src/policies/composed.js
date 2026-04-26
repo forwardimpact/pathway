@@ -30,7 +30,7 @@ import { LIMIT_AGENT_PROFILE_SKILLS } from "./thresholds.js";
  *
  * This ensures agents focus on their peak competencies and
  * respects track modifiers (a broad skill boosted to the same
- * level as primary skills will be included).
+ * level as core skills will be included).
  */
 export const filterAgentSkills = composeFilters(
   isAgentEligible,

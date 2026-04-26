@@ -34,11 +34,11 @@ export function loadStarterData() {
  * - project `migration-q2` — Bob @ 0.6, External (J060) @ 1.0
  *
  * Proficiency math under the starter framework:
- * - software_engineering has task_completion as its CORE (primary) skill,
- *   planning as SUPPORTING (secondary), incident_response as BROAD.
- * - J060 base proficiencies: primary=working, secondary=foundational,
+ * - software_engineering has task_completion as its CORE skill,
+ *   planning as SUPPORTING, incident_response as BROAD.
+ * - J060 base proficiencies: core=working, supporting=foundational,
  *   broad=awareness.
- * - J040 base proficiencies: primary=foundational, secondary=awareness,
+ * - J040 base proficiencies: core=foundational, supporting=awareness,
  *   broad=awareness.
  * - platform track modifies reliability: +1 and delivery: -1. Because
  *   task_completion/planning live in delivery, a platform member loses one

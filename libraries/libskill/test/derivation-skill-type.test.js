@@ -17,18 +17,18 @@ import {
 } from "./derivation-fixtures.js";
 
 describe("buildSkillTypeMap", () => {
-  test("maps core skills to primary", () => {
+  test("maps core skills to core tier", () => {
     const discipline = makeDiscipline();
     const map = buildSkillTypeMap(discipline);
-    assert.strictEqual(map.get("coding"), "primary");
-    assert.strictEqual(map.get("testing"), "primary");
+    assert.strictEqual(map.get("coding"), "core");
+    assert.strictEqual(map.get("testing"), "core");
   });
 
-  test("maps supporting skills to secondary", () => {
+  test("maps supporting skills to supporting tier", () => {
     const discipline = makeDiscipline();
     const map = buildSkillTypeMap(discipline);
-    assert.strictEqual(map.get("ci_cd"), "secondary");
-    assert.strictEqual(map.get("monitoring"), "secondary");
+    assert.strictEqual(map.get("ci_cd"), "supporting");
+    assert.strictEqual(map.get("monitoring"), "supporting");
   });
 
   test("maps broad skills to broad", () => {
@@ -68,19 +68,19 @@ describe("buildSkillTypeMap", () => {
 // =============================================================================
 
 describe("getSkillTypeForDiscipline", () => {
-  test("returns primary for core skill", () => {
+  test("returns core for core skill", () => {
     const discipline = makeDiscipline();
     assert.strictEqual(
       getSkillTypeForDiscipline({ discipline, skillId: "coding" }),
-      "primary",
+      "core",
     );
   });
 
-  test("returns secondary for supporting skill", () => {
+  test("returns supporting for supporting skill", () => {
     const discipline = makeDiscipline();
     assert.strictEqual(
       getSkillTypeForDiscipline({ discipline, skillId: "ci_cd" }),
-      "secondary",
+      "supporting",
     );
   });
 
@@ -120,21 +120,21 @@ describe("getSkillTypeForDiscipline", () => {
 describe("findMaxBaseSkillProficiency", () => {
   test("returns highest proficiency index from level", () => {
     const level = makeLevel();
-    // primary=working(2), secondary=foundational(1), broad=awareness(0)
+    // core=working(2), supporting=foundational(1), broad=awareness(0)
     const maxIndex = findMaxBaseSkillProficiency(level);
     assert.strictEqual(maxIndex, 2); // working is index 2
   });
 
   test("returns correct max for senior level", () => {
     const level = makeSeniorLevel();
-    // primary=practitioner(3), secondary=working(2), broad=foundational(1)
+    // core=practitioner(3), supporting=working(2), broad=foundational(1)
     const maxIndex = findMaxBaseSkillProficiency(level);
     assert.strictEqual(maxIndex, 3); // practitioner is index 3
   });
 
   test("returns correct max for junior level", () => {
     const level = makeJuniorLevel();
-    // primary=foundational(1), secondary=awareness(0), broad=awareness(0)
+    // core=foundational(1), supporting=awareness(0), broad=awareness(0)
     const maxIndex = findMaxBaseSkillProficiency(level);
     assert.strictEqual(maxIndex, 1); // foundational is index 1
   });
@@ -142,8 +142,8 @@ describe("findMaxBaseSkillProficiency", () => {
   test("handles level where all proficiencies are the same", () => {
     const level = makeLevel({
       baseSkillProficiencies: {
-        primary: "working",
-        secondary: "working",
+        core: "working",
+        supporting: "working",
         broad: "working",
       },
     });
@@ -157,9 +157,9 @@ describe("findMaxBaseSkillProficiency", () => {
 // =============================================================================
 
 describe("deriveSkillProficiency", () => {
-  test("returns base proficiency for primary skill without track", () => {
+  test("returns base proficiency for core skill without track", () => {
     const discipline = makeDiscipline();
-    const level = makeLevel(); // primary=working
+    const level = makeLevel(); // core=working
     const skills = makeSkills();
 
     const result = deriveSkillProficiency({
@@ -171,9 +171,9 @@ describe("deriveSkillProficiency", () => {
     assert.strictEqual(result, "working");
   });
 
-  test("returns base proficiency for secondary skill", () => {
+  test("returns base proficiency for supporting skill", () => {
     const discipline = makeDiscipline();
-    const level = makeLevel(); // secondary=foundational
+    const level = makeLevel(); // supporting=foundational
     const skills = makeSkills();
 
     const result = deriveSkillProficiency({
@@ -201,11 +201,11 @@ describe("deriveSkillProficiency", () => {
 
   test("applies positive track modifier via capability", () => {
     const discipline = makeDiscipline();
-    const level = makeLevel(); // secondary=foundational(1), max=working(2)
+    const level = makeLevel(); // supporting=foundational(1), max=working(2)
     const track = makeTrack({ skillModifiers: { delivery: 1 } });
     const skills = makeSkills();
 
-    // ci_cd is secondary, capability=delivery, base=foundational(1), +1 = working(2)
+    // ci_cd is supporting, capability=delivery, base=foundational(1), +1 = working(2)
     const result = deriveSkillProficiency({
       discipline,
       level,
@@ -218,11 +218,11 @@ describe("deriveSkillProficiency", () => {
 
   test("applies negative track modifier", () => {
     const discipline = makeDiscipline();
-    const level = makeLevel(); // primary=working(2)
+    const level = makeLevel(); // core=working(2)
     const track = makeTrack({ skillModifiers: { delivery: -1 } });
     const skills = makeSkills();
 
-    // coding is primary, capability=delivery, base=working(2), -1 = foundational(1)
+    // coding is core, capability=delivery, base=working(2), -1 = foundational(1)
     const result = deriveSkillProficiency({
       discipline,
       level,
@@ -235,12 +235,12 @@ describe("deriveSkillProficiency", () => {
 
   test("caps positive modifier at max base proficiency", () => {
     const discipline = makeDiscipline();
-    // primary=working(2), secondary=foundational(1), broad=awareness(0), max=2
+    // core=working(2), supporting=foundational(1), broad=awareness(0), max=2
     const level = makeLevel();
     const track = makeTrack({ skillModifiers: { delivery: 2 } });
     const skills = makeSkills();
 
-    // ci_cd is secondary, base=foundational(1), +2=3 but capped at max=2(working)
+    // ci_cd is supporting, base=foundational(1), +2=3 but capped at max=2(working)
     const result = deriveSkillProficiency({
       discipline,
       level,
@@ -253,11 +253,11 @@ describe("deriveSkillProficiency", () => {
 
   test("negative modifier is not capped (can go below base)", () => {
     const discipline = makeDiscipline();
-    const level = makeLevel(); // primary=working(2)
+    const level = makeLevel(); // core=working(2)
     const track = makeTrack({ skillModifiers: { delivery: -2 } });
     const skills = makeSkills();
 
-    // coding is primary, base=working(2), -2=0 = awareness
+    // coding is core, base=working(2), -2=0 = awareness
     const result = deriveSkillProficiency({
       discipline,
       level,
@@ -270,11 +270,11 @@ describe("deriveSkillProficiency", () => {
 
   test("clamps to awareness when modifier goes below zero", () => {
     const discipline = makeDiscipline();
-    const level = makeJuniorLevel(); // primary=foundational(1)
+    const level = makeJuniorLevel(); // core=foundational(1)
     const track = makeTrack({ skillModifiers: { delivery: -5 } });
     const skills = makeSkills();
 
-    // coding is primary, base=foundational(1), -5=-4 clamped to 0=awareness
+    // coding is core, base=foundational(1), -5=-4 clamped to 0=awareness
     const result = deriveSkillProficiency({
       discipline,
       level,
@@ -287,8 +287,8 @@ describe("deriveSkillProficiency", () => {
 
   test("clamps to expert when modifier would exceed range", () => {
     const discipline = makeDiscipline();
-    const level = makeSeniorLevel(); // primary=practitioner(3), max=3
-    // Modifier of +1 with primary base=3 would go to 4 but capped at max=3
+    const level = makeSeniorLevel(); // core=practitioner(3), max=3
+    // Modifier of +1 with core base=3 would go to 4 but capped at max=3
     const track = makeTrack({ skillModifiers: { delivery: 1 } });
     const skills = makeSkills();
 

@@ -166,8 +166,8 @@ export const MAP_DATA = {
       professionalTitle: "Level I",
       ordinalRank: 1,
       baseSkillProficiencies: {
-        primary: "foundational",
-        secondary: "awareness",
+        core: "foundational",
+        supporting: "awareness",
         broad: "awareness",
       },
     },
@@ -176,8 +176,8 @@ export const MAP_DATA = {
       professionalTitle: "Level II",
       ordinalRank: 2,
       baseSkillProficiencies: {
-        primary: "working",
-        secondary: "foundational",
+        core: "working",
+        supporting: "foundational",
         broad: "awareness",
       },
     },

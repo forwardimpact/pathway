@@ -370,10 +370,10 @@ export function estimateBestFitLevel({ selfAssessment, levels }) {
     minDistance = Infinity;
 
   for (const level of sortedLevels) {
-    const primaryLevelIndex = getSkillProficiencyIndex(
-      level.baseSkillProficiencies?.primary || "awareness",
+    const coreLevelIndex = getSkillProficiencyIndex(
+      level.baseSkillProficiencies?.core || "awareness",
     );
-    const distance = Math.abs(averageSkillIndex - primaryLevelIndex);
+    const distance = Math.abs(averageSkillIndex - coreLevelIndex);
     if (distance < minDistance) {
       minDistance = distance;
       bestLevel = level;

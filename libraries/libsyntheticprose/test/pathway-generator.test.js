@@ -25,7 +25,7 @@ function makeMockProseEngine() {
           {
             id: "J040",
             professionalTitle: "Engineer",
-            baseSkillProficiencies: { primary: "awareness" },
+            baseSkillProficiencies: { core: "awareness" },
           },
         ];
       }

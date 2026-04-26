@@ -186,8 +186,7 @@ export function prepareJobSummary({
     trackName: track?.name || null,
     skillCount: job.skillMatrix.length,
     behaviourCount: job.behaviourProfile.length,
-    primarySkillCount: job.skillMatrix.filter((s) => s.type === "primary")
-      .length,
+    coreSkillCount: job.skillMatrix.filter((s) => s.type === "core").length,
   };
 }
 

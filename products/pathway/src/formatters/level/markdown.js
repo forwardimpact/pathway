@@ -21,10 +21,10 @@ export function levelListToMarkdown(levels, framework) {
     g.id,
     g.displayName,
     g.typicalExperienceRange || "-",
-    capitalize(g.baseSkillProficiencies?.primary || "-"),
+    capitalize(g.baseSkillProficiencies?.core || "-"),
   ]);
 
-  lines.push(tableToMarkdown(["ID", "Name", "Years", "Primary Level"], rows));
+  lines.push(tableToMarkdown(["ID", "Name", "Years", "Core Level"], rows));
   lines.push("");
 
   return lines.join("\n");

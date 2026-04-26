@@ -72,16 +72,15 @@ be identical — inconsistency erodes trust.
 in multiple guides. The canonical tables live in the Authoring Frameworks guide;
 all other copies must match column values exactly.
 
-**Field names vs concept names** — Two naming layers that must not be conflated:
+**Field names** — Use the same tier vocabulary across disciplines and levels:
 
 | Layer               | Names                                           | Used in                                 |
 | ------------------- | ----------------------------------------------- | --------------------------------------- |
 | Discipline tiers    | `coreSkills`, `supportingSkills`, `broadSkills` | Discipline YAML                         |
-| Level proficiencies | `primary`, `secondary`, `broad`                 | `baseSkillProficiencies` in levels.yaml |
+| Level proficiencies | `core`, `supporting`, `broad`                   | `baseSkillProficiencies` in levels.yaml |
 
-`primary` ↔ `coreSkills`, `secondary` ↔ `supportingSkills`, `broad` ↔
-`broadSkills`. Use field names when documenting levels; tier names when
-documenting disciplines; state the mapping when explaining the relationship.
+The tier name in `baseSkillProficiencies.<tier>` matches the tier of the
+discipline's `<tier>Skills` array. Use the same tier vocabulary everywhere.
 
 **Required/optional fields** — Verify against the JSON schema in
 `products/map/schema/json/`. The schema's `required` array is the single source

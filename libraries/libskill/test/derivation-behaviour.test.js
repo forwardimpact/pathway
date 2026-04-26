@@ -195,17 +195,17 @@ describe("deriveSkillMatrix", () => {
 
     const matrix = deriveSkillMatrix({ discipline, level, skills });
 
-    // Primary skills should come first
+    // Core skills should come first
     const types = matrix.map((e) => e.type);
-    const primaryLastIndex = types.lastIndexOf("primary");
-    const secondaryFirstIndex = types.indexOf("secondary");
+    const coreLastIndex = types.lastIndexOf("core");
+    const supportingFirstIndex = types.indexOf("supporting");
     const broadFirstIndex = types.indexOf("broad");
 
-    if (secondaryFirstIndex !== -1) {
-      assert.ok(primaryLastIndex < secondaryFirstIndex);
+    if (supportingFirstIndex !== -1) {
+      assert.ok(coreLastIndex < supportingFirstIndex);
     }
-    if (broadFirstIndex !== -1 && secondaryFirstIndex !== -1) {
-      assert.ok(types.lastIndexOf("secondary") < broadFirstIndex);
+    if (broadFirstIndex !== -1 && supportingFirstIndex !== -1) {
+      assert.ok(types.lastIndexOf("supporting") < broadFirstIndex);
     }
   });
 

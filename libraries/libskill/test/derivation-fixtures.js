@@ -64,8 +64,8 @@ export function makeSeniorLevel(overrides = {}) {
     managementTitle: "Director",
     ordinalRank: 5,
     baseSkillProficiencies: {
-      primary: "practitioner",
-      secondary: "working",
+      core: "practitioner",
+      supporting: "working",
       broad: "foundational",
     },
     baseBehaviourMaturity: "practicing",
@@ -80,8 +80,8 @@ export function makeJuniorLevel(overrides = {}) {
     managementTitle: "Associate",
     ordinalRank: 1,
     baseSkillProficiencies: {
-      primary: "foundational",
-      secondary: "awareness",
+      core: "foundational",
+      supporting: "awareness",
       broad: "awareness",
     },
     baseBehaviourMaturity: "emerging",

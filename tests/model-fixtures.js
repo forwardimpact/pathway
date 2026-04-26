@@ -62,8 +62,8 @@ export const testLevel = createTestLevel({
   id: "test_level",
   ordinalRank: 3,
   baseSkillProficiencies: {
-    primary: "practitioner",
-    secondary: "working",
+    core: "practitioner",
+    supporting: "working",
     broad: "foundational",
   },
   baseBehaviourMaturity: "practicing",

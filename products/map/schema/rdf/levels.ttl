@@ -90,21 +90,21 @@ fit:expectations a rdf:Property ;
     rdfs:range fit:LevelExpectations .
 
 # Base Skill Proficiency Properties
-fit:primary a rdf:Property ;
-    rdfs:label "primary"@en ;
-    rdfs:comment "Level for core/primary skills"@en ;
+fit:core a rdf:Property ;
+    rdfs:label "core"@en ;
+    rdfs:comment "Proficiency expected for core skills"@en ;
     rdfs:domain fit:BaseSkillProficiencies ;
     rdfs:range fit:SkillProficiency .
 
-fit:secondary a rdf:Property ;
-    rdfs:label "secondary"@en ;
-    rdfs:comment "Level for supporting/secondary skills"@en ;
+fit:supporting a rdf:Property ;
+    rdfs:label "supporting"@en ;
+    rdfs:comment "Proficiency expected for supporting skills"@en ;
     rdfs:domain fit:BaseSkillProficiencies ;
     rdfs:range fit:SkillProficiency .
 
 fit:broad a rdf:Property ;
     rdfs:label "broad"@en ;
-    rdfs:comment "Level for broad skills"@en ;
+    rdfs:comment "Proficiency expected for broad skills"@en ;
     rdfs:domain fit:BaseSkillProficiencies ;
     rdfs:range fit:SkillProficiency .
 
@@ -255,20 +255,20 @@ fit:LevelShape a sh:NodeShape ;
 fit:BaseSkillProficienciesShape a sh:NodeShape ;
     sh:targetClass fit:BaseSkillProficiencies ;
     sh:property [
-        sh:path fit:primary ;
+        sh:path fit:core ;
         sh:in ( fit:awareness fit:foundational fit:working fit:practitioner fit:expert ) ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:name "primary" ;
-        sh:description "Level for core/primary skills" ;
+        sh:name "core" ;
+        sh:description "Proficiency expected for core skills" ;
     ] ;
     sh:property [
-        sh:path fit:secondary ;
+        sh:path fit:supporting ;
         sh:in ( fit:awareness fit:foundational fit:working fit:practitioner fit:expert ) ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
-        sh:name "secondary" ;
-        sh:description "Level for supporting/secondary skills" ;
+        sh:name "supporting" ;
+        sh:description "Proficiency expected for supporting skills" ;
     ] ;
     sh:property [
         sh:path fit:broad ;
@@ -276,7 +276,7 @@ fit:BaseSkillProficienciesShape a sh:NodeShape ;
         sh:minCount 1 ;
         sh:maxCount 1 ;
         sh:name "broad" ;
-        sh:description "Level for broad skills" ;
+        sh:description "Proficiency expected for broad skills" ;
     ] .
 
 # -----------------------------------------------------------------------------

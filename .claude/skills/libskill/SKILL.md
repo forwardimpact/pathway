@@ -108,7 +108,7 @@ Career progression analysis between levels.
 
 Jobs are derived from `Discipline × Level × Track?`:
 
-1. Base skill proficiencies from level (by skill type: primary/secondary/broad)
+1. Base skill proficiencies from level (by skill tier: core/supporting/broad)
 2. Track modifiers applied to capabilities (+1, 0, -1)
 3. Behaviour modifiers combined from discipline and track
 4. Responsibilities by discipline type (professional/management)

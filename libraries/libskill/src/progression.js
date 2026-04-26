@@ -22,7 +22,7 @@ import {
  * @property {string} id - Skill ID
  * @property {string} name - Skill name
  * @property {string} capability - Skill capability
- * @property {string} type - Skill type (primary/secondary/broad)
+ * @property {string} type - Skill tier (core/supporting/broad)
  * @property {string|null} currentLevel - Current skill proficiency (null if skill is gained)
  * @property {string|null} targetLevel - Target skill proficiency (null if skill is lost)
  * @property {number} currentIndex - Current level index (0-4, or -1 if not present)

@@ -85,7 +85,7 @@ describe("prompt builders", () => {
           {
             id: "L1",
             professionalTitle: "Engineer",
-            baseSkillProficiencies: { primary: "awareness" },
+            baseSkillProficiencies: { core: "awareness" },
           },
         ],
       };

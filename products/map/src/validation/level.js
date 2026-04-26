@@ -57,7 +57,7 @@ export function validateLevel(level, index) {
       ),
     );
   } else {
-    ["primary", "secondary", "broad"].forEach((type) => {
+    ["core", "supporting", "broad"].forEach((type) => {
       const proficiency = level.baseSkillProficiencies[type];
       if (!proficiency) {
         errors.push(

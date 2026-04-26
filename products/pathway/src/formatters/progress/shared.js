@@ -32,7 +32,7 @@ export function getDefaultTargetLevel(currentLevel, levels) {
  * @property {string} title
  * @property {number} skillCount
  * @property {number} behaviourCount
- * @property {number} primarySkillCount
+ * @property {number} coreSkillCount
  * @property {Array} skillMatrix - Raw skill matrix for components
  * @property {Array} behaviourProfile - Raw behaviour profile for components
  */
@@ -73,8 +73,7 @@ export function prepareCurrentJob({
     title: job.title,
     skillCount: job.skillMatrix.length,
     behaviourCount: job.behaviourProfile.length,
-    primarySkillCount: job.skillMatrix.filter((s) => s.type === "primary")
-      .length,
+    coreSkillCount: job.skillMatrix.filter((s) => s.type === "core").length,
     skillMatrix: job.skillMatrix,
     behaviourProfile: job.behaviourProfile,
   };

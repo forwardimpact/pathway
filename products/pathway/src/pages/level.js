@@ -71,11 +71,11 @@ function createLevelTimelineItem(level) {
       div(
         { className: "card-meta", style: "margin-top: 0.5rem" },
         createBadge(
-          `Primary: ${formatLevel(level.baseSkillProficiencies?.primary)}`,
+          `Core: ${formatLevel(level.baseSkillProficiencies?.core)}`,
           "primary",
         ),
         createBadge(
-          `Secondary: ${formatLevel(level.baseSkillProficiencies?.secondary)}`,
+          `Supporting: ${formatLevel(level.baseSkillProficiencies?.supporting)}`,
           "secondary",
         ),
         createBadge(

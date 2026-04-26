@@ -41,51 +41,51 @@ export const isHumanOnly = (entry) => entry.isHumanOnly === true;
 export const isAgentEligible = (entry) => !entry.isHumanOnly;
 
 // =============================================================================
-// Skill Type Predicates
+// Skill Tier Predicates
 // =============================================================================
 
 /**
- * Returns true if skill type is primary
+ * Returns true if skill tier is core
  * @param {Object} entry - Skill matrix entry
  * @returns {boolean}
  */
-export const isPrimary = (entry) => entry.type === "primary";
+export const isCore = (entry) => entry.type === "core";
 
 /**
- * Returns true if skill type is secondary
+ * Returns true if skill tier is supporting
  * @param {Object} entry - Skill matrix entry
  * @returns {boolean}
  */
-export const isSecondary = (entry) => entry.type === "secondary";
+export const isSupporting = (entry) => entry.type === "supporting";
 
 /**
- * Returns true if skill type is broad
+ * Returns true if skill tier is broad
  * @param {Object} entry - Skill matrix entry
  * @returns {boolean}
  */
 export const isBroad = (entry) => entry.type === "broad";
 
 /**
- * Returns true if skill type is track
+ * Returns true if skill tier is track
  * @param {Object} entry - Skill matrix entry
  * @returns {boolean}
  */
 export const isTrack = (entry) => entry.type === "track";
 
 /**
- * Returns true if skill is primary or secondary (core skills)
+ * Returns true if skill is in the deep tier (core or supporting)
  * @param {Object} entry - Skill matrix entry
  * @returns {boolean}
  */
-export const isCore = (entry) =>
-  entry.type === "primary" || entry.type === "secondary";
+export const isDeep = (entry) =>
+  entry.type === "core" || entry.type === "supporting";
 
 /**
- * Returns true if skill is broad or track (supporting skills)
+ * Returns true if skill is in the breadth tier (broad or track)
  * @param {Object} entry - Skill matrix entry
  * @returns {boolean}
  */
-export const isSupporting = (entry) =>
+export const isBreadth = (entry) =>
   entry.type === "broad" || entry.type === "track";
 
 // =============================================================================

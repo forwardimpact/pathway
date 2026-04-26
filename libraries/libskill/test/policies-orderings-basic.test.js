@@ -20,7 +20,7 @@ function skill(overrides = {}) {
     skillId: "testing",
     skillName: "Testing",
     capability: "delivery",
-    type: "primary",
+    type: "core",
     proficiency: "working",
     isHumanOnly: false,
     ...overrides,
@@ -40,8 +40,8 @@ describe("orderings", () => {
   describe("ORDER_SKILL_TYPE", () => {
     test("has correct order", () => {
       assert.deepStrictEqual(ORDER_SKILL_TYPE, [
-        "primary",
-        "secondary",
+        "core",
+        "supporting",
         "broad",
         "track",
       ]);
@@ -92,14 +92,14 @@ describe("orderings", () => {
     test("sorts by canonical type order", () => {
       const items = [
         skill({ type: "track" }),
-        skill({ type: "primary" }),
+        skill({ type: "core" }),
         skill({ type: "broad" }),
-        skill({ type: "secondary" }),
+        skill({ type: "supporting" }),
       ];
       items.sort(compareByType);
       assert.deepStrictEqual(
         items.map((e) => e.type),
-        ["primary", "secondary", "broad", "track"],
+        ["core", "supporting", "broad", "track"],
       );
     });
   });
@@ -133,27 +133,27 @@ describe("orderings", () => {
       const items = [
         skill({
           skillName: "B",
-          type: "primary",
+          type: "core",
           proficiency: "working",
         }),
         skill({
           skillName: "A",
-          type: "secondary",
+          type: "supporting",
           proficiency: "expert",
         }),
         skill({
           skillName: "C",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
         }),
         skill({
           skillName: "D",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
         }),
       ];
       items.sort(compareBySkillPriority);
-      // Expert primary first (alphabetical: C then D), then expert secondary (A), then working primary (B)
+      // Expert core first (alphabetical: C then D), then expert supporting (A), then working core (B)
       assert.deepStrictEqual(
         items.map((e) => e.skillName),
         ["C", "D", "A", "B"],
@@ -163,12 +163,12 @@ describe("orderings", () => {
     test("equal entries return 0", () => {
       const a = skill({
         skillName: "Same",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       });
       const b = skill({
         skillName: "Same",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       });
       assert.strictEqual(compareBySkillPriority(a, b), 0);
@@ -179,9 +179,9 @@ describe("orderings", () => {
     test("sorts by type first, then name", () => {
       const items = [
         skill({ skillName: "Z", type: "broad" }),
-        skill({ skillName: "A", type: "primary" }),
-        skill({ skillName: "B", type: "primary" }),
-        skill({ skillName: "M", type: "secondary" }),
+        skill({ skillName: "A", type: "core" }),
+        skill({ skillName: "B", type: "core" }),
+        skill({ skillName: "M", type: "supporting" }),
       ];
       items.sort(compareByTypeAndName);
       assert.deepStrictEqual(
@@ -190,7 +190,7 @@ describe("orderings", () => {
       );
       assert.deepStrictEqual(
         items.map((e) => e.type),
-        ["primary", "primary", "secondary", "broad"],
+        ["core", "core", "supporting", "broad"],
       );
     });
   });

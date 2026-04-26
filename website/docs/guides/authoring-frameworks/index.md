@@ -121,10 +121,10 @@ site, used by `npx fit-pathway update` to download framework bundles.
 ## Levels
 
 Levels define career progression with base expectations for skill proficiency
-and behaviour maturity. Every level sets three baseline proficiencies
-(`primary`, `secondary`, `broad`) that map to how a discipline classifies its
-skills (`coreSkills`, `supportingSkills`, `broadSkills`). Disciplines and tracks
-then modify these baselines.
+and behaviour maturity. Every level sets three baseline proficiencies (`core`,
+`supporting`, `broad`) that map to how a discipline classifies its skills
+(`coreSkills`, `supportingSkills`, `broadSkills`). Disciplines and tracks then
+modify these baselines.
 
 ### Proficiency Scale
 
@@ -155,8 +155,8 @@ incident response strategy" belongs at `expert`.
     Bachelor's degree in Computer Science, Engineering, or related
     field, or equivalent practical experience.
   baseSkillProficiencies:
-    primary: foundational
-    secondary: awareness
+    core: foundational
+    supporting: awareness
     broad: awareness
   baseBehaviourMaturity: emerging
   expectations:
@@ -175,8 +175,8 @@ incident response strategy" belongs at `expert`.
   typicalExperienceRange: "5+ years"
   ordinalRank: 3
   baseSkillProficiencies:
-    primary: working
-    secondary: working
+    core: working
+    supporting: working
     broad: foundational
   baseBehaviourMaturity: emerging
   expectations:
@@ -195,8 +195,8 @@ incident response strategy" belongs at `expert`.
   typicalExperienceRange: "9+ years"
   ordinalRank: 4
   baseSkillProficiencies:
-    primary: practitioner
-    secondary: practitioner
+    core: practitioner
+    supporting: practitioner
     broad: working
   baseBehaviourMaturity: developing
   breadthCriteria:
@@ -207,7 +207,7 @@ incident response strategy" belongs at `expert`.
 ```
 
 **Required:** `id`, `professionalTitle`, `managementTitle`, `ordinalRank`,
-`baseSkillProficiencies` (with `primary`, `secondary`, `broad`),
+`baseSkillProficiencies` (with `core`, `supporting`, `broad`),
 `baseBehaviourMaturity`
 
 **Optional:** `typicalExperienceRange`, `qualificationSummary`,
@@ -317,8 +317,8 @@ agent:
 When generating a job, the discipline's skill tiers map to the level's base
 proficiencies:
 
-- `coreSkills` → level's `primary` proficiency
-- `supportingSkills` → level's `secondary` proficiency
+- `coreSkills` → level's `core` proficiency
+- `supportingSkills` → level's `supporting` proficiency
 - `broadSkills` → level's `broad` proficiency
 
 Track modifiers then shift these proficiencies up or down per capability.

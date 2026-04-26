@@ -19,10 +19,10 @@ import {
 // =============================================================================
 
 /**
- * Skill type ordering (T-shaped profile: core → broad)
- * Primary skills first, then secondary, broad, and track-added skills.
+ * Skill tier ordering (T-shaped profile: core → broad)
+ * Core skills first, then supporting, broad, and track-added skills.
  */
-export const ORDER_SKILL_TYPE = ["primary", "secondary", "broad", "track"];
+export const ORDER_SKILL_TYPE = ["core", "supporting", "broad", "track"];
 
 // =============================================================================
 // Skill Comparators
@@ -55,7 +55,7 @@ export function compareByLevelAsc(a, b) {
 }
 
 /**
- * Compare skills by type (primary first)
+ * Compare skills by tier (core first)
  * @param {Object} a - First skill entry
  * @param {Object} b - Second skill entry
  * @returns {number} Comparison result
@@ -81,8 +81,8 @@ export function compareByName(a, b) {
  *
  * Standard priority ordering for skill display:
  * - Higher levels first
- * - Within same level, primary before secondary before broad
- * - Within same type, alphabetical by name
+ * - Within same level, core before supporting before broad
+ * - Within same tier, alphabetical by name
  *
  * @param {Object} a - First skill entry
  * @param {Object} b - Second skill entry
@@ -95,7 +95,7 @@ export function compareBySkillPriority(a, b) {
     getSkillProficiencyIndex(a.proficiency);
   if (levelDiff !== 0) return levelDiff;
 
-  // Type ascending (primary first)
+  // Tier ascending (core first)
   const typeA = ORDER_SKILL_TYPE.indexOf(a.type);
   const typeB = ORDER_SKILL_TYPE.indexOf(b.type);
   if (typeA !== typeB) return typeA - typeB;
@@ -124,7 +124,7 @@ export function compareBySkillFocusPriority(a, b) {
     getSkillProficiencyIndex(a.proficiency);
   if (levelDiff !== 0) return levelDiff;
 
-  // Type ascending (primary first)
+  // Tier ascending (core first)
   const typeA = ORDER_SKILL_TYPE.indexOf(a.type);
   const typeB = ORDER_SKILL_TYPE.indexOf(b.type);
   if (typeA !== typeB) return typeA - typeB;
@@ -137,8 +137,8 @@ export function compareBySkillFocusPriority(a, b) {
  * Compare skills by type (asc), then name (asc)
  *
  * Standard ordering for job skill matrix display:
- * - Primary skills first, then secondary, then broad, then track
- * - Within same type, alphabetical by name
+ * - Core skills first, then supporting, then broad, then track
+ * - Within same tier, alphabetical by name
  *
  * @param {Object} a - First skill entry
  * @param {Object} b - Second skill entry
@@ -301,7 +301,7 @@ export function compareBySkillChange(a, b) {
   // Change descending (largest improvement first)
   if (b.change !== a.change) return b.change - a.change;
 
-  // Type ascending (primary first)
+  // Tier ascending (core first)
   const typeA = ORDER_SKILL_TYPE.indexOf(a.type);
   const typeB = ORDER_SKILL_TYPE.indexOf(b.type);
   if (typeA !== typeB) return typeA - typeB;

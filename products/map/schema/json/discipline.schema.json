@@ -46,7 +46,7 @@
     },
     "coreSkills": {
       "type": "array",
-      "description": "Primary skills for deep expertise (references skill IDs)",
+      "description": "Core skills requiring deep expertise (references skill IDs)",
       "minItems": 1,
       "items": {
         "type": "string",
@@ -55,7 +55,7 @@
     },
     "supportingSkills": {
       "type": "array",
-      "description": "Secondary skills for supporting capabilities (references skill IDs)",
+      "description": "Supporting skills for solid competence in related capabilities (references skill IDs)",
       "items": {
         "type": "string",
         "pattern": "^[a-z][a-z0-9_]*$"

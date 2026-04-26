@@ -163,8 +163,8 @@ export function levelToJsonLd(level) {
     ...(level.baseSkillProficiencies && {
       baseSkillProficiencies: {
         "@type": "BaseSkillProficiencies",
-        primary: `${VOCAB_BASE}${level.baseSkillProficiencies.primary}`,
-        secondary: `${VOCAB_BASE}${level.baseSkillProficiencies.secondary}`,
+        core: `${VOCAB_BASE}${level.baseSkillProficiencies.core}`,
+        supporting: `${VOCAB_BASE}${level.baseSkillProficiencies.supporting}`,
         broad: `${VOCAB_BASE}${level.baseSkillProficiencies.broad}`,
       },
     }),

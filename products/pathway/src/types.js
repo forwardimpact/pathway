@@ -17,7 +17,7 @@
  * @property {string} skillName - Display name
  * @property {string} capability - Skill capability (e.g., "broad", "technical")
  * @property {boolean} [humanOnly] - Whether this skill requires human presence
- * @property {'primary'|'secondary'|'tertiary'} type - Skill type in this role
+ * @property {'core'|'supporting'|'broad'|'track'} type - Skill tier in this role
  * @property {string} level - Level ID (e.g., "advanced", "expert")
  * @property {string} proficiencyDescription - Human-readable level description
  */
@@ -46,7 +46,7 @@
  * @property {string} id - Skill ID for linking
  * @property {string} name - Display name
  * @property {string} capability - Skill capability
- * @property {'primary'|'secondary'|'tertiary'} type - Skill type
+ * @property {'core'|'supporting'|'broad'|'track'} type - Skill tier
  * @property {string} currentLevel - Current level ID (or null if new)
  * @property {string} targetLevel - Target level ID (or null if removed)
  * @property {number} currentIndex - Current level as 0-5 index
