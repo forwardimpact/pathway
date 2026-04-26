@@ -188,13 +188,13 @@ skills:
       name: ci-cd
       description: CI/CD pipeline configuration and maintenance
       useWhen: Creating or modifying CI/CD pipelines
-      stages:
-        code:
-          focus: Implement pipeline changes
-          readChecklist:
-            - Read existing pipeline configuration
-          confirmChecklist:
-            - Pipeline runs successfully
+      focus: Implement pipeline changes safely with rollback awareness
+      readChecklist:
+        - Read existing pipeline configuration
+        - Identify deployment targets and protected branches
+      confirmChecklist:
+        - Pipeline runs successfully on the feature branch
+        - Rollback path is documented
     toolReferences:
       - name: GitHub Actions
         description: CI/CD workflow automation

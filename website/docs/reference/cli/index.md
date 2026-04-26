@@ -150,7 +150,9 @@ npx fit-pathway questions
 npx fit-pathway questions --skill=<id>
 npx fit-pathway questions --behaviour=<id>
 npx fit-pathway questions --capability=<id>
-npx fit-pathway questions --role=<role>
+npx fit-pathway questions --level=<id>
+npx fit-pathway questions --maturity=<maturity>
+npx fit-pathway questions --stats
 ```
 
 **Interview options:**
@@ -164,16 +166,19 @@ npx fit-pathway questions --role=<role>
 
 | Option              | Description                 |
 | ------------------- | --------------------------- |
+| `--track=<id>`      | Track ID                    |
 | `--compare=<level>` | Compare with a target level |
 
 **Questions options:**
 
-| Option              | Description            |
-| ------------------- | ---------------------- |
-| `--skill=<id>`      | Filter by skill ID     |
-| `--behaviour=<id>`  | Filter by behaviour ID |
-| `--capability=<id>` | Filter by capability   |
-| `--role=<role>`     | Filter by role         |
+| Option              | Description                  |
+| ------------------- | ---------------------------- |
+| `--skill=<id>`      | Filter by skill ID           |
+| `--behaviour=<id>`  | Filter by behaviour ID       |
+| `--capability=<id>` | Filter by capability ID      |
+| `--level=<id>`      | Filter by level ID           |
+| `--maturity=<id>`   | Filter by behaviour maturity |
+| `--stats`           | Show question statistics     |
 
 ### Build and Development
 
@@ -181,14 +186,16 @@ npx fit-pathway questions --role=<role>
 npx fit-pathway dev                           # Run live development server
 npx fit-pathway dev --port=8080               # Dev server on custom port
 npx fit-pathway build --output=./public --url=https://example.com  # Static site
+npx fit-pathway build --no-clean              # Skip cleaning output directory
 npx fit-pathway update                        # Update local installation
 ```
 
-| Option           | Description                     |
-| ---------------- | ------------------------------- |
-| `--port=<port>`  | Dev server port (default: 3000) |
-| `--output=<dir>` | Static site output directory    |
-| `--url=<url>`    | Base URL for the built site     |
+| Option           | Description                                       |
+| ---------------- | ------------------------------------------------- |
+| `--port=<port>`  | Dev server port (default: 3000)                   |
+| `--output=<dir>` | Static site output directory                      |
+| `--url=<url>`    | Base URL for the built site                       |
+| `--clean`        | Clean output directory before build (default: on) |
 
 ---
 
@@ -222,27 +229,31 @@ fit-basecamp update [path]           # Update KB with latest templates
 
 ## fit-guide
 
-Conversational AI agent for engineering frameworks.
+Conversational AI agent for engineering frameworks. Runs as a REPL; subcommands
+are typed at the prompt with a leading `/` (e.g. `/status`).
 
 ```sh
 npx fit-guide                            # Start interactive REPL session
-npx fit-guide status                     # Check system readiness
-npx fit-guide init                       # Generate secrets, .env, and config
 echo "question" | npx fit-guide          # Pipe mode (single question, exit)
-npx fit-guide --streaming                # Use streaming agent endpoint
 ```
 
-| Command  | Description                        |
-| -------- | ---------------------------------- |
-| _(none)_ | Interactive REPL session           |
-| `status` | Check system readiness             |
-| `init`   | Generate secrets, .env, and config |
+Inside the REPL:
 
-| Option        | Description                      |
-| ------------- | -------------------------------- |
-| `--data`      | Path to framework data directory |
-| `--streaming` | Use streaming agent endpoint     |
-| `--json`      | Output as JSON                   |
+```
+❯ /init       # Initialize Guide configuration
+❯ /login      # Authenticate with Anthropic
+❯ /logout     # Clear stored credentials
+❯ /status     # Check system readiness
+❯ /version    # Show version
+```
+
+| Command    | Description                    |
+| ---------- | ------------------------------ |
+| `/init`    | Initialize Guide configuration |
+| `/login`   | Authenticate with Anthropic    |
+| `/logout`  | Clear stored credentials       |
+| `/status`  | Check system readiness         |
+| `/version` | Show version                   |
 
 ---
 
@@ -251,38 +262,63 @@ npx fit-guide --streaming                # Use streaming agent endpoint
 Engineering signal analysis layer. Combines GitHub artifact evidence with GetDX
 snapshots. No LLM calls.
 
+Most filters are passed as options (`--manager`, `--email`, `--skill`,
+`--target`), not positional arguments. Only `marker` takes a positional skill
+ID.
+
 ```sh
-npx fit-landmark org show                         # Show organization directory
-npx fit-landmark org team <email>                  # Show hierarchy under a manager
-npx fit-landmark snapshot list                     # List available snapshots
-npx fit-landmark snapshot show                     # Show snapshot factor/driver scores
-npx fit-landmark snapshot trend                    # Show snapshot trends over time
-npx fit-landmark marker <skill>                    # Show evidence markers for a skill
-npx fit-landmark evidence <email>                  # Show evidence for a person
-npx fit-landmark readiness <email>                 # Show promotion readiness
-npx fit-landmark timeline <email>                  # Show activity timeline
-npx fit-landmark coverage <team>                   # Show team coverage
-npx fit-landmark practice <email>                  # Show practice patterns
-npx fit-landmark practiced <email>                 # Show practiced capabilities
-npx fit-landmark health <team>                     # Show team health metrics
-npx fit-landmark voice <team>                      # Show team voice (comments)
-npx fit-landmark initiative <team>                 # Show team initiative patterns
+npx fit-landmark org show                                  # Full organization directory
+npx fit-landmark org team --manager=alice@example.com      # Hierarchy under a manager
+npx fit-landmark snapshot list                             # Available snapshots
+npx fit-landmark snapshot show --snapshot=<id>             # Factor/driver scores
+npx fit-landmark snapshot trend --item=<driver-id>         # Trend across snapshots
+npx fit-landmark snapshot compare --snapshot=<id>          # Compare against benchmarks
+npx fit-landmark marker task_completion                    # Marker definitions for a skill
+npx fit-landmark evidence --email=alice@example.com        # Marker-linked evidence
+npx fit-landmark readiness --email=alice@example.com --target=J060
+npx fit-landmark timeline --email=alice@example.com        # Individual growth timeline
+npx fit-landmark coverage --email=alice@example.com        # Evidence coverage metrics
+npx fit-landmark practice --skill=task_completion          # Practice-pattern aggregates
+npx fit-landmark practiced --manager=alice@example.com     # Evidenced vs derived capability
+npx fit-landmark health --manager=alice@example.com        # Driver scores and evidence
+npx fit-landmark voice --manager=alice@example.com         # Engineer voice from comments
+npx fit-landmark initiative list                           # Active initiatives
+npx fit-landmark initiative show --id=<initiative-id>      # Initiative detail
+npx fit-landmark initiative impact                         # Impact on driver scores
 ```
 
-| Command      | Description                            |
-| ------------ | -------------------------------------- |
-| `org`        | Organization directory and hierarchy   |
-| `snapshot`   | GetDX snapshot listing, scores, trends |
-| `marker`     | Evidence markers for skills            |
-| `evidence`   | Evidence portfolio for a person        |
-| `readiness`  | Promotion readiness assessment         |
-| `timeline`   | Activity timeline for a person         |
-| `coverage`   | Team capability coverage               |
-| `practice`   | Practice patterns for a person         |
-| `practiced`  | Practiced capabilities for a person    |
-| `health`     | Team health metrics                    |
-| `voice`      | Team voice from comments               |
-| `initiative` | Team initiative patterns               |
+| Command             | Description                         |
+| ------------------- | ----------------------------------- |
+| `org show`          | Full organization directory         |
+| `org team`          | Hierarchy under a manager           |
+| `snapshot list`     | List available snapshots            |
+| `snapshot show`     | Factor/driver scores for a snapshot |
+| `snapshot trend`    | Track item trend across snapshots   |
+| `snapshot compare`  | Compare snapshot against benchmarks |
+| `marker <skill>`    | Marker definitions for a skill      |
+| `evidence`          | Marker-linked evidence              |
+| `readiness`         | Promotion readiness checklist       |
+| `timeline`          | Individual growth timeline          |
+| `coverage`          | Evidence coverage metrics           |
+| `practice`          | Practice-pattern aggregates         |
+| `practiced`         | Evidenced vs derived capability     |
+| `health`            | Driver scores and evidence          |
+| `voice`             | Engineer voice from GetDX comments  |
+| `initiative list`   | List active initiatives             |
+| `initiative show`   | Initiative detail                   |
+| `initiative impact` | Initiative impact on scores         |
+
+**Common filters:**
+
+| Option              | Description                         |
+| ------------------- | ----------------------------------- |
+| `--manager=<email>` | Filter by manager email             |
+| `--email=<email>`   | Filter by person email              |
+| `--skill=<id>`      | Filter by skill ID                  |
+| `--target=<level>`  | Readiness target level              |
+| `--snapshot=<id>`   | Snapshot ID for `snapshot show`     |
+| `--item=<id>`       | Driver/item ID for `snapshot trend` |
+| `--id=<id>`         | Entity ID for `initiative show`     |
 
 ---
 
@@ -321,16 +357,18 @@ npx fit-summit trajectory <team>                             # Capability over t
 
 **what-if options:**
 
-| Option               | Description                        |
-| -------------------- | ---------------------------------- |
-| `--add=<person>`     | Add a hypothetical person          |
-| `--remove=<person>`  | Remove a team member               |
-| `--move=<person>`    | Move a member between teams        |
-| `--to=<team>`        | Destination team for `--move`      |
-| `--promote=<person>` | Promote a member to the next level |
-| `--focus=<cap>`      | Filter the diff to one capability  |
+| Option                | Description                                    |
+| --------------------- | ---------------------------------------------- |
+| `--add=<person>`      | Add a hypothetical person                      |
+| `--remove=<person>`   | Remove a team member                           |
+| `--move=<person>`     | Move a member between teams                    |
+| `--to=<team>`         | Destination team for `--move`                  |
+| `--promote=<person>`  | Promote a member to the next level             |
+| `--focus=<cap>`       | Filter the diff to one capability              |
+| `--allocation=<frac>` | Allocation fraction for `--add` on a project   |
+| `--project=<id>`      | Use a project team instead of a reporting team |
 
-**Shared options** (apply to coverage, risks, growth, what-if):
+**Shared options** (apply to coverage, risks, growth):
 
 | Option                  | Description                                         |
 | ----------------------- | --------------------------------------------------- |
@@ -338,6 +376,27 @@ npx fit-summit trajectory <team>                             # Capability over t
 | `--lookback-months=<n>` | Lookback window for practice patterns (default: 12) |
 | `--project=<id>`        | Use a project team instead of a reporting team      |
 | `--audience=<level>`    | Privacy audience: engineer, manager, director       |
+
+**growth-only options:**
+
+| Option       | Description                                   |
+| ------------ | --------------------------------------------- |
+| `--outcomes` | Weight recommendations by GetDX driver scores |
+
+**compare options:**
+
+| Option               | Description                                   |
+| -------------------- | --------------------------------------------- |
+| `--left-project`     | Treat the first team as a project             |
+| `--right-project`    | Treat the second team as a project            |
+| `--audience=<level>` | Privacy audience: engineer, manager, director |
+
+**trajectory options:**
+
+| Option           | Description                                    |
+| ---------------- | ---------------------------------------------- |
+| `--quarters=<n>` | Number of quarters to show (default: 4)        |
+| `--evidenced`    | Include practiced capability from Map evidence |
 
 **Global options:**
 
@@ -351,30 +410,31 @@ npx fit-summit trajectory <team>                             # Capability over t
 
 ## fit-terrain
 
-Synthetic data generation from a terrain DSL file.
+Synthetic data generation from a terrain DSL file. Monorepo-only — invoke with
+`bunx`.
 
 ```sh
-npx fit-terrain                      # Use cached prose (default)
-npx fit-terrain --generate           # Generate prose via LLM
-npx fit-terrain --no-prose           # Structural scaffolding only
-npx fit-terrain --strict             # Fail on cache miss
-npx fit-terrain --load               # Load raw docs to storage
-npx fit-terrain --only=pathway       # Render only one content type
-npx fit-terrain --dry-run            # Show what would be written
-npx fit-terrain --story=path         # Custom story DSL file
-npx fit-terrain --cache=path         # Custom prose cache file
+bunx fit-terrain                      # Use cached prose (default)
+bunx fit-terrain --generate           # Generate prose via LLM
+bunx fit-terrain --no-prose           # Structural scaffolding only
+bunx fit-terrain --strict             # Fail on cache miss
+bunx fit-terrain --load               # Load raw docs to storage
+bunx fit-terrain --only=pathway       # Render only one content type
+bunx fit-terrain --dry-run            # Show what would be written
+bunx fit-terrain --story=path         # Custom story DSL file
+bunx fit-terrain --cache=path         # Custom prose cache file
 ```
 
-| Option           | Description                         |
-| ---------------- | ----------------------------------- |
-| `--generate`     | Call LLM to produce new prose       |
-| `--no-prose`     | Skip prose, structural output only  |
-| `--strict`       | Fail if prose cache is missing keys |
-| `--load`         | Load generated docs into storage    |
-| `--only=<type>`  | Render a single content type        |
-| `--dry-run`      | Preview without writing files       |
-| `--story=<path>` | Path to custom story DSL file       |
-| `--cache=<path>` | Path to custom prose cache file     |
+| Option           | Description                                                 |
+| ---------------- | ----------------------------------------------------------- |
+| `--generate`     | Call LLM to produce new prose                               |
+| `--no-prose`     | Skip prose, structural output only                          |
+| `--strict`       | Fail if prose cache is missing keys                         |
+| `--load`         | Load generated docs into storage                            |
+| `--only=<type>`  | Render a single content type (html, pathway, raw, markdown) |
+| `--dry-run`      | Preview without writing files                               |
+| `--story=<path>` | Path to custom story DSL file                               |
+| `--cache=<path>` | Path to custom prose cache file                             |
 
 ---
 
@@ -406,22 +466,29 @@ npx fit-rc start <service>   # Start up to a specific service
 
 ## fit-doc
 
-Documentation site builder.
+Documentation site builder. Monorepo-only — invoke with `bunx`.
 
 ```sh
-npx fit-doc build --src=website --out=dist    # Build static site
-npx fit-doc serve --src=website               # Development server
-npx fit-doc serve --src=website --port=8080   # Custom port
-npx fit-doc build --src=website --out=dist --base-url=https://example.com  # With base URL
+bunx fit-doc build --src=website --out=dist    # Build static site
+bunx fit-doc serve --src=website               # Development server
+bunx fit-doc serve --src=website --port=8080   # Custom port
+bunx fit-doc build --src=website --out=dist --base-url=https://example.com  # With base URL
 ```
 
-| Option             | Description                         |
-| ------------------ | ----------------------------------- |
-| `--src=<dir>`      | Source directory                    |
-| `--out=<dir>`      | Output directory (build only)       |
-| `--base-url=<url>` | Base URL for absolute links         |
-| `--port=<port>`    | Dev server port (default: 3000)     |
-| `--watch`, `-w`    | Watch for changes (serve mode only) |
+**Global options** (apply to both `build` and `serve`):
+
+| Option        | Description                           |
+| ------------- | ------------------------------------- |
+| `--src=<dir>` | Source directory (default: `website`) |
+| `--out=<dir>` | Output directory (default: `dist`)    |
+
+**Command-specific options:**
+
+| Option             | Description                                         |
+| ------------------ | --------------------------------------------------- |
+| `--base-url=<url>` | Base URL for sitemap, canonical links, and llms.txt |
+| `--port=<port>`    | Dev server port (default: 3000) — `serve` only      |
+| `--watch`, `-w`    | Watch for changes and rebuild — `serve` only        |
 
 ---
 
