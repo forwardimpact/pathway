@@ -86,18 +86,12 @@ function renderError(title, message) {
 
 /**
  * Render content to slide container
- * @param {HTMLElement|string} content
+ * @param {HTMLElement} content
  */
 function renderSlide(content) {
   const container = getSlideContent();
   container.innerHTML = "";
-
-  if (typeof content === "string") {
-    container.innerHTML = content;
-  } else if (content instanceof HTMLElement) {
-    container.appendChild(content);
-  }
-
+  container.appendChild(content);
   hideLoading();
 }
 
