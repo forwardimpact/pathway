@@ -9,14 +9,14 @@ import {
   composeFilters,
 } from "../src/policies/filters.js";
 
-import { isPrimary, isAgentEligible } from "../src/policies/predicates.js";
+import { isCore, isAgentEligible } from "../src/policies/predicates.js";
 
 function skill(overrides = {}) {
   return {
     skillId: "testing",
     skillName: "Testing",
     capability: "delivery",
-    type: "primary",
+    type: "core",
     proficiency: "working",
     isHumanOnly: false,
     ...overrides,
@@ -95,28 +95,28 @@ describe("filters", () => {
 
   describe("filterBy", () => {
     test("creates a curried filter from a predicate", () => {
-      const filterPrimary = filterBy(isPrimary);
+      const filterCore = filterBy(isCore);
       const matrix = [
-        skill({ type: "primary" }),
-        skill({ type: "secondary" }),
-        skill({ type: "primary" }),
+        skill({ type: "core" }),
+        skill({ type: "supporting" }),
+        skill({ type: "core" }),
       ];
-      const result = filterPrimary(matrix);
+      const result = filterCore(matrix);
       assert.strictEqual(result.length, 2);
-      assert.ok(result.every((e) => e.type === "primary"));
+      assert.ok(result.every((e) => e.type === "core"));
     });
   });
 
   describe("applyFilters", () => {
     test("applies predicates as entry-level filters", () => {
       const matrix = [
-        skill({ type: "primary", isHumanOnly: false }),
-        skill({ type: "secondary", isHumanOnly: true }),
-        skill({ type: "primary", isHumanOnly: true }),
+        skill({ type: "core", isHumanOnly: false }),
+        skill({ type: "supporting", isHumanOnly: true }),
+        skill({ type: "core", isHumanOnly: true }),
       ];
-      const result = applyFilters(matrix, isPrimary, isAgentEligible);
+      const result = applyFilters(matrix, isCore, isAgentEligible);
       assert.strictEqual(result.length, 1);
-      assert.strictEqual(result[0].type, "primary");
+      assert.strictEqual(result[0].type, "core");
       assert.strictEqual(result[0].isHumanOnly, false);
     });
 
@@ -187,16 +187,13 @@ describe("filters", () => {
     });
 
     test("composed filter can be reused on different inputs", () => {
-      const onlyPrimary = composeFilters(isPrimary);
+      const onlyCore = composeFilters(isCore);
 
-      const matrix1 = [skill({ type: "primary" }), skill({ type: "broad" })];
-      const matrix2 = [
-        skill({ type: "secondary" }),
-        skill({ type: "primary" }),
-      ];
+      const matrix1 = [skill({ type: "core" }), skill({ type: "broad" })];
+      const matrix2 = [skill({ type: "supporting" }), skill({ type: "core" })];
 
-      assert.strictEqual(onlyPrimary(matrix1).length, 1);
-      assert.strictEqual(onlyPrimary(matrix2).length, 1);
+      assert.strictEqual(onlyCore(matrix1).length, 1);
+      assert.strictEqual(onlyCore(matrix2).length, 1);
     });
   });
 });

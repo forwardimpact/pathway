@@ -6,12 +6,12 @@ import {
   isNone,
   isHumanOnly,
   isAgentEligible,
-  isPrimary,
-  isSecondary,
-  isBroad,
-  isTrack,
   isCore,
   isSupporting,
+  isBroad,
+  isTrack,
+  isDeep,
+  isBreadth,
   hasMinLevel,
   hasLevel,
   hasBelowLevel,
@@ -27,7 +27,7 @@ function skill(overrides = {}) {
     skillId: "testing",
     skillName: "Testing",
     capability: "delivery",
-    type: "primary",
+    type: "core",
     proficiency: "working",
     isHumanOnly: false,
     ...overrides,
@@ -78,81 +78,81 @@ describe("predicates", () => {
     });
   });
 
-  describe("isPrimary", () => {
-    test("returns true for primary type", () => {
-      assert.strictEqual(isPrimary(skill({ type: "primary" })), true);
-    });
-
-    test("returns false for other types", () => {
-      assert.strictEqual(isPrimary(skill({ type: "secondary" })), false);
-      assert.strictEqual(isPrimary(skill({ type: "broad" })), false);
-      assert.strictEqual(isPrimary(skill({ type: "track" })), false);
-    });
-  });
-
-  describe("isSecondary", () => {
-    test("returns true for secondary type", () => {
-      assert.strictEqual(isSecondary(skill({ type: "secondary" })), true);
-    });
-
-    test("returns false for other types", () => {
-      assert.strictEqual(isSecondary(skill({ type: "primary" })), false);
-    });
-  });
-
-  describe("isBroad", () => {
-    test("returns true for broad type", () => {
-      assert.strictEqual(isBroad(skill({ type: "broad" })), true);
-    });
-
-    test("returns false for other types", () => {
-      assert.strictEqual(isBroad(skill({ type: "primary" })), false);
-    });
-  });
-
-  describe("isTrack", () => {
-    test("returns true for track type", () => {
-      assert.strictEqual(isTrack(skill({ type: "track" })), true);
-    });
-
-    test("returns false for other types", () => {
-      assert.strictEqual(isTrack(skill({ type: "primary" })), false);
-    });
-  });
-
   describe("isCore", () => {
-    test("returns true for primary", () => {
-      assert.strictEqual(isCore(skill({ type: "primary" })), true);
+    test("returns true for core tier", () => {
+      assert.strictEqual(isCore(skill({ type: "core" })), true);
     });
 
-    test("returns true for secondary", () => {
-      assert.strictEqual(isCore(skill({ type: "secondary" })), true);
-    });
-
-    test("returns false for broad", () => {
+    test("returns false for other tiers", () => {
+      assert.strictEqual(isCore(skill({ type: "supporting" })), false);
       assert.strictEqual(isCore(skill({ type: "broad" })), false);
-    });
-
-    test("returns false for track", () => {
       assert.strictEqual(isCore(skill({ type: "track" })), false);
     });
   });
 
   describe("isSupporting", () => {
+    test("returns true for supporting tier", () => {
+      assert.strictEqual(isSupporting(skill({ type: "supporting" })), true);
+    });
+
+    test("returns false for other tiers", () => {
+      assert.strictEqual(isSupporting(skill({ type: "core" })), false);
+    });
+  });
+
+  describe("isBroad", () => {
+    test("returns true for broad tier", () => {
+      assert.strictEqual(isBroad(skill({ type: "broad" })), true);
+    });
+
+    test("returns false for other tiers", () => {
+      assert.strictEqual(isBroad(skill({ type: "core" })), false);
+    });
+  });
+
+  describe("isTrack", () => {
+    test("returns true for track tier", () => {
+      assert.strictEqual(isTrack(skill({ type: "track" })), true);
+    });
+
+    test("returns false for other tiers", () => {
+      assert.strictEqual(isTrack(skill({ type: "core" })), false);
+    });
+  });
+
+  describe("isDeep", () => {
+    test("returns true for core", () => {
+      assert.strictEqual(isDeep(skill({ type: "core" })), true);
+    });
+
+    test("returns true for supporting", () => {
+      assert.strictEqual(isDeep(skill({ type: "supporting" })), true);
+    });
+
+    test("returns false for broad", () => {
+      assert.strictEqual(isDeep(skill({ type: "broad" })), false);
+    });
+
+    test("returns false for track", () => {
+      assert.strictEqual(isDeep(skill({ type: "track" })), false);
+    });
+  });
+
+  describe("isBreadth", () => {
     test("returns true for broad", () => {
-      assert.strictEqual(isSupporting(skill({ type: "broad" })), true);
+      assert.strictEqual(isBreadth(skill({ type: "broad" })), true);
     });
 
     test("returns true for track", () => {
-      assert.strictEqual(isSupporting(skill({ type: "track" })), true);
+      assert.strictEqual(isBreadth(skill({ type: "track" })), true);
     });
 
-    test("returns false for primary", () => {
-      assert.strictEqual(isSupporting(skill({ type: "primary" })), false);
+    test("returns false for core", () => {
+      assert.strictEqual(isBreadth(skill({ type: "core" })), false);
     });
 
-    test("returns false for secondary", () => {
-      assert.strictEqual(isSupporting(skill({ type: "secondary" })), false);
+    test("returns false for supporting", () => {
+      assert.strictEqual(isBreadth(skill({ type: "supporting" })), false);
     });
   });
 
@@ -286,21 +286,21 @@ describe("predicates", () => {
 
   describe("allOf", () => {
     test("returns true when all predicates pass", () => {
-      const combined = allOf(isPrimary, isAgentEligible);
+      const combined = allOf(isCore, isAgentEligible);
       assert.strictEqual(
-        combined(skill({ type: "primary", isHumanOnly: false })),
+        combined(skill({ type: "core", isHumanOnly: false })),
         true,
       );
     });
 
     test("returns false when any predicate fails", () => {
-      const combined = allOf(isPrimary, isAgentEligible);
+      const combined = allOf(isCore, isAgentEligible);
       assert.strictEqual(
-        combined(skill({ type: "primary", isHumanOnly: true })),
+        combined(skill({ type: "core", isHumanOnly: true })),
         false,
       );
       assert.strictEqual(
-        combined(skill({ type: "secondary", isHumanOnly: false })),
+        combined(skill({ type: "supporting", isHumanOnly: false })),
         false,
       );
     });
@@ -313,13 +313,13 @@ describe("predicates", () => {
 
   describe("anyOf", () => {
     test("returns true when any predicate passes", () => {
-      const combined = anyOf(isPrimary, isSecondary);
-      assert.strictEqual(combined(skill({ type: "primary" })), true);
-      assert.strictEqual(combined(skill({ type: "secondary" })), true);
+      const combined = anyOf(isCore, isSupporting);
+      assert.strictEqual(combined(skill({ type: "core" })), true);
+      assert.strictEqual(combined(skill({ type: "supporting" })), true);
     });
 
     test("returns false when no predicates pass", () => {
-      const combined = anyOf(isPrimary, isSecondary);
+      const combined = anyOf(isCore, isSupporting);
       assert.strictEqual(combined(skill({ type: "broad" })), false);
     });
 
@@ -331,15 +331,15 @@ describe("predicates", () => {
 
   describe("not", () => {
     test("negates a predicate", () => {
-      const notPrimary = not(isPrimary);
-      assert.strictEqual(notPrimary(skill({ type: "primary" })), false);
-      assert.strictEqual(notPrimary(skill({ type: "secondary" })), true);
+      const notCore = not(isCore);
+      assert.strictEqual(notCore(skill({ type: "core" })), false);
+      assert.strictEqual(notCore(skill({ type: "supporting" })), true);
     });
 
     test("double negation restores original", () => {
-      const notNotPrimary = not(not(isPrimary));
-      assert.strictEqual(notNotPrimary(skill({ type: "primary" })), true);
-      assert.strictEqual(notNotPrimary(skill({ type: "secondary" })), false);
+      const notNotCore = not(not(isCore));
+      assert.strictEqual(notNotCore(skill({ type: "core" })), true);
+      assert.strictEqual(notNotCore(skill({ type: "supporting" })), false);
     });
   });
 });

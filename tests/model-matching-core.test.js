@@ -152,7 +152,7 @@ describe("Matching", () => {
         ordinalRank: 5, // Senior level (Principal level)
         baseSkillProficiencies: {
           core: "expert",
-          secondary: "practitioner",
+          supporting: "practitioner",
           broad: "working",
         },
         baseBehaviourMaturity: "role_modeling",
@@ -312,7 +312,7 @@ describe("Matching", () => {
       assert.ok(path.estimatedReadiness >= 0 && path.estimatedReadiness <= 1);
     });
 
-    it("prioritizes primary skills", () => {
+    it("prioritizes core skills", () => {
       const weakAssessment = {
         skillProficiencies: {
           skill_a: "awareness", // Primary skill, big gap

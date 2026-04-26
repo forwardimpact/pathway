@@ -106,7 +106,7 @@ test("computeCoverage allocates effective depth proportionally for projects", ()
 
   const task = coverage.skills.get("task_completion");
   // Bob at 0.6 + External at 1.0, both trackless J060 → task_completion
-  // at working (primary of software_engineering). Effective depth = 1.6.
+  // at working (core of software_engineering). Effective depth = 1.6.
   assert.equal(task.headcountDepth, 2);
   assert.ok(Math.abs(task.effectiveDepth - 1.6) < 0.001);
 });

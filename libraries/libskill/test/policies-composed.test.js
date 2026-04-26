@@ -25,7 +25,7 @@ function skill(overrides = {}) {
     skillName: "Testing",
     capability: "delivery",
     capabilityRank: 1,
-    type: "primary",
+    type: "core",
     proficiency: "working",
     isHumanOnly: false,
     ...overrides,
@@ -149,8 +149,8 @@ describe("composed", () => {
     test("sorts by type then name", () => {
       const matrix = [
         skill({ skillName: "Z", type: "broad" }),
-        skill({ skillName: "A", type: "primary" }),
-        skill({ skillName: "M", type: "secondary" }),
+        skill({ skillName: "A", type: "core" }),
+        skill({ skillName: "M", type: "supporting" }),
       ];
       const sorted = sortJobSkills(matrix);
       assert.deepStrictEqual(
@@ -160,7 +160,7 @@ describe("composed", () => {
     });
 
     test("does not mutate input", () => {
-      const matrix = [skill({ type: "broad" }), skill({ type: "primary" })];
+      const matrix = [skill({ type: "broad" }), skill({ type: "core" })];
       const original = [...matrix];
       sortJobSkills(matrix);
       assert.deepStrictEqual(matrix, original);
@@ -173,13 +173,13 @@ describe("composed", () => {
       const matrix = [
         skill({
           skillName: "A",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 1,
         }),
         skill({
           skillName: "B",
-          type: "secondary",
+          type: "supporting",
           proficiency: "expert",
           capabilityRank: 2,
         }),
@@ -191,13 +191,13 @@ describe("composed", () => {
         }),
         skill({
           skillName: "D",
-          type: "primary",
+          type: "core",
           proficiency: "working",
           capabilityRank: 1,
         }),
         skill({
           skillName: "E",
-          type: "secondary",
+          type: "supporting",
           proficiency: "working",
           capabilityRank: 2,
         }),
@@ -209,13 +209,13 @@ describe("composed", () => {
         }),
         skill({
           skillName: "G",
-          type: "primary",
+          type: "core",
           proficiency: "practitioner",
           capabilityRank: 1,
         }),
         skill({
           skillName: "H",
-          type: "secondary",
+          type: "supporting",
           proficiency: "practitioner",
           capabilityRank: 2,
         }),
@@ -228,7 +228,7 @@ describe("composed", () => {
       ];
       const result = focusAgentSkills(matrix);
       assert.strictEqual(result.length, LIMIT_AGENT_PROFILE_SKILLS);
-      // First should be expert primary (highest priority)
+      // First should be expert core (highest priority)
       assert.strictEqual(result[0].skillName, "A");
     });
 
@@ -236,25 +236,25 @@ describe("composed", () => {
       const matrix = [
         skill({
           skillName: "Z-Reliability",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 3,
         }),
         skill({
           skillName: "A-AI",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 4,
         }),
         skill({
           skillName: "M-Delivery",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 1,
         }),
         skill({
           skillName: "B-Scale",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 2,
         }),
@@ -269,8 +269,8 @@ describe("composed", () => {
 
     test("returns all if fewer than limit", () => {
       const matrix = [
-        skill({ skillName: "A", type: "primary", proficiency: "expert" }),
-        skill({ skillName: "B", type: "secondary", proficiency: "working" }),
+        skill({ skillName: "A", type: "core", proficiency: "expert" }),
+        skill({ skillName: "B", type: "supporting", proficiency: "working" }),
       ];
       const result = focusAgentSkills(matrix);
       assert.strictEqual(result.length, 2);
@@ -279,7 +279,7 @@ describe("composed", () => {
     test("does not mutate input", () => {
       const matrix = [
         skill({ skillName: "Z", type: "broad", proficiency: "awareness" }),
-        skill({ skillName: "A", type: "primary", proficiency: "expert" }),
+        skill({ skillName: "A", type: "core", proficiency: "expert" }),
       ];
       const original = [...matrix];
       focusAgentSkills(matrix);
@@ -292,25 +292,25 @@ describe("composed", () => {
       const matrix = [
         skill({
           skillName: "Primary Expert",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           isHumanOnly: false,
         }),
         skill({
           skillName: "Human Only Expert",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           isHumanOnly: true,
         }),
         skill({
           skillName: "Low Level",
-          type: "secondary",
+          type: "supporting",
           proficiency: "awareness",
           isHumanOnly: false,
         }),
         skill({
           skillName: "Secondary Expert",
-          type: "secondary",
+          type: "supporting",
           proficiency: "expert",
           isHumanOnly: false,
         }),
@@ -372,13 +372,13 @@ describe("thresholds", () => {
     assert.ok(SCORE_GAP[4] < SCORE_GAP[3]);
   });
 
-  test("WEIGHT_SKILL_TYPE has all four types", () => {
-    assert.ok("primary" in WEIGHT_SKILL_TYPE);
-    assert.ok("secondary" in WEIGHT_SKILL_TYPE);
+  test("WEIGHT_SKILL_TYPE has all four tiers", () => {
+    assert.ok("core" in WEIGHT_SKILL_TYPE);
+    assert.ok("supporting" in WEIGHT_SKILL_TYPE);
     assert.ok("broad" in WEIGHT_SKILL_TYPE);
     assert.ok("track" in WEIGHT_SKILL_TYPE);
-    assert.ok(WEIGHT_SKILL_TYPE.primary > WEIGHT_SKILL_TYPE.secondary);
-    assert.ok(WEIGHT_SKILL_TYPE.secondary > WEIGHT_SKILL_TYPE.broad);
+    assert.ok(WEIGHT_SKILL_TYPE.core > WEIGHT_SKILL_TYPE.supporting);
+    assert.ok(WEIGHT_SKILL_TYPE.supporting > WEIGHT_SKILL_TYPE.broad);
     assert.ok(WEIGHT_SKILL_TYPE.broad > WEIGHT_SKILL_TYPE.track);
   });
 

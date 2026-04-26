@@ -182,7 +182,7 @@ describe("Skill Modifiers", () => {
         skillId: "skill_a",
         skills: testSkills,
       });
-      // skill_a is primary, base is practitioner (index 3), +1 would be expert
+      // skill_a is core, base is practitioner (index 3), +1 would be expert
       // but capped at level max (practitioner)
       assert.strictEqual(level, "practitioner");
     });
@@ -199,7 +199,7 @@ describe("Skill Modifiers", () => {
         skillId: "skill_a",
         skills: testSkills,
       });
-      // skill_a is primary, base is practitioner (index 3), -1 = working
+      // skill_a is core, base is practitioner (index 3), -1 = working
       assert.strictEqual(level, "working");
     });
   });

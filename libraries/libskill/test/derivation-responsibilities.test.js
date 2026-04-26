@@ -60,7 +60,7 @@ describe("deriveResponsibilities", () => {
         skillId: "coding",
         skillName: "Coding",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       },
     ];
@@ -86,7 +86,7 @@ describe("deriveResponsibilities", () => {
         skillId: "coding",
         skillName: "Coding",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       },
     ];
@@ -109,14 +109,14 @@ describe("deriveResponsibilities", () => {
         skillId: "coding",
         skillName: "Coding",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "practitioner",
       },
       {
         skillId: "testing",
         skillName: "Testing",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       },
     ];
@@ -140,14 +140,14 @@ describe("deriveResponsibilities", () => {
         skillId: "coding",
         skillName: "Coding",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       },
       {
         skillId: "capacity_planning",
         skillName: "Capacity Planning",
         capability: "scale",
-        type: "secondary",
+        type: "supporting",
         proficiency: "practitioner",
       },
     ];
@@ -171,7 +171,7 @@ describe("deriveResponsibilities", () => {
         skillId: "coding",
         skillName: "Coding",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       },
     ];
@@ -194,7 +194,7 @@ describe("deriveResponsibilities", () => {
         skillId: "coding",
         skillName: "Coding",
         capability: "delivery",
-        type: "primary",
+        type: "core",
         proficiency: "working",
       },
     ];

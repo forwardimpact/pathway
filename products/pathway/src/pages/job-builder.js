@@ -37,7 +37,7 @@ export function renderJobBuilder() {
       helpItems: [
         {
           label: "Discipline",
-          text: "Defines the T-shaped skill profile with primary, secondary, and broad skills.",
+          text: "Defines the T-shaped skill profile with core, supporting, and broad skills.",
         },
         {
           label: "Level",

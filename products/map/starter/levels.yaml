@@ -9,8 +9,8 @@
     Entry-level position suitable for recent graduates or those transitioning
     into the field ({typicalExperienceRange}).
   baseSkillProficiencies:
-    primary: foundational
-    secondary: awareness
+    core: foundational
+    supporting: awareness
     broad: awareness
   baseBehaviourMaturity: emerging
   expectations:
@@ -28,8 +28,8 @@
     Mid-level position with demonstrated ability to complete tasks independently
     ({typicalExperienceRange}).
   baseSkillProficiencies:
-    primary: working
-    secondary: foundational
+    core: working
+    supporting: foundational
     broad: awareness
   baseBehaviourMaturity: developing
   expectations:

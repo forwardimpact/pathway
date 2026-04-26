@@ -14,8 +14,8 @@ import { deriveJob } from "./derivation.js";
 import { isValidJobCombination } from "./derivation-validation.js";
 
 import {
-  WEIGHT_DEV_TYPE_PRIMARY,
-  WEIGHT_DEV_TYPE_SECONDARY,
+  WEIGHT_DEV_TYPE_CORE,
+  WEIGHT_DEV_TYPE_SUPPORTING,
   WEIGHT_DEV_TYPE_BROAD,
   WEIGHT_DEV_AI_BOOST,
   WEIGHT_SAME_TRACK_BONUS,
@@ -33,18 +33,18 @@ import {
 } from "./policies/thresholds.js";
 
 /**
- * Type weight lookup for development path priority
+ * Tier weight lookup for development path priority
  * @type {Object<string, number>}
  */
 const DEV_TYPE_WEIGHTS = {
-  primary: WEIGHT_DEV_TYPE_PRIMARY,
-  secondary: WEIGHT_DEV_TYPE_SECONDARY,
+  core: WEIGHT_DEV_TYPE_CORE,
+  supporting: WEIGHT_DEV_TYPE_SUPPORTING,
 };
 
 /**
  * Calculate development priority for a skill gap
  * @param {number} gapSize - Gap in proficiency levels
- * @param {string} skillType - Skill type (primary/secondary/broad)
+ * @param {string} skillType - Skill tier (core/supporting/broad)
  * @param {string} capability - Capability ID
  * @returns {number} Priority score
  */
@@ -55,16 +55,16 @@ function calculateSkillDevPriority(gapSize, skillType, capability) {
 }
 
 /**
- * Get rationale text for a skill type
- * @param {string} skillType - Skill type
+ * Get rationale text for a skill tier
+ * @param {string} skillType - Skill tier
  * @returns {string} Rationale text
  */
 function getSkillRationale(skillType) {
-  if (skillType === "primary") {
-    return "Primary skill for this discipline - essential for the role";
+  if (skillType === "core") {
+    return "Core skill for this discipline - essential for the role";
   }
-  if (skillType === "secondary") {
-    return "Secondary skill - important for full effectiveness";
+  if (skillType === "supporting") {
+    return "Supporting skill - important for full effectiveness";
   }
   return "Broad skill - needed for collaboration and context";
 }

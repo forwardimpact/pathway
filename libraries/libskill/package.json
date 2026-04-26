@@ -31,7 +31,7 @@
     "./toolkit": "./src/toolkit.js"
   },
   "dependencies": {
-    "@forwardimpact/map": "^0.13.0"
+    "@forwardimpact/map": "^0.15.0"
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"

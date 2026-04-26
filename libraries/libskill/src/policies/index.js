@@ -22,9 +22,9 @@ export {
   SCORE_GAP_MAJOR,
   SCORE_GAP_ASPIRATIONAL,
   SCORE_GAP,
-  // Skill type weights
-  WEIGHT_SKILL_TYPE_PRIMARY,
-  WEIGHT_SKILL_TYPE_SECONDARY,
+  // Skill tier weights
+  WEIGHT_SKILL_TYPE_CORE,
+  WEIGHT_SKILL_TYPE_SUPPORTING,
   WEIGHT_SKILL_TYPE_BROAD,
   WEIGHT_SKILL_TYPE_TRACK,
   WEIGHT_SKILL_TYPE,
@@ -41,8 +41,8 @@ export {
   WEIGHT_SKILL_PROFICIENCY,
   WEIGHT_BELOW_LEVEL_PENALTY,
   // Development path weights
-  WEIGHT_DEV_TYPE_PRIMARY,
-  WEIGHT_DEV_TYPE_SECONDARY,
+  WEIGHT_DEV_TYPE_CORE,
+  WEIGHT_DEV_TYPE_SUPPORTING,
   WEIGHT_DEV_TYPE_BROAD,
   WEIGHT_DEV_AI_BOOST,
   // Agent profile limits
@@ -84,13 +84,13 @@ export {
   // Human-only
   isHumanOnly,
   isAgentEligible,
-  // Skill types
-  isPrimary,
-  isSecondary,
-  isBroad,
-  isTrack,
+  // Skill tiers
   isCore,
   isSupporting,
+  isBroad,
+  isTrack,
+  isDeep,
+  isBreadth,
   // Skill proficiencies
   hasMinLevel,
   hasLevel,

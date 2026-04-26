@@ -182,7 +182,7 @@ describe("libharness", () => {
       const level = createTestLevel();
       assert.strictEqual(level.id, "mid");
       assert.strictEqual(level.ordinalRank, 3);
-      assert.strictEqual(level.baseSkillProficiencies.primary, "working");
+      assert.strictEqual(level.baseSkillProficiencies.core, "working");
     });
 
     test("createTestLevel accepts overrides", () => {
@@ -231,7 +231,7 @@ describe("libharness", () => {
 
     test("createTestSkillEntry creates valid entry", () => {
       const entry = createTestSkillEntry();
-      assert.strictEqual(entry.type, "primary");
+      assert.strictEqual(entry.type, "core");
       assert.strictEqual(entry.proficiency, "working");
     });
 

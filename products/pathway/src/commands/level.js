@@ -46,7 +46,7 @@ function formatSummary(levels, data) {
     g.professionalTitle || g.displayName || g.id,
     g.managementTitle || "-",
     g.typicalExperienceRange || "-",
-    capitalize(g.baseSkillProficiencies?.primary || "-"),
+    capitalize(g.baseSkillProficiencies?.core || "-"),
   ]);
 
   process.stdout.write(
@@ -56,7 +56,7 @@ function formatSummary(levels, data) {
         "Professional Title",
         "Management Title",
         "Experience",
-        "Primary Level",
+        "Core Level",
       ],
       rows,
     ) + "\n",

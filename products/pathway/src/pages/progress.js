@@ -110,8 +110,8 @@ export function renderProgressDetail(params) {
           label: "Behaviours",
         }),
         createStatCard({
-          value: currentJobView.primarySkillCount,
-          label: "Primary Skills",
+          value: currentJobView.coreSkillCount,
+          label: "Core Skills",
         }),
       ),
     ),

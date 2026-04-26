@@ -33,7 +33,7 @@ teams:
   const coverage = computeCoverage(resolved, data);
   const spofs = detectSinglePointsOfFailure(coverage);
 
-  // task_completion: Bob working (J060 primary), Alice foundational → SPOF
+  // task_completion: Bob working (J060 core), Alice foundational → SPOF
   const task = spofs.find((s) => s.skillId === "task_completion");
   assert.ok(task);
   assert.equal(task.holder.email, "bob@example.com");

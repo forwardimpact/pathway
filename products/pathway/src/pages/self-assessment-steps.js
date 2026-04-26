@@ -252,9 +252,9 @@ export function renderSkillsStep(
 
   const getSkillRelevance = (skill) => {
     if (!selectedDiscipline) return null;
-    if (selectedDiscipline.coreSkills?.includes(skill.id)) return "primary";
+    if (selectedDiscipline.coreSkills?.includes(skill.id)) return "core";
     if (selectedDiscipline.supportingSkills?.includes(skill.id))
-      return "secondary";
+      return "supporting";
     if (selectedDiscipline.broadSkills?.includes(skill.id)) return "broad";
     return null;
   };
@@ -262,7 +262,7 @@ export function renderSkillsStep(
   const sortedItems = [...items].sort((a, b) => {
     const relevanceA = getSkillRelevance(a);
     const relevanceB = getSkillRelevance(b);
-    const order = { primary: 0, secondary: 1, broad: 2 };
+    const order = { core: 0, supporting: 1, broad: 2 };
 
     if (relevanceA && !relevanceB) return -1;
     if (!relevanceA && relevanceB) return 1;

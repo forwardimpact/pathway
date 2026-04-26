@@ -171,13 +171,13 @@ export function getCapabilityResponsibility(
 }
 
 /**
- * Skill type within a discipline
+ * Skill tier within a discipline
  * @readonly
  * @enum {string}
  */
 export const SkillType = {
-  PRIMARY: "primary",
-  SECONDARY: "secondary",
+  CORE: "core",
+  SUPPORTING: "supporting",
   BROAD: "broad",
   TRACK: "track",
 };
@@ -247,8 +247,8 @@ export const SkillType = {
 
 /**
  * @typedef {Object} LevelSkillProficiencies
- * @property {string} primary - Base skill proficiency for primary skills
- * @property {string} secondary - Base skill proficiency for secondary skills
+ * @property {string} core - Base skill proficiency for core skills
+ * @property {string} supporting - Base skill proficiency for supporting skills
  * @property {string} broad - Base skill proficiency for broad skills
  */
 
@@ -285,7 +285,7 @@ export const SkillType = {
  * @property {string} skillId - The skill ID
  * @property {string} skillName - The skill name
  * @property {string} capability - The skill capability
- * @property {string} type - The skill type (primary/secondary/broad)
+ * @property {string} type - The skill tier (core/supporting/broad)
  * @property {string} proficiency - The derived skill proficiency
  * @property {string} proficiencyDescription - Description for this proficiency
  */

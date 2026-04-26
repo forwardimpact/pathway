@@ -54,22 +54,22 @@ export const SCORE_GAP = {
 // =============================================================================
 
 /**
- * Skill priority weights by type
+ * Skill priority weights by tier
  *
- * Primary skills are core competencies and get highest priority.
+ * Core skills are deep competencies and get highest priority.
  * Used for interview question selection and development prioritization.
  *
  * @see interview.js:calculateSkillPriority
  */
-export const WEIGHT_SKILL_TYPE_PRIMARY = 30;
-export const WEIGHT_SKILL_TYPE_SECONDARY = 20;
+export const WEIGHT_SKILL_TYPE_CORE = 30;
+export const WEIGHT_SKILL_TYPE_SUPPORTING = 20;
 export const WEIGHT_SKILL_TYPE_BROAD = 10;
 export const WEIGHT_SKILL_TYPE_TRACK = 5;
 
-/** Skill type weights as object for lookup */
+/** Skill tier weights as object for lookup */
 export const WEIGHT_SKILL_TYPE = {
-  primary: WEIGHT_SKILL_TYPE_PRIMARY,
-  secondary: WEIGHT_SKILL_TYPE_SECONDARY,
+  core: WEIGHT_SKILL_TYPE_CORE,
+  supporting: WEIGHT_SKILL_TYPE_SUPPORTING,
   broad: WEIGHT_SKILL_TYPE_BROAD,
   track: WEIGHT_SKILL_TYPE_TRACK,
 };
@@ -144,12 +144,12 @@ export const WEIGHT_BELOW_LEVEL_PENALTY = -5;
 // =============================================================================
 
 /**
- * Type multipliers for development path prioritization
+ * Tier multipliers for development path prioritization
  *
- * Primary skills are more critical to develop first.
+ * Core skills are more critical to develop first.
  */
-export const WEIGHT_DEV_TYPE_PRIMARY = 3;
-export const WEIGHT_DEV_TYPE_SECONDARY = 2;
+export const WEIGHT_DEV_TYPE_CORE = 3;
+export const WEIGHT_DEV_TYPE_SUPPORTING = 2;
 export const WEIGHT_DEV_TYPE_BROAD = 1;
 
 /**

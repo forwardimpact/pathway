@@ -19,8 +19,8 @@ describe("Matching", () => {
         id: "junior",
         ordinalRank: 1,
         baseSkillProficiencies: {
-          primary: "awareness",
-          secondary: "awareness",
+          core: "awareness",
+          supporting: "awareness",
           broad: "awareness",
         },
       },
@@ -29,8 +29,8 @@ describe("Matching", () => {
         id: "mid",
         ordinalRank: 2,
         baseSkillProficiencies: {
-          primary: "foundational",
-          secondary: "awareness",
+          core: "foundational",
+          supporting: "awareness",
           broad: "awareness",
         },
       },
@@ -39,8 +39,8 @@ describe("Matching", () => {
         id: "senior",
         ordinalRank: 3,
         baseSkillProficiencies: {
-          primary: "working",
-          secondary: "foundational",
+          core: "working",
+          supporting: "foundational",
           broad: "awareness",
         },
       },

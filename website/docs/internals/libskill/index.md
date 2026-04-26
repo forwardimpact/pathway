@@ -51,8 +51,8 @@ access during derivation. Individual lookups use `getSkillTypeForDiscipline()`.
 
 ### Step 2: Get Base Proficiency from Level
 
-Each level defines `baseSkillProficiencies` mapping the skill type (primary,
-secondary, broad) to a starting proficiency.
+Each level defines `baseSkillProficiencies` mapping the skill tier (core,
+supporting, broad) to a starting proficiency.
 
 ### Step 3: Apply Track Modifier
 
@@ -84,7 +84,7 @@ for every skill in the discipline. Behaviours are derived by
 | Function                      | Module        | Purpose                                        |
 | ----------------------------- | ------------- | ---------------------------------------------- |
 | `buildSkillTypeMap()`         | derivation.js | Build O(1) skill type lookup for a discipline  |
-| `getSkillTypeForDiscipline()` | derivation.js | Determine skill tier (primary/secondary/broad) |
+| `getSkillTypeForDiscipline()` | derivation.js | Determine skill tier (core/supporting/broad)   |
 | `deriveSkillProficiency()`    | derivation.js | Full skill derivation pipeline for one skill   |
 | `deriveSkillMatrix()`         | derivation.js | Derive all skills for a job                    |
 | `deriveBehaviourProfile()`    | derivation.js | Derive all behaviours for a job                |

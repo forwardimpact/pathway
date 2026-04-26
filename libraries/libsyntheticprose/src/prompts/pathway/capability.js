@@ -71,7 +71,7 @@ export function buildCapabilityPrompt(skeleton, ctx, schema, priorOutput) {
                   "Level titles and proficiency baselines:",
                   ...priorOutput.levels.map(
                     (l) =>
-                      `- ${l.id}: ${l.professionalTitle || l.id} (primary: ${l.baseSkillProficiencies?.primary || "N/A"})`,
+                      `- ${l.id}: ${l.professionalTitle || l.id} (core: ${l.baseSkillProficiencies?.core || "N/A"})`,
                   ),
                 ]
               : []),

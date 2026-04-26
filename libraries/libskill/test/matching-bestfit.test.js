@@ -8,27 +8,27 @@ describe("estimateBestFitLevel", () => {
     {
       id: "l1",
       ordinalRank: 1,
-      baseSkillProficiencies: { primary: "awareness" },
+      baseSkillProficiencies: { core: "awareness" },
     },
     {
       id: "l2",
       ordinalRank: 2,
-      baseSkillProficiencies: { primary: "foundational" },
+      baseSkillProficiencies: { core: "foundational" },
     },
     {
       id: "l3",
       ordinalRank: 3,
-      baseSkillProficiencies: { primary: "working" },
+      baseSkillProficiencies: { core: "working" },
     },
     {
       id: "l4",
       ordinalRank: 4,
-      baseSkillProficiencies: { primary: "practitioner" },
+      baseSkillProficiencies: { core: "practitioner" },
     },
     {
       id: "l5",
       ordinalRank: 5,
-      baseSkillProficiencies: { primary: "expert" },
+      baseSkillProficiencies: { core: "expert" },
     },
   ];
 
@@ -118,17 +118,17 @@ describe("estimateBestFitLevel", () => {
       {
         id: "l3",
         ordinalRank: 3,
-        baseSkillProficiencies: { primary: "working" },
+        baseSkillProficiencies: { core: "working" },
       },
       {
         id: "l1",
         ordinalRank: 1,
-        baseSkillProficiencies: { primary: "awareness" },
+        baseSkillProficiencies: { core: "awareness" },
       },
       {
         id: "l2",
         ordinalRank: 2,
-        baseSkillProficiencies: { primary: "foundational" },
+        baseSkillProficiencies: { core: "foundational" },
       },
     ];
 

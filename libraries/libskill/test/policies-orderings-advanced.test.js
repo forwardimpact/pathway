@@ -20,7 +20,7 @@ function skill(overrides = {}) {
     skillName: "Testing",
     capability: "delivery",
     capabilityRank: 1,
-    type: "primary",
+    type: "core",
     proficiency: "working",
     isHumanOnly: false,
     ...overrides,
@@ -110,14 +110,14 @@ describe("orderings - advanced", () => {
       const chained = chainComparators(byType, byName);
 
       const items = [
-        skill({ type: "secondary", skillName: "A" }),
-        skill({ type: "primary", skillName: "B" }),
-        skill({ type: "primary", skillName: "A" }),
+        skill({ type: "supporting", skillName: "A" }),
+        skill({ type: "core", skillName: "B" }),
+        skill({ type: "core", skillName: "A" }),
       ];
       items.sort(chained);
       assert.deepStrictEqual(
         items.map((e) => `${e.type}:${e.skillName}`),
-        ["primary:A", "primary:B", "secondary:A"],
+        ["core:A", "core:B", "supporting:A"],
       );
     });
 
@@ -143,10 +143,10 @@ describe("orderings - advanced", () => {
   describe("compareBySkillChange", () => {
     test("sorts by change descending, then type, then name", () => {
       const items = [
-        { name: "B", type: "primary", change: 1 },
-        { name: "A", type: "primary", change: 2 },
-        { name: "C", type: "secondary", change: 2 },
-        { name: "A", type: "secondary", change: 1 },
+        { name: "B", type: "core", change: 1 },
+        { name: "A", type: "core", change: 2 },
+        { name: "C", type: "supporting", change: 2 },
+        { name: "A", type: "supporting", change: 1 },
       ];
       items.sort(compareBySkillChange);
       assert.deepStrictEqual(
@@ -176,22 +176,22 @@ describe("orderings - advanced", () => {
       const items = [
         skill({
           proficiency: "working",
-          type: "primary",
+          type: "core",
           capabilityRank: 2,
         }),
         skill({
           proficiency: "expert",
-          type: "secondary",
+          type: "supporting",
           capabilityRank: 1,
         }),
         skill({
           proficiency: "expert",
-          type: "primary",
+          type: "core",
           capabilityRank: 3,
         }),
         skill({
           proficiency: "expert",
-          type: "primary",
+          type: "core",
           capabilityRank: 1,
         }),
       ];
@@ -199,10 +199,10 @@ describe("orderings - advanced", () => {
       assert.deepStrictEqual(
         items.map((e) => `${e.proficiency}:${e.type}:${e.capabilityRank}`),
         [
-          "expert:primary:1",
-          "expert:primary:3",
-          "expert:secondary:1",
-          "working:primary:2",
+          "expert:core:1",
+          "expert:core:3",
+          "expert:supporting:1",
+          "working:core:2",
         ],
       );
     });
@@ -211,13 +211,13 @@ describe("orderings - advanced", () => {
       const items = [
         skill({
           skillName: "A-Scale",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 2,
         }),
         skill({
           skillName: "Z-Delivery",
-          type: "primary",
+          type: "core",
           proficiency: "expert",
           capabilityRank: 1,
         }),

@@ -98,8 +98,8 @@ distribution:
   ordinalRank: 3
   typicalExperienceRange: "5-8"
   baseSkillProficiencies:
-    primary: practitioner
-    secondary: working
+    core: practitioner
+    supporting: working
     broad: foundational
   baseBehaviourMaturity: developing
   expectations:
