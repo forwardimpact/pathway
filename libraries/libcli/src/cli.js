@@ -39,7 +39,23 @@ export class Cli {
 
   parse(argv) {
     const command = this.#findCommand(argv);
+    const options = this.#buildOptions(command);
+    const { values, positionals } = this.#parseArgs(argv, options);
 
+    if (values.help) {
+      this.#renderHelp(command, values.json);
+      return null;
+    }
+
+    if (values.version && this.#definition.version) {
+      this.#proc.stdout.write(this.#definition.version + "\n");
+      return null;
+    }
+
+    return { values, positionals };
+  }
+
+  #buildOptions(command) {
     const globalOpts = this.#definition.globalOptions || {};
     const commandOpts = command?.options || {};
     const merged = { ...globalOpts, ...commandOpts };
@@ -51,54 +67,46 @@ export class Cli {
       if (opt.default !== undefined) options[name].default = opt.default;
       if (opt.multiple) options[name].multiple = opt.multiple;
     }
+    return options;
+  }
 
-    let values, positionals;
+  #parseArgs(argv, options) {
     try {
-      ({ values, positionals } = parseArgs({
-        options,
-        allowPositionals: true,
-        args: argv,
-      }));
+      return parseArgs({ options, allowPositionals: true, args: argv });
     } catch (err) {
       if (err.code === "ERR_PARSE_ARGS_UNKNOWN_OPTION") {
-        const match = err.message.match(/'(--?)([^']+)'/);
-        if (match) {
-          const bare = match[2];
-          const asCommand = this.#definition.commands?.find(
-            (c) => c.name === bare,
-          );
-          if (asCommand) {
-            const usage = asCommand.args
-              ? `${this.#definition.name} ${bare} ${asCommand.args}`
-              : `${this.#definition.name} ${bare}`;
-            throw new Error(
-              `Unknown option "${match[1]}${bare}". "${bare}" is a command, not an option. Usage: ${usage}`,
-            );
-          }
-        }
+        const commandError = this.#commandAsOptionError(err);
+        if (commandError) throw commandError;
       }
       throw err;
     }
+  }
 
-    if (values.help) {
-      if (values.json) {
-        this.#helpRenderer.renderJson(
-          this.#definition,
-          this.#proc.stdout,
-          command,
-        );
-      } else {
-        this.#helpRenderer.render(this.#definition, this.#proc.stdout, command);
-      }
-      return null;
+  #commandAsOptionError(err) {
+    const match = err.message.match(/'(--?)([^']+)'/);
+    if (!match) return null;
+    const bare = match[2];
+    const asCommand = this.#definition.commands?.find((c) => c.name === bare);
+    if (!asCommand) return null;
+    const usage = asCommand.args
+      ? `${this.#definition.name} ${bare} ${asCommand.args}`
+      : `${this.#definition.name} ${bare}`;
+    return new Error(
+      `Unknown option "${match[1]}${bare}". "${bare}" is a command, not an option. Usage: ${usage}`,
+      { cause: err },
+    );
+  }
+
+  #renderHelp(command, asJson) {
+    if (asJson) {
+      this.#helpRenderer.renderJson(
+        this.#definition,
+        this.#proc.stdout,
+        command,
+      );
+    } else {
+      this.#helpRenderer.render(this.#definition, this.#proc.stdout, command);
     }
-
-    if (values.version && this.#definition.version) {
-      this.#proc.stdout.write(this.#definition.version + "\n");
-      return null;
-    }
-
-    return { values, positionals };
   }
 
   #findCommand(argv) {
