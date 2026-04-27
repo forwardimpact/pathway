@@ -8,7 +8,7 @@
     <key>CFBundleDisplayName</key>
     <string>FIT Utilities</string>
     <key>CFBundleIdentifier</key>
-    <string>com.forwardimpact.utilities</string>
+    <string>team.forwardimpact.utilities</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>

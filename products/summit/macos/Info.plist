@@ -8,7 +8,7 @@
     <key>CFBundleDisplayName</key>
     <string>fit-summit</string>
     <key>CFBundleIdentifier</key>
-    <string>com.forwardimpact.summit</string>
+    <string>team.forwardimpact.summit</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>

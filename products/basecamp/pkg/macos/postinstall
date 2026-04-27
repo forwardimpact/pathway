@@ -17,21 +17,17 @@ APP_PATH="/Applications/Basecamp.app"
 
 # --- Remove old installs ----------------------------------------------------
 
-# Old LaunchAgents (pre-app-bundle)
-for OLD_LABEL in "com.fit-basecamp.scheduler" "com.fit-basecamp.status-menu"; do
+# Old LaunchAgents (pre-app-bundle and pre-FQDN-rename)
+for OLD_LABEL in \
+    "com.fit-basecamp.scheduler" \
+    "com.fit-basecamp.status-menu" \
+    "com.forwardimpact.basecamp"; do
   OLD_PLIST="$REAL_HOME/Library/LaunchAgents/$OLD_LABEL.plist"
   if [ -f "$OLD_PLIST" ]; then
     /usr/bin/sudo -u "$REAL_USER" /usr/bin/launchctl unload "$OLD_PLIST" 2>/dev/null || true
     /bin/rm -f "$OLD_PLIST"
   fi
 done
-
-# Previous-version LaunchAgent (app-bundle era, now removed)
-PLIST="$REAL_HOME/Library/LaunchAgents/com.forwardimpact.basecamp.plist"
-if [ -f "$PLIST" ]; then
-  /usr/bin/sudo -u "$REAL_USER" /usr/bin/launchctl unload "$PLIST" 2>/dev/null || true
-  /bin/rm -f "$PLIST"
-fi
 
 # --- Stop running instance gracefully ----------------------------------------
 
@@ -45,11 +41,13 @@ fi
 /bin/rm -f "/usr/local/bin/fit-basecamp"
 /bin/rm -f "/usr/local/bin/BasecampStatus"
 
-# Old shared resources and pkg receipt
+# Old shared resources and pkg receipts
 /bin/rm -rf "/usr/local/share/fit-basecamp"
-/usr/sbin/pkgutil --pkgs 2>/dev/null | /usr/bin/grep -q "com.fit-basecamp.scheduler" && {
-  /usr/sbin/pkgutil --forget "com.fit-basecamp.scheduler" >/dev/null 2>&1
-} || true
+for OLD_RECEIPT in "com.fit-basecamp.scheduler" "com.forwardimpact.basecamp"; do
+  /usr/sbin/pkgutil --pkgs 2>/dev/null | /usr/bin/grep -q "$OLD_RECEIPT" && {
+    /usr/sbin/pkgutil --forget "$OLD_RECEIPT" >/dev/null 2>&1
+  } || true
+done
 
 # --- Config home -------------------------------------------------------------
 

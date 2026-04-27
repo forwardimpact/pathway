@@ -8,7 +8,7 @@
     <key>CFBundleDisplayName</key>
     <string>fit-map</string>
     <key>CFBundleIdentifier</key>
-    <string>com.forwardimpact.map</string>
+    <string>team.forwardimpact.map</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>

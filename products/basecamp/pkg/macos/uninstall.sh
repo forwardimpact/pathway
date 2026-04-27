@@ -67,7 +67,7 @@ fi
 
 # --- Forget pkg receipts ----------------------------------------------------
 
-for RECEIPT in "com.forwardimpact.basecamp" "com.fit-basecamp.scheduler"; do
+for RECEIPT in "team.forwardimpact.basecamp" "com.forwardimpact.basecamp" "com.fit-basecamp.scheduler"; do
   pkgutil --pkgs 2>/dev/null | grep -q "$RECEIPT" && {
     sudo pkgutil --forget "$RECEIPT" >/dev/null 2>&1
     echo "  Removed installer receipt ($RECEIPT)"

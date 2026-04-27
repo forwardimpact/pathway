@@ -8,7 +8,7 @@
     <key>CFBundleDisplayName</key>
     <string>fit-landmark</string>
     <key>CFBundleIdentifier</key>
-    <string>com.forwardimpact.landmark</string>
+    <string>team.forwardimpact.landmark</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>

@@ -8,7 +8,7 @@
     <key>CFBundleDisplayName</key>
     <string>fit-pathway</string>
     <key>CFBundleIdentifier</key>
-    <string>com.forwardimpact.pathway</string>
+    <string>team.forwardimpact.pathway</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>

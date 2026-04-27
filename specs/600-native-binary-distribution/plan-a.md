@@ -236,7 +236,7 @@ After Mach-Os are built, bundle them via `libmacos/scripts/build-app.sh`:
 build-app-product NAME:
     bash libraries/libmacos/scripts/build-app.sh \
       --bundle-name "fit-{{NAME}}" \
-      --bundle-id "com.forwardimpact.{{NAME}}" \
+      --bundle-id "team.forwardimpact.{{NAME}}" \
       --primary-exec "dist/binaries/fit-{{NAME}}-bun-darwin-arm64" \
       --info-plist "products/{{NAME}}/macos/Info.plist" \
       --entitlements "products/{{NAME}}/macos/entitlements.plist" \
@@ -247,7 +247,7 @@ build-app-product NAME:
 build-app-services:
     bash libraries/libmacos/scripts/build-app.sh \
       --bundle-name "FIT Services" \
-      --bundle-id "com.forwardimpact.services" \
+      --bundle-id "team.forwardimpact.services" \
       --primary-exec "dist/binaries/fit-service-graph-bun-darwin-arm64" \
       --extra-exec "dist/binaries/fit-service-mcp-bun-darwin-arm64" \
       --extra-exec "dist/binaries/fit-service-pathway-bun-darwin-arm64" \
@@ -262,7 +262,7 @@ build-app-services:
 build-app-utilities:
     bash libraries/libmacos/scripts/build-app.sh \
       --bundle-name "FIT Utilities" \
-      --bundle-id "com.forwardimpact.utilities" \
+      --bundle-id "team.forwardimpact.utilities" \
       --primary-exec "dist/binaries/fit-codegen-bun-darwin-arm64" \
       --extra-exec "dist/binaries/fit-terrain-bun-darwin-arm64" \
       # … remaining library-CLI Mach-Os as --extra-exec
@@ -289,7 +289,7 @@ Create `Info.plist` and `entitlements.plist` alongside each bundle's source
 tree:
 
 - `products/<name>/macos/Info.plist` for the five non-basecamp products — render
-  `libmacos/templates/Info.plist.hbs` with `bundleId=com.forwardimpact.<name>`,
+  `libmacos/templates/Info.plist.hbs` with `bundleId=team.forwardimpact.<name>`,
   `executable=fit-<name>`, `minOS=13.0`, no `NS*UsageDescription` entries.
   Basecamp already has `products/basecamp/macos/Info.plist` — leave it alone.
 - `products/<name>/macos/entitlements.plist` for the five non-basecamp products
@@ -297,10 +297,10 @@ tree:
   disable-library-validation). Basecamp continues to reference
   `products/basecamp/macos/Basecamp.entitlements`.
 - `macos/services/Info.plist` and `macos/services/entitlements.plist` — metadata
-  for `FIT Services.app`. Identifier `com.forwardimpact.services`,
+  for `FIT Services.app`. Identifier `team.forwardimpact.services`,
   `CFBundleExecutable=fit-service-graph`.
 - `macos/libraries/Info.plist` and `macos/libraries/entitlements.plist` —
-  metadata for `FIT Utilities.app`. Identifier `com.forwardimpact.utilities`,
+  metadata for `FIT Utilities.app`. Identifier `team.forwardimpact.utilities`,
   `CFBundleExecutable=fit-codegen`.
 
 The shared bundles live under a top-level `macos/` directory rather than beside
@@ -348,9 +348,9 @@ just codegen
 just build-app-product pathway
 # Expect: dist/apps/fit-pathway.app exists
 codesign -dvvv dist/apps/fit-pathway.app
-# Expect: Identifier=com.forwardimpact.pathway, Signature=adhoc, non-empty cdhash
+# Expect: Identifier=team.forwardimpact.pathway, Signature=adhoc, non-empty cdhash
 plutil -p dist/apps/fit-pathway.app/Contents/Info.plist
-# Expect: CFBundleIdentifier=com.forwardimpact.pathway, CFBundleShortVersionString=<version>
+# Expect: CFBundleIdentifier=team.forwardimpact.pathway, CFBundleShortVersionString=<version>
 codesign -d --entitlements - dist/apps/fit-pathway.app
 # Expect: entitlements plist with com.apple.security.cs.allow-jit
 codesign --verify --deep --strict dist/apps/fit-pathway.app
@@ -678,7 +678,7 @@ still inherits Calendar and Contacts grants from macOS TCC.
 # process resolves to the bundle, not to Terminal or the PATH symlink:
 log stream --predicate 'subsystem == "com.apple.tcc"'
 # Expect to see responsible-process lookups resolve to
-# com.forwardimpact.basecamp
+# team.forwardimpact.basecamp
 ```
 
 Record the test outcome in the implementation PR's description.
@@ -742,7 +742,7 @@ cask "fit-pathway" do
     regex(/^pathway@v(\d+(?:\.\d+)+)$/i)
   end
 
-  zap trash: "~/Library/Preferences/com.forwardimpact.pathway.plist"
+  zap trash: "~/Library/Preferences/team.forwardimpact.pathway.plist"
 end
 ```
 
@@ -796,7 +796,7 @@ cask "fit-utilities" do
     regex(/^utilities@v(\d+(?:\.\d+)+)$/i)
   end
 
-  zap trash: "~/Library/Preferences/com.forwardimpact.utilities.plist"
+  zap trash: "~/Library/Preferences/team.forwardimpact.utilities.plist"
 end
 ```
 
