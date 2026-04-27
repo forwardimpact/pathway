@@ -2,6 +2,7 @@
   "memory": {
     "enabled": true
   },
+  "effortLevel": "xhigh",
   "permissions": {
     "defaultMode": "bypassPermissions",
     "allow": [
