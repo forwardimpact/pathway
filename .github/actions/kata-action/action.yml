@@ -65,6 +65,10 @@ inputs:
   app-id:
     description: GitHub App ID for git identity email
     required: true
+  timeout-minutes:
+    description: Maximum minutes the agent step may run before being cancelled
+    required: false
+    default: "45"
 
 runs:
   using: composite
@@ -92,6 +96,7 @@ runs:
 
     - name: Run fit-eval
       shell: bash
+      timeout-minutes: ${{ fromJSON(inputs.timeout-minutes) }}
       env:
         MODE: ${{ inputs.mode }}
         TASK_FILE: ${{ inputs.task-file }}
