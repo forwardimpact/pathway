@@ -1,9 +1,5 @@
 # Basecamp — build, install, and manage the scheduler
 
-app_name       := "fit-basecamp"
-launcher       := "Basecamp"
-version        := `grep '"version"' package.json | head -1 | sed 's/.*: *"//;s/".*//;s/ //g'`
-plist_name     := "com.forwardimpact.basecamp"
 dist_dir       := "dist"
 
 # Show available recipes
@@ -12,64 +8,32 @@ default:
     @just --list
 
 # ─── Build ────────────────────────────────────────────────────────────────────
+#
+# All build recipes delegate to pkg/build.js (single source of truth).
 
-# Copy fit-* skills from monorepo .claude/skills/ into templates.
-# For local testing only — the build script (pkg/build.js) does this automatically.
+# Copy fit-* skills from monorepo .claude/skills/ into templates
 prepare-template:
-    #!/usr/bin/env bash
-    set -e
-    src="../../.claude/skills"
-    dest="templates/.claude/skills"
-    count=0
-    for d in "$src"/fit-*/; do
-        [ -d "$d" ] || continue
-        name="$(basename "$d")"
-        rm -rf "$dest/$name"
-        cp -R "$d" "$dest/$name"
-        echo "  Copied $name"
-        count=$((count + 1))
-    done
-    echo "  -> $count skills copied"
+    bun pkg/build.js --prepare-template
 
 # Compile standalone scheduler binary
 build-scheduler:
-    @mkdir -p "{{ dist_dir }}"
-    bun build --compile \
-        --define 'process.env.BASECAMP_VERSION'='"{{ version }}"' \
-        --outfile "{{ dist_dir }}/{{ app_name }}" src/basecamp.js
+    bun pkg/build.js --scheduler
 
 # Compile Swift app launcher (includes status menu UI)
 build-launcher:
-    @mkdir -p "{{ dist_dir }}"
-    @rm -rf macos/Basecamp/.build
-    swift build -c release --package-path macos/Basecamp
-    @cp macos/Basecamp/.build/release/{{ launcher }} "{{ dist_dir }}/{{ launcher }}"
-    @rm -rf macos/Basecamp/.build
+    bun pkg/build.js --launcher
 
-# Compile everything (scheduler first so launcher binary is not embedded)
-build: prepare-template build-scheduler build-launcher
+# Prepare templates + compile scheduler + compile launcher
+build:
+    bun pkg/build.js
 
-# Assemble Basecamp.app bundle
-build-app: build
-    #!/usr/bin/env bash
-    set -euo pipefail
-    ICON_DIR="../../design/icons"
-    bash ../../libraries/libmacos/scripts/build-app.sh \
-      --bundle-name "Basecamp" \
-      --primary-exec "{{ dist_dir }}/{{ launcher }}" \
-      --extra-exec "{{ dist_dir }}/{{ app_name }}" \
-      --info-plist "macos/Info.plist" \
-      --entitlements "macos/Basecamp.entitlements" \
-      --resource "config" \
-      --resource "templates" \
-      --resource "$ICON_DIR/basecamp-flat.svg" \
-      --resource "$ICON_DIR/basecamp.svg" \
-      --version "{{ version }}" \
-      --out-dir "{{ dist_dir }}"
+# Above + assemble Basecamp.app bundle
+build-app:
+    bun pkg/build.js --app
 
-# Build macOS installer package (.pkg)
-pkg: build-app
-    bash pkg/macos/build-pkg.sh "{{ dist_dir }}" "{{ version }}"
+# Above + build macOS installer package (.pkg)
+pkg:
+    bun pkg/build.js --pkg
 
 # Clean build artifacts
 clean:

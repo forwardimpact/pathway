@@ -3,9 +3,12 @@
 // Build script for Basecamp (arm64 macOS).
 //
 // Usage:
-//   bun pkg/build.js           Build scheduler + launcher
-//   bun pkg/build.js --app     Build + assemble Basecamp.app
-//   bun pkg/build.js --pkg     Build + assemble + .pkg installer
+//   bun pkg/build.js                    Prepare templates + scheduler + launcher
+//   bun pkg/build.js --app              Above + assemble Basecamp.app
+//   bun pkg/build.js --pkg              Above + .pkg installer
+//   bun pkg/build.js --prepare-template Copy fit-* skills into templates only
+//   bun pkg/build.js --scheduler        Compile scheduler binary only
+//   bun pkg/build.js --launcher         Compile Swift launcher only
 
 import {
   cpSync,
@@ -168,26 +171,32 @@ function buildPKG() {
 // ---------------------------------------------------------------------------
 
 const args = process.argv.slice(2);
-const wantApp = args.includes("--app") || args.includes("--pkg");
-const wantPKG = args.includes("--pkg");
+
+// No flags → full default build (templates + scheduler + launcher).
+// Explicit flags → run only those steps; --app/--pkg imply the earlier steps.
+const all = args.length === 0;
+const want = {
+  prepareTemplate: all || args.includes("--prepare-template"),
+  scheduler: all || args.includes("--scheduler"),
+  launcher: all || args.includes("--launcher"),
+  app: args.includes("--app") || args.includes("--pkg"),
+  pkg: args.includes("--pkg"),
+};
+if (want.app || want.pkg) {
+  want.prepareTemplate = true;
+  want.scheduler = true;
+  want.launcher = true;
+}
 
 console.log(`Basecamp Build (v${VERSION})`);
 console.log("==========================");
 
-// Copy monorepo fit-* skills into templates before packaging
-prepareTemplate();
-
-// Compile scheduler first (before launcher exists in dist/),
-// so the launcher binary is not embedded in the compiled binary.
-compileScheduler();
-compileLauncher();
-
-if (wantApp) {
-  buildApp();
-}
-
-if (wantPKG) {
-  buildPKG();
-}
+if (want.prepareTemplate) prepareTemplate();
+// Scheduler first (before launcher exists in dist/) so the launcher binary
+// is not embedded in the compiled binary.
+if (want.scheduler) compileScheduler();
+if (want.launcher) compileLauncher();
+if (want.app) buildApp();
+if (want.pkg) buildPKG();
 
 console.log("\nBuild complete! Output in dist/");
