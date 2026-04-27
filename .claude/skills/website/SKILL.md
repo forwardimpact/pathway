@@ -70,9 +70,9 @@ fallback).
 
 Visual decisions follow four documents: `design/index.md` (the abstract,
 brand-agnostic design language and the three characters),
-`design/forwardimpact/index.md` (the FIT-specific palette, fonts, products,
-layouts, and CSS tokens), `design/forwardimpact/scenes.md` (the six FIT product
-scenes and the scene usage matrix), and `design/forwardimpact/icons.md` (the six
+`design/fit/index.md` (the FIT-specific palette, fonts, products,
+layouts, and CSS tokens), `design/fit/scenes.md` (the six FIT product
+scenes and the scene usage matrix), and `design/fit/icons.md` (the six
 FIT product icons, the icon system rules, and the combined suite mark). Key
 rules for website work:
 
@@ -84,14 +84,14 @@ rules for website work:
   backgrounds
 - **Character illustrations** — three characters (Engineer, AI Agent,
   Stakeholder) in monochrome line art; see `design/index.md` for the characters
-  and reusable scenes, and `design/forwardimpact/scenes.md` for the FIT product
+  and reusable scenes, and `design/fit/scenes.md` for the FIT product
   scenes
-- **Product icons** — see `design/forwardimpact/icons.md` for the six FIT
+- **Product icons** — see `design/fit/icons.md` for the six FIT
   product icons and the icon system rules
 - **Design tokens** — use the CSS custom properties defined in
-  `design/forwardimpact/index.md` § 10
+  `design/fit/index.md` § 10
 
-Consult `design/forwardimpact/index.md` directly for color values, spacing
+Consult `design/fit/index.md` directly for color values, spacing
 tokens, component specs, and FIT-specific guidelines.
 
 ## Publishing
