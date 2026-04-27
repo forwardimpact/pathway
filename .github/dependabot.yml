@@ -2,7 +2,12 @@ version: 2
 enable-beta-ecosystems: true
 updates:
   - package-ecosystem: github-actions
-    directory: /
+    directories:
+      - /
+      - /.github/actions/audit
+      - /.github/actions/bootstrap
+      - /.github/actions/kata-action
+      - /.github/actions/post-run
     schedule:
       interval: weekly
   - package-ecosystem: bun
