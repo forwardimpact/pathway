@@ -86,6 +86,7 @@ function compileScheduler() {
     "bun build",
     "--compile",
     `--outfile "${outputPath}"`,
+    `--define 'process.env.BASECAMP_VERSION'='"${VERSION}"'`,
     "src/basecamp.js",
   ].join(" ");
 

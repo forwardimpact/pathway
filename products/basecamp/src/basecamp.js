@@ -50,10 +50,13 @@ const __dirname =
 const SHARE_DIR = "/usr/local/share/fit-basecamp";
 const SOCKET_PATH = join(BASECAMP_HOME, "basecamp.sock");
 
-/** Package version read from package.json */
-const VERSION = JSON.parse(
-  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
-).version;
+// In compiled binaries (bun build --compile), `bun build --define` injects the
+// version string here so the readFileSync branch is eliminated as dead code.
+// Source execution (bun src/basecamp.js) falls through to package.json.
+const VERSION =
+  process.env.BASECAMP_VERSION ||
+  JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
+    .version;
 
 // --- Logging -----------------------------------------------------------------
 
