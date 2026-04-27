@@ -68,7 +68,13 @@ fallback).
 
 ## Design Guidelines
 
-All visual decisions follow `design/SPEC.md`. Key rules for website work:
+Visual decisions follow four documents: `design/index.md` (the abstract,
+brand-agnostic design language and the three characters),
+`design/forwardimpact/index.md` (the FIT-specific palette, fonts, products,
+layouts, and CSS tokens), `design/forwardimpact/scenes.md` (the six FIT product
+scenes and the scene usage matrix), and `design/forwardimpact/icons.md` (the six
+FIT product icons, the icon system rules, and the combined suite mark). Key
+rules for website work:
 
 - **Monochrome palette** — warm-tinted grays, sandstone accent for ambient
   warmth, never color
@@ -77,12 +83,16 @@ All visual decisions follow `design/SPEC.md`. Key rules for website work:
 - **Section rhythm** — alternate white (`#ffffff`) and warm (`#faf9f7`)
   backgrounds
 - **Character illustrations** — three characters (Engineer, AI Agent,
-  Stakeholder) in monochrome line art; see SPEC.md for scene descriptions and
-  rules
-- **Design tokens** — use CSS custom properties defined in SPEC.md section 15
+  Stakeholder) in monochrome line art; see `design/index.md` for the characters
+  and reusable scenes, and `design/forwardimpact/scenes.md` for the FIT product
+  scenes
+- **Product icons** — see `design/forwardimpact/icons.md` for the six FIT
+  product icons and the icon system rules
+- **Design tokens** — use the CSS custom properties defined in
+  `design/forwardimpact/index.md` § 10
 
-Consult `design/SPEC.md` directly for color values, spacing tokens, component
-specs, and character guidelines.
+Consult `design/forwardimpact/index.md` directly for color values, spacing
+tokens, component specs, and FIT-specific guidelines.
 
 ## Publishing
 
