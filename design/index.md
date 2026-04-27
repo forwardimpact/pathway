@@ -5,11 +5,14 @@
 > restraint of Ollama and the character-driven warmth of Go's Gopher, adapted
 > for professional product suites.
 
-This document describes the abstract design language: the philosophy, the three
-characters, the scene grammar, and the cross-brand patterns for color,
+This document describes the abstract design language: the philosophy, the
+three characters, the scene grammar, and the cross-brand patterns for color,
 typography, spacing, components, motion, and accessibility. Concrete
 implementations — palette values, fonts, product taxonomies, icons, layouts,
-and design tokens — live in per-brand files.
+and design tokens — live in per-brand files. Brands derive from this shared
+language and stay recognizable as siblings while taking distinct stances on
+metaphor, palette, and motif. The contract is in
+[§ 12 Deriving a Brand](#12-deriving-a-brand).
 
 **Brand implementations:**
 
@@ -40,12 +43,12 @@ and design tokens — live in per-brand files.
 
 ## 2. The Three Characters
 
-The visual identity is built around three characters who embody a collaborative
-dynamic at the heart of forward deployed engineering — and who mirror three
-audiences (Engineers, Agents, Leadership). They are always shown together —
-working side by side, consulting, collaborating. They replace the solo hero
-with a team, reflecting that this work happens at the intersection of
-engineering, AI, and business.
+The visual identity is built around three characters who embody a
+collaborative dynamic between people, AI, and domain expertise — and who
+mirror three audiences (Engineers, Agents, Leadership). They are always
+shown together — working side by side, consulting, collaborating. They
+replace the solo hero with a team, reflecting that this work happens at the
+intersection of engineering, AI, and the business it serves.
 
 ### Design Specifications
 
@@ -55,15 +58,15 @@ engineering, AI, and business.
 - Round heads, simple dot eyes — expressive through posture, not facial detail
 - Roughly 2:3 proportions (wide:tall), slightly cartoonish but not childish
 - Same height — no hierarchy of size
-- Hand-drawn style, like a field notebook sketch
+- Hand-drawn style, like a working notebook sketch
 
 **The Engineer:**
 
 - Animal-eared hoodie (bunny or fox ears on the hood) — the signature element.
   The hoodie signals hacker/builder culture — someone who ships code, lives in
   terminals, and brings creative irreverence to serious problems.
-- Visible backpack — the constant from the field metaphor: they carry their
-  tools wherever they're deployed. Hair visible under the hoodie.
+- Visible backpack — they carry their tools wherever they go. Hair visible
+  under the hoodie.
 - Laptop with a round citrus fruit sticker (resembling Apple logo without the
   apple fruit)
 - Posture: leaning in, engaged, slightly informal
@@ -81,11 +84,10 @@ engineering, AI, and business.
 **The Business Stakeholder:**
 
 - Business attire: collared shirt, tie, blazer. Neat hair, formal posture.
-- **No backpack** — they're the domain expert who knows the territory, not the
-  one carrying gear through it. They represent the leadership and domain
-  experts that engineers are embedded with — product owners, engineering
-  managers, and business stakeholders who define what good engineering looks
-  like.
+- **No backpack** — they're the domain expert who already knows the
+  territory, not the one carrying gear into it. They represent leadership
+  and domain experts who define what good looks like — product owners,
+  engineering managers, and business stakeholders.
 - Laptop with a Claude Code sticker
 - Posture: engaged but composed, professional
 
@@ -258,9 +260,11 @@ for one concrete realization.
 | **Body**           | Sans-serif   |
 | **Mono / Code**    | Monospace    |
 
-The serif/sans pairing creates hierarchy beyond size and weight. Serifs evoke
-field journals, cartographic labels, and expedition logs. Brands choose the
-specific families and the type scale; the pairing pattern is fixed.
+The serif/sans pairing creates hierarchy beyond size and weight. The serif
+anchors the brand's character — what it specifically evokes is a brand
+decision (e.g. field journals, training manuals, archival records). Brands
+choose the specific families and the type scale; the pairing pattern is
+fixed.
 
 A typical scale spans hero (≈ 64px serif) → display (≈ 44px serif) → h1–h3
 (sans, 32/24/20px) → body (16px) → small/badge/mono (14/12/14px). Colors
@@ -377,6 +381,80 @@ All animations respect `prefers-reduced-motion`.
 | **Motion sensitivity**    | All animations respect `prefers-reduced-motion`                                               |
 | **Dark mode**             | Invert system — darkest gray bg, warm-light text, white-on-dark line art                      |
 | **Scene alt text**        | All scenes include descriptive alt text identifying roles and action                          |
+
+---
+
+## 12. Deriving a Brand
+
+A brand inherits this language and adds its own interpretation. The split
+below preserves family resemblance: someone who has seen one brand should
+immediately recognize a sibling, even when the metaphor and palette differ.
+
+### Inherited (do not override)
+
+These elements are the family's shared DNA. A brand that diverges on any of
+them stops being part of the family.
+
+- **The three characters and their identifying traits.** Engineer's
+  animal-eared hoodie, the AI Agent's geometric round head with headphones,
+  the Stakeholder's business attire and absent backpack. Posture, scale,
+  and group dynamics also stay constant.
+- **2px monochrome line-art** for characters, scenes, and icons.
+- **Pure white scene backgrounds.** No frames, panels, or fills.
+- **The Don'ts in [§ 5](#5-character--scene-guidelines).**
+- **Scene grammar** — composition rules, scale conventions, emotional tone
+  ([§ 3](#3-scene-grammar)).
+- **Reusable base scenes** — Trio at Work, Welcome Wave, Documentation Dig
+  ([§ 4](#4-reusable-base-scenes)).
+- **Monochrome with one warm signal** ([§ 6](#6-color-philosophy)). The
+  hue varies; the pattern doesn't.
+- **Typography pairing** — display serif + sans body + monospace code
+  ([§ 7](#7-typography-pattern)).
+- **8px spacing rhythm** and the spacing token names
+  ([§ 8](#8-spacing-system)).
+- **Component vocabulary** — buttons (primary/secondary/ghost/product),
+  cards, terminal/code blocks, dark footer ([§ 9](#9-components)).
+- **Motion defaults** and `prefers-reduced-motion` compliance
+  ([§ 10](#10-motion--interaction)).
+- **Accessibility rules** ([§ 11](#11-accessibility)).
+
+### Specified per brand
+
+These are the dimensions a brand uses to find its distinct voice while
+staying inside the family.
+
+- **Premise / metaphor** — what world the brand inhabits (e.g. expedition,
+  practice, fieldwork). Surfaces in motifs and naming, never in structural
+  UI.
+- **Product taxonomy** — which products belong to the brand and what each
+  one answers.
+- **Color values** — the warm-tinted gray ramp and the warm-signal hue and
+  ramp. The pattern is fixed; the values are not.
+- **Typeface choices** — specific serif, sans, and mono families, plus
+  type-scale numbers (sizes, weights, line heights).
+- **Product motifs** — visual symbols (e.g. compass, cairn, dojo mat) used
+  in product icons and scenes.
+- **Product scenes** — extensions of the base scenes that include the
+  brand's product symbols. Live in `<brand>/scenes.md`.
+- **Product icons** — drawn on the family's icon grid (24px, 2px stroke,
+  no fill except where the brand explicitly notes).
+- **Layout patterns** — landing page, navigation, section rhythm specific
+  to the brand's site.
+- **Product visual language** — UI treatments per product (e.g. progress
+  bar styles, dashboard overlays).
+- **CSS design tokens** — the concrete `:root` realization of the above.
+
+### File structure
+
+A brand lives in `design/<brand>/`:
+
+- `index.md` — premise, products, palette, typography, icons, layout
+  patterns, product visual language, CSS tokens. Links back to this file
+  with `../index.md`.
+- `scenes.md` — product scenes and the scene usage matrix.
+
+Add the brand to the "Brand implementations" list at the top of this file.
+See [`forwardimpact/`](forwardimpact/index.md) as a worked example.
 
 ---
 
