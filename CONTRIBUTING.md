@@ -224,15 +224,15 @@ Security policies apply to all contributors — human and agent.
 ## Dependency Policy
 
 - **Prefer built-ins.** Use Node built-ins over npm (`fetch` not `undici`,
-  `crypto.randomUUID()` not `uuid`); consolidate overlapping packages — one
-  YAML parser, one markdown renderer.
+  `crypto.randomUUID()` not `uuid`); consolidate overlapping packages — one YAML
+  parser, one markdown renderer.
 - **Align versions.** Declare the same range across workspaces. Bun hoists
-  matched versions to a single copy — don't remove a runtime dep just because
-  it deduplicates.
+  matched versions to a single copy — don't remove a runtime dep just because it
+  deduplicates.
 - **No nested duplicates.** Same package at two major versions (e.g.
-  `protobufjs@8` next to `@grpc/proto-loader/protobufjs@7`) is forbidden.
-  Before merging a major bump, run `bun pm ls` and inspect `bun.lock` for
-  `invalid` markers; close the PR if dependents lack compatible ranges.
+  `protobufjs@8` next to `@grpc/proto-loader/protobufjs@7`) is forbidden. Before
+  merging a major bump, run `bun pm ls` and inspect `bun.lock` for `invalid`
+  markers; close the PR if dependents lack compatible ranges.
 - **Audit after changes.** Run `just audit-vulnerabilities` after adding or
   updating deps.
 
@@ -250,6 +250,6 @@ Every dependency belongs in one category. Apply in order — first match wins.
 
 ### Optional Dependency Pattern
 
-Backend-specific and feature-gated deps use dynamic `import()` at the call
-site (never at module top), wrapped in `try/catch` that throws naming the
-feature, the package, and the install command. Never silently fall back.
+Backend-specific and feature-gated deps use dynamic `import()` at the call site
+(never at module top), wrapped in `try/catch` that throws naming the feature,
+the package, and the install command. Never silently fall back.

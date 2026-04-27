@@ -1,23 +1,23 @@
 # Forward Impact Team (FIT) — Brand Implementation
 
-> The FIT realization of the [shared design language](../index.md): a
-> monochrome design system for six open-source products — **Map**,
-> **Pathway**, **Basecamp**, **Guide**, **Landmark**, and **Summit** — built
-> around the metaphor of engineers deployed "in the field." Three characters
-> — the Engineer, the AI Agent, and the Business Stakeholder — collaborate
-> at the boundary between technology and the real world.
+> The FIT realization of the [shared design language](../index.md): a monochrome
+> design system for six open-source products — **Map**, **Pathway**,
+> **Basecamp**, **Guide**, **Landmark**, and **Summit** — built around the
+> metaphor of engineers deployed "in the field." Three characters — the
+> Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
+> boundary between technology and the real world.
 >
-> The design embodies Deming's principle: improve the performance of
-> developers and agents, improve quality, increase output, and bring pride of
-> workmanship to engineering teams.
+> The design embodies Deming's principle: improve the performance of developers
+> and agents, improve quality, increase output, and bring pride of workmanship
+> to engineering teams.
 
-This file specifies what is FIT-specific: the field metaphor, FIT's
-reading of the family characters, the six products, the concrete color
-palette, the typography choices, the type scale, the layout patterns, the
-product visual language, and the CSS design tokens. The product scenes and
-product icons live alongside in [scenes.md](scenes.md) and
-[icons.md](icons.md). For the abstract design language and the three
-characters' shared visual specifications, see [../index.md](../index.md).
+This file specifies what is FIT-specific: the field metaphor, FIT's reading of
+the family characters, the six products, the concrete color palette, the
+typography choices, the type scale, the layout patterns, the product visual
+language, and the CSS design tokens. The product scenes and product icons live
+alongside in [scenes.md](scenes.md) and [icons.md](icons.md). For the abstract
+design language and the three characters' shared visual specifications, see
+[../index.md](../index.md).
 
 ---
 
@@ -27,59 +27,57 @@ characters' shared visual specifications, see [../index.md](../index.md).
 
 1. **Expedition**: Forward deployed — operating with autonomy in unfamiliar
    terrain. Basecamp is where you prepare. The Guide keeps you oriented. The
-   Pathway is how you advance. The Map shows the territory. The Summit is
-   the peak the team aims to reach together.
-2. **Scientific fieldwork**: Engineers embedded with business units and
-   domain experts — working where the problems live.
+   Pathway is how you advance. The Map shows the territory. The Summit is the
+   peak the team aims to reach together.
+2. **Scientific fieldwork**: Engineers embedded with business units and domain
+   experts — working where the problems live.
 3. **Topographic/landscape**: Contour maps, trail markers, compass roses,
-   cairns, and mountain peaks — tools humans use to navigate unfamiliar
-   ground.
+   cairns, and mountain peaks — tools humans use to navigate unfamiliar ground.
 
 The name **Forward Impact Team** (FIT) captures all three: "Forward" from
 forward deployed, "Impact" from the mission to change outcomes where they
-happen, and "Team" because this work is fundamentally collaborative —
-engineer, AI, and business working together.
+happen, and "Team" because this work is fundamentally collaborative — engineer,
+AI, and business working together.
 
-The metaphor surfaces in illustration and iconography. The UI itself is
-clean and functional, not themed like an outdoor gear catalog.
+The metaphor surfaces in illustration and iconography. The UI itself is clean
+and functional, not themed like an outdoor gear catalog.
 
 ---
 
 ## 2. Characters in the Field
 
-The [three family characters](../index.md#2-the-three-characters) live
-inside the field metaphor. Their visual specifications are unchanged from
-the family — what follows are FIT-specific readings, not new shapes:
+The [three family characters](../index.md#2-the-three-characters) live inside
+the field metaphor. Their visual specifications are unchanged from the family —
+what follows are FIT-specific readings, not new shapes:
 
-- **Hand-drawn voice.** The 2px monochrome line-art reads, in FIT, as a
-  *field notebook sketch* — something an engineer might draw in the margin
-  of a logbook between deployments.
-- **The Engineer's backpack.** The constant from the field metaphor: they
-  carry their tools wherever they're deployed.
-- **The Stakeholder's role.** Represents the leadership and domain experts
-  that engineers are embedded with — product owners, engineering managers,
-  and business stakeholders who define what good engineering looks like.
-  Their absent backpack reads, in FIT, as "the territory is theirs
-  already."
-- **What the trio embodies.** Together, the three characters embody the
-  heart of forward deployed engineering — engineer, AI, and business
-  working at the boundary between technology and the real world.
+- **Hand-drawn voice.** The 2px monochrome line-art reads, in FIT, as a _field
+  notebook sketch_ — something an engineer might draw in the margin of a logbook
+  between deployments.
+- **The Engineer's backpack.** The constant from the field metaphor: they carry
+  their tools wherever they're deployed.
+- **The Stakeholder's role.** Represents the leadership and domain experts that
+  engineers are embedded with — product owners, engineering managers, and
+  business stakeholders who define what good engineering looks like. Their
+  absent backpack reads, in FIT, as "the territory is theirs already."
+- **What the trio embodies.** Together, the three characters embody the heart of
+  forward deployed engineering — engineer, AI, and business working at the
+  boundary between technology and the real world.
 
 ---
 
 ## 3. The Six Products
 
-| Product      | Question it answers                              |
-| ------------ | ------------------------------------------------ |
-| **Map**      | What does good engineering look like here?       |
-| **Pathway**  | Where does my career path go from here?          |
-| **Basecamp** | Am I prepared for what's ahead today?            |
-| **Guide**    | How do I find my bearing?                        |
-| **Landmark** | What milestones has my engineering reached?      |
+| Product      | Question it answers                               |
+| ------------ | ------------------------------------------------- |
+| **Map**      | What does good engineering look like here?        |
+| **Pathway**  | Where does my career path go from here?           |
+| **Basecamp** | Am I prepared for what's ahead today?             |
+| **Guide**    | How do I find my bearing?                         |
+| **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
 
-Each product has its own visual motif — drawn from the field metaphor —
-that surfaces in icons and scenes but never in structural UI.
+Each product has its own visual motif — drawn from the field metaphor — that
+surfaces in icons and scenes but never in structural UI.
 
 | Product      | Motif                  |
 | ------------ | ---------------------- |
@@ -120,11 +118,11 @@ that surfaces in icons and scenes but never in structural UI.
 | `--sand-400` | `#b8a88e` | Warm tertiary elements                 |
 | `--sand-600` | `#8a7a62` | Warm accent text (used very sparingly) |
 
-**Usage rule:** Sandstone appears in backgrounds and borders, never in text
-or interactive elements. It's ambient — parchment showing through the ink.
+**Usage rule:** Sandstone appears in backgrounds and borders, never in text or
+interactive elements. It's ambient — parchment showing through the ink.
 
-All grays are warm-tinted (pulling toward brown/taupe, ~3–5% warm shift).
-The difference accumulates across the page — warmer, more human, like paper.
+All grays are warm-tinted (pulling toward brown/taupe, ~3–5% warm shift). The
+difference accumulates across the page — warmer, more human, like paper.
 
 ---
 
@@ -139,9 +137,9 @@ The difference accumulates across the page — warmer, more human, like paper.
 | **Body**           | `"DM Sans"`                         | Same                                                        |
 | **Mono / Code**    | `"DM Mono"` (Google Fonts)          | `"SF Mono", Consolas, "Liberation Mono", monospace`         |
 
-**Instrument Serif** is FIT's specific reading of the family's display
-serif: it evokes field journals, cartographic labels, and expedition logs —
-the vocabulary of writing things down in the field.
+**Instrument Serif** is FIT's specific reading of the family's display serif: it
+evokes field journals, cartographic labels, and expedition logs — the vocabulary
+of writing things down in the field.
 
 ### Type Scale
 
@@ -178,21 +176,20 @@ DM Sans, 18px, weight 400, gray-400:
 
 ## 6. Product Scenes
 
-The FIT product scenes — Map, Pathway, Basecamp, Guide, Landmark, Summit —
-and the scene usage matrix live in a sibling file:
-[scenes.md](scenes.md). They extend the
-[reusable base scenes](../index.md#4-reusable-base-scenes) with FIT product
-symbols.
+The FIT product scenes — Map, Pathway, Basecamp, Guide, Landmark, Summit — and
+the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
+extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with FIT
+product symbols.
 
 ---
 
 ## 7. Product Icons
 
-The six FIT product icons — Map, Pathway, Guide, Landmark, Summit,
-Basecamp — plus the icon system rules and the combined suite mark live in
-a sibling file: [icons.md](icons.md). They share the family icon grid
-(24px, 2px stroke, no fill) and read as if drawn in the same notebook as
-the [characters](../index.md#2-the-three-characters).
+The six FIT product icons — Map, Pathway, Guide, Landmark, Summit, Basecamp —
+plus the icon system rules and the combined suite mark live in a sibling file:
+[icons.md](icons.md). They share the family icon grid (24px, 2px stroke, no
+fill) and read as if drawn in the same notebook as the
+[characters](../index.md#2-the-three-characters).
 
 ---
 
@@ -257,23 +254,22 @@ Footer:    gray-900 (#1c1a18)       — Dark footer (inverted), licenses
 
 ### Concrete Components
 
-The component patterns in
-[../index.md § 9](../index.md#9-components) instantiate with FIT colors:
+The component patterns in [../index.md § 9](../index.md#9-components)
+instantiate with FIT colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`.
 - **Buttons (Secondary / Product):** `border: 1.5px solid --gray-200`, text
   `--gray-900`.
-- **Cards:** `background: --white` (on warm bg) or `--white-warm` (on white
-  bg), `border: 1.5px solid --gray-200`. On hover, border warms to
-  `--sand-200`.
+- **Cards:** `background: --white` (on warm bg) or `--white-warm` (on white bg),
+  `border: 1.5px solid --gray-200`. On hover, border warms to `--sand-200`.
 - **Terminal / Code Blocks:** `background: --gray-900` (`#1c1a18`), text
   `#e8e5e0`, prompt `❯` in `--sand-400`, comments in `--gray-400`.
 - **Contour Line Texture:** Repeating thin wavy lines in `--gray-100` on
-  `--white-warm` or `--sand-50` sections. 1px stroke, spaced 40px apart,
-  opacity 0.3. Never on pure white backgrounds.
-- **Footer (Dark):** `background: --gray-900`, primary text `#e8e5e0`,
-  secondary text `--gray-400`, dividers `--gray-700`. Trio silhouette + "FIT"
-  in white. Licenses (Apache-2.0 code, CC BY 4.0 docs) in `--gray-400`.
+  `--white-warm` or `--sand-50` sections. 1px stroke, spaced 40px apart, opacity
+  0.3. Never on pure white backgrounds.
+- **Footer (Dark):** `background: --gray-900`, primary text `#e8e5e0`, secondary
+  text `--gray-400`, dividers `--gray-700`. Trio silhouette + "FIT" in white.
+  Licenses (Apache-2.0 code, CC BY 4.0 docs) in `--gray-400`.
 
 ---
 
@@ -292,18 +288,18 @@ Each product shares the core design system with subtle differentiators:
 
 ### Product-Specific UI Treatments
 
-- **Map**: Data visualizations use map-like layouts — nodes on a terrain
-  grid for skill taxonomies and org structure.
-- **Pathway**: Progress uses vertical elevation bars (filling upward)
-  rather than horizontal progress bars. Trail-like switchback patterns for
-  navigation steps.
-- **Guide**: AI responses indented with a faint left-border in `--sand-200`
-  — like a margin note in a field journal.
-- **Landmark**: Dashboard trend lines and comparison bars overlaid on a
-  subtle terrain grid.
+- **Map**: Data visualizations use map-like layouts — nodes on a terrain grid
+  for skill taxonomies and org structure.
+- **Pathway**: Progress uses vertical elevation bars (filling upward) rather
+  than horizontal progress bars. Trail-like switchback patterns for navigation
+  steps.
+- **Guide**: AI responses indented with a faint left-border in `--sand-200` —
+  like a margin note in a field journal.
+- **Landmark**: Dashboard trend lines and comparison bars overlaid on a subtle
+  terrain grid.
 - **Summit**: Team heatmaps use terrain-grid overlays. Capability bars fill
-  upward like ascent meters. What-if scenarios use side-by-side peak
-  outlines showing before/after team composition.
+  upward like ascent meters. What-if scenarios use side-by-side peak outlines
+  showing before/after team composition.
 - **Basecamp**: Document cards use warm-tinted backgrounds (`--sand-50`)
   suggesting pages in a notebook.
 
@@ -385,5 +381,5 @@ Each product shares the core design system with subtle differentiators:
 
 ---
 
-_FIT brand implementation of the [shared design language](../index.md).
-Updated April 2026._
+_FIT brand implementation of the [shared design language](../index.md). Updated
+April 2026._
