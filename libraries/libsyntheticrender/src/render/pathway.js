@@ -61,7 +61,21 @@ export function renderPathway(pathwayData) {
     }
   }
 
+  files.set("repository/claude-settings.yaml", renderClaudeSettings());
+
   return files;
+}
+
+/**
+ * Render the Claude Code settings file with sensible defaults for a
+ * newly generated agent team.
+ *
+ * @returns {string}
+ */
+function renderClaudeSettings() {
+  return YAML.stringify({
+    permissions: { defaultMode: "acceptEdits" },
+  });
 }
 
 /**

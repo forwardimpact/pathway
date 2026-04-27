@@ -88,6 +88,8 @@ export class ProseEngine {
    */
   async #callLlm(key, context) {
     const prompt = this.#buildPrompt(key, context);
+    this.logger.info("prose", `Calling LLM: ${key}`);
+    const startedAt = Date.now();
     const response = await this.llmApi.createCompletions({
       messages: [
         { role: "system", content: this.promptLoader.load("prose-system") },
@@ -95,9 +97,11 @@ export class ProseEngine {
       ],
       max_tokens: context.maxTokens || 500,
     });
+    const elapsedMs = Date.now() - startedAt;
     const content = response.choices?.[0]?.message?.content?.trim() || null;
     this.logger.info("prose", `Generated: ${key}`, {
       chars: content ? content.length : 0,
+      ms: elapsedMs,
     });
     return content;
   }
@@ -105,9 +109,8 @@ export class ProseEngine {
   /**
    * Generate or retrieve a structured response (pre-built messages).
    *
-   * Cache key uses only the entity key (e.g. "pathway:track:platform"),
-   * not the prompt content — prompts are the generation mechanism, not
-   * the identity.
+   * Cache key includes both the entity key and the prompt content so
+   * that prompt changes automatically invalidate stale entries.
    *
    * @param {string} key - Cache key
    * @param {object[]} messages - Pre-built messages array [{role, content}]
@@ -116,7 +119,7 @@ export class ProseEngine {
   async generateStructured(key, messages, { maxTokens = 4000 } = {}) {
     if (this.mode === "no-prose") return null;
 
-    const cacheKey = generateHash(key);
+    const cacheKey = generateHash(key, JSON.stringify(messages));
 
     if (this.cache.has(cacheKey)) {
       this.stats.hits++;
@@ -130,18 +133,23 @@ export class ProseEngine {
       return null;
     }
 
+    this.logger.info("prose", `Calling LLM: ${key}`);
+    const startedAt = Date.now();
     const response = await this.llmApi.createCompletions({
       messages,
       max_tokens: maxTokens,
     });
+    const elapsedMs = Date.now() - startedAt;
     const content = response.choices?.[0]?.message?.content?.trim() || null;
     this.stats.generated++;
     if (content) {
       this.cache.set(cacheKey, content);
       this.dirty = true;
+      this.saveCache();
     }
-    this.logger.info("prose", `Generated structured: ${key}`, {
+    this.logger.info("prose", `Generated: ${key}`, {
       chars: content ? content.length : 0,
+      ms: elapsedMs,
     });
     return content;
   }
@@ -159,7 +167,18 @@ export class ProseEngine {
       .replace(/^```(?:json)?\s*\n?/m, "")
       .replace(/\n?```\s*$/m, "")
       .trim();
-    return JSON.parse(cleaned);
+    try {
+      return JSON.parse(cleaned);
+    } catch (err) {
+      this.logger.error(
+        "prose",
+        `Failed to parse JSON for ${key} (likely truncated): ${err.message}`,
+        { chars: cleaned.length, tail: cleaned.slice(-200) },
+      );
+      throw new Error(
+        `Failed to parse JSON for ${key} (${cleaned.length} chars): ${err.message}`,
+      );
+    }
   }
 
   /** @returns {Map<string, string>} */

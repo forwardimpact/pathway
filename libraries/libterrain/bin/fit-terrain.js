@@ -96,26 +96,37 @@ const cli = createCli(definition);
 
 /**
  * Resolve the LLM API client when running in generate mode.
+ *
+ * Uses the Anthropic SDK with the credential resolved by libconfig's
+ * anthropicToken() (ANTHROPIC_API_KEY env var with OAuth fallback).
+ * The wrapper bridges Anthropic's Messages API to the OpenAI-compatible
+ * choices shape consumed by ProseEngine.
+ *
  * @param {object} config
- * @returns {Promise<object|null>}
+ * @returns {Promise<object>}
  */
 async function resolveLlmApi(config) {
-  const token = await config.llmToken();
-  const baseUrl = config.llmBaseUrl();
-  const model = config.LLM_MODEL || "openai/gpt-4.1-mini";
+  const { default: Anthropic } = await import("@anthropic-ai/sdk");
+  const token = await config.anthropicToken();
+  const model = config.LLM_MODEL || "claude-opus-4-7";
+  const client = new Anthropic({ apiKey: token });
 
   return {
     async createCompletions({ messages, max_tokens }) {
-      const res = await fetch(`${baseUrl}/v1/chat/completions`, {
-        method: "POST",
-        headers: {
-          "Content-Type": "application/json",
-          Authorization: `Bearer ${token}`,
-        },
-        body: JSON.stringify({ model, messages, max_tokens }),
+      const systemMessages = messages.filter((m) => m.role === "system");
+      const turnMessages = messages.filter((m) => m.role !== "system");
+      const system = systemMessages.map((m) => m.content).join("\n\n");
+      const response = await client.messages.create({
+        model,
+        max_tokens,
+        system: system || undefined,
+        messages: turnMessages,
       });
-      if (!res.ok) throw new Error(`LLM request failed: ${res.status}`);
-      return res.json();
+      const text = response.content
+        .filter((b) => b.type === "text")
+        .map((b) => b.text)
+        .join("");
+      return { choices: [{ message: { content: text } }] };
     },
   };
 }
@@ -376,10 +387,7 @@ async function main() {
   const { values } = parsed;
 
   const config = await createScriptConfig("terrain", {
-    LLM_TOKEN: null,
-    LLM_MODEL: "openai/gpt-4.1-mini",
-    LLM_BASE_URL: null,
-    LLM_EMBEDDING_BASE_URL: null,
+    LLM_MODEL: "claude-opus-4-7",
   });
 
   const mode = values["no-prose"]

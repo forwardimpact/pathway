@@ -103,10 +103,12 @@ async function generatePathwayData({
 }) {
   const frameworkName = framework.name || domain;
   const ctx = { domain, industry, frameworkName };
-  const BASE_TOKENS = 2000;
-  const PER_SKILL_TOKENS = 800;
+  const BASE_TOKENS = 3000;
+  const PER_SKILL_TOKENS = 1500;
+  const log = proseEngine.logger || { info() {}, debug() {} };
 
   // 1. Framework metadata
+  log.info("pathway", "Generating framework metadata");
   const fw = await generateEntity(
     "framework",
     "framework",
@@ -116,6 +118,7 @@ async function generatePathwayData({
   );
 
   // 2. Levels
+  log.info("pathway", "Generating levels");
   const levels = await generateEntity(
     "levels",
     "levels",
@@ -127,6 +130,7 @@ async function generatePathwayData({
   const priorOutput = { levels };
 
   // 4. Behaviours (parallel — receive level context)
+  log.info("pathway", `Generating ${framework.behaviours.length} behaviours`);
   const behaviours = await Promise.all(
     framework.behaviours.map((b) =>
       generateEntity(
@@ -141,6 +145,10 @@ async function generatePathwayData({
   priorOutput.behaviours = behaviours;
 
   // 5. Capabilities with skills (parallel — receive level + behaviour context)
+  log.info(
+    "pathway",
+    `Generating ${framework.capabilities.length} capabilities with skills`,
+  );
   const capabilities = await Promise.all(
     framework.capabilities.map((c, i) =>
       generateEntity(
@@ -166,6 +174,7 @@ async function generatePathwayData({
   const behaviourIds = framework.behaviours.map((b) => b.id);
 
   // 6. Drivers (reference skills + behaviours)
+  log.info("pathway", "Generating drivers");
   const drivers = await generateEntity(
     "drivers",
     "drivers",
@@ -180,6 +189,7 @@ async function generatePathwayData({
 
   // 7. Disciplines (reference skills, behaviours, track IDs from DSL)
   const trackIds = framework.tracks.map((t) => t.id);
+  log.info("pathway", `Generating ${framework.disciplines.length} disciplines`);
   const disciplines = await Promise.all(
     framework.disciplines.map((d) =>
       generateEntity(
@@ -198,6 +208,7 @@ async function generatePathwayData({
 
   // 8. Tracks (reference capability IDs for skillModifiers)
   const capabilityIds = framework.capabilities.map((c) => c.id);
+  log.info("pathway", `Generating ${framework.tracks.length} tracks`);
   const tracks = await Promise.all(
     framework.tracks.map((t) =>
       generateEntity(

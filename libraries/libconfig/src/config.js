@@ -118,7 +118,12 @@ export class Config {
     return this.#resolve(["GH_TOKEN", "GITHUB_TOKEN"]);
   }
 
-  /** @returns {Promise<string>} LLM API token (async for caller compatibility) */
+  /**
+   * @deprecated Use {@link Config#anthropicToken} instead. LLM_TOKEN is being
+   * phased out in favor of ANTHROPIC_API_KEY for Anthropic-backed callers.
+   * This method remains for OpenAI-compatible embedding APIs (libvector).
+   * @returns {Promise<string>} LLM API token (async for caller compatibility)
+   */
   async llmToken() {
     return this.#resolve(["LLM_TOKEN"]);
   }
