@@ -6,6 +6,7 @@ import {
   computeXmR,
   detectSignals,
   analyze,
+  classify,
   validateCSV,
   listMetrics,
   sparkline,
@@ -166,6 +167,42 @@ describe("analyze", () => {
     assert.ok(m.latest);
     assert.strictEqual(m.latest.value, values[values.length - 1]);
     assert.strictEqual(typeof m.latest.mr, "number");
+  });
+});
+
+describe("classify", () => {
+  test("returns insufficient for insufficient_data", () => {
+    assert.strictEqual(
+      classify({ status: "insufficient_data", n: 5 }),
+      "insufficient",
+    );
+  });
+
+  test("returns stable for predictable", () => {
+    assert.strictEqual(
+      classify({ status: "predictable", signals: [] }),
+      "stable",
+    );
+  });
+
+  test("returns signals for signals_present without mr_above_url", () => {
+    assert.strictEqual(
+      classify({
+        status: "signals_present",
+        signals: [{ rule: "run_above" }, { rule: "point_above_unpl" }],
+      }),
+      "signals",
+    );
+  });
+
+  test("returns chaos when mr_above_url is among signals", () => {
+    assert.strictEqual(
+      classify({
+        status: "signals_present",
+        signals: [{ rule: "run_above" }, { rule: "mr_above_url" }],
+      }),
+      "chaos",
+    );
   });
 });
 

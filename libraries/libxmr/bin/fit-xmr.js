@@ -7,6 +7,7 @@ import { runAnalyzeCommand } from "../src/commands/analyze.js";
 import { runListCommand } from "../src/commands/list.js";
 import { runValidateCommand } from "../src/commands/validate.js";
 import { runSparkCommand } from "../src/commands/spark.js";
+import { runSummarizeCommand } from "../src/commands/summarize.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -51,6 +52,19 @@ const definition = {
         },
       },
     },
+    {
+      name: "summarize",
+      args: "<csv-path>",
+      description:
+        "Compact markdown table of XmR stats and classification per metric",
+      options: {
+        metric: {
+          type: "string",
+          short: "m",
+          description: "Filter to a single metric by name",
+        },
+      },
+    },
   ],
   globalOptions: {
     format: {
@@ -68,6 +82,8 @@ const definition = {
     "fit-xmr list wiki/metrics/security-engineer/audit/2026.csv",
     "fit-xmr validate wiki/metrics/security-engineer/audit/2026.csv",
     "fit-xmr spark wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities",
+    "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv",
+    "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv --format json",
   ],
 };
 
@@ -78,6 +94,7 @@ const COMMANDS = {
   list: runListCommand,
   validate: runValidateCommand,
   spark: runSparkCommand,
+  summarize: runSummarizeCommand,
 };
 
 function main() {

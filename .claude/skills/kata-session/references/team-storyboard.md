@@ -57,6 +57,30 @@ For each CSV-backed metric in the Current Condition table, generate a sparkline
 with `bunx fit-xmr spark <csv> --metric <name>` and write it to the Spark
 column.
 
+For the XmR analysis block under the Current Condition table, run
+`bunx fit-xmr summarize <csv> --markdown` once per agent-domain CSV and paste
+the output verbatim. Add a one-line interpretive note only for metrics whose
+`status` is `signals_present` or whose run-length is unusual; stable metrics get
+no prose. The summarize subcommand emits the deterministic stats table — agents
+add the cross-reference layer (e.g., "matches PR #535 burst") only where there
+is something to say.
+
+## Active / Concluded partition
+
+Obstacles and Experiments are partitioned into `### Active` and
+`### Concluded (last 7 days)` subsections. The rule is mechanical:
+
+1. When marking an obstacle RESOLVED or an experiment DELIVERED/PASS/FAIL, move
+   the item from `Active` to `Concluded (last 7 days)` in the same edit. The
+   Concluded entry is one line: status, date closed, one-sentence verdict.
+2. At the start of every storyboard session, scan `Concluded (last 7 days)` and
+   delete any line whose closed-date is more than 7 days before today. Date
+   math, not judgment.
+3. Never mix active and concluded items in the same list.
+
+The prior month's storyboard file and git history are the permanent archive —
+nothing is lost, the live document just stops carrying inert weight.
+
 ## Participant briefing template
 
 > "You are joining a team storyboard meeting. I will Ask you five questions;

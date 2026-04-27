@@ -30,22 +30,41 @@ from wiki/metrics/. Always numbers, not narratives._
 Spark: last 12 data points via `bunx fit-xmr spark <csv> --metric <name>`. Bar
 height scales from ▁ (min) to █ (max) within the metric's own range.
 
+For the XmR summary block below the table, paste verbatim output from
+`bunx fit-xmr summarize <csv> --markdown` (one invocation per agent-domain CSV)
+and add a one-line interpretive note only for metrics whose `status` is
+`signals_present` or whose run-length is unusual. Stable metrics get no prose.
+
 **Last updated:** YYYY-MM-DD
 
 ## Obstacles
 
 _What stands between the current condition and the target condition. Discovered
-through experiments, not predicted upfront._
+through experiments, not predicted upfront. Use the partition below — never mix
+active and concluded items in the same list._
+
+### Active
 
 - **Current obstacle -->** [describe]
-- [other known obstacles]
+- [other open obstacles]
+
+### Concluded (last 7 days)
+
+_One line per item: status (RESOLVED/ABANDONED), date closed, one-sentence
+verdict. Items older than 7 days are deleted; the prior month's storyboard and
+git history are the permanent record._
+
+- ~~[obstacle]~~ — RESOLVED YYYY-MM-DD. [one-sentence verdict].
 
 ## Experiments
 
 _PDSA cycles run against the current obstacle. Record expected outcome before
-running, actual outcome after._
+running, actual outcome after. Use the partition below — never mix active and
+concluded experiments in the same list._
 
-### Experiment N
+### Active
+
+#### Experiment N — [short name]
 
 - **Obstacle:** [which obstacle this addresses]
 - **What:** [description of the experiment]
@@ -53,3 +72,20 @@ running, actual outcome after._
 - **Actual outcome:** [what actually happened — record after running]
 - **What did we learn?** [gap between expected and actual]
 - **Next step:** [continue, pivot, or new experiment]
+
+### Concluded (last 7 days)
+
+_One line per item: verdict (DELIVERED/PASS/FAIL/ABANDONED), date closed,
+one-sentence learning. Items older than 7 days are deleted._
+
+- **Experiment N — [short name]** — DELIVERED YYYY-MM-DD. [one-sentence
+  learning].
+
+## Retention rule
+
+When marking an obstacle RESOLVED or an experiment DELIVERED/PASS/FAIL, move the
+item from `Active` to `Concluded (last 7 days)` in the same edit. At the start
+of every storyboard session, scan `Concluded (last 7 days)` and delete any line
+whose closed-date is more than 7 days before today. The decision is mechanical —
+date math, not judgment. The prior month's storyboard file (and git history) is
+the permanent archive.

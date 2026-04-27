@@ -47,6 +47,9 @@ Participant Protocol below.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
 - [ ] Run `bunx fit-xmr analyze --format json` against each metrics CSV and
       record the output.
+- [ ] For team storyboard runs, run `bunx fit-xmr summarize <csv> --markdown`
+      per agent-domain CSV to generate the deterministic stats block that goes
+      under the Current Condition table.
 
 </read_do_checklist>
 
@@ -58,7 +61,10 @@ Participant Protocol below.
       including XmR `status` and signal descriptions for each metric with
       sufficient data. Metrics with `insufficient_data` are noted.
 - [ ] Coaching metrics appended to CSV (see Facilitator Process step 6).
-- [ ] For team meetings: storyboard file updated and committed.
+- [ ] For team meetings: storyboard file updated and committed; Obstacles and
+      Experiments split into Active and Concluded (last 7 days) per the
+      partition protocol, items closed this session moved to Concluded, lines
+      older than 7 days deleted (date math, not judgment).
 - [ ] For 1-on-1: agent's findings written to its own memory.
 - [ ] Weekly log updated: append a `## YYYY-MM-DD` heading to the current week's
       log file recording meeting type, key metrics reviewed, obstacle addressed,
