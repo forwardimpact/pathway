@@ -35,6 +35,7 @@ prepare-template:
 build-scheduler:
     @mkdir -p "{{ dist_dir }}"
     bun build --compile \
+        --define 'process.env.BASECAMP_VERSION'='"{{ version }}"' \
         --outfile "{{ dist_dir }}/{{ app_name }}" src/basecamp.js
 
 # Compile Swift app launcher (includes status menu UI)
