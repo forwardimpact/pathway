@@ -1,6 +1,10 @@
 import { Capability, SKILL_PROFICIENCY_ORDER } from "../levels.js";
 
 import { createError, createWarning } from "./common.js";
+import {
+  validateSkillReferences,
+  validateSkillDeprecatedFields,
+} from "./skill-references.js";
 
 function validateSkillBasicFields(skill, path) {
   const errors = [];
@@ -130,7 +134,7 @@ function validateSkillAgentFlatFields(skill, agentPath) {
 function validateSkillAgentDeprecatedFields(agentPath, agent) {
   const errors = [];
   const deprecated = [
-    ["reference", "Use skill.implementationReference instead."],
+    ["reference", "Use skill.references instead."],
     ["body", "Use agent.focus instead."],
     ["applicability", "Use agent.focus instead."],
     ["guidance", "Use agent.focus instead."],
@@ -183,11 +187,7 @@ function validateSkillAgentSection(skill, path) {
 
 function validateSkillOptionalStringFields(skill, path) {
   const errors = [];
-  const stringFields = [
-    "implementationReference",
-    "instructions",
-    "installScript",
-  ];
+  const stringFields = ["instructions", "installScript"];
 
   for (const field of stringFields) {
     if (skill[field] !== undefined && typeof skill[field] !== "string") {
@@ -200,19 +200,6 @@ function validateSkillOptionalStringFields(skill, path) {
         ),
       );
     }
-  }
-
-  if (
-    typeof skill.implementationReference === "string" &&
-    skill.implementationReference.includes("<scaffolding_steps>")
-  ) {
-    errors.push(
-      createError(
-        "INVALID_FIELD",
-        "Skill implementationReference contains <scaffolding_steps> tags. Extract install commands to skill.installScript instead.",
-        `${path}.implementationReference`,
-      ),
-    );
   }
 
   return errors;
@@ -354,6 +341,8 @@ export function validateSkill(skill, index) {
   }
 
   errors.push(...validateSkillOptionalStringFields(skill, path));
+  errors.push(...validateSkillDeprecatedFields(skill, path));
+  errors.push(...validateSkillReferences(skill, path));
   errors.push(...validateSkillToolReferences(skill, path));
   errors.push(...validateSkillMarkers(skill, path));
 

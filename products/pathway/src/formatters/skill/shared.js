@@ -75,7 +75,7 @@ export function prepareSkillsList(
  * @property {Array<{id: string, name: string}>} relatedDrivers
  * @property {Array<{name: string, url?: string, description: string, useWhen: string}>} toolReferences
  * @property {string|null} installScript
- * @property {string|null} implementationReference
+ * @property {Array<{name: string, title: string, body: string}>} references
  */
 
 /**
@@ -139,6 +139,6 @@ export function prepareSkillDetail(
       .slice()
       .sort((a, b) => a.name.localeCompare(b.name)),
     installScript: skill.installScript || null,
-    implementationReference: skill.implementationReference || null,
+    references: skill.references || [],
   };
 }

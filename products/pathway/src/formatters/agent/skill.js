@@ -2,7 +2,7 @@
  * Agent Skill Formatter
  *
  * Formats agent skill data into SKILL.md, scripts/install.sh, and
- * references/REFERENCE.md file content following the Agent Skills Standard
+ * references/{name}.md file content following the Agent Skills Standard
  * specification with progressive disclosure.
  *
  * Uses Mustache templates for flexible output formatting.
@@ -35,7 +35,6 @@ const lcFirst = (s) => (s ? s[0].toLowerCase() + s.slice(1) : s);
  * @param {Array} [params.confirmChecklist] - Do-confirm checklist items
  * @param {string} params.instructions - Workflow guidance content (markdown)
  * @param {string} params.installScript - Shell commands for install script
- * @param {string} params.implementationReference - Reference content (markdown)
  * @param {Array} [params.toolReferences] - Array of tool reference objects
  * @returns {Object} Data object ready for Mustache template
  */
@@ -47,7 +46,6 @@ function prepareAgentSkillData({
   confirmChecklist,
   instructions,
   installScript,
-  implementationReference,
   toolReferences,
 }) {
   // Flatten multi-line strings to single line for front matter compatibility
@@ -64,7 +62,6 @@ function prepareAgentSkillData({
   );
   const trimmedInstructions = trimValue(instructions) || "";
   const trimmedInstallScript = trimValue(installScript) || "";
-  const trimmedReference = trimValue(implementationReference) || "";
   const tools = toolReferences || [];
 
   return {
@@ -87,8 +84,6 @@ function prepareAgentSkillData({
     hasInstructions: !!trimmedInstructions,
     installScript: trimmedInstallScript,
     hasInstallScript: !!trimmedInstallScript,
-    implementationReference: trimmedReference,
-    hasReference: !!trimmedReference,
     toolReferences: tools,
     hasToolReferences: tools.length > 0,
   };
@@ -96,7 +91,7 @@ function prepareAgentSkillData({
 
 /**
  * Format agent skill as SKILL.md file content using Mustache template
- * @param {Object} skill - Skill with frontmatter, title, focus, readChecklist, confirmChecklist, instructions, installScript, implementationReference
+ * @param {Object} skill - Skill with frontmatter, title, focus, readChecklist, confirmChecklist, instructions, installScript
  * @param {Object} skill.frontmatter - YAML frontmatter data
  * @param {string} skill.frontmatter.name - Skill name (required)
  * @param {string} skill.frontmatter.description - Skill description (required)
@@ -106,7 +101,6 @@ function prepareAgentSkillData({
  * @param {Array} [skill.confirmChecklist] - Do-confirm checklist items
  * @param {string} skill.instructions - Workflow guidance (markdown)
  * @param {string} skill.installScript - Shell commands for install script
- * @param {string} skill.implementationReference - Reference content (markdown)
  * @param {Array} [skill.toolReferences] - Array of tool reference objects
  * @param {string} template - Mustache template string
  * @returns {string} Complete SKILL.md file content
@@ -120,7 +114,6 @@ export function formatAgentSkill(
     confirmChecklist,
     instructions,
     installScript,
-    implementationReference,
     toolReferences,
   },
   template,
@@ -133,7 +126,6 @@ export function formatAgentSkill(
     confirmChecklist,
     instructions,
     installScript,
-    implementationReference,
     toolReferences,
   });
   return Mustache.render(template, data);
@@ -155,14 +147,16 @@ export function formatInstallScript(skill, template) {
 
 /**
  * Format reference file content using Mustache template
- * @param {Object} skill - Skill data with implementationReference and title
+ * @param {Object} entry - Reference entry with name, title, body
+ * @param {string} entry.title - Document title
+ * @param {string} entry.body - Reference content (markdown body)
  * @param {string} template - Mustache template string for reference
- * @returns {string} Complete REFERENCE.md file content
+ * @returns {string} Complete reference file content
  */
-export function formatReference(skill, template) {
+export function formatReference(entry, template) {
   const data = {
-    title: skill.title,
-    implementationReference: trimValue(skill.implementationReference) || "",
+    title: entry.title,
+    body: entry.body,
   };
   return Mustache.render(template, data);
 }

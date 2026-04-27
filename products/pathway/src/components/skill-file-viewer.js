@@ -2,7 +2,7 @@
  * Skill File Viewer Component
  *
  * Vertically stacked collapsible panes for skill files: SKILL.md,
- * scripts/install.sh, and references/REFERENCE.md.
+ * scripts/install.sh, and references/{name}.md.
  * Reused across agent builder and skill detail pages.
  *
  * Each file is rendered as a collapsible code-display pane with

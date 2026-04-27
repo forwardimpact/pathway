@@ -34,11 +34,11 @@ import {
 } from "@forwardimpact/libskill/agent";
 
 import { stageApmBundle, archiveApmPack } from "./build-packs-apm.js";
+import { writeSkillReferences } from "./agent-io.js";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import {
   formatAgentSkill,
   formatInstallScript,
-  formatReference,
 } from "../formatters/agent/skill.js";
 import { formatTeamInstructions } from "../formatters/agent/team-instructions.js";
 import { findValidCombinations } from "./agent.js";
@@ -137,15 +137,11 @@ async function writePackFiles({
       );
     }
 
-    if (skill.implementationReference) {
-      const refsDir = join(skillDir, "references");
-      await mkdir(refsDir, { recursive: true });
-      await writeFile(
-        join(refsDir, "REFERENCE.md"),
-        formatReference(skill, skillTemplates.reference),
-        "utf-8",
-      );
-    }
+    await writeSkillReferences(
+      skillDir,
+      skill.references,
+      skillTemplates.reference,
+    );
   }
 
   if (teamInstructions) {

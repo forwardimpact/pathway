@@ -116,11 +116,10 @@ export function skillToMarkdown(
     lines.push("");
   }
 
-  // Implementation reference
-  if (view.implementationReference) {
-    lines.push("## Implementation Patterns", "");
-    lines.push(view.implementationReference);
-    lines.push("");
+  if (view.references.length > 0) {
+    for (const ref of view.references) {
+      lines.push(`## ${ref.title}`, "", ref.body, "");
+    }
   }
 
   return lines.join("\n");

@@ -38,6 +38,10 @@ fit:ToolReference a rdfs:Class ;
     rdfs:label "Tool Reference"@en ;
     rdfs:comment "Reference to an external tool with usage guidance"@en .
 
+fit:Reference a rdfs:Class ;
+    rdfs:label "Reference"@en ;
+    rdfs:comment "Reference document emitted to references/{name}.md"@en .
+
 fit:SkillMarkers a rdfs:Class ;
     rdfs:label "Skill Markers"@en ;
     rdfs:comment "Observable indicators of skill proficiency at a level"@en .
@@ -122,6 +126,31 @@ fit:toolReferences a rdf:Property ;
     rdfs:comment "Required tools for this skill"@en ;
     rdfs:domain fit:Skill ;
     rdfs:range fit:ToolReference .
+
+fit:references a rdf:Property ;
+    rdfs:label "references"@en ;
+    rdfs:comment "Reference documents emitted to references/{name}.md"@en ;
+    rdfs:domain fit:Skill ;
+    rdfs:range fit:Reference .
+
+# Reference Properties
+fit:referenceName a rdf:Property ;
+    rdfs:label "referenceName"@en ;
+    rdfs:comment "Filename stem for the reference document"@en ;
+    rdfs:domain fit:Reference ;
+    rdfs:range xsd:string .
+
+fit:referenceTitle a rdf:Property ;
+    rdfs:label "referenceTitle"@en ;
+    rdfs:comment "Document title for the reference"@en ;
+    rdfs:domain fit:Reference ;
+    rdfs:range xsd:string .
+
+fit:referenceBody a rdf:Property ;
+    rdfs:label "referenceBody"@en ;
+    rdfs:comment "Reference content body (markdown)"@en ;
+    rdfs:domain fit:Reference ;
+    rdfs:range xsd:string .
 
 # Tool Reference Properties
 fit:toolName a rdf:Property ;
@@ -321,6 +350,12 @@ fit:SkillShape a sh:NodeShape ;
         sh:description "Code examples and detailed reference material, exported to references/REFERENCE.md" ;
     ] ;
     sh:property [
+        sh:path fit:references ;
+        sh:node fit:ReferenceShape ;
+        sh:name "references" ;
+        sh:description "Reference documents emitted to references/{name}.md" ;
+    ] ;
+    sh:property [
         sh:path fit:markers ;
         sh:node fit:SkillMarkersShape ;
         sh:maxCount 1 ;
@@ -391,6 +426,38 @@ fit:ToolReferenceShape a sh:NodeShape ;
         sh:maxCount 1 ;
         sh:name "useWhen" ;
         sh:description "When to use this tool" ;
+    ] .
+
+# -----------------------------------------------------------------------------
+# Reference Shape
+# -----------------------------------------------------------------------------
+
+fit:ReferenceShape a sh:NodeShape ;
+    sh:targetClass fit:Reference ;
+    sh:property [
+        sh:path fit:referenceName ;
+        sh:datatype xsd:string ;
+        sh:pattern "^[a-z0-9][a-z0-9_-]*$" ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "name" ;
+        sh:description "Filename stem — becomes references/{name}.md on disk" ;
+    ] ;
+    sh:property [
+        sh:path fit:referenceTitle ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "title" ;
+        sh:description "Document title — rendered as # {title}" ;
+    ] ;
+    sh:property [
+        sh:path fit:referenceBody ;
+        sh:datatype xsd:string ;
+        sh:minCount 1 ;
+        sh:maxCount 1 ;
+        sh:name "body" ;
+        sh:description "Reference content (markdown body)" ;
     ] .
 
 # -----------------------------------------------------------------------------

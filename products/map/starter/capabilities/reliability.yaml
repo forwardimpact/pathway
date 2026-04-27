@@ -93,3 +93,22 @@ skills:
         - Fix addresses the root cause
         - Changes are tested
         - Monitoring confirms resolution
+    references:
+      - name: runbooks
+        title: Incident Runbooks
+        body: |
+          Step-by-step procedures for the top recurring incident classes.
+          Each runbook lists detection signals, immediate mitigations, and
+          the data sources to capture for the post-incident review. Keep
+          entries short — link out to dashboards rather than restating their
+          current state.
+      - name: postmortem-template
+        title: Postmortem Template
+        body: |
+          Fields expected in every postmortem:
+
+          - Summary — one paragraph anyone in the company can read.
+          - Timeline — UTC timestamps, who did what, what they observed.
+          - Root cause — the proximate failure and the systemic factor.
+          - Contributing factors — what made the failure possible.
+          - Corrective actions — owner, due date, tracking link each.

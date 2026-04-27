@@ -147,6 +147,7 @@ export function skillToDOM(
     showBackLink = true,
     showToolsAndPatterns = true,
     agentSkillContent,
+    referenceContents,
   } = {},
 ) {
   const view = prepareSkillDetail(skill, {
@@ -235,12 +236,12 @@ export function skillToDOM(
       : null,
 
     showToolsAndPatterns &&
-      (agentSkillContent || view.implementationReference || view.installScript)
+      (agentSkillContent || view.references.length > 0 || view.installScript)
       ? div(
           { className: "detail-section" },
           heading2({ className: "section-title" }, "Agent Skill Files"),
           createSkillFileViewer({
-            files: buildSkillFiles(view, agentSkillContent),
+            files: buildSkillFiles(view, agentSkillContent, referenceContents),
             maxHeight: 450,
           }),
         )
@@ -252,9 +253,10 @@ export function skillToDOM(
  * Build file descriptors for the skill file viewer
  * @param {import('./shared.js').SkillDetailView} view
  * @param {string} [agentSkillContent] - Pre-generated SKILL.md content
+ * @param {Map<string, string>} [referenceContents] - Pre-rendered references keyed by ref.name
  * @returns {import('../../components/skill-file-viewer.js').SkillFile[]}
  */
-function buildSkillFiles(view, agentSkillContent) {
+function buildSkillFiles(view, agentSkillContent, referenceContents) {
   /** @type {import('../../components/skill-file-viewer.js').SkillFile[]} */
   const files = [];
 
@@ -274,10 +276,11 @@ function buildSkillFiles(view, agentSkillContent) {
     });
   }
 
-  if (view.implementationReference) {
+  for (const ref of view.references) {
     files.push({
-      filename: "references/REFERENCE.md",
-      content: view.implementationReference,
+      filename: `references/${ref.name}.md`,
+      content:
+        referenceContents?.get(ref.name) ?? `# ${ref.title}\n\n${ref.body}\n`,
       language: "markdown",
     });
   }

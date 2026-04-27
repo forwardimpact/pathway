@@ -5,7 +5,7 @@
  * to disk. Extracted from agent.js to keep command logic focused.
  */
 
-import { writeFile, mkdir, readFile } from "fs/promises";
+import { writeFile, mkdir, readFile, rm } from "fs/promises";
 import { join, dirname } from "path";
 import { existsSync } from "fs";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
@@ -119,7 +119,32 @@ export async function writeTeamInstructions(
 }
 
 /**
- * Write skill files (SKILL.md, scripts/install.sh, references/REFERENCE.md)
+ * Write reference files for a skill, wiping the references/ directory first.
+ *
+ * The generator owns <skillDir>/references/. Every call removes any existing
+ * directory contents before writing, so on-disk state matches YAML exactly
+ * even when prior runs produced different filenames.
+ *
+ * @param {string} skillDir - Skill directory (`.claude/skills/{dirname}`)
+ * @param {Array<{name: string, title: string, body: string}>} references
+ * @param {string} template - Mustache template for an individual reference file
+ * @returns {Promise<number>} Number of reference files written
+ */
+export async function writeSkillReferences(skillDir, references, template) {
+  const refDir = join(skillDir, "references");
+  await rm(refDir, { recursive: true, force: true });
+  if (!references || references.length === 0) return 0;
+  await mkdir(refDir, { recursive: true });
+  for (const entry of references) {
+    const refPath = join(refDir, `${entry.name}.md`);
+    await writeFile(refPath, formatReference(entry, template), "utf-8");
+    logger.info(formatSuccess(`Created: ${refPath}`));
+  }
+  return references.length;
+}
+
+/**
+ * Write skill files (SKILL.md, scripts/install.sh, references/{name}.md)
  * @param {Array} skills - Generated skills
  * @param {string} baseDir - Base output directory
  * @param {Object} templates - Templates object with skill, install, reference
@@ -145,14 +170,11 @@ export async function writeSkills(skills, baseDir, templates) {
       fileCount++;
     }
 
-    if (skill.implementationReference) {
-      const refPath = join(skillDir, "references", "REFERENCE.md");
-      const refContent = formatReference(skill, templates.reference);
-      await ensureDir(refPath);
-      await writeFile(refPath, refContent, "utf-8");
-      logger.info(formatSuccess(`Created: ${refPath}`));
-      fileCount++;
-    }
+    fileCount += await writeSkillReferences(
+      skillDir,
+      skill.references,
+      templates.reference,
+    );
   }
   return fileCount;
 }
