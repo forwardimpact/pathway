@@ -2,7 +2,7 @@
 
 ## Information Architecture
 
-Four-tier hierarchy under `website/docs/` serving three user groups (Leadership,
+Four-tier hierarchy under `websites/fit/docs/` serving three user groups (Leadership,
 Engineers, Contributors):
 
 | Tier              | Intent                      | Subsections                                                                                                                                                                                |
@@ -103,8 +103,8 @@ Documentation lives in two layers: repository root and website.
 
 CONTRIBUTING.md is canonical for PR workflow and policies — CLAUDE.md references
 it rather than duplicating. Contributor onboarding narrative lives at
-`website/docs/getting-started/contributors/`; operational reference
-(environment, services, tasks) at `website/docs/internals/operations/`.
+`websites/fit/docs/getting-started/contributors/`; operational reference
+(environment, services, tasks) at `websites/fit/docs/internals/operations/`.
 
 ## Layouts
 

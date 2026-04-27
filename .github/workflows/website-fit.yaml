@@ -1,4 +1,4 @@
-name: Publish the Website
+name: Publish the Forward Impact Website
 
 on:
   push:
@@ -30,7 +30,7 @@ jobs:
       - uses: ./.github/actions/audit
 
       - name: Build website
-        run: bunx fit-doc build --src=website --out=dist
+        run: bunx fit-doc build --src=websites/fit --out=dist
 
       - name: Copy JSON schema files
         run: |
@@ -43,7 +43,7 @@ jobs:
           cp products/map/schema/rdf/*.ttl dist/schema/rdf/
 
       - name: Copy CNAME file
-        run: cp website/CNAME dist/
+        run: cp websites/fit/CNAME dist/
 
       - name: Setup Pages
         uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6

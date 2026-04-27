@@ -75,7 +75,7 @@ services/       gRPC microservices (trace, vector, graph, pathway, mcp)
 data/           Generated and framework data
 config/         Service and tool configuration
 specs/          Feature specifications and plans
-website/        Documentation website
+websites/       Public site sources (websites/fit/, websites/kata/, …)
 ```
 
 **Products** answer specific questions for specific users. Map defines what good

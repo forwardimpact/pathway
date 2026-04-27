@@ -22,5 +22,5 @@ source. Never trust documentation alone — read the code.
 | Templates             | `products/pathway/templates/`             |
 | JSON Schema           | `products/map/schema/json/`               |
 | RDF/SHACL Schema      | `products/map/schema/rdf/`                |
-| LLM / SEO outputs     | `website/llms.txt`, `website/robots.txt`  |
+| LLM / SEO outputs     | `websites/fit/llms.txt`, `websites/fit/robots.txt`  |
 | Repo self-maintenance | `KATA.md`                                 |
