@@ -96,7 +96,6 @@ runs:
 
     - name: Run fit-eval
       shell: bash
-      timeout-minutes: ${{ fromJSON(inputs.timeout-minutes) }}
       env:
         MODE: ${{ inputs.mode }}
         TASK_FILE: ${{ inputs.task-file }}
@@ -115,6 +114,7 @@ runs:
         TASK_AMEND: ${{ inputs.task-amend }}
         TRACE_ENABLED: ${{ inputs.trace }}
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
+        TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
       run: |
         # Build args array to avoid quoting issues with spaces in paths
         args=()
@@ -157,7 +157,9 @@ runs:
             args+=("--agent-profile=$AGENT_PROFILE")
           fi
 
-          bunx fit-eval supervise \
+          # Composite action steps can't use the GitHub `timeout-minutes`
+          # field, so enforce the cap with the shell `timeout` command.
+          timeout "${TIMEOUT_MINUTES}m" bunx fit-eval supervise \
             --supervisor-cwd="$SUPERVISOR_CWD" \
             --agent-cwd="$AGENT_CWD" \
             --allowed-tools="$TOOLS" \
@@ -167,7 +169,7 @@ runs:
             args+=("--facilitator-profile=$FACILITATOR_PROFILE")
           fi
 
-          bunx fit-eval facilitate \
+          timeout "${TIMEOUT_MINUTES}m" bunx fit-eval facilitate \
             --facilitator-cwd="." \
             --agent-profiles="$AGENT_PROFILES" \
             --agent-cwd="$AGENT_CWD" \
@@ -177,7 +179,7 @@ runs:
             args+=("--agent-profile=$AGENT_PROFILE")
           fi
 
-          bunx fit-eval run \
+          timeout "${TIMEOUT_MINUTES}m" bunx fit-eval run \
             --cwd="$CWD" \
             --allowed-tools="$TOOLS" \
             "${args[@]}"
