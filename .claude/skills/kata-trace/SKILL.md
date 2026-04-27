@@ -115,18 +115,8 @@ actionable (implies concrete change). See `references/examples.md`.
 ### 5. Attribute to Instruction Layers
 
 For each category, ask: which instruction layer is the root cause? See the
-eight-layer model in [KATA.md § Instruction layering](../../../KATA.md).
-
-| Layer                 | Typical fix                                    |
-| --------------------- | ---------------------------------------------- |
-| L1 (system prompt)    | Infrastructure fix (relay code, supervisor.js) |
-| L2 (CLAUDE.md)        | Edit project identity doc                      |
-| L3 (CONTRIBUTING.md)  | Edit invariant, rule, or policy                |
-| L4 (workflow task)    | Reword task text in workflow YAML              |
-| L5 (agent profile)    | Edit profile .md                               |
-| L6 (skill procedure)  | Edit SKILL.md procedure                        |
-| L7 (skill references) | Edit template, example, or data table          |
-| L8 (checklist)        | Add or edit checklist item                     |
+eight-layer model and per-layer fix shapes in
+[KATA.md § Instruction layering](../../../KATA.md).
 
 Attribute only when evidence supports it. Prefer the highest layer where the
 defect originates. For L6 vs L7: "wrong procedure" is L6; "sound procedure,
@@ -180,13 +170,21 @@ Append to the current week's log (see agent profile for the file path):
 - **Metrics** — Record to `wiki/metrics/{agent}/{domain}/` per
   [`kata-metrics`](../kata-metrics/SKILL.md). These feed XmR analysis.
 
+## Coordination Channels
+
+This skill produces these non-wiki outputs (per
+[routing-protocol.md](../../agents/references/routing-protocol.md)):
+
+- **Discussion** — Open questions surfaced from analysis (e.g. "is this L7
+  attribution the right fix shape?") needing cross-team input before a spec.
+
 ## Analysis Principles
 
-The READ-DO checklist covers grounded theory fundamentals. Additional guidance:
+READ-DO covers the fundamentals. Additional guidance:
 
-- **Quote, don't paraphrase.** Exact error messages, commands, token counts.
+- **Quote, don't paraphrase.** Exact errors, commands, token counts.
 - **Distinguish symptoms from causes** via the paradigm model.
 - **Count what matters.** Token usage, retry counts, wasted turns, cost.
-- **Compare to intent.** Read the skill docs, compare to actual execution.
-- **Maintain traceability.** Proposition → category → code → turn number.
+- **Compare to intent.** Read skill docs, compare to actual execution.
+- **Maintain traceability.** Proposition → category → code → turn.
 - **Attribute to instruction layers.** Prefer upstream layers.

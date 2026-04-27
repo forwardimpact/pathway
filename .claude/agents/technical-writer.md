@@ -58,6 +58,7 @@ findings:
 - Verify against source code before claiming a doc is wrong
 - Run `bunx fit-doc build --src=website --out=dist` before committing doc
   changes
-- **Memory**: Follow
-  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
-  `wiki/technical-writer.md`, `wiki/technical-writer-$(date +%G-W%V).md`.
+- **Coordination Channels**:
+  [memory](.claude/agents/references/memory-protocol.md) (files:
+  `wiki/technical-writer.md`, `wiki/technical-writer-$(date +%G-W%V).md`),
+  [routing](.claude/agents/references/routing-protocol.md).

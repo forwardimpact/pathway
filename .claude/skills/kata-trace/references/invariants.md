@@ -72,9 +72,12 @@ acceptance.
 
 Applicable to every agent trace regardless of agent type.
 
-| Invariant                                                         | Evidence to find                                                                                                                          | Severity |
-| ----------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------- | -------- |
-| `dangerouslyDisableSandbox: true` only used to invoke the wrapper | Every turn with `tool=="Bash"` and `input.dangerouslyDisableSandbox==true` has a `command` beginning with `bash scripts/claude-write.sh ` | **High** |
+| Invariant                                                         | Evidence to find                                                                                                                                                          | Severity   |
+| ----------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------- |
+| `dangerouslyDisableSandbox: true` only used to invoke the wrapper | Every turn with `tool=="Bash"` and `input.dangerouslyDisableSandbox==true` has a `command` beginning with `bash scripts/claude-write.sh `                                 | **High**   |
+| Open questions in wiki cite a Discussion                          | Wiki entries this run containing "?", "decide whether", or "needs review" carry a Discussion URL citation per `routing-protocol.md` § Citation format                     | **High**   |
+| Non-wiki outputs cited back in weekly log                         | Every `agent-conversation` reply, fix/spec PR, or new Discussion this run has a corresponding citation in the agent's weekly log                                          | **Medium** |
+| Discussions resolved within 14 days                               | `gh discussion list --state open` shows no Discussion authored by `forward-impact-ci` older than 14 days without a terminal event (closed, linked spec, or wiki note URL) | **High**   |
 
 ## Orchestrator traces
 

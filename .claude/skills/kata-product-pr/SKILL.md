@@ -176,3 +176,17 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
+
+## Coordination Channels
+
+This skill produces these non-wiki outputs (per
+[routing-protocol.md](../../agents/references/routing-protocol.md)):
+
+- **PR comment** — Trust-check rationale, gate-failure explanations, merge
+  decisions.
+- **PR thread escalation** — Cross-agent expertise requests addressed by name
+  (e.g. "Hey Security Engineer, …") when a PR needs domain coverage outside this
+  skill's scope.
+
+If an inbound PR comment addressed to this agent is ambiguous, follow
+[routing-protocol.md § Inbound: unclear addressed comments](../../agents/references/routing-protocol.md#inbound-unclear-addressed-comments).

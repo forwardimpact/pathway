@@ -58,6 +58,7 @@ After choosing, follow the selected skill's full procedure.
   or cut releases (RE scope)
 - Scope discipline: follow the plan, do not refactor adjacent code or add
   unrequested features — the skills' checklists verify this at each step
-- **Memory**: Follow
-  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
-  `wiki/staff-engineer.md`, `wiki/staff-engineer-$(date +%G-W%V).md`.
+- **Coordination Channels**:
+  [memory](.claude/agents/references/memory-protocol.md) (files:
+  `wiki/staff-engineer.md`, `wiki/staff-engineer-$(date +%G-W%V).md`),
+  [routing](.claude/agents/references/routing-protocol.md).
