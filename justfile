@@ -328,20 +328,6 @@ build-apps: build-binaries
     just build-app-services
     just build-app-utilities
 
-# ── Docs ──────────────────────────────────────────────────────────
-
-# Build documentation
-docs-build:
-    bunx --workspace=@forwardimpact/libdoc docs-build
-
-# Serve documentation
-docs-serve:
-    bunx --workspace=@forwardimpact/libdoc docs-serve
-
-# Serve with live reload
-docs-watch:
-    bunx --workspace=@forwardimpact/libdoc docs-serve --watch
-
 # ── Quality ───────────────────────────────────────────────────────
 
 # Enforce instruction layer limits (KATA.md § Instruction length)
