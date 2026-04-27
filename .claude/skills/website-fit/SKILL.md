@@ -14,8 +14,8 @@ description: Maintain the Forward Impact Team website under websites/fit/. Use w
 
 ## Site Structure
 
-The website source lives in `websites/fit/` and is built by `libdoc` (see the libdoc
-skill for template variables, front matter options, and build mechanics).
+The website source lives in `websites/fit/` and is built by `libdoc` (see the
+libdoc skill for template variables, front matter options, and build mechanics).
 
 ```
 websites/fit/
@@ -57,8 +57,8 @@ Pages use the `layout` front matter field to control styling:
 Hero illustrations and product icons have **source files** in `design/` and
 **deployed copies** in `docs/assets/`:
 
-| Source                | Deployed to                  |
-| --------------------- | ---------------------------- |
+| Source                | Deployed to                       |
+| --------------------- | --------------------------------- |
 | `design/heroes/*.svg` | `websites/fit/assets/heros/*.svg` |
 | `design/icons/*.svg`  | `websites/fit/assets/icons/*.svg` |
 
@@ -69,12 +69,11 @@ fallback).
 ## Design Guidelines
 
 Visual decisions follow four documents: `design/index.md` (the abstract,
-brand-agnostic design language and the three characters),
-`design/fit/index.md` (the FIT-specific palette, fonts, products,
-layouts, and CSS tokens), `design/fit/scenes.md` (the six FIT product
-scenes and the scene usage matrix), and `design/fit/icons.md` (the six
-FIT product icons, the icon system rules, and the combined suite mark). Key
-rules for website work:
+brand-agnostic design language and the three characters), `design/fit/index.md`
+(the FIT-specific palette, fonts, products, layouts, and CSS tokens),
+`design/fit/scenes.md` (the six FIT product scenes and the scene usage matrix),
+and `design/fit/icons.md` (the six FIT product icons, the icon system rules, and
+the combined suite mark). Key rules for website work:
 
 - **Monochrome palette** — warm-tinted grays, sandstone accent for ambient
   warmth, never color
@@ -84,19 +83,19 @@ rules for website work:
   backgrounds
 - **Character illustrations** — three characters (Engineer, AI Agent,
   Stakeholder) in monochrome line art; see `design/index.md` for the characters
-  and reusable scenes, and `design/fit/scenes.md` for the FIT product
-  scenes
-- **Product icons** — see `design/fit/icons.md` for the six FIT
-  product icons and the icon system rules
+  and reusable scenes, and `design/fit/scenes.md` for the FIT product scenes
+- **Product icons** — see `design/fit/icons.md` for the six FIT product icons
+  and the icon system rules
 - **Design tokens** — use the CSS custom properties defined in
   `design/fit/index.md` § 10
 
-Consult `design/fit/index.md` directly for color values, spacing
-tokens, component specs, and FIT-specific guidelines.
+Consult `design/fit/index.md` directly for color values, spacing tokens,
+component specs, and FIT-specific guidelines.
 
 ## Publishing
 
-The site is published via GitHub Actions in `.github/workflows/website-fit.yaml`:
+The site is published via GitHub Actions in
+`.github/workflows/website-fit.yaml`:
 
 1. **Trigger**: push to `main` or manual `workflow_dispatch`
 2. **Build**: `bunx fit-doc build --src=websites/fit --out=dist` — libdoc reads
@@ -136,15 +135,15 @@ bunx fit-doc build --src=websites/fit --out=dist      # Full production build
 
 ### Update llms.txt sections
 
-The curated `websites/fit/llms.txt` defines H2 section headers. libdoc classifies
-pages by URL path and appends links under matching sections:
+The curated `websites/fit/llms.txt` defines H2 section headers. libdoc
+classifies pages by URL path and appends links under matching sections:
 
 - Top-level product pages (`/map/`, `/pathway/`, etc.) → `## Products`
 - Pages under `/docs/` → `## Documentation`
 - Everything else → `## Optional`
 
-To add a new section, edit `websites/fit/llms.txt` and update the section-to-page
-mapping in `libraries/libdoc/builder.js` (`#augmentLlmsTxt`).
+To add a new section, edit `websites/fit/llms.txt` and update the
+section-to-page mapping in `libraries/libdoc/builder.js` (`#augmentLlmsTxt`).
 
 ### Add schema files to the published site
 

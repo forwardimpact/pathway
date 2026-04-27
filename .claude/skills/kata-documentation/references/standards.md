@@ -2,8 +2,8 @@
 
 ## Information Architecture
 
-Four-tier hierarchy under `websites/fit/docs/` serving three user groups (Leadership,
-Engineers, Contributors):
+Four-tier hierarchy under `websites/fit/docs/` serving three user groups
+(Leadership, Engineers, Contributors):
 
 | Tier              | Intent                      | Subsections                                                                                                                                                                                |
 | ----------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |

@@ -41,7 +41,8 @@ interview questions. [Overview](websites/fit/pathway/index.md) ·
 
 Helps engineers and agents answer _am I prepared for what's ahead today?_
 Personal operations center providing scheduled AI tasks, knowledge graphs, and
-meeting briefings (macOS status menu). [Overview](websites/fit/basecamp/index.md) ·
+meeting briefings (macOS status menu).
+[Overview](websites/fit/basecamp/index.md) ·
 [Internals](websites/fit/docs/internals/basecamp/index.md)
 
 ### Guide — `fit-guide`
@@ -177,16 +178,14 @@ above.
 - **Dependency policy** — [CONTRIBUTING.md](CONTRIBUTING.md#dependency-policy)
 - **Repo self-maintenance** — [KATA.md](KATA.md)
 - **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand)
-- **Operations** — [Operations Reference](websites/fit/docs/internals/operations/)
+- **Operations** — [Operations](websites/fit/docs/internals/operations/)
 - **Kata agent skills** — [.claude/skills/kata-\*](.claude/skills/)
-- **Codegen pipeline** — [Codegen Internals](websites/fit/docs/internals/codegen/)
-- **REPL API** — [librepl internals](websites/fit/docs/internals/librepl/)
-- **Getting started** —
-  [contributors](websites/fit/docs/getting-started/contributors/)
+- **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
+- **REPL API** — [librepl](websites/fit/docs/internals/librepl/)
 
 **External:**
 
-- **Getting started** — [engineers](websites/fit/docs/getting-started/engineers/),
-  [leadership](websites/fit/docs/getting-started/leadership/)
+- **Getting started** —
+  [websites/fit/docs/getting-started/](websites/fit/docs/getting-started/)
 - **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
 - **Published skills** — [.claude/skills/fit-\*](.claude/skills/)
