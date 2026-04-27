@@ -177,6 +177,7 @@ export class ProseEngine {
       );
       throw new Error(
         `Failed to parse JSON for ${key} (${cleaned.length} chars): ${err.message}`,
+        { cause: err },
       );
     }
   }
