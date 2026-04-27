@@ -207,7 +207,7 @@ audit-vulnerabilities:
     # Replace bun workspace protocol with plain wildcard for npm compatibility
     find . -name package.json -not -path '*/node_modules/*' -exec \
       sed -i 's/"workspace:\*"/"*"/g' {} +
-    npm install --package-lock-only --ignore-scripts 2>/dev/null
+    npm install --package-lock-only --ignore-scripts --force 2>/dev/null
     npm audit --audit-level=high --omit=dev --workspaces
     rm -f package-lock.json
     git checkout -- '*/package.json' package.json 2>/dev/null || true
