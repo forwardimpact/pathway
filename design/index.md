@@ -17,7 +17,8 @@ metaphor, palette, and motif. The contract is in
 **Brand implementations:**
 
 - [Forward Impact Team (FIT)](forwardimpact/index.md) ·
-  [scenes](forwardimpact/scenes.md)
+  [scenes](forwardimpact/scenes.md) ·
+  [icons](forwardimpact/icons.md)
 
 ---
 
@@ -448,10 +449,16 @@ staying inside the family.
 
 A brand lives in `design/<brand>/`:
 
-- `index.md` — premise, products, palette, typography, icons, layout
-  patterns, product visual language, CSS tokens. Links back to this file
-  with `../index.md`.
+- `index.md` — premise, products, palette, typography, layout patterns,
+  product visual language, CSS tokens. Links back to this file with
+  `../index.md`.
 - `scenes.md` — product scenes and the scene usage matrix.
+- `icons.md` — product icons, icon system rules, and any combined
+  suite mark.
+
+Visual artifact files (`scenes.md`, `icons.md`) sit alongside `index.md`
+to keep the brand entry point short and the artifact catalogues easy to
+scan side-by-side.
 
 Add the brand to the "Brand implementations" list at the top of this file.
 See [`forwardimpact/`](forwardimpact/index.md) as a worked example.
