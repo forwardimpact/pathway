@@ -253,8 +253,8 @@ build-app-services:
       --extra-exec "dist/binaries/fit-service-pathway-bun-darwin-arm64" \
       --extra-exec "dist/binaries/fit-service-trace-bun-darwin-arm64" \
       --extra-exec "dist/binaries/fit-service-vector-bun-darwin-arm64" \
-      --info-plist "services/macos/Info.plist" \
-      --entitlements "services/macos/entitlements.plist" \
+      --info-plist "macos/services/Info.plist" \
+      --entitlements "macos/services/entitlements.plist" \
       --version "$(jq -r .version package.json)" \
       --out-dir dist/apps
 
@@ -266,8 +266,8 @@ build-app-utilities:
       --primary-exec "dist/binaries/fit-codegen-bun-darwin-arm64" \
       --extra-exec "dist/binaries/fit-terrain-bun-darwin-arm64" \
       # … remaining library-CLI Mach-Os as --extra-exec
-      --info-plist "libraries/macos/Info.plist" \
-      --entitlements "libraries/macos/entitlements.plist" \
+      --info-plist "macos/libraries/Info.plist" \
+      --entitlements "macos/libraries/entitlements.plist" \
       --version "$(jq -r .version package.json)" \
       --out-dir dist/apps
 
@@ -296,12 +296,17 @@ tree:
   — copy `libmacos/templates/entitlements.plist` (JIT +
   disable-library-validation). Basecamp continues to reference
   `products/basecamp/macos/Basecamp.entitlements`.
-- `services/macos/Info.plist` and `services/macos/entitlements.plist` — metadata
+- `macos/services/Info.plist` and `macos/services/entitlements.plist` — metadata
   for `FIT Services.app`. Identifier `com.forwardimpact.services`,
   `CFBundleExecutable=fit-service-graph`.
-- `libraries/macos/Info.plist` and `libraries/macos/entitlements.plist` —
+- `macos/libraries/Info.plist` and `macos/libraries/entitlements.plist` —
   metadata for `FIT Utilities.app`. Identifier `com.forwardimpact.utilities`,
   `CFBundleExecutable=fit-codegen`.
+
+The shared bundles live under a top-level `macos/` directory rather than beside
+their constituent services or libraries: their contents aggregate across many
+services / libraries and are macOS-specific packaging metadata, not a service or
+library in their own right.
 
 ### Service compile targets
 
@@ -330,10 +335,10 @@ existing `# ── CLI` section of the root justfile.
 | `products/pathway/macos/entitlements.plist`  | Created                                        |
 | `products/summit/macos/Info.plist`           | Created                                        |
 | `products/summit/macos/entitlements.plist`   | Created                                        |
-| `services/macos/Info.plist`                  | Created                                        |
-| `services/macos/entitlements.plist`          | Created                                        |
-| `libraries/macos/Info.plist`                 | Created                                        |
-| `libraries/macos/entitlements.plist`         | Created                                        |
+| `macos/services/Info.plist`                  | Created                                        |
+| `macos/services/entitlements.plist`          | Created                                        |
+| `macos/libraries/Info.plist`                 | Created                                        |
+| `macos/libraries/entitlements.plist`         | Created                                        |
 | `services/*/package.json`                    | Modified — add `bin` fields for compile target |
 
 ### Verification

@@ -283,8 +283,8 @@ build-app-services:
       --extra-exec "dist/binaries/fit-service-pathway" \
       --extra-exec "dist/binaries/fit-service-trace" \
       --extra-exec "dist/binaries/fit-service-vector" \
-      --info-plist "services/macos/Info.plist" \
-      --entitlements "services/macos/entitlements.plist" \
+      --info-plist "macos/services/Info.plist" \
+      --entitlements "macos/services/entitlements.plist" \
       --version "$(jq -r .version package.json)" \
       --out-dir dist/apps
 
@@ -312,8 +312,8 @@ build-app-utilities:
       --extra-exec "dist/binaries/fit-unary" \
       --extra-exec "dist/binaries/fit-tiktoken" \
       --extra-exec "dist/binaries/fit-download-bundle" \
-      --info-plist "libraries/macos/Info.plist" \
-      --entitlements "libraries/macos/entitlements.plist" \
+      --info-plist "macos/libraries/Info.plist" \
+      --entitlements "macos/libraries/entitlements.plist" \
       --version "$(jq -r .version package.json)" \
       --out-dir dist/apps
 
