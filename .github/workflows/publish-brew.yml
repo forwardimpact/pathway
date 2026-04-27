@@ -2,7 +2,18 @@ name: Publish Brew
 
 on:
   push:
-    tags: ["*@v*"]
+    # Restricted to known brew-bundle tags — `*@v*` would catch every
+    # per-library and per-service npm tag (libutil@v*, svcgraph@v*, etc.)
+    # which have no .app bundle and would fail the build job.
+    tags:
+      - "basecamp@v*"
+      - "guide@v*"
+      - "landmark@v*"
+      - "map@v*"
+      - "pathway@v*"
+      - "summit@v*"
+      - "services@v*"
+      - "utilities@v*"
 
 jobs:
   build:
@@ -40,9 +51,18 @@ jobs:
       - name: Build bundle
         run: |
           case "${{ steps.meta.outputs.kind }}" in
-            services)   just build-app-services ;;
-            utilities)  just build-app-utilities ;;
-            product)    just build-app-product ${{ steps.meta.outputs.name }} ;;
+            services)
+              just build-service-binaries
+              just build-app-services
+              ;;
+            utilities)
+              just build-utility-binaries
+              just build-app-utilities
+              ;;
+            product)
+              just build-binary "fit-${{ steps.meta.outputs.name }}"
+              just build-app-product "${{ steps.meta.outputs.name }}"
+              ;;
           esac
 
       - name: Smoke test
@@ -56,6 +76,38 @@ jobs:
             services)   "$BUNDLE/Contents/MacOS/fit-service-graph" --help ;;
             utilities)  "$BUNDLE/Contents/MacOS/fit-codegen" --help ;;
           esac
+
+      - name: Verify cdhash stability (plan §1b CI gate)
+        # Spec SC8 / plan Risk 9: rebuild the bundle from the same tree and
+        # confirm the signed cdhash is identical. A drifting cdhash wipes TCC
+        # grants on `brew upgrade`, so a non-deterministic build must fail
+        # release rather than ship.
+        run: |
+          BUNDLE="dist/apps/${{ steps.meta.outputs.bundle }}"
+          BASELINE=$(codesign -dvvv "$BUNDLE" 2>&1 | grep -i CDHash || true)
+          rm -rf dist/apps dist/binaries products/basecamp/dist
+          case "${{ steps.meta.outputs.kind }}" in
+            services)
+              just build-service-binaries
+              just build-app-services
+              ;;
+            utilities)
+              just build-utility-binaries
+              just build-app-utilities
+              ;;
+            product)
+              just build-binary "fit-${{ steps.meta.outputs.name }}"
+              just build-app-product "${{ steps.meta.outputs.name }}"
+              ;;
+          esac
+          AFTER=$(codesign -dvvv "$BUNDLE" 2>&1 | grep -i CDHash || true)
+          if [ "$BASELINE" != "$AFTER" ]; then
+            echo "::error::cdhash drift detected — bundle is not deterministic"
+            echo "baseline: $BASELINE"
+            echo "after:    $AFTER"
+            exit 1
+          fi
+          echo "cdhash stable: $AFTER"
 
       - name: Zip bundle and hash
         id: hash
