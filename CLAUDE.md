@@ -172,6 +172,8 @@ above.
 
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
 - **Contribution standards** — [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Design language** — [design/index.md](design/index.md) (brand-agnostic;
+  per-brand implementations under `design/<brand>/`)
 - **Security** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
 - **Dependency policy** — [CONTRIBUTING.md](CONTRIBUTING.md#dependency-policy)
 - **Repo self-maintenance** — [KATA.md](KATA.md)
