@@ -58,8 +58,8 @@ class ProcessManager {
             "TERM=xterm-256color",
         ]
 
-        // Build C argv: [schedulerPath, "--daemon", NULL]
-        let args = [schedulerPath, "--daemon"]
+        // Build C argv: [schedulerPath, "daemon", NULL]
+        let args = [schedulerPath, "daemon"]
         let cArgs: [UnsafeMutablePointer<CChar>?] = args.map { strdup($0) } + [nil]
 
         // Build C envp: ["KEY=VALUE", ..., NULL]

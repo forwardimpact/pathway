@@ -216,6 +216,63 @@ describe("Cli", () => {
     });
   });
 
+  describe("flag-to-command migration hint", () => {
+    test("suggests command when unknown flag matches a command name", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-basecamp",
+        commands: [
+          { name: "daemon", description: "Run continuously" },
+          { name: "wake", args: "<agent>", description: "Wake an agent" },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      assert.throws(() => cli.parse(["--daemon"]), {
+        message:
+          'Unknown option "--daemon". "daemon" is a command, not an option. Usage: fit-basecamp daemon',
+      });
+    });
+
+    test("includes args in usage hint", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-basecamp",
+        commands: [
+          { name: "wake", args: "<agent>", description: "Wake an agent" },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      assert.throws(() => cli.parse(["--wake"]), {
+        message:
+          'Unknown option "--wake". "wake" is a command, not an option. Usage: fit-basecamp wake <agent>',
+      });
+    });
+
+    test("still throws original error for truly unknown flags", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [{ name: "run", description: "Run" }],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      assert.throws(() => cli.parse(["--bogus"]), {
+        code: "ERR_PARSE_ARGS_UNKNOWN_OPTION",
+      });
+    });
+  });
+
   describe("multi-word commands", () => {
     test("matches multi-word commands for per-command help", () => {
       const proc = createProc();

@@ -52,11 +52,33 @@ export class Cli {
       if (opt.multiple) options[name].multiple = opt.multiple;
     }
 
-    const { values, positionals } = parseArgs({
-      options,
-      allowPositionals: true,
-      args: argv,
-    });
+    let values, positionals;
+    try {
+      ({ values, positionals } = parseArgs({
+        options,
+        allowPositionals: true,
+        args: argv,
+      }));
+    } catch (err) {
+      if (err.code === "ERR_PARSE_ARGS_UNKNOWN_OPTION") {
+        const match = err.message.match(/'(--?)([^']+)'/);
+        if (match) {
+          const bare = match[2];
+          const asCommand = this.#definition.commands?.find(
+            (c) => c.name === bare,
+          );
+          if (asCommand) {
+            const usage = asCommand.args
+              ? `${this.#definition.name} ${bare} ${asCommand.args}`
+              : `${this.#definition.name} ${bare}`;
+            throw new Error(
+              `Unknown option "${match[1]}${bare}". "${bare}" is a command, not an option. Usage: ${usage}`,
+            );
+          }
+        }
+      }
+      throw err;
+    }
 
     if (values.help) {
       if (values.json) {

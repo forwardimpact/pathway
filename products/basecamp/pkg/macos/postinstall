@@ -33,7 +33,7 @@ done
 
 # Try graceful shutdown first (stops running agents cleanly), then killall as fallback.
 if [ -f "$APP_PATH/Contents/MacOS/fit-basecamp" ]; then
-  /usr/bin/sudo -u "$REAL_USER" "$APP_PATH/Contents/MacOS/fit-basecamp" --stop 2>/dev/null || true
+  /usr/bin/sudo -u "$REAL_USER" "$APP_PATH/Contents/MacOS/fit-basecamp" stop 2>/dev/null || true
 fi
 /usr/bin/killall Basecamp 2>/dev/null || true
 /usr/bin/killall fit-basecamp 2>/dev/null || true
@@ -75,7 +75,7 @@ SCHEDULER="$APP_PATH/Contents/MacOS/fit-basecamp"
 
 if [ ! -d "$DEFAULT_KB" ]; then
   if [ -f "$SCHEDULER" ]; then
-    /usr/bin/sudo -u "$REAL_USER" "$SCHEDULER" --init "$DEFAULT_KB" 2>/dev/null || true
+    /usr/bin/sudo -u "$REAL_USER" "$SCHEDULER" init "$DEFAULT_KB" 2>/dev/null || true
   fi
 fi
 
