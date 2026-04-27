@@ -11,12 +11,13 @@
 > developers and agents, improve quality, increase output, and bring pride of
 > workmanship to engineering teams.
 
-This file specifies what is FIT-specific: the field metaphor, the six
-products, the concrete color palette, the typography choices, the type
-scale, the product icons, the layout patterns, the product visual language,
-and the CSS design tokens. The product scenes live alongside in
-[scenes.md](scenes.md). For the abstract design language and the three
-characters, see [../index.md](../index.md).
+This file specifies what is FIT-specific: the field metaphor, FIT's
+reading of the family characters, the six products, the concrete color
+palette, the typography choices, the type scale, the product icons, the
+layout patterns, the product visual language, and the CSS design tokens.
+The product scenes live alongside in [scenes.md](scenes.md). For the
+abstract design language and the three characters' shared visual
+specifications, see [../index.md](../index.md).
 
 ---
 
@@ -44,7 +45,29 @@ clean and functional, not themed like an outdoor gear catalog.
 
 ---
 
-## 2. The Six Products
+## 2. Characters in the Field
+
+The [three family characters](../index.md#2-the-three-characters) live
+inside the field metaphor. Their visual specifications are unchanged from
+the family — what follows are FIT-specific readings, not new shapes:
+
+- **Hand-drawn voice.** The 2px monochrome line-art reads, in FIT, as a
+  *field notebook sketch* — something an engineer might draw in the margin
+  of a logbook between deployments.
+- **The Engineer's backpack.** The constant from the field metaphor: they
+  carry their tools wherever they're deployed.
+- **The Stakeholder's role.** Represents the leadership and domain experts
+  that engineers are embedded with — product owners, engineering managers,
+  and business stakeholders who define what good engineering looks like.
+  Their absent backpack reads, in FIT, as "the territory is theirs
+  already."
+- **What the trio embodies.** Together, the three characters embody the
+  heart of forward deployed engineering — engineer, AI, and business
+  working at the boundary between technology and the real world.
+
+---
+
+## 3. The Six Products
 
 | Product      | Question it answers                              |
 | ------------ | ------------------------------------------------ |
@@ -69,7 +92,7 @@ that surfaces in icons and scenes but never in structural UI.
 
 ---
 
-## 3. Color Palette
+## 4. Color Palette
 
 ### Core Palette
 
@@ -105,7 +128,7 @@ The difference accumulates across the page — warmer, more human, like paper.
 
 ---
 
-## 4. Typography
+## 5. Typography
 
 ### Font Selection
 
@@ -115,6 +138,10 @@ The difference accumulates across the page — warmer, more human, like paper.
 | **Headings**       | `"DM Sans"` (Google Fonts)          | `-apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif` |
 | **Body**           | `"DM Sans"`                         | Same                                                        |
 | **Mono / Code**    | `"DM Mono"` (Google Fonts)          | `"SF Mono", Consolas, "Liberation Mono", monospace`         |
+
+**Instrument Serif** is FIT's specific reading of the family's display
+serif: it evokes field journals, cartographic labels, and expedition logs —
+the vocabulary of writing things down in the field.
 
 ### Type Scale
 
@@ -149,7 +176,7 @@ DM Sans, 18px, weight 400, gray-400:
 
 ---
 
-## 5. Product Scenes
+## 6. Product Scenes
 
 The FIT product scenes — Map, Pathway, Basecamp, Guide, Landmark, Summit —
 and the scene usage matrix live in a sibling file:
@@ -159,7 +186,7 @@ symbols.
 
 ---
 
-## 6. Product Icons
+## 7. Product Icons
 
 24px grid, 2px stroke, no fill — matching the characters' line weight.
 Should feel drawn in the same notebook.
@@ -283,7 +310,7 @@ Six icons on a shared ground line, evenly spaced.
 
 ---
 
-## 7. Layout Patterns
+## 8. Layout Patterns
 
 ### Suite Landing Page
 
@@ -364,7 +391,7 @@ The component patterns in
 
 ---
 
-## 8. Product Visual Language
+## 9. Product Visual Language
 
 Each product shares the core design system with subtle differentiators:
 
@@ -396,7 +423,7 @@ Each product shares the core design system with subtle differentiators:
 
 ---
 
-## 9. Design Tokens
+## 10. Design Tokens
 
 ```css
 :root {

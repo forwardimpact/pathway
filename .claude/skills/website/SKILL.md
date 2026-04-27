@@ -86,7 +86,7 @@ work:
   characters and reusable scenes, and `design/forwardimpact/scenes.md` for
   the FIT product scenes
 - **Design tokens** — use the CSS custom properties defined in
-  `design/forwardimpact/index.md` § 9
+  `design/forwardimpact/index.md` § 10
 
 Consult `design/forwardimpact/index.md` directly for color values, spacing
 tokens, component specs, and FIT-specific guidelines.

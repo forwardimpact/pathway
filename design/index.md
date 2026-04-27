@@ -244,7 +244,7 @@ Brands choose:
 - Inverted treatments for dark surfaces (footers, terminals).
 
 See
-[forwardimpact/index.md § Color Palette](forwardimpact/index.md#3-color-palette)
+[forwardimpact/index.md § Color Palette](forwardimpact/index.md#4-color-palette)
 for one concrete realization.
 
 ---
