@@ -79,18 +79,22 @@ export function buildCapabilityPrompt(skeleton, ctx, schema, priorOutput) {
             ...(priorOutput.levels && Array.isArray(priorOutput.levels)
               ? [
                   "Level titles and proficiency baselines:",
-                  ...priorOutput.levels.map(
-                    (l) =>
-                      `- ${l.id}: ${l.professionalTitle || l.id} (core: ${l.baseSkillProficiencies?.core || "N/A"})`,
-                  ),
+                  ...priorOutput.levels
+                    .filter(Boolean)
+                    .map(
+                      (l) =>
+                        `- ${l.id}: ${l.professionalTitle || l.id} (core: ${l.baseSkillProficiencies?.core || "N/A"})`,
+                    ),
                 ]
               : []),
             ...(priorOutput.behaviours && Array.isArray(priorOutput.behaviours)
               ? [
                   "Behaviour names:",
-                  ...priorOutput.behaviours.map(
-                    (b) => `- ${b._id || b.id}: ${b.name || b._id || b.id}`,
-                  ),
+                  ...priorOutput.behaviours
+                    .filter(Boolean)
+                    .map(
+                      (b) => `- ${b._id || b.id}: ${b.name || b._id || b.id}`,
+                    ),
                 ]
               : []),
           ]

@@ -4,25 +4,31 @@
 
 /** @param {object[]} levels @returns {string[]} */
 function formatLevels(levels) {
+  const valid = levels.filter(Boolean);
+  if (valid.length === 0) return [];
   return [
     "Level titles:",
-    ...levels.map((l) => `- ${l.id}: ${l.professionalTitle || l.id}`),
+    ...valid.map((l) => `- ${l.id}: ${l.professionalTitle || l.id}`),
   ];
 }
 
 /** @param {object[]} behaviours @returns {string[]} */
 function formatBehaviours(behaviours) {
+  const valid = behaviours.filter(Boolean);
+  if (valid.length === 0) return [];
   return [
     "Behaviour names:",
-    ...behaviours.map((b) => `- ${b._id || b.id}: ${b.name || b._id || b.id}`),
+    ...valid.map((b) => `- ${b._id || b.id}: ${b.name || b._id || b.id}`),
   ];
 }
 
 /** @param {object[]} capabilities @returns {string[]} */
 function formatCapabilities(capabilities) {
+  const valid = capabilities.filter(Boolean);
+  if (valid.length === 0) return [];
   return [
     "Capability names and skill IDs:",
-    ...capabilities.map(
+    ...valid.map(
       (c) =>
         `- ${c._id || c.id}: ${c.name || c._id || c.id} (skills: ${(c.skills || []).map((s) => s.id || s).join(", ")})`,
     ),
