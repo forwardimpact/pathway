@@ -225,7 +225,7 @@ persist as structured data rather than prose.
 
 ## Authentication
 
-Workflows authenticate via the **GitHub App** (`forward-impact-ci`), not a PAT.
+Workflows authenticate via the **GitHub App** `forward-impact-kata`, not a PAT.
 Each run generates a 1-hour installation token via
 `actions/create-github-app-token` — no long-lived secrets to rotate. The token
 must generate before `actions/checkout` so checkout-token writes trigger
