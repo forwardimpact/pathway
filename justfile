@@ -215,13 +215,13 @@ build-product-binaries:
     just build-binary fit-pathway
     just build-binary fit-summit
 
-# Compile every fit-service-<name> server
+# Compile every fit-svc<name> server
 build-service-binaries:
-    just build-binary fit-service-graph
-    just build-binary fit-service-mcp
-    just build-binary fit-service-pathway
-    just build-binary fit-service-trace
-    just build-binary fit-service-vector
+    just build-binary fit-svcgraph
+    just build-binary fit-svcmcp
+    just build-binary fit-svcpathway
+    just build-binary fit-svctrace
+    just build-binary fit-svcvector
 
 # Compile every library CLI (must stay in sync with Casks/fit-utilities.rb)
 build-utility-binaries:
@@ -278,11 +278,11 @@ build-app-product NAME:
 build-app-services:
     bash libraries/libmacos/scripts/build-app.sh \
       --bundle-name "FIT Services" \
-      --primary-exec "dist/binaries/fit-service-graph" \
-      --extra-exec "dist/binaries/fit-service-mcp" \
-      --extra-exec "dist/binaries/fit-service-pathway" \
-      --extra-exec "dist/binaries/fit-service-trace" \
-      --extra-exec "dist/binaries/fit-service-vector" \
+      --primary-exec "dist/binaries/fit-svcgraph" \
+      --extra-exec "dist/binaries/fit-svcmcp" \
+      --extra-exec "dist/binaries/fit-svcpathway" \
+      --extra-exec "dist/binaries/fit-svctrace" \
+      --extra-exec "dist/binaries/fit-svcvector" \
       --info-plist "macos/services/Info.plist" \
       --entitlements "macos/services/entitlements.plist" \
       --version "$(jq -r .version package.json)" \

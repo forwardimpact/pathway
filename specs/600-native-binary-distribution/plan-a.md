@@ -112,7 +112,7 @@ Replaces the original Step 1. Drive every bundle through
 
 ### Recipe: `build-binary`
 
-`NAME` is the full binary name (e.g. `fit-pathway`, `fit-service-graph`,
+`NAME` is the full binary name (e.g. `fit-pathway`, `fit-svcgraph`,
 `fit-codegen`). The recipe resolves the entry file by scanning every
 `package.json` under `products/`, `services/`, and `libraries/` for a `bin`
 field whose key matches `NAME`, and uses the path that field points at as the
@@ -160,8 +160,8 @@ build-binary NAME TARGET="bun-darwin-arm64":
 
 **Prerequisite for services.** Today `services/<name>/package.json` has no `bin`
 field — each service runs via `bun server.js`. Step 1b adds
-`"bin": { "fit-service-<name>": "./server.js" }` to each of the five service
-packages so the same `build-binary` recipe drives them uniformly.
+`"bin": { "fit-svc<name>": "./server.js" }` to each of the five service packages
+so the same `build-binary` recipe drives them uniformly.
 
 **Codegen.** `build-binary` does not depend on `codegen` as an individual recipe
 — the `build-binaries` fan-out below depends on `codegen` for local use, and
@@ -173,7 +173,8 @@ code gets a broken binary; the fan-out is the documented entry point.
 
 Each fan-out below uses the real binary names declared in each package.json's
 `bin` field — no aliasing or rename machinery. Service binaries get the
-`fit-service-` prefix so they don't collide with any product or library CLI.
+`fit-svc` prefix (matching their `@forwardimpact/svc<name>` npm package names)
+so they don't collide with any product or library CLI.
 
 ```just
 # Build all Mach-Os for the default target
@@ -188,11 +189,11 @@ build-product-binaries:
     just build-binary fit-summit
 
 build-service-binaries:
-    just build-binary fit-service-graph
-    just build-binary fit-service-mcp
-    just build-binary fit-service-pathway
-    just build-binary fit-service-trace
-    just build-binary fit-service-vector
+    just build-binary fit-svcgraph
+    just build-binary fit-svcmcp
+    just build-binary fit-svcpathway
+    just build-binary fit-svctrace
+    just build-binary fit-svcvector
 
 build-utility-binaries:
     # Enumerated from `libraries/*/package.json` bin fields at Step 1a time.
@@ -248,11 +249,11 @@ build-app-services:
     bash libraries/libmacos/scripts/build-app.sh \
       --bundle-name "FIT Services" \
       --bundle-id "team.forwardimpact.services" \
-      --primary-exec "dist/binaries/fit-service-graph-bun-darwin-arm64" \
-      --extra-exec "dist/binaries/fit-service-mcp-bun-darwin-arm64" \
-      --extra-exec "dist/binaries/fit-service-pathway-bun-darwin-arm64" \
-      --extra-exec "dist/binaries/fit-service-trace-bun-darwin-arm64" \
-      --extra-exec "dist/binaries/fit-service-vector-bun-darwin-arm64" \
+      --primary-exec "dist/binaries/fit-svcgraph-bun-darwin-arm64" \
+      --extra-exec "dist/binaries/fit-svcmcp-bun-darwin-arm64" \
+      --extra-exec "dist/binaries/fit-svcpathway-bun-darwin-arm64" \
+      --extra-exec "dist/binaries/fit-svctrace-bun-darwin-arm64" \
+      --extra-exec "dist/binaries/fit-svcvector-bun-darwin-arm64" \
       --info-plist "macos/services/Info.plist" \
       --entitlements "macos/services/entitlements.plist" \
       --version "$(jq -r .version package.json)" \
@@ -298,7 +299,7 @@ tree:
   `products/basecamp/macos/Basecamp.entitlements`.
 - `macos/services/Info.plist` and `macos/services/entitlements.plist` — metadata
   for `FIT Services.app`. Identifier `team.forwardimpact.services`,
-  `CFBundleExecutable=fit-service-graph`.
+  `CFBundleExecutable=fit-svcgraph`.
 - `macos/libraries/Info.plist` and `macos/libraries/entitlements.plist` —
   metadata for `FIT Utilities.app`. Identifier `team.forwardimpact.utilities`,
   `CFBundleExecutable=fit-codegen`.
@@ -311,9 +312,8 @@ library in their own right.
 ### Service compile targets
 
 Each `services/<name>/package.json` needs a `bin` entry or the equivalent so
-`build-binary <name>` finds an entry point that compiles to
-`fit-service-<name>`. Add per-service `bin` fields during Step 1b
-implementation.
+`build-binary <name>` finds an entry point that compiles to `fit-svc<name>`. Add
+per-service `bin` fields during Step 1b implementation.
 
 ### Recipe placement
 
@@ -456,7 +456,7 @@ jobs:
           # Shared bundles expose multiple CLIs; exercise the primary exec only.
           case "${{ steps.meta.outputs.kind }}" in
             product)    "$BUNDLE/Contents/MacOS/fit-${{ steps.meta.outputs.name }}" --help ;;
-            services)   "$BUNDLE/Contents/MacOS/fit-service-graph" --help                  ;;
+            services)   "$BUNDLE/Contents/MacOS/fit-svcgraph" --help                       ;;
             utilities)  "$BUNDLE/Contents/MacOS/fit-codegen" --help                        ;;
           esac
 
@@ -801,7 +801,7 @@ end
 ```
 
 `fit-services.rb` follows the same shape with five `binary` stanzas for the gRPC
-servers (`fit-service-{graph,mcp,pathway,trace,vector}`).
+servers (`fit-svc{graph,mcp,pathway,trace,vector}`).
 
 Each product cask gets a tailored `desc` matching the product tagline from its
 Overview page. The all-zero `sha256` placeholder is safe — no release asset

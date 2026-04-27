@@ -73,7 +73,7 @@ jobs:
           # one primary CLI per bundle (others are reachable via cask binary stanzas).
           case "${{ steps.meta.outputs.kind }}" in
             product)    "$BUNDLE/Contents/MacOS/fit-${{ steps.meta.outputs.name }}" --help ;;
-            services)   "$BUNDLE/Contents/MacOS/fit-service-graph" --help ;;
+            services)   "$BUNDLE/Contents/MacOS/fit-svcgraph" --help ;;
             utilities)  "$BUNDLE/Contents/MacOS/fit-codegen" --help ;;
           esac
 

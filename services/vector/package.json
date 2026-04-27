@@ -7,7 +7,7 @@
   "type": "module",
   "main": "index.js",
   "bin": {
-    "fit-service-vector": "./server.js"
+    "fit-svcvector": "./server.js"
   },
   "engines": {
     "bun": ">=1.2.0",

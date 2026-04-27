@@ -7,7 +7,7 @@
   "type": "module",
   "main": "./index.js",
   "bin": {
-    "fit-service-mcp": "./server.js"
+    "fit-svcmcp": "./server.js"
   },
   "engines": {
     "bun": ">=1.2.0",
