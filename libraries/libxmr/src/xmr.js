@@ -192,6 +192,21 @@ export function detectSignals(dates, values, mrs, stats) {
   );
 }
 
+// Classify a metric report from `analyze` into a coarse process-behavior
+// category. Deterministic — derived purely from `status` and the signal mix.
+//
+//   insufficient — fewer than MIN_POINTS data points, no limits computed.
+//   stable       — predictable; no signals.
+//   chaos        — moving range exceeds URL (mr_above_url signal); the limits
+//                  themselves are unreliable until the chaos is investigated.
+//   signals      — signals present but not chaos; investigate special cause.
+export function classify(metric) {
+  if (metric.status === "insufficient_data") return "insufficient";
+  if (metric.status === "predictable") return "stable";
+  if (metric.signals?.some((s) => s.rule === "mr_above_url")) return "chaos";
+  return "signals";
+}
+
 export function analyze(csvText) {
   const rows = parseCSV(csvText);
 
