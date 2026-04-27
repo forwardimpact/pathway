@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Server, createTracer } from "@forwardimpact/librpc";
 import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";

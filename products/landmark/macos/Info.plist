@@ -4,30 +4,24 @@
 <plist version="1.0">
 <dict>
     <key>CFBundleName</key>
-    <string>Basecamp</string>
+    <string>fit-landmark</string>
     <key>CFBundleDisplayName</key>
-    <string>Basecamp</string>
+    <string>fit-landmark</string>
     <key>CFBundleIdentifier</key>
-    <string>team.forwardimpact.basecamp</string>
+    <string>team.forwardimpact.landmark</string>
     <key>CFBundleVersion</key>
     <string>1.0.0</string>
     <key>CFBundleShortVersionString</key>
     <string>1.0.0</string>
     <key>CFBundleExecutable</key>
-    <string>Basecamp</string>
+    <string>fit-landmark</string>
     <key>CFBundlePackageType</key>
     <string>APPL</string>
-    <key>CFBundleIconFile</key>
-    <string>AppIcon</string>
     <key>LSMinimumSystemVersion</key>
     <string>13.0</string>
     <key>LSUIElement</key>
     <true/>
     <key>NSHumanReadableCopyright</key>
     <string>Copyright © 2026 Forward Impact Engineering</string>
-    <key>NSSupportsAutomaticTermination</key>
-    <true/>
-    <key>NSSupportsSuddenTermination</key>
-    <false/>
 </dict>
 </plist>

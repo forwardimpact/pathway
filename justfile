@@ -177,6 +177,157 @@ cli-unary:
 cli-xmr:
     bunx --workspace=@forwardimpact/libxmr fit-xmr {{ARGS}}
 
+# ── Bundles ───────────────────────────────────────────────────────
+
+# Compile NAME (a bin entry like fit-codegen) into dist/binaries/NAME
+build-binary NAME TARGET="bun-darwin-arm64":
+    #!/usr/bin/env bash
+    set -euo pipefail
+    ENTRY=""
+    for PKG in products/*/package.json services/*/package.json libraries/*/package.json; do
+      REL=$(jq -r --arg n "{{NAME}}" '.bin[$n] // empty' "$PKG" 2>/dev/null)
+      if [ -n "$REL" ]; then
+        ENTRY="$(dirname "$PKG")/$REL"
+        break
+      fi
+    done
+    if [ -z "$ENTRY" ] || [ ! -f "$ENTRY" ]; then
+      echo "Error: no package.json declares bin[{{NAME}}] with an existing entry" >&2
+      exit 1
+    fi
+    mkdir -p dist/binaries
+    bun build --compile \
+      --target "{{TARGET}}" \
+      --no-compile-autoload-dotenv \
+      --no-compile-autoload-bunfig \
+      --outfile "dist/binaries/{{NAME}}" \
+      "$ENTRY"
+
+# Build every Mach-O for the default target (codegen + product + service + utility)
+build-binaries: codegen build-product-binaries build-service-binaries build-utility-binaries
+
+# Compile every fit-<product> CLI
+build-product-binaries:
+    just build-binary fit-basecamp
+    just build-binary fit-guide
+    just build-binary fit-landmark
+    just build-binary fit-map
+    just build-binary fit-pathway
+    just build-binary fit-summit
+
+# Compile every fit-svc<name> server
+build-service-binaries:
+    just build-binary fit-svcgraph
+    just build-binary fit-svcmcp
+    just build-binary fit-svcpathway
+    just build-binary fit-svctrace
+    just build-binary fit-svcvector
+
+# Compile every library CLI (must stay in sync with Casks/fit-utilities.rb)
+build-utility-binaries:
+    just build-binary fit-codegen
+    just build-binary fit-terrain
+    just build-binary fit-eval
+    just build-binary fit-doc
+    just build-binary fit-rc
+    just build-binary fit-xmr
+    just build-binary fit-storage
+    just build-binary fit-logger
+    just build-binary fit-svscan
+    just build-binary fit-trace
+    just build-binary fit-visualize
+    just build-binary fit-query
+    just build-binary fit-subjects
+    just build-binary fit-process-graphs
+    just build-binary fit-process-resources
+    just build-binary fit-process-vectors
+    just build-binary fit-search
+    just build-binary fit-unary
+    just build-binary fit-tiktoken
+    just build-binary fit-download-bundle
+
+# Assemble dist/apps/fit-<NAME>.app for a product (basecamp is special-cased)
+build-app-product NAME:
+    #!/usr/bin/env bash
+    set -euo pipefail
+    if [ "{{NAME}}" = "basecamp" ]; then
+      (cd products/basecamp && just build)
+      bash libraries/libmacos/scripts/build-app.sh \
+        --bundle-name "fit-basecamp" \
+        --primary-exec "products/basecamp/dist/Basecamp" \
+        --extra-exec "products/basecamp/dist/fit-basecamp" \
+        --info-plist "products/basecamp/macos/Info.plist" \
+        --entitlements "products/basecamp/macos/Basecamp.entitlements" \
+        --resource "products/basecamp/config" \
+        --resource "products/basecamp/templates" \
+        --resource "design/icons/basecamp-flat.svg" \
+        --resource "design/icons/basecamp.svg" \
+        --version "$(jq -r .version products/basecamp/package.json)" \
+        --out-dir dist/apps
+    else
+      bash libraries/libmacos/scripts/build-app.sh \
+        --bundle-name "fit-{{NAME}}" \
+        --primary-exec "dist/binaries/fit-{{NAME}}" \
+        --info-plist "products/{{NAME}}/macos/Info.plist" \
+        --entitlements "products/{{NAME}}/macos/entitlements.plist" \
+        --version "$(jq -r .version products/{{NAME}}/package.json)" \
+        --out-dir dist/apps
+    fi
+
+# Assemble dist/apps/FIT Services.app — bundles all five gRPC servers
+build-app-services:
+    bash libraries/libmacos/scripts/build-app.sh \
+      --bundle-name "FIT Services" \
+      --primary-exec "dist/binaries/fit-svcgraph" \
+      --extra-exec "dist/binaries/fit-svcmcp" \
+      --extra-exec "dist/binaries/fit-svcpathway" \
+      --extra-exec "dist/binaries/fit-svctrace" \
+      --extra-exec "dist/binaries/fit-svcvector" \
+      --info-plist "macos/services/Info.plist" \
+      --entitlements "macos/services/entitlements.plist" \
+      --version "$(jq -r .version package.json)" \
+      --out-dir dist/apps
+
+# Assemble dist/apps/FIT Utilities.app — bundles every library CLI
+build-app-utilities:
+    bash libraries/libmacos/scripts/build-app.sh \
+      --bundle-name "FIT Utilities" \
+      --primary-exec "dist/binaries/fit-codegen" \
+      --extra-exec "dist/binaries/fit-terrain" \
+      --extra-exec "dist/binaries/fit-eval" \
+      --extra-exec "dist/binaries/fit-doc" \
+      --extra-exec "dist/binaries/fit-rc" \
+      --extra-exec "dist/binaries/fit-xmr" \
+      --extra-exec "dist/binaries/fit-storage" \
+      --extra-exec "dist/binaries/fit-logger" \
+      --extra-exec "dist/binaries/fit-svscan" \
+      --extra-exec "dist/binaries/fit-trace" \
+      --extra-exec "dist/binaries/fit-visualize" \
+      --extra-exec "dist/binaries/fit-query" \
+      --extra-exec "dist/binaries/fit-subjects" \
+      --extra-exec "dist/binaries/fit-process-graphs" \
+      --extra-exec "dist/binaries/fit-process-resources" \
+      --extra-exec "dist/binaries/fit-process-vectors" \
+      --extra-exec "dist/binaries/fit-search" \
+      --extra-exec "dist/binaries/fit-unary" \
+      --extra-exec "dist/binaries/fit-tiktoken" \
+      --extra-exec "dist/binaries/fit-download-bundle" \
+      --info-plist "macos/libraries/Info.plist" \
+      --entitlements "macos/libraries/entitlements.plist" \
+      --version "$(jq -r .version package.json)" \
+      --out-dir dist/apps
+
+# Fan-out: build every Mach-O, then every bundle
+build-apps: build-binaries
+    just build-app-product basecamp
+    just build-app-product guide
+    just build-app-product landmark
+    just build-app-product map
+    just build-app-product pathway
+    just build-app-product summit
+    just build-app-services
+    just build-app-utilities
+
 # ── Docs ──────────────────────────────────────────────────────────
 
 # Build documentation

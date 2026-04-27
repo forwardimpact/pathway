@@ -6,6 +6,9 @@
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./index.js",
+  "bin": {
+    "fit-svcmcp": "./server.js"
+  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"

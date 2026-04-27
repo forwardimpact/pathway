@@ -17,7 +17,7 @@ SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
 APP_PATH="$DIST_DIR/Basecamp.app"
 APP_NAME="fit-basecamp"
-IDENTIFIER="com.forwardimpact.basecamp"
+IDENTIFIER="team.forwardimpact.basecamp"
 
 if [ ! -d "$APP_PATH" ]; then
   echo "Error: Basecamp.app not found at $APP_PATH"

@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { Server } from "@forwardimpact/librpc";
 import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createGraphIndex } from "@forwardimpact/libgraph";

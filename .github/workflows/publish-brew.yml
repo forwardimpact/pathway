@@ -1,0 +1,228 @@
+name: Publish Brew
+
+on:
+  push:
+    # Restricted to known brew-bundle tags — `*@v*` would catch every
+    # per-library and per-service npm tag (libutil@v*, svcgraph@v*, etc.)
+    # which have no .app bundle and would fail the build job.
+    tags:
+      - "basecamp@v*"
+      - "guide@v*"
+      - "landmark@v*"
+      - "map@v*"
+      - "pathway@v*"
+      - "summit@v*"
+      - "services@v*"
+      - "utilities@v*"
+
+jobs:
+  build:
+    runs-on: macos-14
+
+    permissions:
+      contents: write
+
+    steps:
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+
+      - name: Extract bundle and version from tag
+        id: meta
+        run: |
+          NAME="${GITHUB_REF_NAME%%@v*}"
+          VERSION="${GITHUB_REF_NAME#*@v}"
+          case "$NAME" in
+            services)   KIND=services;   BUNDLE="FIT Services.app";  CASK=fit-services  ;;
+            utilities)  KIND=utilities;  BUNDLE="FIT Utilities.app"; CASK=fit-utilities ;;
+            *)          KIND=product;    BUNDLE="fit-${NAME}.app";   CASK=fit-${NAME}   ;;
+          esac
+          {
+            echo "name=${NAME}"
+            echo "version=${VERSION}"
+            echo "kind=${KIND}"
+            echo "bundle=${BUNDLE}"
+            echo "cask=${CASK}"
+          } >> "$GITHUB_OUTPUT"
+
+      - uses: ./.github/actions/bootstrap
+
+      - name: Ensure codegen is current
+        run: just codegen
+
+      - name: Build bundle
+        run: |
+          case "${{ steps.meta.outputs.kind }}" in
+            services)
+              just build-service-binaries
+              just build-app-services
+              ;;
+            utilities)
+              just build-utility-binaries
+              just build-app-utilities
+              ;;
+            product)
+              just build-binary "fit-${{ steps.meta.outputs.name }}"
+              just build-app-product "${{ steps.meta.outputs.name }}"
+              ;;
+          esac
+
+      - name: Smoke test
+        run: |
+          BUNDLE="dist/apps/${{ steps.meta.outputs.bundle }}"
+          codesign --verify --deep --strict "$BUNDLE"
+          # Product bundles run their own CLI's --help. Shared bundles exercise
+          # one primary CLI per bundle (others are reachable via cask binary stanzas).
+          case "${{ steps.meta.outputs.kind }}" in
+            product)    "$BUNDLE/Contents/MacOS/fit-${{ steps.meta.outputs.name }}" --help ;;
+            services)   "$BUNDLE/Contents/MacOS/fit-svcgraph" --help ;;
+            utilities)  "$BUNDLE/Contents/MacOS/fit-codegen" --help ;;
+          esac
+
+      - name: Verify cdhash stability (plan §1b CI gate)
+        # Spec SC8 / plan Risk 9: rebuild the bundle from the same tree and
+        # confirm the signed cdhash is identical. A drifting cdhash wipes TCC
+        # grants on `brew upgrade`, so a non-deterministic build must fail
+        # release rather than ship.
+        run: |
+          BUNDLE="dist/apps/${{ steps.meta.outputs.bundle }}"
+          BASELINE=$(codesign -dvvv "$BUNDLE" 2>&1 | grep -i CDHash || true)
+          rm -rf dist/apps dist/binaries products/basecamp/dist
+          case "${{ steps.meta.outputs.kind }}" in
+            services)
+              just build-service-binaries
+              just build-app-services
+              ;;
+            utilities)
+              just build-utility-binaries
+              just build-app-utilities
+              ;;
+            product)
+              just build-binary "fit-${{ steps.meta.outputs.name }}"
+              just build-app-product "${{ steps.meta.outputs.name }}"
+              ;;
+          esac
+          AFTER=$(codesign -dvvv "$BUNDLE" 2>&1 | grep -i CDHash || true)
+          if [ "$BASELINE" != "$AFTER" ]; then
+            echo "::error::cdhash drift detected — bundle is not deterministic"
+            echo "baseline: $BASELINE"
+            echo "after:    $AFTER"
+            exit 1
+          fi
+          echo "cdhash stable: $AFTER"
+
+      - name: Zip bundle and hash
+        id: hash
+        run: |
+          VERSION="${{ steps.meta.outputs.version }}"
+          CASK="${{ steps.meta.outputs.cask }}"
+          BUNDLE="dist/apps/${{ steps.meta.outputs.bundle }}"
+          ASSET="${CASK}-${VERSION}-darwin-arm64.zip"
+          # ditto preserves codesign metadata through zip; standard zip does not.
+          ditto -c -k --sequesterRsrc --keepParent "$BUNDLE" "dist/apps/${ASSET}"
+          shasum -a 256 "dist/apps/${ASSET}" | awk '{print $1}' > "dist/apps/${ASSET}.sha256"
+          {
+            echo "asset=${ASSET}"
+            echo "sha256=$(cat "dist/apps/${ASSET}.sha256")"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Create or reuse GitHub Release
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          gh release create "$TAG" --title "$TAG" --generate-notes 2>/dev/null \
+            || echo "Release $TAG already exists"
+
+      - name: Upload release assets
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          ASSET="${{ steps.hash.outputs.asset }}"
+          gh release upload "$TAG" \
+            "dist/apps/${ASSET}" \
+            "dist/apps/${ASSET}.sha256" \
+            --clobber
+
+  tap-pr:
+    needs: build
+    runs-on: ubuntu-latest
+
+    steps:
+      - name: Extract bundle and version from tag
+        id: meta
+        run: |
+          NAME="${GITHUB_REF_NAME%%@v*}"
+          VERSION="${GITHUB_REF_NAME#*@v}"
+          case "$NAME" in
+            services)   KIND=services;   CASK=fit-services  ;;
+            utilities)  KIND=utilities;  CASK=fit-utilities ;;
+            *)          KIND=product;    CASK=fit-${NAME}   ;;
+          esac
+          {
+            echo "name=${NAME}"
+            echo "version=${VERSION}"
+            echo "kind=${KIND}"
+            echo "cask=${CASK}"
+          } >> "$GITHUB_OUTPUT"
+
+      - name: Download sha256 from release
+        id: hash
+        env:
+          GH_TOKEN: ${{ github.token }}
+        run: |
+          TAG="${GITHUB_REF_NAME}"
+          CASK="${{ steps.meta.outputs.cask }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          ASSET="${CASK}-${VERSION}-darwin-arm64.zip"
+          gh release download "$TAG" --pattern "${ASSET}.sha256" --dir . \
+            --repo "$GITHUB_REPOSITORY"
+          echo "sha256=$(cat "${ASSET}.sha256")" >> "$GITHUB_OUTPUT"
+
+      - name: Checkout tap repo
+        uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
+        with:
+          # HOMEBREW_TAP_PAT: classic GitHub PAT scoped to repo on
+          # forwardimpact/homebrew-tap only. Rotate annually (classic PATs
+          # expire after at most 1 year).
+          repository: forwardimpact/homebrew-tap
+          token: ${{ secrets.HOMEBREW_TAP_PAT }}
+          path: tap
+
+      - name: Configure git identity
+        working-directory: tap
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "41898282+github-actions[bot]@users.noreply.github.com"
+
+      - name: Update cask version and sha256
+        env:
+          CASK: ${{ steps.meta.outputs.cask }}
+          VERSION: ${{ steps.meta.outputs.version }}
+          SHA256: ${{ steps.hash.outputs.sha256 }}
+        run: |
+          # Only the version and sha256 lines are updated per release. The rest
+          # of the cask body — depends_on graph, binary stanzas, livecheck regex
+          # — lives in the tap repo and is edited there by humans when bundle
+          # contents change. This avoids clobbering per-cask differences.
+          CASK_FILE="tap/Casks/${CASK}.rb"
+          sed -i \
+            -e "s|^  version \".*\"|  version \"${VERSION}\"|" \
+            -e "s|^  sha256 \".*\"|  sha256 \"${SHA256}\"|" \
+            "$CASK_FILE"
+
+      - name: Open cask-update PR
+        working-directory: tap
+        env:
+          GH_TOKEN: ${{ secrets.HOMEBREW_TAP_PAT }}
+        run: |
+          CASK="${{ steps.meta.outputs.cask }}"
+          VERSION="${{ steps.meta.outputs.version }}"
+          BRANCH="update/${CASK}-${VERSION}"
+          git checkout -b "$BRANCH"
+          git add "Casks/${CASK}.rb"
+          git commit -m "Update ${CASK} to ${VERSION}"
+          git push origin "$BRANCH"
+          gh pr create \
+            --title "Update ${CASK} to ${VERSION}" \
+            --body "Automated cask update from monorepo release ${GITHUB_REF_NAME}." \
+            --base main

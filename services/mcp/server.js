@@ -1,3 +1,4 @@
+#!/usr/bin/env node
 import { createServiceConfig } from "@forwardimpact/libconfig";
 import { createResourceIndex } from "@forwardimpact/libresource";
 import { createClient, createTracer } from "@forwardimpact/librpc";
