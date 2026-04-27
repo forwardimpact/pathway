@@ -13,7 +13,8 @@ and design tokens — live in per-brand files.
 
 **Brand implementations:**
 
-- [Forward Impact Team (FIT)](forwardimpact.md)
+- [Forward Impact Team (FIT)](forwardimpact/index.md) ·
+  [scenes](forwardimpact/scenes.md)
 
 ---
 
@@ -240,8 +241,9 @@ Brands choose:
 - The warm-signal hue and its small ramp.
 - Inverted treatments for dark surfaces (footers, terminals).
 
-See [forwardimpact.md § Color Palette](forwardimpact.md#3-color-palette) for
-one concrete realization.
+See
+[forwardimpact/index.md § Color Palette](forwardimpact/index.md#3-color-palette)
+for one concrete realization.
 
 ---
 
