@@ -39,7 +39,9 @@ permissions:
 jobs:
   kata:
     # Skip bot senders, and require issue_comment events to be on PRs (issue_comment also fires for issues).
-    if: github.event_name == 'workflow_dispatch' || (github.event.sender.type != 'Bot' && ((github.event_name == 'issue_comment' && github.event.issue.pull_request != null) || github.event_name == 'pull_request_review_comment' || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'))
+    # For pull_request_review_comment, only run on thread replies (in_reply_to_id set) — top-level
+    # review comments are delivered via the pull_request_review (submitted) event in a single batch.
+    if: github.event_name == 'workflow_dispatch' || (github.event.sender.type != 'Bot' && ((github.event_name == 'issue_comment' && github.event.issue.pull_request != null) || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'))
     runs-on: ubuntu-latest
     steps:
       - name: Generate installation token
