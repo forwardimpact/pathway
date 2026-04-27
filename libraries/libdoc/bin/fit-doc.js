@@ -56,8 +56,8 @@ const definition = {
   globalOptions: {
     src: {
       type: "string",
-      default: "website",
-      description: "Source directory (default: website)",
+      default: "public",
+      description: "Source directory (default: public)",
     },
     out: {
       type: "string",

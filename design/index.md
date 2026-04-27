@@ -16,8 +16,8 @@ palette, and motif. The contract is in
 
 **Brand implementations:**
 
-- [Forward Impact Team (FIT)](fit/index.md) ·
-  [scenes](fit/scenes.md) · [icons](fit/icons.md)
+- [Forward Impact Team (FIT)](fit/index.md) · [scenes](fit/scenes.md) ·
+  [icons](fit/icons.md)
 
 ---
 
@@ -243,9 +243,8 @@ Brands choose:
 - The warm-signal hue and its small ramp.
 - Inverted treatments for dark surfaces (footers, terminals).
 
-See
-[fit/index.md § Color Palette](fit/index.md#4-color-palette)
-for one concrete realization.
+See [fit/index.md § Color Palette](fit/index.md#4-color-palette) for one
+concrete realization.
 
 ---
 

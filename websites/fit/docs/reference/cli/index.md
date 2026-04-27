@@ -469,18 +469,18 @@ npx fit-rc start <service>   # Start up to a specific service
 Documentation site builder. Monorepo-only — invoke with `bunx`.
 
 ```sh
-bunx fit-doc build --src=website --out=dist    # Build static site
-bunx fit-doc serve --src=website               # Development server
-bunx fit-doc serve --src=website --port=8080   # Custom port
-bunx fit-doc build --src=website --out=dist --base-url=https://example.com  # With base URL
+bunx fit-doc build --src=websites/fit --out=dist    # Build static site
+bunx fit-doc serve --src=websites/fit               # Development server
+bunx fit-doc serve --src=websites/fit --port=8080   # Custom port
+bunx fit-doc build --src=websites/fit --out=dist --base-url=https://example.com  # With base URL
 ```
 
 **Global options** (apply to both `build` and `serve`):
 
-| Option        | Description                           |
-| ------------- | ------------------------------------- |
-| `--src=<dir>` | Source directory (default: `website`) |
-| `--out=<dir>` | Output directory (default: `dist`)    |
+| Option        | Description                          |
+| ------------- | ------------------------------------ |
+| `--src=<dir>` | Source directory (default: `public`) |
+| `--out=<dir>` | Output directory (default: `dist`)   |
 
 **Command-specific options:**
 

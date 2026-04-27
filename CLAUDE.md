@@ -27,42 +27,43 @@ products via npm.
 
 Helps leadership and agents answer _what does good engineering look like here?_
 Validates, stores, and publishes YAML frameworks.
-[Overview](website/map/index.md) ·
-[Internals](website/docs/internals/map/index.md)
+[Overview](websites/fit/map/index.md) ·
+[Internals](websites/fit/docs/internals/map/index.md)
 
 ### Pathway — `fit-pathway`
 
 Helps engineers and agents answer _where does my career path go from here?_ Web
 app, CLI, and static site generator for job definitions, agent profiles, and
-interview questions. [Overview](website/pathway/index.md) ·
-[Internals](website/docs/internals/pathway/index.md)
+interview questions. [Overview](websites/fit/pathway/index.md) ·
+[Internals](websites/fit/docs/internals/pathway/index.md)
 
 ### Basecamp — `fit-basecamp`
 
 Helps engineers and agents answer _am I prepared for what's ahead today?_
 Personal operations center providing scheduled AI tasks, knowledge graphs, and
-meeting briefings (macOS status menu). [Overview](website/basecamp/index.md) ·
-[Internals](website/docs/internals/basecamp/index.md)
+meeting briefings (macOS status menu).
+[Overview](websites/fit/basecamp/index.md) ·
+[Internals](websites/fit/docs/internals/basecamp/index.md)
 
 ### Guide — `fit-guide`
 
 Helps engineers answer _how do I find my bearing?_ AI agent that reasons about
-your engineering framework in context. [Overview](website/guide/index.md) ·
-[Internals](website/docs/internals/guide/index.md)
+your engineering framework in context. [Overview](websites/fit/guide/index.md) ·
+[Internals](websites/fit/docs/internals/guide/index.md)
 
 ### Landmark — `fit-landmark`
 
 Helps leadership and engineers answer _what milestones has my engineering
 reached?_ Analysis layer combining GitHub artifact evidence with GetDX
-snapshots. No LLM calls. [Overview](website/landmark/index.md) ·
-[Internals](website/docs/internals/landmark/index.md)
+snapshots. No LLM calls. [Overview](websites/fit/landmark/index.md) ·
+[Internals](websites/fit/docs/internals/landmark/index.md)
 
 ### Summit — `fit-summit`
 
 Helps leadership answer _is this team supported to reach peak performance?_
 Models team capability as a system: skill matrices, coverage gaps, risks, and
-staffing scenarios. [Overview](website/summit/index.md) ·
-[Internals](website/docs/internals/summit/index.md)
+staffing scenarios. [Overview](websites/fit/summit/index.md) ·
+[Internals](websites/fit/docs/internals/summit/index.md)
 
 ## Distribution Model
 
@@ -93,7 +94,7 @@ data. All CLIs use `#!/usr/bin/env node` — no Bun required.
 Products using gRPC (currently Guide) require generated clients. External users
 run `npx fit-codegen --all` after install — generated code is
 installation-specific, never bundled in npm packages. See
-[Codegen Internals](website/docs/internals/codegen/index.md).
+[Codegen Internals](websites/fit/docs/internals/codegen/index.md).
 
 ### How Internal Contributors Develop
 
@@ -108,11 +109,11 @@ architecture — these are never published. External-facing docs use `npm`/`npx`
 ## Contributor Workflow
 
 Everything below this point is for internal contributors. External users should
-consult the [Getting Started guides](website/docs/getting-started/).
+consult the [Getting Started guides](websites/fit/docs/getting-started/).
 
 - **[CONTRIBUTING.md](CONTRIBUTING.md)** — Invariants, structure, quality
   commands, security policies. **Read before your first commit.**
-- **[Operations Reference](website/docs/internals/operations/index.md)** —
+- **[Operations Reference](websites/fit/docs/internals/operations/index.md)** —
   Environment setup, service management, common tasks.
 
 ### Checklists
@@ -160,7 +161,7 @@ fields.
 - **Tools** derived from `toolReferences` at runtime via `bunx fit-pathway tool`
 
 Validate data: `bunx fit-map validate`. Vocabulary standards in the
-[Authoring Frameworks guide](website/docs/guides/authoring-frameworks/index.md).
+[Authoring Frameworks guide](websites/fit/docs/guides/authoring-frameworks/index.md).
 
 ## Documentation Map
 
@@ -177,16 +178,14 @@ above.
 - **Dependency policy** — [CONTRIBUTING.md](CONTRIBUTING.md#dependency-policy)
 - **Repo self-maintenance** — [KATA.md](KATA.md)
 - **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand)
-- **Operations** — [Operations Reference](website/docs/internals/operations/)
+- **Operations** — [Operations](websites/fit/docs/internals/operations/)
 - **Kata agent skills** — [.claude/skills/kata-\*](.claude/skills/)
-- **Codegen pipeline** — [Codegen Internals](website/docs/internals/codegen/)
-- **REPL API** — [librepl internals](website/docs/internals/librepl/)
-- **Getting started** —
-  [contributors](website/docs/getting-started/contributors/)
+- **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
+- **REPL API** — [librepl](websites/fit/docs/internals/librepl/)
 
 **External:**
 
-- **Getting started** — [engineers](website/docs/getting-started/engineers/),
-  [leadership](website/docs/getting-started/leadership/)
-- **User guides** — [website/docs/guides/](website/docs/guides/)
+- **Getting started** —
+  [websites/fit/docs/getting-started/](websites/fit/docs/getting-started/)
+- **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
 - **Published skills** — [.claude/skills/fit-\*](.claude/skills/)

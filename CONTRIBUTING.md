@@ -107,7 +107,8 @@ specs/
   {feature}/   # feature specifications and plans
 wiki/          # GitHub wiki (cloned on demand) — shared agent memory
 design/        # design language (brand-agnostic) and brand implementations
-website/       # public site content and docs
+websites/      # public site sources, one folder per site
+  fit/         # forwardimpact.team
 ```
 
 Git tracks `*.example.*` templates in `config/` — the live files above are

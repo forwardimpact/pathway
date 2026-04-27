@@ -1,9 +1,9 @@
 ---
-name: website
-description: Maintain the Forward Impact Team website under website/. Use when editing website pages, assets, hero images, icons, or the GitHub Actions publish workflow.
+name: website-fit
+description: Maintain the Forward Impact Team website under websites/fit/. Use when editing website pages, assets, hero images, icons, or the GitHub Actions publish workflow.
 ---
 
-# Website Skill
+# Website Skill (forwardimpact.team)
 
 ## When to Use
 
@@ -14,11 +14,11 @@ description: Maintain the Forward Impact Team website under website/. Use when e
 
 ## Site Structure
 
-The website source lives in `website/` and is built by `libdoc` (see the libdoc
-skill for template variables, front matter options, and build mechanics).
+The website source lives in `websites/fit/` and is built by `libdoc` (see the
+libdoc skill for template variables, front matter options, and build mechanics).
 
 ```
-website/
+websites/fit/
 ├── CNAME                    # Custom domain: www.forwardimpact.team
 ├── index.template.html      # Shared Mustache template for every page
 ├── robots.txt               # Crawl directives + sitemap reference
@@ -57,24 +57,23 @@ Pages use the `layout` front matter field to control styling:
 Hero illustrations and product icons have **source files** in `design/` and
 **deployed copies** in `docs/assets/`:
 
-| Source                | Deployed to                  |
-| --------------------- | ---------------------------- |
-| `design/heroes/*.svg` | `website/assets/heros/*.svg` |
-| `design/icons/*.svg`  | `website/assets/icons/*.svg` |
+| Source                | Deployed to                       |
+| --------------------- | --------------------------------- |
+| `design/heroes/*.svg` | `websites/fit/assets/heros/*.svg` |
+| `design/icons/*.svg`  | `websites/fit/assets/icons/*.svg` |
 
 When updating illustrations, edit the source in `design/` and copy to
-`website/assets/`. Both SVG and JPG versions exist for hero images (JPG as
+`websites/fit/assets/`. Both SVG and JPG versions exist for hero images (JPG as
 fallback).
 
 ## Design Guidelines
 
 Visual decisions follow four documents: `design/index.md` (the abstract,
-brand-agnostic design language and the three characters),
-`design/fit/index.md` (the FIT-specific palette, fonts, products,
-layouts, and CSS tokens), `design/fit/scenes.md` (the six FIT product
-scenes and the scene usage matrix), and `design/fit/icons.md` (the six
-FIT product icons, the icon system rules, and the combined suite mark). Key
-rules for website work:
+brand-agnostic design language and the three characters), `design/fit/index.md`
+(the FIT-specific palette, fonts, products, layouts, and CSS tokens),
+`design/fit/scenes.md` (the six FIT product scenes and the scene usage matrix),
+and `design/fit/icons.md` (the six FIT product icons, the icon system rules, and
+the combined suite mark). Key rules for website work:
 
 - **Monochrome palette** — warm-tinted grays, sandstone accent for ambient
   warmth, never color
@@ -84,46 +83,46 @@ rules for website work:
   backgrounds
 - **Character illustrations** — three characters (Engineer, AI Agent,
   Stakeholder) in monochrome line art; see `design/index.md` for the characters
-  and reusable scenes, and `design/fit/scenes.md` for the FIT product
-  scenes
-- **Product icons** — see `design/fit/icons.md` for the six FIT
-  product icons and the icon system rules
+  and reusable scenes, and `design/fit/scenes.md` for the FIT product scenes
+- **Product icons** — see `design/fit/icons.md` for the six FIT product icons
+  and the icon system rules
 - **Design tokens** — use the CSS custom properties defined in
   `design/fit/index.md` § 10
 
-Consult `design/fit/index.md` directly for color values, spacing
-tokens, component specs, and FIT-specific guidelines.
+Consult `design/fit/index.md` directly for color values, spacing tokens,
+component specs, and FIT-specific guidelines.
 
 ## Publishing
 
-The site is published via GitHub Actions in `.github/workflows/website.yaml`:
+The site is published via GitHub Actions in
+`.github/workflows/website-fit.yaml`:
 
 1. **Trigger**: push to `main` or manual `workflow_dispatch`
-2. **Build**: `bunx fit-doc build --src=website --out=dist` — libdoc reads
+2. **Build**: `bunx fit-doc build --src=websites/fit --out=dist` — libdoc reads
    `CNAME` to derive the base URL automatically. Produces HTML pages, co-located
    `index.md` markdown companions, `sitemap.xml`, augmented `llms.txt`, and
    copies `robots.txt` to dist.
 3. **Extra assets**: JSON schema files from `products/map/schema/json/` and RDF
    schema files from `products/map/schema/rdf/` are copied into `dist/schema/`
-4. **CNAME**: `website/CNAME` is copied to `dist/` for the custom domain
+4. **CNAME**: `websites/fit/CNAME` is copied to `dist/` for the custom domain
 5. **Deploy**: uploaded to GitHub Pages via `actions/deploy-pages@v4`
 
 ### Local Preview
 
 ```sh
-bunx fit-doc serve --watch    # Live-reload dev server
-bunx fit-doc build --src=website --out=dist   # Full production build
+bunx fit-doc serve --src=websites/fit --watch         # Live-reload dev server
+bunx fit-doc build --src=websites/fit --out=dist      # Full production build
 ```
 
 ## Common Tasks
 
 ### Add a new page
 
-1. Create `website/{section}/index.md` with front matter (`title`,
+1. Create `websites/fit/{section}/index.md` with front matter (`title`,
    `description`, `layout` if needed)
 2. Add navigation links from related pages
 3. Preview with `bunx fit-doc serve --watch`
-4. Check if `website/llms.txt` needs a new H2 section for the page's URL
+4. Check if `websites/fit/llms.txt` needs a new H2 section for the page's URL
    category. If the page falls under an existing section (Products,
    Documentation, Optional), no change is needed — libdoc appends links
    automatically.
@@ -131,20 +130,20 @@ bunx fit-doc build --src=website --out=dist   # Full production build
 ### Update a hero illustration
 
 1. Edit the SVG source in `design/heroes/`
-2. Copy to `website/assets/heros/` (both `.svg` and `.jpg` if applicable)
+2. Copy to `websites/fit/assets/heros/` (both `.svg` and `.jpg` if applicable)
 3. Reference in front matter as `/assets/heros/{name}.svg`
 
 ### Update llms.txt sections
 
-The curated `website/llms.txt` defines H2 section headers. libdoc classifies
-pages by URL path and appends links under matching sections:
+The curated `websites/fit/llms.txt` defines H2 section headers. libdoc
+classifies pages by URL path and appends links under matching sections:
 
 - Top-level product pages (`/map/`, `/pathway/`, etc.) → `## Products`
 - Pages under `/docs/` → `## Documentation`
 - Everything else → `## Optional`
 
-To add a new section, edit `website/llms.txt` and update the section-to-page
-mapping in `libraries/libdoc/builder.js` (`#augmentLlmsTxt`).
+To add a new section, edit `websites/fit/llms.txt` and update the
+section-to-page mapping in `libraries/libdoc/builder.js` (`#augmentLlmsTxt`).
 
 ### Add schema files to the published site
 

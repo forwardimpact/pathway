@@ -75,11 +75,11 @@ const html = formatter.format("# Hello\n\nThis is **bold** text.");
 ```javascript
 import { DocsBuilder } from "@forwardimpact/libdoc";
 
-const builder = new DocsBuilder({ srcDir: "website", outDir: "public" });
+const builder = new DocsBuilder({ srcDir: "public", outDir: "dist" });
 await builder.build();
 
-// CLI: bunx fit-doc build --src=website --out=dist
-// CLI: bunx fit-doc build --src=website --out=dist --base-url=https://example.com
+// CLI: bunx fit-doc build                                       # uses default --src=public
+// CLI: bunx fit-doc build --src=public --base-url=https://example.com
 // CLI: bunx fit-doc serve --watch
 ```
 
@@ -133,7 +133,7 @@ app.use(cors.create({ origin: ["https://app.example.com"] }));
 
 ```javascript
 // DocsBuilder — accepts options object
-const builder = new DocsBuilder({ srcDir: "website", outDir: "public" });
+const builder = new DocsBuilder({ srcDir: "public", outDir: "dist" });
 
 // parseFrontMatter — pure function
 import { parseFrontMatter } from "@forwardimpact/libdoc";

@@ -51,12 +51,12 @@ npx fit-pathway job software_engineering J060
 ```
 
 Guide requires a running service stack — see the
-[getting started guide](website/docs/getting-started/engineers/index.md) for
-setup.
+[getting started guide](websites/fit/docs/getting-started/engineers/index.md)
+for setup.
 
 ## Learn More
 
-- [Documentation](website/docs/) — Getting started, guides, reference, and
+- [Documentation](websites/fit/docs/) — Getting started, guides, reference, and
   architecture internals
 - [CONTRIBUTING.md](CONTRIBUTING.md) — Pull request workflow, git conventions,
   and quality commands

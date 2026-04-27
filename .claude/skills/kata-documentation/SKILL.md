@@ -1,7 +1,7 @@
 ---
 name: kata-documentation
 description: >
-  Write and review documentation in the website/ folder. Scheduled runs review
+  Write and review documentation in the websites/fit/ folder. Scheduled runs review
   one topic in depth for accuracy, audience purity, and staleness. Interactive
   runs write or update pages following documentation standards. Use when
   writing, editing, auditing, or reviewing documentation, or running scheduled
@@ -19,7 +19,7 @@ modes of operation:
 ## When to Use
 
 - Scheduled documentation review (one topic per run)
-- Writing or updating pages in `website/`
+- Writing or updating pages in `websites/fit/`
 - Auditing documentation accuracy against source code
 
 ## Checklists
@@ -54,16 +54,16 @@ Each run covers **one topic** in depth.
 
 ### Topic areas
 
-| Topic                    | What to review                                                        |
-| ------------------------ | --------------------------------------------------------------------- |
-| `getting-started`        | `website/docs/getting-started/` — onboarding accuracy, CLI examples   |
-| `guides`                 | `website/docs/guides/` — task accuracy, audience purity, completeness |
-| `reference`              | `website/docs/reference/` — CLI synopsis, entity definitions, schema  |
-| `internals`              | `website/docs/internals/` — architecture accuracy, code path validity |
-| `product-pages`          | `website/{map,pathway,guide,basecamp,landmark,summit}/` — overviews   |
-| `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `KATA.md`, `SECURITY.md`              |
-| `llms-txt-and-seo`       | `website/llms.txt`, `website/robots.txt`, sitemap completeness        |
-| `cross-page-consistency` | Terminology, proficiency scales, field names across all pages         |
+| Topic                    | What to review                                                             |
+| ------------------------ | -------------------------------------------------------------------------- |
+| `getting-started`        | `websites/fit/docs/getting-started/` — onboarding accuracy, CLI examples   |
+| `guides`                 | `websites/fit/docs/guides/` — task accuracy, audience purity, completeness |
+| `reference`              | `websites/fit/docs/reference/` — CLI synopsis, entity definitions, schema  |
+| `internals`              | `websites/fit/docs/internals/` — architecture accuracy, code path validity |
+| `product-pages`          | `websites/fit/{map,pathway,guide,basecamp,landmark,summit}/` — overviews   |
+| `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `KATA.md`, `SECURITY.md`                   |
+| `llms-txt-and-seo`       | `websites/fit/llms.txt`, `websites/fit/robots.txt`, sitemap completeness   |
+| `cross-page-consistency` | Terminology, proficiency scales, field names across all pages              |
 
 ### Step 0: Read Memory
 
@@ -91,7 +91,7 @@ teammates' summaries). Find last review dates per topic in the coverage map.
 5. Run CLI examples shown in docs, verify output matches.
 6. Check YAML examples against JSON schemas in `products/map/schema/json/`.
 7. Verify all internal cross-links resolve.
-8. Run `bunx fit-doc build --src=website --out=dist` to confirm build.
+8. Run `bunx fit-doc build --src=websites/fit --out=dist` to confirm build.
 9. Check `git log --oneline -20 -- <paths>` for recent code changes that may
    have invalidated docs.
 
@@ -118,7 +118,7 @@ Run the DO-CONFIRM checklist at the top of this skill.
    entity names against `data/pathway/`.
 6. **Add cross-links.** Guides → Reference for details. Getting Started → Guides
    for next steps. Internals → Reference for the user-facing model.
-7. **Build and check.** Run `bunx fit-doc build --src=website --out=dist`.
+7. **Build and check.** Run `bunx fit-doc build --src=websites/fit --out=dist`.
 
 ### Updating existing pages
 
@@ -173,7 +173,7 @@ This skill produces these non-wiki outputs (per
 [routing-protocol.md](../../agents/references/routing-protocol.md)):
 
 - **PR comment** — Doc-impact callouts on code PRs that change behaviour
-  documented in `website/`.
+  documented in `websites/fit/`.
 - **Discussion** — Doc gaps that reflect an unsettled product question rather
   than a writing task.
 
