@@ -16,8 +16,8 @@ palette, and motif. The contract is in
 
 **Brand implementations:**
 
-- [Forward Impact Team (FIT)](forwardimpact/index.md) ·
-  [scenes](forwardimpact/scenes.md) · [icons](forwardimpact/icons.md)
+- [Forward Impact Team (FIT)](fit/index.md) ·
+  [scenes](fit/scenes.md) · [icons](fit/icons.md)
 
 ---
 
@@ -244,7 +244,7 @@ Brands choose:
 - Inverted treatments for dark surfaces (footers, terminals).
 
 See
-[forwardimpact/index.md § Color Palette](forwardimpact/index.md#4-color-palette)
+[fit/index.md § Color Palette](fit/index.md#4-color-palette)
 for one concrete realization.
 
 ---
@@ -455,7 +455,7 @@ the brand entry point short and the artifact catalogues easy to scan
 side-by-side.
 
 Add the brand to the "Brand implementations" list at the top of this file. See
-[`forwardimpact/`](forwardimpact/index.md) as a worked example.
+[`fit/`](fit/index.md) as a worked example.
 
 ---
 
