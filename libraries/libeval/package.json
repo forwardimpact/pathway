@@ -28,7 +28,7 @@
     "test": "bun test test/*.test.js"
   },
   "dependencies": {
-    "@anthropic-ai/claude-agent-sdk": "0.2.112",
+    "@anthropic-ai/claude-agent-sdk": "0.2.119",
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libconfig": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.22",
