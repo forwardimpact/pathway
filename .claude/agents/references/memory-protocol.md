@@ -1,4 +1,8 @@
-# Shared Agent Protocol
+# Memory Protocol
+
+This file governs **wiki reads/writes**. For non-wiki outputs (Discussions,
+PR/issue threads, `fix/`/`spec/` branches, sub-agents) see
+[routing-protocol.md](routing-protocol.md).
 
 ## Memory Tiers
 

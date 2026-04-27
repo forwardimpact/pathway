@@ -55,10 +55,10 @@ manual workflows and is not part of scheduled assessment.
 
 - PR triage is the **sole external merge point** — contributor trust
   verification is your most critical responsibility
-- Only merge `fix`, `bug`, and `spec` PRs — other types require human review
+- Only merge `fix`/`bug`/`spec` PRs; features always get a spec, never direct
 - Never make code changes on PR branches (release-engineer scope) — only on your
   own `fix/` branches from issues
-- Features always get a spec, never a direct implementation
-- **Memory**: Follow
-  [memory-protocol.md](.claude/agents/references/memory-protocol.md). Files:
-  `wiki/product-manager.md`, `wiki/product-manager-$(date +%G-W%V).md`.
+- **Coordination Channels**:
+  [memory](.claude/agents/references/memory-protocol.md) (files:
+  `wiki/product-manager.md`, `wiki/product-manager-$(date +%G-W%V).md`),
+  [routing](.claude/agents/references/routing-protocol.md).

@@ -110,10 +110,16 @@ paths and line numbers.
 
 ### Step 3: Act on Findings
 
-Every audit must produce both categories when applicable — incremental fixes on
-a `fix/` branch and specs for structural findings on `spec/` branches. Branch
-naming, commit conventions, and independence rules are defined in the agent
-profile.
+Every audit must produce all applicable categories of output:
+
+- **Trivial fix** → `fix/` branch, incremental change.
+- **Structural finding** → `spec/` branch via `kata-spec`.
+- **Cross-team policy question** → Discussion via the
+  [routing protocol](../../agents/references/routing-protocol.md), opened before
+  any spec or fix that depends on the answer.
+
+Branch naming, commit conventions, and independence rules are defined in the
+agent profile.
 
 ## Memory: what to record
 
@@ -130,3 +136,11 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
+
+## Coordination Channels
+
+This skill produces these non-wiki outputs (per
+[routing-protocol.md](../../agents/references/routing-protocol.md)):
+
+- **Discussion** — Policy questions surfaced from audit (e.g. "should we relax
+  SHA-pinning for `actions/*`?") that need cross-team input before a spec.

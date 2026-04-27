@@ -43,11 +43,12 @@ All comment templates are in `references/templates.md`.
 
 ## Classification
 
-| Category            | Criteria                                              | Recommended action                   |
-| ------------------- | ----------------------------------------------------- | ------------------------------------ |
-| **Trivial fix/bug** | Clear bug or small fix with obvious resolution        | Fix PR (direct git ops, no spec)     |
-| **Product-aligned** | Feature/improvement serving the product vision        | Write spec via the `kata-spec` skill |
-| **Out of scope**    | Not aligned, unclear, duplicate, or already addressed | Comment + label `triaged`/`wontfix`  |
+| Category                 | Criteria                                                   | Recommended action                                                                                        |
+| ------------------------ | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
+| **Trivial fix/bug**      | Clear bug or small fix with obvious resolution             | Fix PR (direct git ops, no spec)                                                                          |
+| **Product-aligned**      | Feature/improvement serving the product vision             | Write spec via the `kata-spec` skill                                                                      |
+| **Cross-product policy** | Cross-cutting question that needs decision before any spec | Open Discussion (per [routing-protocol.md](../../agents/references/routing-protocol.md)); label `triaged` |
+| **Out of scope**         | Not aligned, unclear, duplicate, or already addressed      | Comment + label `triaged`/`wontfix`                                                                       |
 
 ## Product Vision Alignment
 
@@ -106,6 +107,8 @@ The triage report is consumed by the calling agent, which then takes action:
   `references/templates.md` § Fix PRs. Label the issue `triaged`.
 - **Product-aligned** → invoke the `kata-spec` skill to draft a spec,
   referencing the issue. Label the issue `triaged`.
+- **Cross-product policy** → open a Discussion citing the issue; do not write a
+  spec until the policy question resolves. Label the issue `triaged`.
 - **Out of scope** → comment with explanation per `references/templates.md` §
   Issue Comments and apply the appropriate label.
 
@@ -122,3 +125,15 @@ Append to the current week's log (see agent profile for the file path):
   `wiki/metrics/{agent}/{domain}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
+
+## Coordination Channels
+
+This skill produces these non-wiki outputs (per
+[routing-protocol.md](../../agents/references/routing-protocol.md)):
+
+- **Issue comment** — Triage classification, clarification requests, "not now"
+  closures with rationale.
+- **Discussion** — Cross-product policy questions surfaced from triage.
+
+If an inbound issue comment addressed to this agent is ambiguous, follow
+[routing-protocol.md § Inbound: unclear addressed comments](../../agents/references/routing-protocol.md#inbound-unclear-addressed-comments).

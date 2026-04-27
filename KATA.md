@@ -152,8 +152,11 @@ specs merge only the document, not code.
 - **Fix-or-spec discipline.** Mechanical fixes and structural improvements never
   share a PR.
 - **Explicit scope constraints.** Each agent knows what it must _not_ do.
-- **Trace-driven observability.** Every workflow captures a trace; the
-  improvement coach quotes specific evidence — no speculation.
+- **Trace-driven accountability.** Every workflow captures a trace; the
+  improvement coach quotes specific evidence — no speculation. `kata-trace`'s
+  invariant audit (`.claude/skills/kata-trace/references/invariants.md`) is the
+  **enforcement mechanism** for per-agent and cross-cutting rules; high-severity
+  failures trigger a fix or spec.
 - **Least privilege.** Read-only workflows use `contents: read`; write workflows
   use scoped per-run installation tokens.
 - **Main branch CI repair.** See CONTRIBUTING.md for the release engineer's
@@ -169,10 +172,41 @@ gitignored, and only the `Stop` hook publishes wiki commits; never
 
 Each agent maintains a **summary** (`<agent>.md`) — latest state, backlog,
 blockers, teammate observations — and a **weekly log**
-(`<agent>-<YYYY>-W<VV>.md`), one file per agent per ISO week. Every scheduled
-run reads both before acting, appends findings to the log, and updates the
-summary at the end. Entry-point skills must include a read step and a "Memory:
-what to record" section; sub-skills and utility skills are exempt.
+(`<agent>-<YYYY>-W<VV>.md`), one file per agent per ISO week. The canonical
+read-summary, append-log, update-summary cadence is defined in
+[`memory-protocol.md`](.claude/agents/references/memory-protocol.md), an
+agent-level shared reference. Entry-point skills include a read step and a
+"Memory: what to record" section; sub-skills and utility skills are exempt.
+
+## Coordination Channels
+
+Five channels (including the wiki described above) carry agent-to-agent and
+agent-to-human collaboration, distinguished by **time horizon** and
+**persistence**. Per-output routing across them — including cross-agent
+escalation, run-time trust, Discussion ownership, and inbound comment handling —
+is governed by
+[routing-protocol.md](.claude/agents/references/routing-protocol.md), the
+sibling of `memory-protocol.md`. Each channel has an explicit non-purpose so
+they don't compete.
+
+| Channel               | Use for                                                                                                 | Lifetime                              | Mechanism                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------- | ----------------------------- |
+| **Wiki**              | Permanent curated memory: summaries, weekly logs, decisions                                             | Persistent                            | `wiki/`, `kata-wiki-curate`   |
+| **Storyboard**        | Daily current condition and next experiment                                                             | One day; captured into wiki           | `kata-storyboard` workflow    |
+| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                        | Open until resolved into spec or wiki | `agent-conversation` workflow |
+| **PR / issue thread** | Real-time response on a specific artifact                                                               | Lives with the artifact               | `agent-conversation` workflow |
+| **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in routing-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning  |
+
+- **Wiki** holds settled state, not deliberation — open questions live in
+  Discussions until answered.
+- **Storyboard** observes and plans; structural decisions go through
+  `kata-spec`, not the meeting.
+- **Discussions** must terminate: every thread either resolves into a spec or
+  wiki note, or closes as "not now". Otherwise they compete with the wiki as a
+  source of truth.
+- **PR/issue threads** are scoped to one artifact — cross-cutting questions
+  belong in a Discussion.
+- **Sub-agents** don't carry state across runs — that's the wiki's job.
 
 ## Metrics
 
@@ -219,15 +253,6 @@ request review comment**, **Discussion**, and **Discussion comment** events so
 consumed only by `kata-action`. The interview workflows use a second App
 (`LLM_APP_ID` / `LLM_APP_PRIVATE_KEY`) and `publish-npm` uses `NPM_TOKEN`;
 neither is required for Kata.
-
-## Accountability
-
-Cross-agent accountability runs through `kata-trace`'s invariant audit. During
-1-on-1 coaching sessions, domain agents verify per-agent invariants against
-their own traces — e.g., the product manager ran a contributor lookup before
-marking any non-CI-app PR mergeable. The canonical invariant list lives in
-`.claude/skills/kata-trace/references/invariants.md`; high-severity audit
-failures must result in a fix PR or spec.
 
 ## Authoring Best Practices
 
