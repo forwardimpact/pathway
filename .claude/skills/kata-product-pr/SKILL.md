@@ -32,8 +32,6 @@ All comment templates and the report format are in `references/templates.md`.
 
 <do_confirm_checklist goal="Verify all gates pass before merging a PR">
 
-- [ ] If wiki `SPEC_DUE` marker was set at run start: kata-spec was invoked
-      before any PR merge action.
 - [ ] Author is trusted — CI app identity or top-7 contributor lookup ran.
 - [ ] PR type is `fix`, `bug`, or `spec` — parsed from title prefix.
 - [ ] All CI checks pass.
@@ -41,9 +39,9 @@ All comment templates and the report format are in `references/templates.md`.
 
 </do_confirm_checklist>
 
-A PR that fails any gate is marked **blocked** with the reason (see Steps 3–6
+A PR that fails any gate is marked **blocked** with the reason (see Steps 2–5
 for failure-handling details). A PR that passes all four gates is merged in
-Step 8.
+Step 7.
 
 ## Process
 
@@ -63,17 +61,7 @@ gh pr list --state open --base main \
 
 Skip PRs authored by `app/dependabot` — handled by `kata-security-update`.
 
-### Step 2: Check SPEC_DUE Obligation
-
-Check the wiki summary (already read in Step 0) for a `SPEC_DUE` marker. If set,
-invoke `kata-spec` for the named issue now — before proceeding to contributor
-trust verification or any merge actions. Clear the marker from the wiki after
-authoring.
-
-This is the phase boundary: Steps 0–1 are discovery (read-only). Step 2 is the
-spec obligation check. Steps 3–8 are action.
-
-### Step 3: Verify Contributor Trust
+### Step 2: Verify Contributor Trust
 
 Check whether the author is the CI app:
 
@@ -82,7 +70,7 @@ gh pr view <number> --json author --jq '.author.login'
 ```
 
 If `app/forward-impact-ci`, the PR is **trusted by definition** — skip the
-contributor lookup and proceed to Step 4.
+contributor lookup and proceed to Step 3.
 
 For all other authors, look up the top 7 human contributors:
 
@@ -95,16 +83,16 @@ The PR author must appear in this list. If not, mark **blocked** and record the
 decision (the `kata-trace` invariant audit checks that this lookup happened on
 every classified PR).
 
-### Step 4: Classify PR Type
+### Step 3: Classify PR Type
 
 Parse the title using `type(scope): subject` convention:
 
 - `fix` or `bug` → eligible (bug treated as equivalent to fix)
-- `spec` → eligible (after spec review in Step 6)
+- `spec` → eligible (after spec review in Step 5)
 - Breaking variants with `!` retain the base type
 - Any other type (`feat`, `refactor`, `chore`, etc.) → mark **blocked**
 
-### Step 5: Check CI Status
+### Step 4: Check CI Status
 
 ```sh
 gh pr checks <number>
@@ -119,7 +107,7 @@ gh pr checks <number> --json name,state,conclusion \
 
 Mark **blocked** with the specific failing checks.
 
-### Step 6: Review Spec PRs
+### Step 5: Review Spec PRs
 
 For `spec` PRs, apply the `kata-spec` skill's review process:
 
@@ -137,13 +125,13 @@ For `spec` PRs, apply the `kata-spec` skill's review process:
 4. If spec fails review, mark **blocked** with findings.
 5. If spec passes, mark **mergeable**.
 
-### Step 7: Produce the Classification Report
+### Step 6: Produce the Classification Report
 
 For each PR, record: number, title, type, author, trust check result, CI status,
 spec review (if applicable), and final verdict — **mergeable** or **blocked**
-with reason. The report drives Step 8.
+with reason. The report drives Step 7.
 
-### Step 8: Merge Mergeable PRs
+### Step 7: Merge Mergeable PRs
 
 For each PR marked **mergeable** in the report:
 
@@ -159,7 +147,7 @@ For each PR marked **mergeable** in the report:
    Confirm the state is `MERGED`.
 4. If the merge fails (race condition, branch protection update, etc.), record
    the failure in the run report and move on — do **not** retry without
-   re-running Steps 1–7, since the gate state may have changed.
+   re-running Steps 1–6, since the gate state may have changed.
 
 ## Memory: what to record
 
