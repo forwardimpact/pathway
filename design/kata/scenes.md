@@ -19,8 +19,9 @@ cap may be absent.
 
 ## Scene: Storyboard Stand-up — The Hero Scene
 
-**Context:** Kata landing page hero, suite-level marketing, daily
-storyboard documentation.
+**Context:** Kata internals page hero
+(`websites/fit/docs/internals/kata/`), daily storyboard documentation,
+the default hero for any Kata-branded surface.
 
 Trio standing in front of a tall storyboard panel mounted on the wall — a
 horizontal wire runs across it with kanban cards clipped on by clothes-pegs.
@@ -134,29 +135,38 @@ plumb line.
 
 ---
 
-## Scene: The Kanban Rail
+## Scene: The Merge Gate
 
 **Context:** Product Manager product page, issue and PR triage
 documentation, agent-conversation workflow.
 
-A horizontal wire stretches across the scene at chest height with kanban
-cards clothes-pegged along it. Stakeholder stands at one end of the wire,
-cap on, sliding a card from left to right with two fingers — calm,
-practiced motion. AI Agent stands center, examining a card pinched between
-thumb and forefinger, head tilted at the spec. Engineer stands at the far
-end, already pinning a freshly written card to the wire, leaning in too
-close — clearly wrote it five minutes ago and wants it on the line _now_.
+A horizontal kanban wire runs left-to-right, ending in a wooden **gate**
+at the right edge — a small swing-gate, hip-height, with a hanko stamp
+hanging from a string beside it. Cards clothes-pegged along the wire.
+Engineer stands at the wire's left end, already pinning a freshly written
+card — leaning in too close, clearly wrote it five minutes ago and wants
+it on the line _now_. AI Agent stands center, examining a card pinched
+between thumb and forefinger, head tilted at the spec. Stakeholder stands
+**at the gate**, cap on, holding a single card up to read it — the hanko
+stamp in the other hand, inkpad ready. The card goes through the gate
+only if it's stamped.
 
 ```
-    👔 ─── ▢ ─── ▢ ─── 🤖[▢] ─── ▢ ─── 🐰
-    (slide right) (examine)        (pin new card)
-    ──────────────────────────────────────  ← rail wire
+    🐰 ▢ ─── ▢ ─── 🤖[▢] ─── ▢ ─── 👔 │ →   ✓
+    (pin new)    (examine)         (cap, stamp)│  past the gate
+    ──────────────────────────────────────────┤
+                                          gate post
 ```
 
-**Key details:** Three roles around the same wire — triage, review, intake.
-Cards on a wire is unmistakably mid-century: kanban literally means "signal
-card." The horizontal wire becomes the page's compositional spine — orderly,
-left-to-right, unmistakably a line moving.
+**Key details:** This scene owns the **trust boundary** from
+[KATA.md § Trust Boundary](../../KATA.md#trust-boundary). Three roles
+around the wire — intake, review, gate — but only one of them stamps.
+The hanko in Stakeholder's hand is the only `--ink-400` element in the
+scene; the gate is unambiguous; the line moves only past the stamp. Cards
+on a wire is unmistakably mid-century: kanban literally means "signal
+card." The horizontal wire becomes the page's compositional spine —
+orderly, left-to-right, unmistakably a line moving — but it terminates,
+deliberately, in a decision.
 
 ---
 
@@ -223,6 +233,39 @@ black-and-white page. That's the brand motif, distilled.
 
 ---
 
+## Scene: The Trace Tape
+
+**Context:** Improvement Coach trace-analysis pages, `kata-trace`
+documentation, grounded-theory coding flows, post-run review.
+
+A long strip of tractor-feed printer paper unspools from a wall-mounted
+spool at the upper-left of the scene and runs diagonally across the floor —
+the trace. The tape is marked at intervals with small horizontal rules
+(turns) and tiny stamped icons (tool calls). Stakeholder, cap on,
+crouches beside the tape with a magnifying glass, eyes following one
+specific line — coding the trace by hand. AI Agent stands further along
+the tape, holding a clipboard with a tally sheet, marking codes as
+Stakeholder reads them out. Engineer is up on the spool side, lifting a
+fresh fold of tape from the floor — keeping the read-head clear, eager
+to see what comes next.
+
+```
+    🐰 (lifting fresh tape)
+       ╲
+        ▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒▒  ← tractor-feed tape
+        │  │  │  │  │  │  │  │  │
+        ↓                  ↓
+        👔🔍               🤖📋
+        (coding)          (tallying)
+```
+
+**Key details:** The tape is the visual anchor — trace data made physical,
+flowing across the floor like a 1960s mainframe printout. Three roles to
+the same record: the eye that reads, the hand that codes, the helper that
+keeps the paper moving. The diagonal sweep of the tape across the
+composition is the scene's distinguishing geometry — every other Kata
+scene is composed horizontally; the trace cuts across.
+
 ## Scene: The Archivist's Desk
 
 **Context:** Technical Writer product page, wiki curation documentation,
@@ -258,19 +301,20 @@ the manila folder anchor the era — pre-keyboard, but disciplined.
 
 | Context                       | Scene                  | Size      |
 | ----------------------------- | ---------------------- | --------- |
-| Suite landing page hero       | Storyboard Stand-up    | 400–480px |
+| Internals page hero           | Storyboard Stand-up    | 400–480px |
 | "How a daily kata runs" intro | Walking the Gemba      | 320–400px |
 | Onboarding — first screen     | Welcome Wave (base)    | 320–400px |
 | Onboarding — getting started  | Documentation Dig (base)| 280–360px|
 | Staff Engineer hero           | The Drafting Bench     | 320–400px |
 | Release Engineer hero         | The Shipping Bay       | 320–400px |
 | Security Engineer hero        | The Andon Cord         | 320–400px |
-| Product Manager hero          | The Kanban Rail        | 320–400px |
+| Product Manager hero          | The Merge Gate         | 320–400px |
 | Technical Writer hero         | The Archivist's Desk   | 320–400px |
 | Improvement Coach hero        | The Ohno Circle        | 320–400px |
+| `kata-trace` documentation    | The Trace Tape         | 320–400px |
 | Persona cards (suite page)    | Agent scenes (cropped) | 120–160px |
 | Error / empty states          | Single character       | 80–120px  |
-| Loading states                | AI Agent + clipboard   | 48–80px   |
+| Loading states                | PDSA wheel + clipboard | 48–80px   |
 
 **Asset status:** The Kata scene set is specified above but not yet
 illustrated. They should follow the same 2px monochrome line-art style as

@@ -103,6 +103,36 @@ metaphor — that surfaces in icons and scenes but never in structural UI.
 | **Technical Writer**  | The archivist's desk (pen, ledger)     |
 | **Improvement Coach** | The Ohno circle (chalk ring, notebook) |
 
+### The PDSA Wheel
+
+Above the six personas sits the **PDSA wheel** — a four-quadrant chalk
+circle marked **P · D · S · A** clockwise, the spine of
+[KATA.md](../../KATA.md) made visible. It is the brand's only repeating
+non-character motif, used as:
+
+- The optional accent above the second `A` in the **KATA** wordmark (see
+  [icons.md § Suite Wordmark](icons.md#suite-wordmark)).
+- A section divider on long pages — drawn at 16px, `--gray-300` stroke,
+  centred, with 96px of vertical breathing room either side.
+- A loading state — the wheel rotates one quadrant per 800ms, looping
+  P → D → S → A → P, respecting `prefers-reduced-motion` (static wheel).
+
+Each agent's "phase coverage" in [KATA.md § Skills](../../KATA.md#skills)
+maps to wheel quadrants, so the wheel is also functional: a Staff Engineer
+profile page may show the wheel with **P** and **D** lit; an Improvement
+Coach profile may show **S** lit. Lit quadrants use a 1.5px stroke;
+unlit quadrants use a 0.5px stroke. No fills.
+
+```
+       P
+   ╱─ ─ ─╲
+  ╱       ╲
+ │ A     D │
+  ╲       ╱
+   ╲─ ─ ─╱
+       S
+```
+
 ---
 
 ## 4. Color Palette
@@ -122,7 +152,7 @@ for seventy years.
 | `--gray-100`   | `#e4e1d9` | Hover states, active tabs, tag backgrounds  |
 | `--gray-200`   | `#cfcbc1` | Borders (strong), secondary button outlines |
 | `--gray-300`   | `#aeaba2` | Tertiary text, disabled states              |
-| `--gray-400`   | `#807d76` | Secondary text, descriptions                |
+| `--gray-400`   | `#74716a` | Secondary text, descriptions                |
 | `--gray-500`   | `#5d5b55` | Body text                                   |
 | `--gray-700`   | `#33312d` | Emphasis text, card headings                |
 | `--gray-900`   | `#161513` | Headlines, primary text, filled buttons     |
@@ -235,50 +265,98 @@ fill) and read as if stamped into the same logbook as the
 
 ## 8. Layout Patterns
 
-### Suite Landing Page
+Kata is the **internal** repo self-maintenance system. It has no public
+marketing site. The brand surfaces in four real places, ordered by how
+often a contributor or agent encounters them:
+
+### Surface 1 — The Internals Page
+
+The canonical home is
+`websites/fit/docs/internals/kata/index.md` — sibling to
+`internals/operations/`, `internals/codegen/`, `internals/librepl/`. This
+is where the brand renders for human contributors browsing the docs site.
 
 ```
 ┌──────────────────────────────────────────────┐
-│  [Trio mark]  KATA           [Nav]      [☰] │
+│  FIT Internals  ›  Kata                      │
 │                                              │
 │       ┌──────────────────────────┐           │
 │       │  Storyboard Stand-up     │           │
 │       └──────────────────────────┘           │
 │                                              │
-│     Practice the form.                       │  ← Roboto Slab 700
-│     Trust the process.                       │
+│     Kata                                     │  ← Roboto Slab 700, 44px
+│                                              │
+│     Practice the form. Trust the process.    │  ← Roboto Slab 600, 24px
 │                                              │
 │     Six agent personas walk the line —       │  ← IBM Plex Sans, gray-400
 │     planning, shipping, hardening, triaging, │
 │     documenting, and coaching — one daily    │
 │     kata at a time.                          │
 │                                              │
-│           [ Walk the floor → ]               │
-│                                              │
 ├──────────────────────────────────────────────┤
+│  ─── PDSA wheel section divider ───          │
+├──────────────────────────────────────────────┤
+│  The Six Personas                            │  ← H2
 │ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐│
 │ │Staff │ │Releas│ │Securi│ │Prodct│ │Writer│ │Coach │ │
 │ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘│
+├──────────────────────────────────────────────┤
+│  The PDSA Loop · Workflows · Trust Boundary  │
+│  Coordination Channels · Metrics · Auth      │
+├──────────────────────────────────────────────┤
+│  ─── PDSA wheel section divider ───          │
 ├──────────────────────────────────────────────┤
 │  Background: kanban-rail texture             │
 │     "Without standards, there can be no      │  ← Roboto Slab 600
 │      kaizen."                                │
 │                  — Taiichi Ohno              │
-├──────────────────────────────────────────────┤
-│     [ Read the playbook → ]                  │
-│  © Forward Impact Team  ·  Apache-2.0 code  │
-│     CC BY 4.0 docs                           │
 └──────────────────────────────────────────────┘
 ```
 
-### Navigation Pattern
+### Surface 2 — `KATA.md` Rendered on GitHub
+
+`KATA.md` at the repo root is read by every agent at the start of a Kata
+run (per the L2 instruction layer). On GitHub it renders as plain
+flavored markdown — the brand cannot inject CSS — so the brand surfaces
+through **structural cues** only: the trio mark in the header (linked
+SVG), section headings that match the persona names, the hanko stamp
+emoji-equivalent (`🟥`) reserved for the Trust Boundary section.
+
+### Surface 3 — Agent Comments and PR/Issue Bodies
+
+When a Kata agent posts on a PR or issue (via `agent-conversation`), it
+signs with its persona. The signature line is a single line of IBM Plex
+Mono using the convention:
 
 ```
-[Trio mark]  KATA   |   Staff  ·  Release  ·  Security  ·  Product  ·  Writer  ·  Coach    [Docs]  [Sign in]
+— {persona icon} {Persona Name} · {phase} · {run-id}
 ```
 
-Current agent is bold (`600`). Others are regular (`400`) in `--gray-400`.
-On mobile, the agent switcher moves into the hamburger menu.
+Example: `— 📐 Staff Engineer · Plan · run-2026-04-28-night`. The icon is
+the persona's icon glyph; the phase is one of P/D/S/A; the run-id ties
+the comment back to the trace artifact.
+
+### Surface 4 — Storyboard Markdown and Wiki Summaries
+
+Daily storyboard files (`wiki/storyboard/{YYYY-MM-DD}.md`) and per-agent
+wiki summaries (`wiki/{persona}.md`) follow a fixed Kata template — the
+brand's typographic discipline applied to plain markdown. Persona name as
+H1, current condition as a blockquote, target condition as a level-2
+heading, the five kata questions as level-3 subsections, metrics as a
+mono-table.
+
+### Navigation Pattern (Internals Page)
+
+The Kata internals page lives inside the FIT docs nav. Within the Kata
+section, sub-nav routes to each persona:
+
+```
+FIT Docs  ›  Internals  ›  Kata  ›  Staff · Release · Security · Product · Writer · Coach
+```
+
+Current persona is bold (`600`). Others are regular (`400`) in
+`--gray-400`. The persona switcher is a horizontal row at the top of any
+persona sub-page.
 
 ### Warm/Cool Section Rhythm
 
@@ -302,9 +380,11 @@ The component patterns in [../index.md § 9](../index.md#9-components)
 instantiate with Kata colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`. Hover
-  adds a 1px `--ink-400` underline beneath the label — the stamp-mark.
+  shifts background to `--black`. The warm signal does not appear on
+  interactive elements — the brand's stamp-mark accent lives on cards,
+  paper, and the terminal prompt, never on a button or link.
 - **Buttons (Secondary / Product):** `border: 1.5px solid --gray-200`, text
-  `--gray-900`. On hover, border warms to `--ink-200`.
+  `--gray-900`. Hover darkens border to `--gray-700`.
 - **Cards:** `background: --white` (on warm bg) or `--white-warm` (on white
   bg), `border: 1.5px solid --gray-200`. Selected/active state adds a
   `--ink-400` left edge — the kanban-card "approved" stamp.
@@ -314,9 +394,12 @@ instantiate with Kata colors:
   on `--white-warm` or `--ink-50` sections. 1px stroke, 28px spacing,
   opacity 0.35.
 - **Footer (Dark):** `background: --gray-900`, primary text `#ebe8e1`,
-  secondary text `--gray-400`, dividers `--gray-700`. Trio silhouette + the
+  secondary text `--gray-300`, dividers `--gray-700`. Trio silhouette + the
   word **KATA** (Roboto Slab 700, letter-spaced) in white. Licenses
-  (Apache-2.0 code, CC BY 4.0 docs) in `--gray-400`.
+  (Apache-2.0 code, CC BY 4.0 docs) in `--gray-300`. (`--gray-300` is the
+  on-dark equivalent of `--gray-400` on light — a brand convention since
+  Kata's `--gray-400` is darker than the family default to satisfy AA on
+  white.)
 
 ---
 
@@ -372,11 +455,18 @@ Each agent shares the core design system with subtle differentiators:
   --ink-400: #c25a47;
   --ink-600: #8a3624;
 
+  /* ── Family alias (cross-brand component contract) ── */
+  --accent-warm-50: var(--ink-50);
+  --accent-warm-100: var(--ink-100);
+  --accent-warm-200: var(--ink-200);
+  --accent-warm-400: var(--ink-400);
+  --accent-warm-600: var(--ink-600);
+
   /* ── Text ── */
   --text-primary: #080706;
   --text-heading: #161513;
   --text-body: #5d5b55;
-  --text-secondary: #807d76;
+  --text-secondary: #74716a;
   --text-tertiary: #aeaba2;
   --text-on-dark: #ebe8e1;
 

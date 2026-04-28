@@ -323,6 +323,13 @@ Each product shares the core design system with subtle differentiators:
   --sand-400: #b8a88e;
   --sand-600: #8a7a62;
 
+  /* ── Family alias (cross-brand component contract) ── */
+  --accent-warm-50: var(--sand-50);
+  --accent-warm-100: var(--sand-100);
+  --accent-warm-200: var(--sand-200);
+  --accent-warm-400: var(--sand-400);
+  --accent-warm-600: var(--sand-600);
+
   /* ── Text ── */
   --text-primary: #0a0908;
   --text-heading: #1c1a18;

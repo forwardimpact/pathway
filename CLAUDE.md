@@ -176,7 +176,8 @@ above.
 - **Design language** — [design/index.md](design/index.md)
 - **Security** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
 - **Dependency policy** — [CONTRIBUTING.md](CONTRIBUTING.md#dependency-policy)
-- **Repo self-maintenance** — [KATA.md](KATA.md)
+- **Repo self-maintenance** — [KATA.md](KATA.md) ·
+  [Internals](websites/fit/docs/internals/kata/) · [Brand](design/kata/)
 - **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand)
 - **Operations** — [Operations](websites/fit/docs/internals/operations/)
 - **Kata agent skills** — [.claude/skills/kata-\*](.claude/skills/)

@@ -61,20 +61,23 @@ hollow circle (the eye). Two cuts on the bit. Evokes the night watchman's
 ring — the Security Engineer's discipline of locking what should be locked
 and walking past what shouldn't.
 
-## Product Manager — The Kanban Rail
+## Product Manager — The Merge Gate
 
 ```
-   ──┯━━━━━━┯━━━━━━┯──   ← horizontal wire
-     ▢      ▢      ▢
-     ▢             ▢
-     ▢
+   ──┯━━━━━━┯━━━━━━┯─── │ →   ✓
+     ▢      ▢      ▢[●] │
+     ▢             ▢    │
+     ▢                  │  ← gate post
+                        ─
 ```
 
-A horizontal wire with three kanban cards pegged from it at varying
-depths. Cards are square, pegs implied by a small mark at each top edge.
-The wire extends slightly past the cards on either side — the line
-continues. Triage, review, intake — the three motions the Product Manager
-makes against the same rail.
+A horizontal kanban wire with three cards pegged from it at varying
+depths, terminating at the right in a small upright gate post. The
+rightmost card carries a single circular hanko mark (`--ink-400`) — the
+"approved" stamp on the card crossing the gate. The wire extends slightly
+past the gate, but only the stamped card crosses. Triage, review, gate —
+the three motions the Product Manager makes, ending in the only decision
+that touches main.
 
 ## Technical Writer — The Fountain Pen
 
@@ -114,9 +117,9 @@ slightly irregular line, micro-gaps in the stroke). A horizontal floor
 line beneath it grounds it on a surface. The circle is the coaching kata
 made visible: stand here, watch the work, ask what changed.
 
-**Filled variant:** A chalk-dust filled circle (`--gray-100`) for the
-moment after the coach has stepped out — used for completed coaching
-sessions in the storyboard.
+A "completed coaching" state for storyboard rendering uses a second
+overlapping circle stroke (a halo) — not a fill. The icon system's
+single-fill rule (the Release Engineer's hanko) is preserved.
 
 ---
 
@@ -126,47 +129,55 @@ sessions in the storyboard.
 | ----------- | --------------------------------------------------------------- |
 | Grid        | 24×24px with 2px padding (20px live area)                       |
 | Stroke      | 2px, round caps, round joins                                    |
-| Fill        | None, except Release Engineer's hanko stamp (`--ink-400`)       |
+| Fill        | None, except the hanko stamp in `--ink-400` (Release Engineer's crate, Product Manager's approved card) |
 | Color       | `--gray-900` default, `--gray-400` when inactive                |
 | Ground line | 1px stroke at bottom (Staff Engineer, Release Engineer, Coach)  |
 | Style       | Hand-stamped feel — slightly irregular corners, micro-variation |
 | Sizes       | 24px (inline), 32px (nav), 48px (cards), 96px (marketing)       |
 
-The single filled element in the system — the Release Engineer's hanko —
-mirrors FIT's only filled element (the Guide compass north). One brand
-mark per family per icon system: the warm signal showing through exactly
-once.
+The hanko stamp is the only filled mark in the system — `--ink-400` on
+white, appearing on the Release Engineer's crate (where the stamp is
+applied) and the Product Manager's approved card (where the stamp has
+been earned). Same mark, two placements — the two halves of the gate.
+This mirrors FIT's single filled element (the Guide compass north): one
+brand-specific warm-signal mark per icon system, no other fills.
 
 ---
 
 ## Combined Icon: The Kata Suite Mark
 
 ```
-   ╲          ┌────┐      ┌─┐      ──┯━━┯──    ╱│       ╱─╲
-    ╲         │ ●  │     ┌┴─┴┐      ▢   ▢    ╱ │       │   │
-   ┌─╲        │    │     │ ○ │                 ┌┴┐      ╲─╱
+   ╲          ┌────┐      ┌─┐     ──┯━━┯─[●]│   ╱│       ╱─╲
+    ╲         │ ●  │     ┌┴─┴┐     ▢   ▢   │  ╱ │       │   │
+   ┌─╲        │    │     │ ○ │              ── ┌┴┐      ╲─╱
    │  ╲       │    │     └┬─┬┘                 │ │      ───
    └───╲      └────┘      │                    └┬┘
                           ┝╾                    ╲
-   Staff      Release     Security    Product   Writer    Coach
+   Staff      Release     Security   Product    Writer    Coach
 ```
 
-Six icons on a shared ground line, evenly spaced. The Release Engineer's
-hanko stamp is the only filled mark in the row — the visual punctuation
-mark that distinguishes Kata's suite mark from FIT's six-icon suite.
+Six icons on a shared ground line, evenly spaced. Both the Release
+Engineer's hanko stamp on the crate and the Product Manager's hanko on the
+approved card use `--ink-400` — the same one mark, used twice (once where
+it's printed, once where it's earned). The icon system retains its
+single-fill-color rule (only the hanko ink) — though the hanko appears on
+two adjacent personas, signalling that "stamped" and "shipped" are the
+two halves of the same gate.
 
 ---
 
 ## Suite Wordmark
 
 The Kata wordmark sets the four letters **KATA** in Roboto Slab 700 with
-generous letter-spacing (`0.18em`). Optional: a small chalk-circle dot
-above the second `A`, sized at 0.4em — the Improvement Coach motif acting
-as a quiet brand signature on print materials and the dark footer.
+generous letter-spacing (`0.18em`). Above the second `A` sits a small
+**PDSA wheel** — the four-quadrant chalk circle defined in
+[index.md § 3 The PDSA Wheel](index.md#the-pdsa-wheel) — sized at 0.5em.
+The wheel acts as the brand's signature: a quiet visible reminder that
+every Kata page is a turn of the cycle.
 
 ```
    K A T A
-        ·     ← optional chalk-circle accent
+        ⊕     ← PDSA wheel (P · D · S · A clockwise)
 ```
 
 When the wordmark sits beside the trio silhouette in headers and footers,
@@ -174,3 +185,8 @@ the silhouette is on the left, wordmark on the right, separated by 16px.
 The trio's Stakeholder silhouette in this combined mark wears the flat cap
 — the only place where a single element of the trio composition carries a
 brand-specific accessory at signature scale.
+
+At very small sizes (under 16px wordmark height), the PDSA wheel reduces
+to a simple **stroke-only** circle in `--gray-700` — the quadrant marks
+are dropped, but the no-fill icon rule is preserved. Below 8px wordmark
+height the wheel is omitted entirely.

@@ -124,4 +124,13 @@ the Forward Impact monorepo.
 
 </a>
 
+<a href="/docs/internals/kata/">
+
+### Kata
+
+Repo self-maintenance system — six agent personas, eight workflows,
+eighteen skills, organized as a Plan-Do-Study-Act loop.
+
+</a>
+
 </div>
