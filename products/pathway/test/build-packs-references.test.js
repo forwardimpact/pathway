@@ -67,9 +67,13 @@ describe("generatePacks — spec 660 references emission", () => {
     // path because both share writeSkillReferences) and must not produce
     // the legacy REFERENCE.md anywhere.
     const packsDir = join(outputDir, "packs");
-    const entries = await readdir(packsDir);
-    const archive = entries.find((n) => n.endsWith(".raw.tar.gz"));
-    assert.ok(archive, "expected at least one raw archive");
+    // incident-response lives in the platform track only; pin the pack so
+    // the test does not depend on readdir() order.
+    const archive = "se-platform.raw.tar.gz";
+    assert.ok(
+      existsSync(join(packsDir, archive)),
+      `expected ${archive} to be emitted`,
+    );
 
     const extractDir = mkdtempSync(join(tmpdir(), "fit-pathway-refs-extract-"));
     try {
