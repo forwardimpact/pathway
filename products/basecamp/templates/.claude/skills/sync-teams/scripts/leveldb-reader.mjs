@@ -82,9 +82,7 @@ function parseBlockEntries(blockData) {
     const key = Buffer.concat([prevKey.subarray(0, shared.value), keyDelta]);
     prevKey = key;
 
-    const value = Buffer.from(
-      blockData.subarray(pos, pos + valueLen.value),
-    );
+    const value = Buffer.from(blockData.subarray(pos, pos + valueLen.value));
     pos += valueLen.value;
 
     entries.push({ key, value });
@@ -219,17 +217,13 @@ function* parseWriteBatchEntries(batchData) {
       const keyLen = readVarint(batchData, pos);
       pos += keyLen.bytesRead;
       if (pos + keyLen.value > batchData.length) break;
-      const key = Buffer.from(
-        batchData.subarray(pos, pos + keyLen.value),
-      );
+      const key = Buffer.from(batchData.subarray(pos, pos + keyLen.value));
       pos += keyLen.value;
 
       const valLen = readVarint(batchData, pos);
       pos += valLen.bytesRead;
       if (pos + valLen.value > batchData.length) break;
-      const value = Buffer.from(
-        batchData.subarray(pos, pos + valLen.value),
-      );
+      const value = Buffer.from(batchData.subarray(pos, pos + valLen.value));
       pos += valLen.value;
 
       yield { key, value };

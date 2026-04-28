@@ -34,8 +34,7 @@ if (
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("-"));
 const input = resolve(positional[0]);
 const output =
-  positional[1] ||
-  join(dirname(input), basename(input, ".html") + ".pdf");
+  positional[1] || join(dirname(input), basename(input, ".html") + ".pdf");
 
 const { chromium } = await import("playwright");
 const browser = await chromium.launch();

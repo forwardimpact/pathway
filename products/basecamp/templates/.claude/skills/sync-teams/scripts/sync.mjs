@@ -89,7 +89,10 @@ function formatTimestamp(ts) {
   if (isNaN(ms)) return "Unknown";
   const dt = new Date(ms);
   if (isNaN(dt.getTime())) return "Unknown";
-  return dt.toISOString().replace("T", " ").replace(/\.\d+Z/, "");
+  return dt
+    .toISOString()
+    .replace("T", " ")
+    .replace(/\.\d+Z/, "");
 }
 
 function formatDateOnly(ts) {
@@ -136,14 +139,12 @@ function looksLikeOrgId(name) {
 }
 
 function getChatDisplayName(conv) {
-  const topic =
-    conv.threadProperties?.topic ?? conv.properties?.topic ?? null;
+  const topic = conv.threadProperties?.topic ?? conv.properties?.topic ?? null;
   if (topic) return topic;
 
   const members = conv.members ?? [];
   const otherMembers = members.filter((m) => {
-    const isSelf =
-      m.isSelf || m.isSelf === "true" || m.isSelf === true;
+    const isSelf = m.isSelf || m.isSelf === "true" || m.isSelf === true;
     return !isSelf;
   });
 
@@ -222,7 +223,13 @@ function extractMessagesFromReplychains(replychains, conversationId, cutoffMs) {
   return messages;
 }
 
-function writeChatMarkdown(slug, displayName, chatType, participants, messages) {
+function writeChatMarkdown(
+  slug,
+  displayName,
+  chatType,
+  participants,
+  messages,
+) {
   const lines = [];
 
   if (chatType === "group") {
@@ -328,9 +335,7 @@ function main() {
     if (!slug) continue;
 
     const participants =
-      chatType === "group"
-        ? extractParticipantsFromMessages(chatMessages)
-        : [];
+      chatType === "group" ? extractParticipantsFromMessages(chatMessages) : [];
 
     writeChatMarkdown(slug, displayName, chatType, participants, chatMessages);
     written++;

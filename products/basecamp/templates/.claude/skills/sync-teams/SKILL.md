@@ -30,7 +30,8 @@ their Teams chats.
 
 ## Inputs
 
-- `~/Library/Containers/com.microsoft.teams2/Data/Library/Application Support/Microsoft/MSTeams/EBWebView/WV2Profile_tfw/IndexedDB/https_teams.microsoft.com_0.indexeddb.leveldb/` — Teams IndexedDB (LevelDB on disk)
+- `~/Library/Containers/com.microsoft.teams2/Data/Library/Application Support/Microsoft/MSTeams/EBWebView/WV2Profile_tfw/IndexedDB/https_teams.microsoft.com_0.indexeddb.leveldb/`
+  — Teams IndexedDB (LevelDB on disk)
 - `~/.cache/fit/basecamp/state/teams_last_sync` — ISO timestamp of last sync
 - `~/.cache/fit/basecamp/state/teams_chat_index.tsv` — index of known chats
 
@@ -68,11 +69,11 @@ The script:
 
 Three modules, following the same pattern as `sync-apple-mail`:
 
-| Module | Purpose |
-|--------|---------|
-| `scripts/leveldb-reader.mjs` | Parse LevelDB SSTable and WAL files. Handles Snappy decompression. No external dependencies except `snappyjs`. |
-| `scripts/idb-reader.mjs` | Chromium IndexedDB layer. Strips Blink envelope, calls `v8.deserialize()`, classifies records as conversations or messages. |
-| `scripts/sync.mjs` | Main sync script. Reads data, groups by conversation, normalizes names, writes markdown and state. |
+| Module                       | Purpose                                                                                                                     |
+| ---------------------------- | --------------------------------------------------------------------------------------------------------------------------- |
+| `scripts/leveldb-reader.mjs` | Parse LevelDB SSTable and WAL files. Handles Snappy decompression. No external dependencies except `snappyjs`.              |
+| `scripts/idb-reader.mjs`     | Chromium IndexedDB layer. Strips Blink envelope, calls `v8.deserialize()`, classifies records as conversations or messages. |
+| `scripts/sync.mjs`           | Main sync script. Reads data, groups by conversation, normalizes names, writes markdown and state.                          |
 
 ### How It Works
 
@@ -171,6 +172,6 @@ Key conventions:
   that haven't been opened may have conversation metadata but no messages.
 - Clearing the Teams cache (a common troubleshooting step) will temporarily
   remove all local data until Teams rebuilds it from the server.
-- Some V8-serialized records (~17% in testing) use formats that `v8.deserialize()`
-  cannot decode. These are silently skipped — they are typically IndexedDB
-  metadata, not conversation or message records.
+- Some V8-serialized records (~17% in testing) use formats that
+  `v8.deserialize()` cannot decode. These are silently skipped — they are
+  typically IndexedDB metadata, not conversation or message records.

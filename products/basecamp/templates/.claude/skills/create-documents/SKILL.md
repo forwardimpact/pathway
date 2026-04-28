@@ -48,29 +48,34 @@ submission, brief, or any multi-page PDF that is not a slide deck.
     same name.
 
 5.  Read the PDF back to visually verify it renders correctly. Check each page
-    for overflow, clipped content, and correct page breaks. Fix and re-render
-    if needed.
+    for overflow, clipped content, and correct page breaks. Fix and re-render if
+    needed.
 
 **Do NOT show HTML code to the user. Just create the PDF and deliver it.**
 
 ## HTML Document Rules
 
 **Page layout:**
+
 - Each page is a `<div class="page">` sized to exactly 210mm × 297mm (A4)
 - Use `page-break-after: always` on every `.page` except the last
 - Handle margins with padding inside `.page`, not with PDF margin settings
 - The PDF is rendered with zero margins — the HTML owns all spacing
 
 **Print colours:**
+
 - Always set `-webkit-print-color-adjust: exact` and `print-color-adjust: exact`
   on `body` so background colours render in the PDF
 
 **Fonts:**
+
 - Use system fonts only — no external font loading
 - Monospace stack: `'SF Mono', 'Menlo', 'Monaco', 'Consolas', monospace`
-- Sans-serif stack: `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
+- Sans-serif stack:
+  `-apple-system, BlinkMacSystemFont, 'Segoe UI', Roboto, 'Helvetica Neue', Arial, sans-serif`
 
 **Content fitting:**
+
 - After the first render, visually check every page for overflow
 - Content must not bleed past the `.page` boundary — if it does, reduce spacing
   or font sizes and re-render
@@ -78,11 +83,13 @@ submission, brief, or any multi-page PDF that is not a slide deck.
   corner that has whitespace
 
 **CSS @page:**
+
 ```css
 @page { size: A4; margin: 0; }
 ```
 
 **Images:**
+
 - Use absolute `file://` paths for local images
 - Inline small images as base64 data URIs when possible
 - Verify images appear in the rendered PDF — Playwright can fail silently on
