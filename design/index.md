@@ -130,34 +130,36 @@ values, no gradients.
 
 ### Scene Rendering
 
-| Property   | Specification                                                        |
-| ---------- | -------------------------------------------------------------------- |
-| Palette    | White, black, and the same two to three grays — no additional values |
-| Background | Pure white — no boxes, frames, panels, fills, textures, or shading   |
-| Ground     | Implied by positioning — no explicit ground line                     |
-| Objects    | Same 2px pure-black stroke and flat neutral-gray fills               |
-| Fills      | Flat only — no gradients, no shading, no tinting                     |
+| Property   | Specification                                                   |
+| ---------- | --------------------------------------------------------------- |
+| Palette    | White, black, one or two grays — nothing else                   |
+| White      | Dominant value. Most of the image is white, not gray.           |
+| Background | Pure white — no fills, textures, or shading                     |
+| Ground     | Implied by positioning — no drawn ground line                   |
+| Objects    | 2px black stroke, light flat gray. Simpler than characters.     |
+| Fills      | Flat only — no gradients, no shading, no tinting                |
+| Detail     | Minimum strokes needed. No hatching, no texture, no decoration. |
 
 ### Composition
 
-| Rule           | Specification                                                    |
-| -------------- | ---------------------------------------------------------------- |
-| Grouping       | Characters grouped tightly, centered — reads as a single cluster |
-| Whitespace     | Generous space around the scene cluster                          |
-| Framing        | Scenes float freely in whitespace — never outlined or bordered   |
-| Scale          | 120px (cards) to 480px+ (hero)                                   |
-| Emotional tone | Curious, conspiratorial, scrappy — three people who chose this   |
+| Rule      | Specification                                                    |
+| --------- | ---------------------------------------------------------------- |
+| Grouping  | Characters tight, centered — reads as one cluster                |
+| Space     | Generous white space around the cluster                          |
+| Framing   | Floats freely — never outlined or bordered                       |
+| Scale     | 120px (cards) to 480px+ (hero)                                   |
+| Tone      | Curious, conspiratorial, scrappy — three people who chose this   |
 
 ### Constraints
 
-These rules apply to every scene. Individual scene prompts must not override
-them.
-
-- **Always collaborative** — never show characters in conflict.
-- **Always monochrome** — gray fills for differentiation, never hues.
-- **Laptops in seated poses** — never show seated characters without laptops.
-- **No framing** — no borders, containers, or panel edges around scenes.
-- **Monochrome colors** – white, black and two to three grays
+- **Identity** — each character keeps its [§ 2](#2-character-specification)
+  traits. Never swap accessories or features between characters.
+- **Foreground** — characters are the most detailed elements. Background
+  objects are lighter, simpler, behind.
+- **Collaborative** — never show conflict.
+- **Monochrome** — gray for differentiation, never hues.
+- **Laptops when seated** — seated characters always have laptops.
+- **No framing** — no borders, containers, or panel edges.
 
 ---
 
@@ -263,11 +265,15 @@ or how scenes are _rendered_. Those belong to layers 1 and 2.
 After producing an illustration, check every item:
 
 - Exactly white, black, and one or two grays — no other colors, no gradients
+- White is the dominant value — most of the image area is white, not gray
 - All three characters present and immediately identifiable
 - Engineer has hoodie ears visible
 - AI Agent has round head with headphones
 - Stakeholder has business attire, no backpack
+- No traits swapped between characters (e.g. backpack on Stakeholder, crossed
+  arms on the wrong figure)
 - Characters are the same height
+- Characters are the most detailed elements — background objects are simpler
 - 2px stroke weight consistent throughout
 - Pure white background — no frames, borders, or background scenery
 - Collaborative posture — no character shown in conflict or dominance
