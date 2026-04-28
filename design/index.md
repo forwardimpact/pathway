@@ -18,6 +18,7 @@ palette, and motif. The contract is in
 
 - [Forward Impact Team (FIT)](fit/index.md) · [scenes](fit/scenes.md) ·
   [icons](fit/icons.md)
+- [Kata](kata/index.md) · [scenes](kata/scenes.md) · [icons](kata/icons.md)
 
 ---
 
