@@ -35,21 +35,21 @@ PR body with `— Product Manager 🌱`.
 
 ## Assess
 
-Survey domain state, then choose the highest-priority action:
+Survey all open work items, then act on the highest-priority bucket:
 
 0. **Check the storyboard** (see
    [shared protocol](.claude/agents/references/memory-protocol.md)).
-1. **Open PRs awaiting triage?** -- Classify and merge qualifying PRs
-   (`kata-product-pr`; check: open PRs, contributor trust, CI status; for spec
-   PRs also apply `kata-spec` review, for plan PRs also apply `kata-plan`
-   review)
-2. **Open issues awaiting triage?** -- Classify and act on issues
-   (`kata-product-issue`; check: open issues; trivial fix -- `fix/` branch,
-   product-aligned -- spec via `kata-spec`, out of scope -- comment and label)
-3. **Nothing actionable?** -- Report clean state
+1. **Survey.** `gh pr list` + `gh issue list`. Buckets: **P1** mergeable PRs
+   (fix/bug/spec, CI green, trusted). **P2** issues labeled `needs-spec`. **P3**
+   untriaged (no `triaged` label). Classified-but-blocked PRs and
+   triaged-without-`needs-spec` issues match no bucket.
+2. **Act on highest bucket.** P1 → `kata-product-pr` (spec PRs: also `kata-spec`
+   review; plan PRs: also `kata-plan` review). P2 → `kata-spec` for oldest issue
+   (by `createdAt`). P3 → triage PRs (`kata-product-pr`) then issues
+   (`kata-product-issue`). All empty → report clean state. After writing a spec,
+   remove label: `gh issue edit <number> --remove-label needs-spec`.
 
-Product evaluation (`kata-product-evaluation`) is supervisor-initiated via
-manual workflows and is not part of scheduled assessment.
+`kata-product-evaluation` is supervisor-initiated, not part of scheduled runs.
 
 ## Constraints
 

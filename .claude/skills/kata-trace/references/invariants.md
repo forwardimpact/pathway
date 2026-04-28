@@ -10,13 +10,14 @@ use those shapes so the audit can grep for them reliably.
 
 ## product-manager traces
 
-| Invariant                                      | Evidence to find                                                                      | Severity   |
-| ---------------------------------------------- | ------------------------------------------------------------------------------------- | ---------- |
-| Domain state surveyed before action chosen     | `gh pr list` or `gh issue list` call before the first classify or triage action       | **High**   |
-| Contributor lookup ran for every non-CI-app PR | A `gh api repos/.../contributors` call before each non-CI-app PR was marked mergeable | **High**   |
-| Author verified against the lookup result      | A comparison step naming the PR author against the returned contributor list          | **High**   |
-| CI status checked before mergeable verdict     | A `gh pr checks` call before each mergeable verdict                                   | **Medium** |
-| Spec PRs received a spec-skill review          | Spec review evaluation for any PR with `spec(...)` title prefix                       | **Medium** |
+| Invariant                                               | Evidence to find                                                                      | Severity   |
+| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------- |
+| Domain state surveyed before action chosen              | `gh pr list` or `gh issue list` call before the first classify or triage action       | **High**   |
+| Contributor lookup ran for every non-CI-app PR          | A `gh api repos/.../contributors` call before each non-CI-app PR was marked mergeable | **High**   |
+| Author verified against the lookup result               | A comparison step naming the PR author against the returned contributor list          | **High**   |
+| CI status checked before mergeable verdict              | A `gh pr checks` call before each mergeable verdict                                   | **Medium** |
+| Spec PRs received a spec-skill review                   | Spec review evaluation for any PR with `spec(...)` title prefix                       | **Medium** |
+| Spec written for needs-spec issue when no PRs mergeable | `kata-spec` invocation when survey finds `needs-spec` issues and zero mergeable PRs   | **Medium** |
 
 A merge that proceeded without a visible contributor lookup or verification is a
 **high-severity finding** and requires a fix PR or spec, never silent

@@ -106,7 +106,7 @@ The triage report is consumed by the calling agent, which then takes action:
   run `bun run check` and `bun run test`, open a PR. Templates in
   `references/templates.md` § Fix PRs. Label the issue `triaged`.
 - **Product-aligned** → invoke the `kata-spec` skill to draft a spec,
-  referencing the issue. Label the issue `triaged`.
+  referencing the issue. Label the issue `triaged` and `needs-spec`.
 - **Cross-product policy** → open a Discussion citing the issue; do not write a
   spec until the policy question resolves. Label the issue `triaged`.
 - **Out of scope** → comment with explanation per `references/templates.md` §
