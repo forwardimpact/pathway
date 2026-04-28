@@ -4,24 +4,22 @@ description: "The repo self-maintenance system — six agent personas, eight wor
 ---
 
 > "What does the pattern of the Improvement Kata give us? A means for
-> systematically and scientifically working toward a new desired condition,
-> in a way that is appropriate for the unpredictability and uncertainty
-> involved."
+> systematically and scientifically working toward a new desired condition, in a
+> way that is appropriate for the unpredictability and uncertainty involved."
 >
 > — Mike Rother, _Toyota Kata_
 
-**Kata** is the Forward Impact repo self-maintenance system: autonomous
-agents on GitHub Actions that keep the codebase secure, release-ready, and
-steadily improving. The name follows Toyota Kata — agents grasp the current
-condition (via prior-run traces), establish target conditions (via specs),
-and experiment toward them (via implementation). Six agent personas, eight
-workflows, eighteen skills, organized around a daily **Plan-Do-Study-Act**
-loop.
+**Kata** is the Forward Impact repo self-maintenance system: autonomous agents
+on GitHub Actions that keep the codebase secure, release-ready, and steadily
+improving. The name follows Toyota Kata — agents grasp the current condition
+(via prior-run traces), establish target conditions (via specs), and experiment
+toward them (via implementation). Six agent personas, eight workflows, eighteen
+skills, organized around a daily **Plan-Do-Study-Act** loop.
 
-This page is the internal-contributor entry point. The canonical reference
-is [`KATA.md`](https://github.com/forwardimpact/monorepo/blob/main/KATA.md)
-at the repo root — read by every agent at the start of every Kata run.
-This page renders that material under the
+This page is the internal-contributor entry point. The canonical reference is
+[`KATA.md`](https://github.com/forwardimpact/monorepo/blob/main/KATA.md) at the
+repo root — read by every agent at the start of every Kata run. This page
+renders that material under the
 [Kata brand](https://github.com/forwardimpact/monorepo/blob/main/design/kata/index.md)
 for human contributors.
 
@@ -35,8 +33,8 @@ for human contributors.
 
 ### Staff Engineer
 
-The drafting bench. Owns the full **spec → design → plan → implement** arc
-for approved specs. Plan and Do.
+The drafting bench. Owns the full **spec → design → plan → implement** arc for
+approved specs. Plan and Do.
 
 </a>
 
@@ -53,8 +51,8 @@ releases. Do.
 
 ### Security Engineer
 
-The night watch. Patches dependencies, hardens supply chain, enforces
-security policies. Do, Study, Act.
+The night watch. Patches dependencies, hardens supply chain, enforces security
+policies. Do, Study, Act.
 
 </a>
 
@@ -71,8 +69,8 @@ evaluations. The sole external merge point. Do, Study, Act.
 
 ### Technical Writer
 
-The archivist's desk. Reviews docs for accuracy, curates wiki, fixes
-staleness, files spec gaps. Study, Act.
+The archivist's desk. Reviews docs for accuracy, curates wiki, fixes staleness,
+files spec gaps. Study, Act.
 
 </a>
 
@@ -80,8 +78,8 @@ staleness, files spec gaps. Study, Act.
 
 ### Improvement Coach
 
-The Ohno circle. Facilitates storyboard meetings and 1-on-1 coaching
-sessions. Reads traces. Study.
+The Ohno circle. Facilitates storyboard meetings and 1-on-1 coaching sessions.
+Reads traces. Study.
 
 </a>
 
@@ -95,25 +93,23 @@ Every workflow belongs to a phase of the **Plan-Do-Study-Act** cycle (after
 Deming). Findings from Study always re-enter the loop as specs or fix PRs —
 nothing is observed without downstream action.
 
-- **Plan** — Turn approved `spec.md` (WHAT/WHY) into `design.md`
-  (WHICH/WHERE) then `plan-a.md` (HOW/WHEN) with steps, files, sequencing,
-  risks.
-- **Do** — Execute plans via implementation PRs; run scheduled workflows
-  that harden, release, and maintain. Every run captures a trace.
-- **Study** — Analyze Do outputs across four streams: security audits,
-  external feedback triage, one-topic-deep doc review, one-trace-deep
-  grounded theory.
+- **Plan** — Turn approved `spec.md` (WHAT/WHY) into `design.md` (WHICH/WHERE)
+  then `plan-a.md` (HOW/WHEN) with steps, files, sequencing, risks.
+- **Do** — Execute plans via implementation PRs; run scheduled workflows that
+  harden, release, and maintain. Every run captures a trace.
+- **Study** — Analyze Do outputs across four streams: security audits, external
+  feedback triage, one-topic-deep doc review, one-trace-deep grounded theory.
 - **Act** — Trivial findings become **pushed fix PRs**; structural findings
-  become `spec.md` documents on **pushed spec branches**. A local commit is
-  not a PR — the URL is the only valid completion signal. `fix/` and
-  `spec/` branches never mix.
+  become `spec.md` documents on **pushed spec branches**. A local commit is not
+  a PR — the URL is the only valid completion signal. `fix/` and `spec/`
+  branches never mix.
 
 ---
 
 ## The Trust Boundary
 
-The Product Manager is the **sole external merge point**. All other merge
-paths operate on trusted sources (our agents, Dependabot).
+The Product Manager is the **sole external merge point**. All other merge paths
+operate on trusted sources (our agents, Dependabot).
 
 | External PR type | What merges                     | Who implements                        |
 | ---------------- | ------------------------------- | ------------------------------------- |
@@ -121,18 +117,17 @@ paths operate on trusted sources (our agents, Dependabot).
 | `spec`           | Specification document only     | Trusted agents, never the contributor |
 | Everything else  | Nothing — requires human review | N/A                                   |
 
-Top-7 contributors pass the trust gate; `forward-impact-ci` PRs are
-trusted by identity. A compromised top contributor cannot inject code via
-this pipeline — specs merge only the document, not code.
+Top-7 contributors pass the trust gate; `forward-impact-ci` PRs are trusted by
+identity. A compromised top contributor cannot inject code via this pipeline —
+specs merge only the document, not code.
 
 ---
 
 ## The Workflows
 
-Seven scheduled workflows run on a three-shift Europe/Paris rhythm —
-**night** by 07:00, **storyboard** at 08:00, **day** by 15:00, **swing**
-by 23:00 — plus an event-driven **agent-conversation** workflow on PR and
-discussion activity.
+Seven scheduled workflows run on a three-shift Europe/Paris rhythm — **night**
+by 07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00 — plus
+an event-driven **agent-conversation** workflow on PR and discussion activity.
 
 | Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
 | --------------------------- | ------------------------------------- | ---------------------------------------- |
@@ -145,10 +140,10 @@ discussion activity.
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
 | **agent-conversation**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
 
-Each shift forms a **producer → reviewer → shipper** chain: the product
-manager triages and merges so staff has a fresh backlog, staff implements,
-release ships. The night shift slots security-engineer and
-technical-writer between staff and release.
+Each shift forms a **producer → reviewer → shipper** chain: the product manager
+triages and merges so staff has a fresh backlog, staff implements, release
+ships. The night shift slots security-engineer and technical-writer between
+staff and release.
 
 ---
 
@@ -175,21 +170,21 @@ shared memory mechanics by
 ## Metrics
 
 Agents record time-series data to `wiki/metrics/{agent}/{domain}/{YYYY}.csv`
-after each run. The `kata-metrics` skill defines the CSV schema (six
-fields: date, metric, value, unit, run, note), storage convention, and
-metric design. The storyboard meeting answers "what is the actual
-condition now?" with numbers, not narratives, and XmR process behavior
-charts distinguish stable processes from special-cause reactions.
+after each run. The `kata-metrics` skill defines the CSV schema (six fields:
+date, metric, value, unit, run, note), storage convention, and metric design.
+The storyboard meeting answers "what is the actual condition now?" with numbers,
+not narratives, and XmR process behavior charts distinguish stable processes
+from special-cause reactions.
 
 ---
 
 ## Authentication
 
-Workflows authenticate via the **GitHub App** `forward-impact-kata`, not a
-PAT. Each run generates a 1-hour installation token via
-`actions/create-github-app-token` — no long-lived secrets to rotate. The
-token must generate before `actions/checkout` so checkout-token writes
-trigger downstream workflows.
+Workflows authenticate via the **GitHub App** `forward-impact-kata`, not a PAT.
+Each run generates a 1-hour installation token via
+`actions/create-github-app-token` — no long-lived secrets to rotate. The token
+must generate before `actions/checkout` so checkout-token writes trigger
+downstream workflows.
 
 | Permission    | Why                                                               |
 | ------------- | ----------------------------------------------------------------- |
@@ -204,8 +199,8 @@ trigger downstream workflows.
 
 ## Where Each Agent Lives
 
-| Agent                 | Profile                                                                                                    |
-| --------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Agent                 | Profile                                                                                                         |
+| --------------------- | --------------------------------------------------------------------------------------------------------------- |
 | **Staff Engineer**    | [staff-engineer.md](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/staff-engineer.md)       |
 | **Release Engineer**  | [release-engineer.md](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/release-engineer.md)   |
 | **Security Engineer** | [security-engineer.md](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/security-engineer.md) |
@@ -217,12 +212,19 @@ trigger downstream workflows.
 
 ## Further Reading
 
-- **[KATA.md](https://github.com/forwardimpact/monorepo/blob/main/KATA.md)** — Canonical reference, read by every agent at the start of every run.
-- **[Kata Brand](https://github.com/forwardimpact/monorepo/blob/main/design/kata/index.md)** — Brand implementation: palette, typography, motifs, and design tokens.
-- **[Kata Scenes](https://github.com/forwardimpact/monorepo/blob/main/design/kata/scenes.md)** — Production-floor scenes: storyboard, gemba walk, Ohno circle, andon cord, merge gate, drafting bench, shipping bay, archivist's desk, trace tape.
-- **[Kata Icons](https://github.com/forwardimpact/monorepo/blob/main/design/kata/icons.md)** — Six agent icons and the suite mark.
-- **[CHECKLISTS.md](https://github.com/forwardimpact/monorepo/blob/main/CHECKLISTS.md)** — How `<read_do_checklist>` and `<do_confirm_checklist>` work.
-- **[CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)** — Universal READ-DO and DO-CONFIRM checklists every Kata run runs.
+- **[KATA.md](https://github.com/forwardimpact/monorepo/blob/main/KATA.md)** —
+  Canonical reference, read by every agent at the start of every run.
+- **[Kata Brand](https://github.com/forwardimpact/monorepo/blob/main/design/kata/index.md)**
+  — Brand implementation: palette, typography, motifs, and design tokens.
+- **[Kata Scenes](https://github.com/forwardimpact/monorepo/blob/main/design/kata/scenes.md)**
+  — Production-floor scenes: storyboard, gemba walk, Ohno circle, andon cord,
+  merge gate, drafting bench, shipping bay, archivist's desk, trace tape.
+- **[Kata Icons](https://github.com/forwardimpact/monorepo/blob/main/design/kata/icons.md)**
+  — Six agent icons and the suite mark.
+- **[CHECKLISTS.md](https://github.com/forwardimpact/monorepo/blob/main/CHECKLISTS.md)**
+  — How `<read_do_checklist>` and `<do_confirm_checklist>` work.
+- **[CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)**
+  — Universal READ-DO and DO-CONFIRM checklists every Kata run runs.
 
 ---
 
