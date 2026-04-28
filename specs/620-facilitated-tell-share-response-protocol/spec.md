@@ -229,7 +229,8 @@ facilitator sees a null response and may Redirect or Conclude).
 Keeping the session live and keeping the violation visible are orthogonal — both
 are required. Silent deadlock becomes structurally impossible, and the violation
 becomes a first-class trace fact rather than an inference. The specific data
-structures, call sites, and nudge mechanism are design decisions; see design-a.md.
+structures, call sites, and nudge mechanism are design decisions; see
+design-a.md.
 
 ### Participant-side coaching framing reaches participants via a generic,
 

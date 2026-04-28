@@ -39,15 +39,14 @@ Survey all open work items, then act on the highest-priority bucket:
 
 0. **Check the storyboard** (see
    [shared protocol](.claude/agents/references/memory-protocol.md)).
-1. **Survey.** `gh pr list` + `gh issue list`. Buckets: **P1** mergeable PRs
-   (fix/bug/spec, CI green, trusted). **P2** issues labeled `needs-spec`. **P3**
-   untriaged (no `triaged` label). Classified-but-blocked PRs and
-   triaged-without-`needs-spec` issues match no bucket.
-2. **Act on highest bucket.** P1 → `kata-product-pr` (spec PRs: also `kata-spec`
-   review; plan PRs: also `kata-plan` review). P2 → `kata-spec` for oldest issue
-   (by `createdAt`). P3 → triage PRs (`kata-product-pr`) then issues
-   (`kata-product-issue`). All empty → report clean state. After writing a spec,
-   remove label: `gh issue edit <number> --remove-label needs-spec`.
+1. **Survey.** `gh pr list` +
+   `gh issue list --search "-label:experiment -label:obstacle"`. Buckets: **P1**
+   mergeable PRs (fix/bug/spec, CI green, trusted). **P2** issues labeled
+   `needs-spec`. **P3** untriaged (no `triaged` label). Classified-but-blocked
+   PRs and triaged-without-`needs-spec` issues match no bucket.
+2. **Act on highest bucket.** P1 → `kata-product-pr`. P2 → `kata-spec` for
+   oldest issue (by `createdAt`). P3 → triage PRs (`kata-product-pr`) then
+   issues (`kata-product-issue`). All empty → report clean state.
 
 `kata-product-evaluation` is supervisor-initiated, not part of scheduled runs.
 

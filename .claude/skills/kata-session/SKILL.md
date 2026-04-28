@@ -61,10 +61,9 @@ Participant Protocol below.
       including XmR `status` and signal descriptions for each metric with
       sufficient data. Metrics with `insufficient_data` are noted.
 - [ ] Coaching metrics appended to CSV (see Facilitator Process step 6).
-- [ ] For team meetings: storyboard file updated and committed; Obstacles and
-      Experiments split into Active and Concluded (last 7 days) per the
-      partition protocol, items closed this session moved to Concluded, lines
-      older than 7 days deleted (date math, not judgment).
+- [ ] For team meetings: storyboard updated per partition protocol; experiments
+      and obstacles managed as labeled GitHub issues per
+      [`issue-lifecycle.md`](references/issue-lifecycle.md).
 - [ ] For 1-on-1: agent's findings written to its own memory.
 - [ ] Weekly log updated: append a `## YYYY-MM-DD` heading to the current week's
       log file recording meeting type, key metrics reviewed, obstacle addressed,

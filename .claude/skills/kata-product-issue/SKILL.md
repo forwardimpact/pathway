@@ -78,6 +78,7 @@ from prior `product-manager` entries.
 
 ```sh
 gh issue list --state open --limit 50 \
+  --search "-label:experiment -label:obstacle" \
   --json number,title,body,author,labels,createdAt,updatedAt \
   --jq '.[] | {number, title, author: .author.login, labels: [.labels[].name], created: .createdAt}'
 ```

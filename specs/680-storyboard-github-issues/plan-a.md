@@ -25,8 +25,8 @@ gh label create experiment --description "PDSA experiment tracked via storyboard
 gh label create obstacle --description "Obstacle blocking target condition" --color D93F0B
 ```
 
-Verify: `gh label list --search experiment` and `gh label list --search obstacle`
-each return one result.
+Verify: `gh label list --search experiment` and
+`gh label list --search obstacle` each return one result.
 
 ### Step 2 — Add `issues: write` to storyboard workflow
 
@@ -121,8 +121,8 @@ Verify: template has no inline PDSA blocks; all obstacle/experiment entries show
 Add issue lifecycle commands as a separate reference file to stay within the L7
 128-line limit, and update the partition section to reference it.
 
-Created: `.claude/skills/kata-session/references/issue-lifecycle.md`
-Modified: `.claude/skills/kata-session/references/team-storyboard.md`
+Created: `.claude/skills/kata-session/references/issue-lifecycle.md` Modified:
+`.claude/skills/kata-session/references/team-storyboard.md`
 
 **issue-lifecycle.md** — new file with the following content:
 
@@ -354,10 +354,10 @@ Libraries used: none.
 
 ## Risks
 
-| Risk | Mitigation |
-| ---- | ---------- |
-| `--search "-label:experiment -label:obstacle"` interacts with other search terms the PM may add in the future | The filter is additive — additional `--search` terms combine with AND, so exclusions compose safely |
-| First-session migration creates many issues at once, potentially hitting GitHub rate limits | The April storyboard has ~9 active experiments and ~13 active obstacles — well within GitHub's 80 req/min secondary rate limit |
+| Risk                                                                                                          | Mitigation                                                                                                                     |
+| ------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------ |
+| `--search "-label:experiment -label:obstacle"` interacts with other search terms the PM may add in the future | The filter is additive — additional `--search` terms combine with AND, so exclusions compose safely                            |
+| First-session migration creates many issues at once, potentially hitting GitHub rate limits                   | The April storyboard has ~9 active experiments and ~13 active obstacles — well within GitHub's 80 req/min secondary rate limit |
 
 ## Execution
 

@@ -13,6 +13,7 @@ output an agent produces.
 | Time-series measurement                         | Metrics CSV       |
 | Open question, RFC, cross-product policy debate | Discussion        |
 | Reply tied to one PR or one issue               | PR / issue thread |
+| Experiment or obstacle PDSA state               | Labeled issue     |
 | Mechanical fix or vulnerability patch           | `fix/` branch PR  |
 | Structural finding requiring design             | `spec/` branch PR |
 | Specialized work needed mid-run                 | Sub-agent         |

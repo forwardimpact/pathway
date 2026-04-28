@@ -40,52 +40,47 @@ and add a one-line interpretive note only for metrics whose `status` is
 ## Obstacles
 
 _What stands between the current condition and the target condition. Discovered
-through experiments, not predicted upfront. Use the partition below — never mix
-active and concluded items in the same list._
+through experiments, not predicted upfront. Each obstacle is a labeled GitHub
+issue; the storyboard carries one-line references. Full state lives in the
+issue._
 
 ### Active
 
-- **Current obstacle -->** [describe]
-- [other open obstacles]
+- **Current obstacle -->** Obstacle name (#NNN)
+- Other obstacle (#NNN)
 
 ### Concluded (last 7 days)
 
 _One line per item: status (RESOLVED/ABANDONED), date closed, one-sentence
-verdict. Items older than 7 days are deleted; the prior month's storyboard and
-git history are the permanent record._
+verdict. Items older than 7 days are deleted; the closed issue is the permanent
+record._
 
-- ~~[obstacle]~~ — RESOLVED YYYY-MM-DD. [one-sentence verdict].
+- ~~Obstacle name~~ (#NNN) — RESOLVED YYYY-MM-DD. [one-sentence verdict].
 
 ## Experiments
 
-_PDSA cycles run against the current obstacle. Record expected outcome before
-running, actual outcome after. Use the partition below — never mix active and
-concluded experiments in the same list._
+_PDSA cycles run against the current obstacle. Each experiment is a labeled
+GitHub issue carrying the full PDSA content; the storyboard carries one-line
+references._
 
 ### Active
 
-#### Experiment N — [short name]
-
-- **Obstacle:** [which obstacle this addresses]
-- **What:** [description of the experiment]
-- **Expected outcome:** [what you predict will happen — record before running]
-- **Actual outcome:** [what actually happened — record after running]
-- **What did we learn?** [gap between expected and actual]
-- **Next step:** [continue, pivot, or new experiment]
+- Exp N (#NNN) — [short name]
 
 ### Concluded (last 7 days)
 
 _One line per item: verdict (DELIVERED/PASS/FAIL/ABANDONED), date closed,
-one-sentence learning. Items older than 7 days are deleted._
+one-sentence learning. Items older than 7 days are deleted; the closed issue is
+the permanent record._
 
-- **Experiment N — [short name]** — DELIVERED YYYY-MM-DD. [one-sentence
+- **Exp N — [short name]** (#NNN) — DELIVERED YYYY-MM-DD. [one-sentence
   learning].
 
 ## Retention rule
 
-When marking an obstacle RESOLVED or an experiment DELIVERED/PASS/FAIL, move the
-item from `Active` to `Concluded (last 7 days)` in the same edit. At the start
-of every storyboard session, scan `Concluded (last 7 days)` and delete any line
-whose closed-date is more than 7 days before today. The decision is mechanical —
-date math, not judgment. The prior month's storyboard file (and git history) is
-the permanent archive.
+When concluding an obstacle or experiment, post the verdict as a closing comment
+on the issue, close the issue, and move the storyboard entry from `Active` to
+`Concluded (last 7 days)`. At the start of every storyboard session, scan
+`Concluded (last 7 days)` and delete any line whose closed-date is more than 7
+days before today. The decision is mechanical — date math, not judgment. The
+closed issue is the permanent record.

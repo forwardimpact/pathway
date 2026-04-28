@@ -70,16 +70,19 @@ is something to say.
 Obstacles and Experiments are partitioned into `### Active` and
 `### Concluded (last 7 days)` subsections. The rule is mechanical:
 
-1. When marking an obstacle RESOLVED or an experiment DELIVERED/PASS/FAIL, move
-   the item from `Active` to `Concluded (last 7 days)` in the same edit. The
-   Concluded entry is one line: status, date closed, one-sentence verdict.
+1. When concluding an obstacle or experiment, post the verdict as a closing
+   comment on the issue (see [`issue-lifecycle.md`](issue-lifecycle.md)), close
+   the issue, and move the storyboard entry from `Active` to
+   `Concluded (last 7 days)`. The Concluded entry is one line: status, date
+   closed, one-sentence verdict, with `(#NNN)`.
 2. At the start of every storyboard session, scan `Concluded (last 7 days)` and
    delete any line whose closed-date is more than 7 days before today. Date
    math, not judgment.
 3. Never mix active and concluded items in the same list.
 
-The prior month's storyboard file and git history are the permanent archive —
-nothing is lost, the live document just stops carrying inert weight.
+The closed issue is the permanent record. Full issue lifecycle — creation,
+commenting, closing, and one-time migration — is in
+[`issue-lifecycle.md`](issue-lifecycle.md).
 
 ## Participant briefing template
 

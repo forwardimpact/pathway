@@ -194,7 +194,7 @@ they don't compete.
 | **Wiki**              | Permanent curated memory: summaries, weekly logs, decisions                                             | Persistent                            | `wiki/`, `kata-wiki-curate`   |
 | **Storyboard**        | Daily current condition and next experiment                                                             | One day; captured into wiki           | `kata-storyboard` workflow    |
 | **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                        | Open until resolved into spec or wiki | `agent-conversation` workflow |
-| **PR / issue thread** | Real-time response on a specific artifact                                                               | Lives with the artifact               | `agent-conversation` workflow |
+| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                | Lives with the artifact               | `agent-conversation` workflow |
 | **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in routing-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning  |
 
 - **Wiki** holds settled state, not deliberation — open questions live in
@@ -205,7 +205,8 @@ they don't compete.
   wiki note, or closes as "not now". Otherwise they compete with the wiki as a
   source of truth.
 - **PR/issue threads** are scoped to one artifact — cross-cutting questions
-  belong in a Discussion.
+  belong in a Discussion. Experiment and obstacle issues own their PDSA state;
+  the storyboard references them as one-liners.
 - **Sub-agents** don't carry state across runs — that's the wiki's job.
 
 ## Metrics
@@ -237,14 +238,14 @@ Register `forward-impact-ci` as an organization-owned GitHub App, install it on
 the monorepo, and grant these **repository permissions** (least-privilege — each
 maps to at least one workflow):
 
-| Permission    | Why                                                               |
-| ------------- | ----------------------------------------------------------------- |
-| Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches       |
-| Pull requests | Open, comment, merge PRs (release-engineer, product-manager)      |
-| Issues        | Triage, label, comment (product-manager)                          |
-| Discussions   | Reply on discussions and discussion comments (agent-conversation) |
-| Workflows     | Token-driven pushes re-trigger downstream workflows               |
-| Metadata      | Required by GitHub                                                |
+| Permission    | Why                                                                                                      |
+| ------------- | -------------------------------------------------------------------------------------------------------- |
+| Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches                                              |
+| Pull requests | Open, comment, merge PRs (release-engineer, product-manager)                                             |
+| Issues        | Triage, label, comment (product-manager); create, comment, close (improvement-coach via kata-storyboard) |
+| Discussions   | Reply on discussions and discussion comments (agent-conversation)                                        |
+| Workflows     | Token-driven pushes re-trigger downstream workflows                                                      |
+| Metadata      | Required by GitHub                                                                                       |
 
 Subscribe the App to the **Issue comment**, **Pull request review**, **Pull
 request review comment**, **Discussion**, and **Discussion comment** events so
