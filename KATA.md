@@ -180,29 +180,26 @@ blockers, teammate observations — and a **weekly log**
 read-summary, append-log, update-summary cadence is defined in
 [`memory-protocol.md`](.claude/agents/references/memory-protocol.md), an
 agent-level shared reference. Entry-point skills include a read step and a
-"Memory: what to record" section; sub-skills and utility skills are exempt.
+"Memory: what to record" section; sub-skills and utility skills are exempt. The
+wiki holds settled state — open questions live in Discussions until answered.
 
 ## Coordination Channels
 
-Five channels (including the wiki described above) carry agent-to-agent and
-agent-to-human collaboration, distinguished by **time horizon** and
-**persistence**. Per-output routing across them — including cross-agent
-escalation, run-time trust, Discussion ownership, and inbound comment handling —
-is governed by
-[routing-protocol.md](.claude/agents/references/routing-protocol.md), the
-sibling of `memory-protocol.md`. Each channel has an explicit non-purpose so
+Four channels carry agent-to-agent and agent-to-human collaboration,
+distinguished by **time horizon** and **persistence**. Per-output coordination
+across them — including cross-agent escalation, run-time trust, Discussion
+ownership, and inbound comment handling — is governed by
+[coordination-protocol.md](.claude/agents/references/coordination-protocol.md),
+the sibling of `memory-protocol.md`. Each channel has an explicit non-purpose so
 they don't compete.
 
-| Channel               | Use for                                                                                                 | Lifetime                              | Mechanism                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------- | ------------------------------------- | ----------------------------- |
-| **Wiki**              | Permanent curated memory: summaries, weekly logs, decisions                                             | Persistent                            | `wiki/`, `kata-wiki-curate`   |
-| **Storyboard**        | Daily current condition and next experiment                                                             | One day; captured into wiki           | `kata-storyboard` workflow    |
-| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                        | Open until resolved into spec or wiki | `agent-conversation` workflow |
-| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                | Lives with the artifact               | `agent-conversation` workflow |
-| **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in routing-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning  |
+| Channel               | Use for                                                                                                      | Lifetime                              | Mechanism                     |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------- | ----------------------------- |
+| **Storyboard**        | Daily current condition and next experiment                                                                  | One day; captured into wiki           | `kata-storyboard` workflow    |
+| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                             | Open until resolved into spec or wiki | `agent-conversation` workflow |
+| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                     | Lives with the artifact               | `agent-conversation` workflow |
+| **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in coordination-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning  |
 
-- **Wiki** holds settled state, not deliberation — open questions live in
-  Discussions until answered.
 - **Storyboard** observes and plans; structural decisions go through
   `kata-spec`, not the meeting.
 - **Discussions** must terminate: every thread either resolves into a spec or

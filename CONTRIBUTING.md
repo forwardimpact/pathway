@@ -79,7 +79,7 @@ Exit gate — verify every item before committing.
 - [ ] If the run produced commits: branch pushed with `git push -u origin` and
       PR URL captured in output. Exception: release engineer's direct-to-`main`
       CI fixes.
-- [ ] Outputs routed per `routing-protocol.md`; wiki writes per
+- [ ] Outputs routed per `coordination-protocol.md`; wiki writes per
       `memory-protocol.md`. None of § Common mis-routings apply.
 
 </do_confirm_checklist>

@@ -43,12 +43,12 @@ All comment templates are in `references/templates.md`.
 
 ## Classification
 
-| Category                 | Criteria                                                   | Recommended action                                                                                        |
-| ------------------------ | ---------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- |
-| **Trivial fix/bug**      | Clear bug or small fix with obvious resolution             | Fix PR (direct git ops, no spec)                                                                          |
-| **Product-aligned**      | Feature/improvement serving the product vision             | Write spec via the `kata-spec` skill                                                                      |
-| **Cross-product policy** | Cross-cutting question that needs decision before any spec | Open Discussion (per [routing-protocol.md](../../agents/references/routing-protocol.md)); label `triaged` |
-| **Out of scope**         | Not aligned, unclear, duplicate, or already addressed      | Comment + label `triaged`/`wontfix`                                                                       |
+| Category                 | Criteria                                                   | Recommended action                                                                                                  |
+| ------------------------ | ---------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
+| **Trivial fix/bug**      | Clear bug or small fix with obvious resolution             | Fix PR (direct git ops, no spec)                                                                                    |
+| **Product-aligned**      | Feature/improvement serving the product vision             | Write spec via the `kata-spec` skill                                                                                |
+| **Cross-product policy** | Cross-cutting question that needs decision before any spec | Open Discussion (per [coordination-protocol.md](../../agents/references/coordination-protocol.md)); label `triaged` |
+| **Out of scope**         | Not aligned, unclear, duplicate, or already addressed      | Comment + label `triaged`/`wontfix`                                                                                 |
 
 ## Product Vision Alignment
 
@@ -130,11 +130,11 @@ Append to the current week's log (see agent profile for the file path):
 ## Coordination Channels
 
 This skill produces these non-wiki outputs (per
-[routing-protocol.md](../../agents/references/routing-protocol.md)):
+[coordination-protocol.md](../../agents/references/coordination-protocol.md)):
 
 - **Issue comment** — Triage classification, clarification requests, "not now"
   closures with rationale.
 - **Discussion** — Cross-product policy questions surfaced from triage.
 
 If an inbound issue comment addressed to this agent is ambiguous, follow
-[routing-protocol.md § Inbound: unclear addressed comments](../../agents/references/routing-protocol.md#inbound-unclear-addressed-comments).
+[coordination-protocol.md § Inbound: unclear addressed comments](../../agents/references/coordination-protocol.md#inbound-unclear-addressed-comments).

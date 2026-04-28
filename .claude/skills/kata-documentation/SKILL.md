@@ -170,7 +170,7 @@ Append to the current week's log (see agent profile for the file path):
 ## Coordination Channels
 
 This skill produces these non-wiki outputs (per
-[routing-protocol.md](../../agents/references/routing-protocol.md)):
+[coordination-protocol.md](../../agents/references/coordination-protocol.md)):
 
 - **PR comment** — Doc-impact callouts on code PRs that change behaviour
   documented in `websites/fit/`.
@@ -178,4 +178,4 @@ This skill produces these non-wiki outputs (per
   than a writing task.
 
 If an inbound PR comment addressed to this agent is ambiguous, follow
-[routing-protocol.md § Inbound: unclear addressed comments](../../agents/references/routing-protocol.md#inbound-unclear-addressed-comments).
+[coordination-protocol.md § Inbound: unclear addressed comments](../../agents/references/coordination-protocol.md#inbound-unclear-addressed-comments).

@@ -1,4 +1,4 @@
-# Output Routing Protocol
+# Coordination Protocol
 
 Pick the channel by what the output **is**, not where context happens to be.
 Wiki cadence and structure are governed by

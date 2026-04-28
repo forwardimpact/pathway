@@ -4,10 +4,10 @@
 
 Eight textual changes across protocol docs, agent profiles, skill docs,
 CLAUDE.md, and KATA.md enforce the memory/coordination separation designed in
-design-a.md. No code, no tooling — pure documentation layer. The rename
-(step 1) lands first so every downstream step references the new filename;
-profile rewrites bundle footer changes with mandate-boundary instructions to
-minimize file passes; the invariant row lands last since it depends on the
+design-a.md. No code, no tooling — pure documentation layer. The rename (step 1)
+lands first so every downstream step references the new filename; profile
+rewrites bundle footer changes with mandate-boundary instructions to minimize
+file passes; the invariant row lands last since it depends on the
 coordination-protocol rename being in place for its citation reference.
 
 ## Steps
@@ -16,10 +16,10 @@ coordination-protocol rename being in place for its citation reference.
 
 Rename the file and update its opening framing.
 
-| Action   | File                                                 |
-| -------- | ---------------------------------------------------- |
-| Created  | `.claude/agents/references/coordination-protocol.md` |
-| Deleted  | `.claude/agents/references/routing-protocol.md`      |
+| Action  | File                                                 |
+| ------- | ---------------------------------------------------- |
+| Created | `.claude/agents/references/coordination-protocol.md` |
+| Deleted | `.claude/agents/references/routing-protocol.md`      |
 
 ```sh
 git mv .claude/agents/references/routing-protocol.md \
@@ -55,8 +55,8 @@ to:
 ```
 
 **2b — Rotation procedure.** Append three operations after the existing final
-paragraph of § Cross-Cutting Priority Index (after `"Resolved items are removed
-within one curation cycle."`):
+paragraph of § Cross-Cutting Priority Index (after
+`"Resolved items are removed within one curation cycle."`):
 
 ```markdown
 
@@ -71,16 +71,19 @@ within one curation cycle."`):
   permanent record. Do not keep resolved entries.
 ```
 
-Verify: `grep -c "coordination-protocol" .claude/agents/references/memory-protocol.md`
-returns 1; `grep -c "routing-protocol" .claude/agents/references/memory-protocol.md`
+Verify:
+`grep -c "coordination-protocol" .claude/agents/references/memory-protocol.md`
+returns 1;
+`grep -c "routing-protocol" .claude/agents/references/memory-protocol.md`
 returns 0; the file contains `**Add**`, `**Update**`, and `**Remove**` items.
 
 ### Step 3 — Add ## Memory and Coordination to CLAUDE.md
 
-Insert a new L8 policy section and compress existing content to stay ≤ 192 lines.
+Insert a new L8 policy section and compress existing content to stay ≤ 192
+lines.
 
-| Action   | File       |
-| -------- | ---------- |
+| Action   | File        |
+| -------- | ----------- |
 | Modified | `CLAUDE.md` |
 
 **3a — Insert new section** between `## Contributor Workflow` (line 109) and
@@ -100,21 +103,21 @@ This adds 7 lines (blank + heading + blank + 4 content lines).
 
 **3b — Compress § Documentation Map** to reclaim 7 lines:
 
-| Before (3 lines)                                                                                                                              | After (1 line)                                                                        | Saves |
-| --------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------- | ----- |
+| Before (3 lines)                                                                                                                              | After (1 line)                                                                         | Saves |
+| --------------------------------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------- | ----- |
 | `Policy entries have one canonical location — other files reference, never`<br>`restate. Per-product Overview and Internals pages are in ...` | `One canonical location per policy. Per-product pages are in [§ Products](#products).` | 2     |
 
-| Before (2 lines)                                                                                    | After (1 line)                                                                                            | Saves |
-| --------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------- | ----- |
-| `- **Security** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)`<br>`- **Dependency ...`   | `- **Security & dependencies** — [CONTRIBUTING.md](CONTRIBUTING.md) (§ Security, § Dependency Policy)`    | 1     |
+| Before (2 lines)                                                                                  | After (1 line)                                                                                         | Saves |
+| ------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------ | ----- |
+| `- **Security** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)`<br>`- **Dependency ...` | `- **Security & dependencies** — [CONTRIBUTING.md](CONTRIBUTING.md) (§ Security, § Dependency Policy)` | 1     |
 
-| Before (2 lines)                                                                              | After (1 line)                                                                                          | Saves |
-| --------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- | ----- |
-| `- **Repo self-maintenance** — [KATA.md](KATA.md) ·`<br>`  [Internals](...) · [Brand](...)`  | `- **Repo self-maintenance** — [KATA.md](KATA.md) · [Internals](websites/fit/docs/internals/kata/)`    | 1     |
+| Before (2 lines)                                                                            | After (1 line)                                                                                      | Saves |
+| ------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------- | ----- |
+| `- **Repo self-maintenance** — [KATA.md](KATA.md) ·`<br>`  [Internals](...) · [Brand](...)` | `- **Repo self-maintenance** — [KATA.md](KATA.md) · [Internals](websites/fit/docs/internals/kata/)` | 1     |
 
-| Before (2 lines)                                                                          | After (1 line)                                                                                                        | Saves |
-| ----------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------- | ----- |
-| `- **Getting started** —`<br>`  [websites/fit/docs/getting-started/](...)`                | `- **Getting started** — [Getting Started](websites/fit/docs/getting-started/)`                                       | 1     |
+| Before (2 lines)                                                           | After (1 line)                                                                  | Saves |
+| -------------------------------------------------------------------------- | ------------------------------------------------------------------------------- | ----- |
+| `- **Getting started** —`<br>`  [websites/fit/docs/getting-started/](...)` | `- **Getting started** — [Getting Started](websites/fit/docs/getting-started/)` | 1     |
 
 Remove `- **Operations**` entry (1 line — already linked from § Contributor
 Workflow line 116). Remove `- **REPL API**` entry (1 line — derivable from
@@ -123,8 +126,8 @@ Workflow line 116). Remove `- **REPL API**` entry (1 line — derivable from
 Total: 2 + 1 + 1 + 1 + 1 + 1 = 7 lines saved = 7 lines reclaimed.
 
 Verify: `wc -l CLAUDE.md` ≤ 192;
-`grep -q "^## Memory and Coordination" CLAUDE.md` succeeds; the section
-mentions `wiki`, `Issue`, `Discussion`, `comment`, and `agent-conversation`.
+`grep -q "^## Memory and Coordination" CLAUDE.md` succeeds; the section mentions
+`wiki`, `Issue`, `Discussion`, `comment`, and `agent-conversation`.
 
 ### Step 4 — Update KATA.md § Shared Memory and § Coordination Channels
 
@@ -171,12 +174,12 @@ they don't compete.
 2. Table (lines 196–202): delete the `**Wiki**` row (the row starting
    `| **Wiki** |`).
 
-3. Sub-agent row: change `(not for cross-agent comms — see escalation in
-   routing-protocol)` to `(not for cross-agent comms — see escalation in
-   coordination-protocol)`.
+3. Sub-agent row: change
+   `(not for cross-agent comms — see escalation in routing-protocol)` to
+   `(not for cross-agent comms — see escalation in coordination-protocol)`.
 
-4. Bullet list (lines 204–214): delete the `**Wiki**` bullet (`- **Wiki** holds
-   settled state...`) — moved to § Shared Memory in 4a.
+4. Bullet list (lines 204–214): delete the `**Wiki**` bullet
+   (`- **Wiki** holds settled state...`) — moved to § Shared Memory in 4a.
 
 Verify: § Coordination Channels has no `Wiki` row; opening names four channels;
 `grep -q "coordination-protocol" KATA.md` matches;
@@ -236,8 +239,8 @@ protocols. For release-engineer.md, line 39 area names "GitHub Issue".
 
 Name the receiving artifact for the ship-flow boundary stop.
 
-| Action   | File                               |
-| -------- | ---------------------------------- |
+| Action   | File                                |
+| -------- | ----------------------------------- |
 | Modified | `.claude/skills/kata-ship/SKILL.md` |
 
 Change line 173:
@@ -261,33 +264,34 @@ Replace `routing-protocol` with `coordination-protocol` in all remaining
 references not already handled by steps 2 (memory-protocol.md), 4 (KATA.md), or
 5 (agent profiles).
 
-| Action   | File                                                   |
-| -------- | ------------------------------------------------------ |
-| Modified | `.claude/skills/kata-product-issue/SKILL.md`           |
-| Modified | `.claude/skills/kata-documentation/SKILL.md`           |
-| Modified | `.claude/skills/kata-trace/SKILL.md`                   |
-| Modified | `.claude/skills/kata-product-pr/SKILL.md`              |
-| Modified | `.claude/skills/kata-security-audit/SKILL.md`          |
-| Modified | `.claude/skills/kata-trace/references/invariants.md`   |
-| Modified | `CONTRIBUTING.md`                                      |
-| Modified | `websites/fit/docs/internals/kata/index.md`            |
+| Action   | File                                                 |
+| -------- | ---------------------------------------------------- |
+| Modified | `.claude/skills/kata-product-issue/SKILL.md`         |
+| Modified | `.claude/skills/kata-documentation/SKILL.md`         |
+| Modified | `.claude/skills/kata-trace/SKILL.md`                 |
+| Modified | `.claude/skills/kata-product-pr/SKILL.md`            |
+| Modified | `.claude/skills/kata-security-audit/SKILL.md`        |
+| Modified | `.claude/skills/kata-trace/references/invariants.md` |
+| Modified | `CONTRIBUTING.md`                                    |
+| Modified | `websites/fit/docs/internals/kata/index.md`          |
 
 In each file, replace every occurrence of `routing-protocol.md` with
 `coordination-protocol.md` and every occurrence of `routing-protocol` (in prose)
 with `coordination-protocol`. Specific references:
 
-| File                                            | Lines      | Occurrences |
-| ----------------------------------------------- | ---------- | ----------- |
-| `kata-product-issue/SKILL.md`                   | 50, 133, 140 | 3         |
-| `kata-documentation/SKILL.md`                   | 173, 181   | 2           |
-| `kata-trace/SKILL.md`                           | 176        | 1           |
-| `kata-product-pr/SKILL.md`                      | 171, 180   | 2           |
-| `kata-security-audit/SKILL.md`                  | 118, 143   | 2           |
-| `invariants.md`                                 | 79         | 1           |
-| `CONTRIBUTING.md`                               | 82         | 1           |
-| `websites/fit/docs/internals/kata/index.md`     | 164        | 1           |
+| File                                        | Lines        | Occurrences |
+| ------------------------------------------- | ------------ | ----------- |
+| `kata-product-issue/SKILL.md`               | 50, 133, 140 | 3           |
+| `kata-documentation/SKILL.md`               | 173, 181     | 2           |
+| `kata-trace/SKILL.md`                       | 176          | 1           |
+| `kata-product-pr/SKILL.md`                  | 171, 180     | 2           |
+| `kata-security-audit/SKILL.md`              | 118, 143     | 2           |
+| `invariants.md`                             | 79           | 1           |
+| `CONTRIBUTING.md`                           | 82           | 1           |
+| `websites/fit/docs/internals/kata/index.md` | 164          | 1           |
 
-Verify: `grep -r "routing-protocol" .claude/ CLAUDE.md KATA.md CONTRIBUTING.md websites/ --include='*.md'`
+Verify:
+`grep -r "routing-protocol" .claude/ CLAUDE.md KATA.md CONTRIBUTING.md websites/ --include='*.md'`
 returns no matches (excluding `specs/` which contains historical references).
 
 ### Step 8 — Add mandate-boundary invariant to invariants.md
@@ -305,7 +309,8 @@ Append a new row to the § Cross-cutting invariants table (after the
 | Mandate-boundary stop produces at least one non-wiki artifact | Agent turn contains boundary-stop language (`stop and report`, `stopping per protocol`, `exceeds scope`, `mandate boundary`) AND trace contains no `fix/` or `spec/` branch creation → at least one of: `gh issue create`, `gh (issue\|pr) comment`, `createDiscussion` mutation, `addDiscussionComment` mutation, or `Agent` tool referencing `agent-conversation` appears after the trigger turn | **High**   |
 ```
 
-Verify: `grep -q "non-wiki artifact" .claude/skills/kata-trace/references/invariants.md`
+Verify:
+`grep -q "non-wiki artifact" .claude/skills/kata-trace/references/invariants.md`
 matches with severity `High`. Re-running the invariant audit against trace
 `25039150119` (via `bunx fit-trace download 25039150119`) records `FAIL` on the
 new invariant — the trace contains "Stopping per protocol; routing to staff
@@ -323,8 +328,8 @@ None.
 
 ## Execution
 
-Single `staff-engineer` agent, sequential. Step 1 (rename) must land first;
-all remaining steps depend on it for the new filename. Steps 2–8 are
-independent of each other and could theoretically run in parallel, but the
-small file count (≤ 22 files) makes sequential execution straightforward and
-avoids merge-conflict risk on shared files.
+Single `staff-engineer` agent, sequential. Step 1 (rename) must land first; all
+remaining steps depend on it for the new filename. Steps 2–8 are independent of
+each other and could theoretically run in parallel, but the small file count (≤
+22 files) makes sequential execution straightforward and avoids merge-conflict
+risk on shared files.

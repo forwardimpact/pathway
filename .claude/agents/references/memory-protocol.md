@@ -2,7 +2,7 @@
 
 This file governs **wiki reads/writes**. For non-wiki outputs (Discussions,
 PR/issue threads, `fix/`/`spec/` branches, sub-agents) see
-[routing-protocol.md](routing-protocol.md).
+[coordination-protocol.md](coordination-protocol.md).
 
 ## Memory Tiers
 
@@ -102,3 +102,13 @@ Maximum 10 active entries. Explicit empty state: a row reading
 
 `kata-wiki-curate` is the authoritative writer; any agent may propose an entry
 but the curator verifies. Resolved items are removed within one curation cycle.
+
+**Entry lifecycle:**
+
+- **Add** — Finding affects ≥2 agents and persists beyond the run that surfaced
+  it. Link the GitHub artifact (Issue, PR, Discussion) that carries the
+  permanent record.
+- **Update** — Ownership transfers (change Owner) or material progress lands
+  (change Status: PR opened, PR merged, blocker cleared).
+- **Remove** — Underlying problem resolved; the linked GitHub artifact is the
+  permanent record. Do not keep resolved entries.

@@ -170,9 +170,10 @@ If a PR already exists, reuse it — do not open a duplicate.
 gh pr checks "$branch" --watch
 ```
 
-If any check fails, stop and report — do not attempt code fixes from inside this
-skill. If no workflow runs against the branch at all, abort after a reasonable
-wait and investigate upstream rather than blocking forever.
+If any check fails, stop and comment on the PR describing the failure — do not
+attempt code fixes from inside this skill. If no workflow runs against the
+branch at all, abort after a reasonable wait and investigate upstream rather
+than blocking forever.
 
 ### Step 8: Squash-Merge
 

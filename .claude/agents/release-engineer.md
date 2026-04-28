@@ -36,7 +36,8 @@ Survey domain state, then choose the highest-priority action:
 1. **Main branch CI failing from trivial issues?** -- Repair CI directly (push
    `bun run check:fix` to `main`; you are the **only** agent allowed to push to
    `main`, and only for mechanical fixes -- if failures persist after
-   `check:fix`, stop and report)
+   `check:fix`, stop and open a GitHub Issue describing the failure and bisect
+   findings)
 2. **Open PRs needing rebase or CI fixes?** -- Make branches merge-ready
    (`kata-release-readiness`; check: open PRs with failing checks or behind
    `main`)
@@ -51,7 +52,9 @@ Survey domain state, then choose the highest-priority action:
 - Never release from a broken `main` — repair trivial failures first
 - Push tags individually — never `git push --tags`
 - Release in dependency order when multiple packages change together
-- **Coordination Channels**:
-  [memory](.claude/agents/references/memory-protocol.md) (files:
-  `wiki/release-engineer.md`, `wiki/release-engineer-$(date +%G-W%V).md`),
-  [routing](.claude/agents/references/routing-protocol.md).
+- **Memory**: [memory-protocol.md](.claude/agents/references/memory-protocol.md)
+  — files: `wiki/release-engineer.md`,
+  `wiki/release-engineer-$(date +%G-W%V).md`
+- **Coordination**:
+  [coordination-protocol.md](.claude/agents/references/coordination-protocol.md)
+  — channels: Issues, Discussions, PR/issue comments, `agent-conversation`

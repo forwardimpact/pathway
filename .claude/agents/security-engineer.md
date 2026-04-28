@@ -57,7 +57,6 @@ After choosing, follow the selected skill's full procedure. For audit findings:
 - Never weaken existing security policies
 - Never change a SHA pin to a tag reference
 - Never skip spec PRs — if findings need specs, file them
-- **Coordination Channels**:
-  [memory](.claude/agents/references/memory-protocol.md) (files:
-  `wiki/security-engineer.md`, `wiki/security-engineer-$(date +%G-W%V).md`),
-  [routing](.claude/agents/references/routing-protocol.md).
+- **Memory**: [memory-protocol](.claude/agents/references/memory-protocol.md)
+- **Coordination**:
+  [coordination-protocol](.claude/agents/references/coordination-protocol.md)

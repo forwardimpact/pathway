@@ -115,8 +115,8 @@ Every audit must produce all applicable categories of output:
 - **Trivial fix** → `fix/` branch, incremental change.
 - **Structural finding** → `spec/` branch via `kata-spec`.
 - **Cross-team policy question** → Discussion via the
-  [routing protocol](../../agents/references/routing-protocol.md), opened before
-  any spec or fix that depends on the answer.
+  [routing protocol](../../agents/references/coordination-protocol.md), opened
+  before any spec or fix that depends on the answer.
 
 Branch naming, commit conventions, and independence rules are defined in the
 agent profile.
@@ -140,7 +140,7 @@ Append to the current week's log (see agent profile for the file path):
 ## Coordination Channels
 
 This skill produces these non-wiki outputs (per
-[routing-protocol.md](../../agents/references/routing-protocol.md)):
+[coordination-protocol.md](../../agents/references/coordination-protocol.md)):
 
 - **Discussion** — Policy questions surfaced from audit (e.g. "should we relax
   SHA-pinning for `actions/*`?") that need cross-team input before a spec.

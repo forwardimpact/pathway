@@ -131,6 +131,14 @@ whenever you encounter one. Design and authoring rules:
 [§ DO-CONFIRM](CONTRIBUTING.md#do-confirm) (before committing). Domain-specific
 checklists live in `.claude/skills/kata-*/SKILL.md`.
 
+## Memory and Coordination
+
+Wiki is **memory** — own state (summaries, logs, metrics), not a handoff
+channel. **Coordination** requires a named receiver and addressable artifact:
+Issue, PR/issue comment, Discussion, or `agent-conversation`. See
+[memory-protocol](.claude/agents/references/memory-protocol.md) and
+[coordination-protocol](.claude/agents/references/coordination-protocol.md).
+
 ## Domain Concepts
 
 Framework entities are defined in YAML under
@@ -165,28 +173,20 @@ Validate data: `bunx fit-map validate`. Vocabulary standards in the
 
 ## Documentation Map
 
-Policy entries have one canonical location — other files reference, never
-restate. Per-product Overview and Internals pages are in [§ Products](#products)
-above.
+One home per policy; per-product pages: [§ Products](#products).
 
 **Internal:**
 
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
 - **Contribution standards** — [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Design language** — [design/index.md](design/index.md)
-- **Security** — [CONTRIBUTING.md § Security](CONTRIBUTING.md#security)
-- **Dependency policy** — [CONTRIBUTING.md](CONTRIBUTING.md#dependency-policy)
+- **Security & deps** — [CONTRIBUTING.md](CONTRIBUTING.md#security)
 - **Repo self-maintenance** — [KATA.md](KATA.md) ·
-  [Internals](websites/fit/docs/internals/kata/) · [Brand](design/kata/)
-- **Shared agent memory** — [wiki/](wiki/) (GitHub wiki, cloned on demand)
-- **Operations** — [Operations](websites/fit/docs/internals/operations/)
+  [Internals](websites/fit/docs/internals/kata/)
 - **Kata agent skills** — [.claude/skills/kata-\*](.claude/skills/)
 - **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
-- **REPL API** — [librepl](websites/fit/docs/internals/librepl/)
 
 **External:**
 
-- **Getting started** —
-  [websites/fit/docs/getting-started/](websites/fit/docs/getting-started/)
+- **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
 - **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
 - **Published skills** — [.claude/skills/fit-\*](.claude/skills/)

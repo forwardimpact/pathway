@@ -160,8 +160,8 @@ distinguished by **time horizon** and **persistence**.
 | **PR / issue thread** | Real-time response on a specific artifact                        | Lives with the artifact         |
 | **Sub-agent**         | Specialized inline work within one run                           | Ephemeral (one task)            |
 
-Per-output routing is governed by
-[routing-protocol.md](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/references/routing-protocol.md);
+Per-output coordination is governed by
+[coordination-protocol.md](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/references/coordination-protocol.md);
 shared memory mechanics by
 [memory-protocol.md](https://github.com/forwardimpact/monorepo/blob/main/.claude/agents/references/memory-protocol.md).
 

@@ -173,7 +173,7 @@ Append to the current week's log (see agent profile for the file path):
 ## Coordination Channels
 
 This skill produces these non-wiki outputs (per
-[routing-protocol.md](../../agents/references/routing-protocol.md)):
+[coordination-protocol.md](../../agents/references/coordination-protocol.md)):
 
 - **Discussion** — Open questions surfaced from analysis (e.g. "is this L7
   attribution the right fix shape?") needing cross-team input before a spec.

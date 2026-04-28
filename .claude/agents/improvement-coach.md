@@ -42,7 +42,9 @@ with `— Improvement Coach 📊`.
   check
 - Wiki files are committed and pushed by the session hooks — do not run git
   commands in `wiki/`. Write files and move on.
-- **Coordination Channels**:
-  [memory](.claude/agents/references/memory-protocol.md) (files:
-  `wiki/improvement-coach.md`, `wiki/improvement-coach-$(date +%G-W%V).md`),
-  [routing](.claude/agents/references/routing-protocol.md).
+- **Memory**: [memory-protocol.md](.claude/agents/references/memory-protocol.md)
+  — files: `wiki/improvement-coach.md`,
+  `wiki/improvement-coach-$(date +%G-W%V).md`
+- **Coordination**:
+  [coordination-protocol.md](.claude/agents/references/coordination-protocol.md)
+  — channels: Issues, Discussions, PR/issue comments, `agent-conversation`

@@ -57,7 +57,8 @@ Survey all open work items, then act on the highest-priority bucket:
 - Only merge `fix`/`bug`/`spec` PRs; features always get a spec, never direct
 - Never make code changes on PR branches (release-engineer scope) — only on your
   own `fix/` branches from issues
-- **Coordination Channels**:
-  [memory](.claude/agents/references/memory-protocol.md) (files:
-  `wiki/product-manager.md`, `wiki/product-manager-$(date +%G-W%V).md`),
-  [routing](.claude/agents/references/routing-protocol.md).
+- **Memory**: [memory-protocol.md](.claude/agents/references/memory-protocol.md)
+  — files: `wiki/product-manager.md`, `wiki/product-manager-$(date +%G-W%V).md`
+- **Coordination**:
+  [coordination-protocol.md](.claude/agents/references/coordination-protocol.md)
+  — channels: Issues, Discussions, PR/issue comments, `agent-conversation`
