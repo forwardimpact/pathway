@@ -42,86 +42,122 @@ palette, and motif. The contract is in
 
 ---
 
-## 2. The Three Characters
+## 2. Character Specification
 
-The visual identity is built around three characters who embody a collaborative
-dynamic between people, AI, and domain expertise — and who mirror three
-audiences (Engineers, Agents, Leadership). They are always shown together —
-working side by side, consulting, collaborating. They replace the solo hero with
-a team, reflecting that this work happens at the intersection of engineering,
-AI, and the business it serves.
+This section is the complete specification for generating the three characters.
+It contains everything needed to produce them as standalone illustrations. Once
+generated, characters appear in scenes governed by [§ 3](#3-scene-grammar).
 
-### Design Specifications
+### Rendering
 
-**Shared Traits:**
+Characters use exactly four values — white, black, and one or two grays.
+No other colors, no gradients.
 
-- **2px black stroke** with minimal gray fills — monochrome line art
+| Property   | Specification                                                                                            |
+| ---------- | -------------------------------------------------------------------------------------------------------- |
+| Palette    | White for all primary surfaces. Black for all lines and strokes. One or two neutral grays for secondary surfaces (clothing, hair, accessories). No other values. |
+| Stroke     | 2px, pure black. No brown-black, no warm black, no dark-gray strokes.                                    |
+| Fills      | Flat only. No gradients, no soft shading, no drop shadows, no gradient fills.                            |
+| Style      | Hand-drawn line art — like a working notebook sketch. Slightly irregular strokes, not vector-perfect.     |
+| Background | Transparent or pure white. Characters are drawn without scene context when generated as a character sheet. |
+| Color      | None. Zero hue. Strictly achromatic. No brown, no tan, no ochre, no sepia, no cream, no beige, no warm tone of any kind. |
+
+### Shared Traits
+
 - Round heads, simple dot eyes — expressive through posture, not facial detail
 - Roughly 2:3 proportions (wide:tall), slightly cartoonish but not childish
 - Same height — no hierarchy of size
-- Hand-drawn style, like a working notebook sketch
+- Always shown together — working side by side, consulting, collaborating. They
+  replace the solo hero with a team.
 
-**The Engineer:**
+### The Engineer
 
 - Animal-eared hoodie (bunny or fox ears on the hood) — the signature element.
-  The hoodie signals hacker/builder culture — someone who ships code, lives in
-  terminals, and brings creative irreverence to serious problems.
-- Visible backpack — they carry their tools wherever they go. Hair visible under
-  the hoodie.
-- Laptop with a round citrus fruit sticker (resembling Apple logo without the
-  apple fruit)
-- Posture: leaning in, engaged, slightly informal
+  The hoodie signals hacker/builder culture. Hair visible under the hoodie.
+- Visible backpack — carries tools everywhere.
+- Laptop with a round citrus fruit sticker (resembles Apple logo, but a citrus
+  fruit instead).
+- Posture: leaning in, engaged, slightly informal.
+- **Identifier constraint:** never remove the hoodie ears — key identifier at
+  all sizes.
 
-**The AI Agent:**
+### The AI Agent
 
-- Round circle head, two large dot eyes, small curved smile
-- Headphones wrapping around the head — suggests active listening
-- Small backpack like the others, signaling it's part of the team — deployed
-  alongside humans, not hovering above them
-- Simple geometric body form — more geometric than the human characters
-- Laptop (pixel-art skull/space invader sticker optional)
-- Posture: upright, attentive, slightly turned toward others
+- Round circle head, two large dot eyes, small curved smile.
+- Headphones wrapping around the head — suggests active listening.
+- Small backpack like the others — deployed alongside humans, not above them.
+- Simple geometric body — more geometric than the human characters.
+- Laptop (pixel-art skull or space-invader sticker optional).
+- Posture: upright, attentive, slightly turned toward others.
+- **Identifier constraint:** never make the AI Agent visually dominant — equal
+  partner, same height, not floating above.
 
-**The Business Stakeholder:**
+### The Business Stakeholder
 
 - Business attire: collared shirt, tie, blazer. Neat hair, formal posture.
-- **No backpack** — they're the domain expert who already knows the territory,
-  not the one carrying gear into it. They represent leadership and domain
-  experts who define what good looks like — product owners, engineering
-  managers, and business stakeholders.
-- Laptop with a Claude Code sticker
-- Posture: engaged but composed, professional
+- **No backpack** — the domain expert who already knows the territory.
+  Represents leadership and domain experts who define what good looks like.
+- Laptop with a Claude Code sticker.
+- Posture: engaged but composed, professional.
+- **Identifier constraint:** never put a backpack on the Stakeholder — absence
+  is their trait.
 
-**Group Personality:**
+### Group Dynamic
 
-- Seated shoulder to shoulder, each on their own laptop — equals collaborating
-- Emotional tone: "We're figuring this out together"
-- Candid sketch of a working session, not a posed team photo
-- Close enough that elbows might bump
+- Seated shoulder to shoulder, each on their own laptop — equals collaborating.
+- Emotional tone: "We're figuring this out together."
+- Candid sketch of a working session, not a posed team photo.
+- Close enough that elbows might bump.
 
-**Scale:** 48px (small inline) to 400px+ (hero). At small sizes, reduce to
-silhouettes preserving key identifiers: hoodie ears, robot head, tie.
+### Scale
+
+48px (small inline) to 400px+ (hero). At small sizes, reduce to silhouettes
+preserving key identifiers: hoodie ears, round robot head, tie.
 
 ---
 
 ## 3. Scene Grammar
 
-Scenes show the three characters interacting with each other — and, in
-brand-specific scenes, with product symbols. All rendered in monochrome line-art
-on clean white background with no panel borders or background fills. Objects use
-the same 2px stroke as characters.
+This section defines the rules for composing any scene with the characters from
+[§ 2](#2-character-specification). Individual scene prompts
+([§ 4](#4-reusable-base-scenes) and brand scene files) describe specific poses,
+objects, and interactions — they should not restate these rules.
 
-### Scene Design Rules
+The entire scene uses the same small palette as the character sheet in
+[§ 2](#2-character-specification): white for primary surfaces, black for
+lines, and one or two neutral grays for secondary surfaces. No other
+values, no gradients.
+
+### Scene Rendering
+
+| Property   | Specification                                                        |
+| ---------- | -------------------------------------------------------------------- |
+| Palette    | White, black, and the same two to three grays — no additional values |
+| Background | Pure white — no boxes, frames, panels, fills, textures, or shading   |
+| Ground     | Implied by positioning — no explicit ground line                     |
+| Objects    | Same 2px pure-black stroke and flat neutral-gray fills               |
+| Fills      | Flat only — no gradients, no shading, no tinting                     |
+
+### Composition
 
 | Rule           | Specification                                                    |
 | -------------- | ---------------------------------------------------------------- |
-| Background     | Pure white — no boxes, frames, or shading                        |
-| Ground         | Implied by positioning — no explicit ground line                 |
-| Object style   | Same 2px stroke monochrome line art                              |
-| Composition    | Characters grouped tightly, centered — reads as a single cluster |
+| Grouping       | Characters grouped tightly, centered — reads as a single cluster |
 | Whitespace     | Generous space around the scene cluster                          |
+| Framing        | Scenes float freely in whitespace — never outlined or bordered   |
 | Scale          | 120px (cards) to 480px+ (hero)                                   |
 | Emotional tone | Curious, conspiratorial, scrappy — three people who chose this   |
+
+### Constraints
+
+These rules apply to every scene. Individual scene prompts must not override
+them.
+
+- **Always collaborative** — never show characters in conflict.
+- **Always monochrome** — gray fills for differentiation, never hues.
+- **Laptops in seated poses** — never show seated characters without laptops.
+- **No framing** — no borders, containers, or panel edges around scenes.
+- **Monochrome colors** – white, black and two to three grays
 
 ---
 
@@ -134,18 +170,18 @@ across brands and contexts.
 
 **Context:** Hero illustrations, suite-level marketing, default state.
 
+```
+     🐰💻   🤖💻   👔💻
+      \      |      /
+       (huddled together)
+```
+
 All three seated side by side, each with a laptop. Engineer left, cross-legged
 on the ground, laptop balanced on one knee, leaning sideways to peek at Agent's
 screen. AI Agent center, seated upright on a chair, head tilted slightly — the
 only one with correct posture. Stakeholder right, chair tipped back on two legs,
 one arm draped over the backrest, typing one-handed. Shoulders overlapping.
 Brand-specific product icons may appear in a row below.
-
-```
-     🐰💻   🤖💻   👔💻
-      \      |      /
-       (huddled together)
-```
 
 **Key details:** The trio sits at different heights — Engineer on the floor,
 Agent on a chair, Stakeholder tipped back — creating a diagonal line that feels
@@ -158,17 +194,17 @@ to include someone in a blazer.
 
 **Context:** Onboarding screens, first-time user experience, landing page.
 
+```
+    🐰🖐   🤖🖐   👔🖐
+     hey!!   hello.   welcome.
+```
+
 All three standing, facing the viewer. Engineer mid-stride toward the viewer,
 both arms out wide — too enthusiastic, slightly off-balance, hoodie ears
 bouncing. AI Agent stands still, one hand raised in a precise right-angle wave,
 head tilted in greeting. Stakeholder one step behind, hand raised palm-out at
 shoulder height — the composed anchor. Feet visible, small action lines around
 Engineer's movement.
-
-```
-    🐰🖐   🤖🖐   👔🖐
-     hey!!   hello.   welcome.
-```
 
 **Key details:** Engineer's over-eager stride forward creates the energy.
 Agent's geometric wave is the visual punchline — friendly but mechanically
@@ -180,44 +216,62 @@ about the team dynamic in one frame.
 
 **Context:** Documentation pages, knowledge base, "getting started" flows.
 
-All three around a waist-high surface with papers. Engineer holds a sheet at
-arm's length, head tilted, rotating it — clearly reading it sideways or upside
-down. AI Agent has already sorted its section into a perfect stack and is
-reaching for Engineer's mess. Stakeholder leans across the table, index finger
-on a specific line — they've found it, and they're waiting for the other two to
-catch up.
-
 ```
-         📄 📄
-    🐰   📋🤖📋   👔
-     \   📄📄📄   /
-      (table with papers)
-         📄  📄
-       (papers on floor)
+    🐰📄  🤖📚  👔📖
+     \     |     /
+    ┌──────────────┐
+    │ papers books │
+    └──────────────┘
+       📄  📄
 ```
 
-**Key details:** The comedy is in the three speeds: Engineer still figuring out
-which way is up, Agent already done and reaching for more, Stakeholder patiently
-waiting with the answer. Each character's relationship to documentation reveals
-their personality. Engineer's rotated page is the visual gag — hackers and docs
-have a complicated relationship.
+All three standing behind a waist-high table covered with documents. Engineer
+(left) holds a single sheet in both hands, head tilted, brow furrowed —
+squinting at it with a puzzled expression. AI Agent (center) stands behind a
+neatly organized stack of papers, both hands resting on the pile. Stakeholder
+(right) smiles and points with one index finger at a specific line in an open
+book on the table. Loose papers scattered on the floor under and around the
+table.
+
+**Key details:** Three speeds of documentation work: Engineer still deciphering
+a single page, Agent already organized, Stakeholder already found the answer
+and is pointing it out. The loose papers on the floor beneath the table are the
+punchline — documentation is messy work. Agent's neat stack in the center is
+the visual anchor between Engineer's confusion and Stakeholder's confidence.
 
 ---
 
-## 5. Character & Scene Guidelines
+## 5. Illustration Checklist
 
-### Don'ts
+Illustrations are produced from three layers. Each layer adds to the previous
+without restating it.
 
-- **Never show characters in conflict** — always collaborative
-- **Never make the AI Agent dominant** — equal partner, not floating above
-- **Never remove the Engineer's hoodie ears** — key identifier at all sizes
-- **Never put a backpack on the Stakeholder** — absence is their trait
-- **Never render in color** — monochrome line-art only. Gray fills for
-  differentiation, never hues
-- **Never show them without laptops in seated poses**
-- **Never add background scenery** — no landscapes, trees, clouds, except for
-  product symbols defined by the brand
-- **Never outline or frame a scene** — scenes float freely in whitespace
+### Layer Assembly
+
+| Layer            | Source                                               | Provides                                              |
+| ---------------- | ---------------------------------------------------- | ----------------------------------------------------- |
+| Character sheet  | [§ 2](#2-character-specification)                    | The three characters as standalone figures             |
+| Scene rules      | [§ 3](#3-scene-grammar)                              | Composition, rendering, and constraints for any scene  |
+| Scene prompt     | [§ 4](#4-reusable-base-scenes) or brand `scenes.md`  | Specific poses, objects, and interactions              |
+
+A scene prompt should describe what the characters are _doing_ — posture,
+gaze, position, objects in hand — without re-specifying what they _look like_
+or how scenes are _rendered_. Those belong to layers 1 and 2.
+
+### Verification
+
+After producing an illustration, check every item:
+
+- Exactly white, black, and one or two grays — no other colors, no gradients
+- All three characters present and immediately identifiable
+- Engineer has hoodie ears visible
+- AI Agent has round head with headphones
+- Stakeholder has business attire, no backpack
+- Characters are the same height
+- 2px stroke weight consistent throughout
+- Pure white background — no frames, borders, or background scenery
+- Collaborative posture — no character shown in conflict or dominance
+- Objects (if any) rendered in the same 2px achromatic line-art style
 
 ---
 
@@ -400,7 +454,9 @@ stops being part of the family.
   stay constant.
 - **2px monochrome line-art** for characters, scenes, and icons.
 - **Pure white scene backgrounds.** No frames, panels, or fills.
-- **The Don'ts in [§ 5](#5-character--scene-guidelines).**
+- **Character constraints** ([§ 2](#2-character-specification)) **and scene
+  constraints** ([§ 3](#3-scene-grammar)). The illustration checklist in
+  [§ 5](#5-illustration-checklist) consolidates verification criteria.
 - **Scene grammar** — composition rules, scale conventions, emotional tone
   ([§ 3](#3-scene-grammar)).
 - **Reusable base scenes** — Trio at Work, Welcome Wave, Documentation Dig
