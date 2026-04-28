@@ -39,7 +39,7 @@ graph LR
     P["Plan"] --> D["Do"] --> S["Study"] --> A["Act"] --> P
 ```
 
-- **Plan** — Turn approved `spec.md` (WHAT/WHY) into `design.md` (WHICH/WHERE)
+- **Plan** — Turn approved `spec.md` (WHAT/WHY) into `design-a.md` (WHICH/WHERE)
   then `plan-a.md` (HOW/WHEN) with steps, files, sequencing, risks.
 - **Do** — Execute plans via implementation PRs; run scheduled workflows that
   harden, release, and maintain. Every run captures a trace.

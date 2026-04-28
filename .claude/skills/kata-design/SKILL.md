@@ -57,7 +57,7 @@ is no commitment to implement, and a design has nothing to shape.
       and data structures but not file-level changes, execution ordering, or
       implementation steps (those belong in the plan).
 - [ ] Under 200 lines total.
-- [ ] Clean sub-agent review panel of `design.md` via
+- [ ] Clean sub-agent review panel of `design-a.md` via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,
       **high**, and **medium** finding addressed.
@@ -68,8 +68,31 @@ is no commitment to implement, and a design has nothing to shape.
 
 ## Naming Convention
 
-The design is always **`design.md`**. No variants, no decomposition — if a
-design cannot fit in 200 lines, narrow the spec instead.
+Designs live alongside their spec in `specs/{NNN}-{name}/`.
+
+### Default design
+
+The first (and usually only) design is always **`design-a.md`**. Do not use
+`design.md` or other shorthands — the letter suffix keeps naming consistent
+whether one design or several exist.
+
+### Alternative designs
+
+When exploring competing architectural approaches for the same spec, create
+additional variants using sequential letters:
+
+```
+design-a.md    ← default (always created first)
+design-b.md    ← alternative approach
+design-c.md    ← another alternative
+```
+
+Each variant should open with a brief rationale explaining how it differs from
+design-a. When the design reaches `design approved`, **design-a is the design
+that will be planned** unless the approver explicitly selects a different
+variant.
+
+No decomposition — if a design cannot fit in 200 lines, narrow the spec instead.
 
 ## Writing a Design (WHICH + WHERE)
 
@@ -102,7 +125,7 @@ lifecycle.
 
 ## Reviewing a Design
 
-Evaluate `design.md` against the qualities listed in "Writing a Design" above,
+Evaluate `design-a.md` against the qualities listed in "Writing a Design" above,
 then run the DO-CONFIRM checklist at the top of this skill.
 
 If all criteria are met, recommend approval. If any criterion falls short,
@@ -125,8 +148,8 @@ from prior `staff-engineer` entries.
    stop.
 2. **Study the spec.** Read `spec.md` end to end.
 3. **Research the codebase.** Read the code areas the spec targets.
-4. **Write the design.** Stay under 200 lines. Each architectural choice names a
-   rejected alternative.
+4. **Write the design.** Create `design-a.md`. Stay under 200 lines. Each
+   architectural choice names a rejected alternative.
 5. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
    Tell each reviewer not to invoke `kata-design`. Address every confirmed

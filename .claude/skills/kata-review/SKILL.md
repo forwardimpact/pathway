@@ -54,7 +54,7 @@ optional.
 ## Process
 
 1. **Identify the artifact type.** The caller tells you whether the input is a
-   `spec.md`, a `design.md`, a `plan-a.md` (plus any decomposed parts), or a
+   `spec.md`, a `design-a.md`, a `plan-a.md` (plus any decomposed parts), or a
    code diff (`git diff origin/main...HEAD`). You are spawned cold with no
    back-channel to the caller — if the artifact type or path is genuinely
    ambiguous, return a single **Blocker** finding asking for clarification and
@@ -85,7 +85,7 @@ are review-specific additions on top of the checklist.
 
 Skill: [`kata-spec`](../kata-spec/SKILL.md). No review-specific deltas.
 
-### design.md
+### design-a.md
 
 Skill: [`kata-design`](../kata-design/SKILL.md). Delta: **over 200 lines is a
 Blocker.**

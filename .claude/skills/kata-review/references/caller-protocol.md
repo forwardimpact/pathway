@@ -16,7 +16,7 @@ enables majority voting.
 | Caller           | Artifact                    | Reviewers |
 | ---------------- | --------------------------- | --------- |
 | `kata-spec`      | `spec.md`                   | 3         |
-| `kata-design`    | `design.md`                 | 3         |
+| `kata-design`    | `design-a.md`               | 3         |
 | `kata-plan`      | `plan-a.md` (+ parts)       | 3         |
 | `kata-implement` | diff (`origin/main...HEAD`) | 5         |
 

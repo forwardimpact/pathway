@@ -27,9 +27,9 @@ advancing to the next phase. Examples:
 
 - **Spec branch** — contains only `spec.md`. Ship the spec. Do not write a
   design or plan.
-- **Design branch** — contains `spec.md` and `design.md`. Ship the design. Do
+- **Design branch** — contains `spec.md` and `design-a.md`. Ship the design. Do
   not write a plan.
-- **Plan branch** — contains `spec.md`, `design.md`, and `plan-a.md`. Ship the
+- **Plan branch** — contains `spec.md`, `design-a.md`, and `plan-a.md`. Ship the
   plan. Do not start implementing.
 - **Implementation branch** — contains code changes implementing an approved
   plan. Ship the implementation.
@@ -90,7 +90,7 @@ phase as approved before proceeding:
 | Deliverable    | Phase update       |
 | -------------- | ------------------ |
 | `spec.md`      | `spec approved`    |
-| `design.md`    | `design approved`  |
+| `design-a.md`  | `design approved`  |
 | `plan-a.md`    | `plan approved`    |
 | Implementation | `plan implemented` |
 

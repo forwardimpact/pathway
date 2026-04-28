@@ -60,7 +60,7 @@ asked for. If they ask for a spec, write the spec and stop.
 ```
 specs/{NNN}-{kebab-case-name}/
   spec.md      WHAT and WHY      (this skill)
-  design.md    WHICH and WHERE   (the `kata-design` skill)
+  design-a.md  WHICH and WHERE   (the `kata-design` skill)
   plan-a.md    HOW and WHEN      (the `kata-plan` skill)
 ```
 
