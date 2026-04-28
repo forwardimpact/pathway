@@ -378,8 +378,3 @@ findings by majority vote; panel size does not change the leaf invariant. See
 Use identical wording for shared structural elements (memory instructions,
 prerequisites, section headings) across all agents and skills — inconsistent
 wording correlates with agents skipping steps in trace analysis.
-
-### SDK caveat
-
-`resume()` does not persist `permissionMode` across resume boundaries — always
-pass all session configuration when calling `resume()`.
