@@ -1,9 +1,7 @@
 ---
 name: sync-teams
-description: Sync recent Microsoft Teams chat messages into ~/.cache/fit/basecamp/teams_chat/ as markdown files using browser automation. Use on a schedule or when the user asks to sync their Teams chats. Requires Teams web app authenticated in Chrome.
-compatibility:
-  requires:
-    - browser-automation
+description: Sync recent Microsoft Teams chat messages into ~/.cache/fit/basecamp/teams_chat/ as markdown files by reading the Teams IndexedDB cache from disk. Use on a schedule or when the user asks to sync their Teams chats. Requires macOS with the Teams desktop app installed.
+compatibility: Requires macOS with Microsoft Teams desktop app (com.microsoft.teams2) installed
 ---
 
 # Sync Teams
@@ -13,31 +11,33 @@ Sync recent Microsoft Teams chat messages into
 pipeline skill — it ingests chat data that other skills (like
 `extract-entities`) consume downstream.
 
-Unlike sync-apple-mail (which reads a local SQLite database), this skill uses
-browser automation against the Teams web app. This means Chrome must be open and
-Teams must be authenticated.
+This skill reads the Teams IndexedDB cache directly from disk — no browser
+automation, no API tokens, no network access needed. The Teams desktop app
+(which uses Edge WebView2) stores conversations and messages in a LevelDB-backed
+IndexedDB at a known location. This skill parses those files, deserializes the
+V8-encoded records, and writes markdown.
 
 ## Trigger
 
 Run this skill on a schedule (every 15 minutes) or when the user asks to sync
-their Teams chats. Skip if Chrome is not available or Teams is not
-authenticated.
+their Teams chats.
 
 ## Prerequisites
 
-- Microsoft Teams web app authenticated in Chrome
-- Browser automation available (Chrome MCP extension)
+- macOS with the Microsoft Teams desktop app installed (`com.microsoft.teams2`)
+- `snappyjs` npm package installed (`npm install snappyjs`)
+- Node.js 20+ (uses `node:v8` built-in for deserialization)
 
 ## Inputs
 
+- `~/Library/Containers/com.microsoft.teams2/Data/Library/Application Support/Microsoft/MSTeams/EBWebView/WV2Profile_tfw/IndexedDB/https_teams.microsoft.com_0.indexeddb.leveldb/` — Teams IndexedDB (LevelDB on disk)
 - `~/.cache/fit/basecamp/state/teams_last_sync` — ISO timestamp of last sync
 - `~/.cache/fit/basecamp/state/teams_chat_index.tsv` — index of known chats
-  (chat_slug, display_name, last_message_timestamp)
 
 ## Outputs
 
-- `~/.cache/fit/basecamp/teams_chat/{person-slug}.md` — one markdown file per
-  1:1 chat (overwritten each sync with current state)
+- `~/.cache/fit/basecamp/teams_chat/{slug}.md` — one markdown file per chat
+  (overwritten each sync with current state)
 - `~/.cache/fit/basecamp/state/teams_last_sync` — updated with sync timestamp
 - `~/.cache/fit/basecamp/state/teams_chat_index.tsv` — updated chat index
 
@@ -45,121 +45,63 @@ authenticated.
 
 ## Implementation
 
-### Step 0: Preflight
+Run the sync as a single Node.js script:
 
-1. Check `~/.cache/fit/basecamp/state/teams_last_sync`. If synced less than 10
-   minutes ago, report "recently synced" and stop.
-2. Create output directory if it doesn't exist:
-   `mkdir -p ~/.cache/fit/basecamp/teams_chat`
+    node scripts/sync.mjs [--days N]
 
-### Step 1: Open Teams
+- `--days N` — only include messages from the last N days (default: 30)
 
-1. Call `tabs_context_mcp` to get current browser tabs.
-2. Look for an existing tab with URL matching `teams.microsoft.com`. Note it but
-   **do not reuse it** — the user may be actively working in it.
-3. Create a **new tab** with `tabs_create_mcp` and navigate to
-   `https://teams.microsoft.com/v2/`.
-4. Wait 2–3 seconds for the page to load.
-5. Use `read_page` (depth 3) to verify Teams loaded. Look for:
-   - Navigation element with "Chat" button → authenticated, ready
-   - Login form or SSO redirect → report "Teams not authenticated" and stop
+The script:
 
-### Step 2: Read Chat List
+1. Reads all LevelDB `.ldb` (SSTable) and `.log` (write-ahead log) files from
+   the Teams IndexedDB directory
+2. Decompresses Snappy-compressed blocks and deserializes V8-encoded values
+   using Node's built-in `v8.deserialize()`
+3. Extracts conversation records (with member lists, topics, chat type) and
+   message records (with sender names, HTML content, timestamps)
+4. Groups messages by conversation, filters by date window, and converts HTML
+   content to plain text
+5. Writes one markdown file per chat to `~/.cache/fit/basecamp/teams_chat/`
+6. Updates sync state (timestamp and chat index)
 
-The Teams sidebar organizes chats into a **tree widget** with custom sections.
-The user's chat list is NOT a flat recent-chats list — it has sections like
-"Senior leaders", "Recruitment", "Pins", "Chats", "Teams and channels", etc.
+### Architecture
 
-1. Navigate to the Chat section (click the Chat button in the left nav, or it
-   may already be showing).
-2. Use `read_page` at **depth 5** on the sidebar tree to read chat entries. The
-   tree structure is:
-   ```
-   tree [ref_XX]
-     treeitem [section]
-       generic "{Section Name}" (e.g., "Pins", "Chats")
-       group
-         treeitem [chat entry]
-           img "{status}" (Available, Offline, Away, Out of office)
-           generic "{Person Name}" (e.g., "Smith, Jane")
-           generic "{date}" (e.g., "03-04", "17-06-2025")
-   ```
-3. Identify **1:1 chats** by their structure:
-   - **1:1 chat:** Single person name + status icon (Available/Offline/Away/OOO)
-   - **Group chat:** Multiple names or "+N" suffix (e.g., "Hook, Jamie, +4")
-   - **Meeting chat:** Descriptive title (e.g., "Weekly standup", "Accord tech
-     review")
-   - **Bot chat:** Button element with "Bot" in text (e.g., "DX Bot Available")
-   - Skip group chats, meeting chats, and bots.
-4. Collect the top 15 most recent 1:1 chats across all sections ("Pins" and
-   "Chats" are the primary sources).
+Three modules, following the same pattern as `sync-apple-mail`:
 
-### Step 3: Read Messages from Each Chat
+| Module | Purpose |
+|--------|---------|
+| `scripts/leveldb-reader.mjs` | Parse LevelDB SSTable and WAL files. Handles Snappy decompression. No external dependencies except `snappyjs`. |
+| `scripts/idb-reader.mjs` | Chromium IndexedDB layer. Strips Blink envelope, calls `v8.deserialize()`, classifies records as conversations or messages. |
+| `scripts/sync.mjs` | Main sync script. Reads data, groups by conversation, normalizes names, writes markdown and state. |
 
-For each chat to sync (up to 10 per run to keep runtime reasonable):
+### How It Works
 
-1. **Click** the chat treeitem to open it. Wait 1–2 seconds for messages to
-   load.
-2. **Read the accessibility tree** for timestamps and sender attribution:
-   - Use `read_page` with `ref_id` targeting the message pane, **depth 10**.
-   - Message structure in the accessibility tree:
-     ```
-     group [message]
-       generic "{Sender, Name}"         ← sender (Last, First format)
-       generic "{Full timestamp}."      ← e.g., "Tuesday, March 24, 2026 5:41 PM."
-       generic "Edited {timestamp}"     ← optional edit indicator
-       button "More message options"
-       generic "{message text}"         ← truncated to ~100 chars
-     ```
-   - Timestamps appear in several formats:
-     - Full: `"Tuesday, March 24, 2026 5:41 PM."`
-     - Relative: `"Yesterday at 2:22 PM."`, `"Thursday, April 2, 2026 1:39 PM."`
-   - Convert all relative timestamps to absolute dates using today's date.
-3. **Read the full message text** using JavaScript:
+The Teams desktop app uses Edge WebView2 internally. WebView2 stores IndexedDB
+data in LevelDB (the same way Chrome does). The key databases are:
 
-   ```javascript
-   const pane = document.querySelector('[data-tid="message-pane-layout"]');
-   pane.innerText;
-   ```
+- **conversation-manager** — stores conversation metadata: ID, type (Chat vs
+  Thread), members, topic, last message time
+- **replychain-manager** — stores actual messages: sender display name, HTML
+  content, timestamps, reactions, edit status
 
-   - **IMPORTANT:** The `innerText` response truncates around 2000–2500 chars.
-     Read in chunks: `text.substring(0, 2500)`, `text.substring(2500, 5000)`,
-     etc., until you've captured the full content.
-   - The total text length is available via `pane.innerText.length`.
+Since LevelDB is an append-only format, files can be read while Teams is
+running. Newer `.ldb` files supersede older ones for the same records.
 
-4. **Parse the innerText.** Messages appear in this pattern:
+### Name Resolution
 
-   ```
-   {heading preview}... by {Sender, Name}   ← STRIP this line (navigation heading)
-   {Sender, Name}                           ← sender
-   {timestamp}                              ← time or date
-   [Edited]                                 ← optional
+Teams conversation records don't store human-readable member names — only orgid
+identifiers. Display names are resolved from:
 
-   {message body}                           ← actual content (may span multiple lines)
-   ```
+1. **Conversation topic** (for named group chats)
+2. **Message sender names** (`imDisplayName` field) — for 1:1 chats, the chat is
+   named after the other participant(s)
 
-   - Day markers appear as standalone lines: `"Thursday"`, `"Yesterday"`,
-     `"Wednesday, March 18"`, `"Last read"`.
-   - Strip: heading preview lines (`"... by {Name}"`), reaction counts
-     (`"1 Laugh reaction."`), `"has context menu"`, `"Last read"`.
+## Output Format
 
-5. **Correlate** the accessibility tree (reliable timestamps) with innerText
-   (full message bodies) by matching sender names and message order.
-6. **Normalize sender names** from "Last, First" to "First Last" to match the
-   knowledge graph convention.
+Each `{slug}.md` file follows the same format as the previous browser-based
+implementation:
 
-**IMPORTANT:** `get_page_text` does NOT work for Teams — it returns an error
-because Teams is a web app, not an article. Always use `read_page` +
-`javascript_tool` with `[data-tid="message-pane-layout"]`.
-
-### Step 4: Write Output
-
-For each chat with messages, write a markdown file.
-
-**Filename:** `{person-slug}.md` where `person-slug` is the lowercase,
-hyphenated first-last name (e.g., `jane-smith.md`, not `smith-jane.md`).
-
-**Format:**
+**1:1 chat:**
 
 ```markdown
 # Chat with {First Last}
@@ -170,84 +112,65 @@ hyphenated first-last name (e.g., `jane-smith.md`, not `smith-jane.md`).
 ---
 
 ### {Sender First Last}
-**Date:** {YYYY-MM-DD HH:MM}
+**Date:** {YYYY-MM-DD HH:MM:SS}
 
 {message content}
 
 ---
+```
+
+**Group chat:**
+
+```markdown
+# Chat: {Topic} (group)
+
+**Platform:** Microsoft Teams
+**Type:** Group chat
+**Participants:** {Name1}, {Name2}, ...
+**Last Synced:** {YYYY-MM-DD}
+
+---
 
 ### {Sender First Last}
-**Date:** {YYYY-MM-DD HH:MM}
+**Date:** {YYYY-MM-DD HH:MM:SS}
 
 {message content}
 ```
 
 Key conventions:
 
-- Messages in **chronological order** (oldest first), matching the email thread
-  format so `extract-entities` processes them consistently.
-- **Normalize names** from Teams format ("Last, First") to knowledge graph
-  format ("First Last").
-- **Platform** line distinguishes Teams from email in downstream processing.
-- **Plain text only** — strip formatting, emoji reactions, read receipts, and
-  system messages (e.g., "{Name} added {Name} to the chat").
-- Skip messages that are purely system-generated (joins, leaves, calls).
-
-### Step 5: Update State
-
-1. Update `~/.cache/fit/basecamp/state/teams_last_sync` with current ISO
-   timestamp.
-2. Update `~/.cache/fit/basecamp/state/teams_chat_index.tsv` with one row per
-   synced chat:
-   ```
-   {person-slug}\t{Display Name}\t{last_message_iso_timestamp}
-   ```
-3. Navigate the tab to `about:blank` or close it (note: `window.close()` may not
-   work from content scripts — navigating to `about:blank` is a reliable
-   alternative).
-
-### Step 6: Report
-
-```
-Decision: {what was observed — N recent chats, M with new messages}
-Action: Synced {M} chats to ~/.cache/fit/basecamp/teams_chat/
-```
+- Messages in **chronological order** (oldest first)
+- **Normalize names** from Teams format ("Last, First") to "First Last"
+- **Platform** line distinguishes Teams from email in downstream processing
+- **Plain text only** — HTML is stripped, mentions are preserved as plain text
+- Skip system messages (calls, member adds/removes, topic changes)
 
 ## Error Handling
 
-- Chrome not available → report and stop
-- Teams not authenticated → report "sign in manually" and stop
-- `get_page_text` returns error → expected; use `read_page` + `javascript_tool`
-- `[data-tid="message-pane-layout"]` not found → messages haven't loaded; wait
-  and retry once
-- JavaScript `innerText` returns empty → chat has no messages; skip
-- Tab closed unexpectedly → report and stop (don't retry)
-- Chat fails to load → skip that chat, continue with others
-- Empty chat (no messages) → skip, don't write a file
-- After 3 consecutive failures reading chats → stop the run, report partial
-  results
+- Teams app not installed → report and stop
+- IndexedDB directory missing → report and stop
+- LevelDB file parse error → skip that file, continue with others
+- V8 deserialization failure → skip that record, continue
+- Snappy decompression failure → skip that block, continue
+- Empty chat (no messages in window) → skip, don't write a file
 - Always update sync state, even on partial success
 
 ## Constraints
 
-- **Read-only.** Never send messages, react, or modify anything in Teams.
-- **New tab only.** Always open a fresh tab — never take over a tab the user
-  might be working in.
-- **1:1 chats only** (group chats and channels are future work).
-- **Maximum 10 chats per run** to keep runtime under 5 minutes.
-- **Maximum 50 messages per chat** (visible + one scroll-up).
-- **No screenshots saved** unless debugging — respect chat privacy.
+- **Read-only.** Never writes to the Teams IndexedDB or sends messages.
+- **Cache-dependent.** Only conversations cached locally by Teams are available.
+  This covers recently viewed chats, not full history.
+- **Both 1:1 and group chats** are synced (channels are excluded).
+- **No message limit per chat** — all cached messages within the `--days` window
+  are included.
 
-## Future: Graph API Upgrade Path
+## Limitations
 
-The browser automation approach works but is inherently slow and fragile. When
-Graph API access becomes available (requires Azure AD app registration or
-delegated token), the implementation section can be replaced with:
-
-```
-GET https://graph.microsoft.com/v1.0/me/chats?$top=20&$orderby=lastMessagePreview/createdDateTime desc
-GET https://graph.microsoft.com/v1.0/me/chats/{chat-id}/messages?$top=50
-```
-
-The output format and state tracking stay the same — only the data source
-changes. This swap should be transparent to downstream skills.
+- The IndexedDB is a **cache, not an archive**. Only conversations the user has
+  recently opened in Teams will have cached message data. Older conversations
+  that haven't been opened may have conversation metadata but no messages.
+- Clearing the Teams cache (a common troubleshooting step) will temporarily
+  remove all local data until Teams rebuilds it from the server.
+- Some V8-serialized records (~17% in testing) use formats that `v8.deserialize()`
+  cannot decode. These are silently skipped — they are typically IndexedDB
+  metadata, not conversation or message records.

@@ -214,7 +214,7 @@ Available skills (grouped by function):
 | --------------------- | ------------------------------------------ |
 | `sync-apple-mail`     | Sync Mail threads to `.md` via SQLite      |
 | `sync-apple-calendar` | Sync Calendar events to `.json` via SQLite |
-| `sync-teams`          | Sync Teams chat messages via browser       |
+| `sync-teams`          | Sync Teams chat messages via IndexedDB     |
 
 **Knowledge graph** — build and maintain structured notes:
 
@@ -244,6 +244,7 @@ Available skills (grouped by function):
 | `send-chat`            | Send chat messages via browser automation |
 | `meeting-prep`         | Briefings for upcoming meetings           |
 | `create-presentations` | Generate PDF slide decks                  |
+| `create-documents`     | Generate PDF documents (A4)               |
 | `doc-collab`           | Document creation and editing             |
 
 ## User Identity
