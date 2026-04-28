@@ -130,32 +130,35 @@ gradients.
 
 ### Scene Rendering
 
-| Property   | Specification                                                   |
-| ---------- | --------------------------------------------------------------- |
-| Palette    | White, black, one or two grays — nothing else                   |
-| White      | Dominant value. Most of the image is white, not gray.           |
-| Background | Pure white — no fills, textures, or shading                     |
-| Ground     | Implied by positioning — no drawn ground line                   |
-| Objects    | 2px black stroke, light flat gray. Simpler than characters.     |
-| Fills      | Flat only — no gradients, no shading, no tinting                |
-| Detail     | Minimum strokes needed. No hatching, no texture, no decoration. |
+| Property   | Specification                                                                                                                                                |
+| ---------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| Palette    | White, black, one or two grays — nothing else                                                                                                                |
+| White      | Dominant value. Most of the image is white, no large gray surfaces.                                                                                          |
+| Background | Pure white — no fills, textures, or shading                                                                                                                  |
+| Ground     | Implied by positioning — no drawn ground line, no ground plane, no floor shadow, no scattered objects on the ground. Characters float on white.              |
+| Objects    | 2px black stroke, light flat gray. Simpler than characters. Only objects named in the scene prompt — never add extra props, debris, or environmental detail. |
+| Fills      | Flat only — no gradients, no shading, no tinting                                                                                                             |
+| Detail     | Minimum strokes needed. No hatching, no texture, no decoration.                                                                                              |
 
 ### Composition
 
-| Rule     | Specification                                                  |
-| -------- | -------------------------------------------------------------- |
-| Grouping | Characters tight, centered — reads as one cluster              |
-| Space    | Generous white space around the cluster                        |
-| Framing  | Floats freely — never outlined or bordered                     |
-| Scale    | 120px (cards) to 480px+ (hero)                                 |
-| Tone     | Curious, conspiratorial, scrappy — three people who chose this |
+| Rule     | Specification                                                                                                                   |
+| -------- | ------------------------------------------------------------------------------------------------------------------------------- |
+| Grouping | Shoulders overlapping or nearly touching — one cluster, not three separate figures. No vertical gap between any two characters. |
+| Space    | Generous white space around the cluster                                                                                         |
+| Framing  | Floats freely — never outlined or bordered                                                                                      |
+| Scale    | 120px (cards) to 480px+ (hero)                                                                                                  |
+| Tone     | Curious, conspiratorial, scrappy — three people who chose this                                                                  |
 
 ### Constraints
 
 - **Identity** — each character keeps its [§ 2](#2-character-specification)
-  traits. Never swap accessories or features between characters.
+  traits. Never swap accessories or features between characters. The Stakeholder
+  never has a backpack — absence is their identifier. The Engineer always has
+  one.
 - **Foreground** — characters are the most detailed elements. Background objects
-  are lighter, simpler, behind.
+  use fewer strokes, lighter gray, and smaller scale than characters. If a
+  background element is as bold as a character, simplify it.
 - **Collaborative** — never show conflict.
 - **Monochrome** — gray for differentiation, never hues.
 - **Laptops when seated** — seated characters always have laptops.
@@ -250,34 +253,15 @@ without restating it.
 
 ### Layer Assembly
 
-| Layer           | Source                                              | Provides                                              |
-| --------------- | --------------------------------------------------- | ----------------------------------------------------- |
-| Character sheet | [§ 2](#2-character-specification)                   | The three characters as standalone figures            |
-| Scene rules     | [§ 3](#3-scene-grammar)                             | Composition, rendering, and constraints for any scene |
-| Scene prompt    | [§ 4](#4-reusable-base-scenes) or brand `scenes.md` | Specific poses, objects, and interactions             |
+| #   | Layer           | Source                                              | Provides                                              |
+| --- | --------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| 1   | Character sheet | [§ 2](#2-character-specification)                   | The three characters as standalone figures            |
+| 2   | Scene rules     | [§ 3](#3-scene-grammar)                             | Composition, rendering, and constraints for any scene |
+| 3   | Scene prompt    | [§ 4](#4-reusable-base-scenes) or brand `scenes.md` | Specific poses, objects, and interactions             |
 
 A scene prompt should describe what the characters are _doing_ — posture, gaze,
 position, objects in hand — without re-specifying what they _look like_ or how
 scenes are _rendered_. Those belong to layers 1 and 2.
-
-### Verification
-
-After producing an illustration, check every item:
-
-- Exactly white, black, and one or two grays — no other colors, no gradients
-- White is the dominant value — most of the image area is white, not gray
-- All three characters present and immediately identifiable
-- Engineer has hoodie ears visible
-- AI Agent has round head with headphones
-- Stakeholder has business attire, no backpack
-- No traits swapped between characters (e.g. backpack on Stakeholder, crossed
-  arms on the wrong figure)
-- Characters are the same height
-- Characters are the most detailed elements — background objects are simpler
-- 2px stroke weight consistent throughout
-- Pure white background — no frames, borders, or background scenery
-- Collaborative posture — no character shown in conflict or dominance
-- Objects (if any) rendered in the same 2px achromatic line-art style
 
 ---
 
