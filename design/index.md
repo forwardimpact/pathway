@@ -50,17 +50,17 @@ generated, characters appear in scenes governed by [§ 3](#3-scene-grammar).
 
 ### Rendering
 
-Characters use exactly four values — white, black, and one or two grays.
-No other colors, no gradients.
+Characters use exactly four values — white, black, and one or two grays. No
+other colors, no gradients.
 
-| Property   | Specification                                                                                            |
-| ---------- | -------------------------------------------------------------------------------------------------------- |
+| Property   | Specification                                                                                                                                                    |
+| ---------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | Palette    | White for all primary surfaces. Black for all lines and strokes. One or two neutral grays for secondary surfaces (clothing, hair, accessories). No other values. |
-| Stroke     | 2px, pure black. No brown-black, no warm black, no dark-gray strokes.                                    |
-| Fills      | Flat only. No gradients, no soft shading, no drop shadows, no gradient fills.                            |
-| Style      | Hand-drawn line art — like a working notebook sketch. Slightly irregular strokes, not vector-perfect.     |
-| Background | Transparent or pure white. Characters are drawn without scene context when generated as a character sheet. |
-| Color      | None. Zero hue. Strictly achromatic. No brown, no tan, no ochre, no sepia, no cream, no beige, no warm tone of any kind. |
+| Stroke     | 2px, pure black. No brown-black, no warm black, no dark-gray strokes.                                                                                            |
+| Fills      | Flat only. No gradients, no soft shading, no drop shadows, no gradient fills.                                                                                    |
+| Style      | Hand-drawn line art — like a working notebook sketch. Slightly irregular strokes, not vector-perfect.                                                            |
+| Background | Transparent or pure white. Characters are drawn without scene context when generated as a character sheet.                                                       |
+| Color      | None. Zero hue. Strictly achromatic. No brown, no tan, no ochre, no sepia, no cream, no beige, no warm tone of any kind.                                         |
 
 ### Shared Traits
 
@@ -124,9 +124,9 @@ This section defines the rules for composing any scene with the characters from
 objects, and interactions — they should not restate these rules.
 
 The entire scene uses the same small palette as the character sheet in
-[§ 2](#2-character-specification): white for primary surfaces, black for
-lines, and one or two neutral grays for secondary surfaces. No other
-values, no gradients.
+[§ 2](#2-character-specification): white for primary surfaces, black for lines,
+and one or two neutral grays for secondary surfaces. No other values, no
+gradients.
 
 ### Scene Rendering
 
@@ -142,20 +142,20 @@ values, no gradients.
 
 ### Composition
 
-| Rule      | Specification                                                    |
-| --------- | ---------------------------------------------------------------- |
-| Grouping  | Characters tight, centered — reads as one cluster                |
-| Space     | Generous white space around the cluster                          |
-| Framing   | Floats freely — never outlined or bordered                       |
-| Scale     | 120px (cards) to 480px+ (hero)                                   |
-| Tone      | Curious, conspiratorial, scrappy — three people who chose this   |
+| Rule     | Specification                                                  |
+| -------- | -------------------------------------------------------------- |
+| Grouping | Characters tight, centered — reads as one cluster              |
+| Space    | Generous white space around the cluster                        |
+| Framing  | Floats freely — never outlined or bordered                     |
+| Scale    | 120px (cards) to 480px+ (hero)                                 |
+| Tone     | Curious, conspiratorial, scrappy — three people who chose this |
 
 ### Constraints
 
 - **Identity** — each character keeps its [§ 2](#2-character-specification)
   traits. Never swap accessories or features between characters.
-- **Foreground** — characters are the most detailed elements. Background
-  objects are lighter, simpler, behind.
+- **Foreground** — characters are the most detailed elements. Background objects
+  are lighter, simpler, behind.
 - **Collaborative** — never show conflict.
 - **Monochrome** — gray for differentiation, never hues.
 - **Laptops when seated** — seated characters always have laptops.
@@ -236,10 +236,10 @@ book on the table. Loose papers scattered on the floor under and around the
 table.
 
 **Key details:** Three speeds of documentation work: Engineer still deciphering
-a single page, Agent already organized, Stakeholder already found the answer
-and is pointing it out. The loose papers on the floor beneath the table are the
-punchline — documentation is messy work. Agent's neat stack in the center is
-the visual anchor between Engineer's confusion and Stakeholder's confidence.
+a single page, Agent already organized, Stakeholder already found the answer and
+is pointing it out. The loose papers on the floor beneath the table are the
+punchline — documentation is messy work. Agent's neat stack in the center is the
+visual anchor between Engineer's confusion and Stakeholder's confidence.
 
 ---
 
@@ -250,15 +250,15 @@ without restating it.
 
 ### Layer Assembly
 
-| Layer            | Source                                               | Provides                                              |
-| ---------------- | ---------------------------------------------------- | ----------------------------------------------------- |
-| Character sheet  | [§ 2](#2-character-specification)                    | The three characters as standalone figures             |
-| Scene rules      | [§ 3](#3-scene-grammar)                              | Composition, rendering, and constraints for any scene  |
-| Scene prompt     | [§ 4](#4-reusable-base-scenes) or brand `scenes.md`  | Specific poses, objects, and interactions              |
+| Layer           | Source                                              | Provides                                              |
+| --------------- | --------------------------------------------------- | ----------------------------------------------------- |
+| Character sheet | [§ 2](#2-character-specification)                   | The three characters as standalone figures            |
+| Scene rules     | [§ 3](#3-scene-grammar)                             | Composition, rendering, and constraints for any scene |
+| Scene prompt    | [§ 4](#4-reusable-base-scenes) or brand `scenes.md` | Specific poses, objects, and interactions             |
 
-A scene prompt should describe what the characters are _doing_ — posture,
-gaze, position, objects in hand — without re-specifying what they _look like_
-or how scenes are _rendered_. Those belong to layers 1 and 2.
+A scene prompt should describe what the characters are _doing_ — posture, gaze,
+position, objects in hand — without re-specifying what they _look like_ or how
+scenes are _rendered_. Those belong to layers 1 and 2.
 
 ### Verification
 

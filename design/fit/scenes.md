@@ -24,9 +24,9 @@ For the FIT brand context — palette, typography, product taxonomy — see
 All three standing behind a large map spread flat at waist height, leaning
 forward to study it together. Engineer (left) has both hands resting on the map
 edge, head down, studying a route. AI Agent (center) leans forward with both
-hands on the map, head angled to read the terrain. Stakeholder (right) leans
-in, hands on the map edge, engaged. The map shows location pins connected by
-route lines — the topology they're all trying to read.
+hands on the map, head angled to read the terrain. Stakeholder (right) leans in,
+hands on the map edge, engaged. The map shows location pins connected by route
+lines — the topology they're all trying to read.
 
 **Key details:** All three gazes converge on the same map — nobody is pointing
 at a different spot, nobody is leading. The huddle is tight, shoulders nearly
@@ -51,15 +51,14 @@ or three peaks in the background rendered in light gray with a winding trail
 visible on the slopes. Engineer (left) has one foot up on a rock, right hand
 pointing enthusiastically at the summit — eager to move. AI Agent (center)
 stands on flat ground, one hand raised pointing in the same direction —
-confirming the route. Stakeholder (right) stands flat-footed, arms folded
-across chest, calm smile — already knows the way.
+confirming the route. Stakeholder (right) stands flat-footed, arms folded across
+chest, calm smile — already knows the way.
 
 **Key details:** Engineer and Agent both point upward — shared momentum and
 enthusiasm. Stakeholder's folded arms and flat feet are the counterweight:
 confident, not rushing. The mountains are the visual focus with a winding trail
-threading up the slopes. The trio is at the starting point, not yet on the
-trail — anticipation, not motion. Engineer's raised foot on the rock says
-"let's go."
+threading up the slopes. The trio is at the starting point, not yet on the trail
+— anticipation, not motion. Engineer's raised foot on the rock says "let's go."
 
 ## Scene: Basecamp — Setting Up Camp
 
@@ -77,15 +76,15 @@ Trio assembling an A-frame tent with crossed poles at the apex. The tent is
 half-built, fabric panels in gray. Engineer (left) grips a tent pole with both
 hands, pulling it into position — small motion lines on the backpack suggest
 physical effort. AI Agent (center) holds the crossed poles at the top with both
-hands, body braced, stabilizing the structure. Stakeholder (right) stands
-beside the tent holding the fabric flap open with one hand, inspecting the
-interior. A small triangular pennant lies on the ground near the tent entrance.
+hands, body braced, stabilizing the structure. Stakeholder (right) stands beside
+the tent holding the fabric flap open with one hand, inspecting the interior. A
+small triangular pennant lies on the ground near the tent entrance.
 
 **Key details:** Three different relationships to the work: Engineer straining
 against the pole (builder), Agent stabilizing the frame (systematic),
 Stakeholder examining what the space will become (domain owner). Nobody is
-inside the tent — all three are external, assembling it together. The pennant
-on the ground is a promise: they'll plant it once the structure is ready.
+inside the tent — all three are external, assembling it together. The pennant on
+the ground is a promise: they'll plant it once the structure is ready.
 
 ## Scene: Guide — Finding North
 
@@ -99,10 +98,10 @@ on the ground is a promise: they'll plant it once the structure is ready.
 
 Trio standing tightly together, all facing the viewer. AI Agent (center) holds
 up a large compass at chest height with both hands, head angled down studying
-the needle. Engineer (left) leans in close, one hand gripping their own
-backpack strap, crowding the Agent to see the reading. Stakeholder (right)
-leans in from the other side, one hand on chin — studying the compass with
-quiet concentration. Shoulders overlapping, bodies pressed close.
+the needle. Engineer (left) leans in close, one hand gripping their own backpack
+strap, crowding the Agent to see the reading. Stakeholder (right) leans in from
+the other side, one hand on chin — studying the compass with quiet
+concentration. Shoulders overlapping, bodies pressed close.
 
 **Key details:** The compass is the shared focal point at the center of a tight
 huddle. Engineer grips their backpack strap and crowds in — no concept of
@@ -182,5 +181,5 @@ trail.
 | Loading states               | AI Agent + compass       | 48–80px   |
 
 **Asset status:** Hero illustrations exist in `design/fit/scenes/` for Map,
-Pathway, Guide, Basecamp, and Documentation Dig. Landmark and Summit scenes
-are specified above but not yet illustrated.
+Pathway, Guide, Basecamp, and Documentation Dig. Landmark and Summit scenes are
+specified above but not yet illustrated.
