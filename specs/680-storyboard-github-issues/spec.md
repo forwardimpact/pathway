@@ -28,32 +28,31 @@ but they bypass the issue system entirely.
 
 ### In scope
 
-| Area | Change |
-| ---- | ------ |
-| GitHub issue types | Add `Experiment` and `Obstacle` issue types to the `forwardimpact` organization |
-| Storyboard format | Replace inline experiment/obstacle content with lightweight issue references |
-| `kata-session` skill | Update storyboard template and facilitator process to create/reference issues |
-| Storyboard workflow | Add `issues: write` permission to `kata-storyboard.yml` |
-| PM triage bypass | Exclude Experiment and Obstacle issues from the product-manager's triage gate |
-| Coordination channels | Define single-source-of-truth ownership for experiment/obstacle state |
+| Area                  | Change                                                                            |
+| --------------------- | --------------------------------------------------------------------------------- |
+| GitHub issue labels   | Add `experiment` and `obstacle` labels to the repository                          |
+| Storyboard format     | Replace inline experiment/obstacle content with lightweight issue references      |
+| `kata-session` skill  | Update storyboard template and facilitator process to create/reference issues     |
+| Storyboard workflow   | Add `issues: write` permission to `kata-storyboard.yml`                           |
+| PM triage bypass      | Exclude `experiment` and `obstacle` issues from the product-manager's triage gate |
+| Coordination channels | Define single-source-of-truth ownership for experiment/obstacle state             |
 
 ### Out of scope
 
-| Area | Reason |
-| ---- | ------ |
-| Individual agent workflow permissions | Only the storyboard workflow creates/comments on experiment issues; agents do not comment during solo runs |
-| Challenge / Target Condition / Current Condition sections | These are storyboard-native — they summarize team state, not individual work items |
-| Existing concluded experiments | Already archived; no backfill |
-| GitHub Projects boards | Optional future enhancement, not required for this change |
+| Area                                                      | Reason                                                                                                     |
+| --------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------- |
+| Individual agent workflow permissions                     | Only the storyboard workflow creates/comments on experiment issues; agents do not comment during solo runs |
+| Challenge / Target Condition / Current Condition sections | These are storyboard-native — they summarize team state, not individual work items                         |
+| Existing concluded experiments                            | Already archived; no backfill                                                                              |
+| GitHub Projects boards                                    | Optional future enhancement, not required for this change                                                  |
 
 ## What Changes
 
-### Issue types
+### Issue labels
 
-Two new GitHub issue types — `Experiment` and `Obstacle` — are added to the
-`forwardimpact` organization alongside the existing Task, Bug, and Feature
-types. Each experiment or obstacle becomes a GitHub issue with the corresponding
-type.
+Two new GitHub labels — `experiment` and `obstacle` — are added to the
+repository. Each experiment or obstacle becomes a GitHub issue with the
+corresponding label applied at creation.
 
 ### Storyboard format
 
@@ -72,8 +71,8 @@ learn, Next step) lives in the issue body. All other storyboard sections
 experiments by "Exp N" with the issue link in parentheses.
 
 Concluded items follow the existing 7-day retention rule — the storyboard entry
-rolls off, but the closed issue remains as a permanent, searchable archive.
-This is strictly better than the current git-history-only archive.
+rolls off, but the closed issue remains as a permanent, searchable archive. This
+is strictly better than the current git-history-only archive.
 
 ### Channel ownership
 
@@ -101,23 +100,23 @@ prevent competing sources of truth across the five coordination channels:
 Experiment and Obstacle issues are process-improvement artifacts, not product
 work. The product-manager agent's triage gate must exclude them entirely:
 
-- Experiment and Obstacle issues do not enter the PM's P1/P2/P3 buckets.
-- `kata-product-issue` does not classify, label, or write specs for them.
-- The `open_issues` metric counts only product work (Task, Bug, Feature types).
-  Experiment and Obstacle issues are excluded so that existing XmR process
-  limits and signals remain valid.
+- Issues labeled `experiment` or `obstacle` do not enter the PM's P1/P2/P3
+  buckets.
+- `kata-product-issue` does not classify or write specs for them.
+- The `open_issues` metric excludes issues with `experiment` or `obstacle`
+  labels so that existing XmR process limits and signals remain valid.
 
 ### Experiments link to obstacles
 
-Each experiment issue references its parent obstacle issue in the body.
-GitHub renders this as a bidirectional cross-reference, giving each obstacle a
-visible list of its related experiments.
+Each experiment issue references its parent obstacle issue in the body. GitHub
+renders this as a bidirectional cross-reference, giving each obstacle a visible
+list of its related experiments.
 
 ### Workflow permissions
 
-The `kata-storyboard.yml` workflow gains `issues: write` permission. This is
-the only workflow that creates or comments on experiment/obstacle issues —
-the improvement coach posts on behalf of agents during facilitated sessions.
+The `kata-storyboard.yml` workflow gains `issues: write` permission. This is the
+only workflow that creates or comments on experiment/obstacle issues — the
+improvement coach posts on behalf of agents during facilitated sessions.
 Individual agent workflows are unchanged.
 
 ### Migration
@@ -128,12 +127,12 @@ experiments that have already rolled off need no action.
 
 ## Success Criteria
 
-| # | Criterion | Verification |
-| - | --------- | ------------ |
-| 1 | `Experiment` and `Obstacle` issue types exist in the `forwardimpact` organization | `gh api graphql` query returns both types |
-| 2 | The storyboard template uses one-line issue references with `Exp N (#NNN)` format | `wiki/storyboard-YYYY-MNN.md` contains issue-linked references, no inline PDSA blocks |
-| 3 | New experiments and obstacles are created as GitHub issues with the correct type | `gh issue list --type Experiment` and `gh issue list --type Obstacle` return issues created during a storyboard session |
-| 4 | The improvement coach comments on experiment issues during storyboard sessions | Issue timeline shows progress comments posted during facilitated sessions |
-| 5 | Experiments reference their parent obstacle issue | Issue body contains an obstacle issue reference and GitHub renders the cross-reference |
-| 6 | PM triage excludes Experiment and Obstacle issues | PM's `gh issue list` survey returns zero Experiment/Obstacle issues; `open_issues` metric is unaffected by their creation |
-| 7 | No content duplication across channels | Weekly wiki logs cite issue URLs without restating PDSA content; storyboard entries are one-liners |
+| #   | Criterion                                                                         | Verification                                                                                                                          |
+| --- | --------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `experiment` and `obstacle` labels exist in the repository                        | `gh label list` returns both labels                                                                                                   |
+| 2   | The storyboard template uses one-line issue references with `Exp N (#NNN)` format | `wiki/storyboard-YYYY-MNN.md` contains issue-linked references, no inline PDSA blocks                                                 |
+| 3   | New experiments and obstacles are created as labeled GitHub issues                | `gh issue list --label experiment` and `gh issue list --label obstacle` return issues created during a storyboard session             |
+| 4   | The improvement coach comments on experiment issues during storyboard sessions    | Issue timeline shows progress comments posted during facilitated sessions                                                             |
+| 5   | Experiments reference their parent obstacle issue                                 | Issue body contains an obstacle issue reference and GitHub renders the cross-reference                                                |
+| 6   | PM triage excludes experiment and obstacle issues                                 | PM's `gh issue list` survey returns zero `experiment`/`obstacle`-labeled issues; `open_issues` metric is unaffected by their creation |
+| 7   | No content duplication across channels                                            | Weekly wiki logs cite issue URLs without restating PDSA content; storyboard entries are one-liners                                    |
