@@ -8,10 +8,10 @@
  * By default, outputs to console. Use --output to write files.
  *
  * Usage:
- *   npx fit-pathway agent <discipline> [--track=<track>]
+ *   npx fit-pathway agent <discipline> --track=<track>
  *   npx fit-pathway agent <discipline> --track=<track> --output=./agents
- *   npx fit-pathway agent <discipline> [--track=<track>] --skills  # Plain list of skill IDs
- *   npx fit-pathway agent <discipline> [--track=<track>] --tools   # Plain list of tool names
+ *   npx fit-pathway agent <discipline> --track=<track> --skills  # Plain list of skill IDs
+ *   npx fit-pathway agent <discipline> --track=<track> --tools   # Plain list of tool names
  *   npx fit-pathway agent --list
  *
  * Examples:
@@ -39,7 +39,7 @@ import {
   formatBullet,
 } from "@forwardimpact/libcli";
 import { toolkitToPlainList } from "../formatters/toolkit/markdown.js";
-import { showAgentSummary, listAgentCombinations } from "./agent-list.js";
+import { listAgentCombinations } from "./agent-list.js";
 import {
   generateClaudeSettings,
   generateVscodeSettings,
@@ -262,8 +262,13 @@ export async function runAgentCommand({
   }
 
   if (args.length === 0) {
-    showAgentSummary(data, agentData, skillsWithAgent);
-    return;
+    process.stderr.write(
+      formatError("Missing required argument: <discipline>") + "\n",
+    );
+    process.stderr.write(
+      "\nUsage: npx fit-pathway agent <discipline> --track=<track>\n",
+    );
+    process.exit(1);
   }
 
   const [disciplineId] = args;
@@ -274,6 +279,16 @@ export async function runAgentCommand({
       formatError(
         `Unexpected argument: ${args[1]}. Did you mean --track=${args[1]}?`,
       ) + "\n",
+    );
+    process.exit(1);
+  }
+
+  if (!trackId) {
+    process.stderr.write(
+      formatError("Missing required option: --track=<track>") + "\n",
+    );
+    process.stderr.write(
+      "\nUsage: npx fit-pathway agent <discipline> --track=<track>\n",
     );
     process.exit(1);
   }

@@ -213,8 +213,8 @@ yourself updating three or more skills, the fact belongs here instead.
 ### Layer 2: Agent Profiles
 
 **Purpose:** Define who the agent is and how it should behave. Each profile is a
-persona with constraints — one agent per discipline (with optional track
-modifier), carrying the full skill matrix for that role.
+persona with constraints — one agent per discipline and track combination,
+carrying the full skill matrix for that role.
 
 **Include:**
 

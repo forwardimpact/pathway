@@ -131,7 +131,7 @@ npx fit-pathway agent <discipline> --track=<track> --tools           # Tool name
 
 | Option           | Description                    |
 | ---------------- | ------------------------------ |
-| `--track=<id>`   | Track ID                       |
+| `--track=<id>`   | Track ID (required)            |
 | `--output=<dir>` | Write agent files to directory |
 | `--list`         | List valid combinations        |
 | `--skills`       | Output skill IDs only          |

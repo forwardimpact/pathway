@@ -87,7 +87,7 @@ describe("getCliCommand", () => {
       getCliCommand("/agent-builder"),
       "npx fit-pathway agent --list",
     );
-    assert.strictEqual(getCliCommand("/agent/se"), "npx fit-pathway agent se");
+    assert.strictEqual(getCliCommand("/agent/se"), "npx fit-pathway");
     assert.strictEqual(
       getCliCommand("/agent/se/backend"),
       "npx fit-pathway agent se --track=backend",

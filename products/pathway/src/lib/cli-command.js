@@ -113,10 +113,6 @@ const ROUTE_COMMANDS = [
     pattern: /^\/agent\/([^/]+)\/([^/]+)$/,
     toCommand: (m) => `npx fit-pathway agent ${m[1]} --track=${m[2]}`,
   },
-  {
-    pattern: /^\/agent\/([^/]+)$/,
-    toCommand: (m) => `npx fit-pathway agent ${m[1]}`,
-  },
 ];
 
 /**

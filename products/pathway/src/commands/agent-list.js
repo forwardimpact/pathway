@@ -76,7 +76,7 @@ export function showAgentSummary(data, agentData, skillsWithAgent) {
   );
   process.stdout.write(
     formatBullet(
-      "Run 'npx fit-pathway agent <discipline> <track>' to generate files",
+      "Run 'npx fit-pathway agent <discipline> --track=<track>' to generate files",
     ) + "\n\n",
   );
 }
@@ -131,7 +131,7 @@ function listAgentCombinationsVerbose(data, agentData) {
   process.stdout.write("\n## Valid combinations:\n\n");
   for (const { discipline, track } of findValidCombinations(data, agentData)) {
     process.stdout.write(
-      `  npx fit-pathway agent ${discipline.id} ${track.id}\n`,
+      `  npx fit-pathway agent ${discipline.id} --track=${track.id}\n`,
     );
   }
 }

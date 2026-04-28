@@ -132,7 +132,7 @@ const definition = {
     },
     {
       name: "agent",
-      args: "[<discipline>]",
+      args: "<discipline>",
       description: "Generate AI agent profile",
       options: {
         track: { type: "string", description: "Track specialization" },
