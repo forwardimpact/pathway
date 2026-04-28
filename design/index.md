@@ -18,6 +18,7 @@ palette, and motif. The contract is in
 
 - [Forward Impact Team (FIT)](fit/index.md) · [scenes](fit/scenes.md) ·
   [icons](fit/icons.md)
+- [Kata](kata/index.md) · [scenes](kata/scenes.md) · [icons](kata/icons.md)
 
 ---
 
@@ -438,7 +439,23 @@ inside the family.
   brand's site.
 - **Product visual language** — UI treatments per product (e.g. progress bar
   styles, dashboard overlays).
+- **Radii values** — concrete `--radius-sm/md/lg` numbers may differ per brand
+  to match the brand's material vocabulary (e.g. journal cards vs stamped
+  paper). Brands diverging on radii must restate the affected component specs in
+  their own `index.md`, since the family's component vocabulary in
+  [§ 9](#9-components) names sizes only by token.
 - **CSS design tokens** — the concrete `:root` realization of the above.
+
+### Cross-brand component contract
+
+Components inherited from [§ 9](#9-components) must reference the family
+**semantic tokens** (`--bg-page`, `--bg-warm`, `--text-primary`,
+`--border-strong`, `--accent-warm-200`, `--accent-warm-400`, etc.), never the
+brand-specific palette tokens (`--sand-200`, `--ink-400`, …). Each brand exposes
+its warm-signal ramp both under a brand-specific name (for use inside that
+brand's docs and worked examples) **and** under the family alias
+`--accent-warm-{50,100,200,400,600}`. Shared component code that targets
+`--accent-warm-*` then renders correctly under any brand's `:root`.
 
 ### File structure
 
