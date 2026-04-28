@@ -196,7 +196,7 @@ attached), not to what Guide can do.
    endpoint. Listing tools on the endpoint with a standard MCP client returns a
    set such that for every tool in `products/guide/starter/tools.yml` at the
    time this spec was written, either (a) the same tool is present on the
-   endpoint, or (b) the tool is recorded as retired in `design.md` with a
+   endpoint, or (b) the tool is recorded as retired in `design-a.md` with a
    rationale. A tool that is neither present nor recorded-as-retired is a failed
    criterion.
 4. **Tool service replaced.** The pre-pivot `services/tool` bespoke gRPC

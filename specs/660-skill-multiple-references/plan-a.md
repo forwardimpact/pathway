@@ -1,6 +1,6 @@
 # Plan 660: Skill Multiple References
 
-See [spec.md](spec.md) and [design.md](design.md). All step references to "§"
+See [spec.md](spec.md) and [design-a.md](design-a.md). All step references to "§"
 point at the design.
 
 ## Approach

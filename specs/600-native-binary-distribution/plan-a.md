@@ -1,6 +1,6 @@
 # Plan 600-A — Native Binary Distribution via Homebrew
 
-See [`spec.md`](./spec.md) for WHAT/WHY and [`design.md`](./design.md) for
+See [`spec.md`](./spec.md) for WHAT/WHY and [`design-a.md`](./design-a.md) for
 WHICH/WHERE. This plan captures HOW to implement and WHEN to sequence changes.
 
 ## Approach

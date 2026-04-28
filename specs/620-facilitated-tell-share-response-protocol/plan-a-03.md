@@ -1,6 +1,6 @@
 # Plan 620a, Part 03 — Coaching workflow + `protocol_violation` invariants
 
-Spec: [`spec.md`](./spec.md). Design: [`design.md`](./design.md). Overview:
+Spec: [`spec.md`](./spec.md). Design: [`design-a.md`](./design-a.md). Overview:
 [`plan-a.md`](./plan-a.md).
 
 ## Scope

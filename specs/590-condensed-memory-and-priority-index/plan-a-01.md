@@ -48,8 +48,8 @@ Section order:
      investigating a priority-index item that names them; weekly log read only
      when the skill is `kata-wiki-curate`, `kata-trace`, `kata-storyboard`, or
      when explicitly investigating a historical decision.
-   - Include the mermaid diagram verbatim from `design.md` (the block currently
-     between lines 37–46 of design.md at the time of writing; copy the fenced
+   - Include the mermaid diagram verbatim from `design-a.md` (the block currently
+     between lines 37–46 of design-a.md at the time of writing; copy the fenced
      block by content, not by line number).
 3. `## During Each Run` — content promoted from today's `### During each run` H3
    (keep the `### Decision` table and the weekly log path rule verbatim; only
@@ -196,7 +196,7 @@ Commit only if all three pass.
 - One commit, conventional commit message:
   `docs(protocol): condense agent memory and add cross-cutting priority index`
 - PR body links to `specs/590-condensed-memory-and-priority-index/spec.md`,
-  `design.md`, and `plan-a-01.md`.
+  `design-a.md`, and `plan-a-01.md`.
 - Sign PR body with `— Staff Engineer 🛠️`.
 
 ## Risks specific to this part

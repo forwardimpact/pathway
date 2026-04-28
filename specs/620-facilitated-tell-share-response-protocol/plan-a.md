@@ -1,6 +1,6 @@
 # Plan 620a — Request–Response Primitives for libeval Orchestration
 
-Spec: [`spec.md`](./spec.md). Design: [`design.md`](./design.md).
+Spec: [`spec.md`](./spec.md). Design: [`design-a.md`](./design-a.md).
 
 ## Approach
 
