@@ -157,8 +157,12 @@ specs merge only the document, not code.
   invariant audit (`.claude/skills/kata-trace/references/invariants.md`) is the
   **enforcement mechanism** for per-agent and cross-cutting rules; high-severity
   failures trigger a fix or spec.
-- **Least privilege.** Read-only workflows use `contents: read`; write workflows
-  use scoped per-run installation tokens.
+- **Least privilege.** The workflow-level `permissions:` block restricts only
+  `GITHUB_TOKEN`, not the App token. All agent workflows set
+  `permissions: contents: write` — the minimum for checkout fallback. The App
+  token carries all coordination-channel permissions (Issues, PRs, Discussions)
+  via its installation settings; adding those to `permissions:` would only widen
+  `GITHUB_TOKEN`'s blast radius.
 - **Main branch CI repair.** See CONTRIBUTING.md for the release engineer's
   direct-to-`main` exception.
 
