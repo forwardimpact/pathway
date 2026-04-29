@@ -85,8 +85,10 @@ source, so every reference must use fully qualified URLs to the `.md` version of
 published pages — agents fetch these to read documentation in context (e.g.
 `https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
 
-Skills sync to `forwardimpact/skills` on push to `main`. External users install
-them with `npx skills add forwardimpact/skills`.
+Skills sync on push to `main`: `fit-*` skills publish to
+`forwardimpact/fit-skills`, `kata-*` skills publish to
+`forwardimpact/kata-skills`. External users install with
+`npx skills add forwardimpact/fit-skills`.
 
 External users install products with `npm install`, bringing their own framework
 data. All CLIs use `#!/usr/bin/env node` — no Bun required.
