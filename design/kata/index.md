@@ -1,12 +1,11 @@
 # Kata — Brand Implementation
 
 > The Kata realization of the [shared design language](../index.md): a
-> monochrome design system for the repo self-maintenance system, built around
-> the metaphor of a **mid-century Toyota production floor**. Six agent personas
-> — the **Staff Engineer**, **Release Engineer**, **Security Engineer**,
-> **Product Manager**, **Technical Writer**, and **Improvement Coach** — work
-> the line together, the way Taiichi Ohno's foremen worked the shop floor in the
-> 1940s and 50s.
+> monochrome design system for the Kata Agent Team, built around the metaphor of
+> a **mid-century Toyota production floor**. Six agent personas — the **Staff
+> Engineer**, **Release Engineer**, **Security Engineer**, **Product Manager**,
+> **Technical Writer**, and **Improvement Coach** — work the line together, the
+> way Taiichi Ohno's foremen worked the shop floor in the 1940s and 50s.
 >
 > The brand evokes the dignity of practiced work: pressed suits, soft flat caps,
 > andon cords, kanban rails, the chalk circle on a polished concrete floor.
@@ -229,9 +228,10 @@ Roboto Slab, 64px, weight 700:
 
 IBM Plex Sans, 18px, weight 400, gray-400:
 
-  Kata is the Forward Impact repo self-maintenance system. Six agent
-  personas walk the line together — planning, shipping, hardening,
-  triaging, documenting, and coaching — one daily kata at a time.
+  The Kata Agent Team is Forward Impact's autonomous and continuously
+  improving agentic development team. Six agent personas walk the line
+  together — planning, shipping, hardening, triaging, documenting, and
+  coaching — one daily kata at a time.
 ```
 
 ---
@@ -260,9 +260,9 @@ stamped into the same logbook as the
 
 ## 8. Layout Patterns
 
-Kata is the **internal** repo self-maintenance system. It has no public
-marketing site. The brand surfaces in four real places, ordered by how often a
-contributor or agent encounters them:
+The Kata Agent Team is **internal**. It has no public marketing site. The brand
+surfaces in four real places, ordered by how often a contributor or agent
+encounters them:
 
 ### Surface 1 — The Internals Page
 

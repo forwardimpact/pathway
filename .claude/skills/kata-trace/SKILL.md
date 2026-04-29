@@ -11,8 +11,8 @@ description: >
 
 Go and see the work agents did by analyzing execution traces. Select one run,
 download its trace, study every turn via grounded theory, and produce findings
-with instruction-layer attribution. Operates within the Kata system defined in
-[KATA.md](../../../KATA.md).
+with instruction-layer attribution. Operates within the Kata Agent Team defined
+in [KATA.md](../../../KATA.md).
 
 ## When to Use
 
@@ -154,7 +154,7 @@ Act on findings:
 Every PR branches directly from `main`.
 
 > **Writing under `.claude/`:** If a fix targets `.claude/`, follow
-> [self-maintenance.md](../../agents/references/self-maintenance.md).
+> [self-improvement.md](../../agents/references/self-improvement.md).
 
 ## Memory: what to record
 

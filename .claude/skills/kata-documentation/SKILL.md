@@ -71,7 +71,7 @@ Read memory per the agent profile (your summary, the current week's log, and
 teammates' summaries). Find last review dates per topic in the coverage map.
 
 > **Writing under `.claude/`:** If this run edits files under `.claude/skills/`,
-> follow [self-maintenance.md](../../agents/references/self-maintenance.md).
+> follow [self-improvement.md](../../agents/references/self-improvement.md).
 
 ### Topic selection
 

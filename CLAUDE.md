@@ -65,12 +65,11 @@ Models team capability as a system: skill matrices, coverage gaps, risks, and
 staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 [Internals](websites/fit/docs/internals/summit/index.md)
 
-### Kata — `kata-skills`
+### Kata Agent Team — `kata-skills`
 
-Helps agents answer _how do I maintain this repository?_ A team of specialized
-agents covering specs, design, planning, implementation, review, releases,
-security, and documentation — driven by Toyota Kata continuous improvement.
-[Internals](websites/fit/docs/internals/kata/)
+An autonomous, continuously improving agentic development team that runs the
+full spec → design → plan → implement → release → improve loop as a Toyota Kata
+PDSA cycle. [Internals](websites/fit/docs/internals/kata/)
 
 ## Distribution Model
 
@@ -85,7 +84,7 @@ they learn to use them, so skill clarity directly affects product quality. Two
 skill packs sync on push to `main`:
 
 - **`forwardimpact/fit-skills`** — `fit-*` skills for the framework products.
-- **`forwardimpact/kata-skills`** — `kata-*` skills for repo self-maintenance.
+- **`forwardimpact/kata-skills`** — `kata-*` skills for the Kata Agent Team.
 
 External users install with `npx skills add forwardimpact/fit-skills` (or
 `kata-skills`). Each published skill should teach agents how a product **works**
@@ -179,12 +178,15 @@ Validate data: `bunx fit-map validate`. Vocabulary standards in the
 One home per policy; per-product pages: [§ Products](#products).
 
 **Internal:**
+
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
 - **Contribution standards & security** — [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Repo self-maintenance** — [KATA.md](KATA.md) · [Internals](websites/fit/docs/internals/kata/)
+- **Kata Agent Team** — [KATA.md](KATA.md) ·
+  [Internals](websites/fit/docs/internals/kata/)
 - **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
 
 **External:**
+
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
 - **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
 - **Published skills** — [fit-\*](.claude/skills/) · [kata-\*](.claude/skills/)

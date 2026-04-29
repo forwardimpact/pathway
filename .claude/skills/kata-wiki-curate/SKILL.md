@@ -49,7 +49,7 @@ in `wiki/`:
 
 > **Writing under `.claude/`:** If this run edits files under `.claude/agents/`
 > or `.claude/skills/`, follow
-> [self-maintenance.md](../../agents/references/self-maintenance.md).
+> [self-improvement.md](../../agents/references/self-improvement.md).
 
 ### Step 1: Summary accuracy
 
