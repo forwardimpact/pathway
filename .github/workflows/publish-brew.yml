@@ -45,6 +45,8 @@ jobs:
 
       - uses: ./.github/actions/bootstrap
 
+      - uses: ./.github/actions/audit
+
       - name: Ensure codegen is current
         run: just codegen
 
