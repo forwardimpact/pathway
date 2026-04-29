@@ -4,7 +4,7 @@ description: Why Forward Impact Team exists — the philosophy behind empowering
 layout: product
 toc: false
 hero:
-  image: /assets/heros/about.svg
+  image: /assets/scene-about.svg
   alt: Concept illustration for Forward Impact Team
   subtitle: The philosophy behind Forward Impact Team — and why empowering engineers matters.
 ---

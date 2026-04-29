@@ -4,7 +4,7 @@ description: Set up camp — a personal knowledge system with scheduled AI tasks
 layout: product
 toc: false
 hero:
-  image: /assets/heros/basecamp.svg
+  image: /assets/scene-basecamp.svg
   alt: An engineer, an AI robot, and a business professional setting up an A-frame tent together
   subtitle: Set up camp. Basecamp is your personal operations center — it syncs your email and calendar, builds a knowledge graph, drafts responses, prepares meeting briefs, and organizes your files. All running as scheduled AI tasks in the background.
   cta:

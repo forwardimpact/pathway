@@ -4,6 +4,8 @@ description: See team capability as a system — coverage, structural risks, wha
 layout: product
 toc: false
 hero:
+  image: /assets/scene-summit.svg
+  alt: An engineer, an AI robot, and a business professional gather around a map on a flat rock, planning an ascent to the peak
   subtitle: Summit treats a team as a system, not a collection of individuals. It aggregates skill matrices into capability coverage, structural risks, and what-if staffing scenarios so leaders can build teams that succeed.
   cta:
     - label: View on GitHub

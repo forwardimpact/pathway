@@ -56,6 +56,9 @@ public/
 # Built documentation
 dist/
 
+# Website SVG assets (copied from design/ at build time)
+websites/**/*.svg
+
 # Basecamp build output
 products/basecamp/dist/
 *.bun-build

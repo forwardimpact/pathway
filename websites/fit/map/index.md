@@ -4,7 +4,7 @@ description: The data product for your engineering system — framework definiti
 layout: product
 toc: false
 hero:
-  image: /assets/heros/map.svg
+  image: /assets/scene-map.svg
   alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
   subtitle: Map is the data product for the FIT suite. It defines your framework in plain YAML and stores operational signals — organization hierarchy, GitHub activity, and GetDX snapshot results — in one model.
   cta:

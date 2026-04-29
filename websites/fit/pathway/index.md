@@ -4,7 +4,7 @@ description: Navigate engineering skills and careers with clarity — browse car
 layout: product
 toc: false
 hero:
-  image: /assets/heros/pathway.svg
+  image: /assets/scene-pathway.svg
   alt: An engineer, an AI robot, and a business professional stand at the base of mountains, studying the trail ahead
   subtitle: Navigate engineering skills and careers with clarity. Whether you're an engineer exploring career progression, a manager building job descriptions, or a team lead deploying AI coding agents — Pathway delivers it through a web app, a CLI, and a static site generator.
   cta:

@@ -634,6 +634,7 @@ strong {
   width: 48px;
   height: 48px;
   margin-bottom: var(--space-4);
+  border-radius: 0;
   transition: transform var(--duration-normal) var(--ease-default);
 }
 

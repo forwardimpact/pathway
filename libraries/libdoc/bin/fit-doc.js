@@ -1,4 +1,5 @@
 #!/usr/bin/env node
+import { execFileSync } from "node:child_process";
 import { readFileSync } from "node:fs";
 import fs from "node:fs";
 import path from "node:path";
@@ -80,12 +81,33 @@ const logger = createLogger("doc");
  * @param {string} distDir
  * @param {string} [baseUrl]
  */
+function runPreBuildHook(docsDir) {
+  const justfilePath = path.join(docsDir, "justfile");
+  if (!fs.existsSync(justfilePath)) return;
+
+  logger.info("Running pre-build hook (justfile)...");
+
+  try {
+    execFileSync("just", ["build"], { cwd: docsDir, stdio: "pipe" });
+    logger.info("  ✓ pre-build hook complete");
+  } catch (err) {
+    if (err.code === "ENOENT") {
+      logger.warn("  ⚠ just not found — skipping pre-build hook");
+      return;
+    }
+    throw new Error(
+      `Pre-build hook failed: ${err.stderr?.toString().trim() || err.message}`,
+    );
+  }
+}
+
 async function runBuild(builder, docsDir, distDir, baseUrl) {
   if (!fs.existsSync(docsDir)) {
     cli.error(`source directory not found: ${docsDir}`);
     process.exit(1);
   }
 
+  runPreBuildHook(docsDir);
   await builder.build(docsDir, distDir, baseUrl);
 }
 
@@ -102,6 +124,7 @@ async function runServe(builder, server, docsDir, distDir, options) {
     process.exit(1);
   }
 
+  runPreBuildHook(docsDir);
   await builder.build(docsDir, distDir, options.baseUrl);
 
   if (options.watch) {

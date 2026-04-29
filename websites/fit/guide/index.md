@@ -4,7 +4,7 @@ description: Find your bearing — an AI agent that understands your engineering
 layout: product
 toc: false
 hero:
-  image: /assets/heros/guide.svg
+  image: /assets/scene-guide.svg
   alt: An engineer, an AI robot holding a compass, and a business professional gathered together, finding their bearings
   subtitle: Find your bearing. Guide is an AI agent that understands your organization's skills, levels, and career paths — helping engineers onboard, grow, and stay on course.
   cta:

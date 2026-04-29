@@ -4,7 +4,7 @@ description: An open-source suite that helps organizations empower engineers wit
 toc: false
 layout: home
 hero:
-  image: /assets/heros/welcome.svg
+  image: /assets/scene-concept.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
   title: Empowered engineers<br>deliver lasting impact.
   subtitle: Map, Pathway, Guide, Landmark, Basecamp, and Summit — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
@@ -22,7 +22,7 @@ hero:
 
 <a class="product-card" href="/map/">
 
-![Map](/assets/icons/map.svg)
+![Map](/assets/icon-map.svg)
 
 ### Map
 
@@ -34,7 +34,7 @@ levels in plain YAML — the single source of truth.
 
 <a class="product-card" href="/pathway/">
 
-![Pathway](/assets/icons/pathway.svg)
+![Pathway](/assets/icon-pathway.svg)
 
 ### Pathway
 
@@ -46,7 +46,7 @@ progression plans — in the browser or from the CLI.
 
 <a class="product-card" href="/guide/">
 
-![Guide](/assets/icons/guide.svg)
+![Guide](/assets/icon-guide.svg)
 
 ### Guide
 
@@ -58,6 +58,8 @@ onboarding, career advice, and growth guidance.
 
 <a class="product-card" href="/landmark/">
 
+![Landmark](/assets/icon-landmark.svg)
+
 ### Landmark
 
 Check the cairn. See your own growth reflected in your work — and help your
@@ -68,7 +70,7 @@ organization improve the systems that support it.
 
 <a class="product-card" href="/basecamp/">
 
-![Basecamp](/assets/icons/basecamp.svg)
+![Basecamp](/assets/icon-basecamp.svg)
 
 ### Basecamp
 
@@ -79,6 +81,8 @@ briefed, organized, and field-ready.
 </a>
 
 <a class="product-card" href="/summit/">
+
+![Summit](/assets/icon-summit.svg)
 
 ### Summit
 
@@ -139,7 +143,7 @@ they already work.
 <div class="section section-contour section-philosophy">
   <div class="page-container">
 
-![An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together](/assets/heros/map.svg)
+![An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together](/assets/scene-map.svg)
 
 > "The aim of leadership should be to improve the performance of man and
 > machine, to improve quality, to increase output, and simultaneously to bring

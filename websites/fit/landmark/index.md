@@ -4,6 +4,8 @@ description: Analyze engineering-system signals from Map — marker evidence fro
 layout: product
 toc: false
 hero:
+  image: /assets/scene-landmark.svg
+  alt: An engineer, an AI robot, and a business professional stand on a rocky outcrop, scanning the horizon for signals
   subtitle: Landmark is the analysis layer for engineering-system signals. It reads Map data to show marker evidence, practice patterns, and snapshot trends for manager-defined teams.
   cta:
     - label: View on GitHub

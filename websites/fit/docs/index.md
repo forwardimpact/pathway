@@ -4,7 +4,7 @@ description: Technical documentation for the Forward Impact suite — getting st
 layout: product
 toc: false
 hero:
-  image: /assets/heros/documentation.svg
+  image: /assets/scene-documentation.svg
   alt: An engineer, an AI robot, and a business professional sorting through stacks of papers and documentation together
   subtitle: Everything you need to define your engineering framework, derive roles and agents, and set up personal knowledge systems.
 ---
