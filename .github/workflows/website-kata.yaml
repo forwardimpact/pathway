@@ -1,8 +1,12 @@
-name: Publish the Kata Agent Team Website
+name: Website: Publish the Kata pages
 
 on:
   push:
     branches: [main]
+    paths:
+      - "websites/kata/**"
+      - "design/kata/**"
+      - ".github/workflows/website-kata.yaml"
   workflow_dispatch:
 
 permissions:

@@ -1,15 +1,19 @@
-name: Publish the Forward Impact Website
+name: Website: Publish the FIT pages
 
 on:
   push:
     branches: [main]
+    paths:
+      - "websites/fit/**"
+      - "design/fit/**"
+      - ".github/workflows/website-fit.yaml"
   workflow_dispatch:
 
 permissions:
   contents: read
 
 concurrency:
-  group: "website"
+  group: "website-fit"
   cancel-in-progress: false
 
 jobs:
