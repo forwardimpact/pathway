@@ -1,6 +1,6 @@
 ---
-title: Kata
-description: "The repo self-maintenance system — six agent personas, eight workflows, eighteen skills, organized as a Plan-Do-Study-Act loop."
+title: Kata Agent Team
+description: "An autonomous and continuously improving agentic development team — six agent personas, eight workflows, eighteen skills, organized as a Plan-Do-Study-Act loop."
 ---
 
 > "What does the pattern of the Improvement Kata give us? A means for
@@ -9,12 +9,15 @@ description: "The repo self-maintenance system — six agent personas, eight wor
 >
 > — Mike Rother, _Toyota Kata_
 
-**Kata** is the Forward Impact repo self-maintenance system: autonomous agents
-on GitHub Actions that keep the codebase secure, release-ready, and steadily
-improving. The name follows Toyota Kata — agents grasp the current condition
-(via prior-run traces), establish target conditions (via specs), and experiment
-toward them (via implementation). Six agent personas, eight workflows, eighteen
-skills, organized around a daily **Plan-Do-Study-Act** loop.
+The **Kata Agent Team** is an autonomous and continuously improving agentic
+development team running on GitHub Actions. It owns the full
+spec → design → plan → implement → release → improve loop end-to-end: shipping
+features, hardening security, cutting releases, curating docs, and improving
+its own practice. The name follows Toyota Kata — agents grasp the current
+condition (via prior-run traces), establish target conditions (via specs), and
+experiment toward them (via implementation). Six agent personas, eight
+workflows, eighteen skills, organized around a daily **Plan-Do-Study-Act**
+loop.
 
 This page is the internal-contributor entry point. The canonical reference is
 [`KATA.md`](https://github.com/forwardimpact/monorepo/blob/main/KATA.md) at the

@@ -126,10 +126,11 @@ the Forward Impact monorepo.
 
 <a href="/docs/internals/kata/">
 
-### Kata
+### Kata Agent Team
 
-Repo self-maintenance system — six agent personas, eight workflows, eighteen
-skills, organized as a Plan-Do-Study-Act loop.
+An autonomous and continuously improving agentic development team — six agent
+personas, eight workflows, eighteen skills, organized as a Plan-Do-Study-Act
+loop.
 
 </a>
 
