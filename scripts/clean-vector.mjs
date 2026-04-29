@@ -79,7 +79,7 @@ function parseArgs(argv) {
       dryRun = true;
     } else if (argv[i] === "--help" || argv[i] === "-h") {
       console.log(
-        "Usage: clean-vector [--level 1-5] [--dry-run] <file.svg ...>"
+        "Usage: clean-vector [--level 1-5] [--dry-run] <file.svg ...>",
       );
       console.log("\nLevels:");
       for (const [k, v] of Object.entries(LEVEL_PRESETS)) {
@@ -100,8 +100,7 @@ function parseArgs(argv) {
 }
 
 function analyzePath(d) {
-  const segs =
-    d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
+  const segs = d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
   const numCommands = (d.match(/[MmLlHhVvCcSsQqTtAaZz]/g) || []).length;
   let cx = 0,
     cy = 0,
@@ -110,10 +109,11 @@ function analyzePath(d) {
 
   for (const cmd of segs) {
     const type = cmd[0];
-    const values = cmd
-      .slice(1)
-      .match(/-?\d+\.?\d*/g)
-      ?.map(Number) || [];
+    const values =
+      cmd
+        .slice(1)
+        .match(/-?\d+\.?\d*/g)
+        ?.map(Number) || [];
     const isRel = type === type.toLowerCase();
 
     if ("Mm".includes(type)) {
@@ -270,7 +270,7 @@ function cleanSvg(filePath, preset, dryRun) {
   const sizeAfter = (result.length / 1024).toFixed(0);
 
   console.log(
-    `${name}: ${origPaths} → ${keptPaths} paths, ${sizeBefore}KB → ${sizeAfter}KB`
+    `${name}: ${origPaths} → ${keptPaths} paths, ${sizeBefore}KB → ${sizeAfter}KB`,
   );
 
   if (!dryRun) {
