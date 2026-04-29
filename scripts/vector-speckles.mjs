@@ -99,70 +99,73 @@ function parseArgs(argv) {
   return { level, dryRun, files };
 }
 
+function applyMoveOrLine(state, values, isRel) {
+  for (let i = 0; i < values.length; i += 2) {
+    state.cx = isRel ? state.cx + values[i] : values[i];
+    state.cy = isRel ? state.cy + values[i + 1] : values[i + 1];
+    state.allX.push(state.cx);
+    state.allY.push(state.cy);
+  }
+}
+
+function applyHorizontal(state, values, isRel) {
+  for (const v of values) {
+    state.cx = isRel ? state.cx + v : v;
+    state.allX.push(state.cx);
+    state.allY.push(state.cy);
+  }
+}
+
+function applyVertical(state, values, isRel) {
+  for (const v of values) {
+    state.cy = isRel ? state.cy + v : v;
+    state.allX.push(state.cx);
+    state.allY.push(state.cy);
+  }
+}
+
+function applyCubic(state, values, isRel) {
+  for (let i = 0; i < values.length; i += 6) {
+    state.allX.push(isRel ? state.cx + values[i] : values[i]);
+    state.allY.push(isRel ? state.cy + values[i + 1] : values[i + 1]);
+    state.allX.push(isRel ? state.cx + values[i + 2] : values[i + 2]);
+    state.allY.push(isRel ? state.cy + values[i + 3] : values[i + 3]);
+    const ex = isRel ? state.cx + values[i + 4] : values[i + 4];
+    const ey = isRel ? state.cy + values[i + 5] : values[i + 5];
+    state.allX.push(ex);
+    state.allY.push(ey);
+    state.cx = ex;
+    state.cy = ey;
+  }
+}
+
+function applyCommand(state, type, values) {
+  const isRel = type === type.toLowerCase();
+  if ("MmLl".includes(type)) applyMoveOrLine(state, values, isRel);
+  else if ("Hh".includes(type)) applyHorizontal(state, values, isRel);
+  else if ("Vv".includes(type)) applyVertical(state, values, isRel);
+  else if ("Cc".includes(type)) applyCubic(state, values, isRel);
+}
+
 function analyzePath(d) {
   const segs = d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
   const numCommands = (d.match(/[MmLlHhVvCcSsQqTtAaZz]/g) || []).length;
-  let cx = 0,
-    cy = 0,
-    allX = [],
-    allY = [];
+  const state = { cx: 0, cy: 0, allX: [], allY: [] };
 
   for (const cmd of segs) {
-    const type = cmd[0];
     const values =
       cmd
         .slice(1)
         .match(/-?\d+\.?\d*/g)
         ?.map(Number) || [];
-    const isRel = type === type.toLowerCase();
-
-    if ("Mm".includes(type)) {
-      for (let i = 0; i < values.length; i += 2) {
-        cx = isRel ? cx + values[i] : values[i];
-        cy = isRel ? cy + values[i + 1] : values[i + 1];
-        allX.push(cx);
-        allY.push(cy);
-      }
-    } else if ("Ll".includes(type)) {
-      for (let i = 0; i < values.length; i += 2) {
-        cx = isRel ? cx + values[i] : values[i];
-        cy = isRel ? cy + values[i + 1] : values[i + 1];
-        allX.push(cx);
-        allY.push(cy);
-      }
-    } else if ("Hh".includes(type)) {
-      for (const v of values) {
-        cx = isRel ? cx + v : v;
-        allX.push(cx);
-        allY.push(cy);
-      }
-    } else if ("Vv".includes(type)) {
-      for (const v of values) {
-        cy = isRel ? cy + v : v;
-        allX.push(cx);
-        allY.push(cy);
-      }
-    } else if ("Cc".includes(type)) {
-      for (let i = 0; i < values.length; i += 6) {
-        allX.push(isRel ? cx + values[i] : values[i]);
-        allY.push(isRel ? cy + values[i + 1] : values[i + 1]);
-        allX.push(isRel ? cx + values[i + 2] : values[i + 2]);
-        allY.push(isRel ? cy + values[i + 3] : values[i + 3]);
-        const ex = isRel ? cx + values[i + 4] : values[i + 4];
-        const ey = isRel ? cy + values[i + 5] : values[i + 5];
-        allX.push(ex);
-        allY.push(ey);
-        cx = ex;
-        cy = ey;
-      }
-    }
+    applyCommand(state, cmd[0], values);
   }
 
-  if (allX.length === 0) return null;
-  const minX = Math.min(...allX),
-    maxX = Math.max(...allX);
-  const minY = Math.min(...allY),
-    maxY = Math.max(...allY);
+  if (state.allX.length === 0) return null;
+  const minX = Math.min(...state.allX),
+    maxX = Math.max(...state.allX);
+  const minY = Math.min(...state.allY),
+    maxY = Math.max(...state.allY);
   return {
     area: (maxX - minX) * (maxY - minY),
     numCommands,
@@ -178,10 +181,7 @@ function hexBrightness(hex) {
   return (r + g + b) / 3;
 }
 
-function cleanSvg(filePath, preset, dryRun) {
-  const svg = readFileSync(filePath, "utf8");
-  const lines = svg.split("\n");
-
+function parseEntries(lines) {
   const entries = [];
   for (const line of lines) {
     const m = line.match(/^<path\s+d="([^"]+)"([^>]*)>/);
@@ -197,7 +197,10 @@ function cleanSvg(filePath, preset, dryRun) {
     const brightness = fillMatch ? hexBrightness(fillMatch[1]) : 0;
     entries.push({ line, isPath: true, hasOpacity, info, brightness });
   }
+  return entries;
+}
 
+function collectDarkCenters(entries) {
   const darkCenters = [];
   for (const e of entries) {
     if (!e.isPath || e.hasOpacity || !e.info) continue;
@@ -205,61 +208,53 @@ function cleanSvg(filePath, preset, dryRun) {
       darkCenters.push({ cx: e.info.cx, cy: e.info.cy });
     }
   }
+  return darkCenters;
+}
+
+function isIsolatedDarkSpeck(entry, preset, darkCenters) {
+  if (!(entry.brightness < 100)) return false;
+  const { area, numCommands, cx, cy } = entry.info;
+  if (!(area < preset.darkMaxArea * 3)) return false;
+
+  let neighbors = 0;
+  for (const dc of darkCenters) {
+    if (dc.cx === cx && dc.cy === cy) continue;
+    if (Math.hypot(dc.cx - cx, dc.cy - cy) < preset.neighborRadius) neighbors++;
+  }
+
+  return (
+    neighbors <= preset.darkMaxNeighbors &&
+    area < preset.darkMaxArea &&
+    numCommands <= preset.darkMaxCmds
+  );
+}
+
+function shouldRemove(entry, preset, darkCenters) {
+  if (entry.hasOpacity) return true;
+  if (!entry.info) return false;
+  const { area } = entry.info;
+  const { brightness } = entry;
+  if (area < preset.tinyArea) return true;
+  if (isIsolatedDarkSpeck(entry, preset, darkCenters)) return true;
+  if (brightness >= 100 && brightness < 170 && area < preset.midGrayMaxArea)
+    return true;
+  return false;
+}
+
+function cleanSvg(filePath, preset, dryRun) {
+  const svg = readFileSync(filePath, "utf8");
+  const entries = parseEntries(svg.split("\n"));
+  const darkCenters = collectDarkCenters(entries);
 
   const kept = [];
-  let _removed = 0,
-    origPaths = 0;
-
+  let origPaths = 0;
   for (const e of entries) {
     if (!e.isPath) {
       kept.push(e.line);
       continue;
     }
     origPaths++;
-
-    if (e.hasOpacity) {
-      _removed++;
-      continue;
-    }
-    if (!e.info) {
-      kept.push(e.line);
-      continue;
-    }
-
-    const { area, numCommands, cx, cy } = e.info;
-
-    if (area < preset.tinyArea) {
-      _removed++;
-      continue;
-    }
-
-    if (e.brightness < 100 && area < preset.darkMaxArea * 3) {
-      let neighbors = 0;
-      for (const dc of darkCenters) {
-        if (dc.cx === cx && dc.cy === cy) continue;
-        if (Math.hypot(dc.cx - cx, dc.cy - cy) < preset.neighborRadius)
-          neighbors++;
-      }
-
-      if (
-        neighbors <= preset.darkMaxNeighbors &&
-        area < preset.darkMaxArea &&
-        numCommands <= preset.darkMaxCmds
-      ) {
-        _removed++;
-        continue;
-      }
-    }
-
-    if (
-      e.brightness >= 100 &&
-      e.brightness < 170 &&
-      area < preset.midGrayMaxArea
-    ) {
-      _removed++;
-      continue;
-    }
-
+    if (shouldRemove(e, preset, darkCenters)) continue;
     kept.push(e.line);
   }
 

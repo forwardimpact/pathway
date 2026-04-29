@@ -74,96 +74,107 @@ function hexBrightness(hex) {
   return (r + g + b) / 3;
 }
 
+function pushEndpoint(state, x, y) {
+  state.allX.push(x);
+  state.allY.push(y);
+  state.endpoints.push([x, y]);
+}
+
+function applyMLT(state, values, isRel) {
+  for (let i = 0; i < values.length; i += 2) {
+    state.cx = isRel ? state.cx + values[i] : values[i];
+    state.cy = isRel ? state.cy + values[i + 1] : values[i + 1];
+    pushEndpoint(state, state.cx, state.cy);
+  }
+}
+
+function applyH(state, values, isRel) {
+  for (const v of values) {
+    state.cx = isRel ? state.cx + v : v;
+    pushEndpoint(state, state.cx, state.cy);
+  }
+}
+
+function applyV(state, values, isRel) {
+  for (const v of values) {
+    state.cy = isRel ? state.cy + v : v;
+    pushEndpoint(state, state.cx, state.cy);
+  }
+}
+
+function applyC(state, values, isRel) {
+  for (let i = 0; i < values.length; i += 6) {
+    state.allX.push(isRel ? state.cx + values[i] : values[i]);
+    state.allY.push(isRel ? state.cy + values[i + 1] : values[i + 1]);
+    state.allX.push(isRel ? state.cx + values[i + 2] : values[i + 2]);
+    state.allY.push(isRel ? state.cy + values[i + 3] : values[i + 3]);
+    const ex = isRel ? state.cx + values[i + 4] : values[i + 4];
+    const ey = isRel ? state.cy + values[i + 5] : values[i + 5];
+    pushEndpoint(state, ex, ey);
+    state.cx = ex;
+    state.cy = ey;
+  }
+}
+
+function applySQ(state, values, isRel) {
+  for (let i = 0; i < values.length; i += 4) {
+    state.allX.push(isRel ? state.cx + values[i] : values[i]);
+    state.allY.push(isRel ? state.cy + values[i + 1] : values[i + 1]);
+    const ex = isRel ? state.cx + values[i + 2] : values[i + 2];
+    const ey = isRel ? state.cy + values[i + 3] : values[i + 3];
+    pushEndpoint(state, ex, ey);
+    state.cx = ex;
+    state.cy = ey;
+  }
+}
+
+function applyA(state, values, isRel) {
+  for (let i = 0; i < values.length; i += 7) {
+    const ex = isRel ? state.cx + values[i + 5] : values[i + 5];
+    const ey = isRel ? state.cy + values[i + 6] : values[i + 6];
+    pushEndpoint(state, ex, ey);
+    state.cx = ex;
+    state.cy = ey;
+  }
+}
+
+function applyCommand(state, type, values) {
+  const isRel = type === type.toLowerCase();
+  const absType = type.toUpperCase();
+  if (absType === "M" || absType === "L" || absType === "T")
+    applyMLT(state, values, isRel);
+  else if (absType === "H") applyH(state, values, isRel);
+  else if (absType === "V") applyV(state, values, isRel);
+  else if (absType === "C") applyC(state, values, isRel);
+  else if (absType === "S" || absType === "Q") applySQ(state, values, isRel);
+  else if (absType === "A") applyA(state, values, isRel);
+}
+
 function analyzeSubpath(d) {
   const segs = d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
-  let cx = 0,
-    cy = 0,
-    allX = [],
-    allY = [],
-    endpoints = [];
+  const state = { cx: 0, cy: 0, allX: [], allY: [], endpoints: [] };
 
   for (const cmd of segs) {
-    const type = cmd[0];
     const values =
       cmd
         .slice(1)
+        // eslint-disable-next-line security/detect-unsafe-regex -- the (?:e[+-]?\d+)? group is bounded; matches a single optional exponent on a number token, no nested quantifiers.
         .match(/-?\d+\.?\d*(?:e[+-]?\d+)?/gi)
         ?.map(Number) || [];
-    const isRel = type === type.toLowerCase();
-    const absType = type.toUpperCase();
-
-    if (absType === "M" || absType === "L" || absType === "T") {
-      for (let i = 0; i < values.length; i += 2) {
-        cx = isRel ? cx + values[i] : values[i];
-        cy = isRel ? cy + values[i + 1] : values[i + 1];
-        allX.push(cx);
-        allY.push(cy);
-        endpoints.push([cx, cy]);
-      }
-    } else if (absType === "H") {
-      for (const v of values) {
-        cx = isRel ? cx + v : v;
-        allX.push(cx);
-        allY.push(cy);
-        endpoints.push([cx, cy]);
-      }
-    } else if (absType === "V") {
-      for (const v of values) {
-        cy = isRel ? cy + v : v;
-        allX.push(cx);
-        allY.push(cy);
-        endpoints.push([cx, cy]);
-      }
-    } else if (absType === "C") {
-      for (let i = 0; i < values.length; i += 6) {
-        allX.push(isRel ? cx + values[i] : values[i]);
-        allY.push(isRel ? cy + values[i + 1] : values[i + 1]);
-        allX.push(isRel ? cx + values[i + 2] : values[i + 2]);
-        allY.push(isRel ? cy + values[i + 3] : values[i + 3]);
-        const ex = isRel ? cx + values[i + 4] : values[i + 4];
-        const ey = isRel ? cy + values[i + 5] : values[i + 5];
-        allX.push(ex);
-        allY.push(ey);
-        endpoints.push([ex, ey]);
-        cx = ex;
-        cy = ey;
-      }
-    } else if (absType === "S" || absType === "Q") {
-      for (let i = 0; i < values.length; i += 4) {
-        allX.push(isRel ? cx + values[i] : values[i]);
-        allY.push(isRel ? cy + values[i + 1] : values[i + 1]);
-        const ex = isRel ? cx + values[i + 2] : values[i + 2];
-        const ey = isRel ? cy + values[i + 3] : values[i + 3];
-        allX.push(ex);
-        allY.push(ey);
-        endpoints.push([ex, ey]);
-        cx = ex;
-        cy = ey;
-      }
-    } else if (absType === "A") {
-      for (let i = 0; i < values.length; i += 7) {
-        const ex = isRel ? cx + values[i + 5] : values[i + 5];
-        const ey = isRel ? cy + values[i + 6] : values[i + 6];
-        allX.push(ex);
-        allY.push(ey);
-        endpoints.push([ex, ey]);
-        cx = ex;
-        cy = ey;
-      }
-    }
+    applyCommand(state, cmd[0], values);
   }
 
-  if (allX.length === 0) return null;
-  const minX = Math.min(...allX),
-    maxX = Math.max(...allX);
-  const minY = Math.min(...allY),
-    maxY = Math.max(...allY);
+  if (state.allX.length === 0) return null;
+  const minX = Math.min(...state.allX),
+    maxX = Math.max(...state.allX);
+  const minY = Math.min(...state.allY),
+    maxY = Math.max(...state.allY);
 
   let signedArea = 0;
-  for (let i = 0; i < endpoints.length; i++) {
-    const j = (i + 1) % endpoints.length;
-    signedArea +=
-      endpoints[i][0] * endpoints[j][1] - endpoints[j][0] * endpoints[i][1];
+  const ep = state.endpoints;
+  for (let i = 0; i < ep.length; i++) {
+    const j = (i + 1) % ep.length;
+    signedArea += ep[i][0] * ep[j][1] - ep[j][0] * ep[i][1];
   }
 
   return {

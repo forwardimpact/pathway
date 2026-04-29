@@ -111,84 +111,100 @@ function hexBrightness(hex) {
   return (r + g + b) / 3;
 }
 
+function applyM(state, nums, isRel) {
+  for (let i = 0; i < nums.length; i += 2) {
+    const x = isRel ? state.cx + nums[i] : nums[i];
+    const y = isRel ? state.cy + nums[i + 1] : nums[i + 1];
+    if (i === 0) {
+      state.segments.push({ type: "M", endX: x, endY: y });
+      state.startX = x;
+      state.startY = y;
+    } else {
+      state.segments.push({ type: "L", endX: x, endY: y });
+    }
+    state.cx = x;
+    state.cy = y;
+  }
+}
+
+function applyL(state, nums, isRel) {
+  for (let i = 0; i < nums.length; i += 2) {
+    const x = isRel ? state.cx + nums[i] : nums[i];
+    const y = isRel ? state.cy + nums[i + 1] : nums[i + 1];
+    state.segments.push({ type: "L", endX: x, endY: y });
+    state.cx = x;
+    state.cy = y;
+  }
+}
+
+function applyH(state, nums, isRel) {
+  for (const v of nums) {
+    state.cx = isRel ? state.cx + v : v;
+    state.segments.push({ type: "L", endX: state.cx, endY: state.cy });
+  }
+}
+
+function applyV(state, nums, isRel) {
+  for (const v of nums) {
+    state.cy = isRel ? state.cy + v : v;
+    state.segments.push({ type: "L", endX: state.cx, endY: state.cy });
+  }
+}
+
+function applyC(state, nums, isRel) {
+  for (let i = 0; i < nums.length; i += 6) {
+    const cp1x = isRel ? state.cx + nums[i] : nums[i];
+    const cp1y = isRel ? state.cy + nums[i + 1] : nums[i + 1];
+    const cp2x = isRel ? state.cx + nums[i + 2] : nums[i + 2];
+    const cp2y = isRel ? state.cy + nums[i + 3] : nums[i + 3];
+    const ex = isRel ? state.cx + nums[i + 4] : nums[i + 4];
+    const ey = isRel ? state.cy + nums[i + 5] : nums[i + 5];
+    state.segments.push({
+      type: "C",
+      cp1x,
+      cp1y,
+      cp2x,
+      cp2y,
+      endX: ex,
+      endY: ey,
+    });
+    state.cx = ex;
+    state.cy = ey;
+  }
+}
+
+function applyZ(state) {
+  state.segments.push({ type: "Z", endX: state.startX, endY: state.startY });
+  state.cx = state.startX;
+  state.cy = state.startY;
+}
+
+function applyCommand(state, type, nums) {
+  const isRel = type === type.toLowerCase();
+  const absType = type.toUpperCase();
+  if (absType === "M") applyM(state, nums, isRel);
+  else if (absType === "L") applyL(state, nums, isRel);
+  else if (absType === "H") applyH(state, nums, isRel);
+  else if (absType === "V") applyV(state, nums, isRel);
+  else if (absType === "C") applyC(state, nums, isRel);
+  else if (absType === "Z") applyZ(state);
+}
+
 function parsePath(d) {
   const raw = d.match(/[MmLlHhVvCcZz][^MmLlHhVvCcZz]*/g) || [];
-  const segments = [];
-  let cx = 0,
-    cy = 0,
-    startX = 0,
-    startY = 0;
+  const state = { cx: 0, cy: 0, startX: 0, startY: 0, segments: [] };
 
   for (const cmd of raw) {
-    const type = cmd[0];
     const nums =
       cmd
         .slice(1)
+        // eslint-disable-next-line security/detect-unsafe-regex -- the (?:e[+-]?\d+)? group is bounded; matches a single optional exponent on a number token, no nested quantifiers.
         .match(/-?\d+\.?\d*(?:e[+-]?\d+)?/gi)
         ?.map(Number) || [];
-    const isRel = type === type.toLowerCase();
-    const absType = type.toUpperCase();
-
-    if (absType === "M") {
-      for (let i = 0; i < nums.length; i += 2) {
-        const x = isRel ? cx + nums[i] : nums[i];
-        const y = isRel ? cy + nums[i + 1] : nums[i + 1];
-        if (i === 0) {
-          segments.push({ type: "M", endX: x, endY: y });
-          startX = x;
-          startY = y;
-        } else {
-          segments.push({ type: "L", endX: x, endY: y });
-        }
-        cx = x;
-        cy = y;
-      }
-    } else if (absType === "L") {
-      for (let i = 0; i < nums.length; i += 2) {
-        const x = isRel ? cx + nums[i] : nums[i];
-        const y = isRel ? cy + nums[i + 1] : nums[i + 1];
-        segments.push({ type: "L", endX: x, endY: y });
-        cx = x;
-        cy = y;
-      }
-    } else if (absType === "H") {
-      for (const v of nums) {
-        cx = isRel ? cx + v : v;
-        segments.push({ type: "L", endX: cx, endY: cy });
-      }
-    } else if (absType === "V") {
-      for (const v of nums) {
-        cy = isRel ? cy + v : v;
-        segments.push({ type: "L", endX: cx, endY: cy });
-      }
-    } else if (absType === "C") {
-      for (let i = 0; i < nums.length; i += 6) {
-        const cp1x = isRel ? cx + nums[i] : nums[i];
-        const cp1y = isRel ? cy + nums[i + 1] : nums[i + 1];
-        const cp2x = isRel ? cx + nums[i + 2] : nums[i + 2];
-        const cp2y = isRel ? cy + nums[i + 3] : nums[i + 3];
-        const ex = isRel ? cx + nums[i + 4] : nums[i + 4];
-        const ey = isRel ? cy + nums[i + 5] : nums[i + 5];
-        segments.push({
-          type: "C",
-          cp1x,
-          cp1y,
-          cp2x,
-          cp2y,
-          endX: ex,
-          endY: ey,
-        });
-        cx = ex;
-        cy = ey;
-      }
-    } else if (absType === "Z") {
-      segments.push({ type: "Z", endX: startX, endY: startY });
-      cx = startX;
-      cy = startY;
-    }
+    applyCommand(state, cmd[0], nums);
   }
 
-  return segments;
+  return state.segments;
 }
 
 function fmt(n) {
