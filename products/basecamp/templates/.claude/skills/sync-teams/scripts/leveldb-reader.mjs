@@ -166,7 +166,6 @@ function* readLogEntries(filePath) {
       const type = fileData[offset + 6];
 
       if (type === 0 || length === 0) {
-        offset = blockEnd;
         break;
       }
 
