@@ -78,7 +78,7 @@ chmod +x "$APP_DIR/Contents/MacOS/$PRIMARY_NAME"
 
 # --- Copy extra executables ---------------------------------------------------
 
-for EXEC in "${EXTRA_EXECS[@]}"; do
+for EXEC in ${EXTRA_EXECS[@]+"${EXTRA_EXECS[@]}"}; do
   if [ ! -f "$EXEC" ]; then
     echo "Error: extra executable not found at $EXEC" >&2
     exit 1
@@ -108,7 +108,7 @@ fi
 
 # --- Copy resources -----------------------------------------------------------
 
-for RES in "${RESOURCES[@]}"; do
+for RES in ${RESOURCES[@]+"${RESOURCES[@]}"}; do
   if [ ! -e "$RES" ]; then
     echo "Warning: resource not found at $RES, skipping" >&2
     continue
