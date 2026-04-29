@@ -120,7 +120,7 @@ operate on trusted sources (our agents, Dependabot).
 | `spec`           | Specification document only     | Trusted agents, never the contributor |
 | Everything else  | Nothing — requires human review | N/A                                   |
 
-Top-7 contributors pass the trust gate; `forward-impact-ci` PRs are trusted by
+Top-7 contributors pass the trust gate; `kata-agent-team` PRs are trusted by
 identity. A compromised top contributor cannot inject code via this pipeline —
 specs merge only the document, not code.
 
@@ -183,7 +183,7 @@ from special-cause reactions.
 
 ## Authentication
 
-Workflows authenticate via the **GitHub App** `forward-impact-kata`, not a PAT.
+Workflows authenticate via the **GitHub App** `kata-agent-team`, not a PAT.
 Each run generates a 1-hour installation token via
 `actions/create-github-app-token` — no long-lived secrets to rotate. The token
 must generate before `actions/checkout` so checkout-token writes trigger

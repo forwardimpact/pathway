@@ -203,7 +203,7 @@ Organizations that want full control create their own GitHub App.
    - `KATA_APP_PRIVATE_KEY` — your App's PEM-encoded private key
 5. Override the `app-slug` input in the composite action to match your App's
    slug. Each workflow passes `app-id` to the composite action; the `app-slug`
-   input defaults to `forward-impact-ci` and must be changed to your App's slug.
+   input defaults to `kata-agent-team` and must be changed to your App's slug.
 
 Private keys are per-App, not per-installation. Only the App owner can generate
 and distribute them.

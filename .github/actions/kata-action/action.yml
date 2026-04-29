@@ -61,7 +61,7 @@ inputs:
   app-slug:
     description: GitHub App slug for git identity
     required: false
-    default: forward-impact-ci
+    default: kata-agent-team
   app-id:
     description: GitHub App ID for git identity email
     required: true

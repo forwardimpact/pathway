@@ -12,7 +12,7 @@ Verify every open non-Dependabot PR against four gates (trust, type, CI, spec
 quality), produce a classification report, and merge those that pass.
 
 This skill handles **all non-Dependabot PRs** — both external contributions and
-PRs created by our own CI app (`forward-impact-ci`). Because external
+PRs created by our own CI app (`kata-agent-team`). Because external
 contributions merge here, contributor trust verification is the most critical
 gate. The improvement coach audits classification traces via the
 [`kata-trace`](../kata-trace/SKILL.md) skill's invariant audit to confirm trust
@@ -69,7 +69,7 @@ Check whether the author is the CI app:
 gh pr view <number> --json author --jq '.author.login'
 ```
 
-If `app/forward-impact-ci`, the PR is **trusted by definition** — skip the
+If `app/kata-agent-team`, the PR is **trusted by definition** — skip the
 contributor lookup and proceed to Step 3.
 
 For all other authors, look up the top 7 human contributors:
