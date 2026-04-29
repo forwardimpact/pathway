@@ -1,12 +1,11 @@
 # Kata — Brand Implementation
 
 > The Kata realization of the [shared design language](../index.md): a
-> monochrome design system for the Kata Agent Team, built around the metaphor
-> of a **mid-century Toyota production floor**. Six agent personas
-> — the **Staff Engineer**, **Release Engineer**, **Security Engineer**,
-> **Product Manager**, **Technical Writer**, and **Improvement Coach** — work
-> the line together, the way Taiichi Ohno's foremen worked the shop floor in the
-> 1940s and 50s.
+> monochrome design system for the Kata Agent Team, built around the metaphor of
+> a **mid-century Toyota production floor**. Six agent personas — the **Staff
+> Engineer**, **Release Engineer**, **Security Engineer**, **Product Manager**,
+> **Technical Writer**, and **Improvement Coach** — work the line together, the
+> way Taiichi Ohno's foremen worked the shop floor in the 1940s and 50s.
 >
 > The brand evokes the dignity of practiced work: pressed suits, soft flat caps,
 > andon cords, kanban rails, the chalk circle on a polished concrete floor.

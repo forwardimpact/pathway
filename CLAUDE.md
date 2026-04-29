@@ -67,11 +67,9 @@ staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 
 ### Kata Agent Team — `kata-skills`
 
-An autonomous and continuously improving agentic development team that runs the
-full spec → design → plan → implement → release → improve loop. Specialized
-agents cover product management, engineering, security, releases, documentation,
-and coaching — coordinated as a Plan-Do-Study-Act cycle after Toyota Kata.
-[Internals](websites/fit/docs/internals/kata/)
+An autonomous, continuously improving agentic development team that runs the
+full spec → design → plan → implement → release → improve loop as a Toyota Kata
+PDSA cycle. [Internals](websites/fit/docs/internals/kata/)
 
 ## Distribution Model
 
@@ -180,12 +178,15 @@ Validate data: `bunx fit-map validate`. Vocabulary standards in the
 One home per policy; per-product pages: [§ Products](#products).
 
 **Internal:**
+
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
 - **Contribution standards & security** — [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Kata Agent Team** — [KATA.md](KATA.md) · [Internals](websites/fit/docs/internals/kata/)
+- **Kata Agent Team** — [KATA.md](KATA.md) ·
+  [Internals](websites/fit/docs/internals/kata/)
 - **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
 
 **External:**
+
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
 - **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
 - **Published skills** — [fit-\*](.claude/skills/) · [kata-\*](.claude/skills/)

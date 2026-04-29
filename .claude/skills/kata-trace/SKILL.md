@@ -11,8 +11,8 @@ description: >
 
 Go and see the work agents did by analyzing execution traces. Select one run,
 download its trace, study every turn via grounded theory, and produce findings
-with instruction-layer attribution. Operates within the Kata Agent Team
-defined in [KATA.md](../../../KATA.md).
+with instruction-layer attribution. Operates within the Kata Agent Team defined
+in [KATA.md](../../../KATA.md).
 
 ## When to Use
 

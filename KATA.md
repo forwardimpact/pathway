@@ -7,15 +7,15 @@
 > — Mike Rother, _Toyota Kata_
 
 The Kata Agent Team is an autonomous and continuously improving agentic
-development team running on GitHub Actions. It owns the full
-spec → design → plan → implement → release → improve loop end-to-end: shipping
-features, hardening security, cutting releases, curating docs, and improving
-its own practice. The name follows Toyota Kata — agents grasp the current
-condition (via prior-run traces), establish target conditions (via specs), and
-experiment toward them (via implementation). Eight workflows (five scheduled
-agent runs across three shifts, a daily storyboard, an on-demand coaching
-session, an event-driven conversation responder), six agent personas, and
-eighteen skills form a self-reinforcing PDSA cycle.
+development team running on GitHub Actions. It owns the full spec → design →
+plan → implement → release → improve loop end-to-end: shipping features,
+hardening security, cutting releases, curating docs, and improving its own
+practice. The name follows Toyota Kata — agents grasp the current condition (via
+prior-run traces), establish target conditions (via specs), and experiment
+toward them (via implementation). Eight workflows (five scheduled agent runs
+across three shifts, a daily storyboard, an on-demand coaching session, an
+event-driven conversation responder), six agent personas, and eighteen skills
+form a self-reinforcing PDSA cycle.
 
 ## Architecture
 
