@@ -82,27 +82,16 @@ contributors.
 
 Agents are often the primary consumers of our products. Published skills are how
 they learn to use them, so skill clarity directly affects product quality. Two
-skill packs are published:
+skill packs sync on push to `main`:
 
-- **`forwardimpact/fit-skills`** — `fit-*` skills for the framework products
-  (Map, Pathway, Basecamp, Guide, Landmark, Summit).
-- **`forwardimpact/kata-skills`** — `kata-*` skills for repo self-maintenance
-  (specs, design, planning, implementation, review, releases, security, docs).
+- **`forwardimpact/fit-skills`** — `fit-*` skills for the framework products.
+- **`forwardimpact/kata-skills`** — `kata-*` skills for repo self-maintenance.
 
-Install with [npx skills](https://github.com/vercel-labs/skills):
-
-```bash
-npx skills add forwardimpact/fit-skills
-npx skills add forwardimpact/kata-skills
-```
-
-Skills sync on push to `main`. Each published skill should teach agents how a
-product **works** and how to **use** it — not how it is **implemented**.
-Progressively disclose detail: start with what the product does and when to
-reach for it, then link out to published documentation for deeper context.
-External users have no access to the monorepo source, so every reference must
-use fully qualified URLs to the `.md` version of published pages — agents fetch
-these to read documentation in context (e.g.
+External users install with `npx skills add forwardimpact/fit-skills` (or
+`kata-skills`). Each published skill should teach agents how a product **works**
+and how to **use** it — not how it is **implemented**. Progressively disclose:
+start with what the product does, then link to published docs. External users
+have no monorepo access — use fully qualified URLs to `.md` pages (e.g.
 `https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
 
 External users install products with `npm install`, bringing their own framework
@@ -135,18 +124,15 @@ consult the [Getting Started guides](websites/fit/docs/getting-started/).
 
 ### Checklists
 
-Tagged checklists act as gates at natural pause points. Follow the protocol
-whenever you encounter one. Design and authoring rules:
-[CHECKLISTS.md](CHECKLISTS.md).
+Tagged checklists gate pause points. Rules: [CHECKLISTS.md](CHECKLISTS.md).
 
 - **`<read_do_checklist>`** — Entry gate. Read each item, then do it.
-- **`<do_confirm_checklist>`** — Exit gate. Do from memory, then confirm every
-  item before crossing a boundary (commit, merge, publish).
+- **`<do_confirm_checklist>`** — Exit gate. Do from memory, then confirm before
+  crossing a boundary (commit, merge, publish).
 
-**Every contribution** must run both universal checklists:
-[CONTRIBUTING.md § READ-DO](CONTRIBUTING.md#read-do) (before starting) and
-[§ DO-CONFIRM](CONTRIBUTING.md#do-confirm) (before committing). Domain-specific
-checklists live in `.claude/skills/kata-*/SKILL.md`.
+**Every contribution** runs [§ READ-DO](CONTRIBUTING.md#read-do) then
+[§ DO-CONFIRM](CONTRIBUTING.md#do-confirm). Domain checklists in
+`.claude/skills/kata-*/SKILL.md`.
 
 ## Memory and Coordination
 
@@ -193,18 +179,12 @@ Validate data: `bunx fit-map validate`. Vocabulary standards in the
 One home per policy; per-product pages: [§ Products](#products).
 
 **Internal:**
-
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
-- **Contribution standards** — [CONTRIBUTING.md](CONTRIBUTING.md)
-- **Security & deps** — [CONTRIBUTING.md](CONTRIBUTING.md#security)
-- **Repo self-maintenance** — [KATA.md](KATA.md) ·
-  [Internals](websites/fit/docs/internals/kata/)
-- **Kata agent skills** — [.claude/skills/kata-\*](.claude/skills/)
+- **Contribution standards & security** — [CONTRIBUTING.md](CONTRIBUTING.md)
+- **Repo self-maintenance** — [KATA.md](KATA.md) · [Internals](websites/fit/docs/internals/kata/)
 - **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
 
 **External:**
-
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
 - **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
-- **Published skills** — [fit-\*](.claude/skills/) ·
-  [kata-\*](.claude/skills/)
+- **Published skills** — [fit-\*](.claude/skills/) · [kata-\*](.claude/skills/)
