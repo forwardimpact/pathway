@@ -223,7 +223,7 @@ runs:
 
     - name: Upload agent trace
       if: always() && inputs.trace == 'true' && steps.setup.outputs.trace-dir != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: agent-trace
         path: |
@@ -231,21 +231,21 @@ runs:
 
     - name: Upload supervisor trace
       if: always() && inputs.trace == 'true' && inputs.mode == 'supervise' && steps.setup.outputs.trace-dir != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: supervisor-trace
         path: ${{ steps.setup.outputs.trace-dir }}/supervisor-trace.ndjson
 
     - name: Upload facilitator trace
       if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: facilitator-trace
         path: ${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
 
     - name: Upload per-agent traces
       if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: per-agent-traces
         path: |
@@ -256,7 +256,7 @@ runs:
 
     - name: Upload combined trace
       if: always() && inputs.trace == 'true' && (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && steps.setup.outputs.trace-dir != ''
-      uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
+      uses: actions/upload-artifact@043fb46d1a93c77aae656e7c1c64a875d1fc6a0a # v7.0.1
       with:
         name: combined-trace
         path: ${{ steps.setup.outputs.trace-dir }}/trace.ndjson
