@@ -183,6 +183,6 @@ mountain peak; Pathway owns the trail.
 | Error / empty states         | Single character         | 80–120px  |
 | Loading states               | AI Agent + compass       | 48–80px   |
 
-**Asset status:** Hero illustrations exist in `design/fit/scenes/` for Map,
+**Asset status:** Hero illustrations exist in `design/fit/assets/` for Map,
 Pathway, Guide, Basecamp, and Documentation Dig. Landmark and Summit scenes are
 specified above but not yet illustrated.
