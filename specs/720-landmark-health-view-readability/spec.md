@@ -1,4 +1,4 @@
-# Spec 700 — Landmark health view readability
+# Spec 720 — Landmark health view readability
 
 ## Problem
 
