@@ -50,8 +50,8 @@ jobs:
         id: ci-app
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -142,7 +142,7 @@ jobs:
           TARGET_TYPE: ${{ steps.task.outputs.target-type }}
           TARGET_NUMBER: ${{ steps.task.outputs.target-number }}
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
+          app-id: ${{ secrets.KATA_APP_ID }}
           mode: "facilitate"
           task-text: ${{ steps.task.outputs.task }}
           facilitator-profile: "product-manager"

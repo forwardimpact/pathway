@@ -20,8 +20,8 @@ jobs:
         id: ci-app
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
           repositories: fit-skills
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -97,7 +97,7 @@ jobs:
         working-directory: skills-repo
         run: |
           git config user.name "forward-impact-ci[bot]"
-          git config user.email "${{ secrets.CI_APP_ID }}+forward-impact-ci[bot]@users.noreply.github.com"
+          git config user.email "${{ secrets.KATA_APP_ID }}+forward-impact-ci[bot]@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to publish"
@@ -113,8 +113,8 @@ jobs:
         id: ci-app
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
           repositories: kata-skills
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
@@ -190,7 +190,7 @@ jobs:
         working-directory: skills-repo
         run: |
           git config user.name "forward-impact-ci[bot]"
-          git config user.email "${{ secrets.CI_APP_ID }}+forward-impact-ci[bot]@users.noreply.github.com"
+          git config user.email "${{ secrets.KATA_APP_ID }}+forward-impact-ci[bot]@users.noreply.github.com"
           git add -A
           if git diff --cached --quiet; then
             echo "No changes to publish"

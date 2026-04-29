@@ -353,8 +353,8 @@ jobs:
         id: ci-app
         uses: actions/create-github-app-token@f8d387b68d61c58ab83c6c016672934102569859 # v3
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
 
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
         with:
@@ -371,7 +371,7 @@ jobs:
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
+          app-id: ${{ secrets.KATA_APP_ID }}
           task-text: "Triage the product backlog: PRs and open issues."
           agent-profile: "product-manager"
           model: "opus"

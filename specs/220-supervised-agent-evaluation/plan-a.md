@@ -799,7 +799,7 @@ Each workflow changes from:
     agent: "security-specialist"
     model: "opus"
     max-turns: "50"
-    app-id: ${{ secrets.CI_APP_ID }}
+    app-id: ${{ secrets.KATA_APP_ID }}
 ```
 
 To:
@@ -810,7 +810,7 @@ To:
     task: .github/tasks/security-audit.md
     model: "opus"
     max-turns: "50"
-    app-id: ${{ secrets.CI_APP_ID }}
+    app-id: ${{ secrets.KATA_APP_ID }}
 ```
 
 The `prompt:` input becomes `task:` (a file path). The `agent:` input is removed

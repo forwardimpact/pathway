@@ -60,8 +60,8 @@ the App has write access.
 1. Install the App on the `forwardimpact/monorepo` repository.
 2. Note the **App ID** and generate a **private key**.
 3. Store as repository secrets:
-   - `CI_APP_ID` — the App's numeric ID
-   - `CI_APP_PRIVATE_KEY` — the PEM-encoded private key
+   - `KATA_APP_ID` — the App's numeric ID
+   - `KATA_APP_PRIVATE_KEY` — the PEM-encoded private key
 
 ### 1.4 Bot Identity
 
@@ -149,8 +149,8 @@ steps:
     id: app-token
     uses: actions/create-github-app-token@<resolved-sha> # v1
     with:
-      app-id: ${{ secrets.CI_APP_ID }}
-      private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+      app-id: ${{ secrets.KATA_APP_ID }}
+      private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
 
   - uses: actions/checkout@<SHA>
     with:
@@ -164,7 +164,7 @@ steps:
       GH_TOKEN: ${{ steps.app-token.outputs.token }}
       CLAUDE_CODE_USE_BEDROCK: "0"
     with:
-      app-id: ${{ secrets.CI_APP_ID }}
+      app-id: ${{ secrets.KATA_APP_ID }}
       prompt: "..."
 ```
 
@@ -224,15 +224,15 @@ organization and trusted forks):**
 
 The Forward Impact organization publishes a public GitHub App. Repositories
 within the org (or trusted forks where the org manages secrets centrally)
-install the App and use the org-managed `CI_APP_ID` and `CI_APP_PRIVATE_KEY`
+install the App and use the org-managed `KATA_APP_ID` and `KATA_APP_PRIVATE_KEY`
 secrets. Private keys are per-App (not per-installation), so only the App owner
 can generate and distribute them.
 
 **Option 2 — Create your own GitHub App (for independent installations):**
 
 Organizations that want full control create their own GitHub App following the
-permission table in §1.2, generate their own private key, and store `CI_APP_ID`
-and `CI_APP_PRIVATE_KEY` as repository secrets. They override the `app-slug`
+permission table in §1.2, generate their own private key, and store `KATA_APP_ID`
+and `KATA_APP_PRIVATE_KEY` as repository secrets. They override the `app-slug`
 input in the composite action to match their App's slug.
 
 The documentation should describe both options, explain the private key
@@ -242,7 +242,7 @@ ownership model, and include the permission table for self-serve App creation.
 
 1. Resolve the `actions/create-github-app-token` SHA (prerequisite).
 2. Create the GitHub App (manual, outside the codebase).
-3. Store `CI_APP_ID` and `CI_APP_PRIVATE_KEY` secrets (manual, GitHub UI).
+3. Store `KATA_APP_ID` and `KATA_APP_PRIVATE_KEY` secrets (manual, GitHub UI).
 4. Update `.github/actions/claude/action.yml` — add `app-slug`/`app-id` inputs,
    update git identity.
 5. Update all six workflow files — add token generation step, replace

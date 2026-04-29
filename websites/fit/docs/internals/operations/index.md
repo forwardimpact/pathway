@@ -176,8 +176,8 @@ install the App and use the org-managed credentials.
 1. Install the **Forward Impact CI** App on your repository from its public
    listing.
 2. Store the following as repository secrets:
-   - `CI_APP_ID` — the App's numeric ID (provided by the App owner)
-   - `CI_APP_PRIVATE_KEY` — the PEM-encoded private key (provided by the App
+   - `KATA_APP_ID` — the App's numeric ID (provided by the App owner)
+   - `KATA_APP_PRIVATE_KEY` — the PEM-encoded private key (provided by the App
      owner)
 3. Store `ANTHROPIC_API_KEY` as a repository secret.
 4. The agent workflows will generate installation tokens automatically.
@@ -199,8 +199,8 @@ Organizations that want full control create their own GitHub App.
 2. Disable webhooks (not needed — token-only usage).
 3. Install the App on your repository.
 4. Generate a private key and store as repository secrets:
-   - `CI_APP_ID` — your App's numeric ID
-   - `CI_APP_PRIVATE_KEY` — your App's PEM-encoded private key
+   - `KATA_APP_ID` — your App's numeric ID
+   - `KATA_APP_PRIVATE_KEY` — your App's PEM-encoded private key
 5. Override the `app-slug` input in the composite action to match your App's
    slug. Each workflow passes `app-id` to the composite action; the `app-slug`
    input defaults to `forward-impact-ci` and must be changed to your App's slug.

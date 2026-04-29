@@ -7,15 +7,13 @@ on:
 
 permissions:
   contents: read
-  pages: write
-  id-token: write
 
 concurrency:
-  group: "pages"
+  group: "website"
   cancel-in-progress: false
 
 jobs:
-  build:
+  publish:
     runs-on: ubuntu-latest
 
     steps:
@@ -32,34 +30,34 @@ jobs:
       - name: Build website
         run: bunx fit-doc build --src=websites/fit --out=dist
 
-      - name: Copy JSON schema files
+      - name: Copy schema files
         run: |
           mkdir -p dist/schema/json
           cp products/map/schema/json/*.json dist/schema/json/
-
-      - name: Copy RDF schema files
-        run: |
           mkdir -p dist/schema/rdf
           cp products/map/schema/rdf/*.ttl dist/schema/rdf/
 
       - name: Copy CNAME file
         run: cp websites/fit/CNAME dist/
 
-      - name: Setup Pages
-        uses: actions/configure-pages@45bfe0192ca1faeb007ade9deae92b16b8254a0d # v6
-
-      - name: Upload artifact
-        uses: actions/upload-pages-artifact@fc324d3547104276b827a68afc52ff2a11cc49c9 # v5.0.0
+      - name: Upload site artifact
+        uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
         with:
+          name: fit-pages
           path: dist
 
-  deploy:
-    environment:
-      name: github-pages
-      url: ${{ steps.deployment.outputs.page_url }}
-    runs-on: ubuntu-latest
-    needs: build
-    steps:
-      - name: Deploy to GitHub Pages
-        id: deployment
-        uses: actions/deploy-pages@cd2ce8fcbc39b97be8ca5fce6e763baed58fa128 # v5.0.0
+      - name: Generate installation token
+        id: ci-app
+        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
+        with:
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
+          repositories: fit-pages
+
+      - name: Trigger deployment
+        env:
+          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
+        run: |
+          gh api repos/forwardimpact/fit-pages/dispatches \
+            -f event_type=deploy \
+            -f "client_payload[run_id]=${{ github.run_id }}"

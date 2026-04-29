@@ -23,8 +23,8 @@ jobs:
         id: ci-app
         uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
-          private-key: ${{ secrets.CI_APP_PRIVATE_KEY }}
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
 
       - name: Generate LLM token
         id: llm-app
@@ -70,7 +70,7 @@ jobs:
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
-          app-id: ${{ secrets.CI_APP_ID }}
+          app-id: ${{ secrets.KATA_APP_ID }}
           mode: "supervise"
           task-file: scenarios/summit-setup/task.md
           supervisor-cwd: "."
