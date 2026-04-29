@@ -100,13 +100,13 @@ routing to staff engineer" — matched by `stopping per protocol`.
 **Evidence (right-hand side):** at least one of these tool-call patterns appears
 after the trigger turn:
 
-| Artifact            | Tool-call pattern                                                           |
-| ------------------- | --------------------------------------------------------------------------- |
-| Issue creation      | `tool=="Bash"`, `command` matches `gh issue create`                         |
-| Issue/PR comment    | `tool=="Bash"`, `command` matches `gh (issue\|pr) comment`                  |
-| Discussion creation | `tool=="Bash"`, `command` contains `createDiscussion` in GraphQL query      |
-| Discussion comment  | `tool=="Bash"`, `command` contains `addDiscussionComment`                   |
-| Agent conversation  | `tool=="Agent"` with description or prompt referencing `agent-react` |
+| Artifact            | Tool-call pattern                                                      |
+| ------------------- | ---------------------------------------------------------------------- |
+| Issue creation      | `tool=="Bash"`, `command` matches `gh issue create`                    |
+| Issue/PR comment    | `tool=="Bash"`, `command` matches `gh (issue\|pr) comment`             |
+| Discussion creation | `tool=="Bash"`, `command` contains `createDiscussion` in GraphQL query |
+| Discussion comment  | `tool=="Bash"`, `command` contains `addDiscussionComment`              |
+| Agent conversation  | `tool=="Agent"` with description or prompt referencing `agent-react`   |
 
 The existing "Open questions in wiki cite a Discussion" invariant catches wiki
 entries that should have been Discussions. The new invariant catches runs that

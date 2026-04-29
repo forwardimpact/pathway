@@ -12,10 +12,10 @@ Two websites are published from this monorepo, both built by the `fit-doc` CLI
 (see the `fit-doc` skill for commands, front matter, and auto-generated
 outputs).
 
-| Site                     | Source           | Domain                    |
-| ------------------------ | ---------------- | ------------------------- |
-| Forward Impact Team      | `websites/fit/`  | `www.forwardimpact.team`  |
-| Kata Agent Team          | `websites/kata/` | `www.kata.team`           |
+| Site                | Source           | Domain                   |
+| ------------------- | ---------------- | ------------------------ |
+| Forward Impact Team | `websites/fit/`  | `www.forwardimpact.team` |
+| Kata Agent Team     | `websites/kata/` | `www.kata.team`          |
 
 ### Local preview
 
@@ -29,10 +29,10 @@ bunx fit-doc serve --src=websites/kata --watch
 Both sites follow the same deployment pattern. Each has a workflow in
 `.github/workflows/` and a corresponding GitHub Pages repo.
 
-| Workflow                  | Artifact      | Pages repo                 |
-| ------------------------- | ------------- | -------------------------- |
-| `website-fit.yaml`        | `fit-pages`   | `forwardimpact/fit-pages`  |
-| `website-kata.yaml`       | `kata-pages`  | `forwardimpact/kata-pages` |
+| Workflow            | Artifact     | Pages repo                 |
+| ------------------- | ------------ | -------------------------- |
+| `website-fit.yaml`  | `fit-pages`  | `forwardimpact/fit-pages`  |
+| `website-kata.yaml` | `kata-pages` | `forwardimpact/kata-pages` |
 
 Steps:
 

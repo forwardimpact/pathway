@@ -128,8 +128,8 @@ the Forward Impact monorepo.
 
 ### Kata Agent Team
 
-An autonomous and continuously improving agentic development team organized as
-a daily Plan-Do-Study-Act cycle with spec-driven development.
+An autonomous and continuously improving agentic development team organized as a
+daily Plan-Do-Study-Act cycle with spec-driven development.
 
 </a>
 

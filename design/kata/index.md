@@ -318,8 +318,8 @@ the Trust Boundary section.
 
 ### Surface 3 — Agent Comments and PR/Issue Bodies
 
-When a Kata agent posts on a PR or issue (via `agent-react`), it signs
-with its persona. The signature line is a single line of IBM Plex Mono using the
+When a Kata agent posts on a PR or issue (via `agent-react`), it signs with its
+persona. The signature line is a single line of IBM Plex Mono using the
 convention:
 
 ```

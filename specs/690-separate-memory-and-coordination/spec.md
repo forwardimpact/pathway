@@ -32,7 +32,7 @@ appending rows to its metrics CSV. The trace contains zero non-wiki outputs.
 | GitHub Issue                                                                                                      | **none**                                             |
 | GitHub Discussion                                                                                                 | **none**                                             |
 | PR comment on PRs inheriting the same e2e failure (the trace lists two open PRs at this state, `gh pr list` turn) | **none**                                             |
-| `agent-react` invocation                                                                                   | **none**                                             |
+| `agent-react` invocation                                                                                          | **none**                                             |
 | `MEMORY.md` edit (the only Tier-1 cross-agent surface)                                                            | **none**                                             |
 
 The Staff Engineer's `Assess` procedure (`.claude/agents/staff-engineer.md`)
@@ -137,11 +137,11 @@ references and project policy); fixes at lower layers will not hold.
 
 | Area                                             | Reason                                                                                                              |
 | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------- |
-| New coordination channels                        | GitHub Issues, PR/issue comments, Discussions, and `agent-react` are sufficient                              |
+| New coordination channels                        | GitHub Issues, PR/issue comments, Discussions, and `agent-react` are sufficient                                     |
 | Tooling that mechanically blocks wiki-as-handoff | Manual + invariant audit first; mechanical enforcement deferred until invariant baselines exist                     |
 | Migration of historical wiki content             | Forward-only; existing summaries and weekly logs are not rewritten                                                  |
 | Wiki structure beyond `MEMORY.md` rotation       | Spec 590 covered condensed memory and the priority index; this spec only adds the rotation rule                     |
-| Change to the agent-react facilitator     | Already correctly described in the renamed `coordination-protocol.md` § Cross-agent escalation; no behaviour change |
+| Change to the agent-react facilitator            | Already correctly described in the renamed `coordination-protocol.md` § Cross-agent escalation; no behaviour change |
 
 ## What Changes
 
@@ -152,9 +152,9 @@ states what each one is, where it lives, and what it is **not**. The wiki is
 named explicitly as a memory layer, not a coordination channel. Writing a phrase
 like "routing to X" in the agent's own wiki summary does not constitute a
 handoff. Coordination requires a named receiver and an addressable artifact:
-Issue, PR/issue comment, Discussion, or `agent-react` invocation. The
-section sits at the project-policy layer (L8) so every downstream profile,
-skill, and reference inherits it.
+Issue, PR/issue comment, Discussion, or `agent-react` invocation. The section
+sits at the project-policy layer (L8) so every downstream profile, skill, and
+reference inherits it.
 
 ### KATA.md aligns Shared Memory and Coordination Channels
 
@@ -188,10 +188,10 @@ channels. Neither entry labels the wiki as a coordination channel.
 Any agent profile or skill whose process can terminate with "stop and report"
 without producing a `fix/` or `spec/` branch names **what kind of non-wiki
 artifact the report produces** — a GitHub Issue, a PR/issue comment, a
-Discussion, or an `agent-react` invocation. The choice of which channel
-fits which boundary is a design-time decision and is not pinned in this spec.
-What the spec requires is that the channel is named in the file the agent reads
-at the boundary (the profile's Assess procedure or the skill's
+Discussion, or an `agent-react` invocation. The choice of which channel fits
+which boundary is a design-time decision and is not pinned in this spec. What
+the spec requires is that the channel is named in the file the agent reads at
+the boundary (the profile's Assess procedure or the skill's
 `## Coordination Channels` block, whichever applies), so "report" is no longer
 ambiguous and the wiki is no longer the path of least resistance.
 
@@ -225,8 +225,8 @@ as properties:
   halts without producing a `fix/` or `spec/` branch.
 - **Evidence (right-hand side):** the trace contains at least one non-wiki
   output for that stop — a GitHub Issue, a PR/issue comment, a Discussion, or an
-  `agent-react` invocation. The specific tool-call shapes used to detect
-  each of these are a design decision.
+  `agent-react` invocation. The specific tool-call shapes used to detect each of
+  these are a design decision.
 
 This sits alongside the existing High-severity "Open questions in wiki cite a
 Discussion" invariant — together they form a two-sided check on the wiki-as-
@@ -239,11 +239,11 @@ tree of the implementing branch.
 
 | #   | Criterion                                                                                                                      | Verification                                                                                                                                                                                                                                                                                                                                  |
 | --- | ------------------------------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `CLAUDE.md` carries a top-level "Memory and Coordination" section that names the wiki as a memory layer and lists the channels | `grep -q "^## Memory and Coordination" CLAUDE.md` AND the section text (between that heading and the next H2) matches both `wiki` and at least three of: `Issues`, `Discussions`, PR/issue `comment`, `agent-react`                                                                                                                    |
+| 1   | `CLAUDE.md` carries a top-level "Memory and Coordination" section that names the wiki as a memory layer and lists the channels | `grep -q "^## Memory and Coordination" CLAUDE.md` AND the section text (between that heading and the next H2) matches both `wiki` and at least three of: `Issues`, `Discussions`, PR/issue `comment`, `agent-react`                                                                                                                           |
 | 2   | `routing-protocol.md` no longer exists; `coordination-protocol.md` exists in its place                                         | `find .claude -name routing-protocol.md` returns nothing; `find .claude -name coordination-protocol.md` returns exactly one path                                                                                                                                                                                                              |
 | 3   | No file in `.claude/`, `CLAUDE.md`, or `KATA.md` references the old filename                                                   | `grep -r "routing-protocol" .claude CLAUDE.md KATA.md` returns no matches                                                                                                                                                                                                                                                                     |
 | 4   | Every agent profile carries two distinct, separately-linked footer entries                                                     | For every file `f` in `.claude/agents/*.md` (excluding `references/`): `grep -c "memory-protocol" f` ≥ 1 AND `grep -c "coordination-protocol" f` ≥ 1 AND no single line in `f` matches both `memory-protocol` and `coordination-protocol`                                                                                                     |
-| 5   | Every profile or skill that "stops and reports" at a mandate boundary names a non-wiki receiving artifact                      | For every file `f` returned by `grep -ln "stop and report" .claude/agents/*.md .claude/skills/**/SKILL.md`: the surrounding section names at least one of `Issue`, `Discussion`, PR/issue `comment`, or `agent-react` as the receiving artifact for that stop                                                                          |
+| 5   | Every profile or skill that "stops and reports" at a mandate boundary names a non-wiki receiving artifact                      | For every file `f` returned by `grep -ln "stop and report" .claude/agents/*.md .claude/skills/**/SKILL.md`: the surrounding section names at least one of `Issue`, `Discussion`, PR/issue `comment`, or `agent-react` as the receiving artifact for that stop                                                                                 |
 | 6   | `memory-protocol.md` documents the `MEMORY.md` rotation procedure                                                              | `memory-protocol.md` contains a section whose body matches `Add`, `Update`, and `Remove` as separate items describing when each operation applies to a `MEMORY.md` entry                                                                                                                                                                      |
 | 7   | `kata-trace`'s Cross-cutting invariants table gains the mandate-boundary invariant at High severity                            | `.claude/skills/kata-trace/references/invariants.md` § Cross-cutting invariants contains a row matching `non-wiki artifact` with severity `High`                                                                                                                                                                                              |
 | 8   | The new invariant detects the original failure on a known-bad input                                                            | Re-running `kata-trace`'s invariant audit against trace `25039150119` (release-engineer run-15, downloaded via `bunx fit-trace download 25039150119`) records `FAIL` on the new invariant. This is the spec's behavioural test: the invariant must catch the trace whose analysis motivated the spec, against the working tree of this branch |

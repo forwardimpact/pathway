@@ -11,13 +11,12 @@ description: "An autonomous and continuously improving agentic development team 
 
 The **Kata Agent Team** is an autonomous and continuously improving agentic
 development team running on GitHub Actions, organized as a daily
-**Plan-Do-Study-Act** (PDSA) cycle. Agents plan by writing specs, do by
-shipping features and hardening the repo, study their own execution traces and
-outputs, and act on findings — closing the loop every day. The name follows
-Toyota Kata: agents grasp the current condition (via prior-run traces),
-establish target conditions (via specs), and experiment toward them (via
-implementation). Six agent personas, eight workflows, eighteen skills form this
-cycle.
+**Plan-Do-Study-Act** (PDSA) cycle. Agents plan by writing specs, do by shipping
+features and hardening the repo, study their own execution traces and outputs,
+and act on findings — closing the loop every day. The name follows Toyota Kata:
+agents grasp the current condition (via prior-run traces), establish target
+conditions (via specs), and experiment toward them (via implementation). Six
+agent personas, eight workflows, eighteen skills form this cycle.
 
 This page is the internal-contributor entry point. The canonical reference is
 [`KATA.md`](https://github.com/forwardimpact/monorepo/blob/main/KATA.md) at the
@@ -141,7 +140,7 @@ an event-driven **agent-react** workflow on PR and discussion activity.
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
 | **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
-| **agent-react**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
+| **agent-react**             | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
 
 Each shift forms a **producer → reviewer → shipper** chain: the product manager
 triages and merges so staff has a fresh backlog, staff implements, release
@@ -183,20 +182,19 @@ from special-cause reactions.
 
 ## Authentication
 
-Workflows authenticate via the **GitHub App** `kata-agent-team`, not a PAT.
-Each run generates a 1-hour installation token via
-`actions/create-github-app-token` — no long-lived secrets to rotate. The token
-must generate before `actions/checkout` so checkout-token writes trigger
-downstream workflows.
+Workflows authenticate via the **GitHub App** `kata-agent-team`, not a PAT. Each
+run generates a 1-hour installation token via `actions/create-github-app-token`
+— no long-lived secrets to rotate. The token must generate before
+`actions/checkout` so checkout-token writes trigger downstream workflows.
 
-| Permission    | Why                                                               |
-| ------------- | ----------------------------------------------------------------- |
-| Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches       |
-| Pull requests | Open, comment, merge PRs (release-engineer, product-manager)      |
-| Issues        | Triage, label, comment (product-manager)                          |
-| Discussions   | Reply on discussions and discussion comments (agent-react) |
-| Workflows     | Token-driven pushes re-trigger downstream workflows               |
-| Metadata      | Required by GitHub                                                |
+| Permission    | Why                                                          |
+| ------------- | ------------------------------------------------------------ |
+| Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches  |
+| Pull requests | Open, comment, merge PRs (release-engineer, product-manager) |
+| Issues        | Triage, label, comment (product-manager)                     |
+| Discussions   | Reply on discussions and discussion comments (agent-react)   |
+| Workflows     | Token-driven pushes re-trigger downstream workflows          |
+| Metadata      | Required by GitHub                                           |
 
 ---
 

@@ -37,11 +37,11 @@ but either may run alongside a Discussion.
 
 To pull another agent into a thread, address them by name in plain text — e.g.
 "Hello Product Manager," or "Hey Staff Engineer, can you take a look at the
-trust check?" The `agent-react` facilitator infers the addressee and
-routes the response. Do **not** use `@`-mentions for agents: agents don't have
-GitHub user accounts, so `@product-manager` would either ping an unrelated
-GitHub user with that handle or resolve to nothing. Do not write to another
-agent's wiki summary — they read their own.
+trust check?" The `agent-react` facilitator infers the addressee and routes the
+response. Do **not** use `@`-mentions for agents: agents don't have GitHub user
+accounts, so `@product-manager` would either ping an unrelated GitHub user with
+that handle or resolve to nothing. Do not write to another agent's wiki summary
+— they read their own.
 
 ## Inbound: unclear addressed comments
 
@@ -58,10 +58,10 @@ mis-routing; the `kata-trace` invariant audit checks for stale open Discussions.
 
 ## Trust at run-time
 
-The `agent-react` facilitator verifies the author is a trusted
-contributor before engaging any participant — LLM judgement, scoped per run.
-Untrusted authors receive an acknowledgement; no participant agent files a
-`fix/` or `spec/` branch on their behalf.
+The `agent-react` facilitator verifies the author is a trusted contributor
+before engaging any participant — LLM judgement, scoped per run. Untrusted
+authors receive an acknowledgement; no participant agent files a `fix/` or
+`spec/` branch on their behalf.
 
 ## Channels this protocol does NOT cover
 

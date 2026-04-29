@@ -8,14 +8,14 @@
 
 The Kata Agent Team is an autonomous and continuously improving agentic
 development team running on GitHub Actions, organized as a daily
-**Plan-Do-Study-Act** (PDSA) cycle. Agents plan by writing specs, do by
-shipping features and hardening the repo, study their own execution traces and
-outputs, and act on findings — closing the loop every day. The name follows
-Toyota Kata: agents grasp the current condition (via prior-run traces),
-establish target conditions (via specs), and experiment toward them (via
-implementation). Eight workflows (five scheduled agent runs across three shifts,
-a daily storyboard, an on-demand coaching session, an event-driven conversation
-responder), six agent personas, and eighteen skills form this cycle.
+**Plan-Do-Study-Act** (PDSA) cycle. Agents plan by writing specs, do by shipping
+features and hardening the repo, study their own execution traces and outputs,
+and act on findings — closing the loop every day. The name follows Toyota Kata:
+agents grasp the current condition (via prior-run traces), establish target
+conditions (via specs), and experiment toward them (via implementation). Eight
+workflows (five scheduled agent runs across three shifts, a daily storyboard, an
+on-demand coaching session, an event-driven conversation responder), six agent
+personas, and eighteen skills form this cycle.
 
 ## Architecture
 
@@ -77,12 +77,12 @@ technical-writer between staff and release to review code before it ships; day
 and swing skip the review pair (dependency churn and doc drift need no intra-day
 cadence; CVE-driven work runs on demand). Crons are authored in UTC; Paris times
 below use CEST (UTC+2), the tighter summer bound. An eighth workflow,
-**agent-react**, runs on PR comments, new discussions, and discussion
-comments — the product manager facilitates and routes the comment to the
-participant best suited to respond. All workflows support `workflow_dispatch`,
-use concurrency groups, and time out at 30 minutes. Agent workflows send a
-generic prompt; the agent's Assess section picks the action. Storyboard and
-coaching send specific prompts to the improvement coach.
+**agent-react**, runs on PR comments, new discussions, and discussion comments —
+the product manager facilitates and routes the comment to the participant best
+suited to respond. All workflows support `workflow_dispatch`, use concurrency
+groups, and time out at 30 minutes. Agent workflows send a generic prompt; the
+agent's Assess section picks the action. Storyboard and coaching send specific
+prompts to the improvement coach.
 
 | Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
 | --------------------------- | ------------------------------------- | ---------------------------------------- |
@@ -93,7 +93,7 @@ coaching send specific prompts to the improvement coach.
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
 | **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
-| **agent-react**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
+| **agent-react**             | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
 
 ## Skills
 
@@ -195,12 +195,12 @@ ownership, and inbound comment handling — is governed by
 the sibling of `memory-protocol.md`. Each channel has an explicit non-purpose so
 they don't compete.
 
-| Channel               | Use for                                                                                                      | Lifetime                              | Mechanism                     |
-| --------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------- | ----------------------------- |
-| **Storyboard**        | Daily current condition and next experiment                                                                  | One day; captured into wiki           | `kata-storyboard` workflow    |
-| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                             | Open until resolved into spec or wiki | `agent-react` workflow |
-| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                     | Lives with the artifact               | `agent-react` workflow |
-| **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in coordination-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning  |
+| Channel               | Use for                                                                                                      | Lifetime                              | Mechanism                    |
+| --------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------- | ---------------------------- |
+| **Storyboard**        | Daily current condition and next experiment                                                                  | One day; captured into wiki           | `kata-storyboard` workflow   |
+| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                             | Open until resolved into spec or wiki | `agent-react` workflow       |
+| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                     | Lives with the artifact               | `agent-react` workflow       |
+| **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in coordination-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning |
 
 - **Storyboard** observes and plans; structural decisions go through
   `kata-spec`, not the meeting.
@@ -229,11 +229,10 @@ persist as structured data rather than prose.
 
 ## Authentication
 
-Workflows authenticate via the **GitHub App** `kata-agent-team`, not a PAT.
-Each run generates a 1-hour installation token via
-`actions/create-github-app-token` — no long-lived secrets to rotate. The token
-must generate before `actions/checkout` so checkout-token writes trigger
-downstream workflows.
+Workflows authenticate via the **GitHub App** `kata-agent-team`, not a PAT. Each
+run generates a 1-hour installation token via `actions/create-github-app-token`
+— no long-lived secrets to rotate. The token must generate before
+`actions/checkout` so checkout-token writes trigger downstream workflows.
 
 ### GitHub App setup
 
@@ -246,7 +245,7 @@ maps to at least one workflow):
 | Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches                                              |
 | Pull requests | Open, comment, merge PRs (release-engineer, product-manager)                                             |
 | Issues        | Triage, label, comment (product-manager); create, comment, close (improvement-coach via kata-storyboard) |
-| Discussions   | Reply on discussions and discussion comments (agent-react)                                        |
+| Discussions   | Reply on discussions and discussion comments (agent-react)                                               |
 | Workflows     | Token-driven pushes re-trigger downstream workflows                                                      |
 | Metadata      | Required by GitHub                                                                                       |
 

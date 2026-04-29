@@ -8,8 +8,8 @@ description: >
 
 # fit-doc
 
-A static site generator that turns a directory of markdown files into a
-complete website with directory-style URLs, table of contents, breadcrumbs, and
+A static site generator that turns a directory of markdown files into a complete
+website with directory-style URLs, table of contents, breadcrumbs, and
 auto-generated metadata files.
 
 ```sh
@@ -24,11 +24,11 @@ npx fit-doc serve --src=docs --watch --port=3000         # dev server with live 
 Renders all markdown files into HTML and copies static assets to the output
 directory.
 
-| Flag             | Default  | Description                                          |
-| ---------------- | -------- | ---------------------------------------------------- |
-| `--src <dir>`    | `public` | Source directory containing markdown and assets       |
-| `--out <dir>`    | `dist`   | Output directory                                     |
-| `--base-url`     | _(none)_ | Base URL for sitemap, canonical links, and llms.txt   |
+| Flag          | Default  | Description                                         |
+| ------------- | -------- | --------------------------------------------------- |
+| `--src <dir>` | `public` | Source directory containing markdown and assets     |
+| `--out <dir>` | `dist`   | Output directory                                    |
+| `--base-url`  | _(none)_ | Base URL for sitemap, canonical links, and llms.txt |
 
 When `--base-url` is omitted, `fit-doc` looks for a `CNAME` file in the source
 directory and derives the base URL from it (`https://{cname}/`).
@@ -38,29 +38,29 @@ directory and derives the base URL from it (`https://{cname}/`).
 Builds the site and starts a local HTTP server. Optionally watches for changes
 and rebuilds automatically.
 
-| Flag             | Default  | Description                          |
-| ---------------- | -------- | ------------------------------------ |
-| `--src <dir>`    | `public` | Source directory                     |
-| `--port <n>`     | `3000`   | Port to serve on                     |
-| `--watch`        | off      | Watch for changes and rebuild        |
-| `--base-url`     | _(none)_ | Same as build                        |
+| Flag          | Default  | Description                   |
+| ------------- | -------- | ----------------------------- |
+| `--src <dir>` | `public` | Source directory              |
+| `--port <n>`  | `3000`   | Port to serve on              |
+| `--watch`     | off      | Watch for changes and rebuild |
+| `--base-url`  | _(none)_ | Same as build                 |
 
 ## Source Directory Layout
 
 A `fit-doc` site needs at minimum an `index.template.html` and one `.md` file.
 
-| File / Directory        | Required | Purpose                                          |
-| ----------------------- | -------- | ------------------------------------------------ |
-| `index.template.html`   | yes      | Mustache template applied to every page           |
-| `*.md`                  | yes      | Pages with YAML front matter                      |
-| `CNAME`                 | no       | Custom domain — also used to derive base URL      |
-| `assets/`               | no       | Static files copied verbatim to output            |
-| `justfile`              | no       | Pre-build hook (runs `just build` before render)  |
-| `llms.txt`              | no       | Curated LLM index, auto-augmented at build time   |
-| `robots.txt`            | no       | Copied verbatim to output                         |
+| File / Directory      | Required | Purpose                                          |
+| --------------------- | -------- | ------------------------------------------------ |
+| `index.template.html` | yes      | Mustache template applied to every page          |
+| `*.md`                | yes      | Pages with YAML front matter                     |
+| `CNAME`               | no       | Custom domain — also used to derive base URL     |
+| `assets/`             | no       | Static files copied verbatim to output           |
+| `justfile`            | no       | Pre-build hook (runs `just build` before render) |
+| `llms.txt`            | no       | Curated LLM index, auto-augmented at build time  |
+| `robots.txt`          | no       | Copied verbatim to output                        |
 
-Files and directories named `CLAUDE.md`, `SKILL.md`, and `assets/` are
-excluded from page rendering.
+Files and directories named `CLAUDE.md`, `SKILL.md`, and `assets/` are excluded
+from page rendering.
 
 ## Front Matter
 
@@ -88,21 +88,21 @@ hero:                        # optional — hero section variables
 
 The Mustache template receives these variables for each page:
 
-| Variable        | Type    | Description                                 |
-| --------------- | ------- | ------------------------------------------- |
-| `title`         | string  | From front matter                            |
-| `description`   | string  | From front matter                            |
-| `content`       | HTML    | Rendered markdown (use triple-stache `{{{content}}}`) |
-| `layout`        | string  | Layout name from front matter                |
-| `hasToc`        | boolean | False when `toc: false` in front matter      |
-| `toc`           | HTML    | Auto-generated from h2 headings              |
-| `hasBreadcrumbs`| boolean | True for pages 2+ levels deep                |
-| `breadcrumbs`   | HTML    | Navigation breadcrumbs                       |
-| `markdownUrl`   | string  | Always `"index.md"` (companion file)         |
-| `canonicalUrl`  | string  | Full URL when base URL is available           |
-| `hasHero`       | boolean | True when hero front matter is present        |
-| `heroImage`, `heroAlt`, `heroTitle`, `heroSubtitle` | string | Hero fields |
-| `heroCta`       | array   | CTA buttons with `label`, `href`, `btnClass` |
+| Variable                                            | Type    | Description                                           |
+| --------------------------------------------------- | ------- | ----------------------------------------------------- |
+| `title`                                             | string  | From front matter                                     |
+| `description`                                       | string  | From front matter                                     |
+| `content`                                           | HTML    | Rendered markdown (use triple-stache `{{{content}}}`) |
+| `layout`                                            | string  | Layout name from front matter                         |
+| `hasToc`                                            | boolean | False when `toc: false` in front matter               |
+| `toc`                                               | HTML    | Auto-generated from h2 headings                       |
+| `hasBreadcrumbs`                                    | boolean | True for pages 2+ levels deep                         |
+| `breadcrumbs`                                       | HTML    | Navigation breadcrumbs                                |
+| `markdownUrl`                                       | string  | Always `"index.md"` (companion file)                  |
+| `canonicalUrl`                                      | string  | Full URL when base URL is available                   |
+| `hasHero`                                           | boolean | True when hero front matter is present                |
+| `heroImage`, `heroAlt`, `heroTitle`, `heroSubtitle` | string  | Hero fields                                           |
+| `heroCta`                                           | array   | CTA buttons with `label`, `href`, `btnClass`          |
 
 ## Auto-Generated Outputs
 
@@ -110,11 +110,11 @@ The Mustache template receives these variables for each page:
 
 Markdown files become directories with `index.html`:
 
-| Source                | Output URL      |
-| --------------------- | --------------- |
-| `index.md`            | `/`             |
-| `about/index.md`      | `/about/`       |
-| `docs/guide.md`       | `/docs/guide/`  |
+| Source           | Output URL     |
+| ---------------- | -------------- |
+| `index.md`       | `/`            |
+| `about/index.md` | `/about/`      |
+| `docs/guide.md`  | `/docs/guide/` |
 
 ### Companion markdown files
 
@@ -124,8 +124,8 @@ Pages include `<link rel="alternate" type="text/markdown" href="index.md">`.
 ### Link rewriting
 
 Links to `.md` files in markdown source are rewritten to directory-style URLs:
-`[link](../other.md)` → `href="../other/"`,
-`[link](dir/index.md)` → `href="dir/"`.
+`[link](../other.md)` → `href="../other/"`, `[link](dir/index.md)` →
+`href="dir/"`.
 
 ### `sitemap.xml`
 
@@ -146,8 +146,8 @@ To add a custom section, edit `llms.txt` and update the mapping in
 
 ### Table of contents
 
-Auto-generated from h2 headings into a `<nav class="toc-nav">`. Disable per
-page with `toc: false` in front matter.
+Auto-generated from h2 headings into a `<nav class="toc-nav">`. Disable per page
+with `toc: false` in front matter.
 
 ### Breadcrumbs
 
