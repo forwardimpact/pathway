@@ -5,11 +5,14 @@
 Pathway distributes each pack through three static-file channels emitted by
 `fit-pathway build`:
 
-| Channel    | Artifact                                      | Install command                                |
-| ---------- | --------------------------------------------- | ---------------------------------------------- |
-| Raw        | `packs/{name}.raw.tar.gz`                     | `curl -sL <url> \| tar xz`                     |
-| APM        | `packs/{name}.apm.tar.gz`                     | `curl -sLO <url> && apm unpack <file>`         |
-| npx-skills | `packs/{name}/.well-known/skills/index.json`  | `npx skills add <url>/packs/{name}`            |
+| Channel    | Artifact                                      |
+| ---------- | --------------------------------------------- |
+| Raw        | `packs/{name}.raw.tar.gz`                     |
+| APM        | `packs/{name}.apm.tar.gz`                     |
+| npx-skills | `packs/{name}/.well-known/skills/index.json`  |
+
+Install commands per channel are derived in `agent-builder-install.js` (single
+source of truth).
 
 Both APM and npx-skills consumers ultimately speak a git-shaped install model
 when they reach beyond static hosting:
@@ -92,16 +95,18 @@ tarball and discovery-index outputs.
    reuse.
 
 2. **Per-pack git URL — APM.** For each pack, the build emits a static bare
-   repo whose tree contents match the APM bundle layout (`.apm/skills/`,
-   `.apm/agents/`, `apm.yml`, `apm.lock.yaml`). The repo is reachable at
-   `packs/{name}.apm.git/` (or equivalent path under the site root) and
-   installable via `apm install <site>/packs/{name}.apm.git`.
+   repo whose working tree contains the same files as the corresponding
+   `{name}.apm.tar.gz` archive (currently `.claude/skills/`, `.claude/agents/`,
+   optional `.claude/CLAUDE.md`, and `apm.lock.yaml` at the root, per
+   `build-packs-apm.js`). The repo is reachable at `packs/{name}.apm.git/`
+   under the site root and installable via
+   `apm install <site>/packs/{name}.apm.git`.
 
 3. **Per-pack git URL — skills.** For each pack, the build emits a static
-   bare repo whose tree contents match the skills-pack layout (the
-   `.claude/skills/` content already staged for the npx-skills channel). The
-   repo is reachable at a parallel path and consumable by any git-aware skill
-   installer pointed at it.
+   bare repo whose working tree contains the same skill files exposed
+   through the npx-skills channel for that pack. The repo is reachable at
+   `packs/{name}.skills.git/` under the site root and consumable by any
+   git-aware skill installer pointed at it.
 
 4. **Latest only, single commit.** Each build emits a fresh repository
    containing exactly one commit on the default branch. No prior history is
@@ -111,9 +116,7 @@ tarball and discovery-index outputs.
 
 5. **Deterministic identity.** Two builds of the same input at the same
    Pathway version produce a byte-identical bare repo, including identical
-   commit SHA, tree SHA, and packfile contents. The same determinism strategy
-   used by existing tarballs (fixed epoch, sorted entries) applies to commit
-   author/committer date, email, and tree ordering.
+   commit SHA, tree SHA, and packfile contents.
 
 6. **Static hosting only.** The emitted repo must clone correctly over plain
    HTTP/HTTPS from any file-serving host without CGI, smart HTTP, or git
@@ -122,14 +125,12 @@ tarball and discovery-index outputs.
 
 7. **Coexistence with existing channels.** Raw tarballs, APM tarballs, and
    the `.well-known/skills/` discovery index continue to be emitted with
-   their current content. The git repos are additive. Install commands shown
-   in the agent builder UI add a git option alongside the existing options;
-   no existing command is removed.
-
-8. **Bounded build cost.** Emission of all per-pack bare repos completes
-   within the existing `fit-pathway build` budget for typical framework
-   sizes. Build determinism does not depend on machine state outside the
-   build directory (no global git config, no user identity).
+   their current content. The git repos are additive. The agent builder UI
+   surfaces the canonical git install command alongside the existing
+   `curl … | tar`, `apm unpack`, and `npx skills add` commands —
+   specifically `apm install <site>/packs/{name}.apm.git` for the APM
+   channel and `git clone <site>/packs/{name}.skills.git` for the skills
+   channel. No existing command is removed.
 
 ### Scope
 
@@ -140,6 +141,10 @@ tarball and discovery-index outputs.
   existing tarball/skills commands
 - Build determinism contract — extends from tarball byte-equality to also
   cover bare-repo byte-equality
+
+Git emission inherits the existing `framework.distribution.siteUrl` gate
+that controls all per-pack output today: when `siteUrl` is unset the build
+produces no per-pack artifacts of any kind, and that behavior is unchanged.
 
 **Not affected:**
 
@@ -154,13 +159,13 @@ tarball and discovery-index outputs.
    file host serving the build output and yields a working tree matching the
    APM bundle layout.
 
-2. `apm install https://<site>/packs/{name}.apm.git` succeeds and installs
-   skills and agent profiles into `.claude/` of the consumer's project,
-   content-identical to what `apm unpack` of the same build's
-   `{name}.apm.tar.gz` produces.
+2. `apm install https://<site>/packs/{name}.apm.git` succeeds, and the
+   resulting `.claude/` tree in the consumer's project is byte-identical to
+   the `.claude/` tree produced by `apm unpack` of the same build's
+   `{name}.apm.tar.gz`.
 
-3. `git clone https://<site>/packs/{name}.skills.git` (or the chosen path)
-   succeeds and yields a working tree matching the skills-pack layout.
+3. `git clone https://<site>/packs/{name}.skills.git` succeeds and yields a
+   working tree matching the skills-pack layout.
 
 4. Two builds of identical framework data at the same Pathway version
    produce byte-identical bare-repo file trees, including identical commit
@@ -169,10 +174,10 @@ tarball and discovery-index outputs.
 5. The Pathway version is reachable as a git tag in each emitted repo
    (`git ls-remote --tags <url>` lists `v{version}`).
 
-6. The set of files served per repo is bounded and documented: bare-repo
-   skeleton (`HEAD`, `config`, `description`, `refs/heads/...`,
-   `refs/tags/...`) plus `info/refs`, `objects/info/packs`, exactly one
-   `.pack`, and exactly one `.idx`. No loose objects.
+6. Each emitted repo conforms to the dumb-HTTP layout: it clones cleanly
+   over plain HTTP/HTTPS from a static file host with no smart-HTTP
+   endpoints present. Verified by pointing `git clone` at a local static
+   server hosting the build output.
 
 7. Existing channels continue to emit byte-identical output to the
    pre-change build for the same input.
@@ -197,10 +202,6 @@ tarball and discovery-index outputs.
 - **CDN cache invalidation tuning.** Deployment-layer concern. The spec
   defines what bytes the build emits; how a host serves them (cache headers,
   immutability hints, ETag policy) is the deployer's choice.
-
-- **Backwards-compatibility shims for the dumb-HTTP layout.** If a future
-  spec adds version history, the layout may change. This spec does not
-  promise URL stability beyond the latest-only contract.
 
 ## References
 
