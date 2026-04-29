@@ -84,17 +84,23 @@ kata-session skill page.
               🤖📓 (recording)
 ```
 
-A chalk circle drawn on the floor — hand-drawn, slightly irregular, about
-character-width. Stakeholder (no backpack) stands inside it, cap pulled slightly
-forward, arms folded, feet planted — simply observing. Engineer crouches just
-outside the circle, peering in with exaggerated curiosity, hoodie ears tilted.
-AI Agent stands a respectful step further back, holding a notebook open,
-recording.
+A concrete factory floor seen from a low three-quarter angle. On the ground, a
+small chalk circle — hand-drawn, wobbly, just wide enough for one person to
+stand in, rendered in perspective as an ellipse flat on the floor surface.
+Stakeholder (no backpack) stands inside the circle with both feet on the
+concrete, cap pulled slightly forward, arms folded, feet planted — simply
+observing. The chalk line passes around their feet at ground level. Engineer
+crouches just outside the circle's edge, peering in with exaggerated curiosity,
+ears tilted. AI Agent stands a respectful step further back, holding a notebook
+open, recording. The circle is a floor marking like a taped workstation
+boundary, not a floating ring or halo.
 
-**Key details:** The circle is the icon and the scene. Stakeholder's posture —
-relaxed, observing — is the entire coaching kata in one frame. Engineer's
-curiosity is the audience surrogate ("why are they just standing there?").
-Agent's notebook captures everything Stakeholder is choosing not to say.
+**Key details:** The circle is flat on the ground — drawn in chalk on concrete,
+seen in perspective, not as a vertical shape or outline around a character.
+Stakeholder's posture — relaxed, observing — is the entire coaching kata in one
+frame. Engineer's curiosity is the audience surrogate ("why are they just
+standing there?"). Agent's notebook captures everything Stakeholder is choosing
+not to say.
 
 ## Scene: The Andon Cord
 
