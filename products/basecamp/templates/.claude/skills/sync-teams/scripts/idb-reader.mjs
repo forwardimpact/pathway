@@ -74,7 +74,7 @@ function tryDeserialize(rawValue) {
  * Parse a Chromium IndexedDB key prefix to extract database and object store IDs.
  * Returns null if the key doesn't look like an IndexedDB data record.
  */
-function parseKeyPrefix(key) {
+function _parseKeyPrefix(key) {
   if (key.length < 3) return null;
   const db = readIdbVarint(key, 0);
   if (db.bytesRead + 1 > key.length) return null;

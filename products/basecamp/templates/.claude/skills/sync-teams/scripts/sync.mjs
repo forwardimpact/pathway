@@ -95,7 +95,7 @@ function formatTimestamp(ts) {
     .replace(/\.\d+Z/, "");
 }
 
-function formatDateOnly(ts) {
+function _formatDateOnly(ts) {
   if (!ts) return "Unknown";
   const ms = typeof ts === "string" ? parseInt(ts, 10) : ts;
   const dt = new Date(ms);
@@ -182,6 +182,33 @@ function getChatDisplayNameFromMessages(chatMessages, userIdentity) {
   return null;
 }
 
+function messageFromRecord(msg, cutoffMs) {
+  if (isSystemMessage(msg)) return null;
+
+  const arrivalTime = msg.originalArrivalTime ?? msg.clientArrivalTime ?? null;
+  const ts =
+    typeof arrivalTime === "string" ? parseInt(arrivalTime, 10) : arrivalTime;
+
+  if (ts && cutoffMs && ts < cutoffMs) return null;
+
+  const content = htmlToText(msg.content ?? "");
+  if (!content) return null;
+
+  const senderName = normalizeName(
+    msg.imDisplayName ??
+      msg.fromDisplayNameInToken ??
+      msg.prioritizeImDisplayName ??
+      "",
+  );
+
+  return {
+    timestamp: ts,
+    sender: senderName,
+    content,
+    edited: !!msg.skypeeditedid,
+  };
+}
+
 function extractMessagesFromReplychains(replychains, conversationId, cutoffMs) {
   const messages = [];
   for (const rc of replychains) {
@@ -189,33 +216,8 @@ function extractMessagesFromReplychains(replychains, conversationId, cutoffMs) {
     if (!rc.messageMap) continue;
 
     for (const [, msg] of Object.entries(rc.messageMap)) {
-      if (isSystemMessage(msg)) continue;
-
-      const arrivalTime =
-        msg.originalArrivalTime ?? msg.clientArrivalTime ?? null;
-      const ts =
-        typeof arrivalTime === "string"
-          ? parseInt(arrivalTime, 10)
-          : arrivalTime;
-
-      if (ts && cutoffMs && ts < cutoffMs) continue;
-
-      const content = htmlToText(msg.content ?? "");
-      if (!content) continue;
-
-      const senderName = normalizeName(
-        msg.imDisplayName ??
-          msg.fromDisplayNameInToken ??
-          msg.prioritizeImDisplayName ??
-          "",
-      );
-
-      messages.push({
-        timestamp: ts,
-        sender: senderName,
-        content,
-        edited: !!msg.skypeeditedid,
-      });
+      const record = messageFromRecord(msg, cutoffMs);
+      if (record) messages.push(record);
     }
   }
 
@@ -274,6 +276,46 @@ function loadUserIdentity() {
   return "";
 }
 
+function processConversation(conv, replychains, cutoffMs, userIdentity) {
+  const convId = conv.id;
+  if (!convId) return null;
+
+  const chatType = is1to1Chat(conv)
+    ? "1to1"
+    : isGroupChat(conv)
+      ? "group"
+      : null;
+  if (!chatType) return null;
+
+  const chatMessages = extractMessagesFromReplychains(
+    replychains,
+    convId,
+    cutoffMs,
+  );
+  if (chatMessages.length === 0) return null;
+
+  let displayName = getChatDisplayName(conv);
+  if (!displayName) {
+    displayName = getChatDisplayNameFromMessages(chatMessages, userIdentity);
+  }
+  if (!displayName) return null;
+
+  const slug = toSlug(displayName);
+  if (!slug) return null;
+
+  const participants =
+    chatType === "group" ? extractParticipantsFromMessages(chatMessages) : [];
+
+  writeChatMarkdown(slug, displayName, chatType, participants, chatMessages);
+
+  const lastMsgTime = chatMessages[chatMessages.length - 1]?.timestamp;
+  const lastMsgIso = lastMsgTime
+    ? new Date(lastMsgTime).toISOString().slice(0, 19)
+    : "";
+
+  return `${slug}\t${displayName}\t${lastMsgIso}`;
+}
+
 function main() {
   let daysBack = 30;
   const daysIdx = process.argv.indexOf("--days");
@@ -308,44 +350,16 @@ function main() {
   let written = 0;
 
   for (const conv of conversations) {
-    const convId = conv.id;
-    if (!convId) continue;
-
-    const chatType = is1to1Chat(conv)
-      ? "1to1"
-      : isGroupChat(conv)
-        ? "group"
-        : null;
-    if (!chatType) continue;
-
-    const chatMessages = extractMessagesFromReplychains(
+    const indexLine = processConversation(
+      conv,
       replychains,
-      convId,
       cutoffMs,
+      userIdentity,
     );
-    if (chatMessages.length === 0) continue;
-
-    let displayName = getChatDisplayName(conv);
-    if (!displayName) {
-      displayName = getChatDisplayNameFromMessages(chatMessages, userIdentity);
+    if (indexLine) {
+      indexLines.push(indexLine);
+      written++;
     }
-    if (!displayName) continue;
-
-    const slug = toSlug(displayName);
-    if (!slug) continue;
-
-    const participants =
-      chatType === "group" ? extractParticipantsFromMessages(chatMessages) : [];
-
-    writeChatMarkdown(slug, displayName, chatType, participants, chatMessages);
-    written++;
-
-    const lastMsgTime = chatMessages[chatMessages.length - 1]?.timestamp;
-    const lastMsgIso = lastMsgTime
-      ? new Date(lastMsgTime).toISOString().slice(0, 19)
-      : "";
-
-    indexLines.push(`${slug}\t${displayName}\t${lastMsgIso}`);
   }
 
   indexLines.sort((a, b) => {
