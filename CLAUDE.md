@@ -80,26 +80,20 @@ contributors.
 
 ### How External Users Consume Products
 
-Agents are often the primary consumers of our products. Published skills are how
-they learn to use them, so skill clarity directly affects product quality. Two
-skill packs sync on push to `main`:
+Agents are often the primary consumers. Published skills teach how a product
+**works** and how to **use** it — not how it is **implemented**. Progressively
+disclose: start with what the product does, then link to published docs.
+External users have no monorepo access — use fully qualified URLs to `.md` pages
+(e.g. `https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
+
+Two skill packs sync on push to `main`:
 
 - **`forwardimpact/fit-skills`** — `fit-*` skills for the framework products.
 - **`forwardimpact/kata-skills`** — `kata-*` skills for the Kata Agent Team.
 
-External users install with `npx skills add forwardimpact/fit-skills` (or
-`kata-skills`). Each published skill should teach agents how a product **works**
-and how to **use** it — not how it is **implemented**. Progressively disclose:
-start with what the product does, then link to published docs. External users
-have no monorepo access — use fully qualified URLs to `.md` pages (e.g.
-`https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
-
-External users install products with `npm install`, bringing their own framework
-data. All CLIs use `#!/usr/bin/env node` — no Bun required.
-
-Products using gRPC (currently Guide) require generated clients. External users
-run `npx fit-codegen --all` after install — generated code is
-installation-specific, never bundled in npm packages. See
+Install skills: `npx skills add forwardimpact/fit-skills` (or `kata-skills`).
+Install products: `npm install` — all CLIs use `#!/usr/bin/env node`, no Bun
+required. gRPC products (currently Guide) also need `npx fit-codegen --all`. See
 [Codegen Internals](websites/fit/docs/internals/codegen/index.md).
 
 ### How Internal Contributors Develop
