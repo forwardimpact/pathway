@@ -1,0 +1,21 @@
+<!doctype html>
+<html lang="en">
+  <head>
+    <meta charset="utf-8" />
+    <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+    {{#description}}
+    <meta name="description" content="{{description}}" />
+    {{/description}}
+    <title>Kata – {{title}}</title>
+    <link rel="alternate" type="text/markdown" href="{{markdownUrl}}" />
+    {{#canonicalUrl}}
+    <link rel="canonical" href="{{canonicalUrl}}" />
+    {{/canonicalUrl}}
+  </head>
+  <body>
+    <main>
+      <h1>{{title}}</h1>
+      {{{content}}}
+    </main>
+  </body>
+</html>
