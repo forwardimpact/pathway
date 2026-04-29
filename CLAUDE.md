@@ -65,6 +65,13 @@ Models team capability as a system: skill matrices, coverage gaps, risks, and
 staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 [Internals](websites/fit/docs/internals/summit/index.md)
 
+### Kata — `kata-skills`
+
+Helps agents answer _how do I maintain this repository?_ A team of specialized
+agents covering specs, design, planning, implementation, review, releases,
+security, and documentation — driven by Toyota Kata continuous improvement.
+[Internals](websites/fit/docs/internals/kata/)
+
 ## Distribution Model
 
 The monorepo is open source but external users never clone it. They consume
@@ -73,22 +80,30 @@ contributors.
 
 ### How External Users Consume Products
 
-Agents are often the primary consumers of our products. Published skills
-(`fit-*` entries in [.claude/skills/](.claude/skills/)) are how they learn to
-use them, so skill clarity directly affects product quality.
+Agents are often the primary consumers of our products. Published skills are how
+they learn to use them, so skill clarity directly affects product quality. Two
+skill packs are published:
 
-Each published skill should teach agents how a product **works** and how to
-**use** it — not how it is **implemented**. Progressively disclose detail: start
-with what the product does and when to reach for it, then link out to published
-documentation for deeper context. External users have no access to the monorepo
-source, so every reference must use fully qualified URLs to the `.md` version of
-published pages — agents fetch these to read documentation in context (e.g.
+- **`forwardimpact/fit-skills`** — `fit-*` skills for the framework products
+  (Map, Pathway, Basecamp, Guide, Landmark, Summit).
+- **`forwardimpact/kata-skills`** — `kata-*` skills for repo self-maintenance
+  (specs, design, planning, implementation, review, releases, security, docs).
+
+Install with [npx skills](https://github.com/vercel-labs/skills):
+
+```bash
+npx skills add forwardimpact/fit-skills
+npx skills add forwardimpact/kata-skills
+```
+
+Skills sync on push to `main`. Each published skill should teach agents how a
+product **works** and how to **use** it — not how it is **implemented**.
+Progressively disclose detail: start with what the product does and when to
+reach for it, then link out to published documentation for deeper context.
+External users have no access to the monorepo source, so every reference must
+use fully qualified URLs to the `.md` version of published pages — agents fetch
+these to read documentation in context (e.g.
 `https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
-
-Skills sync on push to `main`: `fit-*` skills publish to
-`forwardimpact/fit-skills`, `kata-*` skills publish to
-`forwardimpact/kata-skills`. External users install with
-`npx skills add forwardimpact/fit-skills`.
 
 External users install products with `npm install`, bringing their own framework
 data. All CLIs use `#!/usr/bin/env node` — no Bun required.
@@ -191,4 +206,5 @@ One home per policy; per-product pages: [§ Products](#products).
 
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
 - **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
-- **Published skills** — [.claude/skills/fit-\*](.claude/skills/)
+- **Published skills** — [fit-\*](.claude/skills/) ·
+  [kata-\*](.claude/skills/)
