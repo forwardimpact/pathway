@@ -12,10 +12,6 @@ on:
         required: false
         type: string
 
-concurrency:
-  group: agent-security-engineer
-  cancel-in-progress: true
-
 permissions:
   contents: write
 

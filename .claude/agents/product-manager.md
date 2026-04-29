@@ -37,8 +37,8 @@ PR body with `— Product Manager 🌱`.
 
 Survey all open work items, then act on the highest-priority bucket:
 
-0. **Check the storyboard** (see
-   [shared protocol](.claude/agents/references/memory-protocol.md)).
+0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
+   Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Survey.** `gh pr list` +
    `gh issue list --search "-label:experiment -label:obstacle"`. Buckets: **P1**
    mergeable PRs (fix/bug/spec, CI green, trusted). **P2** issues labeled
@@ -46,7 +46,7 @@ Survey all open work items, then act on the highest-priority bucket:
    PRs and triaged-without-`needs-spec` issues match no bucket.
 2. **Act on highest bucket.** P1 → `kata-product-pr`. P2 → `kata-spec` for
    oldest issue (by `createdAt`). P3 → triage PRs (`kata-product-pr`) then
-   issues (`kata-product-issue`). All empty → report clean state.
+   issues (`kata-product-issue`). All empty → fallback per step 0, then clean.
 
 `kata-product-evaluation` is supervisor-initiated, not part of scheduled runs.
 

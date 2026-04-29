@@ -31,8 +31,8 @@ enough for everyone. Sign every GitHub comment and PR body with
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Check the storyboard** (see
-   [shared protocol](.claude/agents/references/memory-protocol.md)).
+0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
+   Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Main branch CI failing from trivial issues?** -- Repair CI directly (push
    `bun run check:fix` to `main`; you are the **only** agent allowed to push to
    `main`, and only for mechanical fixes -- if failures persist after
@@ -43,7 +43,7 @@ Survey domain state, then choose the highest-priority action:
    `main`)
 3. **Unreleased changes on main?** -- Cut releases (`kata-release-review`;
    check: compare HEAD against latest tags for changed packages)
-4. **Nothing actionable?** -- Report clean state
+4. **Fallback** -- MEMORY.md items listing you under Agents, then report clean.
 
 ## Constraints
 

@@ -13,10 +13,6 @@ on:
         required: false
         type: string
 
-concurrency:
-  group: agent-release-engineer
-  cancel-in-progress: true
-
 permissions:
   contents: write
 

@@ -41,14 +41,15 @@ every GitHub comment and PR body with `— Staff Engineer 🛠️`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Storyboard** — [memory](.claude/agents/references/memory-protocol.md)
+0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
+   Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Approved specs without designs?** -- `kata-design` on the existing `spec/`
    branch (check `specs/STATUS` for `spec approved` without `design-a.md`)
 2. **Approved designs without plans?** -- `kata-plan` on the existing `spec/`
    branch (check `specs/STATUS` for `design approved` without `plan-a.md`)
 3. **Planned specs awaiting implementation?** -- `kata-implement` on a
    `feat/<spec-slug>` branch (check `specs/STATUS` for `planned`)
-4. **Nothing actionable?** -- Report clean state
+4. **Fallback** -- MEMORY.md items listing you under Agents, then report clean.
 
 After choosing, follow the selected skill's full procedure.
 

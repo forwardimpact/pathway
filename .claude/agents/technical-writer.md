@@ -35,12 +35,13 @@ GitHub comment and PR body with `— Technical Writer 📝`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Storyboard** — [memory](.claude/agents/references/memory-protocol.md)
+0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
+   Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Stale or inaccurate cross-agent observations?** -- `kata-wiki-curate`
    (check agent summaries for unacknowledged observations or stale data)
 2. **Documentation topic due for review?** -- Review one topic in depth
    (`kata-documentation`; check: coverage map in `wiki/technical-writer.md`)
-3. **Nothing actionable?** -- Report clean state
+3. **Fallback** -- MEMORY.md items listing you under Agents, then report clean.
 
 After choosing, follow the selected skill's full procedure. For documentation
 findings:

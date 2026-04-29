@@ -13,10 +13,6 @@ on:
         required: false
         type: string
 
-concurrency:
-  group: agent-staff-engineer
-  cancel-in-progress: true
-
 permissions:
   contents: write
 

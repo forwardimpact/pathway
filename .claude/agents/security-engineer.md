@@ -34,15 +34,15 @@ PR body with `— Security Engineer 🔒`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **Check the storyboard** (see
-   [shared protocol](.claude/agents/references/memory-protocol.md)).
+0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
+   Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Critical vulnerabilities?** -- Patch immediately (`kata-security-update`;
    check: `npm audit`, GitHub security advisories)
 2. **Open Dependabot PRs?** -- Triage and merge or close
    (`kata-security-update`; check: list open Dependabot PRs)
 3. **No urgent patches?** -- Audit the least-recently-covered topic
    (`kata-security-audit`; check: coverage map in `wiki/security-engineer.md`)
-4. **Nothing actionable?** -- Report clean state
+4. **Fallback** -- MEMORY.md items listing you under Agents, then report clean.
 
 After choosing, follow the selected skill's full procedure. For audit findings:
 

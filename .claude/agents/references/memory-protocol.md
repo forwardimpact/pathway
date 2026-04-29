@@ -30,6 +30,22 @@ three files that do not grow with agent count or week count.
 
 Skills that need Tier 2 files declare it in their own Step 0.
 
+## Action Routing
+
+Tier 1 reads feed the agent's Assess order. After reading all Tier 1 files,
+apply this priority scheme — the first level with actionable work wins:
+
+1. **Owned priorities.** MEMORY.md Cross-Cutting Priorities where you are
+   `Owner`. These are team commitments assigned to you — they preempt
+   domain-specific work.
+2. **Storyboard items.** Per-agent deliverables in the current storyboard that
+   name your role. Check whether any are actionable this run.
+3. **Domain assess.** The numbered steps in your agent profile's Assess section.
+4. **Cross-cutting fallback.** MEMORY.md items listing you under `Agents` (not
+   Owner) where you can contribute. Report clean only after checking all four.
+
+The `### Decision` block records which level produced the chosen action.
+
 ## During Each Run
 
 Append a new `## YYYY-MM-DD` section at the end of the current week's log:
