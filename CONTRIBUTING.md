@@ -149,7 +149,7 @@ path from `config/config.example.json`), plus `proto/`, `src/`, `test/`, and
 ### `.claude/` — agent configuration
 
 `Edit` and `Write` are denied on `.claude/**` paths. Use
-[`scripts/claude-write.sh`](.claude/agents/references/self-maintenance.md)
+[`scripts/claude-write.sh`](.claude/agents/references/self-improvement.md)
 instead.
 
 ## Pull Request Workflow

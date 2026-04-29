@@ -1,4 +1,4 @@
-# Self-Maintenance Writes Under `.claude/**`
+# Self-Improvement Writes Under `.claude/**`
 
 Claude Code's permission guard blocks `Write`, `Edit`, and sandboxed `Bash`
 calls targeting `.claude/**`. Until upstream regression

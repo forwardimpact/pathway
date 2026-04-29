@@ -154,7 +154,7 @@ Act on findings:
 Every PR branches directly from `main`.
 
 > **Writing under `.claude/`:** If a fix targets `.claude/`, follow
-> [self-maintenance.md](../../agents/references/self-maintenance.md).
+> [self-improvement.md](../../agents/references/self-improvement.md).
 
 ## Memory: what to record
 

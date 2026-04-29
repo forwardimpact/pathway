@@ -62,7 +62,7 @@ teammates' summaries). Extract specs previously implemented and any blockers
 from prior `staff-engineer` entries.
 
 > **Writing under `.claude/`:** If the plan targets files there, follow
-> [self-maintenance.md](../../agents/references/self-maintenance.md).
+> [self-improvement.md](../../agents/references/self-improvement.md).
 
 ### 1. Study the spec deeply
 
