@@ -18,6 +18,19 @@ output an agent produces.
 | Structural finding requiring design             | `spec/` branch PR |
 | Specialized work needed mid-run                 | Sub-agent         |
 
+## Agent labels on experiment issues
+
+Experiment issues carry an `agent:{name}` label identifying the owning agent so
+agents can find their assigned work during
+[action routing](memory-protocol.md#action-routing):
+
+```sh
+gh issue list --state open --label experiment --label "agent:staff-engineer"
+```
+
+Valid labels: `agent:staff-engineer`, `agent:product-manager`,
+`agent:release-engineer`, `agent:security-engineer`, `agent:technical-writer`.
+
 ## Decision questions
 
 When an output could fit multiple channels, ask in order:

@@ -37,8 +37,8 @@ PR body with `— Product Manager 🌱`.
 
 Survey all open work items, then act on the highest-priority bucket:
 
-0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
-   Tier 1; owned priorities and storyboard items preempt domain steps.
+0. **[Action routing](.claude/agents/references/memory-protocol.md#action-routing)**
+   — read Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Survey.** `gh pr list` +
    `gh issue list --search "-label:experiment -label:obstacle"`. Buckets: **P1**
    mergeable PRs (fix/bug/spec, CI green, trusted). **P2** issues labeled

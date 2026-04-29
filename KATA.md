@@ -66,6 +66,12 @@ agent writes a spec rather than attempting the fix.
 | **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps         |
 | **improvement-coach** | Study          | Facilitate storyboard meetings and 1-on-1 coaching sessions             |
 
+Each agent's Assess section selects work via a four-level priority scheme
+([action routing](.claude/agents/references/memory-protocol.md#action-routing)):
+owned MEMORY.md priorities first, then storyboard deliverables and experiment
+issues labeled `agent:{name}`, then domain-specific checks, then cross-cutting
+fallback. An agent reports clean only after exhausting all four levels.
+
 ## Workflows
 
 Seven scheduled workflows run on a three-shift Europe/Paris rhythm: **night** by
@@ -209,7 +215,8 @@ they don't compete.
   source of truth.
 - **PR/issue threads** are scoped to one artifact — cross-cutting questions
   belong in a Discussion. Experiment and obstacle issues own their PDSA state;
-  the storyboard references them as one-liners.
+  experiments carry `agent:{name}` labels for action routing. The storyboard
+  references them as one-liners.
 - **Sub-agents** don't carry state across runs — that's the wiki's job.
 
 ## Metrics

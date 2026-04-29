@@ -41,8 +41,8 @@ every GitHub comment and PR body with `— Staff Engineer 🛠️`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
-   Tier 1; owned priorities and storyboard items preempt domain steps.
+0. **[Action routing](.claude/agents/references/memory-protocol.md#action-routing)**
+   — read Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Approved specs without designs?** -- `kata-design` on the existing `spec/`
    branch (check `specs/STATUS` for `spec approved` without `design-a.md`)
 2. **Approved designs without plans?** -- `kata-plan` on the existing `spec/`

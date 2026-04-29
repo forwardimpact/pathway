@@ -1,7 +1,7 @@
 # Memory Protocol
 
-This file governs **wiki reads/writes**. For non-wiki outputs (Discussions,
-PR/issue threads, `fix/`/`spec/` branches, sub-agents) see
+This file governs **agent memory and action routing** — what to read, how reads
+feed into action selection, and what to write. For non-wiki outputs see
 [coordination-protocol.md](coordination-protocol.md).
 
 ## Memory Tiers
@@ -38,8 +38,8 @@ apply this priority scheme — the first level with actionable work wins:
 1. **Owned priorities.** MEMORY.md Cross-Cutting Priorities where you are
    `Owner`. These are team commitments assigned to you — they preempt
    domain-specific work.
-2. **Storyboard items.** Per-agent deliverables in the current storyboard that
-   name your role. Check whether any are actionable this run.
+2. **Storyboard items.** Per-agent deliverables in the current storyboard and
+   open experiment issues labeled `agent:{self}`.
 3. **Domain assess.** The numbered steps in your agent profile's Assess section.
 4. **Cross-cutting fallback.** MEMORY.md items listing you under `Agents` (not
    Owner) where you can contribute. Report clean only after checking all four.
@@ -57,12 +57,12 @@ Append a new `## YYYY-MM-DD` section at the end of the current week's log:
 Use `###` subheadings for the fields skills specify to record. Every run must
 open with a `### Decision` subheading containing:
 
-| Field            | Record                                               |
-| ---------------- | ---------------------------------------------------- |
-| **Surveyed**     | What domain state was checked and the results        |
-| **Alternatives** | What actions were available                          |
-| **Chosen**       | What action was selected and which skill was invoked |
-| **Rationale**    | Why this action over the alternatives                |
+| Field            | Record                                                 |
+| ---------------- | ------------------------------------------------------ |
+| **Surveyed**     | What was checked at each routing level and the results |
+| **Alternatives** | What actions were available                            |
+| **Chosen**       | What action was selected and which skill was invoked   |
+| **Rationale**    | Why this action over the alternatives                  |
 
 ## After Each Run
 

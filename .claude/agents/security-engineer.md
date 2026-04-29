@@ -34,8 +34,8 @@ PR body with `— Security Engineer 🔒`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
-   Tier 1; owned priorities and storyboard items preempt domain steps.
+0. **[Action routing](.claude/agents/references/memory-protocol.md#action-routing)**
+   — read Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Critical vulnerabilities?** -- Patch immediately (`kata-security-update`;
    check: `npm audit`, GitHub security advisories)
 2. **Open Dependabot PRs?** -- Triage and merge or close

@@ -22,7 +22,7 @@ Each experiment references its parent obstacle issue in the body. GitHub renders
 its related experiments.
 
 ```sh
-gh issue create --label experiment \
+gh issue create --label experiment --label "agent:[agent-name]" \
   --title "Exp N — short name" \
   --body "Obstacle: #NNN
 Owner: [agent name]
@@ -54,5 +54,5 @@ Move storyboard entry from Active to Concluded.
 
 At the first session after implementation, create labeled issues for every
 active experiment and obstacle that lacks a `(#NNN)` suffix. Add the suffix
-after creation. Skip entries that already have an issue link. Concluded items
-need no action.
+after creation. Apply the `agent:{owner}` label to each experiment issue. Skip
+entries that already have an issue link. Concluded items need no action.

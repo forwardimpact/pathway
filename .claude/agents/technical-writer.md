@@ -35,8 +35,8 @@ GitHub comment and PR body with `— Technical Writer 📝`.
 
 Survey domain state, then choose the highest-priority action:
 
-0. **[Action routing](.claude/agents/references/memory-protocol.md)** — read
-   Tier 1; owned priorities and storyboard items preempt domain steps.
+0. **[Action routing](.claude/agents/references/memory-protocol.md#action-routing)**
+   — read Tier 1; owned priorities and storyboard items preempt domain steps.
 1. **Stale or inaccurate cross-agent observations?** -- `kata-wiki-curate`
    (check agent summaries for unacknowledged observations or stale data)
 2. **Documentation topic due for review?** -- Review one topic in depth
