@@ -1,12 +1,13 @@
 ---
 title: Kata Agent Team
-description: An autonomous, continuously improving agentic development team that runs the full spec-to-release loop as a Toyota Kata PDSA cycle.
+description: An autonomous, continuously improving agentic development team organized as a daily Plan-Do-Study-Act cycle with spec-driven development.
 toc: false
 ---
 
-An autonomous, continuously improving agentic development team that runs the
-full spec → design → plan → implement → release → improve loop as a Toyota Kata
-PDSA cycle.
+An autonomous, continuously improving agentic development team organized as a
+daily Plan-Do-Study-Act cycle. Agents use spec-driven development to plan and
+ship, then study their own traces and act on findings — closing the loop every
+day.
 
 ## Learn more
 

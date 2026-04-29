@@ -10,13 +10,14 @@ description: "An autonomous and continuously improving agentic development team 
 > — Mike Rother, _Toyota Kata_
 
 The **Kata Agent Team** is an autonomous and continuously improving agentic
-development team running on GitHub Actions. It owns the full spec → design →
-plan → implement → release → improve loop end-to-end: shipping features,
-hardening security, cutting releases, curating docs, and improving its own
-practice. The name follows Toyota Kata — agents grasp the current condition (via
-prior-run traces), establish target conditions (via specs), and experiment
-toward them (via implementation). Six agent personas, eight workflows, eighteen
-skills, organized around a daily **Plan-Do-Study-Act** loop.
+development team running on GitHub Actions, organized as a daily
+**Plan-Do-Study-Act** (PDSA) cycle. Agents plan by writing specs, do by
+shipping features and hardening the repo, study their own execution traces and
+outputs, and act on findings — closing the loop every day. The name follows
+Toyota Kata: agents grasp the current condition (via prior-run traces),
+establish target conditions (via specs), and experiment toward them (via
+implementation). Six agent personas, eight workflows, eighteen skills form this
+cycle.
 
 This page is the internal-contributor entry point. The canonical reference is
 [`KATA.md`](https://github.com/forwardimpact/monorepo/blob/main/KATA.md) at the
