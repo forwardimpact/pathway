@@ -74,13 +74,14 @@ function hexBrightness(hex) {
   return (r + g + b) / 3;
 }
 
-function subpathBbox(d) {
+function analyzeSubpath(d) {
   const segs =
     d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
   let cx = 0,
     cy = 0,
     allX = [],
-    allY = [];
+    allY = [],
+    endpoints = [];
 
   for (const cmd of segs) {
     const type = cmd[0];
@@ -98,18 +99,21 @@ function subpathBbox(d) {
         cy = isRel ? cy + values[i + 1] : values[i + 1];
         allX.push(cx);
         allY.push(cy);
+        endpoints.push([cx, cy]);
       }
     } else if (absType === "H") {
       for (const v of values) {
         cx = isRel ? cx + v : v;
         allX.push(cx);
         allY.push(cy);
+        endpoints.push([cx, cy]);
       }
     } else if (absType === "V") {
       for (const v of values) {
         cy = isRel ? cy + v : v;
         allX.push(cx);
         allY.push(cy);
+        endpoints.push([cx, cy]);
       }
     } else if (absType === "C") {
       for (let i = 0; i < values.length; i += 6) {
@@ -121,6 +125,7 @@ function subpathBbox(d) {
         const ey = isRel ? cy + values[i + 5] : values[i + 5];
         allX.push(ex);
         allY.push(ey);
+        endpoints.push([ex, ey]);
         cx = ex;
         cy = ey;
       }
@@ -132,6 +137,7 @@ function subpathBbox(d) {
         const ey = isRel ? cy + values[i + 3] : values[i + 3];
         allX.push(ex);
         allY.push(ey);
+        endpoints.push([ex, ey]);
         cx = ex;
         cy = ey;
       }
@@ -141,6 +147,7 @@ function subpathBbox(d) {
         const ey = isRel ? cy + values[i + 6] : values[i + 6];
         allX.push(ex);
         allY.push(ey);
+        endpoints.push([ex, ey]);
         cx = ex;
         cy = ey;
       }
@@ -152,18 +159,36 @@ function subpathBbox(d) {
     maxX = Math.max(...allX);
   const minY = Math.min(...allY),
     maxY = Math.max(...allY);
-  return { area: (maxX - minX) * (maxY - minY) };
+
+  let signedArea = 0;
+  for (let i = 0; i < endpoints.length; i++) {
+    const j = (i + 1) % endpoints.length;
+    signedArea +=
+      endpoints[i][0] * endpoints[j][1] - endpoints[j][0] * endpoints[i][1];
+  }
+
+  return { area: (maxX - minX) * (maxY - minY), winding: Math.sign(signedArea) };
 }
 
 function stripSubpaths(d, maxArea) {
-  const parts = d.split(/(?=M)/);
+  const parts = d.split(/(?=M)/).filter((s) => s.trim());
+
+  let mainWinding = 0;
+  let largestArea = 0;
+  for (const part of parts) {
+    const info = analyzeSubpath(part);
+    if (info && info.area > largestArea) {
+      largestArea = info.area;
+      mainWinding = info.winding;
+    }
+  }
+
   const kept = [];
   let removed = 0;
 
   for (const part of parts) {
-    if (!part.trim()) continue;
-    const bb = subpathBbox(part);
-    if (bb && bb.area < maxArea) {
+    const info = analyzeSubpath(part);
+    if (info && info.area < maxArea && info.winding === mainWinding) {
       removed++;
     } else {
       kept.push(part);
