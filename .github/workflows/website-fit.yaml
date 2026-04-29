@@ -1,4 +1,4 @@
-name: Website: Publish the FIT pages
+name: "Website: Publish the FIT pages"
 
 on:
   push:

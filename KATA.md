@@ -253,8 +253,8 @@ maps to at least one workflow):
 Subscribe the App to the **Issue comment**, **Pull request review**, **Pull
 request review comment**, **Discussion**, and **Discussion comment** events so
 `agent-conversation` fires. Two repository secrets carry the App identity:
-`KATA_APP_ID` and `KATA_APP_PRIVATE_KEY`. `ANTHROPIC_API_KEY` is a separate secret
-consumed only by `kata-action`. The interview workflows use a second App
+`KATA_APP_ID` and `KATA_APP_PRIVATE_KEY`. `ANTHROPIC_API_KEY` is a separate
+secret consumed only by `kata-action`. The interview workflows use a second App
 (`LLM_APP_ID` / `LLM_APP_PRIVATE_KEY`) and `publish-npm` uses `NPM_TOKEN`;
 neither is required for Kata.
 

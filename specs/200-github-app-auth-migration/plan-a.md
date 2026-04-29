@@ -231,9 +231,9 @@ can generate and distribute them.
 **Option 2 — Create your own GitHub App (for independent installations):**
 
 Organizations that want full control create their own GitHub App following the
-permission table in §1.2, generate their own private key, and store `KATA_APP_ID`
-and `KATA_APP_PRIVATE_KEY` as repository secrets. They override the `app-slug`
-input in the composite action to match their App's slug.
+permission table in §1.2, generate their own private key, and store
+`KATA_APP_ID` and `KATA_APP_PRIVATE_KEY` as repository secrets. They override
+the `app-slug` input in the composite action to match their App's slug.
 
 The documentation should describe both options, explain the private key
 ownership model, and include the permission table for self-serve App creation.
