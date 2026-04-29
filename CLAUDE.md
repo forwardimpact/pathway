@@ -84,7 +84,8 @@ Agents are often the primary consumers. Published skills teach how a product
 **works** and how to **use** it — not how it is **implemented**. Progressively
 disclose: start with what the product does, then link to published docs.
 External users have no monorepo access — use fully qualified URLs to `.md` pages
-(e.g. `https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
+(e.g.
+`https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
 
 Two skill packs sync on push to `main`:
 
