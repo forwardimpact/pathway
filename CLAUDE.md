@@ -138,7 +138,7 @@ Tagged checklists gate pause points. Rules: [CHECKLISTS.md](CHECKLISTS.md).
 
 Wiki is **memory** — own state (summaries, logs, metrics), not a handoff
 channel. **Coordination** requires a named receiver and addressable artifact:
-Issue, PR/issue comment, Discussion, or `agent-conversation`. See
+Issue, PR/issue comment, Discussion, or `agent-react`. See
 [memory-protocol](.claude/agents/references/memory-protocol.md) and
 [coordination-protocol](.claude/agents/references/coordination-protocol.md).
 

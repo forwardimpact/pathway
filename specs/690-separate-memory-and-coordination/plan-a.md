@@ -95,7 +95,7 @@ lines.
 
 Wiki is **memory** — own state (summaries, logs, metrics), not a handoff
 channel. **Coordination** requires a named receiver and addressable artifact:
-Issue, PR/issue comment, Discussion, or `agent-conversation`. See
+Issue, PR/issue comment, Discussion, or `agent-react`. See
 [memory-protocol](.claude/agents/references/memory-protocol.md) and [coordination-protocol](.claude/agents/references/coordination-protocol.md).
 ```
 
@@ -127,7 +127,7 @@ Total: 2 + 1 + 1 + 1 + 1 + 1 = 7 lines saved = 7 lines reclaimed.
 
 Verify: `wc -l CLAUDE.md` ≤ 192;
 `grep -q "^## Memory and Coordination" CLAUDE.md` succeeds; the section mentions
-`wiki`, `Issue`, `Discussion`, `comment`, and `agent-conversation`.
+`wiki`, `Issue`, `Discussion`, `comment`, and `agent-react`.
 
 ### Step 4 — Update KATA.md § Shared Memory and § Coordination Channels
 
@@ -215,7 +215,7 @@ with (substituting the agent name in each file):
   — files: `wiki/{agent}.md`, `wiki/{agent}-$(date +%G-W%V).md`
 - **Coordination**:
   [coordination-protocol.md](.claude/agents/references/coordination-protocol.md)
-  — channels: Issues, Discussions, PR/issue comments, `agent-conversation`
+  — channels: Issues, Discussions, PR/issue comments, `agent-react`
 ```
 
 **5b — release-engineer.md mandate boundary (line 39).** Change:
@@ -306,7 +306,7 @@ Append a new row to the § Cross-cutting invariants table (after the
 `Discussions resolved within 14 days` row):
 
 ```markdown
-| Mandate-boundary stop produces at least one non-wiki artifact | Agent turn contains boundary-stop language (`stop and report`, `stopping per protocol`, `exceeds scope`, `mandate boundary`) AND trace contains no `fix/` or `spec/` branch creation → at least one of: `gh issue create`, `gh (issue\|pr) comment`, `createDiscussion` mutation, `addDiscussionComment` mutation, or `Agent` tool referencing `agent-conversation` appears after the trigger turn | **High**   |
+| Mandate-boundary stop produces at least one non-wiki artifact | Agent turn contains boundary-stop language (`stop and report`, `stopping per protocol`, `exceeds scope`, `mandate boundary`) AND trace contains no `fix/` or `spec/` branch creation → at least one of: `gh issue create`, `gh (issue\|pr) comment`, `createDiscussion` mutation, `addDiscussionComment` mutation, or `Agent` tool referencing `agent-react` appears after the trigger turn | **High**   |
 ```
 
 Verify:

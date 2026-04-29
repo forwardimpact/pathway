@@ -318,10 +318,10 @@ In `KATA.md`, update the PR / issue thread channel row (line 197):
 
 ```markdown
 # before
-| **PR / issue thread** | Real-time response on a specific artifact                                                               | Lives with the artifact               | `agent-conversation` workflow |
+| **PR / issue thread** | Real-time response on a specific artifact                                                               | Lives with the artifact               | `agent-react` workflow |
 
 # after
-| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                | Lives with the artifact               | `agent-conversation` workflow |
+| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                | Lives with the artifact               | `agent-react` workflow |
 ```
 
 Update the PR/issue thread non-purpose note (lines 207-208):

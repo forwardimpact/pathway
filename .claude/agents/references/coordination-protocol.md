@@ -37,7 +37,7 @@ but either may run alongside a Discussion.
 
 To pull another agent into a thread, address them by name in plain text — e.g.
 "Hello Product Manager," or "Hey Staff Engineer, can you take a look at the
-trust check?" The `agent-conversation` facilitator infers the addressee and
+trust check?" The `agent-react` facilitator infers the addressee and
 routes the response. Do **not** use `@`-mentions for agents: agents don't have
 GitHub user accounts, so `@product-manager` would either ping an unrelated
 GitHub user with that handle or resolve to nothing. Do not write to another
@@ -58,7 +58,7 @@ mis-routing; the `kata-trace` invariant audit checks for stale open Discussions.
 
 ## Trust at run-time
 
-The `agent-conversation` facilitator verifies the author is a trusted
+The `agent-react` facilitator verifies the author is a trusted
 contributor before engaging any participant — LLM judgement, scoped per run.
 Untrusted authors receive an acknowledgement; no participant agent files a
 `fix/` or `spec/` branch on their behalf.
@@ -78,7 +78,7 @@ linked. Format: `<Channel> #<N>: <one-line topic> (<URL>)`.
 ```
 Discussion #123: should fit-pathway support nested levels?
 (https://github.com/forwardimpact/monorepo/discussions/123)
-PR #549: docs(kata): document agent-conversation workflow
+PR #549: docs(kata): document agent-react workflow
 (https://github.com/forwardimpact/monorepo/pull/549)
 Issue #200: clarify proficiency scale for expert tier
 (https://github.com/forwardimpact/monorepo/issues/200)

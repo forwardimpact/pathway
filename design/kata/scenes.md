@@ -131,7 +131,7 @@ the only vertical element — visually emphatic, like a plumb line.
 ## Scene: The Merge Gate
 
 **Context:** Product Manager product page, issue and PR triage documentation,
-agent-conversation workflow.
+agent-react workflow.
 
 ```
     🐰 ▢ ─── ▢ ─── 🤖[▢] ─── ▢ ─── 👔 │ →   ✓

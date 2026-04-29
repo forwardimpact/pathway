@@ -130,7 +130,7 @@ specs merge only the document, not code.
 
 Seven scheduled workflows run on a three-shift Europe/Paris rhythm — **night**
 by 07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00 — plus
-an event-driven **agent-conversation** workflow on PR and discussion activity.
+an event-driven **agent-react** workflow on PR and discussion activity.
 
 | Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
 | --------------------------- | ------------------------------------- | ---------------------------------------- |
@@ -141,7 +141,7 @@ an event-driven **agent-conversation** workflow on PR and discussion activity.
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
 | **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
-| **agent-conversation**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
+| **agent-react**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
 
 Each shift forms a **producer → reviewer → shipper** chain: the product manager
 triages and merges so staff has a fresh backlog, staff implements, release
@@ -194,7 +194,7 @@ downstream workflows.
 | Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches       |
 | Pull requests | Open, comment, merge PRs (release-engineer, product-manager)      |
 | Issues        | Triage, label, comment (product-manager)                          |
-| Discussions   | Reply on discussions and discussion comments (agent-conversation) |
+| Discussions   | Reply on discussions and discussion comments (agent-react) |
 | Workflows     | Token-driven pushes re-trigger downstream workflows               |
 | Metadata      | Required by GitHub                                                |
 

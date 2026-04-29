@@ -57,4 +57,4 @@ Survey domain state, then choose the highest-priority action:
   `wiki/release-engineer-$(date +%G-W%V).md`
 - **Coordination**:
   [coordination-protocol.md](.claude/agents/references/coordination-protocol.md)
-  — channels: Issues, Discussions, PR/issue comments, `agent-conversation`
+  — channels: Issues, Discussions, PR/issue comments, `agent-react`

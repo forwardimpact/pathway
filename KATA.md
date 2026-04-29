@@ -77,7 +77,7 @@ technical-writer between staff and release to review code before it ships; day
 and swing skip the review pair (dependency churn and doc drift need no intra-day
 cadence; CVE-driven work runs on demand). Crons are authored in UTC; Paris times
 below use CEST (UTC+2), the tighter summer bound. An eighth workflow,
-**agent-conversation**, runs on PR comments, new discussions, and discussion
+**agent-react**, runs on PR comments, new discussions, and discussion
 comments — the product manager facilitates and routes the comment to the
 participant best suited to respond. All workflows support `workflow_dispatch`,
 use concurrency groups, and time out at 30 minutes. Agent workflows send a
@@ -93,7 +93,7 @@ coaching send specific prompts to the improvement coach.
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
 | **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
-| **agent-conversation**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
+| **agent-react**      | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
 
 ## Skills
 
@@ -198,8 +198,8 @@ they don't compete.
 | Channel               | Use for                                                                                                      | Lifetime                              | Mechanism                     |
 | --------------------- | ------------------------------------------------------------------------------------------------------------ | ------------------------------------- | ----------------------------- |
 | **Storyboard**        | Daily current condition and next experiment                                                                  | One day; captured into wiki           | `kata-storyboard` workflow    |
-| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                             | Open until resolved into spec or wiki | `agent-conversation` workflow |
-| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                     | Lives with the artifact               | `agent-conversation` workflow |
+| **Discussion**        | Open questions before they become decisions — RFCs, cross-policy                                             | Open until resolved into spec or wiki | `agent-react` workflow |
+| **PR / issue thread** | Real-time response on a specific artifact; PDSA state for experiment and obstacle issues                     | Lives with the artifact               | `agent-react` workflow |
 | **Sub-agent**         | Specialized inline work within one run (not for cross-agent comms — see escalation in coordination-protocol) | Ephemeral (one task)                  | `Agent` tool, skill spawning  |
 
 - **Storyboard** observes and plans; structural decisions go through
@@ -246,13 +246,13 @@ maps to at least one workflow):
 | Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches                                              |
 | Pull requests | Open, comment, merge PRs (release-engineer, product-manager)                                             |
 | Issues        | Triage, label, comment (product-manager); create, comment, close (improvement-coach via kata-storyboard) |
-| Discussions   | Reply on discussions and discussion comments (agent-conversation)                                        |
+| Discussions   | Reply on discussions and discussion comments (agent-react)                                        |
 | Workflows     | Token-driven pushes re-trigger downstream workflows                                                      |
 | Metadata      | Required by GitHub                                                                                       |
 
 Subscribe the App to the **Issue comment**, **Pull request review**, **Pull
 request review comment**, **Discussion**, and **Discussion comment** events so
-`agent-conversation` fires. Two repository secrets carry the App identity:
+`agent-react` fires. Two repository secrets carry the App identity:
 `KATA_APP_ID` and `KATA_APP_PRIVATE_KEY`. `ANTHROPIC_API_KEY` is a separate
 secret consumed only by `kata-action`. The interview workflows use a second App
 (`LLM_APP_ID` / `LLM_APP_PRIVATE_KEY`) and `publish-npm` uses `NPM_TOKEN`;

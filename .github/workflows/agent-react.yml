@@ -1,4 +1,4 @@
-name: "Agent: Respond"
+name: "Agent: React"
 
 on:
   issues:

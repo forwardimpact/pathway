@@ -47,4 +47,4 @@ with `— Improvement Coach 📊`.
   `wiki/improvement-coach-$(date +%G-W%V).md`
 - **Coordination**:
   [coordination-protocol.md](.claude/agents/references/coordination-protocol.md)
-  — channels: Issues, Discussions, PR/issue comments, `agent-conversation`
+  — channels: Issues, Discussions, PR/issue comments, `agent-react`

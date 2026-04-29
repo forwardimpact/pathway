@@ -40,7 +40,7 @@ every contributor but below the external-facing sections. Content declares:
 
 - Wiki is a **memory** layer: own state, append-only logs, metrics
 - Coordination requires a **named receiver** and an **addressable artifact**:
-  Issue, PR/issue comment, Discussion, or `agent-conversation` invocation
+  Issue, PR/issue comment, Discussion, or `agent-react` invocation
 - Writing "routing to X" in own wiki does not constitute a handoff
 
 ### C3 — Profile footer format
@@ -51,7 +51,7 @@ Current single footer replaced by two bullets under `## Constraints`:
 - **Memory**: [memory-protocol.md](...) — files: `wiki/{agent}.md`,
   `wiki/{agent}-$(date +%G-W%V).md`
 - **Coordination**: [coordination-protocol.md](...) — channels: Issues,
-  Discussions, PR/issue comments, `agent-conversation`
+  Discussions, PR/issue comments, `agent-react`
 ```
 
 No line links both protocols. The wiki files appear only under Memory.
@@ -106,7 +106,7 @@ after the trigger turn:
 | Issue/PR comment    | `tool=="Bash"`, `command` matches `gh (issue\|pr) comment`                  |
 | Discussion creation | `tool=="Bash"`, `command` contains `createDiscussion` in GraphQL query      |
 | Discussion comment  | `tool=="Bash"`, `command` contains `addDiscussionComment`                   |
-| Agent conversation  | `tool=="Agent"` with description or prompt referencing `agent-conversation` |
+| Agent conversation  | `tool=="Agent"` with description or prompt referencing `agent-react` |
 
 The existing "Open questions in wiki cite a Discussion" invariant catches wiki
 entries that should have been Discussions. The new invariant catches runs that
