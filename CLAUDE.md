@@ -67,10 +67,9 @@ staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 
 ### Kata Agent Team — `kata-skills`
 
-An autonomous, continuously improving agentic development team organized as a
-Plan-Do-Study-Act cycle. Agents use spec-driven development to plan and ship,
-then study their own traces and act on findings — closing the loop every day.
-[Internals](websites/fit/docs/internals/kata/)
+An autonomous, continuously improving agentic team in a Plan-Do-Study-Act cycle.
+Agents use spec-driven development to plan and ship, then study their own traces
+and act on findings. [Internals](websites/fit/docs/internals/kata/)
 
 ## Distribution Model
 
