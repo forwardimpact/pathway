@@ -75,8 +75,7 @@ function hexBrightness(hex) {
 }
 
 function analyzeSubpath(d) {
-  const segs =
-    d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
+  const segs = d.match(/[MmLlHhVvCcSsQqTtAaZz][^MmLlHhVvCcSsQqTtAaZz]*/g) || [];
   let cx = 0,
     cy = 0,
     allX = [],
@@ -167,7 +166,10 @@ function analyzeSubpath(d) {
       endpoints[i][0] * endpoints[j][1] - endpoints[j][0] * endpoints[i][1];
   }
 
-  return { area: (maxX - minX) * (maxY - minY), winding: Math.sign(signedArea) };
+  return {
+    area: (maxX - minX) * (maxY - minY),
+    winding: Math.sign(signedArea),
+  };
 }
 
 function stripSubpaths(d, maxArea) {

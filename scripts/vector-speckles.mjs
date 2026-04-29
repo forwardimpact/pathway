@@ -207,7 +207,7 @@ function cleanSvg(filePath, preset, dryRun) {
   }
 
   const kept = [];
-  let removed = 0,
+  let _removed = 0,
     origPaths = 0;
 
   for (const e of entries) {
@@ -218,7 +218,7 @@ function cleanSvg(filePath, preset, dryRun) {
     origPaths++;
 
     if (e.hasOpacity) {
-      removed++;
+      _removed++;
       continue;
     }
     if (!e.info) {
@@ -229,7 +229,7 @@ function cleanSvg(filePath, preset, dryRun) {
     const { area, numCommands, cx, cy } = e.info;
 
     if (area < preset.tinyArea) {
-      removed++;
+      _removed++;
       continue;
     }
 
@@ -246,7 +246,7 @@ function cleanSvg(filePath, preset, dryRun) {
         area < preset.darkMaxArea &&
         numCommands <= preset.darkMaxCmds
       ) {
-        removed++;
+        _removed++;
         continue;
       }
     }
@@ -256,7 +256,7 @@ function cleanSvg(filePath, preset, dryRun) {
       e.brightness < 170 &&
       area < preset.midGrayMaxArea
     ) {
-      removed++;
+      _removed++;
       continue;
     }
 

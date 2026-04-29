@@ -85,9 +85,9 @@ await builder.build();
 
 **Pre-build hook** — When `fit-doc build` or `fit-doc serve` runs, it checks for
 a `justfile` in the source directory. If one exists with a `build` recipe, it
-runs `just build` before the documentation build. This lets sites generate assets
-(e.g. copying SVGs from a design directory) as part of the build pipeline. If
-`just` is not installed, the hook logs a warning and continues.
+runs `just build` before the documentation build. This lets sites generate
+assets (e.g. copying SVGs from a design directory) as part of the build
+pipeline. If `just` is not installed, the hook logs a warning and continues.
 
 ## DI Wiring
 

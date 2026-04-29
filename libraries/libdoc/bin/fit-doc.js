@@ -97,6 +97,7 @@ function runPreBuildHook(docsDir) {
     }
     throw new Error(
       `Pre-build hook failed: ${err.stderr?.toString().trim() || err.message}`,
+      { cause: err },
     );
   }
 }
