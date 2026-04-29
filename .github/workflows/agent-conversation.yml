@@ -1,4 +1,4 @@
-name: "Agent: Conversation"
+name: "Agent: Respond"
 
 on:
   issues:
@@ -84,50 +84,52 @@ jobs:
               target_type="issue"
               target_number="${PR_NUMBER_FROM_EVENT:-}"
               context="A new issue was opened: \"$ISSUE_TITLE\" (#$target_number) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Issue URL: $ITEM_URL."
-              action="decide which participant agent is most appropriate to respond based on the issue body, then ask that single agent to read the issue and post a single helpful reply via \`gh issue comment\`. Do not push any commits in response to a new issue."
+              action="route to the best-suited agent and ask them to assess the issue and act on it."
               ;;
             discussion)
               target_type="discussion"
               target_number="$DISCUSSION_NUMBER"
               context="A new discussion was opened: \"$DISCUSSION_TITLE\" (#$target_number, category: $DISCUSSION_CATEGORY) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Discussion URL: $ITEM_URL. Discussion node ID: $DISCUSSION_NODE_ID."
-              action="decide which participant agent is most appropriate to respond based on the discussion category and content, then ask that single agent to read the discussion body and post a single helpful reply via \`gh api graphql\` (mutation \`addDiscussionComment\` with the discussion node ID). Do not push any commits in response to a discussion."
+              action="route to the best-suited agent and ask them to assess the discussion and act on it. To reply, use \`gh api graphql\` (mutation \`addDiscussionComment\` with the discussion node ID)."
               ;;
             discussion_comment)
               target_type="discussion"
               target_number="$DISCUSSION_NUMBER"
               context="A new comment was posted on discussion \"$DISCUSSION_TITLE\" (#$target_number, category: $DISCUSSION_CATEGORY) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Comment URL: $ITEM_URL. Discussion node ID: $DISCUSSION_NODE_ID."
-              action="decide which participant agent is best suited to respond based on the discussion category and the comment content, then ask that single agent to read the thread and post a single helpful reply via \`gh api graphql\` (mutation \`addDiscussionComment\` with the discussion node ID; pass \`replyToId\` to thread the reply when appropriate). Do not push any commits in response to a discussion."
+              action="route to the best-suited agent and ask them to assess the comment and act on it. To reply, use \`gh api graphql\` (mutation \`addDiscussionComment\` with the discussion node ID; pass \`replyToId\` to thread the reply)."
               ;;
             workflow_dispatch)
               if [ "$DISPATCH_TARGET_TYPE" = "discussion" ]; then
                 target_type="discussion"
                 target_number="$DISPATCH_TARGET_NUMBER"
                 context="Manual dispatch targeting discussion #$target_number (event: $EVENT_NAME)."
-                action="decide which participant agent is most appropriate based on the discussion content and category, then ask that agent to assess and post a helpful reply via \`gh api graphql\` (mutation \`addDiscussionComment\`)."
+                action="route to the best-suited agent and ask them to assess the discussion and act on it. To reply, use \`gh api graphql\` (mutation \`addDiscussionComment\`)."
               else
                 target_type="pull_request"
                 target_number="$DISPATCH_TARGET_NUMBER"
                 context="Manual dispatch targeting PR #$target_number (event: $EVENT_NAME)."
-                action="decide which participant agent is most appropriate to assess the PR's recent activity and act on it."
+                action="route to the best-suited agent and ask them to assess the PR and act on it."
               fi
               ;;
             issue_comment)
               if [ "$IS_PR" = "true" ]; then
                 context="A new comment was posted on PR #$target_number by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Comment URL: $ITEM_URL."
-                action="decide which participant agent is most appropriate to handle the comment based on its content and their domain, then ask that single agent to assess the comment and act on it."
+                action="route to the best-suited agent and ask them to assess the comment and act on it."
               else
                 target_type="issue"
                 context="A new comment was posted on issue \"$ISSUE_TITLE\" (#$target_number) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Comment URL: $ITEM_URL."
-                action="decide which participant agent is most appropriate to handle the comment based on its content and their domain, then ask that single agent to read the issue thread and post a single helpful reply via \`gh issue comment\`. Do not push any commits in response to an issue comment."
+                action="route to the best-suited agent and ask them to assess the comment and act on it."
               fi
               ;;
             *)
               context="A new comment was posted on PR #$target_number by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Comment URL: $ITEM_URL."
-              action="decide which participant agent is most appropriate to handle the comment based on its content and their domain, then ask that single agent to assess the comment and act on it."
+              action="route to the best-suited agent and ask them to assess the comment and act on it."
               ;;
           esac
 
           task="$context As facilitator, $action
+
+          Ensure follow-through: when the agent answers, verify they acted on what was within their scope. If they acknowledged but deferred actionable work, send them back to complete it before you conclude.
 
           Recursion guard (this channel allows bot-authored content so agents can coordinate with each other): before engaging any participant, read the thread history. If the most recent activity is already a response from one of the participant agents you facilitate (product-manager, release-engineer, security-engineer, staff-engineer, technical-writer), stop immediately without engaging anyone — only respond when the latest content introduces a new question, request, or change for them to act on."
 
