@@ -28,10 +28,6 @@ on:
         required: true
         type: string
 
-concurrency:
-  group: agent-conversation-${{ github.event_name }}-${{ github.event.issue.number || github.event.pull_request.number || github.event.discussion.number || inputs.target-number }}-${{ github.event.comment.id || github.event.review.id || github.event.discussion.id || github.run_id }}
-  cancel-in-progress: false
-
 permissions:
   contents: write
 
@@ -39,11 +35,10 @@ jobs:
   kata:
     # Bot-authored content is allowed so this workflow can serve as an agent-to-agent coordination channel;
     # the task text contains a recursion guard that stops the facilitator when the latest activity is already
-    # a participant agent's response. Require issue_comment events to be on PRs (issue_comment also fires for
-    # issues — new issues are handled via the dedicated `issues` event). For pull_request_review_comment, only
-    # run on thread replies (in_reply_to_id set) — top-level review comments are delivered via the
-    # pull_request_review (submitted) event in a single batch.
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || (github.event_name == 'issue_comment' && github.event.issue.pull_request != null) || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
+    # a participant agent's response. For pull_request_review_comment, only run on thread replies
+    # (in_reply_to_id set) — top-level review comments are delivered via the pull_request_review (submitted)
+    # event in a single batch.
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || github.event_name == 'issue_comment' || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
     runs-on: ubuntu-latest
     steps:
       - name: Generate installation token
@@ -74,6 +69,7 @@ jobs:
           DISCUSSION_NODE_ID: ${{ github.event.discussion.node_id }}
           DISCUSSION_TITLE: ${{ github.event.discussion.title }}
           DISCUSSION_CATEGORY: ${{ github.event.discussion.category.name }}
+          IS_PR: ${{ github.event.issue.pull_request != null }}
           AUTHOR: ${{ github.event.comment.user.login || github.event.review.user.login || github.event.discussion.user.login || github.event.issue.user.login || github.actor }}
           AUTHOR_TYPE: ${{ github.event.comment.user.type || github.event.review.user.type || github.event.discussion.user.type || github.event.issue.user.type || 'User' }}
           ITEM_URL: ${{ github.event.comment.html_url || github.event.review.html_url || github.event.discussion.html_url || github.event.issue.html_url || '' }}
@@ -113,6 +109,16 @@ jobs:
                 target_number="$DISPATCH_TARGET_NUMBER"
                 context="Manual dispatch targeting PR #$target_number (event: $EVENT_NAME)."
                 action="decide which participant agent is most appropriate to assess the PR's recent activity and act on it."
+              fi
+              ;;
+            issue_comment)
+              if [ "$IS_PR" = "true" ]; then
+                context="A new comment was posted on PR #$target_number by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Comment URL: $ITEM_URL."
+                action="decide which participant agent is most appropriate to handle the comment based on its content and their domain, then ask that single agent to assess the comment and act on it."
+              else
+                target_type="issue"
+                context="A new comment was posted on issue \"$ISSUE_TITLE\" (#$target_number) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Comment URL: $ITEM_URL."
+                action="decide which participant agent is most appropriate to handle the comment based on its content and their domain, then ask that single agent to read the issue thread and post a single helpful reply via \`gh issue comment\`. Do not push any commits in response to an issue comment."
               fi
               ;;
             *)
