@@ -20,6 +20,11 @@ eval suite on every push.
 - Node.js 18+
 - `ANTHROPIC_API_KEY` available to the workflow
 - A repository where you want the eval to run
+- The `fit-eval` and `fit-trace` CLIs (both ship in
+  `@forwardimpact/libeval`) — install once with `npm install -g
+  @forwardimpact/libeval` and call `fit-eval`/`fit-trace` directly, or
+  invoke ephemerally in CI with `npx --yes @forwardimpact/libeval
+  fit-eval ...` (no install step needed)
 
 ## 1. Write the task
 
@@ -149,7 +154,9 @@ jobs:
 ```
 
 `if: always()` on the split and upload steps ensures the trace is preserved
-even when the eval fails — which is when you most need it.
+even when the eval fails — which is when you most need it. `split
+--mode=supervise` produces `trace-agent.ndjson` and `trace-supervisor.ndjson`
+alongside the original combined trace.
 
 ## 5. Read the results
 

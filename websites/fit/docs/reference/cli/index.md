@@ -4,9 +4,9 @@ description: Commands, arguments, and options for all Forward Impact CLI tools.
 ---
 
 > **Availability:** `fit-pathway`, `fit-map`, `fit-outpost`, `fit-guide`,
-> `fit-landmark`, `fit-summit`, and `fit-rc` are published to npm and can be
-> installed standalone. `fit-doc` and `fit-terrain` are monorepo-only tools that
-> require a full checkout of the
+> `fit-landmark`, `fit-summit`, `fit-eval`, `fit-trace`, and `fit-rc` are
+> published to npm and can be installed standalone. `fit-doc` and `fit-terrain`
+> are monorepo-only tools that require a full checkout of the
 > [monorepo](https://github.com/forwardimpact/monorepo).
 
 ## fit-map
@@ -489,6 +489,96 @@ bunx fit-doc build --src=websites/fit --out=dist --base-url=https://example.com 
 | `--base-url=<url>` | Base URL for sitemap, canonical links, and llms.txt |
 | `--port=<port>`    | Dev server port (default: 3000) — `serve` only      |
 | `--watch`, `-w`    | Watch for changes and rebuild — `serve` only        |
+
+---
+
+## fit-eval
+
+Run agents and capture NDJSON traces — for agent evaluations or multi-agent
+collaboration. Both CLIs ship in the `@forwardimpact/libeval` npm package.
+
+```sh
+npx fit-eval run --task-file=task.md --output=trace.ndjson
+npx fit-eval supervise --task-file=task.md --supervisor-profile=judge --agent-profile=coder --output=trace.ndjson
+npx fit-eval facilitate --task-file=task.md --facilitator-profile=lead --agent-profiles=eng-a,eng-b --output=trace.ndjson
+npx fit-eval output --format=text < trace.ndjson
+```
+
+| Command      | Purpose                                                 |
+| ------------ | ------------------------------------------------------- |
+| `run`        | Run a single agent autonomously on a defined task       |
+| `supervise`  | Run a supervisor–agent relay (agent-as-judge evaluations) |
+| `facilitate` | Run a facilitator with N participants (multi-agent collaboration) |
+| `output`     | Read NDJSON from stdin and emit a structured or readable form |
+| `tee`        | Stream readable text to stdout while saving raw NDJSON to a file |
+
+| Common option        | Description                                                   |
+| -------------------- | ------------------------------------------------------------- |
+| `--task-file`        | Path to a markdown task file                                  |
+| `--task-text`        | Inline task text (alternative to `--task-file`)               |
+| `--task-amend`       | Additional text appended to the task                          |
+| `--model`            | Claude model (default: opus)                                  |
+| `--max-turns`        | Max agentic turns (default 50 for `run`, 20 for `supervise`/`facilitate`; `0` = unlimited) |
+| `--output`           | Write the NDJSON trace to a file                              |
+| `--agent-profile`    | Agent profile name (`run`, `supervise`)                       |
+| `--allowed-tools`    | Agent tool allowlist (`run`, `supervise`)                     |
+| `--supervisor-profile` / `--supervisor-allowed-tools` / `--supervisor-cwd` | Supervisor (judge) settings (`supervise`)         |
+| `--agent-cwd`        | Agent working directory (`supervise`, `facilitate`)           |
+| `--facilitator-profile` / `--facilitator-cwd` | Facilitator settings (`facilitate`)                |
+| `--agent-profiles`   | Comma-separated list of participant profile names (`facilitate`, required) |
+
+Each `supervise` or `facilitate` session uses these orchestration tools:
+
+| Tool       | Caller                          | Effect                                                  |
+| ---------- | ------------------------------- | ------------------------------------------------------- |
+| `Ask`      | Any                             | Send a question to a target; reply arrives via `Answer` |
+| `Answer`   | Agent / participant             | Reply to an `Ask` addressed to you                      |
+| `Announce` | Any                             | Broadcast a message with no reply expected              |
+| `Conclude` | Supervisor / facilitator        | End the session with a final summary                    |
+| `Redirect` | Supervisor (`supervise` only)   | Interrupt the agent with replacement instructions       |
+| `RollCall` | Any                             | List the participants currently in the session          |
+
+See the [Agent Evaluations](../../guides/agent-evaluations/),
+[Agent Collaboration](../../guides/agent-collaboration/), and
+[Trace Analysis](../../guides/trace-analysis/) guides for end-to-end
+walkthroughs.
+
+---
+
+## fit-trace
+
+Download, query, and analyze agent execution traces produced by `fit-eval`.
+
+```sh
+npx fit-trace runs --lookback 7d                                # list recent CI runs
+npx fit-trace download <run-id>                                 # downloads to /tmp/trace-<run-id>/structured.json
+npx fit-trace split <file> --mode=facilitate                    # split per-source for multi-agent traces
+npx fit-trace overview <file>                                   # metadata, summary, turn count, tool usage
+npx fit-trace timeline <file>                                   # one line per turn
+npx fit-trace stats <file>                                      # token usage and cost
+npx fit-trace search <file> 'error|fail' --context 1            # regex search
+npx fit-trace tool <file> <ToolName>                            # turns involving a specific tool
+npx fit-trace filter <file> --role <role> --tool <name> --error # structural filter
+npx fit-trace turn <file> <index>                               # single turn by index
+```
+
+| Command     | Purpose                                                          |
+| ----------- | ---------------------------------------------------------------- |
+| `runs`      | List recent GitHub Actions workflow runs (default pattern: `agent`) |
+| `download`  | Download a trace artifact and convert to structured JSON         |
+| `split`     | Split a combined trace into per-source files (`--mode=run` is a no-op, `supervise` produces `trace-agent.ndjson`/`trace-supervisor.ndjson`, `facilitate` produces `trace-facilitator.ndjson`/`trace-<participant>.ndjson`) |
+| `overview`  | Metadata, summary, turn count, tool frequency                    |
+| `timeline`  | Compact one-line-per-turn overview                               |
+| `count`/`head`/`tail`/`batch`/`turn`/`init` | Navigation                          |
+| `search`    | Regex search across all content                                  |
+| `filter`    | Filter turns by role, tool, or error status                      |
+| `stats`     | Token usage and cost breakdown                                   |
+| `tools`/`tool` | Tool usage frequency / inspect a single tool                  |
+| `errors`    | Tool results with `isError=true`                                 |
+| `reasoning` | Agent reasoning text only                                        |
+
+Both `*.ndjson` files from `fit-eval --output` and `structured.json` files
+from `fit-trace download` are accepted as input to every query command.
 
 ---
 

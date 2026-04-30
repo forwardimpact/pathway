@@ -44,6 +44,10 @@ This produces `trace-facilitator.ndjson`, `trace-<participant>.ndjson`, etc.,
 which is essential when participants disagreed — you can read each one's view
 independently.
 
+Either trace form works as input — `*.ndjson` files from `fit-eval --output`
+and `structured.json` from `fit-trace download` are interchangeable for every
+`fit-trace` query command.
+
 ## 2. Orient
 
 Start with the bird's-eye view before drilling in:
@@ -171,7 +175,7 @@ reasoned to the wrong cause.
 ```sh
 npx fit-trace split trace.ndjson --mode=facilitate
 npx fit-trace timeline trace-facilitator.ndjson
-npx fit-trace tool trace-facilitator.ndjson Share
+npx fit-trace tool trace-facilitator.ndjson Announce
 npx fit-trace reasoning trace-platform-engineer.ndjson
 ```
 

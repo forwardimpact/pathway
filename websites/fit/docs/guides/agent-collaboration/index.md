@@ -1,6 +1,6 @@
 ---
 title: Agent Collaboration
-description: Run multi-agent sessions with fit-eval facilitate — specialists coordinate via Ask, Share, and Tell, and the session is captured as a trace for fit-trace.
+description: Run multi-agent sessions with fit-eval facilitate — specialists coordinate via Ask, Answer, and Announce, and the session is captured as a trace for fit-trace.
 ---
 
 # Agent Collaboration
@@ -8,9 +8,10 @@ description: Run multi-agent sessions with fit-eval facilitate — specialists c
 `fit-eval` is the plumbing for multi-agent collaboration. You write a
 **facilitator profile** and one or more **participant profiles**, then
 `fit-eval facilitate` runs them together over a message bus. Participants
-pass messages with `Ask`, `Share`, and `Tell`; the facilitator steers with
-`Redirect` and ends the session with `Conclude`. The NDJSON trace captures
-every turn for inspection with `fit-trace`.
+and the facilitator pass targeted messages with `Ask` (replies via
+`Answer`) and broadcast with `Announce`; the facilitator ends the session
+with `Conclude`. The NDJSON trace captures every turn for inspection with
+`fit-trace`.
 
 This guide walks from a single session definition to a working facilitated
 run you can read end-to-end.
@@ -91,12 +92,13 @@ Run the session in this shape:
 
 1. `Announce` the goal: confirm whether the current release is ready to ship.
 2. `Ask` each participant for their go/no-go, one at a time.
-3. If any participant reports a blocker, `Share` the blocker so the others
-   can react, then ask whether they want to revise their position.
+3. If any participant reports a blocker, `Announce` the blocker so the
+   others can react, then ask whether they want to revise their position.
 4. `Conclude` with `success: true` if all three are go; otherwise
    `success: false` with a one-paragraph summary of the blocker.
 
-If a participant strays off topic, use `Redirect` to bring them back. Do not
+If a participant strays off topic, re-`Ask` them with the original question
+to bring them back (the facilitator does not have `Redirect`). Do not
 do the participants' work yourself — your role is to sequence the
 conversation, not to audit the code.
 ```
@@ -138,14 +140,14 @@ order. Start with the overview to orient, then drill into the message flow.
 ```sh
 npx fit-trace overview trace.ndjson
 npx fit-trace timeline trace.ndjson
-npx fit-trace tool trace.ndjson Share
-npx fit-trace tool trace.ndjson Tell
+npx fit-trace tool trace.ndjson Announce
+npx fit-trace tool trace.ndjson Ask
 npx fit-trace tool trace.ndjson Conclude
 ```
 
 The `Conclude` call carries the facilitator's verdict. Walk backwards
-through `Share` and `Tell` calls to see how the participants converged —
-or where they diverged.
+through `Announce` (broadcasts) and `Ask`/`Answer` (targeted exchanges)
+to see how the participants converged — or where they diverged.
 
 ## Notes
 
