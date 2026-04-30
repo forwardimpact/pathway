@@ -6,7 +6,8 @@ updates:
       - /
       - /.github/actions/audit
       - /.github/actions/bootstrap
-      - /.github/actions/kata-action
+      - /.github/actions/kata-action-agent
+      - /.github/actions/kata-action-eval
       - /.github/actions/post-run
     schedule:
       interval: weekly
