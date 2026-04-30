@@ -97,6 +97,20 @@ const definition = {
     "fit-map people validate ./org/people.yaml",
     "fit-map activity start",
   ],
+  documentation: [
+    {
+      title: "Authoring Agent-Aligned Engineering Standards",
+      url: "https://www.forwardimpact.team/docs/guides/authoring-standards/index.md",
+      description:
+        "Task-oriented guide to defining your agent-aligned engineering standard in YAML.",
+    },
+    {
+      title: "YAML Schema Reference",
+      url: "https://www.forwardimpact.team/docs/reference/yaml-schema/index.md",
+      description:
+        "File format reference for every entity type with examples and published schema links.",
+    },
+  ],
 };
 
 const cli = createCli(definition);

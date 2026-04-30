@@ -218,6 +218,25 @@ const definition = {
     "fit-summit coverage --project migration-q2",
     "fit-summit validate --roster ./summit.yaml",
   ],
+  documentation: [
+    {
+      title: "Team Capability Guide",
+      url: "https://www.forwardimpact.team/docs/guides/team-capability/index.md",
+      description:
+        "Task-oriented guide to coverage heatmaps, structural risks, and what-if scenarios.",
+    },
+    {
+      title: "Summit Overview",
+      url: "https://www.forwardimpact.team/summit/index.md",
+      description: "Product overview, design principles, and audience model.",
+    },
+    {
+      title: "CLI Reference",
+      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
+      description:
+        "Complete command reference for all Forward Impact CLI tools.",
+    },
+  ],
 };
 
 async function main() {

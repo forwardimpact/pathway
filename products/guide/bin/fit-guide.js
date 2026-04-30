@@ -109,6 +109,12 @@ const repl = new Repl({
     "Type a question about your agent-aligned engineering standard.",
   storage: createStorage("guide"),
   state: { sessionId: null },
+  documentation: [
+    {
+      title: "Finding Your Bearing Guide",
+      url: "https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md",
+    },
+  ],
 
   commands: {
     init: {

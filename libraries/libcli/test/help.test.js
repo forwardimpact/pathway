@@ -179,6 +179,87 @@ describe("HelpRenderer", () => {
     });
   });
 
+  describe("documentation section", () => {
+    test("renders Documentation section when entries are present", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        documentation: [
+          {
+            title: "Agent Evaluations",
+            url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+            description: "Author a judge profile, run an eval locally.",
+          },
+          {
+            title: "Trace Analysis",
+            url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+          },
+        ],
+      };
+      createRenderer().render(def, stream);
+      assert.ok(stream.output.includes("Documentation:"));
+      assert.ok(stream.output.includes("Agent Evaluations"));
+      assert.ok(
+        stream.output.includes(
+          "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+        ),
+      );
+      assert.ok(
+        stream.output.includes("Author a judge profile, run an eval locally."),
+      );
+      assert.ok(stream.output.includes("Trace Analysis"));
+    });
+
+    test("omits description line when entry has no description", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        documentation: [
+          {
+            title: "Trace Analysis",
+            url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+          },
+        ],
+      };
+      createRenderer().render(def, stream);
+      const lines = stream.output.split("\n");
+      const idx = lines.findIndex((l) => l.includes("Trace Analysis"));
+      assert.ok(idx >= 0);
+      assert.ok(lines[idx + 1].includes("trace-analysis/index.md"));
+      assert.strictEqual(lines[idx + 2].trim(), "");
+    });
+
+    test("omits Documentation section when documentation is missing or empty", () => {
+      const stream = createStream();
+      createRenderer().render(fullDefinition, stream);
+      assert.ok(!stream.output.includes("Documentation:"));
+
+      const stream2 = createStream();
+      createRenderer().render(
+        { name: "fit-test", documentation: [] },
+        stream2,
+      );
+      assert.ok(!stream2.output.includes("Documentation:"));
+    });
+
+    test("renderJson includes documentation array verbatim", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        documentation: [
+          {
+            title: "Agent Evaluations",
+            url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+            description: "Author a judge profile.",
+          },
+        ],
+      };
+      createRenderer().renderJson(def, stream);
+      const parsed = JSON.parse(stream.output);
+      assert.deepStrictEqual(parsed.documentation, def.documentation);
+    });
+  });
+
   describe("renderJson", () => {
     test("produces valid JSON matching the definition", () => {
       const stream = createStream();

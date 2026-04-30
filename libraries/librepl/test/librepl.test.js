@@ -275,6 +275,64 @@ describe("librepl", () => {
       assert(outputData.includes("formatted: Streamed: test input"));
     });
 
+    test("--help renders Documentation section when documentation entries are configured", async () => {
+      const app = {
+        documentation: [
+          {
+            title: "Finding Your Bearing Guide",
+            url: "https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md",
+          },
+          {
+            title: "Trace Analysis",
+            url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+            description: "The full method walkthrough.",
+          },
+        ],
+      };
+
+      let outputData = "";
+      mockProcess.stdout.write = (text) => {
+        outputData += text;
+      };
+      mockProcess.argv = ["node", "script.js", "--help"];
+
+      const repl = new Repl(
+        app,
+        mockFormatter,
+        mockReadline,
+        mockProcess,
+        mockOs,
+      );
+      await repl.start();
+
+      assert(outputData.includes("**Documentation:**"));
+      assert(
+        outputData.includes(
+          "[Finding Your Bearing Guide](https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md)",
+        ),
+      );
+      assert(outputData.includes("— The full method walkthrough."));
+    });
+
+    test("--help omits Documentation section when no entries are configured", async () => {
+      let outputData = "";
+      mockProcess.stdout.write = (text) => {
+        outputData += text;
+      };
+      mockProcess.argv = ["node", "script.js", "--help"];
+
+      const repl = new Repl(
+        {},
+        mockFormatter,
+        mockReadline,
+        mockProcess,
+        mockOs,
+      );
+      await repl.start();
+
+      assert(!outputData.includes("**Documentation:**"));
+    });
+
     test("merges default app configuration with provided app", () => {
       const app = {
         prompt: "custom> ",

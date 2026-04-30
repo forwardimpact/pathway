@@ -83,6 +83,20 @@ export class HelpRenderer {
     return this.#renderExamplesArray(definition.examples);
   }
 
+  #renderDocumentation(definition) {
+    if (!definition.documentation || definition.documentation.length === 0) {
+      return [];
+    }
+    const lines = [this.#sectionHeader("Documentation:")];
+    for (const entry of definition.documentation) {
+      lines.push(`  ${entry.title}`);
+      lines.push(`    ${entry.url}`);
+      if (entry.description) lines.push(`    ${entry.description}`);
+    }
+    lines.push("");
+    return lines;
+  }
+
   #renderHintLine(definition) {
     if (!definition.commands || definition.commands.length === 0) return [];
     return [
@@ -135,6 +149,7 @@ export class HelpRenderer {
       ...this.#renderCommands(definition),
       ...this.#renderOptionSection(definition.globalOptions, "Options:"),
       ...this.#renderExamples(definition),
+      ...this.#renderDocumentation(definition),
       ...this.#renderHintLine(definition),
     ];
     out.write(lines.join("\n"));

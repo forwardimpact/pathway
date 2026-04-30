@@ -193,6 +193,32 @@ const definition = {
     "fit-pathway interview software_engineering J060 --json",
     "fit-pathway agent software_engineering --track=platform",
   ],
+  documentation: [
+    {
+      title: "Authoring Agent-Aligned Engineering Standards",
+      url: "https://www.forwardimpact.team/docs/guides/authoring-standards/index.md",
+      description:
+        "How to write the YAML data: disciplines, levels, tracks, capabilities, skills, behaviours, stages, drivers.",
+    },
+    {
+      title: "Agent Teams Guide",
+      url: "https://www.forwardimpact.team/docs/guides/agent-teams/index.md",
+      description:
+        "How to generate, structure, and maintain exported agent teams. Covers the three-layer architecture (CLAUDE.md → agent profiles → skills).",
+    },
+    {
+      title: "Career Paths Guide",
+      url: "https://www.forwardimpact.team/docs/guides/career-paths/index.md",
+      description:
+        "Browse jobs, skills, and career progression between levels.",
+    },
+    {
+      title: "CLI Reference",
+      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
+      description:
+        "Complete command reference for all Forward Impact CLI tools.",
+    },
+  ],
 };
 
 /**

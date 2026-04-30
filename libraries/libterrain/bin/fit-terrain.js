@@ -90,6 +90,14 @@ const definition = {
     "bunx fit-terrain --no-prose",
     "bunx fit-terrain --only=pathway",
   ],
+  documentation: [
+    {
+      title: "Terrain Internals",
+      url: "https://www.forwardimpact.team/docs/internals/terrain/index.md",
+      description:
+        "Synthetic data pipeline architecture, DSL parsing, entity generation, prose engine, and rendering.",
+    },
+  ],
 };
 
 const cli = createCli(definition);

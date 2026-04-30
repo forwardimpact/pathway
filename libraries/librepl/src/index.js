@@ -14,6 +14,7 @@ import { createTerminalFormatter } from "@forwardimpact/libformat";
  * @property {(state: object) => Promise<void>} [setup] - Setup function to run before starting the REPL
  * @property {{[key: string]: {usage: string, handler: (args: string[], state: object) => Promise<string|false>, type?: string, cli?: boolean}}} [commands] - Custom command definitions with usage, handler (returns false to exit early in CLI mode), optional type ("boolean" for no args), and optional cli flag (false to hide from CLI usage)
  * @property {string} [usage] - Static help text to show before the command list
+ * @property {Array<{title: string, url: string, description?: string}>} [documentation] - External documentation links rendered after the command list (mirrors the `## Documentation` section of the matching SKILL.md so agents reaching the REPL via `--help` get the same progressive-disclosure links)
  * @property {{[key: string]: any}} [state] - Definition of state and its initial values
  * @property {import("@forwardimpact/libstorage").StorageInterface} [storage] - Storage interface for state persistence
  * @property {string} [indent=""] - String to prefix each line of output (e.g. "  " for two-space indent)
@@ -329,6 +330,15 @@ export class Repl {
     for (const [name, command] of Object.entries(this.#app.commands)) {
       const usage = command.usage || "Custom command";
       output += `\`/${name}\` ${usage}\n`;
+    }
+
+    // Documentation section — mirrors the matching SKILL.md
+    if (this.#app.documentation && this.#app.documentation.length > 0) {
+      output += "\n**Documentation:**\n\n";
+      for (const entry of this.#app.documentation) {
+        output += `- [${entry.title}](${entry.url})\n`;
+        if (entry.description) output += `  — ${entry.description}\n`;
+      }
     }
 
     await this.#output(Readable.from([output]));

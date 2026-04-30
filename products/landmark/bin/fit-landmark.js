@@ -197,6 +197,13 @@ const definition = {
     "fit-landmark marker task_completion",
     "fit-landmark health --manager alice@example.com",
   ],
+  documentation: [
+    {
+      title: "Landmark Overview",
+      url: "https://www.forwardimpact.team/landmark/index.md",
+      description: "Product overview, audience model, and key concepts.",
+    },
+  ],
 };
 
 async function main() {

@@ -323,6 +323,19 @@ const definition = {
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "JSON output (with --help)" },
   },
+  documentation: [
+    {
+      title: "Knowledge Systems Guide",
+      url: "https://www.forwardimpact.team/docs/guides/knowledge-systems/index.md",
+      description:
+        "Task-oriented guide to setting up and using Outpost for personal knowledge management.",
+    },
+    {
+      title: "CLI Reference",
+      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
+      description: "Complete command reference for all Forward Impact CLI tools.",
+    },
+  ],
 };
 
 // --- CLI entry point ---------------------------------------------------------

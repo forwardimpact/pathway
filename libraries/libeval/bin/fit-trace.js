@@ -182,7 +182,8 @@ const definition = {
       options: {
         mode: {
           type: "string",
-          description: "Execution mode: run, supervise, or facilitate",
+          description:
+            "Execution mode: run (no-op), supervise, or facilitate",
         },
         "output-dir": {
           type: "string",
@@ -211,6 +212,26 @@ const definition = {
     "fit-trace search structured.json 'error|fail' --context 1",
     "fit-trace filter structured.json --tool Bash --error",
     "fit-trace turn structured.json 3",
+  ],
+  documentation: [
+    {
+      title: "Trace Analysis",
+      url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+      description:
+        "The full method walkthrough with worked examples (an eval that failed, a multi-agent session that stalled).",
+    },
+    {
+      title: "Agent Evaluations",
+      url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+      description:
+        "How `fit-eval supervise` produces the traces this skill analyzes.",
+    },
+    {
+      title: "Agent Collaboration",
+      url: "https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md",
+      description:
+        "How `fit-eval facilitate` produces multi-agent traces; `split` is the bridge into per-source files.",
+    },
   ],
 };
 
