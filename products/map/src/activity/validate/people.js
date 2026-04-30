@@ -2,7 +2,7 @@
  * People Validation
  *
  * Node-only CLI validation for local people files. Cross-references
- * discipline, level, and track values against the framework. Does not
+ * discipline, level, and track values against the standard. Does not
  * talk to Supabase.
  */
 
@@ -30,10 +30,10 @@ export async function loadPeopleFile(filePath) {
 }
 
 /**
- * Validate people against framework data.
- * Checks that discipline, level, and track values exist in the framework.
+ * Validate people against standard data.
+ * Checks that discipline, level, and track values exist in the standard.
  * @param {Array<object>} people - Array of person objects
- * @param {string} dataDir - Path to framework data directory
+ * @param {string} dataDir - Path to standard data directory
  * @returns {Promise<{valid: Array<object>, errors: Array<{row: number, message: string}>}>}
  */
 export async function validatePeople(people, dataDir) {

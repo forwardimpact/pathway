@@ -64,7 +64,7 @@ const COMMANDS = {
 const definition = {
   name: "fit-pathway",
   version: VERSION,
-  description: "Career progression for engineering frameworks",
+  description: "Career progression for agent-aligned engineering standards",
   commands: [
     { name: "discipline", args: "[<id>]", description: "Show disciplines" },
     { name: "level", args: "[<id>]", description: "Show levels" },

@@ -73,7 +73,7 @@ CREATE TABLE activity.getdx_teams (
 -- GetDX Snapshot Team Scores
 -- -----------------------------------------------------------------------------
 -- Aggregated factor/driver scores per team per snapshot.
--- item_id matches driver.id in framework YAML (shared ID namespace).
+-- item_id matches driver.id in standard YAML (shared ID namespace).
 -- -----------------------------------------------------------------------------
 
 CREATE TABLE activity.getdx_snapshot_team_scores (

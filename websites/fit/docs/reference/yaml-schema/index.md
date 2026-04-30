@@ -5,8 +5,9 @@ description: File format reference for every entity type, with examples and link
 
 ## Overview
 
-Framework definitions are stored as YAML files. Two schema formats validate
-these files, ensuring structural correctness and enabling tooling integration.
+Agent-aligned engineering standard definitions are stored as YAML files. Two
+schema formats validate these files, ensuring structural correctness and
+enabling tooling integration.
 
 ---
 
@@ -23,17 +24,17 @@ Paths are relative to `products/map/` (published as `@forwardimpact/map`).
 
 ## Entity Types
 
-| Entity       | Question                  | File Location            | Schema                                |
-| ------------ | ------------------------- | ------------------------ | ------------------------------------- |
-| Framework    | What is this framework?   | `framework.yaml`         | `schema/json/framework.schema.json`   |
-| Levels       | What career level?        | `levels.yaml`            | `schema/json/levels.schema.json`      |
-| Disciplines  | What kind of engineer?    | `disciplines/{id}.yaml`  | `schema/json/discipline.schema.json`  |
-| Tracks       | Where/how do you work?    | `tracks/{id}.yaml`       | `schema/json/track.schema.json`       |
-| Capabilities | What capability area?     | `capabilities/{id}.yaml` | `schema/json/capability.schema.json`  |
-| Skills       | What can you do?          | `capabilities/{id}.yaml` | (within capability schema)            |
-| Behaviours   | How do you approach work? | `behaviours/{id}.yaml`   | `schema/json/behaviour.schema.json`   |
-| Drivers      | What outcomes matter?     | `drivers.yaml`           | `schema/json/drivers.schema.json`     |
-| Questions    | How do you assess this?   | `questions/{type}/`      | `schema/json/*-questions.schema.json` |
+| Entity       | Question                                         | File Location            | Schema                                |
+| ------------ | ------------------------------------------------ | ------------------------ | ------------------------------------- |
+| Standard     | What is this agent-aligned engineering standard? | `standard.yaml`          | `schema/json/standard.schema.json`    |
+| Levels       | What career level?                               | `levels.yaml`            | `schema/json/levels.schema.json`      |
+| Disciplines  | What kind of engineer?                           | `disciplines/{id}.yaml`  | `schema/json/discipline.schema.json`  |
+| Tracks       | Where/how do you work?                           | `tracks/{id}.yaml`       | `schema/json/track.schema.json`       |
+| Capabilities | What capability area?                            | `capabilities/{id}.yaml` | `schema/json/capability.schema.json`  |
+| Skills       | What can you do?                                 | `capabilities/{id}.yaml` | (within capability schema)            |
+| Behaviours   | How do you approach work?                        | `behaviours/{id}.yaml`   | `schema/json/behaviour.schema.json`   |
+| Drivers      | What outcomes matter?                            | `drivers.yaml`           | `schema/json/drivers.schema.json`     |
+| Questions    | How do you assess this?                          | `questions/{type}/`      | `schema/json/*-questions.schema.json` |
 
 ---
 
@@ -72,11 +73,11 @@ SKILL.md files when using `npx fit-pathway skill <id> --agent`.
 
 ## Entity Examples
 
-### Framework
+### Agent-Aligned Engineering Standard
 
 ```yaml
 title: Acme Engineering Pathway
-description: Engineering career framework for Acme Corp.
+description: Agent-Aligned Engineering Standard for Acme Corp.
 tag: acme
 entityDefinitions:
   discipline:
@@ -268,7 +269,7 @@ Validation checks:
 
 ## Related Documentation
 
-- [Authoring Frameworks](/docs/guides/authoring-frameworks/) -- Writing and
-  maintaining framework data
+- [Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+  -- Writing and maintaining standard data
 - [Core Model](/docs/reference/model/) -- How entities combine into role
   definitions

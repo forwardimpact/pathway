@@ -15,18 +15,19 @@ hero:
       secondary: true
 ---
 
-> Pathway is your interface to the engineering framework. Feed it a discipline,
-> a track, and a level — and it produces a complete job definition. Drop the
-> level and you get an agent profile instead. Same data, same formula, different
-> outputs.
+> Pathway is your interface to the agent-aligned engineering standard. Feed it a
+> discipline, a track, and a level — and it produces a complete job definition.
+> Drop the level and you get an agent profile instead. Same data, same formula,
+> different outputs.
 
 ### What you get
 
 - An interactive web app to explore roles, skills, and career paths
 - A CLI for generating job descriptions and agent profiles
-- Claude Code agent profiles derived from your framework
+- Claude Code agent profiles derived from your agent-aligned engineering
+  standard
 - Agent skill files following the open Agent Skills Standard
-- A static site export for publishing your career framework
+- A static site export for publishing your agent-aligned engineering standard
 - Interview question sets tailored to each role
 
 ---
@@ -41,7 +42,7 @@ areas.
 Pathway generates a complete, consistent job definition.
 
 **Teams adopting AI agents.** Generate Claude Code agent profiles and skill
-files that match your engineering standards.
+files that match your agent-aligned engineering standards.
 
 ---
 
@@ -73,8 +74,8 @@ npx fit-pathway job software_engineering J060 --track=platform  # Job definition
 
 ### Leadership
 
-Preview your framework in the browser, generate job definitions, and create
-interview question sets.
+Preview your agent-aligned engineering standard in the browser, generate job
+definitions, and create interview question sets.
 
 </a>
 

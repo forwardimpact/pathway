@@ -1,11 +1,11 @@
 ---
 title: "Getting Started: Guide for Engineers"
-description: "Set up the AI agent that understands your engineering framework — onboarding, career advice, skill assessment, and contextual help."
+description: "Set up the AI agent that understands your agent-aligned engineering standard — onboarding, career advice, skill assessment, and contextual help."
 ---
 
 Guide is a conversational AI agent that understands your organization's
-engineering framework. It helps you onboard, find growth areas, and interpret
-engineering artifacts against your skill markers.
+agent-aligned engineering standard. It helps you onboard, find growth areas, and
+interpret engineering artifacts against your skill markers.
 
 ## Prerequisites
 
@@ -46,7 +46,7 @@ startup and reports if they are missing.
 
 ## Process data
 
-Before starting the services, process the framework data into the indexes that
+Before starting the services, process the standard data into the indexes that
 Guide's services read at runtime:
 
 ```sh
@@ -55,7 +55,7 @@ npx fit-process-graphs    # provided by @forwardimpact/libgraph
 ```
 
 These steps transform your `data/pathway/` into the resource index, knowledge
-store, and graph index. Re-run them whenever you update framework data.
+store, and graph index. Re-run them whenever you update standard data.
 
 ## Start the service stack
 

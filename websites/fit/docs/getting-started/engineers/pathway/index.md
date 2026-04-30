@@ -3,8 +3,9 @@ title: "Getting Started: Pathway for Engineers"
 description: "Browse career paths, generate AI agent teams, and explore job definitions from the CLI and web app."
 ---
 
-Pathway is your interface to the engineering framework. Browse job definitions,
-explore career progression, and generate AI agent teams matched to your role.
+Pathway is your interface to the agent-aligned engineering standard. Browse job
+definitions, explore career progression, and generate AI agent teams matched to
+your role.
 
 ## Prerequisites
 
@@ -17,19 +18,19 @@ explore career progression, and generate AI agent teams matched to your role.
 npm install @forwardimpact/pathway
 ```
 
-## Initialize framework data
+## Initialize standard data
 
-If your organization hasn't provided a framework data bundle, bootstrap starter
+If your organization hasn't provided a standard data bundle, bootstrap starter
 data to explore with:
 
 ```sh
 npx fit-map init
 ```
 
-This creates `./data/pathway/` with a complete starter framework. If your
-organization distributes a framework bundle, follow their installation
-instructions instead — typically a one-line `curl | bash` install script that
-places data at `~/.fit/data/pathway/`.
+This creates `./data/pathway/` with a complete starter agent-aligned engineering
+standard. If your organization distributes an agent-aligned engineering standard
+bundle, follow their installation instructions instead — typically a one-line
+`curl | bash` install script that places data at `~/.fit/data/pathway/`.
 
 ### Data directory resolution
 
@@ -43,8 +44,8 @@ npx fit-pathway discipline --list --data=./my-data/pathway
 
 ## Browse your job definition
 
-Use the Pathway CLI to explore the engineering framework your organization has
-defined.
+Use the Pathway CLI to explore the agent-aligned engineering standard your
+organization has defined.
 
 ```sh
 npx fit-pathway discipline --list    # See available disciplines

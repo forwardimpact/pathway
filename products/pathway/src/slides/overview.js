@@ -58,65 +58,65 @@ function renderDisciplineGroupHeader(groupName, count) {
  */
 export function renderOverviewSlide({ render, data, params }) {
   const { chapter } = params;
-  const { framework } = data;
+  const { standard } = data;
 
   const chapterConfig = {
     driver: {
-      title: framework.entityDefinitions.driver.title,
-      emojiIcon: framework.entityDefinitions.driver.emojiIcon,
-      description: framework.entityDefinitions.driver.description,
+      title: standard.entityDefinitions.driver.title,
+      emojiIcon: standard.entityDefinitions.driver.emojiIcon,
+      description: standard.entityDefinitions.driver.description,
       entities: prepareDriversList(data.drivers).items,
       mapper: driverToCardConfig,
     },
     skill: {
-      title: framework.entityDefinitions.skill.title,
-      emojiIcon: framework.entityDefinitions.skill.emojiIcon,
-      description: framework.entityDefinitions.skill.description,
+      title: standard.entityDefinitions.skill.title,
+      emojiIcon: standard.entityDefinitions.skill.emojiIcon,
+      description: standard.entityDefinitions.skill.description,
       entities: Object.values(
         prepareSkillsList(data.skills, data.capabilities).groups,
       ).flat(),
       mapper: (skill) => skillToCardConfig(skill, data.capabilities),
     },
     behaviour: {
-      title: framework.entityDefinitions.behaviour.title,
-      emojiIcon: framework.entityDefinitions.behaviour.emojiIcon,
-      description: framework.entityDefinitions.behaviour.description,
+      title: standard.entityDefinitions.behaviour.title,
+      emojiIcon: standard.entityDefinitions.behaviour.emojiIcon,
+      description: standard.entityDefinitions.behaviour.description,
       entities: prepareBehavioursList(data.behaviours).items,
       mapper: behaviourToCardConfig,
     },
     discipline: {
-      title: framework.entityDefinitions.discipline.title,
-      emojiIcon: framework.entityDefinitions.discipline.emojiIcon,
-      description: framework.entityDefinitions.discipline.description,
+      title: standard.entityDefinitions.discipline.title,
+      emojiIcon: standard.entityDefinitions.discipline.emojiIcon,
+      description: standard.entityDefinitions.discipline.description,
       groups: prepareDisciplinesList(data.disciplines).groups,
       mapper: disciplineToCardConfig,
       isGrouped: true,
     },
     level: {
-      title: framework.entityDefinitions.level.title,
-      emojiIcon: framework.entityDefinitions.level.emojiIcon,
-      description: framework.entityDefinitions.level.description,
+      title: standard.entityDefinitions.level.title,
+      emojiIcon: standard.entityDefinitions.level.emojiIcon,
+      description: standard.entityDefinitions.level.description,
       entities: prepareLevelsList(data.levels).items,
       mapper: levelToCardConfig,
     },
     track: {
-      title: framework.entityDefinitions.track.title,
-      emojiIcon: framework.entityDefinitions.track.emojiIcon,
-      description: framework.entityDefinitions.track.description,
+      title: standard.entityDefinitions.track.title,
+      emojiIcon: standard.entityDefinitions.track.emojiIcon,
+      description: standard.entityDefinitions.track.description,
       entities: prepareTracksList(data.tracks).items,
       mapper: trackToCardConfig,
     },
     job: {
-      title: framework.entityDefinitions.job.title,
-      emojiIcon: framework.entityDefinitions.job.emojiIcon,
-      description: framework.entityDefinitions.job.description,
+      title: standard.entityDefinitions.job.title,
+      emojiIcon: standard.entityDefinitions.job.emojiIcon,
+      description: standard.entityDefinitions.job.description,
       entities: generateAllJobs({
         disciplines: data.disciplines,
         levels: data.levels,
         tracks: data.tracks,
         skills: data.skills,
         behaviours: data.behaviours,
-        validationRules: data.framework.validationRules,
+        validationRules: data.standard.validationRules,
       }),
       mapper: jobToCardConfig,
     },

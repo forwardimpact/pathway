@@ -1,19 +1,20 @@
 ---
 title: "Getting Started: Map for Leadership"
-description: "Initialize your engineering framework, validate against schemas, set up the activity layer, and ingest operational signals."
+description: "Initialize your agent-aligned engineering standard, validate against schemas, set up the activity layer, and ingest operational signals."
 ---
 
 Map is the data product at the centre of every other tool. It has two layers
 that you set up in order:
 
-1. **Framework layer** — YAML files defining your skills, behaviours, levels,
+1. **Standard layer** — YAML files defining your skills, behaviours, levels,
    disciplines, and tracks. Validated locally with `npx fit-map validate`. This
    is what Pathway, Basecamp, and `libskill` consume.
 2. **Activity layer** — A Supabase database that stores your organization
    roster, GitHub activity, evidence, and GetDX snapshots. Powers Landmark and
-   Summit, and lets Guide write skill evidence back against framework markers.
+   Summit, and lets Guide write skill evidence back against agent-aligned
+   engineering standard markers.
 
-The framework layer is required. The activity layer is optional but unlocks
+The standard layer is required. The activity layer is optional but unlocks
 everything Landmark and Summit do.
 
 ## Prerequisites
@@ -27,9 +28,10 @@ everything Landmark and Summit do.
 npm install @forwardimpact/map
 ```
 
-## Framework: initialize starter data
+## Agent-Aligned Engineering Standard: initialize starter data
 
-Bootstrap a complete framework skeleton with editable YAML files:
+Bootstrap a complete agent-aligned engineering standard skeleton with editable
+YAML files:
 
 ```sh
 npx fit-map init
@@ -37,9 +39,10 @@ npx fit-map init
 
 This creates `./data/pathway/` with starter definitions for levels, disciplines,
 capabilities, skills, behaviours, stages, drivers, and tracks. The starter data
-is a working framework you can customize to match your organization.
+is a working agent-aligned engineering standard you can customize to match your
+organization.
 
-## Framework: validate
+## Agent-Aligned Engineering Standard: validate
 
 Run the validator to check your YAML files against the schema:
 
@@ -49,7 +52,7 @@ npx fit-map validate
 
 Fix any errors the validator reports before moving on.
 
-## Framework: customize
+## Agent-Aligned Engineering Standard: customize
 
 The starter data gives you a complete foundation. Edit the YAML files under
 `data/pathway/` to match your organization's engineering expectations.
@@ -248,10 +251,10 @@ CSV is also supported. Use the same column names as the YAML keys.
 
 ### Step 1: validate locally
 
-`fit-map people validate` checks the file against your framework — every
-`discipline`, `level`, and `track` must exist in `data/pathway/`. It does not
-talk to Supabase. Treat this as a fast pre-flight check before pushing to the
-database.
+`fit-map people validate` checks the file against your agent-aligned engineering
+standard — every `discipline`, `level`, and `track` must exist in
+`data/pathway/`. It does not talk to Supabase. Treat this as a fast pre-flight
+check before pushing to the database.
 
 ```sh
 npx fit-map people validate ./people.yaml
@@ -448,8 +451,8 @@ Guide.
 ## Next steps
 
 - [Map product page](/map/) — feature overview and command reference
-- [Authoring frameworks](/docs/guides/authoring-frameworks/) — full guide to
-  defining all entity types: levels, disciplines, tracks, capabilities, skills,
-  behaviours, stages, and drivers
+- [Authoring agent-aligned engineering standards](/docs/guides/authoring-standards/)
+  — full guide to defining all entity types: levels, disciplines, tracks,
+  capabilities, skills, behaviours, stages, and drivers
 - [YAML schema reference](/docs/reference/yaml-schema/) — complete file format
   documentation

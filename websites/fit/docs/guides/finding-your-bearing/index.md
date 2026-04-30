@@ -1,13 +1,13 @@
 ---
 title: "Finding Your Bearing"
-description: "Use Guide to navigate your engineering framework — onboarding, growth areas, and contextual help."
+description: "Use Guide to navigate your agent-aligned engineering standard — onboarding, growth areas, and contextual help."
 ---
 
-Guide is an AI agent that understands your organization's engineering framework
-— skills, levels, behaviours, disciplines, tracks, and career progression — and
-reasons about them in context. Instead of reading through YAML files and
-documentation, you ask Guide questions in plain language and get answers
-grounded in your team's actual definitions.
+Guide is an AI agent that understands your organization's agent-aligned
+engineering standard — skills, levels, behaviours, disciplines, tracks, and
+career progression — and reasons about them in context. Instead of reading
+through YAML files and documentation, you ask Guide questions in plain language
+and get answers grounded in your team's actual definitions.
 
 ## What Guide Does
 
@@ -28,42 +28,45 @@ guidance.
 
 ### Skill Assessment
 
-When you want to understand how your work maps to your framework, Guide can
-interpret engineering artifacts — pull requests, design documents, code reviews
-— against the markers defined for each skill. It explains which markers your
-work demonstrates and at what proficiency level.
+When you want to understand how your work maps to your agent-aligned engineering
+standard, Guide can interpret engineering artifacts — pull requests, design
+documents, code reviews — against the markers defined for each skill. It
+explains which markers your work demonstrates and at what proficiency level.
 
 ### Contextual Help
 
-Working on a task and wondering what your framework says about it? Guide
-references the right skills and behaviours for your level and discipline. If you
-are doing a code review, it can tell you what your framework expects at your
-level for that activity. If you are writing a design document, it surfaces the
-relevant system design markers.
+Working on a task and wondering what your agent-aligned engineering standard
+says about it? Guide references the right skills and behaviours for your level
+and discipline. If you are doing a code review, it can tell you what your
+agent-aligned engineering standard expects at your level for that activity. If
+you are writing a design document, it surfaces the relevant system design
+markers.
 
 ### Problem-Solving
 
-Engineering decisions benefit from team standards. Guide knows your framework's
-expectations around quality, testing, architecture, and collaboration, and can
-inform your decisions with that context.
+Engineering decisions benefit from team standards. Guide knows your
+agent-aligned engineering standard's expectations around quality, testing,
+architecture, and collaboration, and can inform your decisions with that
+context.
 
 ## Example Questions
 
-Guide responds to natural language questions about your framework:
+Guide responds to natural language questions about your agent-aligned
+engineering standard:
 
 - **"What should I focus on to reach the next level?"** — Guide compares your
   current level's expectations with the next level and highlights the skills and
   behaviours that change.
 - **"How does our team approach code review?"** — Guide finds the relevant
-  skills and markers for code review in your framework and explains the
-  expectations at your level.
+  skills and markers for code review in your agent-aligned engineering standard
+  and explains the expectations at your level.
 - **"I'm new — where do I start?"** — Guide walks you through your discipline's
   structure, your role's core skills, and the behaviours the team values.
 - **"What does 'working' proficiency in system design look like?"** — Guide
   reads the markers for that skill at that level and explains them with context.
 - **"I wrote this design doc — what skill markers does it demonstrate?"** —
-  Guide interprets the artifact against your framework's skill markers and
-  explains what it sees.
+  Guide interprets the artifact against your agent-aligned engineering
+  standard's skill markers and explains what it sees.
 
 ## How Guide Uses Skill Markers
 
@@ -72,8 +75,8 @@ visible in Pathway's job definitions. When it interprets an artifact or answers
 a question, it references specific markers at specific proficiency levels, so
 you can see exactly where its answer comes from.
 
-For example, if your framework defines these markers for system design at
-"working" proficiency:
+For example, if your agent-aligned engineering standard defines these markers
+for system design at "working" proficiency:
 
 - _Designs services with clear API boundaries_
 - _Documents trade-offs in design decisions_
@@ -81,20 +84,23 @@ For example, if your framework defines these markers for system design at
 Guide will reference those specific markers when assessing your design document,
 rather than applying generic criteria.
 
-This grounding in your framework means Guide's answers are consistent with what
-your team has defined as good engineering. Two people asking the same question
-get the same foundational answer, because the source of truth is shared.
+This grounding in your agent-aligned engineering standard means Guide's answers
+are consistent with what your team has defined as good engineering. Two people
+asking the same question get the same foundational answer, because the source of
+truth is shared.
 
 ## Getting Started
 
-Guide works with your Map data out of the box. If you have authored a framework
-(skills, levels, behaviours defined in YAML) and validated it with Map, Guide
-can reason about it immediately. There is no separate setup or configuration —
-Guide reads from the same data that Pathway and Summit use.
+Guide works with your Map data out of the box. If you have authored an
+agent-aligned engineering standard (skills, levels, behaviours defined in YAML)
+and validated it with Map, Guide can reason about it immediately. There is no
+separate setup or configuration — Guide reads from the same data that Pathway
+and Summit use.
 
 ## Related Documentation
 
 - [Data Model Reference](/docs/reference/model/) — How skills, levels, and
   behaviours are structured
-- [Authoring Frameworks Guide](/docs/guides/authoring-frameworks/) — How to
-  define the framework that Guide reasons about
+- [Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+  — How to define the agent-aligned engineering standard that Guide reasons
+  about

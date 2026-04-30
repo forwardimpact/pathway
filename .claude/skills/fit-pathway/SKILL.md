@@ -4,7 +4,7 @@ description: >
   Explore roles, skills, career progression, and agent profiles. Use when
   looking up role expectations by discipline, track, and level, generating
   or comparing job definitions, analyzing career progression gaps, creating
-  agent configurations, building a static framework site, or selecting
+  agent configurations, building a static agent-aligned engineering standard site, or selecting
   interview questions.
 ---
 
@@ -13,10 +13,10 @@ description: >
 Web application, CLI, and formatters for career progression, job definitions,
 and agent profile generation. Two audiences use `fit-pathway` differently:
 
-| Audience          | Goal                                           | How they run it                                 |
-| ----------------- | ---------------------------------------------- | ----------------------------------------------- |
-| **Organizations** | Publish a career framework for their engineers | `npx fit-pathway build` in a standalone project |
-| **Engineers**     | Explore jobs, skills, and career progression   | `npx fit-pathway` installed in their project    |
+| Audience          | Goal                                                             | How they run it                                 |
+| ----------------- | ---------------------------------------------------------------- | ----------------------------------------------- |
+| **Organizations** | Publish a agent-aligned engineering standard for their engineers | `npx fit-pathway build` in a standalone project |
+| **Engineers**     | Explore jobs, skills, and career progression                     | `npx fit-pathway` installed in their project    |
 
 ## When to Use
 
@@ -26,13 +26,13 @@ and agent profile generation. Two audiences use `fit-pathway` differently:
 - Generating or comparing job definitions across tracks and levels
 - Understanding the proficiency and autonomy expected at each level
 - Analyzing career progression gaps between current and target levels
-- Generating AI agent configurations from the framework
+- Generating AI agent configurations from the agent-aligned engineering standard
 - Answering questions about roles, skill expectations, or career paths
 
-**Framework setup and publishing:**
+**Standard setup and publishing:**
 
-- Setting up an organization's career framework project
-- Building a static site for the framework
+- Setting up an organization's agent-aligned engineering standard project
+- Building a static site for the agent-aligned engineering standard
 - Running a local development server to preview changes
 
 ---
@@ -118,7 +118,7 @@ The CLI resolves the data directory in this order:
 3. `~/.fit/data/` (user-global fallback)
 
 Use `npx fit-map init` to create a local `./data/` directory with starter
-framework data to get started.
+standard data to get started.
 
 ---
 
@@ -131,11 +131,11 @@ npx fit-pathway dev     # Preview changes in browser
 
 ## Documentation
 
-**Before editing YAML framework data**, read the relevant guide — they contain
+**Before editing YAML standard data**, read the relevant guide — they contain
 detailed examples, field references, and best-practice patterns essential for
 high-quality output.
 
-- [Authoring Frameworks Guide](https://www.forwardimpact.team/docs/guides/authoring-frameworks/)
+- [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/guides/authoring-standards/)
   — How to write the YAML data: disciplines, levels, tracks, capabilities,
   skills, behaviours, stages, drivers. Includes proficiency vocabulary
   standards, co-located human/agent content patterns, checklist quality rules,

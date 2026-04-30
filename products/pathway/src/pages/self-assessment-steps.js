@@ -91,7 +91,7 @@ export function renderIntroStep(data, assessmentState) {
           { className: "info-item" },
           span(
             { className: "info-icon" },
-            getConceptEmoji(data.framework, "skill"),
+            getConceptEmoji(data.standard, "skill"),
           ),
           div(
             {},
@@ -103,7 +103,7 @@ export function renderIntroStep(data, assessmentState) {
           { className: "info-item" },
           span(
             { className: "info-icon" },
-            getConceptEmoji(data.framework, "behaviour"),
+            getConceptEmoji(data.standard, "behaviour"),
           ),
           div(
             {},
@@ -388,7 +388,7 @@ export function renderBehavioursStep(step, data, assessmentState, rerender) {
         {},
         span(
           { className: "step-header-icon" },
-          getConceptEmoji(data.framework, "behaviour"),
+          getConceptEmoji(data.standard, "behaviour"),
         ),
         " Behaviours",
       ),

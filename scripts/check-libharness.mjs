@@ -49,7 +49,7 @@ const libharnessExports = [
   "withSilentConsole",
   "assertThrowsMessage",
   "assertRejectsMessage",
-  "createTestFramework",
+  "createTestStandard",
   "createTestPerson",
   "createTestRoster",
   "createTestEvidenceRow",

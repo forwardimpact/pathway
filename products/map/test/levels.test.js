@@ -280,18 +280,18 @@ describe("levels", () => {
   });
 
   describe("getConceptEmoji", () => {
-    test("returns emoji from framework", () => {
-      const framework = {
+    test("returns emoji from standard", () => {
+      const standard = {
         entityDefinitions: { skill: { emojiIcon: "🎯" } },
       };
-      assert.strictEqual(getConceptEmoji(framework, "skill"), "🎯");
+      assert.strictEqual(getConceptEmoji(standard, "skill"), "🎯");
     });
 
     test("returns default for missing concept", () => {
       assert.strictEqual(getConceptEmoji({}, "skill"), "💡");
     });
 
-    test("returns default for null framework", () => {
+    test("returns default for null standard", () => {
       assert.strictEqual(getConceptEmoji(null, "skill"), "💡");
     });
   });

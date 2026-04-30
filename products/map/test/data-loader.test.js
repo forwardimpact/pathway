@@ -76,19 +76,19 @@ describe("DataLoader", () => {
     });
   });
 
-  describe("loadFrameworkConfig", () => {
-    test("loads framework.yaml from data directory", async () => {
-      const frameworkData = { name: "Test Framework", version: "1.0" };
+  describe("loadStandardConfig", () => {
+    test("loads standard.yaml from data directory", async () => {
+      const standardData = { name: "Test Standard", version: "1.0" };
       mockFs.readFile = async (path) => {
-        assert.ok(path.endsWith("framework.yaml"));
-        return "name: Test Framework";
+        assert.ok(path.endsWith("standard.yaml"));
+        return "name: Test Standard";
       };
-      mockParser.parseYaml = () => frameworkData;
+      mockParser.parseYaml = () => standardData;
 
       const loader = new DataLoader(mockFs, mockParser);
-      const result = await loader.loadFrameworkConfig("/data");
+      const result = await loader.loadStandardConfig("/data");
 
-      assert.deepStrictEqual(result, frameworkData);
+      assert.deepStrictEqual(result, standardData);
     });
   });
 
@@ -150,7 +150,7 @@ describe("DataLoader", () => {
         },
         "drivers.yaml": [{ id: "quality", name: "Quality" }],
         "levels.yaml": [{ id: "junior", name: "Junior" }],
-        "framework.yaml": { name: "Test Framework" },
+        "standard.yaml": { name: "Test Standard" },
         "questions/skills/coding.yaml": { awareness: "What is coding?" },
         "questions/behaviours/teamwork.yaml": {
           emerging: "How do you collaborate?",
@@ -178,7 +178,7 @@ describe("DataLoader", () => {
       assert.ok(Array.isArray(result.capabilities));
       assert.ok(result.drivers);
       assert.ok(result.levels);
-      assert.ok(result.framework);
+      assert.ok(result.standard);
       assert.ok(result.questions);
 
       // Skills extracted from capabilities

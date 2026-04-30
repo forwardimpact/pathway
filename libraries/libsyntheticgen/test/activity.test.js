@@ -113,7 +113,7 @@ const MINI_TERRAIN = `terrain test {
     }
   }
 
-  framework {
+  standard {
     proficiencies [awareness, foundational, working, practitioner, expert]
     drivers {
       deep_work {
@@ -141,7 +141,7 @@ const MINI_TERRAIN = `terrain test {
 }`;
 
 describe("DSL distribution key validation", () => {
-  test("rejects distribution keys that don't match framework levels", () => {
+  test("rejects distribution keys that don't match standard levels", () => {
     const source = `
       terrain test {
         domain "Testing"
@@ -156,7 +156,7 @@ describe("DSL distribution key validation", () => {
           count 5
           distribution { L1 50% L2 50% }
         }
-        framework {
+        standard {
           levels {
             J040 { title "Junior" rank 1 }
             J060 { title "Mid" rank 2 }
@@ -166,11 +166,11 @@ describe("DSL distribution key validation", () => {
     `;
     assertThrowsMessage(
       () => parse(tokenize(source)),
-      /distribution key "L1" does not match any framework level/,
+      /distribution key "L1" does not match any standard level/,
     );
   });
 
-  test("accepts distribution keys matching framework levels", () => {
+  test("accepts distribution keys matching standard levels", () => {
     const source = `
       terrain test {
         domain "Testing"
@@ -185,7 +185,7 @@ describe("DSL distribution key validation", () => {
           count 5
           distribution { J040 50% J060 50% }
         }
-        framework {
+        standard {
           levels {
             J040 { title "Junior" rank 1 }
             J060 { title "Mid" rank 2 }
@@ -196,8 +196,8 @@ describe("DSL distribution key validation", () => {
     assert.doesNotThrow(() => parse(tokenize(source)));
   });
 
-  test("skips validation when framework has no levels", () => {
-    // MINI_TERRAIN uses L1-L4 without framework levels — should still parse
+  test("skips validation when standard has no levels", () => {
+    // MINI_TERRAIN uses L1-L4 without standard levels — should still parse
     assert.doesNotThrow(() => parse(tokenize(MINI_TERRAIN)));
   });
 });

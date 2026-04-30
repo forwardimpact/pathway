@@ -11,8 +11,8 @@ description: >
 # Landmark
 
 Analysis and recommendation layer on top of Map data. Landmark reads from Map's
-activity schema and framework YAML to surface evidence, health, readiness,
-growth timelines, initiative impact, and engineer voice. All computation is
+activity schema and standard YAML to surface evidence, health, readiness, growth
+timelines, initiative impact, and engineer voice. All computation is
 deterministic — no LLM calls.
 
 ## When to Use
@@ -33,8 +33,8 @@ deterministic — no LLM calls.
 
 ### Evidence Model
 
-Landmark combines two data sources: **framework data** (YAML definitions from
-Map with skill markers and proficiency levels) and **activity data** (GetDX
+Landmark combines two data sources: **standard data** (YAML definitions from Map
+with skill markers and proficiency levels) and **activity data** (GetDX
 snapshots, GitHub artifacts, and Guide-interpreted evidence stored in the Map
 activity schema). Evidence is linked to skills via marker definitions authored
 in capability YAML files.
@@ -89,7 +89,7 @@ See [`references/workflows.md`](references/workflows.md) for worked examples.
 
 - GetDX account with API access
 - Map activity schema migrated and populated (`npx fit-map activity migrate`)
-- Framework data with drivers and markers authored in capability YAML
+- Standard data with drivers and markers authored in capability YAML
 - Summit (optional) for inline growth recommendations in health view
 
 ## Verification

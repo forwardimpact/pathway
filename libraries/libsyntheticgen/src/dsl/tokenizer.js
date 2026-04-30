@@ -60,7 +60,7 @@ const KEYWORDS = new Set([
   "magnitude",
   "evidence_skills",
   "evidence_floor",
-  "framework",
+  "standard",
   "proficiencies",
   "maturities",
   "capabilities",

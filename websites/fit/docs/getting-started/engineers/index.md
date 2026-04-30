@@ -25,8 +25,8 @@ the CLI and web app.
 
 ### Guide
 
-Set up the AI agent that understands your engineering framework — onboarding,
-career advice, skill assessment, and contextual help.
+Set up the AI agent that understands your agent-aligned engineering standard —
+onboarding, career advice, skill assessment, and contextual help.
 
 </a>
 
@@ -35,7 +35,7 @@ career advice, skill assessment, and contextual help.
 ### Landmark
 
 Check your evidence record, promotion readiness, growth timeline, and skill
-coverage against your framework markers.
+coverage against your agent-aligned engineering standard markers.
 
 </a>
 

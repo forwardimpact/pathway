@@ -14,7 +14,7 @@ description: Commands, arguments, and options for all Forward Impact CLI tools.
 Data validation, index generation, and activity management.
 
 ```sh
-npx fit-map init                        # Create ./data/pathway/ with starter framework data
+npx fit-map init                        # Create ./data/pathway/ with starter standard data
 npx fit-map validate                    # Validate all data (JSON Schema + referential integrity)
 npx fit-map validate --shacl            # Validate RDF/SHACL syntax
 npx fit-map validate --data=PATH        # Validate a specific data directory
@@ -29,7 +29,7 @@ npx fit-map activity status             # Show activity stack status
 npx fit-map activity migrate            # Run database migrations
 npx fit-map activity transform <type>   # Transform activity data
 npx fit-map activity verify             # Verify activity data
-npx fit-map activity seed               # Seed activity data from framework
+npx fit-map activity seed               # Seed activity data from agent-aligned engineering standard
 npx fit-map getdx sync                  # Extract and transform GetDX snapshots
 ```
 
@@ -46,7 +46,7 @@ npx fit-map getdx sync                  # Extract and transform GetDX snapshots
 ### Data Directory Resolution
 
 By default, `fit-pathway` walks upward from the current working directory
-looking for a `data/` folder, then appends `/pathway`. Framework data must be in
+looking for a `data/` folder, then appends `/pathway`. Standard data must be in
 `./data/pathway/` (not `./data/` directly).
 
 Use `--data` to override, pointing to the `pathway` subdirectory directly:
@@ -229,8 +229,8 @@ fit-basecamp update [path]           # Update KB with latest templates
 
 ## fit-guide
 
-Conversational AI agent for engineering frameworks. Runs as a REPL; subcommands
-are typed at the prompt with a leading `/` (e.g. `/status`).
+Conversational AI agent for agent-aligned engineering standards. Runs as a REPL;
+subcommands are typed at the prompt with a leading `/` (e.g. `/status`).
 
 ```sh
 npx fit-guide                            # Start interactive REPL session

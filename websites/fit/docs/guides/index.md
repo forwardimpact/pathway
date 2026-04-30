@@ -1,18 +1,18 @@
 ---
 title: Guides
-description: Task-oriented guides for authoring frameworks, generating agent teams, browsing career paths, and more.
+description: Task-oriented guides for authoring agent-aligned engineering standards, generating agent teams, browsing career paths, and more.
 layout: product
 toc: false
 ---
 
 <div class="grid">
 
-<a href="/docs/guides/authoring-frameworks/">
+<a href="/docs/guides/authoring-standards/">
 
-### Authoring Frameworks
+### Authoring Agent-Aligned Engineering Standards
 
-Define your engineering framework in YAML — levels, disciplines, tracks,
-capabilities, skills, behaviours, stages, and drivers.
+Define your agent-aligned engineering standard in YAML — levels, disciplines,
+tracks, capabilities, skills, behaviours, stages, and drivers.
 
 </a>
 
@@ -20,8 +20,8 @@ capabilities, skills, behaviours, stages, and drivers.
 
 ### Agent Teams
 
-Generate AI coding agent teams from your career framework — profiles, skills,
-and stage-based workflows.
+Generate AI coding agent teams from your agent-aligned engineering standard —
+profiles, skills, and stage-based workflows.
 
 </a>
 
@@ -65,8 +65,8 @@ what-if staffing scenarios.
 
 ### Finding Your Bearing
 
-Use Guide to navigate your engineering framework — onboarding, growth areas, and
-contextual help.
+Use Guide to navigate your agent-aligned engineering standard — onboarding,
+growth areas, and contextual help.
 
 </a>
 

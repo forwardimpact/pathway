@@ -339,7 +339,7 @@ export function generatePlatforms(domain) {
     {
       id: "qa-automation",
       name: "QAAutomation",
-      description: "Automated quality testing and validation framework",
+      description: "Automated quality testing and validation standard",
       category: "Quality",
       version: "3.0.0",
       dependencies: ["batch-control", "compliance-tracker"],

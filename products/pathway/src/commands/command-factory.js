@@ -27,7 +27,7 @@ import {
  * @param {Function} config.findEntity - Function to find entity by ID: (data, id) => entity
  * @param {Function} config.presentDetail - Function to present detail: (entity, data, options) => view
  * @param {Function} config.formatSummary - Function to format summary output: (items, data) => void
- * @param {Function} config.formatDetail - Function to format detail output: (view, framework) => void
+ * @param {Function} config.formatDetail - Function to format detail output: (view, standard) => void
  * @param {Function} [config.formatListItem] - Optional function to format list item: (item) => string (defaults to item.id)
  * @param {Function} [config.sortItems] - Optional function to sort items: (items) => sortedItems
  * @param {Function} [config.validate] - Optional validation function: (data) => {errors: [], warnings: []}
@@ -174,7 +174,7 @@ function handleDetail({
     return;
   }
 
-  formatDetail(view, data.framework);
+  formatDetail(view, data.standard);
 }
 
 /**

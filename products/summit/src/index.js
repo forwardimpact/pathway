@@ -10,7 +10,7 @@ export {
   loadRoster,
   loadRosterFromMap,
   parseRosterYaml,
-  validateRosterAgainstFramework,
+  validateRosterAgainstStandard,
 } from "./roster/index.js";
 export {
   createSummitClient,

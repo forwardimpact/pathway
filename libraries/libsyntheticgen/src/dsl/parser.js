@@ -13,14 +13,14 @@
  * @property {object[]} projects
  * @property {object[]} scenarios
  * @property {object} snapshots
- * @property {object} framework
+ * @property {object} standard
  * @property {object[]} content
  * @property {object[]} datasets
  * @property {object[]} outputs
  */
 
 import { createBlockParsers } from "./parser-blocks.js";
-import { createFrameworkParsers } from "./parser-framework.js";
+import { createStandardParsers } from "./parser-standard.js";
 
 /**
  * Parse a token stream into a TerrainAST.
@@ -107,7 +107,7 @@ export function parse(tokens) {
   };
 
   const blocks = createBlockParsers(helpers);
-  const fw = createFrameworkParsers(helpers);
+  const std = createStandardParsers(helpers);
 
   // Main: parse terrain
   expectKeyword("terrain");
@@ -126,7 +126,7 @@ export function parse(tokens) {
     projects: [],
     scenarios: [],
     snapshots: null,
-    framework: null,
+    standard: null,
     content: [],
     datasets: [],
     outputs: [],
@@ -156,17 +156,17 @@ export function parse(tokens) {
     snapshots: () => {
       ast.snapshots = blocks.parseSnapshots();
     },
-    framework: () => {
-      ast.framework = fw.parseFramework();
+    standard: () => {
+      ast.standard = std.parseStandard();
     },
     content: () => ast.content.push(blocks.parseContent()),
     dataset: () => {
       const id = parseStringOrIdent();
-      ast.datasets.push(fw.parseDataset(id));
+      ast.datasets.push(std.parseDataset(id));
     },
     output: () => {
       const datasetId = parseStringOrIdent();
-      ast.outputs.push(fw.parseOutput(datasetId));
+      ast.outputs.push(std.parseOutput(datasetId));
     },
   };
 
@@ -182,14 +182,14 @@ export function parse(tokens) {
 
   if (peek().type === "RBRACE") advance();
 
-  // Validate distribution keys against framework levels (when both exist)
-  if (ast.people?.distribution && ast.framework?.levels?.length) {
-    const levelIds = new Set(ast.framework.levels.map((l) => l.id));
+  // Validate distribution keys against standard levels (when both exist)
+  if (ast.people?.distribution && ast.standard?.levels?.length) {
+    const levelIds = new Set(ast.standard.levels.map((l) => l.id));
     for (const key of Object.keys(ast.people.distribution)) {
       if (!levelIds.has(key)) {
-        const have = ast.framework.levels.map((l) => l.id).join(", ");
+        const have = ast.standard.levels.map((l) => l.id).join(", ");
         throw new Error(
-          `distribution key "${key}" does not match any framework level (have: ${have})`,
+          `distribution key "${key}" does not match any standard level (have: ${have})`,
         );
       }
     }

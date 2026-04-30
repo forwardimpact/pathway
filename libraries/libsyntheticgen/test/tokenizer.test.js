@@ -19,7 +19,7 @@ describe("tokenize", () => {
     });
 
     test("tokenizes all structural keywords", () => {
-      const input = "org department team people project framework";
+      const input = "org department team people project standard";
       const tokens = tokenize(input).filter((t) => t.type !== "EOF");
       assert.strictEqual(tokens.length, 6);
       for (const t of tokens) {

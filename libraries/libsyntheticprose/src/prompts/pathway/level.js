@@ -22,10 +22,10 @@ export function buildLevelPrompt(levels, ctx, schema) {
 
   return {
     system:
-      buildPreamble(ctx.frameworkName || ctx.domain) +
+      buildPreamble(ctx.standardName || ctx.domain) +
       "\n\n" +
       [
-        "You are an expert career framework author.",
+        "You are an expert author of agent-aligned engineering standards.",
         "Output ONLY valid JSON. No markdown fences, no explanations.",
         `The organization domain is: ${ctx.domain}.`,
         `Industry: ${ctx.industry}.`,

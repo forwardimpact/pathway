@@ -7,7 +7,7 @@ import { parseYamlPeople } from "@forwardimpact/map/activity/parse-people";
 
 const parser = createDslParser();
 
-// Minimal DSL with framework levels matching distribution keys.
+// Minimal DSL with standard levels matching distribution keys.
 const MINI_DSL = `
   terrain integration_test {
     domain "Testing"
@@ -24,7 +24,7 @@ const MINI_DSL = `
       distribution { J040 60% J060 40% }
       disciplines { software_engineering 100% }
     }
-    framework {
+    standard {
       levels {
         J040 { title "Junior" rank 1 }
         J060 { title "Mid" rank 2 }
@@ -41,16 +41,16 @@ describe("synthetic → map integration", () => {
     ast = parser.parse(MINI_DSL);
     assert.ok(ast);
     assert.ok(ast.people);
-    assert.ok(ast.framework);
+    assert.ok(ast.standard);
   });
 
-  test("distribution keys match framework levels", () => {
+  test("distribution keys match standard levels", () => {
     const distKeys = Object.keys(ast.people.distribution);
-    const levelIds = ast.framework.levels.map((l) => l.id);
+    const levelIds = ast.standard.levels.map((l) => l.id);
     for (const key of distKeys) {
       assert.ok(
         levelIds.includes(key),
-        `distribution key "${key}" not in framework levels`,
+        `distribution key "${key}" not in standard levels`,
       );
     }
   });
@@ -58,11 +58,11 @@ describe("synthetic → map integration", () => {
   test("generated people have valid levels", () => {
     const rng = createSeededRNG(42);
     entities = buildEntities(ast, rng);
-    const levelIds = new Set(ast.framework.levels.map((l) => l.id));
+    const levelIds = new Set(ast.standard.levels.map((l) => l.id));
     for (const person of entities.people) {
       assert.ok(
         levelIds.has(person.level),
-        `person ${person.name} has level "${person.level}" not in framework`,
+        `person ${person.name} has level "${person.level}" not in standard`,
       );
     }
   });

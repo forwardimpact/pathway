@@ -33,7 +33,7 @@
     "id": "semantic-search",
     "question": "How should an engineer approach code review?",
     "expected_tools": ["search_content"],
-    "expected_substance": "Synthesizes guidance on code review from retrieved framework content"
+    "expected_substance": "Synthesizes guidance on code review from retrieved standard content"
   },
   {
     "id": "software-toolkit",

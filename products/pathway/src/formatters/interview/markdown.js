@@ -93,13 +93,13 @@ function formatScenarioSections(
 /**
  * Format interview detail as markdown
  * @param {Object} view - Interview detail view from presenter
- * @param {Object} options - Options (e.g., type, framework)
- * @param {Object} [options.framework] - Framework data for emoji lookup
+ * @param {Object} options - Options (e.g., type, standard)
+ * @param {Object} [options.standard] - Standard data for emoji lookup
  * @returns {string}
  */
-export function interviewToMarkdown(view, { framework } = {}) {
-  const skillEmoji = getConceptEmoji(framework, "skill");
-  const behaviourEmoji = getConceptEmoji(framework, "behaviour");
+export function interviewToMarkdown(view, { standard } = {}) {
+  const skillEmoji = getConceptEmoji(standard, "skill");
+  const behaviourEmoji = getConceptEmoji(standard, "behaviour");
   const lines = [
     `# ${view.typeInfo.icon} Interview: ${view.title}`,
     "",

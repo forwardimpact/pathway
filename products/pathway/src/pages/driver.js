@@ -16,8 +16,8 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  */
 export function renderDriversList() {
   const { data } = getState();
-  const { framework } = data;
-  const driverEmoji = getConceptEmoji(framework, "driver");
+  const { standard } = data;
+  const driverEmoji = getConceptEmoji(standard, "driver");
 
   // Transform data for list view
   const { items } = prepareDriversList(data.drivers);
@@ -29,11 +29,11 @@ export function renderDriversList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${driverEmoji} ${framework.entityDefinitions.driver.title}`,
+        `${driverEmoji} ${standard.entityDefinitions.driver.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.driver.description.trim(),
+        standard.entityDefinitions.driver.description.trim(),
       ),
     ),
 
@@ -67,7 +67,7 @@ export function renderDriverDetail(params) {
     driverToDOM(driver, {
       skills: data.skills,
       behaviours: data.behaviours,
-      framework: data.framework,
+      standard: data.standard,
     }),
   );
 }

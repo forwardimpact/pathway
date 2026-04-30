@@ -12,17 +12,17 @@ import { buildPriorContextLines } from "./prior-context.js";
 export function buildTrackPrompt(skeleton, ctx, schema, priorOutput) {
   return {
     system:
-      buildPreamble(ctx.frameworkName || ctx.domain) +
+      buildPreamble(ctx.standardName || ctx.domain) +
       "\n\n" +
       [
-        "You are an expert career framework author.",
+        "You are an expert author of agent-aligned engineering standards.",
         "Output ONLY valid JSON. No markdown fences, no explanations.",
         `The organization domain is: ${ctx.domain}.`,
         `Industry: ${ctx.industry}.`,
       ].join(" "),
 
     user: [
-      "Generate a track definition for a career framework.",
+      "Generate a track definition for an agent-aligned engineering standard.",
       "",
       "## JSON Schema (you MUST conform to this exactly)",
       "```json",

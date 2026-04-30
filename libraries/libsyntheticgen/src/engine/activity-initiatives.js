@@ -143,7 +143,7 @@ export function deriveInitiatives(ast, rng, people, teams, _snapshots) {
   const scorecards = [];
   const initiatives = [];
   const driverMap = new Map(
-    (ast.framework?.drivers || []).map((d) => [d.id, d]),
+    (ast.standard?.drivers || []).map((d) => [d.id, d]),
   );
   let counter = 0;
 

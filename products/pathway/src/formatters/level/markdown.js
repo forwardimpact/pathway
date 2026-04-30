@@ -9,12 +9,12 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
 /**
  * Format level list as markdown
  * @param {Array} levels - Raw level entities
- * @param {Object} [framework] - Framework config for emojis
+ * @param {Object} [standard] - Standard config for emojis
  * @returns {string}
  */
-export function levelListToMarkdown(levels, framework) {
+export function levelListToMarkdown(levels, standard) {
   const { items } = prepareLevelsList(levels);
-  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
+  const emoji = standard ? getConceptEmoji(standard, "level") : "📊";
   const lines = [`# ${emoji} Levels`, ""];
 
   const rows = items.map((g) => [
@@ -33,12 +33,12 @@ export function levelListToMarkdown(levels, framework) {
 /**
  * Format level detail as markdown
  * @param {Object} level - Raw level entity
- * @param {Object} [framework] - Framework config for emojis
+ * @param {Object} [standard] - Standard config for emojis
  * @returns {string}
  */
-export function levelToMarkdown(level, framework) {
+export function levelToMarkdown(level, standard) {
   const view = prepareLevelDetail(level);
-  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
+  const emoji = standard ? getConceptEmoji(standard, "level") : "📊";
   const lines = [`# ${emoji} ${view.displayName} (${view.id})`, ""];
 
   if (view.typicalExperienceRange) {

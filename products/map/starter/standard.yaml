@@ -1,4 +1,4 @@
-# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/framework.schema.json
+# yaml-language-server: $schema=https://www.forwardimpact.team/schema/json/standard.schema.json
 
 title: Engineering Pathway
 emojiIcon: "\U0001F9ED"
@@ -38,7 +38,9 @@ entityDefinitions:
   agent:
     title: Agents
     emojiIcon: "\U0001F916"
-    description: AI agent configurations generated from the framework.
+    description:
+      AI agent configurations generated from the agent-aligned engineering
+      standard.
   stage:
     title: Stages
     emojiIcon: "\U0001F504"

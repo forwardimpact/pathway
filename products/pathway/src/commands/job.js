@@ -309,7 +309,7 @@ export async function runJobCommand({
     tracks: data.tracks,
     skills: data.skills,
     behaviours: data.behaviours,
-    validationRules: data.framework.validationRules,
+    validationRules: data.standard.validationRules,
   });
 
   const filteredJobs = options.track

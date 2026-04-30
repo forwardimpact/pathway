@@ -18,7 +18,7 @@
 
 fit: a owl:Ontology ;
     rdfs:label "Engineering Pathway Schema"@en ;
-    rdfs:comment "SHACL schema for the Engineering Pathway framework - a unified system for defining engineering roles, skills, behaviours, and AI agent configurations."@en .
+    rdfs:comment "SHACL schema for the Engineering Pathway standard - a unified system for defining engineering roles, skills, behaviours, and AI agent configurations."@en .
 
 # =============================================================================
 # ENUMERATIONS (Named Individuals)

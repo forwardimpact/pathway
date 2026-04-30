@@ -1,7 +1,7 @@
 # Guide
 
-Conversational AI agent that reasons about your engineering framework in
-context.
+Conversational AI agent that reasons about your agent-aligned engineering
+standard in context.
 
 ## Getting Started
 

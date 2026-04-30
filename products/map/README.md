@@ -1,6 +1,7 @@
 # Map
 
-Data product for career frameworks consumed by AI agents and engineers.
+Data product for agent-aligned engineering standards consumed by AI agents and
+engineers.
 
 ## Getting Started
 

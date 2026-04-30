@@ -17,7 +17,8 @@ products via npm.
 - **Leadership** — Define what good engineering looks like, staff teams to
   succeed, and measure outcomes without blaming individuals.
 - **Engineers** — Understand expectations, find growth areas, stay prepared for
-  daily work, and receive guidance grounded in their organization's framework.
+  daily work, and receive guidance grounded in their organization's
+  agent-aligned engineering standard.
 - **Agents** — Operate with the same shared definitions, skill markers, and
   quality standards that humans use, so human–agent collaboration is coherent.
 
@@ -26,7 +27,7 @@ products via npm.
 ### Map — `fit-map`
 
 Helps leadership and agents answer _what does good engineering look like here?_
-Validates, stores, and publishes YAML frameworks.
+Validates, stores, and publishes YAML agent-aligned engineering standards.
 [Overview](websites/fit/map/index.md) ·
 [Internals](websites/fit/docs/internals/map/index.md)
 
@@ -48,7 +49,8 @@ meeting briefings (macOS status menu).
 ### Guide — `fit-guide`
 
 Helps engineers answer _how do I find my bearing?_ AI agent that reasons about
-your engineering framework in context. [Overview](websites/fit/guide/index.md) ·
+your agent-aligned engineering standard in context.
+[Overview](websites/fit/guide/index.md) ·
 [Internals](websites/fit/docs/internals/guide/index.md)
 
 ### Landmark — `fit-landmark`
@@ -85,11 +87,12 @@ Agents are often the primary consumers. Published skills teach how a product
 disclose: start with what the product does, then link to published docs.
 External users have no monorepo access — use fully qualified URLs to `.md` pages
 (e.g.
-`https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md`).
+`https://www.forwardimpact.team/docs/guides/authoring-standards/index.md`).
 
 Two skill packs sync on push to `main`:
 
-- **`forwardimpact/fit-skills`** — `fit-*` skills for the framework products.
+- **`forwardimpact/fit-skills`** — `fit-*` skills for the agent-aligned
+  engineering standard products.
 - **`forwardimpact/kata-skills`** — `kata-*` skills for the Kata Agent Team.
 
 Install skills: `npx skills add forwardimpact/fit-skills` (or `kata-skills`).
@@ -139,7 +142,7 @@ Issue, PR/issue comment, Discussion, or `agent-react`. See
 
 ## Domain Concepts
 
-Framework entities are defined in YAML under
+Agent-aligned engineering standard entities are defined in YAML under
 [products/map/starter/](products/map/starter/) (the monorepo's starter template,
 which installs to `data/pathway/` in consuming projects). Use
 `bunx fit-pathway <entity> --list` to discover available values.
@@ -167,7 +170,7 @@ fields.
 - **Tools** derived from `toolReferences` at runtime via `bunx fit-pathway tool`
 
 Validate data: `bunx fit-map validate`. Vocabulary standards in the
-[Authoring Frameworks guide](websites/fit/docs/guides/authoring-frameworks/index.md).
+[Authoring Agent-Aligned Engineering Standards guide](websites/fit/docs/guides/authoring-standards/index.md).
 
 ## Documentation Map
 

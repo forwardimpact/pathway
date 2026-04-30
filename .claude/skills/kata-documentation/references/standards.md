@@ -8,7 +8,7 @@ Four-tier hierarchy under `websites/fit/docs/` serving three user groups
 | Tier              | Intent                      | Subsections                                                                                                                                                                                |
 | ----------------- | --------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `getting-started` | "Get me going fast"         | `leadership/`, `engineers/`, `contributors/`                                                                                                                                               |
-| `guides`          | "Help me accomplish a task" | `authoring-frameworks/`, `agent-teams/`, `career-paths/`, `knowledge-systems/`, `landmark-quickstart/`, `team-capability/`, `finding-your-bearing/`                                        |
+| `guides`          | "Help me accomplish a task" | `authoring-standards/`, `agent-teams/`, `career-paths/`, `knowledge-systems/`, `landmark-quickstart/`, `team-capability/`, `finding-your-bearing/`                                         |
 | `reference`       | "Let me look something up"  | `cli/`, `model/`, `lifecycle/`, `yaml-schema/`                                                                                                                                             |
 | `internals`       | "Show me how this is built" | one per product (`map/`, `pathway/`, `basecamp/`, `guide/`, `landmark/`, `summit/`), shared infrastructure (`codegen/`, `libcli/`, `librepl/`, `libskill/`, `terrain/`), and `operations/` |
 
@@ -31,8 +31,9 @@ import statements.
 
 **Guides are task-oriented, not product-oriented.** A guide answers "how do I do
 X?", not "what does product Y contain?" Guides pull from multiple products when
-that matches the real workflow — e.g., "Authoring Frameworks" covers Map, Core
-Model, and Pathway because that is the real authoring flow.
+that matches the real workflow — e.g., "Authoring Agent-Aligned Engineering
+Standards" covers Map, Core Model, and Pathway because that is the real
+authoring flow.
 
 **Reference is lookup, not tutorial.** CLI reference lists every command with
 arguments and a brief example. Model reference defines every entity. YAML schema
@@ -52,11 +53,11 @@ documentation link must use the full domain. Internal skills (`libs-*`,
 ```markdown
 <!-- Correct — works on any installation -->
 
-- [Guide](https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md)
+- [Guide](https://www.forwardimpact.team/docs/guides/authoring-standards/index.md)
 
 <!-- Wrong — breaks on external installations -->
 
-- [Guide](/docs/guides/authoring-frameworks/index.md)
+- [Guide](/docs/guides/authoring-standards/index.md)
 ```
 
 **Guides and Reference produce stable agent-fetchable URLs.** Every page gets a
@@ -69,8 +70,8 @@ When the same concept appears on multiple pages, formatting and terminology must
 be identical — inconsistency erodes trust.
 
 **Repeating tables** — The proficiency scale and behaviour maturity scale appear
-in multiple guides. The canonical tables live in the Authoring Frameworks guide;
-all other copies must match column values exactly.
+in multiple guides. The canonical tables live in the Authoring Agent-Aligned
+Engineering Standards; all other copies must match column values exactly.
 
 **Field names** — Use the same tier vocabulary across disciplines and levels:
 

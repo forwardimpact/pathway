@@ -1,12 +1,12 @@
 /**
  * Shared test fixtures for products/map/test/.
  *
- * Spec 640 removed inline framework data from each test file. Any constant
+ * Spec 640 removed inline standard data from each test file. Any constant
  * that repeats across two or more tests (or two or more files) lives here.
  */
 
 /**
- * Minimal but complete framework keyed around a "delivery" capability,
+ * Minimal but complete standard keyed around a "delivery" capability,
  * "planning" skill, "platform" track, "quality" driver, "systems_thinking"
  * behaviour, "software_engineering" discipline, and a J040 level.
  *

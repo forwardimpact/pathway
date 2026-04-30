@@ -39,7 +39,7 @@ terrain minimal {
     prose_tone "technical"
   }
 
-  framework {
+  standard {
     proficiencies [awareness, foundational, working, practitioner, expert]
     maturities [emerging, developing, practicing, role_modeling, exemplifying]
 

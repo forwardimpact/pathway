@@ -15,8 +15,8 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  */
 export function renderLevelsList() {
   const { data } = getState();
-  const { framework } = data;
-  const levelEmoji = getConceptEmoji(framework, "level");
+  const { standard } = data;
+  const levelEmoji = getConceptEmoji(standard, "level");
 
   // Transform data for list view
   const { items } = prepareLevelsList(data.levels);
@@ -28,11 +28,11 @@ export function renderLevelsList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${levelEmoji} ${framework.entityDefinitions.level.title}`,
+        `${levelEmoji} ${standard.entityDefinitions.level.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.level.description.trim(),
+        standard.entityDefinitions.level.description.trim(),
       ),
     ),
 
@@ -118,5 +118,5 @@ export function renderLevelDetail(params) {
   }
 
   // Use DOM formatter - it handles transformation internally
-  render(levelToDOM(level, { framework: data.framework }));
+  render(levelToDOM(level, { standard: data.standard }));
 }

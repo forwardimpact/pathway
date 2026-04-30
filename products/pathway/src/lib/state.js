@@ -17,7 +17,7 @@ const store = createStore({
     drivers: [],
     questions: {},
     capabilities: [],
-    framework: {},
+    standard: {},
     loaded: false,
     error: null,
   },
@@ -82,19 +82,19 @@ export function getFilters(entity) {
  * @property {string} title - Application title
  * @property {string} tag - Brand hashtag/tag
  * @property {string} description - Application description
- * @property {string} emojiIcon - Emoji icon for the framework
+ * @property {string} emojiIcon - Emoji icon for the standard
  */
 
 /**
- * Get branding elements from framework data
+ * Get branding elements from standard data
  * @returns {Branding}
  */
 export function getBranding() {
-  const { framework } = getState().data;
+  const { standard } = getState().data;
   return {
-    title: framework.title || "Engineering Pathway",
-    tag: framework.tag || "#BenchTools",
-    description: framework.description || "",
-    emojiIcon: framework.emojiIcon || "🧭",
+    title: standard.title || "Engineering Pathway",
+    tag: standard.tag || "#BenchTools",
+    description: standard.description || "",
+    emojiIcon: standard.emojiIcon || "🧭",
   };
 }

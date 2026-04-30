@@ -17,7 +17,7 @@ function makeLogger() {
 function makeMockProseEngine() {
   return {
     generateJson: async (key) => {
-      if (key.includes("framework")) {
+      if (key.includes("standard")) {
         return { title: "Test", emojiIcon: "🏗️", tag: "#test" };
       }
       if (key.includes("levels")) {
@@ -61,7 +61,7 @@ describe("PathwayGenerator", () => {
   test("generates all entity types", async () => {
     const generator = new PathwayGenerator(makeMockProseEngine(), makeLogger());
 
-    const framework = {
+    const standard = {
       name: "Test",
       levels: [{ id: "J040", professionalTitle: "Engineer", rank: 1 }],
       behaviours: [{ id: "collab", name: "Collaboration" }],
@@ -83,7 +83,7 @@ describe("PathwayGenerator", () => {
     };
 
     const schemas = {
-      framework: {},
+      standard: {},
       levels: {},
       behaviour: {},
       capability: {},
@@ -95,13 +95,13 @@ describe("PathwayGenerator", () => {
     };
 
     const result = await generator.generate({
-      framework,
+      standard,
       domain: "test.example",
       industry: "pharma",
       schemas,
     });
 
-    assert.ok(result.framework);
+    assert.ok(result.standard);
     assert.ok(result.levels);
     assert.ok(Array.isArray(result.behaviours));
     assert.ok(Array.isArray(result.capabilities));
@@ -114,7 +114,7 @@ describe("PathwayGenerator", () => {
   test("self-assessments use vocabulary constants", async () => {
     const generator = new PathwayGenerator(makeMockProseEngine(), makeLogger());
 
-    const framework = {
+    const standard = {
       name: "Test",
       levels: [{ id: "J040", rank: 1 }],
       behaviours: [{ id: "collab", name: "Collaboration" }],
@@ -125,7 +125,7 @@ describe("PathwayGenerator", () => {
       seed: 42,
     };
     const schemas = {
-      framework: {},
+      standard: {},
       levels: {},
       behaviour: {},
       capability: {},
@@ -135,7 +135,7 @@ describe("PathwayGenerator", () => {
     };
 
     const result = await generator.generate({
-      framework,
+      standard,
       domain: "test.example",
       industry: "pharma",
       schemas,

@@ -1,6 +1,6 @@
 ---
 title: Summit
-description: See team capability as a system — coverage, structural risks, what-if staffing scenarios, growth alignment, and quarterly trajectory from your engineering framework.
+description: See team capability as a system — coverage, structural risks, what-if staffing scenarios, growth alignment, and quarterly trajectory from your agent-aligned engineering standard.
 layout: product
 toc: false
 hero:
@@ -34,7 +34,7 @@ hero:
   roster file. Requires the roster file to be tracked in a git repository with
   commits spanning the period you want to analyze.
 - **Roster / validate** — show the team layout Summit sees and check it against
-  your Map framework.
+  your Map agent-aligned engineering standard.
 
 Optional enhancements (require Map's activity layer):
 
@@ -64,8 +64,9 @@ the team needs most and where your development can make the biggest difference.
 
 ### Capability Coverage
 
-For each skill in the framework, Summit computes the team's collective
-proficiency by aggregating individual skill matrices derived through Pathway.
+For each skill in the agent-aligned engineering standard, Summit computes the
+team's collective proficiency by aggregating individual skill matrices derived
+through Pathway.
 
 ```
 $ npx fit-summit coverage platform

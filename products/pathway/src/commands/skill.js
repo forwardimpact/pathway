@@ -31,9 +31,9 @@ import { formatAgentSkill } from "../formatters/agent/skill.js";
  * @param {Object} data - Full data context
  */
 function formatSummary(skills, data) {
-  const { capabilities, framework } = data;
+  const { capabilities, standard } = data;
   const { groups, groupOrder } = prepareSkillsList(skills, capabilities);
-  const emoji = framework ? getConceptEmoji(framework, "skill") : "📚";
+  const emoji = standard ? getConceptEmoji(standard, "skill") : "📚";
 
   process.stdout.write("\n" + formatHeader(`${emoji} Skills`) + "\n\n");
 
@@ -61,9 +61,9 @@ function formatSummary(skills, data) {
 /**
  * Format skill detail output
  * @param {Object} viewAndContext - Contains skill entity and context
- * @param {Object} framework - Framework config
+ * @param {Object} standard - Standard config
  */
-function formatDetail(viewAndContext, framework) {
+function formatDetail(viewAndContext, standard) {
   const { skill, disciplines, tracks, drivers, capabilities } = viewAndContext;
   process.stdout.write(
     skillToMarkdown(skill, {
@@ -71,7 +71,7 @@ function formatDetail(viewAndContext, framework) {
       tracks,
       drivers,
       capabilities,
-      framework,
+      standard,
     }) + "\n",
   );
 }

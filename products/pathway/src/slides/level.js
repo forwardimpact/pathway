@@ -28,5 +28,5 @@ export function renderLevelSlide({ render, data, params }) {
     return;
   }
 
-  render(levelToDOM(level, { framework: data.framework, showBackLink: false }));
+  render(levelToDOM(level, { standard: data.standard, showBackLink: false }));
 }

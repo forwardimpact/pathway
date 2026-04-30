@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/map",
   "version": "0.15.34",
-  "description": "Data product for career frameworks, consumed by AI agents and engineers",
+  "description": "Data product for agent-aligned engineering standards, consumed by AI agents and engineers",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

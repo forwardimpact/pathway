@@ -50,7 +50,7 @@ a team _can_ do, not how well it is doing it.
 ### Coverage
 
 For each team member, Summit derives a skill matrix from their job (discipline,
-level, track) using the Map framework data. Skills at "working" proficiency or
+level, track) using the Map standard data. Skills at "working" proficiency or
 above count toward coverage depth. The result is a per-skill headcount showing
 how many people can meaningfully contribute to each skill area.
 
@@ -122,7 +122,7 @@ See [`references/workflows.md`](references/workflows.md) for worked examples.
 
 ## Prerequisites
 
-- Map framework data (from `npx fit-map init`)
+- Map standard data (from `npx fit-map init`)
 - A `summit.yaml` roster file (copy from the starter example)
 - Git repository (required for `trajectory` command)
 - Map activity layer (optional, for `--evidenced` and Map-sourced rosters)
@@ -131,7 +131,7 @@ See [`references/workflows.md`](references/workflows.md) for worked examples.
 ## Verification
 
 ```sh
-npx fit-summit validate                   # Roster validates against framework
+npx fit-summit validate                   # Roster validates against agent-aligned engineering standard
 npx fit-summit roster                     # Roster displays correctly
 npx fit-summit coverage <team>            # Coverage heatmap renders
 npx fit-summit risks <team>               # Risks detected as expected

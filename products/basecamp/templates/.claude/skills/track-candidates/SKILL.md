@@ -600,21 +600,22 @@ node .claude/skills/extract-entities/scripts/state.mjs update "{file_path}"
 This uses the same state file as `extract-entities`, so threads processed here
 won't be re-scanned by either skill (unless the file changes).
 
-## Step 8: Tag Skills with Framework IDs
+## Step 8: Tag Skills with Agent-Aligned Engineering Standard IDs
 
 When a candidate's email or CV mentions technical skills, map them to the
-engineering framework using `fit-pathway`:
+agent-aligned engineering standard using `fit-pathway`:
 
 ```bash
 bunx fit-pathway skill --list
 ```
 
-Use framework skill IDs (e.g. `data_integration`, `full_stack_development`,
-`architecture_and_design`) in the **Skills** section of the candidate brief
-instead of free-form tags. This enables consistent cross-candidate comparison.
+Use agent-aligned engineering standard skill IDs (e.g. `data_integration`,
+`full_stack_development`, `architecture_and_design`) in the **Skills** section
+of the candidate brief instead of free-form tags. This enables consistent
+cross-candidate comparison.
 
 If a candidate has a CV attachment, flag them for the `screen-cv` skill which
-produces a framework-aligned screening assessment.
+produces an agent-aligned engineering standard-aligned screening assessment.
 
 ## Quality Checklist
 
@@ -634,7 +635,8 @@ produces a framework-aligned screening assessment.
 - [ ] Graph state updated for all processed threads
 - [ ] No duplicate candidate notes created
 - [ ] Key strategic insights added to `Insights.md` where warranted
-- [ ] Skills tagged using framework skill IDs where possible
+- [ ] Skills tagged using agent-aligned engineering standard skill IDs where
+      possible
 - [ ] Gender field populated only from explicit pronouns/titles (never
       name-inferred)
 - [ ] Channel field set on every candidate (`hr` or `vendor`)

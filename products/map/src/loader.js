@@ -52,12 +52,12 @@ export class DataLoader {
   }
 
   /**
-   * Load framework configuration from a data directory
+   * Load agent-aligned engineering standard configuration from a data directory
    * @param {string} dataDir - Path to the data directory
-   * @returns {Promise<Object>} Framework configuration
+   * @returns {Promise<Object>} Agent-aligned engineering standard configuration
    */
-  async loadFrameworkConfig(dataDir) {
-    return this.loadYamlFile(join(dataDir, "framework.yaml"));
+  async loadStandardConfig(dataDir) {
+    return this.loadYamlFile(join(dataDir, "standard.yaml"));
   }
 
   /**
@@ -319,7 +319,7 @@ export class DataLoader {
       tracks,
       levels,
       questions,
-      framework,
+      standard,
     ] = await Promise.all([
       this.loadYamlFile(join(dataDir, "drivers.yaml")),
       this.#loadBehavioursFromDir(join(dataDir, "behaviours")),
@@ -327,7 +327,7 @@ export class DataLoader {
       this.#loadTracksFromDir(join(dataDir, "tracks")),
       this.loadYamlFile(join(dataDir, "levels.yaml")),
       this.loadQuestionFolder(join(dataDir, "questions")),
-      this.loadYamlFile(join(dataDir, "framework.yaml")),
+      this.loadYamlFile(join(dataDir, "standard.yaml")),
     ]);
 
     return {
@@ -339,7 +339,7 @@ export class DataLoader {
       levels,
       capabilities,
       questions,
-      framework,
+      standard,
     };
   }
 

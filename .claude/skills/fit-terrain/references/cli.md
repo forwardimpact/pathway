@@ -19,7 +19,7 @@ Use `--only=<type>` to generate a single content type:
 | Type       | Output Directory | Contents                        |
 | ---------- | ---------------- | ------------------------------- |
 | `html`     | `data/knowledge` | Articles, guides, FAQs, courses |
-| `pathway`  | `data/pathway`   | YAML framework files            |
+| `pathway`  | `data/pathway`   | YAML standard files             |
 | `raw`      | `data/activity`  | Roster, GitHub events, evidence |
 | `markdown` | `data/personal`  | Briefings, notes, KB content    |
 

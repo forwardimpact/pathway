@@ -4,9 +4,9 @@ Try the Forward Impact Landmark product for the first time. Start at
 www.forwardimpact.team, find the Landmark product page, and follow the
 instructions to install and set up fit-landmark.
 
-The workspace is already prepared: synthetic framework data (`data/pathway/`)
-and activity data (`data/activity/`) have been generated, and the Supabase CLI
-is installed globally.
+The workspace is already prepared: synthetic standard data (`data/pathway/`) and
+activity data (`data/activity/`) have been generated, and the Supabase CLI is
+installed globally.
 
 Exercise the product:
 

@@ -1,12 +1,12 @@
 ---
 title: Map
-description: The data product for your engineering system — framework definitions, organization structure, GitHub activity, and GetDX snapshots.
+description: The data product for your engineering system — agent-aligned engineering standard definitions, organization structure, GitHub activity, and GetDX snapshots.
 layout: product
 toc: false
 hero:
   image: /assets/scene-map.svg
   alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
-  subtitle: Map is the data product for the FIT suite. It defines your framework in plain YAML and stores operational signals — organization hierarchy, GitHub activity, and GetDX snapshot results — in one model.
+  subtitle: Map is the data product for the FIT suite. It defines your agent-aligned engineering standard in plain YAML and stores operational signals — organization hierarchy, GitHub activity, and GetDX snapshot results — in one model.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/map
@@ -16,13 +16,14 @@ hero:
 ---
 
 > Map is the data product that provides shared context for every product in the
-> suite. Teams define the engineering framework once, import operational signals
-> continuously, and make that data available to Pathway, Guide, Landmark, and
-> Basecamp through stable contracts.
+> suite. Teams define the agent-aligned engineering standard once, import
+> operational signals continuously, and make that data available to Pathway,
+> Guide, Landmark, and Basecamp through stable contracts.
 
 ### What you get
 
-- Framework definitions for skills, behaviours, levels, disciplines, and tracks
+- Agent-aligned engineering standard definitions for skills, behaviours, levels,
+  disciplines, and tracks
 - A simple people directory with reporting structure
 - Team views derived from reporting hierarchy (manager-rooted subtrees)
 - GitHub activity data for objective marker evidence analysis
@@ -34,8 +35,8 @@ hero:
 ### Who it's for
 
 **Engineering leaders** defining standards and reviewing outcomes in one place.
-Map connects framework expectations to operational signals without splitting the
-data model across products.
+Map connects agent-aligned engineering standard expectations to operational
+signals without splitting the data model across products.
 
 **Platform teams** building internal tooling. Map exposes a stable shared model
 for product and analytics use cases.
@@ -56,8 +57,8 @@ npx fit-map validate
 
 ### Leadership
 
-Initialize your framework, validate schemas, set up the activity layer, and
-ingest operational signals from GitHub and GetDX.
+Initialize your agent-aligned engineering standard, validate schemas, set up the
+activity layer, and ingest operational signals from GitHub and GetDX.
 
 </a>
 

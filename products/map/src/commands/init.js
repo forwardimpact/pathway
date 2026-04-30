@@ -1,7 +1,7 @@
 /**
  * Init Command
  *
- * Initializes a new framework data directory by copying starter data.
+ * Initializes a new standard data directory by copying starter data.
  */
 
 import { cp, access } from "fs/promises";
@@ -68,7 +68,7 @@ export async function runInit(targetPath) {
   process.stdout.write(
     indent(
       `data/pathway/
-\u251C\u2500\u2500 framework.yaml        # Framework metadata
+\u251C\u2500\u2500 standard.yaml        # Standard metadata
 \u251C\u2500\u2500 levels.yaml           # Career levels
 \u251C\u2500\u2500 drivers.yaml          # Business drivers
 \u251C\u2500\u2500 disciplines/          # Engineering disciplines

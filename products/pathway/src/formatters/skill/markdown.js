@@ -10,12 +10,12 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  * Format skill list as markdown
  * @param {Array} skills - Raw skill entities
  * @param {Array} capabilities - Capability entities
- * @param {Object} [framework] - Framework config for emojis
+ * @param {Object} [standard] - Standard config for emojis
  * @returns {string}
  */
-export function skillListToMarkdown(skills, capabilities, framework) {
+export function skillListToMarkdown(skills, capabilities, standard) {
   const { groups, groupOrder } = prepareSkillsList(skills, capabilities);
-  const emoji = framework ? getConceptEmoji(framework, "skill") : "📚";
+  const emoji = standard ? getConceptEmoji(standard, "skill") : "📚";
   const lines = [`# ${emoji} Skills`, ""];
 
   for (const capability of groupOrder) {
@@ -39,12 +39,12 @@ export function skillListToMarkdown(skills, capabilities, framework) {
  * @param {Array} context.tracks - All tracks
  * @param {Array} context.drivers - All drivers
  * @param {Array} context.capabilities - Capability entities
- * @param {Object} [context.framework] - Framework config for emojis
+ * @param {Object} [context.standard] - Standard config for emojis
  * @returns {string}
  */
 export function skillToMarkdown(
   skill,
-  { disciplines, tracks, drivers, capabilities, framework },
+  { disciplines, tracks, drivers, capabilities, standard },
 ) {
   const view = prepareSkillDetail(skill, {
     disciplines,
@@ -52,7 +52,7 @@ export function skillToMarkdown(
     drivers,
     capabilities,
   });
-  const emoji = framework ? getConceptEmoji(framework, "skill") : "🎯";
+  const emoji = standard ? getConceptEmoji(standard, "skill") : "🎯";
   const lines = [
     `# ${emoji} ${view.name}`,
     "",

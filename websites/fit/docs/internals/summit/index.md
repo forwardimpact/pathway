@@ -37,7 +37,7 @@ Summit consumes two inputs:
    `projects:` sections. Project members can reference reporting team members by
    `email` and carry an `allocation` percentage.
 2. **Individual skill matrices** — derived via libskill's `deriveSkillMatrix()`
-   for each team member using the loaded Map framework data.
+   for each team member using the loaded Map standard data.
 
 ---
 
@@ -107,7 +107,7 @@ SPOFs/gaps, `capabilityId|level|proficiency` for concentrations).
 Summit's single public cross-product export. The signature is frozen:
 
 - `team` — array of `{ email, name, job: { discipline, level, track? } }`.
-- `mapData` — loaded Map framework data.
+- `mapData` — loaded Map standard data.
 - `evidence` — optional `EvidenceMap` (Part 07).
 - `driverScores` — optional driver scores map (Part 07).
 
@@ -231,7 +231,7 @@ Summit is a leaf dependency consumed by Landmark (spec 080), which imports
 
 - [libskill Internals](/docs/internals/libskill/) — derivation engine for
   individual skill matrices.
-- [Map Internals](/docs/internals/map/) — framework data model and activity
+- [Map Internals](/docs/internals/map/) — standard data model and activity
   layer.
 - [Pathway Internals](/docs/internals/pathway/) — individual career progression;
   Summit is the team-level counterpart.

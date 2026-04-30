@@ -123,14 +123,14 @@ async function isDirectory(path) {
 export async function runDevCommand({ dataDir, options }) {
   const port = options.port || 3000;
 
-  // Load framework config for display
-  let framework;
+  // Load standard config for display
+  let standard;
   try {
     const loader = createDataLoader();
-    framework = await loader.loadFrameworkConfig(dataDir);
+    standard = await loader.loadStandardConfig(dataDir);
   } catch {
-    // Fallback if framework config fails
-    framework = { emojiIcon: "🚀", title: "Engineering Pathway" };
+    // Fallback if standard config fails
+    standard = { emojiIcon: "🚀", title: "Engineering Pathway" };
   }
 
   // Generate _index.yaml files before serving
@@ -195,7 +195,7 @@ export async function runDevCommand({ dataDir, options }) {
 
   server.listen(port, () => {
     logger.info(`
-${framework.emojiIcon} ${framework.title} running at http://localhost:${port}
+${standard.emojiIcon} ${standard.title} running at http://localhost:${port}
 📁 Data directory: ${dataDir}
 
 Press Ctrl+C to stop the server.

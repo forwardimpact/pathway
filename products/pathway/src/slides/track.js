@@ -33,7 +33,7 @@ export function renderTrackSlide({ render, data, params }) {
       skills: data.skills,
       behaviours: data.behaviours,
       disciplines: data.disciplines,
-      framework: data.framework,
+      standard: data.standard,
     }),
   );
 }

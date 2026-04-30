@@ -128,18 +128,18 @@ function validateDriverRefs(drivers, skillIds, behaviourIds) {
 }
 
 function checkPathwayValidity(entities) {
-  const fw = entities.framework;
-  const hasFramework = fw && fw.proficiencies && fw.proficiencies.length > 0;
+  const fw = entities.standard;
+  const hasStandard = fw && fw.proficiencies && fw.proficiencies.length > 0;
   const hasPathwayEntities =
     fw?.capabilities?.length > 0 && typeof fw.capabilities[0] === "object";
 
   if (!hasPathwayEntities) {
     return {
       name: "pathway_validity",
-      passed: !!hasFramework,
-      message: hasFramework
-        ? "Framework config present with proficiencies"
-        : "Missing framework configuration or proficiencies",
+      passed: !!hasStandard,
+      message: hasStandard
+        ? "Standard config present with proficiencies"
+        : "Missing standard configuration or proficiencies",
     };
   }
 
@@ -245,9 +245,9 @@ function validateDescriptionLengths(items, label) {
 }
 
 function checkProseLength(entities) {
-  const fw = entities.framework;
+  const fw = entities.standard;
   if (!fw)
-    return { name: "prose_length", passed: true, message: "No framework data" };
+    return { name: "prose_length", passed: true, message: "No standard data" };
 
   const errors = [
     ...validateDescriptionLengths(fw.capabilities, "Capability"),

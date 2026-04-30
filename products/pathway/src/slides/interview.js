@@ -51,7 +51,7 @@ export function renderInterviewSlide({ render, data, params }) {
   const typeConfig = INTERVIEW_TYPES[interviewType];
   render(
     interviewToDOM(view, typeConfig, {
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
     }),
   );

@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/guide",
   "version": "0.1.30",
-  "description": "Conversational agent for engineering framework guidance — How do I find my bearing?",
+  "description": "Conversational agent for agent-aligned engineering standard guidance — How do I find my bearing?",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "repository": {
@@ -11,7 +11,7 @@
   },
   "homepage": "https://www.forwardimpact.team/guide",
   "keywords": [
-    "engineering-framework",
+    "agent-aligned-engineering-standard",
     "career-development",
     "ai-agent",
     "skill-assessment",

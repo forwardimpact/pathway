@@ -52,7 +52,7 @@ async function init() {
     data.disciplines = data.disciplines.filter((d) => !d.hidden);
     setData(data);
 
-    // Populate branding from framework data
+    // Populate branding from standard data
     populateBranding();
 
     // Load and display version
@@ -176,7 +176,7 @@ function createElement(tag, attrs, text) {
 }
 
 /**
- * Populate branding elements from framework data
+ * Populate branding elements from standard data
  */
 function populateBranding() {
   const branding = getBranding();

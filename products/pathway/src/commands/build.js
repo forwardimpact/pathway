@@ -6,7 +6,7 @@
  * Optionally delegates to build-bundle and build-packs to produce the
  * distribution surfaces (bundle.tar.gz + install.sh for the curl|bash flow,
  * and agent/skill packs for ecosystem tools like `npx skills` and APM) when
- * `framework.distribution.siteUrl` is configured.
+ * `standard.distribution.siteUrl` is configured.
  */
 
 import { cp, mkdir, rm, access, realpath, writeFile } from "fs/promises";
@@ -79,17 +79,17 @@ export async function runBuildCommand({ dataDir, options }) {
   const outputDir = options.output || join(process.cwd(), "public");
   const clean = options.clean !== false;
 
-  // Load framework config for display
-  let framework;
+  // Load standard config for display
+  let standard;
   try {
     const loader = createDataLoader();
-    framework = await loader.loadFrameworkConfig(dataDir);
+    standard = await loader.loadStandardConfig(dataDir);
   } catch {
-    framework = { emojiIcon: "🚀", title: "Engineering Pathway" };
+    standard = { emojiIcon: "🚀", title: "Engineering Pathway" };
   }
 
   logger.info(`
-${framework.emojiIcon} Generating ${framework.title} static site...
+${standard.emojiIcon} Generating ${standard.title} static site...
 `);
 
   // Clean output directory if requested
@@ -199,14 +199,14 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
   logger.info(`   ✓ version.json (${version})`);
 
   // Generate distribution surfaces if siteUrl is configured
-  const siteUrl = options.url || framework.distribution?.siteUrl;
+  const siteUrl = options.url || standard.distribution?.siteUrl;
   if (siteUrl) {
     const templatesDir = join(appDir, "..", "templates");
     await generateBundle({
       outputDir,
       dataDir,
       siteUrl,
-      framework,
+      standard,
       version,
       templatesDir,
     });
@@ -214,7 +214,7 @@ ${framework.emojiIcon} Generating ${framework.title} static site...
       outputDir,
       dataDir,
       siteUrl,
-      framework,
+      standard,
       version,
       templatesDir,
     });

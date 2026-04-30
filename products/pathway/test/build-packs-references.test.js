@@ -49,7 +49,7 @@ describe("generatePacks — spec 660 references emission", () => {
         outputDir,
         dataDir: starterDir,
         siteUrl: "https://example.test",
-        framework: { title: "Engineering Pathway" },
+        standard: { title: "Engineering Pathway" },
         version: pathwayPkg.version,
         templatesDir: join(__dirname, "..", "templates"),
       }),

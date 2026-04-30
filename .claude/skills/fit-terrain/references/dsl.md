@@ -20,7 +20,7 @@ terrain Name {
   project alpha { ... }
   snapshots { ... }
   scenario launch_push { ... }
-  framework { ... }
+  agent-aligned engineering standard { ... }
   content guide_html { ... }
   content basecamp_markdown { ... }
 }
@@ -40,8 +40,9 @@ managers, and repo assignments.
 **scenario** — Time-bounded effects on teams (commit volume, DX driver
 trajectories, evidence generation).
 
-**framework** — Full pathway framework: levels, capabilities with skills,
-behaviours, disciplines with skill tiers, tracks, drivers, and stages.
+**agent-aligned engineering standard** — Full pathway agent-aligned engineering
+standard: levels, capabilities with skills, behaviours, disciplines with skill
+tiers, tracks, drivers, and stages.
 
 **content** — Output content blocks specifying article/blog/FAQ counts, persona
 configurations, and briefing counts.

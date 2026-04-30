@@ -91,13 +91,13 @@ codegen-definition:
 # ── Process ───────────────────────────────────────────────────────
 
 # Process all resources
-process: export-framework process-resources process-graphs process-vectors
+process: export-standard process-resources process-graphs process-vectors
 
 # Process without vectors
-process-fast: export-framework process-resources process-graphs
+process-fast: export-standard process-resources process-graphs
 
-# Export framework entities to HTML/microdata
-export-framework:
+# Export standard entities to HTML/microdata
+export-standard:
     bunx --workspace=@forwardimpact/map fit-map export
 
 # Process knowledge resources

@@ -38,8 +38,8 @@ import {
   createMockProcess,
   withSilentConsole,
   createMockQueries,
-  // Framework fixtures (pathway data)
-  createTestFramework,
+  // Agent-aligned engineering standard fixtures (pathway data)
+  createTestStandard,
   createTestLevel,
   createTestSkill,
   createTestDiscipline,

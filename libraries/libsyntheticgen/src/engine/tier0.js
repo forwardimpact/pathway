@@ -45,7 +45,7 @@ export class EntityGenerator {
       projects,
       scenarios: ast.scenarios,
       snapshots: ast.snapshots,
-      framework: { ...ast.framework, seed: ast.seed },
+      standard: { ...ast.standard, seed: ast.seed },
       content: ast.content,
       activity,
       domain: ast.domain,

@@ -1,18 +1,18 @@
 ---
 title: "Getting Started: Landmark for Engineers"
-description: "Check your evidence record, promotion readiness, growth timeline, and skill coverage against your framework markers."
+description: "Check your evidence record, promotion readiness, growth timeline, and skill coverage against your agent-aligned engineering standard markers."
 ---
 
 Landmark gives you visibility into your own practice evidence and growth data —
-showing what your engineering record looks like against your framework's
-markers.
+showing what your engineering record looks like against your agent-aligned
+engineering standard's markers.
 
 Landmark requires Map's activity layer (Supabase). If your organization has
 already set this up, Landmark works immediately. If not, see the
 [Landmark quickstart](/docs/guides/landmark-quickstart/) or ask your engineering
 leader to follow the [Map setup guide](/docs/getting-started/leadership/map/).
-One command works without Supabase: `marker` reads directly from your framework
-YAML.
+One command works without Supabase: `marker` reads directly from your
+agent-aligned engineering standard YAML.
 
 ## Prerequisites
 

@@ -51,7 +51,7 @@ export class PathwayService extends PathwayBase {
   }
 
   #validationRules() {
-    return this.#data.framework?.validationRules;
+    return this.#data.standard?.validationRules;
   }
 
   #findDiscipline(id) {

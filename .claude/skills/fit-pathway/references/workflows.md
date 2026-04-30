@@ -1,8 +1,8 @@
 # Discovery Workflows
 
-Common patterns for exploring the framework using the CLI. The CLI is
-data-driven — entity IDs depend on the YAML files in the active data directory.
-Start with summary commands to discover what's available.
+Common patterns for exploring the agent-aligned engineering standard using the
+CLI. The CLI is data-driven — entity IDs depend on the YAML files in the active
+data directory. Start with summary commands to discover what's available.
 
 ### Discover what roles exist on a track
 

@@ -22,18 +22,18 @@ const VALID_TYPES = Object.keys(INTERVIEW_TYPES);
 /**
  * Format a single interview type as markdown
  * @param {Object} view - Presenter view
- * @param {Object} options - Options including framework
+ * @param {Object} options - Options including standard
  */
 function formatInterview(view, options) {
   process.stdout.write(
-    interviewToMarkdown(view, { framework: options.framework }) + "\n",
+    interviewToMarkdown(view, { standard: options.standard }) + "\n",
   );
 }
 
 /**
  * Format all interview types as markdown with separators
  * @param {Array<Object>} views - Array of presenter views
- * @param {Object} options - Options including framework
+ * @param {Object} options - Options including standard
  */
 function formatAllInterviews(views, options) {
   for (let i = 0; i < views.length; i++) {
@@ -41,7 +41,7 @@ function formatAllInterviews(views, options) {
       process.stdout.write("\n" + horizontalRule(80) + "\n\n");
     }
     process.stdout.write(
-      interviewToMarkdown(views[i], { framework: options.framework }) + "\n",
+      interviewToMarkdown(views[i], { standard: options.standard }) + "\n",
     );
   }
 }
@@ -105,7 +105,7 @@ export const runInterviewCommand = createCompositeCommand({
     ).filter(Boolean);
   },
   formatter: (view, options, data) => {
-    const opts = { ...options, framework: data.framework };
+    const opts = { ...options, standard: data.standard };
 
     if (Array.isArray(view)) {
       formatAllInterviews(view, opts);

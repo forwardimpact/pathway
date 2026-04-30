@@ -31,7 +31,7 @@ export function renderBehaviourSlide({ render, data, params }) {
   render(
     behaviourToDOM(behaviour, {
       drivers: data.drivers,
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
     }),
   );

@@ -16,8 +16,8 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  */
 export function renderTracksList() {
   const { data } = getState();
-  const { framework } = data;
-  const trackEmoji = getConceptEmoji(framework, "track");
+  const { standard } = data;
+  const trackEmoji = getConceptEmoji(standard, "track");
 
   // Transform data for list view
   const { items } = prepareTracksList(data.tracks);
@@ -29,11 +29,11 @@ export function renderTracksList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${trackEmoji} ${framework.entityDefinitions.track.title}`,
+        `${trackEmoji} ${standard.entityDefinitions.track.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.track.description.trim(),
+        standard.entityDefinitions.track.description.trim(),
       ),
     ),
 
@@ -68,7 +68,7 @@ export function renderTrackDetail(params) {
       skills: data.skills,
       behaviours: data.behaviours,
       disciplines: data.disciplines,
-      framework: data.framework,
+      standard: data.standard,
     }),
   );
 }

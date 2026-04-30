@@ -46,7 +46,7 @@
         },
         "ListJobs": {
           "method": "pathway.Pathway.ListJobs",
-          "description": "List jobs (discipline x level x track) defined in the pathway framework."
+          "description": "List jobs (discipline x level x track) defined in the pathway standard."
         },
         "DescribeJob": {
           "method": "pathway.Pathway.DescribeJob",

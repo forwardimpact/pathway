@@ -11,8 +11,8 @@ toc: false
 
 ### Leadership
 
-Install the CLI tools, author your first engineering framework, validate, and
-preview.
+Install the CLI tools, author your first agent-aligned engineering standard,
+validate, and preview.
 
 </a>
 

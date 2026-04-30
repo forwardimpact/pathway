@@ -160,7 +160,7 @@ export function renderInterviewDetail(params) {
         createInterviewSummary(interview),
 
         // Questions sections
-        createQuestionsDisplay(interview, data.framework),
+        createQuestionsDisplay(interview, data.standard),
       ),
     );
   }
@@ -227,7 +227,7 @@ function createInterviewSummary(interview) {
 /**
  * Create questions display
  */
-function createQuestionsDisplay(interview, framework) {
+function createQuestionsDisplay(interview, standard) {
   // Group questions by type
   const skillQuestions = interview.questions.filter(
     (q) => q.targetType === "skill",
@@ -244,7 +244,7 @@ function createQuestionsDisplay(interview, framework) {
   if (skillQuestions.length > 0) {
     sections.push(
       createDetailSection({
-        title: `${getConceptEmoji(framework, "skill")} Skill Questions (${skillQuestions.length})`,
+        title: `${getConceptEmoji(standard, "skill")} Skill Questions (${skillQuestions.length})`,
         content: createQuestionsList(skillQuestions),
       }),
     );
@@ -253,7 +253,7 @@ function createQuestionsDisplay(interview, framework) {
   if (behaviourQuestions.length > 0) {
     sections.push(
       createDetailSection({
-        title: `${getConceptEmoji(framework, "behaviour")} Stakeholder Simulation (${behaviourQuestions.length})`,
+        title: `${getConceptEmoji(standard, "behaviour")} Stakeholder Simulation (${behaviourQuestions.length})`,
         content: createQuestionsList(behaviourQuestions),
       }),
     );
@@ -262,7 +262,7 @@ function createQuestionsDisplay(interview, framework) {
   if (capabilityQuestions.length > 0) {
     sections.push(
       createDetailSection({
-        title: `${getConceptEmoji(framework, "capability") || "🧩"} Decomposition Questions (${capabilityQuestions.length})`,
+        title: `${getConceptEmoji(standard, "capability") || "🧩"} Decomposition Questions (${capabilityQuestions.length})`,
         content: createQuestionsList(capabilityQuestions),
       }),
     );

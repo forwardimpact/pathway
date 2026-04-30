@@ -12,7 +12,7 @@ import { rosterToJson } from "../formatters/roster/json.js";
 
 /**
  * @param {object} params
- * @param {object} params.data - Loaded Map framework data.
+ * @param {object} params.data - Loaded Map standard data.
  * @param {object} params.options - Parsed CLI options.
  */
 export async function runRosterCommand({ data, options }) {

@@ -43,7 +43,7 @@ export function createMcpService({
     );
     server.prompt(
       "guide-default",
-      "Single-agent system prompt for Guide — engineering framework knowledge agent.",
+      "Single-agent system prompt for Guide — agent-aligned engineering standard knowledge agent.",
       () => ({
         messages: [
           { role: "user", content: { type: "text", text: promptText } },

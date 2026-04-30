@@ -6,18 +6,18 @@ description: "Model team capability — coverage heatmaps, structural risks, wha
 Summit treats a team as a system, not a collection of individuals. It aggregates
 skill matrices into capability coverage, structural risks, and what-if staffing
 scenarios. Core Summit is fully local and deterministic — it reads your Map
-framework data plus a team roster, and runs instantly with no network calls.
+standard data plus a team roster, and runs instantly with no network calls.
 
 Two optional flags unlock the activity layer: `--evidenced` compares derived
 coverage against practice patterns from evidence rows, and `--outcomes` weights
 growth recommendations by GetDX driver scores. Without those flags Summit needs
-nothing beyond framework data and a roster.
+nothing beyond standard data and a roster.
 
 ## Prerequisites
 
 - Node.js 18+
 - npm
-- Framework data initialized (see
+- Standard data initialized (see
   [Getting Started: Map for Leadership](/docs/getting-started/leadership/map/))
 
 ## Install
@@ -31,7 +31,7 @@ npm install @forwardimpact/summit
 Summit reads team composition from a `summit.yaml` file (or, if you've set up
 Map's activity layer, from the `organization_people` table directly). A roster
 file is the fastest way to try Summit — every discipline, level, and track it
-references must exist in your Map framework data.
+references must exist in your Map standard data.
 
 Save this as `summit.yaml` next to your `data/pathway/` directory:
 
@@ -87,14 +87,14 @@ explicitly to every command. All the commands below accept the flag. (If you've
 set up Map's activity layer, you can omit `--roster` and Summit will read the
 team from the `organization_people` table instead.)
 
-Summit automatically looks for Map framework data in `data/pathway/` relative to
-the current working directory. If your framework data lives elsewhere, pass
+Summit automatically looks for Map standard data in `data/pathway/` relative to
+the current working directory. If your standard data lives elsewhere, pass
 `--data ./path/to/data/pathway` to any command.
 
 ## Validate the roster
 
 Before running analysis, check that every discipline, level, and track your
-roster references actually exists in your framework:
+roster references actually exists in your agent-aligned engineering standard:
 
 ```sh
 npx fit-summit validate --roster ./summit.yaml
@@ -225,8 +225,8 @@ When Map's activity layer is populated (see the
 [Map guide](/docs/getting-started/leadership/map/)), Summit can overlay evidence
 of practiced capability onto its structural view. The `--evidenced` flag reads
 practice patterns from `activity.evidence` and compares them to what the roster
-predicts — flagging skills the framework says the team should have that aren't
-showing up in real work:
+predicts — flagging skills the agent-aligned engineering standard says the team
+should have that aren't showing up in real work:
 
 ```sh
 npx fit-summit coverage platform --roster ./summit.yaml --evidenced
@@ -259,5 +259,5 @@ npx fit-summit coverage platform --roster ./summit.yaml --audience director
 - [Summit product page](/summit/) — design principles and detailed examples
 - [Team capability](/docs/guides/team-capability/) — deep dive into Summit
   coverage, risks, and scenario planning
-- [Authoring frameworks](/docs/guides/authoring-frameworks/) — full guide to
-  defining all entity types
+- [Authoring agent-aligned engineering standards](/docs/guides/authoring-standards/)
+  — full guide to defining all entity types

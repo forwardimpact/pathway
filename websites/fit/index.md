@@ -50,8 +50,8 @@ progression plans — in the browser or from the CLI.
 
 ### Guide
 
-Find your bearing. An AI agent that understands your engineering framework —
-onboarding, career advice, and growth guidance.
+Find your bearing. An AI agent that understands your agent-aligned engineering
+standard — onboarding, career advice, and growth guidance.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -113,8 +113,8 @@ and machines alike.
 
 #### Human + Machine
 
-Career frameworks and AI agent profiles derived from the same foundation.
-Co-located in the same files.
+Agent-aligned engineering standards and AI agent profiles derived from the same
+foundation. Co-located in the same files.
 
 </div>
 
@@ -153,9 +153,9 @@ they already work.
 
 Forward Impact Team puts this into practice. Organizations define what great
 engineering looks like — skills, behaviours, and career levels — in a shared
-framework. Engineers gain clear expectations, career paths, AI assistance, and
-knowledge systems matched to their standards. When the path forward is clear,
-engineers deliver with confidence and pride.
+agent-aligned engineering standard. Engineers gain clear expectations, career
+paths, AI assistance, and knowledge systems matched to their standards. When the
+path forward is clear, engineers deliver with confidence and pride.
 
   <div class="hero-cta" style="margin-top: var(--space-6);">
     <a href="/about/" class="btn btn-secondary">Read our philosophy</a>
@@ -170,7 +170,7 @@ engineers deliver with confidence and pride.
 
 ### For organizations
 
-Define and publish an engineering career framework for your team:
+Define and publish an agent-aligned engineering standard for your team:
 
 ```sh
 npx fit-pathway build --url=https://pathway.myorg.com

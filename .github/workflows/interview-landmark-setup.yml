@@ -52,7 +52,7 @@ jobs:
           agent_dir=$(mktemp -d)
 
           # Generate all synthetic data using cached prose — this produces
-          # data/pathway/ (framework) and data/activity/ (roster, raw documents
+          # data/pathway/ (standard) and data/activity/ (roster, raw documents
           # including GetDX snapshots, GitHub webhooks, evidence, and comments).
           bunx fit-terrain
 

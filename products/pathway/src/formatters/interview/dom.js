@@ -12,17 +12,17 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  * @param {Object} view - Interview detail view from presenter
  * @param {Object} typeConfig - Interview type configuration
  * @param {Object} options - Formatting options
- * @param {Object} [options.framework] - Framework data for emoji lookup
+ * @param {Object} [options.standard] - Standard data for emoji lookup
  * @param {boolean} [options.showBackLink] - Whether to show back navigation link
  * @returns {HTMLElement}
  */
 export function interviewToDOM(
   view,
   typeConfig,
-  { framework, showBackLink = true } = {},
+  { standard, showBackLink = true } = {},
 ) {
-  const skillEmoji = getConceptEmoji(framework, "skill");
-  const behaviourEmoji = getConceptEmoji(framework, "behaviour");
+  const skillEmoji = getConceptEmoji(standard, "skill");
+  const behaviourEmoji = getConceptEmoji(standard, "behaviour");
   return div(
     { className: "detail-page interview-detail" },
     // Header

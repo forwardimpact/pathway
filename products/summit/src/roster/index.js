@@ -4,5 +4,5 @@
 
 export { parseRosterYaml } from "./yaml.js";
 export { loadRosterFromMap } from "./map.js";
-export { validateRosterAgainstFramework } from "./schema.js";
+export { validateRosterAgainstStandard } from "./schema.js";
 export { loadRoster } from "./loader.js";

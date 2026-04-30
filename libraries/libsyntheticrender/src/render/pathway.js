@@ -8,7 +8,7 @@ import YAML from "yaml";
 
 /** @type {Array<[string, string, string]>} [dataKey, directory, schemaName] */
 const SINGLE_FILE_ENTITIES = [
-  ["framework", "framework.yaml", "framework"],
+  ["standard", "standard.yaml", "standard"],
   ["levels", "levels.yaml", "levels"],
   ["drivers", "drivers.yaml", "drivers"],
   ["selfAssessments", "self-assessments.yaml", "self-assessments"],

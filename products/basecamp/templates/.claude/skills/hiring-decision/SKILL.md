@@ -41,7 +41,7 @@ Run this skill:
 ## Inputs
 
 - All candidate artifacts in `knowledge/Candidates/{Name}/`
-- Framework data via `fit-pathway`
+- Standard data via `fit-pathway`
 - `knowledge/Candidates/Insights.md` for cross-candidate context
 - `knowledge/Roles/*.md` — the Role file for this candidate's requisition
   (provides remaining positions, hiring manager, domain lead context)
@@ -95,7 +95,7 @@ selecting the highest-fidelity evidence available:
 6. **Not evidenced** — never surfaced across any stage
 
 ```bash
-# Load the framework reference for final comparison
+# Load the agent-aligned engineering standard reference for final comparison
 bunx fit-pathway job {discipline} {level} --track={track} --skills
 
 # Check progression if level is borderline
@@ -112,9 +112,9 @@ For each skill, record:
 
 ## Step 3: Build Final Behaviour Profile
 
-For each framework behaviour, determine the **final maturity** using the same
-evidence hierarchy. Behaviours assessed in interviews carry far more weight than
-CV signals.
+For each agent-aligned engineering standard behaviour, determine the **final
+maturity** using the same evidence hierarchy. Behaviours assessed in interviews
+carry far more weight than CV signals.
 
 ```bash
 bunx fit-pathway behaviour --list
@@ -205,7 +205,7 @@ Create `knowledge/Candidates/{Name}/recommendation.md`:
 **Domain lead:** {Name from Role file, or "—"}
 **Channel:** {hr / vendor}
 **Date:** {YYYY-MM-DD}
-**Prepared by:** Recruiter agent (with framework analysis)
+**Prepared by:** Recruiter agent (with agent-aligned engineering standard analysis)
 
 **⚠️ Advisory only — human decision required.**
 
@@ -232,7 +232,7 @@ resolved it. End with a clear statement of confidence.}
 
 ### Final Skill Profile
 
-Framework reference: `{discipline} {level} --track={track}`
+Agent-Aligned Engineering Standard reference: `{discipline} {level} --track={track}`
 
 | Skill | Expected | Final Rating | Confidence | Best Evidence | Trajectory |
 | --- | --- | --- | --- | --- | --- |
@@ -251,7 +251,7 @@ Framework reference: `{discipline} {level} --track={track}`
 **Target level:** {original target}
 **Recommended level:** {confirmed or adjusted}
 
-{Paragraph explaining the level decision. Reference the framework progression
+{Paragraph explaining the level decision. Reference the agent-aligned engineering standard progression
 criteria and specific evidence from interviews. If the level changed during
 the process, explain the journey (e.g. "Initially assessed at J100, screening
 identified scope concerns, decomposition confirmed J090 as the right fit").}
@@ -265,7 +265,7 @@ revealed the candidate's natural orientation.}
 
 ---
 
-## Decision Framework
+## Decision Agent-Aligned Engineering Standard
 
 Apply these **decision rules** strictly:
 
@@ -280,7 +280,7 @@ Apply these **decision rules** strictly:
 - [ ] ≥ 70% of skills rated Strong match at the recommended level
 - [ ] No core skill gaps remain unresolved (core = top-tier skills for the
       discipline/track combination)
-- [ ] All framework behaviours at or above expected maturity
+- [ ] All agent-aligned engineering standard behaviours at or above expected maturity
 - [ ] Level confirmed by interview evidence (not just CV)
 - [ ] Track fit confirmed by interview evidence
 - [ ] No red flags from any interview stage
@@ -361,7 +361,8 @@ Update `knowledge/Candidates/Insights.md` with any cross-candidate observations:
 
 - [ ] Every skill rating traces to a specific evidence source (stage + detail)
 - [ ] Evidence hierarchy is respected — interview evidence outranks CV evidence
-- [ ] Level recommendation is grounded in framework progression criteria
+- [ ] Level recommendation is grounded in agent-aligned engineering standard
+      progression criteria
 - [ ] Track recommendation cites interview evidence, not just CV signals
 - [ ] Decision rules are applied strictly — verify percentages and gap counts
 - [ ] Risk assessment is honest — don't minimize real concerns to justify hiring

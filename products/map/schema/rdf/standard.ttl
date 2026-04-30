@@ -5,18 +5,18 @@
 @prefix rdf: <http://www.w3.org/1999/02/22-rdf-syntax-ns#> .
 
 # =============================================================================
-# Framework Schema
+# Standard Schema
 # =============================================================================
-# High-level framework configuration.
+# High-level configuration of agent-aligned engineering standards.
 # =============================================================================
 
 # -----------------------------------------------------------------------------
 # Classes
 # -----------------------------------------------------------------------------
 
-fit:Framework a rdfs:Class ;
-    rdfs:label "Framework"@en ;
-    rdfs:comment "High-level framework configuration"@en .
+fit:Standard a rdfs:Class ;
+    rdfs:label "Agent-Aligned Engineering Standard"@en ;
+    rdfs:comment "High-level configuration of agent-aligned engineering standards"@en .
 
 fit:EntityDefinition a rdfs:Class ;
     rdfs:label "Entity Definition"@en ;
@@ -24,7 +24,7 @@ fit:EntityDefinition a rdfs:Class ;
 
 fit:Distribution a rdfs:Class ;
     rdfs:label "Distribution"@en ;
-    rdfs:comment "Distribution configuration for publishing and installing the framework"@en .
+    rdfs:comment "Distribution configuration for publishing and installing the agent-aligned engineering standard"@en .
 
 # -----------------------------------------------------------------------------
 # Properties
@@ -33,19 +33,19 @@ fit:Distribution a rdfs:Class ;
 fit:tag a rdf:Property ;
     rdfs:label "tag"@en ;
     rdfs:comment "Organization tag or identifier"@en ;
-    rdfs:domain fit:Framework ;
+    rdfs:domain fit:Standard ;
     rdfs:range xsd:string .
 
 fit:entityDefinitions a rdf:Property ;
     rdfs:label "entityDefinitions"@en ;
     rdfs:comment "Definitions for each entity type"@en ;
-    rdfs:domain fit:Framework ;
+    rdfs:domain fit:Standard ;
     rdfs:range fit:EntityDefinition .
 
 fit:distribution a rdf:Property ;
     rdfs:label "distribution"@en ;
-    rdfs:comment "Distribution configuration for the framework"@en ;
-    rdfs:domain fit:Framework ;
+    rdfs:comment "Distribution configuration for the agent-aligned engineering standard"@en ;
+    rdfs:domain fit:Standard ;
     rdfs:range fit:Distribution .
 
 fit:siteUrl a rdf:Property ;
@@ -65,11 +65,11 @@ fit:entityType a rdf:Property ;
 # =============================================================================
 
 # -----------------------------------------------------------------------------
-# Framework Shape
+# Standard Shape
 # -----------------------------------------------------------------------------
 
-fit:FrameworkShape a sh:NodeShape ;
-    sh:targetClass fit:Framework ;
+fit:StandardShape a sh:NodeShape ;
+    sh:targetClass fit:Standard ;
     sh:property [
         sh:path fit:title ;
         sh:datatype xsd:string ;
@@ -97,7 +97,7 @@ fit:FrameworkShape a sh:NodeShape ;
         sh:datatype xsd:string ;
         sh:maxCount 1 ;
         sh:name "description" ;
-        sh:description "Description of the framework's purpose" ;
+        sh:description "Description of the agent-aligned engineering standard's purpose" ;
     ] ;
     sh:property [
         sh:path fit:entityDefinitions ;
@@ -110,7 +110,7 @@ fit:FrameworkShape a sh:NodeShape ;
         sh:node fit:DistributionShape ;
         sh:maxCount 1 ;
         sh:name "distribution" ;
-        sh:description "Distribution configuration for the framework" ;
+        sh:description "Distribution configuration for the agent-aligned engineering standard" ;
     ] .
 
 # -----------------------------------------------------------------------------

@@ -42,8 +42,8 @@ function renderDisciplineGroupHeader(groupName, count) {
  */
 export function renderDisciplinesList() {
   const { data } = getState();
-  const { framework } = data;
-  const disciplineEmoji = getConceptEmoji(framework, "discipline");
+  const { standard } = data;
+  const disciplineEmoji = getConceptEmoji(standard, "discipline");
 
   // Transform data for list view (grouped by professional/management)
   const { groups } = prepareDisciplinesList(data.disciplines);
@@ -55,11 +55,11 @@ export function renderDisciplinesList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${disciplineEmoji} ${framework.entityDefinitions.discipline.title}`,
+        `${disciplineEmoji} ${standard.entityDefinitions.discipline.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.discipline.description.trim(),
+        standard.entityDefinitions.discipline.description.trim(),
       ),
     ),
 
@@ -97,7 +97,7 @@ export function renderDisciplineDetail(params) {
     disciplineToDOM(discipline, {
       skills: data.skills,
       behaviours: data.behaviours,
-      framework: data.framework,
+      standard: data.standard,
     }),
   );
 }

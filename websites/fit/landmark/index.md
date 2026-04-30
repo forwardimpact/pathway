@@ -18,7 +18,8 @@ hero:
 > Landmark answers one question: **what do the signals say about how engineering
 > is functioning — and what should we do about it?** It reads Map data, combines
 > objective marker evidence with GetDX snapshot outcomes, and presents analysis
-> grounded in your framework. No LLM calls — fully deterministic.
+> grounded in your agent-aligned engineering standard. No LLM calls — fully
+> deterministic.
 
 ---
 
@@ -93,7 +94,7 @@ All commands support `--format text|json|markdown`.
 
 - **GetDX account** with API access configured
 - **Map** with the activity schema migrated (`npx fit-map activity migrate`)
-- **Framework data** with drivers and markers authored in your capability YAML
+- **Standard data** with drivers and markers authored in your capability YAML
 
 ---
 
@@ -141,7 +142,7 @@ patterns, team health, and engineer voice.
 ### Engineers
 
 Check your evidence record, promotion readiness, growth timeline, and skill
-coverage against your framework markers.
+coverage against your agent-aligned engineering standard markers.
 
 </a>
 

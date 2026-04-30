@@ -17,7 +17,7 @@ export const FAQ_QUESTIONS = [
   "How does continuous manufacturing differ from batch processing?",
   "What are the main challenges in scaling up drug production?",
   "How do platform engineering teams support drug discovery?",
-  "What regulatory frameworks govern pharmaceutical development?",
+  "What regulatory standards govern pharmaceutical development?",
   "How is AI being used in drug candidate screening?",
   "What quality control measures ensure drug safety?",
   "How does real-world evidence complement clinical trials?",

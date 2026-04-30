@@ -1,5 +1,5 @@
 # Test fixture — two reporting teams and one project team against the
-# starter framework (software_engineering + platform/forward_deployed).
+# starter standard (software_engineering + platform/forward_deployed).
 
 teams:
   platform:

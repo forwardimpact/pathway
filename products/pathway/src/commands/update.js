@@ -21,7 +21,7 @@ const INSTALL_DIR = join(BASE_DIR, "pathway");
 
 /**
  * Run the update command.
- * Reads siteUrl from the installed framework.yaml, re-downloads the bundle,
+ * Reads siteUrl from the installed standard.yaml, re-downloads the bundle,
  * extracts data, and updates the global pathway package if the version changed.
  *
  * @param {Object} params - Command parameters
@@ -40,16 +40,16 @@ export async function runUpdateCommand({ dataDir: _dataDir, options }) {
     process.exit(1);
   }
 
-  // Load framework config to get siteUrl
+  // Load standard config to get siteUrl
   const loader = createDataLoader();
-  const framework = await loader.loadFrameworkConfig(INSTALL_DIR);
-  const siteUrl = options.url || framework.distribution?.siteUrl;
+  const standard = await loader.loadStandardConfig(INSTALL_DIR);
+  const siteUrl = options.url || standard.distribution?.siteUrl;
 
   if (!siteUrl) {
     console.error(
-      "Error: No siteUrl found in ~/.fit/data/pathway/framework.yaml (distribution.siteUrl)",
+      "Error: No siteUrl found in ~/.fit/data/pathway/standard.yaml (distribution.siteUrl)",
     );
-    console.error("Provide one with --url=<URL> or add it to framework.yaml.");
+    console.error("Provide one with --url=<URL> or add it to standard.yaml.");
     process.exit(1);
   }
 

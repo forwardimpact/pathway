@@ -9,7 +9,7 @@ import { detectRisks } from "../src/aggregation/risks.js";
 const FIXTURE_DATA = join(import.meta.dirname, "fixtures", "map-data");
 
 /**
- * Loads the shared starter framework fixture (map data + agent data) once per
+ * Loads the shared starter standard fixture (map data + agent data) once per
  * process via `memoizeAsync`. Summit test files previously re-parsed this
  * directory from YAML on every `test(...)` case — spec 640 hoists it to cut
  * per-test overhead.
@@ -33,7 +33,7 @@ export function loadStarterData() {
  *   (J040+platform)
  * - project `migration-q2` — Bob @ 0.6, External (J060) @ 1.0
  *
- * Proficiency math under the starter framework:
+ * Proficiency math under the starter standard:
  * - software_engineering has task_completion as its CORE skill,
  *   planning as SUPPORTING, incident_response as BROAD.
  * - J060 base proficiencies: core=working, supporting=foundational,
@@ -89,7 +89,7 @@ projects:
  * "snapshot" pattern repeated across compare/what-if tests.
  *
  * @param {object} roster - Parsed roster.
- * @param {object} data - Starter framework map data.
+ * @param {object} data - Starter standard map data.
  * @param {string} teamId - Reporting team id to resolve.
  * @returns {{ resolved: object, coverage: object, risks: object }}
  */

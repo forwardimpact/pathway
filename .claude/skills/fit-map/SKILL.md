@@ -1,7 +1,7 @@
 ---
 name: fit-map
 description: >
-  Define what good engineering looks like — author and validate framework
+  Define what good engineering looks like — author and validate agent-aligned engineering standard
   definitions for skills, capabilities, behaviours, disciplines, tracks,
   levels, and questions. Also covers activity-layer operations: pushing
   people rosters, syncing GetDX snapshots, ingesting GitHub artifacts, and
@@ -13,26 +13,26 @@ description: >
 A public data model for consumption by AI agents and engineers. Map is the
 foundation of all Forward Impact products — it defines how engineering
 competencies, career progression, and agent capabilities are structured in a
-machine-readable format. Map ships two layers: a **framework layer** (YAML files
+machine-readable format. Map ships two layers: a **standard layer** (YAML files
 validated against JSON Schema and RDF/SHACL) and an **activity layer** (a
 Supabase project with `organization_people`, GitHub artifacts, GetDX snapshots,
 and marker evidence).
 
 Making the data model well understood is a first-class goal. It is published in
 structured formats (JSON Schema, RDF/SHACL) so that AI agents can reliably
-interpret and work with career framework data.
+interpret and work with agent-aligned engineering standard data.
 
 ## When to Use
 
-**Framework-layer validation and inspection:**
+**Agent-Aligned Engineering Standard-layer validation and inspection:**
 
-- Validating framework data integrity after changes
+- Validating standard data integrity after changes
 - Checking data summary (skill counts, entity counts)
 - Generating browser index files for the web app
 - Exporting base entities to HTML microdata
 - Understanding what entities exist in the data
 
-**Framework-layer authoring and schema work:**
+**Agent-Aligned Engineering Standard-layer authoring and schema work:**
 
 - Defining or tailoring engineering expectations for your organization
 - Adding or modifying skills in capability files
@@ -45,7 +45,7 @@ interpret and work with career framework data.
 
 - Starting, stopping, and checking the local Supabase stack
 - Applying activity-schema migrations
-- Validating a people roster against the framework
+- Validating a people roster against the agent-aligned engineering standard
 - Pushing a people roster into `activity.organization_people`
 - Syncing GetDX snapshots into the activity database
 - Reprocessing the `raw` bucket after a transform fix or backfill
@@ -110,7 +110,7 @@ Full walk-through in the
 
 ```
 data/pathway/
-├── framework.yaml         # Framework metadata, entity definitions
+├── standard.yaml         # Standard metadata, entity definitions
 ├── levels.yaml            # Career levels (J040, J060, etc.)
 ├── stages.yaml            # Lifecycle stages (plan, code, review, etc.)
 ├── drivers.yaml           # Organizational outcomes
@@ -146,8 +146,9 @@ npx fit-map validate
 
 For deeper context beyond this skill's scope:
 
-- [Authoring Frameworks Guide](https://www.forwardimpact.team/docs/guides/authoring-frameworks/index.md)
-  — Task-oriented guide to defining your engineering framework in YAML
+- [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/guides/authoring-standards/index.md)
+  — Task-oriented guide to defining your agent-aligned engineering standard in
+  YAML
 - [YAML Schema Reference](https://www.forwardimpact.team/docs/reference/yaml-schema/index.md)
   — File format reference for every entity type with examples and published
   schema links

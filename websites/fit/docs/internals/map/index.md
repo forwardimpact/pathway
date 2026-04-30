@@ -50,8 +50,8 @@ products/map/
   bin/fit-map.js    CLI entry point (routes to both layers)
 ```
 
-**Pure layer** (`src/`, `schema/`) -- Framework schema, validation, data
-loading. Zero infrastructure dependencies.
+**Pure layer** (`src/`, `schema/`) -- Standard schema, validation, data loading.
+Zero infrastructure dependencies.
 
 **Activity layer** (`supabase/functions/_shared/activity/`, `src/activity/`) --
 ELT helpers, query functions, Supabase project configuration, database
@@ -62,14 +62,16 @@ Node-only. Both layers ship in the `@forwardimpact/map` npm package so external
 installations get a complete, deployable data product.
 
 **Layering rule:** `src/activity/validate/` may import from the rest of `src/`
-(e.g., to validate `discipline` values during people validation). Pure-framework
-code under `src/` must not import from `src/activity/` or `supabase/`.
+(e.g., to validate `discipline` values during people validation).
+Pure-agent-aligned engineering standard code under `src/` must not import from
+`src/activity/` or `supabase/`.
 
-**Join convention:** Framework entity IDs (`discipline`, `level`, `track`,
-`skill_id`, `level_id`, `driver.id`) serve as natural join keys between the
-activity layer and the pure layer. Activity tables store these IDs as bare
-strings; consumers join them to framework objects in application code. No
-mapping tables bridge the two layers -- the shared ID namespace is the contract.
+**Join convention:** Agent-Aligned Engineering Standard entity IDs
+(`discipline`, `level`, `track`, `skill_id`, `level_id`, `driver.id`) serve as
+natural join keys between the activity layer and the pure layer. Activity tables
+store these IDs as bare strings; consumers join them to agent-aligned
+engineering standard objects in application code. No mapping tables bridge the
+two layers -- the shared ID namespace is the contract.
 
 ---
 
@@ -168,12 +170,13 @@ All query functions take a `supabase` client as their first parameter.
 
 ## Drivers and GetDX Alignment
 
-Framework drivers are the GetDX drivers. The driver `id` in `drivers.yaml`
-matches the `item_id` in `getdx_snapshot_team_scores` -- no separate mapping is
-needed. Each driver declares `contributingSkills` and `contributingBehaviours`,
-linking the survey-measured outcome back to framework definitions. This is what
-makes health views possible: a driver's GetDX score can be juxtaposed with
-marker evidence for its contributing skills.
+Agent-Aligned Engineering Standard drivers are the GetDX drivers. The driver
+`id` in `drivers.yaml` matches the `item_id` in `getdx_snapshot_team_scores` --
+no separate mapping is needed. Each driver declares `contributingSkills` and
+`contributingBehaviours`, linking the survey-measured outcome back to
+agent-aligned engineering standard definitions. This is what makes health views
+possible: a driver's GetDX score can be juxtaposed with marker evidence for its
+contributing skills.
 
 ---
 
@@ -184,17 +187,17 @@ The data product serves five consumers through two interfaces:
 | Product      | Layer         | Consumes                                                           |
 | ------------ | ------------- | ------------------------------------------------------------------ |
 | **Guide**    | Activity      | Artifacts (reads), evidence (writes), markers (reads)              |
-| **Pathway**  | Pure          | Framework schema (skills, disciplines, levels, tracks)             |
-| **Basecamp** | Pure          | Framework schema                                                   |
-| **libskill** | Pure          | Framework schema for derivation                                    |
-| **Summit**   | Pure+Activity | Framework schema, org queries, snapshots, evidence                 |
+| **Pathway**  | Pure          | Standard schema (skills, disciplines, levels, tracks)              |
+| **Basecamp** | Pure          | Standard schema                                                    |
+| **libskill** | Pure          | Standard schema for derivation                                     |
+| **Summit**   | Pure+Activity | Standard schema, org queries, snapshots, evidence                  |
 | **Landmark** | Activity      | Org queries, snapshots, evidence, artifacts, comments, initiatives |
 
 Both layers ship with `@forwardimpact/map` on npm. Pure-layer consumers import
-the framework loader and validation modules. Activity-layer consumers import
-query functions and ingestion helpers from `@forwardimpact/map/activity/*` and
-deploy the Supabase configuration in `node_modules/@forwardimpact/map/supabase/`
-to stand up the database.
+the agent-aligned engineering standard loader and validation modules.
+Activity-layer consumers import query functions and ingestion helpers from
+`@forwardimpact/map/activity/*` and deploy the Supabase configuration in
+`node_modules/@forwardimpact/map/supabase/` to stand up the database.
 
 ---
 
@@ -229,7 +232,7 @@ import { getArtifacts } from "@forwardimpact/map/activity/queries/artifacts";
 - [libskill Internals](/docs/internals/libskill/) -- Derivation engine that
   consumes Map data
 - [Pathway Internals](/docs/internals/pathway/) -- Presentation layer for
-  framework data
+  standard data
 - [YAML Schema Reference](/docs/reference/yaml-schema/) -- Schema format
   documentation
 
