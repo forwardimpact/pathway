@@ -71,7 +71,7 @@ what follows are FIT-specific readings, not new shapes:
 | ------------ | ------------------------------------------------- |
 | **Map**      | What does good engineering look like here?        |
 | **Pathway**  | Where does my career path go from here?           |
-| **Outpost** | Am I prepared for what's ahead today?             |
+| **Outpost**  | Am I prepared for what's ahead today?             |
 | **Guide**    | How do I find my bearing?                         |
 | **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
@@ -83,7 +83,7 @@ surfaces in icons and scenes but never in structural UI.
 | ------------ | ---------------------- |
 | **Map**      | Charted territory      |
 | **Pathway**  | Trails and switchbacks |
-| **Outpost** | Shelter and foundation |
+| **Outpost**  | Shelter and foundation |
 | **Guide**    | Stars and bearing      |
 | **Landmark** | Vantage points         |
 | **Summit**   | The mountain peak      |
@@ -166,7 +166,7 @@ Instrument Serif, 64px, weight 400:
 
 DM Sans, 18px, weight 400, gray-400:
 
-  Map, Pathway, Guide, Landmark, Outpost, and Summit — an open-source
+  Map, Pathway, Guide, Landmark, Summit, and Outpost — an open-source
   suite that helps organizations define great engineering, support career
   growth, and give every engineer the clarity to do their best work
   in the field.
@@ -176,7 +176,7 @@ DM Sans, 18px, weight 400, gray-400:
 
 ## 6. Product Scenes
 
-The FIT product scenes — Map, Pathway, Outpost, Guide, Landmark, Summit — and
+The FIT product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost — and
 the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
 extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with FIT
 product symbols.
@@ -217,7 +217,7 @@ fill) and read as if drawn in the same notebook as the
 │                                              │
 ├──────────────────────────────────────────────┤
 │ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐ ┌──────┐│
-│ │ Map  │ │Pathwy│ │Guide │ │Landmk│ │Outpst│ │Summit││
+│ │ Map  │ │Pathwy│ │Guide │ │Landmk│ │Summit│ │Outpst││
 │ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘ └──────┘│
 ├──────────────────────────────────────────────┤
 │  Background: contour line texture            │
@@ -283,8 +283,8 @@ Each product shares the core design system with subtle differentiators:
 | **Pathway**  | Trail — switchbacks, elevation marks  | Engineer at trailhead, reading a trail sign      | "Navigate the trail."                             |
 | **Guide**    | Navigation — compass, stars           | AI Agent holding compass toward viewer           | "Find your bearing."                              |
 | **Landmark** | Observation — cairns, survey markers  | AI Agent beside cairn, holding telescope outward | "Check the cairn."                                |
-| **Outpost** | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Set up camp."                                    |
 | **Summit**   | Ascent — peaks, routes, team planning | Trio looking up at peak with flag                | "Reach the peak."                                 |
+| **Outpost**  | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Set up camp."                                    |
 
 ### Product-Specific UI Treatments
 

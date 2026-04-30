@@ -169,7 +169,7 @@ const agentProfile = prepareAgentProfile(matrix);
 renderSkillMatrix(matrix);
 ```
 
-### With outpost (agent generation)
+### With Outpost (agent generation)
 
 Outpost uses libskill to generate agent profiles and skill files:
 
