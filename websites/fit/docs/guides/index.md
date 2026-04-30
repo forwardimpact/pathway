@@ -70,4 +70,31 @@ growth areas, and contextual help.
 
 </a>
 
+<a href="/docs/guides/agent-evaluations/">
+
+### Agent Evaluations
+
+Run agent-as-judge evaluations in CI with `fit-eval supervise` and inspect
+the resulting traces with `fit-trace`.
+
+</a>
+
+<a href="/docs/guides/agent-collaboration/">
+
+### Agent Collaboration
+
+Run multi-agent sessions with `fit-eval facilitate` — specialists coordinate
+via `Ask`, `Share`, and `Tell`, captured as a trace for `fit-trace`.
+
+</a>
+
+<a href="/docs/guides/trace-analysis/">
+
+### Trace Analysis
+
+Read agent execution traces with `fit-trace` as qualitative research —
+orient, code observations, find patterns, and write grounded findings.
+
+</a>
+
 </div>

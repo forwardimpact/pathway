@@ -1,0 +1,141 @@
+---
+name: fit-eval
+description: >
+  Drive a single agent, run a supervisor–agent relay, or facilitate a
+  multi-agent session — and capture every turn as an NDJSON trace. Use for
+  agent evaluations (pass/fail verdicts) or agent collaboration (specialists
+  coordinating in one session). Pair with `fit-trace` for analysis.
+---
+
+# fit-eval
+
+`fit-eval` is the plumbing for running agents and capturing what they did. It
+orchestrates the run; `fit-trace` analyzes what happened. The boundary between
+the two is a single NDJSON trace file.
+
+The same plumbing serves two parallel use cases.
+
+## Two Use Cases
+
+### 1. Agent evaluations
+
+A **judge agent** observes a **target agent** via `fit-eval supervise`. The
+judge signals the verdict by calling `Conclude`; the exit code (`0` pass, `1`
+fail) makes the eval surface as a regular CI check. The trace captures the
+full session for inspection.
+
+→ [Agent Evaluations guide](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
+
+### 2. Agent collaboration
+
+A **facilitator** coordinates **N participant agents** via `fit-eval
+facilitate`. Participants pass messages with `Ask`, `Share`, and `Tell`; the
+facilitator steers with `Redirect` and ends the session with `Conclude`. The
+trace records every message and tool call.
+
+→ [Agent Collaboration guide](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
+
+`run` is the autonomous building block under both — a single agent on a
+defined task, no supervisor or facilitator.
+
+## Modes at a Glance
+
+| Mode         | Shape                              | Pick when                                                        |
+| ------------ | ---------------------------------- | ---------------------------------------------------------------- |
+| `run`        | One agent, autonomous              | Task is well-scoped and you trust the agent to finish unattended |
+| `supervise`  | Supervisor + agent, relay loop     | A second model should observe and intervene during the run       |
+| `facilitate` | Facilitator + N agents, message bus | The work needs multiple specialists coordinating in one session  |
+
+## CLI
+
+Install and run via npm:
+
+```sh
+npx fit-eval <command> [options]
+```
+
+The full flag surface — execution commands, shared options, mode-specific
+options, and output commands — lives in [references/cli.md](references/cli.md).
+
+## Orchestration Tools
+
+In `supervise` and `facilitate` modes, agents coordinate via tool calls
+instead of free-form chat. The same tools serve both use cases — verdict
+signaling for evaluations, message passing for collaboration. The trace
+records each call.
+
+| Tool       | Caller        | Effect                                               |
+| ---------- | ------------- | ---------------------------------------------------- |
+| `Conclude` | Any           | End the session with a final summary                 |
+| `Redirect` | Supervisor    | Interrupt the agent and steer it elsewhere           |
+| `Ask`      | Agent         | Pause and ask the supervisor a synchronous question  |
+| `Share`    | Any (facilitate) | Broadcast knowledge to every participant          |
+| `Tell`     | Any (facilitate) | Send a message to one named participant           |
+| `RollCall` | Any (facilitate) | List the participants currently in the session    |
+
+---
+
+## Typical Workflow
+
+```sh
+# 1. Run an agent and save the trace
+npx fit-eval run \
+  --task-file task.md \
+  --model opus \
+  --output trace.ndjson
+
+# 2. Read the trace as text for a quick sanity check
+npx fit-eval output --format=text < trace.ndjson
+
+# 3. Hand off to fit-trace for structured analysis
+npx fit-trace overview trace.ndjson
+```
+
+For a supervised run, swap `run` for `supervise` and add a supervisor profile:
+
+```sh
+npx fit-eval supervise \
+  --task-file task.md \
+  --supervisor-profile reviewer \
+  --agent-profile coder \
+  --output trace.ndjson
+```
+
+For a multi-agent session, use `facilitate` and list the participants:
+
+```sh
+npx fit-eval facilitate \
+  --task-file task.md \
+  --agent-profiles "security-engineer,technical-writer" \
+  --output trace.ndjson
+```
+
+---
+
+## Handing Off to `fit-trace`
+
+Every `fit-eval` execution command produces NDJSON. Once it's on disk, the
+work shifts from running to understanding — that's where `fit-trace` takes
+over. Use `fit-trace overview`, `timeline`, `search`, `errors`, and
+`stats` against the same file to study what the agent did and why.
+
+The `fit-eval` skill stops at the trace file. The `fit-trace` skill picks up
+from there.
+
+---
+
+## Documentation
+
+- [Agent Evaluations](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
+  — Author a judge profile, run an eval locally, wire it into CI, and
+  inspect the resulting trace.
+- [Agent Collaboration](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
+  — Author a facilitator and participant profiles, run a multi-agent
+  session, and read the message flow.
+- [Trace Analysis](https://www.forwardimpact.team/docs/guides/trace-analysis/index.md)
+  — Read the NDJSON traces produced by `fit-eval` with `fit-trace` —
+  grounded-theory method and worked examples.
+- [Agent Teams](https://www.forwardimpact.team/docs/guides/agent-teams/index.md)
+  — How to author the agent, supervisor, and facilitator profiles that
+  `--agent-profile`, `--supervisor-profile`, `--facilitator-profile`, and
+  `--agent-profiles` consume.
