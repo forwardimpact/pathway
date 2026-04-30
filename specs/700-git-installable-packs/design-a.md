@@ -6,7 +6,7 @@ Add a single architectural primitive
 `emitBareRepo(stagedTree, version, targetDir)` to the pack pipeline and reuse it
 twice per pack: once for the APM staging tree (→ `packs/{name}.apm.git/`) and
 once for the skills-channel tree (→ `packs/{name}.skills.git/`). The existing
-`framework.distribution.siteUrl` gate continues to control all per-pack output;
+`standard.distribution.siteUrl` gate continues to control all per-pack output;
 when it is unset, no `.git/` directories are emitted.
 
 The agent-builder install UI surfaces two new command cards (`apm install <url>`
@@ -15,12 +15,12 @@ and `git clone <url>`) alongside the existing three. Tarballs and the
 
 ## Components
 
-| Component                             | Lives in                        | Responsibility                                                                                         | New / Changed                  |
-| ------------------------------------- | ------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------ |
-| `emitBareRepo`                        | new module `build-packs-git.js` | Take a staged tree + version, produce a static bare git repo with deterministic SHAs                   | new                            |
-| `generatePacks`                       | `build-packs.js`                | Orchestrates per-pack channels; calls `emitBareRepo` twice per pack inside the existing `siteUrl` gate | changed (additive)             |
-| Install UI                            | `agent-builder-install.js`      | Adds two command cards: APM-git and skills-git                                                         | changed (two additional cards) |
-| `framework.distribution.siteUrl` gate | `generatePacks`                 | Single switch controlling all per-pack output, including the new `.git/` dirs                          | unchanged                      |
+| Component                            | Lives in                        | Responsibility                                                                                         | New / Changed                  |
+| ------------------------------------ | ------------------------------- | ------------------------------------------------------------------------------------------------------ | ------------------------------ |
+| `emitBareRepo`                       | new module `build-packs-git.js` | Take a staged tree + version, produce a static bare git repo with deterministic SHAs                   | new                            |
+| `generatePacks`                      | `build-packs.js`                | Orchestrates per-pack channels; calls `emitBareRepo` twice per pack inside the existing `siteUrl` gate | changed (additive)             |
+| Install UI                           | `agent-builder-install.js`      | Adds two command cards: APM-git and skills-git                                                         | changed (two additional cards) |
+| `standard.distribution.siteUrl` gate | `generatePacks`                 | Single switch controlling all per-pack output, including the new `.git/` dirs                          | unchanged                      |
 
 The APM working tree is the existing `stageApmBundle` output directory and the
 skills working tree is the existing per-pack `packs/{name}/.well-known/skills/`
@@ -49,10 +49,10 @@ flowchart TD
   G --> H[emitBareRepo → packs/name.skills.git/]
 ```
 
-The whole loop runs only when `framework.distribution.siteUrl` is set; nothing
-is emitted when the gate is closed. Both `emitBareRepo` calls feed off
-directories that already exist for the tarball and discovery channels — no new
-staging tree is introduced and no existing tree is restructured.
+The whole loop runs only when `standard.distribution.siteUrl` is set; nothing is
+emitted when the gate is closed. Both `emitBareRepo` calls feed off directories
+that already exist for the tarball and discovery channels — no new staging tree
+is introduced and no existing tree is restructured.
 
 ## Bare-Repo Layout
 
