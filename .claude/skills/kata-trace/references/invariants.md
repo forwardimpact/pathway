@@ -91,7 +91,7 @@ only axis of difference is which trace the queries run against.
 events emitted by the orchestrator:
 
     jq -c 'select(.source == "orchestrator" and .event.type == "protocol_violation")' \
-        combined-trace.ndjson | wc -l
+        trace.ndjson | wc -l
 
 Must return `0` on a healthy run.
 
@@ -101,7 +101,7 @@ explicitly):
 
     jq -c 'select(.event.type == "assistant") | .event.message.content[]? |
            select(.type == "tool_use" and .name == "Conclude")' \
-        combined-trace.ndjson | wc -l
+        trace.ndjson | wc -l
 
 Must return `1` on a healthy run.
 

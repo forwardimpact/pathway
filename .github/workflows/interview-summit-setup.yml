@@ -42,6 +42,8 @@ jobs:
       - uses: ./.github/actions/bootstrap
         with:
           token: ${{ steps.ci-app.outputs.token }}
+          app-slug: kata-agent-team
+          app-id: ${{ secrets.KATA_APP_ID }}
 
       - name: Prepare agent workspace
         id: agent-workspace
@@ -62,7 +64,7 @@ jobs:
           echo "dir=$agent_dir" >> "$GITHUB_OUTPUT"
 
       - name: Evaluate Summit Setup
-        uses: ./.github/actions/kata-action
+        uses: ./.github/actions/kata-action-eval
         env:
           ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
           LLM_TOKEN: ${{ steps.llm-app.outputs.token }}
@@ -70,7 +72,6 @@ jobs:
           GH_TOKEN: ${{ steps.ci-app.outputs.token }}
           CLAUDE_CODE_USE_BEDROCK: "0"
         with:
-          app-id: ${{ secrets.KATA_APP_ID }}
           mode: "supervise"
           task-file: scenarios/summit-setup/task.md
           supervisor-cwd: "."

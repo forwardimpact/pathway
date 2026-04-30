@@ -6,6 +6,14 @@ inputs:
     description: GitHub token with write access to the wiki. When provided, the wiki is checked out into ./wiki and pushed back during post-run cleanup.
     required: false
     default: ""
+  app-slug:
+    description: GitHub App slug for git identity (e.g. kata-agent-team). When provided with app-id, sets git identity to the app bot account instead of the generic github-actions bot.
+    required: false
+    default: ""
+  app-id:
+    description: GitHub App ID for git identity email. Used together with app-slug.
+    required: false
+    default: ""
 
 runs:
   using: composite
@@ -17,9 +25,17 @@ runs:
 
     - name: Configure git identity
       shell: bash
+      env:
+        APP_SLUG: ${{ inputs.app-slug }}
+        APP_ID: ${{ inputs.app-id }}
       run: |
-        git config --global user.name "github-actions[bot]"
-        git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        if [ -n "$APP_SLUG" ] && [ -n "$APP_ID" ]; then
+          git config --global user.name "${APP_SLUG}[bot]"
+          git config --global user.email "${APP_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
+        else
+          git config --global user.name "github-actions[bot]"
+          git config --global user.email "41898282+github-actions[bot]@users.noreply.github.com"
+        fi
 
     - name: Checkout wiki
       if: inputs.token != ''

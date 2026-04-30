@@ -1,4 +1,4 @@
-name: Kata Action
+name: Kata Eval
 description: Run agent tasks via the fit-eval CLI using the Claude Agent SDK
 
 inputs:
@@ -40,13 +40,13 @@ inputs:
     description: Comma-separated list of allowed tools for the supervisor (supervise mode only)
     required: false
   supervisor-profile:
-    description: Supervisor agent profile name (passed as --agent to Claude CLI, supervise mode only)
+    description: Supervisor agent profile name (supervise mode only)
     required: false
   agent-profile:
-    description: Agent profile name (passed as --agent to Claude CLI)
+    description: Agent profile name (run and supervise modes)
     required: false
   facilitator-profile:
-    description: Facilitator profile name (passed as --facilitator-profile, facilitate mode only)
+    description: Facilitator profile name (facilitate mode only)
     required: false
   agent-profiles:
     description: Comma-separated agent profile names for facilitate mode
@@ -58,13 +58,6 @@ inputs:
     description: Enable trace capture and artifact upload
     required: false
     default: "true"
-  app-slug:
-    description: GitHub App slug for git identity
-    required: false
-    default: kata-agent-team
-  app-id:
-    description: GitHub App ID for git identity email
-    required: true
   timeout-minutes:
     description: Maximum minutes the agent step may run before being cancelled
     required: false
@@ -73,19 +66,6 @@ inputs:
 runs:
   using: composite
   steps:
-    - name: Configure Git identity
-      shell: bash
-      env:
-        APP_SLUG: ${{ inputs.app-slug }}
-        APP_ID: ${{ inputs.app-id }}
-      run: |
-        git config user.name "${APP_SLUG}[bot]"
-        git config user.email "${APP_ID}+${APP_SLUG}[bot]@users.noreply.github.com"
-
-    - name: Install gh CLI
-      shell: bash
-      run: bash scripts/install-gh.sh
-
     - name: Setup trace directory
       if: inputs.trace == 'true'
       id: setup
@@ -116,7 +96,15 @@ runs:
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
         TIMEOUT_MINUTES: ${{ inputs.timeout-minutes }}
       run: |
-        # Build args array to avoid quoting issues with spaces in paths
+        # Resolve CLI — prefer local install, fall back to npx for third-party
+        if command -v fit-eval &>/dev/null; then
+          EVAL_CMD="fit-eval"
+        elif command -v bunx &>/dev/null; then
+          EVAL_CMD="bunx fit-eval"
+        else
+          EVAL_CMD="npx --yes @forwardimpact/libeval fit-eval"
+        fi
+
         args=()
 
         # Resolve task source — exactly one of task-file or task-text is required
@@ -159,7 +147,7 @@ runs:
 
           # Composite action steps can't use the GitHub `timeout-minutes`
           # field, so enforce the cap with the shell `timeout` command.
-          timeout "${TIMEOUT_MINUTES}m" bunx fit-eval supervise \
+          timeout "${TIMEOUT_MINUTES}m" $EVAL_CMD supervise \
             --supervisor-cwd="$SUPERVISOR_CWD" \
             --agent-cwd="$AGENT_CWD" \
             --allowed-tools="$TOOLS" \
@@ -169,7 +157,7 @@ runs:
             args+=("--facilitator-profile=$FACILITATOR_PROFILE")
           fi
 
-          timeout "${TIMEOUT_MINUTES}m" bunx fit-eval facilitate \
+          timeout "${TIMEOUT_MINUTES}m" $EVAL_CMD facilitate \
             --facilitator-cwd="." \
             --agent-profiles="$AGENT_PROFILES" \
             --agent-cwd="$AGENT_CWD" \
@@ -179,47 +167,27 @@ runs:
             args+=("--agent-profile=$AGENT_PROFILE")
           fi
 
-          timeout "${TIMEOUT_MINUTES}m" bunx fit-eval run \
+          timeout "${TIMEOUT_MINUTES}m" $EVAL_CMD run \
             --cwd="$CWD" \
             --allowed-tools="$TOOLS" \
             "${args[@]}"
         fi
 
-    - name: Split supervised trace
-      if: always() && inputs.trace == 'true' && inputs.mode == 'supervise' && steps.setup.outputs.trace-dir != ''
+    - name: Split trace
+      if: always() && inputs.trace == 'true' && inputs.mode != 'run' && steps.setup.outputs.trace-dir != ''
       shell: bash
       env:
         TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
+        MODE: ${{ inputs.mode }}
       run: |
-        # Extract agent events (unwrapped) so the trace matches a regular run
-        jq -c 'select(.source == "agent") | .event' "$TRACE_DIR/trace.ndjson" \
-          > "$TRACE_DIR/agent-trace.ndjson"
-        # Extract supervisor events (unwrapped)
-        jq -c 'select(.source == "supervisor") | .event' "$TRACE_DIR/trace.ndjson" \
-          > "$TRACE_DIR/supervisor-trace.ndjson"
-
-    - name: Split facilitated trace
-      if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
-      shell: bash
-      env:
-        TRACE_DIR: ${{ steps.setup.outputs.trace-dir }}
-      run: |
-        # Extract facilitator events
-        jq -c 'select(.source == "facilitator") | .event' "$TRACE_DIR/trace.ndjson" \
-          > "$TRACE_DIR/facilitator-trace.ndjson"
-        # Extract per-agent traces using jq --arg to avoid shell injection.
-        # Agent names come from trace .source fields which originate from
-        # workflow_dispatch input — sanitize by filtering to alphanumeric + hyphen.
-        jq -r 'select(.source != "facilitator") | .source' "$TRACE_DIR/trace.ndjson" \
-          | sort -u \
-          | grep -E '^[a-z][a-z0-9-]*$' \
-          | while IFS= read -r agent; do
-              jq -c --arg src "$agent" 'select(.source == $src) | .event' \
-                "$TRACE_DIR/trace.ndjson" > "$TRACE_DIR/${agent}-trace.ndjson"
-            done
-        # Also produce a combined agent trace for the agent-trace artifact
-        jq -c 'select(.source != "facilitator") | .event' "$TRACE_DIR/trace.ndjson" \
-          > "$TRACE_DIR/agent-trace.ndjson"
+        if command -v fit-trace &>/dev/null; then
+          TRACE_CMD="fit-trace"
+        elif command -v bunx &>/dev/null; then
+          TRACE_CMD="bunx fit-trace"
+        else
+          TRACE_CMD="npx --yes @forwardimpact/libeval fit-trace"
+        fi
+        $TRACE_CMD split "$TRACE_DIR/trace.ndjson" --mode="$MODE" --output-dir="$TRACE_DIR"
 
     - name: Upload agent trace
       if: always() && inputs.trace == 'true' && steps.setup.outputs.trace-dir != ''
@@ -227,21 +195,21 @@ runs:
       with:
         name: agent-trace
         path: |
-          ${{ (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && format('{0}/agent-trace.ndjson', steps.setup.outputs.trace-dir) || format('{0}/trace.ndjson', steps.setup.outputs.trace-dir) }}
+          ${{ (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && format('{0}/trace-agent.ndjson', steps.setup.outputs.trace-dir) || format('{0}/trace.ndjson', steps.setup.outputs.trace-dir) }}
 
     - name: Upload supervisor trace
       if: always() && inputs.trace == 'true' && inputs.mode == 'supervise' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: supervisor-trace
-        path: ${{ steps.setup.outputs.trace-dir }}/supervisor-trace.ndjson
+        path: ${{ steps.setup.outputs.trace-dir }}/trace-supervisor.ndjson
 
     - name: Upload facilitator trace
       if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
       uses: actions/upload-artifact@ea165f8d65b6e75b540449e92b4886f43607fa02 # v4
       with:
         name: facilitator-trace
-        path: ${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
+        path: ${{ steps.setup.outputs.trace-dir }}/trace-facilitator.ndjson
 
     - name: Upload per-agent traces
       if: always() && inputs.trace == 'true' && inputs.mode == 'facilitate' && steps.setup.outputs.trace-dir != ''
@@ -249,10 +217,9 @@ runs:
       with:
         name: per-agent-traces
         path: |
-          ${{ steps.setup.outputs.trace-dir }}/*-trace.ndjson
-          !${{ steps.setup.outputs.trace-dir }}/facilitator-trace.ndjson
-          !${{ steps.setup.outputs.trace-dir }}/agent-trace.ndjson
-          !${{ steps.setup.outputs.trace-dir }}/trace.ndjson
+          ${{ steps.setup.outputs.trace-dir }}/trace-*.ndjson
+          !${{ steps.setup.outputs.trace-dir }}/trace-facilitator.ndjson
+          !${{ steps.setup.outputs.trace-dir }}/trace-agent.ndjson
 
     - name: Upload combined trace
       if: always() && inputs.trace == 'true' && (inputs.mode == 'supervise' || inputs.mode == 'facilitate') && steps.setup.outputs.trace-dir != ''

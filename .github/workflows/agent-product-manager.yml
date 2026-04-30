@@ -20,33 +20,12 @@ jobs:
   kata:
     runs-on: ubuntu-latest
     steps:
-      - name: Generate installation token
-        id: ci-app
-        uses: actions/create-github-app-token@1b10c78c7865c340bc4f6099eb2f838309f1e8c3 # v3
+      - uses: ./.github/actions/kata-action-agent
         with:
           app-id: ${{ secrets.KATA_APP_ID }}
-          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
-
-      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
-        with:
-          fetch-depth: 0
-          token: ${{ steps.ci-app.outputs.token }}
-
-      - uses: ./.github/actions/bootstrap
-        with:
-          token: ${{ steps.ci-app.outputs.token }}
-
-      - name: Assess and Act
-        uses: ./.github/actions/kata-action
-        env:
-          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
-          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
-          CLAUDE_CODE_USE_BEDROCK: "0"
-        with:
-          app-id: ${{ secrets.KATA_APP_ID }}
+          app-private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
+          anthropic-api-key: ${{ secrets.ANTHROPIC_API_KEY }}
+          agent-profile: "product-manager"
           task-text: >-
             Assess the current state of your domain and act on the highest-priority finding.
-          agent-profile: "product-manager"
-          model: "claude-opus-4-7[1m]"
-          max-turns: "200"
           task-amend: ${{ inputs.task-amend }}

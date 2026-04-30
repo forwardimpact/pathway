@@ -1,5 +1,5 @@
-import { readFileSync, writeFileSync } from "node:fs";
-import { join } from "node:path";
+import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
+import { join, dirname } from "node:path";
 import { createTraceCollector } from "@forwardimpact/libeval";
 import { createTraceQuery } from "../trace-query.js";
 import { createTraceGitHub } from "../trace-github.js";
@@ -148,6 +148,113 @@ export async function runFilterCommand(values, args) {
   if (values.tool) opts.toolName = values.tool;
   if (values.error) opts.isError = true;
   writeJSON(loadTrace(args[0]).filter(opts), values);
+}
+
+// --- Split command ---
+
+/** Valid agent source name pattern: lowercase letter, then lowercase alphanumeric or hyphen */
+const VALID_SOURCE_NAME = /^[a-z][a-z0-9-]*$/;
+
+/**
+ * Split a combined NDJSON trace into per-source files.
+ * @param {object} values - Parsed option values
+ * @param {string[]} args - [file]
+ */
+export async function runSplitCommand(values, args) {
+  const file = args[0];
+  if (!file) throw new Error("split: missing input file");
+
+  const mode = values.mode;
+  if (!mode) throw new Error("split: --mode is required");
+
+  if (mode === "run") {
+    process.stdout.write(
+      "run mode: trace is already in final form, no split needed\n",
+    );
+    return;
+  }
+
+  const outputDir = values["output-dir"] || dirname(file);
+  mkdirSync(outputDir, { recursive: true });
+
+  const buckets = parseBuckets(readFileSync(file, "utf8"));
+
+  if (mode === "supervise") {
+    writeBucket(buckets, "agent", outputDir);
+    writeBucket(buckets, "supervisor", outputDir);
+  } else if (mode === "facilitate") {
+    splitFacilitated(buckets, outputDir);
+  }
+}
+
+/**
+ * Parse NDJSON content into per-source buckets of unwrapped event lines.
+ * Skips empty lines, malformed JSON, non-envelope lines, and orchestrator events.
+ * @param {string} content - Raw NDJSON file content
+ * @returns {Map<string, string[]>} source name -> array of unwrapped JSON lines
+ */
+function parseBuckets(content) {
+  const buckets = new Map();
+
+  for (const raw of content.split("\n")) {
+    const trimmed = raw.trim();
+    if (!trimmed) continue;
+
+    let envelope;
+    try {
+      envelope = JSON.parse(trimmed);
+    } catch {
+      continue;
+    }
+
+    if (!envelope.event || typeof envelope.source !== "string") continue;
+    if (envelope.source === "orchestrator") continue;
+
+    if (!buckets.has(envelope.source)) {
+      buckets.set(envelope.source, []);
+    }
+    buckets.get(envelope.source).push(JSON.stringify(envelope.event));
+  }
+
+  return buckets;
+}
+
+/**
+ * Write facilitated mode split: facilitator, per-agent, and combined agent files.
+ * @param {Map<string, string[]>} buckets
+ * @param {string} outputDir
+ */
+function splitFacilitated(buckets, outputDir) {
+  writeBucket(buckets, "facilitator", outputDir);
+
+  const agentSources = [...buckets.keys()].filter(
+    (s) => s !== "facilitator" && VALID_SOURCE_NAME.test(s),
+  );
+
+  for (const name of agentSources) {
+    writeBucket(buckets, name, outputDir);
+  }
+
+  const combinedLines = agentSources.flatMap((n) => buckets.get(n) ?? []);
+  if (combinedLines.length > 0) {
+    writeFileSync(
+      join(outputDir, "trace-agent.ndjson"),
+      combinedLines.join("\n") + "\n",
+    );
+  }
+}
+
+/**
+ * Write a single source bucket to a trace-{name}.ndjson file.
+ * @param {Map<string, string[]>} buckets
+ * @param {string} name
+ * @param {string} outputDir
+ */
+function writeBucket(buckets, name, outputDir) {
+  const lines = buckets.get(name);
+  if (!lines || lines.length === 0) return;
+  const outPath = join(outputDir, `trace-${name}.ndjson`);
+  writeFileSync(outPath, lines.join("\n") + "\n");
 }
 
 // --- Shared helpers ---

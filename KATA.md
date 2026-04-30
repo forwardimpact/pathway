@@ -26,9 +26,23 @@ graph LR
 
 **Workflows** define schedule, trigger, permissions; **Agents** define persona,
 scope, skill composition; **Skills** define procedures, checklists, domain
-knowledge. Two composite actions are shared by all workflows: `bootstrap/`
-(Bun + dependencies) and `kata-action/` (runs a task against an agent profile
-via `fit-eval`, capturing the execution trace as NDJSON artifact).
+knowledge. Composite actions under `.github/actions/` encapsulate shared CI
+steps: `bootstrap/` (Bun + dependencies), `kata-action-eval/` (runs `fit-eval`
+with trace capture), and `kata-action-agent/` (full agent workflow wrapping the
+other two).
+
+## Actions
+
+Two composite actions, publishable as third-party GitHub Actions:
+
+- **`kata-action-eval`** — Runs `fit-eval` with trace capture and artifact
+  upload. Wraps a single fit-eval invocation.
+- **`kata-action-agent`** — Full agent workflow: auth, checkout, bootstrap,
+  eval. The primary integration point for consumers.
+
+Internal workflows use local paths (`./.github/actions/kata-action-agent`);
+external installations use `forwardimpact/kata-action-agent@v1`. Run
+`kata-setup` to generate workflows interactively.
 
 ## The PDSA Loop
 
@@ -126,6 +140,7 @@ for utilities). An agent's skill list reveals its phase coverage.
 | `kata-review`             | Utility | Grade a single artifact (leaf, no sub-agents) |
 | `kata-ship`               | Utility | Rebase, push, open PR, merge a feature branch |
 | `kata-session`            | Utility | Toyota Kata coaching protocol for sessions    |
+| `kata-setup`              | Utility | Interactive Kata Agent Team setup             |
 
 ## Trust Boundary
 
@@ -238,31 +253,13 @@ persist as structured data rather than prose.
 
 Workflows authenticate via the **GitHub App** `kata-agent-team`, not a PAT. Each
 run generates a 1-hour installation token via `actions/create-github-app-token`
-— no long-lived secrets to rotate. The token must generate before
-`actions/checkout` so checkout-token writes trigger downstream workflows.
+— no long-lived secrets to rotate. Three repository secrets are required:
+`KATA_APP_ID`, `KATA_APP_PRIVATE_KEY`, `ANTHROPIC_API_KEY`.
 
-### GitHub App setup
-
-Register `kata-agent-team` as an organization-owned GitHub App, install it on
-the monorepo, and grant these **repository permissions** (least-privilege — each
-maps to at least one workflow):
-
-| Permission    | Why                                                                                                      |
-| ------------- | -------------------------------------------------------------------------------------------------------- |
-| Contents      | Checkout, commit, push to `fix/`, `spec/`, release branches                                              |
-| Pull requests | Open, comment, merge PRs (release-engineer, product-manager)                                             |
-| Issues        | Triage, label, comment (product-manager); create, comment, close (improvement-coach via kata-storyboard) |
-| Discussions   | Reply on discussions and discussion comments (agent-react)                                               |
-| Workflows     | Token-driven pushes re-trigger downstream workflows                                                      |
-| Metadata      | Required by GitHub                                                                                       |
-
-Subscribe the App to the **Issue comment**, **Pull request review**, **Pull
-request review comment**, **Discussion**, and **Discussion comment** events so
-`agent-react` fires. Two repository secrets carry the App identity:
-`KATA_APP_ID` and `KATA_APP_PRIVATE_KEY`. `ANTHROPIC_API_KEY` is a separate
-secret consumed only by `kata-action`. The interview workflows use a second App
-(`LLM_APP_ID` / `LLM_APP_PRIVATE_KEY`) and `publish-npm` uses `NPM_TOKEN`;
-neither is required for Kata.
+For new installations, `kata-setup` walks through App creation, permissions,
+event subscriptions, and workflow generation interactively. See
+[`kata-setup/references/github-app.md`](.claude/skills/kata-setup/references/github-app.md)
+for the full permission and event subscription reference.
 
 ## Authoring Best Practices
 

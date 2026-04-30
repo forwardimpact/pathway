@@ -23,6 +23,7 @@ import {
   runInitCommand,
   runTurnCommand,
   runFilterCommand,
+  runSplitCommand,
 } from "../src/commands/trace.js";
 
 const { version: VERSION } = JSON.parse(
@@ -172,6 +173,21 @@ const definition = {
         },
       },
     },
+    {
+      name: "split",
+      args: "<file>",
+      description: "Split combined trace into per-source files",
+      options: {
+        mode: {
+          type: "string",
+          description: "Execution mode (run/supervise/facilitate)",
+        },
+        "output-dir": {
+          type: "string",
+          description: "Output directory (default: same as input)",
+        },
+      },
+    },
   ],
   globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
@@ -219,6 +235,7 @@ const COMMANDS = {
   init: runInitCommand,
   turn: runTurnCommand,
   filter: runFilterCommand,
+  split: runSplitCommand,
 };
 
 async function main() {

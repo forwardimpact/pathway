@@ -59,15 +59,21 @@ Search options: `--limit N` (max results), `--context N` (surrounding turns),
 
 ### Analysis
 
-| Command              | Purpose                             |
-| -------------------- | ----------------------------------- |
-| `stats <file>`       | Token usage and cost breakdown      |
-| `tools <file>`       | Tool usage frequency (descending)   |
-| `tool <file> <name>` | All turns involving a specific tool |
-| `errors <file>`      | All tool results with isError=true  |
-| `reasoning <file>`   | Agent reasoning text only           |
+| Command                      | Purpose                                    |
+| ---------------------------- | ------------------------------------------ |
+| `stats <file>`               | Token usage and cost breakdown             |
+| `tools <file>`               | Tool usage frequency (descending)          |
+| `tool <file> <name>`         | All turns involving a specific tool        |
+| `errors <file>`              | All tool results with isError=true         |
+| `reasoning <file>`           | Agent reasoning text only                  |
+| `split <file> --mode <mode>` | Split combined trace into per-source files |
 
 Reasoning options: `--from N` and `--to N` to limit turn range.
+
+Split mode: `run` (no-op), `supervise`, or `facilitate`. Produces
+`trace-{name}.ndjson` files (e.g., `trace-agent.ndjson`,
+`trace-facilitator.ndjson`, `trace-security-engineer.ndjson`). Use
+`--output-dir` to control where files are written.
 
 ### Global Options
 
@@ -90,6 +96,7 @@ Reasoning options: `--from N` and `--to N` to limit turn range.
 ```sh
 npx fit-trace runs                          # find the run you want
 npx fit-trace download 24497273755          # download and structure the trace
+npx fit-trace split /tmp/trace-24497273755/structured.json --mode=facilitate
 npx fit-trace overview /tmp/trace-24497273755/structured.json
 npx fit-trace timeline /tmp/trace-24497273755/structured.json
 npx fit-trace errors /tmp/trace-24497273755/structured.json

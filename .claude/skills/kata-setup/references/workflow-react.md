@@ -1,0 +1,107 @@
+# Workflow Template: Event-Driven React
+
+Responds to PR comments, issue comments, new issues, and discussions. The
+product-manager facilitates and routes to the best-suited agent. File name:
+`agent-react.yml`. Replace `{{AGENT_LIST}}` (all agents except product-manager
+and improvement-coach) and `{{MODEL}}`.
+
+```yaml
+name: "Agent: React"
+on:
+  issues:
+    types: [opened]
+  issue_comment:
+    types: [created]
+  pull_request_review_comment:
+    types: [created]
+  pull_request_review:
+    types: [submitted]
+  discussion:
+    types: [created]
+  discussion_comment:
+    types: [created]
+  workflow_dispatch:
+    inputs:
+      target-type:
+        description: "Target type (pull_request or discussion)"
+        required: true
+        type: choice
+        default: pull_request
+        options: [pull_request, discussion]
+      target-number:
+        description: "PR or discussion number"
+        required: true
+        type: string
+permissions:
+  contents: write
+jobs:
+  kata:
+    if: >-
+      github.event_name == 'workflow_dispatch' ||
+      github.event_name == 'issues' ||
+      github.event_name == 'issue_comment' ||
+      (github.event_name == 'pull_request_review_comment' &&
+       github.event.comment.in_reply_to_id != null) ||
+      github.event_name == 'pull_request_review' ||
+      github.event_name == 'discussion' ||
+      github.event_name == 'discussion_comment'
+    runs-on: ubuntu-latest
+    steps:
+      - name: Generate token
+        id: ci-app
+        uses: actions/create-github-app-token@v3
+        with:
+          app-id: ${{ secrets.KATA_APP_ID }}
+          private-key: ${{ secrets.KATA_APP_PRIVATE_KEY }}
+      - uses: actions/checkout@v4
+        with:
+          fetch-depth: 0
+          token: ${{ steps.ci-app.outputs.token }}
+      - name: Compose task
+        id: task
+        env:
+          EVENT: ${{ github.event_name }}
+          DT: ${{ inputs.target-type }}
+          DN: ${{ inputs.target-number }}
+          PN: ${{ github.event.issue.number || github.event.pull_request.number }}
+          IT: ${{ github.event.issue.title }}
+          DNUM: ${{ github.event.discussion.number }}
+          DNID: ${{ github.event.discussion.node_id }}
+          DTIT: ${{ github.event.discussion.title }}
+          DCAT: ${{ github.event.discussion.category.name }}
+          IPR: ${{ github.event.issue.pull_request != null }}
+          AU: ${{ github.event.comment.user.login || github.event.review.user.login || github.event.discussion.user.login || github.event.issue.user.login || github.actor }}
+          URL: ${{ github.event.comment.html_url || github.event.review.html_url || github.event.discussion.html_url || github.event.issue.html_url || '' }}
+        run: |
+          set -euo pipefail
+          t="pull_request"; n="${PN:-}"
+          case "$EVENT" in
+            issues) t="issue"; ctx="New issue \"$IT\" (#$n) by @$AU. $URL"; act="assess the issue." ;;
+            discussion) t="discussion"; n="$DNUM"; ctx="New discussion \"$DTIT\" (#$n, $DCAT) by @$AU. $URL Node: $DNID."; act="assess. Reply via gh api graphql (addDiscussionComment)." ;;
+            discussion_comment) t="discussion"; n="$DNUM"; ctx="Comment on \"$DTIT\" (#$n) by @$AU. $URL Node: $DNID."; act="assess. Reply via gh api graphql (addDiscussionComment, pass replyToId)." ;;
+            workflow_dispatch) if [ "$DT" = "discussion" ]; then t="discussion"; n="$DN"; ctx="Dispatch: discussion #$n."; act="assess."; else t="pull_request"; n="$DN"; ctx="Dispatch: PR #$n."; act="assess."; fi ;;
+            issue_comment) if [ "$IPR" = "true" ]; then ctx="Comment on PR #$n by @$AU. $URL"; act="assess."; else t="issue"; ctx="Comment on \"$IT\" (#$n) by @$AU. $URL"; act="assess."; fi ;;
+            *) ctx="Comment on PR #$n by @$AU. $URL"; act="assess." ;;
+          esac
+          task="$ctx As facilitator, route to the best-suited agent to $act
+          Recursion guard: if the latest activity is already an agent response, stop."
+          { echo "target-type=$t"; echo "target-number=$n"; echo "task<<EOF"; echo "$task"; echo "EOF"; } >> "$GITHUB_OUTPUT"
+      - name: Assess and Act
+        uses: forwardimpact/kata-action-eval@v1
+        env:
+          ANTHROPIC_API_KEY: ${{ secrets.ANTHROPIC_API_KEY }}
+          GH_TOKEN: ${{ steps.ci-app.outputs.token }}
+          CLAUDE_CODE_USE_BEDROCK: "0"
+        with:
+          mode: "facilitate"
+          facilitator-profile: "product-manager"
+          agent-profiles: "{{AGENT_LIST}}"
+          model: "{{MODEL}}"
+          task-text: ${{ steps.task.outputs.task }}
+```
+
+Uses `kata-action-eval` (not `kata-action-agent`) because the task text is
+composed dynamically between checkout and eval. The `if:` filters
+`pull_request_review_comment` to thread replies only. The recursion guard
+prevents loops when agents respond to each other. Action refs use tags for
+readability; pin to SHAs per your security policy.

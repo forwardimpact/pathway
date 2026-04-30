@@ -20,7 +20,7 @@ wiki-audit:
     bash scripts/wiki-audit.sh
 
 # Install dependencies and tooling
-install: wiki-pull install-bun install-gh
+install: install-bun install-gh
 
 # Install bun dependencies and generate code
 install-bun:
