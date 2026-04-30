@@ -16,7 +16,8 @@ the plan to understand HOW and WHEN, then implement the changes methodically.
 
 ## When to Use
 
-- A spec and plan exist with STATUS `plan approved`
+- A spec and plan exist on `main` (`specs/NNN/spec.md` and `specs/NNN/plan-a.md`
+  both present)
 - The user says "implement spec NNN", "implement the plan for spec NNN",
   "execute the plan for NNN", "build spec NNN", or "start implementation of NNN"
 - Resuming a partially completed implementation ("continue spec NNN", "finish
@@ -49,7 +50,7 @@ apply alongside the skill-specific ones below.
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
       prior bias, panel size per caller protocol) and every **blocker**,
       **high**, and **medium** finding addressed.
-- [ ] Spec status set to `plan implemented` in `specs/STATUS`.
+- [ ] PR title references the spec id (e.g. `feat(scope): ... (#NNN)`).
 
 </do_confirm_checklist>
 
@@ -186,7 +187,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Blockers encountered** — Plan deviations, codebase divergences, test
   failures, and how they were resolved
 - **Deferred specs** — Specs skipped and why (not ready, missing plan, etc.)
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{agent}/{domain}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Record at least one measurement per
+  [`kata-metrics`](../kata-metrics/SKILL.md).

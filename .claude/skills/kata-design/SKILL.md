@@ -4,8 +4,8 @@ description: >
   Create design documents (WHICH/WHERE) for approved specs. A design is a
   max-200-line architectural sketch — components, interfaces, data flow, and
   key decisions with trade-offs — that gives reviewers a high-leverage point
-  to redirect architecture before the full plan is written. Sets design phase
-  to draft in specs/STATUS.
+  to redirect architecture before the full plan is written. Design is approved
+  when its PR carries the `design:approved` label or an APPROVED review.
 ---
 
 # Write and Review Designs
@@ -22,8 +22,8 @@ is no commitment to implement, and a design has nothing to shape.
 
 ## When to Use
 
-- Turning an approved spec (`spec approved` in STATUS) into an architectural
-  design
+- Turning an approved spec (`specs/NNN/spec.md` exists on `main`) into an
+  architectural design
 - Reviewing a design before approval ("review design NNN", "is design NNN
   ready?")
 - Revisiting a design whose direction needs rethinking before planning
@@ -32,11 +32,10 @@ is no commitment to implement, and a design has nothing to shape.
 
 <read_do_checklist goal="Internalize design-writing boundaries before starting">
 
-- [ ] Read `specs/STATUS` from main via `git show main:specs/STATUS` — confirm
-      this spec is at `spec approved`. Do not read the working-tree file: branch
-      checkouts reflect branch state, not the authoritative lifecycle. Do not
-      rely on the wiki, prior session memory, or PR descriptions.
-- [ ] A design requires an approved spec — if no approved spec exists, stop.
+- [ ] Confirm the spec is approved by checking `specs/NNN/spec.md` exists on
+      `main`: `git show main:specs/NNN/spec.md` succeeds. Do not rely on the
+      wiki, prior session memory, or PR descriptions.
+- [ ] A design requires an approved spec — if `spec.md` is not on `main`, stop.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not write the plan — this skill writes the design; `kata-plan`
@@ -88,9 +87,8 @@ design-c.md    ← another alternative
 ```
 
 Each variant should open with a brief rationale explaining how it differs from
-design-a. When the design reaches `design approved`, **design-a is the design
-that will be planned** unless the approver explicitly selects a different
-variant.
+design-a. When the design is approved, **design-a is the design that will be
+planned** unless the approver explicitly selects a different variant.
 
 No decomposition — if a design cannot fit in 200 lines, narrow the spec instead.
 
@@ -117,22 +115,27 @@ interfaces connect them — and why this architecture over alternatives.
 narrative thread between them. If a paragraph could be a row, make it a row. Do
 not restate what the artifact already shows.
 
-## Status
+## Approval
 
-This skill sets `design draft` in `specs/STATUS`. A human advances it to
-`design approved` during review. See `specs/STATUS` header for the full
-lifecycle.
+A design is approved when its PR carries the `design:approved` label **or** has
+an APPROVED review by a trusted account. Once the design PR merges,
+`specs/NNN/design-a.md` exists on `main` and the phase is by definition
+complete. See
+[`coordination-protocol.md` § Approval signal](../../agents/references/coordination-protocol.md#approval-signal).
 
 ## Reviewing a Design
 
 Evaluate `design-a.md` against the qualities listed in "Writing a Design" above,
 then run the DO-CONFIRM checklist at the top of this skill.
 
-If all criteria are met, recommend approval. If any criterion falls short,
-request changes — the design stays at `design draft` until issues are resolved.
+If all criteria are met, apply the approval signal:
 
-Approval is a human action — report your recommendation clearly. See
-`specs/STATUS` header for the full lifecycle.
+```sh
+gh pr edit <number> --add-label design:approved
+```
+
+If any criterion falls short, request changes via PR comment — do not apply the
+label.
 
 ## Process
 
@@ -144,18 +147,18 @@ from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** Requires `spec approved` in `specs/STATUS`; otherwise
-   stop.
+1. **Find the spec.** Requires `specs/NNN/spec.md` on `main`; otherwise stop.
 2. **Study the spec.** Read `spec.md` end to end.
 3. **Research the codebase.** Read the code areas the spec targets.
 4. **Write the design.** Create `design-a.md`. Stay under 200 lines. Each
    architectural choice names a rejected alternative.
-5. **Clean sub-agent review panel.** Follow the
+5. **Open a `design(NNN): …` PR.** The PR title carries the spec id.
+6. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
    Tell each reviewer not to invoke `kata-design`. Address every confirmed
    blocker/high/medium finding before advancing.
-6. **Present the design.** Iterate until satisfied.
-7. **Update STATUS.** Set the spec to `design draft` in `specs/STATUS`.
+7. **Apply approval signal.** When the panel passes, run
+   `gh pr edit <number> --add-label design:approved`.
 
 ## Memory: what to record
 

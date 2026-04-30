@@ -4,7 +4,7 @@ description: >
   Triage open GitHub issues against the product vision. Classify each as
   trivial fix, product-aligned spec, or out-of-scope, and produce a report
   the agent acts on. Operates on issues only — PR mergeability is
-  kata-product-pr.
+  kata-release-merge.
 ---
 
 # Product Issue Triage
@@ -22,7 +22,7 @@ triage decisions captured here.
 
 - A scheduled run finds open issues awaiting triage
 - A specific issue needs an on-demand product-alignment decision
-- Never for PRs — use [`kata-product-pr`](../kata-product-pr/SKILL.md)
+- Never for PRs — use [`kata-release-merge`](../kata-release-merge/SKILL.md)
 
 ## Checklists
 

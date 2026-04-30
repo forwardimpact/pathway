@@ -2,9 +2,10 @@
 name: kata-spec
 description: >
   Write specifications (WHAT/WHY) for features, changes, and improvements.
-  Sets spec phase to draft in specs/STATUS. Use when proposing changes,
-  capturing findings as actionable specs, or evaluating spec quality.
-  Pair with the `kata-plan` skill for the HOW side.
+  Spec is approved when its PR carries the `spec:approved` label or an
+  APPROVED review by a trusted account. Use when proposing changes, capturing
+  findings as actionable specs, or evaluating spec quality. Pair with the
+  `kata-plan` skill for the HOW side.
 ---
 
 # Write and Review Specs
@@ -83,21 +84,27 @@ criteria, alternatives). Prefer bullets for flat facts. Use prose only for the
 narrative thread between them. If a paragraph could be a row, make it a row. Do
 not restate what the artifact already shows.
 
-## Status
+## Approval
 
-This skill sets `spec draft` in `specs/STATUS`. A human advances it to
-`spec approved` during review. See `specs/STATUS` header for the full lifecycle.
+A spec is approved when its PR carries the `spec:approved` label **or** has an
+APPROVED review by a trusted account (top-7 contributor or `kata-agent-team`).
+Phase progression is derived from `main`: once a spec PR merges,
+`specs/NNN/spec.md` exists on `main` and the spec is by definition approved. See
+[`coordination-protocol.md` § Approval signal](../../agents/references/coordination-protocol.md#approval-signal).
 
 ## Reviewing a Spec
 
 Evaluate `spec.md` against the qualities listed in "Writing a Spec" above, then
 run the DO-CONFIRM checklist at the top of this skill.
 
-If all criteria are met, recommend approval. If any criterion falls short,
-request changes — the spec stays at `spec draft` until issues are resolved.
+If all criteria are met, apply the approval signal:
 
-Approval is a human action — report your recommendation clearly. If you cannot
-commit changes, report your decision so the caller can act on it.
+```sh
+gh pr edit <number> --add-label spec:approved
+```
+
+If any criterion falls short, request changes via PR comment — do not apply the
+label.
 
 ## Process
 
@@ -105,13 +112,16 @@ commit changes, report your decision so the caller can act on it.
    before writing.
 2. **Research.** Read relevant code, data, and existing specs.
 3. **Write the spec.** WHAT and WHY only.
-4. **Update STATUS.** Add the spec to `specs/STATUS` with `spec draft`.
+4. **Open a `spec(NNN): …` PR.** The PR title carries the spec id; merge of that
+   PR is what advances the phase.
 5. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
    Tell each reviewer not to invoke `kata-spec`. Address every confirmed
    blocker/high/medium finding before advancing.
-6. **Present the spec.** Iterate until satisfied. Stop at `spec draft` — the
-   plan is the staff engineer's job.
+6. **Apply approval signal.** When the panel passes and the DO-CONFIRM checks
+   are met, run `gh pr edit <number> --add-label spec:approved` so
+   `kata-release-merge` lets the PR through. Stop at the spec — the plan is the
+   staff engineer's job.
 
 ## Memory: what to record
 

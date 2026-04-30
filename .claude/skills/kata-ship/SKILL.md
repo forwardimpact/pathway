@@ -42,7 +42,8 @@ do not attempt to finish it.
 ## Shipping Implies Approval
 
 Shipping a spec-tracked deliverable inherently means approving it. Step 2
-handles the `specs/STATUS` update before the mechanical ship process begins.
+applies the matching `<phase>:approved` label to the PR before the mechanical
+ship process begins.
 
 ## Checklists
 
@@ -50,7 +51,7 @@ handles the `specs/STATUS` update before the mechanical ship process begins.
 
 - [ ] Current branch is not `main`.
 - [ ] Scope limited to work already on the branch.
-- [ ] `specs/STATUS` reflects current phase approval (if spec-tracked).
+- [ ] `<phase>:approved` label applied to the PR (if spec-tracked).
 - [ ] Rebased cleanly on `origin/main` (no unresolved conflicts).
 - [ ] `bun run check` and `bun run test` pass locally.
 - [ ] PR exists and its body follows the repo's Summary / Test plan template.
@@ -78,27 +79,19 @@ fi
 ### Step 2: Approve the Work (spec-tracked branches only)
 
 If the branch contains spec-tracked work (a spec, design, plan, or
-implementation tied to an entry in `specs/STATUS`), update STATUS to mark the
-phase as approved before proceeding:
+implementation), apply the matching label to the PR before proceeding. The PR
+must already exist (Step 6 handles creation when it doesn't); for first ships,
+push the branch and open the PR first, then return here for the label.
 
-```sh
-# Example: shipping a plan for spec 460
-# Change:  460  plan  draft
-# To:      460  plan  approved
-```
-
-| Deliverable    | Phase update       |
+| Deliverable    | Label              |
 | -------------- | ------------------ |
-| `spec.md`      | `spec approved`    |
-| `design-a.md`  | `design approved`  |
-| `plan-a.md`    | `plan approved`    |
-| Implementation | `plan implemented` |
-
-Commit the STATUS change:
+| `spec.md`      | `spec:approved`    |
+| `design-a.md`  | `design:approved`  |
+| `plan-a.md`    | `plan:approved`    |
+| Implementation | `plan:implemented` |
 
 ```sh
-git add specs/STATUS
-git commit -m "approve: mark spec <id> <phase> approved"
+gh pr edit <number> --add-label <phase>:approved
 ```
 
 Skip this step for branches with no spec association (bug fixes, chores, docs).

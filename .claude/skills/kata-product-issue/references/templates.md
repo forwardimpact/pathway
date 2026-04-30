@@ -36,8 +36,7 @@ EOF
 
 Both follow the same shape. Differences: branch prefix (`fix/` vs `spec/`),
 commit type (`fix(<scope>)` vs `spec(<scope>)`), closing keyword (`Closes` vs
-`Addresses`), and staged paths (code vs `specs/<NNN>-<name>/spec.md` +
-`specs/STATUS`).
+`Addresses`), and staged paths (code vs `specs/<NNN>-<name>/spec.md`).
 
 ### Branch and Commit
 

@@ -1,12 +1,12 @@
 ---
-name: kata-release-review
+name: kata-release-cut
 description: >
-  Review the main branch for unreleased changes and cut new versions. Determine
+  Cut new versions of packages with unreleased changes on main. Determine
   version bumps, update package.json files, tag releases, push tags, and verify
   publish workflows. Canonical source for the release procedure.
 ---
 
-# Release Review
+# Release Cut
 
 Assess `main` branch CI status, identify packages with unreleased changes,
 determine version bumps, and cut releases.

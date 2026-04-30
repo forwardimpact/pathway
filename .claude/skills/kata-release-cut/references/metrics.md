@@ -1,4 +1,4 @@
-# Metrics — Release Review
+# Metrics — Release Cut
 
 Suggested metrics for this domain. These are starting points — discover which
 metrics are most useful through practice. Record per the

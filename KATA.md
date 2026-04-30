@@ -15,7 +15,7 @@ agents grasp the current condition (via prior-run traces), establish target
 conditions (via specs), and experiment toward them (via implementation). Eight
 workflows (five scheduled agent runs across three shifts, a daily storyboard, an
 on-demand coaching session, an event-driven conversation responder), six agent
-personas, and eighteen skills form this cycle.
+personas, and seventeen skills form this cycle.
 
 ## Architecture
 
@@ -76,7 +76,7 @@ agent writes a spec rather than attempting the fix.
 | **staff-engineer**    | Plan, Do       | Own the full spec -> design -> plan -> implement arc for approved specs |
 | **release-engineer**  | Do             | Keep PR branches merge-ready, repair trivial CI, cut releases           |
 | **security-engineer** | Do, Study, Act | Patch dependencies, harden supply chain, enforce security policies      |
-| **product-manager**   | Do, Study, Act | Triage issues and PRs, merge fix/bug/spec PRs, run evaluations          |
+| **product-manager**   | Study, Act     | Triage issues, review spec quality, run evaluations                     |
 | **technical-writer**  | Study, Act     | Review docs for accuracy, curate wiki, fix staleness, spec gaps         |
 | **improvement-coach** | Study          | Facilitate storyboard meetings and 1-on-1 coaching sessions             |
 
@@ -90,19 +90,21 @@ fallback. An agent reports clean only after exhausting all four levels.
 
 Seven scheduled workflows run on a three-shift Europe/Paris rhythm: **night** by
 07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00. Each shift
-forms a producer → reviewer → shipper chain: product-manager triages and merges
-so staff has a fresh backlog, staff implements, release ships. The night shift —
-the full cycle before the morning storyboard — slots security-engineer and
-technical-writer between staff and release to review code before it ships; day
-and swing skip the review pair (dependency churn and doc drift need no intra-day
-cadence; CVE-driven work runs on demand). Crons are authored in UTC; Paris times
-below use CEST (UTC+2), the tighter summer bound. An eighth workflow,
-**agent-react**, runs on PR comments, new discussions, and discussion comments —
-the product manager facilitates and routes the comment to the participant best
-suited to respond. All workflows support `workflow_dispatch`, use concurrency
-groups, and time out at 30 minutes. Agent workflows send a generic prompt; the
-agent's Assess section picks the action. Storyboard and coaching send specific
-prompts to the improvement coach.
+forms a producer → reviewer → shipper chain: product-manager triages and
+approves spec quality so staff has a fresh backlog, staff implements, release
+gates and ships. The night shift — the full cycle before the morning storyboard
+— slots security-engineer and technical-writer between staff and release to
+review code before it ships; day and swing skip the review pair (dependency
+churn and doc drift need no intra-day cadence; CVE-driven work runs on demand).
+Crons are authored in UTC; Paris times below use CEST (UTC+2), the tighter
+summer bound. An eighth workflow, **agent-react**, runs on PR comments, new
+discussions, and discussion comments — the release engineer facilitates and
+routes the comment to the participant best suited to respond, and translates
+conversational approvals into the canonical `<phase>:approved` label or APPROVED
+review. All workflows support `workflow_dispatch`, use concurrency groups, and
+time out at 30 minutes. Agent workflows send a generic prompt; the agent's
+Assess section picks the action. Storyboard and coaching send specific prompts
+to the improvement coach.
 
 | Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
 | --------------------------- | ------------------------------------- | ---------------------------------------- |
@@ -113,7 +115,7 @@ prompts to the improvement coach.
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
 | **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
-| **agent-react**             | On PR/discussion activity             | product-manager (facilitates 4 agents)   |
+| **agent-react**             | On PR/discussion activity             | release-engineer (facilitates 4 agents)  |
 
 ## Skills
 
@@ -126,11 +128,10 @@ for utilities). An agent's skill list reveals its phase coverage.
 | `kata-plan`               | Plan    | Designs to executable plans                   |
 | `kata-implement`          | Do      | Execute plans step by step                    |
 | `kata-security-update`    | Do      | Dependabot triage, vulnerability fixes        |
-| `kata-release-readiness`  | Do      | Rebase, lint fix, merge readiness             |
-| `kata-release-review`     | Do      | Version bumps, tagging, publish verification  |
+| `kata-release-merge`      | Do      | Trust, type, CI, rebase, approval gate, merge |
+| `kata-release-cut`        | Do      | Version bumps, tagging, publish verification  |
 | `kata-security-audit`     | Study   | Seven-area security review                    |
 | `kata-product-issue`      | Study   | Issue triage against product vision           |
-| `kata-product-pr`         | Study   | PR merge gate (trust, type, CI, spec quality) |
 | `kata-product-evaluation` | Study   | User testing sessions                         |
 | `kata-documentation`      | Study   | One topic deep per run                        |
 | `kata-wiki-curate`        | Study   | Agent memory hygiene                          |
@@ -144,19 +145,20 @@ for utilities). An agent's skill list reveals its phase coverage.
 
 ## Trust Boundary
 
-The product manager is the sole external merge point; all other merge paths
-operate on trusted sources (our agents, Dependabot).
+The release engineer is the sole external merge point; all other merge paths
+operate on trusted sources (our agents, Dependabot). The product manager gates
+spec **quality** off the critical path via the `spec:approved` label.
 
 ```mermaid
 graph TD
-    EXT["External PR"] --> PM["Product Manager<br/>trust + CI gate"]
-    ISS["External Issue"] --> PM
-    PM -- "merge fix/bug/spec" --> CB["Codebase (main)"]
-    style PM fill:#a855f7,stroke:#7c3aed,color:#fff
+    EXT["External PR"] --> RE["Release Engineer<br/>trust + CI gate"]
+    ISS["External Issue"] --> PM["Product Manager<br/>spec quality"]
+    PM -- "spec:approved" --> RE
+    RE -- "merge fix/bug/spec" --> CB["Codebase (main)"]
+    style RE fill:#a855f7,stroke:#7c3aed,color:#fff
     CB -- "approved spec" --> TA["Trusted Agents<br/>plan + implement"]
     TA --> CB
     SE["Security Engineer"] -- "Dependabot" --> CB
-    RE["Release Engineer"] -- "rebase + release" --> CB
 ```
 
 | External PR type | What merges                     | Who implements                        |
@@ -168,6 +170,24 @@ graph TD
 Top-7 contributors pass the trust gate; `kata-agent-team` PRs are trusted by
 identity. A compromised top contributor cannot inject code via this pipeline —
 specs merge only the document, not code.
+
+## Approval Signal
+
+Phase progression is derived from `main` (artifact files exist) plus a uniform,
+machine-readable approval signal applied to PRs. The signal has two equivalent
+forms — both are first-class GitHub primitives, queryable, and auditable:
+
+1. **Label** — `<phase>:approved` applied via `gh pr edit --add-label`.
+2. **APPROVED review** — `gh pr review --approve` by a trusted account (top-7
+   contributor or `kata-agent-team`).
+
+Four labels span the four phases: `spec:approved`, `design:approved`,
+`plan:approved`, and the terminal `plan:implemented` (set by
+`kata-release-merge` on the implementation PR before merge).
+
+`kata-release-merge` checks for either form before merging any phase PR. The
+`agent-react` facilitator translates conversational approvals (e.g. "LGTM" from
+a trusted account) into the canonical signal.
 
 ## Design Principles
 

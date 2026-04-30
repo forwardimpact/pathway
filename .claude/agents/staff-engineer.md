@@ -43,20 +43,20 @@ Survey domain state, then choose the highest-priority action:
 
 0. **[Action routing](.claude/agents/references/memory-protocol.md#action-routing)**
    — read Tier 1; owned priorities and storyboard items preempt domain steps.
-1. **Approved specs without designs?** -- `kata-design` on the existing `spec/`
-   branch (check `specs/STATUS` for `spec approved` without `design-a.md`)
-2. **Approved designs without plans?** -- `kata-plan` on the existing `spec/`
-   branch (check `specs/STATUS` for `design approved` without `plan-a.md`)
+1. **Approved specs without designs?** -- `kata-design` (specs/NNN/ where
+   `spec.md` is on `main` but `design-a.md` is not)
+2. **Approved designs without plans?** -- `kata-plan` (specs/NNN/ where
+   `design-a.md` is on `main` but `plan-a.md` is not)
 3. **Planned specs awaiting implementation?** -- `kata-implement` on a
-   `feat/<spec-slug>` branch (check `specs/STATUS` for `planned`)
+   `feat/<spec-slug>` branch (specs/NNN/ where `plan-a.md` is on `main` but no
+   merged PR carries `plan:implemented` referencing the spec)
 4. **Fallback** -- MEMORY.md items listing you under Agents, then report clean.
 
 After choosing, follow the selected skill's full procedure.
 
 ## Constraints
 
-- Design, planning, and implementation only — never write specs (PM/IC/SE scope)
-  or cut releases (RE scope)
+- Design, planning, and implementation only — never write specs or cut releases
 - Scope discipline: follow the plan, do not refactor adjacent code or add
   unrequested features — the skills' checklists verify this at each step
 - **Memory**: [memory-protocol](.claude/agents/references/memory-protocol.md)

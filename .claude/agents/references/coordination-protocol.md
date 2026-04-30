@@ -31,6 +31,30 @@ gh issue list --state open --label experiment --label "agent:staff-engineer"
 Valid labels: `agent:staff-engineer`, `agent:product-manager`,
 `agent:release-engineer`, `agent:security-engineer`, `agent:technical-writer`.
 
+## Approval signal
+
+Phase artifacts (specs, designs, plans, implementations) are gated into `main`
+by `kata-release-merge` via a uniform, machine-readable approval signal. Two
+equivalent forms — both first-class GitHub primitives:
+
+1. **Label** — `<phase>:approved` applied to the PR. Phase labels:
+   - `spec:approved` (applied by product-manager after `kata-spec` review)
+   - `design:approved` (applied by staff-engineer after `kata-design` review)
+   - `plan:approved` (applied by staff-engineer after `kata-plan` review)
+   - `plan:implemented` (applied by `kata-release-merge` on the implementation
+     PR before merge)
+2. **APPROVED PR review** by a trusted account (top-7 contributor or
+   `kata-agent-team`): `gh pr review --approve`.
+
+`kata-release-merge` accepts either form. The `agent-react` facilitator
+(release-engineer) translates conversational approvals (e.g. "approved", "LGTM",
+"ship it" from a trusted account) into one of the canonical forms before
+concluding.
+
+Phase progression is otherwise derived from `main`: the file's existence
+(`specs/NNN/spec.md`, `design-a.md`, `plan-a.md`) implies the prior phase was
+approved and merged. No separate status tracker.
+
 ## Decision questions
 
 When an output could fit multiple channels, ask in order:

@@ -101,11 +101,11 @@ Category: STALE_INVARIANT_TABLE
   Fix shape: Trivial fix — update invariants.md to match the current gh
     command shape.
 
-Category: STALE_STATUS_FILE
+Category: MISSING_LABEL
   Layer: None (data integrity)
-  Evidence: specs/STATUS shows "plan draft" for spec 370 but implementation
-    is already on main.
-  Fix shape: Trivial fix — advance to `plan approved` in STATUS.
+  Evidence: Implementation PR for spec 370 merged without `plan:implemented`
+    label applied; staff-engineer Assess will re-pick the spec next run.
+  Fix shape: Trivial fix — apply the label retroactively via `gh pr edit`.
 
 Category: EFFECTIVE_RESEARCH_DELEGATION
   Layer: None (positive finding)

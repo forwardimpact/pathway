@@ -3,7 +3,8 @@ name: kata-plan
 description: >
   Write implementation plans (HOW/WHEN) for approved designs. Translate an
   approved design into concrete steps, file changes, sequencing, and risks
-  for a trusted agent to execute. Sets plan phase to draft in specs/STATUS.
+  for a trusted agent to execute. Plan is approved when its PR carries the
+  `plan:approved` label or an APPROVED review.
 ---
 
 # Write and Review Plans
@@ -18,7 +19,7 @@ there is no architectural direction to translate into implementation steps.
 
 ## When to Use
 
-- Turning an approved design (`design approved` in STATUS) into an
+- Turning an approved design (`specs/NNN/design-a.md` exists on `main`) into an
   execution-ready plan
 - Reviewing a plan before approval ("review plan NNN", "is plan NNN ready?")
 - Creating an alternative plan variant for the same spec
@@ -27,11 +28,11 @@ there is no architectural direction to translate into implementation steps.
 
 <read_do_checklist goal="Internalize plan-writing boundaries before starting">
 
-- [ ] Read `specs/STATUS` from main via `git show main:specs/STATUS` — confirm
-      this spec is at `design approved`. Do not read the working-tree file:
-      branch checkouts reflect branch state, not the authoritative lifecycle. Do
-      not rely on the wiki, prior session memory, or PR descriptions.
-- [ ] A plan requires an approved design — if no approved design exists, stop.
+- [ ] Confirm the design is approved by checking `specs/NNN/design-a.md` exists
+      on `main`: `git show main:specs/NNN/design-a.md` succeeds. Do not rely on
+      the wiki, prior session memory, or PR descriptions.
+- [ ] A plan requires an approved design — if `design-a.md` is not on `main`,
+      stop.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not implement — this skill writes the plan; `kata-implement` executes
@@ -82,7 +83,7 @@ plan-c.md    ← another alternative
 ```
 
 Each variant should open with a brief rationale explaining how it differs from
-plan-a. When the plan reaches `plan approved`, **plan-a is the plan that will be
+plan-a. When the plan is approved, **plan-a is the plan that will be
 implemented** unless the approver explicitly selects a different variant.
 
 ### Large plan decomposition
@@ -108,8 +109,7 @@ plan-a-03.md    ← part 3 (independently executable)
 - Decompose only when there is concrete benefit (size, independence,
   parallelism).
 - `plan-a.md` includes an **Execution** section: which parts run in parallel vs
-  sequentially, and which agent each part routes to (`staff-engineer` for code,
-  `technical-writer` for docs). A plan may use both.
+  sequentially, and which agent each part routes to.
 
 Alternative plans can also be decomposed (`plan-b.md`, `plan-b-01.md`, etc.).
 
@@ -133,42 +133,51 @@ The plan translates an approved design into concrete implementation steps.
   `staff-engineer` for code, `technical-writer` for docs. For decomposed plans,
   state which parts can run in parallel vs sequentially.
 
-**Form follows content.** Prefer tables for lists with shared structure (files,
-steps, parts). Prefer bullets for flat facts. Use prose only for the narrative
-thread between them. If a paragraph could be a row, make it a row. Do not
-restate what the artifact already shows.
+**Form follows content.** Prefer tables for shared-structure lists, bullets for
+flat facts, prose only for narrative connecting them. If a paragraph could be a
+row, make it a row.
+
+## Approval
+
+Plan is approved when its PR carries `plan:approved` or has an APPROVED review
+by a trusted account. See
+[`coordination-protocol.md` § Approval signal](../../agents/references/coordination-protocol.md#approval-signal).
 
 ## Reviewing a Plan
 
 Evaluate the plan against the DO-CONFIRM checklist. If all criteria are met,
-recommend approval. If any falls short, request changes — the plan stays at
-`plan draft` until resolved.
+apply the approval signal:
+
+```sh
+gh pr edit <number> --add-label plan:approved
+```
+
+If any falls short, request changes via PR comment — do not apply the label.
 
 When multiple variants exist, note which is recommended (plan-a is the default).
-Approval is a human action — report clearly.
 
 ## Process
 
 ### Step 0: Read Memory
 
-Read memory per the agent profile (your summary, the current week's log, and
-teammates' summaries). Extract specs previously planned and any deferred work
-from prior `staff-engineer` entries.
+Read memory per the agent profile. Extract specs previously planned and any
+deferred work from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** Requires `design approved` in `specs/STATUS`; otherwise
+1. **Find the spec.** Requires `specs/NNN/design-a.md` on `main`; otherwise
    stop.
 2. **Study the spec and design.** Read both end to end.
 3. **Research the codebase.** Read the files the plan will target.
 4. **Write the plan.** Create `plan-a.md`. Each step independently verifiable.
    Decompose into parts if large (see § Large plan decomposition).
-5. **Clean sub-agent review panel.** Follow the
+5. **Open a `plan(NNN): …` PR.** The PR title carries the spec id.
+6. **Clean sub-agent review panel.** Follow the
    [`kata-review` caller protocol](../kata-review/references/caller-protocol.md).
    Tell each reviewer not to invoke `kata-plan`. Address every confirmed
    blocker/high/medium finding before advancing.
-6. **Present the plan.** Iterate until satisfied.
-7. **Update STATUS.** Set the spec to `plan draft` in `specs/STATUS`.
+7. **Apply approval signal.** When the panel passes, run
+   `gh pr edit <number> --add-label plan:approved`.
 
 ## Memory: what to record
 
@@ -178,7 +187,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Plan decisions** — Key approach choices and why (so the implementer has
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{agent}/{domain}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+- **Metrics** — Record at least one measurement per
+  [`kata-metrics`](../kata-metrics/SKILL.md).

@@ -10,28 +10,29 @@ use those shapes so the audit can grep for them reliably.
 
 ## product-manager traces
 
-| Invariant                                               | Evidence to find                                                                      | Severity   |
-| ------------------------------------------------------- | ------------------------------------------------------------------------------------- | ---------- |
-| Domain state surveyed before action chosen              | `gh pr list` or `gh issue list` call before the first classify or triage action       | **High**   |
-| Contributor lookup ran for every non-CI-app PR          | A `gh api repos/.../contributors` call before each non-CI-app PR was marked mergeable | **High**   |
-| Author verified against the lookup result               | A comparison step naming the PR author against the returned contributor list          | **High**   |
-| CI status checked before mergeable verdict              | A `gh pr checks` call before each mergeable verdict                                   | **Medium** |
-| Spec PRs received a spec-skill review                   | Spec review evaluation for any PR with `spec(...)` title prefix                       | **Medium** |
-| Spec written for needs-spec issue when no PRs mergeable | `kata-spec` invocation when survey finds `needs-spec` issues and zero mergeable PRs   | **Medium** |
+| Invariant                                               | Evidence to find                                                                       | Severity   |
+| ------------------------------------------------------- | -------------------------------------------------------------------------------------- | ---------- |
+| Domain state surveyed before action chosen              | `gh pr list` or `gh issue list` call before the first review or triage action          | **High**   |
+| Spec quality reviewed before label applied              | `kata-spec` review evaluation before any `gh pr edit --add-label spec:approved` call   | **Medium** |
+| Spec written for needs-spec issue when no PRs to review | `kata-spec` invocation when survey finds `needs-spec` issues and zero pending spec PRs | **Medium** |
+
+## release-engineer traces
+
+| Invariant                                      | Evidence to find                                                                         | Severity   |
+| ---------------------------------------------- | ---------------------------------------------------------------------------------------- | ---------- |
+| Domain state surveyed before action chosen     | CI status check (`bun run check`) or `gh pr list` before the first skill-specific action | **High**   |
+| Contributor lookup ran for every non-CI-app PR | A `gh api repos/.../contributors` call before each non-CI-app PR was marked mergeable    | **High**   |
+| Author verified against the lookup result      | A comparison step naming the PR author against the returned contributor list             | **High**   |
+| CI status checked before mergeable verdict     | A `gh pr checks` call before each mergeable verdict                                      | **Medium** |
+| Phase PRs gated on approval signal             | `<phase>:approved` label OR APPROVED review present on any phase PR before merge         | **Medium** |
+| `bun run check` and `bun run test` ran         | Tool calls invoking these commands before any push                                       | **Medium** |
+| `--force-with-lease` used (never `--force`)    | Push commands inspected for the lease flag on rebase pushes                              | **Medium** |
+| Tags pushed individually, not via `--tags`     | Each tag push is its own command                                                         | **Medium** |
+| Releases performed in dependency order         | Comparison of release order against `package.json` `dependencies`                        | **Low**    |
 
 A merge that proceeded without a visible contributor lookup or verification is a
 **high-severity finding** and requires a fix PR or spec, never silent
 acceptance.
-
-## release-engineer traces
-
-| Invariant                                   | Evidence to find                                                                       | Severity   |
-| ------------------------------------------- | -------------------------------------------------------------------------------------- | ---------- |
-| Domain state surveyed before action chosen  | CI status check (`bun run check`) or PR listing before the first skill-specific action | **High**   |
-| `bun run check` and `bun run test` ran      | Tool calls invoking these commands before any push                                     | **Medium** |
-| `--force-with-lease` used (never `--force`) | Push commands inspected for the lease flag on rebase pushes                            | **Medium** |
-| Tags pushed individually, not via `--tags`  | Each tag push is its own command                                                       | **Medium** |
-| Releases performed in dependency order      | Comparison of release order against `package.json` `dependencies`                      | **Low**    |
 
 ## security-engineer traces
 
@@ -42,15 +43,15 @@ acceptance.
 
 ## staff-engineer traces
 
-| Invariant                                          | Evidence to find                                                                          | Severity   |
-| -------------------------------------------------- | ----------------------------------------------------------------------------------------- | ---------- |
-| Domain state surveyed before action chosen         | `Read` call on `specs/STATUS` before the first plan or implement action                   | **High**   |
-| Approved spec read before plan written             | A `Read` call on `specs/<NNN>/spec.md` before any plan edits                              | **Medium** |
-| Risks section present in produced plan             | The plan file (`plan-a.md` or variant) content includes a risks section                   | **Low**    |
-| Both `spec.md` and plan read before first edit     | `Read` calls on `spec.md` and `plan-a.md` (or selected variant) before any `Edit`/`Write` | **High**   |
-| `bun run check` and `bun run test` ran before push | Tool calls invoking these commands before any push                                        | **Medium** |
-| Status advanced to `plan implemented` after push   | `specs/STATUS` edit setting the spec to `plan implemented` after the push                 | **Medium** |
-| Scope discipline held                              | No edits to files outside the plan's stated blast radius                                  | **Medium** |
+| Invariant                                          | Evidence to find                                                                                                                     | Severity   |
+| -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ | ---------- |
+| Domain state surveyed before action chosen         | Phase derivation from `main` (`git ls-tree`/`git show main:specs/NNN/...`) or `gh pr list` before the first plan or implement action | **High**   |
+| Approved spec read before plan written             | A `Read` call on `specs/<NNN>/spec.md` before any plan edits                                                                         | **Medium** |
+| Risks section present in produced plan             | The plan file (`plan-a.md` or variant) content includes a risks section                                                              | **Low**    |
+| Both `spec.md` and plan read before first edit     | `Read` calls on `spec.md` and `plan-a.md` (or selected variant) before any `Edit`/`Write`                                            | **High**   |
+| `bun run check` and `bun run test` ran before push | Tool calls invoking these commands before any push                                                                                   | **Medium** |
+| Implementation PR title references spec id         | PR title contains `(#NNN)` or "implements spec NNN" so `kata-release-merge` can apply `plan:implemented` on merge                    | **Medium** |
+| Scope discipline held                              | No edits to files outside the plan's stated blast radius                                                                             | **Medium** |
 
 ## technical-writer traces
 

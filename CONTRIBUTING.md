@@ -184,7 +184,7 @@ Tag prefix matches the directory name: `libraries/libfoo` → `libfoo@v0.1.5`,
 
 Pre-1.0 packages bump patch for any change. Post-1.0: semver (breaking=major,
 feat=minor, fix/refactor=patch). The release engineer handles bumps, tagging,
-and publishing — see [kata-release-review](.claude/skills/kata-release-review).
+and publishing — see [kata-release-cut](.claude/skills/kata-release-cut).
 
 ## Quality Commands
 
