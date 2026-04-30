@@ -32,7 +32,7 @@ export function renderDisciplineSlide({ render, data, params }) {
     disciplineToDOM(discipline, {
       skills: data.skills,
       behaviours: data.behaviours,
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
       showBehaviourModifiers: false,
     }),

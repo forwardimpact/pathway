@@ -4,7 +4,7 @@ import assert from "node:assert/strict";
 import {
   parseRosterYaml,
   loadRosterFromMap,
-  validateRosterAgainstFramework,
+  validateRosterAgainstStandard,
 } from "../src/roster/index.js";
 
 const MINIMAL_YAML = `
@@ -125,7 +125,7 @@ test("parseRosterYaml rejects bare array (no teams wrapper)", () => {
   assert.throws(() => parseRosterYaml(yaml), /bare list/);
 });
 
-test("validateRosterAgainstFramework flags unknown discipline/level/track", () => {
+test("validateRosterAgainstStandard flags unknown discipline/level/track", () => {
   const roster = parseRosterYaml(`
 teams:
   a:
@@ -138,21 +138,21 @@ teams:
     levels: [{ id: "J060" }],
     tracks: [{ id: "platform" }],
   };
-  const result = validateRosterAgainstFramework(roster, data);
+  const result = validateRosterAgainstStandard(roster, data);
   assert.equal(result.errors.length, 3);
   assert.ok(result.errors.some((e) => e.code === "UNKNOWN_DISCIPLINE"));
   assert.ok(result.errors.some((e) => e.code === "UNKNOWN_LEVEL"));
   assert.ok(result.errors.some((e) => e.code === "UNKNOWN_TRACK"));
 });
 
-test("validateRosterAgainstFramework is clean for a valid roster", () => {
+test("validateRosterAgainstStandard is clean for a valid roster", () => {
   const roster = parseRosterYaml(MINIMAL_YAML);
   const data = {
     disciplines: [{ id: "software_engineering" }],
     levels: [{ id: "J040" }, { id: "J060" }],
     tracks: [{ id: "platform" }, { id: "forward_deployed" }],
   };
-  const result = validateRosterAgainstFramework(roster, data);
+  const result = validateRosterAgainstStandard(roster, data);
   assert.equal(result.errors.length, 0);
 });
 

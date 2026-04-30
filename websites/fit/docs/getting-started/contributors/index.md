@@ -37,8 +37,9 @@ just synthetic
 ```
 
 This uses cached prose from `data/synthetic/prose-cache.json` and requires no
-LLM access. It produces framework definitions, organizational documents, and
-activity data that the products consume during development and testing.
+LLM access. It produces agent-aligned engineering standard definitions,
+organizational documents, and activity data that the products consume during
+development and testing.
 
 Other generation modes:
 
@@ -72,15 +73,16 @@ bun run check:fix
 products/       Six products (map, pathway, basecamp, guide, summit, landmark)
 libraries/      Shared libraries (libskill, libui, libdoc, etc.)
 services/       gRPC microservices (trace, vector, graph, pathway, mcp)
-data/           Generated and framework data
+data/           Generated and standard data
 config/         Service and tool configuration
 specs/          Feature specifications and plans
 websites/       Public site sources (websites/fit/, websites/kata/, …)
 ```
 
 **Products** answer specific questions for specific users. Map defines what good
-engineering looks like. Pathway renders career frameworks. Basecamp manages
-personal knowledge. Guide interprets artifacts. Summit models team capability.
+engineering looks like. Pathway renders agent-aligned engineering standards.
+Basecamp manages personal knowledge. Guide interprets artifacts. Summit models
+team capability.
 
 **Libraries** provide shared logic following OO+DI patterns — classes accept
 dependencies through constructors, factory functions wire real implementations,

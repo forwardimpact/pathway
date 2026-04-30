@@ -12,22 +12,22 @@ function parseDsl(source) {
   return parse(tokenize(source));
 }
 
-describe("parse — framework section", () => {
+describe("parse — standard section", () => {
   test("parses proficiencies and maturities as arrays", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         proficiencies [awareness, foundational, working, practitioner, expert]
         maturities [emerging, developing, practicing, role_modeling, exemplifying]
       }
     }`);
-    assert.deepStrictEqual(ast.framework.proficiencies, [
+    assert.deepStrictEqual(ast.standard.proficiencies, [
       "awareness",
       "foundational",
       "working",
       "practitioner",
       "expert",
     ]);
-    assert.deepStrictEqual(ast.framework.maturities, [
+    assert.deepStrictEqual(ast.standard.maturities, [
       "emerging",
       "developing",
       "practicing",
@@ -38,7 +38,7 @@ describe("parse — framework section", () => {
 
   test("parses levels with title, rank, experience", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         levels {
           J040 {
             title "Junior Engineer"
@@ -54,20 +54,20 @@ describe("parse — framework section", () => {
         }
       }
     }`);
-    assert.strictEqual(ast.framework.levels.length, 2);
-    assert.strictEqual(ast.framework.levels[0].id, "J040");
+    assert.strictEqual(ast.standard.levels.length, 2);
+    assert.strictEqual(ast.standard.levels[0].id, "J040");
     assert.strictEqual(
-      ast.framework.levels[0].professionalTitle,
+      ast.standard.levels[0].professionalTitle,
       "Junior Engineer",
     );
-    assert.strictEqual(ast.framework.levels[0].rank, 1);
-    assert.strictEqual(ast.framework.levels[0].experience, "0-2 years");
-    assert.strictEqual(ast.framework.levels[1].managementTitle, "Team Lead");
+    assert.strictEqual(ast.standard.levels[0].rank, 1);
+    assert.strictEqual(ast.standard.levels[0].experience, "0-2 years");
+    assert.strictEqual(ast.standard.levels[1].managementTitle, "Team Lead");
   });
 
   test("parses capabilities with skills", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         capabilities {
           coding {
             name "Coding"
@@ -76,10 +76,10 @@ describe("parse — framework section", () => {
         }
       }
     }`);
-    assert.strictEqual(ast.framework.capabilities.length, 1);
-    assert.strictEqual(ast.framework.capabilities[0].id, "coding");
-    assert.strictEqual(ast.framework.capabilities[0].name, "Coding");
-    assert.deepStrictEqual(ast.framework.capabilities[0].skills, [
+    assert.strictEqual(ast.standard.capabilities.length, 1);
+    assert.strictEqual(ast.standard.capabilities[0].id, "coding");
+    assert.strictEqual(ast.standard.capabilities[0].name, "Coding");
+    assert.deepStrictEqual(ast.standard.capabilities[0].skills, [
       "javascript",
       "python",
       "go",
@@ -88,7 +88,7 @@ describe("parse — framework section", () => {
 
   test("parses behaviours", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         behaviours {
           collaboration {
             name "Collaboration"
@@ -99,14 +99,14 @@ describe("parse — framework section", () => {
         }
       }
     }`);
-    assert.strictEqual(ast.framework.behaviours.length, 2);
-    assert.strictEqual(ast.framework.behaviours[0].id, "collaboration");
-    assert.strictEqual(ast.framework.behaviours[0].name, "Collaboration");
+    assert.strictEqual(ast.standard.behaviours.length, 2);
+    assert.strictEqual(ast.standard.behaviours[0].id, "collaboration");
+    assert.strictEqual(ast.standard.behaviours[0].name, "Collaboration");
   });
 
   test("parses disciplines with tiers and tracks", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         disciplines {
           backend_dev {
             roleTitle "Backend Developer"
@@ -120,7 +120,7 @@ describe("parse — framework section", () => {
         }
       }
     }`);
-    const disc = ast.framework.disciplines[0];
+    const disc = ast.standard.disciplines[0];
     assert.strictEqual(disc.id, "backend_dev");
     assert.strictEqual(disc.roleTitle, "Backend Developer");
     assert.strictEqual(disc.specialization, "Backend");
@@ -133,7 +133,7 @@ describe("parse — framework section", () => {
 
   test("parses tracks", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         tracks {
           platform {
             name "Platform"
@@ -141,14 +141,14 @@ describe("parse — framework section", () => {
         }
       }
     }`);
-    assert.strictEqual(ast.framework.tracks.length, 1);
-    assert.strictEqual(ast.framework.tracks[0].id, "platform");
-    assert.strictEqual(ast.framework.tracks[0].name, "Platform");
+    assert.strictEqual(ast.standard.tracks.length, 1);
+    assert.strictEqual(ast.standard.tracks[0].id, "platform");
+    assert.strictEqual(ast.standard.tracks[0].name, "Platform");
   });
 
   test("parses drivers with skills and behaviours", () => {
     const ast = parseDsl(`terrain test {
-      framework {
+      standard {
         drivers {
           code_quality {
             name "Code Quality"
@@ -158,22 +158,22 @@ describe("parse — framework section", () => {
         }
       }
     }`);
-    const driver = ast.framework.drivers[0];
+    const driver = ast.standard.drivers[0];
     assert.strictEqual(driver.id, "code_quality");
     assert.strictEqual(driver.name, "Code Quality");
     assert.deepStrictEqual(driver.skills, ["testing", "code_review"]);
     assert.deepStrictEqual(driver.behaviours, ["collaboration"]);
   });
 
-  test("initializes empty framework arrays by default", () => {
-    const ast = parseDsl("terrain test { framework {} }");
-    assert.deepStrictEqual(ast.framework.proficiencies, []);
-    assert.deepStrictEqual(ast.framework.maturities, []);
-    assert.deepStrictEqual(ast.framework.levels, []);
-    assert.deepStrictEqual(ast.framework.capabilities, []);
-    assert.deepStrictEqual(ast.framework.behaviours, []);
-    assert.deepStrictEqual(ast.framework.disciplines, []);
-    assert.deepStrictEqual(ast.framework.tracks, []);
-    assert.deepStrictEqual(ast.framework.drivers, []);
+  test("initializes empty standard arrays by default", () => {
+    const ast = parseDsl("terrain test { standard {} }");
+    assert.deepStrictEqual(ast.standard.proficiencies, []);
+    assert.deepStrictEqual(ast.standard.maturities, []);
+    assert.deepStrictEqual(ast.standard.levels, []);
+    assert.deepStrictEqual(ast.standard.capabilities, []);
+    assert.deepStrictEqual(ast.standard.behaviours, []);
+    assert.deepStrictEqual(ast.standard.disciplines, []);
+    assert.deepStrictEqual(ast.standard.tracks, []);
+    assert.deepStrictEqual(ast.standard.drivers, []);
   });
 });

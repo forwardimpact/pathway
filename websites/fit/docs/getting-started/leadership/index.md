@@ -1,6 +1,6 @@
 ---
 title: "Getting Started: Leadership"
-description: "Set up the FIT suite for engineering leadership — define frameworks, preview careers, analyze signals, and plan team capability."
+description: "Set up the FIT suite for engineering leadership — define agent-aligned engineering standards, preview careers, analyze signals, and plan team capability."
 layout: product
 toc: false
 ---
@@ -16,8 +16,9 @@ through a single product from install to working output.
 
 ### Map
 
-Define your engineering framework in YAML, validate against schemas, set up the
-activity layer, and ingest operational signals from GitHub and GetDX.
+Define your agent-aligned engineering standard in YAML, validate against
+schemas, set up the activity layer, and ingest operational signals from GitHub
+and GetDX.
 
 </a>
 
@@ -25,8 +26,8 @@ activity layer, and ingest operational signals from GitHub and GetDX.
 
 ### Pathway
 
-Preview your framework in the browser, generate job definitions, and create
-interview question sets.
+Preview your agent-aligned engineering standard in the browser, generate job
+definitions, and create interview question sets.
 
 </a>
 

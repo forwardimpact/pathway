@@ -2,7 +2,7 @@
 name: fit-terrain
 description: >
   Generate synthetic data for development, testing, and demos. Use when
-  creating example framework definitions, organizational documents, activity
+  creating example agent-aligned engineering standard definitions, organizational documents, activity
   records, or knowledge base content from a terrain DSL file, or when
   testing pipeline changes end-to-end with synthetic datasets.
 ---
@@ -16,7 +16,8 @@ rendering into multiple output formats.
 ## When to Use
 
 - Generating example data for development or testing
-- Creating synthetic pathway frameworks for new installations
+- Creating synthetic pathway agent-aligned engineering standards for new
+  installations
 - Producing organizational documents, activity records, and KB content
 - Bootstrapping a realistic environment for product evaluation or demos
 - Testing pipeline changes end-to-end
@@ -31,8 +32,8 @@ rendering into multiple output formats.
 Generation flows through four stages:
 
 1. **DSL parsing** — the terrain file is tokenized and parsed into an AST
-   containing organizational hierarchy, people, projects, framework definitions,
-   and content specifications
+   containing organizational hierarchy, people, projects, agent-aligned
+   engineering standard definitions, and content specifications
 2. **Entity generation** — the AST is expanded deterministically (using a seeded
    RNG) into a full entity graph: orgs, departments, teams, people with roles
    and skill assignments, repos, and projects
@@ -42,7 +43,7 @@ Generation flows through four stages:
    sent to an LLM and the result saved to the cache; with `--no-prose` this
    stage is skipped entirely
 4. **Rendering** — entities and prose are rendered into output formats: YAML
-   framework files (`pathway`), HTML articles (`html`), JSON/YAML activity
+   standard files (`pathway`), HTML articles (`html`), JSON/YAML activity
    records (`raw`), and Markdown briefings (`markdown`)
 
 ### Content Validation
@@ -58,11 +59,11 @@ The prose cache maps each content key to its generated text. The default mode
 reads from the cache, making generation fully repeatable without LLM calls.
 Using `--generate` regenerates all entries and writes the updated cache.
 
-Structured pathway entities (framework, levels, behaviours, capabilities, etc.)
-use a stable cache key derived from the entity key alone (e.g.
-`pathway:track:platform`). This means prompt changes (such as adding context
-forwarding or updating preambles) do not invalidate existing cache entries — use
-`--generate` to regenerate with updated prompts.
+Structured pathway entities (agent-aligned engineering standard, levels,
+behaviours, capabilities, etc.) use a stable cache key derived from the entity
+key alone (e.g. `pathway:track:platform`). This means prompt changes (such as
+adding context forwarding or updating preambles) do not invalidate existing
+cache entries — use `--generate` to regenerate with updated prompts.
 
 General prose entries (articles, comments, briefings) use a cache key that
 includes the content context (topic, tone, length).

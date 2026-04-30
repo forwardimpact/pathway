@@ -41,14 +41,15 @@ scope most other commands operate on.
 
 ## Browse marker definitions
 
-Look up the observable indicators defined for any skill in your framework:
+Look up the observable indicators defined for any skill in your agent-aligned
+engineering standard:
 
 ```sh
 npx fit-landmark marker task_completion
 npx fit-landmark marker task_completion --level working
 ```
 
-This is a reference view — it reads directly from your framework YAML and does
+This is a reference view — it reads directly from your standard YAML and does
 not require Supabase. Use it to review what markers exist before checking
 evidence against them.
 
@@ -67,7 +68,8 @@ become gaps.
 
 ## Browse evidence
 
-Drill into the evidence rows linked to framework markers:
+Drill into the evidence rows linked to agent-aligned engineering standard
+markers:
 
 ```sh
 npx fit-landmark evidence --email bob@example.com
@@ -144,7 +146,8 @@ of how well the evidence record reflects what the engineer actually does.
 
 ## Compare evidenced vs derived capability
 
-See where real practice diverges from what the framework predicts:
+See where real practice diverges from what the agent-aligned engineering
+standard predicts:
 
 ```sh
 npx fit-landmark practiced --manager alice@example.com

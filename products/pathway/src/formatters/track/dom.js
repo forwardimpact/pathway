@@ -26,15 +26,15 @@ import { createJsonLdScript, trackToJsonLd } from "../json-ld.js";
  * @param {Array} context.skills - All skills
  * @param {Array} context.behaviours - All behaviours
  * @param {Array} context.disciplines - All disciplines
- * @param {Object} [context.framework] - Framework data for emoji lookup
+ * @param {Object} [context.standard] - Standard data for emoji lookup
  * @returns {HTMLElement}
  */
 export function trackToDOM(
   track,
-  { skills, behaviours, disciplines, framework },
+  { skills, behaviours, disciplines, standard },
 ) {
   const view = prepareTrackDetail(track, { skills, behaviours, disciplines });
-  const emoji = getConceptEmoji(framework, "track");
+  const emoji = getConceptEmoji(standard, "track");
   // Build modifier sections - group them together for print layout
   const hasSkillModifiers = view.skillModifiers.length > 0;
   const hasBehaviourModifiers = view.behaviourModifiers.length > 0;

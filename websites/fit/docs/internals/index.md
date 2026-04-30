@@ -101,8 +101,8 @@ rendering, Logger conventions, and composition with other libraries.
 
 ### librepl
 
-Interactive REPL framework — Repl class, custom commands, state persistence, and
-dual-mode (interactive/piped) CLI interfaces.
+Interactive REPL agent-aligned engineering standard — Repl class, custom
+commands, state persistence, and dual-mode (interactive/piped) CLI interfaces.
 
 </a>
 

@@ -116,7 +116,7 @@ Resources must exist before vectors can be generated. The full processing chain
 is:
 
 ```sh
-just process                   # export-framework → process-resources → process-graphs → process-vectors
+just process                   # export-standard → process-resources → process-graphs → process-vectors
 ```
 
 To process only vectors (when resources already exist):

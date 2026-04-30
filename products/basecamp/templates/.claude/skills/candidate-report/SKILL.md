@@ -2,7 +2,7 @@
 name: candidate-report
 description: >
   Generate an A4 single-page HTML candidate assessment report benchmarked
-  against the engineering career framework. Use when the user asks you to
+  against the agent-aligned engineering standard. Use when the user asks you to
   create a candidate report, one-pager, or visual assessment for a hiring
   manager.
 ---
@@ -10,7 +10,7 @@ description: >
 # Candidate Report
 
 Generate a polished, single-page A4 HTML report that benchmarks a candidate
-against a specific role in the engineering career framework. The report is
+against a specific role in the agent-aligned engineering standard. The report is
 designed for hiring managers and pod leads who need a quick visual summary
 before deciding whether to invest interview time.
 
@@ -62,8 +62,8 @@ knowledge/Candidates/{Name}/CV.pdf or CV.md # Raw CV if needed
 ```
 
 If a `screening.md` exists, use its skill ratings and behaviour assessments as
-the primary source — they are already framework-calibrated. If not, you will
-need to do the mapping yourself in Step 3.
+the primary source — they are already agent-aligned engineering
+standard-calibrated. If not, you will need to do the mapping yourself in Step 3.
 
 Also search the knowledge graph broadly for context:
 
@@ -71,7 +71,7 @@ Also search the knowledge graph broadly for context:
 rg "{Candidate Name}" knowledge/
 ```
 
-### Step 2 — Load the framework benchmark
+### Step 2 — Load the agent-aligned engineering standard benchmark
 
 Use the `fit-pathway` CLI to get the full role definition:
 
@@ -94,7 +94,8 @@ Extract the key data points you need:
 
 ### Step 3 — Benchmark the candidate
 
-Map candidate evidence against each framework skill and behaviour.
+Map candidate evidence against each agent-aligned engineering standard skill and
+behaviour.
 
 **Skill assessment (from CV or screening.md):**
 
@@ -203,7 +204,7 @@ bun install playwright && bunx playwright install chromium
 
 Before delivering the report, verify:
 
-- [ ] Framework data was loaded via `bunx fit-pathway job` (not guessed)
+- [ ] Standard data was loaded via `bunx fit-pathway job` (not guessed)
 - [ ] All skill ratings are evidence-based, not assumed
 - [ ] Two-level scepticism rule was applied to CV claims
 - [ ] Coverage counters add up to the total skill count

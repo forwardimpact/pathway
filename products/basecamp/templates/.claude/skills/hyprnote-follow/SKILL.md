@@ -75,15 +75,15 @@ Extract: **title**, **created_at**, **participants**.
 
 Determine the meeting type from the title. This drives coaching strategy:
 
-| Title Pattern                               | Type                        | Coaching Focus                                        |
-| ------------------------------------------- | --------------------------- | ----------------------------------------------------- |
-| "Interview with {Name}", "Screening {Name}" | **Screening interview**     | Framework skills, behaviour probes, level signals     |
-| "Decomposition interview with {Name}"       | **Decomposition interview** | Problem-solving approach, system thinking, trade-offs |
-| "Technical assessment of {Name}"            | **Technical interview**     | Hands-on skill, architecture reasoning, code quality  |
-| "Panel with {Name}", "Second interview"     | **Panel interview**         | Business acumen, cultural fit, leadership signals     |
-| "Meeting with {Name}", "{Topic} meeting"    | **General meeting**         | Agenda coverage, action items, decision capture       |
-| "Recruitment call", "Recruitment strategy"  | **Recruitment planning**    | Pipeline status, role requirements, next steps        |
-| Other                                       | **General**                 | Active listening, follow-up questions, key takeaways  |
+| Title Pattern                               | Type                        | Coaching Focus                                                             |
+| ------------------------------------------- | --------------------------- | -------------------------------------------------------------------------- |
+| "Interview with {Name}", "Screening {Name}" | **Screening interview**     | Agent-Aligned Engineering Standard skills, behaviour probes, level signals |
+| "Decomposition interview with {Name}"       | **Decomposition interview** | Problem-solving approach, system thinking, trade-offs                      |
+| "Technical assessment of {Name}"            | **Technical interview**     | Hands-on skill, architecture reasoning, code quality                       |
+| "Panel with {Name}", "Second interview"     | **Panel interview**         | Business acumen, cultural fit, leadership signals                          |
+| "Meeting with {Name}", "{Topic} meeting"    | **General meeting**         | Agenda coverage, action items, decision capture                            |
+| "Recruitment call", "Recruitment strategy"  | **Recruitment planning**    | Pipeline status, role requirements, next steps                             |
+| Other                                       | **General**                 | Active listening, follow-up questions, key takeaways                       |
 
 ## Phase 2: Gather Context
 
@@ -110,7 +110,7 @@ previous interactions.
 3. Read the panel brief if it exists: `knowledge/Candidates/{Name}/panel.md`
 4. Look up the target role: find the `Req` field and read the corresponding
    `knowledge/Roles/*.md` file
-5. Load framework expectations:
+5. Load agent-aligned engineering standard expectations:
    ```bash
    bunx fit-pathway job {discipline} {level} --track={track}
    ```
@@ -193,7 +193,7 @@ For each batch of new transcript content, analyze against the coaching brief:
 
 | Dimension               | What to watch for                                                                  |
 | ----------------------- | ---------------------------------------------------------------------------------- |
-| **Skills demonstrated** | Candidate shows (not just claims) framework skills                                 |
+| **Skills demonstrated** | Candidate shows (not just claims) agent-aligned engineering standard skills        |
 | **Behaviour signals**   | Own the Outcome, Think in Systems, Communicate with Precision, Polymath, Curiosity |
 | **Level signals**       | Autonomy, scope, complexity handling, mentoring                                    |
 | **Coverage gaps**       | Focus areas from screening that haven't been touched yet                           |
@@ -337,8 +337,9 @@ After the debrief, offer (don't ask) logical follow-ups:
 
 ### For interviews
 
-1. **Framework-grounded.** Every coaching nudge ties back to the career
-   framework skills and behaviours. Don't coach based on vibes.
+1. **Agent-Aligned Engineering Standard-grounded.** Every coaching nudge ties
+   back to the career agent-aligned engineering standard skills and behaviours.
+   Don't coach based on vibes.
 2. **Evidence over claims.** Flag when a candidate _claims_ something vs
    _demonstrates_ it. Push the user to ask for specific examples.
 3. **Coverage-aware.** Track which screening focus areas have been explored and
@@ -391,7 +392,8 @@ After the debrief, offer (don't ask) logical follow-ups:
 - [ ] Active session detected and confirmed with user
 - [ ] Meeting type correctly classified from title
 - [ ] Knowledge base context gathered for all attendees
-- [ ] Interview sessions loaded framework expectations and screening focus areas
+- [ ] Interview sessions loaded agent-aligned engineering standard expectations
+      and screening focus areas
 - [ ] Coaching nudges are actionable and concise (1-3 lines max)
 - [ ] Coverage gaps tracked and surfaced before meeting ends
 - [ ] End-of-meeting detected and debrief provided

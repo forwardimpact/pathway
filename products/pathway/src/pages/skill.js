@@ -51,8 +51,8 @@ async function getReferenceTemplate() {
  */
 export function renderSkillsList() {
   const { data } = getState();
-  const { framework } = data;
-  const skillEmoji = getConceptEmoji(framework, "skill");
+  const { standard } = data;
+  const skillEmoji = getConceptEmoji(standard, "skill");
 
   // Transform data for list view
   const { groups, groupOrder } = prepareSkillsList(
@@ -67,11 +67,11 @@ export function renderSkillsList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${skillEmoji} ${framework.entityDefinitions.skill.title}`,
+        `${skillEmoji} ${standard.entityDefinitions.skill.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.skill.description.trim(),
+        standard.entityDefinitions.skill.description.trim(),
       ),
     ),
 

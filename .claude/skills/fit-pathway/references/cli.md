@@ -10,10 +10,11 @@ npx fit-pathway update                        # Update local ~/.fit/data/pathway
 npx fit-pathway update --url=URL              # Update from custom source URL
 ```
 
-`init` writes a starter framework into `./data/pathway/` (`framework.yaml`,
-`levels.yaml`, `stages.yaml`, `drivers.yaml`, plus `disciplines/`,
-`capabilities/`, `behaviours/`, and `tracks/` directories). After init, validate
-with `npx fit-map validate` and explore with any of the entity commands below.
+`init` writes a starter agent-aligned engineering standard into
+`./data/pathway/` (`standard.yaml`, `levels.yaml`, `stages.yaml`,
+`drivers.yaml`, plus `disciplines/`, `capabilities/`, `behaviours/`, and
+`tracks/` directories). After init, validate with `npx fit-map validate` and
+explore with any of the entity commands below.
 
 ### Entity Browsing
 

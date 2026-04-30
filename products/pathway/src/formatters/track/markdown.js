@@ -9,12 +9,12 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
 /**
  * Format track list as markdown
  * @param {Array} tracks - Raw track entities
- * @param {Object} [framework] - Framework config for emojis
+ * @param {Object} [standard] - Standard config for emojis
  * @returns {string}
  */
-export function trackListToMarkdown(tracks, framework) {
+export function trackListToMarkdown(tracks, standard) {
   const { items } = prepareTracksList(tracks);
-  const emoji = framework ? getConceptEmoji(framework, "track") : "🛤️";
+  const emoji = standard ? getConceptEmoji(standard, "track") : "🛤️";
   const lines = [`# ${emoji} Tracks`, ""];
 
   for (const track of items) {
@@ -32,16 +32,16 @@ export function trackListToMarkdown(tracks, framework) {
  * @param {Array} context.skills - All skills
  * @param {Array} context.behaviours - All behaviours
  * @param {Array} context.disciplines - All disciplines
- * @param {Object} [context.framework] - Framework config for emojis
+ * @param {Object} [context.standard] - Standard config for emojis
  * @returns {string}
  */
 export function trackToMarkdown(
   track,
-  { skills, behaviours, disciplines, framework },
+  { skills, behaviours, disciplines, standard },
 ) {
   const view = prepareTrackDetail(track, { skills, behaviours, disciplines });
 
-  const emoji = framework ? getConceptEmoji(framework, "track") : "🛤️";
+  const emoji = standard ? getConceptEmoji(standard, "track") : "🛤️";
   const lines = [`# ${emoji} ${view.name}`, "", view.description, ""];
 
   // Show which disciplines use this track

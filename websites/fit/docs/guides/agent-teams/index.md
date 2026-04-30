@@ -1,15 +1,15 @@
 ---
 title: "Agent Teams"
-description: "Generate, structure, and maintain AI coding agent teams derived from your career framework."
+description: "Generate, structure, and maintain AI coding agent teams derived from your agent-aligned engineering standard."
 ---
 
 Agent teams are AI coding assistant configurations derived from the same career
-framework used for human job definitions. The same skills, behaviours, and
-proficiency levels that describe what a senior engineer does also describe what
-an AI agent working at that level should do.
+agent-aligned engineering standard used for human job definitions. The same
+skills, behaviours, and proficiency levels that describe what a senior engineer
+does also describe what an AI agent working at that level should do.
 
-This guide covers two topics: **generating** agent teams from framework data,
-and **structuring** the exported output so agents receive clear, non-conflicting
+This guide covers two topics: **generating** agent teams from standard data, and
+**structuring** the exported output so agents receive clear, non-conflicting
 guidance.
 
 ---
@@ -40,7 +40,7 @@ extremes of awareness or expert.
 
 ```mermaid
 graph LR
-    A[Framework Data] --> B[Filter Skills]
+    A[Standard Data] --> B[Filter Skills]
     B --> C[Sort by Priority]
     C --> D[Focus on Discipline]
     D --> E[Apply Working Styles]
@@ -99,7 +99,7 @@ npx fit-pathway agent --list
 
 ## The Three-Layer Architecture
 
-When you export an agent team, framework data becomes operational guidance
+When you export an agent team, standard data becomes operational guidance
 distributed across three layers. Each layer has a distinct purpose, and
 information flows **downward only** — team instructions inform agent behavior,
 agent profiles select which skills to load, skills contain the procedure.
@@ -113,7 +113,7 @@ Information never flows upward.
 
 ### How YAML Fields Map to Layers
 
-Each layer draws from specific fields in the framework YAML. Understanding where
+Each layer draws from specific fields in the standard YAML. Understanding where
 each field ends up helps you decide where to put new content.
 
 | Source File           | YAML Field                        | Exported To                                          | Layer             |
@@ -333,11 +333,11 @@ single-line pointer is acceptable — but never duplicate the procedure.
 
 ## Checklist Quality
 
-Checklists in skills are the agent's primary interface with your framework. For
-the basic rules on writing checklist items (verb-first, one action per line, ≤
-120 chars), see
-[Writing Good Checklists](/docs/guides/authoring-frameworks/#writing-good-checklists)
-in the Authoring Frameworks guide.
+Checklists in skills are the agent's primary interface with your agent-aligned
+engineering standard. For the basic rules on writing checklist items
+(verb-first, one action per line, ≤ 120 chars), see
+[Writing Good Checklists](/docs/guides/authoring-standards/#writing-good-checklists)
+in the Authoring Agent-Aligned Engineering Standards.
 
 This section covers the _structural_ patterns that matter when an agent loads
 multiple skills at once.
@@ -447,8 +447,8 @@ When modifying any layer of an agent team, verify:
 
 ## Related Documentation
 
-- [Authoring Frameworks](/docs/guides/authoring-frameworks/) — How to write the
-  YAML framework data that agent teams are derived from
+- [Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+  — How to write the YAML standard data that agent teams are derived from
 - [Career Paths](/docs/guides/career-paths/) — Browse jobs, skills, and career
   progression
 - [CLI Reference](/docs/reference/cli/) — Complete command documentation for

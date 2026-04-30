@@ -17,7 +17,7 @@ import { createCommandPrompt } from "../components/command-prompt.js";
  */
 export function renderLanding() {
   const { data } = getState();
-  const { framework } = data;
+  const { standard } = data;
 
   // Calculate stats using centralized capability ordering
   const skillsByCapability = groupSkillsByCapability(
@@ -34,14 +34,14 @@ export function renderLanding() {
       { className: "landing-hero" },
       div(
         { className: "hero-title-wrapper" },
-        h1({}, `${framework.emojiIcon} ${framework.title}`),
-        span({ className: "brand-tag brand-tag-hero" }, framework.tag),
+        h1({}, `${standard.emojiIcon} ${standard.title}`),
+        span({ className: "brand-tag brand-tag-hero" }, standard.tag),
       ),
-      p({}, framework.description.trim()),
+      p({}, standard.description.trim()),
       // Install command prompt (only if distribution URL is configured)
-      framework.distribution?.siteUrl
+      standard.distribution?.siteUrl
         ? createCommandPrompt(
-            `curl -fsSL ${framework.distribution.siteUrl}/install.sh | bash`,
+            `curl -fsSL ${standard.distribution.siteUrl}/install.sh | bash`,
           )
         : null,
       // Job builder CTA
@@ -113,42 +113,45 @@ export function renderLanding() {
     // Quick links section
     div(
       { className: "section section-detail" },
-      h2({ className: "section-title" }, "Explore the Framework"),
+      h2(
+        { className: "section-title" },
+        "Explore the Agent-Aligned Engineering Standard",
+      ),
       div(
         { className: "grid grid-4" },
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "discipline")} ${framework.entityDefinitions.discipline.title}`,
-          `${data.disciplines.length} ${framework.entityDefinitions.discipline.title.toLowerCase()} — ${framework.entityDefinitions.discipline.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "discipline")} ${standard.entityDefinitions.discipline.title}`,
+          `${data.disciplines.length} ${standard.entityDefinitions.discipline.title.toLowerCase()} — ${standard.entityDefinitions.discipline.description.trim().split("\n")[0]}`,
           "/discipline",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "level")} ${framework.entityDefinitions.level.title}`,
-          `${data.levels.length} ${framework.entityDefinitions.level.title.toLowerCase()} — ${framework.entityDefinitions.level.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "level")} ${standard.entityDefinitions.level.title}`,
+          `${data.levels.length} ${standard.entityDefinitions.level.title.toLowerCase()} — ${standard.entityDefinitions.level.description.trim().split("\n")[0]}`,
           "/level",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "track")} ${framework.entityDefinitions.track.title}`,
-          `${data.tracks.length} ${framework.entityDefinitions.track.title.toLowerCase()} — ${framework.entityDefinitions.track.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "track")} ${standard.entityDefinitions.track.title}`,
+          `${data.tracks.length} ${standard.entityDefinitions.track.title.toLowerCase()} — ${standard.entityDefinitions.track.description.trim().split("\n")[0]}`,
           "/track",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "behaviour")} ${framework.entityDefinitions.behaviour.title}`,
-          `${data.behaviours.length} ${framework.entityDefinitions.behaviour.title.toLowerCase()} — ${framework.entityDefinitions.behaviour.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "behaviour")} ${standard.entityDefinitions.behaviour.title}`,
+          `${data.behaviours.length} ${standard.entityDefinitions.behaviour.title.toLowerCase()} — ${standard.entityDefinitions.behaviour.description.trim().split("\n")[0]}`,
           "/behaviour",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "skill")} ${framework.entityDefinitions.skill.title}`,
-          `${data.skills.length} ${framework.entityDefinitions.skill.title.toLowerCase()} across ${capabilityCount} capabilities — ${framework.entityDefinitions.skill.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "skill")} ${standard.entityDefinitions.skill.title}`,
+          `${data.skills.length} ${standard.entityDefinitions.skill.title.toLowerCase()} across ${capabilityCount} capabilities — ${standard.entityDefinitions.skill.description.trim().split("\n")[0]}`,
           "/skill",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "driver")} ${framework.entityDefinitions.driver.title}`,
-          `${data.drivers.length} ${framework.entityDefinitions.driver.title.toLowerCase()} — ${framework.entityDefinitions.driver.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "driver")} ${standard.entityDefinitions.driver.title}`,
+          `${data.drivers.length} ${standard.entityDefinitions.driver.title.toLowerCase()} — ${standard.entityDefinitions.driver.description.trim().split("\n")[0]}`,
           "/driver",
         ),
         createQuickLinkCard(
-          `${getConceptEmoji(framework, "tool")} ${framework.entityDefinitions.tool.title}`,
-          `${tools.length} ${framework.entityDefinitions.tool.title.toLowerCase()} — ${framework.entityDefinitions.tool.description.trim().split("\n")[0]}`,
+          `${getConceptEmoji(standard, "tool")} ${standard.entityDefinitions.tool.title}`,
+          `${tools.length} ${standard.entityDefinitions.tool.title.toLowerCase()} — ${standard.entityDefinitions.tool.description.trim().split("\n")[0]}`,
           "/tool",
         ),
       ),
@@ -222,7 +225,7 @@ export function renderLanding() {
         // Self-assessment CTA
         div(
           { className: "card", style: "text-align: center" },
-          h2({}, `${getConceptEmoji(framework, "driver")} Assess Your Skills`),
+          h2({}, `${getConceptEmoji(standard, "driver")} Assess Your Skills`),
           p(
             {},
             "Assess your current skills and behaviours to discover matching roles " +

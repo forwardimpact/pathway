@@ -1,17 +1,17 @@
 /**
- * DSL Parser — framework and dataset block parsers.
+ * DSL Parser — standard and dataset block parsers.
  *
  * Extracted from parser.js to reduce file length.
  *
- * @module libterrain/dsl/parser-framework
+ * @module libterrain/dsl/parser-standard
  */
 
 /**
- * Create framework and dataset parsers bound to shared token helpers.
+ * Create standard and dataset parsers bound to shared token helpers.
  * @param {{ peek: () => any, advance: () => any, expect: (type: string, value?: string) => any, parseStringOrIdent: () => string, parseStringValue: () => string, parseNumberValue: () => number, parseArray: () => any[] }} helpers
  * @returns {object}
  */
-export function createFrameworkParsers(helpers) {
+export function createStandardParsers(helpers) {
   const {
     peek,
     advance,
@@ -22,7 +22,7 @@ export function createFrameworkParsers(helpers) {
     parseArray,
   } = helpers;
 
-  function parseFrameworkLevels() {
+  function parseStandardLevels() {
     expect("LBRACE");
     const levels = [];
     while (peek().type !== "RBRACE") {
@@ -49,7 +49,7 @@ export function createFrameworkParsers(helpers) {
     return levels;
   }
 
-  function parseFrameworkCapabilities() {
+  function parseStandardCapabilities() {
     expect("LBRACE");
     const caps = [];
     while (peek().type !== "RBRACE") {
@@ -72,7 +72,7 @@ export function createFrameworkParsers(helpers) {
     return caps;
   }
 
-  function parseFrameworkBehaviours() {
+  function parseStandardBehaviours() {
     expect("LBRACE");
     const behaviours = [];
     while (peek().type !== "RBRACE") {
@@ -94,7 +94,7 @@ export function createFrameworkParsers(helpers) {
     return behaviours;
   }
 
-  function parseFrameworkDisciplines() {
+  function parseStandardDisciplines() {
     expect("LBRACE");
     const disciplines = [];
     while (peek().type !== "RBRACE") {
@@ -126,7 +126,7 @@ export function createFrameworkParsers(helpers) {
     return disciplines;
   }
 
-  function parseFrameworkTracks() {
+  function parseStandardTracks() {
     expect("LBRACE");
     const tracks = [];
     while (peek().type !== "RBRACE") {
@@ -148,7 +148,7 @@ export function createFrameworkParsers(helpers) {
     return tracks;
   }
 
-  function parseFrameworkDrivers() {
+  function parseStandardDrivers() {
     expect("LBRACE");
     const drivers = [];
     while (peek().type !== "RBRACE") {
@@ -191,9 +191,9 @@ export function createFrameworkParsers(helpers) {
     return items;
   }
 
-  function parseFramework() {
+  function parseStandard() {
     expect("LBRACE");
-    const fw = {
+    const standard = {
       proficiencies: [],
       maturities: [],
       levels: [],
@@ -203,26 +203,27 @@ export function createFrameworkParsers(helpers) {
       tracks: [],
       drivers: [],
     };
-    const FW_ARRAY_KEYS = new Set(["proficiencies", "maturities"]);
-    const FW_PARSERS = {
-      levels: parseFrameworkLevels,
-      capabilities: parseFrameworkCapabilities,
-      behaviours: parseFrameworkBehaviours,
-      disciplines: parseFrameworkDisciplines,
-      tracks: parseFrameworkTracks,
-      drivers: parseFrameworkDrivers,
+    const STANDARD_ARRAY_KEYS = new Set(["proficiencies", "maturities"]);
+    const STANDARD_PARSERS = {
+      levels: parseStandardLevels,
+      capabilities: parseStandardCapabilities,
+      behaviours: parseStandardBehaviours,
+      disciplines: parseStandardDisciplines,
+      tracks: parseStandardTracks,
+      drivers: parseStandardDrivers,
     };
     while (peek().type !== "RBRACE") {
       const kw = advance();
-      if (FW_ARRAY_KEYS.has(kw.value)) fw[kw.value] = parseArray();
-      else if (FW_PARSERS[kw.value]) fw[kw.value] = FW_PARSERS[kw.value]();
+      if (STANDARD_ARRAY_KEYS.has(kw.value)) standard[kw.value] = parseArray();
+      else if (STANDARD_PARSERS[kw.value])
+        standard[kw.value] = STANDARD_PARSERS[kw.value]();
       else
         throw new Error(
-          `Unexpected '${kw.value}' in framework at line ${kw.line}`,
+          `Unexpected '${kw.value}' in standard at line ${kw.line}`,
         );
     }
     expect("RBRACE");
-    return fw;
+    return standard;
   }
 
   const DATASET_FORMATS = new Set([
@@ -291,7 +292,7 @@ export function createFrameworkParsers(helpers) {
   }
 
   return {
-    parseFramework,
+    parseStandard,
     parseDataset,
     parseOutput,
   };

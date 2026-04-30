@@ -56,7 +56,7 @@ jobs:
           # Forward Impact Skills
 
           Agent skills for the [Forward Impact](https://forwardimpact.team)
-          engineering framework. Install with
+          engineering standard. Install with
           [npx skills](https://github.com/vercel-labs/skills):
 
           ```bash

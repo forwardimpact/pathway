@@ -36,8 +36,8 @@ function formatListItem(level) {
  * @param {Object} data - Full data context
  */
 function formatSummary(levels, data) {
-  const { framework } = data;
-  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
+  const { standard } = data;
+  const emoji = standard ? getConceptEmoji(standard, "level") : "📊";
 
   process.stdout.write("\n" + formatHeader(`${emoji} Levels`) + "\n\n");
 
@@ -76,10 +76,10 @@ function formatSummary(levels, data) {
 /**
  * Format level detail output
  * @param {Object} level - Raw level entity
- * @param {Object} framework - Framework config
+ * @param {Object} standard - Standard config
  */
-function formatDetail(level, framework) {
-  process.stdout.write(levelToMarkdown(level, framework) + "\n");
+function formatDetail(level, standard) {
+  process.stdout.write(levelToMarkdown(level, standard) + "\n");
 }
 
 export const runLevelCommand = createEntityCommand({

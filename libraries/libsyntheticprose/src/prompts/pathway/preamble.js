@@ -12,12 +12,12 @@ import {
 
 /**
  * Build a shared system preamble for pathway prompt builders.
- * @param {string} frameworkName - Name of the framework (or domain fallback)
+ * @param {string} standardName - Name of the agent-aligned engineering standard (or domain fallback)
  * @returns {string}
  */
-export function buildPreamble(frameworkName) {
+export function buildPreamble(standardName) {
   return [
-    `You are writing content for the "${frameworkName}" engineering career framework.`,
+    `You are writing content for the "${standardName}" agent-aligned engineering standard.`,
     `Use these exact proficiency level names: ${PROFICIENCY_LEVELS.join(", ")}.`,
     `Use these exact maturity level names: ${MATURITY_LEVELS.join(", ")}.`,
     `Write in professional, concise, third-person voice.`,

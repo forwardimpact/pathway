@@ -1,7 +1,7 @@
 /**
  * Cross-file fixture caching helpers. The test runner currently executes one
  * test file per process, but fixtures loaded inside a file (e.g. starter
- * framework YAML via `createDataLoader().loadAllData(dir)`) are re-parsed for
+ * standard YAML via `createDataLoader().loadAllData(dir)`) are re-parsed for
  * every `test(...)` case unless hoisted. See spec 620.
  */
 

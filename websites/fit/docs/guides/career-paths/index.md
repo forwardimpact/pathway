@@ -5,8 +5,8 @@ description: "Browse job definitions, understand skill proficiencies, and analyz
 
 Pathway shows you what engineering roles look like at every level — the skills
 expected, the behaviours valued, and how roles change across disciplines and
-tracks. It turns framework definitions into concrete job descriptions,
-progression roadmaps, and gap analyses.
+tracks. It turns agent-aligned engineering standard definitions into concrete
+job descriptions, progression roadmaps, and gap analyses.
 
 ## What Pathway Shows You
 
@@ -21,7 +21,7 @@ progression roadmaps, and gap analyses.
 
 ## Browse Entities
 
-Explore what is defined in your framework:
+Explore what is defined in your agent-aligned engineering standard:
 
 ```sh
 npx fit-pathway discipline --list

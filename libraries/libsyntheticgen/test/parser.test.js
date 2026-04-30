@@ -228,7 +228,7 @@ describe("parse", () => {
     });
   });
 
-  // Framework section tests are in parser-framework.test.js
+  // Standard section tests are in parser-standard.test.js
 
   describe("snapshots section", () => {
     test("parses snapshots with quarterly range and account_id", () => {
@@ -354,7 +354,7 @@ describe("parse", () => {
       assert.strictEqual(ast.industry, null);
       assert.strictEqual(ast.people, null);
       assert.strictEqual(ast.snapshots, null);
-      assert.strictEqual(ast.framework, null);
+      assert.strictEqual(ast.standard, null);
       assert.deepStrictEqual(ast.orgs, []);
       assert.deepStrictEqual(ast.departments, []);
       assert.deepStrictEqual(ast.teams, []);

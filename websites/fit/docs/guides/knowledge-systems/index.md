@@ -103,7 +103,7 @@ executing tasks. Each skill is a directory with instructions for a specific
 capability — how to process email, how to prepare a briefing, how to organize
 files.
 
-Skills are generated from your engineering framework (see
+Skills are generated from your agent-aligned engineering standard (see
 [Agent Teams](/docs/guides/agent-teams/)) but can also be customized for
 personal workflows.
 
@@ -147,4 +147,4 @@ and add your own notes and files.
 - [CLI Reference](/docs/reference/cli/) — complete command documentation for
   `fit-basecamp`
 - [Agent Teams](/docs/guides/agent-teams/) — how agent skills are generated from
-  your framework
+  your agent-aligned engineering standard

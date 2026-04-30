@@ -438,13 +438,13 @@ async function writeSkillsAggregate(packsOutputDir, allPackEntries) {
  * @param {string} outputDir
  * @param {Array<{name: string, description: string, url: string}>} packs
  * @param {string} version
- * @param {string} frameworkTitle
+ * @param {string} standardTitle
  */
-async function writeApmManifest(outputDir, packs, version, frameworkTitle) {
+async function writeApmManifest(outputDir, packs, version, standardTitle) {
   const lines = [
-    `name: ${slugify(frameworkTitle)}`,
+    `name: ${slugify(standardTitle)}`,
     `version: ${version}`,
-    `description: ${yamlQuote(`${frameworkTitle} agent teams for Claude Code`)}`,
+    `description: ${yamlQuote(`${standardTitle} agent teams for Claude Code`)}`,
     "",
     "dependencies:",
     "  apm:",
@@ -467,7 +467,7 @@ async function writeApmManifest(outputDir, packs, version, frameworkTitle) {
  * @param {string} params.outputDir - Build output directory
  * @param {string} params.dataDir - Source data directory
  * @param {string} params.siteUrl - Base URL for the published site
- * @param {Object} params.framework - Framework configuration
+ * @param {Object} params.standard - Standard configuration
  * @param {string} params.version - Pathway package version
  * @param {string} params.templatesDir - Absolute path to pathway/templates
  */
@@ -475,14 +475,14 @@ export async function generatePacks({
   outputDir,
   dataDir,
   siteUrl,
-  framework,
+  standard,
   version,
   templatesDir,
 }) {
   logger.info("📦 Generating agent/skill packs...");
 
   const normalizedSiteUrl = siteUrl.replace(/\/$/, "");
-  const frameworkTitle = framework.title || "Engineering Pathway";
+  const standardTitle = standard.title || "Engineering Pathway";
 
   const loader = createDataLoader();
   const templateLoader = createTemplateLoader(templatesDir);
@@ -585,6 +585,6 @@ export async function generatePacks({
 
   await rm(stagingDir, { recursive: true, force: true });
 
-  await writeApmManifest(outputDir, packs, version, frameworkTitle);
+  await writeApmManifest(outputDir, packs, version, standardTitle);
   logger.info("   ✓ apm.yml");
 }

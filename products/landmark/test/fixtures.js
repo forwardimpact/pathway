@@ -141,7 +141,7 @@ export const PATTERNS = [
 ];
 
 /**
- * Full framework MAP_DATA shared by readiness / health / practiced tests.
+ * Full standard MAP_DATA shared by readiness / health / practiced tests.
  * Contains drivers, skills (with markers for task_completion & planning),
  * levels J040 & J060, one discipline, one track, and empty capabilities.
  */

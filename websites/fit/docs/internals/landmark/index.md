@@ -41,7 +41,7 @@ Landmark consumes Map's activity queries via subpath imports:
 | `@forwardimpact/map/activity/queries/comments`    | `getSnapshotComments`                                                         |
 | `@forwardimpact/map/activity/queries/initiatives` | `listInitiatives`, `getInitiative`                                            |
 
-Framework data is loaded via `@forwardimpact/map/loader` (`createDataLoader`).
+Standard data is loaded via `@forwardimpact/map/loader` (`createDataLoader`).
 
 ## Join Contracts
 
@@ -65,7 +65,7 @@ dynamic `import()`. This provides:
   evidence + comments without growth recommendations.
 - **Test injection**: `__setSummitForTests()` allows unit tests to stub Summit
   without touching `node_modules`.
-- **`GrowthContractError` handling**: framework data violations become health
+- **`GrowthContractError` handling**: standard data violations become health
   view warnings, not crashes.
 
 ## Comments and Initiatives Pipeline

@@ -35,8 +35,8 @@ function formatListItem(driver) {
  * @param {Object} data - Full data context
  */
 function formatSummary(drivers, data) {
-  const { skills, behaviours, framework } = data;
-  const emoji = framework ? getConceptEmoji(framework, "driver") : "🎯";
+  const { skills, behaviours, standard } = data;
+  const emoji = standard ? getConceptEmoji(standard, "driver") : "🎯";
 
   process.stdout.write("\n" + formatHeader(`${emoji} Drivers`) + "\n\n");
 
@@ -68,12 +68,12 @@ function formatSummary(drivers, data) {
 /**
  * Format driver detail output
  * @param {Object} viewAndContext - Contains driver entity and context
- * @param {Object} framework - Framework config
+ * @param {Object} standard - Standard config
  */
-function formatDetail(viewAndContext, framework) {
+function formatDetail(viewAndContext, standard) {
   const { driver, skills, behaviours } = viewAndContext;
   const view = prepareDriverDetail(driver, { skills, behaviours });
-  const emoji = framework ? getConceptEmoji(framework, "driver") : "🎯";
+  const emoji = standard ? getConceptEmoji(standard, "driver") : "🎯";
 
   process.stdout.write("\n" + formatHeader(`${emoji} ${view.name}`) + "\n\n");
   process.stdout.write(view.description + "\n\n");

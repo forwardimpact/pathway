@@ -1,6 +1,6 @@
 ---
 title: librepl Internals
-description: "Interactive REPL framework — Repl class, custom commands, state persistence, and dual-mode (interactive/piped) CLI interfaces."
+description: "Interactive REPL agent-aligned engineering standard — Repl class, custom commands, state persistence, and dual-mode (interactive/piped) CLI interfaces."
 ---
 
 ## Overview

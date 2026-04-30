@@ -266,7 +266,7 @@ function buildSlideOrder(data) {
     tracks: data.tracks,
     skills: data.skills,
     behaviours: data.behaviours,
-    validationRules: data.framework.validationRules,
+    validationRules: data.standard.validationRules,
   });
   if (jobs && jobs.length > 0) {
     boundaries.push(order.length);
@@ -340,24 +340,24 @@ function setupNavUI() {
 }
 
 /**
- * Populate the page brand header with framework title and hashtag
- * @param {Object} framework - Framework data from YAML
+ * Populate the page brand header with standard title and hashtag
+ * @param {Object} standard - Standard data from YAML
  */
-function populateBrandHeader(framework) {
+function populateBrandHeader(standard) {
   const header = document.getElementById("page-brand-header");
   if (!header) return;
 
   // Update document title
-  document.title = `${framework.title} - Slide View`;
+  document.title = `${standard.title} - Slide View`;
 
   header.innerHTML = "";
   header.appendChild(
     a(
       { className: "brand-title", href: "#/" },
-      `${framework.emojiIcon} ${framework.title}`,
+      `${standard.emojiIcon} ${standard.title}`,
     ),
   );
-  header.appendChild(span({ className: "brand-tag" }, framework.tag));
+  header.appendChild(span({ className: "brand-tag" }, standard.tag));
   header.style.display = "";
 }
 
@@ -373,7 +373,7 @@ async function init() {
     setData(data);
 
     // Populate brand header
-    populateBrandHeader(data.framework);
+    populateBrandHeader(data.standard);
 
     // Set up routes
     setupRoutes();

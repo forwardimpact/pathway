@@ -30,16 +30,16 @@ import { createJsonLdScript, behaviourToJsonLd } from "../json-ld.js";
  * @param {Object} behaviour - Raw behaviour entity
  * @param {Object} context - Additional context and options
  * @param {Array} context.drivers - All drivers
- * @param {Object} [context.framework] - Framework data for emoji lookup
+ * @param {Object} [context.standard] - Standard data for emoji lookup
  * @param {boolean} [context.showBackLink=true] - Whether to show back navigation link
  * @returns {HTMLElement}
  */
 export function behaviourToDOM(
   behaviour,
-  { drivers, framework, showBackLink = true } = {},
+  { drivers, standard, showBackLink = true } = {},
 ) {
   const view = prepareBehaviourDetail(behaviour, { drivers });
-  const emoji = getConceptEmoji(framework, "behaviour");
+  const emoji = getConceptEmoji(standard, "behaviour");
   return div(
     { className: "detail-page behaviour-detail" },
     // JSON-LD structured data

@@ -1,8 +1,8 @@
 /**
- * Validate a roster against loaded Map framework data.
+ * Validate a roster against loaded Map standard data.
  *
  * Checks each person's `job.discipline`, `job.level`, and optional
- * `job.track` against the loaded framework definitions. Returns a
+ * `job.track` against the loaded standard definitions. Returns a
  * structured result without throwing — callers decide whether to fail
  * or warn based on command context (the `validate` command exits
  * non-zero; analytical commands warn and proceed).
@@ -28,7 +28,7 @@
  * @param {object} data - Map data object from `createDataLoader().loadAllData()`.
  * @returns {ValidationResult}
  */
-export function validateRosterAgainstFramework(roster, data) {
+export function validateRosterAgainstStandard(roster, data) {
   const errors = [];
   const warnings = [];
 

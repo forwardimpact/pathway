@@ -66,7 +66,7 @@ function formatCapability(capabilityId, capabilities) {
  * @returns {Array<{id: string, name: string, icon: string, type: string, items?: Array}>}
  */
 function getWizardSteps(data) {
-  const { framework } = data;
+  const { standard } = data;
   const skillsByCapability = groupSkillsByCapability(
     data.skills,
     data.capabilities,
@@ -75,7 +75,7 @@ function getWizardSteps(data) {
     {
       id: "intro",
       name: "Start",
-      icon: getConceptEmoji(framework, "driver"),
+      icon: getConceptEmoji(standard, "driver"),
       type: "intro",
     },
   ];
@@ -97,7 +97,7 @@ function getWizardSteps(data) {
   steps.push({
     id: "behaviours",
     name: "Behaviours",
-    icon: getConceptEmoji(framework, "behaviour"),
+    icon: getConceptEmoji(standard, "behaviour"),
     type: "behaviours",
     items: data.behaviours,
   });
@@ -105,7 +105,7 @@ function getWizardSteps(data) {
   steps.push({
     id: "results",
     name: "Results",
-    icon: getConceptEmoji(framework, "level"),
+    icon: getConceptEmoji(standard, "level"),
     type: "results",
   });
 

@@ -2,7 +2,7 @@
  * Shared CLI helpers for Summit command handlers.
  *
  * Resolves the Map data directory from CLI options (or the contributor
- * data finder), loads framework data, and normalizes option lookups used
+ * data finder), loads standard data, and normalizes option lookups used
  * across commands.
  */
 
@@ -43,7 +43,7 @@ export function resolveDataDir(options) {
 }
 
 /**
- * Load framework data for a given data directory.
+ * Load standard data for a given data directory.
  *
  * @param {string} dataDir
  * @returns {Promise<object>}

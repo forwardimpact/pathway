@@ -1,7 +1,7 @@
 ---
 name: assess-interview
 description: >
-  Analyze interview transcripts against the engineering career framework,
+  Analyze interview transcripts against the agent-aligned engineering standard,
   updating skill and behaviour ratings with observed evidence. Produces
   per-interview assessments and panel briefs for subsequent interview stages.
   Use when transcript files appear in a candidate's folder.
@@ -70,9 +70,10 @@ Read the transcript file(s). For each transcript, extract:
 | **Level signals**             | Autonomy, scope, complexity demonstrated in responses    |
 | **Track signals**             | Business immersion vs platform thinking in their answers |
 
-## Step 2: Load Framework Reference
+## Step 2: Load Agent-Aligned Engineering Standard Reference
 
-Load the same framework reference used in the screening assessment:
+Load the same agent-aligned engineering standard reference used in the screening
+assessment:
 
 ```bash
 # Get the job definition (use the role from the screening assessment or brief)
@@ -95,8 +96,8 @@ bunx fit-pathway job {discipline} {recommended_level} --track={track}
 
 ## Step 3: Re-rate Skills with Interview Evidence
 
-For each skill in the framework, compare the screening assessment rating against
-what the interview revealed:
+For each skill in the agent-aligned engineering standard, compare the screening
+assessment rating against what the interview revealed:
 
 | Interview Evidence                                      | Rating Adjustment                     |
 | ------------------------------------------------------- | ------------------------------------- |
@@ -120,7 +121,7 @@ observation from the transcript. "Seemed strong" is not evidence.
 Behaviours are **better assessed in interviews than CVs** because they describe
 how someone acts, not what they've done.
 
-For each framework behaviour, look for:
+For each agent-aligned engineering standard behaviour, look for:
 
 | Behaviour                  | Interview Evidence                                             |
 | -------------------------- | -------------------------------------------------------------- |
@@ -207,7 +208,7 @@ repeat the full matrix for skills not touched by this interview.}
 {Paragraph explaining the level assessment. Reference specific moments from the
 transcript that demonstrate the candidate's autonomy, scope of thinking, and
 complexity handling. If a level adjustment is recommended, explain why using
-framework progression criteria.}
+agent-aligned engineering standard progression criteria.}
 
 ## Interviewer Observations
 
@@ -241,7 +242,7 @@ colleagues who are not engineers. It must:
 4. Provide specific suggested questions
 
 ```bash
-# Get the framework expectations for the role
+# Get the agent-aligned engineering standard expectations for the role
 bunx fit-pathway job {discipline} {level} --track={track}
 
 # Get interview questions relevant to remaining gaps
@@ -379,12 +380,13 @@ Update `knowledge/Candidates/{Name}/brief.md`:
 
 - [ ] Every skill re-rating cites a specific moment from the transcript
 - [ ] Behaviour assessments reference observed actions, not claimed traits
-- [ ] Level assessment uses framework progression criteria, not gut feel
+- [ ] Level assessment uses agent-aligned engineering standard progression
+      criteria, not gut feel
 - [ ] Interviewer observations are attributed by name
 - [ ] Panel brief (if created) is written for non-technical readers
 - [ ] Panel brief includes specific suggested questions tied to remaining gaps
 - [ ] Candidate brief pipeline section is updated with interview outcome
 - [ ] Assessment distinguishes between confirmed strengths and new concerns
 - [ ] Remaining uncertainties are specific and actionable for the next stage
-- [ ] No subjective judgments — all assessments grounded in framework data
+- [ ] No subjective judgments — all assessments grounded in standard data
 - [ ] Gender field unchanged (never updated from interview observations)

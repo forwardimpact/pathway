@@ -163,7 +163,8 @@ Tracks define two kinds of modifiers:
 Levels define career levels with base expectations for skill proficiency and
 behaviour maturity:
 
-The starter framework ships with two levels. Your framework may define more.
+The starter agent-aligned engineering standard ships with two levels. Your
+agent-aligned engineering standard may define more.
 
 | Level | Core         | Supporting   | Broad     | Base Behaviour |
 | ----- | ------------ | ------------ | --------- | -------------- |

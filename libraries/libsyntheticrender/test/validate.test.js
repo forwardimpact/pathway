@@ -27,7 +27,7 @@ function buildEntities(overrides = {}) {
         is_manager: true,
       },
     ],
-    framework: {
+    standard: {
       proficiencies: ["awareness", "foundational", "working"],
       maturities: ["emerging", "developing"],
       capabilities: [],
@@ -172,15 +172,15 @@ describe("validateCrossContent", () => {
   });
 
   describe("pathway validity", () => {
-    test("passes with simple framework config", () => {
+    test("passes with simple standard config", () => {
       const result = validateCrossContent(buildEntities());
       const check = result.checks.find((c) => c.name === "pathway_validity");
       assert.strictEqual(check.passed, true);
     });
 
-    test("fails when framework has no proficiencies", () => {
+    test("fails when standard has no proficiencies", () => {
       const entities = buildEntities({
-        framework: {
+        standard: {
           proficiencies: [],
           capabilities: [],
           behaviours: [],
@@ -195,7 +195,7 @@ describe("validateCrossContent", () => {
 
     test("fails when discipline references unknown skill (extended mode)", () => {
       const entities = buildEntities({
-        framework: {
+        standard: {
           proficiencies: ["awareness"],
           capabilities: [{ id: "cap1", name: "Cap", skills: ["javascript"] }],
           behaviours: [{ id: "collab", name: "Collaboration" }],
@@ -218,7 +218,7 @@ describe("validateCrossContent", () => {
 
     test("fails when driver references unknown behaviour (extended mode)", () => {
       const entities = buildEntities({
-        framework: {
+        standard: {
           proficiencies: ["awareness"],
           capabilities: [{ id: "cap1", name: "Cap", skills: ["js"] }],
           behaviours: [{ id: "collab", name: "Collaboration" }],

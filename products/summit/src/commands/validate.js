@@ -1,22 +1,22 @@
 /**
- * `fit-summit validate` — validate the roster against Map framework data.
+ * `fit-summit validate` — validate the roster against Map standard data.
  *
  * Loads the roster, runs schema validation, prints each error, and exits
  * with status 1 when any errors are found. Warnings do not fail.
  */
 
-import { loadRoster, validateRosterAgainstFramework } from "../roster/index.js";
+import { loadRoster, validateRosterAgainstStandard } from "../roster/index.js";
 import { Format, getRosterSource, resolveFormat } from "../lib/cli.js";
 
 /**
  * @param {object} params
- * @param {object} params.data - Loaded Map framework data.
+ * @param {object} params.data - Loaded Map standard data.
  * @param {object} params.options - Parsed CLI options.
  */
 export async function runValidateCommand({ data, options }) {
   const format = resolveFormat(options);
   const roster = await loadRoster(getRosterSource(options));
-  const result = validateRosterAgainstFramework(roster, data);
+  const result = validateRosterAgainstStandard(roster, data);
 
   if (format === Format.JSON) {
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");

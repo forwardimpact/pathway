@@ -77,7 +77,7 @@ async function getTemplates() {
  */
 export async function renderAgentBuilder() {
   const { data } = getState();
-  const siteUrl = data.framework?.distribution?.siteUrl;
+  const siteUrl = data.standard?.distribution?.siteUrl;
 
   // Show loading state
   render(

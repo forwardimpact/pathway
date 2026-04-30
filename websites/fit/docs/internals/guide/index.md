@@ -5,10 +5,10 @@ description: "Agent infrastructure — Claude Agent SDK harness, MCP endpoint, k
 
 ## Architecture
 
-Guide is an AI agent that understands your organization's engineering framework
-and reasons about it in context. It runs on the Claude Agent SDK and exposes its
-knowledge services through a Model Context Protocol (MCP) endpoint, making it
-accessible from three surfaces:
+Guide is an AI agent that understands your organization's agent-aligned
+engineering standard and reasons about it in context. It runs on the Claude
+Agent SDK and exposes its knowledge services through a Model Context Protocol
+(MCP) endpoint, making it accessible from three surfaces:
 
 - **`fit-guide` CLI** — Reference implementation built on the Claude Agent SDK.
 - **Claude Code** — Connects to Guide's MCP endpoint as an MCP server.
@@ -98,7 +98,7 @@ dependency order:
 | 1     | trace   | gRPC            | Distributed tracing         | 3001 |
 | 2     | vector  | gRPC            | Vector similarity search    | 3002 |
 | 3     | graph   | gRPC            | RDF triple store            | 3003 |
-| 4     | pathway | gRPC            | Framework data service      | 3004 |
+| 4     | pathway | gRPC            | Standard data service       | 3004 |
 | 5     | mcp     | Streamable HTTP | MCP tool and prompt gateway | 3005 |
 
 Start all services with `npx fit-rc start` (external) or `just rc-start`

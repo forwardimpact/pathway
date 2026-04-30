@@ -17,8 +17,8 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  */
 export function renderToolsList() {
   const { data } = getState();
-  const { framework } = data;
-  const toolEmoji = getConceptEmoji(framework, "tool");
+  const { standard } = data;
+  const toolEmoji = getConceptEmoji(standard, "tool");
 
   const { tools, totalCount } = prepareToolsList(data.skills);
 
@@ -29,11 +29,11 @@ export function renderToolsList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${toolEmoji} ${framework.entityDefinitions.tool.title}`,
+        `${toolEmoji} ${standard.entityDefinitions.tool.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.tool.description.trim().split("\n")[0],
+        standard.entityDefinitions.tool.description.trim().split("\n")[0],
       ),
       createBadge(`${totalCount} tools`, "default"),
     ),

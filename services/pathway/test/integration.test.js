@@ -1,7 +1,7 @@
 /**
  * Integration test for the Pathway service.
  *
- * Loads the real starter framework data via createDataLoader, constructs the
+ * Loads the real starter standard data via createDataLoader, constructs the
  * service in-process, and verifies that DescribeJob and DescribeProgression
  * Turtle responses match the underlying libskill output field-by-field.
  *
@@ -33,7 +33,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 // services/pathway/test -> repo root -> products/map/starter
 const STARTER_DIR = resolve(__dirname, "../../../products/map/starter");
 
-describe("PathwayService integration (starter framework)", () => {
+describe("PathwayService integration (starter standard)", () => {
   let service;
   let data;
 
@@ -61,7 +61,7 @@ describe("PathwayService integration (starter framework)", () => {
       skills: data.skills,
       behaviours: data.behaviours,
       capabilities: data.capabilities,
-      validationRules: data.framework?.validationRules,
+      validationRules: data.standard?.validationRules,
     });
     assert.ok(expected, "expected deriveJob to return a job");
 
@@ -125,7 +125,7 @@ describe("PathwayService integration (starter framework)", () => {
       skills: data.skills,
       behaviours: data.behaviours,
       capabilities: data.capabilities,
-      validationRules: data.framework?.validationRules,
+      validationRules: data.standard?.validationRules,
     });
     const targetJob = deriveJob({
       discipline,
@@ -134,7 +134,7 @@ describe("PathwayService integration (starter framework)", () => {
       skills: data.skills,
       behaviours: data.behaviours,
       capabilities: data.capabilities,
-      validationRules: data.framework?.validationRules,
+      validationRules: data.standard?.validationRules,
     });
     const expected = analyzeProgression(currentJob, targetJob);
 

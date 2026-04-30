@@ -33,7 +33,7 @@ const pathwayPkg = JSON.parse(
 );
 
 const siteUrl = "https://example.test";
-const framework = { title: "Engineering Pathway" };
+const standard = { title: "Engineering Pathway" };
 
 /**
  * Silence console.log for the duration of a callback. generatePacks logs
@@ -69,7 +69,7 @@ describe("generatePacks", () => {
         outputDir,
         dataDir: starterDir,
         siteUrl,
-        framework,
+        standard,
         version: pathwayPkg.version,
         templatesDir: join(__dirname, "..", "templates"),
       }),
@@ -370,7 +370,7 @@ describe("generatePacks", () => {
         outputDir: secondDir,
         dataDir: starterDir,
         siteUrl,
-        framework,
+        standard,
         version: pathwayPkg.version,
         templatesDir: join(__dirname, "..", "templates"),
       }),

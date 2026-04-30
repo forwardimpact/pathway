@@ -31,7 +31,7 @@ Run this skill:
 
 - `~/.cache/fit/basecamp/head-hunter/cursor.tsv` — source rotation state
 - `~/.cache/fit/basecamp/head-hunter/seen.tsv` — deduplication index
-- Framework data via `bunx fit-pathway skill --list` and `bunx fit-pathway job`
+- Standard data via `bunx fit-pathway skill --list` and `bunx fit-pathway job`
 
 ## Outputs
 
@@ -71,7 +71,8 @@ the `text` field (HTML) for:
 
 - **Location** — often first line: "Location: New York" or "NYC / Remote"
 - **Remote** — "Remote: Yes" or "Open to remote"
-- **Skills** — tech stack listings, language/framework mentions
+- **Skills** — tech stack listings, language/agent-aligned engineering standard
+  mentions
 - **Experience** — years, role titles, past companies
 - **Contact** — email (often obfuscated: "name [at] domain [dot] com")
 - **Resume/CV** — links to personal sites, GitHub, LinkedIn
@@ -217,7 +218,7 @@ If geographic filtering eliminated all candidates:
 
 If skill alignment filtered everyone out:
 
-- Lower the minimum bar from 2 framework skills to 1
+- Lower the minimum bar from 2 agent-aligned engineering standard skills to 1
 - Look for transferable skills (e.g., strong Python → likely data integration
   capability)
 - Consider adjacent skill indicators (e.g., "machine learning" implies data
@@ -314,8 +315,9 @@ the candidate — let the user decide.
 
 ### Filter 4: Skill Alignment
 
-Run `bunx fit-pathway skill --list` to get the framework skill inventory. Check
-whether the candidate mentions skills that map to framework capabilities:
+Run `bunx fit-pathway skill --list` to get the agent-aligned engineering
+standard skill inventory. Check whether the candidate mentions skills that map
+to agent-aligned engineering standard capabilities:
 
 **Strong signals (forward-deployed track):**
 
@@ -333,8 +335,9 @@ whether the candidate mentions skills that map to framework capabilities:
 - API design, shared services
 - Performance, scalability, reliability
 
-**Minimum bar:** At least 2 framework-relevant skills must be identifiable from
-the post. Skip candidates with purely non-technical profiles.
+**Minimum bar:** At least 2 agent-aligned engineering standard-relevant skills
+must be identifiable from the post. Skip candidates with purely non-technical
+profiles.
 
 ### Filter 5: Experience Level
 
@@ -366,11 +369,11 @@ Write to `knowledge/Prospects/{Name}.md`:
 
 ## Profile
 {2-4 sentences: who they are, what they do, why they match. Reference specific
-framework skill IDs in parentheses where possible.}
+agent-aligned engineering standard skill IDs in parentheses where possible.}
 
-## Framework Alignment
+## Agent-Aligned Engineering Standard Alignment
 **Matching skills:** {comma-separated skill IDs}
-**Key strengths:** {what stands out relative to the framework}
+**Key strengths:** {what stands out relative to the agent-aligned engineering standard}
 **Gaps:** {notable missing skills for the estimated role}
 
 ## Source Post

@@ -2,7 +2,7 @@
  * Pathway Engine — orchestrates LLM calls to generate pathway entity data.
  *
  * Generates entities in dependency order:
- * framework → levels → behaviours → capabilities →
+ * standard → levels → behaviours → capabilities →
  * drivers → disciplines → tracks → self-assessments
  *
  * @module libterrain/engine/pathway
@@ -10,7 +10,7 @@
 
 import { readFileSync } from "fs";
 import { join } from "path";
-import { buildFrameworkPrompt } from "../prompts/pathway/framework.js";
+import { buildStandardPrompt } from "../prompts/pathway/standard.js";
 import { buildLevelPrompt } from "../prompts/pathway/level.js";
 import { buildBehaviourPrompt } from "../prompts/pathway/behaviour.js";
 import { buildCapabilityPrompt } from "../prompts/pathway/capability.js";
@@ -29,7 +29,7 @@ import {
  */
 export function loadSchemas(schemaDir) {
   const names = [
-    "framework",
+    "standard",
     "levels",
     "behaviour",
     "capability",
@@ -66,15 +66,15 @@ export class PathwayGenerator {
   /**
    * Generate all pathway entity data via LLM calls in dependency order.
    * @param {object} options
-   * @param {object} options.framework - Framework AST from DSL parser
+   * @param {object} options.standard - Standard AST from DSL parser
    * @param {string} options.domain - Universe domain
    * @param {string} options.industry - Universe industry
    * @param {object} options.schemas - Loaded JSON schemas
    * @returns {Promise<object>} Generated pathway data keyed by entity type
    */
-  async generate({ framework, domain, industry, schemas }) {
+  async generate({ standard, domain, industry, schemas }) {
     return generatePathwayData({
-      framework,
+      standard,
       domain,
       industry,
       schemas,
@@ -87,7 +87,7 @@ export class PathwayGenerator {
  * Generate all pathway entity data via LLM calls in dependency order.
  *
  * @param {object} options
- * @param {object} options.framework - Framework AST from DSL parser
+ * @param {object} options.standard - Standard AST from DSL parser
  * @param {string} options.domain - Universe domain
  * @param {string} options.industry - Universe industry
  * @param {object} options.schemas - Loaded JSON schemas
@@ -95,24 +95,24 @@ export class PathwayGenerator {
  * @returns {Promise<object>} Generated pathway data keyed by entity type
  */
 async function generatePathwayData({
-  framework,
+  standard,
   domain,
   industry,
   schemas,
   proseEngine,
 }) {
-  const frameworkName = framework.name || domain;
-  const ctx = { domain, industry, frameworkName };
+  const standardName = standard.name || domain;
+  const ctx = { domain, industry, standardName };
   const BASE_TOKENS = 3000;
   const PER_SKILL_TOKENS = 1500;
   const log = proseEngine.logger || { info() {}, debug() {} };
 
-  // 1. Framework metadata
-  log.info("pathway", "Generating framework metadata");
-  const fw = await generateEntity(
-    "framework",
-    "framework",
-    buildFrameworkPrompt(framework, ctx, schemas.framework),
+  // 1. Standard metadata
+  log.info("pathway", "Generating standard metadata");
+  const standardMetadata = await generateEntity(
+    "standard",
+    "standard",
+    buildStandardPrompt(standard, ctx, schemas.standard),
     proseEngine,
     { maxTokens: BASE_TOKENS },
   );
@@ -122,7 +122,7 @@ async function generatePathwayData({
   const levels = await generateEntity(
     "levels",
     "levels",
-    buildLevelPrompt(framework.levels, ctx, schemas.levels),
+    buildLevelPrompt(standard.levels, ctx, schemas.levels),
     proseEngine,
   );
 
@@ -130,9 +130,9 @@ async function generatePathwayData({
   const priorOutput = { levels };
 
   // 4. Behaviours (parallel — receive level context)
-  log.info("pathway", `Generating ${framework.behaviours.length} behaviours`);
+  log.info("pathway", `Generating ${standard.behaviours.length} behaviours`);
   const behaviours = await Promise.all(
-    framework.behaviours.map((b) =>
+    standard.behaviours.map((b) =>
       generateEntity(
         "behaviour",
         b.id,
@@ -147,10 +147,10 @@ async function generatePathwayData({
   // 5. Capabilities with skills (parallel — receive level + behaviour context)
   log.info(
     "pathway",
-    `Generating ${framework.capabilities.length} capabilities with skills`,
+    `Generating ${standard.capabilities.length} capabilities with skills`,
   );
   const capabilities = await Promise.all(
-    framework.capabilities.map((c, i) =>
+    standard.capabilities.map((c, i) =>
       generateEntity(
         "capability",
         c.id,
@@ -170,8 +170,8 @@ async function generatePathwayData({
 
   // Collect all skill IDs and behaviour IDs from DSL declarations
   // (not from LLM output — these must be available even in no-prose mode)
-  const skillIds = framework.capabilities.flatMap((c) => c.skills || []);
-  const behaviourIds = framework.behaviours.map((b) => b.id);
+  const skillIds = standard.capabilities.flatMap((c) => c.skills || []);
+  const behaviourIds = standard.behaviours.map((b) => b.id);
 
   // 6. Drivers (reference skills + behaviours)
   log.info("pathway", "Generating drivers");
@@ -179,7 +179,7 @@ async function generatePathwayData({
     "drivers",
     "drivers",
     buildDriverPrompt(
-      framework.drivers,
+      standard.drivers,
       { ...ctx, skillIds, behaviourIds },
       schemas.drivers,
     ),
@@ -188,10 +188,10 @@ async function generatePathwayData({
   );
 
   // 7. Disciplines (reference skills, behaviours, track IDs from DSL)
-  const trackIds = framework.tracks.map((t) => t.id);
-  log.info("pathway", `Generating ${framework.disciplines.length} disciplines`);
+  const trackIds = standard.tracks.map((t) => t.id);
+  log.info("pathway", `Generating ${standard.disciplines.length} disciplines`);
   const disciplines = await Promise.all(
-    framework.disciplines.map((d) =>
+    standard.disciplines.map((d) =>
       generateEntity(
         "discipline",
         d.id,
@@ -207,10 +207,10 @@ async function generatePathwayData({
   );
 
   // 8. Tracks (reference capability IDs for skillModifiers)
-  const capabilityIds = framework.capabilities.map((c) => c.id);
-  log.info("pathway", `Generating ${framework.tracks.length} tracks`);
+  const capabilityIds = standard.capabilities.map((c) => c.id);
+  log.info("pathway", `Generating ${standard.tracks.length} tracks`);
   const tracks = await Promise.all(
-    framework.tracks.map((t) =>
+    standard.tracks.map((t) =>
       generateEntity(
         "track",
         t.id,
@@ -227,13 +227,13 @@ async function generatePathwayData({
 
   // 9. Self-assessments (deterministic — no LLM)
   const selfAssessments = generateSelfAssessments(
-    framework,
+    standard,
     skillIds,
     behaviourIds,
   );
 
   return {
-    framework: fw,
+    standard: standardMetadata,
     levels,
     behaviours,
     capabilities,
@@ -316,16 +316,16 @@ function jitter(rng, base, max) {
  * most skills cluster near the base, with occasional outliers.
  * Behaviours use tighter jitter (±1 only, less variance).
  *
- * @param {object} framework - Framework AST
+ * @param {object} standard - Standard AST
  * @param {string[]} skillIds - All skill IDs from capabilities
  * @param {string[]} behaviourIds - All behaviour IDs
  * @returns {object[]}
  */
-function generateSelfAssessments(framework, skillIds, behaviourIds) {
-  const proficiencies = framework.proficiencies || PROFICIENCY_LEVELS;
-  const maturities = framework.maturities || MATURITY_LEVELS;
+function generateSelfAssessments(standard, skillIds, behaviourIds) {
+  const proficiencies = standard.proficiencies || PROFICIENCY_LEVELS;
+  const maturities = standard.maturities || MATURITY_LEVELS;
 
-  const seed = framework.seed || 1;
+  const seed = standard.seed || 1;
   const rng = createRng(seed);
   const maxP = proficiencies.length - 1;
   const maxM = maturities.length - 1;

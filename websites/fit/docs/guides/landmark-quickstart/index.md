@@ -54,7 +54,7 @@ This populates `organization_people`, `getdx_snapshots`, and
 
 ## 5. Author drivers and markers
 
-Landmark's `health`, `readiness`, and `evidence` views require framework data
+Landmark's `health`, `readiness`, and `evidence` views require standard data
 with **drivers** and **markers** defined. The starter data ships minimal
 examples — you should author your own.
 
@@ -82,21 +82,23 @@ skills:
           - Completed a multi-file change that passes CI without human rework
 ```
 
-See the [Authoring Frameworks guide](/docs/guides/authoring-frameworks/) for
-vocabulary standards and validation.
+See the
+[Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+for vocabulary standards and validation.
 
-Run `npx fit-map validate` to confirm your framework data passes schema
+Run `npx fit-map validate` to confirm your standard data passes schema
 validation.
 
-To see which skills have markers defined, list skills from your framework data:
+To see which skills have markers defined, list skills from your standard data:
 
 ```sh
 npx fit-pathway skill --list
 ```
 
 The starter data ships `task_completion`, `planning`, and `incident_response`.
-If you have authored your own framework, your skill IDs will differ — use the
-IDs from your own capability YAML files in the commands below.
+If you have authored your own agent-aligned engineering standard, your skill IDs
+will differ — use the IDs from your own capability YAML files in the commands
+below.
 
 ## 6. Run Landmark
 

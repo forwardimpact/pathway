@@ -15,14 +15,14 @@ import { generateAllJobs } from "@forwardimpact/libskill/derivation";
  * @param {Object} params.data
  */
 export function renderSlideIndex({ render, data }) {
-  const { framework } = data;
+  const { standard } = data;
   const slide = div(
     { className: "slide slide-index" },
     div(
       { className: "page-header" },
       heading1(
         { className: "page-title" },
-        `${framework.emojiIcon} ${framework.title}`,
+        `${standard.emojiIcon} ${standard.title}`,
       ),
       p(
         { className: "page-description" },
@@ -37,7 +37,7 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/discipline" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "discipline")} `,
+          `${getConceptEmoji(data.standard, "discipline")} `,
           span({ className: "gradient-text" }, "Disciplines"),
         ),
       ),
@@ -62,7 +62,7 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/level" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "level")} `,
+          `${getConceptEmoji(data.standard, "level")} `,
           span({ className: "gradient-text" }, "Levels"),
         ),
       ),
@@ -87,7 +87,7 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/track" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "track")} `,
+          `${getConceptEmoji(data.standard, "track")} `,
           span({ className: "gradient-text" }, "Tracks"),
         ),
       ),
@@ -106,7 +106,7 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/behaviour" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "behaviour")} `,
+          `${getConceptEmoji(data.standard, "behaviour")} `,
           span({ className: "gradient-text" }, "Behaviours"),
         ),
       ),
@@ -125,7 +125,7 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/skill" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "skill")} `,
+          `${getConceptEmoji(data.standard, "skill")} `,
           span({ className: "gradient-text" }, "Skills"),
         ),
       ),
@@ -144,7 +144,7 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/driver" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "driver")} `,
+          `${getConceptEmoji(data.standard, "driver")} `,
           span({ className: "gradient-text" }, "Drivers"),
         ),
       ),
@@ -163,10 +163,10 @@ export function renderSlideIndex({ render, data }) {
         { href: "#/overview/job" },
         heading2(
           { className: "slide-section-title" },
-          `${getConceptEmoji(data.framework, "job")} `,
+          `${getConceptEmoji(data.standard, "job")} `,
           span(
             { className: "gradient-text" },
-            data.framework.entityDefinitions.job.title,
+            data.standard.entityDefinitions.job.title,
           ),
         ),
       ),
@@ -178,7 +178,7 @@ export function renderSlideIndex({ render, data }) {
           tracks: data.tracks,
           skills: data.skills,
           behaviours: data.behaviours,
-          validationRules: data.framework.validationRules,
+          validationRules: data.standard.validationRules,
         }).map((job) =>
           li(
             {},

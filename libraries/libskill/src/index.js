@@ -1,7 +1,7 @@
 /**
  * @forwardimpact/libskill
  *
- * Pure business logic for Engineering Pathway framework.
+ * Pure business logic for Engineering Pathway standard.
  *
  * The root index exports only symbols consumed outside libskill.
  * Internal helpers and policy items are available via subpath imports:

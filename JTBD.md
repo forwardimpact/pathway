@@ -1,8 +1,8 @@
 # Jobs To Be Done
 
-> When a leader authors a framework, when a developer checks their career path,
-> when an agent receives a skill file — each is hiring our product to make
-> progress on a job they care about.
+> When a leader authors an agent-aligned engineering standard, when a developer
+> checks their career path, when an agent receives a skill file — each is hiring
+> our product to make progress on a job they care about.
 
 ---
 
@@ -18,10 +18,10 @@ and measures outcomes without blaming individuals.
   format, **so that** "good engineering" is a concrete operational definition,
   not a vague aspiration. → **Map**
 
-- **When** I need to ensure framework definitions are consistent and complete,
-  **I want to** validate my YAML data against published schemas, **so that** I
-  catch structural errors before they propagate to downstream products. →
-  **Map**
+- **When** I need to ensure agent-aligned engineering standard definitions are
+  consistent and complete, **I want to** validate my YAML data against published
+  schemas, **so that** I catch structural errors before they propagate to
+  downstream products. → **Map**
 
 - **When** I'm tailoring expectations for specialized roles, **I want to**
   define tracks that modify skill expectations per capability, **so that** a
@@ -45,8 +45,8 @@ and measures outcomes without blaming individuals.
 
 - **When** I'm preparing to interview candidates, **I want to** generate
   interview question sets tied to specific skill expectations, **so that**
-  interviews are structured, consistent, and grounded in our framework. →
-  **Pathway**
+  interviews are structured, consistent, and grounded in our agent-aligned
+  engineering standard. → **Pathway**
 
 ### Measure Outcomes
 
@@ -60,23 +60,25 @@ and measures outcomes without blaming individuals.
   drivers, **so that** I can see whether direction, delivery, quality, and
   learning are improving. → **Landmark**
 
-- **When** I need to connect organizational signals to framework definitions,
-  **I want to** import GitHub activity and GetDX snapshots into Map, **so that**
-  evidence flows continuously without manual data entry. → **Map**
+- **When** I need to connect organizational signals to agent-aligned engineering
+  standard definitions, **I want to** import GitHub activity and GetDX snapshots
+  into Map, **so that** evidence flows continuously without manual data entry. →
+  **Map**
 
 ### Equip Agents
 
 - **When** I want AI agents to work within our engineering standards, **I want
-  to** generate agent team configurations derived from the same framework humans
-  use, **so that** human-agent collaboration is coherent and aligned with
-  organizational expectations. → **Pathway**
+  to** generate agent team configurations derived from the same agent-aligned
+  engineering standard humans use, **so that** human-agent collaboration is
+  coherent and aligned with organizational expectations. → **Pathway**
 
 ---
 
 ## Engineers
 
 Engineers understand expectations, find growth areas, stay prepared for daily
-work, and receive guidance grounded in their organization's framework.
+work, and receive guidance grounded in their organization's agent-aligned
+engineering standard.
 
 ### Understand Expectations
 
@@ -103,9 +105,9 @@ work, and receive guidance grounded in their organization's framework.
   conversations are grounded in facts, not impressions. → **Landmark**
 
 - **When** I need help interpreting what a skill marker means in practice, **I
-  want to** ask an AI agent that understands my organization's framework, **so
-  that** I get guidance specific to my context, not generic career advice. →
-  **Guide**
+  want to** ask an AI agent that understands my organization's agent-aligned
+  engineering standard, **so that** I get guidance specific to my context, not
+  generic career advice. → **Guide**
 
 ### Stay Prepared
 

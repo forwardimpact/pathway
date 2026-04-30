@@ -19,7 +19,7 @@ import addFormats from "ajv-formats";
 const SCHEMA_MAPPINGS = {
   "drivers.yaml": "drivers.schema.json",
   "levels.yaml": "levels.schema.json",
-  "framework.yaml": "framework.schema.json",
+  "standard.yaml": "standard.schema.json",
   "self-assessments.yaml": "self-assessments.schema.json",
   capabilities: "capability.schema.json",
   disciplines: "discipline.schema.json",

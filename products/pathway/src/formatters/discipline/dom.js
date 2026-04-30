@@ -45,7 +45,7 @@ function getDisciplineTypeBadges(discipline) {
  * @param {Object} context - Additional context and options
  * @param {Array} context.skills - All skills
  * @param {Array} context.behaviours - All behaviours
- * @param {Object} [context.framework] - Framework data for emoji lookup
+ * @param {Object} [context.standard] - Standard data for emoji lookup
  * @param {boolean} [context.showBackLink=true] - Whether to show back navigation link
  * @param {boolean} [context.showBehaviourModifiers=true] - Whether to show behaviour modifiers section
  * @returns {HTMLElement}
@@ -55,13 +55,13 @@ export function disciplineToDOM(
   {
     skills,
     behaviours,
-    framework,
+    standard,
     showBackLink = true,
     showBehaviourModifiers = true,
   } = {},
 ) {
   const view = prepareDisciplineDetail(discipline, { skills, behaviours });
-  const emoji = getConceptEmoji(framework, "discipline");
+  const emoji = getConceptEmoji(standard, "discipline");
   const typeBadges = getDisciplineTypeBadges(discipline);
   return div(
     { className: "detail-page discipline-detail" },

@@ -1,7 +1,7 @@
 ---
 name: fit-guide
 description: >
-  Ask an AI agent that understands your engineering framework. Use when
+  Ask an AI agent that understands your agent-aligned engineering standard. Use when
   asking questions about skills, levels, and career expectations, getting
   context-specific career guidance, interpreting engineering artifacts
   against skill markers, setting up the Guide service stack, or ingesting
@@ -10,10 +10,10 @@ description: >
 
 # Guide Product
 
-AI agent that understands your organization's engineering framework — skills,
-levels, behaviours, and expectations — and reasons about them in context. Guide
-helps engineers onboard, find growth areas, and interpret engineering artifacts
-against skill markers.
+AI agent that understands your organization's agent-aligned engineering standard
+— skills, levels, behaviours, and expectations — and reasons about them in
+context. Guide helps engineers onboard, find growth areas, and interpret
+engineering artifacts against skill markers.
 
 Guide runs on the Claude Agent SDK and exposes its knowledge through MCP, making
 it accessible from three surfaces: `fit-guide` CLI, Claude Code, and Claude
@@ -21,9 +21,10 @@ Chat.
 
 ## When to Use
 
-**Conversational framework queries:**
+**Conversational agent-aligned engineering standard queries:**
 
-- Getting career guidance specific to your organization's framework
+- Getting career guidance specific to your organization's agent-aligned
+  engineering standard
 - Interpreting engineering artifacts against specific skill markers
 - Asking about skills, levels, behaviours, and career expectations
 - Piping prompts to `fit-guide` for scripted queries
@@ -134,7 +135,7 @@ Guide requires the service stack to be running. Services are supervised by
 | 1     | trace   | gRPC            | Distributed tracing         | 3001 |
 | 2     | vector  | gRPC            | Vector similarity search    | 3002 |
 | 3     | graph   | gRPC            | RDF triple store            | 3003 |
-| 4     | pathway | gRPC            | Framework data service      | 3004 |
+| 4     | pathway | gRPC            | Standard data service       | 3004 |
 | 5     | mcp     | Streamable HTTP | MCP tool and prompt gateway | 3005 |
 
 ### Service Management

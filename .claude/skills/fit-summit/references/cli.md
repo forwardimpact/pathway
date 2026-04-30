@@ -7,7 +7,7 @@ All commands accept these options:
 | Option            | Description                               |
 | ----------------- | ----------------------------------------- |
 | `--roster <path>` | Path to `summit.yaml` roster file         |
-| `--data <path>`   | Path to Map framework data directory      |
+| `--data <path>`   | Path to Map standard data directory       |
 | `--format <type>` | Output format: `text`, `json`, `markdown` |
 | `--help`          | Show command help                         |
 | `--version`       | Print version                             |
@@ -50,7 +50,7 @@ npx fit-summit trajectory <team> --quarters 8   # Look back 8 quarters
 
 ```sh
 npx fit-summit roster                           # Display current roster
-npx fit-summit validate                         # Validate roster against framework data
+npx fit-summit validate                         # Validate roster against standard data
 ```
 
 `validate` exits non-zero on errors — use it in CI or pre-commit hooks.

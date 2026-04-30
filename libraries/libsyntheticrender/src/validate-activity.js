@@ -109,7 +109,7 @@ export function checkGetDXSnapshotsInfoResponses(entities) {
 export function checkSnapshotScoreDriverIds(entities) {
   const scores = entities.activity?.scores || [];
   const validDrivers = new Set(
-    (entities.framework?.drivers || []).map((d) => d.id),
+    (entities.standard?.drivers || []).map((d) => d.id),
   );
   const invalid = scores.filter((s) => !validDrivers.has(s.item_id));
   return {
@@ -201,7 +201,7 @@ export function checkInitiativeOwnerEmails(entities) {
 export function checkInitiativeDriverRefs(entities) {
   const initiatives = entities.activity?.initiatives || [];
   const driverIds = new Set(
-    (entities.framework?.drivers || []).map((d) => d.id),
+    (entities.standard?.drivers || []).map((d) => d.id),
   );
   const invalid = initiatives.filter(
     (i) => i._driver_id && !driverIds.has(i._driver_id),

@@ -31,7 +31,7 @@ import { createJsonLdScript, levelToJsonLd } from "../json-ld.js";
  * Format level detail as DOM elements
  * @param {Object} level - Raw level entity
  * @param {Object} options - Formatting options
- * @param {Object} [options.framework] - Framework config for emojis
+ * @param {Object} [options.standard] - Standard config for emojis
  * @param {boolean} [options.showBackLink=true] - Whether to show back navigation link
  * @returns {HTMLElement}
  */
@@ -121,9 +121,9 @@ function createBaseProfileSection(view) {
   );
 }
 
-export function levelToDOM(level, { framework, showBackLink = true } = {}) {
+export function levelToDOM(level, { standard, showBackLink = true } = {}) {
   const view = prepareLevelDetail(level);
-  const emoji = framework ? getConceptEmoji(framework, "level") : "📊";
+  const emoji = standard ? getConceptEmoji(standard, "level") : "📊";
   return div(
     { className: "detail-page level-detail" },
     createJsonLdScript(levelToJsonLd(level)),

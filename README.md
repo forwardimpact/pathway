@@ -43,7 +43,7 @@ npm install @forwardimpact/pathway @forwardimpact/guide
 npx fit-codegen --all
 ```
 
-Browse your engineering framework:
+Browse your agent-aligned engineering standard:
 
 ```sh
 npx fit-pathway discipline --list

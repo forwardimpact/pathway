@@ -79,7 +79,7 @@ export function generateCommentKeys(ast, rng, people, teams, snapshots) {
 
   const commentKeys = [];
   const driverMap = new Map(
-    (ast.framework?.drivers || []).map((d) => [d.id, d]),
+    (ast.standard?.drivers || []).map((d) => [d.id, d]),
   );
 
   for (const snap of snapshots) {

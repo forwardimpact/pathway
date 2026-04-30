@@ -359,7 +359,7 @@ export function createTestDisciplines() {
 }
 
 /**
- * Builds a complete mock framework (capabilities, skills, disciplines, tracks,
+ * Builds a complete mock standard (capabilities, skills, disciplines, tracks,
  * drivers, behaviours, levels) with sensible defaults. Per-slice overrides
  * replace the default for that slice entirely.
  *
@@ -371,9 +371,9 @@ export function createTestDisciplines() {
  * @param {object[]} [overrides.drivers]
  * @param {object[]} [overrides.behaviours]
  * @param {object[]} [overrides.levels]
- * @returns {object} Framework with all slices populated.
+ * @returns {object} Agent-aligned engineering standard with all slices populated.
  */
-export function createTestFramework(overrides = {}) {
+export function createTestStandard(overrides = {}) {
   return {
     capabilities: overrides.capabilities ?? createTestCapabilities(),
     skills: overrides.skills ?? createTestSkills(),

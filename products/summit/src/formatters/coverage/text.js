@@ -21,7 +21,7 @@ export function coverageToText(coverage, data) {
   lines.push("");
 
   if (coverage.skills.size === 0) {
-    lines.push("  (no skills defined in framework data)");
+    lines.push("  (no skills defined in standard data)");
     return lines.join("\n") + "\n";
   }
 

@@ -1,9 +1,9 @@
 # CLI
 
-### Framework commands
+### Agent-Aligned Engineering Standard commands
 
 ```sh
-npx fit-map init                            # Create ./data/pathway/ with starter framework data
+npx fit-map init                            # Create ./data/pathway/ with starter standard data
 npx fit-map validate                        # Validate all data (JSON schema + referential)
 npx fit-map validate --shacl                # Validate RDF/SHACL syntax
 npx fit-map validate --data=PATH            # Validate a specific data directory
@@ -18,7 +18,7 @@ quickly verify data is loading correctly after changes.
 ### People commands
 
 ```sh
-npx fit-map people validate <file>          # Validate a people file against the framework (no DB)
+npx fit-map people validate <file>          # Validate a people file against the agent-aligned engineering standard (no DB)
 npx fit-map people push <file>              # Store raw + upsert into activity.organization_people
 ```
 

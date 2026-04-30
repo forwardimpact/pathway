@@ -285,9 +285,9 @@ describe("Capability Functions", () => {
   });
 });
 
-describe("Framework emoji function", () => {
+describe("Standard emoji function", () => {
   describe("getConceptEmoji", () => {
-    const testFramework = {
+    const testStandard = {
       entityDefinitions: {
         driver: { emojiIcon: "🎯" },
         skill: { emojiIcon: "💼" },
@@ -299,27 +299,27 @@ describe("Framework emoji function", () => {
     };
 
     it("returns emoji for valid concept", () => {
-      assert.strictEqual(getConceptEmoji(testFramework, "driver"), "🎯");
-      assert.strictEqual(getConceptEmoji(testFramework, "skill"), "💼");
-      assert.strictEqual(getConceptEmoji(testFramework, "behaviour"), "🧠");
-      assert.strictEqual(getConceptEmoji(testFramework, "discipline"), "🔧");
-      assert.strictEqual(getConceptEmoji(testFramework, "level"), "📊");
-      assert.strictEqual(getConceptEmoji(testFramework, "track"), "🛤️");
+      assert.strictEqual(getConceptEmoji(testStandard, "driver"), "🎯");
+      assert.strictEqual(getConceptEmoji(testStandard, "skill"), "💼");
+      assert.strictEqual(getConceptEmoji(testStandard, "behaviour"), "🧠");
+      assert.strictEqual(getConceptEmoji(testStandard, "discipline"), "🔧");
+      assert.strictEqual(getConceptEmoji(testStandard, "level"), "📊");
+      assert.strictEqual(getConceptEmoji(testStandard, "track"), "🛤️");
     });
 
     it("returns default emoji for unknown concept", () => {
-      const emoji = getConceptEmoji(testFramework, "unknown");
+      const emoji = getConceptEmoji(testStandard, "unknown");
       assert.strictEqual(emoji, "💡");
     });
 
-    it("returns default emoji when framework is null", () => {
+    it("returns default emoji when standard is null", () => {
       const emoji = getConceptEmoji(null, "driver");
       assert.strictEqual(emoji, "💡");
     });
 
     it("returns default emoji when concept has no emoji", () => {
-      const framework = { entityDefinitions: { driver: { name: "Drivers" } } };
-      const emoji = getConceptEmoji(framework, "driver");
+      const standard = { entityDefinitions: { driver: { name: "Drivers" } } };
+      const emoji = getConceptEmoji(standard, "driver");
       assert.strictEqual(emoji, "💡");
     });
   });

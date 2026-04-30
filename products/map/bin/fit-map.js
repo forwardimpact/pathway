@@ -41,7 +41,7 @@ const definition = {
   commands: [
     {
       name: "init",
-      description: "Create ./data/pathway/ with starter framework data",
+      description: "Create ./data/pathway/ with starter standard data",
     },
     {
       name: "validate",
@@ -216,7 +216,7 @@ async function findOutputDir(providedPath) {
  */
 async function runExport(dataDir, outputDir) {
   process.stdout.write(
-    formatHeader(`Exporting framework to: ${outputDir}`) + "\n\n",
+    formatHeader(`Exporting standard to: ${outputDir}`) + "\n\n",
   );
 
   const { createDataLoader, createExporter, createRenderer } =

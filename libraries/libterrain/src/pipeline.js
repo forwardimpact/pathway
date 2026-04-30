@@ -154,14 +154,14 @@ export class Pipeline {
    */
   async #renderPathway(entities, schemaDir, files) {
     this.logger.info("render", "Rendering pathway");
-    const hasPathwayFramework =
-      entities.framework?.capabilities?.length > 0 &&
-      typeof entities.framework.capabilities[0] === "object";
+    const hasPathwayStandard =
+      entities.standard?.capabilities?.length > 0 &&
+      typeof entities.standard.capabilities[0] === "object";
 
-    if (hasPathwayFramework && schemaDir) {
+    if (hasPathwayStandard && schemaDir) {
       const schemas = loadSchemas(schemaDir);
       const pathwayData = await this.pathwayGenerator.generate({
-        framework: entities.framework,
+        standard: entities.standard,
         domain: entities.domain,
         industry: entities.industry,
         schemas,

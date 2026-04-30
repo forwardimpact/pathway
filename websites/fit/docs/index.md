@@ -6,7 +6,7 @@ toc: false
 hero:
   image: /assets/scene-documentation.svg
   alt: An engineer, an AI robot, and a business professional sorting through stacks of papers and documentation together
-  subtitle: Everything you need to define your engineering framework, derive roles and agents, and set up personal knowledge systems.
+  subtitle: Everything you need to define your agent-aligned engineering standard, derive roles and agents, and set up personal knowledge systems.
 ---
 
 <div class="grid">
@@ -23,8 +23,9 @@ Quickstart guides for leadership, engineers, and contributors.
 
 ### Guides
 
-Task-oriented guides: authoring frameworks, agent teams, career paths, knowledge
-systems, team capability, and finding your bearing.
+Task-oriented guides: authoring agent-aligned engineering standards, agent
+teams, career paths, knowledge systems, team capability, and finding your
+bearing.
 
 </a>
 

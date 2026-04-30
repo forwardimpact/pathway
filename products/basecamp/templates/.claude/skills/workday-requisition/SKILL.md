@@ -358,7 +358,7 @@ strengths. If no resume text, use Current Job Title + Total Years Experience.}
 - **{Date Applied}**: Applied via {Source}
 
 ## Skills
-{Extract key technical skills from resume text — use framework IDs where
+{Extract key technical skills from resume text — use agent-aligned engineering standard IDs where
 possible via `bunx fit-pathway skill --list`}
 
 ## Education
@@ -420,18 +420,18 @@ add them to `knowledge/Candidates/Insights.md`:
 Follow the `track-candidates` Insights format: one bullet per insight under
 `## Placement Notes` with `[[Candidates/Name/brief|Name]]` links.
 
-## Step 8: Tag Skills with Framework IDs
+## Step 8: Tag Skills with Agent-Aligned Engineering Standard IDs
 
 When resume text mentions technical skills, map them to the engineering
-framework:
+agent-aligned engineering standard:
 
 ```bash
 bunx fit-pathway skill --list
 ```
 
-Use framework skill IDs in the **Skills** section of each brief. If a candidate
-has a CV.md, flag them for the `screen-cv` skill for a framework-aligned
-screening assessment.
+Use agent-aligned engineering standard skill IDs in the **Skills** section of
+each brief. If a candidate has a CV.md, flag them for the `screen-cv` skill for
+an agent-aligned engineering standard-aligned screening assessment.
 
 ## Quality Checklist
 
@@ -447,7 +447,8 @@ screening assessment.
 - [ ] Internal/External correctly derived from name annotations and source
 - [ ] Name annotations stripped from directory names and headings
 - [ ] Existing candidates updated (not duplicated) with precise edits
-- [ ] Skills tagged using framework skill IDs where possible
+- [ ] Skills tagged using agent-aligned engineering standard skill IDs where
+      possible
 - [ ] Gender field set to `—` (exports don't include gender signals)
 - [ ] Role file created or updated in `knowledge/Roles/`
 - [ ] Channel set to `hr` on all imported candidates

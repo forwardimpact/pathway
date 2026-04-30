@@ -27,7 +27,7 @@ Architectural non-negotiables — the shape of the codebase.
   creation. Exceptions: libskill (pure functions), libui (functional DOM),
   libsecret (stateless crypto), libtype (generated protobuf) — pure stateless
   functions do not need DI.
-- **No frameworks** — Vanilla JS, ESM modules only, no CommonJS.
+- **No frontend frameworks** — Vanilla JS, ESM modules only, no CommonJS.
 
 ### READ-DO
 

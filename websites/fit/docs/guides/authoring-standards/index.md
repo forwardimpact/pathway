@@ -1,22 +1,23 @@
 ---
-title: "Authoring Frameworks"
-description: "Write career framework definitions in YAML — disciplines, levels, tracks, capabilities, skills, behaviours, and drivers."
+title: "Authoring Agent-Aligned Engineering Standards"
+description: "Write agent-aligned engineering standards in YAML — disciplines, levels, tracks, capabilities, skills, behaviours, and drivers."
 ---
 
-A career framework is a set of YAML files that define what good engineering
-looks like in your organization. These files are the single source of truth for
-human job definitions, AI agent teams, interview question banks, and career
-progression logic. Author them once and every product in the suite derives its
-output from the same data.
+An agent-aligned engineering standard is a set of YAML files that define what
+good engineering looks like in your organization. These files are the single
+source of truth for human job definitions, AI agent teams, interview question
+banks, and career progression logic — the same human and agent skills, levels,
+and behaviours described once and consumed coherently by both audiences. Author
+them once and every product in the suite derives its output from the same data.
 
 ## Data Directory Structure
 
-Framework definitions live in a `data/` directory. Each entity type has a
-specific location:
+Agent-aligned engineering standard definitions live in a `data/` directory. Each
+entity type has a specific location:
 
 ```
 data/
-├── framework.yaml              # Framework metadata and display config
+├── standard.yaml              # Standard metadata and display config
 ├── levels.yaml                 # Career levels (collection file)
 ├── drivers.yaml                # Organizational outcomes (collection file)
 ├── disciplines/                # Engineering specialties (one file each)
@@ -55,15 +56,17 @@ npx fit-map validate
 
 ## Activity Data
 
-Beyond framework definitions, Map maintains an activity layer for operational
-measurements. While the YAML files above are authored by hand, activity data is
-ingested from external systems and stored in a Supabase database:
+Beyond agent-aligned engineering standard definitions, Map maintains an activity
+layer for operational measurements. While the YAML files above are authored by
+hand, activity data is ingested from external systems and stored in a Supabase
+database:
 
 - **Organization people** — roster records with manager links and Pathway job
   profiles
 - **GitHub activity** — events and derived artifacts for marker evidence
   analysis
-- **Evidence records** — artifacts linked to framework skill markers
+- **Evidence records** — artifacts linked to skill markers from the
+  agent-aligned engineering standard
 - **GetDX snapshots** — quarterly developer-experience team scores and comments
 
 The activity layer powers Landmark (signal analysis) and Summit (team capability
@@ -73,15 +76,16 @@ for setup instructions.
 
 ---
 
-## Framework Configuration
+## Agent-Aligned Engineering Standard Configuration
 
-Every framework needs a `framework.yaml` at the root of the data directory. It
-defines metadata and display configuration for the Pathway web app.
+Every agent-aligned engineering standard needs a `standard.yaml` at the root of
+the data directory. It defines metadata and display configuration for the
+Pathway web app.
 
 ```yaml
-# data/framework.yaml
+# data/standard.yaml
 title: Acme Engineering Pathway
-description: Engineering career framework for Acme Corp
+description: Agent-aligned engineering standard for Acme Corp
 tag: acme
 entityDefinitions:
   discipline:
@@ -114,7 +118,7 @@ distribution:
 
 The `entityDefinitions` object controls how each entity type is labelled in the
 web app. The `distribution.siteUrl` is the base URL for the published static
-site, used by `npx fit-pathway update` to download framework bundles.
+site, used by `npx fit-pathway update` to download standard bundles.
 
 ---
 
@@ -485,9 +489,9 @@ skills:
 
 ## Skills
 
-Skills are the most detailed entity in the framework. Each skill lives inside a
-capability file and requires a `human:` section (for engineers) and optionally
-an `agent:` section (for AI agents).
+Skills are the most detailed entity in the agent-aligned engineering standard.
+Each skill lives inside a capability file and requires a `human:` section (for
+engineers) and optionally an `agent:` section (for AI agents).
 
 ### Minimal Skill
 
@@ -803,7 +807,7 @@ jargon.
 
 ## Validation
 
-Validate framework data at any time:
+Validate agent-aligned engineering standard data at any time:
 
 ```sh
 npx fit-map validate
@@ -830,14 +834,14 @@ After editing YAML files, preview the results in the Pathway web app:
 npx fit-pathway dev
 ```
 
-This starts a local development server so you can see how your framework renders
-before publishing.
+This starts a local development server so you can see how your agent-aligned
+engineering standard renders before publishing.
 
 ---
 
 ## Related Guides
 
 - [Agent Teams](/docs/guides/agent-teams/) — How to structure and maintain
-  exported agent teams from your framework
+  exported agent teams from your agent-aligned engineering standard
 - [Career Paths](/docs/guides/career-paths/) — Browse jobs, skills, and career
   progression between levels

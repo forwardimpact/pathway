@@ -22,19 +22,20 @@ business and customers?"
 
 ---
 
-## The Problem With Frameworks
+## The Problem With Agent-Aligned Engineering Standards
 
-Most career frameworks are written once, filed away, and never referenced again.
-They describe levels in vague terms — "demonstrates leadership" or "has broad
-impact" — that mean different things to different people. Engineers can't use
-them to grow. Managers can't use them to set clear expectations. And nobody can
-use them to tell an AI agent how the team actually works.
+Most agent-aligned engineering standards are written once, filed away, and never
+referenced again. They describe levels in vague terms — "demonstrates
+leadership" or "has broad impact" — that mean different things to different
+people. Engineers can't use them to grow. Managers can't use them to set clear
+expectations. And nobody can use them to tell an AI agent how the team actually
+works.
 
-We think career frameworks should be living systems. They should be precise
-enough that a machine can validate them, but readable enough that an engineer
-can understand what's expected at any level. They should produce real outputs —
-job descriptions, agent profiles, interview questions, progression plans — not
-just sit in a wiki.
+We think agent-aligned engineering standards should be living systems. They
+should be precise enough that a machine can validate them, but readable enough
+that an engineer can understand what's expected at any level. They should
+produce real outputs — job descriptions, agent profiles, interview questions,
+progression plans — not just sit in a wiki.
 
 ---
 
@@ -48,15 +49,15 @@ single source of truth, the system produces:
 
 - **Job definitions** that combine discipline, track, and level into clear role
   expectations
-- **AI agent profiles** that match your engineering standards, scoped to
-  specific lifecycle stages
+- **AI agent profiles** that match your agent-aligned engineering standards,
+  scoped to specific lifecycle stages
 - **Interview questions** grounded in the actual skills you care about
 - **Progression plans** that show engineers exactly what changes between levels
 - **Knowledge systems** that keep engineers briefed and organized
 
-The framework isn't a bureaucratic exercise. It's infrastructure — the same way
-a CI pipeline is infrastructure. Once it's in place, everyone benefits from it
-continuously.
+The agent-aligned engineering standard isn't a bureaucratic exercise. It's
+infrastructure — the same way a CI pipeline is infrastructure. Once it's in
+place, everyone benefits from it continuously.
 
 ---
 
@@ -76,14 +77,16 @@ reference.
 browsers, job descriptions, AI agents that follow team standards, and
 progression plans that make growth tangible.
 
-**Guide** is the AI agent that understands the framework deeply enough to reason
-about it — onboarding new engineers, advising on career growth, and assessing
-engineering activity against the team's actual skill expectations.
+**Guide** is the AI agent that understands the agent-aligned engineering
+standard deeply enough to reason about it — onboarding new engineers, advising
+on career growth, and assessing engineering activity against the team's actual
+skill expectations.
 
 **Landmark** helps engineers see their own growth by connecting what they
 produce on GitHub — pull requests, reviews, design documents — back to the
-framework. And it helps organizations see whether their engineering systems
-support the practices the framework describes.
+agent-aligned engineering standard. And it helps organizations see whether their
+engineering systems support the practices the agent-aligned engineering standard
+describes.
 
 **Basecamp** gives engineers a personal operations center — scheduled AI tasks
 that sync information, prepare briefings, and organize knowledge so engineers
@@ -102,9 +105,9 @@ validated by schema, stored in your repository. Different organizations use the
 same model with completely different data. There's no vendor lock-in, no
 proprietary format, no SaaS dependency.
 
-The tools are built with vanilla JavaScript, no frameworks, and designed to be
-simple rather than easy. Every design choice favours reducing complexity over
-hiding it.
+The tools are built with vanilla JavaScript, no frontend frameworks, and
+designed to be simple rather than easy. Every design choice favours reducing
+complexity over hiding it.
 
 ---
 

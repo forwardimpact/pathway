@@ -560,9 +560,9 @@ terrain BioNova {
     }
   }
 
-  // ─── Framework (Pathway) ────────────────────────
+  // ─── Standard (Pathway) ────────────────────────
 
-  framework {
+  standard {
     proficiencies [awareness, foundational, working, practitioner, expert]
     maturities [emerging, developing, practicing, role_modeling, exemplifying]
 

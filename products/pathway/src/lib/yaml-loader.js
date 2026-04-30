@@ -249,14 +249,14 @@ export async function loadAllData(dataDir = "./data") {
   const capabilities = await loadCapabilitiesFromDir(`${dataDir}/capabilities`);
   const skills = await loadSkillsFromCapabilities(`${dataDir}/capabilities`);
 
-  const [drivers, behaviours, disciplines, tracks, levels, framework] =
+  const [drivers, behaviours, disciplines, tracks, levels, standard] =
     await Promise.all([
       loadYamlFile(`${dataDir}/drivers.yaml`),
       loadBehavioursFromDir(`${dataDir}/behaviours`),
       loadDisciplinesFromDir(`${dataDir}/disciplines`),
       loadTracksFromDir(`${dataDir}/tracks`),
       loadYamlFile(`${dataDir}/levels.yaml`),
-      loadYamlFile(`${dataDir}/framework.yaml`),
+      loadYamlFile(`${dataDir}/standard.yaml`),
     ]);
 
   const questions = await loadQuestionFolder(
@@ -275,7 +275,7 @@ export async function loadAllData(dataDir = "./data") {
     levels,
     questions,
     capabilities,
-    framework,
+    standard,
   };
 }
 

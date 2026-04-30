@@ -14,16 +14,16 @@ import { createJsonLdScript, driverToJsonLd } from "../json-ld.js";
  * @param {Object} context - Additional context and options
  * @param {Array} context.skills - All skills
  * @param {Array} context.behaviours - All behaviours
- * @param {Object} [context.framework] - Framework config for emojis
+ * @param {Object} [context.standard] - Standard config for emojis
  * @param {boolean} [context.showBackLink=true] - Whether to show back navigation link
  * @returns {HTMLElement}
  */
 export function driverToDOM(
   driver,
-  { skills, behaviours, framework, showBackLink = true } = {},
+  { skills, behaviours, standard, showBackLink = true } = {},
 ) {
   const view = prepareDriverDetail(driver, { skills, behaviours });
-  const emoji = framework ? getConceptEmoji(framework, "driver") : "🎯";
+  const emoji = standard ? getConceptEmoji(standard, "driver") : "🎯";
   return div(
     { className: "detail-page driver-detail" },
     // JSON-LD structured data

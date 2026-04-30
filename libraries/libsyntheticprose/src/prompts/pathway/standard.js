@@ -1,27 +1,27 @@
 import { buildPreamble } from "./preamble.js";
 
 /**
- * Prompt template for framework.yaml metadata.
+ * Prompt template for standard.yaml metadata.
  *
- * @param {object} skeleton - Framework skeleton from DSL
- * @param {object} ctx - Terrain context (domain, industry, frameworkName)
- * @param {object} schema - JSON schema for framework entity
+ * @param {object} skeleton - Standard skeleton from DSL
+ * @param {object} ctx - Terrain context (domain, industry, standardName)
+ * @param {object} schema - JSON schema for standard entity
  * @returns {{ system: string, user: string }}
  */
-export function buildFrameworkPrompt(skeleton, ctx, schema) {
+export function buildStandardPrompt(skeleton, ctx, schema) {
   return {
     system:
-      buildPreamble(ctx.frameworkName || ctx.domain) +
+      buildPreamble(ctx.standardName || ctx.domain) +
       "\n\n" +
       [
-        "You are an expert career framework author.",
+        "You are an expert author of agent-aligned engineering standards.",
         "Output ONLY valid JSON. No markdown fences, no explanations.",
         `The organization domain is: ${ctx.domain}.`,
         `Industry: ${ctx.industry}.`,
       ].join(" "),
 
     user: [
-      "Generate a framework metadata file for an engineering career framework.",
+      "Generate a standard metadata file for an agent-aligned engineering standard.",
       "",
       "## JSON Schema (you MUST conform to this exactly)",
       "```json",
@@ -32,7 +32,7 @@ export function buildFrameworkPrompt(skeleton, ctx, schema) {
       '- title: A short, compelling title for this engineering pathway (e.g., "BioNova Engineering Pathway").',
       "- emojiIcon: A single emoji representing engineering growth.",
       '- tag: A short hashtag identifier (e.g., "#BioNova").',
-      "- description: 2-3 sentences describing the framework's purpose.",
+      "- description: 2-3 sentences describing the agent-aligned engineering standard's purpose.",
       `- distribution.siteUrl: Use "https://${ctx.domain}/pathway".`,
       "- entityDefinitions: Provide definitions for these entity types:",
       "  driver, skill, behaviour, discipline, level, track, job, agent, tool.",

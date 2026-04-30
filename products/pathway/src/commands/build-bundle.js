@@ -4,7 +4,7 @@
  * Emits `bundle.tar.gz` and `install.sh` alongside the static site so
  * engineers can install `@forwardimpact/pathway` globally via
  * `curl -fsSL <site>/install.sh | bash`. Invoked from build.js when
- * `framework.distribution.siteUrl` is configured.
+ * `standard.distribution.siteUrl` is configured.
  */
 
 import { cp, mkdir, rm, readFile, writeFile } from "fs/promises";
@@ -21,7 +21,7 @@ const logger = createLogger("pathway");
  * @param {string} params.outputDir - Build output directory
  * @param {string} params.dataDir - Source data directory
  * @param {string} params.siteUrl - Base URL for the published site
- * @param {Object} params.framework - Framework configuration
+ * @param {Object} params.standard - Standard configuration
  * @param {string} params.version - Pathway package version
  * @param {string} params.templatesDir - Absolute path to pathway/templates
  */
@@ -29,13 +29,13 @@ export async function generateBundle({
   outputDir,
   dataDir,
   siteUrl,
-  framework,
+  standard,
   version,
   templatesDir,
 }) {
   logger.info("📦 Generating distribution bundle...");
 
-  const frameworkTitle = framework.title || "Engineering Pathway";
+  const standardTitle = standard.title || "Engineering Pathway";
 
   // 1. Create temporary bundle directory
   const bundleDir = join(outputDir, "_bundle");
@@ -82,7 +82,7 @@ export async function generateBundle({
   const installScript = Mustache.render(template, {
     siteUrl: siteUrl.replace(/\/$/, ""),
     version,
-    frameworkTitle,
+    standardTitle,
   });
   await writeFile(join(outputDir, "install.sh"), installScript, {
     mode: 0o755,

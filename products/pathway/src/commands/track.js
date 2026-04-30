@@ -36,8 +36,8 @@ function formatListItem(track) {
  * @param {Object} data - Full data context
  */
 function formatSummary(tracks, data) {
-  const { framework, disciplines } = data;
-  const emoji = framework ? getConceptEmoji(framework, "track") : "🛤️";
+  const { standard, disciplines } = data;
+  const emoji = standard ? getConceptEmoji(standard, "track") : "🛤️";
 
   process.stdout.write("\n" + formatHeader(`${emoji} Tracks`) + "\n\n");
 
@@ -69,12 +69,12 @@ function formatSummary(tracks, data) {
 /**
  * Format track detail output - receives entity and context as single object
  * @param {Object} viewAndContext - Contains track entity and data context
- * @param {Object} framework - Framework config
+ * @param {Object} standard - Standard config
  */
-function formatDetail(viewAndContext, framework) {
+function formatDetail(viewAndContext, standard) {
   const { track, skills, behaviours, disciplines } = viewAndContext;
   process.stdout.write(
-    trackToMarkdown(track, { skills, behaviours, disciplines, framework }) +
+    trackToMarkdown(track, { skills, behaviours, disciplines, standard }) +
       "\n",
   );
 }

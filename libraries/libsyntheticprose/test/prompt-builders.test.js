@@ -1,6 +1,6 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
-import { buildFrameworkPrompt } from "../src/prompts/pathway/framework.js";
+import { buildStandardPrompt } from "../src/prompts/pathway/standard.js";
 import { buildLevelPrompt } from "../src/prompts/pathway/level.js";
 import { buildBehaviourPrompt } from "../src/prompts/pathway/behaviour.js";
 import { buildCapabilityPrompt } from "../src/prompts/pathway/capability.js";
@@ -11,26 +11,26 @@ import { buildTrackPrompt } from "../src/prompts/pathway/track.js";
 const CTX = {
   domain: "test.example",
   industry: "pharma",
-  frameworkName: "Test Framework",
+  standardName: "Test Standard",
 };
 
 const SCHEMA = { type: "object", properties: {} };
 
 describe("prompt builders", () => {
-  describe("buildFrameworkPrompt", () => {
+  describe("buildStandardPrompt", () => {
     test("returns system and user strings", () => {
-      const result = buildFrameworkPrompt({}, CTX, SCHEMA);
+      const result = buildStandardPrompt({}, CTX, SCHEMA);
       assert.ok(typeof result.system === "string");
       assert.ok(typeof result.user === "string");
     });
 
     test("includes preamble in system prompt", () => {
-      const result = buildFrameworkPrompt({}, CTX, SCHEMA);
-      assert.ok(result.system.includes("Test Framework"));
+      const result = buildStandardPrompt({}, CTX, SCHEMA);
+      assert.ok(result.system.includes("Test Standard"));
     });
 
     test("includes JSON schema in user prompt", () => {
-      const result = buildFrameworkPrompt({}, CTX, SCHEMA);
+      const result = buildStandardPrompt({}, CTX, SCHEMA);
       assert.ok(result.user.includes('"type"'));
     });
   });

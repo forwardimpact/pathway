@@ -16,7 +16,7 @@ const RDF_TYPE = "http://www.w3.org/1999/02/22-rdf-syntax-ns#type";
 
 const { parseQuads, findAll, findOne } = createTurtleHelpers(Parser);
 
-// --- Hand-built minimal framework data -----------------------------------
+// --- Hand-built minimal standard data -----------------------------------
 
 function buildData() {
   const fde = {
@@ -105,7 +105,7 @@ function buildData() {
     levels: [l1, l2],
     capabilities: [],
     questions: [],
-    framework: { validationRules: { levels: [l1, l2] } },
+    standard: { validationRules: { levels: [l1, l2] } },
   };
 }
 

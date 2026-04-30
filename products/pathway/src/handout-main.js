@@ -117,7 +117,7 @@ function renderHandout(content) {
  * @param {Object} data
  */
 function renderIndex(data) {
-  const { framework } = data;
+  const { standard } = data;
 
   const content = div(
     { className: "slide slide-index" },
@@ -125,7 +125,7 @@ function renderIndex(data) {
       { className: "page-header" },
       heading1(
         { className: "page-title" },
-        `${framework.emojiIcon} ${framework.title} Handouts`,
+        `${standard.emojiIcon} ${standard.title} Handouts`,
       ),
       p(
         { className: "page-description" },
@@ -146,7 +146,7 @@ function renderIndex(data) {
           {},
           a(
             { href: "#/job" },
-            `${getConceptEmoji(framework, "job")} ${framework.entityDefinitions.job.title}`,
+            `${getConceptEmoji(standard, "job")} ${standard.entityDefinitions.job.title}`,
           ),
           " - ",
           `${data.disciplines.length} disciplines, ${data.levels.length} levels, ${data.tracks.length} tracks`,
@@ -155,7 +155,7 @@ function renderIndex(data) {
           {},
           a(
             { href: "#/behaviour" },
-            `${getConceptEmoji(framework, "behaviour")} ${framework.entityDefinitions.behaviour.title}`,
+            `${getConceptEmoji(standard, "behaviour")} ${standard.entityDefinitions.behaviour.title}`,
           ),
           " - ",
           `${data.behaviours.length} behaviour definitions`,
@@ -164,7 +164,7 @@ function renderIndex(data) {
           {},
           a(
             { href: "#/skill" },
-            `${getConceptEmoji(framework, "skill")} ${framework.entityDefinitions.skill.title}`,
+            `${getConceptEmoji(standard, "skill")} ${standard.entityDefinitions.skill.title}`,
           ),
           " - ",
           `${data.skills.length} skill definitions`,
@@ -173,7 +173,7 @@ function renderIndex(data) {
           {},
           a(
             { href: "#/driver" },
-            `${getConceptEmoji(framework, "driver")} ${framework.entityDefinitions.driver.title}`,
+            `${getConceptEmoji(standard, "driver")} ${standard.entityDefinitions.driver.title}`,
           ),
           " - ",
           `${data.drivers.length} driver definitions`,
@@ -190,13 +190,13 @@ function renderIndex(data) {
  * @param {Object} data
  */
 function renderDriverHandout(data) {
-  const { framework } = data;
+  const { standard } = data;
 
   const slides = data.drivers.map((driver) => {
     return driverToDOM(driver, {
       skills: data.skills,
       behaviours: data.behaviours,
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
     });
   });
@@ -204,9 +204,9 @@ function renderDriverHandout(data) {
   const content = div(
     {},
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "driver"),
-      title: framework.entityDefinitions.driver.title,
-      description: framework.entityDefinitions.driver.description,
+      emojiIcon: getConceptEmoji(standard, "driver"),
+      title: standard.entityDefinitions.driver.title,
+      description: standard.entityDefinitions.driver.description,
     }),
     ...slides,
   );
@@ -219,7 +219,7 @@ function renderDriverHandout(data) {
  * @param {Object} data
  */
 function renderSkillHandout(data) {
-  const { framework } = data;
+  const { standard } = data;
 
   // Get capability order from data
   const capabilityOrder = getCapabilityOrder(data.capabilities);
@@ -248,9 +248,9 @@ function renderSkillHandout(data) {
   const content = div(
     {},
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "skill"),
-      title: framework.entityDefinitions.skill.title,
-      description: framework.entityDefinitions.skill.description,
+      emojiIcon: getConceptEmoji(standard, "skill"),
+      title: standard.entityDefinitions.skill.title,
+      description: standard.entityDefinitions.skill.description,
     }),
     ...slides,
   );
@@ -263,12 +263,12 @@ function renderSkillHandout(data) {
  * @param {Object} data
  */
 function renderBehaviourHandout(data) {
-  const { framework } = data;
+  const { standard } = data;
 
   const slides = data.behaviours.map((behaviour) => {
     return behaviourToDOM(behaviour, {
       drivers: data.drivers,
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
     });
   });
@@ -276,9 +276,9 @@ function renderBehaviourHandout(data) {
   const content = div(
     {},
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "behaviour"),
-      title: framework.entityDefinitions.behaviour.title,
-      description: framework.entityDefinitions.behaviour.description,
+      emojiIcon: getConceptEmoji(standard, "behaviour"),
+      title: standard.entityDefinitions.behaviour.title,
+      description: standard.entityDefinitions.behaviour.description,
     }),
     ...slides,
   );
@@ -302,7 +302,7 @@ function sortDisciplinesByType(disciplines) {
  * @param {Object} data
  */
 function renderJobHandout(data) {
-  const { framework } = data;
+  const { standard } = data;
 
   // Sort disciplines by type: professional first, then management
   const sortedDisciplines = sortDisciplinesByType(data.disciplines);
@@ -311,7 +311,7 @@ function renderJobHandout(data) {
     return disciplineToDOM(discipline, {
       skills: data.skills,
       behaviours: data.behaviours,
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
       showBehaviourModifiers: false,
     });
@@ -319,7 +319,7 @@ function renderJobHandout(data) {
 
   const levelSlides = data.levels.map((level) => {
     return levelToDOM(level, {
-      framework: data.framework,
+      standard: data.standard,
       showBackLink: false,
     });
   });
@@ -329,7 +329,7 @@ function renderJobHandout(data) {
       skills: data.skills,
       behaviours: data.behaviours,
       disciplines: data.disciplines,
-      framework: data.framework,
+      standard: data.standard,
     });
   });
 
@@ -337,25 +337,25 @@ function renderJobHandout(data) {
     {},
     // Disciplines chapter
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "discipline"),
-      title: framework.entityDefinitions.discipline.title,
-      description: framework.entityDefinitions.discipline.description,
+      emojiIcon: getConceptEmoji(standard, "discipline"),
+      title: standard.entityDefinitions.discipline.title,
+      description: standard.entityDefinitions.discipline.description,
     }),
     ...disciplineSlides,
 
     // Levels chapter (moved before Tracks)
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "level"),
-      title: framework.entityDefinitions.level.title,
-      description: framework.entityDefinitions.level.description,
+      emojiIcon: getConceptEmoji(standard, "level"),
+      title: standard.entityDefinitions.level.title,
+      description: standard.entityDefinitions.level.description,
     }),
     ...levelSlides,
 
     // Tracks chapter (moved after Levels)
     createChapterCover({
-      emojiIcon: getConceptEmoji(framework, "track"),
-      title: framework.entityDefinitions.track.title,
-      description: framework.entityDefinitions.track.description,
+      emojiIcon: getConceptEmoji(standard, "track"),
+      title: standard.entityDefinitions.track.title,
+      description: standard.entityDefinitions.track.description,
     }),
     ...trackSlides,
   );
@@ -394,24 +394,24 @@ function handleRoute() {
 }
 
 /**
- * Populate the page brand header with framework title and hashtag
- * @param {Object} framework - Framework data from YAML
+ * Populate the page brand header with standard title and hashtag
+ * @param {Object} standard - Standard data from YAML
  */
-function populateBrandHeader(framework) {
+function populateBrandHeader(standard) {
   const header = document.getElementById("page-brand-header");
   if (!header) return;
 
   // Update document title
-  document.title = `${framework.title} - Handout View`;
+  document.title = `${standard.title} - Handout View`;
 
   header.innerHTML = "";
   header.appendChild(
     a(
       { className: "brand-title", href: "#/" },
-      `${framework.emojiIcon} ${framework.title}`,
+      `${standard.emojiIcon} ${standard.title}`,
     ),
   );
-  header.appendChild(span({ className: "brand-tag" }, framework.tag));
+  header.appendChild(span({ className: "brand-tag" }, standard.tag));
   header.style.display = "";
 }
 
@@ -426,7 +426,7 @@ async function init() {
     setData(data);
 
     // Populate brand header
-    populateBrandHeader(data.framework);
+    populateBrandHeader(data.standard);
 
     // Set up hash change listener
     window.addEventListener("hashchange", handleRoute);

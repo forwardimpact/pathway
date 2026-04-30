@@ -4,7 +4,7 @@
  * Surfaces the ecosystem-tool install commands (direct download, Microsoft APM,
  * and `npx skills`) for the currently selected discipline/track pack. The packs
  * themselves are emitted by `fit-pathway build` when
- * `framework.distribution.siteUrl` is configured — see spec 520 and
+ * `standard.distribution.siteUrl` is configured — see spec 520 and
  * `products/pathway/src/commands/build-packs.js`. The pack name derivation
  * here must stay in sync with that generator so the command points at an
  * archive that actually exists on the deployed site.
@@ -82,7 +82,7 @@ export function getSkillsCommand(siteUrl, packName) {
  * @param {Object} params
  * @param {{id: string}} params.discipline - Selected human discipline
  * @param {{id: string}} params.track - Selected human track
- * @param {string|undefined} params.siteUrl - Framework distribution site URL
+ * @param {string|undefined} params.siteUrl - Standard distribution site URL
  * @returns {HTMLElement|null}
  */
 export function createInstallSection({ discipline, track, siteUrl }) {

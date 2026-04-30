@@ -3,7 +3,7 @@ name: libs-synthetic-data
 description: >
   Use when parsing or extending the terrain DSL grammar, generating
   deterministic entity graphs, producing LLM-generated prose or pathway
-  frameworks, rendering synthetic data to HTML, Markdown, YAML, or raw
+  agent-aligned engineering standards, rendering synthetic data to HTML, Markdown, YAML, or raw
   formats, validating generated content integrity, or running the full
   parse-generate-render pipeline.
 ---
@@ -14,7 +14,7 @@ description: >
 
 - Parsing or extending the terrain DSL grammar
 - Generating deterministic entity graphs (orgs, teams, people, projects)
-- Adding LLM-generated prose or pathway framework content
+- Adding LLM-generated prose or pathway standard content
 - Rendering synthetic data to HTML, Markdown, YAML, or raw documents
 - Validating generated content (cross-content integrity, link density, HTML)
 - Running the full parse-generate-render-validate pipeline
@@ -24,7 +24,7 @@ description: >
 | Library            | Capabilities                                                          | Key Exports                                                                                                         |
 | ------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | libsyntheticgen    | Parse DSL grammar, generate deterministic entities, shared vocabulary | `DslParser`, `createDslParser`, `EntityGenerator`, `createEntityGenerator`, `createSeededRNG`, `PROFICIENCY_LEVELS` |
-| libsyntheticprose  | Generate LLM prose, pathway framework data, load schemas              | `ProseEngine`, `createProseEngine`, `PathwayGenerator`, `loadSchemas`                                               |
+| libsyntheticprose  | Generate LLM prose, pathway standard data, load schemas               | `ProseEngine`, `createProseEngine`, `PathwayGenerator`, `loadSchemas`                                               |
 | libsyntheticrender | Multi-format rendering, content validation, formatting                | `Renderer`, `createRenderer`, `ContentValidator`, `ContentFormatter`, `validateCrossContent`                        |
 | libterrain         | Full parse-generate-render-validate pipeline, Supabase upload         | `Pipeline`, `loadToSupabase`                                                                                        |
 

@@ -2,7 +2,7 @@
 /**
  * fit-guide CLI — Claude Agent SDK harness running inside librepl
  *
- * Engineering framework knowledge agent reachable from three surfaces:
+ * Agent-aligned engineering standard knowledge agent reachable from three surfaces:
  * this CLI, Claude Code (MCP), and Claude Chat (Connector).
  */
 
@@ -105,8 +105,8 @@ const repl = new Repl({
   prompt: "❯ ",
   indent: "  ",
   usage:
-    "**fit-guide** — Engineering framework knowledge agent.\n\n" +
-    "Type a question about your engineering framework.",
+    "**fit-guide** — Agent-aligned engineering standard knowledge agent.\n\n" +
+    "Type a question about your agent-aligned engineering standard.",
   storage: createStorage("guide"),
   state: { sessionId: null },
 

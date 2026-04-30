@@ -523,11 +523,11 @@ export function behaviourMaturityMeetsRequirement(actual, required) {
 }
 
 /**
- * Get emoji for a concept from framework data
- * @param {Object} framework - Framework object loaded from framework.yaml
+ * Get emoji for a concept from standard data
+ * @param {Object} standard - Standard object loaded from standard.yaml
  * @param {string} concept - The concept type: 'driver', 'skill', 'behaviour', 'discipline', 'level', or 'track'
  * @returns {string} The emoji for the concept or default "💡"
  */
-export function getConceptEmoji(framework, concept) {
-  return framework?.entityDefinitions?.[concept]?.emojiIcon || "💡";
+export function getConceptEmoji(standard, concept) {
+  return standard?.entityDefinitions?.[concept]?.emojiIcon || "💡";
 }

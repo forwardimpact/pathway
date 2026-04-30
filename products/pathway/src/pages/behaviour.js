@@ -16,8 +16,8 @@ import { getConceptEmoji } from "@forwardimpact/map/levels";
  */
 export function renderBehavioursList() {
   const { data } = getState();
-  const { framework } = data;
-  const behaviourEmoji = getConceptEmoji(framework, "behaviour");
+  const { standard } = data;
+  const behaviourEmoji = getConceptEmoji(standard, "behaviour");
 
   // Transform data for list view
   const { items } = prepareBehavioursList(data.behaviours);
@@ -29,11 +29,11 @@ export function renderBehavioursList() {
       { className: "page-header" },
       h1(
         { className: "page-title" },
-        `${behaviourEmoji} ${framework.entityDefinitions.behaviour.title}`,
+        `${behaviourEmoji} ${standard.entityDefinitions.behaviour.title}`,
       ),
       p(
         { className: "page-description" },
-        framework.entityDefinitions.behaviour.description.trim(),
+        standard.entityDefinitions.behaviour.description.trim(),
       ),
     ),
 
@@ -66,7 +66,7 @@ export function renderBehaviourDetail(params) {
   render(
     behaviourToDOM(behaviour, {
       drivers: data.drivers,
-      framework: data.framework,
+      standard: data.standard,
     }),
   );
 }
