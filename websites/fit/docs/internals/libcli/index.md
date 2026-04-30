@@ -245,12 +245,12 @@ Both modes are handled automatically by `cli.parse()`.
 
 ### Documentation links
 
-The `documentation` field is the bridge between a CLI and its skill. Each
-fit-\* skill ends with a `## Documentation` section listing fully qualified
-`.md` URLs published by the fit-doc static site generator; the same entries
-belong on the CLI definition so an agent that reaches the CLI without
-the skill — no skill installed, the skill omitted to save context, or a
-direct invocation in CI — gets the same progressive-disclosure links.
+The `documentation` field is the bridge between a CLI and its skill. Each fit-\*
+skill ends with a `## Documentation` section listing fully qualified `.md` URLs
+published by the fit-doc static site generator; the same entries belong on the
+CLI definition so an agent that reaches the CLI without the skill — no skill
+installed, the skill omitted to save context, or a direct invocation in CI —
+gets the same progressive-disclosure links.
 
 Each entry is a plain object:
 
@@ -264,9 +264,8 @@ Each entry is a plain object:
 
 The `description` is optional; entries without one render as title + URL only.
 URLs should end with `/index.md` so agents fetching them receive raw markdown
-rather than rendered HTML — fit-doc emits an `index.md` companion for every
-HTML page and advertises it via
-`<link rel="alternate" type="text/markdown">`.
+rather than rendered HTML — fit-doc emits an `index.md` companion for every HTML
+page and advertises it via `<link rel="alternate" type="text/markdown">`.
 
 When wiring a CLI, copy the entries directly from the matching
 `.claude/skills/fit-*/SKILL.md` so both surfaces stay in sync.
@@ -399,12 +398,12 @@ if (!input) {
 
 libcli covers CLI chrome. Other libraries handle content and sessions:
 
-| Library          | Scope                                                        |
-| ---------------- | ------------------------------------------------------------ |
-| **libcli**       | CLI chrome: help, errors, summaries, argument parsing, color |
-| **libformat**    | Content rendering: markdown to HTML or ANSI terminal output  |
+| Library          | Scope                                                                                         |
+| ---------------- | --------------------------------------------------------------------------------------------- |
+| **libcli**       | CLI chrome: help, errors, summaries, argument parsing, color                                  |
+| **libformat**    | Content rendering: markdown to HTML or ANSI terminal output                                   |
 | **librepl**      | Interactive sessions: command loops, state, history, `documentation` pass-through in `--help` |
-| **libtelemetry** | Operational diagnostics: Logger, Tracer, Observer            |
+| **libtelemetry** | Operational diagnostics: Logger, Tracer, Observer                                             |
 
 A CLI that renders markdown (fit-guide) uses **libformat** for content and
 **libcli** for chrome. A REPL-based CLI uses **libcli** for initial argument

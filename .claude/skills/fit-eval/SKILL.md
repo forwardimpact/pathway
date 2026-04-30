@@ -21,30 +21,32 @@ The same plumbing serves two parallel use cases.
 
 A **judge agent** observes a **target agent** via `fit-eval supervise`. The
 judge signals the verdict by calling `Conclude`; the exit code (`0` pass, `1`
-fail) makes the eval surface as a regular CI check. The trace captures the
-full session for inspection. (In CLI flag names, *supervisor* = judge,
-*agent* = target.)
+fail) makes the eval surface as a regular CI check. The trace captures the full
+session for inspection. (In CLI flag names, _supervisor_ = judge, _agent_ =
+target.)
 
-→ [Agent Evaluations guide](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
+→
+[Agent Evaluations guide](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
 
 ### 2. Agent collaboration
 
-A **facilitator** coordinates **N participant agents** via `fit-eval
-facilitate`. Participants and the facilitator pass targeted messages with
-`Ask`/`Answer` and broadcast with `Announce`; the facilitator ends the
+A **facilitator** coordinates **N participant agents** via
+`fit-eval facilitate`. Participants and the facilitator pass targeted messages
+with `Ask`/`Answer` and broadcast with `Announce`; the facilitator ends the
 session with `Conclude`. The trace records every message and tool call.
 
-→ [Agent Collaboration guide](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
+→
+[Agent Collaboration guide](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
 
-`run` is the autonomous building block under both — a single agent on a
-defined task, no supervisor or facilitator.
+`run` is the autonomous building block under both — a single agent on a defined
+task, no supervisor or facilitator.
 
 ## Modes at a Glance
 
-| Mode         | Shape                              | Pick when                                                        |
-| ------------ | ---------------------------------- | ---------------------------------------------------------------- |
-| `run`        | One agent, autonomous              | Task is well-scoped and you trust the agent to finish unattended |
-| `supervise`  | Supervisor + agent, relay loop     | A second model should observe and intervene during the run       |
+| Mode         | Shape                                     | Pick when                                                        |
+| ------------ | ----------------------------------------- | ---------------------------------------------------------------- |
+| `run`        | One agent, autonomous                     | Task is well-scoped and you trust the agent to finish unattended |
+| `supervise`  | Supervisor + agent, relay loop            | A second model should observe and intervene during the run       |
 | `facilitate` | Facilitator + N participants, message bus | The work needs multiple specialists coordinating in one session  |
 
 ## CLI
@@ -60,21 +62,25 @@ options, and output commands — lives in [references/cli.md](references/cli.md)
 
 ## Orchestration Tools
 
-In `supervise` and `facilitate` modes, agents coordinate via tool calls
-instead of free-form chat. The same tools serve both use cases — verdict
-signaling for evaluations, message passing for collaboration. The trace
-records each call.
+In `supervise` and `facilitate` modes, agents coordinate via tool calls instead
+of free-form chat. The same tools serve both use cases — verdict signaling for
+evaluations, message passing for collaboration. The trace records each call.
 
-| Tool       | Caller                          | Effect                                                  |
-| ---------- | ------------------------------- | ------------------------------------------------------- |
-| `Ask`      | Any                             | Send a question to a target; reply arrives via `Answer` |
-| `Answer`   | Agent / participant             | Reply to an `Ask` addressed to you                      |
-| `Announce` | Any                             | Broadcast a message with no reply expected              |
-| `Conclude` | Supervisor / facilitator        | End the session with a final summary                    |
-| `Redirect` | Supervisor (supervise mode)     | Interrupt the agent with replacement instructions       |
-| `RollCall` | Any                             | List the participants currently in the session          |
+| Tool       | Caller                      | Effect                                                  |
+| ---------- | --------------------------- | ------------------------------------------------------- |
+| `Ask`      | Any                         | Send a question to a target; reply arrives via `Answer` |
+| `Answer`   | Agent / participant         | Reply to an `Ask` addressed to you                      |
+| `Announce` | Any                         | Broadcast a message with no reply expected              |
+| `Conclude` | Supervisor / facilitator    | End the session with a final summary                    |
+| `Redirect` | Supervisor (supervise mode) | Interrupt the agent with replacement instructions       |
+| `RollCall` | Any                         | List the participants currently in the session          |
 
-Tool surface differs by role: supervisors use `Ask`/`Announce`/`Conclude`/`Redirect`/`RollCall`; supervised agents use `Ask`/`Answer`/`Announce`/`RollCall`; facilitators use `Ask`/`Announce`/`Conclude`/`RollCall` (no `Redirect` — the facilitator re-`Ask`s instead); facilitated participants use `Ask`/`Answer`/`Announce`/`RollCall`.
+Tool surface differs by role: supervisors use
+`Ask`/`Announce`/`Conclude`/`Redirect`/`RollCall`; supervised agents use
+`Ask`/`Answer`/`Announce`/`RollCall`; facilitators use
+`Ask`/`Announce`/`Conclude`/`RollCall` (no `Redirect` — the facilitator
+re-`Ask`s instead); facilitated participants use
+`Ask`/`Answer`/`Announce`/`RollCall`.
 
 ---
 
@@ -117,10 +123,10 @@ npx fit-eval facilitate \
 
 ## Handing Off to `fit-trace`
 
-Every `fit-eval` execution command produces NDJSON. Once it's on disk, the
-work shifts from running to understanding — that's where `fit-trace` takes
-over. Use `fit-trace overview`, `timeline`, `search`, `errors`, and
-`stats` against the same file to study what the agent did and why.
+Every `fit-eval` execution command produces NDJSON. Once it's on disk, the work
+shifts from running to understanding — that's where `fit-trace` takes over. Use
+`fit-trace overview`, `timeline`, `search`, `errors`, and `stats` against the
+same file to study what the agent did and why.
 
 The `fit-eval` skill stops at the trace file. The `fit-trace` skill picks up
 from there.
@@ -130,11 +136,11 @@ from there.
 ## Documentation
 
 - [Agent Evaluations](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
-  — Author a judge profile, run an eval locally, wire it into CI, and
-  inspect the resulting trace.
+  — Author a judge profile, run an eval locally, wire it into CI, and inspect
+  the resulting trace.
 - [Agent Collaboration](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
-  — Author a facilitator and participant profiles, run a multi-agent
-  session, and read the message flow.
+  — Author a facilitator and participant profiles, run a multi-agent session,
+  and read the message flow.
 - [Trace Analysis](https://www.forwardimpact.team/docs/guides/trace-analysis/index.md)
   — Read the NDJSON traces produced by `fit-eval` with `fit-trace` —
   grounded-theory method and worked examples.

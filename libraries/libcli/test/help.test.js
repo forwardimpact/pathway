@@ -235,10 +235,7 @@ describe("HelpRenderer", () => {
       assert.ok(!stream.output.includes("Documentation:"));
 
       const stream2 = createStream();
-      createRenderer().render(
-        { name: "fit-test", documentation: [] },
-        stream2,
-      );
+      createRenderer().render({ name: "fit-test", documentation: [] }, stream2);
       assert.ok(!stream2.output.includes("Documentation:"));
     });
 

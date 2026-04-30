@@ -182,8 +182,7 @@ const definition = {
       options: {
         mode: {
           type: "string",
-          description:
-            "Execution mode: run (no-op), supervise, or facilitate",
+          description: "Execution mode: run (no-op), supervise, or facilitate",
         },
         "output-dir": {
           type: "string",

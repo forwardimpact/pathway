@@ -27,16 +27,16 @@ description: >
 
 ## Libraries
 
-| Library      | Capabilities                                                                 | Key Exports                                                                                             |
-| ------------ | ---------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
+| Library      | Capabilities                                                                                              | Key Exports                                                                                             |
+| ------------ | --------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------- |
 | libcli       | Parse arguments, render help text (including skill documentation links), format tables and colored output | `Cli`, `createCli`, `HelpRenderer`, `SummaryRenderer`, `formatTable`, `colorize`                        |
-| librepl      | Run interactive REPL sessions, surface skill documentation links in `--help` | `Repl`                                                                                                  |
-| libutil      | Retry with backoff, count tokens, hash, find project root, download tarballs | `Retry`, `createRetry`, `countTokens`, `generateHash`, `Finder`, `BundleDownloader`                     |
-| libsecret    | Generate secrets, JWTs, read and write .env files                            | `generateSecret`, `generateBase64Secret`, `generateJWT`, `getOrGenerateSecret`                          |
-| libsupervise | Supervise daemons with restart policies and log rotation                     | `SupervisionTree`, `createSupervisionTree`, `LongrunProcess`, `OneshotProcess`, `LogWriter`             |
-| librc        | Manage service lifecycles via svscan daemon and Unix sockets                 | `ServiceManager`, `sendCommand`, `waitForSocket`                                                        |
-| libcodegen   | Generate types, services, and definitions from .proto files                  | `CodegenBase`, `CodegenTypes`, `CodegenServices`, `CodegenDefinitions`                                  |
-| libeval      | Process Claude Code traces, run agent evaluations, supervise loops           | `TraceCollector`, `createTraceCollector`, `AgentRunner`, `createAgentRunner`, `Supervisor`, `TeeWriter` |
+| librepl      | Run interactive REPL sessions, surface skill documentation links in `--help`                              | `Repl`                                                                                                  |
+| libutil      | Retry with backoff, count tokens, hash, find project root, download tarballs                              | `Retry`, `createRetry`, `countTokens`, `generateHash`, `Finder`, `BundleDownloader`                     |
+| libsecret    | Generate secrets, JWTs, read and write .env files                                                         | `generateSecret`, `generateBase64Secret`, `generateJWT`, `getOrGenerateSecret`                          |
+| libsupervise | Supervise daemons with restart policies and log rotation                                                  | `SupervisionTree`, `createSupervisionTree`, `LongrunProcess`, `OneshotProcess`, `LogWriter`             |
+| librc        | Manage service lifecycles via svscan daemon and Unix sockets                                              | `ServiceManager`, `sendCommand`, `waitForSocket`                                                        |
+| libcodegen   | Generate types, services, and definitions from .proto files                                               | `CodegenBase`, `CodegenTypes`, `CodegenServices`, `CodegenDefinitions`                                  |
+| libeval      | Process Claude Code traces, run agent evaluations, supervise loops                                        | `TraceCollector`, `createTraceCollector`, `AgentRunner`, `createAgentRunner`, `Supervisor`, `TeeWriter` |
 
 ## Decision Guide
 
@@ -45,11 +45,11 @@ description: >
   summary output via `SummaryRenderer`. Never hand-roll `process.argv` parsing.
 - **Documentation links in `--help`** — Whenever a CLI has a matching
   `.claude/skills/fit-*/SKILL.md`, mirror its `## Documentation` section into
-  the CLI definition's `documentation` array. Both libcli and librepl render
-  it under `--help` (and pass it through to `--help --json`), so agents that
-  reach the CLI without the skill loaded still get the same progressive-
-  disclosure links. Use the same titles, fully qualified `index.md` URLs, and
-  blurbs as the skill — the two surfaces must stay in sync.
+  the CLI definition's `documentation` array. Both libcli and librepl render it
+  under `--help` (and pass it through to `--help --json`), so agents that reach
+  the CLI without the skill loaded still get the same progressive- disclosure
+  links. Use the same titles, fully qualified `index.md` URLs, and blurbs as the
+  skill — the two surfaces must stay in sync.
 - **librepl vs readline** — Use `Repl` for interactive command loops. It handles
   prompt display, history, and command dispatch. Never use raw `readline`.
 - **libsupervise vs librc** — `libsupervise` for direct process supervision

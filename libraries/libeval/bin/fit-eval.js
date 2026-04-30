@@ -25,8 +25,14 @@ const definition = {
       args: "",
       description: "Run a single agent autonomously on a defined task",
       options: {
-        "task-file": { type: "string", description: "Path to a markdown task file" },
-        "task-text": { type: "string", description: "Inline task text (alternative to --task-file)" },
+        "task-file": {
+          type: "string",
+          description: "Path to a markdown task file",
+        },
+        "task-text": {
+          type: "string",
+          description: "Inline task text (alternative to --task-file)",
+        },
         "task-amend": {
           type: "string",
           description: "Additional text appended to the task",
@@ -36,9 +42,15 @@ const definition = {
           type: "string",
           description: "Max agentic turns (default: 50, 0 = unlimited)",
         },
-        output: { type: "string", description: "Write the NDJSON trace to a file" },
+        output: {
+          type: "string",
+          description: "Write the NDJSON trace to a file",
+        },
         cwd: { type: "string", description: "Working directory for the agent" },
-        "agent-profile": { type: "string", description: "Agent profile name to load" },
+        "agent-profile": {
+          type: "string",
+          description: "Agent profile name to load",
+        },
         "allowed-tools": {
           type: "string",
           description: "Comma-separated tool allowlist",
@@ -51,8 +63,14 @@ const definition = {
       description:
         "Run a supervisor–agent relay — typical shape for agent-as-judge evaluations",
       options: {
-        "task-file": { type: "string", description: "Path to a markdown task file" },
-        "task-text": { type: "string", description: "Inline task text (alternative to --task-file)" },
+        "task-file": {
+          type: "string",
+          description: "Path to a markdown task file",
+        },
+        "task-text": {
+          type: "string",
+          description: "Inline task text (alternative to --task-file)",
+        },
         "task-amend": {
           type: "string",
           description: "Additional text appended to the task",
@@ -62,7 +80,10 @@ const definition = {
           type: "string",
           description: "Max agentic turns (default: 20, 0 = unlimited)",
         },
-        output: { type: "string", description: "Write the NDJSON trace to a file" },
+        output: {
+          type: "string",
+          description: "Write the NDJSON trace to a file",
+        },
         "agent-profile": { type: "string", description: "Agent profile name" },
         "allowed-tools": {
           type: "string",
@@ -89,8 +110,14 @@ const definition = {
       description:
         "Run a facilitator with N participants — typical shape for multi-agent collaboration",
       options: {
-        "task-file": { type: "string", description: "Path to a markdown task file" },
-        "task-text": { type: "string", description: "Inline task text (alternative to --task-file)" },
+        "task-file": {
+          type: "string",
+          description: "Path to a markdown task file",
+        },
+        "task-text": {
+          type: "string",
+          description: "Inline task text (alternative to --task-file)",
+        },
         "task-amend": {
           type: "string",
           description: "Additional text appended to the task",
@@ -100,7 +127,10 @@ const definition = {
           type: "string",
           description: "Max agentic turns (default: 20, 0 = unlimited)",
         },
-        output: { type: "string", description: "Write the NDJSON trace to a file" },
+        output: {
+          type: "string",
+          description: "Write the NDJSON trace to a file",
+        },
         "facilitator-cwd": {
           type: "string",
           description: "Facilitator working directory",
@@ -111,7 +141,8 @@ const definition = {
         },
         "agent-profiles": {
           type: "string",
-          description: "Comma-separated list of participant profile names (required)",
+          description:
+            "Comma-separated list of participant profile names (required)",
         },
         "agent-cwd": {
           type: "string",

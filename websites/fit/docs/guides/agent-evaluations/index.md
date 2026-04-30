@@ -20,17 +20,16 @@ eval suite on every push.
 - Node.js 18+
 - `ANTHROPIC_API_KEY` available to the workflow
 - A repository where you want the eval to run
-- The `fit-eval` and `fit-trace` CLIs (both ship in
-  `@forwardimpact/libeval`) — install once with `npm install -g
-  @forwardimpact/libeval` and call `fit-eval`/`fit-trace` directly, or
-  invoke ephemerally in CI with `npx --yes @forwardimpact/libeval
-  fit-eval ...` (no install step needed)
+- The `fit-eval` and `fit-trace` CLIs (both ship in `@forwardimpact/libeval`) —
+  install once with `npm install -g @forwardimpact/libeval` and call
+  `fit-eval`/`fit-trace` directly, or invoke ephemerally in CI with
+  `npx --yes @forwardimpact/libeval fit-eval ...` (no install step needed)
 
 ## 1. Write the task
 
-The task file is a plain markdown prompt — what you want the target agent to
-do. Keep it specific and measurable; an eval is only as good as the task it
-asks the agent to perform.
+The task file is a plain markdown prompt — what you want the target agent to do.
+Keep it specific and measurable; an eval is only as good as the task it asks the
+agent to perform.
 
 ```md
 <!-- evals/refactor-utils/task.md -->
@@ -70,10 +69,10 @@ calling `Conclude`. Conclude with `success: false` if any criterion fails;
 include a one-paragraph summary of the gap.
 ```
 
-The judge has its own working directory (`--supervisor-cwd`) and tool
-allowlist (`--supervisor-allowed-tools`). Give it whatever it needs to verify
-the work — typically `Read`, `Grep`, `Bash` — but not `Write` or `Edit`,
-since the judge should not be doing the work.
+The judge has its own working directory (`--supervisor-cwd`) and tool allowlist
+(`--supervisor-allowed-tools`). Give it whatever it needs to verify the work —
+typically `Read`, `Grep`, `Bash` — but not `Write` or `Edit`, since the judge
+should not be doing the work.
 
 ## 3. Run the eval locally
 
@@ -98,8 +97,8 @@ means it concluded with `success: false`, ran out of turns, or errored.
 
 ## 4. Run it in GitHub Actions
 
-A two-step workflow is enough: run the eval, then split and upload the trace
-so you can inspect it later. The eval's exit code is the job's exit code.
+A two-step workflow is enough: run the eval, then split and upload the trace so
+you can inspect it later. The eval's exit code is the job's exit code.
 
 ```yaml
 # .github/workflows/eval.yml
@@ -153,10 +152,10 @@ jobs:
           path: /tmp/trace/*.ndjson
 ```
 
-`if: always()` on the split and upload steps ensures the trace is preserved
-even when the eval fails — which is when you most need it. `split
---mode=supervise` produces `trace-agent.ndjson` and `trace-supervisor.ndjson`
-alongside the original combined trace.
+`if: always()` on the split and upload steps ensures the trace is preserved even
+when the eval fails — which is when you most need it. `split --mode=supervise`
+produces `trace-agent.ndjson` and `trace-supervisor.ndjson` alongside the
+original combined trace.
 
 ## 5. Read the results
 
@@ -180,8 +179,8 @@ command surface.
 
 ## Scaling to a suite
 
-Each eval is a `task.md` plus one or more judge profiles. Add a matrix to
-fan them out:
+Each eval is a `task.md` plus one or more judge profiles. Add a matrix to fan
+them out:
 
 ```yaml
 strategy:
@@ -198,21 +197,21 @@ first failure's.
 
 ## Notes
 
-- **`--max-turns=0`** removes the turn cap. Use it for exploratory runs;
-  always set a real budget in CI.
-- **`--task-amend`** appends extra steering text to the task without editing
-  the task file — useful for parameterising the same task across a matrix.
-- **Judge tool allowlist matters.** A judge with `Edit` access can rewrite
-  the agent's work and mask failures. Restrict it to read-only tools.
+- **`--max-turns=0`** removes the turn cap. Use it for exploratory runs; always
+  set a real budget in CI.
+- **`--task-amend`** appends extra steering text to the task without editing the
+  task file — useful for parameterising the same task across a matrix.
+- **Judge tool allowlist matters.** A judge with `Edit` access can rewrite the
+  agent's work and mask failures. Restrict it to read-only tools.
 - **The judge's profile is a system prompt, not a contract.** It steers the
-  judge but doesn't bind it. Treat eval verdicts as you would a code review
-  from a strong but fallible reviewer — useful signal, not ground truth.
+  judge but doesn't bind it. Treat eval verdicts as you would a code review from
+  a strong but fallible reviewer — useful signal, not ground truth.
 
 ## Related
 
-- [Trace Analysis](../trace-analysis/index.md) — read the NDJSON traces
-  this guide produces, with worked examples including a failed eval.
+- [Trace Analysis](../trace-analysis/index.md) — read the NDJSON traces this
+  guide produces, with worked examples including a failed eval.
 - [fit-trace](../../reference/cli/index.md) — full `fit-trace` CLI command
   surface.
-- [Agent Teams Guide](../agent-teams/index.md) — how agent profiles are
-  authored and what they contain.
+- [Agent Teams Guide](../agent-teams/index.md) — how agent profiles are authored
+  and what they contain.
