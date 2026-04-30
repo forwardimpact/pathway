@@ -103,6 +103,17 @@ const definition = {
     "fit-summit coverage platform",
     "fit-summit what-if platform --add 'Jane, senior, backend'",
   ],
+  documentation: [
+    {
+      title: "Team Capability Guide",
+      url: "https://www.forwardimpact.team/docs/guides/team-capability/index.md",
+      description: "Coverage heatmaps, structural risks, and what-if scenarios.",
+    },
+    {
+      title: "CLI Reference",
+      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
+    },
+  ],
 };
 ```
 
@@ -115,6 +126,12 @@ const definition = {
 - **`commands[].examples`** — Per-command examples, shown only in per-command
   help.
 - **`examples`** — Top-level examples, shown only in global help.
+- **`documentation`** — Array of `{ title, url, description? }` entries that
+  link out to published guides on the fit-doc site. Mirrors the matching
+  SKILL.md `## Documentation` section so agents reaching the CLI without the
+  skill loaded get the same progressive-disclosure links from `--help`. URLs
+  must be fully qualified and end with `/index.md` — see
+  [§ Documentation links](#documentation-links).
 
 **Legacy schema rejected:** Passing a top-level `options` field (instead of
 `globalOptions`) throws at startup with a migration message. See
@@ -149,10 +166,19 @@ Examples:
   fit-summit coverage platform
   fit-summit what-if platform --add 'Jane, senior, backend'
 
+Documentation:
+  Team Capability Guide
+    https://www.forwardimpact.team/docs/guides/team-capability/index.md
+    Coverage heatmaps, structural risks, and what-if scenarios.
+  CLI Reference
+    https://www.forwardimpact.team/docs/reference/cli/index.md
+
 Use fit-summit <command> --help for command-specific options.
 ```
 
-The hint line at the bottom is the only indication that per-command help exists.
+The Documentation section appears between Examples and the hint line, and is
+omitted entirely when `documentation` is unset. The hint line at the bottom is
+the only indication that per-command help exists.
 
 ### Per-command help (`<command> --help`)
 
@@ -208,11 +234,46 @@ $ fit-summit -h | grep add
 - `--help` renders human-readable formatted text to stdout
 - `--help --json` emits structured JSON
 
-Global `--help --json` emits the full definition object. Per-command
-`--help --json` emits a focused object with `parent`, `name`, `args`,
-`description`, `options`, `globalOptions` (without `--version`), and `examples`.
+Global `--help --json` emits the full definition object — including the
+`documentation` array verbatim, so agents that consume help via JSON get the
+links as structured data rather than parsing them out of the rendered text.
+Per-command `--help --json` emits a focused object with `parent`, `name`,
+`args`, `description`, `options`, `globalOptions` (without `--version`), and
+`examples`.
 
 Both modes are handled automatically by `cli.parse()`.
+
+### Documentation links
+
+The `documentation` field is the bridge between a CLI and its skill. Each
+fit-\* skill ends with a `## Documentation` section listing fully qualified
+`.md` URLs published by the fit-doc static site generator; the same entries
+belong on the CLI definition so an agent that reaches the CLI without
+the skill — no skill installed, the skill omitted to save context, or a
+direct invocation in CI — gets the same progressive-disclosure links.
+
+Each entry is a plain object:
+
+```js
+{
+  title: "Team Capability Guide",
+  url: "https://www.forwardimpact.team/docs/guides/team-capability/index.md",
+  description: "Coverage heatmaps, structural risks, and what-if scenarios.",
+}
+```
+
+The `description` is optional; entries without one render as title + URL only.
+URLs should end with `/index.md` so agents fetching them receive raw markdown
+rather than rendered HTML — fit-doc emits an `index.md` companion for every
+HTML page and advertises it via
+`<link rel="alternate" type="text/markdown">`.
+
+When wiring a CLI, copy the entries directly from the matching
+`.claude/skills/fit-*/SKILL.md` so both surfaces stay in sync.
+
+[librepl](#composition-with-other-libraries) accepts the same `documentation`
+field with the same shape, so REPL-based CLIs (fit-guide) expose the section
+under `--help` alongside their interactive command list.
 
 ---
 
@@ -342,7 +403,7 @@ libcli covers CLI chrome. Other libraries handle content and sessions:
 | ---------------- | ------------------------------------------------------------ |
 | **libcli**       | CLI chrome: help, errors, summaries, argument parsing, color |
 | **libformat**    | Content rendering: markdown to HTML or ANSI terminal output  |
-| **librepl**      | Interactive sessions: command loops, state, history          |
+| **librepl**      | Interactive sessions: command loops, state, history, `documentation` pass-through in `--help` |
 | **libtelemetry** | Operational diagnostics: Logger, Tracer, Observer            |
 
 A CLI that renders markdown (fit-guide) uses **libformat** for content and
@@ -376,6 +437,13 @@ const definition = {
     "fit-example data.yaml",
     "fit-example data.yaml --json",
   ],
+  documentation: [
+    {
+      title: "Example Guide",
+      url: "https://www.forwardimpact.team/docs/guides/example/index.md",
+      description: "Task-oriented walkthrough for fit-example.",
+    },
+  ],
 };
 
 const logger = createLogger("example");
@@ -405,5 +473,6 @@ main().catch((error) => {
 ```
 
 This demonstrates: shebang line, imports, definition as data, Logger creation,
-`cli.parse()` with null check, positional validation with usage error, and the
-top-level catch pattern with exception logging.
+`cli.parse()` with null check, positional validation with usage error,
+documentation links mirroring the matching SKILL.md, and the top-level catch
+pattern with exception logging.
