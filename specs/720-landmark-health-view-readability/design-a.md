@@ -15,9 +15,9 @@ JSON output is exempt by spec.
 
 ```mermaid
 flowchart LR
-  CLI[bin/fit-landmark] -->|values.verbose| CLI
-  Cmd[commands/health] -->|view, meta\nformat, warnings, emptyState| CLI
-  CLI -->|augments meta\nadds meta.verbose| Disp[formatters/index\nformatResult]
+  Parse[CLI parse] -->|values.verbose| CLI[bin/fit-landmark.js]
+  Cmd[commands/health] -->|view, meta| CLI
+  CLI -->|sets meta.verbose| Disp[formatters/index — formatResult]
   Disp -->|view, meta| Fmt[formatters/health]
   Fmt -->|toText / toMarkdown| Out[stdout]
   subgraph formatters/health
@@ -29,13 +29,13 @@ flowchart LR
   end
 ```
 
-| Component                              | Module                                         | Role                                                                                                                   |
-| -------------------------------------- | ---------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------- |
-| `verbose` per-command option           | landmark CLI binary                            | Surface a boolean flag on the `health` command only; `values.verbose` flows out of `cli.parse(...)`.                   |
-| `meta.verbose` augmentation            | landmark CLI binary, after the handler returns | The handler builds `meta`; the binary copies `values.verbose` into `meta.verbose` before invoking `formatResult`.      |
-| `formatters/health` default formatters | shared formatter module                        | Today's `toText(view)` and `toMarkdown(view)` extend to `(view, meta)` and dispatch on `meta.verbose`. JSON unchanged. |
-| `dedupeRecommendations(drivers)`       | private helper inside `formatters/health`      | Walk `drivers[].recommendations[].candidates[]`; collapse to one `DedupedRec` per `(candidate.email, rec.skill)`.      |
-| `renderScoreCells(driver, verbose)`    | private helper inside `formatters/health`      | Returns the cell tuple for a driver row in default mode and the multi-anchor block in verbose mode.                    |
+| Component                              | Module                                         | Role                                                                                                                 |
+| -------------------------------------- | ---------------------------------------------- | -------------------------------------------------------------------------------------------------------------------- |
+| `verbose` per-command option           | landmark CLI binary                            | Surface a boolean flag on the `health` command only; `values.verbose` flows out of `cli.parse(...)`.                 |
+| `meta.verbose` augmentation            | landmark CLI binary, after the handler returns | The handler builds `meta`; the binary copies `values.verbose` into `meta.verbose` before invoking `formatResult`.    |
+| `formatters/health` default formatters | shared formatter module                        | Function declarations extend from `(view)` to `(view, meta)`; dispatcher already passes `meta`. JSON path unchanged. |
+| `dedupeRecommendations(drivers)`       | private helper inside `formatters/health`      | Walk `drivers[].recommendations[].candidates[]`; collapse to one `DedupedRec` per `(candidate.email, rec.skill)`.    |
+| `renderScoreCells(driver, verbose)`    | private helper inside `formatters/health`      | Returns the cell tuple for a driver row in default mode and the multi-anchor block in verbose mode.                  |
 
 ## Data Flow
 
@@ -108,26 +108,25 @@ Driver iteration order matches `view.drivers`; no new sort. The plural header
 - **Alice** (Level I) could develop `incident_response` — for Reliability (high)
 ```
 
-`More` reads `+N anchors via --verbose` (where N = count of non-null `vs_*`
-fields), or `-` if none. No literal arrow glyphs (escape-free in markdown).
+`More` reads `+N anchors via --verbose` where N = count of non-null hidden
+anchors (`vs_prev`, `vs_50th`, `vs_75th`, `vs_90th`); the displayed `vs_org` is
+not counted. `-` if all hidden anchors are null. No literal arrow glyphs.
 
 ## Verbose Layout
 
 `meta.verbose === true` reuses today's paragraph form (driver heading,
-contributing skills, evidence counts, comments, recommendations, initiatives)
-with two changes: the score line lists all four percentile anchors, and the
-deduped recommendation set replaces the per-driver fan-out. Information parity
-with today's text formatter holds (success criterion 3).
+contributing skills, evidence counts, comments, recommendations, initiatives).
+Score line lists all four hidden anchors; recs render inline per driver but each
+`(candidate, skill)` appears only on its first occurrence — the same
+`DedupedRec` set powers both modes (success criterion 3).
 
 ## Multi-Candidate Recommendation Dedup
 
 `recommendations[].candidates` is an array. Dedup is keyed per
-`(candidate.email, rec.skill)`, not per `(rec, skill)` — a rec naming two
-candidates yields two `DedupedRec` entries. The helper walks
-`drivers → recommendations → candidates`, emits one entry per first-seen key,
-and appends `driver.id` to `driverIds` on later hits. `impact` is taken from the
-first occurrence; `driverIds` powers the trailer's "for Quality, Reliability"
-phrase.
+`(candidate.email, rec.skill)` — a rec naming two candidates yields two
+`DedupedRec` entries. The helper walks `drivers → recommendations → candidates`,
+emits one entry per first-seen key, and appends `driver.name` to `driverNames`
+on later hits. `impact` is taken from the first occurrence.
 
 ## Key Decisions
 
@@ -169,7 +168,7 @@ interface DedupedRec {
   candidate: { name?: string; email: string; currentLevel: string }
   skill: string
   impact: string
-  driverIds: string[] // every driver the rec was attached to, for the trailer "for X" phrase
+  driverNames: string[] // driver.name values, for the trailer "for Quality, Reliability" phrase
 }
 ```
 
@@ -193,7 +192,8 @@ this design does not modify them.
 
 ## Out of Scope (for the planner)
 
-File-level edits, doc wording, execution ordering, and test assertions are the
-plan's job.
+File-level edits, doc wording, execution ordering, test assertions. Doc pages in
+spec scope (landmark product page + leadership getting-started) each own one
+`--verbose` mention and one sample of the new default; planner picks placement.
 
 — Staff Engineer 🛠️
