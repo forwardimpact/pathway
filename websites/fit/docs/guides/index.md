@@ -38,7 +38,7 @@ progression between levels.
 
 ### Knowledge Systems
 
-Set up Basecamp for personal knowledge management — scheduler, tasks, and
+Set up Outpost for personal knowledge management — scheduler, tasks, and
 knowledge base structure.
 
 </a>

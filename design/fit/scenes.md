@@ -60,9 +60,9 @@ mountains are background, not foreground — lighter and simpler than the
 characters. The trio is at the starting point, not yet on the trail. The trio
 stands close enough that shoulders nearly overlap.
 
-## Scene: Basecamp — Setting Up Camp
+## Scene: Outpost — Setting Up Camp
 
-**Context:** Basecamp product pages, knowledge management, workspace features.
+**Context:** Outpost product pages, knowledge management, workspace features.
 
 ```
         ╳
@@ -178,11 +178,11 @@ mountain peak; Pathway owns the trail.
 | Guide product hero           | Finding North            | 320–400px |
 | Landmark product hero        | Reading the Signals      | 320–400px |
 | Summit product hero          | Planning the Ascent      | 320–400px |
-| Basecamp product hero        | Setting Up Camp          | 320–400px |
+| Outpost product hero        | Setting Up Camp          | 320–400px |
 | Product cards (suite page)   | Product scenes (cropped) | 120–160px |
 | Error / empty states         | Single character         | 80–120px  |
 | Loading states               | AI Agent + compass       | 48–80px   |
 
 **Asset status:** Hero illustrations exist in `design/fit/assets/` for Map,
-Pathway, Guide, Basecamp, and Documentation Dig. Landmark and Summit scenes are
+Pathway, Guide, Outpost, and Documentation Dig. Landmark and Summit scenes are
 specified above but not yet illustrated.

@@ -1,5 +1,5 @@
 ---
-title: Basecamp Internals
+title: Outpost Internals
 description: "Scheduler architecture — component table, process tree, macOS app, cache directory, and state management."
 ---
 
@@ -7,7 +7,7 @@ description: "Scheduler architecture — component table, process tree, macOS ap
 
 ```mermaid
 flowchart TD
-    CLI["fit-basecamp CLI"] --> Scheduler
+    CLI["fit-outpost CLI"] --> Scheduler
     Scheduler --> State["state.json"]
     Scheduler --> Tasks["Configured Tasks"]
     Tasks --> Claude["Claude CLI"]
@@ -15,7 +15,7 @@ flowchart TD
     Claude --> Skills["KB Skills (.claude/skills/)"]
 ```
 
-The composition root (`src/basecamp.js`) wires `StateManager` -> `AgentRunner`
+The composition root (`src/outpost.js`) wires `StateManager` -> `AgentRunner`
 -> `Scheduler` -> `SocketServer` with explicit dependency passing.
 
 ---
@@ -24,30 +24,30 @@ The composition root (`src/basecamp.js`) wires `StateManager` -> `AgentRunner`
 
 | Component       | Path                                         | Purpose                               |
 | --------------- | -------------------------------------------- | ------------------------------------- |
-| CLI & Scheduler | `products/basecamp/src/basecamp.js`          | Main entry point, daemon, task runner |
-| State Manager   | `products/basecamp/src/state-manager.js`     | Task run state persistence            |
-| Agent Runner    | `products/basecamp/src/agent-runner.js`      | Claude CLI process spawning           |
-| Scheduler       | `products/basecamp/src/scheduler.js`         | Interval-based task execution         |
-| Socket Server   | `products/basecamp/src/socket-server.js`     | IPC for macOS app communication       |
-| KB Manager      | `products/basecamp/src/kb-manager.js`        | Knowledge base operations             |
-| Default Config  | `products/basecamp/config/scheduler.json`    | Default task definitions              |
-| KB Template     | `products/basecamp/template/`                | Template for new knowledge bases      |
-| KB Skills       | `products/basecamp/template/.claude/skills/` | AI skill definitions for KB tasks     |
-| macOS App       | `products/basecamp/macos/`                   | Native status menu bar app            |
+| CLI & Scheduler | `products/outpost/src/outpost.js`          | Main entry point, daemon, task runner |
+| State Manager   | `products/outpost/src/state-manager.js`     | Task run state persistence            |
+| Agent Runner    | `products/outpost/src/agent-runner.js`      | Claude CLI process spawning           |
+| Scheduler       | `products/outpost/src/scheduler.js`         | Interval-based task execution         |
+| Socket Server   | `products/outpost/src/socket-server.js`     | IPC for macOS app communication       |
+| KB Manager      | `products/outpost/src/kb-manager.js`        | Knowledge base operations             |
+| Default Config  | `products/outpost/config/scheduler.json`    | Default task definitions              |
+| KB Template     | `products/outpost/template/`                | Template for new knowledge bases      |
+| KB Skills       | `products/outpost/template/.claude/skills/` | AI skill definitions for KB tasks     |
+| macOS App       | `products/outpost/macos/`                   | Native status menu bar app            |
 
 ---
 
 ## macOS App
 
-Basecamp includes a native macOS menu bar application built in Swift. The app
+Outpost includes a native macOS menu bar application built in Swift. The app
 provides a status menu icon, scheduler status display, and task execution
 controls.
 
 ```
-products/basecamp/macos/
+products/outpost/macos/
   Info.plist
-  Basecamp.entitlements
-  Basecamp/
+  Outpost.entitlements
+  Outpost/
     Package.swift
     Sources/
       main.swift              # App entry point
@@ -60,7 +60,7 @@ products/basecamp/macos/
 ### Building
 
 ```sh
-cd products/basecamp
+cd products/outpost
 bun run build:macos
 ```
 
@@ -69,8 +69,8 @@ bun run build:macos
 When running as an app bundle, the process hierarchy is:
 
 ```
-Basecamp.app (Swift launcher)
-  -> fit-basecamp daemon (Node.js scheduler)
+Outpost.app (Swift launcher)
+  -> fit-outpost daemon (Node.js scheduler)
      -> claude (spawned per task execution)
      -> claude (spawned per task execution)
 ```
@@ -82,7 +82,7 @@ socket server for status updates and task control.
 
 ## State Management
 
-Task state is stored in `~/.fit/basecamp/state.json`:
+Task state is stored in `~/.fit/outpost/state.json`:
 
 ```json
 {
@@ -102,7 +102,7 @@ due for execution based on their configured intervals.
 ## Cache Directory
 
 ```
-~/.cache/fit/basecamp/
+~/.cache/fit/outpost/
   apple_mail/       Cached Apple Mail data
   apple_calendar/   Cached Apple Calendar data
   drafts/           Draft responses
@@ -113,7 +113,7 @@ due for execution based on their configured intervals.
 
 ## Logging
 
-Logs are written to `~/.fit/basecamp/logs/scheduler-YYYY-MM-DD.log`. Basecamp
+Logs are written to `~/.fit/outpost/logs/scheduler-YYYY-MM-DD.log`. Outpost
 uses a local `createLogger(logDir, fs)` function (not libtelemetry) since it is
 a user-facing CLI tool.
 

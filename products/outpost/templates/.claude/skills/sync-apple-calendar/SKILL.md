@@ -1,13 +1,13 @@
 ---
 name: sync-apple-calendar
-description: Sync calendar events from the macOS Calendar app's local SQLite database into ~/.cache/fit/basecamp/apple_calendar/ as JSON files. Use on a schedule or when the user asks to sync their calendar. Requires macOS with Calendar app configured and Full Disk Access granted.
+description: Sync calendar events from the macOS Calendar app's local SQLite database into ~/.cache/fit/outpost/apple_calendar/ as JSON files. Use on a schedule or when the user asks to sync their calendar. Requires macOS with Calendar app configured and Full Disk Access granted.
 compatibility: Requires macOS with Apple Calendar configured and Full Disk Access granted to the terminal
 ---
 
 # Sync Apple Calendar
 
 Sync calendar events from the macOS Calendar app's local SQLite database into
-`~/.cache/fit/basecamp/apple_calendar/` as JSON files. This is an automated data
+`~/.cache/fit/outpost/apple_calendar/` as JSON files. This is an automated data
 pipeline skill — it ingests raw calendar data that other skills (like
 `extract-entities` and `meeting-prep`) consume downstream.
 
@@ -30,7 +30,7 @@ their calendar.
 
 ## Outputs
 
-- `~/.cache/fit/basecamp/apple_calendar/{event_id}.json` — one JSON file per
+- `~/.cache/fit/outpost/apple_calendar/{event_id}.json` — one JSON file per
   event (14-day sliding window)
 
 ---
@@ -51,7 +51,7 @@ The script:
 2. Queries all events in a sliding window (`--days` past / 14 days future) with
    a single SQL query
 3. Batch-fetches all attendees for those events in one query
-4. Writes one JSON file per event to `~/.cache/fit/basecamp/apple_calendar/`
+4. Writes one JSON file per event to `~/.cache/fit/outpost/apple_calendar/`
 5. Cleans up JSON files for events now outside the window
 6. Reports summary (events synced, files cleaned up)
 

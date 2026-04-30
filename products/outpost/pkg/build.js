@@ -1,10 +1,10 @@
 #!/usr/bin/env bun
 
-// Build script for Basecamp (arm64 macOS).
+// Build script for Outpost (arm64 macOS).
 //
 // Usage:
 //   bun pkg/build.js                    Prepare templates + scheduler + launcher
-//   bun pkg/build.js --app              Above + assemble Basecamp.app
+//   bun pkg/build.js --app              Above + assemble Outpost.app
 //   bun pkg/build.js --pkg              Above + .pkg installer
 //   bun pkg/build.js --prepare-template Copy fit-* skills into templates only
 //   bun pkg/build.js --scheduler        Compile scheduler binary only
@@ -25,9 +25,9 @@ const __dirname =
   import.meta.dirname || dirname(new URL(import.meta.url).pathname);
 const PROJECT_DIR = join(__dirname, "..");
 const DIST_DIR = join(PROJECT_DIR, "dist");
-const APP_NAME = "fit-basecamp";
-const LAUNCHER_NAME = "Basecamp";
-const LAUNCHER_DIR = join(PROJECT_DIR, "macos", "Basecamp");
+const APP_NAME = "fit-outpost";
+const LAUNCHER_NAME = "Outpost";
+const LAUNCHER_DIR = join(PROJECT_DIR, "macos", "Outpost");
 const VERSION = JSON.parse(
   readFileSync(join(PROJECT_DIR, "package.json"), "utf8"),
 ).version;
@@ -89,8 +89,8 @@ function compileScheduler() {
     "bun build",
     "--compile",
     `--outfile "${outputPath}"`,
-    `--define 'process.env.BASECAMP_VERSION'='"${VERSION}"'`,
-    "src/basecamp.js",
+    `--define 'process.env.OUTPOST_VERSION'='"${VERSION}"'`,
+    "src/outpost.js",
   ].join(" ");
 
   run(cmd, { cwd: PROJECT_DIR });
@@ -123,11 +123,11 @@ function compileLauncher() {
 }
 
 // ---------------------------------------------------------------------------
-// Assemble Basecamp.app bundle
+// Assemble Outpost.app bundle
 // ---------------------------------------------------------------------------
 
 function buildApp() {
-  console.log("\nAssembling Basecamp.app...");
+  console.log("\nAssembling Outpost.app...");
 
   const LIBMACOS = join(PROJECT_DIR, "..", "..", "libraries", "libmacos");
   const script = join(LIBMACOS, "scripts", "build-app.sh");
@@ -135,15 +135,15 @@ function buildApp() {
   run(
     [
       `bash "${script}"`,
-      `--bundle-name "Basecamp"`,
+      `--bundle-name "Outpost"`,
       `--primary-exec "${join(DIST_DIR, LAUNCHER_NAME)}"`,
       `--extra-exec "${join(DIST_DIR, APP_NAME)}"`,
       `--info-plist "${join(PROJECT_DIR, "macos", "Info.plist")}"`,
-      `--entitlements "${join(PROJECT_DIR, "macos", "Basecamp.entitlements")}"`,
+      `--entitlements "${join(PROJECT_DIR, "macos", "Outpost.entitlements")}"`,
       `--resource "${join(PROJECT_DIR, "config")}"`,
       `--resource "${join(PROJECT_DIR, "templates")}"`,
-      `--resource "${join(iconDir, "basecamp-flat.svg")}"`,
-      `--resource "${join(iconDir, "basecamp.svg")}"`,
+      `--resource "${join(iconDir, "outpost-flat.svg")}"`,
+      `--resource "${join(iconDir, "outpost.svg")}"`,
       `--version "${VERSION}"`,
       `--out-dir "${DIST_DIR}"`,
     ].join(" "),
@@ -188,7 +188,7 @@ if (want.app || want.pkg) {
   want.launcher = true;
 }
 
-console.log(`Basecamp Build (v${VERSION})`);
+console.log(`Outpost Build (v${VERSION})`);
 console.log("==========================");
 
 if (want.prepareTemplate) prepareTemplate();

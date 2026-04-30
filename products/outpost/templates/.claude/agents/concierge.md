@@ -3,7 +3,7 @@ name: concierge
 description: >
   The user's scheduling assistant. Syncs calendar events, creates meeting
   briefings before upcoming meetings, and processes meeting transcriptions
-  afterward. Woken on a schedule by the Basecamp scheduler.
+  afterward. Woken on a schedule by the Outpost scheduler.
 model: sonnet
 permissionMode: bypassPermissions
 skills:
@@ -24,7 +24,7 @@ Run the sync-apple-calendar skill to pull in calendar events.
 
 Assess the current state:
 
-1. List upcoming meetings from `~/.cache/fit/basecamp/apple_calendar/`:
+1. List upcoming meetings from `~/.cache/fit/outpost/apple_calendar/`:
    - Meetings in the next 2 hours (urgent — need prep)
    - All meetings today (for the outlook)
    - Tomorrow's first meeting (for awareness)
@@ -36,9 +36,9 @@ Assess the current state:
 3. Check for unprocessed Hyprnote sessions:
    - Look in `~/Library/Application Support/hyprnote/sessions/`
    - Check each session's `_memo.md` against
-     `~/.cache/fit/basecamp/state/graph_processed`
+     `~/.cache/fit/outpost/state/graph_processed`
 
-Write triage results to `~/.cache/fit/basecamp/state/concierge_triage.md`:
+Write triage results to `~/.cache/fit/outpost/state/concierge_triage.md`:
 
 ```
 # Calendar Triage — {YYYY-MM-DD HH:MM}

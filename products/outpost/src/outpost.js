@@ -1,17 +1,17 @@
 #!/usr/bin/env bun
 
-// Basecamp — CLI and scheduler for autonomous agent teams.
+// Outpost — CLI and scheduler for autonomous agent teams.
 //
 // Usage:
-//   fit-basecamp                     Wake due agents once and exit
-//   fit-basecamp daemon              Run continuously (poll every 60s)
-//   fit-basecamp wake <agent>        Wake a specific agent immediately
-//   fit-basecamp init <path>         Initialize a new knowledge base
-//   fit-basecamp update [path]       Update KB with latest CLAUDE.md, agents and skills
-//   fit-basecamp stop                Gracefully stop daemon and all running agents
-//   fit-basecamp validate            Validate agent definitions exist
-//   fit-basecamp status              Show agent status
-//   fit-basecamp --help              Show this help
+//   fit-outpost                     Wake due agents once and exit
+//   fit-outpost daemon              Run continuously (poll every 60s)
+//   fit-outpost wake <agent>        Wake a specific agent immediately
+//   fit-outpost init <path>         Initialize a new knowledge base
+//   fit-outpost update [path]       Update KB with latest CLAUDE.md, agents and skills
+//   fit-outpost stop                Gracefully stop daemon and all running agents
+//   fit-outpost validate            Validate agent definitions exist
+//   fit-outpost status              Show agent status
+//   fit-outpost --help              Show this help
 
 import {
   readFileSync,
@@ -28,7 +28,7 @@ import { fileURLToPath } from "node:url";
 import { createCli } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
-const logger = createLogger("basecamp");
+const logger = createLogger("outpost");
 
 import * as posixSpawn from "@forwardimpact/libmacos/posix-spawn";
 import { StateManager } from "./state-manager.js";
@@ -40,21 +40,21 @@ import { SocketServer, requestShutdown } from "./socket-server.js";
 // --- Paths -------------------------------------------------------------------
 
 const HOME = homedir();
-const BASECAMP_HOME = join(HOME, ".fit", "basecamp");
-const CONFIG_PATH = join(BASECAMP_HOME, "scheduler.json");
-const STATE_PATH = join(BASECAMP_HOME, "state.json");
-const LOG_DIR = join(BASECAMP_HOME, "logs");
-const CACHE_DIR = join(HOME, ".cache", "fit", "basecamp");
+const OUTPOST_HOME = join(HOME, ".fit", "outpost");
+const CONFIG_PATH = join(OUTPOST_HOME, "scheduler.json");
+const STATE_PATH = join(OUTPOST_HOME, "state.json");
+const LOG_DIR = join(OUTPOST_HOME, "logs");
+const CACHE_DIR = join(HOME, ".cache", "fit", "outpost");
 const __dirname =
   import.meta.dirname || dirname(fileURLToPath(import.meta.url));
-const SHARE_DIR = "/usr/local/share/fit-basecamp";
-const SOCKET_PATH = join(BASECAMP_HOME, "basecamp.sock");
+const SHARE_DIR = "/usr/local/share/fit-outpost";
+const SOCKET_PATH = join(OUTPOST_HOME, "outpost.sock");
 
 // In compiled binaries (bun build --compile), `bun build --define` injects the
 // version string here so the readFileSync branch is eliminated as dead code.
-// Source execution (bun src/basecamp.js) falls through to package.json.
+// Source execution (bun src/outpost.js) falls through to package.json.
 const VERSION =
-  process.env.BASECAMP_VERSION ||
+  process.env.OUTPOST_VERSION ||
   JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
     .version;
 
@@ -144,7 +144,7 @@ function requireTemplateDir() {
     join(__dirname, "..", "templates"),
   ])
     if (existsSync(d)) return d;
-  console.error("Template not found. Reinstall fit-basecamp.");
+  console.error("Template not found. Reinstall fit-outpost.");
   process.exit(1);
 }
 
@@ -202,7 +202,7 @@ function runUpdate(args) {
   if (kbPaths.length === 0) {
     console.error(
       "No knowledge bases configured and no path given.\n" +
-        "Usage: fit-basecamp update [path]",
+        "Usage: fit-outpost update [path]",
     );
     process.exit(1);
   }
@@ -218,7 +218,7 @@ function runUpdate(args) {
 function showStatus() {
   const config = loadConfig();
   const state = stateManager.load();
-  logger.info("\nBasecamp Scheduler\n==================\n");
+  logger.info("\nOutpost Scheduler\n==================\n");
 
   const agents = Object.entries(config.agents || {});
   if (agents.length === 0) {
@@ -291,7 +291,7 @@ function validate() {
 // --- CLI definition ----------------------------------------------------------
 
 const definition = {
-  name: "fit-basecamp",
+  name: "fit-outpost",
   version: VERSION,
   description: "Schedule autonomous agents across knowledge bases",
   commands: [
@@ -334,7 +334,7 @@ if (!parsed) process.exit(0);
 const { positionals } = parsed;
 const [command, ...args] = positionals;
 
-mkdirSync(BASECAMP_HOME, { recursive: true });
+mkdirSync(OUTPOST_HOME, { recursive: true });
 
 const COMMANDS = {
   daemon,

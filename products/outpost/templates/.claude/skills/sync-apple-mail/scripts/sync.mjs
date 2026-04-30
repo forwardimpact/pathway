@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Sync Apple Mail threads to ~/.cache/fit/basecamp/apple_mail/ as markdown.
+ * Sync Apple Mail threads to ~/.cache/fit/outpost/apple_mail/ as markdown.
  *
  * Queries the macOS Mail Envelope Index SQLite database for threads with new
  * messages since the last sync. Writes one markdown file per thread containing

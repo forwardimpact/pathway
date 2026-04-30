@@ -101,26 +101,26 @@ rg -l "{email}" knowledge/
 
 ```bash
 # Search synced email threads for mentions
-rg -l "{Name}" ~/.cache/fit/basecamp/apple_mail/ 2>/dev/null
-rg -l "{email}" ~/.cache/fit/basecamp/apple_mail/ 2>/dev/null
+rg -l "{Name}" ~/.cache/fit/outpost/apple_mail/ 2>/dev/null
+rg -l "{email}" ~/.cache/fit/outpost/apple_mail/ 2>/dev/null
 
 # Check for attachment directories containing their files
-find ~/.cache/fit/basecamp/apple_mail/attachments/ -iname "*{Name}*" 2>/dev/null
+find ~/.cache/fit/outpost/apple_mail/attachments/ -iname "*{Name}*" 2>/dev/null
 ```
 
 ### 1d. Cached Data — Calendar Events
 
 ```bash
 # Search calendar events
-rg -l "{Name}" ~/.cache/fit/basecamp/apple_calendar/ 2>/dev/null
-rg -l "{email}" ~/.cache/fit/basecamp/apple_calendar/ 2>/dev/null
+rg -l "{Name}" ~/.cache/fit/outpost/apple_calendar/ 2>/dev/null
+rg -l "{email}" ~/.cache/fit/outpost/apple_calendar/ 2>/dev/null
 ```
 
 ### 1e. Agent State Files
 
 ```bash
 # Search triage files for mentions
-rg -l "{Name}" ~/.cache/fit/basecamp/state/ 2>/dev/null
+rg -l "{Name}" ~/.cache/fit/outpost/state/ 2>/dev/null
 ```
 
 ### 1f. Drafts
@@ -141,7 +141,7 @@ For each discovered reference, classify the required action:
 | **Dedicated note** (sole subject)  | Delete entire file                          | `knowledge/People/{Name}.md`                    |
 | **Dedicated directory**            | Delete entire directory                     | `knowledge/Candidates/{Name}/`                  |
 | **Mention in another note**        | Redact: remove lines referencing the person | Backlink in `knowledge/Organizations/Agency.md` |
-| **Email thread** (sole subject)    | Delete file                                 | `~/.cache/fit/basecamp/apple_mail/thread.md`    |
+| **Email thread** (sole subject)    | Delete file                                 | `~/.cache/fit/outpost/apple_mail/thread.md`    |
 | **Email thread** (multiple people) | Redact: remove paragraphs about the person  | Thread discussing multiple candidates           |
 | **Attachment** (their CV, etc.)    | Delete file                                 | `attachments/{thread}/CV.pdf`                   |
 | **Triage/state file**              | Redact: remove lines mentioning them        | `recruiter_triage.md`                           |
@@ -161,7 +161,7 @@ rm -rf "knowledge/Candidates/{Name}/"
 rm -f "knowledge/People/{Name}.md"
 
 # Remove any attachments
-find ~/.cache/fit/basecamp/apple_mail/attachments/ -iname "*{Name}*" -delete
+find ~/.cache/fit/outpost/apple_mail/attachments/ -iname "*{Name}*" -delete
 ```
 
 ### 3b. Redact Mentions in Other Notes
@@ -187,7 +187,7 @@ For threads where the person is the **sole subject** (e.g., a recruitment email
 about only them):
 
 ```bash
-rm -f "~/.cache/fit/basecamp/apple_mail/{thread}.md"
+rm -f "~/.cache/fit/outpost/apple_mail/{thread}.md"
 ```
 
 For threads with **multiple people**, redact only the paragraphs about this
@@ -199,7 +199,7 @@ Remove mentions from triage files:
 
 ```bash
 # Regenerate triage files on next agent wake — just remove current mentions
-for f in ~/.cache/fit/basecamp/state/*_triage.md; do
+for f in ~/.cache/fit/outpost/state/*_triage.md; do
   if rg -q "{Name}" "$f" 2>/dev/null; then
     # Read, remove lines mentioning the person, write back
     rg -v "{Name}" "$f" > "$f.tmp" && mv "$f.tmp" "$f"
@@ -214,10 +214,10 @@ incorrectly tracked:
 
 ```bash
 # Remove processed-file entries for deleted paths
-rg -v "{deleted_path}" ~/.cache/fit/basecamp/state/graph_processed \
-  > ~/.cache/fit/basecamp/state/graph_processed.tmp \
-  && mv ~/.cache/fit/basecamp/state/graph_processed.tmp \
-       ~/.cache/fit/basecamp/state/graph_processed
+rg -v "{deleted_path}" ~/.cache/fit/outpost/state/graph_processed \
+  > ~/.cache/fit/outpost/state/graph_processed.tmp \
+  && mv ~/.cache/fit/outpost/state/graph_processed.tmp \
+       ~/.cache/fit/outpost/state/graph_processed
 ```
 
 ## Step 4: Write Erasure Report
@@ -251,12 +251,12 @@ Create the audit trail at `knowledge/Erasure/{Name}--{YYYY-MM-DD}.md`:
 - {list all redacted files and what was removed}
 
 ### Cached Data Removed
-- `~/.cache/fit/basecamp/apple_mail/{thread}.md` — deleted (sole subject)
-- `~/.cache/fit/basecamp/apple_mail/{thread2}.md` — redacted (multi-person)
+- `~/.cache/fit/outpost/apple_mail/{thread}.md` — deleted (sole subject)
+- `~/.cache/fit/outpost/apple_mail/{thread2}.md` — redacted (multi-person)
 - {list all cache actions}
 
 ### State Files Cleaned
-- `~/.cache/fit/basecamp/state/recruiter_triage.md` — redacted
+- `~/.cache/fit/outpost/state/recruiter_triage.md` — redacted
 - {list all state file actions}
 
 ## Requires Manual Action
@@ -279,7 +279,7 @@ The following data sources are outside this tool's reach:
 After erasure, verify no traces remain:
 
 ```bash
-rg "{Name}" knowledge/ ~/.cache/fit/basecamp/
+rg "{Name}" knowledge/ ~/.cache/fit/outpost/
 ````
 
 Expected result: no matches (except this erasure report).
@@ -296,7 +296,7 @@ not what it contained.
 Run a final search to confirm no references were missed:
 
 ```bash
-rg "{Name}" knowledge/ ~/.cache/fit/basecamp/ drafts/
+rg "{Name}" knowledge/ ~/.cache/fit/outpost/ drafts/
 ````
 
 The only match should be the erasure report itself. If other matches remain,

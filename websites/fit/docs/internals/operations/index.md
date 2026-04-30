@@ -134,8 +134,8 @@ result. Idempotent — safe to run repeatedly.
 bun run dev                   # Development server
 bunx fit-pathway dev          # Pathway dev server
 bunx fit-pathway build --url=X # Static site + install bundle
-bunx fit-basecamp init ~/Dir  # Initialize knowledge base
-bunx fit-basecamp daemon      # Run scheduler
+bunx fit-outpost init ~/Dir  # Initialize knowledge base
+bunx fit-outpost daemon      # Run scheduler
 ```
 
 ### Processing & Services

@@ -1,6 +1,6 @@
 #!/usr/bin/env bun
 /**
- * Sync Apple Calendar events to ~/.cache/fit/basecamp/apple_calendar/ as JSON.
+ * Sync Apple Calendar events to ~/.cache/fit/outpost/apple_calendar/ as JSON.
  *
  * Queries the macOS Calendar SQLite database (via node:sqlite) for events in a
  * sliding window — N days in the past through 14 days in the future. Writes one
@@ -35,7 +35,7 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 
 const HOME = homedir();
-const OUTDIR = join(HOME, ".cache/fit/basecamp/apple_calendar");
+const OUTDIR = join(HOME, ".cache/fit/outpost/apple_calendar");
 
 /** Core Data epoch: 2001-01-01T00:00:00Z */
 const EPOCH_MS = Date.UTC(2001, 0, 1);

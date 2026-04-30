@@ -8,7 +8,7 @@
  * as processed by storing their current SHA-256 hash.
  *
  * State is persisted as a TSV file at
- * ~/.cache/fit/basecamp/state/graph_processed (path<TAB>hash).
+ * ~/.cache/fit/outpost/state/graph_processed (path<TAB>hash).
  */
 
 if (process.argv.includes("-h") || process.argv.includes("--help")) {
@@ -19,7 +19,7 @@ Usage:
   node scripts/state.mjs update <path> [<path>…]  Mark files as processed
   node scripts/state.mjs -h|--help                 Show this help message
 
-State file: ~/.cache/fit/basecamp/state/graph_processed (TSV: path<TAB>hash)`);
+State file: ~/.cache/fit/outpost/state/graph_processed (TSV: path<TAB>hash)`);
   process.exit(0);
 }
 
@@ -36,11 +36,11 @@ import { homedir } from "node:os";
 import { join } from "node:path";
 
 const HOME = homedir();
-const STATE_FILE = join(HOME, ".cache/fit/basecamp/state/graph_processed");
+const STATE_FILE = join(HOME, ".cache/fit/outpost/state/graph_processed");
 const SOURCE_DIRS = [
-  join(HOME, ".cache/fit/basecamp/apple_mail"),
-  join(HOME, ".cache/fit/basecamp/apple_calendar"),
-  join(HOME, ".cache/fit/basecamp/teams_chat"),
+  join(HOME, ".cache/fit/outpost/apple_mail"),
+  join(HOME, ".cache/fit/outpost/apple_calendar"),
+  join(HOME, ".cache/fit/outpost/teams_chat"),
 ];
 
 /** Compute SHA-256 hash of a file. */
@@ -65,7 +65,7 @@ function loadState() {
 
 /** Write the full state Map back to the state file. */
 function saveState(state) {
-  const dir = join(HOME, ".cache/fit/basecamp/state");
+  const dir = join(HOME, ".cache/fit/outpost/state");
   mkdirSync(dir, { recursive: true });
   const entries = [...state.entries()].sort((a, b) => a[0].localeCompare(b[0]));
   const text = entries.length

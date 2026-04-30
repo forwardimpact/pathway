@@ -16,12 +16,12 @@ meetings.
 
 ## Prerequisites
 
-- Calendar data synced in `~/.cache/fit/basecamp/apple_calendar/`
+- Calendar data synced in `~/.cache/fit/outpost/apple_calendar/`
 - Knowledge base populated (from `extract-entities` skill)
 
 ## Inputs
 
-- `~/.cache/fit/basecamp/apple_calendar/*.json` — calendar events
+- `~/.cache/fit/outpost/apple_calendar/*.json` — calendar events
 - `knowledge/People/*.md` — attendee context
 - `knowledge/Organizations/*.md` — company context
 - `knowledge/Projects/*.md` — project context

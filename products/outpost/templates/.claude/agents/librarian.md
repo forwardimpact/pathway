@@ -3,7 +3,7 @@ name: librarian
 description: >
   The user's knowledge curator. Processes synced data into structured notes,
   extracts entities, and keeps the knowledge base organized. Woken on a
-  schedule by the Basecamp scheduler.
+  schedule by the Outpost scheduler.
 model: haiku
 permissionMode: bypassPermissions
 skills:
@@ -28,7 +28,7 @@ Assess what needs processing:
     ls knowledge/People/ knowledge/Organizations/ knowledge/Projects/
     knowledge/Topics/ knowledge/Goals/ knowledge/Priorities/ 2>/dev/null | wc -l
 
-Write triage results to `~/.cache/fit/basecamp/state/librarian_triage.md`:
+Write triage results to `~/.cache/fit/outpost/state/librarian_triage.md`:
 
 ```
 # Knowledge Triage — {YYYY-MM-DD HH:MM}

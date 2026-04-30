@@ -4,7 +4,7 @@ description: >
   Passive talent scout. Scans openly available public sources for candidates who
   indicate they are open for hire, benchmarks them against fit-pathway jobs, and
   writes prospect notes. Never contacts candidates. Woken on a schedule by the
-  Basecamp scheduler.
+  Outpost scheduler.
 model: haiku
 permissionMode: bypassPermissions
 skills:
@@ -77,11 +77,11 @@ signals: infrastructure, platform teams, APIs, shared services.
 
 ## Memory System
 
-All memory lives in `~/.cache/fit/basecamp/head-hunter/` as plain text files
+All memory lives in `~/.cache/fit/outpost/head-hunter/` as plain text files
 manageable with standard Unix tools.
 
 ```
-~/.cache/fit/basecamp/head-hunter/
+~/.cache/fit/outpost/head-hunter/
 ├── cursor.tsv           # Source rotation state (source<TAB>last_checked<TAB>cursor)
 ├── failures.tsv         # Consecutive failure count (source<TAB>count<TAB>last_error<TAB>last_failed)
 ├── seen.tsv             # Deduplication index (source<TAB>id<TAB>date_seen)
@@ -140,13 +140,13 @@ Index of all prospects written to the KB. Enables quick searches:
 
 ```bash
 # Find all strong matches
-grep "strong" ~/.cache/fit/basecamp/head-hunter/prospects.tsv
+grep "strong" ~/.cache/fit/outpost/head-hunter/prospects.tsv
 
 # Count prospects by source
-cut -f2 ~/.cache/fit/basecamp/head-hunter/prospects.tsv | sort | uniq -c
+cut -f2 ~/.cache/fit/outpost/head-hunter/prospects.tsv | sort | uniq -c
 
 # Find prospects from last 7 days
-awk -F'\t' -v d=$(date -v-7d +%Y-%m-%d) '$3 >= d' ~/.cache/fit/basecamp/head-hunter/prospects.tsv
+awk -F'\t' -v d=$(date -v-7d +%Y-%m-%d) '$3 >= d' ~/.cache/fit/outpost/head-hunter/prospects.tsv
 ```
 
 ### log.md
@@ -169,11 +169,11 @@ Skipped: 45 (no open-for-hire signal or poor fit)
 On first wake, create the memory directory and files:
 
 ```bash
-mkdir -p ~/.cache/fit/basecamp/head-hunter
-touch ~/.cache/fit/basecamp/head-hunter/cursor.tsv
-touch ~/.cache/fit/basecamp/head-hunter/seen.tsv
-touch ~/.cache/fit/basecamp/head-hunter/prospects.tsv
-touch ~/.cache/fit/basecamp/head-hunter/log.md
+mkdir -p ~/.cache/fit/outpost/head-hunter
+touch ~/.cache/fit/outpost/head-hunter/cursor.tsv
+touch ~/.cache/fit/outpost/head-hunter/seen.tsv
+touch ~/.cache/fit/outpost/head-hunter/prospects.tsv
+touch ~/.cache/fit/outpost/head-hunter/log.md
 ```
 
 ## 2. Select Source
@@ -388,20 +388,20 @@ After scanning, update all memory files:
 ```bash
 # Example: update cursor
 sed -i '' "s/^hn_wants_hired\t.*/hn_wants_hired\t$(date -u +%Y-%m-%dT%H:%M:%SZ)\t{new_cursor}/" \
-  ~/.cache/fit/basecamp/head-hunter/cursor.tsv
+  ~/.cache/fit/outpost/head-hunter/cursor.tsv
 
 # Example: append to seen
 echo "hn_wants_hired\t{post_id}\t$(date +%Y-%m-%d)" >> \
-  ~/.cache/fit/basecamp/head-hunter/seen.tsv
+  ~/.cache/fit/outpost/head-hunter/seen.tsv
 
 # Example: append to prospects
 echo "{name}\thn_wants_hired\t$(date +%Y-%m-%d)\tstrong\tJ060 forward_deployed" >> \
-  ~/.cache/fit/basecamp/head-hunter/prospects.tsv
+  ~/.cache/fit/outpost/head-hunter/prospects.tsv
 ```
 
 ## 8. Triage Report
 
-Write triage state to `~/.cache/fit/basecamp/state/head_hunter_triage.md`:
+Write triage state to `~/.cache/fit/outpost/state/head_hunter_triage.md`:
 
 ```markdown
 # Head Hunter Triage — {YYYY-MM-DD HH:MM}

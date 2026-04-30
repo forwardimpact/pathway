@@ -208,7 +208,7 @@ build-binaries: codegen build-product-binaries build-service-binaries build-util
 
 # Compile every fit-<product> CLI
 build-product-binaries:
-    just build-binary fit-basecamp
+    just build-binary fit-outpost
     just build-binary fit-guide
     just build-binary fit-landmark
     just build-binary fit-map
@@ -246,23 +246,23 @@ build-utility-binaries:
     just build-binary fit-tiktoken
     just build-binary fit-download-bundle
 
-# Assemble dist/apps/fit-<NAME>.app for a product (basecamp is special-cased)
+# Assemble dist/apps/fit-<NAME>.app for a product (outpost is special-cased)
 build-app-product NAME:
     #!/usr/bin/env bash
     set -euo pipefail
-    if [ "{{NAME}}" = "basecamp" ]; then
-      (cd products/basecamp && just build)
+    if [ "{{NAME}}" = "outpost" ]; then
+      (cd products/outpost && just build)
       bash libraries/libmacos/scripts/build-app.sh \
-        --bundle-name "fit-basecamp" \
-        --primary-exec "products/basecamp/dist/Basecamp" \
-        --extra-exec "products/basecamp/dist/fit-basecamp" \
-        --info-plist "products/basecamp/macos/Info.plist" \
-        --entitlements "products/basecamp/macos/Basecamp.entitlements" \
-        --resource "products/basecamp/config" \
-        --resource "products/basecamp/templates" \
-        --resource "design/icons/basecamp-flat.svg" \
-        --resource "design/icons/basecamp.svg" \
-        --version "$(jq -r .version products/basecamp/package.json)" \
+        --bundle-name "fit-outpost" \
+        --primary-exec "products/outpost/dist/Outpost" \
+        --extra-exec "products/outpost/dist/fit-outpost" \
+        --info-plist "products/outpost/macos/Info.plist" \
+        --entitlements "products/outpost/macos/Outpost.entitlements" \
+        --resource "products/outpost/config" \
+        --resource "products/outpost/templates" \
+        --resource "design/icons/outpost-flat.svg" \
+        --resource "design/icons/outpost.svg" \
+        --version "$(jq -r .version products/outpost/package.json)" \
         --out-dir dist/apps
     else
       bash libraries/libmacos/scripts/build-app.sh \
@@ -319,7 +319,7 @@ build-app-utilities:
 
 # Fan-out: build every Mach-O, then every bundle
 build-apps: build-binaries
-    just build-app-product basecamp
+    just build-app-product outpost
     just build-app-product guide
     just build-app-product landmark
     just build-app-product map

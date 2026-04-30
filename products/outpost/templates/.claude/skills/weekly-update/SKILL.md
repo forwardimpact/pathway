@@ -24,7 +24,7 @@ Run this skill:
 - `knowledge/Weeklies/` directory exists
 - `knowledge/Tasks/{Person Name}.md` exists (task board — see `manage-tasks`
   skill)
-- Calendar data in `~/.cache/fit/basecamp/apple_calendar/`
+- Calendar data in `~/.cache/fit/outpost/apple_calendar/`
 - User identity configured in `USER.md`
 
 ## Inputs
@@ -34,7 +34,7 @@ Run this skill:
 - `knowledge/Goals/*.md` — active goals (for linking weekly priorities to goals)
 - `knowledge/Priorities/*.md` — strategic pillars (for framing the focus
   statement)
-- `~/.cache/fit/basecamp/apple_calendar/*.json` — calendar events for the week
+- `~/.cache/fit/outpost/apple_calendar/*.json` — calendar events for the week
 - Previous weekly document (if exists) — for continuity and carry-forward
 
 ## Outputs
@@ -143,7 +143,7 @@ accomplishments and provide context for the focus statement.
 Find events falling within the Monday–Friday range:
 
 ```bash
-ls ~/.cache/fit/basecamp/apple_calendar/
+ls ~/.cache/fit/outpost/apple_calendar/
 ```
 
 Read each calendar event and filter by date. Extract:

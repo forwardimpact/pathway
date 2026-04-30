@@ -8,7 +8,7 @@ private enum MenuTag: Int {
     case agentDecisionBase = 2000
 }
 
-/// Status bar menu UI for Basecamp.
+/// Status bar menu UI for Outpost.
 ///
 /// Runs in-process as part of the Swift app launcher. Connects to the
 /// scheduler over the existing Unix socket IPC to query status and
@@ -36,7 +36,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
 
     private func setupStatusItem() {
         if let button = statusItem.button {
-            button.image = Self.loadBundleIcon("basecamp-flat", size: NSSize(width: 18, height: 18))
+            button.image = Self.loadBundleIcon("outpost-flat", size: NSSize(width: 18, height: 18))
             button.image?.isTemplate = true
         }
         statusItem.menu = buildMenu()
@@ -116,7 +116,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
         menu.autoenablesItems = false
 
         if !isConnected {
-            let header = NSMenuItem(title: "Basecamp", action: nil, keyEquivalent: "")
+            let header = NSMenuItem(title: "Outpost", action: nil, keyEquivalent: "")
             header.tag = MenuTag.header.rawValue
             header.isEnabled = false
             menu.addItem(header)
@@ -140,7 +140,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
         }
 
         if lastStatus == nil {
-            let header = NSMenuItem(title: "Basecamp", action: nil, keyEquivalent: "")
+            let header = NSMenuItem(title: "Outpost", action: nil, keyEquivalent: "")
             header.tag = MenuTag.header.rawValue
             header.isEnabled = false
             menu.addItem(header)
@@ -161,7 +161,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
         // Header with uptime
         let uptimeStr = Self.formatUptime(status.uptime)
         let header = NSMenuItem(
-            title: "Basecamp          \(uptimeStr)",
+            title: "Outpost          \(uptimeStr)",
             action: nil, keyEquivalent: ""
         )
         header.tag = MenuTag.header.rawValue
@@ -298,7 +298,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
         // In-place update: header
         if let headerItem = menu.item(withTag: MenuTag.header.rawValue) {
             let uptimeStr = Self.formatUptime(status.uptime)
-            headerItem.title = "Basecamp          \(uptimeStr)"
+            headerItem.title = "Outpost          \(uptimeStr)"
         }
 
         // In-place update: agent title and decision items
@@ -401,7 +401,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
         }
 
         let quit = NSMenuItem(
-            title: "Quit Basecamp",
+            title: "Quit Outpost",
             action: #selector(quitApp),
             keyEquivalent: "q"
         )
@@ -447,7 +447,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
 
     @objc private func openLogs() {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        let logsURL = URL(fileURLWithPath: "\(home)/.fit/basecamp/logs", isDirectory: true)
+        let logsURL = URL(fileURLWithPath: "\(home)/.fit/outpost/logs", isDirectory: true)
         NSWorkspace.shared.open(logsURL)
     }
 

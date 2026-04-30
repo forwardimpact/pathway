@@ -12,9 +12,9 @@ import { homedir } from "node:os";
 import { globSync } from "node:fs";
 
 const HOME = homedir();
-export const OUTDIR = join(HOME, ".cache/fit/basecamp/apple_mail");
+export const OUTDIR = join(HOME, ".cache/fit/outpost/apple_mail");
 export const ATTACHMENTS_DIR = join(OUTDIR, "attachments");
-const STATE_DIR = join(HOME, ".cache/fit/basecamp/state");
+const STATE_DIR = join(HOME, ".cache/fit/outpost/state");
 const STATE_FILE = join(STATE_DIR, "apple_mail_last_sync");
 const ROWID_STATE_FILE = join(STATE_DIR, "apple_mail_last_rowid");
 export const MAX_THREADS = 500;

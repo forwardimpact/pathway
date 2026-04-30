@@ -1,11 +1,11 @@
 ---
 name: extract-entities
-description: Process synced email/calendar files from ~/.cache/fit/basecamp/ and ad-hoc document files (e.g. from ~/Desktop/ or ~/Downloads/) to extract structured knowledge into knowledge/ as Obsidian-compatible markdown notes. Use on a schedule, when the user asks to process/extract entities, or when invoked by another skill (e.g. organize-files). Builds the core knowledge graph from raw data.
+description: Process synced email/calendar files from ~/.cache/fit/outpost/ and ad-hoc document files (e.g. from ~/Desktop/ or ~/Downloads/) to extract structured knowledge into knowledge/ as Obsidian-compatible markdown notes. Use on a schedule, when the user asks to process/extract entities, or when invoked by another skill (e.g. organize-files). Builds the core knowledge graph from raw data.
 ---
 
 # Extract Entities
 
-Process synced email and calendar files from `~/.cache/fit/basecamp/` and
+Process synced email and calendar files from `~/.cache/fit/outpost/` and
 extract structured knowledge into `knowledge/` as Obsidian-compatible markdown
 notes. This is the core knowledge graph builder — it transforms raw data from
 the sync skills into actionable, linked notes.
@@ -25,7 +25,7 @@ Run this skill:
 
 ## Prerequisites
 
-- Synced data in `~/.cache/fit/basecamp/` (from `sync-apple-mail`,
+- Synced data in `~/.cache/fit/outpost/` (from `sync-apple-mail`,
   `sync-apple-calendar`, or `sync-teams` skills), **and/or**
 - Ad-hoc file paths provided by the calling skill or user
 - User identity configured in `USER.md` (Name, Email, Domain)
@@ -34,9 +34,9 @@ Run this skill:
 
 ### Synced data (scheduled processing)
 
-- `~/.cache/fit/basecamp/apple_mail/*.md` — synced email threads
-- `~/.cache/fit/basecamp/apple_calendar/*.json` — synced calendar events
-- `~/.cache/fit/basecamp/teams_chat/*.md` — synced Teams chat messages
+- `~/.cache/fit/outpost/apple_mail/*.md` — synced email threads
+- `~/.cache/fit/outpost/apple_calendar/*.json` — synced calendar events
+- `~/.cache/fit/outpost/teams_chat/*.md` — synced Teams chat messages
 
 ### Ad-hoc files (from other skills or user)
 
@@ -49,7 +49,7 @@ Run this skill:
 
 ### State tracking
 
-- `~/.cache/fit/basecamp/state/graph_processed` — tracks which files have been
+- `~/.cache/fit/outpost/state/graph_processed` — tracks which files have been
   processed (TSV)
 - `USER.md` — user identity (Name, Email, Domain) for self-exclusion
 
@@ -67,7 +67,7 @@ Run this skill:
 - `knowledge/Roles/*.md` — role/requisition files (created or enriched)
 - `knowledge/Candidates/*/brief.md` — candidate briefs (enriched with inferred
   metadata)
-- `~/.cache/fit/basecamp/state/graph_processed` — updated with newly processed
+- `~/.cache/fit/outpost/state/graph_processed` — updated with newly processed
   files
 
 ---
@@ -85,7 +85,7 @@ Run this skill:
 ### Ad-hoc file inputs
 
 When invoked with ad-hoc file paths (e.g. by the **`organize-files`** skill),
-process those files directly instead of scanning `~/.cache/fit/basecamp/`. Check
+process those files directly instead of scanning `~/.cache/fit/outpost/`. Check
 each file against `graph_processed` the same way — skip if the hash hasn't
 changed.
 

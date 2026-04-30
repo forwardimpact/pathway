@@ -1,13 +1,13 @@
 ---
 name: sync-teams
-description: Sync recent Microsoft Teams chat messages into ~/.cache/fit/basecamp/teams_chat/ as markdown files by reading the Teams IndexedDB cache from disk. Use on a schedule or when the user asks to sync their Teams chats. Requires macOS with the Teams desktop app installed.
+description: Sync recent Microsoft Teams chat messages into ~/.cache/fit/outpost/teams_chat/ as markdown files by reading the Teams IndexedDB cache from disk. Use on a schedule or when the user asks to sync their Teams chats. Requires macOS with the Teams desktop app installed.
 compatibility: Requires macOS with Microsoft Teams desktop app (com.microsoft.teams2) installed
 ---
 
 # Sync Teams
 
 Sync recent Microsoft Teams chat messages into
-`~/.cache/fit/basecamp/teams_chat/` as markdown files. This is an automated data
+`~/.cache/fit/outpost/teams_chat/` as markdown files. This is an automated data
 pipeline skill — it ingests chat data that other skills (like
 `extract-entities`) consume downstream.
 
@@ -32,15 +32,15 @@ their Teams chats.
 
 - `~/Library/Containers/com.microsoft.teams2/Data/Library/Application Support/Microsoft/MSTeams/EBWebView/WV2Profile_tfw/IndexedDB/https_teams.microsoft.com_0.indexeddb.leveldb/`
   — Teams IndexedDB (LevelDB on disk)
-- `~/.cache/fit/basecamp/state/teams_last_sync` — ISO timestamp of last sync
-- `~/.cache/fit/basecamp/state/teams_chat_index.tsv` — index of known chats
+- `~/.cache/fit/outpost/state/teams_last_sync` — ISO timestamp of last sync
+- `~/.cache/fit/outpost/state/teams_chat_index.tsv` — index of known chats
 
 ## Outputs
 
-- `~/.cache/fit/basecamp/teams_chat/{slug}.md` — one markdown file per chat
+- `~/.cache/fit/outpost/teams_chat/{slug}.md` — one markdown file per chat
   (overwritten each sync with current state)
-- `~/.cache/fit/basecamp/state/teams_last_sync` — updated with sync timestamp
-- `~/.cache/fit/basecamp/state/teams_chat_index.tsv` — updated chat index
+- `~/.cache/fit/outpost/state/teams_last_sync` — updated with sync timestamp
+- `~/.cache/fit/outpost/state/teams_chat_index.tsv` — updated chat index
 
 ---
 
@@ -62,7 +62,7 @@ The script:
    message records (with sender names, HTML content, timestamps)
 4. Groups messages by conversation, filters by date window, and converts HTML
    content to plain text
-5. Writes one markdown file per chat to `~/.cache/fit/basecamp/teams_chat/`
+5. Writes one markdown file per chat to `~/.cache/fit/outpost/teams_chat/`
 6. Updates sync state (timestamp and chat index)
 
 ### Architecture

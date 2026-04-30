@@ -1,4 +1,4 @@
-# Plan 250 — Migrate Basecamp from Deno to Bun
+# Plan 250 — Migrate Outpost from Deno to Bun
 
 ## Approach
 
@@ -14,7 +14,7 @@ find-and-replace.
 
 ## Step 1 — Rewrite `posix-spawn.js` to `bun:ffi`
 
-**File:** `products/basecamp/src/posix-spawn.js`
+**File:** `products/outpost/src/posix-spawn.js`
 
 Replace Deno FFI primitives with Bun equivalents:
 
@@ -50,17 +50,17 @@ Specific changes:
 8. In `waitForExit()`: replace `Deno.UnsafePointer.of(status)` with
    `ptr(status)`.
 
-**Verify:** `bun products/basecamp/src/posix-spawn.js` should load without
+**Verify:** `bun products/outpost/src/posix-spawn.js` should load without
 errors (module parses and FFI symbols resolve on macOS).
 
 ## Step 2 — Migrate `pkg/build.js`
 
-**File:** `products/basecamp/pkg/build.js`
+**File:** `products/outpost/pkg/build.js`
 
 1. Change shebang from `#!/usr/bin/env -S deno run --allow-all` to
    `#!/usr/bin/env bun`.
 2. In `compileScheduler()`: replace the `deno compile` command array with
-   `bun build --compile --outfile "${outputPath}" src/basecamp.js`.
+   `bun build --compile --outfile "${outputPath}" src/outpost.js`.
 3. At the CLI section (line 152): replace `Deno?.args || process.argv.slice(2)`
    with `process.argv.slice(2)`.
 4. Update comments: "Compile Deno scheduler" → "Compile scheduler", remove the
@@ -71,16 +71,16 @@ Full build verification happens after justfile updates.
 
 ## Step 3 — Update justfile recipes
 
-**File:** `products/basecamp/justfile`
+**File:** `products/outpost/justfile`
 
 | Recipe            | Current                                                            | New                                                 |
 | ----------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
-| `build-scheduler` | `deno compile --allow-all --no-check --output ... src/basecamp.js` | `bun build --compile --outfile ... src/basecamp.js` |
-| `run`             | `deno run --allow-all src/basecamp.js`                             | `bun src/basecamp.js`                               |
-| `daemon`          | `deno run --allow-all src/basecamp.js --daemon`                    | `bun src/basecamp.js --daemon`                      |
-| `run-task`        | `deno run --allow-all src/basecamp.js --run "{{ task }}"`          | `bun src/basecamp.js --run "{{ task }}"`            |
-| `status`          | `deno run --allow-all src/basecamp.js --status`                    | `bun src/basecamp.js --status`                      |
-| `init`            | `deno run --allow-all src/basecamp.js --init "{{ path }}"`         | `bun src/basecamp.js --init "{{ path }}"`           |
+| `build-scheduler` | `deno compile --allow-all --no-check --output ... src/outpost.js` | `bun build --compile --outfile ... src/outpost.js` |
+| `run`             | `deno run --allow-all src/outpost.js`                             | `bun src/outpost.js`                               |
+| `daemon`          | `deno run --allow-all src/outpost.js --daemon`                    | `bun src/outpost.js --daemon`                      |
+| `run-task`        | `deno run --allow-all src/outpost.js --run "{{ task }}"`          | `bun src/outpost.js --run "{{ task }}"`            |
+| `status`          | `deno run --allow-all src/outpost.js --status`                    | `bun src/outpost.js --status`                      |
+| `init`            | `deno run --allow-all src/outpost.js --init "{{ path }}"`         | `bun src/outpost.js --init "{{ path }}"`           |
 
 Update the `build-scheduler` comment from "Compile standalone Deno scheduler
 binary" to "Compile standalone scheduler binary".
@@ -89,7 +89,7 @@ binary" to "Compile standalone scheduler binary".
 
 ## Step 4 — Update `package.json` and delete `deno.json`
 
-**File:** `products/basecamp/package.json`
+**File:** `products/outpost/package.json`
 
 Update the three build scripts:
 
@@ -102,7 +102,7 @@ Update the three build scripts:
 Remove the `compilerOptions` field if present (that's in `deno.json`, but verify
 `package.json` doesn't also carry Deno-specific config).
 
-**File:** `products/basecamp/deno.json` — delete entirely.
+**File:** `products/outpost/deno.json` — delete entirely.
 
 **Verify:** `deno.json` no longer exists. `bun run build` invokes the correct
 build script.
@@ -127,14 +127,14 @@ references.
 
 Run the success criteria from the spec:
 
-1. `cd products/basecamp && bun pkg/build.js` — produces `dist/fit-basecamp`.
+1. `cd products/outpost && bun pkg/build.js` — produces `dist/fit-outpost`.
 2. `just build` — completes without Deno installed.
 3. `just pkg` — produces `.pkg` installer.
-4. Run compiled binary to verify posix_spawn works (requires Basecamp.app
+4. Run compiled binary to verify posix_spawn works (requires Outpost.app
    context with Calendar TCC access for full validation).
-5. `grep -r 'Deno\.' products/basecamp/` — zero matches.
+5. `grep -r 'Deno\.' products/outpost/` — zero matches.
 6. `grep -ri 'deno' .github/workflows/publish-macos.yml` — zero matches.
-7. Confirm `products/basecamp/deno.json` does not exist.
+7. Confirm `products/outpost/deno.json` does not exist.
 
 ## Ordering rationale
 

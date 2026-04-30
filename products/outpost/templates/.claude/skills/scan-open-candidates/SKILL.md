@@ -4,7 +4,7 @@ description: >
   Scan publicly available sources for candidates who indicate they are open for
   hire. Uses WebFetch to read public APIs (HN Algolia, GitHub, dev.to).
   Writes prospect notes to knowledge/Prospects/. Maintains
-  cursor/dedup state in ~/.cache/fit/basecamp/head-hunter/. Use when the
+  cursor/dedup state in ~/.cache/fit/outpost/head-hunter/. Use when the
   head-hunter agent is woken or when the user asks to scan for open candidates.
 ---
 
@@ -25,22 +25,22 @@ Run this skill:
 
 - `WebFetch` tool available (Claude Code built-in — no curl/wget needed)
 - `fit-pathway` CLI available (`bunx fit-pathway`)
-- Memory directory at `~/.cache/fit/basecamp/head-hunter/`
+- Memory directory at `~/.cache/fit/outpost/head-hunter/`
 
 ## Inputs
 
-- `~/.cache/fit/basecamp/head-hunter/cursor.tsv` — source rotation state
-- `~/.cache/fit/basecamp/head-hunter/seen.tsv` — deduplication index
+- `~/.cache/fit/outpost/head-hunter/cursor.tsv` — source rotation state
+- `~/.cache/fit/outpost/head-hunter/seen.tsv` — deduplication index
 - Standard data via `bunx fit-pathway skill --list` and `bunx fit-pathway job`
 
 ## Outputs
 
 - `knowledge/Prospects/{Name}.md` — prospect notes
-- `~/.cache/fit/basecamp/head-hunter/cursor.tsv` — updated cursors
-- `~/.cache/fit/basecamp/head-hunter/seen.tsv` — updated seen index
-- `~/.cache/fit/basecamp/head-hunter/prospects.tsv` — updated prospect index
-- `~/.cache/fit/basecamp/head-hunter/log.md` — appended activity log
-- `~/.cache/fit/basecamp/state/head_hunter_triage.md` — triage report
+- `~/.cache/fit/outpost/head-hunter/cursor.tsv` — updated cursors
+- `~/.cache/fit/outpost/head-hunter/seen.tsv` — updated seen index
+- `~/.cache/fit/outpost/head-hunter/prospects.tsv` — updated prospect index
+- `~/.cache/fit/outpost/head-hunter/log.md` — appended activity log
+- `~/.cache/fit/outpost/state/head_hunter_triage.md` — triage report
 
 ---
 
@@ -257,7 +257,7 @@ block page), handle it gracefully:
 1. **Record the failure** in `failures.tsv`:
 
    ```bash
-   sed -i '' "s/^{source}\t.*/&/" ~/.cache/fit/basecamp/head-hunter/failures.tsv
+   sed -i '' "s/^{source}\t.*/&/" ~/.cache/fit/outpost/head-hunter/failures.tsv
    # Or increment the count and update last_error
    ```
 
@@ -295,7 +295,7 @@ Apply these filters to each candidate post, in order:
 ### Filter 2: Deduplication
 
 ```bash
-grep -q "^{source}\t{post_id}\t" ~/.cache/fit/basecamp/head-hunter/seen.tsv
+grep -q "^{source}\t{post_id}\t" ~/.cache/fit/outpost/head-hunter/seen.tsv
 ```
 
 If found, skip. Otherwise continue.

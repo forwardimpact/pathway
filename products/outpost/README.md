@@ -1,4 +1,4 @@
-# Basecamp
+# Outpost
 
 Personal operations center — scheduled AI agents, knowledge graphs, and daily
 briefings.
@@ -6,6 +6,6 @@ briefings.
 ## Getting Started
 
 ```sh
-npm install @forwardimpact/basecamp
-npx fit-basecamp --help
+npm install @forwardimpact/outpost
+npx fit-outpost --help
 ```

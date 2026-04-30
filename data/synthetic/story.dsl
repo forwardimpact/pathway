@@ -763,7 +763,7 @@ terrain BioNova {
     events 8
   }
 
-  content basecamp_markdown {
+  content outpost_markdown {
     personas 5
     persona_levels [L1, L2, L3, L4, L5]
     briefings_per_persona 8

@@ -1,6 +1,6 @@
 import AppKit
 
-/// App delegate for Basecamp.app.
+/// App delegate for Outpost.app.
 ///
 /// Manages the process tree: spawns the Deno scheduler as a child process
 /// via posix_spawn and hosts the status menu bar UI in-process.
@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         // Set app icon from bundled SVG
-        if let iconPath = Bundle.main.path(forResource: "basecamp", ofType: "svg"),
+        if let iconPath = Bundle.main.path(forResource: "outpost", ofType: "svg"),
            let icon = NSImage(contentsOfFile: iconPath) {
             NSApp.applicationIconImage = icon
         }

@@ -159,7 +159,7 @@ team scores, and skill evidence records.
 
 ### Personal content (`data/personal/`)
 
-Markdown briefings and notes for Basecamp knowledge bases.
+Markdown briefings and notes for Outpost knowledge bases.
 
 ---
 

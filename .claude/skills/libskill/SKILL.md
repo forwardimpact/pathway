@@ -169,9 +169,9 @@ const agentProfile = prepareAgentProfile(matrix);
 renderSkillMatrix(matrix);
 ```
 
-### With basecamp (agent generation)
+### With outpost (agent generation)
 
-Basecamp uses libskill to generate agent profiles and skill files:
+Outpost uses libskill to generate agent profiles and skill files:
 
 ```javascript
 import { deriveAgentSkills, generateStageAgentProfile } from "@forwardimpact/libskill/agent";

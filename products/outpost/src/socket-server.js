@@ -13,7 +13,7 @@ import {
   statSync,
 } from "node:fs";
 
-const logger = createLogger("basecamp");
+const logger = createLogger("outpost");
 import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { computeNextWakeAt } from "./scheduler.js";

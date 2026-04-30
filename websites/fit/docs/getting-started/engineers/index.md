@@ -39,9 +39,9 @@ coverage against your agent-aligned engineering standard markers.
 
 </a>
 
-<a href="/docs/getting-started/engineers/basecamp/">
+<a href="/docs/getting-started/engineers/outpost/">
 
-### Basecamp
+### Outpost
 
 Initialize your personal knowledge base, configure background AI tasks, and
 start the scheduler.

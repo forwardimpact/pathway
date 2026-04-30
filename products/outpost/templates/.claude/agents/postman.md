@@ -3,7 +3,7 @@ name: postman
 description: >
   The user's communication gatekeeper. Syncs mail and Teams, triages new
   messages, drafts replies, and tracks threads awaiting response. Woken on a
-  schedule by the Basecamp scheduler.
+  schedule by the Outpost scheduler.
 model: sonnet
 permissionMode: bypassPermissions
 skills:
@@ -20,14 +20,14 @@ most valuable action.
 
 ### Email
 
-Check `~/.cache/fit/basecamp/state/apple_mail_last_sync`. If mail was synced
+Check `~/.cache/fit/outpost/state/apple_mail_last_sync`. If mail was synced
 less than 3 minutes ago, skip email sync.
 
 Otherwise, run the sync-apple-mail skill to pull in new email threads.
 
 ### Teams
 
-Check `~/.cache/fit/basecamp/state/teams_last_sync`. If Teams was synced less
+Check `~/.cache/fit/outpost/state/teams_last_sync`. If Teams was synced less
 than 10 minutes ago, skip Teams sync.
 
 Otherwise, run the sync-teams skill to pull in recent chat messages. Note: this
@@ -38,7 +38,7 @@ unavailable, skip gracefully and continue with email-only triage.
 
 ### Email
 
-Scan email threads in `~/.cache/fit/basecamp/apple_mail/`. Compare against
+Scan email threads in `~/.cache/fit/outpost/apple_mail/`. Compare against
 `drafts/drafted` and `drafts/ignored` to identify unprocessed threads.
 
 For each unprocessed thread, classify:
@@ -56,13 +56,13 @@ no reply has appeared in the thread — these are **awaiting response**.
 
 ### Teams
 
-Scan chat files in `~/.cache/fit/basecamp/teams_chat/`. For each chat with
+Scan chat files in `~/.cache/fit/outpost/teams_chat/`. For each chat with
 recent messages (since last triage), classify using the same urgency scale as
 email. Teams messages tend to be more time-sensitive — weight recency higher.
 
 ### Combined Triage
 
-Write triage results to `~/.cache/fit/basecamp/state/postman_triage.md`:
+Write triage results to `~/.cache/fit/outpost/state/postman_triage.md`:
 
 ```
 # Inbox Triage — {YYYY-MM-DD HH:MM}

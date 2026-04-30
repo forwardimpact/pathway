@@ -1,21 +1,21 @@
 ---
-title: Basecamp
+title: Outpost
 description: Set up camp — a personal knowledge system with scheduled AI tasks that keeps you briefed, organized, and field-ready.
 layout: product
 toc: false
 hero:
-  image: /assets/scene-basecamp.svg
+  image: /assets/scene-outpost.svg
   alt: An engineer, an AI robot, and a business professional setting up an A-frame tent together
-  subtitle: Set up camp. Basecamp is your personal operations center — it syncs your email and calendar, builds a knowledge graph, drafts responses, prepares meeting briefs, and organizes your files. All running as scheduled AI tasks in the background.
+  subtitle: Set up camp. Outpost is your personal operations center — it syncs your email and calendar, builds a knowledge graph, drafts responses, prepares meeting briefs, and organizes your files. All running as scheduled AI tasks in the background.
   cta:
     - label: View on GitHub
-      href: https://github.com/forwardimpact/monorepo/tree/main/products/basecamp
+      href: https://github.com/forwardimpact/monorepo/tree/main/products/outpost
     - label: View on npm
-      href: https://www.npmjs.com/package/@forwardimpact/basecamp
+      href: https://www.npmjs.com/package/@forwardimpact/outpost
       secondary: true
 ---
 
-> Everything you and your team know, in one place. Basecamp is a scheduler that
+> Everything you and your team know, in one place. Outpost is a scheduler that
 > runs Claude Code tasks on a timer — syncing data, extracting entities,
 > drafting emails, preparing for meetings. No server, no database — just plain
 > files, markdown, and Claude. Your knowledge base is Obsidian-compatible, your
@@ -61,13 +61,13 @@ quietly in the background and keeps getting smarter about your work.
 
 ## Prerequisites
 
-Basecamp spawns `claude` as a subprocess without loading your shell profile.
+Outpost spawns `claude` as a subprocess without loading your shell profile.
 Install Claude Code via **Homebrew** (`brew install claude`) rather than the
 native binary — the Homebrew install runs on Node.js, which supports
 `NODE_EXTRA_CA_CERTS` for enterprise CA certificates.
 
 If your network requires a custom CA bundle, add an `env` block to
-`~/.fit/basecamp/scheduler.json`:
+`~/.fit/outpost/scheduler.json`:
 
 ```json
 {
@@ -82,19 +82,19 @@ If your network requires a custom CA bundle, add an `env` block to
 ## Getting Started
 
 ```sh
-npm install @forwardimpact/basecamp
-npx fit-basecamp init ~/Documents/Team   # Initialize knowledge base
-npx fit-basecamp daemon                  # Start the scheduler
-npx fit-basecamp status                  # Check what's happening
+npm install @forwardimpact/outpost
+npx fit-outpost init ~/Documents/Team   # Initialize knowledge base
+npx fit-outpost daemon                  # Start the scheduler
+npx fit-outpost status                  # Check what's happening
 ```
 
 ### macOS Privacy & Security
 
-Basecamp agents need access to specific folders (Documents, Mail, Calendar).
+Outpost agents need access to specific folders (Documents, Mail, Calendar).
 When macOS prompts, grant only the folders each process needs via **System
 Settings > Privacy & Security > Files & Folders**:
 
-- **Basecamp.app** — the TCC responsible process (Swift launcher)
+- **Outpost.app** — the TCC responsible process (Swift launcher)
 - **node** — runs skill scripts with `#!/usr/bin/env node` shebangs
 - **"2.1.72"** (or another version number) — this is the **Claude Code CLI**.
   macOS shows its version string instead of a name. Safe to grant per-folder
@@ -102,7 +102,7 @@ Settings > Privacy & Security > Files & Folders**:
 
 <div class="grid">
 
-<a href="/docs/getting-started/engineers/basecamp/">
+<a href="/docs/getting-started/engineers/outpost/">
 
 ### Engineers
 

@@ -2,7 +2,7 @@
 
 > The FIT realization of the [shared design language](../index.md): a monochrome
 > design system for six open-source products — **Map**, **Pathway**,
-> **Basecamp**, **Guide**, **Landmark**, and **Summit** — built around the
+> **Outpost**, **Guide**, **Landmark**, and **Summit** — built around the
 > metaphor of engineers deployed "in the field." Three characters — the
 > Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
 > boundary between technology and the real world.
@@ -26,7 +26,7 @@ design language and the three characters' shared visual specifications, see
 "The field" draws from three simultaneous meanings:
 
 1. **Expedition**: Forward deployed — operating with autonomy in unfamiliar
-   terrain. Basecamp is where you prepare. The Guide keeps you oriented. The
+   terrain. Outpost is where you prepare. The Guide keeps you oriented. The
    Pathway is how you advance. The Map shows the territory. The Summit is the
    peak the team aims to reach together.
 2. **Scientific fieldwork**: Engineers embedded with business units and domain
@@ -71,7 +71,7 @@ what follows are FIT-specific readings, not new shapes:
 | ------------ | ------------------------------------------------- |
 | **Map**      | What does good engineering look like here?        |
 | **Pathway**  | Where does my career path go from here?           |
-| **Basecamp** | Am I prepared for what's ahead today?             |
+| **Outpost** | Am I prepared for what's ahead today?             |
 | **Guide**    | How do I find my bearing?                         |
 | **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
@@ -83,7 +83,7 @@ surfaces in icons and scenes but never in structural UI.
 | ------------ | ---------------------- |
 | **Map**      | Charted territory      |
 | **Pathway**  | Trails and switchbacks |
-| **Basecamp** | Shelter and foundation |
+| **Outpost** | Shelter and foundation |
 | **Guide**    | Stars and bearing      |
 | **Landmark** | Vantage points         |
 | **Summit**   | The mountain peak      |
@@ -166,7 +166,7 @@ Instrument Serif, 64px, weight 400:
 
 DM Sans, 18px, weight 400, gray-400:
 
-  Map, Pathway, Guide, Landmark, Basecamp, and Summit — an open-source
+  Map, Pathway, Guide, Landmark, Outpost, and Summit — an open-source
   suite that helps organizations define great engineering, support career
   growth, and give every engineer the clarity to do their best work
   in the field.
@@ -176,7 +176,7 @@ DM Sans, 18px, weight 400, gray-400:
 
 ## 6. Product Scenes
 
-The FIT product scenes — Map, Pathway, Basecamp, Guide, Landmark, Summit — and
+The FIT product scenes — Map, Pathway, Outpost, Guide, Landmark, Summit — and
 the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
 extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with FIT
 product symbols.
@@ -185,7 +185,7 @@ product symbols.
 
 ## 7. Product Icons
 
-The six FIT product icons — Map, Pathway, Guide, Landmark, Summit, Basecamp —
+The six FIT product icons — Map, Pathway, Guide, Landmark, Summit, Outpost —
 plus the icon system rules and the combined suite mark live in a sibling file:
 [icons.md](icons.md). They share the family icon grid (24px, 2px stroke, no
 fill) and read as if drawn in the same notebook as the
@@ -234,7 +234,7 @@ fill) and read as if drawn in the same notebook as the
 ### Navigation Pattern
 
 ```
-[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Basecamp       [Docs]  [Sign in]
+[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Outpost       [Docs]  [Sign in]
 ```
 
 Current product is bold (`700`). Others are regular (`400`) in `--gray-400`.
@@ -283,7 +283,7 @@ Each product shares the core design system with subtle differentiators:
 | **Pathway**  | Trail — switchbacks, elevation marks  | Engineer at trailhead, reading a trail sign      | "Navigate the trail."                             |
 | **Guide**    | Navigation — compass, stars           | AI Agent holding compass toward viewer           | "Find your bearing."                              |
 | **Landmark** | Observation — cairns, survey markers  | AI Agent beside cairn, holding telescope outward | "Check the cairn."                                |
-| **Basecamp** | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Set up camp."                                    |
+| **Outpost** | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Set up camp."                                    |
 | **Summit**   | Ascent — peaks, routes, team planning | Trio looking up at peak with flag                | "Reach the peak."                                 |
 
 ### Product-Specific UI Treatments
@@ -300,7 +300,7 @@ Each product shares the core design system with subtle differentiators:
 - **Summit**: Team heatmaps use terrain-grid overlays. Capability bars fill
   upward like ascent meters. What-if scenarios use side-by-side peak outlines
   showing before/after team composition.
-- **Basecamp**: Document cards use warm-tinted backgrounds (`--sand-50`)
+- **Outpost**: Document cards use warm-tinted backgrounds (`--sand-50`)
   suggesting pages in a notebook.
 
 ---

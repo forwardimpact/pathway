@@ -102,12 +102,12 @@ describe("StateManager", () => {
     });
 
     test("creates parent directory before writing", () => {
-      const sm = new StateManager("/data/basecamp/state.json", mockFs);
+      const sm = new StateManager("/data/outpost/state.json", mockFs);
       sm.save({ agents: {} });
 
       assert.strictEqual(mockFs.mkdirSync.mock.callCount(), 1);
       const [dir, opts] = mockFs.mkdirSync.mock.calls[0].arguments;
-      assert.strictEqual(dir, "/data/basecamp");
+      assert.strictEqual(dir, "/data/outpost");
       assert.deepStrictEqual(opts, { recursive: true });
     });
   });

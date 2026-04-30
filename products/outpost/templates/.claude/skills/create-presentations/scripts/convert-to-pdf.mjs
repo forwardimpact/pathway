@@ -19,7 +19,7 @@ const HELP = `convert-to-pdf — render HTML slides to PDF via Playwright
 Usage: bun scripts/convert-to-pdf.mjs [input.html] [output.pdf] [-h|--help]
 
 Arguments:
-  input.html   HTML slides file (default: /tmp/basecamp-presentation.html)
+  input.html   HTML slides file (default: /tmp/outpost-presentation.html)
   output.pdf   Output PDF path (default: ~/Desktop/presentation.pdf)
 
 Requires: bun install playwright && bunx playwright install chromium`;
@@ -30,7 +30,7 @@ if (process.argv.includes("-h") || process.argv.includes("--help")) {
 }
 
 const positional = process.argv.slice(2).filter((a) => !a.startsWith("-"));
-const input = positional[0] || "/tmp/basecamp-presentation.html";
+const input = positional[0] || "/tmp/outpost-presentation.html";
 const output = positional[1] || join(homedir(), "Desktop", "presentation.pdf");
 
 const { chromium } = await import("playwright");

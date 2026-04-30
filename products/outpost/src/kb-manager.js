@@ -14,7 +14,7 @@ import { join, dirname, resolve } from "node:path";
 import { homedir } from "node:os";
 import { createLogger } from "@forwardimpact/libtelemetry";
 
-const logger = createLogger("basecamp");
+const logger = createLogger("outpost");
 
 export class KBManager {
   #fs;

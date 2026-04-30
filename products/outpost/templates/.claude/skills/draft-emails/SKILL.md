@@ -16,7 +16,7 @@ Run when the user asks to draft, reply to, respond to, or send an email.
 ## Prerequisites
 
 - Knowledge base populated (from `extract-entities` skill)
-- Synced email data in `~/.cache/fit/basecamp/apple_mail/`
+- Synced email data in `~/.cache/fit/outpost/apple_mail/`
 
 ## Data Locations
 
@@ -24,8 +24,8 @@ Run when the user asks to draft, reply to, respond to, or send an email.
 | --------------- | --------------------------------------------- |
 | People          | `knowledge/People/*.md`                       |
 | Organizations   | `knowledge/Organizations/*.md`                |
-| Email threads   | `~/.cache/fit/basecamp/apple_mail/*.md`       |
-| Calendar events | `~/.cache/fit/basecamp/apple_calendar/*.json` |
+| Email threads   | `~/.cache/fit/outpost/apple_mail/*.md`       |
+| Calendar events | `~/.cache/fit/outpost/apple_calendar/*.json` |
 | Handled IDs     | `drafts/handled` (one ID per line)            |
 | Ignored IDs     | `drafts/ignored` (one ID per line)            |
 | Draft files     | `drafts/{email_id}_draft.md`                  |
@@ -111,8 +111,8 @@ cat "knowledge/Organizations/Company Name.md"
 **Calendar** (for scheduling emails):
 
 ```bash
-ls ~/.cache/fit/basecamp/apple_calendar/ 2>/dev/null
-cat "$HOME/.cache/fit/basecamp/apple_calendar/event123.json"
+ls ~/.cache/fit/outpost/apple_calendar/ 2>/dev/null
+cat "$HOME/.cache/fit/outpost/apple_calendar/event123.json"
 ```
 
 ### 4. Write Draft

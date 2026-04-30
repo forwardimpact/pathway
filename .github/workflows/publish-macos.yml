@@ -2,7 +2,7 @@ name: Publish macOS App
 
 on:
   push:
-    tags: ["basecamp@v*"]
+    tags: ["outpost@v*"]
 
 jobs:
   build:
@@ -17,7 +17,7 @@ jobs:
       - name: Extract version from tag
         id: meta
         run: |
-          # Tag format: basecamp@v1.2.3
+          # Tag format: outpost@v1.2.3
           VERSION="${GITHUB_REF_NAME#*@v}"
           echo "version=${VERSION}" >> $GITHUB_OUTPUT
           echo "tag=${GITHUB_REF_NAME}" >> $GITHUB_OUTPUT
@@ -30,13 +30,13 @@ jobs:
         run: bun run test
 
       - name: Build .pkg installer
-        working-directory: products/basecamp
+        working-directory: products/outpost
         run: just pkg
 
       - name: Verify .pkg exists
-        working-directory: products/basecamp
+        working-directory: products/outpost
         run: |
-          PKG_FILE="dist/fit-basecamp-${{ steps.meta.outputs.version }}.pkg"
+          PKG_FILE="dist/fit-outpost-${{ steps.meta.outputs.version }}.pkg"
           if [ ! -f "$PKG_FILE" ]; then
             echo "Error: $PKG_FILE not found"
             ls -la dist/
@@ -49,8 +49,8 @@ jobs:
       - name: Create GitHub Release
         run: |
           gh release create "${{ steps.meta.outputs.tag }}" \
-            --title "Basecamp ${{ steps.meta.outputs.version }}" \
+            --title "Outpost ${{ steps.meta.outputs.version }}" \
             --generate-notes \
-            products/basecamp/${{ steps.verify.outputs.pkg_file }}
+            products/outpost/${{ steps.verify.outputs.pkg_file }}
         env:
           GH_TOKEN: ${{ github.token }}

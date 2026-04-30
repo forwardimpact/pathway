@@ -1,6 +1,6 @@
 #!/bin/bash
 
-# Basecamp postinstall script — runs as root after macOS pkg installation.
+# Outpost postinstall script — runs as root after macOS pkg installation.
 #
 # Sets up per-user config and default knowledge base for the console user
 # (the person who double-clicked the installer).
@@ -11,14 +11,18 @@
 REAL_USER=$(/usr/bin/stat -f "%Su" /dev/console)
 REAL_HOME=$(/usr/bin/dscl . -read "/Users/$REAL_USER" NFSHomeDirectory | /usr/bin/awk '{print $2}')
 
-BASECAMP_HOME="$REAL_HOME/.fit/basecamp"
+OUTPOST_HOME="$REAL_HOME/.fit/outpost"
 DEFAULT_KB="$REAL_HOME/Documents/Personal"
-APP_PATH="/Applications/Basecamp.app"
+APP_PATH="/Applications/Outpost.app"
 
 # --- Remove old installs ----------------------------------------------------
 
-# Old LaunchAgents (pre-app-bundle and pre-FQDN-rename)
+# Old LaunchAgents (pre-app-bundle, pre-FQDN-rename, and pre-Basecamp-to-Outpost-rename).
+# Legacy basecamp labels are kept here so an upgrade from a prior Basecamp install cleans up.
 for OLD_LABEL in \
+    "com.fit-outpost.scheduler" \
+    "com.fit-outpost.status-menu" \
+    "com.forwardimpact.outpost" \
     "com.fit-basecamp.scheduler" \
     "com.fit-basecamp.status-menu" \
     "com.forwardimpact.basecamp"; do
@@ -32,18 +36,30 @@ done
 # --- Stop running instance gracefully ----------------------------------------
 
 # Try graceful shutdown first (stops running agents cleanly), then killall as fallback.
-if [ -f "$APP_PATH/Contents/MacOS/fit-basecamp" ]; then
-  /usr/bin/sudo -u "$REAL_USER" "$APP_PATH/Contents/MacOS/fit-basecamp" stop 2>/dev/null || true
+if [ -f "$APP_PATH/Contents/MacOS/fit-outpost" ]; then
+  /usr/bin/sudo -u "$REAL_USER" "$APP_PATH/Contents/MacOS/fit-outpost" stop 2>/dev/null || true
 fi
+# Legacy Basecamp app may still exist on upgrade — try its graceful stop too.
+if [ -f "/Applications/Basecamp.app/Contents/MacOS/fit-basecamp" ]; then
+  /usr/bin/sudo -u "$REAL_USER" "/Applications/Basecamp.app/Contents/MacOS/fit-basecamp" stop 2>/dev/null || true
+fi
+/usr/bin/killall Outpost 2>/dev/null || true
+/usr/bin/killall fit-outpost 2>/dev/null || true
+/usr/bin/killall OutpostStatus 2>/dev/null || true
 /usr/bin/killall Basecamp 2>/dev/null || true
 /usr/bin/killall fit-basecamp 2>/dev/null || true
 /usr/bin/killall BasecampStatus 2>/dev/null || true
+/bin/rm -f "/usr/local/bin/fit-outpost"
+/bin/rm -f "/usr/local/bin/OutpostStatus"
 /bin/rm -f "/usr/local/bin/fit-basecamp"
 /bin/rm -f "/usr/local/bin/BasecampStatus"
 
-# Old shared resources and pkg receipts
+# Old shared resources and pkg receipts (legacy basecamp + new outpost paths).
+/bin/rm -rf "/usr/local/share/fit-outpost"
 /bin/rm -rf "/usr/local/share/fit-basecamp"
-for OLD_RECEIPT in "com.fit-basecamp.scheduler" "com.forwardimpact.basecamp"; do
+for OLD_RECEIPT in \
+    "com.fit-outpost.scheduler" "com.forwardimpact.outpost" "team.forwardimpact.outpost" \
+    "com.fit-basecamp.scheduler" "com.forwardimpact.basecamp" "team.forwardimpact.basecamp"; do
   /usr/sbin/pkgutil --pkgs 2>/dev/null | /usr/bin/grep -q "$OLD_RECEIPT" && {
     /usr/sbin/pkgutil --forget "$OLD_RECEIPT" >/dev/null 2>&1
   } || true
@@ -51,27 +67,27 @@ done
 
 # --- Config home -------------------------------------------------------------
 
-/usr/bin/sudo -u "$REAL_USER" /bin/mkdir -p "$BASECAMP_HOME/logs"
+/usr/bin/sudo -u "$REAL_USER" /bin/mkdir -p "$OUTPOST_HOME/logs"
 
-if [ ! -f "$BASECAMP_HOME/scheduler.json" ]; then
+if [ ! -f "$OUTPOST_HOME/scheduler.json" ]; then
   CONFIG_SRC="$APP_PATH/Contents/Resources/config/scheduler.json"
   if [ -f "$CONFIG_SRC" ]; then
-    /usr/bin/sudo -u "$REAL_USER" /bin/cp "$CONFIG_SRC" "$BASECAMP_HOME/scheduler.json"
+    /usr/bin/sudo -u "$REAL_USER" /bin/cp "$CONFIG_SRC" "$OUTPOST_HOME/scheduler.json"
   fi
 fi
 
-if [ ! -f "$BASECAMP_HOME/state.json" ]; then
-  echo '{ "tasks": {} }' | /usr/bin/sudo -u "$REAL_USER" /usr/bin/tee "$BASECAMP_HOME/state.json" > /dev/null
+if [ ! -f "$OUTPOST_HOME/state.json" ]; then
+  echo '{ "tasks": {} }' | /usr/bin/sudo -u "$REAL_USER" /usr/bin/tee "$OUTPOST_HOME/state.json" > /dev/null
 fi
 
 # --- Symlink into PATH -------------------------------------------------------
 
 /bin/mkdir -p /usr/local/bin
-/bin/ln -sf "$APP_PATH/Contents/MacOS/fit-basecamp" /usr/local/bin/fit-basecamp
+/bin/ln -sf "$APP_PATH/Contents/MacOS/fit-outpost" /usr/local/bin/fit-outpost
 
 # --- Default knowledge base --------------------------------------------------
 
-SCHEDULER="$APP_PATH/Contents/MacOS/fit-basecamp"
+SCHEDULER="$APP_PATH/Contents/MacOS/fit-outpost"
 
 if [ ! -d "$DEFAULT_KB" ]; then
   if [ -f "$SCHEDULER" ]; then

@@ -5,7 +5,7 @@ description: Scan synced email threads for recruitment candidates, extract struc
 
 # Track Candidates
 
-Scan synced email threads from `~/.cache/fit/basecamp/apple_mail/` for
+Scan synced email threads from `~/.cache/fit/outpost/apple_mail/` for
 recruitment candidates. Extract structured candidate profiles and create/update
 notes in `knowledge/Candidates/`. This builds a local, searchable recruitment
 pipeline from scattered email threads.
@@ -20,19 +20,19 @@ Run this skill:
 
 ## Prerequisites
 
-- Synced email data in `~/.cache/fit/basecamp/apple_mail/` (from
+- Synced email data in `~/.cache/fit/outpost/apple_mail/` (from
   `sync-apple-mail`)
 - User identity configured in `USER.md`
 
 ## Inputs
 
-- `~/.cache/fit/basecamp/apple_mail/*.md` — synced email threads
-- `~/.cache/fit/basecamp/apple_mail/attachments/` — CV/resume attachments
-- `~/.cache/fit/basecamp/apple_calendar/*.json` — synced calendar events (for
+- `~/.cache/fit/outpost/apple_mail/*.md` — synced email threads
+- `~/.cache/fit/outpost/apple_mail/attachments/` — CV/resume attachments
+- `~/.cache/fit/outpost/apple_calendar/*.json` — synced calendar events (for
   cross-source inference)
 - `knowledge/Roles/*.md` — open role/requisition files (for metadata
   inheritance)
-- `~/.cache/fit/basecamp/state/graph_processed` — tracks processed files (shared
+- `~/.cache/fit/outpost/state/graph_processed` — tracks processed files (shared
   with `extract-entities`)
 - `USER.md` — user identity for self-exclusion
 
@@ -42,7 +42,7 @@ Run this skill:
 - `knowledge/Candidates/{Full Name}/CV.pdf` — local copy of CV (or `CV.docx`)
 - `knowledge/Candidates/{Full Name}/headshot.jpeg` — candidate headshot photo
 - `knowledge/Roles/*.md` — created/updated role files (candidate tables rebuilt)
-- `~/.cache/fit/basecamp/state/graph_processed` — updated with processed threads
+- `~/.cache/fit/outpost/state/graph_processed` — updated with processed threads
 
 ---
 
@@ -184,7 +184,7 @@ information. Look for these signals:
 
 ### CV/Resume Attachments
 
-Check `~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/` for PDF or
+Check `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` for PDF or
 DOCX files with candidate names in filenames.
 
 ### Recruiter Sender Domains
@@ -280,7 +280,7 @@ resolution chain, stopping at the first match:
    mentioning the candidate's name:
 
    ```bash
-   rg -l "{Candidate Name}" ~/.cache/fit/basecamp/apple_calendar/
+   rg -l "{Candidate Name}" ~/.cache/fit/outpost/apple_calendar/
    ```
 
    Read matching events. The **organizer** of an interview event (who is not the
@@ -329,7 +329,7 @@ criteria, or candidate visibility.
 Check for attachments:
 
 ```bash
-ls ~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/
+ls ~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/
 ```
 
 Match CV files to candidates by name similarity in the filename. Copy the CV
@@ -337,7 +337,7 @@ into the candidate's directory with a standardized name:
 
 ```bash
 mkdir -p "knowledge/Candidates/{Full Name}"
-cp "~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/{filename}" \
+cp "~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/{filename}" \
    "knowledge/Candidates/{Full Name}/CV.pdf"
 ```
 
@@ -349,7 +349,7 @@ the brief uses a relative path: `./CV.pdf`.
 Search two locations for candidate headshot photos:
 
 1. **Email attachments** —
-   `~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/` may contain
+   `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` may contain
    headshot images sent by recruiters alongside CVs. Look for `.jpg`, `.jpeg`,
    or `.png` files with candidate name fragments in the filename or that are
    clearly portrait photos (not logos, signatures, or email decorations like

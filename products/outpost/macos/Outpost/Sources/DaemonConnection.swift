@@ -69,8 +69,8 @@ struct StatusResponse {
 
 // MARK: - Connection
 //
-// Socket path: ~/.fit/basecamp/basecamp.sock
-// This path is also defined in basecamp.js (SOCKET_PATH) and
+// Socket path: ~/.fit/outpost/outpost.sock
+// This path is also defined in outpost.js (SOCKET_PATH) and
 // pkg/macos/uninstall.sh. All three must stay in sync.
 
 class DaemonConnection {
@@ -85,7 +85,7 @@ class DaemonConnection {
 
     init() {
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        socketPath = "\(home)/.fit/basecamp/basecamp.sock"
+        socketPath = "\(home)/.fit/outpost/outpost.sock"
     }
 
     func connect() {

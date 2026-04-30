@@ -6,7 +6,7 @@ on:
     # per-library and per-service npm tag (libutil@v*, svcgraph@v*, etc.)
     # which have no .app bundle and would fail the build job.
     tags:
-      - "basecamp@v*"
+      - "outpost@v*"
       - "guide@v*"
       - "landmark@v*"
       - "map@v*"
@@ -87,7 +87,7 @@ jobs:
         run: |
           BUNDLE="dist/apps/${{ steps.meta.outputs.bundle }}"
           BASELINE=$(codesign -dvvv "$BUNDLE" 2>&1 | grep -i CDHash || true)
-          rm -rf dist/apps dist/binaries products/basecamp/dist
+          rm -rf dist/apps dist/binaries products/outpost/dist
           case "${{ steps.meta.outputs.kind }}" in
             services)
               just build-service-binaries

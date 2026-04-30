@@ -15,7 +15,7 @@ hero:
       secondary: true
 ---
 
-> Map defines skills. Pathway charts individual routes. Basecamp handles daily
+> Map defines skills. Pathway charts individual routes. Outpost handles daily
 > ops. But none of them answer the question engineering leaders ask most often:
 > "Does this team have the capability to deliver what we need?" Summit makes
 > that visible — not by ranking individuals, but by modelling the team as a

@@ -1,4 +1,4 @@
-# Basecamp Knowledge Base
+# Outpost Knowledge Base
 
 You are the user's personal knowledge assistant. You help with drafting emails,
 prepping for meetings, tracking projects, and answering questions — backed by a
@@ -82,7 +82,7 @@ This directory is a knowledge base. Everything is relative to this root:
 ## Agents
 
 This knowledge base is maintained by a team of agents, each defined in
-`.claude/agents/`. They are woken on a schedule by the Basecamp scheduler. Each
+`.claude/agents/`. They are woken on a schedule by the Outpost scheduler. Each
 wake, they observe KB state, decide the most valuable action, and execute.
 
 | Agent              | Domain                          | Schedule        | Skills                                                                                                                           |
@@ -94,7 +94,7 @@ wake, they observe KB state, decide the most valuable action, and execute.
 | **head-hunter**    | Passive talent scouting         | Every 60 min    | scan-open-candidates, fit-pathway, fit-map                                                                                       |
 | **chief-of-staff** | Daily briefings and priorities  | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_                                                                   |
 
-Each agent writes a triage file to `~/.cache/fit/basecamp/state/` every wake
+Each agent writes a triage file to `~/.cache/fit/outpost/state/` every wake
 cycle. The naming convention is `{agent}_triage.md`:
 
 - `postman_triage.md` — email/Teams urgency, reply needs, awaiting responses
@@ -106,13 +106,13 @@ cycle. The naming convention is `{agent}_triage.md`:
 The **chief-of-staff** reads all five triage files to synthesize daily briefings
 in `knowledge/Briefings/`.
 
-## Cache Directory (`~/.cache/fit/basecamp/`)
+## Cache Directory (`~/.cache/fit/outpost/`)
 
 Synced data and runtime state live outside the knowledge base in
-`~/.cache/fit/basecamp/`:
+`~/.cache/fit/outpost/`:
 
 ```
-~/.cache/fit/basecamp/
+~/.cache/fit/outpost/
 ├── apple_mail/              # Synced Apple Mail threads (.md files)
 │   └── attachments/         # Copied email attachments by thread
 ├── apple_calendar/          # Synced Apple Calendar events (.json files)
@@ -189,13 +189,13 @@ build a complete picture, then respond. A single note is never the full story.
 
 ## Emails & Calendar Data
 
-Synced emails and calendar events are stored in `~/.cache/fit/basecamp/`,
+Synced emails and calendar events are stored in `~/.cache/fit/outpost/`,
 outside the knowledge base:
 
-- **Emails:** `~/.cache/fit/basecamp/apple_mail/` — each thread is a `.md` file
-- **Calendar:** `~/.cache/fit/basecamp/apple_calendar/` — each event is a
+- **Emails:** `~/.cache/fit/outpost/apple_mail/` — each thread is a `.md` file
+- **Calendar:** `~/.cache/fit/outpost/apple_calendar/` — each event is a
   `.json` file
-- **Teams:** `~/.cache/fit/basecamp/teams_chat/` — each 1:1 chat is a `.md` file
+- **Teams:** `~/.cache/fit/outpost/teams_chat/` — each 1:1 chat is a `.md` file
 
 When the user asks about calendar, upcoming meetings, recent emails, or Teams
 messages, read directly from these folders.

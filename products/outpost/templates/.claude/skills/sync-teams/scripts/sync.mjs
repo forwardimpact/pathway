@@ -1,6 +1,6 @@
 #!/usr/bin/env node
 /**
- * Sync Microsoft Teams chat messages to ~/.cache/fit/basecamp/teams_chat/ as
+ * Sync Microsoft Teams chat messages to ~/.cache/fit/outpost/teams_chat/ as
  * markdown files. Reads the Teams IndexedDB cache (LevelDB on disk) directly —
  * no browser automation, no API tokens, no network access needed.
  *
@@ -27,8 +27,8 @@ import { homedir } from "node:os";
 import { readIndexedDb } from "./idb-reader.mjs";
 
 const HOME = homedir();
-const OUTDIR = join(HOME, ".cache/fit/basecamp/teams_chat");
-const STATE_DIR = join(HOME, ".cache/fit/basecamp/state");
+const OUTDIR = join(HOME, ".cache/fit/outpost/teams_chat");
+const STATE_DIR = join(HOME, ".cache/fit/outpost/state");
 const SYNC_STATE_FILE = join(STATE_DIR, "teams_last_sync");
 const INDEX_FILE = join(STATE_DIR, "teams_chat_index.tsv");
 

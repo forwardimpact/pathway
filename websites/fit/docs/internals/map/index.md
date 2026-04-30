@@ -188,7 +188,7 @@ The data product serves five consumers through two interfaces:
 | ------------ | ------------- | ------------------------------------------------------------------ |
 | **Guide**    | Activity      | Artifacts (reads), evidence (writes), markers (reads)              |
 | **Pathway**  | Pure          | Standard schema (skills, disciplines, levels, tracks)              |
-| **Basecamp** | Pure          | Standard schema                                                    |
+| **Outpost**  | Pure          | Standard schema                                                    |
 | **libskill** | Pure          | Standard schema for derivation                                     |
 | **Summit**   | Pure+Activity | Standard schema, org queries, snapshots, evidence                  |
 | **Landmark** | Activity      | Org queries, snapshots, evidence, artifacts, comments, initiatives |

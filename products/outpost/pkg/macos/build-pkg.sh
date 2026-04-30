@@ -1,9 +1,9 @@
 #!/bin/bash
 set -e
 
-# Build a macOS installer package (.pkg) for Basecamp.app.
+# Build a macOS installer package (.pkg) for Outpost.app.
 #
-# Creates a .pkg that installs Basecamp.app to /Applications/ and runs a
+# Creates a .pkg that installs Outpost.app to /Applications/ and runs a
 # postinstall script to set up config and default KB.
 # Also removes old loose-binary installs if present.
 #
@@ -15,12 +15,12 @@ VERSION="${2:?Usage: build-pkg.sh <dist_dir> <version>}"
 
 SCRIPT_DIR="$(cd "$(dirname "$0")" && pwd)"
 PROJECT_DIR="$(cd "$SCRIPT_DIR/../.." && pwd)"
-APP_PATH="$DIST_DIR/Basecamp.app"
-APP_NAME="fit-basecamp"
-IDENTIFIER="team.forwardimpact.basecamp"
+APP_PATH="$DIST_DIR/Outpost.app"
+APP_NAME="fit-outpost"
+IDENTIFIER="team.forwardimpact.outpost"
 
 if [ ! -d "$APP_PATH" ]; then
-  echo "Error: Basecamp.app not found at $APP_PATH"
+  echo "Error: Outpost.app not found at $APP_PATH"
   echo "Run 'just build-app' first."
   exit 1
 fi
@@ -40,10 +40,10 @@ echo "Building pkg: $PKG_NAME..."
 rm -rf "$PAYLOAD_DIR" "$SCRIPTS_DIR" "$RESOURCES_DIR" "$COMPONENT_PKG"
 rm -f "$PKG_PATH"
 
-# --- Create payload (Basecamp.app → /Applications/) -------------------------
+# --- Create payload (Outpost.app → /Applications/) -------------------------
 
 mkdir -p "$PAYLOAD_DIR/Applications"
-cp -R "$APP_PATH" "$PAYLOAD_DIR/Applications/Basecamp.app"
+cp -R "$APP_PATH" "$PAYLOAD_DIR/Applications/Outpost.app"
 
 # --- Create scripts directory ------------------------------------------------
 
@@ -82,7 +82,7 @@ DIST_XML="$DIST_DIR/distribution.xml"
 cat > "$DIST_XML" <<EOF
 <?xml version="1.0" encoding="utf-8"?>
 <installer-gui-script minSpecVersion="2">
-    <title>Basecamp ${VERSION}</title>
+    <title>Outpost ${VERSION}</title>
     <welcome  file="welcome.html"    mime-type="text/html" />
     <conclusion file="conclusion.html" mime-type="text/html" />
     <options customize="never" require-scripts="false" hostArchitectures="arm64" />

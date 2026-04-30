@@ -1,25 +1,25 @@
 {
-  "name": "@forwardimpact/basecamp",
+  "name": "@forwardimpact/outpost",
   "version": "2.12.6",
   "description": "Claude Code-native personal knowledge system with autonomous agents",
   "license": "Apache-2.0",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "products/basecamp"
+    "directory": "products/outpost"
   },
-  "homepage": "https://www.forwardimpact.team/basecamp",
+  "homepage": "https://www.forwardimpact.team/outpost",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js"
   },
   "bin": {
-    "fit-basecamp": "./bin/fit-basecamp.js"
+    "fit-outpost": "./bin/fit-outpost.js"
   },
   "scripts": {
-    "start": "bun ./bin/fit-basecamp.js",
-    "status": "bun ./bin/fit-basecamp.js status",
+    "start": "bun ./bin/fit-outpost.js",
+    "status": "bun ./bin/fit-outpost.js status",
     "build": "bun pkg/build.js",
     "build:app": "bun pkg/build.js --app",
     "build:pkg": "bun pkg/build.js --pkg"

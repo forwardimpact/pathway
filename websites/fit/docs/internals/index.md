@@ -34,9 +34,9 @@ of skill, behaviour, and responsibility derivation.
 
 </a>
 
-<a href="/docs/internals/basecamp/">
+<a href="/docs/internals/outpost/">
 
-### Basecamp
+### Outpost
 
 Scheduler architecture — component table, process tree, macOS app, cache
 directory, and state management.

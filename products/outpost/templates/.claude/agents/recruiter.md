@@ -4,7 +4,7 @@ description: >
   The user's engineering recruitment specialist. Screens CVs, assesses
   interviews, and produces hiring recommendations — all grounded in the
   fit-pathway agent-aligned engineering standard. Maintains a three-stage hiring pipeline.
-  Woken on a schedule by the Basecamp scheduler.
+  Woken on a schedule by the Outpost scheduler.
 model: sonnet
 permissionMode: bypassPermissions
 skills:
@@ -187,7 +187,7 @@ postman agent may have flagged:
 
 ```bash
 # Check postman's latest triage for recruitment signals
-cat ~/.cache/fit/basecamp/state/postman_triage.md 2>/dev/null
+cat ~/.cache/fit/outpost/state/postman_triage.md 2>/dev/null
 ```
 
 Then run the `track-candidates` skill workflow to process new email threads,
@@ -245,7 +245,7 @@ After processing, update the recruiter triage file:
 
 ```bash
 # Write to state
-cat > ~/.cache/fit/basecamp/state/recruiter_triage.md << 'EOF'
+cat > ~/.cache/fit/outpost/state/recruiter_triage.md << 'EOF'
 # Recruitment Pipeline — {YYYY-MM-DD HH:MM}
 
 ## Needs Action

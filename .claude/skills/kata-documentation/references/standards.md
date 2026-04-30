@@ -10,7 +10,7 @@ Four-tier hierarchy under `websites/fit/docs/` serving three user groups
 | `getting-started` | "Get me going fast"         | `leadership/`, `engineers/`, `contributors/`                                                                                                                                               |
 | `guides`          | "Help me accomplish a task" | `authoring-standards/`, `agent-teams/`, `career-paths/`, `knowledge-systems/`, `landmark-quickstart/`, `team-capability/`, `finding-your-bearing/`                                         |
 | `reference`       | "Let me look something up"  | `cli/`, `model/`, `lifecycle/`, `yaml-schema/`                                                                                                                                             |
-| `internals`       | "Show me how this is built" | one per product (`map/`, `pathway/`, `basecamp/`, `guide/`, `landmark/`, `summit/`), shared infrastructure (`codegen/`, `libcli/`, `librepl/`, `libskill/`, `terrain/`), and `operations/` |
+| `internals`       | "Show me how this is built" | one per product (`map/`, `pathway/`, `outpost/`, `guide/`, `landmark/`, `summit/`), shared infrastructure (`codegen/`, `libcli/`, `librepl/`, `libskill/`, `terrain/`), and `operations/` |
 
 ## Audience Rules
 

@@ -59,8 +59,8 @@ dist/
 # Website SVG assets (copied from design/ at build time)
 websites/**/*.svg
 
-# Basecamp build output
-products/basecamp/dist/
+# Outpost build output
+products/outpost/dist/
 *.bun-build
 
 # Test files

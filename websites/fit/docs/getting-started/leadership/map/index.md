@@ -8,7 +8,7 @@ that you set up in order:
 
 1. **Standard layer** — YAML files defining your skills, behaviours, levels,
    disciplines, and tracks. Validated locally with `npx fit-map validate`. This
-   is what Pathway, Basecamp, and `libskill` consume.
+   is what Pathway, Outpost, and `libskill` consume.
 2. **Activity layer** — A Supabase database that stores your organization
    roster, GitHub activity, evidence, and GetDX snapshots. Powers Landmark and
    Summit, and lets Guide write skill evidence back against agent-aligned

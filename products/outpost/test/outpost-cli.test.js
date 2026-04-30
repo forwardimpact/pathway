@@ -25,7 +25,7 @@ function createProc() {
 }
 
 const definition = {
-  name: "fit-basecamp",
+  name: "fit-outpost",
   version: "2.11.0",
   description: "Schedule autonomous agents across knowledge bases",
   commands: [
@@ -64,7 +64,7 @@ function createCli(proc) {
   return new Cli(definition, { process: proc, helpRenderer });
 }
 
-describe("fit-basecamp CLI parsing", () => {
+describe("fit-outpost CLI parsing", () => {
   test('parse(["daemon"]) returns positionals with daemon', () => {
     const proc = createProc();
     const cli = createCli(proc);
@@ -84,7 +84,7 @@ describe("fit-basecamp CLI parsing", () => {
     const cli = createCli(proc);
     const result = cli.parse(["--help"]);
     assert.strictEqual(result, null);
-    assert.ok(proc.stdout.output.includes("fit-basecamp"));
+    assert.ok(proc.stdout.output.includes("fit-outpost"));
   });
 
   test('parse(["badcmd"]) returns positionals with badcmd', () => {

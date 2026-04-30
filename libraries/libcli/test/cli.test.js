@@ -220,7 +220,7 @@ describe("Cli", () => {
     test("suggests command when unknown flag matches a command name", () => {
       const proc = createProc();
       const def = {
-        name: "fit-basecamp",
+        name: "fit-outpost",
         commands: [
           { name: "daemon", description: "Run continuously" },
           { name: "wake", args: "<agent>", description: "Wake an agent" },
@@ -233,14 +233,14 @@ describe("Cli", () => {
       const cli = new Cli(def, { process: proc, helpRenderer });
       assert.throws(() => cli.parse(["--daemon"]), {
         message:
-          'Unknown option "--daemon". "daemon" is a command, not an option. Usage: fit-basecamp daemon',
+          'Unknown option "--daemon". "daemon" is a command, not an option. Usage: fit-outpost daemon',
       });
     });
 
     test("includes args in usage hint", () => {
       const proc = createProc();
       const def = {
-        name: "fit-basecamp",
+        name: "fit-outpost",
         commands: [
           { name: "wake", args: "<agent>", description: "Wake an agent" },
         ],
@@ -252,7 +252,7 @@ describe("Cli", () => {
       const cli = new Cli(def, { process: proc, helpRenderer });
       assert.throws(() => cli.parse(["--wake"]), {
         message:
-          'Unknown option "--wake". "wake" is a command, not an option. Usage: fit-basecamp wake <agent>',
+          'Unknown option "--wake". "wake" is a command, not an option. Usage: fit-outpost wake <agent>',
       });
     });
 

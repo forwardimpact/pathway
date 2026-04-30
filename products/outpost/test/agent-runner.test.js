@@ -11,7 +11,7 @@ import { tmpdir } from "node:os";
 import { AgentRunner } from "../src/agent-runner.js";
 import { spy } from "@forwardimpact/libharness";
 
-const TEST_KB = join(tmpdir(), "basecamp-test-kb");
+const TEST_KB = join(tmpdir(), "outpost-test-kb");
 
 /**
  * Create a mock spawn module that records calls and returns a successful result.

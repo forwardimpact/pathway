@@ -40,7 +40,7 @@ Run this skill:
 - `knowledge/Roles/*.md` — role/requisition context (for interviews)
 - `knowledge/Organizations/*.md` — company context
 - `knowledge/Projects/*.md` — project context
-- `~/.cache/fit/basecamp/apple_calendar/*.json` — calendar events for context
+- `~/.cache/fit/outpost/apple_calendar/*.json` — calendar events for context
 
 ## Outputs
 

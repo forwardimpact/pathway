@@ -44,8 +44,8 @@
       "Edit(~/Desktop/**)",
       "Edit(~/Documents/**)",
       "Edit(~/Downloads/**)",
-      "Read(~/.cache/fit/basecamp/**)",
-      "Edit(~/.cache/fit/basecamp/**)",
+      "Read(~/.cache/fit/outpost/**)",
+      "Edit(~/.cache/fit/outpost/**)",
       "WebFetch(domain:hn.algolia.com)",
       "WebFetch(domain:api.github.com)",
       "WebFetch(domain:dev.to)"
@@ -82,7 +82,7 @@
       "~/Desktop",
       "~/Documents",
       "~/Downloads",
-      "~/.cache/fit/basecamp"
+      "~/.cache/fit/outpost"
     ]
   }
 }

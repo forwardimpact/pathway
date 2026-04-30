@@ -2,7 +2,7 @@
 /**
  * Scan for unprocessed emails and output their IDs and subjects.
  *
- * Checks ~/.cache/fit/basecamp/apple_mail/ for email thread markdown files not
+ * Checks ~/.cache/fit/outpost/apple_mail/ for email thread markdown files not
  * yet listed in drafts/handled or drafts/ignored. Outputs one tab-separated
  * line per unprocessed thread: email_id<TAB>subject. Used by the draft-emails
  * skill to identify threads that need a reply.
@@ -16,7 +16,7 @@ const HELP = `scan-emails — list unprocessed email threads
 
 Usage: node scripts/scan-emails.mjs [-h|--help]
 
-Scans ~/.cache/fit/basecamp/apple_mail/ for .md thread files not yet
+Scans ~/.cache/fit/outpost/apple_mail/ for .md thread files not yet
 recorded in drafts/handled or drafts/ignored. Outputs one line per
 unprocessed thread as: email_id<TAB>subject`;
 
@@ -26,7 +26,7 @@ if (process.argv.includes("-h") || process.argv.includes("--help")) {
 }
 
 const HOME = homedir();
-const MAIL_DIR = join(HOME, ".cache/fit/basecamp/apple_mail");
+const MAIL_DIR = join(HOME, ".cache/fit/outpost/apple_mail");
 
 /** Load a file of IDs (one per line) into a Set. */
 function loadIdSet(path) {

@@ -36,7 +36,7 @@ Run when the user asks to create a presentation, slide deck, or pitch deck.
     etc.
 2.  Ensure Playwright is installed:
     `bun install playwright && bunx playwright install chromium`
-3.  Create an HTML file at `/tmp/basecamp-presentation.html` with slides
+3.  Create an HTML file at `/tmp/outpost-presentation.html` with slides
     (1280x720px each)
 4.  Include the required CSS from [references/slide.css](references/slide.css)
 5.  Run the conversion script:
@@ -51,7 +51,7 @@ The conversion script accepts optional arguments:
 
     node scripts/convert-to-pdf.mjs [input.html] [output.pdf]
 
-Defaults: input = `/tmp/basecamp-presentation.html`, output =
+Defaults: input = `/tmp/outpost-presentation.html`, output =
 `~/Desktop/presentation.pdf`
 
 ## PDF Rendering Rules

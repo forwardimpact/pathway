@@ -23,7 +23,7 @@ const SESSIONS_DIR = join(
   HOME,
   "Library/Application Support/hyprnote/sessions",
 );
-const STATE_FILE = join(HOME, ".cache/fit/basecamp/state/graph_processed");
+const STATE_FILE = join(HOME, ".cache/fit/outpost/state/graph_processed");
 
 if (process.argv.includes("-h") || process.argv.includes("--help")) {
   console.log(`scan — find unprocessed Hyprnote sessions
@@ -39,7 +39,7 @@ Options:
   -h, --help   Show this help message
 
 Sessions dir: ~/Library/Application Support/hyprnote/sessions/
-State file:   ~/.cache/fit/basecamp/state/graph_processed`);
+State file:   ~/.cache/fit/outpost/state/graph_processed`);
   process.exit(0);
 }
 

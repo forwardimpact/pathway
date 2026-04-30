@@ -34,7 +34,7 @@ Run this skill:
   - `_summary.md` — AI-generated meeting summary (YAML frontmatter + body),
     optional
   - `transcript.json` — word-level transcript with speaker channels, optional
-- `~/.cache/fit/basecamp/state/graph_processed` — tracks processed files (TSV)
+- `~/.cache/fit/outpost/state/graph_processed` — tracks processed files (TSV)
 - `USER.md` — user identity for self-exclusion
 
 ## Outputs
@@ -46,7 +46,7 @@ Run this skill:
 - `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
 - `knowledge/Priorities/*.md` — priority notes (updated only, never
   auto-created)
-- `~/.cache/fit/basecamp/state/graph_processed` — updated with processed session
+- `~/.cache/fit/outpost/state/graph_processed` — updated with processed session
   files
 
 ---

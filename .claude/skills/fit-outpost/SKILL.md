@@ -1,5 +1,5 @@
 ---
-name: fit-basecamp
+name: fit-outpost
 description: >
   Personal operations center — schedule AI agents, maintain a knowledge
   graph, and prepare daily briefings. Use when preparing briefings from
@@ -8,11 +8,11 @@ description: >
   waking agents on demand, or initializing and updating a knowledge base.
 ---
 
-# Basecamp Package
+# Outpost Package
 
 Personal knowledge system with scheduled Claude Code agents. No server, no
 database — just plain files, markdown, and the `claude` CLI. Packaged as a
-native macOS app bundle (`Basecamp.app`) with TCC-compliant process management.
+native macOS app bundle (`Outpost.app`) with TCC-compliant process management.
 
 ## When to Use
 
@@ -75,8 +75,8 @@ See [`references/cli.md`](references/cli.md) for full command listings.
 ### Process Tree (App Bundle)
 
 ```
-Basecamp.app/Contents/MacOS/Basecamp      ← Swift launcher, TCC responsible
-├── fit-basecamp daemon                   ← Node.js scheduler (posix_spawn)
+Outpost.app/Contents/MacOS/Outpost      ← Swift launcher, TCC responsible
+├── fit-outpost daemon                   ← Node.js scheduler (posix_spawn)
 │   └── claude --print ...                ← spawned via posix_spawn FFI
 └── [status menu UI]                      ← AppKit menu bar, in-process
 ```
@@ -86,7 +86,7 @@ Basecamp.app/Contents/MacOS/Basecamp      ← Swift launcher, TCC responsible
 Synced data lives outside the KB:
 
 ```
-~/.cache/fit/basecamp/
+~/.cache/fit/outpost/
 ├── apple_mail/         # Synced email threads (.md)
 ├── apple_calendar/     # Synced calendar events (.json)
 ├── drafts/             # Email drafts (.md)
@@ -104,13 +104,13 @@ Synced data lives outside the KB:
 3. Write the skill workflow (trigger, prerequisites, inputs, outputs, steps)
 4. Update `template/CLAUDE.md` to list the new skill
 5. If scheduled, add a default task entry to `config/scheduler.json`
-6. Run `npx fit-basecamp update` to push the new skill to existing KBs
+6. Run `npx fit-outpost update` to push the new skill to existing KBs
 
 ## Verification
 
 ```sh
-npx fit-basecamp status         # Check config and agent state
-npx fit-basecamp validate       # Verify agent/skill references exist
+npx fit-outpost status         # Check config and agent state
+npx fit-outpost validate       # Verify agent/skill references exist
 ```
 
 ## Documentation
@@ -118,7 +118,7 @@ npx fit-basecamp validate       # Verify agent/skill references exist
 For deeper context beyond this skill's scope:
 
 - [Knowledge Systems Guide](https://www.forwardimpact.team/docs/guides/knowledge-systems/index.md)
-  — Task-oriented guide to setting up and using Basecamp for personal knowledge
+  — Task-oriented guide to setting up and using Outpost for personal knowledge
   management
 - [CLI Reference](https://www.forwardimpact.team/docs/reference/cli/index.md) —
   Complete command reference for all Forward Impact CLI tools

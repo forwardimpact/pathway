@@ -1,13 +1,13 @@
 ---
 name: sync-apple-mail
-description: Sync email threads from the macOS Mail app's local SQLite database into ~/.cache/fit/basecamp/apple_mail/ as markdown files. Use on a schedule or when the user asks to sync their email. Requires macOS with Mail app configured and Full Disk Access granted.
+description: Sync email threads from the macOS Mail app's local SQLite database into ~/.cache/fit/outpost/apple_mail/ as markdown files. Use on a schedule or when the user asks to sync their email. Requires macOS with Mail app configured and Full Disk Access granted.
 compatibility: Requires macOS with Apple Mail configured and Full Disk Access granted to the terminal
 ---
 
 # Sync Apple Mail
 
 Sync email threads from the macOS Mail app's local SQLite database into
-`~/.cache/fit/basecamp/apple_mail/` as markdown files. This is an automated data
+`~/.cache/fit/outpost/apple_mail/` as markdown files. This is an automated data
 pipeline skill — it ingests raw email data that other skills (like
 `extract-entities`) consume downstream.
 
@@ -24,21 +24,21 @@ their email.
 
 ## Inputs
 
-- `~/.cache/fit/basecamp/state/apple_mail_last_sync` — last sync timestamp
+- `~/.cache/fit/outpost/state/apple_mail_last_sync` — last sync timestamp
   (single-line text file)
-- `~/.cache/fit/basecamp/state/apple_mail_last_rowid` — highest message ROWID
+- `~/.cache/fit/outpost/state/apple_mail_last_rowid` — highest message ROWID
   seen at last sync (single-line text file)
 - `~/Library/Mail/V*/MailData/Envelope Index` — Apple Mail SQLite database
 
 ## Outputs
 
-- `~/.cache/fit/basecamp/apple_mail/{thread_id}.md` — one markdown file per
+- `~/.cache/fit/outpost/apple_mail/{thread_id}.md` — one markdown file per
   email thread
-- `~/.cache/fit/basecamp/apple_mail/attachments/{thread_id}/` — copied
+- `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` — copied
   attachment files for each thread (PDFs, images, documents, etc.)
-- `~/.cache/fit/basecamp/state/apple_mail_last_sync` — updated with new sync
+- `~/.cache/fit/outpost/state/apple_mail_last_sync` — updated with new sync
   timestamp
-- `~/.cache/fit/basecamp/state/apple_mail_last_rowid` — updated with highest
+- `~/.cache/fit/outpost/state/apple_mail_last_rowid` — updated with highest
   ROWID seen
 
 ---
@@ -65,7 +65,7 @@ The script:
 6. For each thread: fetches messages, batch-fetches recipients and attachment
    metadata, parses `.emlx` files for full email bodies (falling back to
    database summaries), copies attachment files to the output directory
-7. Writes one markdown file per thread to `~/.cache/fit/basecamp/apple_mail/`
+7. Writes one markdown file per thread to `~/.cache/fit/outpost/apple_mail/`
 8. Updates sync state (timestamp and max ROWID)
 9. Reports summary (threads processed, files written)
 

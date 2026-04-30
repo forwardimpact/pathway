@@ -1,7 +1,7 @@
 import Foundation
 
 // Private API: makes the spawned child disclaim TCC "responsible process"
-// status so macOS checks the parent app (Basecamp.app) for TCC grants.
+// status so macOS checks the parent app (Outpost.app) for TCC grants.
 @_silgen_name("responsibility_spawnattrs_setdisclaim")
 func responsibility_spawnattrs_setdisclaim(
     _ attr: UnsafeMutablePointer<posix_spawnattr_t?>, _ disclaim: Int32
@@ -10,9 +10,9 @@ func responsibility_spawnattrs_setdisclaim(
 /// Manages the Deno scheduler as a child process using posix_spawn.
 ///
 /// posix_spawn is required (instead of fork+exec) so that TCC attributes
-/// inherit from the responsible binary (Basecamp.app). This lets child
+/// inherit from the responsible binary (Outpost.app). This lets child
 /// processes (the scheduler, and claude spawned by the scheduler) access
-/// Calendar, Contacts, and other protected resources under Basecamp's
+/// Calendar, Contacts, and other protected resources under Outpost's
 /// TCC grants.
 class ProcessManager {
     private var schedulerPID: pid_t = 0
@@ -26,7 +26,7 @@ class ProcessManager {
     func startScheduler() {
         isRunning = true
         let bundlePath = Bundle.main.bundlePath
-        let schedulerPath = "\(bundlePath)/Contents/MacOS/fit-basecamp"
+        let schedulerPath = "\(bundlePath)/Contents/MacOS/fit-outpost"
 
         guard FileManager.default.fileExists(atPath: schedulerPath) else {
             NSLog("Scheduler binary not found at %@", schedulerPath)
@@ -34,7 +34,7 @@ class ProcessManager {
         }
 
         let home = FileManager.default.homeDirectoryForCurrentUser.path
-        let logDir = "\(home)/.fit/basecamp/logs"
+        let logDir = "\(home)/.fit/outpost/logs"
         try? FileManager.default.createDirectory(
             atPath: logDir, withIntermediateDirectories: true)
 
@@ -54,7 +54,7 @@ class ProcessManager {
             "HOME=\(home)",
             "USER=\(user)",
             "LOGNAME=\(user)",
-            "BASECAMP_BUNDLE=1",
+            "OUTPOST_BUNDLE=1",
             "TERM=xterm-256color",
         ]
 
@@ -83,8 +83,8 @@ class ProcessManager {
         var attr: posix_spawnattr_t?
         posix_spawnattr_init(&attr)
 
-        // Disclaim TCC responsibility so fit-basecamp (and its children)
-        // inherit Basecamp.app as the responsible process.
+        // Disclaim TCC responsibility so fit-outpost (and its children)
+        // inherit Outpost.app as the responsible process.
         _ = responsibility_spawnattrs_setdisclaim(&attr, 1)
 
         var pid: pid_t = 0

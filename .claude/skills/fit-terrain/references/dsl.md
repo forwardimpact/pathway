@@ -22,7 +22,7 @@ terrain Name {
   scenario launch_push { ... }
   agent-aligned engineering standard { ... }
   content guide_html { ... }
-  content basecamp_markdown { ... }
+  content outpost_markdown { ... }
 }
 ```
 

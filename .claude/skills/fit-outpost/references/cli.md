@@ -3,29 +3,29 @@
 ### Operations
 
 ```sh
-npx fit-basecamp                         # Wake due agents once and exit
-npx fit-basecamp daemon                  # Run continuously (poll every 60s)
-npx fit-basecamp wake <agent>            # Wake a specific agent immediately
-npx fit-basecamp stop                    # Gracefully stop daemon and all running agents
-npx fit-basecamp status                  # Show agent status and last decisions
-npx fit-basecamp validate                # Validate agent definitions exist
+npx fit-outpost                         # Wake due agents once and exit
+npx fit-outpost daemon                  # Run continuously (poll every 60s)
+npx fit-outpost wake <agent>            # Wake a specific agent immediately
+npx fit-outpost stop                    # Gracefully stop daemon and all running agents
+npx fit-outpost status                  # Show agent status and last decisions
+npx fit-outpost validate                # Validate agent definitions exist
 ```
 
 ### Knowledge Base Management
 
 ```sh
-npx fit-basecamp init <path>             # Initialize a new knowledge base
-npx fit-basecamp update [path]           # Update KB with latest CLAUDE.md, agents, skills
+npx fit-outpost init <path>             # Initialize a new knowledge base
+npx fit-outpost update [path]           # Update KB with latest CLAUDE.md, agents, skills
 ```
 
 ### Key Paths
 
 | Path                             | Purpose                              |
 | -------------------------------- | ------------------------------------ |
-| `~/.fit/basecamp/scheduler.json` | Agent/task definitions               |
-| `~/.fit/basecamp/state.json`     | Runtime state (last run, etc.)       |
-| `~/.fit/basecamp/logs/`          | Agent execution logs                 |
-| `~/.cache/fit/basecamp/`         | Synced data (mail, calendar, drafts) |
+| `~/.fit/outpost/scheduler.json` | Agent/task definitions               |
+| `~/.fit/outpost/state.json`     | Runtime state (last run, etc.)       |
+| `~/.fit/outpost/logs/`          | Agent execution logs                 |
+| `~/.cache/fit/outpost/`         | Synced data (mail, calendar, drafts) |
 
 ### Configuration (`scheduler.json`)
 

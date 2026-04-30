@@ -2,7 +2,7 @@
 /**
  * Query synced Apple Calendar events by date/time window.
  *
- * Reads JSON event files from ~/.cache/fit/basecamp/apple_calendar/ and filters
+ * Reads JSON event files from ~/.cache/fit/outpost/apple_calendar/ and filters
  * them by date range, time window, or upcoming interval. Designed to eliminate
  * the need for agents to write bespoke calendar-parsing scripts.
  *
@@ -22,7 +22,7 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 
 const HOME = homedir();
-const CAL_DIR = join(HOME, ".cache/fit/basecamp/apple_calendar");
+const CAL_DIR = join(HOME, ".cache/fit/outpost/apple_calendar");
 
 if (process.argv.includes("-h") || process.argv.includes("--help")) {
   console.log(`query — filter synced calendar events by date/time

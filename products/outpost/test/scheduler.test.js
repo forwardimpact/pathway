@@ -1,5 +1,5 @@
 /**
- * Basecamp scheduler unit tests
+ * Outpost scheduler unit tests
  *
  * Tests the scheduling functions exported from scheduler.js.
  */

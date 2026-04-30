@@ -1,4 +1,4 @@
-# Basecamp — build, install, and manage the scheduler
+# Outpost — build, install, and manage the scheduler
 
 dist_dir       := "dist"
 
@@ -27,7 +27,7 @@ build-launcher:
 build:
     bun pkg/build.js
 
-# Above + assemble Basecamp.app bundle
+# Above + assemble Outpost.app bundle
 build-app:
     bun pkg/build.js --app
 
@@ -38,7 +38,7 @@ pkg:
 # Clean build artifacts
 clean:
     sudo rm -rf "{{ dist_dir }}"
-    rm -rf macos/Basecamp/.build
+    rm -rf macos/Outpost/.build
 
 # ─── Setup ───────────────────────────────────────────────────────────────────
 
@@ -50,20 +50,20 @@ uninstall:
 
 # Run due tasks once and exit
 run:
-    bun src/basecamp.js
+    bun src/outpost.js
 
 # Run scheduler daemon (poll every 60s)
 daemon:
-    bun src/basecamp.js --daemon
+    bun src/outpost.js --daemon
 
 # Run a specific task immediately
 run-task task:
-    bun src/basecamp.js --run "{{ task }}"
+    bun src/outpost.js --run "{{ task }}"
 
 # Show knowledge bases and task status
 status:
-    bun src/basecamp.js --status
+    bun src/outpost.js --status
 
 # Initialize a new knowledge base at the given path
 init path:
-    bun src/basecamp.js --init "{{ path }}"
+    bun src/outpost.js --init "{{ path }}"

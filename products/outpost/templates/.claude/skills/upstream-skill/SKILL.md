@@ -19,7 +19,7 @@ Run this skill when:
 
 ## Prerequisites
 
-- A working Basecamp installation with `.claude/skills/` directory
+- A working Outpost installation with `.claude/skills/` directory
 - Git available for detecting changes
 
 ## Inputs
@@ -192,7 +192,7 @@ Forward Impact monorepo.
 they weren't being integrated into the knowledge base.
 
 **Details:**
-- Reads transcription files from `~/.cache/fit/basecamp/hyprnote/`
+- Reads transcription files from `~/.cache/fit/outpost/hyprnote/`
 - Extracts people, decisions, and action items
 - Creates meeting notes in `knowledge/Meetings/`
 - Links attendees to `knowledge/People/` entries

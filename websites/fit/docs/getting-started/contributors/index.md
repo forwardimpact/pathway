@@ -70,7 +70,7 @@ bun run check:fix
 ## Understand the structure
 
 ```
-products/       Six products (map, pathway, basecamp, guide, summit, landmark)
+products/       Six products (map, pathway, outpost, guide, summit, landmark)
 libraries/      Shared libraries (libskill, libui, libdoc, etc.)
 services/       gRPC microservices (trace, vector, graph, pathway, mcp)
 data/           Generated and standard data
@@ -81,7 +81,7 @@ websites/       Public site sources (websites/fit/, websites/kata/, …)
 
 **Products** answer specific questions for specific users. Map defines what good
 engineering looks like. Pathway renders agent-aligned engineering standards.
-Basecamp manages personal knowledge. Guide interprets artifacts. Summit models
+Outpost manages personal knowledge. Guide interprets artifacts. Summit models
 team capability.
 
 **Libraries** provide shared logic following OO+DI patterns — classes accept

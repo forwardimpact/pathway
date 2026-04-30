@@ -38,13 +38,13 @@ app, CLI, and static site generator for job definitions, agent profiles, and
 interview questions. [Overview](websites/fit/pathway/index.md) ·
 [Internals](websites/fit/docs/internals/pathway/index.md)
 
-### Basecamp — `fit-basecamp`
+### Outpost — `fit-outpost`
 
 Helps engineers and agents answer _am I prepared for what's ahead today?_
 Personal operations center providing scheduled AI tasks, knowledge graphs, and
 meeting briefings (macOS status menu).
-[Overview](websites/fit/basecamp/index.md) ·
-[Internals](websites/fit/docs/internals/basecamp/index.md)
+[Overview](websites/fit/outpost/index.md) ·
+[Internals](websites/fit/docs/internals/outpost/index.md)
 
 ### Guide — `fit-guide`
 

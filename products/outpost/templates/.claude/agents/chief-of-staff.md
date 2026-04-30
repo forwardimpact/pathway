@@ -3,7 +3,7 @@ name: chief-of-staff
 description: >
   The user's executive assistant. Creates daily briefings that synthesize email,
   calendar, and knowledge graph state into actionable priorities. Woken at
-  key moments (morning, evening) by the Basecamp scheduler.
+  key moments (morning, evening) by the Outpost scheduler.
 model: sonnet
 permissionMode: bypassPermissions
 skills:
@@ -18,20 +18,20 @@ knowledge graph into a clear picture of what matters.
 
 Read the state files from other agents:
 
-1. **Postman:** `~/.cache/fit/basecamp/state/postman_triage.md`
+1. **Postman:** `~/.cache/fit/outpost/state/postman_triage.md`
    - Urgent emails, items needing reply, threads awaiting response
-2. **Concierge:** `~/.cache/fit/basecamp/state/concierge_triage.md`
+2. **Concierge:** `~/.cache/fit/outpost/state/concierge_triage.md`
    - Today's meetings, prep status, unprocessed transcripts
-3. **Librarian:** `~/.cache/fit/basecamp/state/librarian_triage.md`
+3. **Librarian:** `~/.cache/fit/outpost/state/librarian_triage.md`
    - Pending processing, graph size
-4. **Recruiter:** `~/.cache/fit/basecamp/state/recruiter_triage.md`
+4. **Recruiter:** `~/.cache/fit/outpost/state/recruiter_triage.md`
    - Candidate pipeline, new assessments, interview scheduling
-5. **Head Hunter:** `~/.cache/fit/basecamp/state/head_hunter_triage.md`
+5. **Head Hunter:** `~/.cache/fit/outpost/state/head_hunter_triage.md`
    - Prospect pipeline, source rotation, new strong/moderate matches
 
 Also read directly:
 
-6. **Calendar events:** `~/.cache/fit/basecamp/apple_calendar/*.json`
+6. **Calendar events:** `~/.cache/fit/outpost/apple_calendar/*.json`
    - Full event details for today and tomorrow
 7. **Open items:** Search `knowledge/` for unchecked items `- [ ]`
 8. **Pending drafts:** List `drafts/*_draft.md` files

@@ -35,7 +35,7 @@ import { join } from "node:path";
 import { homedir } from "node:os";
 
 const HOME = homedir();
-const STATE_DIR = join(HOME, ".cache/fit/basecamp/head-hunter");
+const STATE_DIR = join(HOME, ".cache/fit/outpost/head-hunter");
 
 const PATHS = {
   cursor: join(STATE_DIR, "cursor.tsv"),
@@ -78,7 +78,7 @@ Log commands:
 Summary:
   summary                                     Print state overview
 
-State dir: ~/.cache/fit/basecamp/head-hunter/`);
+State dir: ~/.cache/fit/outpost/head-hunter/`);
   process.exit(0);
 }
 

@@ -2,7 +2,7 @@
 
 // Bun FFI wrapper for posix_spawn (macOS only).
 //
-// Used by the scheduler when running inside Basecamp.app so that child
+// Used by the scheduler when running inside Outpost.app so that child
 // processes (claude) inherit TCC attributes from the responsible binary.
 
 import { dlopen, ptr } from "bun:ffi";
@@ -12,7 +12,7 @@ import { join } from "node:path";
 
 // responsibility_spawnattrs_setdisclaim makes the spawned child disclaim
 // TCC "responsible process" status, so macOS checks the parent's responsible
-// process (Basecamp.app) instead.
+// process (Outpost.app) instead.
 const {
   symbols: { responsibility_spawnattrs_setdisclaim: setDisclaim },
 } = dlopen("/usr/lib/system/libquarantine.dylib", {
@@ -134,7 +134,7 @@ export function spawn(executable, args, env, cwd) {
   const envp = buildStringArray(envStrings);
 
   // Capture stdout/stderr via temp files instead of pipes.
-  const tag = `basecamp-${process.pid}-${Date.now()}`;
+  const tag = `outpost-${process.pid}-${Date.now()}`;
   const stdoutFile = join(tmpdir(), `${tag}-stdout`);
   const stderrFile = join(tmpdir(), `${tag}-stderr`);
   const stdoutFd = openSync(stdoutFile, "w", 0o600);
@@ -149,7 +149,7 @@ export function spawn(executable, args, env, cwd) {
   libc.symbols.posix_spawnattr_init(attr);
 
   // Disclaim TCC responsibility so the child inherits the responsible
-  // process from the parent chain (ultimately Basecamp.app).
+  // process from the parent chain (ultimately Outpost.app).
   setDisclaim(attr, 1);
 
   libc.symbols.posix_spawn_file_actions_init(fa);
