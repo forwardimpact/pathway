@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/landmark",
-  "version": "0.1.8",
+  "version": "0.1.9",
   "description": "Analysis and recommendation layer on top of Map activity data.",
   "license": "Apache-2.0",
   "repository": {
