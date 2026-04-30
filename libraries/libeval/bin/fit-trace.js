@@ -33,12 +33,14 @@ const { version: VERSION } = JSON.parse(
 const definition = {
   name: "fit-trace",
   version: VERSION,
-  description: "Download, query, and search agent execution traces",
+  description:
+    "Download, query, and analyze agent execution traces — read NDJSON output from fit-eval as qualitative research",
   commands: [
     {
       name: "runs",
       args: "[pattern]",
-      description: "List recent workflow runs (default pattern: agent)",
+      description:
+        "List recent GitHub Actions workflow runs (default pattern: agent)",
       options: {
         lookback: {
           type: "string",
@@ -156,7 +158,7 @@ const definition = {
     {
       name: "filter",
       args: "<file>",
-      description: "Filter turns by structural properties",
+      description: "Filter turns by role, tool, or error status",
       options: {
         role: {
           type: "string",
@@ -168,19 +170,19 @@ const definition = {
         },
         error: {
           type: "boolean",
-          description:
-            "Error tool_result turns only (flag-only; for non-errors use the API)",
+          description: "Error tool_result turns only",
         },
       },
     },
     {
       name: "split",
       args: "<file>",
-      description: "Split combined trace into per-source files",
+      description:
+        "Split a combined trace into per-source files (one per agent or supervisor)",
       options: {
         mode: {
           type: "string",
-          description: "Execution mode (run/supervise/facilitate)",
+          description: "Execution mode: run, supervise, or facilitate",
         },
         "output-dir": {
           type: "string",
@@ -201,16 +203,14 @@ const definition = {
   examples: [
     "fit-trace runs --lookback 7d",
     "fit-trace download 24497273755",
+    "fit-trace split structured.json --mode=facilitate",
     "fit-trace overview structured.json",
     "fit-trace timeline structured.json",
+    "fit-trace stats structured.json",
+    "fit-trace tool structured.json Conclude",
     "fit-trace search structured.json 'error|fail' --context 1",
-    "fit-trace tool structured.json Bash",
-    "fit-trace batch structured.json 0 20",
-    "fit-trace init structured.json",
+    "fit-trace filter structured.json --tool Bash --error",
     "fit-trace turn structured.json 3",
-    "fit-trace filter structured.json --role system",
-    "fit-trace filter structured.json --tool Bash --role assistant",
-    "fit-trace search structured.json 'error' --full",
   ],
 };
 

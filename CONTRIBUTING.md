@@ -28,6 +28,9 @@ Architectural non-negotiables — the shape of the codebase.
   libsecret (stateless crypto), libtype (generated protobuf) — pure stateless
   functions do not need DI.
 - **No frontend frameworks** — Vanilla JS, ESM modules only, no CommonJS.
+- **FIT upstream of Kata** — Skills and docs in the FIT project (`fit-*` skills,
+  `websites/fit/`, shared `libraries/`) must not reference the Kata Agent Team.
+  Kata may reference FIT concepts; the dependency points one way.
 
 ### READ-DO
 
@@ -154,15 +157,12 @@ instead.
 
 ## Pull Request Workflow
 
-All changes go through pull requests — never push directly to `main`.
+All changes go through pull requests — never push directly to `main`. Always
+commit, push, and open a PR before finishing a task; a local commit on an
+ephemeral runner is lost work, and the PR URL is the only valid "done" signal.
 
-**Always commit, push, and open a PR before finishing a task.** A local commit
-on a scheduled-run ephemeral runner is lost work — the PR URL is the only valid
-"done" signal. Commit alone is not finishing.
-
-**Exception:** The release engineer may push trivial CI fixes (formatting, lint,
-lock file drift) directly to `main` — limited to what `bun run check:fix` can
-resolve. See
+**Exception:** the release engineer may push trivial CI fixes (formatting, lint,
+lock file drift) that `bun run check:fix` can resolve directly to `main`. See
 [.claude/agents/release-engineer.md](.claude/agents/release-engineer.md).
 
 ## Git Conventions

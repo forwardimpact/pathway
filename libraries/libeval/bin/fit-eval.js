@@ -17,65 +17,57 @@ const { version: VERSION } = JSON.parse(
 const definition = {
   name: "fit-eval",
   version: VERSION,
-  description: "Process Claude Code stream-json output",
+  description:
+    "Run agents and capture NDJSON traces — for agent evaluations or multi-agent collaboration",
   commands: [
-    {
-      name: "output",
-      args: "",
-      description: "Process trace and output formatted result",
-    },
-    {
-      name: "tee",
-      args: "[output.ndjson]",
-      description: "Stream text to stdout, optionally save raw NDJSON",
-    },
     {
       name: "run",
       args: "",
-      description: "Run a single agent via the Claude Agent SDK",
+      description: "Run a single agent autonomously on a defined task",
       options: {
-        "task-file": { type: "string", description: "Path to task file" },
-        "task-text": { type: "string", description: "Inline task text" },
+        "task-file": { type: "string", description: "Path to a markdown task file" },
+        "task-text": { type: "string", description: "Inline task text (alternative to --task-file)" },
         "task-amend": {
           type: "string",
-          description: "Additional text appended to task",
+          description: "Additional text appended to the task",
         },
         model: { type: "string", description: "Claude model (default: opus)" },
         "max-turns": {
           type: "string",
-          description: "Max agentic turns (default: 50)",
+          description: "Max agentic turns (default: 50, 0 = unlimited)",
         },
-        output: { type: "string", description: "Write NDJSON trace to file" },
-        cwd: { type: "string", description: "Working directory" },
-        "agent-profile": { type: "string", description: "Agent profile name" },
+        output: { type: "string", description: "Write the NDJSON trace to a file" },
+        cwd: { type: "string", description: "Working directory for the agent" },
+        "agent-profile": { type: "string", description: "Agent profile name to load" },
         "allowed-tools": {
           type: "string",
-          description: "Comma-separated tool list",
+          description: "Comma-separated tool allowlist",
         },
       },
     },
     {
       name: "supervise",
       args: "",
-      description: "Run a supervised agent-supervisor relay loop",
+      description:
+        "Run a supervisor–agent relay — typical shape for agent-as-judge evaluations",
       options: {
-        "task-file": { type: "string", description: "Path to task file" },
-        "task-text": { type: "string", description: "Inline task text" },
+        "task-file": { type: "string", description: "Path to a markdown task file" },
+        "task-text": { type: "string", description: "Inline task text (alternative to --task-file)" },
         "task-amend": {
           type: "string",
-          description: "Additional text appended to task",
+          description: "Additional text appended to the task",
         },
         model: { type: "string", description: "Claude model (default: opus)" },
         "max-turns": {
           type: "string",
-          description: "Max agentic turns (default: 50)",
+          description: "Max agentic turns (default: 20, 0 = unlimited)",
         },
-        output: { type: "string", description: "Write NDJSON trace to file" },
+        output: { type: "string", description: "Write the NDJSON trace to a file" },
         cwd: { type: "string", description: "Working directory" },
         "agent-profile": { type: "string", description: "Agent profile name" },
         "allowed-tools": {
           type: "string",
-          description: "Comma-separated tool list",
+          description: "Agent tool allowlist",
         },
         "supervisor-cwd": {
           type: "string",
@@ -84,31 +76,32 @@ const definition = {
         "agent-cwd": { type: "string", description: "Agent working directory" },
         "supervisor-profile": {
           type: "string",
-          description: "Supervisor profile name",
+          description: "Supervisor (judge) profile name",
         },
         "supervisor-allowed-tools": {
           type: "string",
-          description: "Supervisor tool list",
+          description: "Supervisor tool allowlist",
         },
       },
     },
     {
       name: "facilitate",
       args: "",
-      description: "Run a facilitated multi-agent session",
+      description:
+        "Run a facilitator with N participants — typical shape for multi-agent collaboration",
       options: {
-        "task-file": { type: "string", description: "Path to task file" },
-        "task-text": { type: "string", description: "Inline task text" },
+        "task-file": { type: "string", description: "Path to a markdown task file" },
+        "task-text": { type: "string", description: "Inline task text (alternative to --task-file)" },
         "task-amend": {
           type: "string",
-          description: "Additional text appended to task",
+          description: "Additional text appended to the task",
         },
         model: { type: "string", description: "Claude model (default: opus)" },
         "max-turns": {
           type: "string",
-          description: "Max facilitator LLM turns (default: 20)",
+          description: "Max agentic turns (default: 20, 0 = unlimited)",
         },
-        output: { type: "string", description: "Write NDJSON trace to file" },
+        output: { type: "string", description: "Write the NDJSON trace to a file" },
         "facilitator-cwd": {
           type: "string",
           description: "Facilitator working directory",
@@ -119,13 +112,25 @@ const definition = {
         },
         "agent-profiles": {
           type: "string",
-          description: "Comma-separated agent profile names",
+          description: "Comma-separated list of participant profile names (required)",
         },
         "agent-cwd": {
           type: "string",
-          description: "Agent working directory (default: .)",
+          description: "Working directory shared by participants (default: .)",
         },
       },
+    },
+    {
+      name: "output",
+      args: "",
+      description:
+        "Read NDJSON from stdin and emit a structured or readable form",
+    },
+    {
+      name: "tee",
+      args: "[output.ndjson]",
+      description:
+        "Stream readable text to stdout while saving raw NDJSON to a file",
     },
   ],
   globalOptions: {
@@ -135,10 +140,10 @@ const definition = {
     json: { type: "boolean", description: "Output help as JSON" },
   },
   examples: [
+    "fit-eval run --task-file=task.md --output=trace.ndjson",
+    "fit-eval supervise --task-file=task.md --supervisor-profile=judge --agent-profile=coder --output=trace.ndjson",
+    'fit-eval facilitate --task-file=task.md --facilitator-profile=lead --agent-profiles="security-engineer,technical-writer" --output=trace.ndjson',
     "fit-eval output --format=text < trace.ndjson",
-    "fit-eval run --task-file=task.md --model=opus",
-    "fit-eval supervise --task-file=task.md --supervisor-cwd=.",
-    'fit-eval facilitate --task-file=task.md --agent-profiles "security-engineer,technical-writer"',
   ],
 };
 
