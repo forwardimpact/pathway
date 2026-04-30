@@ -79,7 +79,7 @@ knowledge base's environment file.
 
 ## Knowledge Base Structure
 
-A Outpost knowledge base is a directory with a specific structure:
+An Outpost knowledge base is a directory with a specific structure:
 
 ```
 ~/Documents/Personal/

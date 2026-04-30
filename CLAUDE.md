@@ -46,6 +46,8 @@ meeting briefings (macOS status menu).
 [Overview](websites/fit/outpost/index.md) ·
 [Internals](websites/fit/docs/internals/outpost/index.md)
 
+> Outpost was previously named Basecamp; older specs use the prior name.
+
 ### Guide — `fit-guide`
 
 Helps engineers answer _how do I find my bearing?_ AI agent that reasons about
