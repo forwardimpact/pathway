@@ -184,8 +184,8 @@ information. Look for these signals:
 
 ### CV/Resume Attachments
 
-Check `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` for PDF or
-DOCX files with candidate names in filenames.
+Check `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` for PDF or DOCX
+files with candidate names in filenames.
 
 ### Recruiter Sender Domains
 

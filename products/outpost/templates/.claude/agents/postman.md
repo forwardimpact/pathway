@@ -20,8 +20,8 @@ most valuable action.
 
 ### Email
 
-Check `~/.cache/fit/outpost/state/apple_mail_last_sync`. If mail was synced
-less than 3 minutes ago, skip email sync.
+Check `~/.cache/fit/outpost/state/apple_mail_last_sync`. If mail was synced less
+than 3 minutes ago, skip email sync.
 
 Otherwise, run the sync-apple-mail skill to pull in new email threads.
 
@@ -56,9 +56,9 @@ no reply has appeared in the thread — these are **awaiting response**.
 
 ### Teams
 
-Scan chat files in `~/.cache/fit/outpost/teams_chat/`. For each chat with
-recent messages (since last triage), classify using the same urgency scale as
-email. Teams messages tend to be more time-sensitive — weight recency higher.
+Scan chat files in `~/.cache/fit/outpost/teams_chat/`. For each chat with recent
+messages (since last triage), classify using the same urgency scale as email.
+Teams messages tend to be more time-sensitive — weight recency higher.
 
 ### Combined Triage
 

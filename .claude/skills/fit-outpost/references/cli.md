@@ -20,8 +20,8 @@ npx fit-outpost update [path]           # Update KB with latest CLAUDE.md, agent
 
 ### Key Paths
 
-| Path                             | Purpose                              |
-| -------------------------------- | ------------------------------------ |
+| Path                            | Purpose                              |
+| ------------------------------- | ------------------------------------ |
 | `~/.fit/outpost/scheduler.json` | Agent/task definitions               |
 | `~/.fit/outpost/state.json`     | Runtime state (last run, etc.)       |
 | `~/.fit/outpost/logs/`          | Agent execution logs                 |

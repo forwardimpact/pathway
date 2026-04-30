@@ -11,8 +11,8 @@ meeting briefings, organizing notes, and keeping you ready for the day ahead.
 
 The scheduler runs tasks on a configurable schedule. It supports three modes:
 
-| Mode            | Command                                | Description                    |
-| --------------- | -------------------------------------- | ------------------------------ |
+| Mode            | Command                               | Description                    |
+| --------------- | ------------------------------------- | ------------------------------ |
 | **Run once**    | `npx fit-outpost`                     | Execute all due tasks and exit |
 | **Daemon**      | `npx fit-outpost daemon`              | Run continuously on schedule   |
 | **Single task** | `npx fit-outpost wake daily_briefing` | Run one specific task          |
@@ -121,8 +121,8 @@ and add your own notes and files.
 
 ## Key Commands
 
-| Command                        | Description                             |
-| ------------------------------ | --------------------------------------- |
+| Command                       | Description                             |
+| ----------------------------- | --------------------------------------- |
 | `npx fit-outpost init <path>` | Initialize a new knowledge base         |
 | `npx fit-outpost`             | Run all due tasks once                  |
 | `npx fit-outpost daemon`      | Run continuously                        |

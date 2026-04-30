@@ -189,12 +189,12 @@ build a complete picture, then respond. A single note is never the full story.
 
 ## Emails & Calendar Data
 
-Synced emails and calendar events are stored in `~/.cache/fit/outpost/`,
-outside the knowledge base:
+Synced emails and calendar events are stored in `~/.cache/fit/outpost/`, outside
+the knowledge base:
 
 - **Emails:** `~/.cache/fit/outpost/apple_mail/` — each thread is a `.md` file
-- **Calendar:** `~/.cache/fit/outpost/apple_calendar/` — each event is a
-  `.json` file
+- **Calendar:** `~/.cache/fit/outpost/apple_calendar/` — each event is a `.json`
+  file
 - **Teams:** `~/.cache/fit/outpost/teams_chat/` — each 1:1 chat is a `.md` file
 
 When the user asks about calendar, upcoming meetings, recent emails, or Teams

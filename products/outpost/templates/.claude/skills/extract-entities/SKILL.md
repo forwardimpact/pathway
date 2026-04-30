@@ -5,10 +5,10 @@ description: Process synced email/calendar files from ~/.cache/fit/outpost/ and 
 
 # Extract Entities
 
-Process synced email and calendar files from `~/.cache/fit/outpost/` and
-extract structured knowledge into `knowledge/` as Obsidian-compatible markdown
-notes. This is the core knowledge graph builder — it transforms raw data from
-the sync skills into actionable, linked notes.
+Process synced email and calendar files from `~/.cache/fit/outpost/` and extract
+structured knowledge into `knowledge/` as Obsidian-compatible markdown notes.
+This is the core knowledge graph builder — it transforms raw data from the sync
+skills into actionable, linked notes.
 
 Also accepts **ad-hoc document files** passed by other skills (e.g. the
 **`organize-files`** skill passes documents found in `~/Desktop/` and

@@ -32,10 +32,10 @@ their email.
 
 ## Outputs
 
-- `~/.cache/fit/outpost/apple_mail/{thread_id}.md` — one markdown file per
-  email thread
-- `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` — copied
-  attachment files for each thread (PDFs, images, documents, etc.)
+- `~/.cache/fit/outpost/apple_mail/{thread_id}.md` — one markdown file per email
+  thread
+- `~/.cache/fit/outpost/apple_mail/attachments/{thread_id}/` — copied attachment
+  files for each thread (PDFs, images, documents, etc.)
 - `~/.cache/fit/outpost/state/apple_mail_last_sync` — updated with new sync
   timestamp
 - `~/.cache/fit/outpost/state/apple_mail_last_rowid` — updated with highest

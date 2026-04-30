@@ -20,15 +20,15 @@ Run when the user asks to draft, reply to, respond to, or send an email.
 
 ## Data Locations
 
-| Data            | Location                                      |
-| --------------- | --------------------------------------------- |
-| People          | `knowledge/People/*.md`                       |
-| Organizations   | `knowledge/Organizations/*.md`                |
+| Data            | Location                                     |
+| --------------- | -------------------------------------------- |
+| People          | `knowledge/People/*.md`                      |
+| Organizations   | `knowledge/Organizations/*.md`               |
 | Email threads   | `~/.cache/fit/outpost/apple_mail/*.md`       |
 | Calendar events | `~/.cache/fit/outpost/apple_calendar/*.json` |
-| Handled IDs     | `drafts/handled` (one ID per line)            |
-| Ignored IDs     | `drafts/ignored` (one ID per line)            |
-| Draft files     | `drafts/{email_id}_draft.md`                  |
+| Handled IDs     | `drafts/handled` (one ID per line)           |
+| Ignored IDs     | `drafts/ignored` (one ID per line)           |
+| Draft files     | `drafts/{email_id}_draft.md`                 |
 
 **Handled vs Ignored:** Both exclude threads from `scan-emails.mjs`. Use
 `handled` for threads that received a response (sent via this skill, replied

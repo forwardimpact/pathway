@@ -63,9 +63,8 @@ staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 
 Helps engineers and agents answer _am I prepared for what's ahead today?_
 Personal operations center providing scheduled AI tasks, knowledge graphs, and
-meeting briefings (macOS status menu).
-[Overview](websites/fit/outpost/index.md) ·
-[Internals](websites/fit/docs/internals/outpost/index.md)
+meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
+· [Internals](websites/fit/docs/internals/outpost/index.md)
 
 ### Kata Agent Team — `kata-skills`
 

@@ -64,14 +64,14 @@ relies on. Eliminating Deno simplifies the toolchain to a single runtime.
 
 ## Affected files
 
-| File                                   | Change                                                                                      |
-| -------------------------------------- | ------------------------------------------------------------------------------------------- |
+| File                                  | Change                                                                                      |
+| ------------------------------------- | ------------------------------------------------------------------------------------------- |
 | `products/outpost/src/posix-spawn.js` | Rewrite FFI from Deno to `bun:ffi`                                                          |
 | `products/outpost/pkg/build.js`       | Shebang → `#!/usr/bin/env bun`, `deno compile` → `bun build --compile`, remove `Deno?.args` |
 | `products/outpost/justfile`           | All `deno` commands → `bun` equivalents                                                     |
 | `products/outpost/package.json`       | Build scripts → `bun pkg/build.js`                                                          |
 | `products/outpost/deno.json`          | Delete                                                                                      |
-| `.github/workflows/publish-macos.yml`  | Remove `Install Deno` step                                                                  |
+| `.github/workflows/publish-macos.yml` | Remove `Install Deno` step                                                                  |
 
 ## Success criteria
 
@@ -79,8 +79,8 @@ relies on. Eliminating Deno simplifies the toolchain to a single runtime.
 2. `just build` completes without Deno installed.
 3. `just pkg` produces a `.pkg` installer with the Bun-compiled binary.
 4. The compiled binary correctly spawns child processes via posix_spawn with TCC
-   responsibility disclaimer (verify by running inside Outpost.app with
-   Calendar access).
+   responsibility disclaimer (verify by running inside Outpost.app with Calendar
+   access).
 5. `publish-macos.yml` no longer references Deno in any step.
 6. `deno.json` no longer exists in `products/outpost/`.
 7. `grep -r 'Deno\.' products/outpost/` returns zero matches.

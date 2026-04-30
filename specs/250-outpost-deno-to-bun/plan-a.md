@@ -50,8 +50,8 @@ Specific changes:
 8. In `waitForExit()`: replace `Deno.UnsafePointer.of(status)` with
    `ptr(status)`.
 
-**Verify:** `bun products/outpost/src/posix-spawn.js` should load without
-errors (module parses and FFI symbols resolve on macOS).
+**Verify:** `bun products/outpost/src/posix-spawn.js` should load without errors
+(module parses and FFI symbols resolve on macOS).
 
 ## Step 2 — Migrate `pkg/build.js`
 
@@ -73,8 +73,8 @@ Full build verification happens after justfile updates.
 
 **File:** `products/outpost/justfile`
 
-| Recipe            | Current                                                            | New                                                 |
-| ----------------- | ------------------------------------------------------------------ | --------------------------------------------------- |
+| Recipe            | Current                                                           | New                                                |
+| ----------------- | ----------------------------------------------------------------- | -------------------------------------------------- |
 | `build-scheduler` | `deno compile --allow-all --no-check --output ... src/outpost.js` | `bun build --compile --outfile ... src/outpost.js` |
 | `run`             | `deno run --allow-all src/outpost.js`                             | `bun src/outpost.js`                               |
 | `daemon`          | `deno run --allow-all src/outpost.js --daemon`                    | `bun src/outpost.js --daemon`                      |
@@ -130,8 +130,8 @@ Run the success criteria from the spec:
 1. `cd products/outpost && bun pkg/build.js` — produces `dist/fit-outpost`.
 2. `just build` — completes without Deno installed.
 3. `just pkg` — produces `.pkg` installer.
-4. Run compiled binary to verify posix_spawn works (requires Outpost.app
-   context with Calendar TCC access for full validation).
+4. Run compiled binary to verify posix_spawn works (requires Outpost.app context
+   with Calendar TCC access for full validation).
 5. `grep -r 'Deno\.' products/outpost/` — zero matches.
 6. `grep -ri 'deno' .github/workflows/publish-macos.yml` — zero matches.
 7. Confirm `products/outpost/deno.json` does not exist.

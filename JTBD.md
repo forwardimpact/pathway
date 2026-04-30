@@ -188,8 +188,8 @@ standards that humans use, so human-agent collaboration is coherent.
 ### Execute Background Work
 
 - **When** the scheduler wakes me, **I want to** sync email, extract entities,
-  prepare briefings, and organize knowledge, **so that** the developer's
-  Outpost is current and actionable when they arrive. → **Outpost**
+  prepare briefings, and organize knowledge, **so that** the developer's Outpost
+  is current and actionable when they arrive. → **Outpost**
 
 - **When** I process incoming data, **I want to** use the same entity taxonomy
   and ID namespace as the rest of the system, **so that** my outputs are

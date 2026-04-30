@@ -90,9 +90,9 @@ npx fit-outpost status                  # Check what's happening
 
 ### macOS Privacy & Security
 
-Outpost agents need access to specific folders (Documents, Mail, Calendar).
-When macOS prompts, grant only the folders each process needs via **System
-Settings > Privacy & Security > Files & Folders**:
+Outpost agents need access to specific folders (Documents, Mail, Calendar). When
+macOS prompts, grant only the folders each process needs via **System Settings >
+Privacy & Security > Files & Folders**:
 
 - **Outpost.app** — the TCC responsible process (Swift launcher)
 - **node** — runs skill scripts with `#!/usr/bin/env node` shebangs

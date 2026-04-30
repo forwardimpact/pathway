@@ -109,7 +109,7 @@ portable, reflecting that knowledge management should travel with you.
 | Stroke      | 2px, round caps, round joins                                  |
 | Fill        | None, except Guide's compass needle (north half)              |
 | Color       | `--gray-900` default, `--gray-400` when inactive              |
-| Ground line | 1px stroke at bottom (Pathway, Landmark, Summit, Outpost)    |
+| Ground line | 1px stroke at bottom (Pathway, Landmark, Summit, Outpost)     |
 | Style       | Hand-drawn feel — slightly imperfect corners, micro-variation |
 | Sizes       | 24px (inline), 32px (nav), 48px (cards), 96px (marketing)     |
 

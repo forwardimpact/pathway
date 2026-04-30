@@ -170,8 +170,8 @@ resolve. See
 Format: `type(scope): subject`
 
 - **Types**: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `spec`
-- **Scope**: package name (`map`, `libskill`, `libui`, `pathway`, `outpost`),
-  or domain area (`security`) for specs
+- **Scope**: package name (`map`, `libskill`, `libui`, `pathway`, `outpost`), or
+  domain area (`security`) for specs
 - **Breaking**: add `!` after scope
 
 `spec` is for new specification documents in `specs/` (e.g.

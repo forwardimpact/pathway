@@ -2,10 +2,10 @@
 
 > The FIT realization of the [shared design language](../index.md): a monochrome
 > design system for six open-source products — **Map**, **Pathway**, **Guide**,
-> **Landmark**, **Summit**, and **Outpost** — built around the
-> metaphor of engineers deployed "in the field." Three characters — the
-> Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
-> boundary between technology and the real world.
+> **Landmark**, **Summit**, and **Outpost** — built around the metaphor of
+> engineers deployed "in the field." Three characters — the Engineer, the AI
+> Agent, and the Business Stakeholder — collaborate at the boundary between
+> technology and the real world.
 >
 > The design embodies Deming's principle: improve the performance of developers
 > and agents, improve quality, increase output, and bring pride of workmanship

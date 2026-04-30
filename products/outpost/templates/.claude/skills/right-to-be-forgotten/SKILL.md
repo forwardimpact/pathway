@@ -141,7 +141,7 @@ For each discovered reference, classify the required action:
 | **Dedicated note** (sole subject)  | Delete entire file                          | `knowledge/People/{Name}.md`                    |
 | **Dedicated directory**            | Delete entire directory                     | `knowledge/Candidates/{Name}/`                  |
 | **Mention in another note**        | Redact: remove lines referencing the person | Backlink in `knowledge/Organizations/Agency.md` |
-| **Email thread** (sole subject)    | Delete file                                 | `~/.cache/fit/outpost/apple_mail/thread.md`    |
+| **Email thread** (sole subject)    | Delete file                                 | `~/.cache/fit/outpost/apple_mail/thread.md`     |
 | **Email thread** (multiple people) | Redact: remove paragraphs about the person  | Thread discussing multiple candidates           |
 | **Attachment** (their CV, etc.)    | Delete file                                 | `attachments/{thread}/CV.pdf`                   |
 | **Triage/state file**              | Redact: remove lines mentioning them        | `recruiter_triage.md`                           |

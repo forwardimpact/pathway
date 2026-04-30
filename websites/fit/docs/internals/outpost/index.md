@@ -15,16 +15,16 @@ flowchart TD
     Claude --> Skills["KB Skills (.claude/skills/)"]
 ```
 
-The composition root (`src/outpost.js`) wires `StateManager` -> `AgentRunner`
--> `Scheduler` -> `SocketServer` with explicit dependency passing.
+The composition root (`src/outpost.js`) wires `StateManager` -> `AgentRunner` ->
+`Scheduler` -> `SocketServer` with explicit dependency passing.
 
 ---
 
 ## Components
 
-| Component       | Path                                         | Purpose                               |
-| --------------- | -------------------------------------------- | ------------------------------------- |
-| CLI & Scheduler | `products/outpost/src/outpost.js`          | Main entry point, daemon, task runner |
+| Component       | Path                                        | Purpose                               |
+| --------------- | ------------------------------------------- | ------------------------------------- |
+| CLI & Scheduler | `products/outpost/src/outpost.js`           | Main entry point, daemon, task runner |
 | State Manager   | `products/outpost/src/state-manager.js`     | Task run state persistence            |
 | Agent Runner    | `products/outpost/src/agent-runner.js`      | Claude CLI process spawning           |
 | Scheduler       | `products/outpost/src/scheduler.js`         | Interval-based task execution         |
@@ -113,9 +113,9 @@ due for execution based on their configured intervals.
 
 ## Logging
 
-Logs are written to `~/.fit/outpost/logs/scheduler-YYYY-MM-DD.log`. Outpost
-uses a local `createLogger(logDir, fs)` function (not libtelemetry) since it is
-a user-facing CLI tool.
+Logs are written to `~/.fit/outpost/logs/scheduler-YYYY-MM-DD.log`. Outpost uses
+a local `createLogger(logDir, fs)` function (not libtelemetry) since it is a
+user-facing CLI tool.
 
 ---
 
