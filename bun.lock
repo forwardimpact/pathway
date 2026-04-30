@@ -19,7 +19,7 @@
     },
     "libraries/libcli": {
       "name": "@forwardimpact/libcli",
-      "version": "0.1.4",
+      "version": "0.1.5",
       "devDependencies": {
         "@forwardimpact/libharness": "^0.1.14",
       },
@@ -46,7 +46,7 @@
     },
     "libraries/libconfig": {
       "name": "@forwardimpact/libconfig",
-      "version": "0.1.70",
+      "version": "0.1.71",
       "dependencies": {
         "@forwardimpact/libstorage": "^0.1.53",
       },
@@ -56,7 +56,7 @@
     },
     "libraries/libdoc": {
       "name": "@forwardimpact/libdoc",
-      "version": "0.2.19",
+      "version": "0.2.20",
       "bin": {
         "fit-doc": "./bin/fit-doc.js",
       },
@@ -131,7 +131,7 @@
     },
     "libraries/libharness": {
       "name": "@forwardimpact/libharness",
-      "version": "0.1.15",
+      "version": "0.1.16",
       "peerDependencies": {
         "@forwardimpact/libtype": "*",
       },
@@ -253,7 +253,7 @@
     },
     "libraries/libskill": {
       "name": "@forwardimpact/libskill",
-      "version": "5.1.2",
+      "version": "5.2.0",
       "dependencies": {
         "@forwardimpact/map": "^0.15.0",
       },
@@ -311,7 +311,7 @@
     },
     "libraries/libsyntheticprose": {
       "name": "@forwardimpact/libsyntheticprose",
-      "version": "0.1.14",
+      "version": "0.1.17",
       "dependencies": {
         "@forwardimpact/libprompt": "^0.1.0",
         "@forwardimpact/libtelemetry": "^0.1.23",
@@ -323,7 +323,7 @@
     },
     "libraries/libsyntheticrender": {
       "name": "@forwardimpact/libsyntheticrender",
-      "version": "0.1.15",
+      "version": "0.1.16",
       "dependencies": {
         "@forwardimpact/libsyntheticgen": "^0.1.0",
         "@forwardimpact/libtemplate": "^0.2.0",
@@ -364,7 +364,7 @@
     },
     "libraries/libterrain": {
       "name": "@forwardimpact/libterrain",
-      "version": "0.1.18",
+      "version": "0.1.19",
       "bin": {
         "fit-terrain": "./bin/fit-terrain.js",
       },
@@ -435,7 +435,7 @@
     },
     "libraries/libxmr": {
       "name": "@forwardimpact/libxmr",
-      "version": "0.1.2",
+      "version": "0.1.3",
       "bin": {
         "fit-xmr": "./bin/fit-xmr.js",
       },
@@ -460,7 +460,7 @@
     },
     "products/guide": {
       "name": "@forwardimpact/guide",
-      "version": "0.1.29",
+      "version": "0.1.30",
       "bin": {
         "fit-guide": "./bin/fit-guide.js",
       },
@@ -486,7 +486,7 @@
     },
     "products/landmark": {
       "name": "@forwardimpact/landmark",
-      "version": "0.1.5",
+      "version": "0.1.7",
       "bin": {
         "fit-landmark": "./bin/fit-landmark.js",
       },
@@ -505,7 +505,7 @@
     },
     "products/map": {
       "name": "@forwardimpact/map",
-      "version": "0.15.32",
+      "version": "0.15.34",
       "bin": {
         "fit-map": "./bin/fit-map.js",
       },
@@ -529,7 +529,7 @@
     },
     "products/pathway": {
       "name": "@forwardimpact/pathway",
-      "version": "0.25.36",
+      "version": "0.25.39",
       "bin": {
         "fit-pathway": "./bin/fit-pathway.js",
       },
@@ -547,7 +547,7 @@
     },
     "products/summit": {
       "name": "@forwardimpact/summit",
-      "version": "0.1.7",
+      "version": "0.1.9",
       "bin": {
         "fit-summit": "./bin/fit-summit.js",
       },
@@ -568,7 +568,10 @@
     },
     "services/graph": {
       "name": "@forwardimpact/svcgraph",
-      "version": "0.1.65",
+      "version": "0.1.66",
+      "bin": {
+        "fit-svcgraph": "./server.js",
+      },
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libgraph": "^0.1.49",
@@ -582,7 +585,10 @@
     },
     "services/mcp": {
       "name": "@forwardimpact/svcmcp",
-      "version": "0.1.3",
+      "version": "0.1.4",
+      "bin": {
+        "fit-svcmcp": "./server.js",
+      },
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.67",
         "@forwardimpact/libmcp": "^0.1.0",
@@ -598,7 +604,10 @@
     },
     "services/pathway": {
       "name": "@forwardimpact/svcpathway",
-      "version": "0.1.10",
+      "version": "0.1.11",
+      "bin": {
+        "fit-svcpathway": "./server.js",
+      },
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/librpc": "^0.1.77",
@@ -615,7 +624,10 @@
     },
     "services/trace": {
       "name": "@forwardimpact/svctrace",
-      "version": "0.1.38",
+      "version": "0.1.39",
+      "bin": {
+        "fit-svctrace": "./server.js",
+      },
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libindex": "^0.1.27",
@@ -629,7 +641,10 @@
     },
     "services/vector": {
       "name": "@forwardimpact/svcvector",
-      "version": "0.1.117",
+      "version": "0.1.118",
+      "bin": {
+        "fit-svcvector": "./server.js",
+      },
       "dependencies": {
         "@forwardimpact/libconfig": "^0.1.58",
         "@forwardimpact/libresource": "^0.1.89",
@@ -644,7 +659,7 @@
     },
   },
   "overrides": {
-    "@anthropic-ai/sdk": "^0.81.0",
+    "@anthropic-ai/sdk": "^0.91.1",
     "@hono/node-server": "^2.0.0",
     "hono": "^4.12.14",
     "lodash": "^4.18.0",
@@ -654,7 +669,7 @@
   "packages": {
     "@anthropic-ai/claude-agent-sdk": ["@anthropic-ai/claude-agent-sdk@0.2.112", "", { "dependencies": { "@anthropic-ai/sdk": "^0.81.0", "@modelcontextprotocol/sdk": "^1.29.0" }, "optionalDependencies": { "@img/sharp-darwin-arm64": "^0.34.2", "@img/sharp-darwin-x64": "^0.34.2", "@img/sharp-linux-arm": "^0.34.2", "@img/sharp-linux-arm64": "^0.34.2", "@img/sharp-linux-x64": "^0.34.2", "@img/sharp-linuxmusl-arm64": "^0.34.2", "@img/sharp-linuxmusl-x64": "^0.34.2", "@img/sharp-win32-arm64": "^0.34.2", "@img/sharp-win32-x64": "^0.34.2" }, "peerDependencies": { "zod": "^4.0.0" } }, "sha512-vMFoiDKlOive8p3tphpV1gQaaytOipwGJ+uw9mvvaLQUODSC2+fCdRDAY25i2Tsv+lOtxzXBKctmaDuWqZY7ig=="],
 
-    "@anthropic-ai/sdk": ["@anthropic-ai/sdk@0.81.0", "", { "dependencies": { "json-schema-to-ts": "^3.1.1" }, "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" }, "optionalPeers": ["zod"], "bin": { "anthropic-ai-sdk": "bin/cli" } }, "sha512-D4K5PvEV6wPiRtVlVsJHIUhHAmOZ6IT/I9rKlTf84gR7GyyAurPJK7z9BOf/AZqC5d1DhYQGJNKRmV+q8dGhgw=="],
+    "@anthropic-ai/sdk": ["@anthropic-ai/sdk@0.91.1", "", { "dependencies": { "json-schema-to-ts": "^3.1.1" }, "peerDependencies": { "zod": "^3.25.0 || ^4.0.0" }, "optionalPeers": ["zod"], "bin": { "anthropic-ai-sdk": "bin/cli" } }, "sha512-LAmu761tSN9r66ixvmciswUj/ZC+1Q4iAfpedTfSVLeswRwnY3n2Nb6Tsk+cLPP28aLOPWeMgIuTuCcMC6W/iw=="],
 
     "@asamuzakjp/css-color": ["@asamuzakjp/css-color@5.1.9", "", { "dependencies": { "@csstools/css-calc": "^3.1.1", "@csstools/css-color-parser": "^4.0.2", "@csstools/css-parser-algorithms": "^4.0.0", "@csstools/css-tokenizer": "^4.0.0" } }, "sha512-zd9c/Wdso6v1U7v6w3i/hbAr4K7NaSHImdpvmLt+Y9ea5BhilnIGNkfhOJ7FEIuPipAnE9tZeDOll05WDT0kgg=="],
 
