@@ -93,8 +93,8 @@ Exit gate — verify every item before committing.
 products/
   map/         # fit-map — data product, validation, schema, starter YAML
   pathway/     # fit-pathway — web app, CLI, formatters
-  outpost/    # fit-outpost — knowledge system, scheduler, macOS app
   guide/       # fit-guide — LLM agent, artifact interpretation
+  outpost/     # fit-outpost — knowledge system, scheduler, macOS app
 libraries/
   lib*/        # shared infrastructure and domain libraries
 services/

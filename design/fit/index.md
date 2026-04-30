@@ -1,8 +1,8 @@
 # Forward Impact Team (FIT) — Brand Implementation
 
 > The FIT realization of the [shared design language](../index.md): a monochrome
-> design system for six open-source products — **Map**, **Pathway**,
-> **Outpost**, **Guide**, **Landmark**, and **Summit** — built around the
+> design system for six open-source products — **Map**, **Pathway**, **Guide**,
+> **Landmark**, **Summit**, and **Outpost** — built around the
 > metaphor of engineers deployed "in the field." Three characters — the
 > Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
 > boundary between technology and the real world.
@@ -26,9 +26,9 @@ design language and the three characters' shared visual specifications, see
 "The field" draws from three simultaneous meanings:
 
 1. **Expedition**: Forward deployed — operating with autonomy in unfamiliar
-   terrain. Outpost is where you prepare. The Guide keeps you oriented. The
-   Pathway is how you advance. The Map shows the territory. The Summit is the
-   peak the team aims to reach together.
+   terrain. The Map shows the territory. The Pathway is how you advance. The
+   Guide keeps you oriented. The Summit is the peak the team aims to reach
+   together. Outpost is where you prepare.
 2. **Scientific fieldwork**: Engineers embedded with business units and domain
    experts — working where the problems live.
 3. **Topographic/landscape**: Contour maps, trail markers, compass roses,
@@ -71,10 +71,10 @@ what follows are FIT-specific readings, not new shapes:
 | ------------ | ------------------------------------------------- |
 | **Map**      | What does good engineering look like here?        |
 | **Pathway**  | Where does my career path go from here?           |
-| **Outpost**  | Am I prepared for what's ahead today?             |
 | **Guide**    | How do I find my bearing?                         |
 | **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
+| **Outpost**  | Am I prepared for what's ahead today?             |
 
 Each product has its own visual motif — drawn from the field metaphor — that
 surfaces in icons and scenes but never in structural UI.
@@ -83,10 +83,10 @@ surfaces in icons and scenes but never in structural UI.
 | ------------ | ---------------------- |
 | **Map**      | Charted territory      |
 | **Pathway**  | Trails and switchbacks |
-| **Outpost**  | Shelter and foundation |
 | **Guide**    | Stars and bearing      |
 | **Landmark** | Vantage points         |
 | **Summit**   | The mountain peak      |
+| **Outpost**  | Shelter and foundation |
 
 ---
 
@@ -234,7 +234,7 @@ fill) and read as if drawn in the same notebook as the
 ### Navigation Pattern
 
 ```
-[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Outpost       [Docs]  [Sign in]
+[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Summit  ·  Outpost       [Docs]  [Sign in]
 ```
 
 Current product is bold (`700`). Others are regular (`400`) in `--gray-400`.
