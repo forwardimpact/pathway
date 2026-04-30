@@ -19,3 +19,10 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    ignore:
+      # protobufjs-cli >=2.0.2 requires protobufjs >=8 peer.
+      # We pin protobufjs@7.x because @grpc/proto-loader peer-blocks v8.
+      - dependency-name: protobufjs-cli
+        update-types:
+          - version-update:semver-patch
+          - version-update:semver-minor
