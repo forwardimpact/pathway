@@ -32,7 +32,7 @@
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.22",
     "@hono/node-server": "^2.0.0",
-    "hono": "^4.12.14",
+    "hono": "^4.12.15",
     "marked": "^18.0.2",
     "marked-gfm-heading-id": "^4.1.4",
     "marked-highlight": "^2.2.4",
