@@ -18,3 +18,11 @@ updates:
     groups:
       minor-and-patch:
         update-types: [minor, patch]
+    # Peer-blocked by @grpc/proto-loader, which pins protobufjs ^7.
+    # CONTRIBUTING.md § Dependency Policy forbids nested duplicates.
+    # Remove these entries once @grpc/proto-loader supports protobufjs ^8.
+    ignore:
+      - dependency-name: protobufjs
+        versions: [">=8.0.0"]
+      - dependency-name: protobufjs-cli
+        versions: [">=2.0.2"]
