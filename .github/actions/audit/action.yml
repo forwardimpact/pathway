@@ -23,9 +23,10 @@ runs:
       shell: bash
       working-directory: ${{ inputs.working-directory }}
       run: |
-        # Replace bun workspace protocol with plain wildcard for npm compatibility
+        # Replace bun workspace protocol with plain wildcard for npm compatibility.
+        # Use perl for sed -i portability across GNU (Linux) and BSD (macOS) sed.
         find . -name package.json -not -path '*/node_modules/*' -exec \
-          sed -i 's/"workspace:\*"/"*"/g' {} +
+          perl -pi -e 's/"workspace:\*"/"*"/g' {} +
         npm install --package-lock-only --ignore-scripts --force 2>/dev/null
         npm audit --audit-level=high --omit=dev --workspaces
         rm -f package-lock.json
