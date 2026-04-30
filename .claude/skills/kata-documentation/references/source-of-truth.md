@@ -15,7 +15,7 @@ source. Never trust documentation alone — read the code.
 | Agent derivation    | `libraries/libskill/src/agent.js`                  |
 | Map validation      | `products/map/src/`                                |
 | Pathway CLI         | `products/pathway/bin/fit-pathway.js`              |
-| Basecamp CLI        | `products/basecamp/bin/fit-basecamp.js`            |
+| Outpost CLI         | `products/outpost/bin/fit-outpost.js`              |
 | Landmark CLI        | `products/landmark/bin/fit-landmark.js`            |
 | Summit CLI          | `products/summit/bin/fit-summit.js`                |
 | Terrain CLI         | `libraries/libterrain/bin/fit-terrain.js`          |

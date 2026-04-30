@@ -11,7 +11,7 @@ toc: false
 
 ### CLI Reference
 
-Commands, arguments, and options for fit-map, fit-pathway, fit-basecamp,
+Commands, arguments, and options for fit-map, fit-pathway, fit-outpost,
 fit-guide, fit-landmark, fit-summit, fit-terrain, fit-doc, and fit-rc.
 
 </a>

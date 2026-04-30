@@ -62,7 +62,7 @@ export default [
     },
   },
   {
-    files: ["products/basecamp/**/*.js", "products/basecamp/**/*.mjs"],
+    files: ["products/outpost/**/*.js", "products/outpost/**/*.mjs"],
     languageOptions: {
       globals: {
         Bun: "readonly",

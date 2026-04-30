@@ -28,10 +28,10 @@ engineering teams:
 | ------------ | ------------------------------------------------- |
 | **Map**      | What does good engineering look like here?        |
 | **Pathway**  | Where does my career path go from here?           |
-| **Basecamp** | Am I prepared for what's ahead today?             |
 | **Guide**    | How do I find my bearing?                         |
 | **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
+| **Outpost**  | Am I prepared for what's ahead today?             |
 
 ## Quick Start
 

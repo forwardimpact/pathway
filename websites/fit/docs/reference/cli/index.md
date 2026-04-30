@@ -3,7 +3,7 @@ title: CLI Reference
 description: Commands, arguments, and options for all Forward Impact CLI tools.
 ---
 
-> **Availability:** `fit-pathway`, `fit-map`, `fit-basecamp`, `fit-guide`,
+> **Availability:** `fit-pathway`, `fit-map`, `fit-outpost`, `fit-guide`,
 > `fit-landmark`, `fit-summit`, and `fit-rc` are published to npm and can be
 > installed standalone. `fit-doc` and `fit-terrain` are monorepo-only tools that
 > require a full checkout of the
@@ -199,20 +199,20 @@ npx fit-pathway update                        # Update local installation
 
 ---
 
-## fit-basecamp
+## fit-outpost
 
 Personal operations center: calendar sync, meeting briefings, and background AI
 agents.
 
 ```sh
-fit-basecamp                         # Wake due agents once and exit
-fit-basecamp daemon                  # Run continuously (poll every 60s)
-fit-basecamp wake <agent>            # Wake a specific agent immediately
-fit-basecamp stop                    # Gracefully stop daemon and agents
-fit-basecamp status                  # Show agent status and last decisions
-fit-basecamp validate                # Validate agent definitions exist
-fit-basecamp init <path>             # Initialize a new knowledge base
-fit-basecamp update [path]           # Update KB with latest templates
+fit-outpost                         # Wake due agents once and exit
+fit-outpost daemon                  # Run continuously (poll every 60s)
+fit-outpost wake <agent>            # Wake a specific agent immediately
+fit-outpost stop                    # Gracefully stop daemon and agents
+fit-outpost status                  # Show agent status and last decisions
+fit-outpost validate                # Validate agent definitions exist
+fit-outpost init <path>             # Initialize a new knowledge base
+fit-outpost update [path]           # Update KB with latest templates
 ```
 
 | Command         | Description                                |

@@ -18,7 +18,7 @@ hero:
 > Map is the data product that provides shared context for every product in the
 > suite. Teams define the agent-aligned engineering standard once, import
 > operational signals continuously, and make that data available to Pathway,
-> Guide, Landmark, and Basecamp through stable contracts.
+> Guide, Landmark, and Outpost through stable contracts.
 
 ### What you get
 

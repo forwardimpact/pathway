@@ -93,8 +93,8 @@ Exit gate — verify every item before committing.
 products/
   map/         # fit-map — data product, validation, schema, starter YAML
   pathway/     # fit-pathway — web app, CLI, formatters
-  basecamp/    # fit-basecamp — knowledge system, scheduler, macOS app
   guide/       # fit-guide — LLM agent, artifact interpretation
+  outpost/     # fit-outpost — knowledge system, scheduler, macOS app
 libraries/
   lib*/        # shared infrastructure and domain libraries
 services/
@@ -170,8 +170,8 @@ resolve. See
 Format: `type(scope): subject`
 
 - **Types**: `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, `spec`
-- **Scope**: package name (`map`, `libskill`, `libui`, `pathway`, `basecamp`),
-  or domain area (`security`) for specs
+- **Scope**: package name (`map`, `libskill`, `libui`, `pathway`, `outpost`), or
+  domain area (`security`) for specs
 - **Breaking**: add `!` after scope
 
 `spec` is for new specification documents in `specs/` (e.g.

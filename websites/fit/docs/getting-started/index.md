@@ -21,7 +21,7 @@ validate, and preview.
 ### Engineers
 
 Install CLI tools, browse job definitions, generate agent teams, set up Guide,
-and configure Basecamp.
+and configure Outpost.
 
 </a>
 

@@ -76,17 +76,17 @@ function addGuideContentKeys(keys, guideContent, domain, orgName) {
 }
 
 /**
- * Add basecamp persona keys (briefings, notes).
+ * Add outpost persona keys (briefings, notes).
  * @param {Map<string, object>} keys
- * @param {object} basecampContent
+ * @param {object} outpostContent
  * @param {object} entities
  * @param {string} domain
  * @param {string} orgName
  */
-function addBasecampKeys(keys, basecampContent, entities, domain, orgName) {
-  const personas = selectPersonaNames(entities, basecampContent);
+function addOutpostKeys(keys, outpostContent, entities, domain, orgName) {
+  const personas = selectPersonaNames(entities, outpostContent);
   for (const persona of personas) {
-    for (let i = 0; i < (basecampContent.briefings_per_persona || 0); i++) {
+    for (let i = 0; i < (outpostContent.briefings_per_persona || 0); i++) {
       keys.set(`briefing_${persona.name}_${i}`, {
         topic: `daily briefing for ${persona.name}, a ${persona.level} ${persona.discipline}`,
         tone: "professional, concise",
@@ -97,7 +97,7 @@ function addBasecampKeys(keys, basecampContent, entities, domain, orgName) {
       });
     }
 
-    for (let i = 0; i < (basecampContent.notes_per_persona || 0); i++) {
+    for (let i = 0; i < (outpostContent.notes_per_persona || 0); i++) {
       keys.set(`note_${persona.name}_${i}`, {
         topic: `engineering knowledge note by ${persona.name}`,
         tone: "personal, technical",
@@ -174,11 +174,11 @@ export function collectProseKeys(entities) {
     addGuideContentKeys(keys, guideContent, domain, orgName);
   }
 
-  const basecampContent = entities.content.find(
-    (c) => c.id === "basecamp_markdown",
+  const outpostContent = entities.content.find(
+    (c) => c.id === "outpost_markdown",
   );
-  if (basecampContent) {
-    addBasecampKeys(keys, basecampContent, entities, domain, orgName);
+  if (outpostContent) {
+    addOutpostKeys(keys, outpostContent, entities, domain, orgName);
   }
 
   if (entities.activity?.commentKeys) {
@@ -196,8 +196,8 @@ export function collectProseKeys(entities) {
 /**
  * Select persona representatives from people.
  */
-function selectPersonaNames(entities, basecampContent) {
-  const levels = basecampContent.persona_levels || [
+function selectPersonaNames(entities, outpostContent) {
+  const levels = outpostContent.persona_levels || [
     "L1",
     "L2",
     "L3",

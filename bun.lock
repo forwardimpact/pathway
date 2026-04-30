@@ -446,18 +446,6 @@
         "@forwardimpact/libharness": "^0.1.5",
       },
     },
-    "products/basecamp": {
-      "name": "@forwardimpact/basecamp",
-      "version": "2.12.6",
-      "bin": {
-        "fit-basecamp": "./bin/fit-basecamp.js",
-      },
-      "dependencies": {
-        "@forwardimpact/libcli": "^0.1.0",
-        "@forwardimpact/libmacos": "^0.1.0",
-        "@forwardimpact/libtelemetry": "^0.1.33",
-      },
-    },
     "products/guide": {
       "name": "@forwardimpact/guide",
       "version": "0.1.30",
@@ -525,6 +513,18 @@
         "@forwardimpact/libstorage": "^0.1.61",
         "microdata-rdf-streaming-parser": "^3.0.0",
         "n3": "^2.0.3",
+      },
+    },
+    "products/outpost": {
+      "name": "@forwardimpact/outpost",
+      "version": "2.12.6",
+      "bin": {
+        "fit-outpost": "./bin/fit-outpost.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libmacos": "^0.1.0",
+        "@forwardimpact/libtelemetry": "^0.1.33",
       },
     },
     "products/pathway": {
@@ -811,8 +811,6 @@
 
     "@faker-js/faker": ["@faker-js/faker@10.4.0", "", {}, "sha512-sDBWI3yLy8EcDzgobvJTWq1MJYzAkQdpjXuPukga9wXonhpMRvd1Izuo2Qgwey2OiEoRIBr35RMU9HJRoOHzpw=="],
 
-    "@forwardimpact/basecamp": ["@forwardimpact/basecamp@workspace:products/basecamp"],
-
     "@forwardimpact/guide": ["@forwardimpact/guide@workspace:products/guide"],
 
     "@forwardimpact/landmark": ["@forwardimpact/landmark@workspace:products/landmark"],
@@ -882,6 +880,8 @@
     "@forwardimpact/libxmr": ["@forwardimpact/libxmr@workspace:libraries/libxmr"],
 
     "@forwardimpact/map": ["@forwardimpact/map@workspace:products/map"],
+
+    "@forwardimpact/outpost": ["@forwardimpact/outpost@workspace:products/outpost"],
 
     "@forwardimpact/pathway": ["@forwardimpact/pathway@workspace:products/pathway"],
 

@@ -113,16 +113,16 @@ engineering standard.
 
 - **When** I start my workday, **I want to** receive a briefing that synthesizes
   my email, calendar, and knowledge graph, **so that** I walk into every meeting
-  and task already oriented. → **Basecamp**
+  and task already oriented. → **Outpost**
 
 - **When** I'm juggling multiple projects and relationships, **I want to**
   maintain a personal knowledge graph of people, projects, and topics, **so
   that** context is never lost and I can recall any thread instantly. →
-  **Basecamp**
+  **Outpost**
 
 - **When** I receive email or messages that need responses, **I want to** have
   drafts prepared based on my communication history, **so that** I spend time on
-  substance, not composition. → **Basecamp**
+  substance, not composition. → **Outpost**
 
 ### Equip My Agents
 
@@ -132,8 +132,8 @@ engineering standard.
 
 - **When** I want my personal knowledge base to self-maintain, **I want to**
   schedule background AI tasks for syncing, extracting entities, and organizing
-  files, **so that** Basecamp works for me without constant manual effort. →
-  **Basecamp**
+  files, **so that** Outpost works for me without constant manual effort. →
+  **Outpost**
 
 ---
 
@@ -188,10 +188,10 @@ standards that humans use, so human-agent collaboration is coherent.
 ### Execute Background Work
 
 - **When** the scheduler wakes me, **I want to** sync email, extract entities,
-  prepare briefings, and organize knowledge, **so that** the developer's
-  Basecamp is current and actionable when they arrive. → **Basecamp**
+  prepare briefings, and organize knowledge, **so that** the developer's Outpost
+  is current and actionable when they arrive. → **Outpost**
 
 - **When** I process incoming data, **I want to** use the same entity taxonomy
   and ID namespace as the rest of the system, **so that** my outputs are
   directly consumable by humans and other agents without translation. → **Map,
-  Basecamp**
+  Outpost**

@@ -1,6 +1,6 @@
 /**
  * Markdown Renderer — generates personal knowledge-base content
- * for Basecamp personas.
+ * for Outpost personas.
  *
  * Uses TemplateLoader from libtemplate for all output.
  */
@@ -127,7 +127,7 @@ function renderPersona(files, person, entities, prose, templates, date) {
 }
 
 /**
- * Render Markdown files for Basecamp personas.
+ * Render Markdown files for Outpost personas.
  * @param {object} entities
  * @param {Map<string,string>} prose
  * @param {import('@forwardimpact/libtemplate/loader').TemplateLoader} templates - Template loader
@@ -136,13 +136,13 @@ function renderPersona(files, person, entities, prose, templates, date) {
 export function renderMarkdown(entities, prose, templates) {
   if (!templates) throw new Error("templates is required");
   const files = new Map();
-  const basecampContent = entities.content.find(
-    (c) => c.id === "basecamp_markdown",
+  const outpostContent = entities.content.find(
+    (c) => c.id === "outpost_markdown",
   );
-  if (!basecampContent) return files;
+  if (!outpostContent) return files;
 
-  const personaCount = basecampContent.personas || 0;
-  const personaLevels = basecampContent.persona_levels || ["L2", "L3", "L4"];
+  const personaCount = outpostContent.personas || 0;
+  const personaLevels = outpostContent.persona_levels || ["L2", "L3", "L4"];
   const candidates = entities.people.filter((p) =>
     personaLevels.includes(p.level),
   );

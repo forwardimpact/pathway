@@ -41,7 +41,7 @@ CLI commands, entity model, lifecycle stages, and YAML schema format.
 
 ### Internals
 
-Architecture and code: Map, Pathway, libskill, Basecamp, Guide, Summit, and
+Architecture and code: Map, Pathway, Guide, Summit, Outpost, libskill, and
 Terrain.
 
 </a>

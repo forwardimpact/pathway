@@ -1,11 +1,11 @@
 ---
 name: downstream-skill
-description: Study downstream Basecamp installations, read their skill changelogs, and bring improvements upstream into the monorepo. Use when incorporating field-tested skill changes from installations back into the canonical skill definitions.
+description: Study downstream Outpost installations, read their skill changelogs, and bring improvements upstream into the monorepo. Use when incorporating field-tested skill changes from installations back into the canonical skill definitions.
 ---
 
 # Downstream
 
-Study downstream Basecamp installations, read their skill changelogs, and bring
+Study downstream Outpost installations, read their skill changelogs, and bring
 improvements upstream into the monorepo template and canonical skill data.
 
 ## Trigger
@@ -34,12 +34,12 @@ Run this skill when:
   by the upstream skill in each installation
 - `<installation>/.claude/skills/*/SKILL.md` — current skill files in the
   installation
-- `products/basecamp/template/.claude/skills/` — canonical template skills in
+- `products/outpost/template/.claude/skills/` — canonical template skills in
   this monorepo
 
 ## Outputs
 
-- Updated skills in `products/basecamp/template/.claude/skills/`
+- Updated skills in `products/outpost/template/.claude/skills/`
 - Updated capability data in `data/pathway/capabilities/` (when changes affect
   agent skill definitions)
 - Summary of what was incorporated and what was deferred
@@ -85,7 +85,7 @@ Then compare with the canonical template:
 
 ```bash
 # Read the canonical template skill
-cat products/basecamp/template/.claude/skills/<skill-name>/SKILL.md
+cat products/outpost/template/.claude/skills/<skill-name>/SKILL.md
 ```
 
 #### Evaluation Criteria
@@ -101,7 +101,7 @@ cat products/basecamp/template/.claude/skills/<skill-name>/SKILL.md
 | Changes paths/configs | No — likely installation-specific                      |
 | Style-only changes    | No — not worth the churn                               |
 
-Ask: _"Would this change benefit a new Basecamp installation, or is it specific
+Ask: _"Would this change benefit a new Outpost installation, or is it specific
 to this user's setup?"_
 
 ### Step 4: Apply Upstream Changes
@@ -118,7 +118,7 @@ installation-specific customizations mixed with general improvements.
 
 ```bash
 # Edit the template skill
-# products/basecamp/template/.claude/skills/<skill-name>/SKILL.md
+# products/outpost/template/.claude/skills/<skill-name>/SKILL.md
 ```
 
 **For new skills:**
@@ -154,7 +154,7 @@ After applying upstream changes:
 1. **Diff the template** to confirm only intended changes were made:
 
 ```bash
-git diff products/basecamp/template/.claude/skills/
+git diff products/outpost/template/.claude/skills/
 ```
 
 2. **Run validation** if capability data was changed:

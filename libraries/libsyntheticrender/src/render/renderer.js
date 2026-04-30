@@ -60,7 +60,7 @@ export class Renderer {
   }
 
   /**
-   * Render Markdown files for Basecamp personas.
+   * Render Markdown files for Outpost personas.
    * @param {object} entities
    * @param {Map<string,string>} prose
    * @returns {Map<string,string>}

@@ -88,7 +88,7 @@ agent-aligned engineering standard. And it helps organizations see whether their
 engineering systems support the practices the agent-aligned engineering standard
 describes.
 
-**Basecamp** gives engineers a personal operations center — scheduled AI tasks
+**Outpost** gives engineers a personal operations center — scheduled AI tasks
 that sync information, prepare briefings, and organize knowledge so engineers
 can focus on the work that matters.
 

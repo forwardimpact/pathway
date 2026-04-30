@@ -60,7 +60,7 @@ Each run covers **one topic** in depth.
 | `guides`                 | `websites/fit/docs/guides/` — task accuracy, audience purity, completeness |
 | `reference`              | `websites/fit/docs/reference/` — CLI synopsis, entity definitions, schema  |
 | `internals`              | `websites/fit/docs/internals/` — architecture accuracy, code path validity |
-| `product-pages`          | `websites/fit/{map,pathway,guide,basecamp,landmark,summit}/` — overviews   |
+| `product-pages`          | `websites/fit/{map,pathway,guide,outpost,landmark,summit}/` — overviews    |
 | `root-docs`              | `CLAUDE.md`, `CONTRIBUTING.md`, `KATA.md`, `SECURITY.md`                   |
 | `llms-txt-and-seo`       | `websites/fit/llms.txt`, `websites/fit/robots.txt`, sitemap completeness   |
 | `cross-page-consistency` | Terminology, proficiency scales, field names across all pages              |

@@ -1,0 +1,69 @@
+# Outpost — build, install, and manage the scheduler
+
+dist_dir       := "dist"
+
+# Show available recipes
+[doc("List all available recipes")]
+default:
+    @just --list
+
+# ─── Build ────────────────────────────────────────────────────────────────────
+#
+# All build recipes delegate to pkg/build.js (single source of truth).
+
+# Copy fit-* skills from monorepo .claude/skills/ into templates
+prepare-template:
+    bun pkg/build.js --prepare-template
+
+# Compile standalone scheduler binary
+build-scheduler:
+    bun pkg/build.js --scheduler
+
+# Compile Swift app launcher (includes status menu UI)
+build-launcher:
+    bun pkg/build.js --launcher
+
+# Prepare templates + compile scheduler + compile launcher
+build:
+    bun pkg/build.js
+
+# Above + assemble Outpost.app bundle
+build-app:
+    bun pkg/build.js --app
+
+# Above + build macOS installer package (.pkg)
+pkg:
+    bun pkg/build.js --pkg
+
+# Clean build artifacts
+clean:
+    sudo rm -rf "{{ dist_dir }}"
+    rm -rf macos/Outpost/.build
+
+# ─── Setup ───────────────────────────────────────────────────────────────────
+
+# Uninstall (remove app; user data preserved)
+uninstall:
+    bash pkg/macos/uninstall.sh
+
+# ─── Scheduler ────────────────────────────────────────────────────────────────
+
+# Run due tasks once and exit
+run:
+    bun src/outpost.js
+
+# Run scheduler daemon (poll every 60s)
+daemon:
+    bun src/outpost.js --daemon
+
+# Run a specific task immediately
+run-task task:
+    bun src/outpost.js --run "{{ task }}"
+
+# Show knowledge bases and task status
+status:
+    bun src/outpost.js --status
+
+# Initialize a new knowledge base at the given path
+init path:
+    bun src/outpost.js --init "{{ path }}"

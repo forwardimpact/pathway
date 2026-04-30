@@ -303,7 +303,7 @@ export class DocsBuilder {
     const productSlugs = new Set([
       "map",
       "pathway",
-      "basecamp",
+      "outpost",
       "guide",
       "landmark",
       "summit",

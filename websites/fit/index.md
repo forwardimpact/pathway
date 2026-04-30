@@ -7,7 +7,7 @@ hero:
   image: /assets/scene-concept.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
   title: Empowered engineers<br>deliver lasting impact.
-  subtitle: Map, Pathway, Guide, Landmark, Basecamp, and Summit — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
+  subtitle: Map, Pathway, Guide, Landmark, Summit, and Outpost — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
   cta:
     - label: Explore the suite
       href: /docs/
@@ -68,18 +68,6 @@ organization improve the systems that support it.
 <div class="btn btn-ghost">Learn more</div>
 </a>
 
-<a class="product-card" href="/basecamp/">
-
-![Basecamp](/assets/icon-basecamp.svg)
-
-### Basecamp
-
-Set up camp. A personal knowledge system with scheduled AI tasks that keeps you
-briefed, organized, and field-ready.
-
-<div class="btn btn-ghost">Learn more</div>
-</a>
-
 <a class="product-card" href="/summit/">
 
 ![Summit](/assets/icon-summit.svg)
@@ -88,6 +76,18 @@ briefed, organized, and field-ready.
 
 Reach the peak. See your team's collective capability — coverage, risks, and
 what-if scenarios — so leaders can build teams that succeed.
+
+<div class="btn btn-ghost">Learn more</div>
+</a>
+
+<a class="product-card" href="/outpost/">
+
+![Outpost](/assets/icon-outpost.svg)
+
+### Outpost
+
+Set up camp. A personal knowledge system with scheduled AI tasks that keeps you
+briefed, organized, and field-ready.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -188,11 +188,11 @@ npx fit-pathway agent software_engineering --track=platform  # Generate agent pr
 
 ### For personal productivity
 
-Set up Basecamp and let scheduled AI tasks keep you organized:
+Set up Outpost and let scheduled AI tasks keep you organized:
 
 ```sh
-npx fit-basecamp init ~/Documents/Team
-npx fit-basecamp daemon
+npx fit-outpost init ~/Documents/Team
+npx fit-outpost daemon
 ```
 
   </div>

@@ -38,14 +38,6 @@ app, CLI, and static site generator for job definitions, agent profiles, and
 interview questions. [Overview](websites/fit/pathway/index.md) ·
 [Internals](websites/fit/docs/internals/pathway/index.md)
 
-### Basecamp — `fit-basecamp`
-
-Helps engineers and agents answer _am I prepared for what's ahead today?_
-Personal operations center providing scheduled AI tasks, knowledge graphs, and
-meeting briefings (macOS status menu).
-[Overview](websites/fit/basecamp/index.md) ·
-[Internals](websites/fit/docs/internals/basecamp/index.md)
-
 ### Guide — `fit-guide`
 
 Helps engineers answer _how do I find my bearing?_ AI agent that reasons about
@@ -66,6 +58,13 @@ Helps leadership answer _is this team supported to reach peak performance?_
 Models team capability as a system: skill matrices, coverage gaps, risks, and
 staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 [Internals](websites/fit/docs/internals/summit/index.md)
+
+### Outpost — `fit-outpost`
+
+Helps engineers and agents answer _am I prepared for what's ahead today?_
+Personal operations center providing scheduled AI tasks, knowledge graphs, and
+meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
+· [Internals](websites/fit/docs/internals/outpost/index.md)
 
 ### Kata Agent Team — `kata-skills`
 

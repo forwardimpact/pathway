@@ -1,9 +1,9 @@
 ---
 title: "Knowledge Systems"
-description: "Set up Basecamp for personal knowledge management — scheduler, tasks, and knowledge base structure."
+description: "Set up Outpost for personal knowledge management — scheduler, tasks, and knowledge base structure."
 ---
 
-Basecamp is a personal knowledge system. It schedules AI tasks that run in the
+Outpost is a personal knowledge system. It schedules AI tasks that run in the
 background against your personal knowledge base — syncing email, preparing
 meeting briefings, organizing notes, and keeping you ready for the day ahead.
 
@@ -11,11 +11,11 @@ meeting briefings, organizing notes, and keeping you ready for the day ahead.
 
 The scheduler runs tasks on a configurable schedule. It supports three modes:
 
-| Mode            | Command                                | Description                    |
-| --------------- | -------------------------------------- | ------------------------------ |
-| **Run once**    | `npx fit-basecamp`                     | Execute all due tasks and exit |
-| **Daemon**      | `npx fit-basecamp daemon`              | Run continuously on schedule   |
-| **Single task** | `npx fit-basecamp wake daily_briefing` | Run one specific task          |
+| Mode            | Command                               | Description                    |
+| --------------- | ------------------------------------- | ------------------------------ |
+| **Run once**    | `npx fit-outpost`                     | Execute all due tasks and exit |
+| **Daemon**      | `npx fit-outpost daemon`              | Run continuously on schedule   |
+| **Single task** | `npx fit-outpost wake daily_briefing` | Run one specific task          |
 
 The scheduler tracks task state in a `state.json` file, recording when each task
 last ran and whether it succeeded. On each cycle, it checks which tasks are due
@@ -25,7 +25,7 @@ Logs are written to a log directory inside your knowledge base, one file per
 task per run. Check recent activity:
 
 ```sh
-npx fit-basecamp status
+npx fit-outpost status
 ```
 
 ## Task Configuration
@@ -79,7 +79,7 @@ knowledge base's environment file.
 
 ## Knowledge Base Structure
 
-A Basecamp knowledge base is a directory with a specific structure:
+An Outpost knowledge base is a directory with a specific structure:
 
 ```
 ~/Documents/Personal/
@@ -112,7 +112,7 @@ personal workflows.
 Set up a new knowledge base:
 
 ```sh
-npx fit-basecamp init ~/Documents/Personal/
+npx fit-outpost init ~/Documents/Personal/
 ```
 
 This creates the directory structure, copies default skill definitions, and
@@ -121,16 +121,16 @@ and add your own notes and files.
 
 ## Key Commands
 
-| Command                        | Description                             |
-| ------------------------------ | --------------------------------------- |
-| `npx fit-basecamp init <path>` | Initialize a new knowledge base         |
-| `npx fit-basecamp`             | Run all due tasks once                  |
-| `npx fit-basecamp daemon`      | Run continuously                        |
-| `npx fit-basecamp wake <id>`   | Run a single task                       |
-| `npx fit-basecamp status`      | Show scheduler status                   |
-| `npx fit-basecamp stop`        | Stop the daemon and all running agents  |
-| `npx fit-basecamp update`      | Update KB with latest agents and skills |
-| `npx fit-basecamp validate`    | Validate agent definitions              |
+| Command                       | Description                             |
+| ----------------------------- | --------------------------------------- |
+| `npx fit-outpost init <path>` | Initialize a new knowledge base         |
+| `npx fit-outpost`             | Run all due tasks once                  |
+| `npx fit-outpost daemon`      | Run continuously                        |
+| `npx fit-outpost wake <id>`   | Run a single task                       |
+| `npx fit-outpost status`      | Show scheduler status                   |
+| `npx fit-outpost stop`        | Stop the daemon and all running agents  |
+| `npx fit-outpost update`      | Update KB with latest agents and skills |
+| `npx fit-outpost validate`    | Validate agent definitions              |
 
 ## Paths and Directories
 
@@ -145,6 +145,6 @@ and add your own notes and files.
 ## Related Documentation
 
 - [CLI Reference](/docs/reference/cli/) — complete command documentation for
-  `fit-basecamp`
+  `fit-outpost`
 - [Agent Teams](/docs/guides/agent-teams/) — how agent skills are generated from
   your agent-aligned engineering standard

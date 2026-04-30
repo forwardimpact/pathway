@@ -26,9 +26,9 @@ product as an external user would.
 
 `LLM_TOKEN` and `LLM_BASE_URL` are always present in the shell environment —
 `libconfig` reads them automatically. Products with LLM features (Guide,
-Basecamp) should work without the agent configuring an API key. If the agent
-hits authentication errors or is prompted to supply a token, that is a **bug**
-worth filing — the product's zero-configuration promise is broken.
+Outpost) should work without the agent configuring an API key. If the agent hits
+authentication errors or is prompted to supply a token, that is a **bug** worth
+filing — the product's zero-configuration promise is broken.
 
 Do not tell the agent that the token is pre-configured. The agent should
 discover that LLM features work out of the box, just as a real external user
