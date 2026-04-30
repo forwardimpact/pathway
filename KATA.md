@@ -139,7 +139,6 @@ for utilities). An agent's skill list reveals its phase coverage.
 | `kata-spec`               | Act     | Write specs capturing WHAT/WHY                |
 | `kata-metrics`            | Utility | Time-series recording and XmR analysis        |
 | `kata-review`             | Utility | Grade a single artifact (leaf, no sub-agents) |
-| `kata-ship`               | Utility | Rebase, push, open PR, merge a feature branch |
 | `kata-session`            | Utility | Toyota Kata coaching protocol for sessions    |
 | `kata-setup`              | Utility | Interactive Kata Agent Team setup             |
 

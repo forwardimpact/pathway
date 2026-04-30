@@ -1,5 +1,5 @@
 ---
-name: kata-ship
+name: ship-it
 description: >
   Ship the current feature branch as-is: approve, rebase on main, run checks,
   open (or reuse) a PR, wait for checks, and squash-merge into main. Ships only

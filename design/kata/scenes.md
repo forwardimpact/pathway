@@ -183,8 +183,7 @@ is the scene's icon-level anchor.
 
 ## Scene: The Shipping Bay
 
-**Context:** Release Engineer product page, release readiness documentation,
-kata-ship and kata-release-review skill pages.
+**Context:** Release Engineer product page, release readiness documentation.
 
 ```
                  📋 (manifest)
