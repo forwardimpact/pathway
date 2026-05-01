@@ -21,7 +21,7 @@
 //
 // Usage:
 //   node scripts/png-transparent.mjs [--preserve 0-255] [--threshold 0-255]
-//                                    [--dry-run] <file ...>
+//                                    <file ...>
 //
 // --preserve  darkest grey to leave fully opaque (default 200).  Anything
 //             at or below this value of min(R,G,B) keeps full alpha and
@@ -30,60 +30,54 @@
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
+import { parseArgs } from "node:util";
 import sharp from "sharp";
 
-function parseArgs(argv) {
-  let preserve = 200;
-  let threshold = 0;
-  let dryRun = false;
-  const files = [];
+const { values, positionals } = parseArgs({
+  options: {
+    preserve: { type: "string", default: "200" },
+    threshold: { type: "string", default: "0" },
+    help: { type: "boolean", short: "h" },
+  },
+  allowPositionals: true,
+});
 
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--preserve" && argv[i + 1]) {
-      preserve = parseInt(argv[++i], 10);
-      if (!Number.isFinite(preserve) || preserve < 0 || preserve > 255) {
-        console.error("Preserve must be 0-255");
-        process.exit(1);
-      }
-    } else if (argv[i] === "--threshold" && argv[i + 1]) {
-      threshold = parseInt(argv[++i], 10);
-      if (!Number.isFinite(threshold) || threshold < 0 || threshold > 255) {
-        console.error("Threshold must be 0-255");
-        process.exit(1);
-      }
-    } else if (argv[i] === "--dry-run") {
-      dryRun = true;
-    } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log(
-        "Usage: png-transparent [--preserve 0-255] [--threshold 0-255] [--dry-run] <file.png ...>",
-      );
-      process.exit(0);
-    } else {
-      files.push(argv[i]);
-    }
-  }
-
-  if (files.length === 0) {
-    console.error("No PNG files specified. Use --help for usage.");
-    process.exit(1);
-  }
-
-  return { preserve, threshold, dryRun, files };
+if (values.help || positionals.length === 0) {
+  console.log(
+    "Usage: png-transparent [--preserve 0-255] [--threshold 0-255] <file.png ...>",
+  );
+  process.exit(values.help ? 0 : 1);
 }
 
-function unmixWhite(data, preserve, threshold) {
+const preserve = intIn("--preserve", values.preserve, 0, 255);
+const threshold = intIn("--threshold", values.threshold, 0, 255);
+const denom = 255 - preserve;
+
+function intIn(name, raw, lo, hi) {
+  const n = parseInt(raw, 10);
+  if (!Number.isFinite(n) || n < lo || n > hi) {
+    console.error(`${name} must be ${lo}-${hi}`);
+    process.exit(1);
+  }
+  return n;
+}
+
+function clamp255(v) {
+  return Math.max(0, Math.min(255, v));
+}
+
+function unmixWhite(data) {
   let cleared = 0;
   let faded = 0;
   let preserved = 0;
-  const denom = 255 - preserve;
   for (let i = 0; i < data.length; i += 4) {
+    const a = data[i + 3];
+    if (a === 0) continue;
     const r = data[i];
     const g = data[i + 1];
     const b = data[i + 2];
-    const a = data[i + 3];
-    if (a === 0) continue;
-
     const m = Math.min(r, g, b);
+
     if (255 - m <= threshold) {
       data[i + 3] = 0;
       cleared++;
@@ -94,30 +88,24 @@ function unmixWhite(data, preserve, threshold) {
       continue;
     }
 
-    const factor = (255 - m) / denom;
-    data[i] = Math.max(0, Math.min(255, Math.round(255 - (255 - r) / factor)));
-    data[i + 1] = Math.max(
-      0,
-      Math.min(255, Math.round(255 - (255 - g) / factor)),
-    );
-    data[i + 2] = Math.max(
-      0,
-      Math.min(255, Math.round(255 - (255 - b) / factor)),
-    );
-    data[i + 3] = Math.round(factor * a);
+    const f = (255 - m) / denom;
+    data[i] = clamp255(Math.round(255 - (255 - r) / f));
+    data[i + 1] = clamp255(Math.round(255 - (255 - g) / f));
+    data[i + 2] = clamp255(Math.round(255 - (255 - b) / f));
+    data[i + 3] = Math.round(f * a);
     faded++;
   }
   return { cleared, faded, preserved };
 }
 
-async function processFile(filePath, preserve, threshold, dryRun) {
+async function processFile(filePath) {
   const input = readFileSync(filePath);
   const { data, info } = await sharp(input)
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
 
-  const { cleared, faded, preserved } = unmixWhite(data, preserve, threshold);
+  const { cleared, faded, preserved } = unmixWhite(data);
 
   const output = await sharp(data, {
     raw: { width: info.width, height: info.height, channels: 4 },
@@ -126,24 +114,15 @@ async function processFile(filePath, preserve, threshold, dryRun) {
     .toBuffer();
 
   const name = basename(filePath);
-  const sizeBefore = (input.length / 1024).toFixed(0);
-  const sizeAfter = (output.length / 1024).toFixed(0);
   console.log(
-    `${name}: ${info.width}×${info.height}, ${cleared} cleared, ${faded} faded, ${preserved} kept, ${sizeBefore}KB → ${sizeAfter}KB`,
+    `${name}: ${info.width}×${info.height}, ${cleared} cleared, ${faded} faded, ${preserved} kept, ${kb(input)}KB → ${kb(output)}KB`,
   );
-
-  if (dryRun) {
-    console.log("  (dry run — file not modified)");
-    return;
-  }
   writeFileSync(filePath, output);
 }
 
-const { preserve, threshold, dryRun, files } = parseArgs(process.argv);
-console.log(
-  `Preserve ≤${preserve}, threshold ${threshold}${dryRun ? " [dry run]" : ""}\n`,
-);
-
-for (const file of files) {
-  await processFile(file, preserve, threshold, dryRun);
+function kb(b) {
+  return (b.length / 1024).toFixed(0);
 }
+
+console.log(`Preserve ≤${preserve}, threshold ${threshold}\n`);
+for (const file of positionals) await processFile(file);

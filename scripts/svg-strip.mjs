@@ -10,10 +10,11 @@
 // attribute so the colour itself stays a clean #gg hex.
 //
 // Usage:
-//   node scripts/svg-strip.mjs [--dry-run] <file ...>
+//   node scripts/svg-strip.mjs <file ...>
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
+import { parseArgs } from "node:util";
 
 const NAMED_COLORS = {
   black: [0, 0, 0],
@@ -40,28 +41,18 @@ const NAMED_COLORS = {
   fuchsia: [255, 0, 255],
 };
 
-function parseArgs(argv) {
-  let dryRun = false;
-  const files = [];
+const { values, positionals } = parseArgs({
+  options: { help: { type: "boolean", short: "h" } },
+  allowPositionals: true,
+});
 
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--dry-run") {
-      dryRun = true;
-    } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log("Usage: svg-strip [--dry-run] <file.svg ...>");
-      process.exit(0);
-    } else {
-      files.push(argv[i]);
-    }
-  }
-
-  if (files.length === 0) {
-    console.error("No SVG files specified. Use --help for usage.");
-    process.exit(1);
-  }
-
-  return { dryRun, files };
+if (values.help || positionals.length === 0) {
+  console.log("Usage: svg-strip <file.svg ...>");
+  process.exit(values.help ? 0 : 1);
 }
+
+console.log("Stripping to greyscale\n");
+for (const file of positionals) processFile(file);
 
 function parseColor(value) {
   const v = value.trim().toLowerCase();
@@ -69,35 +60,20 @@ function parseColor(value) {
 
   if (v.startsWith("#")) {
     const hex = v.slice(1);
-    if (hex.length === 3) {
-      return {
-        rgb: hex.split("").map((c) => parseInt(c + c, 16)),
-        a: 1,
-      };
-    }
+    const dub = (s) => s.split("").map((c) => parseInt(c + c, 16));
+    if (hex.length === 3) return { rgb: dub(hex), a: 1 };
     if (hex.length === 4) {
-      const parts = hex.split("").map((c) => parseInt(c + c, 16));
-      return { rgb: parts.slice(0, 3), a: parts[3] / 255 };
+      const p = dub(hex);
+      return { rgb: p.slice(0, 3), a: p[3] / 255 };
     }
-    if (hex.length === 6) {
-      return {
-        rgb: [
-          parseInt(hex.slice(0, 2), 16),
-          parseInt(hex.slice(2, 4), 16),
-          parseInt(hex.slice(4, 6), 16),
-        ],
-        a: 1,
-      };
-    }
-    if (hex.length === 8) {
-      return {
-        rgb: [
-          parseInt(hex.slice(0, 2), 16),
-          parseInt(hex.slice(2, 4), 16),
-          parseInt(hex.slice(4, 6), 16),
-        ],
-        a: parseInt(hex.slice(6, 8), 16) / 255,
-      };
+    if (hex.length === 6 || hex.length === 8) {
+      const rgb = [
+        parseInt(hex.slice(0, 2), 16),
+        parseInt(hex.slice(2, 4), 16),
+        parseInt(hex.slice(4, 6), 16),
+      ];
+      const a = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+      return { rgb, a };
     }
     return null;
   }
@@ -112,10 +88,7 @@ function parseColor(value) {
     };
   }
 
-  if (NAMED_COLORS[v]) {
-    return { rgb: NAMED_COLORS[v], a: 1 };
-  }
-
+  if (NAMED_COLORS[v]) return { rgb: NAMED_COLORS[v], a: 1 };
   return null;
 }
 
@@ -131,50 +104,31 @@ function rewriteColorAttr(attr, value) {
   const grey = toGreyHex(parsed.rgb);
   if (parsed.a >= 1) return `${attr}="${grey}"`;
   if (parsed.a <= 0) return `${attr}="${grey}" ${attr}-opacity="0"`;
-  const opacity = parseFloat(parsed.a.toFixed(3));
-  return `${attr}="${grey}" ${attr}-opacity="${opacity}"`;
+  return `${attr}="${grey}" ${attr}-opacity="${parseFloat(parsed.a.toFixed(3))}"`;
 }
 
 function stripSvg(svg) {
-  let out = svg;
-  out = out.replace(/<!--[\s\S]*?-->/g, "");
-  out = out.replace(/<\?[\s\S]*?\?>/g, "");
-  out = out.replace(/<!DOCTYPE[\s\S]*?>/gi, "");
-  out = out.replace(/<metadata\b[\s\S]*?<\/metadata>/gi, "");
-  out = out.replace(/<title\b[\s\S]*?<\/title>/gi, "");
-  out = out.replace(/<desc\b[\s\S]*?<\/desc>/gi, "");
-  out = out.replace(/\sxmlns:(inkscape|sodipodi|rdf|cc|dc)="[^"]*"/g, "");
-  out = out.replace(
-    /\s(inkscape|sodipodi|rdf|cc|dc):[a-zA-Z-]+="[^"]*"/g,
-    "",
-  );
-  out = out.replace(/(fill|stroke)="([^"]+)"/g, (m, attr, value) => {
-    const replaced = rewriteColorAttr(attr, value);
-    return replaced ?? m;
-  });
-  out = out.replace(/^\s*\n/gm, "");
-  return out;
+  return svg
+    .replace(/<!--[\s\S]*?-->/g, "")
+    .replace(/<\?[\s\S]*?\?>/g, "")
+    .replace(/<!DOCTYPE[\s\S]*?>/gi, "")
+    .replace(/<metadata\b[\s\S]*?<\/metadata>/gi, "")
+    .replace(/<title\b[\s\S]*?<\/title>/gi, "")
+    .replace(/<desc\b[\s\S]*?<\/desc>/gi, "")
+    .replace(/\sxmlns:(inkscape|sodipodi|rdf|cc|dc)="[^"]*"/g, "")
+    .replace(/\s(inkscape|sodipodi|rdf|cc|dc):[a-zA-Z-]+="[^"]*"/g, "")
+    .replace(/(fill|stroke)="([^"]+)"/g, (m, attr, value) => rewriteColorAttr(attr, value) ?? m)
+    .replace(/^\s*\n/gm, "");
 }
 
-function processFile(filePath, dryRun) {
+function processFile(filePath) {
   const input = readFileSync(filePath, "utf8");
   const output = stripSvg(input);
-
   const name = basename(filePath);
-  const sizeBefore = (input.length / 1024).toFixed(0);
-  const sizeAfter = (output.length / 1024).toFixed(0);
-  console.log(`${name}: ${sizeBefore}KB → ${sizeAfter}KB`);
-
-  if (dryRun) {
-    console.log("  (dry run — file not modified)");
-    return;
-  }
+  console.log(`${name}: ${kb(input)}KB → ${kb(output)}KB`);
   writeFileSync(filePath, output);
 }
 
-const { dryRun, files } = parseArgs(process.argv);
-console.log(`Stripping to greyscale${dryRun ? " [dry run]" : ""}\n`);
-
-for (const file of files) {
-  processFile(file, dryRun);
+function kb(s) {
+  return (s.length / 1024).toFixed(0);
 }

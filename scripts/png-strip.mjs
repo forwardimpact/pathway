@@ -8,54 +8,41 @@
 // highest zlib level.
 //
 // Usage:
-//   node scripts/png-strip.mjs [--dry-run] <file ...>
+//   node scripts/png-strip.mjs <file ...>
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
+import { parseArgs } from "node:util";
 import sharp from "sharp";
 
-function parseArgs(argv) {
-  let dryRun = false;
-  const files = [];
+const { values, positionals } = parseArgs({
+  options: { help: { type: "boolean", short: "h" } },
+  allowPositionals: true,
+});
 
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--dry-run") {
-      dryRun = true;
-    } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log("Usage: png-strip [--dry-run] <file.png ...>");
-      process.exit(0);
-    } else {
-      files.push(argv[i]);
-    }
-  }
-
-  if (files.length === 0) {
-    console.error("No PNG files specified. Use --help for usage.");
-    process.exit(1);
-  }
-
-  return { dryRun, files };
+if (values.help || positionals.length === 0) {
+  console.log("Usage: png-strip <file.png ...>");
+  process.exit(values.help ? 0 : 1);
 }
 
-function rgbaToLumaAlpha(data) {
-  const out = Buffer.alloc((data.length / 4) * 2);
-  for (let i = 0, j = 0; i < data.length; i += 4, j += 2) {
-    out[j] = Math.round(
-      0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2],
-    );
-    out[j + 1] = data[i + 3];
-  }
-  return out;
-}
+console.log("Stripping to greyscale+alpha\n");
+for (const file of positionals) await processFile(file);
 
-async function processFile(filePath, dryRun) {
+async function processFile(filePath) {
   const input = readFileSync(filePath);
   const { data, info } = await sharp(input)
     .ensureAlpha()
     .raw()
     .toBuffer({ resolveWithObject: true });
 
-  const la = rgbaToLumaAlpha(data);
+  const la = Buffer.alloc((data.length / 4) * 2);
+  for (let i = 0, j = 0; i < data.length; i += 4, j += 2) {
+    la[j] = Math.round(
+      0.299 * data[i] + 0.587 * data[i + 1] + 0.114 * data[i + 2],
+    );
+    la[j + 1] = data[i + 3];
+  }
+
   const output = await sharp(la, {
     raw: { width: info.width, height: info.height, channels: 2 },
   })
@@ -63,22 +50,12 @@ async function processFile(filePath, dryRun) {
     .toBuffer();
 
   const name = basename(filePath);
-  const sizeBefore = (input.length / 1024).toFixed(0);
-  const sizeAfter = (output.length / 1024).toFixed(0);
   console.log(
-    `${name}: ${info.width}×${info.height}, ${info.channels}ch → 2ch (LA), ${sizeBefore}KB → ${sizeAfter}KB`,
+    `${name}: ${info.width}×${info.height}, ${info.channels}ch → 2ch (LA), ${kb(input)}KB → ${kb(output)}KB`,
   );
-
-  if (dryRun) {
-    console.log("  (dry run — file not modified)");
-    return;
-  }
   writeFileSync(filePath, output);
 }
 
-const { dryRun, files } = parseArgs(process.argv);
-console.log(`Stripping to greyscale+alpha${dryRun ? " [dry run]" : ""}\n`);
-
-for (const file of files) {
-  await processFile(file, dryRun);
+function kb(b) {
+  return (b.length / 1024).toFixed(0);
 }

@@ -22,8 +22,7 @@
 // expanded so the icon stays centred in a square viewBox.
 //
 // Usage:
-//   node scripts/svg-crop.mjs [--fill-cutoff N] [--padding N]
-//                             [--dry-run] <file ...>
+//   node scripts/svg-crop.mjs [--fill-cutoff N] [--padding N] <file ...>
 //
 // --fill-cutoff  paths whose fill min(R,G,B) exceeds this value are
 //                excluded from the bbox (default 200, excludes
@@ -34,45 +33,44 @@
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
+import { parseArgs } from "node:util";
 
-function parseArgs(argv) {
-  let fillCutoff = 200;
-  let padding = 0;
-  let dryRun = false;
-  const files = [];
+const { values, positionals } = parseArgs({
+  options: {
+    "fill-cutoff": { type: "string", default: "200" },
+    padding: { type: "string", default: "0" },
+    help: { type: "boolean", short: "h" },
+  },
+  allowPositionals: true,
+});
 
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--fill-cutoff" && argv[i + 1]) {
-      fillCutoff = parseInt(argv[++i], 10);
-      if (!Number.isFinite(fillCutoff) || fillCutoff < 0 || fillCutoff > 255) {
-        console.error("Fill cutoff must be 0-255");
-        process.exit(1);
-      }
-    } else if (argv[i] === "--padding" && argv[i + 1]) {
-      padding = parseFloat(argv[++i]);
-      if (!Number.isFinite(padding) || padding < 0) {
-        console.error("Padding must be a non-negative number");
-        process.exit(1);
-      }
-    } else if (argv[i] === "--dry-run") {
-      dryRun = true;
-    } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log(
-        "Usage: svg-crop [--fill-cutoff N] [--padding N] [--dry-run] <file.svg ...>",
-      );
-      process.exit(0);
-    } else {
-      files.push(argv[i]);
-    }
-  }
+if (values.help || positionals.length === 0) {
+  console.log("Usage: svg-crop [--fill-cutoff N] [--padding N] <file.svg ...>");
+  process.exit(values.help ? 0 : 1);
+}
 
-  if (files.length === 0) {
-    console.error("No SVG files specified. Use --help for usage.");
+const fillCutoff = numIn("--fill-cutoff", values["fill-cutoff"], 0, 255, true);
+const padding = numIn("--padding", values.padding, 0, Infinity, false);
+
+function numIn(name, raw, lo, hi, asInt) {
+  const n = asInt ? parseInt(raw, 10) : parseFloat(raw);
+  if (!Number.isFinite(n) || n < lo || n > hi) {
+    console.error(`${name} must be ${lo}-${hi === Infinity ? "∞" : hi}`);
     process.exit(1);
   }
-
-  return { fillCutoff, padding, dryRun, files };
+  return n;
 }
+
+const NAMED_COLORS = {
+  black: [0, 0, 0],
+  white: [255, 255, 255],
+  red: [255, 0, 0],
+  green: [0, 128, 0],
+  blue: [0, 0, 255],
+  gray: [128, 128, 128],
+  grey: [128, 128, 128],
+  silver: [192, 192, 192],
+};
 
 function makeBox() {
   return { minX: Infinity, minY: Infinity, maxX: -Infinity, maxY: -Infinity };
@@ -91,6 +89,7 @@ function isEmpty(box) {
 
 const TOKEN_RE =
   /([MmLlHhVvCcSsQqTtAaZz])|(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/g;
+const isLetter = (t) => /^[A-Za-z]$/.test(t);
 
 function pathBox(d) {
   const tokens = d.match(TOKEN_RE);
@@ -103,9 +102,7 @@ function pathBox(d) {
   let cpy = 0;
   let spx = 0;
   let spy = 0;
-
   const num = () => parseFloat(tokens[i++]);
-  const isLetter = (t) => /^[A-Za-z]$/.test(t);
 
   while (i < tokens.length) {
     if (isLetter(tokens[i])) {
@@ -121,160 +118,75 @@ function pathBox(d) {
       i++;
       continue;
     }
+    if (i >= tokens.length || isLetter(tokens[i])) continue;
 
     const abs = cmd === cmd.toUpperCase();
     const c = cmd.toUpperCase();
+    const rx = (x) => (abs ? x : cpx + x);
+    const ry = (y) => (abs ? y : cpy + y);
 
-    if (i >= tokens.length || isLetter(tokens[i])) continue;
-
-    switch (c) {
-      case "M": {
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x += cpx;
-          y += cpy;
-        }
-        cpx = x;
-        cpy = y;
+    if (c === "M" || c === "L") {
+      const x = rx(num());
+      const y = ry(num());
+      cpx = x;
+      cpy = y;
+      if (c === "M") {
         spx = x;
         spy = y;
-        include(box, x, y);
         cmd = abs ? "L" : "l";
-        break;
       }
-      case "L": {
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x += cpx;
-          y += cpy;
-        }
-        cpx = x;
-        cpy = y;
-        include(box, x, y);
-        break;
-      }
-      case "H": {
-        let x = num();
-        if (!abs) x += cpx;
-        cpx = x;
-        include(box, x, cpy);
-        break;
-      }
-      case "V": {
-        let y = num();
-        if (!abs) y += cpy;
-        cpy = y;
-        include(box, cpx, y);
-        break;
-      }
-      case "C": {
-        let x1 = num();
-        let y1 = num();
-        let x2 = num();
-        let y2 = num();
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x1 += cpx;
-          y1 += cpy;
-          x2 += cpx;
-          y2 += cpy;
-          x += cpx;
-          y += cpy;
-        }
-        include(box, x1, y1);
-        include(box, x2, y2);
-        include(box, x, y);
-        cpx = x;
-        cpy = y;
-        break;
-      }
-      case "S": {
-        let x2 = num();
-        let y2 = num();
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x2 += cpx;
-          y2 += cpy;
-          x += cpx;
-          y += cpy;
-        }
-        include(box, x2, y2);
-        include(box, x, y);
-        cpx = x;
-        cpy = y;
-        break;
-      }
-      case "Q": {
-        let x1 = num();
-        let y1 = num();
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x1 += cpx;
-          y1 += cpy;
-          x += cpx;
-          y += cpy;
-        }
-        include(box, x1, y1);
-        include(box, x, y);
-        cpx = x;
-        cpy = y;
-        break;
-      }
-      case "T": {
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x += cpx;
-          y += cpy;
-        }
-        include(box, x, y);
-        cpx = x;
-        cpy = y;
-        break;
-      }
-      case "A": {
-        num();
-        num();
-        num();
-        num();
-        num();
-        let x = num();
-        let y = num();
-        if (!abs) {
-          x += cpx;
-          y += cpy;
-        }
-        include(box, x, y);
-        cpx = x;
-        cpy = y;
-        break;
-      }
-      default:
-        i++;
+      include(box, x, y);
+    } else if (c === "H") {
+      cpx = rx(num());
+      include(box, cpx, cpy);
+    } else if (c === "V") {
+      cpy = ry(num());
+      include(box, cpx, cpy);
+    } else if (c === "C") {
+      const x1 = rx(num()), y1 = ry(num());
+      const x2 = rx(num()), y2 = ry(num());
+      const x = rx(num()), y = ry(num());
+      include(box, x1, y1);
+      include(box, x2, y2);
+      include(box, x, y);
+      cpx = x;
+      cpy = y;
+    } else if (c === "S" || c === "Q") {
+      const x1 = rx(num()), y1 = ry(num());
+      const x = rx(num()), y = ry(num());
+      include(box, x1, y1);
+      include(box, x, y);
+      cpx = x;
+      cpy = y;
+    } else if (c === "T") {
+      const x = rx(num()), y = ry(num());
+      include(box, x, y);
+      cpx = x;
+      cpy = y;
+    } else if (c === "A") {
+      num(); num(); num(); num(); num();
+      const x = rx(num()), y = ry(num());
+      include(box, x, y);
+      cpx = x;
+      cpy = y;
+    } else {
+      i++;
     }
   }
 
   return isEmpty(box) ? null : box;
 }
 
-function attrBox(attrs) {
-  return (name) => {
-    const m = attrs.match(new RegExp(`\\b${name}="([^"]+)"`));
-    return m ? parseFloat(m[1]) : null;
-  };
+function getAttr(attrs, name) {
+  const m = attrs.match(new RegExp(`\\b${name}="([^"]+)"`));
+  return m ? parseFloat(m[1]) : null;
 }
 
 function rectBox(attrs) {
-  const get = attrBox(attrs);
-  const x = get("x") ?? 0;
-  const y = get("y") ?? 0;
-  const w = get("width");
-  const h = get("height");
+  const x = getAttr(attrs, "x") ?? 0;
+  const y = getAttr(attrs, "y") ?? 0;
+  const w = getAttr(attrs, "width");
+  const h = getAttr(attrs, "height");
   if (w === null || h === null) return null;
   const box = makeBox();
   include(box, x, y);
@@ -283,10 +195,9 @@ function rectBox(attrs) {
 }
 
 function circleBox(attrs) {
-  const get = attrBox(attrs);
-  const cx = get("cx") ?? 0;
-  const cy = get("cy") ?? 0;
-  const r = get("r");
+  const cx = getAttr(attrs, "cx") ?? 0;
+  const cy = getAttr(attrs, "cy") ?? 0;
+  const r = getAttr(attrs, "r");
   if (r === null) return null;
   const box = makeBox();
   include(box, cx - r, cy - r);
@@ -295,11 +206,10 @@ function circleBox(attrs) {
 }
 
 function ellipseBox(attrs) {
-  const get = attrBox(attrs);
-  const cx = get("cx") ?? 0;
-  const cy = get("cy") ?? 0;
-  const rx = get("rx");
-  const ry = get("ry");
+  const cx = getAttr(attrs, "cx") ?? 0;
+  const cy = getAttr(attrs, "cy") ?? 0;
+  const rx = getAttr(attrs, "rx");
+  const ry = getAttr(attrs, "ry");
   if (rx === null || ry === null) return null;
   const box = makeBox();
   include(box, cx - rx, cy - ry);
@@ -308,14 +218,9 @@ function ellipseBox(attrs) {
 }
 
 function lineBox(attrs) {
-  const get = attrBox(attrs);
-  const x1 = get("x1") ?? 0;
-  const y1 = get("y1") ?? 0;
-  const x2 = get("x2") ?? 0;
-  const y2 = get("y2") ?? 0;
   const box = makeBox();
-  include(box, x1, y1);
-  include(box, x2, y2);
+  include(box, getAttr(attrs, "x1") ?? 0, getAttr(attrs, "y1") ?? 0);
+  include(box, getAttr(attrs, "x2") ?? 0, getAttr(attrs, "y2") ?? 0);
   return box;
 }
 
@@ -331,17 +236,6 @@ function pointsBox(attrs) {
   return isEmpty(box) ? null : box;
 }
 
-const NAMED_COLORS = {
-  black: [0, 0, 0],
-  white: [255, 255, 255],
-  red: [255, 0, 0],
-  green: [0, 128, 0],
-  blue: [0, 0, 255],
-  gray: [128, 128, 128],
-  grey: [128, 128, 128],
-  silver: [192, 192, 192],
-};
-
 function parseColor(value) {
   const v = value.trim().toLowerCase();
   if (v === "none" || v === "currentcolor" || v === "transparent") return null;
@@ -352,10 +246,7 @@ function parseColor(value) {
       return hex.split("").map((c) => parseInt(c + c, 16));
     }
     if (hex.length === 4) {
-      return hex
-        .split("")
-        .slice(0, 3)
-        .map((c) => parseInt(c + c, 16));
+      return hex.split("").slice(0, 3).map((c) => parseInt(c + c, 16));
     }
     if (hex.length === 6 || hex.length === 8) {
       return [
@@ -370,16 +261,12 @@ function parseColor(value) {
   const rgb = v.match(
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/,
   );
-  if (rgb) {
-    return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
-  }
+  if (rgb) return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
 
-  if (NAMED_COLORS[v]) return NAMED_COLORS[v];
-
-  return null;
+  return NAMED_COLORS[v] ?? null;
 }
 
-function isInvisible(attrs, fillCutoff) {
+function isInvisible(attrs) {
   const fill = attrs.match(/\bfill="([^"]+)"/)?.[1];
   const stroke = attrs.match(/\bstroke="([^"]+)"/)?.[1];
   const strokeAbsent = !stroke || stroke === "none";
@@ -391,35 +278,33 @@ function isInvisible(attrs, fillCutoff) {
   return Math.min(rgb[0], rgb[1], rgb[2]) > fillCutoff;
 }
 
-function unionBox(svg, fillCutoff) {
+const SHAPE_BOX = {
+  path: (a) => {
+    const d = a.match(/\bd="([^"]+)"/)?.[1];
+    return d ? pathBox(d) : null;
+  },
+  rect: rectBox,
+  circle: circleBox,
+  ellipse: ellipseBox,
+  line: lineBox,
+  polyline: pointsBox,
+  polygon: pointsBox,
+};
+
+function unionBox(svg) {
   const total = makeBox();
-  const merge = (b) => {
-    if (!b) return;
+  const re = /<(path|rect|circle|ellipse|line|polyline|polygon)\b([^/>]*?)\/?>/g;
+  let m;
+  while ((m = re.exec(svg)) !== null) {
+    const [, tag, attrs] = m;
+    if (isInvisible(attrs)) continue;
+    const b = SHAPE_BOX[tag](attrs);
+    if (!b) continue;
     if (b.minX < total.minX) total.minX = b.minX;
     if (b.minY < total.minY) total.minY = b.minY;
     if (b.maxX > total.maxX) total.maxX = b.maxX;
     if (b.maxY > total.maxY) total.maxY = b.maxY;
-  };
-
-  const elementRe =
-    /<(path|rect|circle|ellipse|line|polyline|polygon)\b([^/>]*?)\/?>/g;
-  let m;
-  while ((m = elementRe.exec(svg)) !== null) {
-    const tag = m[1];
-    const attrs = m[2];
-    if (isInvisible(attrs, fillCutoff)) continue;
-    let box = null;
-    if (tag === "path") {
-      const d = attrs.match(/\bd="([^"]+)"/)?.[1];
-      if (d) box = pathBox(d);
-    } else if (tag === "rect") box = rectBox(attrs);
-    else if (tag === "circle") box = circleBox(attrs);
-    else if (tag === "ellipse") box = ellipseBox(attrs);
-    else if (tag === "line") box = lineBox(attrs);
-    else if (tag === "polyline" || tag === "polygon") box = pointsBox(attrs);
-    merge(box);
   }
-
   return isEmpty(total) ? null : total;
 }
 
@@ -427,32 +312,26 @@ function fmt(n) {
   return Number.isInteger(n) ? String(n) : n.toFixed(3).replace(/\.?0+$/, "");
 }
 
-function rewriteSvgRoot(svg, box, padding) {
+function setOrInsert(tag, name, value) {
+  if (new RegExp(`\\b${name}=`).test(tag)) {
+    return tag.replace(new RegExp(`\\b${name}="[^"]*"`), `${name}="${value}"`);
+  }
+  return tag.replace(/<svg\b/, `<svg ${name}="${value}"`);
+}
+
+function rewriteSvgRoot(svg, box) {
   const x = box.minX - padding;
   const y = box.minY - padding;
   const w = box.maxX - box.minX + padding * 2;
   const h = box.maxY - box.minY + padding * 2;
 
-  let out = svg.replace(/<svg\b[^>]*>/, (tag) => {
+  const out = svg.replace(/<svg\b[^>]*>/, (tag) => {
     let next = tag;
-    next = next.replace(/\bwidth="[^"]*"/, `width="${fmt(w)}"`);
-    next = next.replace(/\bheight="[^"]*"/, `height="${fmt(h)}"`);
-    next = next.replace(
-      /\bviewBox="[^"]*"/,
-      `viewBox="${fmt(x)} ${fmt(y)} ${fmt(w)} ${fmt(h)}"`,
-    );
-    if (!/\bwidth=/.test(next))
-      next = next.replace(/<svg\b/, `<svg width="${fmt(w)}"`);
-    if (!/\bheight=/.test(next))
-      next = next.replace(/<svg\b/, `<svg height="${fmt(h)}"`);
-    if (!/\bviewBox=/.test(next))
-      next = next.replace(
-        /<svg\b/,
-        `<svg viewBox="${fmt(x)} ${fmt(y)} ${fmt(w)} ${fmt(h)}"`,
-      );
+    next = setOrInsert(next, "width", fmt(w));
+    next = setOrInsert(next, "height", fmt(h));
+    next = setOrInsert(next, "viewBox", `${fmt(x)} ${fmt(y)} ${fmt(w)} ${fmt(h)}`);
     return next;
   });
-
   return { out, w, h };
 }
 
@@ -502,26 +381,16 @@ function squareBox(box) {
   if (w === h) return box;
   if (w > h) {
     const grow = (w - h) / 2;
-    return {
-      minX: box.minX,
-      minY: box.minY - grow,
-      maxX: box.maxX,
-      maxY: box.maxY + grow,
-    };
+    return { minX: box.minX, minY: box.minY - grow, maxX: box.maxX, maxY: box.maxY + grow };
   }
   const grow = (h - w) / 2;
-  return {
-    minX: box.minX - grow,
-    minY: box.minY,
-    maxX: box.maxX + grow,
-    maxY: box.maxY,
-  };
+  return { minX: box.minX - grow, minY: box.minY, maxX: box.maxX + grow, maxY: box.maxY };
 }
 
-function processFile(filePath, fillCutoff, padding, dryRun) {
+function processFile(filePath) {
   const input = readFileSync(filePath, "utf8");
   const before = readDims(input);
-  const raw = unionBox(input, fillCutoff);
+  const raw = unionBox(input);
   const name = basename(filePath);
 
   if (!raw) {
@@ -530,33 +399,23 @@ function processFile(filePath, fillCutoff, padding, dryRun) {
   }
 
   let box = clamp(raw, before.viewBox);
-  const forceSquare = name.startsWith("icon-");
-  if (forceSquare) box = squareBox(box);
+  if (name.startsWith("icon-")) box = squareBox(box);
 
   if (padding === 0 && isNoopBox(box, before.viewBox)) {
     console.log(`${name}: ${before.w}×${before.h}, already tight`);
     return;
   }
 
-  const { out, w, h } = rewriteSvgRoot(input, box, padding);
-  const sizeBefore = (input.length / 1024).toFixed(0);
-  const sizeAfter = (out.length / 1024).toFixed(0);
+  const { out, w, h } = rewriteSvgRoot(input, box);
   console.log(
-    `${name}: ${before.w}×${before.h} → ${fmt(w)}×${fmt(h)}, ${sizeBefore}KB → ${sizeAfter}KB`,
+    `${name}: ${before.w}×${before.h} → ${fmt(w)}×${fmt(h)}, ${kb(input)}KB → ${kb(out)}KB`,
   );
-
-  if (dryRun) {
-    console.log("  (dry run — file not modified)");
-    return;
-  }
   writeFileSync(filePath, out);
 }
 
-const { fillCutoff, padding, dryRun, files } = parseArgs(process.argv);
-console.log(
-  `Fill cutoff ${fillCutoff}, padding ${padding}${dryRun ? " [dry run]" : ""}\n`,
-);
-
-for (const file of files) {
-  processFile(file, fillCutoff, padding, dryRun);
+function kb(s) {
+  return (s.length / 1024).toFixed(0);
 }
+
+console.log(`Fill cutoff ${fillCutoff}, padding ${padding}\n`);
+for (const file of positionals) processFile(file);

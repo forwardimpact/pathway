@@ -8,7 +8,7 @@
 // based on bounding-box area, leaving legitimate features intact.
 //
 // Usage:
-//   node scripts/svg-artifacts.mjs [--level 1-5] [--dry-run] <file ...>
+//   node scripts/svg-artifacts.mjs [--level 1-5] <file ...>
 //
 // Levels:
 //   1  minimal    — sub-pixel artifacts only (< 18px²)
@@ -19,6 +19,7 @@
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
+import { parseArgs } from "node:util";
 
 const LEVEL_PRESETS = {
   1: { name: "minimal", maxArea: 18 },
@@ -30,41 +31,31 @@ const LEVEL_PRESETS = {
 
 const DARK_BRIGHTNESS = 65;
 
-function parseArgs(argv) {
-  let level = 3;
-  let dryRun = false;
-  const files = [];
+const { values, positionals } = parseArgs({
+  options: {
+    level: { type: "string", default: "3" },
+    help: { type: "boolean", short: "h" },
+  },
+  allowPositionals: true,
+});
 
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--level" && argv[i + 1]) {
-      level = parseInt(argv[++i], 10);
-      if (level < 1 || level > 5) {
-        console.error("Level must be 1-5");
-        process.exit(1);
-      }
-    } else if (argv[i] === "--dry-run") {
-      dryRun = true;
-    } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log(
-        "Usage: svg-artifacts [--level 1-5] [--dry-run] <file.svg ...>",
-      );
-      console.log("\nLevels:");
-      for (const [k, v] of Object.entries(LEVEL_PRESETS)) {
-        console.log(`  ${k}  ${v.name} (< ${v.maxArea}px²)`);
-      }
-      process.exit(0);
-    } else {
-      files.push(argv[i]);
-    }
+if (values.help || positionals.length === 0) {
+  console.log("Usage: svg-artifacts [--level 1-5] <file.svg ...>\n\nLevels:");
+  for (const [k, v] of Object.entries(LEVEL_PRESETS)) {
+    console.log(`  ${k}  ${v.name} (< ${v.maxArea}px²)`);
   }
-
-  if (files.length === 0) {
-    console.error("No SVG files specified. Use --help for usage.");
-    process.exit(1);
-  }
-
-  return { level, dryRun, files };
+  process.exit(values.help ? 0 : 1);
 }
+
+const level = parseInt(values.level, 10);
+if (!(level in LEVEL_PRESETS)) {
+  console.error("Level must be 1-5");
+  process.exit(1);
+}
+const preset = LEVEL_PRESETS[level];
+
+console.log(`Level ${level} (${preset.name}, < ${preset.maxArea}px²)\n`);
+for (const file of positionals) cleanSvg(file);
 
 function hexBrightness(hex) {
   if (!hex || !hex.startsWith("#") || hex.length < 7) return 255;
@@ -74,80 +65,56 @@ function hexBrightness(hex) {
   return (r + g + b) / 3;
 }
 
-function pushEndpoint(state, x, y) {
-  state.allX.push(x);
-  state.allY.push(y);
-  state.endpoints.push([x, y]);
+function pushPoint(s, x, y, isEndpoint) {
+  s.allX.push(x);
+  s.allY.push(y);
+  if (isEndpoint) s.endpoints.push([x, y]);
 }
 
-function applyMLT(state, values, isRel) {
-  for (let i = 0; i < values.length; i += 2) {
-    state.cx = isRel ? state.cx + values[i] : values[i];
-    state.cy = isRel ? state.cy + values[i + 1] : values[i + 1];
-    pushEndpoint(state, state.cx, state.cy);
+function applyCommand(state, type, v) {
+  const rel = type === type.toLowerCase();
+  const c = type.toUpperCase();
+  const ax = (i) => (rel ? state.cx + v[i] : v[i]);
+  const ay = (i) => (rel ? state.cy + v[i] : v[i]);
+
+  if (c === "M" || c === "L" || c === "T") {
+    for (let i = 0; i < v.length; i += 2) {
+      state.cx = ax(i);
+      state.cy = ay(i + 1);
+      pushPoint(state, state.cx, state.cy, true);
+    }
+  } else if (c === "H") {
+    for (let i = 0; i < v.length; i++) {
+      state.cx = rel ? state.cx + v[i] : v[i];
+      pushPoint(state, state.cx, state.cy, true);
+    }
+  } else if (c === "V") {
+    for (let i = 0; i < v.length; i++) {
+      state.cy = rel ? state.cy + v[i] : v[i];
+      pushPoint(state, state.cx, state.cy, true);
+    }
+  } else if (c === "C") {
+    for (let i = 0; i < v.length; i += 6) {
+      pushPoint(state, ax(i), ay(i + 1), false);
+      pushPoint(state, ax(i + 2), ay(i + 3), false);
+      state.cx = ax(i + 4);
+      state.cy = ay(i + 5);
+      pushPoint(state, state.cx, state.cy, true);
+    }
+  } else if (c === "S" || c === "Q") {
+    for (let i = 0; i < v.length; i += 4) {
+      pushPoint(state, ax(i), ay(i + 1), false);
+      state.cx = ax(i + 2);
+      state.cy = ay(i + 3);
+      pushPoint(state, state.cx, state.cy, true);
+    }
+  } else if (c === "A") {
+    for (let i = 0; i < v.length; i += 7) {
+      state.cx = ax(i + 5);
+      state.cy = ay(i + 6);
+      pushPoint(state, state.cx, state.cy, true);
+    }
   }
-}
-
-function applyH(state, values, isRel) {
-  for (const v of values) {
-    state.cx = isRel ? state.cx + v : v;
-    pushEndpoint(state, state.cx, state.cy);
-  }
-}
-
-function applyV(state, values, isRel) {
-  for (const v of values) {
-    state.cy = isRel ? state.cy + v : v;
-    pushEndpoint(state, state.cx, state.cy);
-  }
-}
-
-function applyC(state, values, isRel) {
-  for (let i = 0; i < values.length; i += 6) {
-    state.allX.push(isRel ? state.cx + values[i] : values[i]);
-    state.allY.push(isRel ? state.cy + values[i + 1] : values[i + 1]);
-    state.allX.push(isRel ? state.cx + values[i + 2] : values[i + 2]);
-    state.allY.push(isRel ? state.cy + values[i + 3] : values[i + 3]);
-    const ex = isRel ? state.cx + values[i + 4] : values[i + 4];
-    const ey = isRel ? state.cy + values[i + 5] : values[i + 5];
-    pushEndpoint(state, ex, ey);
-    state.cx = ex;
-    state.cy = ey;
-  }
-}
-
-function applySQ(state, values, isRel) {
-  for (let i = 0; i < values.length; i += 4) {
-    state.allX.push(isRel ? state.cx + values[i] : values[i]);
-    state.allY.push(isRel ? state.cy + values[i + 1] : values[i + 1]);
-    const ex = isRel ? state.cx + values[i + 2] : values[i + 2];
-    const ey = isRel ? state.cy + values[i + 3] : values[i + 3];
-    pushEndpoint(state, ex, ey);
-    state.cx = ex;
-    state.cy = ey;
-  }
-}
-
-function applyA(state, values, isRel) {
-  for (let i = 0; i < values.length; i += 7) {
-    const ex = isRel ? state.cx + values[i + 5] : values[i + 5];
-    const ey = isRel ? state.cy + values[i + 6] : values[i + 6];
-    pushEndpoint(state, ex, ey);
-    state.cx = ex;
-    state.cy = ey;
-  }
-}
-
-function applyCommand(state, type, values) {
-  const isRel = type === type.toLowerCase();
-  const absType = type.toUpperCase();
-  if (absType === "M" || absType === "L" || absType === "T")
-    applyMLT(state, values, isRel);
-  else if (absType === "H") applyH(state, values, isRel);
-  else if (absType === "V") applyV(state, values, isRel);
-  else if (absType === "C") applyC(state, values, isRel);
-  else if (absType === "S" || absType === "Q") applySQ(state, values, isRel);
-  else if (absType === "A") applyA(state, values, isRel);
 }
 
 function analyzeSubpath(d) {
@@ -165,10 +132,10 @@ function analyzeSubpath(d) {
   }
 
   if (state.allX.length === 0) return null;
-  const minX = Math.min(...state.allX),
-    maxX = Math.max(...state.allX);
-  const minY = Math.min(...state.allY),
-    maxY = Math.max(...state.allY);
+  const minX = Math.min(...state.allX);
+  const maxX = Math.max(...state.allX);
+  const minY = Math.min(...state.allY);
+  const maxY = Math.max(...state.allY);
 
   let signedArea = 0;
   const ep = state.endpoints;
@@ -183,8 +150,12 @@ function analyzeSubpath(d) {
   };
 }
 
+function splitSubpaths(d) {
+  return d.split(/(?=M)/).filter((s) => s.trim());
+}
+
 function stripSubpaths(d, maxArea) {
-  const parts = d.split(/(?=M)/).filter((s) => s.trim());
+  const parts = splitSubpaths(d);
 
   let mainWinding = 0;
   let largestArea = 0;
@@ -198,7 +169,6 @@ function stripSubpaths(d, maxArea) {
 
   const kept = [];
   let removed = 0;
-
   for (const part of parts) {
     const info = analyzeSubpath(part);
     if (info && info.area < maxArea && info.winding === mainWinding) {
@@ -207,11 +177,10 @@ function stripSubpaths(d, maxArea) {
       kept.push(part);
     }
   }
-
   return { d: kept.join(""), removed };
 }
 
-function cleanSvg(filePath, preset, dryRun) {
+function cleanSvg(filePath) {
   const svg = readFileSync(filePath, "utf8");
   const lines = svg.split("\n");
   const result = [];
@@ -227,21 +196,11 @@ function cleanSvg(filePath, preset, dryRun) {
     }
     totalPaths++;
 
-    const prefix = m[1];
-    const d = m[2];
-    const suffix = m[3];
-    const attrs = m[4] || "";
-    const fillMatch = attrs.match(/fill="([^"]+)"/);
-    const fill = fillMatch ? fillMatch[1] : null;
+    const [, prefix, d, suffix, attrs = ""] = m;
+    const fill = attrs.match(/fill="([^"]+)"/)?.[1];
     const brightness = fill ? hexBrightness(fill) : 255;
 
-    if (brightness >= DARK_BRIGHTNESS) {
-      result.push(line);
-      continue;
-    }
-
-    const subCount = d.split(/(?=M)/).filter((s) => s.trim()).length;
-    if (subCount < 2) {
+    if (brightness >= DARK_BRIGHTNESS || splitSubpaths(d).length < 2) {
       result.push(line);
       continue;
     }
@@ -250,9 +209,7 @@ function cleanSvg(filePath, preset, dryRun) {
     if (removed > 0) {
       modifiedPaths++;
       totalRemoved += removed;
-      if (newD) {
-        result.push(`${prefix}${newD}${suffix}>`);
-      }
+      if (newD) result.push(`${prefix}${newD}${suffix}>`);
     } else {
       result.push(line);
     }
@@ -260,26 +217,12 @@ function cleanSvg(filePath, preset, dryRun) {
 
   const output = result.join("\n");
   const name = basename(filePath);
-  const sizeBefore = (svg.length / 1024).toFixed(0);
-  const sizeAfter = (output.length / 1024).toFixed(0);
-
   console.log(
-    `${name}: ${totalRemoved} sub-paths stripped from ${modifiedPaths}/${totalPaths} paths, ${sizeBefore}KB → ${sizeAfter}KB`,
+    `${name}: ${totalRemoved} sub-paths stripped from ${modifiedPaths}/${totalPaths} paths, ${kb(svg)}KB → ${kb(output)}KB`,
   );
-
-  if (!dryRun) {
-    writeFileSync(filePath, output);
-  } else {
-    console.log("  (dry run — file not modified)");
-  }
+  writeFileSync(filePath, output);
 }
 
-const { level, dryRun, files } = parseArgs(process.argv);
-const preset = LEVEL_PRESETS[level];
-console.log(
-  `Level ${level} (${preset.name}, < ${preset.maxArea}px²)${dryRun ? " [dry run]" : ""}\n`,
-);
-
-for (const file of files) {
-  cleanSvg(file, preset, dryRun);
+function kb(s) {
+  return (s.length / 1024).toFixed(0);
 }

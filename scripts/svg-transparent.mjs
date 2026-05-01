@@ -16,7 +16,7 @@
 // untouched — they are intentional design.
 //
 // Usage:
-//   node scripts/svg-transparent.mjs [--threshold 0-255] [--dry-run] <file ...>
+//   node scripts/svg-transparent.mjs [--threshold 0-255] <file ...>
 //
 // --threshold near-white tolerance treated as transparent (default 16,
 //             clears #fafafa, #f7f7f7, #f3f3f3 backgrounds; keeps the
@@ -24,6 +24,7 @@
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
+import { parseArgs } from "node:util";
 
 const NAMED_COLORS = {
   black: [0, 0, 0],
@@ -50,37 +51,34 @@ const NAMED_COLORS = {
   fuchsia: [255, 0, 255],
 };
 
-function parseArgs(argv) {
-  let threshold = 16;
-  let dryRun = false;
-  const files = [];
+// Match <path ... d="M0 0..." ... fill="..." ... /> where the d uses
+// only rectangle-edge commands (M H V L Z, plus numbers/separators) and
+// the fill is near-white.  Intermediate H/V stops along the edges are
+// fine (e.g. M0 0H1024V35.6V1024H0V0Z is still a rectangle); curve
+// commands (C S Q T A) disqualify the path as artwork.
+const RECT_ONLY_D = /^M0[\s,]*0[MHVLZmhvlz0-9.\s,\-]*$/;
 
-  for (let i = 2; i < argv.length; i++) {
-    if (argv[i] === "--threshold" && argv[i + 1]) {
-      threshold = parseInt(argv[++i], 10);
-      if (!Number.isFinite(threshold) || threshold < 0 || threshold > 255) {
-        console.error("Threshold must be 0-255");
-        process.exit(1);
-      }
-    } else if (argv[i] === "--dry-run") {
-      dryRun = true;
-    } else if (argv[i] === "--help" || argv[i] === "-h") {
-      console.log(
-        "Usage: svg-transparent [--threshold 0-255] [--dry-run] <file.svg ...>",
-      );
-      process.exit(0);
-    } else {
-      files.push(argv[i]);
-    }
-  }
+const { values, positionals } = parseArgs({
+  options: {
+    threshold: { type: "string", default: "16" },
+    help: { type: "boolean", short: "h" },
+  },
+  allowPositionals: true,
+});
 
-  if (files.length === 0) {
-    console.error("No SVG files specified. Use --help for usage.");
-    process.exit(1);
-  }
-
-  return { threshold, dryRun, files };
+if (values.help || positionals.length === 0) {
+  console.log("Usage: svg-transparent [--threshold 0-255] <file.svg ...>");
+  process.exit(values.help ? 0 : 1);
 }
+
+const threshold = parseInt(values.threshold, 10);
+if (!Number.isFinite(threshold) || threshold < 0 || threshold > 255) {
+  console.error("Threshold must be 0-255");
+  process.exit(1);
+}
+
+console.log(`Threshold ${threshold}\n`);
+for (const file of positionals) processFile(file);
 
 function parseColor(value) {
   const v = value.trim().toLowerCase();
@@ -88,14 +86,9 @@ function parseColor(value) {
 
   if (v.startsWith("#")) {
     const hex = v.slice(1);
-    if (hex.length === 3) {
-      return hex.split("").map((c) => parseInt(c + c, 16));
-    }
+    if (hex.length === 3) return hex.split("").map((c) => parseInt(c + c, 16));
     if (hex.length === 4) {
-      return hex
-        .split("")
-        .slice(0, 3)
-        .map((c) => parseInt(c + c, 16));
+      return hex.split("").slice(0, 3).map((c) => parseInt(c + c, 16));
     }
     if (hex.length === 6 || hex.length === 8) {
       return [
@@ -110,34 +103,23 @@ function parseColor(value) {
   const rgb = v.match(
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/,
   );
-  if (rgb) {
-    return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
-  }
+  if (rgb) return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
 
-  if (NAMED_COLORS[v]) return NAMED_COLORS[v];
-
-  return null;
+  return NAMED_COLORS[v] ?? null;
 }
 
-function isNearWhite(rgb, threshold) {
+function isNearWhite(rgb) {
   return 255 - Math.min(rgb[0], rgb[1], rgb[2]) <= threshold;
 }
 
-// Match <path ... d="M0 0..." ... fill="..." ... /> where the d uses
-// only rectangle-edge commands (M H V L Z, plus numbers/separators) and
-// the fill is near-white.  Intermediate H/V stops along the edges are
-// fine (e.g. M0 0H1024V35.6V1024H0V0Z is still a rectangle); curve
-// commands (C S Q T A) disqualify the path as artwork.
-const RECT_ONLY_D = /^M0[\s,]*0[MHVLZmhvlz0-9.\s,\-]*$/;
-
-function clearBackgrounds(svg, threshold) {
+function clearBackgrounds(svg) {
   let cleared = 0;
   const out = svg.replace(
     /<path\b([^>]*?)\bd="([^"]*)"([^>]*?)\bfill="([^"]+)"([^>]*?)\/>/g,
     (m, before, d, between, fill, after) => {
       if (!RECT_ONLY_D.test(d)) return m;
       const rgb = parseColor(fill);
-      if (!rgb || !isNearWhite(rgb, threshold)) return m;
+      if (!rgb || !isNearWhite(rgb)) return m;
       cleared++;
       return `<path${before} d="M0 0Z"${between} fill="none"${after}/>`;
     },
@@ -145,25 +127,14 @@ function clearBackgrounds(svg, threshold) {
   return { out, cleared };
 }
 
-function processFile(filePath, threshold, dryRun) {
+function processFile(filePath) {
   const input = readFileSync(filePath, "utf8");
-  const { out, cleared } = clearBackgrounds(input, threshold);
-
+  const { out, cleared } = clearBackgrounds(input);
   const name = basename(filePath);
-  const sizeBefore = (input.length / 1024).toFixed(0);
-  const sizeAfter = (out.length / 1024).toFixed(0);
-  console.log(`${name}: ${cleared} cleared, ${sizeBefore}KB → ${sizeAfter}KB`);
-
-  if (dryRun) {
-    console.log("  (dry run — file not modified)");
-    return;
-  }
+  console.log(`${name}: ${cleared} cleared, ${kb(input)}KB → ${kb(out)}KB`);
   writeFileSync(filePath, out);
 }
 
-const { threshold, dryRun, files } = parseArgs(process.argv);
-console.log(`Threshold ${threshold}${dryRun ? " [dry run]" : ""}\n`);
-
-for (const file of files) {
-  processFile(file, threshold, dryRun);
+function kb(s) {
+  return (s.length / 1024).toFixed(0);
 }
