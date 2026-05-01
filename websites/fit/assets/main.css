@@ -854,9 +854,10 @@ pre code {
 
 .footer-social {
   display: flex;
+  flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: var(--space-4);
+  gap: var(--space-5);
 }
 
 .footer-social a {
@@ -869,19 +870,25 @@ pre code {
   opacity: 1;
 }
 
+.footer-social img {
+  width: 24px;
+  height: 24px;
+  display: block;
+}
+
 .footer-license {
-  color: var(--gray-400);
+  color: var(--gray-300);
   font-size: var(--text-small-size);
   text-align: right;
 }
 
 .footer-license a {
-  color: var(--gray-400);
-  text-decoration-color: var(--gray-700);
+  color: var(--gray-300);
+  text-decoration-color: var(--gray-500);
 }
 
 .footer-license a:hover {
-  color: var(--text-on-dark);
+  text-decoration-color: var(--gray-300);
 }
 
 /* ── Mermaid Diagrams ──────────────────────────────────────────── */
