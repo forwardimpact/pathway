@@ -87,7 +87,7 @@ const cli = createCli({
   documentation: [
     {
       title: "My Tool Guide",
-      url: "https://www.forwardimpact.team/docs/guides/my-tool/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/my-tool/index.md",
       description: "Task-oriented walkthrough.",
     },
   ],
@@ -113,7 +113,7 @@ const repl = new Repl({
   documentation: [
     {
       title: "My Tool Guide",
-      url: "https://www.forwardimpact.team/docs/guides/my-tool/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/my-tool/index.md",
     },
   ],
 });

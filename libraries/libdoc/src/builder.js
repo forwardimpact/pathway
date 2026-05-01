@@ -307,6 +307,7 @@ export class DocsBuilder {
       "guide",
       "landmark",
       "summit",
+      "gear",
     ]);
 
     for (const page of pages) {

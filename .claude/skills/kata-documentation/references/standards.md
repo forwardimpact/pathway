@@ -2,38 +2,41 @@
 
 ## Information Architecture
 
-Four-tier hierarchy under `websites/fit/docs/` serving three user groups
-(Leadership, Engineers, Contributors):
+Five-tier hierarchy under `websites/fit/docs/` serving four user groups
+(Leadership, Engineers, Builders and Agents, Contributors):
 
-| Tier              | Intent                      | Subsections                                                                                                                                                                               |
-| ----------------- | --------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `getting-started` | "Get me going fast"         | `leadership/`, `engineers/`, `contributors/`                                                                                                                                              |
-| `guides`          | "Help me accomplish a task" | `authoring-standards/`, `agent-teams/`, `career-paths/`, `knowledge-systems/`, `landmark-quickstart/`, `team-capability/`, `finding-your-bearing/`                                        |
-| `reference`       | "Let me look something up"  | `cli/`, `model/`, `lifecycle/`, `yaml-schema/`                                                                                                                                            |
-| `internals`       | "Show me how this is built" | one per product (`map/`, `pathway/`, `outpost/`, `guide/`, `landmark/`, `summit/`), shared infrastructure (`codegen/`, `libcli/`, `librepl/`, `libskill/`, `terrain/`), and `operations/` |
+| Tier              | Intent                              | Subsections                                                                                                                                                                               |
+| ----------------- | ----------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `getting-started` | "Get me going fast"                 | `leadership/`, `engineers/`, `contributors/`                                                                                                                                              |
+| `products`        | "Help me accomplish a product task" | `authoring-standards/`, `agent-teams/`, `career-paths/`, `knowledge-systems/`, `landmark-quickstart/`, `team-capability/`, `finding-your-bearing/`                                        |
+| `libraries`       | "Help me accomplish a library task" | `agent-evaluations/`, `agent-collaboration/`, `trace-analysis/`                                                                                                                           |
+| `reference`       | "Let me look something up"          | `cli/`, `model/`, `lifecycle/`, `yaml-schema/`                                                                                                                                            |
+| `internals`       | "Show me how this is built"         | one per product (`map/`, `pathway/`, `outpost/`, `guide/`, `landmark/`, `summit/`), shared infrastructure (`codegen/`, `libcli/`, `librepl/`, `libskill/`, `terrain/`), and `operations/` |
 
 ## Audience Rules
 
 Every sentence belongs to exactly one audience.
 
-| Content                                                  | Audience              | Section                 |
-| -------------------------------------------------------- | --------------------- | ----------------------- |
-| How to accomplish a task with the products               | Leadership, Engineers | Getting Started, Guides |
-| Entity definitions, CLI synopsis, YAML format            | All users             | Reference               |
-| Module structures, code paths, class names, `src/` paths | Contributors          | Internals               |
-| Architecture, data flow, formatter patterns              | Contributors          | Internals               |
+| Content                                                  | Audience              | Section                   |
+| -------------------------------------------------------- | --------------------- | ------------------------- |
+| How to accomplish a task with the products               | Leadership, Engineers | Getting Started, Products |
+| How to accomplish a task with the libraries (Gear)       | Builders, Agents      | Libraries                 |
+| Entity definitions, CLI synopsis, YAML format            | All users             | Reference                 |
+| Module structures, code paths, class names, `src/` paths | Contributors          | Internals                 |
+| Architecture, data flow, formatter patterns              | Contributors          | Internals                 |
 
 Never mix audiences on the same page. User-facing pages (Getting Started,
-Guides, Reference) must never reference source file paths, class names, or
-import statements.
+Products, Libraries, Reference) must never reference source file paths, class
+names, or import statements.
 
 ## Writing Principles
 
-**Guides are task-oriented, not product-oriented.** A guide answers "how do I do
-X?", not "what does product Y contain?" Guides pull from multiple products when
-that matches the real workflow — e.g., "Authoring Agent-Aligned Engineering
-Standards" covers Map, Core Model, and Pathway because that is the real
-authoring flow.
+**Both Product and Library tiers are task-oriented, not artifact-oriented.** The
+folder name signals which audience the task serves (engineers and leadership for
+`products/`, builders and agents for `libraries/`), not what the page contains.
+A task may pull from multiple products or libraries when that matches the real
+workflow — e.g., "Authoring Agent-Aligned Engineering Standards" covers Map,
+Core Model, and Pathway because that is the real authoring flow.
 
 **Reference is lookup, not tutorial.** CLI reference lists every command with
 arguments and a brief example. Model reference defines every entity. YAML schema
@@ -42,8 +45,8 @@ information.
 
 **Link to existing artifacts, don't duplicate.** Published JSON Schema lives at
 `/schema/json/` and RDF/SHACL at `/schema/rdf/` — link to them instead of
-reproducing. Published SKILL.md files link to Guides and Reference markdown
-companions for progressive disclosure.
+reproducing. Published SKILL.md files link to Product Guides, Library Guides,
+and Reference markdown companions for progressive disclosure.
 
 **Published skills use absolute URLs.** Published skills (`fit-*`) are installed
 on external systems where the monorepo docs are not available locally, so every
@@ -53,16 +56,16 @@ documentation link must use the full domain. Internal skills (`libs-*`,
 ```markdown
 <!-- Correct — works on any installation -->
 
-- [Guide](https://www.forwardimpact.team/docs/guides/authoring-standards/index.md)
+- [Guide](https://www.forwardimpact.team/docs/products/authoring-standards/index.md)
 
 <!-- Wrong — breaks on external installations -->
 
-- [Guide](/docs/guides/authoring-standards/index.md)
+- [Guide](/docs/products/authoring-standards/index.md)
 ```
 
-**Guides and Reference produce stable agent-fetchable URLs.** Every page gets a
-markdown companion (generated by `libdoc`) at a predictable URL. Content must
-make sense to an agent with no monorepo context.
+**Products, Libraries, and Reference produce stable agent-fetchable URLs.**
+Every page gets a markdown companion (generated by `libdoc`) at a predictable
+URL. Content must make sense to an agent with no monorepo context.
 
 ## Formatting Consistency
 

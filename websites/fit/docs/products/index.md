@@ -1,13 +1,13 @@
 ---
-title: Guides
-description: Task-oriented guides for authoring agent-aligned engineering standards, generating agent teams, browsing career paths, and more.
+title: Product Guides
+description: Task-oriented guides for engineers and leaders — authoring agent-aligned engineering standards, generating agent teams, browsing career paths, and more.
 layout: product
 toc: false
 ---
 
 <div class="grid">
 
-<a href="/docs/guides/authoring-standards/">
+<a href="/docs/products/authoring-standards/">
 
 ### Authoring Agent-Aligned Engineering Standards
 
@@ -16,7 +16,7 @@ tracks, capabilities, skills, behaviours, stages, and drivers.
 
 </a>
 
-<a href="/docs/guides/agent-teams/">
+<a href="/docs/products/agent-teams/">
 
 ### Agent Teams
 
@@ -25,7 +25,7 @@ profiles, skills, and stage-based workflows.
 
 </a>
 
-<a href="/docs/guides/career-paths/">
+<a href="/docs/products/career-paths/">
 
 ### Career Paths
 
@@ -34,7 +34,7 @@ progression between levels.
 
 </a>
 
-<a href="/docs/guides/knowledge-systems/">
+<a href="/docs/products/knowledge-systems/">
 
 ### Knowledge Systems
 
@@ -43,7 +43,7 @@ knowledge base structure.
 
 </a>
 
-<a href="/docs/guides/landmark-quickstart/">
+<a href="/docs/products/landmark-quickstart/">
 
 ### Landmark Quickstart
 
@@ -52,7 +52,7 @@ activity schema, and run your first health analysis.
 
 </a>
 
-<a href="/docs/guides/team-capability/">
+<a href="/docs/products/team-capability/">
 
 ### Team Capability
 
@@ -61,7 +61,7 @@ what-if staffing scenarios.
 
 </a>
 
-<a href="/docs/guides/finding-your-bearing/">
+<a href="/docs/products/finding-your-bearing/">
 
 ### Finding Your Bearing
 
@@ -70,31 +70,7 @@ growth areas, and contextual help.
 
 </a>
 
-<a href="/docs/guides/agent-evaluations/">
-
-### Agent Evaluations
-
-Run agent-as-judge evaluations in CI with `fit-eval supervise` and inspect the
-resulting traces with `fit-trace`.
-
-</a>
-
-<a href="/docs/guides/agent-collaboration/">
-
-### Agent Collaboration
-
-Run multi-agent sessions with `fit-eval facilitate` — specialists coordinate via
-`Ask`, `Share`, and `Tell`, captured as a trace for `fit-trace`.
-
-</a>
-
-<a href="/docs/guides/trace-analysis/">
-
-### Trace Analysis
-
-Read agent execution traces with `fit-trace` as qualitative research — orient,
-code observations, find patterns, and write grounded findings.
-
-</a>
-
 </div>
+
+Looking for evaluation tooling, trace analysis, or other library-level guides?
+See [Library Guides](/docs/libraries/).

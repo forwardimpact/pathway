@@ -106,7 +106,7 @@ const definition = {
   documentation: [
     {
       title: "Team Capability Guide",
-      url: "https://www.forwardimpact.team/docs/guides/team-capability/index.md",
+      url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
       description: "Coverage heatmaps, structural risks, and what-if scenarios.",
     },
     {
@@ -168,7 +168,7 @@ Examples:
 
 Documentation:
   Team Capability Guide
-    https://www.forwardimpact.team/docs/guides/team-capability/index.md
+    https://www.forwardimpact.team/docs/products/team-capability/index.md
     Coverage heatmaps, structural risks, and what-if scenarios.
   CLI Reference
     https://www.forwardimpact.team/docs/reference/cli/index.md
@@ -257,7 +257,7 @@ Each entry is a plain object:
 ```js
 {
   title: "Team Capability Guide",
-  url: "https://www.forwardimpact.team/docs/guides/team-capability/index.md",
+  url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
   description: "Coverage heatmaps, structural risks, and what-if scenarios.",
 }
 ```
@@ -439,7 +439,7 @@ const definition = {
   documentation: [
     {
       title: "Example Guide",
-      url: "https://www.forwardimpact.team/docs/guides/example/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/example/index.md",
       description: "Task-oriented walkthrough for fit-example.",
     },
   ],

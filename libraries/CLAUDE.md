@@ -48,36 +48,47 @@ If a library ships a CLI (a `bin/` entry in `package.json`), three artifacts
 must exist together so an external reader lands on the same docs from any entry
 point:
 
-- The **user guide** — markdown source at
-  `websites/fit/docs/guides/<name>/index.md`.
+- One or more **user guides** — markdown sources under
+  `websites/fit/docs/libraries/<task-slug>/index.md`. A CLI may carry multiple
+  task guides (e.g. `fit-eval` links to `agent-evaluations`,
+  `agent-collaboration`, and `trace-analysis`).
 - The **skill** — `.claude/skills/fit-<name>/SKILL.md`.
-- The **CLI `--help`** — `documentation` entry on the libcli definition.
+- The **CLI `--help`** — `documentation` entries on the libcli definition, one
+  per linked guide.
 
 ### Linking rule
 
-Skill and CLI both link the guide using the **fully-qualified URL of the
+Skill and CLI both link each guide using the **fully-qualified URL of the
 markdown source**:
 
 ```
-https://www.forwardimpact.team/docs/guides/<name>/index.md
+https://www.forwardimpact.team/docs/libraries/<task-slug>/index.md
 ```
+
+Slugs are task-shaped (e.g. `trace-analysis`, `agent-evaluations`), not
+library-name-shaped — one library may host multiple task slugs and one task slug
+may cut across multiple libraries.
 
 The `.md` extension is deliberate. Agents fetch markdown more reliably than
 rendered HTML, and the `.md` URL maps one-to-one to the source file in
-`websites/fit/docs/guides/<name>/index.md`. Use the same title and URL across
-all three artifacts.
+`websites/fit/docs/libraries/<task-slug>/index.md`. Use the same title and URL
+across all three artifacts. Product-task guides (the engineer/leadership
+audience) live under `/docs/products/` instead — see
+[products/CLAUDE.md](../products/CLAUDE.md) for that policy. A library CLI may
+cross-link to a product guide when the task naturally cuts across both
+audiences.
 
-### Worked example: `fit-foo`
+### Worked example: `fit-foo` with one guide `bar`
 
-Guide source: `websites/fit/docs/guides/foo/index.md`.
+Guide source: `websites/fit/docs/libraries/bar/index.md`.
 
 Skill (`.claude/skills/fit-foo/SKILL.md`) carries this `## Documentation` block:
 
 ```markdown
 ## Documentation
 
-- [Foo Guide](https://www.forwardimpact.team/docs/guides/foo/index.md) — how
-  to use `fit-foo`.
+- [Bar Guide](https://www.forwardimpact.team/docs/libraries/bar/index.md) —
+  how to use `fit-foo` to do bar.
 ```
 
 CLI definition (libcli) carries the same link:
@@ -87,9 +98,9 @@ const cli = createCli({
   name: "fit-foo",
   documentation: [
     {
-      title: "Foo Guide",
-      url: "https://www.forwardimpact.team/docs/guides/foo/index.md",
-      description: "How to use fit-foo.",
+      title: "Bar Guide",
+      url: "https://www.forwardimpact.team/docs/libraries/bar/index.md",
+      description: "How to use fit-foo to do bar.",
     },
   ],
 });

@@ -26,7 +26,7 @@ session for inspection. (In CLI flag names, _supervisor_ = judge, _agent_ =
 target.)
 
 →
-[Agent Evaluations guide](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
+[Agent Evaluations guide](https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md)
 
 ### 2. Agent collaboration
 
@@ -36,7 +36,7 @@ with `Ask`/`Answer` and broadcast with `Announce`; the facilitator ends the
 session with `Conclude`. The trace records every message and tool call.
 
 →
-[Agent Collaboration guide](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
+[Agent Collaboration guide](https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md)
 
 `run` is the autonomous building block under both — a single agent on a defined
 task, no supervisor or facilitator.
@@ -135,16 +135,16 @@ from there.
 
 ## Documentation
 
-- [Agent Evaluations](https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md)
+- [Agent Evaluations](https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md)
   — Author a judge profile, run an eval locally, wire it into CI, and inspect
   the resulting trace.
-- [Agent Collaboration](https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md)
+- [Agent Collaboration](https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md)
   — Author a facilitator and participant profiles, run a multi-agent session,
   and read the message flow.
-- [Trace Analysis](https://www.forwardimpact.team/docs/guides/trace-analysis/index.md)
+- [Trace Analysis](https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md)
   — Read the NDJSON traces produced by `fit-eval` with `fit-trace` —
   grounded-theory method and worked examples.
-- [Agent Teams](https://www.forwardimpact.team/docs/guides/agent-teams/index.md)
+- [Agent Teams](https://www.forwardimpact.team/docs/products/agent-teams/index.md)
   — How to author the agent, supervisor, and facilitator profiles that
   `--agent-profile`, `--supervisor-profile`, `--facilitator-profile`, and
   `--agent-profiles` consume.

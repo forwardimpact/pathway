@@ -269,7 +269,7 @@ Validation checks:
 
 ## Related Documentation
 
-- [Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
   -- Writing and maintaining standard data
 - [Core Model](/docs/reference/model/) -- How entities combine into role
   definitions

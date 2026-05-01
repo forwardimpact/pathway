@@ -221,7 +221,7 @@ const definition = {
   documentation: [
     {
       title: "Team Capability Guide",
-      url: "https://www.forwardimpact.team/docs/guides/team-capability/index.md",
+      url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
       description:
         "Task-oriented guide to coverage heatmaps, structural risks, and what-if scenarios.",
     },

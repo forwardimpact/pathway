@@ -121,7 +121,7 @@ user-facing CLI tool.
 
 ## Related Documentation
 
-- [Knowledge Systems Guide](/docs/guides/knowledge-systems/) -- Knowledge base
+- [Knowledge Systems Guide](/docs/products/knowledge-systems/) -- Knowledge base
   setup and usage
 - [Pathway Internals](/docs/internals/pathway/) -- Agent profile format used by
   tasks

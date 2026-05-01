@@ -412,7 +412,7 @@ All subfields are optional:
   exported agent team. This is the only field that produces team-level
   instructions. Use it for cross-cutting platform facts, conventions, and skill
   coordination tables — content every agent needs. See the
-  [Agent Teams guide](/docs/guides/agent-teams/#layer-1-team-instructions-claudemd)
+  [Agent Teams guide](/docs/products/agent-teams/#layer-1-team-instructions-claudemd)
   for what to include and exclude.
 
 ### Modifier Mechanics
@@ -594,7 +594,7 @@ readChecklist:
 
 For guidance on standardizing shared checklist items across skills and avoiding
 common structural mistakes, see the
-[Agent Teams guide](/docs/guides/agent-teams/#checklist-quality).
+[Agent Teams guide](/docs/products/agent-teams/#checklist-quality).
 
 ### Human-Only Skills
 
@@ -841,7 +841,7 @@ engineering standard renders before publishing.
 
 ## Related Guides
 
-- [Agent Teams](/docs/guides/agent-teams/) — How to structure and maintain
+- [Agent Teams](/docs/products/agent-teams/) — How to structure and maintain
   exported agent teams from your agent-aligned engineering standard
-- [Career Paths](/docs/guides/career-paths/) — Browse jobs, skills, and career
+- [Career Paths](/docs/products/career-paths/) — Browse jobs, skills, and career
   progression between levels

@@ -104,7 +104,7 @@ capability — how to process email, how to prepare a briefing, how to organize
 files.
 
 Skills are generated from your agent-aligned engineering standard (see
-[Agent Teams](/docs/guides/agent-teams/)) but can also be customized for
+[Agent Teams](/docs/products/agent-teams/)) but can also be customized for
 personal workflows.
 
 ## Initialization
@@ -146,5 +146,5 @@ and add your own notes and files.
 
 - [CLI Reference](/docs/reference/cli/) — complete command documentation for
   `fit-outpost`
-- [Agent Teams](/docs/guides/agent-teams/) — how agent skills are generated from
-  your agent-aligned engineering standard
+- [Agent Teams](/docs/products/agent-teams/) — how agent skills are generated
+  from your agent-aligned engineering standard

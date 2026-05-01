@@ -172,4 +172,4 @@ See [CLI Reference](/docs/reference/cli/) for the full `agent` command.
 ## Related Documentation
 
 - [Core Model](/docs/reference/model/) — Entity overview and derivation formula
-- [Agent Teams](/docs/guides/agent-teams/) — Building and using agent teams
+- [Agent Teams](/docs/products/agent-teams/) — Building and using agent teams

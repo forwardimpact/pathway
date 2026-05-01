@@ -100,7 +100,7 @@ const definition = {
   documentation: [
     {
       title: "Authoring Agent-Aligned Engineering Standards",
-      url: "https://www.forwardimpact.team/docs/guides/authoring-standards/index.md",
+      url: "https://www.forwardimpact.team/docs/products/authoring-standards/index.md",
       description:
         "Task-oriented guide to defining your agent-aligned engineering standard in YAML.",
     },

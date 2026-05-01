@@ -280,11 +280,11 @@ describe("librepl", () => {
         documentation: [
           {
             title: "Finding Your Bearing Guide",
-            url: "https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md",
+            url: "https://www.forwardimpact.team/docs/products/finding-your-bearing/index.md",
           },
           {
             title: "Trace Analysis",
-            url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+            url: "https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md",
             description: "The full method walkthrough.",
           },
         ],
@@ -308,7 +308,7 @@ describe("librepl", () => {
       assert(outputData.includes("**Documentation:**"));
       assert(
         outputData.includes(
-          "[Finding Your Bearing Guide](https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md)",
+          "[Finding Your Bearing Guide](https://www.forwardimpact.team/docs/products/finding-your-bearing/index.md)",
         ),
       );
       assert(outputData.includes("— The full method walkthrough."));

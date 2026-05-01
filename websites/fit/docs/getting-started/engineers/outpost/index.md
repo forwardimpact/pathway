@@ -71,5 +71,5 @@ Privacy & Security > Files & Folders**:
 ## Next steps
 
 - [Outpost product page](/outpost/) — feature overview and core skills
-- [Knowledge systems](/docs/guides/knowledge-systems/) — deep dive into Outpost
-  features
+- [Knowledge systems](/docs/products/knowledge-systems/) — deep dive into
+  Outpost features

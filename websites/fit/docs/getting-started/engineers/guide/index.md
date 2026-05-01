@@ -160,7 +160,7 @@ missing environment variables or port conflicts.
 ## Next steps
 
 - [Guide product page](/guide/) — feature overview and surface options
-- [Finding your bearing](/docs/guides/finding-your-bearing/) — Guide usage and
+- [Finding your bearing](/docs/products/finding-your-bearing/) — Guide usage and
   configuration
 - [CLI reference](/docs/reference/cli/) — full command documentation for all
   tools
