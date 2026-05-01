@@ -22,12 +22,12 @@ products via npm.
 - **Agents** — Operate with the same shared definitions, skill markers, and
   quality standards that humans use, so human–agent collaboration is coherent.
 
-## Products
+## Primary Products
 
 ### Map — `fit-map`
 
 Helps leadership and agents answer _what does good engineering look like here?_
-Validates, stores, and publishes agent-aligned engineering standards written in
+Validates, stores, and publishes agent-aligned engineering standards defined in
 YAML. [Overview](websites/fit/map/index.md) ·
 [Internals](websites/fit/docs/internals/map/index.md)
 
@@ -65,6 +65,8 @@ Helps engineers and agents answer _am I prepared for what's ahead today?_
 Personal operations center providing scheduled AI tasks, knowledge graphs, and
 meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
 · [Internals](websites/fit/docs/internals/outpost/index.md)
+
+## Secondary Products
 
 ### Gear — `fit-skills`
 
@@ -142,28 +144,17 @@ Issue, PR/issue comment, Discussion, or `agent-react`. See
 
 ## Domain Concepts
 
-Agent-aligned engineering standard entities are defined in YAML under
+Agent-aligned engineering standards are defined in YAML under
 [products/map/starter/](products/map/starter/) (the monorepo's starter template,
 which installs to `data/pathway/` in consuming projects). Use
 `bunx fit-pathway <entity> --list` to discover available values.
 
 - **Disciplines** — `disciplines/{id}.yaml`
-- **Levels** — `levels.yaml` · **Tracks** — `tracks/{id}.yaml`
+- **Levels** — `levels.yaml`
+- **Tracks** — `tracks/{id}.yaml`
 - **Capabilities** & **Skills** — `capabilities/{id}.yaml` (skills nested)
-- **Behaviours** — `behaviours/{id}.yaml` · **Drivers** — `drivers.yaml`
-
-All entities use co-located `human:` and `agent:` sections; skills carry flat
-`agent.focus`, `agent.readChecklist`, `agent.confirmChecklist` fields.
-
-- **Skill proficiencies**: awareness → foundational → working → practitioner →
-  expert
-- **Behaviour maturities**: emerging → developing → practicing → role_modeling →
-  exemplifying
-- **Disciplines** define role types with T-shaped skill tiers
-  (core/supporting/broad)
-- **Tracks** are pure modifiers — adjust expectations via `skillModifiers`
-- **Capabilities** group skills and define responsibilities
-- **Tools** derived from `toolReferences` at runtime via `bunx fit-pathway tool`
+- **Behaviours** — `behaviours/{id}.yaml`
+- **Drivers** — `drivers.yaml`
 
 Validate data: `bunx fit-map validate`. Vocabulary standards in the
 [Authoring Agent-Aligned Engineering Standards guide](websites/fit/docs/products/authoring-standards/index.md).
