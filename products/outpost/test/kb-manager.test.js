@@ -37,6 +37,31 @@ function createKBMockFs(files = {}) {
       }
       data.set(dest, content);
     },
+    cpSync(src, dest, _options) {
+      this.cpSyncCallCount = (this.cpSyncCallCount || 0) + 1;
+      const fileEntries = [...data.keys()].filter(
+        (k) => k === src || k.startsWith(src + "/"),
+      );
+      if (fileEntries.length === 0 && !dirs.has(src)) {
+        const err = new Error(
+          "ENOENT: no such file or directory '" + src + "'",
+        );
+        err.code = "ENOENT";
+        throw err;
+      }
+      dirs.add(dest);
+      for (const d of [...dirs]) {
+        if (d.startsWith(src + "/")) dirs.add(dest + d.slice(src.length));
+      }
+      for (const key of fileEntries) {
+        const target = key === src ? dest : dest + key.slice(src.length);
+        const parts = target.split("/");
+        for (let i = 1; i < parts.length; i++) {
+          dirs.add(parts.slice(0, i).join("/"));
+        }
+        data.set(target, data.get(key));
+      }
+    },
     readFileSync(path, encoding) {
       const content = data.get(path);
       if (content === undefined) {
@@ -115,7 +140,7 @@ describe("KBManager", () => {
       assert.strictEqual(mockFs.data.get("/dest/CLAUDE.md"), "# Instructions");
     });
 
-    test("copies agent files via recursive walk", () => {
+    test("copies agent files recursively", () => {
       km.copyBundledFiles("/tpl", "/dest");
       assert.strictEqual(
         mockFs.data.get("/dest/.claude/agents/postman.md"),
@@ -127,7 +152,7 @@ describe("KBManager", () => {
       );
     });
 
-    test("copies skill files via recursive walk", () => {
+    test("copies skill files recursively", () => {
       km.copyBundledFiles("/tpl", "/dest");
       assert.strictEqual(
         mockFs.data.get("/dest/.claude/skills/draft-emails/SKILL.md"),
@@ -139,10 +164,10 @@ describe("KBManager", () => {
       );
     });
 
-    test("uses copyFileSync for each file", () => {
+    test("uses cpSync for skill and agent trees", () => {
       km.copyBundledFiles("/tpl", "/dest");
-      // CLAUDE.md + 2 agents + 2 skills = 5 copyFileSync calls
-      assert.strictEqual(mockFs.copyFileSyncCallCount, 5);
+      // One cpSync per top-level subdir: skills, agents.
+      assert.strictEqual(mockFs.cpSyncCallCount, 2);
     });
 
     test("creates destination directories for skills", () => {

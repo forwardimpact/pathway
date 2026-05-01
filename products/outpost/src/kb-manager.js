@@ -6,6 +6,7 @@ import {
   existsSync,
   mkdirSync,
   copyFileSync,
+  cpSync,
   readFileSync,
   writeFileSync,
   readdirSync,
@@ -20,7 +21,7 @@ export class KBManager {
   #fs;
 
   /**
-   * @param {{ existsSync: Function, mkdirSync: Function, copyFileSync: Function, readFileSync: Function, writeFileSync: Function, readdirSync: Function }} fs
+   * @param {{ existsSync: Function, mkdirSync: Function, copyFileSync: Function, cpSync: Function, readFileSync: Function, writeFileSync: Function, readdirSync: Function }} fs
    * @param {Function} logFn
    */
   constructor(fs, logFn) {
@@ -59,27 +60,6 @@ export class KBManager {
   }
 
   /**
-   * Recursively copy a directory tree using copyFileSync.
-   * Avoids cpSync which has a Deno compiled-binary bug that sets file
-   * permissions to mode 000.
-   * @param {string} src - Source directory
-   * @param {string} dest - Destination directory
-   */
-  #copyDirRecursive(src, dest) {
-    this.#ensureDir(dest);
-    const entries = this.#fs.readdirSync(src, { withFileTypes: true });
-    for (const entry of entries) {
-      const srcPath = join(src, entry.name);
-      const destPath = join(dest, entry.name);
-      if (entry.isDirectory()) {
-        this.#copyDirRecursive(srcPath, destPath);
-      } else {
-        this.#fs.copyFileSync(srcPath, destPath);
-      }
-    }
-  }
-
-  /**
    * Copy bundled files (CLAUDE.md, skills, agents) from template to a KB.
    * @param {string} tpl - Path to the template directory
    * @param {string} dest - Path to the target knowledge base
@@ -93,7 +73,7 @@ export class KBManager {
     for (const sub of ["skills", "agents"]) {
       const src = join(tpl, ".claude", sub);
       if (!this.#fs.existsSync(src)) continue;
-      this.#copyDirRecursive(src, join(dest, ".claude", sub));
+      this.#fs.cpSync(src, join(dest, ".claude", sub), { recursive: true });
       const entries = this.#fs
         .readdirSync(src, { withFileTypes: true })
         .filter((d) =>
@@ -221,6 +201,7 @@ export function createKBManager(logFn) {
       existsSync,
       mkdirSync,
       copyFileSync,
+      cpSync,
       readFileSync,
       writeFileSync,
       readdirSync,

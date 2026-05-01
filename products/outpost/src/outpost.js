@@ -20,6 +20,7 @@ import {
   mkdirSync,
   readdirSync,
   copyFileSync,
+  cpSync,
   appendFileSync,
 } from "node:fs";
 import { join, dirname, resolve } from "node:path";
@@ -102,6 +103,7 @@ const kbManager = new KBManager(
     existsSync,
     mkdirSync,
     copyFileSync,
+    cpSync,
     readFileSync,
     writeFileSync,
     readdirSync,
@@ -113,9 +115,6 @@ const kbManager = new KBManager(
 
 /**
  * Detect if running from inside a macOS .app bundle.
- * process.execPath here is the Deno-compiled binary inside the .app bundle,
- * not the Bun or Node runtime — so the path derivation is unaffected by the
- * npm-to-Bun migration.
  * @returns {{ bundle: string, resources: string } | null}
  */
 function getBundlePath() {

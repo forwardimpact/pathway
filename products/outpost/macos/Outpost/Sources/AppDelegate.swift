@@ -2,7 +2,7 @@ import AppKit
 
 /// App delegate for Outpost.app.
 ///
-/// Manages the process tree: spawns the Deno scheduler as a child process
+/// Manages the process tree: spawns the scheduler as a child process
 /// via posix_spawn and hosts the status menu bar UI in-process.
 class AppDelegate: NSObject, NSApplicationDelegate {
     private let processManager = ProcessManager()

@@ -7,7 +7,7 @@ func responsibility_spawnattrs_setdisclaim(
     _ attr: UnsafeMutablePointer<posix_spawnattr_t?>, _ disclaim: Int32
 ) -> Int32
 
-/// Manages the Deno scheduler as a child process using posix_spawn.
+/// Manages the scheduler as a child process using posix_spawn.
 ///
 /// posix_spawn is required (instead of fork+exec) so that TCC attributes
 /// inherit from the responsible binary (Outpost.app). This lets child
@@ -66,7 +66,7 @@ class ProcessManager {
         let cEnv: [UnsafeMutablePointer<CChar>?] = envVars.map { strdup($0) } + [nil]
 
         // Redirect stdout/stderr to log files so output is captured and
-        // the Deno runtime has valid file descriptors to write to.
+        // the scheduler has valid file descriptors to write to.
         var fileActions: posix_spawn_file_actions_t?
         posix_spawn_file_actions_init(&fileActions)
 
