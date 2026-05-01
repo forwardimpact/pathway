@@ -207,59 +207,25 @@ function setupRoutes() {
  * @param {Object} data
  * @returns {{ order: string[], boundaries: number[] }}
  */
+function jobUrl(job) {
+  return job.track
+    ? `/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
+    : `/job/${job.discipline.id}/${job.level.id}`;
+}
+
+function appendChapter(order, boundaries, slug, items, urlOf) {
+  if (!items || items.length === 0) return;
+  boundaries.push(order.length);
+  order.push(`/chapter/${slug}`);
+  order.push(`/overview/${slug}`);
+  items.forEach((item) => order.push(urlOf(item)));
+}
+
 function buildSlideOrder(data) {
   const order = ["/"];
   const boundaries = [];
 
-  // Disciplines
-  if (data.disciplines && data.disciplines.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/discipline");
-    order.push("/overview/discipline");
-    data.disciplines.forEach((d) => order.push(`/discipline/${d.id}`));
-  }
-
-  // Levels (moved before Tracks)
-  if (data.levels && data.levels.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/level");
-    order.push("/overview/level");
-    data.levels.forEach((g) => order.push(`/level/${g.id}`));
-  }
-
-  // Tracks (moved after Levels)
-  if (data.tracks && data.tracks.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/track");
-    order.push("/overview/track");
-    sortTracksByName(data.tracks).forEach((t) => order.push(`/track/${t.id}`));
-  }
-
-  // Skills
-  if (data.skills && data.skills.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/skill");
-    order.push("/overview/skill");
-    data.skills.forEach((s) => order.push(`/skill/${s.id}`));
-  }
-
-  // Behaviours
-  if (data.behaviours && data.behaviours.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/behaviour");
-    order.push("/overview/behaviour");
-    data.behaviours.forEach((b) => order.push(`/behaviour/${b.id}`));
-  }
-
-  // Drivers
-  if (data.drivers && data.drivers.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/driver");
-    order.push("/overview/driver");
-    data.drivers.forEach((d) => order.push(`/driver/${d.id}`));
-  }
-
-  // Jobs
+  const tracks = data.tracks ? sortTracksByName(data.tracks) : [];
   const jobs = generateAllJobs({
     disciplines: data.disciplines,
     levels: data.levels,
@@ -268,17 +234,27 @@ function buildSlideOrder(data) {
     behaviours: data.behaviours,
     validationRules: data.standard.validationRules,
   });
-  if (jobs && jobs.length > 0) {
-    boundaries.push(order.length);
-    order.push("/chapter/job");
-    order.push("/overview/job");
-    jobs.forEach((job) =>
-      order.push(
-        job.track
-          ? `/job/${job.discipline.id}/${job.level.id}/${job.track.id}`
-          : `/job/${job.discipline.id}/${job.level.id}`,
-      ),
-    );
+
+  const chapters = [
+    {
+      slug: "discipline",
+      items: data.disciplines,
+      urlOf: (d) => `/discipline/${d.id}`,
+    },
+    { slug: "level", items: data.levels, urlOf: (g) => `/level/${g.id}` },
+    { slug: "track", items: tracks, urlOf: (t) => `/track/${t.id}` },
+    { slug: "skill", items: data.skills, urlOf: (s) => `/skill/${s.id}` },
+    {
+      slug: "behaviour",
+      items: data.behaviours,
+      urlOf: (b) => `/behaviour/${b.id}`,
+    },
+    { slug: "driver", items: data.drivers, urlOf: (d) => `/driver/${d.id}` },
+    { slug: "job", items: jobs, urlOf: jobUrl },
+  ];
+
+  for (const { slug, items, urlOf } of chapters) {
+    appendChapter(order, boundaries, slug, items, urlOf);
   }
 
   return { order, boundaries };

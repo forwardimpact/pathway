@@ -215,6 +215,24 @@ function runUpdate(args) {
 
 // --- Status ------------------------------------------------------------------
 
+function formatAgentStatus(name, agent, s) {
+  const enabledMark = agent.enabled !== false ? "+" : "-";
+  const kbStatus =
+    agent.kb && !existsSync(expandPath(agent.kb)) ? " (not found)" : "";
+  const lastWake = s.lastWokeAt
+    ? new Date(s.lastWokeAt).toLocaleString()
+    : "never";
+  const lines = [
+    `  ${enabledMark} ${name}`,
+    `    KB: ${agent.kb || "(none)"}${kbStatus}  Schedule: ${JSON.stringify(agent.schedule)}`,
+    `    Status: ${s.status || "never-woken"}  Last wake: ${lastWake}  Wakes: ${s.wakeCount || 0}`,
+  ];
+  if (s.lastAction) lines.push(`    Last action: ${s.lastAction}`);
+  if (s.lastDecision) lines.push(`    Last decision: ${s.lastDecision}`);
+  if (s.lastError) lines.push(`    Error: ${s.lastError.slice(0, 80)}`);
+  return lines.join("\n");
+}
+
 function showStatus() {
   const config = loadConfig();
   const state = stateManager.load();
@@ -228,17 +246,7 @@ function showStatus() {
 
   logger.info("Agents:");
   for (const [name, agent] of agents) {
-    const s = state.agents[name] || {};
-    const kbStatus =
-      agent.kb && !existsSync(expandPath(agent.kb)) ? " (not found)" : "";
-    logger.info(
-      `  ${agent.enabled !== false ? "+" : "-"} ${name}\n` +
-        `    KB: ${agent.kb || "(none)"}${kbStatus}  Schedule: ${JSON.stringify(agent.schedule)}\n` +
-        `    Status: ${s.status || "never-woken"}  Last wake: ${s.lastWokeAt ? new Date(s.lastWokeAt).toLocaleString() : "never"}  Wakes: ${s.wakeCount || 0}` +
-        (s.lastAction ? `\n    Last action: ${s.lastAction}` : "") +
-        (s.lastDecision ? `\n    Last decision: ${s.lastDecision}` : "") +
-        (s.lastError ? `\n    Error: ${s.lastError.slice(0, 80)}` : ""),
-    );
+    logger.info(formatAgentStatus(name, agent, state.agents[name] || {}));
   }
 }
 

@@ -22,17 +22,28 @@ import { compareByCapability } from "@forwardimpact/libskill/policies";
  * @param {Object} options
  * @returns {{currentData: Array, targetData: Array}}
  */
-function buildSkillComparisonData(currentMatrix, targetMatrix, options) {
+function skillRadarPoint(label, skill) {
+  if (!skill) {
+    return { label, value: 0, maxValue: 5, description: "Not required" };
+  }
+  return {
+    label,
+    value: getSkillProficiencyIndex(skill.proficiency),
+    maxValue: 5,
+    description: `${formatLevel(skill.type)} - ${formatLevel(skill.proficiency)}`,
+  };
+}
+
+function buildSkillEntries(currentMatrix, targetMatrix) {
   const allSkillIds = new Set([
     ...currentMatrix.map((s) => s.skillId),
     ...targetMatrix.map((s) => s.skillId),
   ]);
-
-  const skillEntries = [];
+  const entries = [];
   for (const skillId of allSkillIds) {
     const currentSkill = currentMatrix.find((s) => s.skillId === skillId);
     const targetSkill = targetMatrix.find((s) => s.skillId === skillId);
-    skillEntries.push({
+    entries.push({
       skillId,
       skillName: currentSkill?.skillName || targetSkill?.skillName,
       capability: currentSkill?.capability || targetSkill?.capability || "",
@@ -40,6 +51,11 @@ function buildSkillComparisonData(currentMatrix, targetMatrix, options) {
       targetSkill,
     });
   }
+  return entries;
+}
+
+function buildSkillComparisonData(currentMatrix, targetMatrix, options) {
+  const skillEntries = buildSkillEntries(currentMatrix, targetMatrix);
 
   const capabilityComparator = options.capabilities
     ? compareByCapability(options.capabilities)
@@ -53,26 +69,8 @@ function buildSkillComparisonData(currentMatrix, targetMatrix, options) {
   const targetData = [];
 
   for (const { skillName, currentSkill, targetSkill } of skillEntries) {
-    currentData.push({
-      label: skillName,
-      value: currentSkill
-        ? getSkillProficiencyIndex(currentSkill.proficiency)
-        : 0,
-      maxValue: 5,
-      description: currentSkill
-        ? `${formatLevel(currentSkill.type)} - ${formatLevel(currentSkill.proficiency)}`
-        : "Not required",
-    });
-    targetData.push({
-      label: skillName,
-      value: targetSkill
-        ? getSkillProficiencyIndex(targetSkill.proficiency)
-        : 0,
-      maxValue: 5,
-      description: targetSkill
-        ? `${formatLevel(targetSkill.type)} - ${formatLevel(targetSkill.proficiency)}`
-        : "Not required",
-    });
+    currentData.push(skillRadarPoint(skillName, currentSkill));
+    targetData.push(skillRadarPoint(skillName, targetSkill));
   }
 
   return { currentData, targetData };

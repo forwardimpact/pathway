@@ -50,124 +50,124 @@ function pad(str, width) {
 }
 
 /**
+ * Format a stats table for skills or behaviours.
+ * @param {Object} params
+ * @param {string} params.title
+ * @param {string} params.rowLabel
+ * @param {Object} params.entryStats - Map of id → per-level counts
+ * @param {string[]} params.levels - Level keys to render columns for
+ * @param {Record<string, string>} params.abbrevs - Column abbreviations per level
+ * @param {(id: string) => string} params.nameOf - Render the row label for an id
+ * @returns {string[]} lines
+ */
+function formatStatsTable({
+  title,
+  rowLabel,
+  entryStats,
+  levels,
+  abbrevs,
+  nameOf,
+}) {
+  const lines = [];
+  lines.push(title);
+  lines.push("═".repeat(75));
+  lines.push("");
+
+  const header =
+    pad(rowLabel, 30) +
+    levels.map((l) => pad(abbrevs[l], 7)).join("") +
+    "TOTAL";
+  lines.push(header);
+  lines.push("─".repeat(75));
+
+  const sortedIds = Object.keys(entryStats).sort();
+  const levelTotals = {};
+  let grandTotal = 0;
+
+  for (const id of sortedIds) {
+    const data = entryStats[id];
+    const row =
+      pad(nameOf(id), 30) +
+      levels
+        .map((l) => {
+          const count = data[l] || 0;
+          levelTotals[l] = (levelTotals[l] || 0) + count;
+          return pad(String(count), 7);
+        })
+        .join("") +
+      String(data.total || 0);
+    lines.push(row);
+    grandTotal += data.total || 0;
+  }
+
+  lines.push("─".repeat(75));
+  const totalsRow =
+    pad("TOTAL", 30) +
+    levels.map((l) => pad(String(levelTotals[l] || 0), 7)).join("") +
+    String(grandTotal);
+  lines.push(totalsRow);
+  lines.push("");
+  return lines;
+}
+
+function findSkillGaps(skillStats) {
+  const gaps = [];
+  for (const skillId of Object.keys(skillStats).sort()) {
+    const data = skillStats[skillId];
+    for (const level of SKILL_PROFICIENCIES) {
+      if ((data[level] || 0) < 1) {
+        gaps.push(`${skillId}: missing ${level} questions`);
+      }
+    }
+  }
+  return gaps;
+}
+
+function formatGaps(gaps) {
+  if (gaps.length === 0) return [];
+  const lines = ["⚠️  GAPS:"];
+  for (const gap of gaps.slice(0, 10)) {
+    lines.push(`  - ${gap}`);
+  }
+  if (gaps.length > 10) {
+    lines.push(`  ... and ${gaps.length - 10} more`);
+  }
+  return lines;
+}
+
+/**
  * Format stats-only output
  * @param {Object} view - Questions view
  * @param {Array} skills - Skills data
  * @returns {string}
  */
 function formatStats(view, skills) {
-  const lines = [];
   const { stats } = view;
+  const skillName = (id) => {
+    const skill = skills.find((s) => s.id === id);
+    return skill ? truncate(skill.name, 28) : id;
+  };
+  const behaviourName = (id) => truncate(id.replace(/_/g, " "), 28);
 
-  // Skill question counts
-  lines.push("SKILL QUESTION COUNTS");
-  lines.push("═".repeat(75));
-  lines.push("");
-
-  // Header
-  const skillHeader =
-    pad("Skill", 30) +
-    SKILL_PROFICIENCIES.map((l) => pad(LEVEL_ABBREVS[l], 7)).join("") +
-    "TOTAL";
-  lines.push(skillHeader);
-  lines.push("─".repeat(75));
-
-  // Rows
-  const sortedSkillIds = Object.keys(stats.skillStats).sort();
-  let skillTotal = 0;
-  const levelTotals = {};
-
-  for (const skillId of sortedSkillIds) {
-    const skillData = stats.skillStats[skillId];
-    const skill = skills.find((s) => s.id === skillId);
-    const name = skill ? truncate(skill.name, 28) : skillId;
-
-    const row =
-      pad(name, 30) +
-      SKILL_PROFICIENCIES.map((l) => {
-        const count = skillData[l] || 0;
-        levelTotals[l] = (levelTotals[l] || 0) + count;
-        return pad(String(count), 7);
-      }).join("") +
-      String(skillData.total || 0);
-
-    lines.push(row);
-    skillTotal += skillData.total || 0;
-  }
-
-  lines.push("─".repeat(75));
-  const totalsRow =
-    pad("TOTAL", 30) +
-    SKILL_PROFICIENCIES.map((l) => pad(String(levelTotals[l] || 0), 7)).join(
-      "",
-    ) +
-    String(skillTotal);
-  lines.push(totalsRow);
-  lines.push("");
-
-  // Behaviour question counts
-  lines.push("BEHAVIOUR QUESTION COUNTS");
-  lines.push("═".repeat(75));
-  lines.push("");
-
-  const behaviourHeader =
-    pad("Behaviour", 30) +
-    BEHAVIOUR_MATURITIES.map((m) => pad(MATURITY_ABBREVS[m], 7)).join("") +
-    "TOTAL";
-  lines.push(behaviourHeader);
-  lines.push("─".repeat(75));
-
-  const sortedBehaviourIds = Object.keys(stats.behaviourStats).sort();
-  let behaviourTotal = 0;
-  const maturityTotals = {};
-
-  for (const behaviourId of sortedBehaviourIds) {
-    const behaviourData = stats.behaviourStats[behaviourId];
-    const name = truncate(behaviourId.replace(/_/g, " "), 28);
-
-    const row =
-      pad(name, 30) +
-      BEHAVIOUR_MATURITIES.map((m) => {
-        const count = behaviourData[m] || 0;
-        maturityTotals[m] = (maturityTotals[m] || 0) + count;
-        return pad(String(count), 7);
-      }).join("") +
-      String(behaviourData.total || 0);
-
-    lines.push(row);
-    behaviourTotal += behaviourData.total || 0;
-  }
-
-  lines.push("─".repeat(75));
-  const bTotalsRow =
-    pad("TOTAL", 30) +
-    BEHAVIOUR_MATURITIES.map((m) =>
-      pad(String(maturityTotals[m] || 0), 7),
-    ).join("") +
-    String(behaviourTotal);
-  lines.push(bTotalsRow);
-  lines.push("");
-
-  // Identify gaps (skills with < 2 questions per level)
-  const gaps = [];
-  for (const skillId of sortedSkillIds) {
-    const skillData = stats.skillStats[skillId];
-    for (const level of SKILL_PROFICIENCIES) {
-      if ((skillData[level] || 0) < 1) {
-        gaps.push(`${skillId}: missing ${level} questions`);
-      }
-    }
-  }
-
-  if (gaps.length > 0) {
-    lines.push("⚠️  GAPS:");
-    for (const gap of gaps.slice(0, 10)) {
-      lines.push(`  - ${gap}`);
-    }
-    if (gaps.length > 10) {
-      lines.push(`  ... and ${gaps.length - 10} more`);
-    }
-  }
+  const lines = [
+    ...formatStatsTable({
+      title: "SKILL QUESTION COUNTS",
+      rowLabel: "Skill",
+      entryStats: stats.skillStats,
+      levels: SKILL_PROFICIENCIES,
+      abbrevs: LEVEL_ABBREVS,
+      nameOf: skillName,
+    }),
+    ...formatStatsTable({
+      title: "BEHAVIOUR QUESTION COUNTS",
+      rowLabel: "Behaviour",
+      entryStats: stats.behaviourStats,
+      levels: BEHAVIOUR_MATURITIES,
+      abbrevs: MATURITY_ABBREVS,
+      nameOf: behaviourName,
+    }),
+    ...formatGaps(findSkillGaps(stats.skillStats)),
+  ];
 
   return lines.join("\n");
 }

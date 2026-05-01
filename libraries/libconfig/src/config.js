@@ -9,6 +9,32 @@ function stripTrailingSlashes(url) {
   return url.replace(/\/+$/, "");
 }
 
+function stripQuotes(value) {
+  const first = value[0];
+  if ((first === '"' || first === "'") && value.endsWith(first)) {
+    return value.slice(1, -1);
+  }
+  return value;
+}
+
+/**
+ * Parses one line of a .env file.
+ * @param {string} line
+ * @returns {{ key: string, value: string } | null}
+ */
+function parseEnvLine(line) {
+  const trimmed = line.trim();
+  if (!trimmed || trimmed.startsWith("#")) return null;
+
+  const stripped = trimmed.startsWith("export ") ? trimmed.slice(7) : trimmed;
+  const eqIndex = stripped.indexOf("=");
+  if (eqIndex === -1) return null;
+
+  const key = stripped.slice(0, eqIndex).trim();
+  const value = stripQuotes(stripped.slice(eqIndex + 1).trim());
+  return { key, value };
+}
+
 /**
  * Centralized configuration management class
  */
@@ -334,42 +360,27 @@ export class Config {
       const envPath = path.join(this.#process.cwd(), ".env");
       const content = await readFile(envPath, "utf8");
       for (const line of content.split("\n")) {
-        const trimmed = line.trim();
-        if (!trimmed || trimmed.startsWith("#")) continue;
-
-        // Strip optional `export ` prefix (e.g. `export JWT_SECRET=xxx`)
-        const stripped = trimmed.startsWith("export ")
-          ? trimmed.slice(7)
-          : trimmed;
-        const eqIndex = stripped.indexOf("=");
-        if (eqIndex === -1) continue;
-
-        const key = stripped.slice(0, eqIndex).trim();
-        let value = stripped.slice(eqIndex + 1).trim();
-        // Strip matched surrounding quotes
-        if (
-          (value.startsWith('"') && value.endsWith('"')) ||
-          (value.startsWith("'") && value.endsWith("'"))
-        ) {
-          value = value.slice(1, -1);
-        }
-
-        if (Config.#CREDENTIAL_KEYS.has(key)) {
-          // Credentials → private map. #env() reads them without
-          // exposing them on process.env. Shell env still wins at
-          // read time because #env() checks process.env first.
-          this.#envOverrides[key] = value;
-        } else if (this.#process.env[key] === undefined) {
-          // Non-credentials → process.env so that service URL
-          // resolution and child processes can see them.
-          // Shell env takes precedence (only set if undefined).
-          this.#process.env[key] = value;
-        }
+        const parsed = parseEnvLine(line);
+        if (parsed) this.#applyEnvEntry(parsed.key, parsed.value);
       }
     } catch (error) {
       // Missing .env is normal (not yet initialized); any other
       // filesystem error is a real problem.
       if (error?.code !== "ENOENT") throw error;
+    }
+  }
+
+  #applyEnvEntry(key, value) {
+    if (Config.#CREDENTIAL_KEYS.has(key)) {
+      // Credentials → private map. #env() reads them without
+      // exposing them on process.env. Shell env still wins at
+      // read time because #env() checks process.env first.
+      this.#envOverrides[key] = value;
+    } else if (this.#process.env[key] === undefined) {
+      // Non-credentials → process.env so that service URL
+      // resolution and child processes can see them.
+      // Shell env takes precedence (only set if undefined).
+      this.#process.env[key] = value;
     }
   }
 

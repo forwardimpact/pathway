@@ -115,6 +115,46 @@ async function isDirectory(path) {
 }
 
 /**
+ * Build the static file route table for the dev server.
+ * @param {{ dataDir: string }} params
+ * @returns {Array<{ match: (p: string) => boolean, resolve: (p: string) => string }>}
+ */
+function buildRoutes({ dataDir }) {
+  const prefix = (p, dir, sliceLen) => ({
+    match: (path) => path.startsWith(p),
+    resolve: (path) => join(dir, path.slice(sliceLen)),
+  });
+  return [
+    prefix("/data/", dataDir, 6),
+    {
+      match: (p) => p.startsWith("/templates/"),
+      resolve: (p) => join(rootDir, p),
+    },
+    prefix("/map/lib/", mapLibDir, 9),
+    prefix("/model/lib/", modelLibDir, 11),
+    prefix("/ui/lib/", uiLibDir, 8),
+    {
+      match: (p) => p.startsWith("/ui/css/"),
+      resolve: (p) => join(uiLibDir, "css", p.slice(8)),
+    },
+    {
+      match: (p) => p === "/vendor/mustache.mjs",
+      resolve: () => join(mustacheDir, "mustache.mjs"),
+    },
+    prefix("/vendor/yaml/", yamlBrowserDir, 13),
+    {
+      match: (p) => p === "/" || p === "",
+      resolve: () => join(publicDir, "index.html"),
+    },
+  ];
+}
+
+function resolveRoute(pathname, routes) {
+  const route = routes.find((r) => r.match(pathname));
+  return route ? route.resolve(pathname) : join(publicDir, pathname);
+}
+
+/**
  * Run the dev command
  * @param {Object} params - Command parameters
  * @param {string} params.dataDir - Path to data directory
@@ -138,6 +178,8 @@ export async function runDevCommand({ dataDir, options }) {
   const indexGenerator = createIndexGenerator();
   await indexGenerator.generateAllIndexes(dataDir);
 
+  const routes = buildRoutes({ dataDir });
+
   const server = createServer(async (req, res) => {
     const url = new URL(req.url, `http://localhost:${port}`);
     let pathname = url.pathname;
@@ -147,43 +189,13 @@ export async function runDevCommand({ dataDir, options }) {
       pathname = pathname.slice(0, -1);
     }
 
-    let filePath;
-
     if (pathname === "/version.json") {
       res.setHeader("Content-Type", "application/json; charset=utf-8");
       res.end(JSON.stringify({ version: VERSION }));
       return;
-    } else if (pathname.startsWith("/data/")) {
-      // Serve from user's data directory
-      filePath = join(dataDir, pathname.slice(6));
-    } else if (pathname.startsWith("/templates/")) {
-      // Serve from templates directory
-      filePath = join(rootDir, pathname);
-    } else if (pathname.startsWith("/map/lib/")) {
-      // Serve @forwardimpact/map package files (resolved via Node module resolution)
-      filePath = join(mapLibDir, pathname.slice(9));
-    } else if (pathname.startsWith("/model/lib/")) {
-      // Serve @forwardimpact/libskill package files (resolved via Node module resolution)
-      filePath = join(modelLibDir, pathname.slice(11));
-    } else if (pathname.startsWith("/ui/lib/")) {
-      // Serve @forwardimpact/libui package JS files
-      filePath = join(uiLibDir, pathname.slice(8));
-    } else if (pathname.startsWith("/ui/css/")) {
-      // Serve @forwardimpact/libui package CSS files
-      filePath = join(uiLibDir, "css", pathname.slice(8));
-    } else if (pathname === "/vendor/mustache.mjs") {
-      // Serve vendored mustache ESM module
-      filePath = join(mustacheDir, "mustache.mjs");
-    } else if (pathname.startsWith("/vendor/yaml/")) {
-      // Serve vendored yaml browser ESM build
-      filePath = join(yamlBrowserDir, pathname.slice(13));
-    } else if (pathname === "/" || pathname === "") {
-      // Serve index.html for root
-      filePath = join(publicDir, "index.html");
-    } else {
-      // Serve from package's public directory
-      filePath = join(publicDir, pathname);
     }
+
+    let filePath = resolveRoute(pathname, routes);
 
     // Check if path is a directory, serve index.html if so
     if (await isDirectory(filePath)) {

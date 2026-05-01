@@ -237,6 +237,57 @@ function perpDist(px, py, ax, ay, bx, by) {
   return Math.abs(dy * px - dx * py + bx * ay - by * ax) / Math.sqrt(lenSq);
 }
 
+function maxPerpDeviation(points, i, j) {
+  let maxDev = 0;
+  for (let k = i + 1; k < j; k++) {
+    const dev = perpDist(
+      points[k].x,
+      points[k].y,
+      points[i].x,
+      points[i].y,
+      points[j].x,
+      points[j].y,
+    );
+    maxDev = Math.max(maxDev, dev);
+  }
+  return maxDev;
+}
+
+function isAligned({ segments, points, i, j, n, alignRad }) {
+  if (i === 0 || j + 1 >= n || segments[j + 1].type === "Z") return true;
+  const dirBefore = Math.atan2(
+    points[i].y - points[i - 1].y,
+    points[i].x - points[i - 1].x,
+  );
+  const dirAfter = Math.atan2(
+    points[j + 1].y - points[j].y,
+    points[j + 1].x - points[j].x,
+  );
+  let diff = Math.abs(dirAfter - dirBefore);
+  if (diff > Math.PI) diff = 2 * Math.PI - diff;
+  return diff <= alignRad;
+}
+
+function findChipAt({ segments, points, i, n, preset, alignRad }) {
+  for (let span = 2; span <= preset.maxSpan && i + span < n; span++) {
+    const j = i + span;
+    if (segments[j].type === "Z") continue;
+
+    const base = Math.hypot(
+      points[j].x - points[i].x,
+      points[j].y - points[i].y,
+    );
+    if (base > preset.maxBase) continue;
+
+    const maxDev = maxPerpDeviation(points, i, j);
+    if (maxDev < preset.minHeight || maxDev > preset.maxHeight) continue;
+    if (!isAligned({ segments, points, i, j, n, alignRad })) continue;
+
+    return { from: i, to: j };
+  }
+  return null;
+}
+
 function detectChips(segments, preset) {
   const points = segments.map((s) => ({ x: s.endX, y: s.endY }));
   const n = points.length;
@@ -245,55 +296,13 @@ function detectChips(segments, preset) {
 
   let i = 1;
   while (i < n - 1) {
-    let found = false;
-
-    for (let span = 2; span <= preset.maxSpan && i + span < n; span++) {
-      const j = i + span;
-
-      if (segments[j].type === "Z") continue;
-
-      const base = Math.hypot(
-        points[j].x - points[i].x,
-        points[j].y - points[i].y,
-      );
-      if (base > preset.maxBase) continue;
-
-      let maxDev = 0;
-      for (let k = i + 1; k < j; k++) {
-        const dev = perpDist(
-          points[k].x,
-          points[k].y,
-          points[i].x,
-          points[i].y,
-          points[j].x,
-          points[j].y,
-        );
-        maxDev = Math.max(maxDev, dev);
-      }
-
-      if (maxDev < preset.minHeight || maxDev > preset.maxHeight) continue;
-
-      if (i > 0 && j + 1 < n && segments[j + 1].type !== "Z") {
-        const dirBefore = Math.atan2(
-          points[i].y - points[i - 1].y,
-          points[i].x - points[i - 1].x,
-        );
-        const dirAfter = Math.atan2(
-          points[j + 1].y - points[j].y,
-          points[j + 1].x - points[j].x,
-        );
-        let diff = Math.abs(dirAfter - dirBefore);
-        if (diff > Math.PI) diff = 2 * Math.PI - diff;
-        if (diff > alignRad) continue;
-      }
-
-      chips.push({ from: i, to: j });
-      i = j;
-      found = true;
-      break;
+    const chip = findChipAt({ segments, points, i, n, preset, alignRad });
+    if (chip) {
+      chips.push(chip);
+      i = chip.to;
+    } else {
+      i++;
     }
-
-    if (!found) i++;
   }
 
   return chips;

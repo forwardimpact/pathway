@@ -50,59 +50,58 @@ export async function migrate() {
   return 0;
 }
 
+const TRANSFORM_TARGETS = {
+  people: {
+    fn: transformPeople,
+    summarize: (r) => ({ imported: r.imported, errors: r.errors.length }),
+  },
+  getdx: { fn: transformAllGetDX, summarize: summarizeCounts },
+  github: { fn: transformAllGitHub, summarize: summarizeCounts },
+  evidence: {
+    fn: transformEvidence,
+    summarize: (r) => ({
+      inserted: r.inserted,
+      skipped: r.skipped,
+      errors: r.errors.length,
+    }),
+  },
+};
+
+async function transformAllTargets(supabase) {
+  const r = await transformAll(supabase);
+  report("people", {
+    imported: r.people.imported,
+    errors: r.people.errors.length,
+  });
+  report("getdx", summarizeCounts(r.getdx));
+  report("github", summarizeCounts(r.github));
+  report("evidence", {
+    inserted: r.evidence.inserted,
+    skipped: r.evidence.skipped,
+    errors: r.evidence.errors.length,
+  });
+  const totalErrors =
+    r.people.errors.length +
+    r.getdx.errors.length +
+    r.github.errors.length +
+    r.evidence.errors.length;
+  return totalErrors === 0 ? 0 : 1;
+}
+
 export async function transform(target, supabase) {
-  switch (target) {
-    case "people": {
-      const r = await transformPeople(supabase);
-      report("people", { imported: r.imported, errors: r.errors.length });
-      return r.errors.length === 0 ? 0 : 1;
-    }
-    case "getdx": {
-      const r = await transformAllGetDX(supabase);
-      report("getdx", summarizeCounts(r));
-      return r.errors.length === 0 ? 0 : 1;
-    }
-    case "github": {
-      const r = await transformAllGitHub(supabase);
-      report("github", summarizeCounts(r));
-      return r.errors.length === 0 ? 0 : 1;
-    }
-    case "evidence": {
-      const r = await transformEvidence(supabase);
-      report("evidence", {
-        inserted: r.inserted,
-        skipped: r.skipped,
-        errors: r.errors.length,
-      });
-      return r.errors.length === 0 ? 0 : 1;
-    }
-    case "all":
-    case undefined: {
-      const r = await transformAll(supabase);
-      report("people", {
-        imported: r.people.imported,
-        errors: r.people.errors.length,
-      });
-      report("getdx", summarizeCounts(r.getdx));
-      report("github", summarizeCounts(r.github));
-      report("evidence", {
-        inserted: r.evidence.inserted,
-        skipped: r.evidence.skipped,
-        errors: r.evidence.errors.length,
-      });
-      const ok =
-        r.people.errors.length === 0 &&
-        r.getdx.errors.length === 0 &&
-        r.github.errors.length === 0 &&
-        r.evidence.errors.length === 0;
-      return ok ? 0 : 1;
-    }
-    default:
-      process.stderr.write(
-        formatError(`Unknown transform target: ${target}`) + "\n",
-      );
-      return 1;
+  if (target === "all" || target === undefined) {
+    return transformAllTargets(supabase);
   }
+  const cfg = TRANSFORM_TARGETS[target];
+  if (!cfg) {
+    process.stderr.write(
+      formatError(`Unknown transform target: ${target}`) + "\n",
+    );
+    return 1;
+  }
+  const r = await cfg.fn(supabase);
+  report(target, cfg.summarize(r));
+  return r.errors.length === 0 ? 0 : 1;
 }
 
 export async function verify(supabase) {

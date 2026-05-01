@@ -18,6 +18,12 @@ import { createJobCache } from "@forwardimpact/libskill/job-cache";
 
 const jobCache = createJobCache();
 
+const INTERVIEW_DERIVERS = {
+  mission: deriveMissionFitInterview,
+  decomposition: deriveDecompositionInterview,
+  stakeholder: deriveStakeholderInterview,
+};
+
 /**
  * Interview type configurations
  */
@@ -152,33 +158,9 @@ export function prepareInterviewDetail({
 
   if (!job) return null;
 
-  let interviewGuide;
-  switch (interviewType) {
-    case "mission":
-      interviewGuide = deriveMissionFitInterview({
-        job,
-        questionBank: questions,
-      });
-      break;
-    case "decomposition":
-      interviewGuide = deriveDecompositionInterview({
-        job,
-        questionBank: questions,
-      });
-      break;
-    case "stakeholder":
-      interviewGuide = deriveStakeholderInterview({
-        job,
-        questionBank: questions,
-      });
-      break;
-    default:
-      interviewGuide = deriveMissionFitInterview({
-        job,
-        questionBank: questions,
-      });
-      break;
-  }
+  const deriver =
+    INTERVIEW_DERIVERS[interviewType] || deriveMissionFitInterview;
+  const interviewGuide = deriver({ job, questionBank: questions });
 
   // Extract the questions array from the interview guide
   const rawQuestions = interviewGuide.questions || [];

@@ -69,6 +69,20 @@ const PUBLIC_ASSETS = [
  */
 const ROOT_ASSETS = ["templates"];
 
+async function copyAssets(srcDir, assetNames, outputDir) {
+  for (const asset of assetNames) {
+    const src = join(srcDir, asset);
+    const dest = join(outputDir, asset);
+    try {
+      await access(src);
+      await cp(src, dest, { recursive: true });
+      logger.info(`   ✓ ${asset}`);
+    } catch (err) {
+      logger.info(`   ⚠️  Skipped ${asset}: ${err.message}`);
+    }
+  }
+}
+
 /**
  * Run the build command
  * @param {Object} params - Command parameters
@@ -113,33 +127,10 @@ ${standard.emojiIcon} Generating ${standard.title} static site...
 
   // Copy app assets
   logger.info("📦 Copying application files...");
-  for (const asset of PUBLIC_ASSETS) {
-    const src = join(appDir, asset);
-    const dest = join(outputDir, asset);
-
-    try {
-      await access(src);
-      await cp(src, dest, { recursive: true });
-      logger.info(`   ✓ ${asset}`);
-    } catch (err) {
-      logger.info(`   ⚠️  Skipped ${asset}: ${err.message}`);
-    }
-  }
+  await copyAssets(appDir, PUBLIC_ASSETS, outputDir);
 
   // Copy root assets (templates, etc.)
-  const rootDir = join(appDir, "..");
-  for (const asset of ROOT_ASSETS) {
-    const src = join(rootDir, asset);
-    const dest = join(outputDir, asset);
-
-    try {
-      await access(src);
-      await cp(src, dest, { recursive: true });
-      logger.info(`   ✓ ${asset}`);
-    } catch (err) {
-      logger.info(`   ⚠️  Skipped ${asset}: ${err.message}`);
-    }
-  }
+  await copyAssets(join(appDir, ".."), ROOT_ASSETS, outputDir);
 
   // Copy @forwardimpact/map and @forwardimpact/libskill packages
   // These are needed by the browser's import map

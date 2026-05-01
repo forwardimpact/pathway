@@ -94,6 +94,13 @@ function decodeEntities(text) {
  * @param {Buffer} raw
  * @returns {{ headers: Map<string, string[]>, bodyOffset: number }}
  */
+function pushHeader(headers, name, value) {
+  if (!name) return;
+  const arr = headers.get(name) ?? [];
+  arr.push(value);
+  headers.set(name, arr);
+}
+
 function parseHeaders(raw) {
   const headers = new Map();
   let i = 0;
@@ -110,11 +117,7 @@ function parseHeaders(raw) {
 
     // Empty line = end of headers
     if (line === "") {
-      if (currentName) {
-        const arr = headers.get(currentName) ?? [];
-        arr.push(currentValue);
-        headers.set(currentName, arr);
-      }
+      pushHeader(headers, currentName, currentValue);
       return { headers, bodyOffset: i };
     }
 
@@ -125,11 +128,7 @@ function parseHeaders(raw) {
     }
 
     // New header — save previous
-    if (currentName) {
-      const arr = headers.get(currentName) ?? [];
-      arr.push(currentValue);
-      headers.set(currentName, arr);
-    }
+    pushHeader(headers, currentName, currentValue);
 
     const colonIdx = line.indexOf(":");
     if (colonIdx === -1) continue;
@@ -137,11 +136,7 @@ function parseHeaders(raw) {
     currentValue = line.slice(colonIdx + 1).trim();
   }
 
-  if (currentName) {
-    const arr = headers.get(currentName) ?? [];
-    arr.push(currentValue);
-    headers.set(currentName, arr);
-  }
+  pushHeader(headers, currentName, currentValue);
   return { headers, bodyOffset: raw.length };
 }
 

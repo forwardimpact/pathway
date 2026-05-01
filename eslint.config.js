@@ -17,7 +17,7 @@ export default [
         "error",
         { max: 400, skipBlankLines: true, skipComments: true },
       ],
-      complexity: ["error", 15],
+      complexity: ["error", 14],
       "security/detect-buffer-noassert": "error",
       "security/detect-child-process": "error",
       "security/detect-disable-mustache-escape": "error",
@@ -114,7 +114,7 @@ export default [
       "tmp/**",
       "**/dist/**",
       "**/generated/**",
-      "public/vendor/**",
+      "public/**",
     ],
   },
 ];

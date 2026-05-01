@@ -255,6 +255,10 @@ function buildSkillIndex(focusedSkills, skills) {
 /**
  * Build the profile body data for a discipline/track agent
  */
+function trimOrNull(value) {
+  return typeof value === "string" ? value.trim() : null;
+}
+
 function buildProfileBodyData({
   discipline,
   track,
@@ -285,17 +289,17 @@ function buildProfileBodyData({
   return {
     title,
     identity: identity.trim(),
-    priority: priority ? priority.trim() : null,
+    priority: trimOrNull(priority),
     skillIndex,
     skillDirnames: skillIndex.map((s) => s.dirname),
-    roleContext: track?.roleContext ? track.roleContext.trim() : "",
+    roleContext: trimOrNull(track?.roleContext) ?? "",
     workingStyles: buildWorkingStyleFromBehaviours(
       derivedBehaviours,
       agentBehaviours,
     ),
     disciplineConstraints: agentDiscipline.constraints || [],
     trackConstraints: agentTrack?.constraints || [],
-    teamInstructions: teamInstructions ? teamInstructions.trim() : null,
+    teamInstructions: trimOrNull(teamInstructions),
   };
 }
 

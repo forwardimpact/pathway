@@ -134,34 +134,39 @@ function createRadarSection(view) {
   );
 }
 
-export function jobToDOM(view, options = {}) {
-  const {
-    showBackLink = true,
-    showTables = true,
-    showJobDescriptionHtml = false,
-    showJobDescriptionMarkdown = true,
+const JOB_DOM_DEFAULTS = {
+  showBackLink: true,
+  showTables: true,
+  showJobDescriptionHtml: false,
+  showJobDescriptionMarkdown: true,
+};
+
+function buildJobDescParams(view, options) {
+  const { discipline, level, track, jobTemplate } = options;
+  if (!discipline || !level || !jobTemplate) return null;
+  return {
+    job: buildJobFromView(view),
     discipline,
     level,
     track,
-    jobTemplate,
-  } = options;
+    template: jobTemplate,
+  };
+}
 
-  const hasEntities = discipline && level && jobTemplate;
-  const job = hasEntities ? buildJobFromView(view) : null;
-  const descParams = hasEntities
-    ? { job, discipline, level, track, template: jobTemplate }
-    : null;
+export function jobToDOM(view, options = {}) {
+  const opts = { ...JOB_DOM_DEFAULTS, ...options };
+  const descParams = buildJobDescParams(view, opts);
 
   return div(
     { className: "job-detail-page" },
-    createJobHeader(view, showBackLink),
+    createJobHeader(view, opts.showBackLink),
     createExpectationsSection(view),
     createRadarSection(view),
-    showJobDescriptionHtml && descParams
+    descParams && opts.showJobDescriptionHtml
       ? createJobDescriptionHtml(descParams)
       : null,
-    showTables ? createJobTablesSection(view) : null,
-    showJobDescriptionMarkdown && descParams
+    opts.showTables ? createJobTablesSection(view) : null,
+    descParams && opts.showJobDescriptionMarkdown
       ? createJobDescriptionSection(descParams)
       : null,
   );
