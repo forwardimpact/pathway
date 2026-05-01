@@ -31,6 +31,14 @@ updates:
         update-types:
           - version-update:semver-patch
           - version-update:semver-minor
+      # read-excel-file v8 renames the default export to readSheet and removes
+      # schema/transformData/isColumnOriented/ignoreEmptyRows parameters. The
+      # outpost workday-requisition template script depends on the v7 default
+      # export shape. Block the v8 major bump until the template migrates.
+      # PR #134 (7.0.3 → 8.0.2) closed.
+      - dependency-name: read-excel-file
+        update-types:
+          - version-update:semver-major
       # @anthropic-ai/claude-agent-sdk >=0.2.113 ships native binaries via
       # platform-specific optional deps. On glibc Linux runners (GitHub
       # ubuntu-latest), the musl variant wins resolution and fails to exec,
