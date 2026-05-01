@@ -31,6 +31,16 @@ updates:
         update-types:
           - version-update:semver-patch
           - version-update:semver-minor
+      # read-excel-file 8.0.0 renames the default export and changes its
+      # return shape (single sheet's rows → array of {name, rows} objects).
+      # Template code at
+      # products/outpost/templates/.claude/skills/workday-requisition/scripts/parse-workday.mjs
+      # uses the v7 default-export API and would silently produce different
+      # output under v8. PR #134 (7.0.3 → 8.0.2) closed for this reason.
+      # Re-bump only after the template code is adapted to the v8 API.
+      - dependency-name: read-excel-file
+        update-types:
+          - version-update:semver-major
       # @anthropic-ai/claude-agent-sdk >=0.2.113 ships native binaries via
       # platform-specific optional deps. On glibc Linux runners (GitHub
       # ubuntu-latest), the musl variant wins resolution and fails to exec,
