@@ -9,6 +9,14 @@
     "profile",
     "standard"
   ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Derive a job from discipline, level, and track",
+      "Generate an agent profile",
+      "Match a candidate to a job"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

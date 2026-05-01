@@ -9,6 +9,14 @@
     "agent",
     "spc"
   ],
+  "forwardimpact": {
+    "capability": "agent-self-improvement",
+    "needs": [
+      "Compute an XmR control chart",
+      "Render a markdown sparkline",
+      "Detect signals in a time series"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

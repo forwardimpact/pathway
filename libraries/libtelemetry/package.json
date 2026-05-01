@@ -9,6 +9,13 @@
     "agent",
     "observability"
   ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Emit a structured log line",
+      "Add a distributed trace span"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

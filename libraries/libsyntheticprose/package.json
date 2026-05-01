@@ -9,6 +9,12 @@
     "agent",
     "eval"
   ],
+  "forwardimpact": {
+    "capability": "agent-self-improvement",
+    "needs": [
+      "Generate LLM prose for synthetic data"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

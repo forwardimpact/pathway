@@ -9,6 +9,13 @@
     "agent",
     "format"
   ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Render markdown as ANSI",
+      "Render markdown as HTML"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

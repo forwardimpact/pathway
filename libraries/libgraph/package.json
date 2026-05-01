@@ -35,6 +35,13 @@
     "linked-data",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Query an RDF triple graph",
+      "Serialize SHACL shapes"
+    ]
+  },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libindex": "^0.1.27",

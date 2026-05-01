@@ -9,6 +9,13 @@
     "agent",
     "eval"
   ],
+  "forwardimpact": {
+    "capability": "agent-self-improvement",
+    "needs": [
+      "Render synthetic data as HTML, Markdown, or YAML",
+      "Validate synthetic data integrity"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

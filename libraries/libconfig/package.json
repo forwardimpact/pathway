@@ -7,6 +7,12 @@
     "environment",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Load application settings from environment"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

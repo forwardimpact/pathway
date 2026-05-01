@@ -1,13 +1,19 @@
 {
   "name": "@forwardimpact/librepl",
   "version": "0.1.9",
-  "description": "Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in --help.",
+  "description": "Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in `--help`.",
   "keywords": [
     "repl",
     "cli",
     "agent",
     "interactive"
   ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Run an interactive REPL session"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

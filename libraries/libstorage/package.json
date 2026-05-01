@@ -9,6 +9,13 @@
     "agent",
     "retrieval"
   ],
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Store files to local, S3, or Supabase",
+      "Read or write JSONL"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

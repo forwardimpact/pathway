@@ -9,6 +9,13 @@
     "agent",
     "retrieval"
   ],
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Manage typed resources with access control",
+      "Resolve a resource identifier"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

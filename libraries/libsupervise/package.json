@@ -1,13 +1,19 @@
 {
   "name": "@forwardimpact/libsupervise",
   "version": "0.1.20",
-  "description": "Process supervision (restart policies, log rotation) driven by JSON daemon manifests agents can read and tune; built on libconfig for settings loading.",
+  "description": "Process supervision (restart policies, log rotation) driven by JSON daemon manifests agents can read and tune; built on `libconfig` for settings loading.",
   "keywords": [
     "supervisor",
     "process",
     "daemon",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Supervise a long-running daemon"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

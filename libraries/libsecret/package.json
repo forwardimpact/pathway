@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libsecret",
   "version": "0.1.11",
-  "description": "Secret generation, JWT signing, and .env file management for agent services and CLIs.",
+  "description": "Secret generation, JWT signing, and `.env` file management for agent services and CLIs.",
   "keywords": [
     "secret",
     "jwt",
@@ -9,6 +9,14 @@
     "credential",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "foundations",
+    "needs": [
+      "Generate a secret",
+      "Sign a JWT",
+      "Read or write .env files"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

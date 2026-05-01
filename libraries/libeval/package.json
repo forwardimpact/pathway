@@ -9,6 +9,13 @@
     "claude-code",
     "supervisor"
   ],
+  "forwardimpact": {
+    "capability": "agent-self-improvement",
+    "needs": [
+      "Process Claude Code traces",
+      "Run an agent evaluation loop"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

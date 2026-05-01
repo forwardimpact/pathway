@@ -8,6 +8,12 @@
     "markdown",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Build a static documentation site"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -8,6 +8,13 @@
     "retrieval",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Filter records in a JSONL index",
+      "Buffer high-volume index writes"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

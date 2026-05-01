@@ -9,6 +9,13 @@
     "client",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Build a gRPC service",
+      "Call another gRPC service"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

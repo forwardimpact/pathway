@@ -9,6 +9,14 @@
     "router",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Build a web app page",
+      "Set up SPA routing",
+      "Use reactive UI state"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

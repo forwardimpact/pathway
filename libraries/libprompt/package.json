@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libprompt",
   "version": "0.1.6",
-  "description": "Agent-authored prompt templates loaded from .prompt.md files with Mustache substitution.",
+  "description": "Agent-authored prompt templates loaded from `.prompt.md` files with Mustache substitution.",
   "keywords": [
     "prompt",
     "template",
@@ -9,6 +9,12 @@
     "agent",
     "llm"
   ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Load a prompt template from disk"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

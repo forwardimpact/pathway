@@ -9,6 +9,17 @@
     "tokens",
     "agent"
   ],
+  "forwardimpact": {
+    "capability": "foundations",
+    "needs": [
+      "Compute a stable hash",
+      "Count LLM tokens",
+      "Find the project root",
+      "Retry a flaky network call",
+      "Download and extract a tarball",
+      "Generate a UUID"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
