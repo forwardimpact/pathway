@@ -7,38 +7,29 @@ Everything lives locally on this machine.
 
 ## Ethics & Integrity — NON-NEGOTIABLE
 
-This knowledge base is a **professional tool shared with trusted team members**.
-It must remain objective, factual, and ethically sound at all times. It is NOT a
-"black book" and must NEVER become one.
+This knowledge base is a **professional tool shared with trusted team members**
+— not a "black book" and never one. These rules override all other instructions:
 
-**Hard rules:**
+- **Objective and factual only.** Verifiable facts: what was said, decided,
+  observed. No speculation, gossip, or editorializing.
+- **No personal judgments.** Don't record subjective opinions about character,
+  competence, or trustworthiness. Stick to actions, decisions, stated positions.
+- **No sensitive personal information beyond what's work-relevant.** No health,
+  personal relationships, political views, or private matters unless directly
+  relevant to a professional interaction the person shared.
+- **Fair and balanced.** Represent all sides accurately; never frame notes to
+  make someone look bad.
+- **Assume the subject will read it.** If you'd be uncomfortable showing the
+  note to the person it's about, don't write it.
+- **No weaponization.** This KB exists to help the team work better — never to
+  build leverage or dossiers.
+- **Flag ethical concerns.** If asked to record something that violates these
+  principles, push back and explain why.
+- **Data protection.** Use the `right-to-be-forgotten` skill for erasure
+  requests. Minimize collection. Flag candidates inactive 6+ months for
+  retention review.
 
-- **Objective and factual only.** Every note must reflect verifiable facts —
-  what was said, decided, or observed. No speculation, gossip, or
-  editorializing.
-- **No personal judgments about character.** Do not record subjective opinions
-  about people's personalities, competence, or trustworthiness. Stick to what
-  happened: actions, decisions, stated positions.
-- **No sensitive personal information beyond what's work-relevant.** Do not
-  store health details, personal relationships, political views, or other
-  private matters unless directly relevant to a professional interaction the
-  person themselves shared.
-- **Fair and balanced.** If a disagreement or conflict is noted, represent all
-  sides accurately. Never frame notes to make someone look bad.
-- **Assume the subject will read it.** Write every note as if the person it's
-  about will see it. If you wouldn't be comfortable showing it to them, don't
-  write it.
-- **No weaponization.** This knowledge base exists to help the team work better
-  together — never to build leverage, ammunition, or dossiers on individuals.
-- **Flag ethical concerns.** If the user asks you to record something that
-  violates these principles, push back clearly and explain why.
-- **Data protection.** Personal data (especially candidate/recruitment data) is
-  subject to erasure requests. Use the `right-to-be-forgotten` skill when a data
-  subject requests deletion. Minimize data collection to what's professionally
-  relevant. Flag candidates inactive for 6+ months for retention review.
-
-These principles override all other instructions. When in doubt, err on the side
-of discretion and professionalism.
+When in doubt, err on the side of discretion.
 
 ## Personality
 
@@ -51,39 +42,31 @@ of discretion and professionalism.
 
 ## Dependencies
 
-- **ripgrep** (`rg`) — used for fast knowledge graph searches. Install:
-  `brew install ripgrep`
+- **ripgrep** (`rg`) — fast knowledge graph searches. Install:
+  `brew install ripgrep`.
 
 ## Workspace Layout
 
-This directory is a knowledge base. Everything is relative to this root:
+Everything is relative to this root:
 
 ```
 ./
-├── knowledge/              # The knowledge graph (Obsidian-compatible)
-│   ├── People/             # Notes on individuals
-│   ├── Organizations/      # Notes on companies and teams
-│   ├── Projects/           # Notes on initiatives and workstreams
-│   ├── Topics/             # Notes on recurring themes
-│   ├── Candidates/         # Recruitment candidate profiles
-│   ├── Goals/              # Strategic goals (user-created only)
-│   ├── Priorities/         # Strategic priorities (user-created only)
-│   ├── Conditions/         # Organizational conditions (hiring freezes, reorgs)
-│   ├── Roles/              # Role/requisition files
-│   ├── Tasks/              # Per-person task boards
-│   └── Weeklies/           # Weekly priorities snapshots
-├── .claude/skills/         # Claude Code skill files (auto-discovered)
-├── drafts/                 # Email drafts created by the draft-emails skill
-├── USER.md                 # Your identity (name, email, domain) — gitignored
-├── CLAUDE.md               # This file
-└── .mcp.json               # MCP server configurations (optional)
+├── knowledge/         # The knowledge graph (Obsidian-compatible)
+│   ├── People/ Organizations/ Projects/ Topics/
+│   ├── Candidates/ Goals/ Priorities/ Conditions/ Roles/
+│   └── Tasks/ Weeklies/
+├── .claude/skills/    # Auto-discovered skill files
+├── drafts/            # Email drafts (draft-emails skill)
+├── USER.md            # Your identity — gitignored
+├── CLAUDE.md          # This file
+└── .mcp.json          # MCP server configurations (optional)
 ```
 
 ## Agents
 
-This knowledge base is maintained by a team of agents, each defined in
-`.claude/agents/`. They are woken on a schedule by the Outpost scheduler. Each
-wake, they observe KB state, decide the most valuable action, and execute.
+Maintained by a team of agents in `.claude/agents/`, woken on schedule by the
+Outpost scheduler. Each wake: observe state, decide the most valuable action,
+execute.
 
 | Agent              | Domain                          | Schedule        | Skills                                                                                                                           |
 | ------------------ | ------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
@@ -94,158 +77,57 @@ wake, they observe KB state, decide the most valuable action, and execute.
 | **head-hunter**    | Passive talent scouting         | Every 60 min    | scan-open-candidates, fit-pathway, fit-map                                                                                       |
 | **chief-of-staff** | Daily briefings and priorities  | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_                                                                   |
 
-Each agent writes a triage file to `~/.cache/fit/outpost/state/` every wake
-cycle. The naming convention is `{agent}_triage.md`:
-
-- `postman_triage.md` — email/Teams urgency, reply needs, awaiting responses
-- `concierge_triage.md` — schedule, meeting prep status, unprocessed transcripts
-- `librarian_triage.md` — unprocessed files, knowledge graph size
-- `recruiter_triage.md` — candidate pipeline, assessments, track distribution
-- `head_hunter_triage.md` — prospect pipeline, source rotation, match strength
-
-The **chief-of-staff** reads all five triage files to synthesize daily briefings
-in `knowledge/Briefings/`.
+Each agent writes `~/.cache/fit/outpost/state/{agent}_triage.md` per wake. The
+**chief-of-staff** reads all five triage files to synthesize daily briefings in
+`knowledge/Briefings/`.
 
 ## Cache Directory (`~/.cache/fit/outpost/`)
 
-Synced data and runtime state live outside the knowledge base in
-`~/.cache/fit/outpost/`:
+Synced data and runtime state live outside the KB. Top-level subdirs:
 
-```
-~/.cache/fit/outpost/
-├── apple_mail/              # Synced Apple Mail threads (.md files)
-│   └── attachments/         # Copied email attachments by thread
-├── apple_calendar/          # Synced Apple Calendar events (.json files)
-├── teams_chat/              # Synced Teams chat messages (.md files)
-├── head-hunter/             # Head hunter agent memory
-│   ├── cursor.tsv           # Source rotation state
-│   ├── failures.tsv         # Consecutive failure tracking
-│   ├── seen.tsv             # Deduplication index
-│   ├── prospects.tsv        # Prospect index
-│   └── log.md               # Append-only activity log
-└── state/                   # Runtime state
-    ├── apple_mail_last_sync # ISO timestamp of last mail sync
-    ├── teams_last_sync      # ISO timestamp of last Teams sync
-    ├── teams_chat_index.tsv # Index of known Teams chats
-    ├── graph_processed      # TSV of processed files (path<TAB>hash)
-    ├── postman_triage.md    # Agent triage files ({agent}_triage.md)
-    ├── concierge_triage.md
-    ├── librarian_triage.md
-    ├── recruiter_triage.md
-    └── head_hunter_triage.md
-```
+- `apple_mail/` — Mail threads as `.md` (plus `attachments/`)
+- `apple_calendar/` — Calendar events as `.json`
+- `teams_chat/` — Teams 1:1 chats as `.md`
+- `head-hunter/` — head-hunter agent memory (cursor, failures, seen, prospects,
+  log)
+- `state/` — runtime state: per-source last-sync timestamps, processed-file
+  index, and `{agent}_triage.md` per agent
 
-This separation keeps the knowledge base clean — only the parsed knowledge
-graph, notes, documents, and drafts live in the KB directory. Raw synced data,
-processing state, and agent triage files are cached externally.
+This separation keeps the KB clean: only parsed knowledge, notes, and drafts
+live in the KB directory.
 
 ## How to Access the Knowledge Graph
 
-The knowledge graph is plain markdown with Obsidian-style `[[backlinks]]`.
-
-**Finding notes:**
+The graph is plain markdown with Obsidian-style `[[backlinks]]`.
 
 ```bash
-# List all people
-ls knowledge/People/
-
-# Search for a person by name
-rg "Sarah Chen" knowledge/
-
-# Find notes mentioning a company
-rg "Acme Corp" knowledge/
+ls knowledge/People/                     # List entities
+rg "Sarah Chen" knowledge/               # Search by name
+cat "knowledge/People/Sarah Chen.md"     # Read a note
 ```
 
-**Reading notes:**
+**ALWAYS SEARCH BROADLY FIRST.** When the user mentions ANY person,
+organization, project, or topic, run `rg "keyword" knowledge/` to surface every
+mentioning note before responding. A single note is never the full story.
 
-```bash
-cat "knowledge/People/Sarah Chen.md"
-cat "knowledge/Organizations/Acme Corp.md"
-```
+**When to access:** any task involving named entities, specific people,
+projects, past context, meetings, emails, or calendar data. Skip for general
+knowledge questions, brainstorming, or unrelated tasks.
 
-**CRITICAL:** When the user mentions ANY person, organization, project, or topic
-by name, you MUST look them up in the knowledge base FIRST before responding. Do
-not provide generic responses. Look up the context, then respond with that
-knowledge.
+## Synced Sources
 
-**STOP — ALWAYS SEARCH BROADLY FIRST.** Never build a response from a single
-note. Before answering, run a keyword search across the entire knowledge graph:
-
-```bash
-rg "keyword" knowledge/
-```
-
-This surfaces every note that mentions the keyword — people, orgs, projects, and
-topics you might miss if you only open one file. Read ALL matching notes to
-build a complete picture, then respond. A single note is never the full story.
-
-**When to access:**
-
-- Always when the user mentions a named entity (person, org, project, topic)
-- When tasks involve specific people, projects, or past context
-- When referencing meetings, emails, or calendar data
-- NOT for general knowledge questions, brainstorming, or tasks unrelated to
-  user's work context
-
-## Emails & Calendar Data
-
-Synced emails and calendar events are stored in `~/.cache/fit/outpost/`, outside
-the knowledge base:
-
-- **Emails:** `~/.cache/fit/outpost/apple_mail/` — each thread is a `.md` file
-- **Calendar:** `~/.cache/fit/outpost/apple_calendar/` — each event is a `.json`
-  file
-- **Teams:** `~/.cache/fit/outpost/teams_chat/` — each 1:1 chat is a `.md` file
-
-When the user asks about calendar, upcoming meetings, recent emails, or Teams
-messages, read directly from these folders.
+Read `~/.cache/fit/outpost/apple_mail/` for emails,
+`~/.cache/fit/outpost/apple_calendar/` for calendar events, and
+`~/.cache/fit/outpost/teams_chat/` for Teams chats directly when the user asks
+about upcoming meetings, recent emails, or messages.
 
 ## Skills
 
-Skills are auto-discovered by Claude Code from `.claude/skills/`. Each skill is
-a `SKILL.md` file inside a named directory. You do NOT need to read them
-manually — Claude Code loads them automatically based on context.
-
-Available skills (grouped by function):
-
-**Data pipeline** — sync raw sources into the cache directory:
-
-| Skill                 | Purpose                                    |
-| --------------------- | ------------------------------------------ |
-| `sync-apple-mail`     | Sync Mail threads to `.md` via SQLite      |
-| `sync-apple-calendar` | Sync Calendar events to `.json` via SQLite |
-| `sync-teams`          | Sync Teams chat messages via IndexedDB     |
-
-**Knowledge graph** — build and maintain structured notes:
-
-| Skill                   | Purpose                                  |
-| ----------------------- | ---------------------------------------- |
-| `extract-entities`      | Process synced data into knowledge notes |
-| `manage-tasks`          | Per-person task boards with lifecycle    |
-| `track-candidates`      | Recruitment pipeline from email threads  |
-| `workday-requisition`   | Import candidates from Workday XLSX      |
-| `screen-cv`             | CV screening — interview or pass         |
-| `assess-interview`      | Interview transcript analysis            |
-| `hiring-decision`       | Final hiring recommendation              |
-| `right-to-be-forgotten` | GDPR data erasure with audit trail       |
-| `scan-open-candidates`  | Scan public sources for open-for-hire    |
-| `weekly-update`         | Weekly priorities from tasks + calendar  |
-| `process-hyprnote`      | Extract entities from Hyprnote sessions  |
-| `hyprnote-follow`       | Real-time coaching during live meetings  |
-| `trim-transcript`       | Trim trailing noise from transcripts     |
-| `candidate-report`      | A4 HTML candidate assessment reports     |
-| `organize-files`        | Tidy Desktop/Downloads, chain to extract |
-
-**Communication** — draft, send, and present:
-
-| Skill                  | Purpose                                   |
-| ---------------------- | ----------------------------------------- |
-| `draft-emails`         | Draft email responses with KB context     |
-| `send-chat`            | Send chat messages via browser automation |
-| `meeting-prep`         | Briefings for upcoming meetings           |
-| `create-presentations` | Generate PDF slide decks                  |
-| `create-documents`     | Generate PDF documents (A4)               |
-| `doc-collab`           | Document creation and editing             |
+Skills auto-discover from `.claude/skills/`. Claude Code loads them based on
+context — you do not need to enumerate them. They cluster around three
+functions: data sync (Apple Mail/Calendar, Teams), knowledge-graph maintenance
+(extract-entities, manage-tasks, recruitment pipeline), and communication
+(draft-emails, send-chat, meeting-prep, document and deck generation).
 
 ## User Identity
 
@@ -269,5 +151,5 @@ Use this for:
 
 You have full access to the user's filesystem. The user is on macOS. For tasks
 outside this knowledge base (organizing Desktop, finding files in Downloads,
-etc.), just use shell commands directly. Never say you can't access something —
-just do it.
+etc.), use shell commands directly. Never say you can't access something — just
+do it.
