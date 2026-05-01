@@ -1,7 +1,21 @@
 {
   "name": "@forwardimpact/libtelemetry",
   "version": "0.1.37",
-  "description": "OpenTelemetry-based tracing library for Guide microservices",
+  "description": "Structured RFC 5424 logging and trace spans for observable agent operations.",
+  "keywords": [
+    "logger",
+    "tracing",
+    "telemetry",
+    "agent",
+    "observability"
+  ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Emit a structured log line",
+      "Add a distributed trace span (OpenTelemetry-style observability)"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

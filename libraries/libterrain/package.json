@@ -1,7 +1,19 @@
 {
   "name": "@forwardimpact/libterrain",
   "version": "0.1.20",
-  "description": "Synthetic terrain DSL and generation engine",
+  "description": "Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.",
+  "keywords": [
+    "synthetic",
+    "pipeline",
+    "agent",
+    "eval"
+  ],
+  "forwardimpact": {
+    "capability": "agent-self-improvement",
+    "needs": [
+      "Run the end-to-end synthetic-data pipeline from a terrain file"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

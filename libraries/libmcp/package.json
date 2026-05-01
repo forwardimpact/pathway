@@ -1,7 +1,19 @@
 {
   "name": "@forwardimpact/libmcp",
   "version": "0.1.4",
-  "description": "MCP tool registry — config-driven gRPC-to-MCP tool registration",
+  "description": "Config-driven gRPC-to-MCP tool registration — agents see protobuf services as MCP tools.",
+  "keywords": [
+    "mcp",
+    "grpc",
+    "tool",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Register a gRPC service as MCP tools"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

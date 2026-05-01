@@ -1,7 +1,19 @@
 {
   "name": "@forwardimpact/libdoc",
   "version": "0.2.21",
-  "description": "Documentation build and serve tools for static site generation from Markdown",
+  "description": "Static documentation sites from markdown folders with front matter and navigation.",
+  "keywords": [
+    "docs",
+    "static-site",
+    "markdown",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Build a static documentation site"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

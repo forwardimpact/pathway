@@ -1,7 +1,22 @@
 {
   "name": "@forwardimpact/libcli",
   "version": "0.1.6",
-  "description": "Shared CLI infrastructure for the Forward Impact monorepo",
+  "description": "Agent-friendly CLIs: argument parsing, grep-friendly help output, JSON mode, and skill-doc links surfaced in `--help`.",
+  "keywords": [
+    "cli",
+    "agent",
+    "arguments",
+    "help",
+    "grep"
+  ],
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Parse CLI args and render help",
+      "Render colored tables and JSON output",
+      "Surface skill-doc links in CLI --help output"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

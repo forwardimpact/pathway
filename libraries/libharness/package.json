@@ -1,7 +1,20 @@
 {
   "name": "@forwardimpact/libharness",
   "version": "0.1.17",
-  "description": "Shared test harness and mock infrastructure for the Forward Impact monorepo",
+  "description": "Shared mocks and test fixtures so every library and service tests the same way.",
+  "keywords": [
+    "test",
+    "mock",
+    "fixture",
+    "harness",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "foundations",
+    "needs": [
+      "Mock a config, storage, logger, or gRPC handler in a test"
+    ]
+  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -16,12 +29,6 @@
   "scripts": {
     "test": "bun test test/*.test.js"
   },
-  "keywords": [
-    "test",
-    "mock",
-    "fixture",
-    "harness"
-  ],
   "author": "Forward Impact Team",
   "license": "MIT",
   "peerDependencies": {

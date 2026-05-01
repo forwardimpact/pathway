@@ -34,8 +34,40 @@ const listFiles = async (dir, match) => {
   }
 };
 
-// L2 — CLAUDE.md
-await lineCount("CLAUDE.md", 192, "L2 CLAUDE.md");
+// Walk the repo for CLAUDE.md files, skipping dependency and build trees.
+const SKIP_DIRS = new Set([
+  "node_modules",
+  ".git",
+  "generated",
+  "dist",
+  "build",
+  ".cache",
+]);
+
+const findClaudeMdFiles = async (dir = ".") => {
+  const out = [];
+  let entries;
+  try {
+    entries = await readdir(resolve(root, dir), { withFileTypes: true });
+  } catch {
+    return out;
+  }
+  for (const e of entries) {
+    if (SKIP_DIRS.has(e.name)) continue;
+    const path = dir === "." ? e.name : `${dir}/${e.name}`;
+    if (e.isDirectory()) {
+      out.push(...(await findClaudeMdFiles(path)));
+    } else if (e.isFile() && e.name === "CLAUDE.md") {
+      out.push(path);
+    }
+  }
+  return out;
+};
+
+// L2 — every CLAUDE.md (root and any directory-scoped instruction file).
+for (const path of await findClaudeMdFiles()) {
+  await lineCount(path, 192, "L2 CLAUDE.md");
+}
 
 // L3 — CONTRIBUTING.md
 await lineCount("CONTRIBUTING.md", 256, "L3 CONTRIBUTING.md");

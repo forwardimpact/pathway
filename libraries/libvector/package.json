@@ -1,7 +1,20 @@
 {
   "name": "@forwardimpact/libvector",
   "version": "0.1.86",
-  "description": "Vector operations and index management library for Guide",
+  "description": "Vector dot-product scoring for cosine-similarity retrieval over agent embeddings.",
+  "keywords": [
+    "vector",
+    "cosine-similarity",
+    "embedding",
+    "agent",
+    "retrieval"
+  ],
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Compute cosine similarity between embeddings"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

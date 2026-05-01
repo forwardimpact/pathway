@@ -1,7 +1,21 @@
 {
   "name": "@forwardimpact/libmacos",
   "version": "0.1.0",
-  "description": "macOS bundle assembly, code signing, and TCC responsibility helpers",
+  "description": "macOS bundle assembly, code signing, and OS permission entitlement helpers — desktop delivery for agent products.",
+  "keywords": [
+    "macos",
+    "bundle",
+    "codesign",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "foundations",
+    "needs": [
+      "Assemble a macOS app bundle",
+      "Code-sign a macOS app",
+      "Declare macOS permission entitlements for an app"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

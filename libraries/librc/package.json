@@ -1,7 +1,19 @@
 {
   "name": "@forwardimpact/librc",
   "version": "0.1.24",
-  "description": "Service manager for Forward Impact",
+  "description": "Agent-friendly service lifecycle management: start, stop, and status of long-running services via a Unix socket interface.",
+  "keywords": [
+    "service",
+    "lifecycle",
+    "svscan",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Control a service's start, stop, and status"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

@@ -1,7 +1,21 @@
 {
   "name": "@forwardimpact/libsyntheticgen",
   "version": "0.1.14",
-  "description": "DSL parsing and deterministic entity generation for synthetic data",
+  "description": "DSL parser and deterministic entity graph generator for repeatable agent eval fixtures.",
+  "keywords": [
+    "synthetic",
+    "dsl",
+    "entity",
+    "agent",
+    "eval"
+  ],
+  "forwardimpact": {
+    "capability": "agent-self-improvement",
+    "needs": [
+      "Parse a terrain DSL",
+      "Generate a deterministic entity graph"
+    ]
+  },
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

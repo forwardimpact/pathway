@@ -1,7 +1,21 @@
 {
   "name": "@forwardimpact/librpc",
   "version": "0.1.95",
-  "description": "gRPC framework and utilities for Guide",
+  "description": "gRPC server and client framework — how agent services talk to each other.",
+  "keywords": [
+    "grpc",
+    "rpc",
+    "server",
+    "client",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Build a gRPC service",
+      "Call another gRPC service"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

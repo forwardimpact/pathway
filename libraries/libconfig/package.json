@@ -1,7 +1,18 @@
 {
   "name": "@forwardimpact/libconfig",
   "version": "0.1.71",
-  "description": "Configuration management and environment resolution for Guide",
+  "description": "Environment-aware loading of application settings for services, CLIs, and extensions.",
+  "keywords": [
+    "config",
+    "environment",
+    "agent"
+  ],
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Load application settings (config) from environment"
+    ]
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
