@@ -1,4 +1,4 @@
-# Spec 730 — Seed `forwardimpact/homebrew-tap` with initial casks
+# Spec 740 — Seed `forwardimpact/homebrew-tap` with initial casks
 
 ## Problem
 
