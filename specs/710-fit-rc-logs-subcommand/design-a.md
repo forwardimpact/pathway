@@ -30,7 +30,7 @@ graph LR
 | **`fit-rc` CLI definition**     | Adds `logs` to the libcli `commands` array and the dispatch `switch`. Required positional `<service>` enforced through libcli's usage-error path so missing-arg behavior matches sibling commands.                                            |
 | **`ServiceManager.logs(name)`** | New domain method on `ServiceManager`. Validates the service exists via the existing `#findServiceIndex` helper (which throws `Unknown service: <name>`). Resolves the log path and streams its contents to the manager-supplied stdout sink. |
 | **Log path resolver**           | Computes `path.join(config.rootDir, config.init.log_dir, name, "current")`. Mirrors the convention `LogWriter` already writes to (`<logDir>/current`, with `<logDir>` produced by the supervisor as `<root>/<log_dir>/<name>/`).              |
-| **Doc surfaces**                | Getting-started "Service startup failures" snippet replaced with `npx fit-rc logs <service>`. CLI reference page gains a `logs` row in the `fit-rc` command table and an example block at parity with siblings.                               |
+| **Doc surfaces**                | Getting-started "Service startup failures" snippet replaced with `npx fit-rc logs <service>`. No centralized CLI-reference surface exists today (removed by PR #659); `--help` covers in-CLI discovery.                                       |
 
 ## Interfaces
 
@@ -110,10 +110,10 @@ is a separate spec.
 Tests follow the existing `manager-{verb}.test.js` pattern: a new
 `manager-logs.test.js` covers the four behavior rows in the Interfaces table
 through the same mock-`fs` + `logCalls` harness. The CLI dispatch path picks up
-its coverage from libcli's existing usage-error tests; the documentation
-surfaces (getting-started + CLI reference) verify by markdown inspection.
+its coverage from libcli's existing usage-error tests; the getting-started
+documentation surface verifies by markdown inspection.
 
 ## Open questions
 
-None. The spec's seven criteria fully constrain the contract; no architectural
+None. The spec's six criteria fully constrain the contract; no architectural
 decision is left unsettled.

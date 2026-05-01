@@ -27,7 +27,6 @@ user expectation imported from those tools.
 | `libraries/librc/bin/fit-rc.js` (CLI definition)                                        | A `logs` command that takes a single positional service-name argument, registered next to the existing `start` / `stop` / `status` / `restart` commands |
 | `libraries/librc/src/manager.js` (ServiceManager)                                       | Behaviour that emits the contents of the named service's current log file on stdout                                                                     |
 | `websites/fit/docs/getting-started/engineers/guide/index.md` § Service startup failures | Replace the `cat data/logs/{service}/current` snippet with a `npx fit-rc logs <service>` example                                                        |
-| `websites/fit/docs/reference/cli/index.md` § fit-rc                                     | Document `logs` in the command table and the example block at parity with sibling commands                                                              |
 | `logs` operates against the log file alone                                              | Must work whether or not `fit-rc status` reports svscan as running — the source of truth is the log file, not the daemon                                |
 
 ## Scope (out)
@@ -52,7 +51,6 @@ user expectation imported from those tools.
 | 4   | `fit-rc logs` with no positional argument exits non-zero with a usage error                                              | Exit code ≥ 1; stderr matches both regexes `/service/i` and `/(missing\|required)/i`                                                                                                                                                          |
 | 5   | `fit-rc logs <service>` does not error when the service has not yet produced any log output                              | Exit code 0; stderr does not match `/error/i`. This holds whether the service log directory or the `current` file is missing or empty. Stdout content is design's choice                                                                      |
 | 6   | The "Service startup failures" section of the getting-started page no longer instructs `cat data/logs/{service}/current` | The fenced shell block under "### Service startup failures" in `websites/fit/docs/getting-started/engineers/guide/index.md` contains a `npx fit-rc logs <service>` invocation, and does not contain a `cat data/logs/<anything>/current` line |
-| 7   | The CLI reference page documents `logs` at parity with sibling commands                                                  | `websites/fit/docs/reference/cli/index.md` § fit-rc command table contains a row whose first column is `logs`, and the example block contains a `npx fit-rc logs <service>` line                                                              |
 
 ## Notes
 
@@ -71,3 +69,14 @@ user expectation imported from those tools.
   output is hard to read under failure conditions), and forcing the user to name
   the service matches the issue's expected use (`fit-rc logs pathway`). Spec
   criterion #4 commits to "service argument required".
+- **Why no centralized CLI reference surface.** The cross-cutting
+  `websites/fit/docs/reference/cli/index.md` page was removed by
+  [PR #659](https://github.com/forwardimpact/monorepo/pull/659) (commit
+  `3ddb9c49`) because each CLI is already covered by `--help` and (where
+  applicable) task-shaped guides under
+  `websites/fit/docs/libraries/<task-slug>/index.md`. `librc` ships no
+  task-shaped guide today, so this spec relies on `--help` (criterion #1) for
+  in-CLI discovery and on the getting-started repair (criterion #6) for the
+  external-user failure scenario from issue #479. Introducing a new task-shaped
+  guide for `librc` is a separate spec — `librc`'s missing task guide is a
+  pre-existing gap, not one this spec waives.
