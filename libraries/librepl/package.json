@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/librepl",
   "version": "0.1.9",
-  "description": "Interactive REPL utilities and command-line interfaces for Guide",
+  "description": "Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in --help.",
+  "keywords": [
+    "repl",
+    "cli",
+    "agent",
+    "interactive"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

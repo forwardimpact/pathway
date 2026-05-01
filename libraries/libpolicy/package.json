@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/libpolicy",
   "version": "0.1.59",
-  "description": "Policy engine foundation for Guide",
+  "description": "Access-control policy evaluation — agents see only context they are authorized for.",
+  "keywords": [
+    "policy",
+    "authorization",
+    "access-control",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

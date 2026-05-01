@@ -129,7 +129,8 @@ Tagged checklists gate pause points. Rules: [CHECKLISTS.md](CHECKLISTS.md).
 
 **Every contribution** runs [§ READ-DO](CONTRIBUTING.md#read-do) then
 [§ DO-CONFIRM](CONTRIBUTING.md#do-confirm). Domain checklists in
-`.claude/skills/kata-*/SKILL.md`.
+`.claude/skills/kata-*/SKILL.md`. Shared libraries:
+[libraries/README.md](libraries/README.md).
 
 ## Memory and Coordination
 

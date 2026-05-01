@@ -1,7 +1,14 @@
 {
   "name": "@forwardimpact/libsyntheticrender",
   "version": "0.1.17",
-  "description": "Multi-format rendering, validation, and formatting for synthetic data",
+  "description": "Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).",
+  "keywords": [
+    "synthetic",
+    "render",
+    "validation",
+    "agent",
+    "eval"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

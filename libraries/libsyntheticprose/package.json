@@ -1,7 +1,14 @@
 {
   "name": "@forwardimpact/libsyntheticprose",
   "version": "0.1.18",
-  "description": "LLM-based prose and pathway generation for synthetic data",
+  "description": "LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.",
+  "keywords": [
+    "synthetic",
+    "prose",
+    "llm",
+    "agent",
+    "eval"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -1,7 +1,14 @@
 {
   "name": "@forwardimpact/libresource",
   "version": "0.1.107",
-  "description": "Resource management for Guide",
+  "description": "Typed resources with identifiers, access control, and rich RDF-friendly context chunks for agent grounding.",
+  "keywords": [
+    "resource",
+    "rdf",
+    "access-control",
+    "agent",
+    "retrieval"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

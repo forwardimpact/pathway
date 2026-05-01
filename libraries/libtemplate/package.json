@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/libtemplate",
   "version": "0.2.7",
-  "description": "Mustache template loading with data directory fallback",
+  "description": "Mustache template loader with project-level override directories for agent-rendered content.",
+  "keywords": [
+    "template",
+    "mustache",
+    "render",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

@@ -1,7 +1,14 @@
 {
   "name": "@forwardimpact/libstorage",
   "version": "0.1.70",
-  "description": "Storage abstraction layer for Guide",
+  "description": "Pluggable file storage (local, S3, Supabase) for context agents fetch and produce at runtime.",
+  "keywords": [
+    "storage",
+    "s3",
+    "supabase",
+    "agent",
+    "retrieval"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

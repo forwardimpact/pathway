@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/libsupervise",
   "version": "0.1.20",
-  "description": "Process supervision for Forward Impact services",
+  "description": "Process supervision with restart policies, log rotation, and JSON config agents can read and tune.",
+  "keywords": [
+    "supervisor",
+    "process",
+    "daemon",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

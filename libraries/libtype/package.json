@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/libtype",
   "version": "0.1.72",
-  "description": "Shared type definitions and data models for Guide",
+  "description": "Generated protobuf types and namespaces shared across agent-facing services.",
+  "keywords": [
+    "type",
+    "protobuf",
+    "schema",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

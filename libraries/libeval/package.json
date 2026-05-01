@@ -1,7 +1,14 @@
 {
   "name": "@forwardimpact/libeval",
   "version": "0.1.25",
-  "description": "Process Claude Code stream-json output into structured traces",
+  "description": "Agent evaluation: collect Claude Code traces, run agent loops, supervise multi-step workflows.",
+  "keywords": [
+    "eval",
+    "agent",
+    "trace",
+    "claude-code",
+    "supervisor"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

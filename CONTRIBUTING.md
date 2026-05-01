@@ -44,10 +44,10 @@ Entry gate — read every item before starting.
       it isn't asked for, don't add it.
 - [ ] **Read the code** I'm about to change before writing.
 - [ ] **Search shared libraries first.** Before writing a helper, utility, retry
-      wrapper, argument parser, or any other generic capability, search
-      `libraries/` and the `libs-*` skill group that covers the task. If a
-      shared library already provides the capability, use it. If not, note that
-      in the commit or plan so future contributors don't re-search.
+      wrapper, argument parser, or any other generic capability, scan
+      [libraries/README.md](libraries/README.md). If a library covers it, use
+      it. If not, note that in the commit or plan so future contributors don't
+      re-search.
 - [ ] **Search libharness first for test helpers.** Before writing a mock or
       fixture in a test, check `libraries/libharness/src/index.js`. Reuse what
       exists; extend libharness in the same PR when duplication would cross two

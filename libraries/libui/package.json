@@ -1,7 +1,14 @@
 {
   "name": "@forwardimpact/libui",
   "version": "1.1.7",
-  "description": "Web UI framework: rendering, routing, components, and design system",
+  "description": "Functional web UI primitives — DOM helpers, SPA routing, reactive state — for products agents build.",
+  "keywords": [
+    "ui",
+    "dom",
+    "spa",
+    "router",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "repository": {
     "type": "git",

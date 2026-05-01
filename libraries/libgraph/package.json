@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libgraph",
   "version": "0.1.67",
-  "description": "RDF graph index and processing utilities",
+  "description": "RDF triple store with named ontologies and SHACL serialization — schema-aware graph inference for agents.",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
@@ -31,7 +31,9 @@
   "keywords": [
     "rdf",
     "graph",
-    "linked-data"
+    "ontology",
+    "linked-data",
+    "agent"
   ],
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",

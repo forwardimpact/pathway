@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/libindex",
   "version": "0.1.35",
-  "description": "Base index class for storage-backed indexes in Guide",
+  "description": "JSONL-backed indexes with filtering and buffered writes — fast lookup of agent context chunks.",
+  "keywords": [
+    "index",
+    "jsonl",
+    "retrieval",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

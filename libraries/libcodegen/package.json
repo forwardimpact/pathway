@@ -1,7 +1,13 @@
 {
   "name": "@forwardimpact/libcodegen",
   "version": "0.1.47",
-  "description": "Protocol Buffer code generation utilities for Guide",
+  "description": "Protobuf code generation — produces the types and clients consumed by libtype and librpc.",
+  "keywords": [
+    "codegen",
+    "protobuf",
+    "build-tool",
+    "agent"
+  ],
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
