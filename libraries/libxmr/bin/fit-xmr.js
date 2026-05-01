@@ -85,6 +85,14 @@ const definition = {
     "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv",
     "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv --format json",
   ],
+  documentation: [
+    {
+      title: "XmR Analysis",
+      url: "https://www.forwardimpact.team/docs/libraries/xmr-analysis/index.md",
+      description:
+        "Distinguish stable processes from special causes with XmR control charts — CSV schema, signal rules, and how to read the report.",
+    },
+  ],
 };
 
 const cli = createCli(definition);
