@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libdoc",
-  "version": "0.2.22",
+  "version": "0.2.23",
   "description": "Static documentation sites from markdown folders with front matter and navigation.",
   "keywords": [
     "docs",

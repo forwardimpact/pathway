@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/librc",
-  "version": "0.1.25",
+  "version": "0.1.26",
   "description": "Agent-friendly service lifecycle management: start, stop, and status of long-running services via a Unix socket interface.",
   "keywords": [
     "service",
