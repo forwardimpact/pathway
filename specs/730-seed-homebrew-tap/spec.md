@@ -111,7 +111,7 @@ All eight bundles whose tags `publish-brew.yml` accepts:
 | `outpost@v*`  | `fit-outpost`    | product                 | `fit-outpost.app`              |
 | `services@v*` | `fit-services`   | shared (gRPC services)  | `FIT Services.app`             |
 | `utilities@v*`| `fit-utilities`  | shared (CLI utilities)  | `FIT Utilities.app`            |
-| (none)        | `fit-basecamp`   | deprecated alias        | (no app shipped; `deprecate!`) |
+| (none)        | `fit-basecamp`   | deprecated alias        | none — alias only              |
 
 ## Success criteria
 
@@ -124,21 +124,21 @@ or any unrelated runtime fix to land first.
 | Every bundle that `publish-brew.yml` accepts has a corresponding cask in the tap, plus a deprecated alias for the basecamp → outpost rename.                       | `gh api repos/forwardimpact/homebrew-tap/contents/Casks` returns nine entries matching the table above.                                                                                                                                                |
 | The `tap-pr` job's sed step (lines 210–213 of `publish-brew.yml`) succeeds against every live cask without manual edits.                                           | A dry-run of the workflow's sed substitutions executed against each live cask file modifies exactly one occurrence per field; the resulting cask still parses under `brew style`.                                                                       |
 | Each live cask passes Homebrew's authoring checks.                                                                                                                 | `brew style Casks/*.rb` exits 0 against the seeded tap and `brew audit --new-cask Casks/{cask}.rb` exits 0 for each live cask.                                                                                                                          |
-| Installing any product cask surfaces every CLI named by that cask plus every CLI named by the shared bundles its dependency declarations pull in (Spec 600 SC11).  | For each product cask, the union of binary names declared by that cask and by the shared casks it depends on resolves to executables on PATH after `brew install --cask forwardimpact/tap/{cask}`. Verified by iterating `which $name` over that union. |
-| `fit-basecamp` is discoverable by `brew search` and visibly deprecated, redirecting users to `fit-outpost`.                                                        | `brew tap forwardimpact/tap && brew search fit-basecamp` lists the cask; `brew info fit-basecamp` shows the deprecation date 2026-04-30, the rename rationale, and references `fit-outpost` as the rename target.                                       |
-| The conventions doc covers each cross-cutting decision the seed makes.                                                                                             | A document under `websites/fit/docs/internals/release/` exists, is linked from the release-internals index and the tap repo's `README.md`, and contains a uniquely identifiable heading for each of: dependency graph, install-time PATH coverage, version discovery against the `<bundle>@v<semver>` tag scheme, uninstall and data-removal paths, and deprecation precedent. |
-| End-to-end install of any product cask succeeds on a clean macOS arm64 machine using only the seeded tap.                                                          | On a fresh runner: `brew tap forwardimpact/tap` succeeds, the tap lists nine casks via `brew list --cask --full-name`, and a downstream gate (after #625 8b and #627 land) verifies `brew install --cask forwardimpact/tap/fit-outpost` end-to-end. The end-to-end install is not blocked by the seed itself. |
+| For each product cask, the executable names it advertises match the executable names produced by that product's source bundle, plus the executables produced by every shared bundle it declares as a dependency (Spec 600 SC11). | A static cross-check between each cask file and the corresponding product/services/utilities bundle's declared executables (e.g. `package.json` `bin` entries or the `just build-binary` invocations enumerated in spec 600's plan) shows the cask advertises a superset of those names with no extras. Performed at seed time, before any tag is pushed. |
+| `fit-basecamp` is discoverable by `brew search` once the tap is published and is visibly deprecated, redirecting users to `fit-outpost`.                            | After `brew tap forwardimpact/tap`, `brew search fit-basecamp` lists the cask and `brew info fit-basecamp` shows the deprecation date 2026-04-30, the rename rationale, and references `fit-outpost` as the rename target.                                       |
+| The conventions doc covers every cross-cutting decision named in the In-scope section.                                                                             | A document under `websites/fit/docs/internals/release/` exists, is linked from the release-internals index and the tap repo's `README.md`, and addresses each cross-cutting decision the In-scope section names. The document's structure is a plan-level decision; the contract is coverage, not heading shape. |
 
 ## Notes
 
-- Asset filename and bundle name patterns are fixed by `publish-brew.yml`
-  lines 33–44 and 114–123: each cask's `url` template must resolve to
-  `{cask}-{version}-darwin-arm64.zip` on the GitHub release for the
+- Bundle naming is fixed by `publish-brew.yml` lines 33–37 (the per-tag `case`
+  selecting `BUNDLE` and `CASK`); asset naming is fixed at line 120
+  (`{cask}-{version}-darwin-arm64.zip`). Each cask's release-asset URL
+  template must resolve to that filename on the GitHub release for the
   corresponding tag.
-- The publish-brew sed rewrites only `version` and `sha256`. Every other
-  attribute — `homepage`, `name`, `desc`, `app`, `binary`, `livecheck`, `zap`,
-  `depends_on`, `deprecate!` — is human-edited in the tap repo and survives
-  releases unchanged. Casks must be authored with that asymmetry in mind.
+- The publish-brew workflow rewrites only the version and the sha256 fields
+  in each cask. Every other authored field is human-edited in the tap repo
+  and survives releases unchanged. Casks must be authored with that asymmetry
+  in mind.
 - The `fit-basecamp` deprecation date `2026-04-30` matches the date stipulated
   in #625 phase 8a and aligns with the Outpost rename's clean-break stance
   (USPTO Reg. 3202059).
@@ -154,8 +154,10 @@ or any unrelated runtime fix to land first.
 - Issue #625 — Outpost rename Phase 8 (8a/8b/8c/8d blocked behind this spec).
 - Issue #627 — runtime `__dirname`/bunfs failure (independent, parallel).
 - Spec 600 — Native binary distribution (parent; SC11 is the install-surface
-  contract this spec realizes; "Tap repository location" was an open question
-  600 deferred and 730 closes).
+  contract this spec realizes). Spec 600 deferred "Tap repository location";
+  the choice — separate `forwardimpact/homebrew-tap` repo — was made when the
+  publish-brew workflow was authored against that path. This spec inherits
+  that choice rather than revisiting it.
 - `.github/workflows/publish-brew.yml` — workflow whose sed contract every
   cask must satisfy.
 
