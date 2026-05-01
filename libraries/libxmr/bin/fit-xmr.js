@@ -43,7 +43,8 @@ const definition = {
     {
       name: "spark",
       args: "<csv-path>",
-      description: "Braille sparkline of last 12 points (for markdown tables)",
+      description:
+        "Block-character sparkline of last 12 points (for markdown tables)",
       options: {
         metric: {
           type: "string",

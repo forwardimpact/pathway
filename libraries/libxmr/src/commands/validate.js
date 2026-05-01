@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import {
   formatHeader,
   formatSuccess,
@@ -12,6 +12,10 @@ export function runValidateCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {
     cli.usageError("validate requires a <csv-path> argument");
+    process.exit(2);
+  }
+  if (!existsSync(csvPath)) {
+    cli.usageError(`cannot read CSV "${csvPath}": file not found`);
     process.exit(2);
   }
 

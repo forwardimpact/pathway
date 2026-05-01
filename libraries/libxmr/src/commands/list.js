@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import { formatHeader, formatTable } from "@forwardimpact/libcli";
 
 import { listMetrics } from "../xmr.js";
@@ -7,6 +7,10 @@ export function runListCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {
     cli.usageError("list requires a <csv-path> argument");
+    process.exit(2);
+  }
+  if (!existsSync(csvPath)) {
+    cli.usageError(`cannot read CSV "${csvPath}": file not found`);
     process.exit(2);
   }
 

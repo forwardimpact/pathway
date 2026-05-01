@@ -19,7 +19,7 @@ process is stable or has shifted.
 - A metric is recorded over time (security backlog, lead time, error rate, agent
   token usage) and you need to know whether a recent change is signal or noise.
 - A team wants compact markdown status tables (with signals annotated) for a
-  wiki page, PR description, or weekly report.
+  status page, PR description, or weekly report.
 - Inline sparklines are needed in a markdown table for one-glance trend
   indicators.
 
@@ -56,24 +56,24 @@ Install and run via npm:
 npx fit-xmr <command> <csv-path> [options]
 ```
 
-| Command                       | Purpose                                              |
-| ----------------------------- | ---------------------------------------------------- |
-| `validate <csv>`              | Check the CSV against the schema                     |
-| `list <csv>`                  | One row per metric: count, unit, date range          |
-| `analyze <csv>`               | Full XmR report: limits, latest, signals, status     |
-| `summarize <csv>`             | Compact markdown table across metrics with signals   |
-| `spark <csv> --metric <name>` | 12-character braille sparkline of the last 12 points |
+| Command                       | Purpose                                                      |
+| ----------------------------- | ------------------------------------------------------------ |
+| `validate <csv>`              | Check the CSV against the schema                             |
+| `list <csv>`                  | One row per metric: count, unit, date range                  |
+| `analyze <csv>`               | Full XmR report: limits, latest, signals, status             |
+| `summarize <csv>`             | Compact markdown table across metrics with signals           |
+| `spark <csv> --metric <name>` | 12-character block-character sparkline of the last 12 points |
 
 ### Common Options
 
-| Flag                     | Purpose                                           |
-| ------------------------ | ------------------------------------------------- |
-| `--metric <name>` / `-m` | Filter `analyze` / `summarize` to a single metric |
-| `--format <text\|json>`  | Output format (default: text)                     |
-| `--help` / `-h`          | Show help                                         |
-| `--json`                 | Output help as JSON                               |
+| Flag                     | Purpose                                                                  |
+| ------------------------ | ------------------------------------------------------------------------ |
+| `--metric <name>` / `-m` | Filter `analyze` / `summarize` to a single metric (required for `spark`) |
+| `--format <text\|json>`  | Output format on every command (default: text)                           |
+| `--help` / `-h`          | Show help (`--json` formats help itself as JSON)                         |
 
-`validate` exits non-zero on schema errors so it can gate CI.
+`validate` exits non-zero on schema errors so it can gate CI. Missing CSV path
+exits 2 with a friendly error, not a stack trace.
 
 ---
 
@@ -99,28 +99,46 @@ are unreliable until the chaos is investigated.
 
 ## Report Shape
 
-`analyze --format=json` is the canonical output. Each metric:
+`analyze --format=json` is the canonical output, wrapped in
+`{ source, generated, metrics: [...] }`:
 
 ```json
 {
-  "metric": "open_vulnerabilities",
-  "unit": "count",
-  "n": 105,
-  "from": "2026-01-01",
-  "to": "2026-04-14",
-  "x_bar": 16.79,
-  "mr_bar": 0.64,
-  "unpl": 18.5,
-  "lnpl": 15.08,
-  "url": 2.11,
-  "latest": { "date": "2026-04-14", "value": 13, "mr": 1 },
-  "signals": [
-    { "rule": "run_below", "from": "2026-02-25", "to": "2026-04-14", "length": 50 },
-    { "rule": "point_below_lnpl", "from": "2026-03-02", "to": "2026-04-14", "count": 45, "trough": 7 }
-  ],
-  "status": "signals_present"
+  "source": "observations.csv",
+  "generated": "2026-04-14",
+  "metrics": [
+    {
+      "metric": "open_vulnerabilities",
+      "unit": "count",
+      "n": 105,
+      "from": "2026-01-01",
+      "to": "2026-04-14",
+      "x_bar": 16.79,
+      "mr_bar": 0.64,
+      "unpl": 18.5,
+      "lnpl": 15.08,
+      "url": 2.11,
+      "latest": { "date": "2026-04-14", "value": 13, "mr": 1 },
+      "signals": [
+        { "rule": "run_above", "from": "2026-01-01", "to": "2026-02-24", "length": 55 },
+        { "rule": "run_below", "from": "2026-02-25", "to": "2026-04-14", "length": 50 },
+        { "rule": "trend_down", "from": "2026-02-19", "to": "2026-02-25", "moves": 6 },
+        { "rule": "point_below_lnpl", "from": "2026-03-02", "to": "2026-04-14", "count": 45, "trough": 7 }
+      ],
+      "status": "signals_present"
+    }
+  ]
 }
 ```
+
+`x_bar ± 2.66 * mr_bar` gives the upper/lower natural process limits;
+`3.27 * mr_bar` gives the upper range limit. The constants are XmR's calibration
+for n=2 moving range and apply to any process.
+
+Run signals carry `length`, trend signals carry `moves`, point/MR signals carry
+`count` plus `peak`/`trough`. `signals` is sorted by start date. `latest.mr` is
+the moving range at the most recent point — useful for "is today's change
+unusual?" without re-reading the whole array.
 
 `status` is one of:
 
@@ -138,7 +156,7 @@ column: `stable`, `signals`, `chaos` (when `mr_above_url` is present), or
 npx fit-xmr validate observations.csv
 npx fit-xmr list observations.csv
 npx fit-xmr analyze observations.csv --metric open_vulnerabilities
-npx fit-xmr summarize observations.csv               # paste into a wiki page
+npx fit-xmr summarize observations.csv               # paste into a status page
 npx fit-xmr spark observations.csv --metric open_vulnerabilities
 ```
 
@@ -153,10 +171,13 @@ investigate; summarize for the rollup; spark for inline indicators.
   whether to lock it in or roll it back.
 - **Out-of-limits points** confirm magnitude. The size of the shift matters for
   prioritization, not for the verdict.
+- **A series spanning a level shift** will surface signals on **both** sides of
+  `x_bar` (e.g. `run_above` for the pre-shift period, `run_below` for the
+  post-shift period). Once the shift is locked in, recompute by trimming the CSV
+  to post-shift dates so the limits describe the new process.
 - **`mr_above_url`** says volatility itself spiked. The limits are computed from
-  `mr_bar`; if the moving range is unstable, the limits don't yet describe a
-  stable process. Investigate the volatility before reading the rest of the
-  report.
+  `mr_bar`; an outlier moving range inflates `mr_bar` and pulls UNPL/LNPL wider,
+  so the rest of the report is unreliable until you investigate.
 - **Annotate the CSV `note` field** when you investigate a signal. The note is
   the record of why the process changed; future analyses depend on it.
 - **Don't set targets from the limits.** Targets come from the work; limits
