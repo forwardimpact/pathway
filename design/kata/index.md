@@ -368,7 +368,7 @@ opacity 0.35. Never on pure white backgrounds.
 
 ### Concrete Components
 
-The component patterns in [../index.md § 9](../index.md#9-components)
+The component patterns in [../index.md § 8](../index.md#8-components)
 instantiate with Kata colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`. Hover shifts

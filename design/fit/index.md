@@ -254,7 +254,7 @@ Footer:    gray-900 (#1c1a18)       — Dark footer (inverted), licenses
 
 ### Concrete Components
 
-The component patterns in [../index.md § 9](../index.md#9-components)
+The component patterns in [../index.md § 8](../index.md#8-components)
 instantiate with FIT colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`.

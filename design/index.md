@@ -11,8 +11,8 @@ typography, spacing, components, motion, and accessibility. Concrete
 implementations — palette values, fonts, product taxonomies, icons, layouts, and
 design tokens — live in per-brand files. Brands derive from this shared language
 and stay recognizable as siblings while taking distinct stances on metaphor,
-palette, and motif. The contract is in
-[§ 12 Deriving a Brand](#12-deriving-a-brand).
+palette, and motif. The contract for deriving a brand and the layered
+illustration checklist live in [usage.md](usage.md).
 
 **Brand implementations:**
 
@@ -246,26 +246,7 @@ visual anchor between Engineer's confusion and Stakeholder's confidence.
 
 ---
 
-## 5. Illustration Checklist
-
-Illustrations are produced from three layers. Each layer adds to the previous
-without restating it.
-
-### Layer Assembly
-
-| #   | Layer           | Source                                              | Provides                                              |
-| --- | --------------- | --------------------------------------------------- | ----------------------------------------------------- |
-| 1   | Character sheet | [§ 2](#2-character-specification)                   | The three characters as standalone figures            |
-| 2   | Scene rules     | [§ 3](#3-scene-grammar)                             | Composition, rendering, and constraints for any scene |
-| 3   | Scene prompt    | [§ 4](#4-reusable-base-scenes) or brand `scenes.md` | Specific poses, objects, and interactions             |
-
-A scene prompt should describe what the characters are _doing_ — posture, gaze,
-position, objects in hand — without re-specifying what they _look like_ or how
-scenes are _rendered_. Those belong to layers 1 and 2.
-
----
-
-## 6. Color Philosophy
+## 5. Color Philosophy
 
 **Monochrome with one warm signal.**
 
@@ -293,7 +274,7 @@ concrete realization.
 
 ---
 
-## 7. Typography Pattern
+## 6. Typography Pattern
 
 **Display serif. Sans for everything else. Mono for code.**
 
@@ -315,7 +296,7 @@ the brand's gray ramp.
 
 ---
 
-## 8. Spacing System
+## 7. Spacing System
 
 Base unit: `8px`. The rhythm extends from micro gaps to hero-scale margins.
 
@@ -352,7 +333,7 @@ Base unit: `8px`. The rhythm extends from micro gaps to hero-scale margins.
 
 ---
 
-## 9. Components
+## 8. Components
 
 ### Buttons
 
@@ -399,7 +380,7 @@ All buttons: sans-serif `15px`, weight `500`. Pill radius for marketing CTAs,
 
 ---
 
-## 10. Motion & Interaction
+## 9. Motion & Interaction
 
 | Element                | Animation                                                                                      |
 | ---------------------- | ---------------------------------------------------------------------------------------------- |
@@ -414,7 +395,7 @@ All animations respect `prefers-reduced-motion`.
 
 ---
 
-## 11. Accessibility
+## 10. Accessibility
 
 | Concern                   | Solution                                                                                        |
 | ------------------------- | ----------------------------------------------------------------------------------------------- |
@@ -427,100 +408,7 @@ All animations respect `prefers-reduced-motion`.
 
 ---
 
-## 12. Deriving a Brand
-
-A brand inherits this language and adds its own interpretation. The split below
-preserves family resemblance: someone who has seen one brand should immediately
-recognize a sibling, even when the metaphor and palette differ.
-
-### Inherited (do not override)
-
-These elements are the family's shared DNA. A brand that diverges on any of them
-stops being part of the family.
-
-- **The three characters and their identifying traits.** Engineer's animal-eared
-  hoodie, the AI Agent's geometric round head with headphones, the Stakeholder's
-  business attire and absent backpack. Posture, scale, and group dynamics also
-  stay constant.
-- **2px monochrome line-art** for characters, scenes, and icons.
-- **Pure white scene backgrounds.** No frames, panels, or fills.
-- **Character constraints** ([§ 2](#2-character-specification)) **and scene
-  constraints** ([§ 3](#3-scene-grammar)). The illustration checklist in
-  [§ 5](#5-illustration-checklist) consolidates verification criteria.
-- **Scene grammar** — composition rules, scale conventions, emotional tone
-  ([§ 3](#3-scene-grammar)).
-- **Reusable base scenes** — Trio at Work, Welcome Wave, Documentation Dig
-  ([§ 4](#4-reusable-base-scenes)).
-- **Monochrome with one warm signal** ([§ 6](#6-color-philosophy)). The hue
-  varies; the pattern doesn't.
-- **Typography pairing** — display serif + sans body + monospace code
-  ([§ 7](#7-typography-pattern)).
-- **8px spacing rhythm** and the spacing token names ([§ 8](#8-spacing-system)).
-- **Component vocabulary** — buttons (primary/secondary/ghost/product), cards,
-  terminal/code blocks, dark footer ([§ 9](#9-components)).
-- **Motion defaults** and `prefers-reduced-motion` compliance
-  ([§ 10](#10-motion--interaction)).
-- **Accessibility rules** ([§ 11](#11-accessibility)).
-
-### Specified per brand
-
-These are the dimensions a brand uses to find its distinct voice while staying
-inside the family.
-
-- **Premise / metaphor** — what world the brand inhabits (e.g. expedition,
-  practice, fieldwork). Surfaces in motifs and naming, never in structural UI.
-- **Product taxonomy** — which products belong to the brand and what each one
-  answers.
-- **Color values** — the warm-tinted gray ramp and the warm-signal hue and ramp.
-  The pattern is fixed; the values are not.
-- **Typeface choices** — specific serif, sans, and mono families, plus
-  type-scale numbers (sizes, weights, line heights).
-- **Product motifs** — visual symbols (e.g. compass, cairn, dojo mat) used in
-  product icons and scenes.
-- **Product scenes** — extensions of the base scenes that include the brand's
-  product symbols. Live in `<brand>/scenes.md`.
-- **Product icons** — drawn on the family's icon grid (24px, 2px stroke, no fill
-  except where the brand explicitly notes).
-- **Layout patterns** — landing page, navigation, section rhythm specific to the
-  brand's site.
-- **Product visual language** — UI treatments per product (e.g. progress bar
-  styles, dashboard overlays).
-- **Radii values** — concrete `--radius-sm/md/lg` numbers may differ per brand
-  to match the brand's material vocabulary (e.g. journal cards vs stamped
-  paper). Brands diverging on radii must restate the affected component specs in
-  their own `index.md`, since the family's component vocabulary in
-  [§ 9](#9-components) names sizes only by token.
-- **CSS design tokens** — the concrete `:root` realization of the above.
-
-### Cross-brand component contract
-
-Components inherited from [§ 9](#9-components) must reference the family
-**semantic tokens** (`--bg-page`, `--bg-warm`, `--text-primary`,
-`--border-strong`, `--accent-warm-200`, `--accent-warm-400`, etc.), never the
-brand-specific palette tokens (`--sand-200`, `--ink-400`, …). Each brand exposes
-its warm-signal ramp both under a brand-specific name (for use inside that
-brand's docs and worked examples) **and** under the family alias
-`--accent-warm-{50,100,200,400,600}`. Shared component code that targets
-`--accent-warm-*` then renders correctly under any brand's `:root`.
-
-### File structure
-
-A brand lives in `design/<brand>/`:
-
-- `index.md` — premise, products, palette, typography, layout patterns, product
-  visual language, CSS tokens. Links back to this file with `../index.md`.
-- `scenes.md` — product scenes and the scene usage matrix.
-- `icons.md` — product icons, icon system rules, and any combined suite mark.
-
-Visual artifact files (`scenes.md`, `icons.md`) sit alongside `index.md` to keep
-the brand entry point short and the artifact catalogues easy to scan
-side-by-side.
-
-Add the brand to the "Brand implementations" list at the top of this file. See
-[`fit/`](fit/index.md) as a worked example.
-
----
-
-_The design language is brand-agnostic. For concrete palettes, fonts, products,
-scenes, icons, and CSS tokens, see the brand implementation files listed at the
-top of this page._
+_The design language is brand-agnostic. For how to apply it — illustration
+layering and the contract for deriving a brand — see [usage.md](usage.md). For
+concrete palettes, fonts, products, scenes, icons, and CSS tokens, see the brand
+implementation files listed at the top of this page._
