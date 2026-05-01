@@ -51,10 +51,10 @@ is no commitment to implement, and a design has nothing to shape.
 - [ ] Components, interfaces, and data flow stated before detail.
 - [ ] Each key decision names a rejected alternative and why.
 - [ ] Mermaid diagrams used where they clarify structure.
-- [ ] Stays within spec scope — no scope expansion.
-- [ ] Stays at the architectural level — names components, classes, interfaces,
-      and data structures but not file-level changes, execution ordering, or
-      implementation steps (those belong in the plan).
+- [ ] Stays within spec scope and at the architectural level — no scope
+      expansion; names components, classes, interfaces, and data structures but
+      not file-level changes, execution ordering, or implementation steps (those
+      belong in the plan).
 - [ ] Under 200 lines total.
 - [ ] Clean sub-agent review panel of `design-a.md` via
       [`kata-review`](../kata-review/SKILL.md) completed (fresh context, no
