@@ -21,6 +21,10 @@ Each experiment references its parent obstacle issue in the body. GitHub renders
 `#NNN` as a bidirectional cross-reference, giving the obstacle a visible list of
 its related experiments.
 
+The `**Expected outcome:**` line names metrics owned by a single skill. Skills
+don't share runs, so a prediction naming metrics from two different skills
+cannot resolve in one run — split into one prediction per skill / run type.
+
 ```sh
 gh issue create --label experiment --label "agent:[agent-name]" \
   --title "Exp N — short name" \

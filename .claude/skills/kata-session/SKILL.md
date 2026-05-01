@@ -82,6 +82,9 @@ Participant Protocol below.
 - [ ] Metrics reported via `Answer` match the CSV rows just written.
 - [ ] Q3 obstacles grounded in data or trace findings, not narrative.
 - [ ] Q4 experiment has a recorded expected outcome.
+- [ ] Q4 expected outcome names metrics owned by a single skill — multi-skill
+      predictions cannot resolve in one run because skills don't share runs.
+      Split into one prediction per skill / run type if needed.
 
 </do_confirm_checklist>
 
