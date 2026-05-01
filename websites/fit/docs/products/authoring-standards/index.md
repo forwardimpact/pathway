@@ -12,8 +12,8 @@ them once and every product in the suite derives its output from the same data.
 
 ## Data Directory Structure
 
-Agent-aligned engineering standard definitions live in a `data/` directory. Each
-entity type has a specific location:
+Standard definitions live in a `data/` directory. Each entity type has a
+specific location:
 
 ```
 data/
@@ -56,17 +56,15 @@ npx fit-map validate
 
 ## Activity Data
 
-Beyond agent-aligned engineering standard definitions, Map maintains an activity
-layer for operational measurements. While the YAML files above are authored by
-hand, activity data is ingested from external systems and stored in a Supabase
-database:
+Beyond standard definitions, Map maintains an activity layer for operational
+measurements. While the YAML files above are authored by hand, activity data is
+ingested from external systems and stored in a Supabase database:
 
 - **Organization people** — roster records with manager links and Pathway job
   profiles
 - **GitHub activity** — events and derived artifacts for marker evidence
   analysis
-- **Evidence records** — artifacts linked to skill markers from the
-  agent-aligned engineering standard
+- **Evidence records** — artifacts linked to skill markers from the standard
 - **GetDX snapshots** — quarterly developer-experience team scores and comments
 
 The activity layer powers Landmark (signal analysis) and Summit (team capability
@@ -76,11 +74,10 @@ for setup instructions.
 
 ---
 
-## Agent-Aligned Engineering Standard Configuration
+## Standard Configuration
 
-Every agent-aligned engineering standard needs a `standard.yaml` at the root of
-the data directory. It defines metadata and display configuration for the
-Pathway web app.
+Every standard needs a `standard.yaml` at the root of the data directory. It
+defines metadata and display configuration for the Pathway web app.
 
 ```yaml
 # data/standard.yaml
@@ -122,7 +119,7 @@ site, used by `npx fit-pathway update` to download standard bundles.
 
 ---
 
-## Levels
+## Standard Levels
 
 Levels define career progression with base expectations for skill proficiency
 and behaviour maturity. Every level sets three baseline proficiencies (`core`,
@@ -219,7 +216,7 @@ incident response strategy" belongs at `expert`.
 
 ---
 
-## Disciplines
+## Standard Disciplines
 
 Disciplines define engineering specialties with T-shaped skill profiles. Each
 discipline classifies skills into three tiers (core, supporting, broad) and
@@ -329,7 +326,7 @@ Track modifiers then shift these proficiencies up or down per capability.
 
 ---
 
-## Tracks
+## Standard Tracks
 
 Tracks are pure modifiers that adjust skill and behaviour expectations based on
 work context. They do not define role types — _disciplines_ define roles. A
@@ -431,7 +428,7 @@ base discipline — are added as broad-type "track-added" skills.
 
 ---
 
-## Capabilities
+## Standard Capabilities
 
 Capabilities group related skills and define responsibilities at each
 proficiency level. When a track applies a modifier to a capability, all skills
@@ -487,11 +484,11 @@ skills:
 
 ---
 
-## Skills
+## Standard Skills
 
-Skills are the most detailed entity in the agent-aligned engineering standard.
-Each skill lives inside a capability file and requires a `human:` section (for
-engineers) and optionally an `agent:` section (for AI agents).
+Skills are the most detailed entity in the standard. Each skill lives inside a
+capability file and requires a `human:` section (for engineers) and optionally
+an `agent:` section (for AI agents).
 
 ### Minimal Skill
 
@@ -707,7 +704,7 @@ skills:
 
 ---
 
-## Behaviours
+## Standard Behaviours
 
 Behaviours describe mindsets and approaches to work, separate from technical
 skills. They use five maturity levels instead of proficiency levels:
@@ -764,7 +761,7 @@ all five levels)
 
 ---
 
-## Drivers
+## Standard Drivers
 
 Drivers represent organizational outcomes — the business results that effective
 engineering produces. They connect skills and behaviours to measurable goals.
@@ -807,7 +804,7 @@ jargon.
 
 ## Validation
 
-Validate agent-aligned engineering standard data at any time:
+Validate standard data at any time:
 
 ```sh
 npx fit-map validate
@@ -834,14 +831,14 @@ After editing YAML files, preview the results in the Pathway web app:
 npx fit-pathway dev
 ```
 
-This starts a local development server so you can see how your agent-aligned
-engineering standard renders before publishing.
+This starts a local development server so you can see how your standard renders
+before publishing.
 
 ---
 
 ## Related Guides
 
 - [Agent Teams](/docs/products/agent-teams/) — How to structure and maintain
-  exported agent teams from your agent-aligned engineering standard
+  exported agent teams from your standard
 - [Career Paths](/docs/products/career-paths/) — Browse jobs, skills, and career
   progression between levels
