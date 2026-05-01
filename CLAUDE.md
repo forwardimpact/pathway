@@ -27,8 +27,8 @@ products via npm.
 ### Map — `fit-map`
 
 Helps leadership and agents answer _what does good engineering look like here?_
-Validates, stores, and publishes YAML agent-aligned engineering standards.
-[Overview](websites/fit/map/index.md) ·
+Validates, stores, and publishes agent-aligned engineering standards written in
+YAML. [Overview](websites/fit/map/index.md) ·
 [Internals](websites/fit/docs/internals/map/index.md)
 
 ### Pathway — `fit-pathway`

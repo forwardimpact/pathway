@@ -1,12 +1,12 @@
 ---
 title: Gear
-description: The agent-shaped utilities you carry into the field — CLIs, retrieval primitives, evaluation tooling, and service infrastructure for builders deploying humans and agents alongside the FIT suite.
+description: The agent-shaped utilities you carry into the field — CLIs, retrieval primitives, evaluation tooling, and service infrastructure for builders deploying humans and agents.
 layout: product
 toc: false
 hero:
   image: /assets/scene-concept.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
-  subtitle: Gear is the catalog of agent-shaped utilities that powers every other FIT product. CLIs, retrieval primitives, evaluation tooling, and service infrastructure — composed from npm and the forwardimpact/fit-skills skill pack so external readers can build alongside the suite without cloning the monorepo.
+  subtitle: Gear is the catalog of agent-shaped utilities for builders deploying humans and agents. CLIs, retrieval primitives, evaluation tooling, and service infrastructure — installed from npm and the forwardimpact/fit-skills skill pack so builders and agents share one inventory.
   cta:
     - label: Browse the catalog
       href: https://github.com/forwardimpact/monorepo/tree/main/libraries
@@ -15,10 +15,10 @@ hero:
       secondary: true
 ---
 
-> Gear gives builders and agents a shared inventory of capabilities. Each
-> library is one focused tool — agent-friendly by design, with CLIs that print
-> grep-friendly help, JSON output, and links back to the same documentation
-> humans and agents read.
+> Gear gives builders and agents a shared inventory of capabilities. Each is a
+> focused tool — agent-friendly by design, with CLIs that print grep-friendly
+> help, JSON output, and links back to the same documentation humans and agents
+> read.
 
 ### What's in the catalog
 
@@ -81,8 +81,8 @@ bundle assembly, and shared test fixtures.
 
 ### Who it's for
 
-**Builders** composing products on top of the FIT suite. Pull in just the
-libraries you need; every CLI works standalone via `npx fit-<name>`.
+**Builders** composing agentic products. Pull in just the libraries you need;
+every CLI works standalone via `npx fit-<name>`.
 
 **Agents** deployed into the field. Each library ships a matching skill in the
 `forwardimpact/fit-skills` pack, so agents land on the same docs as humans.

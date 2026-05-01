@@ -105,8 +105,8 @@ briefed, organized, and field-ready.
 
 Carry the right tools into the field. A catalog of agent-shaped utilities —
 CLIs, retrieval primitives, evaluation tooling, and service infrastructure —
-distributed via npm and the `forwardimpact/fit-skills` skill pack so external
-readers can compose them without cloning the monorepo.
+distributed via npm and the `forwardimpact/fit-skills` skill pack so builders
+and agents pull in just what they need.
 
 <a href="/gear/" class="btn btn-secondary">Open the Gear catalog</a>
 
