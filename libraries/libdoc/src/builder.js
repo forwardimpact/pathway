@@ -197,19 +197,14 @@ export class DocsBuilder {
   }
 
   /**
-   * Compute URL path from a markdown file's relative path
+   * Compute URL path from a markdown file's relative path.
+   * Strips a trailing `index.md` segment, then folds the rest into `/path/`.
    * @param {string} mdFile - Relative path to markdown file
    * @returns {string} URL path (e.g. "/docs/pathway/")
    */
   #urlPathFromMdFile(mdFile) {
-    const baseName = mdFile.replace(".md", "");
-    const isIndex = baseName === "index" || baseName.endsWith("/index");
-    if (isIndex) {
-      return baseName === "index"
-        ? "/"
-        : "/" + baseName.replace(/\/index$/, "") + "/";
-    }
-    return "/" + baseName + "/";
+    const stripped = mdFile.replace(/(?:^|\/)index\.md$|\.md$/, "");
+    return stripped ? `/${stripped}/` : "/";
   }
 
   /**
