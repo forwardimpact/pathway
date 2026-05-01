@@ -3,7 +3,7 @@
 // Remove speckle artifacts (anti-aliasing) from auto-traced SVGs.
 //
 // Usage:
-//   node scripts/vector-speckles.mjs [--level 1-5] [--dry-run] <file ...>
+//   node scripts/svg-speckles.mjs [--level 1-5] [--dry-run] <file ...>
 //
 // Levels:
 //   1  minimal   — remove fill-opacity paths and sub-5px specks only

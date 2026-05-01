@@ -7,7 +7,7 @@
 // then cuts it off by connecting those two points directly.
 //
 // Usage:
-//   node scripts/vector-smoothen.mjs [--level 1-5] [--dry-run] <file ...>
+//   node scripts/svg-smoothen.mjs [--level 1-5] [--dry-run] <file ...>
 //
 // Levels:
 //   1  minimal    — tiny chips only (max 1.5px height)
@@ -83,7 +83,7 @@ function parseArgs(argv) {
       dryRun = true;
     } else if (argv[i] === "--help" || argv[i] === "-h") {
       console.log(
-        "Usage: vector-smoothen [--level 1-5] [--dry-run] <file.svg ...>",
+        "Usage: svg-smoothen [--level 1-5] [--dry-run] <file.svg ...>",
       );
       console.log("\nLevels:");
       for (const [k, v] of Object.entries(LEVEL_PRESETS)) {

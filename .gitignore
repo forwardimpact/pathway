@@ -78,5 +78,8 @@ package-lock.json
 **/.branches/
 **/.temp/
 
+# Utility scripts
+scripts/bun.lock
+
 # Other stuff
 **/.DS_Store

@@ -8,7 +8,7 @@
 // based on bounding-box area, leaving legitimate features intact.
 //
 // Usage:
-//   node scripts/vector-artifacts.mjs [--level 1-5] [--dry-run] <file ...>
+//   node scripts/svg-artifacts.mjs [--level 1-5] [--dry-run] <file ...>
 //
 // Levels:
 //   1  minimal    — sub-pixel artifacts only (< 18px²)
@@ -46,7 +46,7 @@ function parseArgs(argv) {
       dryRun = true;
     } else if (argv[i] === "--help" || argv[i] === "-h") {
       console.log(
-        "Usage: vector-artifacts [--level 1-5] [--dry-run] <file.svg ...>",
+        "Usage: svg-artifacts [--level 1-5] [--dry-run] <file.svg ...>",
       );
       console.log("\nLevels:");
       for (const [k, v] of Object.entries(LEVEL_PRESETS)) {
