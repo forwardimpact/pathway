@@ -34,31 +34,45 @@ bodies pressed close enough that elbows could bump. The location pins and
 connecting routes are the visual language for skills taxonomy. The mood is
 shared absorption — three people lost in the same puzzle.
 
-## Scene: Pathway — Following the Trail
+## Scene: Pathway — Choosing the Trail
 
 **Context:** Pathway product pages, skills catalogue, career features.
 
 ```
-         /\    /\
-        /  \  /  \
-    🐰☝ 🤖☝     👔
-     ↗            (arms crossed)
-    🪨
+        ↖ ↗
+         ▌ ↘   ← arrow signs at different angles
+         ▌
+    🐰   🤖📓   👔
+   hugs  takes  right hand on agent,
+   post  notes  left hand pointing the way,
+                foot stepping off
 ```
 
-Trio standing at the base of mountain peaks, looking up at the climb ahead. Two
-or three peaks in the background rendered in light outline with minimal gray. A
-winding trail visible on the slopes. Engineer (left) has one foot up on a rock,
-right hand pointing enthusiastically at the summit. AI Agent (center) stands on
-flat ground, one hand raised pointing in the same direction. Stakeholder (right,
-no backpack) stands flat-footed, arms folded across chest, calm smile.
+A wooden signpost stands between Engineer and Agent — a vertical post with four
+small arrow signs nailed at different angles (up-left, up-right, down,
+sideways). The post is drawn at the **same 2px black stroke weight as the
+characters**, equally crisp and dark, with mostly white fills and light gray
+only on shadowed sides — simpler than the characters means fewer strokes, not
+lighter ones. Engineer (left) wraps both arms around the post in a hug, head
+tilted up, eyes wide, mouth slightly open in delighted overwhelm. AI Agent
+(center) stands on the post's right, head tilted sharply sideways to read a
+crooked arrow, both hands holding a small open notebook against their chest.
+Stakeholder (right, no backpack) stands shoulder to shoulder with Agent at the
+cluster's right edge, body twisted slightly to the right, one foot pivoted
+forward as if about to step off — the rest of them still in the huddle. Right
+hand rests on Agent's left shoulder; left hand extends outward to their right,
+pointing away from the signpost in the same direction as the forward foot.
+Closed-lipped knowing smile, one eyebrow slightly raised — the only one done
+deciding.
 
-**Key details:** Engineer and Agent both point upward — shared momentum.
-Stakeholder's folded arms and flat feet are the counterweight: confident, not
-rushing. Empty hands and folded arms distinguish them from the other two. The
-mountains are background, not foreground — lighter and simpler than the
-characters. The trio is at the starting point, not yet on the trail. The trio
-stands close enough that shoulders nearly overlap.
+**Key details:** Three speeds of wayfinding — Engineer enraptured by every
+option, Agent cataloguing them, Stakeholder already chose. The punchline is
+Stakeholder's forward foot paired with the hand on Agent's shoulder: "I've
+picked our way; come with me." The signpost is the namesake artifact —
+switchbacks made tangible — and the only object besides the trio. **No
+mountains, no peaks, no horizon, no rocks, no ground plane, no trail drawn on
+the ground, no distant landscape** — peaks belong to Summit; Pathway owns the
+trail. Characters and signpost float freely on pure white.
 
 ## Scene: Outpost — Setting Up Camp
 
@@ -222,7 +236,7 @@ in visual weight.
 | Onboarding — first screen    | Welcome Wave             | 320–400px |
 | Onboarding — getting started | Documentation Dig        | 280–360px |
 | Map product hero             | Charting the Territory   | 320–400px |
-| Pathway product hero         | Following the Trail      | 320–400px |
+| Pathway product hero         | Choosing the Trail       | 320–400px |
 | Guide product hero           | Finding North            | 320–400px |
 | Landmark product hero        | Reading the Signals      | 320–400px |
 | Summit product hero          | Planning the Ascent      | 320–400px |
