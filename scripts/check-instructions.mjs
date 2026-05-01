@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Enforce instruction layer limits (CHECKLISTS.md § Length and Loading).
+// Enforce instruction layer limits (CHECKLIST.md § Length and Loading).
 // Called by `bun run check` and `just check-instructions`.
 
 import { readFile, readdir } from "node:fs/promises";

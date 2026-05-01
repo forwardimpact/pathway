@@ -285,5 +285,5 @@ for the full permission and event subscription reference.
 Instruction architecture, length limits, skill structure, checklist design,
 publishing gates, recursion-safe review, and shared-wording rules — including
 the eight-layer model that governs where new instructions belong — live in
-[CHECKLISTS.md](CHECKLISTS.md). It is the manifesto for writing instructions
+[CHECKLIST.md](CHECKLIST.md). It is the manifesto for writing instructions
 in this repository, derived from trace analysis of agent workflow runs.

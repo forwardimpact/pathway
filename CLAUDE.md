@@ -123,7 +123,7 @@ consult the [Getting Started guides](websites/fit/docs/getting-started/).
 
 ### Checklists
 
-Tagged checklists gate pause points. Rules: [CHECKLISTS.md](CHECKLISTS.md).
+Tagged checklists gate pause points. Rules: [CHECKLIST.md](CHECKLIST.md).
 
 - **`<read_do_checklist>`** — Entry gate. Read each item, then do it.
 - **`<do_confirm_checklist>`** — Exit gate. Do from memory, then confirm before

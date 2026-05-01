@@ -222,7 +222,7 @@ run generates a 1-hour installation token via `actions/create-github-app-token`
   merge gate, drafting bench, shipping bay, archivist's desk, trace tape.
 - **[Kata Icons](https://github.com/forwardimpact/monorepo/blob/main/design/kata/icons.md)**
   — Six agent icons and the suite mark.
-- **[CHECKLISTS.md](https://github.com/forwardimpact/monorepo/blob/main/CHECKLISTS.md)**
+- **[CHECKLIST.md](https://github.com/forwardimpact/monorepo/blob/main/CHECKLIST.md)**
   — How `<read_do_checklist>` and `<do_confirm_checklist>` work.
 - **[CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)**
   — Universal READ-DO and DO-CONFIRM checklists every Kata run runs.
