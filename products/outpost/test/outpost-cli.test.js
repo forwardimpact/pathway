@@ -1,8 +1,19 @@
 import { test, describe } from "node:test";
 import assert from "node:assert";
+import { readFileSync } from "node:fs";
+import { fileURLToPath } from "node:url";
+import { dirname, join } from "node:path";
 
 import { Cli } from "@forwardimpact/libcli";
 import { HelpRenderer } from "@forwardimpact/libcli";
+
+// Read version from package.json so the fixture tracks the published version
+// instead of drifting (the previous hardcode was 2.11.0 while the package was
+// already at 2.12.6).
+const __dirname = dirname(fileURLToPath(import.meta.url));
+const PKG_VERSION = JSON.parse(
+  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
+).version;
 
 function createProc() {
   return {
@@ -26,7 +37,7 @@ function createProc() {
 
 const definition = {
   name: "fit-outpost",
-  version: "2.11.0",
+  version: PKG_VERSION,
   description: "Schedule autonomous agents across knowledge bases",
   commands: [
     { name: "daemon", description: "Run continuously (poll every 60s)" },
@@ -113,6 +124,6 @@ describe("fit-outpost CLI parsing", () => {
     const cli = createCli(proc);
     const result = cli.parse(["--version"]);
     assert.strictEqual(result, null);
-    assert.ok(proc.stdout.output.includes("2.11.0"));
+    assert.ok(proc.stdout.output.includes(PKG_VERSION));
   });
 });

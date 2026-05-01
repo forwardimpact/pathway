@@ -90,22 +90,27 @@
     <p class="cmd"><code>vim ~/.fit/outpost/scheduler.json</code></p>
     <p>3. Check scheduler status:</p>
     <p class="cmd">
-      <code>fit-outpost --status</code>
+      <code>fit-outpost status</code>
     </p>
     <p>4. Stop the scheduler gracefully (before upgrading):</p>
     <p class="cmd">
-      <code>fit-outpost --stop</code>
+      <code>fit-outpost stop</code>
     </p>
     <p>5. Update skills in all knowledge bases (after upgrading):</p>
     <p class="cmd">
-      <code>fit-outpost --update</code>
+      <code>fit-outpost update</code>
     </p>
     <p>6. Open your knowledge base interactively:</p>
     <p class="cmd"><code>cd ~/Documents/Personal &amp;&amp; claude</code></p>
     <p class="note">
-      The installer runs <code>--update</code> automatically on all configured
+      The installer runs <code>update</code> automatically on all configured
       knowledge bases. You can also run it manually at any time to push the
       latest skills.
+    </p>
+    <p class="note">
+      <strong>Intel Macs:</strong> this <code>.pkg</code> ships only an Apple
+      Silicon binary. On Intel hardware, install instead via the Homebrew cask:
+      <code>brew install --cask forwardimpact/tap/fit-outpost</code>.
     </p>
   </body>
 </html>

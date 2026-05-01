@@ -48,22 +48,22 @@ uninstall:
 
 # ─── Scheduler ────────────────────────────────────────────────────────────────
 
-# Run due tasks once and exit
+# Run due agents once and exit
 run:
     bun src/outpost.js
 
 # Run scheduler daemon (poll every 60s)
 daemon:
-    bun src/outpost.js --daemon
+    bun src/outpost.js daemon
 
-# Run a specific task immediately
-run-task task:
-    bun src/outpost.js --run "{{ task }}"
+# Wake a specific agent immediately
+wake agent:
+    bun src/outpost.js wake "{{ agent }}"
 
-# Show knowledge bases and task status
+# Show knowledge bases and agent status
 status:
-    bun src/outpost.js --status
+    bun src/outpost.js status
 
 # Initialize a new knowledge base at the given path
 init path:
-    bun src/outpost.js --init "{{ path }}"
+    bun src/outpost.js init "{{ path }}"
