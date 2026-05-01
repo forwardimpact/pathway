@@ -6,6 +6,7 @@ on:
     paths:
       - "websites/fit/**"
       - "design/fit/**"
+      - "libraries/libdoc/**"
       - ".github/workflows/website-fit.yaml"
   workflow_dispatch:
 

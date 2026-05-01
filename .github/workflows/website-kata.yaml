@@ -6,6 +6,7 @@ on:
     paths:
       - "websites/kata/**"
       - "design/kata/**"
+      - "libraries/libdoc/**"
       - ".github/workflows/website-kata.yaml"
   workflow_dispatch:
 
