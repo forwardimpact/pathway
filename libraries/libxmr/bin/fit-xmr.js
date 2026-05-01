@@ -9,9 +9,13 @@ import { runValidateCommand } from "../src/commands/validate.js";
 import { runSparkCommand } from "../src/commands/spark.js";
 import { runSummarizeCommand } from "../src/commands/summarize.js";
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_XMR_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_XMR_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-xmr",
