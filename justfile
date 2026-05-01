@@ -184,10 +184,12 @@ build-binary NAME TARGET="bun-darwin-arm64":
     #!/usr/bin/env bash
     set -euo pipefail
     ENTRY=""
+    PKG_DIR=""
     for PKG in products/*/package.json services/*/package.json libraries/*/package.json; do
       REL=$(jq -r --arg n "{{NAME}}" '.bin[$n] // empty' "$PKG" 2>/dev/null)
       if [ -n "$REL" ]; then
-        ENTRY="$(dirname "$PKG")/$REL"
+        PKG_DIR="$(dirname "$PKG")"
+        ENTRY="$PKG_DIR/$REL"
         break
       fi
     done
@@ -195,11 +197,19 @@ build-binary NAME TARGET="bun-darwin-arm64":
       echo "Error: no package.json declares bin[{{NAME}}] with an existing entry" >&2
       exit 1
     fi
+    # Inject the package version as a build-time literal. `bun --compile` mounts
+    # source onto a virtual /$bunfs filesystem, so readFileSync(__dirname/../package.json)
+    # ENOENTs at runtime (issue #627). Each bin reads `process.env.<NAME>_VERSION`
+    # with a readFileSync fallback for source execution; --define inlines the
+    # literal at compile time so the fallback branch tree-shakes away.
+    VERSION=$(jq -r .version "$PKG_DIR/package.json")
+    ENV_PREFIX=$(echo "{{NAME}}" | tr '[:lower:]-' '[:upper:]_')
     mkdir -p dist/binaries
     bun build --compile \
       --target "{{TARGET}}" \
       --no-compile-autoload-dotenv \
       --no-compile-autoload-bunfig \
+      --define "process.env.${ENV_PREFIX}_VERSION=\"${VERSION}\"" \
       --outfile "dist/binaries/{{NAME}}" \
       "$ENTRY"
 

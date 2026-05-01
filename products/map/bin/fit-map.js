@@ -30,9 +30,13 @@ const summary = new SummaryRenderer({ process });
 const __filename = fileURLToPath(import.meta.url);
 const __dirname = dirname(__filename);
 
-const VERSION = JSON.parse(
-  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
-).version;
+// `bun build --compile` injects FIT_MAP_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_MAP_VERSION ||
+  JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-map",

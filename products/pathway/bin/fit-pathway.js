@@ -41,10 +41,13 @@ import { runUpdateCommand } from "../src/commands/update.js";
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const TEMPLATE_DIR = join(__dirname, "..", "templates");
 
-/** Package version read from package.json */
-const VERSION = JSON.parse(
-  readFileSync(join(__dirname, "..", "package.json"), "utf8"),
-).version;
+// `bun build --compile` injects FIT_PATHWAY_VERSION via --define, eliminating
+// the readFileSync branch in the compiled binary (which would ENOENT against
+// the bunfs virtual mount). Source execution falls through to package.json.
+const VERSION =
+  process.env.FIT_PATHWAY_VERSION ||
+  JSON.parse(readFileSync(join(__dirname, "..", "package.json"), "utf8"))
+    .version;
 
 const COMMANDS = {
   discipline: runDisciplineCommand,
