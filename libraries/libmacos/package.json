@@ -12,7 +12,8 @@
     "capability": "foundations",
     "needs": [
       "Assemble a macOS app bundle",
-      "Code-sign a macOS app"
+      "Code-sign a macOS app",
+      "Declare macOS permission entitlements for an app"
     ]
   },
   "license": "Apache-2.0",

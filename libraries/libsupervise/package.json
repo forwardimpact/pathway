@@ -11,7 +11,8 @@
   "forwardimpact": {
     "capability": "agent-infrastructure",
     "needs": [
-      "Supervise a long-running daemon"
+      "Supervise a long-running daemon",
+      "Configure restart policies and log rotation for a daemon manifest"
     ]
   },
   "license": "Apache-2.0",

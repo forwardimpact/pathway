@@ -13,7 +13,8 @@
     "capability": "agent-capability",
     "needs": [
       "Parse CLI args and render help",
-      "Render colored tables and JSON output"
+      "Render colored tables and JSON output",
+      "Surface skill-doc links in CLI --help output"
     ]
   },
   "license": "Apache-2.0",

@@ -139,8 +139,10 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Code-sign a macOS app                                                          | `libmacos`           |
 | Compute a stable hash (SHA-256 checksum)                                       | `libutil`            |
 | Compute cosine similarity between embeddings                                   | `libvector`          |
+| Configure restart policies and log rotation for a daemon manifest              | `libsupervise`       |
 | Control a service's start, stop, and status                                    | `librc`              |
 | Count LLM tokens                                                               | `libutil`            |
+| Declare macOS permission entitlements for an app                               | `libmacos`           |
 | Derive a role definition from a competency matrix (discipline × level × track) | `libskill`           |
 | Download and extract a tarball                                                 | `libutil`            |
 | Drive an LLM agent through a scripted run and capture its trace                | `libeval`            |
@@ -168,6 +170,7 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Register a gRPC service as MCP tools                                           | `libmcp`             |
 | Render a markdown sparkline                                                    | `libxmr`             |
 | Render a Mustache template with project overrides                              | `libtemplate`        |
+| Render a prompt template with variable substitution                            | `libprompt`          |
 | Render colored tables and JSON output                                          | `libcli`             |
 | Render markdown as ANSI                                                        | `libformat`          |
 | Render markdown as HTML                                                        | `libformat`          |
@@ -181,6 +184,9 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Sign a JWT                                                                     | `libsecret`          |
 | Store files to local, S3, or Supabase                                          | `libstorage`         |
 | Supervise a long-running daemon                                                | `libsupervise`       |
+| Supervise a multi-step or multi-agent workflow                                 | `libeval`            |
+| Surface skill-doc links in CLI --help output                                   | `libcli`             |
+| Surface skill-doc links in REPL --help output                                  | `librepl`            |
 | Validate synthetic data integrity                                              | `libsyntheticrender` |
 
 <!-- END:needs -->

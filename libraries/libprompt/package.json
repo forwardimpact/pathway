@@ -12,7 +12,8 @@
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
-      "Load a prompt template from disk"
+      "Load a prompt template from disk",
+      "Render a prompt template with variable substitution"
     ]
   },
   "license": "Apache-2.0",

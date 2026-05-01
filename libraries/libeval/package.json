@@ -13,7 +13,8 @@
     "capability": "agent-self-improvement",
     "needs": [
       "Parse and query Claude Code trace NDJSON files",
-      "Drive an LLM agent through a scripted run and capture its trace"
+      "Drive an LLM agent through a scripted run and capture its trace",
+      "Supervise a multi-step or multi-agent workflow"
     ]
   },
   "license": "Apache-2.0",

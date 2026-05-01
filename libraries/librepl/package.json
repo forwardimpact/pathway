@@ -11,7 +11,8 @@
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
-      "Run an interactive REPL session"
+      "Run an interactive REPL session",
+      "Surface skill-doc links in REPL --help output"
     ]
   },
   "license": "Apache-2.0",
