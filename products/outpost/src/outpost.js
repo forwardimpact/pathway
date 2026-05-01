@@ -326,7 +326,7 @@ const definition = {
   documentation: [
     {
       title: "Knowledge Systems Guide",
-      url: "https://www.forwardimpact.team/docs/guides/knowledge-systems/index.md",
+      url: "https://www.forwardimpact.team/docs/products/knowledge-systems/index.md",
       description:
         "Task-oriented guide to setting up and using Outpost for personal knowledge management.",
     },

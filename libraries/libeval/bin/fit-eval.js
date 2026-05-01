@@ -178,25 +178,25 @@ const definition = {
   documentation: [
     {
       title: "Agent Evaluations",
-      url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md",
       description:
         "Author a judge profile, run an eval locally, wire it into CI, and inspect the resulting trace.",
     },
     {
       title: "Agent Collaboration",
-      url: "https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md",
       description:
         "Author a facilitator and participant profiles, run a multi-agent session, and read the message flow.",
     },
     {
       title: "Trace Analysis",
-      url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md",
       description:
         "Read the NDJSON traces produced by `fit-eval` with `fit-trace` — grounded-theory method and worked examples.",
     },
     {
       title: "Agent Teams",
-      url: "https://www.forwardimpact.team/docs/guides/agent-teams/index.md",
+      url: "https://www.forwardimpact.team/docs/products/agent-teams/index.md",
       description:
         "How to author the agent, supervisor, and facilitator profiles consumed by --agent-profile, --supervisor-profile, --facilitator-profile, and --agent-profiles.",
     },

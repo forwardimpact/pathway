@@ -186,4 +186,4 @@ echo "hello" | npx fit-guide            # Should return an agent response
 
 ## Documentation
 
-- [Finding Your Bearing Guide](https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md)
+- [Finding Your Bearing Guide](https://www.forwardimpact.team/docs/products/finding-your-bearing/index.md)

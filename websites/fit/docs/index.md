@@ -19,13 +19,22 @@ Quickstart guides for leadership, engineers, and contributors.
 
 </a>
 
-<a href="/docs/guides/">
+<a href="/docs/products/">
 
-### Guides
+### Product Guides
 
-Task-oriented guides: authoring agent-aligned engineering standards, agent
-teams, career paths, knowledge systems, team capability, and finding your
-bearing.
+Task-oriented guides for engineers and leaders: authoring agent-aligned
+engineering standards, agent teams, career paths, knowledge systems, team
+capability, and finding your bearing.
+
+</a>
+
+<a href="/docs/libraries/">
+
+### Library Guides
+
+Task-oriented guides for builders and agents: agent evaluations, agent
+collaboration, and trace analysis with the Gear catalog of utilities.
 
 </a>
 

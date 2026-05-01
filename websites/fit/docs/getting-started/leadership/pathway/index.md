@@ -54,7 +54,7 @@ npx fit-pathway interview software_engineering J060
 
 - [Pathway product page](/pathway/) — web app features, CLI commands, and static
   site generation
-- [Authoring agent-aligned engineering standards](/docs/guides/authoring-standards/)
+- [Authoring agent-aligned engineering standards](/docs/products/authoring-standards/)
   — full guide to defining all entity types
 - [YAML schema reference](/docs/reference/yaml-schema/) — complete file format
   documentation

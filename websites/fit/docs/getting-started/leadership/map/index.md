@@ -451,7 +451,7 @@ Guide.
 ## Next steps
 
 - [Map product page](/map/) — feature overview and command reference
-- [Authoring agent-aligned engineering standards](/docs/guides/authoring-standards/)
+- [Authoring agent-aligned engineering standards](/docs/products/authoring-standards/)
   — full guide to defining all entity types: levels, disciplines, tracks,
   capabilities, skills, behaviours, stages, and drivers
 - [YAML schema reference](/docs/reference/yaml-schema/) — complete file format

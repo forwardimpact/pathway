@@ -584,6 +584,9 @@ Both `*.ndjson` files from `fit-eval --output` and `structured.json` files from
 
 ## Related Documentation
 
-- [Guides](/docs/guides/) -- Task-oriented usage walkthroughs
+- [Product Guides](/docs/products/) -- Task-oriented walkthroughs for engineers
+  and leaders
+- [Library Guides](/docs/libraries/) -- Task-oriented walkthroughs for builders
+  and agents
 - [Core Model](/docs/reference/model/) -- Entity definitions and derivation
 - [YAML Schema](/docs/reference/yaml-schema/) -- File format reference

@@ -97,6 +97,23 @@ briefed, organized, and field-ready.
 </div>
 
 <div class="section">
+  <div class="page-container content-product">
+
+## For builders and agents
+
+### Gear
+
+Carry the right tools into the field. A catalog of agent-shaped utilities —
+CLIs, retrieval primitives, evaluation tooling, and service infrastructure —
+distributed via npm and the `forwardimpact/fit-skills` skill pack so external
+readers can compose them without cloning the monorepo.
+
+<a href="/gear/" class="btn btn-secondary">Open the Gear catalog</a>
+
+  </div>
+</div>
+
+<div class="section">
   <div class="page-container">
     <div class="grid">
 

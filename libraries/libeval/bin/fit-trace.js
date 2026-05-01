@@ -215,19 +215,19 @@ const definition = {
   documentation: [
     {
       title: "Trace Analysis",
-      url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md",
       description:
         "The full method walkthrough with worked examples (an eval that failed, a multi-agent session that stalled).",
     },
     {
       title: "Agent Evaluations",
-      url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md",
       description:
         "How `fit-eval supervise` produces the traces this skill analyzes.",
     },
     {
       title: "Agent Collaboration",
-      url: "https://www.forwardimpact.team/docs/guides/agent-collaboration/index.md",
+      url: "https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md",
       description:
         "How `fit-eval facilitate` produces multi-agent traces; `split` is the bridge into per-source files.",
     },

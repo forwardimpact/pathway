@@ -85,7 +85,7 @@ directory.
 
 - [Pathway product page](/pathway/) — web app features, CLI commands, and static
   site generation
-- [Agent teams](/docs/guides/agent-teams/) — configure and customize generated
+- [Agent teams](/docs/products/agent-teams/) — configure and customize generated
   agents
-- [Career paths](/docs/guides/career-paths/) — understand progression and skill
-  development
+- [Career paths](/docs/products/career-paths/) — understand progression and
+  skill development

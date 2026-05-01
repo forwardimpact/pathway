@@ -187,12 +187,12 @@ describe("HelpRenderer", () => {
         documentation: [
           {
             title: "Agent Evaluations",
-            url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+            url: "https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md",
             description: "Author a judge profile, run an eval locally.",
           },
           {
             title: "Trace Analysis",
-            url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+            url: "https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md",
           },
         ],
       };
@@ -201,7 +201,7 @@ describe("HelpRenderer", () => {
       assert.ok(stream.output.includes("Agent Evaluations"));
       assert.ok(
         stream.output.includes(
-          "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+          "https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md",
         ),
       );
       assert.ok(
@@ -217,7 +217,7 @@ describe("HelpRenderer", () => {
         documentation: [
           {
             title: "Trace Analysis",
-            url: "https://www.forwardimpact.team/docs/guides/trace-analysis/index.md",
+            url: "https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md",
           },
         ],
       };
@@ -246,7 +246,7 @@ describe("HelpRenderer", () => {
         documentation: [
           {
             title: "Agent Evaluations",
-            url: "https://www.forwardimpact.team/docs/guides/agent-evaluations/index.md",
+            url: "https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md",
             description: "Author a judge profile.",
           },
         ],

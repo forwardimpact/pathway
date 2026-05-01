@@ -299,6 +299,6 @@ meaningful differentiation between tracks.
 ## Related Documentation
 
 - [Lifecycle](/docs/reference/lifecycle/) — Phases, handoffs, and checklists
-- [Career Paths](/docs/guides/career-paths/) -- Using progression and gap
+- [Career Paths](/docs/products/career-paths/) -- Using progression and gap
   analysis
-- [Agent Teams](/docs/guides/agent-teams/) -- Agent profile generation
+- [Agent Teams](/docs/products/agent-teams/) -- Agent profile generation

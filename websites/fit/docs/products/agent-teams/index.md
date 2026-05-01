@@ -336,7 +336,7 @@ single-line pointer is acceptable — but never duplicate the procedure.
 Checklists in skills are the agent's primary interface with your agent-aligned
 engineering standard. For the basic rules on writing checklist items
 (verb-first, one action per line, ≤ 120 chars), see
-[Writing Good Checklists](/docs/guides/authoring-standards/#writing-good-checklists)
+[Writing Good Checklists](/docs/products/authoring-standards/#writing-good-checklists)
 in the Authoring Agent-Aligned Engineering Standards.
 
 This section covers the _structural_ patterns that matter when an agent loads
@@ -447,9 +447,9 @@ When modifying any layer of an agent team, verify:
 
 ## Related Documentation
 
-- [Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
   — How to write the YAML standard data that agent teams are derived from
-- [Career Paths](/docs/guides/career-paths/) — Browse jobs, skills, and career
+- [Career Paths](/docs/products/career-paths/) — Browse jobs, skills, and career
   progression
 - [CLI Reference](/docs/reference/cli/) — Complete command documentation for
   `fit-pathway agent`

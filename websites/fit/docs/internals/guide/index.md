@@ -131,5 +131,5 @@ Start all services with `npx fit-rc start` (external) or `just rc-start`
 ## Related Documentation
 
 - [Map Internals](/docs/internals/map/) — Data contracts consumed by Guide
-- [Finding Your Bearing Guide](/docs/guides/finding-your-bearing/) — User-facing
-  Guide documentation
+- [Finding Your Bearing Guide](/docs/products/finding-your-bearing/) —
+  User-facing Guide documentation

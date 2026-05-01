@@ -83,7 +83,7 @@ skills:
 ```
 
 See the
-[Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+[Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
 for vocabulary standards and validation.
 
 Run `npx fit-map validate` to confirm your standard data passes schema

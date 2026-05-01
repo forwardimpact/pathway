@@ -9,10 +9,11 @@ engineering standard's markers.
 
 Landmark requires Map's activity layer (Supabase). If your organization has
 already set this up, Landmark works immediately. If not, see the
-[Landmark quickstart](/docs/guides/landmark-quickstart/) or ask your engineering
-leader to follow the [Map setup guide](/docs/getting-started/leadership/map/).
-One command works without Supabase: `marker` reads directly from your
-agent-aligned engineering standard YAML.
+[Landmark quickstart](/docs/products/landmark-quickstart/) or ask your
+engineering leader to follow the
+[Map setup guide](/docs/getting-started/leadership/map/). One command works
+without Supabase: `marker` reads directly from your agent-aligned engineering
+standard YAML.
 
 ## Prerequisites
 
@@ -101,7 +102,7 @@ All Landmark commands support `--format text|json|markdown`.
 ## Next steps
 
 - [Landmark product page](/landmark/) — audience model and architecture overview
-- [Landmark quickstart](/docs/guides/landmark-quickstart/) — step-by-step guide
-  from install to a working health view
+- [Landmark quickstart](/docs/products/landmark-quickstart/) — step-by-step
+  guide from install to a working health view
 - [CLI reference](/docs/reference/cli/) — full command documentation for all
   tools

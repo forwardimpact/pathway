@@ -66,6 +66,13 @@ Personal operations center providing scheduled AI tasks, knowledge graphs, and
 meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
 · [Internals](websites/fit/docs/internals/outpost/index.md)
 
+### Gear — `fit-skills`
+
+Helps builders and agents answer _what do I carry into the field?_ The catalog
+of agent-shaped utilities distributed via npm and the `forwardimpact/fit-skills`
+skill pack. [Overview](websites/fit/gear/index.md) ·
+[Catalog](libraries/README.md)
+
 ### Kata Agent Team — `kata-skills`
 
 An autonomous, continuously improving agentic development team organized as a
@@ -82,21 +89,15 @@ contributors.
 ### How External Users Consume Products
 
 Agents are often the primary consumers. Published skills teach how a product
-**works** and how to **use** it — not how it is **implemented**. Progressively
-disclose: start with what the product does, then link to published docs.
-External users have no monorepo access — use fully qualified URLs to `.md` pages
+**works** and **uses** — not how it is implemented. Use fully qualified URLs
 (e.g.
-`https://www.forwardimpact.team/docs/guides/authoring-standards/index.md`).
+`https://www.forwardimpact.team/docs/products/authoring-standards/index.md`).
 
-Two skill packs sync on push to `main`:
-
-- **`forwardimpact/fit-skills`** — `fit-*` skills for the agent-aligned
-  engineering standard products.
-- **`forwardimpact/kata-skills`** — `kata-*` skills for the Kata Agent Team.
-
-Install skills: `npx skills add forwardimpact/fit-skills` (or `kata-skills`).
-Install products: `npm install` — all CLIs use `#!/usr/bin/env node`, no Bun
-required. gRPC products (currently Guide) also need `npx fit-codegen --all`. See
+Two skill packs sync on push to `main`: `forwardimpact/fit-skills` (the `fit-*`
+product and library skills) and `forwardimpact/kata-skills` (the `kata-*`
+agent-team skills). Install: `npx skills add forwardimpact/fit-skills` (or
+`kata-skills`). All CLIs use `#!/usr/bin/env node` — no Bun required. gRPC
+products (currently Guide) need `npx fit-codegen --all`. See
 [Codegen Internals](websites/fit/docs/internals/codegen/index.md).
 
 ### How Internal Contributors Develop
@@ -105,9 +106,8 @@ required. gRPC products (currently Guide) also need `npx fit-codegen --all`. See
 - **Internal contributors** — Bun 1.2+ + bun, run `bunx fit-*` and `just`.
 
 `just codegen` (included in `just quickstart`) runs `fit-codegen` internally.
-Internal skills (`libs-*`, product internals) help contributors understand
-architecture — these are never published. External-facing docs use `npm`/`npx`;
-`bun`/`bunx`/`just` appear only in internal docs.
+Internal skills (`libs-*`, product internals) are never published. External docs
+use `npm`/`npx`; `bun`/`bunx`/`just` appear only in internal docs.
 
 ## Contributor Workflow
 
@@ -148,16 +148,12 @@ which installs to `data/pathway/` in consuming projects). Use
 `bunx fit-pathway <entity> --list` to discover available values.
 
 - **Disciplines** — `disciplines/{id}.yaml`
-- **Levels** — `levels.yaml`
-- **Tracks** — `tracks/{id}.yaml`
-- **Capabilities** — `capabilities/{id}.yaml`
-- **Skills** — `capabilities/{id}.yaml` (under `skills:`)
-- **Behaviours** — `behaviours/{id}.yaml`
-- **Drivers** — `drivers.yaml`
+- **Levels** — `levels.yaml` · **Tracks** — `tracks/{id}.yaml`
+- **Capabilities** & **Skills** — `capabilities/{id}.yaml` (skills nested)
+- **Behaviours** — `behaviours/{id}.yaml` · **Drivers** — `drivers.yaml`
 
-All entities use co-located `human:` and `agent:` sections. Skill agent sections
-use flat `agent.focus`, `agent.readChecklist`, and `agent.confirmChecklist`
-fields.
+All entities use co-located `human:` and `agent:` sections; skills carry flat
+`agent.focus`, `agent.readChecklist`, `agent.confirmChecklist` fields.
 
 - **Skill proficiencies**: awareness → foundational → working → practitioner →
   expert
@@ -170,7 +166,7 @@ fields.
 - **Tools** derived from `toolReferences` at runtime via `bunx fit-pathway tool`
 
 Validate data: `bunx fit-map validate`. Vocabulary standards in the
-[Authoring Agent-Aligned Engineering Standards guide](websites/fit/docs/guides/authoring-standards/index.md).
+[Authoring Agent-Aligned Engineering Standards guide](websites/fit/docs/products/authoring-standards/index.md).
 
 ## Documentation Map
 
@@ -180,6 +176,8 @@ One home per policy; per-product pages: [§ Products](#products).
 
 - **Project identity & orientation** — [CLAUDE.md](CLAUDE.md)
 - **Contribution standards & security** — [CONTRIBUTING.md](CONTRIBUTING.md)
+- **CLI/skill linking policy** — [products/](products/CLAUDE.md) ·
+  [libraries/](libraries/CLAUDE.md)
 - **Kata Agent Team** — [KATA.md](KATA.md) ·
   [Internals](websites/fit/docs/internals/kata/)
 - **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
@@ -187,5 +185,8 @@ One home per policy; per-product pages: [§ Products](#products).
 **External:**
 
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
-- **User guides** — [websites/fit/docs/guides/](websites/fit/docs/guides/)
+- **Product guides** —
+  [websites/fit/docs/products/](websites/fit/docs/products/)
+- **Library guides** —
+  [websites/fit/docs/libraries/](websites/fit/docs/libraries/)
 - **Published skills** — [fit-\*](.claude/skills/) · [kata-\*](.claude/skills/)

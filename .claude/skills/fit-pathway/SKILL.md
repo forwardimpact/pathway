@@ -135,17 +135,17 @@ npx fit-pathway dev     # Preview changes in browser
 detailed examples, field references, and best-practice patterns essential for
 high-quality output.
 
-- [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/guides/authoring-standards/index.md)
+- [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/products/authoring-standards/index.md)
   — How to write the YAML data: disciplines, levels, tracks, capabilities,
   skills, behaviours, stages, drivers. Includes proficiency vocabulary
   standards, co-located human/agent content patterns, checklist quality rules,
   and validation workflows
-- [Agent Teams Guide](https://www.forwardimpact.team/docs/guides/agent-teams/index.md)
+- [Agent Teams Guide](https://www.forwardimpact.team/docs/products/agent-teams/index.md)
   — How to generate, structure, and maintain exported agent teams. Covers the
   three-layer architecture (CLAUDE.md → agent profiles → skills), information
   flow rules, anti-patterns to avoid, and the maintenance checklist for
   reviewing exported output
-- [Career Paths Guide](https://www.forwardimpact.team/docs/guides/career-paths/index.md)
+- [Career Paths Guide](https://www.forwardimpact.team/docs/products/career-paths/index.md)
   — Browse jobs, skills, and career progression between levels
 - [CLI Reference](https://www.forwardimpact.team/docs/reference/cli/index.md) —
   Complete command reference for all Forward Impact CLI tools

@@ -141,7 +141,7 @@ npx fit-summit risks <team>               # Risks detected as expected
 
 For deeper context beyond this skill's scope:
 
-- [Team Capability Guide](https://www.forwardimpact.team/docs/guides/team-capability/index.md)
+- [Team Capability Guide](https://www.forwardimpact.team/docs/products/team-capability/index.md)
   — Task-oriented guide to coverage heatmaps, structural risks, and what-if
   scenarios
 - [Summit Overview](https://www.forwardimpact.team/summit/index.md) — Product

@@ -101,6 +101,6 @@ and Summit use.
 
 - [Data Model Reference](/docs/reference/model/) — How skills, levels, and
   behaviours are structured
-- [Authoring Agent-Aligned Engineering Standards](/docs/guides/authoring-standards/)
+- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
   — How to define the agent-aligned engineering standard that Guide reasons
   about

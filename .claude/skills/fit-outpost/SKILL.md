@@ -117,7 +117,7 @@ npx fit-outpost validate       # Verify agent/skill references exist
 
 For deeper context beyond this skill's scope:
 
-- [Knowledge Systems Guide](https://www.forwardimpact.team/docs/guides/knowledge-systems/index.md)
+- [Knowledge Systems Guide](https://www.forwardimpact.team/docs/products/knowledge-systems/index.md)
   — Task-oriented guide to setting up and using Outpost for personal knowledge
   management
 - [CLI Reference](https://www.forwardimpact.team/docs/reference/cli/index.md) —

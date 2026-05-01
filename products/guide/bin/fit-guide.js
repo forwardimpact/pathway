@@ -112,7 +112,7 @@ const repl = new Repl({
   documentation: [
     {
       title: "Finding Your Bearing Guide",
-      url: "https://www.forwardimpact.team/docs/guides/finding-your-bearing/index.md",
+      url: "https://www.forwardimpact.team/docs/products/finding-your-bearing/index.md",
     },
   ],
 

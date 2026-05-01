@@ -146,7 +146,7 @@ npx fit-map validate
 
 For deeper context beyond this skill's scope:
 
-- [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/guides/authoring-standards/index.md)
+- [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/products/authoring-standards/index.md)
   — Task-oriented guide to defining your agent-aligned engineering standard in
   YAML
 - [YAML Schema Reference](https://www.forwardimpact.team/docs/reference/yaml-schema/index.md)
