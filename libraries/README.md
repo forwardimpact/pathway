@@ -126,65 +126,62 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 
 <!-- BEGIN:needs -->
 
-| I need to…                                                     | Library              |
-| -------------------------------------------------------------- | -------------------- |
-| Add a distributed trace span                                   | `libtelemetry`       |
-| Assemble a macOS app bundle                                    | `libmacos`           |
-| Buffer high-volume index writes                                | `libindex`           |
-| Build a gRPC service                                           | `librpc`             |
-| Build a static documentation site                              | `libdoc`             |
-| Build a web app page                                           | `libui`              |
-| Call another gRPC service                                      | `librpc`             |
-| Code-sign a macOS app                                          | `libmacos`           |
-| Compute a stable hash                                          | `libutil`            |
-| Compute an XmR control chart                                   | `libxmr`             |
-| Compute cosine similarity between embeddings                   | `libvector`          |
-| Count LLM tokens                                               | `libutil`            |
-| Derive a job from discipline, level, and track                 | `libskill`           |
-| Detect signals in a time series                                | `libxmr`             |
-| Download and extract a tarball                                 | `libutil`            |
-| Emit a structured log line                                     | `libtelemetry`       |
-| Evaluate an access-control policy                              | `libpolicy`          |
-| Filter records in a JSONL index                                | `libindex`           |
-| Find the project root                                          | `libutil`            |
-| Generate a deterministic entity graph                          | `libsyntheticgen`    |
-| Generate a secret                                              | `libsecret`          |
-| Generate a UUID                                                | `libutil`            |
-| Generate an agent profile                                      | `libskill`           |
-| Generate code from .proto files                                | `libcodegen`         |
-| Generate LLM prose for synthetic data                          | `libsyntheticprose`  |
-| Load a prompt template from disk                               | `libprompt`          |
-| Load application settings from environment                     | `libconfig`          |
-| Manage a service lifecycle (start, stop, status)               | `librc`              |
-| Manage typed resources with access control                     | `libresource`        |
-| Match a candidate to a job                                     | `libskill`           |
-| Mock a config, storage, logger, or gRPC handler in a test      | `libharness`         |
-| Parse a terrain DSL                                            | `libsyntheticgen`    |
-| Parse CLI args and render help                                 | `libcli`             |
-| Process Claude Code traces                                     | `libeval`            |
-| Query an RDF triple graph                                      | `libgraph`           |
-| Read or write .env files                                       | `libsecret`          |
-| Read or write JSONL                                            | `libstorage`         |
-| Register a gRPC service as MCP tools                           | `libmcp`             |
-| Render a markdown sparkline                                    | `libxmr`             |
-| Render a Mustache template with project overrides              | `libtemplate`        |
-| Render colored tables and JSON output                          | `libcli`             |
-| Render markdown as ANSI                                        | `libformat`          |
-| Render markdown as HTML                                        | `libformat`          |
-| Render synthetic data as HTML, Markdown, or YAML               | `libsyntheticrender` |
-| Resolve a resource identifier                                  | `libresource`        |
-| Retry a flaky network call                                     | `libutil`            |
-| Run an agent evaluation loop                                   | `libeval`            |
-| Run an interactive REPL session                                | `librepl`            |
-| Run the synthetic data parse-generate-render-validate pipeline | `libterrain`         |
-| Serialize SHACL shapes                                         | `libgraph`           |
-| Set up SPA routing                                             | `libui`              |
-| Sign a JWT                                                     | `libsecret`          |
-| Store files to local, S3, or Supabase                          | `libstorage`         |
-| Supervise a long-running daemon                                | `libsupervise`       |
-| Use generated protobuf types                                   | `libtype`            |
-| Use reactive UI state                                          | `libui`              |
-| Validate synthetic data integrity                              | `libsyntheticrender` |
+| I need to…                                                                     | Library              |
+| ------------------------------------------------------------------------------ | -------------------- |
+| Add a distributed trace span (OpenTelemetry-style observability)               | `libtelemetry`       |
+| Assemble a macOS app bundle                                                    | `libmacos`           |
+| Buffer high-volume index writes                                                | `libindex`           |
+| Build a gRPC service                                                           | `librpc`             |
+| Build a reactive single-page web app                                           | `libui`              |
+| Build a static documentation site                                              | `libdoc`             |
+| Call another gRPC service                                                      | `librpc`             |
+| Chart a metric with XmR signal detection                                       | `libxmr`             |
+| Code-sign a macOS app                                                          | `libmacos`           |
+| Compute a stable hash (SHA-256 checksum)                                       | `libutil`            |
+| Compute cosine similarity between embeddings                                   | `libvector`          |
+| Control a service's start, stop, and status                                    | `librc`              |
+| Count LLM tokens                                                               | `libutil`            |
+| Derive a role definition from a competency matrix (discipline × level × track) | `libskill`           |
+| Download and extract a tarball                                                 | `libutil`            |
+| Drive an LLM agent through a scripted run and capture its trace                | `libeval`            |
+| Emit a structured log line                                                     | `libtelemetry`       |
+| Evaluate an access-control policy                                              | `libpolicy`          |
+| Filter records in a JSONL index                                                | `libindex`           |
+| Find the project root                                                          | `libutil`            |
+| Generate a deterministic entity graph                                          | `libsyntheticgen`    |
+| Generate a secret (random token or API key)                                    | `libsecret`          |
+| Generate a UUID                                                                | `libutil`            |
+| Generate an agent role profile from discipline, level, and track               | `libskill`           |
+| Generate code from .proto files                                                | `libcodegen`         |
+| Generate LLM prose for synthetic data                                          | `libsyntheticprose`  |
+| Import shared protobuf types and namespaces                                    | `libtype`            |
+| Load a prompt template from disk                                               | `libprompt`          |
+| Load application settings (config) from environment                            | `libconfig`          |
+| Manage typed resources with access control                                     | `libresource`        |
+| Mock a config, storage, logger, or gRPC handler in a test                      | `libharness`         |
+| Parse a terrain DSL                                                            | `libsyntheticgen`    |
+| Parse and query Claude Code trace NDJSON files                                 | `libeval`            |
+| Parse CLI args and render help                                                 | `libcli`             |
+| Query an RDF triple graph                                                      | `libgraph`           |
+| Read or write .env (dotenv) files                                              | `libsecret`          |
+| Read or write JSONL                                                            | `libstorage`         |
+| Register a gRPC service as MCP tools                                           | `libmcp`             |
+| Render a markdown sparkline                                                    | `libxmr`             |
+| Render a Mustache template with project overrides                              | `libtemplate`        |
+| Render colored tables and JSON output                                          | `libcli`             |
+| Render markdown as ANSI                                                        | `libformat`          |
+| Render markdown as HTML                                                        | `libformat`          |
+| Render synthetic data as HTML, Markdown, or YAML                               | `libsyntheticrender` |
+| Resolve a typed resource by URN                                                | `libresource`        |
+| Retry a flaky network call                                                     | `libutil`            |
+| Run an interactive REPL session                                                | `librepl`            |
+| Run the end-to-end synthetic-data pipeline from a terrain file                 | `libterrain`         |
+| Score a candidate's skills against a job's required skill markers              | `libskill`           |
+| Serialize SHACL shapes                                                         | `libgraph`           |
+| Sign a JWT                                                                     | `libsecret`          |
+| Store files to local, S3, or Supabase                                          | `libstorage`         |
+| Supervise a long-running daemon                                                | `libsupervise`       |
+| Validate synthetic data integrity                                              | `libsyntheticrender` |
 
 <!-- END:needs -->
 

@@ -11,7 +11,7 @@
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
-      "Run the synthetic data parse-generate-render-validate pipeline"
+      "Run the end-to-end synthetic-data pipeline from a terrain file"
     ]
   },
   "license": "Apache-2.0",

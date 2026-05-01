@@ -12,7 +12,7 @@
   "forwardimpact": {
     "capability": "foundations",
     "needs": [
-      "Compute a stable hash",
+      "Compute a stable hash (SHA-256 checksum)",
       "Count LLM tokens",
       "Find the project root",
       "Retry a flaky network call",

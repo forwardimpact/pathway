@@ -12,9 +12,9 @@
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
-      "Derive a job from discipline, level, and track",
-      "Generate an agent profile",
-      "Match a candidate to a job"
+      "Derive a role definition from a competency matrix (discipline × level × track)",
+      "Generate an agent role profile from discipline, level, and track",
+      "Score a candidate's skills against a job's required skill markers"
     ]
   },
   "license": "Apache-2.0",

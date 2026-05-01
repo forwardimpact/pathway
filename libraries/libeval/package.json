@@ -12,8 +12,8 @@
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
-      "Process Claude Code traces",
-      "Run an agent evaluation loop"
+      "Parse and query Claude Code trace NDJSON files",
+      "Drive an LLM agent through a scripted run and capture its trace"
     ]
   },
   "license": "Apache-2.0",

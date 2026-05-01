@@ -11,7 +11,7 @@
   "forwardimpact": {
     "capability": "agent-infrastructure",
     "needs": [
-      "Manage a service lifecycle (start, stop, status)"
+      "Control a service's start, stop, and status"
     ]
   },
   "license": "Apache-2.0",

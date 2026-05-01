@@ -13,7 +13,7 @@
     "capability": "agent-infrastructure",
     "needs": [
       "Emit a structured log line",
-      "Add a distributed trace span"
+      "Add a distributed trace span (OpenTelemetry-style observability)"
     ]
   },
   "license": "Apache-2.0",

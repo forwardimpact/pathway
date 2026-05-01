@@ -12,9 +12,7 @@
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
-      "Build a web app page",
-      "Set up SPA routing",
-      "Use reactive UI state"
+      "Build a reactive single-page web app"
     ]
   },
   "license": "Apache-2.0",

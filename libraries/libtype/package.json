@@ -11,7 +11,7 @@
   "forwardimpact": {
     "capability": "agent-infrastructure",
     "needs": [
-      "Use generated protobuf types"
+      "Import shared protobuf types and namespaces"
     ]
   },
   "license": "Apache-2.0",

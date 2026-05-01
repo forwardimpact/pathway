@@ -13,7 +13,7 @@
     "capability": "agent-retrieval",
     "needs": [
       "Manage typed resources with access control",
-      "Resolve a resource identifier"
+      "Resolve a typed resource by URN"
     ]
   },
   "license": "Apache-2.0",

@@ -10,7 +10,7 @@
   "forwardimpact": {
     "capability": "agent-infrastructure",
     "needs": [
-      "Load application settings from environment"
+      "Load application settings (config) from environment"
     ]
   },
   "license": "Apache-2.0",

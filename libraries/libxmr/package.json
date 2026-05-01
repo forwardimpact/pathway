@@ -12,9 +12,8 @@
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
-      "Compute an XmR control chart",
-      "Render a markdown sparkline",
-      "Detect signals in a time series"
+      "Chart a metric with XmR signal detection",
+      "Render a markdown sparkline"
     ]
   },
   "license": "Apache-2.0",

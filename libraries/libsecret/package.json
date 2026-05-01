@@ -12,9 +12,9 @@
   "forwardimpact": {
     "capability": "foundations",
     "needs": [
-      "Generate a secret",
+      "Generate a secret (random token or API key)",
       "Sign a JWT",
-      "Read or write .env files"
+      "Read or write .env (dotenv) files"
     ]
   },
   "license": "Apache-2.0",
