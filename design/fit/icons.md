@@ -99,6 +99,25 @@ Equilateral triangle with vertical rectangle entrance at center-bottom. Sits on
 a ground line. Shelter, preparation, shared space — the tent is temporary and
 portable, reflecting that knowledge management should travel with you.
 
+## Gear — The Carabiner
+
+```
+   ╭───╮
+  ╱     ╲
+ │ ┃     │
+ │ ┃     │   ← gate runs along the inside edge
+ │       │
+  ╲     ╱
+   ╰───╯
+```
+
+Asymmetric oval (taller than wide), with a short vertical gate line set just
+inside the long-axis edge — the spring-loaded opening. A tiny notch at the top
+where the gate meets the body suggests the hinge. No fill, consistent with the
+icon system. The carabiner is the metaphor for a modular field kit — clip on
+what you need, drop what you don't. Each library in the Gear catalog is a
+clip-on tool; the registry is the ring.
+
 ---
 
 ## Icon System Rules
@@ -116,11 +135,11 @@ portable, reflecting that knowledge management should travel with you.
 ## Combined Icon: The Suite Mark
 
 ```
- ┌──┬──┐      ╱─╲             N         ┃╲         ⛳/\        △
- │ /│× │     ╱   ╲            │        ┌┸─┐       /  \      / \
- │/ │  │    ~~~~~~~~~~~~  ───┼───    ┌────┐     /    \    /___\
- └──┴──┘                      │      ──────    /      \
-   Map       Pathway       Guide   Landmark   Summit   Outpost
+ ┌──┬──┐      ╱─╲             N         ┃╲         ⛳/\        △        ╭──╮
+ │ /│× │     ╱   ╲            │        ┌┸─┐       /  \      / \       │╱  │
+ │/ │  │    ~~~~~~~~~~~~  ───┼───    ┌────┐     /    \    /___\       │   │
+ └──┴──┘                      │      ──────    /      \                ╰──╯
+   Map       Pathway       Guide   Landmark   Summit   Outpost     Gear
 ```
 
-Six icons on a shared ground line, evenly spaced.
+Seven icons on a shared ground line, evenly spaced.

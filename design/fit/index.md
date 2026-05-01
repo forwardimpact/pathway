@@ -1,18 +1,18 @@
 # Forward Impact Team (FIT) — Brand Implementation
 
 > The FIT realization of the [shared design language](../index.md): a monochrome
-> design system for six open-source products — **Map**, **Pathway**, **Guide**,
-> **Landmark**, **Summit**, and **Outpost** — built around the metaphor of
-> engineers deployed "in the field." Three characters — the Engineer, the AI
-> Agent, and the Business Stakeholder — collaborate at the boundary between
-> technology and the real world.
+> design system for seven open-source products — **Map**, **Pathway**,
+> **Guide**, **Landmark**, **Summit**, **Outpost**, and **Gear** — built around
+> the metaphor of engineers deployed "in the field." Three characters — the
+> Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
+> boundary between technology and the real world.
 >
 > The design embodies Deming's principle: improve the performance of developers
 > and agents, improve quality, increase output, and bring pride of workmanship
 > to engineering teams.
 
 This file specifies what is FIT-specific: the field metaphor, FIT's reading of
-the family characters, the six products, the concrete color palette, the
+the family characters, the seven products, the concrete color palette, the
 typography choices, the type scale, the layout patterns, the product visual
 language, and the CSS design tokens. The product scenes and product icons live
 alongside in [scenes.md](scenes.md) and [icons.md](icons.md). For the abstract
@@ -28,7 +28,7 @@ design language and the three characters' shared visual specifications, see
 1. **Expedition**: Forward deployed — operating with autonomy in unfamiliar
    terrain. The Map shows the territory. The Pathway is how you advance. The
    Guide keeps you oriented. The Summit is the peak the team aims to reach
-   together. Outpost is where you prepare.
+   together. Outpost is where you prepare. Gear is what you carry.
 2. **Scientific fieldwork**: Engineers embedded with business units and domain
    experts — working where the problems live.
 3. **Topographic/landscape**: Contour maps, trail markers, compass roses,
@@ -65,7 +65,7 @@ what follows are FIT-specific readings, not new shapes:
 
 ---
 
-## 3. The Six Products
+## 3. The Seven Products
 
 | Product      | Question it answers                               |
 | ------------ | ------------------------------------------------- |
@@ -75,6 +75,7 @@ what follows are FIT-specific readings, not new shapes:
 | **Landmark** | What milestones has my engineering reached?       |
 | **Summit**   | Is this team supported to reach peak performance? |
 | **Outpost**  | Am I prepared for what's ahead today?             |
+| **Gear**     | What do I carry into the field?                   |
 
 Each product has its own visual motif — drawn from the field metaphor — that
 surfaces in icons and scenes but never in structural UI.
@@ -87,6 +88,7 @@ surfaces in icons and scenes but never in structural UI.
 | **Landmark** | Vantage points         |
 | **Summit**   | The mountain peak      |
 | **Outpost**  | Shelter and foundation |
+| **Gear**     | Tools at hand          |
 
 ---
 
@@ -176,8 +178,8 @@ DM Sans, 18px, weight 400, gray-400:
 
 ## 6. Product Scenes
 
-The FIT product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost — and
-the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
+The FIT product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear —
+and the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
 extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with FIT
 product symbols.
 
@@ -185,10 +187,10 @@ product symbols.
 
 ## 7. Product Icons
 
-The six FIT product icons — Map, Pathway, Guide, Landmark, Summit, Outpost —
-plus the icon system rules and the combined suite mark live in a sibling file:
-[icons.md](icons.md). They share the family icon grid (24px, 2px stroke, no
-fill) and read as if drawn in the same notebook as the
+The seven FIT product icons — Map, Pathway, Guide, Landmark, Summit, Outpost,
+Gear — plus the icon system rules and the combined suite mark live in a sibling
+file: [icons.md](icons.md). They share the family icon grid (24px, 2px stroke,
+no fill) and read as if drawn in the same notebook as the
 [characters](../index.md#2-the-three-characters).
 
 ---
@@ -277,14 +279,15 @@ instantiate with FIT colors:
 
 Each product shares the core design system with subtle differentiators:
 
-| Product      | Accent Metaphor                       | Empty State                                      | Tone                                              |
-| ------------ | ------------------------------------- | ------------------------------------------------ | ------------------------------------------------- |
-| **Map**      | Cartography — grids, pins, layers     | AI Agent holding blank map toward viewer         | "Chart the territory before you move through it." |
-| **Pathway**  | Trail — switchbacks, elevation marks  | Engineer at trailhead, reading a trail sign      | "Navigate the trail."                             |
-| **Guide**    | Navigation — compass, stars           | AI Agent holding compass toward viewer           | "Find your bearing."                              |
-| **Landmark** | Observation — cairns, survey markers  | AI Agent beside cairn, holding telescope outward | "Check the cairn."                                |
-| **Summit**   | Ascent — peaks, routes, team planning | Trio looking up at peak with flag                | "Reach the peak."                                 |
-| **Outpost**  | Shelter — tents, campfire, logbooks   | Completed tent with flag, door flap open         | "Set up camp."                                    |
+| Product      | Accent Metaphor                            | Empty State                                        | Tone                                              |
+| ------------ | ------------------------------------------ | -------------------------------------------------- | ------------------------------------------------- |
+| **Map**      | Cartography — grids, pins, layers          | AI Agent holding blank map toward viewer           | "Chart the territory before you move through it." |
+| **Pathway**  | Trail — switchbacks, elevation marks       | Engineer at trailhead, reading a trail sign        | "Navigate the trail."                             |
+| **Guide**    | Navigation — compass, stars                | AI Agent holding compass toward viewer             | "Find your bearing."                              |
+| **Landmark** | Observation — cairns, survey markers       | AI Agent beside cairn, holding telescope outward   | "Check the cairn."                                |
+| **Summit**   | Ascent — peaks, routes, team planning      | Trio looking up at peak with flag                  | "Reach the peak."                                 |
+| **Outpost**  | Shelter — tents, campfire, logbooks        | Completed tent with flag, door flap open           | "Set up camp."                                    |
+| **Gear**     | Field kit — carabiner, multi-tool, cordage | Engineer holding empty open backpack toward viewer | "Carry what you need."                            |
 
 ### Product-Specific UI Treatments
 
@@ -302,6 +305,9 @@ Each product shares the core design system with subtle differentiators:
   showing before/after team composition.
 - **Outpost**: Document cards use warm-tinted backgrounds (`--sand-50`)
   suggesting pages in a notebook.
+- **Gear**: Library catalog uses an inventory grid — items as cards with
+  category and "I need to…" intent badges. The verb-shaped index is the primary
+  entry point. Code blocks show `npx fit-<name>` invocations prominently.
 
 ---
 

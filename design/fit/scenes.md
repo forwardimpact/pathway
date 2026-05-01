@@ -117,24 +117,36 @@ flavors of eagerness.
 **Context:** Landmark product pages, analysis dashboards, measurement features.
 
 ```
-    🐰📊  🤖🔭  👔👉
-       \    |    /
-        (on outcrop)
-     🪨 (cairn with flag)
+    🐰👀   🤖🔭   👔👉
+       \    |    ↘
+       (no ground, no horizon)
+         🪨🚩 ← the only object besides the trio
 ```
 
-Trio on a rocky outcrop, all facing outward — away from the viewer. AI Agent
-(center) has a telescope raised, body perfectly still. Engineer (left) is up on
-tiptoes, one hand shielding eyes, craning to see what Agent sees. Stakeholder
-(right, no backpack) stands flat-footed, arm extended toward the horizon, palm
-open — pointing out what matters with calm authority. Shoulders close, standing
-as a tight row.
+Trio in a tight row, all facing outward — away from the viewer — as if scanning
+something distant. A small cairn of stacked stones with a pennant flag stands on
+the implied ground a few steps in front of Stakeholder, sized smaller than any
+character. AI Agent (center) holds a long telescope raised to one eye with both
+hands, body perfectly still, methodically sweeping the distance. Engineer (left)
+is up on extreme tiptoes — one foot stretched high, the other barely touching
+down — both hands cupped around their eyes like makeshift binoculars, brow
+furrowed and mouth set in fierce concentration as they crane to see whatever
+Agent's lens has found. Stakeholder (right, no backpack) stands flat-footed and
+relaxed, one arm extended just past the row, index finger casually pointing down
+and forward at the cairn — closed-lipped knowing smile, one eyebrow slightly
+raised.
 
-**Key details:** Outward-facing orientation is distinctive — most scenes have
-characters facing each other; here they face the same direction. Engineer on
-tiptoes vs. Stakeholder flat-footed is the visual joke: the hacker trying
-harder, the domain expert who already knows where to look. The outcrop is a
-simple shape beneath them — lighter and simpler than the characters.
+**Key details:** The joke is the cairn — the marker is right there, visible to
+anyone who looks down. Engineer's tiptoes-and-telescope-envy, Agent's
+instrument-grade scan, and Stakeholder's casual point at the obvious thing tell
+the product thesis in one frame: the signals worth reading are not always far
+away. Three relationships to seeing — straining, instrumented, grounded.
+Outward-facing orientation is distinctive across the scene set; here the trio
+faces the same direction. **No outcrop, no rocks, no cliff edge, no ground
+plane, no horizon line, no distant peaks** — characters and the small cairn
+float freely on pure white per the family scene grammar. The cairn is the only
+object besides the trio; render it simpler than the characters — lighter gray,
+fewer strokes, smaller.
 
 ## Scene: Summit — Planning the Ascent
 
@@ -164,6 +176,42 @@ weight-forward posture is the hacker impulse — ready to ship. Stakeholder's
 folded arms aren't resistance, they're strategic patience. This scene owns the
 mountain peak; Pathway owns the trail.
 
+## Scene: Gear — Choosing the Kit
+
+**Context:** Gear product pages, library catalog, skill-pack documentation.
+
+```
+    🐰⤵       🤖         👔⤴
+     ↘        |          ↗
+   ┌───────────────────────────┐
+   │  🔧  🪢  📓  ⛓  🔗  ⌒    │   ← gear knolled across the bench
+   └───────────────────────────┘
+```
+
+Trio standing behind a low, waist-high workbench. Field gear is knolled across
+the surface end to end — multi-tool, coil of cordage, small notebook, length of
+webbing, carabiner — in a neat row, evenly spaced. Engineer (left) leans far
+forward over their end of the bench, almost folded across it, near hand
+stretching for more cord while the far hand already clutches three small items
+fanned together — a carabiner, a multi-tool, and a folded knife — clearly more
+than they can carry. Eyes wide, mouth slightly open in a delighted "ooh" —
+kid-in-a-toy-shop face. AI Agent (center) stands perfectly upright behind the
+middle of the bench, one hand gently sliding a single item back into alignment
+with the row, head angled down — fine-tuning the arrangement. Stakeholder
+(right, no backpack) stands a half-step back from their end of the bench, one
+carabiner held up at eye level between thumb and forefinger, the other hand at
+their side — one eyebrow slightly raised, mouth set in a small closed-lipped
+smile, already decided.
+
+**Key details:** Three speeds revealed by lean — Engineer tipped forward
+(maximalist grabbing two at once), Agent upright at center (curator perfecting
+the layout), Stakeholder tipped back (minimalist who already chose). The
+diagonal across the trio is the joke: ↘ | ↗. The bench is one continuous surface
+running the full width of the group — the gear is shared inventory laid out for
+everyone, not three separate piles. The knolled row reads as catalog. Items on
+the bench are simpler than the characters: lighter gray, fewer strokes, smaller
+in visual weight.
+
 ---
 
 ## Scene Usage Matrix
@@ -179,10 +227,11 @@ mountain peak; Pathway owns the trail.
 | Landmark product hero        | Reading the Signals      | 320–400px |
 | Summit product hero          | Planning the Ascent      | 320–400px |
 | Outpost product hero         | Setting Up Camp          | 320–400px |
+| Gear product hero            | Choosing the Kit         | 320–400px |
 | Product cards (suite page)   | Product scenes (cropped) | 120–160px |
 | Error / empty states         | Single character         | 80–120px  |
 | Loading states               | AI Agent + compass       | 48–80px   |
 
 **Asset status:** Hero illustrations exist in `design/fit/assets/` for Map,
-Pathway, Guide, Outpost, and Documentation Dig. Landmark and Summit scenes are
-specified above but not yet illustrated.
+Pathway, Guide, Outpost, and Documentation Dig. Landmark, Summit, and Gear
+scenes are specified above but not yet illustrated.
