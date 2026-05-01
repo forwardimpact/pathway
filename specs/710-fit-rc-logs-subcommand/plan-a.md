@@ -97,10 +97,7 @@ it through the switch with explicit missing-arg gating.
      break;
    ```
 
-   The literal phrase **`missing required service argument`** is contractual: it
-   is the only wording in this plan that simultaneously satisfies spec criterion
-   #4's `/service/i` and `/(missing|required)/i` regexes (note that "requires"
-   does **not** match `/required/i`).
+**Depends on:** Step 1 (calls `manager.logs`).
 
 **Verification:**
 
@@ -113,6 +110,8 @@ it through the switch with explicit missing-arg gating.
 
 **Intent.** Cover the four interface rows from the design at the manager
 boundary.
+
+**Depends on:** Step 1 (tests the new method).
 
 **Files:**
 
@@ -230,6 +229,12 @@ only).
   `process.stdout` that closes the parent shell's output stream for the
   remainder of the process. The implementer cannot see this behavior from Step
   1's diff alone — it is a Node API contract, not a code-shape choice.
+- **Step 2's usage-error wording is regex-pinned.** Spec criterion #4's
+  `/(missing|required)/i` requires the literal substring `required` or
+  `missing`; "requires" (no trailing `d`) does not match. The chosen phrase
+  `missing required service argument` is the only wording in this plan that
+  satisfies both `/service/i` and `/(missing|required)/i`, and the Step 5
+  verification grep depends on it byte-for-byte.
 
 ## Execution recommendation
 
