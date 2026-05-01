@@ -4,6 +4,17 @@ Conventions when working under `libraries/`. The catalog itself lives in
 [README.md](README.md); this file documents the metadata that drives it and the
 rules a CLI-shipping library must follow.
 
+## Audience
+
+The primary audience for library CLIs and their matching skills is **external
+agents and engineers** who have limited context and no direct access to this
+monorepo. They reach a tool via `npx fit-<name>` or by loading the matching
+skill — without ever cloning the repo.
+
+Write `--help` output, skill instructions, and published guides for that reader:
+self-contained, no insider tooling references, no relative paths into
+`libraries/` or `websites/`, and every doc link a fully-qualified public URL.
+
 ## `package.json` structure
 
 Every library carries metadata the catalog generators consume. Required fields:
@@ -33,34 +44,53 @@ bun run lib:needs
 
 ## CLIs and progressive documentation
 
-If a library ships a CLI (a `bin/` entry in `package.json`), all three of the
-following must exist — none alone is sufficient:
+If a library ships a CLI (a `bin/` entry in `package.json`), three artifacts
+must exist together so an external reader lands on the same docs from any entry
+point:
 
-1. **A user guide** at `websites/fit/docs/guides/<slug>/index.md`. Written for
-   the external user, not the contributor. Same standards as the rest of
-   `websites/fit/`.
-2. **A `fit-*` skill** at `.claude/skills/fit-<slug>/SKILL.md`. The skill's
-   `## Documentation` section links the guide with the fully-qualified URL
-   `https://www.forwardimpact.team/docs/guides/<slug>/index.md` (external users
-   have no monorepo access — see [root CLAUDE.md](../CLAUDE.md)).
-3. **A `documentation` entry on the libcli definition** so `--help` and
-   `--help --json` surface the same link. Both `libcli` and `librepl` render it
-   under `Documentation:` automatically:
+- The **user guide** — markdown source at
+  `websites/fit/docs/guides/<name>/index.md`.
+- The **skill** — `.claude/skills/fit-<name>/SKILL.md`.
+- The **CLI `--help`** — `documentation` entry on the libcli definition.
 
-   ```js
-   const cli = createCli({
-     name: "fit-foo",
-     documentation: [
-       {
-         title: "Foo Guide",
-         url: "https://www.forwardimpact.team/docs/guides/foo/index.md",
-         description: "How to use fit-foo.",
-       },
-     ],
-   });
-   ```
+### Linking rule
 
-The skill, the CLI help, and the published guide must share the same title and
-URL. Progressive discovery: an agent that hits the CLI cold sees the guide link
-in `--help`; an agent that loads the skill sees the same link; either path lands
-on the same authoritative document.
+Skill and CLI both link the guide using the **fully-qualified URL of the
+markdown source**:
+
+```
+https://www.forwardimpact.team/docs/guides/<name>/index.md
+```
+
+The `.md` extension is deliberate. Agents fetch markdown more reliably than
+rendered HTML, and the `.md` URL maps one-to-one to the source file in
+`websites/fit/docs/guides/<name>/index.md`. Use the same title and URL across
+all three artifacts.
+
+### Worked example: `fit-foo`
+
+Guide source: `websites/fit/docs/guides/foo/index.md`.
+
+Skill (`.claude/skills/fit-foo/SKILL.md`) carries this `## Documentation` block:
+
+```markdown
+## Documentation
+
+- [Foo Guide](https://www.forwardimpact.team/docs/guides/foo/index.md) — how
+  to use `fit-foo`.
+```
+
+CLI definition (libcli) carries the same link:
+
+```js
+const cli = createCli({
+  name: "fit-foo",
+  documentation: [
+    {
+      title: "Foo Guide",
+      url: "https://www.forwardimpact.team/docs/guides/foo/index.md",
+      description: "How to use fit-foo.",
+    },
+  ],
+});
+```
