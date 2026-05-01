@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libharness",
   "version": "0.1.17",
-  "description": "Shared mocks and test fixtures so every agent service tests the same way.",
+  "description": "Shared mocks and test fixtures so every library and service tests the same way.",
   "keywords": [
     "test",
     "mock",

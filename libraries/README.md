@@ -72,16 +72,16 @@ signal is distinguished from noise.
 How agent services run — protocol, types, configuration, observability, process
 supervision, and the bridge that exposes gRPC services as MCP tools.
 
-| Library          | Capability                                                                                         |
-| ---------------- | -------------------------------------------------------------------------------------------------- |
-| **librpc**       | gRPC server and client framework — how agent services talk to each other.                          |
-| **libtype**      | Generated protobuf types and namespaces shared across agent-facing services.                       |
-| **libconfig**    | Environment-aware configuration loading for services, CLIs, and extensions.                        |
-| **libtelemetry** | Structured RFC 5424 logging and trace spans for observable agent operations.                       |
-| **libsupervise** | Process supervision with restart policies, log rotation, and JSON config agents can read and tune. |
-| **librc**        | Agent-friendly service management — start, stop, status via Unix sockets controlled by svscan.     |
-| **libharness**   | Shared mocks and test fixtures so every agent service tests the same way.                          |
-| **libmcp**       | Config-driven gRPC-to-MCP tool registration — agents see protobuf services as MCP tools.           |
+| Library          | Capability                                                                                                                                                |
+| ---------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| **librpc**       | gRPC server and client framework — how agent services talk to each other.                                                                                 |
+| **libtype**      | Generated protobuf types and namespaces shared across agent-facing services.                                                                              |
+| **libcodegen**   | Protobuf code generation — produces the types and clients consumed by `libtype` and `librpc`.                                                             |
+| **libconfig**    | Environment-aware loading of application settings for services, CLIs, and extensions.                                                                     |
+| **libtelemetry** | Structured RFC 5424 logging and trace spans for observable agent operations.                                                                              |
+| **libsupervise** | Process supervision (restart policies, log rotation) driven by JSON daemon manifests agents can read and tune; built on `libconfig` for settings loading. |
+| **librc**        | Agent-friendly service management — start, stop, status via Unix sockets controlled by svscan.                                                            |
+| **libmcp**       | Config-driven gRPC-to-MCP tool registration — agents see protobuf services as MCP tools.                                                                  |
 
 ### Foundations
 
@@ -91,7 +91,7 @@ Cross-cutting primitives and platform-specific helpers used by all of the above.
 | -------------- | -------------------------------------------------------------------------------------------------------------- |
 | **libutil**    | Cross-cutting utilities: retry with backoff, hashing, token counting, project-root finder, tarball downloader. |
 | **libsecret**  | Secret generation, JWT signing, and `.env` file management for services and CLIs.                              |
-| **libcodegen** | Protobuf code generation — produces the types and clients consumed by `libtype` and `librpc`.                  |
+| **libharness** | Shared mocks and test fixtures so every library and service tests the same way.                                |
 | **libmacos**   | macOS bundle assembly, code signing, and TCC responsibility helpers — desktop delivery for agent products.     |
 
 ## Per-library detail
