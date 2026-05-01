@@ -260,8 +260,7 @@ build-app-product NAME:
         --entitlements "products/outpost/macos/Outpost.entitlements" \
         --resource "products/outpost/config" \
         --resource "products/outpost/templates" \
-        --resource "design/icons/outpost-flat.svg" \
-        --resource "design/icons/outpost.svg" \
+        --resource "design/fit/assets/icon-outpost.svg" \
         --version "$(jq -r .version products/outpost/package.json)" \
         --out-dir dist/apps
     else

@@ -131,7 +131,15 @@ function buildApp() {
 
   const LIBMACOS = join(PROJECT_DIR, "..", "..", "libraries", "libmacos");
   const script = join(LIBMACOS, "scripts", "build-app.sh");
-  const iconDir = join(PROJECT_DIR, "..", "..", "design", "icons");
+  const iconPath = join(
+    PROJECT_DIR,
+    "..",
+    "..",
+    "design",
+    "fit",
+    "assets",
+    "icon-outpost.svg",
+  );
   run(
     [
       `bash "${script}"`,
@@ -142,8 +150,7 @@ function buildApp() {
       `--entitlements "${join(PROJECT_DIR, "macos", "Outpost.entitlements")}"`,
       `--resource "${join(PROJECT_DIR, "config")}"`,
       `--resource "${join(PROJECT_DIR, "templates")}"`,
-      `--resource "${join(iconDir, "outpost-flat.svg")}"`,
-      `--resource "${join(iconDir, "outpost.svg")}"`,
+      `--resource "${iconPath}"`,
       `--version "${VERSION}"`,
       `--out-dir "${DIST_DIR}"`,
     ].join(" "),

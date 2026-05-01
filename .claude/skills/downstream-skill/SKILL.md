@@ -34,12 +34,12 @@ Run this skill when:
   by the upstream skill in each installation
 - `<installation>/.claude/skills/*/SKILL.md` — current skill files in the
   installation
-- `products/outpost/template/.claude/skills/` — canonical template skills in
+- `products/outpost/templates/.claude/skills/` — canonical template skills in
   this monorepo
 
 ## Outputs
 
-- Updated skills in `products/outpost/template/.claude/skills/`
+- Updated skills in `products/outpost/templates/.claude/skills/`
 - Updated capability data in `data/pathway/capabilities/` (when changes affect
   agent skill definitions)
 - Summary of what was incorporated and what was deferred
@@ -85,7 +85,7 @@ Then compare with the canonical template:
 
 ```bash
 # Read the canonical template skill
-cat products/outpost/template/.claude/skills/<skill-name>/SKILL.md
+cat products/outpost/templates/.claude/skills/<skill-name>/SKILL.md
 ```
 
 #### Evaluation Criteria
@@ -118,7 +118,7 @@ installation-specific customizations mixed with general improvements.
 
 ```bash
 # Edit the template skill
-# products/outpost/template/.claude/skills/<skill-name>/SKILL.md
+# products/outpost/templates/.claude/skills/<skill-name>/SKILL.md
 ```
 
 **For new skills:**
@@ -154,7 +154,7 @@ After applying upstream changes:
 1. **Diff the template** to confirm only intended changes were made:
 
 ```bash
-git diff products/outpost/template/.claude/skills/
+git diff products/outpost/templates/.claude/skills/
 ```
 
 2. **Run validation** if capability data was changed:

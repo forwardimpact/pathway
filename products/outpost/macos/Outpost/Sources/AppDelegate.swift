@@ -12,7 +12,7 @@ class AppDelegate: NSObject, NSApplicationDelegate {
         NSApp.setActivationPolicy(.accessory)
 
         // Set app icon from bundled SVG
-        if let iconPath = Bundle.main.path(forResource: "outpost", ofType: "svg"),
+        if let iconPath = Bundle.main.path(forResource: "icon-outpost", ofType: "svg"),
            let icon = NSImage(contentsOfFile: iconPath) {
             NSApp.applicationIconImage = icon
         }

@@ -36,7 +36,7 @@ class StatusMenu: NSObject, NSMenuDelegate {
 
     private func setupStatusItem() {
         if let button = statusItem.button {
-            button.image = Self.loadBundleIcon("outpost-flat", size: NSSize(width: 18, height: 18))
+            button.image = Self.loadBundleIcon("icon-outpost", size: NSSize(width: 18, height: 18))
             button.image?.isTemplate = true
         }
         statusItem.menu = buildMenu()
