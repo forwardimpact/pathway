@@ -208,4 +208,3 @@ sizes, or standard configurations without modifying the default.
 
 - [Map Internals](/docs/internals/map/) -- Schema and validation for engineering
   standard data
-- [CLI Reference](/docs/reference/cli/) -- Full CLI command reference

@@ -230,12 +230,6 @@ const definition = {
       url: "https://www.forwardimpact.team/summit/index.md",
       description: "Product overview, design principles, and audience model.",
     },
-    {
-      title: "CLI Reference",
-      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
-      description:
-        "Complete command reference for all Forward Impact CLI tools.",
-    },
   ],
 };
 

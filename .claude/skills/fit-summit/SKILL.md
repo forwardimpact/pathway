@@ -146,5 +146,3 @@ For deeper context beyond this skill's scope:
   scenarios
 - [Summit Overview](https://www.forwardimpact.team/summit/index.md) — Product
   overview, design principles, and audience model
-- [CLI Reference](https://www.forwardimpact.team/docs/reference/cli/index.md) —
-  Complete command reference for all Forward Impact CLI tools

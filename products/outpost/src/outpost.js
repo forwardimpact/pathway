@@ -330,12 +330,6 @@ const definition = {
       description:
         "Task-oriented guide to setting up and using Outpost for personal knowledge management.",
     },
-    {
-      title: "CLI Reference",
-      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
-      description:
-        "Complete command reference for all Forward Impact CLI tools.",
-    },
   ],
 };
 
