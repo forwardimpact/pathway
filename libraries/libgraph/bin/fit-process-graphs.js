@@ -7,9 +7,14 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 import { createGraphIndex } from "@forwardimpact/libgraph";
 import { GraphProcessor } from "@forwardimpact/libgraph/processor/graph.js";
 
-const { version: VERSION } = JSON.parse(
-  readFileSync(new URL("../package.json", import.meta.url), "utf8"),
-);
+// `bun build --compile` injects FIT_PROCESS_GRAPHS_VERSION via --define,
+// eliminating the readFileSync branch in the compiled binary (which would
+// ENOENT against the bunfs virtual mount). Source execution falls through
+// to package.json.
+const VERSION =
+  process.env.FIT_PROCESS_GRAPHS_VERSION ||
+  JSON.parse(readFileSync(new URL("../package.json", import.meta.url), "utf8"))
+    .version;
 
 const definition = {
   name: "fit-process-graphs",
