@@ -11,7 +11,7 @@
 // Usage:
 //   node scripts/png-alpha.mjs [--threshold 0-255] <file ...>
 //
-// --threshold  alpha at or below this value becomes 0 (default 96).
+// --threshold  alpha at or below this value becomes 0 (default 160).
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
@@ -20,7 +20,7 @@ import sharp from "sharp";
 
 const { values, positionals } = parseArgs({
   options: {
-    threshold: { type: "string", default: "96" },
+    threshold: { type: "string", default: "160" },
     help: { type: "boolean", short: "h" },
   },
   allowPositionals: true,
