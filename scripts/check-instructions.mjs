@@ -5,6 +5,13 @@
 import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
+const L2_CLAUDE_MD_MAX_LINES = 192;
+const L3_CONTRIBUTING_MAX_LINES = 256;
+const L5_AGENT_PROFILE_MAX_LINES = 64;
+const L6_SKILL_PROCEDURE_MAX_LINES = 192;
+const L7_SKILL_REFERENCE_MAX_LINES = 128;
+const L8_CHECKLIST_MAX_ITEMS = 9;
+
 const root = resolve(new URL("..", import.meta.url).pathname);
 let status = 0;
 
@@ -66,24 +73,32 @@ const findClaudeMdFiles = async (dir = ".") => {
 
 // L2 — every CLAUDE.md (root and any directory-scoped instruction file).
 for (const path of await findClaudeMdFiles()) {
-  await lineCount(path, 192, "L2 CLAUDE.md");
+  await lineCount(path, L2_CLAUDE_MD_MAX_LINES, "L2 CLAUDE.md");
 }
 
 // L3 — CONTRIBUTING.md
-await lineCount("CONTRIBUTING.md", 256, "L3 CONTRIBUTING.md");
+await lineCount(
+  "CONTRIBUTING.md",
+  L3_CONTRIBUTING_MAX_LINES,
+  "L3 CONTRIBUTING.md",
+);
 
 // L5 — agent profiles
 for (const f of await listFiles(
   ".claude/agents",
   (e) => e.isFile() && e.name.endsWith(".md"),
 )) {
-  await lineCount(f, 64, "L5 agent profile");
+  await lineCount(f, L5_AGENT_PROFILE_MAX_LINES, "L5 agent profile");
 }
 
 // L6 — skill procedure (SKILL.md)
 const skillDirs = await listFiles(".claude/skills", (e) => e.isDirectory());
 for (const d of skillDirs) {
-  await lineCount(`${d}/SKILL.md`, 192, "L6 skill procedure");
+  await lineCount(
+    `${d}/SKILL.md`,
+    L6_SKILL_PROCEDURE_MAX_LINES,
+    "L6 skill procedure",
+  );
 }
 
 // L7 — skill references
@@ -92,7 +107,7 @@ for (const d of skillDirs) {
     `${d}/references`,
     (e) => e.isFile() && e.name.endsWith(".md"),
   )) {
-    await lineCount(f, 128, "L7 skill reference");
+    await lineCount(f, L7_SKILL_REFERENCE_MAX_LINES, "L7 skill reference");
   }
 }
 
@@ -117,9 +132,9 @@ for (const path of checklistSources) {
     index += 1;
     const type = m[1];
     const items = (m[2].match(itemRe) || []).length;
-    if (items > 9) {
+    if (items > L8_CHECKLIST_MAX_ITEMS) {
       fail(
-        `${path} checklist #${index} (${type}) has ${items} items (max 9, L8 checklist)`,
+        `${path} checklist #${index} (${type}) has ${items} items (max ${L8_CHECKLIST_MAX_ITEMS}, L8 checklist)`,
       );
     }
   }

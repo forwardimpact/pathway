@@ -13,68 +13,6 @@ const fail = (msg) => {
   status = 1;
 };
 
-const libharnessExports = [
-  "createMockConfig",
-  "createMockServiceConfig",
-  "createMockExtensionConfig",
-  "createMockStorage",
-  "MockStorage",
-  "createMockLogger",
-  "createSilentLogger",
-  "createMockFs",
-  "createMockGrpcFn",
-  "MockMetadata",
-  "createMockRequest",
-  "createMockResponse",
-  "createMockObserverFn",
-  "createMockTracer",
-  "createMockAuthFn",
-  "createMockResourceIndex",
-  "createMockMemoryClient",
-  "createMockLlmClient",
-  "createMockAgentClient",
-  "createMockTraceClient",
-  "createMockVectorClient",
-  "createMockGraphClient",
-  "createMockToolClient",
-  "createMockServiceCallbacks",
-  "createMockSupabaseClient",
-  "createMockQueries",
-  "createMockProcess",
-  "createMockS3Client",
-  "createToolUseMsg",
-  "createTextBlockMsg",
-  "createMockAgentQuery",
-  "createTurtleHelpers",
-  "withSilentConsole",
-  "assertThrowsMessage",
-  "assertRejectsMessage",
-  "createTestStandard",
-  "createTestPerson",
-  "createTestRoster",
-  "createTestEvidenceRow",
-  "createTestSkillWithMarkers",
-  "createTestLevel",
-  "createTestLevels",
-  "createTestSkill",
-  "createTestSkills",
-  "createTestDiscipline",
-  "createTestTrack",
-  "createTestBehaviour",
-  "createTestBehaviours",
-  "createTestCapability",
-  "createTestDriver",
-  "createTestTrace",
-  "collectStream",
-  "collectLines",
-  "stripAnsi",
-  "writeLines",
-  "memoizeAsync",
-  "memoizeOnSubject",
-  "createDeferred",
-  "spy",
-];
-
 const files = execSync(
   "find ./libraries ./products ./services ./tests -name '*.test.js' -not -path '*/node_modules/*'",
   { cwd: root, encoding: "utf8" },
@@ -137,8 +75,6 @@ for (const file of files) {
   for (const finding of findings) {
     fail(`${file}: ${finding}`);
   }
-
-  void libharnessExports; // suppress unused-vars complaints from linters.
 }
 
 process.exit(status);

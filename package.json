@@ -19,7 +19,7 @@
     "prestart": "bunx fit-pathway build",
     "start": "bunx serve public",
     "dev": "bunx fit-pathway dev",
-    "check": "bun run format && bun run lint && node scripts/check-instructions.mjs && node scripts/check-libharness.mjs && node scripts/library-capabilities.mjs --check && node scripts/library-needs.mjs --check",
+    "check": "bun run format && bun run lint && node scripts/check-instructions.mjs && node scripts/check-libharness.mjs && bun run lib:capabilities && bun run lib:needs",
     "check:fix": "bun run format:fix && bun run lint:fix",
     "lint": "eslint . --max-warnings 0 --cache --concurrency=auto",
     "lint:fix": "eslint . --fix --cache --concurrency=auto",
@@ -29,8 +29,9 @@
     "test:e2e": "bunx playwright test",
     "validate": "bunx fit-map validate",
     "generate": "fit-terrain",
-    "lib:capabilities": "node scripts/library-capabilities.mjs",
-    "lib:needs": "node scripts/library-needs.mjs"
+    "lib:capabilities": "node scripts/library-catalog.mjs capabilities",
+    "lib:needs": "node scripts/library-catalog.mjs needs",
+    "lib:fix": "node scripts/library-catalog.mjs --fix"
   },
   "devDependencies": {
     "@eslint/js": "^10.0.1",

@@ -23,7 +23,7 @@ Five capability categories. Every library appears in exactly one.
 
 The tables below are generated from each library's `package.json`
 (`forwardimpact.capability` + `description`). To regenerate after editing a
-library: `bun run lib:capabilities`. CI fails the build if the catalog drifts.
+library: `bun run lib:fix`. CI fails the build if the catalog drifts.
 
 ### Agent Capability
 
@@ -122,7 +122,7 @@ Cross-cutting primitives and platform-specific helpers used by all of the above.
 
 Common needs that map directly to a single library. Generated from each
 library's `package.json` (`forwardimpact.needs`); regenerate with
-`bun run lib:needs`.
+`bun run lib:fix`.
 
 <!-- BEGIN:needs -->
 
@@ -227,6 +227,5 @@ Same shape as every other library here:
 - `src/` — implementation (no tests in `src`).
 - `test/` — `*.test.js` files, runner-independent (`bun:test` and `node:test`
   both work, see `libharness`).
-- Run `bun run lib:capabilities` and `bun run lib:needs` to regenerate the
-  tables above. Update any consuming product or service to import from the new
-  library.
+- Run `bun run lib:fix` to regenerate the tables above. Update any consuming
+  product or service to import from the new library.
