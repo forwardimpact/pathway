@@ -37,12 +37,16 @@ graph LR
 `ServiceManager.logs(serviceName: string): Promise<void>` — single new public
 method. Behavior:
 
-| Condition                        | stdout                | stderr                                              | exit (via caller)       |
-| -------------------------------- | --------------------- | --------------------------------------------------- | ----------------------- |
-| Known service, `current` exists  | file contents (bytes) | (empty)                                             | 0                       |
-| Known service, `current` missing | (empty)               | (empty)                                             | 0 (criterion #5)        |
-| Unknown service                  | (empty)               | `Unknown service: <name>`                           | non-zero (criterion #3) |
-| No service argument              | (empty)               | usage error matching `/required/i` and `/service/i` | non-zero (criterion #4) |
+| Condition                                                  | stdout                | stderr                                              | exit (via caller)       |
+| ---------------------------------------------------------- | --------------------- | --------------------------------------------------- | ----------------------- |
+| Known service, `current` exists with bytes                 | file contents (bytes) | (empty)                                             | 0                       |
+| Known service, log dir or `current` missing, or file empty | (empty)               | (empty)                                             | 0 (criterion #5)        |
+| Unknown service                                            | (empty)               | `Unknown service: <name>`                           | non-zero (criterion #3) |
+| No service argument                                        | (empty)               | usage error matching `/required/i` and `/service/i` | non-zero (criterion #4) |
+
+Non-ENOENT stream errors (e.g. EACCES, EISDIR) propagate as thrown exceptions to
+the CLI exception path — they are real failures, not the "no logs yet" condition
+criterion #5 covers.
 
 Stdout writing is by injectable sink to keep the test harness pattern
 established in `manager-{verb}.test.js` (mock `fs`, capture `logCalls`)
@@ -58,21 +62,24 @@ sequenceDiagram
   participant F as fs
   U->>C: logs <name>
   alt no positional arg
-    C-->>U: usageError → exit 2
+    C-->>U: usageError → exit ≥1
   else
     C->>M: logs(name)
-    M->>M: #findServiceIndex(name)
+    M->>M: service lookup
     alt unknown
       M-->>C: throw "Unknown service: name"
       C-->>U: stderr + exit ≥1
     else known
-      M->>F: createReadStream(<root>/<log_dir>/<name>/current)
-      alt ENOENT
-        F-->>M: stream error
+      M->>F: open <root>/<log_dir>/<name>/current
+      alt log dir or file missing (ENOENT), or file empty
+        F-->>M: ENOENT / EOF-on-empty
         M-->>C: resolve (silent)
         C-->>U: exit 0
-      else opens
-        F-->>U: stream → stdout
+      else file has bytes
+        F->>M: stream chunks
+        M->>C: pipe to stdout sink
+        C-->>U: stdout bytes
+        F-->>M: stream end
         M-->>C: resolve on close
         C-->>U: exit 0
       end
@@ -82,14 +89,14 @@ sequenceDiagram
 
 ## Key Decisions
 
-| Decision                                | Choice                             | Rejected alternative                             | Why                                                                                                                                                         |
-| --------------------------------------- | ---------------------------------- | ------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Where the file read lives               | `ServiceManager.logs(name)`        | Read directly in `fit-rc.js`                     | Manager is the domain boundary for all sibling commands (`start`/`stop`/`status`); spec puts it in scope. CLI stays a thin dispatcher.                      |
-| How unknown-service is detected         | Reuse `#findServiceIndex`          | New private validator in `logs()`                | The helper already produces the exact `Unknown service: <name>` text spec criterion #3 asserts on. `status()` precedent.                                    |
-| Behavior when `current` file is missing | Exit 0, empty stdout, empty stderr | (a) Non-zero exit; (b) Explanatory `stderr` line | Criterion #5 requires exit 0 and stderr not matching `/error/i`. Empty output is the only sink that cannot accidentally collide with `/error/i`.            |
-| Read strategy                           | Stream file → stdout               | `readFileSync` into memory                       | LogWriter rotates at 1 MB so memory is small today, but streaming is the idiom for "emit a file to stdout" and removes the implicit ceiling on file size.   |
-| Missing-arg detection layer             | libcli usage error (CLI layer)     | Throw from `ServiceManager.logs(undefined)`      | Usage errors are a CLI concern; libcli's `usageError` produces criterion #4's stderr shape today for sibling commands. Manager method stays domain-focused. |
-| Source of truth for log existence       | The file alone — no svscan check   | Gate on `isSvscanRunning()`                      | Spec line 5 of the in-scope table: works whether or not svscan is running. The `current` file persists past the daemon's lifetime.                          |
+| Decision                                | Choice                             | Rejected alternative                             | Why                                                                                                                                                                                   |
+| --------------------------------------- | ---------------------------------- | ------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Where the file read lives               | `ServiceManager.logs(name)`        | Read directly in `fit-rc.js`                     | Manager is the domain boundary for all sibling commands (`start`/`stop`/`status`); spec puts it in scope. CLI stays a thin dispatcher.                                                |
+| How unknown-service is detected         | Reuse `#findServiceIndex`          | New private validator in `logs()`                | The helper already produces the exact `Unknown service: <name>` text spec criterion #3 asserts on. `status()` precedent.                                                              |
+| Behavior when `current` file is missing | Exit 0, empty stdout, empty stderr | (a) Non-zero exit; (b) Explanatory `stderr` line | Criterion #5 requires exit 0 and stderr not matching `/error/i`. An empty stream is the simplest contract — non-empty messaging adds wording risk and noise on a non-error condition. |
+| Read strategy                           | Stream file → stdout               | `readFileSync` into memory                       | LogWriter rotates at 1 MB so memory is small today, but streaming is the idiom for "emit a file to stdout" and removes the implicit ceiling on file size.                             |
+| Missing-arg detection layer             | libcli usage error (CLI layer)     | Throw from `ServiceManager.logs(undefined)`      | Usage errors are a CLI concern; libcli's `usageError` produces criterion #4's stderr shape today for sibling commands. Manager method stays domain-focused.                           |
+| Source of truth for log existence       | The file alone — no svscan check   | Gate on `isSvscanRunning()`                      | Spec line 5 of the in-scope table: works whether or not svscan is running. The `current` file persists past the daemon's lifetime.                                                    |
 
 ## Out of scope (asserts spec § Scope (out))
 
