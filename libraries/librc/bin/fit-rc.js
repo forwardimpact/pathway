@@ -23,6 +23,11 @@ const definition = {
     { name: "stop", args: "[service]", description: "Stop services" },
     { name: "status", args: "[service]", description: "Show service status" },
     { name: "restart", args: "[service]", description: "Restart services" },
+    {
+      name: "logs",
+      args: "<service>",
+      description: "Print a service's current log to stdout",
+    },
   ],
   globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
@@ -34,7 +39,12 @@ const definition = {
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },
   },
-  examples: ["fit-rc start", "fit-rc stop agent", "fit-rc status"],
+  examples: [
+    "fit-rc start",
+    "fit-rc stop agent",
+    "fit-rc status",
+    "fit-rc logs trace",
+  ],
 };
 
 const cli = createCli(definition);
@@ -77,6 +87,13 @@ switch (command) {
   case "restart":
     await manager.stop(serviceName);
     await manager.start(serviceName);
+    break;
+  case "logs":
+    if (!serviceName) {
+      cli.usageError("missing required service argument");
+      process.exit(2);
+    }
+    await manager.logs(serviceName);
     break;
   default:
     cli.usageError(`unknown command "${command}"`);
