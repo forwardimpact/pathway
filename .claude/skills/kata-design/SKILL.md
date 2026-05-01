@@ -62,6 +62,15 @@ is no commitment to implement, and a design has nothing to shape.
       **high**, and **medium** finding addressed.
 - [ ] Run `bun run format:fix` before pushing — commit any changes the formatter
       makes.
+- [ ] Grep `design-a.md` against breaking renames on `main` since branch
+      divergence —
+      `git log origin/main --since '14 days ago' --grep '^feat!:\|^fix!:'`
+      enumerates breaking commits; for each, grep `design-a.md` for the renamed
+      identifier and update before push.
+- [ ] After push, verify the design landed on origin —
+      `git ls-tree origin/<branch> -- specs/<NNN-slug>/design-a.md` returns a
+      blob. Empty output means the push did not persist (phantom write); re-push
+      and re-verify before signaling approval.
 
 </do_confirm_checklist>
 
