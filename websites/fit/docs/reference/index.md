@@ -7,15 +7,6 @@ toc: false
 
 <div class="grid">
 
-<a href="/docs/reference/cli/">
-
-### CLI Reference
-
-Commands, arguments, and options for fit-map, fit-pathway, fit-outpost,
-fit-guide, fit-landmark, fit-summit, fit-terrain, fit-doc, and fit-rc.
-
-</a>
-
 <a href="/docs/reference/model/">
 
 ### Core Model

@@ -127,6 +127,5 @@ Summit follows a specific philosophy:
 
 ## Related Documentation
 
-- [CLI Reference](/docs/reference/cli/) — Full command options for Summit
 - [Data Model Reference](/docs/reference/model/) — How skills, levels, and
   disciplines define team capability

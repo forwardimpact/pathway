@@ -107,5 +107,3 @@ exactly which skills need to grow and by how much.
 
 - [Data Model Reference](/docs/reference/model/) — how disciplines, tracks,
   skills, and levels relate
-- [CLI Reference](/docs/reference/cli/) — complete command documentation for
-  `fit-pathway`

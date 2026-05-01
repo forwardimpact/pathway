@@ -232,5 +232,3 @@ whether changes are landing.
 - [Agent Collaboration](../agent-collaboration/index.md) — produce traces with
   `fit-eval facilitate`; the per-source split is essential for multi-agent
   traces.
-- [CLI Reference](../../reference/cli/index.md) — the full `fit-trace` command
-  surface.

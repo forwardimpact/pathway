@@ -165,7 +165,7 @@ The generated profile includes the agent's full skill set, checklist items, and
 behavioural expectations. Phases are not an input to agent generation — they
 describe the workflow context in which the agent operates.
 
-See [CLI Reference](/docs/reference/cli/) for the full `agent` command.
+Run `npx fit-pathway agent --help` for the full command surface.
 
 ---
 

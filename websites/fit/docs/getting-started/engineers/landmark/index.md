@@ -104,5 +104,4 @@ All Landmark commands support `--format text|json|markdown`.
 - [Landmark product page](/landmark/) — audience model and architecture overview
 - [Landmark quickstart](/docs/products/landmark-quickstart/) — step-by-step
   guide from install to a working health view
-- [CLI reference](/docs/reference/cli/) — full command documentation for all
-  tools
+- Run `npx fit-landmark --help` for the full command surface

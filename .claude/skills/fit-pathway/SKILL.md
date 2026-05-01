@@ -147,5 +147,3 @@ high-quality output.
   reviewing exported output
 - [Career Paths Guide](https://www.forwardimpact.team/docs/products/career-paths/index.md)
   — Browse jobs, skills, and career progression between levels
-- [CLI Reference](https://www.forwardimpact.team/docs/reference/cli/index.md) —
-  Complete command reference for all Forward Impact CLI tools

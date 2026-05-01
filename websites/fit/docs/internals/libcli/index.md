@@ -110,8 +110,8 @@ const definition = {
       description: "Coverage heatmaps, structural risks, and what-if scenarios.",
     },
     {
-      title: "CLI Reference",
-      url: "https://www.forwardimpact.team/docs/reference/cli/index.md",
+      title: "Summit Overview",
+      url: "https://www.forwardimpact.team/summit/index.md",
     },
   ],
 };
@@ -170,8 +170,8 @@ Documentation:
   Team Capability Guide
     https://www.forwardimpact.team/docs/products/team-capability/index.md
     Coverage heatmaps, structural risks, and what-if scenarios.
-  CLI Reference
-    https://www.forwardimpact.team/docs/reference/cli/index.md
+  Summit Overview
+    https://www.forwardimpact.team/summit/index.md
 
 Use fit-summit <command> --help for command-specific options.
 ```

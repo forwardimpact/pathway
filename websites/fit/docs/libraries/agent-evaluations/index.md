@@ -174,8 +174,7 @@ The `Conclude` tool call carries the judge's verdict and summary — that's
 usually where you start when an eval fails. From there, follow the timeline
 backwards to find the turn where the agent went wrong.
 
-See the [CLI Reference](../../reference/cli/index.md) for the full `fit-trace`
-command surface.
+Run `npx fit-trace --help` for the full command surface.
 
 ## Scaling to a suite
 
@@ -211,7 +210,5 @@ first failure's.
 
 - [Trace Analysis](../trace-analysis/index.md) — read the NDJSON traces this
   guide produces, with worked examples including a failed eval.
-- [fit-trace](../../reference/cli/index.md) — full `fit-trace` CLI command
-  surface.
 - [Agent Teams Guide](../agent-teams/index.md) — how agent profiles are authored
   and what they contain.

@@ -256,4 +256,3 @@ import { deriveReferenceLevel, deriveAgentSkills } from "@forwardimpact/libskill
 
 - [libskill Internals](/docs/internals/libskill/) -- Derivation engine
 - [Map Internals](/docs/internals/map/) -- Data product architecture
-- [CLI Reference](/docs/reference/cli/) -- Full CLI command reference

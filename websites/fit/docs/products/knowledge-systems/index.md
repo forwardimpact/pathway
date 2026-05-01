@@ -144,7 +144,5 @@ and add your own notes and files.
 
 ## Related Documentation
 
-- [CLI Reference](/docs/reference/cli/) — complete command documentation for
-  `fit-outpost`
 - [Agent Teams](/docs/products/agent-teams/) — how agent skills are generated
   from your agent-aligned engineering standard

@@ -451,5 +451,3 @@ When modifying any layer of an agent team, verify:
   — How to write the YAML standard data that agent teams are derived from
 - [Career Paths](/docs/products/career-paths/) — Browse jobs, skills, and career
   progression
-- [CLI Reference](/docs/reference/cli/) — Complete command documentation for
-  `fit-pathway agent`

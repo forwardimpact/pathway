@@ -162,5 +162,5 @@ missing environment variables or port conflicts.
 - [Guide product page](/guide/) — feature overview and surface options
 - [Finding your bearing](/docs/products/finding-your-bearing/) — Guide usage and
   configuration
-- [CLI reference](/docs/reference/cli/) — full command documentation for all
-  tools
+- Run `npx fit-guide --help` (then `/help` inside the REPL) for the full command
+  surface

@@ -170,5 +170,3 @@ participants converged — or where they diverged.
   guide produces, with worked examples including a stalled multi-agent session.
 - [Agent Teams](../agent-teams/index.md) — how agent profiles are authored and
   what they contain.
-- [fit-trace](../../reference/cli/index.md) — full `fit-trace` CLI command
-  surface.
