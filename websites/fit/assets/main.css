@@ -1,5 +1,5 @@
 /* ══════════════════════════════════════════════════════════════════
-   Forward Impact Team — Design System
+   Forward Impact Engineering — Design System
    Monochrome · Warm · Purposeful
    ══════════════════════════════════════════════════════════════════ */
 
@@ -409,6 +409,9 @@ strong {
 
 .layout-product .page-content {
   max-width: 720px;
+}
+
+.layout-product:has(> .hero) .page-content {
   padding-top: var(--space-12);
 }
 
@@ -857,7 +860,7 @@ pre code {
   flex-direction: row;
   justify-content: center;
   align-items: center;
-  gap: var(--space-5);
+  gap: var(--space-4);
 }
 
 .footer-social a {
