@@ -12,8 +12,8 @@ accessibility — lives in [index.md](index.md). Read that first.
 
 ## 1. Illustration Checklist
 
-Illustrations are produced from three layers. Each layer adds to the previous
-without restating it.
+Illustrations are generated with [Grok](https://grok.com), a multi-modal LLM,
+from three layers. Each layer adds to the previous without restating it.
 
 ### Layer Assembly
 
