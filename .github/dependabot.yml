@@ -20,6 +20,11 @@ updates:
       minor-and-patch:
         update-types: [minor, patch]
     ignore:
+      # @grpc/proto-loader peer-constrains protobufjs to ^7.x. Block the v8
+      # major bump until upstream widens. PR #620 (7.5.5 → 8.0.3) closed.
+      - dependency-name: protobufjs
+        update-types:
+          - version-update:semver-major
       # protobufjs-cli >=2.0.2 requires protobufjs >=8 peer.
       # We pin protobufjs@7.x because @grpc/proto-loader peer-blocks v8.
       - dependency-name: protobufjs-cli
