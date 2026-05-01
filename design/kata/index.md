@@ -310,7 +310,7 @@ where the brand renders for human contributors browsing the docs site.
 ### Surface 2 — `KATA.md` Rendered on GitHub
 
 `KATA.md` at the repo root is read by every agent at the start of a Kata run
-(per the L2 instruction layer). On GitHub it renders as plain flavored markdown
+(per the L1 instruction layer). On GitHub it renders as plain flavored markdown
 — the brand cannot inject CSS — so the brand surfaces through **structural
 cues** only: the trio mark in the header (linked SVG), section headings that
 match the persona names, the hanko stamp emoji-equivalent (`🟥`) reserved for

@@ -1,16 +1,16 @@
 #!/usr/bin/env node
-// Enforce instruction layer limits (KATA.md § Instruction length).
+// Enforce instruction layer limits (CHECKLISTS.md § Length and Loading).
 // Called by `bun run check` and `just check-instructions`.
 
 import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const L2_CLAUDE_MD_MAX_LINES = 192;
-const L3_CONTRIBUTING_MAX_LINES = 256;
-const L5_AGENT_PROFILE_MAX_LINES = 64;
-const L6_SKILL_PROCEDURE_MAX_LINES = 192;
-const L7_SKILL_REFERENCE_MAX_LINES = 128;
-const L8_CHECKLIST_MAX_ITEMS = 9;
+const L1_CLAUDE_MD_MAX_LINES = 192;
+const L2_CONTRIBUTING_MAX_LINES = 256;
+const L3_AGENT_PROFILE_MAX_LINES = 64;
+const L4_SKILL_PROCEDURE_MAX_LINES = 192;
+const L5_SKILL_REFERENCE_MAX_LINES = 128;
+const L6_CHECKLIST_MAX_ITEMS = 9;
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 let status = 0;
@@ -71,47 +71,47 @@ const findClaudeMdFiles = async (dir = ".") => {
   return out;
 };
 
-// L2 — every CLAUDE.md (root and any directory-scoped instruction file).
+// L1 — every CLAUDE.md (root and any directory-scoped instruction file).
 for (const path of await findClaudeMdFiles()) {
-  await lineCount(path, L2_CLAUDE_MD_MAX_LINES, "L2 CLAUDE.md");
+  await lineCount(path, L1_CLAUDE_MD_MAX_LINES, "L1 CLAUDE.md");
 }
 
-// L3 — CONTRIBUTING.md
+// L2 — CONTRIBUTING.md
 await lineCount(
   "CONTRIBUTING.md",
-  L3_CONTRIBUTING_MAX_LINES,
-  "L3 CONTRIBUTING.md",
+  L2_CONTRIBUTING_MAX_LINES,
+  "L2 CONTRIBUTING.md",
 );
 
-// L5 — agent profiles
+// L3 — agent profiles
 for (const f of await listFiles(
   ".claude/agents",
   (e) => e.isFile() && e.name.endsWith(".md"),
 )) {
-  await lineCount(f, L5_AGENT_PROFILE_MAX_LINES, "L5 agent profile");
+  await lineCount(f, L3_AGENT_PROFILE_MAX_LINES, "L3 agent profile");
 }
 
-// L6 — skill procedure (SKILL.md)
+// L4 — skill procedure (SKILL.md)
 const skillDirs = await listFiles(".claude/skills", (e) => e.isDirectory());
 for (const d of skillDirs) {
   await lineCount(
     `${d}/SKILL.md`,
-    L6_SKILL_PROCEDURE_MAX_LINES,
-    "L6 skill procedure",
+    L4_SKILL_PROCEDURE_MAX_LINES,
+    "L4 skill procedure",
   );
 }
 
-// L7 — skill references
+// L5 — skill references
 for (const d of skillDirs) {
   for (const f of await listFiles(
     `${d}/references`,
     (e) => e.isFile() && e.name.endsWith(".md"),
   )) {
-    await lineCount(f, L7_SKILL_REFERENCE_MAX_LINES, "L7 skill reference");
+    await lineCount(f, L5_SKILL_REFERENCE_MAX_LINES, "L5 skill reference");
   }
 }
 
-// L8 — checklists: ≤ 9 items per tagged block.
+// L6 — checklists: ≤ 9 items per tagged block.
 const checklistRe =
   /<(read_do_checklist|do_confirm_checklist)\b[^>]*>([\s\S]*?)<\/\1>/g;
 const itemRe = /^\s*-\s*\[\s*\]/gm;
@@ -132,9 +132,9 @@ for (const path of checklistSources) {
     index += 1;
     const type = m[1];
     const items = (m[2].match(itemRe) || []).length;
-    if (items > L8_CHECKLIST_MAX_ITEMS) {
+    if (items > L6_CHECKLIST_MAX_ITEMS) {
       fail(
-        `${path} checklist #${index} (${type}) has ${items} items (max ${L8_CHECKLIST_MAX_ITEMS}, L8 checklist)`,
+        `${path} checklist #${index} (${type}) has ${items} items (max ${L6_CHECKLIST_MAX_ITEMS}, L6 checklist)`,
       );
     }
   }
