@@ -5,7 +5,7 @@ on:
     types: [opened, labeled]
   issue_comment:
     types: [created]
-  pull_request:
+  pull_request_target:
     types: [labeled]
   pull_request_review_comment:
     types: [created]
@@ -40,7 +40,7 @@ jobs:
     # a participant agent's response. For pull_request_review_comment, only run on thread replies
     # (in_reply_to_id set) — top-level review comments are delivered via the pull_request_review (submitted)
     # event in a single batch.
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || github.event_name == 'issue_comment' || github.event_name == 'pull_request' || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || github.event_name == 'issue_comment' || github.event_name == 'pull_request_target' || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
     runs-on: ubuntu-latest
     steps:
       - name: Generate installation token
@@ -98,7 +98,7 @@ jobs:
                 action="route to the best-suited agent and ask them to assess the issue and act on it."
               fi
               ;;
-            pull_request)
+            pull_request_target)
               target_type="pull_request"
               target_number="${PR_NUMBER_FROM_EVENT:-}"
               context="Label \"$LABEL_NAME\" was added to PR \"$PR_TITLE\" (#$target_number). PR URL: $ITEM_URL."
