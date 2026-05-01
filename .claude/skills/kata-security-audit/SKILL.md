@@ -99,8 +99,14 @@ Each run covers **one topic** in depth.
 
 1. Build coverage map — never-audited topics go first, then oldest.
 2. Revisit threshold — if all topics covered within last 4 runs, revisit oldest.
-3. Announce your pick and why before starting.
-4. Go deep — read every relevant file, not just grep for patterns.
+3. **Default-routing rule (SE Exp 30, #639):** if the Assess step finds **no
+   priority-1 work** (no open Dependabot PRs, no `bun audit --prod` non-zero,
+   no SE-owned PR awaiting merge) **AND** `days_since_oldest_audit ≥ 20d`,
+   default to revisiting the oldest topic rather than reporting clean state.
+   Revisits are the floor activity, not the residual activity. Verdict on the
+   experiment: 2026-05-08 (W19-day5).
+4. Announce your pick and why before starting.
+5. Go deep — read every relevant file, not just grep for patterns.
 
 ### Step 2: Audit the Topic
 
