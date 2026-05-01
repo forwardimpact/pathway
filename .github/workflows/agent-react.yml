@@ -2,9 +2,11 @@ name: "Agent: React"
 
 on:
   issues:
-    types: [opened]
+    types: [opened, labeled]
   issue_comment:
     types: [created]
+  pull_request:
+    types: [labeled]
   pull_request_review_comment:
     types: [created]
   pull_request_review:
@@ -38,7 +40,7 @@ jobs:
     # a participant agent's response. For pull_request_review_comment, only run on thread replies
     # (in_reply_to_id set) — top-level review comments are delivered via the pull_request_review (submitted)
     # event in a single batch.
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || github.event_name == 'issue_comment' || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
+    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || github.event_name == 'issue_comment' || github.event_name == 'pull_request' || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
     runs-on: ubuntu-latest
     steps:
       - name: Generate installation token
@@ -63,10 +65,13 @@ jobs:
         id: task
         env:
           EVENT_NAME: ${{ github.event_name }}
+          EVENT_ACTION: ${{ github.event.action }}
           DISPATCH_TARGET_TYPE: ${{ inputs.target-type }}
           DISPATCH_TARGET_NUMBER: ${{ inputs.target-number }}
           PR_NUMBER_FROM_EVENT: ${{ github.event.issue.number || github.event.pull_request.number }}
           ISSUE_TITLE: ${{ github.event.issue.title }}
+          PR_TITLE: ${{ github.event.pull_request.title }}
+          LABEL_NAME: ${{ github.event.label.name }}
           DISCUSSION_NUMBER: ${{ github.event.discussion.number }}
           DISCUSSION_NODE_ID: ${{ github.event.discussion.node_id }}
           DISCUSSION_TITLE: ${{ github.event.discussion.title }}
@@ -74,7 +79,7 @@ jobs:
           IS_PR: ${{ github.event.issue.pull_request != null }}
           AUTHOR: ${{ github.event.comment.user.login || github.event.review.user.login || github.event.discussion.user.login || github.event.issue.user.login || github.actor }}
           AUTHOR_TYPE: ${{ github.event.comment.user.type || github.event.review.user.type || github.event.discussion.user.type || github.event.issue.user.type || 'User' }}
-          ITEM_URL: ${{ github.event.comment.html_url || github.event.review.html_url || github.event.discussion.html_url || github.event.issue.html_url || '' }}
+          ITEM_URL: ${{ github.event.comment.html_url || github.event.review.html_url || github.event.discussion.html_url || github.event.issue.html_url || github.event.pull_request.html_url || '' }}
         run: |
           set -euo pipefail
 
@@ -85,8 +90,19 @@ jobs:
             issues)
               target_type="issue"
               target_number="${PR_NUMBER_FROM_EVENT:-}"
-              context="A new issue was opened: \"$ISSUE_TITLE\" (#$target_number) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Issue URL: $ITEM_URL."
-              action="route to the best-suited agent and ask them to assess the issue and act on it."
+              if [ "$EVENT_ACTION" = "labeled" ]; then
+                context="Label \"$LABEL_NAME\" was added to issue \"$ISSUE_TITLE\" (#$target_number). Issue URL: $ITEM_URL."
+                action="route to the best-suited agent."
+              else
+                context="A new issue was opened: \"$ISSUE_TITLE\" (#$target_number) by @$AUTHOR (user type: $AUTHOR_TYPE; event: $EVENT_NAME). Issue URL: $ITEM_URL."
+                action="route to the best-suited agent and ask them to assess the issue and act on it."
+              fi
+              ;;
+            pull_request)
+              target_type="pull_request"
+              target_number="${PR_NUMBER_FROM_EVENT:-}"
+              context="Label \"$LABEL_NAME\" was added to PR \"$PR_TITLE\" (#$target_number). PR URL: $ITEM_URL."
+              action="route to the best-suited agent."
               ;;
             discussion)
               target_type="discussion"
