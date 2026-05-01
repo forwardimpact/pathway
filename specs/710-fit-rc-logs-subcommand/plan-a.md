@@ -90,15 +90,17 @@ it through the switch with explicit missing-arg gating.
    ```js
    case "logs":
      if (!serviceName) {
-       cli.usageError("logs requires a service argument");
+       cli.usageError("missing required service argument");
        process.exit(2);
      }
      await manager.logs(serviceName);
      break;
    ```
 
-   (The `<service>` form in `args` is help-text only; libcli does not enforce
-   required positionals — see `libraries/libcli/src/cli.js`.)
+   The literal phrase **`missing required service argument`** is contractual: it
+   is the only wording in this plan that simultaneously satisfies spec criterion
+   #4's `/service/i` and `/(missing|required)/i` regexes (note that "requires"
+   does **not** match `/required/i`).
 
 **Verification:**
 
@@ -117,22 +119,42 @@ boundary.
 - created: `libraries/librc/test/manager-logs.test.js`
 
 **Changes:** New test file mirroring `manager-stop.test.js`'s `beforeEach`
-mock-config / mock-logger shape, plus a `Readable` import from `node:stream`.
-Each test injects:
+mock-config / mock-logger shape, plus `Readable` and `Writable` imports from
+`node:stream`. Helpers reused in multiple rows:
 
-- `deps.fs.createReadStream(path)` — returns a `Readable.from([...])`, or a
-  stream whose `_read` synchronously emits an `error` event with the desired
-  `code` for the negative paths.
-- `deps.stdout` — a `Writable` whose `_write(chunk, _enc, cb)` pushes into a
-  captured `Buffer[]`, then `cb()`.
+```js
+// Stream that asynchronously fails with an Error carrying the given code.
+const failingStream = (code) =>
+  new Readable({
+    read() {
+      process.nextTick(() => {
+        const err = new Error(`${code}: simulated`);
+        err.code = code;
+        this.destroy(err);
+      });
+    },
+  });
 
-| Test                                                          | Setup                                                               | Asserts                                                                                  |
-| ------------------------------------------------------------- | ------------------------------------------------------------------- | ---------------------------------------------------------------------------------------- |
-| `throws "Unknown service: <name>" for unrecognised name`      | default mockConfig (no `unknown` service)                           | `await manager.logs("unknown")` rejects with `/Unknown service: unknown/` (criterion #3) |
-| `emits file bytes to the stdout sink for a known service`     | `createReadStream` returns `Readable.from(["spec-710-canary\n"])`   | captured stdout buffer concatenated as utf8 contains `spec-710-canary` (criterion #2)    |
-| `resolves silently when the current file is missing (ENOENT)` | `createReadStream` returns a stream that emits `{ code: "ENOENT" }` | `manager.logs("trace")` resolves; captured stdout is empty (criterion #5)                |
-| `resolves silently when the current file is empty`            | `createReadStream` returns `Readable.from([])`                      | resolves; captured stdout is empty (criterion #5)                                        |
-| `propagates non-ENOENT stream errors`                         | `createReadStream` returns a stream that emits `{ code: "EACCES" }` | `manager.logs("trace")` rejects with `/EACCES/`                                          |
+// Writable that captures every chunk into an array of Buffers.
+const capturingSink = (sink = []) =>
+  Object.assign(
+    new Writable({
+      write(chunk, _enc, cb) {
+        sink.push(Buffer.isBuffer(chunk) ? chunk : Buffer.from(chunk));
+        cb();
+      },
+    }),
+    { captured: sink },
+  );
+```
+
+| Test                                                          | Setup                                                                                                         | Asserts                                                                                            |
+| ------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------- |
+| `throws "Unknown service: <name>" for unrecognised name`      | default mockConfig (no `unknown` service); no `createReadStream` reached                                      | `await manager.logs("unknown")` rejects with `/Unknown service: unknown/` (criterion #3)           |
+| `emits file bytes to the stdout sink for a known service`     | `deps.fs.createReadStream` returns `Readable.from(["spec-710-canary\n"])`; `deps.stdout` is `capturingSink()` | `Buffer.concat(stdout.captured).toString("utf8")` contains `spec-710-canary` (criterion #2)        |
+| `resolves silently when the current file is missing (ENOENT)` | `deps.fs.createReadStream` returns `failingStream("ENOENT")`; `deps.stdout` is `capturingSink()`              | `manager.logs("trace")` resolves; `stdout.captured.length === 0` (criterion #5, missing-file half) |
+| `resolves silently when the current file is empty`            | `deps.fs.createReadStream` returns `Readable.from([])`; `deps.stdout` is `capturingSink()`                    | resolves; `stdout.captured.length === 0` (criterion #5, empty-file half)                           |
+| `propagates non-ENOENT stream errors`                         | `deps.fs.createReadStream` returns `failingStream("EACCES")`; `deps.stdout` is `capturingSink()`              | `manager.logs("trace")` rejects with `/EACCES/` (design row 3)                                     |
 
 **Verification:** `bun test libraries/librc` passes — five new tests, no
 regressions in `manager-start.test.js` / `manager-stop.test.js`.
@@ -161,17 +183,11 @@ npx fit-rc status                 # Identify the failing service
 npx fit-rc logs <service>         # Print its current log (example: npx fit-rc logs trace)
 ```
 
-Update the trailing prose. Before:
-
-> Each microservice writes to `data/logs/{service}/current`. Common causes are
-> missing environment variables or port conflicts.
-
-After:
-
-> Common causes are missing environment variables or port conflicts.
-
-(The path leak `data/logs/{service}/current` is no longer an audience-relevant
-detail once `fit-rc logs` is the surface.)
+Leave the trailing prose ("Each microservice writes to
+`data/logs/{service}/current`. Common causes are missing environment variables
+or port conflicts.") unchanged. The spec's criterion #6 negative half targets
+the `cat` line in the code block; rewriting the prose path-leak sentence is a
+separate scope decision out of bounds for this plan.
 
 **Verification:**
 
@@ -209,16 +225,11 @@ only).
 
 ## Risks
 
-- **`pipeline` ending `process.stdout`.** `pipeline(source, destination)` closes
-  `destination` by default, which on `process.stdout` is fatal in a long-running
-  shell. Step 1 passes `{ end: false }`; the implementer must preserve this
-  option exactly. Node's `stream/promises` `pipeline` has supported the option
-  since Node 18 — repo runtime is Node 20+ (see `package.json` engines).
-- **Error event ordering on `createReadStream`.** ENOENT on a readable stream
-  fires asynchronously after `createReadStream` returns; tests must construct
-  mock streams that emit `error` on the next tick (e.g. via `process.nextTick`
-  inside `_read`) so `pipeline` sees the rejection rather than an immediate
-  synchronous throw.
+- **`pipeline`'s `{ end: false }` is contract, not stylistic.** The Node
+  `stream/promises` `pipeline` calls `.end()` on its destination by default; on
+  `process.stdout` that closes the parent shell's output stream for the
+  remainder of the process. The implementer cannot see this behavior from Step
+  1's diff alone — it is a Node API contract, not a code-shape choice.
 
 ## Execution recommendation
 
