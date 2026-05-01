@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libvector",
-  "version": "0.1.86",
+  "version": "0.1.87",
   "description": "Vector dot-product scoring for cosine-similarity retrieval over agent embeddings.",
   "keywords": [
     "vector",

@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libcodegen",
-  "version": "0.1.47",
+  "version": "0.1.48",
   "description": "Protobuf code generation — produces the types and clients consumed by `libtype` and `librpc`.",
   "keywords": [
     "codegen",

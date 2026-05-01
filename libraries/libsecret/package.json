@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsecret",
-  "version": "0.1.11",
+  "version": "0.1.12",
   "description": "Secret generation, JWT signing, and `.env` file management for agent services and CLIs.",
   "keywords": [
     "secret",

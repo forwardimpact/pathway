@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libresource",
-  "version": "0.1.107",
+  "version": "0.1.108",
   "description": "Typed resources with identifiers, access control, and rich RDF-friendly context chunks for agent grounding.",
   "keywords": [
     "resource",

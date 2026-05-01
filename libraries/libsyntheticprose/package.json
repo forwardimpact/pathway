@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsyntheticprose",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.",
   "keywords": [
     "synthetic",

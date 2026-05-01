@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libxmr",
-  "version": "0.1.3",
+  "version": "0.1.4",
   "description": "Agent-friendly XmR control charts: markdown sparklines and signal detection over time-series CSV metrics.",
   "keywords": [
     "xmr",

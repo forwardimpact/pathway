@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libpolicy",
-  "version": "0.1.59",
+  "version": "0.1.60",
   "description": "Access-control policy evaluation — agents see only context they are authorized for.",
   "keywords": [
     "policy",

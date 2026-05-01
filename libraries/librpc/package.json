@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/librpc",
-  "version": "0.1.95",
+  "version": "0.1.96",
   "description": "gRPC server and client framework — how agent services talk to each other.",
   "keywords": [
     "grpc",
