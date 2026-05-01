@@ -1020,8 +1020,8 @@ pre:has(.language-mermaid) {
     position: absolute;
     inset: 0;
     padding-top: 56px;
-    padding-bottom: 56px;
-    gap: var(--space-2);
+    padding-bottom: var(--space-4);
+    gap: var(--space-1);
     list-style: none;
   }
 
@@ -1030,11 +1030,11 @@ pre:has(.language-mermaid) {
   }
 
   .site-header.menu-open .nav-products a {
-    font-size: 2.5rem;
+    font-size: clamp(1.5rem, 5.5vh, 2.5rem);
     font-weight: 400;
     font-family: var(--font-display);
     color: var(--text-heading);
-    padding: var(--space-2) var(--space-4);
+    padding: var(--space-1) var(--space-4);
     background: none;
     border-radius: 0;
   }
