@@ -20,8 +20,8 @@ if [ -f "/Applications/Outpost.app/Contents/MacOS/fit-outpost" ]; then
 fi
 killall Outpost 2>/dev/null || true
 killall fit-outpost 2>/dev/null || true
-killall OutpostStatus 2>/dev/null || true
 # Legacy Basecamp processes (pre-rename) — kept for upgrade cleanup.
+# BasecampStatus was a pre-app-bundle binary; no OutpostStatus equivalent exists.
 killall Basecamp 2>/dev/null || true
 killall fit-basecamp 2>/dev/null || true
 killall BasecampStatus 2>/dev/null || true
@@ -29,12 +29,14 @@ killall BasecampStatus 2>/dev/null || true
 # --- Remove any leftover LaunchAgents (from older versions) ------------------
 
 # Includes legacy basecamp labels so users upgrading from Basecamp get a clean state.
+# `bootout gui/<uid>` is the modern (macOS 10.11+) replacement for `launchctl unload`.
+USER_UID=$(id -u)
 for LABEL in \
     "com.forwardimpact.outpost" "com.fit-outpost.scheduler" "com.fit-outpost.status-menu" \
     "com.forwardimpact.basecamp" "com.fit-basecamp.scheduler" "com.fit-basecamp.status-menu"; do
   PLIST="$HOME/Library/LaunchAgents/$LABEL.plist"
   if [ -f "$PLIST" ]; then
-    launchctl unload "$PLIST" 2>/dev/null || true
+    launchctl bootout "gui/$USER_UID" "$PLIST" 2>/dev/null || true
     rm -f "$PLIST"
     echo "  Removed old LaunchAgent ($LABEL)"
   fi
@@ -58,7 +60,9 @@ fi
 
 # --- Remove CLI symlink and old loose binaries -------------------------------
 
-for BIN in "/usr/local/bin/fit-outpost" "/usr/local/bin/OutpostStatus"; do
+# BasecampStatus was a pre-app-bundle binary in older Basecamp installs.
+# No OutpostStatus binary is built post-bundling, so it is intentionally absent.
+for BIN in "/usr/local/bin/fit-outpost" "/usr/local/bin/fit-basecamp" "/usr/local/bin/BasecampStatus"; do
   if [ -f "$BIN" ] || [ -L "$BIN" ]; then
     sudo rm -f "$BIN"
     echo "  Removed $BIN"
