@@ -138,6 +138,60 @@ test("DocsBuilder transforms markdown body links in companions", async () => {
   assert.ok(md.includes("[Hash](core/#section)"), "hash fragment preserved");
 });
 
+test("DocsBuilder leaves external .md links untouched in companions", async () => {
+  const sourceFiles = new Map([
+    [
+      "src/index.md",
+      "---\ntitle: Home\n---\nSee [Internal](./about.md) and [Same site](https://example.com/docs/about.md) and [Other site](https://other.test/docs/page.md) and [Protocol-relative](//cdn.test/page.md)",
+    ],
+  ]);
+
+  const { files, builder } = createTestHarness({
+    sourceFiles,
+    mdFiles: ["index.md"],
+  });
+
+  await builder.build("src", "dist", "https://example.com");
+
+  const md = files.get("dist/index.md");
+  assert.ok(md.includes("[Internal](./about/)"), "relative link is rewritten");
+  assert.ok(
+    md.includes("[Same site](https://example.com/docs/about/)"),
+    "absolute link to same host is rewritten",
+  );
+  assert.ok(
+    md.includes("[Other site](https://other.test/docs/page.md)"),
+    "absolute link to a different host is left alone",
+  );
+  assert.ok(
+    md.includes("[Protocol-relative](//cdn.test/page.md)"),
+    "protocol-relative link to a different host is left alone",
+  );
+});
+
+test("DocsBuilder treats absolute .md links as external when no baseUrl", async () => {
+  const sourceFiles = new Map([
+    [
+      "src/index.md",
+      "---\ntitle: Home\n---\n[Rel](./a.md) [Abs](https://example.com/a.md)",
+    ],
+  ]);
+
+  const { files, builder } = createTestHarness({
+    sourceFiles,
+    mdFiles: ["index.md"],
+  });
+
+  await builder.build("src", "dist");
+
+  const md = files.get("dist/index.md");
+  assert.ok(md.includes("[Rel](./a/)"), "relative link still rewritten");
+  assert.ok(
+    md.includes("[Abs](https://example.com/a.md)"),
+    "absolute link left alone when no baseUrl is configured",
+  );
+});
+
 test("DocsBuilder generates sitemap.xml with baseUrl", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],

@@ -59,52 +59,69 @@ export class DocsBuilder {
   }
 
   /**
-   * Transform .md links to match the HTML output structure
-   * - index.md -> ./
-   * - file.md -> file/
-   * - dir/index.md -> dir/
-   * - dir/file.md -> dir/file/
+   * Decide whether a link points outside the site being built.
+   * Relative links and absolute links matching baseUrl's host are internal.
+   * @param {string} url - Link target
+   * @param {string|undefined} baseUrl - Base URL of the site
+   * @returns {boolean}
+   */
+  #isExternalLink(url, baseUrl) {
+    if (!/^([a-z][a-z0-9+.-]*:|\/\/)/i.test(url)) return false;
+    if (!baseUrl) return true;
+    try {
+      return new URL(url).host !== new URL(baseUrl).host;
+    } catch {
+      return true;
+    }
+  }
+
+  /**
+   * Rewrite a .md path to its directory-style equivalent.
+   * - index -> ./
+   * - foo/index -> foo/
+   * - foo -> foo/
+   * @param {string} path - Path without the .md extension
+   * @param {string} fragment - Optional URL fragment (e.g. "#section")
+   * @returns {string}
+   */
+  #rewriteMarkdownPath(path, fragment) {
+    if (path === "index" || path === "./index") return `./${fragment}`;
+    if (path.endsWith("/index")) return `${path.slice(0, -5)}${fragment}`;
+    return `${path}/${fragment}`;
+  }
+
+  /**
+   * Transform internal .md links to match the HTML output structure.
+   * External links (different host than baseUrl) are left untouched.
    * @param {string} html - HTML content to transform
+   * @param {string|undefined} baseUrl - Base URL of the site
    * @returns {string} HTML with transformed links
    */
-  #transformMarkdownLinks(html) {
+  #transformMarkdownLinks(html, baseUrl) {
     return html.replace(
       // eslint-disable-next-line security/detect-unsafe-regex -- bounded negated char classes on internal HTML; no backtracking risk
       /href="([^"]*?)\.md(#[^"]*)?"/g,
-      (_match, path, hash) => {
-        const fragment = hash || "";
-        // Handle index.md links
-        if (path === "index" || path === "./index") {
-          return `href="./${fragment}"`;
-        }
-        if (path.endsWith("/index")) {
-          return `href="${path.slice(0, -5)}${fragment}"`;
-        }
-        // Non-index files become directories
-        return `href="${path}/${fragment}"`;
+      (match, path, hash) => {
+        if (this.#isExternalLink(`${path}.md`, baseUrl)) return match;
+        return `href="${this.#rewriteMarkdownPath(path, hash || "")}"`;
       },
     );
   }
 
   /**
-   * Transform markdown-syntax links from .md references to directory-style URLs
-   * Same rules as #transformMarkdownLinks but for [text](path) syntax
+   * Transform internal markdown-syntax links from .md references to directory-style URLs.
+   * External links (different host than baseUrl) are left untouched.
    * @param {string} markdown - Markdown content to transform
+   * @param {string|undefined} baseUrl - Base URL of the site
    * @returns {string} Markdown with transformed links
    */
-  #transformMarkdownBodyLinks(markdown) {
+  #transformMarkdownBodyLinks(markdown, baseUrl) {
     return markdown.replace(
       // eslint-disable-next-line security/detect-unsafe-regex -- bounded negated char classes on internal markdown; no backtracking risk
       /\[([^\]]*)\]\(([^)]*?)\.md(#[^)]*)?\)/g,
-      (_match, text, path, hash) => {
-        const fragment = hash || "";
-        if (path === "index" || path === "./index") {
-          return `[${text}](./${fragment})`;
-        }
-        if (path.endsWith("/index")) {
-          return `[${text}](${path.slice(0, -5)}${fragment})`;
-        }
-        return `[${text}](${path}/${fragment})`;
+      (match, text, path, hash) => {
+        if (this.#isExternalLink(`${path}.md`, baseUrl)) return match;
+        return `[${text}](${this.#rewriteMarkdownPath(path, hash || "")})`;
       },
     );
   }
@@ -487,7 +504,7 @@ export class DocsBuilder {
     }
 
     const rawHtml = this.#marked(markdown);
-    const html = this.#transformMarkdownLinks(rawHtml);
+    const html = this.#transformMarkdownLinks(rawHtml, baseUrl);
     const urlPath = this.#urlPathFromMdFile(mdFile);
     const vars = this.#buildTemplateVars(
       frontMatter,
@@ -498,7 +515,7 @@ export class DocsBuilder {
     );
     const outputHtml = this.#mustacheRender(template, vars);
     const finalHtml = await this.#formatAndPostProcess(outputHtml);
-    const companionContent = `# ${frontMatter.title}\n\n${this.#transformMarkdownBodyLinks(markdown)}`;
+    const companionContent = `# ${frontMatter.title}\n\n${this.#transformMarkdownBodyLinks(markdown, baseUrl)}`;
 
     this.#writePageFiles(mdFile, distDir, finalHtml, companionContent);
 
