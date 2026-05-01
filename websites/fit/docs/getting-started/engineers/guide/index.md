@@ -148,8 +148,8 @@ npx fit-codegen --all
 Check service logs for the failing service:
 
 ```sh
-ls data/logs/          # List available service log directories
-cat data/logs/trace/current  # View the trace service log (example)
+npx fit-rc status                 # Identify the failing service
+npx fit-rc logs <service>         # Print its current log (example: npx fit-rc logs trace)
 ```
 
 Each microservice writes to `data/logs/{service}/current`. Common causes are

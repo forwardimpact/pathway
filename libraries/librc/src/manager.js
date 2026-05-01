@@ -6,6 +6,7 @@ import fs from "node:fs";
 import path from "node:path";
 import { spawn, execSync } from "node:child_process";
 import { createRequire } from "node:module";
+import { pipeline } from "node:stream/promises";
 
 const require = createRequire(import.meta.url);
 const SVSCAN_BIN =
@@ -51,6 +52,7 @@ const SVSCAN_BIN =
  * @property {typeof process} [process] - Process module
  * @property {function(string, object): Promise<object>} [sendCommand] - Socket command sender
  * @property {function(string, number): Promise<boolean>} [waitForSocket] - Socket waiter
+ * @property {NodeJS.WritableStream} [stdout] - Stdout sink (default process.stdout)
  */
 
 /**
@@ -65,6 +67,7 @@ export class ServiceManager {
   #process;
   #sendCommand;
   #waitForSocket;
+  #stdout;
 
   /**
    * Creates a new ServiceManager
@@ -84,6 +87,7 @@ export class ServiceManager {
     this.#process = deps.process ?? process;
     this.#sendCommand = deps.sendCommand;
     this.#waitForSocket = deps.waitForSocket;
+    this.#stdout = deps.stdout ?? process.stdout;
   }
 
   /**
@@ -404,6 +408,28 @@ export class ServiceManager {
       this.#logger.error("status", "Failed to get status", {
         error: err.message,
       });
+    }
+  }
+
+  /**
+   * Emits the contents of a service's current log file to stdout.
+   * @param {string} serviceName - Service name (required)
+   * @returns {Promise<void>}
+   */
+  async logs(serviceName) {
+    this.#findServiceIndex(serviceName); // throws "Unknown service: <name>"
+    const logPath = path.join(
+      this.#config.rootDir,
+      this.#config.init.log_dir,
+      serviceName,
+      "current",
+    );
+    const source = this.#fs.createReadStream(logPath);
+    try {
+      await pipeline(source, this.#stdout, { end: false });
+    } catch (err) {
+      if (err.code === "ENOENT") return;
+      throw err;
     }
   }
 }
