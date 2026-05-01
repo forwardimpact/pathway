@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import { analyze, classify } from "../xmr.js";
 
@@ -6,6 +6,10 @@ export function runSummarizeCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {
     cli.usageError("summarize requires a <csv-path> argument");
+    process.exit(2);
+  }
+  if (!existsSync(csvPath)) {
+    cli.usageError(`cannot read CSV "${csvPath}": file not found`);
     process.exit(2);
   }
 

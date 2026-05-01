@@ -93,4 +93,6 @@ Outputs 12 bar characters scaled from ▁ (min) to █ (max) within the metric's
 range.
 
 See [`references/xmr.md`](references/xmr.md) for chart construction, signal
-rules, JSON report format, and interpretation guidance.
+rules, JSON report format, and interpretation guidance. The same material in
+public-facing form (for external readers) lives at the
+[XmR Analysis guide](https://www.forwardimpact.team/docs/libraries/xmr-analysis/index.md).

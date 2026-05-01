@@ -34,6 +34,15 @@ code observations, find patterns, and write grounded findings.
 
 </a>
 
+<a href="/docs/libraries/xmr-analysis/">
+
+### XmR Analysis
+
+Distinguish stable processes from special causes with `fit-xmr` — record
+observations over time, read signal rules, and turn variation into action.
+
+</a>
+
 </div>
 
 Looking for product workflows like authoring standards, agent teams, or landmark

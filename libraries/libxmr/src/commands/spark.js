@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 
 import { parseCSV, sparkline } from "../xmr.js";
 
@@ -10,6 +10,10 @@ export function runSparkCommand(values, args, cli) {
   }
   if (!values.metric) {
     cli.usageError("spark requires --metric");
+    process.exit(2);
+  }
+  if (!existsSync(csvPath)) {
+    cli.usageError(`cannot read CSV "${csvPath}": file not found`);
     process.exit(2);
   }
 

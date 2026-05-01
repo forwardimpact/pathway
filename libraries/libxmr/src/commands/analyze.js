@@ -1,4 +1,4 @@
-import { readFileSync } from "node:fs";
+import { existsSync, readFileSync } from "node:fs";
 import {
   formatHeader,
   formatSection,
@@ -12,6 +12,10 @@ export function runAnalyzeCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {
     cli.usageError("analyze requires a <csv-path> argument");
+    process.exit(2);
+  }
+  if (!existsSync(csvPath)) {
+    cli.usageError(`cannot read CSV "${csvPath}": file not found`);
     process.exit(2);
   }
 
