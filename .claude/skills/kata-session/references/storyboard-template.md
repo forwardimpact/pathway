@@ -22,20 +22,39 @@ in terms verifiable with data from metrics CSVs._
 _The measured state as of the last storyboard review. Updated daily using data
 from wiki/metrics/. Always numbers, not narratives._
 
-| Agent             | Domain  | Metric               | Value | Spark        |
-| ----------------- | ------- | -------------------- | ----- | ------------ |
-| security-engineer | audit   | open_vulnerabilities | 2     | ▆▆████▆▆▆▃▁▃ |
-| product-manager   | backlog | open_issues          | 13    | ▁▁▁▁▁██▁▁▁▁▅ |
-
-Spark: last 12 data points via `bunx fit-xmr spark <csv> --metric <name>`. Bar
-height scales from ▁ (min) to █ (max) within the metric's own range.
-
-For the XmR summary block below the table, paste verbatim output from
-`bunx fit-xmr summarize <csv> --markdown` (one invocation per agent-domain CSV)
-and add a one-line interpretive note only for metrics whose `status` is
-`signals_present` or whose run-length is unusual. Stable metrics get no prose.
-
 **Last updated:** YYYY-MM-DD
+
+### Headlines
+
+_Tight list of metrics whose status changed since the last meeting (new signal,
+threshold crossed, classification flip). Empty if nothing changed — write
+"None." on a single line._
+
+- `{agent}` / `{metric}` — {value} {trend/badge} — {one-line reason}
+
+### {agent} — {domain}
+
+#### {metric_name}
+
+**Latest:** {value} · **Status:** {status from `bunx fit-xmr analyze`}
+
+```
+{paste the 14-line Wheeler/Vacanti X+mR chart from
+`bunx fit-xmr chart <csv> --metric <name>` verbatim. The chart already labels
+μ, UPL, LPL, ±1.5σ zones, URL, R, and the run index — do not restate any of
+those numbers outside the chart.}
+```
+
+**Signals:** {fired-rule list from `bunx fit-xmr analyze` (`xRule1`, `xRule2`,
+`xRule3`, `mrRule1`), or `—` if none}
+
+_Note:_ {one line, only when `status` is `signals_present` or a fired rule needs
+cross-referencing to a specific event; stable metrics get no prose}.
+
+(Repeat one `#### metric_name` block per metric, grouped under
+`### {agent} — {domain}`. The chart from `bunx fit-xmr chart` is the
+visualization — do not duplicate its values in surrounding prose. Agents add the
+cross-reference layer only where there is something to say.)
 
 ## Obstacles
 

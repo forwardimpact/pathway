@@ -29,9 +29,9 @@ vs. expected), update Obstacles, and plan the next experiment.
    expired, update it (planning mode).
 2. **What is the actual condition now?** Each participant follows the
    Participant Protocol: measure with live data, record to CSV, then report via
-   `Answer`. Include each metric's `status`, `x_bar`, and any `signals` in the
-   Q2 `Ask`. Participants flag any metric whose status changed since the last
-   meeting.
+   `Answer`. Include each metric's `status`, `μ`, and any fired-rule `signals`
+   from `bunx fit-xmr analyze` in the Q2 `Ask`. Participants flag any metric
+   whose status changed since the last meeting.
 3. **What obstacles are preventing us from reaching the target?** Participants
    identify obstacles from their domain based on the gap between current and
    target. Obstacles are discovered through data and experiments, not
@@ -53,17 +53,37 @@ XmR protocol reference at
 
 ## Storyboard updates
 
-For each CSV-backed metric in the Current Condition table, generate a sparkline
-with `bunx fit-xmr spark <csv> --metric <name>` and write it to the Spark
-column.
+Current Condition is rendered as per-metric blocks grouped under
+`### {agent} — {domain}` headings (no row-per-metric overview table). For each
+CSV-backed metric, write a `#### {metric_name}` block containing:
 
-For the XmR analysis block under the Current Condition table, run
-`bunx fit-xmr summarize <csv> --markdown` once per agent-domain CSV and paste
-the output verbatim. Add a one-line interpretive note only for metrics whose
-`status` is `signals_present` or whose run-length is unusual; stable metrics get
-no prose. The summarize subcommand emits the deterministic stats table — agents
-add the cross-reference layer (e.g., "matches PR #535 burst") only where there
-is something to say.
+1. A one-line status header —
+   `**Latest:** {value} · **Status:** {status from analyze}`. No trend arrows or
+   alert glyphs — the chart shows direction and position relative to limits; the
+   `Status` field carries the classification.
+2. The visualization: paste the canonical 14-line Wheeler/Vacanti X+mR chart
+   from `bunx fit-xmr chart <csv> --metric <name>` verbatim, wrapped in a fenced
+   code block to preserve monospace alignment. The chart already labels `μ`,
+   `UPL`, `LPL`, the `±1.5σ` zones, `URL`, `R`, and the run index — **do not
+   restate any of those values in surrounding prose**.
+
+   Chart the whole CSV. The process being measured is continuous; the storyboard
+   month is a coaching artifact for setting a new target, not a process reset.
+   Don't filter to "this month" or "trailing N days" — every new storyboard
+   renders the same continuous series with whatever history has accumulated.
+
+3. A `**Signals:**` line listing the fired Wheeler rules from
+   `bunx fit-xmr analyze` (`xRule1`, `xRule2`, `xRule3`, `mrRule1`), or `—` if
+   none.
+4. An optional one-line note only when `status` is `signals_present` and a fired
+   rule needs cross-referencing to a specific event. Stable metrics get no
+   prose.
+
+Above the agent-domain sections, write a tight `### Headlines` list naming only
+the metrics whose status changed since the last meeting (new fired rule,
+threshold crossed, classification flip). The Wheeler/Vacanti chart is the
+visualization — agents add the cross-reference layer (e.g., "matches PR #535
+burst") only where there is something to say.
 
 ## Active / Concluded partition
 

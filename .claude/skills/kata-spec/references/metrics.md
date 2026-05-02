@@ -1,10 +1,10 @@
 # Metrics — Specification
 
-Suggested metrics for this domain. These are starting points — discover which
-metrics are most useful through practice. Record per the
-[`kata-metrics`](../../kata-metrics/SKILL.md) protocol.
+Record per the [`kata-metrics`](../../kata-metrics/SKILL.md) protocol. Append
+one row per run.
 
-| Metric           | Unit  | Description                                           | Data source |
-| ---------------- | ----- | ----------------------------------------------------- | ----------- |
-| specs_in_backlog | count | Open `spec(...): …` PRs without `spec:approved` label | gh pr list  |
-| days_in_draft    | days  | Days the oldest draft spec has waited                 | Git log     |
+| Metric        | Unit  | Description                        | Data source |
+| ------------- | ----- | ---------------------------------- | ----------- |
+| specs_drafted | count | Spec PRs opened or pushed this run | gh pr list  |
+
+Open spec PRs and draft age (`gh pr list`, `git log`) are queried, not recorded.

@@ -31,10 +31,26 @@ that entry-point skills follow for time-series data.
 
 ## Metric Design Guidance
 
-- Prefer counts and durations over ratios (ratios hide volume).
-- Prefer direct measurements over derived values.
-- Keep metric names stable across runs (snake_case, descriptive).
-- One metric per measurement — do not pack multiple values into one row.
+Metrics exist to drive XmR analysis. A metric is worth recording only if its
+values, plotted in order, reveal whether the process is predictable or shifting.
+Apply these constraints:
+
+- **Only end-to-end skills record metrics.** A skill is end-to-end when its
+  output is value-bearing on its own (not WIP for a downstream skill). Pipeline
+  stations and orchestration utilities do not record.
+- **Only process throughput.** Record the count of units of work the process
+  produced this run — issues triaged, PRs merged, findings filed,
+  implementations shipped. One observation per run.
+- **Do not record stocks or state.** Backlog counts (`open_issues`, `open_prs`)
+  and ages (`days_since_release`, `days_in_draft`) can be queried any time from
+  `gh`, `git`, or `npm audit`. Freezing them into CSV adds noise without signal:
+  stocks drift on accumulated history and ages are sawtooth functions that reset
+  on each event — neither tells you about the _process_ under XmR.
+- **No ratios, no aggregates with shifting scope.** Ratios hide volume; counts
+  whose denominator changes are not stable.
+- **One metric per skill.** If a second feels essential, it usually duplicates
+  the first or measures internal mechanics rather than process outcome.
+- **Names stable across runs** (snake_case). One row per measurement.
 
 ## Storage
 
@@ -72,25 +88,27 @@ bunx fit-xmr list wiki/metrics/{agent}/{domain}/{YYYY}.csv
 
 Returns metric name, unit, point count, and date range for each metric.
 
-**Analyze** process behavior with XmR control charts:
+**Analyze** process behavior with the canonical Wheeler/Vacanti X+mR chart:
 
 ```sh
 bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv
-bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --metric open_vulnerabilities
+bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --metric issues_triaged
 ```
 
-Returns limits (`x_bar`, `unpl`, `lnpl`), latest observation, detected signals,
-and `status` — one of `predictable`, `signals_present`, or `insufficient_data`.
-Filter to a single metric with `--metric`.
+Returns the 14-line chart, full-precision stats (`mu`, `R`, `sigmaHat`, `UPL`,
+`LPL`, `URL`, `zoneUpper`, `zoneLower`), latest observation, detected signals
+keyed by rule (`xRule1`, `xRule2`, `xRule3`, `mrRule1`), `status` — one of
+`predictable`, `signals_present`, `insufficient_data` — and `classification`
+(`stable`, `signals`, `chaos`, `insufficient`). Filter to a single metric with
+`--metric`.
 
-**Spark** — sparkline of the last 12 data points (for storyboard tables):
+**Chart** — render the 14-line X+mR chart for a single metric:
 
 ```sh
-bunx fit-xmr spark wiki/metrics/{agent}/{domain}/{YYYY}.csv --metric open_vulnerabilities
+bunx fit-xmr chart wiki/metrics/{agent}/{domain}/{YYYY}.csv --metric issues_triaged
 ```
 
-Outputs 12 bar characters scaled from ▁ (min) to █ (max) within the metric's own
-range.
+Add `--ascii` if the consuming environment mishandles Unicode glyphs.
 
 See [`references/xmr.md`](references/xmr.md) for chart construction, signal
 rules, JSON report format, and interpretation guidance. The same material in

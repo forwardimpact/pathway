@@ -46,10 +46,11 @@ Participant Protocol below.
       artifact guidance.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
 - [ ] Run `bunx fit-xmr analyze --format json` against each metrics CSV and
-      record the output.
-- [ ] For team storyboard runs, run `bunx fit-xmr summarize <csv> --markdown`
-      per agent-domain CSV to generate the deterministic stats block that goes
-      under the Current Condition table.
+      record the `status`, fired-rule `signals`, and `latest` for each metric.
+- [ ] For team storyboard runs, run `bunx fit-xmr chart <csv> --metric <name>`
+      per canonical metric to render the Wheeler/Vacanti X+mR chart that goes
+      into the Current Condition section. The chart is the visualization — do
+      not duplicate `μ`, `UPL`, `LPL`, or zone values in surrounding prose.
 
 </read_do_checklist>
 
@@ -122,9 +123,13 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    prepend it to the Q1 `Ask` body.
 4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
    `bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --format json`.
-   Use `status`, `signals`, and `x_bar` from the JSON output when reporting the
-   Condition. If a metric returns `insufficient_data`, note it. In facilitated
-   mode, include XmR summaries in the Q2 `Ask` to each agent.
+   Use `status`, fired-rule `signals`, and `latest` from the JSON output when
+   reporting the Condition. For team storyboard runs, also run
+   `bunx fit-xmr chart <csv> --metric <name>` per canonical metric and paste the
+   resulting Wheeler/Vacanti X+mR chart into the storyboard's Current Condition
+   section — the chart is the visualization. If a metric returns
+   `insufficient_data`, note it. In facilitated mode, include the XmR `status` +
+   fired-rule signals in the Q2 `Ask` to each agent.
 5. **Run the five questions.** Follow the overlay's wording. In facilitated
    mode, pose each question via `Ask` and collect `Answer` replies before
    advancing. Use `Announce` for between-question transitions or any status that
@@ -132,20 +137,19 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    files directly.
 6. **Update artifacts.** Write back whatever the overlay prescribes — for team
    mode, the storyboard file; for 1-on-1, the participant's memory.
-7. **Record coaching metrics.** Append coaching activity metrics (e.g.,
-   `meetings_facilitated`, `experiments_active`, `agents_participating`) to
-   `wiki/metrics/improvement-coach/coaching/{YYYY}.csv` per the
-   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. See
-   [`references/metrics.md`](references/metrics.md) for suggested metrics.
-8. **Evaluate coaching need (team meetings only).** Review the session's
+7. **Evaluate coaching need (team meetings only).** Review the session's
    findings. If a participant would benefit from a 1-on-1 coaching session —
    persistent obstacles, unanalyzed traces, or stalled experiments — trigger
    `kata-coaching.yml` via `gh workflow run kata-coaching.yml -f agent=<name>`.
    Skip this step in 1-on-1 sessions.
-9. **Commit.** Commit artifact changes as part of the wiki push.
-10. **Conclude (facilitated mode only).** Call `Conclude` with a session summary
-    covering: meeting type, key metrics reviewed, obstacles addressed,
-    experiments planned, and any coaching session triggered.
+8. **Commit.** Commit artifact changes as part of the wiki push.
+9. **Conclude (facilitated mode only).** Call `Conclude` with a session summary
+   covering: meeting type, key metrics reviewed, obstacles addressed,
+   experiments planned, and any coaching session triggered.
+
+The coach orchestrates the session — it does not own an end-to-end process and
+records no metrics of its own. Participants record their domain metrics per the
+Participant Protocol; the coach reads them.
 
 ## Participant Protocol
 
@@ -178,5 +182,6 @@ Append to the current week's log (see agent profile for the file path):
 - **Current condition** — Key numbers from metrics CSVs reviewed
 - **Obstacle addressed** — Which obstacle was the focus
 - **Experiment status** — Outcome of prior experiment, next experiment planned
-- **Metrics** — Facilitator: record coaching activity metrics per step 7.
-  Participants: record domain metrics per Participant Protocol step 2.
+
+Participants record their own domain metrics per Participant Protocol step 2.
+The coach records none — see step 7.

@@ -1,11 +1,8 @@
 # Metrics — Implementation
 
-Suggested metrics for this domain. These are starting points — discover which
-metrics are most useful through practice. Record per the
-[`kata-metrics`](../../kata-metrics/SKILL.md) protocol.
+Record per the [`kata-metrics`](../../kata-metrics/SKILL.md) protocol. Append
+one row per run.
 
-| Metric               | Unit  | Description                       | Data source |
-| -------------------- | ----- | --------------------------------- | ----------- |
-| steps_completed      | count | Plan steps completed this run     | Run actions |
-| blockers_encountered | count | Plan deviations or blockers hit   | Run actions |
-| plan_deviation_count | count | Steps that diverged from the plan | Run actions |
+| Metric                  | Unit  | Description                                  | Data source |
+| ----------------------- | ----- | -------------------------------------------- | ----------- |
+| implementations_shipped | count | Implementation PRs opened or merged this run | gh pr list  |

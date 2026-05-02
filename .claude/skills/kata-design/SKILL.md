@@ -168,7 +168,7 @@ Append to the current week's log (see agent profile for the file path):
 - **Design decisions** — Key architectural choices and why (so the planner has
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
-- **Metrics** — Record at least one measurement to
-  `wiki/metrics/{agent}/{domain}/` per the
-  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
-  it with the header row. These feed XmR analysis in the storyboard meeting.
+
+This skill produces a design document — work-in-progress for the downstream plan
+and implementation — so it does not record metrics. See
+[`kata-metrics`](../kata-metrics/SKILL.md) for the recording-eligibility rule.

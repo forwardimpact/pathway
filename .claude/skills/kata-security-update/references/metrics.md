@@ -1,11 +1,10 @@
 # Metrics — Security Update
 
-Suggested metrics for this domain. These are starting points — discover which
-metrics are most useful through practice. Record per the
-[`kata-metrics`](../../kata-metrics/SKILL.md) protocol.
+Record per the [`kata-metrics`](../../kata-metrics/SKILL.md) protocol. Append
+one row per run.
 
-| Metric                | Unit  | Description                               | Data source       |
-| --------------------- | ----- | ----------------------------------------- | ----------------- |
-| dependabot_pr_backlog | count | Open Dependabot PRs at run end            | gh pr list        |
-| time_to_resolve       | days  | Days oldest open Dependabot PR has waited | gh pr list        |
-| prs_merged            | count | PRs successfully merged this run          | Run actions taken |
+| Metric       | Unit  | Description                              | Data source |
+| ------------ | ----- | ---------------------------------------- | ----------- |
+| prs_actioned | count | Dependabot PRs merged or closed this run | Run actions |
+
+Backlog (`gh pr list --author app/dependabot`) is queried, not recorded.

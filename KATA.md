@@ -255,18 +255,22 @@ they don't compete.
 
 ## Metrics
 
-Agents record time-series data to `wiki/metrics/{agent}/{domain}/{YYYY}.csv`
-after each run. The `kata-metrics` skill defines the CSV schema (six fields:
-date, metric, value, unit, run, note), storage convention, and metric design;
-each entry-point skill carries a `references/metrics.md` suggesting
-domain-specific metrics.
+Only skills representing **end-to-end processes** — those whose output is
+value-bearing on its own, not work-in-progress for a downstream skill — record
+metrics. Each such skill records exactly one metric: the **count of units of
+work the process produced this run** (issues triaged, PRs merged, findings
+filed, and so on). Pipeline stations and orchestration utilities do not record.
 
-Metrics drive the coaching cycle: the storyboard meeting answers "what is the
-actual condition now?" with numbers, not narratives, and XmR process behavior
-charts distinguish stable processes from special-cause reactions. All agents —
-facilitator and participants — load `kata-session` and `kata-metrics`. Each
-participant records metrics to CSV before sharing in storyboard, so measurements
-persist as structured data rather than prose.
+The constraint is XmR-driven. Backlog counts and ages can be queried any time
+from `gh`, `git`, or `npm audit` — they're stocks and sawtooth functions, not
+process data, and freezing them into CSV adds noise without signal. Process
+throughput is the only shape that, plotted run-over-run, distinguishes a stable
+process from a special-cause shift.
+
+Each measurement is one CSV row appended to
+`wiki/metrics/{agent}/{domain}/{YYYY}.csv` after the run. The storyboard meeting
+reads these via `fit-xmr` and answers "what is the actual condition now?" with
+control limits and signals — numbers, not narratives.
 
 ## Authentication
 
