@@ -47,10 +47,9 @@ Participant Protocol below.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
 - [ ] Run `bunx fit-xmr analyze --format json` against each metrics CSV and
       record the `status`, fired-rule `signals`, and `latest` for each metric.
-- [ ] For team storyboard runs, run `bunx fit-xmr chart <csv> --metric <name>`
-      per canonical metric to render the Wheeler/Vacanti X+mR chart that goes
-      into the Current Condition section. The chart is the visualization — do
-      not duplicate `μ`, `UPL`, `LPL`, or zone values in surrounding prose.
+- [ ] For team storyboard runs, render an X+mR chart per canonical metric
+      (`bunx fit-xmr chart <csv> --metric <name>`) for the Current Condition
+      section.
 
 </read_do_checklist>
 
@@ -66,9 +65,8 @@ Participant Protocol below.
       and obstacles managed as labeled GitHub issues per
       [`issue-lifecycle.md`](references/issue-lifecycle.md).
 - [ ] For 1-on-1: agent's findings written to its own memory.
-- [ ] Weekly log updated under `## YYYY-MM-DD`: meeting type, metrics reviewed,
-      obstacle addressed, experiment committed, and Step 7 routing per Q3
-      obstacle (Discussion URL or coaching `agent=`, plus trigger).
+- [ ] Weekly log updated under `## YYYY-MM-DD` with meeting type, metrics,
+      obstacle, experiment, and Step 7 routing per Q3 obstacle.
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
 - [ ] In facilitated mode: `Conclude` called with session summary.
 
@@ -83,9 +81,8 @@ Participant Protocol below.
 - [ ] Metrics reported via `Answer` match the CSV rows just written.
 - [ ] Q3 obstacles grounded in data or trace findings, not narrative.
 - [ ] Q4 experiment has a recorded expected outcome.
-- [ ] Q4 expected outcome names metrics owned by a single skill — multi-skill
-      predictions cannot resolve in one run because skills don't share runs.
-      Split into one prediction per skill / run type if needed.
+- [ ] Q4 expected outcome names metrics owned by a single skill — split
+      multi-skill predictions into one per skill / run type.
 
 </do_confirm_checklist>
 
@@ -121,15 +118,15 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
 3. **Brief participants.** Deliver the overlay's briefing template before Q1.
    Team mode: broadcast once via `Announce` at session open. 1-on-1 mode:
    prepend it to the Q1 `Ask` body.
-4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run:
-   `bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv --format json`.
-   Use `status`, fired-rule `signals`, and `latest` from the JSON output when
-   reporting the Condition. For team storyboard runs, also run
-   `bunx fit-xmr chart <csv> --metric <name>` per canonical metric and paste the
-   resulting Wheeler/Vacanti X+mR chart into the storyboard's Current Condition
-   section — the chart is the visualization. If a metric returns
-   `insufficient_data`, note it. In facilitated mode, include the XmR `status` +
-   fired-rule signals in the Q2 `Ask` to each agent.
+4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run
+   `bunx fit-xmr analyze <csv> --format json` and use the `status`, fired-rule
+   `signals`, and `latest` fields when reporting the Condition. For team
+   storyboard runs, also run `bunx fit-xmr chart <csv> --metric <name>` per
+   canonical metric and paste the resulting X+mR chart into the storyboard's
+   Current Condition — the chart is the visualization, so do not duplicate `μ`,
+   `UPL`, `LPL`, or zone values in surrounding prose. Note any
+   `insufficient_data` metric. In facilitated mode, include `status` and
+   fired-rule signals in the Q2 `Ask`.
 5. **Run the five questions.** Follow the overlay's wording. In facilitated
    mode, pose each question via `Ask` and collect `Answer` replies before
    advancing. Use `Announce` for between-question transitions or any status that
@@ -158,26 +155,23 @@ Participant Protocol; the coach reads them.
 
 ## Participant Protocol
 
-The generic pattern below applies in both modes. It expands the session-open
-briefing participants receive from the coach.
+The pattern below applies in both modes and expands the coach's session-open
+briefing.
 
-1. **Prepare for Q2.** When the coach poses Q2 via `Ask`, gather your domain's
-   current measured state. Use live data (`gh`, `bun`, repo files) — not memory
-   or narrative.
+1. **Prepare for Q2.** Gather your domain's current measured state from live
+   data (`gh`, `bun`, repo files) — not memory or narrative.
 2. **Record metrics to CSV.** Before answering, append one row per metric to
-   your domain's CSV at `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv` per the
-   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. Create the directory and
-   header row if the file does not exist. The CSV is the authoritative record;
-   your `Answer` summarizes it.
-3. **Answer with measured data.** Report numbers via `Answer`. Reference the CSV
-   rows you just wrote. Use counts and durations — not narratives like
-   "improving" or "stable." Use `Announce` only when you have unsolicited
-   team-wide context.
+   `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv` per the
+   [`kata-metrics`](../kata-metrics/SKILL.md) protocol, creating the directory
+   and header if needed. The CSV is authoritative; your `Answer` summarizes it.
+3. **Answer with measured data.** Report numbers via `Answer`, referencing the
+   CSV rows. Use counts and durations — not narratives like "improving." Use
+   `Announce` only for unsolicited team-wide context.
 4. **Ground obstacles in data.** For Q3, identify obstacles from the gap between
-   your measured current condition and the target. Prefer trace findings or live
-   run data over accumulated log narratives.
+   current and target. Prefer trace findings or live run data over log
+   narratives.
 5. **Propose testable experiments.** For Q4, propose small experiments with
-   expected outcomes that can be verified in one or two daily cycles.
+   expected outcomes verifiable in one or two daily cycles.
 
 ## Memory: what to record
 

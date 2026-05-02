@@ -32,16 +32,13 @@ names, or import statements.
 ## Writing Principles
 
 **Both Product and Library tiers are task-oriented, not artifact-oriented.** The
-folder name signals which audience the task serves (engineers and leadership for
-`products/`, builders and agents for `libraries/`), not what the page contains.
-A task may pull from multiple products or libraries when that matches the real
-workflow — e.g., "Authoring Agent-Aligned Engineering Standards" covers Map,
-Core Model, and Pathway because that is the real authoring flow.
+folder name signals audience (engineers and leadership for `products/`, builders
+and agents for `libraries/`), not page contents. A task may span multiple
+products or libraries when that matches the real workflow.
 
-**Reference is lookup, not tutorial.** CLI reference lists every command with
+**Reference is lookup, not tutorial.** CLI reference lists commands with
 arguments and a brief example. Model reference defines every entity. YAML schema
-reference shows the exact format. No prose narrative — structured, scannable
-information.
+reference shows the exact format. Structured, scannable — no prose narrative.
 
 **Link to existing artifacts, don't duplicate.** Published JSON Schema lives at
 `/schema/json/` and RDF/SHACL at `/schema/rdf/` — link to them instead of
