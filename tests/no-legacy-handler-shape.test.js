@@ -69,18 +69,30 @@ function isLegacyParams(param) {
   return param.type === "Identifier" && param.name === "params";
 }
 
-function walkAst(node, visitor) {
-  if (!node || typeof node !== "object") return;
-  visitor(node);
+function isAstNode(v) {
+  return v && typeof v === "object" && typeof v.type === "string";
+}
+
+function astChildren(node) {
+  const out = [];
   for (const key of Object.keys(node)) {
     const child = node[key];
     if (Array.isArray(child)) {
       for (const item of child) {
-        if (item && typeof item.type === "string") walkAst(item, visitor);
+        if (isAstNode(item)) out.push(item);
       }
-    } else if (child && typeof child.type === "string") {
-      walkAst(child, visitor);
+    } else if (isAstNode(child)) {
+      out.push(child);
     }
+  }
+  return out;
+}
+
+function walkAst(node, visitor) {
+  if (!isAstNode(node)) return;
+  visitor(node);
+  for (const child of astChildren(node)) {
+    walkAst(child, visitor);
   }
 }
 
