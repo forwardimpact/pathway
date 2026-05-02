@@ -164,16 +164,18 @@ describe("Pipeline integration", () => {
         terminal: "write",
       });
 
-      // Stats shape: hits/misses from ProseCache, generated from ProseGenerator.
+      // Stats shape: hits/misses/missKeys from ProseCache, generated from ProseGenerator.
       assert.deepStrictEqual(Object.keys(result.stats.prose).sort(), [
         "generated",
         "hits",
+        "missKeys",
         "misses",
       ]);
       assert.strictEqual(result.stats.prose.generated, 0);
       // No-prose mode short-circuits before any cache read.
       assert.strictEqual(result.stats.prose.hits, 0);
       assert.strictEqual(result.stats.prose.misses, 0);
+      assert.strictEqual(result.stats.prose.missKeys.size, 0);
       assert.ok(result.files.size > 0);
     } finally {
       rmSync(tmpDir, { recursive: true });

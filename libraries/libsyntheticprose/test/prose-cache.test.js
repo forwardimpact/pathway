@@ -25,6 +25,24 @@ describe("ProseCache", () => {
       assert.strictEqual(cache.get("nope"), undefined);
       assert.strictEqual(cache.stats.misses, 1);
       assert.strictEqual(cache.stats.hits, 0);
+      assert.deepStrictEqual([...cache.stats.missKeys], ["nope"]);
+    } finally {
+      rmSync(tmpDir, { recursive: true });
+    }
+  });
+
+  test("missKeys deduplicates repeat lookups of the same absent key", () => {
+    const tmpDir = mkdtempSync(join(tmpdir(), "prose-cache-"));
+    try {
+      const cache = new ProseCache({
+        cachePath: join(tmpDir, "cache.json"),
+        logger: makeLogger(),
+      });
+      cache.get("a");
+      cache.get("a");
+      cache.get("b");
+      assert.strictEqual(cache.stats.misses, 3);
+      assert.deepStrictEqual([...cache.stats.missKeys].sort(), ["a", "b"]);
     } finally {
       rmSync(tmpDir, { recursive: true });
     }

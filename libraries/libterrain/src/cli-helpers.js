@@ -353,11 +353,21 @@ export function printGenerateStats(summary, result, ok) {
  * turn.
  */
 export function printCacheReport(result, summary, ok) {
-  const { hits, generated, misses } = result.stats.prose;
+  const { hits, generated, misses, missKeys } = result.stats.prose;
   const total = hits + generated + misses;
   const rate = total === 0 ? 100 : Math.round((hits / total) * 100);
 
   if (!ok) {
+    const sortedMissKeys = [...missKeys].sort();
+    if (sortedMissKeys.length > 0) {
+      process.stdout.write("\n");
+      summary.render({
+        title: formatHeader(`Cache misses (${sortedMissKeys.length})`),
+        items: [],
+        ok,
+        extras: sortedMissKeys.map((k) => `  ${k}`).join("\n") + "\n",
+      });
+    }
     const table = formatTable(
       ["Keys", "Hits", "Misses", "Rate"],
       [[total, hits, misses, `${rate}%`]],

@@ -29,7 +29,7 @@ export class ProseCache {
     this.logger = logger;
     this.entries = this.#load();
     this.dirty = false;
-    this.stats = { hits: 0, misses: 0 };
+    this.stats = { hits: 0, misses: 0, missKeys: new Set() };
   }
 
   /**
@@ -42,6 +42,7 @@ export class ProseCache {
       return this.entries.get(key);
     }
     this.stats.misses++;
+    this.stats.missKeys.add(key);
     return undefined;
   }
 
