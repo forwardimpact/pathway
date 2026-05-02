@@ -99,24 +99,25 @@ Equilateral triangle with vertical rectangle entrance at center-bottom. Sits on
 a ground line. Shelter, preparation, shared space — the tent is temporary and
 portable, reflecting that knowledge management should travel with you.
 
-## Gear — The Swiss Army Knife
+## Gear — The Tool Roll
 
 ```
-  ╭──────────╮
-  │          │
-  │  ╭────── │──   ← blade (extended)
-  │  │       │
-  │  ╰───── ─┤     ← screwdriver (half-open)
-  │          │
-  ╰──────────╯
+  ╭─┬─┬─┬─┬─╮
+  │ │ │ │ │ │    ← pockets with tools
+  │ ╿ ╿ ╿ ╿ │
+  │ │ │ │ │ │
+  ╰─┴─┴─┴─┴─╯
+       ──────    ← tie strap trailing loose
 ```
 
-Swiss army knife, slightly angled, with one blade extended and a second tool
-half-open. Rounded corners on the body, cross emblem centered on the grip panel
-in `--gray-900`. The extended tools show it in use — not folded shut in a
-pocket. No fill, consistent with the icon system. Gear is the knife you carry
-into the field: every library folds out when you need it, tucks away when you
-don't. The catalog is the handle; each utility is a blade.
+Soft canvas tool roll, unfurled flat on the ground, showing five vertical
+pockets with tool handles poking out. The canvas drapes and sags slightly
+between pockets — it's fabric, not a box. Edges curl up where the roll was
+wound; the corners don't lie perfectly flat. A tie strap trails loose from one
+end. No fill, consistent with the icon system. Gear is the roll you unfurl
+before the approach: each pocket holds a library, each tool lifts out when you
+need it. When the work is done, roll it up and carry on. The catalog is the
+canvas; each utility is a pocket.
 
 ---
 
@@ -135,9 +136,9 @@ don't. The catalog is the handle; each utility is a blade.
 ## Combined Icon: The Suite Mark
 
 ```
- ┌──┬──┐      ╱─╲             N         ┃╲         ⛳/\        △      ╭────╮──
- │ /│× │     ╱   ╲            │        ┌┸─┐       /  \      / \     │    │
- │/ │  │    ~~~~~~~~~~~~  ───┼───    ┌────┐     /    \    /___\    ╰────╯
+ ┌──┬──┐      ╱─╲             N         ┃╲         ⛳/\        △      ╭┬┬┬╮
+ │ /│× │     ╱   ╲            │        ┌┸─┐       /  \      / \     │╿╿╿│
+ │/ │  │    ~~~~~~~~~~~~  ───┼───    ┌────┐     /    \    /___\    ╰┴┴┴╯
  └──┴──┘                      │      ──────    /      \
    Map       Pathway       Guide   Landmark   Summit   Outpost     Gear
 ```
