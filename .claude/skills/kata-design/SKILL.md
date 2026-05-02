@@ -22,8 +22,8 @@ is no commitment to implement, and a design has nothing to shape.
 
 ## When to Use
 
-- Turning an approved spec (`specs/NNN/spec.md` exists on `main`) into an
-  architectural design
+- Turning a merged spec (`specs/NNN/spec.md` on `origin/main`, not just a
+  `spec:approved` label on an open PR) into an architectural design
 - Reviewing a design before approval ("review design NNN", "is design NNN
   ready?")
 - Revisiting a design whose direction needs rethinking before planning
@@ -32,10 +32,10 @@ is no commitment to implement, and a design has nothing to shape.
 
 <read_do_checklist goal="Internalize design-writing boundaries before starting">
 
-- [ ] Confirm the spec is approved by checking `specs/NNN/spec.md` exists on
-      `main`: `git show main:specs/NNN/spec.md` succeeds. Do not rely on the
-      wiki, prior session memory, or PR descriptions.
-- [ ] A design requires an approved spec — if `spec.md` is not on `main`, stop.
+- [ ] Run `git fetch origin main`, then confirm `specs/NNN/spec.md` exists on
+      `origin/main` (`git show origin/main:specs/NNN/spec.md` succeeds). A
+      `spec:approved` label on an open PR is **not** sufficient — wait for the
+      spec PR to merge, even if you authored or approved it this session.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not write the plan — this skill writes the design; `kata-plan`
@@ -147,7 +147,9 @@ from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** Requires `specs/NNN/spec.md` on `main`; otherwise stop.
+1. **Find the spec.** Run `git fetch origin main`, then require
+   `specs/NNN/spec.md` on `origin/main`; otherwise stop. An open spec PR with
+   `spec:approved` does not satisfy this — wait for the merge.
 2. **Study the spec.** Read `spec.md` end to end.
 3. **Research the codebase.** Read the code areas the spec targets.
 4. **Write the design.** Create `design-a.md`. Stay under 200 lines. Each

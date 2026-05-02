@@ -19,8 +19,8 @@ there is no architectural direction to translate into implementation steps.
 
 ## When to Use
 
-- Turning an approved design (`specs/NNN/design-a.md` exists on `main`) into an
-  execution-ready plan
+- Turning a merged design (`specs/NNN/design-a.md` on `origin/main`, not just a
+  `design:approved` label on an open PR) into an execution-ready plan
 - Reviewing a plan before approval ("review plan NNN", "is plan NNN ready?")
 - Creating an alternative plan variant for the same spec
 
@@ -28,11 +28,10 @@ there is no architectural direction to translate into implementation steps.
 
 <read_do_checklist goal="Internalize plan-writing boundaries before starting">
 
-- [ ] Confirm the design is approved by checking `specs/NNN/design-a.md` exists
-      on `main`: `git show main:specs/NNN/design-a.md` succeeds. Do not rely on
-      the wiki, prior session memory, or PR descriptions.
-- [ ] A plan requires an approved design — if `design-a.md` is not on `main`,
-      stop.
+- [ ] Run `git fetch origin main`, then confirm `specs/NNN/design-a.md` exists
+      on `origin/main` (`git show origin/main:specs/NNN/design-a.md` succeeds).
+      A `design:approved` label on an open PR is **not** sufficient — wait for
+      the design PR to merge, even if you authored or approved it this session.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not implement — this skill writes the plan; `kata-implement` executes
@@ -165,8 +164,9 @@ deferred work from prior `staff-engineer` entries.
 
 ### Steps
 
-1. **Find the spec.** Requires `specs/NNN/design-a.md` on `main`; otherwise
-   stop.
+1. **Find the design.** Run `git fetch origin main`, then require
+   `specs/NNN/design-a.md` on `origin/main`; otherwise stop. An open design PR
+   with `design:approved` does not satisfy this — wait for the merge.
 2. **Study the spec and design.** Read both end to end.
 3. **Research the codebase.** Read the files the plan will target.
 4. **Write the plan.** Create `plan-a.md`. Each step independently verifiable.
