@@ -31,6 +31,9 @@ apply alongside the skill-specific ones below.
 
 - [ ] Run `git fetch origin main`, then confirm `specs/NNN/plan-a.md` exists on
       `origin/main` (an open `plan:approved` PR is not enough — wait for merge).
+- [ ] Enter a new worktree with `EnterWorktree` (e.g. name `impl/NNN`). All
+      implementation work happens in the worktree — never on the main working
+      tree.
 - [ ] Read the full spec and all plan files before writing any code.
 - [ ] Implement plan-a unless explicitly directed to a different variant.
 - [ ] Implement only what the plan describes — no unrequested refactors,
