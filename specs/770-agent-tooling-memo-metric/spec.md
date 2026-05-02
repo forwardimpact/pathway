@@ -1,4 +1,4 @@
-# Spec 770 — Agent tooling: `fit-memo` and `fit-xmr record`
+# Spec 770 — Agent tooling: `fit-wiki memo` and `fit-xmr record`
 
 ## Problem
 
@@ -36,15 +36,19 @@ tokens on file discovery, section parsing, or CSV formatting.
 
 ## Scope (in)
 
-### 1. `fit-memo` — cross-team observation utility
+### 1. `fit-wiki memo` — cross-team observation command
 
-A new CLI (new package or hosted in an existing library) that appends a
-timestamped observation to a target agent's wiki summary file.
+A new `memo` subcommand on a new `fit-wiki` CLI, provided by a new `libwiki`
+package (`@forwardimpact/libwiki`). The `fit-wiki` CLI is the operational
+layer for wiki lifecycle management in the Kata agent system; `memo` is its
+first subcommand. Future subcommands (refresh, push, pull, init) are scoped
+in follow-up specs.
 
 - **Marker-based insertion.** Each `wiki/<agent>.md` carries an HTML comment
   `<!-- memo:inbox -->` immediately before the "Observations for Teammates"
-  heading. `fit-memo` inserts the new observation as a bullet after the marker,
-  before any existing bullets. The marker is invisible in rendered markdown.
+  heading. `fit-wiki memo` inserts the new observation as a bullet after the
+  marker, before any existing bullets. The marker is invisible in rendered
+  markdown.
 - **CLI surface.** Accepts sender, target (or `all` for broadcast), and
   message. Produces one write per target.
 - **Migration.** One-time insertion of `<!-- memo:inbox -->` markers into all
@@ -55,6 +59,10 @@ timestamped observation to a target agent's wiki summary file.
   (section 5 of the "Permitted sections" list: `## Observations for
   Teammates`) gains the `<!-- memo:inbox -->` marker so that newly created
   summaries include it automatically.
+- **Package.** `libwiki` is a new library under `libraries/libwiki` with
+  `fit-wiki` as its CLI binary. It has no dependency on `libxmr` in this
+  spec's scope (the `memo` subcommand does not need XmR analysis). The
+  dependency is anticipated for follow-up work (`fit-wiki refresh`).
 
 ### 2. `fit-xmr record` — metrics recording command
 
@@ -103,7 +111,7 @@ summary.
   classification logic in libxmr.
 - Changes to `wiki/MEMORY.md` schema or the cross-cutting priority index.
 - Changes to the weekly log format or the Tier 1/Tier 2 memory tier structure.
-- Automated delivery confirmation for `fit-memo` (the spec addresses the
+- Automated delivery confirmation for `fit-wiki memo` (the spec addresses the
   recording side; read-side acknowledgement is a separate concern).
 - Changes to the storyboard session protocol (`kata-session`) beyond template
   path updates.
@@ -114,8 +122,8 @@ summary.
 
 | # | Claim | Verification |
 |---|-------|--------------|
-| 1 | `fit-memo --from <sender> --to <target> "<message>"` appends a timestamped bullet to `wiki/<target>.md` immediately after the `<!-- memo:inbox -->` marker. | Run the command; `git diff wiki/<target>.md` shows exactly one new bullet with ISO date, sender attribution, and message text. No other lines changed. |
-| 2 | `fit-memo --from <sender> --to all "<message>"` writes to all 6 agent summaries. | Run the command; `git diff wiki/` shows one new bullet in each of the 6 summary files. |
+| 1 | `fit-wiki memo --from <sender> --to <target> "<message>"` appends a timestamped bullet to `wiki/<target>.md` immediately after the `<!-- memo:inbox -->` marker. | Run the command; `git diff wiki/<target>.md` shows exactly one new bullet with ISO date, sender attribution, and message text. No other lines changed. |
+| 2 | `fit-wiki memo --from <sender> --to all "<message>"` writes to all 6 agent summaries. | Run the command; `git diff wiki/` shows one new bullet in each of the 6 summary files. |
 | 3 | `fit-xmr record --agent <name> <metric> <value>` appends a row to `wiki/metrics/<name>/{YYYY}.csv` and prints a one-line XmR summary to stdout. | Run the command; `tail -1 wiki/metrics/<name>/2026.csv` shows `<today>,<metric>,<value>,count,...`. Stdout contains metric name, n, status, and latest value. |
 | 4 | `fit-xmr record` creates the CSV with header row when the file does not exist. | Run against a non-existent agent directory; file exists afterward with header + 1 data row. |
 | 5 | All 6 existing agent summary files contain `<!-- memo:inbox -->` after migration. | `grep -c 'memo:inbox' wiki/*.md` returns 1 for each of the 6 agent summaries. |
