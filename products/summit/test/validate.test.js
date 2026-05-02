@@ -85,8 +85,9 @@ test("runValidateCommand prints warnings after the error block when both exist",
 
 test("runValidateCommand emits unchanged output when no warnings fire", async () => {
   const out = await runWith(FIXTURE_ROSTER, "text");
-  assert.match(out, /Roster is valid/);
-  assert.equal(out.includes("Composition warnings:"), false);
+  // Plan step 6: exact-equality assertion locks in spec criterion 3 — no
+  // accidental trailing lines or warnings header when warnings are empty.
+  assert.equal(out, "  Roster is valid. 3 members across 1 teams.\n");
   assert.equal(process.exitCode, 0);
 });
 
