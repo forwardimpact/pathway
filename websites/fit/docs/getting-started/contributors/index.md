@@ -45,7 +45,6 @@ Other generation modes:
 
 ```sh
 just synthetic-update     # Regenerate prose via LLM and update the cache
-just synthetic-no-prose   # Structural data only, no prose content
 ```
 
 ## Run checks
