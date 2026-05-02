@@ -72,8 +72,10 @@ export class ProseCache {
   save() {
     if (!this.dirty) return;
     const payload = { [SCHEMA_FIELD]: SCHEMA_VERSION };
-    for (const [key, value] of this.entries) {
-      payload[key] = value;
+    // Sort keys so the on-disk file is stable across regeneration runs
+    // and diffs review cleanly.
+    for (const key of [...this.entries.keys()].sort()) {
+      payload[key] = this.entries.get(key);
     }
     writeFileSync(this.cachePath, JSON.stringify(payload, null, 2));
     this.dirty = false;
@@ -92,9 +94,23 @@ export class ProseCache {
           return new Map();
         }
         const entries = new Map();
+        let dropped = 0;
         for (const [key, value] of Object.entries(parsed)) {
           if (key === SCHEMA_FIELD) continue;
+          // Drop legacy structured entries (8-char hex with no entity
+          // prefix) — superseded by `${entityKey}#${hash}` format.
+          if (/^[a-f0-9]{8}$/.test(key)) {
+            dropped++;
+            continue;
+          }
           entries.set(key, value);
+        }
+        if (dropped > 0) {
+          this.dirty = true;
+          this.logger.info(
+            "prose-cache",
+            `Dropped ${dropped} legacy hash-only cache entries`,
+          );
         }
         return entries;
       }

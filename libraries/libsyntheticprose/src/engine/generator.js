@@ -5,10 +5,10 @@
  * Pairs with `ProseCache` (sync). Calls the LLM only when the cache misses
  * and the mode permits generation.
  *
- * `generate()` keys the cache by entity key directly so the on-disk file
- * is diff-readable and the key set is enumerable. `generateStructured()`
- * keys by a content-aware hash because its callers want prompt drift to
- * invalidate stale entries.
+ * `generatePlain()` keys the cache by entity key directly so the on-disk
+ * file is diff-readable and the key set is enumerable.
+ * `generateStructured()` keys by `${entityKey}#${hash}` so the entity is
+ * still greppable while prompt drift auto-invalidates stale entries.
  *
  * @module libsyntheticprose/engine/generator
  */
@@ -46,7 +46,7 @@ export class ProseGenerator {
    * @param {object} context
    * @returns {Promise<string|null>}
    */
-  async generate(key, context) {
+  async generatePlain(key, context) {
     if (this.mode === "no-prose") return null;
 
     const cached = this.cache.get(key);
@@ -77,7 +77,7 @@ export class ProseGenerator {
   async generateStructured(key, messages, { maxTokens = 4000 } = {}) {
     if (this.mode === "no-prose") return null;
 
-    const cacheKey = generateHash(key, JSON.stringify(messages));
+    const cacheKey = `${key}#${generateHash(JSON.stringify(messages))}`;
     const cached = this.cache.get(cacheKey);
     if (cached !== undefined) {
       this.logger.debug("prose", `Cache hit: ${key}`);

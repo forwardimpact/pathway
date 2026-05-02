@@ -86,7 +86,7 @@ export function buildNodes(ctx) {
         let i = 0;
         for (const [key, context] of proseKeys) {
           i++;
-          const value = await proseGenerator.generate(key, context);
+          const value = await proseGenerator.generatePlain(key, context);
           if (value) prose.set(key, value);
           if (mode !== "no-prose") {
             logger.info("prose", `[${i}/${total}] ${key}`);

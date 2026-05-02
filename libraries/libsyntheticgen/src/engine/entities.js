@@ -10,6 +10,7 @@ import {
   toGithubUsername,
   toEmail,
 } from "./names.js";
+import { createSeededRNG } from "./rng.js";
 
 /**
  * Build all entities from AST and RNG.
@@ -124,6 +125,13 @@ function fillRemainingPeople(
 }
 
 function generatePeople(ast, rng, teams, domain, logger) {
+  // Use an isolated RNG seeded from ast.seed so people allocation is
+  // stable regardless of how much entropy upstream phases consumed
+  // before this point. The shared `rng` parameter is kept for signature
+  // compatibility but unused.
+  void rng;
+  const peopleRng = createSeededRNG(`${ast.seed}:people`);
+
   const { count, distribution, disciplines, archetypes } = ast.people;
   const archetypeKeys = archetypes ? Object.keys(archetypes) : [];
   const archetypeWeights = archetypes ? Object.values(archetypes) : [];
@@ -142,10 +150,12 @@ function generatePeople(ast, rng, teams, domain, logger) {
   const levelWeights = Object.values(distribution);
   const discKeys = Object.keys(disciplines);
   const discWeights = Object.values(disciplines);
-  const available = rng.shuffle(GREEK_NAMES.filter((n) => !usedNames.has(n)));
+  const available = peopleRng.shuffle(
+    GREEK_NAMES.filter((n) => !usedNames.has(n)),
+  );
 
   const people = createManagers(
-    rng,
+    peopleRng,
     teams,
     managerAssignments,
     discKeys,
@@ -155,7 +165,7 @@ function generatePeople(ast, rng, teams, domain, logger) {
     domain,
   );
   fillRemainingPeople(
-    rng,
+    peopleRng,
     people,
     count,
     available,
