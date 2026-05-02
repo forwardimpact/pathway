@@ -28,9 +28,9 @@ graph LR
 | ------------------------ | ------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `MarkerScanner`          | libwiki | Parse a markdown file; return `[{metric, csvPath, openLine, closeLine}]` for each `<!-- xmr:metric:path -->` … `<!-- /xmr -->` pair.                            |
 | `BlockRenderer`          | libwiki | Given metric + csvPath, call `libxmr.analyze`, filter to the metric, format the `**Latest:** … **Status:** …` line, fenced chart, and `**Signals:** …` line.   |
-| `refresh` command        | libwiki | Read storyboard → scan → render each block → splice between marker line indices → single atomic write.                                                           |
+| `refresh` command        | libwiki | Orchestrates `MarkerScanner` and `BlockRenderer` over a storyboard file; produces a single rewrite with all owned spans replaced.                                |
 | `WikiRepo`                | libwiki | Wrap the `./wiki/` git working tree. Methods: `ensureCloned(url)`, `pull()`, `commitAndPush(message)`, `isClean()`. Owns credential helper + identity inheritance. |
-| `SkillRoster`            | libwiki | Discover skills by globbing `.claude/skills/kata-*/SKILL.md`; derive `wiki/metrics/<skill>/` paths.                                                              |
+| `SkillRoster`            | libwiki | Discover the skills in the installation; derive `wiki/metrics/<skill>/` paths.                                                                                   |
 | `init` command           | libwiki | `WikiRepo.ensureCloned` for the wiki URL; for each `SkillRoster` entry create `wiki/metrics/<skill>/`. Idempotent.                                              |
 | `push` / `pull` commands | libwiki | One-line wrappers over `WikiRepo.commitAndPush` / `WikiRepo.pull`.                                                                                              |
 
@@ -51,8 +51,11 @@ contract:
   `refresh` and are replaced wholesale. The marker lines themselves and the
   preceding `#### {metric_name}` heading are preserved.
 - **Generated content.** Three parts in order: `**Latest:** {value} ·
-  **Status:** {status}` line, blank line, fenced 14-line chart from
+  **Status:** {status}` line, blank line, fenced chart from
   `libxmr.renderChart`, blank line, `**Signals:** {rules or "—"}` line.
+  `{status}` is the value libxmr returns verbatim
+  (`predictable | signals_present | insufficient_data`); no statuses are
+  invented in this layer.
 
 ## Refresh flow
 
@@ -78,10 +81,9 @@ sequenceDiagram
 - **No-op on no markers.** When `MarkerScanner` returns empty, skip the
   write entirely (`git diff` empty, criterion #3).
 - **Idempotent.** Output is a pure function of the storyboard markers and
-  the referenced CSV contents (criterion #2).
-- **Insufficient data.** When `analyze` reports `n < MIN_POINTS`,
-  `BlockRenderer` emits the Latest/Status line with `status=insufficient_data`
-  and skips the chart fence. The marker pair survives.
+  the referenced CSV contents (criterion #2). `BlockRenderer` defers all
+  status semantics — including low-N behaviour — to `libxmr.analyze` and
+  `libxmr.renderChart`.
 
 ## Init / push / pull flow
 
@@ -99,18 +101,10 @@ sequenceDiagram
   Repo-->>CLI: result
 ```
 
-- **Credential helper.** When `GITHUB_TOKEN` or `GH_TOKEN` is set,
-  `WikiRepo` adds `-c credential.helper=…` to each `git` invocation so the
-  token never lands in `.git/config` (matches `wiki-sync.sh`'s `auth_git`).
 - **Wiki URL.** Derived from the parent repo's `origin` URL by appending
-  `.wiki.git`. `init --wiki-url` overrides for forks.
-- **Identity.** On first call `WikiRepo` copies `user.name` and `user.email`
-  from the parent repo's `git config` into `wiki/.git/config`.
-- **Push conflict policy.** On rebase failure during `commitAndPush`, fall
-  back to `git merge origin/master -X ours --no-edit` (local-wins, matches
-  existing `wiki-sync.sh` push semantics).
-- **Pull conflict policy.** On rebase failure during `pull`, abort and exit
-  non-zero with a diagnostic line. Matches existing `wiki-sync.sh pull`.
+  `.wiki.git`.
+- See decisions W2–W3 and W5 below for credential, push-conflict, and
+  pull-conflict policies; I3 covers identity inheritance.
 
 ## Key decisions
 
@@ -124,9 +118,10 @@ sequenceDiagram
 | W1  | Git operations                  | Shell out to system `git` via `child_process.spawn`.                                                                                                               | Use isomorphic-git — 1.5 MB dependency and a second git implementation; existing `wiki-sync.sh` behaviour is already specified in terms of system git.                |
 | W2  | Credential injection            | Inline `-c credential.helper=…` per call.                                                                                                                          | Write token to `.git/config` — leaks credentials onto disk and persists across sessions.                                                                                |
 | W3  | Push conflict policy            | Local wins via `merge -X ours` after rebase failure.                                                                                                               | Hard-fail on conflict — wiki writes are streaming agent output; failing push aborts the whole session. Local-wins matches the wiki's role as agent-authored memory.   |
-| W4  | Wiki URL discovery              | Derive from parent repo's `origin` + `.wiki.git`. `--wiki-url` flag overrides.                                                                                     | Hardcode the monorepo URL — kills portability to downstream Kata installations (the spec's central goal).                                                              |
-| I1  | Skill discovery for init        | Glob `.claude/skills/kata-*/SKILL.md`; derive skill name from directory basename.                                                                                  | Hardcoded list — edit every time a skill is added. Glob `wiki/metrics/*/` — circular (the directory may not exist yet on first init).                                  |
-| I2  | Empty-directory persistence     | Skip placeholder files. `record` creates the directory on demand if missing.                                                                                       | Drop a `.gitkeep` per skill — clutters the wiki with zero-content files; `record`'s `mkdirSync(..., {recursive:true})` already handles missing directories.            |
+| W4  | Wiki URL discovery              | Derive from parent repo's `origin` + `.wiki.git`.                                                                                                                  | Hardcode the monorepo URL — kills portability to downstream Kata installations (the spec's central goal).                                                              |
+| W5  | Pull conflict policy            | Abort the rebase and exit non-zero with a diagnostic line — matches `wiki-sync.sh pull`.                                                                          | Auto-resolve in favour of remote — silently overwrites locally drafted memos that have not yet been pushed.                                                            |
+| I1  | Skill discovery for init        | Enumerate the installed kata skills under `.claude/skills/`; derive directory names from their slugs.                                                              | Hardcoded list — edit every time a skill is added. Glob `wiki/metrics/*/` — circular (the directory may not exist yet on first init).                                  |
+| I2  | Empty-directory persistence     | Skip placeholder files. `record` creates the directory on demand if missing.                                                                                       | Drop a `.gitkeep` per skill — clutters the wiki with zero-content files; on-demand creation is already supported.                                                       |
 | I3  | Identity source                 | Inherit from parent repo's `git config user.name/email`.                                                                                                           | CLI flags for identity — agents would replumb identity through every command; the parent repo already declares it.                                                    |
 
 ## Boundaries
@@ -145,8 +140,8 @@ sequenceDiagram
 
 | Risk                                                                            | Mitigation                                                                                                                                                                            |
 | ------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `libxmr.analyze` throws on a malformed CSV during refresh, aborting the file.   | `BlockRenderer` catches per-block; on failure emits `**Status:** error: <msg>` between the markers and continues. The marker pair survives so the next refresh retries cleanly.       |
+| `libxmr.analyze` throws on a malformed CSV during refresh, aborting the file.   | `BlockRenderer` catches per-block; on failure leaves the existing block contents untouched and prints `refresh-error <file:line> <reason>` to stderr. The marker pair survives so the next refresh retries cleanly. |
 | Unmatched open marker without a `<!-- /xmr -->`.                                | `MarkerScanner` skips the unmatched open, prints a `dangling-marker file:line` warning to stderr, and continues with the well-formed pairs. Refresh exit code stays 0.                |
 | Credentials missing in non-CI use.                                              | `WikiRepo` falls back to plain `git` (anonymous). For a private wiki, the underlying `git` call fails with its own message — the credential helper is additive, not required.        |
 | Skill set drifts between `init` time and runtime.                               | `record` already calls `mkdirSync(..., {recursive:true})` — new skills materialize their directory on first use. Init pre-creates the known set; drift is self-healing.              |
-| Two agents push to the wiki concurrently.                                       | `WikiRepo.commitAndPush` re-fetches and rebases on every call; conflict path falls through to `merge -X ours`. Same race characteristics as today's `wiki-sync.sh` (per spec design). |
+| Two agents push to the wiki concurrently.                                       | `WikiRepo.commitAndPush` re-fetches and rebases on every call; conflict path falls through to `merge -X ours`. Same race characteristics as today's `wiki-sync.sh`.                   |
