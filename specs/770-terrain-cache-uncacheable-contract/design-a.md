@@ -28,6 +28,11 @@ allowlist-by-name fails because names rotate; negative-cache sentinel fails
 because no LLM call was attempted, so there is nothing to mark empty.
 Class-of-key is the only mechanism that fits.
 
+This empirical premise is a design precondition: if the to-be-built diagnostic
+later produces a materially different distribution (e.g., misses split across
+multiple classes, or non-`snapshot_comment_*` misses appear), the class-of-key
+choice must be re-evaluated against the spec's three options.
+
 ## Components
 
 | #   | Component                             | Role                                                                                                                                                                                                |
@@ -35,7 +40,7 @@ Class-of-key is the only mechanism that fits.
 | 1   | Cache contract registry (data file)   | Single source of truth for which key classes may be absent and a per-class miss-budget upper bound; doubles as the criterion-3 single artifact via embedded `_doc` and per-class `rationale` fields |
 | 2   | Contract loader (`libsyntheticprose`) | Parses the registry and exposes `coverMisses(missKeys) → { covered, uncovered, classCounts }`                                                                                                       |
 | 3   | Diagnostic enumeration (`libterrain`) | Emits every miss key (no truncation, no sampling) whenever `result.stats.prose.misses > 0`                                                                                                          |
-| 4   | `check` exit-code rule (`libterrain`) | `ok` reduces to "every miss key is covered AND each class miss count ≤ its class budget"                                                                                                            |
+| 4   | `check` exit-code rule (`libterrain`) | Returns `ok = (every miss key is covered)`, where "covered" carries the K2 definition; no second gate                                                                                               |
 
 The `kata-release-merge` §§ 4–6 invariant for criterion 5 is a cross-skill
 constraint verified by static inspection of the SKILL (per the spec), not a
@@ -51,7 +56,7 @@ flowchart LR
   C -- hit --> D[hits++]
   C -- miss --> E[record miss key]
   E --> F[Contract.coverMisses]
-  F --> G{"uncovered = 0<br/>AND classCounts ok?"}
+  F --> G{"uncovered = 0?<br/>(K2: cap blow → uncovered)"}
   G -- yes --> H[exit 0 + report covered misses]
   G -- no --> I[exit 1 + enumerate every miss key]
   H --> J[Cache report]
@@ -85,47 +90,40 @@ the resolution rule (criterion 3's single-artifact requirement). Shape:
 
 ## Interfaces
 
-`CacheContract` (new class in `libsyntheticprose`):
+`CacheContract` (new class in `libsyntheticprose`) — the surface the verb sees:
 
-- `static load(contractPath, logger)` — read, parse, validate `_schema`.
-- `coverMisses(missKeys)` — returns
-  `{ covered: string[], uncovered: string[], classCounts: Map<classPattern, { matched, cap, ok }> }`.
+- `load(contractPath, logger) → CacheContract` — parse and `_schema`-validate
+  the registry.
+- `coverMisses(missKeys) → { covered: string[], uncovered: string[], classCounts: Map<string, { matched, cap, ok }> }`
+  — `string` keys in `classCounts` are `classPattern` values.
 
-`ProseCache.stats` extension: gains `missKeys: string[]` alongside `hits` /
-`misses`, so the verb receives the ordered miss-key list threaded through
-`cache-lookup`, not just a count.
-
-`printCacheReport` extension: takes `contractCoverage` as an additional
-argument. When `stats.prose.misses > 0`, the report names every miss key with
-its coverage state in a grep-able form (output formatting is plan-level).
-
-`fit-terrain check` exit rule:
-
-```
-ok = coverage.uncovered.length === 0
-   && every classCounts entry has ok = true
-```
+The miss-key list flows from cache to verb to report: `ProseCache.stats` carries
+`missKeys: string[]` alongside `hits` / `misses`, threaded through
+`cache-lookup` so the verb receives ordered keys (not just a count). The
+cache-report stage receives both `stats` and `contractCoverage` and emits every
+miss key with its coverage state in a grep-able form whenever
+`stats.prose.misses > 0`. Exact argument signatures, output strings, and
+ordering are plan-level.
 
 ## Key Decisions
 
-| Key | Decision                                                                                                                                    | Trade-off vs. rejected                                                                                                                                                                                                                                                                                                                                |
-| --- | ------------------------------------------------------------------------------------------------------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| K1  | Class-of-key registry (glob prefix + cap), not allowlist or sentinel                                                                        | Allowlist-by-name fails against drift (names rotate run-to-run). Sentinel fails against drift (no LLM call attempted, nothing to mark empty). Class-of-key is the only mechanism that survives the actual root cause.                                                                                                                                 |
-| K2  | Per-class `maxMisses` cap, not unbounded class exemption; "covered" in spec criterion 4 = `classPattern` matches AND class miss count ≤ cap | Unbounded exemption hides a structural change in the keyspace. The cap turns the gate from "is anything missing" into "is the missing set within tolerance for this class." Defining "covered" to include the cap keeps the spec's criterion-4 wording semantically coherent with the cap mechanism — caps are part of coverage, not a separate gate. |
-| K3  | Static cap formula — `maxMisses ≥ today's measured class miss count + headroom for one normal rotation cycle`; never auto-ratcheted by CI   | Auto-tightening adds mechanism for no clear gain — the cap is a structural-change tripwire, not a miss-count optimizer. The integer instantiation is plan-set; the architectural commitment is "static, registry-edited, headroom for one rotation cycle."                                                                                            |
-| K4  | Registry file is JSON beside `prose-cache.json`, not in code                                                                                | A code-resident allowlist is invisible to non-JS reviewers. JSON next to the cache makes the contract diff-readable, makes `_schema` versioning consistent with the cache itself, and centralizes "what may be absent."                                                                                                                               |
-| K5  | Diagnostic enumeration always fires when `misses > 0`                                                                                       | Spec criterion 2 wording is unconditional. Enumerating only on uncovered miss would hide drift growth approaching the cap; emitting on every miss-bearing run keeps the data point visible in CI without requiring a failure.                                                                                                                         |
-| K6  | The registry JSON itself is the single criterion-3 artifact (`_doc` + per-class `rationale`); no separate README                            | Spec criterion 3 says "single artifact". Registry + README is two sources readers reconcile. Registry-with-embedded-doc keeps data and explanation in lockstep — registering a class without its rationale becomes structurally impossible because the schema requires the field.                                                                     |
+| Key | Decision                                                                                                                                                                                                                  | Trade-off vs. rejected                                                                                                                                                                                                                                                                                                                                                                                                                     |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| K1  | Class-of-key registry, with **glob anchored at key start** as the pattern grammar — not allowlist, not sentinel, not regex, not exact-prefix-only                                                                         | Allowlist-by-name fails against drift (names rotate). Sentinel fails against drift (no LLM call attempted, nothing to mark empty). Among class-of-key grammars: regex is over-expressive for class membership and invites misuse (back-references, lookarounds) that hide intent; exact-prefix-only forecloses multi-segment patterns the keyspace may need (e.g., `snapshot_*_comment`). Anchored glob is the minimal sufficient grammar. |
+| K2  | Per-class `maxMisses` cap, not unbounded class exemption; the cap is part of "covered" — a key is covered iff `classPattern` matches AND class miss count ≤ cap. **This is the single home of the "covered" definition.** | Unbounded exemption hides structural change in the keyspace. Folding the cap into "covered" keeps spec criterion 4's "every miss covered by the contract" semantically coherent with the cap mechanism (one definition, one home — Components row 4 and the data-flow diagram both reference K2 rather than restating the rule).                                                                                                           |
+| K3  | Static cap formula — `maxMisses ≥ today's measured class miss count + headroom for one rotation cycle`; never auto-ratcheted by CI                                                                                        | "Rotation cycle" = one fresh `generateCommentKeys` run with a different RNG state, which can swap any subset of the candidate-list permutation. The integer instantiation is plan-set against the diagnostic's actual numbers. Auto-tightening adds mechanism for no clear gain — the cap is a structural-change tripwire, not a miss-count optimizer. Cap moves are registry edits reviewed by humans.                                    |
+| K4  | Registry file is JSON beside `prose-cache.json`, not in code                                                                                                                                                              | A code-resident allowlist is invisible to non-JS reviewers. JSON next to the cache makes the contract diff-readable, makes `_schema` versioning consistent with the cache itself, and centralizes "what may be absent."                                                                                                                                                                                                                    |
+| K5  | Diagnostic enumeration always fires when `misses > 0`                                                                                                                                                                     | Spec criterion 2 wording is unconditional. Enumerating only on uncovered miss would hide drift growth approaching the cap; emitting on every miss-bearing run keeps the data point visible in CI without requiring a failure.                                                                                                                                                                                                              |
+| K6  | The registry JSON itself is the single criterion-3 artifact (`_doc` + per-class `rationale`); no separate README                                                                                                          | Spec criterion 3 says "single artifact". Registry + README is two sources readers reconcile. Registry-with-embedded-doc keeps data and explanation in lockstep — registering a class without its rationale becomes structurally impossible because the schema requires the field.                                                                                                                                                          |
 
 ## Cross-skill coordination
 
 Criterion 5 is verified by static inspection of `kata-release-merge` SKILL.md
-after the implementation PR merges (per the spec), not by a runtime guard
-component in this design. Release-engineer confirmed §§ 4–6 of that SKILL remain
-unchanged since spec 750 S4 (bb1a8aea): no carve-out / exception language for
-`Data (prose)`, `prose-red`, `prose-cache`, or "missing `data/pathway/`"
-anywhere in §§ 4–6. The plan chooses how to operationalize the static inspection
-(literal-string match, structural-qualifier check, or both).
+after the implementation PR merges (per the spec) — there is no runtime guard
+component in this design. The plan chooses how to operationalize the static
+inspection (literal-string match for the four spec-named exception strings,
+structural-qualifier check, or both); release-engineer's pre-design confirmation
+that §§ 4–6 are clean today is a plan input, not an architectural commitment.
 
 ## Risks (architecture-level)
 
