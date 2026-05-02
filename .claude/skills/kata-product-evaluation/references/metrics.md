@@ -1,6 +1,6 @@
 # Metrics — Product Evaluation
 
-Record per the [`kata-metrics`](../../kata-metrics/SKILL.md) protocol. Append
+Record per KATA.md § Metrics. Append
 one row per session.
 
 | Metric         | Unit  | Description                           | Data source   |

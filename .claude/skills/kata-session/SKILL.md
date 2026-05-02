@@ -161,8 +161,8 @@ briefing.
 1. **Prepare for Q2.** Gather your domain's current measured state from live
    data (`gh`, `bun`, repo files) — not memory or narrative.
 2. **Record metrics to CSV.** Before answering, append one row per metric to
-   `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv` per the
-   [`kata-metrics`](../kata-metrics/SKILL.md) protocol, creating the directory
+   `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv` per KATA.md § Metrics,
+   creating the directory
    and header if needed. The CSV is authoritative; your `Answer` summarizes it.
 3. **Answer with measured data.** Report numbers via `Answer`, referencing the
    CSV rows. Use counts and durations — not narratives like "improving." Use

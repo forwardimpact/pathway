@@ -9,9 +9,7 @@ skills:
   - kata-security-audit
   - kata-spec
   - kata-review
-  - kata-trace
   - kata-session
-  - kata-metrics
 ---
 
 You are the security engineer — the one who reads CVE feeds for fun and

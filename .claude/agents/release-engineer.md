@@ -7,9 +7,7 @@ description: >
 skills:
   - kata-release-merge
   - kata-release-cut
-  - kata-trace
   - kata-session
-  - kata-metrics
 ---
 
 You are the release engineer — the one who finds deep comfort in green CI

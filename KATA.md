@@ -15,7 +15,7 @@ agents grasp the current condition (via prior-run traces), establish target
 conditions (via specs), and experiment toward them (via implementation). Eight
 workflows (five scheduled agent runs across three shifts, a daily storyboard, an
 on-demand coaching session, an event-driven conversation responder), six agent
-personas, and seventeen skills form this cycle.
+personas, and fifteen skills form this cycle.
 
 ## Architecture
 
@@ -135,9 +135,7 @@ for utilities). An agent's skill list reveals its phase coverage.
 | `kata-product-evaluation` | Study   | User testing sessions                         |
 | `kata-documentation`      | Study   | One topic deep per run                        |
 | `kata-wiki-curate`        | Study   | Agent memory hygiene                          |
-| `kata-trace`              | Study   | Trace analysis via grounded theory            |
 | `kata-spec`               | Act     | Write specs capturing WHAT/WHY                |
-| `kata-metrics`            | Utility | Time-series recording and XmR analysis        |
 | `kata-review`             | Utility | Grade a single artifact (leaf, no sub-agents) |
 | `kata-session`            | Utility | Toyota Kata coaching protocol for sessions    |
 | `kata-setup`              | Utility | Interactive Kata Agent Team setup             |
@@ -195,10 +193,10 @@ a trusted account) into the canonical signal.
   share a PR.
 - **Explicit scope constraints.** Each agent knows what it must _not_ do.
 - **Trace-driven accountability.** Every workflow captures a trace; the
-  improvement coach quotes specific evidence — no speculation. `kata-trace`'s
-  invariant audit (`.claude/skills/kata-trace/references/invariants.md`) is the
-  **enforcement mechanism** for per-agent and cross-cutting rules; high-severity
-  failures trigger a fix or spec.
+  improvement coach quotes specific evidence — no speculation. The invariant
+  tables (§ Invariants below) are the **enforcement mechanism** for per-agent
+  and cross-cutting rules; high-severity failures trigger a fix or spec. Use
+  `fit-trace` to query traces.
 - **Least privilege.** The workflow-level `permissions:` block restricts only
   `GITHUB_TOKEN`, not the App token. All agent workflows set
   `permissions: contents: write` — the minimum for checkout fallback. The App
@@ -291,3 +289,73 @@ publishing gates, recursion-safe review, and shared-wording rules — including
 the eight-layer model that governs where new instructions belong — live in
 [CHECKLIST.md](CHECKLIST.md). It is the manifesto for writing instructions in
 this repository, derived from trace analysis of agent workflow runs.
+
+## Invariants
+
+Rules that every agent workflow run should satisfy, derived from trace analysis.
+High-severity violations require a fix PR or spec. Use `fit-trace` to query
+traces.
+
+### All agents
+
+Every agent must survey domain state before choosing an action — check open PRs,
+issues, CI status, or wiki summaries before doing anything skill-specific.
+
+Beyond that, the following apply to every trace:
+
+- **Sandbox discipline** — `dangerouslyDisableSandbox: true` is only used to
+  invoke `scripts/claude-write.sh`. Any other sandbox-disabled call is
+  high-severity.
+- **Wiki questions cite Discussions** — wiki entries containing open questions
+  ("?", "decide whether", "needs review") must link to a Discussion.
+- **Non-wiki outputs cited in weekly log** — every PR, issue comment, or
+  Discussion created during a run has a citation in the log.
+- **Discussions resolve within 14 days** — no Discussion authored by
+  `kata-agent-team` stays open longer without a terminal event (closed, linked
+  spec, or wiki note).
+- **Mandate-boundary stops produce artifacts** — when an agent stops at a scope
+  boundary without creating a `fix/` or `spec/` branch, it must create at least
+  one coordination artifact (issue, comment, or Discussion).
+
+### Release engineer
+
+The trust gate is the most critical invariant in the system:
+
+- Contributor lookup (`gh api repos/.../contributors`) ran for every non-CI-app
+  PR before a mergeable verdict. Author verified against the result. A merge
+  without a visible lookup is high-severity.
+- CI status checked before every mergeable verdict.
+- Phase PRs gated on `<phase>:approved` label or APPROVED review before merge.
+- `--force-with-lease` used for rebase pushes, never `--force`.
+- Tags pushed individually, not via `--tags`.
+- Releases performed in dependency order.
+- `bun run check` and `bun run test` ran before push.
+
+### Staff engineer
+
+- Approved spec read before plan written; both spec and plan read before first
+  edit.
+- Risks section present in produced plans.
+- Implementation PR title references spec id (`(#NNN)`).
+- Scope discipline held — no edits outside the plan's stated blast radius.
+- `bun run check` and `bun run test` ran before push.
+
+### Product manager
+
+- Spec quality reviewed (`kata-spec` review) before applying `spec:approved`.
+- Spec written for `needs-spec` issues when no spec PRs are pending review.
+
+### Security engineer
+
+- SHA pins never downgraded to tag references in workflow files.
+
+### Technical writer
+
+- Source of truth (source code/data files) consulted before documentation edits.
+- `bunx fit-doc build` ran before push.
+- All agent summaries and current week logs read before wiki curation.
+
+### Orchestrator (multi-agent sessions)
+
+For `fit-eval facilitate` and `fit-eval supervise` traces: zero
+`protocol_violation` events and exactly one `Conclude` tool call per run.

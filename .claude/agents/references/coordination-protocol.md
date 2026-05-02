@@ -95,7 +95,8 @@ question. Do not act on inferred intent.
 The author of a Discussion owns its termination — closing it, linking to the
 resulting spec or wiki note, or reassigning ownership to another agent or human
 in a comment. A Discussion older than **14 days** without a terminal event is a
-mis-routing; the `kata-trace` invariant audit checks for stale open Discussions.
+mis-routing; the invariant audit (KATA.md § Invariants) checks for stale open
+Discussions.
 
 ## Trust at run-time
 
