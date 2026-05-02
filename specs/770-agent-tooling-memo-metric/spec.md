@@ -49,8 +49,10 @@ in follow-up specs.
   to locate the "Observations for Teammates" section and append new bullets
   without reading or parsing the surrounding file. The marker is invisible
   in rendered markdown.
-- **CLI surface.** Accepts sender, target (or broadcast to all agents), and
-  message text. Produces one write per target agent.
+- **CLI surface.** Accepts sender (optional — falls back to
+  `LIBEVAL_AGENT_PROFILE` env var when running inside `fit-eval`), target
+  (or broadcast to all agents), and message text. Produces one write per
+  target agent.
 - **Migration.** One-time insertion of the chosen marker into all existing
   agent summary files under `wiki/`.
 - **Template update.** The summary section template in `memory-protocol.md`
@@ -67,20 +69,27 @@ A new `record` command on the existing `fit-xmr` CLI (provided by
 `@forwardimpact/libxmr`) that appends a CSV row and prints a one-line XmR
 summary.
 
-- **Flat directory structure.** Metrics move from
+- **Per-skill directory structure.** Metrics move from
   `wiki/metrics/{agent}/{domain}/{YYYY}.csv` to
-  `wiki/metrics/{agent}/{YYYY}.csv` — one file per agent per year. The `domain`
-  directory is removed. The `metric` column in each row already distinguishes
+  `wiki/metrics/{skill}/{YYYY}.csv` — one file per skill per year. XmR
+  charts measure the voice of a process; in the Kata system the skill is
+  the process boundary. Organizing by skill ensures that when multiple
+  agents participate in the same process (e.g. `kata-review` is used by
+  five agents, `kata-release-merge` by two), their data lands in a single
+  control chart. The `metric` column in each row already distinguishes
   metric names; `fit-xmr analyze --metric <name>` already filters by metric.
-- **Migration.** All existing CSV data rows across an agent's per-domain files
-  are consolidated into the flat file. Non-CSV content under `wiki/metrics/`
+- **Migration.** All existing CSV data rows are consolidated from per-agent,
+  per-domain files into per-skill flat files using an explicit mapping from
+  `{agent}/{domain}` to `{skill}`. Non-CSV content under `wiki/metrics/`
   (such as `staff-engineer/trace-analysis/exp14/`) is out of scope.
   Improvement-coach has no metrics directory and is not part of the metrics
   migration (memo migration only).
-- **CLI surface.** Accepts agent name, metric name, value, and optional unit,
-  run tag, and note. Resolves the CSV path, creates the file with header if
-  missing, appends the row, then prints a one-line XmR summary for that
-  metric using libxmr's existing analysis and formatting capabilities.
+- **CLI surface.** Accepts skill name (optional — falls back to
+  `LIBEVAL_SKILL` env var when running inside `fit-eval`), metric name,
+  value, and optional unit, run tag, and note. Resolves the CSV path,
+  creates the file with header if missing, appends the row, then prints a
+  one-line XmR summary for that metric using libxmr's existing analysis and
+  formatting capabilities.
 - **One-line summary.** After appending, the command prints a compact status
   line to stdout: metric name, n, status, latest value. This gives the agent
   immediate feedback without a separate `fit-xmr analyze` call.
@@ -101,6 +110,22 @@ and the memo insertion marker. Affected files:
   flat structure.
 - **`fit-xmr` CLI help** — Example paths use the flat structure.
 
+### 4. `fit-eval` environment variable plumbing
+
+`fit-eval` gains two environment variable mechanisms so that agents running
+inside the evaluation harness do not need to redundantly specify their own
+identity or current skill context:
+
+- **`LIBEVAL_AGENT_PROFILE`.** Set from the `--agent-profile` option before
+  the agent session starts. `fit-wiki memo --from` falls back to this value.
+- **`LIBEVAL_SKILL`.** Set dynamically by detecting `Skill` tool_use events
+  in the streaming trace. `fit-xmr record --skill` falls back to this
+  value. Subsequent Bash tool calls inherit the updated process environment.
+
+Both env vars are optional overrides — the explicit CLI flags always take
+precedence. When neither the flag nor the env var is set, the command exits
+with a clear error.
+
 ## Scope (out)
 
 - Changes to the XmR statistical engine, chart rendering, signal detection, or
@@ -120,10 +145,10 @@ and the memo insertion marker. Affected files:
 |---|-------|--------------|
 | 1 | `fit-wiki memo` appends a timestamped observation to the target agent's summary file in the correct section. | Run the command targeting one agent; `git diff` shows exactly one new bullet appended in the observations section with date and sender attribution. |
 | 2 | `fit-wiki memo` with a broadcast target writes to every agent summary. | Run the command with broadcast; `git diff wiki/` shows one new bullet in each agent summary file. |
-| 3 | `fit-xmr record` appends a row to the agent's flat metrics CSV and prints a one-line XmR summary to stdout. | Run the command; last line of the CSV matches the recorded metric. Stdout contains metric name, data point count, and XmR status. |
-| 4 | `fit-xmr record` creates the CSV with header row when the file does not exist. | Run against a non-existent agent directory; file exists afterward with header + 1 data row. |
-| 5 | All existing agent summary files contain the insertion marker after migration. | Each file matching `wiki/<agent>.md` (identified by the `# ... — Summary` H1) contains exactly one marker instance. |
-| 6 | All existing metrics rows are preserved in the flat structure after migration. | Row count of each migrated flat CSV equals the total data rows across all source CSVs for that agent. |
+| 3 | `fit-xmr record` appends a row to the skill's flat metrics CSV and prints a one-line XmR summary to stdout. | Run the command; last line of the CSV matches the recorded metric. Stdout contains metric name, data point count, and XmR status. |
+| 4 | `fit-xmr record` creates the CSV with header row when the file does not exist. | Run against a non-existent skill directory; file exists afterward with header + 1 data row. |
+| 5 | All existing agent summary files contain the insertion marker after migration. | Each agent summary file (one per `.claude/agents/*.md` definition) contains exactly one marker instance in its wiki counterpart. |
+| 6 | All existing metrics rows are preserved in the per-skill structure after migration. | Row count of each migrated flat CSV equals the total data rows across all source CSVs for that skill. |
 | 7 | All protocol docs, templates, and CLI help reference the flat metrics path with no `{domain}` directory. | `grep -r '{domain}' .claude/agents/references/memory-protocol.md .claude/skills/kata-metrics/ .claude/skills/kata-session/references/storyboard-template.md libraries/libxmr/` returns zero matches. |
 | 8 | `storyboard-template.md` uses `### {agent}` headings (not `### {agent} — {domain}`). | Static inspection of the template file. |
 | 9 | `memory-protocol.md` "Summary Contract" documents the insertion marker as part of the permitted sections structure. | Static inspection; the marker format appears in the section 5 documentation. |
@@ -163,3 +188,16 @@ domains structurally impossible going forward. The domain directory is redundant
 storage for information already carried in the `metric` column.
 Improvement-coach records no metrics of its own (the facilitator role records
 coaching metrics under its own CSV).
+
+### Per-skill organization rationale
+
+XmR control charts measure the voice of a process. In the Kata system, the
+process boundary is the skill: `kata-release-merge` defines the merge process,
+`kata-security-audit` defines the audit process. When multiple agents
+participate in the same skill, their metric recordings must land in a single
+CSV to produce one control chart for the process. Today, five agents use
+`kata-review` and two use `kata-release-merge`. With per-agent paths their
+recordings would scatter across separate files, each producing a control
+chart with insufficient data to distinguish signal from noise. The per-skill
+path (`wiki/metrics/{skill}/{YYYY}.csv`) ensures process data is co-located
+regardless of which agent recorded it.
