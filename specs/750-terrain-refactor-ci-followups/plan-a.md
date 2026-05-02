@@ -80,7 +80,8 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
   -          bunx fit-terrain
   +          bunx fit-terrain build
   ```
-- **Verify:** `grep -nE 'bunx fit-terrain($|[^[:alnum:]_-])' .github/workflows/`
+- **Verify:**
+  `grep -nE 'bunx fit-terrain($|[^[:alnum:]_-])' .github/workflows/*.yml`
   returns four lines, each with `build` immediately following
   `bunx fit-terrain`.
 
@@ -200,25 +201,24 @@ the CLI's usage error surfaces the missing stage on the same CI run.
   ```diff
   -    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog",
   +    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog && bun run context:terrain",
-  +    "context:terrain": "node scripts/check-terrain-callers.mjs",
+  +    "context:terrain": "bun scripts/check-terrain-callers.mjs",
   ```
-- **Verify (non-destructive, fixture-style):**
+- **Verify (non-destructive):**
   1. `bun run context:terrain` exits 0 from a clean working tree post-S1–S3 (the
      textual regex requires `bunx `, so `justfile`'s `build-binary fit-terrain`
      and `dist/binaries/fit-terrain` lines do not trip it; the JSON scan sees
      `fit-terrain build` for `scripts.generate` and is silent).
-  2. Confirm red-path locally without mutating tracked files:
+  2. Confirm the red-path against a stdin fixture, no working-tree edits:
      ```sh
-     node -e "
-       const m = await import('./scripts/check-terrain-callers.mjs');
-     " # importing executes the script against the live tree (must exit 0)
      printf '%s\n' '    bunx fit-terrain' \
-       | node -e "
-         const re = new RegExp(String.raw\`(?:^|\\s)(?:[A-Z_]+=\\S+\\s+)*bunx\\s+fit-terrain\\b(?!\\s+(?:check|validate|build|generate|inspect)\\b)\`);
-         let s = '', d = process.stdin; d.on('data', c => s += c); d.on('end', () => process.exit(re.test(s) ? 0 : 1));
-       " # exits 0 → pattern correctly flags the bare form
+       | bun -e "
+         const re = /(?:^|\s)(?:[A-Z_]+=\S+\s+)*bunx\s+fit-terrain\b(?!\s+(?:check|validate|build|generate|inspect)\b)/;
+         let s = ''; for await (const c of Bun.stdin.stream()) s += new TextDecoder().decode(c);
+         process.exit(re.test(s) ? 0 : 1);
+       "
+     # exit 0 → the pattern correctly flags the bare form
      ```
-  3. `bun run check` passes end-to-end after wiring.
+  3. `bun run check` passes end-to-end after the wiring lands.
 
 ### S6 — Update contributor docs
 
