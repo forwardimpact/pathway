@@ -2,30 +2,16 @@
   "name": "@forwardimpact/map",
   "version": "0.15.38",
   "description": "Data product for agent-aligned engineering standards, consumed by AI agents and engineers",
-  "license": "Apache-2.0",
+  "homepage": "https://www.forwardimpact.team/map",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo",
     "directory": "products/map"
   },
-  "homepage": "https://www.forwardimpact.team/map",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "src/index.js",
-  "bin": {
-    "fit-map": "./bin/fit-map.js"
-  },
-  "scripts": {
-    "generate-index": "bun ./bin/fit-map.js generate-index",
-    "validate": "bun ./bin/fit-map.js validate"
-  },
-  "files": [
-    "bin/",
-    "src/",
-    "schema/",
-    "starter/",
-    "templates/",
-    "supabase/"
-  ],
   "exports": {
     ".": "./src/index.js",
     "./iri": "./src/iri.js",
@@ -56,6 +42,25 @@
     "./activity/transform/evidence": "./src/activity/transform/evidence.js",
     "./activity/transform": "./src/activity/transform/index.js"
   },
+  "bin": {
+    "fit-map": "./bin/fit-map.js"
+  },
+  "files": [
+    "bin/",
+    "src/",
+    "schema/",
+    "starter/",
+    "templates/",
+    "supabase/"
+  ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "generate-index": "bun ./bin/fit-map.js generate-index",
+    "validate": "bun ./bin/fit-map.js validate"
+  },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libtemplate": "^0.2.0",
@@ -72,10 +77,6 @@
     "@forwardimpact/libstorage": "^0.1.61",
     "microdata-rdf-streaming-parser": "^3.0.0",
     "n3": "^2.0.3"
-  },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

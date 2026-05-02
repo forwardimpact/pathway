@@ -9,14 +9,14 @@
     "agent",
     "retrieval"
   ],
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-retrieval",
     "needs": [
       "Compute cosine similarity between embeddings"
     ]
   },
-  "license": "Apache-2.0",
-  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
   "exports": {

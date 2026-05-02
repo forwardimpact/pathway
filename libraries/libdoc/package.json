@@ -8,21 +8,28 @@
     "markdown",
     "agent"
   ],
+  "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libdoc"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
       "Build a static documentation site"
     ]
   },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libdoc"
-  },
-  "homepage": "https://www.forwardimpact.team",
   "type": "module",
   "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./builder": "./src/builder.js",
+    "./server": "./src/server.js",
+    "./frontmatter": "./src/frontmatter.js"
+  },
   "bin": {
     "fit-doc": "./bin/fit-doc.js"
   },
@@ -31,11 +38,9 @@
     "bin/**/*.js",
     "README.md"
   ],
-  "exports": {
-    ".": "./src/index.js",
-    "./builder": "./src/builder.js",
-    "./server": "./src/server.js",
-    "./frontmatter": "./src/frontmatter.js"
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "scripts": {
     "test": "bun test test/*.test.js"
@@ -51,15 +56,11 @@
     "mustache": "^4.2.0",
     "yaml": "^2.8.3"
   },
-  "peerDependencies": {
-    "prettier": "^3.0.0"
-  },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
   },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
+  "peerDependencies": {
+    "prettier": "^3.0.0"
   },
   "publishConfig": {
     "access": "public"

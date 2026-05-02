@@ -9,6 +9,8 @@
     "harness",
     "agent"
   ],
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "foundations",
     "needs": [
@@ -26,19 +28,17 @@
     "src/**/*.js",
     "README.md"
   ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "test": "bun test test/*.test.js"
   },
-  "author": "Forward Impact Engineering",
-  "license": "MIT",
   "peerDependencies": {
     "@forwardimpact/libtype": "*"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
   }
 }

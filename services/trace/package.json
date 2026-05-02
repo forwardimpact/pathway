@@ -9,6 +9,10 @@
   "bin": {
     "fit-svctrace": "./server.js"
   },
+  "files": [
+    "proto/",
+    "server.js"
+  ],
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
@@ -28,10 +32,6 @@
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.5"
   },
-  "files": [
-    "proto/",
-    "server.js"
-  ],
   "publishConfig": {
     "access": "public"
   }

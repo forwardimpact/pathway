@@ -8,6 +8,8 @@
     "codesign",
     "agent"
   ],
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "foundations",
     "needs": [
@@ -16,12 +18,7 @@
       "Declare macOS permission entitlements for an app"
     ]
   },
-  "license": "Apache-2.0",
-  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
-  "os": [
-    "darwin"
-  ],
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
@@ -33,11 +30,14 @@
     "scripts/**/*.sh",
     "templates/**"
   ],
-  "scripts": {
-    "test": "bun test test/*.test.js"
-  },
   "engines": {
     "bun": ">=1.2.0"
+  },
+  "os": [
+    "darwin"
+  ],
+  "scripts": {
+    "test": "bun test test/*.test.js"
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"

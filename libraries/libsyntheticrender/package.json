@@ -9,18 +9,19 @@
     "agent",
     "eval"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libsyntheticrender"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
       "Render synthetic data as HTML, Markdown, or YAML",
       "Validate synthetic data integrity"
     ]
-  },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libsyntheticrender"
   },
   "type": "module",
   "main": "./src/index.js",
@@ -39,10 +40,17 @@
     "templates/**",
     "README.md"
   ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@forwardimpact/libsyntheticgen": "^0.1.0",
     "@forwardimpact/libtemplate": "^0.2.0",
     "yaml": "^2.8.3"
+  },
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "peerDependencies": {
     "prettier": "^3.0.0"
@@ -50,13 +58,6 @@
   "optionalDependencies": {
     "apache-arrow": "^21.1.0",
     "parquet-wasm": "^0.7.1"
-  },
-  "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.14"
-  },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

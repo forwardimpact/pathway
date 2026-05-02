@@ -9,18 +9,19 @@
     "agent",
     "eval"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libsyntheticgen"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
       "Parse a terrain DSL",
       "Generate a deterministic entity graph"
     ]
-  },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libsyntheticgen"
   },
   "type": "module",
   "main": "./src/index.js",
@@ -41,19 +42,19 @@
     "src/**/*.js",
     "README.md"
   ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@forwardimpact/libutil": "^0.1.61",
     "seedrandom": "^3.0.5"
   },
-  "optionalDependencies": {
-    "@faker-js/faker": "^10.4.0"
-  },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
   },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
+  "optionalDependencies": {
+    "@faker-js/faker": "^10.4.0"
   },
   "publishConfig": {
     "access": "public"

@@ -2,13 +2,14 @@
   "name": "@forwardimpact/outpost",
   "version": "2.12.6",
   "description": "Claude Code-native personal knowledge system with autonomous agents",
-  "license": "Apache-2.0",
+  "homepage": "https://www.forwardimpact.team/outpost",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo",
     "directory": "products/outpost"
   },
-  "homepage": "https://www.forwardimpact.team/outpost",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -16,13 +17,6 @@
   },
   "bin": {
     "fit-outpost": "./bin/fit-outpost.js"
-  },
-  "scripts": {
-    "start": "bun ./bin/fit-outpost.js",
-    "status": "bun ./bin/fit-outpost.js status",
-    "build": "bun pkg/build.js",
-    "build:app": "bun pkg/build.js --app",
-    "build:pkg": "bun pkg/build.js --pkg"
   },
   "files": [
     "bin/**/*.js",
@@ -33,6 +27,13 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "bun ./bin/fit-outpost.js",
+    "status": "bun ./bin/fit-outpost.js status",
+    "build": "bun pkg/build.js",
+    "build:app": "bun pkg/build.js --app",
+    "build:pkg": "bun pkg/build.js --pkg"
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",

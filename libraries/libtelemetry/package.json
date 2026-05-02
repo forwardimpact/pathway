@@ -9,6 +9,8 @@
     "agent",
     "observability"
   ],
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-infrastructure",
     "needs": [
@@ -16,8 +18,6 @@
       "Add a distributed trace span (OpenTelemetry-style observability)"
     ]
   },
-  "license": "Apache-2.0",
-  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
   "exports": {

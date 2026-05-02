@@ -9,26 +9,21 @@
     "router",
     "agent"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libui"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
       "Build a reactive single-page web app"
     ]
   },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libui"
-  },
   "type": "module",
   "main": "./src/index.js",
-  "files": [
-    "src/**/*.js",
-    "src/components/",
-    "src/css/",
-    "README.md"
-  ],
   "exports": {
     ".": "./src/index.js",
     "./render": "./src/render.js",
@@ -46,6 +41,12 @@
     "./components/*": "./src/components/*.js",
     "./css/*": "./src/css/*"
   },
+  "files": [
+    "src/**/*.js",
+    "src/components/",
+    "src/css/",
+    "README.md"
+  ],
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"

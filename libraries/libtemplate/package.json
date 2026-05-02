@@ -8,17 +8,18 @@
     "render",
     "agent"
   ],
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libtemplate"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
       "Render a Mustache template with project overrides"
     ]
-  },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libtemplate"
   },
   "type": "module",
   "main": "./src/index.js",
@@ -30,12 +31,12 @@
     "src/**/*.js",
     "README.md"
   ],
-  "dependencies": {
-    "mustache": "^4.2.0"
-  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
+  },
+  "dependencies": {
+    "mustache": "^4.2.0"
   },
   "publishConfig": {
     "access": "public"

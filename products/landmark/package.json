@@ -2,13 +2,6 @@
   "name": "@forwardimpact/landmark",
   "version": "0.1.9",
   "description": "Analysis and recommendation layer on top of Map activity data.",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "products/landmark"
-  },
-  "homepage": "https://www.forwardimpact.team/landmark",
   "keywords": [
     "engineering",
     "analytics",
@@ -18,8 +11,19 @@
     "getdx",
     "github"
   ],
+  "homepage": "https://www.forwardimpact.team/landmark",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "products/landmark"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js"
+  },
   "bin": {
     "fit-landmark": "./bin/fit-landmark.js"
   },
@@ -27,8 +31,9 @@
     "bin/",
     "src/"
   ],
-  "exports": {
-    ".": "./src/index.js"
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
@@ -41,10 +46,6 @@
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
-  },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

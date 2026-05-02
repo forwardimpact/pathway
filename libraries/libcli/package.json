@@ -9,6 +9,13 @@
     "help",
     "grep"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "libraries/libcli"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
@@ -17,8 +24,6 @@
       "Surface skill-doc links in CLI --help output"
     ]
   },
-  "license": "Apache-2.0",
-  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -35,15 +40,10 @@
   "scripts": {
     "test": "bun test test/*.test.js"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/forwardimpact/monorepo.git",
-    "directory": "libraries/libcli"
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.14"
   }
 }

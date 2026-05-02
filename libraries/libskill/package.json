@@ -9,6 +9,14 @@
     "profile",
     "standard"
   ],
+  "homepage": "https://www.forwardimpact.team/model",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "libraries/libskill"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
@@ -17,19 +25,8 @@
       "Score a candidate's skills against a job's required skill markers"
     ]
   },
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "libraries/libskill"
-  },
-  "homepage": "https://www.forwardimpact.team/model",
   "type": "module",
   "main": "./src/index.js",
-  "files": [
-    "src/**/*.js",
-    "README.md"
-  ],
   "exports": {
     ".": "./src/index.js",
     "./derivation": "./src/derivation.js",
@@ -45,15 +42,19 @@
     "./policies": "./src/policies/index.js",
     "./toolkit": "./src/toolkit.js"
   },
+  "files": [
+    "src/**/*.js",
+    "README.md"
+  ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "@forwardimpact/map": "^0.15.0"
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
-  },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

@@ -2,13 +2,6 @@
   "name": "@forwardimpact/summit",
   "version": "0.1.12",
   "description": "Team capability planning from skill data.",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "products/summit"
-  },
-  "homepage": "https://www.forwardimpact.team/summit",
   "keywords": [
     "team",
     "capability",
@@ -17,8 +10,21 @@
     "standard",
     "engineering"
   ],
+  "homepage": "https://www.forwardimpact.team/summit",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "products/summit"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./aggregation": "./src/aggregation/index.js",
+    "./roster": "./src/roster/index.js"
+  },
   "bin": {
     "fit-summit": "./bin/fit-summit.js"
   },
@@ -27,10 +33,9 @@
     "src/",
     "starter/"
   ],
-  "exports": {
-    ".": "./src/index.js",
-    "./aggregation": "./src/aggregation/index.js",
-    "./roster": "./src/roster/index.js"
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
@@ -40,15 +45,11 @@
     "@forwardimpact/map": "^0.15.18",
     "yaml": "^2.8.3"
   },
-  "optionalDependencies": {
-    "@supabase/supabase-js": "^2.105.1"
-  },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
   },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
+  "optionalDependencies": {
+    "@supabase/supabase-js": "^2.105.1"
   },
   "publishConfig": {
     "access": "public"

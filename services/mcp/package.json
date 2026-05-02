@@ -9,15 +9,18 @@
   "bin": {
     "fit-svcmcp": "./server.js"
   },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "files": [
     "index.js",
     "server.js",
     "prompts/"
   ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "test": "bun test test/*.test.js"
+  },
   "dependencies": {
     "@forwardimpact/libconfig": "^0.1.67",
     "@forwardimpact/libmcp": "^0.1.0",
@@ -32,8 +35,5 @@
   },
   "publishConfig": {
     "access": "public"
-  },
-  "scripts": {
-    "test": "bun test test/*.test.js"
   }
 }

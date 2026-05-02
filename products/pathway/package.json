@@ -2,13 +2,6 @@
   "name": "@forwardimpact/pathway",
   "version": "0.25.43",
   "description": "Career progression web app and CLI for exploring roles and generating agent teams",
-  "license": "Apache-2.0",
-  "repository": {
-    "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
-    "directory": "products/pathway"
-  },
-  "homepage": "https://www.forwardimpact.team/pathway",
   "keywords": [
     "career",
     "competency",
@@ -19,25 +12,37 @@
     "ai-agent",
     "engineering"
   ],
+  "homepage": "https://www.forwardimpact.team/pathway",
+  "repository": {
+    "type": "git",
+    "url": "https://github.com/forwardimpact/monorepo",
+    "directory": "products/pathway"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
+  "exports": {
+    ".": "./src/index.js",
+    "./formatters": "./src/formatters/index.js",
+    "./commands": "./src/commands/index.js"
+  },
   "bin": {
     "fit-pathway": "./bin/fit-pathway.js"
-  },
-  "scripts": {
-    "start": "bun ./bin/fit-pathway.js serve",
-    "pathway": "bun ./bin/fit-pathway.js",
-    "site": "bun ./bin/fit-pathway.js site"
   },
   "files": [
     "bin/",
     "src/",
     "templates/"
   ],
-  "exports": {
-    ".": "./src/index.js",
-    "./formatters": "./src/formatters/index.js",
-    "./commands": "./src/commands/index.js"
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
+  "scripts": {
+    "start": "bun ./bin/fit-pathway.js serve",
+    "pathway": "bun ./bin/fit-pathway.js",
+    "site": "bun ./bin/fit-pathway.js site"
   },
   "dependencies": {
     "@forwardimpact/libtelemetry": "^0.1.33",
@@ -49,10 +54,6 @@
     "@forwardimpact/libutil": "^0.1.64",
     "mustache": "^4.2.0",
     "yaml": "^2.8.3"
-  },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

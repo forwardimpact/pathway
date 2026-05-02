@@ -3,18 +3,23 @@
   "version": "0.5.0",
   "private": true,
   "description": "Applications that help teams grow and cultivate world-class engineers in the age of AI",
-  "license": "Apache-2.0",
+  "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo"
   },
-  "homepage": "https://www.forwardimpact.team",
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "workspaces": [
     "libraries/*",
     "products/*",
     "services/*"
   ],
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "scripts": {
     "prestart": "bunx fit-pathway build",
     "start": "bunx serve public",
@@ -38,6 +43,9 @@
     "context:catalog": "bun scripts/check-catalog.mjs",
     "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-catalog.mjs --fix"
   },
+  "dependencies": {
+    "forwardimpact-monorepo": "."
+  },
   "devDependencies": {
     "@eslint/js": "^10.0.1",
     "@playwright/test": "^1.59.1",
@@ -47,10 +55,6 @@
     "prettier": "^3.8.3",
     "serve": "^14.2.6"
   },
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "overrides": {
     "@anthropic-ai/sdk": "^0.91.1",
     "@hono/node-server": "^2.0.0",
@@ -58,8 +62,5 @@
     "lodash": "^4.18.0",
     "postcss": "^8.5.10",
     "protobufjs": "^7.5.5"
-  },
-  "dependencies": {
-    "forwardimpact-monorepo": "."
   }
 }

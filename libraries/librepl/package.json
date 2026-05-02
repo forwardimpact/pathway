@@ -8,6 +8,13 @@
     "agent",
     "interactive"
   ],
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "libraries/librepl"
+  },
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-capability",
     "needs": [
@@ -15,8 +22,6 @@
       "Surface skill-doc links in REPL --help output"
     ]
   },
-  "license": "Apache-2.0",
-  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -36,15 +41,10 @@
   "dependencies": {
     "@forwardimpact/libformat": "^0.1.0"
   },
-  "repository": {
-    "type": "git",
-    "url": "git+https://github.com/forwardimpact/monorepo.git",
-    "directory": "libraries/librepl"
+  "devDependencies": {
+    "@forwardimpact/libharness": "^0.1.14"
   },
   "publishConfig": {
     "access": "public"
-  },
-  "devDependencies": {
-    "@forwardimpact/libharness": "^0.1.14"
   }
 }

@@ -9,6 +9,8 @@
     "claude-code",
     "supervisor"
   ],
+  "license": "Apache-2.0",
+  "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
@@ -17,8 +19,6 @@
       "Supervise a multi-step or multi-agent workflow"
     ]
   },
-  "license": "Apache-2.0",
-  "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
   "main": "./src/index.js",
   "exports": {
