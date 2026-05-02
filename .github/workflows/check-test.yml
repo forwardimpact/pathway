@@ -17,7 +17,6 @@ jobs:
       - uses: ./.github/actions/bootstrap
       - run: bunx fit-terrain build
       - run: bun run test
-      - run: bun run validate -- --shacl
 
   e2e:
     runs-on: ubuntu-latest

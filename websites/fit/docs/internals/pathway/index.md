@@ -248,7 +248,7 @@ import { deriveReferenceLevel, deriveAgentSkills } from "@forwardimpact/libskill
 | `bun run check:fix` | Auto-fix formatting and linting |
 | `bun run test`      | Run unit tests                  |
 | `bun run test:e2e`  | Run Playwright E2E tests        |
-| `bun run validate`  | Validate data files             |
+| `bun run data`      | Check prose and schema           |
 
 ---
 
