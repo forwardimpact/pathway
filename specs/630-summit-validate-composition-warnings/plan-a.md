@@ -7,13 +7,12 @@ implement and WHEN to sequence the changes.
 ## Approach
 
 Land the change in three concentric rings: detectors first (pure, easiest to
-test), then orchestrator wiring (one extra call inside
-`validateRosterAgainstStandard`, plus the one-time `entryLevelId` lookup), then
+test), then orchestrator wiring inside `validateRosterAgainstStandard`, then
 the text formatter suffix block in `runValidateCommand`. Tests grow alongside
-each ring — unit tests on the detectors and orchestrator in `roster.test.js`,
-plus a small command-level test that captures `process.stdout` to lock in the
-spec's success-criteria output. The fixture lives in `test/fixtures.js` so other
-tests can reuse the all-three-warnings roster.
+each ring — unit tests on the detectors in `roster.test.js`, plus a new
+`validate.test.js` that captures `process.stdout` to lock in the spec's
+success-criteria output. The all-three-warnings fixture lives in
+`test/fixtures.js` so the unit tests and command tests share one definition.
 
 ## Libraries used
 
@@ -29,7 +28,7 @@ entry-level resolver used by the orchestrator.
 
 - modified: `products/summit/src/roster/schema.js`
 
-**Change:** Append the helpers below to `roster/schema.js`. All four functions
+**Change:** Append the helpers below to `roster/schema.js`. All five functions
 are private (no `export`).
 
 ```js
@@ -77,8 +76,10 @@ function detectTracklessAtEntryLevel(team, entryLevelId) {
 function detectLowAllocationProject(project) {
   if (project.members.length === 0) return [];
   const threshold = 0.5;
+  // `parseRosterYaml` already substitutes 1.0 for omitted allocation, so
+  // every member has a numeric `allocation`.
   const belowThresholdCount = project.members.filter(
-    (m) => (m.allocation ?? 1.0) < threshold,
+    (m) => m.allocation < threshold,
   ).length;
   if (belowThresholdCount !== project.members.length) return [];
   return [
@@ -162,12 +163,15 @@ no-warnings baseline so tests in steps 4 and 5 can share it.
 
 - modified: `products/summit/test/fixtures.js`
 
-**Change:** Append a `WARNINGS_ROSTER` constant. The fixture has a reporting
-team where every member is J040 (triggers `NO_SENIOR_MEMBER`), one of those
-members has no track (triggers `TRACKLESS_AT_ENTRY_LEVEL`), and a project
-where both members allocate below 0.5 (triggers `LOW_ALLOCATION_PROJECT`).
+**Change:** Append a `WARNINGS_ROSTER` export, mirroring the existing
+`FIXTURE_ROSTER` shape (template-string assignment, exported). The fixture has
+a reporting team where every member is J040 (triggers `NO_SENIOR_MEMBER`), one
+of those members has no track (triggers `TRACKLESS_AT_ENTRY_LEVEL`), and a
+project where both members allocate below 0.5 (triggers
+`LOW_ALLOCATION_PROJECT`).
 
-```yaml
+```js
+export const WARNINGS_ROSTER = `
 teams:
   juniors:
     - name: Dee
@@ -182,6 +186,7 @@ projects:
       allocation: 0.4
     - email: eve@example.com
       allocation: 0.3
+`;
 ```
 
 **Verification:** `bun test products/summit/test/roster.test.js` — fixture
@@ -206,11 +211,13 @@ single-pattern minimal YAML) and asserts the warning codes/contexts.
 | `validateRosterAgainstStandard emits TRACKLESS_AT_ENTRY_LEVEL per trackless member` | warnings include one `TRACKLESS_AT_ENTRY_LEVEL` with `context.member === "eve@example.com"`.            |
 | `validateRosterAgainstStandard emits LOW_ALLOCATION_PROJECT once per project`    | exactly one `LOW_ALLOCATION_PROJECT` for `spike` with `context.threshold === 0.5`.                        |
 | `validateRosterAgainstStandard emits no warnings on the starter fixture roster`  | `FIXTURE_ROSTER` against starter `data` produces `warnings.length === 0`.                                 |
-| `validateRosterAgainstStandard suppresses level-aware warnings when data.levels is empty` | warnings only contain `LOW_ALLOCATION_PROJECT` (or none) when `data.levels = []`.                  |
+| `validateRosterAgainstStandard suppresses level-aware warnings when data.levels is empty` | with `data = { ...starterData, levels: [] }`, the returned `warnings` contains exactly one entry — `LOW_ALLOCATION_PROJECT` for `spike`. (Errors are not asserted on; the empty levels set will produce `UNKNOWN_LEVEL` errors via the existing error pass, which is independent of the warning suppression behaviour under test.) |
 
 Tests use the loaded starter `data` from `loadStarterData()` for the level
 catalog, so `entryLevelId` resolves to `J040` (ordinalRank 1) per
-`products/map/starter/levels.yaml`.
+`products/map/starter/levels.yaml`. The empty-levels test overrides only the
+`levels` array on a shallow copy of the starter data so disciplines/tracks
+remain populated.
 
 **Verification:** `bun test products/summit/test/roster.test.js` — all five
 new tests pass; existing tests untouched.
@@ -271,9 +278,10 @@ if (result.warnings.length > 0) {
 }
 ```
 
-**Verification:** Manual smoke — `bunx fit-summit validate --roster
-<warnings-fixture>` prints the success line followed by the three bracketed
-warning codes; exit code is 0. Captured-stdout assertions follow in step 6.
+**Verification:** Manual smoke — write `WARNINGS_ROSTER` to a temp file and
+run `bunx fit-summit validate --roster <tempPath>`; expect the "Roster is
+valid…" line followed by the `Composition warnings:` block listing all three
+codes; exit code is 0. Captured-stdout assertions follow in step 6.
 
 ## Step 6 — Command-level tests for warning display
 
@@ -283,37 +291,53 @@ warning codes; exit code is 0. Captured-stdout assertions follow in step 6.
 
 - created: `products/summit/test/validate.test.js`
 
-**Change:** New test file invoking `runValidateCommand` directly. Capture
-`process.stdout.write` via a stub, restore in `afterEach`, and assert on the
-captured chunks. Four cases:
+**Change:** New test file invoking `runValidateCommand` directly. Use
+`node:test` `beforeEach`/`afterEach` hooks to (a) stub `process.stdout.write`
+into a captured chunk array, (b) save and reset `process.exitCode = 0`, and
+(c) `mkdtempSync`/`rmSync` a per-test temp directory under
+`os.tmpdir()`. The test cases call `runValidateCommand({ data, options:
+{ roster: <tempPath>, format } })` directly — no CLI harness needed.
 
-| Test name                                                                | Setup                                              | Assertion                                                                                                          |
-| ------------------------------------------------------------------------ | -------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------ |
-| `runValidateCommand prints all three warnings after the success message` | `WARNINGS_ROSTER` + starter data, `format=text`    | stdout matches `/Roster is valid/` then includes `[NO_SENIOR_MEMBER]`, `[TRACKLESS_AT_ENTRY_LEVEL]`, `[LOW_ALLOCATION_PROJECT]`. Exit code unset (0). |
-| `runValidateCommand prints warnings after the error block when both exist` | `WARNINGS_ROSTER` mutated with one unknown level, `format=text` | stdout contains `Roster validation failed:` before `Composition warnings:`. `process.exitCode === 1`.            |
-| `runValidateCommand emits unchanged output when no warnings fire`        | `FIXTURE_ROSTER` + starter data, `format=text`     | stdout exactly equals the existing "Roster is valid…" line — no `Composition warnings:` header.                    |
-| `runValidateCommand JSON mode includes populated warnings array`         | `WARNINGS_ROSTER` + starter data, `format=json`    | parsed JSON output's `warnings` array has the three expected codes; `errors` is `[]`; exit code unset (0).         |
+Four cases:
 
-The roster is loaded by writing `WARNINGS_ROSTER` to a temp file (via
-`mkdtempSync` + `writeFileSync`) and passing `--roster <path>` through the
-`options` object the harness builds.
+| Test name                                                                | Setup                                                        | Assertion                                                                                                                                                                |
+| ------------------------------------------------------------------------ | ------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
+| `runValidateCommand prints all three warnings after the success message` | `WARNINGS_ROSTER` + starter data, `format=text`              | stdout matches `/Roster is valid/` then includes `[NO_SENIOR_MEMBER]`, `[TRACKLESS_AT_ENTRY_LEVEL]`, `[LOW_ALLOCATION_PROJECT]`. `process.exitCode` remains `0`.         |
+| `runValidateCommand prints warnings after the error block when both exist` | `ERRORS_AND_WARNINGS_ROSTER` (see below) + starter data, `format=text` | stdout contains `Roster validation failed:` and `[UNKNOWN_LEVEL]` before the `Composition warnings:` header; `process.exitCode === 1`.                                |
+| `runValidateCommand emits unchanged output when no warnings fire`        | `FIXTURE_ROSTER` + starter data, `format=text`               | stdout exactly equals the existing "Roster is valid…" line — no `Composition warnings:` header.                                                                          |
+| `runValidateCommand JSON mode includes populated warnings array`         | `WARNINGS_ROSTER` + starter data, `format=json`              | parsed JSON output's `warnings` array has the three expected codes; `errors` is `[]`; `process.exitCode` remains `0`.                                                    |
+
+`ERRORS_AND_WARNINGS_ROSTER` is exported from `test/fixtures.js` alongside
+`WARNINGS_ROSTER`. It is `WARNINGS_ROSTER` with Eve's `level: J040` swapped
+for `level: J999` so the existing error pass emits `UNKNOWN_LEVEL` while
+`NO_SENIOR_MEMBER` (Dee remains J040, Eve's unknown level breaks the
+all-entry test) and `TRACKLESS_AT_ENTRY_LEVEL` (no longer applies to Eve
+because she is no longer at entry level) are deliberately not relied on —
+only the `Composition warnings:` header presence is asserted, which fires
+because `LOW_ALLOCATION_PROJECT` always emits for `spike`.
+
+The roster is loaded by writing the fixture string to the per-test temp
+directory (`writeFileSync(join(tempDir, "roster.yaml"), fixture)`) and
+passing the resulting path through `options.roster`. `loadStarterData()` is
+called in a top-level `before(...)` so all tests share one parsed copy.
 
 **Verification:** `bun test products/summit/test/validate.test.js` — all four
 tests pass. `bun test` in `products/summit` overall still green.
 
 ## Risks
 
-| Risk                                                                                                                                                                                          | Mitigation                                                                                                                                                                |
-| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Capturing `process.stdout.write` in step 6 races with `node:test` runner output if not restored deterministically.                                                                            | Stub in a `before(...)` per test and restore in `after(...)`; collect into a local array, do not call the original in stub. Mirrors patterns used in `libcli` test suites. |
-| Project members default to `allocation = 1.0` when omitted (parser default), so `LOW_ALLOCATION_PROJECT` will never fire on `FIXTURE_ROSTER` even though one member has 0.6.                  | Step 4's no-warnings test asserts this directly; step 6's third test relies on the same fact. If `parseRosterYaml`'s default ever changes, both tests catch it.            |
-| `WARNINGS_ROSTER`'s J040 members rely on `J040` being the lowest ordinalRank in the starter data. If a future starter dataset adds a lower level, `NO_SENIOR_MEMBER` would stop firing.       | Tests resolve `entryLevelId` via `loadStarterData()`; if the starter changes, the test failure points at the fixture and the fix is local.                                |
+| Risk                                                                                                                                                                                       | Mitigation                                                                                                                                                                                  |
+| ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `process.exitCode` is global state — without explicit reset, the failure-path test in step 6 can leave `exitCode = 1` set, leaking into later tests in the same `node:test` worker.        | Step 6 prescribes `beforeEach` reset of `process.exitCode = 0` (and `afterEach` stdout restore + tempdir cleanup). All four tests rely on this hook contract.                               |
+| `WARNINGS_ROSTER`'s J040 members rely on `J040` being the lowest ordinalRank in the starter data. If a future starter dataset adds a lower level, `NO_SENIOR_MEMBER` and `TRACKLESS_AT_ENTRY_LEVEL` would stop firing on this fixture. | Tests resolve `entryLevelId` via `loadStarterData()`; if the starter changes, the failure points at the fixture and the fix is local. Adding a `levels.yaml` invariant test is out of scope. |
+| `loadRoster` resolves `--roster <path>` by reading from disk; tests under temp dirs may leave stale files if a test throws before cleanup.                                                  | Step 6's `afterEach` uses `rmSync(tempDir, { recursive: true, force: true })` so cleanup runs even when assertions throw.                                                                   |
 
 ## Execution
 
 Single sequential pass — every step builds on the previous one and there is no
 parallelism to extract. Route to `staff-engineer` (full code path; no doc-only
-work). Estimated diff size ≈ 220 LOC across two source files and two test
-files.
+work). Two source files modified (`roster/schema.js`, `commands/validate.js`),
+one test file modified (`test/fixtures.js` + `test/roster.test.js`), one
+created (`test/validate.test.js`).
 
 — Staff Engineer 🛠️
