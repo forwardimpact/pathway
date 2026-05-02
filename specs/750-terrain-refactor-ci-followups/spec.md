@@ -54,12 +54,13 @@ longer indistinguishable from a transient setup gap.
 ## Scope (in)
 
 - **`fit-terrain` callers in the monorepo** that crossed the old flag-driven
-  surface and are now broken or dormant against the new verb surface. Known
-  callers: `justfile` (`synthetic`, `synthetic-update`, `synthetic-no-prose`),
-  `package.json` (`prestart`, `start`, `dev`, `data:prose`, `data:schema`,
-  `generate`), and the `Test (e2e)` and `Data (prose)` GitHub Actions jobs that
-  invoke them. Any other call site discovered during design that crosses the
-  same boundary is in scope by the same reasoning.
+  surface and are now broken or dormant against the new verb surface. The
+  in-scope set is defined as every `bunx fit-terrain` (or equivalent) invocation
+  in `justfile`, root `package.json`, or any file under `.github/workflows/**`.
+  Today that set includes `justfile` (`synthetic`, `synthetic-update`,
+  `synthetic-no-prose`), `package.json` (`prestart`, `start`, `dev`,
+  `data:prose`, `data:schema`, `generate`), and the `Test (e2e)` and
+  `Data (prose)` workflow jobs that invoke them.
 - **The `data:prose` CI surface.** `LOG_LEVEL=error` must not hide the failing
   diagnostic from the CI log when `fit-terrain check` exits non-zero.
 - **The `kata-release-merge` "missing `data/pathway/`" carve-out.** Its scope
@@ -83,14 +84,14 @@ longer indistinguishable from a transient setup gap.
 
 ## Success criteria
 
-| #   | Claim                                                                                                                                                     | Verification                                                                                                                                                                                                                                                                                               |
-| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | The `Test (e2e)` job passes on `main` HEAD after the change merges.                                                                                       | Most recent `Test` workflow run on `main` reports `e2e` `success`.                                                                                                                                                                                                                                         |
-| 2   | The `Data (prose)` job passes on `main` HEAD after the change merges.                                                                                     | Most recent `Data` workflow run on `main` reports `prose` `success`.                                                                                                                                                                                                                                       |
-| 3   | Every monorepo `fit-terrain` invocation (`justfile`, root `package.json` scripts, GitHub Actions workflows) uses the post-refactor verb surface.          | Static inspection: no `bunx fit-terrain` invocation in `justfile`, root `package.json`, or `.github/workflows/**` calls `fit-terrain` without a verb, and none passes a flag the new CLI no longer accepts (e.g., `--generate`, `--no-prose`, `--check`, `--dry-run`).                                     |
-| 4   | When `data:prose` fails in CI, the failing diagnostic appears in the CI log.                                                                              | Replay test: introduce a temporary forced failure in the path `fit-terrain check` exercises (e.g., a deliberately bad input cached entity) and run the `Data` workflow; the job log includes the underlying error message, not only the cache report. Revert the forced failure before the spec closes.    |
-| 5   | The `kata-release-merge` "missing `data/pathway/`" carve-out cannot mask a regression on `main` across multiple subsequent PRs.                           | The skill's Step 5 documents a narrowed (or replaced) condition such that, given the same shape of `e2e`/`prose` failure observed under issue #673, the gate would have blocked the second through tenth PRs after `f740e3e9` from merging. Verified by re-reading Step 5 against the issue #673 timeline. |
-| 6   | A first-time-setup state (clean checkout, no `data/pathway/`) on a contributor machine still produces a working `bun start` after one documented command. | Onboarding doc + replay: a clean clone, followed by the documented setup command(s), yields `bun start` serving on `:3000` without `prestart` ENOENT. The exact command set is the design's choice; the criterion is that one documented sequence works end-to-end.                                        |
+| #   | Claim                                                                                                                                             | Verification                                                                                                                                                                                                                                                                                              |
+| --- | ------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | The `Test (e2e)` job passes on `main` HEAD after the change merges.                                                                               | Most recent `Test` workflow run on `main` reports `e2e` `success`.                                                                                                                                                                                                                                        |
+| 2   | The `Data (prose)` job passes on `main` HEAD after the change merges.                                                                             | Most recent `Data` workflow run on `main` reports `prose` `success`.                                                                                                                                                                                                                                      |
+| 3   | Every monorepo `fit-terrain` invocation (`justfile`, root `package.json` scripts, GitHub Actions workflows) is accepted by the post-refactor CLI. | Static inspection: every `bunx fit-terrain` invocation in `justfile`, root `package.json`, and `.github/workflows/**` parses without rejection by the post-refactor binary (no "unknown verb" / "unknown flag" failure). The CLI's accepted surface is the authority.                                     |
+| 4   | When `data:prose` fails in CI, the failing diagnostic appears in the CI log.                                                                      | Static inspection: the CI invocation of `data:prose` (in `package.json` and the `Data` workflow) does not suppress error-level output of `fit-terrain check` — no `LOG_LEVEL=error` (or equivalent log-threshold) prefix, and no stderr/stdout redirection in the workflow drops the diagnostic.          |
+| 5   | The `kata-release-merge` "missing `data/pathway/`" carve-out cannot mask a regression on `main` across multiple subsequent PRs.                   | Static inspection of `kata-release-merge` § Step 5: the carve-out is removed, or its documented condition explicitly excludes the issue #673 failure signature (`data/pathway/` ENOENT in the `e2e` webserver `prestart`, and `fit-terrain check` non-zero exit on `prose`).                              |
+| 6   | A clean-checkout contributor reaches a working `bun start` after one documented sequence.                                                         | Static inspection of the contributor onboarding doc + replay on a clean checkout: the doc names a single sequence; running it on a clean checkout completes without error, and a subsequent `bun start` clears its `prestart` step without ENOENT on `data/pathway/`. The command set is design's choice. |
 
 ## Notes
 
@@ -105,10 +106,7 @@ single coordinated boundary sweep is needed.
 
 ### Handoff context for design
 
-The SCRATCHPAD-3 author (staff-engineer) has the most context on which verb each
-broken caller now maps to and on whether `data/pathway/` materialization should
-remain a downstream side-effect of `fit-terrain` (current shape) or become an
-explicit verb invocation in callers. The success criteria are agnostic to that
-selection. The carve-out narrowing in criterion 5 is a release-engineer
-collaboration point for design — the criterion fixes the property, not the
-artefact that enforces it.
+The SCRATCHPAD-3 author (staff-engineer) is the natural design owner. Success
+criteria fix properties, not artefacts; design selects which verbs each broken
+caller maps to, where (and whether) `data/pathway/` materialization is invoked,
+and which artefact narrows or replaces the merge-gate carve-out.
