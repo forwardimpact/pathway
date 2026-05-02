@@ -6,6 +6,9 @@ import { createBoundRouter } from "../src/bound-router.js";
 import { defineRoute } from "../src/route-descriptor.js";
 
 let win;
+const savedWindow = globalThis.window;
+const savedHistory = globalThis.history;
+const savedDocument = globalThis.document;
 
 beforeEach(() => {
   win = new Window({ url: "http://localhost" });
@@ -15,9 +18,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete globalThis.window;
-  delete globalThis.history;
-  delete globalThis.document;
+  globalThis.window = savedWindow;
+  globalThis.history = savedHistory;
+  globalThis.document = savedDocument;
 });
 
 describe("createBoundRouter", () => {

@@ -6,6 +6,7 @@ import { createJsonLdScript } from "../src/json-ld-script.js";
 import { freezeInvocationContext } from "../src/invocation-context.js";
 
 let win;
+const savedDocument = globalThis.document;
 
 beforeEach(() => {
   win = new Window({ url: "http://localhost" });
@@ -13,7 +14,7 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete globalThis.document;
+  globalThis.document = savedDocument;
 });
 
 describe("createJsonLdScript", () => {

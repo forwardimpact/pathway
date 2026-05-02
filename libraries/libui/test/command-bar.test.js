@@ -6,6 +6,9 @@ import { createCommandBar } from "../src/command-bar.js";
 import { createReactive } from "../src/reactive.js";
 
 let win;
+const savedWindow = globalThis.window;
+const savedDocument = globalThis.document;
+const savedNavigator = globalThis.navigator;
 
 beforeEach(() => {
   win = new Window({ url: "http://localhost" });
@@ -15,9 +18,9 @@ beforeEach(() => {
 });
 
 afterEach(() => {
-  delete globalThis.window;
-  delete globalThis.document;
-  delete globalThis.navigator;
+  globalThis.window = savedWindow;
+  globalThis.document = savedDocument;
+  globalThis.navigator = savedNavigator;
 });
 
 function createMockRouter(initial) {
