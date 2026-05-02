@@ -24,10 +24,6 @@
     "config/",
     "templates/"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "start": "bun ./bin/fit-outpost.js",
     "status": "bun ./bin/fit-outpost.js status",
@@ -39,6 +35,10 @@
     "@forwardimpact/libcli": "^0.1.0",
     "@forwardimpact/libmacos": "^0.1.0",
     "@forwardimpact/libtelemetry": "^0.1.33"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

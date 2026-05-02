@@ -35,10 +35,6 @@
     "src/prompts/**/*",
     "README.md"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "dependencies": {
     "@forwardimpact/libutil": "^0.1.61",
     "@forwardimpact/libtelemetry": "^0.1.23",
@@ -46,6 +42,10 @@
     "ajv": "^8.20.0",
     "ajv-formats": "^3.0.1",
     "yaml": "^2.8.3"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

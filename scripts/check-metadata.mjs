@@ -18,33 +18,41 @@ const REPOSITORY_URL = "git+https://github.com/forwardimpact/monorepo.git";
 const ENGINES = { bun: ">=1.2.0", node: ">=18.0.0" };
 const PUBLISH_CONFIG = { access: "public" };
 
-// Well-known keys in canonical order. Anything outside this list is sorted
-// alphabetically and appended at the end.
+// Well-known keys in canonical order, grouped by concern. Anything outside
+// this list is sorted alphabetically and appended at the end.
 const KEY_ORDER = [
+  // Identity
   "name",
   "version",
   "private",
   "description",
   "keywords",
+  // Provenance
   "homepage",
   "repository",
   "license",
   "author",
+  // Project-specific metadata
   "forwardimpact",
+  // Module shape
   "type",
   "main",
   "exports",
   "bin",
   "files",
   "workspaces",
-  "engines",
-  "os",
+  // Behavior
   "scripts",
+  // Dependencies
   "dependencies",
   "devDependencies",
   "peerDependencies",
   "optionalDependencies",
   "overrides",
+  // Runtime requirements
+  "engines",
+  "os",
+  // Publishing
   "publishConfig",
 ];
 

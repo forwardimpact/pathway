@@ -53,10 +53,6 @@
     "templates/",
     "supabase/"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "generate-index": "bun ./bin/fit-map.js generate-index",
     "validate": "bun ./bin/fit-map.js validate"
@@ -77,6 +73,10 @@
     "@forwardimpact/libstorage": "^0.1.61",
     "microdata-rdf-streaming-parser": "^3.0.0",
     "n3": "^2.0.3"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

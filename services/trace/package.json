@@ -19,10 +19,6 @@
     "proto/",
     "server.js"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "dev": "node --watch server.js",
     "start": "bunx download && bun server.js",
@@ -37,6 +33,10 @@
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.5"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

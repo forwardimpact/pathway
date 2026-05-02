@@ -16,10 +16,6 @@
     "products/*",
     "services/*"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "prestart": "bunx fit-pathway build",
     "start": "bunx serve public",
@@ -62,5 +58,9 @@
     "lodash": "^4.18.0",
     "postcss": "^8.5.10",
     "protobufjs": "^7.5.5"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   }
 }

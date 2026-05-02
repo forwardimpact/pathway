@@ -43,10 +43,6 @@
     "src/**/*.js",
     "README.md"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "dependencies": {
     "@forwardimpact/libutil": "^0.1.61",
     "seedrandom": "^3.0.5"
@@ -56,6 +52,10 @@
   },
   "optionalDependencies": {
     "@faker-js/faker": "^10.4.0"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

@@ -41,10 +41,6 @@
     "templates/**",
     "README.md"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "dependencies": {
     "@forwardimpact/libsyntheticgen": "^0.1.0",
     "@forwardimpact/libtemplate": "^0.2.0",
@@ -59,6 +55,10 @@
   "optionalDependencies": {
     "apache-arrow": "^21.1.0",
     "parquet-wasm": "^0.7.1"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

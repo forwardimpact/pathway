@@ -35,10 +35,6 @@
     "src/",
     "templates/"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "start": "bun ./bin/fit-pathway.js serve",
     "pathway": "bun ./bin/fit-pathway.js",
@@ -54,6 +50,10 @@
     "@forwardimpact/libutil": "^0.1.64",
     "mustache": "^4.2.0",
     "yaml": "^2.8.3"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"

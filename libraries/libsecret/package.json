@@ -34,12 +34,12 @@
     "src/**/*.js",
     "README.md"
   ],
+  "scripts": {
+    "test": "bun test test/*.test.js"
+  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
-  },
-  "scripts": {
-    "test": "bun test test/*.test.js"
   },
   "publishConfig": {
     "access": "public"

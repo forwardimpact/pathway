@@ -32,10 +32,6 @@
     "src/**/*.js",
     "README.md"
   ],
-  "engines": {
-    "bun": ">=1.2.0",
-    "node": ">=18.0.0"
-  },
   "scripts": {
     "test": "bun test test/*.test.js"
   },
@@ -44,6 +40,10 @@
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.14"
+  },
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
   },
   "publishConfig": {
     "access": "public"
