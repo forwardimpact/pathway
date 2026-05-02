@@ -99,7 +99,7 @@ briefed, organized, and field-ready.
 <div class="section">
   <div class="page-container content-product">
 
-## For builders and agents
+![Gear](/assets/icon-gear.svg)
 
 ### Gear
 

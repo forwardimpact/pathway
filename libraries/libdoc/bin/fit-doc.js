@@ -154,8 +154,8 @@ async function main() {
   }
 
   const workingDir = process.env.INIT_CWD || process.cwd();
-  const docsDir = path.join(workingDir, values.src);
-  const distDir = path.join(workingDir, values.out);
+  const docsDir = path.resolve(workingDir, values.src);
+  const distDir = path.resolve(workingDir, values.out);
   const baseUrl = values["base-url"];
 
   const builder = new DocsBuilder(
