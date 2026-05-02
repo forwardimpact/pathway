@@ -33,8 +33,8 @@ contributor docs that name `synthetic-no-prose`.
   ```
 
 - **Verify:** `just --summary | grep -w synthetic-no-prose` is empty;
-  `just --evaluate synthetic` (or inspecting the recipe body) shows
-  `bunx fit-terrain build` on the first action line.
+  `just --show synthetic` shows `bunx fit-terrain build` on the first action
+  line.
 
 ### S2 — Update root `package.json` scripts
 
@@ -75,13 +75,13 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
   -          bunx fit-terrain
   +          bunx fit-terrain build
   ```
-- **Verify:** `grep -nE 'bunx fit-terrain($|[^[:alnum:]_-])' .github/workflows/`
-  returns four lines, each with `build` immediately following
-  `bunx fit-terrain`.
+- **Verify:**
+  `grep -rnE 'bunx fit-terrain($|[^[:alnum:]_-])' .github/workflows/` returns
+  four lines, each with `build` immediately following `bunx fit-terrain`.
 
 ### S4 — Remove `kata-release-merge` Step 5 carve-out
 
-- **Modified:** `.claude/skills/kata-release-merge/SKILL.md` (line 122–123).
+- **Modified:** `.claude/skills/kata-release-merge/SKILL.md` (lines 121–123).
 - **Change:**
   ```diff
   -After rebase, run `bun run check:fix` then `bun run check`. If checks still fail
@@ -109,12 +109,16 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
 
   const root = resolve(new URL("..", import.meta.url).pathname);
   const VERBS = ["check", "validate", "build", "generate", "inspect"];
-  // Catches both `bunx fit-terrain` and bare `fit-terrain` (the form used in
-  // `package.json scripts.generate`) without one of the accepted verbs.
-  // `inspect` is the only verb that takes an argument; the CLI itself
-  // enforces `inspect <stage>` and reports its own usage error.
+  // Match `fit-terrain` only when it is the executable being called:
+  //   - preceded by `bunx ` (justfile/workflow recipe form, e.g.
+  //     `bunx fit-terrain build`)
+  //   - preceded by `"` (package.json script-value form, e.g.
+  //     `"generate": "fit-terrain build"`)
+  // and NOT followed by an accepted verb. This excludes argument/path
+  // references like `just build-binary fit-terrain` or
+  // `dist/binaries/fit-terrain` that are not invocations.
   const PATTERN = new RegExp(
-    String.raw`(?<![\w-])(?:bunx\s+)?fit-terrain\b(?!\s+(?:${VERBS.join("|")})\b)`,
+    String.raw`(?:bunx\s+|"\s*)fit-terrain\b(?!\s+(?:${VERBS.join("|")})\b)`,
   );
 
   async function listWorkflows() {
@@ -160,12 +164,14 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
   check-terrain-callers:
       node scripts/check-terrain-callers.mjs
   ```
-- **Verify (non-destructive):** with no edits to the repo, run
-  `bun run context:terrain` from a clean working tree — exits 0 (post-S1–S3
-  surface has no bare invocation). Then in a `git stash`-protected scratch edit,
-  add `bunx fit-terrain` (no verb) to a comment line in `justfile` and re-run —
-  exits 1 with `<file>:<line>: bare 'bunx fit-terrain' …`. `git stash pop` to
-  discard the scratch. Finally, `bun run check` passes end-to-end.
+- **Verify:** from a clean working tree (post-S1–S3 surface has no bare
+  invocation), `bun run context:terrain` exits 0 — and in particular does not
+  fire on `justfile:229` (`just build-binary fit-terrain`) or `justfile:295`
+  (`--extra-exec "dist/binaries/fit-terrain"`), which are not invocations. Then
+  in a scratch edit, add a `bunx fit-terrain` line (no verb) to `justfile` and
+  re-run the script — exits 1 with `<file>:<line>: bare 'bunx fit-terrain' …`.
+  Discard the scratch with `git checkout -- justfile`. Finally, `bun run check`
+  passes end-to-end.
 
 ### S6 — Update contributor docs
 
