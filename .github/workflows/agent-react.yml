@@ -33,6 +33,13 @@ on:
 permissions:
   contents: write
 
+# Coalesce simultaneous events on the same target so the recursion guard sees a stable thread.
+# Triage flows fire `opened` plus several `labeled` events within ~1s; without this, each one
+# spawns an independent facilitator → independent agent → independent PR (observed on #647 / #654).
+concurrency:
+  group: agent-react-${{ github.event.issue.number || github.event.pull_request.number || github.event.discussion.number || inputs.target-number || github.run_id }}
+  cancel-in-progress: false
+
 jobs:
   kata:
     # Bot-authored content is allowed so this workflow can serve as an agent-to-agent coordination channel;
@@ -40,7 +47,13 @@ jobs:
     # a participant agent's response. For pull_request_review_comment, only run on thread replies
     # (in_reply_to_id set) — top-level review comments are delivered via the pull_request_review (submitted)
     # event in a single batch.
-    if: github.event_name == 'workflow_dispatch' || github.event_name == 'issues' || github.event_name == 'issue_comment' || github.event_name == 'pull_request_target' || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
+    #
+    # Label scoping: `labeled` fires once per label, and the product-manager bot applies several labels
+    # in rapid succession on triage. Only react to labels that carry routing or approval semantics —
+    # `agent:*` (routing) and `*:approved` (gate). Classification labels like `bug`, `triaged`, `experiment`
+    # don't add new requests for the facilitator to act on, so they should not fire a run.
+    if: >-
+      github.event_name == 'workflow_dispatch' || (github.event_name == 'issues' && (github.event.action == 'opened' || (github.event.action == 'labeled' && (startsWith(github.event.label.name, 'agent:') || endsWith(github.event.label.name, ':approved'))))) || github.event_name == 'issue_comment' || (github.event_name == 'pull_request_target' && (startsWith(github.event.label.name, 'agent:') || endsWith(github.event.label.name, ':approved'))) || (github.event_name == 'pull_request_review_comment' && github.event.comment.in_reply_to_id != null) || github.event_name == 'pull_request_review' || github.event_name == 'discussion' || github.event_name == 'discussion_comment'
     runs-on: ubuntu-latest
     steps:
       - name: Generate installation token
