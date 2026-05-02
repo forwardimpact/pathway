@@ -17,6 +17,7 @@ const SKIP_DIRS = new Set([
   ".cache",
   "tmp",
   "wiki",
+  "worktrees",
 ]);
 
 const walk = async (dir, visit) => {
