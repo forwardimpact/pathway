@@ -320,6 +320,37 @@ describe("activity generation", () => {
         );
       }
     });
+
+    test("comment-key set is invariant under upstream people order", () => {
+      // The shuffle inside generateCommentKeys must not be sensitive to the
+      // order of `people` (or any other upstream input). Without a stable
+      // pre-shuffle sort, a reversed `people` array drives a different
+      // selection on the same seed, which is what causes drift between local
+      // and CI runs of the prose-cache check.
+      const ast = parse(tokenize(MINI_TERRAIN));
+      const rngA = createSeededRNG(ast.seed);
+      const a = buildEntities(ast, rngA);
+      const activityA = generateActivity(ast, rngA, a.people, a.teams);
+
+      const rngB = createSeededRNG(ast.seed);
+      const b = buildEntities(ast, rngB);
+      const activityB = generateActivity(
+        ast,
+        rngB,
+        [...b.people].reverse(),
+        b.teams,
+      );
+
+      const ident = (ck) =>
+        `${ck.snapshot_id}|${ck.email}|${ck.driver_id}|${ck.scenario_name}`;
+      const setA = new Set(activityA.commentKeys.map(ident));
+      const setB = new Set(activityB.commentKeys.map(ident));
+      assert.deepStrictEqual(
+        [...setB].sort(),
+        [...setA].sort(),
+        "comment-key identity set must be stable across upstream input order",
+      );
+    });
   });
 
   describe("generateRosterSnapshots", () => {

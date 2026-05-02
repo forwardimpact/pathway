@@ -27,6 +27,13 @@ function findActiveScenarios(scenarios, snapDate) {
 
 /**
  * Collect candidates from active scenarios for comment generation.
+ *
+ * Returns candidates sorted by a stable composite key so that downstream
+ * `rng.shuffle` output is a function of `(candidates.length, rng state)`
+ * only, not of upstream input order. Without this sort, jitter in `people`,
+ * `teams`, or scenario iteration order propagates through the shuffle and
+ * produces a different prose-key set across runs of the same DSL + seed.
+ *
  * @param {object[]} activeScenarios
  * @param {object[]} people
  * @param {object[]} teams
@@ -61,6 +68,13 @@ function collectCandidates(activeScenarios, people, teams, driverMap) {
       }
     }
   }
+  candidates.sort((a, b) => {
+    const ka = `${a.scenario.name}|${a.team.id}|${a.person.email}|${a.driver_id}`;
+    const kb = `${b.scenario.name}|${b.team.id}|${b.person.email}|${b.driver_id}`;
+    if (ka < kb) return -1;
+    if (ka > kb) return 1;
+    return 0;
+  });
   return candidates;
 }
 
