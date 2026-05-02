@@ -121,9 +121,19 @@ verb table and one new "Run the dev site" pointer.
 
 File-level diff hunks, execution ordering, test fixtures, the
 `synthetic-no-prose` collapse-vs-preserve decision, the exact prose of the doc
-edit. The planner also picks the commit boundary between
-`justfile`/`package.json`/workflow edits and the `kata-release-merge` SKILL.md
 edit.
+
+## Handoff context (for the planner)
+
+**Commit-boundary requirement (release-engineer sign-off, 2026-05-02):** the
+`kata-release-merge` SKILL.md edit (component 5) must land **after** components
+1–3 are on `main`. The carve-out is the only thing letting CI-red trusted-author
+PRs (including this implementation PR's own incremental commits) merge while the
+verb-mapping fix lands. Removing it before threads 1+2 are green would deadlock
+the implementation PR. Two acceptable shapes: (a) split into two PRs with
+rebase-onto-main between them, (b) order commits inside one PR so the SKILL.md
+edit is the final commit and merge waits for prior CI-green commits to land via
+stacked merge. Planner picks.
 
 ## Risks
 
