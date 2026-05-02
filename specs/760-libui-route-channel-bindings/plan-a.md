@@ -75,9 +75,9 @@ dep), ESLint (in-repo plugin `tools/eslint-rules/no-legacy-handler-shape.js`).
   PR.
 - **`createRouter` callers outside pathway.** `createRouter` stays exported
   unchanged for products that do not opt in. Part 01 adds `createBoundRouter`
-  alongside it; Part 02 switches pathway's vendored `lib/router-pages.js`
-  wrapper over (or retires it — implementer's choice). Other products are not
-  modified.
+  alongside it; Part 02 rewrites pathway's vendored `lib/router-pages.js`
+  wrapper to wrap `createBoundRouter` (the wrapper is preserved — pathway-only
+  navigation conventions stay localised). Other products are not modified.
 - **Catalog command-name drift.** `libraries/CLAUDE.md` references
   `bun run lib:fix`, but the actual `package.json` script is
   `bun run context:fix`. Part 03 uses the actual command and files a follow-up

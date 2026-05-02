@@ -21,21 +21,27 @@ post-migration replay test consume the same source of truth.
 | Modified | `products/pathway/src/main.js`               |
 
 ```js
-// route-manifest.js — one row per setupRoutes() registration, in registration order
+// route-manifest.js — one row per setupRoutes() registration, in registration order.
+// Three-segment patterns precede their two-segment counterparts so registration-order
+// matching in createBoundRouter resolves the more specific pattern first (mirrors
+// pre-migration main.js:118-119, 123-124, 128-129, 137-138).
 export const ROUTE_MANIFEST = [
   { pattern: "/", representativeUrl: "/" },
   { pattern: "/skill", representativeUrl: "/skill" },
   { pattern: "/skill/:id", representativeUrl: "/skill/testing" },
   { pattern: "/behaviour", representativeUrl: "/behaviour" },
   { pattern: "/behaviour/:id", representativeUrl: "/behaviour/clarity-of-thought" },
-  // ...one row per setupRoutes() entry — every route registered in main.js:85-139
+  // ...one row per setupRoutes() entry — every router.on(...) call in main.js
+  { pattern: "/job/:discipline/:level/:track", representativeUrl: "/job/engineering/senior/individual-contributor" },
+  { pattern: "/job/:discipline/:level", representativeUrl: "/job/engineering/senior" },
+  // ...interview, progress follow the same three-then-two ordering...
   { pattern: "/agent-builder", representativeUrl: "/agent-builder" },
-  { pattern: "/agent/:discipline", representativeUrl: "/agent/engineering" },
   { pattern: "/agent/:discipline/:track", representativeUrl: "/agent/engineering/individual-contributor" },
+  { pattern: "/agent/:discipline", representativeUrl: "/agent/engineering" },
 ];
 ```
 
-`main.js`'s `setupRoutes()` is rewritten in Step 8 to iterate `ROUTE_MANIFEST`
+`main.js`'s `setupRoutes()` is rewritten in Step 9 to iterate `ROUTE_MANIFEST`
 and call `router.register(defineRoute(...))` for each row, with the descriptor's
 `pattern` keyed off `row.pattern`.
 
@@ -71,9 +77,17 @@ functions from `src/formatters/json-ld.js`. For each manifest row it produces:
 }
 ```
 
-`getCliCommand` returns the empty string for unmatched paths; the fixture
-preserves whatever the pre-migration code produces (do not normalise to `null`
-for empty strings — the post-migration test asserts byte-equality).
+`getCliCommand` returns `"npx fit-pathway"` (the bare command, no args) for
+paths that do not match any rule (cli-command.js:129). Every pathway route
+therefore has a non-empty CLI string today — there is no genuine "no CLI
+binding" route in pathway. The descriptor's `cli` slot is **always set** in Step
+9's `ROUTE_HANDLERS`: routes that today fall through to the bare fallback get
+`cli: () => "npx fit-pathway"`; routes with specific mappings get the inline
+arrow that reproduces `getCliCommand`'s output. The spec's "no CLI binding"
+success criterion (line 335) is exercised by a synthetic test, not by any
+pathway route — see Step 11's `route-bindings-parity.test.js`, which adds one
+descriptor with `cli` deliberately omitted to drive the `createCommandBar`
+empty-text path.
 
 ```sh
 cd products/pathway && bun scripts/generate-route-bindings-fixture.js > test/fixtures/route-bindings.json
@@ -286,22 +300,38 @@ export function createEntityCommand({
     const { args, options, data } = ctx;
     const id = args[entityName];                    // single source: declared positional name
     const rawItems = data[pluralName];
-    if (options.validate) return handleValidate(rawItems, validate);
-    if (options.list) return handleList(rawItems, formatListItem, sortItems);
+    if (options.validate) {
+      return handleValidate({ data, _entityName: entityName, pluralName, validate });
+    }
+    if (options.list) {
+      // today's --list block at lines 60-66 — extracted into a helper for symmetry
+      return handleList(rawItems, sortItems, formatListItem);
+    }
     if (id === undefined) return formatSummary(rawItems, data);
-    if (options.json) return handleJsonDetail(ctx, presentDetail);   // unchanged from today's flow
-    const view = presentDetail(ctx);                // shared with the web side
-    if (!view) return handleNotFound(entityName, id);
-    return formatDetail(view, data.standard);
+    return handleDetail({                           // existing helper at line 141
+      data, entityName, pluralName, id,
+      ctx, presentDetail,                           // NEW: ctx + presenter so handleDetail
+      formatDetail,                                 //      calls presentDetail(ctx) for `view`
+      wantsJson: options.json === true,             //      and emits JSON for --json mode
+    });
   };
 }
 ```
 
-`handleValidate`, `handleList`, `handleJsonDetail`, `handleNotFound` already
-exist in `command-factory.js` today (under different names — match the existing
-helper names verbatim during implementation). Their bodies are unchanged; only
-their inputs are reshaped from `(rawItems, options)` →
-`(rawItems, formatListItem, sortItems)` etc. as needed for the new caller shape.
+The factory delegates to two helpers that already exist today — `handleValidate`
+(line 97) and `handleDetail` (line 141) — plus a thin `handleList` extracted
+from today's inline `--list` block (lines 60-66). **Existing helper names stay
+verbatim**; their inputs grow:
+
+- `handleDetail` today resolves the entity via `findEntity(...)` and either
+  serialises to JSON via `JSON.stringify(view)` (for `--json`) or calls
+  `formatDetail(view, data.standard)`. After this commit, it accepts the shared
+  `presentDetail(ctx)` callback and the surrounding `ctx`, so the same presenter
+  the web page uses produces `view`. Not-found resolution stays inside
+  `handleDetail` (today emits an error + non-zero exit; the parity test in Step
+  11 covers this branch).
+- `handleList` is today inline; this commit lifts it to a sibling helper for
+  symmetry. No behaviour change.
 
 `createCompositeCommand` (today builds `runJobCommand`/`runInterviewCommand`/
 `runProgressCommand`) follows the same shape: composite key resolution uses
@@ -354,10 +384,12 @@ Four changes:
    command file (Step 7) — `RDF_PREFIXES.fit` is a host-level constant,
    available at the bin's import site. Web-side `vocabularyBase` flows through
    `createBoundRouter({ vocabularyBase })` per Step 9.
-2. Build `data` as the union of the loaded YAML data plus the two runtime extras
-   the spec calls out (`dataDir`, `templateLoader`):
+2. Build `data` as the union of the loaded YAML data plus the three runtime
+   extras today's bin passes inline at `bin/fit-pathway.js:279-286` — `dataDir`,
+   `templateLoader`, and `loader` (the data loader instance from
+   `@forwardimpact/map/loader`, consumed by `commands/agent.js:253-255`):
    ```js
-   const data = { ...loaded, dataDir, templateLoader };
+   const data = { ...loaded, dataDir, templateLoader, loader };
    ```
 3. Subcommand definitions in the local `definition` object opt into the new
    shape via three new fields per command (Part 01 Step 8 keeps the legacy
@@ -378,13 +410,14 @@ Four changes:
      options: { track: { type: "string" } },
    },
    ```
-4. Replace today's `COMMANDS[command]` lookup and manual
+4. Replace today's `COMMANDS[command]` lookup and the surrounding
    `await handler({ data, args, options: values, dataDir, templateLoader, loader })`
-   call (lines 250-260) with `await cli.dispatch(parsed, { data })`. The
+   block (the implementer locates this block by grep on `await handler(` rather
+   than by line number) with `await cli.dispatch(parsed, { data })`. The
    pre-existing pre-`COMMANDS` short-circuits for `dev`, `build`, and `update`
-   (lines 250-263 today) **stay as direct function calls** — those subcommands
-   are not in the libcli `definition.commands` array today and they continue not
-   to be after this commit; only the entity commands move to dispatch.
+   **stay as direct function calls** — those subcommands are not in the libcli
+   `definition.commands` array today and they continue not to be after this
+   commit; only the entity commands move to dispatch.
 
 **Verification:** `npx fit-pathway --help` renders the new `argsUsage` strings
 (proves Part 01 Step 8's help.js read-path works);
@@ -403,10 +436,10 @@ Today, `main.js` imports `createPagesRouter` from a vendored thin wrapper at
 `./lib/router-pages.js` (which itself wraps libui's `createPagesRouter`). After
 this commit:
 
-- `lib/router-pages.js` is rewritten to wrap `createBoundRouter` instead of
-  `createPagesRouter` (or removed outright if the host can call libui directly —
-  implementer's choice; the parity fixture is the verifier either way). Removing
-  it requires updating the `main.js` import.
+- `lib/router-pages.js` is **rewritten** to wrap `createBoundRouter` instead of
+  `createPagesRouter`. The wrapper layer stays (not removed) for two reasons:
+  (a) any pathway-only navigation conventions stay localised; (b) the diff is
+  minimal and the parity fixture verifies behaviour equality.
 - `main.js` imports `createBoundRouter`, `defineRoute`, `createCommandBar` from
   `@forwardimpact/libui` and the per-entity `graph<Entity>` formatters from
   `./formatters/json-ld.js` (added in Step 3).
@@ -514,8 +547,10 @@ without a `hashchange` event.
 
 **`handler-shape.test.js`** is the spec § Success-criteria test: imports every
 module in `pages/`, `commands/`, and `formatters/<entity>/shared.js`, parses
-each export with `acorn` (already a dev dep — verify; if not, `@babel/parser`),
-and asserts:
+each export with `acorn` (`acorn@8.16.0` is already in `bun.lock` transitively
+via `espree`; the first commit on this branch adds `"acorn": "^8.16.0"` as a
+direct `devDependencies` entry in `products/pathway/package.json` so the test
+resolves it deterministically), and asserts:
 
 - every exported function declares exactly one parameter;
 - the function body never references `getState().data` (member-expression
@@ -525,11 +560,13 @@ and asserts:
 - the parameter is not an `ObjectPattern` whose property-name set contains
   `{data, args, options}`.
 
-**`cli-snapshot.test.js`** spawns `bun run bin/fit-pathway.js <args>` for each
-capability ≥3 in success-criterion line 327 (skill, discipline, job) plus the
+**`cli-snapshot.test.js`** spawns `bun bin/fit-pathway.js <args>` (no `run` —
+bin files invoke directly) for each capability ≥3 in success-criterion line 327
+(skill, discipline, job) plus the
 `--validate`/`--list`/`--json`/no-args/with-id/not-found combinations from Step
-6, asserts stdout matches a committed snapshot. Snapshots are recorded with
-`process.env.NO_COLOR=1` for stability across local + CI.
+6, and asserts stdout matches a committed snapshot. Snapshots live at
+`products/pathway/test/fixtures/cli-snapshots/<command>-<flags>.txt` and are
+recorded with `process.env.NO_COLOR=1` for stability across local + CI.
 
 **Verification (Step 11):** `cd products/pathway && bun test` — all green
 (parity replay, handler shape, CLI snapshot, plus all pre-existing non-touched
@@ -540,9 +577,10 @@ tests); `bun run lint` (repo root) — clean; `bun run check` — clean.
 `@forwardimpact/libui` (consumes `defineRoute`, `createBoundRouter`,
 `createCommandBar`, `createJsonLdScript`, `freezeInvocationContext` from Part
 01), `@forwardimpact/libcli` (amended `Cli.dispatch`), `@forwardimpact/libgraph`
-(`RDF_PREFIXES.fit`, read once at bootstrap), `acorn` (dev dep for the AST shape
-test; if not already present in repo's `package.json`, the implementer adds it
-as the first commit on the branch).
+(`RDF_PREFIXES.fit`, read once at bootstrap), `@forwardimpact/map/loader`
+(`createDataLoader` — already imported by today's `bin/fit-pathway.js:17`),
+`acorn@^8.16.0` (added as a direct `devDependencies` entry on
+`products/pathway/package.json`).
 
 ## Risks
 
@@ -569,11 +607,12 @@ as the first commit on the branch).
 - **CLI snapshot drift.** `cli-snapshot.test.js` snapshots may carry ANSI colour
   codes; commit them with `process.env.NO_COLOR=1` so the snapshot is stable
   across local and CI runs.
-- **`router-pages.js` retirement vs. wrap.** Pathway today imports
-  `createPagesRouter` from a vendored `./lib/router-pages.js` thin wrapper. Step
-  9 leaves the wrap-vs-retire decision to the implementer; the parity fixture is
-  the verifier either way. If the wrapper is retired, the implementer also
-  removes the matching test under `products/pathway/test/` (if any).
+- **`router-pages.js` keeps wrapping.** Step 9 rewrites the vendored
+  `./lib/router-pages.js` to wrap `createBoundRouter`; the wrapper layer is
+  preserved (not removed) so any pathway-only navigation conventions (e.g. the
+  `/agent-builder` → `/agent/:discipline` `replaceState` interception) stay
+  localised in the wrapper rather than leaking into `main.js`. The parity
+  fixture verifies behaviour equality.
 
 ## Verification (whole part)
 

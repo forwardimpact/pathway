@@ -151,9 +151,19 @@ asserts the displayed text and `copyButton.disabled` track the sequence.
 
 ## Step 5 — `createJsonLdScript`
 
-Helper that mints `@id` through a descriptor's `graph` formatter. Signature
-takes both `ctx` (passed to the formatter) and `body` (merged into the payload)
-— the helper is the single round-trip the design's D4 mandates.
+Helper that mints `@id` through a descriptor's `graph` formatter.
+
+**Plan-phase clarification of design D4.** Design D4 lists the helper signature
+as `(graphFormatter, body, { vocabularyBase })` (design-a.md:46, 129) and the
+dispatch sequence (design-a.md:74) shows the helper invoking
+`graph(ctx, vocabularyBase) → IRI`. The 3-arg signature has no path for `ctx` to
+reach the formatter — a mechanical incompleteness, not a re-litigated decision.
+The plan adds `ctx` as the second positional argument:
+`(graphFormatter, ctx, body, { vocabularyBase })`. The single-round-trip
+contract D4 chose over caller-mints-IRI is preserved exactly: the helper still
+invokes the formatter; the caller never assembles an IRI string. If a reviewer
+wants the design re-opened to record the 4-arg form explicitly, file an issue
+against design-a.md; this plan ships against the 4-arg form.
 
 | Action  | Path                                          |
 | ------- | --------------------------------------------- |
