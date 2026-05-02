@@ -46,6 +46,11 @@ contributor docs that name `synthetic-no-prose`.
   -    "data:prose": "LOG_LEVEL=error bunx fit-terrain check",
   +    "data:prose": "bunx fit-terrain check",
   ```
+- **Out-of-scope siblings (do not edit):** `prestart`, `start`, `dev` are not
+  `fit-terrain` callers (they invoke `fit-pathway`/`serve`); `data:schema`
+  remains unchanged because design K3 limits the log-level change to
+  `data:prose` and `data:schema`'s `bunx fit-terrain validate` invocation is
+  already on the verb surface. The plan touches no other `scripts.*` entries.
 - **Verify:** `bun run data:prose` prints the cache report at default log level
   with no error-threshold suppression (exit code reflects cache state, not the
   prefix change); `jq -r '.scripts.generate' package.json` prints
@@ -81,7 +86,8 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
 
 ### S4 — Remove `kata-release-merge` Step 5 carve-out
 
-- **Modified:** `.claude/skills/kata-release-merge/SKILL.md` (line 122–123).
+- **Modified:** `.claude/skills/kata-release-merge/SKILL.md` (the wrapped
+  sentence on lines 121–123, ending with `skip to Step 9.`).
 - **Change:**
   ```diff
   -After rebase, run `bun run check:fix` then `bun run check`. If checks still fail
@@ -96,26 +102,54 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
 
 ### S5 — Add static "no bare `bunx fit-terrain`" gate
 
+The gate uses two scanning modes so it cannot false-positive on the legitimate
+`fit-terrain` _names_ already in `justfile` (`build-binary fit-terrain`,
+`dist/binaries/fit-terrain`):
+
+- **Textual mode** (`justfile`, `.github/workflows/**.yml`): the regex
+  **requires** a `bunx ` prefix. A bare `fit-terrain` token on those surfaces is
+  a name argument or path component, not an invocation, and is ignored.
+- **JSON mode** (`package.json`): parse JSON and iterate `scripts.*` values. For
+  each shell command (split on `&&` / `;`), strip leading `LOG_LEVEL=…` env
+  prefixes and an optional `bunx ` prefix; if the next token is `fit-terrain`,
+  the token after it must be one of the accepted verbs.
+
+The CLI itself enforces `inspect <stage>`; the gate accepts a bare `inspect` and
+the CLI's usage error surfaces the missing stage on the same CI run.
+
 - **Created:** `scripts/check-terrain-callers.mjs`.
 - **Body (full):**
 
   ```js
   #!/usr/bin/env node
-  // Fail if any file in the spec 750 named surface (justfile, package.json,
-  // .github/workflows/**) calls `bunx fit-terrain` without one of the
-  // accepted verbs. Called by `bun run context:terrain`.
+  // Fail if any caller in the spec 750 named surface (justfile,
+  // package.json, .github/workflows/**) invokes fit-terrain without one of
+  // the accepted verbs. Two modes: textual (requires `bunx ` prefix) for
+  // justfile + workflows; JSON-parsed scripts for package.json.
   import { readFile, readdir } from "node:fs/promises";
   import { resolve, join } from "node:path";
 
   const root = resolve(new URL("..", import.meta.url).pathname);
   const VERBS = ["check", "validate", "build", "generate", "inspect"];
-  // Catches both `bunx fit-terrain` and bare `fit-terrain` (the form used in
-  // `package.json scripts.generate`) without one of the accepted verbs.
-  // `inspect` is the only verb that takes an argument; the CLI itself
-  // enforces `inspect <stage>` and reports its own usage error.
-  const PATTERN = new RegExp(
-    String.raw`(?<![\w-])(?:bunx\s+)?fit-terrain\b(?!\s+(?:${VERBS.join("|")})\b)`,
+  const VERB_GROUP = VERBS.join("|");
+
+  // Textual: any `(LOG_LEVEL=… )*bunx fit-terrain` with no verb after it.
+  const TEXTUAL = new RegExp(
+    String.raw`(?:^|\s)(?:[A-Z_]+=\S+\s+)*bunx\s+fit-terrain\b(?!\s+(?:${VERB_GROUP})\b)`,
   );
+
+  // JSON-mode: tokenize one shell command and verify the verb.
+  function scriptHasBareCall(value) {
+    return value
+      .split(/\s*(?:&&|\|\||;)\s*/)
+      .map((cmd) => cmd.replace(/^(?:[A-Z_]+=\S+\s+)*/, ""))
+      .map((cmd) => cmd.replace(/^bunx\s+/, ""))
+      .filter((cmd) => /^fit-terrain(?:\s|$)/.test(cmd))
+      .some((cmd) => {
+        const next = cmd.replace(/^fit-terrain\s*/, "").split(/\s+/)[0];
+        return !VERBS.includes(next);
+      });
+  }
 
   async function listWorkflows() {
     const dir = resolve(root, ".github/workflows");
@@ -125,17 +159,16 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
       .map((n) => join(dir, n));
   }
 
-  const targets = [
-    resolve(root, "justfile"),
-    resolve(root, "package.json"),
-    ...(await listWorkflows()),
-  ];
-
   let status = 0;
-  for (const path of targets) {
+
+  // Textual surfaces.
+  for (const path of [
+    resolve(root, "justfile"),
+    ...(await listWorkflows()),
+  ]) {
     const text = await readFile(path, "utf8");
     text.split("\n").forEach((line, i) => {
-      if (PATTERN.test(line)) {
+      if (TEXTUAL.test(line)) {
         console.error(
           `${path}:${i + 1}: bare 'bunx fit-terrain' — add a verb (${VERBS.join("|")})`,
         );
@@ -143,29 +176,49 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
       }
     });
   }
+
+  // package.json scripts.
+  const pkg = JSON.parse(
+    await readFile(resolve(root, "package.json"), "utf8"),
+  );
+  for (const [name, value] of Object.entries(pkg.scripts ?? {})) {
+    if (scriptHasBareCall(value)) {
+      console.error(
+        `package.json:scripts.${name}: bare fit-terrain — add a verb (${VERBS.join("|")})`,
+      );
+      status = 1;
+    }
+  }
+
   process.exit(status);
   ```
 
-- **Modified:** `package.json` (`scripts.context` chain), `justfile` (new
-  recipe).
+- **Modified:** `package.json` (`scripts.context` chain only — no new `justfile`
+  recipe; the npm `context:terrain` script is the canonical entry, and
+  `bun run check` runs it via `context`).
 - **`package.json` wiring:**
   ```diff
   -    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog",
   +    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog && bun run context:terrain",
   +    "context:terrain": "node scripts/check-terrain-callers.mjs",
   ```
-- **`justfile` wiring (append after `check-instructions`):**
-  ```just
-  # Enforce no bare `bunx fit-terrain` in the named surface (spec 750)
-  check-terrain-callers:
-      node scripts/check-terrain-callers.mjs
-  ```
-- **Verify (non-destructive):** with no edits to the repo, run
-  `bun run context:terrain` from a clean working tree — exits 0 (post-S1–S3
-  surface has no bare invocation). Then in a `git stash`-protected scratch edit,
-  add `bunx fit-terrain` (no verb) to a comment line in `justfile` and re-run —
-  exits 1 with `<file>:<line>: bare 'bunx fit-terrain' …`. `git stash pop` to
-  discard the scratch. Finally, `bun run check` passes end-to-end.
+- **Verify (non-destructive, fixture-style):**
+  1. `bun run context:terrain` exits 0 from a clean working tree post-S1–S3 (the
+     textual regex requires `bunx `, so `justfile`'s `build-binary fit-terrain`
+     and `dist/binaries/fit-terrain` lines do not trip it; the JSON scan sees
+     `fit-terrain build` for `scripts.generate` and is silent).
+  2. Confirm red-path locally without mutating tracked files:
+     ```sh
+     node -e "
+       const m = await import('./scripts/check-terrain-callers.mjs');
+     " # importing executes the script against the live tree (must exit 0)
+     printf '%s\n' '    bunx fit-terrain' \
+       | node -e "
+         const re = new RegExp(String.raw\`(?:^|\\s)(?:[A-Z_]+=\\S+\\s+)*bunx\\s+fit-terrain\\b(?!\\s+(?:check|validate|build|generate|inspect)\\b)\`);
+         let s = '', d = process.stdin; d.on('data', c => s += c); d.on('end', () => process.exit(re.test(s) ? 0 : 1));
+       " # exits 0 → pattern correctly flags the bare form
+     ```
+  3. `bun run check` passes end-to-end after wiring.
 
 ### S6 — Update contributor docs
 
@@ -206,11 +259,11 @@ Libraries used: none.
 
 ## Risks
 
-| Id  | Risk                                                                                                                                           | Why not visible from the plan                                                                                                                                                                                                                        |
-| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P1  | The `Test (e2e)` `synthetic-cache` is hit on the impl branch (key includes `data/synthetic/**` only), masking the miss-path fix.               | The cache is keyed on `hashFiles('data/synthetic/**', 'products/map/schema/json/**', 'bun.lock')`, not on branch — to force a miss, the implementer must touch any file under `data/synthetic/**` (a no-op edit suffices) before pushing.            |
-| P2  | `data:prose` keeps exit-code 1 after the S2 prefix change because the cache invariant currently failing on `main` is unrelated to `LOG_LEVEL`. | Spec scope excludes `data/synthetic/` content. If exit-code 1 persists in CI after S2 lands the diagnostic visibly, the residual fix is outside this PR; the implementer reports the surfaced error to the spec author rather than chasing it in S2. |
-| P3  | The static gate (S5) green-lights legitimate verb invocations broken across multiple lines (e.g., shell line-continuation inside a heredoc).   | The line-by-line regex cannot see across `\` line continuations; the gate over-permits in that shape. The four heredoc workflow files do not currently use line-continuation around the call, but the implementer should re-check after merge.       |
+| Id  | Risk                                                                                                                                                                  | Why not visible from the plan                                                                                                                                                                                                                                                                                                                 |
+| --- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | The `Test (e2e)` `synthetic-cache` is hit on the impl branch (key includes `data/synthetic/**` only), masking the miss-path fix.                                      | The cache is keyed on `hashFiles('data/synthetic/**', 'products/map/schema/json/**', 'bun.lock')`, not on branch — to force a miss, the implementer must touch any file under `data/synthetic/**` (a no-op edit suffices) before pushing.                                                                                                     |
+| P2  | `data:prose` keeps exit-code 1 after the S2 prefix change because the cache invariant currently failing on `main` is unrelated to `LOG_LEVEL`.                        | Spec scope excludes `data/synthetic/` content. If exit-code 1 persists in CI after S2 lands the diagnostic visibly, the residual fix is outside this PR; the implementer reports the surfaced error to the spec author rather than chasing it in S2.                                                                                          |
+| P3  | The S5 gate's textual mode requires a `bunx ` prefix, so a future `fit-terrain VERB` invocation in a workflow `run:` block (without `bunx`) would slip past the gate. | Today no workflow invokes `fit-terrain` without `bunx`, but a future contributor following the npm-script pattern in a workflow could; if that shape appears, extend the textual regex to also match a leading `fit-terrain` token on a recipe/run-block line. The risk is named here so the implementer can monitor for it during S3 review. |
 
 ## Execution
 
@@ -221,10 +274,11 @@ green on the impl PR, then on `main` post-merge) as the merge gate and S8
 
 Inter-step dependencies:
 
-- **S1 → S5**: the gate (S5) only sees green after S1 has added verbs to the
-  `justfile` recipes; land S1–S4 (and S6) before wiring `bun run check` to call
-  the gate, or `bun run check` will fail on the same commit that introduces the
-  gate.
+- **S1, S2, S3 → S5**: the gate (S5) requires the named-surface invocations to
+  carry verbs before its `bun run context:terrain` call exits 0. In a single
+  squashed commit this is satisfied automatically; if the implementer chooses
+  multiple commits, S5's wiring must land in the same commit as (or after) the
+  S1/S2/S3 edits so `bun run check` is not red mid-PR.
 - **S5 → S7**: the gate runs as part of `bun run check` in CI; expected green on
   the impl PR.
 - **S1 ⇒ S8**: clean-checkout replay depends on the fixed `synthetic` recipe.
