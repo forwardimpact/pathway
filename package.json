@@ -30,14 +30,15 @@
     "test": "find ./tests ./libraries ./products ./services -name '*.test.js' -not -path '*/node_modules/*' | xargs bun test",
     "test:e2e": "bunx playwright test",
     "validate": "bunx fit-map validate",
-    "generate": "fit-terrain",
+    "generate": "fit-terrain build",
     "data": "bun run data:prose && bun run data:schema",
-    "data:prose": "LOG_LEVEL=error bunx fit-terrain check",
+    "data:prose": "bunx fit-terrain check",
     "data:schema": "LOG_LEVEL=error bunx fit-terrain validate && bunx fit-map validate --data products/map/starter",
-    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog",
+    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog && bun run context:terrain",
     "context:instructions": "bun scripts/check-instructions.mjs",
     "context:metadata": "bun scripts/check-metadata.mjs",
     "context:catalog": "bun scripts/check-catalog.mjs",
+    "context:terrain": "bun scripts/check-terrain-callers.mjs",
     "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-catalog.mjs --fix"
   },
   "dependencies": {

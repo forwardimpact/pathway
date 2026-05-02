@@ -118,9 +118,8 @@ git add <files> && git rebase --continue
 deleted-vs-modified) — `git rebase --abort` and comment listing conflicting
 files for the author.
 
-After rebase, run `bun run check:fix` then `bun run check`. If checks still fail
-(excluding expected validation failures from missing `data/pathway/`), mark
-**blocked** with the failures and skip to Step 9.
+After rebase, run `bun run check:fix` then `bun run check`. If checks still
+fail, mark **blocked** with the failures and skip to Step 9.
 
 ```sh
 git push --force-with-lease origin <pr-branch>

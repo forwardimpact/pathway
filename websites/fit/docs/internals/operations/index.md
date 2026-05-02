@@ -101,12 +101,10 @@ just rc-start                 # Start services (supabase/tei skipped if not inst
 ```sh
 just synthetic                # Cached prose (default, no LLM needed)
 just synthetic-update         # Generate new prose via LLM and update cache
-just synthetic-no-prose       # Structural only, no prose (minimal data)
 ```
 
 Generation uses cached prose by default from `data/synthetic/prose-cache.json`.
-Use `just synthetic-update` to call the LLM and refresh the cache. The
-`no-prose` mode produces minimal structural data without prose content.
+Use `just synthetic-update` to call the LLM and refresh the cache.
 
 ### Activity Seed (synthetic data)
 

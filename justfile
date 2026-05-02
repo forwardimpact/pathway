@@ -55,17 +55,12 @@ _quickstart-seed:
 
 # Generate synthetic data (cached prose)
 synthetic:
-    bunx fit-terrain
+    bunx fit-terrain build
     bunx fit-map generate-index
 
 # Generate synthetic data with LLM and update prose cache
 synthetic-update:
-    bunx fit-terrain --generate
-    bunx fit-map generate-index
-
-# Generate synthetic data (structural only, no prose)
-synthetic-no-prose:
-    bunx fit-terrain --no-prose
+    bunx fit-terrain generate
     bunx fit-map generate-index
 
 # Generate all (types, services, clients)
@@ -332,6 +327,10 @@ build-apps: build-binaries
 # Enforce instruction layer limits (KATA.md § Instruction length)
 check-instructions:
     node scripts/check-instructions.mjs
+
+# Enforce that every fit-terrain invocation names a verb (spec 750)
+check-terrain-callers:
+    bun scripts/check-terrain-callers.mjs
 
 # Run security audit (vulnerability + secret scanning)
 audit: audit-vulnerabilities audit-secrets
