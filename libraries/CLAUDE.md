@@ -41,6 +41,16 @@ bun run lib:fix
 
 `bun run check` refuses a stale catalog and points at the right command.
 
+## Invocation context
+
+Libraries that ship a CLI can opt into `InvocationContext` — a frozen
+`{ data, args, options }` contract that libcli produces from argv. Declare
+named positionals with `args: string[]` on the subcommand definition and a
+`handler: (ctx) => …`; call `cli.dispatch(parsed, { data })` to receive a
+context with named args instead of a raw positionals array. See the
+[CLI Development guide](websites/fit/docs/internals/libcli/index.md) for the
+full contract and dispatch pattern.
+
 ## CLIs and progressive documentation
 
 If a library ships a CLI (a `bin/` entry in `package.json`), three artifacts
