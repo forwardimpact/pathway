@@ -52,6 +52,14 @@ const definition = {
     'fit-wiki memo --from staff-engineer --to security-engineer --message "audit d642ff0c"',
     'fit-wiki memo --from technical-writer --to all --message "new XmR baseline"',
   ],
+  documentation: [
+    {
+      title: "Wiki Operations",
+      url: "https://www.forwardimpact.team/docs/libraries/wiki-operations/index.md",
+      description:
+        "Send cross-team observations, discover agents, and manage wiki markers.",
+    },
+  ],
 };
 
 const cli = createCli(definition);
