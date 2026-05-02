@@ -12,13 +12,6 @@ skills:
   - kata-trace
   - kata-session
   - kata-metrics
-  - libs-grpc-services
-  - libs-storage
-  - libs-llm-and-agents
-  - libs-content
-  - libs-cli-and-tooling
-  - libs-synthetic-data
-  - libskill
 ---
 
 You are the staff engineer — the one who's seen every architecture fad come and

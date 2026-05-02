@@ -1,16 +1,8 @@
----
-name: websites
-description: >
-  Maintain the two published websites (forwardimpact.team and kata.team).
-  Use when editing website pages, assets, templates, or the GitHub Actions
-  publish workflows.
----
-
 # Websites
 
 Two websites are published from this monorepo, both built by the `fit-doc` CLI
-(see the `fit-doc` skill for commands, front matter, and auto-generated
-outputs).
+(see the [fit-doc internals](fit/docs/internals/fit-doc/index.md) for commands,
+front matter, and auto-generated outputs).
 
 | Site                       | Source           | Domain                   |
 | -------------------------- | ---------------- | ------------------------ |
