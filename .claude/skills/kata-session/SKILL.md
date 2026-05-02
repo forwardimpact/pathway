@@ -66,15 +66,10 @@ Participant Protocol below.
       and obstacles managed as labeled GitHub issues per
       [`issue-lifecycle.md`](references/issue-lifecycle.md).
 - [ ] For 1-on-1: agent's findings written to its own memory.
-- [ ] Weekly log updated: append a `## YYYY-MM-DD` heading to the current week's
-      log file recording meeting type, key metrics reviewed, obstacle addressed,
-      and experiment committed. (Memory section lists full detail.)
+- [ ] Weekly log updated under `## YYYY-MM-DD`: meeting type, metrics
+      reviewed, obstacle addressed, experiment committed, and Step 7 routing
+      per Q3 obstacle (Discussion URL or coaching `agent=`, plus trigger).
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
-- [ ] Step 7 routing recorded for each Q3 obstacle: coaching dispatch (with
-      `agent=`) or Discussion URL, plus a one-line reason citing the trigger
-      that fired ((a) cross-policy/shared-artifact or ≥2 agents, or (b)
-      participant-scoped). Recorded in the weekly log alongside the meeting
-      summary.
 - [ ] In facilitated mode: `Conclude` called with session summary.
 
 </do_confirm_checklist>
@@ -142,42 +137,16 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    files directly.
 6. **Update artifacts.** Write back whatever the overlay prescribes — for team
    mode, the storyboard file; for 1-on-1, the participant's memory.
-7. **Route Q3 obstacles (team meetings only).** For each obstacle surfaced in
-   Q3, choose one of two routes — record the choice and reason in the weekly
-   log. The two routes are not mutually exclusive: a Discussion may be paired
-   with coaching for an agent stuck on the same obstacle while the Discussion
-   runs.
-
-   **(a) Open a Discussion** when the obstacle is definitional or cross-policy
-   — would change a shared artifact (metric shape, routing rule, skill
-   boundary, agent-team policy) — **or** the same question surfaced in ≥2
-   agents' Q3 answers. These are RFCs per
-   [coordination-protocol.md](../../agents/references/coordination-protocol.md);
-   they cannot resolve in a single 1-on-1.
-
-   ```sh
-   gh discussion create --category <category> \
-     --title "RFC: <question>" \
-     --body "<context + linked Q3 obstacle issues>"
-   ```
-
-   **(b) Dispatch 1-on-1 coaching** when the obstacle is participant-scoped —
-   persistent obstacle the agent owns, unanalyzed traces, stalled experiments.
-   One agent's improvement loop, no shared-artifact change required.
-
-   ```sh
-   gh workflow run kata-coaching.yml -f agent=<name>
-   ```
-
-   Skip this step in 1-on-1 sessions.
-
-   **Worked example — run 25247279159 storyboard, Q3.** SE flagged
-   `prs_actioned`, RE flagged `releases_cut`, TW flagged `errors_found`, PM
-   flagged `issues_created`. All four hit trigger (a) — same artifact (the
-   canonical-11 metric set), changes a shared definition. Correct routing: one
-   Discussion ("RFC: canonical-11 metric redefinitions surfaced in W18-day6
-   storyboard") linking the four obstacle issues, not four parallel coaching
-   dispatches.
+7. **Route Q3 obstacles (team meetings only; skip for 1-on-1).** For each
+   obstacle pick one route (they can run in parallel) and log the choice.
+   Triggers and worked example:
+   [`team-storyboard.md`](references/team-storyboard.md#q3-obstacle-routing).
+   - **Discussion** — shared-artifact change (metric, rule, boundary, policy)
+     or same question in ≥2 agents' Q3 answers. RFC per
+     [coordination-protocol.md](../../agents/references/coordination-protocol.md):
+     `gh discussion create --category <category> --title "RFC: <q>"`.
+   - **Coaching** — participant-scoped blocker / unanalyzed trace / stalled
+     experiment: `gh workflow run kata-coaching.yml -f agent=<name>`.
 8. **Commit.** Commit artifact changes as part of the wiki push.
 9. **Conclude (facilitated mode only).** Call `Conclude` with a session summary
    covering: meeting type, key metrics reviewed, obstacles addressed,

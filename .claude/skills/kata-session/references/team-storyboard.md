@@ -104,6 +104,21 @@ The closed issue is the permanent record. Full issue lifecycle — creation,
 commenting, closing, and one-time migration — is in
 [`issue-lifecycle.md`](issue-lifecycle.md).
 
+## Q3 obstacle routing
+
+Per SKILL.md Step 7, pick a route per obstacle (parallel allowed):
+
+| Trigger                                                                          | Route      |
+| -------------------------------------------------------------------------------- | ---------- |
+| Obstacle would change a shared artifact (metric, routing rule, boundary, policy) | Discussion |
+| Same question surfaced in ≥2 agents' Q3 answers                                  | Discussion |
+| Persistent obstacle the agent owns; unanalyzed trace; stalled experiment         | Coaching   |
+
+**Worked example — run 25247279159, 2026-05-02.** SE/RE/TW/PM each flagged a
+canonical-11 metric (`prs_actioned`, `releases_cut`, `errors_found`,
+`issues_created`). All four mapped to one shared artifact — right route: one
+Discussion, not four parallel coaching dispatches.
+
 ## Participant briefing template
 
 > "You are joining a team storyboard meeting. I will Ask you five questions;
