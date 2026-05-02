@@ -31,16 +31,16 @@ human-facing output that agents produce.
 
 <!-- BEGIN:capability:agent-capability -->
 
-| Library         | Capability                                                                                                                                               |
-| --------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| **libcli**      | Agent-friendly CLIs: argument parsing, handler dispatch via `InvocationContext`, grep-friendly help, JSON mode, and skill-doc links in `--help`.         |
-| **libdoc**      | Static documentation sites from markdown folders with front matter and navigation.                                                                       |
-| **libformat**   | Render markdown to ANSI for agent-friendly terminal output or HTML for browsers.                                                                         |
-| **libprompt**   | Agent-authored prompt templates loaded from `.prompt.md` files with Mustache substitution.                                                               |
-| **librepl**     | Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in `--help`.                                                          |
-| **libskill**    | Derive jobs, skill matrices, and agent profiles from engineering-standard data shared by humans and agents.                                              |
-| **libtemplate** | Mustache template loader with project-level override directories for agent-rendered content.                                                             |
-| **libui**       | Agent-friendly web surfaces — SPA routing, reactive state, and route-to-CLI bindings that share handler logic with `libcli` through `InvocationContext`. |
+| Library         | Capability                                                                                                                             |
+| --------------- | -------------------------------------------------------------------------------------------------------------------------------------- |
+| **libcli**      | Agent-friendly CLIs: argument parsing, handler dispatch, grep-friendly help, JSON mode, and skill-doc links in `--help`.               |
+| **libdoc**      | Static documentation sites from markdown folders with front matter and navigation.                                                     |
+| **libformat**   | Render markdown to ANSI for agent-friendly terminal output or HTML for browsers.                                                       |
+| **libprompt**   | Agent-authored prompt templates loaded from `.prompt.md` files with Mustache substitution.                                             |
+| **librepl**     | Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in `--help`.                                        |
+| **libskill**    | Derive jobs, skill matrices, and agent profiles from engineering-standard data shared by humans and agents.                            |
+| **libtemplate** | Mustache template loader with project-level override directories for agent-rendered content.                                           |
+| **libui**       | Agent-friendly web surfaces — SPA routing, reactive state, and route-to-CLI bindings that share handler logic across web and terminal. |
 
 <!-- END:capability:agent-capability -->
 
