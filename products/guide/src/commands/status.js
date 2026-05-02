@@ -2,8 +2,11 @@ import { SummaryRenderer } from "@forwardimpact/libcli";
 import { runStatus } from "../lib/status.js";
 
 function printStatusSummary(summary, result) {
+  const ok = result.verdict === "ready";
+
   summary.render({
     title: "Services",
+    ok,
     items: Object.entries(result.services).map(([name, info]) => ({
       label: name,
       description: `${info.status === "ok" ? "ok" : "unreachable"}  ${info.url}`,
@@ -14,6 +17,7 @@ function printStatusSummary(summary, result) {
 
   summary.render({
     title: "Data",
+    ok,
     items: [
       { label: "resources", description: String(result.data.resources) },
       { label: "triples", description: String(result.data.triples) },
@@ -24,6 +28,7 @@ function printStatusSummary(summary, result) {
 
   summary.render({
     title: "Credentials",
+    ok,
     items: [
       {
         label: "ANTHROPIC_API_KEY",

@@ -193,6 +193,7 @@ async function runValidate(dataDir) {
 
   summary.render({
     title: formatHeader("Data Summary"),
+    ok: result.valid,
     items: [
       { label: "Skills", description: String(data.skills?.length || 0) },
       {
@@ -252,6 +253,7 @@ async function runExport(dataDir, outputDir) {
   process.stdout.write(formatSuccess("Export complete") + "\n\n");
   summary.render({
     title: formatSubheader("By type"),
+    ok: result.errors.length === 0,
     items: [
       ...Object.entries(counts)
         .sort()

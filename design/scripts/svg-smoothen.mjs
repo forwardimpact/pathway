@@ -7,7 +7,7 @@
 // then cuts it off by connecting those two points directly.
 //
 // Usage:
-//   node scripts/svg-smoothen.mjs [--level 1-5] <file ...>
+//   node design/scripts/svg-smoothen.mjs [--level 1-5] <file ...>
 //
 // Levels:
 //   1  minimal    — tiny chips only (max 1.5px height)

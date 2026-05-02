@@ -20,7 +20,7 @@
 //     chan'   = round(255 - (255 - chan) / a)    // composite-on-white = chan
 //
 // Usage:
-//   node scripts/png-transparent.mjs [--preserve 0-255] [--threshold 0-255]
+//   node design/scripts/png-transparent.mjs [--preserve 0-255] [--threshold 0-255]
 //                                    <file ...>
 //
 // --preserve  darkest grey to leave fully opaque (default 200).  Anything

@@ -22,7 +22,7 @@
 // expanded so the icon stays centred in a square viewBox.
 //
 // Usage:
-//   node scripts/svg-crop.mjs [--fill-cutoff N] [--padding N] <file ...>
+//   node design/scripts/svg-crop.mjs [--fill-cutoff N] [--padding N] <file ...>
 //
 // --fill-cutoff  paths whose fill min(R,G,B) exceeds this value are
 //                excluded from the bbox (default 200, excludes

@@ -2,12 +2,12 @@
 // Render or check the library catalog tables in libraries/README.md.
 // Source of truth: each libraries/<lib>/package.json.
 //
-// Usage: library-catalog.mjs [capabilities|needs] [--fix]
+// Usage: check-catalog.mjs [capabilities|needs] [--fix]
 //
-//   library-catalog.mjs                            # check both tables
-//   library-catalog.mjs capabilities               # check one table
-//   library-catalog.mjs --fix                      # regenerate both
-//   library-catalog.mjs capabilities --fix         # regenerate one
+//   check-catalog.mjs                            # check both tables
+//   check-catalog.mjs capabilities               # check one table
+//   check-catalog.mjs --fix                      # regenerate both
+//   check-catalog.mjs capabilities --fix         # regenerate one
 
 import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { resolve, join } from "node:path";
@@ -132,7 +132,7 @@ const fix = args.includes("--fix");
 const positional = args.filter((a) => !a.startsWith("--"));
 
 if (positional.length > 1) {
-  console.error(`usage: library-catalog.mjs [capabilities|needs] [--fix]`);
+  console.error(`usage: check-catalog.mjs [capabilities|needs] [--fix]`);
   process.exit(2);
 }
 

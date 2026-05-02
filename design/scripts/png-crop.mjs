@@ -18,7 +18,7 @@
 // padded with transparency so the icon stays centred.
 //
 // Usage:
-//   node scripts/png-crop.mjs [--alpha-threshold N] [--min-pixels N]
+//   node design/scripts/png-crop.mjs [--alpha-threshold N] [--min-pixels N]
 //                             [--padding N] <file ...>
 //
 // --alpha-threshold  alpha value (0-254) at or below which a pixel is

@@ -8,7 +8,7 @@
 // highest zlib level.
 //
 // Usage:
-//   node scripts/png-strip.mjs <file ...>
+//   node design/scripts/png-strip.mjs <file ...>
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";

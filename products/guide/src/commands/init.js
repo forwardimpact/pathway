@@ -53,6 +53,7 @@ export async function runInitCommand() {
   const summary = new SummaryRenderer({ process });
   summary.render({
     title: formatHeader("Environment (.env)"),
+    ok: true,
     items: [
       { label: "SERVICE_SECRET", description: "generated" },
       { label: "MCP_TOKEN", description: "generated" },

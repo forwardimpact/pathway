@@ -1,9 +1,19 @@
 /**
+ * Numeric severity per syslog ordering. `info` is the default when LOG_LEVEL
+ * is unset, preserving the historical behavior where info() and error() both
+ * print and debug() is gated by the DEBUG env var. `trace` is accepted as an
+ * alias for `debug` so consumers used to other ecosystems don't trip.
+ */
+const LEVELS = { error: 0, warn: 1, info: 2, debug: 3, trace: 3 };
+const DEFAULT_LEVEL = "info";
+
+/**
  * Logger class for RFC 5424 compliant logging
  */
 export class Logger {
   #domain;
   #enabled;
+  #level;
   #process;
   #msgId = 0;
 
@@ -18,6 +28,7 @@ export class Logger {
     }
     this.#domain = domain;
     this.#process = process;
+    this.#level = this.#resolveLevel();
     this.#enabled = this.#isEnabled();
   }
 
@@ -63,13 +74,14 @@ export class Logger {
   }
 
   /**
-   * Logs a debug message if logging is enabled for this domain
+   * Logs a debug message when LOG_LEVEL is debug/trace, or when this logger's
+   * domain matches DEBUG.
    * @param {string} [appId] - Application identifier or method name
    * @param {string} [message] - The log message
    * @param {object} [attributes] - Optional key-value pairs to append to the message
    */
   debug(appId, message, attributes = {}) {
-    if (!this.#enabled) {
+    if (this.#level < LEVELS.debug && !this.#enabled) {
       return;
     }
 
@@ -77,17 +89,21 @@ export class Logger {
   }
 
   /**
-   * Logs an info message (always outputs regardless of DEBUG setting)
+   * Logs an info message unless LOG_LEVEL is set below info (warn or error).
    * @param {string} [appId] - Application identifier or method name
    * @param {string} [message] - The log message
    * @param {object} [attributes] - Optional key-value pairs to append to the message
    */
   info(appId, message, attributes = {}) {
+    if (this.#level < LEVELS.info) {
+      return;
+    }
+
     console.error(this.#formatLine("INFO", appId, message, attributes));
   }
 
   /**
-   * Logs an error message (always outputs regardless of DEBUG setting)
+   * Logs an error message (always outputs regardless of LOG_LEVEL).
    * @param {string} [appId] - Application identifier or method name
    * @param {string|Error} [message] - Error message or Error object
    * @param {object} [attributes] - Optional key-value pairs to append to the message
@@ -119,8 +135,9 @@ export class Logger {
   exception(appId, error, attributes = {}) {
     let message = error?.message || String(error);
 
-    // Append stack trace if available and logging is enabled
-    if (this.#enabled && error?.stack) {
+    // Append stack trace if available and debug output is on (either DEBUG
+    // domain match or LOG_LEVEL=debug/trace).
+    if ((this.#enabled || this.#level >= LEVELS.debug) && error?.stack) {
       message += "\n" + error.stack;
     }
 
@@ -171,6 +188,17 @@ export class Logger {
 
     // RFC 5424: level timestamp domain appId procId msgId data message
     return `${level} ${this.timestamp} ${this.domain} ${appId} ${this.procId} ${this.msgId} ${data} ${message}`;
+  }
+
+  /**
+   * Resolves the numeric LOG_LEVEL threshold from the environment, falling
+   * back to the default when unset or unrecognized.
+   * @returns {number} Numeric level
+   * @private
+   */
+  #resolveLevel() {
+    const raw = (this.#process.env.LOG_LEVEL || "").toLowerCase().trim();
+    return LEVELS[raw] ?? LEVELS[DEFAULT_LEVEL];
   }
 
   /**

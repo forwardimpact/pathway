@@ -13,10 +13,9 @@ import { format } from "prettier";
 import {
   createCli,
   formatHeader,
-  formatSubheader,
-  formatSuccess,
   formatError,
   formatBullet,
+  SummaryRenderer,
 } from "@forwardimpact/libcli";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
@@ -65,6 +64,10 @@ const definition = {
       type: "boolean",
       description: "Fail on cache miss (use with default cached mode)",
     },
+    check: {
+      type: "boolean",
+      description: "Verify 100% prose cache hit and skip validation (implies --strict --dry-run)",
+    },
     "dry-run": {
       type: "boolean",
       description: "Show what would be written without writing",
@@ -87,6 +90,7 @@ const definition = {
     "bunx fit-terrain",
     "bunx fit-terrain --generate",
     "bunx fit-terrain --strict",
+    "bunx fit-terrain --check",
     "bunx fit-terrain --no-prose",
     "bunx fit-terrain --only=pathway",
   ],
@@ -143,6 +147,7 @@ async function resolveLlmApi(config) {
  * Write filesystem output files from the pipeline result.
  * @param {Map<string,string>} files
  * @param {string} monorepoRoot
+ * @returns {Promise<number>} Number of files written.
  */
 async function writeOutputFiles(files, monorepoRoot) {
   const generatedDirs = new Set();
@@ -161,7 +166,7 @@ async function writeOutputFiles(files, monorepoRoot) {
     await mkdir(dirname(fullPath), { recursive: true });
     await writeFile(fullPath, content);
   }
-  process.stdout.write(formatSuccess(`${files.size} files written`) + "\n");
+  return files.size;
 }
 
 /**
@@ -169,14 +174,19 @@ async function writeOutputFiles(files, monorepoRoot) {
  * @param {object} result
  * @param {object} args
  * @param {string} monorepoRoot
+ * @returns {Promise<{ rawWritten: number, rawLoaded: number, loadErrors: number }>}
  */
 async function handleRawDocuments(result, args, monorepoRoot) {
-  if (result.rawDocuments.size === 0) return;
+  const stats = { rawWritten: 0, rawLoaded: 0, loadErrors: 0 };
+  if (result.rawDocuments.size === 0) return stats;
 
   if (args.load) {
-    await loadRawToSupabase(result.rawDocuments);
+    const loadResult = await loadRawToSupabase(result.rawDocuments);
+    stats.rawLoaded = loadResult.loaded;
+    stats.loadErrors = loadResult.errors.length;
   } else if (!args.dryRun) {
     await writeRawLocally(result.rawDocuments, monorepoRoot);
+    stats.rawWritten = result.rawDocuments.size;
   }
 
   const evidence = result.entities.activity?.evidence;
@@ -189,6 +199,8 @@ async function handleRawDocuments(result, args, monorepoRoot) {
     );
     await writeFile(evidencePath, formatted);
   }
+
+  return stats;
 }
 
 /**
@@ -220,11 +232,6 @@ async function loadRawToSupabase(rawDocuments) {
   const { loadToSupabase } = await import("../load.js");
   const supabase = createClient(url, key);
   const loadResult = await loadToSupabase(supabase, rawDocuments);
-  process.stdout.write(
-    formatSuccess(
-      `${loadResult.loaded} raw documents loaded to Supabase Storage`,
-    ) + "\n",
-  );
   if (loadResult.errors.length > 0) {
     process.stderr.write(
       formatError(`${loadResult.errors.length} errors:`) + "\n",
@@ -233,6 +240,7 @@ async function loadRawToSupabase(rawDocuments) {
       process.stderr.write(formatBullet(err, 1) + "\n");
     }
   }
+  return loadResult;
 }
 
 /**
@@ -246,63 +254,24 @@ async function writeRawLocally(rawDocuments, monorepoRoot) {
     await mkdir(dirname(fullPath), { recursive: true });
     await writeFile(fullPath, content);
   }
-  process.stdout.write(
-    formatSuccess(
-      `${rawDocuments.size} raw documents written to data/activity/raw/`,
-    ) + "\n",
-  );
 }
 
 /**
- * Print dry-run summary.
+ * Print the validation block via the summary renderer. Exits 1 on failure.
  * @param {object} result
- * @param {boolean} load
+ * @param {SummaryRenderer} summary
  */
-function printDryRun(result, load) {
-  process.stdout.write("\n" + formatHeader("Filesystem files") + "\n");
-  for (const [path] of result.files) {
-    process.stdout.write(formatBullet(path, 0) + "\n");
-  }
-  process.stdout.write(
-    "\n" +
-      formatHeader(`Raw documents (${load ? "Supabase Storage" : "local"})`) +
-      "\n",
-  );
-  for (const [path] of result.rawDocuments) {
-    process.stdout.write(formatBullet(`raw/${path}`, 0) + "\n");
-  }
-  process.stdout.write(
-    "\n" +
-      formatSubheader(
-        `${result.files.size + result.rawDocuments.size} total (dry run)`,
-      ) +
-      "\n",
-  );
-}
-
-/**
- * Print validation and prose stats.
- * @param {object} result
- */
-function printReport(result) {
-  process.stdout.write("\n" + formatHeader("Validation") + "\n");
-  for (const check of result.validation.checks) {
-    const icon = check.passed ? "\u2713" : "\u2717";
-    process.stdout.write(formatBullet(`${icon} ${check.name}`, 0) + "\n");
-  }
-
-  const { hits, generated, misses } = result.stats.prose;
-  const proseTotal = hits + generated + misses;
-  if (proseTotal > 0) {
-    const rate = Math.round((hits / proseTotal) * 100);
-    process.stdout.write(
-      "\n" +
-        formatSubheader(
-          `Prose: ${hits} hits, ${generated} generated, ${misses} misses (${rate}% hit rate)`,
-        ) +
-        "\n",
-    );
-  }
+function printValidation(result, summary) {
+  const items = result.validation.checks.map((check) => ({
+    label: check.name,
+    description: check.passed ? "\u2713" : `\u2717 ${check.message ?? "failed"}`,
+  }));
+  process.stdout.write("\n");
+  summary.render({
+    title: formatHeader("Validation"),
+    items,
+    ok: result.validation.passed,
+  });
 
   if (!result.validation.passed) {
     process.stderr.write(
@@ -312,6 +281,49 @@ function printReport(result) {
     );
     process.exit(1);
   }
+}
+
+/**
+ * Print the consolidated summary of write/prose stats.
+ * @param {object} result
+ * @param {SummaryRenderer} summary
+ * @param {{ filesWritten: number, rawWritten: number, rawLoaded: number }} writeStats
+ * @param {boolean} ok - Overall command success (gates summary at LOG_LEVEL=error)
+ */
+function printSummary(result, summary, writeStats, ok) {
+  const items = [];
+  if (writeStats.filesWritten > 0) {
+    items.push({
+      label: "Files",
+      description: `${writeStats.filesWritten} written`,
+    });
+  }
+  if (writeStats.rawWritten > 0) {
+    items.push({
+      label: "Raw documents",
+      description: `${writeStats.rawWritten} written to data/activity/raw/`,
+    });
+  }
+  if (writeStats.rawLoaded > 0) {
+    items.push({
+      label: "Raw documents",
+      description: `${writeStats.rawLoaded} loaded to Supabase Storage`,
+    });
+  }
+
+  const { hits, generated, misses } = result.stats.prose;
+  const proseTotal = hits + generated + misses;
+  if (proseTotal > 0) {
+    const rate = Math.round((hits / proseTotal) * 100);
+    items.push({
+      label: "Prose",
+      description: `${hits} hits, ${generated} generated, ${misses} misses (${rate}% hit rate)`,
+    });
+  }
+
+  if (items.length === 0) return;
+  process.stdout.write("\n");
+  summary.render({ title: formatHeader("Summary"), items, ok });
 }
 
 /**
@@ -394,6 +406,11 @@ async function main() {
 
   const { values } = parsed;
 
+  if (values.check) {
+    values.strict = true;
+    values["dry-run"] = true;
+  }
+
   const config = await createScriptConfig("terrain", {
     LLM_MODEL: "claude-opus-4-7",
   });
@@ -439,21 +456,28 @@ async function main() {
     schemaDir,
   });
 
+  const writeStats = { filesWritten: 0, rawWritten: 0, rawLoaded: 0 };
   if (!values["dry-run"]) {
-    await writeOutputFiles(result.files, monorepoRoot);
+    writeStats.filesWritten = await writeOutputFiles(
+      result.files,
+      monorepoRoot,
+    );
   }
 
-  await handleRawDocuments(
+  const rawStats = await handleRawDocuments(
     result,
     { load: values.load, dryRun: values["dry-run"] },
     monorepoRoot,
   );
+  writeStats.rawWritten = rawStats.rawWritten;
+  writeStats.rawLoaded = rawStats.rawLoaded;
 
-  if (values["dry-run"]) {
-    printDryRun(result, values.load);
+  const summary = new SummaryRenderer({ process });
+  const ok = result.validation.passed && result.stats.prose.misses === 0;
+  if (!values.check) {
+    printValidation(result, summary);
   }
-
-  printReport(result);
+  printSummary(result, summary, writeStats, ok);
 }
 
 const logger = createLogger("terrain");

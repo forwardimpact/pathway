@@ -52,6 +52,7 @@ export function showAgentSummary(data, agentData, skillsWithAgent) {
   process.stdout.write("\n" + formatHeader("\u{1F916} Agent") + "\n\n");
   summary.render({
     title: formatSubheader("Coverage"),
+    ok: true,
     items: [
       {
         label: "Disciplines",

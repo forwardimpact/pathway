@@ -8,7 +8,7 @@
 // based on bounding-box area, leaving legitimate features intact.
 //
 // Usage:
-//   node scripts/svg-artifacts.mjs [--level 1-5] <file ...>
+//   node design/scripts/svg-artifacts.mjs [--level 1-5] <file ...>
 //
 // Levels:
 //   1  minimal    — sub-pixel artifacts only (< 18px²)

@@ -1,4 +1,4 @@
-name: Quality
+name: Context
 
 on:
   push:
@@ -10,23 +10,23 @@ permissions:
   contents: read
 
 jobs:
-  format:
+  instructions:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/actions/bootstrap
-      - run: bun run format
+      - run: bun run context:instructions
 
-  lint:
+  metadata:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/actions/bootstrap
-      - run: bun run lint
+      - run: bun run context:metadata
 
-  harness:
+  catalog:
     runs-on: ubuntu-latest
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/actions/bootstrap
-      - run: bun run harness
+      - run: bun run context:catalog

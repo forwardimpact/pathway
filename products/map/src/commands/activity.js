@@ -69,17 +69,22 @@ const TRANSFORM_TARGETS = {
 
 async function transformAllTargets(supabase) {
   const r = await transformAll(supabase);
-  report("people", {
-    imported: r.people.imported,
-    errors: r.people.errors.length,
-  });
-  report("getdx", summarizeCounts(r.getdx));
-  report("github", summarizeCounts(r.github));
-  report("evidence", {
-    inserted: r.evidence.inserted,
-    skipped: r.evidence.skipped,
-    errors: r.evidence.errors.length,
-  });
+  report(
+    "people",
+    { imported: r.people.imported, errors: r.people.errors.length },
+    r.people.errors.length === 0,
+  );
+  report("getdx", summarizeCounts(r.getdx), r.getdx.errors.length === 0);
+  report("github", summarizeCounts(r.github), r.github.errors.length === 0);
+  report(
+    "evidence",
+    {
+      inserted: r.evidence.inserted,
+      skipped: r.evidence.skipped,
+      errors: r.evidence.errors.length,
+    },
+    r.evidence.errors.length === 0,
+  );
   const totalErrors =
     r.people.errors.length +
     r.getdx.errors.length +
@@ -100,7 +105,7 @@ export async function transform(target, supabase) {
     return 1;
   }
   const r = await cfg.fn(supabase);
-  report(target, cfg.summarize(r));
+  report(target, cfg.summarize(r), r.errors.length === 0);
   return r.errors.length === 0 ? 0 : 1;
 }
 
@@ -127,8 +132,12 @@ export async function verify(supabase) {
     .select("*", { count: "exact", head: true });
   if (comErr) throw new Error(`getdx_snapshot_comments: ${comErr.message}`);
 
+  const hasPeople = people.length > 0;
+  const hasDerived = (snapshotCount ?? 0) > 0 || (eventCount ?? 0) > 0;
+
   summary.render({
     title: formatHeader("Activity tables"),
+    ok: hasPeople && hasDerived,
     items: [
       { label: "organization_people", description: `${people.length} rows` },
       { label: "getdx_snapshots", description: `${snapshotCount ?? 0} rows` },
@@ -140,9 +149,6 @@ export async function verify(supabase) {
       },
     ],
   });
-
-  const hasPeople = people.length > 0;
-  const hasDerived = (snapshotCount ?? 0) > 0 || (eventCount ?? 0) > 0;
 
   if (!hasPeople) {
     process.stderr.write("\n");
@@ -197,31 +203,45 @@ export async function seed({ data, supabase }) {
     );
     return 1;
   }
-  report("Upload roster", { stored: 1 });
+  report("Upload roster", { stored: 1 }, true);
 
   // 2. Upload raw documents (github/, getdx/ prefixes)
   const uploaded = await uploadRawDir(supabase, rawDir);
-  report("Upload raw", {
-    stored: uploaded.count,
-    errors: uploaded.errors.length,
-  });
+  report(
+    "Upload raw",
+    { stored: uploaded.count, errors: uploaded.errors.length },
+    uploaded.errors.length === 0,
+  );
   for (const err of uploaded.errors) {
     process.stderr.write(formatBullet(err, 1) + "\n");
   }
 
   // 3. Run all transforms
   const result = await transformAll(supabase);
-  report("Transform people", {
-    imported: result.people.imported,
-    errors: result.people.errors.length,
-  });
-  report("Transform getdx", summarizeCounts(result.getdx));
-  report("Transform github", summarizeCounts(result.github));
-  report("Transform evidence", {
-    inserted: result.evidence.inserted,
-    skipped: result.evidence.skipped,
-    errors: result.evidence.errors.length,
-  });
+  report(
+    "Transform people",
+    { imported: result.people.imported, errors: result.people.errors.length },
+    result.people.errors.length === 0,
+  );
+  report(
+    "Transform getdx",
+    summarizeCounts(result.getdx),
+    result.getdx.errors.length === 0,
+  );
+  report(
+    "Transform github",
+    summarizeCounts(result.github),
+    result.github.errors.length === 0,
+  );
+  report(
+    "Transform evidence",
+    {
+      inserted: result.evidence.inserted,
+      skipped: result.evidence.skipped,
+      errors: result.evidence.errors.length,
+    },
+    result.evidence.errors.length === 0,
+  );
 
   // 4. Verify
   return verify(supabase);
@@ -293,10 +313,12 @@ function summarizeCounts(counts) {
  * Render a labeled transform report using the SummaryRenderer.
  * @param {string} target
  * @param {object} counts
+ * @param {boolean} ok
  */
-function report(target, counts) {
+function report(target, counts, ok) {
   summary.render({
     title: formatSubheader(target),
+    ok,
     items: Object.entries(counts).map(([label, value]) => ({
       label,
       description: String(value),

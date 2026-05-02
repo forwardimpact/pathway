@@ -16,7 +16,7 @@
 // untouched — they are intentional design.
 //
 // Usage:
-//   node scripts/svg-transparent.mjs [--threshold 0-255] <file ...>
+//   node design/scripts/svg-transparent.mjs [--threshold 0-255] <file ...>
 //
 // --threshold near-white tolerance treated as transparent (default 16,
 //             clears #fafafa, #f7f7f7, #f3f3f3 backgrounds; keeps the

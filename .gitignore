@@ -79,7 +79,7 @@ package-lock.json
 **/.temp/
 
 # Utility scripts
-scripts/bun.lock
+design/scripts/bun.lock
 
 # Other stuff
 **/.DS_Store

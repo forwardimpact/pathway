@@ -238,6 +238,7 @@ function printSummary(sourcePath, flags) {
   summary.render(
     {
       title: `Generated ${totalFiles} files in ./${relPath}/`,
+      ok: true,
       items,
     },
     process.stdout,

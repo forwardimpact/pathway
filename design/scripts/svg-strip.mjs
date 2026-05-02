@@ -10,7 +10,7 @@
 // attribute so the colour itself stays a clean #gg hex.
 //
 // Usage:
-//   node scripts/svg-strip.mjs <file ...>
+//   node design/scripts/svg-strip.mjs <file ...>
 
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";

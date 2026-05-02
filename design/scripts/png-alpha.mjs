@@ -9,7 +9,7 @@
 // up in the compressed stream.
 //
 // Usage:
-//   node scripts/png-alpha.mjs [--threshold 0-255] <file ...>
+//   node design/scripts/png-alpha.mjs [--threshold 0-255] <file ...>
 //
 // --threshold  alpha at or below this value becomes 0 (default 160).
 
