@@ -9,14 +9,14 @@ carve-out.
 
 ## Components
 
-| #   | Component                        | Where                                                            | Role                                                                                                                                                                                                |
-| --- | -------------------------------- | ---------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| 1   | `justfile` synthetic recipes     | `justfile` lines 57–69                                           | Three recipes call `fit-terrain` with the removed flag surface. Each maps to one post-refactor verb invocation.                                                                                     |
-| 2   | `package.json` script callers    | `scripts.generate`, `scripts.data:prose`                         | Two scripts call `fit-terrain` with no verb (`generate`) or with a `LOG_LEVEL=error` prefix that hides CI diagnostics (`data:prose`).                                                               |
-| 3   | Workflow `fit-terrain` callers   | `.github/workflows/check-test.yml` (`test`); `interview-*-setup` | Five workflow steps invoke `bunx fit-terrain` with no verb. Each maps to one post-refactor verb. The `e2e` job's `data/pathway/` cache miss path runs `just synthetic`, fixed via component 1.      |
-| 4   | `WriteSink` materialization site | `libraries/libterrain/src/sinks.js` (already implemented)        | Sole writer of `data/pathway/**`. Invoked by `build` and `generate` verbs via `selectOutputSink`. The contract is unchanged; the design names this as the canonical site referenced from elsewhere. |
-| 5   | `kata-release-merge` carve-out   | `.claude/skills/kata-release-merge/SKILL.md` Step 5              | The "expected validation failures from missing `data/pathway/`" carve-out is removed. Components 1–3 close the underlying transient gap, so the carve-out becomes dead cover for real regressions.  |
-| 6   | Contributor onboarding sequence  | `websites/fit/docs/getting-started/contributors/index.md`        | Names a single sequence (`bun install && just quickstart && bun start`) that lands a clean checkout at a working dev server with `data/pathway/` materialized.                                      |
+| #   | Component                        | Where                                                                                | Role                                                                                                                                                                                                |
+| --- | -------------------------------- | ------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| 1   | `justfile` synthetic recipes     | `justfile` lines 57–69                                                               | Three recipes call `fit-terrain` with the removed flag surface. Each maps to one post-refactor verb invocation.                                                                                     |
+| 2   | `package.json` script callers    | `scripts.generate`, `scripts.data:prose`                                             | Two scripts call `fit-terrain` with no verb (`generate`) or with a `LOG_LEVEL=error` prefix that hides CI diagnostics (`data:prose`).                                                               |
+| 3   | Workflow `fit-terrain` callers   | `.github/workflows/check-test.yml` (`test`); `interview-{landmark,map,summit}-setup` | Four workflow steps invoke `bunx fit-terrain` with no verb. Each maps to one post-refactor verb. The `e2e` job's `data/pathway/` cache-miss path runs `just synthetic`, fixed via component 1.      |
+| 4   | `WriteSink` materialization site | `libraries/libterrain/src/sinks.js` (already implemented)                            | Sole writer of `data/pathway/**`. Invoked by `build` and `generate` verbs via `selectOutputSink`. The contract is unchanged; the design names this as the canonical site referenced from elsewhere. |
+| 5   | `kata-release-merge` carve-out   | `.claude/skills/kata-release-merge/SKILL.md` Step 5                                  | The "expected validation failures from missing `data/pathway/`" carve-out is removed. Components 1–3 close the underlying transient gap, so the carve-out becomes dead cover for real regressions.  |
+| 6   | Contributor onboarding sequence  | `websites/fit/docs/getting-started/contributors/index.md`                            | Names a single sequence (`bun install && just quickstart && bun start`) that lands a clean checkout at a working dev server with `data/pathway/` materialized.                                      |
 
 ## Verb mapping (spec criterion 3)
 
@@ -24,16 +24,16 @@ The post-refactor verb surface (from `bin/fit-terrain.js`):
 `check | validate | build | generate | inspect <stage>`. `build` and `generate`
 are the only verbs that materialize files via `WriteSink`.
 
-| Caller                                         | Today                                          | Post-design                                          | Reason                                                                                                                                               |
-| ---------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `just synthetic`                               | `bunx fit-terrain`                             | `bunx fit-terrain build`                             | Production path: render with cached prose, write `data/pathway/**` and siblings. No LLM calls.                                                       |
-| `just synthetic-update`                        | `bunx fit-terrain --generate`                  | `bunx fit-terrain generate`                          | Refill the prose cache via LLM, then build. Verb already carries the persist-cache semantics (`bin/fit-terrain.js` line 182).                        |
-| `just synthetic-no-prose`                      | `bunx fit-terrain --no-prose`                  | `bunx fit-terrain build --only=pathway`              | Structural-only YAML; skip prose-rendering output types (`html`, `raw`, `markdown`). Closest preserved semantics; planner may collapse if redundant. |
-| `package.json scripts.generate`                | `fit-terrain`                                  | `fit-terrain generate`                               | The script name's intent is "generate prose"; `generate` is the LLM-backed verb.                                                                     |
-| `package.json scripts.data:prose`              | `LOG_LEVEL=error bunx fit-terrain check`       | `bunx fit-terrain check`                             | Drop the log-threshold prefix (criterion 4). Verb is already correct; only the env prefix masks the diagnostic.                                      |
-| `check-test.yml` `test` job step               | `bunx fit-terrain`                             | `bunx fit-terrain build`                             | The follow-up `bun run validate -- --shacl` reads `data/pathway/`. Materialization required.                                                         |
-| `check-test.yml` `e2e` job (cache-miss branch) | `just synthetic`                               | (no change — fixed via component 1)                  | Once `just synthetic` works, the cache-miss branch self-heals.                                                                                       |
-| `interview-{guide,landmark,map,summit}-setup`  | `bunx fit-terrain` then `cp -r data/pathway …` | `bunx fit-terrain build` then `cp -r data/pathway …` | Each workflow needs `data/pathway/` materialized before the copy step.                                                                               |
+| Caller                                         | Today                                          | Post-design                                          | Reason                                                                                                                                |
+| ---------------------------------------------- | ---------------------------------------------- | ---------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------- |
+| `just synthetic`                               | `bunx fit-terrain`                             | `bunx fit-terrain build`                             | Production path: render with cached prose, write `data/pathway/**` and siblings. No LLM calls.                                        |
+| `just synthetic-update`                        | `bunx fit-terrain --generate`                  | `bunx fit-terrain generate`                          | Refill the prose cache via LLM, then build. The `generate` verb already carries the persist-cache semantics.                          |
+| `just synthetic-no-prose`                      | `bunx fit-terrain --no-prose`                  | `bunx fit-terrain build --only=pathway`              | Structural-only YAML; skip prose-rendering output types (`html`, `raw`, `markdown`). Preserves the recipe's "structural-only" intent. |
+| `package.json scripts.generate`                | `fit-terrain`                                  | `fit-terrain generate`                               | The script name's intent is "generate prose"; `generate` is the LLM-backed verb.                                                      |
+| `package.json scripts.data:prose`              | `LOG_LEVEL=error bunx fit-terrain check`       | `bunx fit-terrain check`                             | Drop the log-threshold prefix (criterion 4). Verb is already correct; only the env prefix masks the diagnostic.                       |
+| `check-test.yml` `test` job step               | `bunx fit-terrain`                             | `bunx fit-terrain build`                             | The follow-up `bun run validate -- --shacl` reads `data/pathway/`. Materialization required.                                          |
+| `check-test.yml` `e2e` job (cache-miss branch) | `just synthetic`                               | (no change — fixed via component 1)                  | Once `just synthetic` works, the cache-miss branch self-heals.                                                                        |
+| `interview-{landmark,map,summit}-setup`        | `bunx fit-terrain` then `cp -r data/pathway …` | `bunx fit-terrain build` then `cp -r data/pathway …` | Each workflow needs `data/pathway/` materialized before the copy step.                                                                |
 
 `data:schema` keeps `LOG_LEVEL=error` (out of scope per spec — the schema job is
 green and the spec narrows logging policy to `data:prose` only).
@@ -65,6 +65,12 @@ themselves, never inside their own scripts:
 - **Contributors** — `just quickstart` (or `just synthetic`) before `bun start`.
   `prestart` stays a pure reader; spec criterion 6 is satisfied by
   documentation, not by injecting materialization into the start chain.
+
+**Rejected alternative — inject `bunx fit-terrain build` into
+`scripts.prestart`.** `prestart` runs on every `bun start`/`bun dev`;
+auto-materializing turns one developer concept (build the data once, run the
+server N times) into N pipeline runs, and CI's `actions/cache` layer also
+assumes `prestart` is a reader.
 
 ## Merge-gate carve-out (thread 3)
 
@@ -98,13 +104,13 @@ verb table and one new "Run the dev site" pointer.
 
 ## Key decisions (cross-cutting)
 
-| Decision                                       | Choice                                                    | Rejected alternative                                                 | Why                                                                                                                                                                                                                      |
-| ---------------------------------------------- | --------------------------------------------------------- | -------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| Materialization site                           | `WriteSink` (existing); callers invoke `build`/`generate` | Inject `bunx fit-terrain build` into `package.json scripts.prestart` | `prestart` runs on every `bun start`/`bun dev`; auto-materializing turns one developer concept (build the data once, run the server N times) into N pipeline runs. CI's cache layer also assumes `prestart` is a reader. |
-| `data/pathway/` ENOENT in CI is a real failure | Yes — remove the carve-out                                | Treat ENOENT as transient                                            | The cache-miss path now runs `just synthetic` → `fit-terrain build` deterministically. ENOENT can only occur if the materialization step itself failed, which is the real failure to surface.                            |
-| `synthetic-no-prose` semantics                 | `build --only=pathway` (planner may collapse)             | Delete the recipe                                                    | Recipe deletion is a contributor-flow break that's out of scope. The closest semantic preserves intent; if the planner finds it identical to `synthetic`, that's a plan-time call.                                       |
-| `LOG_LEVEL=error` removal scope                | `data:prose` only                                         | Remove from `data:schema` too                                        | Spec scope is explicit: "logging / log-level policy across the rest of the codebase. Scope is limited to the `data:prose` invocation on the CI path."                                                                    |
-| Documentation surface                          | `getting-started/contributors/index.md` only              | Multiple onboarding pages updated in lockstep                        | Spec criterion 6 names "one documented sequence". Other product pages already address external-user installs (`npx`-based, no monorepo).                                                                                 |
+The two thread-specific decisions (materialization site, carve-out removal) live
+in their own sections above. Cross-cutting decisions:
+
+| Decision                        | Choice                                       | Rejected alternative                          | Why                                                                                                                                                   |
+| ------------------------------- | -------------------------------------------- | --------------------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `LOG_LEVEL=error` removal scope | `data:prose` only                            | Remove from `data:schema` too                 | Spec scope is explicit: "logging / log-level policy across the rest of the codebase. Scope is limited to the `data:prose` invocation on the CI path." |
+| Documentation surface           | `getting-started/contributors/index.md` only | Multiple onboarding pages updated in lockstep | Spec criterion 6 names "one documented sequence". Other product pages already address external-user installs (`npx`-based, no monorepo).              |
 
 ## Verification mapping (spec criteria → design)
 
@@ -117,23 +123,20 @@ verb table and one new "Run the dev site" pointer.
 | 5 (carve-out)   | Component 5: parenthetical removed from `kata-release-merge` Step 5.                                                                                          |
 | 6 (onboarding)  | Component 6: single sequence `bun install && just quickstart && bun start` documented in `getting-started/contributors/index.md`.                             |
 
+## Phase ordering invariant
+
+**Component 5 lands after components 1–3 are green on `main`.** The carve-out is
+the only artefact letting CI-red trusted-author PRs (including this work's own
+incremental commits) merge while the verb-mapping fix lands; removing it before
+threads 1+2 are green would deadlock the implementation. Mechanism for honoring
+this — PR shape, commit ordering, stacked merge — is the planner's choice.
+Confirmed with release-engineer 2026-05-02.
+
 ## Out of scope (for the planner)
 
-File-level diff hunks, execution ordering, test fixtures, the
-`synthetic-no-prose` collapse-vs-preserve decision, the exact prose of the doc
-edit.
-
-## Handoff context (for the planner)
-
-**Commit-boundary requirement (release-engineer sign-off, 2026-05-02):** the
-`kata-release-merge` SKILL.md edit (component 5) must land **after** components
-1–3 are on `main`. The carve-out is the only thing letting CI-red trusted-author
-PRs (including this implementation PR's own incremental commits) merge while the
-verb-mapping fix lands. Removing it before threads 1+2 are green would deadlock
-the implementation PR. Two acceptable shapes: (a) split into two PRs with
-rebase-onto-main between them, (b) order commits inside one PR so the SKILL.md
-edit is the final commit and merge waits for prior CI-green commits to land via
-stacked merge. Planner picks.
+File-level diff hunks, execution ordering, test fixtures, the exact prose of the
+doc edit, and the PR/commit shape that satisfies the phase-ordering invariant
+above.
 
 ## Risks
 
