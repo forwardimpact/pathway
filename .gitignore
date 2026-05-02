@@ -23,6 +23,11 @@ token.json
 id_rsa
 id_ed25519
 id_ecdsa
+.aws/
+.azure/
+.gnupg/
+.netrc
+.pgpass
 
 # Environment files (use *.example templates)
 **/.env
