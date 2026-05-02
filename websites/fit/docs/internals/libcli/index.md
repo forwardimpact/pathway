@@ -1,75 +1,54 @@
 ---
 title: libcli — CLI Development
-description: Standard patterns for building CLI programs in the Forward Impact monorepo.
+description: Internal reference for CLI argument parsing, help rendering, handler dispatch, and the InvocationContext contract.
 layout: product
 ---
 
-## Logger Conventions
+## Architecture
 
-CLI programs use libtelemetry's Logger for operational output and reserve
-`console.log` / direct stdout writes for primary data output. The decision
-matrix:
-
-| Output type           | Use Logger? | Why                                  |
-| --------------------- | ----------- | ------------------------------------ |
-| Progress updates      | Yes         | Structured attributes beat free text |
-| Errors and exceptions | Yes         | Preserves trace context              |
-| Help text             | No          | Rendered by libcli                   |
-| Pure data output      | No          | Primary result for piping            |
-| Version string        | No          | Single value, rendered by libcli     |
-
-### Creating a Logger
-
-```js
-import { createLogger } from "@forwardimpact/libtelemetry";
-
-const logger = createLogger("codegen");
-```
-
-**Domain naming:** use the package name without the `lib` prefix. Examples:
-`"codegen"` for libcodegen, `"rc"` for librc, `"pathway"` for fit-pathway.
-
-### Level usage
-
-- **`debug`** — internal tracing, invisible unless `LOG_LEVEL=debug`
-- **`info`** — operational output the user expects to see
-- **`error`** — errors with context attributes
-- **`exception`** — caught errors with stack traces (use in `catch` blocks)
-
-### Structuring attributes
-
-Attributes make log lines parseable by both humans and agents:
-
-```js
-logger.info("step", "Generated types", { files: "12" });
-logger.error("compile", "Proto compilation failed", { path: "agent.proto" });
-```
-
-### Suppression
-
-The `--silent` / `--quiet` pattern (established in fit-rc) suppresses Logger
-output. When a CLI supports these flags, configure the Logger's minimum level
-accordingly — `--silent` raises it above `error`, `--quiet` raises it above
-`info`.
-
-### Output format
-
-Logger emits RFC 5424 structured messages:
+libcli has two layers. The **parse layer** (`Cli.parse()`) wraps `node:util`
+`parseArgs` with command identification, option scoping, and help/version
+interception. The **dispatch layer** (`Cli.dispatch()`) maps parsed positionals
+to named arguments, builds a frozen `InvocationContext`, and calls the
+subcommand handler. The parse layer exists in every CLI; the dispatch layer is
+opt-in for CLIs that want named args and shared handler logic with a web UI.
 
 ```
-{level} {timestamp} {domain} {appId} {procId} {msgId} [{attrs}] {message}
+argv
+ │
+ ▼
+Cli.parse(argv)
+ ├─ --help / --version → render, return null
+ └─ { values, positionals }
+      │
+      ▼
+  ┌──────────────────────────────┐
+  │ Legacy path (most CLIs)      │
+  │ Caller unpacks positionals   │
+  │ and values manually          │
+  └──────────────────────────────┘
+      │
+      ▼
+  ┌──────────────────────────────┐
+  │ Dispatch path (opt-in)       │
+  │ Cli.dispatch(parsed, {data}) │
+  │  → freezeInvocationContext   │
+  │  → command.handler(ctx)      │
+  └──────────────────────────────┘
 ```
+
+Both paths coexist. A definition can mix legacy `args: "<usage>"` commands with
+`args: string[]` + `handler` commands — `dispatch()` only activates for commands
+that have a `handler` function.
+
+Source: `libraries/libcli/src/cli.js`.
 
 ---
 
-## Help Text
+## Definition Schema
 
-libcli renders help from a **definition object** — a plain data structure that
-declares the CLI's name, version, description, commands, options, and examples.
-Options are scoped: `globalOptions` apply to every command, while per-command
-`options` apply only to the command they belong to.
-
-### Definition schema
+The definition object drives help rendering, argument parsing, and dispatch. All
+fields are plain data — no class instances, no callbacks (except `handler`).
 
 ```js
 const definition = {
@@ -79,36 +58,28 @@ const definition = {
   commands: [
     {
       name: "coverage",
-      args: "<team>",
+      args: "<team>",                // legacy: free-form usage string
       description: "Show capability coverage",
       options: {
-        evidenced: { type: "boolean", description: "Include practiced capability from Map evidence data" },
-        "lookback-months": { type: "string", description: "Lookback window for practice patterns (default: 12)" },
+        evidenced: { type: "boolean", description: "Include practiced capability" },
       },
-      examples: [
-        "fit-summit coverage platform",
-        "fit-summit coverage platform --evidenced --lookback-months=6",
-      ],
+      examples: ["fit-summit coverage platform --evidenced"],
     },
-    { name: "validate", args: "", description: "Validate roster file" },
+    {
+      name: "skill",
+      args: ["id"],                  // dispatch: declared positional names
+      argsUsage: "[<id>]",           // display string for help output
+      description: "Show skill detail",
+      handler: (ctx) => showSkill(ctx),
+    },
   ],
   globalOptions: {
-    data: { type: "string", description: "Path to Map data directory" },
-    roster: { type: "string", description: "Path to summit.yaml" },
-    format: { type: "string", default: "text", description: "Output format: text, json, markdown (default: text)" },
+    data: { type: "string", description: "Path to data directory" },
     help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", short: "v", description: "Show version" },
   },
-  examples: [
-    "fit-summit coverage platform",
-    "fit-summit what-if platform --add 'Jane, senior, backend'",
-  ],
+  examples: ["fit-summit coverage platform"],
   documentation: [
-    {
-      title: "Team Capability Guide",
-      url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
-      description: "Coverage heatmaps, structural risks, and what-if scenarios.",
-    },
     {
       title: "Summit Overview",
       url: "https://www.forwardimpact.team/summit/index.md",
@@ -117,162 +88,235 @@ const definition = {
 };
 ```
 
-**Key fields:**
+### Field reference
 
-- **`globalOptions`** — Options that apply to every command. Shown under
-  `Options:` in global help and `Global options:` in per-command help.
-- **`commands[].options`** — Options specific to one command. Only shown in that
-  command's per-command help. Not visible in global help.
-- **`commands[].examples`** — Per-command examples, shown only in per-command
-  help.
-- **`examples`** — Top-level examples, shown only in global help.
-- **`documentation`** — Array of `{ title, url, description? }` entries that
-  link out to published guides on the fit-doc site. Mirrors the matching
-  SKILL.md `## Documentation` section so agents reaching the CLI without the
-  skill loaded get the same progressive-disclosure links from `--help`. URLs
-  must be fully qualified and end with `/index.md` — see
-  [§ Documentation links](#documentation-links).
+| Field | Type | Required | Notes |
+|---|---|---|---|
+| `name` | `string` | yes | CLI binary name |
+| `version` | `string` | no | Shown by `--version` |
+| `description` | `string` | no | One-line description after name in help |
+| `usage` | `string` | no | Custom usage line; overrides auto-generated one |
+| `commands` | `Command[]` | no | Subcommands |
+| `globalOptions` | `Options` | no | Options accepted by every command |
+| `examples` | `string[]` | no | Global-help examples |
+| `documentation` | `DocEntry[]` | no | Links rendered in `Documentation:` section |
 
-**Legacy schema rejected:** Passing a top-level `options` field (instead of
-`globalOptions`) throws at startup with a migration message. See
-[spec 430](../../../../specs/430-per-command-help/spec.md) for background.
+### Command fields
 
-**Option name collisions:** If a command option shares a name with a global
-option, the constructor throws. Command options are merged with global options
-for parsing — a collision would silently shadow the global option.
+| Field | Type | Notes |
+|---|---|---|
+| `name` | `string` | May be multi-word (`"org show"`) |
+| `args` | `string \| string[]` | `string`: legacy free-form usage. `string[]`: named positionals for dispatch |
+| `argsUsage` | `string` | Display string for help when `args` is an array |
+| `description` | `string` | One-line description |
+| `options` | `Options` | Command-scoped options |
+| `examples` | `string[]` | Per-command examples |
+| `handler` | `(ctx) => any` | Dispatch handler; required only when using `dispatch()` |
 
-### Global help (`--help`)
+### Option fields
 
-Global help lists all commands and global options. Per-command options do not
-appear — global help is a scannable index, not a dump of every flag.
+Each key in an `Options` object maps to:
 
-```
-fit-summit 1.0.0 — Team capability planning from skill data.
+| Field | Type | Notes |
+|---|---|---|
+| `type` | `"string" \| "boolean"` | Passed to `parseArgs` |
+| `short` | `string` | Single-char alias (`-h`) |
+| `default` | `any` | Default value |
+| `multiple` | `boolean` | Accept repeated flags into an array |
+| `description` | `string` | Help text |
 
-Usage: fit-summit <command> [options]
+**Legacy schema rejected.** A top-level `options` field (instead of
+`globalOptions`) throws at construction with a migration message.
 
-Commands:
-  coverage <team>            Show capability coverage
-  validate                   Validate roster file
+**Option name collisions.** A command option sharing a name with a global option
+throws at construction. Command options merge with global options for the
+`parseArgs` call — a collision would silently shadow the global.
 
-Options:
-  --data=<string>            Path to Map data directory
-  --roster=<string>          Path to summit.yaml
-  --format=<string>          Output format: text, json, markdown (default: text)
-  --help, -h                 Show help
-  --version, -v              Show version
+---
 
-Examples:
-  fit-summit coverage platform
-  fit-summit what-if platform --add 'Jane, senior, backend'
+## Argument Parsing
 
-Documentation:
-  Team Capability Guide
-    https://www.forwardimpact.team/docs/products/team-capability/index.md
-    Coverage heatmaps, structural risks, and what-if scenarios.
-  Summit Overview
-    https://www.forwardimpact.team/summit/index.md
+`cli.parse(argv)` is the entry point. It returns `{ values, positionals }` or
+`null` (when `--help` or `--version` was handled).
 
-Use fit-summit <command> --help for command-specific options.
-```
+### How parse works internally
 
-The Documentation section appears between Examples and the hint line, and is
-omitted entirely when `documentation` is unset. The hint line at the bottom is
-the only indication that per-command help exists.
+1. **Command identification.** `#findCommand(argv)` filters out flags, then
+   tries the longest positional prefix (up to 3 tokens) against
+   `commands[].name`. This handles multi-word commands like `"org show"` —
+   `parse(["org", "show", "--help"])` matches the two-word entry.
 
-### Per-command help (`<command> --help`)
+2. **Option merging.** `#buildOptions(command)` merges the matched command's
+   `options` with `globalOptions`. The merged set is passed to `parseArgs` — a
+   flag not in the merged set throws `ERR_PARSE_ARGS_UNKNOWN_OPTION`.
 
-Per-command help shows the command's own options under `Options:` and global
-options (minus `--version`) under `Global options:`. Each section aligns columns
-independently.
+3. **parseArgs.** `node:util` `parseArgs` runs with `allowPositionals: true`.
+   The result is `{ values, positionals }`.
 
-```
-fit-summit coverage <team> — Show capability coverage
+4. **Help/version interception.** If `values.help` is truthy, `#renderHelp`
+   fires and `parse()` returns `null`. Same for `values.version`. The caller
+   should exit cleanly on `null`.
 
-Usage: fit-summit coverage <team> [options]
+5. **Command-as-option hint.** If `parseArgs` throws on an unknown flag whose
+   name matches a command, the error message suggests the command form:
+   `Unknown option "--daemon". "daemon" is a command, not an option.`
 
-Options:
-  --evidenced                Include practiced capability from Map evidence data
-  --lookback-months=<string>   Lookback window for practice patterns (default: 12)
-
-Global options:
-  --data=<string>            Path to Map data directory
-  --roster=<string>          Path to summit.yaml
-  --format=<string>          Output format: text, json, markdown (default: text)
-  --help, -h                 Show help
-
-Examples:
-  fit-summit coverage platform
-  fit-summit coverage platform --evidenced --lookback-months=6
+```js
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+const { values, positionals } = parsed;
 ```
 
-Commands with no `options` omit the `Options:` section and show only
-`Global options:`.
+Positional validation is the caller's responsibility — libcli does not enforce
+required positionals because usage patterns vary.
 
-### Grep-friendliness
+---
 
-Every command and every option occupies exactly one self-contained line. A grep
-for any keyword returns a complete, actionable line — no wrapping to a second
-line.
+## Handler Dispatch
 
-```sh
-# Global help — find the command
-$ fit-summit -h | grep coverage
-  coverage <team>            Show capability coverage
+The dispatch layer is opt-in. A subcommand opts in by declaring `args` as
+`string[]` (named positional names) and providing a `handler` function. The
+legacy `args: "<usage>"` string form continues to work for commands that don't
+need dispatch.
 
-# Per-command help — find the flag
-$ fit-summit coverage -h | grep evidenced
-  --evidenced                Include practiced capability from Map evidence data
+### How dispatch works internally
 
-# Command-specific options don't leak into global help
-$ fit-summit -h | grep add
-# (no output — --add is what-if-specific)
+`Cli.dispatch(parsed, { data })` does the following:
+
+1. **Find command.** Calls `#findCommand(parsed.positionals)` — same logic as
+   `parse()`. Throws if no match.
+
+2. **Validate handler.** Throws if the matched command has no `handler` function.
+
+3. **Consume subcommand prefix.** `command.name.split(" ").length` gives the
+   number of positional tokens the command name consumed (1 for `"skill"`, 2 for
+   `"org show"`). The remaining positionals are the actual arguments.
+
+4. **Build named args.** Zips the command's `args` array against the remaining
+   positionals: `args[0]` maps to the first remaining positional, `args[1]` to
+   the second, etc. Missing trailing positionals are omitted (not set to
+   `undefined`).
+
+5. **Freeze.** Calls `freezeInvocationContext({ data, args, options: parsed.values })`.
+   This deep-freezes the context, `args`, `options`, and any array values inside
+   `options`.
+
+6. **Call handler.** `command.handler(ctx)`.
+
+```js
+// argv: ["skill", "testing", "--json"]
+// command.args: ["id"]
+// → consumed prefix: 1 ("skill")
+// → remaining: ["testing"]
+// → args: { id: "testing" }
+// → options: { json: true } (from parsed.values)
 ```
 
-### Human and machine modes
+Source: `libraries/libcli/src/cli.js`, `dispatch()` method.
 
-- `--help` renders human-readable formatted text to stdout
-- `--help --json` emits structured JSON
+---
 
-Global `--help --json` emits the full definition object — including the
-`documentation` array verbatim, so agents that consume help via JSON get the
-links as structured data rather than parsing them out of the rendered text.
-Per-command `--help --json` emits a focused object with `parent`, `name`,
-`args`, `description`, `options`, `globalOptions` (without `--version`), and
-`examples`.
+## InvocationContext
 
-Both modes are handled automatically by `cli.parse()`.
+`InvocationContext` is a frozen `{ data, args, options }` object produced by
+both libcli's `dispatch()` (from argv) and libui's `createBoundRouter` (from a
+URL hash). The handler receives the same shape regardless of surface.
 
-### Documentation links
-
-The `documentation` field is the bridge between a CLI and its skill. Each fit-\*
-skill ends with a `## Documentation` section listing fully qualified `.md` URLs
-published by the fit-doc static site generator; the same entries belong on the
-CLI definition so an agent that reaches the CLI without the skill — no skill
-installed, the skill omitted to save context, or a direct invocation in CI —
-gets the same progressive-disclosure links.
-
-Each entry is a plain object:
+### Shape
 
 ```js
 {
-  title: "Team Capability Guide",
-  url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
-  description: "Coverage heatmaps, structural risks, and what-if scenarios.",
+  data,     // Object — host-provided dependencies, opaque to the libraries
+  args,     // Readonly<Object<string, string>> — named positionals
+  options,  // Readonly<Object<string, string | boolean | string[]>> — flags/query params
 }
 ```
 
-The `description` is optional; entries without one render as title + URL only.
-URLs should end with `/index.md` so agents fetching them receive raw markdown
-rather than rendered HTML — fit-doc emits an `index.md` companion for every HTML
-page and advertises it via `<link rel="alternate" type="text/markdown">`.
+### Three invariants
 
-When wiring a CLI, copy the entries directly from the matching
-`.claude/skills/fit-*/SKILL.md` so both surfaces stay in sync.
+- **No surface affordances.** No DOM nodes, streams, `Request`/`Response`, or
+  surface tag. Anything that exists on only one surface stays out.
+- **Uniform value shapes.** `args` values are always strings. `options` values
+  are one of `string`, `boolean true`, or `string[]`. No nulls, no numbers.
+- **Frozen at all levels.** `Object.freeze` on the context, `args`, `options`,
+  and any array inside `options`. Handlers may assume immutability without
+  checking.
 
-[librepl](#composition-with-other-libraries) accepts the same `documentation`
-field with the same shape, so REPL-based CLIs (fit-guide) expose the section
-under `--help` alongside their interactive command list.
+### freezeInvocationContext
+
+The helper is duplicated in both libraries (design decision D1 — a shared
+package was rejected for ~40 lines). Each library's test suite runs the same
+fixture through its own copy; the identical fixture serves as a drift gate.
+
+The freeze is shallow on `data` (host-owned, may be mutated by the host between
+invocations) and deep on `args` and `options` (contract-owned, must not be
+mutated by handlers). Arrays inside `options` are individually frozen.
+
+Source: `libraries/libui/src/invocation-context.js`,
+`libraries/libcli/src/invocation-context.js`.
+
+### How each surface produces it
+
+| Surface | Producer | args source | options source |
+|---|---|---|---|
+| CLI | `Cli.dispatch()` | positionals zipped against `command.args` names | `parsed.values` from `parseArgs` |
+| Web | `createBoundRouter` | route-pattern capture groups keyed by param names | `URLSearchParams` from the hash query string |
+
+The web side parses query strings as: repeated keys become `string[]`, empty
+values become `true`, everything else is `string`. This matches the shape
+`parseArgs` produces from CLI flags.
+
+---
+
+## Help Rendering
+
+`HelpRenderer` formats the definition into text or JSON. libcli owns the
+renderer; the `Cli` class delegates to it.
+
+### args display logic
+
+When `args` is a string, it renders directly (`<team>`). When `args` is an
+array (the dispatch form), the renderer reads `argsUsage` instead. If
+`argsUsage` is absent, the command renders with no args suffix. This applies to
+both the commands list in global help and the header in per-command help.
+
+Source: `libraries/libcli/src/help.js`, `#argsDisplay()`.
+
+### Global help sections (in order)
+
+1. Header — name, version, description
+2. Usage — auto-generated or custom `usage` string
+3. Commands — one line per command, aligned
+4. Options — global options, aligned
+5. Examples — top-level examples
+6. Documentation — title, URL, optional description
+7. Hint line — "Use \<name\> \<command\> --help for command-specific options."
+
+Sections with no data are omitted entirely.
+
+### Per-command help sections (in order)
+
+1. Header — name + command + args + description
+2. Usage — name + command + args + `[options]`
+3. Options — command-scoped options
+4. Global options — global options minus `--version`
+5. Examples — per-command examples
+
+### JSON mode
+
+`--help --json` emits the full definition as JSON (global) or a focused
+`{ parent, name, args, description, options, globalOptions, examples,
+documentation }` object (per-command). Both handled by `cli.parse()`.
+
+### Documentation links
+
+The `documentation` array bridges the CLI and its matching skill. Each entry is
+`{ title, url, description? }` with a fully qualified `.md` URL. This way an
+agent that reaches the CLI without the skill loaded gets the same
+progressive-disclosure links from `--help`.
+
+URLs end with `/index.md` so agents receive raw markdown. Copy entries from the
+matching `.claude/skills/fit-*/SKILL.md` to keep both in sync.
 
 ---
 
@@ -280,7 +324,7 @@ under `--help` alongside their interactive command list.
 
 ### Standard format
 
-All errors write to stderr in a consistent format with no ANSI color codes:
+All errors write to stderr with no ANSI codes:
 
 ```
 cli-name: error: message
@@ -288,23 +332,12 @@ cli-name: error: message
 
 ### Exit codes
 
-| Code | Meaning       | Method             |
-| ---- | ------------- | ------------------ |
-| 1    | Runtime error | `cli.error()`      |
-| 2    | Usage error   | `cli.usageError()` |
+| Code | Meaning | Method |
+|---|---|---|
+| 1 | Runtime error | `cli.error()` |
+| 2 | Usage error | `cli.usageError()` |
 
-`cli.error(message)` writes the formatted error and sets `process.exitCode = 1`.
-Use it for runtime failures — file not found, network errors, invalid data.
-
-`cli.usageError(message)` writes the same format but sets
-`process.exitCode = 2`. Use it for bad arguments — missing positionals, unknown
-flags, invalid combinations.
-
-### Exception logging
-
-In `catch` blocks, use `logger.exception()` for operational errors before
-calling `cli.error()`. This preserves the stack trace in structured logs while
-showing a clean message on stderr:
+### Exception pattern
 
 ```js
 main().catch((error) => {
@@ -319,275 +352,137 @@ main().catch((error) => {
 ## Summary Output
 
 `SummaryRenderer` prints a post-command summary — a title line followed by
-aligned label/description pairs.
+aligned label/description pairs:
 
 ```js
-import { SummaryRenderer } from "@forwardimpact/libcli";
-
 const summary = new SummaryRenderer({ process });
-
 summary.render({
   title: "Generated 3 files",
   items: [
-    { label: "types.js",    description: "Compiled proto types" },
-    { label: "clients.js",  description: "Service client stubs" },
-    { label: "index.js",    description: "Re-export barrel" },
+    { label: "types.js",   description: "Compiled proto types" },
+    { label: "clients.js", description: "Service client stubs" },
   ],
 });
 ```
 
-Output:
-
-```
-Generated 3 files
-  types.js    — Compiled proto types
-  clients.js  — Service client stubs
-  index.js    — Re-export barrel
-```
-
-The data structure is `{ title: string, items: Array<{ label, description }> }`.
-The fit-codegen CLI is the reference pattern for summary usage.
-
 ---
 
-## Argument Parsing
+## Logger Conventions
 
-`cli.parse(argv)` wraps `node:util` `parseArgs` with `allowPositionals: true`.
-It returns `{ values, positionals }` on success, or `null` if `--help` or
-`--version` was handled (the caller should exit cleanly).
+CLI programs use libtelemetry's Logger for operational output and reserve
+`console.log` / direct stdout writes for primary data output.
 
-### Command identification
-
-When the definition has `commands`, `parse()` identifies the command by scanning
-non-flag tokens and trying the longest match against `commands[].name`. This
-handles multi-word commands like `org show` in fit-landmark —
-`parse(["org", "show", "--help"])` correctly matches the `org show` entry.
-
-### Option merging and scoping
-
-Once a command is identified, its `options` are merged with `globalOptions` for
-the `parseArgs()` call. Only the merged set is accepted — passing a
-command-specific option on the wrong command throws
-`ERR_PARSE_ARGS_UNKNOWN_OPTION`.
-
-This is a tightening over the pre-spec-430 behavior: previously every option was
-accepted on every command (the handler simply ignored irrelevant flags). Now
-input validation is stricter while command behavior is unchanged.
+| Output type | Use Logger? | Why |
+|---|---|---|
+| Progress updates | Yes | Structured attributes beat free text |
+| Errors and exceptions | Yes | Preserves trace context |
+| Help text | No | Rendered by libcli |
+| Pure data output | No | Primary result for piping |
 
 ```js
-const parsed = cli.parse(process.argv.slice(2));
-if (!parsed) process.exit(0);
+import { createLogger } from "@forwardimpact/libtelemetry";
+const logger = createLogger("codegen");
 
-const { values, positionals } = parsed;
+logger.info("step", "Generated types", { files: "12" });
+logger.error("compile", "Proto compilation failed", { path: "agent.proto" });
 ```
 
-Positional validation is the caller's responsibility — libcli does not enforce
-required positionals because usage patterns vary across CLIs:
+**Domain naming:** package name without `lib` prefix — `"codegen"` for
+libcodegen, `"pathway"` for fit-pathway.
 
-```js
-const [input] = positionals;
-if (!input) {
-  cli.usageError("missing required argument <input>");
-  process.exit(2);
-}
-```
+**Levels:** `debug` (invisible unless `LOG_LEVEL=debug`), `info` (expected
+output), `error` (with context), `exception` (with stack trace, use in `catch`).
 
----
-
-## Handler Dispatch and InvocationContext
-
-Products that share handler logic between a web UI and a CLI can opt into
-`InvocationContext` — a frozen `{ data, args, options }` object that both
-surfaces produce from their native inputs. The handler never knows which
-surface invoked it.
-
-### Subcommand definition
-
-Declare named positionals with `args: string[]` and provide a `handler`.
-The legacy `args: "<usage>"` string form still works for CLIs that don't
-need dispatch.
-
-```js
-const definition = {
-  name: "fit-pathway",
-  commands: [
-    {
-      name: "skill",
-      args: ["id"],
-      argsUsage: "[<id>]",
-      description: "Show skill detail",
-      handler: (ctx) => runSkillCommand(ctx),
-    },
-  ],
-  globalOptions: {
-    data: { type: "string", description: "Path to data directory" },
-    json: { type: "boolean", description: "JSON output" },
-    help: { type: "boolean", short: "h", description: "Show help" },
-  },
-};
-```
-
-### Dispatching
-
-After `parse()`, call `dispatch()` with the host's data dependencies:
-
-```js
-const parsed = cli.parse(process.argv.slice(2));
-if (!parsed) process.exit(0);
-
-cli.dispatch(parsed, { data: { skills, disciplines } });
-```
-
-`dispatch()` maps argv positionals to the declared `args` names, merges
-parsed flags into `options`, deep-freezes everything via
-`freezeInvocationContext`, and calls the handler. The handler receives:
-
-```js
-function runSkillCommand(ctx) {
-  // ctx.data    — host-provided dependencies (skills, disciplines, …)
-  // ctx.args    — { id: "testing" } (named, not positional)
-  // ctx.options — { json: true } (parsed flags)
-}
-```
-
-### The InvocationContext contract
-
-Three invariants:
-
-- **No surface affordances.** No DOM nodes, streams, or surface tags. Anything
-  that exists on only one surface stays out.
-- **Uniform value shapes.** `args` values are strings; `options` values are one
-  of `string`, `boolean true`, or `string[]`. No nulls, no numbers.
-- **Frozen at all levels.** The context, `args`, `options`, and any array inside
-  `options` are `Object.freeze`'d by the producer.
-
-### Shared presenters
-
-The handler calls a shared presenter that returns a view, then renders it
-through surface-specific formatters. One presenter per capability, exercised
-by both surfaces against synthetic contexts in tests:
-
-```js
-// shared presenter — no DOM, no stdout
-function presentSkill(ctx) {
-  const skill = ctx.data.skills.find((s) => s.id === ctx.args.id);
-  return { name: skill.name, proficiencies: skill.proficiencies };
-}
-
-// CLI handler
-function runSkillCommand(ctx) {
-  const view = presentSkill(ctx);
-  formatDetailToStdout(view, ctx.options);
-}
-
-// Web page (via libui's defineRoute)
-function renderSkillPage(ctx) {
-  const view = presentSkill(ctx);
-  renderDetailToDOM(view, ctx.options);
-}
-```
-
-### Web-side pairing with libui
-
-Products with web UIs use libui's `createBoundRouter` and `defineRoute` to
-produce the same `InvocationContext` from URL hash routes. The route
-descriptor binds the URL pattern, page handler, CLI command string, and graph
-IRI in one place:
-
-```js
-import { createBoundRouter, defineRoute } from "@forwardimpact/libui";
-
-const router = createBoundRouter({ data, vocabularyBase });
-router.register(defineRoute({
-  pattern: "/skill/:id",
-  page: (ctx) => renderSkillPage(ctx),
-  cli: (ctx) => `npx fit-pathway skill ${ctx.args.id}`,
-  graph: (ctx, base) => `${base}Skill/${ctx.args.id}`,
-}));
-```
-
-See `@forwardimpact/libui` for the full bound-router API.
+**Suppression:** `--silent` raises the minimum level above `error`, `--quiet`
+raises it above `info`.
 
 ---
 
 ## Composition with Other Libraries
 
-libcli covers CLI chrome. Other libraries handle content and sessions:
-
-| Library          | Scope                                                                                         |
-| ---------------- | --------------------------------------------------------------------------------------------- |
-| **libcli**       | CLI chrome: help, errors, summaries, argument parsing, color                                  |
-| **libformat**    | Content rendering: markdown to HTML or ANSI terminal output                                   |
-| **librepl**      | Interactive sessions: command loops, state, history, `documentation` pass-through in `--help` |
-| **libtelemetry** | Operational diagnostics: Logger, Tracer, Observer                                             |
-
-A CLI that renders markdown (fit-guide) uses **libformat** for content and
-**libcli** for chrome. A REPL-based CLI uses **libcli** for initial argument
-parsing and **librepl** for the interactive session.
+| Library | Scope |
+|---|---|
+| **libcli** | CLI chrome: help, errors, summaries, argument parsing, color |
+| **libui** | Web UI: routing, `createBoundRouter`, `defineRoute`, `createCommandBar` |
+| **libformat** | Content rendering: markdown to HTML or ANSI terminal output |
+| **librepl** | Interactive sessions: command loops, state, history |
+| **libtelemetry** | Operational diagnostics: Logger, Tracer, Observer |
 
 ---
 
-## Minimal CLI Example
+## Legacy Handler Shape Enforcement
 
-A complete, runnable CLI showing the standard pattern from shebang to exit code:
+An AST-based test (`tests/no-legacy-handler-shape.test.js`) scans
+`libraries/libui/src/` and `libraries/libcli/src/` for functions whose first
+parameter is either a destructured `{ data, args, options }` or an identifier
+named `params`. These are the pre-InvocationContext handler shapes. The test
+runs during `bun run test` and gates every commit.
+
+The `invocation-context.js` files in both libraries are allowlisted since
+`freezeInvocationContext` itself destructures `{ data, args, options }` by
+design.
+
+---
+
+## Minimal Examples
+
+### Legacy parse path
 
 ```js
 #!/usr/bin/env node
-
 import { createCli } from "@forwardimpact/libcli";
-import { createLogger } from "@forwardimpact/libtelemetry";
 
-const definition = {
+const cli = createCli({
   name: "fit-example",
   version: "0.1.0",
-  description: "Example CLI showing standard pattern",
+  description: "Example CLI",
   usage: "fit-example <input>",
   globalOptions: {
-    output:  { type: "string", description: "Output path" },
-    json:    { type: "boolean", description: "Output as JSON" },
-    help:    { type: "boolean", short: "h", description: "Show this help" },
+    json: { type: "boolean", description: "JSON output" },
+    help: { type: "boolean", short: "h", description: "Show help" },
     version: { type: "boolean", description: "Show version" },
   },
-  examples: [
-    "fit-example data.yaml",
-    "fit-example data.yaml --json",
-  ],
-  documentation: [
-    {
-      title: "Example Guide",
-      url: "https://www.forwardimpact.team/docs/libraries/example/index.md",
-      description: "Task-oriented walkthrough for fit-example.",
-    },
-  ],
-};
-
-const logger = createLogger("example");
-const cli = createCli(definition);
-
-async function main() {
-  const parsed = cli.parse(process.argv.slice(2));
-  if (!parsed) process.exit(0);
-
-  const { values, positionals } = parsed;
-  const [input] = positionals;
-
-  if (!input) {
-    cli.usageError("missing required argument <input>");
-    process.exit(2);
-  }
-
-  // ... do work, using logger for operational output
-  logger.info("main", "Processing complete", { file: input });
-}
-
-main().catch((error) => {
-  logger.exception("main", error);
-  cli.error(error.message);
-  process.exit(1);
 });
+
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const [input] = parsed.positionals;
+if (!input) { cli.usageError("missing <input>"); process.exit(2); }
 ```
 
-This demonstrates: shebang line, imports, definition as data, Logger creation,
-`cli.parse()` with null check, positional validation with usage error,
-documentation links mirroring the matching SKILL.md, and the top-level catch
-pattern with exception logging.
+### Dispatch path
+
+```js
+#!/usr/bin/env node
+import { createCli } from "@forwardimpact/libcli";
+
+const cli = createCli({
+  name: "fit-example",
+  version: "0.1.0",
+  description: "Example CLI with dispatch",
+  commands: [
+    {
+      name: "show",
+      args: ["id"],
+      argsUsage: "<id>",
+      description: "Show an item",
+      handler: (ctx) => {
+        const item = ctx.data.items.find((i) => i.id === ctx.args.id);
+        console.log(ctx.options.json ? JSON.stringify(item) : item.name);
+      },
+    },
+  ],
+  globalOptions: {
+    json: { type: "boolean", description: "JSON output" },
+    help: { type: "boolean", short: "h", description: "Show help" },
+    version: { type: "boolean", description: "Show version" },
+  },
+});
+
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+const data = { items: [{ id: "a", name: "Alpha" }] };
+cli.dispatch(parsed, { data });
+```
