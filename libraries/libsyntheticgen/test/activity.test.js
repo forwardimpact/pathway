@@ -303,6 +303,26 @@ describe("activity generation", () => {
       assert.ok(ck.team_name);
     });
 
+    test("comment keys are stable when upstream RNG drifts", () => {
+      // Run once normally.
+      const baseline = generateFromDsl(MINI_TERRAIN).activity.commentKeys;
+
+      // Burn an arbitrary amount of entropy from the shared RNG before
+      // generateActivity runs, simulating a cross-platform difference in
+      // an upstream phase (e.g., generatePeople allocating one more name).
+      const ast = parse(tokenize(MINI_TERRAIN));
+      const rng = createSeededRNG(ast.seed);
+      const { teams, people } = buildEntities(ast, rng);
+      for (let i = 0; i < 17; i++) rng.random();
+      const drifted = generateActivity(ast, rng, people, teams).commentKeys;
+
+      assert.deepStrictEqual(
+        drifted.map((c) => `${c.snapshot_id}|${c.email}`),
+        baseline.map((c) => `${c.snapshot_id}|${c.email}`),
+        "(snapshot_id, email) pairs must not depend on shared rng state",
+      );
+    });
+
     test("declining drivers weighted higher in comment selection", () => {
       const { activity } = generateFromDsl(MINI_TERRAIN);
       // The first snapshot overlaps with the "pressure" scenario (declining)
