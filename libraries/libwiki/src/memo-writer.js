@@ -1,0 +1,26 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import { MEMO_INBOX_MARKER } from "./constants.js";
+
+export function writeMemo(
+  { summaryPath, sender, message, today },
+  fs = { readFileSync, writeFileSync },
+) {
+  const content = fs.readFileSync(summaryPath, "utf-8");
+  const lines = content.split("\n");
+
+  const markerIndex = lines.findIndex(
+    (line) => line.trim() === MEMO_INBOX_MARKER,
+  );
+
+  if (markerIndex === -1) {
+    return { written: false, reason: "missing-marker", path: summaryPath };
+  }
+
+  const flatMessage = message.replace(/\n/g, " ");
+  const bullet = `- ${today} **${sender}**: ${flatMessage}`;
+
+  lines.splice(markerIndex + 1, 0, bullet);
+  fs.writeFileSync(summaryPath, lines.join("\n"));
+
+  return { written: true, path: summaryPath };
+}

@@ -73,6 +73,10 @@ export async function runFacilitateCommand(values, _args) {
       })
     : process.stdout;
 
+  if (opts.facilitatorProfile) {
+    process.env.LIBEVAL_AGENT_PROFILE = opts.facilitatorProfile;
+  }
+
   const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const facilitator = createFacilitator({
     facilitatorCwd: opts.facilitatorCwd,

@@ -1,0 +1,90 @@
+import { describe, test } from "node:test";
+import assert from "node:assert/strict";
+import { writeMemo } from "../src/memo-writer.js";
+import { MEMO_INBOX_MARKER } from "../src/constants.js";
+
+function createFakeFs(content) {
+  let written = null;
+  return {
+    readFileSync: () => content,
+    writeFileSync: (_path, data) => {
+      written = data;
+    },
+    get written() {
+      return written;
+    },
+  };
+}
+
+describe("writeMemo", () => {
+  const base = {
+    summaryPath: "wiki/staff-engineer.md",
+    sender: "technical-writer",
+    message: "audit d642ff0c",
+    today: "2026-05-02",
+  };
+
+  test("appends bullet after marker", () => {
+    const content = [
+      "## Observations for Teammates",
+      MEMO_INBOX_MARKER,
+      "",
+      "Some other content",
+    ].join("\n");
+
+    const fs = createFakeFs(content);
+    const result = writeMemo(base, fs);
+
+    assert.deepStrictEqual(result, {
+      written: true,
+      path: "wiki/staff-engineer.md",
+    });
+
+    const lines = fs.written.split("\n");
+    assert.equal(lines[1], MEMO_INBOX_MARKER);
+    assert.equal(lines[2], "- 2026-05-02 **technical-writer**: audit d642ff0c");
+  });
+
+  test("returns missing-marker when marker absent", () => {
+    const content = "## Observations for Teammates\n\nNo marker here.\n";
+    const fs = createFakeFs(content);
+    const result = writeMemo(base, fs);
+
+    assert.deepStrictEqual(result, {
+      written: false,
+      reason: "missing-marker",
+      path: "wiki/staff-engineer.md",
+    });
+    assert.equal(fs.written, null);
+  });
+
+  test("marker is preserved after write", () => {
+    const content = [
+      "## Observations for Teammates",
+      MEMO_INBOX_MARKER,
+      "",
+    ].join("\n");
+
+    const fs = createFakeFs(content);
+    writeMemo(base, fs);
+
+    assert.ok(fs.written.includes(MEMO_INBOX_MARKER));
+  });
+
+  test("multi-line message collapsed to single line", () => {
+    const content = [
+      "## Observations for Teammates",
+      MEMO_INBOX_MARKER,
+      "",
+    ].join("\n");
+
+    const fs = createFakeFs(content);
+    writeMemo({ ...base, message: "line one\nline two\nline three" }, fs);
+
+    const lines = fs.written.split("\n");
+    assert.equal(
+      lines[2],
+      "- 2026-05-02 **technical-writer**: line one line two line three",
+    );
+  });
+});

@@ -46,14 +46,15 @@ vs. expected), update Obstacles, and plan the next experiment.
 
 ## Metrics
 
-Each participant records to `wiki/metrics/{agent}/{domain}/{YYYY}.csv`. See
-[`metrics.md`](metrics.md) for suggested coaching-side metrics. Use
-`bunx fit-xmr --help` for the XmR analysis CLI reference.
+Each participant records to `wiki/metrics/{skill}/{YYYY}.csv`. See
+[`metrics.md`](metrics.md) for suggested coaching-side metrics; authoritative
+XmR protocol reference at
+[`../../kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).
 
 ## Storyboard updates
 
 Current Condition is rendered as per-metric blocks under
-`### {agent} — {domain}` headings (no overview table). For each CSV-backed
+`### {agent}` headings (no overview table). For each CSV-backed
 metric, write a `#### {metric_name}` block containing:
 
 1. A status header — `**Latest:** {value} · **Status:** {status}`. No trend
@@ -111,5 +112,5 @@ Discussion, not four parallel coaching dispatches.
 
 > "You are joining a team storyboard meeting. I will Ask you five questions;
 > reply to each with Answer. Before answering Q2, record your domain metrics to
-> `wiki/metrics/{your-agent}/{domain}/{YYYY}.csv`; your Answer references the
+> `wiki/metrics/{skill}/{YYYY}.csv`; your Answer references the
 > CSV row."

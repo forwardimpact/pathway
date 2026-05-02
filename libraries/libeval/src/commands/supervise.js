@@ -71,6 +71,10 @@ export async function runSuperviseCommand(values, _args) {
       })
     : process.stdout;
 
+  if (opts.agentProfile) {
+    process.env.LIBEVAL_AGENT_PROFILE = opts.agentProfile;
+  }
+
   const { query } = await import("@anthropic-ai/claude-agent-sdk");
   const supervisor = createSupervisor({
     supervisorCwd: opts.supervisorCwd,

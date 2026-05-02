@@ -159,6 +159,6 @@ Append to the current week's log (see agent profile for the file path):
 - **MEMORY.md changes** — What was added/updated
 - **Observations for teammates** — Specific callouts based on wiki findings
 - **Metrics** — Record at least one measurement to
-  `wiki/metrics/{agent}/{domain}/` per the
-  KATA.md § Metrics. If no CSV exists, create
+  `wiki/metrics/{skill}/` per the
+  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.

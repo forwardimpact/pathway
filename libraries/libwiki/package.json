@@ -1,39 +1,35 @@
 {
-  "name": "@forwardimpact/libxmr",
-  "version": "1.0.0",
-  "description": "Agent-friendly Wheeler/Vacanti XmR control charts: 14-line ASCII charts and the canonical three detection rules over time-series CSV metrics.",
+  "name": "@forwardimpact/libwiki",
+  "version": "0.1.0",
+  "description": "Wiki lifecycle primitives for the Kata agent system: cross-team memos, agent roster discovery, and marker migration.",
   "keywords": [
-    "xmr",
-    "control-chart",
-    "wheeler",
-    "vacanti",
-    "spc",
+    "wiki",
+    "memo",
+    "observation",
     "agent"
   ],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/forwardimpact/monorepo.git",
-    "directory": "libraries/libxmr"
+    "directory": "libraries/libwiki"
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
-      "Chart a metric with the canonical Wheeler/Vacanti XmR rules",
-      "Render an XmR control chart as monospace text",
-      "Record a metric and print its current XmR status"
+      "Append a cross-team observation to a wiki summary"
     ]
   },
   "type": "module",
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./bin/fit-xmr.js": "./bin/fit-xmr.js"
+    "./bin/fit-wiki.js": "./bin/fit-wiki.js"
   },
   "bin": {
-    "fit-xmr": "./bin/fit-xmr.js"
+    "fit-wiki": "./bin/fit-wiki.js"
   },
   "files": [
     "src/**/*.js",
