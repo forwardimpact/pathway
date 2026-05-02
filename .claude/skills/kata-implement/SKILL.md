@@ -16,8 +16,7 @@ the plan to understand HOW and WHEN, then implement the changes methodically.
 
 ## When to Use
 
-- A spec and plan exist on `main` (`specs/NNN/spec.md` and `specs/NNN/plan-a.md`
-  both present)
+- Spec and plan are merged on `origin/main` (see READ-DO).
 - The user says "implement spec NNN", "implement the plan for spec NNN",
   "execute the plan for NNN", "build spec NNN", or "start implementation of NNN"
 - Resuming a partially completed implementation ("continue spec NNN", "finish
@@ -30,6 +29,8 @@ apply alongside the skill-specific ones below.
 
 <read_do_checklist goal="Internalize scope and constraints before coding">
 
+- [ ] Run `git fetch origin main`, then confirm `specs/NNN/plan-a.md` exists on
+      `origin/main` (an open `plan:approved` PR is not enough — wait for merge).
 - [ ] Read the full spec and all plan files before writing any code.
 - [ ] Implement plan-a unless explicitly directed to a different variant.
 - [ ] Implement only what the plan describes — no unrequested refactors,

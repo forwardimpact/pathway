@@ -51,9 +51,13 @@ equivalent forms — both first-class GitHub primitives:
 "ship it" from a trusted account) into one of the canonical forms before
 concluding.
 
-Phase progression is otherwise derived from `main`: the file's existence
-(`specs/NNN/spec.md`, `design-a.md`, `plan-a.md`) implies the prior phase was
-approved and merged. No separate status tracker.
+**Approval is not phase progression.** The approval signal authorizes
+`kata-release-merge` to merge the PR; it does not by itself advance the phase.
+Phase progression is derived only from `main`: the next phase begins when the
+prior phase's artifact (`specs/NNN/spec.md`, `design-a.md`, `plan-a.md`) is on
+`main` — i.e. the prior phase's PR has been merged. An approved-but-unmerged PR
+does not unblock the next phase, even when the same agent owns both. No separate
+status tracker.
 
 ## Decision questions
 

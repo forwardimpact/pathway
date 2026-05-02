@@ -39,20 +39,20 @@ every GitHub comment and PR body with `— Staff Engineer 🛠️`.
 
 ## Assess
 
-Survey domain state, then choose the highest-priority action:
+Run `git fetch origin main` on every phase boundary, then route from
+`origin/main` only. A `<phase>:approved` label on an open PR — even one you just
+authored — does not advance routing. Pick the highest-priority action:
 
 0. **[Action routing](.claude/agents/references/memory-protocol.md#action-routing)**
    — read Tier 1; owned priorities and storyboard items preempt domain steps.
-1. **Approved specs without designs?** -- `kata-design` (specs/NNN/ where
-   `spec.md` is on `main` but `design-a.md` is not)
-2. **Approved designs without plans?** -- `kata-plan` (specs/NNN/ where
-   `design-a.md` is on `main` but `plan-a.md` is not)
-3. **Planned specs awaiting implementation?** -- `kata-implement` on a
-   `feat/<spec-slug>` branch (specs/NNN/ where `plan-a.md` is on `main` but no
-   merged PR carries `plan:implemented` referencing the spec)
+1. **Merged specs without designs?** -- `kata-design` (specs/NNN/ where
+   `spec.md` is on `origin/main` but `design-a.md` is not)
+2. **Merged designs without plans?** -- `kata-plan` (specs/NNN/ where
+   `design-a.md` is on `origin/main` but `plan-a.md` is not)
+3. **Merged plans awaiting implementation?** -- `kata-implement` on a
+   `feat/<spec-slug>` branch (specs/NNN/ where `plan-a.md` is on `origin/main`
+   but no merged PR carries `plan:implemented` referencing the spec)
 4. **Fallback** -- MEMORY.md items listing you under Agents, then report clean.
-
-After choosing, follow the selected skill's full procedure.
 
 ## Constraints
 
