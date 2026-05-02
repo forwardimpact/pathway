@@ -1,6 +1,7 @@
 # Forward Impact Engineering
 
 [![Context](https://github.com/forwardimpact/monorepo/actions/workflows/check-context.yml/badge.svg)](https://github.com/forwardimpact/monorepo/actions/workflows/check-context.yml)
+[![Data](https://github.com/forwardimpact/monorepo/actions/workflows/check-data.yml/badge.svg)](https://github.com/forwardimpact/monorepo/actions/workflows/check-data.yml)
 [![Quality](https://github.com/forwardimpact/monorepo/actions/workflows/check-quality.yml/badge.svg)](https://github.com/forwardimpact/monorepo/actions/workflows/check-quality.yml)
 [![Test](https://github.com/forwardimpact/monorepo/actions/workflows/check-test.yml/badge.svg)](https://github.com/forwardimpact/monorepo/actions/workflows/check-test.yml)
 [![Security](https://github.com/forwardimpact/monorepo/actions/workflows/check-security.yml/badge.svg)](https://github.com/forwardimpact/monorepo/actions/workflows/check-security.yml)
