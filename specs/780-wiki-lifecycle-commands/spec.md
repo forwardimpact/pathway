@@ -49,8 +49,8 @@ regenerates the XmR chart and metadata for each marked metric block, and
 writes the updated content back to the file.
 
 - **Marker format.** Each metric block in the storyboard is bracketed by a
-  pair of HTML comments that name the CSV path and metric:
-  `<!-- xmr:wiki/metrics/<skill>/<YYYY>.csv:<metric_name> -->` before the
+  pair of HTML comments that name the metric and CSV path:
+  `<!-- xmr:<metric_name>:wiki/metrics/<skill>/<YYYY>.csv -->` before the
   block and `<!-- /xmr -->` after. Everything between the markers is
   regenerated on refresh.
 - **Generated content.** For each marker pair, `fit-wiki refresh` produces:
@@ -167,7 +167,7 @@ have no dependency on spec 770 and can be implemented independently.
 
 ### Marker format rationale
 
-The `<!-- xmr:path:metric -->` / `<!-- /xmr -->` pattern mirrors how static
+The `<!-- xmr:metric:path -->` / `<!-- /xmr -->` pattern mirrors how static
 site generators handle auto-generated sections (e.g., Hugo shortcodes,
 Jekyll includes). HTML comments are invisible in GitHub's markdown renderer,
 so the storyboard reads identically with or without markers. The closing
