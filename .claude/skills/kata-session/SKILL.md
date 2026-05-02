@@ -66,9 +66,9 @@ Participant Protocol below.
       and obstacles managed as labeled GitHub issues per
       [`issue-lifecycle.md`](references/issue-lifecycle.md).
 - [ ] For 1-on-1: agent's findings written to its own memory.
-- [ ] Weekly log updated under `## YYYY-MM-DD`: meeting type, metrics
-      reviewed, obstacle addressed, experiment committed, and Step 7 routing
-      per Q3 obstacle (Discussion URL or coaching `agent=`, plus trigger).
+- [ ] Weekly log updated under `## YYYY-MM-DD`: meeting type, metrics reviewed,
+      obstacle addressed, experiment committed, and Step 7 routing per Q3
+      obstacle (Discussion URL or coaching `agent=`, plus trigger).
 - [ ] Experiment expected outcome recorded _before_ the experiment runs.
 - [ ] In facilitated mode: `Conclude` called with session summary.
 
@@ -141,8 +141,8 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
    obstacle pick one route (they can run in parallel) and log the choice.
    Triggers and worked example:
    [`team-storyboard.md`](references/team-storyboard.md#q3-obstacle-routing).
-   - **Discussion** — shared-artifact change (metric, rule, boundary, policy)
-     or same question in ≥2 agents' Q3 answers. RFC per
+   - **Discussion** — shared-artifact change (metric, rule, boundary, policy) or
+     same question in ≥2 agents' Q3 answers. RFC per
      [coordination-protocol.md](../../agents/references/coordination-protocol.md):
      `gh discussion create --category <category> --title "RFC: <q>"`.
    - **Coaching** — participant-scoped blocker / unanalyzed trace / stalled
