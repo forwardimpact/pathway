@@ -33,6 +33,7 @@ import { withErrorBoundary } from "./error-boundary.js";
 
 /**
  * Parse route pattern into regex and param names
+ * @internal Exported for bound-router.js — not part of the public API.
  * @param {string} pattern
  * @returns {{ regex: RegExp, paramNames: string[] }}
  */

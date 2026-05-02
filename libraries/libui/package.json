@@ -38,6 +38,11 @@
     "./yaml-loader": "./src/yaml-loader.js",
     "./markdown": "./src/markdown.js",
     "./utils": "./src/utils.js",
+    "./invocation-context": "./src/invocation-context.js",
+    "./route-descriptor": "./src/route-descriptor.js",
+    "./bound-router": "./src/bound-router.js",
+    "./command-bar": "./src/command-bar.js",
+    "./json-ld-script": "./src/json-ld-script.js",
     "./components": "./src/components/index.js",
     "./components/*": "./src/components/*.js",
     "./css/*": "./src/css/*"
