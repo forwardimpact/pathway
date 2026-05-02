@@ -71,14 +71,14 @@ signal is distinguished from noise.
 
 <!-- BEGIN:capability:agent-self-improvement -->
 
-| Library                | Capability                                                                                                |
-| ---------------------- | --------------------------------------------------------------------------------------------------------- |
-| **libeval**            | Agent evaluation: collect Claude Code traces, run agent loops, supervise multi-step workflows.            |
-| **libsyntheticgen**    | DSL parser and deterministic entity graph generator for repeatable agent eval fixtures.                   |
-| **libsyntheticprose**  | LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.                 |
-| **libsyntheticrender** | Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).          |
-| **libterrain**         | Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.            |
-| **libxmr**             | Agent-friendly XmR control charts: markdown sparklines and signal detection over time-series CSV metrics. |
+| Library                | Capability                                                                                                                                    |
+| ---------------------- | --------------------------------------------------------------------------------------------------------------------------------------------- |
+| **libeval**            | Agent evaluation: collect Claude Code traces, run agent loops, supervise multi-step workflows.                                                |
+| **libsyntheticgen**    | DSL parser and deterministic entity graph generator for repeatable agent eval fixtures.                                                       |
+| **libsyntheticprose**  | LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.                                                     |
+| **libsyntheticrender** | Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).                                              |
+| **libterrain**         | Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.                                                |
+| **libxmr**             | Agent-friendly Wheeler/Vacanti XmR control charts: 14-line ASCII charts and the canonical three detection rules over time-series CSV metrics. |
 
 <!-- END:capability:agent-self-improvement -->
 
@@ -134,7 +134,7 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Build a reactive single-page web app                                           | `libui`              |
 | Build a static documentation site                                              | `libdoc`             |
 | Call another gRPC service                                                      | `librpc`             |
-| Chart a metric with XmR signal detection                                       | `libxmr`             |
+| Chart a metric with the canonical Wheeler/Vacanti XmR rules                    | `libxmr`             |
 | Code-sign a macOS app                                                          | `libmacos`           |
 | Compute a stable hash (SHA-256 checksum)                                       | `libutil`            |
 | Compute cosine similarity between embeddings                                   | `libvector`          |
@@ -167,9 +167,9 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Read or write .env (dotenv) files                                              | `libsecret`          |
 | Read or write JSONL                                                            | `libstorage`         |
 | Register a gRPC service as MCP tools                                           | `libmcp`             |
-| Render a markdown sparkline                                                    | `libxmr`             |
 | Render a Mustache template with project overrides                              | `libtemplate`        |
 | Render a prompt template with variable substitution                            | `libprompt`          |
+| Render an XmR control chart as monospace text                                  | `libxmr`             |
 | Render colored tables and JSON output                                          | `libcli`             |
 | Render markdown as ANSI                                                        | `libformat`          |
 | Render markdown as HTML                                                        | `libformat`          |
