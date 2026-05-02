@@ -414,7 +414,7 @@ First, generate synthetic data (requires the `@forwardimpact/libterrain`
 package):
 
 ```sh
-npx fit-terrain data/synthetic/story.dsl
+npx fit-terrain --story=data/synthetic/story.dsl build
 ```
 
 Then seed the activity database:

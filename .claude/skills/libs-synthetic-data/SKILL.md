@@ -24,7 +24,7 @@ description: >
 | Library            | Capabilities                                                          | Key Exports                                                                                                         |
 | ------------------ | --------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------- |
 | libsyntheticgen    | Parse DSL grammar, generate deterministic entities, shared vocabulary | `DslParser`, `createDslParser`, `EntityGenerator`, `createEntityGenerator`, `createSeededRNG`, `PROFICIENCY_LEVELS` |
-| libsyntheticprose  | Generate LLM prose, pathway standard data, load schemas               | `ProseEngine`, `createProseEngine`, `PathwayGenerator`, `loadSchemas`                                               |
+| libsyntheticprose  | Generate LLM prose, pathway standard data, load schemas               | `ProseCache`, `ProseGenerator`, `PathwayGenerator`, `loadSchemas`                                                   |
 | libsyntheticrender | Multi-format rendering, content validation, formatting                | `Renderer`, `createRenderer`, `ContentValidator`, `ContentFormatter`, `validateCrossContent`                        |
 | libterrain         | Full parse-generate-render-validate pipeline, Supabase upload         | `Pipeline`, `loadToSupabase`                                                                                        |
 
@@ -49,10 +49,11 @@ description: >
   `STAGE_NAMES` are exported from `libsyntheticgen/vocabulary.js` (re-exported
   from the package index). All prompt builders, validators, and renderers import
   from this single source — never hardcode these values.
-- **Prose caching** — `ProseEngine.generateStructured` uses a stable cache key
-  derived from the entity key alone (e.g. `pathway:track:platform`), not from
-  the prompt content. Prompt changes do not invalidate the cache. Use
-  `--generate` to regenerate with updated prompts.
+- **Prose caching** — `ProseCache` is the synchronous read/write store;
+  `ProseGenerator` wraps it and only calls the LLM on cache miss in `generate`
+  mode. Cache keys derive from the entity key alone (e.g.
+  `pathway:track:platform`), so prompt changes do not invalidate. Run
+  `fit-terrain generate` to regenerate with updated prompts.
 - **Prior output forwarding** — `PathwayGenerator` threads generated data from
   earlier steps into downstream prompts: levels → behaviours → capabilities →
   disciplines/tracks. A shared voice preamble (`buildPreamble`) enforces
@@ -99,15 +100,18 @@ const { files, linked } = renderer.renderHtml(entities, prose);
 
 ```javascript
 import { createDslParser, createEntityGenerator } from "@forwardimpact/libsyntheticgen";
-import { ProseEngine, PathwayGenerator } from "@forwardimpact/libsyntheticprose";
+import { ProseCache, ProseGenerator, PathwayGenerator } from "@forwardimpact/libsyntheticprose";
 import { Renderer, ContentValidator, ContentFormatter } from "@forwardimpact/libsyntheticrender";
 import { Pipeline } from "@forwardimpact/libterrain/pipeline";
 
+const proseCache = new ProseCache({ cachePath, logger });
+const proseGenerator = new ProseGenerator({ cache: proseCache, mode, llmApi, promptLoader, logger });
 const pipeline = new Pipeline({
   dslParser: createDslParser(),
   entityGenerator: createEntityGenerator(logger),
-  proseEngine: new ProseEngine({ cachePath, mode, llmApi, promptLoader, logger }),
-  pathwayGenerator: new PathwayGenerator(proseEngine, logger),
+  proseCache,
+  proseGenerator,
+  pathwayGenerator: new PathwayGenerator(proseGenerator, logger),
   renderer: new Renderer(templateLoader, logger),
   validator: new ContentValidator(logger),
   formatter: new ContentFormatter(prettierFormat, logger),
@@ -140,13 +144,12 @@ import { PROFICIENCY_LEVELS, MATURITY_LEVELS, STAGE_NAMES } from "@forwardimpact
 ### libsyntheticprose
 
 ```javascript
-// ProseEngine — accepts cache path, mode, LLM API, prompt loader, logger
-import { ProseEngine } from "@forwardimpact/libsyntheticprose";
-const prose = new ProseEngine({ cachePath, mode, strict, llmApi, promptLoader, logger });
-
-// PathwayGenerator — accepts prose engine and logger
-import { PathwayGenerator } from "@forwardimpact/libsyntheticprose";
-const pathway = new PathwayGenerator(proseEngine, logger);
+// ProseCache — synchronous JSON-backed store; ProseGenerator wraps it (async LLM
+// + write-through); PathwayGenerator threads prose through standard generation.
+import { ProseCache, ProseGenerator, PathwayGenerator } from "@forwardimpact/libsyntheticprose";
+const cache = new ProseCache({ cachePath, logger });
+const prose = new ProseGenerator({ cache, mode, strict, llmApi, promptLoader, logger });
+const pathway = new PathwayGenerator(prose, logger);
 ```
 
 ### libsyntheticrender
@@ -183,7 +186,7 @@ bun test libraries/libsyntheticgen/test/    # DSL + entity generation tests
 bun test libraries/libsyntheticprose/test/  # Prose engine + prompt builder tests
 bun test libraries/libsyntheticrender/test/ # Validation + rendering tests
 bun test libraries/libterrain/test/         # Pipeline integration tests
-bunx fit-terrain --dry-run                  # Full pipeline dry run
-bunx fit-terrain --dry-run --only=html      # Single content type
+bunx fit-terrain validate                   # Run full pipeline, validate, no writes
+bunx fit-terrain build --only=html          # Render a single content type
 bunx fit-map validate                       # Validate generated pathway data
 ```
