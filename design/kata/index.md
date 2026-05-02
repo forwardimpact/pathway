@@ -1,6 +1,6 @@
 # Kata — Brand Implementation
 
-> The Kata realization of the [shared design language](../index.md): a
+> The Kata realization of the [shared design language](../CLAUDE.md): a
 > monochrome design system for the Kata Agent Team, built around the metaphor of
 > a **mid-century Toyota production floor**. Six agent personas — the **Staff
 > Engineer**, **Release Engineer**, **Security Engineer**, **Product Manager**,
@@ -19,7 +19,7 @@ palette, the typography choices, the type scale, the layout patterns, the agent
 visual language, and the CSS design tokens. The product scenes and agent icons
 live alongside in [scenes.md](scenes.md) and [icons.md](icons.md). For the
 abstract design language and the three characters' shared visual specifications,
-see [../index.md](../index.md).
+see [../CLAUDE.md](../CLAUDE.md).
 
 ---
 
@@ -50,7 +50,7 @@ clean and functional, not themed like a heritage poster.
 
 ## 2. Characters on the Floor
 
-The [three family characters](../index.md#2-the-three-characters) live inside
+The [three family characters](../CLAUDE.md#2-the-three-characters) live inside
 the production-floor metaphor. Their visual specifications are unchanged from
 the family — what follows are Kata-specific readings, not new shapes:
 
@@ -243,7 +243,7 @@ The Kata product scenes — Storyboard Stand-up, Walking the Gemba, the Ohno
 Circle, the Andon Cord, the Kanban Rail, the Drafting Bench, the Shipping Bay,
 and the Archivist's Desk — and the scene usage matrix live in a sibling file:
 [scenes.md](scenes.md). They extend the
-[reusable base scenes](../index.md#4-reusable-base-scenes) with Kata
+[reusable base scenes](../CLAUDE.md#4-reusable-base-scenes) with Kata
 production-floor symbols.
 
 ---
@@ -255,7 +255,7 @@ Product Manager, Technical Writer, Improvement Coach — plus the icon system
 rules and the combined suite mark live in a sibling file: [icons.md](icons.md).
 They share the family icon grid (24px, 2px stroke, no fill) and read as if
 stamped into the same logbook as the
-[characters](../index.md#2-the-three-characters).
+[characters](../CLAUDE.md#2-the-three-characters).
 
 ---
 
@@ -370,7 +370,7 @@ backgrounds.
 
 ### Concrete Components
 
-The component patterns in [../index.md § 8](../index.md#8-components)
+The component patterns in [../CLAUDE.md § 8](../CLAUDE.md#8-components)
 instantiate with Kata colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`. Hover shifts
@@ -516,5 +516,5 @@ stamped paper.
 
 ---
 
-_Kata brand implementation of the [shared design language](../index.md). Sibling
+_Kata brand implementation of the [shared design language](../CLAUDE.md). Sibling
 brand to [Forward Impact Engineering](../fit/index.md). Updated April 2026._

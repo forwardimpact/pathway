@@ -1,7 +1,7 @@
 # Forward Impact Engineering — Brand Implementation
 
 > The Forward Impact Engineering realization of the
-> [shared design language](../index.md): a monochrome design system for seven
+> [shared design language](../CLAUDE.md): a monochrome design system for seven
 > open-source products — **Map**, **Pathway**, **Guide**, **Landmark**,
 > **Summit**, **Outpost**, and **Gear** — built around the metaphor of engineers
 > deployed "in the field." Three characters — the Engineer, the AI Agent, and
@@ -18,7 +18,7 @@ palette, the typography choices, the type scale, the layout patterns, the
 product visual language, and the CSS design tokens. The product scenes and
 product icons live alongside in [scenes.md](scenes.md) and [icons.md](icons.md).
 For the abstract design language and the three characters' shared visual
-specifications, see [../index.md](../index.md).
+specifications, see [../CLAUDE.md](../CLAUDE.md).
 
 ---
 
@@ -47,7 +47,7 @@ and functional, not themed like an outdoor gear catalog.
 
 ## 2. Characters in the Field
 
-The [three family characters](../index.md#2-the-three-characters) live inside
+The [three family characters](../CLAUDE.md#2-the-three-characters) live inside
 the field metaphor. Their visual specifications are unchanged from the family —
 what follows are brand-specific readings, not new shapes:
 
@@ -181,7 +181,7 @@ DM Sans, 18px, weight 400, gray-400:
 
 The product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear — and
 the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
-extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with
+extend the [reusable base scenes](../CLAUDE.md#4-reusable-base-scenes) with
 brand-specific product symbols.
 
 ---
@@ -192,7 +192,7 @@ The seven product icons — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear
 plus the icon system rules and the combined suite mark live in a sibling file:
 [icons.md](icons.md). They share the family icon grid (24px, 2px stroke, no
 fill) and read as if drawn in the same notebook as the
-[characters](../index.md#2-the-three-characters).
+[characters](../CLAUDE.md#2-the-three-characters).
 
 ---
 
@@ -257,7 +257,7 @@ Footer:    gray-900 (#1c1a18)       — Dark footer (inverted), licenses
 
 ### Concrete Components
 
-The component patterns in [../index.md § 8](../index.md#8-components)
+The component patterns in [../CLAUDE.md § 8](../CLAUDE.md#8-components)
 instantiate with these colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`.
@@ -396,4 +396,4 @@ Each product shares the core design system with subtle differentiators:
 ---
 
 _Forward Impact Engineering brand implementation of the
-[shared design language](../index.md). Updated April 2026._
+[shared design language](../CLAUDE.md). Updated April 2026._

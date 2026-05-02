@@ -99,24 +99,24 @@ Equilateral triangle with vertical rectangle entrance at center-bottom. Sits on
 a ground line. Shelter, preparation, shared space — the tent is temporary and
 portable, reflecting that knowledge management should travel with you.
 
-## Gear — The Carabiner
+## Gear — The Swiss Army Knife
 
 ```
-   ╭───╮
-  ╱     ╲
- │ ┃     │
- │ ┃     │   ← gate runs along the inside edge
- │       │
-  ╲     ╱
-   ╰───╯
+  ╭──────────╮
+  │          │
+  │  ╭────── │──   ← blade (extended)
+  │  │       │
+  │  ╰───── ─┤     ← screwdriver (half-open)
+  │          │
+  ╰──────────╯
 ```
 
-Asymmetric oval (taller than wide), with a short vertical gate line set just
-inside the long-axis edge — the spring-loaded opening. A tiny notch at the top
-where the gate meets the body suggests the hinge. No fill, consistent with the
-icon system. The carabiner is the metaphor for a modular field kit — clip on
-what you need, drop what you don't. Each library in the Gear catalog is a
-clip-on tool; the registry is the ring.
+Swiss army knife, slightly angled, with one blade extended and a second tool
+half-open. Rounded corners on the body, cross emblem centered on the grip panel
+in `--gray-900`. The extended tools show it in use — not folded shut in a
+pocket. No fill, consistent with the icon system. Gear is the knife you carry
+into the field: every library folds out when you need it, tucks away when you
+don't. The catalog is the handle; each utility is a blade.
 
 ---
 
@@ -135,10 +135,10 @@ clip-on tool; the registry is the ring.
 ## Combined Icon: The Suite Mark
 
 ```
- ┌──┬──┐      ╱─╲             N         ┃╲         ⛳/\        △        ╭──╮
- │ /│× │     ╱   ╲            │        ┌┸─┐       /  \      / \       │╱  │
- │/ │  │    ~~~~~~~~~~~~  ───┼───    ┌────┐     /    \    /___\       │   │
- └──┴──┘                      │      ──────    /      \                ╰──╯
+ ┌──┬──┐      ╱─╲             N         ┃╲         ⛳/\        △      ╭────╮──
+ │ /│× │     ╱   ╲            │        ┌┸─┐       /  \      / \     │    │
+ │/ │  │    ~~~~~~~~~~~~  ───┼───    ┌────┐     /    \    /___\    ╰────╯
+ └──┴──┘                      │      ──────    /      \
    Map       Pathway       Guide   Landmark   Summit   Outpost     Gear
 ```
 

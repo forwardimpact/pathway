@@ -1,9 +1,9 @@
 # Kata Product Scenes
 
 These scenes extend the
-[reusable base scenes](../index.md#4-reusable-base-scenes) with Kata
+[reusable base scenes](../CLAUDE.md#4-reusable-base-scenes) with Kata
 production-floor symbols. All follow the
-[scene grammar](../index.md#3-scene-grammar): 2px monochrome line art on a clean
+[scene grammar](../CLAUDE.md#3-scene-grammar): 2px monochrome line art on a clean
 white background.
 
 For the Kata brand context — palette, typography, agent taxonomy — see

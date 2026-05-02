@@ -1,12 +1,12 @@
 # Using the Design Language
 
-> How to apply the [shared design language](index.md): the layered checklist for
+> How to apply the [shared design language](CLAUDE.md): the layered checklist for
 > producing illustrations, and the contract for deriving a brand that stays
 > recognizable as a sibling.
 
 This document is about _use_. The language itself — philosophy, characters,
 scene grammar, base scenes, color, typography, spacing, components, motion, and
-accessibility — lives in [index.md](index.md). Read that first.
+accessibility — lives in [CLAUDE.md](CLAUDE.md). Read that first.
 
 ---
 
@@ -19,9 +19,9 @@ from three layers. Each layer adds to the previous without restating it.
 
 | #   | Layer           | Source                                                               | Provides                                              |
 | --- | --------------- | -------------------------------------------------------------------- | ----------------------------------------------------- |
-| 1   | Character sheet | [index.md § 2](index.md#2-character-specification)                   | The three characters as standalone figures            |
-| 2   | Scene rules     | [index.md § 3](index.md#3-scene-grammar)                             | Composition, rendering, and constraints for any scene |
-| 3   | Scene prompt    | [index.md § 4](index.md#4-reusable-base-scenes) or brand `scenes.md` | Specific poses, objects, and interactions             |
+| 1   | Character sheet | [CLAUDE.md § 2](CLAUDE.md#2-character-specification)                   | The three characters as standalone figures            |
+| 2   | Scene rules     | [CLAUDE.md § 3](CLAUDE.md#3-scene-grammar)                             | Composition, rendering, and constraints for any scene |
+| 3   | Scene prompt    | [CLAUDE.md § 4](CLAUDE.md#4-reusable-base-scenes) or brand `scenes.md` | Specific poses, objects, and interactions             |
 
 A scene prompt should describe what the characters are _doing_ — posture, gaze,
 position, objects in hand — without re-specifying what they _look like_ or how
@@ -46,26 +46,26 @@ stops being part of the family.
   stay constant.
 - **2px monochrome line-art** for characters, scenes, and icons.
 - **Pure white scene backgrounds.** No frames, panels, or fills.
-- **Character constraints** ([index.md § 2](index.md#2-character-specification))
-  **and scene constraints** ([index.md § 3](index.md#3-scene-grammar)). The
+- **Character constraints** ([CLAUDE.md § 2](CLAUDE.md#2-character-specification))
+  **and scene constraints** ([CLAUDE.md § 3](CLAUDE.md#3-scene-grammar)). The
   illustration checklist in [§ 1](#1-illustration-checklist) consolidates
   verification criteria.
 - **Scene grammar** — composition rules, scale conventions, emotional tone
-  ([index.md § 3](index.md#3-scene-grammar)).
+  ([CLAUDE.md § 3](CLAUDE.md#3-scene-grammar)).
 - **Reusable base scenes** — Trio at Work, Welcome Wave, Documentation Dig
-  ([index.md § 4](index.md#4-reusable-base-scenes)).
+  ([CLAUDE.md § 4](CLAUDE.md#4-reusable-base-scenes)).
 - **Monochrome with one warm signal**
-  ([index.md § 5](index.md#5-color-philosophy)). The hue varies; the pattern
+  ([CLAUDE.md § 5](CLAUDE.md#5-color-philosophy)). The hue varies; the pattern
   doesn't.
 - **Typography pairing** — display serif + sans body + monospace code
-  ([index.md § 6](index.md#6-typography-pattern)).
+  ([CLAUDE.md § 6](CLAUDE.md#6-typography-pattern)).
 - **8px spacing rhythm** and the spacing token names
-  ([index.md § 7](index.md#7-spacing-system)).
+  ([CLAUDE.md § 7](CLAUDE.md#7-spacing-system)).
 - **Component vocabulary** — buttons (primary/secondary/ghost/product), cards,
-  terminal/code blocks, dark footer ([index.md § 8](index.md#8-components)).
+  terminal/code blocks, dark footer ([CLAUDE.md § 8](CLAUDE.md#8-components)).
 - **Motion defaults** and `prefers-reduced-motion` compliance
-  ([index.md § 9](index.md#9-motion--interaction)).
-- **Accessibility rules** ([index.md § 10](index.md#10-accessibility)).
+  ([CLAUDE.md § 9](CLAUDE.md#9-motion--interaction)).
+- **Accessibility rules** ([CLAUDE.md § 10](CLAUDE.md#10-accessibility)).
 
 ### Specified per brand
 
@@ -94,12 +94,12 @@ inside the family.
   to match the brand's material vocabulary (e.g. journal cards vs stamped
   paper). Brands diverging on radii must restate the affected component specs in
   their own `index.md`, since the family's component vocabulary in
-  [index.md § 8](index.md#8-components) names sizes only by token.
+  [CLAUDE.md § 8](CLAUDE.md#8-components) names sizes only by token.
 - **CSS design tokens** — the concrete `:root` realization of the above.
 
 ### Cross-brand component contract
 
-Components inherited from [index.md § 8](index.md#8-components) must reference
+Components inherited from [CLAUDE.md § 8](CLAUDE.md#8-components) must reference
 the family **semantic tokens** (`--bg-page`, `--bg-warm`, `--text-primary`,
 `--border-strong`, `--accent-warm-200`, `--accent-warm-400`, etc.), never the
 brand-specific palette tokens (`--sand-200`, `--ink-400`, …). Each brand exposes
@@ -114,7 +114,7 @@ A brand lives in `design/<brand>/`:
 
 - `index.md` — premise, products, palette, typography, layout patterns, product
   visual language, CSS tokens. Links back to the shared language with
-  `../index.md`.
+  `../CLAUDE.md`.
 - `scenes.md` — product scenes and the scene usage matrix.
 - `icons.md` — product icons, icon system rules, and any combined suite mark.
 
@@ -123,10 +123,10 @@ the brand entry point short and the artifact catalogues easy to scan
 side-by-side.
 
 Add the brand to the "Brand implementations" list at the top of
-[index.md](index.md). See [`fit/`](fit/index.md) as a worked example.
+[CLAUDE.md](CLAUDE.md). See [`fit/`](fit/index.md) as a worked example.
 
 ---
 
-_How-to companion to the [shared design language](index.md). For concrete
+_How-to companion to the [shared design language](CLAUDE.md). For concrete
 palettes, fonts, products, scenes, icons, and CSS tokens, see the brand
 implementation files listed at the top of that page._

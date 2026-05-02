@@ -1,9 +1,9 @@
 # Forward Impact Engineering Product Scenes
 
 These scenes extend the
-[reusable base scenes](../index.md#4-reusable-base-scenes) with Forward Impact
+[reusable base scenes](../CLAUDE.md#4-reusable-base-scenes) with Forward Impact
 Engineering product symbols. All follow the
-[scene grammar](../index.md#3-scene-grammar).
+[scene grammar](../CLAUDE.md#3-scene-grammar).
 
 For the Forward Impact Engineering brand context — palette, typography, product
 taxonomy — see [index.md](index.md).
