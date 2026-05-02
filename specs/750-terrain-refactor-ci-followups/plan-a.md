@@ -152,17 +152,18 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
 
 - **Modified:** `package.json` (`scripts.context` chain), `justfile` (new
   recipe).
-- **`package.json` wiring:**
+- **`package.json` wiring** (matches sibling `context:*` scripts that use
+  `bun scripts/*.mjs`):
   ```diff
   -    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog",
   +    "context": "bun run context:instructions && bun run context:metadata && bun run context:catalog && bun run context:terrain",
-  +    "context:terrain": "node scripts/check-terrain-callers.mjs",
+  +    "context:terrain": "bun scripts/check-terrain-callers.mjs",
   ```
 - **`justfile` wiring (append after `check-instructions`):**
   ```just
   # Enforce no bare `bunx fit-terrain` in the named surface (spec 750)
   check-terrain-callers:
-      node scripts/check-terrain-callers.mjs
+      bun scripts/check-terrain-callers.mjs
   ```
 - **Verify:** from a clean working tree (post-S1–S3 surface has no bare
   invocation), `bun run context:terrain` exits 0 — and in particular does not
