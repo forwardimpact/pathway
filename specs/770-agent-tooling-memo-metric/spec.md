@@ -44,21 +44,18 @@ layer for wiki lifecycle management in the Kata agent system; `memo` is its
 first subcommand. Future subcommands (refresh, push, pull, init) are scoped
 in follow-up specs.
 
-- **Marker-based insertion.** Each `wiki/<agent>.md` carries an HTML comment
-  `<!-- memo:inbox -->` immediately before the "Observations for Teammates"
-  heading. `fit-wiki memo` inserts the new observation as a bullet after the
-  marker, before any existing bullets. The marker is invisible in rendered
-  markdown.
-- **CLI surface.** Accepts sender, target (or `all` for broadcast), and
-  message. Produces one write per target.
-- **Migration.** One-time insertion of `<!-- memo:inbox -->` markers into all
-  existing `wiki/<agent>.md` summary files (6 files: improvement-coach,
-  product-manager, release-engineer, security-engineer, staff-engineer,
-  technical-writer).
+- **Machine-locatable insertion point.** Each agent summary file gains an
+  insertion marker (such as `<!-- memo:inbox -->`) that `fit-wiki memo` uses
+  to locate the "Observations for Teammates" section and append new bullets
+  without reading or parsing the surrounding file. The marker is invisible
+  in rendered markdown.
+- **CLI surface.** Accepts sender, target (or broadcast to all agents), and
+  message text. Produces one write per target agent.
+- **Migration.** One-time insertion of the chosen marker into all existing
+  agent summary files under `wiki/`.
 - **Template update.** The summary section template in `memory-protocol.md`
-  (section 5 of the "Permitted sections" list: `## Observations for
-  Teammates`) gains the `<!-- memo:inbox -->` marker so that newly created
-  summaries include it automatically.
+  gains the insertion marker so that newly created summaries are
+  memo-ready from creation.
 - **Package.** `libwiki` is a new library under `libraries/libwiki` with
   `fit-wiki` as its CLI binary. It has no dependency on `libxmr` in this
   spec's scope (the `memo` subcommand does not need XmR analysis). The
@@ -75,35 +72,34 @@ summary.
   `wiki/metrics/{agent}/{YYYY}.csv` — one file per agent per year. The `domain`
   directory is removed. The `metric` column in each row already distinguishes
   metric names; `fit-xmr analyze --metric <name>` already filters by metric.
-- **Migration.** Concatenate each agent's per-domain CSVs into a single file,
-  preserving row order by date. Remove the empty domain directories.
-  Non-CSV content under `wiki/metrics/` (such as experiment artifact
-  directories) is out of scope for the CSV migration.
-- **CLI surface.** Accepts agent name, metric name, value, and optional unit
-  (default `count`), run tag (defaults to the CI run identifier when available),
-  and note. Resolves the CSV path, creates the file with header if missing,
-  appends the row, then prints a one-line XmR summary for that metric using
-  libxmr's existing analysis and formatting capabilities.
+- **Migration.** All existing CSV data rows across an agent's per-domain files
+  are consolidated into the flat file. Non-CSV content under `wiki/metrics/`
+  (such as `staff-engineer/trace-analysis/exp14/`) is out of scope.
+  Improvement-coach has no metrics directory and is not part of the metrics
+  migration (memo migration only).
+- **CLI surface.** Accepts agent name, metric name, value, and optional unit,
+  run tag, and note. Resolves the CSV path, creates the file with header if
+  missing, appends the row, then prints a one-line XmR summary for that
+  metric using libxmr's existing analysis and formatting capabilities.
 - **One-line summary.** After appending, the command prints a compact status
   line to stdout: metric name, n, status, latest value. This gives the agent
   immediate feedback without a separate `fit-xmr analyze` call.
 
 ### 3. Protocol and template updates
 
-- **`memory-protocol.md`** — Update the "Summary Contract" section to document
-  the `<!-- memo:inbox -->` marker. Update the "Metrics tables" exclusion to
-  reflect the flat `wiki/metrics/{agent}/{YYYY}.csv` path.
-- **`kata-metrics/SKILL.md`** — Update the Storage section path from
-  `wiki/metrics/{agent}/{domain}/{YYYY}.csv` to `wiki/metrics/{agent}/{YYYY}.csv`.
-  Update recording protocol to reference `fit-xmr record` instead of manual
-  `cat >>`. Update analysis examples to use the flat path.
-- **`kata-metrics/references/csv-schema.md`** — Update the storage path
-  reference.
-- **`storyboard-template.md`** — Update the `### {agent} — {domain}` heading
-  pattern to `### {agent}` (domain is now implicit in the metric name). Update
-  example `fit-xmr` paths.
-- **`fit-xmr` CLI help** — Update example paths in the CLI help output from
-  the domain-based path to the flat path.
+All protocol and template documents that reference the metrics storage path
+or the summary section structure are updated to reflect the new flat path
+and the memo insertion marker. Affected files:
+
+- **`memory-protocol.md`** — Summary Contract documents the insertion marker;
+  metrics path references use the flat structure.
+- **`kata-metrics/SKILL.md`** and **`kata-metrics/references/csv-schema.md`**
+  — Storage path, recording protocol, and analysis examples use the flat
+  path and reference `fit-xmr record`.
+- **`storyboard-template.md`** — Per-agent metric headings drop the domain
+  qualifier (domain is implicit in the metric name). Example paths use the
+  flat structure.
+- **`fit-xmr` CLI help** — Example paths use the flat structure.
 
 ## Scope (out)
 
@@ -122,22 +118,24 @@ summary.
 
 | # | Claim | Verification |
 |---|-------|--------------|
-| 1 | `fit-wiki memo --from <sender> --to <target> "<message>"` appends a timestamped bullet to `wiki/<target>.md` immediately after the `<!-- memo:inbox -->` marker. | Run the command; `git diff wiki/<target>.md` shows exactly one new bullet with ISO date, sender attribution, and message text. No other lines changed. |
-| 2 | `fit-wiki memo --from <sender> --to all "<message>"` writes to all 6 agent summaries. | Run the command; `git diff wiki/` shows one new bullet in each of the 6 summary files. |
-| 3 | `fit-xmr record --agent <name> <metric> <value>` appends a row to `wiki/metrics/<name>/{YYYY}.csv` and prints a one-line XmR summary to stdout. | Run the command; `tail -1 wiki/metrics/<name>/2026.csv` shows `<today>,<metric>,<value>,count,...`. Stdout contains metric name, n, status, and latest value. |
+| 1 | `fit-wiki memo` appends a timestamped observation to the target agent's summary file in the correct section. | Run the command targeting one agent; `git diff` shows exactly one new bullet appended in the observations section with date and sender attribution. |
+| 2 | `fit-wiki memo` with a broadcast target writes to every agent summary. | Run the command with broadcast; `git diff wiki/` shows one new bullet in each agent summary file. |
+| 3 | `fit-xmr record` appends a row to the agent's flat metrics CSV and prints a one-line XmR summary to stdout. | Run the command; last line of the CSV matches the recorded metric. Stdout contains metric name, data point count, and XmR status. |
 | 4 | `fit-xmr record` creates the CSV with header row when the file does not exist. | Run against a non-existent agent directory; file exists afterward with header + 1 data row. |
-| 5 | All 6 existing agent summary files contain `<!-- memo:inbox -->` after migration. | `grep -c 'memo:inbox' wiki/*.md` returns 1 for each of the 6 agent summaries. |
-| 6 | All existing metrics rows are preserved in the flat structure after migration. | `wc -l` on new flat CSVs equals sum of `wc -l` on old per-domain CSVs (minus duplicate header rows). |
-| 7 | `memory-protocol.md`, `kata-metrics/SKILL.md`, `kata-metrics/references/csv-schema.md`, `storyboard-template.md`, and the `fit-xmr` CLI help output reference the flat path `wiki/metrics/{agent}/{YYYY}.csv` and mention no `{domain}` directory. | `grep -r '{domain}' .claude/agents/references/memory-protocol.md .claude/skills/kata-metrics/ libraries/libxmr/` returns zero matches. |
+| 5 | All existing agent summary files contain the insertion marker after migration. | Each file matching `wiki/<agent>.md` (identified by the `# ... — Summary` H1) contains exactly one marker instance. |
+| 6 | All existing metrics rows are preserved in the flat structure after migration. | Row count of each migrated flat CSV equals the total data rows across all source CSVs for that agent. |
+| 7 | All protocol docs, templates, and CLI help reference the flat metrics path with no `{domain}` directory. | `grep -r '{domain}' .claude/agents/references/memory-protocol.md .claude/skills/kata-metrics/ .claude/skills/kata-session/references/storyboard-template.md libraries/libxmr/` returns zero matches. |
 | 8 | `storyboard-template.md` uses `### {agent}` headings (not `### {agent} — {domain}`). | Static inspection of the template file. |
-| 9 | `memory-protocol.md` "Summary Contract" section documents the `<!-- memo:inbox -->` marker as part of the permitted sections structure. | Static inspection; the marker appears in the section 5 documentation. |
+| 9 | `memory-protocol.md` "Summary Contract" documents the insertion marker as part of the permitted sections structure. | Static inspection; the marker format appears in the section 5 documentation. |
 
 ## Notes
 
 ### Evidence source
 
-Findings are from SCRATCHPAD-6.md (grounded theory trace analysis, May 2 2026).
-Key quantitative observations:
+Findings are from the grounded theory trace analysis in
+[`grounded-analysis.md`](grounded-analysis.md) (May 2 2026, committed
+alongside this spec). Trace corpus: 33 structured traces from 18 workflow
+runs. Key quantitative observations:
 
 - 23/23 traced agent runs read `wiki/MEMORY.md` during boot.
 - 56/63 `fit-xmr analyze` calls (89%) originate from the facilitator.

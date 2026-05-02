@@ -13,7 +13,7 @@ specific pain points:
 ASCII output, and pastes it into a fenced code block inside the storyboard
 markdown. Across 6 storyboard traces (Apr 17 -- May 2 2026), the facilitator
 runs 6-12 `fit-xmr analyze` calls and 0-6 `fit-xmr chart` calls per session
-(SCRATCHPAD-6.md). This paste-and-format work costs 10-20 turns per session and
+(see [`../770-agent-tooling-memo-metric/grounded-analysis.md`](../770-agent-tooling-memo-metric/grounded-analysis.md)). This paste-and-format work costs 10-20 turns per session and
 is error-prone: the facilitator must also write the `**Latest:**`,
 `**Status:**`, and `**Signals:**` lines by hand, reconciling JSON output with
 markdown formatting.
