@@ -326,8 +326,8 @@ structured debrief.
 
 After the debrief, offer (don't ask) logical follow-ups:
 
-- **For interviews:** "I can run req-assess on this transcript when
-  Hyprnote finishes processing."
+- **For interviews:** "I can run req-assess on this transcript when Hyprnote
+  finishes processing."
 - **For meetings:** "I can extract entities from this session into the knowledge
   graph when ready."
 

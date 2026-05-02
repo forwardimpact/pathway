@@ -241,8 +241,7 @@ from `USER.md`.
 **Exception for interview sessions:** If the session is clearly a job interview
 (title or memo indicates "interview with {Name}"), the interviewee is a
 **candidate** — create or update their note in `knowledge/Candidates/` instead
-of `knowledge/People/`, following the candidate note template from
-`req-track`.
+of `knowledge/People/`, following the candidate note template from `req-track`.
 
 ## Step 4: Extract Content
 

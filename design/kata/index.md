@@ -134,9 +134,9 @@ may show **S** lit. Lit quadrants use a 1.5px stroke; unlit quadrants use a
 ### Core Palette
 
 Warm-tinted grays, pulled toward the _sumi_ ink and pressed-paper end of the
-ramp. Slightly cooler than Forward Impact Engineering's sandstone bias, slightly more graphite — think
-of a black-and-white photograph that has been kept in a manila folder for
-seventy years.
+ramp. Slightly cooler than Forward Impact Engineering's sandstone bias, slightly
+more graphite — think of a black-and-white photograph that has been kept in a
+manila folder for seventy years.
 
 | Token          | Hex       | Usage                                       |
 | -------------- | --------- | ------------------------------------------- |
@@ -215,8 +215,9 @@ typewriter's irregularity, suited for terminals and ledger-style data.
 | `--text-badge`         | `0.75rem` (12px)  | 600    | 1           | IBM Plex Sans | `--gray-700` |
 | `--text-mono`          | `0.875rem` (14px) | 400    | 1.6         | IBM Plex Mono | `--gray-500` |
 
-The Kata display weight is heavier than Forward Impact Engineering's (700 vs 400) — slab serifs carry
-mid-century industrial weight, more poster than journal.
+The Kata display weight is heavier than Forward Impact Engineering's (700
+vs 400) — slab serifs carry mid-century industrial weight, more poster than
+journal.
 
 ### Hero Pattern
 
@@ -340,8 +341,8 @@ questions as level-3 subsections, metrics as a mono-table.
 
 ### Navigation Pattern (Internals Page)
 
-The Kata internals page lives inside the Forward Impact Engineering docs nav. Within the Kata section,
-sub-nav routes to each persona:
+The Kata internals page lives inside the Forward Impact Engineering docs nav.
+Within the Kata section, sub-nav routes to each persona:
 
 ```
 Forward Impact Engineering Docs  ›  Internals  ›  Kata  ›  Staff · Release · Security · Product · Writer · Coach
@@ -361,10 +362,11 @@ Section 5: white (#ffffff)          — CTA / read the playbook
 Footer:    gray-900 (#161513)       — Dark footer (inverted), licenses
 ```
 
-The kata-rail texture is Kata's equivalent of Forward Impact Engineering's contour lines: a repeating
-thin horizontal line in `--gray-100` on `--white-warm` or `--ink-50` sections,
-evoking the wire on which kanban cards slide. 1px stroke, spaced 28px apart,
-opacity 0.35. Never on pure white backgrounds.
+The kata-rail texture is Kata's equivalent of Forward Impact Engineering's
+contour lines: a repeating thin horizontal line in `--gray-100` on
+`--white-warm` or `--ink-50` sections, evoking the wire on which kanban cards
+slide. 1px stroke, spaced 28px apart, opacity 0.35. Never on pure white
+backgrounds.
 
 ### Concrete Components
 
@@ -508,8 +510,9 @@ Each agent shares the core design system with subtle differentiators:
 }
 ```
 
-The Kata radii are slightly tighter than Forward Impact Engineering (6/10/14 vs 8/12/16) — closer to
-the squared corners of mid-century industrial cards and stamped paper.
+The Kata radii are slightly tighter than Forward Impact Engineering (6/10/14 vs
+8/12/16) — closer to the squared corners of mid-century industrial cards and
+stamped paper.
 
 ---
 

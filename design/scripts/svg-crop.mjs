@@ -87,97 +87,138 @@ function isEmpty(box) {
   return box.minX === Infinity;
 }
 
+// Tokenises an SVG path "d" attribute into command letters and number tokens.
+// The two number-shape sub-groups are independent (mantissa, exponent) and
+// cannot backtrack across each other — eslint's unsafe-regex heuristic flags
+// the optional exponent suffix even though it's bounded.
 const TOKEN_RE =
+  // eslint-disable-next-line security/detect-unsafe-regex -- bounded suffix; no nested quantifiers
   /([MmLlHhVvCcSsQqTtAaZz])|(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/g;
 const isLetter = (t) => /^[A-Za-z]$/.test(t);
+
+// Per-command bbox extenders. Each handler reads its operand stride from the
+// token cursor (`ctx.num()`), updates the current point on `ctx`, and includes
+// any geometric extrema in `box`. Splitting per-command keeps pathBox below the
+// complexity lint threshold.
+const PATH_HANDLERS = {
+  M(ctx, box, abs) {
+    const x = ctx.rx(ctx.num());
+    const y = ctx.ry(ctx.num());
+    ctx.cpx = x;
+    ctx.cpy = y;
+    ctx.spx = x;
+    ctx.spy = y;
+    ctx.cmd = abs ? "L" : "l";
+    include(box, x, y);
+  },
+  L(ctx, box) {
+    const x = ctx.rx(ctx.num());
+    const y = ctx.ry(ctx.num());
+    ctx.cpx = x;
+    ctx.cpy = y;
+    include(box, x, y);
+  },
+  H(ctx, box) {
+    ctx.cpx = ctx.rx(ctx.num());
+    include(box, ctx.cpx, ctx.cpy);
+  },
+  V(ctx, box) {
+    ctx.cpy = ctx.ry(ctx.num());
+    include(box, ctx.cpx, ctx.cpy);
+  },
+  C(ctx, box) {
+    const x1 = ctx.rx(ctx.num()),
+      y1 = ctx.ry(ctx.num());
+    const x2 = ctx.rx(ctx.num()),
+      y2 = ctx.ry(ctx.num());
+    const x = ctx.rx(ctx.num()),
+      y = ctx.ry(ctx.num());
+    include(box, x1, y1);
+    include(box, x2, y2);
+    include(box, x, y);
+    ctx.cpx = x;
+    ctx.cpy = y;
+  },
+  S(ctx, box) {
+    const x1 = ctx.rx(ctx.num()),
+      y1 = ctx.ry(ctx.num());
+    const x = ctx.rx(ctx.num()),
+      y = ctx.ry(ctx.num());
+    include(box, x1, y1);
+    include(box, x, y);
+    ctx.cpx = x;
+    ctx.cpy = y;
+  },
+  T(ctx, box) {
+    const x = ctx.rx(ctx.num()),
+      y = ctx.ry(ctx.num());
+    include(box, x, y);
+    ctx.cpx = x;
+    ctx.cpy = y;
+  },
+  A(ctx, box) {
+    ctx.num();
+    ctx.num();
+    ctx.num();
+    ctx.num();
+    ctx.num();
+    const x = ctx.rx(ctx.num()),
+      y = ctx.ry(ctx.num());
+    include(box, x, y);
+    ctx.cpx = x;
+    ctx.cpy = y;
+  },
+};
+PATH_HANDLERS.Q = PATH_HANDLERS.S;
 
 function pathBox(d) {
   const tokens = d.match(TOKEN_RE);
   if (!tokens) return null;
 
   const box = makeBox();
-  let i = 0;
-  let cmd = null;
-  let cpx = 0;
-  let cpy = 0;
-  let spx = 0;
-  let spy = 0;
-  const num = () => parseFloat(tokens[i++]);
+  const ctx = {
+    cmd: null,
+    cpx: 0,
+    cpy: 0,
+    spx: 0,
+    spy: 0,
+    i: 0,
+  };
+  ctx.num = () => parseFloat(tokens[ctx.i++]);
 
-  while (i < tokens.length) {
-    if (isLetter(tokens[i])) {
-      cmd = tokens[i++];
-      if (cmd === "Z" || cmd === "z") {
-        cpx = spx;
-        cpy = spy;
-        cmd = null;
+  while (ctx.i < tokens.length) {
+    if (isLetter(tokens[ctx.i])) {
+      ctx.cmd = tokens[ctx.i++];
+      if (ctx.cmd === "Z" || ctx.cmd === "z") {
+        ctx.cpx = ctx.spx;
+        ctx.cpy = ctx.spy;
+        ctx.cmd = null;
         continue;
       }
     }
-    if (cmd === null) {
-      i++;
+    if (ctx.cmd === null) {
+      ctx.i++;
       continue;
     }
-    if (i >= tokens.length || isLetter(tokens[i])) continue;
+    if (ctx.i >= tokens.length || isLetter(tokens[ctx.i])) continue;
 
-    const abs = cmd === cmd.toUpperCase();
-    const c = cmd.toUpperCase();
-    const rx = (x) => (abs ? x : cpx + x);
-    const ry = (y) => (abs ? y : cpy + y);
+    const abs = ctx.cmd === ctx.cmd.toUpperCase();
+    const c = ctx.cmd.toUpperCase();
+    ctx.rx = (x) => (abs ? x : ctx.cpx + x);
+    ctx.ry = (y) => (abs ? y : ctx.cpy + y);
 
-    if (c === "M" || c === "L") {
-      const x = rx(num());
-      const y = ry(num());
-      cpx = x;
-      cpy = y;
-      if (c === "M") {
-        spx = x;
-        spy = y;
-        cmd = abs ? "L" : "l";
-      }
-      include(box, x, y);
-    } else if (c === "H") {
-      cpx = rx(num());
-      include(box, cpx, cpy);
-    } else if (c === "V") {
-      cpy = ry(num());
-      include(box, cpx, cpy);
-    } else if (c === "C") {
-      const x1 = rx(num()), y1 = ry(num());
-      const x2 = rx(num()), y2 = ry(num());
-      const x = rx(num()), y = ry(num());
-      include(box, x1, y1);
-      include(box, x2, y2);
-      include(box, x, y);
-      cpx = x;
-      cpy = y;
-    } else if (c === "S" || c === "Q") {
-      const x1 = rx(num()), y1 = ry(num());
-      const x = rx(num()), y = ry(num());
-      include(box, x1, y1);
-      include(box, x, y);
-      cpx = x;
-      cpy = y;
-    } else if (c === "T") {
-      const x = rx(num()), y = ry(num());
-      include(box, x, y);
-      cpx = x;
-      cpy = y;
-    } else if (c === "A") {
-      num(); num(); num(); num(); num();
-      const x = rx(num()), y = ry(num());
-      include(box, x, y);
-      cpx = x;
-      cpy = y;
-    } else {
-      i++;
-    }
+    const handler = PATH_HANDLERS[c];
+    if (handler) handler(ctx, box, abs);
+    else ctx.i++;
   }
 
   return isEmpty(box) ? null : box;
 }
 
 function getAttr(attrs, name) {
+  // `name` is always a hard-coded SVG attribute identifier from this module
+  // (e.g. "x", "y", "rx") — never user input — so the dynamic RegExp is safe.
+  // eslint-disable-next-line security/detect-non-literal-regexp -- name is a closed set of literals
   const m = attrs.match(new RegExp(`\\b${name}="([^"]+)"`));
   return m ? parseFloat(m[1]) : null;
 }
@@ -227,6 +268,9 @@ function lineBox(attrs) {
 function pointsBox(attrs) {
   const m = attrs.match(/\bpoints="([^"]+)"/);
   if (!m) return null;
+  // Number pattern with a single optional fractional suffix — bounded, no
+  // nested quantifiers — but eslint's heuristic flags any optional sub-group.
+  // eslint-disable-next-line security/detect-unsafe-regex -- bounded suffix; no nested quantifiers
   const nums = m[1].match(/-?\d+(?:\.\d+)?/g);
   if (!nums || nums.length < 2) return null;
   const box = makeBox();
@@ -246,7 +290,10 @@ function parseColor(value) {
       return hex.split("").map((c) => parseInt(c + c, 16));
     }
     if (hex.length === 4) {
-      return hex.split("").slice(0, 3).map((c) => parseInt(c + c, 16));
+      return hex
+        .split("")
+        .slice(0, 3)
+        .map((c) => parseInt(c + c, 16));
     }
     if (hex.length === 6 || hex.length === 8) {
       return [
@@ -258,10 +305,15 @@ function parseColor(value) {
     return null;
   }
 
+  // rgba() syntax pattern. The optional alpha clause is a single bounded group
+  // anchored between literal commas and a closing paren — no nested quantifiers
+  // can backtrack across the rest of the pattern.
   const rgb = v.match(
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored alpha clause; no nested quantifiers
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/,
   );
-  if (rgb) return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
+  if (rgb)
+    return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
 
   return NAMED_COLORS[v] ?? null;
 }
@@ -293,7 +345,8 @@ const SHAPE_BOX = {
 
 function unionBox(svg) {
   const total = makeBox();
-  const re = /<(path|rect|circle|ellipse|line|polyline|polygon)\b([^/>]*?)\/?>/g;
+  const re =
+    /<(path|rect|circle|ellipse|line|polyline|polygon)\b([^/>]*?)\/?>/g;
   let m;
   while ((m = re.exec(svg)) !== null) {
     const [, tag, attrs] = m;
@@ -313,9 +366,13 @@ function fmt(n) {
 }
 
 function setOrInsert(tag, name, value) {
+  // `name` is one of {"width", "height", "viewBox"} — closed literal set, not
+  // user input. Dynamic RegExp is safe.
+  /* eslint-disable security/detect-non-literal-regexp -- name is a closed set of literals */
   if (new RegExp(`\\b${name}=`).test(tag)) {
     return tag.replace(new RegExp(`\\b${name}="[^"]*"`), `${name}="${value}"`);
   }
+  /* eslint-enable security/detect-non-literal-regexp */
   return tag.replace(/<svg\b/, `<svg ${name}="${value}"`);
 }
 
@@ -329,7 +386,11 @@ function rewriteSvgRoot(svg, box) {
     let next = tag;
     next = setOrInsert(next, "width", fmt(w));
     next = setOrInsert(next, "height", fmt(h));
-    next = setOrInsert(next, "viewBox", `${fmt(x)} ${fmt(y)} ${fmt(w)} ${fmt(h)}`);
+    next = setOrInsert(
+      next,
+      "viewBox",
+      `${fmt(x)} ${fmt(y)} ${fmt(w)} ${fmt(h)}`,
+    );
     return next;
   });
   return { out, w, h };
@@ -342,7 +403,10 @@ function readDims(svg) {
   const vb = tag.match(/\bviewBox="([^"]+)"/)?.[1];
   let viewBox = null;
   if (vb) {
-    const nums = vb.trim().split(/[\s,]+/).map(parseFloat);
+    const nums = vb
+      .trim()
+      .split(/[\s,]+/)
+      .map(parseFloat);
     if (nums.length === 4 && nums.every(Number.isFinite)) {
       viewBox = {
         minX: nums[0],
@@ -381,10 +445,20 @@ function squareBox(box) {
   if (w === h) return box;
   if (w > h) {
     const grow = (w - h) / 2;
-    return { minX: box.minX, minY: box.minY - grow, maxX: box.maxX, maxY: box.maxY + grow };
+    return {
+      minX: box.minX,
+      minY: box.minY - grow,
+      maxX: box.maxX,
+      maxY: box.maxY + grow,
+    };
   }
   const grow = (h - w) / 2;
-  return { minX: box.minX - grow, minY: box.minY, maxX: box.maxX + grow, maxY: box.maxY };
+  return {
+    minX: box.minX - grow,
+    minY: box.minY,
+    maxX: box.maxX + grow,
+    maxY: box.maxY,
+  };
 }
 
 function processFile(filePath) {

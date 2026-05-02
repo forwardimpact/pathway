@@ -56,7 +56,7 @@ const NAMED_COLORS = {
 // the fill is near-white.  Intermediate H/V stops along the edges are
 // fine (e.g. M0 0H1024V35.6V1024H0V0Z is still a rectangle); curve
 // commands (C S Q T A) disqualify the path as artwork.
-const RECT_ONLY_D = /^M0[\s,]*0[MHVLZmhvlz0-9.\s,\-]*$/;
+const RECT_ONLY_D = /^M0[\s,]*0[MHVLZmhvlz0-9.\s,-]*$/;
 
 const { values, positionals } = parseArgs({
   options: {
@@ -88,7 +88,10 @@ function parseColor(value) {
     const hex = v.slice(1);
     if (hex.length === 3) return hex.split("").map((c) => parseInt(c + c, 16));
     if (hex.length === 4) {
-      return hex.split("").slice(0, 3).map((c) => parseInt(c + c, 16));
+      return hex
+        .split("")
+        .slice(0, 3)
+        .map((c) => parseInt(c + c, 16));
     }
     if (hex.length === 6 || hex.length === 8) {
       return [
@@ -100,10 +103,14 @@ function parseColor(value) {
     return null;
   }
 
+  // rgba() syntax pattern. The optional alpha clause is anchored between
+  // literal commas and a closing paren — no nested quantifiers.
   const rgb = v.match(
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored alpha clause; no nested quantifiers
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/,
   );
-  if (rgb) return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
+  if (rgb)
+    return [parseInt(rgb[1], 10), parseInt(rgb[2], 10), parseInt(rgb[3], 10)];
 
   return NAMED_COLORS[v] ?? null;
 }

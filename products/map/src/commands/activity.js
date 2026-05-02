@@ -109,43 +109,35 @@ export async function transform(target, supabase) {
   return r.errors.length === 0 ? 0 : 1;
 }
 
+async function countRows(supabase, table) {
+  const { count, error } = await supabase
+    .from(table)
+    .select("*", { count: "exact", head: true });
+  if (error) throw new Error(`${table}: ${error.message}`);
+  return count ?? 0;
+}
+
 export async function verify(supabase) {
   const people = await getOrganization(supabase);
-
-  const { count: snapshotCount, error: snapErr } = await supabase
-    .from("getdx_snapshots")
-    .select("*", { count: "exact", head: true });
-  if (snapErr) throw new Error(`getdx_snapshots: ${snapErr.message}`);
-
-  const { count: eventCount, error: eventErr } = await supabase
-    .from("github_events")
-    .select("*", { count: "exact", head: true });
-  if (eventErr) throw new Error(`github_events: ${eventErr.message}`);
-
-  const { count: evidenceCount, error: evidErr } = await supabase
-    .from("evidence")
-    .select("*", { count: "exact", head: true });
-  if (evidErr) throw new Error(`evidence: ${evidErr.message}`);
-
-  const { count: commentCount, error: comErr } = await supabase
-    .from("getdx_snapshot_comments")
-    .select("*", { count: "exact", head: true });
-  if (comErr) throw new Error(`getdx_snapshot_comments: ${comErr.message}`);
+  const snapshotCount = await countRows(supabase, "getdx_snapshots");
+  const eventCount = await countRows(supabase, "github_events");
+  const evidenceCount = await countRows(supabase, "evidence");
+  const commentCount = await countRows(supabase, "getdx_snapshot_comments");
 
   const hasPeople = people.length > 0;
-  const hasDerived = (snapshotCount ?? 0) > 0 || (eventCount ?? 0) > 0;
+  const hasDerived = snapshotCount > 0 || eventCount > 0;
 
   summary.render({
     title: formatHeader("Activity tables"),
     ok: hasPeople && hasDerived,
     items: [
       { label: "organization_people", description: `${people.length} rows` },
-      { label: "getdx_snapshots", description: `${snapshotCount ?? 0} rows` },
-      { label: "github_events", description: `${eventCount ?? 0} rows` },
-      { label: "evidence", description: `${evidenceCount ?? 0} rows` },
+      { label: "getdx_snapshots", description: `${snapshotCount} rows` },
+      { label: "github_events", description: `${eventCount} rows` },
+      { label: "evidence", description: `${evidenceCount} rows` },
       {
         label: "getdx_snapshot_comments",
-        description: `${commentCount ?? 0} rows`,
+        description: `${commentCount} rows`,
       },
     ],
   });

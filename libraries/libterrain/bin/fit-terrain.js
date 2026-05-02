@@ -66,7 +66,8 @@ const definition = {
     },
     check: {
       type: "boolean",
-      description: "Verify 100% prose cache hit and skip validation (implies --strict --dry-run)",
+      description:
+        "Verify 100% prose cache hit and skip validation (implies --strict --dry-run)",
     },
     "dry-run": {
       type: "boolean",
@@ -264,7 +265,9 @@ async function writeRawLocally(rawDocuments, monorepoRoot) {
 function printValidation(result, summary) {
   const items = result.validation.checks.map((check) => ({
     label: check.name,
-    description: check.passed ? "\u2713" : `\u2717 ${check.message ?? "failed"}`,
+    description: check.passed
+      ? "\u2713"
+      : `\u2717 ${check.message ?? "failed"}`,
   }));
   process.stdout.write("\n");
   summary.render({

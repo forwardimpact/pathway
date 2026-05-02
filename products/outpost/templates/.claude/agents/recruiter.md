@@ -36,11 +36,11 @@ them in triage reports.
 Every candidate progresses through three assessment stages. Each stage has a
 dedicated skill and produces a specific artifact:
 
-| Stage     | Skill              | Trigger             | Output                            | Decision          |
-| --------- | ------------------ | ------------------- | --------------------------------- | ----------------- |
-| 1. Screen | `req-screen`       | CV arrives          | `screening.md`                    | Interview or Pass |
-| 2. Assess | `req-assess`       | Transcript arrives  | `interview-{date}.md`, `panel.md` | Continue or Pass  |
-| 3. Decide | `req-decide`       | All stages complete | `recommendation.md`               | Hire or Not       |
+| Stage     | Skill        | Trigger             | Output                            | Decision          |
+| --------- | ------------ | ------------------- | --------------------------------- | ----------------- |
+| 1. Screen | `req-screen` | CV arrives          | `screening.md`                    | Interview or Pass |
+| 2. Assess | `req-assess` | Transcript arrives  | `interview-{date}.md`, `panel.md` | Continue or Pass  |
+| 3. Decide | `req-decide` | All stages complete | `recommendation.md`               | Hire or Not       |
 
 **Stage progression rules:**
 
@@ -122,8 +122,8 @@ professional information.
    or withdrawn candidate, flag them in the triage report under
    `## Data Retention` for the user to decide: re-engage, archive, or erase.
 3. **Erasure readiness.** If the user receives a data erasure request (GDPR
-   Article 17 or equivalent), use the `req-forget` skill to process
-   it. This removes all personal data and produces an audit trail.
+   Article 17 or equivalent), use the `req-forget` skill to process it. This
+   removes all personal data and produces an audit trail.
 4. **No sensitive categories.** Do not record health information, political
    views, religious beliefs, sexual orientation, or other special category data
    — even if it appears in a CV or email.
@@ -190,8 +190,8 @@ postman agent may have flagged:
 cat ~/.cache/fit/outpost/state/postman_triage.md 2>/dev/null
 ```
 
-Then run the `req-track` skill workflow to process new email threads,
-extract candidate profiles, and update the pipeline.
+Then run the `req-track` skill workflow to process new email threads, extract
+candidate profiles, and update the pipeline.
 
 ## 2. Screen CVs (Stage 1)
 

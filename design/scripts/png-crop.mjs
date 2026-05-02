@@ -54,7 +54,12 @@ if (values.help || positionals.length === 0) {
   process.exit(values.help ? 0 : 1);
 }
 
-const alphaThreshold = intIn("--alpha-threshold", values["alpha-threshold"], 0, 254);
+const alphaThreshold = intIn(
+  "--alpha-threshold",
+  values["alpha-threshold"],
+  0,
+  254,
+);
 const minPixels = intIn("--min-pixels", values["min-pixels"], 1);
 const padding = intIn("--padding", values.padding, 0);
 
@@ -102,6 +107,39 @@ function findContentBox(data, width, height) {
   return { minX, minY, maxX, maxY };
 }
 
+function computePadding(box, info, name) {
+  const cropW = box.maxX - box.minX + 1;
+  const cropH = box.maxY - box.minY + 1;
+  const forceSquare = name.startsWith("icon-");
+  const side = forceSquare ? Math.max(cropW, cropH) : 0;
+  const sqLeft = forceSquare ? Math.floor((side - cropW) / 2) : 0;
+  const sqTop = forceSquare ? Math.floor((side - cropH) / 2) : 0;
+  const sqRight = forceSquare ? side - cropW - sqLeft : 0;
+  const sqBottom = forceSquare ? side - cropH - sqTop : 0;
+
+  return {
+    cropW,
+    cropH,
+    top: sqTop + padding,
+    bottom: sqBottom + padding,
+    left: sqLeft + padding,
+    right: sqRight + padding,
+  };
+}
+
+function isAlreadyTight(box, pad, info) {
+  return (
+    box.minX === 0 &&
+    box.minY === 0 &&
+    pad.cropW === info.width &&
+    pad.cropH === info.height &&
+    pad.top === 0 &&
+    pad.bottom === 0 &&
+    pad.left === 0 &&
+    pad.right === 0
+  );
+}
+
 async function processFile(filePath) {
   const input = readFileSync(filePath);
   const { data, info } = await sharp(input)
@@ -117,42 +155,35 @@ async function processFile(filePath) {
     return;
   }
 
-  const cropW = box.maxX - box.minX + 1;
-  const cropH = box.maxY - box.minY + 1;
-  const forceSquare = name.startsWith("icon-");
-  const side = forceSquare ? Math.max(cropW, cropH) : 0;
-  const sqLeft = forceSquare ? Math.floor((side - cropW) / 2) : 0;
-  const sqTop = forceSquare ? Math.floor((side - cropH) / 2) : 0;
-  const sqRight = forceSquare ? side - cropW - sqLeft : 0;
-  const sqBottom = forceSquare ? side - cropH - sqTop : 0;
+  const pad = computePadding(box, info, name);
 
-  const top = sqTop + padding;
-  const bottom = sqBottom + padding;
-  const left = sqLeft + padding;
-  const right = sqRight + padding;
-
-  if (
-    box.minX === 0 &&
-    box.minY === 0 &&
-    cropW === info.width &&
-    cropH === info.height &&
-    top === 0 && bottom === 0 && left === 0 && right === 0
-  ) {
+  if (isAlreadyTight(box, pad, info)) {
     console.log(`${name}: ${info.width}×${info.height}, already tight`);
     return;
   }
 
   let pipeline = sharp(data, {
     raw: { width: info.width, height: info.height, channels: 4 },
-  }).extract({ left: box.minX, top: box.minY, width: cropW, height: cropH });
+  }).extract({
+    left: box.minX,
+    top: box.minY,
+    width: pad.cropW,
+    height: pad.cropH,
+  });
 
-  if (top || bottom || left || right) {
-    pipeline = pipeline.extend({ top, bottom, left, right, background: TRANSPARENT });
+  if (pad.top || pad.bottom || pad.left || pad.right) {
+    pipeline = pipeline.extend({
+      top: pad.top,
+      bottom: pad.bottom,
+      left: pad.left,
+      right: pad.right,
+      background: TRANSPARENT,
+    });
   }
 
   const output = await pipeline.png({ compressionLevel: 9 }).toBuffer();
-  const outW = cropW + left + right;
-  const outH = cropH + top + bottom;
+  const outW = pad.cropW + pad.left + pad.right;
+  const outH = pad.cropH + pad.top + pad.bottom;
   console.log(
     `${name}: ${info.width}×${info.height} → ${outW}×${outH}, ${kb(input)}KB → ${kb(output)}KB`,
   );

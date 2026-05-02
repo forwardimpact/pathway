@@ -78,7 +78,10 @@ function parseColor(value) {
     return null;
   }
 
+  // rgba() syntax pattern. The optional alpha clause is anchored between
+  // literal commas and a closing paren — no nested quantifiers.
   const rgb = v.match(
+    // eslint-disable-next-line security/detect-unsafe-regex -- anchored alpha clause; no nested quantifiers
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/,
   );
   if (rgb) {
@@ -117,7 +120,10 @@ function stripSvg(svg) {
     .replace(/<desc\b[\s\S]*?<\/desc>/gi, "")
     .replace(/\sxmlns:(inkscape|sodipodi|rdf|cc|dc)="[^"]*"/g, "")
     .replace(/\s(inkscape|sodipodi|rdf|cc|dc):[a-zA-Z-]+="[^"]*"/g, "")
-    .replace(/(fill|stroke)="([^"]+)"/g, (m, attr, value) => rewriteColorAttr(attr, value) ?? m)
+    .replace(
+      /(fill|stroke)="([^"]+)"/g,
+      (m, attr, value) => rewriteColorAttr(attr, value) ?? m,
+    )
     .replace(/^\s*\n/gm, "");
 }
 

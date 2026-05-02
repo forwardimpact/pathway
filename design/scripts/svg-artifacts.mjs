@@ -71,50 +71,78 @@ function pushPoint(s, x, y, isEndpoint) {
   if (isEndpoint) s.endpoints.push([x, y]);
 }
 
+// Path-command dispatch — each handler walks `v` in its command's stride and
+// pushes the appropriate sample points onto state. Splitting per-command keeps
+// the cyclomatic complexity of any single function below the lint threshold.
+const COMMAND_HANDLERS = {
+  M: linePoints,
+  L: linePoints,
+  T: linePoints,
+  H: horizontalPoints,
+  V: verticalPoints,
+  C: cubicPoints,
+  S: quadraticPoints,
+  Q: quadraticPoints,
+  A: arcPoints,
+};
+
+function linePoints(state, ax, ay, v) {
+  for (let i = 0; i < v.length; i += 2) {
+    state.cx = ax(i);
+    state.cy = ay(i + 1);
+    pushPoint(state, state.cx, state.cy, true);
+  }
+}
+
+function horizontalPoints(state, _ax, _ay, v, rel) {
+  for (let i = 0; i < v.length; i++) {
+    state.cx = rel ? state.cx + v[i] : v[i];
+    pushPoint(state, state.cx, state.cy, true);
+  }
+}
+
+function verticalPoints(state, _ax, _ay, v, rel) {
+  for (let i = 0; i < v.length; i++) {
+    state.cy = rel ? state.cy + v[i] : v[i];
+    pushPoint(state, state.cx, state.cy, true);
+  }
+}
+
+function cubicPoints(state, ax, ay, v) {
+  for (let i = 0; i < v.length; i += 6) {
+    pushPoint(state, ax(i), ay(i + 1), false);
+    pushPoint(state, ax(i + 2), ay(i + 3), false);
+    state.cx = ax(i + 4);
+    state.cy = ay(i + 5);
+    pushPoint(state, state.cx, state.cy, true);
+  }
+}
+
+function quadraticPoints(state, ax, ay, v) {
+  for (let i = 0; i < v.length; i += 4) {
+    pushPoint(state, ax(i), ay(i + 1), false);
+    state.cx = ax(i + 2);
+    state.cy = ay(i + 3);
+    pushPoint(state, state.cx, state.cy, true);
+  }
+}
+
+function arcPoints(state, ax, ay, v) {
+  for (let i = 0; i < v.length; i += 7) {
+    state.cx = ax(i + 5);
+    state.cy = ay(i + 6);
+    pushPoint(state, state.cx, state.cy, true);
+  }
+}
+
 function applyCommand(state, type, v) {
   const rel = type === type.toLowerCase();
   const c = type.toUpperCase();
   const ax = (i) => (rel ? state.cx + v[i] : v[i]);
   const ay = (i) => (rel ? state.cy + v[i] : v[i]);
 
-  if (c === "M" || c === "L" || c === "T") {
-    for (let i = 0; i < v.length; i += 2) {
-      state.cx = ax(i);
-      state.cy = ay(i + 1);
-      pushPoint(state, state.cx, state.cy, true);
-    }
-  } else if (c === "H") {
-    for (let i = 0; i < v.length; i++) {
-      state.cx = rel ? state.cx + v[i] : v[i];
-      pushPoint(state, state.cx, state.cy, true);
-    }
-  } else if (c === "V") {
-    for (let i = 0; i < v.length; i++) {
-      state.cy = rel ? state.cy + v[i] : v[i];
-      pushPoint(state, state.cx, state.cy, true);
-    }
-  } else if (c === "C") {
-    for (let i = 0; i < v.length; i += 6) {
-      pushPoint(state, ax(i), ay(i + 1), false);
-      pushPoint(state, ax(i + 2), ay(i + 3), false);
-      state.cx = ax(i + 4);
-      state.cy = ay(i + 5);
-      pushPoint(state, state.cx, state.cy, true);
-    }
-  } else if (c === "S" || c === "Q") {
-    for (let i = 0; i < v.length; i += 4) {
-      pushPoint(state, ax(i), ay(i + 1), false);
-      state.cx = ax(i + 2);
-      state.cy = ay(i + 3);
-      pushPoint(state, state.cx, state.cy, true);
-    }
-  } else if (c === "A") {
-    for (let i = 0; i < v.length; i += 7) {
-      state.cx = ax(i + 5);
-      state.cy = ay(i + 6);
-      pushPoint(state, state.cx, state.cy, true);
-    }
-  }
+  const handler = COMMAND_HANDLERS[c];
+  if (handler) handler(state, ax, ay, v, rel);
 }
 
 function analyzeSubpath(d) {

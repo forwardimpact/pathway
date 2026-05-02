@@ -5,8 +5,8 @@ These scenes extend the
 Engineering product symbols. All follow the
 [scene grammar](../index.md#3-scene-grammar).
 
-For the Forward Impact Engineering brand context — palette, typography, product taxonomy — see
-[index.md](index.md).
+For the Forward Impact Engineering brand context — palette, typography, product
+taxonomy — see [index.md](index.md).
 
 ---
 

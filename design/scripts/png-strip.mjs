@@ -10,6 +10,7 @@
 // Usage:
 //   node design/scripts/png-strip.mjs <file ...>
 
+import { Buffer } from "node:buffer";
 import { readFileSync, writeFileSync } from "fs";
 import { basename } from "path";
 import { parseArgs } from "node:util";

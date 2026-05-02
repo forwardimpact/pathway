@@ -1,23 +1,24 @@
 # Forward Impact Engineering — Brand Implementation
 
-> The Forward Impact Engineering realization of the [shared design language](../index.md): a monochrome
-> design system for seven open-source products — **Map**, **Pathway**,
-> **Guide**, **Landmark**, **Summit**, **Outpost**, and **Gear** — built around
-> the metaphor of engineers deployed "in the field." Three characters — the
-> Engineer, the AI Agent, and the Business Stakeholder — collaborate at the
-> boundary between technology and the real world.
+> The Forward Impact Engineering realization of the
+> [shared design language](../index.md): a monochrome design system for seven
+> open-source products — **Map**, **Pathway**, **Guide**, **Landmark**,
+> **Summit**, **Outpost**, and **Gear** — built around the metaphor of engineers
+> deployed "in the field." Three characters — the Engineer, the AI Agent, and
+> the Business Stakeholder — collaborate at the boundary between technology and
+> the real world.
 >
 > The design embodies Deming's principle: improve the performance of developers
 > and agents, improve quality, increase output, and bring pride of workmanship
 > to engineering teams.
 
-This file specifies what is brand-specific: the field metaphor, this brand's reading of
-the family characters, the seven products, the concrete color palette, the
-typography choices, the type scale, the layout patterns, the product visual
-language, and the CSS design tokens. The product scenes and product icons live
-alongside in [scenes.md](scenes.md) and [icons.md](icons.md). For the abstract
-design language and the three characters' shared visual specifications, see
-[../index.md](../index.md).
+This file specifies what is brand-specific: the field metaphor, this brand's
+reading of the family characters, the seven products, the concrete color
+palette, the typography choices, the type scale, the layout patterns, the
+product visual language, and the CSS design tokens. The product scenes and
+product icons live alongside in [scenes.md](scenes.md) and [icons.md](icons.md).
+For the abstract design language and the three characters' shared visual
+specifications, see [../index.md](../index.md).
 
 ---
 
@@ -50,9 +51,9 @@ The [three family characters](../index.md#2-the-three-characters) live inside
 the field metaphor. Their visual specifications are unchanged from the family —
 what follows are brand-specific readings, not new shapes:
 
-- **Hand-drawn voice.** The 2px monochrome line-art reads, in this brand, as a _field
-  notebook sketch_ — something an engineer might draw in the margin of a logbook
-  between deployments.
+- **Hand-drawn voice.** The 2px monochrome line-art reads, in this brand, as a
+  _field notebook sketch_ — something an engineer might draw in the margin of a
+  logbook between deployments.
 - **The Engineer's backpack.** The constant from the field metaphor: they carry
   their tools wherever they're deployed.
 - **The Stakeholder's role.** Represents the leadership and domain experts that
@@ -139,9 +140,9 @@ difference accumulates across the page — warmer, more human, like paper.
 | **Body**           | `"DM Sans"`                         | Same                                                        |
 | **Mono / Code**    | `"DM Mono"` (Google Fonts)          | `"SF Mono", Consolas, "Liberation Mono", monospace`         |
 
-**Instrument Serif** is this brand's specific reading of the family's display serif: it
-evokes field journals, cartographic labels, and expedition logs — the vocabulary
-of writing things down in the field.
+**Instrument Serif** is this brand's specific reading of the family's display
+serif: it evokes field journals, cartographic labels, and expedition logs — the
+vocabulary of writing things down in the field.
 
 ### Type Scale
 
@@ -178,8 +179,8 @@ DM Sans, 18px, weight 400, gray-400:
 
 ## 6. Product Scenes
 
-The product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear —
-and the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
+The product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear — and
+the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
 extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with
 brand-specific product symbols.
 
@@ -187,10 +188,10 @@ brand-specific product symbols.
 
 ## 7. Product Icons
 
-The seven product icons — Map, Pathway, Guide, Landmark, Summit, Outpost,
-Gear — plus the icon system rules and the combined suite mark live in a sibling
-file: [icons.md](icons.md). They share the family icon grid (24px, 2px stroke,
-no fill) and read as if drawn in the same notebook as the
+The seven product icons — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear —
+plus the icon system rules and the combined suite mark live in a sibling file:
+[icons.md](icons.md). They share the family icon grid (24px, 2px stroke, no
+fill) and read as if drawn in the same notebook as the
 [characters](../index.md#2-the-three-characters).
 
 ---
@@ -270,8 +271,8 @@ instantiate with these colors:
   `--white-warm` or `--sand-50` sections. 1px stroke, spaced 40px apart, opacity
   0.3. Never on pure white backgrounds.
 - **Footer (Dark):** `background: --gray-900`, primary text `#e8e5e0`, secondary
-  text `--gray-400`, dividers `--gray-700`. Trio silhouette + brand wordmark in white.
-  Licenses (Apache-2.0 code, CC BY 4.0 docs) in `--gray-400`.
+  text `--gray-400`, dividers `--gray-700`. Trio silhouette + brand wordmark in
+  white. Licenses (Apache-2.0 code, CC BY 4.0 docs) in `--gray-400`.
 
 ---
 
@@ -394,5 +395,5 @@ Each product shares the core design system with subtle differentiators:
 
 ---
 
-_Forward Impact Engineering brand implementation of the [shared design language](../index.md). Updated
-April 2026._
+_Forward Impact Engineering brand implementation of the
+[shared design language](../index.md). Updated April 2026._

@@ -41,8 +41,8 @@ progression plans — not just sit in a wiki.
 
 ## The Idea
 
-Forward Impact Engineering starts from a simple premise: **if you define what great
-engineering looks like, you can derive everything else from it.**
+Forward Impact Engineering starts from a simple premise: **if you define what
+great engineering looks like, you can derive everything else from it.**
 
 Define your skills, behaviours, and career levels in plain YAML files. From that
 single source of truth, the system produces:
@@ -113,11 +113,11 @@ complexity over hiding it.
 
 ## Who We Are
 
-Forward Impact Engineering is built and maintained by the Developer Experience team at
-a large pharmaceutical company. We work in an industry where technology serves a
-purpose beyond itself — where the software we build, the platforms we maintain,
-and the engineers we support contribute to outcomes that matter for patients'
-lives.
+Forward Impact Engineering is built and maintained by the Developer Experience
+team at a large pharmaceutical company. We work in an industry where technology
+serves a purpose beyond itself — where the software we build, the platforms we
+maintain, and the engineers we support contribute to outcomes that matter for
+patients' lives.
 
 We built FIT because we believe the best way to have lasting positive impact is
 to empower the people doing the work. When engineers have clear expectations,
