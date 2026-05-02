@@ -15,7 +15,8 @@ those that pass.
 
 This skill handles **all non-Dependabot PRs** — both external contributions and
 PRs from `kata-agent-team`. Contributor trust is the most critical gate; the
-`kata-trace` invariant audit confirms the trust check ran on every advanced PR.
+invariant audit (KATA.md § Invariants) confirms the trust check ran on every
+advanced PR.
 
 ## When to Use
 
@@ -73,8 +74,8 @@ gh api repos/{owner}/{repo}/contributors \
   --jq '[.[] | select(.type == "User")] | .[0:7] | .[].login'
 ```
 
-The PR author must appear in this list. If not, mark **blocked** (the
-`kata-trace` invariant audit checks this lookup happened on every classified
+The PR author must appear in this list. If not, mark **blocked** (the invariant
+audit — KATA.md § Invariants — checks this lookup happened on every classified
 PR).
 
 ### Step 3: Classify PR Type
@@ -173,11 +174,11 @@ Append to the current week's log:
 
 - **PR classification table** — type, author, trust, CI, approval source,
   verdict, consecutive-block count
-- **Contributor trust decisions** — checked by the `kata-trace` invariant audit
+- **Contributor trust decisions** — checked by the invariant audit (KATA.md
+  § Invariants)
 - **Approval signals consumed** — label vs APPROVED review
 - **PRs merged this run** and **merge failures** with reasons
-- **Metrics** — record at least one measurement per
-  [`kata-metrics`](../kata-metrics/SKILL.md).
+- **Metrics** — record at least one measurement per KATA.md § Metrics.
 
 ## Coordination Channels
 

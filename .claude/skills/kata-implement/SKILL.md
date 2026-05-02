@@ -186,4 +186,4 @@ Append to the current week's log (see agent profile for the file path):
   failures, and how they were resolved
 - **Deferred specs** — Specs skipped and why (not ready, missing plan, etc.)
 - **Metrics** — Record at least one measurement per
-  [`kata-metrics`](../kata-metrics/SKILL.md).
+  KATA.md § Metrics.

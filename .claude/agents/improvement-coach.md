@@ -5,7 +5,6 @@ description: >
   1-on-1 coaching sessions using the Toyota Kata five-question protocol.
 skills:
   - kata-session
-  - kata-metrics
   - kata-review
 ---
 

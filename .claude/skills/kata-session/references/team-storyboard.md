@@ -47,9 +47,8 @@ vs. expected), update Obstacles, and plan the next experiment.
 ## Metrics
 
 Each participant records to `wiki/metrics/{agent}/{domain}/{YYYY}.csv`. See
-[`metrics.md`](metrics.md) for suggested coaching-side metrics; authoritative
-XmR protocol reference at
-[`../../kata-metrics/references/xmr.md`](../../kata-metrics/references/xmr.md).
+[`metrics.md`](metrics.md) for suggested coaching-side metrics. Use
+`bunx fit-xmr --help` for the XmR analysis CLI reference.
 
 ## Storyboard updates
 

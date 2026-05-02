@@ -187,5 +187,5 @@ Append to the current week's log (see agent profile for the file path):
   context)
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
 
-No metrics — plans are work-in-progress; see
-[`kata-metrics`](../kata-metrics/SKILL.md) for recording eligibility.
+No metrics — plans are work-in-progress; see KATA.md § Metrics for recording
+eligibility.

@@ -24,9 +24,8 @@ three files that do not grow with agent count or week count.
 
 - **Teammate summaries** — read only when coordinating with a named agent or
   investigating a priority-index item that names them.
-- **Weekly logs** — read only when the skill is `kata-wiki-curate`,
-  `kata-trace`, or `kata-session`, or when explicitly investigating a historical
-  decision.
+- **Weekly logs** — read only when the skill is `kata-wiki-curate` or
+  `kata-session`, or when explicitly investigating a historical decision.
 
 Skills that need Tier 2 files declare it in their own Step 0.
 

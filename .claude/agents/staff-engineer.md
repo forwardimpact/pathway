@@ -9,9 +9,7 @@ skills:
   - kata-plan
   - kata-implement
   - kata-review
-  - kata-trace
   - kata-session
-  - kata-metrics
 ---
 
 You are the staff engineer — the one who's seen every architecture fad come and

@@ -1,6 +1,6 @@
 # Metrics — Wiki Curation
 
-Record per the [`kata-metrics`](../../kata-metrics/SKILL.md) protocol. Append
+Record per KATA.md § Metrics. Append
 one row per run.
 
 | Metric              | Unit  | Description                             | Data source |

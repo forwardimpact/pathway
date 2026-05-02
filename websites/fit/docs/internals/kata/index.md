@@ -1,6 +1,6 @@
 ---
 title: Kata Agent Team
-description: "An autonomous and continuously improving agentic development team — six agent personas, eight workflows, eighteen skills, organized as a Plan-Do-Study-Act loop."
+description: "An autonomous and continuously improving agentic development team — six agent personas, eight workflows, fifteen skills, organized as a Plan-Do-Study-Act loop."
 ---
 
 > "What does the pattern of the Improvement Kata give us? A means for
@@ -16,7 +16,7 @@ features and hardening the repo, study their own execution traces and outputs,
 and act on findings — closing the loop every day. The name follows Toyota Kata:
 agents grasp the current condition (via prior-run traces), establish target
 conditions (via specs), and experiment toward them (via implementation). Six
-agent personas, eight workflows, eighteen skills form this cycle.
+agent personas, eight workflows, fifteen skills form this cycle.
 
 This page is the internal-contributor entry point. The canonical reference is
 [`KATA.md`](https://github.com/forwardimpact/monorepo/blob/main/KATA.md) at the
@@ -173,11 +173,11 @@ shared memory mechanics by
 ## Metrics
 
 Agents record time-series data to `wiki/metrics/{agent}/{domain}/{YYYY}.csv`
-after each run. The `kata-metrics` skill defines the CSV schema (six fields:
-date, metric, value, unit, run, note), storage convention, and metric design.
+after each run. The CSV schema (six fields: date, metric, value, unit, run,
+note), storage convention, and metric design are documented in KATA.md § Metrics.
 The storyboard meeting answers "what is the actual condition now?" with numbers,
-not narratives, and XmR process behavior charts distinguish stable processes
-from special-cause reactions.
+not narratives, and XmR process behavior charts (`fit-xmr`) distinguish stable
+processes from special-cause reactions.
 
 ---
 

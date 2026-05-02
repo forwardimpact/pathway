@@ -42,10 +42,10 @@ not exist — create it with `mkdir -p` before calling the wrapper.
 
 ## Trace invariant
 
-`kata-trace` enforces that every `dangerouslyDisableSandbox: true` Bash call
-invokes `scripts/claude-write.sh`. Any sandbox-disabled call not routed through
-the wrapper is a **high-severity** trace finding. See
-`.claude/skills/kata-trace/references/invariants.md` § Cross-cutting invariants.
+The cross-cutting invariant table (KATA.md § Invariants) enforces that every
+`dangerouslyDisableSandbox: true` Bash call invokes `scripts/claude-write.sh`.
+Any sandbox-disabled call not routed through the wrapper is a **high-severity**
+trace finding.
 
 ## Retirement
 

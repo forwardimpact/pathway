@@ -171,5 +171,5 @@ Append to the current week's log (see agent profile for the file path):
 - **Deferred specs** — Specs skipped and why (not approved, missing info, etc.)
 
 This skill produces a design document — work-in-progress for the downstream plan
-and implementation — so it does not record metrics. See
-[`kata-metrics`](../kata-metrics/SKILL.md) for the recording-eligibility rule.
+and implementation — so it does not record metrics. See KATA.md § Metrics for
+the recording-eligibility rule.
