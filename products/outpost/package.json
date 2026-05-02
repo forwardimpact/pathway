@@ -2,7 +2,7 @@
   "name": "@forwardimpact/outpost",
   "version": "2.12.6",
   "description": "Claude Code-native personal knowledge system with autonomous agents",
-  "homepage": "https://www.forwardimpact.team/outpost",
+  "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo",

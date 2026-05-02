@@ -2,6 +2,7 @@
   "name": "@forwardimpact/svcpathway",
   "version": "0.1.12",
   "description": "Pathway derivation service for Guide",
+  "homepage": "https://www.forwardimpact.team",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

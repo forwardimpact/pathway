@@ -13,6 +13,7 @@ const SKIP_DIRS = new Set(["node_modules", ".git", "generated", "tmp", "dist"]);
 
 const AUTHOR = "D. Olsson <hi@senzilla.io>";
 const LICENSE = "Apache-2.0";
+const HOMEPAGE = "https://www.forwardimpact.team";
 
 // Well-known keys in canonical order. Anything outside this list is sorted
 // alphabetically and appended at the end.
@@ -74,7 +75,7 @@ function reorder(pkg) {
 }
 
 function canonicalize(pkg) {
-  const next = { ...pkg, author: AUTHOR, license: LICENSE };
+  const next = { ...pkg, homepage: HOMEPAGE, author: AUTHOR, license: LICENSE };
   return reorder(next);
 }
 

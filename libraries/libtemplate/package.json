@@ -8,6 +8,7 @@
     "render",
     "agent"
   ],
+  "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
     "url": "https://github.com/forwardimpact/monorepo",

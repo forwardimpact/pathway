@@ -2,6 +2,7 @@
   "name": "@forwardimpact/svctrace",
   "version": "0.1.40",
   "description": "Trace service for receiving and storing OpenTelemetry spans in Guide",
+  "homepage": "https://www.forwardimpact.team",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

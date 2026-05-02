@@ -2,6 +2,7 @@
   "name": "@forwardimpact/svcmcp",
   "version": "0.1.5",
   "description": "Unified MCP server for Guide tools",
+  "homepage": "https://www.forwardimpact.team",
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

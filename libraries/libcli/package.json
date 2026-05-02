@@ -9,6 +9,7 @@
     "help",
     "grep"
   ],
+  "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
     "url": "git+https://github.com/forwardimpact/monorepo.git",
