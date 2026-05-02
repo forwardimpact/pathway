@@ -6,7 +6,7 @@
 // Usage: check-metadata.mjs [--fix]
 
 import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
-import { resolve, join, relative } from "node:path";
+import { resolve, join, relative, dirname } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
 const SKIP_DIRS = new Set(["node_modules", ".git", "generated", "tmp", "dist"]);
@@ -14,6 +14,9 @@ const SKIP_DIRS = new Set(["node_modules", ".git", "generated", "tmp", "dist"]);
 const AUTHOR = "D. Olsson <hi@senzilla.io>";
 const LICENSE = "Apache-2.0";
 const HOMEPAGE = "https://www.forwardimpact.team";
+const REPOSITORY_URL = "git+https://github.com/forwardimpact/monorepo.git";
+const ENGINES = { bun: ">=1.2.0", node: ">=18.0.0" };
+const PUBLISH_CONFIG = { access: "public" };
 
 // Well-known keys in canonical order. Anything outside this list is sorted
 // alphabetically and appended at the end.
@@ -74,8 +77,23 @@ function reorder(pkg) {
   return next;
 }
 
-function canonicalize(pkg) {
-  const next = { ...pkg, homepage: HOMEPAGE, author: AUTHOR, license: LICENSE };
+function buildRepository(file) {
+  const dir = relative(ROOT, dirname(file));
+  const repo = { type: "git", url: REPOSITORY_URL };
+  if (dir) repo.directory = dir;
+  return repo;
+}
+
+function canonicalize(pkg, file) {
+  const next = {
+    ...pkg,
+    homepage: HOMEPAGE,
+    repository: buildRepository(file),
+    license: LICENSE,
+    author: AUTHOR,
+    engines: ENGINES,
+  };
+  if (!pkg.private) next.publishConfig = PUBLISH_CONFIG;
   return reorder(next);
 }
 
@@ -88,7 +106,7 @@ let stale = false;
 for (const file of files) {
   const original = readFileSync(file, "utf8");
   const pkg = JSON.parse(original);
-  const canonical = canonicalize(pkg);
+  const canonical = canonicalize(pkg, file);
   const formatted = JSON.stringify(canonical, null, 2) + "\n";
 
   if (formatted === original) continue;

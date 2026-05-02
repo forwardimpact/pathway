@@ -3,6 +3,11 @@
   "version": "0.1.40",
   "description": "Trace service for receiving and storing OpenTelemetry spans in Guide",
   "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "services/trace"
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",

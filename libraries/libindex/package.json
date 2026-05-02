@@ -9,6 +9,11 @@
     "agent"
   ],
   "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "libraries/libindex"
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "forwardimpact": {

@@ -2,9 +2,18 @@
   "name": "scripts",
   "private": true,
   "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "design/scripts"
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
   "type": "module",
+  "engines": {
+    "bun": ">=1.2.0",
+    "node": ">=18.0.0"
+  },
   "dependencies": {
     "sharp": "^0.34.2"
   }

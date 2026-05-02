@@ -13,7 +13,7 @@
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
-    "url": "https://github.com/forwardimpact/monorepo",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
     "directory": "products/summit"
   },
   "license": "Apache-2.0",
