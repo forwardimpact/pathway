@@ -43,18 +43,18 @@ flowchart LR
 | **`justfile` synthetic recipes**            | `synthetic`, `synthetic-update`; entry point for contributors and the e2e cache-miss path.                   | this design |
 | **`package.json` scripts**                  | `prestart`, `start`, `dev`, `data:prose`, `data:schema`, `generate`. Contracts that cross the CLI boundary.  | this design |
 | **CI workflows**                            | `check-test.yml` (`test`, `e2e`), `check-data.yml` (`prose`), `interview-{landmark,map,summit}-setup.yml`.   | this design |
-| **`kata-release-merge` § Step 5 carve-out** | "expected validation failures from missing `data/pathway/`" bypass. Replaced by removal.                     | this design |
+| **`kata-release-merge` § Step 5 carve-out** | Merge-gate policy that exempts "missing `data/pathway/`" CI failures from blocking a merge.                  | this design |
 
 ## Caller intent → verb assignment
 
 Three intents cross the CLI boundary in the named surface. Each maps to one
 verb. The plan owns per-file edits; the design owns the intent-level contract.
 
-| Intent (caller-side)                                                     | Verb       | Where intent lives                                                                                                           |
-| ------------------------------------------------------------------------ | ---------- | ---------------------------------------------------------------------------------------------------------------------------- |
-| **Materialize `data/pathway/`** from the prose cache (no LLM).           | `build`    | Contributor entry recipe; CI workspace prep on cache miss; npm-script counterpart used by external tooling.                  |
-| **Fill the prose cache via LLM, then materialize `data/pathway/`**.      | `generate` | Contributor cache-refresh recipe.                                                                                            |
-| **Verify cache completeness** (CI gate), with diagnostic visible in log. | `check`    | `data:prose` npm-script; the log-threshold prefix that masked the diagnostic is removed on this caller (CI hygiene, see K3). |
+| Intent (caller-side)                                                     | Verb       | Where intent lives                                                                                            |
+| ------------------------------------------------------------------------ | ---------- | ------------------------------------------------------------------------------------------------------------- |
+| **Materialize `data/pathway/`** from the prose cache (no LLM).           | `build`    | Contributor entry recipe; CI workspace prep on cache miss; npm-script counterpart used by external tooling.   |
+| **Fill the prose cache via LLM, then materialize `data/pathway/`**.      | `generate` | Contributor cache-refresh recipe.                                                                             |
+| **Verify cache completeness** (CI gate), with diagnostic visible in log. | `check`    | `data:prose` npm-script; this caller's contract is "no log-threshold suppression" (see K3 for the rationale). |
 
 The post-refactor CLI has no "render without prose" verb. The intent the old
 `--no-prose` flag served (structural-only checks, no writes) is covered by
@@ -78,12 +78,12 @@ the spec's sense and are not re-architected here.
 
 ## Risks
 
-| Id  | Risk                                                                                                                           | Mitigation in this design                                                                                                                                                                                               |
-| --- | ------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| R1  | A `bunx fit-terrain` invocation outside the named surface (justfile / package.json / `.github/workflows/**`) is missed.        | Plan adds an automated grep gate (matches success criterion 3's "static inspection"); fails CI if any `bunx fit-terrain` lacks a verb in the named surface.                                                             |
-| R2  | `fit-terrain build` on a clean checkout exits non-zero because `data/synthetic/prose-cache.json` has misses (not regenerated). | The CLI contract specifies `build` warns on cache misses but exits zero unless validation or write fail; clean-checkout success is confirmed by the spec's success-criterion-6 replay (a plan-level verification step). |
-| R3  | `package.json` `generate` and `justfile` `synthetic` end up duplicates of each other.                                          | They are. Deduplication is out of scope; the design notes it for a future cleanup spec rather than removing the npm script in this PR.                                                                                  |
-| R4  | Removing the merge-gate carve-out lets a transient first-time-setup failure block a real PR.                                   | After this fix, every CI path that needs `data/pathway/` materializes it via `just synthetic` (cache-only, no LLM). There is no first-time-setup failure mode left in CI.                                               |
+| Id  | Risk                                                                                                                           | Mitigation in this design                                                                                                                                                                                                                                                                                                 |
+| --- | ------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| R1  | A `bunx fit-terrain` invocation outside the named surface (justfile / package.json / `.github/workflows/**`) is missed.        | Plan adds an automated grep gate (matches success criterion 3's "static inspection"); fails CI if any `bunx fit-terrain` lacks a verb in the named surface.                                                                                                                                                               |
+| R2  | `fit-terrain build` on a clean checkout exits non-zero because `data/synthetic/prose-cache.json` has misses (not regenerated). | This design assumes `build` succeeds when prose-cache misses are present. The assumption sits upstream of this design (in the SCRATCHPAD-3 CLI surface, which is the spec's premise); if it does not hold, the verb chosen for the `synthetic` intent must change. Spec's success-criterion-6 replay is the verification. |
+| R3  | `package.json` `generate` and `justfile` `synthetic` end up duplicates of each other.                                          | They are. Deduplication is out of scope; the design notes it for a future cleanup spec rather than removing the npm script in this PR.                                                                                                                                                                                    |
+| R4  | Removing the merge-gate carve-out lets a transient first-time-setup failure block a real PR.                                   | After this fix, every CI path that needs `data/pathway/` materializes it via `just synthetic` (cache-only, no LLM). There is no first-time-setup failure mode left in CI.                                                                                                                                                 |
 
 ## Out of scope (reaffirmed from spec)
 
