@@ -343,4 +343,132 @@ describe("Cli", () => {
       assert.strictEqual(proc.exitCode, 2);
     });
   });
+
+  describe("dispatch", () => {
+    test("maps positional names to argv values and calls handler with frozen ctx", () => {
+      const proc = createProc();
+      const received = [];
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id"],
+            argsUsage: "[<id>]",
+            description: "Show skill",
+            handler: (ctx) => received.push(ctx),
+          },
+        ],
+        globalOptions: {
+          json: { type: "boolean", description: "JSON output" },
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const parsed = cli.parse(["skill", "testing", "--json"]);
+      cli.dispatch(parsed, { data: { skills: [] } });
+
+      assert.strictEqual(received.length, 1);
+      const ctx = received[0];
+      assert.strictEqual(ctx.args.id, "testing");
+      assert.strictEqual(ctx.options.json, true);
+      assert.strictEqual(Object.isFrozen(ctx), true);
+      assert.strictEqual(Object.isFrozen(ctx.args), true);
+    });
+
+    test("omits missing trailing positionals from args", () => {
+      const proc = createProc();
+      const received = [];
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id", "format"],
+            argsUsage: "[<id>] [<format>]",
+            description: "Show skill",
+            handler: (ctx) => received.push(ctx),
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const parsed = cli.parse(["skill", "testing"]);
+      cli.dispatch(parsed, { data: {} });
+
+      assert.strictEqual(received[0].args.id, "testing");
+      assert.strictEqual(received[0].args.format, undefined);
+    });
+
+    test("legacy string-shaped args still work with parse()", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "run",
+            args: "<file>",
+            description: "Run a file",
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const result = cli.parse(["run", "main.js"]);
+      assert.deepStrictEqual(result.positionals, ["run", "main.js"]);
+    });
+
+    test("throws when no matching subcommand", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id"],
+            handler: () => {},
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const parsed = cli.parse(["bogus"]);
+      assert.throws(() => cli.dispatch(parsed, { data: {} }), {
+        message: /no matching subcommand/,
+      });
+    });
+
+    test("throws when command lacks handler", () => {
+      const proc = createProc();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id"],
+            description: "Show skill",
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      const helpRenderer = new HelpRenderer({ process: proc });
+      const cli = new Cli(def, { process: proc, helpRenderer });
+      const parsed = cli.parse(["skill", "testing"]);
+      assert.throws(() => cli.dispatch(parsed, { data: {} }), {
+        message: /lacks a handler/,
+      });
+    });
+  });
 });

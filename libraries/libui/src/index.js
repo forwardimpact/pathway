@@ -77,3 +77,14 @@ export { markdownToHtml } from "./markdown.js";
 
 // Utilities
 export { getItemsByIds } from "./utils.js";
+
+// Invocation context
+export { freezeInvocationContext } from "./invocation-context.js";
+
+// Route descriptors and bound router
+export { defineRoute } from "./route-descriptor.js";
+export { createBoundRouter } from "./bound-router.js";
+
+// UI helpers tied to the bound router
+export { createCommandBar } from "./command-bar.js";
+export { createJsonLdScript } from "./json-ld-script.js";

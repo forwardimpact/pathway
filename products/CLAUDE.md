@@ -17,6 +17,17 @@ Write `--help` output, skill instructions, and published guides for that reader:
 self-contained, no insider tooling references, no relative paths into
 `products/` or `websites/`, and every doc link a fully-qualified public URL.
 
+## Invocation context
+
+Products with both a web UI and a CLI can share handler logic through
+`InvocationContext` — a frozen `{ data, args, options }` contract that libui's
+`createBoundRouter` produces from the URL and libcli's `dispatch()` produces
+from argv. Use `defineRoute` to bind a URL pattern to its CLI command and graph
+entity in one descriptor; the shared presenter receives the same context shape
+from both surfaces. See the
+[CLI Development guide](websites/fit/docs/internals/libcli/index.md) for the
+full contract.
+
 ## CLIs and progressive documentation
 
 Every product ships a CLI (a `bin/` entry in `package.json`). Three artifacts

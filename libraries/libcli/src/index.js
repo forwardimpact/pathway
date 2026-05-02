@@ -1,4 +1,5 @@
 export { Cli, createCli } from "./cli.js";
+export { freezeInvocationContext } from "./invocation-context.js";
 export { HelpRenderer } from "./help.js";
 export { SummaryRenderer } from "./summary.js";
 export { colors, supportsColor, colorize } from "./color.js";

@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libui",
   "version": "1.1.8",
-  "description": "Functional web UI primitives — DOM helpers, SPA routing, reactive state — for products agents build.",
+  "description": "Agent-friendly web surfaces — SPA routing, reactive state, and route-to-CLI bindings that share handler logic across web and terminal.",
   "keywords": [
     "ui",
     "dom",
@@ -38,6 +38,11 @@
     "./yaml-loader": "./src/yaml-loader.js",
     "./markdown": "./src/markdown.js",
     "./utils": "./src/utils.js",
+    "./invocation-context": "./src/invocation-context.js",
+    "./route-descriptor": "./src/route-descriptor.js",
+    "./bound-router": "./src/bound-router.js",
+    "./command-bar": "./src/command-bar.js",
+    "./json-ld-script": "./src/json-ld-script.js",
     "./components": "./src/components/index.js",
     "./components/*": "./src/components/*.js",
     "./css/*": "./src/css/*"
@@ -48,6 +53,12 @@
     "src/css/",
     "README.md"
   ],
+  "scripts": {
+    "test": "bun test test/*.test.js"
+  },
+  "devDependencies": {
+    "happy-dom": "^20.9.0"
+  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
