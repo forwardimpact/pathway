@@ -72,17 +72,11 @@ from prior `staff-engineer` entries.
 ### 1. Study the spec deeply
 
 Read every file in the spec directory — `spec.md`, all `plan-*.md` files, and
-any supporting documents. Understand:
-
-- **The problem.** What pain or gap does this address? What evidence supports
-  it?
-- **The scope.** Which files, APIs, entities, or behaviours are affected? What
-  is explicitly out of scope?
-- **Success criteria.** What does "done" look like? What can be tested or
-  verified?
-
-Do not start coding until you can explain the problem and its boundaries without
-referring back to the spec.
+any supporting documents. Understand the **problem** (the gap and its
+evidence), the **scope** (files, APIs, entities, behaviours affected; what is
+out of scope), and the **success criteria** (what "done" looks like and how it
+is verified). Do not start coding until you can explain the problem and its
+boundaries without referring back to the spec.
 
 ### 2. Select and study the plan
 
