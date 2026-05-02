@@ -2,8 +2,8 @@
 name: candidate-report
 description: >
   Generate an A4 single-page HTML candidate assessment report benchmarked
-  against the agent-aligned engineering standard. Use when the user asks you to
-  create a candidate report, one-pager, or visual assessment for a hiring
+  against the agent-aligned engineering standard. Use when the user asks you
+  to create a candidate report, one-pager, or visual assessment for a hiring
   manager.
 ---
 
@@ -16,176 +16,118 @@ before deciding whether to invest interview time.
 
 ## Trigger
 
-- User asks to create a candidate report, one-pager, or visual assessment
-- User asks to generate a report for a hiring manager about a candidate
-- User provides a CV and asks for a formatted assessment
+- The user asks for a candidate report, one-pager, or visual assessment.
+- The user asks for a hiring-manager report on a candidate.
+- The user provides a CV and asks for a formatted assessment.
 
 ## Prerequisites
 
-- `@forwardimpact/pathway` CLI installed (`bunx fit-pathway --help`)
+- `@forwardimpact/pathway` CLI installed (`bunx fit-pathway --help`).
 - Playwright for PDF output
-  (`bun install playwright && bunx playwright install chromium`)
-- Candidate must have a `brief.md` in `knowledge/Candidates/{Name}/`
+  (`bun install playwright && bunx playwright install chromium`).
+- Candidate has a `brief.md` in `knowledge/Candidates/{Name}/`.
 
 ## Inputs
 
-1. **Candidate name** — used to locate `knowledge/Candidates/{Name}/brief.md`
-2. **Target role** — discipline, level, and track (e.g.
-   `software_engineering J070 forward_deployed`)
-3. **Recipient** — who the report is for (pod lead, hiring manager)
-4. **CV file** — optional; if no `screening.md` exists, read the CV directly
-
-If the user doesn't specify a target role, infer it from:
-
-- The candidate's `brief.md` (look for Req field -> Role file ->
-  discipline/level/track)
-- The role file linked in the vendor pipeline or role files in
-  `knowledge/Roles/`
-- Ask the user if it can't be inferred
+- **Candidate name** — locates `knowledge/Candidates/{Name}/brief.md`.
+- **Target role** — discipline, level, track (e.g.
+  `software_engineering J070 forward_deployed`). If not given, infer from the
+  candidate's `Req` field → Role file. Ask the user if it can't be inferred.
+- **Recipient** — pod lead or hiring manager the report is for.
+- **CV file** (optional) — read directly when no `screening.md` exists.
 
 ## Outputs
 
-- `drafts/{Recipient}-{CandidateSurname}-Report.html` — the A4 one-pager
-- Optionally: PDF via `scripts/render-pdf.mjs`
+- `drafts/{Recipient}-{CandidateSurname}-Report.html` — the A4 one-pager.
+- Optional PDF via `scripts/render-pdf.mjs`.
 
-## Workflow
+<do_confirm_checklist goal="Verify the report before delivering it">
 
-### Step 1 — Gather candidate evidence
+- [ ] Standard data was loaded via `bunx fit-pathway job` (not guessed).
+- [ ] Every skill rating is evidence-based; two-level scepticism applied to CV
+      claims.
+- [ ] Coverage counters add up to the total skill count.
+- [ ] Verdict class matches the overall assessment.
+- [ ] Report fits on a single A4 page (browser print preview).
+- [ ] CSS is inlined in the `<style>` block.
+- [ ] Footer shows the author name and role from `USER.md`.
+- [ ] Written as if the candidate will read it; no special-category data.
 
-Read all available files for the candidate:
+</do_confirm_checklist>
+
+## Procedure
+
+### 1. Gather candidate evidence
+
+Read whatever exists for the candidate:
 
 ```
-knowledge/Candidates/{Name}/brief.md        # Required
-knowledge/Candidates/{Name}/screening.md    # If exists (from screen-cv)
-knowledge/Candidates/{Name}/interview-*.md  # If exists (from assess-interview)
-knowledge/Candidates/{Name}/CV.pdf or CV.md # Raw CV if needed
+knowledge/Candidates/{Name}/brief.md        # required
+knowledge/Candidates/{Name}/screening.md    # if produced by req-screen
+knowledge/Candidates/{Name}/interview-*.md  # if produced by req-assess
+knowledge/Candidates/{Name}/CV.pdf|CV.md    # raw CV if needed
 ```
 
-If a `screening.md` exists, use its skill ratings and behaviour assessments as
-the primary source — they are already agent-aligned engineering
-standard-calibrated. If not, you will need to do the mapping yourself in Step 3.
+If `screening.md` exists, treat its skill and behaviour ratings as the primary
+source — they're already standard-calibrated. Otherwise map manually in Step 3.
 
-Also search the knowledge graph broadly for context:
+Search the graph for surrounding context: `rg "{Candidate Name}" knowledge/`.
 
-```bash
-rg "{Candidate Name}" knowledge/
-```
-
-### Step 2 — Load the agent-aligned engineering standard benchmark
-
-Use the `fit-pathway` CLI to get the full role definition:
+### 2. Load the standard benchmark
 
 ```bash
 bunx fit-pathway job {discipline} {level} --track={track}
 ```
 
-This returns:
+Capture:
 
-- **Skill matrix** — every skill with its expected proficiency level
-- **Behaviour profile** — each behaviour with its expected maturity
-- **Expectations** — impact scope, autonomy, influence, complexity
-- **Role summary** — what success looks like at this level
+- **Skill matrix** — every skill with its expected proficiency.
+- **Behaviour profile** — each behaviour with its expected maturity.
+- **Expectations** — impact scope, autonomy, influence, complexity.
+- **Role summary** — what success looks like at this level.
 
-Extract the key data points you need:
+Group skills by capability area (Delivery, AI, Business, Docs, ML).
 
-- Core skills grouped by capability area (Delivery, AI, Business, Docs, ML)
-- Behaviour names and expected maturity levels
-- The level label and experience range
+### 3. Benchmark the candidate
 
-### Step 3 — Benchmark the candidate
+Map evidence against each skill and behaviour using the rubric in
+[references/rubric.md](references/rubric.md): rating pills, behaviour bar widths
+and colours, level-gauge window. Count totals into Gap / Partial / Unknown / Met
+for the coverage counters.
 
-Map candidate evidence against each agent-aligned engineering standard skill and
-behaviour.
+### 4. Determine verdict
 
-**Skill assessment (from CV or screening.md):**
+Pick one of `verdict-proceed`, `verdict-caution`, or `verdict-pass` using the
+verdict table in [references/rubric.md](references/rubric.md). Write a one-line
+headline and a short detail sentence.
 
-| Rating      | Criteria                                           | Pill class |
-| ----------- | -------------------------------------------------- | ---------- |
-| **Met**     | Evidence meets or exceeds the expected proficiency | `p-p`      |
-| **Partial** | Some evidence but below expected level             | `p-a`      |
-| **Gap**     | No evidence, or clearly below expected             | `p-g`      |
-| **Unknown** | Cannot assess from available evidence              | `p-u`      |
+### 5. Build the HTML report
 
-Apply the **two-level scepticism rule** from the screen-cv skill: default two
-levels below CV claims unless concrete, quantified evidence is provided.
+1. Read `references/report.css`.
+2. Read `references/report-template.html`.
+3. Replace every `{{PLACEHOLDER}}` with candidate-specific data, populating the
+   sections listed in
+   [references/rubric.md](references/rubric.md#template-sections-to-populate).
+4. Inline the CSS into the `<style>` block — required for PDF rendering.
 
-**Behaviour assessment:**
+Respect the **A4 single-page budget** in
+[references/rubric.md](references/rubric.md#a4-single-page-budget). If the print
+preview overflows, cut content.
 
-Map a 0-100% bar width based on evidence strength:
+### 6. Write the output
 
-- 60-100%: Positive signal (use `var(--green)`)
-- 30-59%: Partial signal (use `var(--amber)`)
-- 10-29%: Weak/unknown (use `var(--s300)`)
-- 0-9%: Gap (use `var(--red)`)
-
-**Level calibration:**
-
-Estimate the candidate's realistic level based on the evidence. Choose a 5-level
-window for the gauge that centres around the candidate and target levels.
-
-**Coverage counters:**
-
-Count the total skills assessed into each bucket: Gap, Partial, Unknown, Met.
-
-### Step 4 — Determine verdict
-
-Choose one of three verdict classes based on the overall assessment:
-
-| Verdict              | Class             | When to use                                                         |
-| -------------------- | ----------------- | ------------------------------------------------------------------- |
-| Proceed              | `verdict-proceed` | Candidate benchmarks at or above target level                       |
-| Proceed with Caution | `verdict-caution` | Mixed signals; viable for scoped role or needs interview to resolve |
-| Pass                 | `verdict-pass`    | Clear misalignment with role requirements                           |
-
-Write a one-line verdict headline and a brief detail sentence.
-
-### Step 5 — Build the HTML report
-
-1. Read the CSS from `references/report.css`
-2. Read the template from `references/report-template.html`
-3. Replace all `{{PLACEHOLDER}}` tokens with candidate-specific data
-4. Inline the CSS into the `<style>` block (required for PDF rendering)
-
-**Template sections to populate:**
-
-| Section           | Source                                                  |
-| ----------------- | ------------------------------------------------------- |
-| Header            | Candidate name, title, org, location from brief.md      |
-| Verdict           | Step 4 output                                           |
-| Snapshot          | 5-6 key facts (experience, education, source, stack)    |
-| Strengths         | 3-5 bullet points — what the candidate brings           |
-| Level gauge       | Estimated vs target level from Step 3                   |
-| Benchmark grid    | Top skills per capability area with pills — from Step 3 |
-| Behaviours        | Bar chart items — from Step 3                           |
-| Coverage counters | Gap/Partial/Unknown/Met counts                          |
-| Recommendation    | 2-4 actionable next steps                               |
-| Footer            | Author name and role from USER.md                       |
-
-**A4 fit rules:**
-
-The report MUST fit on a single A4 page (210mm x 297mm). To stay within budget:
-
-- Snapshot: max 6 `<dt>`/`<dd>` pairs
-- Strengths: max 5 `<li>` items, keep each to one sentence
-- Benchmark grid: show 4-6 rows per capability area (prioritise skills with
-  notable gaps or strengths; omit "Unknown" skills if space is tight)
-- Combine small capability areas (e.g. Docs + ML into one block)
-- Recommendation: max 4 `<li>` items
-- Test with browser print preview (Ctrl+P) — if it overflows, cut content
-
-### Step 6 — Write the output
-
-Write the completed HTML to:
+Save the completed HTML to:
 
 ```
 drafts/{Recipient}-{CandidateSurname}-Report.html
 ```
 
-Where `{Recipient}` is the first name of the person the report is for.
+`{Recipient}` is the first name of the person the report is for.
 
-### Step 7 — Optional PDF conversion
+### 7. Optional PDF
 
-If the user asks for a PDF, or if you think it would be helpful:
+If the user wants a PDF, copy the HTML to `/tmp/candidate-report.html` and
+render it:
 
 ```bash
 node .claude/skills/candidate-report/scripts/render-pdf.mjs \
@@ -193,36 +135,5 @@ node .claude/skills/candidate-report/scripts/render-pdf.mjs \
   ~/Desktop/{CandidateSurname}-Report.pdf
 ```
 
-First copy the HTML to `/tmp/candidate-report.html`, then run the script.
-Requires Playwright — if not installed, tell the user to run:
-
-```bash
-bun install playwright && bunx playwright install chromium
-```
-
-## Quality Checklist
-
-Before delivering the report, verify:
-
-- [ ] Standard data was loaded via `bunx fit-pathway job` (not guessed)
-- [ ] All skill ratings are evidence-based, not assumed
-- [ ] Two-level scepticism rule was applied to CV claims
-- [ ] Coverage counters add up to the total skill count
-- [ ] Verdict class matches the overall assessment
-- [ ] Report fits on a single A4 page (check print preview)
-- [ ] CSS is inlined in the `<style>` block
-- [ ] Footer shows the correct author name and role
-- [ ] No sensitive personal data included (health, politics, etc.)
-- [ ] Report is written as if the candidate will read it (per KB ethics rules)
-
-## File Structure
-
-```
-.claude/skills/candidate-report/
-├── SKILL.md                          # This file
-├── references/
-│   ├── report.css                    # A4 stylesheet (deterministic)
-│   └── report-template.html          # HTML skeleton with {{placeholders}}
-└── scripts/
-    └── render-pdf.mjs                # Playwright A4 PDF renderer
-```
+Requires Playwright. If missing, ask the user to run
+`bun install playwright && bunx playwright install chromium`.

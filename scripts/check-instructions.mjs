@@ -41,7 +41,7 @@ const listFiles = async (dir, match) => {
   }
 };
 
-// Walk the repo for CLAUDE.md files, skipping dependency and build trees.
+// Walk the repo, skipping dependency, build, and untracked scratch trees.
 const SKIP_DIRS = new Set([
   "node_modules",
   ".git",
@@ -49,25 +49,41 @@ const SKIP_DIRS = new Set([
   "dist",
   "build",
   ".cache",
+  "tmp",
+  "wiki",
 ]);
 
-const findClaudeMdFiles = async (dir = ".") => {
-  const out = [];
+const walk = async (dir, visit) => {
   let entries;
   try {
     entries = await readdir(resolve(root, dir), { withFileTypes: true });
   } catch {
-    return out;
+    return;
   }
   for (const e of entries) {
     if (SKIP_DIRS.has(e.name)) continue;
     const path = dir === "." ? e.name : `${dir}/${e.name}`;
-    if (e.isDirectory()) {
-      out.push(...(await findClaudeMdFiles(path)));
-    } else if (e.isFile() && e.name === "CLAUDE.md") {
-      out.push(path);
-    }
+    await visit(e, path);
+    if (e.isDirectory()) await walk(path, visit);
   }
+};
+
+const findClaudeMdFiles = async () => {
+  const out = [];
+  await walk(".", (e, path) => {
+    if (e.isFile() && e.name === "CLAUDE.md") out.push(path);
+  });
+  return out;
+};
+
+// Every `.claude/` directory in the repo gets its agents/skills checked,
+// so per-product templates (e.g. products/outpost/templates/.claude) are
+// held to the same caps as the monorepo root.
+const findClaudeDirs = async () => {
+  const out = [];
+  await walk(".", (e, path) => {
+    if (e.isDirectory() && e.name === ".claude") out.push(path);
+  });
   return out;
 };
 
@@ -83,17 +99,25 @@ await lineCount(
   "L2 CONTRIBUTING.md",
 );
 
-// L3 — agent profiles
-for (const f of await listFiles(
-  ".claude/agents",
-  (e) => e.isFile() && e.name.endsWith(".md"),
-)) {
-  await lineCount(f, L3_AGENT_PROFILE_MAX_LINES, "L3 agent profile");
+const claudeDirs = await findClaudeDirs();
+
+// L3 — agent profiles in every .claude/agents directory.
+for (const claude of claudeDirs) {
+  for (const f of await listFiles(
+    `${claude}/agents`,
+    (e) => e.isFile() && e.name.endsWith(".md"),
+  )) {
+    await lineCount(f, L3_AGENT_PROFILE_MAX_LINES, "L3 agent profile");
+  }
 }
 
-// L4 — skill procedure (SKILL.md)
-const skillDirs = await listFiles(".claude/skills", (e) => e.isDirectory());
-for (const d of skillDirs) {
+// L4 — skill procedure (SKILL.md) in every .claude/skills/<skill> directory.
+const allSkillDirs = [];
+for (const claude of claudeDirs) {
+  const dirs = await listFiles(`${claude}/skills`, (e) => e.isDirectory());
+  allSkillDirs.push(...dirs);
+}
+for (const d of allSkillDirs) {
   await lineCount(
     `${d}/SKILL.md`,
     L4_SKILL_PROCEDURE_MAX_LINES,
@@ -102,7 +126,7 @@ for (const d of skillDirs) {
 }
 
 // L5 — skill references
-for (const d of skillDirs) {
+for (const d of allSkillDirs) {
   for (const f of await listFiles(
     `${d}/references`,
     (e) => e.isFile() && e.name.endsWith(".md"),
@@ -117,7 +141,7 @@ const checklistRe =
 const itemRe = /^\s*-\s*\[\s*\]/gm;
 const checklistSources = [
   "CONTRIBUTING.md",
-  ...skillDirs.map((d) => `${d}/SKILL.md`),
+  ...allSkillDirs.map((d) => `${d}/SKILL.md`),
 ];
 for (const path of checklistSources) {
   let text;

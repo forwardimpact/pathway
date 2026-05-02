@@ -5,20 +5,20 @@ description: Draft and send email responses using the knowledge base and calenda
 
 # Draft Emails
 
-Draft and send email responses. Uses the knowledge base and calendar for full
-context on every person and conversation. All drafts require explicit user
+Draft and send email responses using the knowledge base and calendar for full
+context on every person and conversation. Every draft requires explicit user
 approval before sending.
 
 ## Trigger
 
-Run when the user asks to draft, reply to, respond to, or send an email.
+The user asks to draft, reply to, respond to, or send an email.
 
 ## Prerequisites
 
-- Knowledge base populated (from `extract-entities` skill)
-- Synced email data in `~/.cache/fit/outpost/apple_mail/`
+- Knowledge base populated (from `extract-entities`).
+- Synced email data in `~/.cache/fit/outpost/apple_mail/`.
 
-## Data Locations
+## Data locations
 
 | Data            | Location                                     |
 | --------------- | -------------------------------------------- |
@@ -30,77 +30,50 @@ Run when the user asks to draft, reply to, respond to, or send an email.
 | Ignored IDs     | `drafts/ignored` (one ID per line)           |
 | Draft files     | `drafts/{email_id}_draft.md`                 |
 
-**Handled vs Ignored:** Both exclude threads from `scan-emails.mjs`. Use
-`handled` for threads that received a response (sent via this skill, replied
-manually, or resolved through other channels like DMs). Use `ignored` for
-threads that need no response (newsletters, spam, outbound with no reply).
+`handled` and `ignored` both exclude threads from `scan-emails.mjs`. Use
+`handled` for resolved threads (sent here, replied manually, resolved via DM);
+`ignored` for threads that need no response (newsletters, spam, outbound with no
+reply).
 
----
+<do_confirm_checklist goal="Verify a draft is safe and ready before sending">
 
-## Always Look Up Context First
+- [ ] Sender and organization were looked up in `knowledge/` before drafting.
+- [ ] Draft is a single email (not multiple variants) and matches the incoming
+      tone.
+- [ ] Body has no sign-off / name / "Best" — Apple Mail signature handles it.
+- [ ] Recruitment thread: candidate excluded from internal recipients; any
+      direct-to-candidate draft is flagged `⚠️ RECRUITER ONLY`.
+- [ ] No sensitive personal data (health, politics, etc.) was included.
+- [ ] User has explicitly approved the draft before any send.
+- [ ] Send used `--draft <path>` so cleanup and `drafts/handled` happen
+      automatically.
 
-**BEFORE drafting any email, look up the person/organization in the knowledge
-base.**
+</do_confirm_checklist>
 
-1. **Search** — `rg -l "Name" knowledge/`
-2. **Read** — `cat "knowledge/People/Name.md"`
-3. **Understand** — Extract role, organization, relationship history, open items
-4. **Draft** — Only now draft the email, using this context
+## Procedure
 
-## Key Principles
-
-**Ask, don't guess:**
-
-- If intent is unclear, ASK what the email should be about
-- If a person has multiple contexts, ASK which one
-
-**Be decisive:**
-
-- Draft ONE email — no multiple versions
-- Personalize from knowledge base context
-- Match the tone of the incoming email
-
-**No sign-off or closing:**
-
-- Do NOT end the body with a name, "Best", "Cheers", "Thanks", or any sign-off
-- Apple Mail appends the user's configured signature automatically (includes
-  their name, title, and contact details)
-- The draft body should end with the last sentence of content — nothing after
-
-**User approves before sending:**
-
-- Always present the draft for review before sending
-- Never send without explicit approval
-
-## Workflow
-
-### 1. Scan for New Emails
+### 1. Scan for new emails
 
 ```bash
 node scripts/scan-emails.mjs
 ```
 
-Outputs tab-separated `email_id<TAB>subject` for unprocessed emails (those not
-in `drafts/handled` or `drafts/ignored`).
+Outputs `email_id<TAB>subject` for unprocessed emails (those not in
+`drafts/handled` or `drafts/ignored`).
 
 ### 2. Classify
 
-**Ignore** (append ID to `drafts/ignored`):
+**Ignore** (append ID to `drafts/ignored`): newsletters, marketing, automated
+notifications, spam, outbound with no reply.
 
-- Newsletters, marketing, automated notifications
-- Spam or irrelevant cold outreach
-- Outbound emails from user with no reply
+**Draft a response**: meeting requests, personal mail from known contacts,
+business inquiries or follow-ups, requests for information or action.
 
-**Draft response for:**
+Be conservative with ignore — when in doubt, draft.
 
-- Meeting requests or scheduling
-- Personal emails from known contacts
-- Business inquiries or follow-ups
-- Emails requesting information or action
+### 3. Gather context
 
-### 3. Gather Context
-
-**Knowledge base** (required for every draft):
+Before drafting, look up the sender and organization in `knowledge/`:
 
 ```bash
 rg -l "sender_name" knowledge/
@@ -108,50 +81,42 @@ cat "knowledge/People/Sender Name.md"
 cat "knowledge/Organizations/Company Name.md"
 ```
 
-**Calendar** (for scheduling emails):
+For scheduling emails, also read the relevant calendar event:
 
 ```bash
 ls ~/.cache/fit/outpost/apple_calendar/ 2>/dev/null
 cat "$HOME/.cache/fit/outpost/apple_calendar/event123.json"
 ```
 
-### 4. Write Draft
+Extract role, organization, relationship history, and open items. If intent is
+unclear or the person has multiple contexts, **ask** rather than guess.
 
-Save to `drafts/{email_id}_draft.md`:
+### 4. Write the draft
 
-```markdown
-# Draft Response
+Save to `drafts/{email_id}_draft.md` using the template in
+[references/template.md](references/template.md). Reference past interactions
+naturally; for scheduling, propose specific times from calendar availability.
 
-**To:** recipient@example.com
-**CC:** other@example.com
-**Subject:** Re: {subject}
+### 5. Recruitment & staffing emails
 
----
+Candidates **must never** be copied on internal threads about them.
 
-{personalized draft body — no sign-off, no name at end}
+- Identify the candidate from the thread and `knowledge/Candidates/`.
+- Strip the candidate from To/CC; draft to internal stakeholders only.
+- Direct-to-candidate emails carry the warning header
+  `⚠️ RECRUITER ONLY — This email goes directly to the candidate.`
 
----
+If a thread mentions a candidate and includes multiple internal recipients,
+treat it as internal and exclude the candidate.
 
-## Notes
-- **Original Email ID:** {id}
-- **From:** {sender}
-- **Context:** {knowledge base notes used}
-```
+### 6. Present and approve
 
-Guidelines:
+Show the draft to the user. Wait for explicit approval before sending. Apply
+edits and present again as needed.
 
-- Draft ONE email — reference past interactions naturally
-- For scheduling: propose specific times from calendar availability
-- If unsure about intent, ask a clarifying question instead of drafting
+### 7. Send
 
-### 5. Present for Review
-
-Show the draft to the user. Wait for explicit approval before sending. The user
-may request edits — apply them and present again.
-
-### 6. Send
-
-After the user approves, send via Apple Mail:
+After approval, send via Apple Mail:
 
 ```bash
 node scripts/send-email.mjs \
@@ -162,41 +127,15 @@ node scripts/send-email.mjs \
   --draft "drafts/12345_draft.md"
 ```
 
-Options: `--to` (required), `--cc` (optional), `--bcc` (optional), `--subject`
-(required), `--body` (required, plain text only), `--draft` (path to draft file
-— deleted automatically after successful send, and email ID appended to
-`drafts/handled`).
+Required: `--to`, `--subject`, `--body` (plain text). Optional: `--cc`, `--bcc`,
+`--draft`. With `--draft`, the draft file is deleted and the email ID is
+appended to `drafts/handled` automatically.
 
-The `--draft` flag handles both cleanup and state tracking. No separate state
-update step is needed when using it.
+### 8. Mark handled without sending
 
-### 7. Mark Handled (without sending)
-
-When a thread is resolved without sending through this skill (user replied
-manually, resolved via DMs, team handled it, etc.):
+When a thread is resolved through other channels:
 
 ```bash
 echo "$EMAIL_ID" >> drafts/handled
-rm -f "drafts/${EMAIL_ID}_draft.md"   # remove draft if one exists
+rm -f "drafts/${EMAIL_ID}_draft.md"
 ```
-
-## Recruitment & Staffing Emails
-
-**Candidates must NEVER be copied on internal emails about them.**
-
-1. **Identify the candidate** from the thread and knowledge base
-2. **Strip the candidate from recipients** — draft to internal stakeholders only
-3. **Direct-to-candidate emails** — flag with:
-   `⚠️ RECRUITER ONLY — This email goes directly to the candidate.`
-
-Internal recruitment emails (candidate excluded): interview feedback, candidate
-evaluation, hiring decisions, compensation discussions, reference checks.
-
-**When in doubt:** If an email thread mentions a candidate and involves multiple
-internal recipients, treat it as internal and exclude the candidate.
-
-## Constraints
-
-- Never send without explicit user approval
-- Be conservative with ignore — when in doubt, create a draft
-- For ambiguous emails, draft with a note explaining the ambiguity

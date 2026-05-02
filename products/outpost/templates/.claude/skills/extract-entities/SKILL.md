@@ -5,681 +5,183 @@ description: Process synced email/calendar files from ~/.cache/fit/outpost/ and 
 
 # Extract Entities
 
-Process synced email and calendar files from `~/.cache/fit/outpost/` and extract
-structured knowledge into `knowledge/` as Obsidian-compatible markdown notes.
-This is the core knowledge graph builder — it transforms raw data from the sync
-skills into actionable, linked notes.
-
-Also accepts **ad-hoc document files** passed by other skills (e.g. the
-**`organize-files`** skill passes documents found in `~/Desktop/` and
-`~/Downloads/`).
+Process synced email and calendar files from `~/.cache/fit/outpost/`, plus
+ad-hoc documents passed by other skills, into Obsidian-compatible markdown notes
+under `knowledge/`. The core knowledge-graph builder.
 
 ## Trigger
 
-Run this skill:
-
-- On a schedule (every 15 minutes) for synced data
-- When the user asks to process/extract entities from synced data
-- When invoked by another skill with ad-hoc file paths (e.g.
-  **`organize-files`** after organizing `~/Desktop/` and `~/Downloads/`)
+- Schedule (every 15 minutes) for synced data.
+- The user asks to process / extract entities from synced data.
+- Another skill passes ad-hoc file paths (e.g. `organize-files` after organising
+  `~/Desktop/` and `~/Downloads/`).
 
 ## Prerequisites
 
-- Synced data in `~/.cache/fit/outpost/` (from `sync-apple-mail`,
-  `sync-apple-calendar`, or `sync-teams` skills), **and/or**
-- Ad-hoc file paths provided by the calling skill or user
-- User identity configured in `USER.md` (Name, Email, Domain)
+- Synced data in `~/.cache/fit/outpost/` and/or ad-hoc paths.
+- User identity in `USER.md` (Name, Email, Domain).
 
 ## Inputs
 
-### Synced data (scheduled processing)
-
-- `~/.cache/fit/outpost/apple_mail/*.md` — synced email threads
-- `~/.cache/fit/outpost/apple_calendar/*.json` — synced calendar events
-- `~/.cache/fit/outpost/teams_chat/*.md` — synced Teams chat messages
-
-### Ad-hoc files (from other skills or user)
-
-- Arbitrary file paths passed as input (e.g.
-  `~/Downloads/Documents/Proposal.pdf`, `~/Desktop/Meeting_Notes.md`)
-- Supported formats: `.pdf`, `.txt`, `.md`, `.rtf`, `.doc`, `.docx`, `.csv`,
-  `.xlsx`
-- Typically provided by the **`organize-files`** skill after organizing
-  `~/Desktop/` and `~/Downloads/`
-
-### State tracking
-
-- `~/.cache/fit/outpost/state/graph_processed` — tracks which files have been
-  processed (TSV)
-- `USER.md` — user identity (Name, Email, Domain) for self-exclusion
+- `~/.cache/fit/outpost/apple_mail/*.md`,
+  `~/.cache/fit/outpost/apple_calendar/*.json`,
+  `~/.cache/fit/outpost/teams_chat/*.md`.
+- Ad-hoc paths: `.pdf`, `.txt`, `.md`, `.rtf`, `.doc`, `.docx`, `.csv`, `.xlsx`.
+- `~/.cache/fit/outpost/state/graph_processed` — processed-file index (TSV,
+  shared with `req-track` and `hyprnote-process`).
+- `USER.md` — user identity for self-exclusion.
 
 ## Outputs
 
-- `knowledge/People/*.md` — person notes
-- `knowledge/Organizations/*.md` — organization notes
-- `knowledge/Projects/*.md` — project notes
-- `knowledge/Topics/*.md` — topic notes
-- `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
-- `knowledge/Priorities/*.md` — priority notes (updated only, never
-  auto-created)
-- `knowledge/Conditions/*.md` — condition notes (created when cross-cutting
-  patterns detected, or updated with new activity)
-- `knowledge/Roles/*.md` — role/requisition files (created or enriched)
-- `knowledge/Candidates/*/brief.md` — candidate briefs (enriched with inferred
-  metadata)
-- `~/.cache/fit/outpost/state/graph_processed` — updated with newly processed
-  files
+- `knowledge/People/`, `knowledge/Organizations/`, `knowledge/Projects/`,
+  `knowledge/Topics/` — created or updated.
+- `knowledge/Goals/`, `knowledge/Priorities/` — **updated only**, never
+  auto-created.
+- `knowledge/Conditions/` — created when cross-cutting patterns are detected, or
+  updated.
+- `knowledge/Roles/`, `knowledge/Candidates/*/brief.md` — enriched with inferred
+  metadata.
+- `~/.cache/fit/outpost/state/graph_processed` — updated.
 
----
+<do_confirm_checklist goal="Verify the batch produced clean, linked,
+well-grounded notes">
 
-## Before Starting
+- [ ] Source type correctly identified; meeting-vs-email rules applied (meetings
+      create, emails only update).
+- [ ] Self and `@user.domain` excluded from extraction.
+- [ ] "Would I prep?" test applied to each person.
+- [ ] All links use absolute paths `[[Folder/Name]]`; bidirectional links
+      consistent (incl. Goal ↔ Project, Priority ↔ Goal).
+- [ ] Summaries describe relationship, not communication method; key facts are
+      substantive; open items are commitments.
+- [ ] State changes logged with `[Field → value]`; no Goal or Priority entities
+      auto-created.
+- [ ] Conditions created only when ≥ 3 entities reference the same cross-cutting
+      state; resolution detected when evidence supports.
+- [ ] Recruitment: Req numbers detected and Role files created/enriched;
+      HM/recruiter/domain-lead inferred where strongly supported.
+- [ ] `graph_processed` updated for every processed file.
 
-1.  Read `USER.md` to get the user's name, email, and domain
-2.  Find new/changed files to process:
+</do_confirm_checklist>
 
-         node scripts/state.mjs check
+## Procedure
 
-    This outputs one file path per line for all source files that are new or
-    have changed since last processing.
+Process **10 files per run**. Write **one file at a time** — do not batch
+writes.
 
-### Ad-hoc file inputs
+### 0. Load context and pick the batch
 
-When invoked with ad-hoc file paths (e.g. by the **`organize-files`** skill),
-process those files directly instead of scanning `~/.cache/fit/outpost/`. Check
-each file against `graph_processed` the same way — skip if the hash hasn't
-changed.
-
-**Process in batches of 10 files per run.**
-
-## Step 0: Build Knowledge Index
-
-Before processing, scan all existing notes to build an index:
-
-```bash
-find knowledge/People knowledge/Organizations knowledge/Projects knowledge/Topics knowledge/Goals knowledge/Priorities knowledge/Conditions -name "*.md" 2>/dev/null
-```
-
-For each note, extract key fields:
+Read `USER.md`. Find new/changed files:
 
 ```bash
-head -20 "knowledge/People/Sarah Chen.md"
+node scripts/state.mjs check
 ```
 
-Build a mental index:
+Each line is a path. When invoked with ad-hoc paths, process those directly
+instead of scanning `~/.cache/fit/outpost/` — still check each against
+`graph_processed` and skip when the hash hasn't changed.
 
-```
-PEOPLE:
-| Name | Email | Organization | Role | Aliases |
-
-ORGANIZATIONS:
-| Name | Domain | Aliases |
-
-PROJECTS:
-| Name | Status | Aliases |
-
-GOALS:
-| Name | Priority | Status | Target date |
-
-PRIORITIES:
-| Name | Status |
-
-TOPICS:
-| Name | Keywords | Aliases |
-```
-
-## Step 1: Determine Source Type and Filter
-
-### Determine type
-
-- Has `Meeting:` or `Attendees:` or `Transcript:` → **meeting** (can create
-  notes)
-- Has `From:` and `To:` or `Subject:` → **email** (can only update existing
-  notes)
-- Has `**Platform:** Microsoft Teams` → **teams chat** (can only update existing
-  notes — same rules as email)
-- Is in `Voice Memos/` folder → **voice memo** (can create notes)
-- Is in `apple_calendar/` → **calendar event** (enrich existing notes only)
-- Is an **ad-hoc document** (from `~/Desktop/`, `~/Downloads/`, or passed by
-  another skill) → **document** (can create notes)
-
-### Filter: Skip These Sources
-
-**ALWAYS process — never skip:**
-
-- Calendar events — always process regardless of whether attendees are internal
-  or external. Internal-only meetings are valuable for enriching project and
-  topic notes (meeting context, decisions, agenda items). Only skip all-day
-  placeholder events with no attendees and no description (e.g. "Block", "OOO").
-
-**SKIP entirely (don't process):**
-
-- Newsletters (unsubscribe links, "View in browser", bulk sender indicators)
-- Marketing emails (promotional language, no-reply senders)
-- Automated notifications (GitHub, Jira, Slack, CI/CD, shipping updates)
-- Spam or cold outreach from unknown senders with no existing relationship
-- Product update emails, release notes, changelogs
-- Social media notifications
-- Receipts and order confirmations
-- Calendar invite emails that are just logistics
-- Mass emails (many recipients, mailing list headers)
-
-**PROCESS (but only update existing notes):**
-
-- Emails from people who already have notes in `knowledge/People/`
-- Emails that reference existing projects or organizations
-
-**PROCESS (can create new notes):**
-
-- Meeting transcripts with external attendees
-- Voice memos
-
-**Exception — Warm Intros:** If an email is a warm introduction from someone who
-has a note, AND they're introducing a new person, create a note for the
-introduced person.
-
-Warm intro signals:
-
-- Subject contains "Intro:", "Introduction:", "Meet", "Connecting"
-- Body contains "introduce you to", "want to connect", "meet [Name]"
-- New person is CC'd
-
-## Step 2: Read and Parse Source File
-
-### For emails
-
-Extract: Date, Subject, From, To/Cc, Thread ID, Body.
-
-### For meetings
-
-Extract: Date, Attendees, Transcript/Notes.
-
-### For ad-hoc documents
-
-Extract: Date (file modification date), Filename, Source path, Content.
-
-- `.md`, `.txt`, `.rtf` — read directly
-- `.pdf` — extract text (`pdftotext` or `mdcat` if available)
-- `.csv` — read as-is, look for names/emails/orgs in columns
-- `.doc`, `.docx` — extract text (`textutil -convert txt` on macOS)
-
-Ad-hoc documents follow **meeting** rules: they **can create** new entity notes.
-
-### 2a: Exclude Self
-
-Never create or update notes for:
-
-- The user (matches name, email, or @domain from `USER.md`)
-- Anyone @{user.domain} (colleagues at user's company)
-
-### 2b: Extract All Name Variants
-
-Collect every way entities are referenced:
-
-**People:** Full names, first names, last names, initials, email addresses,
-roles/titles, pronouns with clear antecedents.
-
-**Organizations:** Full names, short names, abbreviations, email domains.
-
-**Projects:** Explicit names, descriptive references ("the pilot", "the deal").
-
-**Goals:** References to time-bound targets, OKRs, or measurable outcomes that
-match existing `knowledge/Goals/` entries.
-
-**Priorities:** References to strategic directions that match existing
-`knowledge/Priorities/` entries.
-
-## Step 3: Look Up Existing Notes
-
-For each variant, search the knowledge index built in Step 0.
+### 1. Build the knowledge index
 
 ```bash
-rg -l "Sarah Chen|sarah@acme.com" knowledge/
-cat "knowledge/People/Sarah Chen.md"
+find knowledge/People knowledge/Organizations knowledge/Projects \
+     knowledge/Topics knowledge/Goals knowledge/Priorities \
+     knowledge/Conditions -name "*.md" 2>/dev/null
 ```
 
-**Matching criteria:**
+For each note, `head -20` to capture key fields. Build a mental index of People,
+Organizations, Projects, Goals, Priorities, Topics by name, email, organization,
+role, status, and aliases.
 
-| Source has               | Note has                 | Match if                  |
-| ------------------------ | ------------------------ | ------------------------- |
-| First name "Sarah"       | Full name "Sarah Chen"   | Same organization context |
-| Email "sarah@acme.com"   | Email field              | Exact match               |
-| Email domain "@acme.com" | Organization "Acme Corp" | Domain matches org        |
-| Any variant              | Aliases field            | Listed in aliases         |
+### 2. Classify the source
 
-## Step 4: Resolve Entities to Canonical Names
+Type detection, skip rules, warm-intro exception, and the source-type rules
+summary: [references/sources.md](references/sources.md).
 
-Build a resolution map from every source reference to its canonical form:
+### 3. Read and parse the source
 
-```
-RESOLVED:
-- "Sarah Chen" → [[People/Sarah Chen]]
-- "sarah@acme.com" → [[People/Sarah Chen]]
-- "Acme" → [[Organizations/Acme Corp]]
-- "hiring target" → [[Goals/{matching goal}]]
-- "strategic theme" → [[Priorities/{matching priority}]]
+- **Emails:** Date, Subject, From, To/Cc, Thread ID, Body.
+- **Meetings:** Date, Attendees, Transcript / Notes.
+- **Ad-hoc documents:** Date (file mtime), Filename, Source path, Content. `.md`
+  / `.txt` / `.rtf` direct; `.pdf` via `pdftotext` or `mdcat`; `.csv` as-is
+  (look for names / emails / orgs in columns); `.doc` / `.docx` via
+  `textutil -convert txt`.
 
-NEW ENTITIES (meeting — create notes):
-- "Jennifer" (CTO) → Create [[People/Jennifer]]
+Ad-hoc documents follow **meeting** rules (can create notes).
 
-NEW ENTITIES (email — do NOT create):
-- "Random Person" → Skip
+Exclude self per [references/sources.md](references/sources.md#self-exclusion).
+Collect every name variant per
+[references/resolution.md](references/resolution.md#name-variant-collection).
 
-NEVER AUTO-CREATE (user-set only):
-- Goals — link to existing [[Goals/...]] if referenced, never create new ones
-- Priorities — link to existing [[Priorities/...]] if referenced, never create
+### 4. Resolve entities
 
-AMBIGUOUS:
-- "Mike" (no context) → Skip
-```
+For each variant, search the knowledge index. Apply the
+[matching table](references/resolution.md#matching) and the
+[disambiguation priority](references/resolution.md#disambiguation-priority).
+Goals and Priorities are
+[never auto-created](references/resolution.md#never-auto-create) — link to
+existing entries only.
 
-**Disambiguation priority:** Email match > Organization context > Role match >
-Aliases > Recency.
+### 5. Identify new entities (meetings only)
 
-## Step 5: Identify New Entities (Meetings Only)
+Apply the
+["Would I prep?" test](references/resolution.md#would-i-prep-for-this-person--step-5)
+and the [role inference rules](references/resolution.md#role-inference). For
+contacts who don't merit their own note, add to the Organization's `## Contacts`
+section.
 
-For entities not resolved to existing notes, apply the **"Would I prep for this
-person?"** test:
+### 6. Extract content
 
-**CREATE a note for:**
+Decisions, commitments, key facts, open items, activity lines, summaries:
+[references/content.md](references/content.md). Be substantive; never write
+filler or meta-commentary.
 
-- Decision makers or key contacts at customers, prospects, partners
-- Investors or potential investors
-- Candidates being interviewed
-- Advisors or mentors with ongoing relationships
-- Introducers who connect you to valuable contacts
+### 7. Detect state changes and structural enrichment
 
-**DO NOT create notes for:**
+- **State changes** (Project status, open-item resolution, role / title changes,
+  relationship changes): tables in
+  [references/content.md](references/content.md#state-change-tables). Be
+  conservative; log inline `[Field → value]`.
+- **Recruitment** (Req-number detection, hiring-manager / recruiter /
+  domain-lead inference):
+  [references/recruitment.md](references/recruitment.md).
+- **Goal & Priority links** (Step 7c): rules in
+  [references/links.md](references/links.md#goals-step-7c) and
+  [Priorities](references/links.md#priorities-step-7c). **Never auto-create.**
+- **Conditions** (cross-cutting states affecting ≥ 3 entities):
+  [references/conditions.md](references/conditions.md).
 
-- Transactional service providers (bank employees, support reps)
-- One-time administrative contacts
-- Large group meeting attendees you didn't interact with
-- Assistants handling only logistics
+### 8. Check for duplicates
 
-For people who don't get their own note, add to the Organization note's
-`## Contacts` section instead.
+[references/content.md](references/content.md#duplicate-check-step-8) — skip
+same-day same-source activity entries, dedupe key facts and open items, mark
+contradictions "(needs clarification)".
 
-### Role Inference
+### 9. Write updates
 
-If role is not explicit, infer from context:
-
-- Organizer of cross-company meeting → likely senior or partnerships
-- Technical questions → likely engineering
-- Pricing questions → likely procurement or finance
-- "I'll need to check with my team" → manager
-- "I can make that call" → decision maker
-
-Format: `**Role:** Product Lead (inferred from evaluation discussions)`
-
-## Step 6: Extract Content
-
-For each entity that has or will have a note, extract:
-
-### Decisions
-
-Signals: "We decided...", "We agreed...", "Let's go with...", "Approved",
-"Confirmed"
-
-### Commitments
-
-Signals: "I'll...", "We'll...", "Can you...", "Please send...", "By Friday"
-Extract: Owner, action, deadline, status (open).
-
-### Key Facts
-
-Extract **substantive** information only:
-
-- Specific numbers (budget, team size, timeline)
-- Preferences or working style
-- Background information
-- Technical requirements
-- What was discussed or proposed
-
-**NEVER include:** Meta-commentary about missing data, placeholder text, or data
-quality observations. If no key facts exist, leave the section empty.
-
-### Open Items
-
-Include commitments and next steps only:
-
-```markdown
-- [ ] Send API documentation — by Friday
-- [ ] Schedule follow-up call with CTO
-```
-
-**NEVER include:** "Find their email", "Add their role", "Research company
-background"
-
-### Activity Summary
-
-One line per source:
-
-```markdown
-- **2025-01-15** (meeting): Kickoff for [[Projects/Acme Integration]]. [[People/David Kim]] needs API access.
-```
-
-Always use canonical names with absolute paths (`[[People/Name]]`,
-`[[Organizations/Name]]`).
-
-### Summary
-
-2-3 sentences answering: "Who is this person and why do I know them?" Focus on
-the relationship, not the communication method.
-
-**Good:** "VP Engineering at [[Organizations/Acme Corp]] leading the
-[[Projects/Acme Integration]] pilot." **Bad:** "Attendee on the scheduled
-meeting (Aug 12, 2024)."
-
-## Step 7: Detect State Changes
-
-Review extracted content for signals that existing note fields need updating:
-
-### Project Status Changes
-
-| Signal                                | New Status |
-| ------------------------------------- | ---------- |
-| "approved" / "signed" / "green light" | active     |
-| "on hold" / "pausing" / "delayed"     | on hold    |
-| "cancelled" / "not proceeding"        | cancelled  |
-| "launched" / "completed" / "shipped"  | completed  |
-| "exploring" / "considering"           | planning   |
-
-### Open Item Resolution
-
-| Signal                       | Action          |
-| ---------------------------- | --------------- |
-| "Here's the X you requested" | Mark X complete |
-| "I've sent the X"            | Mark X complete |
-| "X is done" / "X is ready"   | Mark X complete |
-
-Change `- [ ]` to `- [x]` with completion date.
-
-### Role/Title Changes
-
-- New title in email signature
-- "I've been promoted to..."
-- Different role than what's in the note
-
-### Relationship Changes
-
-- "I've joined [New Company]"
-- "We signed the contract" → prospect → customer
-- New email domain for known person
-
-**Be conservative:** Only apply clear, unambiguous state changes. If uncertain,
-add to activity log but don't change fields.
-
-Log state changes in activity with `[Field → value]` notation:
-
-```markdown
-- **2025-01-20** (email): Leadership approved pilot. [Status → active]
-```
-
-## Step 7b: Detect Recruitment Signals
-
-When processing emails and calendar events, look for signals that relate to the
-recruitment pipeline. These signals enrich `knowledge/Roles/` and
-`knowledge/Candidates/` with metadata that cannot be derived from any single
-source.
-
-### Requisition Number Detection
-
-Scan email subjects and bodies for requisition numbers (e.g. 7-digit Workday
-IDs). When found:
-
-1. Check if a Role file exists: `ls knowledge/Roles/ | grep "{req_number}"`
-2. If **no Role file exists**, create a stub (see `req-track` Step 0b for the
-   template). Search the knowledge graph for context:
-   ```bash
-   rg "{req_number}" knowledge/
-   ```
-3. If a Role file **does exist**, check if the email provides new metadata
-   (hiring manager, recruiter, locations) and update the Role file.
-
-### Hiring Manager Inference from Calendar Events
-
-When a calendar event title matches interview-related patterns:
-
-- "Interview", "Screening", "Screen", "Decomposition", "Panel", "Technical
-  Assessment", "Candidate"
-- Combined with a person name (cross-reference `knowledge/Candidates/`)
-
-Extract the **organizer** of the event. If the organizer is NOT the user (from
-`USER.md`), they are likely the hiring manager for this role. To confirm:
-
-1. Look up the organizer in `knowledge/People/` — check if they have a role
-   indicating they manage a team or are described as a hiring manager.
-2. Look up which candidate is being interviewed — check their `brief.md` for a
-   `Req` field.
-3. If a Req is known, update the corresponding `knowledge/Roles/*.md` file's
-   `Hiring manager` field (only if currently `—`).
-4. Update the candidate's `brief.md` `Hiring manager` field if currently `—`.
-
-### Recruiter Inference from Email Threads
-
-When processing email threads that reference candidates (by name match against
-`knowledge/Candidates/`), check the To/CC fields for internal recruiters:
-
-1. Cross-reference To/CC addresses against `knowledge/People/` notes.
-2. If a CC'd person's note mentions "recruiter", "talent acquisition", or a
-   similar recruiting role, they are likely the internal recruiter for this
-   candidate's role.
-3. Update the candidate's `brief.md` recruiter field and the corresponding Role
-   file if the field is currently `—`.
-
-### Domain Lead Resolution
-
-When a hiring manager is newly identified (from calendar or email inference),
-attempt to resolve the domain lead:
-
-1. Read the hiring manager's People note for a `**Reports to:**` field.
-2. Walk up the reporting chain until reaching a VP or senior leader listed in a
-   stakeholder map or organizational hierarchy note.
-3. Update both the Role file's `Domain lead` and the candidate brief's
-   `Domain lead`.
-
-**Be conservative:** Only set hiring manager/domain lead/recruiter when the
-evidence is strong. A single calendar invite organized by someone is suggestive
-but not conclusive — confirm against People notes or multiple data points before
-setting the field.
-
-## Step 7c: Link to Goals and Priorities
-
-When extracted content references an existing Goal or Priority, create
-backlinks. **Never create new Goal or Priority entities** — they are set
-deliberately by the user.
-
-### Goal References
-
-Check whether source content relates to an existing `knowledge/Goals/*.md`
-entry. Signals:
-
-- Explicit mention of a goal name or its measurable outcome
-- Discussion of progress, milestones, blockers, or status changes related to a
-  goal's target
-- Quantitative updates that map to a goal's outcome metric
-
-When a match is found:
-
-1. Add a `[[Goals/{Goal}]]` link to the relevant Project or Topic activity entry
-2. Add a progress entry to the Goal's `## Progress` section
-3. If evidence suggests a status change (e.g. "we won't hit the Q3 target"),
-   update the Goal's `**Status:**` field and log with `[Status → value]`
-
-### Priority References
-
-Check whether source content relates to an existing `knowledge/Priorities/*.md`
-entry. This is typically implicit — match source content themes against the
-priority names and descriptions in existing priority notes.
-
-When a Priority link is useful for context (not every mention needs one):
-
-1. Add the `[[Priorities/{Priority}]]` link to Project or Topic `## Related`
-   sections if not already present
-2. Update the Priority's `## Projects` section if a new project is discovered
-   that serves it
-
-**Be conservative:** Don't over-link. A project that already links to a Goal
-which links to a Priority doesn't need a redundant direct Priority link.
-
-## Step 7d: Detect and Manage Conditions
-
-Conditions are time-bound organizational states (hiring freezes, reorgs, budget
-holds, leadership transitions) that affect multiple entities simultaneously.
-They are the "weather" of the knowledge graph.
-
-### Detecting Conditions
-
-When processing a batch of source files, watch for **cross-cutting signals** —
-the same constraint or state referenced across 3+ different entity updates in
-the same processing run. Signals include:
-
-| Signal                                   | Example                          | Potential Condition         |
-| ---------------------------------------- | -------------------------------- | --------------------------- |
-| "on hold", "paused", "frozen", "blocked" | "All recruitment is on hold"     | Hiring Freeze               |
-| "reorg", "restructuring", "transition"   | "Team may move outside division" | Organizational Restructure  |
-| "budget", "cost reduction", "headcount"  | "30% reduction planned"          | Budget Constraint           |
-| "waiting on", "pending approval from"    | "Waiting on leadership decision" | Leadership Decision Pending |
-| "new CTO", "leadership change"           | "New CTO starting next month"    | Leadership Transition       |
-
-### Creating a Condition
-
-When a cross-cutting pattern is detected:
-
-1. Check if a matching Condition already exists:
-   ```bash
-   ls knowledge/Conditions/ 2>/dev/null
-   ```
-2. If **no match exists**, create a new Condition note using the template in
-   `references/TEMPLATES.md`. Name it descriptively (e.g. "Hiring Freeze Q2",
-   "Division Reorg").
-3. If a **match exists**, update it with new activity and any changes to status,
-   blocker, or affected entities.
-
-### Updating Affected Entities
-
-When a Condition is created or updated:
-
-1. Add `[[Conditions/{Condition}]]` to the `## Blockers` section of affected
-   Goals
-2. Add `[Status → on hold]` state changes to affected Projects where appropriate
-3. Add a `## Blockers` entry to affected Role files if recruitment is frozen
-4. Log the Condition reference in activity entries:
-   `- **YYYY-MM-DD** (source): {update}. See [[Conditions/{Condition}]]`
-
-### Resolving Conditions
-
-When source content indicates a Condition has ended:
-
-- "approved", "freeze lifted", "reorg complete", "back on track"
-
-Update the Condition: `**Status:** resolved`, `**Resolved:** {date}`. Remove
-`[[Conditions/{Condition}]]` from Goal `## Blockers` sections. Log with
-`[Status → resolved]`.
-
-**Be conservative:** Only create Conditions for genuinely cross-cutting states
-that affect 3+ entities. A single project being "on hold" is a project status
-change, not a Condition. A hiring freeze affecting 20 roles across 5 teams is a
-Condition.
-
----
-
-## Step 8: Check for Duplicates
-
-Before writing:
-
-- Check activity log for existing entries on this date from this source
-- Compare key facts against existing — skip duplicates
-- Check open items — don't add same item twice
-- If new info contradicts existing, note both versions with "(needs
-  clarification)"
-
-## Step 9: Write Updates
-
-**Write one file at a time. Do not batch writes.**
-
-### For NEW entities (meetings only)
-
-Create the note file using the templates in
+For **new** entities, use the templates indexed by
 [references/TEMPLATES.md](references/TEMPLATES.md).
 
-### For EXISTING entities
+For **existing** entities, apply targeted edits — never rewrite the file:
 
-Read the current note, then apply targeted edits:
+- Add the new activity entry at the **top** of `## Activity` (reverse
+  chronological).
+- Update `Last seen`.
+- Add new key facts (skip duplicates).
+- Update open items (mark completed, add new).
+- Apply state changes to fields.
 
-- Add new activity entry at the TOP of the Activity section (reverse
-  chronological)
-- Update Last seen date
-- Add new key facts (if not duplicates)
-- Update open items (mark completed, add new ones)
-- Apply state changes to fields
+### 10. Ensure bidirectional links
 
-Use precise edits — don't rewrite the entire file.
+After writing, verify links go both ways using the
+[bidirectional link rules](references/links.md#bidirectional-link-rules).
 
-## Step 10: Ensure Bidirectional Links
+### 11. Update graph state
 
-After writing, verify links go both ways:
+```bash
+node scripts/state.mjs update "$FILE"
+```
 
-| If you add...          | Then also add...                             |
-| ---------------------- | -------------------------------------------- |
-| Person → Organization  | Organization → Person (in People section)    |
-| Person → Project       | Project → Person (in People section)         |
-| Project → Organization | Organization → Project (in Projects section) |
-| Project → Goal         | Goal → Project (in Projects section)         |
-| Goal → Priority        | Priority → Goal (in Goals section)           |
-| Project → Priority     | Priority → Project (in Projects section)     |
-| Condition → Goal       | Goal → Condition (in Blockers section)       |
-| Condition → Project    | Project → Condition (in Related section)     |
-| Condition → Role       | Role → Condition (in notes or status field)  |
-
-Always use absolute links: `[[People/Sarah Chen]]`,
-`[[Organizations/Acme Corp]]`, `[[Projects/Acme Integration]]`,
-`[[Goals/Goal Name]]`, `[[Priorities/Priority Name]]`,
-`[[Conditions/Condition Name]]`.
-
-## Step 11: Update Graph State
-
-After processing each file, update the state:
-
-    node scripts/state.mjs update "$FILE"
-
-## Source Type Rules Summary
-
-| Source Type             | Creates Notes?  | Updates Notes? | Detects State Changes? |
-| ----------------------- | --------------- | -------------- | ---------------------- |
-| Calendar event          | No              | Yes (always)   | Yes                    |
-| Meeting                 | Yes             | Yes            | Yes                    |
-| Voice memo              | Yes             | Yes            | Yes                    |
-| Ad-hoc document         | Yes             | Yes            | Yes                    |
-| Email (known contact)   | No              | Yes            | Yes                    |
-| Email (unknown contact) | No (SKIP)       | No             | No                     |
-| Email (warm intro)      | Yes (exception) | Yes            | Yes                    |
-| Teams chat              | No              | Yes            | Yes                    |
-
-## Quality Checklist
-
-Before completing, verify:
-
-- [ ] Correctly identified source as meeting or email
-- [ ] Applied correct rules (meetings create, emails only update)
-- [ ] Excluded self and @user.domain from entity extraction
-- [ ] Applied "Would I prep?" test to each person
-- [ ] Used absolute paths `[[Folder/Name]]` in ALL links
-- [ ] Summaries describe relationship, not communication method
-- [ ] Key facts are substantive (no filler)
-- [ ] Open items are commitments (no "find their email" tasks)
-- [ ] State changes logged with `[Field → value]` notation
-- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔
-      Goal)
-- [ ] Goal progress updated where source content references existing goals
-- [ ] Priority links added to Projects/Topics where appropriate (not
-      over-linked)
-- [ ] No new Goal or Priority entities auto-created (user-set only)
-- [ ] Conditions detected when 3+ entities reference same constraint in a batch
-- [ ] Existing Conditions updated with new activity when referenced
-- [ ] Goal Blockers section updated when Conditions affect goals
-- [ ] Condition resolution detected and status updated when evidence supports it
-- [ ] Requisition numbers detected and Role files created/enriched
-- [ ] Hiring manager inferred from calendar event organizers where applicable
-- [ ] Recruiter inferred from email CC fields where applicable
-- [ ] Domain lead resolved from hiring manager reporting chain where applicable
-- [ ] Graph state updated for processed files
+Run for every processed file. The state file is shared with `req-track` and
+`hyprnote-process`, so this prevents either skill from re-scanning the same
+input.

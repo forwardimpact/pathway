@@ -7,290 +7,133 @@ compatibility: Node.js only — no external dependencies.
 # Synthesize Deck
 
 Turn messy PowerPoint specification decks into clear, actionable markdown briefs
-that forward deployed engineers can actually build from. Strips out business
-jargon and focuses on what matters: what needs to be built, what blocks
-progress, and what data you need to start prototyping.
+that forward deployed engineers can build from. Strip business jargon and focus
+on what matters: what needs to be built, what blocks progress, what data is
+needed to start prototyping.
 
 ## Trigger
 
-Run when the user asks to:
-
-- Summarize, synthesize, or break down a `.pptx` deck
-- Make sense of a specification or proposal deck for engineering
-- Create an engineering brief from a slide deck
-- Understand what a project deck is actually asking for
+The user asks to summarize, synthesize, or break down a `.pptx` deck; make sense
+of a specification or proposal deck for engineering; create an engineering brief
+from a slide deck; or understand what a project deck is actually asking for.
 
 ## Prerequisites
 
-- Node.js 18+
-- Input files must be `.pptx` format
+- Node.js 18+.
+- Input files must be `.pptx`.
 
 ## Inputs
 
-- One or more `.pptx` file paths
-- Optional: specific focus areas the engineer cares about
+- One or more `.pptx` file paths.
+- Optional: focus areas the engineer cares about.
 
 ## Outputs
 
 - One markdown file per deck (or one combined file for related decks) written to
-  `knowledge/Projects/` with the naming pattern
-  `{Project Name} - Engineering Brief.md`
+  `knowledge/Projects/{Project Name} - Engineering Brief.md`.
 
----
+<do_confirm_checklist goal="Verify the brief is engineer-actionable before
+delivering">
 
-## Workflow
+- [ ] No invented requirements — every claim traces to the deck.
+- [ ] Plain language; no marketing jargon (no "synergize", "orchestrate",
+      "leverage", "intelligent \_\_\_ hub").
+- [ ] JTBDs describe the user's goal, not the proposed solution; one job per
+      statement; each includes the "so that".
+- [ ] Data dependencies table flags blockers (missing, locked, compliance).
+- [ ] Synthetic data needs name fields, ranges, edge cases, and volume.
+- [ ] Gaps and open questions list what an engineer would notice missing.
+- [ ] Brief is under 2,000 lines — a summary, not a transcription.
+- [ ] Knowledge base looked up for mentioned people, orgs, and projects.
 
-### Step 1: Extract Text from PPTX
+</do_confirm_checklist>
 
-Use the extraction script to pull all slide text from the deck:
+Output template and the data dependencies table:
+[references/brief-template.md](references/brief-template.md).
+
+## Procedure
+
+### 1. Extract text
 
 ```bash
 node .claude/skills/deck-summarize/scripts/extract-pptx.mjs "$FILE_PATH"
 ```
 
-For multiple decks, pass all files at once:
-
-```bash
-node .claude/skills/deck-summarize/scripts/extract-pptx.mjs deck1.pptx deck2.pptx
-```
-
-To save the extracted text for analysis:
+For multiple decks, pass all files at once. To save the extracted text:
 
 ```bash
 node .claude/skills/deck-summarize/scripts/extract-pptx.mjs "$FILE_PATH" -o /tmp/deck_extract.txt
 ```
 
-Read the full extracted text before proceeding.
+Read all extracted text before continuing.
 
-### Step 2: Identify the Core Problem
+### 2. Identify the core problem
 
-Read through all slides and answer:
+Plain-language answers to: what process exists today; what's broken, slow, or
+painful; who suffers. Don't restate the deck's framing.
 
-- What process or workflow exists today?
-- What is broken, slow, or painful about it?
-- Who suffers from these problems (the actual humans doing the work)?
+### 3. Extract Jobs-To-Be-Done
 
-Write this up in plain language. Avoid repeating the deck's marketing framing.
-Describe the problem like you're explaining it to a teammate over coffee.
+Format: `When [situation], I need to [action], so that [outcome].`
 
-### Step 3: Extract Jobs-To-Be-Done
+Group by user role/persona. One job per statement. Use the user's goal, not the
+proposed solution. A job should still make sense if you discard the deck's
+solution. Don't restate the deck's feature list as jobs and don't reuse its
+jargon.
 
-JTBD captures what users actually need to accomplish. For each distinct user
-role identified in the deck, extract jobs using this format:
+### 4. Map dependencies
 
-```
-When [situation], I need to [action], so that [outcome].
-```
+**4a. Data** — fill the table in
+[references/brief-template.md](references/brief-template.md#data-dependencies-table).
+Flag blockers (missing, locked, unstructured, compliance).
 
-**Rules for good JTBDs:**
+**4b. Systems & integrations** — every external system/API/platform: what the
+integration does, read-only vs read-write, API vs manual/scraping, access
+confirmed?
 
-- Focus on the user's goal, not the proposed solution
-- Use concrete, specific language (not "leverage AI to optimize")
-- One job per statement — don't combine multiple needs
-- Include the "so that" — the outcome matters for prioritization
-- Group by user role/persona
+**4c. People & approvals** — approvals, reviews, or co-creation needed before
+engineering can proceed. Flag long lead-time items (legal, compliance, vendor
+contracts).
 
-**Common traps to avoid:**
+### 5. Define synthetic-data needs
 
-- Don't just restate the deck's feature list as jobs
-- Don't use the deck's jargon ("orchestration engine", "intelligence hub")
-- A job should make sense even if you threw away the proposed solution
+For each core feature/use case:
 
-### Step 4: Map Dependencies
+- **Generate:** entity, key fields and types, realistic value ranges and
+  distributions, edge cases that matter, volume for meaningful testing.
+- **Simulate:** workflows and state transitions, time-series patterns,
+  multi-actor interactions, error/failure modes.
+- **Format:** prefer CSV/JSON; PII-shaped fake data only — never real PII;
+  include happy-path _and_ adversarial examples; consider ML training/eval data.
 
-Engineers need to know what blocks them before they can build. Extract three
-categories:
+### 6. Translate the proposed solution
 
-#### 4a. Data Dependencies
+Describe the build in engineering terms: components, what each does in plain
+terms, how they connect, end-to-end data flow, AI/ML capabilities and what
+they're actually doing. Translate branded names — e.g. "Intelligent Intake Hub"
+→ "OCR + NLP pipeline that extracts structured fields from scanned enrollment
+forms"; "Copay Guardian" → "Anomaly detection on weekly claims data".
 
-For each data source mentioned or implied:
+### 7. Identify what's missing
 
-| Data        | Where It Lives             | Format                             | Access                          | Blocker?       |
-| ----------- | -------------------------- | ---------------------------------- | ------------------------------- | -------------- |
-| _What data_ | _System/team that owns it_ | _Structured/unstructured/API/file_ | _Do we have it? Can we get it?_ | _Yes/No + why_ |
+Call out: features without clear data sources; AI capabilities without a
+training-data strategy; assumed integrations; user workflows that skip edge
+cases; metrics promised without measurement infrastructure; timeline–scope
+mismatches.
 
-Flag any data that is:
+### 8. Assemble the brief
 
-- Mentioned but doesn't seem to exist yet
-- Locked behind systems the team may not have access to
-- Unstructured and would need significant preprocessing
-- Subject to compliance/privacy constraints
+Use the structure in
+[references/brief-template.md](references/brief-template.md). Save to
+`knowledge/Projects/{Project Name} - Engineering Brief.md`. For multiple related
+decks, write one combined brief with shared dependencies.
 
-#### 4b. System Dependencies
+### 9. Save and report
 
-List every external system, API, or platform the solution needs to integrate
-with. For each, note:
+Tell the user the file path and give a 3-sentence project summary.
 
-- What the integration does
-- Whether it's read-only or read-write
-- Whether an API exists or if it's manual/scraping
-- Whether access has been confirmed
+## Writing style
 
-#### 4c. People Dependencies
-
-List approvals, reviews, or co-creation required from specific roles or teams
-before engineering work can proceed. Flag anything that looks like a long
-lead-time dependency (legal review, compliance sign-off, vendor contracts).
-
-### Step 5: Define Synthetic Data Needs
-
-Engineers need data to prototype before real data pipelines exist. For each core
-feature or use case, specify:
-
-**What to generate:**
-
-- The data entity (e.g., "copay claims", "enrollment forms", "contract
-  documents")
-- Key fields and their types
-- Realistic value ranges and distributions
-- Edge cases that matter (e.g., incomplete forms, anomalous claims)
-- Volume needed for meaningful testing
-
-**What to simulate:**
-
-- Workflows and state transitions (e.g., case moving from intake to BV to PA)
-- Time-series patterns (e.g., weekly claims with seasonal variation)
-- Multi-actor interactions (e.g., patient submits, specialist reviews, payer
-  responds)
-- Error conditions and failure modes
-
-**Format guidance:**
-
-- Prefer CSV/JSON for structured data
-- Include realistic PII-shaped data (fake names, addresses, IDs) — never real
-  PII
-- Include both happy-path and adversarial examples
-- Consider what data would be needed to train/evaluate ML models
-
-### Step 6: Summarize the Proposed Solution
-
-Describe what the deck is proposing to build, but translate it into engineering
-terms:
-
-- What are the core system components?
-- What does each component actually do (in plain terms)?
-- How do they connect to each other?
-- What is the data flow end-to-end?
-- What AI/ML capabilities are needed and what are they actually doing?
-
-Avoid just listing the deck's branded feature names. Translate:
-
-- "Intelligent Intake Hub" → "OCR + NLP pipeline that extracts structured fields
-  from scanned enrollment forms"
-- "Case Intelligence Hub" → "Dashboard pulling case status from CRM + ML risk
-  score for each active case"
-- "Copay Guardian" → "Anomaly detection model on weekly claims data that flags
-  unusual patterns"
-
-### Step 7: Identify What's Missing
-
-Call out gaps an engineer would notice:
-
-- Features described without clear data sources
-- AI capabilities mentioned without training data strategy
-- Integrations assumed but not detailed
-- User workflows that skip important error/edge cases
-- Metrics promised without measurement infrastructure
-- Timeline vs. scope mismatches
-
-### Step 8: Write the Brief
-
-Assemble into a single markdown document with this structure:
-
-```markdown
----
-project: {Project Name}
-source: {list of deck filenames}
-date_synthesized: {today's date}
-status: engineering-brief
----
-
-# {Project Name} — Engineering Brief
-
-> One-paragraph plain-English summary of what this project is and why it exists.
-
-## The Problem
-
-{Step 2 output — what's broken, who it affects, why it matters}
-
-## Jobs-To-Be-Done
-
-### {Persona 1}
-- When [situation], I need to [action], so that [outcome].
-- ...
-
-### {Persona 2}
-- ...
-
-## What They Want to Build
-
-{Step 6 output — solution in engineering terms, components, data flow}
-
-### System Architecture (Simplified)
-
-{Text-based diagram or description of how components connect}
-
-### AI/ML Components
-
-{What models/capabilities are needed, what they do, what data they need}
-
-## Dependencies
-
-### Data
-{Step 4a table}
-
-### Systems & Integrations
-{Step 4b list}
-
-### People & Approvals
-{Step 4c list}
-
-## Synthetic Data for Prototyping
-
-### {Feature/Use Case 1}
-{Step 5 output}
-
-### {Feature/Use Case 2}
-{Step 5 output}
-
-## Gaps & Open Questions
-
-{Step 7 output as a numbered list}
-
-## Phasing
-
-{Timeline and wave structure from the deck, with engineering commentary on
-what's realistic and what depends on what}
-
-## Key Metrics
-
-{What success looks like, translated into measurable engineering terms}
-```
-
-### Step 9: Save and Report
-
-1. Write the brief to `knowledge/Projects/{Project Name} - Engineering Brief.md`
-2. Tell the user where the file is and give a 3-sentence summary of the project
-
-## Writing Style
-
-- **Plain language.** Write like you're briefing a smart engineer who has zero
-  context on this project. No "synergize", no "orchestrate", no "leverage".
-- **Concrete over abstract.** "Parse PDF enrollment forms into structured JSON"
-  beats "Intelligent document processing capability".
-- **Honest about uncertainty.** If the deck is vague about something important,
-  say so. Don't fill gaps with assumptions.
-- **Opinionated where helpful.** If a dependency looks like it will block the
-  team for weeks, flag it clearly. If a timeline looks unrealistic given the
-  scope, say that.
-- **Short sentences.** Engineers scan, they don't read essays.
-
-## Constraints
-
-- Never invent requirements not present in the source deck
-- Always flag when you're interpreting vs. directly extracting
-- Keep the brief under 2000 lines — this is a summary, not a transcription
-- Use the knowledge base for additional context about mentioned people, orgs, or
-  projects
-- If multiple decks describe related projects, create one combined brief with
-  clear sections per project and a shared dependencies section
+Plain language, concrete over abstract, honest about uncertainty, opinionated
+when helpful (flag dependency or timeline risks), short sentences. Engineers
+scan, they don't read essays.

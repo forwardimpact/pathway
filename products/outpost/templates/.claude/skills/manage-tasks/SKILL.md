@@ -6,35 +6,28 @@ description: Create, update, list, and close tasks on per-person task boards in 
 # Manage Tasks
 
 Manage per-person task boards in `knowledge/Tasks/`. Each person has a single
-living document that tracks all their open, in-progress, blocked, and recently
-completed tasks. Task boards are the **canonical source** for task tracking —
-other notes (People, Projects) link to them rather than duplicating.
+living document tracking open, in-progress, blocked, and recently completed
+tasks. Task boards are the **canonical source** for task tracking — other notes
+link to them rather than duplicating.
 
 ## Trigger
 
-Run this skill:
-
-- When the user asks to add, update, close, or list tasks
-- When chained from `extract-entities` or `hyprnote-process` with extracted
-  action items
-- When the user asks to see someone's task board or workload
-- On a schedule to perform housekeeping (prune done items, flag overdue)
+- The user asks to add, update, close, or list tasks.
+- Chained from `extract-entities` or `hyprnote-process` with extracted action
+  items.
+- The user asks to see someone's task board or workload.
+- Scheduled housekeeping (prune done items, flag overdue).
 
 ## Prerequisites
 
-- `knowledge/Tasks/` directory exists
-- User identity configured in `USER.md`
+- `knowledge/Tasks/` directory exists.
+- User identity configured in `USER.md`.
 
 ## Inputs
 
-### User-initiated
+User-initiated: person name and task details from the request.
 
-- Person name and task details from the user's request
-
-### Chained from other skills
-
-Action items extracted by `extract-entities` or `hyprnote-process`, passed as
-structured data:
+Chained from other skills, action items in this shape:
 
 ```
 TASKS:
@@ -45,201 +38,115 @@ TASKS:
   Source: meeting|email
   Source date: YYYY-MM-DD
   Project: {Project Name} (if applicable)
-  Context: {Brief context about where this came from}
+  Context: {brief context}
 ```
 
 ## Outputs
 
-- `knowledge/Tasks/{Person Name}.md` — created or updated task boards
+- `knowledge/Tasks/{Person Name}.md` — created or updated.
 
----
+<do_confirm_checklist goal="Verify task board changes are clean and consistent">
 
-## Task Board Format
+- [ ] Task title is actionable and starts with a verb.
+- [ ] Priority is set; medium-default omitted.
+- [ ] Due date present only when there's a real deadline.
+- [ ] Project link `[[Projects/Name]]` set when applicable.
+- [ ] No duplicate tasks on the board.
+- [ ] All backlinks use absolute paths `[[Folder/Name]]`.
+- [ ] Context line is concise (1–2 lines max).
+- [ ] New boards include all four sections.
+- [ ] Housekeeping pruned `## Recently Done` to the last 14 days.
 
-Each task board is a markdown file with four sections, always in this order:
+</do_confirm_checklist>
 
-```markdown
-# {Person Name}
+Board layout, entry format, conventions, and useful queries:
+[references/format.md](references/format.md).
 
-## In Progress
-## Open
-## Blocked
-## Recently Done
-```
+## Procedure
 
-All four sections are always present, even if empty.
+### 1. Resolve the person
 
-**Task entry format:**
-
-```
-- [ ] **{Task title}** | {priority} | due {YYYY-MM-DD} | [[Projects/Name]] → [[Goals/Name]]
-  {Context line with source info and backlinks.}
-```
-
-**Key conventions:**
-
-- **Priorities:** `high` | `medium` | `low` — omit if medium (default)
-- **Due dates:** Only include if there's a real deadline. Format:
-  `due YYYY-MM-DD`
-- **Goal link:** Append `→ [[Goals/Name]]` when the task clearly serves a
-  specific Goal. Not every task needs one — only link when the connection is
-  clear and useful.
-- **No task IDs.** Tasks are identified by their bold title. Keep titles unique
-  within a person's board.
-- **Recently Done:** Keep the last 14 days. Older items pruned during
-  housekeeping.
-
-## Before Starting
-
-1. Read `USER.md` to get user identity.
-2. Determine the operation: **add**, **update**, **close**, **list**, or
-   **housekeeping**.
-
-## Step 1: Resolve the Person
-
-For any task operation, resolve the person to their canonical name:
+Read `USER.md`, then resolve the target name to its canonical form:
 
 ```bash
 ls knowledge/Tasks/
 rg "{name}" knowledge/People/
 ```
 
-If the person doesn't have a task board yet, create one from the template (Step
-4 covers creation).
+If no board exists yet, create one (Step 4).
 
-## Step 2: Read Current Task Board
+### 2. Read the current board
 
 ```bash
 cat "knowledge/Tasks/{Person Name}.md"
 ```
 
-Parse existing tasks to:
+Parse the existing entries to: avoid duplicates, understand current workload,
+and find the right insertion point.
 
-- Avoid duplicates (same person, similar description)
-- Understand current workload
-- Find the right insertion point
+### 3. Perform the operation
 
-## Step 3: Perform the Operation
+Pick **add**, **update**, **close**, **list**, or **housekeeping** based on the
+request.
 
-### Add a Task
+#### Add
 
-1. Check for duplicates — same person, similar task title or description. If a
-   near-duplicate exists, update it instead of creating a new entry.
-2. Determine the section:
-   - Default: `## Open`
-   - If user says "I'm working on" / "started" → `## In Progress`
-   - If blocked → `## Blocked`
-3. Format the task entry:
-   ```
-   - [ ] **{Task title}** | {priority} | due {YYYY-MM-DD} | [[Projects/Name]]
-     {Context line with source info and backlinks.}
-   ```
-4. Add the entry at the **bottom** of the appropriate section.
-5. If the task references a project, verify the project note exists.
+1. Check for duplicates. If a near-duplicate exists, update it instead.
+2. Pick the section per the routing rules in
+   [references/format.md](references/format.md#section-routing).
+3. Append the entry at the **bottom** of that section using the format from
+   `references/format.md`.
+4. Verify any referenced Project note exists.
 
-### Update a Task
+#### Update
 
-1. Find the task by title (fuzzy match OK — bold text between `**`).
-2. Apply changes:
-   - **Status change:** Move the entire entry between sections
-   - **Priority change:** Update the `| {priority} |` segment
-   - **Due date change:** Update or add `| due YYYY-MM-DD |`
-   - **Add context:** Append to the indented line
-3. Use the Edit tool for targeted modifications.
+Find the task by its bold title (fuzzy match OK). Apply changes:
 
-### Close a Task
+- **Status change:** move the entire entry between sections.
+- **Priority change:** update the `| {priority} |` segment.
+- **Due date change:** update or add `| due YYYY-MM-DD |`.
+- **Add context:** append to the indented line.
 
-1. Find the task by title.
-2. Remove it from its current section.
-3. Add to the **top** of `## Recently Done`:
-   ```
-   - [x] **{Task title}** | completed {YYYY-MM-DD}
-   ```
-   (Drop priority, due date, project link, and context — keep it compact.)
+Use Edit for targeted modifications.
 
-### List Tasks
+#### Close
 
-Query across all task boards:
+Find the task, remove it from its section, and add to the **top** of
+`## Recently Done` using the closed-task format in
+[references/format.md](references/format.md#closed-task-format).
+
+#### List
+
+Run the queries in [references/format.md](references/format.md#useful-queries)
+and present results grouped by person or project as the user's question
+warrants.
+
+#### Housekeeping (scheduled)
+
+1. Prune entries older than 14 days from `## Recently Done`.
+2. Flag overdue tasks (due in the past, still in `## Open` or `## In Progress`)
+   — report to the user; do **not** auto-modify.
+3. Merge duplicates on the same board.
+4. Spot-check `[[People/]]`, `[[Projects/]]`, `[[Goals/]]` references point to
+   existing notes.
+
+### 4. Write updates
+
+For a new board, create `knowledge/Tasks/{Person Name}.md` with all four
+sections (template in
+[references/format.md](references/format.md#board-structure)).
+
+For an existing board, use Edit for targeted changes — never rewrite the whole
+file.
+
+### 5. Migrate open items (one-time)
+
+When first setting up boards, scan source notes for `## Open items` sections:
 
 ```bash
-# All open/in-progress tasks
-rg "^- \[ \] \*\*" knowledge/Tasks/
-
-# Tasks for a specific project
-rg "Projects/{Name}" knowledge/Tasks/
-
-# High priority tasks
-rg "\| high \|" knowledge/Tasks/
-
-# Overdue tasks — find all due dates and compare against today
-rg "due 20[0-9]{2}-[0-9]{2}-[0-9]{2}" knowledge/Tasks/
-
-# Blocked tasks
-rg -A1 "^- \[ \]" knowledge/Tasks/ | rg -B1 "Waiting on"
+rg -l "## Open items" knowledge/People/ knowledge/Projects/ knowledge/Goals/
 ```
 
-Present results in a clean summary, grouped by person or project as appropriate
-for the user's question.
-
-### Housekeeping (Scheduled)
-
-Run across all task boards:
-
-1. **Prune done items:** Remove completed tasks older than 14 days from
-   `## Recently Done`.
-2. **Flag overdue:** Any task with `due {date}` in the past that's still in
-   `## Open` or `## In Progress` — check if it needs attention. Do NOT
-   auto-modify the task; instead, report overdue items to the user.
-3. **Deduplicate:** If identical tasks appear on the same board, merge them.
-4. **Validate links:** Spot-check that `[[People/]]`, `[[Projects/]]`, and
-   `[[Goals/]]` references point to existing notes.
-
-## Step 4: Write Updates
-
-### New task board
-
-Create `knowledge/Tasks/{Person Name}.md` with all four sections:
-
-```markdown
-# {Person Name}
-
-## In Progress
-
-## Open
-
-## Blocked
-
-## Recently Done
-```
-
-### Existing task board
-
-Use the Edit tool to make targeted changes — add, move, or modify individual
-task entries. Do NOT rewrite the entire file.
-
-## Step 5: Migrate Open Items (One-time)
-
-When first setting up task boards, or when the user asks, migrate existing
-`## Open items` from People and Project notes:
-
-1. Scan notes for `## Open items` sections with content:
-   ```bash
-   rg -l "## Open items" knowledge/People/ knowledge/Projects/ knowledge/Goals/
-   ```
-2. For each note with open items, read the items and convert them to task board
-   entries.
-3. Add each item to the appropriate person's task board.
-4. **Do NOT remove** the original open items from source notes — they serve as
-   the historical record. The task board becomes the living tracker.
-
-## Quality Checklist
-
-- [ ] Task title is clear and actionable (starts with a verb)
-- [ ] Priority set appropriately (omit if medium)
-- [ ] Due date included only if there's a real deadline
-- [ ] Project linked with `[[Projects/Name]]` if applicable
-- [ ] No duplicate tasks on the board
-- [ ] Recently Done pruned to last 14 days (housekeeping)
-- [ ] All backlinks use absolute paths `[[Folder/Name]]`
-- [ ] Context line is concise (1-2 lines max)
-- [ ] New task board has all four sections present
+Convert each item into a task entry on the relevant person's board. **Do not**
+remove the original — it stays as the historical record; the board becomes the
+living tracker.

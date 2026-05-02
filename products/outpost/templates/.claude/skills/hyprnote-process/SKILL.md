@@ -5,351 +5,143 @@ description: Process Hyprnote meeting sessions (memos, summaries, transcripts) i
 
 # Process Hyprnote
 
-Process meeting sessions from Hyprnote (a local AI meeting notes app) and
-extract structured knowledge into `knowledge/`. Hyprnote records meetings,
-transcribes them, and generates AI summaries. This skill reads that output and
-feeds it into the knowledge graph — the same way `extract-entities` processes
-emails and calendar events.
+Process meeting sessions from Hyprnote (a local AI meeting-notes app) into the
+knowledge graph. Hyprnote records meetings, transcribes them, and generates AI
+summaries; this skill reads that output and feeds it into `knowledge/` — the
+same way `extract-entities` processes emails and calendar events.
 
 ## Trigger
 
-Run this skill:
-
-- When the user asks to process meeting notes or Hyprnote sessions
-- After new meetings have been recorded in Hyprnote
-- When the user asks to update the knowledge base from recent meetings
+- The user asks to process meeting notes or Hyprnote sessions.
+- New meetings have been recorded.
+- The user asks to update the knowledge base from recent meetings.
 
 ## Prerequisites
 
-- Hyprnote installed with session data at
-  `~/Library/Application Support/hyprnote/sessions/`
-- User identity configured in `USER.md`
+- Hyprnote installed; sessions at
+  `~/Library/Application Support/hyprnote/sessions/`.
+- User identity in `USER.md`.
 
 ## Inputs
 
-- `~/Library/Application Support/hyprnote/sessions/{uuid}/` — session
-  directories, each containing:
-  - `_meta.json` — session metadata (title, created_at, participants)
-  - `_memo.md` — user's markdown notes (YAML frontmatter + body)
-  - `_summary.md` — AI-generated meeting summary (YAML frontmatter + body),
-    optional
-  - `transcript.json` — word-level transcript with speaker channels, optional
-- `~/.cache/fit/outpost/state/graph_processed` — tracks processed files (TSV)
-- `USER.md` — user identity for self-exclusion
+- `~/Library/Application Support/hyprnote/sessions/{uuid}/` — see
+  [references/sessions.md](references/sessions.md) for the file shape and skip
+  rules.
+- `~/.cache/fit/outpost/state/graph_processed` — processed-file index (TSV,
+  shared with `extract-entities`).
+- `USER.md` — user identity for self-exclusion.
 
 ## Outputs
 
-- `knowledge/People/*.md` — person notes (new or updated)
-- `knowledge/Organizations/*.md` — organization notes (new or updated)
-- `knowledge/Projects/*.md` — project notes (new or updated)
-- `knowledge/Topics/*.md` — topic notes (new or updated)
-- `knowledge/Goals/*.md` — goal notes (updated only, never auto-created)
-- `knowledge/Priorities/*.md` — priority notes (updated only, never
-  auto-created)
-- `~/.cache/fit/outpost/state/graph_processed` — updated with processed session
-  files
+- `knowledge/People/`, `knowledge/Organizations/`, `knowledge/Projects/`,
+  `knowledge/Topics/` — created or updated.
+- `knowledge/Goals/`, `knowledge/Priorities/` — **updated only**, never
+  auto-created.
+- `~/.cache/fit/outpost/state/graph_processed` — updated.
 
----
+<do_confirm_checklist goal="Verify each session was processed correctly">
 
-## Before Starting
+- [ ] Empty / test / onboarding sessions skipped (per skip rules).
+- [ ] Both `_memo.md` and `_summary.md` read (when present); transcript
+      consulted only for disambiguation.
+- [ ] "Would I prep?" test applied to each person; self excluded.
+- [ ] Interview sessions wrote to `knowledge/Candidates/`, not
+      `knowledge/People/`.
+- [ ] All links use absolute paths `[[Folder/Name]]`.
+- [ ] Activity entries describe relationship, not communication method.
+- [ ] No new `Goals/` or `Priorities/` auto-created (user-set only); any
+      referenced goal had its progress updated.
+- [ ] `graph_processed` updated for every processed file (memo + summary).
 
-1. Read `USER.md` to get the user's name, email, and domain.
-2. **Scan for unprocessed sessions** using the scan script:
+</do_confirm_checklist>
+
+## Procedure
+
+### 0. Set up
+
+Read `USER.md`. Scan unprocessed sessions:
 
 ```bash
 node .claude/skills/hyprnote-process/scripts/scan.mjs
 ```
 
-This checks all sessions against the `graph_processed` state file and reports
-which need processing, with titles, dates, and content previews.
+Flags: `--changed` (also detect changed memo/summary hashes), `--json`
+(programmatic output), `--count` (count only), `--limit N` (default 20).
 
-**Options:**
+A session needs processing when its `_memo.md` is not in `graph_processed`, or
+its hash has changed (`--changed`), or its `_summary.md` exists and is not in
+`graph_processed` (or has changed).
 
-| Flag        | Description                                              |
-| ----------- | -------------------------------------------------------- |
-| `--changed` | Also detect sessions whose memo/summary hash has changed |
-| `--json`    | Output as JSON (for programmatic use)                    |
-| `--count`   | Just print the count (for quick checks)                  |
-| `--limit N` | Max sessions to display (default: 20)                    |
+Process all unprocessed sessions in one run. **Don't write bespoke scan
+scripts** — this script handles the edge cases (empty memos, missing summaries,
+metadata fallback).
 
-A session needs processing if:
-
-- Its `_memo.md` path is **not** in `graph_processed`, OR
-- Its `_memo.md` hash has changed (use `--changed` to detect this), OR
-- Its `_summary.md` exists and is not in `graph_processed` or has changed
-
-**Process all unprocessed sessions in one run** (typically few sessions).
-
-**Do NOT write bespoke scripts to scan for unprocessed sessions.** Use this
-script — it handles all edge cases (empty memos, missing summaries, metadata
-fallback).
-
-## Step 0: Build Knowledge Index
-
-Scan existing notes to avoid duplicates and resolve entities:
+### 1. Build the knowledge index
 
 ```bash
-ls knowledge/People/ knowledge/Organizations/ knowledge/Projects/ knowledge/Topics/ knowledge/Goals/ knowledge/Priorities/ knowledge/Conditions/ 2>/dev/null
+ls knowledge/People/ knowledge/Organizations/ knowledge/Projects/ \
+   knowledge/Topics/ knowledge/Goals/ knowledge/Priorities/ \
+   knowledge/Conditions/ 2>/dev/null
 ```
 
-For each existing note, read the header fields to build a mental index of known
-entities (same approach as `extract-entities` Step 0).
+Read each note's header to build a mental index of known entities (same approach
+as `extract-entities` Step 0).
 
-## Step 1: Read Session Data
+### 2. Read each session
 
-For each unprocessed session, read files in this order:
+For each unprocessed session, read in this order: `_meta.json`, `_memo.md`,
+`_summary.md` (if present), `transcript.json` (only when disambiguation requires
+it). File shapes and skip rules:
+[references/sessions.md](references/sessions.md).
 
-### 1a. Read `_meta.json`
+### 3. Classify the source
 
-```json
-{
-  "created_at": "2026-02-16T13:01:59.187Z",
-  "id": "7888363f-4cc6-4987-8470-92f386e5bdfc",
-  "participants": [],
-  "title": "Director-Level Hiring Pipeline",
-  "user_id": "00000000-0000-0000-0000-000000000000"
-}
-```
-
-Extract: **session date** (from `created_at`), **title**, **participants** (may
-be empty — Hyprnote doesn't always populate this).
-
-### 1b. Read `_memo.md`
-
-YAML frontmatter (id, session_id) followed by the user's markdown notes.
-Example:
-
-```markdown
----
-id: 213e0f78-a66a-468d-b8e5-bc3fbbe04bf4
-session_id: 213e0f78-a66a-468d-b8e5-bc3fbbe04bf4
----
-
-Chat with Sarah about the product roadmap.
-```
-
-The memo contains the user's own notes — names, observations, action items. This
-is high-signal content; every name or observation here is intentional.
-
-### 1c. Read `_summary.md` (if exists)
-
-YAML frontmatter (id, position, session_id, title) followed by an AI-generated
-meeting summary. This is the richest source — structured bullet points covering
-topics discussed, decisions made, action items, and key details.
-
-```markdown
----
-id: 152d9bc9-0cdc-4fb2-9916-cb7670f3a6df
-position: 1
-session_id: 213e0f78-a66a-468d-b8e5-bc3fbbe04bf4
-title: Summary
----
-
-# Product Roadmap Review
-
-- Both speakers reviewed the Q2 roadmap priorities...
-```
-
-### 1d. Read `transcript.json` (if exists, for disambiguation only)
-
-The transcript is word-level with speaker channels:
-
-```json
-{
-  "transcripts": [{
-    "words": [
-      {"channel": 0, "text": "Hello", "start_ms": 0, "end_ms": 500},
-      {"channel": 1, "text": "Hi", "start_ms": 600, "end_ms": 900}
-    ]
-  }]
-}
-```
-
-**Do NOT process the full transcript for entity extraction.** It's too noisy.
-Only consult the transcript when you need to:
-
-- Disambiguate a name mentioned in the summary or memo
-- Confirm who said what (channel 0 = user, channel 1 = other speaker)
-- Find context around a specific topic or decision
-
-### 1e. Filter: Skip Empty Sessions
-
-Skip sessions where:
-
-- `_memo.md` body is empty or only contains `&nbsp;` / whitespace
-- No `_summary.md` exists
-- Title is empty or generic ("Hello", "Welcome to Hyprnote", "Test")
-
-If a session has **either** a substantive memo **or** a `_summary.md`, process
-it.
-
-## Step 2: Classify Source
-
-Hyprnote sessions are **meetings**. They follow meeting rules from
+Hyprnote sessions are **meetings** and follow the meeting rules from
 `extract-entities`:
 
-- **CAN create** new People, Organization, Project, and Topic notes
-- **CAN update** existing notes (including Goal and Priority notes, but never
-  auto-create them — they are user-set only)
-- **CAN detect** state changes
+- **Can create** People, Organization, Project, and Topic notes.
+- **Can update** existing notes — including Goals and Priorities, which are
+  user-set and never auto-created.
+- **Can detect** state changes.
 
-Apply the same "Would I prep for this person?" test from `extract-entities` Step
-5 when deciding whether to create a note for someone mentioned.
+Apply the "Would I prep for this person?" test from `extract-entities` Step 5
+before creating a person note.
 
-## Step 3: Extract Entities
+### 4. Extract entities and content
 
-Combine content from `_memo.md` and `_summary.md` (prefer summary when both
-exist, as it's more detailed). Extract:
+Combine memo and summary content (prefer summary when both exist). Extraction
+signals — entity types, decisions, commitments, key facts, activity-line format,
+interview-note rules, and linking rules — live in
+[references/extraction.md](references/extraction.md).
 
-### People
+### 5. Write updates
 
-Look for names in:
+For **new** entities, use the templates in
+`.claude/skills/extract-entities/references/TEMPLATES.md`. For interview
+sessions, use the candidate brief template from `req-track` (under
+`knowledge/Candidates/`).
 
-- Memo text ("chat with Sarah Chen", "interview with David Kim")
-- Summary bullet points ("the user will serve as the senior engineer", "Alex
-  from the platform team")
-- Participant list in `_meta.json`
+For **existing** entities, apply targeted edits — never rewrite the file:
 
-For each person:
+- Add the new activity entry at the **top** of `## Activity`.
+- Update `Last seen` / `Last activity`.
+- Add new key facts (skip duplicates).
+- Update open items (mark completed, add new).
+- Apply state changes.
 
-- Resolve against knowledge index (Step 0)
-- Extract role, organization, relationship to user
-- Note what was discussed with/about them
+Verify bidirectional links per `extract-entities` Step 10 (Goal ↔ Project, Goal
+↔ Priority, Project ↔ Priority).
 
-### Organizations
+### 6. Update graph state
 
-- Explicit mentions ("Acme Corp", "TechCo", "Global Services")
-- Inferred from people's roles or context
-
-### Projects
-
-- Explicit project names ("Customer Portal", "Q2 Migration")
-- Described initiatives ("the hiring pipeline", "the product launch")
-
-### Topics
-
-- Recurring themes ("AI coding agents", "interview process", "architecture
-  decisions")
-- Only create Topic notes for subjects that span multiple meetings or are
-  strategically important
-
-### Self-exclusion
-
-Never create or update notes for the user who matches name, email, or @domain
-from `USER.md`.
-
-**Exception for interview sessions:** If the session is clearly a job interview
-(title or memo indicates "interview with {Name}"), the interviewee is a
-**candidate** — create or update their note in `knowledge/Candidates/` instead
-of `knowledge/People/`, following the candidate note template from `req-track`.
-
-## Step 4: Extract Content
-
-For each entity that has or will have a note, extract from the session:
-
-### Decisions
-
-Signals in summaries: "decided", "agreed", "plan to", "established", "will serve
-as"
-
-### Commitments / Action Items
-
-Signals: "will share", "plans to", "needs to", "to be created", "will upload"
-
-Extract: Owner, action, deadline (if mentioned), status (open).
-
-### Key Facts
-
-- Specific numbers (headcount, budget, timeline)
-- Preferences ("non-traditional backgrounds", "fusion of skills")
-- Process details (interview stages, evaluation criteria)
-- Strategic context (market trends, competitive landscape)
-
-### Activity Summary
-
-One line per session for each entity:
-
-```markdown
-- **2026-02-14** (meeting): Discussed hiring pipeline. 11 internal candidates,
-plan to shortlist to 6-7. [[People/Sarah Chen]] managing the team.
-```
-
-### Interview Notes (for Candidates)
-
-If the session is an interview, extract:
-
-- Impressions and observations from the memo
-- Technical assessment notes
-- Strengths and concerns
-- Any interview scoring or decisions
-
-Add these to the candidate's `## Notes` section.
-
-## Step 5: Write Updates
-
-Follow the same patterns as `extract-entities` Steps 7-10:
-
-### For NEW entities
-
-Create notes using templates from
-`.claude/skills/extract-entities/references/TEMPLATES.md`.
-
-For **candidates** (interview sessions), use the candidate template from
-`req-track` instead.
-
-### For EXISTING entities
-
-Apply targeted edits:
-
-- Add new activity entry at the TOP of the Activity section
-- Update Last seen / Last activity date
-- Add new key facts (skip duplicates)
-- Update open items (mark completed, add new)
-- Apply state changes
-
-**Use precise edits — don't rewrite the entire file.**
-
-### Bidirectional links
-
-Verify links go both ways (same rules as `extract-entities` Step 10, including
-Goal ↔ Project, Goal ↔ Priority, and Project ↔ Priority links). Always use
-absolute paths: `[[People/Name]]`, `[[Organizations/Name]]`,
-`[[Projects/Name]]`, `[[Goals/Goal Name]]`, `[[Priorities/Priority Name]]`.
-
-When meeting content references an existing Goal or Priority, apply the linking
-rules from `extract-entities` Step 7c — update progress, add backlinks, but
-never auto-create Goal or Priority entities.
-
-## Step 6: Update Graph State
-
-After processing each session, mark its files as processed:
+For each processed session:
 
 ```bash
 node .claude/skills/extract-entities/scripts/state.mjs update \
   "$HOME/Library/Application Support/hyprnote/sessions/{uuid}/_memo.md"
 
-# Also mark _summary.md if it exists
 node .claude/skills/extract-entities/scripts/state.mjs update \
   "$HOME/Library/Application Support/hyprnote/sessions/{uuid}/_summary.md"
 ```
 
-This prevents reprocessing unless the files change.
-
-## Quality Checklist
-
-Before completing, verify:
-
-- [ ] Skipped empty/test/onboarding sessions
-- [ ] Read both `_memo.md` and `_summary.md` for each processed session
-- [ ] Applied "Would I prep?" test to each person
-- [ ] Excluded self and @user.domain from entity extraction
-- [ ] Interview sessions created/updated Candidate notes (not People notes)
-- [ ] Used absolute paths `[[Folder/Name]]` in ALL links
-- [ ] Summaries describe relationship, not communication method
-- [ ] Key facts are substantive (no filler)
-- [ ] Open items are commitments (no meta-tasks)
-- [ ] Bidirectional links are consistent (including Goal ↔ Project, Priority ↔
-      Goal)
-- [ ] Goal progress updated where meeting content references existing goals
-- [ ] No new Goal or Priority entities auto-created (user-set only)
-- [ ] Graph state updated for all processed session files
+(Skip the summary call if `_summary.md` doesn't exist.)
