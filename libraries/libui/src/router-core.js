@@ -36,7 +36,7 @@ import { withErrorBoundary } from "./error-boundary.js";
  * @param {string} pattern
  * @returns {{ regex: RegExp, paramNames: string[] }}
  */
-function parsePattern(pattern) {
+export function parsePattern(pattern) {
   const paramNames = [];
   const regexStr = pattern
     .replace(/:([^/]+)/g, (_, name) => {

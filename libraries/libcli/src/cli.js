@@ -1,5 +1,6 @@
 import { parseArgs } from "node:util";
 import { HelpRenderer } from "./help.js";
+import { freezeInvocationContext } from "./invocation-context.js";
 
 export class Cli {
   #definition;
@@ -91,8 +92,11 @@ export class Cli {
     const bare = match[2];
     const asCommand = this.#definition.commands?.find((c) => c.name === bare);
     if (!asCommand) return null;
-    const usage = asCommand.args
-      ? `${this.#definition.name} ${bare} ${asCommand.args}`
+    const argsStr = Array.isArray(asCommand.args)
+      ? asCommand.argsUsage
+      : asCommand.args;
+    const usage = argsStr
+      ? `${this.#definition.name} ${bare} ${argsStr}`
       : `${this.#definition.name} ${bare}`;
     return new Error(
       `Unknown option "${match[1]}${bare}". "${bare}" is a command, not an option. Usage: ${usage}`,
@@ -124,6 +128,31 @@ export class Cli {
       if (found) return found;
     }
     return null;
+  }
+
+  dispatch(parsed, { data }) {
+    const command = this.#findCommand(parsed.positionals);
+    if (!command) {
+      throw new Error(`${this.#definition.name}: no matching subcommand`);
+    }
+    if (typeof command.handler !== "function") {
+      throw new Error(
+        `${this.#definition.name}: subcommand "${command.name}" lacks a handler — ` +
+          `dispatch() requires { args: string[], handler: (ctx) => any }`,
+      );
+    }
+    const consumed = command.name.split(" ").length;
+    const argv = parsed.positionals.slice(consumed);
+    const argNames = Array.isArray(command.args) ? command.args : [];
+    const args = Object.fromEntries(
+      argNames.map((n, i) => [n, argv[i]]).filter(([, v]) => v !== undefined),
+    );
+    const ctx = freezeInvocationContext({
+      data,
+      args,
+      options: parsed.values,
+    });
+    return command.handler(ctx);
   }
 
   showHelp() {

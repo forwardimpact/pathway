@@ -319,4 +319,67 @@ describe("HelpRenderer", () => {
       assert.ok(!parsed.globalOptions.version);
     });
   });
+
+  describe("args: string[] with argsUsage", () => {
+    test("renders argsUsage in commands list when args is an array", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id"],
+            argsUsage: "[<id>]",
+            description: "Show skill",
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      createRenderer().render(def, stream);
+      assert.ok(stream.output.includes("skill [<id>]"));
+      assert.ok(stream.output.includes("Show skill"));
+    });
+
+    test("renders argsUsage in per-command help when args is an array", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id"],
+            argsUsage: "[<id>]",
+            description: "Show skill",
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      createRenderer().render(def, stream, def.commands[0]);
+      assert.ok(stream.output.includes("fit-test skill [<id>]"));
+    });
+
+    test("handles args: string[] without argsUsage gracefully", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        commands: [
+          {
+            name: "skill",
+            args: ["id"],
+            description: "Show skill",
+          },
+        ],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+      };
+      createRenderer().render(def, stream);
+      assert.ok(stream.output.includes("skill"));
+      assert.ok(stream.output.includes("Show skill"));
+    });
+  });
 });

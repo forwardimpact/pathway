@@ -32,16 +32,23 @@ export class HelpRenderer {
     return [`Usage: ${definition.name} [options]`, ""];
   }
 
+  #argsDisplay(cmd) {
+    if (Array.isArray(cmd.args)) return cmd.argsUsage || "";
+    return cmd.args || "";
+  }
+
   #renderCommands(definition) {
     if (!definition.commands || definition.commands.length === 0) return [];
     const lines = [this.#sectionHeader("Commands:")];
     const maxWidth = Math.max(
-      ...definition.commands.map(
-        (c) => c.name.length + (c.args ? c.args.length + 1 : 0),
-      ),
+      ...definition.commands.map((c) => {
+        const argsStr = this.#argsDisplay(c);
+        return c.name.length + (argsStr ? argsStr.length + 1 : 0);
+      }),
     );
     for (const cmd of definition.commands) {
-      const left = cmd.args ? `${cmd.name} ${cmd.args}` : cmd.name;
+      const argsStr = this.#argsDisplay(cmd);
+      const left = argsStr ? `${cmd.name} ${argsStr}` : cmd.name;
       lines.push(`  ${left.padEnd(maxWidth)}  ${cmd.description}`);
     }
     lines.push("");
@@ -106,15 +113,16 @@ export class HelpRenderer {
   }
 
   #renderCommand(definition, stream, command) {
+    const argsStr = this.#argsDisplay(command);
     let header = `${definition.name} ${command.name}`;
-    if (command.args) header += ` ${command.args}`;
+    if (argsStr) header += ` ${argsStr}`;
     if (command.description) header += ` \u2014 ${command.description}`;
     const formatted = supportsColor(this.#proc)
       ? formatHeader(header, this.#proc)
       : header;
 
     let usage = `Usage: ${definition.name} ${command.name}`;
-    if (command.args) usage += ` ${command.args}`;
+    if (argsStr) usage += ` ${argsStr}`;
     usage += " [options]";
 
     const globalWithoutVersion = definition.globalOptions
