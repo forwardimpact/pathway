@@ -43,6 +43,23 @@ export const SANITIZE_PATTERNS = [
 ];
 
 /**
+ * Apply all matching patterns to a text value, returning the transformed value.
+ * @param {string} value - The text value to sanitize
+ * @param {Array} patterns - Pattern definitions
+ * @returns {string} The sanitized text value
+ */
+function applyPatterns(value, patterns) {
+  let result = value;
+  for (const pattern of patterns) {
+    if (!pattern.test.test(result)) continue;
+    for (const [rx, replacement] of pattern.replace) {
+      result = result.replace(rx, replacement);
+    }
+  }
+  return result;
+}
+
+/**
  * Sanitize an existing JSDOM instance in-place.
  * @param {import('jsdom').JSDOM} dom - DOM to mutate
  * @param {Array} patterns - Pattern definitions (defaults to SANITIZE_PATTERNS)
@@ -60,19 +77,8 @@ export function sanitizeDom(dom, patterns = SANITIZE_PATTERNS) {
       const node = walker.currentNode;
       const original = node.nodeValue;
       if (!original) continue;
-      let value = original;
-      let changed = false;
-      for (const pattern of patterns) {
-        if (!pattern.test.test(value)) continue;
-        for (const [rx, replacement] of pattern.replace) {
-          const next = value.replace(rx, replacement);
-          if (next !== value) {
-            value = next;
-            changed = true;
-          }
-        }
-      }
-      if (changed && value !== original) node.nodeValue = value;
+      const value = applyPatterns(original, patterns);
+      if (value !== original) node.nodeValue = value;
     }
   } catch {
     // Ignore sanitizer errors to avoid disrupting processing

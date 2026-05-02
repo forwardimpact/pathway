@@ -59,6 +59,19 @@ function detectXRule1(values, { UPL, LPL }) {
   return out;
 }
 
+// Build one-indexed slots array for a completed run and describe it.
+function emitRule2Run(runStart, runEnd, runSide, mu) {
+  const len = runEnd - runStart;
+  if (runSide === 0 || runStart < 0 || len < X_RULE_2_RUN) return null;
+  const slots = [];
+  for (let k = runStart; k < runEnd; k++) slots.push(k + 1);
+  const direction = runSide > 0 ? "above" : "below";
+  return {
+    slots,
+    description: `${len} consecutive ${direction} μ=${fmt1(mu)}`,
+  };
+}
+
 // X-Rule 2: runs of 8+ consecutive points strictly on the same side of μ.
 // Points equal to μ break the run (neither above nor below).
 function detectXRule2(values, { mu }) {
@@ -68,18 +81,8 @@ function detectXRule2(values, { mu }) {
   for (let i = 0; i <= values.length; i++) {
     const side = i < values.length ? Math.sign(values[i] - mu) : 0;
     if (side !== runSide || i === values.length) {
-      const len = i - runStart;
-      if (runSide !== 0 && runStart >= 0 && len >= X_RULE_2_RUN) {
-        const slots = [];
-        for (let k = runStart; k < i; k++) slots.push(k + 1);
-        out.push({
-          slots,
-          description:
-            runSide > 0
-              ? `${len} consecutive above μ=${fmt1(mu)}`
-              : `${len} consecutive below μ=${fmt1(mu)}`,
-        });
-      }
+      const signal = emitRule2Run(runStart, i, runSide, mu);
+      if (signal) out.push(signal);
       runStart = side === 0 ? -1 : i;
       runSide = side;
     }

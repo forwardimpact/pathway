@@ -248,26 +248,32 @@ export class DocsBuilder {
       if (["assets", "public"].includes(entryName)) continue;
       if (["CLAUDE.md", "SKILL.md"].includes(entryName)) continue;
       const fullPath = this.#path.join(dir, entryName);
-
-      // Use statSync to check if it's a directory or file
-      try {
-        const stat = this.#fs.statSync(fullPath);
-        if (stat.isDirectory && stat.isDirectory()) {
-          results.push(...this.#findMarkdownFiles(fullPath, baseDir));
-        } else if (entryName.endsWith(".md")) {
-          // Get path relative to base directory
-          const relativePath = fullPath.slice(baseDir.length + 1);
-          results.push(relativePath);
-        }
-      } catch {
-        // Skip files that can't be stat'd (e.g., template files)
-        if (entryName.endsWith(".md")) {
-          const relativePath = fullPath.slice(baseDir.length + 1);
-          results.push(relativePath);
-        }
-      }
+      this.#collectMarkdownEntry(fullPath, entryName, baseDir, results);
     }
     return results;
+  }
+
+  /**
+   * Classify a single directory entry and collect it (or recurse) into results
+   * @param {string} fullPath - Absolute path to the entry
+   * @param {string} entryName - Basename of the entry
+   * @param {string} baseDir - Root directory for relative path computation
+   * @param {string[]} results - Accumulator for relative markdown paths
+   */
+  #collectMarkdownEntry(fullPath, entryName, baseDir, results) {
+    try {
+      const stat = this.#fs.statSync(fullPath);
+      if (stat.isDirectory && stat.isDirectory()) {
+        results.push(...this.#findMarkdownFiles(fullPath, baseDir));
+      } else if (entryName.endsWith(".md")) {
+        results.push(fullPath.slice(baseDir.length + 1));
+      }
+    } catch {
+      // Skip files that can't be stat'd (e.g., template files)
+      if (entryName.endsWith(".md")) {
+        results.push(fullPath.slice(baseDir.length + 1));
+      }
+    }
   }
 
   /**
@@ -296,19 +302,11 @@ export class DocsBuilder {
   }
 
   /**
-   * Augment llms.txt with auto-generated page links under each H2 section
-   * @param {Array<{urlPath: string, title: string, description: string}>} pages - Sorted page inventory
-   * @param {string} baseUrl - Base URL for the site
-   * @param {string} distDir - Destination distribution directory
+   * Classify pages into Products / Documentation / Optional buckets
+   * @param {Array<{urlPath: string}>} pages - Page inventory
+   * @returns {Object<string, Array>}
    */
-  #augmentLlmsTxt(pages, baseUrl, distDir) {
-    const llmsPath = this.#path.join(distDir, "llms.txt");
-    if (!this.#fs.existsSync(llmsPath)) return;
-
-    const content = this.#fs.readFileSync(llmsPath, "utf-8");
-    const lines = content.split("\n");
-
-    // Map pages to sections
+  #classifyPagesIntoSections(pages) {
     const sections = { Products: [], Documentation: [], Optional: [] };
     const productSlugs = new Set([
       "map",
@@ -330,6 +328,46 @@ export class DocsBuilder {
         sections.Optional.push(page);
       }
     }
+    return sections;
+  }
+
+  /**
+   * Insert page links after matching H2 headings
+   * @param {string[]} lines - Original llms.txt lines
+   * @param {Object<string, Array>} sections - Classified page buckets
+   * @param {Function} linkLine - Formats a page as a markdown link line
+   * @returns {string[]} Augmented lines
+   */
+  #insertSectionLinks(lines, sections, linkLine) {
+    const output = [];
+    for (const line of lines) {
+      output.push(line);
+      const h2Match = line.match(/^## (.+)$/);
+      if (h2Match) {
+        const pageList = sections[h2Match[1].trim()];
+        if (pageList?.length) {
+          output.push("");
+          for (const page of pageList) {
+            output.push(linkLine(page));
+          }
+        }
+      }
+    }
+    return output;
+  }
+
+  /**
+   * Augment llms.txt with auto-generated page links under each H2 section
+   * @param {Array<{urlPath: string, title: string, description: string}>} pages - Sorted page inventory
+   * @param {string} baseUrl - Base URL for the site
+   * @param {string} distDir - Destination distribution directory
+   */
+  #augmentLlmsTxt(pages, baseUrl, distDir) {
+    const llmsPath = this.#path.join(distDir, "llms.txt");
+    if (!this.#fs.existsSync(llmsPath)) return;
+
+    const content = this.#fs.readFileSync(llmsPath, "utf-8");
+    const sections = this.#classifyPagesIntoSections(pages);
 
     const linkLine = (page) => {
       const mdUrl =
@@ -340,22 +378,11 @@ export class DocsBuilder {
       return `- [${page.title}](${mdUrl})${desc}`;
     };
 
-    // Reassemble: insert links after each H2
-    const output = [];
-    for (const line of lines) {
-      output.push(line);
-      const h2Match = line.match(/^## (.+)$/);
-      if (h2Match) {
-        const sectionName = h2Match[1].trim();
-        const pageList = sections[sectionName];
-        if (pageList?.length) {
-          output.push("");
-          for (const page of pageList) {
-            output.push(linkLine(page));
-          }
-        }
-      }
-    }
+    const output = this.#insertSectionLinks(
+      content.split("\n"),
+      sections,
+      linkLine,
+    );
 
     this.#fs.writeFileSync(llmsPath, output.join("\n"), "utf-8");
     logger.info("  ✓ llms.txt (augmented)");

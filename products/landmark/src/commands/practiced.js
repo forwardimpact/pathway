@@ -65,24 +65,28 @@ export async function runPracticedCommand({
   };
 }
 
+/** Resolve discipline, level, and track entities for a team member. */
+function resolveMemberEntities(member, mapData) {
+  const discipline = (mapData.disciplines ?? []).find(
+    (d) => d.id === member.discipline,
+  );
+  const level = (mapData.levels ?? []).find((l) => l.id === member.level);
+  const track = member.track
+    ? (mapData.tracks ?? []).find((t) => t.id === member.track)
+    : null;
+  if (!discipline || !level) return null;
+  return { discipline, level, track };
+}
+
 /** Aggregate highest derived depth per skill across all team members. */
 function aggregateDerivedDepths(team, mapData) {
   const derivedDepths = new Map();
   for (const member of team) {
-    const discipline = (mapData.disciplines ?? []).find(
-      (d) => d.id === member.discipline,
-    );
-    const level = (mapData.levels ?? []).find((l) => l.id === member.level);
-    const track = member.track
-      ? (mapData.tracks ?? []).find((t) => t.id === member.track)
-      : null;
-
-    if (!discipline || !level) continue;
+    const entities = resolveMemberEntities(member, mapData);
+    if (!entities) continue;
 
     const matrix = deriveSkillMatrix({
-      discipline,
-      level,
-      track,
+      ...entities,
       skills: mapData.skills,
       capabilities: mapData.capabilities,
     });

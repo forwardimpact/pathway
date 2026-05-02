@@ -198,51 +198,59 @@ export function fetchAttachments(db, messageIds) {
   return result;
 }
 
+function indexAttachmentPath(path, attachmentIndex) {
+  const parts = path.split("/Attachments/", 2);
+  if (parts.length !== 2) return;
+  const segments = parts[1].split("/");
+  if (segments.length >= 3 && /^\d+$/.test(segments[0])) {
+    const msgRowid = parseInt(segments[0], 10);
+    attachmentIndex.set(`${msgRowid}:${segments[1]}`, path);
+  }
+}
+
+function indexEmlxPath(path, emlxIndex) {
+  const name = basename(path);
+  const msgId = name.split(".")[0];
+  if (!/^\d+$/.test(msgId)) return;
+  const mid = parseInt(msgId, 10);
+  const existing = emlxIndex.get(mid);
+  if (!existing || name.length < basename(existing).length) {
+    emlxIndex.set(mid, path);
+  }
+}
+
+function scanMailFiles(mailDir) {
+  return execFileSync(
+    "find",
+    [
+      mailDir,
+      "(",
+      "-name",
+      "*.emlx",
+      "-o",
+      "-path",
+      "*/Attachments/*",
+      ")",
+      "-type",
+      "f",
+    ],
+    { encoding: "utf-8", timeout: 60000, maxBuffer: 50 * 1024 * 1024 },
+  );
+}
+
 export function buildFileIndexes() {
   const mailDir = join(HOME, "Library/Mail");
   const emlxIndex = new Map();
   const attachmentIndex = new Map();
 
   try {
-    const output = execFileSync(
-      "find",
-      [
-        mailDir,
-        "(",
-        "-name",
-        "*.emlx",
-        "-o",
-        "-path",
-        "*/Attachments/*",
-        ")",
-        "-type",
-        "f",
-      ],
-      { encoding: "utf-8", timeout: 60000, maxBuffer: 50 * 1024 * 1024 },
-    );
-
+    const output = scanMailFiles(mailDir);
     for (const path of output.trim().split("\n")) {
       if (!path) continue;
       if (path.includes("/Attachments/")) {
-        const parts = path.split("/Attachments/", 2);
-        if (parts.length === 2) {
-          const segments = parts[1].split("/");
-          if (segments.length >= 3 && /^\d+$/.test(segments[0])) {
-            const msgRowid = parseInt(segments[0], 10);
-            const attId = segments[1];
-            attachmentIndex.set(`${msgRowid}:${attId}`, path);
-          }
-        }
+        indexAttachmentPath(path, attachmentIndex);
       } else if (path.endsWith(".emlx")) {
-        const name = basename(path);
-        const msgId = name.split(".")[0];
-        if (/^\d+$/.test(msgId)) {
-          const mid = parseInt(msgId, 10);
-          const existing = emlxIndex.get(mid);
-          if (!existing || name.length < basename(existing).length) {
-            emlxIndex.set(mid, path);
-          }
-        }
+        indexEmlxPath(path, emlxIndex);
       }
     }
   } catch {
@@ -250,6 +258,36 @@ export function buildFileIndexes() {
   }
 
   return { emlxIndex, attachmentIndex };
+}
+
+function copySingleAttachment(
+  att,
+  mid,
+  threadId,
+  attachmentIndex,
+  seenFilenames,
+) {
+  const name = att.name || "unnamed";
+  const source = attachmentIndex.get(`${mid}:${att.attachment_id}`);
+
+  if (!source || !existsSync(source)) {
+    return { name, available: false, path: null };
+  }
+
+  let destName = name;
+  if (seenFilenames.has(destName)) destName = `${mid}_${name}`;
+  seenFilenames.add(destName);
+
+  const destDir = join(ATTACHMENTS_DIR, String(threadId));
+  mkdirSync(destDir, { recursive: true });
+  const destPath = join(destDir, destName);
+
+  try {
+    copyFileSync(source, destPath);
+    return { name: destName, available: true, path: destPath };
+  } catch {
+    return { name, available: false, path: null };
+  }
 }
 
 export function copyThreadAttachments(
@@ -266,32 +304,9 @@ export function copyThreadAttachments(
     const msgAttachments = attachmentsByMsg[mid] ?? [];
     if (msgAttachments.length === 0) continue;
 
-    const msgResults = [];
-    for (const att of msgAttachments) {
-      const name = att.name || "unnamed";
-      const source = attachmentIndex.get(`${mid}:${att.attachment_id}`);
-
-      if (!source || !existsSync(source)) {
-        msgResults.push({ name, available: false, path: null });
-        continue;
-      }
-
-      let destName = name;
-      if (seenFilenames.has(destName)) destName = `${mid}_${name}`;
-      seenFilenames.add(destName);
-
-      const destDir = join(ATTACHMENTS_DIR, String(threadId));
-      mkdirSync(destDir, { recursive: true });
-      const destPath = join(destDir, destName);
-
-      try {
-        copyFileSync(source, destPath);
-        msgResults.push({ name: destName, available: true, path: destPath });
-      } catch {
-        msgResults.push({ name, available: false, path: null });
-      }
-    }
-    results[mid] = msgResults;
+    results[mid] = msgAttachments.map((att) =>
+      copySingleAttachment(att, mid, threadId, attachmentIndex, seenFilenames),
+    );
   }
   return results;
 }

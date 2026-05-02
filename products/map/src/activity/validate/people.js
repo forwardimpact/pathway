@@ -30,6 +30,51 @@ export async function loadPeopleFile(filePath) {
 }
 
 /**
+ * Collect validation errors for a single person record.
+ * @param {object} person
+ * @param {{ disciplineIds: Set, levelIds: Set, trackIds: Set }} ids
+ * @returns {Array<string>}
+ */
+function validatePersonRow(person, ids) {
+  const rowErrors = [];
+
+  if (!person.email) rowErrors.push("missing email");
+  if (!person.name) rowErrors.push("missing name");
+  if (!person.discipline) {
+    rowErrors.push("missing discipline");
+  } else if (!ids.disciplineIds.has(person.discipline)) {
+    rowErrors.push(`unknown discipline: ${person.discipline}`);
+  }
+  if (!person.level) {
+    rowErrors.push("missing level");
+  } else if (!ids.levelIds.has(person.level)) {
+    rowErrors.push(`unknown level: ${person.level}`);
+  }
+  if (person.track && !ids.trackIds.has(person.track)) {
+    rowErrors.push(`unknown track: ${person.track}`);
+  }
+
+  return rowErrors;
+}
+
+/**
+ * Normalize a valid person record for storage.
+ * @param {object} person
+ * @returns {object}
+ */
+function normalizePersonRecord(person) {
+  return {
+    email: person.email,
+    name: person.name,
+    github_username: person.github_username || null,
+    discipline: person.discipline,
+    level: person.level,
+    track: person.track || null,
+    manager_email: person.manager_email || null,
+  };
+}
+
+/**
  * Validate people against standard data.
  * Checks that discipline, level, and track values exist in the standard.
  * @param {Array<object>} people - Array of person objects
@@ -40,49 +85,21 @@ export async function validatePeople(people, dataDir) {
   const loader = createDataLoader();
   const data = await loader.loadAllData(dataDir);
 
-  const disciplineIds = new Set(data.disciplines.map((d) => d.id));
-  const levelIds = new Set(data.levels.map((l) => l.id));
-  const trackIds = new Set(data.tracks.map((t) => t.id));
+  const ids = {
+    disciplineIds: new Set(data.disciplines.map((d) => d.id)),
+    levelIds: new Set(data.levels.map((l) => l.id)),
+    trackIds: new Set(data.tracks.map((t) => t.id)),
+  };
 
   const valid = [];
   const errors = [];
 
   for (let i = 0; i < people.length; i++) {
-    const person = people[i];
-    const rowErrors = [];
-
-    if (!person.email) {
-      rowErrors.push("missing email");
-    }
-    if (!person.name) {
-      rowErrors.push("missing name");
-    }
-    if (!person.discipline) {
-      rowErrors.push("missing discipline");
-    } else if (!disciplineIds.has(person.discipline)) {
-      rowErrors.push(`unknown discipline: ${person.discipline}`);
-    }
-    if (!person.level) {
-      rowErrors.push("missing level");
-    } else if (!levelIds.has(person.level)) {
-      rowErrors.push(`unknown level: ${person.level}`);
-    }
-    if (person.track && !trackIds.has(person.track)) {
-      rowErrors.push(`unknown track: ${person.track}`);
-    }
-
+    const rowErrors = validatePersonRow(people[i], ids);
     if (rowErrors.length > 0) {
       errors.push({ row: i + 1, message: rowErrors.join("; ") });
     } else {
-      valid.push({
-        email: person.email,
-        name: person.name,
-        github_username: person.github_username || null,
-        discipline: person.discipline,
-        level: person.level,
-        track: person.track || null,
-        manager_email: person.manager_email || null,
-      });
+      valid.push(normalizePersonRecord(people[i]));
     }
   }
 

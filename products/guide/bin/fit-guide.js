@@ -25,6 +25,19 @@ const VERSION = JSON.parse(
 // MCP helpers
 // ---------------------------------------------------------------------------
 
+function parseFirstSseResult(raw) {
+  for (const line of raw.split("\n")) {
+    if (!line.startsWith("data: ")) continue;
+    try {
+      const parsed = JSON.parse(line.slice(6));
+      if (parsed?.result) return parsed;
+    } catch {
+      // skip non-JSON data lines
+    }
+  }
+  return null;
+}
+
 async function mcpRequest(url, token, body, sessionId) {
   const headers = {
     "Content-Type": "application/json",
@@ -42,18 +55,7 @@ async function mcpRequest(url, token, body, sessionId) {
 
   const contentType = res.headers.get("content-type") || "";
   if (contentType.includes("text/event-stream")) {
-    const raw = await res.text();
-    for (const line of raw.split("\n")) {
-      if (line.startsWith("data: ")) {
-        try {
-          const parsed = JSON.parse(line.slice(6));
-          if (parsed?.result) return parsed;
-        } catch {
-          // skip non-JSON data lines
-        }
-      }
-    }
-    return null;
+    return parseFirstSseResult(await res.text());
   }
   return res.json();
 }

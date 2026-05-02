@@ -103,27 +103,24 @@ export function generateActivity(ast, rng, people, teams) {
   };
 }
 
-function buildActivityTeams(ast, teams) {
-  const result = [];
+function buildOrgEntries(orgs) {
+  return orgs.map((org) => ({
+    getdx_team_id: `gdx_org_${org.id}`,
+    name: org.name,
+    is_parent: true,
+    parent_id: null,
+    manager_id: null,
+    contributors: 0,
+    reference_id: null,
+    ancestors: [],
+    last_changed_at: new Date("2025-01-01").toISOString(),
+  }));
+}
 
-  for (const org of ast.orgs) {
-    result.push({
-      getdx_team_id: `gdx_org_${org.id}`,
-      name: org.name,
-      is_parent: true,
-      parent_id: null,
-      manager_id: null,
-      contributors: 0,
-      reference_id: null,
-      ancestors: [],
-      last_changed_at: new Date("2025-01-01").toISOString(),
-    });
-  }
-
-  const orgMap = new Map(ast.orgs.map((o) => [o.id, o]));
-  for (const dept of ast.departments) {
+function buildDeptEntries(departments, orgMap) {
+  return departments.map((dept) => {
     const parentOrg = orgMap.get(dept.parent);
-    result.push({
+    return {
       getdx_team_id: `gdx_dept_${dept.id}`,
       name: dept.name,
       is_parent: true,
@@ -133,11 +130,12 @@ function buildActivityTeams(ast, teams) {
       reference_id: null,
       ancestors: parentOrg ? [`gdx_org_${parentOrg.id}`] : [],
       last_changed_at: new Date("2025-01-01").toISOString(),
-    });
-  }
+    };
+  });
+}
 
-  const deptMap = new Map(ast.departments.map((d) => [d.id, d]));
-  for (const team of teams) {
+function buildLeafTeamEntries(teams, deptMap, orgMap) {
+  return teams.map((team) => {
     const dept = deptMap.get(team.department);
     const parentDeptId = dept ? `gdx_dept_${dept.id}` : null;
     const parentOrg = dept ? orgMap.get(dept.parent) : null;
@@ -145,7 +143,7 @@ function buildActivityTeams(ast, teams) {
     if (parentOrg) ancestors.push(`gdx_org_${parentOrg.id}`);
     if (parentDeptId) ancestors.push(parentDeptId);
 
-    result.push({
+    return {
       getdx_team_id: team.getdx_team_id,
       name: team.name,
       is_parent: false,
@@ -155,10 +153,19 @@ function buildActivityTeams(ast, teams) {
       reference_id: null,
       ancestors,
       last_changed_at: new Date("2025-01-01").toISOString(),
-    });
-  }
+    };
+  });
+}
 
-  return result;
+function buildActivityTeams(ast, teams) {
+  const orgMap = new Map(ast.orgs.map((o) => [o.id, o]));
+  const deptMap = new Map(ast.departments.map((d) => [d.id, d]));
+
+  return [
+    ...buildOrgEntries(ast.orgs),
+    ...buildDeptEntries(ast.departments, orgMap),
+    ...buildLeafTeamEntries(teams, deptMap, orgMap),
+  ];
 }
 
 function generateSnapshots(ast) {

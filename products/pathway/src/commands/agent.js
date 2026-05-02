@@ -53,6 +53,23 @@ import {
 export { findValidCombinations } from "./agent-list.js";
 
 /**
+ * Assert that an entity was found, or print an error with available IDs and exit
+ * @param {Object|null} entity - The resolved entity (null triggers exit)
+ * @param {string} errorMessage - Error message to display
+ * @param {string} listHeader - Header for the available-items list
+ * @param {Array} available - Items to list (each must have an .id)
+ */
+function requireEntity(entity, errorMessage, listHeader, available) {
+  if (entity) return;
+  process.stderr.write(formatError(errorMessage) + "\n");
+  process.stderr.write(`\n${listHeader}\n`);
+  for (const item of available) {
+    process.stderr.write(formatBullet(item.id, 1) + "\n");
+  }
+  process.exit(1);
+}
+
+/**
  * Resolve and validate human + agent entities for a discipline/track pair
  * @param {Object} data - Full pathway data
  * @param {Object} agentData - Agent-specific data
@@ -64,23 +81,19 @@ function resolveAgentEntities(data, agentData, disciplineId, trackId) {
   const humanDiscipline = data.disciplines.find((d) => d.id === disciplineId);
   const humanTrack = trackId ? data.tracks.find((t) => t.id === trackId) : null;
 
-  if (!humanDiscipline) {
-    process.stderr.write(
-      formatError(`Unknown discipline: ${disciplineId}`) + "\n",
+  requireEntity(
+    humanDiscipline,
+    `Unknown discipline: ${disciplineId}`,
+    "Available disciplines:",
+    data.disciplines,
+  );
+  if (trackId) {
+    requireEntity(
+      humanTrack,
+      `Unknown track: ${trackId}`,
+      "Available tracks:",
+      data.tracks,
     );
-    process.stderr.write("\nAvailable disciplines:\n");
-    for (const d of data.disciplines) {
-      process.stderr.write(formatBullet(d.id, 1) + "\n");
-    }
-    process.exit(1);
-  }
-  if (trackId && !humanTrack) {
-    process.stderr.write(formatError(`Unknown track: ${trackId}`) + "\n");
-    process.stderr.write("\nAvailable tracks:\n");
-    for (const t of data.tracks) {
-      process.stderr.write(formatBullet(t.id, 1) + "\n");
-    }
-    process.exit(1);
   }
 
   const agentDiscipline = agentData.disciplines.find(
@@ -90,25 +103,19 @@ function resolveAgentEntities(data, agentData, disciplineId, trackId) {
     ? agentData.tracks.find((t) => t.id === trackId)
     : null;
 
-  if (!agentDiscipline) {
-    process.stderr.write(
-      formatError(`No agent definition for discipline: ${disciplineId}`) + "\n",
+  requireEntity(
+    agentDiscipline,
+    `No agent definition for discipline: ${disciplineId}`,
+    "Agent definitions exist for:",
+    agentData.disciplines,
+  );
+  if (trackId) {
+    requireEntity(
+      agentTrack,
+      `No agent definition for track: ${trackId}`,
+      "Agent definitions exist for:",
+      agentData.tracks,
     );
-    process.stderr.write("\nAgent definitions exist for:\n");
-    for (const d of agentData.disciplines) {
-      process.stderr.write(formatBullet(d.id, 1) + "\n");
-    }
-    process.exit(1);
-  }
-  if (trackId && !agentTrack) {
-    process.stderr.write(
-      formatError(`No agent definition for track: ${trackId}`) + "\n",
-    );
-    process.stderr.write("\nAgent definitions exist for:\n");
-    for (const t of agentData.tracks) {
-      process.stderr.write(formatBullet(t.id, 1) + "\n");
-    }
-    process.exit(1);
   }
 
   return { humanDiscipline, humanTrack, agentDiscipline, agentTrack };

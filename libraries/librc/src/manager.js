@@ -245,6 +245,71 @@ export class ServiceManager {
   }
 
   /**
+   * Shuts down a running svscan daemon and removes its socket.
+   * @param {string} socketPath - Path to the svscan socket
+   * @returns {Promise<void>}
+   */
+  async #shutdownSvscan(socketPath) {
+    try {
+      await this.#sendCommand(socketPath, { command: "shutdown" });
+    } catch {
+      // Expected — connection closes on shutdown
+    }
+    try {
+      this.#fs.unlinkSync(socketPath);
+    } catch {
+      // Ignore
+    }
+  }
+
+  /**
+   * Starts a oneshot service. Returns true if the service was skipped
+   * (optional and failed), false otherwise. Throws on non-optional failure.
+   * @param {ServiceConfig} svc - Service configuration
+   * @returns {Promise<boolean>} True if skipped
+   */
+  async #startOneshotService(svc) {
+    if (!svc.up) return false;
+    try {
+      await this.runOneshot(svc.name, svc.up, "up", {
+        optional: svc.optional,
+      });
+    } catch (err) {
+      if (svc.optional) {
+        this.#logger.info(svc.name, "Optional service skipped (not available)");
+        return true;
+      }
+      throw err;
+    }
+    return false;
+  }
+
+  /**
+   * Starts a longrun service via the svscan daemon.
+   * @param {ServiceConfig} svc - Service configuration
+   * @param {string} socketPath - Path to the svscan socket
+   * @returns {Promise<void>}
+   */
+  async #startLongrunService(svc, socketPath) {
+    this.#logger.debug(svc.name, "Starting service");
+    const response = await this.#sendCommand(socketPath, {
+      command: "add",
+      name: svc.name,
+      cmd: svc.command,
+      cwd: this.#config.rootDir,
+    });
+    if (response.ok || response.error?.includes("already exists")) {
+      this.#logger.info(svc.name, "Service started");
+    } else if (svc.optional) {
+      this.#logger.info(svc.name, "Optional service skipped", {
+        error: response.error,
+      });
+    } else {
+      this.#logger.error(svc.name, "Add failed", { error: response.error });
+    }
+  }
+
+  /**
    * Starts configured services.
    * @param {string} [serviceName] - Target service (starts first through target)
    * @returns {Promise<void>}
@@ -260,58 +325,39 @@ export class ServiceManager {
 
     if (this.isSvscanRunning()) {
       this.#logger.debug("svscan", "Restarting daemon (fresh environment)");
-      try {
-        await this.#sendCommand(paths.socketPath, { command: "shutdown" });
-      } catch {
-        // Expected — connection closes on shutdown
-      }
-      try {
-        this.#fs.unlinkSync(paths.socketPath);
-      } catch {
-        // Ignore
-      }
+      await this.#shutdownSvscan(paths.socketPath);
     }
     this.#logger.debug("svscan", "Starting daemon");
     await this.spawnSvscan();
 
     for (const svc of services) {
       if (svc.type === "oneshot") {
-        if (svc.up) {
-          try {
-            await this.runOneshot(svc.name, svc.up, "up", {
-              optional: svc.optional,
-            });
-          } catch (err) {
-            if (svc.optional) {
-              this.#logger.info(
-                svc.name,
-                "Optional service skipped (not available)",
-              );
-              continue;
-            }
-            throw err;
-          }
-        }
+        await this.#startOneshotService(svc);
       } else {
-        this.#logger.debug(svc.name, "Starting service");
-        const response = await this.#sendCommand(paths.socketPath, {
-          command: "add",
-          name: svc.name,
-          cmd: svc.command,
-          cwd: this.#config.rootDir,
-        });
-        if (response.ok) {
-          this.#logger.info(svc.name, "Service started");
-        } else if (response.error?.includes("already exists")) {
-          this.#logger.info(svc.name, "Service started");
-        } else if (svc.optional) {
-          this.#logger.info(svc.name, "Optional service skipped", {
-            error: response.error,
-          });
-        } else {
-          this.#logger.error(svc.name, "Add failed", { error: response.error });
-        }
+        await this.#startLongrunService(svc, paths.socketPath);
       }
+    }
+  }
+
+  /**
+   * Stops a longrun service via the svscan daemon.
+   * @param {ServiceConfig} svc - Service configuration
+   * @param {string} socketPath - Path to the svscan socket
+   * @returns {Promise<void>}
+   */
+  async #stopLongrunService(svc, socketPath) {
+    try {
+      const response = await this.#sendCommand(socketPath, {
+        command: "remove",
+        name: svc.name,
+      });
+      if (!response.ok) {
+        this.#logger.error(svc.name, "Remove failed", {
+          error: response.error,
+        });
+      }
+    } catch {
+      // Service not supervised, ignore
     }
   }
 
@@ -341,34 +387,13 @@ export class ServiceManager {
             optional: svc.optional,
           });
       } else {
-        try {
-          const response = await this.#sendCommand(paths.socketPath, {
-            command: "remove",
-            name: svc.name,
-          });
-          if (!response.ok) {
-            this.#logger.error(svc.name, "Remove failed", {
-              error: response.error,
-            });
-          }
-        } catch {
-          // Service not supervised, ignore
-        }
+        await this.#stopLongrunService(svc, paths.socketPath);
       }
     }
 
     if (!serviceName) {
       this.#logger.debug("svscan", "Stopping daemon");
-      try {
-        await this.#sendCommand(paths.socketPath, { command: "shutdown" });
-      } catch {
-        // Expected - connection closes on shutdown
-      }
-      try {
-        this.#fs.unlinkSync(paths.socketPath);
-      } catch {
-        // Ignore
-      }
+      await this.#shutdownSvscan(paths.socketPath);
     }
   }
 

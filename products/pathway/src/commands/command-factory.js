@@ -58,22 +58,12 @@ export function createEntityCommand({
 
     // --list: Output descriptive comma-separated lines for piping and AI agent discovery
     if (options.list) {
-      for (const item of items) {
-        process.stdout.write(
-          (formatListItem ? formatListItem(item) : item.id) + "\n",
-        );
-      }
-      return;
+      return handleList(items, formatListItem);
     }
 
     // No args: Show summary
     if (!id) {
-      if (options.json) {
-        process.stdout.write(JSON.stringify(items, null, 2) + "\n");
-        return;
-      }
-      formatSummary(items, data);
-      return;
+      return handleSummary(items, data, options, formatSummary);
     }
 
     // With ID: Show detail
@@ -88,6 +78,34 @@ export function createEntityCommand({
       formatDetail,
     });
   };
+}
+
+/**
+ * Handle --list mode: output one line per item
+ * @param {Array} items
+ * @param {Function|undefined} formatListItem
+ */
+function handleList(items, formatListItem) {
+  for (const item of items) {
+    process.stdout.write(
+      (formatListItem ? formatListItem(item) : item.id) + "\n",
+    );
+  }
+}
+
+/**
+ * Handle summary mode (no ID): JSON or formatted
+ * @param {Array} items
+ * @param {Object} data
+ * @param {Object} options
+ * @param {Function} formatSummary
+ */
+function handleSummary(items, data, options, formatSummary) {
+  if (options.json) {
+    process.stdout.write(JSON.stringify(items, null, 2) + "\n");
+    return;
+  }
+  formatSummary(items, data);
 }
 
 /**

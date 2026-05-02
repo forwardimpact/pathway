@@ -6,6 +6,23 @@ import { toType, toIdentifier, ResourceIndex } from "../src/index.js";
 import { sanitizeDom } from "../src/sanitizer.js";
 import { common, resource } from "@forwardimpact/libtype";
 
+/** Try to parse a string value as JSON; return the original on failure. */
+function tryParseJson(value) {
+  try {
+    return JSON.parse(value);
+  } catch {
+    return value;
+  }
+}
+
+/** Resolve a stored value, auto-parsing JSON for .json keys. */
+function resolveValue(key, value) {
+  if (key.endsWith(".json") && typeof value === "string") {
+    return tryParseJson(value);
+  }
+  return value;
+}
+
 /**
  * Creates a mock storage implementation for testing
  * @returns {object} Mock storage instance
@@ -21,38 +38,15 @@ function createMockStorage() {
     async get(key) {
       const value = data.get(key);
       if (!value) throw new Error(`Key not found: ${key}`);
-
-      // Simulate automatic JSON parsing for .json files
-      if (key.endsWith(".json") && typeof value === "string") {
-        try {
-          return JSON.parse(value);
-        } catch {
-          return value;
-        }
-      }
-
-      return value;
+      return resolveValue(key, value);
     },
 
     async getMany(keys) {
       const results = {};
       for (const key of keys) {
-        try {
-          const value = data.get(key);
-          if (value) {
-            // Simulate automatic JSON parsing for .json files
-            if (key.endsWith(".json") && typeof value === "string") {
-              try {
-                results[key] = JSON.parse(value);
-              } catch {
-                results[key] = value;
-              }
-            } else {
-              results[key] = value;
-            }
-          }
-        } catch {
-          // Skip keys that don't exist
+        const value = data.get(key);
+        if (value) {
+          results[key] = resolveValue(key, value);
         }
       }
       return results;

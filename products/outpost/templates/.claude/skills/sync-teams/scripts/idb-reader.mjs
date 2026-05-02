@@ -32,6 +32,42 @@ function readIdbVarint(buf, offset) {
 }
 
 /**
+ * Try to deserialize from the second 0xFF marker within the first `limit` bytes.
+ * The Blink envelope has: [varint wire_size] [0xFF blink_ver] [envelope...] [0xFF v8_ver] [V8 data]
+ * We want the second 0xFF that starts valid V8 data.
+ */
+function deserializeFromSecondMarker(rawValue, limit) {
+  let ffCount = 0;
+  for (let i = 0; i < limit; i++) {
+    if (rawValue[i] !== 0xff) continue;
+    ffCount++;
+    if (ffCount >= 2) {
+      try {
+        return v8.deserialize(rawValue.subarray(i));
+      } catch {
+        // keep scanning
+      }
+    }
+  }
+  return null;
+}
+
+/**
+ * Fallback: try deserializing from every 0xFF position within `limit` bytes.
+ */
+function deserializeFromAnyMarker(rawValue, limit) {
+  for (let i = 0; i < limit; i++) {
+    if (rawValue[i] !== 0xff) continue;
+    try {
+      return v8.deserialize(rawValue.subarray(i));
+    } catch {
+      continue;
+    }
+  }
+  return null;
+}
+
+/**
  * Try to deserialize a Chromium IndexedDB value.
  * Values have a Blink envelope before the V8 payload.
  * Scans for the V8 version tag (0xFF) and attempts deserialization.
@@ -39,35 +75,12 @@ function readIdbVarint(buf, offset) {
 function tryDeserialize(rawValue) {
   if (!rawValue || rawValue.length < 4) return null;
 
-  // Strategy: scan for 0xFF bytes (V8 version markers) and try deserializing.
-  // The Blink envelope has: [varint wire_size] [0xFF blink_ver] [envelope...] [0xFF v8_ver] [V8 data]
-  // We want the second 0xFF that starts valid V8 data.
-  let ffCount = 0;
-  for (let i = 0; i < Math.min(rawValue.length, 60); i++) {
-    if (rawValue[i] === 0xff) {
-      ffCount++;
-      if (ffCount >= 2) {
-        try {
-          return v8.deserialize(rawValue.subarray(i));
-        } catch {
-          // keep scanning
-        }
-      }
-    }
-  }
+  const headerLimit = Math.min(rawValue.length, 60);
+  const result = deserializeFromSecondMarker(rawValue, headerLimit);
+  if (result !== null) return result;
 
-  // Fallback: try from every 0xFF position
-  for (let i = 0; i < Math.min(rawValue.length, 100); i++) {
-    if (rawValue[i] === 0xff) {
-      try {
-        return v8.deserialize(rawValue.subarray(i));
-      } catch {
-        continue;
-      }
-    }
-  }
-
-  return null;
+  const fallbackLimit = Math.min(rawValue.length, 100);
+  return deserializeFromAnyMarker(rawValue, fallbackLimit);
 }
 
 /**

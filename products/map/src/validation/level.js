@@ -125,6 +125,52 @@ export function validateLevel(level, index) {
   return { errors, warnings };
 }
 
+const EXPECTED_LEVELS = [
+  "awareness",
+  "foundational",
+  "working",
+  "practitioner",
+  "expert",
+];
+
+/**
+ * Validate a responsibilities block (professional or management) against
+ * expected proficiency levels.
+ * @param {object|undefined} responsibilities
+ * @param {string} fieldName - e.g. "professionalResponsibilities"
+ * @param {string} label - human-readable label, e.g. "professional"
+ * @param {string} path - parent JSON path
+ * @returns {Array} warnings
+ */
+function validateResponsibilities(responsibilities, fieldName, label, path) {
+  const warnings = [];
+
+  if (!responsibilities) {
+    warnings.push(
+      createWarning(
+        "MISSING_OPTIONAL",
+        `Capability missing ${fieldName}`,
+        `${path}.${fieldName}`,
+      ),
+    );
+    return warnings;
+  }
+
+  for (const level of EXPECTED_LEVELS) {
+    if (!responsibilities[level]) {
+      warnings.push(
+        createWarning(
+          "MISSING_OPTIONAL",
+          `Capability missing ${level} ${label} responsibility`,
+          `${path}.${fieldName}.${level}`,
+        ),
+      );
+    }
+  }
+
+  return warnings;
+}
+
 /**
  * @param {Object} capability
  * @param {number} index
@@ -154,57 +200,22 @@ export function validateCapability(capability, index) {
     );
   }
 
-  const expectedLevels = [
-    "awareness",
-    "foundational",
-    "working",
-    "practitioner",
-    "expert",
-  ];
-
-  if (!capability.professionalResponsibilities) {
-    warnings.push(
-      createWarning(
-        "MISSING_OPTIONAL",
-        "Capability missing professionalResponsibilities",
-        `${path}.professionalResponsibilities`,
-      ),
-    );
-  } else {
-    for (const level of expectedLevels) {
-      if (!capability.professionalResponsibilities[level]) {
-        warnings.push(
-          createWarning(
-            "MISSING_OPTIONAL",
-            `Capability missing ${level} professional responsibility`,
-            `${path}.professionalResponsibilities.${level}`,
-          ),
-        );
-      }
-    }
-  }
-
-  if (!capability.managementResponsibilities) {
-    warnings.push(
-      createWarning(
-        "MISSING_OPTIONAL",
-        "Capability missing managementResponsibilities",
-        `${path}.managementResponsibilities`,
-      ),
-    );
-  } else {
-    for (const level of expectedLevels) {
-      if (!capability.managementResponsibilities[level]) {
-        warnings.push(
-          createWarning(
-            "MISSING_OPTIONAL",
-            `Capability missing ${level} management responsibility`,
-            `${path}.managementResponsibilities.${level}`,
-          ),
-        );
-      }
-    }
-  }
+  warnings.push(
+    ...validateResponsibilities(
+      capability.professionalResponsibilities,
+      "professionalResponsibilities",
+      "professional",
+      path,
+    ),
+  );
+  warnings.push(
+    ...validateResponsibilities(
+      capability.managementResponsibilities,
+      "managementResponsibilities",
+      "management",
+      path,
+    ),
+  );
 
   return { errors, warnings };
 }

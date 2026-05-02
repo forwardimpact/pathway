@@ -17,16 +17,7 @@
 
 import { Writable } from "node:stream";
 import { TraceCollector } from "./trace-collector.js";
-import {
-  renderTextLine,
-  renderToolCallLine,
-  renderToolResultLine,
-} from "./render/line-renderer.js";
-import {
-  hintForCall,
-  previewForResult,
-  simplifyToolName,
-} from "./render/tool-hints.js";
+import { renderTurnLines } from "./render/turn-renderer.js";
 import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
 export class TeeWriter extends Writable {
@@ -134,56 +125,8 @@ export class TeeWriter extends Writable {
     const withPrefix = this.mode !== "raw";
     while (this.turnsEmitted < turns.length) {
       const turn = turns[this.turnsEmitted++];
-      if (turn.role === "assistant") {
-        for (const block of turn.content) {
-          if (block.type === "text") {
-            this.textStream.write(
-              renderTextLine({
-                source: turn.source,
-                text: block.text,
-                withPrefix,
-              }),
-            );
-          } else if (block.type === "tool_use") {
-            this.textStream.write(
-              renderToolCallLine({
-                source: turn.source,
-                toolName: simplifyToolName(block.name),
-                hint: hintForCall(block.name, block.input),
-                withPrefix,
-              }),
-            );
-          }
-        }
-      } else if (turn.role === "tool_result") {
-        this.textStream.write(
-          renderToolResultLine({
-            source: turn.source,
-            preview: previewForResult(turn.content, turn.isError),
-            withPrefix,
-          }),
-        );
-      } else if (turn.role === "system") {
-        const label = turn.subtype ?? "system";
-        this.textStream.write(
-          renderTextLine({
-            source: turn.source,
-            text: `[${label}]`,
-            withPrefix,
-          }),
-        );
-      } else if (turn.role === "user") {
-        for (const block of turn.content) {
-          if (block.type === "text") {
-            this.textStream.write(
-              renderTextLine({
-                source: turn.source,
-                text: `[user] ${block.text}`,
-                withPrefix,
-              }),
-            );
-          }
-        }
+      for (const line of renderTurnLines(turn, withPrefix)) {
+        this.textStream.write(line);
       }
     }
   }

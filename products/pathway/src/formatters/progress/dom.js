@@ -17,6 +17,7 @@ import {
 } from "../../lib/render.js";
 import { createBackLink } from "../../components/nav.js";
 import { createLevelDots } from "../../components/detail.js";
+import { formatModifier } from "../shared.js";
 
 /**
  * Format progress detail as DOM elements
@@ -66,9 +67,7 @@ export function progressToDOM(view, { showBackLink = true } = {}) {
                       {
                         className: `modifier modifier-${change.modifier > 0 ? "positive" : "negative"}`,
                       },
-                      change.modifier > 0
-                        ? `+${change.modifier}`
-                        : String(change.modifier),
+                      formatModifier(change.modifier),
                     ),
                   ),
                   td(
@@ -113,9 +112,7 @@ export function progressToDOM(view, { showBackLink = true } = {}) {
                       {
                         className: `modifier modifier-${change.modifier > 0 ? "positive" : "negative"}`,
                       },
-                      change.modifier > 0
-                        ? `+${change.modifier}`
-                        : String(change.modifier),
+                      formatModifier(change.modifier),
                     ),
                   ),
                   td(

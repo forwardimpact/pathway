@@ -47,6 +47,7 @@ export function createMockRunner(responses, messages, { toolDispatcher } = {}) {
     output,
   });
 
+  // biome-ignore lint/complexity/noExcessiveCognitiveComplexity: decomposing this closure breaks abort-callback semantics that pending-ask tests depend on
   const consume = async (msgs) => {
     let aborted = false;
     const pendingBatch = [];

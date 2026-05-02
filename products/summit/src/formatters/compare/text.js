@@ -22,6 +22,13 @@ export function compareToText({ left, right, coverageDiff, riskDiff }) {
     return lines.join("\n") + "\n";
   }
 
+  formatCoverageSection(lines, coverageDiff);
+  formatRiskSection(lines, riskDiff);
+
+  return lines.join("\n") + "\n";
+}
+
+function formatCoverageSection(lines, coverageDiff) {
   lines.push("  Skill coverage (left → right):");
   const diffed = coverageDiff.capabilityChanges.filter(
     (c) => c.direction !== "same",
@@ -30,15 +37,22 @@ export function compareToText({ left, right, coverageDiff, riskDiff }) {
     lines.push("    (no differences)");
   } else {
     for (const c of diffed) {
-      const arrow =
-        c.direction === "up" ? "→ up" : c.direction === "down" ? "→ down" : "=";
+      const arrow = directionArrow(c.direction);
       lines.push(
         `    ${c.skillId}  ${c.before.headcountDepth} → ${c.after.headcountDepth}  ${arrow}`,
       );
     }
   }
   lines.push("");
+}
 
+function directionArrow(direction) {
+  if (direction === "up") return "→ up";
+  if (direction === "down") return "→ down";
+  return "=";
+}
+
+function formatRiskSection(lines, riskDiff) {
   lines.push("  Risk changes:");
   const anyRisk =
     riskDiff.added.singlePoints.length +
@@ -48,20 +62,18 @@ export function compareToText({ left, right, coverageDiff, riskDiff }) {
     0;
   if (!anyRisk) {
     lines.push("    (no risk differences)");
-  } else {
-    for (const r of riskDiff.added.singlePoints) {
-      lines.push(`    + SPOF ${r.skillId} appears on right`);
-    }
-    for (const r of riskDiff.added.criticalGaps) {
-      lines.push(`    + critical gap ${r.skillId} appears on right`);
-    }
-    for (const r of riskDiff.removed.singlePoints) {
-      lines.push(`    - SPOF ${r.skillId} only on left`);
-    }
-    for (const r of riskDiff.removed.criticalGaps) {
-      lines.push(`    - critical gap ${r.skillId} only on left`);
-    }
+    return;
   }
-
-  return lines.join("\n") + "\n";
+  for (const r of riskDiff.added.singlePoints) {
+    lines.push(`    + SPOF ${r.skillId} appears on right`);
+  }
+  for (const r of riskDiff.added.criticalGaps) {
+    lines.push(`    + critical gap ${r.skillId} appears on right`);
+  }
+  for (const r of riskDiff.removed.singlePoints) {
+    lines.push(`    - SPOF ${r.skillId} only on left`);
+  }
+  for (const r of riskDiff.removed.criticalGaps) {
+    lines.push(`    - critical gap ${r.skillId} only on left`);
+  }
 }

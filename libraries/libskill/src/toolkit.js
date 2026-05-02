@@ -29,14 +29,38 @@ import { filterToolkitSkills } from "./policies/composed.js";
  * @param {Array} params.skills - All skill definitions with toolReferences
  * @returns {ToolkitEntry[]} De-duplicated toolkit sorted by name
  */
+/** Merge a tool reference into an existing entry, filling missing metadata. */
+function mergeToolEntry(existing, tool, skillId) {
+  if (!existing.skillIds.includes(skillId)) {
+    existing.skillIds.push(skillId);
+  }
+  if (!existing.url && tool.url) {
+    existing.url = tool.url;
+  }
+  if (!existing.simpleIcon && tool.simpleIcon) {
+    existing.simpleIcon = tool.simpleIcon;
+  }
+}
+
+/** Insert or merge a single tool reference into the dedup map. */
+function upsertTool(toolMap, tool, skillId) {
+  const existing = toolMap.get(tool.name);
+  if (existing) {
+    mergeToolEntry(existing, tool, skillId);
+  } else {
+    toolMap.set(tool.name, {
+      name: tool.name,
+      description: tool.description,
+      url: tool.url,
+      simpleIcon: tool.simpleIcon,
+      skillIds: [skillId],
+    });
+  }
+}
+
 export function deriveToolkit({ skillMatrix, skills }) {
-  // Filter to highest level skills only using policy
   const sourceMatrix = filterToolkitSkills(skillMatrix);
-
-  // Build skill lookup map for O(1) access
   const skillMap = new Map(skills.map((s) => [s.id, s]));
-
-  // Tool map for de-duplication: name -> ToolkitEntry
   const toolMap = new Map();
 
   for (const entry of sourceMatrix) {
@@ -44,32 +68,10 @@ export function deriveToolkit({ skillMatrix, skills }) {
     if (!skill?.toolReferences) continue;
 
     for (const tool of skill.toolReferences) {
-      const existing = toolMap.get(tool.name);
-      if (existing) {
-        // Add skill ID if not already present
-        if (!existing.skillIds.includes(skill.id)) {
-          existing.skillIds.push(skill.id);
-        }
-        // Prefer first occurrence's metadata, but fill in missing values
-        if (!existing.url && tool.url) {
-          existing.url = tool.url;
-        }
-        if (!existing.simpleIcon && tool.simpleIcon) {
-          existing.simpleIcon = tool.simpleIcon;
-        }
-      } else {
-        toolMap.set(tool.name, {
-          name: tool.name,
-          description: tool.description,
-          url: tool.url,
-          simpleIcon: tool.simpleIcon,
-          skillIds: [skill.id],
-        });
-      }
+      upsertTool(toolMap, tool, skill.id);
     }
   }
 
-  // Sort by name and return
   return Array.from(toolMap.values()).sort((a, b) =>
     a.name.localeCompare(b.name),
   );

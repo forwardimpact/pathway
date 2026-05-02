@@ -18,6 +18,7 @@ import {
 } from "../../lib/render.js";
 import { createBackLink } from "../../components/nav.js";
 import { createLevelCell } from "../../components/detail.js";
+import { formatModifier } from "../shared.js";
 import { createSkillFileViewer } from "../../components/skill-file-viewer.js";
 import { createToolIcon } from "../../lib/card-mappers.js";
 import { SKILL_PROFICIENCY_ORDER } from "@forwardimpact/map/levels";
@@ -224,7 +225,7 @@ export function skillToDOM(
                 {
                   className: `modifier ${t.modifier > 0 ? "modifier-positive" : t.modifier < 0 ? "modifier-negative" : "modifier-neutral"}`,
                 },
-                t.modifier > 0 ? `+${t.modifier}` : String(t.modifier),
+                formatModifier(t.modifier),
               ),
             ),
           ),

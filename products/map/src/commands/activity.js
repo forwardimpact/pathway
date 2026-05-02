@@ -239,6 +239,43 @@ export async function seed({ data, supabase }) {
   return verify(supabase);
 }
 
+function detectContentType(filePath) {
+  return filePath.endsWith(".yaml") || filePath.endsWith(".yml")
+    ? "text/yaml"
+    : "application/json";
+}
+
+async function uploadFile(supabase, readFile, rawDir, fullPath, relative) {
+  const storagePath = relative(rawDir, fullPath);
+  const content = await readFile(fullPath, "utf-8");
+  const result = await storeRaw(
+    supabase,
+    storagePath,
+    content,
+    detectContentType(fullPath),
+  );
+  return { storagePath, stored: result.stored, error: result.error };
+}
+
+async function walkAndCollect(readdir, join, dir) {
+  let entries;
+  try {
+    entries = await readdir(dir, { withFileTypes: true });
+  } catch {
+    return []; // directory doesn't exist — skip silently
+  }
+  const filePaths = [];
+  for (const entry of entries) {
+    const fullPath = join(dir, entry.name);
+    if (entry.isDirectory()) {
+      filePaths.push(...(await walkAndCollect(readdir, join, fullPath)));
+    } else {
+      filePaths.push(fullPath);
+    }
+  }
+  return filePaths;
+}
+
 async function uploadRawDir(supabase, rawDir) {
   const { readFile, readdir } = await import("fs/promises");
   const { join, relative } = await import("path");
@@ -246,40 +283,22 @@ async function uploadRawDir(supabase, rawDir) {
   const errors = [];
   let count = 0;
 
-  async function walk(dir) {
-    let entries;
-    try {
-      entries = await readdir(dir, { withFileTypes: true });
-    } catch {
-      return; // directory doesn't exist — skip silently
-    }
-    for (const entry of entries) {
-      const fullPath = join(dir, entry.name);
-      if (entry.isDirectory()) {
-        await walk(fullPath);
-      } else {
-        const storagePath = relative(rawDir, fullPath);
-        const content = await readFile(fullPath, "utf-8");
-        const contentType =
-          fullPath.endsWith(".yaml") || fullPath.endsWith(".yml")
-            ? "text/yaml"
-            : "application/json";
-        const result = await storeRaw(
-          supabase,
-          storagePath,
-          content,
-          contentType,
-        );
-        if (result.stored) {
-          count++;
-        } else {
-          errors.push(`${storagePath}: ${result.error}`);
-        }
-      }
+  const filePaths = await walkAndCollect(readdir, join, rawDir);
+  for (const fullPath of filePaths) {
+    const result = await uploadFile(
+      supabase,
+      readFile,
+      rawDir,
+      fullPath,
+      relative,
+    );
+    if (result.stored) {
+      count++;
+    } else {
+      errors.push(`${result.storagePath}: ${result.error}`);
     }
   }
 
-  await walk(rawDir);
   return { count, errors };
 }
 

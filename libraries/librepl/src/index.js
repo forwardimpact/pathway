@@ -121,6 +121,36 @@ export class Repl {
   }
 
   /**
+   * Parses a single --flag argument into its name and inline value.
+   * @param {string} arg - The raw argument string (e.g. "--key=value" or "--key")
+   * @returns {{ flagName: string, inlineValue: string|null }}
+   */
+  #parseFlag(arg) {
+    const eqIdx = arg.indexOf("=");
+    return {
+      flagName: eqIdx === -1 ? arg.slice(2) : arg.slice(2, eqIdx),
+      inlineValue: eqIdx === -1 ? null : arg.slice(eqIdx + 1),
+    };
+  }
+
+  /**
+   * Resolves the handler arguments for a command flag.
+   * Returns the args array and the number of extra argv positions consumed.
+   * @param {object} command - Command definition
+   * @param {string|null} inlineValue - Inline value from --key=value form
+   * @param {string[]} args - Full argv array
+   * @param {number} index - Current position in argv
+   * @returns {{ handlerArgs: string[], skip: number }|null} null when no value is available (skip the handler call)
+   */
+  #resolveFlagArgs(command, inlineValue, args, index) {
+    if (command.type === "boolean") return { handlerArgs: [], skip: 0 };
+    if (inlineValue !== null) return { handlerArgs: [inlineValue], skip: 0 };
+    if (index + 1 < args.length)
+      return { handlerArgs: [args[index + 1]], skip: 1 };
+    return null;
+  }
+
+  /**
    * Parses command line arguments to override state values and returns whether to exit early
    * @returns {Promise<boolean>} True if the process should exit after parsing
    */
@@ -129,34 +159,20 @@ export class Repl {
 
     for (let i = 0; i < args.length; i++) {
       const arg = args[i];
-      if (arg.startsWith("--")) {
-        // Support both --key value and --key=value forms
-        const eqIdx = arg.indexOf("=");
-        const flagName = eqIdx === -1 ? arg.slice(2) : arg.slice(2, eqIdx);
-        const inlineValue = eqIdx === -1 ? null : arg.slice(eqIdx + 1);
-        const commandName = flagName.replace(/-/g, "_");
-        const command = this.#app.commands[commandName];
+      if (!arg.startsWith("--")) continue;
 
-        if (command && command.handler) {
-          let result;
-          // Boolean type commands don't consume an argument
-          if (command.type === "boolean") {
-            result = await command.handler([], this.state);
-          } else if (inlineValue !== null) {
-            // --key=value form
-            result = await command.handler([inlineValue], this.state);
-          } else if (i + 1 < args.length) {
-            // --key value form
-            const value = args[i + 1];
-            result = await command.handler([value], this.state);
-            i++; // Skip the value argument
-          }
-          // If handler returns explicit false, exit early
-          if (result === false) {
-            return true;
-          }
-        }
-      }
+      const { flagName, inlineValue } = this.#parseFlag(arg);
+      const commandName = flagName.replace(/-/g, "_");
+      const command = this.#app.commands[commandName];
+      if (!command?.handler) continue;
+
+      const resolved = this.#resolveFlagArgs(command, inlineValue, args, i);
+      if (!resolved) continue;
+
+      i += resolved.skip;
+
+      const result = await command.handler(resolved.handlerArgs, this.state);
+      if (result === false) return true;
     }
     return false;
   }
@@ -189,6 +205,23 @@ export class Repl {
   }
 
   /**
+   * Applies indent to the first chunk, skipping the very first line.
+   * @param {string} formatted - Formatted text
+   * @param {string} indent - Indent prefix
+   * @returns {{ text: string, pastFirstLine: boolean }}
+   */
+  #indentFirstChunk(formatted, indent) {
+    const nlPos = formatted.indexOf("\n");
+    if (nlPos === -1) return { text: formatted, pastFirstLine: false };
+    const rest = formatted.slice(nlPos + 1);
+    const indented = rest ? rest.replace(/^/gm, indent) : "";
+    return {
+      text: formatted.slice(0, nlPos + 1) + indented,
+      pastFirstLine: true,
+    };
+  }
+
+  /**
    * Formats and writes output to stdout
    * @param {import("stream").Readable} output - Stream to output
    * @returns {Promise<void>} Promise that resolves when output is complete
@@ -201,28 +234,19 @@ export class Repl {
 
     for await (const chunk of output) {
       const text = chunk.toString();
-      if (text) {
-        let formatted = this.#formatter.format(text);
-        if (indent) {
-          if (firstLine) {
-            // Skip indent on the first line — the caller may have
-            // already written a prefix (e.g. a marker) at column 0.
-            const nlPos = formatted.indexOf("\n");
-            if (nlPos === -1) {
-              firstLine = false;
-            } else {
-              const rest = formatted.slice(nlPos + 1);
-              formatted =
-                formatted.slice(0, nlPos + 1) +
-                (rest ? rest.replace(/^/gm, indent) : "");
-              firstLine = false;
-            }
-          } else {
-            formatted = formatted.replace(/^/gm, indent);
-          }
+      if (!text) continue;
+
+      let formatted = this.#formatter.format(text);
+      if (indent) {
+        if (firstLine) {
+          const result = this.#indentFirstChunk(formatted, indent);
+          formatted = result.text;
+          firstLine = !result.pastFirstLine;
+        } else {
+          formatted = formatted.replace(/^/gm, indent);
         }
-        this.#process.stdout.write(formatted);
       }
+      this.#process.stdout.write(formatted);
     }
   }
 

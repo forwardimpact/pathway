@@ -6,6 +6,8 @@
  * @module libterrain/dsl/parser-standard
  */
 
+import { createDispatchHelpers } from "./parser-helpers.js";
+
 /**
  * Create standard and dataset parsers bound to shared token helpers.
  * @param {{ peek: () => any, advance: () => any, expect: (type: string, value?: string) => any, parseStringOrIdent: () => string, parseStringValue: () => string, parseNumberValue: () => number, parseArray: () => any[] }} helpers
@@ -22,169 +24,159 @@ export function createStandardParsers(helpers) {
     parseArray,
   } = helpers;
 
-  function parseStandardLevels() {
+  const { consumeFields } = createDispatchHelpers(helpers);
+
+  /**
+   * Parse a brace-delimited block of keyword–value pairs using a dispatch
+   * table. Throws on any keyword not present in the table.
+   * @param {Record<string, (obj: object) => void>} dispatch
+   * @param {string} context  — label for error messages
+   * @returns {object}
+   */
+  function parseKeyedBlock(dispatch, context) {
+    return consumeFields(dispatch, context, {
+      target: {},
+      consumeRBrace: true,
+    });
+  }
+
+  /**
+   * Parse a brace-delimited list of named items. Each item is identified by a
+   * string/ident key, then parsed via parseKeyedBlock with the given dispatch.
+   * @param {Record<string, (obj: object) => void>} dispatch
+   * @param {string} context
+   * @returns {object[]}
+   */
+  function parseBracedList(dispatch, context) {
     expect("LBRACE");
-    const levels = [];
+    const items = [];
     while (peek().type !== "RBRACE") {
       const id = parseStringOrIdent();
       expect("LBRACE");
-      const level = { id };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "title") level.professionalTitle = parseStringValue();
-        else if (kw.value === "roleTitle")
-          level.managementTitle = parseStringValue();
-        else if (kw.value === "rank") level.rank = parseNumberValue();
-        else if (kw.value === "experience")
-          level.experience = parseStringValue();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in level at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      levels.push(level);
+      const item = parseKeyedBlock(dispatch, context);
+      item.id = id;
+      items.push(item);
     }
     expect("RBRACE");
-    return levels;
+    return items;
   }
+
+  const LEVEL_DISPATCH = {
+    title: (o) => {
+      o.professionalTitle = parseStringValue();
+    },
+    roleTitle: (o) => {
+      o.managementTitle = parseStringValue();
+    },
+    rank: (o) => {
+      o.rank = parseNumberValue();
+    },
+    experience: (o) => {
+      o.experience = parseStringValue();
+    },
+  };
+
+  function parseStandardLevels() {
+    return parseBracedList(LEVEL_DISPATCH, "level");
+  }
+
+  const CAPABILITY_DISPATCH = {
+    name: (o) => {
+      o.name = parseStringValue();
+    },
+    skills: (o) => {
+      o.skills = parseArray();
+    },
+  };
 
   function parseStandardCapabilities() {
-    expect("LBRACE");
-    const caps = [];
-    while (peek().type !== "RBRACE") {
-      const id = parseStringOrIdent();
-      expect("LBRACE");
-      const cap = { id };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "name") cap.name = parseStringValue();
-        else if (kw.value === "skills") cap.skills = parseArray();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in capability at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      caps.push(cap);
-    }
-    expect("RBRACE");
-    return caps;
+    return parseBracedList(CAPABILITY_DISPATCH, "capability");
   }
+
+  const BEHAVIOUR_DISPATCH = {
+    name: (o) => {
+      o.name = parseStringValue();
+    },
+  };
 
   function parseStandardBehaviours() {
-    expect("LBRACE");
-    const behaviours = [];
-    while (peek().type !== "RBRACE") {
-      const id = parseStringOrIdent();
-      expect("LBRACE");
-      const beh = { id };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "name") beh.name = parseStringValue();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in behaviour at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      behaviours.push(beh);
-    }
-    expect("RBRACE");
-    return behaviours;
+    return parseBracedList(BEHAVIOUR_DISPATCH, "behaviour");
   }
+
+  const DISCIPLINE_DISPATCH = {
+    roleTitle: (o) => {
+      o.roleTitle = parseStringValue();
+    },
+    specialization: (o) => {
+      o.specialization = parseStringValue();
+    },
+    isProfessional: (o) => {
+      const val = parseStringOrIdent();
+      o.isProfessional = val === "true";
+    },
+    core: (o) => {
+      o.core = parseArray();
+    },
+    supporting: (o) => {
+      o.supporting = parseArray();
+    },
+    broad: (o) => {
+      o.broad = parseArray();
+    },
+    validTracks: (o) => {
+      o.validTracks = parseNullableArray();
+    },
+  };
 
   function parseStandardDisciplines() {
-    expect("LBRACE");
-    const disciplines = [];
-    while (peek().type !== "RBRACE") {
-      const id = parseStringOrIdent();
-      expect("LBRACE");
-      const disc = { id };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "roleTitle") disc.roleTitle = parseStringValue();
-        else if (kw.value === "specialization")
-          disc.specialization = parseStringValue();
-        else if (kw.value === "isProfessional") {
-          const val = parseStringOrIdent();
-          disc.isProfessional = val === "true";
-        } else if (kw.value === "core") disc.core = parseArray();
-        else if (kw.value === "supporting") disc.supporting = parseArray();
-        else if (kw.value === "broad") disc.broad = parseArray();
-        else if (kw.value === "validTracks")
-          disc.validTracks = parseNullableArray();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in discipline at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      disciplines.push(disc);
-    }
-    expect("RBRACE");
-    return disciplines;
+    return parseBracedList(DISCIPLINE_DISPATCH, "discipline");
   }
+
+  const TRACK_DISPATCH = {
+    name: (o) => {
+      o.name = parseStringValue();
+    },
+  };
 
   function parseStandardTracks() {
-    expect("LBRACE");
-    const tracks = [];
-    while (peek().type !== "RBRACE") {
-      const id = parseStringOrIdent();
-      expect("LBRACE");
-      const track = { id };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "name") track.name = parseStringValue();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in track at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      tracks.push(track);
-    }
-    expect("RBRACE");
-    return tracks;
+    return parseBracedList(TRACK_DISPATCH, "track");
   }
 
+  const DRIVER_DISPATCH = {
+    name: (o) => {
+      o.name = parseStringValue();
+    },
+    skills: (o) => {
+      o.skills = parseArray();
+    },
+    behaviours: (o) => {
+      o.behaviours = parseArray();
+    },
+  };
+
   function parseStandardDrivers() {
-    expect("LBRACE");
-    const drivers = [];
-    while (peek().type !== "RBRACE") {
-      const id = parseStringOrIdent();
-      expect("LBRACE");
-      const driver = { id };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "name") driver.name = parseStringValue();
-        else if (kw.value === "skills") driver.skills = parseArray();
-        else if (kw.value === "behaviours") driver.behaviours = parseArray();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in driver at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      drivers.push(driver);
+    return parseBracedList(DRIVER_DISPATCH, "driver");
+  }
+
+  /**
+   * Resolve a single nullable-array element from the current token.
+   * Returns the parsed value or null for literal "null".
+   */
+  function resolveNullableElement() {
+    const t = peek();
+    if (t.type === "STRING") return advance().value;
+    if (t.type === "IDENT" || t.type === "KEYWORD") {
+      const val = advance().value;
+      return val === "null" ? null : val;
     }
-    expect("RBRACE");
-    return drivers;
+    throw new Error(`Unexpected ${t.type} in array at line ${t.line}`);
   }
 
   function parseNullableArray() {
     expect("LBRACKET");
     const items = [];
     while (peek().type !== "RBRACKET") {
-      const t = peek();
-      if (t.type === "STRING") items.push(advance().value);
-      else if (t.type === "IDENT") {
-        const val = advance().value;
-        items.push(val === "null" ? null : val);
-      } else if (t.type === "KEYWORD") {
-        const val = advance().value;
-        items.push(val === "null" ? null : val);
-      } else throw new Error(`Unexpected ${t.type} in array at line ${t.line}`);
+      items.push(resolveNullableElement());
       if (peek().type === "COMMA") advance();
     }
     expect("RBRACKET");
@@ -247,23 +239,42 @@ export function createStandardParsers(helpers) {
     return fields;
   }
 
+  const DATASET_DISPATCH = {
+    tool: (ds) => {
+      ds.tool = parseStringOrIdent();
+    },
+    population: (ds) => {
+      ds.config.population = parseNumberValue();
+    },
+    modules: (ds) => {
+      ds.config.modules = parseArray();
+    },
+    metadata: (ds) => {
+      ds.config.metadata = parseStringValue();
+    },
+    data: (ds) => {
+      ds.config.data = parseDatasetFields();
+    },
+    rows: (ds) => {
+      ds.config.rows = parseNumberValue();
+    },
+    fields: (ds) => {
+      ds.config.fields = parseDatasetFields();
+    },
+  };
+
   function parseDataset(id) {
     expect("LBRACE");
     const ds = { id, tool: null, config: {} };
     while (peek().type !== "RBRACE") {
       const kw = advance();
-      if (kw.value === "tool") ds.tool = parseStringOrIdent();
-      else if (kw.value === "population")
-        ds.config.population = parseNumberValue();
-      else if (kw.value === "modules") ds.config.modules = parseArray();
-      else if (kw.value === "metadata") ds.config.metadata = parseStringValue();
-      else if (kw.value === "data") ds.config.data = parseDatasetFields();
-      else if (kw.value === "rows") ds.config.rows = parseNumberValue();
-      else if (kw.value === "fields") ds.config.fields = parseDatasetFields();
-      else
+      const handler = DATASET_DISPATCH[kw.value];
+      if (!handler) {
         throw new Error(
           `Unexpected '${kw.value}' in dataset at line ${kw.line}`,
         );
+      }
+      handler(ds);
     }
     expect("RBRACE");
     return ds;

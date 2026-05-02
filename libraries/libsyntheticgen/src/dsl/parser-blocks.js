@@ -6,6 +6,8 @@
  * @module libterrain/dsl/parser-blocks
  */
 
+import { createDispatchHelpers } from "./parser-helpers.js";
+
 /**
  * Create block parsers bound to shared token helpers.
  * @param {{ peek: () => any, advance: () => any, expect: (type: string, value?: string) => any, parseStringOrIdent: () => string, parseStringValue: () => string, parseNumberValue: () => number, parseDateValue: () => string, parseArray: () => any[] }} helpers
@@ -23,17 +25,23 @@ export function createBlockParsers(helpers) {
     parseArray,
   } = helpers;
 
+  const { consumeFields } = createDispatchHelpers(helpers);
+
   function parseOrg() {
     const id = parseStringOrIdent();
     expect("LBRACE");
     const org = { id };
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "name") org.name = parseStringValue();
-      else if (kw.value === "location") org.location = parseStringValue();
-      else
-        throw new Error(`Unexpected '${kw.value}' in org at line ${kw.line}`);
-    }
+    consumeFields(
+      {
+        name: () => {
+          org.name = parseStringValue();
+        },
+        location: () => {
+          org.location = parseStringValue();
+        },
+      },
+      "org",
+    );
     expect("RBRACE");
     return org;
   }
@@ -42,17 +50,23 @@ export function createBlockParsers(helpers) {
     const id = parseStringOrIdent();
     expect("LBRACE");
     const team = { id, department: departmentId };
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "name") team.name = parseStringValue();
-      else if (kw.value === "size") team.size = parseNumberValue();
-      else if (kw.value === "manager") {
-        const t = advance();
-        team.manager = t.type === "AT_IDENT" ? t.value : t.value;
-      } else if (kw.value === "repos") team.repos = parseArray();
-      else
-        throw new Error(`Unexpected '${kw.value}' in team at line ${kw.line}`);
-    }
+    consumeFields(
+      {
+        name: () => {
+          team.name = parseStringValue();
+        },
+        size: () => {
+          team.size = parseNumberValue();
+        },
+        manager: () => {
+          team.manager = advance().value;
+        },
+        repos: () => {
+          team.repos = parseArray();
+        },
+      },
+      "team",
+    );
     expect("RBRACE");
     return team;
   }
@@ -62,19 +76,23 @@ export function createBlockParsers(helpers) {
     expect("LBRACE");
     const dept = { id, _children: [] };
     const teams = [];
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "name") dept.name = parseStringValue();
-      else if (kw.value === "parent") dept.parent = parseStringOrIdent();
-      else if (kw.value === "headcount") dept.headcount = parseNumberValue();
-      else if (kw.value === "team") {
-        const team = parseTeam(id);
-        teams.push(team);
-      } else
-        throw new Error(
-          `Unexpected '${kw.value}' in department at line ${kw.line}`,
-        );
-    }
+    consumeFields(
+      {
+        name: () => {
+          dept.name = parseStringValue();
+        },
+        parent: () => {
+          dept.parent = parseStringOrIdent();
+        },
+        headcount: () => {
+          dept.headcount = parseNumberValue();
+        },
+        team: () => {
+          teams.push(parseTeam(id));
+        },
+      },
+      "department",
+    );
     expect("RBRACE");
     return { dept, teams };
   }
@@ -94,20 +112,26 @@ export function createBlockParsers(helpers) {
   function parsePeople() {
     expect("LBRACE");
     const people = {};
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "count") people.count = parseNumberValue();
-      else if (kw.value === "names") people.names = parseStringValue();
-      else if (kw.value === "distribution")
-        people.distribution = parsePeopleMap();
-      else if (kw.value === "disciplines")
-        people.disciplines = parsePeopleMap();
-      else if (kw.value === "archetypes") people.archetypes = parsePeopleMap();
-      else
-        throw new Error(
-          `Unexpected '${kw.value}' in people at line ${kw.line}`,
-        );
-    }
+    consumeFields(
+      {
+        count: () => {
+          people.count = parseNumberValue();
+        },
+        names: () => {
+          people.names = parseStringValue();
+        },
+        distribution: () => {
+          people.distribution = parsePeopleMap();
+        },
+        disciplines: () => {
+          people.disciplines = parsePeopleMap();
+        },
+        archetypes: () => {
+          people.archetypes = parsePeopleMap();
+        },
+      },
+      "people",
+    );
     expect("RBRACE");
     return people;
   }
@@ -127,45 +151,49 @@ export function createBlockParsers(helpers) {
     "teams",
   ]);
 
+  function parseProjectField(proj, kw) {
+    if (PROJECT_STRING_KEYS.has(kw.value)) proj[kw.value] = parseStringValue();
+    else if (PROJECT_DATE_KEYS.has(kw.value)) proj[kw.value] = parseDateValue();
+    else if (PROJECT_ARRAY_KEYS.has(kw.value)) proj[kw.value] = parseArray();
+    else
+      throw new Error(`Unexpected '${kw.value}' in project at line ${kw.line}`);
+  }
+
   function parseProject() {
     const id = parseStringOrIdent();
     expect("LBRACE");
     const proj = { id };
     while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (PROJECT_STRING_KEYS.has(kw.value))
-        proj[kw.value] = parseStringValue();
-      else if (PROJECT_DATE_KEYS.has(kw.value))
-        proj[kw.value] = parseDateValue();
-      else if (PROJECT_ARRAY_KEYS.has(kw.value)) proj[kw.value] = parseArray();
-      else
-        throw new Error(
-          `Unexpected '${kw.value}' in project at line ${kw.line}`,
-        );
+      parseProjectField(proj, advance());
     }
     expect("RBRACE");
     return proj;
+  }
+
+  function parseSingleDxDriver() {
+    const driverId = parseStringOrIdent();
+    expect("LBRACE");
+    const driver = { driver_id: driverId };
+    consumeFields(
+      {
+        trajectory: () => {
+          driver.trajectory = parseStringValue();
+        },
+        magnitude: () => {
+          driver.magnitude = parseNumberValue();
+        },
+      },
+      "dx_driver",
+    );
+    expect("RBRACE");
+    return driver;
   }
 
   function parseDxDrivers() {
     expect("LBRACE");
     const drivers = [];
     while (peek().type !== "RBRACE") {
-      const driverId = parseStringOrIdent();
-      expect("LBRACE");
-      const driver = { driver_id: driverId };
-      while (peek().type !== "RBRACE") {
-        const kw = advance();
-        if (kw.value === "trajectory") driver.trajectory = parseStringValue();
-        else if (kw.value === "magnitude")
-          driver.magnitude = parseNumberValue();
-        else
-          throw new Error(
-            `Unexpected '${kw.value}' in dx_driver at line ${kw.line}`,
-          );
-      }
-      expect("RBRACE");
-      drivers.push(driver);
+      drivers.push(parseSingleDxDriver());
     }
     expect("RBRACE");
     return drivers;
@@ -175,22 +203,26 @@ export function createBlockParsers(helpers) {
     const teamId = parseStringOrIdent();
     expect("LBRACE");
     const affect = { team_id: teamId };
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "github_commits")
-        affect.github_commits = parseStringValue();
-      else if (kw.value === "github_prs")
-        affect.github_prs = parseStringValue();
-      else if (kw.value === "dx_drivers") affect.dx_drivers = parseDxDrivers();
-      else if (kw.value === "evidence_skills")
-        affect.evidence_skills = parseArray();
-      else if (kw.value === "evidence_floor")
-        affect.evidence_floor = parseStringValue();
-      else
-        throw new Error(
-          `Unexpected '${kw.value}' in affect at line ${kw.line}`,
-        );
-    }
+    consumeFields(
+      {
+        github_commits: () => {
+          affect.github_commits = parseStringValue();
+        },
+        github_prs: () => {
+          affect.github_prs = parseStringValue();
+        },
+        dx_drivers: () => {
+          affect.dx_drivers = parseDxDrivers();
+        },
+        evidence_skills: () => {
+          affect.evidence_skills = parseArray();
+        },
+        evidence_floor: () => {
+          affect.evidence_floor = parseStringValue();
+        },
+      },
+      "affect",
+    );
     expect("RBRACE");
     return affect;
   }
@@ -199,21 +231,26 @@ export function createBlockParsers(helpers) {
     const id = parseStringOrIdent();
     expect("LBRACE");
     const scenario = { id, affects: [] };
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "name") scenario.name = parseStringValue();
-      else if (kw.value === "narrative")
-        scenario.narrative = parseStringValue();
-      else if (kw.value === "timerange_start")
-        scenario.timerange_start = parseDateValue();
-      else if (kw.value === "timerange_end")
-        scenario.timerange_end = parseDateValue();
-      else if (kw.value === "affect") scenario.affects.push(parseAffect());
-      else
-        throw new Error(
-          `Unexpected '${kw.value}' in scenario at line ${kw.line}`,
-        );
-    }
+    consumeFields(
+      {
+        name: () => {
+          scenario.name = parseStringValue();
+        },
+        narrative: () => {
+          scenario.narrative = parseStringValue();
+        },
+        timerange_start: () => {
+          scenario.timerange_start = parseDateValue();
+        },
+        timerange_end: () => {
+          scenario.timerange_end = parseDateValue();
+        },
+        affect: () => {
+          scenario.affects.push(parseAffect());
+        },
+      },
+      "scenario",
+    );
     expect("RBRACE");
     return scenario;
   }
@@ -221,20 +258,23 @@ export function createBlockParsers(helpers) {
   function parseSnapshots() {
     expect("LBRACE");
     const snaps = {};
-    while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (kw.value === "quarterly_from")
-        snaps.quarterly_from = parseDateValue();
-      else if (kw.value === "quarterly_to")
-        snaps.quarterly_to = parseDateValue();
-      else if (kw.value === "account_id") snaps.account_id = parseStringValue();
-      else if (kw.value === "comments_per_snapshot")
-        snaps.comments_per_snapshot = parseNumberValue();
-      else
-        throw new Error(
-          `Unexpected '${kw.value}' in snapshots at line ${kw.line}`,
-        );
-    }
+    consumeFields(
+      {
+        quarterly_from: () => {
+          snaps.quarterly_from = parseDateValue();
+        },
+        quarterly_to: () => {
+          snaps.quarterly_to = parseDateValue();
+        },
+        account_id: () => {
+          snaps.account_id = parseStringValue();
+        },
+        comments_per_snapshot: () => {
+          snaps.comments_per_snapshot = parseNumberValue();
+        },
+      },
+      "snapshots",
+    );
     expect("RBRACE");
     return snaps;
   }
@@ -258,29 +298,21 @@ export function createBlockParsers(helpers) {
     "persona_levels",
   ]);
 
+  function parseContentField(content, kw) {
+    if (CONTENT_NUMBER_KEYS.has(kw.value))
+      content[kw.value] = parseNumberValue();
+    else if (CONTENT_ARRAY_KEYS.has(kw.value)) content[kw.value] = parseArray();
+    else if (kw.value === "blog_topics") content.blog_topics = parsePeopleMap();
+    else
+      throw new Error(`Unexpected '${kw.value}' in content at line ${kw.line}`);
+  }
+
   function parseContent() {
     const id = parseStringOrIdent();
     expect("LBRACE");
     const content = { id };
     while (peek().type !== "RBRACE") {
-      const kw = advance();
-      if (CONTENT_NUMBER_KEYS.has(kw.value))
-        content[kw.value] = parseNumberValue();
-      else if (CONTENT_ARRAY_KEYS.has(kw.value))
-        content[kw.value] = parseArray();
-      else if (kw.value === "blog_topics") {
-        expect("LBRACE");
-        content.blog_topics = {};
-        while (peek().type !== "RBRACE") {
-          const topic = parseStringOrIdent();
-          const pct = parseNumberValue();
-          content.blog_topics[topic] = pct;
-        }
-        expect("RBRACE");
-      } else
-        throw new Error(
-          `Unexpected '${kw.value}' in content at line ${kw.line}`,
-        );
+      parseContentField(content, advance());
     }
     expect("RBRACE");
     return content;

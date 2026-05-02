@@ -198,32 +198,51 @@ export function detectConcentrationRisks(resolvedTeam, coverage, data) {
   const totalMembers = resolvedTeam.members.length;
   if (totalMembers < CONCENTRATION_THRESHOLD) return [];
 
-  const skillToCapability = new Map();
-  for (const skill of data.skills ?? []) {
-    skillToCapability.set(skill.id, skill.capability);
-  }
+  const skillToCapability = buildSkillToCapabilityMap(data.skills ?? []);
+  const buckets = bucketMembersByConcentration(
+    resolvedTeam.members,
+    skillToCapability,
+  );
 
-  // Bucket: level -> capability -> proficiency -> Set<email>
+  return collectConcentrationRisks(buckets, totalMembers);
+}
+
+function buildSkillToCapabilityMap(skills) {
+  const map = new Map();
+  for (const skill of skills) {
+    map.set(skill.id, skill.capability);
+  }
+  return map;
+}
+
+function bucketMembersByConcentration(members, skillToCapability) {
   const buckets = new Map();
-  for (const member of resolvedTeam.members) {
-    const levelId = member.job.level;
-    for (const entry of member.matrix) {
-      const capabilityId = skillToCapability.get(entry.skillId);
-      if (!capabilityId) continue;
-      if (!isAtWorkingOrAbove(entry.proficiency)) continue;
-      const key = `${levelId}|${capabilityId}|${entry.proficiency}`;
-      if (!buckets.has(key)) {
-        buckets.set(key, {
-          levelId,
-          capabilityId,
-          proficiency: entry.proficiency,
-          people: new Set(),
-        });
-      }
-      buckets.get(key).people.add(member.email);
-    }
+  for (const member of members) {
+    bucketMemberEntries(buckets, member, skillToCapability);
   }
+  return buckets;
+}
 
+function bucketMemberEntries(buckets, member, skillToCapability) {
+  const levelId = member.job.level;
+  for (const entry of member.matrix) {
+    const capabilityId = skillToCapability.get(entry.skillId);
+    if (!capabilityId) continue;
+    if (!isAtWorkingOrAbove(entry.proficiency)) continue;
+    const key = `${levelId}|${capabilityId}|${entry.proficiency}`;
+    if (!buckets.has(key)) {
+      buckets.set(key, {
+        levelId,
+        capabilityId,
+        proficiency: entry.proficiency,
+        people: new Set(),
+      });
+    }
+    buckets.get(key).people.add(member.email);
+  }
+}
+
+function collectConcentrationRisks(buckets, totalMembers) {
   const risks = [];
   for (const bucket of buckets.values()) {
     if (bucket.people.size >= CONCENTRATION_THRESHOLD) {
@@ -236,9 +255,6 @@ export function detectConcentrationRisks(resolvedTeam, coverage, data) {
       });
     }
   }
-
-  // Unused params silence complexity warnings but coverage is implicit
-  // (we iterate per-member matrices which are derived into coverage).
   return risks.sort((a, b) => b.count - a.count);
 }
 

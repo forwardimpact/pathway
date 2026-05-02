@@ -145,6 +145,24 @@ function shouldIncludeBehaviour(behaviourId, filter) {
 }
 
 /**
+ * Iterate role-type entries that match a level/maturity filter
+ * @param {Object} roleTypes - Map of role type to level/maturity to questions
+ * @param {string|null} filterKey - Level or maturity value to filter on (null = all)
+ * @param {(level: string, questions: Array) => void} callback
+ */
+function forEachMatchingLevel(roleTypes, filterKey, callback) {
+  for (const roleType of ROLE_TYPES) {
+    const levels = roleTypes[roleType];
+    if (!levels) continue;
+
+    for (const [level, levelQuestions] of Object.entries(levels)) {
+      if (filterKey && level !== filterKey) continue;
+      callback(level, levelQuestions);
+    }
+  }
+}
+
+/**
  * Flatten skill questions from a single skill entry
  * @param {string} skillId
  * @param {Object} roleTypes
@@ -155,30 +173,23 @@ function shouldIncludeBehaviour(behaviourId, filter) {
 function flattenSkillQuestions(skillId, roleTypes, skills, filter, out) {
   const skillName = getSkillName(skillId, skills);
 
-  for (const roleType of ROLE_TYPES) {
-    const levels = roleTypes[roleType];
-    if (!levels) continue;
-
-    for (const [level, levelQuestions] of Object.entries(levels)) {
-      if (filter.level && level !== filter.level) continue;
-
-      for (const q of levelQuestions) {
-        out.push({
-          source: skillId,
-          sourceName: skillName,
-          sourceType: "skill",
-          level,
-          id: q.id,
-          text: q.text,
-          lookingFor: q.lookingFor || [],
-          expectedDurationMinutes: q.expectedDurationMinutes || 5,
-          followUps: q.followUps || [],
-          context: q.context || null,
-          decompositionPrompts: q.decompositionPrompts || [],
-        });
-      }
+  forEachMatchingLevel(roleTypes, filter.level, (level, levelQuestions) => {
+    for (const q of levelQuestions) {
+      out.push({
+        source: skillId,
+        sourceName: skillName,
+        sourceType: "skill",
+        level,
+        id: q.id,
+        text: q.text,
+        lookingFor: q.lookingFor || [],
+        expectedDurationMinutes: q.expectedDurationMinutes || 5,
+        followUps: q.followUps || [],
+        context: q.context || null,
+        decompositionPrompts: q.decompositionPrompts || [],
+      });
     }
-  }
+  });
 }
 
 /**
@@ -198,13 +209,10 @@ function flattenBehaviourQuestions(
 ) {
   const behaviourName = getBehaviourName(behaviourId, behaviours);
 
-  for (const roleType of ROLE_TYPES) {
-    const maturities = roleTypes[roleType];
-    if (!maturities) continue;
-
-    for (const [maturity, maturityQuestions] of Object.entries(maturities)) {
-      if (filter.maturity && maturity !== filter.maturity) continue;
-
+  forEachMatchingLevel(
+    roleTypes,
+    filter.maturity,
+    (maturity, maturityQuestions) => {
       for (const q of maturityQuestions) {
         out.push({
           source: behaviourId,
@@ -220,8 +228,8 @@ function flattenBehaviourQuestions(
           simulationPrompts: q.simulationPrompts || [],
         });
       }
-    }
-  }
+    },
+  );
 }
 
 /**

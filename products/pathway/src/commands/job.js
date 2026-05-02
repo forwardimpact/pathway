@@ -152,6 +152,58 @@ function handleSingleArg(arg, data) {
 }
 
 /**
+ * Exit with an error when discipline lookup fails.
+ * Detects swapped args and suggests the correct order.
+ */
+function exitDisciplineNotFound(data, args, options) {
+  const maybeLevel = data.levels.find((g) => g.id === args[0]);
+  const maybeDiscipline = data.disciplines.find((d) => d.id === args[1]);
+  if (maybeLevel && maybeDiscipline) {
+    process.stderr.write(
+      formatError("Arguments are in the wrong order. Try:") + "\n",
+    );
+    process.stderr.write(
+      `  npx fit-pathway job ${args[1]} ${args[0]}${options.track ? ` --track=${options.track}` : ""}\n`,
+    );
+  } else {
+    process.stderr.write(
+      formatError(`Discipline not found: ${args[0]}`) + "\n",
+    );
+    process.stderr.write(
+      `Available: ${data.disciplines.map((d) => d.id).join(", ")}\n`,
+    );
+  }
+  process.exit(1);
+}
+
+/**
+ * Exit with an error when level lookup fails.
+ * Detects track IDs passed as positional args and suggests the flag form.
+ */
+function exitLevelNotFound(data, args) {
+  const isTrack = data.tracks.some((t) => t.id === args[1]);
+  if (isTrack) {
+    process.stderr.write(
+      formatError(
+        "Track must be passed as a flag, not a positional argument:",
+      ) + "\n",
+    );
+    process.stderr.write(
+      `  npx fit-pathway job ${args[0]} <level> --track=${args[1]}\n`,
+    );
+    process.stderr.write(
+      `Levels: ${data.levels.map((g) => g.id).join(", ")}\n`,
+    );
+  } else {
+    process.stderr.write(formatError(`Level not found: ${args[1]}`) + "\n");
+    process.stderr.write(
+      `Available: ${data.levels.map((g) => g.id).join(", ")}\n`,
+    );
+  }
+  process.exit(1);
+}
+
+/**
  * Resolve and validate discipline, level, track entities from args
  * @param {Object} data
  * @param {string[]} args
@@ -166,47 +218,11 @@ function resolveJobEntities(data, args, options) {
     : null;
 
   if (!discipline) {
-    const maybeLevel = data.levels.find((g) => g.id === args[0]);
-    const maybeDiscipline = data.disciplines.find((d) => d.id === args[1]);
-    if (maybeLevel && maybeDiscipline) {
-      process.stderr.write(
-        formatError("Arguments are in the wrong order. Try:") + "\n",
-      );
-      process.stderr.write(
-        `  npx fit-pathway job ${args[1]} ${args[0]}${options.track ? ` --track=${options.track}` : ""}\n`,
-      );
-    } else {
-      process.stderr.write(
-        formatError(`Discipline not found: ${args[0]}`) + "\n",
-      );
-      process.stderr.write(
-        `Available: ${data.disciplines.map((d) => d.id).join(", ")}\n`,
-      );
-    }
-    process.exit(1);
+    exitDisciplineNotFound(data, args, options);
   }
 
   if (!level) {
-    const isTrack = data.tracks.some((t) => t.id === args[1]);
-    if (isTrack) {
-      process.stderr.write(
-        formatError(
-          "Track must be passed as a flag, not a positional argument:",
-        ) + "\n",
-      );
-      process.stderr.write(
-        `  npx fit-pathway job ${args[0]} <level> --track=${args[1]}\n`,
-      );
-      process.stderr.write(
-        `Levels: ${data.levels.map((g) => g.id).join(", ")}\n`,
-      );
-    } else {
-      process.stderr.write(formatError(`Level not found: ${args[1]}`) + "\n");
-      process.stderr.write(
-        `Available: ${data.levels.map((g) => g.id).join(", ")}\n`,
-      );
-    }
-    process.exit(1);
+    exitLevelNotFound(data, args);
   }
 
   if (options.track && !track) {

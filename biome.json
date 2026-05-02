@@ -34,6 +34,10 @@
       "recommended": false,
       "complexity": {
         "noAdjacentSpacesInRegex": "error",
+        "noExcessiveCognitiveComplexity": {
+          "level": "error",
+          "options": { "maxAllowedComplexity": 14 }
+        },
         "noExtraBooleanCast": "error",
         "noUselessCatch": "error",
         "noUselessEscapeInRegex": "error"

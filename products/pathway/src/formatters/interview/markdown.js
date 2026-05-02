@@ -54,6 +54,29 @@ function formatSkillSections(lines, sections, emoji) {
 }
 
 /**
+ * Format a single scenario question
+ * @param {string[]} lines
+ * @param {Object} q - Question object
+ * @param {string} promptsKey - Key for guided prompts
+ * @param {string} promptsLabel - Display label for prompts
+ */
+function formatScenarioQuestion(lines, q, promptsKey, promptsLabel) {
+  lines.push(`**Scenario**: ${q.question}`);
+  if (q.context) {
+    lines.push(`> ${q.context}`);
+  }
+  if (q[promptsKey] && q[promptsKey].length > 0) {
+    lines.push("", `**${promptsLabel}:**`);
+    for (const prompt of q[promptsKey]) {
+      lines.push(`- ${prompt}`);
+    }
+  }
+  appendFollowUps(lines, q);
+  appendLookingFor(lines, q);
+  lines.push("");
+}
+
+/**
  * Format scenario-based question sections (capability or behaviour)
  * @param {string[]} lines
  * @param {Array} sections
@@ -73,19 +96,7 @@ function formatScenarioSections(
   for (const section of sections) {
     lines.push(`### ${section.name} (${formatLevel(section.level)})`, "");
     for (const q of section.questions) {
-      lines.push(`**Scenario**: ${q.question}`);
-      if (q.context) {
-        lines.push(`> ${q.context}`);
-      }
-      if (q[promptsKey] && q[promptsKey].length > 0) {
-        lines.push("", `**${promptsLabel}:**`);
-        for (const prompt of q[promptsKey]) {
-          lines.push(`- ${prompt}`);
-        }
-      }
-      appendFollowUps(lines, q);
-      appendLookingFor(lines, q);
-      lines.push("");
+      formatScenarioQuestion(lines, q, promptsKey, promptsLabel);
     }
   }
 }

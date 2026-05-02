@@ -83,6 +83,28 @@ export class SocketServer {
   }
 
   /**
+   * Find the most recently modified file in a directory matching a filter.
+   * @param {string} dir
+   * @param {(name: string) => boolean} filter
+   * @returns {string|null}
+   */
+  #latestFileByMtime(dir, filter) {
+    const matches = readdirSync(dir).filter(filter);
+    if (matches.length === 0) return null;
+    let latest = join(dir, matches[0]);
+    let latestMtime = statSync(latest).mtimeMs;
+    for (let i = 1; i < matches.length; i++) {
+      const p = join(dir, matches[i]);
+      const mt = statSync(p).mtimeMs;
+      if (mt > latestMtime) {
+        latest = p;
+        latestMtime = mt;
+      }
+    }
+    return latest;
+  }
+
+  /**
    * Resolve briefing file for an agent
    * @param {string} agentName
    * @param {Object} agentConfig
@@ -92,22 +114,11 @@ export class SocketServer {
     const stateDir = join(this.#cacheDir, "state");
     if (existsSync(stateDir)) {
       const prefix = agentName.replace(/-/g, "_") + "_";
-      const matches = readdirSync(stateDir).filter(
+      const found = this.#latestFileByMtime(
+        stateDir,
         (f) => f.startsWith(prefix) && f.endsWith(".md"),
       );
-      if (matches.length > 0) {
-        let latest = join(stateDir, matches[0]);
-        let latestMtime = statSync(latest).mtimeMs;
-        for (let i = 1; i < matches.length; i++) {
-          const p = join(stateDir, matches[i]);
-          const mt = statSync(p).mtimeMs;
-          if (mt > latestMtime) {
-            latest = p;
-            latestMtime = mt;
-          }
-        }
-        return latest;
-      }
+      if (found) return found;
     }
 
     if (agentConfig.kb) {

@@ -54,29 +54,31 @@ if (values.help || positionals.length === 0) {
 console.log("Stripping to greyscale\n");
 for (const file of positionals) processFile(file);
 
+// Parse a CSS hex colour (#rgb, #rgba, #rrggbb, #rrggbbaa) into {rgb, a}.
+function parseHexColor(hex) {
+  const dub = (s) => s.split("").map((c) => parseInt(c + c, 16));
+  if (hex.length === 3) return { rgb: dub(hex), a: 1 };
+  if (hex.length === 4) {
+    const p = dub(hex);
+    return { rgb: p.slice(0, 3), a: p[3] / 255 };
+  }
+  if (hex.length === 6 || hex.length === 8) {
+    const rgb = [
+      parseInt(hex.slice(0, 2), 16),
+      parseInt(hex.slice(2, 4), 16),
+      parseInt(hex.slice(4, 6), 16),
+    ];
+    const a = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
+    return { rgb, a };
+  }
+  return null;
+}
+
 function parseColor(value) {
   const v = value.trim().toLowerCase();
   if (v === "none" || v === "currentcolor" || v === "transparent") return null;
 
-  if (v.startsWith("#")) {
-    const hex = v.slice(1);
-    const dub = (s) => s.split("").map((c) => parseInt(c + c, 16));
-    if (hex.length === 3) return { rgb: dub(hex), a: 1 };
-    if (hex.length === 4) {
-      const p = dub(hex);
-      return { rgb: p.slice(0, 3), a: p[3] / 255 };
-    }
-    if (hex.length === 6 || hex.length === 8) {
-      const rgb = [
-        parseInt(hex.slice(0, 2), 16),
-        parseInt(hex.slice(2, 4), 16),
-        parseInt(hex.slice(4, 6), 16),
-      ];
-      const a = hex.length === 8 ? parseInt(hex.slice(6, 8), 16) / 255 : 1;
-      return { rgb, a };
-    }
-    return null;
-  }
+  if (v.startsWith("#")) return parseHexColor(v.slice(1));
 
   // rgba() syntax pattern. The optional alpha clause is anchored between
   // literal commas and a closing paren — no nested quantifiers.

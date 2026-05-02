@@ -132,3 +132,12 @@ export function truncate(text, maxLength = 100) {
   if (!text || text.length <= maxLength) return text || "";
   return text.slice(0, maxLength - 3) + "...";
 }
+
+/**
+ * Format a numeric modifier as a signed string (e.g. +2, -1, 0)
+ * @param {number} modifier
+ * @returns {string}
+ */
+export function formatModifier(modifier) {
+  return modifier > 0 ? `+${modifier}` : `${modifier}`;
+}

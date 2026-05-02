@@ -188,27 +188,26 @@ function buildRecommendation({
  */
 function buildDriverLookup(data, driverScores) {
   const lookup = new Map();
-  if (
-    !driverScores ||
-    !(driverScores instanceof Map) ||
-    driverScores.size === 0
-  ) {
-    return lookup;
-  }
+  if (!isNonEmptyMap(driverScores)) return lookup;
   for (const driver of data.drivers ?? []) {
     const score = driverScores.get(driver.id);
     if (!score) continue;
-    for (const skillId of driver.contributingSkills ?? []) {
-      const existing = lookup.get(skillId);
-      if (
-        !existing ||
-        (score.percentile ?? 100) < (existing.percentile ?? 100)
-      ) {
-        lookup.set(skillId, { driverId: driver.id, ...score });
-      }
-    }
+    applyDriverScore(lookup, driver, score);
   }
   return lookup;
+}
+
+function isNonEmptyMap(value) {
+  return value instanceof Map && value.size > 0;
+}
+
+function applyDriverScore(lookup, driver, score) {
+  for (const skillId of driver.contributingSkills ?? []) {
+    const existing = lookup.get(skillId);
+    if (!existing || (score.percentile ?? 100) < (existing.percentile ?? 100)) {
+      lookup.set(skillId, { driverId: driver.id, ...score });
+    }
+  }
 }
 
 function classifyImpact(

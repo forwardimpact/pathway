@@ -145,6 +145,48 @@ function* readSstEntries(filePath) {
 const LOG_BLOCK_SIZE = 32768;
 const LOG_HEADER_SIZE = 7; // checksum(4) + length(2) + type(1)
 
+/**
+ * Parse records from a single WAL block, yielding { payload, type } for each.
+ */
+function* parseLogBlock(fileData, blockStart, blockEnd) {
+  let offset = blockStart;
+  while (offset + LOG_HEADER_SIZE <= blockEnd) {
+    const length = fileData.readUInt16LE(offset + 4);
+    const type = fileData[offset + 6];
+    if (type === 0 || length === 0) break;
+
+    const payload = fileData.subarray(
+      offset + LOG_HEADER_SIZE,
+      offset + LOG_HEADER_SIZE + length,
+    );
+    yield { payload, type };
+    offset += LOG_HEADER_SIZE + length;
+  }
+}
+
+/**
+ * Accumulate record fragments across blocks.
+ * Type 1 = full, 2 = first, 3 = middle, 4 = last.
+ * Returns the updated pending buffer (or null).
+ */
+function handleFragment(type, payload, pendingRecord, emit) {
+  if (type === 1) {
+    emit(payload);
+    return null;
+  }
+  if (type === 2) return [payload];
+  if (type === 3) {
+    if (pendingRecord) pendingRecord.push(payload);
+    return pendingRecord;
+  }
+  if (type === 4 && pendingRecord) {
+    pendingRecord.push(payload);
+    emit(Buffer.concat(pendingRecord));
+    return null;
+  }
+  return pendingRecord;
+}
+
 function* readLogEntries(filePath) {
   let fileData;
   try {
@@ -155,47 +197,22 @@ function* readLogEntries(filePath) {
 
   let pos = 0;
   let pendingRecord = null;
+  const completed = [];
 
   while (pos < fileData.length) {
-    const blockStart = pos;
     const blockEnd = Math.min(pos + LOG_BLOCK_SIZE, fileData.length);
 
-    let offset = blockStart;
-    while (offset + LOG_HEADER_SIZE <= blockEnd) {
-      const length = fileData.readUInt16LE(offset + 4);
-      const type = fileData[offset + 6];
-
-      if (type === 0 || length === 0) {
-        break;
-      }
-
-      const payload = fileData.subarray(
-        offset + LOG_HEADER_SIZE,
-        offset + LOG_HEADER_SIZE + length,
+    for (const { payload, type } of parseLogBlock(fileData, pos, blockEnd)) {
+      pendingRecord = handleFragment(type, payload, pendingRecord, (buf) =>
+        completed.push(buf),
       );
-
-      if (type === 1) {
-        // Full record
-        yield* parseWriteBatchEntries(payload);
-        pendingRecord = null;
-      } else if (type === 2) {
-        // First fragment
-        pendingRecord = [payload];
-      } else if (type === 3) {
-        // Middle fragment
-        if (pendingRecord) pendingRecord.push(payload);
-      } else if (type === 4) {
-        // Last fragment
-        if (pendingRecord) {
-          pendingRecord.push(payload);
-          const full = Buffer.concat(pendingRecord);
-          yield* parseWriteBatchEntries(full);
-          pendingRecord = null;
-        }
-      }
-
-      offset += LOG_HEADER_SIZE + length;
     }
+
+    for (const buf of completed) {
+      yield* parseWriteBatchEntries(buf);
+    }
+    completed.length = 0;
+
     pos = blockEnd;
   }
 }

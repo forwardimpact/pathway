@@ -9,16 +9,7 @@
  * one formatting path (spec 540).
  */
 
-import {
-  renderTextLine,
-  renderToolCallLine,
-  renderToolResultLine,
-} from "./render/line-renderer.js";
-import {
-  hintForCall,
-  previewForResult,
-  simplifyToolName,
-} from "./render/tool-hints.js";
+import { renderTurnLines } from "./render/turn-renderer.js";
 import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
 export class TraceCollector {
@@ -270,68 +261,10 @@ export class TraceCollector {
     const out = [];
 
     for (const turn of this.turns) {
-      if (turn.role === "assistant") {
-        for (const block of turn.content) {
-          if (block.type === "text") {
-            out.push(
-              renderTextLine({
-                source: turn.source,
-                text: block.text,
-                withPrefix,
-              }),
-            );
-          } else if (block.type === "tool_use") {
-            out.push(
-              renderToolCallLine({
-                source: turn.source,
-                toolName: simplifyToolName(block.name),
-                hint: hintForCall(block.name, block.input),
-                withPrefix,
-              }),
-            );
-          }
-        }
-      } else if (turn.role === "tool_result") {
-        out.push(
-          renderToolResultLine({
-            source: turn.source,
-            preview: previewForResult(turn.content, turn.isError),
-            withPrefix,
-          }),
-        );
-      } else if (turn.role === "system") {
-        const label = turn.subtype ?? "system";
-        out.push(
-          renderTextLine({
-            source: turn.source,
-            text: `[${label}]`,
-            withPrefix,
-          }),
-        );
-      } else if (turn.role === "user") {
-        for (const block of turn.content) {
-          if (block.type === "text") {
-            out.push(
-              renderTextLine({
-                source: turn.source,
-                text: `[user] ${block.text}`,
-                withPrefix,
-              }),
-            );
-          }
-        }
-      }
+      out.push(...renderTurnLines(turn, withPrefix));
     }
 
-    // Trailing result block — the one summary line humans want (spec 540).
-    let tail = "";
-    if (this.result) {
-      const duration = formatDuration(this.result.durationMs);
-      const cost = Number(this.result.totalCostUsd).toFixed(4);
-      tail =
-        "\n" +
-        `--- Result: ${this.result.result} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`;
-    }
+    const tail = this.#formatResultTail();
 
     // Each rendered line already ends with `\n`; concatenate, drop the
     // trailing newline, then append the tail so the output shape stays
@@ -340,6 +273,20 @@ export class TraceCollector {
     // are not).
     const body = out.join("").replace(/\n$/, "");
     return body + tail;
+  }
+
+  /**
+   * Format the trailing result summary line (spec 540).
+   * @returns {string}
+   */
+  #formatResultTail() {
+    if (!this.result) return "";
+    const duration = formatDuration(this.result.durationMs);
+    const cost = Number(this.result.totalCostUsd).toFixed(4);
+    return (
+      "\n" +
+      `--- Result: ${this.result.result} | Turns: ${this.result.numTurns} | Cost: $${cost} | Duration: ${duration} ---`
+    );
   }
 }
 

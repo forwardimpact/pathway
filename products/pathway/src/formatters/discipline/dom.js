@@ -20,6 +20,7 @@ import {
 } from "../../components/action-buttons.js";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 import { prepareDisciplineDetail } from "./shared.js";
+import { formatModifier } from "../shared.js";
 import { createJsonLdScript, disciplineToJsonLd } from "../json-ld.js";
 import { createBadge } from "../../components/card.js";
 
@@ -204,7 +205,7 @@ export function disciplineToDOM(
                 {
                   className: `modifier ${b.modifier > 0 ? "modifier-positive" : b.modifier < 0 ? "modifier-negative" : "modifier-neutral"}`,
                 },
-                b.modifier > 0 ? `+${b.modifier}` : String(b.modifier),
+                formatModifier(b.modifier),
               ),
             ),
           ),

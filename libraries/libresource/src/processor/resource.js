@@ -78,6 +78,29 @@ export class ResourceProcessor extends ProcessorBase {
   }
 
   /**
+   * Merge a parsed item with an existing resource from the persistent index.
+   * Returns the merged item if new quads were added, or null to skip.
+   */
+  async #mergeWithExisting(parsedItem, name, id) {
+    const [existing] = await this.#resourceIndex.get([id]);
+    const existingQuads = await this.#parser.rdfToQuads(existing.content);
+    const mergedQuads = this.#parser.unionQuads(
+      existingQuads,
+      parsedItem.quads,
+    );
+
+    if (mergedQuads.length <= existingQuads.length) {
+      this.#logger.debug("Processor", "Skipping duplicate resource", { id });
+      return null;
+    }
+
+    this.#logger.debug("Processor", "Merging resource", { id });
+    if (!this.#parser.isMainItem(parsedItem.iri, mergedQuads)) return null;
+
+    return { name, subjects: [parsedItem.iri], quads: mergedQuads };
+  }
+
+  /**
    * Parses HTML DOM and extracts structured items with RDF union merging.
    * Implements entity merging across files using stable IRI-based identifiers.
    * @param {object} dom - JSDOM instance with parsed and sanitized HTML
@@ -86,66 +109,34 @@ export class ResourceProcessor extends ProcessorBase {
    */
   async #parseHTML(dom, baseIri) {
     const parsedItems = await this.#parser.parseHTML(dom, baseIri);
-
-    if (!parsedItems || parsedItems.length === 0) {
-      return [];
-    }
+    if (!parsedItems || parsedItems.length === 0) return [];
 
     const items = [];
-    const seenInCurrentFile = new Map(); // Track entities seen in this file
+    const seenInCurrentFile = new Map();
 
     for (const parsedItem of parsedItems) {
       const name = generateHash(parsedItem.iri);
       const id = `common.Message.${name}`;
 
-      // Check if we've already processed this entity in the current file
       if (seenInCurrentFile.has(id)) {
         const currentItem = seenInCurrentFile.get(id);
-
-        // Merge quads directly without conversion to/from RDF
         currentItem.quads = this.#parser.unionQuads(
           currentItem.quads,
           parsedItem.quads,
         );
-
         this.#logger.debug("Processor", "Deduplicating within file", { id });
         continue;
       }
 
-      // Check if entity exists in the persistent index
       if (await this.#resourceIndex.has(id)) {
-        const [existing] = await this.#resourceIndex.get([id]);
-
-        // Parse RDF from storage only once
-        const existingQuads = await this.#parser.rdfToQuads(existing.content);
-
-        const mergedQuads = this.#parser.unionQuads(
-          existingQuads,
-          parsedItem.quads,
-        );
-
-        if (mergedQuads.length > existingQuads.length) {
-          this.#logger.debug("Processor", "Merging resource", { id });
-
-          if (this.#parser.isMainItem(parsedItem.iri, mergedQuads)) {
-            const item = {
-              name,
-              subjects: [parsedItem.iri],
-              quads: mergedQuads,
-            };
-            items.push(item);
-            seenInCurrentFile.set(id, item);
-          }
-        } else {
-          this.#logger.debug("Processor", "Skipping duplicate resource", {
-            id,
-          });
+        const merged = await this.#mergeWithExisting(parsedItem, name, id);
+        if (merged) {
+          items.push(merged);
+          seenInCurrentFile.set(id, merged);
         }
-
         continue;
       }
 
-      // New entity - add to items and track
       const item = {
         name,
         subjects: [parsedItem.iri],

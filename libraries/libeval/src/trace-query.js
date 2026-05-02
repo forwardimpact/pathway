@@ -81,24 +81,12 @@ export class TraceQuery {
    */
   filter(opts = {}) {
     const { role, toolName, isError } = opts;
-    return this.turns.filter((turn) => {
-      if (role !== undefined && turn.role !== role) return false;
-      if (isError !== undefined) {
-        if (turn.role !== "tool_result") return false;
-        if (turn.isError !== isError) return false;
-      }
-      if (toolName !== undefined) {
-        if (turn.role === "assistant") {
-          const has = turn.content.some(
-            (b) => b.type === "tool_use" && b.name === toolName,
-          );
-          if (!has) return false;
-        } else {
-          return false;
-        }
-      }
-      return true;
-    });
+    return this.turns.filter(
+      (turn) =>
+        matchesRole(turn, role) &&
+        matchesError(turn, isError) &&
+        matchesToolName(turn, toolName),
+    );
   }
 
   /** @returns {number} */
@@ -199,30 +187,18 @@ export class TraceQuery {
    * @returns {object[]}
    */
   tool(name) {
-    const toolUseIds = new Set();
-    const results = [];
-
-    for (const turn of this.turns) {
-      if (turn.role === "assistant") {
-        const hasTool = turn.content.some(
-          (b) => b.type === "tool_use" && b.name === name,
-        );
-        if (hasTool) {
-          results.push(turn);
-          for (const b of turn.content) {
-            if (b.type === "tool_use" && b.name === name && b.toolUseId) {
-              toolUseIds.add(b.toolUseId);
-            }
-          }
-        }
-      } else if (
-        turn.role === "tool_result" &&
-        toolUseIds.has(turn.toolUseId)
-      ) {
-        results.push(turn);
-      }
-    }
-    return results;
+    const toolUseIds = collectToolUseIds(this.turns, name);
+    const assistantTurns = this.turns.filter(
+      (t) =>
+        t.role === "assistant" &&
+        t.content.some((b) => b.type === "tool_use" && b.name === name),
+    );
+    const resultTurns = this.turns.filter(
+      (t) => t.role === "tool_result" && toolUseIds.has(t.toolUseId),
+    );
+    return [...assistantTurns, ...resultTurns].sort(
+      (a, b) => a.index - b.index,
+    );
   }
 
   /**
@@ -340,6 +316,57 @@ export class TraceQuery {
       perTurn,
     };
   }
+}
+
+/**
+ * @param {object} turn
+ * @param {string|undefined} role
+ * @returns {boolean}
+ */
+function matchesRole(turn, role) {
+  return role === undefined || turn.role === role;
+}
+
+/**
+ * @param {object} turn
+ * @param {boolean|undefined} isError
+ * @returns {boolean}
+ */
+function matchesError(turn, isError) {
+  if (isError === undefined) return true;
+  return turn.role === "tool_result" && turn.isError === isError;
+}
+
+/**
+ * @param {object} turn
+ * @param {string|undefined} toolName
+ * @returns {boolean}
+ */
+function matchesToolName(turn, toolName) {
+  if (toolName === undefined) return true;
+  return (
+    turn.role === "assistant" &&
+    turn.content.some((b) => b.type === "tool_use" && b.name === toolName)
+  );
+}
+
+/**
+ * Collect all toolUseIds for a given tool name from assistant turns.
+ * @param {object[]} turns
+ * @param {string} name
+ * @returns {Set<string>}
+ */
+function collectToolUseIds(turns, name) {
+  const ids = new Set();
+  for (const turn of turns) {
+    if (turn.role !== "assistant") continue;
+    for (const b of turn.content) {
+      if (b.type === "tool_use" && b.name === name && b.toolUseId) {
+        ids.add(b.toolUseId);
+      }
+    }
+  }
+  return ids;
 }
 
 /**

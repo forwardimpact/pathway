@@ -72,29 +72,10 @@ export function buildNodes(ctx) {
     "cache-lookup": {
       deps: ["prose-keys"],
       async run({ "prose-keys": proseKeys }) {
-        const prose = new Map();
         const total = proseKeys.size;
-        if (total === 0) return prose;
+        if (total === 0) return new Map();
 
-        const mode = proseGenerator.mode;
-        if (mode !== "no-prose") {
-          logger.info(
-            "pipeline",
-            `Resolving prose (${mode} mode, ${total} keys)`,
-          );
-        }
-        let i = 0;
-        for (const [key, context] of proseKeys) {
-          i++;
-          const value = await proseGenerator.generatePlain(key, context);
-          if (value) prose.set(key, value);
-          if (mode !== "no-prose") {
-            logger.info("prose", `[${i}/${total}] ${key}`);
-            if (i % FLUSH_EVERY === 0) proseCacheSink.flush();
-          }
-        }
-        if (mode !== "no-prose") proseCacheSink.flush();
-        return prose;
+        return resolveProse(proseKeys, proseGenerator, proseCacheSink, logger);
       },
     },
 
@@ -213,50 +194,13 @@ export function buildNodes(ctx) {
         const files = new Map();
         if (!parse.datasets?.length || !toolFactory) return { files };
 
-        logger.info(
-          "pipeline",
-          `Generating ${parse.datasets.length} dataset(s)`,
+        const datasets = await generateDatasets(
+          parse.datasets,
+          parse.seed,
+          toolFactory,
+          logger,
         );
-        const datasets = new Map();
-        for (const ds of parse.datasets) {
-          const tool = toolFactory(ds.tool, { logger });
-          try {
-            await tool.checkAvailability();
-          } catch (err) {
-            logger.info(
-              "pipeline",
-              `Skipping dataset '${ds.id}': ${ds.tool} not available (${err.message})`,
-            );
-            continue;
-          }
-          const results = await tool.generate({
-            ...ds.config,
-            seed: parse.seed,
-            name: ds.id,
-          });
-          for (const dataset of results) {
-            datasets.set(dataset.name, dataset);
-          }
-        }
-
-        logger.info(
-          "pipeline",
-          `Rendering ${parse.outputs.length} dataset output(s)`,
-        );
-        for (const out of parse.outputs) {
-          const dataset = datasets.get(out.dataset);
-          if (!dataset) {
-            logger.info(
-              "pipeline",
-              `Skipping output '${out.dataset}': dataset not generated`,
-            );
-            continue;
-          }
-          const rendered = await renderDataset(dataset, out.format, out.config);
-          for (const [path, content] of rendered) {
-            files.set(path, content);
-          }
-        }
+        await renderDatasetOutputs(parse.outputs, datasets, files, logger);
         return { files };
       },
     },
@@ -290,29 +234,116 @@ export function buildNodes(ctx) {
     write: {
       deps: ["enriched", "raw", "markdown", "pathway", "datasets", "validate"],
       run({ enriched, raw, markdown, pathway, datasets, validate }) {
-        const files = new Map();
-        const only = options.only;
-        const include = (type) => !only || only === type;
-
-        if (include("html")) {
-          for (const [k, v] of enriched.files) files.set(k, v);
-        }
-        if (include("pathway")) {
-          for (const [k, v] of pathway.files) files.set(k, v);
-        }
-        if (include("raw")) {
-          for (const [k, v] of raw.files) files.set(k, v);
-        }
-        if (include("markdown")) {
-          for (const [k, v] of markdown.files) files.set(k, v);
-        }
-        for (const [k, v] of datasets.files) files.set(k, v);
-
+        const files = mergeOutputFiles(
+          options.only,
+          enriched,
+          raw,
+          markdown,
+          pathway,
+          datasets,
+        );
+        const include = (type) => !options.only || options.only === type;
         const rawDocuments = include("raw") ? raw.rawDocuments : new Map();
         return { files, rawDocuments, validate };
       },
     },
   };
+}
+
+/** Run each dataset tool and collect results into a Map by name. */
+async function generateDatasets(definitions, seed, toolFactory, logger) {
+  logger.info("pipeline", `Generating ${definitions.length} dataset(s)`);
+  const datasets = new Map();
+  for (const ds of definitions) {
+    const tool = toolFactory(ds.tool, { logger });
+    try {
+      await tool.checkAvailability();
+    } catch (err) {
+      logger.info(
+        "pipeline",
+        `Skipping dataset '${ds.id}': ${ds.tool} not available (${err.message})`,
+      );
+      continue;
+    }
+    const results = await tool.generate({
+      ...ds.config,
+      seed,
+      name: ds.id,
+    });
+    for (const dataset of results) {
+      datasets.set(dataset.name, dataset);
+    }
+  }
+  return datasets;
+}
+
+/** Render dataset outputs and merge into the files map. */
+async function renderDatasetOutputs(outputs, datasets, files, logger) {
+  logger.info("pipeline", `Rendering ${outputs.length} dataset output(s)`);
+  for (const out of outputs) {
+    const dataset = datasets.get(out.dataset);
+    if (!dataset) {
+      logger.info(
+        "pipeline",
+        `Skipping output '${out.dataset}': dataset not generated`,
+      );
+      continue;
+    }
+    const rendered = await renderDataset(dataset, out.format, out.config);
+    for (const [path, content] of rendered) {
+      files.set(path, content);
+    }
+  }
+}
+
+/** Merge files from each content type, respecting the --only filter. */
+function mergeOutputFiles(only, enriched, raw, markdown, pathway, datasets) {
+  const files = new Map();
+  const include = (type) => !only || only === type;
+
+  const sources = [
+    ["html", enriched.files],
+    ["pathway", pathway.files],
+    ["raw", raw.files],
+    ["markdown", markdown.files],
+  ];
+  for (const [type, source] of sources) {
+    if (include(type)) {
+      for (const [k, v] of source) files.set(k, v);
+    }
+  }
+  // datasets are always included regardless of --only
+  for (const [k, v] of datasets.files) files.set(k, v);
+
+  return files;
+}
+
+/**
+ * Resolve prose keys through the generator, flushing the cache sink
+ * periodically. Returns a Map of key→prose.
+ */
+async function resolveProse(proseKeys, proseGenerator, proseCacheSink, logger) {
+  const prose = new Map();
+  const total = proseKeys.size;
+  const mode = proseGenerator.mode;
+  const logging = mode !== "no-prose";
+
+  if (logging) {
+    logger.info("pipeline", `Resolving prose (${mode} mode, ${total} keys)`);
+  }
+
+  let i = 0;
+  for (const [key, context] of proseKeys) {
+    i++;
+    const value = await proseGenerator.generatePlain(key, context);
+    if (value) prose.set(key, value);
+    if (logging) {
+      logger.info("prose", `[${i}/${total}] ${key}`);
+      if (i % FLUSH_EVERY === 0) proseCacheSink.flush();
+    }
+  }
+  if (logging) proseCacheSink.flush();
+  return prose;
 }
 
 /**
