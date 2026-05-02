@@ -1,5 +1,5 @@
 ---
-title: Forward Impact Team
+title: Forward Impact Engineering
 description: An open-source suite that helps organizations empower engineers with clear expectations, career growth, and the clarity to do their best work.
 toc: false
 layout: home
@@ -108,52 +108,8 @@ CLIs, retrieval primitives, evaluation tooling, and service infrastructure —
 distributed via npm and the `forwardimpact/fit-skills` skill pack so builders
 and agents pull in just what they need.
 
-<a href="/gear/" class="btn btn-secondary">Open the Gear catalog</a>
+<a href="/gear/" class="btn btn-ghost">Learn more</a>
 
-  </div>
-</div>
-
-<div class="section">
-  <div class="page-container">
-    <div class="grid">
-
-<div>
-
-#### One Source of Truth
-
-Skills, behaviours, and levels defined once in YAML — used everywhere, by humans
-and machines alike.
-
-</div>
-
-<div>
-
-#### Human + Machine
-
-Agent-aligned engineering standards and AI agent profiles derived from the same
-foundation. Co-located in the same files.
-
-</div>
-
-<div>
-
-#### Data-Driven
-
-Plain YAML files. No vendor lock-in. Your data, your way. Different
-installations use the same model.
-
-</div>
-
-<div>
-
-#### Ready to Deploy
-
-Works at the command line, in VS Code, and on the web — meeting engineers where
-they already work.
-
-</div>
-
-</div>
   </div>
 </div>
 
@@ -168,7 +124,7 @@ they already work.
 >
 > — W. Edwards Deming
 
-Forward Impact Team puts this into practice. Organizations define what great
+Forward Impact Engineering puts this into practice. Organizations define what great
 engineering looks like — skills, behaviours, and career levels — in a shared
 agent-aligned engineering standard. Engineers gain clear expectations, career
 paths, AI assistance, and knowledge systems matched to their standards. When the
