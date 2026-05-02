@@ -28,7 +28,7 @@ monorepo's directory layout, token variables, and justfile recipes.
 
 **No portable initialization.** Setting up a wiki for a new Kata installation
 requires manually cloning the `.wiki.git` repo, creating the directory
-structure (`wiki/metrics/<agent>/`), and wiring hooks. There is no single
+structure (`wiki/metrics/<skill>/`), and wiring hooks. There is no single
 command that bootstraps a working wiki directory.
 
 ## Goal
@@ -50,7 +50,7 @@ writes the updated content back to the file.
 
 - **Marker format.** Each metric block in the storyboard is bracketed by a
   pair of HTML comments that name the CSV path and metric:
-  `<!-- xmr:wiki/metrics/<agent>/<YYYY>.csv:<metric_name> -->` before the
+  `<!-- xmr:wiki/metrics/<skill>/<YYYY>.csv:<metric_name> -->` before the
   block and `<!-- /xmr -->` after. Everything between the markers is
   regenerated on refresh.
 - **Generated content.** For each marker pair, `fit-wiki refresh` produces:
@@ -77,8 +77,8 @@ A subcommand that sets up a working wiki directory for a Kata installation.
 - **Clone.** Clones the repository's wiki into `./wiki/` if the directory does
   not already exist or is not a git repository. Authenticates using ambient
   GitHub credentials (`GITHUB_TOKEN` or `GH_TOKEN`).
-- **Directory creation.** Creates `wiki/metrics/<agent>/` directories for each
-  agent in the installation.
+- **Directory creation.** Creates `wiki/metrics/<skill>/` directories for each
+  skill in the installation.
 - **Identity.** Commits in the wiki repo are attributed to the same identity
   as the parent repository.
 - **Idempotent.** Running `init` on an already-initialized wiki is a no-op
@@ -155,11 +155,12 @@ distributed via npm.
 
 This spec extends the `libwiki` package and `fit-wiki` CLI introduced in spec
 770. Spec 770 delivers the package scaffold, `fit-wiki memo`, `fit-xmr
-record`, and the flat metrics directory structure. This spec adds `refresh`,
-`init`, `push`, and `pull`.
+record`, and the per-skill flat metrics directory structure
+(`wiki/metrics/<skill>/<YYYY>.csv`). This spec adds `refresh`, `init`, `push`,
+and `pull`.
 
 **Ordering constraint:** `fit-wiki refresh` markers reference the flat
-`wiki/metrics/<agent>/<YYYY>.csv` paths introduced by spec 770's migration.
+`wiki/metrics/<skill>/<YYYY>.csv` paths introduced by spec 770's migration.
 Spec 770's package scaffold and metrics migration must land before the
 `refresh` marker migration runs. The `init`, `push`, and `pull` subcommands
 have no dependency on spec 770 and can be implemented independently.
@@ -178,11 +179,11 @@ no need to guess where the chart ends by counting code fences.
 After specs 770 and 780, a downstream Kata installation's wiki lifecycle is:
 
 ```sh
-npx fit-wiki init                          # clone wiki, create directories
-npx fit-wiki memo --from se --to all "..."  # record cross-team observations
-npx fit-xmr record --agent se findings 0   # record a metric
-npx fit-wiki refresh wiki/storyboard.md    # regenerate XmR charts
-npx fit-wiki push                          # commit and sync
+npx fit-wiki init                                                              # clone wiki, create directories
+npx fit-wiki memo --from se --to all --message "..."                           # record cross-team observations
+npx fit-xmr record --skill kata-spec --metric findings --value 0               # record a metric
+npx fit-wiki refresh wiki/storyboard.md                                        # regenerate XmR charts
+npx fit-wiki push                                                              # commit and sync
 ```
 
 No shell scripts, no justfile, no composite actions. The entire workflow is
