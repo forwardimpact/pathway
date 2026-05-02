@@ -7,8 +7,8 @@ export {
   collectProseKeys,
 } from "@forwardimpact/libsyntheticgen";
 export {
-  ProseEngine,
-  createProseEngine,
+  ProseCache,
+  ProseGenerator,
   PathwayGenerator,
   loadSchemas,
 } from "@forwardimpact/libsyntheticprose";
@@ -17,12 +17,19 @@ export {
   createRenderer,
   ContentValidator,
   validateCrossContent,
-  ContentFormatter,
-  formatContent,
   generateDrugs,
   generatePlatforms,
   assignLinks,
   validateLinks,
 } from "@forwardimpact/libsyntheticrender";
-export { Pipeline } from "./pipeline.js";
+export { Pipeline, STAGES } from "./pipeline.js";
+export {
+  NullSink,
+  WriteSink,
+  LoadSink,
+  CompositeSink,
+  InspectSink,
+  NullProseCacheSink,
+  ProseCacheWriteSink,
+} from "./sinks.js";
 export { loadToSupabase } from "./load.js";

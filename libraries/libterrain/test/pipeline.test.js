@@ -2,12 +2,25 @@ import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { join, dirname } from "path";
 import { fileURLToPath } from "url";
+import { mkdtempSync, rmSync, readFileSync } from "fs";
+import { tmpdir } from "os";
 import {
   createDslParser,
   createEntityGenerator,
 } from "@forwardimpact/libsyntheticgen";
-import { validateCrossContent } from "@forwardimpact/libsyntheticrender";
-import { readFileSync } from "fs";
+import {
+  validateCrossContent,
+  Renderer,
+  ContentValidator,
+} from "@forwardimpact/libsyntheticrender";
+import {
+  ProseCache,
+  ProseGenerator,
+  PathwayGenerator,
+} from "@forwardimpact/libsyntheticprose";
+import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
+import { Pipeline } from "../src/pipeline.js";
+import { NullProseCacheSink } from "../src/sinks.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 const FIXTURE_PATH = join(__dirname, "fixtures", "minimal.dsl");
@@ -18,6 +31,48 @@ function makeLogger() {
     debug: () => {},
     warn: () => {},
     error: () => {},
+  };
+}
+
+function makePromptLoader() {
+  return { load: () => "system", render: () => "user" };
+}
+
+const TEMPLATE_DIR = join(
+  __dirname,
+  "..",
+  "..",
+  "libsyntheticrender",
+  "templates",
+);
+
+function makePipelineDeps({ mode = "no-prose", strict = false } = {}) {
+  const tmpDir = mkdtempSync(join(tmpdir(), "pipeline-deps-"));
+  const logger = makeLogger();
+  const proseCache = new ProseCache({
+    cachePath: join(tmpDir, "cache.json"),
+    logger,
+  });
+  const proseGenerator = new ProseGenerator({
+    cache: proseCache,
+    mode,
+    strict,
+    promptLoader: makePromptLoader(),
+    logger,
+  });
+  return {
+    tmpDir,
+    deps: {
+      dslParser: createDslParser(),
+      entityGenerator: createEntityGenerator(logger),
+      proseCache,
+      proseGenerator,
+      pathwayGenerator: new PathwayGenerator(proseGenerator, logger),
+      renderer: new Renderer(new TemplateLoader(TEMPLATE_DIR), logger),
+      validator: new ContentValidator(logger),
+      proseCacheSink: new NullProseCacheSink(),
+      logger,
+    },
   };
 }
 
@@ -79,6 +134,106 @@ describe("Pipeline integration", () => {
         proj.iri.includes("/id/project/"),
         `Bad project IRI: ${proj.iri}`,
       );
+    }
+  });
+
+  test("constructor requires both proseCache and proseGenerator", () => {
+    const { tmpDir, deps } = makePipelineDeps();
+    try {
+      assert.throws(
+        () => new Pipeline({ ...deps, proseCache: null }),
+        /proseCache is required/,
+      );
+      assert.throws(
+        () => new Pipeline({ ...deps, proseGenerator: null }),
+        /proseGenerator is required/,
+      );
+      // Happy path constructs without throwing.
+      assert.ok(new Pipeline(deps));
+    } finally {
+      rmSync(tmpDir, { recursive: true });
+    }
+  });
+
+  test("run to write terminal in no-prose mode aggregates stats", async () => {
+    const { tmpDir, deps } = makePipelineDeps({ mode: "no-prose" });
+    try {
+      const pipeline = new Pipeline(deps);
+      const result = await pipeline.run({
+        storyPath: FIXTURE_PATH,
+        terminal: "write",
+      });
+
+      // Stats shape: hits/misses from ProseCache, generated from ProseGenerator.
+      assert.deepStrictEqual(Object.keys(result.stats.prose).sort(), [
+        "generated",
+        "hits",
+        "misses",
+      ]);
+      assert.strictEqual(result.stats.prose.generated, 0);
+      // No-prose mode short-circuits before any cache read.
+      assert.strictEqual(result.stats.prose.hits, 0);
+      assert.strictEqual(result.stats.prose.misses, 0);
+      assert.ok(result.files.size > 0);
+    } finally {
+      rmSync(tmpDir, { recursive: true });
+    }
+  });
+
+  test("check verb walks only cache-lookup closure", async () => {
+    const { tmpDir, deps } = makePipelineDeps({ mode: "no-prose" });
+    try {
+      const pipeline = new Pipeline(deps);
+      const result = await pipeline.run({
+        storyPath: FIXTURE_PATH,
+        terminal: "cache-lookup",
+      });
+
+      // Only the four nodes back from cache-lookup should run.
+      assert.deepStrictEqual(
+        [...result.ran].sort(),
+        ["cache-lookup", "entities", "parse", "prose-keys"],
+      );
+      // No render/validate side effects.
+      assert.strictEqual(result.files.size, 0);
+      assert.strictEqual(result.validation.checks.length, 0);
+    } finally {
+      rmSync(tmpDir, { recursive: true });
+    }
+  });
+
+  test("validate verb does not pull datasets, raw, markdown, pathway, or write", async () => {
+    const { tmpDir, deps } = makePipelineDeps({ mode: "no-prose" });
+    try {
+      const pipeline = new Pipeline(deps);
+      const result = await pipeline.run({
+        storyPath: FIXTURE_PATH,
+        terminal: "validate",
+      });
+
+      assert.ok(result.ran.has("validate"));
+      assert.ok(result.ran.has("enriched"));
+      assert.ok(!result.ran.has("write"));
+      assert.ok(!result.ran.has("datasets"));
+      assert.ok(!result.ran.has("raw"));
+      assert.ok(!result.ran.has("markdown"));
+      assert.ok(!result.ran.has("pathway"));
+    } finally {
+      rmSync(tmpDir, { recursive: true });
+    }
+  });
+
+  test("run rejects unknown terminal stage", async () => {
+    const { tmpDir, deps } = makePipelineDeps({ mode: "no-prose" });
+    try {
+      const pipeline = new Pipeline(deps);
+      await assert.rejects(
+        () =>
+          pipeline.run({ storyPath: FIXTURE_PATH, terminal: "nonsense" }),
+        /Unknown stage 'nonsense'/,
+      );
+    } finally {
+      rmSync(tmpDir, { recursive: true });
     }
   });
 

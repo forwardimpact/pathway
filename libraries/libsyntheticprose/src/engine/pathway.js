@@ -53,13 +53,13 @@ export function loadSchemas(schemaDir) {
  */
 export class PathwayGenerator {
   /**
-   * @param {import('./prose.js').ProseEngine} proseEngine - Prose engine for LLM calls
+   * @param {import('./generator.js').ProseGenerator} proseGenerator - Prose generator for LLM calls
    * @param {object} logger - Logger instance
    */
-  constructor(proseEngine, logger) {
-    if (!proseEngine) throw new Error("proseEngine is required");
+  constructor(proseGenerator, logger) {
+    if (!proseGenerator) throw new Error("proseGenerator is required");
     if (!logger) throw new Error("logger is required");
-    this.proseEngine = proseEngine;
+    this.proseGenerator = proseGenerator;
     this.logger = logger;
   }
 
@@ -78,7 +78,8 @@ export class PathwayGenerator {
       domain,
       industry,
       schemas,
-      proseEngine: this.proseEngine,
+      proseGenerator: this.proseGenerator,
+      logger: this.logger,
     });
   }
 }
@@ -91,7 +92,8 @@ export class PathwayGenerator {
  * @param {string} options.domain - Universe domain
  * @param {string} options.industry - Universe industry
  * @param {object} options.schemas - Loaded JSON schemas
- * @param {import('./prose.js').ProseEngine} options.proseEngine - Prose engine for LLM calls
+ * @param {import('./generator.js').ProseGenerator} options.proseGenerator - Prose generator for LLM calls
+ * @param {object} options.logger - Logger instance
  * @returns {Promise<object>} Generated pathway data keyed by entity type
  */
 async function generatePathwayData({
@@ -99,13 +101,14 @@ async function generatePathwayData({
   domain,
   industry,
   schemas,
-  proseEngine,
+  proseGenerator,
+  logger,
 }) {
   const standardName = standard.name || domain;
   const ctx = { domain, industry, standardName };
   const BASE_TOKENS = 3000;
   const PER_SKILL_TOKENS = 1500;
-  const log = proseEngine.logger || { info() {}, debug() {} };
+  const log = logger;
 
   // 1. Standard metadata
   log.info("pathway", "Generating standard metadata");
@@ -113,7 +116,7 @@ async function generatePathwayData({
     "standard",
     "standard",
     buildStandardPrompt(standard, ctx, schemas.standard),
-    proseEngine,
+    proseGenerator,
     { maxTokens: BASE_TOKENS },
   );
 
@@ -123,7 +126,7 @@ async function generatePathwayData({
     "levels",
     "levels",
     buildLevelPrompt(standard.levels, ctx, schemas.levels),
-    proseEngine,
+    proseGenerator,
   );
 
   // Build prior output context for downstream prompts
@@ -137,7 +140,7 @@ async function generatePathwayData({
         "behaviour",
         b.id,
         buildBehaviourPrompt(b, ctx, schemas.behaviour, priorOutput),
-        proseEngine,
+        proseGenerator,
       ).then((data) => (data ? { ...data, _id: b.id } : null)),
     ),
   );
@@ -160,7 +163,7 @@ async function generatePathwayData({
           schemas.capability,
           priorOutput,
         ),
-        proseEngine,
+        proseGenerator,
         { maxTokens: BASE_TOKENS + (c.skills || []).length * PER_SKILL_TOKENS },
       ).then((data) => (data ? { ...data, _id: c.id } : null)),
     ),
@@ -183,7 +186,7 @@ async function generatePathwayData({
       { ...ctx, skillIds, behaviourIds },
       schemas.drivers,
     ),
-    proseEngine,
+    proseGenerator,
     { maxTokens: BASE_TOKENS },
   );
 
@@ -201,7 +204,7 @@ async function generatePathwayData({
           schemas.discipline,
           priorOutput,
         ),
-        proseEngine,
+        proseGenerator,
       ).then((data) => (data ? { ...data, _id: d.id } : null)),
     ),
   );
@@ -220,7 +223,7 @@ async function generatePathwayData({
           schemas.track,
           priorOutput,
         ),
-        proseEngine,
+        proseGenerator,
       ).then((data) => (data ? { ...data, _id: t.id } : null)),
     ),
   );
@@ -252,18 +255,18 @@ async function generatePathwayData({
  * @param {string} entityType - Entity type for cache key prefix
  * @param {string} entityId - Entity ID for cache key
  * @param {{ system: string, user: string }} prompt - Built prompt
- * @param {import('./prose.js').ProseEngine} proseEngine - Prose engine
+ * @param {import('./generator.js').ProseGenerator} proseGenerator - Prose generator
  * @returns {Promise<object|null>} Parsed JSON data, or null on miss
  */
 async function generateEntity(
   entityType,
   entityId,
   prompt,
-  proseEngine,
+  proseGenerator,
   { maxTokens } = {},
 ) {
   const key = `pathway:${entityType}:${entityId}`;
-  const result = await proseEngine.generateJson(
+  const result = await proseGenerator.generateJson(
     key,
     [
       { role: "system", content: prompt.system },

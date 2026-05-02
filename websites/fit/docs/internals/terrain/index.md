@@ -17,18 +17,23 @@ Generated output lands in `data/` at the monorepo root.
 
 ## Quick Start
 
+`fit-terrain` is verb-driven. Each verb names one outcome.
+
 ```sh
-# Generate structural data (no LLM needed)
-bunx fit-terrain
+# Verify the prose cache is complete (no writes, exits 1 on miss)
+bunx fit-terrain check
 
-# Generate with LLM-written prose (requires LLM_TOKEN)
-bunx fit-terrain --generate
+# Run cross-content validation against the cached pipeline output
+bunx fit-terrain validate
 
-# Preview what would be generated
-bunx fit-terrain --dry-run
+# Render and write all content
+bunx fit-terrain build
 
-# Generate only pathway standard data
-bunx fit-terrain --only=pathway
+# Render only one content type
+bunx fit-terrain build --only=pathway
+
+# Fill the prose cache via LLM, then build (requires LLM credentials)
+bunx fit-terrain generate
 ```
 
 ---
@@ -47,8 +52,8 @@ parse -> generate -> prose -> render -> validate
 2. **Generate** -- `EntityGenerator` creates structural entities (people, teams,
    repos, skills) from the parsed definition using a seeded RNG for
    reproducibility
-3. **Prose** -- `ProseEngine` and `PathwayGenerator` produce human-readable
-   descriptions and standard prose via LLM calls (or cache)
+3. **Prose** -- `ProseCache`, `ProseGenerator`, and `PathwayGenerator` produce
+   human-readable descriptions and standard prose via LLM calls (or cache)
 4. **Render** -- `Renderer`, `ContentValidator`, and `ContentFormatter` produce
    final output files (YAML, HTML, Markdown, JSON)
 5. **Validate** -- Cross-content validation checks referential integrity across
@@ -64,7 +69,7 @@ Terrain is split across three sub-libraries:
 | Library              | Classes                                            | Purpose                           |
 | -------------------- | -------------------------------------------------- | --------------------------------- |
 | `libsyntheticgen`    | `DslParser`, `EntityGenerator`                     | Parsing and structural generation |
-| `libsyntheticprose`  | `ProseEngine`, `PathwayGenerator`                  | LLM prose and standard generation |
+| `libsyntheticprose`  | `ProseCache`, `ProseGenerator`, `PathwayGenerator` | LLM prose and standard generation |
 | `libsyntheticrender` | `Renderer`, `ContentValidator`, `ContentFormatter` | Output rendering and validation   |
 
 The `libterrain` package re-exports from all three and adds the `Pipeline`
@@ -173,10 +178,10 @@ Content generation happens in tiers:
 | 1    | Template-based prose                      | Yes          |
 | 2    | Deep engineering standard prose (pathway) | Yes          |
 
-Use `--generate` to invoke the LLM. Results are cached in
-`data/synthetic/prose-cache.json` -- subsequent runs with `--cached` skip LLM
-calls entirely. Use `--cached --strict` to fail on cache misses rather than
-silently skipping.
+`fit-terrain generate` invokes the LLM and writes results to
+`data/synthetic/prose-cache.json`. Subsequent `fit-terrain build` runs read from
+that cache without making LLM calls. `fit-terrain check` exits non-zero on cache
+miss — use it as a CI gate before `build`.
 
 ---
 
@@ -193,10 +198,11 @@ bunx fit-map validate --data=data/pathway
 
 ## Custom Story Files
 
-Point to any DSL file with `--story=path`:
+`--story` is a global flag that applies to every verb:
 
 ```sh
-bunx fit-terrain --story=./my-story.dsl --generate
+bunx fit-terrain --story=./my-story.dsl generate
+bunx fit-terrain --story=./my-story.dsl build
 ```
 
 This is useful for generating data for different organizational shapes, team

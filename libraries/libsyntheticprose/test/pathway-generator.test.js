@@ -12,9 +12,9 @@ function makeLogger() {
 }
 
 /**
- * Mock ProseEngine that returns fixture data for each entity type.
+ * Mock ProseGenerator that returns fixture data for each entity type.
  */
-function makeMockProseEngine() {
+function makeMockProseGenerator() {
   return {
     generateJson: async (key) => {
       if (key.includes("standard")) {
@@ -53,13 +53,13 @@ function makeMockProseEngine() {
 }
 
 describe("PathwayGenerator", () => {
-  test("requires proseEngine and logger", () => {
+  test("requires proseGenerator and logger", () => {
     assert.throws(() => new PathwayGenerator(null, makeLogger()));
-    assert.throws(() => new PathwayGenerator(makeMockProseEngine(), null));
+    assert.throws(() => new PathwayGenerator(makeMockProseGenerator(), null));
   });
 
   test("generates all entity types", async () => {
-    const generator = new PathwayGenerator(makeMockProseEngine(), makeLogger());
+    const generator = new PathwayGenerator(makeMockProseGenerator(), makeLogger());
 
     const standard = {
       name: "Test",
@@ -112,7 +112,7 @@ describe("PathwayGenerator", () => {
   });
 
   test("self-assessments use vocabulary constants", async () => {
-    const generator = new PathwayGenerator(makeMockProseEngine(), makeLogger());
+    const generator = new PathwayGenerator(makeMockProseGenerator(), makeLogger());
 
     const standard = {
       name: "Test",

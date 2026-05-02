@@ -31,12 +31,14 @@ export class Renderer {
   }
 
   /**
-   * Render HTML microdata files from entities and prose.
+   * Render the deterministic HTML skeleton from entities and the cached
+   * prose map. No LLM calls. The returned `linked` graph feeds `enrich`.
+   *
    * @param {object} entities
    * @param {Map<string,string>} prose
    * @returns {{ files: Map<string,string>, linked: object }}
    */
-  renderHtml(entities, prose) {
+  renderSkeleton(entities, prose) {
     return renderHTML(entities, prose, this.templateLoader);
   }
 
@@ -98,15 +100,23 @@ export class Renderer {
   }
 
   /**
-   * Enrich HTML documents with LLM-generated prose.
-   * @param {Map<string,string>} htmlFiles
-   * @param {object} linked - LinkedEntities
-   * @param {import('../engine/prose.js').ProseEngine} proseEngine
+   * Enrich the deterministic HTML skeleton with LLM-generated prose by
+   * substituting `data-enrich` blocks. Pass 2 of the renderer pipeline.
+   *
+   * @param {Map<string,string>} skeleton
+   * @param {object} linked - LinkedEntities from renderSkeleton
+   * @param {import('@forwardimpact/libsyntheticprose').ProseGenerator} proseGenerator
    * @param {string} domain
    * @returns {Promise<Map<string,string>>}
    */
-  async enrichHtml(htmlFiles, linked, proseEngine, domain) {
-    return enrichDocuments(htmlFiles, linked, proseEngine, domain, this.logger);
+  async enrich(skeleton, linked, proseGenerator, domain) {
+    return enrichDocuments(
+      skeleton,
+      linked,
+      proseGenerator,
+      domain,
+      this.logger,
+    );
   }
 }
 

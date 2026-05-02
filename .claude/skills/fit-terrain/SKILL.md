@@ -38,10 +38,9 @@ Generation flows through four stages:
    RNG) into a full entity graph: orgs, departments, teams, people with roles
    and skill assignments, repos, and projects
 3. **Prose generation** — prose keys are collected from the entity graph (one
-   per article, FAQ, briefing, etc.) with context (topic, tone, length). By
-   default these are read from `prose-cache.json`; with `--generate` each key is
-   sent to an LLM and the result saved to the cache; with `--no-prose` this
-   stage is skipped entirely
+   per article, FAQ, briefing, etc.) with context (topic, tone, length). The
+   `build` verb reads from `prose-cache.json`; the `generate` verb sends each
+   key to an LLM and writes the result back to the cache before building
 4. **Rendering** — entities and prose are rendered into output formats: YAML
    standard files (`pathway`), HTML articles (`html`), JSON/YAML activity
    records (`raw`), and Markdown briefings (`markdown`)
@@ -55,15 +54,16 @@ schemas.
 
 ### Prose Caching
 
-The prose cache maps each content key to its generated text. The default mode
-reads from the cache, making generation fully repeatable without LLM calls.
-Using `--generate` regenerates all entries and writes the updated cache.
+The prose cache maps each content key to its generated text. The `build` verb
+reads from the cache, making generation fully repeatable without LLM calls. The
+`generate` verb regenerates all entries and writes the updated cache, then runs
+the same render+write the `build` verb performs.
 
 Structured pathway entities (agent-aligned engineering standard, levels,
 behaviours, capabilities, etc.) use a stable cache key derived from the entity
 key alone (e.g. `pathway:track:platform`). This means prompt changes (such as
 adding context forwarding or updating preambles) do not invalidate existing
-cache entries — use `--generate` to regenerate with updated prompts.
+cache entries — use `fit-terrain generate` to regenerate with updated prompts.
 
 General prose entries (articles, comments, briefings) use a cache key that
 includes the content context (topic, tone, length).
@@ -105,9 +105,9 @@ The prose cache is stored at `data/synthetic/prose-cache.json`. This file is
 pre-populated for the BioNova terrain. The default mode reads from it without
 LLM calls.
 
-When using `--generate`, prose is regenerated and the cache is written after
-generation completes. To do a full regeneration, delete the cache file first and
-run with `--generate`.
+`fit-terrain generate` regenerates prose and writes the cache after generation
+completes. To do a full regeneration, delete the cache file first and run
+`fit-terrain generate`.
 
 ---
 
@@ -120,14 +120,14 @@ requirements.
 
 ## Environment
 
-Generation requires `LLM_TOKEN` and `LLM_BASE_URL` when using `--generate` mode.
-Set these environment variables before running:
+The `generate` verb requires `LLM_TOKEN` and `LLM_BASE_URL`:
 
 ```sh
-LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-terrain --generate
+LLM_TOKEN=<your-token> LLM_BASE_URL=<endpoint> npx fit-terrain generate
 ```
 
-The default cached mode requires no LLM credentials.
+The `check`, `validate`, and `build` verbs require no LLM credentials — they
+read from the prose cache.
 
 ---
 

@@ -4,42 +4,28 @@
 
 import { readFileSync } from "node:fs";
 import { resolve, join, dirname } from "path";
-import { mkdir, writeFile, readFile, readdir, mkdtemp, rm } from "fs/promises";
 import { fileURLToPath } from "url";
-import { execFile } from "child_process";
-import { promisify } from "util";
-import { tmpdir } from "os";
 import { format } from "prettier";
 import {
   createCli,
-  formatHeader,
-  formatError,
-  formatBullet,
+  formatWarning,
   SummaryRenderer,
 } from "@forwardimpact/libcli";
 import { createScriptConfig } from "@forwardimpact/libconfig";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { PromptLoader } from "@forwardimpact/libprompt";
-import { TemplateLoader } from "@forwardimpact/libtemplate/loader";
 
 import {
-  createDslParser,
-  createEntityGenerator,
-  FakerTool,
-  SyntheaTool,
-  SdvTool,
-} from "@forwardimpact/libsyntheticgen";
-import {
-  ProseEngine,
-  PathwayGenerator,
-} from "@forwardimpact/libsyntheticprose";
-import {
-  Renderer,
-  ContentValidator,
-  ContentFormatter,
-  formatContent,
-} from "@forwardimpact/libsyntheticrender";
-import { Pipeline } from "../src/pipeline.js";
+  createPipeline,
+  selectOutputSink,
+  resolvePackagePaths,
+  terminalForVerb,
+  printValidation,
+  printProseStats,
+  printWriteStats,
+  printRenderStats,
+  printCacheReport,
+  printGenerateStats,
+} from "../src/cli-helpers.js";
 
 const __dirname = dirname(fileURLToPath(import.meta.url));
 
@@ -47,81 +33,106 @@ const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
 );
 
+const documentation = [
+  {
+    title: "Terrain Internals",
+    url: "https://www.forwardimpact.team/docs/internals/terrain/index.md",
+    description:
+      "Synthetic data pipeline architecture, DSL parsing, entity generation, prose generation, and rendering.",
+  },
+];
+
 const definition = {
   name: "fit-terrain",
   version: VERSION,
   description: "Synthetic data generation pipeline",
   globalOptions: {
-    generate: {
-      type: "boolean",
-      description: "Generate prose via LLM and update cache",
-    },
-    "no-prose": {
-      type: "boolean",
-      description: "Skip prose entirely (structural scaffolding only)",
-    },
-    strict: {
-      type: "boolean",
-      description: "Fail on cache miss (use with default cached mode)",
-    },
-    check: {
-      type: "boolean",
-      description:
-        "Verify 100% prose cache hit and skip validation (implies --strict --dry-run)",
-    },
-    "dry-run": {
-      type: "boolean",
-      description: "Show what would be written without writing",
-    },
-    load: {
-      type: "boolean",
-      description: "Load raw documents to Supabase Storage",
-    },
-    only: {
-      type: "string",
-      description: "Render only one content type (html|pathway|raw|markdown)",
-    },
     story: { type: "string", description: "Path to a custom story DSL file" },
     cache: { type: "string", description: "Path to prose cache file" },
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
     json: { type: "boolean", description: "Output help as JSON" },
   },
-  examples: [
-    "bunx fit-terrain",
-    "bunx fit-terrain --generate",
-    "bunx fit-terrain --strict",
-    "bunx fit-terrain --check",
-    "bunx fit-terrain --no-prose",
-    "bunx fit-terrain --only=pathway",
-  ],
-  documentation: [
+  commands: [
     {
-      title: "Terrain Internals",
-      url: "https://www.forwardimpact.team/docs/internals/terrain/index.md",
+      name: "check",
+      description: "Verify cache completeness; prints hit-rate",
+      examples: [
+        "bunx fit-terrain check",
+        "LOG_LEVEL=error bunx fit-terrain check",
+      ],
+    },
+    {
+      name: "validate",
+      description: "Run entity and cross-content checks (no writes)",
+      examples: ["bunx fit-terrain validate"],
+    },
+    {
+      name: "build",
+      description: "Render and write all content",
+      options: {
+        only: {
+          type: "string",
+          description:
+            "Render only one content type (html|pathway|raw|markdown)",
+        },
+        load: {
+          type: "boolean",
+          description: "Load raw documents to Supabase Storage",
+        },
+      },
+      examples: [
+        "bunx fit-terrain build",
+        "bunx fit-terrain build --only=pathway",
+        "bunx fit-terrain build --load",
+      ],
+    },
+    {
+      name: "generate",
+      description: "Fill the prose cache via LLM, then build",
+      options: {
+        model: {
+          type: "string",
+          description: "Override LLM model (defaults to LLM_MODEL config)",
+        },
+      },
+      examples: [
+        "bunx fit-terrain generate",
+        "bunx fit-terrain generate --model=claude-opus-4-7",
+      ],
+    },
+    {
+      name: "inspect",
+      args: "<stage>",
       description:
-        "Synthetic data pipeline architecture, DSL parsing, entity generation, prose engine, and rendering.",
+        "Dump a pipeline stage's output. Stages: parse, entities, prose-keys, cache-lookup, skeleton, enriched, raw, markdown, pathway, datasets, validate, write.",
+      examples: [
+        "bunx fit-terrain inspect entities",
+        "bunx fit-terrain inspect cache-lookup",
+        "bunx fit-terrain inspect validate",
+      ],
     },
   ],
+  examples: [
+    "bunx fit-terrain check",
+    "bunx fit-terrain validate",
+    "bunx fit-terrain build --only=pathway",
+    "bunx fit-terrain generate",
+  ],
+  documentation,
 };
 
 const cli = createCli(definition);
+const logger = createLogger("terrain");
 
 /**
- * Resolve the LLM API client when running in generate mode.
- *
- * Uses the Anthropic SDK with the credential resolved by libconfig's
- * anthropicToken() (ANTHROPIC_API_KEY env var with OAuth fallback).
- * The wrapper bridges Anthropic's Messages API to the OpenAI-compatible
- * choices shape consumed by ProseEngine.
- *
- * @param {object} config
- * @returns {Promise<object>}
+ * Build an Anthropic-backed LLM client adapted to the OpenAI choices shape
+ * consumed by ProseGenerator.
  */
-async function resolveLlmApi(config) {
+async function resolveLlmApi(config, modelOverride) {
   const { default: Anthropic } = await import("@anthropic-ai/sdk");
   const token = await config.anthropicToken();
-  const model = config.LLM_MODEL || "claude-opus-4-7";
+  const model = modelOverride || config.LLM_MODEL || "claude-opus-4-7";
   const client = new Anthropic({ apiKey: token });
 
   return {
@@ -145,348 +156,187 @@ async function resolveLlmApi(config) {
 }
 
 /**
- * Write filesystem output files from the pipeline result.
- * @param {Map<string,string>} files
- * @param {string} monorepoRoot
- * @returns {Promise<number>} Number of files written.
+ * Run the pipeline for the given verb. Returns whether the verb succeeded;
+ * the caller maps that to process.exitCode.
+ *
+ * @param {object} options
+ * @param {"check"|"validate"|"build"|"generate"} options.verb
+ * @param {string} [options.only]
+ * @param {boolean} [options.load]
+ * @param {string} [options.model]
+ * @param {string} [options.story]
+ * @param {string} [options.cache]
+ * @returns {Promise<{ ok: boolean }>}
  */
-async function writeOutputFiles(files, monorepoRoot) {
-  const generatedDirs = new Set();
-  for (const relPath of files.keys()) {
-    const parts = relPath.split("/");
-    if (parts.length >= 2) {
-      generatedDirs.add(join(monorepoRoot, parts[0], parts[1]));
-    }
-  }
-  for (const dir of generatedDirs) {
-    await rm(dir, { recursive: true, force: true });
-  }
-
-  for (const [relPath, content] of files) {
-    const fullPath = join(monorepoRoot, relPath);
-    await mkdir(dirname(fullPath), { recursive: true });
-    await writeFile(fullPath, content);
-  }
-  return files.size;
-}
-
-/**
- * Handle raw documents: load to Supabase, write locally, or skip (dry-run).
- * @param {object} result
- * @param {object} args
- * @param {string} monorepoRoot
- * @returns {Promise<{ rawWritten: number, rawLoaded: number, loadErrors: number }>}
- */
-async function handleRawDocuments(result, args, monorepoRoot) {
-  const stats = { rawWritten: 0, rawLoaded: 0, loadErrors: 0 };
-  if (result.rawDocuments.size === 0) return stats;
-
-  if (args.load) {
-    const loadResult = await loadRawToSupabase(result.rawDocuments);
-    stats.rawLoaded = loadResult.loaded;
-    stats.loadErrors = loadResult.errors.length;
-  } else if (!args.dryRun) {
-    await writeRawLocally(result.rawDocuments, monorepoRoot);
-    stats.rawWritten = result.rawDocuments.size;
-  }
-
-  const evidence = result.entities.activity?.evidence;
-  if (evidence && !args.dryRun && !args.load) {
-    const evidencePath = join(monorepoRoot, "data/activity/evidence.json");
-    await mkdir(dirname(evidencePath), { recursive: true });
-    const formatted = await formatContent(
-      evidencePath,
-      JSON.stringify(evidence, null, 2),
-    );
-    await writeFile(evidencePath, formatted);
-  }
-
-  return stats;
-}
-
-/**
- * Load raw documents to Supabase Storage.
- * @param {Map<string,string>} rawDocuments
- * @param {object} config
- */
-async function loadRawToSupabase(rawDocuments) {
-  let createClient;
-  try {
-    ({ createClient } = await import("@supabase/supabase-js"));
-  } catch {
-    throw new Error(
-      "--load requires @supabase/supabase-js. Install with: bun add @supabase/supabase-js",
-    );
-  }
-  const url = process.env.MAP_SUPABASE_URL;
-  const key = process.env.MAP_SUPABASE_SERVICE_ROLE_KEY;
-  if (!url) {
-    throw new Error(
-      "MAP_SUPABASE_URL is not set. Run `fit-map activity start` and export the URL it prints.",
-    );
-  }
-  if (!key) {
-    throw new Error(
-      "MAP_SUPABASE_SERVICE_ROLE_KEY is not set. Run `just env-secrets` to generate it.",
-    );
-  }
-  const { loadToSupabase } = await import("../load.js");
-  const supabase = createClient(url, key);
-  const loadResult = await loadToSupabase(supabase, rawDocuments);
-  if (loadResult.errors.length > 0) {
-    process.stderr.write(
-      formatError(`${loadResult.errors.length} errors:`) + "\n",
-    );
-    for (const err of loadResult.errors) {
-      process.stderr.write(formatBullet(err, 1) + "\n");
-    }
-  }
-  return loadResult;
-}
-
-/**
- * Write raw documents to local filesystem.
- * @param {Map<string,string>} rawDocuments
- * @param {string} monorepoRoot
- */
-async function writeRawLocally(rawDocuments, monorepoRoot) {
-  for (const [storagePath, content] of rawDocuments) {
-    const fullPath = join(monorepoRoot, "data/activity/raw", storagePath);
-    await mkdir(dirname(fullPath), { recursive: true });
-    await writeFile(fullPath, content);
-  }
-}
-
-/**
- * Print the validation block via the summary renderer. Exits 1 on failure.
- * @param {object} result
- * @param {SummaryRenderer} summary
- */
-function printValidation(result, summary) {
-  const items = result.validation.checks.map((check) => ({
-    label: check.name,
-    description: check.passed
-      ? "\u2713"
-      : `\u2717 ${check.message ?? "failed"}`,
-  }));
-  process.stdout.write("\n");
-  summary.render({
-    title: formatHeader("Validation"),
-    items,
-    ok: result.validation.passed,
-  });
-
-  if (!result.validation.passed) {
-    process.stderr.write(
-      "\n" +
-        formatError(`${result.validation.failures} validation failures`) +
-        "\n",
-    );
-    process.exit(1);
-  }
-}
-
-/**
- * Print the consolidated summary of write/prose stats.
- * @param {object} result
- * @param {SummaryRenderer} summary
- * @param {{ filesWritten: number, rawWritten: number, rawLoaded: number }} writeStats
- * @param {boolean} ok - Overall command success (gates summary at LOG_LEVEL=error)
- */
-function printSummary(result, summary, writeStats, ok) {
-  const items = [];
-  if (writeStats.filesWritten > 0) {
-    items.push({
-      label: "Files",
-      description: `${writeStats.filesWritten} written`,
-    });
-  }
-  if (writeStats.rawWritten > 0) {
-    items.push({
-      label: "Raw documents",
-      description: `${writeStats.rawWritten} written to data/activity/raw/`,
-    });
-  }
-  if (writeStats.rawLoaded > 0) {
-    items.push({
-      label: "Raw documents",
-      description: `${writeStats.rawLoaded} loaded to Supabase Storage`,
-    });
-  }
-
-  const { hits, generated, misses } = result.stats.prose;
-  const proseTotal = hits + generated + misses;
-  if (proseTotal > 0) {
-    const rate = Math.round((hits / proseTotal) * 100);
-    items.push({
-      label: "Prose",
-      description: `${hits} hits, ${generated} generated, ${misses} misses (${rate}% hit rate)`,
-    });
-  }
-
-  if (items.length === 0) return;
-  process.stdout.write("\n");
-  summary.render({ title: formatHeader("Summary"), items, ok });
-}
-
-/**
- * Wire all pipeline dependencies and create a Pipeline instance.
- * @param {object} opts
- * @returns {Pipeline}
- */
-function createPipeline(opts) {
-  const { logger, mode, cachePath, llmApi, promptDir, templateDir } = opts;
-  const promptLoader = new PromptLoader(promptDir);
-  const templateLoader = new TemplateLoader(templateDir);
-
-  const dslParser = createDslParser();
-  const entityGenerator = createEntityGenerator(logger);
-  const proseEngine = new ProseEngine({
-    cachePath,
-    mode,
-    strict: opts.strict,
-    llmApi,
-    promptLoader,
-    logger,
-  });
-  const pathwayGenerator = new PathwayGenerator(proseEngine, logger);
-  const renderer = new Renderer(templateLoader, logger);
-  const validator = new ContentValidator(logger);
-  const formatter = new ContentFormatter(format, logger);
-
-  const execFileFn = promisify(execFile);
-
-  /**
-   * Create a tool instance by name.
-   * @param {string} name
-   * @param {object} deps
-   * @returns {object}
-   */
-  function toolFactory(name, deps) {
-    switch (name) {
-      case "faker":
-        return new FakerTool({ logger: deps.logger });
-      case "synthea":
-        return new SyntheaTool({
-          logger: deps.logger,
-          syntheaJar:
-            process.env.SYNTHEA_JAR || "synthea-with-dependencies.jar",
-          execFileFn,
-          fsFns: {
-            readFile,
-            readdir,
-            mkdtemp: (prefix) => mkdtemp(join(tmpdir(), prefix)),
-            rm,
-          },
-        });
-      case "sdv":
-        return new SdvTool({
-          logger: deps.logger,
-          execFileFn,
-          fsFns: { writeFile, rm },
-        });
-      default:
-        throw new Error(`Unknown tool: ${name}`);
-    }
-  }
-
-  return new Pipeline({
-    dslParser,
-    entityGenerator,
-    proseEngine,
-    pathwayGenerator,
-    renderer,
-    validator,
-    formatter,
-    toolFactory,
-    logger,
-  });
-}
-
-async function main() {
-  const parsed = cli.parse(process.argv.slice(2));
-  if (!parsed) process.exit(0);
-
-  const { values } = parsed;
-
-  if (values.check) {
-    values.strict = true;
-    values["dry-run"] = true;
-  }
+async function runVerb(options) {
+  const { verb, inspectStage } = options;
 
   const config = await createScriptConfig("terrain", {
     LLM_MODEL: "claude-opus-4-7",
   });
 
-  const mode = values["no-prose"]
-    ? "no-prose"
-    : values.generate
-      ? "generate"
-      : "cached";
+  const mode = verb === "generate" ? "generate" : "cached";
+  // `check` walks only to `cache-lookup`; strict mode would abort on the
+  // first miss before the report is rendered.
+  const strict = false;
+  const persistCache = verb === "generate";
 
-  const llmApi = mode === "generate" ? await resolveLlmApi(config) : null;
+  const llmApi =
+    mode === "generate" ? await resolveLlmApi(config, options.model) : null;
 
   const monorepoRoot = resolve(__dirname, "../../..");
   const schemaDir = join(monorepoRoot, "products/map/schema/json");
   const cachePath =
-    values.cache || join(monorepoRoot, "data", "synthetic", "prose-cache.json");
+    options.cache ||
+    join(monorepoRoot, "data", "synthetic", "prose-cache.json");
 
-  const libsyntheticproseDir = dirname(
-    fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticprose")),
-  );
-  // libsyntheticrender's main entry is src/index.js but the published
-  // templates/ tree lives at the package root — walk up one level.
-  const libsyntheticrenderPackageRoot = dirname(
-    dirname(
-      fileURLToPath(import.meta.resolve("@forwardimpact/libsyntheticrender")),
-    ),
-  );
+  const { promptDir, templateDir } = resolvePackagePaths(import.meta.resolve);
 
   const pipeline = createPipeline({
-    logger: createLogger("terrain"),
+    logger,
     mode,
     cachePath,
-    strict: !!values.strict,
+    strict,
     llmApi,
-    promptDir: join(libsyntheticproseDir, "prompts"),
-    templateDir: join(libsyntheticrenderPackageRoot, "templates"),
+    promptDir,
+    templateDir,
+    persistCache,
   });
+
+  const terminal = terminalForVerb(verb, inspectStage);
 
   const result = await pipeline.run({
     storyPath:
-      values.story || join(monorepoRoot, "data", "synthetic", "story.dsl"),
-    only: values.only || null,
+      options.story || join(monorepoRoot, "data", "synthetic", "story.dsl"),
+    terminal,
+    only: options.only || null,
     schemaDir,
   });
 
-  const writeStats = { filesWritten: 0, rawWritten: 0, rawLoaded: 0 };
-  if (!values["dry-run"]) {
-    writeStats.filesWritten = await writeOutputFiles(
-      result.files,
-      monorepoRoot,
-    );
-  }
-
-  const rawStats = await handleRawDocuments(
-    result,
-    { load: values.load, dryRun: values["dry-run"] },
+  const sink = await selectOutputSink({
+    verb,
+    load: !!options.load,
     monorepoRoot,
-  );
-  writeStats.rawWritten = rawStats.rawWritten;
-  writeStats.rawLoaded = rawStats.rawLoaded;
+    prettierFn: format,
+    logger,
+  });
+  const writeStats = await sink.accept(result);
 
   const summary = new SummaryRenderer({ process });
-  const ok = result.validation.passed && result.stats.prose.misses === 0;
-  if (!values.check) {
-    printValidation(result, summary);
+
+  if (verb === "inspect") {
+    return { ok: true };
   }
-  printSummary(result, summary, writeStats, ok);
+
+  if (verb === "check") {
+    const ok = result.stats.prose.misses === 0;
+    printCacheReport(result, summary, ok);
+    return { ok };
+  }
+
+  if (verb === "validate") {
+    const ok = printValidation(result, summary);
+    return { ok };
+  }
+
+  // build / generate
+  const validationOk = printValidation(result, summary);
+  const writeOk = writeStats.loadErrors === 0;
+  const cacheMisses = result.stats.prose.misses;
+  if (cacheMisses > 0) {
+    process.stdout.write(
+      "\n" +
+        formatWarning(
+          `${cacheMisses} prose cache misses — run "fit-terrain generate" to fill the cache.`,
+        ) +
+        "\n",
+    );
+  }
+  printRenderStats(summary, result, validationOk);
+  printProseStats(summary, result, validationOk);
+  printWriteStats(summary, writeStats, writeOk);
+  if (verb === "generate") {
+    printGenerateStats(summary, result, validationOk && writeOk);
+  }
+  // Verb-level outcome: build/generate exit 1 on validation failure (spec
+  // line 173) or write failure. Per-block `ok` flags above describe each
+  // block independently; this conjunction is only the exit-code rule.
+  return { ok: validationOk && writeOk };
 }
 
-const logger = createLogger("terrain");
+const KNOWN_VERBS = new Set([
+  "check",
+  "validate",
+  "build",
+  "generate",
+  "inspect",
+]);
+
+function isParseError(err) {
+  const code = err.code ?? err.cause?.code;
+  return typeof code === "string" && code.startsWith("ERR_PARSE_ARGS_");
+}
+
+async function main() {
+  const argv = process.argv.slice(2);
+  if (argv.length === 0) {
+    cli.showHelp();
+    return;
+  }
+
+  let parsed;
+  try {
+    parsed = cli.parse(argv);
+  } catch (err) {
+    if (isParseError(err)) {
+      cli.usageError(err.message);
+      return;
+    }
+    throw err;
+  }
+  if (!parsed) return;
+
+  const { values, positionals } = parsed;
+  const verb = positionals[0];
+  if (!verb || !KNOWN_VERBS.has(verb)) {
+    cli.usageError(
+      `Unknown command "${verb ?? ""}". Run "fit-terrain --help".`,
+    );
+    return;
+  }
+
+  let inspectStage = null;
+  if (verb === "inspect") {
+    inspectStage = positionals[1];
+    if (!inspectStage) {
+      cli.usageError("inspect requires a stage name. Run `fit-terrain --help`.");
+      return;
+    }
+  }
+
+  let ok;
+  try {
+    ({ ok } = await runVerb({
+      verb,
+      inspectStage,
+      only: values.only,
+      load: !!values.load,
+      model: values.model,
+      story: values.story,
+      cache: values.cache,
+    }));
+  } catch (err) {
+    if (verb === "inspect" && err.message.startsWith("Unknown stage")) {
+      cli.usageError(err.message);
+      return;
+    }
+    throw err;
+  }
+
+  if (!ok) process.exitCode = 1;
+}
 
 main().catch((err) => {
   logger.exception("main", err);
   cli.error(err.message);
-  process.exit(1);
 });

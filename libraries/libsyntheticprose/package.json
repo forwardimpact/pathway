@@ -27,7 +27,8 @@
   "main": "./src/index.js",
   "exports": {
     ".": "./src/index.js",
-    "./prose": "./src/engine/prose.js",
+    "./cache": "./src/engine/cache.js",
+    "./generator": "./src/engine/generator.js",
     "./pathway": "./src/engine/pathway.js"
   },
   "files": [

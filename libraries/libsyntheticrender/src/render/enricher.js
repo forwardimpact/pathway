@@ -2,7 +2,7 @@
  * Enricher — Pass 2 LLM enrichment of prose blocks.
  *
  * Finds all elements with `data-enrich` attributes in Pass 1 HTML,
- * calls ProseEngine to generate rich prose with inline microdata,
+ * calls ProseGenerator to generate rich prose with inline microdata,
  * and replaces placeholder content.
  *
  * @module libterrain/render/enricher
@@ -184,7 +184,7 @@ function buildEnrichContext(enrichKey, linked) {
  * @param {object} ctx - Context from buildEnrichContext
  * @param {string} placeholder - Current placeholder text
  * @param {string} domain - Terrain domain for IRI constraint
- * @returns {object[]} Messages array for ProseEngine.generateStructured
+ * @returns {object[]} Messages array for ProseGenerator.generateStructured
  */
 function buildEnrichMessages(ctx, placeholder, domain) {
   const mentionList = ctx.mentionTargets
@@ -291,7 +291,7 @@ function balanceTags(html) {
  * Enrich all prose blocks in HTML documents via LLM.
  * @param {Map<string, string>} htmlFiles - filename → HTML content from Pass 1
  * @param {object} linked - LinkedEntities from link-assigner
- * @param {import('../engine/prose.js').ProseEngine} proseEngine
+ * @param {import('@forwardimpact/libsyntheticprose').ProseGenerator} proseGenerator
  * @param {string} domain - Terrain domain
  * @param {object} logger - Logger instance
  * @returns {Promise<Map<string, string>>} filename → enriched HTML content
@@ -299,7 +299,7 @@ function balanceTags(html) {
 export async function enrichDocuments(
   htmlFiles,
   linked,
-  proseEngine,
+  proseGenerator,
   domain,
   logger,
 ) {
@@ -320,7 +320,7 @@ export async function enrichDocuments(
 
       const placeholder = content.replace(/<[^>]+>/g, "").trim();
       const messages = buildEnrichMessages(ctx, placeholder, domain);
-      let prose = await proseEngine.generateStructured(
+      let prose = await proseGenerator.generateStructured(
         `enrich_${enrichKey}`,
         messages,
       );
