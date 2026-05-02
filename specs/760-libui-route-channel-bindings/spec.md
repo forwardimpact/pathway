@@ -81,60 +81,59 @@ parsed flags — into the same `InvocationContext` object. Handlers consume the
 context without knowing which surface invoked them and return a
 surface-agnostic view object that surface-specific formatters render.
 
-The contract is the JSDoc typedef below, exported by both libraries (location
-deferred to design — see Notes):
+The contract is the JSDoc typedef below, exported by both libraries (the
+exact location is a design-phase decision — see Notes):
 
 ```js
 /**
  * @typedef {Object} InvocationContext
  *
- * The shape libui and libcli both produce from their native inputs. Handlers
- * consume the context and return a view; surface-specific formatters render
- * the view. Handlers do not know which surface invoked them.
+ * The shape libui and libcli both produce from their native inputs.
+ * Handlers consume the context and return a view; surface-specific
+ * formatters render the view. The context carries no information about
+ * which surface produced it — surface dispatch happens one level above the
+ * handler.
  *
  * @property {Object} data
- *   Product-specific data graph the handler operates on. Loaded once per
- *   process (CLI) or once per app boot (web). Shape is the product's
- *   responsibility (e.g. `{ skills, disciplines, capabilities, standard }`
- *   for pathway). Treated as immutable input by the handler.
+ *   The host's data dependencies, opaque to libui and libcli. Shape is the
+ *   product's responsibility (e.g. `{ skills, disciplines, capabilities,
+ *   standard }` for pathway). Anything a handler needs that is not a
+ *   positional or named argument lives here, including surface-specific
+ *   runtime dependencies the host folds in before invocation (pathway's
+ *   CLI `dataDir` and `templateLoader` are present examples). The handler
+ *   treats `data` as immutable input.
  *
  * @property {Readonly<Object<string, string>>} args
  *   Named positional arguments. On the web side: route-pattern parameters
  *   keyed by their name (e.g. `/job/:discipline/:level/:track` maps to
  *   `{ discipline, level, track }`). On the CLI side: the subcommand's
- *   declared positional argument names mapped to their argv values. Always
- *   strings; consumers parse if they need other types.
+ *   declared positional argument names mapped to their argv values. Values
+ *   are always strings; consumers parse if they need other types.
  *
- * @property {Readonly<Object<string, string | boolean | ReadonlyArray<string>>>} options
+ * @property {Readonly<Object<string, string | boolean | string[]>>} options
  *   Named non-positional arguments. On the web side: the URL hash query
- *   string parsed once. On the CLI side: parsed CLI flags. A repeated value
- *   is an array of strings; a presence-only flag (or empty-valued query
- *   parameter) is `true`; everything else is a string. Absent options are
- *   not present in the object — `'foo' in ctx.options` is the membership
- *   test.
- *
- * @property {'web' | 'cli' | 'graph'} surface
- *   Identifies which surface produced this context. Handlers MUST NOT branch
- *   on `surface` for output decisions; surface-specific output belongs in
- *   the formatter that consumes the handler's view. The tag exists for
- *   traces, error messages, and tests to identify provenance without
- *   inspection.
+ *   string parsed once. On the CLI side: parsed CLI flags. Values are one
+ *   of: a string, the boolean `true` (for a presence-only flag or an
+ *   empty-valued query parameter), or an array of strings (when the same
+ *   key appears more than once). Absent options are not present in the
+ *   object — `'foo' in ctx.options` is the membership test.
  */
 ```
 
 Three invariants the contract encodes:
 
 - **No surface affordances.** The context carries no DOM nodes, no streams,
-  no `Request`/`Response` objects, no clipboard handles, no logger. Anything
-  that exists on only one surface stays out of the contract. This is the
-  property that keeps the context from becoming a god-object.
-- **Uniform shapes.** `args` is always a string-keyed map of strings;
-  `options` is always a string-keyed map of `string | boolean | string[]`.
-  The libcli parser and the libui URL parser both normalise to these shapes
-  so the handler does not see surface-specific value types.
-- **Deeply frozen.** Each surface MUST `Object.freeze` the context (and its
-  `args` and `options` properties) at construction. Handlers MAY assume the
-  context is immutable and tests can assert `Object.isFrozen(ctx)`.
+  no `Request`/`Response` objects, no clipboard handles, no logger, and no
+  surface tag. Anything that exists on only one surface stays out of the
+  contract. This is the property that keeps the context from becoming a
+  god-object and that lets a future graph-walking agent surface synthesize
+  the same shape without ceremony.
+- **Uniform value shapes.** `args` values are strings; `options` values are
+  one of `string`, `true`, or `string[]`. Both surfaces' parsers normalise
+  to this shape so handlers never branch on surface-specific value types.
+- **Frozen at all levels.** The context and its `args` and `options` maps
+  are immutable, and any array values inside `options` are immutable too.
+  Handlers MAY assume immutability without checking.
 
 A handler signature is therefore exactly:
 
@@ -148,7 +147,9 @@ function present(ctx) { ... }
 
 The same `present` function is exercised by both surfaces. A test constructs
 a synthetic context, calls the presenter, and asserts against the returned
-view — no DOM, no stdout, no surface scaffolding required.
+view — no DOM, no stdout, no surface scaffolding required. Surface-specific
+concerns (provenance for traces, error messages, dispatch decisions) live
+in the dispatcher one level above the handler, never in the context.
 
 ### 2. A unified route descriptor in libui
 
@@ -174,8 +175,7 @@ must accept absence on either channel without forcing a placeholder.
 
 When a route is matched, libui builds an `InvocationContext` from the URL
 (`args` from the route-pattern parameters, `options` from the hash query
-string, `surface: 'web'`, and the host-provided `data`) and passes it to the
-page handler.
+string, and the host-provided `data`) and passes it to the page handler.
 
 ### 3. `libcli` produces `InvocationContext` from argv
 
@@ -183,8 +183,11 @@ page handler.
 with an `InvocationContext`. The library's command builder already knows the
 subcommand's positional argument names and parsed flags; it now assembles
 those into the contract above (`args` keyed by declared positional names,
-`options` from parsed flags, `surface: 'cli'`, and the host-provided `data`)
-before calling the handler.
+`options` from parsed flags, and the host-provided `data`) before calling
+the handler. Surface-specific runtime needs that pathway's CLI today receives
+as extra parameters (e.g. `dataDir` and `templateLoader` in
+`runSkillCommand`) are folded into `data` by the host's bootstrap before the
+handler is called — `data` is the only host-supplied dependency channel.
 
 The same handler that the web route invokes is reused verbatim by the CLI
 subcommand — there is one presenter per capability, not two.
@@ -241,9 +244,11 @@ Pathway's handlers also converge on the `InvocationContext` shape:
   replaced; the presenter destructures from `ctx.data` instead.
 - `products/pathway/src/commands/command-factory.js` is updated so the
   `runCommand({ data, args, options })` shape it builds today becomes a
-  full `InvocationContext` (the same `args` becomes a named map keyed by
-  the subcommand's declared positional names; `surface: 'cli'` is added).
-  Each `commands/<entity>.js` file keeps the same module exports but its
+  full `InvocationContext` (`args` becomes a named map keyed by the
+  subcommand's declared positional names; runtime extras such as `dataDir`
+  and `templateLoader` are folded into `data` by the host's bootstrap, so
+  handlers no longer take them as extra parameters). Each
+  `commands/<entity>.js` file keeps the same module exports but its
   handler signatures change to `(ctx)` and call the same shared presenter
   the web pages call.
 - For each capability that today has separate CLI and web implementations,
@@ -251,8 +256,9 @@ Pathway's handlers also converge on the `InvocationContext` shape:
   handler logic is removed, not aliased.
 
 How each consumer wires up to the libui exports — argument shape,
-registration site, file layout, CSS placement, `InvocationContext` typedef
-location — is a plan-phase concern.
+registration site, file layout, CSS placement — is a plan-phase concern. The
+`InvocationContext` typedef location, by contrast, is a design-phase
+decision because it determines a public-API surface (see Notes).
 
 ### 7. Catalog and documentation
 
@@ -280,8 +286,8 @@ location — is a plan-phase concern.
   component, and the JSON-LD helper.
 - Public API change to `@forwardimpact/libcli`: subcommand handlers receive
   `InvocationContext` instead of `{ data, args, options }`. `args` becomes a
-  named map keyed by the subcommand's declared positional names, and a
-  `surface: 'cli'` tag is added.
+  named map keyed by the subcommand's declared positional names; runtime
+  extras such as `dataDir` and `templateLoader` fold into `data`.
 - Migration of pathway to consume the new APIs — the three pathway files
   named above are removed; web page handlers, presenters, and CLI command
   handlers are rewritten against `InvocationContext`; duplicate handler
@@ -310,24 +316,25 @@ location — is a plan-phase concern.
   beyond what the descriptor and context change requires.
 - Server-side rendering of JSON-LD. The capability operates in the browser,
   the same as today.
-- A graph surface (`surface: 'graph'`). The contract reserves the tag for a
-  future RDF-driven invocation but no `surface: 'graph'` producer ships in
-  this spec.
+- A graph-walking agent surface. The contract is shaped so a future surface
+  could synthesize an `InvocationContext` from RDF without rendering, but
+  this spec ships no such producer and the contract carries no enumeration
+  reserving the value — the typedef extends when the producer lands.
 
 ## Success criteria
 
 | Claim                                                                                                                                                  | Verifiable by                                                                                                                                                                                                                              |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
-| The `InvocationContext` JSDoc typedef exists and is documented as the shared handler input.                                                            | The typedef is defined in source (location decided in design) with the `data`, `args`, `options`, `surface` properties, the three invariants (no surface affordances, uniform shapes, deeply frozen), and the handler signature shown in this spec; both libui and libcli reference it from their public API surface. |
-| Both surfaces produce contexts that satisfy the contract's runtime invariants.                                                                         | A test exercises both libui's web descriptor and libcli's command builder against a fixed input (URL + argv pair) and asserts: `Object.isFrozen(ctx)`, `Object.isFrozen(ctx.args)`, `Object.isFrozen(ctx.options)`, every value in `args` is a string, every value in `options` is `string | boolean | string[]`, and `ctx.surface` is `'web'` or `'cli'` accordingly. |
+| The `InvocationContext` JSDoc typedef exists and is documented as the shared handler input.                                                            | The typedef is defined in source (location decided in design) with the `data`, `args`, and `options` properties, the three invariants (no surface affordances, uniform value shapes, frozen at all levels), and the handler signature shown in this spec; both libui and libcli reference it from their public API surface.                                                |
+| Both surfaces produce contexts that satisfy the contract's runtime invariants.                                                                         | A test (e.g. `libraries/libui/test/invocation-context.test.js` and a sibling under `libraries/libcli/test/`) constructs a context from a fixed URL pair and a fixed argv pair, then asserts: the context, its `args`, its `options`, and any array values inside `options` are all frozen; every `args` value's type is `string`; every `options` value's type is one of `string`, `boolean`, or `Array<string>`. |
 | One presenter per capability is exercised by both surfaces.                                                                                            | For at least three pathway capabilities (e.g. skill detail, discipline detail, job detail), a single presenter file is imported by both the matching web page handler and the matching CLI command handler. A test invokes the same presenter from a synthesized web `InvocationContext` and a synthesized CLI `InvocationContext` against a shared fixture and asserts identical view objects. |
-| `@forwardimpact/libui` exposes a public route descriptor API that accepts a pattern, a page handler, and optional CLI and Graph formatters.            | Public exports of `libraries/libui/src/index.js` include the new API, and `libraries/libui/README.md`'s getting-started snippet shows it with all three channel slots.                                                                     |
-| `@forwardimpact/libui` exposes a top-bar component that consuming products use without copying internal logic.                                         | Public exports of `@forwardimpact/libui` include the component; using it in a libui app with at least one CLI-bound route renders that route's command and a working copy button.                                                          |
+| `@forwardimpact/libui` exposes a public route descriptor API that accepts a pattern, a page handler, and optional CLI and Graph formatters.            | Public exports of `@forwardimpact/libui` include the new API, and `libraries/libui/README.md`'s getting-started snippet shows it with all three channel slots.                                                                                                                                                                  |
+| `@forwardimpact/libui` exposes a top-bar component that consuming products import rather than re-implement.                                            | Public exports of `@forwardimpact/libui` include the component; using it in a libui app with at least one CLI-bound route renders that route's command and a working copy button. A grep across the post-migration tree finds the component imported from `@forwardimpact/libui` in pathway and zero local re-implementations of equivalent behaviour. |
 | `@forwardimpact/libui` exposes a JSON-LD helper that mints `@id` from the route descriptor and emits a `<script type="application/ld+json">` element.  | Public exports include the helper; given a Graph formatter and a body, the helper produces a script element whose JSON content carries the formatter's IRI as `@id` and the body fields merged in.                                        |
 | Pathway no longer holds its own copies of the three mechanisms.                                                                                        | `products/pathway/src/lib/cli-command.js` and `products/pathway/src/components/top-bar.js` are deleted; `products/pathway/src/formatters/json-ld.js` no longer constructs `<script>` elements or builds `@id` strings.                     |
-| Pathway's handlers all consume `InvocationContext`.                                                                                                    | Every `export function render*` in `products/pathway/src/pages/*.js` takes a single argument typed `InvocationContext` (per JSDoc); no page handler calls `getState()` or reads `window.location.hash` directly. Every `runCommand`/`run*Command` in `products/pathway/src/commands/*.js` takes a single `InvocationContext` argument. A grep against the post-migration tree confirms zero matches for the old `(params)` and `({ data, args, options })` handler signatures. |
-| The migration is a clean break with no compatibility shims.                                                                                            | A grep against the post-migration tree under `libraries/libui/`, `libraries/libcli/`, and `products/pathway/` finds no aliases, deprecation stubs, or wrapper functions that accept the old handler shapes; the words "compat", "legacy", "deprecated", and "shim" do not appear in code introduced by this change. |
-| Pathway's user-visible behaviour is unchanged after the migration.                                                                                     | A baseline fixture is recorded under `products/pathway/test/` before the migration, capturing — for each route registered through `setupRoutes()` in `products/pathway/src/main.js` — the CLI command string from the top bar and the full JSON-LD payload (`@id` plus every body field) emitted into the rendered page. A test in the same directory replays the fixture against the post-migration build and asserts field-for-field equality. The test is the verifier; running it from a clean checkout of the merge commit passes. |
+| Pathway's handlers all consume `InvocationContext`.                                                                                                    | A test under `products/pathway/test/` imports every module in `products/pathway/src/pages/` and `products/pathway/src/commands/` and asserts, via `Function.prototype.length` plus AST inspection of each exported handler, that exactly one parameter is declared and that no handler body references `getState`, `window.location.hash`, or destructures `{ data, args, options }` at the top of the function. The test fails if any handler retains the old shapes.        |
+| The migration is a clean break with no compatibility shims.                                                                                            | The PR diff itself is the verifier: any line introduced by this change that defines or exports a function whose first parameter has the historical shape (a bare `params` object on the web side, or a destructured `{ data, args, options }` literal on the CLI side) is treated as a failed criterion. Reviewers confirm by reading the diff; a CI ESLint rule added by this change rejects either pattern in `libraries/libui/`, `libraries/libcli/`, and `products/pathway/`. |
+| Pathway's user-visible behaviour is unchanged after the migration.                                                                                     | A baseline fixture file at `products/pathway/test/fixtures/route-bindings.json` is committed in this PR. The fixture is generated, by a script also added in this PR, from the pre-migration build of pathway and contains one entry per route returned by `setupRoutes()` in `products/pathway/src/main.js` — every entry carries the route pattern, a representative concrete URL, the CLI command string the top bar shows, and the full JSON-LD payload (`@id` plus every body field) the page emits. A test replays the fixture against the post-migration build and asserts field-for-field equality; running it from a clean checkout of the merge commit passes. |
 | The command bar handles routes without a CLI binding.                                                                                                  | The same test exercises at least one route that has no CLI binding (e.g. a builder step) and asserts the command bar neither throws nor renders a stale command from a previous route.                                                                                     |
 | The libui catalog reflects the new capability.                                                                                                         | `libraries/libui/package.json` carries a new entry in `forwardimpact.needs` whose phrase names a route↔CLI↔graph-entity binding (the concept introduced by this spec, distinct from the existing "Build a reactive single-page web app"); `bun run lib:fix` followed by `bun run check` regenerates `libraries/README.md` and passes.                                                                |
 | External readers can learn the capability without cloning the monorepo.                                                                                | A guide exists under `websites/fit/docs/libraries/<task-slug>/index.md` (slug decided in design); it covers the `InvocationContext` contract, the route descriptor's three channels (Pages, CLI, Graph), and the libcli command builder, and shows an end-to-end example a Landmark or Summit author could follow.                                          |
