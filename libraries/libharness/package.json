@@ -29,7 +29,7 @@
   "scripts": {
     "test": "bun test test/*.test.js"
   },
-  "author": "Forward Impact Team",
+  "author": "Forward Impact Engineering",
   "license": "MIT",
   "peerDependencies": {
     "@forwardimpact/libtype": "*"

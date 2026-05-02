@@ -1,12 +1,12 @@
 ---
 title: About
-description: Why Forward Impact Team exists — the philosophy behind empowering engineers to do their best work.
+description: Why Forward Impact Engineering exists — the philosophy behind empowering engineers to do their best work.
 layout: product
 toc: false
 hero:
   image: /assets/scene-about.svg
-  alt: Concept illustration for Forward Impact Team
-  subtitle: The philosophy behind Forward Impact Team — and why empowering engineers matters.
+  alt: Concept illustration for Forward Impact Engineering
+  subtitle: The philosophy behind Forward Impact Engineering — and why empowering engineers matters.
 ---
 
 > "The aim of leadership should be to improve the performance of man and
@@ -41,7 +41,7 @@ progression plans — not just sit in a wiki.
 
 ## The Idea
 
-Forward Impact Team starts from a simple premise: **if you define what great
+Forward Impact Engineering starts from a simple premise: **if you define what great
 engineering looks like, you can derive everything else from it.**
 
 Define your skills, behaviours, and career levels in plain YAML files. From that
@@ -113,7 +113,7 @@ complexity over hiding it.
 
 ## Who We Are
 
-Forward Impact Team is built and maintained by the Developer Experience team at
+Forward Impact Engineering is built and maintained by the Developer Experience team at
 a large pharmaceutical company. We work in an industry where technology serves a
 purpose beyond itself — where the software we build, the platforms we maintain,
 and the engineers we support contribute to outcomes that matter for patients'

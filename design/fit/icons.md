@@ -1,9 +1,9 @@
-# FIT Product Icons
+# Forward Impact Engineering Product Icons
 
 24px grid, 2px stroke, no fill — matching the characters' line weight. Should
 feel drawn in the same notebook.
 
-For the FIT brand context — palette, typography, product taxonomy — see
+For the Forward Impact Engineering brand context — palette, typography, product taxonomy — see
 [index.md](index.md). For product scenes that compose these icons with the three
 characters, see [scenes.md](scenes.md).
 

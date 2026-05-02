@@ -1,10 +1,11 @@
-# FIT Product Scenes
+# Forward Impact Engineering Product Scenes
 
 These scenes extend the
-[reusable base scenes](../index.md#4-reusable-base-scenes) with FIT product
-symbols. All follow the [scene grammar](../index.md#3-scene-grammar).
+[reusable base scenes](../index.md#4-reusable-base-scenes) with Forward Impact
+Engineering product symbols. All follow the
+[scene grammar](../index.md#3-scene-grammar).
 
-For the FIT brand context — palette, typography, product taxonomy — see
+For the Forward Impact Engineering brand context — palette, typography, product taxonomy — see
 [index.md](index.md).
 
 ---

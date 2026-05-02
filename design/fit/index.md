@@ -1,6 +1,6 @@
-# Forward Impact Team (FIT) — Brand Implementation
+# Forward Impact Engineering — Brand Implementation
 
-> The FIT realization of the [shared design language](../index.md): a monochrome
+> The Forward Impact Engineering realization of the [shared design language](../index.md): a monochrome
 > design system for seven open-source products — **Map**, **Pathway**,
 > **Guide**, **Landmark**, **Summit**, **Outpost**, and **Gear** — built around
 > the metaphor of engineers deployed "in the field." Three characters — the
@@ -11,7 +11,7 @@
 > and agents, improve quality, increase output, and bring pride of workmanship
 > to engineering teams.
 
-This file specifies what is FIT-specific: the field metaphor, FIT's reading of
+This file specifies what is brand-specific: the field metaphor, this brand's reading of
 the family characters, the seven products, the concrete color palette, the
 typography choices, the type scale, the layout patterns, the product visual
 language, and the CSS design tokens. The product scenes and product icons live
@@ -34,10 +34,10 @@ design language and the three characters' shared visual specifications, see
 3. **Topographic/landscape**: Contour maps, trail markers, compass roses,
    cairns, and mountain peaks — tools humans use to navigate unfamiliar ground.
 
-The name **Forward Impact Team** (FIT) captures all three: "Forward" from
+The name **Forward Impact Engineering** captures all three: "Forward" from
 forward deployed, "Impact" from the mission to change outcomes where they
-happen, and "Team" because this work is fundamentally collaborative — engineer,
-AI, and business working together.
+happen, and "Engineering" as the discipline practiced collaboratively —
+engineer, AI, and business working together.
 
 The metaphor surfaces in illustration and iconography. The UI itself is clean
 and functional, not themed like an outdoor gear catalog.
@@ -48,9 +48,9 @@ and functional, not themed like an outdoor gear catalog.
 
 The [three family characters](../index.md#2-the-three-characters) live inside
 the field metaphor. Their visual specifications are unchanged from the family —
-what follows are FIT-specific readings, not new shapes:
+what follows are brand-specific readings, not new shapes:
 
-- **Hand-drawn voice.** The 2px monochrome line-art reads, in FIT, as a _field
+- **Hand-drawn voice.** The 2px monochrome line-art reads, in this brand, as a _field
   notebook sketch_ — something an engineer might draw in the margin of a logbook
   between deployments.
 - **The Engineer's backpack.** The constant from the field metaphor: they carry
@@ -58,7 +58,7 @@ what follows are FIT-specific readings, not new shapes:
 - **The Stakeholder's role.** Represents the leadership and domain experts that
   engineers are embedded with — product owners, engineering managers, and
   business stakeholders who define what good engineering looks like. Their
-  absent backpack reads, in FIT, as "the territory is theirs already."
+  absent backpack reads, in this brand, as "the territory is theirs already."
 - **What the trio embodies.** Together, the three characters embody the heart of
   forward deployed engineering — engineer, AI, and business working at the
   boundary between technology and the real world.
@@ -139,7 +139,7 @@ difference accumulates across the page — warmer, more human, like paper.
 | **Body**           | `"DM Sans"`                         | Same                                                        |
 | **Mono / Code**    | `"DM Mono"` (Google Fonts)          | `"SF Mono", Consolas, "Liberation Mono", monospace`         |
 
-**Instrument Serif** is FIT's specific reading of the family's display serif: it
+**Instrument Serif** is this brand's specific reading of the family's display serif: it
 evokes field journals, cartographic labels, and expedition logs — the vocabulary
 of writing things down in the field.
 
@@ -178,16 +178,16 @@ DM Sans, 18px, weight 400, gray-400:
 
 ## 6. Product Scenes
 
-The FIT product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear —
+The product scenes — Map, Pathway, Guide, Landmark, Summit, Outpost, Gear —
 and the scene usage matrix live in a sibling file: [scenes.md](scenes.md). They
-extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with FIT
-product symbols.
+extend the [reusable base scenes](../index.md#4-reusable-base-scenes) with
+brand-specific product symbols.
 
 ---
 
 ## 7. Product Icons
 
-The seven FIT product icons — Map, Pathway, Guide, Landmark, Summit, Outpost,
+The seven product icons — Map, Pathway, Guide, Landmark, Summit, Outpost,
 Gear — plus the icon system rules and the combined suite mark live in a sibling
 file: [icons.md](icons.md). They share the family icon grid (24px, 2px stroke,
 no fill) and read as if drawn in the same notebook as the
@@ -201,7 +201,7 @@ no fill) and read as if drawn in the same notebook as the
 
 ```
 ┌──────────────────────────────────────────────┐
-│  [Trio logo]  FIT            [Nav]     [☰]  │
+│  [Trio logo]  Forward Impact Engineering  [Nav]  [☰]  │
 │                                              │
 │       ┌──────────────────────────┐           │
 │       │  Trio at Work scene      │           │
@@ -228,7 +228,7 @@ no fill) and read as if drawn in the same notebook as the
 │      developers and agents."                 │
 ├──────────────────────────────────────────────┤
 │     [ Get started → ]                        │
-│  © Forward Impact Team  ·  Apache-2.0 code  │
+│  © Forward Impact Engineering  ·  Apache-2.0 code  │
 │     CC BY 4.0 docs                           │
 └──────────────────────────────────────────────┘
 ```
@@ -236,7 +236,7 @@ no fill) and read as if drawn in the same notebook as the
 ### Navigation Pattern
 
 ```
-[Trio icon]  FIT   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Summit  ·  Outpost       [Docs]  [Sign in]
+[Trio icon]  Forward Impact Engineering   |   Map  ·  Pathway  ·  Guide  ·  Landmark  ·  Summit  ·  Outpost       [Docs]  [Sign in]
 ```
 
 Current product is bold (`700`). Others are regular (`400`) in `--gray-400`.
@@ -257,7 +257,7 @@ Footer:    gray-900 (#1c1a18)       — Dark footer (inverted), licenses
 ### Concrete Components
 
 The component patterns in [../index.md § 8](../index.md#8-components)
-instantiate with FIT colors:
+instantiate with these colors:
 
 - **Buttons (Primary):** `background: --gray-900`, text `#ffffff`.
 - **Buttons (Secondary / Product):** `border: 1.5px solid --gray-200`, text
@@ -270,7 +270,7 @@ instantiate with FIT colors:
   `--white-warm` or `--sand-50` sections. 1px stroke, spaced 40px apart, opacity
   0.3. Never on pure white backgrounds.
 - **Footer (Dark):** `background: --gray-900`, primary text `#e8e5e0`, secondary
-  text `--gray-400`, dividers `--gray-700`. Trio silhouette + "FIT" in white.
+  text `--gray-400`, dividers `--gray-700`. Trio silhouette + brand wordmark in white.
   Licenses (Apache-2.0 code, CC BY 4.0 docs) in `--gray-400`.
 
 ---
@@ -394,5 +394,5 @@ Each product shares the core design system with subtle differentiators:
 
 ---
 
-_FIT brand implementation of the [shared design language](../index.md). Updated
+_Forward Impact Engineering brand implementation of the [shared design language](../index.md). Updated
 April 2026._

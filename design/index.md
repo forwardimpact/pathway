@@ -16,7 +16,7 @@ illustration checklist live in [usage.md](usage.md).
 
 **Brand implementations:**
 
-- [Forward Impact Team (FIT)](fit/index.md) · [scenes](fit/scenes.md) ·
+- [Forward Impact Engineering](fit/index.md) · [scenes](fit/scenes.md) ·
   [icons](fit/icons.md)
 - [Kata](kata/index.md) · [scenes](kata/scenes.md) · [icons](kata/icons.md)
 

@@ -288,5 +288,5 @@ era — pre-keyboard, but disciplined.
 | Loading states                | PDSA wheel + clipboard   | 48–80px   |
 
 **Asset status:** The Kata scene set is specified above but not yet illustrated.
-They should follow the same 2px monochrome line-art style as the FIT scenes,
+They should follow the same 2px monochrome line-art style as the Forward Impact Engineering scenes,
 with the addition of the Stakeholder's flat cap when on the shop floor.

@@ -12,10 +12,10 @@ Two websites are published from this monorepo, both built by the `fit-doc` CLI
 (see the `fit-doc` skill for commands, front matter, and auto-generated
 outputs).
 
-| Site                | Source           | Domain                   |
-| ------------------- | ---------------- | ------------------------ |
-| Forward Impact Team | `websites/fit/`  | `www.forwardimpact.team` |
-| Kata Agent Team     | `websites/kata/` | `www.kata.team`          |
+| Site                       | Source           | Domain                   |
+| -------------------------- | ---------------- | ------------------------ |
+| Forward Impact Engineering | `websites/fit/`  | `www.forwardimpact.team` |
+| Kata Agent Team            | `websites/kata/` | `www.kata.team`          |
 
 ### Local preview
 
