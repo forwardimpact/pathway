@@ -29,7 +29,7 @@ graph LR
 | `MarkerScanner`          | libwiki | Parse a markdown file; return `[{metric, csvPath, openLine, closeLine}]` for each `<!-- xmr:metric:path -->` … `<!-- /xmr -->` pair.                            |
 | `BlockRenderer`          | libwiki | Given metric + csvPath, call `libxmr.analyze`, filter to the metric, format the `**Latest:** … **Status:** …` line, fenced chart, and `**Signals:** …` line.   |
 | `refresh` command        | libwiki | Orchestrates `MarkerScanner` and `BlockRenderer` over a storyboard file; produces a single rewrite with all owned spans replaced.                                |
-| `WikiRepo`                | libwiki | Wrap the `./wiki/` git working tree. Methods: `ensureCloned(url)`, `pull()`, `commitAndPush(message)`, `isClean()`. Owns credential helper + identity inheritance. |
+| `WikiRepo`                | libwiki | Wrap the `./wiki/` git working tree. Methods: `ensureCloned(url)`, `pull()`, `commitAndPush(message)`, `isClean()` (used by `push` to short-circuit when no local changes — criterion #7). Owns credential helper + identity inheritance. |
 | `SkillRoster`            | libwiki | Discover the skills in the installation; derive `wiki/metrics/<skill>/` paths.                                                                                   |
 | `init` command           | libwiki | `WikiRepo.ensureCloned` for the wiki URL; for each `SkillRoster` entry create `wiki/metrics/<skill>/`. Idempotent.                                              |
 | `push` / `pull` commands | libwiki | One-line wrappers over `WikiRepo.commitAndPush` / `WikiRepo.pull`.                                                                                              |
@@ -135,6 +135,11 @@ sequenceDiagram
   `bunx fit-wiki push` underneath.
 - Existing `scripts/wiki-sync.sh` and `scripts/wiki-audit.sh` remain in the
   repo — superseded but not deleted (per spec § Scope (out)).
+- Spec § Scope 4 lists protocol/template/skill text updates
+  (`storyboard-template.md`, `team-storyboard.md`, `kata-session/SKILL.md`,
+  `justfile`) and an existing-storyboard migration. These are content edits,
+  not architectural components, and are owned by the plan rather than this
+  design.
 
 ## Risks
 
