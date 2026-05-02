@@ -159,6 +159,8 @@ Libraries used: `@forwardimpact/libsyntheticprose` (new `CacheContract` export),
   source must remain unchanged (criterion 5). This step writes guidance for the
   reviewer skill so a future PR re-introducing the carve-out is caught at review
   time.
+- **Implementer note:** writes under `.claude/**` go through
+  `scripts/claude-write.sh` per `.claude/agents/references/self-improvement.md`.
 - **Verify:**
   `git diff origin/main -- .claude/skills/kata-release-merge/SKILL.md` is empty
   after the implementation branch is built;
