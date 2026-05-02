@@ -15,8 +15,11 @@ test("loads front page successfully", async ({ page }) => {
 
   await page.goto("./", { waitUntil: "domcontentloaded" });
 
-  // Wait for the landing page h1 to appear (rendered by JavaScript)
-  await expect(page.locator("h1")).toContainText("Engineering Pathway");
+  // Wait for the landing page h1 to appear (rendered by JavaScript).
+  // Match on "Pathway" alone — the full title comes from the synthetic
+  // standard.yaml and varies with each LLM regeneration of the prose
+  // cache (e.g. "BioNova Engineering Excellence Pathway").
+  await expect(page.locator("h1")).toContainText("Pathway");
 
   // Check no JS errors occurred
   expect(errors).toEqual([]);

@@ -23,9 +23,10 @@ test("navigation between pages works", async ({ page }) => {
   await page.goto("./#/behaviour", { waitUntil: "domcontentloaded" });
   await expect(page.locator("h1")).toContainText("Behaviour");
 
-  // Return home via nav brand link
+  // Return home via nav brand link. Match on "Pathway" alone — the full
+  // title comes from synthetic standard.yaml and varies per LLM regen.
   await page.locator("a.nav-brand").click();
-  await expect(page.locator("h1")).toContainText("Engineering Pathway");
+  await expect(page.locator("h1")).toContainText("Pathway");
 
   // Check no JS errors occurred
   expect(errors).toEqual([]);
