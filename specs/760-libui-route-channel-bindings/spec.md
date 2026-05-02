@@ -54,12 +54,11 @@ agent reads through libgraph. Today that affordance is locked inside pathway.
 `@forwardimpact/libui` exposes a way to register each route once and bind it to
 up to two channels in addition to its DOM handler:
 
-| Channel | Role                                                        | Today's analogue in pathway                              |
-| ------- | ----------------------------------------------------------- | -------------------------------------------------------- |
-| Pages   | Render the route into the DOM.                              | `router.on(pattern, handler)` from `libui/router-core`.  |
-| CLI     | Produce a CLI command string equivalent to the route.       | `getCliCommand(path)` in `src/lib/cli-command.js`.       |
-| Graph   | Produce a stable graph entity IRI for the route, when one   | `@id` minting in `*ToJsonLd` in `src/formatters/json-ld` |
-|         | exists.                                                     | (vocabulary base shared with `libgraph`'s `fit:` prefix).|
+| Channel | Role                                                                                                              | Today's analogue in pathway                                                                                                          |
+| ------- | ----------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------ |
+| Pages   | Render the route into the DOM.                                                                                    | `router.on(pattern, handler)` from `libui/router-core`.                                                                              |
+| CLI     | Produce a CLI command string equivalent to the route.                                                             | `getCliCommand(path)` in `src/lib/cli-command.js`.                                                                                   |
+| Graph   | Produce a stable graph entity IRI for the route, when one exists, against a vocabulary base supplied by the host. | `@id` minting in `*ToJsonLd` in `src/formatters/json-ld.js` (vocabulary base shared with `libgraph`'s `fit:` prefix, set verbatim). |
 
 A registered route is one descriptor that names the pattern, the page handler,
 and the optional CLI and Graph formatters. The router consults the descriptor
@@ -73,21 +72,24 @@ must accept absence on either channel without forcing a placeholder.
 
 ### 2. A reusable command bar component in libui
 
-`@forwardimpact/libui` exposes a top-bar component that, given a router
-instance, displays the current route's CLI command and offers a
-copy-to-clipboard affordance. Pathway-specific styling stays in pathway's CSS;
-the component itself is structurally complete and product-agnostic.
+`@forwardimpact/libui` exposes a top-bar component that displays the active
+route's CLI command and offers a copy-to-clipboard affordance. Product-specific
+styling stays in the consuming product's CSS; the component itself is
+structurally complete and product-agnostic.
 
-The component must work for routes that produce no command and update on both
-`hashchange` and programmatic navigations the router emits.
+The component must remain in sync with the active route as the user navigates
+and must behave gracefully on routes that have no CLI binding (e.g. hide
+itself, render an empty state — the design phase decides which).
 
 ### 3. A JSON-LD emission helper in libui
 
 `@forwardimpact/libui` exposes a helper that, given the active route's Graph
-formatter and a body object, emits a `<script type="application/ld+json">`
-element whose JSON content carries the formatter's IRI as `@id` and the
-caller's body fields alongside it. The vocabulary itself (the value of the
-`fit:` prefix) stays owned by `libraries/libgraph`.
+formatter and a body object, returns a `<script type="application/ld+json">`
+element whose JSON content carries the formatter's IRI as `@id` merged with
+the caller's body fields. Mounting the returned element into the page DOM is
+the caller's responsibility, mirroring how `createJsonLdScript` is used in
+pathway today. The vocabulary itself (the value of the `fit:` prefix) stays
+owned by `libraries/libgraph`.
 
 Per-entity body shapes — `Skill.proficiencyDescriptions`,
 `Discipline.coreSkills`, etc. — remain owned by each product's formatters.
@@ -96,27 +98,31 @@ Graph channel.
 
 ### 4. Pathway adopts the new capability
 
-Pathway is the proof of the abstraction:
+Pathway is the proof of the abstraction. After migration:
 
-- `products/pathway/src/lib/cli-command.js` is deleted; its rules move into the
-  descriptor registrations alongside the `router.on(...)` calls in
-  `products/pathway/src/main.js`.
-- `products/pathway/src/components/top-bar.js` is replaced by an import of
-  the libui component, plus pathway-specific CSS in
-  `products/pathway/src/css/`.
+- `products/pathway/src/lib/cli-command.js` no longer exists as a separate
+  module — pathway expresses every route's CLI binding through libui's
+  descriptor API.
+- `products/pathway/src/components/top-bar.js` no longer exists as a separate
+  component — pathway consumes libui's command-bar component.
 - `products/pathway/src/formatters/json-ld.js` keeps its per-entity body
   builders but stops minting `@id` strings and stops constructing `<script>`
-  elements directly — both move to libui's helper.
+  elements; both responsibilities sit in libui.
+
+How each consumer wires up to the libui exports — argument shape, registration
+site, file layout, CSS placement — is a plan-phase concern.
 
 ### 5. Catalog and documentation
 
-- `libraries/libui/package.json` gains a new entry in `forwardimpact.needs`
-  (e.g. "Bind a web route to its CLI command and graph entity IRI"). Exact
-  wording is a design decision; it must be unique across the catalog.
-- A library guide at
-  `websites/fit/docs/libraries/<task-slug>/index.md` documents the capability
-  for external readers, per the linking rule in `libraries/CLAUDE.md`. Slug is
-  decided in the design phase.
+- `libraries/libui/package.json` gains a new entry in `forwardimpact.needs`.
+  The library has one such entry today: "Build a reactive single-page web
+  app". Wording for the new entry is a design decision; the catalog generator
+  (`bun run lib:fix`) enforces uniqueness across the monorepo at check time.
+- A library guide documents the capability for external readers under
+  `websites/fit/docs/libraries/<task-slug>/index.md`, with the task slug
+  decided in the design phase per the linking rule in `libraries/CLAUDE.md`.
+  The skill and CLI must link the same fully-qualified URL form
+  (`https://www.forwardimpact.team/docs/libraries/<task-slug>/index.md`).
 - `libraries/libui/README.md` shows the descriptor registration form in its
   getting-started snippet.
 
@@ -150,13 +156,13 @@ Pathway is the proof of the abstraction:
 | Claim                                                                                                                                                  | Verifiable by                                                                                                                                                                                                                              |
 | ------------------------------------------------------------------------------------------------------------------------------------------------------ | ------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------ |
 | `@forwardimpact/libui` exposes a public route descriptor API that accepts a pattern, a page handler, and optional CLI and Graph formatters.            | Public exports of `libraries/libui/src/index.js` include the new API, and `libraries/libui/README.md`'s getting-started snippet shows it with all three channel slots.                                                                     |
-| `@forwardimpact/libui` exposes a top-bar component that consuming products mount with one call.                                                        | Public exports of `libraries/libui/src/index.js` (or `/components`) include the component; mounting it in a libui app with at least one CLI-bound route renders that route's command and a working copy button.                           |
+| `@forwardimpact/libui` exposes a top-bar component that consuming products mount with one call.                                                        | Public exports of `@forwardimpact/libui` include the component; mounting it in a libui app with at least one CLI-bound route renders that route's command and a working copy button.                                                       |
 | `@forwardimpact/libui` exposes a JSON-LD helper that mints `@id` from the route descriptor and emits a `<script type="application/ld+json">` element.  | Public exports include the helper; given a Graph formatter and a body, the helper produces a script element whose JSON content carries the formatter's IRI as `@id` and the body fields merged in.                                        |
 | Pathway no longer holds its own copies of the three mechanisms.                                                                                        | `products/pathway/src/lib/cli-command.js` and `products/pathway/src/components/top-bar.js` are deleted; `products/pathway/src/formatters/json-ld.js` no longer constructs `<script>` elements or builds `@id` strings.                     |
-| Pathway's user-visible behaviour is unchanged after the migration.                                                                                     | For each route registered in `products/pathway/src/main.js`, the CLI command displayed in the top bar is byte-identical before and after the change, and each detail page emits a `<script type="application/ld+json">` with the same `@id`. |
+| Pathway's user-visible behaviour is unchanged after the migration.                                                                                     | A baseline snapshot of pre-migration outputs — the CLI command string and the full JSON-LD payload (`@id` plus every body field) for each route registered in `products/pathway/src/main.js` — is recorded, and post-migration outputs match the snapshot field-for-field. |
 | The libui catalog reflects the new capability.                                                                                                         | `libraries/libui/package.json` carries a new unique entry in `forwardimpact.needs`; `bun run lib:fix` regenerates `libraries/README.md` cleanly and `bun run check` passes.                                                                |
 | External readers can learn the capability without cloning the monorepo.                                                                                | A guide exists under `websites/fit/docs/libraries/<task-slug>/index.md` (slug decided in design); it explains all three channels and shows an end-to-end example.                                                                          |
-| The libui additions are independent of pathway.                                                                                                        | The new libui exports name no pathway concepts (no `fit-pathway`, no `forwardimpact.team/schema/rdf/`); CLI strings and IRI vocabularies are passed in by the consumer.                                                                    |
+| The libui additions are independent of pathway.                                                                                                        | The new libui exports contain no hardcoded pathway-specific literals (no literal `fit-pathway` command name, no literal `forwardimpact.team/schema/rdf/` vocabulary base); product-specific CLI strings and vocabulary bases are passed in by the consumer at registration time. |
 
 ## Notes
 
