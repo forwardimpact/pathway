@@ -62,9 +62,8 @@ Node-only. Both layers ship in the `@forwardimpact/map` npm package so external
 installations get a complete, deployable data product.
 
 **Layering rule:** `src/activity/validate/` may import from the rest of `src/`
-(e.g., to validate `discipline` values during people validation).
-Pure-agent-aligned engineering standard code under `src/` must not import from
-`src/activity/` or `supabase/`.
+(e.g., to validate `discipline` values during people validation). Pure-layer
+code under `src/` must not import from `src/activity/` or `supabase/`.
 
 **Join convention:** Agent-Aligned Engineering Standard entity IDs
 (`discipline`, `level`, `track`, `skill_id`, `level_id`, `driver.id`) serve as

@@ -127,9 +127,10 @@ specs merge only the document, not code.
 
 ## The Workflows
 
-Seven scheduled workflows run on a three-shift Europe/Paris rhythm — **night**
-by 07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00 — plus
-an event-driven **agent-react** workflow on PR and discussion activity.
+Six scheduled workflows run on a three-shift Europe/Paris rhythm — **night** by
+07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00 — plus an
+event-driven **agent-react** workflow on PR and discussion activity, and an
+on-demand **kata-coaching** workflow dispatched manually.
 
 | Workflow                    | Schedule (Paris, CEST)                | Agent                                    |
 | --------------------------- | ------------------------------------- | ---------------------------------------- |

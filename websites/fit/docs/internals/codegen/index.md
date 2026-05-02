@@ -24,14 +24,15 @@ miss any custom services the installation defines.
 Proto files are co-located with the packages that own them. Each package
 includes a `proto/` subdirectory published in its npm tarball.
 
-| Package                    | Proto files                      | Role                      |
-| -------------------------- | -------------------------------- | ------------------------- |
-| `@forwardimpact/guide`     | `common.proto`, `resource.proto` | Shared Guide types        |
-| `@forwardimpact/svcgraph`  | `graph.proto`                    | Graph queries             |
-| `@forwardimpact/svctrace`  | `trace.proto`                    | Distributed tracing       |
-| `@forwardimpact/svcvector` | `vector.proto`                   | Vector search             |
-| Project root               | `proto/tool.proto`               | Shared tool message types |
-| User project               | `proto/*.proto`                  | Custom services           |
+| Package                     | Proto files                      | Role                      |
+| --------------------------- | -------------------------------- | ------------------------- |
+| `@forwardimpact/guide`      | `common.proto`, `resource.proto` | Shared Guide types        |
+| `@forwardimpact/svcgraph`   | `graph.proto`                    | Graph queries             |
+| `@forwardimpact/svcpathway` | `pathway.proto`                  | Pathway derivation        |
+| `@forwardimpact/svctrace`   | `trace.proto`                    | Distributed tracing       |
+| `@forwardimpact/svcvector`  | `vector.proto`                   | Vector search             |
+| Project root                | `proto/tool.proto`               | Shared tool message types |
+| User project                | `proto/*.proto`                  | Custom services           |
 
 `fit-codegen` auto-discovers `proto/` subdirectories from all installed
 `@forwardimpact/*` packages in `node_modules/`, plus the project's own `proto/`
