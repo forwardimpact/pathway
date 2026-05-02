@@ -4,7 +4,7 @@ description: The agent-shaped utilities you carry into the field — CLIs, retri
 layout: product
 toc: false
 hero:
-  image: /assets/scene-concept.svg
+  image: /assets/scene-gear.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
   subtitle: Gear is the catalog of agent-shaped utilities for builders deploying humans and agents. CLIs, retrieval primitives, evaluation tooling, and service infrastructure — installed from npm and the forwardimpact/fit-skills skill pack so builders and agents share one inventory.
   cta:
