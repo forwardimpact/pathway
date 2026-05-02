@@ -1,21 +1,20 @@
 # Schedule Templates
 
-Kata agents run on a **three-shift pattern**: night, day, and swing. Within each
-shift, agents run in a producer-reviewer-shipper chain:
+Kata agents run on a **three-shift** (night, day, swing) producer-reviewer-
+shipper chain:
 
-1. **product-manager** -- triages first so staff has a fresh backlog
+1. **product-manager** -- triages a fresh backlog
 2. **staff-engineer** -- implements from the backlog
-3. **security-engineer** -- reviews code for vulnerabilities (night only)
-4. **technical-writer** -- reviews docs for accuracy (night only)
+3. **security-engineer** -- reviews code (night only)
+4. **technical-writer** -- reviews docs (night only)
 5. **release-engineer** -- ships what passed review
-6. **improvement-coach** (storyboard) -- daily after the night shift
+6. **improvement-coach** -- storyboard, daily after night
 
-Security and technical-writer run only in the night shift because dependency
-churn and doc drift do not need intra-day cadence.
+Security and technical-writer run only at night.
 
 ## Cron Expressions by Timezone
 
-All crons are in UTC. Local times shown for the tighter summer offset.
+All crons are UTC. Local times use the tighter summer offset.
 
 ### Europe/Paris (CEST UTC+2 / CET UTC+1)
 

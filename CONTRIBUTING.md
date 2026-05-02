@@ -43,25 +43,21 @@ Entry gate — read every item before starting.
 - [ ] **Smallest plan.** No unrequested features, abstractions, or refactors. If
       it isn't asked for, don't add it.
 - [ ] **Read the code** I'm about to change before writing.
-- [ ] **Search shared libraries first.** Before writing a helper, utility, retry
-      wrapper, argument parser, or any other generic capability, scan
-      [libraries/README.md](libraries/README.md). If a library covers it, use
-      it. If not, note that in the commit or plan so future contributors don't
-      re-search.
+- [ ] **Search shared libraries first.** Before writing any generic helper, scan
+      [libraries/README.md](libraries/README.md). Use a library if one covers
+      it; otherwise note that in the commit or plan.
 - [ ] **Search libharness first for test helpers.** Before writing a mock or
-      fixture in a test, check `libraries/libharness/src/index.js`. Reuse what
-      exists; extend libharness in the same PR when duplication would cross two
-      files.
+      fixture, check `libraries/libharness/src/index.js`. Reuse it; extend
+      libharness in the same PR when duplication would cross two files.
 - [ ] **Simple over easy.** Reduce complexity, don't relocate it. Three similar
-      lines beat a premature abstraction. If tempted to extract a helper for a
-      single use, inline it. If tempted to add configuration for a single
-      consumer, hardcode it.
+      lines beat a premature abstraction. Inline single-use helpers; hardcode
+      single-consumer configuration.
 - [ ] **No defensive code.** Trust the architecture — let errors surface. No
       try/catch "just to be safe," no optional chaining on data that isn't
       optional.
 - [ ] **Clean breaks.** Delete old code as you write new — in one commit. No
-      shims, aliases, or feature flags for the old path. If there are no
-      consumers yet, remove the old interface entirely.
+      shims, aliases, or flags for the old path. With no consumers yet, remove
+      the old interface entirely.
 
 </read_do_checklist>
 

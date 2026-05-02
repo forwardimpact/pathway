@@ -32,10 +32,9 @@ is no commitment to implement, and a design has nothing to shape.
 
 <read_do_checklist goal="Internalize design-writing boundaries before starting">
 
-- [ ] Run `git fetch origin main`, then confirm `specs/NNN/spec.md` exists on
-      `origin/main` (`git show origin/main:specs/NNN/spec.md` succeeds). A
-      `spec:approved` label on an open PR is **not** sufficient — wait for the
-      spec PR to merge, even if you authored or approved it this session.
+- [ ] Confirm `specs/NNN/spec.md` exists on `origin/main` after
+      `git fetch origin main`. A `spec:approved` label on an open PR is not
+      sufficient — wait for the merge.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not write the plan — this skill writes the design; `kata-plan`

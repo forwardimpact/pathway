@@ -53,55 +53,44 @@ XmR protocol reference at
 
 ## Storyboard updates
 
-Current Condition is rendered as per-metric blocks grouped under
-`### {agent} — {domain}` headings (no row-per-metric overview table). For each
-CSV-backed metric, write a `#### {metric_name}` block containing:
+Current Condition is rendered as per-metric blocks under
+`### {agent} — {domain}` headings (no overview table). For each CSV-backed
+metric, write a `#### {metric_name}` block containing:
 
-1. A one-line status header —
-   `**Latest:** {value} · **Status:** {status from analyze}`. No trend arrows or
-   alert glyphs — the chart shows direction and position relative to limits; the
-   `Status` field carries the classification.
-2. The visualization: paste the canonical 14-line Wheeler/Vacanti X+mR chart
-   from `bunx fit-xmr chart <csv> --metric <name>` verbatim, wrapped in a fenced
-   code block to preserve monospace alignment. The chart already labels `μ`,
-   `UPL`, `LPL`, the `±1.5σ` zones, `URL`, `R`, and the run index — **do not
-   restate any of those values in surrounding prose**.
+1. A status header — `**Latest:** {value} · **Status:** {status}`. No trend
+   arrows or alert glyphs.
+2. The visualization: paste the 14-line X+mR chart from
+   `bunx fit-xmr chart <csv> --metric <name>` verbatim in a fenced code block.
+   The chart labels `μ`, `UPL`, `LPL`, `±1.5σ`, `URL`, `R`, and the run index —
+   **do not restate any of these in prose**.
 
-   Chart the whole CSV. The process being measured is continuous; the storyboard
-   month is a coaching artifact for setting a new target, not a process reset.
-   Don't filter to "this month" or "trailing N days" — every new storyboard
-   renders the same continuous series with whatever history has accumulated.
+   Chart the whole CSV. The process is continuous; the storyboard month is a
+   coaching artifact, not a process reset. Don't filter to "this month" — every
+   storyboard renders the same series.
 
-3. A `**Signals:**` line listing the fired Wheeler rules from
-   `bunx fit-xmr analyze` (`xRule1`, `xRule2`, `xRule3`, `mrRule1`), or `—` if
-   none.
+3. A `**Signals:**` line listing fired Wheeler rules (`xRule1`, `xRule2`,
+   `xRule3`, `mrRule1`), or `—` if none.
 4. An optional one-line note only when `status` is `signals_present` and a fired
-   rule needs cross-referencing to a specific event. Stable metrics get no
-   prose.
+   rule needs cross-referencing. Stable metrics get no prose.
 
 Above the agent-domain sections, write a tight `### Headlines` list naming only
-the metrics whose status changed since the last meeting (new fired rule,
-threshold crossed, classification flip). The Wheeler/Vacanti chart is the
-visualization — agents add the cross-reference layer (e.g., "matches PR #535
-burst") only where there is something to say.
+metrics whose status changed since the last meeting. Agents add cross-reference
+notes (e.g. "matches PR #535 burst") only where they help.
 
 ## Active / Concluded partition
 
-Obstacles and Experiments are partitioned into `### Active` and
-`### Concluded (last 7 days)` subsections. The rule is mechanical:
+Obstacles and Experiments split into `### Active` and
+`### Concluded (last 7 days)`. Mechanical rule:
 
-1. When concluding an obstacle or experiment, post the verdict as a closing
-   comment on the issue (see [`issue-lifecycle.md`](issue-lifecycle.md)), close
-   the issue, and move the storyboard entry from `Active` to
-   `Concluded (last 7 days)`. The Concluded entry is one line: status, date
-   closed, one-sentence verdict, with `(#NNN)`.
-2. At the start of every storyboard session, scan `Concluded (last 7 days)` and
-   delete any line whose closed-date is more than 7 days before today. Date
-   math, not judgment.
-3. Never mix active and concluded items in the same list.
+1. Concluding an item — close the issue with a verdict comment (see
+   [`issue-lifecycle.md`](issue-lifecycle.md)), and move the storyboard entry to
+   `Concluded (last 7 days)` as one line: status, close date, one-sentence
+   verdict, `(#NNN)`.
+2. At session start, drop any concluded line older than 7 days. Date math, not
+   judgment.
+3. Never mix active and concluded in the same list.
 
-The closed issue is the permanent record. Full issue lifecycle — creation,
-commenting, closing, and one-time migration — is in
+The closed issue is the permanent record; full lifecycle in
 [`issue-lifecycle.md`](issue-lifecycle.md).
 
 ## Q3 obstacle routing

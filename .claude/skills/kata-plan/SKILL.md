@@ -28,10 +28,9 @@ there is no architectural direction to translate into implementation steps.
 
 <read_do_checklist goal="Internalize plan-writing boundaries before starting">
 
-- [ ] Run `git fetch origin main`, then confirm `specs/NNN/design-a.md` exists
-      on `origin/main` (`git show origin/main:specs/NNN/design-a.md` succeeds).
-      A `design:approved` label on an open PR is **not** sufficient — wait for
-      the design PR to merge, even if you authored or approved it this session.
+- [ ] Confirm `specs/NNN/design-a.md` exists on `origin/main` after
+      `git fetch origin main`. A `design:approved` label on an open PR is not
+      sufficient — wait for the merge.
 - [ ] Do not write or revise the spec — return it to `draft` if it needs
       changes.
 - [ ] Do not implement — this skill writes the plan; `kata-implement` executes

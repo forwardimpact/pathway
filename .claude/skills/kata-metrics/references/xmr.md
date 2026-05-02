@@ -2,10 +2,8 @@
 
 XmR (individuals and moving range) charts distinguish stable processes from
 those reacting to special causes. They use the data itself to compute natural
-process limits — no external targets needed.
-
-`fit-xmr` implements the canonical Wheeler/Vacanti rendering: one layout, one
-set of detection rules, no variants.
+process limits — no external targets needed. `fit-xmr` implements the canonical
+Wheeler/Vacanti rendering: one layout, one set of rules.
 
 ## Usage
 
@@ -15,12 +13,12 @@ Run `fit-xmr analyze` against any observation CSV:
 bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv
 ```
 
-Other commands: `fit-xmr chart` (the 14-line chart for a single metric),
-`fit-xmr summarize` (markdown table across metrics), `fit-xmr list` (metric
-inventory), `fit-xmr validate` (schema check). Run `fit-xmr --help` for details.
+Other commands: `fit-xmr chart` (single-metric 14-line chart),
+`fit-xmr summarize` (markdown table), `fit-xmr list` (inventory),
+`fit-xmr validate` (schema check). `fit-xmr --help` for details.
 
-`analyze --format json` returns structured output. The text mode embeds the
-chart followed by a stats table and signals list.
+`analyze --format json` returns structured output; text mode embeds the chart
+plus a stats table and signals list.
 
 ## Construction
 
