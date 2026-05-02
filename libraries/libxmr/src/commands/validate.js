@@ -6,7 +6,7 @@ import {
   formatBullet,
 } from "@forwardimpact/libcli";
 
-import { validateCSV } from "../xmr.js";
+import { validateCSV } from "../csv.js";
 
 export function runValidateCommand(values, args, cli) {
   const csvPath = args[0];

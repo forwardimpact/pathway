@@ -6,7 +6,7 @@ import { createCli } from "@forwardimpact/libcli";
 import { runAnalyzeCommand } from "../src/commands/analyze.js";
 import { runListCommand } from "../src/commands/list.js";
 import { runValidateCommand } from "../src/commands/validate.js";
-import { runSparkCommand } from "../src/commands/spark.js";
+import { runChartCommand } from "../src/commands/chart.js";
 import { runSummarizeCommand } from "../src/commands/summarize.js";
 
 const { version: VERSION } = JSON.parse(
@@ -16,17 +16,32 @@ const { version: VERSION } = JSON.parse(
 const definition = {
   name: "fit-xmr",
   version: VERSION,
-  description: "XmR control chart analysis for time-series CSV metrics",
+  description: "Wheeler/Vacanti XmR control charts for time-series CSV metrics",
   commands: [
     {
       name: "analyze",
       args: "<csv-path>",
-      description: "Full XmR control chart report",
+      description:
+        "Full XmR control chart report — chart, limits, signals, classification",
       options: {
         metric: {
           type: "string",
           short: "m",
           description: "Filter to a single metric by name",
+        },
+      },
+    },
+    {
+      name: "chart",
+      args: "<csv-path>",
+      description:
+        "Render the 14-line Wheeler/Vacanti XmR chart for a single metric",
+      options: {
+        metric: {
+          type: "string",
+          short: "m",
+          description:
+            "Metric name (optional when the CSV carries exactly one metric)",
         },
       },
     },
@@ -39,19 +54,6 @@ const definition = {
       name: "validate",
       args: "<csv-path>",
       description: "Validate CSV against the metrics schema",
-    },
-    {
-      name: "spark",
-      args: "<csv-path>",
-      description:
-        "Block-character sparkline of last 12 points (for markdown tables)",
-      options: {
-        metric: {
-          type: "string",
-          short: "m",
-          description: "Metric name (required)",
-        },
-      },
     },
     {
       name: "summarize",
@@ -70,19 +72,29 @@ const definition = {
   globalOptions: {
     format: {
       type: "string",
-      description: "Output format (text|json, default: text)",
+      description:
+        "Command output format: text (default) or json. Charts are text-only.",
+    },
+    ascii: {
+      type: "boolean",
+      description: "Render charts with ASCII glyphs instead of Unicode",
     },
     help: { type: "boolean", short: "h", description: "Show this help" },
     version: { type: "boolean", description: "Show version" },
-    json: { type: "boolean", description: "Output help as JSON" },
+    json: {
+      type: "boolean",
+      description:
+        "Render the --help output itself as JSON (separate from --format)",
+    },
   },
   examples: [
     "fit-xmr analyze wiki/metrics/security-engineer/audit/2026.csv",
     "fit-xmr analyze wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities",
     "fit-xmr analyze wiki/metrics/security-engineer/audit/2026.csv --format json",
+    "fit-xmr chart wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities",
+    "fit-xmr chart wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities --ascii",
     "fit-xmr list wiki/metrics/security-engineer/audit/2026.csv",
     "fit-xmr validate wiki/metrics/security-engineer/audit/2026.csv",
-    "fit-xmr spark wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities",
     "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv",
     "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv --format json",
   ],
@@ -91,7 +103,7 @@ const definition = {
       title: "XmR Analysis",
       url: "https://www.forwardimpact.team/docs/libraries/xmr-analysis/index.md",
       description:
-        "Distinguish stable processes from special causes with XmR control charts — CSV schema, signal rules, and how to read the report.",
+        "Distinguish stable processes from special causes with Wheeler/Vacanti XmR control charts — CSV schema, the three detection rules, the 14-line chart, and how to read the report.",
     },
   ],
 };
@@ -100,9 +112,9 @@ const cli = createCli(definition);
 
 const COMMANDS = {
   analyze: runAnalyzeCommand,
+  chart: runChartCommand,
   list: runListCommand,
   validate: runValidateCommand,
-  spark: runSparkCommand,
   summarize: runSummarizeCommand,
 };
 

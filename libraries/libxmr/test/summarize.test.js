@@ -44,7 +44,7 @@ describe("summarize command", () => {
       assert.match(out, /\*\*XmR — `.*`\*\*/);
       assert.match(
         out,
-        /\| metric \| n \| latest \| x̄ \| UNPL \| LNPL \| classification \| signals \|/,
+        /\| metric \| n \| latest \| μ \| UPL \| LPL \| classification \| signals \|/,
       );
       assert.match(out, /\| stable_metric \| 20 \|/);
       assert.match(out, /\| stable \|/);
@@ -65,7 +65,7 @@ describe("summarize command", () => {
     });
   });
 
-  test("emits JSON when --format json", () => {
+  test("emits JSON in the same {source, generated, metrics} shape as analyze", () => {
     const values = Array.from({ length: 20 }, (_, i) => 10 + (i % 2));
     const csv = makeCSV("m", values);
 
@@ -73,10 +73,14 @@ describe("summarize command", () => {
       const result = run(["summarize", file, "--format", "json"]);
       assert.strictEqual(result.status, 0, result.stderr);
       const parsed = JSON.parse(result.stdout);
-      assert.strictEqual(parsed.rows.length, 1);
-      assert.strictEqual(parsed.rows[0].metric, "m");
-      assert.strictEqual(parsed.rows[0].classification, "stable");
-      assert.ok(parsed.rows[0].x_bar > 10);
+      assert.ok(parsed.source);
+      assert.ok(parsed.generated);
+      assert.strictEqual(parsed.metrics.length, 1);
+      assert.strictEqual(parsed.metrics[0].metric, "m");
+      assert.strictEqual(parsed.metrics[0].classification, "stable");
+      assert.ok(parsed.metrics[0].stats.mu > 10);
+      assert.ok(parsed.metrics[0].signals);
+      assert.deepStrictEqual(parsed.metrics[0].signals.xRule1, []);
     });
   });
 
@@ -107,8 +111,8 @@ describe("summarize command", () => {
     assert.match(result.stderr, /requires a <csv-path>/);
   });
 
-  test("flags signals classification for runs", () => {
-    // 10 above-mean then 10 below-mean -> run_above + run_below
+  test("flags non-stable classification when X Rule 2 fires", () => {
+    // 10 above-mean then 10 below-mean → run of 10 above + run of 10 below.
     const values = [
       ...Array.from({ length: 10 }, () => 20),
       ...Array.from({ length: 10 }, () => 5),
@@ -119,7 +123,80 @@ describe("summarize command", () => {
       const result = run(["summarize", file, "--format", "json"]);
       assert.strictEqual(result.status, 0, result.stderr);
       const parsed = JSON.parse(result.stdout);
-      assert.notStrictEqual(parsed.rows[0].classification, "stable");
+      assert.notStrictEqual(parsed.metrics[0].classification, "stable");
+      assert.ok(parsed.metrics[0].signals.xRule2.length > 0);
+    });
+  });
+});
+
+describe("chart command", () => {
+  test("renders a 14-line chart for the §10 worked example", () => {
+    const csv = makeCSV("ex", [5, 6, 7, 5, 6, 4, 7, 8, 6, 13, 5, 6, 7, 6, 5]);
+
+    withTempCSV(csv, (file) => {
+      const result = run(["chart", file, "--metric", "ex"]);
+      assert.strictEqual(result.status, 0, result.stderr);
+      const lines = result.stdout.replace(/\n$/, "").split("\n");
+      assert.strictEqual(lines.length, 14);
+      assert.ok(lines[0].includes("UPL 12.5"));
+      assert.ok(lines[0].includes("●"));
+      assert.ok(lines[6].includes("LPL 0.3"));
+      assert.ok(lines[8].includes("URL 7.5"));
+      assert.ok(lines[13].includes(" 1  2  3"));
+    });
+  });
+
+  test("defaults to the sole metric when --metric is omitted", () => {
+    const csv = makeCSV("ex", [5, 6, 7, 5, 6, 4, 7, 8, 6, 13, 5, 6, 7, 6, 5]);
+    withTempCSV(csv, (file) => {
+      const result = run(["chart", file]);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.ok(result.stdout.includes("UPL 12.5"));
+      assert.ok(result.stdout.includes("●"));
+    });
+  });
+
+  test("requires --metric when the CSV carries multiple metrics", () => {
+    const csv = [
+      "date,metric,value,unit,run,note",
+      "2026-01-01,a,1,count,,",
+      "2026-01-02,b,2,count,,",
+    ].join("\n");
+    withTempCSV(csv, (file) => {
+      const result = run(["chart", file]);
+      assert.notStrictEqual(result.status, 0);
+      assert.match(result.stderr, /requires --metric/);
+    });
+  });
+
+  test("rejects --format json", () => {
+    const csv = makeCSV("ex", [1, 2, 3]);
+    withTempCSV(csv, (file) => {
+      const result = run(["chart", file, "--metric", "ex", "--format", "json"]);
+      assert.notStrictEqual(result.status, 0);
+      assert.match(result.stderr, /does not support --format json/);
+    });
+  });
+
+  test("--ascii substitutes ASCII glyphs", () => {
+    const csv = makeCSV("ex", [5, 6, 7, 5, 6, 4, 7, 8, 6, 13, 5, 6, 7, 6, 5]);
+    withTempCSV(csv, (file) => {
+      const result = run(["chart", file, "--metric", "ex", "--ascii"]);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.ok(result.stdout.includes("X-bar"));
+      assert.ok(result.stdout.includes("R-bar"));
+      assert.ok(result.stdout.includes("*"));
+      assert.ok(!result.stdout.includes("●"));
+      assert.ok(!result.stdout.includes("σ"));
+    });
+  });
+
+  test("notes insufficient data when n < 15", () => {
+    const csv = makeCSV("ex", [1, 2, 3]);
+    withTempCSV(csv, (file) => {
+      const result = run(["chart", file, "--metric", "ex"]);
+      assert.strictEqual(result.status, 0, result.stderr);
+      assert.match(result.stdout, /Insufficient data/);
     });
   });
 });

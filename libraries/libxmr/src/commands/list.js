@@ -1,7 +1,7 @@
 import { existsSync, readFileSync } from "node:fs";
 import { formatHeader, formatTable } from "@forwardimpact/libcli";
 
-import { listMetrics } from "../xmr.js";
+import { listMetrics } from "../csv.js";
 
 export function runListCommand(values, args, cli) {
   const csvPath = args[0];

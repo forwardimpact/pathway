@@ -4,6 +4,9 @@ XmR (individuals and moving range) charts distinguish stable processes from
 those reacting to special causes. They use the data itself to compute natural
 process limits — no external targets needed.
 
+`fit-xmr` implements the canonical Wheeler/Vacanti rendering: one layout, one
+set of detection rules, no variants.
+
 ## Usage
 
 Run `fit-xmr analyze` against any observation CSV:
@@ -12,117 +15,111 @@ Run `fit-xmr analyze` against any observation CSV:
 bunx fit-xmr analyze wiki/metrics/{agent}/{domain}/{YYYY}.csv
 ```
 
-Other commands: `fit-xmr list` (metric inventory), `fit-xmr validate` (schema
-check). Run `fit-xmr --help` for details.
+Other commands: `fit-xmr chart` (the 14-line chart for a single metric),
+`fit-xmr summarize` (markdown table across metrics), `fit-xmr list` (metric
+inventory), `fit-xmr validate` (schema check). Run `fit-xmr --help` for
+details.
 
-Output is JSON to stdout. Pipe through `jq` or read directly.
+`analyze --format json` returns structured output. The text mode embeds the
+chart followed by a stats table and signals list.
 
 ## Construction
 
-1. **X chart (individuals):** Plot each measurement in time order. Compute the
-   average (`x_bar`) as the central line.
-2. **mR chart (moving range):** Compute `|x_i - x_{i-1}|` for consecutive
-   measurements. Compute the average moving range (`mr_bar`).
-3. **Natural Process Limits (NPL):** `unpl = x_bar + 2.66 * mr_bar`.
-   `lnpl = max(0, x_bar - 2.66 * mr_bar)`.
-4. **Upper Range Limit:** `url = 3.27 * mr_bar` (for the mR chart).
+Subgroup size n=2 individuals chart. Constants are exact:
+
+1. **X chart (individuals):** Plot each measurement in time order. Compute
+   the centerline `μ = mean(values)`.
+2. **mR chart (moving range):** Compute `|x_i − x_{i-1}|` for consecutive
+   measurements. Compute `R = mean(mRs)`.
+3. **σ̂ estimate:** `σ̂ = R / 1.128` (the d₂ constant for n=2).
+4. **Natural process limits:** `UPL = μ + 2.660 × R`, `LPL = μ − 2.660 × R`.
+   LPL is **not** clipped to zero — a negative LPL on a count metric is a
+   signal about the metric, not a thing to hide.
+5. **Upper range limit:** `URL = 3.268 × R` (D₄ for n=2). There is no LRL —
+   D₃ = 0.
+6. **Outer-zone boundaries:** `μ ± 1.5σ̂` mark the strip used by Rule 3.
 
 Minimum 15 data points before computing meaningful limits.
 
-## Signal Rules
+## The Three Detection Rules
 
-| Rule               | Meaning                                |
-| ------------------ | -------------------------------------- |
-| `point_above_unpl` | Value exceeds upper natural limit      |
-| `point_below_lnpl` | Value below lower natural limit        |
-| `run_above`        | 8+ consecutive points above X-bar      |
-| `run_below`        | 8+ consecutive points below X-bar      |
-| `trend_up`         | 6+ consecutive increases               |
-| `trend_down`       | 6+ consecutive decreases               |
-| `mr_above_url`     | Moving range exceeds upper range limit |
+| Rule         | Condition                                                                | Applied to |
+| ------------ | ------------------------------------------------------------------------ | ---------- |
+| **X-Rule 1** | A point falls outside the natural process limits (strict inequality)    | X chart    |
+| **X-Rule 2** | 8 consecutive points on the same side of μ                              | X chart    |
+| **X-Rule 3** | 3 of any 4 consecutive points strictly beyond ±1.5σ̂ on the same side    | X chart    |
+| **mR-Rule 1** | A moving range point exceeds URL                                       | mR chart   |
+
+When Rule 2 or Rule 3 fires, all participating slots are listed — the
+visual gestalt of the run carries the diagnostic information.
+
+**No additional rules.** Western Electric's full set, the Nelson rules, and
+trend tests are deliberately omitted. They inflate false-alarm rates beyond
+what is useful for the small-sample contexts these charts are designed for.
 
 ## JSON Report Format
 
-The script outputs one JSON object with a `metrics` array. Each element:
+The `analyze --format json` script outputs:
 
 ```json
 {
-  "metric": "open_issues",
-  "unit": "count",
-  "n": 105,
-  "from": "2026-01-01",
-  "to": "2026-04-14",
-  "x_bar": 16.79,
-  "mr_bar": 0.64,
-  "unpl": 18.5,
-  "lnpl": 15.08,
-  "url": 2.11,
-  "latest": { "date": "2026-04-14", "value": 13, "mr": 1 },
-  "signals": [
-    { "rule": "run_below", "from": "2026-02-25", "to": "2026-04-14", "length": 50 },
-    { "rule": "point_below_lnpl", "from": "2026-03-02", "to": "2026-04-14", "count": 45, "trough": 7 }
-  ],
-  "status": "signals_present"
+  "source": "...",
+  "generated": "2026-04-14",
+  "metrics": [{
+    "metric": "open_issues",
+    "unit": "count",
+    "n": 15,
+    "from": "2026-01-01",
+    "to": "2026-01-15",
+    "status": "signals_present",
+    "latest": { "date": "2026-01-15", "value": 5, "mr": 1 },
+    "signals": {
+      "xRule1": [{ "slots": [10], "description": "x=13 > UPL=12.5" }],
+      "xRule2": [],
+      "xRule3": [],
+      "mrRule1": [{ "slots": [11], "description": "mR=8 > URL=7.5" }]
+    },
+    "classification": "chaos",
+    "stats": {
+      "mu": 6.4, "R": 2.3, "sigmaHat": 2.03,
+      "UPL": 12.5, "LPL": 0.3, "URL": 7.5,
+      "zoneUpper": 9.4, "zoneLower": 3.4
+    }
+  }]
 }
 ```
 
 ### Field Reference
 
-| Field     | Type   | Description                                           |
-| --------- | ------ | ----------------------------------------------------- |
-| `metric`  | string | Metric name from the CSV                              |
-| `unit`    | string | Unit of measurement                                   |
-| `n`       | number | Number of data points                                 |
-| `from`    | string | First observation date (ISO 8601)                     |
-| `to`      | string | Last observation date (ISO 8601)                      |
-| `x_bar`   | number | Central line (mean of all values)                     |
-| `mr_bar`  | number | Average moving range                                  |
-| `unpl`    | number | Upper natural process limit                           |
-| `lnpl`    | number | Lower natural process limit (0 floor for counts)      |
-| `url`     | number | Upper range limit (for mR chart)                      |
-| `latest`  | object | Most recent observation: `date`, `value`, `mr`        |
-| `signals` | array  | Detected signals (see Signal Shapes below)            |
-| `status`  | string | `predictable`, `signals_present`, `insufficient_data` |
-
-### Signal Shapes
-
-**Point signals** — consecutive out-of-bounds points consolidated into streaks:
-
-```json
-{ "rule": "point_above_unpl", "from": "...", "to": "...", "count": 11, "peak": 25 }
-{ "rule": "point_below_lnpl", "date": "...", "count": 1, "trough": 7 }
-```
-
-Single-point streaks use `date`; multi-point streaks use `from`/`to`.
-
-**Run signals** — 8+ consecutive points on same side of X-bar:
-
-```json
-{ "rule": "run_above", "from": "...", "to": "...", "length": 40 }
-```
-
-**Trend signals** — 6+ consecutive increases or decreases:
-
-```json
-{ "rule": "trend_down", "from": "...", "to": "...", "moves": 8 }
-```
-
-**mR signals** — moving range exceeds URL (unusual point-to-point volatility):
-
-```json
-{ "rule": "mr_above_url", "date": "...", "count": 1, "peak": 5 }
-```
+| Field            | Type   | Description                                                                  |
+| ---------------- | ------ | ---------------------------------------------------------------------------- |
+| `metric`         | string | Metric name from the CSV                                                     |
+| `unit`           | string | Unit of measurement                                                          |
+| `n`              | number | Number of data points                                                        |
+| `from`, `to`     | string | First and last observation dates                                             |
+| `status`         | string | `predictable`, `signals_present`, or `insufficient_data`                     |
+| `classification` | string | `stable`, `signals`, `chaos`, or `insufficient`                              |
+| `latest`         | object | Most recent observation: `date`, `value`, `mr`                               |
+| `signals`        | object | Keyed by rule: `xRule1`, `xRule2`, `xRule3`, `mrRule1`. Each entry carries `slots` and `description`. |
+| `stats`          | object | `mu`, `R`, `sigmaHat`, `UPL`, `LPL`, `URL`, `zoneUpper`, `zoneLower`         |
 
 ## Interpretation Guidance
 
-- **`status: "predictable"`** — process is stable. Variation is routine noise.
-  Do not react to individual data points.
-- **`status: "signals_present"`** — one or more special causes detected. Read
-  the `signals` array to understand what changed and when.
-- **`status: "insufficient_data"`** — fewer than 15 points. Limits are not
-  meaningful yet. Continue recording.
-- **Runs and trends** are the most actionable signals — they indicate the
-  process level has shifted. Point signals confirm the magnitude of the shift.
-- Do not set targets based on NPLs — they describe what the process _does_, not
-  what it _should_ do. Target conditions come from the storyboard.
-- When a signal appears, annotate the CSV `note` field with what you discover.
+- **`classification: "stable"`** — process is predictable. Variation is
+  routine noise. Do not react to individual data points.
+- **`classification: "signals"`** — at least one X-chart rule fires. Read
+  the `signals` object to understand what changed and when.
+- **`classification: "chaos"`** — mR Rule 1 fires; volatility itself is
+  unstable. The X-chart limits are computed from `R`, so an outsized
+  moving range pulls UPL/LPL wider and the rest of the report is
+  unreliable until you investigate.
+- **`classification: "insufficient"`** — fewer than 15 points. Limits are
+  not meaningful yet. Continue recording.
+- Rule 2 (run) means the centerline shifted. Rule 3 (outer-zone cluster)
+  catches smaller shifts before the run gets long enough to fire Rule 2.
+  Rule 1 confirms the magnitude.
+- Do not set targets based on the limits — they describe what the process
+  *does*, not what it *should* do. Target conditions come from the
+  storyboard.
+- When a signal appears, annotate the CSV `note` field with what you
+  discover.
