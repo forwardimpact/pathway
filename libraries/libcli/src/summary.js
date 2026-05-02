@@ -34,12 +34,19 @@ export class SummaryRenderer {
   }
 
   /**
-   * Render a summary block. The block is suppressed when LOG_LEVEL=error and
-   * the caller reports success (`ok: true`); a failing run still prints so
-   * the user sees the diagnostic context regardless of verbosity.
+   * Render a summary block. A block is **atomic, including its top margin**:
+   * `render` prepends a single blank line before the title so blocks visually
+   * separate from preceding output, and the whole unit (margin + title + items
+   * + extras) is suppressed together when LOG_LEVEL=error and the caller
+   * reports success (`ok: true`). A failing run still prints so the user sees
+   * the diagnostic context regardless of verbosity.
+   *
+   * Because the margin is owned by the block, callers MUST NOT print their own
+   * `\n` before `render`. Doing so leaks a stray blank line when the block is
+   * suppressed, and double-spaces it when the block renders.
    *
    * @param {object}   params
-   * @param {string}   params.title       Block title (rendered as the first line).
+   * @param {string}   params.title       Block title (rendered after the leading blank line).
    * @param {Array<{label: string, description: string}>} params.items  Rows.
    * @param {boolean}  params.ok          Whether the run this summary describes succeeded.
    * @param {string}   [params.extras]    Free-form content rendered after items. Subject to the same suppression as the rest of the block.
@@ -48,7 +55,7 @@ export class SummaryRenderer {
   render({ title, items, ok, extras }, stream = this.#proc.stdout) {
     if (!this.shouldRender(ok)) return;
 
-    stream.write(title + "\n");
+    stream.write("\n" + title + "\n");
 
     if (items && items.length > 0) {
       const maxLabel = Math.max(...items.map((item) => item.label.length));

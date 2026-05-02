@@ -222,14 +222,14 @@ export function printValidation(result, summary) {
     label: check.name,
     description: check.passed ? "✓" : `✗ ${check.message ?? "failed"}`,
   }));
-  process.stdout.write("\n");
+  const ok = result.validation.passed;
   summary.render({
     title: formatHeader("Validation"),
     items,
-    ok: result.validation.passed,
+    ok,
   });
 
-  if (!result.validation.passed) {
+  if (!ok) {
     process.stdout.write("\n");
     const failed = result.validation.checks.filter((c) => !c.passed);
     for (const check of failed) {
@@ -240,17 +240,16 @@ export function printValidation(result, summary) {
   }
 
   // Totals footer (spec § validate: "{ checks: N, failures: M }").
-  process.stdout.write("\n");
   summary.render({
     title: formatHeader("Validation summary"),
     items: [
       { label: "Checks", description: String(result.validation.checks.length) },
       { label: "Failures", description: String(result.validation.failures) },
     ],
-    ok: result.validation.passed,
+    ok,
   });
 
-  return result.validation.passed;
+  return ok;
 }
 
 /**
@@ -267,7 +266,6 @@ export function printProseStats(summary, result, ok) {
     ["Hits", "Generated", "Misses", "Rate"],
     [[hits, generated, misses, `${rate}%`]],
   );
-  process.stdout.write("\n");
   summary.render({
     title: formatHeader("Prose"),
     items: [],
@@ -290,7 +288,6 @@ export function printRenderStats(summary, result, ok) {
       description: `${result.stats.rawDocuments} rendered`,
     });
   }
-  process.stdout.write("\n");
   summary.render({ title: formatHeader("Render"), items, ok });
 }
 
@@ -325,7 +322,6 @@ export function printWriteStats(summary, writeStats, ok) {
     });
   }
   if (items.length === 0 && writeStats.loadErrors === 0) return;
-  process.stdout.write("\n");
   summary.render({ title: formatHeader("Write"), items, ok });
   if (writeStats.loadErrors > 0 && writeStats.loadErrorMessages?.length) {
     process.stdout.write("\n");
@@ -347,7 +343,6 @@ export function printGenerateStats(summary, result, ok) {
       description: String(result.stats.prose.generated),
     },
   ];
-  process.stdout.write("\n");
   summary.render({ title: formatHeader("Generate"), items, ok });
 }
 
@@ -367,7 +362,6 @@ export function printCacheReport(result, summary, ok) {
       ["Keys", "Hits", "Misses", "Rate"],
       [[total, hits, misses, `${rate}%`]],
     );
-    process.stdout.write("\n");
     summary.render({
       title: formatHeader("Cache report"),
       items: [],
@@ -377,7 +371,6 @@ export function printCacheReport(result, summary, ok) {
     return;
   }
 
-  process.stdout.write("\n");
   summary.render({
     title: formatHeader("Cache report"),
     items: [

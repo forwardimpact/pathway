@@ -44,7 +44,7 @@ describe("SummaryRenderer", () => {
     const stream = createStream();
     const renderer = new SummaryRenderer({ process: makeProc() });
     renderer.render({ title: "Done", ok: true, items: [] }, stream);
-    assert.strictEqual(stream.output, "Done\n");
+    assert.strictEqual(stream.output, "\nDone\n");
   });
 
   test("right-pads labels to the longest label width", () => {
@@ -94,7 +94,7 @@ describe("SummaryRenderer", () => {
     const stream = createStream();
     const renderer = new SummaryRenderer({ process: makeProc() });
     renderer.render({ title: "Done", ok: true, items: [] }, stream);
-    assert.strictEqual(stream.output, "Done\n");
+    assert.strictEqual(stream.output, "\nDone\n");
   });
 
   test("throws when ok is missing", () => {
@@ -142,6 +142,22 @@ describe("SummaryRenderer", () => {
     assert.strictEqual(renderer.shouldRender(false), true);
     const def = new SummaryRenderer({ process: makeProc() });
     assert.strictEqual(def.shouldRender(true), true);
+  });
+
+  test("prepends a blank-line margin before the title", () => {
+    const stream = createStream();
+    const renderer = new SummaryRenderer({ process: makeProc() });
+    renderer.render({ title: "Block", ok: true, items: [] }, stream);
+    assert.ok(stream.output.startsWith("\nBlock\n"));
+  });
+
+  test("does not emit the margin when the block is suppressed", () => {
+    const stream = createStream();
+    const renderer = new SummaryRenderer({
+      process: makeProc({ LOG_LEVEL: "error" }),
+    });
+    renderer.render({ title: "Block", ok: true, items: [] }, stream);
+    assert.strictEqual(stream.output, "");
   });
 
   test("shouldRender requires explicit boolean", () => {
