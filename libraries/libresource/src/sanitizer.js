@@ -17,7 +17,7 @@ export const SANITIZE_PATTERNS = [
   },
   {
     name: "double-space-normalize",
-    test: /  +/,
+    test: / {2,}/,
     replace: [[/ {2,}/g, " "]],
   },
   {

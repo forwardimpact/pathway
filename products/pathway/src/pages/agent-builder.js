@@ -139,10 +139,7 @@ export async function renderAgentBuilder() {
   // Parse URL params for pre-selection
   // Supports: #/agent/d1,d2/track (disciplines comma-separated, single track)
   const hash = window.location.hash;
-  const pathMatch = hash.match(
-    // eslint-disable-next-line security/detect-unsafe-regex -- negated char classes prevent backtracking; parses internal URL hash
-    /#\/agent\/([^/]+)(?:\/([^/?]+))?/,
-  );
+  const pathMatch = hash.match(/#\/agent\/([^/]+)(?:\/([^/?]+))?/);
   const initialDisciplines = pathMatch
     ? new Set(pathMatch[1].split(",").filter(Boolean))
     : new Set();

@@ -6,7 +6,15 @@
  */
 
 /* Layer order declaration - must be first */
-@layer tokens, reset, base, components, utilities, pages, slides, handout, print;
+@layer tokens,
+  reset,
+  base,
+  components,
+  utilities,
+  pages,
+  slides,
+  handout,
+  print;
 
 /* Foundation (from libui) */
 @import "/ui/css/tokens.css" layer(tokens);

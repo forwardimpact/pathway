@@ -180,8 +180,9 @@ function formatValidationResults(result) {
 async function runValidate(dataDir) {
   process.stdout.write(formatHeader(`Validating data in: ${dataDir}`) + "\n\n");
 
-  const { createDataLoader, createSchemaValidator } =
-    await import("../src/index.js");
+  const { createDataLoader, createSchemaValidator } = await import(
+    "../src/index.js"
+  );
 
   const loader = createDataLoader();
   const validator = createSchemaValidator();
@@ -234,8 +235,9 @@ async function runExport(dataDir, outputDir) {
     formatHeader(`Exporting standard to: ${outputDir}`) + "\n\n",
   );
 
-  const { createDataLoader, createExporter, createRenderer } =
-    await import("../src/index.js");
+  const { createDataLoader, createExporter, createRenderer } = await import(
+    "../src/index.js"
+  );
 
   const loader = createDataLoader();
   const data = await loader.loadAllData(dataDir);
@@ -421,8 +423,9 @@ async function main() {
       }
       case "validate": {
         if (values.shacl) {
-          const { runValidateShacl } =
-            await import("../src/commands/validate-shacl.js");
+          const { runValidateShacl } = await import(
+            "../src/commands/validate-shacl.js"
+          );
           exitCode = await runValidateShacl();
         } else {
           const dataDir = await findDataDir(values.data);

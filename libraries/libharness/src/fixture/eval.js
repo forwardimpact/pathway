@@ -71,7 +71,7 @@ export function collectLines(stream) {
  * @returns {string}
  */
 export function stripAnsi(s) {
-  // eslint-disable-next-line no-control-regex -- ANSI SGR detection is intentional.
+  // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI SGR detection is intentional.
   return s.replace(/\[[0-9;]*m/g, "");
 }
 

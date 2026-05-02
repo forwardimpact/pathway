@@ -9,8 +9,9 @@ import { createRequire } from "node:module";
 import { pipeline } from "node:stream/promises";
 
 const require = createRequire(import.meta.url);
-const SVSCAN_BIN =
-  require.resolve("@forwardimpact/libsupervise/bin/fit-svscan.js");
+const SVSCAN_BIN = require.resolve(
+  "@forwardimpact/libsupervise/bin/fit-svscan.js",
+);
 
 /**
  * @typedef {object} RuntimePaths

@@ -54,19 +54,14 @@ Rules in CONTRIBUTING.md § Security. Additionally verify:
 - `.gitleaks.toml` allowlist exists for known false positives
 - Secrets in workflows use `secrets.*` — no hardcoded values
 
-### 4. Static Analysis
-
-Verify no security rules disabled in `eslint.config.js` without inline
-justification.
-
-### 5. Application Security (OWASP Top 10)
+### 4. Application Security (OWASP Top 10)
 
 Check for: injection (shell, SQL, template), broken auth, sensitive data
 exposure, security misconfiguration (CORS, headers), vulnerable components
 (`npm audit`), insufficient logging, SSRF, insecure deserialization (untrusted
 YAML/JSON without schema validation).
 
-### 6. CI/CD Security
+### 5. CI/CD Security
 
 Verify publish workflows block on audit failures and CI/local workflows run the
 same checks.
@@ -89,7 +84,6 @@ Each run covers **one topic** in depth.
 | `actions-supply-chain`       | SHA pins, permissions, third-party action usage             |
 | `npm-dependencies`           | `npm audit`, duplicates, outdated packages, CVE triage      |
 | `credential-leak-prevention` | `.gitignore`, `.gitleaks.toml`, secrets in workflows, hooks |
-| `static-analysis`            | ESLint security rules, disabled rules, config gaps          |
 | `app-security-services`      | OWASP Top 10 in `services/` code                            |
 | `app-security-libraries`     | OWASP Top 10 in `libraries/` code                           |
 | `app-security-products`      | OWASP Top 10 in `products/` code                            |

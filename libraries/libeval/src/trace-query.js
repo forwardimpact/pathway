@@ -151,7 +151,6 @@ export class TraceQuery {
    */
   search(pattern, opts = {}) {
     const { context = 0, limit = 50, full = false } = opts;
-    // eslint-disable-next-line security/detect-non-literal-regexp -- pattern is caller-controlled, not untrusted input
     const re = new RegExp(pattern, "gi");
     const hits = [];
 

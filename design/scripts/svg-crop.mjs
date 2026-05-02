@@ -91,9 +91,7 @@ function isEmpty(box) {
 // The two number-shape sub-groups are independent (mantissa, exponent) and
 // cannot backtrack across each other — eslint's unsafe-regex heuristic flags
 // the optional exponent suffix even though it's bounded.
-const TOKEN_RE =
-  // eslint-disable-next-line security/detect-unsafe-regex -- bounded suffix; no nested quantifiers
-  /([MmLlHhVvCcSsQqTtAaZz])|(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/g;
+const TOKEN_RE = /([MmLlHhVvCcSsQqTtAaZz])|(-?\d+(?:\.\d+)?(?:[eE][-+]?\d+)?)/g;
 const isLetter = (t) => /^[A-Za-z]$/.test(t);
 
 // Per-command bbox extenders. Each handler reads its operand stride from the
@@ -218,7 +216,6 @@ function pathBox(d) {
 function getAttr(attrs, name) {
   // `name` is always a hard-coded SVG attribute identifier from this module
   // (e.g. "x", "y", "rx") — never user input — so the dynamic RegExp is safe.
-  // eslint-disable-next-line security/detect-non-literal-regexp -- name is a closed set of literals
   const m = attrs.match(new RegExp(`\\b${name}="([^"]+)"`));
   return m ? parseFloat(m[1]) : null;
 }
@@ -270,7 +267,6 @@ function pointsBox(attrs) {
   if (!m) return null;
   // Number pattern with a single optional fractional suffix — bounded, no
   // nested quantifiers — but eslint's heuristic flags any optional sub-group.
-  // eslint-disable-next-line security/detect-unsafe-regex -- bounded suffix; no nested quantifiers
   const nums = m[1].match(/-?\d+(?:\.\d+)?/g);
   if (!nums || nums.length < 2) return null;
   const box = makeBox();
@@ -309,7 +305,6 @@ function parseColor(value) {
   // anchored between literal commas and a closing paren — no nested quantifiers
   // can backtrack across the rest of the pattern.
   const rgb = v.match(
-    // eslint-disable-next-line security/detect-unsafe-regex -- anchored alpha clause; no nested quantifiers
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*[\d.]+\s*)?\)$/,
   );
   if (rgb)
@@ -368,7 +363,6 @@ function fmt(n) {
 function setOrInsert(tag, name, value) {
   // `name` is one of {"width", "height", "viewBox"} — closed literal set, not
   // user input. Dynamic RegExp is safe.
-  /* eslint-disable security/detect-non-literal-regexp -- name is a closed set of literals */
   if (new RegExp(`\\b${name}=`).test(tag)) {
     return tag.replace(new RegExp(`\\b${name}="[^"]*"`), `${name}="${value}"`);
   }

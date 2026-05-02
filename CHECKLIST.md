@@ -232,8 +232,8 @@ rg '<do_confirm_checklist'  # all exit gates
 
 The `goal` attribute makes results self-describing — each match shows type and
 protected outcome without opening the file. Keep the full opening tag on one
-line (≤ 80 chars) so `rg` returns the goal in a single match; Prettier's
-`proseWrap` will break longer lines.
+line (≤ 80 chars) so `rg` returns the goal in a single match; the formatter
+will wrap longer lines.
 
 ### Placement
 

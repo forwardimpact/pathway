@@ -81,7 +81,6 @@ function parseColor(value) {
   // rgba() syntax pattern. The optional alpha clause is anchored between
   // literal commas and a closing paren — no nested quantifiers.
   const rgb = v.match(
-    // eslint-disable-next-line security/detect-unsafe-regex -- anchored alpha clause; no nested quantifiers
     /^rgba?\(\s*(\d+)\s*,\s*(\d+)\s*,\s*(\d+)\s*(?:,\s*([\d.]+)\s*)?\)$/,
   );
   if (rgb) {

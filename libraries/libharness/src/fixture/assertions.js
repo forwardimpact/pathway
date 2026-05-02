@@ -9,7 +9,6 @@ import assert from "node:assert";
 export function assertThrowsMessage(fn, pattern, message) {
   assert.throws(
     fn,
-    // eslint-disable-next-line security/detect-non-literal-regexp -- test-only utility; pattern is developer-controlled
     { message: pattern instanceof RegExp ? pattern : new RegExp(pattern) },
     message,
   );
@@ -24,7 +23,6 @@ export function assertThrowsMessage(fn, pattern, message) {
 export async function assertRejectsMessage(fn, pattern, message) {
   await assert.rejects(
     fn,
-    // eslint-disable-next-line security/detect-non-literal-regexp -- test-only utility; pattern is developer-controlled
     { message: pattern instanceof RegExp ? pattern : new RegExp(pattern) },
     message,
   );

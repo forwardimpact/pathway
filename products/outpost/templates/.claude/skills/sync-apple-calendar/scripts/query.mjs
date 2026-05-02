@@ -92,7 +92,6 @@ if (
  * Parse an interval string like "2h", "30m", "1d" into milliseconds.
  */
 function parseInterval(str) {
-  // eslint-disable-next-line security/detect-unsafe-regex -- anchored pattern with no nested quantifiers; parses trusted CLI input
   const match = str.match(/^(\d+(?:\.\d+)?)\s*(m|min|h|hr|d)$/i);
   if (!match) {
     console.error(`Invalid interval: ${str}. Use e.g., 2h, 30m, 1d`);

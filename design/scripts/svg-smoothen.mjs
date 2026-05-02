@@ -186,7 +186,6 @@ function parsePath(d) {
     const nums =
       cmd
         .slice(1)
-        // eslint-disable-next-line security/detect-unsafe-regex -- the (?:e[+-]?\d+)? group is bounded; matches a single optional exponent on a number token, no nested quantifiers.
         .match(/-?\d+\.?\d*(?:e[+-]?\d+)?/gi)
         ?.map(Number) || [];
     applyCommand(state, cmd[0], nums);

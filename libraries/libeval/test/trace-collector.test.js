@@ -412,7 +412,7 @@ describe("TraceCollector", () => {
       // New shape: `Bash: <hint>` where the hint is truncated with `...`.
       // We look for the hint ending (strip ANSI first so the escape bytes
       // don't inflate the visible length).
-      // eslint-disable-next-line no-control-regex -- ANSI SGR stripping is intentional.
+      // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI SGR stripping is intentional.
       const plain = text.replace(/\u001b\[[0-9;]*m/g, "");
       const toolLine = plain.split("\n").find((l) => l.startsWith("Bash:"));
       assert.ok(toolLine, "expected a `Bash:` line");

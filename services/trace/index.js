@@ -1,5 +1,4 @@
 import { services } from "@forwardimpact/librpc";
-// eslint-disable-next-line no-unused-vars -- used in JSDoc type annotations
 import { TraceIndex } from "@forwardimpact/libtelemetry/index/trace.js";
 
 const { TraceBase } = services;

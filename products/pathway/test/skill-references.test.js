@@ -194,9 +194,6 @@ describe("prepareSkillDetail — references field", () => {
 
   test("legacy implementationReference is no longer present on the view", () => {
     const view = prepareSkillDetail(baseSkill, baseContext);
-    assert.strictEqual(
-      Object.prototype.hasOwnProperty.call(view, "implementationReference"),
-      false,
-    );
+    assert.strictEqual(Object.hasOwn(view, "implementationReference"), false);
   });
 });

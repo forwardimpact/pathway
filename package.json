@@ -22,10 +22,10 @@
     "dev": "bunx fit-pathway dev",
     "check": "bun run format && bun run lint && bun run harness && bun run context",
     "check:fix": "bun run format:fix && bun run lint:fix && bun run context:fix",
-    "lint": "eslint . --max-warnings 0 --cache --concurrency=auto",
-    "lint:fix": "eslint . --fix --cache --concurrency=auto",
-    "format": "prettier --check --cache --log-level warn .",
-    "format:fix": "prettier --write --cache .",
+    "lint": "biome lint .",
+    "lint:fix": "biome lint --write .",
+    "format": "biome format .",
+    "format:fix": "biome format --write .",
     "harness": "bun scripts/check-libharness.mjs",
     "test": "find ./tests ./libraries ./products ./services -name '*.test.js' -not -path '*/node_modules/*' | xargs bun test",
     "test:e2e": "bunx playwright test",
@@ -45,12 +45,8 @@
     "forwardimpact-monorepo": "."
   },
   "devDependencies": {
-    "@eslint/js": "^10.0.1",
+    "@biomejs/biome": "2.4.14",
     "@playwright/test": "^1.59.1",
-    "eslint": "^10.2.1",
-    "eslint-config-prettier": "^10.1.8",
-    "eslint-plugin-security": "^4.0.0",
-    "prettier": "^3.8.3",
     "serve": "^14.2.6"
   },
   "overrides": {

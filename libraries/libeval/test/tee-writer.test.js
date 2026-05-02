@@ -257,7 +257,7 @@ describe("TeeWriter", () => {
     const textData = collect(textStream);
     // Prefix sits OUTSIDE the color escape so grep/color-stripped views
     // still see it.
-    // eslint-disable-next-line no-control-regex -- ANSI SGR detection is the assertion.
+    // biome-ignore lint/suspicious/noControlCharactersInRegex: ANSI SGR detection is the assertion.
     assert.match(textData, /^staff-engineer: \u001b\[/);
   });
 
