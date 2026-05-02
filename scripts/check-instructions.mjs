@@ -1,47 +1,13 @@
 #!/usr/bin/env node
 // Enforce instruction layer limits (CHECKLIST.md § Length and Loading).
+// Each layer is gated by a line cap AND a word cap; either breach fails.
 // Called by `bun run check` and `just check-instructions`.
 
 import { readFile, readdir } from "node:fs/promises";
 import { resolve } from "node:path";
 
-const L1_CLAUDE_MD_MAX_LINES = 192;
-const L2_CONTRIBUTING_MAX_LINES = 256;
-const L3_AGENT_PROFILE_MAX_LINES = 64;
-const L4_SKILL_PROCEDURE_MAX_LINES = 192;
-const L5_SKILL_REFERENCE_MAX_LINES = 128;
-const L6_CHECKLIST_MAX_ITEMS = 9;
-
 const root = resolve(new URL("..", import.meta.url).pathname);
-let status = 0;
 
-const fail = (msg) => {
-  console.error(`error: ${msg}`);
-  status = 1;
-};
-
-const lineCount = async (path, max, layer) => {
-  let text;
-  try {
-    text = await readFile(resolve(root, path), "utf8");
-  } catch {
-    return;
-  }
-  // Match `wc -l`: count newline characters, not split elements.
-  const lines = (text.match(/\n/g) || []).length;
-  if (lines > max) fail(`${path} has ${lines} lines (max ${max}, ${layer})`);
-};
-
-const listFiles = async (dir, match) => {
-  try {
-    const entries = await readdir(resolve(root, dir), { withFileTypes: true });
-    return entries.filter(match).map((e) => `${dir}/${e.name}`);
-  } catch {
-    return [];
-  }
-};
-
-// Walk the repo, skipping dependency, build, and untracked scratch trees.
 const SKIP_DIRS = new Set([
   "node_modules",
   ".git",
@@ -68,6 +34,36 @@ const walk = async (dir, visit) => {
   }
 };
 
+const listFiles = async (dir, match) => {
+  try {
+    const entries = await readdir(resolve(root, dir), { withFileTypes: true });
+    return entries.filter(match).map((e) => `${dir}/${e.name}`);
+  } catch {
+    return [];
+  }
+};
+
+const readText = async (path) => {
+  try {
+    return await readFile(resolve(root, path), "utf8");
+  } catch {
+    return null;
+  }
+};
+
+// Match `wc -l`: count newline characters, not split elements.
+const lineCount = (text) => (text.match(/\n/g) || []).length;
+const wordCount = (text) => (text.match(/\S+/g) || []).length;
+
+let status = 0;
+const fail = (msg) => {
+  console.error(`error: ${msg}`);
+  status = 1;
+};
+
+// File discovery — every `.claude/` directory in the repo gets its agents and
+// skills checked, so per-product templates (e.g. products/outpost/templates)
+// are held to the same caps as the monorepo root.
 const findClaudeMdFiles = async () => {
   const out = [];
   await walk(".", (e, path) => {
@@ -76,9 +72,6 @@ const findClaudeMdFiles = async () => {
   return out;
 };
 
-// Every `.claude/` directory in the repo gets its agents/skills checked,
-// so per-product templates (e.g. products/outpost/templates/.claude) are
-// held to the same caps as the monorepo root.
 const findClaudeDirs = async () => {
   const out = [];
   await walk(".", (e, path) => {
@@ -87,80 +80,133 @@ const findClaudeDirs = async () => {
   return out;
 };
 
-// L1 — every CLAUDE.md (root and any directory-scoped instruction file).
-for (const path of await findClaudeMdFiles()) {
-  await lineCount(path, L1_CLAUDE_MD_MAX_LINES, "L1 CLAUDE.md");
-}
-
-// L2 — CONTRIBUTING.md
-await lineCount(
-  "CONTRIBUTING.md",
-  L2_CONTRIBUTING_MAX_LINES,
-  "L2 CONTRIBUTING.md",
-);
-
 const claudeDirs = await findClaudeDirs();
 
-// L3 — agent profiles in every .claude/agents directory.
-for (const claude of claudeDirs) {
-  for (const f of await listFiles(
-    `${claude}/agents`,
-    (e) => e.isFile() && e.name.endsWith(".md"),
-  )) {
-    await lineCount(f, L3_AGENT_PROFILE_MAX_LINES, "L3 agent profile");
+const findAgentProfiles = async () => {
+  const out = [];
+  for (const d of claudeDirs) {
+    const files = await listFiles(
+      `${d}/agents`,
+      (e) => e.isFile() && e.name.endsWith(".md"),
+    );
+    out.push(...files);
   }
-}
+  return out;
+};
 
-// L4 — skill procedure (SKILL.md) in every .claude/skills/<skill> directory.
 const allSkillDirs = [];
-for (const claude of claudeDirs) {
-  const dirs = await listFiles(`${claude}/skills`, (e) => e.isDirectory());
+for (const d of claudeDirs) {
+  const dirs = await listFiles(`${d}/skills`, (e) => e.isDirectory());
   allSkillDirs.push(...dirs);
 }
-for (const d of allSkillDirs) {
-  await lineCount(
-    `${d}/SKILL.md`,
-    L4_SKILL_PROCEDURE_MAX_LINES,
-    "L4 skill procedure",
-  );
-}
 
-// L5 — skill references
-for (const d of allSkillDirs) {
-  for (const f of await listFiles(
-    `${d}/references`,
-    (e) => e.isFile() && e.name.endsWith(".md"),
-  )) {
-    await lineCount(f, L5_SKILL_REFERENCE_MAX_LINES, "L5 skill reference");
+const findSkillProcedures = async () =>
+  allSkillDirs.map((d) => `${d}/SKILL.md`);
+
+const findSkillReferences = async () => {
+  const out = [];
+  for (const d of allSkillDirs) {
+    const files = await listFiles(
+      `${d}/references`,
+      (e) => e.isFile() && e.name.endsWith(".md"),
+    );
+    out.push(...files);
   }
+  return out;
+};
+
+// Layer definitions. Caps follow the existing 64/128/256 family; word caps
+// land near P95 of the current corpus, rounded to multiples of 64 or 128 so
+// agents cannot evade the line cap by collapsing bullets into prose.
+const LAYERS = [
+  {
+    id: "L1",
+    what: "CLAUDE.md",
+    maxLines: 192,
+    maxWords: 896,
+    find: findClaudeMdFiles,
+  },
+  {
+    id: "L2",
+    what: "CONTRIBUTING.md",
+    maxLines: 256,
+    maxWords: 1536,
+    find: async () => ["CONTRIBUTING.md"],
+  },
+  {
+    id: "L3",
+    what: "agent profile",
+    maxLines: 64,
+    maxWords: 384,
+    find: findAgentProfiles,
+  },
+  {
+    id: "L4",
+    what: "skill procedure",
+    maxLines: 192,
+    maxWords: 1280,
+    find: findSkillProcedures,
+  },
+  {
+    id: "L5",
+    what: "skill reference",
+    maxLines: 128,
+    maxWords: 768,
+    find: findSkillReferences,
+  },
+];
+
+const checkFile = async (path, { id, what, maxLines, maxWords }) => {
+  const text = await readText(path);
+  if (text == null) return;
+  const lines = lineCount(text);
+  const words = wordCount(text);
+  if (lines > maxLines)
+    fail(`${path} has ${lines} lines (max ${maxLines}, ${id} ${what})`);
+  if (words > maxWords)
+    fail(`${path} has ${words} words (max ${maxWords}, ${id} ${what})`);
+};
+
+for (const layer of LAYERS) {
+  const files = await layer.find();
+  for (const f of files) await checkFile(f, layer);
 }
 
-// L6 — checklists: ≤ 9 items per tagged block.
+// L6 — checklists: ≤ 9 items per block, ≤ 32 words per item.
+const L6_MAX_ITEMS = 9;
+const L6_MAX_WORDS_PER_ITEM = 32;
+
 const checklistRe =
   /<(read_do_checklist|do_confirm_checklist)\b[^>]*>([\s\S]*?)<\/\1>/g;
-const itemRe = /^\s*-\s*\[\s*\]/gm;
+const itemSplitRe = /^\s*-\s*\[[ xX]\]\s*/m;
+
 const checklistSources = [
   "CONTRIBUTING.md",
   ...allSkillDirs.map((d) => `${d}/SKILL.md`),
 ];
+
 for (const path of checklistSources) {
-  let text;
-  try {
-    text = await readFile(resolve(root, path), "utf8");
-  } catch {
-    continue;
-  }
+  const text = await readText(path);
+  if (text == null) continue;
   let m;
   let index = 0;
   while ((m = checklistRe.exec(text))) {
     index += 1;
     const type = m[1];
-    const items = (m[2].match(itemRe) || []).length;
-    if (items > L6_CHECKLIST_MAX_ITEMS) {
+    const items = m[2].split(itemSplitRe).slice(1);
+    if (items.length > L6_MAX_ITEMS) {
       fail(
-        `${path} checklist #${index} (${type}) has ${items} items (max ${L6_CHECKLIST_MAX_ITEMS}, L6 checklist)`,
+        `${path} checklist #${index} (${type}) has ${items.length} items (max ${L6_MAX_ITEMS}, L6 checklist)`,
       );
     }
+    items.forEach((raw, i) => {
+      const w = wordCount(raw.trim());
+      if (w > L6_MAX_WORDS_PER_ITEM) {
+        fail(
+          `${path} checklist #${index} (${type}) item ${i + 1} has ${w} words (max ${L6_MAX_WORDS_PER_ITEM}, L6 checklist item)`,
+        );
+      }
+    });
   }
 }
 
