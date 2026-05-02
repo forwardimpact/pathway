@@ -54,7 +54,7 @@ jobs:
           # Generate all synthetic data using cached prose — this produces
           # data/pathway/ (standard) and data/activity/raw/activity/summit.yaml
           # (roster).
-          bunx fit-terrain
+          bunx fit-terrain build
 
           mkdir -p "$agent_dir/data"
           cp -r data/pathway "$agent_dir/data/pathway"

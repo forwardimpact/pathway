@@ -15,7 +15,7 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6
       - uses: ./.github/actions/bootstrap
-      - run: bunx fit-terrain
+      - run: bunx fit-terrain build
       - run: bun run test
       - run: bun run validate -- --shacl
 
