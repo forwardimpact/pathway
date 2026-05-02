@@ -7,18 +7,22 @@ import { resolve, join } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 const VERBS = ["check", "validate", "build", "generate", "inspect"];
-// Match `fit-terrain` only when it is the executable being called:
-//   - preceded by `bunx ` (justfile/workflow recipe form, e.g.
-//     `bunx fit-terrain build`)
-//   - preceded by `"` (package.json script-value form, e.g.
-//     `"generate": "fit-terrain build"`)
-// and NOT followed by an accepted verb. This excludes argument/path
-// references like `just build-binary fit-terrain` or
-// `dist/binaries/fit-terrain` that are not invocations.
+// Match the start of a `fit-terrain` invocation (the executable being
+// called, not an argument or path token):
+//   - preceded by `bunx ` (justfile/workflow recipe form)
+//   - preceded by `"` (package.json script-value form)
+// `(?![\w-])` after `fit-terrain` excludes hyphen-extended tool names
+// (e.g. a hypothetical `fit-terrain-foo`).
 // Verbs are inlined here (not interpolated from VERBS) to keep the regex
 // literal — eslint security/detect-non-literal-regexp flags `new RegExp()`.
-const PATTERN =
-  /(?:bunx\s+|"\s*)fit-terrain\b(?!\s+(?:check|validate|build|generate|inspect)\b)/;
+const INVOCATION = /(?:bunx\s+|"\s*)fit-terrain(?![\w-])/;
+// Look for an accepted verb anywhere later in the same line so global
+// flags between `fit-terrain` and the verb (e.g.
+// `bunx fit-terrain --story=foo build`) are tolerated. A trailing
+// `(?![\w-])` rejects hyphenated extensions like `check-something`.
+// Verb list and regex must stay in sync with
+// libterrain/bin/fit-terrain.js.
+const VERB_AFTER = /\s+(?:check|validate|build|generate|inspect)(?![\w-])/;
 
 async function listWorkflows() {
   const dir = resolve(root, ".github/workflows");
@@ -38,9 +42,12 @@ let status = 0;
 for (const path of targets) {
   const text = await readFile(path, "utf8");
   text.split("\n").forEach((line, i) => {
-    if (PATTERN.test(line)) {
+    const m = INVOCATION.exec(line);
+    if (!m) return;
+    const tail = line.slice(m.index + m[0].length);
+    if (!VERB_AFTER.test(tail)) {
       console.error(
-        `${path}:${i + 1}: bare 'bunx fit-terrain' — add a verb (${VERBS.join("|")})`,
+        `${path}:${i + 1}: fit-terrain invocation without a verb — add one of (${VERBS.join("|")})`,
       );
       status = 1;
     }
