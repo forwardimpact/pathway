@@ -46,9 +46,10 @@ contributor docs that name `synthetic-no-prose`.
   -    "data:prose": "LOG_LEVEL=error bunx fit-terrain check",
   +    "data:prose": "bunx fit-terrain check",
   ```
-- **Verify:** `bun run data:prose` exits 0 on a populated cache and prints the
-  cache report at default log level; `jq -r '.scripts.generate' package.json`
-  prints `fit-terrain build`.
+- **Verify:** `bun run data:prose` prints the cache report at default log level
+  with no error-threshold suppression (exit code reflects cache state, not the
+  prefix change); `jq -r '.scripts.generate' package.json` prints
+  `fit-terrain build`.
 
 ### S3 — Update CI workflows
 
@@ -108,10 +109,12 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
 
   const root = resolve(new URL("..", import.meta.url).pathname);
   const VERBS = ["check", "validate", "build", "generate", "inspect"];
-  // `inspect` is allowed bare in this gate; the CLI itself enforces
-  // `inspect <stage>` and reports its own usage error.
+  // Catches both `bunx fit-terrain` and bare `fit-terrain` (the form used in
+  // `package.json scripts.generate`) without one of the accepted verbs.
+  // `inspect` is the only verb that takes an argument; the CLI itself
+  // enforces `inspect <stage>` and reports its own usage error.
   const PATTERN = new RegExp(
-    String.raw`\bbunx\s+fit-terrain\b(?!\s+(?:${VERBS.join("|")})\b)`,
+    String.raw`(?<![\w-])(?:bunx\s+)?fit-terrain\b(?!\s+(?:${VERBS.join("|")})\b)`,
   );
 
   async function listWorkflows() {
@@ -157,9 +160,12 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
   check-terrain-callers:
       node scripts/check-terrain-callers.mjs
   ```
-- **Verify:** introduce a temporary bare `bunx fit-terrain` in `justfile`;
-  `node scripts/check-terrain-callers.mjs` exits 1 with the line cite; revert;
-  `bun run context:terrain` exits 0; `bun run check` passes end-to-end.
+- **Verify (non-destructive):** with no edits to the repo, run
+  `bun run context:terrain` from a clean working tree — exits 0 (post-S1–S3
+  surface has no bare invocation). Then in a `git stash`-protected scratch edit,
+  add `bunx fit-terrain` (no verb) to a comment line in `justfile` and re-run —
+  exits 1 with `<file>:<line>: bare 'bunx fit-terrain' …`. `git stash pop` to
+  discard the scratch. Finally, `bun run check` passes end-to-end.
 
 ### S6 — Update contributor docs
 
@@ -196,18 +202,29 @@ calls `bun run data:prose` / `data:schema`, both fixed in S2).
 
 ## Libraries used
 
-`Libraries used: none.`
+Libraries used: none.
 
 ## Risks
 
-| Id  | Risk                                                                                                                                         | Why not visible from the plan                                                                                                                                                                                                                  |
-| --- | -------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| P1  | The `Test (e2e)` `synthetic-cache` is hit on the impl branch (key includes `data/synthetic/**` only), masking the miss-path fix.             | The cache is keyed on `hashFiles('data/synthetic/**', 'products/map/schema/json/**', 'bun.lock')`, not on branch — to force a miss, the implementer must touch any file under `data/synthetic/**` (a no-op edit suffices) before pushing.      |
-| P2  | The `bun start` `prestart` hook in S8 fails because `bunx fit-pathway build` reads `data/pathway/` from a path the sweep didn't materialize. | The implementer cannot tell from the plan whether `quickstart`'s `synthetic` recipe has emitted `data/pathway/` to the same root that `fit-pathway build` reads from; verify before declaring S8 green.                                        |
-| P3  | The static gate (S5) green-lights legitimate verb invocations broken across multiple lines (e.g., shell line-continuation inside a heredoc). | The line-by-line regex cannot see across `\` line continuations; the gate over-permits in that shape. The four heredoc workflow files do not currently use line-continuation around the call, but the implementer should re-check after merge. |
+| Id  | Risk                                                                                                                                           | Why not visible from the plan                                                                                                                                                                                                                        |
+| --- | ---------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| P1  | The `Test (e2e)` `synthetic-cache` is hit on the impl branch (key includes `data/synthetic/**` only), masking the miss-path fix.               | The cache is keyed on `hashFiles('data/synthetic/**', 'products/map/schema/json/**', 'bun.lock')`, not on branch — to force a miss, the implementer must touch any file under `data/synthetic/**` (a no-op edit suffices) before pushing.            |
+| P2  | `data:prose` keeps exit-code 1 after the S2 prefix change because the cache invariant currently failing on `main` is unrelated to `LOG_LEVEL`. | Spec scope excludes `data/synthetic/` content. If exit-code 1 persists in CI after S2 lands the diagnostic visibly, the residual fix is outside this PR; the implementer reports the surfaced error to the spec author rather than chasing it in S2. |
+| P3  | The static gate (S5) green-lights legitimate verb invocations broken across multiple lines (e.g., shell line-continuation inside a heredoc).   | The line-by-line regex cannot see across `\` line continuations; the gate over-permits in that shape. The four heredoc workflow files do not currently use line-continuation around the call, but the implementer should re-check after merge.       |
 
 ## Execution
 
-Sequential agent: **`staff-engineer`**. Single PR landing S1–S6 in one commit
-chain, with S7 (CI green) as the merge gate and S8 (clean-checkout replay)
-performed once before applying `plan:implemented`.
+Sequential agent: **`staff-engineer`**. Single PR with S1–S6 as one squashed
+commit (or six commits squashed at merge — implementer's choice), with S7 (CI
+green on the impl PR, then on `main` post-merge) as the merge gate and S8
+(clean-checkout replay) performed once before applying `plan:implemented`.
+
+Inter-step dependencies:
+
+- **S1 → S5**: the gate (S5) only sees green after S1 has added verbs to the
+  `justfile` recipes; land S1–S4 (and S6) before wiring `bun run check` to call
+  the gate, or `bun run check` will fail on the same commit that introduces the
+  gate.
+- **S5 → S7**: the gate runs as part of `bun run check` in CI; expected green on
+  the impl PR.
+- **S1 ⇒ S8**: clean-checkout replay depends on the fixed `synthetic` recipe.
