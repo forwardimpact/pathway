@@ -172,7 +172,10 @@ function generateSnapshots(ast) {
   while (y < toY || (y === toY && m <= toM)) {
     const q = Math.ceil(m / 3);
     const id = `snap_${y}_Q${q}`;
-    const done = new Date(y, m, 1).toISOString();
+    // Use UTC so the resulting ISO string is the same regardless of the
+    // host machine's local timezone — this date flows into snapshot keys
+    // and scenario-active checks downstream.
+    const done = new Date(Date.UTC(y, m, 1)).toISOString();
     snaps.push({
       snapshot_id: id,
       account_id: ast.snapshots.account_id,
