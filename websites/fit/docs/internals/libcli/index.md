@@ -398,6 +398,122 @@ raises it above `info`.
 
 ---
 
+## Handler Dispatch and InvocationContext
+
+Products that share handler logic between a web UI and a CLI can opt into
+`InvocationContext` — a frozen `{ data, args, options }` object that both
+surfaces produce from their native inputs. The handler never knows which
+surface invoked it.
+
+### Subcommand definition
+
+Declare named positionals with `args: string[]` and provide a `handler`.
+The legacy `args: "<usage>"` string form still works for CLIs that don't
+need dispatch.
+
+```js
+const definition = {
+  name: "fit-pathway",
+  commands: [
+    {
+      name: "skill",
+      args: ["id"],
+      argsUsage: "[<id>]",
+      description: "Show skill detail",
+      handler: (ctx) => runSkillCommand(ctx),
+    },
+  ],
+  globalOptions: {
+    data: { type: "string", description: "Path to data directory" },
+    json: { type: "boolean", description: "JSON output" },
+    help: { type: "boolean", short: "h", description: "Show help" },
+  },
+};
+```
+
+### Dispatching
+
+After `parse()`, call `dispatch()` with the host's data dependencies:
+
+```js
+const parsed = cli.parse(process.argv.slice(2));
+if (!parsed) process.exit(0);
+
+cli.dispatch(parsed, { data: { skills, disciplines } });
+```
+
+`dispatch()` maps argv positionals to the declared `args` names, merges
+parsed flags into `options`, deep-freezes everything via
+`freezeInvocationContext`, and calls the handler. The handler receives:
+
+```js
+function runSkillCommand(ctx) {
+  // ctx.data    — host-provided dependencies (skills, disciplines, …)
+  // ctx.args    — { id: "testing" } (named, not positional)
+  // ctx.options — { json: true } (parsed flags)
+}
+```
+
+### The InvocationContext contract
+
+Three invariants:
+
+- **No surface affordances.** No DOM nodes, streams, or surface tags. Anything
+  that exists on only one surface stays out.
+- **Uniform value shapes.** `args` values are strings; `options` values are one
+  of `string`, `boolean true`, or `string[]`. No nulls, no numbers.
+- **Frozen at all levels.** The context, `args`, `options`, and any array inside
+  `options` are `Object.freeze`'d by the producer.
+
+### Shared presenters
+
+The handler calls a shared presenter that returns a view, then renders it
+through surface-specific formatters. One presenter per capability, exercised
+by both surfaces against synthetic contexts in tests:
+
+```js
+// shared presenter — no DOM, no stdout
+function presentSkill(ctx) {
+  const skill = ctx.data.skills.find((s) => s.id === ctx.args.id);
+  return { name: skill.name, proficiencies: skill.proficiencies };
+}
+
+// CLI handler
+function runSkillCommand(ctx) {
+  const view = presentSkill(ctx);
+  formatDetailToStdout(view, ctx.options);
+}
+
+// Web page (via libui's defineRoute)
+function renderSkillPage(ctx) {
+  const view = presentSkill(ctx);
+  renderDetailToDOM(view, ctx.options);
+}
+```
+
+### Web-side pairing with libui
+
+Products with web UIs use libui's `createBoundRouter` and `defineRoute` to
+produce the same `InvocationContext` from URL hash routes. The route
+descriptor binds the URL pattern, page handler, CLI command string, and graph
+IRI in one place:
+
+```js
+import { createBoundRouter, defineRoute } from "@forwardimpact/libui";
+
+const router = createBoundRouter({ data, vocabularyBase });
+router.register(defineRoute({
+  pattern: "/skill/:id",
+  page: (ctx) => renderSkillPage(ctx),
+  cli: (ctx) => `npx fit-pathway skill ${ctx.args.id}`,
+  graph: (ctx, base) => `${base}Skill/${ctx.args.id}`,
+}));
+```
+
+See `@forwardimpact/libui` for the full bound-router API.
+
+---
+
 ## Composition with Other Libraries
 
 | Library | Scope |
