@@ -39,9 +39,7 @@ export class SummaryRenderer {
 
     const maxLabel = Math.max(...items.map((item) => item.label.length));
     for (const item of items) {
-      stream.write(
-        `  ${item.label.padEnd(maxLabel)}  — ${item.description}\n`,
-      );
+      stream.write(`  ${item.label.padEnd(maxLabel)}  — ${item.description}\n`);
     }
   }
 }

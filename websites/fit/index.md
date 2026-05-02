@@ -124,11 +124,11 @@ and agents pull in just what they need.
 >
 > — W. Edwards Deming
 
-Forward Impact Engineering puts this into practice. Organizations define what great
-engineering looks like — skills, behaviours, and career levels — in a shared
-agent-aligned engineering standard. Engineers gain clear expectations, career
-paths, AI assistance, and knowledge systems matched to their standards. When the
-path forward is clear, engineers deliver with confidence and pride.
+Forward Impact Engineering puts this into practice. Organizations define what
+great engineering looks like — skills, behaviours, and career levels — in a
+shared agent-aligned engineering standard. Engineers gain clear expectations,
+career paths, AI assistance, and knowledge systems matched to their standards.
+When the path forward is clear, engineers deliver with confidence and pride.
 
   <div class="hero-cta" style="margin-top: var(--space-6);">
     <a href="/about/" class="btn btn-secondary">Read our philosophy</a>

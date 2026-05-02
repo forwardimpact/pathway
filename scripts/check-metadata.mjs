@@ -5,7 +5,7 @@
 //
 // Usage: check-metadata.mjs [--fix]
 
-import { readFileSync, writeFileSync, readdirSync, statSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { resolve, join, relative, dirname } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
@@ -57,13 +57,15 @@ const KEY_ORDER = [
 ];
 
 function findPackageJsons(dir, out = []) {
-  for (const entry of readdirSync(dir)) {
-    if (SKIP_DIRS.has(entry)) continue;
-    const full = join(dir, entry);
-    const st = statSync(full);
-    if (st.isDirectory()) {
+  // withFileTypes returns a Dirent whose isDirectory()/isSymbolicLink() do not
+  // dereference the symlink, so we naturally skip broken symlinks like
+  // .claude/memory → ../wiki when wiki is not checked out (e.g. on CI).
+  for (const entry of readdirSync(dir, { withFileTypes: true })) {
+    if (SKIP_DIRS.has(entry.name)) continue;
+    const full = join(dir, entry.name);
+    if (entry.isDirectory()) {
       findPackageJsons(full, out);
-    } else if (entry === "package.json") {
+    } else if (entry.isFile() && entry.name === "package.json") {
       out.push(full);
     }
   }

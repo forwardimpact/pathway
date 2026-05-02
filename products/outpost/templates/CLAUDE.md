@@ -22,9 +22,8 @@ This knowledge base is a **professional tool shared with trusted team members**
 - **No weaponization.** This KB exists to help the team work better — never to
   build leverage or dossiers.
 - **Push back** on requests that violate these principles.
-- **Data protection.** Use the `req-forget` skill for erasure
-  requests. Minimize collection. Flag candidates inactive 6+ months for
-  retention review.
+- **Data protection.** Use the `req-forget` skill for erasure requests. Minimize
+  collection. Flag candidates inactive 6+ months for retention review.
 
 When in doubt, err on the side of discretion.
 
@@ -63,14 +62,14 @@ Maintained by a team of agents in `.claude/agents/`, woken on schedule by the
 Outpost scheduler. Each wake: observe state, decide the most valuable action,
 execute.
 
-| Agent              | Domain                          | Schedule        | Skills                                                                                                                           |
-| ------------------ | ------------------------------- | --------------- | -------------------------------------------------------------------------------------------------------------------------------- |
-| **postman**        | Communication triage and drafts | Every 5 min     | sync-apple-mail, sync-teams, draft-emails                                                                                        |
-| **concierge**      | Meeting prep and transcripts    | Every 10 min    | sync-apple-calendar, meeting-prep, hyprnote-process                                                                              |
-| **librarian**      | Knowledge graph maintenance     | Every 15 min    | extract-entities, organize-files, manage-tasks                                                                                   |
-| **recruiter**      | Engineering recruitment         | Every 30 min    | req-track, req-screen, req-assess, req-decide, req-workday, req-forget, fit-pathway, fit-map                                     |
-| **head-hunter**    | Passive talent scouting         | Every 60 min    | req-scan, fit-pathway, fit-map                                                                                                   |
-| **chief-of-staff** | Daily briefings and priorities  | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_                                                                   |
+| Agent              | Domain                          | Schedule        | Skills                                                                                       |
+| ------------------ | ------------------------------- | --------------- | -------------------------------------------------------------------------------------------- |
+| **postman**        | Communication triage and drafts | Every 5 min     | sync-apple-mail, sync-teams, draft-emails                                                    |
+| **concierge**      | Meeting prep and transcripts    | Every 10 min    | sync-apple-calendar, meeting-prep, hyprnote-process                                          |
+| **librarian**      | Knowledge graph maintenance     | Every 15 min    | extract-entities, organize-files, manage-tasks                                               |
+| **recruiter**      | Engineering recruitment         | Every 30 min    | req-track, req-screen, req-assess, req-decide, req-workday, req-forget, fit-pathway, fit-map |
+| **head-hunter**    | Passive talent scouting         | Every 60 min    | req-scan, fit-pathway, fit-map                                                               |
+| **chief-of-staff** | Daily briefings and priorities  | 7am, Mon 7:30am | weekly-update _(Mon)_, _(reads all state for daily briefings)_                               |
 
 Each agent writes `~/.cache/fit/outpost/state/{agent}_triage.md` per wake. The
 **chief-of-staff** reads all five triage files to synthesize daily briefings in
@@ -78,8 +77,8 @@ Each agent writes `~/.cache/fit/outpost/state/{agent}_triage.md` per wake. The
 
 ## Cache Directory (`~/.cache/fit/outpost/`)
 
-Synced data and runtime state live outside the KB to keep it clean — only
-parsed knowledge, notes, and drafts live here. Top-level subdirs:
+Synced data and runtime state live outside the KB to keep it clean — only parsed
+knowledge, notes, and drafts live here. Top-level subdirs:
 
 - `apple_mail/` — Mail threads as `.md` (plus `attachments/`)
 - `apple_calendar/` — Calendar events as `.json`

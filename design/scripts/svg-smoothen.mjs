@@ -21,11 +21,51 @@ import { basename } from "path";
 import { parseArgs } from "node:util";
 
 const LEVEL_PRESETS = {
-  1: { name: "minimal", minHeight: 0.3, maxHeight: 1.5, maxBase: 4, maxSpan: 3, alignDeg: 30, maxBrightness: 40 },
-  2: { name: "light", minHeight: 0.3, maxHeight: 2.5, maxBase: 7, maxSpan: 4, alignDeg: 40, maxBrightness: 55 },
-  3: { name: "moderate", minHeight: 0.3, maxHeight: 4, maxBase: 12, maxSpan: 5, alignDeg: 50, maxBrightness: 70 },
-  4: { name: "firm", minHeight: 0.3, maxHeight: 6, maxBase: 18, maxSpan: 6, alignDeg: 60, maxBrightness: 100 },
-  5: { name: "aggressive", minHeight: 0.3, maxHeight: 10, maxBase: 25, maxSpan: 8, alignDeg: 75, maxBrightness: 140 },
+  1: {
+    name: "minimal",
+    minHeight: 0.3,
+    maxHeight: 1.5,
+    maxBase: 4,
+    maxSpan: 3,
+    alignDeg: 30,
+    maxBrightness: 40,
+  },
+  2: {
+    name: "light",
+    minHeight: 0.3,
+    maxHeight: 2.5,
+    maxBase: 7,
+    maxSpan: 4,
+    alignDeg: 40,
+    maxBrightness: 55,
+  },
+  3: {
+    name: "moderate",
+    minHeight: 0.3,
+    maxHeight: 4,
+    maxBase: 12,
+    maxSpan: 5,
+    alignDeg: 50,
+    maxBrightness: 70,
+  },
+  4: {
+    name: "firm",
+    minHeight: 0.3,
+    maxHeight: 6,
+    maxBase: 18,
+    maxSpan: 6,
+    alignDeg: 60,
+    maxBrightness: 100,
+  },
+  5: {
+    name: "aggressive",
+    minHeight: 0.3,
+    maxHeight: 10,
+    maxBase: 25,
+    maxSpan: 8,
+    alignDeg: 75,
+    maxBrightness: 140,
+  },
 };
 
 const { values, positionals } = parseArgs({
@@ -63,15 +103,15 @@ function hexBrightness(hex) {
   return (r + g + b) / 3;
 }
 
-function applyCommand(state, type, n) {
-  const rel = type === type.toLowerCase();
-  const c = type.toUpperCase();
-  const ax = (i) => (rel ? state.cx + n[i] : n[i]);
-  const ay = (i) => (rel ? state.cy + n[i] : n[i]);
-
-  if (c === "M") {
+// Per-command segment-builders. Each handler reads its operand stride from
+// `n`, pushes the appropriate segments onto `state.segments`, and updates the
+// current point. Splitting per-command keeps applyCommand below the lint
+// complexity threshold.
+const SEGMENT_HANDLERS = {
+  M(state, n, ax, ay) {
     for (let i = 0; i < n.length; i += 2) {
-      const x = ax(i), y = ay(i + 1);
+      const x = ax(i),
+        y = ay(i + 1);
       const segType = i === 0 ? "M" : "L";
       state.segments.push({ type: segType, endX: x, endY: y });
       if (i === 0) {
@@ -81,36 +121,62 @@ function applyCommand(state, type, n) {
       state.cx = x;
       state.cy = y;
     }
-  } else if (c === "L") {
+  },
+  L(state, n, ax, ay) {
     for (let i = 0; i < n.length; i += 2) {
       state.cx = ax(i);
       state.cy = ay(i + 1);
       state.segments.push({ type: "L", endX: state.cx, endY: state.cy });
     }
-  } else if (c === "H") {
+  },
+  H(state, n, _ax, _ay, rel) {
     for (const v of n) {
       state.cx = rel ? state.cx + v : v;
       state.segments.push({ type: "L", endX: state.cx, endY: state.cy });
     }
-  } else if (c === "V") {
+  },
+  V(state, n, _ax, _ay, rel) {
     for (const v of n) {
       state.cy = rel ? state.cy + v : v;
       state.segments.push({ type: "L", endX: state.cx, endY: state.cy });
     }
-  } else if (c === "C") {
+  },
+  C(state, n, ax, ay) {
     for (let i = 0; i < n.length; i += 6) {
-      const cp1x = ax(i), cp1y = ay(i + 1);
-      const cp2x = ax(i + 2), cp2y = ay(i + 3);
-      const ex = ax(i + 4), ey = ay(i + 5);
-      state.segments.push({ type: "C", cp1x, cp1y, cp2x, cp2y, endX: ex, endY: ey });
+      const cp1x = ax(i),
+        cp1y = ay(i + 1);
+      const cp2x = ax(i + 2),
+        cp2y = ay(i + 3);
+      const ex = ax(i + 4),
+        ey = ay(i + 5);
+      state.segments.push({
+        type: "C",
+        cp1x,
+        cp1y,
+        cp2x,
+        cp2y,
+        endX: ex,
+        endY: ey,
+      });
       state.cx = ex;
       state.cy = ey;
     }
-  } else if (c === "Z") {
+  },
+  Z(state) {
     state.segments.push({ type: "Z", endX: state.startX, endY: state.startY });
     state.cx = state.startX;
     state.cy = state.startY;
-  }
+  },
+};
+
+function applyCommand(state, type, n) {
+  const rel = type === type.toLowerCase();
+  const c = type.toUpperCase();
+  const ax = (i) => (rel ? state.cx + n[i] : n[i]);
+  const ay = (i) => (rel ? state.cy + n[i] : n[i]);
+
+  const handler = SEGMENT_HANDLERS[c];
+  if (handler) handler(state, n, ax, ay, rel);
 }
 
 function parsePath(d) {
@@ -137,7 +203,10 @@ function segmentsToD(segments) {
   for (const s of segments) {
     if (s.type === "M") parts.push(`M${fmt(s.endX)} ${fmt(s.endY)}`);
     else if (s.type === "L") parts.push(`L${fmt(s.endX)} ${fmt(s.endY)}`);
-    else if (s.type === "C") parts.push(`C${fmt(s.cp1x)} ${fmt(s.cp1y)} ${fmt(s.cp2x)} ${fmt(s.cp2y)} ${fmt(s.endX)} ${fmt(s.endY)}`);
+    else if (s.type === "C")
+      parts.push(
+        `C${fmt(s.cp1x)} ${fmt(s.cp1y)} ${fmt(s.cp2x)} ${fmt(s.cp2y)} ${fmt(s.endX)} ${fmt(s.endY)}`,
+      );
     else if (s.type === "Z") parts.push("Z");
   }
   return parts.join("");
@@ -154,7 +223,14 @@ function perpDist(px, py, ax, ay, bx, by) {
 function maxPerpDeviation(points, i, j) {
   let maxDev = 0;
   for (let k = i + 1; k < j; k++) {
-    const d = perpDist(points[k].x, points[k].y, points[i].x, points[i].y, points[j].x, points[j].y);
+    const d = perpDist(
+      points[k].x,
+      points[k].y,
+      points[i].x,
+      points[i].y,
+      points[j].x,
+      points[j].y,
+    );
     if (d > maxDev) maxDev = d;
   }
   return maxDev;
@@ -162,8 +238,14 @@ function maxPerpDeviation(points, i, j) {
 
 function isAligned(segments, points, i, j, n) {
   if (i === 0 || j + 1 >= n || segments[j + 1].type === "Z") return true;
-  const dirBefore = Math.atan2(points[i].y - points[i - 1].y, points[i].x - points[i - 1].x);
-  const dirAfter = Math.atan2(points[j + 1].y - points[j].y, points[j + 1].x - points[j].x);
+  const dirBefore = Math.atan2(
+    points[i].y - points[i - 1].y,
+    points[i].x - points[i - 1].x,
+  );
+  const dirAfter = Math.atan2(
+    points[j + 1].y - points[j].y,
+    points[j + 1].x - points[j].x,
+  );
   let diff = Math.abs(dirAfter - dirBefore);
   if (diff > Math.PI) diff = 2 * Math.PI - diff;
   return diff <= alignRad;
@@ -173,7 +255,10 @@ function findChipAt(segments, points, i, n) {
   for (let span = 2; span <= preset.maxSpan && i + span < n; span++) {
     const j = i + span;
     if (segments[j].type === "Z") continue;
-    const base = Math.hypot(points[j].x - points[i].x, points[j].y - points[i].y);
+    const base = Math.hypot(
+      points[j].x - points[i].x,
+      points[j].y - points[i].y,
+    );
     if (base > preset.maxBase) continue;
     const dev = maxPerpDeviation(points, i, j);
     if (dev < preset.minHeight || dev > preset.maxHeight) continue;

@@ -136,9 +136,9 @@ Release Engineer's hanko) is preserved.
 The hanko stamp is the only filled mark in the system — `--ink-400` on white,
 appearing on the Release Engineer's crate (where the stamp is applied) and the
 Product Manager's approved card (where the stamp has been earned). Same mark,
-two placements — the two halves of the gate. This mirrors Forward Impact Engineering's single filled
-element (the Guide compass north): one brand-specific warm-signal mark per icon
-system, no other fills.
+two placements — the two halves of the gate. This mirrors Forward Impact
+Engineering's single filled element (the Guide compass north): one
+brand-specific warm-signal mark per icon system, no other fills.
 
 ---
 

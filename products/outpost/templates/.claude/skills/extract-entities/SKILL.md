@@ -427,8 +427,8 @@ Scan email subjects and bodies for requisition numbers (e.g. 7-digit Workday
 IDs). When found:
 
 1. Check if a Role file exists: `ls knowledge/Roles/ | grep "{req_number}"`
-2. If **no Role file exists**, create a stub (see `req-track` Step 0b for
-   the template). Search the knowledge graph for context:
+2. If **no Role file exists**, create a stub (see `req-track` Step 0b for the
+   template). Search the knowledge graph for context:
    ```bash
    rg "{req_number}" knowledge/
    ```

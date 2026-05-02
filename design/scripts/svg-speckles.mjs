@@ -17,11 +17,51 @@ import { basename } from "path";
 import { parseArgs } from "node:util";
 
 const LEVEL_PRESETS = {
-  1: { name: "minimal", tinyArea: 5, darkMaxArea: 100, darkMaxCmds: 4, darkMaxNeighbors: 0, neighborRadius: 40, midGrayMaxArea: 0 },
-  2: { name: "light", tinyArea: 10, darkMaxArea: 300, darkMaxCmds: 5, darkMaxNeighbors: 0, neighborRadius: 40, midGrayMaxArea: 20 },
-  3: { name: "moderate", tinyArea: 15, darkMaxArea: 500, darkMaxCmds: 7, darkMaxNeighbors: 0, neighborRadius: 40, midGrayMaxArea: 30 },
-  4: { name: "firm", tinyArea: 20, darkMaxArea: 500, darkMaxCmds: 7, darkMaxNeighbors: 1, neighborRadius: 40, midGrayMaxArea: 50 },
-  5: { name: "aggressive", tinyArea: 30, darkMaxArea: 800, darkMaxCmds: 9, darkMaxNeighbors: 1, neighborRadius: 40, midGrayMaxArea: 100 },
+  1: {
+    name: "minimal",
+    tinyArea: 5,
+    darkMaxArea: 100,
+    darkMaxCmds: 4,
+    darkMaxNeighbors: 0,
+    neighborRadius: 40,
+    midGrayMaxArea: 0,
+  },
+  2: {
+    name: "light",
+    tinyArea: 10,
+    darkMaxArea: 300,
+    darkMaxCmds: 5,
+    darkMaxNeighbors: 0,
+    neighborRadius: 40,
+    midGrayMaxArea: 20,
+  },
+  3: {
+    name: "moderate",
+    tinyArea: 15,
+    darkMaxArea: 500,
+    darkMaxCmds: 7,
+    darkMaxNeighbors: 0,
+    neighborRadius: 40,
+    midGrayMaxArea: 30,
+  },
+  4: {
+    name: "firm",
+    tinyArea: 20,
+    darkMaxArea: 500,
+    darkMaxCmds: 7,
+    darkMaxNeighbors: 1,
+    neighborRadius: 40,
+    midGrayMaxArea: 50,
+  },
+  5: {
+    name: "aggressive",
+    tinyArea: 30,
+    darkMaxArea: 800,
+    darkMaxCmds: 9,
+    darkMaxNeighbors: 1,
+    neighborRadius: 40,
+    midGrayMaxArea: 100,
+  },
 };
 
 const { values, positionals } = parseArgs({
@@ -34,7 +74,8 @@ const { values, positionals } = parseArgs({
 
 if (values.help || positionals.length === 0) {
   console.log("Usage: svg-speckles [--level 1-5] <file.svg ...>\n\nLevels:");
-  for (const [k, v] of Object.entries(LEVEL_PRESETS)) console.log(`  ${k}  ${v.name}`);
+  for (const [k, v] of Object.entries(LEVEL_PRESETS))
+    console.log(`  ${k}  ${v.name}`);
   process.exit(values.help ? 0 : 1);
 }
 
@@ -91,7 +132,11 @@ function analyzePath(d) {
   const state = { cx: 0, cy: 0, allX: [], allY: [] };
 
   for (const cmd of segs) {
-    const values = cmd.slice(1).match(/-?\d+\.?\d*/g)?.map(Number) || [];
+    const values =
+      cmd
+        .slice(1)
+        .match(/-?\d+\.?\d*/g)
+        ?.map(Number) || [];
     applyCommand(state, cmd[0], values);
   }
 
@@ -161,7 +206,8 @@ function shouldRemove(entry, darkCenters) {
   const { brightness } = entry;
   if (area < preset.tinyArea) return true;
   if (isIsolatedDarkSpeck(entry, darkCenters)) return true;
-  if (brightness >= 100 && brightness < 170 && area < preset.midGrayMaxArea) return true;
+  if (brightness >= 100 && brightness < 170 && area < preset.midGrayMaxArea)
+    return true;
   return false;
 }
 

@@ -248,8 +248,8 @@ Use fuzzy matching — the Workday name may differ slightly from an existing not
 
 ## Step 3: Determine Pipeline Status
 
-Map the **Step / Disposition** column to the `req-track` pipeline status.
-Do NOT use the Stage column for status — it is only used for row detection (stop
+Map the **Step / Disposition** column to the `req-track` pipeline status. Do NOT
+use the Stage column for status — it is only used for row detection (stop
 condition):
 
 | Workday Step / Disposition             | Pipeline Status    |
@@ -315,8 +315,8 @@ Create the candidate directory and brief:
 mkdir -p "knowledge/Candidates/{Clean Name}"
 ```
 
-Then create `knowledge/Candidates/{Clean Name}/brief.md` using the
-`req-track` format:
+Then create `knowledge/Candidates/{Clean Name}/brief.md` using the `req-track`
+format:
 
 ```markdown
 # {Clean Name}
