@@ -173,6 +173,7 @@ export class HelpRenderer {
         options: command.options,
         globalOptions: globalWithoutVersion,
         examples: command.examples,
+        documentation: definition.documentation,
       };
       out.write(JSON.stringify(obj, null, 2) + "\n");
     } else {

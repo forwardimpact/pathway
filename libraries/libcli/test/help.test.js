@@ -267,6 +267,26 @@ describe("HelpRenderer", () => {
       assert.strictEqual(parsed.commands[0].name, "run");
     });
 
+    test("per-command JSON includes documentation from parent definition", () => {
+      const stream = createStream();
+      const def = {
+        name: "fit-test",
+        commands: [{ name: "run", description: "Run" }],
+        globalOptions: {
+          help: { type: "boolean", short: "h", description: "Show help" },
+        },
+        documentation: [
+          {
+            title: "Run Guide",
+            url: "https://www.forwardimpact.team/docs/libraries/run/index.md",
+          },
+        ],
+      };
+      createRenderer().renderJson(def, stream, def.commands[0]);
+      const parsed = JSON.parse(stream.output);
+      assert.deepStrictEqual(parsed.documentation, def.documentation);
+    });
+
     test("per-command JSON includes command metadata and scoped options", () => {
       const stream = createStream();
       const def = {

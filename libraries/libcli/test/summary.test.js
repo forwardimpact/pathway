@@ -104,4 +104,51 @@ describe("SummaryRenderer", () => {
       /requires an explicit `ok` boolean/,
     );
   });
+
+  test("renders extras after items, subject to the same suppression", () => {
+    const stream = createStream();
+    const renderer = new SummaryRenderer({ process: makeProc() });
+    renderer.render(
+      {
+        title: "Block",
+        ok: true,
+        items: [{ label: "k", description: "v" }],
+        extras: "table line 1\ntable line 2",
+      },
+      stream,
+    );
+    assert.ok(stream.output.includes("table line 1"));
+    assert.ok(stream.output.includes("table line 2"));
+    assert.ok(stream.output.endsWith("\n"));
+  });
+
+  test("suppresses extras alongside items when LOG_LEVEL=error and ok", () => {
+    const stream = createStream();
+    const renderer = new SummaryRenderer({
+      process: makeProc({ LOG_LEVEL: "error" }),
+    });
+    renderer.render(
+      { title: "Block", ok: true, items: [], extras: "should not appear" },
+      stream,
+    );
+    assert.strictEqual(stream.output, "");
+  });
+
+  test("shouldRender mirrors the render gate", () => {
+    const renderer = new SummaryRenderer({
+      process: makeProc({ LOG_LEVEL: "error" }),
+    });
+    assert.strictEqual(renderer.shouldRender(true), false);
+    assert.strictEqual(renderer.shouldRender(false), true);
+    const def = new SummaryRenderer({ process: makeProc() });
+    assert.strictEqual(def.shouldRender(true), true);
+  });
+
+  test("shouldRender requires explicit boolean", () => {
+    const renderer = new SummaryRenderer({ process: makeProc() });
+    assert.throws(
+      () => renderer.shouldRender(),
+      /requires an explicit `ok` boolean/,
+    );
+  });
 });
