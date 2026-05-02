@@ -171,6 +171,27 @@ function groupIntoSegments(words) {
   return segments.filter((s) => s.text.length > 0);
 }
 
+function buildChannelStats(allWords) {
+  const channels = {};
+  for (const w of allWords) {
+    if (!channels[w.channel]) {
+      channels[w.channel] = {
+        label: w.channel === 0 ? "user" : `guest-${w.channel}`,
+        word_count: 0,
+      };
+    }
+    channels[w.channel].word_count++;
+  }
+  return channels;
+}
+
+function filterNewWords(allWords, afterId) {
+  if (!afterId) return allWords;
+  const idx = allWords.findIndex((w) => w.id === afterId);
+  // If word ID not found, return everything (safety fallback)
+  return idx >= 0 ? allWords.slice(idx + 1) : allWords;
+}
+
 function main() {
   const opts = parseArgs();
 
@@ -197,48 +218,7 @@ function main() {
 
   // Read transcript
   const allWords = readTranscript(opts.sessionId);
-
-  if (allWords.length === 0) {
-    console.log(
-      JSON.stringify({
-        session_id: opts.sessionId,
-        title: meta.title,
-        total_words: 0,
-        new_words: 0,
-        last_word_id: null,
-        duration_ms: 0,
-        channels: {},
-        text: [],
-      }),
-    );
-    return;
-  }
-
-  // Filter to new words if --after is specified
-  let words = allWords;
-  if (opts.after) {
-    const idx = allWords.findIndex((w) => w.id === opts.after);
-    if (idx >= 0) {
-      words = allWords.slice(idx + 1);
-    }
-    // If word ID not found, return everything (safety fallback)
-  }
-
-  // Build channel stats
-  const channels = {};
-  for (const w of allWords) {
-    if (!channels[w.channel]) {
-      channels[w.channel] = {
-        label: w.channel === 0 ? "user" : `guest-${w.channel}`,
-        word_count: 0,
-      };
-    }
-    channels[w.channel].word_count++;
-  }
-
-  // Group new words into readable segments
-  const segments = groupIntoSegments(words);
-
+  const words = filterNewWords(allWords, opts.after);
   const lastWord = allWords[allWords.length - 1];
 
   console.log(
@@ -251,8 +231,8 @@ function main() {
         new_words: words.length,
         last_word_id: lastWord?.id || null,
         duration_ms: lastWord?.end_ms || 0,
-        channels,
-        text: segments,
+        channels: buildChannelStats(allWords),
+        text: groupIntoSegments(words),
       },
       null,
       2,

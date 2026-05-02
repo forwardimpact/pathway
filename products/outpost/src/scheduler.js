@@ -80,6 +80,38 @@ export function shouldWake(agent, agentState, now) {
 }
 
 /**
+ * @param {Object} schedule
+ * @param {Object} agentState
+ * @param {Date} now
+ * @returns {string|null}
+ */
+function nextWakeInterval(schedule, agentState, now) {
+  const ms = (schedule.minutes || 5) * 60_000;
+  const lastWoke = agentState.lastWokeAt
+    ? new Date(agentState.lastWokeAt)
+    : null;
+  if (!lastWoke) return now.toISOString();
+  return new Date(lastWoke.getTime() + ms).toISOString();
+}
+
+/**
+ * @param {Object} schedule
+ * @param {Date} now
+ * @returns {string|null}
+ */
+function nextWakeCron(schedule, now) {
+  const limit = 24 * 60;
+  const start = new Date(floorToMinute(now) + 60_000);
+  for (let i = 0; i < limit; i++) {
+    const candidate = new Date(start.getTime() + i * 60_000);
+    if (cronMatches(schedule.expression, candidate)) {
+      return candidate.toISOString();
+    }
+  }
+  return null;
+}
+
+/**
  * @param {Object} agent
  * @param {Object} agentState
  * @param {Date} now
@@ -90,32 +122,11 @@ export function computeNextWakeAt(agent, agentState, now) {
   const { schedule } = agent;
   if (!schedule) return null;
 
-  if (schedule.type === "interval") {
-    const ms = (schedule.minutes || 5) * 60_000;
-    const lastWoke = agentState.lastWokeAt
-      ? new Date(agentState.lastWokeAt)
-      : null;
-    if (!lastWoke) return now.toISOString();
-    return new Date(lastWoke.getTime() + ms).toISOString();
-  }
-
-  if (schedule.type === "cron") {
-    const limit = 24 * 60;
-    const start = new Date(floorToMinute(now) + 60_000);
-    for (let i = 0; i < limit; i++) {
-      const candidate = new Date(start.getTime() + i * 60_000);
-      if (cronMatches(schedule.expression, candidate)) {
-        return candidate.toISOString();
-      }
-    }
-    return null;
-  }
-
-  if (schedule.type === "once") {
-    if (agentState.lastWokeAt) return null;
-    return schedule.runAt;
-  }
-
+  if (schedule.type === "interval")
+    return nextWakeInterval(schedule, agentState, now);
+  if (schedule.type === "cron") return nextWakeCron(schedule, now);
+  if (schedule.type === "once")
+    return agentState.lastWokeAt ? null : schedule.runAt;
   return null;
 }
 

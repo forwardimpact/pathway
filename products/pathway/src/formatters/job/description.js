@@ -14,6 +14,34 @@ import { BEHAVIOUR_MATURITY_ORDER } from "@forwardimpact/map/levels";
 import { trimValue, trimFields } from "../shared.js";
 
 /**
+ * Ensure a string ends with a period
+ * @param {string} str
+ * @returns {string}
+ */
+function ensurePeriod(str) {
+  return str.endsWith(".") ? str : `${str}.`;
+}
+
+/**
+ * Build the autonomy + influence sentence
+ * @param {Object} exp - Expectations object
+ * @returns {string|null}
+ */
+function buildAutonomySentence(exp) {
+  if (exp.autonomyExpectation) {
+    const base = `You will ${exp.autonomyExpectation.toLowerCase()}`;
+    if (exp.influenceScope) {
+      return ensurePeriod(`${base}, ${exp.influenceScope.toLowerCase()}`);
+    }
+    return ensurePeriod(base);
+  }
+  if (exp.influenceScope) {
+    return ensurePeriod(exp.influenceScope);
+  }
+  return null;
+}
+
+/**
  * Build expectations paragraph from job expectations
  * @param {Object|undefined} expectations
  * @returns {string}
@@ -26,20 +54,9 @@ function buildExpectationsParagraph(expectations) {
   if (exp.impactScope) {
     sentences.push(`This role encompasses ${exp.impactScope.toLowerCase()}.`);
   }
-  if (exp.autonomyExpectation) {
-    let autonomySentence = `You will ${exp.autonomyExpectation.toLowerCase()}`;
-    if (exp.influenceScope) {
-      autonomySentence +=
-        `, ${exp.influenceScope.toLowerCase()}` +
-        (exp.influenceScope.endsWith(".") ? "" : ".");
-    } else {
-      autonomySentence += exp.autonomyExpectation.endsWith(".") ? "" : ".";
-    }
-    sentences.push(autonomySentence);
-  } else if (exp.influenceScope) {
-    sentences.push(
-      exp.influenceScope + (exp.influenceScope.endsWith(".") ? "" : "."),
-    );
+  const autonomy = buildAutonomySentence(exp);
+  if (autonomy) {
+    sentences.push(autonomy);
   }
   if (exp.complexityHandled) {
     sentences.push(`You will handle ${exp.complexityHandled.toLowerCase()}.`);

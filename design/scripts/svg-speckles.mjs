@@ -89,6 +89,42 @@ const preset = LEVEL_PRESETS[level];
 console.log(`Level ${level} (${preset.name})\n`);
 for (const file of positionals) cleanSvg(file);
 
+// Per-command handlers. Each receives (state, v, ax, ay, push) where
+// ax/ay resolve relative/absolute coordinates and push records a point.
+const CMD_HANDLERS = {
+  M(state, v, ax, ay, push) {
+    for (let i = 0; i < v.length; i += 2) {
+      state.cx = ax(i);
+      state.cy = ay(i + 1);
+      push(state.cx, state.cy);
+    }
+  },
+  H(state, v, _ax, _ay, push) {
+    const rel = v._rel;
+    for (const n of v) {
+      state.cx = rel ? state.cx + n : n;
+      push(state.cx, state.cy);
+    }
+  },
+  V(state, v, _ax, _ay, push) {
+    const rel = v._rel;
+    for (const n of v) {
+      state.cy = rel ? state.cy + n : n;
+      push(state.cx, state.cy);
+    }
+  },
+  C(state, v, ax, ay, push) {
+    for (let i = 0; i < v.length; i += 6) {
+      push(ax(i), ay(i + 1));
+      push(ax(i + 2), ay(i + 3));
+      state.cx = ax(i + 4);
+      state.cy = ay(i + 5);
+      push(state.cx, state.cy);
+    }
+  },
+};
+CMD_HANDLERS.L = CMD_HANDLERS.M;
+
 function applyCommand(state, type, v) {
   const rel = type === type.toLowerCase();
   const c = type.toUpperCase();
@@ -99,30 +135,10 @@ function applyCommand(state, type, v) {
     state.allY.push(y);
   };
 
-  if (c === "M" || c === "L") {
-    for (let i = 0; i < v.length; i += 2) {
-      state.cx = ax(i);
-      state.cy = ay(i + 1);
-      push(state.cx, state.cy);
-    }
-  } else if (c === "H") {
-    for (const n of v) {
-      state.cx = rel ? state.cx + n : n;
-      push(state.cx, state.cy);
-    }
-  } else if (c === "V") {
-    for (const n of v) {
-      state.cy = rel ? state.cy + n : n;
-      push(state.cx, state.cy);
-    }
-  } else if (c === "C") {
-    for (let i = 0; i < v.length; i += 6) {
-      push(ax(i), ay(i + 1));
-      push(ax(i + 2), ay(i + 3));
-      state.cx = ax(i + 4);
-      state.cy = ay(i + 5);
-      push(state.cx, state.cy);
-    }
+  const handler = CMD_HANDLERS[c];
+  if (handler) {
+    v._rel = rel;
+    handler(state, v, ax, ay, push);
   }
 }
 

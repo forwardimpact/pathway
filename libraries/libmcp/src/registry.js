@@ -3,6 +3,26 @@ import { metadata } from "@forwardimpact/libtype";
 import { buildZodSchema } from "./schema.js";
 
 /**
+ * Normalizes raw MCP tool params against field metadata.
+ * Repeated fields become arrays; scalar fields default to empty string.
+ * @param {object} params - Raw params from MCP tool call
+ * @param {object} fields - Field metadata from codegen
+ * @returns {object} Normalized params
+ */
+function normalizeParams(params, fields) {
+  const normalized = {};
+  for (const [k, v] of Object.entries(params)) {
+    const field = fields[k];
+    if (field?.repeated) {
+      normalized[k] = Array.isArray(v) ? v : v ? [v] : [];
+    } else {
+      normalized[k] = v || "";
+    }
+  }
+  return normalized;
+}
+
+/**
  * Register MCP tools from config endpoints using codegen metadata.
  *
  * @param {import("@modelcontextprotocol/sdk/server/mcp.js").McpServer} server
@@ -49,15 +69,7 @@ export function registerToolsFromConfig(
     const schema = buildZodSchema(methodMeta.fields);
 
     server.tool(toolName, endpoint.description, schema, async (params) => {
-      const normalized = {};
-      for (const [k, v] of Object.entries(params)) {
-        const field = methodMeta.fields[k];
-        if (field?.repeated) {
-          normalized[k] = Array.isArray(v) ? v : v ? [v] : [];
-        } else {
-          normalized[k] = v || "";
-        }
-      }
+      const normalized = normalizeParams(params, methodMeta.fields);
       const req = RequestClass.fromObject(normalized);
       const result = await client[methodName](req);
       return {

@@ -337,6 +337,50 @@ export function deriveJob({
   };
 }
 
+/** Partition skill IDs into covered and missing based on proficiency threshold. */
+function partitionSkillCoverage(skillIds, proficiencyMap) {
+  const covered = [];
+  const missing = [];
+  for (const skillId of skillIds) {
+    const level = proficiencyMap.get(skillId);
+    if (
+      level &&
+      skillProficiencyMeetsRequirement(
+        level,
+        THRESHOLD_DRIVER_SKILL_PROFICIENCY,
+      )
+    ) {
+      covered.push(skillId);
+    } else {
+      missing.push(skillId);
+    }
+  }
+  return { covered, missing };
+}
+
+/** Partition behaviour IDs into covered and missing based on maturity threshold. */
+function partitionBehaviourCoverage(behaviourIds, maturityMap) {
+  const practicingIndex = getBehaviourMaturityIndex(
+    THRESHOLD_DRIVER_BEHAVIOUR_MATURITY,
+  );
+  const covered = [];
+  const missing = [];
+  for (const behaviourId of behaviourIds) {
+    const maturity = maturityMap.get(behaviourId);
+    if (maturity && getBehaviourMaturityIndex(maturity) >= practicingIndex) {
+      covered.push(behaviourId);
+    } else {
+      missing.push(behaviourId);
+    }
+  }
+  return { covered, missing };
+}
+
+/** Compute coverage ratio: 1.0 when the list is empty. */
+function coverageRatio(covered, total) {
+  return total > 0 ? covered / total : 1;
+}
+
 /**
  * Calculate driver coverage for a job
  * @param {Object} params
@@ -345,76 +389,44 @@ export function deriveJob({
  * @returns {import('@forwardimpact/map/levels').DriverCoverage[]} Coverage analysis for each driver
  */
 export function calculateDriverCoverage({ job, drivers }) {
-  const coverageResults = [];
-
-  const jobSkillProficiencies = new Map(
+  const proficiencyMap = new Map(
     job.skillMatrix.map((s) => [s.skillId, s.proficiency]),
   );
-  const jobBehaviourMaturities = new Map(
+  const maturityMap = new Map(
     job.behaviourProfile.map((b) => [b.behaviourId, b.maturity]),
   );
 
-  for (const driver of drivers) {
+  const coverageResults = drivers.map((driver) => {
     const contributingSkills = driver.contributingSkills || [];
     const contributingBehaviours = driver.contributingBehaviours || [];
 
-    const coveredSkills = [];
-    const missingSkills = [];
-
-    for (const skillId of contributingSkills) {
-      const level = jobSkillProficiencies.get(skillId);
-      if (
-        level &&
-        skillProficiencyMeetsRequirement(
-          level,
-          THRESHOLD_DRIVER_SKILL_PROFICIENCY,
-        )
-      ) {
-        coveredSkills.push(skillId);
-      } else {
-        missingSkills.push(skillId);
-      }
-    }
-
-    const skillCoverage =
-      contributingSkills.length > 0
-        ? coveredSkills.length / contributingSkills.length
-        : 1;
-
-    const coveredBehaviours = [];
-    const missingBehaviours = [];
-    const practicingIndex = getBehaviourMaturityIndex(
-      THRESHOLD_DRIVER_BEHAVIOUR_MATURITY,
+    const skills = partitionSkillCoverage(contributingSkills, proficiencyMap);
+    const behaviours = partitionBehaviourCoverage(
+      contributingBehaviours,
+      maturityMap,
     );
 
-    for (const behaviourId of contributingBehaviours) {
-      const maturity = jobBehaviourMaturities.get(behaviourId);
-      if (maturity && getBehaviourMaturityIndex(maturity) >= practicingIndex) {
-        coveredBehaviours.push(behaviourId);
-      } else {
-        missingBehaviours.push(behaviourId);
-      }
-    }
+    const skillCoverage = coverageRatio(
+      skills.covered.length,
+      contributingSkills.length,
+    );
+    const behaviourCoverage = coverageRatio(
+      behaviours.covered.length,
+      contributingBehaviours.length,
+    );
 
-    const behaviourCoverage =
-      contributingBehaviours.length > 0
-        ? coveredBehaviours.length / contributingBehaviours.length
-        : 1;
-
-    const overallScore = (skillCoverage + behaviourCoverage) / 2;
-
-    coverageResults.push({
+    return {
       driverId: driver.id,
       driverName: driver.name,
       skillCoverage,
       behaviourCoverage,
-      overallScore,
-      coveredSkills,
-      coveredBehaviours,
-      missingSkills,
-      missingBehaviours,
-    });
-  }
+      overallScore: (skillCoverage + behaviourCoverage) / 2,
+      coveredSkills: skills.covered,
+      coveredBehaviours: behaviours.covered,
+      missingSkills: skills.missing,
+      missingBehaviours: behaviours.missing,
+    };
+  });
 
   coverageResults.sort((a, b) => b.overallScore - a.overallScore);
 
@@ -452,6 +464,60 @@ export function isSeniorLevel(level) {
   return level.ordinalRank >= THRESHOLD_SENIOR_LEVEL;
 }
 
+/** Try to derive a job for a given combination and push it if valid. */
+function tryDeriveAndPush(
+  jobs,
+  { discipline, level, track, skills, behaviours, validationRules, levels },
+) {
+  if (
+    !_isValidJobCombination({
+      discipline,
+      level,
+      track,
+      validationRules,
+      levels,
+    })
+  ) {
+    return;
+  }
+  const job = deriveJob({
+    discipline,
+    level,
+    track,
+    skills,
+    behaviours,
+    validationRules,
+  });
+  if (job) jobs.push(job);
+}
+
+/** Derive all valid jobs for a single discipline × level combination. */
+function deriveJobsForLevel(
+  jobs,
+  { discipline, level, tracks, skills, behaviours, validationRules, levels },
+) {
+  tryDeriveAndPush(jobs, {
+    discipline,
+    level,
+    track: null,
+    skills,
+    behaviours,
+    validationRules,
+    levels,
+  });
+  for (const track of tracks) {
+    tryDeriveAndPush(jobs, {
+      discipline,
+      level,
+      track,
+      skills,
+      behaviours,
+      validationRules,
+      levels,
+    });
+  }
+}
+
 /**
  * Generate all valid job definitions from the data
  * @param {Object} params
@@ -472,59 +538,18 @@ export function generateAllJobs({
   validationRules,
 }) {
   const jobs = [];
-
   for (const discipline of disciplines) {
     for (const level of levels) {
-      if (
-        _isValidJobCombination({
-          discipline,
-          level,
-          track: null,
-          validationRules,
-          levels,
-        })
-      ) {
-        const tracklessJob = deriveJob({
-          discipline,
-          level,
-          track: null,
-          skills,
-          behaviours,
-          validationRules,
-        });
-        if (tracklessJob) {
-          jobs.push(tracklessJob);
-        }
-      }
-
-      for (const track of tracks) {
-        if (
-          !_isValidJobCombination({
-            discipline,
-            level,
-            track,
-            validationRules,
-            levels,
-          })
-        ) {
-          continue;
-        }
-
-        const job = deriveJob({
-          discipline,
-          level,
-          track,
-          skills,
-          behaviours,
-          validationRules,
-        });
-
-        if (job) {
-          jobs.push(job);
-        }
-      }
+      deriveJobsForLevel(jobs, {
+        discipline,
+        level,
+        tracks,
+        skills,
+        behaviours,
+        validationRules,
+        levels,
+      });
     }
   }
-
   return jobs;
 }

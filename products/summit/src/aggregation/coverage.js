@@ -164,41 +164,10 @@ export function resolveTeam(roster, data, target) {
  * @returns {TeamCoverage}
  */
 export function computeCoverage(resolvedTeam, data) {
-  const skills = new Map();
-  for (const skill of data.skills ?? []) {
-    skills.set(skill.id, {
-      skillId: skill.id,
-      skillName: skill.name ?? skill.id,
-      capabilityId: skill.capability ?? "unassigned",
-      headcountDepth: 0,
-      effectiveDepth: 0,
-      maxProficiency: null,
-      distribution: {},
-      holders: [],
-    });
-  }
+  const skills = seedSkillMap(data.skills ?? []);
 
   for (const member of resolvedTeam.members) {
-    for (const entry of member.matrix) {
-      const coverage = skills.get(entry.skillId);
-      if (!coverage) continue;
-      coverage.holders.push({
-        email: member.email,
-        name: member.name,
-        proficiency: entry.proficiency,
-        allocation: member.allocation,
-      });
-      coverage.distribution[entry.proficiency] =
-        (coverage.distribution[entry.proficiency] ?? 0) + 1;
-      if (meetsWorking(entry.proficiency)) {
-        coverage.headcountDepth += 1;
-        coverage.effectiveDepth += member.allocation;
-      }
-      coverage.maxProficiency = higherProficiency(
-        coverage.maxProficiency,
-        entry.proficiency,
-      );
-    }
+    accumulateMember(skills, member);
   }
 
   const capabilities = buildCapabilityCoverage(skills, data);
@@ -212,6 +181,46 @@ export function computeCoverage(resolvedTeam, data) {
     capabilities,
     skills,
   };
+}
+
+function seedSkillMap(skills) {
+  const map = new Map();
+  for (const skill of skills) {
+    map.set(skill.id, {
+      skillId: skill.id,
+      skillName: skill.name ?? skill.id,
+      capabilityId: skill.capability ?? "unassigned",
+      headcountDepth: 0,
+      effectiveDepth: 0,
+      maxProficiency: null,
+      distribution: {},
+      holders: [],
+    });
+  }
+  return map;
+}
+
+function accumulateMember(skills, member) {
+  for (const entry of member.matrix) {
+    const coverage = skills.get(entry.skillId);
+    if (!coverage) continue;
+    coverage.holders.push({
+      email: member.email,
+      name: member.name,
+      proficiency: entry.proficiency,
+      allocation: member.allocation,
+    });
+    coverage.distribution[entry.proficiency] =
+      (coverage.distribution[entry.proficiency] ?? 0) + 1;
+    if (meetsWorking(entry.proficiency)) {
+      coverage.headcountDepth += 1;
+      coverage.effectiveDepth += member.allocation;
+    }
+    coverage.maxProficiency = higherProficiency(
+      coverage.maxProficiency,
+      entry.proficiency,
+    );
+  }
 }
 
 /**

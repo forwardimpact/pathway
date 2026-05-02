@@ -42,27 +42,35 @@ import { parse as parseYaml } from "yaml";
  */
 export function parseRosterYaml(content) {
   const parsed = parseYaml(content);
+  validateRosterShape(parsed);
 
+  const teams = parseTeams(parsed.teams);
+  const projects = parseProjects(parsed.projects ?? {}, teams);
+
+  return { source: "yaml", teams, projects };
+}
+
+function validateRosterShape(parsed) {
   if (!parsed || typeof parsed !== "object") {
     throw new Error(
       "summit: roster YAML must be an object with a `teams:` key.",
     );
   }
-
   if (Array.isArray(parsed)) {
     throw new Error(
       "summit: roster YAML must be an object with a `teams:` key — a bare list of people is not supported.",
     );
   }
-
   if (!parsed.teams || typeof parsed.teams !== "object") {
     throw new Error(
       "summit: roster YAML must define at least one team under `teams:`.",
     );
   }
+}
 
+function parseTeams(teamsRaw) {
   const teams = new Map();
-  for (const [teamId, entries] of Object.entries(parsed.teams)) {
+  for (const [teamId, entries] of Object.entries(teamsRaw)) {
     if (!Array.isArray(entries)) {
       throw new Error(`summit: team "${teamId}" must be a list of members.`);
     }
@@ -74,29 +82,29 @@ export function parseRosterYaml(content) {
       managerEmail: null,
     });
   }
+  return teams;
+}
 
+function parseProjects(projectsRaw, teams) {
   const projects = new Map();
-  const projectsRaw = parsed.projects ?? {};
-  if (projectsRaw && typeof projectsRaw === "object") {
-    for (const [projectId, entries] of Object.entries(projectsRaw)) {
-      if (!Array.isArray(entries)) {
-        throw new Error(
-          `summit: project "${projectId}" must be a list of members.`,
-        );
-      }
-      const members = entries.map((raw) =>
-        resolveProjectMember(raw, projectId, teams),
+  if (!projectsRaw || typeof projectsRaw !== "object") return projects;
+  for (const [projectId, entries] of Object.entries(projectsRaw)) {
+    if (!Array.isArray(entries)) {
+      throw new Error(
+        `summit: project "${projectId}" must be a list of members.`,
       );
-      projects.set(projectId, {
-        id: projectId,
-        type: "project",
-        members,
-        managerEmail: null,
-      });
     }
+    const members = entries.map((raw) =>
+      resolveProjectMember(raw, projectId, teams),
+    );
+    projects.set(projectId, {
+      id: projectId,
+      type: "project",
+      members,
+      managerEmail: null,
+    });
   }
-
-  return { source: "yaml", teams, projects };
+  return projects;
 }
 
 function normalizeReportingPerson(raw, teamId) {

@@ -175,6 +175,43 @@ function createComparisonSelectorsSection({
   let selectedLevelId = nextLevel?.id || "";
   let selectedTrackId = currentTrack?.id || "";
 
+  /**
+   * Collect valid levels and tracks for a single level row
+   * @param {Object} selectedDisc
+   * @param {Object} level
+   * @param {Array} validLevels
+   * @param {Set} validTracks
+   * @returns {boolean} - Whether the discipline allows trackless at this level
+   */
+  function collectLevelCombinations(
+    selectedDisc,
+    level,
+    validLevels,
+    validTracks,
+  ) {
+    let allowsTrackless = false;
+
+    if (
+      isValidJobCombination({ discipline: selectedDisc, level, track: null })
+    ) {
+      if (!validLevels.find((g) => g.id === level.id)) {
+        validLevels.push(level);
+      }
+      allowsTrackless = true;
+    }
+
+    for (const track of data.tracks) {
+      if (isValidJobCombination({ discipline: selectedDisc, level, track })) {
+        if (!validLevels.find((g) => g.id === level.id)) {
+          validLevels.push(level);
+        }
+        validTracks.add(track.id);
+      }
+    }
+
+    return allowsTrackless;
+  }
+
   // Get available options based on selected discipline
   function getAvailableOptions(disciplineId) {
     const selectedDisc = data.disciplines.find((d) => d.id === disciplineId);
@@ -186,23 +223,10 @@ function createComparisonSelectorsSection({
     let allowsTrackless = false;
 
     for (const level of data.levels) {
-      // Check trackless combination
       if (
-        isValidJobCombination({ discipline: selectedDisc, level, track: null })
+        collectLevelCombinations(selectedDisc, level, validLevels, validTracks)
       ) {
-        if (!validLevels.find((g) => g.id === level.id)) {
-          validLevels.push(level);
-        }
         allowsTrackless = true;
-      }
-      // Check each track combination
-      for (const track of data.tracks) {
-        if (isValidJobCombination({ discipline: selectedDisc, level, track })) {
-          if (!validLevels.find((g) => g.id === level.id)) {
-            validLevels.push(level);
-          }
-          validTracks.add(track.id);
-        }
       }
     }
 
@@ -303,72 +327,80 @@ function createComparisonSelectorsSection({
   let trackSelectEl = null;
 
   /**
+   * Rebuild level select options, preserving selection if still valid
+   */
+  function rebuildLevelOptions() {
+    if (!levelSelectEl) return;
+
+    levelSelectEl.innerHTML = "";
+    const placeholderOpt = document.createElement("option");
+    placeholderOpt.value = "";
+    placeholderOpt.textContent = "Select level...";
+    levelSelectEl.appendChild(placeholderOpt);
+
+    for (const level of availableOptions.levels) {
+      const opt = document.createElement("option");
+      opt.value = level.id;
+      opt.textContent = level.id;
+      levelSelectEl.appendChild(opt);
+    }
+
+    if (availableOptions.levels.find((g) => g.id === selectedLevelId)) {
+      levelSelectEl.value = selectedLevelId;
+    } else {
+      selectedLevelId = "";
+      levelSelectEl.value = "";
+    }
+  }
+
+  /**
+   * Rebuild track select options, preserving selection if still valid
+   */
+  function rebuildTrackOptions() {
+    if (!trackSelectEl) return;
+
+    trackSelectEl.innerHTML = "";
+
+    if (availableOptions.allowsTrackless) {
+      const generalistOpt = document.createElement("option");
+      generalistOpt.value = "";
+      generalistOpt.textContent = "Generalist";
+      trackSelectEl.appendChild(generalistOpt);
+    } else {
+      const placeholderOpt = document.createElement("option");
+      placeholderOpt.value = "";
+      placeholderOpt.textContent = "Select track...";
+      placeholderOpt.disabled = true;
+      trackSelectEl.appendChild(placeholderOpt);
+    }
+
+    for (const track of availableOptions.tracks) {
+      const opt = document.createElement("option");
+      opt.value = track.id;
+      opt.textContent = track.name;
+      trackSelectEl.appendChild(opt);
+    }
+
+    const hasValidTrack = availableOptions.tracks.find(
+      (t) => t.id === selectedTrackId,
+    );
+    const isValidGeneralist =
+      selectedTrackId === "" && availableOptions.allowsTrackless;
+    if (hasValidTrack || isValidGeneralist) {
+      trackSelectEl.value = selectedTrackId;
+    } else {
+      selectedTrackId = "";
+      trackSelectEl.value = "";
+    }
+  }
+
+  /**
    * Update level and track selectors when discipline changes
    */
   function updateSelectorsForDiscipline(newDisciplineId) {
     availableOptions = getAvailableOptions(newDisciplineId);
-
-    // Update level selector
-    if (levelSelectEl) {
-      levelSelectEl.innerHTML = "";
-      const placeholderOpt = document.createElement("option");
-      placeholderOpt.value = "";
-      placeholderOpt.textContent = "Select level...";
-      levelSelectEl.appendChild(placeholderOpt);
-
-      for (const level of availableOptions.levels) {
-        const opt = document.createElement("option");
-        opt.value = level.id;
-        opt.textContent = level.id;
-        levelSelectEl.appendChild(opt);
-      }
-
-      // Try to keep current selection if valid
-      if (availableOptions.levels.find((g) => g.id === selectedLevelId)) {
-        levelSelectEl.value = selectedLevelId;
-      } else {
-        selectedLevelId = "";
-        levelSelectEl.value = "";
-      }
-    }
-
-    // Update track selector
-    if (trackSelectEl) {
-      trackSelectEl.innerHTML = "";
-
-      // Add generalist option if discipline allows trackless
-      if (availableOptions.allowsTrackless) {
-        const generalistOpt = document.createElement("option");
-        generalistOpt.value = "";
-        generalistOpt.textContent = "Generalist";
-        trackSelectEl.appendChild(generalistOpt);
-      } else {
-        const placeholderOpt = document.createElement("option");
-        placeholderOpt.value = "";
-        placeholderOpt.textContent = "Select track...";
-        placeholderOpt.disabled = true;
-        trackSelectEl.appendChild(placeholderOpt);
-      }
-
-      for (const track of availableOptions.tracks) {
-        const opt = document.createElement("option");
-        opt.value = track.id;
-        opt.textContent = track.name;
-        trackSelectEl.appendChild(opt);
-      }
-
-      const hasValidTrack = availableOptions.tracks.find(
-        (t) => t.id === selectedTrackId,
-      );
-      const isValidGeneralist =
-        selectedTrackId === "" && availableOptions.allowsTrackless;
-      if (hasValidTrack || isValidGeneralist) {
-        trackSelectEl.value = selectedTrackId;
-      } else {
-        selectedTrackId = "";
-        trackSelectEl.value = "";
-      }
-    }
+    rebuildLevelOptions();
+    rebuildTrackOptions();
   }
 
   // Create level and track selects with stored references

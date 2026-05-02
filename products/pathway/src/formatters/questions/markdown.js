@@ -223,6 +223,21 @@ function formatTable(view) {
 }
 
 /**
+ * Append an indented labelled list if items are present
+ * @param {string[]} lines
+ * @param {string} label
+ * @param {string[]} items
+ * @param {string} bullet - Bullet character prefix
+ */
+function appendLabelledList(lines, label, items, bullet = "-") {
+  if (!items || items.length === 0) return;
+  lines.push(`    ${label}:`);
+  for (const item of items) {
+    lines.push(`      ${bullet} ${item}`);
+  }
+}
+
+/**
  * Format a single question's detail lines
  * @param {string[]} lines
  * @param {Object} q - Flattened question
@@ -233,30 +248,10 @@ function formatQuestionDetail(lines, q) {
   if (q.context) {
     lines.push(`    Context: ${q.context}`);
   }
-  if (q.simulationPrompts && q.simulationPrompts.length > 0) {
-    lines.push("    Steer the simulation:");
-    for (const prompt of q.simulationPrompts) {
-      lines.push(`      - ${prompt}`);
-    }
-  }
-  if (q.decompositionPrompts && q.decompositionPrompts.length > 0) {
-    lines.push("    Guide candidate thinking:");
-    for (const prompt of q.decompositionPrompts) {
-      lines.push(`      - ${prompt}`);
-    }
-  }
-  if (q.lookingFor.length > 0) {
-    lines.push("    Looking for:");
-    for (const item of q.lookingFor) {
-      lines.push(`      - ${item}`);
-    }
-  }
-  if (q.followUps.length > 0) {
-    lines.push("    Follow-ups:");
-    for (const fu of q.followUps) {
-      lines.push(`      → ${fu}`);
-    }
-  }
+  appendLabelledList(lines, "Steer the simulation", q.simulationPrompts);
+  appendLabelledList(lines, "Guide candidate thinking", q.decompositionPrompts);
+  appendLabelledList(lines, "Looking for", q.lookingFor);
+  appendLabelledList(lines, "Follow-ups", q.followUps, "→");
   lines.push("");
 }
 

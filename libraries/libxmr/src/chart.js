@@ -92,6 +92,42 @@ function renderFull(values, stats, signals, glyphs, slotWidth, ascii) {
   return [...xRows, "", ...mrRows].join("\n");
 }
 
+// Bucket each point into one of seven X-chart rows by strict comparison.
+// Spec §11 dictates the boundary cases:
+//   - v > UPL / v < LPL → breach (Rule 1 is strict inequality)
+//   - v exactly on UPL or LPL → adjacent inner-zone row (NOT outer zone,
+//     NOT a breach)
+//   - v exactly on ±1.5σ̂ → inner zone (Rule 3 is strict)
+//   - v exactly on μ → centerline glyph
+// Classify a single value into one of seven X-chart rows.
+function classifyXValue(v, { UPL, LPL, mu, zoneUpper, zoneLower }) {
+  if (v > UPL) return "breachUpper";
+  if (v < LPL) return "breachLower";
+  if (v === UPL) return "innerUpper";
+  if (v === LPL) return "innerLower";
+  if (v > zoneUpper) return "outerUpper";
+  if (v > mu) return "innerUpper";
+  if (v === mu) return "onMu";
+  if (v >= zoneLower) return "innerLower";
+  return "outerLower";
+}
+
+function bucketXValues(values, stats) {
+  const buckets = {
+    breachUpper: [],
+    outerUpper: [],
+    innerUpper: [],
+    onMu: [],
+    innerLower: [],
+    outerLower: [],
+    breachLower: [],
+  };
+  for (let i = 0; i < values.length; i++) {
+    buckets[classifyXValue(values[i], stats)].push(i + 1);
+  }
+  return buckets;
+}
+
 // X chart — 7 rows: UPL line, outer-upper, inner-upper, μ centerline,
 // inner-lower, outer-lower, LPL line.
 function renderXChart({
@@ -104,37 +140,7 @@ function renderXChart({
   slotWidth,
   glyphs,
 }) {
-  const { UPL, LPL, mu, zoneUpper, zoneLower } = stats;
-
-  // Bucket each point into one of seven rows by strict comparison. Spec §11
-  // dictates the boundary cases:
-  //   - v > UPL / v < LPL → breach (Rule 1 is strict inequality)
-  //   - v exactly on UPL or LPL → adjacent inner-zone row (NOT outer zone,
-  //     NOT a breach)
-  //   - v exactly on ±1.5σ̂ → inner zone (Rule 3 is strict)
-  //   - v exactly on μ → centerline glyph
-  const buckets = {
-    breachUpper: [],
-    outerUpper: [],
-    innerUpper: [],
-    onMu: [],
-    innerLower: [],
-    outerLower: [],
-    breachLower: [],
-  };
-  for (let i = 0; i < values.length; i++) {
-    const v = values[i];
-    const slot = i + 1;
-    if (v > UPL) buckets.breachUpper.push(slot);
-    else if (v < LPL) buckets.breachLower.push(slot);
-    else if (v === UPL) buckets.innerUpper.push(slot);
-    else if (v === LPL) buckets.innerLower.push(slot);
-    else if (v > zoneUpper) buckets.outerUpper.push(slot);
-    else if (v > mu) buckets.innerUpper.push(slot);
-    else if (v === mu) buckets.onMu.push(slot);
-    else if (v >= zoneLower) buckets.innerLower.push(slot);
-    else buckets.outerLower.push(slot);
-  }
+  const buckets = bucketXValues(values, stats);
 
   return [
     limitRow(

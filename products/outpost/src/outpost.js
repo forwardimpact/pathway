@@ -259,6 +259,31 @@ function findInLocalOrGlobal(kbPath, subPath) {
   return null;
 }
 
+/**
+ * Validate a single agent's configuration.
+ * @param {string} name
+ * @param {Object} agent
+ * @returns {boolean} true if valid
+ */
+function validateAgent(name, agent) {
+  if (!agent.kb) {
+    logger.info(`  [FAIL] ${name}: no "kb" path specified`);
+    return false;
+  }
+  const kbPath = expandPath(agent.kb);
+  if (!existsSync(kbPath)) {
+    logger.info(`  [FAIL] ${name}: path not found: ${kbPath}`);
+    return false;
+  }
+
+  const agentFile = join("agents", name + ".md");
+  const found = findInLocalOrGlobal(kbPath, agentFile);
+  logger.info(
+    `  [${found ? "OK" : "FAIL"}]  ${name}: agent definition${found ? "" : " not found"}`,
+  );
+  return !!found;
+}
+
 function validate() {
   const config = loadConfig();
   const agents = Object.entries(config.agents || {});
@@ -271,24 +296,7 @@ function validate() {
   let errors = 0;
 
   for (const [name, agent] of agents) {
-    if (!agent.kb) {
-      logger.info(`  [FAIL] ${name}: no "kb" path specified`);
-      errors++;
-      continue;
-    }
-    const kbPath = expandPath(agent.kb);
-    if (!existsSync(kbPath)) {
-      logger.info(`  [FAIL] ${name}: path not found: ${kbPath}`);
-      errors++;
-      continue;
-    }
-
-    const agentFile = join("agents", name + ".md");
-    const found = findInLocalOrGlobal(kbPath, agentFile);
-    logger.info(
-      `  [${found ? "OK" : "FAIL"}]  ${name}: agent definition${found ? "" : " not found"}`,
-    );
-    if (!found) errors++;
+    if (!validateAgent(name, agent)) errors++;
   }
 
   logger.info(errors > 0 ? `\n${errors} error(s).` : "\nAll OK.");

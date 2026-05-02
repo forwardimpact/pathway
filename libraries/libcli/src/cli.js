@@ -14,23 +14,26 @@ export class Cli {
           `for command-specific options.`,
       );
     }
-    if (definition.commands && definition.globalOptions) {
-      const globalNames = new Set(Object.keys(definition.globalOptions));
-      for (const cmd of definition.commands) {
-        if (!cmd.options) continue;
-        for (const name of Object.keys(cmd.options)) {
-          if (globalNames.has(name)) {
-            throw new Error(
-              `${definition.name}: option "${name}" in command ` +
-                `"${cmd.name}" collides with a global option`,
-            );
-          }
-        }
-      }
-    }
+    Cli.#validateNoCollisions(definition);
     this.#definition = definition;
     this.#proc = process;
     this.#helpRenderer = helpRenderer;
+  }
+
+  static #validateNoCollisions(definition) {
+    if (!definition.commands || !definition.globalOptions) return;
+    const globalNames = new Set(Object.keys(definition.globalOptions));
+    for (const cmd of definition.commands) {
+      if (!cmd.options) continue;
+      for (const name of Object.keys(cmd.options)) {
+        if (globalNames.has(name)) {
+          throw new Error(
+            `${definition.name}: option "${name}" in command ` +
+              `"${cmd.name}" collides with a global option`,
+          );
+        }
+      }
+    }
   }
 
   get name() {

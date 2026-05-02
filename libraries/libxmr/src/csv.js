@@ -63,35 +63,37 @@ export function validateCSV(text) {
     const line = lines[i];
     if (line.trim() === "") continue;
     dataRows++;
-    const row = parseLine(line);
-
-    if (!row.date || !ISO_DATE_RE.test(row.date)) {
-      errors.push({
-        line: i + 1,
-        field: "date",
-        message: `invalid ISO 8601 date "${row.date}"`,
-      });
-    }
-    if (!row.metric) {
-      errors.push({
-        line: i + 1,
-        field: "metric",
-        message: "missing metric name",
-      });
-    }
-    if (Number.isNaN(row.value)) {
-      errors.push({
-        line: i + 1,
-        field: "value",
-        message: `not a number "${row.raw.fields[2] ?? ""}"`,
-      });
-    }
-    if (!row.unit) {
-      errors.push({ line: i + 1, field: "unit", message: "missing unit" });
-    }
+    validateRow(parseLine(line), i + 1, errors);
   }
 
   return { valid: errors.length === 0, rows: dataRows, errors };
+}
+
+function validateRow(row, lineNumber, errors) {
+  if (!row.date || !ISO_DATE_RE.test(row.date)) {
+    errors.push({
+      line: lineNumber,
+      field: "date",
+      message: `invalid ISO 8601 date "${row.date}"`,
+    });
+  }
+  if (!row.metric) {
+    errors.push({
+      line: lineNumber,
+      field: "metric",
+      message: "missing metric name",
+    });
+  }
+  if (Number.isNaN(row.value)) {
+    errors.push({
+      line: lineNumber,
+      field: "value",
+      message: `not a number "${row.raw.fields[2] ?? ""}"`,
+    });
+  }
+  if (!row.unit) {
+    errors.push({ line: lineNumber, field: "unit", message: "missing unit" });
+  }
 }
 
 export function listMetrics(csvText) {

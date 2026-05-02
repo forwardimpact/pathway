@@ -2,7 +2,7 @@
  * Discipline formatting for markdown/CLI output
  */
 
-import { tableToMarkdown } from "../shared.js";
+import { tableToMarkdown, formatModifier } from "../shared.js";
 import { prepareDisciplinesList, prepareDisciplineDetail } from "./shared.js";
 
 /**
@@ -30,6 +30,34 @@ export function disciplineListToMarkdown(disciplines) {
 }
 
 /**
+ * Resolve track IDs to display names
+ * @param {string[]} trackIds
+ * @param {Array} [tracks]
+ * @returns {string[]}
+ */
+function resolveTrackNames(trackIds, tracks) {
+  return trackIds.map((tid) => {
+    const track = tracks?.find((t) => t.id === tid);
+    return track ? track.name : tid;
+  });
+}
+
+/**
+ * Append a skill list section if non-empty
+ * @param {string[]} lines
+ * @param {string} heading
+ * @param {Array} skillList
+ */
+function appendSkillSection(lines, heading, skillList) {
+  if (skillList.length === 0) return;
+  lines.push(`## ${heading}`, "");
+  for (const s of skillList) {
+    lines.push(`- ${s.name}`);
+  }
+  lines.push("");
+}
+
+/**
  * Format discipline detail as markdown
  * @param {Object} discipline - Raw discipline entity
  * @param {Object} context - Additional context
@@ -50,49 +78,23 @@ export function disciplineToMarkdown(
   // Type and valid tracks
   const validTracks = (discipline.validTracks || []).filter((t) => t !== null);
   if (validTracks.length > 0) {
-    const trackNames = validTracks.map((tid) => {
-      const track = tracks?.find((t) => t.id === tid);
-      return track ? track.name : tid;
-    });
+    const trackNames = resolveTrackNames(validTracks, tracks);
     lines.push(`**Type:** ${type}  `);
     lines.push(`**Valid Tracks:** ${trackNames.join(", ")}`, "");
   } else {
     lines.push(`**Type:** ${type}`, "");
   }
 
-  // Core skills
-  if (view.coreSkills.length > 0) {
-    lines.push("## Core Skills", "");
-    for (const s of view.coreSkills) {
-      lines.push(`- ${s.name}`);
-    }
-    lines.push("");
-  }
-
-  // Supporting skills
-  if (view.supportingSkills.length > 0) {
-    lines.push("## Supporting Skills", "");
-    for (const s of view.supportingSkills) {
-      lines.push(`- ${s.name}`);
-    }
-    lines.push("");
-  }
-
-  // Broad skills
-  if (view.broadSkills.length > 0) {
-    lines.push("## Broad Skills", "");
-    for (const s of view.broadSkills) {
-      lines.push(`- ${s.name}`);
-    }
-    lines.push("");
-  }
+  appendSkillSection(lines, "Core Skills", view.coreSkills);
+  appendSkillSection(lines, "Supporting Skills", view.supportingSkills);
+  appendSkillSection(lines, "Broad Skills", view.broadSkills);
 
   // Behaviour modifiers
   if (showBehaviourModifiers && view.behaviourModifiers.length > 0) {
     lines.push("## Behaviour Modifiers", "");
     const modifierRows = view.behaviourModifiers.map((b) => [
       b.name,
-      b.modifier > 0 ? `+${b.modifier}` : `${b.modifier}`,
+      formatModifier(b.modifier),
     ]);
     lines.push(tableToMarkdown(["Behaviour", "Modifier"], modifierRows));
     lines.push("");

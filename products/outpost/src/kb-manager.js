@@ -87,6 +87,32 @@ export class KBManager {
   }
 
   /**
+   * Merge new entries from a template permission list into an existing one.
+   * @param {Object} templatePerms - Template permissions object
+   * @param {Object} existingPerms - Existing permissions object (mutated)
+   * @returns {number} Number of entries added
+   */
+  #mergePermissionLists(templatePerms, existingPerms) {
+    let added = 0;
+    for (const key of ["allow", "deny", "additionalDirectories"]) {
+      if (!templatePerms[key]?.length) continue;
+      const set = new Set((existingPerms[key] ||= []));
+      for (const entry of templatePerms[key]) {
+        if (!set.has(entry)) {
+          existingPerms[key].push(entry);
+          set.add(entry);
+          added++;
+        }
+      }
+    }
+    if (templatePerms.defaultMode && !existingPerms.defaultMode) {
+      existingPerms.defaultMode = templatePerms.defaultMode;
+      added++;
+    }
+    return added;
+  }
+
+  /**
    * Merge template settings.json into the destination's settings.json.
    * @param {string} tpl - Template directory
    * @param {string} dest - Knowledge base directory
@@ -106,26 +132,10 @@ export class KBManager {
 
     const template = this.#readJSON(src, {});
     const existing = this.#readJSON(destPath, {});
-    const tp = template.permissions || {};
-    const ep = (existing.permissions ||= {});
-    let added = 0;
-
-    for (const key of ["allow", "deny", "additionalDirectories"]) {
-      if (!tp[key]?.length) continue;
-      const set = new Set((ep[key] ||= []));
-      for (const entry of tp[key]) {
-        if (!set.has(entry)) {
-          ep[key].push(entry);
-          set.add(entry);
-          added++;
-        }
-      }
-    }
-
-    if (tp.defaultMode && !ep.defaultMode) {
-      ep.defaultMode = tp.defaultMode;
-      added++;
-    }
+    const added = this.#mergePermissionLists(
+      template.permissions || {},
+      (existing.permissions ||= {}),
+    );
 
     if (added > 0) {
       this.#writeJSON(destPath, existing);

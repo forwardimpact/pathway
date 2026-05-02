@@ -3,6 +3,60 @@ import assert from "node:assert";
 import { KBManager } from "../src/kb-manager.js";
 
 /**
+ * Register all parent directories of a path into a set.
+ * @param {string} filePath
+ * @param {Set<string>} dirs
+ */
+function registerParentDirs(filePath, dirs) {
+  const parts = filePath.split("/");
+  for (let i = 1; i < parts.length; i++) {
+    dirs.add(parts.slice(0, i).join("/"));
+  }
+}
+
+/**
+ * Collect direct child names under a prefix from a key iterable.
+ * @param {Iterable<string>} keys
+ * @param {string} prefix
+ * @param {Set<string>} names
+ */
+function collectChildNames(keys, prefix, names) {
+  for (const key of keys) {
+    if (key.startsWith(prefix)) {
+      const name = key.slice(prefix.length).split("/")[0];
+      if (name) names.add(name);
+    }
+  }
+}
+
+/**
+ * Simulate cpSync: copy matching files and dirs from src to dest.
+ * @param {Map<string, string>} data
+ * @param {Set<string>} dirs
+ * @param {string} src
+ * @param {string} dest
+ */
+function mockCpSyncCopy(data, dirs, src, dest) {
+  const fileEntries = [...data.keys()].filter(
+    (k) => k === src || k.startsWith(src + "/"),
+  );
+  if (fileEntries.length === 0 && !dirs.has(src)) {
+    const err = new Error("ENOENT: no such file or directory '" + src + "'");
+    err.code = "ENOENT";
+    throw err;
+  }
+  dirs.add(dest);
+  for (const d of [...dirs]) {
+    if (d.startsWith(src + "/")) dirs.add(dest + d.slice(src.length));
+  }
+  for (const key of fileEntries) {
+    const target = key === src ? dest : dest + key.slice(src.length);
+    registerParentDirs(target, dirs);
+    data.set(target, data.get(key));
+  }
+}
+
+/**
  * In-memory fs mock for KBManager tests.
  * @param {Record<string, string>} files
  */
@@ -11,10 +65,7 @@ function createKBMockFs(files = {}) {
   const dirs = new Set();
 
   for (const path of data.keys()) {
-    const parts = path.split("/");
-    for (let i = 1; i < parts.length; i++) {
-      dirs.add(parts.slice(0, i).join("/"));
-    }
+    registerParentDirs(path, dirs);
   }
 
   return {
@@ -39,28 +90,7 @@ function createKBMockFs(files = {}) {
     },
     cpSync(src, dest, _options) {
       this.cpSyncCallCount = (this.cpSyncCallCount || 0) + 1;
-      const fileEntries = [...data.keys()].filter(
-        (k) => k === src || k.startsWith(src + "/"),
-      );
-      if (fileEntries.length === 0 && !dirs.has(src)) {
-        const err = new Error(
-          "ENOENT: no such file or directory '" + src + "'",
-        );
-        err.code = "ENOENT";
-        throw err;
-      }
-      dirs.add(dest);
-      for (const d of [...dirs]) {
-        if (d.startsWith(src + "/")) dirs.add(dest + d.slice(src.length));
-      }
-      for (const key of fileEntries) {
-        const target = key === src ? dest : dest + key.slice(src.length);
-        const parts = target.split("/");
-        for (let i = 1; i < parts.length; i++) {
-          dirs.add(parts.slice(0, i).join("/"));
-        }
-        data.set(target, data.get(key));
-      }
+      mockCpSyncCopy(data, dirs, src, dest);
     },
     readFileSync(path, encoding) {
       const content = data.get(path);
@@ -80,18 +110,8 @@ function createKBMockFs(files = {}) {
     readdirSync(path, options) {
       const prefix = path.endsWith("/") ? path : path + "/";
       const names = new Set();
-      for (const key of data.keys()) {
-        if (key.startsWith(prefix)) {
-          const name = key.slice(prefix.length).split("/")[0];
-          if (name) names.add(name);
-        }
-      }
-      for (const d of dirs) {
-        if (d.startsWith(prefix)) {
-          const name = d.slice(prefix.length).split("/")[0];
-          if (name) names.add(name);
-        }
-      }
+      collectChildNames(data.keys(), prefix, names);
+      collectChildNames(dirs, prefix, names);
       if (options && options.withFileTypes) {
         return [...names].map((name) => ({
           name,

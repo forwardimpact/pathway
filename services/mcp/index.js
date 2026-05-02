@@ -11,6 +11,66 @@ import { registerToolsFromConfig } from "@forwardimpact/libmcp";
 
 const __dirname = path.dirname(fileURLToPath(import.meta.url));
 
+const SESSION_IDLE_MS = 30 * 60 * 1000;
+const SESSION_SWEEP_MS = 60_000;
+const SHUTDOWN_TIMEOUT_MS = 5000;
+
+function sendJson(res, status, body) {
+  res.writeHead(status, { "Content-Type": "application/json" });
+  res.end(JSON.stringify(body));
+}
+
+function sendInternalError(res, logger, err) {
+  logger.error(`Request handling failed: ${err.message}`);
+  if (res.headersSent) return;
+  sendJson(res, 500, {
+    jsonrpc: "2.0",
+    error: { code: -32603, message: "Internal server error" },
+    id: null,
+  });
+}
+
+function tryServeHealth(req, res) {
+  if (req.url !== "/health" || req.method !== "GET") return false;
+  sendJson(res, 200, { status: "ok" });
+  return true;
+}
+
+function isAuthorized(req, expectedToken) {
+  return req.headers.authorization === `Bearer ${expectedToken}`;
+}
+
+async function dispatchExistingSession(req, res, session, logger) {
+  session.lastActivity = Date.now();
+  try {
+    await session.transport.handleRequest(req, res);
+  } catch (err) {
+    sendInternalError(res, logger, err);
+  }
+}
+
+async function dispatchNewSession(req, res, ctx) {
+  const { sessions, makeServer, promptText, logger } = ctx;
+  const transport = new StreamableHTTPServerTransport({
+    sessionIdGenerator: () => crypto.randomUUID(),
+  });
+  const server = makeServer(promptText);
+  transport.onclose = () => sessions.delete(transport.sessionId);
+  await server.connect(transport);
+
+  try {
+    await transport.handleRequest(req, res);
+  } catch (err) {
+    sendInternalError(res, logger, err);
+    return;
+  }
+
+  const sid = transport.sessionId;
+  if (sid) {
+    sessions.set(sid, { transport, server, lastActivity: Date.now() });
+  }
+}
+
 /**
  * Creates a Guide MCP service instance.
  *
@@ -32,8 +92,7 @@ export function createMcpService({
 }) {
   const promptPath = path.join(__dirname, "prompts", "guide-default.md");
 
-  /** Creates a fully wired McpServer instance. */
-  function createSessionServer(promptText) {
+  function makeServer(promptText) {
     const server = new McpServer({ name: "guide", version: "0.1.0" });
     registerToolsFromConfig(
       server,
@@ -58,107 +117,34 @@ export function createMcpService({
     const host = config.host || "0.0.0.0";
     const port = config.port || 3005;
     const expectedToken = config.mcpToken();
-
-    // sessionId → { transport, server }
     const sessions = new Map();
+    const ctx = { sessions, makeServer, promptText, logger };
 
     const httpServer = createServer(async (req, res) => {
-      // Health endpoint — no auth required
-      if (req.url === "/health" && req.method === "GET") {
-        res.writeHead(200, { "Content-Type": "application/json" });
-        res.end(JSON.stringify({ status: "ok" }));
-        return;
-      }
-
-      // Auth check on all other requests
-      const auth = req.headers.authorization;
-      if (!auth || auth !== `Bearer ${expectedToken}`) {
+      if (tryServeHealth(req, res)) return;
+      if (!isAuthorized(req, expectedToken)) {
         res.writeHead(401);
         res.end("Unauthorized");
         return;
       }
-
-      // Route to existing session or create a new one on initialize
       const sessionId = req.headers["mcp-session-id"];
-
-      if (sessionId && sessions.has(sessionId)) {
-        const session = sessions.get(sessionId);
-        session.lastActivity = Date.now();
-        try {
-          await session.transport.handleRequest(req, res);
-        } catch (err) {
-          logger.error(`Request handling failed: ${err.message}`);
-          if (!res.headersSent) {
-            res.writeHead(500, { "Content-Type": "application/json" });
-            res.end(
-              JSON.stringify({
-                jsonrpc: "2.0",
-                error: { code: -32603, message: "Internal server error" },
-                id: null,
-              }),
-            );
-          }
-        }
+      const existing = sessionId && sessions.get(sessionId);
+      if (existing) {
+        await dispatchExistingSession(req, res, existing, logger);
         return;
       }
-
-      // New session: create transport + server, let the transport handle
-      // the initialize request and assign a session ID.
-      const transport = new StreamableHTTPServerTransport({
-        sessionIdGenerator: () => crypto.randomUUID(),
-      });
-      const server = createSessionServer(promptText);
-
-      transport.onclose = () => {
-        const sid = transport.sessionId;
-        if (sid && sessions.has(sid)) {
-          sessions.delete(sid);
-        }
-      };
-
-      await server.connect(transport);
-
-      try {
-        await transport.handleRequest(req, res);
-      } catch (err) {
-        logger.error(`Request handling failed: ${err.message}`);
-        if (!res.headersSent) {
-          res.writeHead(500, { "Content-Type": "application/json" });
-          res.end(
-            JSON.stringify({
-              jsonrpc: "2.0",
-              error: { code: -32603, message: "Internal server error" },
-              id: null,
-            }),
-          );
-        }
-        return;
-      }
-
-      // After the initialize is handled, the transport has a session ID
-      const newSessionId = transport.sessionId;
-      if (newSessionId) {
-        sessions.set(newSessionId, {
-          transport,
-          server,
-          lastActivity: Date.now(),
-        });
-      }
+      await dispatchNewSession(req, res, ctx);
     });
 
     httpServer.on("error", (err) => {
       logger.error(`HTTP server error: ${err.message}`);
-      if (err.code === "EADDRINUSE") {
-        process.exit(1);
-      }
+      if (err.code === "EADDRINUSE") process.exit(1);
     });
 
     httpServer.listen(port, host, () => {
       logger.info(`MCP server listening on ${host}:${port}`);
     });
 
-    // Reap sessions that haven't seen activity in 30 minutes
-    const SESSION_IDLE_MS = 30 * 60 * 1000;
     const sweepTimer = setInterval(() => {
       const now = Date.now();
       for (const [sid, session] of sessions) {
@@ -167,7 +153,7 @@ export function createMcpService({
           session.server.close();
         }
       }
-    }, 60_000);
+    }, SESSION_SWEEP_MS);
     sweepTimer.unref();
 
     const shutdown = async () => {
@@ -177,7 +163,7 @@ export function createMcpService({
       const forceExit = setTimeout(() => {
         logger.error("Shutdown timed out, forcing exit");
         process.exit(1);
-      }, 5000);
+      }, SHUTDOWN_TIMEOUT_MS);
       forceExit.unref();
 
       await Promise.allSettled(

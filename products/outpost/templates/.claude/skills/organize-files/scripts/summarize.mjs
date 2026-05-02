@@ -25,6 +25,29 @@ if (process.argv.includes("-h") || process.argv.includes("--help")) {
 
 const HOME = homedir();
 
+const IMAGE_EXTS = new Set([".png", ".jpg", ".jpeg", ".gif", ".webp"]);
+const DOC_EXTS = new Set([
+  ".doc",
+  ".docx",
+  ".txt",
+  ".md",
+  ".rtf",
+  ".csv",
+  ".xlsx",
+]);
+const ARCHIVE_EXTS = new Set([".zip", ".rar"]);
+
+function classifyFile(name, ext) {
+  if (name.startsWith("Screenshot") || name.startsWith("Screen Shot"))
+    return "Screenshots";
+  if (ext === ".pdf") return "PDFs";
+  if (IMAGE_EXTS.has(ext)) return "Images";
+  if (DOC_EXTS.has(ext)) return "Documents";
+  if (ARCHIVE_EXTS.has(ext) || name.endsWith(".tar.gz")) return "Archives";
+  if (ext === ".dmg") return "Installers";
+  return "Other";
+}
+
 function countFiles(dir) {
   if (!existsSync(dir)) return null;
 
@@ -44,24 +67,8 @@ function countFiles(dir) {
     if (!stat || !stat.isFile()) continue;
     if (name.startsWith(".")) continue;
 
-    const ext = extname(name).toLowerCase();
-    if (name.startsWith("Screenshot") || name.startsWith("Screen Shot")) {
-      counts.Screenshots++;
-    } else if (ext === ".pdf") {
-      counts.PDFs++;
-    } else if ([".png", ".jpg", ".jpeg", ".gif", ".webp"].includes(ext)) {
-      counts.Images++;
-    } else if (
-      [".doc", ".docx", ".txt", ".md", ".rtf", ".csv", ".xlsx"].includes(ext)
-    ) {
-      counts.Documents++;
-    } else if ([".zip", ".rar"].includes(ext) || name.endsWith(".tar.gz")) {
-      counts.Archives++;
-    } else if (ext === ".dmg") {
-      counts.Installers++;
-    } else {
-      counts.Other++;
-    }
+    const category = classifyFile(name, extname(name).toLowerCase());
+    counts[category]++;
   }
 
   return counts;

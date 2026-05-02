@@ -81,39 +81,43 @@ export class ProseCache {
     this.dirty = false;
   }
 
+  #parseEntries(parsed) {
+    const entries = new Map();
+    let dropped = 0;
+    for (const [key, value] of Object.entries(parsed)) {
+      if (key === SCHEMA_FIELD) continue;
+      // Drop legacy structured entries (8-char hex with no entity
+      // prefix) — superseded by `${entityKey}#${hash}` format.
+      if (/^[a-f0-9]{8}$/.test(key)) {
+        dropped++;
+        continue;
+      }
+      entries.set(key, value);
+    }
+    if (dropped > 0) {
+      this.dirty = true;
+      this.logger.info(
+        "prose-cache",
+        `Dropped ${dropped} legacy hash-only cache entries`,
+      );
+    }
+    return entries;
+  }
+
   #load() {
     try {
-      if (existsSync(this.cachePath)) {
-        const parsed = JSON.parse(readFileSync(this.cachePath, "utf-8"));
-        const schema = parsed?.[SCHEMA_FIELD];
-        if (schema !== undefined && schema !== SCHEMA_VERSION) {
-          this.logger.info(
-            "prose-cache",
-            `Cache schema mismatch (file=${schema}, expected=${SCHEMA_VERSION}); discarding`,
-          );
-          return new Map();
-        }
-        const entries = new Map();
-        let dropped = 0;
-        for (const [key, value] of Object.entries(parsed)) {
-          if (key === SCHEMA_FIELD) continue;
-          // Drop legacy structured entries (8-char hex with no entity
-          // prefix) — superseded by `${entityKey}#${hash}` format.
-          if (/^[a-f0-9]{8}$/.test(key)) {
-            dropped++;
-            continue;
-          }
-          entries.set(key, value);
-        }
-        if (dropped > 0) {
-          this.dirty = true;
-          this.logger.info(
-            "prose-cache",
-            `Dropped ${dropped} legacy hash-only cache entries`,
-          );
-        }
-        return entries;
+      if (!existsSync(this.cachePath)) return new Map();
+
+      const parsed = JSON.parse(readFileSync(this.cachePath, "utf-8"));
+      const schema = parsed?.[SCHEMA_FIELD];
+      if (schema !== undefined && schema !== SCHEMA_VERSION) {
+        this.logger.info(
+          "prose-cache",
+          `Cache schema mismatch (file=${schema}, expected=${SCHEMA_VERSION}); discarding`,
+        );
+        return new Map();
       }
+      return this.#parseEntries(parsed);
     } catch {
       /* cache corrupt or missing */
     }

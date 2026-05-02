@@ -12,6 +12,58 @@ import {
   createRadarTooltip,
 } from "./radar-utils.js";
 
+/**
+ * Resolve the fill color for a label based on the diff direction.
+ * @param {number} diff - target minus current value
+ * @returns {string} CSS color
+ */
+function diffColor(diff) {
+  if (diff > 0) return "#059669";
+  if (diff < 0) return "#dc2626";
+  return "#475569";
+}
+
+/**
+ * Create a styled SVG <text> element for one radar label,
+ * including diff annotation and multi-line tspan wrapping.
+ */
+function createLabelElement(x, y, angle, label, diff) {
+  const hasDiff = diff !== 0;
+
+  const text = document.createElementNS("http://www.w3.org/2000/svg", "text");
+  text.setAttribute("x", x);
+  text.setAttribute("y", y);
+  text.classList.add("radar-label");
+  if (hasDiff) text.classList.add("has-change");
+  text.style.fontSize = "11px";
+  text.style.fill = diffColor(diff);
+  text.style.fontWeight = hasDiff ? "600" : "400";
+  text.style.textAnchor = getTextAnchor(angle);
+  text.style.dominantBaseline = "middle";
+
+  let labelText = label;
+  if (hasDiff) {
+    labelText += ` (${diff > 0 ? "+" : ""}${diff})`;
+  }
+
+  const lines = wrapLabel(labelText, 15);
+  const lineHeight = 13;
+  const offsetY = -((lines.length - 1) * lineHeight) / 2;
+
+  for (const [lineIndex, line] of lines.entries()) {
+    const tspan = document.createElementNS(
+      "http://www.w3.org/2000/svg",
+      "tspan",
+    );
+    tspan.setAttribute("x", x);
+    tspan.setAttribute("dy", lineIndex === 0 ? offsetY : lineHeight);
+    tspan.textContent = line;
+    text.appendChild(tspan);
+  }
+
+  return text;
+}
+
 export class ComparisonRadarChart {
   /**
    * @param {Object} config
@@ -147,45 +199,7 @@ export class ComparisonRadarChart {
       const y = this.center + labelRadius * Math.sin(angle);
 
       const diff = targetD.value - d.value;
-      const hasDiff = diff !== 0;
-
-      const text = document.createElementNS(
-        "http://www.w3.org/2000/svg",
-        "text",
-      );
-      text.setAttribute("x", x);
-      text.setAttribute("y", y);
-      text.classList.add("radar-label");
-      if (hasDiff) text.classList.add("has-change");
-      text.style.fontSize = "11px";
-      text.style.fill = hasDiff
-        ? diff > 0
-          ? "#059669"
-          : "#dc2626"
-        : "#475569";
-      text.style.fontWeight = hasDiff ? "600" : "400";
-      text.style.textAnchor = getTextAnchor(angle);
-      text.style.dominantBaseline = "middle";
-
-      let labelText = d.label;
-      if (hasDiff) {
-        labelText += ` (${diff > 0 ? "+" : ""}${diff})`;
-      }
-
-      const lines = wrapLabel(labelText, 15);
-      const lineHeight = 13;
-      const offsetY = -((lines.length - 1) * lineHeight) / 2;
-
-      lines.forEach((line, lineIndex) => {
-        const tspan = document.createElementNS(
-          "http://www.w3.org/2000/svg",
-          "tspan",
-        );
-        tspan.setAttribute("x", x);
-        tspan.setAttribute("dy", lineIndex === 0 ? offsetY : lineHeight);
-        tspan.textContent = line;
-        text.appendChild(tspan);
-      });
+      const text = createLabelElement(x, y, angle, d.label, diff);
 
       if (this.options.showTooltips) {
         text.style.cursor = "pointer";

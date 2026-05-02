@@ -180,42 +180,48 @@ export class Facilitator {
     let messages = this.messageBus.drain(agent.name);
     if (messages.length === 0) return;
 
-    this.emitOrchestratorEvent({
-      type: "agent_start",
-      agent: agent.name,
-    });
+    this.emitOrchestratorEvent({ type: "agent_start", agent: agent.name });
     await agent.runner.run(formatMessages(messages));
-    if (this.ctx.concluded) return;
+    if (await this.#settleAgentTurn(agent)) return;
+
+    // Loop: check for new messages, resume if any
+    while (!this.ctx.concluded) {
+      messages = await this.#awaitAgentMessages(agent.name);
+      if (messages.length === 0) break;
+      await agent.runner.resume(formatMessages(messages));
+      if (await this.#settleAgentTurn(agent)) break;
+    }
+  }
+
+  /**
+   * Enforce pending-ask and emit turn_complete. Returns true when the
+   * session has concluded and the caller should stop.
+   */
+  async #settleAgentTurn(agent) {
+    if (this.ctx.concluded) return true;
     await this.#enforcePendingAsk(agent);
-    if (this.ctx.concluded) return;
+    if (this.ctx.concluded) return true;
     this.eventQueue.enqueue({
       type: "lifecycle",
       agent: agent.name,
       status: "turn_complete",
     });
+    return false;
+  }
 
-    // Loop: check for new messages, resume if any
-    while (!this.ctx.concluded) {
-      messages = this.messageBus.drain(agent.name);
-      if (messages.length === 0) {
-        await Promise.race([
-          this.messageBus.waitForMessages(agent.name),
-          this.concludePromise,
-        ]);
-        if (this.ctx.concluded) break;
-        messages = this.messageBus.drain(agent.name);
-        if (messages.length === 0) break;
-      }
-      await agent.runner.resume(formatMessages(messages));
-      if (this.ctx.concluded) break;
-      await this.#enforcePendingAsk(agent);
-      if (this.ctx.concluded) break;
-      this.eventQueue.enqueue({
-        type: "lifecycle",
-        agent: agent.name,
-        status: "turn_complete",
-      });
-    }
+  /**
+   * Wait for messages addressed to `name`, returning an empty array when
+   * the session concludes first.
+   */
+  async #awaitAgentMessages(name) {
+    const messages = this.messageBus.drain(name);
+    if (messages.length > 0) return messages;
+    await Promise.race([
+      this.messageBus.waitForMessages(name),
+      this.concludePromise,
+    ]);
+    if (this.ctx.concluded) return [];
+    return this.messageBus.drain(name);
   }
 
   /**

@@ -172,39 +172,26 @@ export class Supervisor {
           : await this.agentRunner.run(relay);
         agentCalled = true;
 
-        if (agentResult.error && !agentResult.aborted) {
-          this.emitSummary({ success: false, turns: turn });
-          return { exit: { success: false, turns: turn } };
-        }
+        const outcome = this.#classifyAgentOutcome(
+          agentResult,
+          turn,
+          interventions,
+        );
 
-        if (this.ctx.concluded) {
-          this.emitSummary({
-            success: true,
-            turns: turn,
-            summary: this.ctx.summary,
-          });
-          return { exit: { success: true, turns: turn } };
-        }
+        if (outcome.type === "exit") return { exit: outcome.exit };
+        if (outcome.type === "intervention_limit") return { exit: null };
 
-        if (agentResult.aborted && this.ctx.redirect) {
+        if (outcome.type === "redirect") {
           interventions++;
-          const redirect = this.ctx.redirect;
-          this.ctx.redirect = null;
-          if (interventions >= MAX_INTERVENTIONS_PER_TURN) {
-            this.emitOrchestratorEvent({ type: "intervention_limit", turn });
-            return { exit: null };
-          }
-          relay = redirect.message;
+          relay = outcome.relay;
           this.emitOrchestratorEvent({ type: "intervention_relayed", turn });
           continue;
         }
 
-        if (this.#checkAsk("agent") === "recheck" && !this.ctx.concluded) {
-          const reminders = this.messageBus.drain("agent");
-          if (reminders.length > 0) {
-            relay = formatMessages(reminders);
-            continue;
-          }
+        const askRelay = this.#drainAgentAskRelay();
+        if (askRelay) {
+          relay = askRelay;
+          continue;
         }
 
         return { exit: null };
@@ -212,6 +199,50 @@ export class Supervisor {
     } finally {
       this.agentRunner.onBatch = null;
     }
+  }
+
+  /**
+   * Classify the outcome of a single agent execution within #runAgentTurn.
+   * @returns {{type: string, exit?: object|null, relay?: string}}
+   */
+  #classifyAgentOutcome(agentResult, turn, interventions) {
+    if (agentResult.error && !agentResult.aborted) {
+      this.emitSummary({ success: false, turns: turn });
+      return { type: "exit", exit: { success: false, turns: turn } };
+    }
+
+    if (this.ctx.concluded) {
+      this.emitSummary({
+        success: true,
+        turns: turn,
+        summary: this.ctx.summary,
+      });
+      return { type: "exit", exit: { success: true, turns: turn } };
+    }
+
+    if (agentResult.aborted && this.ctx.redirect) {
+      const redirect = this.ctx.redirect;
+      this.ctx.redirect = null;
+      if (interventions + 1 >= MAX_INTERVENTIONS_PER_TURN) {
+        this.emitOrchestratorEvent({ type: "intervention_limit", turn });
+        return { type: "intervention_limit" };
+      }
+      return { type: "redirect", relay: redirect.message };
+    }
+
+    return { type: "continue" };
+  }
+
+  /**
+   * If the agent has an unanswered ask, drain reminders and return a
+   * formatted relay string. Returns null when no relay is needed.
+   * @returns {string|null}
+   */
+  #drainAgentAskRelay() {
+    if (this.#checkAsk("agent") !== "recheck" || this.ctx.concluded)
+      return null;
+    const reminders = this.messageBus.drain("agent");
+    return reminders.length > 0 ? formatMessages(reminders) : null;
   }
 
   /**

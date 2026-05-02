@@ -17,12 +17,19 @@ export function risksToMarkdown({ coverage, risks, audience }) {
   lines.push("");
 
   const director = audience === Audience.DIRECTOR;
+  formatSpofSection(lines, risks.singlePointsOfFailure, director);
+  formatCriticalGapsSection(lines, risks.criticalGaps);
+  formatConcentrationSection(lines, risks.concentrationRisks);
 
+  return lines.join("\n") + "\n";
+}
+
+function formatSpofSection(lines, singlePointsOfFailure, director) {
   lines.push("## Single points of failure");
-  if (risks.singlePointsOfFailure.length === 0) {
+  if (singlePointsOfFailure.length === 0) {
     lines.push("- (none detected)");
   } else {
-    for (const spof of risks.singlePointsOfFailure) {
+    for (const spof of singlePointsOfFailure) {
       const holder = director
         ? "one engineer"
         : (spof.holder.name ?? spof.holder.email ?? "one engineer");
@@ -30,27 +37,29 @@ export function risksToMarkdown({ coverage, risks, audience }) {
     }
   }
   lines.push("");
+}
 
+function formatCriticalGapsSection(lines, criticalGaps) {
   lines.push("## Critical gaps");
-  if (risks.criticalGaps.length === 0) {
+  if (criticalGaps.length === 0) {
     lines.push("- (none detected)");
   } else {
-    for (const gap of risks.criticalGaps) {
+    for (const gap of criticalGaps) {
       lines.push(`- **${gap.skillId}** — ${gap.reason}`);
     }
   }
   lines.push("");
+}
 
+function formatConcentrationSection(lines, concentrationRisks) {
   lines.push("## Concentration risks");
-  if (risks.concentrationRisks.length === 0) {
+  if (concentrationRisks.length === 0) {
     lines.push("- (none detected)");
   } else {
-    for (const risk of risks.concentrationRisks) {
+    for (const risk of concentrationRisks) {
       lines.push(
         `- **${risk.capabilityId}** — ${risk.count}/${risk.totalMembers} engineers at ${risk.level} ${risk.proficiency}`,
       );
     }
   }
-
-  return lines.join("\n") + "\n";
 }

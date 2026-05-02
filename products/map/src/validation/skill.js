@@ -266,63 +266,71 @@ function validateSkillToolReferences(skill, path) {
   return errors;
 }
 
-function validateSkillMarkers(skill, path) {
+function validateMarkerLevel(level, levelMarkers, markersPath) {
   const errors = [];
 
-  if (skill.markers === undefined) return errors;
+  if (!SKILL_PROFICIENCY_ORDER.includes(level)) {
+    errors.push(
+      createError(
+        "INVALID_VALUE",
+        `Invalid marker level: ${level}. Must be one of: ${SKILL_PROFICIENCY_ORDER.join(", ")}`,
+        `${markersPath}.${level}`,
+        level,
+      ),
+    );
+    return errors;
+  }
+
+  if (typeof levelMarkers !== "object" || Array.isArray(levelMarkers)) {
+    errors.push(
+      createError(
+        "INVALID_VALUE",
+        `Markers at level ${level} must be an object with human/agent arrays`,
+        `${markersPath}.${level}`,
+        levelMarkers,
+      ),
+    );
+    return errors;
+  }
+
+  for (const section of ["human", "agent"]) {
+    if (
+      levelMarkers[section] !== undefined &&
+      !Array.isArray(levelMarkers[section])
+    ) {
+      errors.push(
+        createError(
+          "INVALID_VALUE",
+          `Markers ${section} at level ${level} must be an array of strings`,
+          `${markersPath}.${level}.${section}`,
+          levelMarkers[section],
+        ),
+      );
+    }
+  }
+
+  return errors;
+}
+
+function validateSkillMarkers(skill, path) {
+  if (skill.markers === undefined) return [];
 
   if (typeof skill.markers !== "object" || Array.isArray(skill.markers)) {
-    errors.push(
+    return [
       createError(
         "INVALID_VALUE",
         "Skill markers must be an object keyed by proficiency level",
         `${path}.markers`,
         skill.markers,
       ),
-    );
-    return errors;
+    ];
   }
 
+  const errors = [];
+  const markersPath = `${path}.markers`;
   for (const [level, levelMarkers] of Object.entries(skill.markers)) {
-    if (!SKILL_PROFICIENCY_ORDER.includes(level)) {
-      errors.push(
-        createError(
-          "INVALID_VALUE",
-          `Invalid marker level: ${level}. Must be one of: ${SKILL_PROFICIENCY_ORDER.join(", ")}`,
-          `${path}.markers.${level}`,
-          level,
-        ),
-      );
-      continue;
-    }
-    if (typeof levelMarkers !== "object" || Array.isArray(levelMarkers)) {
-      errors.push(
-        createError(
-          "INVALID_VALUE",
-          `Markers at level ${level} must be an object with human/agent arrays`,
-          `${path}.markers.${level}`,
-          levelMarkers,
-        ),
-      );
-      continue;
-    }
-    for (const section of ["human", "agent"]) {
-      if (
-        levelMarkers[section] !== undefined &&
-        !Array.isArray(levelMarkers[section])
-      ) {
-        errors.push(
-          createError(
-            "INVALID_VALUE",
-            `Markers ${section} at level ${level} must be an array of strings`,
-            `${path}.markers.${level}.${section}`,
-            levelMarkers[section],
-          ),
-        );
-      }
-    }
+    errors.push(...validateMarkerLevel(level, levelMarkers, markersPath));
   }
-
   return errors;
 }
 

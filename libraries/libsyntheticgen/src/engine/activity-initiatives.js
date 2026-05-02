@@ -131,6 +131,87 @@ function buildInitiative(params) {
 }
 
 /**
+ * Build a scorecard entry for a driver/team combination.
+ * @param {object} params
+ * @returns {object}
+ */
+function buildScorecard({
+  isDeclining,
+  driver,
+  team,
+  scorecardId,
+  scorecardName,
+  checks,
+}) {
+  return {
+    id: scorecardId,
+    name: scorecardName,
+    description: `Scorecard tracking ${driver.name.toLowerCase()} for ${team.name}`,
+    type: "LEVEL",
+    published: true,
+    checks,
+    levels: SCORECARD_LEVELS,
+    tags: [
+      {
+        value: isDeclining ? "remediation" : "improvement",
+        color: isDeclining ? "#dc2626" : "#16a34a",
+      },
+    ],
+  };
+}
+
+/**
+ * Process a single scenario affect, collecting scorecards and initiatives
+ * for each of its dx_drivers.
+ */
+function processAffect(params) {
+  const { affect, scenario, project, teams, people, driverMap, state } = params;
+  const team = teams.find((t) => t.id === affect.team_id);
+  if (!team) return;
+
+  for (const dx of affect.dx_drivers || []) {
+    const driver = driverMap.get(dx.driver_id);
+    if (!driver) continue;
+
+    state.counter++;
+    const isDeclining = dx.magnitude < 0;
+    const scorecardId = `sc_${scenario.id}_${affect.team_id}_${dx.driver_id}`;
+    const scorecardName = isDeclining
+      ? `${driver.name} Remediation`
+      : `${driver.name} Improvement`;
+
+    const checks = buildChecks(scorecardId, driver.skills);
+
+    state.scorecards.push(
+      buildScorecard({
+        isDeclining,
+        driver,
+        team,
+        scorecardId,
+        scorecardName,
+        checks,
+      }),
+    );
+
+    state.initiatives.push(
+      buildInitiative({
+        counter: state.counter,
+        isDeclining,
+        driver,
+        team,
+        scenario,
+        scorecardId,
+        scorecardName,
+        dx,
+        checks,
+        people,
+        project,
+      }),
+    );
+  }
+}
+
+/**
  * Derive initiatives and scorecards from projects and scenarios.
  * @param {import('../dsl/parser.js').TerrainAST} ast
  * @param {import('./rng.js').SeededRNG} rng
@@ -140,12 +221,10 @@ function buildInitiative(params) {
  * @returns {{ scorecards: object[], initiatives: object[] }}
  */
 export function deriveInitiatives(ast, rng, people, teams, _snapshots) {
-  const scorecards = [];
-  const initiatives = [];
   const driverMap = new Map(
     (ast.standard?.drivers || []).map((d) => [d.id, d]),
   );
-  let counter = 0;
+  const state = { scorecards: [], initiatives: [], counter: 0 };
 
   for (const scenario of ast.scenarios) {
     const project = ast.projects.find((p) =>
@@ -153,56 +232,17 @@ export function deriveInitiatives(ast, rng, people, teams, _snapshots) {
     );
 
     for (const affect of scenario.affects) {
-      const team = teams.find((t) => t.id === affect.team_id);
-      if (!team) continue;
-
-      for (const dx of affect.dx_drivers || []) {
-        const driver = driverMap.get(dx.driver_id);
-        if (!driver) continue;
-
-        counter++;
-        const isDeclining = dx.magnitude < 0;
-        const scorecardId = `sc_${scenario.id}_${affect.team_id}_${dx.driver_id}`;
-        const scorecardName = isDeclining
-          ? `${driver.name} Remediation`
-          : `${driver.name} Improvement`;
-
-        const checks = buildChecks(scorecardId, driver.skills);
-
-        scorecards.push({
-          id: scorecardId,
-          name: scorecardName,
-          description: `Scorecard tracking ${driver.name.toLowerCase()} for ${team.name}`,
-          type: "LEVEL",
-          published: true,
-          checks,
-          levels: SCORECARD_LEVELS,
-          tags: [
-            {
-              value: isDeclining ? "remediation" : "improvement",
-              color: isDeclining ? "#dc2626" : "#16a34a",
-            },
-          ],
-        });
-
-        initiatives.push(
-          buildInitiative({
-            counter,
-            isDeclining,
-            driver,
-            team,
-            scenario,
-            scorecardId,
-            scorecardName,
-            dx,
-            checks,
-            people,
-            project,
-          }),
-        );
-      }
+      processAffect({
+        affect,
+        scenario,
+        project,
+        teams,
+        people,
+        driverMap,
+        state,
+      });
     }
   }
 
-  return { scorecards, initiatives };
+  return { scorecards: state.scorecards, initiatives: state.initiatives };
 }

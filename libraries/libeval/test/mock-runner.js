@@ -17,6 +17,42 @@ import { PassThrough } from "node:stream";
 import { AgentRunner } from "@forwardimpact/libeval";
 import { hasTextBlock } from "../src/agent-runner.js";
 
+async function processMessage(runner, message, toolDispatcher, state) {
+  recordLine(runner, message, state.pendingBatch);
+  await dispatchTools(toolDispatcher, message);
+  if (hasTextBlock(message)) state.assistantTextCount++;
+
+  if (shouldFlushBatch(runner, message, state.assistantTextCount)) {
+    state.assistantTextCount = 0;
+    state.aborted = await flushBatch(runner, state.pendingBatch);
+  }
+}
+
+function recordLine(runner, message, pendingBatch) {
+  const line = JSON.stringify(message);
+  runner.buffer.push(line);
+  if (runner.onLine) runner.onLine(line);
+  if (runner.onBatch) pendingBatch.push(line);
+}
+
+function shouldFlushBatch(runner, message, assistantTextCount) {
+  return (
+    runner.onBatch &&
+    (message.type === "result" || assistantTextCount >= runner.batchSize)
+  );
+}
+
+async function flushBatch(runner, pendingBatch) {
+  let aborted = false;
+  const batchLines = pendingBatch.splice(0);
+  await runner.onBatch(batchLines, {
+    abort: () => {
+      aborted = true;
+    },
+  });
+  return aborted;
+}
+
 async function dispatchTools(toolDispatcher, message) {
   if (!toolDispatcher || message.type !== "assistant") return;
   const content = message.message?.content ?? message.content ?? [];
@@ -48,49 +84,20 @@ export function createMockRunner(responses, messages, { toolDispatcher } = {}) {
   });
 
   const consume = async (msgs) => {
-    let aborted = false;
-    const pendingBatch = [];
-    let assistantTextCount = 0;
+    const state = { aborted: false, pendingBatch: [], assistantTextCount: 0 };
+
     for (const m of msgs) {
-      const line = JSON.stringify(m);
-      runner.buffer.push(line);
-      if (runner.onLine) runner.onLine(line);
-      if (runner.onBatch) pendingBatch.push(line);
-
-      await dispatchTools(toolDispatcher, m);
-
-      if (hasTextBlock(m)) {
-        assistantTextCount++;
-      }
-
-      const shouldFlush =
-        runner.onBatch &&
-        (m.type === "result" || assistantTextCount >= runner.batchSize);
-      if (shouldFlush) {
-        assistantTextCount = 0;
-        const batchLines = pendingBatch.splice(0);
-        await runner.onBatch(batchLines, {
-          abort: () => {
-            aborted = true;
-          },
-        });
-        if (aborted) break;
-      }
+      await processMessage(runner, m, toolDispatcher, state);
+      if (state.aborted) break;
     }
+
     // Terminal flush: mirror the real AgentRunner's abnormal-end path —
     // an aborted scripted run delivers any pending tail so the supervisor
-    // sees the partial state. Natural-end without a `result` marker is
-    // treated as a simplified stub (no phantom flush), matching the real
-    // runner's rule that terminal flush only fires on error/abort.
-    if (aborted && runner.onBatch && pendingBatch.length > 0) {
-      const batchLines = pendingBatch.splice(0);
-      await runner.onBatch(batchLines, {
-        abort: () => {
-          aborted = true;
-        },
-      });
+    // sees the partial state.
+    if (state.aborted && runner.onBatch && state.pendingBatch.length > 0) {
+      await flushBatch(runner, state.pendingBatch);
     }
-    return aborted;
+    return state.aborted;
   };
 
   runner.run = async (_task) => {

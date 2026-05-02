@@ -79,16 +79,21 @@ export function parse(tokens) {
     throw new Error(`Expected date at line ${t.line}`);
   }
 
+  /** Resolve a single array element from the current token. */
+  function resolveArrayElement() {
+    const t = peek();
+    if (t.type === "STRING" || t.type === "IDENT" || t.type === "KEYWORD") {
+      return advance().value;
+    }
+    if (t.type === "NUMBER") return Number(advance().value);
+    throw new Error(`Unexpected ${t.type} in array at line ${t.line}`);
+  }
+
   function parseArray() {
     expect("LBRACKET");
     const items = [];
     while (peek().type !== "RBRACKET") {
-      const t = peek();
-      if (t.type === "STRING") items.push(advance().value);
-      else if (t.type === "IDENT") items.push(advance().value);
-      else if (t.type === "KEYWORD") items.push(advance().value);
-      else if (t.type === "NUMBER") items.push(Number(advance().value));
-      else throw new Error(`Unexpected ${t.type} in array at line ${t.line}`);
+      items.push(resolveArrayElement());
       if (peek().type === "COMMA") advance();
     }
     expect("RBRACKET");

@@ -277,32 +277,25 @@ function isParseError(err) {
   return typeof code === "string" && code.startsWith("ERR_PARSE_ARGS_");
 }
 
-async function main() {
-  const argv = process.argv.slice(2);
-  if (argv.length === 0) {
-    cli.showHelp();
-    return;
-  }
-
-  let parsed;
+function tryParse(argv) {
   try {
-    parsed = cli.parse(argv);
+    return cli.parse(argv);
   } catch (err) {
     if (isParseError(err)) {
       cli.usageError(err.message);
-      return;
+      return null;
     }
     throw err;
   }
-  if (!parsed) return;
+}
 
-  const { values, positionals } = parsed;
+function resolveVerb(positionals) {
   const verb = positionals[0];
   if (!verb || !KNOWN_VERBS.has(verb)) {
     cli.usageError(
       `Unknown command "${verb ?? ""}". Run "fit-terrain --help".`,
     );
-    return;
+    return null;
   }
 
   let inspectStage = null;
@@ -312,15 +305,32 @@ async function main() {
       cli.usageError(
         "inspect requires a stage name. Run `fit-terrain --help`.",
       );
-      return;
+      return null;
     }
   }
+
+  return { verb, inspectStage };
+}
+
+async function main() {
+  const argv = process.argv.slice(2);
+  if (argv.length === 0) {
+    cli.showHelp();
+    return;
+  }
+
+  const parsed = tryParse(argv);
+  if (!parsed) return;
+
+  const { values, positionals } = parsed;
+  const resolved = resolveVerb(positionals);
+  if (!resolved) return;
 
   let ok;
   try {
     ({ ok } = await runVerb({
-      verb,
-      inspectStage,
+      verb: resolved.verb,
+      inspectStage: resolved.inspectStage,
       only: values.only,
       load: !!values.load,
       model: values.model,
@@ -328,7 +338,10 @@ async function main() {
       cache: values.cache,
     }));
   } catch (err) {
-    if (verb === "inspect" && err.message.startsWith("Unknown stage")) {
+    if (
+      resolved.verb === "inspect" &&
+      err.message.startsWith("Unknown stage")
+    ) {
       cli.usageError(err.message);
       return;
     }

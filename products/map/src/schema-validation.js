@@ -89,6 +89,22 @@ function formatAjvErrors(ajvErrors, filePath) {
   });
 }
 
+function checkIdSetRefs(ids, knownIds, entityLabel, entityId, refKind) {
+  const errors = [];
+  for (const id of ids) {
+    if (!knownIds.has(id)) {
+      errors.push(
+        createError(
+          "INVALID_REFERENCE",
+          `${entityLabel} '${entityId}' references unknown ${refKind} '${id}'`,
+          `${entityLabel.toLowerCase()}s/${entityId}`,
+        ),
+      );
+    }
+  }
+  return errors;
+}
+
 function checkDisciplineRefs(disciplines, skillIds, behaviourIds) {
   const errors = [];
   for (const discipline of disciplines) {
@@ -97,30 +113,24 @@ function checkDisciplineRefs(disciplines, skillIds, behaviourIds) {
       ...(discipline.supportingSkills || []),
       ...(discipline.broadSkills || []),
     ];
-    for (const skillId of allSkillRefs) {
-      if (!skillIds.has(skillId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Discipline '${discipline.id}' references unknown skill '${skillId}'`,
-            `disciplines/${discipline.id}`,
-          ),
-        );
-      }
-    }
-    for (const behaviourId of Object.keys(
-      discipline.behaviourModifiers || {},
-    )) {
-      if (!behaviourIds.has(behaviourId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Discipline '${discipline.id}' references unknown behaviour '${behaviourId}'`,
-            `disciplines/${discipline.id}`,
-          ),
-        );
-      }
-    }
+    errors.push(
+      ...checkIdSetRefs(
+        allSkillRefs,
+        skillIds,
+        "Discipline",
+        discipline.id,
+        "skill",
+      ),
+    );
+    errors.push(
+      ...checkIdSetRefs(
+        Object.keys(discipline.behaviourModifiers || {}),
+        behaviourIds,
+        "Discipline",
+        discipline.id,
+        "behaviour",
+      ),
+    );
   }
   return errors;
 }
@@ -128,28 +138,24 @@ function checkDisciplineRefs(disciplines, skillIds, behaviourIds) {
 function checkTrackRefs(tracks, capabilityIds, behaviourIds) {
   const errors = [];
   for (const track of tracks) {
-    for (const capabilityId of Object.keys(track.skillModifiers || {})) {
-      if (!capabilityIds.has(capabilityId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Track '${track.id}' references unknown capability '${capabilityId}'`,
-            `tracks/${track.id}`,
-          ),
-        );
-      }
-    }
-    for (const behaviourId of Object.keys(track.behaviourModifiers || {})) {
-      if (!behaviourIds.has(behaviourId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Track '${track.id}' references unknown behaviour '${behaviourId}'`,
-            `tracks/${track.id}`,
-          ),
-        );
-      }
-    }
+    errors.push(
+      ...checkIdSetRefs(
+        Object.keys(track.skillModifiers || {}),
+        capabilityIds,
+        "Track",
+        track.id,
+        "capability",
+      ),
+    );
+    errors.push(
+      ...checkIdSetRefs(
+        Object.keys(track.behaviourModifiers || {}),
+        behaviourIds,
+        "Track",
+        track.id,
+        "behaviour",
+      ),
+    );
   }
   return errors;
 }
@@ -157,28 +163,24 @@ function checkTrackRefs(tracks, capabilityIds, behaviourIds) {
 function checkDriverRefs(drivers, skillIds, behaviourIds) {
   const errors = [];
   for (const driver of drivers) {
-    for (const skillId of driver.contributingSkills || []) {
-      if (!skillIds.has(skillId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Driver '${driver.id}' references unknown skill '${skillId}'`,
-            `drivers`,
-          ),
-        );
-      }
-    }
-    for (const behaviourId of driver.contributingBehaviours || []) {
-      if (!behaviourIds.has(behaviourId)) {
-        errors.push(
-          createError(
-            "INVALID_REFERENCE",
-            `Driver '${driver.id}' references unknown behaviour '${behaviourId}'`,
-            `drivers`,
-          ),
-        );
-      }
-    }
+    errors.push(
+      ...checkIdSetRefs(
+        driver.contributingSkills || [],
+        skillIds,
+        "Driver",
+        driver.id,
+        "skill",
+      ),
+    );
+    errors.push(
+      ...checkIdSetRefs(
+        driver.contributingBehaviours || [],
+        behaviourIds,
+        "Driver",
+        driver.id,
+        "behaviour",
+      ),
+    );
   }
   return errors;
 }
@@ -339,26 +341,19 @@ export class SchemaValidator {
     return `https://www.forwardimpact.team/schema/json/${schemaFilename}`;
   }
 
-  /**
-   * Validate a data directory against JSON schemas
-   * @param {string} dataDir
-   * @returns {Promise<{valid: boolean, errors: Array, warnings: Array, stats: Object}>}
-   */
-  async validateDataDirectory(dataDir) {
-    const ajv = await this.#createValidator();
-    const allErrors = [];
-    const warnings = [];
-    const stats = {
-      filesValidated: 0,
-      schemasUsed: new Set(),
-    };
+  /** @type {string[]} Files that are silently optional (no warning when absent). */
+  static #OPTIONAL_SILENT = ["self-assessments.yaml"];
 
+  /**
+   * Validate single YAML files listed in SCHEMA_MAPPINGS.
+   */
+  async #validateSingleFiles(ajv, dataDir, allErrors, warnings, stats) {
     for (const [filename, schemaFile] of Object.entries(SCHEMA_MAPPINGS)) {
       if (!filename.includes(".yaml")) continue;
 
       const filePath = join(dataDir, filename);
       if (!(await this.#fileExists(filePath))) {
-        if (!["self-assessments.yaml"].includes(filename)) {
+        if (!SchemaValidator.#OPTIONAL_SILENT.includes(filename)) {
           warnings.push(
             createWarning(
               "MISSING_FILE",
@@ -373,19 +368,19 @@ export class SchemaValidator {
       const result = await this.#validateFile(ajv, filePath, schemaId);
       stats.filesValidated++;
       stats.schemasUsed.add(schemaFile);
-
-      if (!result.valid) {
-        allErrors.push(...result.errors);
-      }
+      if (!result.valid) allErrors.push(...result.errors);
     }
+  }
 
+  /**
+   * Validate directory-based YAML files listed in SCHEMA_MAPPINGS.
+   */
+  async #validateDirectoryFiles(ajv, dataDir, allErrors, stats) {
     for (const [dirName, schemaFile] of Object.entries(SCHEMA_MAPPINGS)) {
       if (dirName.includes(".yaml")) continue;
 
       const dirPath = join(dataDir, dirName);
-      if (!(await this.#isDirectory(dirPath))) {
-        continue;
-      }
+      if (!(await this.#isDirectory(dirPath))) continue;
 
       const schemaId = this.#getSchemaId(schemaFile);
       const result = await this.#validateDirectory(ajv, dirPath, schemaId);
@@ -396,11 +391,23 @@ export class SchemaValidator {
       );
       stats.filesValidated += yamlFiles.length;
       stats.schemasUsed.add(schemaFile);
-
-      if (!result.valid) {
-        allErrors.push(...result.errors);
-      }
+      if (!result.valid) allErrors.push(...result.errors);
     }
+  }
+
+  /**
+   * Validate a data directory against JSON schemas
+   * @param {string} dataDir
+   * @returns {Promise<{valid: boolean, errors: Array, warnings: Array, stats: Object}>}
+   */
+  async validateDataDirectory(dataDir) {
+    const ajv = await this.#createValidator();
+    const allErrors = [];
+    const warnings = [];
+    const stats = { filesValidated: 0, schemasUsed: new Set() };
+
+    await this.#validateSingleFiles(ajv, dataDir, allErrors, warnings, stats);
+    await this.#validateDirectoryFiles(ajv, dataDir, allErrors, stats);
 
     return createValidationResult(allErrors.length === 0, allErrors, warnings);
   }

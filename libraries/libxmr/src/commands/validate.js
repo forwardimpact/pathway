@@ -26,21 +26,24 @@ export function runValidateCommand(values, args, cli) {
   if (values.format === "json") {
     process.stdout.write(JSON.stringify(result, null, 2) + "\n");
   } else {
-    const parts = [formatHeader(`Validate — ${csvPath}`)];
-    parts.push(`Rows: ${result.rows}`);
-
-    if (result.valid) {
-      parts.push(formatSuccess("Valid"));
-    } else {
-      parts.push(formatError(`${result.errors.length} error(s)`));
-      for (const e of result.errors) {
-        const loc = e.field ? `line ${e.line} [${e.field}]` : `line ${e.line}`;
-        parts.push(formatBullet(`${loc}: ${e.message}`));
-      }
-    }
-
-    process.stdout.write(parts.join("\n") + "\n");
+    process.stdout.write(formatValidationText(csvPath, result) + "\n");
   }
 
   if (!result.valid) process.exitCode = 1;
+}
+
+function formatValidationText(csvPath, result) {
+  const parts = [formatHeader(`Validate — ${csvPath}`), `Rows: ${result.rows}`];
+
+  if (result.valid) {
+    parts.push(formatSuccess("Valid"));
+  } else {
+    parts.push(formatError(`${result.errors.length} error(s)`));
+    for (const e of result.errors) {
+      const loc = e.field ? `line ${e.line} [${e.field}]` : `line ${e.line}`;
+      parts.push(formatBullet(`${loc}: ${e.message}`));
+    }
+  }
+
+  return parts.join("\n");
 }

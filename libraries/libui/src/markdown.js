@@ -12,76 +12,66 @@
  */
 export function markdownToHtml(markdown) {
   const lines = markdown.split("\n");
+  const tokens = lines.map(classifyLine);
+  return renderTokens(tokens);
+}
+
+/** Classify a raw line into a tagged token for the renderer. */
+function classifyLine(line) {
+  if (line.trim() === "") return { type: "blank" };
+  const heading = parseHeading(line);
+  if (heading) return { type: "heading", html: heading };
+  if (line.startsWith("- "))
+    return {
+      type: "list",
+      html: `<li>${formatInlineMarkdown(line.slice(2))}</li>`,
+    };
+  return { type: "paragraph", html: `<p>${formatInlineMarkdown(line)}</p>` };
+}
+
+/** Render classified tokens to HTML, managing list open/close state. */
+function renderTokens(tokens) {
   const htmlLines = [];
   let inList = false;
 
-  for (let i = 0; i < lines.length; i++) {
-    let line = lines[i];
-
-    // Skip empty lines but close list if open
-    if (line.trim() === "") {
+  for (const token of tokens) {
+    if (token.type === "blank") {
       if (inList) {
         htmlLines.push("</ul>");
         inList = false;
       }
       continue;
     }
-
-    // H1 heading
-    if (line.startsWith("# ")) {
-      if (inList) {
-        htmlLines.push("</ul>");
-        inList = false;
-      }
-      htmlLines.push(`<h1>${escapeHtml(line.slice(2))}</h1>`);
-      continue;
-    }
-
-    // H2 heading
-    if (line.startsWith("## ")) {
-      if (inList) {
-        htmlLines.push("</ul>");
-        inList = false;
-      }
-      htmlLines.push(`<h2>${escapeHtml(line.slice(3))}</h2>`);
-      continue;
-    }
-
-    // H3 heading
-    if (line.startsWith("### ")) {
-      if (inList) {
-        htmlLines.push("</ul>");
-        inList = false;
-      }
-      htmlLines.push(`<h3>${escapeHtml(line.slice(4))}</h3>`);
-      continue;
-    }
-
-    // List item
-    if (line.startsWith("- ")) {
+    if (token.type === "list") {
       if (!inList) {
         htmlLines.push("<ul>");
         inList = true;
       }
-      const content = formatInlineMarkdown(line.slice(2));
-      htmlLines.push(`<li>${content}</li>`);
+      htmlLines.push(token.html);
       continue;
     }
-
-    // Regular paragraph
+    // heading or paragraph — close any open list first
     if (inList) {
       htmlLines.push("</ul>");
       inList = false;
     }
-    htmlLines.push(`<p>${formatInlineMarkdown(line)}</p>`);
+    htmlLines.push(token.html);
   }
 
-  // Close any open list
-  if (inList) {
-    htmlLines.push("</ul>");
-  }
-
+  if (inList) htmlLines.push("</ul>");
   return htmlLines.join("\n");
+}
+
+/**
+ * Parse a line as a markdown heading (H1–H3). Returns the HTML tag or null.
+ * @param {string} line
+ * @returns {string|null}
+ */
+function parseHeading(line) {
+  if (line.startsWith("### ")) return `<h3>${escapeHtml(line.slice(4))}</h3>`;
+  if (line.startsWith("## ")) return `<h2>${escapeHtml(line.slice(3))}</h2>`;
+  if (line.startsWith("# ")) return `<h1>${escapeHtml(line.slice(2))}</h1>`;
+  return null;
 }
 
 /**

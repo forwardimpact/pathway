@@ -252,74 +252,102 @@ export async function renderAgentBuilder() {
   }
 
   /**
-   * Update the preview when selection changes
-   * @param {Object} sel - Current selection
+   * Update the URL hash to reflect the current selection
+   * @param {Set<string>} disciplines
+   * @param {string} track
    */
-  function updatePreview({ disciplines, track }) {
-    // Update URL
-    if (disciplines.size > 0) {
-      const dPart = [...disciplines].join(",");
-      const tPart = track ? `/${track}` : "";
-      const newHash = `#/agent/${dPart}${tPart}`;
-      if (window.location.hash !== newHash) {
-        history.replaceState(null, "", newHash);
+  function syncUrlHash(disciplines, track) {
+    if (disciplines.size === 0) return;
+    const dPart = [...disciplines].join(",");
+    const tPart = track ? `/${track}` : "";
+    const newHash = `#/agent/${dPart}${tPart}`;
+    if (window.location.hash !== newHash) {
+      history.replaceState(null, "", newHash);
+    }
+  }
+
+  /**
+   * Build the derive-context for a single combo
+   * @param {Object} combo
+   * @param {Object} level
+   * @returns {Object}
+   */
+  function buildDeriveContext(combo, level) {
+    return {
+      ...combo,
+      level,
+      skills: data.skills,
+      capabilities: data.capabilities,
+      behaviours: data.behaviours,
+      agentBehaviours: agentData.behaviours,
+      claudeSettings: agentData.claudeSettings,
+      vscodeSettings: agentData.vscodeSettings,
+      templates,
+    };
+  }
+
+  /**
+   * Merge a single derive result into the running aggregation, deduplicating skills and tools
+   * @param {Object} agg - Running aggregation state
+   * @param {Object} result - Output from deriveAgentData
+   */
+  function mergeResult(agg, result) {
+    agg.allProfiles.push(result.profile);
+    if (!agg.teamInstructionsContent && result.teamInstructionsContent) {
+      agg.teamInstructionsContent = result.teamInstructionsContent;
+    }
+    for (const sf of result.skillFiles) {
+      if (!agg.seenSkillDirs.has(sf.dirname)) {
+        agg.seenSkillDirs.add(sf.dirname);
+        agg.allSkillFiles.push(sf);
       }
     }
-
-    previewContainer.innerHTML = "";
-
-    const combos = computeCombinations(disciplines, track);
-
-    if (combos.length === 0) {
-      previewContainer.appendChild(
-        createEmptyState(availableDisciplines.length, allAgentTracks.length),
-      );
-      return;
+    for (const tool of result.toolkit) {
+      if (!agg.seenTools.has(tool.name)) {
+        agg.seenTools.add(tool.name);
+        agg.allToolkit.push(tool);
+      }
     }
+  }
 
-    const level = deriveReferenceLevel(data.levels);
-
-    // Derive data for all combos, then build one unified layout
-    const allProfiles = [];
-    const allSkillFiles = [];
-    const allToolkit = [];
-    const seenSkillDirs = new Set();
-    const seenTools = new Set();
-    let teamInstructionsContent = null;
+  /**
+   * Aggregate derived agent data across all combos, deduplicating skills and tools
+   * @param {Array} combos
+   * @param {Object} level
+   * @returns {{allProfiles: Array, allSkillFiles: Array, allToolkit: Array, teamInstructionsContent: string|null}}
+   */
+  function aggregateCombos(combos, level) {
+    const agg = {
+      allProfiles: [],
+      allSkillFiles: [],
+      allToolkit: [],
+      seenSkillDirs: new Set(),
+      seenTools: new Set(),
+      teamInstructionsContent: null,
+    };
 
     for (const combo of combos) {
-      const context = {
-        ...combo,
-        level,
-        skills: data.skills,
-        capabilities: data.capabilities,
-        behaviours: data.behaviours,
-        agentBehaviours: agentData.behaviours,
-        claudeSettings: agentData.claudeSettings,
-        vscodeSettings: agentData.vscodeSettings,
-        templates,
-      };
-
-      const result = deriveAgentData(context);
-      allProfiles.push(result.profile);
-      if (!teamInstructionsContent && result.teamInstructionsContent) {
-        teamInstructionsContent = result.teamInstructionsContent;
-      }
-      for (const sf of result.skillFiles) {
-        if (!seenSkillDirs.has(sf.dirname)) {
-          seenSkillDirs.add(sf.dirname);
-          allSkillFiles.push(sf);
-        }
-      }
-      for (const tool of result.toolkit) {
-        if (!seenTools.has(tool.name)) {
-          seenTools.add(tool.name);
-          allToolkit.push(tool);
-        }
-      }
+      const context = buildDeriveContext(combo, level);
+      mergeResult(agg, deriveAgentData(context));
     }
 
-    // Install section for the first combo (pack name is per-discipline)
+    return {
+      allProfiles: agg.allProfiles,
+      allSkillFiles: agg.allSkillFiles,
+      allToolkit: agg.allToolkit,
+      teamInstructionsContent: agg.teamInstructionsContent,
+    };
+  }
+
+  /**
+   * Render the preview container with install section and team preview
+   * @param {Array} combos
+   * @param {Object} aggregated - Output from aggregateCombos
+   */
+  function renderPreviewContent(combos, aggregated) {
+    const { allProfiles, allSkillFiles, allToolkit, teamInstructionsContent } =
+      aggregated;
+
     const installSection = createInstallSection({
       discipline: combos[0].humanDiscipline,
       track: combos[0].humanTrack,
@@ -329,7 +357,6 @@ export async function renderAgentBuilder() {
       previewContainer.appendChild(installSection);
     }
 
-    // Unified preview with consolidated sections
     previewContainer.appendChild(
       createTeamPreview({
         profiles: allProfiles,
@@ -347,6 +374,28 @@ export async function renderAgentBuilder() {
         ),
       }),
     );
+  }
+
+  /**
+   * Update the preview when selection changes
+   * @param {Object} sel - Current selection
+   */
+  function updatePreview({ disciplines, track }) {
+    syncUrlHash(disciplines, track);
+    previewContainer.innerHTML = "";
+
+    const combos = computeCombinations(disciplines, track);
+
+    if (combos.length === 0) {
+      previewContainer.appendChild(
+        createEmptyState(availableDisciplines.length, allAgentTracks.length),
+      );
+      return;
+    }
+
+    const level = deriveReferenceLevel(data.levels);
+    const aggregated = aggregateCombos(combos, level);
+    renderPreviewContent(combos, aggregated);
   }
 
   // Subscribe to selection changes

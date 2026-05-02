@@ -28,6 +28,29 @@ const PBJS_TYPE_MAP = {
 };
 
 /**
+ * Extract field metadata from a protobufjs Type
+ * @param {protobuf.Type} pbjsType - Resolved protobufjs type
+ * @returns {object} Map of snake_case field names to metadata
+ */
+function extractFields(pbjsType) {
+  const fields = {};
+  for (const [camelName, field] of Object.entries(pbjsType.fields)) {
+    const name = camelToSnake(camelName);
+    const typeName = field.resolvedType
+      ? "message"
+      : PBJS_TYPE_MAP[field.type] || field.type;
+    const hasOptionalKeyword = pbjsType.oneofs?.[`_${camelName}`] !== undefined;
+    fields[name] = {
+      type: typeName,
+      optional: hasOptionalKeyword,
+      repeated: field.repeated || false,
+      description: field.comment || null,
+    };
+  }
+  return fields;
+}
+
+/**
  * Base class for code generation utilities providing shared functionality
  * Implements dependency injection pattern with explicit validation
  */
@@ -279,10 +302,29 @@ export class CodegenBase {
     if (!parsed) return null;
 
     const { packageName, serviceName, methods: parsedMethods } = parsed;
+    const root = this.#loadProtobufRoot(protoPath);
 
-    // Load with protobufjs for field types, optionality, and comments
+    const methods = {};
+    for (const method of parsedMethods) {
+      const pbjsType = this.#resolveRequestType(root, method);
+      const fields = pbjsType ? extractFields(pbjsType) : {};
+      methods[method.name] = {
+        requestType: `${method.requestTypeNamespace}.${method.requestType}`,
+        fields,
+      };
+    }
+
+    return { packageName, serviceName, methods };
+  }
+
+  /**
+   * Load a protobufjs Root with include-path resolution
+   * @param {string} protoPath - Absolute path to .proto file
+   * @returns {protobuf.Root}
+   */
+  #loadProtobufRoot(protoPath) {
     const root = new protobuf.Root();
-    root.resolvePath = (origin, target) => {
+    root.resolvePath = (_origin, target) => {
       for (const dir of this.includeDirs) {
         const candidate = this.#path.join(dir, target);
         if (this.#fs.existsSync(candidate)) return candidate;
@@ -291,50 +333,26 @@ export class CodegenBase {
     };
     root.loadSync(protoPath, { alternateCommentMode: true });
     root.resolveAll();
+    return root;
+  }
 
-    const methods = {};
-    for (const method of parsedMethods) {
-      const reqTypeName = `${method.requestTypeNamespace}.${method.requestType}`;
-      let pbjsType = null;
+  /**
+   * Resolve the request type for a method from the protobufjs Root
+   * @param {protobuf.Root} root - Loaded protobufjs root
+   * @param {object} method - Parsed method descriptor
+   * @returns {protobuf.Type|null}
+   */
+  #resolveRequestType(root, method) {
+    const qualified = `${method.requestTypeNamespace}.${method.requestType}`;
+    try {
+      return root.lookupType(qualified);
+    } catch {
       try {
-        pbjsType = root.lookupType(reqTypeName);
+        return root.lookupType(method.requestType);
       } catch {
-        try {
-          pbjsType = root.lookupType(method.requestType);
-        } catch {
-          // no type found
-        }
+        return null;
       }
-
-      const fields = {};
-      if (pbjsType) {
-        for (const [camelName, field] of Object.entries(pbjsType.fields)) {
-          const name = camelToSnake(camelName);
-          // Map protobufjs type to simple type name
-          const typeName = field.resolvedType
-            ? "message"
-            : PBJS_TYPE_MAP[field.type] || field.type;
-
-          // proto3 optional uses synthetic oneofs named _fieldname
-          const hasOptionalKeyword =
-            pbjsType.oneofs?.[`_${camelName}`] !== undefined;
-
-          fields[name] = {
-            type: typeName,
-            optional: hasOptionalKeyword,
-            repeated: field.repeated || false,
-            description: field.comment || null,
-          };
-        }
-      }
-
-      methods[method.name] = {
-        requestType: `${method.requestTypeNamespace}.${method.requestType}`,
-        fields,
-      };
     }
-
-    return { packageName, serviceName, methods };
   }
 
   /**

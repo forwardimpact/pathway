@@ -2,7 +2,7 @@
  * Skill formatting for markdown/CLI output
  */
 
-import { tableToMarkdown, capitalize } from "../shared.js";
+import { tableToMarkdown, capitalize, formatModifier } from "../shared.js";
 import { prepareSkillsList, prepareSkillDetail } from "./shared.js";
 import { getConceptEmoji } from "@forwardimpact/map/levels";
 
@@ -29,6 +29,65 @@ export function skillListToMarkdown(skills, capabilities, standard) {
   }
 
   return lines.join("\n");
+}
+
+/**
+ * Append related disciplines section
+ * @param {string[]} lines
+ * @param {Object} view
+ */
+function appendDisciplines(lines, view) {
+  if (view.relatedDisciplines.length === 0) return;
+  lines.push("## Used in Disciplines", "");
+  for (const d of view.relatedDisciplines) {
+    lines.push(`- **${d.name}**: as ${d.skillType}`);
+  }
+  lines.push("");
+}
+
+/**
+ * Append related tracks section
+ * @param {string[]} lines
+ * @param {Object} view
+ */
+function appendTracks(lines, view) {
+  if (view.relatedTracks.length === 0) return;
+  lines.push("## Modified by Tracks", "");
+  for (const t of view.relatedTracks) {
+    const modifierStr = formatModifier(t.modifier);
+    lines.push(`- **${t.name}**: ${modifierStr}`);
+  }
+  lines.push("");
+}
+
+/**
+ * Append related drivers section
+ * @param {string[]} lines
+ * @param {Object} view
+ */
+function appendDrivers(lines, view) {
+  if (view.relatedDrivers.length === 0) return;
+  lines.push("## Linked to Drivers", "");
+  for (const d of view.relatedDrivers) {
+    lines.push(`- ${d.name}`);
+  }
+  lines.push("");
+}
+
+/**
+ * Append required tools section
+ * @param {string[]} lines
+ * @param {Object} view
+ */
+function appendTools(lines, view) {
+  if (view.toolReferences.length === 0) return;
+  lines.push("## Required Tools", "");
+  const toolRows = view.toolReferences.map((tool) => [
+    tool.url ? `[${tool.name}](${tool.url})` : tool.name,
+    tool.useWhen,
+  ]);
+  lines.push(tableToMarkdown(["Tool", "Use When"], toolRows));
+  lines.push("");
 }
 
 /**
@@ -77,49 +136,13 @@ export function skillToMarkdown(
   lines.push(tableToMarkdown(["Level", "Description"], levelRows));
   lines.push("");
 
-  // Related disciplines
-  if (view.relatedDisciplines.length > 0) {
-    lines.push("## Used in Disciplines", "");
-    for (const d of view.relatedDisciplines) {
-      lines.push(`- **${d.name}**: as ${d.skillType}`);
-    }
-    lines.push("");
-  }
+  appendDisciplines(lines, view);
+  appendTracks(lines, view);
+  appendDrivers(lines, view);
+  appendTools(lines, view);
 
-  // Related tracks with modifiers
-  if (view.relatedTracks.length > 0) {
-    lines.push("## Modified by Tracks", "");
-    for (const t of view.relatedTracks) {
-      const modifierStr = t.modifier > 0 ? `+${t.modifier}` : `${t.modifier}`;
-      lines.push(`- **${t.name}**: ${modifierStr}`);
-    }
-    lines.push("");
-  }
-
-  // Related drivers
-  if (view.relatedDrivers.length > 0) {
-    lines.push("## Linked to Drivers", "");
-    for (const d of view.relatedDrivers) {
-      lines.push(`- ${d.name}`);
-    }
-    lines.push("");
-  }
-
-  // Required tools
-  if (view.toolReferences.length > 0) {
-    lines.push("## Required Tools", "");
-    const toolRows = view.toolReferences.map((tool) => [
-      tool.url ? `[${tool.name}](${tool.url})` : tool.name,
-      tool.useWhen,
-    ]);
-    lines.push(tableToMarkdown(["Tool", "Use When"], toolRows));
-    lines.push("");
-  }
-
-  if (view.references.length > 0) {
-    for (const ref of view.references) {
-      lines.push(`## ${ref.title}`, "", ref.body, "");
-    }
+  for (const ref of view.references) {
+    lines.push(`## ${ref.title}`, "", ref.body, "");
   }
 
   return lines.join("\n");

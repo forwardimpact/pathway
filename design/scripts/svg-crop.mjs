@@ -169,6 +169,38 @@ const PATH_HANDLERS = {
 };
 PATH_HANDLERS.Q = PATH_HANDLERS.S;
 
+// Advance the command cursor when a letter token is encountered.
+// Returns true when the caller should `continue` (Z close or null command).
+function advanceCommand(ctx, tokens) {
+  if (!isLetter(tokens[ctx.i])) return false;
+  ctx.cmd = tokens[ctx.i++];
+  if (ctx.cmd === "Z" || ctx.cmd === "z") {
+    ctx.cpx = ctx.spx;
+    ctx.cpy = ctx.spy;
+    ctx.cmd = null;
+    return true;
+  }
+  return false;
+}
+
+// Dispatch the current command's handler and include geometry in the box.
+function dispatchPathCommand(ctx, tokens, box) {
+  if (ctx.cmd === null) {
+    ctx.i++;
+    return;
+  }
+  if (ctx.i >= tokens.length || isLetter(tokens[ctx.i])) return;
+
+  const abs = ctx.cmd === ctx.cmd.toUpperCase();
+  const c = ctx.cmd.toUpperCase();
+  ctx.rx = (x) => (abs ? x : ctx.cpx + x);
+  ctx.ry = (y) => (abs ? y : ctx.cpy + y);
+
+  const handler = PATH_HANDLERS[c];
+  if (handler) handler(ctx, box, abs);
+  else ctx.i++;
+}
+
 function pathBox(d) {
   const tokens = d.match(TOKEN_RE);
   if (!tokens) return null;
@@ -185,29 +217,8 @@ function pathBox(d) {
   ctx.num = () => parseFloat(tokens[ctx.i++]);
 
   while (ctx.i < tokens.length) {
-    if (isLetter(tokens[ctx.i])) {
-      ctx.cmd = tokens[ctx.i++];
-      if (ctx.cmd === "Z" || ctx.cmd === "z") {
-        ctx.cpx = ctx.spx;
-        ctx.cpy = ctx.spy;
-        ctx.cmd = null;
-        continue;
-      }
-    }
-    if (ctx.cmd === null) {
-      ctx.i++;
-      continue;
-    }
-    if (ctx.i >= tokens.length || isLetter(tokens[ctx.i])) continue;
-
-    const abs = ctx.cmd === ctx.cmd.toUpperCase();
-    const c = ctx.cmd.toUpperCase();
-    ctx.rx = (x) => (abs ? x : ctx.cpx + x);
-    ctx.ry = (y) => (abs ? y : ctx.cpy + y);
-
-    const handler = PATH_HANDLERS[c];
-    if (handler) handler(ctx, box, abs);
-    else ctx.i++;
+    if (advanceCommand(ctx, tokens)) continue;
+    dispatchPathCommand(ctx, tokens, box);
   }
 
   return isEmpty(box) ? null : box;

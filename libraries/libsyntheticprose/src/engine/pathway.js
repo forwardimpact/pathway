@@ -312,6 +312,68 @@ function jitter(rng, base, max) {
 }
 
 /**
+ * Generate skill proficiency map for a single level, enforcing monotonicity.
+ * @param {() => number} rng - Seeded random function
+ * @param {number} levelIdx - Current level index (base for jitter)
+ * @param {string[]} skillIds - All skill IDs
+ * @param {string[]} proficiencies - Ordered proficiency labels
+ * @param {object} prevSkillIdx - Mutable map tracking previous indices per skill
+ * @returns {object} Skill ID to proficiency label
+ */
+function buildSkillProficiencies(
+  rng,
+  levelIdx,
+  skillIds,
+  proficiencies,
+  prevSkillIdx,
+) {
+  const maxP = proficiencies.length - 1;
+  const result = {};
+  for (const skillId of skillIds) {
+    const raw = jitter(rng, levelIdx, maxP);
+    const floor = prevSkillIdx[skillId] ?? 0;
+    const idx = Math.max(floor, raw);
+    result[skillId] = proficiencies[idx];
+    prevSkillIdx[skillId] = idx;
+  }
+  return result;
+}
+
+/**
+ * Generate behaviour maturity map for a single level, enforcing monotonicity.
+ * Behaviours use tighter variance: +/-1 only (no +/-2 outliers).
+ * @param {() => number} rng - Seeded random function
+ * @param {number} levelIdx - Current level index
+ * @param {string[]} behaviourIds - All behaviour IDs
+ * @param {string[]} maturities - Ordered maturity labels
+ * @param {object} prevBehIdx - Mutable map tracking previous indices per behaviour
+ * @returns {object} Behaviour ID to maturity label
+ */
+function buildBehaviourMaturities(
+  rng,
+  levelIdx,
+  behaviourIds,
+  maturities,
+  prevBehIdx,
+) {
+  const maxM = maturities.length - 1;
+  const result = {};
+  for (const behaviourId of behaviourIds) {
+    const r = rng();
+    let offset;
+    if (r < 0.55) offset = 0;
+    else if (r < 0.8) offset = 1;
+    else offset = -1;
+    const raw = Math.max(0, Math.min(maxM, levelIdx + offset));
+    const floor = prevBehIdx[behaviourId] ?? 0;
+    const idx = Math.max(floor, raw);
+    result[behaviourId] = maturities[idx];
+    prevBehIdx[behaviourId] = idx;
+  }
+  return result;
+}
+
+/**
  * Generate self-assessments with realistic randomized distributions.
  *
  * Each assessment centres skills around the expected proficiency for
@@ -330,45 +392,29 @@ function generateSelfAssessments(standard, skillIds, behaviourIds) {
 
   const seed = standard.seed || 1;
   const rng = createRng(seed);
-  const maxP = proficiencies.length - 1;
-  const maxM = maturities.length - 1;
 
-  const assessments = [];
   const levelNames = ["junior", "mid", "senior", "staff", "principal"];
-
-  // Track previous level's indices per skill/behaviour to enforce monotonicity
   const prevSkillIdx = {};
   const prevBehIdx = {};
 
+  const assessments = [];
   for (let i = 0; i < Math.min(levelNames.length, proficiencies.length); i++) {
-    const skillProficiencies = {};
-    for (const skillId of skillIds) {
-      const raw = jitter(rng, i, maxP);
-      const floor = prevSkillIdx[skillId] ?? 0;
-      const idx = Math.max(floor, raw);
-      skillProficiencies[skillId] = proficiencies[idx];
-      prevSkillIdx[skillId] = idx;
-    }
-
-    const behaviourMaturities = {};
-    for (const behaviourId of behaviourIds) {
-      // Behaviours use tighter variance: ±1 only (no ±2 outliers)
-      const r = rng();
-      let offset;
-      if (r < 0.55) offset = 0;
-      else if (r < 0.8) offset = 1;
-      else offset = -1;
-      const raw = Math.max(0, Math.min(maxM, i + offset));
-      const floor = prevBehIdx[behaviourId] ?? 0;
-      const idx = Math.max(floor, raw);
-      behaviourMaturities[behaviourId] = maturities[idx];
-      prevBehIdx[behaviourId] = idx;
-    }
-
     assessments.push({
       id: `example_${levelNames[i]}`,
-      skillProficiencies,
-      behaviourMaturities,
+      skillProficiencies: buildSkillProficiencies(
+        rng,
+        i,
+        skillIds,
+        proficiencies,
+        prevSkillIdx,
+      ),
+      behaviourMaturities: buildBehaviourMaturities(
+        rng,
+        i,
+        behaviourIds,
+        maturities,
+        prevBehIdx,
+      ),
     });
   }
 

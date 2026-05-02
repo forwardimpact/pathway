@@ -49,6 +49,41 @@ async function silent(fn) {
   }
 }
 
+/**
+ * Recursively collect all files under `root` into a Map of relative-path to Buffer.
+ */
+async function walkDir(root, rel = "") {
+  const out = new Map();
+  const full = join(root, rel);
+  const entries = await readdir(full, { withFileTypes: true });
+  for (const entry of entries) {
+    const relPath = rel ? join(rel, entry.name) : entry.name;
+    if (entry.isDirectory()) {
+      for (const [k, v] of await walkDir(root, relPath)) out.set(k, v);
+    } else {
+      out.set(relPath, await readFile(join(root, relPath)));
+    }
+  }
+  return out;
+}
+
+/**
+ * Assert every file in `cliFiles` exists in `packFiles` with identical bytes.
+ */
+function assertFilesMatch(cliFiles, packFiles) {
+  for (const [relPath, cliBytes] of cliFiles) {
+    assert.ok(
+      packFiles.has(relPath),
+      `pack is missing ${relPath} produced by CLI`,
+    );
+    const packBytes = packFiles.get(relPath);
+    assert.ok(
+      packBytes.equals(cliBytes),
+      `pack file ${relPath} differs from CLI output`,
+    );
+  }
+}
+
 describe("generatePacks", () => {
   let workDir;
   let outputDir;
@@ -320,40 +355,10 @@ describe("generatePacks", () => {
           extractDir,
         ]);
 
-        // Walk agents/ and skills/ in the CLI output, compare against pack
-        const walk = async (root, rel = "") => {
-          const out = new Map();
-          const full = join(root, rel);
-          const entries = await readdir(full, { withFileTypes: true });
-          for (const entry of entries) {
-            const relPath = rel ? join(rel, entry.name) : entry.name;
-            if (entry.isDirectory()) {
-              for (const [k, v] of await walk(root, relPath)) out.set(k, v);
-            } else {
-              out.set(relPath, await readFile(join(root, relPath)));
-            }
-          }
-          return out;
-        };
+        const cliFiles = await walkDir(join(cliOutputDir, ".claude"));
+        const packFiles = await walkDir(join(extractDir, ".claude"));
 
-        const cliFiles = await walk(join(cliOutputDir, ".claude"));
-        const packFiles = await walk(join(extractDir, ".claude"));
-
-        // Every CLI-generated file must also exist in the pack with
-        // byte-identical contents. settings.json is excluded from the
-        // byte-identical check because the CLI path merges with any
-        // pre-existing file; both paths start from {} here so they match.
-        for (const [relPath, cliBytes] of cliFiles) {
-          assert.ok(
-            packFiles.has(relPath),
-            `pack is missing ${relPath} produced by CLI`,
-          );
-          const packBytes = packFiles.get(relPath);
-          assert.ok(
-            packBytes.equals(cliBytes),
-            `pack file ${relPath} differs from CLI output`,
-          );
-        }
+        assertFilesMatch(cliFiles, packFiles);
       } finally {
         rmSync(extractDir, { recursive: true, force: true });
       }

@@ -161,6 +161,45 @@ function parseContentType(value) {
 }
 
 /**
+ * Decode a quoted-printable encoded string to a byte array.
+ * Handles soft line breaks (=\r\n) and =XX hex escapes.
+ * @param {string} str
+ * @returns {number[]}
+ */
+function decodeQuotedPrintableBytes(str) {
+  const bytes = [];
+  for (let j = 0; j < str.length; j++) {
+    if (str[j] !== "=" || j + 2 >= str.length) {
+      bytes.push(str.charCodeAt(j));
+      continue;
+    }
+    if (str[j + 1] === "\r" || str[j + 1] === "\n") {
+      j = skipSoftLineBreak(str, j + 1);
+      continue;
+    }
+    const code = parseInt(str.slice(j + 1, j + 3), 16);
+    if (!isNaN(code)) {
+      bytes.push(code);
+      j += 2;
+      continue;
+    }
+    bytes.push(str.charCodeAt(j));
+  }
+  return bytes;
+}
+
+/**
+ * Advance past a soft line break (\r, \n, or \r\n).
+ * Returns the index of the last character consumed.
+ */
+function skipSoftLineBreak(str, pos) {
+  if (str[pos] === "\r" && pos + 1 < str.length && str[pos + 1] === "\n") {
+    return pos + 1;
+  }
+  return pos;
+}
+
+/**
  * Decode a MIME body payload according to Content-Transfer-Encoding.
  * @param {Buffer} data
  * @param {string} encoding
@@ -172,27 +211,7 @@ function decodePayload(data, encoding) {
     return Buffer.from(data.toString("ascii").replace(/\s/g, ""), "base64");
   }
   if (enc === "quoted-printable") {
-    const str = data.toString("ascii");
-    const bytes = [];
-    for (let j = 0; j < str.length; j++) {
-      if (str[j] === "=" && j + 2 < str.length) {
-        if (str[j + 1] === "\r" || str[j + 1] === "\n") {
-          // Soft line break
-          j++; // skip \r or \n
-          if (str[j] === "\r" && j + 1 < str.length && str[j + 1] === "\n") j++;
-          continue;
-        }
-        const hex = str.slice(j + 1, j + 3);
-        const code = parseInt(hex, 16);
-        if (!isNaN(code)) {
-          bytes.push(code);
-          j += 2;
-          continue;
-        }
-      }
-      bytes.push(str.charCodeAt(j));
-    }
-    return Buffer.from(bytes);
+    return Buffer.from(decodeQuotedPrintableBytes(data.toString("ascii")));
   }
   return data;
 }
