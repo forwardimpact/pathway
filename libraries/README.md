@@ -78,6 +78,7 @@ signal is distinguished from noise.
 | **libsyntheticprose**  | LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.                                                     |
 | **libsyntheticrender** | Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).                                              |
 | **libterrain**         | Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.                                                |
+| **libwiki**            | Wiki lifecycle primitives for the Kata agent system: cross-team memos, agent roster discovery, and marker migration.                          |
 | **libxmr**             | Agent-friendly Wheeler/Vacanti XmR control charts: 14-line ASCII charts and the canonical three detection rules over time-series CSV metrics. |
 
 <!-- END:capability:agent-self-improvement -->
@@ -128,6 +129,7 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | I need to…                                                                     | Library              |
 | ------------------------------------------------------------------------------ | -------------------- |
 | Add a distributed trace span (OpenTelemetry-style observability)               | `libtelemetry`       |
+| Append a cross-team observation to a wiki summary                              | `libwiki`            |
 | Assemble a macOS app bundle                                                    | `libmacos`           |
 | Buffer high-volume index writes                                                | `libindex`           |
 | Build a gRPC service                                                           | `librpc`             |
@@ -166,6 +168,7 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Query an RDF triple graph                                                      | `libgraph`           |
 | Read or write .env (dotenv) files                                              | `libsecret`          |
 | Read or write JSONL                                                            | `libstorage`         |
+| Record a metric and print its current XmR status                               | `libxmr`             |
 | Register a gRPC service as MCP tools                                           | `libmcp`             |
 | Render a Mustache template with project overrides                              | `libtemplate`        |
 | Render a prompt template with variable substitution                            | `libprompt`          |

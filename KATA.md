@@ -266,7 +266,7 @@ throughput is the only shape that, plotted run-over-run, distinguishes a stable
 process from a special-cause shift.
 
 Each measurement is one CSV row appended to
-`wiki/metrics/{agent}/{domain}/{YYYY}.csv` after the run. The storyboard meeting
+`wiki/metrics/{skill}/{YYYY}.csv` after the run. The storyboard meeting
 reads these via `fit-xmr` and answers "what is the actual condition now?" with
 control limits and signals — numbers, not narratives.
 

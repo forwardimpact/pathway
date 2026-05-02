@@ -8,6 +8,7 @@ import { runListCommand } from "../src/commands/list.js";
 import { runValidateCommand } from "../src/commands/validate.js";
 import { runChartCommand } from "../src/commands/chart.js";
 import { runSummarizeCommand } from "../src/commands/summarize.js";
+import { runRecordCommand } from "../src/commands/record.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -68,6 +69,46 @@ const definition = {
         },
       },
     },
+    {
+      name: "record",
+      description:
+        "Append a metric row to the skill's CSV and print a one-line XmR summary",
+      options: {
+        skill: {
+          type: "string",
+          description: "Skill name (falls back to LIBEVAL_SKILL env var)",
+        },
+        metric: {
+          type: "string",
+          short: "m",
+          description: "Metric name",
+        },
+        value: {
+          type: "string",
+          description: "Numeric value to record",
+        },
+        unit: {
+          type: "string",
+          description: "Unit of measurement (default: count)",
+        },
+        run: {
+          type: "string",
+          description: "Run identifier (optional)",
+        },
+        note: {
+          type: "string",
+          description: "Contextual note (optional)",
+        },
+        date: {
+          type: "string",
+          description: "ISO date (default: today)",
+        },
+        "wiki-root": {
+          type: "string",
+          description: "Override wiki root directory (default: auto-detected)",
+        },
+      },
+    },
   ],
   globalOptions: {
     format: {
@@ -88,15 +129,16 @@ const definition = {
     },
   },
   examples: [
-    "fit-xmr analyze wiki/metrics/security-engineer/audit/2026.csv",
-    "fit-xmr analyze wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities",
-    "fit-xmr analyze wiki/metrics/security-engineer/audit/2026.csv --format json",
-    "fit-xmr chart wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities",
-    "fit-xmr chart wiki/metrics/security-engineer/audit/2026.csv --metric open_vulnerabilities --ascii",
-    "fit-xmr list wiki/metrics/security-engineer/audit/2026.csv",
-    "fit-xmr validate wiki/metrics/security-engineer/audit/2026.csv",
-    "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv",
-    "fit-xmr summarize wiki/metrics/security-engineer/audit/2026.csv --format json",
+    "fit-xmr analyze wiki/metrics/kata-security-audit/2026.csv",
+    "fit-xmr analyze wiki/metrics/kata-security-audit/2026.csv --metric findings_count",
+    "fit-xmr analyze wiki/metrics/kata-security-audit/2026.csv --format json",
+    "fit-xmr chart wiki/metrics/kata-security-audit/2026.csv --metric findings_count",
+    "fit-xmr chart wiki/metrics/kata-security-audit/2026.csv --metric findings_count --ascii",
+    "fit-xmr list wiki/metrics/kata-security-audit/2026.csv",
+    "fit-xmr validate wiki/metrics/kata-security-audit/2026.csv",
+    "fit-xmr summarize wiki/metrics/kata-security-audit/2026.csv",
+    "fit-xmr summarize wiki/metrics/kata-security-audit/2026.csv --format json",
+    "fit-xmr record --skill kata-product-issue --metric issues_triaged --value 3",
   ],
   documentation: [
     {
@@ -116,6 +158,7 @@ const COMMANDS = {
   list: runListCommand,
   validate: runValidateCommand,
   summarize: runSummarizeCommand,
+  record: runRecordCommand,
 };
 
 function main() {

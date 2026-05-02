@@ -9,6 +9,7 @@ the three Wheeler detection rules (plus mR Rule 1).
 ```sh
 npx fit-xmr --help
 npx fit-xmr chart observations.csv --metric latency
+npx fit-xmr record --skill kata-product-issue --metric issues_triaged --value 3
 ```
 
 ```js

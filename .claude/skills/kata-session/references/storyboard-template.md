@@ -32,7 +32,7 @@ threshold crossed, classification flip). Empty if nothing changed — write
 
 - `{agent}` / `{metric}` — {value} {trend/badge} — {one-line reason}
 
-### {agent} — {domain}
+### {agent}
 
 #### {metric_name}
 
@@ -52,7 +52,7 @@ _Note:_ {one line, only when `status` is `signals_present` or a fired rule needs
 cross-referencing to a specific event; stable metrics get no prose}.
 
 (Repeat one `#### metric_name` block per metric, grouped under
-`### {agent} — {domain}`. The chart from `bunx fit-xmr chart` is the
+`### {agent}`. The chart from `bunx fit-xmr chart` is the
 visualization — do not duplicate its values in surrounding prose. Agents add the
 cross-reference layer only where there is something to say.)
 

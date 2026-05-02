@@ -69,6 +69,7 @@ npx fit-xmr <command> <csv-path> [options]
 | `analyze <csv>`   | Full XmR report: chart, limits, signals, classification               |
 | `chart <csv>`     | The 14-line Wheeler/Vacanti chart for one metric                      |
 | `summarize <csv>` | Compact markdown table across metrics with classification and signals |
+| `record`           | Append a metric row to the skill CSV and print a one-line XmR summary |
 
 ### Common Options
 

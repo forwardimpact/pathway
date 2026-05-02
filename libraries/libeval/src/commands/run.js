@@ -78,6 +78,10 @@ export async function runRunCommand(values, _args) {
     );
   };
 
+  if (agentProfile) {
+    process.env.LIBEVAL_AGENT_PROFILE = agentProfile;
+  }
+
   const systemPrompt = agentProfile
     ? composeProfilePrompt(agentProfile, {
         profilesDir: resolve(cwd, ".claude/agents"),

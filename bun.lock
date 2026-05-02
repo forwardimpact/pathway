@@ -433,6 +433,20 @@
         "@forwardimpact/libutil": "^0.1.60",
       },
     },
+    "libraries/libwiki": {
+      "name": "@forwardimpact/libwiki",
+      "version": "0.1.0",
+      "bin": {
+        "fit-wiki": "./bin/fit-wiki.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libutil": "^0.1.0",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.5",
+      },
+    },
     "libraries/libxmr": {
       "name": "@forwardimpact/libxmr",
       "version": "1.0.0",
@@ -441,6 +455,7 @@
       },
       "dependencies": {
         "@forwardimpact/libcli": "^0.1.0",
+        "@forwardimpact/libutil": "^0.1.0",
       },
       "devDependencies": {
         "@forwardimpact/libharness": "^0.1.5",
@@ -878,6 +893,8 @@
     "@forwardimpact/libutil": ["@forwardimpact/libutil@workspace:libraries/libutil"],
 
     "@forwardimpact/libvector": ["@forwardimpact/libvector@workspace:libraries/libvector"],
+
+    "@forwardimpact/libwiki": ["@forwardimpact/libwiki@workspace:libraries/libwiki"],
 
     "@forwardimpact/libxmr": ["@forwardimpact/libxmr@workspace:libraries/libxmr"],
 

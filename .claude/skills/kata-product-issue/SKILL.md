@@ -123,8 +123,8 @@ Append to the current week's log (see agent profile for the file path):
 - **Recurring themes** — Patterns across issues, with frequency and alignment
 - **Hand-offs** — Which follow-up skills were invoked for which issues
 - **Metrics** — Record at least one measurement to
-  `wiki/metrics/{agent}/{domain}/` per the
-  KATA.md § Metrics. If no CSV exists, create
+  `wiki/metrics/{skill}/` per the
+  [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create
   it with the header row. These feed XmR analysis in the storyboard meeting.
 
 ## Coordination Channels

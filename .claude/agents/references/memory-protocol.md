@@ -82,7 +82,9 @@ Each `wiki/<agent>.md` conforms to a mechanically-checkable contract.
 3. Agent-specific state section(s) using H2
 4. `## Open Blockers` — currently-blocking items only
 5. `## Observations for Teammates` — items not yet promoted to the priority
-   index; agent-to-agent callouts
+   index; agent-to-agent callouts. Each section begins with the marker
+   `<!-- memo:inbox -->` directly under the heading; `fit-wiki memo` writes
+   new bullets immediately after it.
 
 **Excluded from summaries** (with correct homes):
 
@@ -90,7 +92,7 @@ Each `wiki/<agent>.md` conforms to a mechanically-checkable contract.
   history) → weekly log
 - Storyboard commitments → storyboard file
 - Policy clarifications → CONTRIBUTING.md or skill docs
-- Metrics tables → CSV under `wiki/metrics/{agent}/{domain}/`
+- Metrics tables → CSV under `wiki/metrics/{skill}/`
 
 **Line budget: 80 lines.** Checked mechanically: `wc -l wiki/<agent>.md ≤ 80`.
 Summaries are state, not history. The line budget forces the discipline.

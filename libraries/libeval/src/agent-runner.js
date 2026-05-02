@@ -211,8 +211,9 @@ export class AgentRunner {
     if (message.type === "system" && message.subtype === "init") {
       this.sessionId = message.session_id;
     }
-    if (message.type === "assistant" && hasTextBlock(message)) {
-      state.assistantTextCount++;
+    if (message.type === "assistant") {
+      if (hasTextBlock(message)) state.assistantTextCount++;
+      trackSkillInvocation(message);
     }
   }
 
@@ -291,6 +292,20 @@ export function hasTextBlock(message) {
     if (block.type === "text" && block.text) return true;
   }
   return false;
+}
+
+function trackSkillInvocation(message) {
+  const content = message.message?.content ?? message.content;
+  if (!Array.isArray(content)) return;
+  for (const block of content) {
+    if (
+      block.type === "tool_use" &&
+      block.name === "Skill" &&
+      block.input?.skill
+    ) {
+      process.env.LIBEVAL_SKILL = block.input.skill;
+    }
+  }
 }
 
 /**
