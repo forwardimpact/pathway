@@ -43,6 +43,15 @@ observations over time, read signal rules, and turn variation into action.
 
 </a>
 
+<a href="/docs/libraries/agent-surfaces/">
+
+### Agent-Friendly Surfaces
+
+Build a product with both a web UI and a CLI that share handler logic through a
+single InvocationContext contract — agent-friendly by design.
+
+</a>
+
 </div>
 
 Looking for product workflows like authoring standards, agent teams, or landmark
