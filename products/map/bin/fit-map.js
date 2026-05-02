@@ -190,7 +190,7 @@ async function runValidate(dataDir) {
   const data = await loader.loadAllData(dataDir);
   const result = await validator.runFullValidation(dataDir, data);
 
-  process.stdout.write(formatValidationResults(result) + "\n\n");
+  process.stdout.write(formatValidationResults(result) + "\n");
 
   summary.render({
     title: formatHeader("Data Summary"),
@@ -252,7 +252,7 @@ async function runExport(dataDir, outputDir) {
     counts[type] = (counts[type] || 0) + 1;
   }
 
-  process.stdout.write(formatSuccess("Export complete") + "\n\n");
+  process.stdout.write(formatSuccess("Export complete") + "\n");
   summary.render({
     title: formatSubheader("By type"),
     ok: result.errors.length === 0,

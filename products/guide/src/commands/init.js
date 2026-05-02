@@ -64,7 +64,7 @@ export async function runInitCommand() {
       },
     ],
   });
-  process.stdout.write("\n");
+  if (summary.shouldRender(true)) process.stdout.write("\n");
 
   // Copy starter config into ./config/ (config.json only)
   const starterDir = new URL("../../starter", import.meta.url).pathname;

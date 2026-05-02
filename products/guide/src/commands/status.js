@@ -13,8 +13,6 @@ function printStatusSummary(summary, result) {
     })),
   });
 
-  process.stdout.write("\n");
-
   summary.render({
     title: "Data",
     ok,
@@ -23,8 +21,6 @@ function printStatusSummary(summary, result) {
       { label: "triples", description: String(result.data.triples) },
     ],
   });
-
-  process.stdout.write("\n");
 
   summary.render({
     title: "Credentials",
@@ -37,8 +33,7 @@ function printStatusSummary(summary, result) {
     ],
   });
 
-  process.stdout.write("\n");
-
+  if (summary.shouldRender(ok)) process.stdout.write("\n");
   process.stdout.write(`Status: ${result.verdict}\n`);
 }
 

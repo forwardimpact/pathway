@@ -49,7 +49,7 @@ export function showAgentSummary(data, agentData, skillsWithAgent) {
   const validCombinations = findValidCombinations(data, agentData).length;
   const skillsWithAgentCount = skillsWithAgent.filter((s) => s.agent).length;
 
-  process.stdout.write("\n" + formatHeader("\u{1F916} Agent") + "\n\n");
+  process.stdout.write("\n" + formatHeader("\u{1F916} Agent") + "\n");
   summary.render({
     title: formatSubheader("Coverage"),
     ok: true,

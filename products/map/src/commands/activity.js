@@ -316,5 +316,4 @@ function report(target, counts, ok) {
       description: String(value),
     })),
   });
-  process.stdout.write("\n");
 }
