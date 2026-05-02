@@ -77,7 +77,10 @@ Replaces today's `createRouter` for opt-in callers; produces an
 | Created | `libraries/libui/src/bound-router.js`       |
 | Created | `libraries/libui/test/bound-router.test.js` |
 
-Built on top of `router-core.js` (do not duplicate hash matching). Public shape:
+Built on top of `router-core.js` (do not duplicate hash matching). The
+implementer must export `parsePattern` from `router-core.js` so
+`bound-router.js` can import it (today it is a private helper at lines 39-52);
+no behaviour change to `createRouter` consumers. Public shape:
 
 ```js
 import { createReactive } from "./reactive.js";
@@ -148,7 +151,9 @@ asserts the displayed text and `copyButton.disabled` track the sequence.
 
 ## Step 5 — `createJsonLdScript`
 
-Helper that mints `@id` through a descriptor's `graph` formatter.
+Helper that mints `@id` through a descriptor's `graph` formatter. Signature
+takes both `ctx` (passed to the formatter) and `body` (merged into the payload)
+— the helper is the single round-trip the design's D4 mandates.
 
 | Action  | Path                                          |
 | ------- | --------------------------------------------- |
@@ -156,11 +161,15 @@ Helper that mints `@id` through a descriptor's `graph` formatter.
 | Created | `libraries/libui/test/json-ld-script.test.js` |
 
 ```js
-export function createJsonLdScript(graphFormatter, body, { vocabularyBase }) {
+export function createJsonLdScript(
+  graphFormatter,
+  ctx,
+  body,
+  { vocabularyBase },
+) {
   if (!graphFormatter) return null;
-  const id = graphFormatter(body.ctx ?? body, vocabularyBase);
+  const id = graphFormatter(ctx, vocabularyBase);
   const payload = { "@context": vocabularyBase, "@id": id, ...body };
-  delete payload.ctx;
   const script = document.createElement("script");
   script.type = "application/ld+json";
   script.textContent = JSON.stringify(payload);
@@ -169,9 +178,9 @@ export function createJsonLdScript(graphFormatter, body, { vocabularyBase }) {
 ```
 
 **Verification:** test asserts `null` when formatter is absent; given a
-formatter and a body, asserts the returned element's `type` is
-`application/ld+json`, `JSON.parse(textContent)["@id"]` is the formatter's
-return value, and body fields are merged.
+formatter `(ctx, base) => `${base}Skill/${ctx.args.id}``and a body with`{
+"@type": "Skill", name: "Testing"
+}`, asserts the returned element's `type`is`application/ld+json`, `JSON.parse(textContent)["@id"]`is the formatter's return value, body fields are merged, and`@context`carries`vocabularyBase`.
 
 ## Step 6 — Wire new exports into libui's public surface
 
@@ -213,44 +222,74 @@ package).
 helper). `index.js` adds
 `export { freezeInvocationContext } from "./invocation-context.js";`.
 
-**Verification:** a small "drift gate" test in **either** library imports the
-other's helper relative-path-style and asserts both freeze identically against
-the same fixture (the equivalence test design D1 calls out). Place it at
-`libraries/libcli/test/invocation-context.test.js` to keep the gate in the
-direction libcli depends on libui (libcli already declares libui as a peer-test
-dev dep — confirm; if not, add `@forwardimpact/libui` to libcli's
-`devDependencies` for tests only).
+The "drift gate" test design D1 calls out is per-library and self-contained —
+**no cross-package import**. Each library's `test/invocation-context.test.js`
+runs the same fixture (a fixed `{ data, args, options }` triple including a
+multi-value `options.tag = ["a","b"]`) through its own `freezeInvocationContext`
+and asserts the same output shape. A small README note in each test file records
+that the fixture is intentionally identical across the two libraries and points
+to the other file by path so a contributor changing one is prompted to change
+the other.
 
-## Step 8 — libcli `createCli` produces an `InvocationContext`
+## Step 8 — libcli `createCli` produces an `InvocationContext` (additive)
 
-Amends the handler dispatch so subcommand handlers receive a single `ctx`.
+Amends the handler dispatch so subcommand handlers MAY receive a single `ctx`.
+The change is **additive**: existing CLIs (landmark, map, summit, plus pathway's
+other consumers) keep their `args: "<usage string>"` definitions and their
+manual `parse() → { values, positionals }` flow with **zero change**. New
+behaviour kicks in only when both (a) the subcommand definition supplies
+`args: string[]` and a `handler: (ctx) => …` field, and (b) the host calls the
+new `Cli.dispatch(parsed, { data })` method instead of unpacking
+`parsed.positionals`/`parsed.values` itself.
 
 | Action   | Path                                |
 | -------- | ----------------------------------- |
 | Modified | `libraries/libcli/src/cli.js`       |
+| Modified | `libraries/libcli/src/help.js`      |
 | Modified | `libraries/libcli/test/cli.test.js` |
 
-Subcommand definition gains a typed positional-name field:
+Subcommand definition gains two new optional fields (kept side-by-side with the
+legacy ones):
 
 ```js
 {
   name: "skill",
-  args: ["id"],          // NEW: array of declared positional names (replaces today's free-form string)
+  args: ["id"],                        // NEW: array of declared positional names — opt-in
+  argsUsage: "[<id>]",                 // legacy free-form usage string for help output
+  // (definitions may carry either `args: string[]` + `argsUsage`, or the legacy
+  // `args: "<usage>"` string alone — both shapes coexist after this commit)
   description: "Show skill",
   options: { validate: { type: "boolean" } },
+  handler: (ctx) => runSkillCommand(ctx),  // NEW: optional, required only if host calls dispatch()
 }
 ```
 
-`Cli` gains a `dispatch(parsed, { data })` method (and `createCli` returns it
-through the public surface):
+`help.js` is updated to read `argsUsage` when `args` is an array, and to keep
+reading `args` directly when it is a string. Pathway's `bin/fit-pathway.js`
+adopts the new shape in Part 02 Step 7; landmark/map/summit/etc. remain
+untouched.
+
+`Cli` gains a `dispatch(parsed, { data })` method. `createCli` returns the `Cli`
+instance unchanged (existing callers keep using `.parse()`):
 
 ```js
 dispatch(parsed, { data }) {
   const command = this.#findCommand(parsed.positionals);
-  const consumed = command ? command.name.split(" ").length : 0;
+  if (!command) {
+    throw new Error(`${this.#definition.name}: no matching subcommand`);
+  }
+  if (typeof command.handler !== "function") {
+    throw new Error(
+      `${this.#definition.name}: subcommand "${command.name}" lacks a handler — ` +
+      `dispatch() requires { args: string[], handler: (ctx) => any }`,
+    );
+  }
+  const consumed = command.name.split(" ").length;
   const argv = parsed.positionals.slice(consumed);
-  const argNames = command?.args ?? [];
-  const args = Object.fromEntries(argNames.map((n, i) => [n, argv[i]]).filter(([, v]) => v !== undefined));
+  const argNames = Array.isArray(command.args) ? command.args : [];
+  const args = Object.fromEntries(
+    argNames.map((n, i) => [n, argv[i]]).filter(([, v]) => v !== undefined),
+  );
   const ctx = freezeInvocationContext({ data, args, options: parsed.values });
   return command.handler(ctx);
 }
@@ -260,13 +299,21 @@ dispatch(parsed, { data }) {
 
 **Verification:** `bun test libraries/libcli/test/cli.test.js` covers (a)
 positional names mapped to argv values, missing trailing positionals omitted
-from `args`; (b) subcommand definitions whose `args` is a string (legacy
-free-form) throw a clear `TypeError` at construction (forces all consumers to
-migrate); (c) handler receives a frozen `ctx`.
+from `args`; (b) legacy string-shaped `args` fields construct without error and
+`parse()` still returns `{ values, positionals }` — the existing
+`fit-landmark`/`fit-map`/`fit-summit` shapes; (c) `dispatch()` on a definition
+without `handler` throws a clear error (no silent fallthrough); (d) handler
+receives a frozen `ctx`. Help output:
+`bun test libraries/libcli/test/help.test.js` covers both `args: string` and
+`args: string[] + argsUsage` rendering.
 
-## Step 9 — Repo-root ESLint rule
+## Step 9 — Repo-root ESLint rule (libui + libcli only in this part)
 
-Custom rule rejects either legacy handler shape inside the three scoped paths.
+Custom rule rejects either legacy handler shape. **Scope in Part 01 is
+`libraries/libui/**`+`libraries/libcli/**` only.** Part 02 Step 11 adds
+`products/pathway/**` to the rule's `files` array once pathway's migration is
+complete; that ordering keeps `bun run lint` (the repo-root
+`eslint . --max-warnings 0` script) green at every commit on every branch.
 
 | Action   | Path                                                 |
 | -------- | ---------------------------------------------------- |
@@ -279,30 +326,42 @@ Rule rejects any
 `FunctionDeclaration | FunctionExpression | ArrowFunctionExpression` whose first
 parameter is either:
 
-- an `ObjectPattern` with property keys exactly the set `{data, args, options}`
-  (CLI-side legacy), or
-- a non-destructured single `Identifier` named `params` whose body references
-  `params.id` or `params.discipline` (web-side legacy heuristic — pages always
-  destructured route params from a single `params` argument).
+- an `ObjectPattern` whose property-name set contains all three of `data`,
+  `args`, `options` (CLI-side legacy — extra properties allowed so composite
+  handlers e.g. `{ data, args, options, dataDir }` also fire), or
+- a non-destructured single `Identifier` named `params` (web-side legacy —
+  unconditional, no body inspection; the parameter is the giveaway).
 
-Apply via `defineConfig`'s `files` field:
+`tools/eslint-rules/index.js` exports a flat-config plugin object:
 
 ```js
+import noLegacyHandlerShape from "./no-legacy-handler-shape.js";
+export default { rules: { "no-legacy-handler-shape": noLegacyHandlerShape } };
+```
+
+`eslint.config.js` (currently exports a flat array directly per the repo
+convention) gains a new entry:
+
+```js
+import localRules from "./tools/eslint-rules/index.js";
+// ... existing config blocks ...
 {
-  files: ["libraries/libui/**/*.js", "libraries/libcli/**/*.js", "products/pathway/**/*.js"],
-  plugins: { local: localPlugin },
+  files: ["libraries/libui/**/*.js", "libraries/libcli/**/*.js"],
+  plugins: { local: localRules },
   rules: { "local/no-legacy-handler-shape": "error" },
 }
 ```
 
-The rule's test file uses `RuleTester` from `eslint`. Running the rule against
-pre-migration `products/pathway/src/pages/skill.js` produces 2 errors (the two
-legacy `(params)` handlers); after Part 02 migrates pathway, errors go to 0.
+The rule's test file uses `RuleTester` from `eslint`. Test coverage: (a)
+`function f({ data, args, options }) {}` → reported; (b)
+`function f({ data, args, options, dataDir, templateLoader }) {}` → reported;
+(c) `function f(ctx) {}` → clean; (d) `function f(params) {}` → reported; (e)
+`function f({ id, name }) {}` → clean (not the matching set).
 
-**Verification:** `bun run lint` is clean against the **new** files in this
-part; pre-migration pathway is still expected to fail the rule (Part 02 clears
-it). Document the expected pre-migration failure count in the PR description so
-reviewers do not mis-read the lint output.
+**Verification:** `bun run lint` (repo root) — green; the rule fires only on new
+code introduced in Part 01 inside libui/libcli that mistakenly uses a legacy
+shape; pre-migration pathway is **outside the rule's scope** in this part and
+unaffected.
 
 ## Step 10 — Test-runner wiring for libui
 
@@ -326,29 +385,39 @@ bound-router with a stubbed `window`) do not need the DOM dep.
 
 `@forwardimpact/libui` (creates new exports; reuses `router-core.js`,
 `reactive.js`, `error-boundary.js`, `render.js`), `@forwardimpact/libcli`
-(amends `cli.js`, adds `invocation-context.js`), `node:test`, `node:assert`,
-`node:util` (`parseArgs`), `happy-dom` (test-only), `eslint` + `RuleTester`
-(existing dev dep).
+(amends `cli.js` and `help.js`, adds `invocation-context.js`), `node:test`,
+`node:assert`, `happy-dom` (test-only), `eslint@^10` + `RuleTester` (existing
+dev dep at `package.json:50`).
 
 ## Risks
 
-- **`devDependencies` of libcli on libui (Step 7).** If
-  `libraries/libcli/package.json` does not already declare libui, the drift-gate
-  test breaks `bun install` order. Verify in the first commit; if missing, add
-  it as `"@forwardimpact/libcli/test only"` (workspace protocol), not as a
-  runtime dep.
 - **`happy-dom` API surface.** The two DOM-touching tests should construct
   `Window` per-test (no shared global) so concurrent test runs don't race on
-  `document`.
+  `document`. The libui `package.json` adds `happy-dom` to `devDependencies` in
+  the same commit that adds the first DOM test.
 - **`history.replaceState` patching from a library.** The patch in
   `bound-router.start()` must be reversed in `stop()`; if the host calls
   `start()` twice without `stop()`, the patch must detect re-entry and not
-  double-wrap. Test asserts the original function is restored.
+  double-wrap. Test asserts the original function is restored after `stop()`
+  even after two `start()` calls.
+- **`parsePattern` becomes a public-export-by-necessity.** Exporting it from
+  `router-core.js` (Step 3) extends the libui surface for an internal helper.
+  Mark it `@internal` in JSDoc and re-export from `bound-router.js` rather than
+  from `index.js` — keeps the public surface unchanged for external consumers
+  but makes the helper reachable inside the package.
+- **ESLint plugin discovery in flat-config.** `eslint.config.js` is a flat
+  array, not the `defineConfig` API. The plugin object is loaded by direct
+  `import` from `tools/eslint-rules/index.js`; ESLint v10's flat config resolves
+  it without further configuration.
 
 ## Verification (whole part)
 
 - `cd libraries/libui && bun test` — green.
 - `cd libraries/libcli && bun test` — green.
-- `bun run lint libraries/libui libraries/libcli` — green (rule does not flag
-  any newly-introduced handler).
+- `bun run lint` (repo root, `eslint . --max-warnings 0`) — green; the new
+  rule's scope (`libui` + `libcli` only in this part) keeps every other path
+  untouched.
 - `bun run check` — green.
+- Smoke a sibling consumer that did **not** opt into the new shape:
+  `bun products/landmark/bin/fit-landmark.js --help` exits 0 (proves Step 8's
+  additive amendment did not regress legacy `args: "<usage>"` definitions).

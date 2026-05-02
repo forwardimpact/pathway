@@ -27,7 +27,11 @@ In `forwardimpact.needs`, append the new entry alongside the existing one:
 }
 ```
 
-**Verification:** `bun run lib:fix` runs without "duplicate need" error.
+**Verification:** `bun run context:fix` runs without "duplicate need" error (the
+actual catalog generator command — `package.json:42` runs
+`bun scripts/check-metadata.mjs --fix && bun scripts/check-catalog.mjs --fix`;
+`libraries/CLAUDE.md`'s reference to `bun run lib:fix` is documentation drift
+the implementer flags as a follow-up but does not fix in this PR).
 
 ## Step 2 — Regenerate the catalog
 
@@ -41,33 +45,33 @@ Catalog regeneration is mechanical; the change must land in this commit so
 Run from the repo root:
 
 ```sh
-bun run lib:fix
+bun run context:fix
 ```
 
 The libui row in `libraries/README.md` updates to carry the new entry in the
-flat index. `bun run check` verifies.
+flat index. `bun run check` (which runs `context:catalog`) verifies.
 
 **Verification:** `git diff libraries/README.md` shows only the libui row
 change; `bun run check` passes.
 
 ## Step 3 — libui README getting-started snippet
 
-`libraries/libui` does not have a `README.md` today (per research). Create one
-that shows the descriptor registration form.
+`libraries/libui/README.md` exists today (5 lines, with a `createRouter` import
+in the getting-started snippet). Modify it to show the descriptor registration
+form alongside the existing `createRouter` snippet — the existing snippet stays
+for products that have not opted into bindings.
 
-| Action  | Path                        |
-| ------- | --------------------------- |
-| Created | `libraries/libui/README.md` |
+| Action   | Path                        |
+| -------- | --------------------------- |
+| Modified | `libraries/libui/README.md` |
 
-Body sketch (~40 lines):
+Replace the existing single getting-started snippet with two named sub-sections
+— "Reactive web app (no bindings)" keeps today's `createRouter` snippet
+verbatim; "Route↔CLI↔graph bindings" adds the new shape. Body sketch for the new
+sub-section (~30 lines):
 
 ````md
-# @forwardimpact/libui
-
-Web UI primitives for products agents build. Reactive single-page app
-infrastructure plus route↔CLI↔graph bindings.
-
-## Getting started
+## Route↔CLI↔graph bindings (opt-in)
 
 ```js
 import {
@@ -86,7 +90,7 @@ router.register(defineRoute({
     const view = present(ctx);
     mount(view.dom);
     document.head.appendChild(
-      createJsonLdScript(graphSkill, view.body, { vocabularyBase })
+      createJsonLdScript(graphSkill, ctx, view.body, { vocabularyBase })
     );
   },
   cli: (ctx) => `npx fit-pathway skill ${ctx.args.id}`,
@@ -100,10 +104,9 @@ router.start();
 See the [Web ↔ CLI ↔ graph bindings guide](https://www.forwardimpact.team/docs/libraries/web-cli-graph-bindings/index.md) for the full contract and the `InvocationContext` shape.
 ````
 
-(Direct link to the guide lands in Step 4.)
-
-**Verification:** `bun run check` passes; the README's only outbound link is the
-fully-qualified guide URL (matches `libraries/CLAUDE.md` audience rule).
+**Verification:** `bun run check` passes; the new sub-section's only outbound
+link is the fully-qualified guide URL (matches `libraries/CLAUDE.md` audience
+rule).
 
 ## Step 4 — External library guide
 
@@ -151,14 +154,19 @@ passes (link checker runs).
 
 ## Risks
 
-- **Catalog regen drift.** `bun run lib:fix` re-sorts the flat index. If the
+- **Catalog regen drift.** `bun run context:fix` re-sorts the flat index. If the
   rerun changes any unrelated row, treat it as a separate concern — open a
   follow-up issue rather than absorbing the diff into this PR.
 - **Guide title collision.** Confirm no existing guide carries "Web ↔ CLI ↔
   graph bindings" or a near variant before committing the front-matter.
+- **`libraries/CLAUDE.md` script-name drift.** That file references
+  `bun run lib:fix`, which does not exist in `package.json` (the actual command
+  is `bun run context:fix`). The plan does not fix that drift in this PR; the
+  implementer files a follow-up issue instead so the catalog/library policy doc
+  and the actual scripts stay coupled.
 
 ## Verification (whole part)
 
-- `bun run lib:fix && bun run check` — green.
+- `bun run context:fix && bun run check` — green.
 - The new guide is reachable from the libui README's hyperlink (Step 3) and from
   the catalog row in `libraries/README.md` (Step 2).

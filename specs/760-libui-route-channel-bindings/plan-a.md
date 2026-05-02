@@ -31,42 +31,63 @@ regeneration must observe the post-migration libui exports.
 ## Libraries used
 
 `@forwardimpact/libui` (new exports), `@forwardimpact/libcli` (amended
-`createCli`), `@forwardimpact/libgraph` (`RDF_PREFIXES.fit`, read once at
-pathway bootstrap), `node:test`, `node:assert`, `node:util` (`parseArgs`,
-already a libcli dep), ESLint (`no-restricted-syntax` + a small in-repo plugin).
+**additively** — legacy `args: "<usage>"` definitions still work),
+`@forwardimpact/libgraph` (`RDF_PREFIXES.fit`, read once at pathway bootstrap),
+`node:test`, `node:assert`, `happy-dom` (libui test dep), `acorn` (pathway test
+dep), ESLint (in-repo plugin `tools/eslint-rules/no-legacy-handler-shape.js`).
 
 ## Risks (cross-cutting)
 
+- **Legacy libcli consumers must not break.** `landmark`, `map`, `summit`, and
+  pathway's own `dev`/`build`/`update` short-circuits all use today's
+  `args: "<usage>"` string definitions and direct handler invocation. Part 01's
+  amendment is **additive**: legacy definitions continue to construct and
+  `parse()` continues to return `{ values, positionals }` unchanged; the new
+  `dispatch()` method and `args: string[]` + `handler` opt-in are required only
+  for callers that want named-map args (pathway in Part 02). Part 01
+  verification smokes `fit-landmark --help` to prove no regression.
+- **ESLint rule scope by part.** Part 01 scopes the `no-legacy-handler-shape`
+  rule to `libraries/libui/**` + `libraries/libcli/**` only. Part 02 Step 11
+  expands the scope to `products/pathway/**` after the migration is complete.
+  The repo-root `bun run lint` (`eslint . --max-warnings 0`) stays green at
+  every commit on every branch.
 - **`history.replaceState` interception.** `setupTopBar` today patches
-  `history.replaceState` so the CLI display refreshes when a page (e.g. agent
-  builder) rewrites the hash without firing `hashchange`. The design's dispatch
-  sequence is silent about this case. Part 01 replicates the interception inside
+  `history.replaceState` so the bar refreshes when a page (e.g. agent builder)
+  rewrites the hash without firing `hashchange`. The design's dispatch sequence
+  is silent about this case. Part 01 replicates the interception inside
   `createBoundRouter` so `activeRoute` updates on both `hashchange` and
-  `replaceState`; Part 02's parity fixture must include at least one route that
-  exercises the agent-builder hash rewrite to detect regression.
+  `replaceState`; Part 02's parity fixture exercises the
+  `/agent/:discipline[/:track]` shapes that today trigger `replaceState` to
+  detect regression.
 - **`parseArgs` positional → named-map mapping.** `node:util`'s `parseArgs`
   returns `positionals` as a flat array including the subcommand name (e.g.
-  `["skill", "testing"]`). Part 01's libcli must drop the consumed subcommand
+  `["skill", "testing"]`). Part 01's libcli `dispatch` consumes the subcommand
   prefix before zipping against the subcommand definition's `args: string[]`,
-  and tolerate fewer-than-declared positionals (optional args).
-- **ESLint AST selector for the destructured shape.** `no-restricted-syntax`
-  selectors cannot enforce property-name sets directly. Part 01 ships a small
-  in-repo ESLint plugin (`tools/eslint-rules/no-legacy-handler-shape.js`) rather
-  than coercing this through selectors.
+  and tolerates fewer-than-declared positionals (optional args).
+- **In-repo ESLint plugin.** `no-restricted-syntax` selectors cannot enforce
+  property-name sets directly. Part 01 ships a small in-repo plugin loaded by
+  direct `import` from `eslint.config.js`.
 - **Fixture-generation ordering on a single branch.** Part 02's parity test
-  requires a fixture generated from the **pre-migration** build of pathway. The
-  fixture-generation script runs and commits its output before any pathway
-  migration commit on the Part 02 branch; reviewers verify by checking that the
-  fixture commit precedes the page-handler commits in the PR's commit list.
+  requires a fixture generated from the **pre-migration** build of pathway. Step
+  1 lifts the route patterns into a manifest constant; Step 2 generates and
+  commits the fixture. Both must land before any page-handler migration commit
+  on the Part 02 branch; reviewers verify by checking the commit order in the
+  PR.
 - **`createRouter` callers outside pathway.** `createRouter` stays exported
   unchanged for products that do not opt in. Part 01 adds `createBoundRouter`
-  alongside it; Part 02 switches pathway over. Other products are not modified.
+  alongside it; Part 02 switches pathway's vendored `lib/router-pages.js`
+  wrapper over (or retires it — implementer's choice). Other products are not
+  modified.
+- **Catalog command-name drift.** `libraries/CLAUDE.md` references
+  `bun run lib:fix`, but the actual `package.json` script is
+  `bun run context:fix`. Part 03 uses the actual command and files a follow-up
+  issue for the doc drift rather than touching CLAUDE.md in this PR.
 
 ## Execution
 
 - **Sequential.** Each part's PR depends on the previous part being on `main`
   (libui/libcli HEADs for Part 02; the new libui export visible to
-  `bun run lib:fix` for Part 03).
+  `bun run context:fix` for Part 03).
 - **Same-branch alternative for Part 02.** If `staff-engineer` opts to land
   Parts 01 + 02 in one branch, the parts remain separately verifiable — Part
   01's tests stay green at the part-01 commit, Part 02's parity test goes green
