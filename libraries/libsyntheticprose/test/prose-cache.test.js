@@ -87,10 +87,7 @@ describe("ProseCache", () => {
     const tmpDir = mkdtempSync(join(tmpdir(), "prose-cache-"));
     try {
       const cachePath = join(tmpDir, "cache.json");
-      writeFileSync(
-        cachePath,
-        JSON.stringify({ _schema: 99, leftover: "x" }),
-      );
+      writeFileSync(cachePath, JSON.stringify({ _schema: 99, leftover: "x" }));
       const cache = new ProseCache({ cachePath, logger: makeLogger() });
       assert.strictEqual(cache.has("leftover"), false);
       assert.deepStrictEqual([...cache.keys()], []);

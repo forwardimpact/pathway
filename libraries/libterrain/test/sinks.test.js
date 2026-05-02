@@ -1,13 +1,7 @@
 import { describe, test } from "node:test";
 import assert from "node:assert/strict";
 import { join } from "path";
-import {
-  mkdtempSync,
-  rmSync,
-  readFileSync,
-  existsSync,
-  readdirSync,
-} from "fs";
+import { mkdtempSync, rmSync, readFileSync, existsSync, readdirSync } from "fs";
 import { tmpdir } from "os";
 import { format } from "prettier";
 import {
@@ -77,9 +71,7 @@ describe("WriteSink", () => {
             "<!doctype html><html><body><p>hi</p></body></html>",
           ],
         ]),
-        rawDocuments: new Map([
-          ["alice/email-1.md", "# Email\n\nbody"],
-        ]),
+        rawDocuments: new Map([["alice/email-1.md", "# Email\n\nbody"]]),
         entities: {
           domain: "test.example",
           activity: { evidence: { events: [{ id: 1 }] } },
@@ -100,7 +92,10 @@ describe("WriteSink", () => {
       const html = readFileSync(join(tmpDir, "data/knowledge/x.html"), "utf-8");
       assert.match(html, /<!doctype html>/);
       // Prettier reformats the single-line input across multiple lines.
-      assert.ok(html.split("\n").length > 2, "html should be multi-line after Prettier");
+      assert.ok(
+        html.split("\n").length > 2,
+        "html should be multi-line after Prettier",
+      );
 
       const raw = readFileSync(
         join(tmpDir, "data/activity/raw/alice/email-1.md"),
@@ -282,9 +277,7 @@ describe("CompositeSink", () => {
       assert.strictEqual(stats.rawLoaded, 1);
       assert.strictEqual(stats.loadErrors, 0);
       // Composite preserves the local copy written by WriteSink.
-      assert.ok(
-        existsSync(join(tmpDir, "data/activity/raw/alice/note.md")),
-      );
+      assert.ok(existsSync(join(tmpDir, "data/activity/raw/alice/note.md")));
     } finally {
       rmSync(tmpDir, { recursive: true });
     }

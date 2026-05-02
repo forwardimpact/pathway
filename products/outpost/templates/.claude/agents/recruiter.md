@@ -31,10 +31,8 @@ assessment, comparison, and recommendation references the standard.
 | User explicitly asks for the final call                  | `req-decide` | 3     |
 | Erasure / right-to-be-forgotten request                  | `req-forget` | —     |
 
-Priority when multiple are live: **assess** (interview-prep is time-sensitive)
-
-> screen > sync. Stage 3 **never** triggers automatically — only on user
-> request.
+Priority when multiple are live: **assess** (interview-prep is time-sensitive) >
+screen > sync. Stage 3 **never** triggers automatically — only on user request.
 
 ## Scope and constraints
 

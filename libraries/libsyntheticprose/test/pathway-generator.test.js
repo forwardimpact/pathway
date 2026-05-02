@@ -59,7 +59,10 @@ describe("PathwayGenerator", () => {
   });
 
   test("generates all entity types", async () => {
-    const generator = new PathwayGenerator(makeMockProseGenerator(), makeLogger());
+    const generator = new PathwayGenerator(
+      makeMockProseGenerator(),
+      makeLogger(),
+    );
 
     const standard = {
       name: "Test",
@@ -112,7 +115,10 @@ describe("PathwayGenerator", () => {
   });
 
   test("self-assessments use vocabulary constants", async () => {
-    const generator = new PathwayGenerator(makeMockProseGenerator(), makeLogger());
+    const generator = new PathwayGenerator(
+      makeMockProseGenerator(),
+      makeLogger(),
+    );
 
     const standard = {
       name: "Test",

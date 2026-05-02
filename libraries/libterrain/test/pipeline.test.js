@@ -190,10 +190,12 @@ describe("Pipeline integration", () => {
       });
 
       // Only the four nodes back from cache-lookup should run.
-      assert.deepStrictEqual(
-        [...result.ran].sort(),
-        ["cache-lookup", "entities", "parse", "prose-keys"],
-      );
+      assert.deepStrictEqual([...result.ran].sort(), [
+        "cache-lookup",
+        "entities",
+        "parse",
+        "prose-keys",
+      ]);
       // No render/validate side effects.
       assert.strictEqual(result.files.size, 0);
       assert.strictEqual(result.validation.checks.length, 0);
@@ -228,8 +230,7 @@ describe("Pipeline integration", () => {
     try {
       const pipeline = new Pipeline(deps);
       await assert.rejects(
-        () =>
-          pipeline.run({ storyPath: FIXTURE_PATH, terminal: "nonsense" }),
+        () => pipeline.run({ storyPath: FIXTURE_PATH, terminal: "nonsense" }),
         /Unknown stage 'nonsense'/,
       );
     } finally {

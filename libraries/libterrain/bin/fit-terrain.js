@@ -309,7 +309,9 @@ async function main() {
   if (verb === "inspect") {
     inspectStage = positionals[1];
     if (!inspectStage) {
-      cli.usageError("inspect requires a stage name. Run `fit-terrain --help`.");
+      cli.usageError(
+        "inspect requires a stage name. Run `fit-terrain --help`.",
+      );
       return;
     }
   }

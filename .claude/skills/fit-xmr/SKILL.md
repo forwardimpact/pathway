@@ -100,13 +100,9 @@ Rules 2 and 3 are not applied to the mR chart — its distribution is asymmetric
 so symmetric zone tests don't behave the way they do on the X chart.
 
 When a run-pattern rule fires (Rule 2 or Rule 3), **all** participating slots
-are marked, not just the trigger. The visual gestalt of the run carries the
-diagnostic information.
-
-**No additional rules.** Western Electric's full set, the Nelson rules, and
-trend tests are deliberately omitted. They inflate false-alarm rates beyond what
-is useful for the small-sample contexts these charts are designed for. Wheeler
-chose three rules; that is the set this skill renders.
+are marked, not just the trigger. **No additional rules** — Western Electric,
+Nelson, and trend tests are deliberately omitted; they inflate false-alarm rates
+for the small-sample contexts XmR charts target.
 
 ## The Chart
 
@@ -138,71 +134,26 @@ both charts).
 
 ### Computed quantities
 
-```
-μ    = mean of values                  (X chart centerline)
-R    = mean of moving ranges            (mR chart centerline)
-σ̂    = R / 1.128                       (d₂ for n=2)
-UPL  = μ + 2.660 × R                   (E₂ = 3 / d₂)
-LPL  = μ − 2.660 × R                   (LPL is NOT clipped to zero)
-URL  = 3.268 × R                       (D₄ for n=2)
-```
-
-The constants are exact for individuals charts. They are not tunable — that's
-what makes XmR limits comparable across processes.
+`μ` (mean), `R` (mean moving range), `σ̂ = R / 1.128`, `UPL/LPL = μ ± 2.660 × R`
+(LPL not clipped to zero), `URL = 3.268 × R`. The constants are exact for
+individuals charts and not tunable — that's what makes XmR limits comparable
+across processes.
 
 ## Report Shape
 
-`analyze --format json` returns the structured report:
+`analyze --format json` returns one record per metric with `status`,
+`classification`, `signals` (per rule, with 1-indexed `slots` and a
+description), `latest` observation, and `stats` (μ, R, σ̂, UPL, LPL, URL, zone
+bounds).
 
-```json
-{
-  "source": "observations.csv",
-  "generated": "2026-04-14",
-  "metrics": [
-    {
-      "metric": "open_vulnerabilities",
-      "unit": "count",
-      "n": 15,
-      "from": "2026-01-01",
-      "to": "2026-01-15",
-      "status": "signals_present",
-      "latest": { "date": "2026-01-15", "value": 5, "mr": 1 },
-      "signals": {
-        "xRule1": [{ "slots": [10], "description": "x=13 > UPL=12.5" }],
-        "xRule2": [],
-        "xRule3": [],
-        "mrRule1": [{ "slots": [11], "description": "mR=8 > URL=7.5" }]
-      },
-      "classification": "chaos",
-      "stats": {
-        "mu": 6.4, "R": 2.3, "sigmaHat": 2.03,
-        "UPL": 12.5, "LPL": 0.3, "URL": 7.5,
-        "zoneUpper": 9.4, "zoneLower": 3.4
-      }
-    }
-  ]
-}
-```
-
-Each signal record carries `slots` (1-indexed positions) and a human-readable
-`description`. Rules 2 and 3 list every participating slot.
-
-`status` values:
-
-- `predictable` — no rules fire.
-- `signals_present` — at least one rule fires.
-- `insufficient_data` — fewer than 15 points; limits not computed.
-
-`classification` rolls these into a coarse category:
-
-- `stable` — predictable.
-- `signals` — at least one X chart rule fires.
-- `chaos` — mR Rule 1 fires; the variation itself is unstable, which makes every
-  X-chart limit unreliable until the outsized moves are investigated.
-- `insufficient` — n < 15.
+`status` is one of `predictable`, `signals_present`, or `insufficient_data` (n <
+15 — limits not computed). `classification` rolls these up into `stable`,
+`signals` (X chart rule fires), `chaos` (mR Rule 1 fires — variation itself is
+unstable, making X-chart limits unreliable), or `insufficient`.
 
 `summarize` reduces the report to a markdown table with a compact signal column
-(`R1×k`, `R2×len`, `R3×slots`, `mR1×k`).
+(`R1×k`, `R2×len`, `R3×slots`, `mR1×k`). See the linked guide for the full JSON
+schema and a worked example.
 
 ## Typical Workflow
 
@@ -221,24 +172,15 @@ Validate first; list to see what's available; analyze for the full report
 
 - **Predictable** processes vary within their natural limits. Reacting to a
   single point is tampering — it makes the process worse on average.
-- **X-Rule 1** points confirm magnitude. The size of the shift matters for
-  prioritization, not for the verdict.
-- **X-Rule 2 runs** mean the centerline shifted. Find what changed and decide
-  whether to lock it in or roll it back.
-- **X-Rule 3 outer-zone clusters** detect smaller shifts than Rule 2 — they
-  catch a level change before the run gets long enough to fire Rule 2.
-- **A series spanning a level shift** will surface Rule 2 on **both** sides
-  (run-above for pre-shift, run-below for post-shift). Once the shift is locked
-  in, recompute by trimming the CSV to post-shift dates so the limits describe
-  the new process.
-- **mR Rule 1 (chaos classification)** says volatility itself spiked. The limits
-  on the X chart are computed from `R`; an outsized moving range inflates `R`
-  and pulls UPL/LPL wider, so the rest of the report is unreliable until you
+- **X-Rule 1** confirms magnitude; **X-Rule 2 runs** mean the centerline
+  shifted; **X-Rule 3 clusters** catch smaller shifts before Rule 2 fires.
+- **mR Rule 1 (chaos)** says volatility itself spiked. The X-chart limits are
+  computed from `R`, so the rest of the report is unreliable until you
   investigate.
-- **Annotate the CSV `note` field** when you investigate a signal. The note is
-  the record of why the process changed; future analyses depend on it.
+- **Annotate the CSV `note` field** when you investigate a signal — future
+  analyses depend on the record of why the process changed.
 - **Don't set targets from the limits.** Targets come from the work; limits
-  describe the work. Conflating them turns the chart into a stick.
+  describe the work. See the linked guide for fuller interpretation guidance.
 
 ---
 
