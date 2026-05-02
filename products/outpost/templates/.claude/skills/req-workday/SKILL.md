@@ -1,10 +1,10 @@
 ---
-name: workday-requisition
+name: req-workday
 description: >
   Import candidates from a Workday requisition export (.xlsx) into
   knowledge/Candidates/. Parses requisition metadata and candidate data,
   creates candidate briefs and CV.md files from resume text, and integrates
-  with the existing track-candidates pipeline. Use when the user provides a
+  with the existing req-track pipeline. Use when the user provides a
   Workday export file or asks to import candidates from an XLSX requisition
   export.
 ---
@@ -14,7 +14,7 @@ description: >
 Import candidates from a Workday requisition export (`.xlsx`) into
 `knowledge/Candidates/`. Extracts requisition metadata and candidate profiles,
 creates standardized candidate briefs and `CV.md` files from the embedded resume
-text, and integrates with the existing `track-candidates` pipeline format.
+text, and integrates with the existing `req-track` pipeline format.
 
 ## Trigger
 
@@ -145,7 +145,7 @@ Names may include parenthetical annotations:
 Run the parse script to extract structured data:
 
 ```bash
-node .claude/skills/workday-requisition/scripts/parse-workday.mjs "<path-to-xlsx>" --summary
+node .claude/skills/req-workday/scripts/parse-workday.mjs "<path-to-xlsx>" --summary
 ```
 
 This prints a summary of the requisition and all candidates. Review the output
@@ -154,7 +154,7 @@ to confirm the file parsed correctly and note the total candidate count.
 For the full JSON output (used in subsequent steps):
 
 ```bash
-node .claude/skills/workday-requisition/scripts/parse-workday.mjs "<path-to-xlsx>"
+node .claude/skills/req-workday/scripts/parse-workday.mjs "<path-to-xlsx>"
 ```
 
 The full output is a JSON object with:
@@ -197,7 +197,7 @@ Create it using the requisition metadata from the export:
 - Staffing/recruitment project
 
 ## Candidates
-<!-- Rebuilt by track-candidates role sync -->
+<!-- Rebuilt by req-track role sync -->
 
 ## Notes
 - Created from requisition export on {today}.
@@ -222,7 +222,7 @@ cross-referencing to resolve it:
    a stakeholder map or organizational hierarchy note.
 
 3. **Fallback**: If neither resolves, set `Domain lead: —` for enrichment by
-   later cycles of `track-candidates` or `extract-entities`.
+   later cycles of `req-track` or `extract-entities`.
 
 ### If the Role file ALREADY exists
 
@@ -248,7 +248,7 @@ Use fuzzy matching — the Workday name may differ slightly from an existing not
 
 ## Step 3: Determine Pipeline Status
 
-Map the **Step / Disposition** column to the `track-candidates` pipeline status.
+Map the **Step / Disposition** column to the `req-track` pipeline status.
 Do NOT use the Stage column for status — it is only used for row detection (stop
 condition):
 
@@ -316,7 +316,7 @@ mkdir -p "knowledge/Candidates/{Clean Name}"
 ```
 
 Then create `knowledge/Candidates/{Clean Name}/brief.md` using the
-`track-candidates` format:
+`req-track` format:
 
 ```markdown
 # {Clean Name}
@@ -378,7 +378,7 @@ possible via `bunx fit-pathway skill --list`}
 
 **Extra fields** (after Last activity, in order): Req, Internal/External,
 Current title, Email, Phone, LinkedIn — include only when available. Follow the
-order defined in the `track-candidates` skill.
+order defined in the `req-track` skill.
 
 ### For EXISTING candidates
 
@@ -417,7 +417,7 @@ add them to `knowledge/Candidates/Insights.md`:
 - Candidates better suited for a different role
 - Notable patterns (source quality, experience distribution, skill gaps)
 
-Follow the `track-candidates` Insights format: one bullet per insight under
+Follow the `req-track` Insights format: one bullet per insight under
 `## Placement Notes` with `[[Candidates/Name/brief|Name]]` links.
 
 ## Step 8: Tag Skills with Agent-Aligned Engineering Standard IDs
@@ -430,7 +430,7 @@ bunx fit-pathway skill --list
 ```
 
 Use agent-aligned engineering standard skill IDs in the **Skills** section of
-each brief. If a candidate has a CV.md, flag them for the `screen-cv` skill for
+each brief. If a candidate has a CV.md, flag them for the `req-screen` skill for
 an agent-aligned engineering standard-aligned screening assessment.
 
 ## Quality Checklist
@@ -440,7 +440,7 @@ an agent-aligned engineering standard-aligned screening assessment.
 - [ ] Each candidate has a directory under `knowledge/Candidates/{Clean Name}/`
 - [ ] CV.md created for every candidate with resume text
 - [ ] CV.md faithfully reproduces resume text (no rewriting or summarizing)
-- [ ] Brief follows `track-candidates` format exactly
+- [ ] Brief follows `req-track` format exactly
 - [ ] Info fields in standard order (Title → Rate → Availability → English →
       Location → Gender → Source → Status → First seen → Last activity → extras)
 - [ ] Pipeline status correctly mapped from Workday stage/step

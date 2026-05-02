@@ -1,5 +1,5 @@
 ---
-name: assess-interview
+name: req-assess
 description: >
   Analyze interview transcripts against the agent-aligned engineering standard,
   updating skill and behaviour ratings with observed evidence. Produces
@@ -34,7 +34,7 @@ Run this skill:
 - `fit-pathway` CLI installed (`bunx fit-pathway` must work)
 - At least one transcript file in `knowledge/Candidates/{Name}/`
 - Screening assessment (`screening.md`) should exist — if not, note that
-  `screen-cv` should run first, but proceed with transcript analysis regardless
+  `req-screen` should run first, but proceed with transcript analysis regardless
 
 ## Inputs
 

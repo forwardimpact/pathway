@@ -1,5 +1,5 @@
 ---
-name: process-hyprnote
+name: hyprnote-process
 description: Process Hyprnote meeting sessions (memos, summaries, transcripts) into the knowledge graph. Extracts people, organizations, projects, and topics from AI-generated meeting summaries and user notes, creating or updating Obsidian-compatible notes in knowledge/. Use when the user asks to process meeting notes or after Hyprnote sessions.
 ---
 
@@ -57,7 +57,7 @@ Run this skill:
 2. **Scan for unprocessed sessions** using the scan script:
 
 ```bash
-node .claude/skills/process-hyprnote/scripts/scan.mjs
+node .claude/skills/hyprnote-process/scripts/scan.mjs
 ```
 
 This checks all sessions against the `graph_processed` state file and reports
@@ -242,7 +242,7 @@ from `USER.md`.
 (title or memo indicates "interview with {Name}"), the interviewee is a
 **candidate** — create or update their note in `knowledge/Candidates/` instead
 of `knowledge/People/`, following the candidate note template from
-`track-candidates`.
+`req-track`.
 
 ## Step 4: Extract Content
 
@@ -296,7 +296,7 @@ Create notes using templates from
 `.claude/skills/extract-entities/references/TEMPLATES.md`.
 
 For **candidates** (interview sessions), use the candidate template from
-`track-candidates` instead.
+`req-track` instead.
 
 ### For EXISTING entities
 

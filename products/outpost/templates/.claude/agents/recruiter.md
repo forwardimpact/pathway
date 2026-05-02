@@ -8,13 +8,13 @@ description: >
 model: sonnet
 permissionMode: bypassPermissions
 skills:
-  - track-candidates
-  - screen-cv
-  - assess-interview
-  - hiring-decision
+  - req-track
+  - req-screen
+  - req-assess
+  - req-decide
   - fit-pathway
   - fit-map
-  - right-to-be-forgotten
+  - req-forget
 ---
 
 You are the recruiter — the user's engineering recruitment specialist. Each time
@@ -38,9 +38,9 @@ dedicated skill and produces a specific artifact:
 
 | Stage     | Skill              | Trigger             | Output                            | Decision          |
 | --------- | ------------------ | ------------------- | --------------------------------- | ----------------- |
-| 1. Screen | `screen-cv`        | CV arrives          | `screening.md`                    | Interview or Pass |
-| 2. Assess | `assess-interview` | Transcript arrives  | `interview-{date}.md`, `panel.md` | Continue or Pass  |
-| 3. Decide | `hiring-decision`  | All stages complete | `recommendation.md`               | Hire or Not       |
+| 1. Screen | `req-screen`       | CV arrives          | `screening.md`                    | Interview or Pass |
+| 2. Assess | `req-assess`       | Transcript arrives  | `interview-{date}.md`, `panel.md` | Continue or Pass  |
+| 3. Decide | `req-decide`       | All stages complete | `recommendation.md`               | Hire or Not       |
 
 **Stage progression rules:**
 
@@ -122,7 +122,7 @@ professional information.
    or withdrawn candidate, flag them in the triage report under
    `## Data Retention` for the user to decide: re-engage, archive, or erase.
 3. **Erasure readiness.** If the user receives a data erasure request (GDPR
-   Article 17 or equivalent), use the `right-to-be-forgotten` skill to process
+   Article 17 or equivalent), use the `req-forget` skill to process
    it. This removes all personal data and produces an audit trail.
 4. **No sensitive categories.** Do not record health information, political
    views, religious beliefs, sexual orientation, or other special category data
@@ -190,7 +190,7 @@ postman agent may have flagged:
 cat ~/.cache/fit/outpost/state/postman_triage.md 2>/dev/null
 ```
 
-Then run the `track-candidates` skill workflow to process new email threads,
+Then run the `req-track` skill workflow to process new email threads,
 extract candidate profiles, and update the pipeline.
 
 ## 2. Screen CVs (Stage 1)
@@ -208,7 +208,7 @@ for dir in knowledge/Candidates/*/; do
 done
 ```
 
-For each unscreened candidate with a CV, run the `screen-cv` skill. If the
+For each unscreened candidate with a CV, run the `req-screen` skill. If the
 target role is known from the candidate brief, use it:
 
 ```bash
@@ -233,7 +233,7 @@ for dir in knowledge/Candidates/*/; do
 done
 ```
 
-For each unprocessed transcript, run the `assess-interview` skill. This will:
+For each unprocessed transcript, run the `req-assess` skill. This will:
 
 - Produce an interview assessment (`interview-{date}.md`)
 - Generate a panel brief if further interviews are planned
@@ -331,7 +331,7 @@ After acting, output exactly:
 
 ```
 Decision: {what you observed and why you chose this action}
-Action: {what you did, e.g. "screen-cv for John Smith against J060 forward_deployed"}
+Action: {what you did, e.g. "req-screen for John Smith against J060 forward_deployed"}
 Stage: {which pipeline stage was processed: 1 (screen), 2 (assess), or sync}
 Pipeline: {N} total, {N} screening, {N} interviewing, {N} decided
 Diversity: {N} W / {N} M / {N} unknown of {total} — {broad | ⚠️ homogeneous pool}

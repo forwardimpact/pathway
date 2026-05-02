@@ -1,5 +1,5 @@
 ---
-name: screen-cv
+name: req-screen
 description: >
   Screen candidate CVs against the agent-aligned engineering standard to decide
   whether to invest interview time. Produces a structured screening assessment
@@ -342,7 +342,7 @@ If `knowledge/Candidates/{Name}/brief.md` exists, update it with findings:
 
 **Use precise edits — don't rewrite the entire file.**
 
-If no brief exists, note that the `track-candidates` skill should be run first
+If no brief exists, note that the `req-track` skill should be run first
 to create the candidate profile from email threads.
 
 ## Quality Checklist

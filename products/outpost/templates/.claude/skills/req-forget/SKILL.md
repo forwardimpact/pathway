@@ -1,5 +1,5 @@
 ---
-name: right-to-be-forgotten
+name: req-forget
 description: >
   Process GDPR Article 17 data erasure requests. Finds and removes all personal
   data related to a named individual from the knowledge base, cached data, and

@@ -1,5 +1,5 @@
 ---
-name: hiring-decision
+name: req-decide
 description: >
   Synthesize all evidence (CV screening, interview assessments, transcripts)
   into a final hiring recommendation. Produces a comprehensive recommendation

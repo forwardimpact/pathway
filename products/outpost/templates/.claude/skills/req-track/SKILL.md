@@ -1,5 +1,5 @@
 ---
-name: track-candidates
+name: req-track
 description: Scan synced email threads for recruitment candidates, extract structured profiles, and create/update notes in knowledge/Candidates/. Use when the user asks to track candidates, process recruitment emails, or update the hiring pipeline.
 ---
 
@@ -614,7 +614,7 @@ Use agent-aligned engineering standard skill IDs (e.g. `data_integration`,
 of the candidate brief instead of free-form tags. This enables consistent
 cross-candidate comparison.
 
-If a candidate has a CV attachment, flag them for the `screen-cv` skill which
+If a candidate has a CV attachment, flag them for the `req-screen` skill which
 produces an agent-aligned engineering standard-aligned screening assessment.
 
 ## Quality Checklist

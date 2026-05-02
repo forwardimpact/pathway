@@ -1,5 +1,5 @@
 ---
-name: create-presentations
+name: deck-create
 description: Generate PDF slide decks from user requests using Playwright to render HTML slides to PDF. Use when the user asks to create a presentation, slide deck, or pitch deck. Pulls context from the knowledge base for company info, project details, and people.
 compatibility: Requires Node.js installed. Playwright is installed on first use.
 ---

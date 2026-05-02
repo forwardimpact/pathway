@@ -1,5 +1,5 @@
 ---
-name: scan-open-candidates
+name: req-scan
 description: >
   Scan publicly available sources for candidates who indicate they are open for
   hire. Uses WebFetch to read public APIs (HN Algolia, GitHub, dev.to).
@@ -392,7 +392,7 @@ available, use the username. Never fabricate real names.
 **Use the state script for ALL state file operations.** Do NOT write bespoke
 scripts to update cursor, seen, prospects, failures, or log files.
 
-    node .claude/skills/scan-open-candidates/scripts/state.mjs <command> [args]
+    node .claude/skills/req-scan/scripts/state.mjs <command> [args]
 
 ### Commands
 

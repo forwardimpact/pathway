@@ -1,5 +1,5 @@
 ---
-name: create-documents
+name: doc-create
 description: Generate PDF documents from user requests using Playwright to render HTML to A4 PDF. Use when the user asks to create a document, proposal, report, or any multi-page PDF that is not a slide deck. Pulls context from the knowledge base for company info, project details, and people.
 compatibility: Requires Node.js installed. Playwright is installed on first use.
 ---
@@ -42,7 +42,7 @@ submission, brief, or any multi-page PDF that is not a slide deck.
     its own page layout — see **HTML Document Rules** below.
 4.  Run the conversion script:
 
-        node .claude/skills/create-documents/scripts/convert-to-pdf.mjs <input.html> [output.pdf]
+        node .claude/skills/doc-create/scripts/convert-to-pdf.mjs <input.html> [output.pdf]
 
     If output is omitted, the PDF is written alongside the HTML file with the
     same name.

@@ -9,9 +9,13 @@
       "Edit(.claude/agents/**)",
       "Edit(.claude/commands/**)",
       "Edit(.claude/skills/**)",
+      "Edit(products/*/templates/.claude/agents/**)",
+      "Edit(products/*/templates/.claude/skills/**)",
       "Write(.claude/agents/**)",
       "Write(.claude/commands/**)",
-      "Write(.claude/skills/**)"
+      "Write(.claude/skills/**)",
+      "Write(products/*/templates/.claude/agents/**)",
+      "Write(products/*/templates/.claude/skills/**)"
     ]
   },
   "hooks": {

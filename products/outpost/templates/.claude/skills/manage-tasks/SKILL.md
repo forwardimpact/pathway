@@ -1,6 +1,6 @@
 ---
 name: manage-tasks
-description: Create, update, list, and close tasks on per-person task boards in knowledge/Tasks/. Manages task lifecycle, extracts action items from other skills, and keeps boards current. Use when the user asks to add, update, or review tasks, or when chained from extract-entities or process-hyprnote.
+description: Create, update, list, and close tasks on per-person task boards in knowledge/Tasks/. Manages task lifecycle, extracts action items from other skills, and keeps boards current. Use when the user asks to add, update, or review tasks, or when chained from extract-entities or hyprnote-process.
 ---
 
 # Manage Tasks
@@ -15,7 +15,7 @@ other notes (People, Projects) link to them rather than duplicating.
 Run this skill:
 
 - When the user asks to add, update, close, or list tasks
-- When chained from `extract-entities` or `process-hyprnote` with extracted
+- When chained from `extract-entities` or `hyprnote-process` with extracted
   action items
 - When the user asks to see someone's task board or workload
 - On a schedule to perform housekeeping (prune done items, flag overdue)
@@ -33,7 +33,7 @@ Run this skill:
 
 ### Chained from other skills
 
-Action items extracted by `extract-entities` or `process-hyprnote`, passed as
+Action items extracted by `extract-entities` or `hyprnote-process`, passed as
 structured data:
 
 ```

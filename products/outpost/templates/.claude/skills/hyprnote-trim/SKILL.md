@@ -1,5 +1,5 @@
 ---
-name: trim-transcript
+name: hyprnote-trim
 description: Trim a Hyprnote transcript to its logical end. Recordings are often left running after a meeting finishes — this skill finds the natural conclusion (goodbyes, sign-offs) and cuts the transcript there. Use when the user asks to trim, cut, or clean up a Hyprnote transcript.
 ---
 
@@ -16,7 +16,7 @@ Run this skill:
 
 - When the user asks to trim, cut, or clean up a Hyprnote transcript
 - When given a specific session ID to trim
-- When another skill (e.g., process-hyprnote) flags a transcript as having
+- When another skill (e.g., hyprnote-process) flags a transcript as having
   excessive trailing content
 
 ## Prerequisites

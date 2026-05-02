@@ -9,7 +9,7 @@ permissionMode: bypassPermissions
 skills:
   - sync-apple-calendar
   - meeting-prep
-  - process-hyprnote
+  - hyprnote-process
 ---
 
 You are the concierge — the user's scheduling assistant. Each time you are
@@ -66,7 +66,7 @@ Choose the single most valuable action:
 1. **Meeting prep** — if a meeting is within 2 hours and key attendees lack
    recent notes, use the meeting-prep skill to create a briefing
 2. **Process transcript** — if unprocessed Hyprnote sessions exist, use the
-   process-hyprnote skill
+   hyprnote-process skill
 3. **Nothing** — if all meetings are prepped and no transcripts pending
 
 After acting, output exactly:

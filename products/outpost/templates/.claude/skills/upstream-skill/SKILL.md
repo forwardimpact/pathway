@@ -97,7 +97,7 @@ Good descriptions:
   source directory was empty, causing silent failures"
 - "Rewrote the Entity Extraction section to process files in batches of 10
   instead of all at once — large inboxes caused context window overflow"
-- "New skill: `process-hyprnote` — transcribes and extracts entities from
+- "New skill: `hyprnote-process` — transcribes and extracts entities from
   Hyprnote meeting recordings"
 
 Bad descriptions:
@@ -152,10 +152,10 @@ After writing, read each changelog back and verify:
 
 ## Example Output
 
-`.claude/skills/track-candidates/CHANGELOG.md`:
+`.claude/skills/req-track/CHANGELOG.md`:
 
 ```markdown
-# track-candidates Changelog
+# req-track Changelog
 
 Changes to this skill that should be considered for upstream inclusion in the
 Forward Impact monorepo.
@@ -176,10 +176,10 @@ invisible without structured gender data.
 ---
 ```
 
-`.claude/skills/process-hyprnote/CHANGELOG.md`:
+`.claude/skills/hyprnote-process/CHANGELOG.md`:
 
 ```markdown
-# process-hyprnote Changelog
+# hyprnote-process Changelog
 
 Changes to this skill that should be considered for upstream inclusion in the
 Forward Impact monorepo.

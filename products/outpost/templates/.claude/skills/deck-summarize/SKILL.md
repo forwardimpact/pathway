@@ -1,5 +1,5 @@
 ---
-name: synthesize-deck
+name: deck-summarize
 description: Synthesize PowerPoint decks into engineer-friendly markdown briefs covering Jobs-To-Be-Done, dependencies, and synthetic data needs. Use when the user asks to break down, summarize, or make sense of a slide deck (.pptx) for engineering work.
 compatibility: Node.js only — no external dependencies.
 ---
@@ -45,19 +45,19 @@ Run when the user asks to:
 Use the extraction script to pull all slide text from the deck:
 
 ```bash
-node .claude/skills/synthesize-deck/scripts/extract-pptx.mjs "$FILE_PATH"
+node .claude/skills/deck-summarize/scripts/extract-pptx.mjs "$FILE_PATH"
 ```
 
 For multiple decks, pass all files at once:
 
 ```bash
-node .claude/skills/synthesize-deck/scripts/extract-pptx.mjs deck1.pptx deck2.pptx
+node .claude/skills/deck-summarize/scripts/extract-pptx.mjs deck1.pptx deck2.pptx
 ```
 
 To save the extracted text for analysis:
 
 ```bash
-node .claude/skills/synthesize-deck/scripts/extract-pptx.mjs "$FILE_PATH" -o /tmp/deck_extract.txt
+node .claude/skills/deck-summarize/scripts/extract-pptx.mjs "$FILE_PATH" -o /tmp/deck_extract.txt
 ```
 
 Read the full extracted text before proceeding.

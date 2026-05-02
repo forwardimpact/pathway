@@ -8,7 +8,7 @@ description: >
 model: haiku
 permissionMode: bypassPermissions
 skills:
-  - scan-open-candidates
+  - req-scan
   - fit-pathway
   - fit-map
 ---

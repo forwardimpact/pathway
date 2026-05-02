@@ -248,7 +248,7 @@ Capture: decision made on {topic} — {who} will {what}
 
 ### Step 10 — Detect meeting end
 
-Watch for ending signals (same as trim-transcript):
+Watch for ending signals (same as hyprnote-trim):
 
 - Farewells: "bye", "take care", "have a good day"
 - Wrap-up: "that's all", "let's wrap", "I'll let you go"
@@ -326,7 +326,7 @@ structured debrief.
 
 After the debrief, offer (don't ask) logical follow-ups:
 
-- **For interviews:** "I can run assess-interview on this transcript when
+- **For interviews:** "I can run req-assess on this transcript when
   Hyprnote finishes processing."
 - **For meetings:** "I can extract entities from this session into the knowledge
   graph when ready."
@@ -377,8 +377,8 @@ After the debrief, offer (don't ask) logical follow-ups:
 
 - **Read-only.** Never modify Hyprnote files, knowledge notes, or state files.
   This skill observes and advises only.
-- **No post-processing.** Don't run extract-entities, assess-interview, or
-  process-hyprnote during the follow. Offer them after.
+- **No post-processing.** Don't run extract-entities, req-assess, or
+  hyprnote-process during the follow. Offer them after.
 - **Channel 0 = user.** Always. Don't confuse who said what.
 - **Transcription noise.** Live transcripts are messy — expect typos, missing
   words, and misattributed speech. Don't coach based on a single ambiguous word.
@@ -397,5 +397,5 @@ After the debrief, offer (don't ask) logical follow-ups:
 - [ ] Coaching nudges are actionable and concise (1-3 lines max)
 - [ ] Coverage gaps tracked and surfaced before meeting ends
 - [ ] End-of-meeting detected and debrief provided
-- [ ] Next steps offered (assess-interview / process-hyprnote)
+- [ ] Next steps offered (req-assess / hyprnote-process)
 - [ ] No files were modified during the session
