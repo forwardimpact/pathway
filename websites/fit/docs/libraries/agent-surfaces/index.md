@@ -1,22 +1,24 @@
 ---
-title: Web + CLI Surfaces
-description: Build a product with both a web UI and a CLI that share handler logic through a single InvocationContext contract.
+title: Agent-Friendly Surfaces
+description: Build a product with both a web UI and a CLI that share handler logic through a single InvocationContext contract — agent-friendly by design.
 ---
 
-# Web + CLI Surfaces
+# Agent-Friendly Surfaces
 
-Some products serve the same capability through two surfaces — a web app for
-browsers and a CLI for terminals. Without a shared contract the handler logic
-diverges: the web page reads route params and query strings, the CLI reads
-positionals and flags, and the two slowly drift apart.
+Some products serve the same capability through two agent-friendly surfaces — a
+web app for browsers and a CLI for terminals. Without a shared contract the
+handler logic diverges: the web page reads route params and query strings, the
+CLI reads positionals and flags, and the two slowly drift apart.
 
 `@forwardimpact/libui` and `@forwardimpact/libcli` solve this with
 **InvocationContext** — a frozen `{ data, args, options }` object that both
 surfaces produce from their native inputs. The handler never knows which surface
-called it.
+called it, and both surfaces are agent-friendly: the CLI prints grep-friendly
+help with JSON mode, the web app exposes the equivalent CLI command for
+copy-to-clipboard.
 
 This guide walks through building the simplest possible pairing: one entity, one
-shared presenter, two surfaces.
+shared presenter, two agent-friendly surfaces.
 
 ## Prerequisites
 

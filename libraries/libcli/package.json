@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libcli",
   "version": "0.1.7",
-  "description": "Agent-friendly CLIs: argument parsing, grep-friendly help output, JSON mode, and skill-doc links surfaced in `--help`.",
+  "description": "Agent-friendly CLIs: argument parsing, handler dispatch via `InvocationContext`, grep-friendly help, JSON mode, and skill-doc links in `--help`.",
   "keywords": [
     "cli",
     "agent",

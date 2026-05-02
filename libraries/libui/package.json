@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libui",
   "version": "1.1.8",
-  "description": "Functional web UI primitives — DOM helpers, SPA routing, reactive state — for products agents build.",
+  "description": "Agent-friendly web surfaces — SPA routing, reactive state, and route-to-CLI bindings that share handler logic with `libcli` through `InvocationContext`.",
   "keywords": [
     "ui",
     "dom",
