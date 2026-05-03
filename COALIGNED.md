@@ -118,8 +118,10 @@ how contributors work; the other captures what progress each persona seeks.
 
 ### JTBD Entry Structure
 
-Each entry in [JTBD.md](JTBD.md) follows a fixed structure. Every element is
-required.
+Each entry in [JTBD.md](JTBD.md) follows a fixed structure. The first five
+elements are required for all entries. _Forces_ and _Fired When_ are required
+for Big Hires (JTBD.md) but omitted from Little Hires — forces analyze switching
+decisions, not Tuesday-afternoon tasks.
 
 - **User** — persona hiring the product (`##` heading).
 - **Goal** — high-level progress sought (`###` heading).
@@ -127,11 +129,11 @@ required.
 - **Hires** — "Help me {progress}." statements, each pointing to the product,
   service or library hired (→ **Thing**). Two or three per goal.
 - **Competes With** — what currently gets hired instead; semicolon-delimited.
-- **Forces** — four forces: **Push** (status quo pain), **Pull** (desired
-  future state, not features), **Habit** (current behavior resisting change),
-  **Anxiety** (fear blocking adoption).
-- **Fired When** — conditions under which the product gets abandoned; include
-  at least one environmental shift beyond product failure.
+- **Forces** — Four forces: _Push_ (status quo pain), _Pull_ (desired future
+  state, not features), _Habit_ (current behavior resisting change), _Anxiety_
+  (fear blocking adoption).
+- **Fired When** — Conditions under which the product gets abandoned; include at
+  least one environmental shift beyond product failure.
 
 ### Properties of Good JTBD Entries
 
