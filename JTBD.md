@@ -5,7 +5,7 @@
 **Trigger:** A promotion decision stalls because two managers disagree on
 what "senior" means — neither can point to a written definition.
 
-**Jobs:**
+**Hires:**
 - Help me turn "good engineering" into an operational definition the
   organization trusts and follows. → **Map**
 - Help me give specialized roles coherent expectations from a shared foundation
@@ -30,7 +30,7 @@ to maintain them.
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
 incident — nobody had a way to see it before staffing the team.
 
-**Jobs:**
+**Hires:**
 - Help me spot capability gaps before someone gets set up to fail. → **Summit**
 - Help me make staffing decisions I can defend with evidence, not
   intuition. → **Summit, Pathway**
@@ -54,7 +54,7 @@ removes the pressure to staff analytically.
 **Trigger:** The quarterly review is due and the only data available is
 ticket counts — which single out individuals rather than illuminate the system.
 
-**Jobs:**
+**Hires:**
 - Help me demonstrate engineering progress without making individuals feel
   surveilled. → **Landmark**
 - Help me tell whether culture investments are working before the next budget
@@ -79,7 +79,7 @@ deprioritizes measurement.
 **Trigger:** Starting a new role and realizing that "meets expectations" on
 the review form has no definition anyone can point to.
 
-**Jobs:**
+**Hires:**
 - Help me see exactly what's expected at my level so I stop guessing during
   reviews. → **Pathway**
 - Help me understand the autonomy and scope my level implies so I can
@@ -105,7 +105,7 @@ reorganization makes the framework feel irrelevant.
 **Trigger:** The promotion conversation ended with "not yet" but no
 specifics — unclear what evidence would change the answer.
 
-**Jobs:**
+**Hires:**
 - Help me show concrete evidence of growth, not just my manager's
   impression. → **Landmark**
 - Help me get career guidance grounded in my organization's standards, not
@@ -132,7 +132,7 @@ decisions; or the engineer loses trust in the standard itself.
 **Trigger:** Walking into a meeting cold because the context was buried
 across email threads, a Slack channel, and last week's notes.
 
-**Jobs:**
+**Hires:**
 - Help me walk into every meeting already oriented without the morning
   scramble. → **Outpost**
 - Help me keep track of people, projects, and threads without depending on
@@ -157,7 +157,7 @@ enough of the prep.
 **Trigger:** Initialized for a task with a generic system prompt and no
 knowledge of organizational standards or what "done" looks like for this phase.
 
-**Jobs:**
+**Hires:**
 - Help me know what is expected and what "done" looks like for this phase of
   work. → **Pathway**
 - Help me align my behaviour with organizational expectations, not just
@@ -183,7 +183,7 @@ change faster than profiles are updated.
 **Trigger:** Mid-phase execution where drifting beyond scope or applying
 subjective quality judgments would erode the trust this agent has earned.
 
-**Jobs:**
+**Hires:**
 - Help me deliver predictably within phase boundaries set by earlier
   decisions. → **Pathway**
 - Help me trace evidence to observable definitions rather than subjective
@@ -208,7 +208,7 @@ humans stop reviewing agent output regardless.
 **Trigger:** Starting the third project in a row that needs knowledge
 retrieval and protocol bridging, rebuilding the same plumbing each time.
 
-**Jobs:**
+**Hires:**
 - Help me stop rebuilding retrieval and bridging for every new project. →
   **Gear**
 - Help me ship one interface that both humans and agents call natively. →
@@ -235,7 +235,7 @@ dependency.
 **Trigger:** The team claims the agent is "much better now" but nobody can
 show whether last week's changes helped or made things worse.
 
-**Jobs:**
+**Hires:**
 - Help me prove whether agent changes actually improved outcomes. → **Gear**
 - Help me make eval results reproducible so the team trusts them. → **Gear**
 
