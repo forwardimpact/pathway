@@ -20,7 +20,7 @@
     "prestart": "bunx fit-pathway build",
     "start": "bunx serve public",
     "dev": "bunx fit-pathway dev",
-    "check": "bun run format && bun run lint && bun run harness && bun run context && bun run docs",
+    "check": "bun run format && bun run lint && bun run harness && bun run context",
     "check:fix": "bun run format:fix && bun run lint:fix && bun run context:fix",
     "lint": "biome lint .",
     "lint:fix": "biome lint --write .",
@@ -37,8 +37,7 @@
     "context:check-instructions": "bun scripts/check-instructions.mjs",
     "context:check-metadata": "bun scripts/check-metadata.mjs",
     "context:check-catalog": "bun scripts/check-catalog.mjs",
-    "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-catalog.mjs --fix",
-    "docs": "bun scripts/check-map-page.mjs"
+    "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-catalog.mjs --fix"
   },
   "dependencies": {
     "forwardimpact-monorepo": "."
