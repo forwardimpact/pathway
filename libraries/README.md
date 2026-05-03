@@ -78,7 +78,7 @@ signal is distinguished from noise.
 | **libsyntheticprose**  | LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.                                                     |
 | **libsyntheticrender** | Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).                                              |
 | **libterrain**         | Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.                                                |
-| **libwiki**            | Wiki lifecycle primitives for the Kata agent system: cross-team memos, agent roster discovery, and marker migration.                          |
+| **libwiki**            | Wiki lifecycle primitives for the Kata agent system: cross-team memos, storyboard XmR chart refresh, wiki bootstrap, and git sync.            |
 | **libxmr**             | Agent-friendly Wheeler/Vacanti XmR control charts: 14-line ASCII charts and the canonical three detection rules over time-series CSV metrics. |
 
 <!-- END:capability:agent-self-improvement -->
@@ -130,6 +130,7 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | ------------------------------------------------------------------------------ | -------------------- |
 | Add a distributed trace span (OpenTelemetry-style observability)               | `libtelemetry`       |
 | Assemble a macOS app bundle                                                    | `libmacos`           |
+| Bootstrap a wiki working tree for a Kata installation                          | `libwiki`            |
 | Buffer high-volume index writes                                                | `libindex`           |
 | Build a gRPC service                                                           | `librpc`             |
 | Build a reactive single-page web app                                           | `libui`              |
@@ -164,10 +165,13 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Parse a terrain DSL                                                            | `libsyntheticgen`    |
 | Parse and query Claude Code trace NDJSON files                                 | `libeval`            |
 | Parse CLI args and render help                                                 | `libcli`             |
+| Pull remote wiki changes into the local working tree                           | `libwiki`            |
+| Push agent-authored wiki changes to the remote                                 | `libwiki`            |
 | Query an RDF triple graph                                                      | `libgraph`           |
 | Read or write .env (dotenv) files                                              | `libsecret`          |
 | Read or write JSONL                                                            | `libstorage`         |
 | Record a metric and print its current XmR status                               | `libxmr`             |
+| Refresh XmR chart blocks inside a storyboard markdown file                     | `libwiki`            |
 | Register a gRPC service as MCP tools                                           | `libmcp`             |
 | Render a Mustache template with project overrides                              | `libtemplate`        |
 | Render a prompt template with variable substitution                            | `libprompt`          |

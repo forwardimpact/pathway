@@ -1,0 +1,50 @@
+import { readFileSync, writeFileSync } from "node:fs";
+import path from "node:path";
+import fsAsync from "node:fs/promises";
+import { Finder } from "@forwardimpact/libutil";
+import { scanMarkers } from "../marker-scanner.js";
+import { renderBlock, BlockRenderError } from "../block-renderer.js";
+
+export function runRefreshCommand(values, args, cli) {
+  if (!args[0]) {
+    cli.usageError("refresh requires a <storyboard-path> argument");
+    process.exit(2);
+  }
+
+  const logger = { debug() {} };
+  const finder = new Finder(fsAsync, logger, process);
+  const projectRoot = finder.findProjectRoot(process.cwd());
+
+  const storyboardPath = path.resolve(projectRoot, args[0]);
+  const text = readFileSync(storyboardPath, "utf-8");
+  const blocks = scanMarkers(text);
+
+  if (blocks.length === 0) return;
+
+  const lines = text.split("\n");
+  let spliced = false;
+
+  for (let i = blocks.length - 1; i >= 0; i--) {
+    const block = blocks[i];
+    try {
+      const rendered = renderBlock({
+        metric: block.metric,
+        csvPath: block.csvPath,
+        projectRoot,
+      });
+      lines.splice(
+        block.openLine + 1,
+        block.closeLine - block.openLine - 1,
+        ...rendered,
+      );
+      spliced = true;
+    } catch (err) {
+      if (!(err instanceof BlockRenderError)) throw err;
+      process.stderr.write(
+        `refresh-error ${storyboardPath}:${block.openLine + 1} ${err.message}\n`,
+      );
+    }
+  }
+
+  if (spliced) writeFileSync(storyboardPath, lines.join("\n"));
+}
