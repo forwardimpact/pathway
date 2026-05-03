@@ -55,17 +55,25 @@ Construct with `new WikiRepo({ wikiDir, parentDir })`. Public methods:
 | `fetch()`                        | `auth_git -C wikiDir fetch origin master`.                                                                                                                                                                         |
 | `isClean()`                      | `true` when `git -C wikiDir status --porcelain` produces no output.                                                                                                                                                |
 | `pull()`                         | `fetch()`, then `git -C wikiDir rebase origin/master`. On rebase failure: `rebase --abort` and throw a `WikiPullConflict` error carrying the git stderr. Caller maps to non-zero exit (decision W5).               |
-| `commitAndPush(message)`         | Order: short-circuit via `isClean()` first — return `{pushed:false, reason:'clean'}` (criterion #7); otherwise `git -C wikiDir add -A` → `git commit -m message` → `fetch()` → `git rebase origin/master`; on rebase failure: `git rebase --abort` then `git merge origin/master -X ours --no-edit` (decision W3); finally `auth_git push origin master`. (Note: `wiki-sync.sh` runs `fetch` once at line 49 before the push branch; here the fetch is deferred to after `commit` so it runs only when work actually exists. Same final state, fewer network calls in the no-op path.) |
+| `commitAndPush(message)`         | Order: short-circuit via `isClean()` first — return `{pushed:false, reason:'clean'}` (criterion #7); otherwise `git -C wikiDir add -A` → `git commit -m message` → `fetch()` → `git rebase origin/master`; on rebase failure: `git rebase --abort` then `git merge origin/master -X ours --no-edit` (decision W3); finally `auth_git push origin master`. |
 
-`auth_git` is a private helper that prefixes the git argv with two
-`-c` flags — the first clears any inherited helper (`-c credential.helper=`),
-the second installs the inline helper
-`-c credential.helper=!f() { echo username=x-access-token; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f`
-— when either `GH_TOKEN` or `GITHUB_TOKEN` is set in the parent process
-environment; otherwise it spawns plain git. The argv is passed straight to
-`spawnSync` as an array (no `shell:true`); git itself spawns the helper body
-in a subshell that resolves `${GH_TOKEN:-$GITHUB_TOKEN}` against the inherited
-env. Match the form used in `scripts/wiki-sync.sh` line 19-22 — credentials
+`auth_git` is a private helper that prefixes the git argv with two `-c`
+flags when either `GH_TOKEN` or `GITHUB_TOKEN` is set in the process
+environment; otherwise it spawns plain git. The two argv elements are:
+
+```js
+const HELPER_CLEAR = '-c credential.helper=';
+const HELPER_INLINE = `-c credential.helper=!f() { echo username=x-access-token; echo "password=\${GH_TOKEN:-\$GITHUB_TOKEN}"; }; f`;
+```
+
+The `\$` escapes prevent JS template-literal substitution; the resulting
+strings are byte-for-byte identical to the bash form in `scripts/wiki-sync.sh`
+lines 20-21 (single-quoted there, template-literal here — same payload).
+The argv is passed straight to `spawnSync` as a flat array (no `shell:true`
+on the spawn). Git itself parses the second flag and runs the helper body
+in a subshell, which is what resolves `${GH_TOKEN:-$GITHUB_TOKEN}` against
+the inherited env — that's why the JS string must keep the literal `${...}`
+characters intact for git's downstream shell to evaluate. Credentials
 never reach `.git/config` (decision W2).
 
 Tests use `mkdtempSync` plus three local repos: a bare repo as origin, two clones.
@@ -114,13 +122,28 @@ trailing `.git` and appending `.wiki.git` (decision W4), then:
 3. For each `slug` in `listSkills({ skillsDir })`,
    `mkdirSync(path.join(wikiDir, 'metrics', slug), { recursive: true })`.
 
-Idempotent by construction: every step is a no-op when its postcondition
-already holds (decision I1, I2). No `.gitkeep` files created.
-
 CLI flags: `--wiki-root` (default `wiki`) and `--skills-dir` (default
 `.claude/skills`) — both relative paths resolve via
 `path.resolve(projectRoot, value)`, absolute paths pass through unchanged.
-Both used by tests; agents rely on defaults.
+Both used by tests; agents rely on defaults. No `.gitkeep` files created
+(decision I2).
+
+Variable derivation inside `runInitCommand` (matches step 5):
+
+```js
+const projectRoot = finder.findProjectRoot(process.cwd());
+const wikiDir     = path.resolve(projectRoot, values["wiki-root"] ?? "wiki");
+const skillsDir   = path.resolve(projectRoot, values["skills-dir"] ?? path.join(".claude", "skills"));
+const originUrl   = readOriginUrl(projectRoot);   // git -C projectRoot config --get remote.origin.url
+const wikiUrl     = originUrl.replace(/\.git$/, "") + ".wiki.git";
+```
+
+When `origin` is unset (fresh downstream install with no remote yet),
+`readOriginUrl` returns null; init prints
+`init: parent repo has no 'origin' remote — set one before running fit-wiki init`
+to stderr and exits non-zero. The fit-xmr `record` command works without
+a wiki being cloned, so a session can still record metrics on the
+clone-failed path.
 
 Tests use a temp project with a fake parent repo (`git init` + `origin` set
 to a local bare repo), assert `git -C wiki rev-parse --git-dir` succeeds and
@@ -143,10 +166,8 @@ Single module exports `runPushCommand` and `runPullCommand`. Each:
    so the `--wiki-root` CLI flag declared in step 9 is actually honored;
    relative paths resolve against the project root.
 3. Constructs `repo = new WikiRepo({ wikiDir, parentDir: projectRoot })`.
-4. Calls `repo.inheritIdentity()` before each operation — `wiki-sync.sh`
-   lines 44-45 set identity on every invocation, not just at clone time;
-   matching that ensures commits are attributed correctly even when the
-   wiki was cloned outside `init`.
+4. Calls `repo.inheritIdentity()` before each operation (matching
+   `wiki-sync.sh` lines 44-45).
 5. For push: `repo.commitAndPush('wiki: update from session')`.
    For pull: `repo.pull()` wrapped in try/catch — on `WikiPullConflict`,
    exit non-zero with the stderr line
@@ -170,14 +191,16 @@ Files created:
 - `libraries/libwiki/src/marker-scanner.js`
 - `libraries/libwiki/test/marker-scanner.test.js`
 
-Single `scanMarkers(text)` function. Splits on `\n` and walks line by line.
-Open marker matches the regex
+Single `scanMarkers(text, { sourcePath })` function. Splits on `\n` and
+walks line by line. Open marker matches the regex
 `/^<!--\s*xmr:([^:\s]+):([^\s]+)\s*-->\s*$/`; close marker matches
 `/^<!--\s*\/xmr\s*-->\s*$/`. State machine: walk top-down tracking the
 current open block; on close, push `{ metric, csvPath, openLine, closeLine }`
-(0-indexed) and reset; on a second open before a close, emit the unmatched
-open as a `dangling-marker` warning to stderr (per Risks row 2) and reset
-state to the new open. Return the array of well-formed pairs.
+(0-indexed) and reset; on a second open before a close (or a close with
+no preceding open), emit the literal warning
+`dangling-marker {sourcePath}:{lineNumber}` to stderr (matches design
+§ Risks row 2 verbatim) and reset state to the new open (or skip the
+stray close). Return the array of well-formed pairs.
 
 Tests: zero pairs in unmarked text; one pair around an example block; two
 pairs separated by prose; dangling open emits stderr warning and is skipped;
@@ -212,15 +235,21 @@ exactly:
 
 Where:
 
-- `latestValue` is `m.latest?.value ?? m.values[m.values.length - 1] ?? '—'`.
-  `libxmr.analyze` omits the `latest` field for `insufficient_data`
-  (`libraries/libxmr/src/analyze.js:35-49`), so the fallback chain matches the
-  storyboard convention (`**Latest:** —` for empty series).
+- `latestValue` is `m.latest?.value ?? '—'`. `libxmr.analyze` omits the
+  `latest` field for `insufficient_data`
+  (`libraries/libxmr/src/analyze.js:35-49`); the em-dash matches the
+  storyboard convention used in `wiki/storyboard-2026-M05.md` for low-N
+  metrics. Do **not** fall back to `m.values[length-1]` — even though
+  `analyze` populates `values` for insufficient_data, the convention is to
+  signal "no XmR baseline yet" with the em-dash rather than show a single
+  measurement that lacks limits or signals.
 - `chartText` is `renderChart(m.values, m.stats, m.signals)` for predictable
   and signals_present, and the literal line
   `Insufficient data: ${m.n} points (need at least ${MIN_POINTS}).`
   for insufficient_data — the same string `bunx fit-xmr chart` prints today
-  (`libraries/libxmr/src/commands/chart.js:50-55`). The chart slot is always
+  (`libraries/libxmr/src/commands/chart.js:50-55`). Import
+  `MIN_POINTS` from `@forwardimpact/libxmr` (already exported from
+  `libraries/libxmr/src/index.js:14-21`). The chart slot is always
   populated; the design's three-part output is unconditional.
 - `signal-line` is the comma-separated list of fired rule names
   (`xRule1`, `xRule2`, `xRule3`, `mrRule1`) — exact tokens used in the
@@ -291,11 +320,13 @@ Tests:
   preserved.
 - Marker referencing a missing CSV → stderr carries `refresh-error`, file
   span unchanged, exit 0.
-- **Working-directory independence:** invoke the command with `cwd` set to
-  a nested subdirectory of the temp project and the storyboard path
-  passed relative to that subdir → projectRoot is still discovered, marker
-  CSV paths still resolve, and the output matches the same invocation from
-  the project root.
+- **Working-directory independence:** the temp project root carries a
+  `package.json` (so `Finder.findProjectRoot` anchors there). Invoke the
+  command via `execFileSync` with `cwd` set to a nested subdirectory of
+  that project, passing the storyboard path relative to the project root
+  (e.g. `wiki/storyboard.md`); projectRoot is still discovered, marker
+  CSV paths still resolve, and the output matches the same invocation
+  from the project root.
 
 Verify: `bun test libraries/libwiki/test/cli-refresh.test.js` passes.
 
@@ -493,12 +524,13 @@ if (!existsSync(csvPath)) { cli.usageError(`cannot read CSV "${inputPath}": file
 
 Add the matching imports at the top of each file
 (`import path from "node:path"; import fsAsync from "node:fs/promises";
-import { Finder } from "@forwardimpact/libutil";`). Preserve every
-downstream use of `inputPath` for user-visible strings (`report.source`,
-header text, error messages) so existing output is byte-identical when the
-agent invokes from the project root — the only behavioral change is that
-relative paths now also resolve correctly from any subdirectory.
-`fit-xmr record` is already on this pattern and is unchanged.
+import { Finder } from "@forwardimpact/libutil";`). Use `inputPath` (not
+`csvPath`) wherever the user-supplied string flows into output — every
+existing `report.source = csvPath`, header label, and error message
+keeps `inputPath` so byte-for-byte output stays the same when the agent
+invokes from the project root. Only filesystem reads (`existsSync`,
+`readFileSync`) take the resolved `csvPath`. `fit-xmr record` is already
+on this pattern and is not modified.
 
 Tests: `libraries/libxmr/test/cwd-independence.test.js` exercises each of
 the five commands via `execFileSync('node', [bin, cmd, 'fixtures/x.csv'])`
@@ -532,7 +564,12 @@ alias documented in `libraries/CLAUDE.md:39` does not exist as a script —
 the working name lives in root `package.json:40`). `bun run check` fails
 on a stale catalog.
 
-Verify: `bun run context:fix` then `bun run check` both exit 0.
+Verify: `bun run context:fix` then `bun run check` both exit 0, and
+`grep -c 'Refresh XmR chart blocks' libraries/README.md` returns ≥1
+(confirms the regenerated catalog actually surfaces the new
+`forwardimpact.needs` rows; `bun run check` validates catalog freshness
+but a stale-README scenario where neither side is wrong is still possible
+without the explicit grep).
 
 ### 17. Migrate existing storyboard (wiki repo, post-merge)
 
@@ -544,13 +581,24 @@ repository — **not** in the monorepo PR):
 After the monorepo PR merges, the implementer:
 
 1. `bunx fit-wiki init` (or `cd wiki && git pull` if already cloned).
-2. For each `#### {metric_name}` block under Current Condition, wrap the
-   `**Latest:** …` / fenced chart / `**Signals:** …` triple with
+2. **Reconcile inline narrative.** The current storyboard's `**Signals:**`
+   line carries free-text narrative after the rule list, e.g.
+   `**Signals:** xRule1, mrRule1 — slot-6 outlier on 2026-04-22`. Split
+   each such line: keep `**Signals:** xRule1, mrRule1` in place, then
+   append a `_Note:_ slot-6 outlier on 2026-04-22` line **below** the
+   block. `_Note:_` lines sit outside the marker pair and survive
+   refresh.
+3. For each `#### {metric_name}` block under Current Condition, wrap the
+   `**Latest:** …` / fenced chart / reconciled `**Signals:** …` triple
+   with
    `<!-- xmr:{metric_name}:wiki/metrics/{skill}/2026.csv -->` and
-   `<!-- /xmr -->`.
-3. `bunx fit-wiki refresh wiki/storyboard-2026-M05.md` — confirm the
-   `git diff` shows only formatting reconciliation, not content drift.
-4. `bunx fit-wiki push`.
+   `<!-- /xmr -->`. The `#### {metric_name}` heading and any `_Note:_`
+   line stay outside.
+4. `bunx fit-wiki refresh wiki/storyboard-2026-M05.md` — confirm the
+   `git diff` shows only formatting reconciliation (chart whitespace,
+   trailing-space normalization), not content drift. Re-add `_Note:_`
+   below the block if any narrative was missed in step 2.
+5. `bunx fit-wiki push`.
 
 Past storyboards (`storyboard-2026-M04.md` and earlier) are not touched —
 they are historical records (spec § Scope (in) row 1).
@@ -566,29 +614,42 @@ run.
 | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | The inline credential-helper string is a single shell-quoted argv. Any drift from `wiki-sync.sh`'s exact form silently breaks token-based clone in CI. | `auth_git` constructs the argv as a literal array passed straight to `spawnSync` (no shell), with the helper body identical to `scripts/wiki-sync.sh` lines 19-22. Add a unit test that asserts the argv begins with the two `-c credential.helper=...` flags when `GH_TOKEN` is set. |
 | The wiki repo (`monorepo.wiki.git`) does not exist for first-time downstream installations. `init` against a non-existent remote fails on the underlying `git clone`. | `WikiRepo.ensureCloned` wraps the spawn in a try/catch and returns `{cloned:false, reason}`; `init` prints the diagnostic to stderr and exits 0. New installations create the wiki by pushing the first time, exactly as `wiki-sync.sh` does today (Risks row 3 in design). |
-| Storyboard prose drift between metric blocks. If a marker pair surrounds prose lines that are not pure `Latest/Chart/Signals`, refresh wipes them. | Document the marker contract in `storyboard-template.md` (step 10) — `_Note:_` and any cross-reference text sits **outside** the markers. The migration in step 16 places markers tightly around the regenerated triple. |
+| Storyboard prose drift between metric blocks. If a marker pair surrounds prose lines that are not pure `Latest/Chart/Signals`, refresh wipes them. | Document the marker contract in `storyboard-template.md` (step 10) — `_Note:_` and any cross-reference text sits **outside** the markers. The migration in step 17 places markers tightly around the regenerated triple. |
+| `wiki/storyboard-2026-M05.md` carries inline narrative on the `**Signals:**` line itself (e.g. `**Signals:** xRule1 — slot-6 outlier`); a naive marker wrap leaves the narrative inside the regenerated span and refresh wipes it on next run. | Step 17 adds an explicit reconciliation pass that splits inline narrative into a `_Note:_` line below the block before wrapping markers. Refresh's first run on the migrated file should show only chart-whitespace reconciliation in `git diff`. |
 
 ## Execution
 
-Single agent: **`staff-engineer`**. The plan is one logical unit (one
-package + the four content edits that depend on its CLI surface). No part
-runs in parallel — steps 6-8 (refresh stack) and steps 2-5 (sync stack)
-share no files but share the `bin/fit-wiki.js` wiring in step 9, so the
-gain from splitting them is small relative to coordination cost.
+Two agents:
+
+| Agent              | Steps                                                         |
+| ------------------ | ------------------------------------------------------------- |
+| `staff-engineer`   | 1, 2, 3, 4, 5, 6, 7, 8, 9, 14, 15, 16, 17                     |
+| `technical-writer` | 10, 11, 12, 13                                                |
+
+The four doc-only edits (storyboard template, team-storyboard reference,
+kata-session SKILL, fit-wiki SKILL + wiki-operations guide) route to
+`technical-writer` per kata-plan § Execution recommendation. The justfile
+and catalog regen stay with `staff-engineer` because they're build-system
+edits that need to land in the same commit as the code that switches them.
 
 Sequence:
 
-1. Step 1 — package.json dep (unblocks step 7).
-2. Steps 2-5 — sync stack (`WikiRepo`, `SkillRoster`, `init`, `push`/`pull`).
-3. Steps 6-8 — refresh stack (`MarkerScanner`, `BlockRenderer`, `refresh`).
-4. Step 9 — CLI wiring once all four handlers exist.
-5. Steps 10-14 — content edits (storyboard template, team-storyboard,
-   kata-session SKILL, fit-wiki SKILL + wiki-operations guide, justfile).
-6. Step 15 — `fit-xmr` cwd-independence retrofit. Independent of every
-   prior step (different package, different files); could run in parallel
-   with steps 2-14 if desired, but sequential keeps the PR diff coherent.
-7. Step 16 — `bun run context:fix`, then `bun run check`.
-8. Open `plan(780): …` PR; clean sub-agent review panel of 3 per
+1. Step 1 — package.json dep (unblocks step 7). [staff-engineer]
+2. Steps 2-5 — sync stack. [staff-engineer]
+3. Steps 6-8 — refresh stack. [staff-engineer]
+4. Step 9 — CLI wiring. [staff-engineer]
+5. Steps 10-13 — content edits (markers in template, refresh-as-canonical
+   in team-storyboard and kata-session SKILL, four-command alignment in
+   fit-wiki SKILL + wiki-operations guide). Can run in parallel with
+   steps 2-9 since they only depend on the marker contract and CLI
+   surface, both pinned in this plan. [technical-writer]
+6. Step 14 — justfile flip. [staff-engineer]
+7. Step 15 — `fit-xmr` cwd-independence retrofit. Independent of every
+   prior step (different package, different files); can run in parallel
+   with the libwiki work. [staff-engineer]
+8. Step 16 — `bun run context:fix`, then `bun run check`. Run after all
+   prior steps merge into the working tree. [staff-engineer]
+9. Open `plan(780): …` PR; clean sub-agent review panel of 3 per
    `kata-review` caller protocol.
-9. Step 17 — wiki-repo migration after merge (separate commit on the wiki
-   repo, not gating the monorepo PR).
+10. Step 17 — wiki-repo migration after merge (separate commit on the
+    wiki repo, not gating the monorepo PR). [staff-engineer]
