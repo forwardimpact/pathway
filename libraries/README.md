@@ -129,7 +129,6 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | I need to…                                                                     | Library              |
 | ------------------------------------------------------------------------------ | -------------------- |
 | Add a distributed trace span (OpenTelemetry-style observability)               | `libtelemetry`       |
-| Append a cross-team observation to a wiki summary                              | `libwiki`            |
 | Assemble a macOS app bundle                                                    | `libmacos`           |
 | Buffer high-volume index writes                                                | `libindex`           |
 | Build a gRPC service                                                           | `librpc`             |
@@ -182,6 +181,7 @@ library's `package.json` (`forwardimpact.needs`); regenerate with
 | Run an interactive REPL session                                                | `librepl`            |
 | Run the end-to-end synthetic-data pipeline from a terrain file                 | `libterrain`         |
 | Score a candidate's skills against a job's required skill markers              | `libskill`           |
+| Send a cross-team memo to a teammate's wiki inbox                              | `libwiki`            |
 | Serialize SHACL shapes                                                         | `libgraph`           |
 | Sign a JWT                                                                     | `libsecret`          |
 | Store files to local, S3, or Supabase                                          | `libstorage`         |

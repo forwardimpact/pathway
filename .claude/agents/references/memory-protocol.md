@@ -63,16 +63,19 @@ open with a `### Decision` subheading containing:
 | **Chosen**       | What action was selected and which skill was invoked   |
 | **Rationale**    | Why this action over the alternatives                  |
 
-## After Each Run
+## Each Run
 
-Update `wiki/{agent}.md` with:
+Read the `## Message Inbox` (first H2 of the file) for incoming memos from
+teammates. Triage each before working: act on it, promote it to MEMORY.md, or
+remove if obsolete.
+
+After the run, update `wiki/{agent}.md` with:
 
 1. Actions taken
 2. Open blockers
 
-Read the `## Message Inbox` (top of the file) for incoming memos from
-teammates. To send observations to other agents, use `fit-wiki memo` rather
-than editing this file's inbox by hand.
+To send memos to other agents, use `fit-wiki memo --from <you> --to <recipient>
+--message "..."` rather than hand-editing any inbox.
 
 ## Summary Contract
 
@@ -81,14 +84,22 @@ Each `wiki/<agent>.md` conforms to a mechanically-checkable contract.
 **Permitted sections (in order):**
 
 1. `# {Agent Title} — Summary` (H1, exactly one)
-2. `**Last run**:` line — date and one-line description
-3. `## Message Inbox` — incoming agent-to-agent callouts not yet promoted to
-   the priority index. Begins with the marker `<!-- memo:inbox -->` directly
-   under the heading; `fit-wiki memo` writes new bullets immediately after it.
-   Placed near the top so on-boot scanning surfaces it before state-heavy
-   sections.
+2. `**Last run**:` line — date and one-line description (may be followed by
+   directly attached caveats or blockquotes about that run)
+3. `## Message Inbox` — incoming memos from teammates not yet promoted to
+   the priority index. **MUST be the first H2 in the file** so on-boot
+   scanning surfaces it before state-heavy sections. Begins with the marker
+   `<!-- memo:inbox -->` directly under the heading; `fit-wiki memo` writes
+   new bullets immediately after it (newest-first within the section). When
+   the inbox is empty, leave a single line `- *No new messages.*` under the
+   marker so the section reads cleanly.
 4. Agent-specific state section(s) using H2
 5. `## Open Blockers` — currently-blocking items only
+
+**Bullet format:** `- YYYY-MM-DD from **<sender>**: <message>`. The bold name
+is the SENDER; the file owner is the RECIPIENT. Newest memos sort first;
+undated legacy bullets (from the pre-`fit-wiki memo` migration) sort to the
+bottom of the section.
 
 **Excluded from summaries** (with correct homes):
 

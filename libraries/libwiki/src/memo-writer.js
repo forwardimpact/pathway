@@ -17,7 +17,7 @@ export function writeMemo(
   }
 
   const flatMessage = message.replace(/\n/g, " ");
-  const bullet = `- ${today} **${sender}**: ${flatMessage}`;
+  const bullet = `- ${today} from **${sender}**: ${flatMessage}`;
 
   lines.splice(markerIndex + 1, 0, bullet);
   fs.writeFileSync(summaryPath, lines.join("\n"));

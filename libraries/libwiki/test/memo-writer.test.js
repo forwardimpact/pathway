@@ -42,7 +42,10 @@ describe("writeMemo", () => {
 
     const lines = fs.written.split("\n");
     assert.equal(lines[1], MEMO_INBOX_MARKER);
-    assert.equal(lines[2], "- 2026-05-02 **technical-writer**: audit d642ff0c");
+    assert.equal(
+      lines[2],
+      "- 2026-05-02 from **technical-writer**: audit d642ff0c",
+    );
   });
 
   test("returns missing-marker when marker absent", () => {
@@ -76,7 +79,7 @@ describe("writeMemo", () => {
     const lines = fs.written.split("\n");
     assert.equal(
       lines[2],
-      "- 2026-05-02 **technical-writer**: line one line two line three",
+      "- 2026-05-02 from **technical-writer**: line one line two line three",
     );
   });
 });

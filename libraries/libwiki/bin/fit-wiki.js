@@ -16,8 +16,7 @@ const definition = {
   commands: [
     {
       name: "memo",
-      description:
-        "Append a cross-team observation to a teammate's wiki summary",
+      description: "Send a cross-team memo into a teammate's Message Inbox",
       options: {
         from: {
           type: "string",
@@ -27,11 +26,11 @@ const definition = {
         to: {
           type: "string",
           description:
-            'Target agent name, or "all" to broadcast to every agent',
+            'Target agent name, or "all" to broadcast (sender is skipped)',
         },
         message: {
           type: "string",
-          description: "Observation text",
+          description: "Memo text",
         },
         "wiki-root": {
           type: "string",
@@ -57,7 +56,7 @@ const definition = {
       title: "Wiki Operations",
       url: "https://www.forwardimpact.team/docs/libraries/wiki-operations/index.md",
       description:
-        "Send cross-team observations, discover agents, and manage wiki markers.",
+        "Send cross-team memos, discover agents, and manage wiki markers.",
     },
   ],
 };
