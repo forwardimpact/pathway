@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libconfig",
-  "version": "0.1.73",
+  "version": "0.1.74",
   "description": "Environment-aware loading of application settings for services, CLIs, and extensions.",
   "keywords": [
     "config",

@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libmcp",
-  "version": "0.1.5",
+  "version": "0.1.6",
   "description": "Config-driven gRPC-to-MCP tool registration — agents see protobuf services as MCP tools.",
   "keywords": [
     "mcp",

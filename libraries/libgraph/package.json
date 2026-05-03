@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libgraph",
-  "version": "0.1.68",
+  "version": "0.1.69",
   "description": "RDF triple store with named ontologies and SHACL serialization — schema-aware graph inference for agents.",
   "keywords": [
     "rdf",

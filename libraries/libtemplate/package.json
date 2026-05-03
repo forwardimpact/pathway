@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libtemplate",
-  "version": "0.2.8",
+  "version": "0.2.9",
   "description": "Mustache template loader with project-level override directories for agent-rendered content.",
   "keywords": [
     "template",

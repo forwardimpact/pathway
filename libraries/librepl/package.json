@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/librepl",
-  "version": "0.1.10",
+  "version": "0.1.11",
   "description": "Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in `--help`.",
   "keywords": [
     "repl",

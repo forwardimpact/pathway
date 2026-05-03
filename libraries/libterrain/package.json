@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libterrain",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.",
   "keywords": [
     "synthetic",

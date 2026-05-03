@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libeval",
-  "version": "0.1.26",
+  "version": "0.1.27",
   "description": "Agent evaluation: collect Claude Code traces, run agent loops, supervise multi-step workflows.",
   "keywords": [
     "eval",

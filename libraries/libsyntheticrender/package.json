@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsyntheticrender",
-  "version": "0.1.18",
+  "version": "0.1.19",
   "description": "Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).",
   "keywords": [
     "synthetic",

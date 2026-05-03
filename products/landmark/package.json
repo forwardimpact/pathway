@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/landmark",
-  "version": "0.1.9",
+  "version": "0.1.10",
   "description": "Analysis and recommendation layer on top of Map activity data.",
   "keywords": [
     "engineering",

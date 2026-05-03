@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libsupervise",
-  "version": "0.1.21",
+  "version": "0.1.22",
   "description": "Process supervision (restart policies, log rotation) driven by JSON daemon manifests agents can read and tune; built on `libconfig` for settings loading.",
   "keywords": [
     "supervisor",

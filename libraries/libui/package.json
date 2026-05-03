@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libui",
-  "version": "1.1.8",
+  "version": "1.2.0",
   "description": "Agent-friendly web surfaces — SPA routing, reactive state, and route-to-CLI bindings that share handler logic across web and terminal.",
   "keywords": [
     "ui",

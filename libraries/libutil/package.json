@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libutil",
-  "version": "0.1.77",
+  "version": "0.1.78",
   "description": "Cross-cutting utilities for agents and services: retry with backoff, hashing, token counting, project finder, tarball downloader.",
   "keywords": [
     "util",
