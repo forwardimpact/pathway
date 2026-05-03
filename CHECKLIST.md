@@ -254,10 +254,55 @@ required.
 - **Trigger** — a specific moment that creates the job, not a role description.
 - **Jobs** — "Help me {progress}." statements, each pointing to a product
   (→ **Product**). Two per outcome.
-- **Competes With** — what currently gets hired instead.
+- **Competes With** — what currently gets hired instead; semicolon-delimited.
 - **Forces** — four forces governing adoption:
   - **Push** — what makes the status quo painful.
-  - **Pull** — what makes the new solution attractive.
+  - **Pull** — what makes the new solution attractive (desired future state,
+    not product features).
   - **Habit** — current behavior resisting change.
   - **Anxiety** — fear blocking adoption.
-- **Fired When** — condition under which the product gets abandoned.
+- **Fired When** — conditions under which the product gets abandoned; include
+  at least one environmental shift beyond product failure.
+
+### Properties of Good JTBD Entries
+
+Drawing from Christensen and Moesta's methodology, effective JTBD entries share
+these properties:
+
+1. **Progress, not features.** A job describes the progress a person seeks, not
+   the product they use. "Help me make staffing decisions I can defend" is a
+   job. "Help me run what-if staffing scenarios" is a feature request wearing
+   job syntax. If removing the product arrow would make the statement
+   meaningless, the job is too solution-shaped.
+
+2. **Trigger is a moment, not a role.** The trigger should be a specific,
+   situational event — not a description of who the persona is. "Starting the
+   third project that needs the same plumbing" is a moment. "Building systems
+   consumed by both humans and agents" is a role description. A good trigger
+   answers "what just happened?" not "who is this person?"
+
+3. **Competing hires include nonconsumption.** Every Competes With list must
+   include at least one "hire nothing" option — tolerating ambiguity, going in
+   unprepared, skipping evaluation. Nonconsumption is usually the real
+   incumbent. Omitting it inflates the product's perceived necessity.
+
+4. **Pull describes a desired future, not a feature list.** The pull force is
+   what the person imagines their life looking like after they switch — not the
+   product's capability inventory. "Confidence that a staffing change
+   strengthens the team" is a future state. "System-level team views and
+   what-if scenarios" is a feature list.
+
+5. **Forces are asymmetric.** In real adoption decisions, one force often
+   dominates. If all four forces feel equally weighted across every entry,
+   the analysis was likely filled in from a template rather than reconstructed
+   from a decision story. Let the dominant force carry more weight.
+
+6. **Fired When includes the world, not just the product.** Products get
+   abandoned when the environment shifts — a reorg, a budget cut, a tool ban —
+   not only when the product itself degrades. Each Fired When should name at
+   least one external condition.
+
+7. **Field-validated, not desk-authored.** JTBD entries are hypotheses until
+   confirmed by customer struggle stories. Mark entries as validated once they
+   survive contact with real interviews. An entry that surprises the product
+   team is more likely correct than one that confirms existing assumptions.
