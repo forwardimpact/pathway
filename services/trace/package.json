@@ -2,7 +2,13 @@
   "name": "@forwardimpact/svctrace",
   "version": "0.1.40",
   "description": "OpenTelemetry span ingestion and storage over gRPC — observable agent operations.",
-  "keywords": ["trace", "opentelemetry", "spans", "grpc", "agent"],
+  "keywords": [
+    "trace",
+    "opentelemetry",
+    "spans",
+    "grpc",
+    "agent"
+  ],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -11,6 +17,12 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Collect and store OpenTelemetry spans over gRPC"
+    ]
+  },
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -38,12 +50,6 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
-  },
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Collect and store OpenTelemetry spans over gRPC"
-    ]
   },
   "publishConfig": {
     "access": "public"

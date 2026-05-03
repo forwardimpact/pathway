@@ -2,7 +2,13 @@
   "name": "@forwardimpact/svcgraph",
   "version": "0.1.67",
   "description": "Simple RDF knowledge graph over gRPC for products.",
-  "keywords": ["graph", "rdf", "knowledge", "grpc", "agent"],
+  "keywords": [
+    "graph",
+    "rdf",
+    "knowledge",
+    "grpc",
+    "agent"
+  ],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -11,6 +17,12 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Expose RDF knowledge graphs over gRPC"
+    ]
+  },
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -38,12 +50,6 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
-  },
-  "forwardimpact": {
-    "capability": "agent-retrieval",
-    "needs": [
-      "Expose RDF knowledge graphs over gRPC"
-    ]
   },
   "publishConfig": {
     "access": "public"

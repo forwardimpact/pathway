@@ -2,7 +2,13 @@
   "name": "@forwardimpact/svcpathway",
   "version": "0.1.12",
   "description": "Engineering standard queries over gRPC — career paths and agent profiles for products.",
-  "keywords": ["pathway", "career", "derivation", "grpc", "agent"],
+  "keywords": [
+    "pathway",
+    "career",
+    "derivation",
+    "grpc",
+    "agent"
+  ],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -11,6 +17,12 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "forwardimpact": {
+    "capability": "agent-capability",
+    "needs": [
+      "Serve engineering standard queries to products over gRPC"
+    ]
+  },
   "type": "module",
   "main": "index.js",
   "bin": {
@@ -41,12 +53,6 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
-  },
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Serve engineering standard queries to products over gRPC"
-    ]
   },
   "publishConfig": {
     "access": "public"

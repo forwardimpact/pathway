@@ -2,7 +2,13 @@
   "name": "@forwardimpact/svcmcp",
   "version": "0.1.5",
   "description": "Unified MCP server — exposes gRPC backend services as agent-consumable tools.",
-  "keywords": ["mcp", "tools", "protocol", "http", "agent"],
+  "keywords": [
+    "mcp",
+    "tools",
+    "protocol",
+    "http",
+    "agent"
+  ],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -11,6 +17,12 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Expose backend services as MCP tools over HTTP"
+    ]
+  },
   "type": "module",
   "main": "./index.js",
   "bin": {
@@ -39,12 +51,6 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
-  },
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Expose backend services as MCP tools over HTTP"
-    ]
   },
   "publishConfig": {
     "access": "public"
