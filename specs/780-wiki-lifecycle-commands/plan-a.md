@@ -53,7 +53,7 @@ Construct with `new WikiRepo({ wikiDir, parentDir })`. Public methods:
 | `fetch()`                        | `auth_git -C wikiDir fetch origin master`.                                                                                                                                                                         |
 | `isClean()`                      | `true` when `git -C wikiDir status --porcelain` produces no output.                                                                                                                                                |
 | `pull()`                         | `fetch()`, then `git -C wikiDir rebase origin/master`. On rebase failure: `rebase --abort` and throw a `WikiPullConflict` error carrying the git stderr. Caller maps to non-zero exit (decision W5).               |
-| `commitAndPush(message)`         | Order: `git -C wikiDir add -A` → `git diff --cached --quiet` (if exit 0, return `{pushed:false, reason:'clean'}`, criterion #7) → `git commit -m message` → `fetch()` → `git rebase origin/master`; on rebase failure: `git rebase --abort` then `git merge origin/master -X ours --no-edit` (decision W3); finally `auth_git push origin master`. Fetch sits between commit and rebase so the local commit exists when the rebase runs. |
+| `commitAndPush(message)`         | Order: short-circuit via `isClean()` first — return `{pushed:false, reason:'clean'}` (criterion #7); otherwise `git -C wikiDir add -A` → `git commit -m message` → `fetch()` → `git rebase origin/master`; on rebase failure: `git rebase --abort` then `git merge origin/master -X ours --no-edit` (decision W3); finally `auth_git push origin master`. Fetch sits between commit and rebase so the local commit exists when the rebase runs. |
 
 `auth_git` is a private helper that prefixes the git argv with two
 `-c` flags — the first clears any inherited helper (`-c credential.helper=`),
@@ -128,12 +128,15 @@ Files created:
 - `libraries/libwiki/test/cli-sync.test.js`
 
 Single module exports `runPushCommand` and `runPullCommand`. Each constructs
-a `WikiRepo` from `Finder`-resolved `projectRoot`, calls
-`repo.commitAndPush('wiki: update from session')` or `repo.pull()` respectively,
-and prints a one-line outcome to stdout. `runPullCommand` catches
-`WikiPullConflict` and exits non-zero with the stderr line
+a `WikiRepo` from `Finder`-resolved `projectRoot`, calls `repo.inheritIdentity()`
+first (matching `scripts/wiki-sync.sh:41-42` which sets identity on every
+invocation, not just at clone time — important when the wiki was cloned
+outside `init`), then calls `repo.commitAndPush('wiki: update from session')`
+or `repo.pull()` respectively, and prints a one-line outcome to stdout.
+`runPullCommand` catches `WikiPullConflict` and exits non-zero with the
+stderr line
 `fit-wiki pull: rebase conflict — local divergence detected; resolve manually or push first`
-(matches `scripts/wiki-sync.sh` line 53).
+(matches `scripts/wiki-sync.sh` line 54).
 
 Tests use the same bare-repo harness as `WikiRepo` tests:
 
@@ -171,37 +174,46 @@ Files created:
 
 Single `renderBlock({ metric, csvPath, projectRoot, fs })` function (`fs`
 optional, defaults to `node:fs`). Resolves `csvPath` against `projectRoot`,
-reads the CSV, calls `libxmr.analyze`, filters `report.metrics` to the named
-metric, then returns an array of strings (one per line) matching the design
-§ Marker contract exactly:
+reads the CSV, calls `libxmr.analyze`, finds `report.metrics` entry by name
+(throw `BlockRenderError('metric-not-found')` when absent so the per-block
+try/catch surfaces a diagnostic instead of a TypeError), then returns an
+array of strings (one per line) matching the design § Marker contract
+exactly:
 
 ```
-['**Latest:** {latest.value} · **Status:** {status}',
+['**Latest:** {latestValue} · **Status:** {status}',
  '',
  '```',
- ...renderChart(...).split('\n'),
+ ...chartText.split('\n'),
  '```',
  '',
  '**Signals:** {signal-line}']
 ```
 
+Where:
+
+- `latestValue` is `m.latest?.value ?? m.values[m.values.length - 1] ?? '—'`.
+  `libxmr.analyze` omits the `latest` field for `insufficient_data`
+  (`libraries/libxmr/src/analyze.js:35-49`), so the fallback chain matches the
+  storyboard convention (`**Latest:** —` for empty series).
+- `chartText` is `renderChart(m.values, m.stats, m.signals)` for predictable
+  and signals_present, and the literal line
+  `Insufficient data: ${m.n} points (need at least ${MIN_POINTS}).`
+  for insufficient_data — the same string `bunx fit-xmr chart` prints today
+  (`libraries/libxmr/src/commands/chart.js:50-55`). The chart slot is always
+  populated; the design's three-part output is unconditional.
+- `signal-line` is the comma-separated list of fired rule names
+  (`xRule1`, `xRule2`, `xRule3`, `mrRule1`) — exact tokens used in the
+  existing storyboard convention (`storyboard-template.md` line 48).
+  Empty list (or `m.signals` undefined for insufficient_data) renders as
+  `—` (em dash).
+
 The array has no leading or trailing blank line — those are owned by the
-caller (`refresh`) and live outside the marker pair. `signal-line` is the
-comma-separated list of fired rule names (`xRule1`, `xRule2`, `xRule3`,
-`mrRule1`) — exact tokens used in the existing storyboard convention
-(`storyboard-template.md` line 48). Empty list renders as `—` (em dash).
+caller (`refresh`) and live outside the marker pair.
 
-`status` is whatever `libxmr.analyze` returns verbatim — including
-`insufficient_data` (decision: status semantics defer to libxmr per design
-§ Refresh flow). The output template above is unconditional; for
-`insufficient_data` the chart slot carries libxmr's
-`Insufficient data: N points (need at least MIN_POINTS).` line wrapped in
-the same fence (matches what `bunx fit-xmr chart` prints today, see
-`libraries/libxmr/src/commands/chart.js` line 50-55).
-
-On any error from `libxmr.analyze` or chart rendering, throw a tagged
-`BlockRenderError(reason)`. The `refresh` command catches per-block
-(Risks row 1).
+On any error from `libxmr.analyze` or chart rendering (including the
+`metric-not-found` case above), throw a tagged `BlockRenderError(reason)`.
+The `refresh` command catches per-block (Risks row 1).
 
 Tests use canned CSV strings (15 stable points → predictable, 15 with one
 outlier → signals_present, 5 points → insufficient_data) and assert the
@@ -250,19 +262,30 @@ Files modified:
 - `libraries/libwiki/src/index.js`
 
 `bin/fit-wiki.js`: extend the `commands` array on the `definition` with four
-new entries (`refresh`, `init`, `push`, `pull`) — each with a `description`,
-the named option set used by the command (`--wiki-root` shared by all;
-`--skills-dir` for init), and `args` for `refresh`'s positional storyboard
-path. Extend the `COMMANDS` dispatch map with the four new handlers. Update
-the `examples` block to include one canonical invocation per command.
+new entries:
+
+| Command   | `args` (libcli string) | Options                        |
+| --------- | ---------------------- | ------------------------------ |
+| `refresh` | `"<storyboard-path>"`  | _(none)_                       |
+| `init`    | _(none)_               | `--wiki-root`, `--skills-dir`  |
+| `push`    | _(none)_               | `--wiki-root`                  |
+| `pull`    | _(none)_               | `--wiki-root`                  |
+
+Use the libcli string-shaped `args` field, matching `libxmr/bin/fit-xmr.js`
+convention (`args: "<csv-path>"`). `refresh` does not take `--wiki-root`
+because the storyboard path is positional and CSV paths resolve against
+`projectRoot` (Finder), not the wiki root. Extend the `COMMANDS` dispatch
+map with the four new handlers. Update the `examples` block to include one
+canonical invocation per command.
 
 `src/index.js`: add `scanMarkers`, `renderBlock`, `WikiRepo`, `listSkills`
 to the re-export block. Preserve every existing export verbatim
 (`writeMemo`, `listAgents`, `insertMarkers`, `MEMO_INBOX_MARKER`,
 `OBSERVATIONS_HEADING`, `BROADCAST_TARGET`).
 
-Verify: `bunx fit-wiki --help` lists all five commands; `bunx fit-wiki refresh
---help` shows the storyboard positional and `--wiki-root`.
+Verify: `bunx fit-wiki --help` lists `memo`, `refresh`, `init`, `push`,
+`pull` (5 total — the existing `memo` plus the 4 new commands);
+`bunx fit-wiki refresh --help` shows the `<storyboard-path>` positional.
 
 ### 10. Update storyboard template
 
@@ -327,11 +350,40 @@ Two changes:
   with `bunx fit-wiki refresh`. Drop the in-line "do not duplicate μ, UPL, LPL"
   prose — `team-storyboard.md` already carries it.
 
-Verify: `grep -c 'fit-wiki refresh' .claude/skills/kata-session/SKILL.md`
-returns ≥1; `grep -c 'paste the resulting X+mR chart' .claude/skills/kata-session/SKILL.md`
-returns 0 (the manual-paste instruction is gone).
+Verify: the rewritten facilitator process step 4 references
+`bunx fit-wiki refresh` (positive assertion via `grep -A 8 'Run XmR analysis'
+.claude/skills/kata-session/SKILL.md | grep 'fit-wiki refresh'` returning a
+match), and the read-do checklist item that previously instructed manual
+chart rendering now references the same command.
 
-### 13. Switch justfile recipes
+### 13. Update `fit-wiki` skill and wiki-operations guide
+
+Files modified:
+
+- `.claude/skills/fit-wiki/SKILL.md`
+- `websites/fit/docs/libraries/wiki-operations/index.md`
+
+`libraries/CLAUDE.md` § "CLIs and progressive documentation" requires that
+every CLI ship with three aligned artifacts: the user guide, the skill, and
+the CLI `--help`. Step 9 covers the help text; this step covers the other
+two for the four new commands.
+
+`SKILL.md`: under `## Commands`, add four sub-sections (`### refresh`,
+`### init`, `### push`, `### pull`) following the `### memo` template —
+one-sentence purpose, one fenced `npx fit-wiki <cmd>` example, one bullet
+on the surrounding workflow context (e.g., refresh is the storyboard
+maintenance command; push/pull are hook-ready). Update the front-matter
+`description` to mention storyboard refresh and wiki sync alongside memos.
+
+`wiki-operations/index.md`: add a "Refresh storyboards", "Init the wiki",
+and "Sync (push/pull)" subsection next to the existing memo content. Use
+the same audience voice (external agent / engineer using `npx fit-wiki`).
+
+Verify: `grep -c '### refresh\|### init\|### push\|### pull' .claude/skills/fit-wiki/SKILL.md`
+returns 4; `grep -c 'fit-wiki refresh\|fit-wiki init\|fit-wiki push\|fit-wiki pull' websites/fit/docs/libraries/wiki-operations/index.md`
+returns ≥4.
+
+### 14. Switch justfile recipes
 
 Files modified:
 
@@ -355,7 +407,7 @@ Verify: `grep -E 'wiki-(pull|push):' -A 1 justfile` shows `bunx fit-wiki`
 (criterion #11). `just wiki-pull` and `just wiki-push` succeed end-to-end
 when run from the monorepo root with the wiki cloned.
 
-### 14. Regenerate library catalog
+### 15. Regenerate library catalog
 
 Files modified:
 
@@ -378,7 +430,7 @@ fails on a stale catalog.
 
 Verify: `bun run context:fix` then `bun run check` both exit 0.
 
-### 15. Migrate existing storyboard (wiki repo, post-merge)
+### 16. Migrate existing storyboard (wiki repo, post-merge)
 
 Files modified (separate commit, in the `forwardimpact/monorepo.wiki.git`
 repository — **not** in the monorepo PR):
@@ -425,9 +477,10 @@ Sequence:
 2. Steps 2-5 — sync stack (`WikiRepo`, `SkillRoster`, `init`, `push`/`pull`).
 3. Steps 6-8 — refresh stack (`MarkerScanner`, `BlockRenderer`, `refresh`).
 4. Step 9 — CLI wiring once all four handlers exist.
-5. Steps 10-13 — content edits (templates, justfile, skill text).
-6. Step 14 — `bun run context:fix`, then `bun run check`.
+5. Steps 10-14 — content edits (storyboard template, team-storyboard,
+   kata-session SKILL, fit-wiki SKILL + wiki-operations guide, justfile).
+6. Step 15 — `bun run context:fix`, then `bun run check`.
 7. Open `plan(780): …` PR; clean sub-agent review panel of 3 per
    `kata-review` caller protocol.
-8. Step 15 — wiki-repo migration after merge (separate commit on the wiki
+8. Step 16 — wiki-repo migration after merge (separate commit on the wiki
    repo, not gating the monorepo PR).
