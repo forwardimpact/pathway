@@ -8,10 +8,11 @@
 
 ## The Problem
 
-Organizations force AI adoption onto engineers without regard for well-being,
-quality of their output, or sustainability—creating disharmony between
-leadership, engineers, and the AI strategy. What's missing is a human-centered
-approach where AI empowers people to do their best work.
+Engineering organizations lack shared definitions of quality. Promotions stall
+because managers can't point to what 'senior' means. Staffing decisions rely on
+gut feel. The only available metrics single out individuals. Engineers can't see
+what's expected of them, and coding agents follow generic practices instead of
+organizational standards.
 
 ## The Goal
 
@@ -21,19 +22,32 @@ approach where AI empowers people to do their best work.
 >
 > — W. Edwards Deming
 
-## The Vision
+## Who Hires These Products
 
-Six products raise quality, increase output, and bring pride of workmanship to
-engineering teams:
+### Engineering Leaders
 
-| Product      | Question it answers                               |
-| ------------ | ------------------------------------------------- |
-| **Map**      | What does good engineering look like here?        |
-| **Pathway**  | Where does my career path go from here?           |
-| **Guide**    | How do I find my bearing?                         |
-| **Landmark** | What milestones has my engineering reached?       |
-| **Summit**   | Is this team supported to reach peak performance? |
-| **Outpost**  | Am I prepared for what's ahead today?             |
+Define what good engineering looks like, staff teams to succeed, and measure
+outcomes without blaming individuals.
+
+| Job                              | Products         |
+| -------------------------------- | ---------------- |
+| Define the Engineering Standard  | Map, Pathway     |
+| Staff Teams to Succeed           | Pathway, Summit  |
+| Measure Engineering Outcomes     | Landmark         |
+
+### Empowered Engineers
+
+Understand expectations, find growth areas, prepare for the day ahead, and
+equip and trust their agent teams — grounded in their organization's
+agent-aligned engineering standard.
+
+| Job                         | Products        |
+| --------------------------- | --------------- |
+| Understand Expectations     | Pathway         |
+| Find Growth Areas           | Guide, Landmark |
+| Trust Agent Output          | Guide, Pathway  |
+| Equip Aligned Agent Teams   | Pathway         |
+| Be Prepared and Productive  | Outpost         |
 
 ## Quick Start
 
