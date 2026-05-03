@@ -46,11 +46,23 @@ files.
 
 ## Getting Started
 
+### Standard layer
+
+Define your agent-aligned engineering standard and validate it.
+
 ```sh
 npm install @forwardimpact/map
 npx fit-map init
 npx fit-map validate
 ```
+
+### Activity layer
+
+The activity layer adds operational signals — organization people, GitHub
+activity, and GetDX snapshots — on top of Supabase. Set up Supabase and run the
+ingestion commands by following the leadership guide:
+
+[Set up the activity layer →](/docs/getting-started/leadership/map/#activity-install-the-supabase-cli)
 
 <div class="grid">
 
