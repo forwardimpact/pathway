@@ -28,64 +28,36 @@ const SKIP_DIRS = new Set([
 const LAYERS = [
   {
     id: "L1",
-    what: [
-      {
-        name: "CLAUDE.md",
-        maxLines: 192,
-        maxWords: 896,
-        find: findClaudeMdFiles,
-      },
-      {
-        name: "JTBD.md",
-        maxLines: 256,
-        maxWords: 1536,
-        find: async () => ["JTBD.md"],
-      },
-    ],
+    maxLines: 192,
+    maxWords: 896,
+    files: [{ name: "CLAUDE.md", find: findClaudeMdFiles }],
   },
   {
     id: "L2",
-    what: [
-      {
-        name: "CONTRIBUTING.md",
-        maxLines: 256,
-        maxWords: 1536,
-        find: async () => ["CONTRIBUTING.md"],
-      },
+    maxLines: 256,
+    maxWords: 1536,
+    files: [
+      { name: "CONTRIBUTING.md", find: async () => ["CONTRIBUTING.md"] },
+      { name: "JTBD.md", find: async () => ["JTBD.md"] },
     ],
   },
   {
     id: "L3",
-    what: [
-      {
-        name: "agent profile",
-        maxLines: 64,
-        maxWords: 384,
-        find: findAgentProfiles,
-      },
-    ],
+    maxLines: 64,
+    maxWords: 384,
+    files: [{ name: "agent profile", find: findAgentProfiles }],
   },
   {
     id: "L4",
-    what: [
-      {
-        name: "skill procedure",
-        maxLines: 192,
-        maxWords: 1280,
-        find: findSkillProcedures,
-      },
-    ],
+    maxLines: 192,
+    maxWords: 1280,
+    files: [{ name: "skill procedure", find: findSkillProcedures }],
   },
   {
     id: "L5",
-    what: [
-      {
-        name: "skill reference",
-        maxLines: 128,
-        maxWords: 768,
-        find: findSkillReferences,
-      },
-    ],
+    maxLines: 128,
+    maxWords: 768,
+    files: [{ name: "skill reference", find: findSkillReferences }],
   },
 ];
 
@@ -203,10 +175,10 @@ const checkFile = async (path, { id, name, maxLines, maxWords }) => {
     fail(`${path} has ${words} words (max ${maxWords}, ${id} ${name})`);
 };
 
-for (const layer of LAYERS) {
-  for (const entry of layer.what) {
-    const files = await entry.find();
-    for (const f of files) await checkFile(f, { id: layer.id, ...entry });
+for (const { id, maxLines, maxWords, files: entries } of LAYERS) {
+  for (const { name, find } of entries) {
+    const files = await find();
+    for (const f of files) await checkFile(f, { id, name, maxLines, maxWords });
   }
 }
 

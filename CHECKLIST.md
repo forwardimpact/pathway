@@ -46,11 +46,11 @@ attribution depends on the separation.
    — Claude Code's own system prompt when a contributor runs `claude`, libeval's
    system prompt when an agent workflow runs.
 1. **CLAUDE.md** — project identity: goal, users, products, distribution, doc
-   map. Auto-loaded via `settingSources: ["project"]`. **JTBD.md** — jobs each
-   persona hires products to do. Referenced from CLAUDE.md § Users; read on
-   demand.
+   map. Auto-loaded via `settingSources: ["project"]`.
 2. **CONTRIBUTING.md** — contribution standards: invariants, technical rules,
-   quality gates, git, security. Referenced by L1; read on demand.
+   quality gates, git, security. Referenced by L1; read on demand. **JTBD.md**
+   — jobs each persona hires products to do. Referenced from CLAUDE.md § Users;
+   read on demand.
 3. **Agent profile** — persona, voice, skill routing, scope constraints.
    Auto-loaded every run.
 4. **Skill procedure (SKILL.md)** — decision-making, sequencing, rationale.
@@ -97,14 +97,14 @@ Auto-loaded layers consume context on every run; keep them tight so contributors
 spend tokens on the task, not boilerplate. Limits enforced by
 `scripts/check-instructions.mjs`:
 
-| Layer                    | Target      | Loaded           |
-| ------------------------ | ----------- | ---------------- |
-| L1 CLAUDE.md & JTBD.md   | ≤ 192 lines | auto / on demand |
-| L2 CONTRIBUTING.md       | ≤ 256 lines | on demand        |
-| L3 Agent profile         | ≤ 64 lines  | auto (every run) |
-| L4 SKILL.md              | ≤ 192 lines | auto (per skill) |
-| L5 Skill reference file  | ≤ 128 lines | on demand        |
-| L6 Checklist (per block) | ≤ 9 items   | auto (per skill) |
+| Layer                        | Target      | Loaded           |
+| ---------------------------- | ----------- | ---------------- |
+| L1 CLAUDE.md                 | ≤ 192 lines | auto             |
+| L2 CONTRIBUTING.md & JTBD.md | ≤ 256 lines | on demand        |
+| L3 Agent profile             | ≤ 64 lines  | auto (every run) |
+| L4 SKILL.md                  | ≤ 192 lines | auto (per skill) |
+| L5 Skill reference file      | ≤ 128 lines | on demand        |
+| L6 Checklist (per block)     | ≤ 9 items   | auto (per skill) |
 
 Same principle across layers: keep the main file to its concern; push supporting
 material into references or linked docs. L6 is gated by item count, not lines —
