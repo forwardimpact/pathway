@@ -3,8 +3,6 @@ title: Agent-Friendly Surfaces
 description: Build a product with both a web UI and a CLI that share handler logic through a single InvocationContext contract — agent-friendly by design.
 ---
 
-# Agent-Friendly Surfaces
-
 Some products serve the same capability through two agent-friendly surfaces — a
 web app for browsers and a CLI for terminals. Without a shared contract the
 handler logic diverges: the web page reads route params and query strings, the

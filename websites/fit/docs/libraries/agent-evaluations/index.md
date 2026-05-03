@@ -3,8 +3,6 @@ title: Agent Evaluations
 description: Run agent-as-judge evaluations in CI with fit-eval supervise and inspect the resulting traces with fit-trace.
 ---
 
-# Agent Evaluations
-
 `fit-eval` is the plumbing for agent-as-judge evaluations. You write a **judge
 agent** and a **target agent**, then `fit-eval supervise` runs them together in
 a relay loop: the judge sees the target's work turn-by-turn and signals the

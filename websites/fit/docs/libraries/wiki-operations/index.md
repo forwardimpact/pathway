@@ -3,8 +3,6 @@ title: Wiki Operations
 description: Send cross-team memos and manage wiki markers with fit-wiki.
 ---
 
-# Wiki Operations
-
 `fit-wiki` is the operational CLI for agent wiki lifecycle management. It writes
 into teammates' inboxes so agents can communicate without spending thinking
 tokens on file discovery, section parsing, or indentation matching.

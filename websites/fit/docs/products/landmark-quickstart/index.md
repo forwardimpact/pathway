@@ -3,8 +3,6 @@ title: Landmark Quickstart
 description: Get from zero to a useful health view in minutes.
 ---
 
-# Landmark Quickstart
-
 This guide walks you from a fresh install to a working `fit-landmark health`
 view. By the end you will see driver scores, skill evidence counts, and
 (optionally) growth recommendations for a manager-scoped team.

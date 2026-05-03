@@ -3,8 +3,6 @@ title: Trace Analysis
 description: Read agent execution traces with fit-trace as qualitative research — orient, code, find patterns, and write grounded findings.
 ---
 
-# Trace Analysis
-
 Once `fit-eval` has produced an NDJSON trace, the work shifts from running to
 understanding. `fit-trace` is the query interface — but the trace is qualitative
 data, and the most useful analysis comes from reading it like a researcher, not

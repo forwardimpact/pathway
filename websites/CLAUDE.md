@@ -1,69 +1,97 @@
 # Websites
 
-Two websites are published from this monorepo, both built by the `fit-doc` CLI
-(see the [fit-doc internals](fit/docs/internals/fit-doc/index.md) for commands,
-front matter, and auto-generated outputs).
+Two sites built by `fit-doc`
+([internals](fit/docs/internals/fit-doc/index.md)).
 
 | Site                       | Source           | Domain                   |
 | -------------------------- | ---------------- | ------------------------ |
 | Forward Impact Engineering | `websites/fit/`  | `www.forwardimpact.team` |
 | Kata Agent Team            | `websites/kata/` | `www.kata.team`          |
 
-### Local preview
+Preview locally:
 
 ```sh
 bunx fit-doc serve --src=websites/fit --watch
 bunx fit-doc serve --src=websites/kata --watch
 ```
 
+## Page Conventions
+
+Every page is a directory containing `index.md`. No other `.md` filenames.
+
+### Frontmatter
+
+Required fields:
+
+- `title` — rendered as the page H1 by the build system
+- `description` — meta description and preview text
+
+Optional fields:
+
+- `toc: false` — disables auto-generated table of contents (hub pages)
+- `layout: product` or `layout: home` — switches layout template
+- `hero:` — hero section with `image`, `alt`, `title`, `subtitle`, `cta`
+
+### Headings
+
+The build system renders H1 from frontmatter `title`. Pages must not contain
+their own `# Title` — it would produce a duplicate. Body headings start at `##`.
+
+### Links
+
+- Absolute paths: `/docs/products/agent-teams/`, not `../products/agent-teams/`
+- Point to directories, not files: `/docs/products/`, not `/docs/products/index.md`
+- External links use full URLs
+
+### Hub pages
+
+Collection pages use a grid of anchor cards to link to children:
+
+```html
+<div class="grid">
+<a href="/docs/products/agent-teams/">
+
+### Agent Teams
+
+Generate AI coding agent teams...
+
+</a>
+</div>
+```
+
+### Manual maintenance
+
+Navigation is not generated from the file tree. When a page is added, moved, or
+removed, update every hub page and card grid that references it. There is no
+build-time check for stale links — broken cards and missing entries stay broken
+until someone fixes them by hand.
+
+### Code blocks
+
+Always specify a language tag (`sh`, `yaml`, `json`, `mermaid`, etc.).
+
+## Design Assets
+
+Sources live in `design/fit/` and are copied into `websites/fit/assets/` via a
+pre-build hook. Asset paths in pages are absolute (`/assets/scene-guide.svg`).
+
+- `design/fit/index.md` — palette, typography, CSS tokens
+- `design/fit/scenes.md` — product scene illustrations
+- `design/fit/icons.md` — product icon system
+
 ## Publishing Pipeline
 
-Both sites follow the same deployment pattern. Each has a workflow in
-`.github/workflows/` and a corresponding GitHub Pages repo.
+Both sites share the same deployment pattern. Workflows in
+`.github/workflows/`:
 
 | Workflow            | Artifact     | Pages repo                 |
 | ------------------- | ------------ | -------------------------- |
 | `website-fit.yaml`  | `fit-pages`  | `forwardimpact/fit-pages`  |
 | `website-kata.yaml` | `kata-pages` | `forwardimpact/kata-pages` |
 
-Steps:
+Push to `main` (path-filtered) triggers: build with `fit-doc`, upload artifact,
+dispatch to the pages repo via GitHub App token. The pages repo deploys to
+GitHub Pages.
 
-1. **Trigger** — push to `main` (path-filtered to `websites/{name}/**`,
-   `design/{name}/**`, and the workflow file) or `workflow_dispatch`
-2. **Build** — `bunx fit-doc build --src=websites/{name} --out=dist`
-3. **Extra assets** — site-specific files copied into `dist/` (FIT copies
-   JSON/RDF schemas from `products/map/schema/`)
-4. **CNAME** — copied to `dist/` for custom domain routing
-5. **Upload** — `dist/` uploaded as a named artifact
-6. **Dispatch** — GitHub App token triggers `repository_dispatch` (event type
-   `deploy`) on the pages repo, passing `run_id`
-
-The pages repo downloads the artifact and deploys to GitHub Pages. Both
-workflows use the same GitHub App secrets (`KATA_APP_ID` /
-`KATA_APP_PRIVATE_KEY`).
-
-## FIT Site
-
-The FIT site is the main product website — product pages, documentation, and
-getting-started guides. Explore `websites/fit/` to discover the current
-structure and pages.
-
-### Design assets
-
-Design sources live in `design/fit/` and are copied into `websites/fit/assets/`
-via a `justfile` pre-build hook. Design guidelines:
-
-- `design/fit/index.md` — palette, typography, CSS tokens
-- `design/fit/scenes.md` — product scene illustrations
-- `design/fit/icons.md` — product icon system
-
-### Schema files
-
-The FIT workflow copies JSON schemas (`products/map/schema/json/`) and RDF
-schemas (`products/map/schema/rdf/`) into `dist/schema/`. These appear at
-`/schema/json/` and `/schema/rdf/` on the live site.
-
-## Kata Site
-
-The Kata site is a minimal placeholder — a single page with no CSS or design
-assets. Source is at `websites/kata/`.
+The FIT workflow also copies JSON and RDF schemas from `products/map/schema/`
+into `dist/schema/`, published at `/schema/json/` and `/schema/rdf/`.

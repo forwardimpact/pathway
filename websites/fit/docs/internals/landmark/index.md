@@ -3,8 +3,6 @@ title: Landmark Internals
 description: Architecture and implementation details for the Landmark analysis product.
 ---
 
-# Landmark Internals
-
 Landmark (`@forwardimpact/landmark`) is a read-only CLI analysis layer over
 Map's activity schema. It mirrors Summit's package layout and CLI conventions.
 

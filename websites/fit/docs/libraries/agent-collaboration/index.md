@@ -3,8 +3,6 @@ title: Agent Collaboration
 description: Run multi-agent sessions with fit-eval facilitate — specialists coordinate via Ask, Answer, and Announce, and the session is captured as a trace for fit-trace.
 ---
 
-# Agent Collaboration
-
 `fit-eval` is the plumbing for multi-agent collaboration. You write a
 **facilitator profile** and one or more **participant profiles**, then
 `fit-eval facilitate` runs them together over a message bus. Participants and

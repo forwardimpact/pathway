@@ -3,8 +3,6 @@ title: XmR Analysis
 description: Distinguish stable processes from special causes with Wheeler/Vacanti XmR control charts — record observations, render the canonical 14-line chart, read three detection rules, and turn variation into action.
 ---
 
-# XmR Analysis
-
 A metric on its own is a number. A metric over time is a process. **XmR control
 charts** (individuals and moving range) tell you whether that process is stable
 or reacting to a special cause — using the data itself to compute natural
