@@ -10,46 +10,48 @@
 
 ## Users
 
-Three external user groups use the system. Every product serves at least two.
+Four external user groups use the system. Every product serves at least two.
 Internal contributors build and maintain the monorepo; external users consume
 products via npm.
 
 - **Leadership** — Define what good engineering looks like, staff teams to
   succeed, and measure outcomes without blaming individuals.
-- **Engineers** — Understand expectations, find growth areas, stay prepared for
-  daily work, and receive guidance grounded in their organization's
+- **Empowered Engineers** — Understand expectations, find growth areas, equip
+  their own agent teams, and receive guidance grounded in their organization's
   agent-aligned engineering standard.
-- **Agents** — Operate with the same shared definitions, skill markers, and
-  quality standards that humans use, so human–agent collaboration is coherent.
+- **Coding Agents** — Align with their human counterparts through shared
+  capabilities, skills, and quality standards defined by leadership.
+- **Platform Builders** — Construct agent-capable systems using shared libraries
+  and services designed for humans and agents alike.
 
 ## Primary Products
 
 ### Map — `fit-map`
 
-Helps leadership and agents answer _what does good engineering look like here?_
+Helps leadership answer _what does good engineering look like here?_
 Validates, stores, and publishes agent-aligned engineering standards defined in
 YAML. [Overview](websites/fit/map/index.md) ·
 [Internals](websites/fit/docs/internals/map/index.md)
 
 ### Pathway — `fit-pathway`
 
-Helps engineers and agents answer _where does my career path go from here?_ Web
-app, CLI, and static site generator for job definitions, agent profiles, and
-interview questions. [Overview](websites/fit/pathway/index.md) ·
+Helps empowered engineers and coding agents answer _where does my career path
+go from here?_ Web app, CLI, and static site generator for job definitions,
+agent profiles, and interview questions. [Overview](websites/fit/pathway/index.md) ·
 [Internals](websites/fit/docs/internals/pathway/index.md)
 
 ### Guide — `fit-guide`
 
-Helps engineers answer _how do I find my bearing?_ AI agent that reasons about
-your agent-aligned engineering standard in context.
+Helps empowered engineers answer _how do I find my bearing?_ AI agent that
+reasons about your agent-aligned engineering standard in context.
 [Overview](websites/fit/guide/index.md) ·
 [Internals](websites/fit/docs/internals/guide/index.md)
 
 ### Landmark — `fit-landmark`
 
-Helps leadership and engineers answer _what milestones has my engineering
-reached?_ Analysis layer combining GitHub artifact evidence with GetDX
-snapshots. No LLM calls. [Overview](websites/fit/landmark/index.md) ·
+Helps leadership and empowered engineers answer _what milestones has my
+engineering reached?_ Analysis layer combining GitHub artifact evidence with
+GetDX snapshots. No LLM calls. [Overview](websites/fit/landmark/index.md) ·
 [Internals](websites/fit/docs/internals/landmark/index.md)
 
 ### Summit — `fit-summit`
@@ -61,7 +63,7 @@ staffing scenarios. [Overview](websites/fit/summit/index.md) ·
 
 ### Outpost — `fit-outpost`
 
-Helps engineers and agents answer _am I prepared for what's ahead today?_
+Helps empowered engineers answer _am I prepared for what's ahead today?_
 Personal operations center providing scheduled AI tasks, knowledge graphs, and
 meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
 · [Internals](websites/fit/docs/internals/outpost/index.md)
@@ -70,7 +72,7 @@ meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
 
 ### Gear — `fit-skills`
 
-Helps builders and agents answer _what do I carry into the field?_ The catalog
+Helps platform builders answer _what do I carry into the field?_ The catalog
 of agent-shaped utilities distributed via npm and the `forwardimpact/fit-skills`
 skill pack. [Overview](websites/fit/gear/index.md) ·
 [Catalog](libraries/README.md)

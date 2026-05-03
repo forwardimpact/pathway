@@ -1,6 +1,6 @@
 ---
 title: Library Guides
-description: Task-oriented guides for builders and agents — running evaluations, facilitating multi-agent sessions, and analyzing traces with the Gear catalog of utilities.
+description: Task-oriented guides for platform builders and agents — running evaluations, facilitating multi-agent sessions, and analyzing traces with the Gear catalog of utilities.
 layout: product
 toc: false
 ---

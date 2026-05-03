@@ -1,8 +1,8 @@
 # Jobs To Be Done
 
-> When a leader authors an agent-aligned engineering standard, when a developer
-> checks their career path, when an agent receives a skill file — each is hiring
-> our product to make progress on a job they care about.
+> When a leader authors an agent-aligned engineering standard, when an engineer
+> checks their career path, when a platform builder wires up a knowledge graph — each is
+> hiring our product to make progress on a job they care about.
 
 ---
 
@@ -17,11 +17,6 @@ and measures outcomes without blaming individuals.
   want to** author skills, levels, behaviours, and markers in a structured
   format, **so that** "good engineering" is a concrete operational definition,
   not a vague aspiration. → **Map**
-
-- **When** I need to ensure agent-aligned engineering standard definitions are
-  consistent and complete, **I want to** validate my YAML data against published
-  schemas, **so that** I catch structural errors before they propagate to
-  downstream products. → **Map**
 
 - **When** I'm tailoring expectations for specialized roles, **I want to**
   define tracks that modify skill expectations per capability, **so that** a
@@ -43,11 +38,6 @@ and measures outcomes without blaming individuals.
   that** candidates and hiring panels share the same concrete standard. →
   **Pathway**
 
-- **When** I'm preparing to interview candidates, **I want to** generate
-  interview question sets tied to specific skill expectations, **so that**
-  interviews are structured, consistent, and grounded in our agent-aligned
-  engineering standard. → **Pathway**
-
 ### Measure Outcomes
 
 - **When** I want to understand how my team is performing, **I want to** see
@@ -60,11 +50,6 @@ and measures outcomes without blaming individuals.
   drivers, **so that** I can see whether direction, delivery, quality, and
   learning are improving. → **Landmark**
 
-- **When** I need to connect organizational signals to agent-aligned engineering
-  standard definitions, **I want to** import GitHub activity and GetDX snapshots
-  into Map, **so that** evidence flows continuously without manual data entry. →
-  **Map**
-
 ### Equip Agents
 
 - **When** I want AI agents to work within our engineering standards, **I want
@@ -74,10 +59,10 @@ and measures outcomes without blaming individuals.
 
 ---
 
-## Engineers
+## Empowered Engineers
 
-Engineers understand expectations, find growth areas, stay prepared for daily
-work, and receive guidance grounded in their organization's agent-aligned
+Empowered engineers understand expectations, find growth areas, equip their own
+agent teams, and receive guidance grounded in their organization's agent-aligned
 engineering standard.
 
 ### Understand Expectations
@@ -85,10 +70,6 @@ engineering standard.
 - **When** I join a team or start a new role, **I want to** look up my exact job
   definition by discipline, track, and level, **so that** I know precisely what
   skill proficiencies and behaviour maturities are expected of me. → **Pathway**
-
-- **When** I'm applying a skill, **I want to** see the read-do and confirm
-  checklists for my proficiency level, **so that** I know what "done well" looks
-  like at my current level of mastery. → **Pathway**
 
 - **When** I encounter vocabulary like "independently" or "with guidance," **I
   want to** understand the precise autonomy and scope each level implies, **so
@@ -120,10 +101,6 @@ engineering standard.
   that** context is never lost and I can recall any thread instantly. →
   **Outpost**
 
-- **When** I receive email or messages that need responses, **I want to** have
-  drafts prepared based on my communication history, **so that** I spend time on
-  substance, not composition. → **Outpost**
-
 ### Equip My Agents
 
 - **When** I set up my development environment, **I want to** install agent
@@ -137,61 +114,61 @@ engineering standard.
 
 ---
 
-## Agents
+## Coding Agents
 
-Agents operate with the same shared definitions, skill markers, and quality
-standards that humans use, so human-agent collaboration is coherent.
+Coding agents align with their human counterparts through shared capabilities,
+skills, and quality standards defined by leadership.
 
 ### Receive Operational Context
 
-- **When** I'm initialized for a task, **I want to** receive a SKILL.md file
-  with phase-specific focus, read-do checklist, and confirm checklist, **so
-  that** I know exactly what is expected and what "done" looks like for this
-  phase of work. → **Pathway**
+- **When** I'm initialized for a task, **I want to** receive a skill file with
+  phase-specific focus and checklists, **so that** I know exactly what is
+  expected and what "done" looks like for this phase of work. → **Pathway**
 
 - **When** I need to understand my role's working style and constraints, **I
-  want to** receive an `.agent.md` profile derived from the same discipline,
-  track, and level formula used for humans, **so that** my behaviour aligns with
+  want to** receive an agent profile derived from the same discipline, track,
+  and level formula used for humans, **so that** my behaviour aligns with
   organizational expectations. → **Pathway**
 
-- **When** my SKILL.md doesn't cover a concept deeply enough, **I want to**
-  follow a link to a clean markdown guide or reference page, **so that** I can
-  progressively deepen my understanding without encountering contributor-only
-  internals. → **Docs**
+### Operate Within Standards
 
-### Operate Within Phase Boundaries
+- **When** I'm assigned to a phase, **I want to** constrain my work to that
+  phase's scope (spec, design, plan, or implement), **so that** I deliver
+  predictably, aligned with decisions made in earlier phases. → **Pathway**
 
-- **When** I'm assigned to the spec phase, **I want to** only perform
-  specification work (define what and why), **so that** I don't prematurely
-  commit to architecture or write code before the problem is understood. →
-  **Pathway**
+- **When** I analyze an engineer's artifacts, **I want to** interpret them
+  against specific skill markers, **so that** evidence is traced to observable
+  definitions rather than subjective impressions. → **Guide**
 
-- **When** I'm assigned to the implement phase, **I want to** implement within
-  the plan's architecture, **so that** I deliver predictably against decisions
-  already made in earlier phases. → **Pathway**
+---
 
-- **When** I complete my phase's work, **I want to** hand off cleanly with
-  structured outputs (spec, design, plan, or implementation), **so that** the
-  next phase agent can continue without ambiguity. → **Pathway**
+## Platform Builders
 
-### Interpret and Produce Evidence
+Platform builders construct agent-capable systems using shared libraries and
+services designed for humans and agents alike.
 
-- **When** I analyze a developer's GitHub artifacts, **I want to** interpret
-  them against specific skill markers, **so that** evidence is traced to
-  observable definitions rather than subjective impressions. → **Guide**
+### Build Agent-Capable Systems
 
-- **When** I find evidence of skill proficiency in an artifact, **I want to**
-  write structured evidence records (skill, level, marker, rationale) back to
-  Map, **so that** Landmark can present an accurate view without further LLM
-  calls. → **Guide, Map**
+- **When** I'm building an agent that needs structured knowledge, **I want to**
+  query RDF graphs and run vector similarity search via shared libraries, **so
+  that** my agent reasons over relationships and meaning without building
+  retrieval from scratch. → **Gear**
 
-### Execute Background Work
+- **When** I'm shipping a service consumed by both humans and agents, **I want
+  to** expose it over gRPC with automatic MCP bridging, **so that** I write one
+  implementation and both audiences call it natively. → **Gear**
 
-- **When** the scheduler wakes me, **I want to** sync email, extract entities,
-  prepare briefings, and organize knowledge, **so that** the developer's Outpost
-  is current and actionable when they arrive. → **Outpost**
+- **When** I'm building CLI tools or web UIs for my system, **I want to** use
+  agent-shaped interfaces with embedded documentation links, **so that** my
+  tools are discoverable and self-documenting for both humans and agents. →
+  **Gear**
 
-- **When** I process incoming data, **I want to** use the same entity taxonomy
-  and ID namespace as the rest of the system, **so that** my outputs are
-  directly consumable by humans and other agents without translation. → **Map,
-  Outpost**
+### Evaluate and Improve
+
+- **When** I need to know whether my agents are actually improving, **I want to**
+  collect execution traces and chart them with XmR control charts, **so that** I
+  distinguish real improvement from random variation. → **Gear**
+
+- **When** I need deterministic test data for agent evaluations, **I want to**
+  define synthetic entities in a DSL and generate consistent fixtures, **so
+  that** my eval results are reproducible across runs. → **Gear**

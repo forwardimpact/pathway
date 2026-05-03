@@ -105,8 +105,8 @@ briefed, organized, and field-ready.
 
 Carry the right tools into the field. A catalog of agent-shaped utilities —
 CLIs, retrieval primitives, evaluation tooling, and service infrastructure —
-distributed via npm and the `forwardimpact/fit-skills` skill pack so builders
-and agents pull in just what they need.
+distributed via npm and the `forwardimpact/fit-skills` skill pack so platform
+builders and agents pull in just what they need.
 
 <a href="/gear/" class="btn btn-ghost">Learn more</a>
 

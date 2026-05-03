@@ -33,7 +33,7 @@ capability, and finding your bearing.
 
 ### Library Guides
 
-Task-oriented guides for builders and agents: agent evaluations, agent
+Task-oriented guides for platform builders and agents: agent evaluations, agent
 collaboration, and trace analysis with the Gear catalog of utilities.
 
 </a>
