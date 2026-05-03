@@ -11,11 +11,15 @@ credential and identity pattern `scripts/wiki-sync.sh` uses today. The CLI
 binary grows three new command definitions; the four content edits
 (storyboard template, team-storyboard, kata-session SKILL, justfile) follow.
 Tests use temp directories and local bare git repos to exercise both stacks
-without touching the real wiki origin. The existing `wiki/storyboard-2026-M05.md`
-migration ships as a separate wiki-repo commit after the monorepo PR merges,
-since the wiki is its own repository.
+without touching the real wiki origin. The monorepo PR satisfies criteria
+#1–#3 against fixtures in tests, #4–#8 against bare-repo harnesses, and
+#9–#12 by static inspection. The live `wiki/storyboard-2026-M05.md` content
+edit (spec § Scope (in) item 1) physically cannot land in the monorepo PR —
+the wiki is a separate git repository — so step 15 ships it as a follow-up
+commit on the wiki repo, with the same in-PR `refresh` code verifying it.
+Spec 770 followed the same split for memo-marker insertion.
 
-Libraries used: `@forwardimpact/libxmr` (`analyze`, `renderChart`), `@forwardimpact/libutil` (`Finder`), `@forwardimpact/libcli` (`createCli`), Node `child_process` (`spawnSync`), Node `fs`, Node `path`.
+Libraries used: `@forwardimpact/libxmr` (`analyze`, `renderChart`), `@forwardimpact/libutil` (`Finder`), `@forwardimpact/libcli` (`createCli`).
 
 ## Steps
 
@@ -45,17 +49,21 @@ Construct with `new WikiRepo({ wikiDir, parentDir })`. Public methods:
 | -------------------------------- | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
 | `isCloned()`                     | `true` when `git -C wikiDir rev-parse --git-dir` exits 0.                                                                                                                                                          |
 | `ensureCloned(url)`              | No-op when `isCloned()`. Otherwise `auth_git clone <url> wikiDir`. Anonymous-clone failure is non-fatal (matches `wiki-sync.sh` line 35-38) — return `{cloned:false, reason}`.                                     |
-| `inheritIdentity()`              | `git -C wikiDir config user.name $(git -C parentDir config user.name)` and same for `user.email`. Skip silently if parent has no identity set.                                                                     |
+| `inheritIdentity()`              | Read `user.name` / `user.email` from `parentDir` via `git -C parentDir config --get user.{name,email}`, then write each into `wikiDir` via `git -C wikiDir config user.{name,email} <value>`. Skip silently if a parent value is unset. No shell substitution — both reads and writes are separate `spawnSync` calls. |
 | `fetch()`                        | `auth_git -C wikiDir fetch origin master`.                                                                                                                                                                         |
 | `isClean()`                      | `true` when `git -C wikiDir status --porcelain` produces no output.                                                                                                                                                |
 | `pull()`                         | `fetch()`, then `git -C wikiDir rebase origin/master`. On rebase failure: `rebase --abort` and throw a `WikiPullConflict` error carrying the git stderr. Caller maps to non-zero exit (decision W5).               |
-| `commitAndPush(message)`         | `git -C wikiDir add -A`. If `git diff --cached --quiet` succeeds, return `{pushed:false, reason:'clean'}` (criterion #7). Otherwise commit with `message`, `fetch()`, `rebase origin/master`; on rebase failure run `rebase --abort` then `merge origin/master -X ours --no-edit` (decision W3); finally `auth_git push origin master`. |
+| `commitAndPush(message)`         | Order: `git -C wikiDir add -A` → `git diff --cached --quiet` (if exit 0, return `{pushed:false, reason:'clean'}`, criterion #7) → `git commit -m message` → `fetch()` → `git rebase origin/master`; on rebase failure: `git rebase --abort` then `git merge origin/master -X ours --no-edit` (decision W3); finally `auth_git push origin master`. Fetch sits between commit and rebase so the local commit exists when the rebase runs. |
 
-`auth_git` is a private helper that prefixes the git argv with
-`-c credential.helper=` and
-`-c 'credential.helper=!f() { echo username=x-access-token; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f'`
-when either `GH_TOKEN` or `GITHUB_TOKEN` is set; otherwise it spawns plain git.
-Match the inline form used in `scripts/wiki-sync.sh` line 19-22 — credentials
+`auth_git` is a private helper that prefixes the git argv with two
+`-c` flags — the first clears any inherited helper (`-c credential.helper=`),
+the second installs the inline helper
+`-c credential.helper=!f() { echo username=x-access-token; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f`
+— when either `GH_TOKEN` or `GITHUB_TOKEN` is set in the parent process
+environment; otherwise it spawns plain git. The argv is passed straight to
+`spawnSync` as an array (no `shell:true`); git itself spawns the helper body
+in a subshell that resolves `${GH_TOKEN:-$GITHUB_TOKEN}` against the inherited
+env. Match the form used in `scripts/wiki-sync.sh` line 19-22 — credentials
 never reach `.git/config` (decision W2).
 
 Tests use `mkdtempSync` plus three local repos: a bare repo as origin, two clones.
@@ -73,10 +81,12 @@ Files created:
 - `libraries/libwiki/src/skill-roster.js`
 - `libraries/libwiki/test/skill-roster.test.js`
 
-Single `listSkills({ skillsDir })` function. Reads `skillsDir`
-(default `<projectRoot>/.claude/skills/`), filters to entries that are
-directories and start with `kata-`, returns an array of slugs sorted
-ascending. Mirror the shape of `agent-roster.js`. Drop dot-prefixed entries.
+Single `listSkills({ skillsDir })` function. Caller resolves `skillsDir`
+explicitly (typically `path.join(finder.findProjectRoot(process.cwd()), '.claude', 'skills')`,
+matching `memo.js` line 40-42). The function reads the directory, filters
+to entries that are directories and start with `kata-`, returns an array of
+slugs sorted ascending. Mirror the shape of `agent-roster.js`. Drop
+dot-prefixed entries.
 
 Tests: empty dir → `[]`; mixed `kata-*` and `fit-*` dirs → only kata; ignore
 files and `.DS_Store`; sorted output is stable.
@@ -159,26 +169,35 @@ Files created:
 - `libraries/libwiki/src/block-renderer.js`
 - `libraries/libwiki/test/block-renderer.test.js`
 
-Single `renderBlock({ metric, csvPath, projectRoot, fs })` function. Resolves
-`csvPath` against `projectRoot`, reads the CSV, calls `libxmr.analyze`,
-filters `report.metrics` to the named metric, then formats:
+Single `renderBlock({ metric, csvPath, projectRoot, fs })` function (`fs`
+optional, defaults to `node:fs`). Resolves `csvPath` against `projectRoot`,
+reads the CSV, calls `libxmr.analyze`, filters `report.metrics` to the named
+metric, then returns an array of strings (one per line) matching the design
+§ Marker contract exactly:
 
 ```
-**Latest:** {latest.value} · **Status:** {status}
-
+['**Latest:** {latest.value} · **Status:** {status}',
+ '',
+ '```',
+ ...renderChart(...).split('\n'),
+ '```',
+ '',
+ '**Signals:** {signal-line}']
 ```
-{libxmr.renderChart(values, stats, signals)}
-```
 
-**Signals:** {signal-line}
-```
+The array has no leading or trailing blank line — those are owned by the
+caller (`refresh`) and live outside the marker pair. `signal-line` is the
+comma-separated list of fired rule names (`xRule1`, `xRule2`, `xRule3`,
+`mrRule1`) — exact tokens used in the existing storyboard convention
+(`storyboard-template.md` line 48). Empty list renders as `—` (em dash).
 
-`signal-line` is the comma-separated list of fired rule names
-(`xRule1`, `xRule2`, `xRule3`, `mrRule1`) — exact tokens used in the existing
-storyboard convention (`storyboard-template.md` line 48). Empty list renders
-as `—` (em dash). For `status === 'insufficient_data'`, omit the chart and
-signals lines and emit
-`**Latest:** {values[n-1] ?? '—'} · **Status:** insufficient_data`.
+`status` is whatever `libxmr.analyze` returns verbatim — including
+`insufficient_data` (decision: status semantics defer to libxmr per design
+§ Refresh flow). The output template above is unconditional; for
+`insufficient_data` the chart slot carries libxmr's
+`Insufficient data: N points (need at least MIN_POINTS).` line wrapped in
+the same fence (matches what `bunx fit-xmr chart` prints today, see
+`libraries/libxmr/src/commands/chart.js` line 50-55).
 
 On any error from `libxmr.analyze` or chart rendering, throw a tagged
 `BlockRenderError(reason)`. The `refresh` command catches per-block
@@ -186,9 +205,9 @@ On any error from `libxmr.analyze` or chart rendering, throw a tagged
 
 Tests use canned CSV strings (15 stable points → predictable, 15 with one
 outlier → signals_present, 5 points → insufficient_data) and assert the
-returned text contains the `**Latest:**` line, a 14-line chart for the first
-two cases, and the right `**Signals:**` token list. No filesystem in tests
-beyond reading a temp CSV.
+returned array's first line starts with `**Latest:**`, the second is empty,
+the chart sits between the two fence lines, and the last line is the
+`**Signals:**` token list. No filesystem in tests beyond reading a temp CSV.
 
 ### 8. Implement `refresh` command
 
@@ -203,9 +222,11 @@ Files created:
 2. Read the file, call `scanMarkers(text)`, exit 0 with no write when the
    array is empty (criterion #3).
 3. For each block in **reverse** order (bottom-up, decision R4): call
-   `renderBlock` inside a `try`; on success splice the rendered lines into
-   the line buffer between `openLine + 1` and `closeLine - 1` inclusive; on
-   `BlockRenderError` print
+   `renderBlock` inside a `try`; on success replace the owned span with the
+   rendered lines via
+   `lines.splice(openLine + 1, closeLine - openLine - 1, ...rendered)` —
+   the marker lines themselves (`openLine` and `closeLine`) are preserved;
+   on `BlockRenderError` print
    `refresh-error <storyboard.md>:<openLine+1> <reason>` to stderr and leave
    the original span untouched.
 4. Write the joined buffer back to the file in a single `writeFileSync`.
@@ -235,9 +256,10 @@ the named option set used by the command (`--wiki-root` shared by all;
 path. Extend the `COMMANDS` dispatch map with the four new handlers. Update
 the `examples` block to include one canonical invocation per command.
 
-`src/index.js`: re-export `scanMarkers`, `renderBlock`, `WikiRepo`,
-`listSkills` alongside the existing `writeMemo` / `listAgents` /
-`insertMarkers` exports — these become the public libwiki surface.
+`src/index.js`: add `scanMarkers`, `renderBlock`, `WikiRepo`, `listSkills`
+to the re-export block. Preserve every existing export verbatim
+(`writeMemo`, `listAgents`, `insertMarkers`, `MEMO_INBOX_MARKER`,
+`OBSERVATIONS_HEADING`, `BROADCAST_TARGET`).
 
 Verify: `bunx fit-wiki --help` lists all five commands; `bunx fit-wiki refresh
 --help` shows the storyboard positional and `--wiki-root`.
@@ -305,6 +327,10 @@ Two changes:
   with `bunx fit-wiki refresh`. Drop the in-line "do not duplicate μ, UPL, LPL"
   prose — `team-storyboard.md` already carries it.
 
+Verify: `grep -c 'fit-wiki refresh' .claude/skills/kata-session/SKILL.md`
+returns ≥1; `grep -c 'paste the resulting X+mR chart' .claude/skills/kata-session/SKILL.md`
+returns 0 (the manual-paste instruction is gone).
+
 ### 13. Switch justfile recipes
 
 Files modified:
@@ -333,14 +359,24 @@ when run from the monorepo root with the wiki cloned.
 
 Files modified:
 
+- `libraries/libwiki/package.json` (extend `forwardimpact.needs`)
 - `libraries/README.md` (regenerated)
 
-The new `forwardimpact.needs` entry on `libwiki` (add one phrase like
-`"Refresh XmR chart blocks in a markdown file"`) requires
-`bun run lib:fix`. `bun run check` fails on a stale catalog
-([`libraries/CLAUDE.md`](../../libraries/CLAUDE.md)).
+Extend `libwiki`'s `forwardimpact.needs` array with one phrase per new
+capability — each must be unique across the monorepo
+([`libraries/CLAUDE.md`](../../libraries/CLAUDE.md)). Suggested wording:
 
-Verify: `bun run check` exits 0.
+- `"Refresh XmR chart blocks inside a storyboard markdown file"` (refresh)
+- `"Bootstrap a wiki working tree for a Kata installation"` (init)
+- `"Push agent-authored wiki changes to the remote"` (push)
+- `"Pull remote wiki changes into the local working tree"` (pull)
+
+Then run `bun run context:fix` (the `lib:fix` alias documented in
+`libraries/CLAUDE.md` does not exist as a script; the actual catalog
+regenerator is `context:fix`, see root `package.json`). `bun run check`
+fails on a stale catalog.
+
+Verify: `bun run context:fix` then `bun run check` both exit 0.
 
 ### 15. Migrate existing storyboard (wiki repo, post-merge)
 
@@ -370,9 +406,7 @@ Verify: `git -C wiki log -1 --oneline` shows the migration commit;
 
 | Risk                                                                                                                                       | Mitigation                                                                                                                                                                                |
 | ------------------------------------------------------------------------------------------------------------------------------------------ | ----------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| `WikiRepo` tests need a working `git` binary and `mkdtempSync` inside the test sandbox. CI already has both, but `bun test` runs may need the temp repos under `os.tmpdir()` (not the worktree) so cleanup leaves no untracked files. | Use `mkdtempSync(join(tmpdir(), 'libwiki-'))` and tear down via `rmSync(..., {recursive:true})` in `afterEach`. Same pattern as `cli-memo.test.js`.                                       |
 | The inline credential-helper string is a single shell-quoted argv. Any drift from `wiki-sync.sh`'s exact form silently breaks token-based clone in CI. | `auth_git` constructs the argv as a literal array passed straight to `spawnSync` (no shell), with the helper body identical to `scripts/wiki-sync.sh` lines 19-22. Add a unit test that asserts the argv begins with the two `-c credential.helper=...` flags when `GH_TOKEN` is set. |
-| `bun install` may silently skip the new `libxmr` dep if the workspace lockfile is stale.                                                   | Run `bun install` at the repo root (not inside `libraries/libwiki/`) so the workspace lockfile picks the change up. Confirm via `jq '.dependencies' libraries/libwiki/package.json` and a fresh `node_modules/@forwardimpact/libxmr/package.json`. |
 | The wiki repo (`monorepo.wiki.git`) does not exist for first-time downstream installations. `init` against a non-existent remote fails on the underlying `git clone`. | `WikiRepo.ensureCloned` wraps the spawn in a try/catch and returns `{cloned:false, reason}`; `init` prints the diagnostic to stderr and exits 0. New installations create the wiki by pushing the first time, exactly as `wiki-sync.sh` does today (Risks row 3 in design). |
 | Storyboard prose drift between metric blocks. If a marker pair surrounds prose lines that are not pure `Latest/Chart/Signals`, refresh wipes them. | Document the marker contract in `storyboard-template.md` (step 10) — `_Note:_` and any cross-reference text sits **outside** the markers. The migration in step 15 places markers tightly around the regenerated triple. |
 | `libxmr` version range `^1.1.0` could drift if libxmr cuts a 2.0. The chart format is a stable contract, but `analyze`'s status enum could expand. | Add a `BlockRenderer` test asserting the three known statuses (`predictable`, `signals_present`, `insufficient_data`) all render. Any new status would surface as a renderer failure caught by step 8's per-block try.                                                              |
@@ -392,7 +426,7 @@ Sequence:
 3. Steps 6-8 — refresh stack (`MarkerScanner`, `BlockRenderer`, `refresh`).
 4. Step 9 — CLI wiring once all four handlers exist.
 5. Steps 10-13 — content edits (templates, justfile, skill text).
-6. Step 14 — `bun run lib:fix`, then `bun run check`.
+6. Step 14 — `bun run context:fix`, then `bun run check`.
 7. Open `plan(780): …` PR; clean sub-agent review panel of 3 per
    `kata-review` caller protocol.
 8. Step 15 — wiki-repo migration after merge (separate commit on the wiki
