@@ -28,15 +28,22 @@ export async function runValidateCommand({ data, options }) {
     process.stdout.write(
       `  Roster is valid. ${countMembers(roster)} members across ${roster.teams.size} teams.\n`,
     );
-    return;
+  } else {
+    process.stdout.write("  Roster validation failed:\n\n");
+    for (const issue of result.errors) {
+      process.stdout.write(`    [${issue.code}] ${issue.message}\n`);
+    }
+    process.stdout.write("\n");
+    process.exitCode = 1;
   }
 
-  process.stdout.write("  Roster validation failed:\n\n");
-  for (const issue of result.errors) {
-    process.stdout.write(`    [${issue.code}] ${issue.message}\n`);
+  if (result.warnings.length > 0) {
+    process.stdout.write("  Composition warnings:\n\n");
+    for (const issue of result.warnings) {
+      process.stdout.write(`    [${issue.code}] ${issue.message}\n`);
+    }
+    process.stdout.write("\n");
   }
-  process.stdout.write("\n");
-  process.exitCode = 1;
 }
 
 function countMembers(roster) {
