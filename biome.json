@@ -97,6 +97,12 @@
         "noUselessRegexBackrefs": "error",
         "noWith": "error",
         "useGetterReturn": "error"
+      },
+      "nursery": {
+        "noExcessiveLinesPerFile": {
+          "level": "error",
+          "options": { "maxLines": 600 }
+        }
       }
     }
   },
@@ -156,6 +162,14 @@
     {
       "includes": ["products/map/supabase/functions/**/*.ts"],
       "javascript": { "globals": ["Deno"] }
+    },
+    {
+      "includes": ["**/*.css"],
+      "linter": {
+        "rules": {
+          "nursery": { "noExcessiveLinesPerFile": "off" }
+        }
+      }
     }
   ],
   "assist": { "enabled": false }
