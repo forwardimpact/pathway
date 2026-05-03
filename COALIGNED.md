@@ -41,6 +41,24 @@ L5 is _declarative_, L6 is _verificational_. Trace attribution requires the
 separation — "wrong procedure" is a different class of defect from "stale data"
 or "missing verification."
 
+### Tagging for Progressive Discovery
+
+Jobs and checklists are distributed across the codebase — Big Hires in JTBD.md,
+Little Hires in product READMEs, checklists in SKILL.md files and
+CONTRIBUTING.md. Semantic tags (`<jobs>`, `<read_do_checklist>`,
+`<do_confirm_checklist>`) make them discoverable without knowing where they live:
+
+```sh
+rg '<jobs '                 # Big Hires in JTBD.md, Little Hires near the code
+rg '<read_do_checklist'     # Entry gates — read each item, then do it
+rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
+```
+
+- Tag attributes (`user`, `goal`) make search results self-describing —
+  each match shows purpose without opening the file.
+- Keep the full opening tag on one line within 74 characters so `rg`
+  output stays coherent.
+
 ### Layer Rules
 
 - No layer restates another. When two layers mention the same tool, separate by
@@ -109,8 +127,8 @@ required.
 - **User** — persona hiring the product (`##` heading).
 - **Goal** — high-level progress sought (`###` heading).
 - **Trigger** — a specific moment that creates the job, not a role description.
-- **Jobs** — "Help me {progress}." statements, each pointing to a product
-  (→ **Product**). Two per outcome.
+- **Jobs** — "Help me {progress}." statements, each pointing to the product,
+  service or library hired (→ **Thing**). Two or three per goal.
 - **Competes With** — what currently gets hired instead; semicolon-delimited.
 - **Forces** — four forces: **Push** (status quo pain), **Pull** (desired
   future state, not features), **Habit** (current behavior resisting change),
@@ -157,7 +175,7 @@ one per persona-outcome pair. **Little Hires** can live anywhere — product
 READMEs, skill files, design docs — capturing narrower jobs closer to the code
 that serves them. Wrap both in a semantic tag for discoverability:
 
-```
+```markdown
 <jobs user="Leadership" goal="Staff Teams to Succeed">
 
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
@@ -168,10 +186,6 @@ incident.
 
 </jobs>
 ```
-
-`rg '<jobs '` finds every job in the codebase. The `user` and `goal`
-attributes make results self-describing without opening the file. Keep the full
-opening tag on one line so `rg` returns both attributes in a single match.
 
 ## L3 — Agent Profile
 
@@ -268,7 +282,7 @@ Drawing from Gawande's findings:
 
 Wrap each checklist in a semantic tag encoding its type and goal:
 
-```
+```markdown
 <read_do_checklist goal="Internalize constraints before writing code">
 
 - [ ] First constraint to internalize before starting.
@@ -277,7 +291,7 @@ Wrap each checklist in a semantic tag encoding its type and goal:
 </read_do_checklist>
 ```
 
-```
+```markdown
 <do_confirm_checklist goal="Verify completeness before committing">
 
 - [ ] First verification to confirm before proceeding.
@@ -285,15 +299,6 @@ Wrap each checklist in a semantic tag encoding its type and goal:
 
 </do_confirm_checklist>
 ```
-
-Tags serve three purposes: **unambiguous type** (the tag name declares READ-DO
-or DO-CONFIRM), **structural boundary** (separates checklist from prose), and
-**discovery** (`rg '<read_do_checklist'` finds all entry gates). Keep the full
-opening tag on one line (≤ 80 chars) so `rg` returns the goal in a single match.
-
-Both types belong **at the top** of the instruction section — READ-DO first,
-then DO-CONFIRM. The DO-CONFIRM is _used_ at the end, but seeing it before
-starting shapes how you work.
 
 ## Length and Loading
 
