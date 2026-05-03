@@ -12,7 +12,8 @@
 
 Four external user groups use the system. Every product serves at least two.
 Internal contributors build and maintain the monorepo; external users consume
-products via npm.
+products via npm. See [JTBD.md](JTBD.md) for the jobs each persona hires our
+products to do.
 
 - **Leadership** — Define what good engineering looks like, staff teams to
   succeed, and measure outcomes without blaming individuals.

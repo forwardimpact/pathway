@@ -46,7 +46,9 @@ attribution depends on the separation.
    — Claude Code's own system prompt when a contributor runs `claude`, libeval's
    system prompt when an agent workflow runs.
 1. **CLAUDE.md** — project identity: goal, users, products, distribution, doc
-   map. Auto-loaded via `settingSources: ["project"]`.
+   map. Auto-loaded via `settingSources: ["project"]`. **JTBD.md** — jobs each
+   persona hires products to do. Referenced from CLAUDE.md § Users; read on
+   demand.
 2. **CONTRIBUTING.md** — contribution standards: invariants, technical rules,
    quality gates, git, security. Referenced by L1; read on demand.
 3. **Agent profile** — persona, voice, skill routing, scope constraints.
@@ -97,7 +99,7 @@ spend tokens on the task, not boilerplate. Limits enforced by
 
 | Layer                    | Target      | Loaded           |
 | ------------------------ | ----------- | ---------------- |
-| L1 CLAUDE.md             | ≤ 192 lines | auto (every run) |
+| L1 CLAUDE.md & JTBD.md   | ≤ 192 lines | auto / on demand |
 | L2 CONTRIBUTING.md       | ≤ 256 lines | on demand        |
 | L3 Agent profile         | ≤ 64 lines  | auto (every run) |
 | L4 SKILL.md              | ≤ 192 lines | auto (per skill) |

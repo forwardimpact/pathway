@@ -43,6 +43,19 @@ their own `# Title` — it would produce a duplicate. Body headings start at `##
 - Point to directories, not files: `/docs/products/`, not `/docs/products/index.md`
 - External links use full URLs
 
+### Product Pages
+
+Product pages (`/map/`, `/pathway/`, etc.) follow a consistent structure:
+
+1. Frontmatter with `layout: product` and hero section
+2. Intro blockquote — one-paragraph positioning statement
+3. **What you get** — bullet list of concrete capabilities
+4. **Who it's for** — one paragraph per persona, using the canonical names
+   from [JTBD.md](/JTBD.md): Leadership, Empowered Engineers, Coding Agents,
+   Platform Builders
+5. Product-specific detail sections
+6. **Getting Started** — install commands and persona-labeled guide links
+
 ### Hub pages
 
 Collection pages use a grid of anchor cards to link to children:

@@ -8,17 +8,91 @@ import { resolve } from "node:path";
 
 const root = resolve(new URL("..", import.meta.url).pathname);
 
+// --- Configuration ---
+
 const SKIP_DIRS = new Set([
-  "node_modules",
-  ".git",
-  "generated",
-  "dist",
-  "build",
   ".cache",
+  ".git",
+  "build",
+  "dist",
+  "generated",
+  "node_modules",
   "tmp",
   "wiki",
   "worktrees",
 ]);
+
+// Layer definitions. Caps follow the existing 64/128/256 family; word caps
+// land near P95 of the current corpus, rounded to multiples of 64 or 128 so
+// agents cannot evade the line cap by collapsing bullets into prose.
+const LAYERS = [
+  {
+    id: "L1",
+    what: [
+      {
+        name: "CLAUDE.md",
+        maxLines: 192,
+        maxWords: 896,
+        find: findClaudeMdFiles,
+      },
+      {
+        name: "JTBD.md",
+        maxLines: 192,
+        maxWords: 1280,
+        find: async () => ["JTBD.md"],
+      },
+    ],
+  },
+  {
+    id: "L2",
+    what: [
+      {
+        name: "CONTRIBUTING.md",
+        maxLines: 256,
+        maxWords: 1536,
+        find: async () => ["CONTRIBUTING.md"],
+      },
+    ],
+  },
+  {
+    id: "L3",
+    what: [
+      {
+        name: "agent profile",
+        maxLines: 64,
+        maxWords: 384,
+        find: findAgentProfiles,
+      },
+    ],
+  },
+  {
+    id: "L4",
+    what: [
+      {
+        name: "skill procedure",
+        maxLines: 192,
+        maxWords: 1280,
+        find: findSkillProcedures,
+      },
+    ],
+  },
+  {
+    id: "L5",
+    what: [
+      {
+        name: "skill reference",
+        maxLines: 128,
+        maxWords: 768,
+        find: findSkillReferences,
+      },
+    ],
+  },
+];
+
+const L6_MAX_ITEMS = 9;
+const L6_MAX_WORDS_PER_ITEM = 32;
+
+// --- Utilities ---
 
 const walk = async (dir, visit) => {
   let entries;
@@ -62,28 +136,27 @@ const fail = (msg) => {
   status = 1;
 };
 
-// File discovery — every `.claude/` directory in the repo gets its agents and
-// skills checked, so per-product templates (e.g. products/outpost/templates)
-// are held to the same caps as the monorepo root.
-const findClaudeMdFiles = async () => {
+// --- File discovery (hoisted so LAYERS can reference them) ---
+
+async function findClaudeMdFiles() {
   const out = [];
   await walk(".", (e, path) => {
     if (e.isFile() && e.name === "CLAUDE.md") out.push(path);
   });
   return out;
-};
+}
 
-const findClaudeDirs = async () => {
+async function findClaudeDirs() {
   const out = [];
   await walk(".", (e, path) => {
     if (e.isDirectory() && e.name === ".claude") out.push(path);
   });
   return out;
-};
+}
 
 const claudeDirs = await findClaudeDirs();
 
-const findAgentProfiles = async () => {
+async function findAgentProfiles() {
   const out = [];
   for (const d of claudeDirs) {
     const files = await listFiles(
@@ -93,7 +166,7 @@ const findAgentProfiles = async () => {
     out.push(...files);
   }
   return out;
-};
+}
 
 const allSkillDirs = [];
 for (const d of claudeDirs) {
@@ -101,10 +174,11 @@ for (const d of claudeDirs) {
   allSkillDirs.push(...dirs);
 }
 
-const findSkillProcedures = async () =>
-  allSkillDirs.map((d) => `${d}/SKILL.md`);
+async function findSkillProcedures() {
+  return allSkillDirs.map((d) => `${d}/SKILL.md`);
+}
 
-const findSkillReferences = async () => {
+async function findSkillReferences() {
   const out = [];
   for (const d of allSkillDirs) {
     const files = await listFiles(
@@ -114,69 +188,29 @@ const findSkillReferences = async () => {
     out.push(...files);
   }
   return out;
-};
+}
 
-// Layer definitions. Caps follow the existing 64/128/256 family; word caps
-// land near P95 of the current corpus, rounded to multiples of 64 or 128 so
-// agents cannot evade the line cap by collapsing bullets into prose.
-const LAYERS = [
-  {
-    id: "L1",
-    what: "CLAUDE.md",
-    maxLines: 192,
-    maxWords: 896,
-    find: findClaudeMdFiles,
-  },
-  {
-    id: "L2",
-    what: "CONTRIBUTING.md",
-    maxLines: 256,
-    maxWords: 1536,
-    find: async () => ["CONTRIBUTING.md"],
-  },
-  {
-    id: "L3",
-    what: "agent profile",
-    maxLines: 64,
-    maxWords: 384,
-    find: findAgentProfiles,
-  },
-  {
-    id: "L4",
-    what: "skill procedure",
-    maxLines: 192,
-    maxWords: 1280,
-    find: findSkillProcedures,
-  },
-  {
-    id: "L5",
-    what: "skill reference",
-    maxLines: 128,
-    maxWords: 768,
-    find: findSkillReferences,
-  },
-];
+// --- Execution ---
 
-const checkFile = async (path, { id, what, maxLines, maxWords }) => {
+const checkFile = async (path, { id, name, maxLines, maxWords }) => {
   const text = await readText(path);
   if (text == null) return;
   const lines = lineCount(text);
   const words = wordCount(text);
   if (lines > maxLines)
-    fail(`${path} has ${lines} lines (max ${maxLines}, ${id} ${what})`);
+    fail(`${path} has ${lines} lines (max ${maxLines}, ${id} ${name})`);
   if (words > maxWords)
-    fail(`${path} has ${words} words (max ${maxWords}, ${id} ${what})`);
+    fail(`${path} has ${words} words (max ${maxWords}, ${id} ${name})`);
 };
 
 for (const layer of LAYERS) {
-  const files = await layer.find();
-  for (const f of files) await checkFile(f, layer);
+  for (const entry of layer.what) {
+    const files = await entry.find();
+    for (const f of files) await checkFile(f, { id: layer.id, ...entry });
+  }
 }
 
 // L6 — checklists: ≤ 9 items per block, ≤ 32 words per item.
-const L6_MAX_ITEMS = 9;
-const L6_MAX_WORDS_PER_ITEM = 32;
-
 const checklistRe =
   /<(read_do_checklist|do_confirm_checklist)\b[^>]*>([\s\S]*?)<\/\1>/g;
 const itemSplitRe = /^\s*-\s*\[[ xX]\]\s*/m;

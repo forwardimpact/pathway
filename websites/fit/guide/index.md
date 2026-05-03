@@ -21,37 +21,27 @@ hero:
 > expectations that define what good looks like in your team. That context
 > changes everything.
 
-### What Guide is
+### What you get
 
-Guide is an AI agent that reasons about your agent-aligned engineering standard.
-It understands your skills, levels, behaviours, disciplines, tracks, and career
-progression — not as static text, but as structured data it can think about in
-context.
-
-Ask Guide a question and it answers with your agent-aligned engineering standard
-in mind:
-
-- "What should I focus on to reach the next level?" — Guide knows your current
-  role, your target, and the specific skills that change between them
-- "How does our team approach code review?" — Guide references your team's
-  actual review standards, not generic best practices
-- "I'm new — where do I start?" — Guide walks you through your team's skill
-  expectations and conventions for your level
-
-### What Guide does
-
-- **Onboarding** — helps new engineers orient in unfamiliar teams, grounded in
-  the team's actual skill agent-aligned engineering standard and level
-  expectations
-- **Career advice** — recommends growth areas based on gap analysis between
-  where you are and where you want to go
-- **Skill assessment** — observes engineering activity and interprets it against
-  the agent-aligned engineering standard, giving Landmark the judgement it needs
-  to match evidence to markers
+- **Onboarding guidance** — orient in unfamiliar teams, grounded in actual skill
+  expectations and level definitions
+- **Career advice** — gap analysis between where you are and where you want to
+  go, with specific skill recommendations
+- **Skill assessment** — interprets engineering activity against the agent-aligned
+  engineering standard, giving Landmark the judgement to match evidence to markers
 - **Contextual help** — references the right skills, behaviours, and conventions
   for your level when you need guidance
 - **Problem-solving** — assists with engineering decisions informed by your
   team's standards and patterns
+
+---
+
+### Who it's for
+
+**Empowered Engineers** who want guidance grounded in their organization's
+actual engineering standard — not generic career advice. Whether onboarding,
+preparing for a level change, or making an engineering decision, Guide knows
+your team's skills, levels, and expectations.
 
 ---
 
@@ -83,7 +73,7 @@ Onboarding, career advice, skill assessment, or day-to-day engineering guidance
 
 <a href="/docs/getting-started/engineers/guide/">
 
-### Engineers
+### Empowered Engineers
 
 Install, configure, and start using Guide — from codegen to your first
 conversation.

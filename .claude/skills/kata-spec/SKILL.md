@@ -70,6 +70,7 @@ Number directories sequentially. Use the next available number.
 ## Writing a Spec (WHAT and WHY)
 
 The spec answers two questions: what are we changing, and why does it matter?
+Identify which persona and job from [JTBD.md](../../../JTBD.md) the spec serves.
 
 - **Problem first.** Evidence before proposal — errors, metrics, examples.
 - **Specific scope.** Name affected files, APIs, entities; state what is

@@ -35,12 +35,9 @@ hero:
 
 ### Who it's for
 
-**Busy engineers and managers** who want an AI assistant that actually knows
-their context — who they work with, what projects are active, and what's coming
-up next.
-
-**Anyone on macOS** who wants a set-and-forget knowledge system that runs
-quietly in the background and keeps getting smarter about your work.
+**Empowered Engineers** who want a personal operations center that actually
+knows their context — who they work with, what projects are active, and what's
+coming up next. Set it up once and it keeps working in the background.
 
 ---
 
@@ -104,7 +101,7 @@ Privacy & Security > Files & Folders**:
 
 <a href="/docs/getting-started/engineers/outpost/">
 
-### Engineers
+### Empowered Engineers
 
 Initialize your personal knowledge base, configure background AI tasks, and
 start the scheduler.

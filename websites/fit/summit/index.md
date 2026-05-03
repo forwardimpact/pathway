@@ -48,15 +48,12 @@ Without these flags, Summit is fully local and instant — Map data plus a roste
 
 ### Who it's for
 
-**Engineering leaders** staffing teams and planning hires. Summit shows whether
-a team has the capability to deliver — and what composition changes would close
-gaps.
+**Leadership** staffing teams and planning hires. Summit shows whether a team
+has the capability to deliver — and what composition changes would close gaps.
 
-**Tech leads** managing risk. Know which skills depend on a single person and
-where cross-training would have the most impact.
-
-**Engineers in 1:1s** aligning personal growth with team needs. See which skills
-the team needs most and where your development can make the biggest difference.
+**Empowered Engineers** aligning personal growth with team needs. See which
+skills the team needs most and where your development makes the biggest
+difference.
 
 ---
 

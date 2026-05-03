@@ -52,19 +52,10 @@ All comment templates are in `references/templates.md`.
 
 ## Product Vision Alignment
 
-Use CLAUDE.md and JTBD.md to determine alignment. The six products:
-
-| Product      | Question it answers                               |
-| ------------ | ------------------------------------------------- |
-| **Map**      | What does good engineering look like here?        |
-| **Pathway**  | Where does my career path go from here?           |
-| **Outpost**  | Am I prepared for what's ahead today?             |
-| **Guide**    | How do I find my bearing?                         |
-| **Landmark** | What milestones has my engineering reached?       |
-| **Summit**   | Is this team supported to reach peak performance? |
-
-An issue is product-aligned if it describes a need one of these products should
-address for its users (Leadership, Engineers, or Agents).
+Read the project's CLAUDE.md § Users and § Products for product definitions and
+personas. If a JTBD.md exists, use it to determine which persona and job the
+issue serves. An issue is product-aligned if it describes a job one of the
+project's products should fulfil for its personas.
 
 ## Process
 

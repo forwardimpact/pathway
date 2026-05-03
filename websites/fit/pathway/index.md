@@ -34,15 +34,15 @@ hero:
 
 ### Who it's for
 
-**Engineers** who want to understand where they are and where they're heading.
-Browse skills, explore what's expected at the next level, and identify growth
-areas.
+**Empowered Engineers** exploring where they are and where they're heading.
+Browse skills, see what's expected at the next level, and identify growth areas.
 
-**Managers** building job descriptions. Select a discipline, track, and level —
-Pathway generates a complete, consistent job definition.
+**Leadership** building job descriptions and interview question sets. Select a
+discipline, track, and level — Pathway generates a complete, consistent job
+definition.
 
-**Teams adopting AI agents.** Generate Claude Code agent profiles and skill
-files that match your agent-aligned engineering standards.
+**Coding Agents** aligning with organizational standards. Pathway generates
+agent profiles and skill files from the same engineering standard humans use.
 
 ---
 
@@ -81,7 +81,7 @@ definitions, and create interview question sets.
 
 <a href="/docs/getting-started/engineers/pathway/">
 
-### Engineers
+### Empowered Engineers
 
 Browse career paths, generate AI agent teams, and explore job definitions from
 the CLI and web app.

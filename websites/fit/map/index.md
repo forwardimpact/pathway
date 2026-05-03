@@ -34,12 +34,13 @@ hero:
 
 ### Who it's for
 
-**Engineering leaders** defining standards and reviewing outcomes in one place.
-Map connects agent-aligned engineering standard expectations to operational
-signals without splitting the data model across products.
+**Leadership** defining what good engineering looks like. Author your
+agent-aligned engineering standard in YAML, import operational signals from
+GitHub and GetDX, and give every downstream product a shared foundation.
 
-**Platform teams** building internal tooling. Map exposes a stable shared model
-for product and analytics use cases.
+**Coding Agents** operating within those standards. Map provides the shared
+definitions that Pathway uses to generate aligned agent profiles and skill
+files.
 
 ---
 

@@ -20,10 +20,10 @@ hero:
 > help, JSON output, and links back to the same documentation humans and agents
 > read.
 
-### What's in the catalog
+### What you get
 
-The catalog is organized into five capability categories. Browse the full tables
-in
+33 libraries organized into five capability categories, all published to npm
+under `@forwardimpact/lib*`. Browse the full tables in
 [libraries/README.md](https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md).
 
 <div class="grid">
@@ -84,8 +84,9 @@ bundle assembly, and shared test fixtures.
 **Platform Builders** composing agentic products. Pull in just the libraries you need;
 every CLI works standalone via `npx fit-<name>`.
 
-**Agents** deployed into the field. Each library ships a matching skill in the
-`forwardimpact/fit-skills` pack, so agents land on the same docs as humans.
+**Coding Agents** deployed into the field. Each library ships a matching skill
+in the `forwardimpact/fit-skills` pack, so coding agents land on the same docs
+as humans.
 
 ---
 

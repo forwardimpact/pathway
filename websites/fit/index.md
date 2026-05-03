@@ -141,7 +141,7 @@ When the path forward is clear, engineers deliver with confidence and pride.
 
 ## Get Started
 
-### For organizations
+### For Leadership
 
 Define and publish an agent-aligned engineering standard for your team:
 
@@ -149,23 +149,23 @@ Define and publish an agent-aligned engineering standard for your team:
 npx fit-pathway build --url=https://pathway.myorg.com
 ```
 
-### For engineers
+### For Empowered Engineers
 
 Install the CLI and explore what's available:
 
 ```sh
 npx fit-pathway skill --list        # Browse all skills
 npx fit-pathway job software_engineering J060          # Generate a job definition
-npx fit-pathway agent software_engineering --track=platform  # Generate agent profiles
+npx fit-outpost init ~/Documents/Team                 # Set up your personal ops center
 ```
 
-### For personal productivity
+### For Coding Agents
 
-Set up Outpost and let scheduled AI tasks keep you organized:
+Generate aligned agent profiles and skill files from your standard:
 
 ```sh
-npx fit-outpost init ~/Documents/Team
-npx fit-outpost daemon
+npx fit-pathway agent software_engineering --track=platform  # Generate agent profiles
+npx skills add forwardimpact/fit-skills                      # Install the skill pack
 ```
 
   </div>

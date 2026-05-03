@@ -21,6 +21,25 @@ hero:
 > grounded in your agent-aligned engineering standard. No LLM calls — fully
 > deterministic.
 
+### What you get
+
+- Marker evidence analysis linking GitHub artifacts to skill definitions
+- Promotion readiness and growth timeline views per engineer
+- GetDX snapshot trends and comparisons across quarters
+- Team health dashboards combining evidence, driver scores, and engineer voice
+- Initiative impact tracking tied to organizational drivers
+- Practice pattern analysis showing which skills are actively exercised
+
+---
+
+### Who it's for
+
+**Leadership** measuring how engineering is functioning — marker evidence,
+snapshot trends, and engineer voice, presented without blaming individuals.
+
+**Empowered Engineers** reviewing their own evidence record, checking promotion
+readiness, and grounding career conversations in facts.
+
 ---
 
 ### Audience Model
@@ -139,7 +158,7 @@ patterns, team health, and engineer voice.
 
 <a href="/docs/getting-started/engineers/landmark/">
 
-### Engineers
+### Empowered Engineers
 
 Check your evidence record, promotion readiness, growth timeline, and skill
 coverage against your agent-aligned engineering standard markers.

@@ -49,6 +49,8 @@ Survey all open work items, then act on the highest-priority bucket:
 
 ## Constraints
 
+- **Users**: [JTBD.md](JTBD.md) — know which persona and job every issue and
+  spec serves.
 - Spec quality is your gate — `spec:approved` is your contract with
   `kata-release-merge`. Apply the label only after `kata-spec` review passes.
 - Never make code changes on PR branches (release-engineer scope) — only on your
