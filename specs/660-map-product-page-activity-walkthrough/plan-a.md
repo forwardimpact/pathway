@@ -97,7 +97,10 @@ Three contractual properties the implementer must preserve verbatim:
    exact wording above (`Set up the activity layer →`) satisfies this; if the
    implementer changes the wording, it must still contain `activity`.
 
-**Verification:** `bun scripts/check-map-page.mjs` exits 0 (after step 2 and 3).
+**Verification:** the post-edit file's `## Getting Started` section
+shows, in reading order, the prose word `Supabase` followed by a markdown
+link whose target ends in `#activity-install-the-supabase-cli` and whose
+visible text contains `activity` (case-insensitive).
 
 ### 2. Create `scripts/check-map-page.mjs`
 
@@ -129,30 +132,40 @@ const leadershipGuide = await readFile(
   "utf8",
 );
 
-// Locate the Getting Started block on the product page (H2 to next H2).
+// Locate the Getting Started block on the product page (H2 to next H2 or EOF).
+// `$` without the `m` flag matches end-of-input, which covers the case where
+// `## Getting Started` is the last H2 in the file.
 const gsMatch = productPage.match(
-  /\n## Getting Started\n([\s\S]*?)(?=\n## |\Z)/,
+  /\n## Getting Started\n([\s\S]*?)(?=\n## |$)/,
 );
 if (!gsMatch)
   fail("websites/fit/map/index.md: '## Getting Started' section not found");
 const gettingStarted = gsMatch ? gsMatch[1] : "";
 
-// Invariant 1 (criterion 2): "Supabase" appears in Getting Started before
-// the activity-layer link.
-const supabaseIdx = gettingStarted.search(/supabase/i);
+// Invariant 1 (design Drift-Mitigation row 1, spec criterion 2):
+// "Supabase" appears as standalone prose (not embedded in a slug like
+// `supabase-cli` or a URL path) before the activity-layer link in the
+// Getting Started block. The lookbehind/lookahead excludes URL-embedded
+// occurrences so a future copyedit that drops the prose mention but leaves
+// the link URL `#activity-install-the-supabase-cli` does NOT silently pass.
+const proseRe = /(?<![/-])[Ss]upabase(?![/-])/;
+const proseMatch = gettingStarted.match(proseRe);
 const linkIdx = gettingStarted.search(/#activity-install-the-supabase-cli/);
-if (supabaseIdx === -1)
-  fail("websites/fit/map/index.md: '## Getting Started' must name 'Supabase'");
+if (!proseMatch)
+  fail(
+    "websites/fit/map/index.md: '## Getting Started' must name 'Supabase' in prose (not only in a link URL)",
+  );
 if (linkIdx === -1)
   fail(
     "websites/fit/map/index.md: '## Getting Started' must link to '#activity-install-the-supabase-cli'",
   );
-if (supabaseIdx !== -1 && linkIdx !== -1 && supabaseIdx > linkIdx)
+if (proseMatch && linkIdx !== -1 && proseMatch.index > linkIdx)
   fail(
-    "websites/fit/map/index.md: 'Supabase' must appear before the activity-layer link in Getting Started",
+    "websites/fit/map/index.md: prose 'Supabase' must appear before the activity-layer link in Getting Started",
   );
 
-// Invariant 2 (criterion 4): the visible link text contains 'activity'.
+// Invariant 2 (design Drift-Mitigation row 2 — link form, spec criterion 4):
+// the markdown link is well-formed and its visible text contains 'activity'.
 const linkRe = /\[([^\]]*)\]\([^)]*#activity-install-the-supabase-cli\)/;
 const linkMatch = gettingStarted.match(linkRe);
 if (!linkMatch)
@@ -164,14 +177,17 @@ else if (!/activity/i.test(linkMatch[1]))
     `websites/fit/map/index.md: activity-layer link text '${linkMatch[1]}' must contain 'activity'`,
   );
 
-// Invariant 3 (criteria 1, 3, 4 — link target): leadership guide carries the
-// '## Activity: install the Supabase CLI' heading that produces the anchor.
+// Invariant 3 (design Drift-Mitigation row 2 — anchor target, spec criteria
+// 1 + 3): the leadership guide carries the '## Activity: install the
+// Supabase CLI' heading that produces the contractual anchor.
 if (!/\n## Activity: install the Supabase CLI\n/.test(leadershipGuide))
   fail(
     "websites/fit/docs/getting-started/leadership/map/index.md: heading '## Activity: install the Supabase CLI' is the contractual anchor target — do not rename without updating the product page link",
   );
 
-// Invariant 4 (criterion 5): no stages.yaml reference on the product page.
+// Invariant 4 (spec criterion 5 regression guard, beyond design scope):
+// no `stages.yaml` reference anywhere on the product page. Spec criterion 5
+// scopes this check to the entire file, not the Getting Started subsection.
 if (/stages\.yaml/.test(productPage))
   fail(
     "websites/fit/map/index.md: 'stages.yaml' must not appear (regression guard)",
@@ -182,7 +198,7 @@ process.exit(status);
 
 **Verification:** `bun scripts/check-map-page.mjs` exits 0 against the
 post-step-1 file; mutate any of the four invariants and the script exits 1
-with a precise error.
+with a precise error message.
 
 ### 3. Wire into `package.json`
 
@@ -224,19 +240,14 @@ spec criteria 1 + 3.
 
 ## Risks
 
-| Risk                                                                                                                  | Mitigation                                                                                                                                                           |
-| --------------------------------------------------------------------------------------------------------------------- | -------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ------------------------------------------------------------------------------------------------------------------------------------------ |
-| `fit-doc` slug generation diverges from `#activity-install-the-supabase-cli` in a future build pipeline change.       | Step 2's invariant 2 fails fast (the leadership-guide heading must remain literal); a slug-generation change requires updating the product page link in the same PR. |
-| The `<div class="grid">` audience card below Getting Started might be parsed as part of the Getting Started H2 block. | The check uses `(?=\n##                                                                                                                                              | \Z)` to bound at the next H2; verify in step 3 that the regex captures only intended subsection content. (Validated against current file.) |
-| A future copyedit replaces `[Set up the activity layer →]` with non-link prose.                                       | Step 2 invariant 2 (`linkRe`) requires the markdown link form; any plain-prose rewrite breaks the check.                                                             |
+| Risk                                                                                                                                                                                    | Mitigation                                                                                                                                                                                                 |
+| --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- | ---------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| `fit-doc` slug generation diverges from `#activity-install-the-supabase-cli` in a future build pipeline change.                                                                         | Step 2 invariant 3 fails fast — the leadership-guide heading must remain the literal `## Activity: install the Supabase CLI`; any slug-generation change requires updating the product page link same PR.  |
+| The Getting Started block is the last H2 in the file today; if a future H3-only audience-card section is added before any new H2, the boundary regex captures more than the subsection. | Step 2's regex bounds at `\n## ` (next H2) or end-of-input; if a new H2 is added between Getting Started and EOF, the regex still bounds correctly at that new H2. Audience cards are H3s and stay inside. |
+| A future copyedit replaces `[Set up the activity layer →]` with non-link prose, hiding the routing affordance.                                                                          | Step 2 invariant 2 requires the markdown link form `[text](#activity-install-the-supabase-cli)`; any plain-prose rewrite makes `bun run docs` exit 1.                                                      |
 
 ## Execution
 
-| Part   | Agent            | Sequencing                                       |
-| ------ | ---------------- | ------------------------------------------------ |
-| Step 1 | `staff-engineer` | sequential — step 1 before step 2                |
-| Step 2 | `staff-engineer` | sequential — step 2 before step 3                |
-| Step 3 | `staff-engineer` | sequential — step 3 before step 4                |
-| Step 4 | `staff-engineer` | sequential — manual verification with dev server |
-
-Single PR; one implementer; no parallelism opportunity.
+Single PR. `staff-engineer` executes steps 1–4 sequentially. Step 4 is a
+manual browser check after `bunx fit-doc serve --src=websites/fit --watch`.
+No parallelism.
