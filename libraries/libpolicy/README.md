@@ -1,6 +1,11 @@
 # libpolicy
 
-Policy engine foundation for access control.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Access-control policy evaluation — scoped context access without per-service
+authorization logic.
+
+<!-- END:description -->
 
 ## Getting Started
 

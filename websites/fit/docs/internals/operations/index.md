@@ -53,11 +53,11 @@ credentials works out of the box.
 
 `config/config.json` controls service startup and runtime behaviour:
 
-- `init.services` — Ordered list of services for `fit-rc` to supervise (tei,
-  trace, vector, graph, pathway, mcp)
+- `init.services` — Ordered list of service objects (`name`, `command`,
+  optional `optional: true`) for `fit-rc` to supervise (trace, vector, graph,
+  pathway, mcp, tei)
 - `init.log_dir` / `init.shutdown_timeout` — Logging and shutdown
-- `service.*` — Per-service settings
-- `evals` — Evaluation models and judge model
+- `service.*` — Per-service settings (e.g. MCP tool routing)
 
 ---
 
@@ -152,26 +152,26 @@ just rc-status                # Service health check
 just codegen                  # Generate types, services, clients from proto/
 just env-setup                # Initialize environment from examples
 just data-init                # Create data dirs, copy example data to data/knowledge/
-just config-reset             # Reset config files from examples
+just config-reset             # Reset agent config files from examples
 ```
 
 See each product's skill file for full CLI reference.
 
 ---
 
-## CI Agent Authentication
+## Kata Agent Team Authentication
 
-The continuous improvement system authenticates to GitHub using a **GitHub App**
-that generates short-lived installation tokens per workflow run. Two setup
-options are available:
+The [Kata Agent Team](/docs/internals/kata/) authenticates to GitHub using a
+**GitHub App** that generates short-lived installation tokens per workflow run.
+Two setup options are available:
 
-### Option 1: Forward Impact CI App (recommended)
+### Option 1: Kata Agent Team App (recommended)
 
 The Forward Impact organization publishes a public GitHub App. Repositories
 within the org (or trusted forks where the org manages secrets centrally)
 install the App and use the org-managed credentials.
 
-1. Install the **Forward Impact CI** App on your repository from its public
+1. Install the **Kata Agent Team** App on your repository from its public
    listing.
 2. Store the following as repository secrets:
    - `KATA_APP_ID` — the App's numeric ID (provided by the App owner)
@@ -214,3 +214,5 @@ and distribute them.
   -- Development workflow and quality guidelines
 - [Getting Started: Contributors](/docs/getting-started/contributors/) --
   Environment setup walkthrough
+- [Kata Agent Team internals](/docs/internals/kata/) -- Agent architecture,
+  workflows, and PDSA cycle

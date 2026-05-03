@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libprompt",
   "version": "0.1.8",
-  "description": "Agent-authored prompt templates loaded from `.prompt.md` files with Mustache substitution.",
+  "description": "Prompt templates from .prompt.md files — structured prompts without string concatenation.",
   "keywords": [
     "prompt",
     "template",
@@ -17,13 +17,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Load a prompt template from disk",
-      "Render a prompt template with variable substitution"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

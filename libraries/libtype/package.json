@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libtype",
   "version": "0.1.74",
-  "description": "Generated protobuf types and namespaces shared across agent-facing services.",
+  "description": "Generated protobuf types and namespaces — one source of truth for service contracts.",
   "keywords": [
     "type",
     "protobuf",
@@ -16,12 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Import shared protobuf types and namespaces"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Service Contracts Typed",
+      "trigger": "Importing service types in a product and finding three different hand-maintained copies of the same definition.",
+      "bigHire": "import service types from one generated source instead of maintaining copies.",
+      "littleHire": "reference a service type and trust it matches the proto definition.",
+      "competesWith": "hand-maintained type copies; inferring types from runtime responses; skipping types entirely"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "files": [

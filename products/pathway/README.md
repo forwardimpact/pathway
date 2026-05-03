@@ -1,7 +1,11 @@
 # Pathway
 
-Career progression web app and CLI for exploring roles and generating agent
-teams.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Explore roles, generate agent profiles, and surface career expectations so
+progression and team configuration are visible, not guessed.
+
+<!-- END:description -->
 
 ## Getting Started
 

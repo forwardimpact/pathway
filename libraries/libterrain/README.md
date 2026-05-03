@@ -1,7 +1,11 @@
 # libterrain
 
-Synthetic terrain DSL and generation engine — orchestrates the full synthetic
-data pipeline.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Full synthetic data pipeline — generate, render, and validate evaluation
+datasets end to end.
+
+<!-- END:description -->
 
 ## Getting Started
 

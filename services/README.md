@@ -1,102 +1,94 @@
 # Services
 
-The packages under `services/` are simple, dependency-free microservices that
-back products — exposing domain capabilities over gRPC (and MCP) for
-composition by any product. Agent-friendly interfaces, observable operations,
-and protocol bridges that let agents consume backend functionality natively.
-
-## Mandate
-
-When building a product feature that requires graph queries, vector search,
-pathway derivation, trace collection, or MCP tool exposure, use the
-corresponding service. Do not embed service-level logic in products.
-
-This rule lives next to the other invariants in
-[CONTRIBUTING.md](../CONTRIBUTING.md#read-do).
+The packages under `services/` are internal microservices that back products —
+exposing domain capabilities over gRPC (and MCP) for composition by any
+product. Agent-friendly interfaces, observable operations, and protocol bridges
+that let agents consume backend functionality natively.
 
 ## Catalog
 
-Three capability categories. Every service appears in exactly one.
+<!-- BEGIN:catalog — Do not edit. Generated from each service's package.json. -->
 
-The tables below are generated from each service's `package.json`
-(`forwardimpact.capability` + `description`). To regenerate after editing a
-service: `bun run context:fix`. CI fails the build if the catalog drifts.
+| Service     | Description                                                                                              |
+| ----------- | -------------------------------------------------------------------------------------------------------- |
+| **graph**   | RDF knowledge graph over gRPC — relationship queries without each product standing up its own store.     |
+| **mcp**     | Unified MCP server — agents reach backend services as tools without per-service integration.             |
+| **pathway** | Engineering standard queries over gRPC — career paths and agent profiles as derivable data for products. |
+| **trace**   | OpenTelemetry span ingestion and storage over gRPC — prove whether agent changes improved outcomes.      |
+| **vector**  | Vector similarity search over gRPC — semantic retrieval without a dedicated database per product.        |
 
-### Agent Capability
+<!-- END:catalog -->
 
-What products expose to agents — derivation endpoints that turn raw data into
-agent-consumable answers.
+## Jobs To Be Done
 
-<!-- BEGIN:capability:agent-capability -->
+<!-- BEGIN:jobs — Do not edit. Generated from each service's package.json. -->
 
-| Service     | Capability                                                                             |
-| ----------- | -------------------------------------------------------------------------------------- |
-| **pathway** | Engineering standard queries over gRPC — career paths and agent profiles for products. |
+<job user="Platform Builders" goal="Ground Agents in Context">
 
-<!-- END:capability:agent-capability -->
+**Trigger:** Needing to know how two concepts relate and realizing the answer is
+scattered across files no one wants to join by hand; adding semantic search to a
+product and realizing each one would need its own vector store.
 
-### Agent Retrieval
+**Big Hire:** Help me traverse a knowledge graph from a product without standing
+up my own store; run semantic search from any product without standing up a
+per-product database. → **graph, vector**
 
-How agents fetch and shape context — graph traversal and vector similarity
-search exposed over gRPC.
+**Little Hire:** Help me answer relationship questions without writing join
+logic; search for semantically related content without managing embeddings
+storage. → **graph, vector**
 
-<!-- BEGIN:capability:agent-retrieval -->
+**Competes With:** ad-hoc joins across flat files; embedding a triple store in
+each product; skipping the relationship question entirely; per-product vector
+databases; keyword search instead of semantic; skipping retrieval entirely.
 
-| Service    | Capability                                                                   |
-| ---------- | ---------------------------------------------------------------------------- |
-| **graph**  | Simple RDF knowledge graph over gRPC for products.                           |
-| **vector** | Simple vector similarity search over gRPC — semantic retrieval for products. |
+</job>
 
-<!-- END:capability:agent-retrieval -->
+<job user="Platform Builders" goal="Integrate with the Engineering Standard">
 
-### Agent Infrastructure
+**Trigger:** Building a product feature that needs career paths or agent
+profiles and realizing the derivation logic would have to live in the product.
 
-How services run, communicate, and observe themselves — protocol bridges,
-span collection, and operational tooling.
+**Big Hire:** Help me query the engineering standard from any product without
+embedding derivation logic. → **pathway**
 
-<!-- BEGIN:capability:agent-infrastructure -->
+**Little Hire:** Help me fetch a derived role or agent profile without
+reimplementing the derivation. → **pathway**
 
-| Service   | Capability                                                                        |
-| --------- | --------------------------------------------------------------------------------- |
-| **mcp**   | Unified MCP server — exposes gRPC backend services as agent-consumable tools.     |
-| **trace** | OpenTelemetry span ingestion and storage over gRPC — observable agent operations. |
+**Competes With:** embedding libskill in each product; duplicating derivation
+logic; hardcoding role definitions.
 
-<!-- END:capability:agent-infrastructure -->
+</job>
 
-## I need to…
+<job user="Platform Builders" goal="Keep Service Contracts Typed">
 
-Common needs that map directly to a single service. Generated from each
-service's `package.json` (`forwardimpact.needs`); regenerate with
-`bun run context:fix`.
+**Trigger:** Adding a new gRPC service and realizing each one needs its own MCP
+glue to become an agent tool.
 
-<!-- BEGIN:needs -->
+**Big Hire:** Help me expose every backend service as agent tools through one
+server. → **mcp**
 
-| I need to…                                               | Service   |
-| -------------------------------------------------------- | --------- |
-| Collect and store OpenTelemetry spans over gRPC          | `trace`   |
-| Expose backend services as MCP tools over HTTP           | `mcp`     |
-| Expose RDF knowledge graphs over gRPC                    | `graph`   |
-| Serve engineering standard queries to products over gRPC | `pathway` |
-| Serve vector similarity search to products over gRPC     | `vector`  |
+**Little Hire:** Help me add a service to the MCP surface without writing
+integration code. → **mcp**
 
-<!-- END:needs -->
+**Competes With:** per-service MCP wrappers; hand-writing tool schemas for each
+endpoint; leaving services unreachable by agents.
 
-## Per-service detail
+</job>
 
-Every service has a `README.md` that documents its gRPC methods, configuration,
-and dependencies. Open the service directory for depth.
+<job user="Platform Builders" goal="Prove Agent Changes">
 
-## Adding a service
+**Trigger:** Finishing an agent improvement and realizing there is no
+centralized place to store and compare trace spans.
 
-Same shape as every other service here:
+**Big Hire:** Help me collect trace spans from any product without each one
+managing its own storage. → **trace**
 
-- `package.json` — `@forwardimpact/svc<name>`, ESM, with `description`,
-  `keywords`, and `forwardimpact: { capability, needs }` (capability is one of
-  `agent-capability`, `agent-retrieval`, `agent-infrastructure`; needs is an
-  array of "I need to…" phrases unique across the monorepo).
-- `server.js` — entry point following the standard bootstrap sequence.
-- `index.js` — service implementation.
-- `proto/<name>.proto` — gRPC service definition (unless MCP-only).
-- `test/` — `*.test.js` files.
-- Run `bun run context:fix` to regenerate the tables above. Update any consuming
-  product to import from the new service.
+**Little Hire:** Help me send spans from a product and trust they are queryable
+later. → **trace**
+
+**Competes With:** per-product trace files; manual log comparison; skipping
+observability entirely.
+
+</job>
+
+<!-- END:jobs -->

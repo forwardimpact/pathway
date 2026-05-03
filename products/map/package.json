@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/map",
   "version": "0.15.39",
-  "description": "Data product for agent-aligned engineering standards, consumed by AI agents and engineers",
+  "description": "Validate, store, and publish agent-aligned engineering standards so expectations are operational, not tribal.",
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -10,6 +10,23 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Engineering Leaders",
+      "goal": "Define the Engineering Standard",
+      "trigger": "A promotion decision stalls because two managers disagree on what 'senior' means — neither can point to a written definition.",
+      "bigHire": "turn 'good engineering' into an operational definition the organization trusts and follows.",
+      "littleHire": "update the standard knowing structural mistakes get caught before they ship.",
+      "competesWith": "tribal knowledge; borrowed frameworks; per-manager intuition; tolerating the ambiguity",
+      "forces": {
+        "push": "Inconsistent expectations produce contested promotions.",
+        "pull": "A shared definition that makes quality visible and discussable.",
+        "habit": "Each manager carries a private mental model of what 'good' means.",
+        "anxiety": "Getting definitions wrong feels worse than having none."
+      },
+      "firedWhen": "definitions drift from practice; or a reorg removes the mandate to maintain them."
+    }
+  ],
   "type": "module",
   "main": "src/index.js",
   "exports": {

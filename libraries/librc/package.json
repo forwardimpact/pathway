@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/librc",
   "version": "0.1.27",
-  "description": "Agent-friendly service lifecycle management: start, stop, and status of long-running services via a Unix socket interface.",
+  "description": "Service lifecycle management — start, stop, and check services without manual oversight.",
   "keywords": [
     "service",
     "lifecycle",
@@ -16,12 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Control a service's start, stop, and status"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Services Running and Visible",
+      "trigger": "Debugging a down service and realizing there is no single command to check what is running.",
+      "bigHire": "manage service lifecycle from one interface instead of scripting each start and stop.",
+      "littleHire": "start, stop, or check a service without remembering its specific incantation.",
+      "competesWith": "ad-hoc shell scripts; manual process management; tolerating stale services"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

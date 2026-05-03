@@ -1,7 +1,10 @@
 # libstorage
 
-Storage abstraction layer supporting local filesystem, S3, and Supabase
-backends.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Pluggable file storage — local, S3, or Supabase behind a single interface.
+
+<!-- END:description -->
 
 ## Getting Started
 

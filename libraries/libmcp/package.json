@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libmcp",
   "version": "0.1.6",
-  "description": "Config-driven gRPC-to-MCP tool registration — agents see protobuf services as MCP tools.",
+  "description": "Config-driven gRPC-to-MCP tool registration — expose protobuf services as agent tools without glue code.",
   "keywords": [
     "mcp",
     "grpc",
@@ -16,12 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Register a gRPC service as MCP tools"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Service Contracts Typed",
+      "trigger": "Registering a gRPC service as MCP tools and realizing the tool schema is just the proto definition rewritten by hand.",
+      "bigHire": "register gRPC services as MCP tools from config instead of writing glue code.",
+      "littleHire": "expose a new proto method as an agent tool without touching tool registration.",
+      "competesWith": "hand-written tool schemas; per-service MCP adapters; leaving services invisible to agents"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

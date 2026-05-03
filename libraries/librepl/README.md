@@ -1,7 +1,11 @@
 # librepl
 
-Interactive REPL with command handling, state persistence, and terminal
-formatting.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Agent-friendly interactive REPL — exploratory interfaces that humans and agents
+navigate the same way.
+
+<!-- END:description -->
 
 ## Getting Started
 

@@ -1,6 +1,10 @@
 # libdoc
 
-Documentation build and serve tools for static site generation from Markdown.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Static documentation sites from markdown — publish docs without a framework.
+
+<!-- END:description -->
 
 ## Getting Started
 

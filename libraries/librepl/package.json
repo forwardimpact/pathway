@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/librepl",
   "version": "0.1.11",
-  "description": "Agent-friendly interactive REPL with command dispatch and skill-doc links surfaced in `--help`.",
+  "description": "Agent-friendly interactive REPL — exploratory interfaces that humans and agents navigate the same way.",
   "keywords": [
     "repl",
     "cli",
@@ -16,13 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Run an interactive REPL session",
-      "Surface skill-doc links in REPL --help output"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Enable Agents on Every Surface",
+      "trigger": "Building an interface and realizing agents can't discover or navigate it the same way humans do.",
+      "bigHire": "give agents and humans the same interface so capabilities don't need separate paths.",
+      "littleHire": "add a capability and know both humans and agents can reach it without a separate integration.",
+      "competesWith": "hand-written argument parsing; separate agent and human interfaces; tolerating agents that can't self-serve"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

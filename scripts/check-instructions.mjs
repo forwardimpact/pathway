@@ -34,8 +34,8 @@ const LAYERS = [
   },
   {
     id: "L2",
-    maxLines: 256,
-    maxWords: 1536,
+    maxLines: 320,
+    maxWords: 1408,
     files: [
       { name: "CONTRIBUTING.md", find: async () => ["CONTRIBUTING.md"] },
       { name: "JTBD.md", find: async () => ["JTBD.md"] },

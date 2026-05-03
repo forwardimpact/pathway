@@ -1,15 +1,20 @@
 # Jobs To Be Done
 
-<jobs user="Leadership" goal="Define the Standard">
+<!-- BEGIN:jobs — Do not edit. Generated from products/*/package.json. -->
 
-**Trigger:** A promotion decision stalls because two managers disagree on
-what "senior" means — neither can point to a written definition.
+<job user="Engineering Leaders" goal="Define the Engineering Standard">
 
-**Hires:**
-- Help me turn "good engineering" into an operational definition the
-  organization trusts and follows. → **Map**
-- Help me give specialized roles coherent expectations from a shared foundation
-  so evaluations feel fair rather than arbitrary. → **Map, Pathway**
+**Trigger:** A promotion decision stalls because two managers disagree on what
+'senior' means — neither can point to a written definition.
+
+**Big Hire:** Help me turn 'good engineering' into an operational definition the
+organization trusts and follows; give specialized roles coherent expectations
+from a shared foundation so evaluations feel fair rather than arbitrary. →
+**Map, Pathway**
+
+**Little Hire:** Help me update the standard knowing structural mistakes get
+caught before they ship; define what a new role requires without starting from a
+blank page. → **Map, Pathway**
 
 **Competes With:** tribal knowledge; borrowed frameworks; per-manager intuition;
 tolerating the ambiguity.
@@ -17,23 +22,51 @@ tolerating the ambiguity.
 **Forces:**
 - **Push:** Inconsistent expectations produce contested promotions.
 - **Pull:** A shared definition that makes quality visible and discussable.
-- **Habit:** Each manager carries a private mental model of what "good" means.
+- **Habit:** Each manager carries a private mental model of what 'good' means.
 - **Anxiety:** Getting definitions wrong feels worse than having none.
 
 **Fired When:** definitions drift from practice; or a reorg removes the mandate
 to maintain them.
 
-</jobs>
+</job>
 
-<jobs user="Leadership" goal="Staff Teams to Succeed">
+<job user="Engineering Leaders" goal="Measure Engineering Outcomes">
+
+**Trigger:** The quarterly review is due and the only data available is ticket
+counts — which single out individuals rather than illuminate the system.
+
+**Big Hire:** Help me demonstrate engineering progress without making
+individuals feel surveilled. → **Landmark**
+
+**Little Hire:** Help me tell whether culture investments are working before the
+next budget cycle. → **Landmark**
+
+**Competes With:** sprint velocity; ticket counts; annual reviews; asking
+managers 'how's the team doing?'; not measuring at all.
+
+**Forces:**
+- **Push:** Pressure to show ROI with no way to separate signal from noise.
+- **Pull:** System-level trends that show direction without naming individuals.
+- **Habit:** Equating velocity and throughput with team health.
+- **Anxiety:** Measurement feels like surveillance regardless of intent.
+
+**Fired When:** metrics get used punitively; or leadership turnover
+deprioritizes measurement.
+
+</job>
+
+<job user="Engineering Leaders" goal="Staff Teams to Succeed">
 
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
 incident — nobody had a way to see it before staffing the team.
 
-**Hires:**
-- Help me spot capability gaps before someone gets set up to fail. → **Summit**
-- Help me make staffing decisions I can defend with evidence, not
-  intuition. → **Summit, Pathway**
+**Big Hire:** Help me see what each role on the team actually requires so
+staffing isn't guesswork; make staffing decisions I can defend with evidence,
+not intuition. → **Pathway, Summit**
+
+**Little Hire:** Help me check whether a candidate fills the team's actual gap,
+not just the job description; spot capability gaps before someone gets set up to
+fail. → **Pathway, Summit**
 
 **Competes With:** résumé screening; gut feel; copying a team that seems to
 work; accepting gaps as inevitable.
@@ -47,43 +80,141 @@ work; accepting gaps as inevitable.
 **Fired When:** the skill taxonomy drifts from actual roles; or a hiring freeze
 removes the pressure to staff analytically.
 
-</jobs>
+</job>
 
-<jobs user="Leadership" goal="Measure Outcomes">
+<job user="Empowered Engineers" goal="Be Prepared and Productive">
 
-**Trigger:** The quarterly review is due and the only data available is
-ticket counts — which single out individuals rather than illuminate the system.
+**Trigger:** Walking into a meeting cold because the context was buried across
+email threads, a Slack channel, and last week's notes.
 
-**Hires:**
-- Help me demonstrate engineering progress without making individuals feel
-  surveilled. → **Landmark**
-- Help me tell whether culture investments are working before the next budget
-  cycle. → **Landmark**
+**Big Hire:** Help me keep track of people, projects, and threads without
+depending on memory. → **Outpost**
 
-**Competes With:** sprint velocity; ticket counts; annual reviews; asking
-managers "how's the team doing?"; not measuring at all.
+**Little Hire:** Help me walk into every meeting already oriented without the
+morning scramble. → **Outpost**
+
+**Competes With:** morning email scan; re-reading calendar invites; personal
+notes and TODO lists; asking colleagues for context; accepting that some threads
+will be dropped.
 
 **Forces:**
-- **Push:** Pressure to show ROI with no way to separate signal from noise.
-- **Pull:** System-level trends that show direction without naming individuals.
-- **Habit:** Equating velocity and throughput with team health.
-- **Anxiety:** Measurement feels like surveillance regardless of intent.
+- **Push:** Context-switching compounds; starting cold wastes everyone's time.
+- **Pull:** Continuous awareness without continuous effort — context assembled
+  and maintained.
+- **Habit:** Manual morning prep routines and personal tracking systems that
+  feel 'good enough.'
+- **Anxiety:** Delegating awareness to a system feels like losing control.
 
-**Fired When:** metrics get used punitively; or leadership turnover
-deprioritizes measurement.
+**Fired When:** the briefing becomes noise; or simpler tools absorb enough of
+the preparation and tracking.
 
-</jobs>
+</job>
 
-<jobs user="Empowered Engineers" goal="Understand Expectations">
+<job user="Empowered Engineers" goal="Equip Aligned Agent Teams">
 
-**Trigger:** Starting a new role and realizing that "meets expectations" on
-the review form has no definition anyone can point to.
+**Trigger:** An agent delivered work the team rejected because it followed
+generic best practices instead of the organization's actual standards.
 
-**Hires:**
-- Help me see exactly what's expected at my level so I stop guessing during
-  reviews. → **Pathway**
-- Help me understand the autonomy and scope my level implies so I can
-  self-assess honestly. → **Pathway**
+**Big Hire:** Help me configure agents to meet the same expectations the
+organization holds for human contributors. → **Pathway**
+
+**Little Hire:** Help me give agents organizational context without writing
+bespoke prompts for every task. → **Pathway**
+
+**Competes With:** writing custom system prompts; copying another team's agent
+config; hoping generic instructions produce aligned output; not configuring
+agents at all.
+
+**Forces:**
+- **Push:** Agent output gets rejected or reworked because generic configuration
+  doesn't match what the organization expects.
+- **Pull:** Agents that reflect organizational standards without bespoke prompt
+  engineering for each task.
+- **Habit:** Treating agent configuration as a one-time setup rather than
+  something that evolves with standards.
+- **Anxiety:** Over-constraining agents might make them less useful for novel or
+  unexpected tasks.
+
+**Fired When:** configuration overhead exceeds the quality gain; or a policy
+change bans custom agent configuration.
+
+</job>
+
+<job user="Empowered Engineers" goal="Find Growth Areas">
+
+**Trigger:** The promotion conversation ended with 'not yet' but no specifics —
+unclear what evidence would change the answer.
+
+**Big Hire:** Help me get career guidance grounded in my organization's
+standards, not generic advice; show concrete evidence of growth, not just my
+manager's impression. → **Guide, Landmark**
+
+**Little Hire:** Help me ask a specific growth question and get advice grounded
+in my actual standard; check whether recent work shows visible progress toward
+the next level. → **Guide, Landmark**
+
+**Competes With:** annual review feedback; mentor conversations; LinkedIn
+Learning; hoping the next project makes readiness obvious; not pursuing
+promotion at all.
+
+**Forces:**
+- **Push:** Career conversations feel subjective with no shared evidence base.
+- **Pull:** A clear picture of what's needed to close the gap, grounded in
+  evidence.
+- **Habit:** Waiting for annual feedback rather than continuously
+  self-assessing.
+- **Anxiety:** Structured analysis might confirm being further behind than
+  assumed.
+
+**Fired When:** gap analysis recommends areas disconnected from actual promotion
+decisions; or a reorg changes what gets promoted, making the standard feel like
+last regime's artifact.
+
+</job>
+
+<job user="Empowered Engineers" goal="Trust Agent Output">
+
+**Trigger:** Reviewing agent output line by line because there's no objective
+way to tell whether it meets the organization's quality bar without reading
+everything.
+
+**Big Hire:** Help me verify agent work against the organization's standard, not
+my subjective impression of quality; know what to expect from agent output so I
+can review by exception, not by default. → **Guide, Pathway**
+
+**Little Hire:** Help me get a second opinion on a specific deliverable before
+approving it; check the role's expected output before reviewing so I know what
+to look for. → **Guide, Pathway**
+
+**Competes With:** reviewing every line agents produce; accepting slower
+delivery as the cost of using agents; trusting output uncritically and catching
+issues later; not using agents for substantive work.
+
+**Forces:**
+- **Push:** Full review of every agent deliverable negates the productivity gain
+  of using agents.
+- **Pull:** Confident delegation — knowing when agent output meets the standard
+  without reading every line.
+- **Habit:** Reviewing everything because that's how quality has always been
+  caught.
+- **Anxiety:** Delegating quality judgment to a standard might miss
+  context-specific issues a review would catch.
+
+**Fired When:** standards-based verification catches fewer real issues than full
+review; or the team stops using agents for substantive work.
+
+</job>
+
+<job user="Empowered Engineers" goal="Understand Expectations">
+
+**Trigger:** Starting a new role and realizing that 'meets expectations' on the
+review form has no definition anyone can point to.
+
+**Big Hire:** Help me see exactly what's expected at my level so I stop guessing
+during reviews. → **Pathway**
+
+**Little Hire:** Help me understand the autonomy and scope my level implies so I
+can self-assess honestly. → **Pathway**
 
 **Competes With:** asking peers; inferring from manager comments; browsing
 LinkedIn postings for similar titles; living with the ambiguity.
@@ -98,157 +229,6 @@ LinkedIn postings for similar titles; living with the ambiguity.
 **Fired When:** defined expectations diverge from actual promotions; or a
 reorganization makes the framework feel irrelevant.
 
-</jobs>
+</job>
 
-<jobs user="Empowered Engineers" goal="Find Growth Areas">
-
-**Trigger:** The promotion conversation ended with "not yet" but no
-specifics — unclear what evidence would change the answer.
-
-**Hires:**
-- Help me show concrete evidence of growth, not just my manager's
-  impression. → **Landmark**
-- Help me get career guidance grounded in my organization's standards, not
-  generic advice. → **Guide**
-
-**Competes With:** annual review feedback; mentor conversations; LinkedIn
-Learning; hoping the next project makes readiness obvious; not pursuing
-promotion at all.
-
-**Forces:**
-- **Push:** Career conversations feel subjective with no shared evidence base.
-- **Pull:** A clear picture of what's needed to close the gap, grounded in
-  evidence.
-- **Habit:** Waiting for annual feedback rather than continuously self-assessing.
-- **Anxiety:** Structured analysis might confirm being further behind than assumed.
-
-**Fired When:** gap analysis recommends areas disconnected from actual promotion
-decisions; or the engineer loses trust in the standard itself.
-
-</jobs>
-
-<jobs user="Empowered Engineers" goal="Stay Prepared">
-
-**Trigger:** Walking into a meeting cold because the context was buried
-across email threads, a Slack channel, and last week's notes.
-
-**Hires:**
-- Help me walk into every meeting already oriented without the morning
-  scramble. → **Outpost**
-- Help me keep track of people, projects, and threads without depending on
-  memory. → **Outpost**
-
-**Competes With:** morning email scan; re-reading calendar invites; asking
-colleagues for a catch-up; going in unprepared.
-
-**Forces:**
-- **Push:** Context-switching compounds; starting cold wastes everyone's time.
-- **Pull:** Walking in prepared without the prep — context already assembled.
-- **Habit:** Manual morning prep routines that feel "good enough."
-- **Anxiety:** Delegating awareness to a system feels like losing control.
-
-**Fired When:** the briefing becomes noise; or a simpler calendar tool absorbs
-enough of the prep.
-
-</jobs>
-
-<jobs user="Coding Agents" goal="Receive Operational Context">
-
-**Trigger:** Initialized for a task with a generic system prompt and no
-knowledge of organizational standards or what "done" looks like for this phase.
-
-**Hires:**
-- Help me know what is expected and what "done" looks like for this phase of
-  work. → **Pathway**
-- Help me align my behaviour with organizational expectations, not just
-  generic best practices. → **Pathway**
-
-**Competes With:** generic system prompts; broad instruction sets; no
-role-specific configuration at all.
-
-**Forces:**
-- **Push:** Generic configuration produces work that gets rejected or reworked.
-- **Pull:** Operational clarity that matches what the organization expects from
-  human contributors.
-- **Habit:** Defaulting to broad, role-agnostic instruction sets.
-- **Anxiety:** Over-constrained profiles may not adapt to novel tasks.
-
-**Fired When:** configuration overhead exceeds the quality gain; or standards
-change faster than profiles are updated.
-
-</jobs>
-
-<jobs user="Coding Agents" goal="Operate Within Standards">
-
-**Trigger:** Mid-phase execution where drifting beyond scope or applying
-subjective quality judgments would erode the trust this agent has earned.
-
-**Hires:**
-- Help me deliver predictably within phase boundaries set by earlier
-  decisions. → **Pathway**
-- Help me trace evidence to observable definitions rather than subjective
-  impressions. → **Guide**
-
-**Competes With:** unconstrained generation; optimizing for completion over
-compliance; no phase discipline.
-
-**Forces:**
-- **Push:** Scope creep and subjective judgments erode human trust in agent output.
-- **Pull:** Predictable output that humans trust without re-reviewing everything.
-- **Habit:** Optimizing for completion rather than standard compliance.
-- **Anxiety:** Strict constraints may prevent addressing issues found mid-execution.
-
-**Fired When:** phase constraints slow delivery without quality improvement; or
-humans stop reviewing agent output regardless.
-
-</jobs>
-
-<jobs user="Platform Builders" goal="Build Shared Infrastructure">
-
-**Trigger:** Starting the third project in a row that needs knowledge
-retrieval and protocol bridging, rebuilding the same plumbing each time.
-
-**Hires:**
-- Help me stop rebuilding retrieval and bridging for every new project. →
-  **Gear**
-- Help me ship one interface that both humans and agents call natively. →
-  **Gear**
-
-**Competes With:** copy-pasting boilerplate from the last project; building
-bespoke integrations; accepting the duplication.
-
-**Forces:**
-- **Push:** Rebuilding the same infrastructure per project wastes time.
-- **Pull:** Common infrastructure already solved, freeing time for the actual
-  problem.
-- **Habit:** Building bespoke integrations rather than adopting shared libs.
-- **Anxiety:** Shared libraries add a dependency and risk abstraction leaks.
-
-**Fired When:** the library's upgrade cadence creates more work than the
-duplication it replaced; or the team shrinks below the scale that justifies the
-dependency.
-
-</jobs>
-
-<jobs user="Platform Builders" goal="Evaluate and Improve">
-
-**Trigger:** The team claims the agent is "much better now" but nobody can
-show whether last week's changes helped or made things worse.
-
-**Hires:**
-- Help me prove whether agent changes actually improved outcomes. → **Gear**
-- Help me make eval results reproducible so the team trusts them. → **Gear**
-
-**Competes With:** spot-checking outputs; vibes-based quality assessment;
-skipping evaluation until something breaks.
-
-**Forces:**
-- **Push:** Without measurement, "improvement" is narrative, not evidence.
-- **Pull:** Evidence clear enough to end the "is it actually better?" debate.
-- **Habit:** Judging quality by gut feel rather than systematic evaluation.
-- **Anxiety:** Evaluation tooling is overhead before the agent has proven value.
-
-**Fired When:** evaluation infrastructure costs more to maintain than the
-improvements it detects; or the team loses interest in agents entirely.
-
-</jobs>
+<!-- END:jobs -->

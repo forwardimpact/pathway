@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libconfig",
   "version": "0.1.74",
-  "description": "Environment-aware loading of application settings for services, CLIs, and extensions.",
+  "description": "Environment-aware application settings — services and CLIs load configuration without custom plumbing.",
   "keywords": [
     "config",
     "environment",
@@ -15,12 +15,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Load application settings (config) from environment"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

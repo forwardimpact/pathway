@@ -1,6 +1,11 @@
 # libgraph
 
-RDF graph index and processing utilities.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+RDF triple store with named ontologies — answer relationship questions without
+writing join logic.
+
+<!-- END:description -->
 
 ## Getting Started
 

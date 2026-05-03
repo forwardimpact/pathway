@@ -1,6 +1,11 @@
 # libcodegen
 
-Protocol Buffer code generation utilities.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Protobuf code generation — keep types in sync with proto definitions without
+hand-writing.
+
+<!-- END:description -->
 
 ## Getting Started
 

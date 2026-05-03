@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libmacos",
   "version": "0.1.0",
-  "description": "macOS bundle assembly, code signing, and OS permission entitlement helpers — desktop delivery for agent products.",
+  "description": "macOS bundle assembly, code signing, and OS permission helpers — desktop delivery without platform ceremony.",
   "keywords": [
     "macos",
     "bundle",
@@ -16,14 +16,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "foundations",
-    "needs": [
-      "Assemble a macOS app bundle",
-      "Code-sign a macOS app",
-      "Declare macOS permission entitlements for an app"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

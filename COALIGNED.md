@@ -42,11 +42,11 @@ or "missing verification."
 
 Jobs and checklists are distributed across the codebase — Big Hires in JTBD.md,
 Little Hires in product READMEs, checklists in SKILL.md files and
-CONTRIBUTING.md. Semantic tags (`<jobs>`, `<read_do_checklist>`,
+CONTRIBUTING.md. Semantic tags (`<job>`, `<read_do_checklist>`,
 `<do_confirm_checklist>`) make them discoverable without knowing where they live:
 
 ```sh
-rg '<jobs '                 # Big Hires in JTBD.md, Little Hires near the code
+rg '<job '                  # Big Hires in JTBD.md, Little Hires near the code
 rg '<read_do_checklist'     # Entry gates — read each item, then do it
 rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
 ```
@@ -99,7 +99,7 @@ every run.
 4. **Budget-conscious.** Every line loads on every run. If a section is only
    relevant to one workflow, push it to L2 or L4.
 5. **Surfaces the tagging conventions.** Includes a section that briefly
-   explains checklists and jobs, and how to discover them (`rg '<jobs '`,
+   explains checklists and jobs, and how to discover them (`rg '<job '`,
    `rg '<read_do_checklist'`).
 
 ## L2 — Contribution Standards & Jobs
@@ -120,14 +120,15 @@ how contributors work; the other captures what progress each persona seeks.
 
 Each entry in [JTBD.md](JTBD.md) follows a fixed structure. The first five
 elements are required for all entries. _Forces_ and _Fired When_ are required
-for Big Hires (JTBD.md) but omitted from Little Hires — forces analyze switching
-decisions, not Tuesday-afternoon tasks.
+for _Products_ but omitted for _Services_ and _Libraries_.
 
 - **User** — persona hiring the product (`##` heading).
 - **Goal** — high-level progress sought (`###` heading).
 - **Trigger** — a specific moment that creates the job, not a role description.
-- **Hires** — "Help me {progress}." statements, each pointing to the product,
-  service or library hired (→ **Thing**). Two or three per goal.
+- **Big Hire** — "{progress}." — the adoption decision; why this gets hired
+  over the alternatives. Rendered as "Help me {progress}." with a product arrow.
+- **Little Hire** — "{progress}." — the repeated daily use; what brings
+  the user back each time. Rendered the same way.
 - **Competes With** — what currently gets hired instead; semicolon-delimited.
 - **Forces** — Four forces: _Push_ (status quo pain), _Pull_ (desired future
   state, not features), _Habit_ (current behavior resisting change), _Anxiety_
@@ -175,15 +176,18 @@ READMEs, skill files, design docs — capturing narrower jobs closer to the code
 that serves them. Wrap both in a semantic tag for discoverability:
 
 ```markdown
-<jobs user="Leadership" goal="Staff Teams to Succeed">
+<job user="Engineering Leaders" goal="Staff Teams to Succeed">
 
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
 incident.
 
-**Hires:**
-- Help me spot capability gaps before someone gets set up to fail. → **Summit**
+**Big Hire:** Help me make staffing decisions I can defend with evidence, not
+intuition. → **Summit**
 
-</jobs>
+**Little Hire:** Help me spot capability gaps before someone gets set up to
+fail. → **Summit**
+
+</job>
 ```
 
 ## L3 — Agent Profile

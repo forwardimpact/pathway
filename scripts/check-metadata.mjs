@@ -32,8 +32,8 @@ const KEY_ORDER = [
   "repository",
   "license",
   "author",
-  // Project-specific metadata
-  "forwardimpact",
+  // Jobs-To-Be-Done
+  "jobs",
   // Module shape
   "type",
   "main",

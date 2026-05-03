@@ -1,6 +1,11 @@
 # libsyntheticprose
 
-LLM-based prose and pathway generation for synthetic data.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+LLM-generated prose and YAML — realistic evaluation content so agent
+improvements are tested against lifelike data.
+
+<!-- END:description -->
 
 ## Getting Started
 

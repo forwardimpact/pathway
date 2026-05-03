@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libtelemetry",
   "version": "0.1.39",
-  "description": "Structured RFC 5424 logging and trace spans for observable agent operations.",
+  "description": "Structured logging and trace spans — observable operations so problems surface before they escalate.",
   "keywords": [
     "logger",
     "tracing",
@@ -17,13 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Emit a structured log line",
-      "Add a distributed trace span (OpenTelemetry-style observability)"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Services Running and Visible",
+      "trigger": "Debugging a production issue and realizing no trace spans exist for the failing operation.",
+      "bigHire": "make operations observable so problems surface before they escalate.",
+      "littleHire": "add a log line or trace span without configuring a logging framework.",
+      "competesWith": "console.log debugging; no observability; post-mortem log archaeology"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

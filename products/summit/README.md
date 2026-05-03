@@ -1,7 +1,11 @@
 # Summit
 
-Team capability planning from skill data — skill matrices, coverage gaps, risks,
-and staffing scenarios.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Model team capability as a system — staffing decisions backed by evidence, not
+intuition.
+
+<!-- END:description -->
 
 ## Getting Started
 

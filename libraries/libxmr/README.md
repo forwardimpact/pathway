@@ -1,8 +1,11 @@
 # libxmr
 
-Wheeler/Vacanti XmR control chart analysis for time-series CSV metrics. Renders
-the canonical 14-line Individuals (X) plus moving range (mR) chart and applies
-the three Wheeler detection rules (plus mR Rule 1).
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Wheeler/Vacanti XmR control charts — distinguish signal from noise so agent
+teams act on real changes, not fluctuations.
+
+<!-- END:description -->
 
 ## Getting Started
 

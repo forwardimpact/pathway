@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libxmr",
   "version": "1.1.0",
-  "description": "Agent-friendly Wheeler/Vacanti XmR control charts: 14-line ASCII charts and the canonical three detection rules over time-series CSV metrics.",
+  "description": "Wheeler/Vacanti XmR control charts — distinguish signal from noise so agent teams act on real changes, not fluctuations.",
   "keywords": [
     "xmr",
     "control-chart",
@@ -18,14 +18,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-self-improvement",
-    "needs": [
-      "Chart a metric with the canonical Wheeler/Vacanti XmR rules",
-      "Render an XmR control chart as monospace text",
-      "Record a metric and print its current XmR status"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Empowered Engineers",
+      "goal": "Operate a Predictable Agent Team",
+      "trigger": "A metric changes and the team debates whether it is a real shift or just noise.",
+      "bigHire": "distinguish signal from noise so the team acts on real changes, not fluctuations.",
+      "littleHire": "chart a metric and see whether the latest point is within expected variation.",
+      "competesWith": "eyeballing trend lines; arbitrary thresholds; ignoring metrics because no one trusts them"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

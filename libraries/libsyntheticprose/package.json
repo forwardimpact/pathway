@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libsyntheticprose",
   "version": "0.1.20",
-  "description": "LLM-generated prose and engineering-standard YAML for synthetic agent evaluation content.",
+  "description": "LLM-generated prose and YAML — realistic evaluation content so agent improvements are tested against lifelike data.",
   "keywords": [
     "synthetic",
     "prose",
@@ -17,12 +17,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-self-improvement",
-    "needs": [
-      "Generate LLM prose for synthetic data"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

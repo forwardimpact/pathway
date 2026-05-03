@@ -1,6 +1,11 @@
 # libsyntheticrender
 
-Multi-format rendering, validation, and formatting for synthetic data.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Multi-format rendering of synthetic evaluation data — validate fixtures before
+they enter the eval pipeline.
+
+<!-- END:description -->
 
 ## Getting Started
 

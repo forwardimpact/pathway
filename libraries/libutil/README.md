@@ -1,7 +1,10 @@
 # libutil
 
-Utility functions and helpers — token counting, file discovery, retries, and
-bundle downloading.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Cross-cutting utilities: retry, hashing, token counting, and project discovery.
+
+<!-- END:description -->
 
 ## Getting Started
 

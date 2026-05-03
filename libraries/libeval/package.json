@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libeval",
   "version": "0.1.27",
-  "description": "Agent evaluation: collect Claude Code traces, run agent loops, supervise multi-step workflows.",
+  "description": "Agent evaluation framework — prove whether agent changes improved outcomes with reproducible evidence.",
   "keywords": [
     "eval",
     "agent",
@@ -17,14 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-self-improvement",
-    "needs": [
-      "Parse and query Claude Code trace NDJSON files",
-      "Drive an LLM agent through a scripted run and capture its trace",
-      "Supervise a multi-step or multi-agent workflow"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Prove Agent Changes",
+      "trigger": "An eval passes locally but fails in CI and the only output is 'assertion failed.'",
+      "bigHire": "prove whether agent changes improved outcomes with reproducible evidence.",
+      "littleHire": "run an eval and get a trace that shows exactly what the agent did.",
+      "competesWith": "manual before/after comparison; trusting gut feeling over evidence; skipping evaluation entirely"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

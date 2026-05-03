@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libformat",
   "version": "0.1.11",
-  "description": "Render markdown to ANSI for agent-friendly terminal output or HTML for browsers.",
+  "description": "Render markdown to ANSI or HTML — formatted output in any surface without losing structure.",
   "keywords": [
     "markdown",
     "html",
@@ -17,13 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Render markdown as ANSI",
-      "Render markdown as HTML"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Enable Agents on Every Surface",
+      "trigger": "Rendering output in a new surface and getting broken structure or inconsistent results.",
+      "bigHire": "render structured, consistent output across surfaces without per-target formatting code.",
+      "littleHire": "add a rendering target or override without duplicating formatting logic.",
+      "competesWith": "raw unformatted output; per-surface formatting code; tolerating inconsistent rendering"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

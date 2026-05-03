@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libstorage",
   "version": "0.1.72",
-  "description": "Pluggable file storage (local, S3, Supabase) for context agents fetch and produce at runtime.",
+  "description": "Pluggable file storage — local, S3, or Supabase behind a single interface.",
   "keywords": [
     "storage",
     "s3",
@@ -17,13 +17,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-retrieval",
-    "needs": [
-      "Store files to local, S3, or Supabase",
-      "Read or write JSONL"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

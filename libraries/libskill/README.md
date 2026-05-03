@@ -1,6 +1,11 @@
 # libskill
 
-Derivation engine for roles, skills, and agent team profiles.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Derive skill matrices, agent profiles, and job definitions from standard data —
+the engineering standard made queryable.
+
+<!-- END:description -->
 
 ## Getting Started
 

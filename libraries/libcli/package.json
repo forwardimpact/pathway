@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libcli",
   "version": "0.1.8",
-  "description": "Agent-friendly CLIs: argument parsing, handler dispatch, grep-friendly help, JSON mode, and skill-doc links in `--help`.",
+  "description": "Agent-friendly CLIs — self-documenting entry points that humans and agents reach through the same interface.",
   "keywords": [
     "cli",
     "agent",
@@ -17,14 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Parse CLI args and render help",
-      "Render colored tables and JSON output",
-      "Surface skill-doc links in CLI --help output"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Enable Agents on Every Surface",
+      "trigger": "Building an interface and realizing agents can't discover or navigate it the same way humans do.",
+      "bigHire": "give agents and humans the same interface so capabilities don't need separate paths.",
+      "littleHire": "add a capability and know both humans and agents can reach it without a separate integration.",
+      "competesWith": "hand-written argument parsing; separate agent and human interfaces; tolerating agents that can't self-serve"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

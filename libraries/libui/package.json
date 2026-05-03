@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libui",
   "version": "1.2.0",
-  "description": "Agent-friendly web surfaces — SPA routing, reactive state, and route-to-CLI bindings that share handler logic across web and terminal.",
+  "description": "Agent-friendly web surfaces — share handler logic across web and terminal so capabilities ship once, not twice.",
   "keywords": [
     "ui",
     "dom",
@@ -17,12 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Build a reactive single-page web app"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Enable Agents on Every Surface",
+      "trigger": "Building a web view for a product and realizing the handler logic is already written for the CLI but locked to the terminal.",
+      "bigHire": "ship a web surface reusing the same handler logic as the terminal.",
+      "littleHire": "add a capability once and have it appear in both web and terminal.",
+      "competesWith": "duplicating handlers per surface; terminal-only products; building a separate web app from scratch"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

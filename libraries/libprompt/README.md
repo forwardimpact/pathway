@@ -1,6 +1,11 @@
 # libprompt
 
-Prompt template loading and rendering with Mustache.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Prompt templates from .prompt.md files — structured prompts without string
+concatenation.
+
+<!-- END:description -->
 
 ## Getting Started
 

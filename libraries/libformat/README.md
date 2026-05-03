@@ -1,6 +1,11 @@
 # libformat
 
-Markdown formatting and text processing utilities for HTML and terminal output.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Render markdown to ANSI or HTML — formatted output in any surface without losing
+structure.
+
+<!-- END:description -->
 
 ## Getting Started
 

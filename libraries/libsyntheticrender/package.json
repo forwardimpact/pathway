@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libsyntheticrender",
   "version": "0.1.19",
-  "description": "Multi-format rendering and validation of synthetic agent evaluation data (HTML, Markdown, YAML).",
+  "description": "Multi-format rendering of synthetic evaluation data — validate fixtures before they enter the eval pipeline.",
   "keywords": [
     "synthetic",
     "render",
@@ -17,13 +17,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-self-improvement",
-    "needs": [
-      "Render synthetic data as HTML, Markdown, or YAML",
-      "Validate synthetic data integrity"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

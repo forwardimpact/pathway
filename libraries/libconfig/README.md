@@ -1,6 +1,11 @@
 # libconfig
 
-Configuration management and environment resolution.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Environment-aware application settings — services and CLIs load configuration
+without custom plumbing.
+
+<!-- END:description -->
 
 ## Getting Started
 

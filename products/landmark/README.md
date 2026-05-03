@@ -1,7 +1,11 @@
 # Landmark
 
-Engineering milestone analysis combining GitHub artifact evidence with GetDX
-snapshots.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Surface engineering progress from activity evidence — outcomes visible without
+singling out individuals.
+
+<!-- END:description -->
 
 ## Getting Started
 

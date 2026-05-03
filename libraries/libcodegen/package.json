@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libcodegen",
   "version": "0.1.49",
-  "description": "Protobuf code generation — produces the types and clients consumed by `libtype` and `librpc`.",
+  "description": "Protobuf code generation — keep types in sync with proto definitions without hand-writing.",
   "keywords": [
     "codegen",
     "protobuf",
@@ -16,12 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Generate code from .proto files"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Service Contracts Typed",
+      "trigger": "Adding a proto definition and realizing the JavaScript types are already stale.",
+      "bigHire": "keep types in sync with proto definitions without hand-writing.",
+      "littleHire": "change a proto definition and trust the JavaScript types follow.",
+      "competesWith": "manual type definitions; hoping hand-written types match; skipping types entirely"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

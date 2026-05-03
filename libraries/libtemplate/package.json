@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libtemplate",
   "version": "0.2.9",
-  "description": "Mustache template loader with project-level override directories for agent-rendered content.",
+  "description": "Mustache template loader with project-level overrides — consistent rendered output across surfaces.",
   "keywords": [
     "template",
     "mustache",
@@ -16,12 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Render a Mustache template with project overrides"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Enable Agents on Every Surface",
+      "trigger": "Rendering output in a new surface and getting broken structure or inconsistent results.",
+      "bigHire": "render structured, consistent output across surfaces without per-target formatting code.",
+      "littleHire": "add a rendering target or override without duplicating formatting logic.",
+      "competesWith": "raw unformatted output; per-surface formatting code; tolerating inconsistent rendering"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

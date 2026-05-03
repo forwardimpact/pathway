@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libsyntheticgen",
   "version": "0.1.16",
-  "description": "DSL parser and deterministic entity graph generator for repeatable agent eval fixtures.",
+  "description": "DSL parser and deterministic entity graph generator — repeatable eval fixtures so results are reproducible.",
   "keywords": [
     "synthetic",
     "dsl",
@@ -17,13 +17,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-self-improvement",
-    "needs": [
-      "Parse a terrain DSL",
-      "Generate a deterministic entity graph"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

@@ -1,6 +1,11 @@
 # librpc
 
-gRPC framework and utilities — server, client, health checks, and tracing.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+gRPC server and client framework — ship service endpoints without reimplementing
+transport.
+
+<!-- END:description -->
 
 ## Getting Started
 

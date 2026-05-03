@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libgraph",
   "version": "0.1.69",
-  "description": "RDF triple store with named ontologies and SHACL serialization — schema-aware graph inference for agents.",
+  "description": "RDF triple store with named ontologies — answer relationship questions without writing join logic.",
   "keywords": [
     "rdf",
     "graph",
@@ -17,13 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-retrieval",
-    "needs": [
-      "Query an RDF triple graph",
-      "Serialize SHACL shapes"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Ground Agents in Context",
+      "trigger": "Needing to know how two concepts relate and realizing the answer is scattered across files no one maintains.",
+      "bigHire": "answer relationship questions without writing join logic.",
+      "littleHire": "query a named ontology and trust the triples are consistent.",
+      "competesWith": "ad-hoc file joins; embedding relationship data in each consumer; skipping the relationship question"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

@@ -33,11 +33,12 @@
     "data": "bun run data:check-prose && bun run data:check-schema",
     "data:check-prose": "LOG_LEVEL=error bunx fit-terrain check",
     "data:check-schema": "LOG_LEVEL=error bunx fit-terrain validate && LOG_LEVEL=error bunx fit-map validate --data products/map/starter",
-    "context": "bun run context:check-instructions && bun run context:check-metadata && bun run context:check-catalog",
+    "context": "bun run context:check-instructions && bun run context:check-metadata && bun run context:check-catalog && bun run context:check-jtbd",
     "context:check-instructions": "bun scripts/check-instructions.mjs",
     "context:check-metadata": "bun scripts/check-metadata.mjs",
     "context:check-catalog": "bun scripts/check-catalog.mjs",
-    "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-catalog.mjs --fix"
+    "context:check-jtbd": "bun scripts/check-jtbd.mjs",
+    "context:fix": "bun scripts/check-metadata.mjs --fix && bun scripts/check-jtbd.mjs --fix"
   },
   "dependencies": {
     "forwardimpact-monorepo": "."

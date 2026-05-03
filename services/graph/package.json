@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/svcgraph",
   "version": "0.1.68",
-  "description": "Simple RDF knowledge graph over gRPC for products.",
+  "description": "RDF knowledge graph over gRPC — relationship queries without each product standing up its own store.",
   "keywords": [
     "graph",
     "rdf",
@@ -17,12 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-retrieval",
-    "needs": [
-      "Expose RDF knowledge graphs over gRPC"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Ground Agents in Context",
+      "trigger": "Needing to know how two concepts relate and realizing the answer is scattered across files no one wants to join by hand.",
+      "bigHire": "traverse a knowledge graph from a product without standing up my own store.",
+      "littleHire": "answer relationship questions without writing join logic.",
+      "competesWith": "ad-hoc joins across flat files; embedding a triple store in each product; skipping the relationship question entirely"
+    }
+  ],
   "type": "module",
   "main": "index.js",
   "bin": {

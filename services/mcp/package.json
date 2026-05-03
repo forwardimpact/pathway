@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/svcmcp",
   "version": "0.1.6",
-  "description": "Unified MCP server — exposes gRPC backend services as agent-consumable tools.",
+  "description": "Unified MCP server — agents reach backend services as tools without per-service integration.",
   "keywords": [
     "mcp",
     "tools",
@@ -17,12 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Expose backend services as MCP tools over HTTP"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Service Contracts Typed",
+      "trigger": "Adding a new gRPC service and realizing each one needs its own MCP glue to become an agent tool.",
+      "bigHire": "expose every backend service as agent tools through one server.",
+      "littleHire": "add a service to the MCP surface without writing integration code.",
+      "competesWith": "per-service MCP wrappers; hand-writing tool schemas for each endpoint; leaving services unreachable by agents"
+    }
+  ],
   "type": "module",
   "main": "./index.js",
   "bin": {

@@ -1,6 +1,11 @@
 # libeval
 
-Process Claude Code stream-json output into structured traces.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Agent evaluation framework — prove whether agent changes improved outcomes with
+reproducible evidence.
+
+<!-- END:description -->
 
 ## Getting Started
 

@@ -58,11 +58,12 @@ for setup.
 
 ## Learn More
 
+- [Jobs To Be Done](JTBD.md) – The jobs users hire our products for
 - [Documentation](websites/fit/docs/) — Getting started, guides, reference, and
   architecture internals
 - [CONTRIBUTING.md](CONTRIBUTING.md) — Pull request workflow, git conventions,
   and quality commands
-- [CLAUDE.md](CLAUDE.md) — Architecture context for coding agents
+- [CLAUDE.md](CLAUDE.md) — Context for coding agents
 
 ## License
 

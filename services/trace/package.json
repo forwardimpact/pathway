@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/svctrace",
   "version": "0.1.41",
-  "description": "OpenTelemetry span ingestion and storage over gRPC — observable agent operations.",
+  "description": "OpenTelemetry span ingestion and storage over gRPC — prove whether agent changes improved outcomes.",
   "keywords": [
     "trace",
     "opentelemetry",
@@ -17,12 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Collect and store OpenTelemetry spans over gRPC"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Prove Agent Changes",
+      "trigger": "Finishing an agent improvement and realizing there is no centralized place to store and compare trace spans.",
+      "bigHire": "collect trace spans from any product without each one managing its own storage.",
+      "littleHire": "send spans from a product and trust they are queryable later.",
+      "competesWith": "per-product trace files; manual log comparison; skipping observability entirely"
+    }
+  ],
   "type": "module",
   "main": "index.js",
   "bin": {

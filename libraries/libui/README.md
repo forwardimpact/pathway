@@ -1,6 +1,11 @@
 # libui
 
-Web UI framework: rendering, routing, components, and design system.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Agent-friendly web surfaces — share handler logic across web and terminal so
+capabilities ship once, not twice.
+
+<!-- END:description -->
 
 ## Getting Started
 

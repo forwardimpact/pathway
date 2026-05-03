@@ -1,6 +1,11 @@
 # Pathway Service
 
-gRPC service for pathway derivation — roles, skills, and career progression.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Engineering standard queries over gRPC — career paths and agent profiles as
+derivable data for products.
+
+<!-- END:description -->
 
 ## Getting Started
 

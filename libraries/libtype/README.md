@@ -1,6 +1,11 @@
 # libtype
 
-Shared type definitions and data models generated from Protocol Buffers.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Generated protobuf types and namespaces — one source of truth for service
+contracts.
+
+<!-- END:description -->
 
 ## Getting Started
 

@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/summit",
-  "version": "0.1.14",
-  "description": "Team capability planning from skill data.",
+  "version": "0.1.13",
+  "description": "Model team capability as a system — staffing decisions backed by evidence, not intuition.",
   "keywords": [
     "team",
     "capability",
@@ -18,6 +18,23 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Engineering Leaders",
+      "goal": "Staff Teams to Succeed",
+      "trigger": "A post-mortem surfaces the same skill gap that caused the last incident — nobody had a way to see it before staffing the team.",
+      "bigHire": "make staffing decisions I can defend with evidence, not intuition.",
+      "littleHire": "spot capability gaps before someone gets set up to fail.",
+      "competesWith": "résumé screening; gut feel; copying a team that seems to work; accepting gaps as inevitable",
+      "forces": {
+        "push": "Capability gaps appear as incidents, never in advance.",
+        "pull": "Confidence that a staffing change strengthens the team as a system.",
+        "habit": "Hiring on résumés and gut rather than team composition analysis.",
+        "anxiety": "Modeling human capability feels reductive."
+      },
+      "firedWhen": "the skill taxonomy drifts from actual roles; or a hiring freeze removes the pressure to staff analytically."
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

@@ -1,8 +1,8 @@
 # Libraries
 
-Conventions when working under `libraries/`. The catalog itself lives in
-[README.md](README.md); this file documents the metadata that drives it and the
-rules a CLI-shipping library must follow.
+Conventions when working under `libraries/`. The catalog and jobs live in
+[README.md](README.md); this file documents the metadata, rules, and
+conventions a library must follow.
 
 ## Audience
 
@@ -15,31 +15,43 @@ Write `--help` output, skill instructions, and published guides for that reader:
 self-contained, no insider tooling references, no relative paths into
 `libraries/` or `websites/`, and every doc link a fully-qualified public URL.
 
-## `package.json` structure
+## Mandate
 
-Every library carries metadata the catalog generators consume. Required fields:
+When building a product, service, website, or script, you **must** check the
+[catalog](README.md) before writing a generic capability. If a library here
+covers it, use the library. If not, note that in the commit or plan so the next
+contributor does not re-search.
 
-- **`description`** — capability-led, one sentence, agent angle baked in.
-  Becomes the row in [README.md](README.md). Markdown is allowed — use backticks
-  for cross-library references, code, or paths so the rendered table reads
-  cleanly.
-- **`keywords`** — 4–6 lowercase tokens. First token is the primary capability
-  noun (`cli`, `storage`, `vector`); last is always `agent`.
-- **`forwardimpact.capability`** — exactly one of `agent-capability`,
-  `agent-retrieval`, `agent-self-improvement`, `agent-infrastructure`, or
-  `foundations`. Determines the catalog category.
-- **`forwardimpact.needs`** — array of "I need to…" phrases for the flat index
-  in [README.md](README.md). Each phrase must be unique across the monorepo (the
-  generator fails on duplicates). Keep entries imperative and outcome-shaped,
-  not feature-shaped (`Compute a stable hash`, not `generateHash function`).
+This rule lives next to the other invariants in
+[CONTRIBUTING.md](../CONTRIBUTING.md#read-do).
 
-After editing any of these, regenerate the catalog:
+## `package.json` metadata
 
-```sh
-bun run context:fix
+Every library carries metadata the catalog generators consume. `description`
+becomes the catalog row in [README.md](README.md). `keywords` are 4–6 lowercase
+tokens; last is always `agent`. `jobs` are Little Hire entries — no `forces` or
+`firedWhen` — generating the jobs block in README.md.
+
+### Worked example: `librpc`
+
+```json
+{
+  "description": "gRPC server and client framework — how agent services talk to each other.",
+  "keywords": ["grpc", "rpc", "server", "client", "agent"],
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Stand Up Typed Services",
+      "trigger": "Starting a new service and reaching for last project's copy-pasted transport boilerplate.",
+      "bigHire": "ship a service endpoint without reimplementing transport.",
+      "littleHire": "call a service without managing connections or retries.",
+      "competesWith": "copy-pasting boilerplate; hand-writing protobuf clients; tolerating the duplication"
+    }
+  ]
+}
 ```
 
-`bun run check` refuses a stale catalog and points at the right command.
+After editing, regenerate: `bun run context:fix`.
 
 ## Invocation context
 
@@ -114,3 +126,32 @@ const cli = createCli({
   ],
 });
 ```
+
+## Adding a library
+
+Same shape as every other library here:
+
+- `package.json` — `@forwardimpact/lib<name>`, ESM, with `description`,
+  `keywords`, and `jobs`.
+- `README.md` — purpose, key exports, one composition example.
+- `src/` — implementation (no tests in `src`).
+- `test/` — `*.test.js` files, runner-independent (`bun:test` and `node:test`
+  both work, see `libharness`).
+- Run `bun run context:fix` to regenerate the catalog and jobs tables. Update
+  any consuming product or service to import from the new library.
+
+## Vocabulary
+
+- **engineering-standard** — the agent-aligned engineering standard data model
+  (disciplines, levels, tracks, capabilities, skills, behaviours, drivers)
+  authored as YAML under [products/map/starter/](../products/map/starter/).
+  Defines what good engineering looks like for the organization.
+- **skill-doc** — the published markdown documentation for a skill or
+  capability, surfaced to agents via `--help` links so they can locate
+  authoritative usage docs without prior context.
+- **MCP** — [Model Context Protocol](https://modelcontextprotocol.io/),
+  Anthropic's standard for exposing tools to LLM agents. `libmcp` bridges gRPC
+  services into MCP tools.
+- **Plan-Do-Study-Act** — the Toyota-Kata improvement loop the Kata Agent Team
+  uses: agents plan, ship, study their traces, and act on findings. See
+  [KATA.md](../KATA.md).

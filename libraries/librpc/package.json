@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/librpc",
   "version": "0.1.97",
-  "description": "gRPC server and client framework — how agent services talk to each other.",
+  "description": "gRPC server and client framework — ship service endpoints without reimplementing transport.",
   "keywords": [
     "grpc",
     "rpc",
@@ -17,13 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-infrastructure",
-    "needs": [
-      "Build a gRPC service",
-      "Call another gRPC service"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Keep Service Contracts Typed",
+      "trigger": "Starting a new service and reaching for last project's copy-pasted transport boilerplate.",
+      "bigHire": "ship a service endpoint without reimplementing transport.",
+      "littleHire": "call a service without managing connections or retries.",
+      "competesWith": "copy-pasting boilerplate; hand-writing protobuf clients; tolerating the duplication"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

@@ -12,6 +12,15 @@ Unlike products and libraries, services are not published to npm for direct
 consumption. External users reach service functionality indirectly through
 product CLIs and the MCP server.
 
+## Mandate
+
+When building a product feature that requires graph queries, vector search,
+pathway derivation, trace collection, or MCP tool exposure, use the
+corresponding service. Do not embed service-level logic in products.
+
+This rule lives next to the other invariants in
+[CONTRIBUTING.md](../CONTRIBUTING.md#read-do).
+
 ## Architecture
 
 All services except `mcp` expose a gRPC interface defined in `proto/`. The MCP
@@ -28,28 +37,31 @@ Each service follows the same structure:
 - **`proto/*.proto`** — gRPC service definition (all services except `mcp`).
 - **`test/`** — tests, run with `bun test test/*.test.js`.
 
-### Service catalog
-
-| Service     | Package                       | Role                                       |
-| ----------- | ----------------------------- | ------------------------------------------ |
-| **graph**   | `@forwardimpact/svcgraph`     | Graph query over RDF triples               |
-| **vector**  | `@forwardimpact/svcvector`    | Vector similarity search                   |
-| **pathway** | `@forwardimpact/svcpathway`   | Pathway derivation from agent-aligned data |
-| **trace**   | `@forwardimpact/svctrace`     | OpenTelemetry span storage                 |
-| **mcp**     | `@forwardimpact/svcmcp`       | Unified MCP server fronting gRPC services  |
-
 ## `package.json` metadata
 
-Every service carries metadata the catalog generator in
-[README.md](README.md) consumes:
+Every service carries metadata the catalog generators consume. `description`
+becomes the catalog row in [README.md](README.md). `keywords` are 4–6 lowercase
+tokens; last is always `agent`. `jobs` are Little Hire entries — no `forces` or
+`firedWhen` — generating the jobs block in README.md.
 
-- **`description`** — capability-led, one sentence. Becomes the row in the
-  catalog.
-- **`keywords`** — 4–6 lowercase tokens; last is always `agent`.
-- **`forwardimpact.capability`** — one of `agent-capability`,
-  `agent-retrieval`, or `agent-infrastructure`.
-- **`forwardimpact.needs`** — array of "I need to…" phrases unique across the
-  monorepo.
+### Worked example: `svcgraph`
+
+```json
+{
+  "description": "Simple RDF knowledge graph over gRPC for products.",
+  "keywords": ["graph", "rdf", "knowledge", "grpc", "agent"],
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Ground Agents in Context",
+      "trigger": "Needing to know how two concepts relate and realizing the answer is scattered across files no one wants to join by hand.",
+      "bigHire": "traverse a knowledge graph from a product without standing up my own store.",
+      "littleHire": "answer relationship questions without writing join logic.",
+      "competesWith": "ad-hoc joins across flat files; embedding a triple store in each product; skipping the relationship question entirely"
+    }
+  ]
+}
+```
 
 After editing, regenerate: `bun run context:fix`.
 
@@ -100,6 +112,19 @@ proto file, regenerate bindings:
 ```sh
 just codegen
 ```
+
+## Adding a service
+
+Same shape as every other service here:
+
+- `package.json` — `@forwardimpact/svc<name>`, ESM, with `description`,
+  `keywords`, and `jobs`.
+- `server.js` — entry point following the standard bootstrap sequence.
+- `index.js` — service implementation.
+- `proto/<name>.proto` — gRPC service definition (unless MCP-only).
+- `test/` — `*.test.js` files.
+- Run `bun run context:fix` to regenerate the catalog and jobs tables. Update
+  any consuming product to import from the new service.
 
 ## No external documentation
 

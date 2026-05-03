@@ -1,7 +1,11 @@
 # Map
 
-Data product for agent-aligned engineering standards consumed by AI agents and
-engineers.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Validate, store, and publish agent-aligned engineering standards so expectations
+are operational, not tribal.
+
+<!-- END:description -->
 
 ## Getting Started
 

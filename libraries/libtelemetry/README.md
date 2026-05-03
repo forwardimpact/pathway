@@ -1,6 +1,11 @@
 # libtelemetry
 
-OpenTelemetry-based tracing and structured logging.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Structured logging and trace spans — observable operations so problems surface
+before they escalate.
+
+<!-- END:description -->
 
 ## Getting Started
 

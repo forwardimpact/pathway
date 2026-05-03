@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/outpost",
   "version": "2.12.6",
-  "description": "Claude Code-native personal knowledge system with autonomous agents",
+  "description": "Personal operations center — context from email, calendar, and knowledge assembled so preparation is continuous, not a morning scramble.",
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -10,6 +10,23 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Empowered Engineers",
+      "goal": "Be Prepared and Productive",
+      "trigger": "Walking into a meeting cold because the context was buried across email threads, a Slack channel, and last week's notes.",
+      "bigHire": "keep track of people, projects, and threads without depending on memory.",
+      "littleHire": "walk into every meeting already oriented without the morning scramble.",
+      "competesWith": "morning email scan; re-reading calendar invites; personal notes and TODO lists; asking colleagues for context; accepting that some threads will be dropped",
+      "forces": {
+        "push": "Context-switching compounds; starting cold wastes everyone's time.",
+        "pull": "Continuous awareness without continuous effort — context assembled and maintained.",
+        "habit": "Manual morning prep routines and personal tracking systems that feel 'good enough.'",
+        "anxiety": "Delegating awareness to a system feels like losing control."
+      },
+      "firedWhen": "the briefing becomes noise; or simpler tools absorb enough of the preparation and tracking."
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

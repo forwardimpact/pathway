@@ -1,6 +1,11 @@
 # Trace Service
 
-gRPC service for receiving and storing OpenTelemetry spans.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+OpenTelemetry span ingestion and storage over gRPC — prove whether agent changes
+improved outcomes.
+
+<!-- END:description -->
 
 ## Getting Started
 

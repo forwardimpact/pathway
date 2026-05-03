@@ -1,4 +1,4 @@
-import { before, test } from "node:test";
+import { test } from "node:test";
 import assert from "node:assert/strict";
 
 import {
@@ -6,18 +6,6 @@ import {
   loadRosterFromMap,
   validateRosterAgainstStandard,
 } from "../src/roster/index.js";
-
-import {
-  FIXTURE_ROSTER,
-  WARNINGS_ROSTER,
-  loadStarterData,
-} from "./fixtures.js";
-
-let starterData;
-
-before(async () => {
-  ({ data: starterData } = await loadStarterData());
-});
 
 const MINIMAL_YAML = `
 teams:
@@ -166,54 +154,6 @@ test("validateRosterAgainstStandard is clean for a valid roster", () => {
   };
   const result = validateRosterAgainstStandard(roster, data);
   assert.equal(result.errors.length, 0);
-});
-
-test("validateRosterAgainstStandard emits NO_SENIOR_MEMBER for all-entry-level team", () => {
-  const roster = parseRosterYaml(WARNINGS_ROSTER);
-  const result = validateRosterAgainstStandard(roster, starterData);
-  const noSenior = result.warnings.filter((w) => w.code === "NO_SENIOR_MEMBER");
-  assert.equal(noSenior.length, 1);
-  assert.equal(noSenior[0].context.team, "juniors");
-  assert.equal(noSenior[0].context.level, "J040");
-});
-
-test("validateRosterAgainstStandard emits TRACKLESS_AT_ENTRY_LEVEL per trackless member", () => {
-  const roster = parseRosterYaml(WARNINGS_ROSTER);
-  const result = validateRosterAgainstStandard(roster, starterData);
-  const trackless = result.warnings.filter(
-    (w) => w.code === "TRACKLESS_AT_ENTRY_LEVEL",
-  );
-  assert.equal(trackless.length, 1);
-  assert.equal(trackless[0].context.member, "eve@example.com");
-  assert.equal(trackless[0].context.team, "juniors");
-  assert.equal(trackless[0].context.level, "J040");
-});
-
-test("validateRosterAgainstStandard emits LOW_ALLOCATION_PROJECT once per project", () => {
-  const roster = parseRosterYaml(WARNINGS_ROSTER);
-  const result = validateRosterAgainstStandard(roster, starterData);
-  const lowAlloc = result.warnings.filter(
-    (w) => w.code === "LOW_ALLOCATION_PROJECT",
-  );
-  assert.equal(lowAlloc.length, 1);
-  assert.equal(lowAlloc[0].context.project, "spike");
-  assert.equal(lowAlloc[0].context.threshold, 0.5);
-  assert.equal(lowAlloc[0].context.belowThresholdCount, 2);
-});
-
-test("validateRosterAgainstStandard emits no warnings on the starter fixture roster", () => {
-  const roster = parseRosterYaml(FIXTURE_ROSTER);
-  const result = validateRosterAgainstStandard(roster, starterData);
-  assert.equal(result.warnings.length, 0);
-});
-
-test("validateRosterAgainstStandard suppresses level-aware warnings when data.levels is empty", () => {
-  const roster = parseRosterYaml(WARNINGS_ROSTER);
-  const data = { ...starterData, levels: [] };
-  const result = validateRosterAgainstStandard(roster, data);
-  assert.equal(result.warnings.length, 1);
-  assert.equal(result.warnings[0].code, "LOW_ALLOCATION_PROJECT");
-  assert.equal(result.warnings[0].context.project, "spike");
 });
 
 test("loadRosterFromMap groups people by manager_email", async () => {

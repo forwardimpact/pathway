@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libresource",
   "version": "0.1.109",
-  "description": "Typed resources with identifiers, access control, and rich RDF-friendly context chunks for agent grounding.",
+  "description": "Typed resources with identifiers and rich context chunks — trustworthy, retrievable knowledge for agent grounding.",
   "keywords": [
     "resource",
     "rdf",
@@ -17,13 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-retrieval",
-    "needs": [
-      "Manage typed resources with access control",
-      "Resolve a typed resource by URN"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Ground Agents in Context",
+      "trigger": "Passing context to an agent and realizing the payload is an untyped blob with no provenance or access control.",
+      "bigHire": "give agents typed, retrievable knowledge they can trust.",
+      "littleHire": "resolve a resource by identifier and get a rich context chunk, not a raw file.",
+      "competesWith": "passing raw file contents; untyped JSON payloads; skipping provenance and hoping the agent figures it out"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

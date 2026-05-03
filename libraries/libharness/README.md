@@ -1,11 +1,10 @@
 # libharness
 
-Shared test fixtures, mocks, and assertion helpers for the monorepo. Imported by
-`*.test.js` files across libraries, products, and services so test code stays
-consistent and test authors stop reinventing the same helpers.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
 
-Runner-independent: the mock primitive `spy()` does not depend on either
-`node:test` or `bun:test`, so the suite runs under both. See spec 650.
+Shared mocks and test fixtures so every library and service tests the same way.
+
+<!-- END:description -->
 
 ## Usage
 

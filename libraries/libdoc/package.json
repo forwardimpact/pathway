@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libdoc",
   "version": "0.2.24",
-  "description": "Static documentation sites from markdown folders with front matter and navigation.",
+  "description": "Static documentation sites from markdown — publish docs without a framework.",
   "keywords": [
     "docs",
     "static-site",
@@ -16,12 +16,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-capability",
-    "needs": [
-      "Build a static documentation site"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

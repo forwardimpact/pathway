@@ -1,6 +1,11 @@
 # libvector
 
-Vector operations and index management for similarity search.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Vector dot-product scoring — find semantically related content without a
+dedicated database.
+
+<!-- END:description -->
 
 ## Getting Started
 

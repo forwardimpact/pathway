@@ -2,9 +2,7 @@
 
 Conventions when working under `products/`. Products are the six end-user
 applications (Map, Pathway, Guide, Landmark, Summit, Outpost) consumed via
-`npm install` and `npx fit-<product>`. This file documents the rules a product
-CLI must follow so external readers land on consistent docs from any entry
-point.
+`npm install` and `npx fit-<product>`.
 
 ## Audience
 
@@ -16,6 +14,40 @@ matching skill — without ever cloning the repo.
 Write `--help` output, skill instructions, and published guides for that reader:
 self-contained, no insider tooling references, no relative paths into
 `products/` or `websites/`, and every doc link a fully-qualified public URL.
+
+## `package.json` metadata
+
+Every product carries metadata the catalog generators consume. `description`
+becomes the catalog row in [README.md](README.md). `jobs` are Big Hire entries —
+with `forces` and `firedWhen` — generating [JTBD.md](../JTBD.md) and the jobs
+block in README.md.
+
+### Worked example: `fit-map`
+
+```json
+{
+  "description": "Data product for agent-aligned engineering standards, consumed by AI agents and engineers",
+  "jobs": [
+    {
+      "user": "Engineering Leaders",
+      "goal": "Define the Engineering Standard",
+      "trigger": "A promotion decision stalls because two managers disagree on what 'senior' means — neither can point to a written definition.",
+      "bigHire": "turn 'good engineering' into an operational definition the organization trusts and follows.",
+      "littleHire": "update the standard knowing structural mistakes get caught before they ship.",
+      "competesWith": "tribal knowledge; borrowed frameworks; per-manager intuition; tolerating the ambiguity",
+      "forces": {
+        "push": "Inconsistent expectations produce contested promotions.",
+        "pull": "A shared definition that makes quality visible and discussable.",
+        "habit": "Each manager carries a private mental model of what 'good' means.",
+        "anxiety": "Getting definitions wrong feels worse than having none."
+      },
+      "firedWhen": "definitions drift from practice; or a reorg removes the mandate to maintain them."
+    }
+  ]
+}
+```
+
+After editing, regenerate: `bun run context:fix`.
 
 ## Invocation context
 

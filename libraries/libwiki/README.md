@@ -1,7 +1,11 @@
 # libwiki
 
-Wiki lifecycle primitives for the Kata agent system. Provides cross-team memo
-delivery, agent roster discovery, and insertion-marker migration.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Wiki lifecycle primitives — stable memory for agent teams so coordination
+persists across sessions.
+
+<!-- END:description -->
 
 ## Getting Started
 

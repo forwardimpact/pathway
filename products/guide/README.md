@@ -1,7 +1,11 @@
 # Guide
 
-Conversational AI agent that reasons about your agent-aligned engineering
-standard in context.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Conversational agent that grounds career guidance and quality review in your
+organization's engineering standard.
+
+<!-- END:description -->
 
 ## Getting Started
 

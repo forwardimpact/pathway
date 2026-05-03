@@ -1,7 +1,11 @@
 # Outpost
 
-Personal operations center — scheduled AI agents, knowledge graphs, and daily
-briefings.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Personal operations center — context from email, calendar, and knowledge
+assembled so preparation is continuous, not a morning scramble.
+
+<!-- END:description -->
 
 ## Getting Started
 

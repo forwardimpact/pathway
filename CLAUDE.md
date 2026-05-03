@@ -8,82 +8,82 @@
 >
 > — W. Edwards Deming
 
-## Users
-
-Four external user groups use the system. Every product serves at least two.
-Internal contributors build and maintain the monorepo; external users consume
-products via npm. See [JTBD.md](JTBD.md) for the jobs each persona hires our
-products to do.
-
-- **Leadership** — Define what good engineering looks like, staff teams to
-  succeed, and measure outcomes without blaming individuals.
-- **Empowered Engineers** — Understand expectations, find growth areas, equip
-  their own agent teams, and receive guidance grounded in their organization's
-  agent-aligned engineering standard.
-- **Coding Agents** — Align with their human counterparts through shared
-  capabilities, skills, and quality standards defined by leadership.
-- **Platform Builders** — Construct agent-capable systems using shared libraries
-  and services designed for humans and agents alike.
-
 ## Primary Products
+
+Three external user groups hire these products. Internal contributors build and
+maintain the monorepo; external users consume products via npm. See
+[JTBD.md](JTBD.md) for the jobs each persona hires our products to do.
+
+- **Engineering Leaders** — Define what good engineering looks like, staff teams
+  to succeed, and measure outcomes without blaming individuals.
+- **Empowered Engineers** — Understand expectations, find growth areas, prepare
+  for the day ahead, and equip and trust their agent teams — grounded in their
+  organization's agent-aligned engineering standard.
+- **Teams Using Agents** — Run an autonomous, continuously improving development
+  team that plans, ships, studies its own traces, and acts on findings.
 
 ### Map — `fit-map`
 
-Helps leadership answer _what does good engineering look like here?_
-Validates, stores, and publishes agent-aligned engineering standards defined in
-YAML. [Overview](websites/fit/map/index.md) ·
+Hired by engineering leaders to turn 'good engineering' into an operational
+definition the organization trusts. Catches structural mistakes before they
+ship. [Overview](websites/fit/map/index.md) ·
 [Internals](websites/fit/docs/internals/map/index.md)
 
 ### Pathway — `fit-pathway`
 
-Helps empowered engineers and coding agents answer _where does my career path
-go from here?_ Web app, CLI, and static site generator for job definitions,
-agent profiles, and interview questions. [Overview](websites/fit/pathway/index.md) ·
+Hired by leaders to define roles, engineers to see what's expected, and agents to
+be configured to match. Makes expectations visible and coherent across
+evaluations. [Overview](websites/fit/pathway/index.md) ·
 [Internals](websites/fit/docs/internals/pathway/index.md)
 
 ### Guide — `fit-guide`
 
-Helps empowered engineers answer _how do I find my bearing?_ AI agent that
-reasons about your agent-aligned engineering standard in context.
+Hired by engineers to get career guidance and output review grounded in their
+organization's actual standard, not generic advice or subjective impressions.
 [Overview](websites/fit/guide/index.md) ·
 [Internals](websites/fit/docs/internals/guide/index.md)
 
 ### Landmark — `fit-landmark`
 
-Helps leadership and empowered engineers answer _what milestones has my
-engineering reached?_ Analysis layer combining GitHub artifact evidence with
-GetDX snapshots. No LLM calls. [Overview](websites/fit/landmark/index.md) ·
+Hired by leaders to demonstrate engineering progress and by engineers to show
+evidence of growth — both without making individuals feel surveilled.
+[Overview](websites/fit/landmark/index.md) ·
 [Internals](websites/fit/docs/internals/landmark/index.md)
 
 ### Summit — `fit-summit`
 
-Helps leadership answer _is this team supported to reach peak performance?_
-Models team capability as a system: skill matrices, coverage gaps, risks, and
-staffing scenarios. [Overview](websites/fit/summit/index.md) ·
+Hired by engineering leaders to replace staffing guesswork with evidence-based
+team composition analysis. Surfaces capability gaps before someone gets set up to
+fail. [Overview](websites/fit/summit/index.md) ·
 [Internals](websites/fit/docs/internals/summit/index.md)
 
 ### Outpost — `fit-outpost`
 
-Helps empowered engineers answer _am I prepared for what's ahead today?_
-Personal operations center providing scheduled AI tasks, knowledge graphs, and
-meeting briefings (macOS status menu). [Overview](websites/fit/outpost/index.md)
-· [Internals](websites/fit/docs/internals/outpost/index.md)
+Hired by engineers to maintain continuous awareness of people, projects, and
+threads without continuous effort. Assembles context so they walk into every
+meeting already oriented. [Overview](websites/fit/outpost/index.md) ·
+[Internals](websites/fit/docs/internals/outpost/index.md)
+
+### Kata — `kata-skills`
+
+Hired by teams using agents to run an autonomous development team that keeps
+getting better. Organized as a daily Plan-Do-Study-Act cycle where agents plan by
+writing specs, ship features, study their own traces, and act on findings.
+[Internals](websites/fit/docs/internals/kata/)
 
 ## Secondary Products
 
+**Platform Builders** hire these products to _construct agent-capable systems
+using shared libraries and services designed for humans and agents alike._
+[Services § Jobs To Be Done](services/README.md#jobs-to-be-done) ·
+[Libraries § Jobs To Be Done](libraries/README.md#jobs-to-be-done).
+
 ### Gear — `fit-skills`
 
-Helps platform builders answer _what do I carry into the field?_ The catalog
-of agent-shaped utilities distributed via npm and the `forwardimpact/fit-skills`
-skill pack. [Overview](websites/fit/gear/index.md) ·
-[Catalog](libraries/README.md)
-
-### Kata Agent Team — `kata-skills`
-
-An autonomous, continuously improving agentic development team organized as a
-Plan-Do-Study-Act cycle. Agents use spec-driven development to plan and ship,
-then study their own traces and act on findings — closing the loop every day.
-[Internals](websites/fit/docs/internals/kata/)
+Hired by platform builders to give humans and agents shared capabilities through
+the same interface, with tooling to prove changes actually improved outcomes.
+[Overview](websites/fit/gear/index.md) ·
+[§ Catalog](libraries/README.md#catalog)
 
 ## Distribution Model
 
@@ -130,7 +130,7 @@ Tagged jobs capture the progress each user hires a product to make. Tagged
 checklists gate pause points. Discover both with `rg`:
 
 ```sh
-rg '<jobs '                 # Big Hires in JTBD.md, Little Hires near the code
+rg '<job '                  # Jobs with Big Hires and Little Hires
 rg '<read_do_checklist'     # Entry gates — read each item, then do it
 rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
 ```
@@ -167,7 +167,7 @@ Validate data: `bunx fit-map validate`. Vocabulary standards in the
 
 ## Documentation Map
 
-One home per policy; per-product pages: [§ Products](#products).
+One home per policy.
 
 **Internal:**
 
@@ -182,8 +182,6 @@ One home per policy; per-product pages: [§ Products](#products).
 **External:**
 
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
-- **Product guides** —
-  [websites/fit/docs/products/](websites/fit/docs/products/)
-- **Library guides** —
-  [websites/fit/docs/libraries/](websites/fit/docs/libraries/)
+- **Product guides** — [websites/fit/docs/products/](websites/fit/docs/products/)
+- **Library guides** — [websites/fit/docs/libraries/](websites/fit/docs/libraries/)
 - **Published skills** — [fit-\*](.claude/skills/) · [kata-\*](.claude/skills/)

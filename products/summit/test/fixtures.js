@@ -85,53 +85,6 @@ projects:
 `;
 
 /**
- * Roster exercising all three composition warnings (spec 630):
- * - team `juniors` — every member at entry level J040 (`NO_SENIOR_MEMBER`)
- * - Eve has no track at entry level (`TRACKLESS_AT_ENTRY_LEVEL`)
- * - project `spike` — both members below 0.5 allocation
- *   (`LOW_ALLOCATION_PROJECT`)
- */
-export const WARNINGS_ROSTER = `
-teams:
-  juniors:
-    - name: Dee
-      email: dee@example.com
-      job: { discipline: software_engineering, level: J040, track: platform }
-    - name: Eve
-      email: eve@example.com
-      job: { discipline: software_engineering, level: J040 }
-projects:
-  spike:
-    - email: dee@example.com
-      allocation: 0.4
-    - email: eve@example.com
-      allocation: 0.3
-`;
-
-/**
- * Variant of `WARNINGS_ROSTER` where Eve sits at an unknown level so the
- * existing error pass emits `UNKNOWN_LEVEL`. Used to exercise the combined
- * errors-and-warnings text-output path. `LOW_ALLOCATION_PROJECT` still fires
- * for `spike` so the warnings suffix block is present.
- */
-export const ERRORS_AND_WARNINGS_ROSTER = `
-teams:
-  juniors:
-    - name: Dee
-      email: dee@example.com
-      job: { discipline: software_engineering, level: J040, track: platform }
-    - name: Eve
-      email: eve@example.com
-      job: { discipline: software_engineering, level: J999 }
-projects:
-  spike:
-    - email: dee@example.com
-      allocation: 0.4
-    - email: eve@example.com
-      allocation: 0.3
-`;
-
-/**
  * Resolves a team, computes coverage, and detects risks in one shot — the
  * "snapshot" pattern repeated across compare/what-if tests.
  *

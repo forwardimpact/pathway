@@ -1,6 +1,10 @@
 # libsecret
 
-Secret generation and environment file utilities.
+<!-- BEGIN:description — Do not edit. Generated from package.json. -->
+
+Secret generation, JWT signing, and .env file management for services and CLIs.
+
+<!-- END:description -->
 
 ## Getting Started
 

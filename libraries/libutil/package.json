@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libutil",
   "version": "0.1.78",
-  "description": "Cross-cutting utilities for agents and services: retry with backoff, hashing, token counting, project finder, tarball downloader.",
+  "description": "Cross-cutting utilities: retry, hashing, token counting, and project discovery.",
   "keywords": [
     "util",
     "retry",
@@ -17,17 +17,6 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "foundations",
-    "needs": [
-      "Compute a stable hash (SHA-256 checksum)",
-      "Count LLM tokens",
-      "Find the project root",
-      "Retry a flaky network call",
-      "Download and extract a tarball",
-      "Generate a UUID"
-    ]
-  },
   "type": "module",
   "main": "./src/index.js",
   "exports": {

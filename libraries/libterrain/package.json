@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libterrain",
   "version": "0.1.22",
-  "description": "Full parse-generate-render-validate pipeline for synthetic agent training and evaluation data.",
+  "description": "Full synthetic data pipeline — generate, render, and validate evaluation datasets end to end.",
   "keywords": [
     "synthetic",
     "pipeline",
@@ -16,12 +16,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-self-improvement",
-    "needs": [
-      "Run the end-to-end synthetic-data pipeline from a terrain file"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Prove Agent Changes",
+      "trigger": "Setting up an eval and realizing you need to coordinate generation, rendering, and validation across three libraries.",
+      "bigHire": "produce a complete eval dataset from a single DSL file.",
+      "littleHire": "regenerate a dataset after a schema change and trust the pipeline handles the rest.",
+      "competesWith": "scripting the pipeline by hand; coordinating libraries manually; using stale fixtures and hoping they still apply"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {

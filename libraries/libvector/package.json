@@ -1,7 +1,7 @@
 {
   "name": "@forwardimpact/libvector",
   "version": "0.1.88",
-  "description": "Vector dot-product scoring for cosine-similarity retrieval over agent embeddings.",
+  "description": "Vector dot-product scoring — find semantically related content without a dedicated database.",
   "keywords": [
     "vector",
     "cosine-similarity",
@@ -17,12 +17,16 @@
   },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
-  "forwardimpact": {
-    "capability": "agent-retrieval",
-    "needs": [
-      "Compute cosine similarity between embeddings"
-    ]
-  },
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Ground Agents in Context",
+      "trigger": "Adding semantic search to a tool and realizing it needs a vector database just to score a few hundred embeddings.",
+      "bigHire": "find semantically related content without a dedicated database.",
+      "littleHire": "score a query against an index and get ranked results in memory.",
+      "competesWith": "external vector databases; keyword search instead of semantic; skipping retrieval entirely"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {
