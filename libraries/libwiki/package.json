@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libwiki",
-  "version": "0.1.1",
+  "version": "0.1.2",
   "description": "Wiki lifecycle primitives for the Kata agent system: cross-team memos, storyboard XmR chart refresh, wiki bootstrap, and git sync.",
   "keywords": [
     "wiki",
