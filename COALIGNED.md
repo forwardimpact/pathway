@@ -124,7 +124,7 @@ required.
 - **User** — persona hiring the product (`##` heading).
 - **Goal** — high-level progress sought (`###` heading).
 - **Trigger** — a specific moment that creates the job, not a role description.
-- **Jobs** — "Help me {progress}." statements, each pointing to the product,
+- **Hires** — "Help me {progress}." statements, each pointing to the product,
   service or library hired (→ **Thing**). Two or three per goal.
 - **Competes With** — what currently gets hired instead; semicolon-delimited.
 - **Forces** — four forces: **Push** (status quo pain), **Pull** (desired
@@ -178,7 +178,7 @@ that serves them. Wrap both in a semantic tag for discoverability:
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
 incident.
 
-**Jobs:**
+**Hires:**
 - Help me spot capability gaps before someone gets set up to fail. → **Summit**
 
 </jobs>
