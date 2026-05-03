@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/svcpathway",
-  "version": "0.1.12",
+  "version": "0.1.13",
   "description": "Engineering standard queries over gRPC — career paths and agent profiles for products.",
   "keywords": [
     "pathway",

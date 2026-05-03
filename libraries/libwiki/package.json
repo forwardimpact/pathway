@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/libwiki",
-  "version": "0.1.0",
+  "version": "0.1.1",
   "description": "Wiki lifecycle primitives for the Kata agent system: cross-team memos, agent roster discovery, and marker migration.",
   "keywords": [
     "wiki",

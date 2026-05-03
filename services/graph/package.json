@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/svcgraph",
-  "version": "0.1.67",
+  "version": "0.1.68",
   "description": "Simple RDF knowledge graph over gRPC for products.",
   "keywords": [
     "graph",

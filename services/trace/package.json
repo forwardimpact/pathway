@@ -1,6 +1,6 @@
 {
   "name": "@forwardimpact/svctrace",
-  "version": "0.1.40",
+  "version": "0.1.41",
   "description": "OpenTelemetry span ingestion and storage over gRPC — observable agent operations.",
   "keywords": [
     "trace",
