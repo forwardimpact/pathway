@@ -56,12 +56,16 @@ block with the current XmR chart, latest value, status, and signals from the
 referenced CSV.
 
 ```sh
+# Current month's storyboard (default)
+npx fit-wiki refresh
+
+# Explicit path
 npx fit-wiki refresh wiki/storyboard-2026-M05.md
 ```
 
-The command is idempotent — running it twice produces the same output. Files
-without markers are left unchanged. Use this after recording metrics with
-`npx fit-xmr record` to keep the storyboard's Current Condition section current.
+Without a path argument, defaults to the current month's storyboard
+(`wiki/storyboard-YYYY-MNN.md`). Idempotent — running it twice produces the
+same output. Files without markers are left unchanged.
 
 ## Initializing the Wiki
 

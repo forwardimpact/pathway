@@ -53,8 +53,9 @@ XmR protocol reference at
 
 ## Storyboard updates
 
-Run `bunx fit-wiki refresh wiki/storyboard-YYYY-MNN.md` to regenerate all
-`<!-- xmr:... -->` / `<!-- /xmr -->` blocks in Current Condition. Idempotent.
+Run `bunx fit-wiki refresh` to regenerate all `<!-- xmr:... -->` /
+`<!-- /xmr -->` blocks in the current month's storyboard. Idempotent. Pass an
+explicit path to target a different file.
 
 Each `#### {metric_name}` block is bracketed by markers. Everything between
 them is regenerated; the heading and `_Note:_` prose sit outside.

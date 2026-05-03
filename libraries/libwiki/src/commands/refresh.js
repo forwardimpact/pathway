@@ -5,17 +5,22 @@ import { Finder } from "@forwardimpact/libutil";
 import { scanMarkers } from "../marker-scanner.js";
 import { renderBlock, BlockRenderError } from "../block-renderer.js";
 
-export function runRefreshCommand(values, args, cli) {
-  if (!args[0]) {
-    cli.usageError("refresh requires a <storyboard-path> argument");
-    process.exit(2);
-  }
+function currentStoryboardPath() {
+  const now = new Date();
+  const yyyy = now.getFullYear();
+  const mm = String(now.getMonth() + 1).padStart(2, "0");
+  return `wiki/storyboard-${yyyy}-M${mm}.md`;
+}
 
+export function runRefreshCommand(values, args, cli) {
   const logger = { debug() {} };
   const finder = new Finder(fsAsync, logger, process);
   const projectRoot = finder.findProjectRoot(process.cwd());
 
-  const storyboardPath = path.resolve(projectRoot, args[0]);
+  const storyboardPath = path.resolve(
+    projectRoot,
+    args[0] || currentStoryboardPath(),
+  );
   const text = readFileSync(storyboardPath, "utf-8");
   const blocks = scanMarkers(text);
 

@@ -47,12 +47,13 @@ Scans a storyboard markdown file for `<!-- xmr:metric:path -->` /
 chart, latest value, status, and signals from the referenced CSV.
 
 ```sh
+npx fit-wiki refresh
 npx fit-wiki refresh wiki/storyboard-2026-M05.md
 ```
 
-Idempotent — running it twice produces the same output. No-op on files without
-markers. Use this after recording metrics to keep the storyboard's Current
-Condition section up to date.
+Without a path argument, defaults to the current month's storyboard
+(`wiki/storyboard-YYYY-MNN.md`). Idempotent — running it twice produces the
+same output. No-op on files without markers.
 
 ### `init` — Bootstrap a wiki working tree
 

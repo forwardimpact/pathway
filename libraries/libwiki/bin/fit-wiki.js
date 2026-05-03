@@ -45,7 +45,7 @@ const definition = {
       name: "refresh",
       description:
         "Regenerate XmR chart blocks inside a storyboard markdown file",
-      args: "<storyboard-path>",
+      args: "[storyboard-path]",
     },
     {
       name: "init",
@@ -93,6 +93,7 @@ const definition = {
   examples: [
     'fit-wiki memo --from staff-engineer --to security-engineer --message "audit d642ff0c"',
     'fit-wiki memo --from technical-writer --to all --message "new XmR baseline"',
+    "fit-wiki refresh",
     "fit-wiki refresh wiki/storyboard-2026-M05.md",
     "fit-wiki init",
     "fit-wiki push",

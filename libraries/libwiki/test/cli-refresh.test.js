@@ -196,4 +196,39 @@ describe("fit-wiki refresh CLI", () => {
     assert.ok(after.includes("**Latest:** 5"));
     assert.ok(!after.includes("old"));
   });
+
+  test("defaults to current month storyboard when no path given", () => {
+    const dir = createProject();
+    const csvDir = join(dir, "wiki", "metrics", "kata-spec");
+    mkdirSync(csvDir, { recursive: true });
+    writeFileSync(
+      join(csvDir, "2026.csv"),
+      makeCSV("metric", Array(15).fill(7)),
+    );
+
+    const now = new Date();
+    const yyyy = now.getFullYear();
+    const mm = String(now.getMonth() + 1).padStart(2, "0");
+    const defaultPath = join(dir, "wiki", `storyboard-${yyyy}-M${mm}.md`);
+    mkdirSync(join(dir, "wiki"), { recursive: true });
+    writeFileSync(
+      defaultPath,
+      [
+        "<!-- xmr:metric:wiki/metrics/kata-spec/2026.csv -->",
+        "old",
+        "<!-- /xmr -->",
+      ].join("\n"),
+    );
+
+    execFileSync("node", [CLI_PATH, "refresh"], {
+      cwd: dir,
+      encoding: "utf-8",
+      env: { ...process.env, PATH: process.env.PATH },
+      stdio: "pipe",
+    });
+
+    const after = readFileSync(defaultPath, "utf-8");
+    assert.ok(after.includes("**Latest:** 7"));
+    assert.ok(!after.includes("old"));
+  });
 });
