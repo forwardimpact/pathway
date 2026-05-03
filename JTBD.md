@@ -1,14 +1,6 @@
 # Jobs To Be Done
 
-> People don't simply buy products or services; they pull them into their lives
-> to make progress. The progress they seek, plus the circumstances they're in,
-> are the two components of every job.
-
----
-
-## Leadership
-
-### Define the Standard
+<jobs user="Leadership" goal="Define the Standard">
 
 **Trigger:** A promotion decision stalls because two managers disagree on
 what "senior" means — neither can point to a written definition.
@@ -31,7 +23,9 @@ tolerating the ambiguity.
 **Fired When:** definitions drift from practice; or a reorg removes the mandate
 to maintain them.
 
-### Staff Teams to Succeed
+</jobs>
+
+<jobs user="Leadership" goal="Staff Teams to Succeed">
 
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
 incident — nobody had a way to see it before staffing the team.
@@ -53,7 +47,9 @@ work; accepting gaps as inevitable.
 **Fired When:** the skill taxonomy drifts from actual roles; or a hiring freeze
 removes the pressure to staff analytically.
 
-### Measure Outcomes
+</jobs>
+
+<jobs user="Leadership" goal="Measure Outcomes">
 
 **Trigger:** The quarterly review is due and the only data available is
 ticket counts — which single out individuals rather than illuminate the system.
@@ -76,11 +72,9 @@ managers "how's the team doing?"; not measuring at all.
 **Fired When:** metrics get used punitively; or leadership turnover
 deprioritizes measurement.
 
----
+</jobs>
 
-## Empowered Engineers
-
-### Understand Expectations
+<jobs user="Empowered Engineers" goal="Understand Expectations">
 
 **Trigger:** Starting a new role and realizing that "meets expectations" on
 the review form has no definition anyone can point to.
@@ -104,7 +98,9 @@ LinkedIn postings for similar titles; living with the ambiguity.
 **Fired When:** defined expectations diverge from actual promotions; or a
 reorganization makes the framework feel irrelevant.
 
-### Find Growth Areas
+</jobs>
+
+<jobs user="Empowered Engineers" goal="Find Growth Areas">
 
 **Trigger:** The promotion conversation ended with "not yet" but no
 specifics — unclear what evidence would change the answer.
@@ -129,7 +125,9 @@ promotion at all.
 **Fired When:** gap analysis recommends areas disconnected from actual promotion
 decisions; or the engineer loses trust in the standard itself.
 
-### Stay Prepared
+</jobs>
+
+<jobs user="Empowered Engineers" goal="Stay Prepared">
 
 **Trigger:** Walking into a meeting cold because the context was buried
 across email threads, a Slack channel, and last week's notes.
@@ -152,11 +150,9 @@ colleagues for a catch-up; going in unprepared.
 **Fired When:** the briefing becomes noise; or a simpler calendar tool absorbs
 enough of the prep.
 
----
+</jobs>
 
-## Coding Agents
-
-### Receive Operational Context
+<jobs user="Coding Agents" goal="Receive Operational Context">
 
 **Trigger:** Initialized for a task with a generic system prompt and no
 knowledge of organizational standards or what "done" looks like for this phase.
@@ -180,7 +176,9 @@ role-specific configuration at all.
 **Fired When:** configuration overhead exceeds the quality gain; or standards
 change faster than profiles are updated.
 
-### Operate Within Standards
+</jobs>
+
+<jobs user="Coding Agents" goal="Operate Within Standards">
 
 **Trigger:** Mid-phase execution where drifting beyond scope or applying
 subjective quality judgments would erode the trust this agent has earned.
@@ -203,11 +201,9 @@ compliance; no phase discipline.
 **Fired When:** phase constraints slow delivery without quality improvement; or
 humans stop reviewing agent output regardless.
 
----
+</jobs>
 
-## Platform Builders
-
-### Build Shared Infrastructure
+<jobs user="Platform Builders" goal="Build Shared Infrastructure">
 
 **Trigger:** Starting the third project in a row that needs knowledge
 retrieval and protocol bridging, rebuilding the same plumbing each time.
@@ -232,7 +228,9 @@ bespoke integrations; accepting the duplication.
 duplication it replaced; or the team shrinks below the scale that justifies the
 dependency.
 
-### Evaluate and Improve
+</jobs>
+
+<jobs user="Platform Builders" goal="Evaluate and Improve">
 
 **Trigger:** The team claims the agent is "much better now" but nobody can
 show whether last week's changes helped or made things worse.
@@ -252,3 +250,5 @@ skipping evaluation until something breaks.
 
 **Fired When:** evaluation infrastructure costs more to maintain than the
 improvements it detects; or the team loses interest in agents entirely.
+
+</jobs>

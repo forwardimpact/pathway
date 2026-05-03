@@ -124,13 +124,16 @@ consult the [Getting Started guides](websites/fit/docs/getting-started/).
 - **[Operations Reference](websites/fit/docs/internals/operations/index.md)** —
   Environment setup, service management, common tasks.
 
-### Checklists
+### Jobs and Checklists
 
-Tagged checklists gate pause points. Rules: [CHECKLIST.md](CHECKLIST.md).
+Tagged jobs capture the progress each user hires a product to make. Tagged
+checklists gate pause points. Discover both with `rg`:
 
-- **`<read_do_checklist>`** — Entry gate. Read each item, then do it.
-- **`<do_confirm_checklist>`** — Exit gate. Do from memory, then confirm before
-  crossing a boundary (commit, merge, publish).
+```sh
+rg '<jobs '                 # Big Hires in JTBD.md, Little Hires near the code
+rg '<read_do_checklist'     # Entry gates — read each item, then do it
+rg '<do_confirm_checklist'  # Exit gates — do from memory, then confirm
+```
 
 **Every contribution** runs [§ READ-DO](CONTRIBUTING.md#read-do) then
 [§ DO-CONFIRM](CONTRIBUTING.md#do-confirm). Domain checklists in

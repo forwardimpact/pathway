@@ -287,8 +287,8 @@ for the full permission and event subscription reference.
 Instruction architecture, length limits, skill structure, checklist design,
 publishing gates, recursion-safe review, and shared-wording rules — including
 the eight-layer model that governs where new instructions belong — live in
-[CHECKLIST.md](CHECKLIST.md). It is the manifesto for writing instructions in
-this repository, derived from trace analysis of agent workflow runs.
+[CO-ALIGNED.md](CO-ALIGNED.md). It is the design manifest for creating aligned
+coding agents, derived from Jobs To Be Done and The Checklist Manifesto.
 
 ## Invariants
 

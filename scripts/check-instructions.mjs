@@ -1,5 +1,5 @@
 #!/usr/bin/env node
-// Enforce instruction layer limits (CHECKLIST.md § Length and Loading).
+// Enforce instruction layer limits (CO-ALIGNED.md § Length and Loading).
 // Each layer is gated by a line cap AND a word cap; either breach fails.
 // Called by `bun run check` and `just check-instructions`.
 
