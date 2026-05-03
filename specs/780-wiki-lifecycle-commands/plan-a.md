@@ -257,17 +257,24 @@ Files created:
 `runRefreshCommand(values, args, cli)`:
 
 1. `args[0]` is the storyboard path; usage-error when missing.
-2. Read the file, call `scanMarkers(text)`, exit 0 with no write when the
+2. Resolve `projectRoot = finder.findProjectRoot(process.cwd())` (Finder),
+   matching `memo.js:40-42`. The storyboard path resolves via
+   `path.resolve(projectRoot, args[0])` so relative paths work from any
+   subdirectory; absolute paths pass through unchanged.
+3. Read the file, call `scanMarkers(text)`, exit 0 with no write when the
    array is empty (criterion #3).
-3. For each block in **reverse** order (bottom-up, decision R4): call
-   `renderBlock` inside a `try`; on success replace the owned span with the
-   rendered lines via
+4. For each block in **reverse** order (bottom-up, decision R4): call
+   `renderBlock({ metric, csvPath, projectRoot })` inside a `try` — passing
+   the same `projectRoot` so the marker's CSV path (relative to project
+   root per design decision R5) resolves consistently regardless of where
+   the user invoked the command from. On success replace the owned span
+   with the rendered lines via
    `lines.splice(openLine + 1, closeLine - openLine - 1, ...rendered)` —
    the marker lines themselves (`openLine` and `closeLine`) are preserved;
    on `BlockRenderError` print
    `refresh-error <storyboard.md>:<openLine+1> <reason>` to stderr and leave
    the original span untouched.
-4. Write the joined buffer back to the file in a single `writeFileSync`.
+5. Write the joined buffer back to the file in a single `writeFileSync`.
 
 Tests:
 
@@ -279,6 +286,11 @@ Tests:
   preserved.
 - Marker referencing a missing CSV → stderr carries `refresh-error`, file
   span unchanged, exit 0.
+- **Working-directory independence:** invoke the command with `cwd` set to
+  a nested subdirectory of the temp project and the storyboard path
+  passed relative to that subdir → projectRoot is still discovered, marker
+  CSV paths still resolve, and the output matches the same invocation from
+  the project root.
 
 Verify: `bun test libraries/libwiki/test/cli-refresh.test.js` passes.
 
