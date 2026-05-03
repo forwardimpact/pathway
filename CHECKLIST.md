@@ -243,3 +243,21 @@ Both types belong **at the top** of the instruction section — READ-DO first,
 then DO-CONFIRM. The DO-CONFIRM is _used_ at the end, but seeing it before
 starting shapes how you work. Exception: mid-procedure pause points place the
 DO-CONFIRM at the pause point.
+
+## Jobs To Be Done (L1)
+
+Each entry in [JTBD.md](JTBD.md) follows a fixed structure. Every element is
+required.
+
+- **User** — persona hiring the product (`##` heading).
+- **Outcome** — high-level progress sought (`###` heading).
+- **Trigger** — a specific moment that creates the job, not a role description.
+- **Jobs** — "Help me {progress}." statements, each pointing to a product
+  (→ **Product**). Two per outcome.
+- **Competes With** — what currently gets hired instead.
+- **Forces** — four forces governing adoption:
+  - **Push** — what makes the status quo painful.
+  - **Pull** — what makes the new solution attractive.
+  - **Habit** — current behavior resisting change.
+  - **Anxiety** — fear blocking adoption.
+- **Fired When** — condition under which the product gets abandoned.

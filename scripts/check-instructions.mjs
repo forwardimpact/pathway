@@ -37,8 +37,8 @@ const LAYERS = [
       },
       {
         name: "JTBD.md",
-        maxLines: 192,
-        maxWords: 1280,
+        maxLines: 256,
+        maxWords: 1536,
         find: async () => ["JTBD.md"],
       },
     ],

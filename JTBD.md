@@ -1,174 +1,244 @@
 # Jobs To Be Done
 
-> When a leader authors an agent-aligned engineering standard, when an engineer
-> checks their career path, when a platform builder wires up a knowledge graph — each is
-> hiring our product to make progress on a job they care about.
+> People don't simply buy products or services; they pull them into their lives
+> to make progress. The progress they seek, plus the circumstances they're in,
+> are the two components of every job.
 
 ---
 
 ## Leadership
 
-Leadership defines what good engineering looks like, staffs teams to succeed,
-and measures outcomes without blaming individuals.
-
 ### Define the Standard
 
-- **When** I'm establishing engineering expectations for my organization, **I
-  want to** author skills, levels, behaviours, and markers in a structured
-  format, **so that** "good engineering" is a concrete operational definition,
-  not a vague aspiration. → **Map**
+**Trigger:** A promotion decision stalls because two managers disagree on
+what "senior" means — neither can point to a written definition.
 
-- **When** I'm tailoring expectations for specialized roles, **I want to**
-  define tracks that modify skill expectations per capability, **so that** a
-  security engineer and a platform engineer have distinct but coherent job
-  definitions derived from the same foundation. → **Map, Pathway**
+**Jobs:**
+- Help me turn "good engineering" into an operational definition the
+  organization trusts and follows. → **Map**
+- Help me give specialized roles coherent expectations from a shared
+  foundation. → **Map, Pathway**
+
+**Competes With:** tribal knowledge, borrowed frameworks, per-manager intuition.
+
+**Forces:**
+- **Push:** Inconsistent expectations produce contested promotions.
+- **Pull:** A shared definition that makes quality visible and discussable.
+- **Habit:** Each manager carries a private mental model of what "good" means.
+- **Anxiety:** Getting definitions wrong feels worse than having none.
+
+**Fired When:** definitions drift from practice and become shelf-ware.
 
 ### Staff Teams to Succeed
 
-- **When** I'm building or restructuring a team, **I want to** see aggregate
-  capability coverage across the team, **so that** I can identify structural
-  gaps before they become delivery risks. → **Summit**
+**Trigger:** A post-mortem surfaces the same skill gap that caused the last
+incident — nobody had a way to see it before staffing the team.
 
-- **When** I'm considering a hire, transfer, or promotion, **I want to** run
-  what-if staffing scenarios, **so that** I can evaluate how a change affects
-  the team as a system rather than guessing. → **Summit**
+**Jobs:**
+- Help me see capability gaps before they surface as delivery failures. →
+  **Summit**
+- Help me make staffing decisions I can defend with evidence, not
+  intuition. → **Summit, Pathway**
 
-- **When** I need to generate job definitions for open roles, **I want to**
-  derive complete role expectations from discipline, track, and level, **so
-  that** candidates and hiring panels share the same concrete standard. →
-  **Pathway**
+**Competes With:** résumé screening, gut feel, copying the structure of a team
+that seems to work.
+
+**Forces:**
+- **Push:** Capability gaps appear as incidents, never in advance.
+- **Pull:** System-level team views and what-if scenarios before committing.
+- **Habit:** Hiring on résumés and gut rather than team composition analysis.
+- **Anxiety:** Modeling human capability feels reductive.
+
+**Fired When:** the skill taxonomy no longer maps to roles the organization
+actually hires for.
 
 ### Measure Outcomes
 
-- **When** I want to understand how my team is performing, **I want to** see
-  team-level analysis that juxtaposes objective marker evidence with subjective
-  GetDX driver scores, **so that** I measure the system's outputs without
-  blaming individuals. → **Landmark**
+**Trigger:** The quarterly review is due and the only data available is
+ticket counts — which single out individuals rather than illuminate the system.
 
-- **When** I'm tracking whether investments in engineering culture are working,
-  **I want to** compare snapshot trends over time against organizational
-  drivers, **so that** I can see whether direction, delivery, quality, and
-  learning are improving. → **Landmark**
+**Jobs:**
+- Help me demonstrate engineering progress without making individuals feel
+  surveilled. → **Landmark**
+- Help me tell whether culture investments are working before the next budget
+  cycle. → **Landmark**
 
-### Equip Agents
+**Competes With:** sprint velocity, ticket counts, annual reviews, asking
+managers "how's the team doing?"
 
-- **When** I want AI agents to work within our engineering standards, **I want
-  to** generate agent team configurations derived from the same agent-aligned
-  engineering standard humans use, **so that** human-agent collaboration is
-  coherent and aligned with organizational expectations. → **Pathway**
+**Forces:**
+- **Push:** Pressure to show ROI with no way to separate signal from noise.
+- **Pull:** System-level trends that show direction without naming individuals.
+- **Habit:** Equating velocity and throughput with team health.
+- **Anxiety:** Measurement feels like surveillance regardless of intent.
+
+**Fired When:** metrics become a performance management tool rather than a
+system diagnostic.
 
 ---
 
 ## Empowered Engineers
 
-Empowered engineers understand expectations, find growth areas, equip their own
-agent teams, and receive guidance grounded in their organization's agent-aligned
-engineering standard.
-
 ### Understand Expectations
 
-- **When** I join a team or start a new role, **I want to** look up my exact job
-  definition by discipline, track, and level, **so that** I know precisely what
-  skill proficiencies and behaviour maturities are expected of me. → **Pathway**
+**Trigger:** Starting a new role and realizing that "meets expectations" on
+the review form has no definition anyone can point to.
 
-- **When** I encounter vocabulary like "independently" or "with guidance," **I
-  want to** understand the precise autonomy and scope each level implies, **so
-  that** I can self-assess honestly. → **Pathway**
+**Jobs:**
+- Help me see exactly what's expected at my level so I stop guessing during
+  reviews. → **Pathway**
+- Help me understand the autonomy and scope my level implies so I can
+  self-assess honestly. → **Pathway**
+
+**Competes With:** asking peers, inferring from manager comments, browsing
+LinkedIn postings for similar titles.
+
+**Forces:**
+- **Push:** Ambiguous expectations create anxiety about reviews and readiness.
+- **Pull:** Exact job definitions by discipline, track, and level.
+- **Habit:** Inferring expectations from peer behavior rather than a standard.
+- **Anxiety:** Looking up the standard might confirm gaps easier left ignored.
+
+**Fired When:** defined expectations diverge from how promotions actually happen.
 
 ### Find Growth Areas
 
-- **When** I want to grow to the next level, **I want to** see a gap analysis
-  between my current and target level, **so that** I focus on the skills and
-  behaviours that actually need development. → **Pathway**
+**Trigger:** The promotion conversation ended with "not yet" but no
+specifics — unclear what evidence would change the answer.
 
-- **When** I'm reviewing my own engineering artifacts, **I want to** see
-  evidence of my skill markers linked to concrete work, **so that** career
-  conversations are grounded in facts, not impressions. → **Landmark**
+**Jobs:**
+- Help me show concrete evidence of growth, not just my manager's
+  impression. → **Landmark**
+- Help me get career guidance grounded in my organization's standards, not
+  generic advice. → **Guide**
 
-- **When** I need help interpreting what a skill marker means in practice, **I
-  want to** ask an AI agent that understands my organization's agent-aligned
-  engineering standard, **so that** I get guidance specific to my context, not
-  generic career advice. → **Guide**
+**Competes With:** annual review feedback, mentor conversations, LinkedIn
+Learning, hoping the next project makes readiness obvious.
+
+**Forces:**
+- **Push:** Career conversations feel subjective with no shared evidence base.
+- **Pull:** Gap analysis linked to artifacts and skill markers.
+- **Habit:** Waiting for annual feedback rather than continuously self-assessing.
+- **Anxiety:** Structured analysis might confirm being further behind than assumed.
+
+**Fired When:** gap analysis recommends areas that don't influence actual
+promotion decisions.
 
 ### Stay Prepared
 
-- **When** I start my workday, **I want to** receive a briefing that synthesizes
-  my email, calendar, and knowledge graph, **so that** I walk into every meeting
-  and task already oriented. → **Outpost**
+**Trigger:** Walking into a meeting cold because the context was buried
+across email threads, a Slack channel, and last week's notes.
 
-- **When** I'm juggling multiple projects and relationships, **I want to**
-  maintain a personal knowledge graph of people, projects, and topics, **so
-  that** context is never lost and I can recall any thread instantly. →
-  **Outpost**
+**Jobs:**
+- Help me walk into every meeting already oriented without the morning
+  scramble. → **Outpost**
+- Help me keep track of people, projects, and threads without depending on
+  memory. → **Outpost**
 
-### Equip My Agents
+**Competes With:** morning email scan, re-reading calendar invites, asking
+colleagues for a catch-up, going in unprepared.
 
-- **When** I set up my development environment, **I want to** install agent
-  teams that match my role's skill expectations, **so that** my AI coding
-  assistants follow the same standards I'm held to. → **Pathway**
+**Forces:**
+- **Push:** Context-switching compounds; starting cold wastes everyone's time.
+- **Pull:** A briefing that synthesizes signals without manual assembly.
+- **Habit:** Manual morning prep routines that feel "good enough."
+- **Anxiety:** Delegating awareness to a system feels like losing control.
 
-- **When** I want my personal knowledge base to self-maintain, **I want to**
-  schedule background AI tasks for syncing, extracting entities, and organizing
-  files, **so that** Outpost works for me without constant manual effort. →
-  **Outpost**
+**Fired When:** the briefing becomes another notification to ignore.
 
 ---
 
 ## Coding Agents
 
-Coding agents align with their human counterparts through shared capabilities,
-skills, and quality standards defined by leadership.
-
 ### Receive Operational Context
 
-- **When** I'm initialized for a task, **I want to** receive a skill file with
-  phase-specific focus and checklists, **so that** I know exactly what is
-  expected and what "done" looks like for this phase of work. → **Pathway**
+**Trigger:** Initialized for a task with a generic system prompt and no
+knowledge of organizational standards or what "done" looks like for this phase.
 
-- **When** I need to understand my role's working style and constraints, **I
-  want to** receive an agent profile derived from the same discipline, track,
-  and level formula used for humans, **so that** my behaviour aligns with
-  organizational expectations. → **Pathway**
+**Jobs:**
+- Help me know what is expected and what "done" looks like for this phase of
+  work. → **Pathway**
+- Help me align my behaviour with organizational expectations, not just
+  generic best practices. → **Pathway**
+
+**Competes With:** generic system prompts, broad instruction sets, no
+role-specific configuration at all.
+
+**Forces:**
+- **Push:** Generic configuration produces work that gets rejected or reworked.
+- **Pull:** Phase-specific skill files derived from the same standard humans use.
+- **Habit:** Defaulting to broad, role-agnostic instruction sets.
+- **Anxiety:** Over-constrained profiles may not adapt to novel tasks.
+
+**Fired When:** configuration overhead exceeds the quality improvement it
+produces.
 
 ### Operate Within Standards
 
-- **When** I'm assigned to a phase, **I want to** constrain my work to that
-  phase's scope (spec, design, plan, or implement), **so that** I deliver
-  predictably, aligned with decisions made in earlier phases. → **Pathway**
+**Trigger:** Mid-phase execution where drifting beyond scope or applying
+subjective quality judgments would erode the trust this agent has earned.
 
-- **When** I analyze an engineer's artifacts, **I want to** interpret them
-  against specific skill markers, **so that** evidence is traced to observable
-  definitions rather than subjective impressions. → **Guide**
+**Jobs:**
+- Help me deliver predictably within phase boundaries set by earlier
+  decisions. → **Pathway**
+- Help me trace evidence to observable definitions rather than subjective
+  impressions. → **Guide**
+
+**Competes With:** unconstrained generation, optimizing for task completion
+over standard compliance, no phase discipline.
+
+**Forces:**
+- **Push:** Scope creep and subjective judgments erode human trust in agent output.
+- **Pull:** Concrete phase boundaries and skill markers that make compliance verifiable.
+- **Habit:** Optimizing for completion rather than standard compliance.
+- **Anxiety:** Strict constraints may prevent addressing issues found mid-execution.
+
+**Fired When:** the phase model slows delivery without improving quality.
 
 ---
 
 ## Platform Builders
 
-Platform builders construct agent-capable systems using shared libraries and
-services designed for humans and agents alike.
+### Build Shared Infrastructure
 
-### Build Agent-Capable Systems
+**Trigger:** Starting the third project in a row that needs knowledge
+retrieval and protocol bridging, rebuilding the same plumbing each time.
 
-- **When** I'm building an agent that needs structured knowledge, **I want to**
-  query RDF graphs and run vector similarity search via shared libraries, **so
-  that** my agent reasons over relationships and meaning without building
-  retrieval from scratch. → **Gear**
-
-- **When** I'm shipping a service consumed by both humans and agents, **I want
-  to** expose it over gRPC with automatic MCP bridging, **so that** I write one
-  implementation and both audiences call it natively. → **Gear**
-
-- **When** I'm building CLI tools or web UIs for my system, **I want to** use
-  agent-shaped interfaces with embedded documentation links, **so that** my
-  tools are discoverable and self-documenting for both humans and agents. →
+**Jobs:**
+- Help me stop rebuilding retrieval and bridging for every new project. →
   **Gear**
+- Help me ship one interface that both humans and agents call natively. →
+  **Gear**
+
+**Competes With:** copy-pasting boilerplate from the last project, building
+bespoke integrations, accepting the duplication.
+
+**Forces:**
+- **Push:** Rebuilding the same infrastructure per project wastes time.
+- **Pull:** Shared libraries for RDF, vector search, and gRPC/MCP bridging.
+- **Habit:** Building bespoke integrations rather than adopting shared libs.
+- **Anxiety:** Shared libraries add a dependency and risk abstraction leaks.
+
+**Fired When:** the library's upgrade cadence creates more work than the
+duplication it replaced.
 
 ### Evaluate and Improve
 
-- **When** I need to know whether my agents are actually improving, **I want to**
-  collect execution traces and chart them with XmR control charts, **so that** I
-  distinguish real improvement from random variation. → **Gear**
+**Trigger:** The team claims the agent is "much better now" but nobody can
+show whether last week's changes helped or made things worse.
 
-- **When** I need deterministic test data for agent evaluations, **I want to**
-  define synthetic entities in a DSL and generate consistent fixtures, **so
-  that** my eval results are reproducible across runs. → **Gear**
+**Jobs:**
+- Help me prove whether agent changes actually improved outcomes. → **Gear**
+- Help me make eval results reproducible so the team trusts them. → **Gear**
+
+**Competes With:** spot-checking outputs, vibes-based quality assessment,
+skipping evaluation until something breaks.
+
+**Forces:**
+- **Push:** Without measurement, "improvement" is narrative, not evidence.
+- **Pull:** Control charts for signal detection and deterministic fixtures.
+- **Habit:** Judging quality by gut feel rather than systematic evaluation.
+- **Anxiety:** Evaluation tooling is overhead before the agent has proven value.
+
+**Fired When:** evaluation infrastructure costs more to maintain than the
+improvements it detects.
