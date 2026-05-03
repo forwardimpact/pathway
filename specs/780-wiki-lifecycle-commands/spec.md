@@ -33,12 +33,18 @@ command that bootstraps a working wiki directory.
 
 ## Goal
 
-Expand the `fit-wiki` CLI (introduced in spec 770 as `libwiki`) with three
-subcommands — `refresh`, `init`, and `push`/`pull` — that make wiki lifecycle
-operations portable across Kata installations. After this spec, a downstream
-installation can `npx fit-wiki init`, have agents use `npx fit-wiki push/pull`
-in hooks, and run `npx fit-wiki refresh` to keep storyboard charts current —
-without copying shell scripts or composite actions.
+Improve all tools related to wiki management. Specifically: expand the
+`fit-wiki` CLI (introduced in spec 770 as `libwiki`) with three subcommands —
+`refresh`, `init`, and `push`/`pull` — that make wiki lifecycle operations
+portable across Kata installations; and align every `fit-xmr` command with
+the same `Finder`-based path resolution `fit-xmr record` already uses, so any
+wiki-management command works the same regardless of the agent's current
+working directory. After this spec, a downstream installation can
+`npx fit-wiki init`, have agents use `npx fit-wiki push/pull` in hooks, run
+`npx fit-wiki refresh` to keep storyboard charts current, and call any
+`bunx fit-xmr <cmd> wiki/metrics/<skill>/<YYYY>.csv` from anywhere in the
+repo — without copying shell scripts or composite actions and without
+worrying about where the shell happens to be sitting.
 
 ## Scope (in)
 
@@ -113,6 +119,28 @@ distributed via npm.
 - **justfile** — `wiki-pull` and `wiki-push` recipes switch from
   `bash scripts/wiki-sync.sh` to `bunx fit-wiki pull` / `bunx fit-wiki push`.
 
+### 5. `fit-xmr` cwd-independence
+
+Five `fit-xmr` commands accept a positional `<csv-path>`: `analyze`, `chart`,
+`summarize`, `validate`, and `list`. Today they pass `args[0]` directly to
+`existsSync` and `readFileSync`, which means relative paths resolve against
+the shell's current working directory — a hidden footgun for agents whose
+session may be anywhere under the repo. They must instead resolve the
+positional via `Finder.findProjectRoot(process.cwd())` and `path.resolve`,
+matching the pattern `fit-xmr record` already uses
+(`libraries/libxmr/src/commands/record.js:62-66`). After this spec, every
+wiki-management command (`fit-wiki *`, `fit-xmr *`) works identically from
+any subdirectory of the project.
+
+- **Affected commands.** `fit-xmr analyze`, `fit-xmr chart`,
+  `fit-xmr summarize`, `fit-xmr validate`, `fit-xmr list`.
+- **Behaviour.** Relative paths join against the project root; absolute
+  paths pass through unchanged. The user-supplied input string is preserved
+  in `report.source` (printed in headers) so existing output is unchanged
+  for users who already invoke from the project root.
+- **Out of scope here.** Other `fit-*` CLIs. `fit-xmr record` already does
+  this and is unchanged.
+
 ## Scope (out)
 
 - The `fit-wiki memo` subcommand (delivered in spec 770).
@@ -148,6 +176,7 @@ distributed via npm.
 | 10 | `team-storyboard.md` references `fit-wiki refresh` for chart updates. | Static inspection; the Storyboard updates section mentions `fit-wiki refresh`. |
 | 11 | justfile `wiki-pull` and `wiki-push` recipes call `bunx fit-wiki` instead of `bash scripts/wiki-sync.sh`. | Static inspection of the justfile. |
 | 12 | `libwiki` depends on `@forwardimpact/libxmr` in `package.json`. | `jq '.dependencies["@forwardimpact/libxmr"]' libraries/libwiki/package.json` returns a version string. |
+| 13 | `fit-xmr analyze`, `chart`, `summarize`, `validate`, and `list` resolve their positional `<csv-path>` via `Finder.findProjectRoot` so they work from any project subdirectory. | From a nested subdirectory of the repo, run each of the five commands with a path like `wiki/metrics/<skill>/2026.csv`; each exits 0 with output identical to running the same command from the project root. |
 
 ## Notes
 

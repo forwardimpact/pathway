@@ -123,11 +123,17 @@ sequenceDiagram
 | I1  | Skill discovery for init        | Enumerate the installed kata skills under `.claude/skills/`; derive directory names from their slugs.                                                              | Hardcoded list — edit every time a skill is added. Glob `wiki/metrics/*/` — circular (the directory may not exist yet on first init).                                  |
 | I2  | Empty-directory persistence     | Skip placeholder files. `record` creates the directory on demand if missing.                                                                                       | Drop a `.gitkeep` per skill — clutters the wiki with zero-content files; on-demand creation is already supported.                                                       |
 | I3  | Identity source                 | Inherit from parent repo's `git config user.name/email`.                                                                                                           | CLI flags for identity — agents would replumb identity through every command; the parent repo already declares it.                                                    |
+| X1  | `fit-xmr` path resolution       | Reuse `record.js`'s `Finder.findProjectRoot` + `path.resolve` pattern uniformly across the five other commands. Preserve the user's input string in `report.source` for unchanged headers. | Switch to `cwd`-relative everywhere — silent footgun for any agent whose session is not at the project root. Drop `record`'s pattern — diverges across one CLI. |
 
 ## Boundaries
 
 - `libwiki → libxmr` is the only new cross-package edge. `libxmr` stays
-  unchanged for this spec.
+  architecturally unchanged for this spec — no new components, no new
+  exports — but its five path-accepting commands (`analyze`, `chart`,
+  `summarize`, `validate`, `list`) gain the same `Finder.findProjectRoot`
+  resolution `fit-xmr record` already uses (see spec § Scope 5). One
+  consistent rule across both packages: a `<csv-path>` positional resolves
+  relative to the project root, not `cwd`.
 - `WikiRepo` depends on Node `child_process` only — no libxmr, no libutil.
   It is a pure git wrapper, reusable beyond this spec.
 - The bootstrap composite action (`bootstrap/action.yml`) is unchanged. It

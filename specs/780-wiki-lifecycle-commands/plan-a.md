@@ -9,11 +9,16 @@ stack (`WikiRepo` + `SkillRoster` + `init` / `push` / `pull`) wrapping
 system `git` with the credential/identity pattern from
 `scripts/wiki-sync.sh`. Wire both into `bin/fit-wiki.js`, then propagate
 through the four content edits (storyboard template, team-storyboard,
-kata-session SKILL, justfile) plus the libwiki skill+guide pair. Tests use
-temp dirs and local bare git repos. The monorepo PR satisfies criteria
-#1–#3 via fixtures, #4–#8 via bare-repo harnesses, and #9–#12 by static
-inspection; the in-scope `wiki/storyboard-2026-M05.md` content edit ships
-as a separate wiki-repo commit (step 16) because the wiki is a separate
+kata-session SKILL, justfile) plus the libwiki skill+guide pair. In
+parallel, retrofit the five `fit-xmr` commands that take a `<csv-path>`
+positional (`analyze`, `chart`, `summarize`, `validate`, `list`) with the
+same `Finder.findProjectRoot` resolution `fit-xmr record` already uses
+(decision X1) — every wiki-management command becomes cwd-independent.
+Tests use temp dirs and local bare git repos. The monorepo PR satisfies
+criteria #1–#3 via fixtures, #4–#8 via bare-repo harnesses, #9–#12 by
+static inspection, and #13 via a cross-command cwd-independence test;
+the in-scope `wiki/storyboard-2026-M05.md` content edit ships as a
+separate wiki-repo commit (step 17) because the wiki is a separate
 repository.
 
 Libraries used: `@forwardimpact/libxmr` (`analyze`, `renderChart`), `@forwardimpact/libutil` (`Finder`), `@forwardimpact/libcli` (`createCli`).
@@ -450,7 +455,62 @@ Verify: `grep -E 'wiki-(pull|push):' -A 1 justfile` shows `bunx fit-wiki`
 (criterion #11). `just wiki-pull` and `just wiki-push` succeed end-to-end
 when run from the monorepo root with the wiki cloned.
 
-### 15. Regenerate library catalog
+### 15. Make `fit-xmr` commands cwd-independent
+
+Files modified:
+
+- `libraries/libxmr/src/commands/analyze.js`
+- `libraries/libxmr/src/commands/chart.js`
+- `libraries/libxmr/src/commands/summarize.js`
+- `libraries/libxmr/src/commands/validate.js`
+- `libraries/libxmr/src/commands/list.js`
+
+Files created:
+
+- `libraries/libxmr/test/cwd-independence.test.js`
+
+Each of the five commands today opens with the same three-line block:
+
+```js
+const csvPath = args[0];
+if (!csvPath) { cli.usageError("..."); process.exit(2); }
+if (!existsSync(csvPath)) { cli.usageError(`cannot read CSV "${csvPath}": file not found`); process.exit(2); }
+```
+
+Replace those three lines in every command with the pattern from
+`record.js:62-66`:
+
+```js
+const inputPath = args[0];
+if (!inputPath) { cli.usageError("..."); process.exit(2); }
+
+const finder = new Finder(fsAsync, { debug() {} }, process);
+const projectRoot = finder.findProjectRoot(process.cwd());
+const csvPath = path.resolve(projectRoot, inputPath);
+
+if (!existsSync(csvPath)) { cli.usageError(`cannot read CSV "${inputPath}": file not found`); process.exit(2); }
+```
+
+Add the matching imports at the top of each file
+(`import path from "node:path"; import fsAsync from "node:fs/promises";
+import { Finder } from "@forwardimpact/libutil";`). Preserve every
+downstream use of `inputPath` for user-visible strings (`report.source`,
+header text, error messages) so existing output is byte-identical when the
+agent invokes from the project root — the only behavioral change is that
+relative paths now also resolve correctly from any subdirectory.
+`fit-xmr record` is already on this pattern and is unchanged.
+
+Tests: `libraries/libxmr/test/cwd-independence.test.js` exercises each of
+the five commands via `execFileSync('node', [bin, cmd, 'fixtures/x.csv'])`
+twice — once with `cwd` set to the temp project root, once with `cwd` set
+to a nested subdirectory of that project — and asserts identical exit code
+and stdout. Cover one command per CSV pair to keep runtime bounded;
+fixtures live under `libraries/libxmr/test/fixtures/`.
+
+Verify: `bun test libraries/libxmr/test/cwd-independence.test.js` passes
+(criterion #13).
+
+### 16. Regenerate library catalog
 
 Files modified:
 
@@ -474,7 +534,7 @@ on a stale catalog.
 
 Verify: `bun run context:fix` then `bun run check` both exit 0.
 
-### 16. Migrate existing storyboard (wiki repo, post-merge)
+### 17. Migrate existing storyboard (wiki repo, post-merge)
 
 Files modified (separate commit, in the `forwardimpact/monorepo.wiki.git`
 repository — **not** in the monorepo PR):
@@ -524,8 +584,11 @@ Sequence:
 4. Step 9 — CLI wiring once all four handlers exist.
 5. Steps 10-14 — content edits (storyboard template, team-storyboard,
    kata-session SKILL, fit-wiki SKILL + wiki-operations guide, justfile).
-6. Step 15 — `bun run context:fix`, then `bun run check`.
-7. Open `plan(780): …` PR; clean sub-agent review panel of 3 per
+6. Step 15 — `fit-xmr` cwd-independence retrofit. Independent of every
+   prior step (different package, different files); could run in parallel
+   with steps 2-14 if desired, but sequential keeps the PR diff coherent.
+7. Step 16 — `bun run context:fix`, then `bun run check`.
+8. Open `plan(780): …` PR; clean sub-agent review panel of 3 per
    `kata-review` caller protocol.
-8. Step 16 — wiki-repo migration after merge (separate commit on the wiki
+9. Step 17 — wiki-repo migration after merge (separate commit on the wiki
    repo, not gating the monorepo PR).
