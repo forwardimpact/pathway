@@ -22,7 +22,7 @@ Five capability categories. Every library appears in exactly one.
 
 The tables below are generated from each library's `package.json`
 (`forwardimpact.capability` + `description`). To regenerate after editing a
-library: `bun run lib:fix`. CI fails the build if the catalog drifts.
+library: `bun run context:fix`. CI fails the build if the catalog drifts.
 
 ### Agent Capability
 

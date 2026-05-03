@@ -1,7 +1,8 @@
 {
   "name": "@forwardimpact/svcvector",
   "version": "0.1.119",
-  "description": "Vector similarity search service for Guide",
+  "description": "Simple vector similarity search over gRPC — semantic retrieval for products.",
+  "keywords": ["vector", "search", "similarity", "grpc", "agent"],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -38,6 +39,12 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
+  },
+  "forwardimpact": {
+    "capability": "agent-retrieval",
+    "needs": [
+      "Serve vector similarity search to products over gRPC"
+    ]
   },
   "publishConfig": {
     "access": "public"

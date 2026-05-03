@@ -1,7 +1,8 @@
 {
   "name": "@forwardimpact/svctrace",
   "version": "0.1.40",
-  "description": "Trace service for receiving and storing OpenTelemetry spans in Guide",
+  "description": "OpenTelemetry span ingestion and storage over gRPC — observable agent operations.",
+  "keywords": ["trace", "opentelemetry", "spans", "grpc", "agent"],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -37,6 +38,12 @@
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
+  },
+  "forwardimpact": {
+    "capability": "agent-infrastructure",
+    "needs": [
+      "Collect and store OpenTelemetry spans over gRPC"
+    ]
   },
   "publishConfig": {
     "access": "public"

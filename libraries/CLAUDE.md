@@ -36,7 +36,7 @@ Every library carries metadata the catalog generators consume. Required fields:
 After editing any of these, regenerate the catalog:
 
 ```sh
-bun run lib:fix
+bun run context:fix
 ```
 
 `bun run check` refuses a stale catalog and points at the right command.

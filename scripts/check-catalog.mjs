@@ -1,20 +1,18 @@
 #!/usr/bin/env node
-// Render or check the library catalog tables in libraries/README.md.
-// Source of truth: each libraries/<lib>/package.json.
+// Render or check catalog tables in libraries/README.md and services/README.md.
+// Source of truth: each package's package.json (forwardimpact.capability + description + needs).
 //
-// Usage: check-catalog.mjs [capabilities|needs] [--fix]
+// Usage: check-catalog.mjs [capabilities|needs] [--fix] [--dir libraries|services]
 //
-//   check-catalog.mjs                            # check both tables
-//   check-catalog.mjs capabilities               # check one table
+//   check-catalog.mjs                            # check both catalogs
+//   check-catalog.mjs capabilities               # check capability tables in both
 //   check-catalog.mjs --fix                      # regenerate both
-//   check-catalog.mjs capabilities --fix         # regenerate one
+//   check-catalog.mjs --dir services --fix       # regenerate services catalog only
 
-import { readFileSync, writeFileSync, readdirSync } from "node:fs";
+import { readFileSync, writeFileSync, readdirSync, existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
-const LIB_DIR = join(ROOT, "libraries");
-const README = join(LIB_DIR, "README.md");
 
 const CAPABILITY_CATEGORIES = [
   "agent-capability",
@@ -24,18 +22,35 @@ const CAPABILITY_CATEGORIES = [
   "foundations",
 ];
 
-function loadPackages() {
+const CATALOGS = [
+  {
+    name: "libraries",
+    dir: join(ROOT, "libraries"),
+    readme: join(ROOT, "libraries", "README.md"),
+    filter: (name) => name.startsWith("lib"),
+    column: "Library",
+  },
+  {
+    name: "services",
+    dir: join(ROOT, "services"),
+    readme: join(ROOT, "services", "README.md"),
+    filter: (name) => !name.startsWith(".") && name !== "node_modules",
+    column: "Service",
+  },
+];
+
+function loadPackages(dir, filter) {
   const out = [];
-  for (const dir of readdirSync(LIB_DIR)) {
-    if (!dir.startsWith("lib")) continue;
-    const pkgPath = join(LIB_DIR, dir, "package.json");
+  for (const name of readdirSync(dir)) {
+    if (!filter(name)) continue;
+    const pkgPath = join(dir, name, "package.json");
     let pkg;
     try {
       pkg = JSON.parse(readFileSync(pkgPath, "utf8"));
     } catch {
       continue;
     }
-    out.push({ dir, pkg });
+    out.push({ dir: name, pkg });
   }
   return out.sort((a, b) => a.dir.localeCompare(b.dir));
 }
@@ -66,7 +81,7 @@ function replaceBlock(content, begin, end, body) {
   );
 }
 
-function buildCapabilities(content, packages) {
+function buildCapabilities(content, packages, column) {
   for (const { dir, pkg } of packages) {
     const cap = pkg.forwardimpact?.capability;
     if (!cap) {
@@ -80,23 +95,33 @@ function buildCapabilities(content, packages) {
     }
   }
   for (const cap of CAPABILITY_CATEGORIES) {
+    const begin = `<!-- BEGIN:capability:${cap} -->`;
+    const end = `<!-- END:capability:${cap} -->`;
+    if (!content.includes(begin) || !content.includes(end)) continue;
+
     const rows = packages
       .filter(({ pkg }) => pkg.forwardimpact?.capability === cap)
       .map(({ dir, pkg }) => [`**${dir}**`, pkg.description]);
     if (rows.length === 0) {
-      throw new Error(`No libraries categorized as "${cap}"`);
+      throw new Error(
+        `No packages categorized as "${cap}" but markers exist in README`,
+      );
     }
     content = replaceBlock(
       content,
-      `<!-- BEGIN:capability:${cap} -->`,
-      `<!-- END:capability:${cap} -->`,
-      renderTable(["Library", "Capability"], rows),
+      begin,
+      end,
+      renderTable([column, "Capability"], rows),
     );
   }
   return content;
 }
 
-function buildNeeds(content, packages) {
+function buildNeeds(content, packages, column) {
+  const begin = "<!-- BEGIN:needs -->";
+  const end = "<!-- END:needs -->";
+  if (!content.includes(begin) || !content.includes(end)) return content;
+
   const seen = new Map();
   const rows = [];
   for (const { dir, pkg } of packages) {
@@ -111,14 +136,14 @@ function buildNeeds(content, packages) {
     }
   }
   if (rows.length === 0) {
-    throw new Error("No forwardimpact.needs entries found across libraries.");
+    throw new Error("No forwardimpact.needs entries found.");
   }
   rows.sort((a, b) => a[0].localeCompare(b[0]));
   return replaceBlock(
     content,
-    "<!-- BEGIN:needs -->",
-    "<!-- END:needs -->",
-    renderTable(["I need to…", "Library"], rows),
+    begin,
+    end,
+    renderTable(["I need to…", column], rows),
   );
 }
 
@@ -129,10 +154,16 @@ const TARGETS = {
 
 const args = process.argv.slice(2);
 const fix = args.includes("--fix");
-const positional = args.filter((a) => !a.startsWith("--"));
+const dirIdx = args.indexOf("--dir");
+const dirFilter = dirIdx !== -1 ? args[dirIdx + 1] : null;
+const positional = args.filter(
+  (a, i) => !a.startsWith("--") && i !== dirIdx + 1,
+);
 
 if (positional.length > 1) {
-  console.error(`usage: check-catalog.mjs [capabilities|needs] [--fix]`);
+  console.error(
+    "usage: check-catalog.mjs [capabilities|needs] [--fix] [--dir libraries|services]",
+  );
   process.exit(2);
 }
 
@@ -144,31 +175,48 @@ for (const target of targets) {
   }
 }
 
-const packages = loadPackages();
+const catalogs = dirFilter
+  ? CATALOGS.filter((c) => c.name === dirFilter)
+  : CATALOGS;
+
+if (catalogs.length === 0) {
+  console.error(
+    `unknown catalog "${dirFilter}". expected: ${CATALOGS.map((c) => c.name).join("|")}`,
+  );
+  process.exit(2);
+}
+
 let stale = false;
 
-for (const target of targets) {
-  const config = TARGETS[target];
-  const original = readFileSync(README, "utf8");
-  const content = config.build(original, packages);
+for (const catalog of catalogs) {
+  if (!existsSync(catalog.readme)) continue;
+  const packages = loadPackages(catalog.dir, catalog.filter);
 
-  if (content === original) {
-    if (fix) {
-      console.log(`libraries/README.md ${config.label} already up to date.`);
+  for (const target of targets) {
+    const config = TARGETS[target];
+    const original = readFileSync(catalog.readme, "utf8");
+    const content = config.build(original, packages, catalog.column);
+
+    if (content === original) {
+      if (fix) {
+        console.log(
+          `${catalog.name}/README.md ${config.label} already up to date.`,
+        );
+      }
+      continue;
     }
-    continue;
-  }
 
-  if (!fix) {
-    console.error(
-      `libraries/README.md ${config.label} out of date. Run \`bun run lib:fix\` to regenerate.`,
-    );
-    stale = true;
-    continue;
-  }
+    if (!fix) {
+      console.error(
+        `${catalog.name}/README.md ${config.label} out of date. Run \`bun run context:fix\` to regenerate.`,
+      );
+      stale = true;
+      continue;
+    }
 
-  writeFileSync(README, content);
-  console.log(`Regenerated ${config.label} in libraries/README.md.`);
+    writeFileSync(catalog.readme, content);
+    console.log(`Regenerated ${config.label} in ${catalog.name}/README.md.`);
+  }
 }
 
 process.exit(stale ? 1 : 0);
