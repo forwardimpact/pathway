@@ -36,25 +36,27 @@ threshold crossed, classification flip). Empty if nothing changed — write
 
 #### {metric_name}
 
+<!-- xmr:{metric_name}:wiki/metrics/{skill}/{YYYY}.csv -->
 **Latest:** {value} · **Status:** {status from `bunx fit-xmr analyze`}
 
 ```
-{paste the 14-line Wheeler/Vacanti X+mR chart from
-`bunx fit-xmr chart <csv> --metric <name>` verbatim. The chart already labels
-μ, UPL, LPL, ±1.5σ zones, URL, R, and the run index — do not restate any of
-those numbers outside the chart.}
+{14-line Wheeler/Vacanti X+mR chart. The chart labels μ, UPL, LPL, ±1.5σ
+zones, URL, R, and the run index — do not restate any of those numbers outside
+the chart.}
 ```
 
-**Signals:** {fired-rule list from `bunx fit-xmr analyze` (`xRule1`, `xRule2`,
-`xRule3`, `mrRule1`), or `—` if none}
+**Signals:** {fired-rule list (`xRule1`, `xRule2`, `xRule3`, `mrRule1`), or `—`
+if none}
+<!-- /xmr -->
 
 _Note:_ {one line, only when `status` is `signals_present` or a fired rule needs
 cross-referencing to a specific event; stable metrics get no prose}.
 
-(Repeat one `#### metric_name` block per metric, grouped under
-`### {agent}`. The chart from `bunx fit-xmr chart` is the
-visualization — do not duplicate its values in surrounding prose. Agents add the
-cross-reference layer only where there is something to say.)
+(Repeat one `#### metric_name` block per metric, grouped under `### {agent}`.
+Run `bunx fit-wiki refresh <storyboard.md>` to regenerate all marker blocks
+from CSV data. The chart is the visualization — do not duplicate its values in
+surrounding prose. Agents add the cross-reference layer only where there is
+something to say.)
 
 ## Obstacles
 

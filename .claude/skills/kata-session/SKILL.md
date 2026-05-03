@@ -47,9 +47,8 @@ Participant Protocol below.
 - [ ] Identify which metrics CSVs to review from `wiki/metrics/`.
 - [ ] Run `bunx fit-xmr analyze --format json` against each metrics CSV and
       record the `status`, fired-rule `signals`, and `latest` for each metric.
-- [ ] For team storyboard runs, render an X+mR chart per canonical metric
-      (`bunx fit-xmr chart <csv> --metric <name>`) for the Current Condition
-      section.
+- [ ] For team storyboard runs, run `bunx fit-wiki refresh` to regenerate all
+      XmR chart blocks in the current month's storyboard.
 
 </read_do_checklist>
 
@@ -121,10 +120,8 @@ Mode-specific question wording (team vs. 1-on-1) lives in the overlays.
 4. **Run XmR analysis.** For every CSV in `wiki/metrics/`, run
    `bunx fit-xmr analyze <csv> --format json` and use the `status`, fired-rule
    `signals`, and `latest` fields when reporting the Condition. For team
-   storyboard runs, also run `bunx fit-xmr chart <csv> --metric <name>` per
-   canonical metric and paste the resulting X+mR chart into the storyboard's
-   Current Condition — the chart is the visualization, so do not duplicate `μ`,
-   `UPL`, `LPL`, or zone values in surrounding prose. Note any
+   storyboard runs, run `bunx fit-wiki refresh` to regenerate all XmR chart
+   blocks in the current month's storyboard. Note any
    `insufficient_data` metric. In facilitated mode, include `status` and
    fired-rule signals in the Q2 `Ask`.
 5. **Run the five questions.** Follow the overlay's wording. In facilitated

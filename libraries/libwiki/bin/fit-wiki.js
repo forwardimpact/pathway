@@ -4,6 +4,9 @@ import { readFileSync } from "node:fs";
 import { createCli } from "@forwardimpact/libcli";
 
 import { runMemoCommand } from "../src/commands/memo.js";
+import { runRefreshCommand } from "../src/commands/refresh.js";
+import { runInitCommand } from "../src/commands/init.js";
+import { runPushCommand, runPullCommand } from "../src/commands/sync.js";
 
 const { version: VERSION } = JSON.parse(
   readFileSync(new URL("../package.json", import.meta.url), "utf8"),
@@ -38,6 +41,46 @@ const definition = {
         },
       },
     },
+    {
+      name: "refresh",
+      description:
+        "Regenerate XmR chart blocks inside a storyboard markdown file",
+      args: "[storyboard-path]",
+    },
+    {
+      name: "init",
+      description: "Bootstrap a wiki working tree for a Kata installation",
+      options: {
+        "wiki-root": {
+          type: "string",
+          description: "Override wiki root directory (default: wiki)",
+        },
+        "skills-dir": {
+          type: "string",
+          description: "Override skills directory (default: .claude/skills)",
+        },
+      },
+    },
+    {
+      name: "push",
+      description: "Commit and push local wiki changes to the remote",
+      options: {
+        "wiki-root": {
+          type: "string",
+          description: "Override wiki root directory (default: wiki)",
+        },
+      },
+    },
+    {
+      name: "pull",
+      description: "Pull remote wiki changes into the local working tree",
+      options: {
+        "wiki-root": {
+          type: "string",
+          description: "Override wiki root directory (default: wiki)",
+        },
+      },
+    },
   ],
   globalOptions: {
     help: { type: "boolean", short: "h", description: "Show this help" },
@@ -50,13 +93,18 @@ const definition = {
   examples: [
     'fit-wiki memo --from staff-engineer --to security-engineer --message "audit d642ff0c"',
     'fit-wiki memo --from technical-writer --to all --message "new XmR baseline"',
+    "fit-wiki refresh",
+    "fit-wiki refresh wiki/storyboard-2026-M05.md",
+    "fit-wiki init",
+    "fit-wiki push",
+    "fit-wiki pull",
   ],
   documentation: [
     {
       title: "Wiki Operations",
       url: "https://www.forwardimpact.team/docs/libraries/wiki-operations/index.md",
       description:
-        "Send cross-team memos, discover agents, and manage wiki markers.",
+        "Send cross-team memos, refresh storyboard charts, and sync the wiki.",
     },
   ],
 };
@@ -65,6 +113,10 @@ const cli = createCli(definition);
 
 const COMMANDS = {
   memo: runMemoCommand,
+  refresh: runRefreshCommand,
+  init: runInitCommand,
+  push: runPushCommand,
+  pull: runPullCommand,
 };
 
 function main() {

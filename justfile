@@ -9,11 +9,11 @@ ARGS := ""
 
 # Pull latest agent memory from wiki
 wiki-pull:
-    bash scripts/wiki-sync.sh pull
+    bunx fit-wiki pull
 
 # Commit and push agent memory to wiki
 wiki-push:
-    bash scripts/wiki-sync.sh push
+    bunx fit-wiki push
 
 # Audit agent memory against the wiki contract
 wiki-audit:

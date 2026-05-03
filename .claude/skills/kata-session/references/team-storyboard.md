@@ -53,25 +53,22 @@ XmR protocol reference at
 
 ## Storyboard updates
 
-Current Condition is rendered as per-metric blocks under
-`### {agent}` headings (no overview table). For each CSV-backed
-metric, write a `#### {metric_name}` block containing:
+Run `bunx fit-wiki refresh` to regenerate all `<!-- xmr:... -->` /
+`<!-- /xmr -->` blocks in the current month's storyboard. Idempotent. Pass an
+explicit path to target a different file.
 
-1. A status header — `**Latest:** {value} · **Status:** {status}`. No trend
-   arrows or alert glyphs.
-2. The visualization: paste the 14-line X+mR chart from
-   `bunx fit-xmr chart <csv> --metric <name>` verbatim in a fenced code block.
-   The chart labels `μ`, `UPL`, `LPL`, `±1.5σ`, `URL`, `R`, and the run index —
-   **do not restate any of these in prose**.
+Each `#### {metric_name}` block is bracketed by markers. Everything between
+them is regenerated; the heading and `_Note:_` prose sit outside.
 
-   Chart the whole CSV. The process is continuous; the storyboard month is a
-   coaching artifact, not a process reset. Don't filter to "this month" — every
-   storyboard renders the same series.
+The rendered block contains:
 
-3. A `**Signals:**` line listing fired Wheeler rules (`xRule1`, `xRule2`,
-   `xRule3`, `mrRule1`), or `—` if none.
-4. An optional one-line note only when `status` is `signals_present` and a fired
-   rule needs cross-referencing. Stable metrics get no prose.
+1. `**Latest:** {value} · **Status:** {status}`. No trend arrows.
+2. The X+mR chart in a fenced code block. Chart the whole CSV — **do not
+   restate `μ`, `UPL`, `LPL`, or zone values in prose**.
+3. `**Signals:**` — fired Wheeler rules or `—`.
+4. Optional one-line note only when `signals_present` needs cross-referencing.
+
+Without markers, fall back to `bunx fit-xmr chart` and paste manually.
 
 Above the agent-domain sections, write a tight `### Headlines` list naming only
 metrics whose status changed since the last meeting. Agents add cross-reference

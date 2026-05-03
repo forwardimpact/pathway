@@ -1,11 +1,12 @@
 {
   "name": "@forwardimpact/libwiki",
   "version": "0.1.1",
-  "description": "Wiki lifecycle primitives for the Kata agent system: cross-team memos, agent roster discovery, and marker migration.",
+  "description": "Wiki lifecycle primitives for the Kata agent system: cross-team memos, storyboard XmR chart refresh, wiki bootstrap, and git sync.",
   "keywords": [
     "wiki",
     "memo",
-    "inbox",
+    "storyboard",
+    "xmr",
     "agent"
   ],
   "homepage": "https://www.forwardimpact.team",
@@ -19,7 +20,11 @@
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
-      "Send a cross-team memo to a teammate's wiki inbox"
+      "Send a cross-team memo to a teammate's wiki inbox",
+      "Refresh XmR chart blocks inside a storyboard markdown file",
+      "Bootstrap a wiki working tree for a Kata installation",
+      "Push agent-authored wiki changes to the remote",
+      "Pull remote wiki changes into the local working tree"
     ]
   },
   "type": "module",
@@ -41,7 +46,8 @@
   },
   "dependencies": {
     "@forwardimpact/libcli": "^0.1.0",
-    "@forwardimpact/libutil": "^0.1.0"
+    "@forwardimpact/libutil": "^0.1.0",
+    "@forwardimpact/libxmr": "^1.1.0"
   },
   "devDependencies": {
     "@forwardimpact/libharness": "^0.1.5"
