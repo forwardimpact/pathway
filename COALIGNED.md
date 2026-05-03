@@ -22,13 +22,10 @@ every run) to most specific (one pause point). Each layer has one job. A defect
 in one layer is a different class of problem from a defect in another, and trace
 attribution depends on the separation.
 
-0. **System prompt** — harness mechanics: turns, tool calls, completion
-   signalling.
-1. **CLAUDE.md** — project identity: goal, users, products, distribution, doc
-   map.
+0. **System prompt** — harness mechanics: turns, tool calls, completion signal.
+1. **CLAUDE.md** — project identity: goal, users, products, distribution, maps.
 2. **CONTRIBUTING.md** — contribution standards: invariants, technical rules,
-   quality gates, git, security. **JTBD.md** — jobs each persona hires products
-   to do.
+   git workflow, security. **JTBD.md** — jobs each users hires products to do.
 3. **Agent profile** — persona, voice, skill routing, scope constraints.
 4. **Skill procedure (SKILL.md)** — decision-making, sequencing, rationale.
 5. **Skill references (`references/`)** — data the procedure consults:
