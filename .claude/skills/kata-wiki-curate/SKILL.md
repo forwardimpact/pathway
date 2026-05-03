@@ -27,11 +27,11 @@ Each run covers all four curation areas in sequence.
 | Area                    | What to check                                                  |
 | ----------------------- | -------------------------------------------------------------- |
 | `summary-accuracy`      | Each agent's summary matches their latest weekly log entries   |
-| `observation-follow-up` | "Observations for teammates" are acknowledged and acted on     |
+| `inbox-follow-up`       | `## Message Inbox` entries are acknowledged and acted on       |
 | `memory-index`          | MEMORY.md and Home.md list all agents, conventions are current |
 | `log-hygiene`           | Weekly logs use correct format, headings, ISO week conventions |
 
-If time-constrained, prioritize `summary-accuracy` and `observation-follow-up`.
+If time-constrained, prioritize `summary-accuracy` and `inbox-follow-up`.
 
 ## Process
 
@@ -71,17 +71,19 @@ For each agent, compare the summary against the most recent weekly log entries:
 
 Fix inaccuracies directly in the summary files.
 
-### Step 2: Observation follow-up
+### Step 2: Inbox follow-up
 
-Collect all "Observations for teammates" sections across all agent summaries.
-For each observation:
+Collect all `## Message Inbox` sections across all agent summaries. For each
+memo:
 
-1. Identify the target agent.
-2. Check the target agent's weekly logs after the observation date for
+1. The inbox is the recipient — this is the agent owning the file. The sender
+   is the bold name on the bullet (`- [date] **<sender>**: <text>`).
+2. Check the recipient agent's weekly logs after the memo date for
    acknowledgement or action.
-3. Flag observations older than 2 weeks with no visible response.
-4. Note unacted observations in the technical-writer's own summary so the target
-   agent sees them on their next run.
+3. Flag memos older than 2 weeks with no visible response.
+4. Re-send a fresh memo via `fit-wiki memo --from technical-writer --to
+   <recipient> --message "<flag text>"` so the recipient sees the nudge on
+   their next run.
 
 ### Step 3: Memory index
 
@@ -123,7 +125,7 @@ agents or the whole team:
 
 The **required destination** is `wiki/MEMORY.md`'s `## Cross-Cutting Priorities`
 table. Add an entry with the schema (Item / Agents / Owner / Status / Added).
-Mirroring an item into an affected agent's `Observations for Teammates` is
+Mirroring an item into an affected agent's `Message Inbox` is
 **conditional** — only when the agent needs context beyond what the index entry
 conveys.
 
@@ -155,9 +157,9 @@ Append to the current week's log (see agent profile for the file path):
 
 - **Areas curated** — Which areas checked
 - **Summary corrections** — Which agent summaries were updated and why
-- **Stale observations** — Teammate observations >2 weeks old with no response
+- **Stale memos** — Inbox entries >2 weeks old with no response
 - **MEMORY.md changes** — What was added/updated
-- **Observations for teammates** — Specific callouts based on wiki findings
+- **Memos sent** — Specific callouts dispatched via `fit-wiki memo`
 - **Metrics** — Record at least one measurement to
   `wiki/metrics/{skill}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create

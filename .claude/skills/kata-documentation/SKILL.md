@@ -162,7 +162,7 @@ Append to the current week's log (see agent profile for the file path):
   (fixed/spec'd/deferred)
 - **Deferred work** — Issues needing follow-up with enough context to resume
 - **Accuracy errors** — Specific docs that diverged from source code
-- **Observations for teammates** — Callouts for agents whose work affects docs
+- **Memos sent** — Callouts dispatched via `fit-wiki memo` to agents whose work affects docs
 - **Metrics** — Record at least one measurement to
   `wiki/metrics/{skill}/` per the
   [`kata-metrics`](../kata-metrics/SKILL.md) protocol. If no CSV exists, create

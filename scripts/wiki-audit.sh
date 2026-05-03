@@ -11,8 +11,8 @@ fail_count=0
 # Any H2 NOT in this list is an agent-specific state section —
 # permitted but must appear before "Open Blockers".
 permitted_summary_h2s=(
+  "Message Inbox"
   "Open Blockers"
-  "Observations for Teammates"
 )
 
 # ── Excluded-content H2 patterns (warn only) ──
@@ -98,27 +98,19 @@ check_summary_sections() {
       h2_lines+=("$lineno")
     done < <(grep -n '^## ' "$f" || true)
 
-    # Check order: state H2s must come before Open Blockers
+    # Message Inbox MUST be the first H2 (recipient-first discoverability).
+    # State H2s must come before Open Blockers.
+    if (( ${#h2s[@]} > 0 )) && [[ "${h2s[0]}" != "Message Inbox" ]]; then
+      fail "sections: $f first H2 is '${h2s[0]}', expected 'Message Inbox'"
+    fi
     local seen_open_blockers=0
     for h in "${h2s[@]}"; do
       if [[ "$h" == "Open Blockers" ]]; then
         seen_open_blockers=1
-      elif [[ "$h" == "Observations for Teammates" ]]; then
-        : # always valid after Open Blockers
       elif (( seen_open_blockers == 1 )); then
         fail "sections: $f sections out of order ('$h' after 'Open Blockers')"
       fi
     done
-
-    # If both present, Open Blockers must precede Observations for Teammates
-    local ob_idx=-1 ot_idx=-1
-    for i in "${!h2s[@]}"; do
-      [[ "${h2s[$i]}" == "Open Blockers" ]] && ob_idx=$i
-      [[ "${h2s[$i]}" == "Observations for Teammates" ]] && ot_idx=$i
-    done
-    if (( ob_idx >= 0 && ot_idx >= 0 && ob_idx > ot_idx )); then
-      fail "sections: $f sections out of order ('Open Blockers' after 'Observations for Teammates')"
-    fi
   done
 }
 

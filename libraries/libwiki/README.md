@@ -17,7 +17,8 @@ import { writeMemo, listAgents, insertMarkers } from "@forwardimpact/libwiki";
 ## Key Exports
 
 - `writeMemo({ summaryPath, sender, message, today })` — append a timestamped
-  observation bullet after the `<!-- memo:inbox -->` marker in a wiki summary.
+  bullet after the `<!-- memo:inbox -->` marker in a wiki summary's
+  `## Message Inbox` section.
 - `listAgents({ agentsDir, wikiRoot })` — discover agents from
   `.claude/agents/*.md` and derive wiki summary paths.
 - `insertMarkers({ agentsDir, wikiRoot })` — idempotent insertion of the memo

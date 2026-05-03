@@ -45,7 +45,8 @@ export function runMemoCommand(values, _args, cli) {
 
   if (values.to === BROADCAST_TARGET) {
     const agents = listAgents({ agentsDir, wikiRoot });
-    for (const { summaryPath } of agents) {
+    for (const { agent, summaryPath } of agents) {
+      if (agent === sender) continue;
       writeAndCheck(summaryPath, sender, values.message, today);
     }
   } else {

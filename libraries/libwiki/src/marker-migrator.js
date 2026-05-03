@@ -1,5 +1,5 @@
 import { readFileSync, writeFileSync } from "node:fs";
-import { MEMO_INBOX_MARKER, OBSERVATIONS_HEADING } from "./constants.js";
+import { MEMO_INBOX_MARKER, INBOX_HEADING } from "./constants.js";
 import { listAgents } from "./agent-roster.js";
 
 export function insertMarkers(
@@ -21,7 +21,7 @@ export function insertMarkers(
 
     const lines = content.split("\n");
     const headingIndex = lines.findIndex(
-      (line) => line.trim() === OBSERVATIONS_HEADING,
+      (line) => line.trim() === INBOX_HEADING,
     );
 
     if (headingIndex === -1) {

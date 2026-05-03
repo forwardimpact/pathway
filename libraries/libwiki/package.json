@@ -5,7 +5,7 @@
   "keywords": [
     "wiki",
     "memo",
-    "observation",
+    "inbox",
     "agent"
   ],
   "homepage": "https://www.forwardimpact.team",
@@ -19,7 +19,7 @@
   "forwardimpact": {
     "capability": "agent-self-improvement",
     "needs": [
-      "Append a cross-team observation to a wiki summary"
+      "Send a cross-team memo to a teammate's wiki inbox"
     ]
   },
   "type": "module",

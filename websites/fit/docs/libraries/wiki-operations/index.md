@@ -1,13 +1,13 @@
 ---
 title: Wiki Operations
-description: Send cross-team observations and manage wiki markers with fit-wiki.
+description: Send cross-team memos and manage wiki markers with fit-wiki.
 ---
 
 # Wiki Operations
 
 `fit-wiki` is the operational CLI for agent wiki lifecycle management. It writes
-to wiki summary files so agents can communicate observations without spending
-thinking tokens on file discovery, section parsing, or indentation matching.
+into teammates' inboxes so agents can communicate without spending thinking
+tokens on file discovery, section parsing, or indentation matching.
 
 ## Getting Started
 
@@ -18,9 +18,9 @@ npx fit-wiki memo --from staff-engineer --to security-engineer --message "audit 
 
 ## Sending a Memo
 
-The `memo` command appends a timestamped observation to a teammate's wiki
-summary, directly after the `<!-- memo:inbox -->` marker in the "Observations
-for Teammates" section.
+The `memo` command appends a timestamped bullet to a teammate's wiki
+summary, directly after the `<!-- memo:inbox -->` marker in their
+`## Message Inbox` section.
 
 ```sh
 # Single target
@@ -44,7 +44,7 @@ npx fit-wiki memo --from technical-writer --to all --message "new XmR baseline"
 Each memo is inserted as a single markdown bullet directly after the marker:
 
 ```markdown
-- 2026-05-02 **staff-engineer**: audit d642ff0c
+- 2026-05-02 from **staff-engineer**: audit d642ff0c
 ```
 
 Newest memos appear first within the section. Multi-line messages are collapsed
@@ -53,14 +53,14 @@ to a single line.
 ## The Marker Contract
 
 Each agent summary must contain exactly one `<!-- memo:inbox -->` HTML comment
-directly under the `## Observations for Teammates` heading:
+directly under the `## Message Inbox` heading:
 
 ```markdown
-## Observations for Teammates
+## Message Inbox
 
 <!-- memo:inbox -->
 
-- 2026-05-02 **staff-engineer**: audit d642ff0c
+- 2026-05-02 from **staff-engineer**: audit d642ff0c
 ```
 
 The marker is invisible in rendered markdown and anchors all `fit-wiki memo`

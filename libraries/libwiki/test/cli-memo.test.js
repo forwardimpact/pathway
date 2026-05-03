@@ -27,11 +27,11 @@ describe("fit-wiki memo CLI", () => {
 
     writeFileSync(
       join(wikiRoot, "staff-engineer.md"),
-      `# Staff Engineer\n\n## Observations for Teammates\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
+      `# Staff Engineer\n\n## Message Inbox\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
     );
     writeFileSync(
       join(wikiRoot, "product-manager.md"),
-      `# PM\n\n## Observations for Teammates\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
+      `# PM\n\n## Message Inbox\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
     );
 
     savedEnv = { ...process.env };
@@ -77,10 +77,16 @@ describe("fit-wiki memo CLI", () => {
     assert.ok(stdout.includes("wrote"));
 
     const content = readFileSync(join(wikiRoot, "staff-engineer.md"), "utf-8");
-    assert.ok(content.includes("**technical-writer**: audit d642ff0c"));
+    assert.ok(content.includes("from **technical-writer**: audit d642ff0c"));
   });
 
-  test("broadcast writes to every agent", () => {
+  test("broadcast writes to every agent except sender", () => {
+    writeFileSync(join(agentsDir, "technical-writer.md"), "# TW");
+    writeFileSync(
+      join(wikiRoot, "technical-writer.md"),
+      `# TW\n\n## Message Inbox\n\n${MEMO_INBOX_MARKER}\n`,
+    );
+
     run([
       "memo",
       "--from",
@@ -93,14 +99,16 @@ describe("fit-wiki memo CLI", () => {
 
     const se = readFileSync(join(wikiRoot, "staff-engineer.md"), "utf-8");
     const pm = readFileSync(join(wikiRoot, "product-manager.md"), "utf-8");
+    const tw = readFileSync(join(wikiRoot, "technical-writer.md"), "utf-8");
     assert.ok(se.includes("check baselines"));
     assert.ok(pm.includes("check baselines"));
+    assert.ok(!tw.includes("check baselines"), "sender's own inbox skipped");
   });
 
   test("missing-marker exits 2", () => {
     writeFileSync(
       join(wikiRoot, "staff-engineer.md"),
-      "# SE\n\n## Observations for Teammates\n\n- no marker\n",
+      "# SE\n\n## Message Inbox\n\n- no marker\n",
     );
 
     const { status, stderr } = runFail([
@@ -140,7 +148,7 @@ describe("fit-wiki memo CLI", () => {
     assert.ok(stdout.includes("wrote"));
 
     const content = readFileSync(join(wikiRoot, "staff-engineer.md"), "utf-8");
-    assert.ok(content.includes("**security-engineer**: env test"));
+    assert.ok(content.includes("from **security-engineer**: env test"));
   });
 
   test("exits 2 when neither --from nor env var set", () => {

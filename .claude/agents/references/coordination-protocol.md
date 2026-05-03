@@ -158,6 +158,8 @@ The most frequent failure modes this protocol prevents — watch for these:
 - **Cross-cutting comments lost in PR threads.** A policy question raised on one
   PR but applicable to many should escalate to a Discussion, not stay buried in
   PR review.
-- **Agent-to-agent observations sent via wiki summary edits.** Use your own
-  summary's teammate-observations section, or address the agent by name ("Hey
-  Staff Engineer, …") in a thread; never edit another agent's summary.
+- **Agent-to-agent memos sent via direct edits to another summary.** Use
+  `fit-wiki memo --from <you> --to <recipient> --message "<text>"` so the
+  bullet lands under the recipient's `## Message Inbox` marker. Never
+  hand-edit another agent's summary — `fit-wiki memo` is the only supported
+  write path.

@@ -25,7 +25,7 @@ describe("insertMarkers", () => {
   test("inserts marker on first run", () => {
     const { agentsDir, wikiRoot } = setup({
       "staff-engineer":
-        "# Staff Engineer\n\n## Observations for Teammates\n\n- existing bullet\n",
+        "# Staff Engineer\n\n## Message Inbox\n\n- existing bullet\n",
     });
 
     const result = insertMarkers({ agentsDir, wikiRoot });
@@ -41,7 +41,7 @@ describe("insertMarkers", () => {
   test("skips on second run (idempotent)", () => {
     const { agentsDir, wikiRoot } = setup({
       "staff-engineer":
-        "# Staff Engineer\n\n## Observations for Teammates\n\n- existing bullet\n",
+        "# Staff Engineer\n\n## Message Inbox\n\n- existing bullet\n",
     });
 
     insertMarkers({ agentsDir, wikiRoot });
@@ -53,7 +53,7 @@ describe("insertMarkers", () => {
 
   test("reports error when heading missing", () => {
     const { agentsDir, wikiRoot } = setup({
-      "staff-engineer": "# Staff Engineer\n\nNo observations section here.\n",
+      "staff-engineer": "# Staff Engineer\n\nNo inbox section here.\n",
     });
 
     const result = insertMarkers({ agentsDir, wikiRoot });
@@ -65,7 +65,7 @@ describe("insertMarkers", () => {
 
   test("marker placed directly under heading", () => {
     const { agentsDir, wikiRoot } = setup({
-      "staff-engineer": "## Observations for Teammates\n\n- existing bullet\n",
+      "staff-engineer": "## Message Inbox\n\n- existing bullet\n",
     });
 
     insertMarkers({ agentsDir, wikiRoot });
@@ -74,9 +74,7 @@ describe("insertMarkers", () => {
       join(wikiRoot, "staff-engineer.md"),
       "utf-8",
     ).split("\n");
-    const headingIdx = lines.findIndex(
-      (l) => l.trim() === "## Observations for Teammates",
-    );
+    const headingIdx = lines.findIndex((l) => l.trim() === "## Message Inbox");
     assert.equal(lines[headingIdx + 2], MEMO_INBOX_MARKER);
   });
 });
