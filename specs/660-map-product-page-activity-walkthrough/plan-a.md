@@ -22,9 +22,11 @@ the design's Drift-Mitigation table; wire it into `package.json` via a new
 
 ### 1. Restructure `websites/fit/map/index.md` Getting Started
 
-Replace lines 46–65 (the current `## Getting Started` block plus its single
-`<div class="grid">` Leadership card). Keep the H2 title `## Getting Started`
-unchanged. Keep the Leadership card unchanged below the new subsections.
+Replace the body of the existing `## Getting Started` block (the bare
+command code-fence) with two `###` subsections — Standard layer and
+Activity layer — per the After block below. The `## Getting Started`
+heading and the trailing `<div class="grid">` Leadership audience card are
+unchanged.
 
 Before:
 
@@ -90,8 +92,9 @@ activity layer, and ingest operational signals from GitHub and GetDX.
 
 Three contractual properties the implementer must preserve verbatim:
 
-1. The string `Supabase` appears in the Activity-layer subsection prose,
-   syntactically before any `<a>` in the same subsection.
+1. The word `Supabase` appears in the Activity-layer subsection prose
+   before the markdown link to `#activity-install-the-supabase-cli` in the
+   `## Getting Started` block.
 2. The link target ends with `#activity-install-the-supabase-cli`.
 3. The visible link text contains the word `activity` (case-insensitive). The
    exact wording above (`Set up the activity layer →`) satisfies this; if the
@@ -185,9 +188,9 @@ if (!/\n## Activity: install the Supabase CLI\n/.test(leadershipGuide))
     "websites/fit/docs/getting-started/leadership/map/index.md: heading '## Activity: install the Supabase CLI' is the contractual anchor target — do not rename without updating the product page link",
   );
 
-// Invariant 4 (spec criterion 5 regression guard, beyond design scope):
-// no `stages.yaml` reference anywhere on the product page. Spec criterion 5
-// scopes this check to the entire file, not the Getting Started subsection.
+// Invariant 4 (spec criterion 5, regression guard): no `stages.yaml`
+// reference anywhere on the product page. Spec criterion 5 scopes this
+// check to the entire file, not the Getting Started subsection.
 if (/stages\.yaml/.test(productPage))
   fail(
     "websites/fit/map/index.md: 'stages.yaml' must not appear (regression guard)",
