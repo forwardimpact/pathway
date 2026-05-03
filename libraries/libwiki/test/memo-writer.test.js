@@ -26,7 +26,7 @@ describe("writeMemo", () => {
 
   test("appends bullet after marker", () => {
     const content = [
-      "## Observations for Teammates",
+      "## Message Inbox",
       MEMO_INBOX_MARKER,
       "",
       "Some other content",
@@ -46,7 +46,7 @@ describe("writeMemo", () => {
   });
 
   test("returns missing-marker when marker absent", () => {
-    const content = "## Observations for Teammates\n\nNo marker here.\n";
+    const content = "## Message Inbox\n\nNo marker here.\n";
     const fs = createFakeFs(content);
     const result = writeMemo(base, fs);
 
@@ -59,11 +59,7 @@ describe("writeMemo", () => {
   });
 
   test("marker is preserved after write", () => {
-    const content = [
-      "## Observations for Teammates",
-      MEMO_INBOX_MARKER,
-      "",
-    ].join("\n");
+    const content = ["## Message Inbox", MEMO_INBOX_MARKER, ""].join("\n");
 
     const fs = createFakeFs(content);
     writeMemo(base, fs);
@@ -72,11 +68,7 @@ describe("writeMemo", () => {
   });
 
   test("multi-line message collapsed to single line", () => {
-    const content = [
-      "## Observations for Teammates",
-      MEMO_INBOX_MARKER,
-      "",
-    ].join("\n");
+    const content = ["## Message Inbox", MEMO_INBOX_MARKER, ""].join("\n");
 
     const fs = createFakeFs(content);
     writeMemo({ ...base, message: "line one\nline two\nline three" }, fs);

@@ -68,8 +68,11 @@ open with a `### Decision` subheading containing:
 Update `wiki/{agent}.md` with:
 
 1. Actions taken
-2. Observations for teammates
-3. Open blockers
+2. Open blockers
+
+Read the `## Message Inbox` (top of the file) for incoming memos from
+teammates. To send observations to other agents, use `fit-wiki memo` rather
+than editing this file's inbox by hand.
 
 ## Summary Contract
 
@@ -79,12 +82,13 @@ Each `wiki/<agent>.md` conforms to a mechanically-checkable contract.
 
 1. `# {Agent Title} — Summary` (H1, exactly one)
 2. `**Last run**:` line — date and one-line description
-3. Agent-specific state section(s) using H2
-4. `## Open Blockers` — currently-blocking items only
-5. `## Observations for Teammates` — items not yet promoted to the priority
-   index; agent-to-agent callouts. Each section begins with the marker
-   `<!-- memo:inbox -->` directly under the heading; `fit-wiki memo` writes
-   new bullets immediately after it.
+3. `## Message Inbox` — incoming agent-to-agent callouts not yet promoted to
+   the priority index. Begins with the marker `<!-- memo:inbox -->` directly
+   under the heading; `fit-wiki memo` writes new bullets immediately after it.
+   Placed near the top so on-boot scanning surfaces it before state-heavy
+   sections.
+4. Agent-specific state section(s) using H2
+5. `## Open Blockers` — currently-blocking items only
 
 **Excluded from summaries** (with correct homes):
 

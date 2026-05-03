@@ -27,11 +27,11 @@ describe("fit-wiki memo CLI", () => {
 
     writeFileSync(
       join(wikiRoot, "staff-engineer.md"),
-      `# Staff Engineer\n\n## Observations for Teammates\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
+      `# Staff Engineer\n\n## Message Inbox\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
     );
     writeFileSync(
       join(wikiRoot, "product-manager.md"),
-      `# PM\n\n## Observations for Teammates\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
+      `# PM\n\n## Message Inbox\n\n${MEMO_INBOX_MARKER}\n\n- old bullet\n`,
     );
 
     savedEnv = { ...process.env };
@@ -100,7 +100,7 @@ describe("fit-wiki memo CLI", () => {
   test("missing-marker exits 2", () => {
     writeFileSync(
       join(wikiRoot, "staff-engineer.md"),
-      "# SE\n\n## Observations for Teammates\n\n- no marker\n",
+      "# SE\n\n## Message Inbox\n\n- no marker\n",
     );
 
     const { status, stderr } = runFail([

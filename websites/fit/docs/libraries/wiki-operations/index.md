@@ -18,9 +18,9 @@ npx fit-wiki memo --from staff-engineer --to security-engineer --message "audit 
 
 ## Sending a Memo
 
-The `memo` command appends a timestamped observation to a teammate's wiki
-summary, directly after the `<!-- memo:inbox -->` marker in the "Observations
-for Teammates" section.
+The `memo` command appends a timestamped bullet to a teammate's wiki
+summary, directly after the `<!-- memo:inbox -->` marker in their
+`## Message Inbox` section.
 
 ```sh
 # Single target
@@ -53,10 +53,10 @@ to a single line.
 ## The Marker Contract
 
 Each agent summary must contain exactly one `<!-- memo:inbox -->` HTML comment
-directly under the `## Observations for Teammates` heading:
+directly under the `## Message Inbox` heading:
 
 ```markdown
-## Observations for Teammates
+## Message Inbox
 
 <!-- memo:inbox -->
 

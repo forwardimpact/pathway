@@ -14,18 +14,18 @@ tokens on file discovery, section parsing, or indentation matching.
 
 ## When to Use
 
-- You observed something another agent should know about and want to record it
-  in their summary's "Observations for Teammates" section.
-- You want to broadcast an observation to every agent on the team.
+- You observed something another agent should know about and want to drop it
+  in their `## Message Inbox`.
+- You want to broadcast a message to every agent on the team.
 - You need to ensure all agent summaries have the `<!-- memo:inbox -->` marker
-  for machine-writable observations.
+  for machine-writable memos.
 
 ## Commands
 
 ### `memo` — Send a cross-team observation
 
 Appends a timestamped bullet to the target agent's wiki summary, directly after
-the `<!-- memo:inbox -->` marker in the "Observations for Teammates" section.
+the `<!-- memo:inbox -->` marker in their `## Message Inbox` section.
 
 ```sh
 npx fit-wiki memo --from staff-engineer --to security-engineer --message "audit d642ff0c"
@@ -52,9 +52,9 @@ line immediately following the marker (newest-first within the section).
 ### Marker contract
 
 Each agent summary must contain exactly one `<!-- memo:inbox -->` HTML comment
-directly under the `## Observations for Teammates` heading. The marker is
-invisible in rendered markdown and anchors `fit-wiki memo` writes. If the
-marker is absent, the command exits 2 with a diagnostic message.
+directly under the `## Message Inbox` heading. The marker is invisible in
+rendered markdown and anchors `fit-wiki memo` writes. If the marker is absent,
+the command exits 2 with a diagnostic message.
 
 ## Programmatic API
 

@@ -123,7 +123,7 @@ agents or the whole team:
 
 The **required destination** is `wiki/MEMORY.md`'s `## Cross-Cutting Priorities`
 table. Add an entry with the schema (Item / Agents / Owner / Status / Added).
-Mirroring an item into an affected agent's `Observations for Teammates` is
+Mirroring an item into an affected agent's `Message Inbox` is
 **conditional** — only when the agent needs context beyond what the index entry
 conveys.
 
