@@ -2,13 +2,15 @@
 
 ## Architecture
 
-Three components collaborate. Eight cask files in the tap repo define what
-Homebrew installs. A conventions document in the monorepo prescribes how casks
-are authored and maintained. The tap README bridges the two.
+Four components collaborate. Eight cask files in the tap repo define what
+Homebrew installs. The publish-brew workflow writes version and sha256 into
+those casks on each release. A conventions document in the monorepo prescribes
+how casks are authored. The tap README bridges tap and monorepo.
 
 | Component       | Location                                       | Purpose                                              |
 | --------------- | ---------------------------------------------- | ---------------------------------------------------- |
 | Cask files (x8) | `forwardimpact/homebrew-tap/Casks/`            | Homebrew cask definitions installed by `brew install` |
+| Publish workflow | `.github/workflows/publish-brew.yml` in mono   | Builds bundle, uploads asset, sed-rewrites cask      |
 | Conventions doc | `websites/fit/docs/internals/release/` in mono | Authoring rules, sed contract, binary-stanza mapping |
 | Tap README      | `forwardimpact/homebrew-tap/README.md`          | Links to conventions doc via published URL           |
 
@@ -25,7 +27,7 @@ graph TD
         outpost[fit-outpost]
     end
     gear[fit-gear]
-    basecamp[fit-basecamp] -.->|deprecated, redirects to| outpost
+    basecamp[fit-basecamp] -.->|deprecated, replaced by| outpost
 ```
 
 All eight casks are independently installable — no `depends_on cask:` between
@@ -47,18 +49,21 @@ Each live cask follows an identical structure:
 
 ### URL and Asset Scheme
 
-Assets follow the pattern at `publish-brew.yml` line 120:
+Assets follow the pattern in the workflow's "Zip bundle and hash" step:
 
 ```
 https://github.com/forwardimpact/monorepo/releases/download/{name}@v{version}/{cask}-{version}-darwin-arm64.zip
 ```
 
 Where `{name}` is the tag prefix (e.g., `pathway` or `gear`), `{cask}` is
-`fit-{name}`, and `{version}` is the semver string.
+`fit-{name}`, and `{version}` is the semver string. The workflow's tag filter
+and case statement must be updated to route `gear@v*` tags — it currently
+accepts `services@v*` and `utilities@v*`.
 
 ### Sed Contract
 
-The `tap-pr` job (lines 210-213) rewrites exactly two lines per cask:
+The `tap-pr` job's "Update cask version and sha256" step rewrites exactly two
+lines per cask:
 
 ```ruby
   version "{version}"
@@ -88,7 +93,9 @@ monorepo's shared releases.
 
 ### App Install Path
 
-All casks install to a `Forward Impact/` subdirectory under `/Applications/`:
+All casks install to a `Forward Impact/` subdirectory under `/Applications/`
+to keep eight `.app` bundles visually grouped rather than scattered among
+unrelated applications:
 
 ```ruby
 app "fit-pathway.app", target: "Forward Impact/fit-pathway.app"
@@ -128,9 +135,10 @@ deprecate! date: "2026-04-30", because: "renamed to fit-outpost"
 ```
 
 The cask retains `url` and `sha256` fields pointing to the `outpost` release
-asset (so the sed contract still functions) but has no `app` or `binary`
-stanzas. It exists for discoverability via `brew search`. Its `desc` names
-`fit-outpost` as the replacement.
+asset (so the sed contract still functions) but has no `app`, `binary`, or
+`livecheck` stanzas. It exists for discoverability via `brew search`. Its `desc`
+names `fit-outpost` as the replacement and references the storage-path migration
+command from #625 phase 8d.
 
 ## Conventions Document
 
@@ -154,4 +162,5 @@ together. The tap README links to this document via its published URL.
 | Inter-cask dependencies | None — all casks independently installable | Products depend on gear via `depends_on cask:` | Users install only what they need; forced deps pull 25 CLIs for a single-CLI product |
 | Livecheck strategy | `:github_releases` with anchored per-cask regex | `:url` against atom feed | Anchored `^{name}@v…$` regex cleanly filters the multi-bundle releases page |
 | Deprecated cask form | Standalone `fit-basecamp.rb` with `deprecate!` | Caveats on `fit-outpost` | `brew search fit-basecamp` must surface results |
+| App install path | `Forward Impact/` subdirectory | Flat install to `/Applications/` | Groups eight bundles visually; avoids cluttering the top-level Applications folder |
 | Conventions doc location | Monorepo `internals/release/` | Tap repo README | Conventions co-decay with the workflow |
