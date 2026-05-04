@@ -5,6 +5,14 @@ Every guide maps to a Big Hire or Little Hire from
 [services/README.md](/services/README.md). Big Hire guides are directory roots;
 Little Hire guides are nested children.
 
+## Getting Started (`docs/getting-started/`)
+
+| Persona      | Hub path                        | Product pages                          |
+| ------------ | ------------------------------- | -------------------------------------- |
+| Leadership   | `getting-started/leadership/`   | Map, Pathway, Landmark, Summit         |
+| Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost      |
+| Contributors | `getting-started/contributors/` | (monorepo setup)                       |
+
 ## Product Guides (`docs/products/`)
 
 **Define the Engineering Standard** (Leaders → Map, Pathway)

@@ -69,6 +69,21 @@ Configure agents to meet your engineering standard...
 Navigation is not generated from the file tree. When a page is added, moved, or
 removed, update every hub page and card grid that references it.
 
+### Getting Started Pages
+
+Per-persona entry points. Minimal path from zero to first meaningful result with
+a single product — install, configure, see output. No exploration, no
+alternatives, no background theory. Links forward to the relevant guide for
+depth. 50–150 lines.
+
+Three personas, each with a hub and per-product pages:
+
+| Persona      | Hub                        | Products                               |
+| ------------ | -------------------------- | -------------------------------------- |
+| Leadership   | `getting-started/leadership/`   | Map, Pathway, Landmark, Summit    |
+| Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost |
+| Contributors | `getting-started/contributors/` | (monorepo setup)                  |
+
 ### Guide Pages
 
 Guides under `docs/products/`, `docs/libraries/`, and `docs/services/` sit
@@ -79,9 +94,8 @@ under job headings on their hub page. Each job contains two guide types:
 - **Little Hire** — bounded task assuming the Big Hire is done (80–200 lines).
   Nested under the Big Hire directory.
 
-Getting-started pages are per-persona minimal paths (50–150 lines) linking
-forward to guides. All guides are framed around the reader's progress, not
-product features. See [README.md](README.md) for the full guide map.
+All guides are framed around the reader's progress, not product features. See
+[README.md § Guide Map](README.md#guide-map).
 
 ## Design Assets
 
