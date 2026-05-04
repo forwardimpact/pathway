@@ -56,10 +56,10 @@ progression between levels.
 
 <a href="/docs/products/finding-your-bearing/">
 
-### Finding Your Bearing
+### Find Growth Areas and Build Evidence
 
-Use Guide to navigate your agent-aligned engineering standard — onboarding,
-growth areas, and contextual help.
+When a promotion conversation ends with 'not yet' and no specifics, use Guide
+and Landmark to find what's missing and show concrete evidence of growth.
 
 </a>
 
