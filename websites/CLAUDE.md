@@ -97,6 +97,165 @@ until someone fixes them by hand.
 
 Always specify a language tag (`sh`, `yaml`, `json`, `mermaid`, etc.).
 
+## Guide Map
+
+Every guide maps to a Big Hire or Little Hire from
+[JTBD.md](/JTBD.md), [libraries/README.md](/libraries/README.md), or
+[services/README.md](/services/README.md). Big Hire guides are directory roots;
+Little Hire guides are nested children.
+
+### Product Guides (`docs/products/`)
+
+**Define the Engineering Standard** (Leaders → Map, Pathway)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `authoring-standards/` | Authoring Agent-Aligned Engineering Standards |
+| Little | `authoring-standards/validate-and-update/` | Validate and Update the Standard |
+| Little | `authoring-standards/define-a-new-role/` | Define a New Role |
+
+**Understand Expectations** (Engineers → Pathway)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `career-paths/` | See What's Expected at Your Level |
+| Little | `career-paths/autonomy-and-scope/` | Understand Autonomy and Scope at Your Level |
+
+**Find Growth Areas** (Engineers → Guide, Landmark)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `finding-your-bearing/` | Find Growth Areas and Build Evidence |
+| Little | `finding-your-bearing/ask-a-growth-question/` | Ask a Growth Question |
+| Little | `finding-your-bearing/check-progress/` | Check Progress Toward Next Level |
+
+**Trust Agent Output** (Engineers → Guide, Pathway)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `verify-agent-work/` | Verify Agent Work Against Your Standard |
+| Little | `verify-agent-work/second-opinion/` | Get a Second Opinion on a Deliverable |
+| Little | `verify-agent-work/expected-output/` | See What the Standard Expects Before Reviewing |
+
+**Equip Aligned Agent Teams** (Engineers → Pathway)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `agent-teams/` | Configure Agents to Meet Your Engineering Standard |
+| Little | `agent-teams/organizational-context/` | Give Agents Organizational Context |
+
+**Measure Engineering Outcomes** (Leaders → Landmark)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `landmark-quickstart/` | Demonstrate Engineering Progress |
+| Little | `landmark-quickstart/culture-investments/` | Tell Whether Culture Investments Are Working |
+
+**Staff Teams to Succeed** (Leaders → Pathway, Summit)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `team-capability/` | Make Staffing Decisions You Can Defend |
+| Little | `team-capability/evaluate-candidate/` | Evaluate a Candidate Against Team Gaps |
+| Little | `team-capability/surface-gaps/` | Surface Capability Gaps Before They Cause Failures |
+
+**Be Prepared and Productive** (Engineers → Outpost)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `knowledge-systems/` | Keep Track of Context Without Effort |
+| Little | `knowledge-systems/meeting-prep/` | Walk Into Every Meeting Already Oriented |
+
+### Library Guides (`docs/libraries/`)
+
+**Operate a Predictable Agent Team** (Engineers → libwiki, libxmr)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `predictable-team/` | Persistent Memory for Agent Teams |
+| Little | `predictable-team/wiki-operations/` | Wiki Operations |
+| Little | `predictable-team/xmr-analysis/` | XmR Analysis |
+
+**Enable Agents on Every Surface** (Builders → libcli, libformat, libui)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `every-surface/` | Agent-Friendly Surfaces |
+| Little | `every-surface/add-capability/` | Add a Capability to Both Surfaces |
+
+**Ground Agents in Context** (Builders → libgraph, libindex, libresource, libvector)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `ground-agents/` | Ground Agents in Typed, Retrievable Knowledge |
+| Little | `ground-agents/query-graph/` | Query a Graph |
+| Little | `ground-agents/lookup-context/` | Look Up Context in an Index |
+| Little | `ground-agents/resolve-resource/` | Resolve a Resource |
+| Little | `ground-agents/search-semantically/` | Search Semantically |
+
+**Integrate with the Engineering Standard** (Builders → libskill)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `integrate-standard/` | Integrate with the Engineering Standard |
+| Little | `integrate-standard/derive-profile/` | Derive a Skill Matrix or Agent Profile |
+
+**Keep Service Contracts Typed** (Builders → libcodegen, libmcp, librpc, libtype)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `typed-contracts/` | Typed Contracts |
+| Little | `typed-contracts/expose-tool/` | Expose a Proto Method as an Agent Tool |
+| Little | `typed-contracts/ship-endpoint/` | Ship a Service Endpoint |
+
+**Keep Services Running and Visible** (Builders → librc, libsupervise, libtelemetry)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `service-lifecycle/` | Service Lifecycle |
+| Little | `service-lifecycle/manage-service/` | Start, Stop, or Check a Service |
+| Little | `service-lifecycle/add-observability/` | Add Observability |
+
+**Prove Agent Changes** (Builders → libeval, libterrain)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `prove-changes/` | Prove Whether Agent Changes Improved Outcomes |
+| Little | `prove-changes/run-eval/` | Agent Evaluations |
+| Little | `prove-changes/trace-analysis/` | Trace Analysis |
+| Little | `prove-changes/generate-dataset/` | Generate an Eval Dataset |
+
+### Service Guides (`docs/services/`)
+
+**Ground Agents in Context** (Builders → graph, vector)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `ground-agents/` | Traverse Knowledge and Search Semantically via Shared Services |
+| Little | `ground-agents/query-graph/` | Answer Relationship Questions from a Product |
+| Little | `ground-agents/search-content/` | Search for Related Content from a Product |
+
+**Integrate with the Engineering Standard** (Builders → pathway)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `integrate-standard/` | Query the Engineering Standard from Any Product |
+| Little | `integrate-standard/fetch-profile/` | Fetch a Derived Role or Agent Profile |
+
+**Keep Service Contracts Typed** (Builders → mcp)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `typed-contracts/` | Expose Backend Services as Agent Tools Through One Server |
+| Little | `typed-contracts/add-service/` | Add a Service to the MCP Surface |
+
+**Prove Agent Changes** (Builders → trace)
+
+| Hire | Path | Title |
+| ---- | ---- | ----- |
+| Big | `prove-changes/` | Collect Trace Spans from Any Product |
+| Little | `prove-changes/send-spans/` | Send Spans from a Product |
+
 ## Design Assets
 
 Sources live in `design/fit/` and are copied into `websites/fit/assets/` via a
