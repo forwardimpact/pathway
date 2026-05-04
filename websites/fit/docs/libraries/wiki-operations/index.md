@@ -1,107 +1,79 @@
 ---
 title: Wiki Operations
-description: Send cross-team memos, refresh storyboard charts, and sync the wiki with fit-wiki.
+description: Send a memo to a teammate, refresh storyboard charts, or sync wiki state -- without managing the wiki infrastructure yourself.
 ---
 
-`fit-wiki` is the operational CLI for agent wiki lifecycle management. It
-handles cross-team memos, storyboard chart maintenance, and wiki git
-lifecycle — so agents can focus on domain work instead of file plumbing.
+Your agent team uses a wiki for persistent memory -- summaries, metrics, memos,
+storyboards. You need to send a message to a teammate, update the charts in a
+storyboard, or make sure the wiki is in sync before a session starts. You do not
+need to understand how the wiki is structured internally. `fit-wiki` handles the
+plumbing.
 
-## Getting Started
+This guide covers the two most common wiki operations: sending memos and
+refreshing storyboard charts. It also covers syncing and bootstrapping the wiki
+for completeness. For a deeper look at how the wiki serves as persistent memory
+for your agent team, see the
+[Persistent Memory](/docs/libraries/wiki-operations/persistent-memory/) guide.
+
+## Prerequisites
+
+- Node.js 18+
+- A wiki already initialized in your project (see
+  [Bootstrapping the wiki](#bootstrapping-the-wiki) if not)
+
+## Sending a memo
+
+You need to notify a teammate about something they should see on their next run.
+The `memo` command appends a timestamped message to the teammate's inbox.
 
 ```sh
-npx fit-wiki --help
-npx fit-wiki memo --from staff-engineer --to security-engineer --message "audit d642ff0c"
+npx fit-wiki memo --from technical-writer --to staff-engineer --message "check baseline"
 ```
 
-## Sending a Memo
+```
+wrote wiki/staff-engineer.md
+```
 
-The `memo` command appends a timestamped bullet to a teammate's wiki
-summary, directly after the `<!-- memo:inbox -->` marker in their
-`## Message Inbox` section.
+The message appears at the top of the teammate's `## Message Inbox` section as a
+single markdown bullet:
+
+```markdown
+- 2026-05-04 from **technical-writer**: check baseline
+```
+
+Newest memos appear first. Multi-line messages are collapsed to a single line.
+
+### Broadcasting to all teammates
+
+To reach every agent except yourself:
 
 ```sh
-# Single target
-npx fit-wiki memo --from technical-writer --to staff-engineer --message "check baseline"
-
-# Broadcast to all agents
 npx fit-wiki memo --from technical-writer --to all --message "new XmR baseline"
 ```
 
-### Options
+```
+wrote wiki/staff-engineer.md
+wrote wiki/security-engineer.md
+wrote wiki/improvement-coach.md
+```
+
+The sender is automatically excluded from the broadcast.
+
+### Memo options
 
 | Flag          | Required | Description                                                            |
 | ------------- | -------- | ---------------------------------------------------------------------- |
 | `--from`      | No       | Sender name (falls back to `LIBEVAL_AGENT_PROFILE` env var)            |
 | `--to`        | Yes      | Target agent name, or `all` to broadcast                               |
-| `--message`   | Yes      | Observation text                                                       |
+| `--message`   | Yes      | Message text                                                           |
 | `--wiki-root` | No       | Override wiki root directory (default: auto-detected from project root) |
 
-### Bullet Format
+If `--from` is omitted and `LIBEVAL_AGENT_PROFILE` is not set, the command exits
+with an error.
 
-Each memo is inserted as a single markdown bullet directly after the marker:
+### The marker contract
 
-```markdown
-- 2026-05-02 from **staff-engineer**: audit d642ff0c
-```
-
-Newest memos appear first within the section. Multi-line messages are collapsed
-to a single line.
-
-## Refreshing Storyboards
-
-The `refresh` command scans a storyboard markdown file for
-`<!-- xmr:metric:path -->` / `<!-- /xmr -->` marker pairs and regenerates each
-block with the current XmR chart, latest value, status, and signals from the
-referenced CSV.
-
-```sh
-# Current month's storyboard (default)
-npx fit-wiki refresh
-
-# Explicit path
-npx fit-wiki refresh wiki/storyboard-2026-M05.md
-```
-
-Without a path argument, defaults to the current month's storyboard
-(`wiki/storyboard-YYYY-MNN.md`). Idempotent — running it twice produces the
-same output. Files without markers are left unchanged.
-
-## Initializing the Wiki
-
-The `init` command bootstraps a wiki working tree for a Kata installation. It
-clones the repository's wiki into `./wiki/` and creates
-`wiki/metrics/<skill>/` directories for each kata skill.
-
-```sh
-npx fit-wiki init
-```
-
-Idempotent — safe to run on an already-initialized wiki. Authenticates using
-ambient GitHub credentials (`GITHUB_TOKEN` or `GH_TOKEN`).
-
-## Syncing the Wiki
-
-The `push` and `pull` commands replace shell-script plumbing with portable npm
-commands.
-
-```sh
-# Pull remote changes (e.g. in SessionStart hook)
-npx fit-wiki pull
-
-# Commit and push local changes (e.g. in Stop hook)
-npx fit-wiki push
-```
-
-`push` is a no-op when no local changes exist. On push conflicts, local state
-wins. `pull` exits non-zero with a diagnostic message on conflict.
-
-Both commands are designed for use in Claude Code hooks and GitHub Actions
-post-run steps.
-
-## The Marker Contract
-
-Each agent summary must contain exactly one `<!-- memo:inbox -->` HTML comment
+Each agent summary file must contain a `<!-- memo:inbox -->` HTML comment
 directly under the `## Message Inbox` heading:
 
 ```markdown
@@ -109,52 +81,94 @@ directly under the `## Message Inbox` heading:
 
 <!-- memo:inbox -->
 
-- 2026-05-02 from **staff-engineer**: audit d642ff0c
+- 2026-05-04 from **technical-writer**: check baseline
 ```
 
-The marker is invisible in rendered markdown and anchors all `fit-wiki memo`
-writes. If the marker is absent, the command exits 2 with a diagnostic.
+The marker is invisible in rendered markdown. If it is missing, the command exits
+with code 2 and a diagnostic message. The marker is placed once during wiki
+initialization and should not be removed.
 
-## Programmatic API
+## Refreshing storyboard charts
 
-```js
-import {
-  writeMemo,
-  listAgents,
-  insertMarkers,
-  scanMarkers,
-  renderBlock,
-  WikiRepo,
-  listSkills,
-} from "@forwardimpact/libwiki";
+Your storyboard contains XmR chart blocks that visualize metrics over time. When
+new metric rows land in the CSV files, the charts need regenerating. The
+`refresh` command does that in place.
 
-// Append a single memo
-const result = writeMemo({
-  summaryPath: "wiki/staff-engineer.md",
-  sender: "technical-writer",
-  message: "audit d642ff0c",
-  today: "2026-05-02",
-});
-
-// Discover all agents
-const agents = listAgents({
-  agentsDir: ".claude/agents",
-  wikiRoot: "wiki",
-});
-
-// Ensure all summaries have the marker (idempotent)
-const migration = insertMarkers({
-  agentsDir: ".claude/agents",
-  wikiRoot: "wiki",
-});
-
-// Scan storyboard for XmR marker pairs
-const blocks = scanMarkers(storyboardText);
-
-// Render one XmR chart block
-const lines = renderBlock({
-  metric: "findings",
-  csvPath: "wiki/metrics/kata-spec/2026.csv",
-  projectRoot: "/path/to/project",
-});
+```sh
+npx fit-wiki refresh
 ```
+
+Without a path argument, this targets the current month's storyboard at
+`wiki/storyboard-YYYY-MNN.md`. To refresh a specific file:
+
+```sh
+npx fit-wiki refresh wiki/storyboard-2026-M05.md
+```
+
+The command scans the file for marker pairs like this:
+
+```markdown
+<!-- xmr:findings:wiki/metrics/kata-spec/2026.csv -->
+(chart content regenerated here)
+<!-- /xmr -->
+```
+
+Each block is replaced with the current XmR chart, latest value, status, and
+signal descriptions from the referenced CSV. Files without markers are left
+unchanged. The operation is idempotent -- running it twice produces the same
+output.
+
+## Syncing wiki state
+
+The wiki is a separate git repository cloned into `wiki/` within your project.
+Two commands keep it synchronized:
+
+```sh
+npx fit-wiki pull
+```
+
+```
+pull: up to date
+```
+
+```sh
+npx fit-wiki push
+```
+
+```
+push: committed and pushed
+```
+
+`push` is a no-op when no local changes exist. On conflicts, local state wins.
+`pull` exits non-zero with a diagnostic when a conflict is detected.
+
+Both commands are designed for use in Claude Code hooks (e.g., `pull` in
+SessionStart, `push` in Stop) and GitHub Actions post-run steps.
+
+## Bootstrapping the wiki
+
+If your project does not have a wiki yet, `init` sets one up:
+
+```sh
+npx fit-wiki init
+```
+
+```
+init: wiki ready at wiki
+```
+
+This clones the repository's wiki into `wiki/` and creates
+`wiki/metrics/<skill>/` directories for each skill found under
+`.claude/skills/`. The wiki URL is derived from your repository's origin remote.
+
+Idempotent -- safe to run on an already-initialized wiki. Authenticates using
+ambient GitHub credentials (`GITHUB_TOKEN` or `GH_TOKEN`).
+
+## Related
+
+- [Persistent Memory](/docs/libraries/wiki-operations/persistent-memory/) --
+  end-to-end guide to how the wiki serves as memory for your agent team.
+- [XmR Analysis](/docs/libraries/xmr-analysis/) -- understanding the control
+  charts that `refresh` renders into your storyboard.
+- [`fit-wiki` on npm](https://www.npmjs.com/package/@forwardimpact/libwiki) --
+  installation and changelog.

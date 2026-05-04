@@ -1,232 +1,185 @@
 ---
 title: Trace Analysis
-description: Read agent execution traces with fit-trace as qualitative research — orient, code, find patterns, and write grounded findings.
+description: See exactly what an agent did during a run — download traces, query turns, filter by tool or error, and measure token cost with fit-trace.
 ---
 
-Once `fit-eval` has produced an NDJSON trace, the work shifts from running to
-understanding. `fit-trace` is the query interface — but the trace is qualitative
-data, and the most useful analysis comes from reading it like a researcher, not
-running a checklist.
-
-This guide walks through the method: orient with summary commands, read the full
-trace, code observations, look for patterns, and synthesize findings that are
-grounded, testable, and actionable. Two worked examples — an eval that failed
-and a multi-agent session that stalled — show the method on real-shaped data.
+You need to see exactly what the agent did so you can debug failures and verify
+improvements. `fit-trace` reads the NDJSON traces produced by `fit-eval` and
+gives you structured queries over every turn, tool call, and result.
 
 ## Prerequisites
 
 - Node.js 18+
-- A trace file (either `--output` from `fit-eval`, or downloaded from CI with
-  `fit-trace download`)
-- Time to read the full trace — skimming produces shallow findings
+- A trace file -- either `--output` from a `fit-eval` run, or downloaded from CI
+  with `fit-trace download`
 
-## 1. Get the trace
+## Get the trace
 
-Local runs already produce a trace at `--output`. For CI runs, list and
-download:
+Local runs already produce a trace at the `--output` path. For CI runs, list
+recent workflow runs and download:
 
 ```sh
-npx fit-trace runs                    # find the run you want
-npx fit-trace download <run-id>       # downloads to /tmp/trace-<run-id>/
+npx fit-trace runs                        # list recent workflow runs
+npx fit-trace download 24497273755        # downloads to /tmp/trace-24497273755/
 ```
+
+The download produces `trace.ndjson` and `structured.json`. Both formats work
+as input to every query command below.
+
+## Orient with the overview
+
+Start with the bird's-eye view before drilling into individual turns:
+
+```sh
+npx fit-trace overview /tmp/trace-24497273755/structured.json
+```
+
+```json
+{
+  "summary": { "result": "success", "totalCostUsd": 0.42, "numTurns": 18 },
+  "turnCount": 34,
+  "tools": [{ "tool": "Bash", "count": 12 }, { "tool": "Read", "count": 8 }],
+  "taskPrompt": "Refactor src/utils/format.js so that formatDate and formatCurrency share..."
+}
+```
+
+The `timeline` command shows the shape of the session at a glance -- one line
+per assistant turn with tools used and token counts:
+
+```sh
+npx fit-trace timeline /tmp/trace-24497273755/structured.json
+```
+
+```text
+[1]  Read                           in:12.3K out:0.8K    Let me read the current implementation...
+[3]  Bash                           in:13.1K out:1.2K    Running the existing tests first...
+[5]  Edit                           in:14.0K out:2.1K    I'll extract the shared locale helper...
+[7]  Bash                           in:15.2K out:0.4K    Running tests to verify the refactor...
+```
+
+## Find errors
+
+List every tool result where the agent's tool call failed:
+
+```sh
+npx fit-trace errors /tmp/trace-24497273755/structured.json
+```
+
+Each result includes the turn index, the `toolUseId` that links it back to the
+assistant turn that made the call, and the error content.
+
+## Filter by tool or role
+
+See every turn where the agent used a specific tool, including both the
+`tool_use` request and its `tool_result` response:
+
+```sh
+npx fit-trace tool /tmp/trace-24497273755/structured.json Bash
+```
+
+Or use `filter` for structural queries -- by role, tool name, or error status:
+
+```sh
+npx fit-trace filter /tmp/trace-24497273755/structured.json --tool Edit
+npx fit-trace filter /tmp/trace-24497273755/structured.json --error
+npx fit-trace filter /tmp/trace-24497273755/structured.json --role user
+```
+
+## Search across the trace
+
+Search all turn content with a regex pattern:
+
+```sh
+npx fit-trace search /tmp/trace-24497273755/structured.json 'permission denied' --context 1
+```
+
+`--context 1` includes one surrounding turn on each side of every match.
+`--limit 10` caps the number of results. `--full` emits the complete content
+block instead of a short excerpt.
+
+## Read the agent's reasoning
+
+Extract just the text blocks from assistant turns to see what the agent said it
+would do (as distinct from what its tool calls actually did):
+
+```sh
+npx fit-trace reasoning /tmp/trace-24497273755/structured.json --from 5 --to 15
+```
+
+```json
+[
+  { "index": 5, "text": "I'll extract the shared locale helper..." },
+  { "index": 9, "text": "Tests pass. Now adding coverage for de-DE..." }
+]
+```
+
+Comparing `reasoning` output to actual `tool` calls reveals mismatches between
+intent and execution.
+
+## Measure token usage and cost
+
+```sh
+npx fit-trace stats /tmp/trace-24497273755/structured.json
+```
+
+```json
+{
+  "totals": { "inputTokens": 142800, "outputTokens": 18400, "totalCostUsd": 0.42, "durationMs": 94200 },
+  "perTurn": [{ "index": 1, "inputTokens": 12300, "outputTokens": 800, ... }]
+}
+```
+
+Track these numbers across runs over time. A single trace is a snapshot; a
+series shows whether changes are landing.
+
+## Split multi-agent traces
 
 For supervised or facilitated runs, split the combined trace into per-source
-files so you can see what each agent saw:
+files so you can see what each agent saw independently:
 
 ```sh
-npx fit-trace split /tmp/trace-<run-id>/structured.json --mode=facilitate
+npx fit-trace split /tmp/trace-24497273755/structured.json --mode=facilitate
 ```
 
-This produces `trace-facilitator.ndjson`, `trace-<participant>.ndjson`, etc.,
-which is essential when participants disagreed — you can read each one's view
-independently.
+This produces `trace-facilitator.ndjson`, `trace-<participant>.ndjson`, and a
+combined `trace-agent.ndjson` in the same directory. Each file works as input
+to every query command above.
 
-Either trace form works as input — `*.ndjson` files from `fit-eval --output` and
-`structured.json` from `fit-trace download` are interchangeable for every
-`fit-trace` query command.
+For supervised runs, use `--mode=supervise` to get `trace-agent.ndjson` and
+`trace-supervisor.ndjson`.
 
-## 2. Orient
+## Navigate individual turns
 
-Start with the bird's-eye view before drilling in:
+When you need to inspect a specific moment in the trace:
 
 ```sh
-npx fit-trace overview <file>     # metadata, summary, turn count, tool usage
-npx fit-trace timeline <file>     # one line per turn
-npx fit-trace stats <file>        # tokens and cost
+npx fit-trace turn /tmp/trace-24497273755/structured.json 8
+npx fit-trace batch /tmp/trace-24497273755/structured.json 5 10
+npx fit-trace head /tmp/trace-24497273755/structured.json 5
+npx fit-trace tail /tmp/trace-24497273755/structured.json 5
 ```
 
-`overview` tells you how the run ended; `timeline` shows the shape of the
-session at a glance. If the timeline is dominated by one tool, that's a
-hypothesis. If it shows clusters of errors, that's another. Note them — but
-don't commit to them yet.
+`batch` returns turns in the half-open range `[from, to)`. `head` and `tail`
+default to 10 turns when no count is given.
 
-## 3. Read the full trace
+## What to look for
 
-The temptation is to jump to `errors` or `search` and confirm the obvious.
-Resist it. Subtle agent failures live in interactions between turns that look
-fine in isolation.
+When debugging a failure, a useful sequence is:
 
-Open the trace and walk it turn by turn (or `batch <from> <to>` for chunks). As
-you read, follow four practices borrowed from grounded-theory research:
+1. `overview` -- did the run succeed or fail? How many turns?
+2. `errors` -- which tool calls failed?
+3. `tool <name>` on the failing tool -- what input did the agent send?
+4. `reasoning` around those turns -- did the agent understand the error?
+5. `search` for the error message -- did it appear earlier than expected?
 
-- **Begin with no hypothesis.** Read before forming opinions about what went
-  wrong. The trace will tell you something you didn't expect — but only if you
-  let it.
-- **Use the trace's own language.** Label observations with terms from the
-  actual output — error messages, tool names, status codes — not abstract
-  categories you bring to the analysis.
-- **Write memos as you go.** Short notes on why something surprised you, or
-  connections between observations. Memos written during analysis are far more
-  valuable than retrospective summaries.
-- **Read the full trace.** Every turn matters. The cause of a turn-30 failure is
-  often visible at turn 8.
-
-## 4. Look for patterns
-
-As you read, assign short labels (codes) to meaningful events:
-`claimed done without verification`, `silent retry`, `redirect ignored`,
-`tool error swallowed`. Group related codes into categories by asking:
-
-- What caused this? What happened? What was the context?
-- How did the agent react?
-- What were the consequences?
-
-Then look across codes for:
-
-- **Causal chains** — A failed at turn 8, which led B to assume X at turn 15,
-  which produced the wrong result at turn 28.
-- **Repeated patterns** — the same shape of mistake more than once.
-- **Contrasts** — the same operation succeeded in one context but failed in
-  another. The difference is the lever.
-- **Temporal patterns** — early-run vs late-run behavior. Agents often degrade
-  as context fills.
-
-## 5. Synthesize findings
-
-Strong findings share three traits:
-
-- **Grounded** — traceable to specific turns. Cite turn indices.
-- **Testable** — future traces can confirm or refute them.
-- **Actionable** — they imply a concrete change to a profile, prompt, tool
-  allowlist, or workflow.
-
-Aim for a **central explanation** that connects multiple observations, not a bug
-list. A bug list says what went wrong; a central explanation says _why_ this
-kind of thing keeps going wrong.
-
-## Worked example: supervised eval of a coding agent
-
-A `supervise` run evaluated a coding agent on the task _"add input validation to
-the user registration endpoint: reject empty emails and reject passwords shorter
-than 8 characters; add tests."_ The agent finished, the judge concluded
-`success: false`, and CI surfaced the failure. The question is why — the agent's
-own tests passed.
-
-```sh
-npx fit-trace overview trace.ndjson
-# 22 turns, Conclude success=false
-npx fit-trace tool trace.ndjson Conclude
-# "validation present on JSON path only; form-encoded path unchanged"
-npx fit-trace filter trace.ndjson --tool Read
-npx fit-trace filter trace.ndjson --tool Edit
-```
-
-Walking the trace, codes emerge:
-
-- T2: agent reads the endpoint handler, sees a JSON body parser at the top.
-- T3–T5: agent adds validation inside the JSON branch.
-- T7: agent writes tests that POST JSON. All pass. (Code: _tests confirm what
-  was changed, not what was needed_.)
-- T9: agent calls `Conclude` proposing success.
-- T10: judge inspects the route definition and finds the same handler registered
-  for both `application/json` and `application/x-www-form-urlencoded`. The
-  form-encoded branch is untouched.
-- T11–T20: judge `Redirect`s, agent investigates, but never reads the form
-  parser path before re-asserting the change is complete. (Code: _narrow scope
-  of investigation_.)
-- T22: judge concludes failure with the gap noted explicitly.
-
-**Central explanation:** the agent treats the first input shape it encounters as
-the full input surface. Its tests reinforce the narrowing because they exercise
-only what the agent already considered. The agent is locally correct on the path
-it explored but blind to parallel paths.
-
-**Action:** add a judge criterion that requires enumerating the request content
-types before implementing. Or, at the agent profile level, instruct the coder to
-list every entry path into the handler before editing it. The fix isn't about
-validation logic — it's about scope discovery before implementation.
-
-## Worked example: facilitated triage of a support ticket
-
-A `facilitate` session triaged an incoming support ticket: _"Login broken for
-users on iOS Safari. Started this morning. 12 customers reporting."_ The
-participants were `support-engineer` (assesses customer impact),
-`platform-engineer` (checks recent deploys and infra), and `mobile-engineer`
-(checks platform-specific issues). The session concluded by routing to the
-mobile team for a Safari-version-specific workaround. Three days later the real
-cause turned out to be a backend deploy that broke user-agent parsing for iOS
-Safari specifically. The session had the right evidence; it reasoned to the
-wrong cause.
-
-```sh
-npx fit-trace split trace.ndjson --mode=facilitate
-npx fit-trace timeline trace-facilitator.ndjson
-npx fit-trace tool trace-facilitator.ndjson Announce
-npx fit-trace reasoning trace-platform-engineer.ndjson
-```
-
-Reading the per-source traces side by side:
-
-- T3: `support-engineer` reports 12 affected customers, all iOS Safari, all
-  reporting since 8am. P1 severity.
-- T5: `mobile-engineer` notes Safari 18 was released yesterday with WebKit
-  changes. Hypothesis: Safari regression. (Code: _first plausible cause becomes
-  anchor_.)
-- T7: `platform-engineer` reports a deploy to the auth service at 6am that
-  morning. Notes the timing matches.
-- T9: `mobile-engineer` responds that the iOS-specific symptom makes a Safari
-  root cause more likely than a backend cause that would affect other browsers.
-  (Code: _domain expertise dismisses cross-cutting evidence_.)
-- T11: `platform-engineer` agrees and downgrades the deploy hypothesis. The
-  reasoning trace shows the agent had not yet inspected what the deploy changed.
-  (Code: _deferred to confidence, not evidence_.)
-- T14: facilitator concludes — assign to mobile team, action is a user-agent
-  workaround for Safari 18.
-
-**Central explanation:** when one participant has obvious domain expertise, the
-others defer to it even when their own findings carry equally strong evidence.
-The session converges on the most-confident voice rather than the most-supported
-hypothesis. Two independent signals (iOS-specific symptom _and_ matching deploy
-time) collapsed into one because the participants deliberated sequentially
-rather than independently.
-
-**Action:** require participants to state their leading hypothesis with a
-confidence level before deliberation begins, then surface disagreement
-explicitly rather than letting it dissolve. In facilitator profiles, add a step
-that asks each participant _what evidence would change your mind_ — a deploy
-diff would have caught this one in the room.
-
-## What to measure
-
-When the question is quantitative — _is the agent getting better?_ — the metrics
-are:
-
-- **Token usage** — `stats` breaks down input vs. output tokens and cost.
-- **Retry counts** — `search` for repeated identical tool calls.
-- **Wasted turns** — turns that produced no useful progress; count them while
-  reading.
-- **Error recovery** — did the agent diagnose and adapt, or retry blindly?
-  Compare `errors` against the immediately following turns.
-- **Intent vs. execution** — `reasoning` shows what the agent said it would do;
-  `tool` shows what it did. Mismatches are findings.
-
-Track these across runs over time. A single trace is a snapshot; a series shows
-whether changes are landing.
+When verifying an improvement, compare `stats` across before-and-after runs.
+Fewer retries, lower token usage, and shorter duration are the signals that a
+profile or prompt change improved outcomes.
 
 ## Related
 
-- [Agent Evaluations](../agent-evaluations/index.md) — produce traces with
+- [Agent Collaboration](/docs/libraries/agent-collaboration/) -- produce traces
+  with `fit-eval facilitate`; the per-source `split` is essential for
+  multi-agent traces.
+- [Agent Evaluations](/docs/libraries/agent-evaluations/) -- produce traces with
   `fit-eval supervise`; the trace is what you analyze here.
-- [Agent Collaboration](../agent-collaboration/index.md) — produce traces with
-  `fit-eval facilitate`; the per-source split is essential for multi-agent
-  traces.

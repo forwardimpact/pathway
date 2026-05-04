@@ -1,78 +1,225 @@
 ---
-title: Agent Collaboration
-description: Run multi-agent sessions with fit-eval facilitate — specialists coordinate via Ask, Answer, and Announce, and the session is captured as a trace for fit-trace.
+title: Prove Whether Agent Changes Improved Outcomes
+description: Generate a complete eval dataset from a DSL file, run evaluations and facilitated sessions with fit-eval, and analyze the resulting traces with fit-trace -- reproducible evidence from definition to finding.
 ---
 
-`fit-eval` is the plumbing for multi-agent collaboration. You write a
-**facilitator profile** and one or more **participant profiles**, then
-`fit-eval facilitate` runs them together over a message bus. Participants and
-the facilitator pass targeted messages with `Ask` (replies via `Answer`) and
-broadcast with `Announce`; the facilitator ends the session with `Conclude`. The
-NDJSON trace captures every turn for inspection with `fit-trace`.
-
-This guide walks from a single session definition to a working facilitated run
-you can read end-to-end.
+You changed an agent profile, tightened a tool allowlist, or rewrote a system
+prompt. The question is whether the change actually helped. Answering that
+question requires a dataset you can regenerate when the schema changes, a
+session that captures every turn, and an analysis method that connects observed
+behavior to actionable findings. This guide walks the full arc with `fit-terrain`
+and `fit-eval`, then hands off to `fit-trace` for the reading.
 
 ## Prerequisites
 
 - Node.js 18+
-- `ANTHROPIC_API_KEY` available to the shell or workflow
-- A repository where the participants will work
+- `ANTHROPIC_API_KEY` set in the shell (used by both `fit-terrain generate` and
+  `fit-eval`)
+- A repository where agents will work
+- The three CLIs ship in two packages -- install once:
 
-## 1. Pick a session shape
-
-A facilitated session has one **facilitator** and N **participants**. The
-facilitator orchestrates the conversation; each participant contributes a
-specialism.
-
-A typical shape — release coordination across three specialists:
-
-- `security-engineer` — reviews changes for security regressions
-- `release-engineer` — confirms the release is mergeable
-- `technical-writer` — verifies the changelog is accurate
-
-The facilitator opens the session with the goal, asks each participant for
-status, resolves conflicts between their reports, and concludes when the release
-is either ready or blocked. Each participant only knows its own specialism — the
-cross-cutting view emerges from the facilitator's orchestration.
-
-## 2. Write the participant profiles
-
-Each participant is an agent profile under `.claude/agents/<name>.md`. The
-runtime appends an orchestration trailer that explains how to use `Ask`,
-`Answer`, `Announce`, `RollCall`, and `Conclude` — your profile only needs to
-describe the agent's specialism and how it should respond when asked.
-
-```md
-<!-- .claude/agents/security-engineer.md -->
----
-name: security-engineer
-description: Review changes for security regressions before release.
----
-
-You are the security engineer for this release. When the facilitator asks
-for status, audit the diff for:
-
-- New external inputs without validation
-- Secrets, tokens, or credentials added in plain text
-- Changes to authentication, authorization, or session handling
-- New dependencies with known advisories
-
-Answer with a clear go/no-go and the specific lines or files that drove the
-call. If you find blockers, `Announce` them so the other participants see
-the same evidence. Do not edit code — your job is to assess.
+```sh
+npm install -g @forwardimpact/libeval @forwardimpact/libterrain
 ```
 
-Participants share `--agent-cwd` by default, so each one reads the same working
-tree. Give each only the tools its specialism needs (typically `Read`, `Grep`,
-`Bash`); restrict `Edit` and `Write` to participants whose job is to make
-changes.
+Or invoke ephemerally with `npx`:
 
-## 3. Write the facilitator profile
+```sh
+npx --yes @forwardimpact/libterrain fit-terrain --help
+npx --yes @forwardimpact/libeval fit-eval --help
+npx --yes @forwardimpact/libeval fit-trace --help
+```
 
-The facilitator is also a profile under `.claude/agents/<name>.md`, but it runs
-against `--facilitator-cwd` and uses the orchestration tools to drive the
-session.
+## 1. Define the dataset in a DSL file
+
+`fit-terrain` reads a single `.dsl` file that declares everything the pipeline
+needs: an organization graph, people distribution, projects, scenarios, an
+engineering standard, content types, and external datasets. The pipeline parses
+the DSL, generates entities, resolves prose through an LLM-backed cache, renders
+output in multiple formats, and validates the result -- all from one source.
+
+Create a minimal DSL file. This example declares a small organization with one
+team, a people distribution, and an engineering standard:
+
+```
+// evals/terrain/story.dsl
+
+terrain Acme {
+  domain "acme.example"
+  industry "fintech"
+  seed 42
+
+  org headquarters {
+    name "Acme HQ"
+    location "London, UK"
+  }
+
+  department engineering {
+    name "Engineering"
+    parent headquarters
+    headcount 20
+
+    team payments {
+      name "Payments Team"
+      size 8
+      repos ["payments-api", "ledger-service"]
+    }
+  }
+
+  people {
+    count 20
+    distribution {
+      J060 50%
+      J070 30%
+      J080 20%
+    }
+    disciplines {
+      software_engineering 80%
+      data_engineering 20%
+    }
+  }
+
+  standard {
+    proficiencies [awareness, foundational, working, practitioner, expert]
+    maturities [emerging, developing, practicing, role_modeling, exemplifying]
+
+    levels {
+      J060 { title "Engineer" rank 2 experience "2-4 years" }
+      J070 { title "Senior Engineer" rank 3 experience "4-7 years" }
+      J080 { title "Lead Engineer" rank 4 experience "7-10 years" }
+    }
+
+    capabilities {
+      delivery {
+        name "Delivery"
+        skills [full_stack_development, problem_discovery]
+      }
+      reliability {
+        name "Reliability"
+        skills [sre_practices, incident_management]
+      }
+    }
+
+    behaviours {
+      outcome_ownership { name "Own the Outcome" }
+      systems_thinking { name "Think in Systems" }
+    }
+
+    disciplines {
+      software_engineering {
+        roleTitle "Software Engineer"
+        specialization "Software Engineering"
+        core [full_stack_development, sre_practices]
+        supporting [problem_discovery]
+        broad [incident_management]
+        validTracks [null]
+      }
+      data_engineering {
+        roleTitle "Data Engineer"
+        specialization "Data Engineering"
+        core [problem_discovery, incident_management]
+        supporting [full_stack_development]
+        broad [sre_practices]
+        validTracks [null]
+      }
+    }
+
+    tracks {}
+    drivers {}
+  }
+}
+```
+
+The DSL supports additional blocks -- `project`, `scenario`, `snapshots`,
+`content`, `dataset`, and `output` -- that add projects, time-based scenarios,
+external tool-generated datasets (Synthea, SDV, Faker), and rendered output
+files. Start small and add blocks as your evaluation demands more context.
+
+## 2. Generate and validate the dataset
+
+The pipeline has four verbs. Use them in sequence during setup, then only the
+ones you need on subsequent runs:
+
+```sh
+npx fit-terrain check --story=evals/terrain/story.dsl
+```
+
+`check` parses the DSL, generates entities, and reports prose cache completeness.
+On a fresh file every key will be a miss -- that is expected.
+
+```sh
+npx fit-terrain generate --story=evals/terrain/story.dsl
+```
+
+`generate` fills the prose cache via the LLM, then renders and validates all
+content. The cache is persisted to `data/synthetic/prose-cache.json` by default
+(override with `--cache`). Subsequent runs with the same DSL reuse cached prose,
+so only new or changed keys cost API calls.
+
+```sh
+npx fit-terrain validate --story=evals/terrain/story.dsl
+```
+
+`validate` runs entity and cross-content checks without writing files. Use it
+after editing the DSL to catch structural errors before a full build.
+
+```sh
+npx fit-terrain build --story=evals/terrain/story.dsl
+```
+
+`build` renders and writes all content types. Add `--only=pathway` to render
+only the engineering standard YAML, or `--only=html` for knowledge-base
+documents. The output lands under `data/` in the working directory.
+
+After the build, the `data/` tree contains everything the eval needs:
+engineering standard definitions, knowledge-base documents, activity records,
+and any external datasets declared in the DSL.
+
+## 3. Write the eval task and profiles
+
+With the dataset in place, write the task file and agent profiles that will
+exercise the change you want to evaluate. The task is a markdown prompt; the
+profiles live under `.claude/agents/`.
+
+A task for evaluating a refactored formatting utility:
+
+```md
+<!-- evals/refactor-utils/task.md -->
+Refactor `src/utils/format.js` so that `formatDate` and `formatCurrency`
+share a single locale-resolution helper. Do not change the public API of
+either function. Add unit tests covering the en-US, en-GB, and de-DE
+locales. Run the test suite and confirm it passes before finishing.
+```
+
+A judge profile for supervised evaluation:
+
+```md
+<!-- .claude/agents/refactor-judge.md -->
+---
+name: refactor-judge
+description: Evaluate a refactor of shared formatting utilities.
+---
+
+You are evaluating a refactor of `src/utils/format.js`. Watch the agent's
+work and call `Conclude` when the session is finished.
+
+Pass criteria -- all must hold:
+
+- `formatDate` and `formatCurrency` share a single locale-resolution helper.
+- The public signatures of both functions are unchanged.
+- New tests exist for en-US, en-GB, and de-DE.
+- The full test suite passes on the agent's final run.
+
+If the agent strays, use `Redirect` to bring it back on task. If it claims
+to be done, verify the criteria yourself with `Read` and `Bash` before
+calling `Conclude`. Conclude with `success: false` if any criterion fails;
+include a one-paragraph summary of the gap.
+```
+
+For facilitated sessions with multiple specialists, write a facilitator profile
+and one profile per participant. Each participant only needs to describe its
+specialism -- the runtime appends the orchestration tools (`Ask`, `Answer`,
+`Announce`, `RollCall`, `Conclude`) automatically.
 
 ```md
 <!-- .claude/agents/release-facilitator.md -->
@@ -84,26 +231,34 @@ description: Coordinate a release-readiness review across specialist agents.
 You are facilitating a release-readiness review. The participants are
 `security-engineer`, `release-engineer`, and `technical-writer`.
 
-Run the session in this shape:
-
 1. `Announce` the goal: confirm whether the current release is ready to ship.
 2. `Ask` each participant for their go/no-go, one at a time.
 3. If any participant reports a blocker, `Announce` the blocker so the
    others can react, then ask whether they want to revise their position.
 4. `Conclude` with `success: true` if all three are go; otherwise
    `success: false` with a one-paragraph summary of the blocker.
-
-If a participant strays off topic, re-`Ask` them with the original question
-to bring them back (the facilitator does not have `Redirect`). Do not
-do the participants' work yourself — your role is to sequence the
-conversation, not to audit the code.
 ```
 
-The facilitator profile is a system prompt, not a contract — design for graceful
-degradation. If a participant returns an unclear answer, the facilitator should
-ask again rather than guess.
+## 4. Run the eval
 
-## 4. Run the session locally
+For a **supervised evaluation** (one agent, one judge):
+
+```sh
+npx fit-eval supervise \
+  --task-file=evals/refactor-utils/task.md \
+  --supervisor-profile=refactor-judge \
+  --supervisor-cwd=. \
+  --supervisor-allowed-tools=Read,Grep,Bash \
+  --agent-cwd=/tmp/refactor-sandbox \
+  --allowed-tools=Read,Edit,Write,Bash,Grep,Glob \
+  --max-turns=50 \
+  --output=trace.ndjson
+```
+
+Exit code `0` means the judge concluded with `success: true`; exit code `1`
+means it concluded `success: false`, ran out of turns, or errored.
+
+For a **facilitated session** (one facilitator, N participants):
 
 ```sh
 npx fit-eval facilitate \
@@ -116,55 +271,75 @@ npx fit-eval facilitate \
   --output=trace.ndjson
 ```
 
-`--max-turns=20` is the default for `facilitate` — bump it for larger sessions,
-but always keep a budget so a stuck participant can't run the session forever.
+Participants share `--agent-cwd` by default. If two participants might edit the
+same file, give each its own working directory or restrict tool allowlists so
+only one can write. `--max-turns=20` is the default for `facilitate` -- always
+set a budget so a stuck participant cannot run the session indefinitely.
 
-`--task-file` describes the goal in a few sentences. The facilitator and the
-participants all see it as the opening prompt; the facilitator's profile steers
-how the goal is pursued.
+The `--task-file` content is visible to every agent in the session as the
+opening prompt. The facilitator profile steers how the goal is pursued; the
+participants apply their specialisms.
 
-Exit code `0` means the facilitator concluded with `success: true`; exit code
-`1` means it concluded with `success: false`, ran out of turns, or errored.
+## 5. Verify the trace
 
-## 5. Read the trace
-
-The trace records every message and tool call from every participant, in order.
-Start with the overview to orient, then drill into the message flow.
+After the run, confirm the trace file exists and contains the expected structure
+before investing time in analysis:
 
 ```sh
 npx fit-trace overview trace.ndjson
 npx fit-trace timeline trace.ndjson
-npx fit-trace tool trace.ndjson Announce
-npx fit-trace tool trace.ndjson Ask
-npx fit-trace tool trace.ndjson Conclude
+npx fit-trace stats trace.ndjson
 ```
 
-The `Conclude` call carries the facilitator's verdict. Walk backwards through
-`Announce` (broadcasts) and `Ask`/`Answer` (targeted exchanges) to see how the
-participants converged — or where they diverged.
+`overview` reports metadata, turn count, and tool usage frequency. `timeline`
+prints one line per turn so you can see the shape of the session at a glance.
+`stats` breaks down token usage and cost.
 
-## Notes
+For supervised and facilitated runs, split the combined trace into per-source
+files:
 
-- **Participants share `--agent-cwd` by default.** If two participants might
-  edit the same file, give each its own working directory or restrict their tool
-  allowlists so only one can write.
-- **Tool allowlists per participant matter.** A participant with `Edit` access
-  can rewrite the others' work between turns. Limit each agent to what its
-  specialism needs.
-- **The facilitator profile steers, not constrains.** The participants are free
-  agents; the facilitator's instructions are a system prompt, not a contract.
-  Treat the session as a structured conversation, not a state machine.
-- **Same plumbing as evaluations.** `facilitate` and `supervise` share the
-  orchestration toolkit and the trace format. If your goal is a verdict on a
-  single agent's work, see the
-  [Agent Evaluations guide](../agent-evaluations/index.md) — it uses `supervise`
-  and the same `Conclude` semantics.
+```sh
+npx fit-trace split trace.ndjson --mode=supervise
+npx fit-trace split trace.ndjson --mode=facilitate
+```
 
-## Related
+This produces `trace-agent.ndjson` and `trace-supervisor.ndjson` (for
+`supervise`) or `trace-facilitator.ndjson` and `trace-<participant>.ndjson`
+(for `facilitate`). Per-source traces are essential when participants disagreed
+-- you can read each one's view independently.
 
-- [Agent Evaluations](../agent-evaluations/index.md) — the verdict-driven
-  sibling use case for `fit-eval`.
-- [Trace Analysis](../trace-analysis/index.md) — read the NDJSON traces this
-  guide produces, with worked examples including a stalled multi-agent session.
-- [Agent Teams](../agent-teams/index.md) — how agent profiles are authored and
-  what they contain.
+## 6. Analyze traces for findings
+
+The trace is qualitative data. The most useful analysis comes from reading it
+like a researcher, not running a checklist. Drill into specific tools and
+message exchanges:
+
+```sh
+npx fit-trace tool trace.ndjson Conclude
+npx fit-trace tool trace.ndjson Ask
+npx fit-trace tool trace.ndjson Announce
+npx fit-trace filter trace.ndjson --tool Edit
+npx fit-trace search trace.ndjson 'error|fail' --context 1
+npx fit-trace reasoning trace.ndjson
+```
+
+The `Conclude` call carries the verdict -- start there when an eval fails, then
+follow the timeline backwards. For facilitated sessions, walk `Announce`
+(broadcasts) and `Ask`/`Answer` (targeted exchanges) to see how the
+participants converged or where they diverged.
+
+For the full analysis method -- grounded-theory coding, pattern identification,
+and writing findings that are grounded, testable, and actionable -- see the
+[Trace Analysis](/docs/libraries/trace-analysis/) guide.
+
+## What's next
+
+This guide covered the full arc from dataset definition through session
+execution to trace verification. Each stage has a dedicated guide for deeper
+work:
+
+- [Agent Evaluations](/docs/libraries/agent-evaluations/) -- write judge
+  profiles, wire evals into CI with GitHub Actions, and scale to a matrix suite.
+- [Trace Analysis](/docs/libraries/trace-analysis/) -- the grounded-theory
+  analysis method with two worked examples: an eval that failed and a
+  multi-agent session that stalled.

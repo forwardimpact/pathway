@@ -20,10 +20,11 @@ resulting traces with `fit-trace`.
 
 <a href="/docs/libraries/agent-collaboration/">
 
-### Agent Collaboration
+### Prove Whether Agent Changes Improved Outcomes
 
-Run multi-agent sessions with `fit-eval facilitate` — specialists coordinate via
-`Ask`, `Share`, and `Tell`, captured as a trace for `fit-trace`.
+Generate a complete eval dataset from a DSL file, run evaluations and
+facilitated sessions, and analyze the resulting traces -- reproducible evidence
+from definition to finding.
 
 </a>
 
@@ -61,8 +62,8 @@ observations over time, read signal rules, and turn variation into action.
 
 ### Agent-Friendly Surfaces
 
-Build a product with both a web UI and a CLI that share handler logic through a
-single InvocationContext contract — agent-friendly by design.
+Give agents and humans the same interface — build a CLI and a web UI that share
+one presenter so capabilities work everywhere without separate integrations.
 
 </a>
 
