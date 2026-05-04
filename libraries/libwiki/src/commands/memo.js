@@ -15,6 +15,37 @@ function writeAndCheck(summaryPath, sender, message, today) {
   process.stdout.write(`wrote ${result.path}\n`);
 }
 
+function resolveTargetPath(wikiRoot, target) {
+  const summaryPath = path.join(wikiRoot, target + ".md");
+  const resolvedRoot = path.resolve(wikiRoot);
+  const resolvedTarget = path.resolve(summaryPath);
+  const relative = path.relative(resolvedRoot, resolvedTarget);
+  const escapesRoot =
+    relative === "" || relative.startsWith("..") || path.isAbsolute(relative);
+  return { summaryPath, escapesRoot };
+}
+
+function writeSingleTarget({ wikiRoot, target, sender, message, today, cli }) {
+  const { summaryPath, escapesRoot } = resolveTargetPath(wikiRoot, target);
+  if (escapesRoot) {
+    cli.usageError(`target escapes wiki root: ${target}`);
+    process.exit(2);
+  }
+  if (!existsSync(summaryPath)) {
+    cli.usageError(`target summary not found: ${summaryPath}`);
+    process.exit(2);
+  }
+  writeAndCheck(summaryPath, sender, message, today);
+}
+
+function writeBroadcast({ agentsDir, wikiRoot, sender, message, today }) {
+  const agents = listAgents({ agentsDir, wikiRoot });
+  for (const { agent, summaryPath } of agents) {
+    if (agent === sender) continue;
+    writeAndCheck(summaryPath, sender, message, today);
+  }
+}
+
 export function runMemoCommand(values, _args, cli) {
   const sender = values.from || process.env.LIBEVAL_AGENT_PROFILE;
 
@@ -44,17 +75,21 @@ export function runMemoCommand(values, _args, cli) {
   const today = new Date().toISOString().slice(0, 10);
 
   if (values.to === BROADCAST_TARGET) {
-    const agents = listAgents({ agentsDir, wikiRoot });
-    for (const { agent, summaryPath } of agents) {
-      if (agent === sender) continue;
-      writeAndCheck(summaryPath, sender, values.message, today);
-    }
+    writeBroadcast({
+      agentsDir,
+      wikiRoot,
+      sender,
+      message: values.message,
+      today,
+    });
   } else {
-    const summaryPath = path.join(wikiRoot, values.to + ".md");
-    if (!existsSync(summaryPath)) {
-      cli.usageError(`target summary not found: ${summaryPath}`);
-      process.exit(2);
-    }
-    writeAndCheck(summaryPath, sender, values.message, today);
+    writeSingleTarget({
+      wikiRoot,
+      target: values.to,
+      sender,
+      message: values.message,
+      today,
+      cli,
+    });
   }
 }
