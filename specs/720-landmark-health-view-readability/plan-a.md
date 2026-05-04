@@ -54,7 +54,7 @@ map:
 No global option is added; `--verbose` is health-only by design.
 
 **Verification.** `bunx fit-landmark health --help` lists `--verbose` under
-"Command options". `bun run check` passes.
+the libcli `Options:` block. `bun run check` passes.
 
 ## Step 2 — Wire `meta.verbose` between handler and formatter
 
@@ -80,9 +80,10 @@ if (result.meta) {
 const output = formatResult(command, result);
 ```
 
-**Verification.** Asserted indirectly via the formatter tests in Step 6 — they
-construct `meta` directly and assert that `meta.verbose === true` routes to
-the verbose layout.
+**Verification.** Step 6 formatter tests construct `meta.verbose=true`
+directly and assert routing. End-to-end smoke: `bunx fit-landmark health
+--manager <email> --verbose` against a populated dev data dir prints the
+verbose paragraph layout; without `--verbose` prints the table.
 
 ## Step 3 — Add `dedupeRecommendations` and `renderScoreCells` helpers
 
@@ -212,7 +213,7 @@ API:
 // Default mode: compact table + Recommendations trailer
 // ---------------------------------------------------------------------------
 
-const TEXT_COLS = { num: 3, driver: 16, percentile: 12, vsOrg: 9, more: 28 };
+const TEXT_COLS = { num: 3, driver: 16, percentile: 12, vsOrg: 9 };
 
 function renderTextDefault(view, deduped, lines) {
   lines.push(`  Drivers (${view.drivers.length})`);
@@ -297,33 +298,50 @@ first-occurrence per `(email, skill)`.
 
 **Changes.**
 
-1. Update `renderTextDriver` and `renderMdDriver` so the score line consumes
-   `renderScoreCells(driver, true)` and the comments/initiatives blocks remain.
-   Replace today's score-line construction:
+1. Update `renderTextDriver` so the score line carries all five anchors and
+   forwards `deduped` to the rec renderer. Contributing-skills, evidence,
+   comments, and initiatives blocks are preserved unchanged (success
+   criterion 3):
 
    ```js
-   // before (renderTextDriver)
-   const orgPart = driver.vs_org != null ? `vs_org: ${formatDelta(driver.vs_org)}` : "";
-   const scorePart = formatScorePart(driver);
-   lines.push(
-     `    Driver: ${driver.name} (${scorePart}${orgPart ? ", " + orgPart : ""})`,
-   );
+   // before
+   function renderTextDriver(driver, lines) {
+     const orgPart = driver.vs_org != null ? `vs_org: ${formatDelta(driver.vs_org)}` : "";
+     const scorePart = formatScorePart(driver);
+     lines.push(
+       `    Driver: ${driver.name} (${scorePart}${orgPart ? ", " + orgPart : ""})`,
+     );
+     lines.push(`      Contributing skills: ${formatSkillNames(driver)}`);
+     lines.push(`      Evidence: ${formatEvidenceParts(driver)}`);
+     renderTextComments(driver, lines);
+     renderTextRecommendations(driver, lines);
+     renderTextInitiatives(driver, lines);
+     lines.push("");
+   }
 
    // after
-   const anchorLines = renderScoreCells(driver, true);
-   lines.push(`    Driver: ${driver.name} (${formatScorePart(driver)})`);
-   if (anchorLines.length > 0) {
-     lines.push(`      Anchors: ${anchorLines.join(", ")}`);
+   function renderTextDriver(driver, lines, deduped) {
+     const anchorLines = renderScoreCells(driver, true);
+     lines.push(`    Driver: ${driver.name} (${formatScorePart(driver)})`);
+     if (anchorLines.length > 0) {
+       lines.push(`      Anchors: ${anchorLines.join(", ")}`);
+     }
+     lines.push(`      Contributing skills: ${formatSkillNames(driver)}`);
+     lines.push(`      Evidence: ${formatEvidenceParts(driver)}`);
+     renderTextComments(driver, lines);
+     renderTextRecommendations(driver, lines, deduped);
+     renderTextInitiatives(driver, lines);
+     lines.push("");
    }
    ```
 
-   Mirror in `renderMdDriver` (using a `**Anchors:** …` line under the H2).
+   Mirror in `renderMdDriver` — replace today's `## Driver: …` heading with
+   the same heading plus a `**Anchors:** ${anchorLines.join(", ")}` line
+   directly below when `anchorLines.length > 0`. Contributing-skills /
+   evidence / comments / initiatives blocks stay.
 
-2. Replace `renderTextRecommendations` and `renderMdRecommendations` so they
-   accept the `DedupedRec[]` array and the current driver's name, and emit
-   only entries whose `driverNames[0]` equals the current driver (i.e. the
-   first-occurrence driver). Existing `(email, skill)` pairs that first
-   appeared on an earlier driver are skipped:
+2. Replace `renderTextRecommendations` so it consumes `DedupedRec[]` and
+   emits only entries whose `driverNames[0]` equals the current driver:
 
    ```js
    function renderTextRecommendations(driver, lines, deduped) {
@@ -339,14 +357,30 @@ first-occurrence per `(email, skill)`.
    }
    ```
 
-   Mirror in `renderMdRecommendations`. Each `DedupedRec` corresponds to a
-   single `(candidate, skill)`, so the verbose layout no longer collapses
-   multi-candidate recs onto one line — each candidate gets its own
-   recommendation line on the driver where the pair first occurs. This is
-   intentional and matches the dedup contract.
+   Markdown mirror:
 
-3. Update `toText` and `toMarkdown` to accept `meta` and dispatch on
-   `meta.verbose`. Both paths consume the same `DedupedRec[]`:
+   ```js
+   function renderMdRecommendations(driver, lines, deduped) {
+     const mine = deduped.filter((d) => d.driverNames[0] === driver.name);
+     if (mine.length === 0) return;
+     lines.push("");
+     for (const rec of mine) {
+       const candidate = rec.candidate;
+       const phrase = `**${candidate.name ?? candidate.email}** (${candidate.currentLevel})`;
+       lines.push(
+         `> **Recommendation:** ${phrase} could develop \`${rec.skill}\`. (${rec.impact})`,
+       );
+     }
+   }
+   ```
+
+   The existing `formatCandidates` helper (which sliced two candidates onto
+   one line) is no longer used by the verbose path — each candidate now
+   appears on its own first-occurrence driver via dedup. `formatCandidates`
+   becomes unused after this step and is removed in the same edit.
+
+3. Update `toText` and `toMarkdown` to dispatch on `meta.verbose`. Both
+   paths consume the same `DedupedRec[]`:
 
    ```js
    export function toText(view, meta) {
@@ -364,9 +398,6 @@ first-occurrence per `(email, skill)`.
    ```
 
    Mirror in `toMarkdown`. `toJson` is untouched.
-
-4. `renderTextDriver` and `renderMdDriver` gain a `deduped` parameter and
-   forward it to the recommendations renderer.
 
 **Verification.** Verbose-mode tests in Step 6 assert (a) score line carries
 `Anchors:` with all four hidden deltas, (b) a candidate-skill pair appearing
@@ -387,16 +418,16 @@ covers the command and is left alone.
 | Case | Input | Assertion |
 | --- | --- | --- |
 | default fits ≤ 50 lines on 6 drivers | 6-driver `HealthView`, all four hidden anchors set, 3 recommendations | `output.split("\n").length <= 50` |
-| default header is plural-anchored | 6-driver view | line containing `Drivers (6)` exists; the next non-rule line equals exactly `"  # Driver          Percentile  vs_org   More"` (literal, including padding) |
-| default driver row layout matches design | one driver `Quality`, score 42, `vs_org=-10`, `vs_prev=-5`, `vs_50th=-8`, `vs_75th=-25`, `vs_90th=-40` | row equals `"  1  Quality          42nd        -10      +4 anchors via --verbose"` |
+| default header is plural-anchored | 6-driver view | line containing `Drivers (6)` exists; the column-header line (between the rule and the first row) equals exactly `"  #  Driver          Percentile  vs_org   More"` (`padRight` widths 3/16/12/9 produce 2 spaces after `#`, 10 after `Driver`, 2 after `Percentile`, 3 after `vs_org`) |
+| default driver row layout matches design | one driver `Quality`, score 42, `vs_org=-10`, `vs_prev=-5`, `vs_50th=-8`, `vs_75th=-25`, `vs_90th=-40` | row equals `"  1  Quality         42nd        -10      +4 anchors via --verbose"` (9 spaces after `Quality`, 8 after `42nd`, 6 after `-10`) |
 | default `More` cell counts hidden anchors only | driver with `vs_prev=-2`, `vs_org=-4`, `vs_50th=null`, `vs_75th=null`, `vs_90th=null` | row contains `+1 anchors via --verbose` (vs_org is not counted) |
 | default `More` cell shows `-` when all hidden anchors null | driver with all four hidden = null, `vs_org=-4` | row's `More` cell is `-` |
 | default Recommendations trailer dedups across drivers | two drivers each carrying `{candidate: bob, skill: planning}` | `output.match(/could develop/g).length === 1` |
 | default Recommendations names every driver the rec applies to | rec spanning Quality + Reliability | trailer line contains `for Quality, Reliability` |
-| default no trailing blank line when no recs | view with empty recommendations on every driver | `output.endsWith("\n\n") === false` and no `Recommendations` heading |
+| default suppresses the Recommendations trailer when no recs | view with empty recommendations on every driver | `output` does not contain `"Recommendations ("` and does not contain a blank line followed by another blank line at end of output (`/\n\n$/.test(output) === false`) |
 | verbose anchors line lists all five | driver with all four hidden + vs_org set | output contains `Anchors: vs_prev: -5, vs_org: -10, vs_50th: -8, vs_75th: -25, vs_90th: -40` |
 | verbose recommendation appears once across drivers | same as default-dedup case | `output.match(/⮕ Recommendation/g).length === 1` |
-| verbose preserves comments and initiatives | driver with one comment + one initiative | output contains `GetDX comments:` and `Active initiatives:` |
+| verbose preserves contributing-skills + evidence + comments + initiatives | driver with one comment + one initiative + a contributing skill | output contains `Contributing skills:`, `Evidence:`, `GetDX comments:`, and `Active initiatives:` |
 | markdown default header is exactly 5 cells in design order | any view | header row equals `"\| # \| Driver \| Percentile \| vs_org \| More \|"` and separator `"\| --- \| --- \| --- \| --- \| --- \|"` |
 
 The 6-driver fixture is built inline in the test file (not added to
