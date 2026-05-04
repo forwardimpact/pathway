@@ -16,7 +16,7 @@ function normalizeParams(params, fields) {
     if (field?.repeated) {
       normalized[k] = Array.isArray(v) ? v : v ? [v] : [];
     } else {
-      normalized[k] = v || "";
+      normalized[k] = v ?? "";
     }
   }
   return normalized;
