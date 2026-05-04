@@ -214,11 +214,7 @@ export class DocsBuilder {
       return `- [${page.title}](${mdUrl})${desc}`;
     };
 
-    const output = insertSectionLinks(
-      content.split("\n"),
-      sections,
-      linkLine,
-    );
+    const output = insertSectionLinks(content.split("\n"), sections, linkLine);
 
     this.#fs.writeFileSync(llmsPath, output.join("\n"), "utf-8");
     logger.info("  ✓ llms.txt (augmented)");

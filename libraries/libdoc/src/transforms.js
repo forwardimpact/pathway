@@ -38,13 +38,10 @@ export function rewriteMarkdownPath(path, fragment) {
  * @returns {string} HTML with transformed links
  */
 export function transformMarkdownLinks(html, baseUrl) {
-  return html.replace(
-    /href="([^"]*?)\.md(#[^"]*)?"/g,
-    (match, path, hash) => {
-      if (isExternalLink(`${path}.md`, baseUrl)) return match;
-      return `href="${rewriteMarkdownPath(path, hash || "")}"`;
-    },
-  );
+  return html.replace(/href="([^"]*?)\.md(#[^"]*)?"/g, (match, path, hash) => {
+    if (isExternalLink(`${path}.md`, baseUrl)) return match;
+    return `href="${rewriteMarkdownPath(path, hash || "")}"`;
+  });
 }
 
 /**
@@ -110,8 +107,7 @@ export function buildBreadcrumbs(urlPath, pageTitles) {
     parts.push(`<a href="${ancestorPath}">${breadcrumbLabel(title)}</a>`);
   }
 
-  const currentTitle =
-    pageTitles.get(urlPath) || segments[segments.length - 1];
+  const currentTitle = pageTitles.get(urlPath) || segments[segments.length - 1];
   parts.push(`<span>${breadcrumbLabel(currentTitle)}</span>`);
 
   return parts.join(" / ");

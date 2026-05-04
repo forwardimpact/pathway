@@ -141,12 +141,7 @@ function validate(packages, dirName, { skipUniqueHires = false } = {}) {
       errors.push(...validateEntry(entry, prefix));
       if (!skipUniqueHires) {
         errors.push(
-          ...checkHireUniqueness(
-            entry,
-            prefix,
-            allHires,
-            `${dirName}/${dir}`,
-          ),
+          ...checkHireUniqueness(entry, prefix, allHires, `${dirName}/${dir}`),
         );
       }
     }
