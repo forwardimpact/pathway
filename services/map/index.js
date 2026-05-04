@@ -1,4 +1,5 @@
 import { services } from "@forwardimpact/librpc";
+import { pathway } from "@forwardimpact/libtype";
 import { getUnscoredArtifacts } from "@forwardimpact/map/activity/queries/artifacts";
 import { getPerson } from "@forwardimpact/map/activity/queries/org";
 
@@ -110,7 +111,12 @@ export class MapService extends MapBase {
       if (row.matched == null) throw new Error("matched is required");
     }
 
-    await this.#validateMarkerGrounding(dbRows);
+    try {
+      await this.#validateMarkerGrounding(dbRows);
+    } catch (e) {
+      console.error(`[WriteEvidence] grounding rejected: ${e.message}`);
+      throw e;
+    }
 
     const { error } = await this.#supabase.from("evidence").upsert(dbRows, {
       onConflict: "artifact_id,skill_id,level_id,marker_text",
@@ -132,11 +138,13 @@ export class MapService extends MapBase {
       const person = await getPerson(this.#supabase, artifact.email);
       if (!person) throw new Error(`Person not found: ${artifact.email}`);
 
-      const markersResult = await this.#pathwayClient.GetMarkersForProfile({
+      const markersReq = pathway.GetMarkersForProfileRequest.fromObject({
         discipline: person.discipline,
         level: person.level,
         track: person.track || undefined,
       });
+      const markersResult =
+        await this.#pathwayClient.GetMarkersForProfile(markersReq);
       const validMarkers = parseMarkerSet(markersResult.content);
 
       const artifactRows = dbRows.filter((r) => r.artifact_id === artifactId);
