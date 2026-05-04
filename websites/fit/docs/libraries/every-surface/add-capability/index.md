@@ -9,7 +9,7 @@ both places from a single implementation.
 
 ## Prerequisites
 
-Complete the [Agent-Friendly Surfaces](/docs/libraries/agent-surfaces/) guide
+Complete the [Agent-Friendly Surfaces](/docs/libraries/every-surface/) guide
 first -- this page assumes a working `createCli` definition, a
 `createBoundRouter`, and the shared presenter pattern.
 
@@ -196,5 +196,5 @@ regardless of which surface produced the context.
 
 ## What's next
 
-- [Agent-Friendly Surfaces](/docs/libraries/agent-surfaces/) -- return to the
+- [Agent-Friendly Surfaces](/docs/libraries/every-surface/) -- return to the
   full guide for the shared contract, query string parsing, and formatter details

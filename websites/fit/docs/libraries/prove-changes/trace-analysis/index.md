@@ -178,8 +178,8 @@ profile or prompt change improved outcomes.
 
 ## Related
 
-- [Agent Collaboration](/docs/libraries/agent-collaboration/) -- produce traces
+- [Agent Collaboration](/docs/libraries/prove-changes/) -- produce traces
   with `fit-eval facilitate`; the per-source `split` is essential for
   multi-agent traces.
-- [Agent Evaluations](/docs/libraries/agent-evaluations/) -- produce traces with
+- [Agent Evaluations](/docs/libraries/prove-changes/run-eval/) -- produce traces with
   `fit-eval supervise`; the trace is what you analyze here.

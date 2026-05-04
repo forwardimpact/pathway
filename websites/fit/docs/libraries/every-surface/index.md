@@ -303,5 +303,5 @@ produces `{ tag: ["rain", "wind"] }`.
 Once both surfaces share a presenter, adding a new capability is a bounded task:
 write the presenter, register a CLI command, register a route, and both surfaces
 gain the feature at once. See
-[Add a Capability](/docs/libraries/agent-surfaces/add-capability/) for the
+[Add a Capability](/docs/libraries/every-surface/add-capability/) for the
 step-by-step procedure.

@@ -191,7 +191,7 @@ This guide covers the bounded task of charting a metric and reading the latest
 point. For the full workflow of building persistent process memory for an agent
 team -- recording observations over time, detecting level shifts, and acting on
 findings across daily cycles -- see [Persistent Process
-Memory](/docs/libraries/xmr-analysis/persistent-memory/).
+Memory](/docs/libraries/predictable-team/).
 
 ## Related
 

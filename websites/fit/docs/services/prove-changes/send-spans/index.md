@@ -180,5 +180,5 @@ You have reached the outcome of this guide when:
 - [Collect Trace Spans from Any Product](/docs/services/prove-changes/) --
   return to the full guide for architecture context, query options, and tree
   reconstruction.
-- [Trace Analysis](/docs/libraries/trace-analysis/) -- analyze stored traces
+- [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/) -- analyze stored traces
   as qualitative research with `fit-trace`.

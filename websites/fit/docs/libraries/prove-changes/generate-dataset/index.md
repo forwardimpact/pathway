@@ -10,7 +10,7 @@ changes. `fit-terrain generate` does all of that from a single `.dsl` file.
 
 For the end-to-end workflow that connects dataset generation to evaluation
 sessions and trace analysis, see
-[Prove Whether Agent Changes Improved Outcomes](/docs/libraries/agent-collaboration/).
+[Prove Whether Agent Changes Improved Outcomes](/docs/libraries/prove-changes/).
 
 ## Prerequisites
 
@@ -75,7 +75,7 @@ terrain Acme {
 
 A complete `standard` block with capabilities, behaviours, disciplines, and
 levels is shown in the
-[end-to-end guide](/docs/libraries/agent-collaboration/#1-define-the-dataset-in-a-dsl-file).
+[end-to-end guide](/docs/libraries/prove-changes/#1-define-the-dataset-in-a-dsl-file).
 The `seed` field makes the entity graph deterministic -- the same seed produces
 the same people, assignments, and proficiency ratings on every run.
 
@@ -181,7 +181,7 @@ pipeline table above: `parse`, `entities`, `prose-keys`, `cache-lookup`,
 
 ## What's next
 
-- [Prove Whether Agent Changes Improved Outcomes](/docs/libraries/agent-collaboration/)
+- [Prove Whether Agent Changes Improved Outcomes](/docs/libraries/prove-changes/)
   -- the full workflow from dataset generation through evaluation sessions to
   trace analysis.
 - [Terrain Internals](https://www.forwardimpact.team/docs/internals/terrain/index.md)

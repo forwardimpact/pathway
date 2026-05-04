@@ -13,7 +13,7 @@ This guide covers the two most common wiki operations: sending memos and
 refreshing storyboard charts. It also covers syncing and bootstrapping the wiki
 for completeness. For a deeper look at how the wiki serves as persistent memory
 for your agent team, see the
-[Persistent Memory](/docs/libraries/wiki-operations/persistent-memory/) guide.
+[Persistent Memory](/docs/libraries/predictable-team/) guide.
 
 ## Prerequisites
 
@@ -166,9 +166,9 @@ ambient GitHub credentials (`GITHUB_TOKEN` or `GH_TOKEN`).
 
 ## Related
 
-- [Persistent Memory](/docs/libraries/wiki-operations/persistent-memory/) --
+- [Persistent Memory](/docs/libraries/predictable-team/) --
   end-to-end guide to how the wiki serves as memory for your agent team.
-- [XmR Analysis](/docs/libraries/xmr-analysis/) -- understanding the control
+- [XmR Analysis](/docs/libraries/predictable-team/xmr-analysis/) -- understanding the control
   charts that `refresh` renders into your storyboard.
 - [`fit-wiki` on npm](https://www.npmjs.com/package/@forwardimpact/libwiki) --
   installation and changelog.

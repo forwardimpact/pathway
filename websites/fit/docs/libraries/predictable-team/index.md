@@ -183,7 +183,7 @@ goals based on these limits. They describe what the process does, not what it
 should do.
 
 For a deeper look at signal rules, chart anatomy, and how to respond to each
-classification, see [XmR Analysis](/docs/libraries/xmr-analysis/).
+classification, see [XmR Analysis](/docs/libraries/predictable-team/xmr-analysis/).
 
 ## Step 5: Embed live charts in the storyboard
 
@@ -377,8 +377,8 @@ This guide covered the end-to-end setup: bootstrapping the wiki, recording
 observations, charting them, embedding charts in a storyboard, and keeping
 everything in sync. From here:
 
-- [Wiki Operations](/docs/libraries/wiki-operations/) -- bounded tasks for
+- [Wiki Operations](/docs/libraries/predictable-team/wiki-operations/) -- bounded tasks for
   sending memos, refreshing charts, and syncing state when the wiki is already
   set up.
-- [XmR Analysis](/docs/libraries/xmr-analysis/) -- deeper coverage of signal
+- [XmR Analysis](/docs/libraries/predictable-team/xmr-analysis/) -- deeper coverage of signal
   rules, chart anatomy, and how to respond when a metric shifts.

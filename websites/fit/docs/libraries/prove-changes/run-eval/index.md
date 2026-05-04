@@ -193,8 +193,8 @@ first failure.
 
 This guide covers evaluations -- a single judge verifying a single agent. When
 the goal is coordinating multiple specialists rather than rendering a verdict,
-see [Agent Collaboration](/docs/libraries/agent-collaboration/), which uses
+see [Agent Collaboration](/docs/libraries/prove-changes/), which uses
 `fit-eval facilitate` and the same trace format.
 
 For a deep dive on reading the traces this guide produces, including a worked
-example of a failed eval, see [Trace Analysis](/docs/libraries/trace-analysis/).
+example of a failed eval, see [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/).

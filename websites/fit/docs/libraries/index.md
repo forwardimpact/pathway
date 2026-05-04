@@ -11,7 +11,7 @@ Engineers
 
 <div class="grid">
 
-<a href="/docs/libraries/wiki-operations/persistent-memory/">
+<a href="/docs/libraries/predictable-team/">
 
 ### Give Agent Teams Persistent Memory and Trustworthy Metrics
 
@@ -20,7 +20,7 @@ charts, and verify that agents act on real changes instead of noise.
 
 </a>
 
-<a href="/docs/libraries/wiki-operations/">
+<a href="/docs/libraries/predictable-team/wiki-operations/">
 
 ### Send a Memo or Update a Storyboard
 
@@ -29,7 +29,7 @@ without managing the wiki infrastructure yourself.
 
 </a>
 
-<a href="/docs/libraries/xmr-analysis/">
+<a href="/docs/libraries/predictable-team/xmr-analysis/">
 
 ### Chart a Metric and Check Variation
 
@@ -47,7 +47,7 @@ Builders
 
 <div class="grid">
 
-<a href="/docs/libraries/agent-surfaces/">
+<a href="/docs/libraries/every-surface/">
 
 ### Give Agents and Humans the Same Interface
 
@@ -56,7 +56,7 @@ formatter so capabilities work on both surfaces without separate integrations.
 
 </a>
 
-<a href="/docs/libraries/agent-surfaces/add-capability/">
+<a href="/docs/libraries/every-surface/add-capability/">
 
 ### Add a Capability to Both Surfaces
 
@@ -225,7 +225,7 @@ Builders
 
 <div class="grid">
 
-<a href="/docs/libraries/agent-collaboration/">
+<a href="/docs/libraries/prove-changes/">
 
 ### Prove Agent Changes
 
@@ -235,7 +235,7 @@ from definition to finding.
 
 </a>
 
-<a href="/docs/libraries/agent-evaluations/">
+<a href="/docs/libraries/prove-changes/run-eval/">
 
 ### Run an Eval
 
@@ -244,7 +244,7 @@ read the trace to see whether agent changes improved outcomes.
 
 </a>
 
-<a href="/docs/libraries/trace-analysis/">
+<a href="/docs/libraries/prove-changes/trace-analysis/">
 
 ### Analyze Traces
 
@@ -253,7 +253,7 @@ filter by tool or error, and measure token cost with `fit-trace`.
 
 </a>
 
-<a href="/docs/libraries/agent-collaboration/generate-dataset/">
+<a href="/docs/libraries/prove-changes/generate-dataset/">
 
 ### Generate an Eval Dataset
 

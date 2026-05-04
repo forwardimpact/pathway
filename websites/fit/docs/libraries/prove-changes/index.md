@@ -330,7 +330,7 @@ participants converged or where they diverged.
 
 For the full analysis method -- grounded-theory coding, pattern identification,
 and writing findings that are grounded, testable, and actionable -- see the
-[Trace Analysis](/docs/libraries/trace-analysis/) guide.
+[Trace Analysis](/docs/libraries/prove-changes/trace-analysis/) guide.
 
 ## What's next
 
@@ -338,8 +338,8 @@ This guide covered the full arc from dataset definition through session
 execution to trace verification. Each stage has a dedicated guide for deeper
 work:
 
-- [Agent Evaluations](/docs/libraries/agent-evaluations/) -- write judge
+- [Agent Evaluations](/docs/libraries/prove-changes/run-eval/) -- write judge
   profiles, wire evals into CI with GitHub Actions, and scale to a matrix suite.
-- [Trace Analysis](/docs/libraries/trace-analysis/) -- the grounded-theory
+- [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/) -- the grounded-theory
   analysis method with two worked examples: an eval that failed and a
   multi-agent session that stalled.
