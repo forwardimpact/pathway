@@ -372,8 +372,6 @@ graph TD
 | `fit-outpost` | `fit-outpost` | 1 |
 | `fit-gear` | `fit-svcgraph`, `fit-svcmcp`, `fit-svcpathway`, `fit-svctrace`, `fit-svcvector`, `fit-codegen`, `fit-terrain`, `fit-eval`, `fit-doc`, `fit-rc`, `fit-xmr`, `fit-storage`, `fit-logger`, `fit-svscan`, `fit-trace`, `fit-visualize`, `fit-query`, `fit-subjects`, `fit-process-graphs`, `fit-process-resources`, `fit-process-vectors`, `fit-search`, `fit-unary`, `fit-tiktoken`, `fit-download-bundle` | 25 |
 
-Tables in the doc are denormalized from the design so editing one cask's conventions doesn't require touching the design. The conventions doc is the long-lived reference for tap reviewers; once it lands, the tap README's existing link to `https://www.forwardimpact.team/docs/internals/release/` resolves (the README already targets this URL — no monorepo edit to the tap README is needed).
-
 Verify: `bunx fit-doc build --src=websites/fit` exits 0 and produces `dist/docs/internals/release/index.html`; `grep -c '^## ' websites/fit/docs/internals/release/index.md` returns exactly `9` (one per row of the table above — Overview, Sed contract, Cask topology, Binary stanza mapping, Livecheck regex pattern, App install path, Zap and uninstall paths, Verification commands, What's next).
 
 ### 9. Add the release card to the internals hub
@@ -391,22 +389,13 @@ No files created or modified inside the monorepo. The seven cask files exist on 
 - For each cask, confirm the stanzas design § Cask Anatomy prescribes are present in the prescribed shape: `version`, `sha256`, `url`, `name`, `desc`, `homepage`, `depends_on arch: :arm64`, `app … target: "Forward Impact/…"`, `binary` stanzas referencing `#{appdir}/Forward Impact/…`, `livecheck` block with `:github_releases` strategy and anchored regex, `zap trash:` clause.
 - Cross-check binary stanzas against design § Binary Stanza Mapping — exact name match, no extras, no omissions: 25 entries for `fit-gear.rb`, one entry per product cask.
 
-Reconciliation: the staff-engineer cannot push to `forwardimpact/homebrew-tap` (no `HOMEBREW_TAP_PAT`). For each failing row, file a comment on this plan's PR with the deviation and open a tap-side issue at `forwardimpact/homebrew-tap` titled `spec/740: <cask> drift — <criterion>`, assigning the release-engineer. SC3 ("executable names match … performed at seed time") passes for the casks whose audit row is clean, and is conditionally pending for any failing row until the tap-side reconciliation issue closes.
+Reconciliation: the staff-engineer cannot push to `forwardimpact/homebrew-tap` (no `HOMEBREW_TAP_PAT`). For each failing row, file a comment on this plan's PR with the deviation and open a tap-side issue at `forwardimpact/homebrew-tap` titled `spec/740: <cask> drift — <criterion>`, assigning the release-engineer. SC4 ("executable names match … performed at seed time") passes for the casks whose audit row is clean, and is conditionally pending for any failing row until the tap-side reconciliation issue closes.
 
 Verify: a written audit log enumerates each cask with a pass/fail row per criterion; every failing row carries a tap-side issue link assigned to `release-engineer` (no failing row is left unowned).
 
 ### 11. Dry-run the workflow's sed contract against each live cask
 
-No files created or modified. The dry-run runs the workflow's literal `sed -i` against each live cask with sample values, confirms the diff is exactly two changed lines, then runs `brew style` against the rewritten file.
-
-Host requirement: the workflow runs on `ubuntu-latest` (GNU sed). The dry-run must replicate the same `sed` semantics. Two options:
-
-1. **Linux host with Linuxbrew.** Native GNU sed; install Homebrew on Linux and `brew tap homebrew/cask`. Cask support on Linuxbrew is partial and may surface false negatives on `brew style` cask-specific rules, so accept that style failures from this host need a macOS confirmation pass.
-2. **macOS arm64 with `gnu-sed` installed.** Run `brew install gnu-sed` and substitute `gsed` for `sed` in the loop below — BSD sed's `-i` requires a backup suffix as the next argument and would treat the leading `-e` as the suffix, so the literal contract does not run on default macOS sed.
-
-The two options exist because the literal `sed` on `ubuntu-latest` is GNU; replicating it on macOS requires `gsed`.
-
-If neither host is available to the `staff-engineer` agent, defer this step to the release-engineer's first `gear@v*` release rehearsal — at which point spec **SC2** (sed substitution dry-run) is verified by the rehearsal itself rather than by this plan. The plan close-out audit log records SC2 as deferred-to-rehearsal in that case. Deadline: the deferral expires when the first `gear@v*` or product `@v*` tag is pushed; SC2 must be verified before that tag, because a broken sed contract would cause the `tap-pr` job to fail on a real release.
+No files created or modified. Run the workflow's literal `sed -i` against each live cask with sample values, confirm the diff is exactly two changed lines, then run `brew style` and `brew audit --new-cask` against the rewritten file. On macOS, use `gsed` (install via `brew install gnu-sed`) — see Risks § GNU sed requirement.
 
 ```sh
 # Linux: use `sed`. macOS: install gnu-sed and substitute `gsed` for `sed` below.
@@ -426,11 +415,12 @@ for CASK in fit-pathway fit-map fit-guide fit-landmark fit-summit fit-outpost fi
   CHANGED=$(diff "/tmp/${CASK}.rb.bak" "Casks/${CASK}.rb" | grep -c '^[<>]')
   test "$CHANGED" -eq 4 || { echo "FAIL ${CASK}: expected 4 changed-line markers, got ${CHANGED}"; exit 1; }
   brew style "Casks/${CASK}.rb"
+  brew audit --new-cask "Casks/${CASK}.rb"
   mv "/tmp/${CASK}.rb.bak" "Casks/${CASK}.rb"
 done
 ```
 
-Verify: every iteration of the loop produces a clean `brew style` (exit 0) with no `FAIL` line emitted; the loop exits 0 overall.
+Verify: every iteration produces clean `brew style` and `brew audit --new-cask` (both exit 0) with no `FAIL` line emitted; the loop exits 0 overall.
 
 ## Libraries used: none.
 
@@ -442,13 +432,14 @@ How each spec § Success criterion is verified by this plan, and which carry con
 | --- | --- | --- |
 | SC1 (every bundle has a cask in the tap) | Tap state already satisfies (7 cask files on `forwardimpact/homebrew-tap/main`); step 10's audit re-confirms | Pass |
 | SC2 (sed contract succeeds against every live cask) | Step 11 dry-run | Pass on macOS-arm64 / gnu-sed or Linux/Linuxbrew; **deferred to release-engineer's first `gear@v*` rehearsal** if no compatible host is available |
-| SC3 (each live cask passes `brew style` / `brew audit --new-cask`) | Step 11 (`brew style`) | Pass; same host caveat as SC2 |
+| SC3 (each live cask passes `brew style` / `brew audit --new-cask`) | Step 11 (`brew style` + `brew audit --new-cask`) | Pass; same host caveat as SC2 |
 | SC4 (executable names match bundle source) | Step 10 audit | Pass for clean rows; **conditionally pending for any failing audit row** until the matching tap-side reconciliation issue closes |
 | SC5 (conventions doc covers every cross-cutting decision) | Step 8 (9-section heading check) | Pass |
 
 ## Risks
 
 - **`HOMEBREW_TAP_PAT` not yet provisioned on the monorepo.** The `tap-pr` job at line 190 authenticates against `forwardimpact/homebrew-tap` via `secrets.HOMEBREW_TAP_PAT`. State-of audit § Must-have item 5 flags this secret as not yet set on `forwardimpact/monorepo`. This plan does not add the secret — a repo admin (release-engineer) creates it out-of-band (classic PAT scoped `repo` to `forwardimpact/homebrew-tap` only, ≤ 1-year expiry) before the first `gear@v*` or product tag is pushed, or `tap-pr` will fail at checkout. Owner: `release-engineer`. Verification gate: secret presence audit during the first `kata-release-cut` rehearsal that follows this plan's merge.
+- **GNU sed requirement for step 11.** The workflow runs on `ubuntu-latest` (GNU sed). BSD sed's `-i` requires a backup suffix, so the literal sed contract does not run on default macOS sed. On macOS, install `gnu-sed` (`brew install gnu-sed`) and substitute `gsed` for `sed`. If neither a Linux host nor `gsed` is available, defer step 11 to the release-engineer's first `gear@v*` release rehearsal. Deadline: SC2/SC3 must be verified before the first release tag is pushed.
 - **Cask drift from design.** The tap was seeded externally (commit "feat: seed tap with initial casks", state-of.md § Step 3). Step 10 audits each cask against the design tables before this plan's verification gate closes. Reconciliation requires a `HOMEBREW_TAP_PAT` holder, so the staff-engineer files an issue per failing row at `forwardimpact/homebrew-tap` (title pattern `spec/740: <cask> drift — <criterion>`) and assigns `release-engineer`. SC4 conditionally passes for clean rows and remains pending for failing rows until each tap-side issue closes.
 
 ## Execution
