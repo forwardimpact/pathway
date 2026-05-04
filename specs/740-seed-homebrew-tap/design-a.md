@@ -32,7 +32,7 @@ graph TD
 ```
 
 Every product cask declares `depends_on` on both shared-bundle casks (spec 600
-SC4: "product casks declare a dependency on the two shared-bundle casks so
+SC3: "product casks declare a dependency on the two shared-bundle casks so
 installing a product cask delivers the full runtime"). The two shared casks have
 no inter-dependencies.
 
@@ -87,9 +87,6 @@ end
 The atom feed is stable and paginated. Each cask's regex matches only its own
 tag prefix, filtering out other bundles' tags from the shared releases page.
 
-Rejected: `:github_releases` strategy — does not support per-tag-prefix
-filtering in a multi-bundle repository.
-
 ## Binary Stanza Mapping
 
 Each cask exposes only its own executables via `binary` stanzas. Shared-bundle
@@ -123,15 +120,12 @@ The cask has no `url`, `sha256`, `app`, or `binary` stanzas — it exists solely
 for discoverability via `brew search`. Its `desc` names `fit-outpost` as the
 replacement and references the storage-path migration command from #625 8d.
 
-Rejected: a `caveats` block on `fit-outpost` instead of a separate cask — users
-searching `fit-basecamp` would find nothing.
-
 ## Conventions Document
 
 A single document under `websites/fit/docs/internals/release/` covering:
 
 - Sed contract — which fields the workflow rewrites, which are human-edited
-- Dependency graph rationale and the SC4 mandate
+- Dependency graph rationale and the SC3 mandate
 - Binary stanza mapping — authoritative list per cask
 - Livecheck regex pattern and atom-feed rationale
 - Zap/uninstall paths per cask
@@ -140,15 +134,11 @@ A single document under `websites/fit/docs/internals/release/` covering:
 Co-located with the workflow because the conventions and the workflow decay
 together. The tap README links to this document via its published URL.
 
-Rejected: conventions in the tap repo's README — the conventions describe
-artifacts authored by `publish-brew.yml` and should be reviewed alongside
-workflow changes.
-
 ## Key Decisions
 
 | Decision | Choice | Rejected | Why |
 | --- | --- | --- | --- |
-| Product dependency graph | All products depend on both shared bundles | Only guide depends on services | SC4 mandates "the full runtime"; partial deps force users to discover missing pieces |
+| Product dependency graph | All products depend on both shared bundles | Only guide depends on services | SC3 mandates "the full runtime"; partial deps force users to discover missing pieces |
 | Livecheck source | Atom feed with per-cask regex | `:github_releases` strategy | Multi-bundle repo needs tag-prefix filtering |
 | Deprecated cask form | Standalone `fit-basecamp.rb` with `deprecate!` | Caveats on `fit-outpost` | `brew search fit-basecamp` must surface results |
 | Conventions doc location | Monorepo `internals/release/` | Tap repo README | Conventions co-decay with the workflow |
