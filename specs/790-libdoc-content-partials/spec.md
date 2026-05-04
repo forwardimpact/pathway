@@ -115,7 +115,7 @@ appropriate to use `<!-- part:link:path -->` markers.
 
 - Hub pages affected: every page under `websites/fit/` that contains a
   `<div class="grid">` card grid linking to other pages within the site.
-  Currently 18 pages including `docs/index.md`, `docs/products/index.md`,
+  Currently 17 pages including `docs/index.md`, `docs/products/index.md`,
   `docs/libraries/index.md`, `docs/services/index.md`,
   `docs/getting-started/index.md`, `docs/internals/index.md`,
   `docs/reference/index.md`, product pages (`map/`, `pathway/`, `guide/`,
@@ -126,6 +126,8 @@ appropriate to use `<!-- part:link:path -->` markers.
 
 ## Scope (out)
 
+- Migration of `websites/fit/index.md`. The landing page is fully handcrafted
+  and stays that way.
 - New partial types beyond `card` and `link`. The registry design supports
   future types; this spec delivers only these two.
 - Changes to the mustache template (`index.template.html`) or CSS. The partial
