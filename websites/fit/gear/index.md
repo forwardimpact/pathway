@@ -29,56 +29,65 @@ tooling to prove changes actually improved outcomes. Every CLI prints
 grep-friendly help and JSON output; every library ships a matching skill in the
 `forwardimpact/fit-skills` pack so agents land on the same docs as humans.
 
-33 libraries organized into five capability categories, all published to npm
-under `@forwardimpact/lib*`. Browse the full tables in
-[libraries/README.md](https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md).
+33 libraries and 5 services, all published to npm under
+`@forwardimpact/lib*` and `@forwardimpact/svc*`. Browse the full tables in
+[libraries/README.md](https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md)
+and
+[services/README.md](https://github.com/forwardimpact/monorepo/blob/main/services/README.md).
 
 <div class="grid">
 
-<a href="https://github.com/forwardimpact/monorepo/tree/main/libraries#agent-capability">
+<a href="https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md#jobs-to-be-done">
 
-### Agent Capability
+### Enable Agents on Every Surface
 
-What the agent surface looks like — entry points, voice, skill data, and the
-human-facing output agents produce. CLIs, REPLs, prompt templates, and
-documentation site builders.
-
-</a>
-
-<a href="https://github.com/forwardimpact/monorepo/tree/main/libraries#agent-retrieval">
-
-### Agent Retrieval
-
-How agents fetch and shape context — from raw bytes through typed records to
-schema-aware graph and vector inference.
+Give agents and humans the same interface so capabilities ship once. Render
+structured output across web and terminal from shared handler logic.
 
 </a>
 
-<a href="https://github.com/forwardimpact/monorepo/tree/main/libraries#agent-self-improvement">
+<a href="https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md#jobs-to-be-done">
 
-### Agent Self-Improvement
+### Ground Agents in Context
 
-Tooling that closes the Plan-Do-Study-Act loop: trace evaluation, synthetic data
-generation, and XmR control charts that distinguish signal from noise.
-
-</a>
-
-<a href="https://github.com/forwardimpact/monorepo/tree/main/libraries#agent-infrastructure">
-
-### Agent Infrastructure
-
-How agent services run — gRPC framework, structured logging, process
-supervision, configuration loading, and the bridge that exposes services as MCP
-tools.
+Answer relationship questions, look up context fast, and give agents typed,
+retrievable knowledge with semantic search — no external database required.
 
 </a>
 
-<a href="https://github.com/forwardimpact/monorepo/tree/main/libraries#foundations">
+<a href="https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md#jobs-to-be-done">
 
-### Foundations
+### Integrate with the Engineering Standard
 
-Cross-cutting primitives — secrets, retries, hashing, project finder, macOS
-bundle assembly, and shared test fixtures.
+Turn engineering standard YAML into queryable, derivable data — skill matrices,
+agent profiles, and job definitions without parsing by hand.
+
+</a>
+
+<a href="https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md#jobs-to-be-done">
+
+### Keep Service Contracts Typed
+
+Keep types in sync with proto definitions, register gRPC services as MCP tools
+from config, and ship endpoints without reimplementing transport.
+
+</a>
+
+<a href="https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md#jobs-to-be-done">
+
+### Keep Services Running and Visible
+
+Manage service lifecycle from one interface, keep services recoverable without
+manual intervention, and make operations observable.
+
+</a>
+
+<a href="https://github.com/forwardimpact/monorepo/blob/main/libraries/README.md#jobs-to-be-done">
+
+### Prove Agent Changes
+
+Prove whether agent changes improved outcomes with reproducible evidence.
+Produce complete eval datasets from a single DSL file.
 
 </a>
 
