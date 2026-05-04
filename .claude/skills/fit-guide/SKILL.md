@@ -21,25 +21,11 @@ Chat.
 
 ## When to Use
 
-**Conversational agent-aligned engineering standard queries:**
-
-- Getting career guidance specific to your organization's agent-aligned
-  engineering standard
-- Interpreting engineering artifacts against specific skill markers
-- Asking about skills, levels, behaviours, and career expectations
-- Piping prompts to `fit-guide` for scripted queries
-
-**Setup and configuration:**
-
-- Initializing a new Guide project (`npx fit-guide init`)
-- Authenticating with Anthropic (`npx fit-guide login`)
-- Processing knowledge content, graphs, and vectors
-
-**Service operations:**
-
-- Starting, stopping, or checking service status via `npx fit-rc`
-- Ingesting new knowledge content into the pipeline
-- Troubleshooting agent responses or connectivity
+- Career guidance specific to your organization's engineering standard
+- Interpreting engineering artifacts against skill markers
+- Asking about skills, levels, behaviours, and expectations
+- Setup: `npx fit-guide init`, `login`, knowledge processing
+- Operations: `npx fit-rc start/stop/status`, ingesting content
 
 ---
 

@@ -227,8 +227,7 @@ const definition = {
     {
       title: "Getting Started: Summit for Leaders",
       url: "https://www.forwardimpact.team/docs/getting-started/leaders/summit/index.md",
-      description:
-        "From zero to your first team capability analysis.",
+      description: "From zero to your first team capability analysis.",
     },
     {
       title: "Make Staffing Decisions You Can Defend",
@@ -239,14 +238,12 @@ const definition = {
     {
       title: "Evaluate a Candidate Against Team Gaps",
       url: "https://www.forwardimpact.team/docs/products/team-capability/evaluate-candidate/index.md",
-      description:
-        "Check whether a candidate fills the team's actual gap.",
+      description: "Check whether a candidate fills the team's actual gap.",
     },
     {
       title: "Surface Capability Gaps",
       url: "https://www.forwardimpact.team/docs/products/team-capability/surface-gaps/index.md",
-      description:
-        "Detect single points of failure and coverage blindspots.",
+      description: "Detect single points of failure and coverage blindspots.",
     },
   ],
 };

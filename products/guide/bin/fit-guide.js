@@ -115,8 +115,7 @@ const repl = new Repl({
     {
       title: "Guide Overview",
       url: "https://www.forwardimpact.team/guide/index.md",
-      description:
-        "Product overview, audience model, and key concepts.",
+      description: "Product overview, audience model, and key concepts.",
     },
     {
       title: "Getting Started: Guide for Engineers",
@@ -127,44 +126,37 @@ const repl = new Repl({
     {
       title: "See What's Expected at Your Level",
       url: "https://www.forwardimpact.team/docs/products/career-paths/index.md",
-      description:
-        "Stop guessing what your level requires.",
+      description: "Stop guessing what your level requires.",
     },
     {
       title: "Understand Autonomy and Scope",
       url: "https://www.forwardimpact.team/docs/products/career-paths/autonomy-scope/index.md",
-      description:
-        "What each level implies for decision-making and ownership.",
+      description: "What each level implies for decision-making and ownership.",
     },
     {
       title: "Find Growth Areas and Build Evidence",
       url: "https://www.forwardimpact.team/docs/products/growth-areas/index.md",
-      description:
-        "Identify gaps and track progress toward the next level.",
+      description: "Identify gaps and track progress toward the next level.",
     },
     {
       title: "Ask a Growth Question",
       url: "https://www.forwardimpact.team/docs/products/growth-areas/growth-question/index.md",
-      description:
-        "Get context-specific guidance grounded in your standard.",
+      description: "Get context-specific guidance grounded in your standard.",
     },
     {
       title: "Check Progress Toward Next Level",
       url: "https://www.forwardimpact.team/docs/products/growth-areas/check-progress/index.md",
-      description:
-        "See where you stand against level expectations.",
+      description: "See where you stand against level expectations.",
     },
     {
       title: "Verify Agent Work Against the Standard",
       url: "https://www.forwardimpact.team/docs/products/trust-output/index.md",
-      description:
-        "Know what to expect from agent output.",
+      description: "Know what to expect from agent output.",
     },
     {
       title: "Get a Second Opinion on a Deliverable",
       url: "https://www.forwardimpact.team/docs/products/trust-output/second-opinion/index.md",
-      description:
-        "Have the Guide review work against quality criteria.",
+      description: "Have the Guide review work against quality criteria.",
     },
   ],
 

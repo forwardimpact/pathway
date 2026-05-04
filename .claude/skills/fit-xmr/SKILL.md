@@ -15,10 +15,8 @@ description: >
 and renders a fixed-width 14-line chart that makes the rules visible by
 inspection.
 
-It implements **one canonical rendering — no variants** — following Donald
-Wheeler's three-rule formulation as adopted by Daniel Vacanti for agile flow
-metrics. If the rendering you need is different, what you need is a different
-chart.
+It implements **one canonical rendering — no variants** — following Wheeler's
+three-rule formulation as adopted by Vacanti for agile flow metrics.
 
 ## When to Use
 

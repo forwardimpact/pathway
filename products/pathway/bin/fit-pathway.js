@@ -197,14 +197,12 @@ const definition = {
     {
       title: "Pathway Overview",
       url: "https://www.forwardimpact.team/pathway/index.md",
-      description:
-        "Product overview, audience model, and key concepts.",
+      description: "Product overview, audience model, and key concepts.",
     },
     {
       title: "Getting Started: Pathway for Engineers",
       url: "https://www.forwardimpact.team/docs/getting-started/engineers/pathway/index.md",
-      description:
-        "From zero to a running Pathway site.",
+      description: "From zero to a running Pathway site.",
     },
     {
       title: "Authoring Agent-Aligned Engineering Standards",
@@ -215,20 +213,17 @@ const definition = {
     {
       title: "Validate and Update the Standard",
       url: "https://www.forwardimpact.team/docs/products/authoring-standards/update-standard/index.md",
-      description:
-        "Run validation, interpret errors, and update safely.",
+      description: "Run validation, interpret errors, and update safely.",
     },
     {
       title: "Configure Agents to Meet Your Engineering Standard",
       url: "https://www.forwardimpact.team/docs/products/agent-teams/index.md",
-      description:
-        "Generate, structure, and maintain exported agent teams.",
+      description: "Generate, structure, and maintain exported agent teams.",
     },
     {
       title: "Give Agents Organizational Context",
       url: "https://www.forwardimpact.team/docs/products/agent-teams/organizational-context/index.md",
-      description:
-        "Team instructions, settings, and profile customization.",
+      description: "Team instructions, settings, and profile customization.",
     },
     {
       title: "See What's Expected at Your Level",
@@ -239,8 +234,7 @@ const definition = {
     {
       title: "Understand Autonomy and Scope",
       url: "https://www.forwardimpact.team/docs/products/career-paths/autonomy-scope/index.md",
-      description:
-        "What each level implies for decision-making and ownership.",
+      description: "What each level implies for decision-making and ownership.",
     },
   ],
 };
