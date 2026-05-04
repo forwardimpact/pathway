@@ -1,0 +1,154 @@
+import { describe, it } from "node:test";
+import assert from "node:assert/strict";
+
+import { MapService } from "../index.js";
+import { createMockConfig } from "@forwardimpact/libharness";
+
+function createMockSupabase(overrides = {}) {
+  const tables = {};
+
+  function mockTable(name) {
+    return {
+      select: () => ({
+        eq: (col, val) => ({
+          single: async () => {
+            const rows = tables[name] || [];
+            const row = rows.find((r) => r[col] === val);
+            return {
+              data: row || null,
+              error: row ? null : { message: "not found" },
+            };
+          },
+          not: () => ({
+            then: async (resolve) => {
+              const rows = (tables[name] || []).filter(
+                (r) => r[col] === val && r.getdx_team_id != null,
+              );
+              resolve({ data: rows });
+            },
+          }),
+        }),
+        in: () => ({
+          not: () => ({
+            then: async (resolve) => resolve({ data: [] }),
+          }),
+        }),
+      }),
+      upsert: async () => ({ error: null }),
+    };
+  }
+
+  return {
+    from: (name) => mockTable(name),
+    rpc: async () => ({ data: [] }),
+    _tables: tables,
+    ...overrides,
+  };
+}
+
+function createMockPathwayClient() {
+  return {
+    GetMarkersForProfile: async () => ({
+      content: "skill_a\tworking\tDelivered a feature",
+    }),
+  };
+}
+
+describe("MapService", () => {
+  it("constructs without error", () => {
+    const config = createMockConfig();
+    const supabase = createMockSupabase();
+    const pathwayClient = createMockPathwayClient();
+    const service = new MapService(config, { supabase, pathwayClient });
+    assert.ok(service);
+  });
+
+  it("GetUnscoredArtifacts returns empty for no artifacts", async () => {
+    const config = createMockConfig();
+    const supabase = createMockSupabase({
+      from: (name) => ({
+        select: () => ({
+          eq: () => ({
+            single: async () => ({ data: null, error: null }),
+          }),
+          order: () => ({
+            then: async (resolve) => resolve({ data: [], error: null }),
+          }),
+        }),
+      }),
+    });
+    const pathwayClient = createMockPathwayClient();
+    const service = new MapService(config, { supabase, pathwayClient });
+    const result = await service.GetUnscoredArtifacts({});
+    const artifacts = JSON.parse(result.content);
+    assert.deepStrictEqual(artifacts, []);
+  });
+
+  it("GetPerson returns person profile", async () => {
+    const config = createMockConfig();
+    const person = {
+      email: "alice@example.com",
+      name: "Alice",
+      discipline: "software_engineering",
+      level: "J060",
+      track: null,
+      manager_email: "bob@example.com",
+    };
+    const supabase = createMockSupabase();
+    supabase._tables.organization_people = [person];
+    supabase.from = (name) => ({
+      select: () => ({
+        eq: (col, val) => ({
+          single: async () => {
+            if (name === "organization_people") {
+              const row = supabase._tables[name]?.find((r) => r[col] === val);
+              return {
+                data: row || null,
+                error: row ? null : { message: "not found" },
+              };
+            }
+            return { data: null, error: { message: "not found" } };
+          },
+        }),
+      }),
+    });
+    const pathwayClient = createMockPathwayClient();
+    const service = new MapService(config, { supabase, pathwayClient });
+    const result = await service.GetPerson({ email: "alice@example.com" });
+    const parsed = JSON.parse(result.content);
+    assert.equal(parsed.email, "alice@example.com");
+    assert.equal(parsed.discipline, "software_engineering");
+  });
+
+  it("WriteEvidence rejects rows without rationale", async () => {
+    const config = createMockConfig();
+    const supabase = createMockSupabase();
+    const pathwayClient = createMockPathwayClient();
+    const service = new MapService(config, { supabase, pathwayClient });
+    await assert.rejects(
+      () =>
+        service.WriteEvidence({
+          rows: [
+            {
+              artifact_id: "a1",
+              skill_id: "skill_a",
+              level_id: "working",
+              marker_text: "Delivered a feature",
+              matched: true,
+              rationale: "",
+            },
+          ],
+        }),
+      /rationale is required/,
+    );
+  });
+
+  it("WriteEvidence returns count on empty rows", async () => {
+    const config = createMockConfig();
+    const supabase = createMockSupabase();
+    const pathwayClient = createMockPathwayClient();
+    const service = new MapService(config, { supabase, pathwayClient });
+    const result = await service.WriteEvidence({ rows: [] });
+    assert.equal(result.content, "0 rows written");
+  });
+});

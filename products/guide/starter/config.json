@@ -20,6 +20,10 @@
         "command": "node -e \"import('@forwardimpact/svcpathway/server.js')\""
       },
       {
+        "name": "map",
+        "command": "node -e \"import('@forwardimpact/svcmap/server.js')\""
+      },
+      {
         "name": "mcp",
         "command": "node -e \"import('@forwardimpact/svcmcp/server.js')\""
       }
@@ -67,6 +71,26 @@
         "ListJobSoftware": {
           "method": "pathway.Pathway.ListJobSoftware",
           "description": "List the software toolkit derived for a job."
+        },
+        "GetMarkersForProfile": {
+          "method": "pathway.Pathway.GetMarkersForProfile",
+          "description": "Get skill markers an engineer at (discipline, level, track) is expected to demonstrate."
+        },
+        "GetUnscoredArtifacts": {
+          "method": "map.Map.GetUnscoredArtifacts",
+          "description": "List artifacts that have no evidence rows, scoped by person email, manager email, or org-wide."
+        },
+        "GetArtifact": {
+          "method": "map.Map.GetArtifact",
+          "description": "Get full detail for a single artifact by its UUID."
+        },
+        "WriteEvidence": {
+          "method": "map.Map.WriteEvidence",
+          "description": "Write evidence rows linking artifacts to skill markers. Idempotent on (artifact_id, skill_id, level_id, marker_text)."
+        },
+        "GetPerson": {
+          "method": "map.Map.GetPerson",
+          "description": "Get an engineer's profile (discipline, level, track) by email."
         }
       }
     }

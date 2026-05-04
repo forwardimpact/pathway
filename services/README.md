@@ -12,6 +12,7 @@ that let agents consume backend functionality natively.
 | Service     | Description                                                                                              |
 | ----------- | -------------------------------------------------------------------------------------------------------- |
 | **graph**   | RDF knowledge graph over gRPC — relationship queries without each product standing up its own store.     |
+| **map**     | Activity reads and writes over gRPC — the agent-facing gateway to Map's activity database.               |
 | **mcp**     | Unified MCP server — agents reach backend services as tools without per-service integration.             |
 | **pathway** | Engineering standard queries over gRPC — career paths and agent profiles as derivable data for products. |
 | **trace**   | OpenTelemetry span ingestion and storage over gRPC — prove whether agent changes improved outcomes.      |
@@ -22,6 +23,24 @@ that let agents consume backend functionality natively.
 ## Jobs To Be Done
 
 <!-- BEGIN:jobs — Do not edit. Generated from each service's package.json. -->
+
+<job user="Platform Builders" goal="Expose Activity Data to Agents">
+
+## Platform Builders: Expose Activity Data to Agents
+
+**Trigger:** Building an agent feature that reads or writes activity data and
+realizing the agent would need direct DB access.
+
+**Big Hire:** Help me read and write activity data from any agent without
+leaking schema or credentials. → **map**
+
+**Little Hire:** Help me fetch unscored artifacts or write evidence rows without
+touching Supabase directly. → **map**
+
+**Competes With:** opening Supabase directly from the agent; building
+per-product activity endpoints; embedding query logic in the evaluation skill.
+
+</job>
 
 <job user="Platform Builders" goal="Ground Agents in Context">
 
