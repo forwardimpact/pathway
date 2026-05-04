@@ -7,7 +7,7 @@ Set up the Forward Impact monorepo for development. This guide covers
 installation, data generation, and running the quality checks.
 
 > External users install products via npm (see
-> [Leadership](/docs/getting-started/leadership/) or
+> [Engineering Leaders](/docs/getting-started/leaders/) or
 > [Engineers](/docs/getting-started/engineers/)). This page is for contributors
 > working on the monorepo itself.
 

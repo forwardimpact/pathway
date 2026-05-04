@@ -11,7 +11,7 @@ Landmark requires Map's activity layer (Supabase). If your organization has
 already set this up, Landmark works immediately. If not, see the
 [Landmark quickstart](/docs/products/engineering-outcomes/) or ask your
 engineering leader to follow the
-[Map setup guide](/docs/getting-started/leadership/map/). One command works
+[Map setup guide](/docs/getting-started/leaders/map/). One command works
 without Supabase: `marker` reads directly from your agent-aligned engineering
 standard YAML.
 

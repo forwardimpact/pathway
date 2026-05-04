@@ -7,7 +7,7 @@ toc: false
 
 <div class="grid">
 
-<!-- part:card:leadership -->
+<!-- part:card:leaders -->
 
 <!-- part:card:engineers -->
 

@@ -102,7 +102,7 @@ Four edge functions ship in the bundled Supabase project and deploy with
 
 Every edge function returns a JSON response with per-target counts and errors.
 Full walk-through in the
-[leadership getting-started guide](https://www.forwardimpact.team/docs/getting-started/leadership/index.md#activity-ingest-github-activity).
+[engineering leaders getting-started guide](https://www.forwardimpact.team/docs/getting-started/leaders/index.md#activity-ingest-github-activity).
 
 ---
 

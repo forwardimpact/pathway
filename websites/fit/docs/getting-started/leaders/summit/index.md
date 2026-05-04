@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: Summit for Leadership"
+title: "Getting Started: Summit for Engineering Leaders"
 description: "Model team capability — coverage heatmaps, structural risks, what-if staffing scenarios, growth alignment, and trajectory over time."
 ---
 
@@ -18,7 +18,7 @@ nothing beyond standard data and a roster.
 - Node.js 18+
 - npm
 - Standard data initialized (see
-  [Getting Started: Map for Leadership](/docs/getting-started/leadership/map/))
+  [Getting Started: Map for Engineering Leaders](/docs/getting-started/leaders/map/))
 
 ## Install
 
@@ -222,7 +222,7 @@ answer.
 ## Combine with the activity layer
 
 When Map's activity layer is populated (see the
-[Map guide](/docs/getting-started/leadership/map/)), Summit can overlay evidence
+[Map guide](/docs/getting-started/leaders/map/)), Summit can overlay evidence
 of practiced capability onto its structural view. The `--evidenced` flag reads
 practice patterns from `activity.evidence` and compares them to what the roster
 predicts — flagging skills the agent-aligned engineering standard says the team

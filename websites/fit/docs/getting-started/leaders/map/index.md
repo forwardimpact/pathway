@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: Map for Leadership"
+title: "Getting Started: Map for Engineering Leaders"
 description: "Initialize your agent-aligned engineering standard, validate against schemas, set up the activity layer, and ingest operational signals."
 ---
 

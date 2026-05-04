@@ -149,7 +149,7 @@ npx fit-landmark marker task_completion
 
 <div class="grid">
 
-<!-- part:card:../docs/getting-started/leadership/landmark -->
+<!-- part:card:../docs/getting-started/leaders/landmark -->
 
 <!-- part:card:../docs/getting-started/engineers/landmark -->
 

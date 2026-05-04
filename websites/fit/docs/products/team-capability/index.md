@@ -15,11 +15,11 @@ simulating changes before committing to them.
 This guide assumes you have completed the following setup. If you have not,
 follow each link and return here.
 
-- [Getting Started: Map for Leadership](/docs/getting-started/leadership/map/) --
+- [Getting Started: Map for Engineering Leaders](/docs/getting-started/leaders/map/) --
   standard data initialized
-- [Getting Started: Pathway for Leadership](/docs/getting-started/leadership/pathway/) --
+- [Getting Started: Pathway for Engineering Leaders](/docs/getting-started/leaders/pathway/) --
   Pathway installed
-- [Getting Started: Summit for Leadership](/docs/getting-started/leadership/summit/) --
+- [Getting Started: Summit for Engineering Leaders](/docs/getting-started/leaders/summit/) --
   Summit installed and roster created
 
 You will need a `summit.yaml` roster file describing your teams. The

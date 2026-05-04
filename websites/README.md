@@ -4,7 +4,7 @@
 
 | Persona      | Hub path                        | Product pages                          |
 | ------------ | ------------------------------- | -------------------------------------- |
-| Leadership   | `getting-started/leadership/`   | Map, Pathway, Landmark, Summit         |
+| Engineering Leaders | `getting-started/leaders/`      | Map, Pathway, Landmark, Summit         |
 | Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost      |
 | Contributors | `getting-started/contributors/` | (monorepo setup)                       |
 

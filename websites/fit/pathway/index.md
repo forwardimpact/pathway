@@ -67,7 +67,7 @@ npx fit-pathway job software_engineering J060 --track=platform  # Job definition
 
 <div class="grid">
 
-<!-- part:card:../docs/getting-started/leadership/pathway -->
+<!-- part:card:../docs/getting-started/leaders/pathway -->
 
 <!-- part:card:../docs/getting-started/engineers/pathway -->
 

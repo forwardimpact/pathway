@@ -145,6 +145,6 @@ npx fit-summit risks platform --roster ./summit.yaml
 
 <div class="grid">
 
-<!-- part:card:../docs/getting-started/leadership/summit -->
+<!-- part:card:../docs/getting-started/leaders/summit -->
 
 </div>

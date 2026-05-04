@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: Pathway for Leadership"
+title: "Getting Started: Pathway for Engineering Leaders"
 description: "Preview your agent-aligned engineering standard in the browser, generate job definitions, and create interview question sets."
 ---
 
@@ -11,7 +11,7 @@ roles, generate job definitions, and preview everything in the browser.
 - Node.js 18+
 - npm
 - Standard data initialized (see
-  [Getting Started: Map for Leadership](/docs/getting-started/leadership/map/))
+  [Getting Started: Map for Engineering Leaders](/docs/getting-started/leaders/map/))
 
 ## Install
 

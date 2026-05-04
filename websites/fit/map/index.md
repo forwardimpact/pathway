@@ -47,6 +47,6 @@ npx fit-map validate
 
 <div class="grid">
 
-<!-- part:card:../docs/getting-started/leadership/map -->
+<!-- part:card:../docs/getting-started/leaders/map -->
 
 </div>
