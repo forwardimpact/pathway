@@ -33,10 +33,6 @@ describe("EMPTY_STATES", () => {
     assert.notEqual(EMPTY_STATES.NO_COMMENTS_EMPTY, EMPTY_STATES.NO_COMMENTS);
   });
 
-  it("has a NO_INITIATIVES constant", () => {
-    assert.ok(EMPTY_STATES.NO_INITIATIVES.includes("getdx_initiatives"));
-  });
-
   it("PERSON_NOT_FOUND includes the email", () => {
     const msg = EMPTY_STATES.PERSON_NOT_FOUND("alice@example.com");
     assert.ok(msg.includes("alice@example.com"));

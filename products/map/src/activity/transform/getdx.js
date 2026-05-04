@@ -61,25 +61,11 @@ export async function transformAllGetDX(supabase) {
     errors.push(...commentsResult.errors);
   }
 
-  // Transform initiatives from the most recent initiatives-list document
-  let initiativeCount = 0;
-  const initiativesFiles = await listRaw(supabase, "getdx/initiatives-list/");
-  if (initiativesFiles.length > 0) {
-    const latestInitiatives = `getdx/initiatives-list/${initiativesFiles[0].name}`;
-    const initiativesResult = await transformInitiatives(
-      supabase,
-      latestInitiatives,
-    );
-    initiativeCount = initiativesResult.initiatives;
-    errors.push(...initiativesResult.errors);
-  }
-
   return {
     teams: teamCount,
     snapshots: snapshotCount,
     scores: scoreCount,
     comments: commentCount,
-    initiatives: initiativeCount,
     errors,
   };
 }
@@ -120,7 +106,31 @@ async function transformTeams(supabase, path) {
     .upsert(rows, { onConflict: "getdx_team_id" });
 
   if (error) return { imported: 0, errors: [error.message] };
-  return { imported: rows.length, errors: [] };
+
+  // Spec 800: Populate organization_people.getdx_team_id from each team's
+  // contributors array so manager-scoped score queries can resolve a
+  // manager's direct reports to GetDX teams without depending on the
+  // unreliable getdx_teams.manager_email chain. The contributors payload is
+  // produced by extending the GetDX sync to call teams.info per team (see
+  // spec 800 design § Key Decisions).
+  const errors = [];
+  for (const team of teams) {
+    const contributors = team.contributors || [];
+    for (const contributor of contributors) {
+      if (!contributor?.email) continue;
+      const { error: updateError } = await supabase
+        .from("organization_people")
+        .update({ getdx_team_id: team.id })
+        .eq("email", contributor.email);
+      if (updateError) {
+        errors.push(
+          `getdx_team_id for ${contributor.email}: ${updateError.message}`,
+        );
+      }
+    }
+  }
+
+  return { imported: rows.length, errors };
 }
 
 /**
@@ -255,6 +265,10 @@ async function transformSnapshotComments(supabase, path) {
       email,
       team_id: teamId,
       text: comment.text || "",
+      // Spec 800: capture driver_name returned by
+      // snapshots.driverComments.list so driver-level filtering and display
+      // become possible. Older comments without driver context leave it null.
+      driver_name: comment.driver_name || null,
       timestamp: comment.timestamp || new Date().toISOString(),
       raw: comment,
     };
@@ -272,75 +286,4 @@ async function transformSnapshotComments(supabase, path) {
   }
 
   return { comments: rows.length, errors };
-}
-
-/**
- * Transform a stored initiatives-list document into getdx_initiatives rows.
- * @param {import('@supabase/supabase-js').SupabaseClient} supabase
- * @param {string} path - Storage path
- * @returns {Promise<{initiatives: number, errors: Array<string>}>}
- */
-async function transformInitiatives(supabase, path) {
-  const raw = JSON.parse(await readRaw(supabase, path));
-  const initiatives = raw.initiatives || [];
-  const errors = [];
-
-  const rows = initiatives.map(buildInitiativeRow);
-
-  if (rows.length > 0) {
-    // Use raw upsert — Supabase JS doesn't support COALESCE in upsert,
-    // so we preserve completed_at by checking client-side.
-    for (const row of rows) {
-      const { data: existing } = await supabase
-        .from("getdx_initiatives")
-        .select("completed_at")
-        .eq("id", row.id)
-        .maybeSingle();
-
-      // Preserve earliest completed_at
-      if (existing?.completed_at) {
-        row.completed_at = existing.completed_at;
-      }
-
-      const { error } = await supabase
-        .from("getdx_initiatives")
-        .upsert(row, { onConflict: "id" });
-
-      if (error) {
-        errors.push(`Initiative ${row.id}: ${error.message}`);
-      }
-    }
-  }
-
-  return { initiatives: rows.length - errors.length, errors };
-}
-
-/** Derive completed_at from raw initiative data. */
-function deriveCompletedAt(init) {
-  if (init.completed_at) return init.completed_at;
-  const allPassed =
-    init.passed_checks != null &&
-    init.total_checks != null &&
-    init.passed_checks === init.total_checks &&
-    init.total_checks > 0;
-  return allPassed ? new Date().toISOString() : null;
-}
-
-/** Build a database row from a raw GetDX initiative object. */
-function buildInitiativeRow(init) {
-  return {
-    id: init.id,
-    name: init.name || "(unnamed)",
-    description: init.description || null,
-    scorecard_id: init.scorecard_id || null,
-    owner_email: init.owner_email || null,
-    due_date: init.due_date || null,
-    priority: init.priority || null,
-    passed_checks: init.passed_checks ?? null,
-    total_checks: init.total_checks ?? null,
-    completion_pct: init.completion_pct ?? null,
-    tags: init.tags || null,
-    completed_at: deriveCompletedAt(init),
-    raw: init,
-  };
 }

@@ -17,7 +17,6 @@ import * as practiceFormatter from "./practice.js";
 import * as practicedFormatter from "./practiced.js";
 import * as healthFormatter from "./health.js";
 import * as voiceFormatter from "./voice.js";
-import * as initiativeFormatter from "./initiative.js";
 
 const formatters = {
   org: orgFormatter,
@@ -31,7 +30,6 @@ const formatters = {
   practiced: practicedFormatter,
   health: healthFormatter,
   voice: voiceFormatter,
-  initiative: initiativeFormatter,
 };
 
 /**

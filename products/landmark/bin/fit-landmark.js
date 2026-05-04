@@ -25,7 +25,6 @@ import { runPracticeCommand } from "../src/commands/practice.js";
 import { runPracticedCommand } from "../src/commands/practiced.js";
 import { runHealthCommand } from "../src/commands/health.js";
 import { runVoiceCommand } from "../src/commands/voice.js";
-import { runInitiativeCommand } from "../src/commands/initiative.js";
 import { resolveDataDir } from "../src/lib/cli.js";
 import { buildContext } from "../src/lib/context.js";
 import { SupabaseUnavailableError } from "../src/lib/supabase.js";
@@ -49,7 +48,6 @@ const COMMANDS = {
   practiced: { handler: runPracticedCommand, needsSupabase: true },
   health: { handler: runHealthCommand, needsSupabase: true },
   voice: { handler: runVoiceCommand, needsSupabase: true },
-  initiative: { handler: runInitiativeCommand, needsSupabase: true },
 };
 
 const definition = {
@@ -135,27 +133,6 @@ const definition = {
       options: {
         email: { type: "string", description: "Filter by person email" },
         skill: { type: "string", description: "Filter by skill id" },
-      },
-    },
-    {
-      name: "initiative list",
-      description: "List active initiatives",
-      options: {
-        manager: { type: "string", description: "Filter by manager email" },
-      },
-    },
-    {
-      name: "initiative show",
-      description: "Show initiative detail",
-      options: {
-        id: { type: "string", description: "Entity id" },
-      },
-    },
-    {
-      name: "initiative impact",
-      description: "Show initiative impact on scores",
-      options: {
-        manager: { type: "string", description: "Filter by manager email" },
       },
     },
     {

@@ -5,10 +5,11 @@
  */
 
 /**
- * Get GitHub artifacts, optionally filtered by person or type.
+ * Get GitHub artifacts, optionally filtered by person, manager scope, or type.
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase - Supabase client
  * @param {Object} [options]
  * @param {string} [options.email] - Filter by person email
+ * @param {string} [options.managerEmail] - Filter to a manager's direct reports (resolved via the get_team RPC)
  * @param {string} [options.type] - Filter by artifact type (pull_request, review, commit)
  * @returns {Promise<Array<Object>>} Artifacts
  */
@@ -17,6 +18,19 @@ export async function getArtifacts(supabase, options = {}) {
 
   if (options.email) {
     query = query.eq("email", options.email);
+  }
+
+  if (options.managerEmail) {
+    // Spec 800: team scope for evaluation. Resolve direct reports via the
+    // roster (organization_people / get_team RPC) so the scope tracks the
+    // authoritative manager → report mapping rather than the unreliable
+    // getdx_teams.manager_email chain.
+    const { data: team } = await supabase.rpc("get_team", {
+      root_email: options.managerEmail,
+    });
+    const emails = (team ?? []).map((p) => p.email);
+    if (emails.length === 0) return [];
+    query = query.in("email", emails);
   }
 
   if (options.type) {
@@ -37,6 +51,7 @@ export async function getArtifacts(supabase, options = {}) {
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase - Supabase client
  * @param {Object} [options]
  * @param {string} [options.email] - Filter by person email
+ * @param {string} [options.managerEmail] - Filter to a manager's direct reports
  * @param {string} [options.type] - Filter by artifact type
  * @returns {Promise<Array<Object>>} Artifacts without evidence
  */

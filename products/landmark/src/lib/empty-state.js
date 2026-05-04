@@ -19,8 +19,6 @@ export const EMPTY_STATES = {
     "Snapshot comments not available. The getdx_snapshot_comments table has not been created.",
   NO_COMMENTS_EMPTY:
     "No snapshot comments found. Run `fit-map getdx sync` to ingest GetDX snapshot comments.",
-  NO_INITIATIVES:
-    "Initiative data not available. The getdx_initiatives table has not been created.",
   NO_ORGANIZATION:
     "No organization data available. Run `fit-map people push` to load roster data.",
   PERSON_NOT_FOUND: (email) =>

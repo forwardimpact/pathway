@@ -28,13 +28,17 @@ export async function getSnapshotComments(supabase, options = {}) {
   }
 
   if (options.managerEmail) {
-    const { data: teams } = await supabase
-      .from("getdx_teams")
-      .select("getdx_team_id")
-      .eq("manager_email", options.managerEmail);
-    const teamIds = (teams ?? []).map((t) => t.getdx_team_id);
-    if (teamIds.length === 0) return [];
-    query = query.in("team_id", teamIds);
+    // Resolve the manager's direct reports via the roster (organization_people
+    // carries accurate manager_email; getdx_teams.manager_email is never
+    // populated by the GetDX teams.list API — see spec 800 § Gap 1). Filter
+    // comments by commenter email rather than team_id so the result still
+    // works when a commenter has no GetDX team mapping.
+    const { data: team } = await supabase.rpc("get_team", {
+      root_email: options.managerEmail,
+    });
+    const emails = (team ?? []).map((p) => p.email);
+    if (emails.length === 0) return [];
+    query = query.in("email", emails);
   }
 
   const { data, error } = await query;

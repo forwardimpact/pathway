@@ -34,16 +34,25 @@ export async function getSnapshotScores(supabase, snapshotId, options = {}) {
     .eq("snapshot_id", snapshotId);
 
   if (options.managerEmail) {
-    // Find the GetDX team for this manager
-    const { data: team } = await supabase
-      .from("getdx_teams")
+    // Resolve the manager's direct reports via the roster, then collect the
+    // GetDX team_ids those engineers belong to. The getdx_teams.manager_email
+    // chain is unreliable (the GetDX teams.list API never populates it), so
+    // we route through organization_people which carries accurate manager
+    // relationships from the roster — see spec 800 design § Manager-scoping
+    // query patterns.
+    const { data: team } = await supabase.rpc("get_team", {
+      root_email: options.managerEmail,
+    });
+    const emails = (team ?? []).map((p) => p.email);
+    if (emails.length === 0) return [];
+    const { data: people } = await supabase
+      .from("organization_people")
       .select("getdx_team_id")
-      .eq("manager_email", options.managerEmail)
-      .single();
-
-    if (team) {
-      query = query.eq("getdx_team_id", team.getdx_team_id);
-    }
+      .in("email", emails)
+      .not("getdx_team_id", "is", null);
+    const teamIds = [...new Set((people ?? []).map((p) => p.getdx_team_id))];
+    if (teamIds.length === 0) return [];
+    query = query.in("getdx_team_id", teamIds);
   }
 
   const { data, error } = await query.order("item_id");
@@ -67,15 +76,20 @@ export async function getItemTrend(supabase, itemId, options = {}) {
     .eq("item_id", itemId);
 
   if (options.managerEmail) {
-    const { data: team } = await supabase
-      .from("getdx_teams")
+    // Same routing as getSnapshotScores — see comment there for rationale.
+    const { data: team } = await supabase.rpc("get_team", {
+      root_email: options.managerEmail,
+    });
+    const emails = (team ?? []).map((p) => p.email);
+    if (emails.length === 0) return [];
+    const { data: people } = await supabase
+      .from("organization_people")
       .select("getdx_team_id")
-      .eq("manager_email", options.managerEmail)
-      .single();
-
-    if (team) {
-      query = query.eq("getdx_team_id", team.getdx_team_id);
-    }
+      .in("email", emails)
+      .not("getdx_team_id", "is", null);
+    const teamIds = [...new Set((people ?? []).map((p) => p.getdx_team_id))];
+    if (teamIds.length === 0) return [];
+    query = query.in("getdx_team_id", teamIds);
   }
 
   const { data, error } = await query.order("getdx_snapshots(scheduled_for)", {

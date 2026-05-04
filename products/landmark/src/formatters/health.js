@@ -31,10 +31,6 @@ function formatCandidates(rec) {
     .join(" or ");
 }
 
-function formatInitPct(init) {
-  return init.completion_pct != null ? `${init.completion_pct}%` : "n/a";
-}
-
 // ---------------------------------------------------------------------------
 // Text: per-driver section renderers
 // ---------------------------------------------------------------------------
@@ -58,15 +54,6 @@ function renderTextRecommendations(driver, lines) {
   }
 }
 
-function renderTextInitiatives(driver, lines) {
-  if (!driver.initiatives || driver.initiatives.length === 0) return;
-  lines.push("");
-  lines.push("      Active initiatives:");
-  for (const init of driver.initiatives.slice(0, 3)) {
-    lines.push(`        - ${init.name} (${formatInitPct(init)} complete)`);
-  }
-}
-
 function renderTextDriver(driver, lines) {
   const orgPart =
     driver.vs_org != null ? `vs_org: ${formatDelta(driver.vs_org)}` : "";
@@ -80,7 +67,6 @@ function renderTextDriver(driver, lines) {
 
   renderTextComments(driver, lines);
   renderTextRecommendations(driver, lines);
-  renderTextInitiatives(driver, lines);
 
   lines.push("");
 }
@@ -108,15 +94,6 @@ function renderMdRecommendations(driver, lines) {
   }
 }
 
-function renderMdInitiatives(driver, lines) {
-  if (!driver.initiatives || driver.initiatives.length === 0) return;
-  lines.push("");
-  lines.push("**Active initiatives:**");
-  for (const init of driver.initiatives.slice(0, 3)) {
-    lines.push(`- ${init.name} (${formatInitPct(init)} complete)`);
-  }
-}
-
 function renderMdDriver(driver, lines) {
   lines.push(`## Driver: ${driver.name} (${formatScorePart(driver)})`);
   lines.push("");
@@ -126,7 +103,6 @@ function renderMdDriver(driver, lines) {
 
   renderMdComments(driver, lines);
   renderMdRecommendations(driver, lines);
-  renderMdInitiatives(driver, lines);
 
   lines.push("");
 }
@@ -135,7 +111,7 @@ function renderMdDriver(driver, lines) {
 // Public API
 // ---------------------------------------------------------------------------
 
-/** Render the health view as indented plain text with drivers, evidence, comments, initiatives, and recommendations. */
+/** Render the health view as indented plain text with drivers, evidence, comments, and recommendations. */
 export function toText(view) {
   const lines = [renderHeader(`${view.teamLabel} — health view`), ""];
   for (const driver of view.drivers) {
@@ -149,7 +125,7 @@ export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
-/** Render the health view as markdown with driver sections, comments, initiatives, and recommendations. */
+/** Render the health view as markdown with driver sections, comments, and recommendations. */
 export function toMarkdown(view) {
   const lines = [`# ${view.teamLabel} — health view`, ""];
   for (const driver of view.drivers) {
