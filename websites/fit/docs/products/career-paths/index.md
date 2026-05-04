@@ -339,7 +339,7 @@ You now have a concrete picture of what your level expects -- the skills,
 behaviours, scope, and autonomy your role requires, grounded in your
 organization's own standard.
 
-- [Understand autonomy and scope](/docs/products/career-paths/autonomy-scope/)
+- [Understand autonomy and scope](/docs/products/career-paths/autonomy-and-scope/)
   -- see what your level implies for independence and decision-making
 - [Find Growth Areas](/docs/products/finding-your-bearing/) -- identify specific
   gaps and build evidence of progress
