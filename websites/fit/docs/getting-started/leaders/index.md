@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: Engineering Leaders"
+title: "Getting Started: Leaders"
 description: "Go from an unwritten engineering standard to a validated, previewable definition — with career paths, capability signals, and team analysis ready to use."
 layout: product
 toc: false

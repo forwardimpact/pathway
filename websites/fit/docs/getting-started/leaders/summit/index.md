@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: Summit for Engineering Leaders"
+title: "Getting Started: Summit for Leaders"
 description: "Model team capability — coverage heatmaps, structural risks, what-if staffing scenarios, growth alignment, and trajectory over time."
 ---
 
@@ -18,7 +18,7 @@ nothing beyond standard data and a roster.
 - Node.js 18+
 - npm
 - Standard data initialized (see
-  [Getting Started: Map for Engineering Leaders](/docs/getting-started/leaders/map/))
+  [Getting Started: Map for Leaders](/docs/getting-started/leaders/map/))
 
 ## Install
 
