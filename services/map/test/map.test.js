@@ -71,6 +71,7 @@ describe("MapService", () => {
           eq: () => ({
             single: async () => ({ data: null, error: null }),
           }),
+          range: async () => ({ data: [], error: null }),
           order: () => ({
             then: async (resolve) => resolve({ data: [], error: null }),
           }),

@@ -52,13 +52,21 @@ export async function getArtifacts(supabase, options = {}) {
  * @returns {Promise<Array<Object>>} Artifacts without evidence
  */
 export async function getUnscoredArtifacts(supabase, options = {}) {
-  // Get all artifact IDs that have evidence
-  const { data: scored } = await supabase
-    .from("evidence")
-    .select("artifact_id");
-  const scoredIds = new Set((scored || []).map((e) => e.artifact_id));
+  const PAGE_SIZE = 1000;
+  const scoredIds = new Set();
+  let offset = 0;
 
-  // Get artifacts and filter client-side
+  while (true) {
+    const { data, error } = await supabase
+      .from("evidence")
+      .select("artifact_id")
+      .range(offset, offset + PAGE_SIZE - 1);
+    if (error) throw new Error(`getUnscoredArtifacts: ${error.message}`);
+    for (const row of data) scoredIds.add(row.artifact_id);
+    if (data.length < PAGE_SIZE) break;
+    offset += PAGE_SIZE;
+  }
+
   const artifacts = await getArtifacts(supabase, options);
   return artifacts.filter((a) => !scoredIds.has(a.artifact_id));
 }
