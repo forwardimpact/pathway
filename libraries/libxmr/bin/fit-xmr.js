@@ -142,10 +142,16 @@ const definition = {
   ],
   documentation: [
     {
-      title: "XmR Analysis",
-      url: "https://www.forwardimpact.team/docs/libraries/xmr-analysis/index.md",
+      title: "Operate a Predictable Agent Team",
+      url: "https://www.forwardimpact.team/docs/libraries/predictable-team/index.md",
       description:
-        "Distinguish stable processes from special causes with Wheeler/Vacanti XmR control charts — CSV schema, the three detection rules, the 14-line chart, and how to read the report.",
+        "End-to-end guide to wiki memory, XmR charts, and team coordination.",
+    },
+    {
+      title: "Chart a Metric and Check Variation",
+      url: "https://www.forwardimpact.team/docs/libraries/predictable-team/xmr-analysis/index.md",
+      description:
+        "CSV schema, the three detection rules, the 14-line chart, and how to read the report.",
     },
   ],
 };

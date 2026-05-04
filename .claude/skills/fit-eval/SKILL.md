@@ -26,7 +26,7 @@ session for inspection. (In CLI flag names, _supervisor_ = judge, _agent_ =
 target.)
 
 →
-[Agent Evaluations guide](https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md)
+[Run an Eval guide](https://www.forwardimpact.team/docs/libraries/prove-changes/run-eval/index.md)
 
 ### 2. Agent collaboration
 
@@ -36,7 +36,7 @@ with `Ask`/`Answer` and broadcast with `Announce`; the facilitator ends the
 session with `Conclude`. The trace records every message and tool call.
 
 →
-[Agent Collaboration guide](https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md)
+[Prove Agent Changes guide](https://www.forwardimpact.team/docs/libraries/prove-changes/index.md)
 
 `run` is the autonomous building block under both — a single agent on a defined
 task, no supervisor or facilitator.
@@ -135,13 +135,13 @@ from there.
 
 ## Documentation
 
-- [Agent Evaluations](https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md)
+- [Run an Eval](https://www.forwardimpact.team/docs/libraries/prove-changes/run-eval/index.md)
   — Author a judge profile, run an eval locally, wire it into CI, and inspect
   the resulting trace.
-- [Agent Collaboration](https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md)
-  — Author a facilitator and participant profiles, run a multi-agent session,
-  and read the message flow.
-- [Trace Analysis](https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md)
+- [Prove Agent Changes](https://www.forwardimpact.team/docs/libraries/prove-changes/index.md)
+  — End-to-end workflow from dataset generation through evaluation to trace
+  analysis, including multi-agent collaboration sessions.
+- [Analyze Traces](https://www.forwardimpact.team/docs/libraries/prove-changes/trace-analysis/index.md)
   — Read the NDJSON traces produced by `fit-eval` with `fit-trace` —
   grounded-theory method and worked examples.
 - [Agent Teams](https://www.forwardimpact.team/docs/products/agent-teams/index.md)

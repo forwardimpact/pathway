@@ -99,16 +99,40 @@ const definition = {
   ],
   documentation: [
     {
+      title: "Map Overview",
+      url: "https://www.forwardimpact.team/map/index.md",
+      description:
+        "Product overview, audience model, and key concepts.",
+    },
+    {
+      title: "Getting Started: Map for Leaders",
+      url: "https://www.forwardimpact.team/docs/getting-started/leaders/map/index.md",
+      description:
+        "From zero to a validated engineering standard.",
+    },
+    {
       title: "Authoring Agent-Aligned Engineering Standards",
       url: "https://www.forwardimpact.team/docs/products/authoring-standards/index.md",
       description:
-        "Task-oriented guide to defining your agent-aligned engineering standard in YAML.",
+        "End-to-end guide to defining your engineering standard in YAML.",
+    },
+    {
+      title: "Validate and Update the Standard",
+      url: "https://www.forwardimpact.team/docs/products/authoring-standards/update-standard/index.md",
+      description:
+        "Run validation, interpret errors, and update safely.",
+    },
+    {
+      title: "Define a New Role",
+      url: "https://www.forwardimpact.team/docs/products/authoring-standards/define-role/index.md",
+      description:
+        "Add a discipline, track, or capability to the standard.",
     },
     {
       title: "YAML Schema Reference",
       url: "https://www.forwardimpact.team/docs/reference/yaml-schema/index.md",
       description:
-        "File format reference for every entity type with examples and published schema links.",
+        "File format reference for every entity type.",
     },
   ],
 };

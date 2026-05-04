@@ -139,10 +139,13 @@ npx fit-summit risks <team>               # Risks detected as expected
 
 ## Documentation
 
-For deeper context beyond this skill's scope:
-
-- [Team Capability Guide](https://www.forwardimpact.team/docs/products/team-capability/index.md)
-  — Task-oriented guide to coverage heatmaps, structural risks, and what-if
-  scenarios
 - [Summit Overview](https://www.forwardimpact.team/summit/index.md) — Product
   overview, design principles, and audience model
+- [Getting Started: Summit for Leaders](https://www.forwardimpact.team/docs/getting-started/leaders/summit/index.md)
+  — From zero to your first team capability analysis
+- [Make Staffing Decisions You Can Defend](https://www.forwardimpact.team/docs/products/team-capability/index.md)
+  — Coverage heatmaps, structural risks, and what-if scenarios
+- [Evaluate a Candidate Against Team Gaps](https://www.forwardimpact.team/docs/products/team-capability/evaluate-candidate/index.md)
+  — Check whether a candidate fills the team's actual gap
+- [Surface Capability Gaps](https://www.forwardimpact.team/docs/products/team-capability/surface-gaps/index.md)
+  — Detect single points of failure and coverage blindspots

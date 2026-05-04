@@ -144,11 +144,15 @@ npx fit-map validate
 
 ## Documentation
 
-For deeper context beyond this skill's scope:
-
+- [Map Overview](https://www.forwardimpact.team/map/index.md) — Product
+  overview, audience model, and key concepts
+- [Getting Started: Map for Leaders](https://www.forwardimpact.team/docs/getting-started/leaders/map/index.md)
+  — From zero to a validated engineering standard
 - [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/products/authoring-standards/index.md)
-  — Task-oriented guide to defining your agent-aligned engineering standard in
-  YAML
+  — End-to-end guide to defining your engineering standard in YAML
+- [Validate and Update the Standard](https://www.forwardimpact.team/docs/products/authoring-standards/update-standard/index.md)
+  — Run validation, interpret errors, and update safely
+- [Define a New Role](https://www.forwardimpact.team/docs/products/authoring-standards/define-role/index.md)
+  — Add a discipline, track, or capability to the standard
 - [YAML Schema Reference](https://www.forwardimpact.team/docs/reference/yaml-schema/index.md)
-  — File format reference for every entity type with examples and published
-  schema links
+  — File format reference for every entity type

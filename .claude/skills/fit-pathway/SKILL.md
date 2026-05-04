@@ -131,19 +131,22 @@ npx fit-pathway dev     # Preview changes in browser
 
 ## Documentation
 
-**Before editing YAML standard data**, read the relevant guide — they contain
-detailed examples, field references, and best-practice patterns essential for
-high-quality output.
+- [Pathway Overview](https://www.forwardimpact.team/pathway/index.md) — Product
+  overview, audience model, and key concepts
+- [Getting Started: Pathway for Engineers](https://www.forwardimpact.team/docs/getting-started/engineers/pathway/index.md)
+  — From zero to a running Pathway site
+
+**Before editing YAML standard data**, read the relevant guide:
 
 - [Authoring Agent-Aligned Engineering Standards](https://www.forwardimpact.team/docs/products/authoring-standards/index.md)
-  — How to write the YAML data: disciplines, levels, tracks, capabilities,
-  skills, behaviours, stages, drivers. Includes proficiency vocabulary
-  standards, co-located human/agent content patterns, checklist quality rules,
-  and validation workflows
-- [Agent Teams Guide](https://www.forwardimpact.team/docs/products/agent-teams/index.md)
-  — How to generate, structure, and maintain exported agent teams. Covers the
-  three-layer architecture (CLAUDE.md → agent profiles → skills), information
-  flow rules, anti-patterns to avoid, and the maintenance checklist for
-  reviewing exported output
-- [Career Paths Guide](https://www.forwardimpact.team/docs/products/career-paths/index.md)
+  — End-to-end guide to defining your engineering standard in YAML
+- [Validate and Update the Standard](https://www.forwardimpact.team/docs/products/authoring-standards/update-standard/index.md)
+  — Run validation, interpret errors, and update safely
+- [Configure Agents to Meet Your Engineering Standard](https://www.forwardimpact.team/docs/products/agent-teams/index.md)
+  — Generate, structure, and maintain exported agent teams
+- [Give Agents Organizational Context](https://www.forwardimpact.team/docs/products/agent-teams/organizational-context/index.md)
+  — Team instructions, settings, and profile customization
+- [See What's Expected at Your Level](https://www.forwardimpact.team/docs/products/career-paths/index.md)
   — Browse jobs, skills, and career progression between levels
+- [Understand Autonomy and Scope](https://www.forwardimpact.team/docs/products/career-paths/autonomy-scope/index.md)
+  — What each level implies for decision-making and ownership

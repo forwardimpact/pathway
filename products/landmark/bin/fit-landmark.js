@@ -203,6 +203,36 @@ const definition = {
       url: "https://www.forwardimpact.team/landmark/index.md",
       description: "Product overview, audience model, and key concepts.",
     },
+    {
+      title: "Getting Started: Landmark for Leaders",
+      url: "https://www.forwardimpact.team/docs/getting-started/leaders/landmark/index.md",
+      description:
+        "From zero to your first engineering outcome measurement.",
+    },
+    {
+      title: "Demonstrate Engineering Progress",
+      url: "https://www.forwardimpact.team/docs/products/engineering-outcomes/index.md",
+      description:
+        "Show evidence of engineering progress without blaming individuals.",
+    },
+    {
+      title: "Tell Whether Culture Investments Are Working",
+      url: "https://www.forwardimpact.team/docs/products/engineering-outcomes/culture-investments/index.md",
+      description:
+        "Track initiative impact through outcome trends.",
+    },
+    {
+      title: "Find Growth Areas and Build Evidence",
+      url: "https://www.forwardimpact.team/docs/products/growth-areas/index.md",
+      description:
+        "Identify gaps and track progress toward the next level.",
+    },
+    {
+      title: "Check Progress Toward Next Level",
+      url: "https://www.forwardimpact.team/docs/products/growth-areas/check-progress/index.md",
+      description:
+        "See where you stand against level expectations.",
+    },
   ],
 };
 

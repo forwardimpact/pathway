@@ -164,7 +164,8 @@ npx fit-map validate
 
 ## Documentation
 
-For deeper context beyond this skill's scope:
-
-- [Generate an Eval Dataset](https://www.forwardimpact.team/docs/libraries/prove-changes/generate-dataset/)
+- [Prove Agent Changes](https://www.forwardimpact.team/docs/libraries/prove-changes/index.md)
+  — End-to-end workflow from dataset generation through evaluation to trace
+  analysis
+- [Generate an Eval Dataset](https://www.forwardimpact.team/docs/libraries/prove-changes/generate-dataset/index.md)
   — Using the Terrain DSL to define and generate synthetic datasets

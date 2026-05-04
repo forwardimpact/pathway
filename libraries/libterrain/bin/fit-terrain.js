@@ -35,10 +35,16 @@ const { version: VERSION } = JSON.parse(
 
 const documentation = [
   {
-    title: "Terrain Internals",
-    url: "https://www.forwardimpact.team/docs/internals/terrain/index.md",
+    title: "Prove Agent Changes",
+    url: "https://www.forwardimpact.team/docs/libraries/prove-changes/index.md",
     description:
-      "Synthetic data pipeline architecture, DSL parsing, entity generation, prose generation, and rendering.",
+      "End-to-end workflow from dataset generation through evaluation to trace analysis.",
+  },
+  {
+    title: "Generate an Eval Dataset",
+    url: "https://www.forwardimpact.team/docs/libraries/prove-changes/generate-dataset/index.md",
+    description:
+      "Using the Terrain DSL to define and generate synthetic datasets.",
   },
 ];
 

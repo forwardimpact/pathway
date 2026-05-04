@@ -102,7 +102,15 @@ npx fit-landmark health                  # Should display team health overview
 
 ## Documentation
 
-For deeper context beyond this skill's scope:
-
 - [Landmark Overview](https://www.forwardimpact.team/landmark/index.md) —
   Product overview, audience model, and key concepts
+- [Getting Started: Landmark for Leaders](https://www.forwardimpact.team/docs/getting-started/leaders/landmark/index.md)
+  — From zero to your first engineering outcome measurement
+- [Demonstrate Engineering Progress](https://www.forwardimpact.team/docs/products/engineering-outcomes/index.md)
+  — Show evidence of engineering progress without blaming individuals
+- [Tell Whether Culture Investments Are Working](https://www.forwardimpact.team/docs/products/engineering-outcomes/culture-investments/index.md)
+  — Track initiative impact through outcome trends
+- [Find Growth Areas and Build Evidence](https://www.forwardimpact.team/docs/products/growth-areas/index.md)
+  — Identify gaps and track progress toward the next level
+- [Check Progress Toward Next Level](https://www.forwardimpact.team/docs/products/growth-areas/check-progress/index.md)
+  — See where you stand against level expectations

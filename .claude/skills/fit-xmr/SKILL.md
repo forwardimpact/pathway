@@ -187,6 +187,8 @@ Validate first; list to see what's available; analyze for the full report
 
 ## Documentation
 
-- [XmR Analysis](https://www.forwardimpact.team/docs/libraries/xmr-analysis/index.md)
-  — The full guide: CSV schema, commands, the three rules, the chart layout, a
-  worked security backlog example, and interpretation guidance.
+- [Operate a Predictable Agent Team](https://www.forwardimpact.team/docs/libraries/predictable-team/index.md)
+  — End-to-end guide to wiki memory, XmR charts, and team coordination
+- [Chart a Metric and Check Variation](https://www.forwardimpact.team/docs/libraries/predictable-team/xmr-analysis/index.md)
+  — CSV schema, the three detection rules, the 14-line chart, and
+  interpretation guidance

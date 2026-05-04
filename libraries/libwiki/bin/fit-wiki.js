@@ -101,8 +101,14 @@ const definition = {
   ],
   documentation: [
     {
-      title: "Wiki Operations",
-      url: "https://www.forwardimpact.team/docs/libraries/wiki-operations/index.md",
+      title: "Operate a Predictable Agent Team",
+      url: "https://www.forwardimpact.team/docs/libraries/predictable-team/index.md",
+      description:
+        "End-to-end guide to wiki memory, XmR charts, and team coordination.",
+    },
+    {
+      title: "Send a Memo or Update a Storyboard",
+      url: "https://www.forwardimpact.team/docs/libraries/predictable-team/wiki-operations/index.md",
       description:
         "Send cross-team memos, refresh storyboard charts, and sync the wiki.",
     },

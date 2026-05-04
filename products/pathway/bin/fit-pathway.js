@@ -195,22 +195,52 @@ const definition = {
   ],
   documentation: [
     {
+      title: "Pathway Overview",
+      url: "https://www.forwardimpact.team/pathway/index.md",
+      description:
+        "Product overview, audience model, and key concepts.",
+    },
+    {
+      title: "Getting Started: Pathway for Engineers",
+      url: "https://www.forwardimpact.team/docs/getting-started/engineers/pathway/index.md",
+      description:
+        "From zero to a running Pathway site.",
+    },
+    {
       title: "Authoring Agent-Aligned Engineering Standards",
       url: "https://www.forwardimpact.team/docs/products/authoring-standards/index.md",
       description:
-        "How to write the YAML data: disciplines, levels, tracks, capabilities, skills, behaviours, stages, drivers.",
+        "End-to-end guide to defining your engineering standard in YAML.",
     },
     {
-      title: "Agent Teams Guide",
+      title: "Validate and Update the Standard",
+      url: "https://www.forwardimpact.team/docs/products/authoring-standards/update-standard/index.md",
+      description:
+        "Run validation, interpret errors, and update safely.",
+    },
+    {
+      title: "Configure Agents to Meet Your Engineering Standard",
       url: "https://www.forwardimpact.team/docs/products/agent-teams/index.md",
       description:
-        "Configure agents to meet the same expectations the organization holds for human contributors.",
+        "Generate, structure, and maintain exported agent teams.",
     },
     {
-      title: "Career Paths Guide",
+      title: "Give Agents Organizational Context",
+      url: "https://www.forwardimpact.team/docs/products/agent-teams/organizational-context/index.md",
+      description:
+        "Team instructions, settings, and profile customization.",
+    },
+    {
+      title: "See What's Expected at Your Level",
       url: "https://www.forwardimpact.team/docs/products/career-paths/index.md",
       description:
         "Browse jobs, skills, and career progression between levels.",
+    },
+    {
+      title: "Understand Autonomy and Scope",
+      url: "https://www.forwardimpact.team/docs/products/career-paths/autonomy-scope/index.md",
+      description:
+        "What each level implies for decision-making and ownership.",
     },
   ],
 };

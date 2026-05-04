@@ -115,8 +115,11 @@ npx fit-outpost validate       # Verify agent/skill references exist
 
 ## Documentation
 
-For deeper context beyond this skill's scope:
-
-- [Knowledge Systems Guide](https://www.forwardimpact.team/docs/products/knowledge-systems/index.md)
-  — Task-oriented guide to setting up and using Outpost for personal knowledge
-  management
+- [Outpost Overview](https://www.forwardimpact.team/outpost/index.md) — Product
+  overview, audience model, and key concepts
+- [Getting Started: Outpost for Engineers](https://www.forwardimpact.team/docs/getting-started/engineers/outpost/index.md)
+  — From zero to your first daily briefing
+- [Keep Track of Context Without Effort](https://www.forwardimpact.team/docs/products/knowledge-systems/index.md)
+  — Maintain continuous awareness of people, projects, and threads
+- [Walk Into Every Meeting Already Oriented](https://www.forwardimpact.team/docs/products/knowledge-systems/meeting-prep/index.md)
+  — Assemble context so you arrive prepared

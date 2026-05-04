@@ -133,5 +133,7 @@ import {
 
 ## Documentation
 
-- [Wiki Operations](https://www.forwardimpact.team/docs/libraries/wiki-operations/index.md) —
-  how to use `fit-wiki` to send memos, refresh storyboards, and sync the wiki.
+- [Operate a Predictable Agent Team](https://www.forwardimpact.team/docs/libraries/predictable-team/index.md)
+  — End-to-end guide to wiki memory, XmR charts, and team coordination
+- [Send a Memo or Update a Storyboard](https://www.forwardimpact.team/docs/libraries/predictable-team/wiki-operations/index.md)
+  — How to use `fit-wiki` to send memos, refresh storyboards, and sync the wiki

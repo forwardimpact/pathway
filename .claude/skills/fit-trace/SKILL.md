@@ -157,11 +157,11 @@ The strongest findings are **grounded** (traceable to specific turns),
 
 ## Documentation
 
-- [Trace Analysis](https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md)
+- [Analyze Traces](https://www.forwardimpact.team/docs/libraries/prove-changes/trace-analysis/index.md)
   — The full method walkthrough with worked examples (an eval that failed, a
   multi-agent session that stalled).
-- [Agent Evaluations](https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md)
+- [Run an Eval](https://www.forwardimpact.team/docs/libraries/prove-changes/run-eval/index.md)
   — How `fit-eval supervise` produces the traces this skill analyzes.
-- [Agent Collaboration](https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md)
-  — How `fit-eval facilitate` produces multi-agent traces; `split` is the bridge
-  into per-source files.
+- [Prove Agent Changes](https://www.forwardimpact.team/docs/libraries/prove-changes/index.md)
+  — End-to-end workflow including multi-agent collaboration; `split` is the
+  bridge into per-source trace files.

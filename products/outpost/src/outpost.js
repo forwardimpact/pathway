@@ -340,10 +340,28 @@ const definition = {
   },
   documentation: [
     {
-      title: "Knowledge Systems Guide",
+      title: "Outpost Overview",
+      url: "https://www.forwardimpact.team/outpost/index.md",
+      description:
+        "Product overview, audience model, and key concepts.",
+    },
+    {
+      title: "Getting Started: Outpost for Engineers",
+      url: "https://www.forwardimpact.team/docs/getting-started/engineers/outpost/index.md",
+      description:
+        "From zero to your first daily briefing.",
+    },
+    {
+      title: "Keep Track of Context Without Effort",
       url: "https://www.forwardimpact.team/docs/products/knowledge-systems/index.md",
       description:
-        "Task-oriented guide to setting up and using Outpost for personal knowledge management.",
+        "Maintain continuous awareness of people, projects, and threads.",
+    },
+    {
+      title: "Walk Into Every Meeting Already Oriented",
+      url: "https://www.forwardimpact.team/docs/products/knowledge-systems/meeting-prep/index.md",
+      description:
+        "Assemble context so you arrive prepared.",
     },
   ],
 };

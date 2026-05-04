@@ -186,4 +186,21 @@ echo "hello" | npx fit-guide            # Should return an agent response
 
 ## Documentation
 
-- [Finding Your Bearing Guide](https://www.forwardimpact.team/docs/products/finding-your-bearing/index.md)
+- [Guide Overview](https://www.forwardimpact.team/guide/index.md) — Product
+  overview, audience model, and key concepts
+- [Getting Started: Guide for Engineers](https://www.forwardimpact.team/docs/getting-started/engineers/guide/index.md)
+  — Set up the AI agent that understands your engineering standard
+- [See What's Expected at Your Level](https://www.forwardimpact.team/docs/products/career-paths/index.md)
+  — Stop guessing what your level requires
+- [Understand Autonomy and Scope](https://www.forwardimpact.team/docs/products/career-paths/autonomy-scope/index.md)
+  — What each level implies for decision-making and ownership
+- [Find Growth Areas and Build Evidence](https://www.forwardimpact.team/docs/products/growth-areas/index.md)
+  — Identify gaps and track progress toward the next level
+- [Ask a Growth Question](https://www.forwardimpact.team/docs/products/growth-areas/growth-question/index.md)
+  — Get context-specific guidance grounded in your standard
+- [Check Progress Toward Next Level](https://www.forwardimpact.team/docs/products/growth-areas/check-progress/index.md)
+  — See where you stand against level expectations
+- [Verify Agent Work Against the Standard](https://www.forwardimpact.team/docs/products/trust-output/index.md)
+  — Know what to expect from agent output
+- [Get a Second Opinion on a Deliverable](https://www.forwardimpact.team/docs/products/trust-output/second-opinion/index.md)
+  — Have the Guide review work against quality criteria

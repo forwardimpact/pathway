@@ -177,20 +177,20 @@ const definition = {
   ],
   documentation: [
     {
-      title: "Agent Evaluations",
-      url: "https://www.forwardimpact.team/docs/libraries/agent-evaluations/index.md",
+      title: "Run an Eval",
+      url: "https://www.forwardimpact.team/docs/libraries/prove-changes/run-eval/index.md",
       description:
         "Author a judge profile, run an eval locally, wire it into CI, and inspect the resulting trace.",
     },
     {
-      title: "Agent Collaboration",
-      url: "https://www.forwardimpact.team/docs/libraries/agent-collaboration/index.md",
+      title: "Prove Agent Changes",
+      url: "https://www.forwardimpact.team/docs/libraries/prove-changes/index.md",
       description:
-        "Author a facilitator and participant profiles, run a multi-agent session, and read the message flow.",
+        "End-to-end workflow from dataset generation through evaluation to trace analysis, including multi-agent collaboration sessions.",
     },
     {
-      title: "Trace Analysis",
-      url: "https://www.forwardimpact.team/docs/libraries/trace-analysis/index.md",
+      title: "Analyze Traces",
+      url: "https://www.forwardimpact.team/docs/libraries/prove-changes/trace-analysis/index.md",
       description:
         "Read the NDJSON traces produced by `fit-eval` with `fit-trace` — grounded-theory method and worked examples.",
     },

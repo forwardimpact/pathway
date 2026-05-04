@@ -220,15 +220,33 @@ const definition = {
   ],
   documentation: [
     {
-      title: "Team Capability Guide",
-      url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
-      description:
-        "Task-oriented guide to coverage heatmaps, structural risks, and what-if scenarios.",
-    },
-    {
       title: "Summit Overview",
       url: "https://www.forwardimpact.team/summit/index.md",
       description: "Product overview, design principles, and audience model.",
+    },
+    {
+      title: "Getting Started: Summit for Leaders",
+      url: "https://www.forwardimpact.team/docs/getting-started/leaders/summit/index.md",
+      description:
+        "From zero to your first team capability analysis.",
+    },
+    {
+      title: "Make Staffing Decisions You Can Defend",
+      url: "https://www.forwardimpact.team/docs/products/team-capability/index.md",
+      description:
+        "Coverage heatmaps, structural risks, and what-if scenarios.",
+    },
+    {
+      title: "Evaluate a Candidate Against Team Gaps",
+      url: "https://www.forwardimpact.team/docs/products/team-capability/evaluate-candidate/index.md",
+      description:
+        "Check whether a candidate fills the team's actual gap.",
+    },
+    {
+      title: "Surface Capability Gaps",
+      url: "https://www.forwardimpact.team/docs/products/team-capability/surface-gaps/index.md",
+      description:
+        "Detect single points of failure and coverage blindspots.",
     },
   ],
 };
