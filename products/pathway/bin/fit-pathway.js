@@ -204,7 +204,7 @@ const definition = {
       title: "Agent Teams Guide",
       url: "https://www.forwardimpact.team/docs/products/agent-teams/index.md",
       description:
-        "How to generate, structure, and maintain exported agent teams. Covers the three-layer architecture (CLAUDE.md → agent profiles → skills).",
+        "Configure agents to meet the same expectations the organization holds for human contributors.",
     },
     {
       title: "Career Paths Guide",

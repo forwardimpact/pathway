@@ -73,8 +73,8 @@ growth areas, and contextual help.
 
 ### Agent Teams
 
-Generate AI coding agent teams from your agent-aligned engineering standard —
-profiles, skills, and stage-based workflows.
+Configure agents to meet the same expectations the organization holds for human
+contributors — derived from your agent-aligned engineering standard.
 
 </a>
 
