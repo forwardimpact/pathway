@@ -12,12 +12,15 @@ const BARE_CONFIG = `[core]
 \tbare = true
 `;
 
+/** Static bare git repo emitter for dumb-HTTP serving. */
 export class GitEmitter {
   #exec;
+  /** @param {{exec?: Function}} [opts] */
   constructor({ exec = execFileSync } = {}) {
     this.#exec = exec;
   }
 
+  /** Emit a static bare git repo from stagedDir at outputPath. */
   async emit(stagedDir, outputPath, { version, name }) {
     const cleanEnv = Object.fromEntries(
       Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")),
@@ -56,11 +59,9 @@ export class GitEmitter {
     });
 
     // 7. Lightweight tag
-    this.#exec(
-      "git",
-      ["update-ref", `refs/tags/v${version}`, commitSha],
-      { env: this.#gitEnv },
-    );
+    this.#exec("git", ["update-ref", `refs/tags/v${version}`, commitSha], {
+      env: this.#gitEnv,
+    });
 
     // 8. Single deterministic packfile
     // -f passes --no-reuse-delta to git-pack-objects
@@ -81,10 +82,7 @@ export class GitEmitter {
     await writeFile(join(outputPath, "config"), BARE_CONFIG);
 
     // 13. Description
-    await writeFile(
-      join(outputPath, "description"),
-      `Pathway pack: ${name}\n`,
-    );
+    await writeFile(join(outputPath, "description"), `Pathway pack: ${name}\n`);
 
     // 14. Strip to design-specified files + empty refs skeleton
     await rm(join(outputPath, "hooks"), { recursive: true, force: true });
@@ -114,11 +112,10 @@ export class GitEmitter {
         const treeSha = await this.#hashTree(fullPath);
         lines.push(`040000 tree ${treeSha}\t${entry.name}`);
       } else {
-        const blobSha = this.#exec(
-          "git",
-          ["hash-object", "-w", "--stdin"],
-          { input: await readFile(fullPath), env: this.#gitEnv },
-        )
+        const blobSha = this.#exec("git", ["hash-object", "-w", "--stdin"], {
+          input: await readFile(fullPath),
+          env: this.#gitEnv,
+        })
           .toString()
           .trim();
         const mode = (await stat(fullPath)).mode & 0o111 ? "100755" : "100644";

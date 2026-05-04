@@ -367,6 +367,79 @@ describe("generatePacks", () => {
     }
   });
 
+  test("emits one APM git repo and one skills git repo per combination", async () => {
+    const packsDir = join(outputDir, "packs");
+    const entries = await readdir(packsDir);
+    const apmGit = entries.filter((n) => n.endsWith(".apm.git"));
+    const skillsGit = entries.filter((n) => n.endsWith(".skills.git"));
+    assert.strictEqual(apmGit.length, validCombinations.length);
+    assert.strictEqual(skillsGit.length, validCombinations.length);
+  });
+
+  test("APM git repo clones and yields APM bundle layout", async () => {
+    const { discipline, track } = validCombinations[0];
+    const abbrev = getDisciplineAbbreviation(discipline.id);
+    const packName = `${abbrev}-${toKebabCase(track.id)}`;
+    const repoPath = join(outputDir, "packs", `${packName}.apm.git`);
+    const cloneDir = mkdtempSync(join(tmpdir(), "fit-pathway-apm-clone-"));
+
+    const cleanEnv = Object.fromEntries(
+      Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")),
+    );
+
+    try {
+      execFileSync("git", ["clone", repoPath, cloneDir], { env: cleanEnv });
+      assert.ok(existsSync(join(cloneDir, ".claude", "skills")));
+      assert.ok(existsSync(join(cloneDir, ".claude", "agents")));
+      assert.ok(existsSync(join(cloneDir, "apm.lock.yaml")));
+      assert.ok(!existsSync(join(cloneDir, ".claude", "settings.json")));
+    } finally {
+      rmSync(cloneDir, { recursive: true, force: true });
+    }
+  });
+
+  test("skills git repo clones and yields skill files", async () => {
+    const { discipline, track } = validCombinations[0];
+    const abbrev = getDisciplineAbbreviation(discipline.id);
+    const packName = `${abbrev}-${toKebabCase(track.id)}`;
+    const repoPath = join(outputDir, "packs", `${packName}.skills.git`);
+    const cloneDir = mkdtempSync(join(tmpdir(), "fit-pathway-skills-clone-"));
+
+    const cleanEnv = Object.fromEntries(
+      Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")),
+    );
+
+    try {
+      execFileSync("git", ["clone", repoPath, cloneDir], { env: cleanEnv });
+      const entries = await readdir(cloneDir);
+      const skillDirs = entries.filter(
+        (n) => n !== ".git" && existsSync(join(cloneDir, n, "SKILL.md")),
+      );
+      assert.ok(
+        skillDirs.length > 0,
+        "clone should contain at least one skill",
+      );
+    } finally {
+      rmSync(cloneDir, { recursive: true, force: true });
+    }
+  });
+
+  test("git repos have version tag", async () => {
+    const { discipline, track } = validCombinations[0];
+    const abbrev = getDisciplineAbbreviation(discipline.id);
+    const packName = `${abbrev}-${toKebabCase(track.id)}`;
+    const repoPath = join(outputDir, "packs", `${packName}.apm.git`);
+
+    const cleanEnv = Object.fromEntries(
+      Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")),
+    );
+
+    const tags = execFileSync("git", ["ls-remote", "--tags", repoPath], {
+      env: cleanEnv,
+    }).toString();
+    assert.ok(tags.includes(`refs/tags/v${pathwayPkg.version}`));
+  });
+
   test("second build produces byte-identical archives and manifests", async () => {
     const secondDir = join(workDir, "public2");
     await mkdir(secondDir, { recursive: true });
@@ -411,7 +484,8 @@ describe("generatePacks", () => {
 
     // Per-pack manifests must be identical
     const packDirs = firstEntries.filter(
-      (n) => !n.endsWith(".tar.gz") && n !== ".well-known",
+      (n) =>
+        !n.endsWith(".tar.gz") && !n.endsWith(".git") && n !== ".well-known",
     );
     for (const packName of packDirs) {
       const first = await readFile(
@@ -437,6 +511,26 @@ describe("generatePacks", () => {
         "utf8",
       );
       assert.strictEqual(first, second, `manifest for ${packName} differs`);
+    }
+
+    // Git repos must be byte-identical
+    const gitDirs = firstEntries.filter((n) => n.endsWith(".git"));
+    for (const gitDir of gitDirs) {
+      const firstFiles = await walkDir(join(outputDir, "packs", gitDir));
+      const secondFiles = await walkDir(join(secondDir, "packs", gitDir));
+      const firstKeys = [...firstFiles.keys()].sort();
+      const secondKeys = [...secondFiles.keys()].sort();
+      assert.deepStrictEqual(
+        firstKeys,
+        secondKeys,
+        `git repo ${gitDir} file list differs`,
+      );
+      for (const key of firstKeys) {
+        assert.ok(
+          firstFiles.get(key).equals(secondFiles.get(key)),
+          `git repo ${gitDir}/${key} differs between builds`,
+        );
+      }
     }
 
     const firstApmYml = await readFile(join(outputDir, "apm.yml"), "utf8");

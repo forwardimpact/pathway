@@ -15,7 +15,10 @@ const CONTENT = {
     {
       dirname: "kata-review",
       files: [
-        { path: "SKILL.md", content: "---\nname: kata-review\n---\n# Review\n" },
+        {
+          path: "SKILL.md",
+          content: "---\nname: kata-review\n---\n# Review\n",
+        },
         {
           path: "scripts/install.sh",
           content: "#!/bin/sh\necho ok\n",
@@ -39,18 +42,29 @@ describe("PackStager", () => {
     const stager = new PackStager();
     await stager.stageFull(dir, CONTENT);
 
-    expect(existsSync(join(dir, ".claude", "agents", "staff-engineer.md"))).toBe(
-      true,
-    );
-    expect(existsSync(join(dir, ".claude", "skills", "kata-review", "SKILL.md"))).toBe(
-      true,
-    );
-    expect(existsSync(join(dir, ".claude", "skills", "kata-review", "scripts", "install.sh"))).toBe(
-      true,
-    );
-    expect(existsSync(join(dir, ".claude", "skills", "kata-review", "references", "protocol.md"))).toBe(
-      true,
-    );
+    expect(
+      existsSync(join(dir, ".claude", "agents", "staff-engineer.md")),
+    ).toBe(true);
+    expect(
+      existsSync(join(dir, ".claude", "skills", "kata-review", "SKILL.md")),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(dir, ".claude", "skills", "kata-review", "scripts", "install.sh"),
+      ),
+    ).toBe(true);
+    expect(
+      existsSync(
+        join(
+          dir,
+          ".claude",
+          "skills",
+          "kata-review",
+          "references",
+          "protocol.md",
+        ),
+      ),
+    ).toBe(true);
     expect(existsSync(join(dir, ".claude", "CLAUDE.md"))).toBe(true);
     expect(existsSync(join(dir, ".claude", "settings.json"))).toBe(true);
     expect(existsSync(join(dir, ".vscode", "settings.json"))).toBe(true);
@@ -68,8 +82,12 @@ describe("PackStager", () => {
     await stager.stageFull(fullDir, CONTENT);
     await stager.stageApm(fullDir, apmDir, "se-platform", "1.0.0");
 
-    expect(existsSync(join(apmDir, ".claude", "skills", "kata-review", "SKILL.md"))).toBe(true);
-    expect(existsSync(join(apmDir, ".claude", "agents", "staff-engineer.md"))).toBe(true);
+    expect(
+      existsSync(join(apmDir, ".claude", "skills", "kata-review", "SKILL.md")),
+    ).toBe(true);
+    expect(
+      existsSync(join(apmDir, ".claude", "agents", "staff-engineer.md")),
+    ).toBe(true);
     expect(existsSync(join(apmDir, ".claude", "CLAUDE.md"))).toBe(true);
     expect(existsSync(join(apmDir, "apm.lock.yaml"))).toBe(true);
 

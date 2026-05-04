@@ -1,8 +1,15 @@
 import { describe, test, expect } from "bun:test";
-import { mkdtemp, mkdir, writeFile, readFile, readdir, chmod } from "fs/promises";
+import {
+  mkdtemp,
+  mkdir,
+  writeFile,
+  readFile,
+  readdir,
+  chmod,
+} from "fs/promises";
 import { join } from "path";
 import { tmpdir } from "os";
-import { execFileSync } from "child_process";
+import { execFileSync, spawn } from "child_process";
 import { createServer } from "http";
 import { existsSync } from "fs";
 import { GitEmitter } from "../src/git-emitter.js";
@@ -156,12 +163,16 @@ describe("GitEmitter", () => {
     const port = server.address().port;
 
     try {
-      // Use Bun.spawn (async) so the HTTP server can handle requests
-      const proc = Bun.spawn(
-        ["git", "clone", `http://localhost:${port}/`, cloneDir],
-        { env: { ...CLEAN_ENV, GIT_TERMINAL_PROMPT: "0" } },
-      );
-      const exitCode = await proc.exited;
+      // Use spawn (async) so the HTTP server can handle requests
+      const exitCode = await new Promise((resolve, reject) => {
+        const proc = spawn(
+          "git",
+          ["clone", `http://localhost:${port}/`, cloneDir],
+          { env: { ...CLEAN_ENV, GIT_TERMINAL_PROMPT: "0" } },
+        );
+        proc.on("close", resolve);
+        proc.on("error", reject);
+      });
       expect(exitCode).toBe(0);
       expect(existsSync(join(cloneDir, "a.txt"))).toBe(true);
       expect(existsSync(join(cloneDir, "sub", "b.txt"))).toBe(true);

@@ -2,6 +2,7 @@ import { readdir, readFile } from "fs/promises";
 import { utimesSync } from "fs";
 import { join } from "path";
 
+/** Recursively collect all paths (files and directories) under `dir`, relative to `dir`. */
 export async function collectPaths(dir, prefix = ".") {
   const entries = await readdir(dir, { withFileTypes: true });
   const result = [];
@@ -18,6 +19,7 @@ export async function collectPaths(dir, prefix = ".") {
   return result;
 }
 
+/** Set mtime and atime to the Unix epoch for every entry under `dir`. */
 export async function resetTimestamps(dir) {
   const epoch = new Date(0);
   const paths = await collectPaths(dir);
@@ -27,6 +29,7 @@ export async function resetTimestamps(dir) {
   utimesSync(dir, epoch, epoch);
 }
 
+/** Stringify JSON with recursively sorted object keys for deterministic output. */
 export function stringifySorted(value) {
   const seen = new WeakSet();
   const sort = (v) => {
@@ -41,6 +44,7 @@ export function stringifySorted(value) {
   return JSON.stringify(sort(value), null, 2) + "\n";
 }
 
+/** Collect all file paths (no dirs) under `dir`, relative to `dir`, sorted. */
 export async function collectFiles(dir, prefix = "") {
   const entries = await readdir(dir, { withFileTypes: true });
   const result = [];
@@ -55,6 +59,7 @@ export async function collectFiles(dir, prefix = "") {
   return result.sort();
 }
 
+/** Parse YAML frontmatter from a SKILL.md file. */
 export function parseFrontmatter(content) {
   const match = content.match(/^---\n([\s\S]*?)\n---/);
   if (!match) return {};
@@ -66,6 +71,7 @@ export function parseFrontmatter(content) {
   return result;
 }
 
+/** Build a skill index entry from a staged skill directory. */
 export async function buildSkillEntry(skillDir, name) {
   const skillMd = await readFile(join(skillDir, "SKILL.md"), "utf-8");
   const fm = parseFrontmatter(skillMd);

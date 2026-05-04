@@ -3,7 +3,9 @@ import { existsSync } from "fs";
 import { join } from "path";
 import { collectFiles } from "./util.js";
 
+/** Stage directory trees per layout (full, APM, skills). */
 export class PackStager {
+  /** Stage the full pack layout into dir from pre-formatted content. */
   async stageFull(dir, content) {
     const claudeDir = join(dir, ".claude");
     const agentsDir = join(claudeDir, "agents");
@@ -58,6 +60,7 @@ export class PackStager {
     }
   }
 
+  /** Stage the APM bundle from a full staging dir. */
   async stageApm(fullDir, apmDir, packName, version) {
     const srcSkillsDir = join(fullDir, ".claude", "skills");
     const srcAgentsDir = join(fullDir, ".claude", "agents");
@@ -126,6 +129,7 @@ export class PackStager {
     );
   }
 
+  /** Return the skills subdirectory of a full staging dir. */
   skillsDir(fullDir) {
     return join(fullDir, ".claude", "skills");
   }

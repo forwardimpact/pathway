@@ -2,7 +2,13 @@
   "name": "@forwardimpact/libpack",
   "version": "0.1.0",
   "description": "Pack distribution — tarballs, bare git repos, and skill discovery indices",
-  "keywords": ["pack", "distribution", "git", "tarball", "agent"],
+  "keywords": [
+    "pack",
+    "distribution",
+    "git",
+    "tarball",
+    "agent"
+  ],
   "homepage": "https://www.forwardimpact.team",
   "repository": {
     "type": "git",
@@ -26,13 +32,15 @@
   "exports": {
     ".": "./src/index.js"
   },
-  "files": ["src/**/*.js"],
+  "files": [
+    "src/**/*.js"
+  ],
+  "scripts": {
+    "test": "bun test test/*.test.js"
+  },
   "engines": {
     "bun": ">=1.2.0",
     "node": ">=18.0.0"
-  },
-  "scripts": {
-    "test": "bun test test/*.test.js"
   },
   "publishConfig": {
     "access": "public"

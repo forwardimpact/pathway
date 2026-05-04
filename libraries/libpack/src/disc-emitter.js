@@ -4,7 +4,9 @@ import { buildSkillEntry, stringifySorted } from "./util.js";
 
 const SCHEMA = "https://schemas.agentskills.io/discovery/0.2.0/schema.json";
 
+/** Skill discovery index emitter (.well-known/skills/). */
 export class DiscEmitter {
+  /** Emit a per-pack skill discovery repository. */
   async emit(skillsSrcDir, outputPath) {
     const wellKnownDir = join(outputPath, ".well-known", "skills");
     await mkdir(wellKnownDir, { recursive: true });
@@ -32,6 +34,7 @@ export class DiscEmitter {
     return entries;
   }
 
+  /** Emit a deduplicated aggregate discovery index across all packs. */
   async emitAggregate(packsOutputDir, allPackEntries) {
     const wellKnownDir = join(packsOutputDir, ".well-known", "skills");
     await mkdir(wellKnownDir, { recursive: true });

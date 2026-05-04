@@ -1,15 +1,18 @@
 import { mkdir, rm } from "fs/promises";
 import { join } from "path";
 
+/** Orchestrate pack generation across stager and emitters. */
 export class PackBuilder {
   #stager;
   #emitters;
 
+  /** @param {{stager: PackStager, emitters: {tar: TarEmitter, git: GitEmitter, disc: DiscEmitter}}} deps */
   constructor({ stager, emitters }) {
     this.#stager = stager;
     this.#emitters = emitters;
   }
 
+  /** Build all packs from combinations into outputDir. */
   async build({ combinations, outputDir, version }) {
     const stagingDir = join(outputDir, "_packs");
     const packsDir = join(outputDir, "packs");
@@ -60,7 +63,10 @@ export class PackBuilder {
     await rm(stagingDir, { recursive: true, force: true });
 
     return {
-      packs: combinations.map((c) => ({ name: c.name, description: c.description })),
+      packs: combinations.map((c) => ({
+        name: c.name,
+        description: c.description,
+      })),
     };
   }
 }

@@ -24,7 +24,9 @@ function createRecordingDiscEmitter() {
     calls,
     emit: async (skillsSrcDir, outputPath) => {
       calls.push(["emit", skillsSrcDir, outputPath]);
-      return [{ name: "test-skill", description: "A test", files: ["SKILL.md"] }];
+      return [
+        { name: "test-skill", description: "A test", files: ["SKILL.md"] },
+      ];
     },
     emitAggregate: async (...args) => calls.push(["emitAggregate", ...args]),
   };
@@ -40,7 +42,10 @@ const COMBINATIONS = [
         {
           dirname: "kata-review",
           files: [
-            { path: "SKILL.md", content: "---\nname: kata-review\n---\n# Review\n" },
+            {
+              path: "SKILL.md",
+              content: "---\nname: kata-review\n---\n# Review\n",
+            },
           ],
         },
       ],
@@ -58,7 +63,10 @@ const COMBINATIONS = [
         {
           dirname: "kata-plan",
           files: [
-            { path: "SKILL.md", content: "---\nname: kata-plan\n---\n# Plan\n" },
+            {
+              path: "SKILL.md",
+              content: "---\nname: kata-plan\n---\n# Plan\n",
+            },
           ],
         },
       ],
