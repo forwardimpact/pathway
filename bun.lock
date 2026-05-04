@@ -163,6 +163,10 @@
         "@forwardimpact/libharness": "^0.1.14",
       },
     },
+    "libraries/libpack": {
+      "name": "@forwardimpact/libpack",
+      "version": "0.1.0",
+    },
     "libraries/libpolicy": {
       "name": "@forwardimpact/libpolicy",
       "version": "0.1.61",
@@ -437,7 +441,7 @@
     },
     "libraries/libwiki": {
       "name": "@forwardimpact/libwiki",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "bin": {
         "fit-wiki": "./bin/fit-wiki.js",
       },
@@ -565,7 +569,7 @@
     },
     "products/summit": {
       "name": "@forwardimpact/summit",
-      "version": "0.1.13",
+      "version": "0.1.14",
       "bin": {
         "fit-summit": "./bin/fit-summit.js",
       },
@@ -874,6 +878,8 @@
     "@forwardimpact/libmacos": ["@forwardimpact/libmacos@workspace:libraries/libmacos"],
 
     "@forwardimpact/libmcp": ["@forwardimpact/libmcp@workspace:libraries/libmcp"],
+
+    "@forwardimpact/libpack": ["@forwardimpact/libpack@workspace:libraries/libpack"],
 
     "@forwardimpact/libpolicy": ["@forwardimpact/libpolicy@workspace:libraries/libpolicy"],
 
