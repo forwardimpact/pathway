@@ -154,6 +154,21 @@ with `toc: false` in front matter.
 Auto-generated for pages two or more levels deep, using titles collected from
 all pages' front matter.
 
+## Content Partials
+
+Markers like `<!-- part:card:path -->` pull the target page's front matter
+`title` and `description` at build time, replacing the marker with HTML.
+
+| Type   | Output |
+| ------ | ------ |
+| `card` | `<a href="…"><h3>title</h3><p>description</p></a>` |
+| `link` | `<a href="…">title</a>` |
+
+`<path>` resolves relative to the current page's directory (`../sibling`
+works). The build fails if the target page does not exist or the type is
+unregistered. To add a type, add an entry to `defaultRegistry` in
+`libraries/libdoc/src/partials.js`.
+
 ## Pre-Build Hook
 
 When a `justfile` exists in the source directory with a `build` recipe,
