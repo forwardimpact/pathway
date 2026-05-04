@@ -3,10 +3,10 @@ title: "Getting Started: Landmark for Leadership"
 description: "Analyze engineering signals — marker evidence, snapshot trends, practice patterns, team health, and engineer voice."
 ---
 
-Landmark is the analysis layer for engineering-system signals. It reads Map's
-activity layer — organization roster, GitHub artifact evidence, GetDX snapshot
-outcomes, and engineer voice comments — to produce deterministic analysis views.
-All computation runs locally with no LLM calls.
+Landmark surfaces engineering-system signals from Map's activity layer —
+organization roster, GitHub artifact evidence assessed by Guide against your
+standard's markers, GetDX snapshot outcomes, and engineer voice comments — so
+you can see what the data says about how engineering is functioning.
 
 Landmark requires Map's activity layer (Supabase). If you haven't set it up, see
 [Getting Started: Map for Leadership](/docs/getting-started/leadership/map/)

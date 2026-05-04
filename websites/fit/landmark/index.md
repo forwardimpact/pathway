@@ -1,12 +1,12 @@
 ---
 title: Landmark
-description: Show engineering progress without making individuals feel surveilled — evidence, trends, and engineer voice, fully deterministic.
+description: Show engineering progress without making individuals feel surveilled — evidence, trends, and engineer voice grounded in your engineering standard.
 layout: product
 toc: false
 hero:
   image: /assets/scene-landmark.svg
   alt: An engineer, an AI robot, and a business professional stand on a rocky outcrop, scanning the horizon for signals
-  subtitle: Check the cairn. Landmark shows what the signals say about how engineering is functioning — marker evidence, practice patterns, and snapshot trends grounded in your engineering standard. Fully deterministic, no LLM calls.
+  subtitle: Check the cairn. Landmark shows what the signals say about how engineering is functioning — marker evidence, practice patterns, and snapshot trends assessed by Guide against your engineering standard.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/landmark
@@ -18,8 +18,9 @@ hero:
 The quarterly review is due and the only data available is ticket counts —
 which single out individuals rather than illuminate the system. Career
 conversations feel subjective with no shared evidence base. Landmark resolves
-both by combining objective marker evidence with developer-experience outcomes,
-presented without blaming individuals.
+both by surfacing marker evidence — assessed by Guide against your engineering
+standard — alongside developer-experience outcomes, presented without blaming
+individuals.
 
 ## What becomes possible
 
@@ -123,15 +124,15 @@ All commands support `--format text|json|markdown`.
 Landmark reads from Map's activity layer:
 
 1. `organization_people` for hierarchy and team slicing
-2. `github_artifacts` + `evidence` for objective marker analysis
+2. `github_artifacts` + `evidence` for marker analysis — Guide assesses artifacts against your standard's markers and writes results to Map
 3. `getdx_snapshots` + `getdx_snapshot_team_scores` for quarterly outcomes
 4. `getdx_snapshot_comments` for engineer voice
 5. `getdx_initiatives` for initiative tracking
 
 ```
-GetDX + GitHub → Map (ingest + store) → Landmark (analyze + present)
-                                           ↑
-                                       Summit (growth recommendations)
+GitHub + GetDX → Map (ingest + store) → Landmark (present)
+                       ↑                       ↑
+              Guide (marker analysis)    Summit (recommendations)
 ```
 
 Health works without Summit — it shows driver scores, evidence, and comments.
