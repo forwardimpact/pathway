@@ -1,8 +1,9 @@
 # Products
 
-Conventions when working under `products/`. Products are the six end-user
-applications (Map, Pathway, Guide, Landmark, Summit, Outpost) consumed via
-`npm install` and `npx fit-<product>`.
+Conventions when working under `products/`. Products are the seven end-user
+applications (Map, Pathway, Guide, Landmark, Summit, Outpost, Gear) consumed
+via `npm install` and `npx fit-<product>`. Gear is a meta-package that
+re-exports all service and library CLIs as dependencies.
 
 ## Audience
 
