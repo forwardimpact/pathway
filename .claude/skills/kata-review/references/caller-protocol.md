@@ -80,22 +80,13 @@ hash in place of `file:line` for diffs).
    user intent for specs). Exception: consensus "scope-creep in the diff"
    findings stand.
 
-## Why this is safe
-
-`kata-review` never spawns sub-agents — that is the structural property that
-prevents the spec / plan / implement review loop from recursing. Panel size does
-not change this invariant; each reviewer is still a leaf. See
-[KATA.md § Authoring](../../../../KATA.md#authoring).
-
 ## How to handle findings
 
 - **Verify** every unique finding against the actual artifact before acting on
   it. The caller is accountable, not the panel.
-- **Proceed without pausing.** After verification, address every confirmed
-  consensus **blocker**, **high**, and **medium** finding in the same turn — do
-  not stop to ask the user for permission to fix them. Acting on the panel's
-  verdict is part of this Process step, not a separate approval gate. Fix the
-  artifact, re-run the panel if the fix is substantial, then advance.
+- **Proceed without pausing.** Address every confirmed consensus
+  **blocker**/**high**/**medium** finding in the same turn — do not stop for
+  user permission. Re-run the panel if the fix is substantial, then advance.
 - **Low** findings are optional. Document if dismissed.
 - **False positives.** If you verify a finding and judge it a false positive,
   record a one-line rationale in the commit message or artifact and continue.
