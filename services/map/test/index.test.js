@@ -123,7 +123,12 @@ describe("SourceTypeRegistry default", () => {
 
   it("supports registering a new source type without touching existing ones", () => {
     const registry = defaultRegistry();
-    registry.register("copilot_session", () => ({ source: "copilot" }));
+    registry.register("copilot_session", {
+      tableName: "copilot_artifacts",
+      idColumn: "artifact_id",
+      emailColumn: "email",
+      detail: () => ({ source: "copilot" }),
+    });
     assert.equal(registry.has("copilot_session"), true);
     assert.equal(registry.has("pull_request"), true);
   });

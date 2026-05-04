@@ -162,8 +162,6 @@ The output is organized by driver. For each driver you will see:
   contributing skills, surfaced from the latest snapshot.
 - **Growth recommendations** -- if Summit is installed, specific individuals who
   could develop a contributing skill, with their current level noted.
-- **Active initiatives** -- any organizational initiatives linked to this driver,
-  with completion percentage.
 
 ### Understanding what the health view shows
 
@@ -269,48 +267,6 @@ implies the skill) but no marker evidence. This can mean the evidence pipeline
 has a gap, or it can highlight a coaching opportunity. Either way, it is
 information worth surfacing in a quarterly review -- it shows where the
 organization's definitions and actual practice diverge.
-
-## Connect initiatives to outcomes
-
-If your organization tracks initiatives in GetDX, Landmark can show whether
-completed initiatives moved the needle on their target drivers.
-
-List active initiatives:
-
-```sh
-npx fit-landmark initiative list --manager alice@example.com
-```
-
-```text
-  Initiatives: Alice Smith's team
-
-    Code Review Standards    quality        65% complete
-    Runbook Coverage         reliability    30% complete
-```
-
-See whether completed initiatives correlated with driver score changes:
-
-```sh
-npx fit-landmark initiative impact --manager alice@example.com
-```
-
-```text
-  Initiative impact: Alice Smith's team
-
-    Code Review Standards (quality)
-      Before: 72 (2025-03-15)
-      After:  78 (2025-06-14)
-      Delta:  +6
-
-    Runbook Coverage (reliability)
-      Before: 65 (2025-06-14)
-      After:  — (in progress)
-```
-
-Initiative impact shows before-and-after scores for each initiative's target
-driver. This is
-particularly useful for quarterly reviews because it answers the question
-"did the investment work?" with data rather than narrative.
 
 ## Verify
 

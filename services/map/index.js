@@ -10,45 +10,77 @@ const { MapBase } = services;
  * MCP tools, and evaluation skill remain unchanged.
  */
 class SourceTypeRegistry {
-  #handlers = new Map();
+  #sources = new Map();
 
-  /** Register a detail handler for an artifact_type. */
-  register(artifactType, handler) {
-    this.#handlers.set(artifactType, handler);
+  /**
+   * Register a source bundle for an artifact_type. The same bundle may be
+   * registered for several types (e.g. github covers pull_request, review,
+   * commit) — uniqueSources() yields each bundle once.
+   *
+   * @param {string} artifactType
+   * @param {ArtifactSource} source
+   */
+  register(artifactType, source) {
+    this.#sources.set(artifactType, source);
   }
 
-  /** Whether a handler is registered for the given artifact_type. */
+  /** Whether a source is registered for the given artifact_type. */
   has(artifactType) {
-    return this.#handlers.has(artifactType);
+    return this.#sources.has(artifactType);
   }
 
-  /** Resolve the handler for an artifact_type or throw if unknown. */
+  /** Resolve the source bundle for an artifact_type or throw if unknown. */
   get(artifactType) {
-    const h = this.#handlers.get(artifactType);
-    if (!h) throw new Error(`Unknown artifact type: ${artifactType}`);
-    return h;
+    const s = this.#sources.get(artifactType);
+    if (!s) throw new Error(`Unknown artifact type: ${artifactType}`);
+    return s;
   }
 
   /** List the artifact_types currently registered. */
   types() {
-    return [...this.#handlers.keys()];
+    return [...this.#sources.keys()];
+  }
+
+  /**
+   * Yield each unique source bundle exactly once. Used by the artifact
+   * lookup path so a single physical source registered for several
+   * artifact_types is queried once, not three times.
+   */
+  uniqueSources() {
+    return new Set(this.#sources.values());
   }
 }
 
 /**
- * GitHub source-type detail handler. Projects the github_artifacts row
- * into the structure Guide's evaluation skill consumes.
+ * Per-source bundle. Each source declares its activity table and id/email
+ * column names plus a `detail(row)` projector. Adding Copilot or Claude
+ * Code activity adds a new bundle to the registry; svcmap's three
+ * artifact-touching methods route through the registry rather than
+ * mentioning any one source explicitly.
+ *
+ * @typedef {object} ArtifactSource
+ * @property {string} tableName            - Activity table for this source.
+ * @property {string} idColumn             - Primary-key column on that table.
+ * @property {string} emailColumn          - Author-email column on that table.
+ * @property {(row: object) => object} detail - Project the row to the gRPC payload.
  */
-function githubDetailHandler(artifact) {
-  return {
-    artifact_id: artifact.artifact_id,
-    artifact_type: artifact.artifact_type,
-    email: artifact.email,
-    repository: artifact.repository,
-    occurred_at: artifact.occurred_at,
-    metadata: artifact.metadata,
-  };
-}
+
+/** GitHub source bundle — the only source registered today. */
+const githubSource = {
+  tableName: "github_artifacts",
+  idColumn: "artifact_id",
+  emailColumn: "email",
+  detail(artifact) {
+    return {
+      artifact_id: artifact.artifact_id,
+      artifact_type: artifact.artifact_type,
+      email: artifact.email,
+      repository: artifact.repository,
+      occurred_at: artifact.occurred_at,
+      metadata: artifact.metadata,
+    };
+  },
+};
 
 /**
  * Spec 800: Activity reads and writes for Guide's evaluation pipeline.
@@ -103,14 +135,8 @@ export class MapService extends MapBase {
   async GetArtifact(req) {
     const id = req?.artifact_id ?? req?.artifactId;
     if (!id) throw new Error("artifact_id is required");
-    const { data, error } = await this.#supabase
-      .from("github_artifacts")
-      .select("*")
-      .eq("artifact_id", id)
-      .single();
-    if (error) throw new Error(`GetArtifact: ${error.message}`);
-    const handler = this.#registry.get(data.artifact_type);
-    return { content: JSON.stringify(handler(data)) };
+    const { source, row } = await this.#findArtifact(id);
+    return { content: JSON.stringify(source.detail(row)) };
   }
 
   /** @param {import("@forwardimpact/libtype").map.WriteEvidenceRequest} req */
@@ -155,13 +181,27 @@ export class MapService extends MapBase {
   }
 
   async #getArtifactEmail(artifactId) {
-    const { data, error } = await this.#supabase
-      .from("github_artifacts")
-      .select("email")
-      .eq("artifact_id", artifactId)
-      .single();
-    if (error || !data) throw new Error(`Artifact not found: ${artifactId}`);
-    return data.email;
+    const { source, row } = await this.#findArtifact(artifactId);
+    return row[source.emailColumn];
+  }
+
+  /**
+   * Walk the source-type registry to locate the artifact. Each registered
+   * source declares its table; the first match wins. With one source today
+   * this is a single query; adding a second source means the lookup tries
+   * both tables — the trade-off the design accepts to keep the write path
+   * source-agnostic.
+   */
+  async #findArtifact(artifactId) {
+    for (const source of this.#registry.uniqueSources()) {
+      const { data } = await this.#supabase
+        .from(source.tableName)
+        .select("*")
+        .eq(source.idColumn, artifactId)
+        .single();
+      if (data) return { source, row: data };
+    }
+    throw new Error(`Artifact not found: ${artifactId}`);
   }
 
   async #getValidMarkerKeys(email) {
@@ -238,9 +278,9 @@ function groupBy(items, keyFn) {
  */
 export function defaultRegistry() {
   const registry = new SourceTypeRegistry();
-  registry.register("pull_request", githubDetailHandler);
-  registry.register("review", githubDetailHandler);
-  registry.register("commit", githubDetailHandler);
+  registry.register("pull_request", githubSource);
+  registry.register("review", githubSource);
+  registry.register("commit", githubSource);
   return registry;
 }
 

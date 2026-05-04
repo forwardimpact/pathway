@@ -90,12 +90,10 @@ export async function extractGetDX(supabase, config) {
     await extractSnapshotDetails(ctx, snapshotsResponse.snapshots || []);
   }
 
-  await fetchAndStore(
-    ctx,
-    "/initiatives.list",
-    `getdx/initiatives-list/${timestamp}.json`,
-    "initiatives.list",
-  );
+  // Spec 800 removed the GetDX initiative feature (scorecard IDs and
+  // snapshot factor IDs are different namespaces). The corresponding
+  // /initiatives.list extract is gone — re-modelling initiative impact
+  // belongs in a future spec.
 
   return { files: ctx.files, errors: ctx.errors };
 }

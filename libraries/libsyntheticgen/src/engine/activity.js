@@ -66,7 +66,7 @@ export function generateActivity(ast, rng, people, teams) {
     team_id: p.team_id,
   }));
 
-  const activityTeams = buildActivityTeams(ast, teams);
+  const activityTeams = buildActivityTeams(ast, teams, people);
   const snapshots = generateSnapshots(ast);
   const scores = generateScores(ast, rng, snapshots, activityTeams);
   const webhooks = generateWebhooks(ast, rng, people, teams);
@@ -110,7 +110,11 @@ function buildOrgEntries(orgs) {
     is_parent: true,
     parent_id: null,
     manager_id: null,
-    contributors: 0,
+    // Spec 800: contributors must serialise as the GetDX teams.info shape —
+    // an array of {id, name, email} objects — so transformTeams can write
+    // organization_people.getdx_team_id back to each member. Parent-team
+    // entries (org / dept) carry no direct contributors of their own.
+    contributors: [],
     reference_id: null,
     ancestors: [],
     last_changed_at: new Date("2025-01-01").toISOString(),
@@ -126,7 +130,7 @@ function buildDeptEntries(departments, orgMap) {
       is_parent: true,
       parent_id: parentOrg ? `gdx_org_${parentOrg.id}` : null,
       manager_id: null,
-      contributors: dept.headcount,
+      contributors: [],
       reference_id: null,
       ancestors: parentOrg ? [`gdx_org_${parentOrg.id}`] : [],
       last_changed_at: new Date("2025-01-01").toISOString(),
@@ -134,7 +138,7 @@ function buildDeptEntries(departments, orgMap) {
   });
 }
 
-function buildLeafTeamEntries(teams, deptMap, orgMap) {
+function buildLeafTeamEntries(teams, deptMap, orgMap, peopleByTeamId) {
   return teams.map((team) => {
     const dept = deptMap.get(team.department);
     const parentDeptId = dept ? `gdx_dept_${dept.id}` : null;
@@ -143,13 +147,24 @@ function buildLeafTeamEntries(teams, deptMap, orgMap) {
     if (parentOrg) ancestors.push(`gdx_org_${parentOrg.id}`);
     if (parentDeptId) ancestors.push(parentDeptId);
 
+    // Spec 800: emit the teams.info contributors shape. transformTeams reads
+    // contributor.email to populate organization_people.getdx_team_id; the
+    // id and name fields mirror the real GetDX payload so future readers can
+    // depend on the same shape.
+    const members = peopleByTeamId.get(team.getdx_team_id) ?? [];
+    const contributors = members.map((p) => ({
+      id: `gdx_user_${p.email}`,
+      name: p.name,
+      email: p.email,
+    }));
+
     return {
       getdx_team_id: team.getdx_team_id,
       name: team.name,
       is_parent: false,
       parent_id: parentDeptId,
       manager_id: team.manager ? `gdx_mgr_${team.manager}` : null,
-      contributors: team.size,
+      contributors,
       reference_id: null,
       ancestors,
       last_changed_at: new Date("2025-01-01").toISOString(),
@@ -157,14 +172,25 @@ function buildLeafTeamEntries(teams, deptMap, orgMap) {
   });
 }
 
-function buildActivityTeams(ast, teams) {
+function buildActivityTeams(ast, teams, people) {
   const orgMap = new Map(ast.orgs.map((o) => [o.id, o]));
   const deptMap = new Map(ast.departments.map((d) => [d.id, d]));
+  // Spec 800: leaf-team contributor lists derive from the roster's
+  // person.team_id assignments so a manager's team in
+  // organization_people maps to a populated contributors array.
+  const peopleByTeamId = new Map();
+  for (const person of people) {
+    if (!person?.team_id) continue;
+    if (!peopleByTeamId.has(person.team_id)) {
+      peopleByTeamId.set(person.team_id, []);
+    }
+    peopleByTeamId.get(person.team_id).push(person);
+  }
 
   return [
     ...buildOrgEntries(ast.orgs),
     ...buildDeptEntries(ast.departments, orgMap),
-    ...buildLeafTeamEntries(teams, deptMap, orgMap),
+    ...buildLeafTeamEntries(teams, deptMap, orgMap, peopleByTeamId),
   ];
 }
 
@@ -248,9 +274,11 @@ function generateScores(ast, rng, snapshots, activityTeams) {
           item_id: driverId,
           item_type: "driver",
           item_name: DRIVER_NAMES[driverId] || driverId,
-          response_count: rng.randomInt(5, team.contributors || 10),
+          // Spec 800: contributors is an array of {email} objects (the GetDX
+          // teams.info shape); use its length for the count fields.
+          response_count: rng.randomInt(5, team.contributors?.length || 10),
           score,
-          contributor_count: team.contributors || 0,
+          contributor_count: team.contributors?.length || 0,
           vs_prev: round1(rng.gaussian(0, 3)),
           vs_org: round1(rng.gaussian(0, 5)),
           vs_50th: round1(rng.gaussian(2, 5)),

@@ -79,7 +79,10 @@ function renderGetDXPayloads(entities, files) {
       parent_id: t.parent_id || null,
       parent: t.is_parent || false,
       manager_id: t.manager_id || null,
-      contributors: t.contributors || 0,
+      // Spec 800: GetDX teams.info contributors shape — an array of
+      // {id, name, email} objects. transformTeams reads contributor.email
+      // to populate organization_people.getdx_team_id.
+      contributors: t.contributors ?? [],
       last_changed_at: t.last_changed_at || null,
       reference_id: t.reference_id || null,
       ancestors: t.ancestors || [],

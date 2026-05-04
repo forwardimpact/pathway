@@ -7,6 +7,14 @@ You need to determine whether specific organizational investments -- a
 mentorship program, a tooling rollout, a process change -- moved the numbers
 before the next budget review asks for evidence.
 
+> **Note (spec 800):** the `fit-landmark initiative` commands referenced
+> below have been removed. GetDX initiatives reference software-catalog
+> scorecards, not snapshot factor scores, so the join in `initiative
+> impact` always produced null deltas. A correct model for initiative
+> impact is deferred to a future spec; in the meantime, use snapshot
+> trends and the health view to assess whether investments are moving
+> driver scores.
+
 ## Prerequisites
 
 Complete
