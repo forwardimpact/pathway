@@ -2,17 +2,19 @@
 
 ## Problem
 
-Landmark's evidence-based views (`readiness`, `evidence`, `timeline`, `coverage`,
-`practiced`, `health`, `voice --manager`) either return empty states or produce
-unscoped results against every known dataset — synthetic and real alike. There
-are two independent root causes:
+Landmark's evidence-based and manager-scoped views (`readiness`, `evidence`,
+`health --manager`, `voice --manager`, `snapshot trend --manager`) either return
+empty states or produce unscoped results against every known dataset — synthetic
+and real alike. There are two independent root causes:
 
-**1. Synthetic data gaps make Landmark untestable.**
+**1. Synthetic data gaps and a flawed manager-scoping design make Landmark
+untestable and its manager-scoped features non-functional.**
 A Landmark deep-test against BioNova synthetic data (211 engineers, 7 GetDX
-snapshots, 12 820 GitHub events, 312 evidence records) revealed four gaps where
-the generated data does not match what Landmark and Map's transform pipeline
-expect. In the current state 7 of 16 tested Landmark commands return wrong or
-empty output regardless of how much activity data is present.
+snapshots, 12 820 GitHub events, 312 evidence records) revealed two gaps where
+generated data and existing query logic do not match what Landmark needs. Web API
+research against the real GetDX API confirmed that one of the gaps is not a
+data-generation problem but a design error: the manager-scoping approach
+references fields and join paths that do not exist in the GetDX API.
 
 **2. The Guide evaluation pipeline described in
 [spec 080](../080-landmark-product/spec.md) was never built.**
@@ -28,6 +30,14 @@ the test harness for the Guide pipeline: until synthetic data correctly exercise
 all Landmark commands, there is no reliable way to verify that Guide-written
 evidence produces correct output in those commands.
 
+This spec also removes the initiative and scorecard feature from Landmark. Web
+API research shows that GetDX initiatives reference software catalog scorecards
+(SQL-checked quality levels for catalog entities — Bronze/Silver/Gold), not
+snapshot factors. The `initiative impact` view assumes `scorecard_id` can be
+joined to snapshot factor scores; this join has no basis in the GetDX data model
+and always produces null deltas. The feature requires a new design before it can
+be useful; that belongs in a separate spec.
+
 ---
 
 ## Personas and Jobs
@@ -39,29 +49,48 @@ evidence produces correct output in those commands.
 
 ---
 
-## Part 1 — Synthetic Data Gaps
+## Part 1 — Data and Design Gaps
 
-Four gaps prevent Landmark from being tested end-to-end with synthetic data. All
-four must be fixed before the Guide pipeline ships, so they can serve as the
-integration test baseline.
+### Gap 1 — Manager-scoped views use a join path that does not exist
 
-### Gap 1 — `getdx_teams.manager_email` absent from generated team records
+`voice --manager`, `health --manager`, and `snapshot trend --manager` all scope
+their results by looking up a manager's team in `getdx_teams` via
+`manager_email`, then filtering scores or comments by `team_id`. Both halves of
+this join path are absent from the real GetDX API:
 
-`voice --manager`, `health --manager`, and `snapshot trend --manager` each filter
-GetDX team scores and comments via a lookup on `manager_email` in the
-`getdx_teams` table. The synthetic render layer generates team records with a
-manager identifier but without a `manager_email` field. Because the lookup finds
-zero teams, those commands silently return all-org data or empty results
-regardless of how much activity data is present.
+- **`getdx_teams` has no `manager_email`.** The real `teams.list` endpoint
+  returns only an opaque `manager_id` (a user identifier), not an email address.
+  There is no endpoint that returns email-keyed team membership.
 
-The roster entities are available to the render layer at generation time. The fix
-requires the team record renderer to cross-reference the roster and populate
-`manager_email` on each generated team.
+- **GetDX snapshot comments have no `team_id`.** The real
+  `snapshots.driverComments.list` endpoint returns comments with only
+  `email + snapshot_id + driver_name + text`. Comments are associated with a
+  person and a snapshot, not with a team.
 
-**Success criterion:** `fit-landmark voice --manager athena@bionova.example`
-returns comments from Platform Engineering only (not all-org comments), verified
-by checking that every returned comment belongs to a person whose manager is
-Athena in the BioNova roster.
+The correct source of truth for who reports to whom is `organization_people`,
+which is populated from the roster and carries `manager_email` for each person.
+Manager-scoped views must derive their scope from the roster, not from GetDX
+team metadata:
+
+- **`voice --manager`**: filter `getdx_snapshot_comments` by
+  `email IN (direct reports of manager from organization_people)`.
+- **`health --manager` and `snapshot trend --manager`**: resolve the manager's
+  direct reports from `organization_people`, then identify which GetDX team IDs
+  those people belong to in order to filter snapshot scores. The specific mapping
+  mechanism is a design decision.
+
+The synthetic data must be updated to reflect this corrected model: the terrain
+currently generates GetDX team records with `manager_id` and no `manager_email`,
+which matches the real API. The fix is not to add `manager_email` to generated
+team records (the real API doesn't have it) but to ensure the synthetic
+`organization_people` rows carry accurate `manager_email` values that the
+corrected query logic can use.
+
+**Success criteria:**
+- `fit-landmark voice --manager athena@bionova.example` returns only comments
+  from engineers whose `manager_email` is Athena in `organization_people`.
+- `fit-landmark health --manager athena@bionova.example` returns driver rows
+  scoped to Athena's direct reports, not all-org data.
 
 ### Gap 2 — No `markers:` blocks in generated pathway capability YAML
 
@@ -77,40 +106,27 @@ representative markers for the skills it generates evidence for so those command
 have criteria to evaluate against. The markers do not need to be exhaustive —
 they need to be sufficient to exercise the Landmark commands.
 
-**Success criterion:** `fit-landmark marker data_integration` lists at least one
-marker. `fit-landmark readiness --email actaeon@bionova.example` (J060, a level
-below the highest defined) produces a non-empty checklist.
+**Success criteria:**
+- `fit-landmark marker data_integration` lists at least one marker.
+- `fit-landmark readiness --email actaeon@bionova.example` (J060, a level below
+  the highest defined) produces a non-empty checklist.
 
-### Gap 3 — Initiatives written to wrong storage path
+### Initiative and scorecard feature removal
 
-`fit-landmark initiative list|show|impact` return zero initiatives because none
-are seeded. The Map transform pipeline reads initiatives from a directory of
-named files (matching the pattern used for snapshots:
-`getdx/snapshots-list/latest.json`). The synthetic renderer writes initiatives to
-a flat file at a different path. The transform's directory scan finds nothing, so
-zero initiative rows are inserted.
+The `initiative list`, `initiative show`, and `initiative impact` commands must
+be removed from Landmark. GetDX initiatives reference software catalog
+scorecards — a distinct GetDX product area where SQL checks evaluate whether
+catalog entities (services, repositories) meet quality levels (Bronze/Silver/Gold).
+This is unrelated to snapshot factor scores. The `initiative impact` view joins
+`initiative.scorecard_id` against snapshot score `item_id`s; these are different
+ID spaces that will never match, so the computed delta is always null.
 
-The initiatives renderer needs to write to the path the transform expects,
-matching the same structure already used for snapshots.
+The correct model for initiative impact — if the feature is to be built — is a
+new design decision. It is excluded from this spec.
 
-**Success criterion:** `fit-landmark initiative list` lists the BioNova
-initiatives after `fit-map activity seed` without any manual intervention.
-
-### Gap 4 — Initiative empty state message is misleading
-
-When `activity.getdx_initiatives` exists but is empty, Landmark reports "The
-getdx_initiatives table has not been created." This is wrong — the table exists
-— and misleads operators running diagnostics. The same empty-state constant is
-used for both the Postgres relation-not-found error and the table-exists-but-empty
-case.
-
-The two conditions need separate messages. The relation-not-found message is
-unchanged. The empty-table message should describe the actionable next step.
-
-**Success criterion:** When the initiatives table exists but contains no rows,
-`fit-landmark initiative list` reports a message that does not claim the table is
-missing and names how to populate it (e.g. "No initiatives found. Create an
-initiative in GetDX and run `fit-map getdx sync` to ingest it.").
+**Success criterion:** `fit-landmark initiative` returns a "not available"
+message or is removed from the CLI entirely. No initiative-related commands
+produce output based on the broken join.
 
 ---
 
@@ -238,6 +254,7 @@ checklists, which only count `matched: true` rows against marker criteria.
 |---|---|
 | Additional source adapters (Copilot, Claude Code) | Future specs; interface defined here |
 | GetDX survey evaluation | Unauditable — cannot be traced to a verifiable artifact |
+| GetDX initiative and scorecard features | Requires new design; scorecard IDs and snapshot factor IDs are different namespaces |
 | Changes to Landmark presentation layer | Already ships per spec 080 |
 | Changes to `activity.evidence` schema columns | Schema is correct; nullability constraint is a design decision |
 | Marker authoring tooling | Installations author markers manually; workflow unchanged |
@@ -248,16 +265,15 @@ checklists, which only count `matched: true` rows against marker criteria.
 
 | # | Criterion | How to verify |
 |---|---|---|
-| 1 | `voice --manager` scoped to team | `fit-landmark voice --manager athena@bionova.example` returns only comments from engineers whose manager is Athena in the BioNova roster |
+| 1 | `voice --manager` scoped to team | `fit-landmark voice --manager athena@bionova.example` returns only comments from engineers whose `manager_email` is Athena in `organization_people` |
 | 2 | `health --manager` scoped to team | `fit-landmark health --manager athena@bionova.example` returns driver rows for Athena's direct reports, not all-org data |
 | 3 | `readiness` produces checklists | `fit-landmark readiness --email actaeon@bionova.example` (J060 engineer) returns a non-empty marker checklist |
 | 4 | `marker <skill>` lists markers | `fit-landmark marker data_integration` lists at least one marker |
-| 5 | Initiatives seeded and listed | `fit-landmark initiative list` lists BioNova initiatives after `fit-map activity seed` |
-| 6 | Correct empty state for empty initiatives | With initiatives table present but empty, `fit-landmark initiative list` reports an actionable message that does not claim the table is missing |
-| 7 | Guide writes evidence with rationale | After running `fit-guide evaluate --email actaeon@bionova.example`, `activity.evidence` contains rows for Actaeon with non-null `rationale` |
-| 8 | Evidence is standard-grounded | Every `skill_id` + `marker_text` pair in evidence rows written by Guide matches an entry returned by the engineering standard interface for Actaeon's profile `(software_engineering, J060)` |
-| 9 | Evaluation is idempotent | Running `fit-guide evaluate --email actaeon@bionova.example` twice produces the same evidence row count both times |
-| 10 | Evaluation coverage increases Landmark output | After criterion 7 completes, `fit-landmark coverage --email actaeon@bionova.example` reports a higher interpreted-artifact percentage than the baseline 1.5% observed with synthetic-only evidence |
+| 5 | Initiative commands removed or gated | `fit-landmark initiative list` does not produce output derived from the broken scorecard join |
+| 6 | Guide writes evidence with rationale | After running `fit-guide evaluate --email actaeon@bionova.example`, `activity.evidence` contains rows for Actaeon with non-null `rationale` |
+| 7 | Evidence is standard-grounded | Every `skill_id` + `marker_text` pair in evidence rows written by Guide matches an entry returned by the engineering standard interface for Actaeon's profile `(software_engineering, J060)` |
+| 8 | Evaluation is idempotent | Running `fit-guide evaluate --email actaeon@bionova.example` twice produces the same evidence row count both times |
+| 9 | Evaluation coverage increases Landmark output | After criterion 6 completes, `fit-landmark coverage --email actaeon@bionova.example` reports a higher interpreted-artifact percentage than the baseline 1.5% observed with synthetic-only evidence |
 
 ---
 
@@ -267,13 +283,14 @@ checklists, which only count `matched: true` rows against marker criteria.
 
 | Package | What changes |
 |---|---|
-| `libraries/libsyntheticrender` | Team record renderer (Gap 1); pathway capability renderer (Gap 2); initiatives path renderer (Gap 3) |
-| `products/landmark` | Initiative empty-state messaging (Gap 4) |
-| `products/map/src/activity/queries` | Extend unscored-artifact query to support team and org scope |
+| `libraries/libsyntheticrender` | Pathway capability renderer (Gap 2 — add markers blocks) |
+| `products/landmark` | Remove `initiative` command group; fix manager-scoped queries in `voice`, `health`, `snapshot` to scope via `organization_people` instead of `getdx_teams` |
+| `products/map/src/activity/queries` | Fix comment and score queries to scope by roster manager_email; extend unscored-artifact query to support team and org scope |
 | `products/map/supabase/functions` | Schedulable evaluation trigger |
 | `products/guide` | Batch evaluation command; source adapter interface; GitHub artifact adapter; Pathway standard grounding |
 | `services/pathway` (or the MCP layer above it) | New method returning markers for a given `(discipline, level, track)` profile |
-| Synthetic data (BioNova story) | Verify all Landmark commands produce non-empty, correctly scoped output after fixes |
+| Synthetic data (BioNova story) | Verify all remaining Landmark commands produce non-empty, correctly scoped output after fixes |
 
-**Out of scope:** Additional source adapters; GetDX survey evaluation; Landmark
-presentation layer changes; `activity.evidence` column additions.
+**Out of scope:** Additional source adapters; GetDX survey evaluation; GetDX
+initiative and scorecard features; Landmark presentation layer changes;
+`activity.evidence` column additions.
