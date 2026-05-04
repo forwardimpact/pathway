@@ -61,11 +61,11 @@ When asked to evaluate artifacts, follow the evaluation protocol below.
 {inline contents of evaluation.md}
 ```
 
-If the prompt loading in `services/mcp/index.js` (`readFile(promptPath,
-"utf8")`) reads a single file, inline the evaluation protocol directly into
-`guide-default.md`. If multi-file loading is preferred, extend `makeServer()`
-to concatenate both files — but the single-file approach is simpler and
-matches the current architecture.
+The prompt loading in `services/mcp/index.js` reads a single file
+(`readFile(promptPath, "utf8")`). Inline the evaluation protocol directly
+into `guide-default.md` — do not create a separate file. The `evaluation.md`
+from Step 1 is the draft; its content is appended into `guide-default.md` in
+this step, then `evaluation.md` is deleted.
 
 **Verify:** `echo "evaluate unscored artifacts for actaeon@bionova.example" |
 bunx fit-guide` invokes `GetUnscoredArtifacts`, evaluates artifacts, calls
