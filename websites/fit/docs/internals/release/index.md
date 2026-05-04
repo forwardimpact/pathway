@@ -200,7 +200,12 @@ the legacy name sees the deprecation date, the rename rationale, and a
 description naming `fit-outpost` as the replacement. The `desc` field also
 references the storage-path manual-migration command from the Outpost rename's
 release notes (#625 phase 8d) so legacy users moving their Outpost knowledge
-base across the rename find the command alongside the deprecation notice.
+base across the rename find the command alongside the deprecation notice:
+
+```sh
+cp -R ~/.fit/basecamp/. ~/.fit/outpost/
+cp -R ~/.cache/fit/basecamp/. ~/.cache/fit/outpost/
+```
 
 Future deprecations follow the same shape: a standalone `<old>.rb` cask with
 `deprecate! date:`, no behavioural stanzas, a `desc` that names the
