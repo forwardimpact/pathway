@@ -69,5 +69,21 @@ one presenter so capabilities work everywhere without separate integrations.
 
 </div>
 
+## Keep Services Running and Visible
+
+<div class="grid">
+
+<a href="/docs/libraries/service-lifecycle/">
+
+### Service Lifecycle
+
+Set up supervision and observability so services stay running and problems
+surface before they escalate -- using `fit-rc`, `libsupervise`, and
+`libtelemetry`.
+
+</a>
+
+</div>
+
 Looking for product workflows like authoring standards, agent teams, or landmark
 quickstart? See [Product Guides](/docs/products/).

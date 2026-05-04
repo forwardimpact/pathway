@@ -1,0 +1,338 @@
+---
+title: Service Lifecycle
+description: Set up supervision and observability so services stay running and problems surface before they escalate -- using fit-rc, libsupervise, and libtelemetry.
+---
+
+You are running multiple services -- a gRPC server, a vector store, a trace
+collector -- and managing them means remembering which command starts each one,
+watching for crashes by hand, and wading through unstructured console output when
+something goes wrong. Three libraries eliminate that overhead:
+`@forwardimpact/librc` gives you a single CLI for starting, stopping, and
+checking every service. `@forwardimpact/libsupervise` runs a supervision daemon
+that automatically restarts services when they crash.
+`@forwardimpact/libtelemetry` adds structured logging and trace spans so
+problems surface in context, not buried in stdout.
+
+This guide walks the full arc: define services in a configuration file, manage
+them through one interface, and observe their behavior through structured logs
+and spans. Each step produces a working result. Two bounded tasks cover the
+details:
+
+- [Start, stop, or check a service](/docs/libraries/service-lifecycle/manage-service/)
+  -- manage a service without remembering its specific incantation.
+- [Add observability](/docs/libraries/service-lifecycle/add-observability/)
+  -- add a log line or trace span without configuring a logging framework.
+
+## Prerequisites
+
+- Node.js 18+
+- Install the three libraries:
+
+```sh
+npm install @forwardimpact/librc @forwardimpact/libsupervise @forwardimpact/libtelemetry
+```
+
+Or invoke `fit-rc` ephemerally with `npx`:
+
+```sh
+npx fit-rc --help
+```
+
+## How the libraries fit together
+
+Each library owns one concern. Together they form a supervision and
+observability stack:
+
+```text
+config/config.json          (service definitions)
+        |
+        v
+    librc / fit-rc           (lifecycle commands: start, stop, status)
+        |
+        v
+    libsupervise / svscan    (supervision daemon: restart on crash)
+        |
+        v
+    libtelemetry             (structured logs and trace spans)
+```
+
+`fit-rc` reads the service configuration and sends commands to the `svscan`
+supervision daemon (from `libsupervise`). The daemon manages each process,
+restarts it on failure with exponential backoff, and pipes its output through a
+log writer that handles rotation. `libtelemetry` provides the structured logging
+that both the daemon and your services use to produce machine-readable output.
+
+## Define services
+
+Services are defined in `config/config.json` under the `init` key. Each service
+is either a **longrun** (a process that should stay running) or a **oneshot** (a
+command that runs once during startup or shutdown):
+
+```json
+{
+  "init": {
+    "log_dir": "data/logs",
+    "services": [
+      {
+        "name": "codegen",
+        "type": "oneshot",
+        "up": "npx fit-codegen --all",
+        "down": "echo codegen teardown"
+      },
+      {
+        "name": "trace",
+        "command": "npx fit-trace serve"
+      },
+      {
+        "name": "vector",
+        "command": "npx fit-vector serve"
+      },
+      {
+        "name": "graph",
+        "command": "npx fit-graph serve",
+        "optional": true
+      }
+    ]
+  }
+}
+```
+
+| Field      | Required | Notes                                                                 |
+| ---------- | -------- | --------------------------------------------------------------------- |
+| `name`     | yes      | Unique identifier for the service.                                    |
+| `type`     | no       | `"oneshot"` for run-once commands. Omit for longrun (the default).    |
+| `command`  | longrun  | Shell command to run. The daemon restarts it on crash.                |
+| `up`       | oneshot  | Command to run on start.                                              |
+| `down`     | oneshot  | Command to run on stop. Optional.                                     |
+| `optional` | no       | When `true`, failure is a warning rather than an error. Default `false`. |
+
+Services start in array order. When stopping, the order reverses. This matters
+when services depend on each other -- place dependencies earlier in the array.
+
+## Start all services
+
+```sh
+npx fit-rc start
+```
+
+This command:
+
+1. Spawns the `svscan` supervision daemon (or restarts it if already running).
+2. Walks through each service in order.
+3. For oneshot services, runs the `up` command and waits for completion.
+4. For longrun services, adds them to the supervision tree. The daemon keeps
+   each one running.
+
+Expected output (timestamps and process IDs will differ):
+
+```
+INFO 2026-05-04T10:00:01.123Z rc codegen 42001 MSG001 - Running oneshot direction="up" cmd="npx fit-codegen --all"
+INFO 2026-05-04T10:00:03.456Z rc codegen 42001 MSG002 - Oneshot completed direction="up"
+INFO 2026-05-04T10:00:03.789Z rc trace 42001 MSG003 - Service started
+INFO 2026-05-04T10:00:04.012Z rc vector 42001 MSG004 - Service started
+INFO 2026-05-04T10:00:04.234Z rc graph 42001 MSG005 - Service started
+```
+
+To start only up to a specific service (useful when you need only part of the
+stack):
+
+```sh
+npx fit-rc start trace
+```
+
+This starts every service from the beginning of the array through `trace`,
+skipping later entries.
+
+## Check service status
+
+```sh
+npx fit-rc status
+```
+
+Expected output when services are running:
+
+```
+INFO 2026-05-04T10:05:00.123Z rc svscan 42001 MSG001 - Running
+INFO 2026-05-04T10:05:00.234Z rc trace 42001 MSG002 - up pid="42010"
+INFO 2026-05-04T10:05:00.345Z rc vector 42001 MSG003 - up pid="42011"
+INFO 2026-05-04T10:05:00.456Z rc graph 42001 MSG004 - up pid="42012"
+```
+
+Expected output when nothing is running:
+
+```
+INFO 2026-05-04T10:05:00.123Z rc svscan 42001 MSG001 - Not running
+```
+
+Check a single service by name:
+
+```sh
+npx fit-rc status trace
+```
+
+## Stop services
+
+```sh
+npx fit-rc stop
+```
+
+Services stop in reverse order. Longrun services receive `SIGTERM`; if a process
+does not exit within the shutdown timeout (default 3 seconds), the daemon sends
+`SIGKILL` to the entire process group. Oneshot services run their `down` command
+if one is defined. When all services are stopped, the daemon itself shuts down.
+
+To stop from a specific service onward (leaving earlier services running):
+
+```sh
+npx fit-rc stop vector
+```
+
+This stops `vector` and everything after it in the array (here, `graph`), in
+reverse order.
+
+## Restart a service
+
+```sh
+npx fit-rc restart trace
+```
+
+This stops and then starts the named service. Without a name, it restarts all
+services.
+
+## Read service logs
+
+Each longrun service writes output to a rotated log directory under the path
+configured in `log_dir`. View a service's current log:
+
+```sh
+npx fit-rc logs trace
+```
+
+The log writer (from `libsupervise`) automatically rotates files at 1 MB and
+keeps the 10 most recent archives. Archived files are named with ISO 8601
+timestamps, so sorting by filename gives chronological order.
+
+## Supervision behavior
+
+The `svscan` daemon restarts crashed services automatically. When a longrun
+service exits unexpectedly, the daemon waits before restarting, using
+exponential backoff:
+
+| Parameter          | Default | Effect                                                  |
+| ------------------ | ------- | ------------------------------------------------------- |
+| Initial delay      | 100 ms  | Wait time after the first crash.                        |
+| Backoff multiplier | 2x      | Each subsequent crash doubles the wait.                 |
+| Maximum delay      | 5000 ms | The wait never exceeds this value.                      |
+| Shutdown timeout   | 3000 ms | Time to wait for `SIGTERM` before escalating to `SIGKILL`. |
+
+A successful restart resets the backoff counter. The daemon does not limit the
+total number of restart attempts -- it keeps the service running as long as the
+supervision tree is active.
+
+Each supervised process runs in its own process group (`detached: true`). When
+the daemon sends a signal, it targets the entire group (shell and child
+processes), preventing orphaned subprocesses.
+
+## Add structured logging
+
+Services that use `@forwardimpact/libtelemetry` produce RFC 5424-formatted log
+lines. This structured format makes logs greppable and parseable by both humans
+and agents.
+
+```js
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("my-service");
+
+logger.info("startup", "Server listening", { port: "3000" });
+// INFO 2026-05-04T10:00:00.000Z my-service startup 42001 MSG001 [port="3000"] Server listening
+
+logger.error("handler", "Request failed", { status: "500" });
+// ERROR 2026-05-04T10:00:01.000Z my-service handler 42001 MSG002 [status="500"] Request failed
+```
+
+The log format is:
+
+```
+LEVEL TIMESTAMP DOMAIN APP_ID PROC_ID MSG_ID [ATTRIBUTES] MESSAGE
+```
+
+Control verbosity with the `LOG_LEVEL` environment variable:
+
+| `LOG_LEVEL` | What prints                  |
+| ----------- | ---------------------------- |
+| `error`     | Errors only.                 |
+| `warn`      | Errors and warnings.         |
+| `info`      | Errors, warnings, and info (default). |
+| `debug`     | Everything including debug.  |
+
+For domain-specific debug output without changing the global level, set the
+`DEBUG` environment variable:
+
+```sh
+DEBUG=my-service npx fit-rc start
+```
+
+Use `DEBUG=*` to enable debug output for all domains.
+
+For details on logging and trace spans, see
+[Add Observability](/docs/libraries/service-lifecycle/add-observability/).
+
+## Programmatic usage
+
+The `ServiceManager` class exposes the same operations as the CLI. Use it when
+you need lifecycle control from within a Node.js process:
+
+```js
+import { ServiceManager } from "@forwardimpact/librc";
+import { createLogger } from "@forwardimpact/libtelemetry";
+import { sendCommand, waitForSocket } from "@forwardimpact/librc";
+
+const config = {
+  rootDir: process.cwd(),
+  init: {
+    log_dir: "data/logs",
+    services: [
+      { name: "trace", command: "npx fit-trace serve" },
+      { name: "vector", command: "npx fit-vector serve" },
+    ],
+  },
+};
+
+const logger = createLogger("rc");
+const manager = new ServiceManager(config, logger, {
+  sendCommand,
+  waitForSocket,
+});
+
+await manager.start();         // Start all services
+await manager.status();        // Print status of all services
+await manager.status("trace"); // Print status of one service
+await manager.logs("trace");   // Print logs to stdout
+await manager.stop("vector");  // Stop one service
+await manager.stop();          // Stop all services and daemon
+```
+
+## What each library provides
+
+| Library          | Package                              | Concern                                             |
+| ---------------- | ------------------------------------ | --------------------------------------------------- |
+| librc            | `@forwardimpact/librc`               | Lifecycle CLI (`fit-rc`) and `ServiceManager` class. |
+| libsupervise     | `@forwardimpact/libsupervise`        | Supervision daemon (`svscan`), log rotation, process state. |
+| libtelemetry     | `@forwardimpact/libtelemetry`        | Structured logging (`Logger`), trace spans (`Tracer`), unified observer (`Observer`). |
+
+## What's next
+
+- [Start, stop, or check a service](/docs/libraries/service-lifecycle/manage-service/)
+  -- the bounded task for managing a service.
+- [Add observability](/docs/libraries/service-lifecycle/add-observability/)
+  -- the bounded task for adding structured logs or trace spans to a service.
+
+## Related
+
+- [`@forwardimpact/librc` on npm](https://www.npmjs.com/package/@forwardimpact/librc)
+  -- installation and changelog.
+- [`@forwardimpact/libsupervise` on npm](https://www.npmjs.com/package/@forwardimpact/libsupervise)
+  -- installation and changelog.
+- [`@forwardimpact/libtelemetry` on npm](https://www.npmjs.com/package/@forwardimpact/libtelemetry)
+  -- installation and changelog.

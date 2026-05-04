@@ -1,0 +1,197 @@
+---
+title: Ship a Service Endpoint
+description: Create a gRPC service or call an existing one with librpc -- typed contracts, automatic authentication, retries, and health checks without reimplementing transport.
+---
+
+You need to expose business logic over gRPC or consume an existing gRPC service.
+The transport layer -- connection management, authentication, retries, health
+checks -- is the same every time, and copying it from the last project means
+copying its bugs too. `@forwardimpact/librpc` gives you a typed server and
+client that handle transport so you write only the business logic.
+
+For the full workflow of defining proto contracts and generating typed base
+classes and clients, see
+[Typed Contracts](/docs/libraries/typed-contracts/).
+
+## Prerequisites
+
+- Node.js 18+
+- `@forwardimpact/librpc` installed:
+
+```sh
+npm install @forwardimpact/librpc
+```
+
+- Generated service definitions produced by `npx fit-codegen --all` (this
+  creates the typed base classes and client classes that `@forwardimpact/librpc`
+  re-exports)
+- The `SERVICE_SECRET` environment variable set (a string of at least 32
+  characters, shared between server and client for HMAC authentication)
+
+## Create a service
+
+Every service follows the same three-step pattern: extend the generated base
+class, construct a `Server`, and start it.
+
+### Step 1 -- Implement the base class
+
+The codegen pipeline produces a base class for each proto service definition.
+The base class declares every RPC method as an abstract stub that throws
+`"not implemented"`. Your service extends it and provides the real logic:
+
+```js
+import { services } from "@forwardimpact/librpc";
+
+const { GraphBase } = services;
+
+export class GraphService extends GraphBase {
+  #graphIndex;
+
+  constructor(config, graphIndex) {
+    super(config);
+    this.#graphIndex = graphIndex;
+  }
+
+  async GetSubjects(req) {
+    const subjects = await this.#graphIndex.getSubjects(req.type || null);
+    const lines = Array.from(subjects.entries())
+      .map(([subject, type]) => `${subject}\t${type}`)
+      .sort();
+    return { content: lines.join("\n") };
+  }
+
+  // Override every RPC method declared in the proto definition.
+  // Methods you skip will throw "not implemented" at runtime.
+}
+```
+
+Each method receives a typed request object and returns a plain response object.
+The generated `getHandlers()` method on the base class takes care of validating
+inbound requests and converting them from wire format.
+
+### Step 2 -- Bootstrap the server
+
+The entry point creates config, observability, domain dependencies, and the
+server:
+
+```js
+#!/usr/bin/env node
+import { Server, createTracer } from "@forwardimpact/librpc";
+import { createServiceConfig } from "@forwardimpact/libconfig";
+import { createLogger } from "@forwardimpact/libtelemetry";
+import { createGraphIndex } from "@forwardimpact/libgraph";
+
+import { GraphService } from "./index.js";
+
+const config = await createServiceConfig("graph");
+const logger = createLogger("graph");
+const tracer = await createTracer("graph");
+
+const graphIndex = createGraphIndex("graphs");
+const service = new GraphService(config, graphIndex);
+const server = new Server(service, config, logger, tracer);
+
+await server.start();
+```
+
+`Server` wraps every handler with HMAC authentication, distributed tracing, and
+error handling. It also registers the standard gRPC health check at
+`grpc.health.v1.Health/Check` automatically -- no extra code needed.
+
+### What you get for free
+
+| Concern              | Handled by                                |
+| -------------------- | ----------------------------------------- |
+| Authentication       | HMAC-SHA256 via `SERVICE_SECRET`          |
+| Distributed tracing  | Automatic spans per RPC call              |
+| Health checks        | `grpc.health.v1.Health/Check` registered  |
+| Keepalive            | 30s ping interval, 10s timeout            |
+| Graceful shutdown    | `SIGINT` / `SIGTERM` handlers             |
+| Request validation   | Generated `getHandlers()` verifies types  |
+
+## Call an existing service
+
+When you need to reach a service that is already running, use `createClient`.
+It resolves the service name to connection details via `libconfig`, attaches
+authentication, and returns a typed client with built-in retries.
+
+```js
+import { createClient, createTracer } from "@forwardimpact/librpc";
+import { createLogger } from "@forwardimpact/libtelemetry";
+
+const logger = createLogger("my-script");
+const tracer = await createTracer("my-script");
+
+const graphClient = await createClient("graph", logger, tracer);
+```
+
+### Make a unary call
+
+The generated client class exposes a typed method for each RPC. Pass a request
+object and receive the response:
+
+```js
+import { graph } from "@forwardimpact/libtype";
+
+const req = new graph.SubjectsQuery({ type: "schema:Person" });
+const result = await graphClient.GetSubjects(req);
+
+console.log(result.content);
+```
+
+```text
+https://acme.example/people/jane-doe	https://schema.org/Person
+https://acme.example/people/john-smith	https://schema.org/Person
+```
+
+Retries are automatic -- the client retries transient failures up to 10 times
+with a 1-second delay between attempts.
+
+### Make a streaming call
+
+For server-streaming RPCs, use `callStream` on the base `Client` class. It
+returns a Node.js readable stream with `data`, `end`, and `error` events. An
+optional third argument accepts a mapper function that transforms each chunk
+before it reaches the `data` event:
+
+```js
+const stream = client.callStream("StreamEvents", { filter: "audit" });
+stream.on("data", (chunk) => console.log("event:", chunk));
+stream.on("end", () => console.log("stream complete"));
+```
+
+## Quick test with fit-unary
+
+`fit-unary` is a CLI bundled with `@forwardimpact/librpc` for ad-hoc unary
+calls. Pass the service name, method, and an optional JSON request body:
+
+```sh
+npx fit-unary graph GetSubjects '{"type":"schema:Person"}'
+```
+
+```json
+{
+  "content": "https://acme.example/people/jane-doe\thttps://schema.org/Person"
+}
+```
+
+This is useful for verifying a service is reachable before writing client code.
+
+## Verify
+
+You have reached the outcome of this guide when:
+
+- Your service class extends the generated base and implements every RPC method
+  declared in the proto definition.
+- `Server.start()` binds to the configured host and port, and
+  `grpc.health.v1.Health/Check` responds with `SERVING`.
+- `createClient` connects to a running service and `callUnary` returns typed
+  responses.
+- `fit-unary` returns JSON for a known service and method.
+
+## What's next
+
+- [Typed Contracts](/docs/libraries/typed-contracts/) -- the
+  end-to-end workflow from proto definition through codegen to deployment.
+- [Codegen Internals](/docs/internals/codegen/) -- how proto files become typed
+  base classes and client classes.
