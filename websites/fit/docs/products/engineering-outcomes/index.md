@@ -143,7 +143,6 @@ npx fit-landmark health --manager alice@example.com
       "We've been catching more issues in review lately" — latest snapshot
       "Design docs are getting better but still inconsistent" — latest snapshot
       Recommendation: Carol Davis could develop planning (currently working)
-      Initiative: Code Review Standards (65% complete)
 
     reliability (65, 48th percentile, vs_org: -3)
       Contributing skills: incident_response (4 artifacts), sre_practices (2 artifacts)
@@ -162,8 +161,6 @@ The output is organized by driver. For each driver you will see:
   contributing skills, surfaced from the latest snapshot.
 - **Growth recommendations** -- if Summit is installed, specific individuals who
   could develop a contributing skill, with their current level noted.
-- **Active initiatives** -- any organizational initiatives linked to this driver,
-  with completion percentage.
 
 ### Understanding what the health view shows
 
@@ -270,48 +267,6 @@ has a gap, or it can highlight a coaching opportunity. Either way, it is
 information worth surfacing in a quarterly review -- it shows where the
 organization's definitions and actual practice diverge.
 
-## Connect initiatives to outcomes
-
-If your organization tracks initiatives in GetDX, Landmark can show whether
-completed initiatives moved the needle on their target drivers.
-
-List active initiatives:
-
-```sh
-npx fit-landmark initiative list --manager alice@example.com
-```
-
-```text
-  Initiatives: Alice Smith's team
-
-    Code Review Standards    quality        65% complete
-    Runbook Coverage         reliability    30% complete
-```
-
-See whether completed initiatives correlated with driver score changes:
-
-```sh
-npx fit-landmark initiative impact --manager alice@example.com
-```
-
-```text
-  Initiative impact: Alice Smith's team
-
-    Code Review Standards (quality)
-      Before: 72 (2025-03-15)
-      After:  78 (2025-06-14)
-      Delta:  +6
-
-    Runbook Coverage (reliability)
-      Before: 65 (2025-06-14)
-      After:  — (in progress)
-```
-
-Initiative impact shows before-and-after scores for each initiative's target
-driver. This is
-particularly useful for quarterly reviews because it answers the question
-"did the investment work?" with data rather than narrative.
-
 ## Verify
 
 You have demonstrated engineering progress without surveillance when:
@@ -341,6 +296,6 @@ presentations.
 
 <div class="grid">
 
-<!-- part:card:culture-investments -->
+<!-- part:card:../growth-areas -->
 
 </div>

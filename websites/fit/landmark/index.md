@@ -28,12 +28,11 @@ individuals.
 
 Demonstrate engineering progress without making individuals feel surveilled.
 See system-level trends that show direction, tell whether culture investments
-are working before the next budget cycle, and track initiative impact tied to
-organizational drivers.
+are working before the next budget cycle, and ground quarterly reviews in
+evidence rather than impressions.
 
 - Team health dashboards combining evidence, driver scores, and engineer voice
 - GetDX snapshot trends and quarterly comparisons
-- Initiative impact tracking tied to organizational drivers
 - Practice pattern analysis showing which skills are actively exercised
 
 ### For Empowered Engineers
@@ -56,7 +55,7 @@ standard.
 | ----------------------- | -------------------------------------------------------------------- | ----------------------------------------- |
 | **Engineer** (own data) | `evidence`, `readiness`, `timeline`, `coverage`, `voice --email`     | Full individual detail                    |
 | **Manager** (1:1 tool)  | `health`, `readiness`, `timeline`, `practiced`, `voice --manager`    | Individual specificity for direct reports |
-| **Director** (planning) | `snapshot`, `coverage`, `practiced`, `initiative`, `voice --manager` | Aggregated team views                     |
+| **Director** (planning) | `snapshot`, `coverage`, `practiced`, `voice --manager`              | Aggregated team views                     |
 
 ### Commands
 
@@ -103,14 +102,6 @@ npx fit-landmark voice --manager <email>   # Themed team comments
 npx fit-landmark voice --email <email>     # Individual comment timeline
 ```
 
-#### Initiatives
-
-```sh
-npx fit-landmark initiative list [--manager <email>]
-npx fit-landmark initiative show --id <id>
-npx fit-landmark initiative impact [--manager <email>]
-```
-
 All commands support `--format text|json|markdown`.
 
 ### Prerequisites
@@ -127,7 +118,6 @@ Landmark reads from Map's activity layer:
 2. `github_artifacts` + `evidence` for marker analysis — Guide assesses artifacts against your standard's markers and writes results to Map
 3. `getdx_snapshots` + `getdx_snapshot_team_scores` for quarterly outcomes
 4. `getdx_snapshot_comments` for engineer voice
-5. `getdx_initiatives` for initiative tracking
 
 ```
 GitHub + GetDX → Map (ingest + store) → Landmark (present)

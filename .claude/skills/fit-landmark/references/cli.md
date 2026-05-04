@@ -41,10 +41,3 @@ npx fit-landmark voice --manager <email>      # Engineer voice from GetDX commen
 npx fit-landmark voice --email <email>        # Individual voice
 ```
 
-### Initiatives
-
-```sh
-npx fit-landmark initiative list              # List tracked initiatives
-npx fit-landmark initiative show <id>         # Initiative detail
-npx fit-landmark initiative impact            # Initiative impact analysis
-```
