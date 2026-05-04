@@ -88,6 +88,10 @@ product-name-shaped — one product may host multiple task slugs and one task sl
 may cut across multiple products (e.g. `authoring-standards` is linked by both
 `fit-map` and `fit-pathway`).
 
+The skill's `## Documentation` list and the CLI's `documentation` array must
+carry the same entries in the same order. When you add, remove, or rename a
+link in one, update the other in the same commit.
+
 The `.md` extension is deliberate. Agents fetch markdown more reliably than
 rendered HTML, and the `.md` URL maps one-to-one to the source file in
 `websites/fit/docs/products/<task-slug>/index.md`. Use the same title and URL

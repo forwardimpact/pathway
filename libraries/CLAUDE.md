@@ -90,6 +90,10 @@ Slugs are task-shaped (e.g. `trace-analysis`, `agent-evaluations`), not
 library-name-shaped — one library may host multiple task slugs and one task slug
 may cut across multiple libraries.
 
+The skill's `## Documentation` list and the CLI's `documentation` array must
+carry the same entries in the same order. When you add, remove, or rename a
+link in one, update the other in the same commit.
+
 The `.md` extension is deliberate. Agents fetch markdown more reliably than
 rendered HTML, and the `.md` URL maps one-to-one to the source file in
 `websites/fit/docs/libraries/<task-slug>/index.md`. Use the same title and URL
