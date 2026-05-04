@@ -71,13 +71,13 @@ flowchart LR
     awareness --> foundational --> working --> practitioner --> expert
 ```
 
-| Proficiency  | Description                            |
-| ------------ | -------------------------------------- |
-| awareness    | Learning fundamentals, needs guidance  |
-| foundational | Applies basics independently           |
-| working      | Solid competence, handles ambiguity    |
-| practitioner | Deep expertise, leads and mentors      |
-| expert       | Authority, shapes direction across org |
+| Proficiency    | Description                            |
+| -------------- | -------------------------------------- |
+| `awareness`    | Learning fundamentals, needs guidance  |
+| `foundational` | Applies basics independently           |
+| `working`      | Solid competence, handles ambiguity    |
+| `practitioner` | Deep expertise, leads and mentors      |
+| `expert`       | Authority, shapes direction across org |
 
 ### Human-Only Skills
 
@@ -112,13 +112,13 @@ flowchart LR
     emerging --> developing --> practicing --> role_modeling --> exemplifying
 ```
 
-| Maturity      | Description                       |
-| ------------- | --------------------------------- |
-| emerging      | Shows interest, needs prompting   |
-| developing    | Regular practice with guidance    |
-| practicing    | Consistent application, proactive |
-| role_modeling | Influences team culture           |
-| exemplifying  | Shapes organizational culture     |
+| Maturity        | Description                       |
+| --------------- | --------------------------------- |
+| `emerging`      | Shows interest, needs prompting   |
+| `developing`    | Regular practice with guidance    |
+| `practicing`    | Consistent application, proactive |
+| `role_modeling` | Influences team culture           |
+| `exemplifying`  | Shapes organizational culture     |
 
 ---
 

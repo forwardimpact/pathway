@@ -174,7 +174,7 @@ The five proficiency levels follow a consistent progression:
 | `awareness`    | with guidance         | team                     |
 | `foundational` | with minimal guidance | team                     |
 | `working`      | independently         | team                     |
-| `practitioner` | lead, mentor          | area (2-5 teams)         |
+| `practitioner` | lead, mentor          | area (2--5 teams)        |
 | `expert`       | define, shape         | business unit / function |
 
 ## Understand your behaviour expectations
@@ -216,11 +216,11 @@ The five maturity levels:
 
 | Maturity        | What it looks like                                   |
 | --------------- | ---------------------------------------------------- |
-| `emerging`      | shows interest, needs prompting                      |
-| `developing`    | regularly applies with some guidance                 |
-| `practicing`    | consistently demonstrates in daily work              |
-| `role_modeling` | influences the team's approach, others seek them out |
-| `exemplifying`  | shapes organizational culture in this area           |
+| `emerging`      | Shows interest, needs prompting                      |
+| `developing`    | Regularly applies with some guidance                 |
+| `practicing`    | Consistently demonstrates in daily work              |
+| `role_modeling` | Influences the team's approach, others seek them out |
+| `exemplifying`  | Shapes organizational culture in this area           |
 
 ## See what changes at the next level
 
