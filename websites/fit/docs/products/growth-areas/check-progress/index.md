@@ -172,3 +172,11 @@ You have completed this guide when you can answer these questions:
 If any of these are unclear, revisit the relevant step. The readiness checklist
 is the most direct measure -- when missing markers from a previous check start
 showing as evidenced, recent work is producing visible movement toward the bar.
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

@@ -176,10 +176,11 @@ When verifying an improvement, compare `stats` across before-and-after runs.
 Fewer retries, lower token usage, and shorter duration are the signals that a
 profile or prompt change improved outcomes.
 
-## Related
+## What's next
 
-- [Agent Collaboration](/docs/libraries/prove-changes/) -- produce traces
-  with `fit-eval facilitate`; the per-source `split` is essential for
-  multi-agent traces.
-- [Agent Evaluations](/docs/libraries/prove-changes/run-eval/) -- produce traces with
-  `fit-eval supervise`; the trace is what you analyze here.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../run-eval -->
+
+</div>

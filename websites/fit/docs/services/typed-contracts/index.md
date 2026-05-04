@@ -236,10 +236,8 @@ tool calls if the backend it delegates to is unreachable.
 
 ## What's next
 
-- [Add a Service to the MCP Surface](/docs/services/typed-contracts/add-service/)
-  -- register a new backend service as agent tools without writing integration
-  code.
-- [Ground Agents in Context](/docs/services/ground-agents/) -- the graph and
-  vector services that the MCP service delegates to for knowledge queries.
-- [Query the Engineering Standard](/docs/services/integrate-standard/) -- the
-  pathway service that the MCP service delegates to for derivation queries.
+<div class="grid">
+
+<!-- part:card:add-service -->
+
+</div>

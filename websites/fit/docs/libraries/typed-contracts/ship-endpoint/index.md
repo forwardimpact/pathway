@@ -191,5 +191,8 @@ You have reached the outcome of this guide when:
 
 ## What's next
 
-- [Typed Contracts](/docs/libraries/typed-contracts/) -- the
-  end-to-end workflow from proto definition through codegen to deployment.
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

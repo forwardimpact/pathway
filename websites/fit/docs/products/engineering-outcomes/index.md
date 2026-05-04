@@ -339,12 +339,8 @@ presentations.
 
 ## What's next
 
-Once you can demonstrate overall progress, a natural follow-up is checking
-whether specific culture investments -- mentorship programs, tooling changes,
-process improvements -- are producing measurable results before the next budget
-cycle. See
-[Tell Whether Culture Investments Are Working](/docs/products/engineering-outcomes/culture-investments/)
-for that workflow.
+<div class="grid">
 
-For the full command reference and audience model, see the
-[Landmark product page](/landmark/).
+<!-- part:card:culture-investments -->
+
+</div>

@@ -188,9 +188,9 @@ at two adjacent levels and compare the Expectations sections.
 
 ## What's next
 
-- [See What's Expected at Your Level](/docs/products/career-paths/) -- return
-  to the full role definition for skills, behaviours, and driver coverage
-- [Find Growth Areas](/docs/products/growth-areas/) -- identify specific
-  gaps and build evidence of progress
-- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
-  skills, and levels relate in the underlying model
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../../growth-areas -->
+
+</div>

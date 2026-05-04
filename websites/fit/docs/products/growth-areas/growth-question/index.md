@@ -180,3 +180,11 @@ You have reached the outcome of this guide when:
 - **You know how to get back here.** For the full workflow -- finding gaps,
   checking your evidence record, and tracking progress over time -- return to
   [Find Growth Areas and Build Evidence](/docs/products/growth-areas/).
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

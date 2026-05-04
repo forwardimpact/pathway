@@ -169,7 +169,11 @@ Run `npx fit-pathway agent --help` for the full command surface.
 
 ---
 
-## Related Documentation
+## What's next
 
-- [Core Model](/docs/reference/model/) — Entity overview and derivation formula
-- [Agent Teams](/docs/products/agent-teams/) — Building and using agent teams
+<div class="grid">
+
+<!-- part:card:../model -->
+<!-- part:card:../yaml-schema -->
+
+</div>

@@ -171,3 +171,11 @@ The assessment is complete when you can answer three questions with data:
 If all three signals align -- rising trend, positive delta, supportive comments
 -- you have evidence that the investment is working. If they diverge, the data
 gives you a specific starting point for investigating why.
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

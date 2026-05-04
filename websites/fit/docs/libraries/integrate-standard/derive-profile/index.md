@@ -188,8 +188,8 @@ You have reached the outcome of this guide when:
 
 ## What's next
 
-- [Integrate with the Engineering Standard](/docs/libraries/integrate-standard/)
-  -- return to the full guide for validation, caching, display views, and
-  generating all valid roles.
-- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
-  skills, and levels relate in the underlying model.
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

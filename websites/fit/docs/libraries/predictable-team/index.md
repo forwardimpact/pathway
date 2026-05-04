@@ -373,12 +373,9 @@ Confirm the full memory system is working by running through this checklist:
 
 ## What's next
 
-This guide covered the end-to-end setup: bootstrapping the wiki, recording
-observations, charting them, embedding charts in a storyboard, and keeping
-everything in sync. From here:
+<div class="grid">
 
-- [Wiki Operations](/docs/libraries/predictable-team/wiki-operations/) -- bounded tasks for
-  sending memos, refreshing charts, and syncing state when the wiki is already
-  set up.
-- [XmR Analysis](/docs/libraries/predictable-team/xmr-analysis/) -- deeper coverage of signal
-  rules, chart anatomy, and how to respond when a metric shifts.
+<!-- part:card:wiki-operations -->
+<!-- part:card:xmr-analysis -->
+
+</div>

@@ -208,11 +208,11 @@ and distribute them.
 
 ---
 
-## Related Documentation
+## What's next
 
-- [CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)
-  -- Development workflow and quality guidelines
-- [Getting Started: Contributors](/docs/getting-started/contributors/) --
-  Environment setup walkthrough
-- [Kata Agent Team internals](/docs/internals/kata/) -- Agent architecture,
-  workflows, and PDSA cycle
+<div class="grid">
+
+<!-- part:card:../kata -->
+<!-- part:card:../../getting-started/contributors -->
+
+</div>

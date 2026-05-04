@@ -181,6 +181,8 @@ pipeline table above: `parse`, `entities`, `prose-keys`, `cache-lookup`,
 
 ## What's next
 
-- [Prove Whether Agent Changes Improved Outcomes](/docs/libraries/prove-changes/)
-  -- the full workflow from dataset generation through evaluation sessions to
-  trace analysis.
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

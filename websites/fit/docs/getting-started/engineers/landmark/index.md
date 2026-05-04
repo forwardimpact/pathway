@@ -99,9 +99,11 @@ All Landmark commands support `--format text|json|markdown`.
 
 ---
 
-## Next steps
+## What's next
 
-- [Landmark product page](/landmark/) — audience model and architecture overview
-- [Landmark quickstart](/docs/products/engineering-outcomes/) — step-by-step
-  guide from install to a working health view
-- Run `npx fit-landmark --help` for the full command surface
+<div class="grid">
+
+<!-- part:card:../../../../landmark -->
+<!-- part:card:../../../products/engineering-outcomes -->
+
+</div>

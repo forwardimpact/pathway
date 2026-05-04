@@ -254,10 +254,11 @@ npx fit-summit coverage platform --roster ./summit.yaml --audience director
 
 ---
 
-## Next steps
+## What's next
 
-- [Summit product page](/summit/) — design principles and detailed examples
-- [Team capability](/docs/products/team-capability/) — deep dive into Summit
-  coverage, risks, and scenario planning
-- [Authoring agent-aligned engineering standards](/docs/products/authoring-standards/)
-  — full guide to defining all entity types
+<div class="grid">
+
+<!-- part:card:../../../../summit -->
+<!-- part:card:../../../products/team-capability -->
+
+</div>

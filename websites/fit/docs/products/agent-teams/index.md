@@ -160,14 +160,9 @@ confirm the following:
 
 ## What's next
 
-Your agents are now configured against the same standard the organization holds
-for human contributors. The configuration is derived from your standard data --
-when the standard evolves, regenerate to keep agents aligned.
+<div class="grid">
 
-- [Give Agents Organizational Context](/docs/products/agent-teams/organizational-context/)
-  -- maintain alignment as your standard evolves, structure team instructions
-  and skills so agents receive clear, non-conflicting guidance.
-- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
-  -- update the YAML definitions that agent configurations are derived from.
-- [Career Paths](/docs/products/career-paths/) -- browse the same role
-  definitions your agents are built from.
+<!-- part:card:organizational-context -->
+<!-- part:card:../authoring-standards -->
+
+</div>

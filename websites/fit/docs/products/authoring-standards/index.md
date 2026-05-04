@@ -380,20 +380,12 @@ Supporting Skills (adjusted by track)
 For common validation errors and their fixes, see the
 [YAML Schema Reference](/docs/reference/yaml-schema/).
 
-## What to do next
+## What's next
 
-You now have a validated, previewable engineering standard — a shared definition
-that makes quality visible and evaluations defensible.
+<div class="grid">
 
-Common next steps:
+<!-- part:card:update-standard -->
+<!-- part:card:define-role -->
+<!-- part:card:../career-paths -->
 
-- [Validate and update the standard](/docs/products/authoring-standards/update-standard/) --
-  change definitions and trust that structural mistakes get caught before they
-  ship.
-- [Define a new role](/docs/products/authoring-standards/define-role/) --
-  create requirements for a new role without starting from a blank page.
-- [Career Paths](/docs/products/career-paths/) -- browse derived roles, analyze
-  progression between levels, and generate gap analyses.
-- [Agent Teams](/docs/products/agent-teams/) -- export agent team configurations
-  derived from the same standard, so AI coding agents meet the same expectations
-  as human contributors.
+</div>

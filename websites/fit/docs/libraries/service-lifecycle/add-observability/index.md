@@ -191,7 +191,11 @@ spans are created, and the gRPC calls proceed without trace context. This means
 you can add the observer first and wire up tracing later without changing your
 handler code.
 
-## Related
+## What's next
 
-- [Service Lifecycle](/docs/libraries/service-lifecycle/) -- the full setup guide
-- [Manage a Service](/docs/libraries/service-lifecycle/manage-service/) -- start, stop, check
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../manage-service -->
+
+</div>

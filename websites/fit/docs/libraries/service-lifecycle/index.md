@@ -323,16 +323,9 @@ await manager.stop();          // Stop all services and daemon
 
 ## What's next
 
-- [Start, stop, or check a service](/docs/libraries/service-lifecycle/manage-service/)
-  -- the bounded task for managing a service.
-- [Add observability](/docs/libraries/service-lifecycle/add-observability/)
-  -- the bounded task for adding structured logs or trace spans to a service.
+<div class="grid">
 
-## Related
+<!-- part:card:manage-service -->
+<!-- part:card:add-observability -->
 
-- [`@forwardimpact/librc` on npm](https://www.npmjs.com/package/@forwardimpact/librc)
-  -- installation and changelog.
-- [`@forwardimpact/libsupervise` on npm](https://www.npmjs.com/package/@forwardimpact/libsupervise)
-  -- installation and changelog.
-- [`@forwardimpact/libtelemetry` on npm](https://www.npmjs.com/package/@forwardimpact/libtelemetry)
-  -- installation and changelog.
+</div>

@@ -189,9 +189,9 @@ from your Pathway output:
 
 ## What's next
 
-- [Verify Agent Work Against the Standard](/docs/products/trust-output/) --
-  return to the full review workflow
-- [See What's Expected at Your Level](/docs/products/career-paths/) -- explore
-  your own role expectations in depth
-- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
-  skills, and levels relate in the underlying model
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../second-opinion -->
+
+</div>

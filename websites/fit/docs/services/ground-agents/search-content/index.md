@@ -162,12 +162,11 @@ You have reached the outcome of this guide when:
 - Resolving returned identifiers through `libresource` produces the expected
   content.
 
-## Related
+## What's next
 
-- [Ground Agents in Context](/docs/services/ground-agents/) -- the end-to-end
-  setup for connecting to both the graph and vector services.
-- [Query the Graph](/docs/services/ground-agents/query-graph/) -- when you need
-  exact relationship matching rather than ranked similarity.
-- [Search Semantically](/docs/libraries/ground-agents/search-semantically/) --
-  the library guide for querying the vector index directly without the gRPC
-  service.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../query-graph -->
+
+</div>

@@ -35,6 +35,13 @@ Every page is a directory containing `index.md`. No other `.md` filenames.
   for external links or same-page anchors.
 - **Hand-written links are not checked.** Partials validate their targets, but
   inline markdown links are not verified at build time.
+- **Cross-links** — every non-hub page ends with a `## What's next` section.
+  Cards use content partials only (`<!-- part:card:path -->`), never markdown
+  links. Maximum four cards. When a page has a `## Verify` section,
+  `## What's next` follows it. Card targets follow JTBD structure: Big Hire
+  guides link to their Little Hire children; Little Hire guides link back to
+  the parent Big Hire and sibling Little Hires; Getting Started pages link to
+  the product page and primary guide.
 
 ## Page Types
 

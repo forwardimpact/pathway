@@ -103,9 +103,10 @@ include `feat`, `fix`, `refactor`, `docs`, `test`, `chore`, and `spec`. Scope is
 the package name (e.g., `map`, `libskill`, `pathway`). Add `!` after scope for
 breaking changes.
 
-## Next steps
+## What's next
 
-- [Architecture internals](/docs/internals/) — dependency chains, data flow, and
-  design decisions
-- [CONTRIBUTING.md](https://github.com/forwardimpact/monorepo/blob/main/CONTRIBUTING.md)
-  — full contributing guide with PR checklist and release process
+<div class="grid">
+
+<!-- part:card:../../internals/operations -->
+
+</div>

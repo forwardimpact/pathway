@@ -300,8 +300,8 @@ produces `{ tag: ["rain", "wind"] }`.
 
 ## What's next
 
-Once both surfaces share a presenter, adding a new capability is a bounded task:
-write the presenter, register a CLI command, register a route, and both surfaces
-gain the feature at once. See
-[Add a Capability](/docs/libraries/every-surface/add-capability/) for the
-step-by-step procedure.
+<div class="grid">
+
+<!-- part:card:add-capability -->
+
+</div>

@@ -185,15 +185,10 @@ Do not react to individual data points when the classification is `stable`.
 Routine variation is common-cause noise; treating it as a problem and
 intervening makes the process worse on average.
 
-## Next steps
+## What's next
 
-This guide covers the bounded task of charting a metric and reading the latest
-point. For the full workflow of building persistent process memory for an agent
-team -- recording observations over time, detecting level shifts, and acting on
-findings across daily cycles -- see [Persistent Process
-Memory](/docs/libraries/predictable-team/).
+<div class="grid">
 
-## Related
+<!-- part:card:.. -->
 
-- [`@forwardimpact/libxmr` on npm](https://www.npmjs.com/package/@forwardimpact/libxmr)
-  -- installation and changelog.
+</div>

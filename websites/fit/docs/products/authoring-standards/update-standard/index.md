@@ -165,3 +165,11 @@ The update is complete when all three conditions are true:
 For the full field reference -- required vs. optional fields, ID patterns, and
 allowed values -- see the
 [YAML Schema Reference](/docs/reference/yaml-schema/).
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

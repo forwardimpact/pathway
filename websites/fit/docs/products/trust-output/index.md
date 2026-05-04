@@ -290,16 +290,9 @@ define the quality bar and Guide to apply it.
 
 ## What's next
 
-This guide covered the end-to-end workflow for verifying agent output against
-the standard. For specific tasks within this workflow, see:
+<div class="grid">
 
-- [Get a Second Opinion on a Deliverable](/docs/products/trust-output/second-opinion/)
-  -- ask Guide to evaluate a specific piece of work before approving it
-- [Check Expected Output for a Role](/docs/products/trust-output/expected-output/)
-  -- see what the standard expects the agent to produce before reviewing
-- [See What's Expected at Your Level](/docs/products/career-paths/) -- full
-  role expectation workflow for understanding any position in the standard
-- [Configure Agents to Meet Your Engineering Standard](/docs/products/agent-teams/)
-  -- ensure agents are configured against the standard before they produce work
-- [Data Model Reference](/docs/reference/model/) -- how skills, levels, and
-  behaviours are structured in the underlying model
+<!-- part:card:second-opinion -->
+<!-- part:card:expected-output -->
+
+</div>

@@ -361,12 +361,11 @@ subdirectory under `generated/services/`.
   `fit-codegen` because it may define custom proto files. Generated code is
   never bundled in published npm packages.
 
-## Next steps
+## What's next
 
-This guide covers the end-to-end pipeline from proto to typed runtime. For the
-bounded tasks within this workflow:
+<div class="grid">
 
-- [Expose a gRPC Method as an MCP Tool](/docs/libraries/typed-contracts/expose-tool/) --
-  add a new MCP tool entry for an existing gRPC service method.
-- [Ship a Service Endpoint](/docs/libraries/typed-contracts/ship-endpoint/) --
-  add a new RPC method to an existing service and regenerate.
+<!-- part:card:expose-tool -->
+<!-- part:card:ship-endpoint -->
+
+</div>

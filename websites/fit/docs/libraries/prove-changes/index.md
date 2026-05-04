@@ -334,12 +334,10 @@ and writing findings that are grounded, testable, and actionable -- see the
 
 ## What's next
 
-This guide covered the full arc from dataset definition through session
-execution to trace verification. Each stage has a dedicated guide for deeper
-work:
+<div class="grid">
 
-- [Agent Evaluations](/docs/libraries/prove-changes/run-eval/) -- write judge
-  profiles, wire evals into CI with GitHub Actions, and scale to a matrix suite.
-- [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/) -- the grounded-theory
-  analysis method with two worked examples: an eval that failed and a
-  multi-agent session that stalled.
+<!-- part:card:run-eval -->
+<!-- part:card:trace-analysis -->
+<!-- part:card:generate-dataset -->
+
+</div>

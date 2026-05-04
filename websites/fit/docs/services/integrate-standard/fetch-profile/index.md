@@ -155,13 +155,10 @@ You have reached the outcome of this guide when:
 - Invalid coordinates produce a gRPC error with a message that names the
   invalid entity.
 
-## Related
+## What's next
 
-- [Query the Engineering Standard](/docs/services/integrate-standard/) --
-  return to the full guide for all six RPCs, including progression analysis
-  and software toolkit derivation.
-- [Derive a Skill Matrix or Agent Profile](/docs/libraries/integrate-standard/derive-profile/)
-  -- the library guide for embedding derivation logic directly when a gRPC
-  round trip is not appropriate.
-- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
-  skills, and levels relate in the underlying model.
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

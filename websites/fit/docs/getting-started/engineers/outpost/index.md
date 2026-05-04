@@ -68,8 +68,11 @@ Privacy & Security > Files & Folders**:
 
 ---
 
-## Next steps
+## What's next
 
-- [Outpost product page](/outpost/) — feature overview and core skills
-- [Knowledge systems](/docs/products/knowledge-systems/) — deep dive into
-  Outpost features
+<div class="grid">
+
+<!-- part:card:../../../../outpost -->
+<!-- part:card:../../../products/knowledge-systems -->
+
+</div>

@@ -164,11 +164,11 @@ This clones the repository's wiki into `wiki/` and creates
 Idempotent -- safe to run on an already-initialized wiki. Authenticates using
 ambient GitHub credentials (`GITHUB_TOKEN` or `GH_TOKEN`).
 
-## Related
+## What's next
 
-- [Persistent Memory](/docs/libraries/predictable-team/) --
-  end-to-end guide to how the wiki serves as memory for your agent team.
-- [XmR Analysis](/docs/libraries/predictable-team/xmr-analysis/) -- understanding the control
-  charts that `refresh` renders into your storyboard.
-- [`fit-wiki` on npm](https://www.npmjs.com/package/@forwardimpact/libwiki) --
-  installation and changelog.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../xmr-analysis -->
+
+</div>

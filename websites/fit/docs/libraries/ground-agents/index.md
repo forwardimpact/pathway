@@ -286,17 +286,11 @@ exist before graphs, and resources must exist before vectors.
 
 ## What's next
 
-Each query mode has a dedicated guide for deeper work:
+<div class="grid">
 
-- [Query the Graph](/docs/libraries/ground-agents/query-graph/) -- write
-  triple-pattern queries, filter by type, and traverse relationships in the
-  RDF graph.
-- [Look Up Context](/docs/libraries/ground-agents/lookup-context/) -- retrieve
-  resources by identifier, apply prefix filters, and manage token budgets with
-  the index API.
-- [Resolve a Resource](/docs/libraries/ground-agents/resolve-resource/) -- load
-  a typed resource by identifier with access control and inspect its content
-  and metadata.
-- [Search Semantically](/docs/libraries/ground-agents/search-semantically/) --
-  embed a query, score against the vector index, and rank results by
-  relevance.
+<!-- part:card:query-graph -->
+<!-- part:card:lookup-context -->
+<!-- part:card:resolve-resource -->
+<!-- part:card:search-semantically -->
+
+</div>
