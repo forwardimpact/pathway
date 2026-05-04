@@ -1,6 +1,6 @@
 ---
 title: "Authoring Agent-Aligned Engineering Standards"
-description: "Turn 'good engineering' into an operational definition with YAML files that Map validates and Pathway renders, so evaluations start from a shared foundation instead of private mental models."
+description: "Turn 'good engineering' into an operational definition so evaluations start from a shared foundation instead of private mental models."
 ---
 
 Two managers disagree on what "senior" means and neither can point to a written

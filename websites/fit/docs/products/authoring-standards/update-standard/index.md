@@ -1,6 +1,6 @@
 ---
 title: "Validate and Update the Standard"
-description: "Change definitions in your engineering standard and confirm that validation catches structural mistakes before the changes reach the team."
+description: "Evolve your engineering standard with confidence — structural mistakes surface during validation, not after the team has adopted the change."
 ---
 
 You need to update your agent-aligned engineering standard -- add a skill,

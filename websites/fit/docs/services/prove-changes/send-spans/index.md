@@ -1,6 +1,6 @@
 ---
 title: Send Spans from a Product
-description: Emit trace spans to the trace gRPC service and verify they are queryable -- without managing storage.
+description: Trace spans emitted and immediately queryable — without managing storage infrastructure.
 ---
 
 You need to record trace spans from within a product -- what happened, how long

@@ -1,6 +1,6 @@
 ---
 title: Prove Agent Changes
-description: Generate a complete eval dataset from a DSL file, run evaluations and facilitated sessions with fit-eval, and analyze the resulting traces with fit-trace -- reproducible evidence from definition to finding.
+description: Reproducible evidence that agent changes improved outcomes — from dataset generation through evaluation to trace analysis.
 ---
 
 You changed an agent profile, tightened a tool allowlist, or rewrote a system

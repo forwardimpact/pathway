@@ -1,6 +1,6 @@
 ---
 title: "See What the Standard Expects Before Reviewing"
-description: "Use Pathway to look up the skill proficiencies, behaviour maturities, and expectations the standard defines for a role -- so you know what to check when reviewing agent output."
+description: "Know what to check before you start reviewing — the skill proficiencies, behaviour maturities, and expectations your standard defines for the role."
 ---
 
 You need to see what the engineering standard expects for a specific role before

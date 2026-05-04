@@ -1,6 +1,6 @@
 ---
 title: Add a Service to the MCP Surface
-description: Register a new backend gRPC service as agent tools in the MCP server without writing integration code.
+description: A new gRPC service becomes agent-accessible with one registration — no integration code.
 ---
 
 You have a new gRPC service and you need agents to reach its RPCs as tools. The

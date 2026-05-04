@@ -1,6 +1,6 @@
 ---
 title: "See What's Expected at Your Level"
-description: "Starting a new role with undefined expectations -- use Pathway to see the skills, behaviours, and scope your level requires so you stop guessing during reviews."
+description: "Stop guessing what your level requires — see the skills, behaviours, and scope so expectations are clear before your next review."
 ---
 
 You have started a new role, and the review form says "meets expectations" --

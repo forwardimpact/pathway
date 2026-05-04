@@ -1,6 +1,6 @@
 ---
 title: Analyze Traces
-description: See exactly what an agent did during a run — download traces, query turns, filter by tool or error, and measure token cost with fit-trace.
+description: See exactly what an agent did and why — download traces, query turns, filter by tool or error, and measure token cost.
 ---
 
 You need to see exactly what the agent did so you can debug failures and verify

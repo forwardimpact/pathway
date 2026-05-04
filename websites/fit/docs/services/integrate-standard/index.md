@@ -1,6 +1,6 @@
 ---
 title: Query the Engineering Standard from Any Product
-description: Connect to the pathway gRPC service so products access derived roles and profiles without embedding derivation logic.
+description: Products that access derived roles and profiles without embedding derivation logic — shared pathway gRPC service.
 ---
 
 You are building a product feature that needs career paths, skill matrices, or

@@ -1,6 +1,6 @@
 ---
 title: Send a Memo or Update a Storyboard
-description: Send a memo to a teammate, refresh storyboard charts, or sync wiki state -- without managing the wiki infrastructure yourself.
+description: Communicate across your agent team and keep storyboards current — without managing the wiki infrastructure yourself.
 ---
 
 Your agent team uses a wiki for persistent memory -- summaries, metrics, memos,

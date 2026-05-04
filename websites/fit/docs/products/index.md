@@ -1,6 +1,6 @@
 ---
 title: Product Guides
-description: Task-oriented guides for engineers and leaders — defining standards, career paths, growth areas, agent teams, staffing, engineering outcomes, agent verification, and knowledge systems.
+description: Guides for engineers and leaders — from unclear expectations to visible standards, from vague growth feedback to concrete evidence, from unverified agent output to trusted delivery.
 layout: product
 toc: false
 ---
@@ -13,8 +13,8 @@ toc: false
 
 ### Authoring Agent-Aligned Engineering Standards
 
-Turn 'good engineering' into an operational definition with YAML files that Map
-validates and Pathway renders.
+Turn 'good engineering' into an operational definition so evaluations start
+from a shared foundation instead of private mental models.
 
 </a>
 
@@ -22,8 +22,8 @@ validates and Pathway renders.
 
 ### Validate and Update the Standard
 
-Change definitions in your engineering standard and confirm that validation
-catches structural mistakes before the changes reach the team.
+Evolve your engineering standard with confidence — structural mistakes surface
+during validation, not after the team has adopted the change.
 
 </a>
 
@@ -31,8 +31,8 @@ catches structural mistakes before the changes reach the team.
 
 ### Define a New Role
 
-Generate a starting point for a new role from existing disciplines and tracks,
-then customize it.
+Move from a blank slate to a well-structured role definition — built from
+existing disciplines and tracks, then customized to fit.
 
 </a>
 
@@ -46,8 +46,8 @@ then customize it.
 
 ### See What's Expected at Your Level
 
-See the skills, behaviours, and scope your level requires so you stop guessing
-during reviews.
+Stop guessing what your level requires — see the skills, behaviours, and scope
+so expectations are clear before your next review.
 
 </a>
 
@@ -55,8 +55,8 @@ during reviews.
 
 ### Understand Autonomy and Scope
 
-See what your level implies for independence, decision-making authority, and the
-complexity you are expected to handle.
+Understand what independence, decision-making authority, and complexity look
+like at your level — so scope conversations start from shared definitions.
 
 </a>
 
@@ -79,8 +79,8 @@ and Landmark to find what's missing and show concrete evidence of growth.
 
 ### Ask a Growth Question
 
-Ask Guide a specific question and get advice grounded in your organization's
-actual skill and behaviour definitions.
+Get growth advice grounded in your organization's actual skill and behaviour
+definitions — not generic career guidance.
 
 </a>
 
@@ -103,8 +103,8 @@ by reviewing your readiness checklist and growth timeline.
 
 ### Verify Agent Work Against the Standard
 
-Review agent output by exception instead of reading every line -- check it
-against your organization's engineering standard.
+Catch convention violations that look correct on the surface — review agent
+output against your engineering standard instead of reading every line.
 
 </a>
 
@@ -112,8 +112,8 @@ against your organization's engineering standard.
 
 ### Get a Second Opinion on a Deliverable
 
-Use Guide to assess a specific deliverable against your engineering standard
-before deciding whether to approve it.
+Know what meets the bar and what falls short before you approve — assessed
+against your engineering standard, not intuition.
 
 </a>
 
@@ -121,8 +121,8 @@ before deciding whether to approve it.
 
 ### See What the Standard Expects Before Reviewing
 
-Look up the skill proficiencies, behaviour maturities, and expectations the
-standard defines for a role.
+Know what to check before you start reviewing — the skill proficiencies,
+behaviour maturities, and expectations your standard defines for the role.
 
 </a>
 
@@ -136,8 +136,9 @@ standard defines for a role.
 
 ### Configure Agents to Meet Your Engineering Standard
 
-Configure agents against the same standard the organization holds for human
-contributors -- derived from your engineering standard.
+End the cycle of rejecting agent output for following generic practices —
+agents configured against the same standard the organization holds for human
+contributors.
 
 </a>
 
@@ -145,8 +146,8 @@ contributors -- derived from your engineering standard.
 
 ### Give Agents Organizational Context
 
-Structure team instructions and skills so agents receive clear, non-conflicting
-guidance as the standard evolves.
+Keep agents aligned as your engineering standard evolves — guidance stays clear
+and non-conflicting without manual reconciliation.
 
 </a>
 
@@ -160,8 +161,8 @@ guidance as the standard evolves.
 
 ### Demonstrate Engineering Progress
 
-Prepare for a quarterly review with system-level trends, marker evidence, and
-engineer voice -- without singling out individuals.
+Walk into a quarterly review with system-level trends, marker evidence, and
+engineer voice — demonstrating progress without singling out individuals.
 
 </a>
 
@@ -169,8 +170,8 @@ engineer voice -- without singling out individuals.
 
 ### Tell Whether Culture Investments Are Working
 
-Check whether mentorship programs, tooling changes, and process improvements are
-producing measurable results before the next budget cycle.
+Know whether mentorship programs, tooling changes, and process improvements are
+producing measurable results — before the next budget cycle, not after.
 
 </a>
 
@@ -184,8 +185,8 @@ producing measurable results before the next budget cycle.
 
 ### Make Staffing Decisions You Can Defend
 
-See what each role requires and staff teams with evidence instead of intuition --
-coverage heatmaps, structural risks, and what-if scenarios.
+Replace staffing intuition with evidence — coverage heatmaps, structural
+risks, and what-if scenarios that show what each role requires.
 
 </a>
 
@@ -193,8 +194,8 @@ coverage heatmaps, structural risks, and what-if scenarios.
 
 ### Evaluate a Candidate Against Team Gaps
 
-Use Summit's what-if simulation to check whether a candidate fills the team's
-actual capability gap before making an offer.
+Know whether a candidate fills the team's actual capability gap before making
+an offer — not after onboarding reveals the mismatch.
 
 </a>
 
@@ -202,8 +203,8 @@ actual capability gap before making an offer.
 
 ### Surface Capability Gaps
 
-Detect structural risks, track coverage trends, and identify growth
-opportunities so gaps are visible before they become incidents.
+See capability gaps before they become incidents — structural risks, coverage
+trends, and growth opportunities made visible.
 
 </a>
 
@@ -217,8 +218,8 @@ opportunities so gaps are visible before they become incidents.
 
 ### Keep Track of Context Without Effort
 
-Set up Outpost so it assembles and maintains awareness of people, projects, and
-threads in the background.
+Stop walking into meetings cold — Outpost assembles and maintains awareness of
+people, projects, and threads in the background.
 
 </a>
 
@@ -226,8 +227,8 @@ threads in the background.
 
 ### Walk Into Every Meeting Already Oriented
 
-Use Outpost's knowledge graph and scheduled agents to prepare for a specific
-meeting -- attendee context, open items, and talking points.
+Walk into any meeting already oriented — attendee context, open items, and
+talking points assembled before you sit down.
 
 </a>
 

@@ -1,6 +1,6 @@
 ---
 title: Resolve a Resource
-description: Get a rich, typed context chunk from a resource identifier -- with provenance, access control, and RDF content -- instead of passing raw files to an agent.
+description: Give agents rich, typed context from a resource identifier — provenance, access control, and RDF content instead of raw files.
 ---
 
 You have a resource identifier -- returned by `fit-query`, `fit-search`, or an

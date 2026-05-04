@@ -1,6 +1,6 @@
 ---
 title: "Keep Track of Context Without Effort"
-description: "Walking into meetings cold because the context is scattered -- set up Outpost so it assembles and maintains awareness of people, projects, and threads in the background."
+description: "Stop walking into meetings cold — Outpost assembles and maintains awareness of people, projects, and threads in the background."
 ---
 
 You have context scattered across email threads, calendar invites, chat

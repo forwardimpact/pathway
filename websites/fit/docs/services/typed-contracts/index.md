@@ -1,6 +1,6 @@
 ---
 title: Expose Backend Services as Agent Tools
-description: Set up the MCP service so every gRPC endpoint becomes an agent tool from a single configuration file.
+description: Every gRPC endpoint becomes an agent tool from a single configuration file — no per-endpoint integration code.
 ---
 
 You have several gRPC services -- graph, vector, pathway, trace -- and you need

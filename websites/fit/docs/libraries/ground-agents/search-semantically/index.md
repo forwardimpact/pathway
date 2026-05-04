@@ -1,6 +1,6 @@
 ---
 title: Search Semantically
-description: Score a natural-language query against a vector index and get ranked results in memory -- without standing up a vector database or external search service.
+description: Find related content by meaning, not keywords — ranked results from a vector index without standing up a vector database.
 ---
 
 You need to find resources related to a query by meaning, not by exact keyword

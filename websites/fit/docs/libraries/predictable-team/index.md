@@ -1,6 +1,6 @@
 ---
 title: Set Up Persistent Memory and Metrics
-description: Set up wiki-backed memory for an agent team, record metrics with XmR control charts, and verify that agents act on real changes instead of noise.
+description: Give your agent team persistent memory and real signal detection — wiki-backed state, XmR control charts, and evidence that agents act on changes, not noise.
 ---
 
 Your agents finish a session, and their findings disappear. The next session

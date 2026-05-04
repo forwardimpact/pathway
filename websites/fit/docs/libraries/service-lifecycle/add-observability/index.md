@@ -1,6 +1,6 @@
 ---
 title: Add Observability
-description: Add a log line or trace span without configuring a logging framework -- use libtelemetry's Logger, Tracer, and Observer to produce structured, machine-readable output.
+description: Structured, machine-readable logs and traces without configuring a logging framework — drop in a log line or trace span and it works.
 ---
 
 You need to log what a service is doing and trace operations across service

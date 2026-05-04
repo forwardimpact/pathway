@@ -1,6 +1,6 @@
 ---
 title: Query a Knowledge Graph
-description: Traverse relationships in an RDF graph index with triple patterns and type-filtered subject listings -- without writing join logic or managing a SPARQL endpoint.
+description: Answer relationship questions from an RDF graph index — triple patterns and type-filtered listings, no join logic or SPARQL endpoint.
 ---
 
 You need to find how two concepts relate -- which people belong to an

@@ -1,6 +1,6 @@
 ---
 title: "Evaluate a Candidate Against Team Gaps"
-description: "Use Summit's what-if simulation to check whether a candidate fills the team's actual capability gap before making an offer."
+description: "Know whether a candidate fills the team's actual capability gap before making an offer — not after onboarding reveals the mismatch."
 ---
 
 You need to check whether a specific candidate addresses the structural gaps in

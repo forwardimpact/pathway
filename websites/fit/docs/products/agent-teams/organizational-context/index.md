@@ -1,6 +1,6 @@
 ---
 title: "Give Agents Organizational Context"
-description: "Maintain alignment between agents and the engineering standard as it evolves -- structure team instructions and skills so agents receive clear, non-conflicting guidance."
+description: "Keep agents aligned as your engineering standard evolves — guidance stays clear and non-conflicting without manual reconciliation."
 ---
 
 You need to maintain alignment between your agents and the engineering standard

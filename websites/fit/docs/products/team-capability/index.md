@@ -1,6 +1,6 @@
 ---
 title: "Make Staffing Decisions You Can Defend"
-description: "When a post-mortem surfaces the same skill gap that caused the last incident, use Pathway and Summit to see what each role requires and staff teams with evidence instead of intuition."
+description: "Replace staffing intuition with evidence — coverage heatmaps, structural risks, and what-if scenarios that show what each role requires."
 ---
 
 A post-mortem surfaces the same skill gap that caused the last incident. Nobody

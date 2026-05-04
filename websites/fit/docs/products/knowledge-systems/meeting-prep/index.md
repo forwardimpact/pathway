@@ -1,6 +1,6 @@
 ---
 title: "Walk Into Every Meeting Already Oriented"
-description: "Use Outpost's knowledge graph and scheduled agents to prepare for a specific meeting -- attendee context, open items, and talking points assembled before you sit down."
+description: "Walk into any meeting already oriented — attendee context, open items, and talking points assembled before you sit down."
 ---
 
 You need to prepare for a meeting without scrambling through inboxes and chat

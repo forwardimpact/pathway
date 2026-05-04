@@ -1,6 +1,6 @@
 ---
 title: Chart a Metric and Check Variation
-description: Chart a metric over time and see whether the latest point is within expected variation — using fit-xmr to compute natural process limits and apply Wheeler's three detection rules.
+description: Know whether a metric has actually changed or just varied — natural process limits and Wheeler's detection rules separate signal from noise.
 ---
 
 You need to chart a metric and see whether the latest point is within expected

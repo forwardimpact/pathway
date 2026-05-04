@@ -1,6 +1,6 @@
 ---
 title: "Understand Autonomy and Scope"
-description: "Use Pathway to see what your level implies for independence, decision-making authority, influence, and the complexity you are expected to handle."
+description: "Understand what independence, decision-making authority, and complexity look like at your level — so scope conversations start from shared definitions."
 ---
 
 You need to understand what your level's expectations mean in practice for how

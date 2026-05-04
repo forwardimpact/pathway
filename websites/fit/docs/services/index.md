@@ -1,6 +1,6 @@
 ---
 title: Service Guides
-description: Task-oriented guides for platform builders — integrating with shared gRPC services for knowledge graphs, vector search, engineering standard queries, trace collection, and agent tool exposure.
+description: Guides for platform builders — from per-product infrastructure to shared gRPC services for knowledge graphs, vector search, standard queries, trace collection, and agent tools.
 layout: product
 toc: false
 ---
@@ -13,8 +13,8 @@ toc: false
 
 ### Traverse Knowledge and Search Semantically
 
-Connect to the graph and vector services so products query relationships and
-search content without standing up per-product stores.
+Products that query relationships and search content without per-product
+stores — shared graph and vector gRPC services.
 
 </a>
 
@@ -22,8 +22,8 @@ search content without standing up per-product stores.
 
 ### Answer Relationship Questions from a Product
 
-Query the graph service using triple patterns to answer relationship questions
-without writing join logic.
+Answer relationship questions from any product — triple patterns against the
+shared graph service, no join logic.
 
 </a>
 
@@ -31,8 +31,8 @@ without writing join logic.
 
 ### Search for Related Content from a Product
 
-Query the vector service for semantically related content without managing
-embeddings storage.
+Find semantically related content from any product — shared vector service, no
+embeddings storage to manage.
 
 </a>
 
@@ -46,8 +46,8 @@ embeddings storage.
 
 ### Query the Engineering Standard from Any Product
 
-Connect to the pathway service so products access derived roles and profiles
-without embedding derivation logic.
+Products that access derived roles and profiles without embedding derivation
+logic — shared pathway gRPC service.
 
 </a>
 
@@ -55,8 +55,8 @@ without embedding derivation logic.
 
 ### Fetch a Derived Role or Agent Profile
 
-Get a derived entity from the pathway service without reimplementing the
-derivation.
+Get a derived role or agent profile without reimplementing derivation — pass
+coordinates to the pathway service, receive Turtle RDF.
 
 </a>
 
@@ -70,8 +70,8 @@ derivation.
 
 ### Expose Backend Services as Agent Tools
 
-Set up the MCP service so every gRPC endpoint becomes an agent tool from a
-single configuration file.
+Every gRPC endpoint becomes an agent tool from a single configuration file —
+no per-endpoint integration code.
 
 </a>
 
@@ -79,7 +79,7 @@ single configuration file.
 
 ### Add a Service to the MCP Surface
 
-Register a new backend service as agent tools in the MCP server without writing
+A new gRPC service becomes agent-accessible with one registration — no
 integration code.
 
 </a>
@@ -94,8 +94,8 @@ integration code.
 
 ### Collect Trace Spans from Any Product
 
-Connect to the trace service so products send spans to a shared store without
-managing their own storage.
+Products that emit trace spans without managing storage — shared trace gRPC
+service with a single collection point.
 
 </a>
 
@@ -103,8 +103,8 @@ managing their own storage.
 
 ### Send Spans from a Product
 
-Emit trace spans to the trace service and verify they are queryable without
-managing storage.
+Trace spans emitted and immediately queryable — without managing storage
+infrastructure.
 
 </a>
 

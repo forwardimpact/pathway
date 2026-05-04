@@ -1,6 +1,6 @@
 ---
 title: Derive a Skill Matrix or Agent Profile
-description: Use @forwardimpact/libskill to turn a discipline, level, and track into a skill matrix or agent profile without parsing YAML by hand.
+description: Go from discipline, level, and track to a complete skill matrix or agent profile — without parsing YAML by hand.
 ---
 
 You have a discipline, level, and track (or just discipline and level), and you

@@ -1,6 +1,6 @@
 ---
 title: Reference
-description: Lookup material — CLI commands, entity model, lifecycle phases, and YAML schema format.
+description: Find the exact command, entity shape, lifecycle phase, or YAML field you need — without reading end-to-end guides.
 layout: product
 toc: false
 ---

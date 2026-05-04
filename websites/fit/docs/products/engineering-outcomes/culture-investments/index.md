@@ -1,6 +1,6 @@
 ---
 title: Tell Whether Culture Investments Are Working
-description: Check whether mentorship programs, tooling changes, and process improvements are producing measurable results before the next budget cycle.
+description: Know whether mentorship programs, tooling changes, and process improvements are producing measurable results — before the next budget cycle, not after.
 ---
 
 You need to determine whether specific organizational investments -- a

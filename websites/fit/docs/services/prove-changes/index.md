@@ -1,6 +1,6 @@
 ---
 title: Collect Trace Spans from Any Product
-description: Connect to the trace gRPC service so products send spans to a shared store without managing their own storage.
+description: Products that emit trace spans without managing storage — shared trace gRPC service with a single collection point.
 ---
 
 You are building a product that generates trace spans -- recording what an agent

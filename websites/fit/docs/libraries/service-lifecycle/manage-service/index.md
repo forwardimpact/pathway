@@ -1,6 +1,6 @@
 ---
 title: Start, Stop, or Check a Service
-description: Manage a service without remembering its specific incantation -- use fit-rc to start, stop, restart, check status, and read logs through one interface.
+description: Start, stop, restart, check status, and read logs through one interface — without remembering each service's specific incantation.
 ---
 
 You need to start a service, check whether it is running, or stop it cleanly.

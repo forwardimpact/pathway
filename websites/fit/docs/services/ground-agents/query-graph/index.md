@@ -1,6 +1,6 @@
 ---
 title: Answer Relationship Questions from a Product
-description: Query the graph gRPC service using triple patterns to answer relationship questions without writing join logic.
+description: Answer relationship questions from any product — triple patterns against the shared graph service, no join logic.
 ---
 
 You need to answer a relationship question from within a product -- which people

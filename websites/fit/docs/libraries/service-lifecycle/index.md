@@ -1,6 +1,6 @@
 ---
 title: Manage Service Lifecycle from One Interface
-description: Set up supervision and observability so services stay running and problems surface before they escalate -- using fit-rc, libsupervise, and libtelemetry.
+description: Services that stay running and problems that surface before they escalate — supervision and observability from one interface.
 ---
 
 You are running multiple services -- a gRPC server, a vector store, a trace

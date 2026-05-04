@@ -1,6 +1,6 @@
 ---
 title: "Get a Second Opinion on a Deliverable"
-description: "Before approving agent output, use Guide to assess a specific deliverable against your organization's engineering standard and identify what meets the bar and what falls short."
+description: "Know what meets the bar and what falls short before you approve — assessed against your engineering standard, not intuition."
 ---
 
 You need to assess a specific piece of agent output against your organization's

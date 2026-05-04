@@ -1,6 +1,6 @@
 ---
 title: Search for Related Content from a Product
-description: Query the vector gRPC service for semantically related content without managing embeddings storage.
+description: Find semantically related content from any product — shared vector service, no embeddings storage to manage.
 ---
 
 You need to find content related to a natural-language query from within a

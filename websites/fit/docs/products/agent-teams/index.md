@@ -1,6 +1,6 @@
 ---
 title: "Configure Agents to Meet Your Engineering Standard"
-description: "When agent output gets rejected because it followed generic practices instead of yours, use Pathway to configure agents against the same standard the organization holds for human contributors."
+description: "End the cycle of rejecting agent output for following generic practices — agents configured against the same standard the organization holds for human contributors."
 ---
 
 An agent delivered work the team rejected -- not because the code was wrong, but

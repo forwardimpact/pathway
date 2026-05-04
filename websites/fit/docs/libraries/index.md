@@ -1,6 +1,6 @@
 ---
 title: Library Guides
-description: Task-oriented guides for engineers and platform builders — wiki-backed agent memory, XmR analysis, agent surfaces, knowledge infrastructure, typed contracts, service lifecycle, and agent evaluations.
+description: Guides for engineers and platform builders — from scattered agent state to persistent memory, from isolated knowledge stores to shared infrastructure, from manual service wiring to managed lifecycle.
 layout: product
 toc: false
 ---
@@ -15,8 +15,8 @@ Engineers
 
 ### Set Up Persistent Memory and Metrics
 
-Set up wiki-backed memory for an agent team, record metrics with XmR control
-charts, and verify that agents act on real changes instead of noise.
+Give your agent team persistent memory and real signal detection — wiki-backed
+state, XmR control charts, and evidence that agents act on changes, not noise.
 
 </a>
 
@@ -24,8 +24,8 @@ charts, and verify that agents act on real changes instead of noise.
 
 ### Send a Memo or Update a Storyboard
 
-Send a message to a teammate, refresh storyboard charts, or sync wiki state --
-without managing the wiki infrastructure yourself.
+Communicate across your agent team and keep storyboards current — without
+managing the wiki infrastructure yourself.
 
 </a>
 
@@ -33,9 +33,8 @@ without managing the wiki infrastructure yourself.
 
 ### Chart a Metric and Check Variation
 
-Chart a metric over time and see whether the latest point is within expected
-variation -- using `fit-xmr` to compute natural process limits and apply
-Wheeler's detection rules.
+Know whether a metric has actually changed or just varied — natural process
+limits and Wheeler's detection rules separate signal from noise.
 
 </a>
 
@@ -51,8 +50,8 @@ Builders
 
 ### Give Agents and Humans the Same Interface
 
-Build a CLI and a web UI that share one presenter, one contract, and one
-formatter so capabilities work on both surfaces without separate integrations.
+Capabilities that work on every surface — one presenter, one contract, and one
+formatter shared between CLI and web, with no separate integrations.
 
 </a>
 
@@ -60,8 +59,8 @@ formatter so capabilities work on both surfaces without separate integrations.
 
 ### Add a Capability to Both Surfaces
 
-Write a presenter, register a CLI command and a web route, and gain the feature
-on terminal and browser at once.
+Ship a feature to terminal and browser at once — one presenter, one
+registration, both surfaces.
 
 </a>
 
@@ -77,9 +76,9 @@ Builders
 
 ### Give Agents Typed, Retrievable Knowledge
 
-Set up knowledge infrastructure so agents can answer relationship questions,
-look up context, and find related content -- using libresource, libgraph,
-libindex, and libvector without external engines.
+Agents that can answer relationship questions, look up context, and find
+related content — backed by typed knowledge infrastructure with no external
+engines.
 
 </a>
 
@@ -87,8 +86,8 @@ libindex, and libvector without external engines.
 
 ### Query a Knowledge Graph
 
-Traverse relationships in an RDF graph index with triple patterns and
-type-filtered subject listings.
+Answer relationship questions from an RDF graph index — triple patterns and
+type-filtered listings, no join logic or SPARQL endpoint.
 
 </a>
 
@@ -96,8 +95,8 @@ type-filtered subject listings.
 
 ### Look Up Context Fast
 
-Filter and scan a JSONL-backed index without loading everything into memory --
-using prefix, limit, and token-budget filters.
+Retrieve exactly the context you need from a JSONL-backed index — prefix,
+limit, and token-budget filters without loading everything into memory.
 
 </a>
 
@@ -105,8 +104,8 @@ using prefix, limit, and token-budget filters.
 
 ### Resolve a Resource
 
-Get a rich, typed context chunk from a resource identifier -- with provenance,
-access control, and RDF content.
+Give agents rich, typed context from a resource identifier — provenance, access
+control, and RDF content instead of raw files.
 
 </a>
 
@@ -114,8 +113,8 @@ access control, and RDF content.
 
 ### Search Semantically
 
-Score a natural-language query against a vector index and get ranked results in
-memory -- without standing up a vector database.
+Find related content by meaning, not keywords — ranked results from a vector
+index without standing up a vector database.
 
 </a>
 
@@ -131,8 +130,9 @@ Builders
 
 ### Turn Standard Definitions into Queryable Data
 
-Load engineering standard YAML once with `@forwardimpact/libskill`, then derive
-skill matrices, behaviour profiles, and agent configurations programmatically.
+Engineering standard YAML becomes queryable data — derive skill matrices,
+behaviour profiles, and agent configurations programmatically from a single
+load.
 
 </a>
 
@@ -140,8 +140,8 @@ skill matrices, behaviour profiles, and agent configurations programmatically.
 
 ### Derive a Skill Matrix or Agent Profile
 
-Turn a discipline, level, and track into a skill matrix or agent profile without
-parsing YAML by hand.
+Go from discipline, level, and track to a complete skill matrix or agent
+profile — without parsing YAML by hand.
 
 </a>
 
@@ -157,9 +157,8 @@ Builders
 
 ### Keep Types Synced with Proto Definitions
 
-Set up the codegen pipeline so proto changes flow through to JavaScript types,
-MCP tools, and service endpoints -- one source of truth from definition to
-runtime.
+Proto changes flow through to JavaScript types, MCP tools, and service
+endpoints automatically — one source of truth from definition to runtime.
 
 </a>
 
@@ -167,8 +166,8 @@ runtime.
 
 ### Expose a Proto Method as an Agent Tool
 
-Register a new gRPC method as an MCP tool by adding one config entry -- no glue
-code, no hand-written schema.
+A new gRPC method becomes an agent tool with one config entry — no glue code,
+no hand-written schema.
 
 </a>
 
@@ -176,8 +175,8 @@ code, no hand-written schema.
 
 ### Ship a Service Endpoint
 
-Create a gRPC service or call an existing one with `librpc` -- typed contracts,
-automatic authentication, retries, and health checks.
+Ship a gRPC service with typed contracts, authentication, retries, and health
+checks — without reimplementing transport.
 
 </a>
 
@@ -193,9 +192,8 @@ Builders
 
 ### Manage Service Lifecycle from One Interface
 
-Set up supervision and observability so services stay running and problems
-surface before they escalate -- using `fit-rc`, `libsupervise`, and
-`libtelemetry`.
+Services that stay running and problems that surface before they escalate —
+supervision and observability from one interface.
 
 </a>
 
@@ -203,8 +201,8 @@ surface before they escalate -- using `fit-rc`, `libsupervise`, and
 
 ### Start, Stop, or Check a Service
 
-Manage a service without remembering its specific incantation -- use `fit-rc` to
-start, stop, restart, check status, and read logs through one interface.
+Start, stop, restart, check status, and read logs through one interface —
+without remembering each service's specific incantation.
 
 </a>
 
@@ -212,8 +210,8 @@ start, stop, restart, check status, and read logs through one interface.
 
 ### Add Observability
 
-Add a log line or trace span without configuring a logging framework -- use
-`libtelemetry` to produce structured, machine-readable output.
+Structured, machine-readable logs and traces without configuring a logging
+framework — drop in a log line or trace span and it works.
 
 </a>
 
@@ -229,9 +227,8 @@ Builders
 
 ### Prove Agent Changes
 
-Generate a complete eval dataset from a DSL file, run evaluations and
-facilitated sessions, and analyze the resulting traces -- reproducible evidence
-from definition to finding.
+Reproducible evidence that agent changes improved outcomes — from dataset
+generation through evaluation to trace analysis.
 
 </a>
 
@@ -239,8 +236,8 @@ from definition to finding.
 
 ### Run an Eval
 
-Set up an agent-as-judge eval with `fit-eval supervise`, wire it into CI, and
-read the trace to see whether agent changes improved outcomes.
+Know whether agent changes improved outcomes — an agent-as-judge eval wired
+into CI with traceable results.
 
 </a>
 
@@ -248,8 +245,8 @@ read the trace to see whether agent changes improved outcomes.
 
 ### Analyze Traces
 
-See exactly what an agent did during a run -- download traces, query turns,
-filter by tool or error, and measure token cost with `fit-trace`.
+See exactly what an agent did and why — download traces, query turns, filter by
+tool or error, and measure token cost.
 
 </a>
 
@@ -257,9 +254,8 @@ filter by tool or error, and measure token cost with `fit-trace`.
 
 ### Generate an Eval Dataset
 
-Produce a complete evaluation dataset from a single DSL file -- the pipeline
-parses, generates entities, resolves prose, renders output, and validates the
-result.
+Go from a DSL file to a complete, validated evaluation dataset — entities
+generated, prose resolved, output rendered, and results verified.
 
 </a>
 

@@ -1,6 +1,6 @@
 ---
 title: Expose a Proto Method as an Agent Tool
-description: Register a new gRPC method as an MCP tool by adding one config entry -- no glue code, no hand-written schema, no changes to tool registration logic.
+description: A new gRPC method becomes an agent tool with one config entry — no glue code, no hand-written schema.
 ---
 
 You need to make a new gRPC method available to agents as an MCP tool. The

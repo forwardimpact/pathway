@@ -1,6 +1,6 @@
 ---
 title: Generate an Eval Dataset
-description: Produce a complete evaluation dataset from a single DSL file -- the pipeline parses, generates entities, resolves prose through an LLM cache, renders output, and validates the result.
+description: Go from a DSL file to a complete, validated evaluation dataset — entities generated, prose resolved, output rendered, and results verified.
 ---
 
 You need to produce a dataset for an agent evaluation. The dataset must include

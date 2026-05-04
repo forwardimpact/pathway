@@ -1,6 +1,6 @@
 ---
 title: "Getting Started: Contributors"
-description: "Clone the monorepo, generate synthetic data, run checks, and understand the project structure."
+description: "Go from a fresh clone to a working development environment — with synthetic data, passing checks, and a clear picture of the project structure."
 ---
 
 Set up the Forward Impact monorepo for development. This guide covers

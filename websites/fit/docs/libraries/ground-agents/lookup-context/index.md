@@ -1,6 +1,6 @@
 ---
 title: Look Up Context Fast
-description: Filter and scan a JSONL-backed index without loading everything into memory -- using prefix, limit, and token-budget filters to retrieve exactly the identifiers you need.
+description: Retrieve exactly the context you need from a JSONL-backed index — prefix, limit, and token-budget filters without loading everything into memory.
 ---
 
 You need to find resources in a growing index -- not by semantic similarity or

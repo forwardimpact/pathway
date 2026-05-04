@@ -1,6 +1,6 @@
 ---
 title: Fetch a Derived Role or Agent Profile
-description: Get a derived entity from the pathway gRPC service without reimplementing derivation -- pass coordinates, receive Turtle RDF.
+description: Get a derived role or agent profile without reimplementing derivation — pass coordinates to the pathway service, receive Turtle RDF.
 ---
 
 You have a discipline, level, and optional track, and you need the derived role

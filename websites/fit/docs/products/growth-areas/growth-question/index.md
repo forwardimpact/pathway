@@ -1,6 +1,6 @@
 ---
 title: "Ask a Growth Question"
-description: "Ask Guide a specific question about your engineering standard and get advice grounded in your organization's actual skill and behaviour definitions."
+description: "Get growth advice grounded in your organization's actual skill and behaviour definitions — not generic career guidance."
 ---
 
 You need to ask a focused question about your career growth and get an answer

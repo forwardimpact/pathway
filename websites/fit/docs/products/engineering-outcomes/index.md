@@ -1,6 +1,6 @@
 ---
 title: Demonstrate Engineering Progress
-description: Prepare for a quarterly review with system-level trends, marker evidence, and engineer voice -- without singling out individuals.
+description: Walk into a quarterly review with system-level trends, marker evidence, and engineer voice — demonstrating progress without singling out individuals.
 ---
 
 The quarterly review is due and the only data available is ticket counts --

@@ -1,6 +1,6 @@
 ---
 title: "Define a New Role"
-description: "Create requirements for a new role in your engineering standard by generating a starting point from existing disciplines and tracks, then customizing it."
+description: "Move from a blank slate to a well-structured role definition — built from existing disciplines and tracks, then customized to fit."
 ---
 
 You need to add a new role to your engineering standard -- Pathway can generate

@@ -1,6 +1,6 @@
 ---
 title: Internals
-description: Architecture and code reference for contributors to the Forward Impact monorepo.
+description: Understand how the system works under the hood — architecture and code for Map, Pathway, Guide, Summit, Outpost, and supporting libraries.
 layout: product
 toc: false
 ---

@@ -1,6 +1,6 @@
 ---
 title: "Surface Capability Gaps"
-description: "Use Summit to detect structural risks, track coverage trends over time, and identify growth opportunities so gaps are visible before they become incidents."
+description: "See capability gaps before they become incidents — structural risks, coverage trends, and growth opportunities made visible."
 ---
 
 You need to find capability gaps in your team before someone gets set up to

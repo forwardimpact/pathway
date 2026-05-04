@@ -1,6 +1,6 @@
 ---
 title: Give Agents and Humans the Same Interface
-description: Give agents and humans the same interface so capabilities work everywhere -- build a CLI and a web UI that share one presenter, one contract, and one formatter.
+description: Capabilities that work on every surface — one presenter, one contract, and one formatter shared between CLI and web, with no separate integrations.
 ---
 
 When a capability exists as a CLI command but not as a web page (or vice versa),

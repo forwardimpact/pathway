@@ -1,6 +1,6 @@
 ---
 title: Keep Types Synced with Proto Definitions
-description: Set up the codegen pipeline so proto changes flow through to JavaScript types, MCP tools, and service endpoints -- one source of truth from definition to runtime.
+description: Proto changes flow through to JavaScript types, MCP tools, and service endpoints automatically — one source of truth from definition to runtime.
 ---
 
 You added a field to a proto file and three hand-maintained type copies are

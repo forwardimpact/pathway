@@ -1,6 +1,6 @@
 ---
 title: Getting Started
-description: Quickstart guides for leadership, engineers, and contributors.
+description: Go from zero to your first meaningful result — whether you're defining standards, exploring expectations, or running the codebase.
 layout: product
 toc: false
 ---
@@ -11,8 +11,9 @@ toc: false
 
 ### Leadership
 
-Install the CLI tools, author your first agent-aligned engineering standard,
-validate, and preview.
+Go from an unwritten engineering standard to a validated, previewable
+definition — with career paths, capability signals, and team analysis ready to
+use.
 
 </a>
 
@@ -20,8 +21,8 @@ validate, and preview.
 
 ### Engineers
 
-Install CLI tools, browse job definitions, generate agent teams, set up Guide,
-and configure Outpost.
+Go from unfamiliar tooling to a clear view of your level, growth guidance
+grounded in your standard, and a knowledge base that stays current.
 
 </a>
 
@@ -29,8 +30,8 @@ and configure Outpost.
 
 ### Contributors
 
-Clone the monorepo, generate synthetic data, run checks, and understand the
-project structure.
+Go from a fresh clone to a working development environment — with synthetic
+data, passing checks, and a clear picture of the project structure.
 
 </a>
 

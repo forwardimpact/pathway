@@ -1,6 +1,6 @@
 ---
 title: "Add a Capability to Both Surfaces"
-description: "Write a presenter, register a CLI command, register a web route, and gain the feature on terminal and browser at once -- no separate integrations."
+description: "Ship a feature to terminal and browser at once — one presenter, one registration, both surfaces."
 ---
 
 You need to add a new capability to an application that already shares a

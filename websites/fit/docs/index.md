@@ -15,7 +15,7 @@ hero:
 
 ### Getting Started
 
-Quickstart guides for leadership, engineers, and contributors.
+Go from zero to your first meaningful result — whether you're defining standards, exploring expectations, or running the codebase.
 
 </a>
 
@@ -23,9 +23,9 @@ Quickstart guides for leadership, engineers, and contributors.
 
 ### Product Guides
 
-Task-oriented guides for engineers and leaders: defining standards, career
-paths, growth areas, agent teams, staffing, engineering outcomes, agent
-verification, and knowledge systems.
+Guides for engineers and leaders — from unclear expectations to visible
+standards, from vague growth feedback to concrete evidence, from unverified
+agent output to trusted delivery.
 
 </a>
 
@@ -33,9 +33,9 @@ verification, and knowledge systems.
 
 ### Library Guides
 
-Task-oriented guides for platform builders: agent memory, XmR analysis, agent
-surfaces, knowledge infrastructure, typed contracts, service lifecycle, and
-agent evaluations.
+Guides for engineers and platform builders — from scattered agent state to
+persistent memory, from isolated knowledge stores to shared infrastructure,
+from manual service wiring to managed lifecycle.
 
 </a>
 
@@ -43,9 +43,9 @@ agent evaluations.
 
 ### Service Guides
 
-Task-oriented guides for platform builders: integrating with shared gRPC
-services for knowledge graphs, vector search, engineering standard queries,
-trace collection, and agent tool exposure.
+Guides for platform builders — from per-product infrastructure to shared gRPC
+services for knowledge graphs, vector search, standard queries, trace
+collection, and agent tools.
 
 </a>
 
@@ -53,7 +53,7 @@ trace collection, and agent tool exposure.
 
 ### Reference
 
-CLI commands, entity model, lifecycle stages, and YAML schema format.
+Find the exact command, entity shape, lifecycle phase, or YAML field you need — without reading end-to-end guides.
 
 </a>
 
@@ -61,8 +61,8 @@ CLI commands, entity model, lifecycle stages, and YAML schema format.
 
 ### Internals
 
-Architecture and code: Map, Pathway, Guide, Summit, Outpost, libskill, and
-Terrain.
+Understand how the system works under the hood — architecture and code for
+Map, Pathway, Guide, Summit, Outpost, and supporting libraries.
 
 </a>
 

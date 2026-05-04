@@ -1,6 +1,6 @@
 ---
 title: "Verify Agent Work Against the Standard"
-description: "When agent output looks right but violates an organizational convention only visible in the standard data, use Guide and Pathway to review by exception instead of reading every line."
+description: "Catch convention violations that look correct on the surface — review agent output against your engineering standard instead of reading every line."
 ---
 
 An engineer approved agent output without reviewing it against the standard --

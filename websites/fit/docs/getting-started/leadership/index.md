@@ -1,6 +1,6 @@
 ---
 title: "Getting Started: Leadership"
-description: "Set up the FIT suite for engineering leadership — define agent-aligned engineering standards, preview careers, analyze signals, and plan team capability."
+description: "Go from an unwritten engineering standard to a validated, previewable definition — with career paths, capability signals, and team analysis ready to use."
 layout: product
 toc: false
 ---

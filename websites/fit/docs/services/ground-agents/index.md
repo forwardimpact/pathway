@@ -1,6 +1,6 @@
 ---
 title: Traverse Knowledge and Search Semantically
-description: Connect to the graph and vector gRPC services so products query relationships and search content without standing up per-product stores.
+description: Products that query relationships and search content without per-product stores — shared graph and vector gRPC services.
 ---
 
 You are building a product feature that needs relationship traversal or semantic

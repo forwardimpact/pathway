@@ -1,6 +1,6 @@
 ---
 title: Run an Eval
-description: Set up an agent-as-judge eval with fit-eval supervise, wire it into CI, and read the trace to see whether agent changes improved outcomes.
+description: Know whether agent changes improved outcomes — an agent-as-judge eval wired into CI with traceable results.
 ---
 
 You changed an agent profile, a tool allowlist, or a system prompt -- and now

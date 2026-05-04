@@ -1,6 +1,6 @@
 ---
 title: Ship a Service Endpoint
-description: Create a gRPC service or call an existing one with librpc -- typed contracts, automatic authentication, retries, and health checks without reimplementing transport.
+description: Ship a gRPC service with typed contracts, authentication, retries, and health checks — without reimplementing transport.
 ---
 
 You need to expose business logic over gRPC or consume an existing gRPC service.

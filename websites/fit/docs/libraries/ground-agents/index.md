@@ -1,6 +1,6 @@
 ---
 title: Give Agents Typed, Retrievable Knowledge
-description: Set up knowledge infrastructure so agents can answer relationship questions, look up context, and find related content -- using libresource, libgraph, libindex, and libvector without external engines.
+description: Agents that can answer relationship questions, look up context, and find related content — backed by typed knowledge infrastructure with no external engines.
 ---
 
 You need agents that can answer questions about relationships between entities,

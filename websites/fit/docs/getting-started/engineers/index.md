@@ -1,6 +1,6 @@
 ---
 title: "Getting Started: Engineers"
-description: "Get up and running with the Forward Impact CLI tools — browse careers, get AI guidance, check evidence, and manage your knowledge base."
+description: "Go from unfamiliar tooling to a clear view of your level, growth guidance grounded in your standard, and a knowledge base that stays current."
 layout: product
 toc: false
 ---
