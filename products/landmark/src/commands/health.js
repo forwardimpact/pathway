@@ -15,8 +15,6 @@ import {
 } from "@forwardimpact/map/activity/queries/snapshots";
 import { getEvidence } from "@forwardimpact/map/activity/queries/evidence";
 import { getSnapshotComments } from "@forwardimpact/map/activity/queries/comments";
-import { listInitiatives } from "@forwardimpact/map/activity/queries/initiatives";
-
 import { EMPTY_STATES } from "../lib/empty-state.js";
 import { isRelationNotFoundError } from "../lib/supabase.js";
 import {
@@ -27,7 +25,7 @@ import { computeGrowth } from "../lib/summit.js";
 
 export const needsSupabase = true;
 
-/** Build a health view joining snapshot scores, contributing-skill evidence, comments, initiatives, and Summit growth recommendations. */
+/** Build a health view joining snapshot scores, contributing-skill evidence, comments, and Summit growth recommendations. */
 export async function runHealthCommand({
   options,
   mapData,
@@ -43,7 +41,6 @@ export async function runHealthCommand({
     getSnapshotScores,
     getEvidence,
     getSnapshotComments,
-    listInitiatives,
   };
   const growth = summitFn ?? computeGrowth;
 
@@ -86,10 +83,6 @@ export async function runHealthCommand({
     meta,
   );
   attachComments(drivers, allComments);
-
-  // Attach initiatives to drivers
-  const activeInitiatives = await fetchInitiatives(q, supabase, options, meta);
-  attachInitiatives(drivers, activeInitiatives);
 
   // Deduplicate warnings
   meta.warnings = [...new Set(meta.warnings)];
@@ -187,7 +180,6 @@ async function buildDriverRows(
       vs_90th: scoreRow.vs_90th,
       contributingSkills: skillEvidence,
       comments: [],
-      initiatives: [],
       recommendations: [],
     });
   }
@@ -251,32 +243,6 @@ function attachComments(drivers, allComments) {
         return skillKeywords.some((kw) => lower.includes(kw));
       })
       .slice(0, 3);
-  }
-}
-
-/** Fetch active initiatives, returning [] on error or absence. */
-async function fetchInitiatives(q, supabase, options, meta) {
-  if (!q.listInitiatives) return [];
-  try {
-    return await q.listInitiatives(supabase, {
-      managerEmail: options.manager,
-      status: "active",
-    });
-  } catch (err) {
-    if (isRelationNotFoundError(err)) {
-      meta.warnings.push("Active initiatives unavailable — table not present.");
-      return [];
-    }
-    throw err;
-  }
-}
-
-/** Attach initiatives to each driver by scorecard_id match. */
-function attachInitiatives(drivers, activeInitiatives) {
-  for (const driver of drivers) {
-    driver.initiatives = activeInitiatives.filter(
-      (i) => i.scorecard_id === driver.id,
-    );
   }
 }
 

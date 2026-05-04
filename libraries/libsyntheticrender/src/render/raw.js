@@ -80,6 +80,7 @@ function renderGetDXPayloads(entities, files) {
       parent: t.is_parent || false,
       manager_id: t.manager_id || null,
       contributors: t.contributors || 0,
+      contributor_list: t.contributor_list || [],
       last_changed_at: t.last_changed_at || null,
       reference_id: t.reference_id || null,
       ancestors: t.ancestors || [],
@@ -275,6 +276,7 @@ function renderGetDXComments(entities, files, proseMap) {
       return {
         snapshot_id: ck.snapshot_id,
         email: ck.email,
+        driver_name: ck.driver_name,
         text:
           text ||
           `[${ck.driver_name} — ${ck.trajectory}] Comment pending prose generation.`,
