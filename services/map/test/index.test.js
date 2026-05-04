@@ -17,7 +17,11 @@ import { MapService, defaultRegistry } from "../index.js";
 
 const config = { name: "map" };
 
-function makeFakeSupabase({ artifacts = [], evidenceById = new Map(), people = [] } = {}) {
+function makeFakeSupabase({
+  artifacts = [],
+  evidenceById = new Map(),
+  people = [],
+} = {}) {
   let lastUpsertRows = null;
 
   function from(table) {

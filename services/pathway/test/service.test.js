@@ -332,7 +332,9 @@ describe("PathwayService RPCs", () => {
     const skill = data.skills[0];
     skill.markers = {
       awareness: { human: ["Read a Python script and explained it"] },
-      foundational: { human: ["Wrote a small Python script with passing tests"] },
+      foundational: {
+        human: ["Wrote a small Python script with passing tests"],
+      },
       working: {
         human: ["Refactored a Python module without regressions"],
         agent: ["Reviewed a Python diff and flagged a missing edge case"],
@@ -356,9 +358,13 @@ describe("PathwayService RPCs", () => {
       const [skillId, levelId, ...rest] = line.split("\t");
       assert.equal(skillId, "python");
       assert.ok(
-        ["awareness", "foundational", "working", "practitioner", "expert"].includes(
-          levelId,
-        ),
+        [
+          "awareness",
+          "foundational",
+          "working",
+          "practitioner",
+          "expert",
+        ].includes(levelId),
         `unexpected level: ${levelId}`,
       );
       assert.ok(rest.join("\t").length > 0, "marker_text must be non-empty");

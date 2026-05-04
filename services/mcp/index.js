@@ -92,6 +92,10 @@ export function createMcpService({
   resourceIndex,
 }) {
   const promptPath = path.join(__dirname, "prompts", "guide-default.md");
+  // Spec 800: append the artifact-evaluation protocol so a piped
+  // "evaluate ..." prompt has the procedure available without a dedicated
+  // subcommand.
+  const evaluationPromptPath = path.join(__dirname, "prompts", "evaluation.md");
 
   function makeServer(promptText) {
     const server = new McpServer({ name: "guide", version: "0.1.0" });
@@ -119,7 +123,11 @@ export function createMcpService({
   }
 
   async function start() {
-    const promptText = await readFile(promptPath, "utf8");
+    const [defaultText, evaluationText] = await Promise.all([
+      readFile(promptPath, "utf8"),
+      readFile(evaluationPromptPath, "utf8"),
+    ]);
+    const promptText = `${defaultText.trimEnd()}\n\n${evaluationText}`;
     const host = config.host || "0.0.0.0";
     const port = config.port || 3005;
     const expectedToken = config.mcpToken();

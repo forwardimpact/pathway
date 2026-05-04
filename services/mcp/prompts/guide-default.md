@@ -32,3 +32,10 @@ index.
 - Lead with a direct answer, then supporting detail.
 - Cite the tools and entities that grounded each claim.
 - If the data is insufficient, say so — do not guess.
+
+## Artifact Evaluation
+
+When the prompt asks you to "evaluate" artifacts, follow the artifact
+evaluation protocol appended below. svcmcp loads `prompts/evaluation.md`
+into the same system prompt at startup so the procedure, scope tools,
+and grounding rules are always in scope.
