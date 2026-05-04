@@ -429,6 +429,7 @@ covers the command and is left alone.
 | verbose recommendation appears once across drivers | same as default-dedup case | `output.match(/⮕ Recommendation/g).length === 1` |
 | verbose preserves contributing-skills + evidence + comments + initiatives | driver with one comment + one initiative + a contributing skill | output contains `Contributing skills:`, `Evidence:`, `GetDX comments:`, and `Active initiatives:` |
 | markdown default header is exactly 5 cells in design order | any view | header row equals `"\| # \| Driver \| Percentile \| vs_org \| More \|"` and separator `"\| --- \| --- \| --- \| --- \| --- \|"` |
+| default driver column accommodates real driver names | one driver named `"Codebase Experience"` (19 chars, exceeds `TEXT_COLS.driver = 16`) | row contains the full literal `"Codebase Experience"` (no truncation) and the `Percentile` cell starts at a column that varies by name length — assertion: `row.includes("Codebase Experience")` and the row matches `/Codebase Experience\s+\d+(st|nd|rd|th)/` |
 
 The 6-driver fixture is built inline in the test file (not added to
 `fixtures.js`) because no other test consumes it. The shape mirrors
@@ -479,8 +480,7 @@ contain a literal `--verbose` mention and a sample block.
 
 | Risk | Mitigation |
 | --- | --- |
-| Production driver names (`"Codebase Experience"`, `"Clear Direction"`) exceed `TEXT_COLS.driver = 16`, producing silently misaligned rows that no current fixture catches. | Add a single test case using a 17-char driver name and assert the row aligns; bump the constant if needed. The plan's test fixture uses synthetic short names so this only surfaces post-merge against real data. |
-| `result.meta` is mutated in the binary, but the handler-formatter contract is not documented as allowing it; a future refactor that freezes `meta` post-handler would silently drop `--verbose`. | The freezing risk is invisible from the plan because `formatResult` already reads `meta.format` via the same channel. Flagged so a future invariant tightening surfaces this site. |
+| `result.meta` is mutated in the binary, but the handler-formatter contract is not documented as allowing it; a future refactor that freezes `meta` post-handler would silently drop `--verbose`. | Invisible from the plan because `formatResult` already reads `meta.format` via the same channel. Flagged so a future invariant tightening surfaces this site. |
 
 ## Execution
 
