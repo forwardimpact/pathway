@@ -1,5 +1,5 @@
 ---
-title: Look Up Context in an Index
+title: Look Up Context Fast
 description: Filter and scan a JSONL-backed index without loading everything into memory -- using prefix, limit, and token-budget filters to retrieve exactly the identifiers you need.
 ---
 

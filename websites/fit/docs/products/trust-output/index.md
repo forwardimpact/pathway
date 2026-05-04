@@ -1,5 +1,5 @@
 ---
-title: "Verify Agent Work Against Your Standard"
+title: "Verify Agent Work Against the Standard"
 description: "When agent output looks right but violates an organizational convention only visible in the standard data, use Guide and Pathway to review by exception instead of reading every line."
 ---
 
@@ -293,9 +293,9 @@ define the quality bar and Guide to apply it.
 This guide covered the end-to-end workflow for verifying agent output against
 the standard. For specific tasks within this workflow, see:
 
-- [Get a Second Opinion on a Deliverable](/docs/products/verify-agent-work/second-opinion/)
+- [Get a Second Opinion on a Deliverable](/docs/products/trust-output/second-opinion/)
   -- ask Guide to evaluate a specific piece of work before approving it
-- [Check Expected Output for a Role](/docs/products/verify-agent-work/expected-output/)
+- [Check Expected Output for a Role](/docs/products/trust-output/expected-output/)
   -- see what the standard expects the agent to produce before reviewing
 - [See What's Expected at Your Level](/docs/products/career-paths/) -- full
   role expectation workflow for understanding any position in the standard

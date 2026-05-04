@@ -10,7 +10,7 @@ before the next budget review asks for evidence.
 ## Prerequisites
 
 Complete
-[Demonstrate Engineering Progress](/docs/products/landmark-quickstart/) first.
+[Demonstrate Engineering Progress](/docs/products/engineering-outcomes/) first.
 This page assumes you have a working Landmark setup with health views, snapshot
 data, and at least two GetDX snapshots spanning the period of your investment.
 

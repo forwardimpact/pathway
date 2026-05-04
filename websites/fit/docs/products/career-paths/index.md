@@ -339,9 +339,9 @@ You now have a concrete picture of what your level expects -- the skills,
 behaviours, scope, and autonomy your role requires, grounded in your
 organization's own standard.
 
-- [Understand autonomy and scope](/docs/products/career-paths/autonomy-and-scope/)
+- [Understand autonomy and scope](/docs/products/career-paths/autonomy-scope/)
   -- see what your level implies for independence and decision-making
-- [Find Growth Areas](/docs/products/finding-your-bearing/) -- identify specific
+- [Find Growth Areas](/docs/products/growth-areas/) -- identify specific
   gaps and build evidence of progress
 - [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
   skills, and levels relate in the underlying model

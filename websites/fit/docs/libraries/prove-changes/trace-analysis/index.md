@@ -1,5 +1,5 @@
 ---
-title: Trace Analysis
+title: Analyze Traces
 description: See exactly what an agent did during a run — download traces, query turns, filter by tool or error, and measure token cost with fit-trace.
 ---
 

@@ -1,5 +1,5 @@
 ---
-title: Agent-Friendly Surfaces
+title: Give Agents and Humans the Same Interface
 description: Give agents and humans the same interface so capabilities work everywhere -- build a CLI and a web UI that share one presenter, one contract, and one formatter.
 ---
 

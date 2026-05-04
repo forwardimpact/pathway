@@ -9,7 +9,7 @@ reviewing agent-produced work against it.
 ## Prerequisites
 
 Complete the
-[Verify Agent Work Against the Standard](/docs/products/verify-agent-work/)
+[Verify Agent Work Against the Standard](/docs/products/trust-output/)
 guide first -- this page assumes you have an agent-aligned engineering standard
 installed and have already run `npx fit-pathway job` at least once.
 
@@ -189,7 +189,7 @@ from your Pathway output:
 
 ## What's next
 
-- [Verify Agent Work Against the Standard](/docs/products/verify-agent-work/) --
+- [Verify Agent Work Against the Standard](/docs/products/trust-output/) --
   return to the full review workflow
 - [See What's Expected at Your Level](/docs/products/career-paths/) -- explore
   your own role expectations in depth

@@ -1,5 +1,5 @@
 ---
-title: Agent Evaluations
+title: Run an Eval
 description: Set up an agent-as-judge eval with fit-eval supervise, wire it into CI, and read the trace to see whether agent changes improved outcomes.
 ---
 

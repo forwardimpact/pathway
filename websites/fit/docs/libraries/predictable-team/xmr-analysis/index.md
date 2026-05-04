@@ -1,5 +1,5 @@
 ---
-title: XmR Analysis
+title: Chart a Metric and Check Variation
 description: Chart a metric over time and see whether the latest point is within expected variation — using fit-xmr to compute natural process limits and apply Wheeler's three detection rules.
 ---
 

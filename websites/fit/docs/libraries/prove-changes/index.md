@@ -1,5 +1,5 @@
 ---
-title: Prove Whether Agent Changes Improved Outcomes
+title: Prove Agent Changes
 description: Generate a complete eval dataset from a DSL file, run evaluations and facilitated sessions with fit-eval, and analyze the resulting traces with fit-trace -- reproducible evidence from definition to finding.
 ---
 

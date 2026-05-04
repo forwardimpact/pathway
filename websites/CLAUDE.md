@@ -111,31 +111,31 @@ Little Hire guides are nested children.
 | Hire | Path | Title |
 | ---- | ---- | ----- |
 | Big | `authoring-standards/` | Authoring Agent-Aligned Engineering Standards |
-| Little | `authoring-standards/validate-and-update/` | Validate and Update the Standard |
-| Little | `authoring-standards/define-a-new-role/` | Define a New Role |
+| Little | `authoring-standards/update-standard/` | Validate and Update the Standard |
+| Little | `authoring-standards/define-role/` | Define a New Role |
 
 **Understand Expectations** (Engineers → Pathway)
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
 | Big | `career-paths/` | See What's Expected at Your Level |
-| Little | `career-paths/autonomy-and-scope/` | Understand Autonomy and Scope at Your Level |
+| Little | `career-paths/autonomy-scope/` | Understand Autonomy and Scope |
 
 **Find Growth Areas** (Engineers → Guide, Landmark)
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `finding-your-bearing/` | Find Growth Areas and Build Evidence |
-| Little | `finding-your-bearing/ask-a-growth-question/` | Ask a Growth Question |
-| Little | `finding-your-bearing/check-progress/` | Check Progress Toward Next Level |
+| Big | `growth-areas/` | Find Growth Areas and Build Evidence |
+| Little | `growth-areas/growth-question/` | Ask a Growth Question |
+| Little | `growth-areas/check-progress/` | Check Progress Toward Next Level |
 
 **Trust Agent Output** (Engineers → Guide, Pathway)
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `verify-agent-work/` | Verify Agent Work Against Your Standard |
-| Little | `verify-agent-work/second-opinion/` | Get a Second Opinion on a Deliverable |
-| Little | `verify-agent-work/expected-output/` | See What the Standard Expects Before Reviewing |
+| Big | `trust-output/` | Verify Agent Work Against the Standard |
+| Little | `trust-output/second-opinion/` | Get a Second Opinion on a Deliverable |
+| Little | `trust-output/expected-output/` | See What the Standard Expects Before Reviewing |
 
 **Equip Aligned Agent Teams** (Engineers → Pathway)
 
@@ -148,8 +148,8 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `landmark-quickstart/` | Demonstrate Engineering Progress |
-| Little | `landmark-quickstart/culture-investments/` | Tell Whether Culture Investments Are Working |
+| Big | `engineering-outcomes/` | Demonstrate Engineering Progress |
+| Little | `engineering-outcomes/culture-investments/` | Tell Whether Culture Investments Are Working |
 
 **Staff Teams to Succeed** (Leaders → Pathway, Summit)
 
@@ -157,7 +157,7 @@ Little Hire guides are nested children.
 | ---- | ---- | ----- |
 | Big | `team-capability/` | Make Staffing Decisions You Can Defend |
 | Little | `team-capability/evaluate-candidate/` | Evaluate a Candidate Against Team Gaps |
-| Little | `team-capability/surface-gaps/` | Surface Capability Gaps Before They Cause Failures |
+| Little | `team-capability/surface-gaps/` | Surface Capability Gaps |
 
 **Be Prepared and Productive** (Engineers → Outpost)
 
@@ -172,24 +172,24 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `predictable-team/` | Persistent Memory for Agent Teams |
-| Little | `predictable-team/wiki-operations/` | Wiki Operations |
-| Little | `predictable-team/xmr-analysis/` | XmR Analysis |
+| Big | `predictable-team/` | Give Agent Teams Persistent Memory and Trustworthy Metrics |
+| Little | `predictable-team/wiki-operations/` | Send a Memo or Update a Storyboard |
+| Little | `predictable-team/xmr-analysis/` | Chart a Metric and Check Variation |
 
 **Enable Agents on Every Surface** (Builders → libcli, libformat, libui)
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `every-surface/` | Agent-Friendly Surfaces |
+| Big | `every-surface/` | Give Agents and Humans the Same Interface |
 | Little | `every-surface/add-capability/` | Add a Capability to Both Surfaces |
 
 **Ground Agents in Context** (Builders → libgraph, libindex, libresource, libvector)
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `ground-agents/` | Ground Agents in Typed, Retrievable Knowledge |
-| Little | `ground-agents/query-graph/` | Query a Graph |
-| Little | `ground-agents/lookup-context/` | Look Up Context in an Index |
+| Big | `ground-agents/` | Give Agents Typed, Retrievable Knowledge |
+| Little | `ground-agents/query-graph/` | Query a Knowledge Graph |
+| Little | `ground-agents/lookup-context/` | Look Up Context Fast |
 | Little | `ground-agents/resolve-resource/` | Resolve a Resource |
 | Little | `ground-agents/search-semantically/` | Search Semantically |
 
@@ -197,14 +197,14 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `integrate-standard/` | Integrate with the Engineering Standard |
+| Big | `integrate-standard/` | Turn Standard Definitions into Queryable Data |
 | Little | `integrate-standard/derive-profile/` | Derive a Skill Matrix or Agent Profile |
 
 **Keep Service Contracts Typed** (Builders → libcodegen, libmcp, librpc, libtype)
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `typed-contracts/` | Typed Contracts |
+| Big | `typed-contracts/` | Keep Types Synced with Proto Definitions |
 | Little | `typed-contracts/expose-tool/` | Expose a Proto Method as an Agent Tool |
 | Little | `typed-contracts/ship-endpoint/` | Ship a Service Endpoint |
 
@@ -212,7 +212,7 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `service-lifecycle/` | Service Lifecycle |
+| Big | `service-lifecycle/` | Manage Service Lifecycle from One Interface |
 | Little | `service-lifecycle/manage-service/` | Start, Stop, or Check a Service |
 | Little | `service-lifecycle/add-observability/` | Add Observability |
 
@@ -220,9 +220,9 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `prove-changes/` | Prove Whether Agent Changes Improved Outcomes |
-| Little | `prove-changes/run-eval/` | Agent Evaluations |
-| Little | `prove-changes/trace-analysis/` | Trace Analysis |
+| Big | `prove-changes/` | Prove Agent Changes |
+| Little | `prove-changes/run-eval/` | Run an Eval |
+| Little | `prove-changes/trace-analysis/` | Analyze Traces |
 | Little | `prove-changes/generate-dataset/` | Generate an Eval Dataset |
 
 ### Service Guides (`docs/services/`)

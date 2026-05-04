@@ -1,5 +1,5 @@
 ---
-title: Integrate with the Engineering Standard
+title: Turn Standard Definitions into Queryable Data
 description: Turn engineering standard definitions into queryable, derivable data with @forwardimpact/libskill -- load YAML once, derive skill matrices, behaviour profiles, and agent configurations programmatically.
 ---
 

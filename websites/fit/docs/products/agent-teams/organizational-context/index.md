@@ -188,5 +188,5 @@ Your organizational context is well-structured when:
   -- return to the end-to-end setup if you need to add a new agent role.
 - [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
   -- update the YAML definitions that agent configurations are derived from.
-- [Validate and Update the Standard](/docs/products/authoring-standards/validate-and-update/)
+- [Validate and Update the Standard](/docs/products/authoring-standards/update-standard/)
   -- confirm structural soundness after making changes.

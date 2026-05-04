@@ -18,7 +18,7 @@ validates and Pathway renders.
 
 </a>
 
-<a href="/docs/products/authoring-standards/validate-and-update/">
+<a href="/docs/products/authoring-standards/update-standard/">
 
 ### Validate and Update the Standard
 
@@ -27,7 +27,7 @@ catches structural mistakes before the changes reach the team.
 
 </a>
 
-<a href="/docs/products/authoring-standards/define-a-new-role/">
+<a href="/docs/products/authoring-standards/define-role/">
 
 ### Define a New Role
 
@@ -51,7 +51,7 @@ during reviews.
 
 </a>
 
-<a href="/docs/products/career-paths/autonomy-and-scope/">
+<a href="/docs/products/career-paths/autonomy-scope/">
 
 ### Understand Autonomy and Scope
 
@@ -66,7 +66,7 @@ complexity you are expected to handle.
 
 <div class="grid">
 
-<a href="/docs/products/finding-your-bearing/">
+<a href="/docs/products/growth-areas/">
 
 ### Find Growth Areas and Build Evidence
 
@@ -75,7 +75,7 @@ and Landmark to find what's missing and show concrete evidence of growth.
 
 </a>
 
-<a href="/docs/products/finding-your-bearing/ask-a-growth-question/">
+<a href="/docs/products/growth-areas/growth-question/">
 
 ### Ask a Growth Question
 
@@ -84,7 +84,7 @@ actual skill and behaviour definitions.
 
 </a>
 
-<a href="/docs/products/finding-your-bearing/check-progress/">
+<a href="/docs/products/growth-areas/check-progress/">
 
 ### Check Progress Toward Next Level
 
@@ -99,7 +99,7 @@ by reviewing your readiness checklist and growth timeline.
 
 <div class="grid">
 
-<a href="/docs/products/verify-agent-work/">
+<a href="/docs/products/trust-output/">
 
 ### Verify Agent Work Against the Standard
 
@@ -108,7 +108,7 @@ against your organization's engineering standard.
 
 </a>
 
-<a href="/docs/products/verify-agent-work/second-opinion/">
+<a href="/docs/products/trust-output/second-opinion/">
 
 ### Get a Second Opinion on a Deliverable
 
@@ -117,7 +117,7 @@ before deciding whether to approve it.
 
 </a>
 
-<a href="/docs/products/verify-agent-work/expected-output/">
+<a href="/docs/products/trust-output/expected-output/">
 
 ### See What the Standard Expects Before Reviewing
 
@@ -156,7 +156,7 @@ guidance as the standard evolves.
 
 <div class="grid">
 
-<a href="/docs/products/landmark-quickstart/">
+<a href="/docs/products/engineering-outcomes/">
 
 ### Demonstrate Engineering Progress
 
@@ -165,7 +165,7 @@ engineer voice -- without singling out individuals.
 
 </a>
 
-<a href="/docs/products/landmark-quickstart/culture-investments/">
+<a href="/docs/products/engineering-outcomes/culture-investments/">
 
 ### Tell Whether Culture Investments Are Working
 

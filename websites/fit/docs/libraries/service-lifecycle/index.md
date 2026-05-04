@@ -1,5 +1,5 @@
 ---
-title: Service Lifecycle
+title: Manage Service Lifecycle from One Interface
 description: Set up supervision and observability so services stay running and problems surface before they escalate -- using fit-rc, libsupervise, and libtelemetry.
 ---
 

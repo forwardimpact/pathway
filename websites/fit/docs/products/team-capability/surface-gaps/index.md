@@ -1,5 +1,5 @@
 ---
-title: "Surface Capability Gaps Before They Cause Failures"
+title: "Surface Capability Gaps"
 description: "Use Summit to detect structural risks, track coverage trends over time, and identify growth opportunities so gaps are visible before they become incidents."
 ---
 

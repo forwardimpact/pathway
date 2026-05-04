@@ -1,5 +1,5 @@
 ---
-title: Query a Graph
+title: Query a Knowledge Graph
 description: Traverse relationships in an RDF graph index with triple patterns and type-filtered subject listings -- without writing join logic or managing a SPARQL endpoint.
 ---
 

@@ -305,9 +305,9 @@ start showing as evidenced, you are making progress.
 This guide covered the end-to-end workflow for finding growth areas and building
 evidence. For specific tasks within this workflow, see:
 
-- [Ask a Growth Question](/docs/products/finding-your-bearing/ask-a-growth-question/)
+- [Ask a Growth Question](/docs/products/growth-areas/growth-question/)
   -- ask a specific question and get advice grounded in your actual standard
-- [Check Progress Toward Next Level](/docs/products/finding-your-bearing/check-progress/)
+- [Check Progress Toward Next Level](/docs/products/growth-areas/check-progress/)
   -- see whether recent work shows visible movement toward the bar
 - [See What's Expected at Your Level](/docs/products/career-paths/) -- understand
   the full expectations for your current role

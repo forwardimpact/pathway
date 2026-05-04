@@ -1,5 +1,5 @@
 ---
-title: Wiki Operations
+title: Send a Memo or Update a Storyboard
 description: Send a memo to a teammate, refresh storyboard charts, or sync wiki state -- without managing the wiki infrastructure yourself.
 ---
 

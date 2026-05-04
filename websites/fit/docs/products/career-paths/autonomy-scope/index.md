@@ -1,5 +1,5 @@
 ---
-title: "Understand Autonomy and Scope at Your Level"
+title: "Understand Autonomy and Scope"
 description: "Use Pathway to see what your level implies for independence, decision-making authority, influence, and the complexity you are expected to handle."
 ---
 
@@ -190,7 +190,7 @@ at two adjacent levels and compare the Expectations sections.
 
 - [See What's Expected at Your Level](/docs/products/career-paths/) -- return
   to the full role definition for skills, behaviours, and driver coverage
-- [Find Growth Areas](/docs/products/finding-your-bearing/) -- identify specific
+- [Find Growth Areas](/docs/products/growth-areas/) -- identify specific
   gaps and build evidence of progress
 - [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
   skills, and levels relate in the underlying model

@@ -1,5 +1,5 @@
 ---
-title: Ground Agents in Typed, Retrievable Knowledge
+title: Give Agents Typed, Retrievable Knowledge
 description: Set up knowledge infrastructure so agents can answer relationship questions, look up context, and find related content -- using libresource, libgraph, libindex, and libvector without external engines.
 ---
 

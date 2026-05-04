@@ -160,7 +160,7 @@ missing environment variables or port conflicts.
 ## Next steps
 
 - [Guide product page](/guide/) — feature overview and surface options
-- [Finding your bearing](/docs/products/finding-your-bearing/) — Guide usage and
+- [Finding your bearing](/docs/products/growth-areas/) — Guide usage and
   configuration
 - Run `npx fit-guide --help` (then `/help` inside the REPL) for the full command
   surface
