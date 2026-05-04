@@ -6,7 +6,7 @@ Research date: 2026-05-04
 
 Spec 740 has three goals: (1) seed the tap, (2) consolidate shared bundles into
 `fit-gear`, and (3) document the brew install path on product pages. The tap is
-now seeded — `forwardimpact/homebrew-tap` contains 8 cask files reflecting the
+now seeded — `forwardimpact/homebrew-tap` contains 7 cask files reflecting the
 gear consolidation. But the monorepo side is not yet updated: `publish-brew.yml`
 still accepts `services@v*` and `utilities@v*` tags (not `gear@v*`), the
 justfile still has separate `build-app-services` / `build-app-utilities`
@@ -74,15 +74,15 @@ sed -i \
   "tap/Casks/${CASK}.rb"
 ```
 
-### Step 2b — Basecamp/Outpost TCC verification: NO EVIDENCE
+### Step 2b — Outpost TCC verification: NO EVIDENCE
 
-No explicit record of the manual hardware TCC test. Outpost was renamed from
-Basecamp post-spec-600; the TCC responsibility chain should be re-verified
-against the Outpost bundle identity before the first `outpost@v*` tag.
+No explicit record of the manual hardware TCC test. The TCC responsibility
+chain should be verified against the Outpost bundle identity before the first
+`outpost@v*` tag.
 
 ### Step 3 — Homebrew tap repository: SEEDED
 
-`forwardimpact/homebrew-tap` was seeded on 2026-05-04 with 8 cask files:
+`forwardimpact/homebrew-tap` was seeded on 2026-05-04 with 7 cask files:
 
 | Cask file          | Type       | CLIs on PATH |
 | ------------------ | ---------- | ------------ |
@@ -93,13 +93,10 @@ against the Outpost bundle identity before the first `outpost@v*` tag.
 | `fit-summit.rb`    | product    | 1            |
 | `fit-outpost.rb`   | product    | 1            |
 | `fit-gear.rb`      | shared     | 25           |
-| `fit-basecamp.rb`  | deprecated | 0            |
 
 All casks use placeholder version `0.0.0` and zero sha256. The `fit-gear` cask
-contains 5 gRPC service binaries and 20 library CLI binaries. The
-`fit-basecamp` cask is deprecated (date 2026-04-30) and points to
-`fit-outpost`. No `depends_on cask:` between casks — all are independently
-installable.
+contains 5 gRPC service binaries and 20 library CLI binaries. No
+`depends_on cask:` between casks — all are independently installable.
 
 The commit message: "feat: seed tap with initial casks".
 
@@ -137,7 +134,7 @@ consolidation in the monorepo, tap seeding (done), and documentation.
 
 ### What spec 740 covers (updated)
 
-Eight cask files for the tap repo (already seeded):
+Seven cask files for the tap repo (already seeded):
 1. `fit-pathway.rb` — product cask
 2. `fit-map.rb` — product cask
 3. `fit-guide.rb` — product cask
@@ -145,7 +142,6 @@ Eight cask files for the tap repo (already seeded):
 5. `fit-summit.rb` — product cask
 6. `fit-outpost.rb` — product cask
 7. `fit-gear.rb` — shared bundle (5 gRPC servers + 20 library CLIs)
-8. `fit-basecamp.rb` — deprecated alias → `fit-outpost`
 
 Plus monorepo changes:
 - Consolidate `build-app-services` / `build-app-utilities` into gear
@@ -172,9 +168,7 @@ Resolved by the tap seeding commit. The tap now contains 8 cask files.
 
 ### #625 — Outpost rename: Phase 8 cross-repo follow-ups: OPEN
 
-Phases 8a–8d status:
-- **8a**: Author `fit-outpost.rb` cask + deprecate `fit-basecamp` — **DONE**
-  (both casks exist in the tap)
+Phases 8b–8d status:
 - **8b**: Tag `outpost@v3.0.0`, verify publish-brew + publish-macos — blocked
   by workflow gear consolidation
 - **8c**: `npm deprecate @forwardimpact/basecamp` — independent, can proceed
@@ -257,7 +251,7 @@ fit-process-vectors, fit-search, fit-unary, fit-tiktoken, fit-download-bundle
 
 ### Must-have (blocks end-to-end brew install)
 
-1. ~~**Seed the tap** (spec 740)~~: **DONE.** 8 cask files landed in
+1. ~~**Seed the tap** (spec 740)~~: **DONE.** 7 cask files landed in
    `forwardimpact/homebrew-tap`.
 2. **Consolidate monorepo build to gear** (spec 740): Update
    `publish-brew.yml` tag filter (`gear@v*` replaces `services@v*` +

@@ -2,14 +2,14 @@
 
 ## Architecture
 
-Four components collaborate. Eight cask files in the tap repo define what
+Four components collaborate. Seven cask files in the tap repo define what
 Homebrew installs. The publish-brew workflow writes version and sha256 into
 those casks on each release. A conventions document in the monorepo prescribes
 how casks are authored. The tap README bridges tap and monorepo.
 
 | Component       | Location                                       | Purpose                                              |
 | --------------- | ---------------------------------------------- | ---------------------------------------------------- |
-| Cask files (x8) | `forwardimpact/homebrew-tap/Casks/`            | Homebrew cask definitions installed by `brew install` |
+| Cask files (x7) | `forwardimpact/homebrew-tap/Casks/`            | Homebrew cask definitions installed by `brew install` |
 | Publish workflow | `.github/workflows/publish-brew.yml` in mono   | Builds bundle, uploads asset, sed-rewrites cask      |
 | Conventions doc | `websites/fit/docs/internals/release/` in mono | Authoring rules, sed contract, binary-stanza mapping |
 | Tap README      | `forwardimpact/homebrew-tap/README.md`          | Links to conventions doc via published URL           |
@@ -27,13 +27,11 @@ graph TD
         outpost[fit-outpost]
     end
     gear[fit-gear]
-    basecamp[fit-basecamp] -.->|deprecated, replaced by| outpost
 ```
 
-All eight casks are independently installable — no `depends_on cask:` between
+All seven casks are independently installable — no `depends_on cask:` between
 them. Product casks each expose a single CLI. The shared `fit-gear` cask bundles
-all service and library CLIs (25 total). `fit-basecamp` is a deprecated alias
-that redirects users to `fit-outpost`.
+all service and library CLIs (25 total).
 
 ## Cask Anatomy
 
@@ -126,20 +124,6 @@ installed `.app` in `/Applications/Forward Impact/` but is not placed on PATH.
 
 Rejected: exposing `Outpost` on PATH — it is a native GUI launcher, not a CLI.
 
-## Deprecated Cask (`fit-basecamp`)
-
-Uses Homebrew's `deprecate!` DSL:
-
-```ruby
-deprecate! date: "2026-04-30", because: "renamed to fit-outpost"
-```
-
-The cask retains `url` and `sha256` fields pointing to the `outpost` release
-asset (so the sed contract still functions) but has no `app`, `binary`, or
-`livecheck` stanzas. It exists for discoverability via `brew search`. Its `desc`
-names `fit-outpost` as the replacement and references the storage-path migration
-command from #625 phase 8d.
-
 ## Conventions Document
 
 A single document under `websites/fit/docs/internals/release/` covering:
@@ -161,6 +145,5 @@ together. The tap README links to this document via its published URL.
 | Shared bundle consolidation | Single `fit-gear` cask | Separate `fit-services` + `fit-utilities` | One bundle simplifies install, tag management, and release workflow |
 | Inter-cask dependencies | None — all casks independently installable | Products depend on gear via `depends_on cask:` | Users install only what they need; forced deps pull 25 CLIs for a single-CLI product |
 | Livecheck strategy | `:github_releases` with anchored per-cask regex | `:url` against atom feed | Anchored `^{name}@v…$` regex cleanly filters the multi-bundle releases page |
-| Deprecated cask form | Standalone `fit-basecamp.rb` with `deprecate!` | Caveats on `fit-outpost` | `brew search fit-basecamp` must surface results |
 | App install path | `Forward Impact/` subdirectory | Flat install to `/Applications/` | Groups eight bundles visually; avoids cluttering the top-level Applications folder |
 | Conventions doc location | Monorepo `internals/release/` | Tap repo README | Conventions co-decay with the workflow |
