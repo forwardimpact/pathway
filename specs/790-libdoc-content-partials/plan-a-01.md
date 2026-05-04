@@ -98,27 +98,30 @@ import { resolvePartials, defaultRegistry } from "./partials.js";
 | `pageTitles` (all occurrences) | `pageTree` |
 
 **Remove methods:** `#findMarkdownFiles`, `#collectMarkdownEntry`,
-`#collectPageTitles` (lines 130–256).
+`#collectPageTitles` and their JSDoc (lines 129–256).
 
 **Modify `build()`** (currently lines 397–446):
 
 ```js
-// Before:
-const mdFiles = this.#findMarkdownFiles(pagesDir);
-const pageTitles = this.#collectPageTitles(mdFiles, pagesDir);
+// Before (current names):
+const mdFiles = this.#findMarkdownFiles(docsDir);
+const pageTitles = this.#collectPageTitles(mdFiles, docsDir);
 const pages = [];
 for (const mdFile of mdFiles) {
-  const page = await this.#renderPage(mdFile, pagesDir, distDir, template, pageTitles, baseUrl);
+  const page = await this.#renderPage(mdFile, docsDir, distDir, template, pageTitles, baseUrl);
   if (page) pages.push(page);
 }
 pages.sort(...);
 // ... this.#generateSitemap(pages, baseUrl, distDir);
 // ... this.#augmentLlmsTxt(pages, baseUrl, distDir);
 
-// After:
+// After (with rename applied):
 const pageTree = scanPages(pagesDir, {
   fs: this.#fs, path: this.#path, matter: this.#matter,
 });
+if (pageTree.size === 0) {
+  console.warn(`Warning: No Markdown files found in ${pagesDir}`);
+}
 for (const entry of pageTree.values()) {
   await this.#renderPage(entry.filePath, pagesDir, distDir, template, pageTree, baseUrl);
 }
@@ -128,7 +131,9 @@ const sortedPages = [...pageTree.values()].sort((a, b) => a.urlPath.localeCompar
 ```
 
 **Modify `#renderPage()`** (currently lines 324–356) — add partials resolution
-before `this.#marked(markdown)`:
+before `this.#marked(markdown)`. Remove the `if (!frontMatter.title)` guard
+(dead code — `scanPages` already filters titleless pages). Remove the return
+statement (the `pages` array is gone; `#renderPage` becomes void):
 
 ```js
 const pageDir = this.#path.dirname(mdFile);
@@ -254,8 +259,10 @@ All four files:
 | `builder instanceof DocsBuilder` | `builder instanceof PagesBuilder` |
 | `server instanceof DocsServer` | `server instanceof PagesServer` |
 
-In `test-harness.js` and `test/libdoc-companion.test.js` (both have inline
-harnesses): add `normalize` and `relative` to the mock `path` object:
+All four files have mock `path` objects that need `normalize` and `relative`
+added — `test-harness.js`, `libdoc-companion.test.js`, `libdoc-llms.test.js`
+each have inline harnesses, and `libdoc-builder.test.js` has inline `mockPath`
+definitions at three test sites. Add to every `mockPath`:
 
 ```js
 const mockPath = {
