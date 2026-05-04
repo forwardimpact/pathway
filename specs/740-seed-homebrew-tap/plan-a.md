@@ -107,7 +107,7 @@ case "${{ steps.meta.outputs.kind }}" in
 esac
 ```
 
-Verify: both `case` blocks reference exactly two arms (`gear`, `product`); no `services` or `utilities` arm remains in either step.
+Verify: `grep -cE '^\s*gear\)' .github/workflows/publish-brew.yml` returns `2` (one `gear)` arm per case block updated by this step); `grep -nE '^\s*(services|utilities)\)' .github/workflows/publish-brew.yml` returns no matches anywhere in the file.
 
 ### 4. Update the `Smoke test` step's primary CLI selection
 
@@ -128,7 +128,7 @@ case "${{ steps.meta.outputs.kind }}" in
 esac
 ```
 
-Verify: smoke test references no `services` or `utilities` arm; both surviving arms use the `${{ steps.meta.outputs.kind }}` value the new step 2 emits.
+Verify: `awk '/Smoke test/,/Verify cdhash stability/' .github/workflows/publish-brew.yml | grep -cE '^\s*(services|utilities)\)'` returns `0`; the same range contains exactly one `gear)` arm.
 
 ### 5. Refresh the in-line comment on the sed step
 
@@ -148,7 +148,7 @@ Verify: `git grep -nE 'depends_on graph' -- .github` returns no matches across t
 
 File modified: `justfile` (`# ── Bundles` section, lines ≈175–323).
 
-Delete: `build-service-binaries` (213–219), `build-utility-binaries` (221–242), `build-app-services` (271–283), `build-app-utilities` (285–312). Update `build-binaries` (202) and `build-apps` (314–323) to fan out through the new gear recipes.
+Delete: `build-service-binaries` (recipe at line 214), `build-utility-binaries` (line 222), `build-app-services` (line 272), `build-app-utilities` (line 286). Update `build-binaries` (line 202) and `build-apps` (line 315) to fan out through the new gear recipes. Locate each by recipe name (the line numbers above are advisory).
 
 Add `build-gear-binaries` and `build-app-gear`:
 
@@ -246,7 +246,11 @@ build-apps: build-binaries
     just build-app-gear
 ```
 
-Verify: `just --list | grep -E '^(build-(service|utility)-binaries|build-app-(services|utilities))'` returns nothing; `just --list | grep -E '^build-(gear-binaries|app-gear)'` lists both new recipes; `just --show build-binaries` and `just --show build-apps` print the post-edit recipe bodies above (no `services` / `utilities` references); `just --dry-run build-apps` exits 0.
+Verify (`just --list` indents recipes with four spaces, so anchor with `\s*`):
+- `just --list | grep -E '^\s+(build-(service|utility)-binaries|build-app-(services|utilities))(\s|$)'` returns nothing.
+- `just --list | grep -E '^\s+build-(gear-binaries|app-gear)(\s|$)'` lists both new recipes.
+- `just --show build-gear-binaries`, `just --show build-app-gear`, `just --show build-binaries`, `just --show build-apps` each print the post-edit recipe bodies above and contain no `services` / `utilities` references.
+- `just --dry-run build-apps` exits 0 (parse-level check; this does not execute `bun build` and so cannot catch a missing `package.json bin` entry — those are caught the first time the workflow runs `gear@v*`).
 
 ### 7. Create `macos/gear/` and remove the predecessor directories
 
@@ -320,7 +324,7 @@ Body sections (one section per cross-cutting decision named in spec § In scope;
 
 Tables in the doc are denormalized from the design so editing one cask's conventions doesn't require touching the design. The conventions doc is the long-lived reference for tap reviewers; once it lands, the tap README's existing link to `https://www.forwardimpact.team/docs/internals/release/` resolves (the README already targets this URL — no monorepo edit to the tap README is needed).
 
-Verify: `bunx fit-doc build --src=websites/fit` exits 0 and produces `dist/docs/internals/release/index.html`; `grep -c '^## ' websites/fit/docs/internals/release/index.md` returns at least `9` (one per required section heading from the table above plus `## What's next`).
+Verify: `bunx fit-doc build --src=websites/fit` exits 0 and produces `dist/docs/internals/release/index.html`; `grep -c '^## ' websites/fit/docs/internals/release/index.md` returns exactly `10` (one per row of the table above — Overview, Sed contract, Cask topology, Binary stanza mapping, Livecheck regex pattern, App install path, Zap and uninstall paths, Verification commands, Deprecation precedent, What's next).
 
 ### 9. Add the release card to the internals hub
 
@@ -340,16 +344,23 @@ No files created or modified inside the monorepo. The eight cask files exist on 
 
 Reconciliation: the staff-engineer cannot push to `forwardimpact/homebrew-tap` (no `HOMEBREW_TAP_PAT`). For each failing row, file a comment on this plan's PR with the deviation and open a tap-side issue at `forwardimpact/homebrew-tap` titled `spec/740: <cask> drift — <criterion>`, assigning the release-engineer. SC4 ("executable names match … performed at seed time") passes for the live casks whose audit row is clean, and is conditionally pending for any failing row until the tap-side reconciliation issue closes. The basecamp `desc` row above is the known expected failure.
 
-Verify: a written audit log enumerates each cask with a pass/fail row per criterion; no consensus failing rows remain unowned (each carries a tap-side issue link).
+Verify: a written audit log enumerates each cask with a pass/fail row per criterion; every failing row carries a tap-side issue link assigned to `release-engineer` (no failing row is left unowned).
 
 ### 11. Dry-run the workflow's sed contract against each live cask
 
-No files created or modified. The dry-run runs the workflow's literal `sed -i` (no backup suffix) against each live cask with sample values, confirms the diff is exactly two changed lines, then runs `brew style` against the rewritten file.
+No files created or modified. The dry-run runs the workflow's literal `sed -i` against each live cask with sample values, confirms the diff is exactly two changed lines, then runs `brew style` against the rewritten file.
 
-Host requirement: `brew style` requires a Homebrew install with cask support — macOS arm64 native or Linuxbrew with `brew tap homebrew/cask` (Linuxbrew's cask support is partial and may surface false negatives). The `staff-engineer` agent typically runs on Linux; route this step to a macOS runner or a contributor's local macOS shell. If neither is available, file the dry-run as a deferred verification owned by the release-engineer's first `gear@v*` release rehearsal.
+Host requirement: the workflow runs on `ubuntu-latest` (GNU sed). The dry-run must replicate the same `sed` semantics. Two options:
+
+1. **Linux host with Linuxbrew.** Native GNU sed; install Homebrew on Linux and `brew tap homebrew/cask`. Cask support on Linuxbrew is partial and may surface false negatives on `brew style` cask-specific rules, so accept that style failures from this host need a macOS confirmation pass.
+2. **macOS arm64 with `gnu-sed` installed.** Run `brew install gnu-sed` and substitute `gsed` for `sed` in the loop below — BSD sed's `-i` requires a backup suffix as the next argument and would treat the leading `-e` as the suffix, so the literal contract does not run on default macOS sed.
+
+The two options exist because the literal `sed` on `ubuntu-latest` is GNU; replicating it on macOS requires `gsed`.
+
+If neither host is available to the `staff-engineer` agent, defer this step to the release-engineer's first `gear@v*` release rehearsal — at which point spec **SC2** (sed substitution dry-run) is verified by the rehearsal itself rather than by this plan. The plan close-out audit log records SC2 as deferred-to-rehearsal in that case.
 
 ```sh
-# Run on macOS arm64 with Homebrew installed.
+# Linux: use `sed`. macOS: install gnu-sed and substitute `gsed` for `sed` below.
 git clone https://github.com/forwardimpact/homebrew-tap /tmp/tap-audit
 cd /tmp/tap-audit
 SAMPLE_SHA256=$(printf 'sample' | shasum -a 256 | awk '{print $1}')
@@ -361,9 +372,8 @@ for CASK in fit-pathway fit-map fit-guide fit-landmark fit-summit fit-outpost fi
     -e "s|^  sha256 \".*\"|  sha256 \"${SAMPLE_SHA256}\"|" \
     "Casks/${CASK}.rb"
   # `diff | grep -c '^[<>]'` counts each changed line twice (one `<` for the before
-  # line, one `>` for the after line); two field substitutions ⇒ 4 markers. The seeded
-  # version "0.0.0" and sha256 "00…" never collide with the sample values, so 4 is the
-  # invariant.
+  # line, one `>` for the after line); two field substitutions ⇒ 4 markers. Seeded
+  # version "0.0.0" and sha256 "00…" never collide with the sample values.
   CHANGED=$(diff "/tmp/${CASK}.rb.bak" "Casks/${CASK}.rb" | grep -c '^[<>]')
   test "$CHANGED" -eq 4 || { echo "FAIL ${CASK}: expected 4 changed-line markers, got ${CHANGED}"; exit 1; }
   brew style "Casks/${CASK}.rb"
@@ -374,6 +384,19 @@ done
 Verify: every iteration of the loop produces a clean `brew style` (exit 0) with no `FAIL` line emitted; the loop exits 0 overall. `fit-basecamp.rb` is excluded — the workflow's case statement maps `outpost@v*` to `fit-outpost`, never `fit-basecamp`, so `fit-basecamp.rb` is not sed-rewritten and the dry-run does not apply.
 
 ## Libraries used: none.
+
+## Success-criteria mapping
+
+How each spec § Success criterion is verified by this plan, and which carry conditional-pass language:
+
+| Spec SC | Verified by | At plan close-out |
+| --- | --- | --- |
+| SC1 (every bundle has a cask in the tap) | Tap state already satisfies (8 cask files on `forwardimpact/homebrew-tap/main`); step 10's audit re-confirms | Pass |
+| SC2 (sed contract succeeds against every live cask) | Step 11 dry-run | Pass on macOS-arm64 / gnu-sed or Linux/Linuxbrew; **deferred to release-engineer's first `gear@v*` rehearsal** if no compatible host is available |
+| SC3 (each live cask passes `brew style` / `brew audit --new-cask`) | Step 11 (`brew style`) | Pass; same host caveat as SC2 |
+| SC4 (executable names match bundle source) | Step 10 audit | Pass for clean rows; **conditionally pending for any failing audit row** until the matching tap-side reconciliation issue closes (the basecamp `desc` storage-path migration row is the known expected fail) |
+| SC5 (`fit-basecamp` is `brew search`-discoverable and visibly deprecated) | Manual `brew search` against the published tap | Pass; not gated by this plan |
+| SC6 (conventions doc covers every cross-cutting decision) | Step 8 (10-section heading check) | Pass |
 
 ## Risks
 
