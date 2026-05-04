@@ -19,48 +19,27 @@ bunx fit-doc serve --src=websites/kata --watch
 
 Every page is a directory containing `index.md`. No other `.md` filenames.
 
-### Frontmatter
+- **Frontmatter** — `title` (rendered as H1) and `description` (meta) are
+  required. Optional: `toc: false`, `layout: product|home`,
+  `hero: { image, alt, title, subtitle, cta }`.
+- **Headings** — body headings start at `##` (the build system renders H1 from
+  `title`; a manual `# Title` produces a duplicate).
+- **Links** — absolute directory paths (`/docs/products/agent-teams/`, not
+  relative, not `index.md`). External links use full URLs.
+- **Code blocks** — always specify a language tag (`sh`, `yaml`, `json`,
+  `mermaid`, etc.).
+- **Navigation is manual.** When a page is added, moved, or removed, update
+  every hub page and card grid that references it. There is no build-time check
+  for stale links.
 
-Required fields:
+### Page Types
 
-- `title` — rendered as the page H1 by the build system
-- `description` — meta description and preview text
+**Product pages** (`/map/`, `/pathway/`, etc.) — `layout: product` with hero,
+situation paragraph, **What becomes possible** by persona (Engineering Leaders,
+Empowered Engineers, Platform Builders from [JTBD.md](/JTBD.md)), detail
+sections, **Getting Started** with install commands and guide links.
 
-Optional fields:
-
-- `toc: false` — disables auto-generated table of contents (hub pages)
-- `layout: product` or `layout: home` — switches layout template
-- `hero:` — hero section with `image`, `alt`, `title`, `subtitle`, `cta`
-
-### Headings
-
-The build system renders H1 from frontmatter `title`. Pages must not contain
-their own `# Title` — it would produce a duplicate. Body headings start at `##`.
-
-### Links
-
-- Absolute paths: `/docs/products/agent-teams/`, not `../products/agent-teams/`
-- Point to directories, not files: `/docs/products/`, not `/docs/products/index.md`
-- External links use full URLs
-
-### Product Pages
-
-Product pages (`/map/`, `/pathway/`, etc.) follow a consistent structure:
-
-1. Frontmatter with `layout: product` and hero section (light metaphor
-   reference in subtitle, then progress framing)
-2. Situation paragraph — 2-3 sentences describing the moment someone realizes
-   they need this product (no blockquote)
-3. **What becomes possible** — organized by persona, each with a progress
-   statement and concrete outputs. Canonical persona names from
-   [JTBD.md](/JTBD.md): Engineering Leaders, Empowered Engineers, Platform
-   Builders. Only personas with a relevant outcome for that product appear.
-4. Product-specific detail sections
-5. **Getting Started** — install commands and persona-labeled guide links
-
-### Hub pages
-
-Collection pages use a grid of anchor cards to link to children:
+**Hub pages** — `toc: false`, grid of anchor cards linking to children:
 
 ```html
 <div class="grid">
@@ -68,39 +47,18 @@ Collection pages use a grid of anchor cards to link to children:
 
 ### Agent Teams
 
-Generate AI coding agent teams...
+Configure agents to meet your engineering standard...
 
 </a>
 </div>
 ```
 
-### Guide Pages
-
-Guides under `docs/products/`, `docs/libraries/`, and `docs/services/` sit
-under job headings on their hub page. Each job contains two guide types:
-
-- **Big Hire** — end-to-end workflow from situation to outcome (150–400 lines)
-- **Little Hire** — bounded task assuming the Big Hire is done (80–200 lines)
-
-Getting-started pages are per-persona minimal paths (50–150 lines) linking
-forward to guides. All guides are framed around the reader's progress, not
-product features.
-
-### Manual maintenance
-
-Navigation is not generated from the file tree. When a page is added, moved, or
-removed, update every hub page and card grid that references it. There is no
-build-time check for stale links — broken cards and missing entries stay broken
-until someone fixes them by hand.
-
-### Code blocks
-
-Always specify a language tag (`sh`, `yaml`, `json`, `mermaid`, etc.).
-
-## Guide Map
-
-See [README.md](README.md) for the full Big Hire / Little Hire guide map
-covering products, libraries, and services.
+**Guide pages** — organized by job heading on their hub. Big Hire guides
+(150–400 lines) cover the end-to-end workflow; Little Hire guides (80–200
+lines) cover a bounded task assuming the Big Hire is done. Getting-started pages
+are per-persona minimal paths (50–150 lines). All guides are framed around the
+reader's progress, not product features. See [README.md](README.md) for the
+full guide map.
 
 ## Design Assets
 
