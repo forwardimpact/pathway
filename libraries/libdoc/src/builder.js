@@ -61,6 +61,7 @@ export class PagesBuilder {
     this.#marked.use(
       markedHighlight({
         langPrefix: "language-",
+        // Prism.js handles highlighting on the client side
         highlight(code, _lang) {
           return code;
         },
@@ -270,6 +271,7 @@ export class PagesBuilder {
       pageDir,
       defaultRegistry,
       { path: this.#path },
+      mdFile,
     );
     const rawHtml = this.#marked(resolved);
     const html = transformMarkdownLinks(rawHtml, baseUrl);
@@ -283,7 +285,7 @@ export class PagesBuilder {
     );
     const outputHtml = this.#mustacheRender(template, vars);
     const finalHtml = await this.#formatAndPostProcess(outputHtml);
-    const companionContent = `# ${frontMatter.title}\n\n${transformMarkdownBodyLinks(markdown, baseUrl)}`;
+    const companionContent = `# ${frontMatter.title}\n\n${transformMarkdownBodyLinks(resolved, baseUrl)}`;
 
     this.#writePageFiles(mdFile, distDir, finalHtml, companionContent);
   }

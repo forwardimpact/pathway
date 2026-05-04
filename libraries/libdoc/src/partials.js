@@ -15,6 +15,7 @@ const PARTIAL_RE = /<!--\s*part:(\w+):([\w./-]+)\s*-->/g;
  * @param {string} currentPageDir - Directory of the current page (relative to pagesDir)
  * @param {Record<string, (meta: import("./page-tree.js").PageMeta, href: string) => string>} registry
  * @param {{ path: object }} deps
+ * @param {string} [sourceFile] - Source file path for error messages
  * @returns {string}
  */
 export function resolvePartials(
@@ -23,12 +24,12 @@ export function resolvePartials(
   currentPageDir,
   registry,
   { path },
+  sourceFile,
 ) {
+  const src = sourceFile || currentPageDir + "/index.md";
   return markdown.replace(PARTIAL_RE, (_match, type, partialPath) => {
     if (!registry[type]) {
-      throw new Error(
-        `Unknown partial type "${type}" in ${currentPageDir}/index.md`,
-      );
+      throw new Error(`Unknown partial type "${type}" in ${src}`);
     }
 
     const resolved = path.normalize(path.join(currentPageDir, partialPath));
@@ -37,14 +38,15 @@ export function resolvePartials(
 
     if (!meta) {
       throw new Error(
-        `Partial target "${partialPath}" not found in page tree (referenced from ${currentPageDir}/index.md)`,
+        `Partial target "${partialPath}" not found in page tree (referenced from ${src})`,
       );
     }
 
-    const currentUrlDir = urlPathFromMdFile(currentPageDir + "/index.md");
-    const targetUrlDir = urlPath;
-    const fromDir = currentUrlDir.replace(/\/$/, "");
-    const toDir = targetUrlDir.replace(/\/$/, "");
+    const currentUrlPath = urlPathFromMdFile(
+      currentPageDir === "." ? "index.md" : currentPageDir + "/index.md",
+    );
+    const fromDir = currentUrlPath.replace(/\/$/, "") || "/";
+    const toDir = urlPath.replace(/\/$/, "") || "/";
     let href = path.relative(fromDir, toDir);
     if (!href.endsWith("/")) href += "/";
 
