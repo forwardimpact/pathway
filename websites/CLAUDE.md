@@ -76,15 +76,7 @@ a single product — install, configure, see output. No exploration, no
 alternatives, no background theory. Links forward to the relevant guide for
 depth. 50–150 lines.
 
-Three personas, each with a hub and per-product pages:
-
-| Persona      | Hub                        | Products                               |
-| ------------ | -------------------------- | -------------------------------------- |
-| Leadership   | `getting-started/leadership/`   | Map, Pathway, Landmark, Summit    |
-| Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost |
-| Contributors | `getting-started/contributors/` | (monorepo setup)                  |
-
-See [README.md § Getting Started](README.md#getting-started).
+See [README.md § Getting Started Map](README.md#getting-started-map).
 
 ### Guide Pages
 

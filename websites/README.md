@@ -1,11 +1,6 @@
-# Guide Map
+# Documentation Map
 
-Every guide maps to a Big Hire or Little Hire from
-[JTBD.md](/JTBD.md), [libraries/README.md](/libraries/README.md), or
-[services/README.md](/services/README.md). Big Hire guides are directory roots;
-Little Hire guides are nested children.
-
-## Getting Started
+## Getting Started Map
 
 | Persona      | Hub path                        | Product pages                          |
 | ------------ | ------------------------------- | -------------------------------------- |
@@ -13,7 +8,14 @@ Little Hire guides are nested children.
 | Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost      |
 | Contributors | `getting-started/contributors/` | (monorepo setup)                       |
 
-## Product Guides
+## Guide Map
+
+Every guide maps to a Big Hire or Little Hire from [JTBD.md](/JTBD.md),
+[libraries/README.md](/libraries/README.md), or
+[services/README.md](/services/README.md). Big Hire guides are directory roots;
+Little Hire guides are nested children.
+
+### Product Guides
 
 **Define the Engineering Standard** (Leaders → Map, Pathway)
 
@@ -75,7 +77,7 @@ Little Hire guides are nested children.
 | Big | `knowledge-systems/` | Keep Track of Context Without Effort |
 | Little | `knowledge-systems/meeting-prep/` | Walk Into Every Meeting Already Oriented |
 
-## Library Guides
+### Library Guides
 
 **Operate a Predictable Agent Team** (Engineers → libwiki, libxmr)
 
@@ -134,7 +136,7 @@ Little Hire guides are nested children.
 | Little | `prove-changes/trace-analysis/` | Analyze Traces |
 | Little | `prove-changes/generate-dataset/` | Generate an Eval Dataset |
 
-## Service Guides
+### Service Guides
 
 **Ground Agents in Context** (Builders → graph, vector)
 
