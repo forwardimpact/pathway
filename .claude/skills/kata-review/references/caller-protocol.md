@@ -24,41 +24,41 @@ for a given artifact in a single message so they run in parallel.
 | `kata-plan`      | `plan-a.md` (+ parts)       | technical | `staff-engineer`  | 3         |
 | `kata-implement` | diff (`origin/main...HEAD`) | technical | `staff-engineer`  | 5         |
 
-Implementation diffs get 5 because the artifact is larger, the step is
-irreversible (code lands on `main`), and the surface area for subtle bugs and
-security regressions is largest. Spec/design/plan artifacts are bounded and have
-an implicit second pass at the next phase.
+Implementation diffs get 5: the artifact is larger, the step is irreversible
+(code lands on `main`), and the surface for subtle bugs and security
+regressions is widest. Spec/design/plan artifacts are bounded and get an
+implicit second pass at the next phase.
 
-The product panel applies only to specs. A spec is where product alignment is
+The product panel applies only to specs — that is where product alignment is
 decided; downstream phases inherit it via cross-phase fidelity checking.
 
 ## How to invoke
 
-1. **Launch all panels in a single message** via one `Agent` tool call per
-   reviewer. All reviewers across all panels launch in parallel — wall-clock
-   time, and so the caller cannot cross-feed one reviewer's output into
-   another's prompt. Each sub-agent:
+1. **Launch all panels in a single message** — one `Agent` call per reviewer.
+   Parallel launch saves wall-clock time and prevents the caller from
+   cross-feeding one reviewer's output into another's prompt. Each sub-agent:
    - Starts cold with no prior conversation context.
-   - Uses the `subagent_type` from the panel composition table.
+   - Uses the `subagent_type` from the panel table.
    - Loads the [`kata-review`](../SKILL.md) skill.
-   - Receives the **identical** prompt within its panel: artifact type, artifact
-     path, spec path (for design/plan/diff), design path (for plan/diff), plan
-     path (for diff), and branch name (for diff).
-   - Is told not to invoke the parent skill (e.g., "do not invoke `kata-spec`")
-     — defense in depth on top of the structural recursion fix.
+   - Receives the **identical** prompt within its panel: artifact type and
+     path, plus upstream paths (spec for design/plan/diff, design for
+     plan/diff, plan for diff, branch name for diff).
+   - Is told not to invoke the parent skill (e.g., "do not invoke
+     `kata-spec`") — defense in depth on top of structural recursion
+     prevention.
 
 2. **Do not share a scratchpad or cross-feed reviewer output.** Correlated
    errors collapse the ensemble back to one reviewer's signal.
 
-3. **Collect all N findings reports** before merging. A missing report is not a
-   pass — re-spawn that reviewer.
+3. **Collect all N findings reports** before merging. A missing report is not
+   a pass — re-spawn that reviewer.
 
 ## How to merge findings
 
-Merge findings **within each panel independently**. When an artifact has
-multiple panels (e.g., technical + product for specs), run the steps below once
-per panel, then combine the results. Findings from different panels are not
-cross-voted — each panel's consensus threshold applies to its own reviewers.
+Merge findings **within each panel independently**. For multi-panel artifacts
+(specs), run the steps below per panel, then combine results. Findings across
+panels are not cross-voted — each panel's consensus threshold applies to its
+own reviewers.
 
 Findings arrive under `### Blocker` / `### High` / `### Medium` / `### Low`,
 each row shaped `<file:line> — <criterion> — <one-sentence reason>` (or a commit
@@ -89,17 +89,15 @@ not change this invariant; each reviewer is still a leaf. See
 
 ## How to handle findings
 
-- **Verify** every unique finding against the actual artifact before acting on
-  it. The caller is accountable, not the panel.
+- **Verify** every unique finding against the actual artifact before acting.
+  The caller is accountable, not the panel.
 - **Proceed without pausing.** After verification, address every confirmed
-  consensus **blocker**, **high**, and **medium** finding in the same turn — do
-  not stop to ask the user for permission to fix them. Acting on the panel's
-  verdict is part of this Process step, not a separate approval gate. Fix the
-  artifact, re-run the panel if the fix is substantial, then advance.
+  consensus **blocker**, **high**, and **medium** finding in the same turn —
+  no permission gate. Acting on the verdict is part of this Process step. Fix,
+  re-run the panel if the fix is substantial, then advance.
 - **Low** findings are optional. Document if dismissed.
-- **False positives.** If you verify a finding and judge it a false positive,
-  record a one-line rationale in the commit message or artifact and continue.
-  Silent dismissal is not allowed.
-- **Disagreement with a consensus blocker.** Revise the artifact to address the
-  underlying concern, or record a rationale — in the same turn, without
-  stopping.
+- **False positives.** If you judge a verified finding a false positive,
+  record a one-line rationale in the commit message or artifact. Silent
+  dismissal is not allowed.
+- **Disagreement with a consensus blocker.** Revise to address the underlying
+  concern, or record a rationale — same turn, no stopping.
