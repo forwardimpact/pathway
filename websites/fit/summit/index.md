@@ -1,12 +1,12 @@
 ---
 title: Summit
-description: See team capability as a system — coverage, structural risks, what-if staffing scenarios, growth alignment, and quarterly trajectory from your agent-aligned engineering standard.
+description: See whether a team has the capability to deliver — coverage, structural risks, what-if staffing scenarios, and quarterly trajectory.
 layout: product
 toc: false
 hero:
   image: /assets/scene-summit.svg
   alt: An engineer, an AI robot, and a business professional gather around a map on a flat rock, planning an ascent to the peak
-  subtitle: Summit treats a team as a system, not a collection of individuals. It aggregates skill matrices into capability coverage, structural risks, and what-if staffing scenarios so leaders can build teams that succeed.
+  subtitle: Reach the peak. Summit shows whether a team has the capability to deliver what it needs to — modelling the team as a system with coverage, structural risks, and what-if scenarios so staffing decisions are evidence-based, not guesswork.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/summit
@@ -15,45 +15,34 @@ hero:
       secondary: true
 ---
 
-> Map defines skills. Pathway charts individual routes. Outpost handles daily
-> ops. But none of them answer the question engineering leaders ask most often:
-> "Does this team have the capability to deliver what we need?" Summit makes
-> that visible — not by ranking individuals, but by modelling the team as a
-> system with structural properties.
+A post-mortem surfaces the same skill gap that caused the last incident —
+nobody had a way to see it before staffing the team. A team's capability
+depends on coverage, depth, redundancy, and complementarity — not the sum of
+individual scores. Summit makes that visible.
 
-### What you get
+## What becomes possible
 
-- **Capability coverage** — per-skill headcount at working+ across the team.
-- **Structural risks** — single points of failure, critical gaps, concentration
-  risks.
-- **What-if scenarios** — simulate add / remove / move / promote before acting.
-- **Growth alignment** — connect team gaps to individual development
-  opportunities.
-- **Compare** — diff two teams' coverage and risks side by side.
-- **Trajectory** — quarterly capability evolution from git history of your
-  roster file. Requires the roster file to be tracked in a git repository with
-  commits spanning the period you want to analyze.
-- **Roster / validate** — show the team layout Summit sees and check it against
-  your Map agent-aligned engineering standard.
+### For Engineering Leaders
 
-Optional enhancements (require Map's activity layer):
+Make staffing decisions you can defend with evidence, not intuition. See what
+each role on the team actually requires. Spot capability gaps before someone
+gets set up to fail. Simulate roster changes and see their impact before anyone
+makes a decision.
 
-- `--evidenced` — compares derived coverage against practiced capability from
-  Map's evidence data.
-- `--outcomes` — weights growth recommendations by GetDX driver scores.
+- Capability coverage per skill across the team
+- Structural risk identification (single points of failure, critical gaps)
+- What-if scenario simulation (add / remove / move / promote before acting)
+- Side-by-side team comparison and quarterly trajectory tracking
+- Optional: `--evidenced` for practiced capability, `--outcomes` for
+  GetDX-weighted growth recommendations
 
-Without these flags, Summit is fully local and instant — Map data plus a roster.
+### For Empowered Engineers
 
----
+Align personal growth with what the team actually needs. See which skills make
+the biggest difference and where your development closes a real gap.
 
-### Who it's for
-
-**Leadership** staffing teams and planning hires. Summit shows whether a team
-has the capability to deliver — and what composition changes would close gaps.
-
-**Empowered Engineers** aligning personal growth with team needs. See which
-skills the team needs most and where your development makes the biggest
-difference.
+- Growth alignment connecting team gaps to individual development
+- Team capability views that show where depth is needed
 
 ---
 
@@ -140,35 +129,9 @@ $ npx fit-summit what-if platform --add "{ discipline: software_engineering, lev
 ```
 
 `-` lines are risks resolved by the change. `+` lines are risks the change
-introduces. A hire that looks straightforwardly positive can still surface
-second-order gaps — Summit shows both so you can make the decision with the full
-picture.
-
----
-
-## Design Principles
-
-**Teams are systems, not collections.** A team's capability depends on coverage,
-depth distribution, redundancy, and complementarity — not the sum of individual
-scores.
-
-**Plan forward, don't measure backward.** Landmark looks at past evidence.
-Summit looks ahead: what can this team do today, and what could it do with
-different composition?
-
-**No external dependencies required.** Core Summit uses only Map data and a team
-roster. The `--evidenced` and `--outcomes` flags are opt-in enhancements that
-read Map's activity layer; without them Summit runs fully locally, instantly,
-deterministically.
-
-**Capability, not performance.** Summit describes what a team _can_ do based on
-its skill profile — not how well it's doing it. A planning tool, not a
-monitoring tool.
-
-**Privacy through aggregation.** The team view shows collective coverage, not
-individual shortcomings. When Summit identifies a gap, it's a team gap — a
-structural fact about composition. The `--audience director` flag strips
-individual names entirely from cross-team planning views.
+introduces. A staffing change that looks straightforwardly positive can still
+surface second-order gaps — Summit shows both so you can make the decision with
+the full picture.
 
 ---
 
@@ -184,7 +147,7 @@ npx fit-summit risks platform --roster ./summit.yaml
 
 <a href="/docs/getting-started/leadership/summit/">
 
-### Leadership
+### Engineering Leaders
 
 Create a roster, model team capability, run what-if staffing scenarios, and
 track trajectory over time.

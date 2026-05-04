@@ -75,15 +75,16 @@ writing specs, ship features, study their own traces, and act on findings.
 
 **Platform Builders** hire these products to _construct agent-capable systems
 using shared libraries and services designed for humans and agents alike._
-[Services § Jobs To Be Done](services/README.md#jobs-to-be-done) ·
-[Libraries § Jobs To Be Done](libraries/README.md#jobs-to-be-done).
+[Libraries § Jobs To Be Done](libraries/README.md#jobs-to-be-done) ·
+[Services § Jobs To Be Done](services/README.md#jobs-to-be-done)
 
 ### Gear — `fit-skills`
 
 Hired by platform builders to give humans and agents shared capabilities through
 the same interface, with tooling to prove changes actually improved outcomes.
 [Overview](websites/fit/gear/index.md) ·
-[§ Catalog](libraries/README.md#catalog)
+[Libraries § Catalog](libraries/README.md#catalog) ·
+[Services § Catalog](services/README.md#catalog)
 
 ## Distribution Model
 

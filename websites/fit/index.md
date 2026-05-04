@@ -7,7 +7,7 @@ hero:
   image: /assets/scene-concept.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
   title: Empowered engineers<br>deliver lasting impact.
-  subtitle: Map, Pathway, Guide, Landmark, Summit, and Outpost — an open-source suite that helps organizations define great engineering, support career growth, and give every engineer the clarity to do their best work in the field.
+  subtitle: Map, Pathway, Guide, Landmark, Summit, and Outpost — an open-source suite that helps organizations define what great engineering looks like, make expectations visible, measure progress without blame, and staff teams to succeed.
   cta:
     - label: Explore the suite
       href: /docs/
@@ -26,8 +26,8 @@ hero:
 
 ### Map
 
-Chart the territory. Define your engineering skills, behaviours, and career
-levels in plain YAML — the single source of truth.
+Chart the territory. Define your engineering standard in plain text — skills,
+behaviours, and levels the whole organization trusts.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -38,8 +38,8 @@ levels in plain YAML — the single source of truth.
 
 ### Pathway
 
-Navigate the trail. Browse career paths, generate agent teams, and build
-progression plans — in the browser or from the CLI.
+Navigate the trail. See what's expected at every level and generate job
+definitions, career paths, and agent profiles from one shared standard.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -50,8 +50,8 @@ progression plans — in the browser or from the CLI.
 
 ### Guide
 
-Find your bearing. An AI agent that understands your agent-aligned engineering
-standard — onboarding, career advice, and growth guidance.
+Find your bearing. Career guidance and output review grounded in your
+organization's actual engineering standard — not generic advice.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -62,8 +62,8 @@ standard — onboarding, career advice, and growth guidance.
 
 ### Landmark
 
-Check the cairn. See your own growth reflected in your work — and help your
-organization improve the systems that support it.
+Check the cairn. Show engineering progress without making individuals feel
+surveilled — evidence, trends, and engineer voice.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -74,8 +74,8 @@ organization improve the systems that support it.
 
 ### Summit
 
-Reach the peak. See your team's collective capability — coverage, risks, and
-what-if scenarios — so leaders can build teams that succeed.
+Reach the peak. See whether a team has the capability to deliver — coverage,
+risks, and what-if scenarios before making a staffing decision.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -86,8 +86,8 @@ what-if scenarios — so leaders can build teams that succeed.
 
 ### Outpost
 
-Set up camp. A personal knowledge system with scheduled AI tasks that keeps you
-briefed, organized, and field-ready.
+Set up camp. Walk into every meeting already oriented — scheduled AI tasks
+assemble your context and keep your knowledge organized.
 
 <div class="btn btn-ghost">Learn more</div>
 </a>
@@ -103,10 +103,9 @@ briefed, organized, and field-ready.
 
 ### Gear
 
-Carry the right tools into the field. A catalog of agent-shaped utilities —
-CLIs, retrieval primitives, evaluation tooling, and service infrastructure —
-distributed via npm and the `forwardimpact/fit-skills` skill pack so platform
-builders and agents pull in just what they need.
+Carry the right gear. Shared libraries and services for platform builders and
+agents — CLIs, retrieval, evaluation, and infrastructure published to npm and
+the `forwardimpact/fit-skills` skill pack.
 
 <a href="/gear/" class="btn btn-ghost">Learn more</a>
 
@@ -124,11 +123,12 @@ builders and agents pull in just what they need.
 >
 > — W. Edwards Deming
 
-Forward Impact Engineering puts this into practice. Organizations define what
-great engineering looks like — skills, behaviours, and career levels — in a
-shared agent-aligned engineering standard. Engineers gain clear expectations,
-career paths, AI assistance, and knowledge systems matched to their standards.
-When the path forward is clear, engineers deliver with confidence and pride.
+Forward Impact Engineering puts this into practice. Engineering leaders define
+what great engineering looks like. Engineers see exactly what's expected, find
+growth areas with real evidence, and walk into every day prepared. Leaders
+measure progress and staff teams without blaming individuals or relying on
+guesswork. When expectations are clear and progress is visible, engineers
+deliver with confidence and pride.
 
   <div class="hero-cta" style="margin-top: var(--space-6);">
     <a href="/about/" class="btn btn-secondary">Read our philosophy</a>
@@ -141,7 +141,7 @@ When the path forward is clear, engineers deliver with confidence and pride.
 
 ## Get Started
 
-### For Leadership
+### For Engineering Leaders
 
 Define and publish an agent-aligned engineering standard for your team:
 
@@ -159,9 +159,9 @@ npx fit-pathway job software_engineering J060          # Generate a job definiti
 npx fit-outpost init ~/Documents/Team                 # Set up your personal ops center
 ```
 
-### For Coding Agents
+### For Platform Builders and Agents
 
-Generate aligned agent profiles and skill files from your standard:
+Generate aligned agent profiles and install the shared skill pack:
 
 ```sh
 npx fit-pathway agent software_engineering --track=platform  # Generate agent profiles

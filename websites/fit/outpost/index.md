@@ -1,12 +1,12 @@
 ---
 title: Outpost
-description: Set up camp — a personal knowledge system with scheduled AI tasks that keeps you briefed, organized, and field-ready.
+description: Walk into every meeting already oriented — scheduled AI tasks assemble your context and keep your knowledge organized.
 layout: product
 toc: false
 hero:
   image: /assets/scene-outpost.svg
   alt: An engineer, an AI robot, and a business professional setting up an A-frame tent together
-  subtitle: Set up camp. Outpost is your personal operations center — it syncs your email and calendar, builds a knowledge graph, drafts responses, prepares meeting briefs, and organizes your files. All running as scheduled AI tasks in the background.
+  subtitle: Set up camp. Outpost keeps you prepared — it syncs your email and calendar, builds a knowledge graph, drafts responses, and prepares meeting briefs. All running as scheduled AI tasks in the background.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/outpost
@@ -15,33 +15,30 @@ hero:
       secondary: true
 ---
 
-> Everything you and your team know, in one place. Outpost is a scheduler that
-> runs Claude Code tasks on a timer — syncing data, extracting entities,
-> drafting emails, preparing for meetings. No server, no database — just plain
-> files, markdown, and Claude. Your knowledge base is Obsidian-compatible, your
-> config is JSON, and everything is transparent.
+Walking into a meeting cold because the context was buried across email
+threads, a Slack channel, and last week's notes. Outpost assembles and
+maintains that context so you arrive already oriented — without the morning
+scramble.
 
-### What you get
+## What becomes possible
+
+### For Empowered Engineers
+
+Keep track of people, projects, and threads without depending on memory. Walk
+into every meeting already oriented. Set it up once and it keeps working in the
+background — continuous awareness without continuous effort.
 
 - Automatic email and calendar sync from Apple Mail and Calendar
 - A knowledge graph of people, organizations, projects, and topics
-- AI-drafted email responses that use your full context
+- AI-drafted email responses using your full context
 - Meeting preparation briefings before every call
-- Presentation generation from markdown to PDF
-- File organization and cleanup on autopilot
-- A macOS status menu showing what's running
+- Presentation generation and file organization on autopilot
 
 ---
 
-### Who it's for
+## How Outpost Works
 
-**Empowered Engineers** who want a personal operations center that actually
-knows their context — who they work with, what projects are active, and what's
-coming up next. Set it up once and it keeps working in the background.
-
----
-
-## Core Skills
+### Core Skills
 
 | Skill                    | What it does                                   |
 | ------------------------ | ---------------------------------------------- |
@@ -54,9 +51,7 @@ coming up next. Set it up once and it keeps working in the background.
 | **Document Collab**      | Assists with document creation and editing     |
 | **Organize Files**       | Cleans up and organizes your files             |
 
----
-
-## Prerequisites
+### Prerequisites
 
 Outpost spawns `claude` as a subprocess without loading your shell profile.
 Install Claude Code via **Homebrew** (`brew install claude`) rather than the

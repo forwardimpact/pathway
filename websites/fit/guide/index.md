@@ -1,12 +1,12 @@
 ---
 title: Guide
-description: Find your bearing — an AI agent that understands your agent-aligned engineering standard and helps you navigate it.
+description: Career guidance and output review grounded in your organization's actual engineering standard — not generic advice.
 layout: product
 toc: false
 hero:
   image: /assets/scene-guide.svg
   alt: An engineer, an AI robot holding a compass, and a business professional gathered together, finding their bearings
-  subtitle: Find your bearing. Guide is an AI agent that understands your organization's skills, levels, and career paths — helping engineers onboard, grow, and stay on course.
+  subtitle: Find your bearing. Guide is an AI agent that understands your organization's engineering standard — the skills, levels, and expectations that define what good looks like. Career guidance, output review, and onboarding grounded in your actual context.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/guide
@@ -15,33 +15,26 @@ hero:
       secondary: true
 ---
 
-> The Guide doesn't carry you — it shows you which way to go. Most AI assistants
-> give generic advice. Guide understands your organization's actual engineering
-> agent-aligned engineering standard — the skills, levels, behaviours, and
-> expectations that define what good looks like in your team. That context
-> changes everything.
+A promotion conversation ends with 'not yet' but no specifics — unclear what
+evidence would change the answer. An agent delivers a PR and the only way to
+tell whether it meets the quality bar is reading every line. Guide resolves
+both by grounding career advice and output review in the organization's actual
+engineering standard.
 
-### What you get
+## What becomes possible
 
-- **Onboarding guidance** — orient in unfamiliar teams, grounded in actual skill
-  expectations and level definitions
-- **Career advice** — gap analysis between where you are and where you want to
-  go, with specific skill recommendations
-- **Skill assessment** — interprets engineering activity against the agent-aligned
-  engineering standard, giving Landmark the judgement to match evidence to markers
-- **Contextual help** — references the right skills, behaviours, and conventions
-  for your level when you need guidance
-- **Problem-solving** — assists with engineering decisions informed by your
-  team's standards and patterns
+### For Empowered Engineers
 
----
+Get career guidance grounded in your organization's standards, not generic
+advice. Know what evidence would close the gap between where you are and where
+you want to go. Review agent output against an objective standard instead of
+your subjective impression of quality.
 
-### Who it's for
-
-**Empowered Engineers** who want guidance grounded in their organization's
-actual engineering standard — not generic career advice. Whether onboarding,
-preparing for a level change, or making an engineering decision, Guide knows
-your team's skills, levels, and expectations.
+- Gap analysis between current level and target, with specific skill
+  recommendations
+- Skill assessment that interprets engineering activity against standard markers
+- Onboarding orientation grounded in actual team expectations
+- Output review that checks deliverables against the organizational quality bar
 
 ---
 
@@ -65,9 +58,6 @@ Once configured, use Guide from any of three surfaces:
 npx fit-guide                         # CLI (Claude Agent SDK)
 # Or connect via Claude Code / Claude Chat using the MCP endpoint
 ```
-
-Onboarding, career advice, skill assessment, or day-to-day engineering guidance
-— all grounded in your organization's actual standards.
 
 <div class="grid">
 

@@ -1,12 +1,12 @@
 ---
 title: Landmark
-description: Analyze engineering-system signals from Map — marker evidence from GitHub activity and quarterly GetDX snapshot outcomes.
+description: Show engineering progress without making individuals feel surveilled — evidence, trends, and engineer voice, fully deterministic.
 layout: product
 toc: false
 hero:
   image: /assets/scene-landmark.svg
   alt: An engineer, an AI robot, and a business professional stand on a rocky outcrop, scanning the horizon for signals
-  subtitle: Landmark is the analysis layer for engineering-system signals. It reads Map data to show marker evidence, practice patterns, and snapshot trends for manager-defined teams.
+  subtitle: Check the cairn. Landmark shows what the signals say about how engineering is functioning — marker evidence, practice patterns, and snapshot trends grounded in your engineering standard. Fully deterministic, no LLM calls.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/landmark
@@ -15,32 +15,39 @@ hero:
       secondary: true
 ---
 
-> Landmark answers one question: **what do the signals say about how engineering
-> is functioning — and what should we do about it?** It reads Map data, combines
-> objective marker evidence with GetDX snapshot outcomes, and presents analysis
-> grounded in your agent-aligned engineering standard. No LLM calls — fully
-> deterministic.
+The quarterly review is due and the only data available is ticket counts —
+which single out individuals rather than illuminate the system. Career
+conversations feel subjective with no shared evidence base. Landmark resolves
+both by combining objective marker evidence with developer-experience outcomes,
+presented without blaming individuals.
 
-### What you get
+## What becomes possible
 
-- Marker evidence analysis linking GitHub artifacts to skill definitions
-- Promotion readiness and growth timeline views per engineer
-- GetDX snapshot trends and comparisons across quarters
+### For Engineering Leaders
+
+Demonstrate engineering progress without making individuals feel surveilled.
+See system-level trends that show direction, tell whether culture investments
+are working before the next budget cycle, and track initiative impact tied to
+organizational drivers.
+
 - Team health dashboards combining evidence, driver scores, and engineer voice
+- GetDX snapshot trends and quarterly comparisons
 - Initiative impact tracking tied to organizational drivers
 - Practice pattern analysis showing which skills are actively exercised
 
+### For Empowered Engineers
+
+Show concrete evidence of growth, not just a manager's impression. Ground
+career conversations in facts and know exactly where you stand against the
+standard.
+
+- Marker evidence linking GitHub artifacts to skill definitions
+- Promotion readiness and growth timeline views
+- Skill coverage analysis against standard markers
+
 ---
 
-### Who it's for
-
-**Leadership** measuring how engineering is functioning — marker evidence,
-snapshot trends, and engineer voice, presented without blaming individuals.
-
-**Empowered Engineers** reviewing their own evidence record, checking promotion
-readiness, and grounding career conversations in facts.
-
----
+## How Landmark Works
 
 ### Audience Model
 
@@ -50,18 +57,16 @@ readiness, and grounding career conversations in facts.
 | **Manager** (1:1 tool)  | `health`, `readiness`, `timeline`, `practiced`, `voice --manager`    | Individual specificity for direct reports |
 | **Director** (planning) | `snapshot`, `coverage`, `practiced`, `initiative`, `voice --manager` | Aggregated team views                     |
 
----
+### Commands
 
-## Commands
-
-### Organization
+#### Organization
 
 ```sh
 npx fit-landmark org show                    # Full organization directory
 npx fit-landmark org team --manager <email>  # Hierarchy under a manager
 ```
 
-### Snapshots
+#### Snapshots
 
 ```sh
 npx fit-landmark snapshot list
@@ -70,7 +75,7 @@ npx fit-landmark snapshot trend --item <item_id> [--manager <email>]
 npx fit-landmark snapshot compare --snapshot <id> [--manager <email>]
 ```
 
-### Evidence & Readiness
+#### Evidence & Readiness
 
 ```sh
 npx fit-landmark evidence [--skill <id>] [--email <email>]
@@ -81,7 +86,7 @@ npx fit-landmark coverage --email <email>
 npx fit-landmark practiced --manager <email>
 ```
 
-### Health
+#### Health
 
 ```sh
 npx fit-landmark health [--manager <email>]
@@ -90,14 +95,14 @@ npx fit-landmark health [--manager <email>]
 Shows driver scores, contributing skill evidence, engineer voice comments, and
 (when Summit is installed) inline growth recommendations.
 
-### Engineer Voice
+#### Engineer Voice
 
 ```sh
 npx fit-landmark voice --manager <email>   # Themed team comments
 npx fit-landmark voice --email <email>     # Individual comment timeline
 ```
 
-### Initiatives
+#### Initiatives
 
 ```sh
 npx fit-landmark initiative list [--manager <email>]
@@ -107,17 +112,13 @@ npx fit-landmark initiative impact [--manager <email>]
 
 All commands support `--format text|json|markdown`.
 
----
-
-## Prerequisites
+### Prerequisites
 
 - **GetDX account** with API access configured
 - **Map** with the activity schema migrated (`npx fit-map activity migrate`)
 - **Standard data** with drivers and markers authored in your capability YAML
 
----
-
-## How It Works
+### Data Flow
 
 Landmark reads from Map's activity layer:
 
@@ -149,7 +150,7 @@ npx fit-landmark marker task_completion
 
 <a href="/docs/getting-started/leadership/landmark/">
 
-### Leadership
+### Engineering Leaders
 
 Analyze engineering signals — marker evidence, snapshot trends, practice
 patterns, team health, and engineer voice.

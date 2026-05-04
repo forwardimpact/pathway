@@ -1,12 +1,12 @@
 ---
 title: Gear
-description: The agent-shaped utilities you carry into the field — CLIs, retrieval primitives, evaluation tooling, and service infrastructure for platform builders deploying humans and agents.
+description: Shared libraries and services for platform builders and agents — CLIs, retrieval, evaluation, and infrastructure published to npm.
 layout: product
 toc: false
 hero:
   image: /assets/scene-gear.svg
   alt: An engineer in a hoodie, an AI robot, and a business professional wave hello
-  subtitle: Gear is the catalog of agent-shaped utilities for platform builders deploying humans and agents. CLIs, retrieval primitives, evaluation tooling, and service infrastructure — installed from npm and the forwardimpact/fit-skills skill pack so platform builders and agents share one inventory.
+  subtitle: Carry the right gear. Shared libraries and services for platform builders and agents — CLIs, retrieval primitives, evaluation tooling, and service infrastructure published to npm and the forwardimpact/fit-skills skill pack.
   cta:
     - label: Browse the catalog
       href: https://github.com/forwardimpact/monorepo/tree/main/libraries
@@ -15,12 +15,19 @@ hero:
       secondary: true
 ---
 
-> Gear gives platform builders and agents a shared inventory of capabilities. Each is a
-> focused tool — agent-friendly by design, with CLIs that print grep-friendly
-> help, JSON output, and links back to the same documentation humans and agents
-> read.
+Platform builders composing agentic products need focused, interoperable
+libraries and services — not monolithic frameworks. Gear provides individual
+capabilities that work standalone or together, with humans and agents sharing
+the same interface and documentation.
 
-### What you get
+## What becomes possible
+
+### For Platform Builders
+
+Give humans and agents shared capabilities through the same interface, with
+tooling to prove changes actually improved outcomes. Every CLI prints
+grep-friendly help and JSON output; every library ships a matching skill in the
+`forwardimpact/fit-skills` pack so agents land on the same docs as humans.
 
 33 libraries organized into five capability categories, all published to npm
 under `@forwardimpact/lib*`. Browse the full tables in
@@ -76,17 +83,6 @@ bundle assembly, and shared test fixtures.
 </a>
 
 </div>
-
----
-
-### Who it's for
-
-**Platform Builders** composing agentic products. Pull in just the libraries you need;
-every CLI works standalone via `npx fit-<name>`.
-
-**Coding Agents** deployed into the field. Each library ships a matching skill
-in the `forwardimpact/fit-skills` pack, so coding agents land on the same docs
-as humans.
 
 ---
 

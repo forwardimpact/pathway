@@ -1,12 +1,12 @@
 ---
 title: Map
-description: The data product for your engineering system — agent-aligned engineering standard definitions, organization structure, GitHub activity, and GetDX snapshots.
+description: Turn implicit engineering expectations into an operational definition — skills, behaviours, levels, and operational signals in plain text.
 layout: product
 toc: false
 hero:
   image: /assets/scene-map.svg
   alt: An engineer, an AI robot, and a business professional kneel around a large unfolded map, tracing routes together
-  subtitle: Map is the data product for the FIT suite. It defines your agent-aligned engineering standard in plain YAML and stores operational signals — organization hierarchy, GitHub activity, and GetDX snapshot results — in one model.
+  subtitle: Chart the territory. Map turns implicit engineering expectations into an operational definition the organization trusts — skills, behaviours, and career levels in plain text, with organizational signals from GitHub and GetDX feeding every downstream product.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/map
@@ -15,32 +15,25 @@ hero:
       secondary: true
 ---
 
-> Map is the data product that provides shared context for every product in the
-> suite. Teams define the agent-aligned engineering standard once, import
-> operational signals continuously, and make that data available to Pathway,
-> Guide, Landmark, and Outpost through stable contracts.
+A promotion decision stalls because two managers disagree on what 'senior'
+means — neither can point to a written definition. Map gives them one: a
+structured, validatable engineering standard that everyone references, humans
+and agents alike.
 
-### What you get
+## What becomes possible
 
-- Agent-aligned engineering standard definitions for skills, behaviours, levels,
+### For Engineering Leaders
+
+Turn implicit expectations into a definition the organization trusts.
+Specialized roles get coherent expectations from a shared foundation so
+evaluations feel fair rather than arbitrary. Structural mistakes in the
+standard get caught before they ship.
+
+- A validated engineering standard in plain text — skills, behaviours, levels,
   disciplines, and tracks
-- A simple people directory with reporting structure
-- Team views derived from reporting hierarchy (manager-rooted subtrees)
-- GitHub activity data for objective marker evidence analysis
-- GetDX snapshot imports for quarterly developer-experience results
-- Validation tooling and schema artifacts (JSON Schema + RDF/SHACL)
-
----
-
-### Who it's for
-
-**Leadership** defining what good engineering looks like. Author your
-agent-aligned engineering standard in YAML, import operational signals from
-GitHub and GetDX, and give every downstream product a shared foundation.
-
-**Coding Agents** operating within those standards. Map provides the shared
-definitions that Pathway uses to generate aligned agent profiles and skill
-files.
+- A people directory with reporting structure and team views
+- GitHub activity data and GetDX snapshot imports for downstream analysis
+- Schema artifacts (JSON Schema + RDF/SHACL) for validation and integration
 
 ---
 
@@ -56,7 +49,7 @@ npx fit-map validate
 
 <a href="/docs/getting-started/leadership/map/">
 
-### Leadership
+### Engineering Leaders
 
 Initialize your agent-aligned engineering standard, validate schemas, set up the
 activity layer, and ingest operational signals from GitHub and GetDX.

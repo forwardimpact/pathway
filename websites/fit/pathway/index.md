@@ -1,12 +1,12 @@
 ---
 title: Pathway
-description: Navigate engineering skills and careers with clarity — browse career paths, generate agent teams, build progression plans.
+description: See what's expected at every level — generate job definitions, career paths, and agent profiles from one shared engineering standard.
 layout: product
 toc: false
 hero:
   image: /assets/scene-pathway.svg
   alt: An engineer, an AI robot, and a business professional stand at the base of mountains, studying the trail ahead
-  subtitle: Navigate engineering skills and careers with clarity. Whether you're an engineer exploring career progression, a manager building job descriptions, or a team lead deploying AI coding agents — Pathway delivers it through a web app, a CLI, and a static site generator.
+  subtitle: Navigate the trail. Pathway makes expectations visible — feed it a discipline, track, and level and it produces a complete job definition. Drop the level and you get an agent profile instead. Same standard, different outputs.
   cta:
     - label: View on GitHub
       href: https://github.com/forwardimpact/monorepo/tree/main/products/pathway
@@ -15,48 +15,45 @@ hero:
       secondary: true
 ---
 
-> Pathway is your interface to the agent-aligned engineering standard. Feed it a
-> discipline, a track, and a level — and it produces a complete job definition.
-> Drop the level and you get an agent profile instead. Same data, same formula,
-> different outputs.
+An engineer starts a new role and discovers that 'meets expectations' on the
+review form has no definition anyone can point to. An agent delivers work the
+team rejects because it followed generic best practices instead of the
+organization's actual standards. Pathway resolves both — one shared standard
+that produces definitions for humans and agents alike.
 
-### What you get
+## What becomes possible
 
-- An interactive web app to explore roles, skills, and career paths
-- A CLI for generating job descriptions and agent profiles
-- Claude Code agent profiles derived from your agent-aligned engineering
-  standard
-- Agent skill files following the open Agent Skills Standard
-- A static site export for publishing your agent-aligned engineering standard
-- Interview question sets tailored to each role
+### For Engineering Leaders
 
----
+Define roles precisely enough that hiring decisions and evaluations feel
+consistent, not arbitrary. Staff teams knowing exactly what each role requires
+rather than relying on intuition.
 
-### Who it's for
+- Complete job definitions from discipline + track + level
+- Interview question sets grounded in actual skill expectations
+- A static site export for publishing the standard organization-wide
 
-**Empowered Engineers** exploring where they are and where they're heading.
-Browse skills, see what's expected at the next level, and identify growth areas.
+### For Empowered Engineers
 
-**Leadership** building job descriptions and interview question sets. Select a
-discipline, track, and level — Pathway generates a complete, consistent job
-definition.
+See exactly what's expected at your level, what changes at the next level, and
+configure agents to meet the same expectations the organization holds for human
+contributors — without writing bespoke prompts for every task.
 
-**Coding Agents** aligning with organizational standards. Pathway generates
-agent profiles and skill files from the same engineering standard humans use.
+- An interactive career browser showing skills and level progression
+- Agent profiles and skill files derived from organizational standards
+- Side-by-side level comparisons to identify growth areas
 
 ---
 
 ## The Web Application
 
-The interactive browser gives you:
-
-- **Job Builder** — Select discipline, track, and level to explore complete role
+- **Explore roles** — Select discipline, track, and level to see complete role
   definitions with skill matrices and behaviour profiles
-- **Skill Browser** — View all skills with detailed level descriptions
-- **Career Progression** — Compare levels side by side and see what changes
-- **Interview Prep** — Generate role-specific question sets for hiring
-- **Agent Preview** — See exactly what agent profiles will look like before
-  deploying
+- **Browse skills** — View all skills with detailed level descriptions
+- **Compare levels** — See what changes between levels side by side
+- **Prepare interviews** — Generate role-specific question sets for hiring
+- **Preview agent profiles** — See exactly what agent configuration looks like
+  before deploying
 
 ---
 
@@ -72,7 +69,7 @@ npx fit-pathway job software_engineering J060 --track=platform  # Job definition
 
 <a href="/docs/getting-started/leadership/pathway/">
 
-### Leadership
+### Engineering Leaders
 
 Preview your agent-aligned engineering standard in the browser, generate job
 definitions, and create interview question sets.
