@@ -387,11 +387,11 @@ that makes quality visible and evaluations defensible.
 
 Common next steps:
 
-- [Validate and update the standard](/docs/products/validate-standard/) --
+- [Validate and update the standard](/docs/products/authoring-standards/validate-and-update/) --
   change definitions and trust that structural mistakes get caught before they
   ship.
-- [Define a new role](/docs/products/define-role/) -- create requirements for a
-  new role without starting from a blank page.
+- [Define a new role](/docs/products/authoring-standards/define-a-new-role/) --
+  create requirements for a new role without starting from a blank page.
 - [Career Paths](/docs/products/career-paths/) -- browse derived roles, analyze
   progression between levels, and generate gap analyses.
 - [Agent Teams](/docs/products/agent-teams/) -- export agent team configurations
