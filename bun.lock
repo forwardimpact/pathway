@@ -437,7 +437,7 @@
     },
     "libraries/libwiki": {
       "name": "@forwardimpact/libwiki",
-      "version": "0.1.1",
+      "version": "0.1.2",
       "bin": {
         "fit-wiki": "./bin/fit-wiki.js",
       },
@@ -565,7 +565,7 @@
     },
     "products/summit": {
       "name": "@forwardimpact/summit",
-      "version": "0.1.13",
+      "version": "0.1.14",
       "bin": {
         "fit-summit": "./bin/fit-summit.js",
       },
@@ -601,6 +601,24 @@
         "@forwardimpact/libharness": "^0.1.5",
       },
     },
+    "services/map": {
+      "name": "@forwardimpact/svcmap",
+      "version": "0.1.0",
+      "bin": {
+        "fit-svcmap": "./server.js",
+      },
+      "dependencies": {
+        "@forwardimpact/libconfig": "^0.1.58",
+        "@forwardimpact/librpc": "^0.1.77",
+        "@forwardimpact/libtelemetry": "^0.1.30",
+        "@forwardimpact/libtype": "^0.1.67",
+        "@forwardimpact/map": "^0.15.12",
+        "@supabase/supabase-js": "^2.49.4",
+      },
+      "devDependencies": {
+        "@forwardimpact/libharness": "^0.1.14",
+      },
+    },
     "services/mcp": {
       "name": "@forwardimpact/svcmcp",
       "version": "0.1.6",
@@ -614,6 +632,7 @@
         "@forwardimpact/librpc": "^0.1.92",
         "@forwardimpact/libtelemetry": "^0.1.35",
         "@forwardimpact/libtype": "^0.1.68",
+        "@forwardimpact/svcmap": "^0.1.0",
         "@modelcontextprotocol/sdk": "^1.29.0",
       },
       "devDependencies": {
@@ -928,6 +947,8 @@
     "@forwardimpact/summit": ["@forwardimpact/summit@workspace:products/summit"],
 
     "@forwardimpact/svcgraph": ["@forwardimpact/svcgraph@workspace:services/graph"],
+
+    "@forwardimpact/svcmap": ["@forwardimpact/svcmap@workspace:services/map"],
 
     "@forwardimpact/svcmcp": ["@forwardimpact/svcmcp@workspace:services/mcp"],
 

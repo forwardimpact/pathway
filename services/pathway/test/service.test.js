@@ -132,6 +132,7 @@ describe("PathwayService", () => {
       "DescribeAgentProfile",
       "DescribeProgression",
       "ListJobSoftware",
+      "GetMarkersForProfile",
     ]) {
       assert.strictEqual(
         typeof PathwayService.prototype[method],
@@ -318,6 +319,60 @@ describe("PathwayService RPCs", () => {
     assert.strictEqual(
       profiles[0].subject.value,
       `${FIT}agent-profile/fde/fwd`,
+    );
+  });
+
+  test("GetMarkersForProfile returns tab-separated rows from each skill's markers block", async () => {
+    // Spec 800: project markers from data.skills onto the job's skill matrix.
+    // Build a custom service whose python skill carries a markers block at
+    // every level so the projection is independent of how the fixture's
+    // discipline/level resolves to a specific proficiency.
+    const config = createMockConfig("pathway");
+    const data = buildData();
+    const skill = data.skills[0];
+    skill.markers = {
+      awareness: { human: ["Read a Python script and explained it"] },
+      foundational: { human: ["Wrote a small Python script with passing tests"] },
+      working: {
+        human: ["Refactored a Python module without regressions"],
+        agent: ["Reviewed a Python diff and flagged a missing edge case"],
+      },
+      practitioner: { human: ["Led a Python codebase migration"] },
+      expert: { human: ["Set the Python language strategy across teams"] },
+    };
+    const customService = new PathwayService(config, {
+      data,
+      agentData: { disciplines: [], tracks: [], behaviours: [] },
+      skillsWithAgent: [],
+    });
+
+    const result = await customService.GetMarkersForProfile({
+      discipline: "fde",
+      level: "l2",
+    });
+    const lines = result.content.split("\n").filter(Boolean);
+    assert.ok(lines.length > 0, "expected at least one marker line");
+    for (const line of lines) {
+      const [skillId, levelId, ...rest] = line.split("\t");
+      assert.equal(skillId, "python");
+      assert.ok(
+        ["awareness", "foundational", "working", "practitioner", "expert"].includes(
+          levelId,
+        ),
+        `unexpected level: ${levelId}`,
+      );
+      assert.ok(rest.join("\t").length > 0, "marker_text must be non-empty");
+    }
+  });
+
+  test("GetMarkersForProfile rejects unknown profiles", async () => {
+    await assertRejectsMessage(
+      () =>
+        service.GetMarkersForProfile({
+          discipline: "no-such",
+          level: "l1",
+        }),
+      /Unknown discipline/,
     );
   });
 

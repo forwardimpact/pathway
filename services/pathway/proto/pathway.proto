@@ -12,6 +12,7 @@ service Pathway {
   rpc DescribeAgentProfile(DescribeAgentProfileRequest) returns (tool.ToolCallResult);
   rpc DescribeProgression(DescribeProgressionRequest) returns (tool.ToolCallResult);
   rpc ListJobSoftware(ListJobSoftwareRequest) returns (tool.ToolCallResult);
+  rpc GetMarkersForProfile(GetMarkersForProfileRequest) returns (tool.ToolCallResult);
 }
 
 message ListJobsRequest {
@@ -53,6 +54,18 @@ message DescribeProgressionRequest {
 }
 
 message ListJobSoftwareRequest {
+  // Discipline id (e.g. 'software_engineering')
+  string discipline = 1;
+  // Level id (e.g. 'J060')
+  string level = 2;
+  // Track id for specialization modifier (e.g. 'forward_deployed')
+  optional string track = 3;
+}
+
+// Spec 800: Markers an engineer at a (discipline, level, track) profile is
+// expected to demonstrate. Used by Guide's evaluation skill to ground
+// evidence rows in the engineering standard.
+message GetMarkersForProfileRequest {
   // Discipline id (e.g. 'software_engineering')
   string discipline = 1;
   // Level id (e.g. 'J060')

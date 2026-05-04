@@ -13,6 +13,9 @@ const tracer = await createTracer("mcp");
 const graphClient = await createClient("graph", logger, tracer);
 const vectorClient = await createClient("vector", logger, tracer);
 const pathwayClient = await createClient("pathway", logger, tracer);
+// Spec 800: svcmap exposes activity reads/writes so Guide's evaluation
+// skill can fetch unscored artifacts and write evidence rows.
+const mapClient = await createClient("map", logger, tracer);
 const resourceIndex = createResourceIndex("resources");
 
 const service = createMcpService({
@@ -21,6 +24,7 @@ const service = createMcpService({
   graphClient,
   vectorClient,
   pathwayClient,
+  mapClient,
   resourceIndex,
 });
 

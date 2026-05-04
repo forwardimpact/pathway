@@ -275,4 +275,56 @@ export class PathwayService extends PathwayBase {
     const content = await jobSoftwareToTurtle(job, toolkit);
     return { content };
   }
+
+  /**
+   * Spec 800: Return the skill markers an engineer at the given
+   * (discipline, level, track) profile is expected to demonstrate, formatted
+   * as one tab-separated `skill_id<TAB>level_id<TAB>marker_text` row per line
+   * so Guide's evaluation skill can ground evidence rows in the engineering
+   * standard. Markers are projected from each skill's `markers[level]` block
+   * across the matched job's skill matrix; skills without markers at the
+   * relevant level are silently skipped.
+   *
+   * @param {import("@forwardimpact/libtype").pathway.GetMarkersForProfileRequest} req
+   */
+  async GetMarkersForProfile(req) {
+    const data = this.#data;
+    const discipline = this.#findDiscipline(req.discipline);
+    const level = this.#findLevel(req.level);
+    const track = this.#findTrack(req.track);
+
+    const job = deriveJob({
+      discipline,
+      level,
+      track,
+      skills: data.skills,
+      behaviours: data.behaviours,
+      capabilities: data.capabilities,
+      validationRules: this.#validationRules(),
+    });
+
+    if (!job) {
+      throw new Error(
+        `Invalid profile: discipline=${req.discipline} level=${req.level}` +
+          (req.track ? ` track=${req.track}` : ""),
+      );
+    }
+
+    const lines = [];
+    for (const entry of job.skillMatrix) {
+      const skill = data.skills.find((s) => s.id === entry.skillId);
+      const proficiency = entry.proficiency;
+      const levelMarkers = skill?.markers?.[proficiency];
+      if (!levelMarkers) continue;
+      const allTexts = [
+        ...(levelMarkers.human || []),
+        ...(levelMarkers.agent || []),
+      ];
+      for (const text of allTexts) {
+        lines.push(`${skill.id}\t${proficiency}\t${text}`);
+      }
+    }
+
+    return { content: lines.join("\n") };
+  }
 }

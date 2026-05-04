@@ -79,7 +79,7 @@ async function dispatchNewSession(req, res, ctx) {
  * the prompt in one session, then the Agent SDK opens a second session for
  * tool use.
  *
- * @param {{ config: object, logger: object, graphClient: object, vectorClient: object, pathwayClient: object, resourceIndex: object }} deps
+ * @param {{ config: object, logger: object, graphClient: object, vectorClient: object, pathwayClient: object, mapClient: object, resourceIndex: object }} deps
  * @returns {{ start: () => Promise<void> }}
  */
 export function createMcpService({
@@ -88,6 +88,7 @@ export function createMcpService({
   graphClient,
   vectorClient,
   pathwayClient,
+  mapClient,
   resourceIndex,
 }) {
   const promptPath = path.join(__dirname, "prompts", "guide-default.md");
@@ -97,7 +98,12 @@ export function createMcpService({
     registerToolsFromConfig(
       server,
       config,
-      { graph: graphClient, vector: vectorClient, pathway: pathwayClient },
+      {
+        graph: graphClient,
+        vector: vectorClient,
+        pathway: pathwayClient,
+        map: mapClient,
+      },
       resourceIndex,
     );
     server.prompt(

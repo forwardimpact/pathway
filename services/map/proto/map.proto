@@ -1,0 +1,55 @@
+syntax = "proto3";
+
+package map;
+
+import "tool.proto";
+
+// Spec 800: Activity reads and writes for Guide's evaluation pipeline.
+// All RPCs return tool.ToolCallResult so they bridge cleanly through
+// svcmcp into MCP tool calls. Artifact-touching methods route through a
+// per-source registry so additional source types (Copilot, Claude Code)
+// can be added without changing the evaluation logic or evidence write
+// path — see specs/800-landmark-evidence-pipeline/design-a.md.
+service Map {
+  // List artifacts that have no evidence rows. Scope is exactly one of
+  // { email }, { manager_email }, or { org: true }.
+  rpc GetUnscoredArtifacts(GetUnscoredArtifactsRequest) returns (tool.ToolCallResult);
+  // Return the per-source detail for a single artifact, dispatched
+  // through the source-type registry.
+  rpc GetArtifact(GetArtifactRequest) returns (tool.ToolCallResult);
+  // Validate and insert evidence rows. Idempotent on
+  // (artifact_id, skill_id, level_id, marker_text). Every row is checked
+  // against the engineering standard's marker set for the artifact
+  // author's profile before insert.
+  rpc WriteEvidence(WriteEvidenceRequest) returns (tool.ToolCallResult);
+  // Return the engineer's (discipline, level, track) profile from
+  // organization_people.
+  rpc GetPerson(GetPersonRequest) returns (tool.ToolCallResult);
+}
+
+message GetUnscoredArtifactsRequest {
+  optional string email = 1;
+  optional string manager_email = 2;
+  optional bool org = 3;
+}
+
+message GetArtifactRequest {
+  string artifact_id = 1;
+}
+
+message EvidenceRow {
+  string artifact_id = 1;
+  string skill_id = 2;
+  string level_id = 3;
+  string marker_text = 4;
+  bool matched = 5;
+  string rationale = 6;
+}
+
+message WriteEvidenceRequest {
+  repeated EvidenceRow rows = 1;
+}
+
+message GetPersonRequest {
+  string email = 1;
+}
