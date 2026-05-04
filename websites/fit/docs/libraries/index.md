@@ -265,5 +265,5 @@ result.
 
 </div>
 
-Looking for product workflows like authoring standards, agent teams, or landmark
-quickstart? See [Product Guides](/docs/products/).
+Looking for product workflows? See [Product Guides](/docs/products/). For shared
+gRPC service integration, see [Service Guides](/docs/services/).

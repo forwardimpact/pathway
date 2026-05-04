@@ -23,9 +23,9 @@ Quickstart guides for leadership, engineers, and contributors.
 
 ### Product Guides
 
-Task-oriented guides for engineers and leaders: authoring agent-aligned
-engineering standards, agent teams, career paths, knowledge systems, team
-capability, and finding your bearing.
+Task-oriented guides for engineers and leaders: defining standards, career
+paths, growth areas, agent teams, staffing, engineering outcomes, agent
+verification, and knowledge systems.
 
 </a>
 
@@ -33,8 +33,19 @@ capability, and finding your bearing.
 
 ### Library Guides
 
-Task-oriented guides for platform builders and agents: agent evaluations, agent
-collaboration, and trace analysis with the Gear catalog of utilities.
+Task-oriented guides for platform builders: agent memory, XmR analysis, agent
+surfaces, knowledge infrastructure, typed contracts, service lifecycle, and
+agent evaluations.
+
+</a>
+
+<a href="/docs/services/">
+
+### Service Guides
+
+Task-oriented guides for platform builders: integrating with shared gRPC
+services for knowledge graphs, vector search, engineering standard queries,
+trace collection, and agent tool exposure.
 
 </a>
 

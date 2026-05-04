@@ -1,6 +1,6 @@
 ---
 title: Product Guides
-description: Task-oriented guides for engineers and leaders — authoring agent-aligned engineering standards, generating agent teams, browsing career paths, and more.
+description: Task-oriented guides for engineers and leaders — defining standards, career paths, growth areas, agent teams, staffing, engineering outcomes, agent verification, and knowledge systems.
 layout: product
 toc: false
 ---
@@ -233,5 +233,5 @@ meeting -- attendee context, open items, and talking points.
 
 </div>
 
-Looking for evaluation tooling, trace analysis, or other library-level guides?
-See [Library Guides](/docs/libraries/).
+Looking for library-level utilities or service integration? See
+[Library Guides](/docs/libraries/) and [Service Guides](/docs/services/).

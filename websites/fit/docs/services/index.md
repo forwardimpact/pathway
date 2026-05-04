@@ -110,5 +110,5 @@ managing storage.
 
 </div>
 
-Looking for library-level utilities like evaluations, trace analysis, or XmR
-charts? See [Library Guides](/docs/libraries/).
+Looking for library-level utilities? See [Library Guides](/docs/libraries/).
+For product workflows, see [Product Guides](/docs/products/).
