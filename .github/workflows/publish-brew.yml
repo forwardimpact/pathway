@@ -65,8 +65,9 @@ jobs:
         run: |
           BUNDLE="dist/apps/${{ steps.meta.outputs.bundle }}"
           codesign --verify --deep --strict "$BUNDLE"
-          # Product bundles run their own CLI's --help. Shared bundles exercise
-          # one primary CLI per bundle (others are reachable via cask binary stanzas).
+          # Product bundles run their own CLI's --help. The shared gear bundle
+          # exercises one primary CLI (fit-svcgraph); the other 24 binaries are
+          # reachable via the cask's binary stanzas.
           case "${{ steps.meta.outputs.kind }}" in
             product)  "$BUNDLE/Contents/MacOS/fit-${{ steps.meta.outputs.name }}" --help ;;
             gear)     "$BUNDLE/Contents/MacOS/fit-svcgraph" --help ;;
@@ -190,11 +191,11 @@ jobs:
           VERSION: ${{ steps.meta.outputs.version }}
           SHA256: ${{ steps.hash.outputs.sha256 }}
         run: |
-          # Only the version and sha256 lines are updated per release. The rest of the
-          # cask body — binary stanzas, livecheck regex, deprecate! on fit-basecamp — is
-          # human-edited in the tap repo and survives releases unchanged. The casks
-          # declare no inter-cask dependencies, so each release rewrites exactly one
-          # cask file.
+          # Only the version and sha256 lines are updated per release. Every other
+          # field of the cask body — name, desc, homepage, depends_on, app, binary,
+          # livecheck, zap, deprecate! — is human-edited in the tap repo and survives
+          # releases unchanged. The casks declare no inter-cask dependencies, so each
+          # release rewrites exactly one cask file.
           CASK_FILE="tap/Casks/${CASK}.rb"
           sed -i \
             -e "s|^  version \".*\"|  version \"${VERSION}\"|" \

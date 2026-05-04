@@ -210,8 +210,8 @@ build-product-binaries:
     just build-binary fit-pathway
     just build-binary fit-summit
 
-# Compile every gear CLI (services + library binaries; must stay in sync with
-# Casks/fit-gear.rb in the forwardimpact/homebrew-tap repo)
+# Compile every gear CLI (25 total: 5 service + 20 library binaries; must stay
+# in sync with Casks/fit-gear.rb in the forwardimpact/homebrew-tap repo)
 build-gear-binaries:
     just build-binary fit-svcgraph
     just build-binary fit-svcmcp
@@ -266,7 +266,8 @@ build-app-product NAME:
         --out-dir dist/apps
     fi
 
-# Assemble dist/apps/fit-gear.app — bundles all 25 service + library CLIs
+# Assemble dist/apps/fit-gear.app — bundles all 25 service + library CLIs (must
+# stay in sync with the binary stanzas in Casks/fit-gear.rb)
 build-app-gear:
     bash libraries/libmacos/scripts/build-app.sh \
       --bundle-name "fit-gear" \
