@@ -13,7 +13,7 @@ Little Hire guides are nested children.
 | Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost      |
 | Contributors | `getting-started/contributors/` | (monorepo setup)                       |
 
-## Product Guides (`docs/products/`)
+## Product Guides
 
 **Define the Engineering Standard** (Leaders → Map, Pathway)
 
@@ -75,7 +75,7 @@ Little Hire guides are nested children.
 | Big | `knowledge-systems/` | Keep Track of Context Without Effort |
 | Little | `knowledge-systems/meeting-prep/` | Walk Into Every Meeting Already Oriented |
 
-## Library Guides (`docs/libraries/`)
+## Library Guides
 
 **Operate a Predictable Agent Team** (Engineers → libwiki, libxmr)
 
@@ -134,7 +134,7 @@ Little Hire guides are nested children.
 | Little | `prove-changes/trace-analysis/` | Analyze Traces |
 | Little | `prove-changes/generate-dataset/` | Generate an Eval Dataset |
 
-## Service Guides (`docs/services/`)
+## Service Guides
 
 **Ground Agents in Context** (Builders → graph, vector)
 
