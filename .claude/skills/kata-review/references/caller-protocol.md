@@ -11,31 +11,39 @@ Cold sub-agents produce uncorrelated errors. A finding flagged by ≥⌈N/2⌉
 reviewers is high-signal; singletons get verified but often prove noise. Odd N
 enables majority voting.
 
-## Panel size
+## Panel composition
 
-| Caller           | Artifact                    | Reviewers |
-| ---------------- | --------------------------- | --------- |
-| `kata-spec`      | `spec.md`                   | 3         |
-| `kata-design`    | `design-a.md`               | 3         |
-| `kata-plan`      | `plan-a.md` (+ parts)       | 3         |
-| `kata-implement` | diff (`origin/main...HEAD`) | 5         |
+Each panel has a role (`subagent_type`) and a size. Callers launch all panels
+for a given artifact in a single message so they run in parallel.
+
+| Caller           | Artifact                    | Panel     | `subagent_type`   | Reviewers |
+| ---------------- | --------------------------- | --------- | ----------------- | --------- |
+| `kata-spec`      | `spec.md`                   | product   | `product-manager` | 3         |
+| `kata-spec`      | `spec.md`                   | technical | `staff-engineer`  | 3         |
+| `kata-design`    | `design-a.md`               | technical | `staff-engineer`  | 3         |
+| `kata-plan`      | `plan-a.md` (+ parts)       | technical | `staff-engineer`  | 3         |
+| `kata-implement` | diff (`origin/main...HEAD`) | technical | `staff-engineer`  | 5         |
 
 Implementation diffs get 5 because the artifact is larger, the step is
 irreversible (code lands on `main`), and the surface area for subtle bugs and
 security regressions is largest. Spec/design/plan artifacts are bounded and have
 an implicit second pass at the next phase.
 
+The product panel applies only to specs. A spec is where product alignment is
+decided; downstream phases inherit it via cross-phase fidelity checking.
+
 ## How to invoke
 
-1. **Launch N fresh sub-agents in parallel** via a single message with N `Agent`
-   tool calls. Parallelism is required for two reasons: wall-clock time, and so
-   the caller cannot (accidentally or otherwise) cross-feed one reviewer's
-   output into another's prompt. Each sub-agent:
+1. **Launch all panels in a single message** via one `Agent` tool call per
+   reviewer. All reviewers across all panels launch in parallel — wall-clock
+   time, and so the caller cannot cross-feed one reviewer's output into
+   another's prompt. Each sub-agent:
    - Starts cold with no prior conversation context.
+   - Uses the `subagent_type` from the panel composition table.
    - Loads the [`kata-review`](../SKILL.md) skill.
-   - Receives the **identical** prompt: artifact type, artifact path, spec path
-     (for design/plan/diff), design path (for plan/diff), plan path (for diff),
-     and branch name (for diff).
+   - Receives the **identical** prompt within its panel: artifact type, artifact
+     path, spec path (for design/plan/diff), design path (for plan/diff), plan
+     path (for diff), and branch name (for diff).
    - Is told not to invoke the parent skill (e.g., "do not invoke `kata-spec`")
      — defense in depth on top of the structural recursion fix.
 
@@ -46,6 +54,11 @@ an implicit second pass at the next phase.
    pass — re-spawn that reviewer.
 
 ## How to merge findings
+
+Merge findings **within each panel independently**. When an artifact has
+multiple panels (e.g., technical + product for specs), run the steps below once
+per panel, then combine the results. Findings from different panels are not
+cross-voted — each panel's consensus threshold applies to its own reviewers.
 
 Findings arrive under `### Blocker` / `### High` / `### Medium` / `### Low`,
 each row shaped `<file:line> — <criterion> — <one-sentence reason>` (or a commit
@@ -72,7 +85,7 @@ hash in place of `file:line` for diffs).
 `kata-review` never spawns sub-agents — that is the structural property that
 prevents the spec / plan / implement review loop from recursing. Panel size does
 not change this invariant; each reviewer is still a leaf. See
-[KATA.md § Recursion-safe self-review](../../../../KATA.md#recursion-safe-self-review).
+[KATA.md § Authoring](../../../../KATA.md#authoring).
 
 ## How to handle findings
 

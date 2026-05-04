@@ -60,13 +60,22 @@ optional.
    ambiguous, return a single **Blocker** finding asking for clarification and
    stop. Do not guess.
 
-2. **Read the artifact and directly relevant context.** For a design, read the
-   spec it targets. For a plan, read the spec and design it targets. For a diff,
-   read the spec, the design, the plan, and CONTRIBUTING.md § Core Rules. Read
-   once, fully, before grading.
+2. **Build context before grading.** Read in this order:
 
-3. **Grade against the artifact-specific criteria** in the section below. For
-   each gap or risk, write one finding with:
+   a. **The artifact itself.** Read fully before anything else.
+
+   b. **Upstream documents.** For a design, read the spec. For a plan, read the
+      spec and design. For a diff, read the spec, design, plan, and
+      CONTRIBUTING.md § Core Rules.
+
+   c. **Codebase files the artifact references or modifies.** When the artifact
+      names files, functions, classes, or APIs, read those source files. When a
+      plan lists files to create or change, read the current versions. Verify
+      that the artifact's assumptions about existing code are accurate.
+
+3. **Grade against criteria.** Apply the artifact-specific criteria in the
+   section below and any domain-specific review criteria defined by your agent
+   profile. For each gap or risk, write one finding with:
    - File path and line number (or commit hash)
    - The criterion violated, in one short phrase
    - Severity per the vocabulary above
@@ -80,6 +89,13 @@ optional.
 
 Grade each artifact against its skill's DO-CONFIRM checklist. The deltas below
 are review-specific additions on top of the checklist.
+
+For every artifact except `spec.md`, grade whether the artifact faithfully
+represents the constraints and decisions established in the prior phase(s). A
+design that satisfies its own checklist but contradicts a spec constraint, a plan
+that ignores a design decision, or a diff that silently departs from the plan are
+each at minimum a **High** finding. Process Step 2 has you read the upstream
+artifacts — use them.
 
 ### spec.md
 
