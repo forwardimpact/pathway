@@ -50,6 +50,7 @@ Libraries used: none (Node built-ins only).
 | -------------------------------------------------------- | ------------------------------------------------------------------------------------------------ |
 | Git version differences produce different packfile bytes | Pin `--no-reuse-delta`, use plumbing commands, epoch-pinned timestamps. Byte-equality CI assertion catches drift |
 | `git init --bare` scaffold varies across git versions    | Write `config` and `description` explicitly; strip output to the 8 design-specified files        |
+| `apm.yml` URL changes from `.apm.tar.gz` to `.apm.git`  | Behavioral change for existing APM consumers. Tarball still emitted (Spec Req 7); `apm install` gains native git resolution. Consumers using `apm unpack` are unaffected — that command reads the tarball directly, not `apm.yml` |
 
 ## Execution
 

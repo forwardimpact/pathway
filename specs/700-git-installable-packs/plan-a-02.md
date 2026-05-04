@@ -73,7 +73,9 @@ Replace the internals of `build-packs.js` with libpack calls. The public
 
 - `stageApmBundle`, `archiveApmPack` from `./build-packs-apm.js`
 - `writeSkillReferences` from `./agent-io.js` (no longer called; references are
-  now pre-formatted via `formatContent` and written by `PackStager.stageFull`)
+  now pre-formatted via `formatContent` and written by `PackStager.stageFull`).
+  `writeSkillReferences` itself stays in `agent-io.js` — it is still called by
+  `writeSkills` in that module. Only the import in `build-packs.js` is removed.
 
 **Keep** in `build-packs.js`:
 
@@ -124,10 +126,14 @@ function formatContent(
 }
 ```
 
-Add `formatReference` to the existing import from `../formatters/agent/skill.js`
-(it is already exported from that module but not currently imported by
-`build-packs.js` — it was previously consumed indirectly via
-`writeSkillReferences` in `agent-io.js`).
+**Import changes** in `build-packs.js`:
+
+- The existing import `{ formatAgentSkill, formatInstallScript }` from
+  `../formatters/agent/skill.js` gains `formatReference` (already exported at
+  line 156 of that module, but not currently imported by `build-packs.js` — it
+  was consumed indirectly via `writeSkillReferences` in `agent-io.js`).
+- All other existing imports (`formatAgentProfile`, `formatTeamInstructions`,
+  etc.) stay unchanged.
 
 **Rewrite** `generatePacks` body:
 
@@ -217,18 +223,88 @@ export function getSkillsGitCommand(siteUrl, packName) {
 }
 ```
 
-Update `createInstallSection` — reorder and add cards per design-c table:
-
-| Group      | Card             | Command                                           | Note text                                                  |
-| ---------- | ---------------- | ------------------------------------------------- | ---------------------------------------------------------- |
-| **Full**   | Direct download  | `curl -sL .../packs/{name}.raw.tar.gz \| tar xz` | Recommended. Installs everything: skills, agents, ...      |
-| **APM**    | `apm install`    | `apm install .../packs/{name}.apm.git`            | Recommended for APM users. Installs skills, agents, ...    |
-|            | `apm unpack`     | `curl -sLO ... && apm unpack {name}.apm.tar.gz`  | Offline alternative. Downloads the tarball, then unpacks.  |
-| **Skills** | `npx skills add` | `npx skills add .../packs/{name}`                 | Installs skills only. Does not include agents or CLAUDE.md. |
-|            | `git clone`      | `git clone .../packs/{name}.skills.git`           | Clone skills as a git repository.                          |
-
+Update `createInstallSection` — reorder and add cards per design-c table.
 `apm install` is the primary APM command (uses native `git ls-remote`);
 `apm unpack` becomes the offline fallback. No card is removed (Spec Req 7).
+
+Rewrite the `createInstallSection` body. The existing three-card structure
+(lines 96–145) becomes five cards grouped by layout:
+
+```javascript
+export function createInstallSection({ discipline, track, siteUrl }) {
+  if (!siteUrl) return null;
+
+  const packName = getPackName(discipline, track);
+
+  return section(
+    {
+      className: "agent-install-section",
+      "aria-labelledby": INSTALL_HEADING_ID,
+    },
+    div(
+      { className: "agent-install-header" },
+      h2({ id: INSTALL_HEADING_ID }, "📦 Install This Agent Team"),
+      p(
+        { className: "text-muted agent-install-description" },
+        "Install the pre-built pack for this discipline × track combination " +
+          "directly through an ecosystem package manager. The pack contains " +
+          "the same agent profile, skills, team instructions, and Claude Code " +
+          "settings shown below — installed into your project's ",
+        code({}, ".claude/"),
+        " directory.",
+      ),
+    ),
+    div(
+      { className: "agent-install-commands" },
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "Direct download"),
+        createCommandPrompt(getRawCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Recommended. Installs everything: skills, agents, CLAUDE.md, and settings (Claude Code + VS Code).",
+        ),
+      ),
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "apm install"),
+        createCommandPrompt(getApmInstallCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Recommended for APM users. Installs skills, agents, and team instructions via native git resolution.",
+        ),
+      ),
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "apm unpack"),
+        createCommandPrompt(getApmCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Offline alternative. Downloads the tarball, then unpacks. Does not include settings.",
+        ),
+      ),
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "npx skills"),
+        createCommandPrompt(getSkillsCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Installs skills only. Does not include agents or CLAUDE.md.",
+        ),
+      ),
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "git clone"),
+        createCommandPrompt(getSkillsGitCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Clone skills as a git repository.",
+        ),
+      ),
+    ),
+  );
+}
+```
 
 **Verify:** Manual inspection of rendered card structure; `bun run check`
 passes.

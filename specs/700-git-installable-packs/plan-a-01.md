@@ -47,8 +47,25 @@ Register libpack in the Bun workspace.
   "name": "@forwardimpact/libpack",
   "version": "0.1.0",
   "description": "Pack distribution — tarballs, bare git repos, and skill discovery indices",
+  "keywords": ["pack", "distribution", "git", "tarball", "agent"],
+  "homepage": "https://www.forwardimpact.team",
+  "repository": {
+    "type": "git",
+    "url": "git+https://github.com/forwardimpact/monorepo.git",
+    "directory": "libraries/libpack"
+  },
   "license": "Apache-2.0",
   "author": "D. Olsson <hi@senzilla.io>",
+  "jobs": [
+    {
+      "user": "Platform Builders",
+      "goal": "Integrate with the Engineering Standard",
+      "trigger": "Needing engineers to install skill packs and realizing each ecosystem expects a different artifact format.",
+      "bigHire": "distribute skill packs so agents and engineers can install them through their preferred tool.",
+      "littleHire": "add a distribution format without reimplementing the staging and orchestration loop.",
+      "competesWith": "inlining pack logic in each product command; hand-rolling tar and git plumbing per consumer; maintaining parallel format-specific scripts"
+    }
+  ],
   "type": "module",
   "main": "./src/index.js",
   "exports": {
@@ -397,6 +414,10 @@ export class PackBuilder {
   async build({ combinations, outputDir, version }) { ... }
 }
 ```
+
+All paths in the orchestration table below are relative to `outputDir`.
+`_packs/` is a temporary staging directory created and cleaned up by `build`;
+`packs/` is the final output directory containing published artifacts.
 
 `combinations` shape:
 
