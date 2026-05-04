@@ -12,40 +12,12 @@ product from install to first use.
 
 <div class="grid">
 
-<a href="/docs/getting-started/engineers/pathway/">
+<!-- part:card:pathway -->
 
-### Pathway
+<!-- part:card:guide -->
 
-Browse career paths, generate AI agent teams, and explore job definitions from
-the CLI and web app.
+<!-- part:card:landmark -->
 
-</a>
-
-<a href="/docs/getting-started/engineers/guide/">
-
-### Guide
-
-Set up the AI agent that understands your agent-aligned engineering standard —
-onboarding, career advice, skill assessment, and contextual help.
-
-</a>
-
-<a href="/docs/getting-started/engineers/landmark/">
-
-### Landmark
-
-Check your evidence record, promotion readiness, growth timeline, and skill
-coverage against your agent-aligned engineering standard markers.
-
-</a>
-
-<a href="/docs/getting-started/engineers/outpost/">
-
-### Outpost
-
-Initialize your personal knowledge base, configure background AI tasks, and
-start the scheduler.
-
-</a>
+<!-- part:card:outpost -->
 
 </div>

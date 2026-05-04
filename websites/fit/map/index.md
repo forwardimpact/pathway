@@ -47,13 +47,6 @@ npx fit-map validate
 
 <div class="grid">
 
-<a href="/docs/getting-started/leadership/map/">
-
-### Engineering Leaders
-
-Initialize your agent-aligned engineering standard, validate schemas, set up the
-activity layer, and ingest operational signals from GitHub and GetDX.
-
-</a>
+<!-- part:card:../docs/getting-started/leadership/map -->
 
 </div>

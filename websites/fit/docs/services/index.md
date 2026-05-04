@@ -9,32 +9,11 @@ toc: false
 
 <div class="grid">
 
-<a href="/docs/services/ground-agents/">
+<!-- part:card:ground-agents -->
 
-### Traverse Knowledge and Search Semantically
+<!-- part:card:ground-agents/query-graph -->
 
-Products that query relationships and search content without per-product
-stores — shared graph and vector gRPC services.
-
-</a>
-
-<a href="/docs/services/ground-agents/query-graph/">
-
-### Answer Relationship Questions from a Product
-
-Answer relationship questions from any product — triple patterns against the
-shared graph service, no join logic.
-
-</a>
-
-<a href="/docs/services/ground-agents/search-content/">
-
-### Search for Related Content from a Product
-
-Find semantically related content from any product — shared vector service, no
-embeddings storage to manage.
-
-</a>
+<!-- part:card:ground-agents/search-content -->
 
 </div>
 
@@ -42,23 +21,9 @@ embeddings storage to manage.
 
 <div class="grid">
 
-<a href="/docs/services/integrate-standard/">
+<!-- part:card:integrate-standard -->
 
-### Query the Engineering Standard from Any Product
-
-Products that access derived roles and profiles without embedding derivation
-logic — shared pathway gRPC service.
-
-</a>
-
-<a href="/docs/services/integrate-standard/fetch-profile/">
-
-### Fetch a Derived Role or Agent Profile
-
-Get a derived role or agent profile without reimplementing derivation — pass
-coordinates to the pathway service, receive Turtle RDF.
-
-</a>
+<!-- part:card:integrate-standard/fetch-profile -->
 
 </div>
 
@@ -66,23 +31,9 @@ coordinates to the pathway service, receive Turtle RDF.
 
 <div class="grid">
 
-<a href="/docs/services/typed-contracts/">
+<!-- part:card:typed-contracts -->
 
-### Expose Backend Services as Agent Tools
-
-Every gRPC endpoint becomes an agent tool from a single configuration file —
-no per-endpoint integration code.
-
-</a>
-
-<a href="/docs/services/typed-contracts/add-service/">
-
-### Add a Service to the MCP Surface
-
-A new gRPC service becomes agent-accessible with one registration — no
-integration code.
-
-</a>
+<!-- part:card:typed-contracts/add-service -->
 
 </div>
 
@@ -90,23 +41,9 @@ integration code.
 
 <div class="grid">
 
-<a href="/docs/services/prove-changes/">
+<!-- part:card:prove-changes -->
 
-### Collect Trace Spans from Any Product
-
-Products that emit trace spans without managing storage — shared trace gRPC
-service with a single collection point.
-
-</a>
-
-<a href="/docs/services/prove-changes/send-spans/">
-
-### Send Spans from a Product
-
-Trace spans emitted and immediately queryable — without managing storage
-infrastructure.
-
-</a>
+<!-- part:card:prove-changes/send-spans -->
 
 </div>
 

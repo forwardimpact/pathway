@@ -148,23 +148,9 @@ npx fit-landmark marker task_completion
 
 <div class="grid">
 
-<a href="/docs/getting-started/leadership/landmark/">
+<!-- part:card:../docs/getting-started/leadership/landmark -->
 
-### Engineering Leaders
-
-Analyze engineering signals — marker evidence, snapshot trends, practice
-patterns, team health, and engineer voice.
-
-</a>
-
-<a href="/docs/getting-started/engineers/landmark/">
-
-### Empowered Engineers
-
-Check your evidence record, promotion readiness, growth timeline, and skill
-coverage against your agent-aligned engineering standard markers.
-
-</a>
+<!-- part:card:../docs/getting-started/engineers/landmark -->
 
 </div>
 

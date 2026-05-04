@@ -145,13 +145,6 @@ npx fit-summit risks platform --roster ./summit.yaml
 
 <div class="grid">
 
-<a href="/docs/getting-started/leadership/summit/">
-
-### Engineering Leaders
-
-Create a roster, model team capability, run what-if staffing scenarios, and
-track trajectory over time.
-
-</a>
+<!-- part:card:../docs/getting-started/leadership/summit -->
 
 </div>

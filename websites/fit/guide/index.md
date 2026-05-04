@@ -61,13 +61,6 @@ npx fit-guide                         # CLI (Claude Agent SDK)
 
 <div class="grid">
 
-<a href="/docs/getting-started/engineers/guide/">
-
-### Empowered Engineers
-
-Install, configure, and start using Guide — from codegen to your first
-conversation.
-
-</a>
+<!-- part:card:../docs/getting-started/engineers/guide -->
 
 </div>

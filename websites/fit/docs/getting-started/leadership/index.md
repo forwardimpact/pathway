@@ -12,41 +12,12 @@ through a single product from install to working output.
 
 <div class="grid">
 
-<a href="/docs/getting-started/leadership/map/">
+<!-- part:card:map -->
 
-### Map
+<!-- part:card:pathway -->
 
-Define your agent-aligned engineering standard in YAML, validate against
-schemas, set up the activity layer, and ingest operational signals from GitHub
-and GetDX.
+<!-- part:card:landmark -->
 
-</a>
-
-<a href="/docs/getting-started/leadership/pathway/">
-
-### Pathway
-
-Preview your agent-aligned engineering standard in the browser, generate job
-definitions, and create interview question sets.
-
-</a>
-
-<a href="/docs/getting-started/leadership/landmark/">
-
-### Landmark
-
-Analyze engineering signals — marker evidence, snapshot trends, practice
-patterns, team health, and engineer voice.
-
-</a>
-
-<a href="/docs/getting-started/leadership/summit/">
-
-### Summit
-
-Model team capability — coverage heatmaps, structural risks, what-if staffing
-scenarios, growth alignment, and trajectory over time.
-
-</a>
+<!-- part:card:summit -->
 
 </div>
