@@ -1,5 +1,5 @@
 ---
-title: Expose Backend Services as Agent Tools Through One Server
+title: Expose Backend Services as Agent Tools
 description: Set up the MCP service so every gRPC endpoint becomes an agent tool from a single configuration file.
 ---
 

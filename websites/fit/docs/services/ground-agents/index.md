@@ -1,5 +1,5 @@
 ---
-title: Traverse Knowledge and Search Semantically via Shared Services
+title: Traverse Knowledge and Search Semantically
 description: Connect to the graph and vector gRPC services so products query relationships and search content without standing up per-product stores.
 ---
 

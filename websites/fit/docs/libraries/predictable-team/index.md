@@ -1,5 +1,5 @@
 ---
-title: Give Agent Teams Persistent Memory and Trustworthy Metrics
+title: Set Up Persistent Memory and Metrics
 description: Set up wiki-backed memory for an agent team, record metrics with XmR control charts, and verify that agents act on real changes instead of noise.
 ---
 

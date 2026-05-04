@@ -13,7 +13,7 @@ Engineers
 
 <a href="/docs/libraries/predictable-team/">
 
-### Give Agent Teams Persistent Memory and Trustworthy Metrics
+### Set Up Persistent Memory and Metrics
 
 Set up wiki-backed memory for an agent team, record metrics with XmR control
 charts, and verify that agents act on real changes instead of noise.

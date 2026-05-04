@@ -11,7 +11,7 @@ toc: false
 
 <a href="/docs/services/ground-agents/">
 
-### Traverse Knowledge and Search Semantically via Shared Services
+### Traverse Knowledge and Search Semantically
 
 Connect to the graph and vector services so products query relationships and
 search content without standing up per-product stores.
@@ -68,7 +68,7 @@ derivation.
 
 <a href="/docs/services/typed-contracts/">
 
-### Expose Backend Services as Agent Tools Through One Server
+### Expose Backend Services as Agent Tools
 
 Set up the MCP service so every gRPC endpoint becomes an agent tool from a
 single configuration file.

@@ -172,7 +172,7 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `predictable-team/` | Give Agent Teams Persistent Memory and Trustworthy Metrics |
+| Big | `predictable-team/` | Set Up Persistent Memory and Metrics |
 | Little | `predictable-team/wiki-operations/` | Send a Memo or Update a Storyboard |
 | Little | `predictable-team/xmr-analysis/` | Chart a Metric and Check Variation |
 
@@ -231,7 +231,7 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `ground-agents/` | Traverse Knowledge and Search Semantically via Shared Services |
+| Big | `ground-agents/` | Traverse Knowledge and Search Semantically |
 | Little | `ground-agents/query-graph/` | Answer Relationship Questions from a Product |
 | Little | `ground-agents/search-content/` | Search for Related Content from a Product |
 
@@ -246,7 +246,7 @@ Little Hire guides are nested children.
 
 | Hire | Path | Title |
 | ---- | ---- | ----- |
-| Big | `typed-contracts/` | Expose Backend Services as Agent Tools Through One Server |
+| Big | `typed-contracts/` | Expose Backend Services as Agent Tools |
 | Little | `typed-contracts/add-service/` | Add a Service to the MCP Surface |
 
 **Prove Agent Changes** (Builders → trace)
