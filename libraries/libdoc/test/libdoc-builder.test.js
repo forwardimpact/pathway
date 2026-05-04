@@ -1,42 +1,43 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DocsBuilder, DocsServer } from "../src/index.js";
+import { PagesBuilder, PagesServer } from "../src/index.js";
 import { assertThrowsMessage } from "@forwardimpact/libharness";
 
-test("DocsBuilder constructor validates dependencies", () => {
+test("PagesBuilder constructor validates dependencies", () => {
   assertThrowsMessage(
-    () => new DocsBuilder(null, null, null, null, null, null),
+    () => new PagesBuilder(null, null, null, null, null, null),
     /fs is required/,
   );
 
   const mockFs = {};
   assertThrowsMessage(
-    () => new DocsBuilder(mockFs, null, null, null, null, null),
+    () => new PagesBuilder(mockFs, null, null, null, null, null),
     /path is required/,
   );
 
   const mockPath = {};
   assertThrowsMessage(
-    () => new DocsBuilder(mockFs, mockPath, null, null, null, null),
+    () => new PagesBuilder(mockFs, mockPath, null, null, null, null),
     /markedParser is required/,
   );
 
   const mockMarked = Object.assign(() => {}, { use: () => {} });
   assertThrowsMessage(
-    () => new DocsBuilder(mockFs, mockPath, mockMarked, null, null, null),
+    () => new PagesBuilder(mockFs, mockPath, mockMarked, null, null, null),
     /matterParser is required/,
   );
 
   const mockMatter = () => {};
   assertThrowsMessage(
-    () => new DocsBuilder(mockFs, mockPath, mockMarked, mockMatter, null, null),
+    () =>
+      new PagesBuilder(mockFs, mockPath, mockMarked, mockMatter, null, null),
     /mustacheRender is required/,
   );
 
   const mockMustache = () => {};
   assertThrowsMessage(
     () =>
-      new DocsBuilder(
+      new PagesBuilder(
         mockFs,
         mockPath,
         mockMarked,
@@ -48,7 +49,7 @@ test("DocsBuilder constructor validates dependencies", () => {
   );
 
   const mockPrettier = { format: async (html) => html };
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -56,50 +57,48 @@ test("DocsBuilder constructor validates dependencies", () => {
     mockMustache,
     mockPrettier,
   );
-  assert.ok(builder instanceof DocsBuilder);
+  assert.ok(builder instanceof PagesBuilder);
 });
 
-test("DocsServer constructor validates dependencies", () => {
+test("PagesServer constructor validates dependencies", () => {
   assertThrowsMessage(
-    () => new DocsServer(null, null, null, null),
+    () => new PagesServer(null, null, null, null),
     /fs is required/,
   );
 
   const mockFs = {};
   assertThrowsMessage(
-    () => new DocsServer(mockFs, null, null, null),
+    () => new PagesServer(mockFs, null, null, null),
     /builder is required/,
   );
 
   const mockBuilder = {};
-  const server = new DocsServer(mockFs, null, null, mockBuilder);
-  assert.ok(server instanceof DocsServer);
+  const server = new PagesServer(mockFs, null, null, mockBuilder);
+  assert.ok(server instanceof PagesServer);
 
-  // Test with Hono dependencies provided
   const mockHono = function () {};
   const mockServe = () => {};
-  const serverWithHono = new DocsServer(
+  const serverWithHono = new PagesServer(
     mockFs,
     mockHono,
     mockServe,
     mockBuilder,
   );
-  assert.ok(serverWithHono instanceof DocsServer);
+  assert.ok(serverWithHono instanceof PagesServer);
 });
 
-test("DocsServer stopWatch handles null watcher", () => {
+test("PagesServer stopWatch handles null watcher", () => {
   const mockFs = {};
   const mockHono = function () {};
   const mockServe = () => {};
   const mockBuilder = {};
 
-  const server = new DocsServer(mockFs, mockHono, mockServe, mockBuilder);
+  const server = new PagesServer(mockFs, mockHono, mockServe, mockBuilder);
 
-  // Should not throw when watcher is null
   assert.doesNotThrow(() => server.stopWatch());
 });
 
-test("DocsBuilder generates correct output paths", async () => {
+test("PagesBuilder generates correct output paths", async () => {
   const files = new Map();
   const dirs = new Set();
 
@@ -147,6 +146,23 @@ test("DocsBuilder generates correct output paths", async () => {
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -162,7 +178,7 @@ test("DocsBuilder generates correct output paths", async () => {
     template.replace(/\{\{(\w+)\}\}/g, (_, key) => context[key] || "");
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -173,10 +189,8 @@ test("DocsBuilder generates correct output paths", async () => {
 
   await builder.build("docs", "dist");
 
-  // Verify index.md -> dist/index.html
   assert.ok(files.has("dist/index.html"), "index.html should be at root");
 
-  // Verify architecture.md -> dist/architecture/index.html
   assert.ok(
     dirs.has("dist/architecture"),
     "architecture directory should be created",
@@ -186,14 +200,12 @@ test("DocsBuilder generates correct output paths", async () => {
     "architecture/index.html should exist",
   );
 
-  // Verify concepts.md -> dist/concepts/index.html
   assert.ok(dirs.has("dist/concepts"), "concepts directory should be created");
   assert.ok(
     files.has("dist/concepts/index.html"),
     "concepts/index.html should exist",
   );
 
-  // Verify markdown companions
   assert.ok(files.has("dist/index.md"), "index.md companion should exist");
   assert.ok(
     files.has("dist/architecture/index.md"),
@@ -205,7 +217,7 @@ test("DocsBuilder generates correct output paths", async () => {
   );
 });
 
-test("DocsBuilder handles multiple markdown files correctly", async () => {
+test("PagesBuilder handles multiple markdown files correctly", async () => {
   const files = new Map();
   const dirs = new Set();
 
@@ -247,6 +259,23 @@ test("DocsBuilder handles multiple markdown files correctly", async () => {
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -257,7 +286,7 @@ test("DocsBuilder handles multiple markdown files correctly", async () => {
   const mockMustache = (template, context) => context.title;
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -268,19 +297,17 @@ test("DocsBuilder handles multiple markdown files correctly", async () => {
 
   await builder.build("docs", "dist");
 
-  // Verify all files are created with correct paths
   assert.ok(files.has("dist/index.html"));
   assert.ok(files.has("dist/reference/index.html"));
   assert.ok(files.has("dist/configuration/index.html"));
   assert.ok(files.has("dist/deployment/index.html"));
 
-  // Verify directories were created
   assert.ok(dirs.has("dist/reference"));
   assert.ok(dirs.has("dist/configuration"));
   assert.ok(dirs.has("dist/deployment"));
 });
 
-test("DocsBuilder skips CLAUDE.md and SKILL.md files", async () => {
+test("PagesBuilder skips CLAUDE.md and SKILL.md files", async () => {
   const files = new Map();
   const dirs = new Set();
 
@@ -317,6 +344,23 @@ test("DocsBuilder skips CLAUDE.md and SKILL.md files", async () => {
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -327,7 +371,7 @@ test("DocsBuilder skips CLAUDE.md and SKILL.md files", async () => {
   const mockMustache = (template, context) => context.title;
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -338,14 +382,12 @@ test("DocsBuilder skips CLAUDE.md and SKILL.md files", async () => {
 
   await builder.build("docs", "dist");
 
-  // CLAUDE.md and SKILL.md should not be built
   assert.ok(
     !files.has("dist/CLAUDE/index.html"),
     "CLAUDE.md should be skipped",
   );
   assert.ok(!files.has("dist/SKILL/index.html"), "SKILL.md should be skipped");
 
-  // Regular markdown files should still be built
   assert.ok(files.has("dist/index.html"), "index.html should exist");
   assert.ok(
     files.has("dist/guide/index.html"),
@@ -353,7 +395,7 @@ test("DocsBuilder skips CLAUDE.md and SKILL.md files", async () => {
   );
 });
 
-test("DocsServer handles directory requests correctly", async () => {
+test("PagesServer handles directory requests correctly", async () => {
   const files = new Map();
   files.set("dist/index.html", "Home");
   files.set("dist/architecture/index.html", "Architecture");
@@ -361,7 +403,6 @@ test("DocsServer handles directory requests correctly", async () => {
 
   const mockFs = {
     existsSync: (path) => {
-      // Handle both directory and file checks
       if (
         path === "dist/architecture" ||
         path === "dist/concepts" ||
@@ -395,14 +436,12 @@ test("DocsServer handles directory requests correctly", async () => {
   const mockServe = () => ({});
   const mockBuilder = {};
 
-  const server = new DocsServer(mockFs, mockHono, mockServe, mockBuilder);
+  const server = new PagesServer(mockFs, mockHono, mockServe, mockBuilder);
   server.serve("dist", { port: 3000, hostname: "0.0.0.0" });
 
-  // Get the handler for "*"
   const handler = mockApp.routes.get("*");
   assert.ok(handler, "Should register wildcard route handler");
 
-  // Test root request
   const rootResult = await handler({
     req: { path: "/" },
     text: (msg, status) => ({ body: msg, status }),
@@ -410,7 +449,6 @@ test("DocsServer handles directory requests correctly", async () => {
   });
   assert.strictEqual(rootResult.content, "Home");
 
-  // Test directory request without trailing slash
   const archResult = await handler({
     req: { path: "/architecture" },
     text: (msg, status) => ({ body: msg, status }),
@@ -418,7 +456,6 @@ test("DocsServer handles directory requests correctly", async () => {
   });
   assert.strictEqual(archResult.content, "Architecture");
 
-  // Test directory request with trailing slash
   const conceptsResult = await handler({
     req: { path: "/concepts/" },
     text: (msg, status) => ({ body: msg, status }),

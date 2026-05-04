@@ -88,10 +88,10 @@ export function urlPathFromMdFile(mdFile) {
 /**
  * Build breadcrumb HTML for pages two or more levels deep
  * @param {string} urlPath - URL path of the current page
- * @param {Map<string, string>} pageTitles - Map of URL paths to page titles
+ * @param {Map<string, {title: string}>} pageTree - Map of URL paths to page metadata
  * @returns {string} Breadcrumb HTML or empty string
  */
-export function buildBreadcrumbs(urlPath, pageTitles) {
+export function buildBreadcrumbs(urlPath, pageTree) {
   const segments = urlPath.split("/").filter(Boolean);
   if (segments.length < 2) return "";
 
@@ -103,11 +103,12 @@ export function buildBreadcrumbs(urlPath, pageTitles) {
   const parts = [];
   for (let i = 0; i < segments.length - 1; i++) {
     const ancestorPath = "/" + segments.slice(0, i + 1).join("/") + "/";
-    const title = pageTitles.get(ancestorPath) || segments[i];
+    const title = pageTree.get(ancestorPath)?.title || segments[i];
     parts.push(`<a href="${ancestorPath}">${breadcrumbLabel(title)}</a>`);
   }
 
-  const currentTitle = pageTitles.get(urlPath) || segments[segments.length - 1];
+  const currentTitle =
+    pageTree.get(urlPath)?.title || segments[segments.length - 1];
   parts.push(`<span>${breadcrumbLabel(currentTitle)}</span>`);
 
   return parts.join(" / ");

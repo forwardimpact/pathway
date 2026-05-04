@@ -11,13 +11,15 @@ import {
   transformMarkdownLinks,
   urlPathFromMdFile,
 } from "./transforms.js";
+import { scanPages } from "./page-tree.js";
+import { resolvePartials, defaultRegistry } from "./partials.js";
 
 const logger = createLogger("libdoc");
 
 /**
- * Documentation builder for converting Markdown files to HTML
+ * Pages builder for converting Markdown files to HTML
  */
-export class DocsBuilder {
+export class PagesBuilder {
   #fs;
   #path;
   #marked;
@@ -26,7 +28,7 @@ export class DocsBuilder {
   #prettier;
 
   /**
-   * Creates a new DocsBuilder instance
+   * Creates a new PagesBuilder instance
    * @param {object} fs - File system module
    * @param {object} path - Path module
    * @param {Function} markedParser - Marked parser function
@@ -52,16 +54,14 @@ export class DocsBuilder {
     // Configure marked with extensions
     this.#marked.use(
       gfmHeadingId({
-        prefix: "", // No prefix for heading IDs
+        prefix: "",
       }),
     );
 
     this.#marked.use(
       markedHighlight({
-        langPrefix: "language-", // Adds 'language-' prefix to code block classes
+        langPrefix: "language-",
         highlight(code, _lang) {
-          // Return the code as-is with proper language class
-          // Prism.js will handle highlighting on the client side
           return code;
         },
       }),
@@ -92,24 +92,22 @@ export class DocsBuilder {
 
   /**
    * Copy static assets to distribution directory
-   * @param {string} docsDir - Source docs directory
+   * @param {string} pagesDir - Source pages directory
    * @param {string} distDir - Destination distribution directory
    */
-  #copyStaticAssets(docsDir, distDir) {
-    // Copy assets directory (CSS, JS, images)
+  #copyStaticAssets(pagesDir, distDir) {
     if (
       this.#copyDir(
-        this.#path.join(docsDir, "assets"),
+        this.#path.join(pagesDir, "assets"),
         this.#path.join(distDir, "assets"),
       )
     ) {
       logger.info("  ✓ assets/");
     }
 
-    // Copy root-level static files (robots.txt, llms.txt, etc.)
     const skipFiles = new Set(["index.template.html", "CNAME"]);
     this.#fs
-      .readdirSync(docsDir, { withFileTypes: true })
+      .readdirSync(pagesDir, { withFileTypes: true })
       .filter(
         (entry) =>
           entry.isFile() &&
@@ -118,53 +116,11 @@ export class DocsBuilder {
       )
       .forEach((entry) => {
         this.#fs.copyFileSync(
-          this.#path.join(docsDir, entry.name),
+          this.#path.join(pagesDir, entry.name),
           this.#path.join(distDir, entry.name),
         );
         logger.info(`  ✓ ${entry.name}`);
       });
-  }
-
-  /**
-   * Recursively find all Markdown files in a directory
-   * @param {string} dir - Directory to search
-   * @param {string} baseDir - Base directory for relative paths
-   * @returns {string[]} Array of relative paths to Markdown files
-   */
-  #findMarkdownFiles(dir, baseDir = dir) {
-    const results = [];
-    const entries = this.#fs.readdirSync(dir);
-
-    for (const entryName of entries) {
-      if (["assets", "public"].includes(entryName)) continue;
-      if (["CLAUDE.md", "SKILL.md"].includes(entryName)) continue;
-      const fullPath = this.#path.join(dir, entryName);
-      this.#collectMarkdownEntry(fullPath, entryName, baseDir, results);
-    }
-    return results;
-  }
-
-  /**
-   * Classify a single directory entry and collect it (or recurse) into results
-   * @param {string} fullPath - Absolute path to the entry
-   * @param {string} entryName - Basename of the entry
-   * @param {string} baseDir - Root directory for relative path computation
-   * @param {string[]} results - Accumulator for relative markdown paths
-   */
-  #collectMarkdownEntry(fullPath, entryName, baseDir, results) {
-    try {
-      const stat = this.#fs.statSync(fullPath);
-      if (stat.isDirectory && stat.isDirectory()) {
-        results.push(...this.#findMarkdownFiles(fullPath, baseDir));
-      } else if (entryName.endsWith(".md")) {
-        results.push(fullPath.slice(baseDir.length + 1));
-      }
-    } catch {
-      // Skip files that can't be stat'd (e.g., template files)
-      if (entryName.endsWith(".md")) {
-        results.push(fullPath.slice(baseDir.length + 1));
-      }
-    }
   }
 
   /**
@@ -223,12 +179,12 @@ export class DocsBuilder {
   /**
    * Resolve the base URL from an explicit value or CNAME file
    * @param {string|undefined} baseUrl - Explicit base URL
-   * @param {string} docsDir - Source docs directory
+   * @param {string} pagesDir - Source pages directory
    * @returns {string|undefined}
    */
-  #resolveBaseUrl(baseUrl, docsDir) {
+  #resolveBaseUrl(baseUrl, pagesDir) {
     if (baseUrl) return baseUrl;
-    const cnamePath = this.#path.join(docsDir, "CNAME");
+    const cnamePath = this.#path.join(pagesDir, "CNAME");
     if (this.#fs.existsSync(cnamePath)) {
       const hostname = this.#fs.readFileSync(cnamePath, "utf-8").trim();
       return `https://${hostname}`;
@@ -237,36 +193,17 @@ export class DocsBuilder {
   }
 
   /**
-   * Collect page titles from all markdown files (first pass)
-   * @param {string[]} mdFiles - Relative paths to markdown files
-   * @param {string} docsDir - Source docs directory
-   * @returns {Map<string, string>}
-   */
-  #collectPageTitles(mdFiles, docsDir) {
-    const pageTitles = new Map();
-    for (const mdFile of mdFiles) {
-      const { data } = this.#matter(
-        this.#fs.readFileSync(this.#path.join(docsDir, mdFile), "utf-8"),
-      );
-      if (data.title) {
-        pageTitles.set(urlPathFromMdFile(mdFile), data.title);
-      }
-    }
-    return pageTitles;
-  }
-
-  /**
    * Build template variables from front matter and rendered HTML
    * @param {object} frontMatter - Parsed front matter
    * @param {string} html - Rendered HTML content
    * @param {string} urlPath - URL path for this page
-   * @param {Map<string, string>} pageTitles - Map of URL paths to page titles
+   * @param {import("./page-tree.js").PageTree} pageTree - Map of URL paths to page metadata
    * @param {string|undefined} baseUrl - Base URL for canonical links
    * @returns {object} Mustache template variables
    */
-  #buildTemplateVars(frontMatter, html, urlPath, pageTitles, baseUrl) {
+  #buildTemplateVars(frontMatter, html, urlPath, pageTree, baseUrl) {
     const toc = frontMatter.toc !== false ? generateToc(html) : "";
-    const breadcrumbs = buildBreadcrumbs(urlPath, pageTitles);
+    const breadcrumbs = buildBreadcrumbs(urlPath, pageTree);
 
     return {
       title: frontMatter.title,
@@ -314,31 +251,34 @@ export class DocsBuilder {
   /**
    * Render a single markdown file to HTML and write output files
    * @param {string} mdFile - Relative path to the markdown file
-   * @param {string} docsDir - Source docs directory
+   * @param {string} pagesDir - Source pages directory
    * @param {string} distDir - Destination distribution directory
    * @param {string} template - HTML template string
-   * @param {Map<string, string>} pageTitles - Map of URL paths to page titles
+   * @param {import("./page-tree.js").PageTree} pageTree - Map of URL paths to page metadata
    * @param {string|undefined} baseUrl - Base URL for canonical links
-   * @returns {Promise<{mdFile: string, urlPath: string, title: string, description: string}|null>}
+   * @returns {Promise<void>}
    */
-  async #renderPage(mdFile, docsDir, distDir, template, pageTitles, baseUrl) {
+  async #renderPage(mdFile, pagesDir, distDir, template, pageTree, baseUrl) {
     const { data: frontMatter, content: markdown } = this.#matter(
-      this.#fs.readFileSync(this.#path.join(docsDir, mdFile), "utf-8"),
+      this.#fs.readFileSync(this.#path.join(pagesDir, mdFile), "utf-8"),
     );
 
-    if (!frontMatter.title) {
-      console.error(`Error: Missing 'title' in front matter of ${mdFile}`);
-      return null;
-    }
-
-    const rawHtml = this.#marked(markdown);
+    const pageDir = this.#path.dirname(mdFile);
+    const resolved = resolvePartials(
+      markdown,
+      pageTree,
+      pageDir,
+      defaultRegistry,
+      { path: this.#path },
+    );
+    const rawHtml = this.#marked(resolved);
     const html = transformMarkdownLinks(rawHtml, baseUrl);
     const urlPath = urlPathFromMdFile(mdFile);
     const vars = this.#buildTemplateVars(
       frontMatter,
       html,
       urlPath,
-      pageTitles,
+      pageTree,
       baseUrl,
     );
     const outputHtml = this.#mustacheRender(template, vars);
@@ -346,13 +286,6 @@ export class DocsBuilder {
     const companionContent = `# ${frontMatter.title}\n\n${transformMarkdownBodyLinks(markdown, baseUrl)}`;
 
     this.#writePageFiles(mdFile, distDir, finalHtml, companionContent);
-
-    return {
-      mdFile,
-      urlPath,
-      title: frontMatter.title,
-      description: frontMatter.description || "",
-    };
   }
 
   /**
@@ -389,57 +322,57 @@ export class DocsBuilder {
 
   /**
    * Build documentation from Markdown files
-   * @param {string} docsDir - Source documentation directory
+   * @param {string} pagesDir - Source pages directory
    * @param {string} distDir - Destination distribution directory
    * @param {string} [baseUrl] - Base URL for sitemap, canonical links, and llms.txt
    * @returns {Promise<void>}
    */
-  async build(docsDir, distDir, baseUrl) {
+  async build(pagesDir, distDir, baseUrl) {
     logger.info("Building documentation...");
 
-    baseUrl = this.#resolveBaseUrl(baseUrl, docsDir);
+    baseUrl = this.#resolveBaseUrl(baseUrl, pagesDir);
 
-    // Clean and create dist directory
     if (this.#fs.existsSync(distDir)) {
       this.#fs.rmSync(distDir, { recursive: true });
     }
     this.#fs.mkdirSync(distDir, { recursive: true });
 
-    // Read and validate template
-    const templatePath = this.#path.join(docsDir, "index.template.html");
+    const templatePath = this.#path.join(pagesDir, "index.template.html");
     if (!this.#fs.existsSync(templatePath)) {
-      throw new Error(`index.template.html not found in ${docsDir}`);
+      throw new Error(`index.template.html not found in ${pagesDir}`);
     }
     const template = this.#fs.readFileSync(templatePath, "utf-8");
 
-    const mdFiles = this.#findMarkdownFiles(docsDir);
+    const pageTree = scanPages(pagesDir, {
+      fs: this.#fs,
+      path: this.#path,
+      matter: this.#matter,
+    });
 
-    if (mdFiles.length === 0) {
-      console.warn(`Warning: No Markdown files found in ${docsDir}`);
+    if (pageTree.size === 0) {
+      console.warn(`Warning: No Markdown files found in ${pagesDir}`);
     }
 
-    const pageTitles = this.#collectPageTitles(mdFiles, docsDir);
-
-    const pages = [];
-    for (const mdFile of mdFiles) {
-      const page = await this.#renderPage(
-        mdFile,
-        docsDir,
+    for (const entry of pageTree.values()) {
+      await this.#renderPage(
+        entry.filePath,
+        pagesDir,
         distDir,
         template,
-        pageTitles,
+        pageTree,
         baseUrl,
       );
-      if (page) pages.push(page);
     }
 
-    pages.sort((a, b) => a.urlPath.localeCompare(b.urlPath));
+    const sortedPages = [...pageTree.values()].sort((a, b) =>
+      a.urlPath.localeCompare(b.urlPath),
+    );
 
-    this.#copyStaticAssets(docsDir, distDir);
+    this.#copyStaticAssets(pagesDir, distDir);
 
     if (baseUrl) {
-      this.#generateSitemap(pages, baseUrl, distDir);
-      this.#augmentLlmsTxt(pages, baseUrl, distDir);
+      this.#generateSitemap(sortedPages, baseUrl, distDir);
+      this.#augmentLlmsTxt(sortedPages, baseUrl, distDir);
     }
 
     logger.info("Documentation build complete!");

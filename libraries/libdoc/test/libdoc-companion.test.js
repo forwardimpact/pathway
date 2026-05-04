@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DocsBuilder } from "../src/index.js";
+import { PagesBuilder } from "../src/index.js";
 
 function createTestHarness({
   sourceFiles,
@@ -51,6 +51,23 @@ function createTestHarness({
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -76,7 +93,7 @@ function createTestHarness({
       .replace(/\{\{(\w+)\}\}/g, (_, key) => ctx[key] || "");
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -88,7 +105,7 @@ function createTestHarness({
   return { files, dirs, copied, builder };
 }
 
-test("DocsBuilder writes markdown companion with title prepend", async () => {
+test("PagesBuilder writes markdown companion with title prepend", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nWelcome content"],
     ["src/about.md", "---\ntitle: About\n---\nAbout content"],
@@ -115,7 +132,7 @@ test("DocsBuilder writes markdown companion with title prepend", async () => {
   );
 });
 
-test("DocsBuilder transforms markdown body links in companions", async () => {
+test("PagesBuilder transforms markdown body links in companions", async () => {
   const sourceFiles = new Map([
     [
       "src/index.md",
@@ -138,7 +155,7 @@ test("DocsBuilder transforms markdown body links in companions", async () => {
   assert.ok(md.includes("[Hash](core/#section)"), "hash fragment preserved");
 });
 
-test("DocsBuilder leaves external .md links untouched in companions", async () => {
+test("PagesBuilder leaves external .md links untouched in companions", async () => {
   const sourceFiles = new Map([
     [
       "src/index.md",
@@ -169,7 +186,7 @@ test("DocsBuilder leaves external .md links untouched in companions", async () =
   );
 });
 
-test("DocsBuilder treats absolute .md links as external when no baseUrl", async () => {
+test("PagesBuilder treats absolute .md links as external when no baseUrl", async () => {
   const sourceFiles = new Map([
     [
       "src/index.md",
@@ -192,7 +209,7 @@ test("DocsBuilder treats absolute .md links as external when no baseUrl", async 
   );
 });
 
-test("DocsBuilder generates sitemap.xml with baseUrl", async () => {
+test("PagesBuilder generates sitemap.xml with baseUrl", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
     ["src/about.md", "---\ntitle: About\n---\nContent"],
@@ -214,7 +231,7 @@ test("DocsBuilder generates sitemap.xml with baseUrl", async () => {
   assert.ok(sitemap.includes("<loc>https://example.com/about/</loc>"));
 });
 
-test("DocsBuilder sorts sitemap entries alphabetically", async () => {
+test("PagesBuilder sorts sitemap entries alphabetically", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
     ["src/zebra.md", "---\ntitle: Zebra\n---\nContent"],
@@ -237,7 +254,7 @@ test("DocsBuilder sorts sitemap entries alphabetically", async () => {
   ]);
 });
 
-test("DocsBuilder skips sitemap when no baseUrl", async () => {
+test("PagesBuilder skips sitemap when no baseUrl", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
   ]);
@@ -250,14 +267,13 @@ test("DocsBuilder skips sitemap when no baseUrl", async () => {
   await builder.build("src", "dist");
 
   assert.ok(!files.has("dist/sitemap.xml"), "no sitemap without baseUrl");
-  // Companions should still be produced
   assert.ok(
     files.has("dist/index.md"),
     "companion still produced without baseUrl",
   );
 });
 
-test("DocsBuilder adds alternate and canonical link tags", async () => {
+test("PagesBuilder adds alternate and canonical link tags", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
   ]);
@@ -281,7 +297,7 @@ test("DocsBuilder adds alternate and canonical link tags", async () => {
   );
 });
 
-test("DocsBuilder omits canonical tag when no baseUrl", async () => {
+test("PagesBuilder omits canonical tag when no baseUrl", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
   ]);
