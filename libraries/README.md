@@ -23,6 +23,7 @@ can read and tune via JSON.
 | **libindex**           | JSONL-backed indexes with filtering and buffered writes — fast context lookup without an external search engine.         |
 | **libmacos**           | macOS bundle assembly, code signing, and OS permission helpers — desktop delivery without platform ceremony.             |
 | **libmcp**             | Config-driven gRPC-to-MCP tool registration — expose protobuf services as agent tools without glue code.                 |
+| **libpack**            | Pack distribution — tarballs, bare git repos, and skill discovery indices                                                |
 | **libpolicy**          | Access-control policy evaluation — scoped context access without per-service authorization logic.                        |
 | **libprompt**          | Prompt templates from .prompt.md files — structured prompts without string concatenation.                                |
 | **librc**              | Service lifecycle management — start, stop, and check services without manual oversight.                                 |
@@ -137,17 +138,23 @@ retrieval entirely.
 
 ## Platform Builders: Integrate with the Engineering Standard
 
-**Trigger:** Building a product feature that needs skill matrices or job
-definitions and realizing the YAML is raw data, not queryable structure.
+**Trigger:** Needing engineers to install skill packs and realizing each
+ecosystem expects a different artifact format; building a product feature that
+needs skill matrices or job definitions and realizing the YAML is raw data, not
+queryable structure.
 
-**Big Hire:** Help me turn engineering standard definitions into queryable,
-derivable data. → **libskill**
+**Big Hire:** Help me distribute skill packs so agents and engineers can install
+them through their preferred tool; turn engineering standard definitions into
+queryable, derivable data. → **libpack, libskill**
 
-**Little Hire:** Help me derive a skill matrix or agent profile without parsing
-YAML by hand. → **libskill**
+**Little Hire:** Help me add a distribution format without reimplementing the
+staging and orchestration loop; derive a skill matrix or agent profile without
+parsing YAML by hand. → **libpack, libskill**
 
-**Competes With:** parsing YAML files directly; hardcoding role definitions;
-skipping derivation and displaying raw data.
+**Competes With:** inlining pack logic in each product command; hand-rolling tar
+and git plumbing per consumer; maintaining parallel format-specific scripts;
+parsing YAML files directly; hardcoding role definitions; skipping derivation
+and displaying raw data.
 
 </job>
 

@@ -2,22 +2,22 @@
  * Pack generation for Pathway distribution.
  *
  * Emits one pre-built agent/skill pack per valid discipline/track combination
- * across three distribution channels:
+ * across four distribution channels:
  *  - Raw — `.claude/` layout archived as `{name}.raw.tar.gz` (curl | tar)
  *  - APM — deployed `.claude/` layout + `apm.lock.yaml` as `{name}.apm.tar.gz` (apm unpack)
+ *  - APM git — bare git repo at `{name}.apm.git/` (apm install)
  *  - Skills — `.well-known/skills/` repository (`npx skills add`)
+ *  - Skills git — bare git repo at `{name}.skills.git/` (git clone)
  *
  * An `apm.yml` project manifest for Microsoft APM is written at the site root.
  *
- * See specs/520-apm-compatible-packs for context.
+ * See specs/520-apm-compatible-packs and specs/700-git-installable-packs.
  *
  * Invoked from build.js after the distribution bundle has been generated.
  */
 
-import { mkdir, rm, readFile, writeFile, readdir, cp } from "fs/promises";
-import { utimesSync } from "fs";
+import { writeFile } from "fs/promises";
 import { join } from "path";
-import { execFileSync } from "child_process";
 import { createLogger } from "@forwardimpact/libtelemetry";
 import { createDataLoader } from "@forwardimpact/map/loader";
 
@@ -33,12 +33,18 @@ import {
   toKebabCase,
 } from "@forwardimpact/libskill/agent";
 
-import { stageApmBundle, archiveApmPack } from "./build-packs-apm.js";
-import { writeSkillReferences } from "./agent-io.js";
+import {
+  PackBuilder,
+  PackStager,
+  TarEmitter,
+  GitEmitter,
+  DiscEmitter,
+} from "@forwardimpact/libpack";
 import { formatAgentProfile } from "../formatters/agent/profile.js";
 import {
   formatAgentSkill,
   formatInstallScript,
+  formatReference,
 } from "../formatters/agent/skill.js";
 import { formatTeamInstructions } from "../formatters/agent/team-instructions.js";
 import { findValidCombinations } from "./agent.js";
@@ -56,123 +62,12 @@ function slugify(text) {
 }
 
 /**
- * Stringify a JSON value with object keys sorted recursively.
- * Produces deterministic output for digest stability.
- * @param {unknown} value
- * @returns {string}
- */
-function stringifySorted(value) {
-  const seen = new WeakSet();
-  const sort = (v) => {
-    if (v === null || typeof v !== "object") return v;
-    if (seen.has(v)) throw new Error("Cannot stringify circular structure");
-    seen.add(v);
-    if (Array.isArray(v)) return v.map(sort);
-    const out = {};
-    for (const key of Object.keys(v).sort()) out[key] = sort(v[key]);
-    return out;
-  };
-  return JSON.stringify(sort(value), null, 2) + "\n";
-}
-
-/**
  * Escape a YAML scalar double-quoted value.
  * @param {string} text
  * @returns {string}
  */
 function yamlQuote(text) {
   return `"${String(text).replace(/\\/g, "\\\\").replace(/"/g, '\\"')}"`;
-}
-
-/**
- * Write a single pack's files to disk under the staging directory.
- * Calls the formatters directly (silent, no console output).
- * @param {Object} params
- * @returns {Promise<void>}
- */
-async function writePackFiles({
-  packDir,
-  profiles,
-  skillFiles,
-  teamInstructions,
-  agentTemplate,
-  claudeTemplate,
-  skillTemplates,
-  claudeSettings,
-  vscodeSettings,
-}) {
-  const claudeDir = join(packDir, ".claude");
-  const agentsDir = join(claudeDir, "agents");
-  const skillsDir = join(claudeDir, "skills");
-
-  await mkdir(agentsDir, { recursive: true });
-  await mkdir(skillsDir, { recursive: true });
-
-  for (const profile of profiles) {
-    const profilePath = join(agentsDir, profile.filename);
-    await writeFile(
-      profilePath,
-      formatAgentProfile(profile, agentTemplate),
-      "utf-8",
-    );
-  }
-
-  for (const skill of skillFiles) {
-    const skillDir = join(skillsDir, skill.dirname);
-    await mkdir(skillDir, { recursive: true });
-
-    await writeFile(
-      join(skillDir, "SKILL.md"),
-      formatAgentSkill(skill, skillTemplates.skill),
-      "utf-8",
-    );
-
-    if (skill.installScript) {
-      const scriptsDir = join(skillDir, "scripts");
-      await mkdir(scriptsDir, { recursive: true });
-      await writeFile(
-        join(scriptsDir, "install.sh"),
-        formatInstallScript(skill, skillTemplates.install),
-        { mode: 0o755 },
-      );
-    }
-
-    await writeSkillReferences(
-      skillDir,
-      skill.references,
-      skillTemplates.reference,
-    );
-  }
-
-  if (teamInstructions) {
-    const claudeContent = formatTeamInstructions(
-      teamInstructions,
-      claudeTemplate,
-    );
-    await writeFile(join(claudeDir, "CLAUDE.md"), claudeContent, "utf-8");
-  }
-
-  // Claude Code settings — matches the CLI path's generateClaudeCodeSettings
-  // output format (no merge with existing files since the staging dir starts
-  // empty).
-  const settings = { ...(claudeSettings || {}) };
-  await writeFile(
-    join(claudeDir, "settings.json"),
-    JSON.stringify(settings, null, 2) + "\n",
-    "utf-8",
-  );
-
-  // VS Code settings — written at the pack root, adjacent to .claude/
-  const vsSettings = { ...(vscodeSettings || {}) };
-  if (Object.keys(vsSettings).length > 0) {
-    const vscodeDir = join(packDir, ".vscode");
-    await mkdir(vscodeDir, { recursive: true });
-    await writeFile(
-      join(vscodeDir, "settings.json"),
-      JSON.stringify(vsSettings, null, 2) + "\n",
-      "utf-8",
-    );
-  }
 }
 
 /**
@@ -225,212 +120,43 @@ function derivePackContent({
 }
 
 /**
- * Recursively collect all paths (files and directories) under `dir`,
- * relative to `dir`, in sorted order.
+ * Bridge Pathway formatters to libpack's PackStager.stageFull input shape.
  */
-export async function collectPaths(dir, prefix = ".") {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const result = [];
-  for (const entry of entries) {
-    const rel = prefix + "/" + entry.name;
-    const abs = join(dir, entry.name);
-    if (entry.isDirectory()) {
-      result.push(rel);
-      result.push(...(await collectPaths(abs, rel)));
-    } else {
-      result.push(rel);
-    }
-  }
-  return result;
-}
-
-/**
- * Set mtime and atime to the Unix epoch for every entry under `dir`.
- */
-export async function resetTimestamps(dir) {
-  const epoch = new Date(0);
-  const paths = await collectPaths(dir);
-  for (const rel of paths) {
-    utimesSync(join(dir, rel), epoch, epoch);
-  }
-  utimesSync(dir, epoch, epoch);
-}
-
-/**
- * Archive a staged pack directory as a deterministic `.raw.tar.gz`.
- *
- * Determinism strategy (works on GNU tar and BSD tar):
- *  1. Reset all file timestamps to epoch via Node's utimesSync.
- *  2. Collect and sort the file list in JS — no reliance on --sort=name.
- *  3. Create an uncompressed tar to stdout with the sorted list.
- *  4. Pipe through `gzip -n` to suppress the gzip header timestamp.
- *
- * @param {string} packDir - Staging directory containing the pack files
- * @param {string} archivePath - Destination path for the `.raw.tar.gz`
- */
-async function archiveRawPack(packDir, archivePath) {
-  await resetTimestamps(packDir);
-
-  const files = await collectPaths(packDir);
-  files.sort();
-
-  const tarBuf = execFileSync("tar", [
-    "--no-recursion",
-    "-cf",
-    "-",
-    "-C",
-    packDir,
-    ...files,
-  ]);
-  const gzBuf = execFileSync("gzip", ["-n"], { input: tarBuf });
-  await writeFile(archivePath, gzBuf);
-}
-
-/**
- * Collect all file paths under `dir`, relative to `dir`, for the manifest
- * `files` array. Returns sorted paths with forward slashes.
- * @param {string} dir
- * @param {string} [prefix]
- * @returns {Promise<string[]>}
- */
-async function collectFileList(dir, prefix = "") {
-  const entries = await readdir(dir, { withFileTypes: true });
-  const result = [];
-  for (const entry of entries) {
-    const rel = prefix ? prefix + "/" + entry.name : entry.name;
-    if (entry.isDirectory()) {
-      result.push(...(await collectFileList(join(dir, entry.name), rel)));
-    } else {
-      result.push(rel);
-    }
-  }
-  return result.sort();
-}
-
-/**
- * Parse YAML frontmatter from a SKILL.md file. Returns an object with
- * the key/value pairs found between the `---` fences.
- * @param {string} content
- * @returns {Record<string, string>}
- */
-function parseFrontmatter(content) {
-  const match = content.match(/^---\n([\s\S]*?)\n---/);
-  if (!match) return {};
-  const result = {};
-  for (const line of match[1].split("\n")) {
-    const idx = line.indexOf(":");
-    if (idx > 0) result[line.slice(0, idx).trim()] = line.slice(idx + 1).trim();
-  }
-  return result;
-}
-
-/**
- * Build a single skill index entry from a staged skill directory.
- * @param {string} skillDir - Path containing SKILL.md and optional extras
- * @param {string} name - Skill name for the manifest
- * @returns {Promise<{name: string, description: string, files: string[]}>}
- */
-async function buildSkillEntry(skillDir, name) {
-  const skillMd = await readFile(join(skillDir, "SKILL.md"), "utf-8");
-  const fm = parseFrontmatter(skillMd);
-  const files = await collectFileList(skillDir);
-  return { description: fm.description || "", files, name };
-}
-
-/**
- * Write a `npx skills`-compatible repository for a single pack.
- *
- * Each pack becomes its own skill repository at
- * `packs/{name}/.well-known/skills/` so that individual skills
- * within the pack can be discovered and installed independently:
- *
- *   npx skills add domain.org/packs/se-platform --all
- *   npx skills add domain.org/packs/se-platform -s architecture-design
- *
- * @param {string} packsOutputDir - The `packs/` output directory
- * @param {string} packStagingDir - Staging directory for this pack
- * @param {string} packName - Pack name (e.g. "se-platform")
- * @returns {Promise<Array<{name: string, description: string, files: string[]}>>}
- *   The skill entries written, for use in the aggregate manifest.
- */
-async function writeSkillsPack(packsOutputDir, packStagingDir, packName) {
-  const wellKnownDir = join(packsOutputDir, packName, ".well-known", "skills");
-  await mkdir(wellKnownDir, { recursive: true });
-
-  // Discover individual skills from the staged pack's .claude/skills/
-  const skillsSrcDir = join(packStagingDir, ".claude", "skills");
-  const skillDirs = (
-    await readdir(skillsSrcDir, { withFileTypes: true })
-  ).filter((e) => e.isDirectory());
-
-  const entries = [];
-  for (const dir of skillDirs) {
-    const src = join(skillsSrcDir, dir.name);
-    const dest = join(wellKnownDir, dir.name);
-    await cp(src, dest, { recursive: true });
-    entries.push(await buildSkillEntry(dest, dir.name));
-  }
-
-  const manifest = {
-    $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-    skills: entries,
+function formatContent(
+  { profiles, skillFiles, teamInstructions },
+  templates,
+  settings,
+) {
+  return {
+    agents: profiles.map((p) => ({
+      filename: p.filename,
+      content: formatAgentProfile(p, templates.agent),
+    })),
+    skills: skillFiles.map((s) => ({
+      dirname: s.dirname,
+      files: [
+        { path: "SKILL.md", content: formatAgentSkill(s, templates.skill) },
+        ...(s.installScript
+          ? [
+              {
+                path: "scripts/install.sh",
+                content: formatInstallScript(s, templates.install),
+                mode: 0o755,
+              },
+            ]
+          : []),
+        ...(s.references || []).map((ref) => ({
+          path: `references/${ref.name}.md`,
+          content: formatReference(ref, templates.reference),
+        })),
+      ],
+    })),
+    teamInstructions: teamInstructions
+      ? formatTeamInstructions(teamInstructions, templates.claude)
+      : null,
+    claudeSettings: settings.claude,
+    vscodeSettings: settings.vscode,
   };
-  await writeFile(
-    join(wellKnownDir, "index.json"),
-    stringifySorted(manifest),
-    "utf-8",
-  );
-
-  return entries;
-}
-
-/**
- * Write an aggregate `npx skills` repository at `packs/` that lists every
- * unique skill across all packs. Skills with the same name produce identical
- * SKILL.md content regardless of discipline/track, so we deduplicate by name
- * and write one copy.
- *
- *   npx skills add domain.org/packs --list
- *
- * @param {string} packsOutputDir
- * @param {Array<{packName: string, entries: Array}>} allPackEntries
- */
-async function writeSkillsAggregate(packsOutputDir, allPackEntries) {
-  const wellKnownDir = join(packsOutputDir, ".well-known", "skills");
-  await mkdir(wellKnownDir, { recursive: true });
-
-  // Deduplicate: first occurrence of each skill name wins (content is identical)
-  const seen = new Map();
-  for (const { packName, entries } of allPackEntries) {
-    for (const entry of entries) {
-      if (seen.has(entry.name)) continue;
-      seen.set(entry.name, { packName, entry });
-    }
-  }
-
-  const skills = [];
-  for (const [, { packName, entry }] of seen) {
-    const dest = join(wellKnownDir, entry.name);
-    const src = join(
-      packsOutputDir,
-      packName,
-      ".well-known",
-      "skills",
-      entry.name,
-    );
-    await cp(src, dest, { recursive: true });
-    skills.push(entry);
-  }
-
-  const manifest = {
-    $schema: "https://schemas.agentskills.io/discovery/0.2.0/schema.json",
-    skills,
-  };
-  await writeFile(
-    join(wellKnownDir, "index.json"),
-    stringifySorted(manifest),
-    "utf-8",
-  );
 }
 
 /**
@@ -460,8 +186,8 @@ async function writeApmManifest(outputDir, packs, version, standardTitle) {
 
 /**
  * Generate pre-built agent/skill packs for installation through ecosystem
- * tools like `npx skills` and Microsoft APM. One pack per valid
- * discipline/track combination.
+ * tools like `npx skills`, Microsoft APM, and `git clone`. One pack per
+ * valid discipline/track combination.
  *
  * @param {Object} params
  * @param {string} params.outputDir - Build output directory
@@ -501,90 +227,68 @@ export async function generatePacks({
     reference: templateLoader.load("skill-reference.template.md", dataDir),
   };
 
-  const stagingDir = join(outputDir, "_packs");
-  const packsDir = join(outputDir, "packs");
-  await mkdir(stagingDir, { recursive: true });
-  await mkdir(packsDir, { recursive: true });
-
-  const combinations = findValidCombinations(data, agentData);
-  if (combinations.length === 0) {
+  const validCombinations = findValidCombinations(data, agentData);
+  if (validCombinations.length === 0) {
     logger.info("   (no valid discipline/track combinations — skipping)");
-    await rm(stagingDir, { recursive: true, force: true });
     return;
   }
 
-  const packs = [];
-
-  for (const combination of combinations) {
-    const { discipline, track, humanDiscipline, humanTrack } = combination;
-    const abbrev = getDisciplineAbbreviation(discipline.id);
-    const agentName = `${abbrev}-${toKebabCase(track.id)}`;
-    const specName = humanDiscipline.specialization || humanDiscipline.name;
-    const description = `${specName} (${humanTrack.name}) — agent team`;
-
+  const combinations = validCombinations.map((combo) => {
     const { profiles, skillFiles, teamInstructions } = derivePackContent({
-      ...combination,
+      ...combo,
       data,
       agentData,
       skillsWithAgent,
       level,
     });
+    return {
+      name: `${getDisciplineAbbreviation(combo.discipline.id)}-${toKebabCase(combo.track.id)}`,
+      description: `${combo.humanDiscipline.specialization || combo.humanDiscipline.name} (${combo.humanTrack.name}) — agent team`,
+      content: formatContent(
+        { profiles, skillFiles, teamInstructions },
+        {
+          agent: agentTemplate,
+          skill: skillTemplates.skill,
+          install: skillTemplates.install,
+          reference: skillTemplates.reference,
+          claude: claudeTemplate,
+        },
+        {
+          claude: agentData.claudeSettings,
+          vscode: agentData.vscodeSettings,
+        },
+      ),
+    };
+  });
 
-    const packDir = join(stagingDir, agentName);
-    await writePackFiles({
-      packDir,
-      profiles,
-      skillFiles,
-      teamInstructions,
-      agentTemplate,
-      claudeTemplate,
-      skillTemplates,
-      claudeSettings: agentData.claudeSettings,
-      vscodeSettings: agentData.vscodeSettings,
-    });
+  const builder = new PackBuilder({
+    stager: new PackStager(),
+    emitters: {
+      tar: new TarEmitter(),
+      git: new GitEmitter(),
+      disc: new DiscEmitter(),
+    },
+  });
 
-    // APM staging: deployed .claude/ layout + enriched apm.lock.yaml
-    const apmStagingDir = join(stagingDir, `${agentName}-apm`);
-    await mkdir(apmStagingDir, { recursive: true });
-    await stageApmBundle(packDir, apmStagingDir, agentName, version);
+  const { packs } = await builder.build({ combinations, outputDir, version });
 
-    // Archive both channels
-    const rawArchivePath = join(packsDir, `${agentName}.raw.tar.gz`);
-    await archiveRawPack(packDir, rawArchivePath);
-
-    const apmArchivePath = join(packsDir, `${agentName}.apm.tar.gz`);
-    await archiveApmPack(apmStagingDir, apmArchivePath);
-
-    packs.push({
-      name: agentName,
-      description,
-      url: `${normalizedSiteUrl}/packs/${agentName}.apm.tar.gz`,
-    });
-
-    logger.info(`   ✓ packs/${agentName}.raw.tar.gz`);
-    logger.info(`   ✓ packs/${agentName}.apm.tar.gz`);
-  }
-
-  // Write per-pack skill repositories (one per discipline/track combination)
-  const allPackEntries = [];
   for (const pack of packs) {
-    const entries = await writeSkillsPack(
-      packsDir,
-      join(stagingDir, pack.name),
-      pack.name,
-    );
-    allPackEntries.push({ packName: pack.name, entries });
-    logger.info(
-      `   ✓ packs/${pack.name}/.well-known/skills/ (${entries.length} skills)`,
-    );
+    logger.info(`   ✓ packs/${pack.name}.raw.tar.gz`);
+    logger.info(`   ✓ packs/${pack.name}.apm.tar.gz`);
+    logger.info(`   ✓ packs/${pack.name}.apm.git/`);
+    logger.info(`   ✓ packs/${pack.name}/.well-known/skills/`);
+    logger.info(`   ✓ packs/${pack.name}.skills.git/`);
   }
-
-  // Write aggregate repository at packs/ level
-  await writeSkillsAggregate(packsDir, allPackEntries);
   logger.info("   ✓ packs/.well-known/skills/index.json (aggregate)");
 
-  await rm(stagingDir, { recursive: true, force: true });
-
-  await writeApmManifest(outputDir, packs, version, standardTitle);
+  await writeApmManifest(
+    outputDir,
+    packs.map((p) => ({
+      ...p,
+      url: `${normalizedSiteUrl}/packs/${p.name}.apm.git`,
+    })),
+    version,
+    standardTitle,
+  );
   logger.info("   ✓ apm.yml");
 }

@@ -138,6 +138,8 @@ discovery-index outputs.
   existing tarball/skills commands
 - Build determinism contract — extends from tarball byte-equality to also cover
   bare-repo byte-equality
+- Pack distribution library — pack generation logic extracted to
+  `libraries/libpack` (selected via design-c)
 
 Git emission inherits the existing `framework.distribution.siteUrl` gate that
 controls all per-pack output today: when `siteUrl` is unset the build produces

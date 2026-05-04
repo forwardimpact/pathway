@@ -12,8 +12,10 @@ import { findValidCombinations } from "../src/commands/agent.js";
 import {
   getPackName,
   getRawCommand,
+  getApmInstallCommand,
   getApmCommand,
   getSkillsCommand,
+  getSkillsGitCommand,
   createInstallSection,
 } from "../src/pages/agent-builder-install.js";
 
@@ -108,6 +110,38 @@ describe("agent-builder-install", () => {
     });
   });
 
+  describe("getApmInstallCommand", () => {
+    test("uses .apm.git URL for native apm install", () => {
+      assert.strictEqual(
+        getApmInstallCommand("https://example.com", "se-platform"),
+        "apm install https://example.com/packs/se-platform.apm.git",
+      );
+    });
+
+    test("strips a trailing slash from the site URL", () => {
+      assert.strictEqual(
+        getApmInstallCommand("https://example.com/", "se-platform"),
+        "apm install https://example.com/packs/se-platform.apm.git",
+      );
+    });
+  });
+
+  describe("getSkillsGitCommand", () => {
+    test("uses .skills.git URL for git clone", () => {
+      assert.strictEqual(
+        getSkillsGitCommand("https://example.com", "se-platform"),
+        "git clone https://example.com/packs/se-platform.skills.git",
+      );
+    });
+
+    test("strips a trailing slash from the site URL", () => {
+      assert.strictEqual(
+        getSkillsGitCommand("https://example.com/", "se-platform"),
+        "git clone https://example.com/packs/se-platform.skills.git",
+      );
+    });
+  });
+
   describe("createInstallSection", () => {
     // createInstallSection returns null for falsy siteUrl before touching
     // any DOM APIs, so this branch is safe to exercise in node. The
@@ -182,6 +216,28 @@ describe("agent-builder-install", () => {
           `expected packs/${expected} to exist — UI pack-name derivation has drifted from build-packs.js`,
         );
       }
+    });
+
+    test("apm install command references an emitted git repo", async () => {
+      const packsDir = join(outputDir, "packs");
+      const entries = new Set(await readdir(packsDir));
+      const { humanDiscipline, humanTrack } = combinations[0];
+      const packName = getPackName(humanDiscipline, humanTrack);
+      assert.ok(
+        entries.has(`${packName}.apm.git`),
+        `expected packs/${packName}.apm.git to exist`,
+      );
+    });
+
+    test("skills git command references an emitted git repo", async () => {
+      const packsDir = join(outputDir, "packs");
+      const entries = new Set(await readdir(packsDir));
+      const { humanDiscipline, humanTrack } = combinations[0];
+      const packName = getPackName(humanDiscipline, humanTrack);
+      assert.ok(
+        entries.has(`${packName}.skills.git`),
+        `expected packs/${packName}.skills.git to exist`,
+      );
     });
 
     test("apm unpack command references a real archive", async () => {

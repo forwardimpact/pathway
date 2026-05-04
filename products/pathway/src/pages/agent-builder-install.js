@@ -2,12 +2,12 @@
  * Agent builder install section
  *
  * Surfaces the ecosystem-tool install commands (direct download, Microsoft APM,
- * and `npx skills`) for the currently selected discipline/track pack. The packs
- * themselves are emitted by `fit-pathway build` when
- * `standard.distribution.siteUrl` is configured — see spec 520 and
+ * `npx skills`, and `git clone`) for the currently selected discipline/track
+ * pack. The packs themselves are emitted by `fit-pathway build` when
+ * `standard.distribution.siteUrl` is configured — see specs 520 and 700, and
  * `products/pathway/src/commands/build-packs.js`. The pack name derivation
  * here must stay in sync with that generator so the command points at an
- * archive that actually exists on the deployed site.
+ * artifact that actually exists on the deployed site.
  */
 
 import { code, div, h2, p, section } from "../lib/render.js";
@@ -54,6 +54,16 @@ export function getRawCommand(siteUrl, packName) {
 }
 
 /**
+ * Build the `apm install` command for native git-based APM install.
+ * @param {string} siteUrl
+ * @param {string} packName
+ * @returns {string}
+ */
+export function getApmInstallCommand(siteUrl, packName) {
+  return `apm install ${normalizeSiteUrl(siteUrl)}/packs/${packName}.apm.git`;
+}
+
+/**
  * Build the `apm unpack` command for a specific APM pack bundle.
  * @param {string} siteUrl
  * @param {string} packName
@@ -76,6 +86,16 @@ export function getSkillsCommand(siteUrl, packName) {
 }
 
 /**
+ * Build the `git clone` command for skills git repo.
+ * @param {string} siteUrl
+ * @param {string} packName
+ * @returns {string}
+ */
+export function getSkillsGitCommand(siteUrl, packName) {
+  return `git clone ${normalizeSiteUrl(siteUrl)}/packs/${packName}.skills.git`;
+}
+
+/**
  * Render the install section for the selected agent combination. Returns
  * `null` when no site URL is configured (no packs have been published, so
  * there is nothing meaningful to install) so the caller can skip rendering.
@@ -89,9 +109,6 @@ export function createInstallSection({ discipline, track, siteUrl }) {
   if (!siteUrl) return null;
 
   const packName = getPackName(discipline, track);
-  const rawCommand = getRawCommand(siteUrl, packName);
-  const apmCommand = getApmCommand(siteUrl, packName);
-  const skillsCommand = getSkillsCommand(siteUrl, packName);
 
   return section(
     {
@@ -116,7 +133,7 @@ export function createInstallSection({ discipline, track, siteUrl }) {
       div(
         { className: "agent-install-command" },
         p({ className: "agent-install-command-label" }, "Direct download"),
-        createCommandPrompt(rawCommand),
+        createCommandPrompt(getRawCommand(siteUrl, packName)),
         p(
           { className: "text-muted agent-install-note" },
           "Recommended. Installs everything: skills, agents, CLAUDE.md, and settings (Claude Code + VS Code).",
@@ -124,20 +141,38 @@ export function createInstallSection({ discipline, track, siteUrl }) {
       ),
       div(
         { className: "agent-install-command" },
-        p({ className: "agent-install-command-label" }, "Microsoft APM"),
-        createCommandPrompt(apmCommand),
+        p({ className: "agent-install-command-label" }, "apm install"),
+        createCommandPrompt(getApmInstallCommand(siteUrl, packName)),
         p(
           { className: "text-muted agent-install-note" },
-          "Installs skills, agents, and team instructions. Does not include settings.",
+          "Recommended for APM users. Installs skills, agents, and team instructions via native git resolution.",
+        ),
+      ),
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "apm unpack"),
+        createCommandPrompt(getApmCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Offline alternative. Downloads the tarball, then unpacks. Does not include settings.",
         ),
       ),
       div(
         { className: "agent-install-command" },
         p({ className: "agent-install-command-label" }, "npx skills"),
-        createCommandPrompt(skillsCommand),
+        createCommandPrompt(getSkillsCommand(siteUrl, packName)),
         p(
           { className: "text-muted agent-install-note" },
           "Installs skills only. Does not include agents or CLAUDE.md.",
+        ),
+      ),
+      div(
+        { className: "agent-install-command" },
+        p({ className: "agent-install-command-label" }, "git clone"),
+        createCommandPrompt(getSkillsGitCommand(siteUrl, packName)),
+        p(
+          { className: "text-muted agent-install-note" },
+          "Clone skills as a git repository.",
         ),
       ),
     ),
