@@ -244,11 +244,11 @@ checklists, which only count `matched: true` rows against marker criteria.
 | 6 | `marker <skill>` lists markers | `fit-landmark marker data_integration` lists at least one marker |
 | 7 | Initiative commands removed | `fit-landmark initiative` exits with an "unknown command" error or equivalent — the command group no longer exists |
 | 8 | `driver_name` captured per comment | After `fit-map activity seed`, `getdx_snapshot_comments` rows contain non-null `driver_name` values for comments that include that field in the source data |
-| 9 | Guide writes evidence with rationale | After running the new `fit-guide evaluate --email actaeon@bionova.example` command (added by this spec), `activity.evidence` contains rows for Actaeon with non-null `rationale` |
+| 9 | Guide writes evidence with rationale | After piping an evaluation prompt for Actaeon to `fit-guide` (e.g. `echo "evaluate unscored artifacts for actaeon@bionova.example" \| fit-guide`), `activity.evidence` contains rows for Actaeon with non-null `rationale` |
 | 10 | Evidence is standard-grounded | Every `skill_id` + `marker_text` pair in evidence rows written by Guide matches an entry in the engineering standard for Actaeon's profile `(software_engineering, J060, individual_contributor)` |
-| 11 | Team-scoped evaluation works | After running `fit-guide evaluate --manager athena@bionova.example`, `activity.evidence` contains rows for at least one engineer whose `manager_email` is Athena in `organization_people` |
-| 12 | Evaluation is idempotent | Running `fit-guide evaluate --email actaeon@bionova.example` twice produces the same evidence row count both times |
-| 13 | Evaluation can be invoked non-interactively | The evaluate capability accepts a non-interactive invocation (no prompts, no REPL) that completes and exits with a status code — verifiable by running it in a shell script |
+| 11 | Team-scoped evaluation works | After piping an evaluation prompt for Athena's team to `fit-guide` (e.g. `echo "evaluate unscored artifacts for direct reports of athena@bionova.example" \| fit-guide`), `activity.evidence` contains rows for at least one engineer whose `manager_email` is Athena in `organization_people` |
+| 12 | Evaluation is idempotent | Piping the same evaluation prompt for Actaeon to `fit-guide` twice produces the same evidence row count both times |
+| 13 | Evaluation can be invoked non-interactively | `fit-guide` reads its prompt from stdin, runs the evaluation skill, and exits with a status code — verifiable by running `echo "..." \| fit-guide` in a shell script |
 | 14 | Multi-source evaluation is addable without logic changes | A second source type can be registered alongside GitHub without modifying the evaluation logic or evidence write path — verified by code review that the evaluation path contains no GitHub-specific branching |
 | 15 | Evaluation coverage increases Landmark output (depends on SC 9) | Record `fit-landmark coverage --email actaeon@bionova.example` before running SC 9; after SC 9 completes, re-run the same command and confirm the interpreted-artifact percentage is higher |
 
@@ -263,7 +263,7 @@ checklists, which only count `matched: true` rows against marker criteria.
 | `libraries/libsyntheticprose` + `libraries/libsyntheticrender` | Generated capability entities gain `markers` arrays (Gap 2) |
 | `products/landmark` | `initiative` command group removed; manager-scoped views scoped to direct reports via roster |
 | `products/map` | Manager-scoping queries corrected; unscored-artifact retrieval extended to team and org scope; GetDX comments pipeline extended to store `driver_name` per comment |
-| `products/guide` | New `evaluate` subcommand; multi-source evaluation support; GitHub artifact source; engineering standard grounding |
+| `products/guide` | New evaluation skill loaded by `fit-guide` from a piped prompt; multi-source evaluation support; GitHub artifact source; engineering standard grounding |
 | `services` (layer TBD in design) | Engineering standard access capability extended to return markers for a given `(discipline, level, track)` profile; currently provided by `svcpathway` / `svcmcp` but the extending layer is a design decision |
 | `data/synthetic/story.dsl` | BioNova terrain updated so `organization_people` rows carry accurate `manager_email` values |
 
