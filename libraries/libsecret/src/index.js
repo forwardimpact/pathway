@@ -86,9 +86,14 @@ export async function updateEnvFile(key, value, envPath = ".env") {
     lines.push(envLine);
   }
 
-  // Write back to file — ensure trailing newline for POSIX compatibility
+  // Write back to file — ensure trailing newline for POSIX compatibility,
+  // and enforce 0o600 since this file holds secrets. writeFile's `mode`
+  // applies only on creation; chmod also covers the update path.
   const output = lines.join("\n");
-  await fs.writeFile(fullPath, output.endsWith("\n") ? output : output + "\n");
+  await fs.writeFile(fullPath, output.endsWith("\n") ? output : output + "\n", {
+    mode: 0o600,
+  });
+  await fs.chmod(fullPath, 0o600);
 }
 
 /**

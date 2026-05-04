@@ -259,6 +259,33 @@ describe("libsecret", () => {
       const content = await fs.readFile(defaultPath, "utf8");
       assert.ok(content.includes("KEY=value"));
     });
+
+    test("creates .env with mode 0o600 (owner-only read/write)", async () => {
+      if (process.platform === "win32") return;
+
+      await updateEnvFile("SECRET", "s3cret", envPath);
+
+      const stat = await fs.stat(envPath);
+      assert.strictEqual(
+        stat.mode & 0o777,
+        0o600,
+        "new .env file must be owner-only readable",
+      );
+    });
+
+    test("tightens existing .env mode to 0o600 on update", async () => {
+      if (process.platform === "win32") return;
+
+      await fs.writeFile(envPath, "PRIOR=value\n", { mode: 0o644 });
+      await updateEnvFile("PRIOR", "updated", envPath);
+
+      const stat = await fs.stat(envPath);
+      assert.strictEqual(
+        stat.mode & 0o777,
+        0o600,
+        "existing .env file must be tightened to 0o600",
+      );
+    });
   });
 
   describe("readEnvFile", () => {

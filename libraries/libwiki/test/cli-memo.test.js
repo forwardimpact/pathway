@@ -139,6 +139,30 @@ describe("fit-wiki memo CLI", () => {
     assert.equal(status, 2);
   });
 
+  test("rejects --to that escapes wiki root via path traversal", () => {
+    const outside = join(dir, "outside.md");
+    writeFileSync(
+      outside,
+      `# Outside\n\n## Message Inbox\n\n${MEMO_INBOX_MARKER}\n`,
+    );
+
+    const { status, stderr } = runFail([
+      "memo",
+      "--from",
+      "x",
+      "--to",
+      "../outside",
+      "--message",
+      "traversal",
+    ]);
+
+    assert.equal(status, 2);
+    assert.ok(stderr.includes("escapes wiki root"));
+
+    const after = readFileSync(outside, "utf-8");
+    assert.ok(!after.includes("traversal"), "outside file must not be touched");
+  });
+
   test("LIBEVAL_AGENT_PROFILE fallback when --from omitted", () => {
     const stdout = run(
       ["memo", "--to", "staff-engineer", "--message", "env test"],
