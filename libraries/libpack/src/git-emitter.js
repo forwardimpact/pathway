@@ -25,7 +25,7 @@ export class GitEmitter {
     const cleanEnv = Object.fromEntries(
       Object.entries(process.env).filter(([k]) => !k.startsWith("GIT_")),
     );
-    this.#gitEnv = {
+    const gitEnv = {
       ...cleanEnv,
       GIT_DIR: outputPath,
       GIT_AUTHOR_NAME: AUTHOR,
@@ -42,41 +42,41 @@ export class GitEmitter {
     });
 
     // 2–4. Hash all objects and build trees
-    const rootTree = await this.#hashTree(stagedDir);
+    const rootTree = await this.#hashTree(stagedDir, gitEnv);
 
     // 5. Create commit
     const commitSha = this.#exec(
       "git",
-      ["commit-tree", rootTree, "-m", `pathway v${version}\n`],
-      { env: this.#gitEnv },
+      ["commit-tree", rootTree, "-m", `pathway v${version}`],
+      { env: gitEnv },
     )
       .toString()
       .trim();
 
     // 6. Point default branch at commit
     this.#exec("git", ["update-ref", "refs/heads/main", commitSha], {
-      env: this.#gitEnv,
+      env: gitEnv,
     });
 
     // 7. Lightweight tag
     this.#exec("git", ["update-ref", `refs/tags/v${version}`, commitSha], {
-      env: this.#gitEnv,
+      env: gitEnv,
     });
 
     // 8. Single deterministic packfile
     // -f passes --no-reuse-delta to git-pack-objects
     this.#exec("git", ["repack", "-a", "-d", "-f"], {
-      env: this.#gitEnv,
+      env: gitEnv,
     });
 
     // 9. Remove loose objects
-    this.#exec("git", ["prune-packed"], { env: this.#gitEnv });
+    this.#exec("git", ["prune-packed"], { env: gitEnv });
 
     // 10. Write info/refs + objects/info/packs
-    this.#exec("git", ["update-server-info"], { env: this.#gitEnv });
+    this.#exec("git", ["update-server-info"], { env: gitEnv });
 
     // 11. Write packed-refs
-    this.#exec("git", ["pack-refs", "--all"], { env: this.#gitEnv });
+    this.#exec("git", ["pack-refs", "--all"], { env: gitEnv });
 
     // 12. Deterministic config
     await writeFile(join(outputPath, "config"), BARE_CONFIG);
@@ -102,19 +102,19 @@ export class GitEmitter {
     }
   }
 
-  async #hashTree(stagedDir) {
+  async #hashTree(stagedDir, gitEnv) {
     const entries = await readdir(stagedDir, { withFileTypes: true });
     entries.sort((a, b) => a.name.localeCompare(b.name));
     const lines = [];
     for (const entry of entries) {
       const fullPath = join(stagedDir, entry.name);
       if (entry.isDirectory()) {
-        const treeSha = await this.#hashTree(fullPath);
+        const treeSha = await this.#hashTree(fullPath, gitEnv);
         lines.push(`040000 tree ${treeSha}\t${entry.name}`);
       } else {
         const blobSha = this.#exec("git", ["hash-object", "-w", "--stdin"], {
           input: await readFile(fullPath),
-          env: this.#gitEnv,
+          env: gitEnv,
         })
           .toString()
           .trim();
@@ -124,11 +124,9 @@ export class GitEmitter {
     }
     return this.#exec("git", ["mktree"], {
       input: lines.join("\n") + "\n",
-      env: this.#gitEnv,
+      env: gitEnv,
     })
       .toString()
       .trim();
   }
-
-  #gitEnv;
 }
