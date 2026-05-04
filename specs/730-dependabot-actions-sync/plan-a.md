@@ -83,52 +83,77 @@ types.
    - **Anything else** (`**`, mid-segment `/foo*`, multiple `*`, leading
      `*`): record an `unsupported pattern: <entry>` violation. Continue
      processing — do not exit. (Accumulation: see Step 6.)
-4. **Compute scan set** (canonical full paths):
-   - Each literal entry: include verbatim.
-   - Each glob `<prefix>/*`: enumerate `<prefix>/` via `readdirSync(prefix,
-     { withFileTypes: true })`; for each direct child `<D>` that is a
-     directory AND contains `action.yml` or `action.yaml`, add `<prefix>/<D>`.
-     Subdirectories without an `action.yml`/`yaml` are skipped (matches
-     Dependabot's effective scan: it walks the path, finds no manifest, no
-     PR is opened — so they are not part of the meaningful scan set).
-5. **Compute filesystem set** (canonical full paths). If `.github/actions/`
-   is missing or contains no directories, the set is empty. Otherwise:
-   `{ "/.github/actions/<D>" : .github/actions/<D>/ is a directory ∧
+4. **Compute scan set** (canonical full paths). For every filesystem read in
+   this step, convert the YAML-form path (e.g., `/.github/actions`) to a
+   real path via `path.join(repoRoot, entry.replace(/^\//, ""))`:
+   - Each literal entry: include verbatim in the scan set (canonical form).
+   - Each glob `<prefix>/*`: read the prefix via
+     `readdirSync(realPrefix, { withFileTypes: true })`. Wrap in try/catch:
+     ENOENT (e.g., a typo in the prefix) → empty expansion (let Check A
+     surface the resulting coverage gap rather than crashing). Other errors
+     re-throw. For each direct child `<D>` that is a directory AND contains
+     `action.yml` or `action.yaml`, add `<prefix>/<D>` to the scan set.
+     Subdirectories without a manifest are skipped — matches Dependabot's
+     effective scan: it walks the path, finds no manifest, no PR is opened.
+5. **Compute filesystem set** (canonical full paths). Read
+   `path.join(repoRoot, ".github/actions")`. If missing (ENOENT) or empty,
+   the set is empty. Otherwise:
+   `{ "/.github/actions/<D>" : <D> is a directory under .github/actions/ ∧
    (action.yml ∨ action.yaml exists inside) }`. Non-directory entries under
    `.github/actions/` are skipped silently.
 6. **Invariant checks** (accumulate violations across all checks; one diff
    section printed per failed check; exit 1 at the end if any violation,
-   exit 0 otherwise):
-   - **A. coverage**: `filesystem set ⊆ scan set`. Print missing entries
-     ("uncovered action directories").
-   - **B. literal-entries-not-stale**: every literal entry under
+   exit 0 otherwise). Each check defends against a distinct regression:
+   - **A. coverage** — `filesystem set ⊆ scan set`. Print "uncovered
+     action directories". *Defends against glob-prefix breakage* (e.g.,
+     someone changes `/.github/actions/*` → `/.github/workflows/*`, or
+     removes the glob entirely): under those regressions the expansion
+     no longer covers the action dirs and Check A fires. Tautological in
+     the post-change state when the glob's prefix matches the action
+     root — that is by design; the post-change state is the safe state.
+   - **B. literal-entries-not-stale** — every literal entry under
      `/.github/actions/` (not the `/` root) must reference an existing
-     action directory — i.e., for each literal in `/.github/actions/<D>`
-     form, `<D>` ∈ filesystem set. Print stale literals ("dangling literal
-     scan entries"). Glob expansions are excluded from this check
-     deliberately, because by Step 4's construction they cannot dangle.
-   - **C. workflow root preserved**: `/` appears literally in the raw
+     action directory. Print "dangling literal scan entries". *Defends
+     against future literal regressions* (e.g., someone re-adds a
+     literal `/.github/actions/foo` without checking the dir exists).
+     Glob expansions are excluded from this check by Step 4's
+     construction.
+   - **C. workflow root preserved** — `/` appears literally in the raw
      pre-classification `directories` array (string compare). Print
-     "missing workflow root literal" on failure.
-   - **D. no unsupported patterns**: the violation list from Step 3 is
-     empty. Print each unsupported pattern.
+     "missing workflow root literal" on failure. *Defends against
+     accidental removal of `/`* (criterion 5).
+   - **D. no unsupported patterns** — the violation list from Step 3 is
+     empty. Print each unsupported pattern. *Defends against authors
+     reaching for richer glob shapes* (`**`, mid-segment globs) that
+     diverge from Dependabot's expander.
 
 CLI shape: no flags, no args. Shebang `#!/usr/bin/env node`. ESM imports:
 `node:fs`, `node:path`, `yaml`. Invocation is `bun scripts/check-dependabot.mjs`.
 
-Verification (run after Step 3 lands the glob):
+Verification (run after Step 3 lands the glob; all in throw-away worktrees,
+no commits):
 
 1. **Positive baseline:** from the post-Step-3 tree, `bun
    scripts/check-dependabot.mjs` exits 0.
-2. **Negative-path drift:** in a throw-away worktree
-   (`git worktree add ../tmp-730-neg`), edit `.github/dependabot.yml` to add
-   a literal `/.github/actions/_does_not_exist`. The script must exit 1 with
-   a "dangling literal" violation. (Confirms Check B fires.)
-3. **Add/rename/delete replays** (separate throw-away worktrees, `git
-   worktree add ../tmp-730-{add,rename,delete}`): introduce
+2. **Add/rename/delete replays** (`git worktree add
+   ../tmp-730-{add,rename,delete}`): introduce
    `.github/actions/_canary/action.yml`; rename `audit/` →
    `audit-renamed/`; delete `post-run/`. The script must exit 0 in all
-   three (the glob auto-tracks). Discard worktrees after. No commits.
+   three (the glob auto-tracks).
+3. **Negative — Check B (dangling literal):** add literal
+   `/.github/actions/_does_not_exist` to `.github/dependabot.yml`'s
+   `directories` list. Script exits 1, prints "dangling literal scan
+   entries".
+4. **Negative — Check D (unsupported pattern):** add
+   `/.github/actions/**` to the `directories` list. Script exits 1, prints
+   "unsupported pattern: /.github/actions/**".
+5. **Negative — Check A (coverage gap):** replace the glob with
+   `/.github/actoins/*` (typo). Script exits 1, prints "uncovered action
+   directories" listing all five existing action dirs.
+6. **Negative — Check C (root removed):** delete the `/` entry. Script
+   exits 1, prints "missing workflow root literal".
+
+Discard worktrees after each negative case (`git worktree remove`).
 
 ### Step 3 — Replace per-directory entries with the glob
 
@@ -211,10 +236,11 @@ Add a third job `dependabot-coverage` after `secret-scanning`:
 
 `bootstrap` runs `./scripts/bootstrap.sh` → `just install` → `bun install
 --frozen-lockfile`, which installs root devDeps including `yaml@2.8.3`
-(verified at plan time). No `setup-node` step is needed: invocation is
-`bun`, not `node`. Use the same checkout SHA-pin already pinned in this
-file. Workflow-level `contents: read` permission already covers the new
-job.
+(verified at plan time). Steps 1 and 5 ship in the same PR, so CI runs
+against a tree where the lockfile already lists `yaml`; no order-of-
+operations risk. No `setup-node` step is needed: invocation is `bun`, not
+`node`. Use the same checkout SHA-pin already pinned in this file.
+Workflow-level `contents: read` permission already covers the new job.
 
 Verification: the new `dependabot-coverage` job appears under the `Security`
 workflow run on PR #728 and shows `success`. Spec criteria 2–4 are exercised
@@ -225,7 +251,7 @@ prevention mechanism, not the replay test.
 
 | Risk                                                                                                              | Mitigation in this plan                                                                                                                                                                       |
 | ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dependabot's server-side glob expander differs from the `<prefix>/*` shape the script implements in Step 2.       | Both expansions evaluate the same tree at the same commit; divergence surfaces on the next directory change. Run `gh api` Dependabot listing once after merge to confirm coverage.            |
+| Dependabot's server-side glob expander differs from the `<prefix>/*` shape the script implements in Step 2.       | The script's `action.yml`-pre-filter aligns its scan set with Dependabot's *meaningful* scan (paths Dependabot would actually open a PR against), so harmless expansion divergence is masked. Run `gh api` once after merge to confirm a PR-opening directory is reachable. |
 | Action directory exists with neither `action.yml` nor `action.yaml` (incomplete commit, mid-rename half-state).   | The script silently excludes such directories from both sets — by design, mirroring Dependabot's actual behaviour. The half-state cannot trigger a CI failure; the missing manifest will.     |
 
 ## Execution
