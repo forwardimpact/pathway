@@ -65,9 +65,9 @@ The prompt must contain "evaluate" and one of:
       - Write a 1–3 sentence `rationale` explaining your reasoning.
       - `matched: false` rows are valid — write them to document what was
         checked and not found.
-   e. Call `WriteEvidence` with the batch of evidence rows for that artifact.
-      Each row must include: `artifact_id`, `skill_id`, `level_id`,
-      `marker_text`, `matched`, `rationale`.
+   e. Call `WriteEvidence` once per marker with: `artifact_id`, `skill_id`,
+      `level_id`, `marker_text`, `matched`, `rationale`. Call multiple
+      markers in parallel for throughput.
 
 ### Constraints
 

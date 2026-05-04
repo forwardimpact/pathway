@@ -120,7 +120,7 @@ describe("MapService", () => {
     assert.equal(parsed.discipline, "software_engineering");
   });
 
-  it("WriteEvidence rejects rows without rationale", async () => {
+  it("WriteEvidence rejects row without rationale", async () => {
     const config = createMockConfig();
     const supabase = createMockSupabase();
     const pathwayClient = createMockPathwayClient();
@@ -128,16 +128,12 @@ describe("MapService", () => {
     await assert.rejects(
       () =>
         service.WriteEvidence({
-          rows: [
-            {
-              artifact_id: "a1",
-              skill_id: "skill_a",
-              level_id: "working",
-              marker_text: "Delivered a feature",
-              matched: true,
-              rationale: "",
-            },
-          ],
+          artifact_id: "a1",
+          skill_id: "skill_a",
+          level_id: "working",
+          marker_text: "Delivered a feature",
+          matched: true,
+          rationale: "",
         }),
       /rationale is required/,
     );
@@ -207,18 +203,14 @@ describe("MapService", () => {
     };
     const service = new MapService(config, { supabase, pathwayClient });
     const result = await service.WriteEvidence({
-      rows: [
-        {
-          artifact_id: "art-1",
-          skill_id: "skill_a",
-          level_id: "working",
-          marker_text: "Delivered a feature",
-          matched: true,
-          rationale: "The PR shows end-to-end delivery.",
-        },
-      ],
+      artifact_id: "art-1",
+      skill_id: "skill_a",
+      level_id: "working",
+      marker_text: "Delivered a feature",
+      matched: true,
+      rationale: "The PR shows end-to-end delivery.",
     });
-    assert.equal(result.content, "1 rows written");
+    assert.equal(result.content, "1 row written");
   });
 
   it("WriteEvidence rejects markers not in standard", async () => {
@@ -259,27 +251,14 @@ describe("MapService", () => {
     await assert.rejects(
       () =>
         service.WriteEvidence({
-          rows: [
-            {
-              artifact_id: "art-1",
-              skill_id: "skill_a",
-              level_id: "working",
-              marker_text: "Invented marker not in standard",
-              matched: true,
-              rationale: "This should fail.",
-            },
-          ],
+          artifact_id: "art-1",
+          skill_id: "skill_a",
+          level_id: "working",
+          marker_text: "Invented marker not in standard",
+          matched: true,
+          rationale: "This should fail.",
         }),
       /Marker not in standard/,
     );
-  });
-
-  it("WriteEvidence returns count on empty rows", async () => {
-    const config = createMockConfig();
-    const supabase = createMockSupabase();
-    const pathwayClient = createMockPathwayClient();
-    const service = new MapService(config, { supabase, pathwayClient });
-    const result = await service.WriteEvidence({ rows: [] });
-    assert.equal(result.content, "0 rows written");
   });
 });

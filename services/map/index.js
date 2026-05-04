@@ -93,69 +93,55 @@ export class MapService extends MapBase {
 
   /** @param {object} req */
   async WriteEvidence(req) {
-    const rows = req.rows || [];
-    if (rows.length === 0) return { content: "0 rows written" };
+    const row = {
+      artifact_id: req.artifact_id ?? req.artifactId,
+      skill_id: req.skill_id ?? req.skillId,
+      level_id: req.level_id ?? req.levelId,
+      marker_text: req.marker_text ?? req.markerText,
+      matched: req.matched,
+      rationale: req.rationale,
+    };
 
-    const dbRows = rows.map((r) => ({
-      artifact_id: r.artifact_id ?? r.artifactId,
-      skill_id: r.skill_id ?? r.skillId,
-      level_id: r.level_id ?? r.levelId,
-      marker_text: r.marker_text ?? r.markerText,
-      matched: r.matched,
-      rationale: r.rationale,
-    }));
+    if (!row.artifact_id) throw new Error("artifact_id is required");
+    if (!row.skill_id) throw new Error("skill_id is required");
+    if (!row.rationale) throw new Error("rationale is required");
+    if (!row.level_id) throw new Error("level_id is required");
+    if (row.matched == null) throw new Error("matched is required");
 
-    for (const row of dbRows) {
-      if (!row.rationale) throw new Error("rationale is required");
-      if (!row.level_id) throw new Error("level_id is required");
-      if (row.matched == null) throw new Error("matched is required");
-    }
+    await this.#validateMarkerGrounding(row);
 
-    try {
-      await this.#validateMarkerGrounding(dbRows);
-    } catch (e) {
-      console.error(`[WriteEvidence] grounding rejected: ${e.message}`);
-      throw e;
-    }
-
-    const { error } = await this.#supabase.from("evidence").upsert(dbRows, {
+    const { error } = await this.#supabase.from("evidence").upsert([row], {
       onConflict: "artifact_id,skill_id,level_id,marker_text",
       ignoreDuplicates: true,
     });
     if (error) throw new Error(`WriteEvidence: ${error.message}`);
-    return { content: `${dbRows.length} rows written` };
+    return { content: "1 row written" };
   }
 
-  async #validateMarkerGrounding(dbRows) {
-    const artifactIds = [...new Set(dbRows.map((r) => r.artifact_id))];
-    for (const artifactId of artifactIds) {
-      const { data: artifact } = await this.#supabase
-        .from("github_artifacts")
-        .select("email")
-        .eq("artifact_id", artifactId)
-        .single();
-      if (!artifact) throw new Error(`Artifact not found: ${artifactId}`);
-      const person = await getPerson(this.#supabase, artifact.email);
-      if (!person) throw new Error(`Person not found: ${artifact.email}`);
+  async #validateMarkerGrounding(row) {
+    const { data: artifact } = await this.#supabase
+      .from("github_artifacts")
+      .select("email")
+      .eq("artifact_id", row.artifact_id)
+      .single();
+    if (!artifact) throw new Error(`Artifact not found: ${row.artifact_id}`);
+    const person = await getPerson(this.#supabase, artifact.email);
+    if (!person) throw new Error(`Person not found: ${artifact.email}`);
 
-      const markersReq = pathway.GetMarkersForProfileRequest.fromObject({
-        discipline: person.discipline,
-        level: person.level,
-        track: person.track || undefined,
-      });
-      const markersResult =
-        await this.#pathwayClient.GetMarkersForProfile(markersReq);
-      const validMarkers = parseMarkerSet(markersResult.content);
+    const markersReq = pathway.GetMarkersForProfileRequest.fromObject({
+      discipline: person.discipline,
+      level: person.level,
+      track: person.track || undefined,
+    });
+    const markersResult =
+      await this.#pathwayClient.GetMarkersForProfile(markersReq);
+    const validMarkers = parseMarkerSet(markersResult.content);
 
-      const artifactRows = dbRows.filter((r) => r.artifact_id === artifactId);
-      for (const row of artifactRows) {
-        const key = `${row.skill_id}\t${row.level_id}\t${row.marker_text}`;
-        if (!validMarkers.has(key)) {
-          throw new Error(
-            `Marker not in standard: ${row.skill_id} / ${row.level_id} / ${row.marker_text}`,
-          );
-        }
-      }
+    const key = `${row.skill_id}\t${row.level_id}\t${row.marker_text}`;
+    if (!validMarkers.has(key)) {
+      throw new Error(
+        `Marker not in standard: ${row.skill_id} / ${row.level_id} / ${row.marker_text}`,
+      );
     }
   }
 

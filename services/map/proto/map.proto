@@ -25,17 +25,19 @@ message GetArtifactRequest {
   string artifact_id = 1;
 }
 
-message EvidenceRow {
-  string artifact_id = 1;
-  string skill_id = 2;
-  string level_id = 3;
-  string marker_text = 4;
-  bool matched = 5;
-  string rationale = 6;
-}
-
 message WriteEvidenceRequest {
-  repeated EvidenceRow rows = 1;
+  // Artifact UUID
+  string artifact_id = 1;
+  // Skill id from the engineering standard
+  string skill_id = 2;
+  // Proficiency level id
+  string level_id = 3;
+  // Marker text verbatim from GetMarkersForProfile
+  string marker_text = 4;
+  // Whether the artifact demonstrates this marker
+  bool matched = 5;
+  // 1-3 sentence rationale
+  string rationale = 6;
 }
 
 message GetPersonRequest {

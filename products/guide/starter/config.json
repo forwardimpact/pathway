@@ -86,7 +86,7 @@
         },
         "WriteEvidence": {
           "method": "map.Map.WriteEvidence",
-          "description": "Write evidence rows linking artifacts to skill markers. Idempotent on (artifact_id, skill_id, level_id, marker_text)."
+          "description": "Write one evidence row linking an artifact to a skill marker. Idempotent on (artifact_id, skill_id, level_id, marker_text). Call in parallel for multiple markers."
         },
         "GetPerson": {
           "method": "map.Map.GetPerson",
