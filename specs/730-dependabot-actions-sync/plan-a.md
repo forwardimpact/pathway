@@ -19,8 +19,8 @@ and scan set diverge.
 ### Step 1 — Add `yaml` to root devDependencies
 
 Intent: declare the YAML parser explicitly at the root workspace so the script
-imports an owned dependency (currently transitive at `node_modules/yaml@2.8.3`
-via six workspace packages).
+imports an owned dependency. (Six workspace packages already declare
+`yaml@^2.8.3` directly; the pin matches.)
 
 | Action | File           |
 | ------ | -------------- |
@@ -50,68 +50,85 @@ to:
 }
 ```
 
-Run `bun install` to refresh `bun.lock` (auto-generated; modify entry tracks
-the regen). `^2.8.3` matches every existing workspace pin, so resolution stays
-single-version.
+Run `bun install` to refresh `bun.lock` (auto-generated; the modify entry
+tracks the regen). Single-version resolution stays intact.
 
 Verification: `grep '"yaml":' package.json` shows the new entry; `bun install`
-exits 0; defer functional verification to Step 2 (the script's import of
-`yaml` is the binding test).
+exits 0; defer functional verification to Step 2.
 
 ### Step 2 — Create `scripts/check-dependabot.mjs`
 
-Intent: assert the design's coverage invariant end-to-end, fail loudly on
-drift, exit 0 otherwise.
+Intent: assert the coverage invariant from the design end-to-end, fail loudly
+on drift, exit 0 otherwise.
 
-| Action | File                            |
-| ------ | ------------------------------- |
-| create | `scripts/check-dependabot.mjs`  |
+| Action | File                           |
+| ------ | ------------------------------ |
+| create | `scripts/check-dependabot.mjs` |
 
-Behaviour, in order — accumulate violations across all checks before exiting
-(no short-circuit; the implementer wants every drift visible in one run):
+Behaviour, in order. Both sets are computed in **canonical full-path form**
+(e.g., `/.github/actions/audit`) so all set comparisons use identical element
+types.
 
-1. **Read & parse.** Read `.github/dependabot.yml` from repo root (resolve via
-   `new URL("..", import.meta.url).pathname` — matches `check-instructions.mjs`
-   and `check-libharness.mjs`, and is Node 18-safe; `import.meta.dirname` is
-   Node 20.11+ only and would break under the package's `engines.node ≥ 18`).
-   Parse with `yaml.parse`.
+1. **Read & parse.** Resolve repo root via
+   `new URL("..", import.meta.url).pathname` (matches existing
+   `check-instructions.mjs` / `check-libharness.mjs`). Read
+   `.github/dependabot.yml` and `yaml.parse` it.
 2. **Locate ecosystem.** Find the `updates[]` entry where
    `package-ecosystem === "github-actions"`; extract its `directories` array.
    Fail with a clear message if either is missing or empty.
-3. **Scan-set computation** — for each entry:
-   - Literal (no `*`): include verbatim.
-   - Trailing `/*` only (e.g., `/.github/actions/*`): expand to one entry per
-     direct child of `<prefix>` that is a directory (single path segment, no
-     dotfiles, files skipped). Implemented via `readdirSync(prefix, { withFileTypes: true })`.
-   - Anything else (`**`, mid-segment globs like `/foo*`, multiple `*`):
-     fail with `unsupported pattern: <entry>` and exit 1.
-4. **Filesystem-set computation.** If `.github/actions/` is missing or
-   contains no directories, the filesystem set is empty (no error). Otherwise,
-   include `<D>` iff `.github/actions/<D>/` is a directory AND
-   `action.yml` or `action.yaml` exists inside it. Non-directory entries
-   under `.github/actions/` are skipped silently (matches design risk row:
-   stray non-action files are harmless).
-5. **Invariant checks** — accumulate, do not short-circuit:
-   - **A.** `filesystem set ⊆ (expanded scan set ∖ {/})` — uncovered action
-     directories. Print missing entries.
-   - **B.** `(expanded scan set ∖ {/}) ⊆ filesystem set` — scan-set paths
-     that point at no action directory. Print stale entries.
-   - **C.** `/` ∈ **pre-expansion** entries (literal-string check on the raw
-     `directories` array, before glob expansion) — guards spec criterion 5.
-   - **D.** No `unsupported pattern` raised in Step 3.
-6. **Exit.** Print one diff section per failed check, then exit `0` if all
-   four pass, `1` if any fail.
+3. **Classify entries.** Walk the raw `directories` array, classify each:
+   - **Literal** (no `*`): keep verbatim.
+   - **Glob `<prefix>/*`** (single trailing `*`, no other glob chars): mark
+     for expansion.
+   - **Anything else** (`**`, mid-segment `/foo*`, multiple `*`, leading
+     `*`): record an `unsupported pattern: <entry>` violation. Continue
+     processing — do not exit. (Accumulation: see Step 6.)
+4. **Compute scan set** (canonical full paths):
+   - Each literal entry: include verbatim.
+   - Each glob `<prefix>/*`: enumerate `<prefix>/` via `readdirSync(prefix,
+     { withFileTypes: true })`; for each direct child `<D>` that is a
+     directory AND contains `action.yml` or `action.yaml`, add `<prefix>/<D>`.
+     Subdirectories without an `action.yml`/`yaml` are skipped (matches
+     Dependabot's effective scan: it walks the path, finds no manifest, no
+     PR is opened — so they are not part of the meaningful scan set).
+5. **Compute filesystem set** (canonical full paths). If `.github/actions/`
+   is missing or contains no directories, the set is empty. Otherwise:
+   `{ "/.github/actions/<D>" : .github/actions/<D>/ is a directory ∧
+   (action.yml ∨ action.yaml exists inside) }`. Non-directory entries under
+   `.github/actions/` are skipped silently.
+6. **Invariant checks** (accumulate violations across all checks; one diff
+   section printed per failed check; exit 1 at the end if any violation,
+   exit 0 otherwise):
+   - **A. coverage**: `filesystem set ⊆ scan set`. Print missing entries
+     ("uncovered action directories").
+   - **B. literal-entries-not-stale**: every literal entry under
+     `/.github/actions/` (not the `/` root) must reference an existing
+     action directory — i.e., for each literal in `/.github/actions/<D>`
+     form, `<D>` ∈ filesystem set. Print stale literals ("dangling literal
+     scan entries"). Glob expansions are excluded from this check
+     deliberately, because by Step 4's construction they cannot dangle.
+   - **C. workflow root preserved**: `/` appears literally in the raw
+     pre-classification `directories` array (string compare). Print
+     "missing workflow root literal" on failure.
+   - **D. no unsupported patterns**: the violation list from Step 3 is
+     empty. Print each unsupported pattern.
 
 CLI shape: no flags, no args. Shebang `#!/usr/bin/env node`. ESM imports:
-`node:fs`, `node:path`, `yaml`. No `chmod +x` required (invocation is
-`bun scripts/check-dependabot.mjs`).
+`node:fs`, `node:path`, `yaml`. Invocation is `bun scripts/check-dependabot.mjs`.
 
-Verification: from a clean checkout of the post-Step-3 tree, run
-`bun scripts/check-dependabot.mjs` and confirm exit 0. Then in three
-throw-away worktrees (created via `git worktree add ../tmp-730-{add,rename,delete}`):
-introduce `.github/actions/_canary/action.yml`; rename `audit` → `audit-renamed`;
-delete `post-run`. The script must exit 0 in all three (the glob auto-tracks).
-Discard worktrees after verification — no commits.
+Verification (run after Step 3 lands the glob):
+
+1. **Positive baseline:** from the post-Step-3 tree, `bun
+   scripts/check-dependabot.mjs` exits 0.
+2. **Negative-path drift:** in a throw-away worktree
+   (`git worktree add ../tmp-730-neg`), edit `.github/dependabot.yml` to add
+   a literal `/.github/actions/_does_not_exist`. The script must exit 1 with
+   a "dangling literal" violation. (Confirms Check B fires.)
+3. **Add/rename/delete replays** (separate throw-away worktrees, `git
+   worktree add ../tmp-730-{add,rename,delete}`): introduce
+   `.github/actions/_canary/action.yml`; rename `audit/` →
+   `audit-renamed/`; delete `post-run/`. The script must exit 0 in all
+   three (the glob auto-tracks). Discard worktrees after. No commits.
 
 ### Step 3 — Replace per-directory entries with the glob
 
@@ -144,9 +161,11 @@ After:
 
 No other field changes.
 
-Verification: `bun scripts/check-dependabot.mjs` exits 0 (filesystem set =
-{audit, bootstrap, kata-action-agent, kata-action-eval, post-run}; expanded
-scan set = same plus `/`; `/` preserved).
+Verification: `bun scripts/check-dependabot.mjs` exits 0. Filesystem set =
+{`/.github/actions/audit`, `/.github/actions/bootstrap`,
+`/.github/actions/kata-action-agent`, `/.github/actions/kata-action-eval`,
+`/.github/actions/post-run`}. Scan set after expansion = same five paths
+(no other subdirs have `action.yml`). `/` preserved as literal.
 
 ### Step 4 — Wire into the `context` chain
 
@@ -159,10 +178,13 @@ see drift before pushing.
 
 Two edits:
 
-- Insert row `"context:check-dependabot": "bun scripts/check-dependabot.mjs"`
-  alphabetically between `context:check-catalog` and `context:check-instructions`.
-- Append `&& bun run context:check-dependabot` to the `"context"` script
-  (chain order is invocation order, not alphabetical — append to the end).
+- Append a new row `"context:check-dependabot": "bun
+  scripts/check-dependabot.mjs"` immediately after the existing
+  `context:check-jtbd` row (end of the script-row block, before the
+  `context:fix` row). Existing `context:check-*` keys are in chain-invocation
+  order, not alphabetical — match that.
+- Append `&& bun run context:check-dependabot` to the end of the `"context"`
+  script's command string.
 
 Verification: `bun run context:check-dependabot` exits 0 standalone; `bun run
 context` exits 0 end-to-end (this also exercises the chain append).
@@ -187,30 +209,33 @@ Add a third job `dependabot-coverage` after `secret-scanning`:
       - run: bun scripts/check-dependabot.mjs
 ```
 
-`bootstrap` provides Bun + workspace install (including the new `yaml`
-devDep). No `setup-node` step is needed: invocation is `bun`, not `node`.
-Use the same checkout SHA-pin already pinned in this file. Workflow-level
-`contents: read` permission already covers the new job.
+`bootstrap` runs `./scripts/bootstrap.sh` → `just install` → `bun install
+--frozen-lockfile`, which installs root devDeps including `yaml@2.8.3`
+(verified at plan time). No `setup-node` step is needed: invocation is
+`bun`, not `node`. Use the same checkout SHA-pin already pinned in this
+file. Workflow-level `contents: read` permission already covers the new
+job.
 
-Verification: the new job appears in the `Security` workflow run on PR #728;
-shows `success`. Spec criteria 2–4 (add/rename/delete) are verified
-mechanically by virtue of the gate running on every PR diff — the gate IS
-the replay test, since each replayed delta arrives at `main` only via a PR
-that triggers this workflow.
+Verification: the new `dependabot-coverage` job appears under the `Security`
+workflow run on PR #728 and shows `success`. Spec criteria 2–4 are exercised
+by the Step 2 worktree replays, not by CI; the CI gate is the structural
+prevention mechanism, not the replay test.
 
 ## Risks
 
-| Risk                                                                                                   | Mitigation in this plan                                                                                                                                                                                                                                                                       |
-| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dependabot's glob expander on its servers differs from the `<prefix>/*` shape we implement in Step 2.  | Both expansions are evaluated at the same commit on the same tree; any divergence surfaces on the next directory change as the CI gate would still pass while Dependabot misses (or vice versa). Rebut by running a manual `gh api` Dependabot listing once after merge to confirm coverage. |
-| `bootstrap` composite action does not pre-install workspace devDependencies on a fresh CI checkout.    | Verify by inspecting `.github/actions/bootstrap/action.yml` before merge; if it skips devDeps, add an explicit `bun install` step in the new CI job rather than within Step 1.                                                                                                                |
+| Risk                                                                                                              | Mitigation in this plan                                                                                                                                                                       |
+| ----------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dependabot's server-side glob expander differs from the `<prefix>/*` shape the script implements in Step 2.       | Both expansions evaluate the same tree at the same commit; divergence surfaces on the next directory change. Run `gh api` Dependabot listing once after merge to confirm coverage.            |
+| Action directory exists with neither `action.yml` nor `action.yaml` (incomplete commit, mid-rename half-state).   | The script silently excludes such directories from both sets — by design, mirroring Dependabot's actual behaviour. The half-state cannot trigger a CI failure; the missing manifest will.     |
 
 ## Execution
 
 Single trusted agent (`staff-engineer`) executes Steps 1–5 sequentially in one
-PR — each step depends on the previous. No decomposition (≈100 lines of net
-change across 4 files). The implementer must complete the Step 2 worktree
-replays before opening the implementation PR; record outcomes in the PR
-description.
+PR — each step depends on the previous. No decomposition (~120 lines of net
+change across **five files**: `package.json`, `bun.lock`, `.github/dependabot.yml`,
+`scripts/check-dependabot.mjs`, `.github/workflows/check-security.yml`). The
+implementer must complete Step 2's positive-baseline, negative-path drift, and
+all three add/rename/delete replays after Step 3 lands and before opening the
+implementation PR; record outcomes in the PR description.
 
 — Staff Engineer 🛠️
