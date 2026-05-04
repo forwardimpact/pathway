@@ -24,7 +24,7 @@ flowchart LR
 | `resolvePartials` | `partials.js` (new) | Replace `<!-- part:type:path -->` markers with HTML from the registry |
 | `defaultRegistry` | `partials.js` (new) | `card` and `link` partial type renderers |
 | `DocsBuilder` | `builder.js` (modified) | Orchestrate: scan, resolve, render, template, format, write |
-| transforms | `transforms.js` (unchanged) | Link rewriting, breadcrumbs, TOC, hero vars |
+| transforms | `transforms.js` (minor change) | Link rewriting, breadcrumbs, TOC, hero vars |
 | `parseFrontMatter` | `frontmatter.js` (unchanged) | YAML frontmatter extraction |
 
 ## Data Structures
@@ -47,7 +47,9 @@ both the `pageTitles` map from Pass 1 and the `pages` array accumulated during
 Pass 2 — sitemap and llms.txt generation read directly from the site tree.
 
 Only pages with a `title` in frontmatter are included (matching current
-behavior where titleless pages are skipped).
+behavior where titleless pages are skipped). PageMeta holds scan-time metadata
+only — per-page rendering still reads the full file for markdown content and
+layout/hero/toc frontmatter fields.
 
 ### Partial registry
 
@@ -108,7 +110,7 @@ flowchart TD
 | Partials processing order | Resolve before `marked` | Resolve after markdown-to-HTML | Partial output is raw HTML that `marked` passes through unchanged, matching how hub pages work today; post-render resolution risks double-escaping |
 | Partial implementation | Pre-processing function with regex | Custom `marked` extension | HTML comments are not markdown syntax; a standalone function is simpler and independently testable without coupling to marked's extension API |
 | Type dispatch | Plain object registry | Switch/case in resolver | A registry entry per type satisfies criterion 10 (no resolver changes to add a type) |
-| Module decomposition | Two new focused modules (`site-tree.js`, `partials.js`) | More private methods on DocsBuilder | The class already has 15 private methods; separate modules with explicit inputs are independently testable and reduce per-module concept count |
+| Module decomposition | Two new focused modules (`site-tree.js`, `partials.js`) | More private methods on DocsBuilder | The class already has 12 private methods; separate modules with explicit inputs are independently testable and reduce per-module concept count |
 | Module decomposition | Two focused modules | Plugin architecture with lifecycle hooks | Over-engineering; spec calls for fewer concepts, not an extensibility framework |
 
 ## Partials
@@ -161,8 +163,9 @@ by `scanSiteTree`.
   `pages` array.
 - **`#renderPage()`** — calls `resolvePartials(markdown, siteTree, pageDir,
   registry)` before `this.#marked(markdown)`.
-- **`#buildTemplateVars()`** — receives `siteTree` instead of `pageTitles`;
-  breadcrumb title lookup reads `siteTree.get(path).title`.
+- **`#buildTemplateVars()`** — receives `siteTree` instead of `pageTitles`.
+- **`buildBreadcrumbs()`** in `transforms.js` — accepts `SiteTree` map and
+  reads `.title` from each entry instead of receiving a `Map<string, string>`.
 - **`#generateSitemap()` / `#augmentLlmsTxt()`** — iterate `siteTree.values()`
   instead of receiving a separate pages array.
 
