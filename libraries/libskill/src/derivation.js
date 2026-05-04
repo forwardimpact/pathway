@@ -447,18 +447,18 @@ export function getDisciplineSkillIds(discipline) {
 }
 
 /**
- * Get the level level number (for comparison/sorting)
+ * Return the ordinalRank of a level for numeric comparison and sorting.
  * @param {import('@forwardimpact/map/levels').Level} level - The level
- * @returns {number} The level level
+ * @returns {number} The ordinal rank
  */
 export function getLevelRank(level) {
   return level.ordinalRank;
 }
 
 /**
- * Check if a level is senior levels (Staff+)
+ * Return true if the level meets or exceeds the senior threshold (Staff+).
  * @param {import('@forwardimpact/map/levels').Level} level - The level
- * @returns {boolean} True if the level is senior levels
+ * @returns {boolean} True if the level is senior (Staff+)
  */
 export function isSeniorLevel(level) {
   return level.ordinalRank >= THRESHOLD_SENIOR_LEVEL;

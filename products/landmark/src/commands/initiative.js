@@ -19,6 +19,7 @@ import { computeInitiativeImpact } from "../lib/initiative-helpers.js";
 
 export const needsSupabase = true;
 
+/** Dispatch to the list, show, or impact initiative subcommand. */
 export async function runInitiativeCommand({
   args,
   options,

@@ -6,6 +6,7 @@ import { existsSync } from "node:fs";
 import { resolve, join } from "node:path";
 import { homedir } from "node:os";
 
+/** Spawn agent CLI processes, capture their output, and update agent state. */
 export class AgentRunner {
   #spawn;
   #stateManager;
@@ -95,7 +96,7 @@ export class AgentRunner {
   }
 
   /**
-   * Wake an agent by spawning its process
+   * Validate the agent's kb path exists, spawn `claude --agent` with the prompt "Observe and act.", and update agent state to active/idle/failed.
    * @param {string} agentName
    * @param {Object} agent
    * @param {Object} state

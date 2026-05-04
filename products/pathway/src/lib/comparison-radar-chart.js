@@ -64,6 +64,7 @@ function createLabelElement(x, y, angle, label, diff) {
   return text;
 }
 
+/** SVG radar chart that overlays current and target data polygons for side-by-side comparison. */
 export class ComparisonRadarChart {
   /**
    * @param {Object} config
@@ -94,6 +95,7 @@ export class ComparisonRadarChart {
     this.tooltip = null;
   }
 
+  /** Clear the container and draw the full comparison radar chart with rings, axes, polygons, and labels. */
   render() {
     this.container.innerHTML = "";
 
@@ -122,6 +124,7 @@ export class ComparisonRadarChart {
     this.container.appendChild(this.svg);
   }
 
+  /** Draw a filled SVG polygon connecting data points at their scaled positions on the radar. */
   drawDataPolygon(data, color, opacity) {
     const points = data.map((d, i) => {
       const angle = this.angleSlice * i - Math.PI / 2;
@@ -150,6 +153,7 @@ export class ComparisonRadarChart {
     this.svg.appendChild(polygon);
   }
 
+  /** Draw interactive SVG circles at each data point position with optional tooltip support. */
   drawDataPoints(data, color, type) {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.classList.add("radar-points", `radar-points-${type}`);
@@ -187,6 +191,7 @@ export class ComparisonRadarChart {
     this.svg.appendChild(group);
   }
 
+  /** Draw axis labels with color-coded diff annotations showing the gap between current and target. */
   drawLabels() {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.classList.add("radar-labels");
@@ -215,6 +220,7 @@ export class ComparisonRadarChart {
     this.svg.appendChild(group);
   }
 
+  /** Position and display a tooltip showing the value for a single current or target data point. */
   showTooltip(event, data, type) {
     if (!this.tooltip) return;
 
@@ -235,6 +241,7 @@ export class ComparisonRadarChart {
     this.tooltip.style.opacity = "1";
   }
 
+  /** Position and display a tooltip comparing current vs target values with a directional diff indicator. */
   showComparisonTooltip(event, currentData, targetData) {
     if (!this.tooltip) return;
 
@@ -262,6 +269,7 @@ export class ComparisonRadarChart {
     this.tooltip.style.opacity = "1";
   }
 
+  /** Fade out the active tooltip element. */
   hideTooltip() {
     if (this.tooltip) {
       this.tooltip.style.opacity = "0";

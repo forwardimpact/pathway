@@ -1,6 +1,7 @@
 const OPEN_RE = /^<!--\s*xmr:([^:\s]+):([^\s]+)\s*-->\s*$/;
 const CLOSE_RE = /^<!--\s*\/xmr\s*-->\s*$/;
 
+/** Scan text for paired xmr open/close HTML comment markers and return their line positions and metadata. */
 export function scanMarkers(text) {
   const lines = text.split("\n");
   const pairs = [];

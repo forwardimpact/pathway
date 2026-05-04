@@ -13,6 +13,7 @@ import { buildMarkerChecklist } from "../lib/evidence-helpers.js";
 
 export const needsSupabase = true;
 
+/** Build a marker checklist for a person's target level and check each marker against existing evidence. */
 export async function runReadinessCommand({
   options,
   mapData,

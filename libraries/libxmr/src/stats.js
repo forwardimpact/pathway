@@ -8,6 +8,7 @@ import { d2, E2, D4, ZONE_SIGMAS } from "./constants.js";
 // zero are real signals that the process distribution lives near a hard
 // floor; clipping silently moves the limit and suppresses lower-tail
 // breaches."
+/** Compute XmR statistics: mean, moving ranges, process limits, and zone boundaries. */
 export function computeXmR(values) {
   const n = values.length;
   if (n === 0) {

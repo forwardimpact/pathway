@@ -4,16 +4,19 @@
 
 import { formatDelta, padRight, renderHeader } from "./shared.js";
 
+/** Render the snapshot view as plain text, dispatching to list, trend, or scores format. */
 export function toText(view) {
   if (view.snapshots) return listToText(view);
   if (view.trend) return trendToText(view);
   return scoresToText(view);
 }
 
+/** Serialize the snapshot view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the snapshot view as markdown, dispatching to list, trend, or scores format. */
 export function toMarkdown(view) {
   if (view.snapshots) return listToMarkdown(view);
   if (view.trend) return trendToMarkdown(view);

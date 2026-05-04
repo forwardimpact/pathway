@@ -5,6 +5,7 @@
 import { readFileSync, writeFileSync, mkdirSync } from "node:fs";
 import { dirname, join } from "node:path";
 
+/** Persist and query agent scheduler state from a JSON file on disk. */
 export class StateManager {
   #statePath;
   #fs;
@@ -21,7 +22,7 @@ export class StateManager {
   }
 
   /**
-   * Load state from disk
+   * Read and parse state from disk; on any read or parse error, write a fresh empty state and return it.
    * @returns {Object}
    */
   load() {

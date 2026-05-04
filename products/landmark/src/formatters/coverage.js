@@ -4,6 +4,7 @@
 
 import { padRight, renderHeader } from "./shared.js";
 
+/** Render coverage metrics as indented plain text with per-type breakdowns. */
 export function toText(view) {
   const lines = [
     renderHeader(`Evidence coverage for ${view.name} (${view.email})`),
@@ -33,10 +34,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the coverage view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render coverage metrics as a markdown table with per-type rows. */
 export function toMarkdown(view) {
   const pct = (view.coverage.ratio * 100).toFixed(1);
   const lines = [

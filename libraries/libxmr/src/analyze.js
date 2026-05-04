@@ -15,6 +15,7 @@ import { round1, round2 } from "./format.js";
 //   - stats: full-precision numeric stats (consumers round at display time)
 //   - signals: keyed-by-rule signal records
 //   - values, dates: ordered series for chart rendering
+/** Group rows by metric, compute XmR statistics and signals, and classify each metric's process behavior. */
 export function analyze(csvText) {
   const rows = parseCSV(csvText);
 
@@ -75,6 +76,7 @@ export function analyze(csvText) {
 // Round a stats object to display precision. Consumers that need exact
 // values (e.g. the chart renderer) keep the raw stats; consumers that
 // emit values to humans or JSON call this.
+/** Round a stats object to display precision for human-facing output. */
 export function roundStats(stats) {
   return {
     mu: round1(stats.mu),

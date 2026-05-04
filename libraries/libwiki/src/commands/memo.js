@@ -46,6 +46,7 @@ function writeBroadcast({ agentsDir, wikiRoot, sender, message, today }) {
   }
 }
 
+/** Write a memo to a target agent's summary file (or broadcast to all except the sender); sender is --from or LIBEVAL_AGENT_PROFILE env var. */
 export function runMemoCommand(values, _args, cli) {
   const sender = values.from || process.env.LIBEVAL_AGENT_PROFILE;
 

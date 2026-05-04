@@ -4,15 +4,18 @@
 
 import { renderHeader } from "./shared.js";
 
+/** Render voice comments as plain text, dispatching to email or manager format. */
 export function toText(view) {
   if (view.mode === "email") return emailToText(view);
   return managerToText(view);
 }
 
+/** Serialize the voice view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render voice comments as markdown, dispatching to email or manager format. */
 export function toMarkdown(view) {
   if (view.mode === "email") return emailToMarkdown(view);
   return managerToMarkdown(view);

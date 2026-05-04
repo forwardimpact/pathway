@@ -84,7 +84,7 @@ export function formatTable(headers, rows, options = {}, proc = process) {
 }
 
 /**
- * Format an error message
+ * Prefix the message with "Error: " and colorize red.
  * @param {string} message
  * @param {object} proc
  * @returns {string}
@@ -104,7 +104,7 @@ export function formatSuccess(message, proc = process) {
 }
 
 /**
- * Format a warning message
+ * Prefix the message with "Warning: " and colorize yellow.
  * @param {string} message
  * @param {object} proc
  * @returns {string}

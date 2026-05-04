@@ -18,6 +18,7 @@ import { join, resolve } from "node:path";
 import { homedir } from "node:os";
 import { computeNextWakeAt } from "./scheduler.js";
 
+/** Unix-socket IPC server that handles status queries, wake requests, and shutdown commands. */
 export class SocketServer {
   #socketPath;
   #agentRunner;
@@ -230,7 +231,7 @@ export class SocketServer {
   }
 
   /**
-   * Start the socket server
+   * Remove any existing socket file, bind the server, and register SIGTERM/SIGINT handlers to kill active children before exit.
    * @returns {import('node:net').Server}
    */
   start() {

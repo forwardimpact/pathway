@@ -30,6 +30,7 @@ const X_RULE_3_HITS = 3;
 // pattern fires, ALL participating slots are listed in the `slots` array —
 // the visual gestalt of the run carries the diagnostic information, so
 // flagging only the trigger would hide the pattern.
+/** Detect all Wheeler signal rules on the X chart and Rule 1 on the mR chart. */
 export function detectSignals(values, mrs, stats) {
   return {
     xRule1: detectXRule1(values, stats),
@@ -172,6 +173,7 @@ function detectMRRule1(mrs, { URL }) {
 // Build a per-slot signal mask (1-indexed) covering every participating slot
 // across all four rules. Used by the chart renderer to choose between `·`
 // and `●` glyphs.
+/** Build a boolean array (1-indexed) marking slots that participate in any X-chart signal. */
 export function buildSignalMask(signals, n) {
   const mask = new Array(n + 1).fill(false);
   for (const rule of [signals.xRule1, signals.xRule2, signals.xRule3]) {
@@ -183,6 +185,7 @@ export function buildSignalMask(signals, n) {
 }
 
 // Same idea, but for the mR chart (only mR-Rule 1 participates).
+/** Build a boolean array (1-indexed) marking slots that participate in mR Rule 1 signals. */
 export function buildMRSignalMask(signals, n) {
   const mask = new Array(n + 1).fill(false);
   for (const sig of signals.mrRule1) {
@@ -193,6 +196,7 @@ export function buildMRSignalMask(signals, n) {
 
 // Does any rule fire at all? Used by the analyze orchestrator and the
 // classifier to avoid recomputing the same boolean.
+/** Return true if any detection rule (X or mR) fired at least once. */
 export function hasAnySignal(signals) {
   return (
     signals.xRule1.length > 0 ||
@@ -205,6 +209,7 @@ export function hasAnySignal(signals) {
 // Does any X-chart rule fire? Distinct from `hasAnySignal` because mR Rule
 // 1 alone routes to a different classification (`chaos`) than X-chart
 // signals (`signals`).
+/** Return true if any X-chart rule (Rule 1, 2, or 3) fired, excluding mR Rule 1. */
 export function anyXSignals(signals) {
   return (
     signals.xRule1.length > 0 ||

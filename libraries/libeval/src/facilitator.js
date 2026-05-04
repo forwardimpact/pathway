@@ -36,6 +36,7 @@ export const FACILITATED_AGENT_SYSTEM_PROMPT =
   "Announce broadcasts a message. " +
   "RollCall lists participants.";
 
+/** Orchestrate N agent sessions coordinated by a single facilitator LLM session. */
 export class Facilitator {
   /**
    * @param {object} deps
@@ -296,6 +297,7 @@ export class Facilitator {
     }
   }
 
+  /** Return the last assistant text block from a runner's buffer, or the fallback if none exists. */
   extractLastText(runner, fallback) {
     const lines = runner.buffer;
     for (let i = lines.length - 1; i >= 0; i--) {

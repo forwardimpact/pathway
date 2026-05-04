@@ -3,6 +3,7 @@ import { EXPECTED_HEADER, ISO_DATE_RE } from "./constants.js";
 // Parse one CSV line into a row object. Quote-aware but does NOT support
 // the `""` escape inside quoted fields — Kata-metrics CSVs use the `note`
 // field for free text and the schema does not require embedded quotes.
+/** Parse a single CSV line into a row object with date, metric, value, unit, run, and note fields. */
 export function parseLine(line) {
   const fields = [];
   let current = "";
@@ -31,6 +32,7 @@ export function parseLine(line) {
   };
 }
 
+/** Parse a full CSV text (with header) into an array of row objects, skipping the header line. */
 export function parseCSV(text) {
   const lines = text.trim().split("\n");
   if (lines.length < 2) return [];
@@ -41,6 +43,7 @@ export function parseCSV(text) {
   });
 }
 
+/** Validate CSV text against the expected header and field constraints, returning errors by line. */
 export function validateCSV(text) {
   const errors = [];
 
@@ -96,6 +99,7 @@ function validateRow(row, lineNumber, errors) {
   }
 }
 
+/** List distinct metrics in a CSV with their unit, point count, and date range. */
 export function listMetrics(csvText) {
   const rows = parseCSV(csvText);
 

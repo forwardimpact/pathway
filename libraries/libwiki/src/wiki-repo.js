@@ -3,7 +3,9 @@ import { spawnSync } from "node:child_process";
 const CREDENTIAL_HELPER_BODY =
   '!f() { echo username=x-access-token; echo "password=${GH_TOKEN:-$GITHUB_TOKEN}"; }; f';
 
+/** Error thrown when a wiki pull encounters a rebase conflict that cannot be resolved automatically. */
 export class WikiPullConflict extends Error {
+  /** Create a WikiPullConflict with the stderr output from the failed rebase. */
   constructor(stderr) {
     super("rebase conflict on pull");
     this.name = "WikiPullConflict";
@@ -11,6 +13,7 @@ export class WikiPullConflict extends Error {
   }
 }
 
+/** Prepend credential-helper config arguments to a git command when a token is available. */
 export function buildAuthArgs(args, token) {
   if (token) {
     return [
@@ -24,15 +27,18 @@ export function buildAuthArgs(args, token) {
   return [...args];
 }
 
+/** Git operations wrapper for the GitHub wiki repository used as agent team memory. */
 export class WikiRepo {
   #wikiDir;
   #parentDir;
 
+  /** Create a WikiRepo targeting the given wiki directory and its parent project directory. */
   constructor({ wikiDir, parentDir }) {
     this.#wikiDir = wikiDir;
     this.#parentDir = parentDir;
   }
 
+  /** Check whether the wiki directory is an initialized git repository. */
   isCloned() {
     const r = spawnSync(
       "git",
@@ -44,6 +50,7 @@ export class WikiRepo {
     return r.status === 0;
   }
 
+  /** Clone the wiki from the given URL if it is not already cloned. */
   ensureCloned(url) {
     if (this.isCloned()) return { cloned: true, reason: "already-cloned" };
     const r = this.#authGit(["clone", url, this.#wikiDir]);
@@ -56,6 +63,7 @@ export class WikiRepo {
     return { cloned: true, reason: "cloned" };
   }
 
+  /** Copy git user.name and user.email from the parent repository into the wiki repository. */
   inheritIdentity() {
     const name = this.#parentConfig("user.name");
     const email = this.#parentConfig("user.email");
@@ -63,15 +71,18 @@ export class WikiRepo {
     if (email) this.#git(["config", "user.email", email]);
   }
 
+  /** Fetch the latest master branch from the wiki remote using token auth if available. */
   fetch() {
     this.#authGit(["-C", this.#wikiDir, "fetch", "origin", "master"]);
   }
 
+  /** Return true if the wiki working tree has no uncommitted changes. */
   isClean() {
     const r = this.#git(["status", "--porcelain"]);
     return r.stdout.toString().trim() === "";
   }
 
+  /** Fetch and rebase on origin/master, throwing WikiPullConflict if the rebase fails. */
   pull() {
     this.fetch();
     const r = this.#git(["rebase", "origin/master"]);
@@ -81,6 +92,7 @@ export class WikiRepo {
     }
   }
 
+  /** Stage all changes, commit with the given message, fetch, rebase on origin/master (falling back to a merge with -X ours if rebase fails), and push. */
   commitAndPush(message) {
     if (this.isClean()) return { pushed: false, reason: "clean" };
     this.#git(["add", "-A"]);

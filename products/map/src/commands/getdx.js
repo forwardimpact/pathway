@@ -7,6 +7,7 @@ import {
   formatSuccess,
 } from "@forwardimpact/libcli";
 
+/** Fetch GetDX teams, snapshots, and scores from the API and transform them into the activity database. */
 export async function sync(supabase, { baseUrl } = {}) {
   const apiToken = process.env.GETDX_API_TOKEN;
   if (!apiToken) {

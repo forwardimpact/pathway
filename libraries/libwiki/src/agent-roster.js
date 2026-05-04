@@ -2,6 +2,7 @@ import { readdirSync, statSync } from "node:fs";
 import path from "node:path";
 import { BROADCAST_TARGET } from "./constants.js";
 
+/** List all agent markdown files in the agents directory, returning agent names and summary paths. */
 export function listAgents(
   { agentsDir, wikiRoot },
   fs = { readdirSync, statSync },

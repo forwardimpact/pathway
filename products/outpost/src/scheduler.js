@@ -145,6 +145,7 @@ export function failAgent(agentState, error) {
 
 // --- Scheduler class ---------------------------------------------------------
 
+/** Orchestrate periodic agent wakes by evaluating schedules and delegating to AgentRunner. */
 export class Scheduler {
   #loadConfig;
   #stateManager;
@@ -169,7 +170,7 @@ export class Scheduler {
   }
 
   /**
-   * Check and wake any due agents
+   * Reset any agents exceeding max runtime, reload config, then wake each agent whose schedule is due.
    */
   async wakeDueAgents() {
     const config = this.#loadConfig();

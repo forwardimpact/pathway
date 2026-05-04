@@ -30,6 +30,7 @@ const THEME_KEYWORDS = [
   "tooling",
 ];
 
+/** Surface engineer voice from GetDX snapshot comments, dispatching to email-scoped or manager-scoped mode. */
 export async function runVoiceCommand({
   options,
   supabase,

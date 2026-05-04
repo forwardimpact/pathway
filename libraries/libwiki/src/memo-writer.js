@@ -1,6 +1,7 @@
 import { readFileSync, writeFileSync } from "node:fs";
 import { MEMO_INBOX_MARKER } from "./constants.js";
 
+/** Append a timestamped memo bullet below the inbox marker in an agent's summary file. */
 export function writeMemo(
   { summaryPath, sender, message, today },
   fs = { readFileSync, writeFileSync },

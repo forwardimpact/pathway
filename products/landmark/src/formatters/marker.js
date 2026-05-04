@@ -12,6 +12,7 @@ const PROFICIENCY_ORDER = [
   "expert",
 ];
 
+/** Render skill markers as indented plain text grouped by proficiency level. */
 export function toText(view) {
   const lines = [renderHeader(`Markers for ${view.name} (${view.skill})`), ""];
 
@@ -38,10 +39,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the marker view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render skill markers as markdown with proficiency-level headings and human/agent sections. */
 export function toMarkdown(view) {
   const lines = [`# Markers for ${view.name} (${view.skill})`, ""];
 

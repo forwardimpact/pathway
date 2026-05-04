@@ -62,6 +62,7 @@ function groupBySourceAndLevel(questions) {
   return bySource;
 }
 
+/** Serialize filtered interview questions into a YAML document grouped by source and level. */
 export function questionsToYaml(view, _options = {}) {
   const { filter, questions } = view;
 

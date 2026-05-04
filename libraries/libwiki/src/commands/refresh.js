@@ -12,6 +12,7 @@ function currentStoryboardPath() {
   return `wiki/storyboard-${yyyy}-M${mm}.md`;
 }
 
+/** Re-render all XmR chart blocks in a storyboard file by scanning markers and splicing updated content. */
 export function runRefreshCommand(values, args, cli) {
   const logger = { debug() {} };
   const finder = new Finder(fsAsync, logger, process);

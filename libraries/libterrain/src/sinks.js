@@ -25,12 +25,15 @@ const ZERO_STATS = {
   loadErrorMessages: [],
 };
 
+/** No-op sink that discards pipeline output and returns zero stats. */
 export class NullSink {
+  /** Ignore the result and return an empty stats object. */
   async accept(_result) {
     return { ...ZERO_STATS };
   }
 }
 
+/** Sink that formats pipeline output with Prettier and writes files to disk under the monorepo root. */
 export class WriteSink {
   /**
    * @param {{ monorepoRoot: string, prettierFn: Function, logger: object }} options
@@ -44,6 +47,7 @@ export class WriteSink {
     this.logger = logger;
   }
 
+  /** Format and write generated files, raw documents, and evidence to disk. */
   async accept(result) {
     const formattedFiles = await this.formatter.format(result.files);
     const formattedRaw = await this.formatter.format(result.rawDocuments);
@@ -98,6 +102,7 @@ export class LoadSink {
     this.logger = logger;
   }
 
+  /** Format raw documents and upload them to Supabase Storage. */
   async accept(result) {
     if (result.rawDocuments.size === 0) {
       return { ...ZERO_STATS };
@@ -120,6 +125,7 @@ export class LoadSink {
  * sink that owns both responsibilities.
  */
 export class CompositeSink {
+  /** Store the ordered array of child sinks to delegate to. */
   constructor(sinks) {
     if (!Array.isArray(sinks) || sinks.length === 0) {
       throw new Error("CompositeSink requires a non-empty sinks array");
@@ -127,6 +133,7 @@ export class CompositeSink {
     this.sinks = sinks;
   }
 
+  /** Run each child sink in declared order and merge their stats into one result. */
   async accept(result) {
     const merged = { ...ZERO_STATS, loadErrorMessages: [] };
     for (const sink of this.sinks) {
@@ -149,10 +156,12 @@ export class CompositeSink {
  * formats it for stdout.
  */
 export class InspectSink {
+  /** Store the stdout stream used for inspect output. */
   constructor({ stdout = process.stdout } = {}) {
     this.stdout = stdout;
   }
 
+  /** Serialize the terminal stage's output as JSON and write it to stdout. */
   async accept(result) {
     const payload = serializeForInspect(result.output);
     this.stdout.write(`# stage: ${result.stage}\n`);
@@ -171,10 +180,13 @@ function replacer(_key, value) {
   return value;
 }
 
+/** No-op prose cache sink that skips persistence. */
 export class NullProseCacheSink {
+  /** Do nothing — cache entries are intentionally discarded. */
   flush() {}
 }
 
+/** Prose cache sink that persists generated cache entries to disk when flushed. */
 export class ProseCacheWriteSink {
   /**
    * @param {{ cache: import('@forwardimpact/libsyntheticprose').ProseCache }} options
@@ -184,6 +196,7 @@ export class ProseCacheWriteSink {
     this.cache = cache;
   }
 
+  /** Write all accumulated prose cache entries to the cache file on disk. */
   flush() {
     this.cache.save();
   }

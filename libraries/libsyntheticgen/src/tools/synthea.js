@@ -4,6 +4,7 @@
 
 import { join } from "path";
 
+/** Generate synthetic FHIR R4 patient data by running the Synthea JAR via a Java subprocess. */
 export class SyntheaTool {
   /**
    * @param {object} deps

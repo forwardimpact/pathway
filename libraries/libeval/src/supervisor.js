@@ -4,8 +4,9 @@
  * introduces itself, and delegates work to the agent. The loop then alternates:
  * agent → supervisor → agent.
  *
- * Signaling uses orchestration tools (Ask / Answer / Announce / Redirect /
- * Conclude) via in-process MCP servers. The Ask/Answer contract is enforced
+ * Signaling uses orchestration tools (Ask / Announce / Redirect / Conclude)
+ * via in-process MCP servers; the supervisor has no Answer tool — agent replies
+ * are routed back through the relay loop. The Ask/Answer contract is enforced
  * at turn boundaries: an unanswered Ask triggers one synthetic reminder and
  * then a `protocol_violation` trace event plus a null-answer injection so the
  * session advances without silent deadlock.
@@ -52,6 +53,7 @@ export const AGENT_SYSTEM_PROMPT =
  */
 const MAX_INTERVENTIONS_PER_TURN = 5;
 
+/** Orchestrate a relay loop between a supervisor LLM and an agent LLM with mid-turn review. */
 export class Supervisor {
   /**
    * @param {object} deps

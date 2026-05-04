@@ -3,6 +3,7 @@ import fsAsync from "node:fs/promises";
 import { Finder } from "@forwardimpact/libutil";
 import { WikiRepo, WikiPullConflict } from "../wiki-repo.js";
 
+/** Commit all wiki changes and push them to the remote wiki repository. */
 export function runPushCommand(values, _args, cli) {
   const logger = { debug() {} };
   const finder = new Finder(fsAsync, logger, process);
@@ -20,6 +21,7 @@ export function runPushCommand(values, _args, cli) {
   }
 }
 
+/** Fetch and rebase the local wiki on origin/master; on rebase conflict, exit the process with code 1 and a message to resolve manually or push first. */
 export function runPullCommand(values, _args, cli) {
   const logger = { debug() {} };
   const finder = new Finder(fsAsync, logger, process);

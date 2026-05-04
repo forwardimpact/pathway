@@ -10,6 +10,7 @@ import { analyze, roundStats } from "../analyze.js";
 import { renderChart } from "../chart.js";
 import { fmt1, round1 } from "../format.js";
 
+/** Read a CSV, optionally filter to a single metric, and print a full report (chart + stats table + signals) in text mode or a stamped JSON object with source path and generation date. */
 export function runAnalyzeCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {
@@ -46,6 +47,7 @@ function jsonReport(report) {
   };
 }
 
+/** Convert an analyzed metric to a JSON-safe object with rounded stats and without raw series data. */
 export function toJsonMetric(m) {
   const out = {
     metric: m.metric,

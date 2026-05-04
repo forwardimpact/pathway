@@ -11,6 +11,7 @@ import { highestLevelPerSkillPerQuarter } from "../lib/evidence-helpers.js";
 
 export const needsSupabase = true;
 
+/** Query evidence for a person and aggregate the highest proficiency level per skill per quarter. */
 export async function runTimelineCommand({
   options,
   supabase,

@@ -6,7 +6,9 @@
  * the same factory for evidence and outcomes decorators.
  */
 
+/** Signals that the Supabase connection could not be established due to missing credentials or configuration. */
 export class SupabaseUnavailableError extends Error {
+  /** Create a SupabaseUnavailableError with the underlying failure reason. */
   constructor(reason) {
     super(`Supabase connection unavailable: ${reason}`);
     this.code = "SUMMIT_SUPABASE_UNAVAILABLE";

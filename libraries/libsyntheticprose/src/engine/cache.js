@@ -16,6 +16,7 @@ import { readFileSync, writeFileSync, existsSync } from "fs";
 const SCHEMA_VERSION = 1;
 const SCHEMA_FIELD = "_schema";
 
+/** Synchronous prose cache backed by a versioned JSON file on disk. */
 export class ProseCache {
   /**
    * @param {object} options
@@ -70,6 +71,7 @@ export class ProseCache {
     this.dirty = true;
   }
 
+  /** Write dirty cache entries to disk as deterministically-sorted JSON. */
   save() {
     if (!this.dirty) return;
     const payload = { [SCHEMA_FIELD]: SCHEMA_VERSION };

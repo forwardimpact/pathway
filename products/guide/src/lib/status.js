@@ -127,8 +127,8 @@ async function loadConfigs(createServiceConfig) {
 }
 
 /**
- * Runs health checks against all services in parallel.
- * @returns {Promise<object>} Map of service name to {url, status}
+ * Run health checks for all gRPC and HTTP services concurrently via Promise.allSettled.
+ * @returns {Promise<object>} Map of service name to {url, status}; url is "unknown" for gRPC services that have no .url field in their config
  */
 async function checkAllServices(
   grpcMod,
@@ -171,7 +171,7 @@ async function checkAllServices(
 }
 
 /**
- * Checks Anthropic credential availability.
+ * Check whether an Anthropic API key is resolvable via the config, returning "configured" or "missing".
  * @param {object} config - Any loaded config (has anthropicToken method)
  * @returns {Promise<string>} "configured" or "missing"
  */

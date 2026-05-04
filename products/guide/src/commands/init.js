@@ -9,6 +9,7 @@ import {
   formatBullet,
 } from "@forwardimpact/libcli";
 
+/** Bootstrap a Guide project by generating secrets, writing default service URLs to .env, and copying starter configuration. */
 export async function runInitCommand() {
   const serviceSecret = generateSecret();
   const mcpToken = generateSecret();

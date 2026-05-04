@@ -8,6 +8,7 @@
 
 import { createClient } from "@supabase/supabase-js";
 
+/** Create a Supabase client configured for the activity schema using env vars or explicit options. */
 export function createMapClient(opts = {}) {
   const url = opts.url ?? process.env.MAP_SUPABASE_URL;
   const serviceRoleKey =

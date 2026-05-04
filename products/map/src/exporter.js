@@ -7,6 +7,7 @@
 import { join } from "node:path";
 import { aggregateTools, slugifyToolName } from "./view-builders/tool.js";
 
+/** Writes HTML microdata files for each base entity into the pathway output directory. */
 export class Exporter {
   #fs;
   #renderer;

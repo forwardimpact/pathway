@@ -17,6 +17,7 @@ function deriveWikiUrl(parentDir) {
   return base + ".wiki.git";
 }
 
+/** Clone the wiki if not already present (URL derived from origin remote), copy git identity from the parent repo, and create metric directories for each kata skill. */
 export function runInitCommand(values, _args, cli) {
   const logger = { debug() {} };
   const finder = new Finder(fsAsync, logger, process);

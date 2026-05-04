@@ -19,6 +19,7 @@ const summary = new SummaryRenderer({ process });
 
 const supabaseCli = createSupabaseCli();
 
+/** Start the local Supabase instance and print connection environment variables. */
 export async function start() {
   await supabaseCli.run(["start"]);
   const json = await supabaseCli.capture(["status", "--output", "json"]);
@@ -35,16 +36,19 @@ export async function start() {
   return 0;
 }
 
+/** Stop the local Supabase instance. */
 export async function stop() {
   await supabaseCli.run(["stop"]);
   return 0;
 }
 
+/** Print the current status of the local Supabase instance. */
 export async function status() {
   await supabaseCli.run(["status"]);
   return 0;
 }
 
+/** Reset the local Supabase database by re-applying all migrations. */
 export async function migrate() {
   await supabaseCli.run(["db", "reset"]);
   return 0;
@@ -93,6 +97,7 @@ async function transformAllTargets(supabase) {
   return totalErrors === 0 ? 0 : 1;
 }
 
+/** Run the named transform target (or all targets) against raw activity data. */
 export async function transform(target, supabase) {
   if (target === "all" || target === undefined) {
     return transformAllTargets(supabase);
@@ -117,6 +122,7 @@ async function countRows(supabase, table) {
   return count ?? 0;
 }
 
+/** Report per-table row counts for all activity tables and exit non-zero if the people roster or all derived-data tables (getdx_snapshots, github_events) are empty. */
 export async function verify(supabase) {
   const people = await getOrganization(supabase);
   const snapshotCount = await countRows(supabase, "getdx_snapshots");

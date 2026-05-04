@@ -153,6 +153,7 @@ function buildJobDescParams(view, options) {
   };
 }
 
+/** Build a complete job detail page DOM tree from a prepared view and display options. */
 export function jobToDOM(view, options = {}) {
   const opts = { ...JOB_DOM_DEFAULTS, ...options };
   const descParams = buildJobDescParams(view, opts);

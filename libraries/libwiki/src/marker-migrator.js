@@ -2,6 +2,7 @@ import { readFileSync, writeFileSync } from "node:fs";
 import { MEMO_INBOX_MARKER, INBOX_HEADING } from "./constants.js";
 import { listAgents } from "./agent-roster.js";
 
+/** Insert memo:inbox markers into agent summary files that have an inbox heading but no marker yet. */
 export function insertMarkers(
   { agentsDir, wikiRoot },
   fs = { readFileSync, writeFileSync },

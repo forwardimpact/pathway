@@ -18,6 +18,7 @@ import {
 
 export const needsSupabase = true;
 
+/** Query marker-linked evidence rows, group them by skill, and optionally include coverage metrics. */
 export async function runEvidenceCommand({
   options,
   supabase,

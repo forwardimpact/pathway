@@ -3,6 +3,7 @@ import { existsSync, readFileSync } from "node:fs";
 import { analyze, roundStats } from "../analyze.js";
 import { round1 } from "../format.js";
 
+/** Run the summarize command: analyze a CSV and output a condensed summary as markdown or JSON. */
 export function runSummarizeCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {
@@ -34,6 +35,7 @@ export function runSummarizeCommand(values, args, cli) {
 // Same `{source, generated, metrics: [...]}` shape as analyze, with each
 // metric stripped down to summary-relevant fields. Consumers parsing
 // either command get a consistent schema.
+/** Build a JSON-serializable summary report with rounded stats and compact signal data. */
 export function jsonReport(report) {
   return {
     source: report.source,
@@ -56,6 +58,7 @@ export function jsonReport(report) {
   };
 }
 
+/** Render an XmR analysis report as a markdown table with classification and signal counts. */
 export function renderMarkdown(report) {
   const sufficient = report.metrics.filter(
     (m) => m.classification !== "insufficient",

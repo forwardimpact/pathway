@@ -4,6 +4,7 @@ import { analyze } from "../analyze.js";
 import { renderChart } from "../chart.js";
 import { MIN_POINTS } from "../constants.js";
 
+/** Run the chart command: read a CSV, select a metric, and print its XmR control chart to stdout. */
 export function runChartCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {

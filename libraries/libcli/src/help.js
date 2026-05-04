@@ -1,9 +1,11 @@
 import { supportsColor } from "./color.js";
 import { formatHeader, formatSubheader } from "./format.js";
 
+/** Render CLI help output as formatted text or JSON from a CLI definition. */
 export class HelpRenderer {
   #proc;
 
+  /** Store the process handle for stdout access and color detection. */
   constructor({ process }) {
     this.#proc = process;
   }
@@ -145,6 +147,7 @@ export class HelpRenderer {
     stream.write(lines.join("\n"));
   }
 
+  /** Render human-readable help text for the full CLI or a single command to the given stream. */
   render(definition, stream, command) {
     const out = stream || this.#proc.stdout;
     if (command) {
@@ -163,6 +166,7 @@ export class HelpRenderer {
     out.write(lines.join("\n"));
   }
 
+  /** Render the CLI definition or a single command as pretty-printed JSON to the given stream. */
   renderJson(definition, stream, command) {
     const out = stream || this.#proc.stdout;
     if (command) {

@@ -9,6 +9,7 @@
 
 import { PROFICIENCY_LEVELS } from "@forwardimpact/libsyntheticgen/vocabulary.js";
 
+/** Validate that all webhook entities include delivery_id, event_type, and payload sender/repository fields. */
 export function checkWebhookPayloadSchemas(entities) {
   const webhooks = entities.activity?.webhooks || [];
   const invalid = webhooks.filter(
@@ -28,6 +29,7 @@ export function checkWebhookPayloadSchemas(entities) {
   };
 }
 
+/** Verify that all webhook delivery IDs are unique across the activity dataset. */
 export function checkWebhookDeliveryIds(entities) {
   const webhooks = entities.activity?.webhooks || [];
   const ids = webhooks.map((w) => w.delivery_id);
@@ -42,6 +44,7 @@ export function checkWebhookDeliveryIds(entities) {
   };
 }
 
+/** Verify that every webhook sender login matches a known person in the people roster. */
 export function checkWebhookSenderUsernames(entities) {
   const webhooks = entities.activity?.webhooks || [];
   const knownUsernames = new Set(entities.people.map((p) => p.github));
@@ -59,6 +62,7 @@ export function checkWebhookSenderUsernames(entities) {
   };
 }
 
+/** Validate that GetDX team entries exist and each has a getdx_team_id and name. */
 export function checkGetDXTeamsResponse(entities) {
   const teams = entities.activity?.activityTeams || [];
   const hasRequired = teams.every((t) => t.getdx_team_id && t.name);
@@ -72,6 +76,7 @@ export function checkGetDXTeamsResponse(entities) {
   };
 }
 
+/** Validate that each GetDX snapshot has a snapshot_id, scheduled_for, and completed_at timestamp. */
 export function checkGetDXSnapshotsListResponse(entities) {
   const snapshots = entities.activity?.snapshots || [];
   const hasRequired = snapshots.every(
@@ -87,6 +92,7 @@ export function checkGetDXSnapshotsListResponse(entities) {
   };
 }
 
+/** Validate that each snapshot score has a snapshot_id, getdx_team_id, item_id, and numeric score. */
 export function checkGetDXSnapshotsInfoResponses(entities) {
   const scores = entities.activity?.scores || [];
   const hasRequired = scores.every(
@@ -106,6 +112,7 @@ export function checkGetDXSnapshotsInfoResponses(entities) {
   };
 }
 
+/** Verify that every score's item_id references a valid driver defined in the engineering standard. */
 export function checkSnapshotScoreDriverIds(entities) {
   const scores = entities.activity?.scores || [];
   const validDrivers = new Set(
@@ -122,6 +129,7 @@ export function checkSnapshotScoreDriverIds(entities) {
   };
 }
 
+/** Verify that all snapshot scores fall within the valid 0-100 range. */
 export function checkScoreTrajectories(entities) {
   const scores = entities.activity?.scores || [];
   const outOfRange = scores.filter((s) => s.score < 0 || s.score > 100);
@@ -135,6 +143,7 @@ export function checkScoreTrajectories(entities) {
   };
 }
 
+/** Verify that every evidence entry's proficiency level is one of the allowed PROFICIENCY_LEVELS values. */
 export function checkEvidenceProficiency(entities) {
   const evidence = entities.activity?.evidence || [];
   const VALID_PROFICIENCIES = new Set(PROFICIENCY_LEVELS);
@@ -151,6 +160,7 @@ export function checkEvidenceProficiency(entities) {
   };
 }
 
+/** Verify that every evidence entry has a skill_id linking it to a specific skill. */
 export function checkEvidenceSkillIds(entities) {
   const evidence = entities.activity?.evidence || [];
   const hasIds = evidence.every((e) => e.skill_id);
@@ -164,6 +174,7 @@ export function checkEvidenceSkillIds(entities) {
   };
 }
 
+/** Verify that every initiative's scorecard_id references a scorecard that exists in the dataset. */
 export function checkInitiativeScorecardRefs(entities) {
   const initiatives = entities.activity?.initiatives || [];
   const scorecardIds = new Set(
@@ -182,6 +193,7 @@ export function checkInitiativeScorecardRefs(entities) {
   };
 }
 
+/** Verify that every initiative owner's email matches a known person in the people roster. */
 export function checkInitiativeOwnerEmails(entities) {
   const initiatives = entities.activity?.initiatives || [];
   const emails = new Set(entities.people.map((p) => p.email));
@@ -198,6 +210,7 @@ export function checkInitiativeOwnerEmails(entities) {
   };
 }
 
+/** Verify that every initiative's _driver_id references a valid driver in the engineering standard. */
 export function checkInitiativeDriverRefs(entities) {
   const initiatives = entities.activity?.initiatives || [];
   const driverIds = new Set(
@@ -216,6 +229,7 @@ export function checkInitiativeDriverRefs(entities) {
   };
 }
 
+/** Verify that every comment's snapshot_id references a snapshot that exists in the dataset. */
 export function checkCommentSnapshotRefs(entities) {
   const comments = entities.activity?.commentKeys || [];
   const snapshotIds = new Set(
@@ -234,6 +248,7 @@ export function checkCommentSnapshotRefs(entities) {
   };
 }
 
+/** Verify that every comment respondent's email matches a known person in the people roster. */
 export function checkCommentEmailRefs(entities) {
   const comments = entities.activity?.commentKeys || [];
   const emails = new Set(entities.people.map((p) => p.email));
@@ -248,6 +263,7 @@ export function checkCommentEmailRefs(entities) {
   };
 }
 
+/** Verify that every comment's team_id references a team that exists in the dataset. */
 export function checkCommentTeamRefs(entities) {
   const comments = entities.activity?.commentKeys || [];
   const teamIds = new Set(entities.teams.map((t) => t.id));
@@ -262,6 +278,7 @@ export function checkCommentTeamRefs(entities) {
   };
 }
 
+/** Verify that all scorecard check IDs are unique across every scorecard in the dataset. */
 export function checkScorecardCheckIds(entities) {
   const scorecards = entities.activity?.scorecards || [];
   const allCheckIds = scorecards.flatMap((s) =>
@@ -278,6 +295,7 @@ export function checkScorecardCheckIds(entities) {
   };
 }
 
+/** Verify that every roster snapshot's snapshot_id references an existing survey snapshot. */
 export function checkRosterSnapshotQuarters(entities) {
   const rosterSnapshots = entities.activity?.rosterSnapshots || [];
   const snapshotIds = new Set(
@@ -296,6 +314,7 @@ export function checkRosterSnapshotQuarters(entities) {
   };
 }
 
+/** Verify that every project team member's email matches a known person in the people roster. */
 export function checkProjectTeamEmails(entities) {
   const projectTeams = entities.activity?.projectTeams || [];
   const emails = new Set(entities.people.map((p) => p.email));

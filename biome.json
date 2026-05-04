@@ -42,6 +42,12 @@
         "noUselessCatch": "error",
         "noUselessEscapeInRegex": "error"
       },
+      "nursery": {
+        "noExcessiveLinesPerFile": {
+          "level": "error",
+          "options": { "maxLines": 530, "skipBlankLines": true }
+        }
+      },
       "correctness": {
         "noConstAssign": "error",
         "noConstantCondition": "error",
@@ -97,12 +103,6 @@
         "noUselessRegexBackrefs": "error",
         "noWith": "error",
         "useGetterReturn": "error"
-      },
-      "nursery": {
-        "noExcessiveLinesPerFile": {
-          "level": "error",
-          "options": { "maxLines": 600 }
-        }
       }
     }
   },

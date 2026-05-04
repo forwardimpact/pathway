@@ -5,6 +5,7 @@
  * - `formatMessages`    — render a drained message batch as tagged lines.
  */
 
+/** Create a promise-based async queue for serializing event delivery to the facilitator loop. */
 export function createAsyncQueue() {
   const items = [];
   let waiter = null;

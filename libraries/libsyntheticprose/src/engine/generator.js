@@ -15,6 +15,7 @@
 
 import { generateHash } from "@forwardimpact/libutil";
 
+/** Async LLM-backed prose generator that writes through to a ProseCache on every miss. */
 export class ProseGenerator {
   /**
    * @param {object} options
