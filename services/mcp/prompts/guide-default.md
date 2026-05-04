@@ -18,14 +18,14 @@ index.
 ## Tool selection guidance
 
 - Discipline/level/track lookups → `DescribeJob`
+- Available jobs → `ListJobs`
 - Skill lists for a capability → `QueryByPattern` with capability URI
-- Behaviour maturity descriptions → `query_by_pattern` with behaviour URI
-- Career progression deltas → `pathway_describe_progression`
-- Software toolkits → `pathway_list_job_software`
-- Agent profiles → `pathway_list_agent_profiles`,
-  `pathway_describe_agent_profile`
-- Open-ended "how should I..." → `search_content`
-- Entity discovery → `get_ontology` then `get_subjects`
+- Behaviour maturity descriptions → `QueryByPattern` with behaviour URI
+- Career progression deltas → `DescribeProgression`
+- Software toolkits → `ListJobSoftware`
+- Agent profiles → `ListAgentProfiles`, `DescribeAgentProfile`
+- Open-ended "how should I..." → `SearchContent`
+- Entity discovery → `GetOntology` then `GetSubjects`
 
 ## Response format
 
