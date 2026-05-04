@@ -13,21 +13,17 @@ WHICH/WHERE. This document captures HOW and WHEN.
 
 Land the rendering change in three layers: the CLI binary gains a per-command
 `verbose` boolean and copies it onto `result.meta` before formatting; the
-shared `formatters/health.js` gains two private helpers (`dedupeRecommendations`
-and `renderScoreCells`) plus default-mode renderers for text and markdown; the
-existing paragraph layout is reframed as the verbose path and consumes the same
-`DedupedRec[]` so deduplication ships in both modes (success criterion 4). The
-view shape produced by `runHealthCommand` is unchanged; the formatter signature
-is the only behavioural extension. Tests for the formatter live in a new
-`health-formatter.test.js` (the existing `health.test.js` covers the command
-only) and feed the formatter a 6-driver synthetic `HealthView` so the ≤50-line
-budget is asserted on the spec's stated row count. Doc updates land last so
-they reference the shipped output verbatim.
+shared `formatters/health.js` gains two private helpers
+(`dedupeRecommendations` and `renderScoreCells`) plus default-mode renderers;
+the existing paragraph layout is reframed as the verbose path and consumes the
+same `DedupedRec[]` (built once per call) so a `(candidate, skill)` pair shows
+on the first driver only in both modes (success criterion 4). View shape and
+JSON output are unchanged. Tests live in a new `health-formatter.test.js`
+against an inline 6-driver synthetic view so the ≤50-line budget is asserted
+directly. Doc updates land last so sample blocks copy verbatim from the
+running CLI.
 
-## Libraries used
-
-`Libraries used: none.` Boolean parsing is libcli's existing `parseArgs` lane;
-`padRight` already lives in `formatters/shared.js`.
+`Libraries used: none.`
 
 ## Step 1 — Add `verbose` per-command option to the CLI definition
 
@@ -72,8 +68,7 @@ a CLI-binary concern, not a command concern.
 - modified: `products/landmark/bin/fit-landmark.js`
 
 **Changes.** Between the existing `entry.handler({...})` await and the
-`formatResult(command, result)` call (around `bin/fit-landmark.js:236-244`),
-mutate the meta block:
+`formatResult(command, result)` call in `main()`, mutate the meta block:
 
 ```js
 const result = await entry.handler({ ... });
@@ -84,10 +79,6 @@ if (result.meta) {
 
 const output = formatResult(command, result);
 ```
-
-The `result.meta` guard preserves the binary's tolerance for handlers that
-return `{ view: null, meta: undefined }` (none today, but the existing
-`result.meta?.warnings` already uses optional chaining for the same reason).
 
 **Verification.** Asserted indirectly via the formatter tests in Step 6 — they
 construct `meta` directly and assert that `meta.verbose === true` routes to
@@ -155,6 +146,19 @@ function countHiddenAnchors(driver) {
 }
 
 /**
+ * Default-mode "Percentile" cell — ordinal only ("42nd"), without the
+ * "percentile" word. The column header already labels the dimension.
+ *
+ * @param {object} driver
+ * @returns {string}
+ */
+function formatPercentileCell(driver) {
+  return driver.score != null
+    ? `${driver.score}${ordinalSuffix(driver.score)}`
+    : "n/a";
+}
+
+/**
  * Score cells for a driver row. Default mode returns the table tuple; verbose
  * mode returns a list of formatted anchor lines for the per-driver paragraph.
  *
@@ -174,7 +178,7 @@ function renderScoreCells(driver, verbose) {
   }
   const hidden = countHiddenAnchors(driver);
   return {
-    percentile: formatScorePart(driver),
+    percentile: formatPercentileCell(driver),
     vsOrg: driver.vs_org != null ? formatDelta(driver.vs_org) : "n/a",
     more: hidden > 0 ? `+${hidden} anchors via --verbose` : "-",
   };
@@ -193,15 +197,15 @@ design's Default Layout block.
 
 - modified: `products/landmark/src/formatters/health.js`
 
-**Changes.** Add a new section between the existing per-driver helpers and the
-public API. Use `padRight` from `./shared.js` (already imported indirectly via
-`renderHeader` — add it to the existing import):
+**Changes.** Extend the existing `./shared.js` import to include `padRight`
+(today's import omits it):
 
 ```js
 import { formatDelta, ordinalSuffix, padRight, renderHeader } from "./shared.js";
 ```
 
-Append:
+Append a new section between the existing per-driver helpers and the public
+API:
 
 ```js
 // ---------------------------------------------------------------------------
@@ -232,8 +236,8 @@ function renderTextDefault(view, deduped, lines) {
         cells.more,
     );
   });
-  lines.push("");
   if (deduped.length === 0) return;
+  lines.push("");
   lines.push(`  Recommendations (${deduped.length} unique)`);
   lines.push("  " + "─".repeat(60));
   for (const rec of deduped) {
@@ -261,8 +265,8 @@ function renderMdDefault(view, deduped, lines) {
       `| ${i + 1} | ${driver.name} | ${cells.percentile} | ${cells.vsOrg} | ${more} |`,
     );
   });
-  lines.push("");
   if (deduped.length === 0) return;
+  lines.push("");
   lines.push(`## Recommendations (${deduped.length} unique)`);
   lines.push("");
   for (const rec of deduped) {
@@ -316,44 +320,41 @@ first-occurrence per `(email, skill)`.
    Mirror in `renderMdDriver` (using a `**Anchors:** …` line under the H2).
 
 2. Replace `renderTextRecommendations` and `renderMdRecommendations` so they
-   accept a `Set<string>` of already-rendered `(email::skill)` keys and skip
-   rec/candidate pairs already in the set, marking each emitted pair before
-   moving on. Wrap the loop:
+   accept the `DedupedRec[]` array and the current driver's name, and emit
+   only entries whose `driverNames[0]` equals the current driver (i.e. the
+   first-occurrence driver). Existing `(email, skill)` pairs that first
+   appeared on an earlier driver are skipped:
 
    ```js
-   function renderTextRecommendations(driver, lines, seenKeys) {
-     if (!driver.recommendations || driver.recommendations.length === 0) return;
-     for (const rec of driver.recommendations) {
-       const fresh = (rec.candidates ?? []).filter((c) => {
-         const key = `${c.email}::${rec.skill}`;
-         if (seenKeys.has(key)) return false;
-         seenKeys.add(key);
-         return true;
-       });
-       if (fresh.length === 0) continue;
+   function renderTextRecommendations(driver, lines, deduped) {
+     const mine = deduped.filter((d) => d.driverNames[0] === driver.name);
+     if (mine.length === 0) return;
+     for (const rec of mine) {
        lines.push("");
-       const phrase = fresh
-         .slice(0, 2)
-         .map((c) => `${c.name ?? c.email} (${c.currentLevel})`)
-         .join(" or ");
+       const candidate = rec.candidate;
+       const phrase = `${candidate.name ?? candidate.email} (${candidate.currentLevel})`;
        lines.push(`      ⮕ Recommendation: ${phrase} could develop ${rec.skill}.`);
        lines.push(`        (Summit growth alignment: ${rec.impact})`);
      }
    }
    ```
 
-   Mirror in `renderMdRecommendations`.
+   Mirror in `renderMdRecommendations`. Each `DedupedRec` corresponds to a
+   single `(candidate, skill)`, so the verbose layout no longer collapses
+   multi-candidate recs onto one line — each candidate gets its own
+   recommendation line on the driver where the pair first occurs. This is
+   intentional and matches the dedup contract.
 
-3. Update `toText` and `toMarkdown` to accept `meta` and dispatch:
+3. Update `toText` and `toMarkdown` to accept `meta` and dispatch on
+   `meta.verbose`. Both paths consume the same `DedupedRec[]`:
 
    ```js
    export function toText(view, meta) {
      const lines = [renderHeader(`${view.teamLabel} — health view`), ""];
      const deduped = dedupeRecommendations(view.drivers);
      if (meta?.verbose) {
-       const seenKeys = new Set();
        for (const driver of view.drivers) {
-         renderTextDriver(driver, lines, seenKeys);
+         renderTextDriver(driver, lines, deduped);
        }
      } else {
        renderTextDefault(view, deduped, lines);
@@ -362,10 +363,9 @@ first-occurrence per `(email, skill)`.
    }
    ```
 
-   Mirror in `toMarkdown`. `toJson` is untouched (design note: JSON path
-   ignores `meta.verbose`).
+   Mirror in `toMarkdown`. `toJson` is untouched.
 
-4. `renderTextDriver` and `renderMdDriver` gain a `seenKeys` parameter and
+4. `renderTextDriver` and `renderMdDriver` gain a `deduped` parameter and
    forward it to the recommendations renderer.
 
 **Verification.** Verbose-mode tests in Step 6 assert (a) score line carries
@@ -387,15 +387,17 @@ covers the command and is left alone.
 | Case | Input | Assertion |
 | --- | --- | --- |
 | default fits ≤ 50 lines on 6 drivers | 6-driver `HealthView`, all four hidden anchors set, 3 recommendations | `output.split("\n").length <= 50` |
-| default header reads `Drivers (N)` | 6-driver view | output contains `Drivers (6)` and a column header line with `# Driver Percentile vs_org More` |
-| default `More` cell counts hidden anchors | driver with `vs_prev=-2`, `vs_50th=null`, `vs_75th=null`, `vs_90th=null`, `vs_org=-4` | row contains `+1 anchors via --verbose` |
-| default `More` cell shows `-` when all hidden anchors null | driver with all four hidden = null | row's `More` cell is `-` |
-| default Recommendations trailer count is unique pairs | two drivers each carrying `{candidate: bob, skill: planning}` | `output.match(/could develop/g).length === 1` |
-| default Recommendations names every driver | rec spanning Quality + Reliability | trailer line contains `for Quality, Reliability` |
-| verbose anchors line lists all four | driver with all four set | output contains `vs_prev: -5, vs_org: -10, vs_50th: -8, vs_75th: -25, vs_90th: -40` |
+| default header is plural-anchored | 6-driver view | line containing `Drivers (6)` exists; the next non-rule line equals exactly `"  # Driver          Percentile  vs_org   More"` (literal, including padding) |
+| default driver row layout matches design | one driver `Quality`, score 42, `vs_org=-10`, `vs_prev=-5`, `vs_50th=-8`, `vs_75th=-25`, `vs_90th=-40` | row equals `"  1  Quality          42nd        -10      +4 anchors via --verbose"` |
+| default `More` cell counts hidden anchors only | driver with `vs_prev=-2`, `vs_org=-4`, `vs_50th=null`, `vs_75th=null`, `vs_90th=null` | row contains `+1 anchors via --verbose` (vs_org is not counted) |
+| default `More` cell shows `-` when all hidden anchors null | driver with all four hidden = null, `vs_org=-4` | row's `More` cell is `-` |
+| default Recommendations trailer dedups across drivers | two drivers each carrying `{candidate: bob, skill: planning}` | `output.match(/could develop/g).length === 1` |
+| default Recommendations names every driver the rec applies to | rec spanning Quality + Reliability | trailer line contains `for Quality, Reliability` |
+| default no trailing blank line when no recs | view with empty recommendations on every driver | `output.endsWith("\n\n") === false` and no `Recommendations` heading |
+| verbose anchors line lists all five | driver with all four hidden + vs_org set | output contains `Anchors: vs_prev: -5, vs_org: -10, vs_50th: -8, vs_75th: -25, vs_90th: -40` |
 | verbose recommendation appears once across drivers | same as default-dedup case | `output.match(/⮕ Recommendation/g).length === 1` |
 | verbose preserves comments and initiatives | driver with one comment + one initiative | output contains `GetDX comments:` and `Active initiatives:` |
-| markdown default has correct column count | any view | markdown table header has 5 cells + separator line with 5 segments |
+| markdown default header is exactly 5 cells in design order | any view | header row equals `"\| # \| Driver \| Percentile \| vs_org \| More \|"` and separator `"\| --- \| --- \| --- \| --- \| --- \|"` |
 
 The 6-driver fixture is built inline in the test file (not added to
 `fixtures.js`) because no other test consumes it. The shape mirrors
@@ -446,9 +448,8 @@ contain a literal `--verbose` mention and a sample block.
 
 | Risk | Mitigation |
 | --- | --- |
-| `padRight` widths chosen here truncate driver names like "Codebase Experience" (~20 chars). | Pin `driver` column at 16 chars and let the implementer raise it if the test fixture (which uses ≤16-char names today) starts to truncate. Truncation is a test-failure signal, not silent data loss. |
-| Verbose-mode dedup hides a rec the reader would expect to see twice. | Trailer-style "for Quality, Reliability" is default-only; verbose intentionally renders the rec on its first driver only. The design names this as the dedup contract — call it out in the test description so future readers do not file it as a bug. |
-| `result.meta` mutation in the binary surprises a future handler that expects an immutable meta. | The handler-formatter contract today passes `meta` by reference and `formatResult` already reads `meta.format`; this step extends the same channel. If a freezing convention is added later, refactor to a wrapper object then. |
+| Production driver names (`"Codebase Experience"`, `"Clear Direction"`) exceed `TEXT_COLS.driver = 16`, producing silently misaligned rows that no current fixture catches. | Add a single test case using a 17-char driver name and assert the row aligns; bump the constant if needed. The plan's test fixture uses synthetic short names so this only surfaces post-merge against real data. |
+| `result.meta` is mutated in the binary, but the handler-formatter contract is not documented as allowing it; a future refactor that freezes `meta` post-handler would silently drop `--verbose`. | The freezing risk is invisible from the plan because `formatResult` already reads `meta.format` via the same channel. Flagged so a future invariant tightening surfaces this site. |
 
 ## Execution
 
