@@ -5,7 +5,7 @@ const logger = createLogger("libdoc");
 /**
  * Documentation server for serving built documentation and watching for changes
  */
-export class DocsServer {
+export class PagesServer {
   #fs;
   #Hono;
   #serve;
@@ -13,11 +13,11 @@ export class DocsServer {
   #watcher;
 
   /**
-   * Creates a new DocsServer instance
+   * Creates a new PagesServer instance
    * @param {object} fs - File system module
    * @param {Function} HonoConstructor - Hono constructor (optional, required for serve())
    * @param {Function} serveFn - Hono serve function from @hono/node-server (optional, required for serve())
-   * @param {import("./builder.js").DocsBuilder} builder - DocsBuilder instance
+   * @param {import("./builder.js").PagesBuilder} builder - PagesBuilder instance
    */
   constructor(fs, HonoConstructor, serveFn, builder) {
     if (!fs) throw new Error("fs is required");
@@ -32,15 +32,15 @@ export class DocsServer {
 
   /**
    * Start watching for changes and rebuild
-   * @param {string} docsDir - Documentation directory to watch
+   * @param {string} pagesDir - Documentation directory to watch
    * @param {string} distDir - Distribution directory for output
    * @returns {void}
    */
-  watch(docsDir, distDir) {
-    logger.info(`Watching for changes in ${docsDir}...`);
+  watch(pagesDir, distDir) {
+    logger.info(`Watching for changes in ${pagesDir}...`);
 
     this.#watcher = this.#fs.watch(
-      docsDir,
+      pagesDir,
       { recursive: true },
       (eventType, filename) => {
         if (
@@ -50,7 +50,7 @@ export class DocsServer {
             filename.startsWith("assets/"))
         ) {
           logger.info(`\nRebuilding due to change in ${filename}...`);
-          this.#builder.build(docsDir, distDir).catch((error) => {
+          this.#builder.build(pagesDir, distDir).catch((error) => {
             console.error("Build error:", error);
           });
         }

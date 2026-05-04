@@ -22,7 +22,9 @@
     ".": "./src/index.js",
     "./builder": "./src/builder.js",
     "./server": "./src/server.js",
-    "./frontmatter": "./src/frontmatter.js"
+    "./frontmatter": "./src/frontmatter.js",
+    "./page-tree": "./src/page-tree.js",
+    "./partials": "./src/partials.js"
   },
   "bin": {
     "fit-doc": "./bin/fit-doc.js"

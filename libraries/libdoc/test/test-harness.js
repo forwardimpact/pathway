@@ -1,4 +1,4 @@
-import { DocsBuilder } from "../src/index.js";
+import { PagesBuilder } from "../src/index.js";
 
 /**
  * Create a mock fs/path/builder setup for tests
@@ -7,7 +7,7 @@ import { DocsBuilder } from "../src/index.js";
  * @param {string[]} options.mdFiles - Markdown file names in source dir
  * @param {string[]} [options.rootFiles] - Non-md files in source root
  * @param {string} [options.template] - Template content
- * @returns {{ files: Map, dirs: Set, builder: DocsBuilder, copied: Map }}
+ * @returns {{ files: Map, dirs: Set, builder: PagesBuilder, copied: Map }}
  */
 export function createTestHarness({
   sourceFiles,
@@ -58,6 +58,23 @@ export function createTestHarness({
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -83,7 +100,7 @@ export function createTestHarness({
       .replace(/\{\{(\w+)\}\}/g, (_, key) => ctx[key] || "");
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,

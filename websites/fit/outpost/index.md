@@ -94,13 +94,6 @@ Privacy & Security > Files & Folders**:
 
 <div class="grid">
 
-<a href="/docs/getting-started/engineers/outpost/">
-
-### Empowered Engineers
-
-Initialize your personal knowledge base, configure background AI tasks, and
-start the scheduler.
-
-</a>
+<!-- part:card:../docs/getting-started/engineers/outpost -->
 
 </div>

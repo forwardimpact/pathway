@@ -104,14 +104,7 @@ npx skills add forwardimpact/fit-skills
 
 <div class="grid">
 
-<a href="/docs/libraries/">
-
-### Library Guides
-
-Task-oriented walkthroughs for evaluations, multi-agent collaboration, and trace
-analysis using the Gear catalog.
-
-</a>
+<!-- part:card:../docs/libraries -->
 
 <a href="https://github.com/forwardimpact/monorepo/tree/main/libraries">
 

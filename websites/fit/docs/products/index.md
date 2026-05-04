@@ -9,32 +9,11 @@ toc: false
 
 <div class="grid">
 
-<a href="/docs/products/authoring-standards/">
+<!-- part:card:authoring-standards -->
 
-### Authoring Agent-Aligned Engineering Standards
+<!-- part:card:authoring-standards/update-standard -->
 
-Turn 'good engineering' into an operational definition so evaluations start
-from a shared foundation instead of private mental models.
-
-</a>
-
-<a href="/docs/products/authoring-standards/update-standard/">
-
-### Validate and Update the Standard
-
-Evolve your engineering standard with confidence — structural mistakes surface
-during validation, not after the team has adopted the change.
-
-</a>
-
-<a href="/docs/products/authoring-standards/define-role/">
-
-### Define a New Role
-
-Move from a blank slate to a well-structured role definition — built from
-existing disciplines and tracks, then customized to fit.
-
-</a>
+<!-- part:card:authoring-standards/define-role -->
 
 </div>
 
@@ -42,23 +21,9 @@ existing disciplines and tracks, then customized to fit.
 
 <div class="grid">
 
-<a href="/docs/products/career-paths/">
+<!-- part:card:career-paths -->
 
-### See What's Expected at Your Level
-
-Stop guessing what your level requires — see the skills, behaviours, and scope
-so expectations are clear before your next review.
-
-</a>
-
-<a href="/docs/products/career-paths/autonomy-scope/">
-
-### Understand Autonomy and Scope
-
-Understand what independence, decision-making authority, and complexity look
-like at your level — so scope conversations start from shared definitions.
-
-</a>
+<!-- part:card:career-paths/autonomy-scope -->
 
 </div>
 
@@ -66,32 +31,11 @@ like at your level — so scope conversations start from shared definitions.
 
 <div class="grid">
 
-<a href="/docs/products/growth-areas/">
+<!-- part:card:growth-areas -->
 
-### Find Growth Areas and Build Evidence
+<!-- part:card:growth-areas/growth-question -->
 
-When a promotion conversation ends with 'not yet' and no specifics, use Guide
-and Landmark to find what's missing and show concrete evidence of growth.
-
-</a>
-
-<a href="/docs/products/growth-areas/growth-question/">
-
-### Ask a Growth Question
-
-Get growth advice grounded in your organization's actual skill and behaviour
-definitions — not generic career guidance.
-
-</a>
-
-<a href="/docs/products/growth-areas/check-progress/">
-
-### Check Progress Toward Next Level
-
-See whether recent engineering work shows visible movement toward the next level
-by reviewing your readiness checklist and growth timeline.
-
-</a>
+<!-- part:card:growth-areas/check-progress -->
 
 </div>
 
@@ -99,32 +43,11 @@ by reviewing your readiness checklist and growth timeline.
 
 <div class="grid">
 
-<a href="/docs/products/trust-output/">
+<!-- part:card:trust-output -->
 
-### Verify Agent Work Against the Standard
+<!-- part:card:trust-output/second-opinion -->
 
-Catch convention violations that look correct on the surface — review agent
-output against your engineering standard instead of reading every line.
-
-</a>
-
-<a href="/docs/products/trust-output/second-opinion/">
-
-### Get a Second Opinion on a Deliverable
-
-Know what meets the bar and what falls short before you approve — assessed
-against your engineering standard, not intuition.
-
-</a>
-
-<a href="/docs/products/trust-output/expected-output/">
-
-### See What the Standard Expects Before Reviewing
-
-Know what to check before you start reviewing — the skill proficiencies,
-behaviour maturities, and expectations your standard defines for the role.
-
-</a>
+<!-- part:card:trust-output/expected-output -->
 
 </div>
 
@@ -132,24 +55,9 @@ behaviour maturities, and expectations your standard defines for the role.
 
 <div class="grid">
 
-<a href="/docs/products/agent-teams/">
+<!-- part:card:agent-teams -->
 
-### Configure Agents to Meet Your Engineering Standard
-
-End the cycle of rejecting agent output for following generic practices —
-agents configured against the same standard the organization holds for human
-contributors.
-
-</a>
-
-<a href="/docs/products/agent-teams/organizational-context/">
-
-### Give Agents Organizational Context
-
-Keep agents aligned as your engineering standard evolves — guidance stays clear
-and non-conflicting without manual reconciliation.
-
-</a>
+<!-- part:card:agent-teams/organizational-context -->
 
 </div>
 
@@ -157,23 +65,9 @@ and non-conflicting without manual reconciliation.
 
 <div class="grid">
 
-<a href="/docs/products/engineering-outcomes/">
+<!-- part:card:engineering-outcomes -->
 
-### Demonstrate Engineering Progress
-
-Walk into a quarterly review with system-level trends, marker evidence, and
-engineer voice — demonstrating progress without singling out individuals.
-
-</a>
-
-<a href="/docs/products/engineering-outcomes/culture-investments/">
-
-### Tell Whether Culture Investments Are Working
-
-Know whether mentorship programs, tooling changes, and process improvements are
-producing measurable results — before the next budget cycle, not after.
-
-</a>
+<!-- part:card:engineering-outcomes/culture-investments -->
 
 </div>
 
@@ -181,32 +75,11 @@ producing measurable results — before the next budget cycle, not after.
 
 <div class="grid">
 
-<a href="/docs/products/team-capability/">
+<!-- part:card:team-capability -->
 
-### Make Staffing Decisions You Can Defend
+<!-- part:card:team-capability/evaluate-candidate -->
 
-Replace staffing intuition with evidence — coverage heatmaps, structural
-risks, and what-if scenarios that show what each role requires.
-
-</a>
-
-<a href="/docs/products/team-capability/evaluate-candidate/">
-
-### Evaluate a Candidate Against Team Gaps
-
-Know whether a candidate fills the team's actual capability gap before making
-an offer — not after onboarding reveals the mismatch.
-
-</a>
-
-<a href="/docs/products/team-capability/surface-gaps/">
-
-### Surface Capability Gaps
-
-See capability gaps before they become incidents — structural risks, coverage
-trends, and growth opportunities made visible.
-
-</a>
+<!-- part:card:team-capability/surface-gaps -->
 
 </div>
 
@@ -214,23 +87,9 @@ trends, and growth opportunities made visible.
 
 <div class="grid">
 
-<a href="/docs/products/knowledge-systems/">
+<!-- part:card:knowledge-systems -->
 
-### Keep Track of Context Without Effort
-
-Stop walking into meetings cold — Outpost assembles and maintains awareness of
-people, projects, and threads in the background.
-
-</a>
-
-<a href="/docs/products/knowledge-systems/meeting-prep/">
-
-### Walk Into Every Meeting Already Oriented
-
-Walk into any meeting already oriented — attendee context, open items, and
-talking points assembled before you sit down.
-
-</a>
+<!-- part:card:knowledge-systems/meeting-prep -->
 
 </div>
 

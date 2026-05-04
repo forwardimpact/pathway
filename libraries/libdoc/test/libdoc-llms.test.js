@@ -1,6 +1,6 @@
 import { test } from "node:test";
 import assert from "node:assert/strict";
-import { DocsBuilder } from "../src/index.js";
+import { PagesBuilder } from "../src/index.js";
 
 function createTestHarness({
   sourceFiles,
@@ -51,6 +51,23 @@ function createTestHarness({
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -76,7 +93,7 @@ function createTestHarness({
       .replace(/\{\{(\w+)\}\}/g, (_, key) => ctx[key] || "");
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -88,7 +105,7 @@ function createTestHarness({
   return { files, dirs, copied, builder };
 }
 
-test("DocsBuilder augments llms.txt with page links", async () => {
+test("PagesBuilder augments llms.txt with page links", async () => {
   const llmsContent = [
     "# Test Site",
     "",
@@ -123,13 +140,11 @@ test("DocsBuilder augments llms.txt with page links", async () => {
   assert.ok(files.has("dist/llms.txt"), "llms.txt should exist");
   const llms = files.get("dist/llms.txt");
 
-  // Product pages under Products section
   assert.ok(
     llms.includes("- [Map](https://example.com/map/index.md): Data product"),
     "map under Products",
   );
 
-  // Optional pages
   assert.ok(
     llms.includes("- [Home](https://example.com/index.md)"),
     "home under Optional",
@@ -140,7 +155,7 @@ test("DocsBuilder augments llms.txt with page links", async () => {
   );
 });
 
-test("DocsBuilder skips llms.txt when no curated file exists", async () => {
+test("PagesBuilder skips llms.txt when no curated file exists", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
   ]);
@@ -155,7 +170,7 @@ test("DocsBuilder skips llms.txt when no curated file exists", async () => {
   assert.ok(!files.has("dist/llms.txt"), "no llms.txt without curated file");
 });
 
-test("DocsBuilder uses CNAME fallback when no baseUrl provided", async () => {
+test("PagesBuilder uses CNAME fallback when no baseUrl provided", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
     ["src/CNAME", "example.com"],
@@ -176,7 +191,7 @@ test("DocsBuilder uses CNAME fallback when no baseUrl provided", async () => {
   );
 });
 
-test("DocsBuilder prefers explicit baseUrl over CNAME", async () => {
+test("PagesBuilder prefers explicit baseUrl over CNAME", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
     ["src/CNAME", "cname.example.com"],
@@ -200,7 +215,7 @@ test("DocsBuilder prefers explicit baseUrl over CNAME", async () => {
   );
 });
 
-test("DocsBuilder copies root-level static files and skips .md, template, CNAME", async () => {
+test("PagesBuilder copies root-level static files and skips .md, template, CNAME", async () => {
   const sourceFiles = new Map([
     ["src/index.md", "---\ntitle: Home\n---\nContent"],
     ["src/robots.txt", "User-agent: *"],
@@ -255,6 +270,23 @@ test("DocsBuilder copies root-level static files and skips .md, template, CNAME"
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -265,7 +297,7 @@ test("DocsBuilder copies root-level static files and skips .md, template, CNAME"
   const mockMustache = (_tpl, ctx) => ctx.title;
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,
@@ -287,7 +319,7 @@ test("DocsBuilder copies root-level static files and skips .md, template, CNAME"
   );
 });
 
-test("DocsBuilder classifies docs pages under Documentation in llms.txt", async () => {
+test("PagesBuilder classifies docs pages under Documentation in llms.txt", async () => {
   const llmsContent =
     "# Site\n\n## Products\n\n## Documentation\n\n## Optional\n";
 
@@ -340,6 +372,23 @@ test("DocsBuilder classifies docs pages under Documentation in llms.txt", async 
   const mockPath = {
     join: (...parts) => parts.join("/"),
     dirname: (p) => p.split("/").slice(0, -1).join("/") || ".",
+    normalize: (p) => {
+      const parts = p.split("/").filter(Boolean);
+      const result = [];
+      for (const part of parts) {
+        if (part === "..") result.pop();
+        else if (part !== ".") result.push(part);
+      }
+      return result.join("/") || ".";
+    },
+    relative: (from, to) => {
+      const f = from.split("/").filter(Boolean);
+      const t = to.split("/").filter(Boolean);
+      let i = 0;
+      while (i < f.length && i < t.length && f[i] === t[i]) i++;
+      const ups = f.length - i;
+      return [...Array(ups).fill(".."), ...t.slice(i)].join("/") || ".";
+    },
   };
 
   const mockMarked = Object.assign((md) => `<p>${md}</p>`, { use: () => {} });
@@ -358,7 +407,7 @@ test("DocsBuilder classifies docs pages under Documentation in llms.txt", async 
   const mockMustache = (_tpl, ctx) => ctx.title;
   const mockPrettier = { format: async (html) => html };
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     mockFs,
     mockPath,
     mockMarked,

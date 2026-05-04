@@ -11,7 +11,7 @@ import prettier from "prettier";
 
 import { createCli, formatBullet } from "@forwardimpact/libcli";
 import { createLogger } from "@forwardimpact/libtelemetry";
-import { DocsBuilder, DocsServer } from "../src/index.js";
+import { PagesBuilder, PagesServer } from "../src/index.js";
 import { parseFrontMatter } from "../src/frontmatter.js";
 
 const { version: VERSION } = JSON.parse(
@@ -76,19 +76,19 @@ const cli = createCli(definition);
 const logger = createLogger("doc");
 
 /**
- * @param {import("../builder.js").DocsBuilder} builder
- * @param {string} docsDir
+ * @param {import("../builder.js").PagesBuilder} builder
+ * @param {string} pagesDir
  * @param {string} distDir
  * @param {string} [baseUrl]
  */
-function runPreBuildHook(docsDir) {
-  const justfilePath = path.join(docsDir, "justfile");
+function runPreBuildHook(pagesDir) {
+  const justfilePath = path.join(pagesDir, "justfile");
   if (!fs.existsSync(justfilePath)) return;
 
   logger.info("Running pre-build hook (justfile)...");
 
   try {
-    execFileSync("just", ["build"], { cwd: docsDir, stdio: "pipe" });
+    execFileSync("just", ["build"], { cwd: pagesDir, stdio: "pipe" });
     logger.info("  ✓ pre-build hook complete");
   } catch (err) {
     if (err.code === "ENOENT") {
@@ -102,34 +102,34 @@ function runPreBuildHook(docsDir) {
   }
 }
 
-async function runBuild(builder, docsDir, distDir, baseUrl) {
-  if (!fs.existsSync(docsDir)) {
-    cli.error(`source directory not found: ${docsDir}`);
+async function runBuild(builder, pagesDir, distDir, baseUrl) {
+  if (!fs.existsSync(pagesDir)) {
+    cli.error(`source directory not found: ${pagesDir}`);
     process.exit(1);
   }
 
-  runPreBuildHook(docsDir);
-  await builder.build(docsDir, distDir, baseUrl);
+  runPreBuildHook(pagesDir);
+  await builder.build(pagesDir, distDir, baseUrl);
 }
 
 /**
- * @param {import("../builder.js").DocsBuilder} builder
- * @param {import("../server.js").DocsServer} server
- * @param {string} docsDir
+ * @param {import("../builder.js").PagesBuilder} builder
+ * @param {import("../server.js").PagesServer} server
+ * @param {string} pagesDir
  * @param {string} distDir
  * @param {{ port: number, watch: boolean, baseUrl: string }} options
  */
-async function runServe(builder, server, docsDir, distDir, options) {
-  if (!fs.existsSync(docsDir)) {
-    cli.error(`source directory not found: ${docsDir}`);
+async function runServe(builder, server, pagesDir, distDir, options) {
+  if (!fs.existsSync(pagesDir)) {
+    cli.error(`source directory not found: ${pagesDir}`);
     process.exit(1);
   }
 
-  runPreBuildHook(docsDir);
-  await builder.build(docsDir, distDir, options.baseUrl);
+  runPreBuildHook(pagesDir);
+  await builder.build(pagesDir, distDir, options.baseUrl);
 
   if (options.watch) {
-    server.watch(docsDir, distDir);
+    server.watch(pagesDir, distDir);
   }
 
   server.serve(distDir, { port: options.port, hostname: "0.0.0.0" });
@@ -154,11 +154,11 @@ async function main() {
   }
 
   const workingDir = process.env.INIT_CWD || process.cwd();
-  const docsDir = path.resolve(workingDir, values.src);
+  const pagesDir = path.resolve(workingDir, values.src);
   const distDir = path.resolve(workingDir, values.out);
   const baseUrl = values["base-url"];
 
-  const builder = new DocsBuilder(
+  const builder = new PagesBuilder(
     fs,
     path,
     marked,
@@ -169,10 +169,10 @@ async function main() {
 
   try {
     if (command === "build") {
-      await runBuild(builder, docsDir, distDir, baseUrl);
+      await runBuild(builder, pagesDir, distDir, baseUrl);
     } else {
-      const server = new DocsServer(fs, Hono, serve, builder);
-      await runServe(builder, server, docsDir, distDir, {
+      const server = new PagesServer(fs, Hono, serve, builder);
+      await runServe(builder, server, pagesDir, distDir, {
         port: parseInt(values.port || "3000", 10),
         watch: values.watch,
         baseUrl,

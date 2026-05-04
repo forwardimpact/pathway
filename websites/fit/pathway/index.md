@@ -67,22 +67,8 @@ npx fit-pathway job software_engineering J060 --track=platform  # Job definition
 
 <div class="grid">
 
-<a href="/docs/getting-started/leadership/pathway/">
+<!-- part:card:../docs/getting-started/leadership/pathway -->
 
-### Engineering Leaders
-
-Preview your agent-aligned engineering standard in the browser, generate job
-definitions, and create interview question sets.
-
-</a>
-
-<a href="/docs/getting-started/engineers/pathway/">
-
-### Empowered Engineers
-
-Browse career paths, generate AI agent teams, and explore job definitions from
-the CLI and web app.
-
-</a>
+<!-- part:card:../docs/getting-started/engineers/pathway -->
 
 </div>

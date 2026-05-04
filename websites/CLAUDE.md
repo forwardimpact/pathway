@@ -28,9 +28,13 @@ Every page is a directory containing `index.md`. No other `.md` filenames.
   relative, not `index.md`). External links use full URLs.
 - **Code blocks** — always specify a language tag (`sh`, `yaml`, `json`,
   `mermaid`, etc.).
-- **Navigation is manual.** When a page is added, moved, or removed, update
-  every hub page and card grid that references it. There is no build-time check
-  for stale links.
+- **Card grids use content partials.** Hub page cards are
+  `<!-- part:card:relative-path -->` markers that resolve to the target page's
+  frontmatter `title` and `description` at build time. The build fails if a
+  partial references a nonexistent page. Hand-written `<a>` cards are only used
+  for external links or same-page anchors.
+- **Hand-written links are not checked.** Partials validate their targets, but
+  inline markdown links are not verified at build time.
 
 ## Page Types
 
@@ -51,23 +55,25 @@ Product pages (`/map/`, `/pathway/`, etc.) follow a consistent structure:
 
 ### Hub Pages
 
-Collection pages use `toc: false` and a grid of anchor cards to link to
+Collection pages use `toc: false` and a grid of content partials to link to
 children. Cards are organized under `##` job headings with a persona label.
 
 ```html
 <div class="grid">
-<a href="/docs/products/agent-teams/">
-
-### Agent Teams
-
-Configure agents to meet your engineering standard...
-
-</a>
+<!-- part:card:agent-teams -->
+<!-- part:card:agent-teams/organizational-context -->
 </div>
 ```
 
-Navigation is not generated from the file tree. When a page is added, moved, or
-removed, update every hub page and card grid that references it.
+Each `<!-- part:card:path -->` resolves to an `<a>` with the target page's
+`title` and `description` from frontmatter. Paths are relative to the current
+page's directory — `agent-teams` for a sibling, `../docs/libraries` for a
+cross-tree reference. The build fails if a target page does not exist, so stale
+card references are caught automatically.
+
+Hand-written `<a>` cards are still used for external links (GitHub URLs) and
+same-page anchors (`href="#section"`). See `gear/index.md` and
+`docs/internals/kata/index.md` for examples.
 
 ### Getting Started Pages
 
