@@ -15,6 +15,7 @@ import { computeCoverageRatio } from "../lib/evidence-helpers.js";
 
 export const needsSupabase = true;
 
+/** Fetch artifact counts and compute the ratio of scored-to-total evidence for a person. */
 export async function runCoverageCommand({
   options,
   supabase,

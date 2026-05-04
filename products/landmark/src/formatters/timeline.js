@@ -4,6 +4,7 @@
 
 import { padRight, renderHeader } from "./shared.js";
 
+/** Render the growth timeline as plain text with quarter, skill, and highest-level columns. */
 export function toText(view) {
   const lines = [renderHeader(`Growth timeline for ${view.email}`), ""];
 
@@ -21,10 +22,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the timeline view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the growth timeline as a markdown table with quarter, skill, and highest-level columns. */
 export function toMarkdown(view) {
   const lines = [
     `# Growth timeline for ${view.email}`,

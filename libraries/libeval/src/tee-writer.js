@@ -20,6 +20,7 @@ import { TraceCollector } from "./trace-collector.js";
 import { renderTurnLines } from "./render/turn-renderer.js";
 import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
+/** Writable stream that saves raw NDJSON to a file while streaming human-readable text to a display stream. */
 export class TeeWriter extends Writable {
   /**
    * @param {object} deps

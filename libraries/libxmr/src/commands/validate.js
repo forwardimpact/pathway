@@ -8,6 +8,7 @@ import {
 
 import { validateCSV } from "../csv.js";
 
+/** Run the validate command: check a CSV file for structural and field-level errors. */
 export function runValidateCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {

@@ -4,6 +4,7 @@
 
 import { renderHeader } from "./shared.js";
 
+/** Render evidence rows grouped by skill as indented plain text with match status and rationale. */
 export function toText(view) {
   const lines = [renderHeader("Evidence"), ""];
 
@@ -33,10 +34,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the evidence view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render evidence rows grouped by skill as markdown with match indicators. */
 export function toMarkdown(view) {
   const lines = ["# Evidence", ""];
 

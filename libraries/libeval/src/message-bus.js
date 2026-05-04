@@ -12,6 +12,7 @@
  * Follows OO+DI: constructor injection, factory function, tests bypass factory.
  */
 
+/** In-memory per-participant message queues for facilitated and supervised orchestration modes. */
 export class MessageBus {
   /**
    * @param {object} deps

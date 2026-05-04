@@ -12,6 +12,7 @@
 import { renderTurnLines } from "./render/turn-renderer.js";
 import { isSuppressedOrchestratorEvent } from "./render/orchestrator-filter.js";
 
+/** Accumulate Claude Code NDJSON stream events into structured traces for analysis or text replay. */
 export class TraceCollector {
   /**
    * @param {object} [deps]

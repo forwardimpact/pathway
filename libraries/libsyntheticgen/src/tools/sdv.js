@@ -6,6 +6,7 @@ import { join } from "path";
 import { tmpdir } from "os";
 import { randomUUID } from "crypto";
 
+/** Generate statistically representative tabular data by delegating to SDV via a Python subprocess. */
 export class SdvTool {
   /**
    * @param {object} deps

@@ -19,6 +19,7 @@ const STATE_FILE = join(STATE_DIR, "apple_mail_last_sync");
 const ROWID_STATE_FILE = join(STATE_DIR, "apple_mail_last_rowid");
 export const MAX_THREADS = 500;
 
+/** Locate the Apple Mail SQLite database file under ~/Library/Mail. */
 export function findDb() {
   const mailDir = join(HOME, "Library/Mail");
   const paths = globSync(join(mailDir, "V*/MailData/Envelope Index"))
@@ -31,6 +32,7 @@ export function findDb() {
   return paths[0];
 }
 
+/** Open a read-only SQLite connection, retrying once if the database is locked. */
 export function openDb(dbPath) {
   try {
     return new DatabaseSync(dbPath, { readOnly: true });
@@ -43,6 +45,7 @@ export function openDb(dbPath) {
   }
 }
 
+/** Execute a SQL query and return all rows, logging errors and returning an empty array on failure. */
 export function query(db, sql) {
   try {
     return db.prepare(sql).all();
@@ -52,6 +55,7 @@ export function query(db, sql) {
   }
 }
 
+/** Load the last sync timestamp from disk, falling back to daysBack days ago on first run. */
 export function loadLastSync(daysBack = 30) {
   try {
     const iso = readFileSync(STATE_FILE, "utf-8").trim();
@@ -65,6 +69,7 @@ export function loadLastSync(daysBack = 30) {
   return Math.floor((Date.now() - daysBack * 86400000) / 1000);
 }
 
+/** Persist the current sync timestamp and optionally the last-seen message ROWID to disk. */
 export function saveSyncState(lastRowid = null) {
   mkdirSync(STATE_DIR, { recursive: true });
   writeFileSync(STATE_FILE, new Date().toISOString());
@@ -73,6 +78,7 @@ export function saveSyncState(lastRowid = null) {
   }
 }
 
+/** Load the last-seen message ROWID from disk, returning 0 on first run. */
 export function loadLastRowid() {
   try {
     const val = readFileSync(ROWID_STATE_FILE, "utf-8").trim();
@@ -83,6 +89,7 @@ export function loadLastRowid() {
   return 0;
 }
 
+/** Convert a Unix timestamp in seconds to a human-readable UTC date string. */
 export function unixToReadable(ts) {
   if (ts == null) return "Unknown";
   try {
@@ -95,6 +102,7 @@ export function unixToReadable(ts) {
   }
 }
 
+/** Detect whether the messages table uses conversation_id or thread_id for threading. */
 export function discoverThreadColumn(db) {
   const rows = query(db, "PRAGMA table_info(messages);");
   const columns = new Set(rows.map((r) => r.name));
@@ -103,6 +111,7 @@ export function discoverThreadColumn(db) {
   return null;
 }
 
+/** Return distinct thread IDs that have new messages since the given timestamp or ROWID. */
 export function findChangedThreads(db, threadCol, sinceTs, lastRowid) {
   return query(
     db,
@@ -122,6 +131,7 @@ export function findChangedThreads(db, threadCol, sinceTs, lastRowid) {
   );
 }
 
+/** Fetch all messages in a thread ordered by date, including sender and summary metadata. */
 export function fetchThreadMessages(db, threadCol, tid) {
   return query(
     db,
@@ -148,6 +158,7 @@ export function fetchThreadMessages(db, threadCol, tid) {
   );
 }
 
+/** Fetch To and CC recipients for the given message IDs, grouped by message and type. */
 export function fetchRecipients(db, messageIds) {
   if (messageIds.length === 0) return {};
   const idList = messageIds.join(",");
@@ -175,6 +186,7 @@ export function fetchRecipients(db, messageIds) {
   return result;
 }
 
+/** Fetch attachment metadata for the given message IDs, grouped by message. */
 export function fetchAttachments(db, messageIds) {
   if (messageIds.length === 0) return {};
   const idList = messageIds.join(",");
@@ -238,6 +250,7 @@ function scanMailFiles(mailDir) {
   );
 }
 
+/** Scan ~/Library/Mail for .emlx and attachment files and build lookup indexes by message ID. */
 export function buildFileIndexes() {
   const mailDir = join(HOME, "Library/Mail");
   const emlxIndex = new Map();
@@ -290,6 +303,7 @@ function copySingleAttachment(
   }
 }
 
+/** Copy all attachments for a thread's messages into the cache directory, deduplicating filenames. */
 export function copyThreadAttachments(
   threadId,
   messages,

@@ -337,10 +337,9 @@ function extractDateRange(entities) {
 }
 
 /**
- * Build linked entities from entities and guide content config.
- * @param {object} entities
- * @param {string} domain
- * @returns {{ linked: object, gc: object|undefined }}
+ * Extract count and topic fields from a guide content config entry.
+ * @param {object|undefined} gc - Guide content config (courses, events, blogs, article_topics, blog_topics)
+ * @returns {{ courseCount: number, eventCount: number, blogCount: number, articleTopics: string[], blogTopics: string[]|null }}
  */
 function extractGuideConfig(gc) {
   return {

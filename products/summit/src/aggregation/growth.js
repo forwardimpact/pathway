@@ -19,7 +19,9 @@ import { computeCoverage, derivePersonMatrix } from "./coverage.js";
 import { detectRisks } from "./risks.js";
 import { UnknownJobFieldError } from "./errors.js";
 
+/** Signals a contract violation in the growth alignment pipeline, such as an unknown job field on a team member. */
 export class GrowthContractError extends Error {
+  /** Create a GrowthContractError with a machine-readable code and optional context object. */
   constructor(code, message, context) {
     super(message);
     this.code = code;
@@ -234,8 +236,8 @@ function evidencedPractitioners(skillId, evidence) {
 /**
  * Rank members as candidates to develop a specific skill toward working+.
  *
- * Lower proficiencies at lower levels are the best candidates —
- * growing early in a career is more impactful than late-career growth.
+ * Sorted descending by current proficiency: candidates closest to "working"
+ * appear first, as they require the least investment to reach the target.
  *
  * @param {string} skillId
  * @param {Array<object>} personMatrices

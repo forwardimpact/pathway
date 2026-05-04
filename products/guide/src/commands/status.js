@@ -37,6 +37,7 @@ function printStatusSummary(summary, result) {
   process.stdout.write(`Status: ${result.verdict}\n`);
 }
 
+/** Check Guide service health, data counts, and credentials, returning a ready/not-ready verdict. */
 export async function runStatusCommand({ json }) {
   const { createServiceConfig } = await import("@forwardimpact/libconfig");
   const { healthDefinition } = await import("@forwardimpact/librpc");

@@ -2,6 +2,7 @@
  * Faker tool — generates datasets using @faker-js/faker in-process.
  */
 
+/** Generate synthetic datasets using @faker-js/faker provider paths. */
 export class FakerTool {
   #faker;
 

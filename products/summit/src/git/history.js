@@ -10,7 +10,9 @@ import { promisify } from "node:util";
 
 const defaultExec = promisify(_execFile);
 
+/** Signals that git history operations failed because git is missing or the working directory is not a repository. */
 export class GitUnavailableError extends Error {
+  /** Create a GitUnavailableError with the underlying failure reason. */
   constructor(reason) {
     super(
       `Git history not available: ${reason}. Install git or track summit.yaml in version control.`,

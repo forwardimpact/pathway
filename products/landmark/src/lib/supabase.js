@@ -6,7 +6,9 @@
 
 import { createClient } from "@supabase/supabase-js";
 
+/** Error thrown when Supabase connection cannot be established due to missing configuration. */
 export class SupabaseUnavailableError extends Error {
+  /** Wrap the reason in a prefixed message ("Supabase connection unavailable: <reason>") and attach code "LANDMARK_SUPABASE_UNAVAILABLE". */
   constructor(reason) {
     super(`Supabase connection unavailable: ${reason}`);
     this.code = "LANDMARK_SUPABASE_UNAVAILABLE";

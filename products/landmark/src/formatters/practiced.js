@@ -4,6 +4,7 @@
 
 import { padRight, renderHeader } from "./shared.js";
 
+/** Render the practiced capability comparison as plain text with derived depth, evidence count, and flags. */
 export function toText(view) {
   const lines = [
     renderHeader(
@@ -29,10 +30,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the practiced view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the practiced capability comparison as a markdown table with derived/evidenced/flag columns. */
 export function toMarkdown(view) {
   const lines = [
     `# Practiced capability — ${view.managerEmail}`,

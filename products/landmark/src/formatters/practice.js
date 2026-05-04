@@ -4,6 +4,7 @@
 
 import { padRight, renderHeader } from "./shared.js";
 
+/** Render practice patterns as plain text with matched/unmatched/total counts per skill. */
 export function toText(view) {
   const lines = [renderHeader("Practice patterns"), ""];
 
@@ -22,10 +23,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the practice view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render practice patterns as a markdown table with matched/unmatched/total columns. */
 export function toMarkdown(view) {
   const lines = [
     "# Practice patterns",

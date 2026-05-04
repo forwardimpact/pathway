@@ -16,7 +16,9 @@ export const ScenarioType = Object.freeze({
   PROMOTE: "promote",
 });
 
+/** Signals an invalid or unparseable what-if scenario definition. */
 export class ScenarioError extends Error {
+  /** Create a ScenarioError with an optional machine-readable code. */
   constructor(message, code = "SUMMIT_SCENARIO_ERROR") {
     super(message);
     this.code = code;

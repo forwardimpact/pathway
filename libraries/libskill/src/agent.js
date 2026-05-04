@@ -135,10 +135,10 @@ export function deriveAgentBehaviours({
 }
 
 /**
- * Generate SKILL.md content from skill data
+ * Build a structured data object for a SKILL.md from skill data (frontmatter, title, focus, checklists); does not render markdown.
  * @param {Object} params - Parameters
  * @param {Object} params.skillData - Skill with agent section
- * @returns {Object} Skill with frontmatter, title, focus, checklists, etc.
+ * @returns {Object} Structured skill data with frontmatter, title, focus, checklists, etc.
  */
 export function generateSkillMarkdown({ skillData }) {
   const { agent, name } = skillData;

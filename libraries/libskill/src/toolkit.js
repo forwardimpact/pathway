@@ -58,6 +58,7 @@ function upsertTool(toolMap, tool, skillId) {
   }
 }
 
+/** Derive a de-duplicated, sorted toolkit from the highest-level skills in a skill matrix. */
 export function deriveToolkit({ skillMatrix, skills }) {
   const sourceMatrix = filterToolkitSkills(skillMatrix);
   const skillMap = new Map(skills.map((s) => [s.id, s]));

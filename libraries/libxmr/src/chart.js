@@ -33,6 +33,7 @@ const ASCII = {
 
 const DEFAULT_SLOT_WIDTH = 3;
 
+/** Render a Wheeler/Vacanti X+mR control chart as monospace text lines. */
 export function renderChart(values, stats, signals, options = {}) {
   const slotWidth = options.slotWidth ?? DEFAULT_SLOT_WIDTH;
   const ascii = options.ascii ?? false;

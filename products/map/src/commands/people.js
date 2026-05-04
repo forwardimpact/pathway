@@ -12,6 +12,7 @@ import {
   formatBullet,
 } from "@forwardimpact/libcli";
 
+/** Validate a people roster file against the known levels and disciplines. */
 export async function validate(filePath, dataDir) {
   process.stdout.write(
     formatHeader(`Validating people file: ${filePath}`) + "\n\n",
@@ -43,6 +44,7 @@ export async function validate(filePath, dataDir) {
   return 0;
 }
 
+/** Upload a people roster file to Supabase storage and transform it into the organization_people table. */
 export async function push(filePath, supabase) {
   process.stdout.write(
     formatHeader(`Pushing people file: ${filePath}`) + "\n\n",

@@ -86,6 +86,7 @@ async function execute(nodes, terminal) {
   return { output, cache, ran };
 }
 
+/** Pull-based DAG executor that runs terrain generation stages up to a declared terminal node. */
 export class Pipeline {
   /**
    * @param {object} deps

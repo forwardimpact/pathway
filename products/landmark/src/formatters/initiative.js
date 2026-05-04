@@ -4,6 +4,7 @@
 
 import { formatDelta, padRight, renderHeader } from "./shared.js";
 
+/** Render the initiative view as plain text, dispatching to list, show, or impact format. */
 export function toText(view) {
   if (view.initiatives) return listToText(view);
   if (view.initiative) return showToText(view);
@@ -11,10 +12,12 @@ export function toText(view) {
   return "";
 }
 
+/** Serialize the initiative view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the initiative view as markdown, dispatching to list, show, or impact format. */
 export function toMarkdown(view) {
   if (view.initiatives) return listToMarkdown(view);
   if (view.initiative) return showToMarkdown(view);

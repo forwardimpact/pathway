@@ -5,10 +5,12 @@
 const LEVELS = { error: 0, warn: 1, info: 2, debug: 3, trace: 3 };
 const DEFAULT_LEVEL = "info";
 
+/** Render post-run summary blocks to stdout; successful blocks are suppressed only when LOG_LEVEL=error is explicitly set (default level is "info", which renders all blocks). */
 export class SummaryRenderer {
   #proc;
   #level;
 
+  /** Initialize the renderer, reading LOG_LEVEL from the environment; defaults to "info" (all blocks rendered) when LOG_LEVEL is absent or unrecognized. */
   constructor({ process }) {
     this.#proc = process;
     const raw = (process.env?.LOG_LEVEL || "").toLowerCase().trim();

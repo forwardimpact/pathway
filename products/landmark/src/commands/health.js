@@ -27,6 +27,7 @@ import { computeGrowth } from "../lib/summit.js";
 
 export const needsSupabase = true;
 
+/** Build a health view joining snapshot scores, contributing-skill evidence, comments, initiatives, and Summit growth recommendations. */
 export async function runHealthCommand({
   options,
   mapData,

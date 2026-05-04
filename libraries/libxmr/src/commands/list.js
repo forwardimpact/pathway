@@ -3,6 +3,7 @@ import { formatHeader, formatTable } from "@forwardimpact/libcli";
 
 import { listMetrics } from "../csv.js";
 
+/** Run the list command: read a CSV and display all metrics with their point counts and date ranges. */
 export function runListCommand(values, args, cli) {
   const csvPath = args[0];
   if (!csvPath) {

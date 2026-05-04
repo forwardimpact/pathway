@@ -2,13 +2,16 @@ import { readFileSync } from "node:fs";
 import path from "node:path";
 import { analyze, renderChart, MIN_POINTS } from "@forwardimpact/libxmr";
 
+/** Error thrown when an XmR block cannot be rendered due to missing CSV or metric. */
 export class BlockRenderError extends Error {
+  /** Create a BlockRenderError with the given reason string. */
   constructor(reason) {
     super(reason);
     this.name = "BlockRenderError";
   }
 }
 
+/** Render an XmR chart block for a metric by reading its CSV and producing markdown lines. */
 export function renderBlock({
   metric,
   csvPath,

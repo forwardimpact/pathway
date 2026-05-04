@@ -17,6 +17,7 @@ import { createLogger } from "@forwardimpact/libtelemetry";
 
 const logger = createLogger("outpost");
 
+/** Manage knowledge base lifecycle including initialization, updates, and settings merging. */
 export class KBManager {
   #fs;
 

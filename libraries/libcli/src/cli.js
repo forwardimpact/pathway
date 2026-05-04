@@ -2,11 +2,13 @@ import { parseArgs } from "node:util";
 import { HelpRenderer } from "./help.js";
 import { freezeInvocationContext } from "./invocation-context.js";
 
+/** Command-line interface that parses argv against a definition of commands, options, and help. */
 export class Cli {
   #definition;
   #proc;
   #helpRenderer;
 
+  /** Build a CLI from a definition, wiring in the process handle and help renderer; throws if the deprecated top-level `options` key is present or if any command option name collides with a global option. */
   constructor(definition, { process, helpRenderer }) {
     if (definition.options) {
       throw new Error(
@@ -37,10 +39,12 @@ export class Cli {
     }
   }
 
+  /** Return the CLI program name from the definition. */
   get name() {
     return this.#definition.name;
   }
 
+  /** Parse argv into values and positionals, handling --help and --version; returns null when help or version is printed. */
   parse(argv) {
     const command = this.#findCommand(argv);
     const options = this.#buildOptions(command);
@@ -130,6 +134,7 @@ export class Cli {
     return null;
   }
 
+  /** Match parsed positionals to a subcommand and invoke its handler with a frozen invocation context. */
   dispatch(parsed, { data }) {
     const command = this.#findCommand(parsed.positionals);
     if (!command) {
@@ -155,21 +160,25 @@ export class Cli {
     return command.handler(ctx);
   }
 
+  /** Print the top-level help text to stdout. */
   showHelp() {
     this.#helpRenderer.render(this.#definition, this.#proc.stdout);
   }
 
+  /** Write an error message to stderr and set exit code 1. */
   error(message) {
     this.#proc.stderr.write(`${this.#definition.name}: error: ${message}\n`);
     this.#proc.exitCode = 1;
   }
 
+  /** Write a usage error message to stderr and set exit code 2. */
   usageError(message) {
     this.#proc.stderr.write(`${this.#definition.name}: error: ${message}\n`);
     this.#proc.exitCode = 2;
   }
 }
 
+/** Create a Cli instance wired to the real process and a default HelpRenderer. */
 export function createCli(definition) {
   const helpRenderer = new HelpRenderer({ process });
   return new Cli(definition, { process, helpRenderer });

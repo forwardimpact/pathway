@@ -312,6 +312,7 @@ function reportInvalidCombination(discipline, level, track, data) {
   process.exit(1);
 }
 
+/** Generate all job definitions and dispatch to summary table, list, detail, --skills list, --tools list, or JSON output depending on arguments and options. */
 export async function runJobCommand({
   data,
   args,

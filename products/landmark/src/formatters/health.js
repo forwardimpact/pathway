@@ -135,6 +135,7 @@ function renderMdDriver(driver, lines) {
 // Public API
 // ---------------------------------------------------------------------------
 
+/** Render the health view as indented plain text with drivers, evidence, comments, initiatives, and recommendations. */
 export function toText(view) {
   const lines = [renderHeader(`${view.teamLabel} — health view`), ""];
   for (const driver of view.drivers) {
@@ -143,10 +144,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the health view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the health view as markdown with driver sections, comments, initiatives, and recommendations. */
 export function toMarkdown(view) {
   const lines = [`# ${view.teamLabel} — health view`, ""];
   for (const driver of view.drivers) {

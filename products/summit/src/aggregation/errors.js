@@ -5,7 +5,9 @@
  * this avoids coupling the handler layer to the human-readable message.
  */
 
+/** Signals that a requested team ID does not exist in the roster. */
 export class TeamNotFoundError extends Error {
+  /** Create a TeamNotFoundError for the given team ID. */
   constructor(teamId) {
     super(
       `Team "${teamId}" not found. Run \`fit-summit roster\` to list teams.`,
@@ -15,7 +17,9 @@ export class TeamNotFoundError extends Error {
   }
 }
 
+/** Signals that a team exists but contains no members. */
 export class EmptyTeamError extends Error {
+  /** Create an EmptyTeamError for the given team ID. */
   constructor(teamId) {
     super(
       `Team "${teamId}" has no members. Add members to the roster or check the manager email hierarchy.`,
@@ -25,7 +29,9 @@ export class EmptyTeamError extends Error {
   }
 }
 
+/** Signals that a job profile references a discipline, level, or track not defined in Map data. */
 export class UnknownJobFieldError extends Error {
+  /** Create an UnknownJobFieldError for the invalid field name and value. */
   constructor(field, value) {
     super(
       `Invalid job profile: ${field} "${value}" is not defined in Map data.`,

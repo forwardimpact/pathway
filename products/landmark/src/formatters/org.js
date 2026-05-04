@@ -4,15 +4,18 @@
 
 import { padRight, renderHeader } from "./shared.js";
 
+/** Render the org or team directory as plain text with name, email, and role columns. */
 export function toText(view) {
   if (view.team) return teamToText(view);
   return orgToText(view);
 }
 
+/** Serialize the org view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the org or team directory as a markdown table. */
 export function toMarkdown(view) {
   if (view.team) return teamToMarkdown(view);
   return orgToMarkdown(view);

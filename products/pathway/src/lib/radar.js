@@ -34,6 +34,7 @@ export { ComparisonRadarChart } from "./comparison-radar-chart.js";
  * @property {number} [labelOffset=25] - Distance of labels from edge
  */
 
+/** SVG radar chart that plots data points on a polar grid with labels and interactive tooltips. */
 export class RadarChart {
   /**
    * @param {Object} config
@@ -62,6 +63,7 @@ export class RadarChart {
     this.tooltip = null;
   }
 
+  /** Clear the container and draw the full radar chart with rings, axes, data polygon, and labels. */
   render() {
     this.container.innerHTML = "";
 
@@ -88,6 +90,7 @@ export class RadarChart {
     this.container.appendChild(this.svg);
   }
 
+  /** Draw a filled SVG polygon connecting all data points at their scaled radar positions. */
   drawDataPolygon() {
     const points = this.data.map((d, i) => {
       const angle = this.angleSlice * i - Math.PI / 2;
@@ -116,6 +119,7 @@ export class RadarChart {
     this.svg.appendChild(polygon);
   }
 
+  /** Draw interactive SVG circles at each data point with optional tooltip hover handlers. */
   drawDataPoints() {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.classList.add("radar-points");
@@ -151,6 +155,7 @@ export class RadarChart {
     this.svg.appendChild(group);
   }
 
+  /** Draw word-wrapped axis labels around the radar perimeter with optional tooltip support. */
   drawLabels() {
     const group = document.createElementNS("http://www.w3.org/2000/svg", "g");
     group.classList.add("radar-labels");
@@ -211,6 +216,7 @@ export class RadarChart {
     return text.slice(0, maxLength - 1) + "…";
   }
 
+  /** Position and display a tooltip showing the label, value, and description for a data point. */
   showTooltip(event, data) {
     if (!this.tooltip) return;
 
@@ -229,12 +235,14 @@ export class RadarChart {
     this.tooltip.style.opacity = "1";
   }
 
+  /** Fade out the active tooltip element. */
   hideTooltip() {
     if (this.tooltip) {
       this.tooltip.style.opacity = "0";
     }
   }
 
+  /** Replace the chart data and re-render the entire radar visualization. */
   update(newData) {
     this.data = newData;
     this.angleSlice = (Math.PI * 2) / this.data.length;

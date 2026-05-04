@@ -13,6 +13,7 @@ import { EMPTY_STATES } from "../lib/empty-state.js";
 
 export const needsSupabase = true;
 
+/** Compare derived skill depths from role definitions against evidenced depths from practice patterns for a manager's team. */
 export async function runPracticedCommand({
   options,
   mapData,

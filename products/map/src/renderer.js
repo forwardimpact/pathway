@@ -16,6 +16,7 @@ const __dirname = dirname(fileURLToPath(import.meta.url));
 
 const SKILL_PARTIALS = ["skill-inline.html"];
 
+/** Renders base-entity view models into complete HTML microdata documents using Mustache templates. */
 export class Renderer {
   #templates;
 
@@ -31,6 +32,7 @@ export class Renderer {
     return this.#templates.render("page.html", { title, body });
   }
 
+  /** Render a skill entity and its inline partials into a full HTML page. */
   renderSkill(skill, ctx) {
     const view = viewBuilders.buildSkillView(skill, ctx);
     const body = this.#templates.renderWithPartials(
@@ -41,6 +43,7 @@ export class Renderer {
     return this.#page(view.name, body);
   }
 
+  /** Render a capability entity with its nested skills into a full HTML page. */
   renderCapability(capability, ctx) {
     const view = viewBuilders.buildCapabilityView(capability, ctx);
     const body = this.#templates.renderWithPartials(
@@ -51,36 +54,42 @@ export class Renderer {
     return this.#page(view.name, body);
   }
 
+  /** Render a level entity into a full HTML page. */
   renderLevel(level) {
     const view = viewBuilders.buildLevelView(level);
     const body = this.#templates.render("level.html", view);
     return this.#page(view.name, body);
   }
 
+  /** Render a behaviour entity into a full HTML page. */
   renderBehaviour(behaviour, ctx) {
     const view = viewBuilders.buildBehaviourView(behaviour, ctx);
     const body = this.#templates.render("behaviour.html", view);
     return this.#page(view.name, body);
   }
 
+  /** Render a discipline entity into a full HTML page. */
   renderDiscipline(discipline) {
     const view = viewBuilders.buildDisciplineView(discipline);
     const body = this.#templates.render("discipline.html", view);
     return this.#page(view.name, body);
   }
 
+  /** Render a track entity into a full HTML page. */
   renderTrack(track) {
     const view = viewBuilders.buildTrackView(track);
     const body = this.#templates.render("track.html", view);
     return this.#page(view.name, body);
   }
 
+  /** Render a driver entity into a full HTML page. */
   renderDriver(driver) {
     const view = viewBuilders.buildDriverView(driver);
     const body = this.#templates.render("driver.html", view);
     return this.#page(view.name, body);
   }
 
+  /** Render a tool reference entity into a full HTML page. */
   renderTool(tool) {
     const view = viewBuilders.buildToolView(tool);
     const body = this.#templates.render("tool.html", view);

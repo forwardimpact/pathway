@@ -4,6 +4,7 @@
 
 import { renderHeader } from "./shared.js";
 
+/** Render the readiness checklist as plain text with checkbox-style markers and a summary line. */
 export function toText(view) {
   const lines = [
     renderHeader(
@@ -42,10 +43,12 @@ export function toText(view) {
   return lines.join("\n");
 }
 
+/** Serialize the readiness view and metadata as formatted JSON. */
 export function toJson(view, meta) {
   return JSON.stringify({ ...view, meta }, null, 2);
 }
 
+/** Render the readiness checklist as markdown with skill sections and a summary of evidenced markers. */
 export function toMarkdown(view) {
   const lines = [
     `# Readiness: ${view.email} (${view.currentLevel} → ${view.targetLevel})`,

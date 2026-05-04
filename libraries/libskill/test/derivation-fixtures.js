@@ -24,6 +24,7 @@ const DEFAULT_LEVEL_EXPECTATIONS = {
   complexityHandled: "moderate",
 };
 
+/** Create a software engineering discipline fixture with supporting and broad skill defaults. */
 export function makeDiscipline(overrides = {}) {
   return createTestDiscipline({
     specialization: "Software Engineering",
@@ -33,6 +34,7 @@ export function makeDiscipline(overrides = {}) {
   });
 }
 
+/** Create a management discipline fixture with people-focused core skills and management flags. */
 export function makeManagementDiscipline(overrides = {}) {
   return makeDiscipline({
     id: "engineering_management",
@@ -49,6 +51,7 @@ export function makeManagementDiscipline(overrides = {}) {
   });
 }
 
+/** Create a mid-level (level 3) fixture with default impact, autonomy, and complexity expectations. */
 export function makeLevel(overrides = {}) {
   return createTestLevel({
     id: "level_3",
@@ -57,6 +60,7 @@ export function makeLevel(overrides = {}) {
   });
 }
 
+/** Create a senior (staff/director) level fixture with practitioner-tier proficiency baselines. */
 export function makeSeniorLevel(overrides = {}) {
   return makeLevel({
     id: "level_5",
@@ -73,6 +77,7 @@ export function makeSeniorLevel(overrides = {}) {
   });
 }
 
+/** Create a junior (level 1) fixture with foundational proficiency and emerging maturity baselines. */
 export function makeJuniorLevel(overrides = {}) {
   return makeLevel({
     id: "level_1",
@@ -89,6 +94,7 @@ export function makeJuniorLevel(overrides = {}) {
   });
 }
 
+/** Create a platform track fixture with skill and behaviour modifiers. */
 export function makeTrack(overrides = {}) {
   return createTestTrack({
     description: "Platform engineering track",
@@ -98,6 +104,7 @@ export function makeTrack(overrides = {}) {
   });
 }
 
+/** Create a full set of ten skill fixtures spanning delivery, scale, reliability, and management capabilities. */
 export function makeSkills() {
   return [
     createTestSkill({
@@ -161,6 +168,7 @@ export function makeSkills() {
   ];
 }
 
+/** Create collaboration and ownership behaviour fixtures with full maturity description ladders. */
 export function makeBehaviours() {
   return [
     createTestBehaviour({
@@ -188,6 +196,7 @@ export function makeBehaviours() {
   ];
 }
 
+/** Create four capability fixtures (delivery, scale, reliability, documentation) with professional and management responsibilities. */
 export function makeCapabilities() {
   return [
     createTestCapability({
@@ -249,6 +258,7 @@ export function makeCapabilities() {
   ];
 }
 
+/** Create velocity and stability driver fixtures linking contributing skills and behaviours. */
 export function makeDrivers() {
   return [
     createTestDriver({

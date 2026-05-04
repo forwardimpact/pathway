@@ -138,6 +138,7 @@ function createRelationsSection(view, showBackLink) {
   );
 }
 
+/** Build a skill detail page DOM tree with proficiency-level descriptions, related disciplines, track modifiers, required tools, and agent content. */
 export function skillToDOM(
   skill,
   {

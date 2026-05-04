@@ -6,6 +6,7 @@
 //                  outsized moves are investigated.
 //   signals      — at least one X chart rule fires (and mR Rule 1 does not).
 //   stable       — predictable; no rules fire.
+/** Classify a metric into a process-behavior category: insufficient, chaos, signals, or stable. */
 export function classify(metric) {
   if (metric.status === "insufficient_data") return "insufficient";
   const s = metric.signals;

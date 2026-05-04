@@ -121,6 +121,7 @@ function createBaseProfileSection(view) {
   );
 }
 
+/** Build a level detail page DOM tree with titles, expectations, and job builder links. */
 export function levelToDOM(level, { standard, showBackLink = true } = {}) {
   const view = prepareLevelDetail(level);
   const emoji = standard ? getConceptEmoji(standard, "level") : "📊";

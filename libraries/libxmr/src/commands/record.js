@@ -56,6 +56,7 @@ function printSummary(csvPath, metric) {
   }
 }
 
+/** Append a metric data point to `wiki/metrics/<skill>/<year>.csv` (creating the directory and header if absent) and print a one-line XmR status summary for the recorded metric. */
 export function runRecordCommand(values, _args, cli) {
   const opts = parseRecordOptions(values, cli);
 

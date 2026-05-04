@@ -37,6 +37,7 @@ export function createOrchestrationContext() {
 
 // --- Handler factories ---
 
+/** Create a handler that marks the session as concluded and records the summary. */
 export function createConcludeHandler(ctx) {
   return async ({ summary }) => {
     ctx.concluded = true;
@@ -45,6 +46,7 @@ export function createConcludeHandler(ctx) {
   };
 }
 
+/** Create a handler that queues a redirect to interrupt a participant with replacement instructions. */
 export function createRedirectHandler(ctx) {
   return async ({ message, to }) => {
     ctx.redirect = { message, to: to ?? null };
@@ -52,6 +54,7 @@ export function createRedirectHandler(ctx) {
   };
 }
 
+/** Create a handler that returns the list of all session participants and their roles. */
 export function createRollCallHandler(ctx) {
   return async () => {
     return {

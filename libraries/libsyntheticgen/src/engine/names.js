@@ -270,9 +270,8 @@ export const MANAGER_NAMES = {
 };
 
 /**
- * Get a GitHub username from a person name.
+ * Derive a GitHub username by lowercasing, stripping non-alphanumeric characters, and appending "-bio".
  * @param {string} name
- * @param {string} domain - organization domain
  * @returns {string}
  */
 export function toGithubUsername(name) {

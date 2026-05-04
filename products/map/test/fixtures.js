@@ -132,6 +132,7 @@ export function makeEvidenceRow(overrides = {}) {
   };
 }
 
+/** Create a minimal artifact fixture with optional field overrides for evidence transform tests. */
 export function makeArtifact(overrides = {}) {
   return {
     artifact_id: "a1",

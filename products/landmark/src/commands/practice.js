@@ -10,6 +10,7 @@ import { EMPTY_STATES } from "../lib/empty-state.js";
 
 export const needsSupabase = true;
 
+/** Fetch and return practice-pattern aggregates, optionally filtered by skill or manager. */
 export async function runPracticeCommand({
   options,
   supabase,

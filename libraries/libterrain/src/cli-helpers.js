@@ -71,6 +71,7 @@ export async function resolveSupabaseClient() {
   return createClient(url, key);
 }
 
+/** Assemble all pipeline dependencies from CLI options and return a configured Pipeline. */
 export function createPipeline(opts) {
   const {
     logger,
@@ -147,6 +148,7 @@ export function createPipeline(opts) {
   });
 }
 
+/** Choose the output sink for a verb, composing WriteSink and LoadSink when --load is set. */
 export async function selectOutputSink({
   verb,
   load,
@@ -200,6 +202,7 @@ export function terminalForVerb(verb, inspectStage) {
   }
 }
 
+/** Resolve prompt and template directories from installed libsyntheticprose and libsyntheticrender packages. */
 export function resolvePackagePaths(metaResolve) {
   const libsyntheticproseDir = dirname(
     fileURLToPath(metaResolve("@forwardimpact/libsyntheticprose")),
@@ -253,9 +256,7 @@ export function printValidation(result, summary) {
 }
 
 /**
- * Render prose cache stats as a 4-column table inside a SummaryRenderer-gated
- * block. Suppression on success at LOG_LEVEL=error is delegated to the
- * renderer's own policy.
+ * Render a prose cache stats block (Hits/Generated/Misses/Rate) via summary.render; returns immediately if no cache entries were recorded.
  */
 export function printProseStats(summary, result, ok) {
   const { hits, generated, misses } = result.stats.prose;
@@ -333,8 +334,7 @@ export function printWriteStats(summary, writeStats, ok) {
 
 /**
  * Render the LLM-call accounting block emitted by `generate`. Reports the
- * number of cache misses that triggered LLM calls (i.e. new entries written
- * to the cache during this run).
+ * number of actual LLM invocations made during this run (prose.generated counter).
  */
 export function printGenerateStats(summary, result, ok) {
   const items = [

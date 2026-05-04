@@ -32,6 +32,7 @@ function applyDefaults(deps) {
   };
 }
 
+/** Run a single Claude Agent SDK session and emit raw NDJSON events to an output stream. */
 export class AgentRunner {
   /**
    * @param {object} deps
