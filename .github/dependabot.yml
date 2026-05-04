@@ -4,11 +4,7 @@ updates:
   - package-ecosystem: github-actions
     directories:
       - /
-      - /.github/actions/audit
-      - /.github/actions/bootstrap
-      - /.github/actions/kata-action-agent
-      - /.github/actions/kata-action-eval
-      - /.github/actions/post-run
+      - /.github/actions/*
     schedule:
       interval: weekly
   - package-ecosystem: bun
