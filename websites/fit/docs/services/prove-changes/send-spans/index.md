@@ -1,0 +1,184 @@
+---
+title: Send Spans from a Product
+description: Emit trace spans to the trace gRPC service and verify they are queryable -- without managing storage.
+---
+
+You need to record trace spans from within a product -- what happened, how long
+it took, whether it succeeded -- and trust that those spans are stored and
+queryable afterward. This page walks through the bounded task of connecting to
+the trace service, building a span, sending it, and querying it back to
+confirm the round trip.
+
+For the full setup including architecture context, the query interface, and
+tree reconstruction, see
+[Collect Trace Spans from Any Product](/docs/services/prove-changes/).
+
+## Prerequisites
+
+- Completed the
+  [Collect Trace Spans from Any Product](/docs/services/prove-changes/) guide --
+  you have `@forwardimpact/librpc` and `@forwardimpact/libtype` installed, and
+  the trace service is running.
+
+## Connect
+
+```js
+import { createClient } from "@forwardimpact/librpc";
+import { createLogger } from "@forwardimpact/libtelemetry";
+import { trace } from "@forwardimpact/libtype";
+
+const logger = createLogger("my-product");
+const traceClient = await createClient("trace", logger);
+```
+
+## Send a span
+
+Build a `trace.Span` and call `RecordSpan`. Every span needs a `trace_id`
+(grouping related spans) and a `span_id` (unique to this span):
+
+```js
+const span = trace.Span.fromObject({
+  trace_id: "eval-run-042",
+  span_id: "step-01",
+  name: "generate-output",
+  kind: 1,  // INTERNAL
+  start_time_unix_nano: BigInt(Date.now()) * 1_000_000n,
+  end_time_unix_nano: BigInt(Date.now() + 2000) * 1_000_000n,
+  attributes: {
+    "agent.name": "release-engineer",
+    "step.type": "generation",
+  },
+  status: { code: 1, message: "" },  // OK
+  resource: {
+    attributes: { "service.name": "my-product" },
+  },
+});
+
+const result = await traceClient.RecordSpan(span);
+console.log("Sent:", result.success);
+```
+
+Expected output:
+
+```text
+Sent: true
+```
+
+## Send a child span
+
+Link a child span to its parent using `parent_span_id`:
+
+```js
+const childSpan = trace.Span.fromObject({
+  trace_id: "eval-run-042",
+  span_id: "step-02",
+  parent_span_id: "step-01",
+  name: "verify-output",
+  kind: 1,
+  start_time_unix_nano: BigInt(Date.now()) * 1_000_000n,
+  end_time_unix_nano: BigInt(Date.now() + 800) * 1_000_000n,
+  attributes: {
+    "agent.name": "release-engineer",
+    "step.type": "verification",
+    "verdict": "pass",
+  },
+  status: { code: 1, message: "" },
+  resource: {
+    attributes: { "service.name": "my-product" },
+  },
+});
+
+await traceClient.RecordSpan(childSpan);
+```
+
+## Send an error span
+
+When a step fails, set the status code to `ERROR` (2) with a message:
+
+```js
+const errorSpan = trace.Span.fromObject({
+  trace_id: "eval-run-042",
+  span_id: "step-03",
+  parent_span_id: "step-01",
+  name: "publish-results",
+  kind: 1,
+  start_time_unix_nano: BigInt(Date.now()) * 1_000_000n,
+  end_time_unix_nano: BigInt(Date.now() + 500) * 1_000_000n,
+  attributes: {
+    "agent.name": "release-engineer",
+  },
+  status: { code: 2, message: "Connection refused on port 3005" },
+  resource: {
+    attributes: { "service.name": "my-product" },
+  },
+});
+
+await traceClient.RecordSpan(errorSpan);
+```
+
+## Query to confirm
+
+After sending spans, query them back by trace ID to confirm storage:
+
+```js
+const query = trace.QueryRequest.fromObject({
+  filter: { trace_id: "eval-run-042" },
+});
+
+const result = await traceClient.QuerySpans(query);
+console.log("Stored spans:", result.spans?.length ?? 0);
+
+for (const s of result.spans ?? []) {
+  const status = s.status?.code === 2 ? "ERROR" : "OK";
+  console.log(`  ${s.name} [${status}]`);
+}
+```
+
+Expected output:
+
+```text
+Stored spans: 3
+  generate-output [OK]
+  verify-output [OK]
+  publish-results [ERROR]
+```
+
+## Handle send failures
+
+`RecordSpan` validates that `trace_id` and `span_id` are present. Missing
+either produces a gRPC error:
+
+```js
+try {
+  const bad = trace.Span.fromObject({
+    trace_id: "",
+    span_id: "orphan",
+    name: "missing-trace-id",
+  });
+  await traceClient.RecordSpan(bad);
+} catch (err) {
+  console.error(err.message);
+  // "trace_id is required"
+}
+```
+
+If the trace service is unreachable, the client retries up to 10 times with
+a 1-second delay before surfacing the connection error.
+
+## Verify
+
+You have reached the outcome of this guide when:
+
+- `RecordSpan` with a valid `trace_id` and `span_id` returns
+  `{ success: true }`.
+- Child spans reference their parent and appear in the same trace query.
+- Error spans preserve their status code and message.
+- `QuerySpans` returns all spans sent under the same `trace_id`.
+
+## Related
+
+- [Collect Trace Spans from Any Product](/docs/services/prove-changes/) --
+  return to the full guide for architecture context, query options, and tree
+  reconstruction.
+- [Trace Analysis](/docs/libraries/trace-analysis/) -- analyze stored traces
+  as qualitative research with `fit-trace`.
