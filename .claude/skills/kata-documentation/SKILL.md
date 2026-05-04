@@ -59,6 +59,7 @@ Each run covers **one topic** in depth.
 | `getting-started`        | `websites/fit/docs/getting-started/` — onboarding accuracy, CLI examples              |
 | `products`               | `websites/fit/docs/products/` — product-task accuracy, audience purity, completeness  |
 | `libraries`              | `websites/fit/docs/libraries/` — library-task accuracy, audience purity, completeness |
+| `services`               | `websites/fit/docs/services/` — service-task accuracy, audience purity, completeness  |
 | `reference`              | `websites/fit/docs/reference/` — CLI synopsis, entity definitions, schema             |
 | `internals`              | `websites/fit/docs/internals/` — architecture accuracy, code path validity            |
 | `product-pages`          | `websites/fit/{map,pathway,guide,outpost,landmark,summit,gear}/` — overviews          |
@@ -107,9 +108,9 @@ Run the DO-CONFIRM checklist at the top of this skill.
 1. **Identify the audience.** Determine which user group the page serves — this
    decides the section. See
    [`references/standards.md`](references/standards.md).
-2. **Choose the section.** New to the product → Getting Started. Task to
-   accomplish → Guides. Looking something up → Reference. Understanding the code
-   → Internals.
+2. **Choose the section.** New to the product → Getting Started. Full workflow →
+   Big Hire guide. Bounded task → Little Hire guide. Looking something up →
+   Reference. Understanding the code → Internals.
 3. **Research the source of truth.** Read the actual code and data before
    writing. Cross-reference
    [`references/source-of-truth.md`](references/source-of-truth.md).

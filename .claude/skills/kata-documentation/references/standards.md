@@ -2,7 +2,7 @@
 
 ## Information Architecture
 
-Five-tier hierarchy under `websites/fit/docs/` serving four user groups
+Six-tier hierarchy under `websites/fit/docs/` serving four user groups
 (Leadership, Engineers, Builders and Agents, Contributors):
 
 | Tier              | Intent                              | Subsections                                                                                                                                                                               |
@@ -10,6 +10,7 @@ Five-tier hierarchy under `websites/fit/docs/` serving four user groups
 | `getting-started` | "Get me going fast"                 | `leadership/`, `engineers/`, `contributors/`                                                                                                                                              |
 | `products`        | "Help me accomplish a product task" | `authoring-standards/`, `agent-teams/`, `career-paths/`, `knowledge-systems/`, `landmark-quickstart/`, `team-capability/`, `finding-your-bearing/`                                        |
 | `libraries`       | "Help me accomplish a library task" | `agent-evaluations/`, `agent-collaboration/`, `trace-analysis/`                                                                                                                           |
+| `services`        | "Help me integrate with a service"  | One per service (`graph/`, `vector/`, `pathway/`, `mcp/`, `trace/`)                                                                                                                       |
 | `reference`       | "Let me look something up"          | `cli/`, `model/`, `lifecycle/`, `yaml-schema/`                                                                                                                                            |
 | `internals`       | "Show me how this is built"         | one per product (`map/`, `pathway/`, `outpost/`, `guide/`, `landmark/`, `summit/`), shared infrastructure (`codegen/`, `libcli/`, `librepl/`, `libskill/`, `terrain/`), and `operations/` |
 
@@ -21,6 +22,7 @@ Every sentence belongs to exactly one audience.
 | -------------------------------------------------------- | --------------------- | ------------------------- |
 | How to accomplish a task with the products               | Leadership, Engineers | Getting Started, Products |
 | How to accomplish a task with the libraries (Gear)       | Builders, Agents      | Libraries                 |
+| How to integrate with a running service                  | Builders, Agents      | Services                  |
 | Entity definitions, CLI synopsis, YAML format            | All users             | Reference                 |
 | Module structures, code paths, class names, `src/` paths | Contributors          | Internals                 |
 | Architecture, data flow, formatter patterns              | Contributors          | Internals                 |
@@ -31,47 +33,31 @@ names, or import statements.
 
 ## Writing Principles
 
-**Both Product and Library tiers are task-oriented, not artifact-oriented.** The
-folder name signals audience (engineers and leadership for `products/`, builders
-and agents for `libraries/`), not page contents. A task may span multiple
-products or libraries when that matches the real workflow.
+**Product, Library, and Service tiers are task-oriented.** The folder name
+signals audience, not page contents. A task may span multiple products or
+libraries.
 
-**Reference is lookup, not tutorial.** CLI reference lists commands with
-arguments and a brief example. Model reference defines every entity. YAML schema
-reference shows the exact format. Structured, scannable — no prose narrative.
+**Reference is lookup, not tutorial.** Structured, scannable — no prose
+narrative.
 
 **Link to existing artifacts, don't duplicate.** Published JSON Schema lives at
 `/schema/json/` and RDF/SHACL at `/schema/rdf/` — link to them instead of
 reproducing. Published SKILL.md files link to Product Guides, Library Guides,
 and Reference markdown companions for progressive disclosure.
 
-**Published skills use absolute URLs.** Published skills (`fit-*`) are installed
-on external systems where the monorepo docs are not available locally, so every
-documentation link must use the full domain. Internal skills (`libs-*`,
-`kata-*`) may use repo-relative paths since they only run inside the monorepo.
+**Published skills use absolute URLs.** Published skills (`fit-*`) run on
+external systems — use the full domain. Internal skills (`libs-*`, `kata-*`) may
+use repo-relative paths.
 
-```markdown
-<!-- Correct — works on any installation -->
-
-- [Guide](https://www.forwardimpact.team/docs/products/authoring-standards/index.md)
-
-<!-- Wrong — breaks on external installations -->
-
-- [Guide](/docs/products/authoring-standards/index.md)
-```
-
-**Products, Libraries, and Reference produce stable agent-fetchable URLs.**
-Every page gets a markdown companion (generated by `libdoc`) at a predictable
-URL. Content must make sense to an agent with no monorepo context.
+**All tiers produce stable agent-fetchable URLs.** Every page gets a markdown
+companion via `libdoc` at a predictable URL.
 
 ## Formatting Consistency
 
-When the same concept appears on multiple pages, formatting and terminology must
-be identical — inconsistency erodes trust.
+Formatting and terminology must be identical across pages.
 
-**Repeating tables** — The proficiency scale and behaviour maturity scale appear
-in multiple guides. The canonical tables live in the Authoring Agent-Aligned
-Engineering Standards; all other copies must match column values exactly.
+**Repeating tables** — Canonical proficiency and behaviour maturity tables live
+in the Authoring Standards guide; copies must match exactly.
 
 **Field names** — Use the same tier vocabulary across disciplines and levels:
 
@@ -80,8 +66,7 @@ Engineering Standards; all other copies must match column values exactly.
 | Discipline tiers    | `coreSkills`, `supportingSkills`, `broadSkills` | Discipline YAML                         |
 | Level proficiencies | `core`, `supporting`, `broad`                   | `baseSkillProficiencies` in levels.yaml |
 
-The tier name in `baseSkillProficiencies.<tier>` matches the tier of the
-discipline's `<tier>Skills` array. Use the same tier vocabulary everywhere.
+Tier names in `baseSkillProficiencies` match discipline `<tier>Skills` arrays.
 
 **Required/optional fields** — Verify against the JSON schema in
 `products/map/schema/json/`. The schema's `required` array is the single source
@@ -102,10 +87,19 @@ Documentation lives in two layers: repository root and website.
 | `CONTRIBUTING.md` | PR workflow, git conventions, quality, security | All contributors |
 | `SECURITY.md`     | Vulnerability reporting                         | All contributors |
 
-CONTRIBUTING.md is canonical for PR workflow and policies — CLAUDE.md references
-it rather than duplicating. Contributor onboarding narrative lives at
-`websites/fit/docs/getting-started/contributors/`; operational reference
-(environment, services, tasks) at `websites/fit/docs/internals/operations/`.
+CONTRIBUTING.md is canonical for policies — CLAUDE.md references it. Onboarding
+at `getting-started/contributors/`; operations at `internals/operations/`.
+
+## Content Framing
+
+Guides frame around the reader's progress, not product features.
+
+| Instead of                            | Write                                                              |
+| ------------------------------------- | ------------------------------------------------------------------ |
+| "Summit generates coverage heatmaps"  | "See which capabilities the team covers and where the gaps are"    |
+| "Guide answers career questions"      | "When a promotion conversation ends with 'not yet,' get specifics" |
+
+Banned JTBD vocabulary in guides: job, hire, fire, trigger, forces, compete.
 
 ## Layouts
 

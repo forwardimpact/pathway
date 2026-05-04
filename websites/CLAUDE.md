@@ -74,6 +74,18 @@ Generate AI coding agent teams...
 </div>
 ```
 
+### Guide Pages
+
+Guides under `docs/products/`, `docs/libraries/`, and `docs/services/` sit
+under job headings on their hub page. Each job contains two guide types:
+
+- **Big Hire** — end-to-end workflow from situation to outcome (150–400 lines)
+- **Little Hire** — bounded task assuming the Big Hire is done (80–200 lines)
+
+Getting-started pages are per-persona minimal paths (50–150 lines) linking
+forward to guides. All guides are framed around the reader's progress, not
+product features.
+
 ### Manual maintenance
 
 Navigation is not generated from the file tree. When a page is added, moved, or

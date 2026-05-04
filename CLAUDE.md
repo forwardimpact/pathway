@@ -11,8 +11,7 @@
 ## Primary Products
 
 Three external user groups hire these products. Internal contributors build and
-maintain the monorepo; external users consume products via npm. See
-[JTBD.md](JTBD.md) for the jobs each persona hires our products to do.
+maintain the monorepo. See [JTBD.md](JTBD.md) for each persona's jobs.
 
 - **Engineering Leaders** — Define what good engineering looks like, staff teams
   to succeed, and measure outcomes without blaming individuals.
@@ -88,9 +87,8 @@ the same interface, with tooling to prove changes actually improved outcomes.
 
 ## Distribution Model
 
-The monorepo is open source but external users never clone it. They consume
-products exclusively via npm packages. The monorepo exists solely for internal
-contributors.
+The monorepo is open source but exists solely for internal contributors —
+external users consume products via npm.
 
 ### How External Users Consume Products
 
@@ -185,4 +183,5 @@ One home per policy.
 - **Getting started** — [Getting Started](websites/fit/docs/getting-started/)
 - **Product guides** — [websites/fit/docs/products/](websites/fit/docs/products/)
 - **Library guides** — [websites/fit/docs/libraries/](websites/fit/docs/libraries/)
+- **Service guides** — [websites/fit/docs/services/](websites/fit/docs/services/)
 - **Published skills** — [fit-\*](.claude/skills/) · [kata-\*](.claude/skills/)
