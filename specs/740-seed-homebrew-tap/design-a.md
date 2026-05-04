@@ -92,7 +92,7 @@ monorepo's shared releases.
 ### App Install Path
 
 All casks install to a `Forward Impact/` subdirectory under `/Applications/`
-to keep eight `.app` bundles visually grouped rather than scattered among
+to keep seven `.app` bundles visually grouped rather than scattered among
 unrelated applications:
 
 ```ruby
@@ -145,5 +145,5 @@ together. The tap README links to this document via its published URL.
 | Shared bundle consolidation | Single `fit-gear` cask | Separate `fit-services` + `fit-utilities` | One bundle simplifies install, tag management, and release workflow |
 | Inter-cask dependencies | None — all casks independently installable | Products depend on gear via `depends_on cask:` | Users install only what they need; forced deps pull 25 CLIs for a single-CLI product |
 | Livecheck strategy | `:github_releases` with anchored per-cask regex | `:url` against atom feed | Anchored `^{name}@v…$` regex cleanly filters the multi-bundle releases page |
-| App install path | `Forward Impact/` subdirectory | Flat install to `/Applications/` | Groups eight bundles visually; avoids cluttering the top-level Applications folder |
+| App install path | `Forward Impact/` subdirectory | Flat install to `/Applications/` | Groups seven bundles visually; avoids cluttering the top-level Applications folder |
 | Conventions doc location | Monorepo `internals/release/` | Tap repo README | Conventions co-decay with the workflow |

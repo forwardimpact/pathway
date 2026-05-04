@@ -64,9 +64,9 @@ Verify: `grep -E '^\s+- "[a-z]+@v\*"' .github/workflows/publish-brew.yml | wc -l
 
 ### 2. Collapse both `case "$NAME"` blocks onto a single `gear` branch
 
-File modified: `.github/workflows/publish-brew.yml`. Two identical-shape blocks: the `build` job's "Extract bundle and version from tag" step (lines 33–37) and the `tap-pr` job's "Extract bundle and version from tag" step (lines 158–162).
+File modified: `.github/workflows/publish-brew.yml`. Two case blocks need updating: the `build` job's "Extract bundle and version from tag" step (lines 33–37) and the `tap-pr` job's "Extract bundle and version from tag" step (lines 158–161). The blocks differ — the `build` block sets `KIND`, `BUNDLE`, and `CASK`; the `tap-pr` block sets only `KIND` and `CASK` (no `BUNDLE`). Replace each separately:
 
-Replace each occurrence:
+**Build job** (lines 33–37):
 
 ```sh
 # Before
@@ -83,7 +83,22 @@ case "$NAME" in
 esac
 ```
 
-The `tap-pr` block today omits `BUNDLE` from the `${GITHUB_OUTPUT}` echoes; preserve that omission.
+**Tap-pr job** (lines 158–161 — no `BUNDLE` variable):
+
+```sh
+# Before
+case "$NAME" in
+  services)   KIND=services;   CASK=fit-services  ;;
+  utilities)  KIND=utilities;  CASK=fit-utilities ;;
+  *)          KIND=product;    CASK=fit-${NAME}   ;;
+esac
+
+# After
+case "$NAME" in
+  gear)  KIND=gear;     CASK=fit-gear    ;;
+  *)     KIND=product;  CASK=fit-${NAME} ;;
+esac
+```
 
 Verify: `grep -n 'KIND=services\|KIND=utilities\|fit-services\|fit-utilities\|FIT Services\|FIT Utilities' .github/workflows/publish-brew.yml` returns no matches.
 
@@ -310,14 +325,52 @@ Body sections (one section per cross-cutting decision named in spec § In scope;
 | Section heading | Coverage |
 | --- | --- |
 | `## Overview` | The tap repo's role; the `publish-brew.yml` workflow's role; where each authored field lives. Two paragraphs. |
-| `## Sed contract` | The two fields the workflow rewrites (`version`, `sha256`); literal `sed -i` invocation; required two-space indent + double-quoted shape; what survives unchanged across releases. |
-| `## Cask topology` | No inter-cask `depends_on`; six product casks each expose one CLI; `fit-gear` exposes 25 CLIs. Reproduce the Mermaid diagram from design § Cask Topology — the conventions doc is the long-lived reference for tap reviewers and stands on its own without a hop to the design. |
-| `## Binary stanza mapping` | Authoritative table — same rows as design § Binary Stanza Mapping. |
+| `## Sed contract` | The two fields the workflow rewrites (`version`, `sha256`); literal `sed -i` invocation (verbatim block below); required two-space indent + double-quoted shape; what survives unchanged across releases. |
+| `## Cask topology` | No inter-cask `depends_on`; six product casks each expose one CLI; `fit-gear` exposes 25 CLIs. Include the Mermaid diagram verbatim (below). |
+| `## Binary stanza mapping` | Authoritative table (verbatim below). |
 | `## Livecheck regex pattern` | `:github_releases` strategy with the cask's own download URL; per-cask `^{name}@v(\d+(?:\.\d+)+)$` regex anchoring; rationale for `^...$` against the multi-bundle releases page. |
 | `## App install path` | `Forward Impact/` subdirectory under `/Applications/`; how `app` and `binary` stanzas reference it; why grouping (vs. flat install) was chosen. |
 | `## Zap and uninstall paths` | `~/Library/Preferences/team.forwardimpact.{name}.plist` per cask; one row per cask. |
 | `## Verification commands` | `brew style Casks/*.rb` and `brew audit --new-cask Casks/{cask}.rb`; what a human reviewer runs before merging a tap PR; how to dry-run the workflow's sed locally. |
 | `## What's next` | Partial-card grid (`<!-- part:card:... -->` only — no markdown link cards per `websites/CLAUDE.md`). Targets: `../operations`, `../kata`. Maximum four cards. |
+
+Verbatim content for sections referencing the design:
+
+**Sed contract** — include this code block:
+
+```sh
+sed -i \
+  -e "s|^  version \".*\"|  version \"${VERSION}\"|" \
+  -e "s|^  sha256 \".*\"|  sha256 \"${SHA256}\"|" \
+  "tap/Casks/${CASK}.rb"
+```
+
+**Cask topology** — include this Mermaid diagram:
+
+```mermaid
+graph TD
+    subgraph Products
+        pathway[fit-pathway]
+        map[fit-map]
+        guide[fit-guide]
+        landmark[fit-landmark]
+        summit[fit-summit]
+        outpost[fit-outpost]
+    end
+    gear[fit-gear]
+```
+
+**Binary stanza mapping** — include this table:
+
+| Cask | Executables on PATH | Count |
+| --- | --- | --- |
+| `fit-pathway` | `fit-pathway` | 1 |
+| `fit-map` | `fit-map` | 1 |
+| `fit-guide` | `fit-guide` | 1 |
+| `fit-landmark` | `fit-landmark` | 1 |
+| `fit-summit` | `fit-summit` | 1 |
+| `fit-outpost` | `fit-outpost` | 1 |
+| `fit-gear` | `fit-svcgraph`, `fit-svcmcp`, `fit-svcpathway`, `fit-svctrace`, `fit-svcvector`, `fit-codegen`, `fit-terrain`, `fit-eval`, `fit-doc`, `fit-rc`, `fit-xmr`, `fit-storage`, `fit-logger`, `fit-svscan`, `fit-trace`, `fit-visualize`, `fit-query`, `fit-subjects`, `fit-process-graphs`, `fit-process-resources`, `fit-process-vectors`, `fit-search`, `fit-unary`, `fit-tiktoken`, `fit-download-bundle` | 25 |
 
 Tables in the doc are denormalized from the design so editing one cask's conventions doesn't require touching the design. The conventions doc is the long-lived reference for tap reviewers; once it lands, the tap README's existing link to `https://www.forwardimpact.team/docs/internals/release/` resolves (the README already targets this URL — no monorepo edit to the tap README is needed).
 
@@ -353,7 +406,7 @@ Host requirement: the workflow runs on `ubuntu-latest` (GNU sed). The dry-run mu
 
 The two options exist because the literal `sed` on `ubuntu-latest` is GNU; replicating it on macOS requires `gsed`.
 
-If neither host is available to the `staff-engineer` agent, defer this step to the release-engineer's first `gear@v*` release rehearsal — at which point spec **SC2** (sed substitution dry-run) is verified by the rehearsal itself rather than by this plan. The plan close-out audit log records SC2 as deferred-to-rehearsal in that case.
+If neither host is available to the `staff-engineer` agent, defer this step to the release-engineer's first `gear@v*` release rehearsal — at which point spec **SC2** (sed substitution dry-run) is verified by the rehearsal itself rather than by this plan. The plan close-out audit log records SC2 as deferred-to-rehearsal in that case. Deadline: the deferral expires when the first `gear@v*` or product `@v*` tag is pushed; SC2 must be verified before that tag, because a broken sed contract would cause the `tap-pr` job to fail on a real release.
 
 ```sh
 # Linux: use `sed`. macOS: install gnu-sed and substitute `gsed` for `sed` below.
