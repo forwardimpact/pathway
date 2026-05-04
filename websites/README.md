@@ -2,11 +2,11 @@
 
 ## Getting Started Map
 
-| Persona      | Hub path                        | Product pages                          |
-| ------------ | ------------------------------- | -------------------------------------- |
-| Engineering Leaders | `getting-started/leaders/`      | Map, Pathway, Landmark, Summit         |
-| Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost      |
-| Contributors | `getting-started/contributors/` | (monorepo setup)                       |
+| Persona             | Hub path                        | Product pages                     |
+| ------------------- | ------------------------------- | --------------------------------- |
+| Engineering Leaders | `getting-started/leaders/`      | Map, Pathway, Landmark, Summit    |
+| Engineers           | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost |
+| Contributors        | `getting-started/contributors/` | (monorepo setup)                  |
 
 ## Guide Map
 
