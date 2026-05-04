@@ -5,6 +5,8 @@ layout: product
 toc: false
 ---
 
+## Prove Agent Changes
+
 <div class="grid">
 
 <a href="/docs/libraries/agent-evaluations/">
@@ -34,6 +36,12 @@ code observations, find patterns, and write grounded findings.
 
 </a>
 
+</div>
+
+## Operate a Predictable Agent Team
+
+<div class="grid">
+
 <a href="/docs/libraries/xmr-analysis/">
 
 ### XmR Analysis
@@ -42,6 +50,12 @@ Distinguish stable processes from special causes with `fit-xmr` — record
 observations over time, read signal rules, and turn variation into action.
 
 </a>
+
+</div>
+
+## Enable Agents on Every Surface
+
+<div class="grid">
 
 <a href="/docs/libraries/agent-surfaces/">
 
