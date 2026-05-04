@@ -60,8 +60,8 @@ Libraries that ship a CLI can opt into `InvocationContext` — a frozen
 named positionals with `args: string[]` on the subcommand definition and a
 `handler: (ctx) => …`; call `cli.dispatch(parsed, { data })` to receive a
 context with named args instead of a raw positionals array. See the
-[CLI Development guide](websites/fit/docs/internals/libcli/index.md) for the
-full contract and dispatch pattern.
+[Every Surface guide](websites/fit/docs/libraries/every-surface/index.md) for
+the full contract and dispatch pattern.
 
 ## CLIs and progressive documentation
 

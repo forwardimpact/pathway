@@ -184,5 +184,3 @@ pipeline table above: `parse`, `entities`, `prose-keys`, `cache-lookup`,
 - [Prove Whether Agent Changes Improved Outcomes](/docs/libraries/prove-changes/)
   -- the full workflow from dataset generation through evaluation sessions to
   trace analysis.
-- [Terrain Internals](https://www.forwardimpact.team/docs/internals/terrain/index.md)
-  -- architecture, DSL grammar, and node table design.

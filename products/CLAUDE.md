@@ -57,8 +57,8 @@ Products with both a web UI and a CLI can share handler logic through
 from argv. Use `defineRoute` to bind a URL pattern to its CLI command and graph
 entity in one descriptor; the shared presenter receives the same context shape
 from both surfaces. See the
-[CLI Development guide](websites/fit/docs/internals/libcli/index.md) for the
-full contract.
+[Every Surface guide](websites/fit/docs/libraries/every-surface/index.md) for
+the full contract.
 
 ## CLIs and progressive documentation
 

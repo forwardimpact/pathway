@@ -319,6 +319,5 @@ const repl = new Repl(
 
 ## Related Documentation
 
-- [Guide Internals](/docs/internals/guide/) — Primary consumer of librepl
 - [Operations Reference](/docs/internals/operations/) — Service management and
   environment setup

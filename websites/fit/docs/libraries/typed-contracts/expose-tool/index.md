@@ -173,7 +173,5 @@ These comments produce tool parameters described as "Discipline id (e.g.
 - [Keep Service Contracts Typed](/docs/libraries/typed-contracts/) -- the
   end-to-end workflow for the typed contract libraries including libmcp,
   libtype, librpc, and libcodegen
-- [Codegen Internals](/docs/internals/codegen/) -- how `fit-codegen` discovers
-  proto files and generates metadata
 - [`@forwardimpact/libmcp` on npm](https://www.npmjs.com/package/@forwardimpact/libmcp)
   -- installation and changelog

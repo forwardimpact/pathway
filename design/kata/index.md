@@ -268,7 +268,7 @@ encounters them:
 ### Surface 1 — The Internals Page
 
 The canonical home is `websites/fit/docs/internals/kata/index.md` — sibling to
-`internals/operations/`, `internals/codegen/`, `internals/librepl/`. This is
+`internals/operations/`, `internals/librepl/`. This is
 where the brand renders for human contributors browsing the docs site.
 
 ```

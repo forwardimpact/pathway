@@ -25,43 +25,37 @@ maintain the monorepo. See [JTBD.md](JTBD.md) for each persona's jobs.
 
 Hired by engineering leaders to turn 'good engineering' into an operational
 definition the organization trusts. Catches structural mistakes before they
-ship. [Overview](websites/fit/map/index.md) ·
-[Internals](websites/fit/docs/internals/map/index.md)
+ship. [Overview](websites/fit/map/index.md)
 
 ### Pathway — `fit-pathway`
 
 Hired by leaders to define roles, engineers to see what's expected, and agents to
 be configured to match. Makes expectations visible and coherent across
-evaluations. [Overview](websites/fit/pathway/index.md) ·
-[Internals](websites/fit/docs/internals/pathway/index.md)
+evaluations. [Overview](websites/fit/pathway/index.md)
 
 ### Guide — `fit-guide`
 
 Hired by engineers to get career guidance and output review grounded in their
 organization's actual standard, not generic advice or subjective impressions.
-[Overview](websites/fit/guide/index.md) ·
-[Internals](websites/fit/docs/internals/guide/index.md)
+[Overview](websites/fit/guide/index.md)
 
 ### Landmark — `fit-landmark`
 
 Hired by leaders to demonstrate engineering progress and by engineers to show
 evidence of growth — both without making individuals feel surveilled.
-[Overview](websites/fit/landmark/index.md) ·
-[Internals](websites/fit/docs/internals/landmark/index.md)
+[Overview](websites/fit/landmark/index.md)
 
 ### Summit — `fit-summit`
 
 Hired by engineering leaders to replace staffing guesswork with evidence-based
 team composition analysis. Surfaces capability gaps before someone gets set up to
-fail. [Overview](websites/fit/summit/index.md) ·
-[Internals](websites/fit/docs/internals/summit/index.md)
+fail. [Overview](websites/fit/summit/index.md)
 
 ### Outpost — `fit-outpost`
 
 Hired by engineers to maintain continuous awareness of people, projects, and
 threads without continuous effort. Assembles context so they walk into every
-meeting already oriented. [Overview](websites/fit/outpost/index.md) ·
-[Internals](websites/fit/docs/internals/outpost/index.md)
+meeting already oriented. [Overview](websites/fit/outpost/index.md)
 
 ### Kata — `kata-skills`
 
@@ -102,7 +96,7 @@ product and library skills) and `forwardimpact/kata-skills` (the `kata-*`
 agent-team skills). Install: `npx skills add forwardimpact/fit-skills` (or
 `kata-skills`). All CLIs use `#!/usr/bin/env node` — no Bun required. gRPC
 products (currently Guide) need `npx fit-codegen --all`. See
-[Codegen Internals](websites/fit/docs/internals/codegen/index.md).
+[Typed Contracts](websites/fit/docs/libraries/typed-contracts/index.md).
 
 ### How Internal Contributors Develop
 
@@ -176,7 +170,6 @@ One home per policy.
   [libraries/](libraries/CLAUDE.md)
 - **Kata Agent Team** — [KATA.md](KATA.md) ·
   [Internals](websites/fit/docs/internals/kata/)
-- **Codegen pipeline** — [Codegen](websites/fit/docs/internals/codegen/)
 
 **External:**
 

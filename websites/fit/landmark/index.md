@@ -169,5 +169,3 @@ coverage against your agent-aligned engineering standard markers.
 </div>
 
 ---
-
-See [Landmark Internals](/docs/internals/landmark/) for architecture details.

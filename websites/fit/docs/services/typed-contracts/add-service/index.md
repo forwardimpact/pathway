@@ -195,5 +195,3 @@ You have reached the outcome of this guide when:
 - [Expose Backend Services as Agent Tools](/docs/services/typed-contracts/) --
   return to the full guide for MCP service architecture, session management,
   and authentication.
-- [Codegen Internals](/docs/internals/codegen/) -- how `fit-codegen` generates
-  typed clients, type definitions, and metadata from proto files.

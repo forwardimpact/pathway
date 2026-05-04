@@ -193,5 +193,3 @@ You have reached the outcome of this guide when:
 
 - [Typed Contracts](/docs/libraries/typed-contracts/) -- the
   end-to-end workflow from proto definition through codegen to deployment.
-- [Codegen Internals](/docs/internals/codegen/) -- how proto files become typed
-  base classes and client classes.

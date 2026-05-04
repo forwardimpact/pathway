@@ -166,6 +166,5 @@ npx fit-map validate
 
 For deeper context beyond this skill's scope:
 
-- [Terrain Internals](https://www.forwardimpact.team/docs/internals/terrain/index.md)
-  — Synthetic data pipeline architecture, DSL parsing, entity generation, prose
-  engine, and rendering
+- [Generate an Eval Dataset](https://www.forwardimpact.team/docs/libraries/prove-changes/generate-dataset/)
+  — Using the Terrain DSL to define and generate synthetic datasets
