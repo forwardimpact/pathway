@@ -1,5 +1,5 @@
 ---
-title: "Getting Started: Landmark for Engineering Leaders"
+title: "Getting Started: Landmark for Leaders"
 description: "Analyze engineering signals — marker evidence, snapshot trends, practice patterns, team health, and engineer voice."
 ---
 
@@ -9,7 +9,7 @@ standard's markers, GetDX snapshot outcomes, and engineer voice comments — so
 you can see what the data says about how engineering is functioning.
 
 Landmark requires Map's activity layer (Supabase). If you haven't set it up, see
-[Getting Started: Map for Engineering Leaders](/docs/getting-started/leaders/map/)
+[Getting Started: Map for Leaders](/docs/getting-started/leaders/map/)
 first. To explore with synthetic data, see
 [Trying the activity layer with synthetic data](/docs/getting-started/leaders/map/#trying-the-activity-layer-with-synthetic-data)
 in the Map guide.

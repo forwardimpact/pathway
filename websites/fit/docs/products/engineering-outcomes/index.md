@@ -11,10 +11,10 @@ individuals.
 
 ## Prerequisites
 
-- [Getting Started: Map for Engineering Leaders](/docs/getting-started/leaders/map/) --
+- [Getting Started: Map for Leaders](/docs/getting-started/leaders/map/) --
   install Map, migrate the activity schema, load your roster, and sync GetDX
   data.
-- [Getting Started: Landmark for Engineering Leaders](/docs/getting-started/leaders/landmark/) --
+- [Getting Started: Landmark for Leaders](/docs/getting-started/leaders/landmark/) --
   install Landmark and confirm you can run `npx fit-landmark org show`.
 - [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/) --
   define drivers and markers in your standard data. Landmark's health, evidence,
