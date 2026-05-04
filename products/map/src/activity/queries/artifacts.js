@@ -47,6 +47,7 @@ export async function getArtifacts(supabase, options = {}) {
  * @param {import('@supabase/supabase-js').SupabaseClient} supabase - Supabase client
  * @param {Object} [options]
  * @param {string} [options.email] - Filter by person email
+ * @param {string} [options.managerEmail] - Filter to a manager's direct reports
  * @param {string} [options.type] - Filter by artifact type
  * @returns {Promise<Array<Object>>} Artifacts without evidence
  */

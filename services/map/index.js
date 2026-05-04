@@ -66,8 +66,9 @@ export class MapService extends MapBase {
     if (req.manager_email || req.managerEmail)
       options.managerEmail = req.manager_email || req.managerEmail;
     const artifacts = await getUnscoredArtifacts(this.#supabase, options);
+    const knownTypes = new Set(this.#registry.types());
     const rows = artifacts
-      .filter((a) => this.#registry.types().includes(a.artifact_type))
+      .filter((a) => knownTypes.has(a.artifact_type))
       .map((a) => ({
         artifact_id: a.artifact_id,
         artifact_type: a.artifact_type,
@@ -95,10 +96,10 @@ export class MapService extends MapBase {
     if (rows.length === 0) return { content: "0 rows written" };
 
     const dbRows = rows.map((r) => ({
-      artifact_id: r.artifact_id || r.artifactId,
-      skill_id: r.skill_id || r.skillId,
-      level_id: r.level_id || r.levelId,
-      marker_text: r.marker_text || r.markerText,
+      artifact_id: r.artifact_id ?? r.artifactId,
+      skill_id: r.skill_id ?? r.skillId,
+      level_id: r.level_id ?? r.levelId,
+      marker_text: r.marker_text ?? r.markerText,
       matched: r.matched,
       rationale: r.rationale,
     }));
