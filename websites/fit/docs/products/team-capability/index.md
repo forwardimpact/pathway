@@ -1,22 +1,98 @@
 ---
-title: "Team Capability"
-description: "Model team capability with Summit — coverage heatmaps, structural risks, and what-if staffing scenarios."
+title: "Make Staffing Decisions You Can Defend"
+description: "When a post-mortem surfaces the same skill gap that caused the last incident, use Pathway and Summit to see what each role requires and staff teams with evidence instead of intuition."
 ---
 
-Summit treats a team as a system, not a collection of individuals. It aggregates
-individual skill matrices into team-level views — capability coverage,
-structural risks, and what-if staffing scenarios. Everything runs locally with
-no external dependencies and no LLM calls. Results are fully deterministic.
+A post-mortem surfaces the same skill gap that caused the last incident. Nobody
+had a way to see the gap before staffing the team. You need to understand what
+each role actually requires and make staffing decisions you can defend with
+evidence, not intuition. This guide walks through the full workflow: defining
+role requirements with Pathway, modeling team composition with Summit, and
+simulating changes before committing to them.
 
-## Capability Coverage
+## Prerequisites
 
-Summit builds a coverage heatmap by combining each team member's skill
-proficiencies into an aggregate view. This shows where the team is strong and
-where it has gaps:
+This guide assumes you have completed the following setup. If you have not,
+follow each link and return here.
 
+- [Getting Started: Map for Leadership](/docs/getting-started/leadership/map/) --
+  standard data initialized
+- [Getting Started: Pathway for Leadership](/docs/getting-started/leadership/pathway/) --
+  Pathway installed
+- [Getting Started: Summit for Leadership](/docs/getting-started/leadership/summit/) --
+  Summit installed and roster created
+
+You will need a `summit.yaml` roster file describing your teams. The
+getting-started guide for Summit walks through creating one.
+
+## Clarify what each role requires
+
+Before you can see where a team is strong or weak, you need to know what each
+role on the team actually demands. Pathway derives role requirements from your
+organization's engineering standard -- it is not a generic framework.
+
+Start by generating the full role definition for a position on the team. For
+example, to see what is expected of a Software Engineer (J060) on a platform
+track:
+
+```sh
+npx fit-pathway job software_engineering J060 --track=platform
 ```
-$ fit-summit coverage platform
 
+The output has four sections:
+
+1. **Expectations** -- the level's impact scope, autonomy, influence, and
+   complexity.
+2. **Behaviour Profile** -- each behaviour the organization values and the
+   maturity expected at this level.
+3. **Skill Matrix** -- every skill relevant to the discipline and track, with
+   the proficiency level expected.
+4. **Driver Coverage** -- how the skill and behaviour profile maps to
+   engineering effectiveness drivers.
+
+Here is what the Expectations section looks like:
+
+```text
+## Expectations
+
+- **Impact Scope**: Delivers components and features that contribute to
+  team-level objectives and product outcomes.
+- **Autonomy Expectation**: Works independently on defined deliverables,
+  escalating ambiguous issues to senior engineers.
+- **Influence Scope**: Influences technical decisions within the immediate
+  team through reasoned contributions.
+- **Complexity Handled**: Handles moderately complex problems with several
+  known variables and documented precedents.
+```
+
+Generate a role definition for each distinct position on your team. If you have
+five engineers across two disciplines and two tracks, you may only need three or
+four definitions -- one per unique combination. Use the `--list` flag to see all
+valid combinations:
+
+```sh
+npx fit-pathway job --list
+```
+
+This gives you the vocabulary of roles your standard supports. The Skill Matrix
+from each role definition is what Summit uses to compute team coverage, so
+understanding these requirements is the foundation for everything that follows.
+
+## See what the team covers
+
+With role requirements understood, model the team as a whole. Summit aggregates
+each team member's skill matrix (derived from their role definition) into a
+team-level coverage view.
+
+Run the coverage command for your team:
+
+```sh
+npx fit-summit coverage platform --roster ./summit.yaml
+```
+
+Expected output:
+
+```text
   Platform team — 5 engineers
 
   Capability: Delivery
@@ -30,27 +106,27 @@ $ fit-summit coverage platform
     infrastructure            ████░░░░░░  depth: 1 engineer at working+
 ```
 
-"Depth" indicates how many engineers can operate at working proficiency or above
-for that skill. Higher depth means the team can sustain work in that area even
-if someone is unavailable.
+"Depth" is the number of engineers who hold working-level proficiency or above
+for a given skill. Higher depth means the team can sustain work in that area
+even when someone is unavailable. A blank bar signals a gap -- nobody on the
+team covers that skill at the working level.
 
-## Structural Risks
+This is the starting point for any staffing conversation. Instead of debating
+whether the team "feels" strong in architecture, you can point to the depth
+numbers and have a grounded discussion.
 
-Summit identifies three categories of structural risk:
+## Identify structural risks
 
-**Single points of failure** — Skills where only one engineer has working-level
-proficiency or above. If that person is on leave or leaves the team, the
-capability disappears.
+Coverage shows breadth. Risks reveal the fragile points. Summit detects three
+categories of structural risk in your team's composition:
 
-**Critical gaps** — Skills that are important for the team's mission but where
-no one has reached working-level proficiency.
-
-**Concentration risks** — Skills where proficiency is concentrated in one
-engineer at a much higher level than everyone else, creating a bottleneck.
-
+```sh
+npx fit-summit risks platform --roster ./summit.yaml
 ```
-$ fit-summit risks platform
 
+Expected output:
+
+```text
   Platform team — Structural Risks
 
   Single Points of Failure:
@@ -65,67 +141,231 @@ $ fit-summit risks platform
     system_design             alice.chen (expert) vs team avg (foundational)
 ```
 
-## What-If Scenarios
+**Single points of failure** are skills where only one engineer has working-level
+proficiency or above. If that person is on leave or leaves the team, the
+capability disappears entirely.
 
-Summit lets you simulate roster changes before they happen:
+**Critical gaps** are skills the team's disciplines and tracks require but no one
+currently covers at the working level. These are the gaps that show up in
+post-mortems.
 
+**Concentration risks** flag skills where proficiency is concentrated in one
+engineer at a much higher level than everyone else, creating a bottleneck even
+while they are present.
+
+Each of these categories gives you evidence you can bring to a staffing
+conversation. "We have a single point of failure on infrastructure" is a
+different argument from "I think we need another infrastructure person."
+
+## Simulate roster changes before deciding
+
+You have identified the risks. Now evaluate your options before committing. The
+`what-if` command simulates roster changes and shows how coverage and risks
+shift as a result.
+
+### Model a new position
+
+Describe the role you are considering and see what it resolves:
+
+```sh
+npx fit-summit what-if platform --roster ./summit.yaml \
+  --add "{ discipline: software_engineering, level: J060, track: platform }"
 ```
-$ fit-summit what-if platform --remove alice.chen
 
-  Removing alice.chen from Platform team
+Expected output:
+
+```text
+  Adding hypothetical member to Platform team
+
+  Resolved Risks:
+    observability             resolves critical gap
+    infrastructure            resolves single point of failure
+
+  Coverage Change:
+    Architecture capability   ████████░░ → ██████████  (+20%)
+```
+
+The output shows which risks the new role would resolve and how coverage
+changes. You can now articulate exactly why this position matters: "Adding a
+J060 platform engineer resolves both the observability gap and the
+infrastructure single point of failure."
+
+### Model a departure
+
+See what happens when a team member leaves:
+
+```sh
+npx fit-summit what-if platform --roster ./summit.yaml \
+  --remove alice@example.com
+```
+
+Expected output:
+
+```text
+  Removing alice@example.com from Platform team
 
   New Single Points of Failure:
     system_design             Only: carlos.ruiz (working)  [was: covered by 3]
     api_design                Only: carlos.ruiz (working)  [was: covered by 4]
 
   New Critical Gaps:
-    infrastructure            No engineer at working+  [was: alice.chen]
+    infrastructure            No engineer at working+  [was: alice@example.com]
 
   Coverage Change:
     Architecture capability   ████████░░ → ████░░░░░░  (-40%)
 ```
 
-```
-$ fit-summit what-if platform --add diana.lee
+This makes retention conversations concrete. Instead of "Alice is important to
+the team," you can show that her departure creates two new single points of
+failure and a 40% drop in architecture coverage.
 
-  Adding diana.lee to Platform team
+### Model an internal move
+
+When considering a transfer between teams, use `--move` with `--to`:
+
+```sh
+npx fit-summit what-if platform --roster ./summit.yaml \
+  --move carol@example.com --to delivery
+```
+
+```text
+  Moving carol@example.com from Platform to Delivery
+
+  New Single Points of Failure (Platform):
+    api_design                Only: carlos.ruiz (working)  [was: covered by 3]
+
+  Resolved Risks (Delivery):
+    estimation                carol@example.com resolves single point of failure
+
+  Coverage Change (Platform):
+    Delivery capability       ████████░░ → ██████░░░░  (-20%)
+```
+
+### Model a promotion
+
+See how a promotion changes the team's coverage profile:
+
+```sh
+npx fit-summit what-if platform --roster ./summit.yaml \
+  --promote bob@example.com
+```
+
+```text
+  Promoting bob@example.com from J060 to J070
 
   Resolved Risks:
-    observability             diana.lee (practitioner) resolves critical gap
-    infrastructure            diana.lee (working) resolves single point of failure
+    incident_response         bob@example.com (now practitioner) no longer single point of failure risk
 
   Coverage Change:
-    Architecture capability   ████████░░ → ██████████  (+20%)
+    Delivery capability       ████████░░ → ██████████  (+20%)
 ```
 
-What-if scenarios help leaders make staffing decisions with full visibility into
-capability impact.
+Promotion bumps the member to the next level, which changes their expected
+proficiencies and may shift coverage and risks.
 
-## Who Summit is For
+### Focus on a single capability
 
-- **Engineering leaders** — Staff teams to succeed by understanding capability
-  coverage before it becomes a problem.
-- **Tech leads** — Identify growth priorities for the team and make the case for
-  hiring.
-- **Engineers in 1:1s** — See how your skills contribute to team capability and
-  where growth has the most impact.
+When the full diff is too broad, narrow the output to one capability area:
 
-## Design Principles
+```sh
+npx fit-summit what-if platform --roster ./summit.yaml \
+  --add "{ discipline: software_engineering, level: J060, track: platform }" \
+  --focus architecture
+```
 
-Summit follows a specific philosophy:
+```text
+  Adding hypothetical member to Platform team (focus: architecture)
 
-- **Teams as systems** — A team's capability is more than the sum of individual
-  skills. Coverage, depth, and distribution matter.
-- **Plan forward** — What-if scenarios help you act before a gap becomes a
-  crisis.
-- **Capability, not performance** — Summit measures what a team can do, not how
-  hard anyone is working.
-- **Privacy through aggregation** — Individual data feeds the model, but outputs
-  focus on team-level patterns.
-- **No external dependencies** — Runs entirely locally. No API calls, no LLM, no
-  network access required.
+  Capability: Architecture
+    system_design             ████████░░ → ████████░░  (unchanged)
+    api_design                ██████████ → ██████████  (unchanged)
+    infrastructure            ████░░░░░░ → ██████░░░░  (+1 depth)
+    observability             ░░░░░░░░░░ → ████░░░░░░  (resolved gap)
+```
 
-## Related Documentation
+## Compare teams side by side
 
-- [Data Model Reference](/docs/reference/model/) — How skills, levels, and
+When restructuring or understanding why two similarly-sized teams feel different,
+compare them directly:
+
+```sh
+npx fit-summit compare platform delivery --roster ./summit.yaml
+```
+
+```text
+  Comparison: Platform vs Delivery
+
+  Skill                 Platform depth   Delivery depth   Delta
+  task_decomposition    3                4                -1
+  estimation            2                1                +1
+  incident_response     1                3                -2
+  system_design         3                1                +2
+  api_design            4                2                +2
+
+  Risks unique to Platform:  infrastructure (single point of failure)
+  Risks unique to Delivery:  estimation (single point of failure)
+```
+
+This diffs coverage and risks across both teams, making structural differences
+visible. It is especially useful when deciding where to allocate a new position
+or when a reorganization is under consideration.
+
+## Match the audience to the conversation
+
+Summit has a privacy model that adjusts individual-level detail based on context.
+Use the `--audience` flag to match the output to your conversation:
+
+| Audience     | Detail level                    | Use for                                  |
+| ------------ | ------------------------------- | ---------------------------------------- |
+| `engineer`   | individual names visible        | 1:1s, self-assessment                    |
+| `manager`    | individual names visible        | team-level planning (the default)        |
+| `director`   | names stripped, aggregates only | cross-team planning, executive artifacts |
+
+```sh
+npx fit-summit coverage platform --roster ./summit.yaml --audience director
+```
+
+When sharing coverage or risk reports beyond the team manager, use
+`--audience director` to strip individual names and show only aggregated counts.
+
+## Verify
+
+You have reached the outcome of this guide when you can answer these questions
+from your Pathway and Summit output:
+
+- **What does each role on the team require?** You have generated role
+  definitions with `npx fit-pathway job` for each distinct position and can
+  describe the skills, behaviours, and scope each role expects.
+- **Where is the team strong and where are the gaps?** You have run
+  `npx fit-summit coverage` and can point to depth numbers for each capability
+  area.
+- **What structural risks does the team carry?** You have run
+  `npx fit-summit risks` and can name the single points of failure, critical
+  gaps, and concentration risks.
+- **What would a specific roster change do?** You have run at least one
+  `npx fit-summit what-if` scenario and can describe the coverage and risk
+  impact of the change you are considering.
+- **Can you defend the decision with evidence?** For your next staffing
+  conversation, you can show the coverage gap or structural risk the decision
+  addresses -- not just assert that the team "needs" something.
+
+## What's next
+
+This guide covered the end-to-end workflow for evidence-based staffing. Two
+follow-up guides cover bounded tasks you will revisit regularly:
+
+- [Evaluate a candidate against team gaps](/docs/products/team-capability/evaluate-candidate/) --
+  check whether a specific candidate fills the team's actual gap, not just the
+  position description
+- [Surface capability gaps](/docs/products/team-capability/surface-gaps/) --
+  spot gaps before someone gets set up to fail, using coverage, risk, and
+  trajectory analysis
+
+For reference material and deeper context:
+
+- [Data Model Reference](/docs/reference/model/) -- how skills, levels, and
   disciplines define team capability
+- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/) --
+  full guide to defining the standard that Pathway and Summit read from
+- [Career Paths](/docs/products/career-paths/) -- browse role definitions,
+  skill proficiencies, and career progression from the engineer's perspective
