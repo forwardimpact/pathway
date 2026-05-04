@@ -32,14 +32,27 @@ Every page is a directory containing `index.md`. No other `.md` filenames.
   every hub page and card grid that references it. There is no build-time check
   for stale links.
 
-### Page Types
+## Page Types
 
-**Product pages** (`/map/`, `/pathway/`, etc.) — `layout: product` with hero,
-situation paragraph, **What becomes possible** by persona (Engineering Leaders,
-Empowered Engineers, Platform Builders from [JTBD.md](/JTBD.md)), detail
-sections, **Getting Started** with install commands and guide links.
+### Product Pages
 
-**Hub pages** — `toc: false`, grid of anchor cards linking to children:
+Product pages (`/map/`, `/pathway/`, etc.) follow a consistent structure:
+
+1. Frontmatter with `layout: product` and hero section (light metaphor
+   reference in subtitle, then progress framing)
+2. Situation paragraph — 2-3 sentences describing the moment someone realizes
+   they need this product (no blockquote)
+3. **What becomes possible** — organized by persona, each with a progress
+   statement and concrete outputs. Canonical persona names from
+   [JTBD.md](/JTBD.md): Engineering Leaders, Empowered Engineers, Platform
+   Builders. Only personas with a relevant outcome for that product appear.
+4. Product-specific detail sections
+5. **Getting Started** — install commands and persona-labeled guide links
+
+### Hub Pages
+
+Collection pages use `toc: false` and a grid of anchor cards to link to
+children. Cards are organized under `##` job headings with a persona label.
 
 ```html
 <div class="grid">
@@ -53,12 +66,22 @@ Configure agents to meet your engineering standard...
 </div>
 ```
 
-**Guide pages** — organized by job heading on their hub. Big Hire guides
-(150–400 lines) cover the end-to-end workflow; Little Hire guides (80–200
-lines) cover a bounded task assuming the Big Hire is done. Getting-started pages
-are per-persona minimal paths (50–150 lines). All guides are framed around the
-reader's progress, not product features. See [README.md](README.md) for the
-full guide map.
+Navigation is not generated from the file tree. When a page is added, moved, or
+removed, update every hub page and card grid that references it.
+
+### Guide Pages
+
+Guides under `docs/products/`, `docs/libraries/`, and `docs/services/` sit
+under job headings on their hub page. Each job contains two guide types:
+
+- **Big Hire** — end-to-end workflow from situation to outcome (150–400 lines).
+  Directory root for the job.
+- **Little Hire** — bounded task assuming the Big Hire is done (80–200 lines).
+  Nested under the Big Hire directory.
+
+Getting-started pages are per-persona minimal paths (50–150 lines) linking
+forward to guides. All guides are framed around the reader's progress, not
+product features. See [README.md](README.md) for the full guide map.
 
 ## Design Assets
 
