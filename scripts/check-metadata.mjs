@@ -9,7 +9,14 @@ import { readFileSync, writeFileSync, readdirSync } from "node:fs";
 import { resolve, join, relative, dirname } from "node:path";
 
 const ROOT = resolve(import.meta.dirname, "..");
-const SKIP_DIRS = new Set(["node_modules", ".git", "generated", "tmp", "dist", "worktrees"]);
+const SKIP_DIRS = new Set([
+  "node_modules",
+  ".git",
+  "generated",
+  "tmp",
+  "dist",
+  "worktrees",
+]);
 
 const AUTHOR = "D. Olsson <hi@senzilla.io>";
 const LICENSE = "Apache-2.0";
