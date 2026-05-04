@@ -24,16 +24,15 @@ entities), `libsyntheticrender` (raw payloads), `@supabase/supabase-js`
 | Part | Summary | Files | Depends on |
 |------|---------|-------|------------|
 | [plan-a-01.md](plan-a-01.md) | Data layer + synthetic data | 13 modified, 4 created, 6 deleted | — |
-| [plan-a-02.md](plan-a-02.md) | Service layer (svcpathway, svcmap, svcmcp) | 8 modified, 6 created | Part 01 |
+| [plan-a-02.md](plan-a-02.md) | Service layer (svcpathway, svcmap, svcmcp) | 7 modified, 6 created | Part 01 |
 | [plan-a-03.md](plan-a-03.md) | Evaluation skill | 1 modified | Part 02 |
 
 ## Risks
 
 | Risk | Mitigation |
 |------|------------|
-| NOT NULL migration on `activity.evidence` fails if synthetic rows have null `rationale` or `level_id` | Migration backfills defaults before adding constraint |
-| `getdx_team_id` population depends on teams-list containing contributor email arrays | Synthetic terrain extended to render contributor arrays; real path uses same transform |
-| Marker-grounding validation in `WriteEvidence` depends on svcpathway availability | svcmap constructor requires pathwayClient; service topology starts pathway before map |
+| `getdx_team_id` population depends on teams-list containing `contributor_list` arrays | Synthetic terrain extended to render arrays; real path needs teams.info per team (future sync spec) |
+| Marker-grounding validation in `WriteEvidence` adds a gRPC call per unique profile in the batch | Cache markers per `(discipline, level, track)` within the batch if profiling shows latency |
 | `createClient("map")` requires `SERVICE_MAP_URL` to resolve | init.js updated in Part 02 Step 6; port 3006 assigned |
 
 ## Execution

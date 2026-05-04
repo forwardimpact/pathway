@@ -128,14 +128,15 @@ Extend `transformTeams()` to write `getdx_team_id` back to
 `organization_people` for each contributor found in the team data.
 
 **Modified:** `products/map/src/activity/transform/getdx.js`,
-`libraries/libsyntheticrender/src/render/raw.js`
+`libraries/libsyntheticrender/src/render/raw.js`,
+`libraries/libsyntheticgen/src/engine/activity.js`
 
 After the team upsert in `transformTeams()` (line 120), add:
 
 ```js
 const contributorUpdates = [];
 for (const team of teams) {
-  const contributors = team.contributors || [];
+  const contributors = team.contributor_list || team.contributors || [];
   if (!Array.isArray(contributors)) continue;
   for (const contributor of contributors) {
     if (contributor.email) {
@@ -156,32 +157,41 @@ if (contributorUpdates.length > 0) {
 }
 ```
 
-The synthetic teams render currently writes `contributors` as a count (number).
-Extend it to write contributor email arrays so the transform can populate
-`getdx_team_id`. In `renderGetDXPayloads()` (raw.js line 76), change
-`contributors: t.contributors || 0` to:
+The synthetic teams render currently writes `contributors` as a count (number),
+and `generateScores()` (activity.js lines 251, 253) uses `team.contributors`
+as a number for `randomInt()` and `contributor_count`. To avoid a type break,
+keep `contributors` as a count and add a separate `contributor_list` array.
+
+In `buildLeafTeamEntries()` (line 137), add a `contributor_list` field after
+`contributors: team.size` (line 152). Pass `people` as a fourth parameter:
 
 ```js
-contributors: Array.isArray(t.contributors) ? t.contributors : [],
-```
-
-Then in `libsyntheticgen/src/engine/activity.js`, extend the leaf team builder
-(`buildLeafTeamEntries`, line 137) to populate `contributors` with email arrays
-from the people roster:
-
-**Modified:** `libraries/libsyntheticgen/src/engine/activity.js`
-
-In `buildLeafTeamEntries()`, replace `contributors: team.size` (line 152)
-with a lookup against the people array (passed as an additional parameter):
-
-```js
-contributors: people
+contributors: team.size,
+contributor_list: people
   .filter((p) => p.team_id === team.id)
   .map((p) => ({ email: p.email, name: p.name })),
 ```
 
-Thread the `people` array through from `buildActivityData()` to
-`buildLeafTeamEntries()`.
+Update call sites to thread `people`:
+- `buildActivityTeams()` (line 160): add `people` parameter, pass to
+  `buildLeafTeamEntries(teams, deptMap, orgMap, people)` at line 167.
+- `generateActivity()` (line 69): pass `people` to
+  `buildActivityTeams(ast, teams, people)`.
+
+In `renderGetDXPayloads()` (raw.js line 76), add `contributor_list` to the
+teams-list output after `contributors` (line 82):
+
+```js
+contributors: t.contributors || 0,
+contributor_list: t.contributor_list || [],
+```
+
+Update the `transformTeams()` code added above to read `contributor_list`
+instead of `contributors`:
+
+```js
+const contributors = team.contributor_list || [];
+```
 
 **Verify:** After `bunx fit-map activity seed`, query
 `SELECT email, getdx_team_id FROM activity.organization_people WHERE
