@@ -184,14 +184,11 @@ memory and populates the N3 store -- subsequent queries run entirely in memory.
 An `ontology.ttl` file alongside the index captures SHACL shapes inferred from
 the data. The ontology is regenerated when `fit-process-graphs` runs.
 
-## Related
+## What's next
 
-- [Ground Agents in Context](/docs/libraries/ground-agents/) -- the end-to-end
-  workflow for building and querying the knowledge graph.
-- [Resolve a Resource](/docs/libraries/ground-agents/resolve-resource/) --
-  retrieve the full context chunk behind a resource identifier returned by
-  `fit-query`.
-- [Search Semantically](/docs/libraries/ground-agents/search-semantically/) --
-  when you need ranked similarity rather than exact triple matching.
-- [`@forwardimpact/libgraph` on npm](https://www.npmjs.com/package/@forwardimpact/libgraph)
-  -- installation and changelog.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../lookup-context -->
+
+</div>

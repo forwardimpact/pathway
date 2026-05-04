@@ -174,11 +174,11 @@ You have reached the outcome of this guide when:
   predicates.
 - Applying a `filter` with `limit` constrains the result count.
 
-## Related
+## What's next
 
-- [Ground Agents in Context](/docs/services/ground-agents/) -- the end-to-end
-  setup for connecting to both the graph and vector services.
-- [Search for Related Content](/docs/services/ground-agents/search-content/) --
-  when you need ranked similarity rather than exact triple matching.
-- [Query a Graph](/docs/libraries/ground-agents/query-graph/) -- the library
-  guide for querying the graph index directly without the gRPC service.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../search-content -->
+
+</div>

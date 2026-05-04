@@ -213,10 +213,11 @@ All Landmark commands support `--format text|json|markdown`. The default is
 
 ---
 
-## Next steps
+## What's next
 
-- [Landmark product page](/landmark/) — audience model and architecture overview
-- [Landmark quickstart](/docs/products/engineering-outcomes/) — step-by-step
-  guide from install to a working health view
-- [Team capability](/docs/products/team-capability/) — deep dive into Summit
-  coverage, risks, and scenario planning
+<div class="grid">
+
+<!-- part:card:../../../../landmark -->
+<!-- part:card:../../../products/engineering-outcomes -->
+
+</div>

@@ -180,13 +180,11 @@ once -- but the storage write is deferred until the next flush. Always call
 Both `IndexBase` and `BufferedIndex` defer loading until the first read. If the
 storage file does not exist, the index initializes empty rather than throwing.
 
-## Related
+## What's next
 
-- [Ground Agents in Context](/docs/libraries/ground-agents/) -- the end-to-end
-  workflow for building and querying a context pipeline.
-- [Query a Graph](/docs/libraries/ground-agents/query-graph/) -- when the
-  question is about relationships between entities, not flat lookups.
-- [Search Semantically](/docs/libraries/ground-agents/search-semantically/) --
-  when you need ranked similarity rather than prefix-based filtering.
-- [`@forwardimpact/libindex` on npm](https://www.npmjs.com/package/@forwardimpact/libindex)
-  -- installation and changelog.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../query-graph -->
+
+</div>

@@ -168,10 +168,11 @@ These comments produce tool parameters described as "Discipline id (e.g.
 - [ ] Proto field comments are descriptive enough for agents to understand each
       parameter without reading the proto file
 
-## Related
+## What's next
 
-- [Keep Service Contracts Typed](/docs/libraries/typed-contracts/) -- the
-  end-to-end workflow for the typed contract libraries including libmcp,
-  libtype, librpc, and libcodegen
-- [`@forwardimpact/libmcp` on npm](https://www.npmjs.com/package/@forwardimpact/libmcp)
-  -- installation and changelog
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../ship-endpoint -->
+
+</div>

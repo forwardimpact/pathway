@@ -171,8 +171,8 @@ accumulate data. Check that the postman and librarian agents are running --
 
 ## What's next
 
-- [Keep Track of Context Without Effort](/docs/products/knowledge-systems/) --
-  return to the full Outpost setup guide for agent configuration, schedule
-  customization, and knowledge graph maintenance
-- [Agent Teams](/docs/products/agent-teams/) -- how agent skills are generated
-  from your organization's engineering standard
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

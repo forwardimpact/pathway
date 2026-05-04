@@ -228,11 +228,8 @@ and port for the pathway service.
 
 ## What's next
 
-- [Fetch a Derived Role or Agent Profile](/docs/services/integrate-standard/fetch-profile/)
-  -- a focused walkthrough of the most common bounded task: getting a single
-  derived entity from the pathway service.
-- [Integrate with the Engineering Standard](/docs/libraries/integrate-standard/)
-  -- the library guide for embedding derivation logic directly when a gRPC
-  round trip is not appropriate.
-- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
-  skills, and levels relate in the underlying model.
+<div class="grid">
+
+<!-- part:card:fetch-profile -->
+
+</div>

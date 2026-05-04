@@ -148,3 +148,12 @@ If the `what-if` output shows the candidate's role resolves none of your
 identified risks, re-examine whether the position description matches the gap.
 The problem may not be the candidate -- it may be that the role was defined
 around the position description rather than the team's actual needs.
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../surface-gaps -->
+
+</div>

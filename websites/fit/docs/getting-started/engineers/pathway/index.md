@@ -81,11 +81,11 @@ directory.
 
 ---
 
-## Next steps
+## What's next
 
-- [Pathway product page](/pathway/) — web app features, CLI commands, and static
-  site generation
-- [Agent teams](/docs/products/agent-teams/) — configure agents to meet your
-  organization's engineering standard
-- [Career paths](/docs/products/career-paths/) — understand progression and
-  skill development
+<div class="grid">
+
+<!-- part:card:../../../../pathway -->
+<!-- part:card:../../../products/career-paths -->
+
+</div>

@@ -198,3 +198,12 @@ Summit output:
 - **Who is best positioned to close the gaps?** You have run
   `npx fit-summit growth` and can name the recommended growth paths for
   high-impact gaps.
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../evaluate-candidate -->
+
+</div>

@@ -175,10 +175,10 @@ You have reached the outcome of this guide when:
 - Error spans preserve their status code and message.
 - `QuerySpans` returns all spans sent under the same `trace_id`.
 
-## Related
+## What's next
 
-- [Collect Trace Spans from Any Product](/docs/services/prove-changes/) --
-  return to the full guide for architecture context, query options, and tree
-  reconstruction.
-- [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/) -- analyze stored traces
-  as qualitative research with `fit-trace`.
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

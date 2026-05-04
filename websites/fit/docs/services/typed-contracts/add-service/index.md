@@ -190,8 +190,10 @@ You have reached the outcome of this guide when:
 - `listTools` includes your new tool with the configured description.
 - `callTool` with valid parameters returns a response from your backend service.
 
-## Related
+## What's next
 
-- [Expose Backend Services as Agent Tools](/docs/services/typed-contracts/) --
-  return to the full guide for MCP service architecture, session management,
-  and authentication.
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

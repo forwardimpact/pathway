@@ -391,10 +391,8 @@ You have reached the outcome of this guide when:
 
 ## What's next
 
-- [Derive a skill matrix or agent profile](/docs/libraries/integrate-standard/derive-profile/)
-  -- a focused walkthrough for the most common bounded task: turning a
-  discipline, level, and track into a profile without parsing YAML by hand.
-- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
-  skills, and levels relate in the underlying model.
-- [Authoring Standards](/docs/products/authoring-standards/) -- how to define
-  and validate the YAML data that this library consumes.
+<div class="grid">
+
+<!-- part:card:derive-profile -->
+
+</div>

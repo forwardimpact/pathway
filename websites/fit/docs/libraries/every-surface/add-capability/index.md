@@ -196,5 +196,8 @@ regardless of which surface produced the context.
 
 ## What's next
 
-- [Agent-Friendly Surfaces](/docs/libraries/every-surface/) -- return to the
-  full guide for the shared contract, query string parsing, and formatter details
+<div class="grid">
+
+<!-- part:card:.. -->
+
+</div>

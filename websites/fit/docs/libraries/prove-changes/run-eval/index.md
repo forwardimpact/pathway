@@ -189,12 +189,11 @@ first failure.
   but does not bind it. Treat eval verdicts like a code review from a strong but
   fallible reviewer -- useful signal, not ground truth.
 
-## Next steps
+## What's next
 
-This guide covers evaluations -- a single judge verifying a single agent. When
-the goal is coordinating multiple specialists rather than rendering a verdict,
-see [Agent Collaboration](/docs/libraries/prove-changes/), which uses
-`fit-eval facilitate` and the same trace format.
+<div class="grid">
 
-For a deep dive on reading the traces this guide produces, including a worked
-example of a failed eval, see [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/).
+<!-- part:card:.. -->
+<!-- part:card:../trace-analysis -->
+
+</div>

@@ -157,10 +157,11 @@ missing environment variables or port conflicts.
 
 ---
 
-## Next steps
+## What's next
 
-- [Guide product page](/guide/) — feature overview and surface options
-- [Finding your bearing](/docs/products/growth-areas/) — Guide usage and
-  configuration
-- Run `npx fit-guide --help` (then `/help` inside the REPL) for the full command
-  surface
+<div class="grid">
+
+<!-- part:card:../../../../guide -->
+<!-- part:card:../../../products/growth-areas -->
+
+</div>

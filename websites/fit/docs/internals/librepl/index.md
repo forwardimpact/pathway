@@ -317,7 +317,10 @@ const repl = new Repl(
 
 ---
 
-## Related Documentation
+## What's next
 
-- [Operations Reference](/docs/internals/operations/) — Service management and
-  environment setup
+<div class="grid">
+
+<!-- part:card:../operations -->
+
+</div>

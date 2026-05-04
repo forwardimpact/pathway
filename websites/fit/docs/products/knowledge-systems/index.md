@@ -276,8 +276,8 @@ review the logs at `~/.fit/outpost/logs/`.
 
 ## What's next
 
-- [Walk Into Every Meeting Already Oriented](/docs/products/knowledge-systems/meeting-prep/)
-  -- use Outpost briefings and the knowledge graph to prepare for specific
-  meetings without a morning scramble
-- [Agent Teams](/docs/products/agent-teams/) -- how agent skills are generated
-  from your organization's engineering standard
+<div class="grid">
+
+<!-- part:card:meeting-prep -->
+
+</div>

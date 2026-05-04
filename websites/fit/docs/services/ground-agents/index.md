@@ -266,12 +266,9 @@ and port for each service.
 
 ## What's next
 
-Each service has a dedicated guide for common bounded tasks:
+<div class="grid">
 
-- [Query the Graph](/docs/services/ground-agents/query-graph/) -- answer
-  relationship questions from a product using triple-pattern queries.
-- [Search for Related Content](/docs/services/ground-agents/search-content/) --
-  find semantically related content from a product without managing embeddings.
-- [Ground Agents in Context](/docs/libraries/ground-agents/) -- the library
-  guide for building and populating the underlying indexes from HTML knowledge
-  sources.
+<!-- part:card:query-graph -->
+<!-- part:card:search-content -->
+
+</div>

@@ -267,9 +267,11 @@ Validation checks:
 
 ---
 
-## Related Documentation
+## What's next
 
-- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
-  -- Writing and maintaining standard data
-- [Core Model](/docs/reference/model/) -- How entities combine into role
-  definitions
+<div class="grid">
+
+<!-- part:card:../model -->
+<!-- part:card:../lifecycle -->
+
+</div>

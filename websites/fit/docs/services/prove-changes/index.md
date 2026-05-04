@@ -277,8 +277,8 @@ If the connection fails, confirm the trace service is running with
 
 ## What's next
 
-- [Send Spans from a Product](/docs/services/prove-changes/send-spans/) -- a
-  focused walkthrough of the most common bounded task: emitting spans and
-  verifying they are queryable.
-- [Trace Analysis](/docs/libraries/prove-changes/trace-analysis/) -- the library guide for
-  analyzing traces as qualitative research with `fit-trace`.
+<div class="grid">
+
+<!-- part:card:send-spans -->
+
+</div>

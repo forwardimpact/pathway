@@ -351,21 +351,9 @@ from your Pathway and Summit output:
 
 ## What's next
 
-This guide covered the end-to-end workflow for evidence-based staffing. Two
-follow-up guides cover bounded tasks you will revisit regularly:
+<div class="grid">
 
-- [Evaluate a candidate against team gaps](/docs/products/team-capability/evaluate-candidate/) --
-  check whether a specific candidate fills the team's actual gap, not just the
-  position description
-- [Surface capability gaps](/docs/products/team-capability/surface-gaps/) --
-  spot gaps before someone gets set up to fail, using coverage, risk, and
-  trajectory analysis
+<!-- part:card:evaluate-candidate -->
+<!-- part:card:surface-gaps -->
 
-For reference material and deeper context:
-
-- [Data Model Reference](/docs/reference/model/) -- how skills, levels, and
-  disciplines define team capability
-- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/) --
-  full guide to defining the standard that Pathway and Summit read from
-- [Career Paths](/docs/products/career-paths/) -- browse role definitions,
-  skill proficiencies, and career progression from the engineer's perspective
+</div>

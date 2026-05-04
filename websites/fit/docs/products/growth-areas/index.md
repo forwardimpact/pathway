@@ -302,16 +302,9 @@ start showing as evidenced, you are making progress.
 
 ## What's next
 
-This guide covered the end-to-end workflow for finding growth areas and building
-evidence. For specific tasks within this workflow, see:
+<div class="grid">
 
-- [Ask a Growth Question](/docs/products/growth-areas/growth-question/)
-  -- ask a specific question and get advice grounded in your actual standard
-- [Check Progress Toward Next Level](/docs/products/growth-areas/check-progress/)
-  -- see whether recent work shows visible movement toward the bar
-- [See What's Expected at Your Level](/docs/products/career-paths/) -- understand
-  the full expectations for your current role
-- [Data Model Reference](/docs/reference/model/) -- how skills, levels, and
-  behaviours are structured in the underlying model
-- [Authoring Agent-Aligned Engineering Standards](/docs/products/authoring-standards/)
-  -- how to define the standard that Guide and Landmark reason about
+<!-- part:card:growth-question -->
+<!-- part:card:check-progress -->
+
+</div>

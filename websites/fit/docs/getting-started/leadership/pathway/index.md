@@ -50,11 +50,11 @@ npx fit-pathway interview software_engineering J060
 
 ---
 
-## Next steps
+## What's next
 
-- [Pathway product page](/pathway/) — web app features, CLI commands, and static
-  site generation
-- [Authoring agent-aligned engineering standards](/docs/products/authoring-standards/)
-  — full guide to defining all entity types
-- [YAML schema reference](/docs/reference/yaml-schema/) — complete file format
-  documentation
+<div class="grid">
+
+<!-- part:card:../../../../pathway -->
+<!-- part:card:../../../products/career-paths -->
+
+</div>

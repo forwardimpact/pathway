@@ -172,13 +172,11 @@ for (const chunk of chunks) {
 The graph answers "which entities match?" and the resource index answers "what
 do those entities contain?" -- each library owns one step.
 
-## Related
+## What's next
 
-- [Ground Agents in Context](/docs/libraries/ground-agents/) -- the end-to-end
-  workflow for ingesting knowledge and building the retrieval pipeline.
-- [Query a Graph](/docs/libraries/ground-agents/query-graph/) -- find
-  identifiers by relationship pattern before resolving them here.
-- [Look Up Context](/docs/libraries/ground-agents/lookup-context/) -- find
-  identifiers by prefix or structural filter.
-- [`@forwardimpact/libresource` on npm](https://www.npmjs.com/package/@forwardimpact/libresource)
-  -- installation and changelog.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../query-graph -->
+
+</div>

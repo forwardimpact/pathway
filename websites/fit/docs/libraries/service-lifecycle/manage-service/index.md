@@ -166,11 +166,11 @@ optional service name with the same slicing behavior as the CLI: `start` takes
 everything up to and including the named service; `stop` takes the named service
 and everything after it.
 
-## Related
+## What's next
 
-- [Service Lifecycle](/docs/libraries/service-lifecycle/) -- the full setup
-  guide covering configuration, supervision, and observability.
-- [Add Observability](/docs/libraries/service-lifecycle/add-observability/)
-  -- add structured logs or trace spans to a service.
-- [`@forwardimpact/librc` on npm](https://www.npmjs.com/package/@forwardimpact/librc)
-  -- installation and changelog.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../add-observability -->
+
+</div>

@@ -191,3 +191,11 @@ Verify `data/resources/` contains files with non-empty content fields.
 **Model download stalls** — The first TEI startup downloads the model from
 HuggingFace. Check network access and `~/.cache/huggingface/` for partial
 downloads.
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:../../libraries/ground-agents -->
+
+</div>

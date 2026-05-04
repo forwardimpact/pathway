@@ -185,15 +185,11 @@ const ranked = await vectorIndex.queryItems(queryVectors, {
 const chunks = await resources.get(ranked.map(String));
 ```
 
-## Related
+## What's next
 
-- [Ground Agents in Context](/docs/libraries/ground-agents/) -- the end-to-end
-  workflow for building the embedding pipeline and retrieval stack.
-- [Resolve a Resource](/docs/libraries/ground-agents/resolve-resource/) --
-  retrieve the full context chunk behind a ranked identifier.
-- [Query a Graph](/docs/libraries/ground-agents/query-graph/) -- when the
-  question is about explicit relationships, not semantic similarity.
-- [Look Up Context](/docs/libraries/ground-agents/lookup-context/) -- when you
-  need structural filtering rather than ranked scoring.
-- [`@forwardimpact/libvector` on npm](https://www.npmjs.com/package/@forwardimpact/libvector)
-  -- installation and changelog.
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../query-graph -->
+
+</div>

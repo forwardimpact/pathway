@@ -164,3 +164,12 @@ You have reached the outcome of this guide when:
 For the full workflow -- understanding what to expect from agent output at each
 role level and building a systematic review practice -- return to
 [Verify Agent Work Against the Standard](/docs/products/trust-output/).
+
+## What's next
+
+<div class="grid">
+
+<!-- part:card:.. -->
+<!-- part:card:../expected-output -->
+
+</div>
