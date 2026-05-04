@@ -2,8 +2,10 @@ name: "Agent: Technical Writer"
 
 on:
   schedule:
-    # Review docs after security hardens the code. Paris (CEST) times below.
+    # Review docs after staff ships code. Paris (CEST) times below.
     - cron: "37 3 * * *" # Night shift — 05:37 Paris, finishes before 07:00
+    - cron: "47 11 * * *" # Day shift   — 13:47 Paris, finishes before 15:00
+    - cron: "47 19 * * *" # Swing shift — 21:47 Paris, finishes before 23:00
   workflow_dispatch:
     inputs:
       task-amend:

@@ -91,11 +91,11 @@ fallback. An agent reports clean only after exhausting all four levels.
 Seven scheduled workflows run on a three-shift Europe/Paris rhythm: **night** by
 07:00, **storyboard** at 08:00, **day** by 15:00, **swing** by 23:00. Each shift
 forms a producer → reviewer → shipper chain: product-manager triages and
-approves spec quality so staff has a fresh backlog, staff implements, release
-gates and ships. The night shift — the full cycle before the morning storyboard
-— slots security-engineer and technical-writer between staff and release to
-review code before it ships; day and swing skip the review pair (dependency
-churn and doc drift need no intra-day cadence; CVE-driven work runs on demand).
+approves spec quality so staff has a fresh backlog, staff implements,
+technical-writer reviews docs, release gates and ships. The night shift — the
+full cycle before the morning storyboard — additionally slots security-engineer
+between staff and technical-writer to review code before it ships; day and swing
+skip security (CVE-driven work runs on demand via Dependabot).
 Crons are authored in UTC; Paris times below use CEST (UTC+2), the tighter
 summer bound. An eighth workflow, **agent-react**, runs on PR comments, new
 discussions, and discussion comments — the release engineer facilitates and
@@ -113,7 +113,7 @@ to the improvement coach.
 | **agent-product-manager**   | Night 03:23 · Day 12:17 · Swing 20:17 | product-manager                          |
 | **agent-staff-engineer**    | Night 04:11 · Day 13:11 · Swing 21:11 | staff-engineer                           |
 | **agent-security-engineer** | Night 04:53                           | security-engineer                        |
-| **agent-technical-writer**  | Night 05:37                           | technical-writer                         |
+| **agent-technical-writer**  | Night 05:37 · Day 13:47 · Swing 21:47 | technical-writer                         |
 | **agent-release-engineer**  | Night 06:23 · Day 14:23 · Swing 22:23 | release-engineer                         |
 | **agent-react**             | On PR/discussion activity             | release-engineer (facilitates 4 agents)  |
 
