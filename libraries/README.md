@@ -54,6 +54,8 @@ can read and tune via JSON.
 
 <job user="Empowered Engineers" goal="Operate a Predictable Agent Team">
 
+## Empowered Engineers: Operate a Predictable Agent Team
+
 **Trigger:** An agent finishes a session and its findings vanish because there
 is no shared memory to write them to; a metric changes and the team debates
 whether it is a real shift or just noise.
@@ -73,6 +75,8 @@ thresholds; ignoring metrics because no one trusts them.
 </job>
 
 <job user="Platform Builders" goal="Enable Agents on Every Surface">
+
+## Platform Builders: Enable Agents on Every Surface
 
 **Trigger:** Building an interface and realizing agents can't discover or
 navigate it the same way humans do; rendering output in a new surface and
@@ -99,6 +103,8 @@ scratch.
 </job>
 
 <job user="Platform Builders" goal="Ground Agents in Context">
+
+## Platform Builders: Ground Agents in Context
 
 **Trigger:** Needing to know how two concepts relate and realizing the answer is
 scattered across files no one maintains; searching for context in a growing
@@ -129,6 +135,8 @@ retrieval entirely.
 
 <job user="Platform Builders" goal="Integrate with the Engineering Standard">
 
+## Platform Builders: Integrate with the Engineering Standard
+
 **Trigger:** Building a product feature that needs skill matrices or job
 definitions and realizing the YAML is raw data, not queryable structure.
 
@@ -144,6 +152,8 @@ skipping derivation and displaying raw data.
 </job>
 
 <job user="Platform Builders" goal="Keep Service Contracts Typed">
+
+## Platform Builders: Keep Service Contracts Typed
 
 **Trigger:** Adding a proto definition and realizing the JavaScript types are
 already stale; registering a gRPC service as MCP tools and realizing the tool
@@ -174,6 +184,8 @@ inferring types from runtime responses.
 
 <job user="Platform Builders" goal="Keep Services Running and Visible">
 
+## Platform Builders: Keep Services Running and Visible
+
 **Trigger:** Debugging a down service and realizing there is no single command
 to check what is running; a service crashes overnight and no one notices until
 the morning standup; debugging a production issue and realizing no trace spans
@@ -196,6 +208,8 @@ outages; console.log debugging; no observability; post-mortem log archaeology.
 </job>
 
 <job user="Platform Builders" goal="Prove Agent Changes">
+
+## Platform Builders: Prove Agent Changes
 
 **Trigger:** An eval passes locally but fails in CI and the only output is
 'assertion failed.'; setting up an eval and realizing you need to coordinate

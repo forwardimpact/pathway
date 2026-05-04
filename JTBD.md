@@ -4,6 +4,8 @@
 
 <job user="Engineering Leaders" goal="Define the Engineering Standard">
 
+## Engineering Leaders: Define the Engineering Standard
+
 **Trigger:** A promotion decision stalls because two managers disagree on what
 'senior' means — neither can point to a written definition.
 
@@ -32,6 +34,8 @@ to maintain them.
 
 <job user="Engineering Leaders" goal="Measure Engineering Outcomes">
 
+## Engineering Leaders: Measure Engineering Outcomes
+
 **Trigger:** The quarterly review is due and the only data available is ticket
 counts — which single out individuals rather than illuminate the system.
 
@@ -56,6 +60,8 @@ deprioritizes measurement.
 </job>
 
 <job user="Engineering Leaders" goal="Staff Teams to Succeed">
+
+## Engineering Leaders: Staff Teams to Succeed
 
 **Trigger:** A post-mortem surfaces the same skill gap that caused the last
 incident — nobody had a way to see it before staffing the team.
@@ -84,6 +90,8 @@ removes the pressure to staff analytically.
 
 <job user="Empowered Engineers" goal="Be Prepared and Productive">
 
+## Empowered Engineers: Be Prepared and Productive
+
 **Trigger:** Walking into a meeting cold because the context was buried across
 email threads, a Slack channel, and last week's notes.
 
@@ -111,6 +119,8 @@ the preparation and tracking.
 </job>
 
 <job user="Empowered Engineers" goal="Equip Aligned Agent Teams">
+
+## Empowered Engineers: Equip Aligned Agent Teams
 
 **Trigger:** An agent delivered work the team rejected because it followed
 generic best practices instead of the organization's actual standards.
@@ -141,6 +151,8 @@ change bans custom agent configuration.
 </job>
 
 <job user="Empowered Engineers" goal="Find Growth Areas">
+
+## Empowered Engineers: Find Growth Areas
 
 **Trigger:** The promotion conversation ended with 'not yet' but no specifics —
 unclear what evidence would change the answer.
@@ -174,6 +186,8 @@ last regime's artifact.
 
 <job user="Empowered Engineers" goal="Trust Agent Output">
 
+## Empowered Engineers: Trust Agent Output
+
 **Trigger:** Reviewing agent output line by line because there's no objective
 way to tell whether it meets the organization's quality bar without reading
 everything.
@@ -206,6 +220,8 @@ review; or the team stops using agents for substantive work.
 </job>
 
 <job user="Empowered Engineers" goal="Understand Expectations">
+
+## Empowered Engineers: Understand Expectations
 
 **Trigger:** Starting a new role and realizing that 'meets expectations' on the
 review form has no definition anyone can point to.

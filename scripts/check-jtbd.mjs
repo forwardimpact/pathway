@@ -316,7 +316,11 @@ async function renderJobGroup(group, capitalize) {
   const bigHire = mergeHireField(group.bigHires, capitalize);
   const littleHire = mergeHireField(group.littleHires, capitalize);
 
-  const proseLines = [`**Trigger:** ${trigger}`];
+  const proseLines = [
+    `## ${group.user}: ${group.goal}`,
+    "",
+    `**Trigger:** ${trigger}`,
+  ];
   if (bigHire) {
     proseLines.push("", `**Big Hire:** ${bigHire}`);
   }

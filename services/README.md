@@ -25,6 +25,8 @@ that let agents consume backend functionality natively.
 
 <job user="Platform Builders" goal="Ground Agents in Context">
 
+## Platform Builders: Ground Agents in Context
+
 **Trigger:** Needing to know how two concepts relate and realizing the answer is
 scattered across files no one wants to join by hand; adding semantic search to a
 product and realizing each one would need its own vector store.
@@ -45,6 +47,8 @@ databases; keyword search instead of semantic; skipping retrieval entirely.
 
 <job user="Platform Builders" goal="Integrate with the Engineering Standard">
 
+## Platform Builders: Integrate with the Engineering Standard
+
 **Trigger:** Building a product feature that needs career paths or agent
 profiles and realizing the derivation logic would have to live in the product.
 
@@ -61,6 +65,8 @@ logic; hardcoding role definitions.
 
 <job user="Platform Builders" goal="Keep Service Contracts Typed">
 
+## Platform Builders: Keep Service Contracts Typed
+
 **Trigger:** Adding a new gRPC service and realizing each one needs its own MCP
 glue to become an agent tool.
 
@@ -76,6 +82,8 @@ endpoint; leaving services unreachable by agents.
 </job>
 
 <job user="Platform Builders" goal="Prove Agent Changes">
+
+## Platform Builders: Prove Agent Changes
 
 **Trigger:** Finishing an agent improvement and realizing there is no
 centralized place to store and compare trace spans.
