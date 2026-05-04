@@ -84,6 +84,8 @@ Three personas, each with a hub and per-product pages:
 | Engineers    | `getting-started/engineers/`    | Pathway, Guide, Landmark, Outpost |
 | Contributors | `getting-started/contributors/` | (monorepo setup)                  |
 
+See [README.md § Getting Started](README.md#getting-started).
+
 ### Guide Pages
 
 Guides under `docs/products/`, `docs/libraries/`, and `docs/services/` sit

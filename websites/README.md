@@ -5,7 +5,7 @@ Every guide maps to a Big Hire or Little Hire from
 [services/README.md](/services/README.md). Big Hire guides are directory roots;
 Little Hire guides are nested children.
 
-## Getting Started (`docs/getting-started/`)
+## Getting Started
 
 | Persona      | Hub path                        | Product pages                          |
 | ------------ | ------------------------------- | -------------------------------------- |
