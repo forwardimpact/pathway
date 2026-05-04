@@ -2,17 +2,17 @@
 
 Depends on Part 02 (MCP tools must be registered).
 
-## Step 1: Evaluation skill
+## Step 1: Evaluation protocol in Guide system prompt
 
-Create the artifact-evaluation protocol that Guide follows when piped an
-evaluation prompt. `fit-guide` already supports non-interactive stdin mode via
-`librepl` (librepl/src/index.js lines 389–407: detects `!stdin.isTTY`,
-buffers all input, processes each line, then exits). No changes to `fit-guide`
-or `librepl` are needed.
+Append the artifact-evaluation protocol to Guide's system prompt so the
+Claude SDK receives it alongside the MCP tools. `fit-guide` already supports
+non-interactive stdin mode via `librepl` (librepl/src/index.js lines 389–407:
+detects `!stdin.isTTY`, buffers all input, processes each line, then exits).
+No changes to `fit-guide` or `librepl` are needed.
 
-**Created:** `services/mcp/prompts/evaluation.md`
+**Modified:** `services/mcp/prompts/guide-default.md`
 
-Content — a concise protocol document (~60–80 lines) covering:
+Append a `## Artifact Evaluation` section (~60–80 lines) covering:
 
 1. **Trigger:** Prompt contains "evaluate" and a scope (person email, manager
    email for team, or "all" for org).
@@ -40,32 +40,6 @@ Content — a concise protocol document (~60–80 lines) covering:
 4. **Multi-source note:** `GetArtifact` returns different structures per source
    type. Evaluate based on what the artifact contains (title, description,
    diff context for PRs; review body for reviews; commit message for commits).
-
-**Verify:** File exists and is well-formed markdown.
-
----
-
-## Step 2: Guide system prompt — evaluation awareness
-
-Include the evaluation protocol in Guide's system prompt.
-
-**Modified:** `services/mcp/prompts/guide-default.md`
-
-Append at the end of the existing prompt:
-
-```markdown
-## Artifact Evaluation
-
-When asked to evaluate artifacts, follow the evaluation protocol below.
-
-{inline contents of evaluation.md}
-```
-
-If the prompt loading in `services/mcp/index.js` (`readFile(promptPath,
-"utf8")`) reads a single file, inline the evaluation protocol directly into
-`guide-default.md`. If multi-file loading is preferred, extend `makeServer()`
-to concatenate both files — but the single-file approach is simpler and
-matches the current architecture.
 
 **Verify:** `echo "evaluate unscored artifacts for actaeon@bionova.example" |
 bunx fit-guide` invokes `GetUnscoredArtifacts`, evaluates artifacts, calls

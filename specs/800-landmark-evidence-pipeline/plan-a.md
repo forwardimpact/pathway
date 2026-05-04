@@ -12,28 +12,28 @@ svcpathway, new `svcmap` gRPC service with four methods and a source-type
 registry, wired through svcmcp), then add the evaluation skill to Guide's
 system prompt. Each part is independently verifiable and sequentially ordered.
 
-Libraries used: `libskill` (deriveJob, skill markers), `librpc` (Server,
-createClient, MapBase), `libmcp` (registerToolsFromConfig), `libconfig`
+Libraries used: `libskill` (deriveJob), `librpc` (Server, createClient,
+MapBase), `libmcp` (registerToolsFromConfig), `libconfig`
 (createServiceConfig), `libtelemetry` (createLogger), `libtype` (generated
-types), `libsyntheticprose` (capability prompt), `@supabase/supabase-js`
+types), `libsyntheticprose` (capability prompt), `libsyntheticgen` (activity
+entities), `libsyntheticrender` (raw payloads), `@supabase/supabase-js`
 (activity DB).
 
 ## Parts
 
 | Part | Summary | Files | Depends on |
 |------|---------|-------|------------|
-| [plan-a-01.md](plan-a-01.md) | Data layer + synthetic data | 13 modified, 3 created, 7 deleted | — |
-| [plan-a-02.md](plan-a-02.md) | Service layer (svcpathway, svcmap, svcmcp) | 6 modified, 4 created | Part 01 |
-| [plan-a-03.md](plan-a-03.md) | Evaluation skill | 1 modified, 1 created | Part 02 |
+| [plan-a-01.md](plan-a-01.md) | Data layer + synthetic data | 13 modified, 4 created, 6 deleted | — |
+| [plan-a-02.md](plan-a-02.md) | Service layer (svcpathway, svcmap, svcmcp) | 7 modified, 6 created | Part 01 |
+| [plan-a-03.md](plan-a-03.md) | Evaluation skill | 1 modified | Part 02 |
 
 ## Risks
 
 | Risk | Mitigation |
 |------|------------|
-| NOT NULL migration on `activity.evidence` fails if synthetic rows have null `rationale` or `level_id` | Migration backfills defaults before adding constraint |
-| `getdx_team_id` population depends on teams-list containing contributor data | Synthetic terrain already includes contributors; real path extends GetDX sync |
-| Markers schema mismatch between LLM-generated prose and JSON schema | Capability prompt includes the exact schema `$defs/skillMarkers` structure |
-| Marker-grounding validation in `WriteEvidence` depends on svcpathway availability | svcmap constructor requires pathwayClient; service topology starts pathway before map |
+| `getdx_team_id` population depends on teams-list containing `contributor_list` arrays | Synthetic terrain extended to render arrays; real path needs teams.info per team (future sync spec) |
+| Marker-grounding validation in `WriteEvidence` adds a gRPC call per unique profile in the batch | Cache markers per `(discipline, level, track)` within the batch if profiling shows latency |
+| `createClient("map")` requires `SERVICE_MAP_URL` to resolve | init.js updated in Part 02 Step 6; port 3006 assigned |
 
 ## Execution
 

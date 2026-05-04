@@ -2,13 +2,14 @@
 
 ## Step 1: Schema migrations
 
-Create three migration files.
+Create four migration files.
 
 **Created:**
 
 - `products/map/supabase/migrations/20250504000001_org_people_getdx_team_id.sql`
 - `products/map/supabase/migrations/20250504000002_evidence_not_null.sql`
 - `products/map/supabase/migrations/20250504000003_comments_driver_name.sql`
+- `products/map/supabase/migrations/20250504000004_evidence_upsert_key.sql`
 
 **`20250504000001_org_people_getdx_team_id.sql`:**
 
@@ -37,8 +38,16 @@ ALTER TABLE activity.evidence ALTER COLUMN level_id SET NOT NULL;
 ALTER TABLE activity.getdx_snapshot_comments ADD COLUMN driver_name TEXT;
 ```
 
-**Verify:** `bunx supabase migration list` shows all three; schema matches
-design § Data model changes.
+**`20250504000004_evidence_upsert_key.sql`:**
+
+```sql
+CREATE UNIQUE INDEX idx_evidence_upsert_key
+  ON activity.evidence(artifact_id, skill_id, level_id, marker_text);
+```
+
+**Verify:** `bunx supabase migration list` shows all four; schema matches
+design § Data model changes. Inserting a duplicate
+`(artifact_id, skill_id, level_id, marker_text)` row raises a unique violation.
 
 ---
 
@@ -72,7 +81,7 @@ if (options.managerEmail) {
 
 ### `snapshots.js` — `getItemTrend()` (line 63)
 
-Replace lines 69–78 (`if (options.managerEmail)` block):
+Replace lines 69–79 (`if (options.managerEmail)` block):
 
 ```js
 if (options.managerEmail) {
@@ -118,14 +127,17 @@ containing Athena's direct reports only.
 Extend `transformTeams()` to write `getdx_team_id` back to
 `organization_people` for each contributor found in the team data.
 
-**Modified:** `products/map/src/activity/transform/getdx.js`
+**Modified:** `products/map/src/activity/transform/getdx.js`,
+`libraries/libsyntheticrender/src/render/raw.js`,
+`libraries/libsyntheticgen/src/engine/activity.js`
 
-After the team upsert (line 120), add:
+After the team upsert in `transformTeams()` (line 120), add:
 
 ```js
 const contributorUpdates = [];
 for (const team of teams) {
-  const contributors = team.contributors || [];
+  const contributors = team.contributor_list || team.contributors || [];
+  if (!Array.isArray(contributors)) continue;
   for (const contributor of contributors) {
     if (contributor.email) {
       contributorUpdates.push({
@@ -145,24 +157,69 @@ if (contributorUpdates.length > 0) {
 }
 ```
 
+The synthetic teams render currently writes `contributors` as a count (number),
+and `generateScores()` (activity.js lines 251, 253) uses `team.contributors`
+as a number for `randomInt()` and `contributor_count`. To avoid a type break,
+keep `contributors` as a count and add a separate `contributor_list` array.
+
+In `buildLeafTeamEntries()` (line 137), add a `contributor_list` field after
+`contributors: team.size` (line 152). Pass `people` as a fourth parameter:
+
+```js
+contributors: team.size,
+contributor_list: people
+  .filter((p) => p.team_id === team.id)
+  .map((p) => ({ email: p.email, name: p.name })),
+```
+
+Update call sites to thread `people`:
+- `buildActivityTeams()` (line 160): add `people` parameter, pass to
+  `buildLeafTeamEntries(teams, deptMap, orgMap, people)` at line 167.
+- `generateActivity()` (line 69): pass `people` to
+  `buildActivityTeams(ast, teams, people)`.
+
+In `renderGetDXPayloads()` (raw.js line 76), add `contributor_list` to the
+teams-list output after `contributors` (line 82):
+
+```js
+contributors: t.contributors || 0,
+contributor_list: t.contributor_list || [],
+```
+
+Update the `transformTeams()` code added above to read `contributor_list`
+instead of `contributors`:
+
+```js
+const contributors = team.contributor_list || [];
+```
+
 **Verify:** After `bunx fit-map activity seed`, query
 `SELECT email, getdx_team_id FROM activity.organization_people WHERE
 getdx_team_id IS NOT NULL` returns rows.
 
 ---
 
-## Step 4: `driver_name` capture in comment transform
+## Step 4: `driver_name` capture in comment transform and render
 
-**Modified:** `products/map/src/activity/transform/getdx.js`
+**Modified:** `products/map/src/activity/transform/getdx.js`,
+`libraries/libsyntheticrender/src/render/raw.js`
 
-In `transformSnapshotComments()`, line 252 (the row object literal), add:
+In `transformSnapshotComments()` (getdx.js), line 252 (the row object
+literal), add:
 
 ```js
 driver_name: comment.driver_name || null,
 ```
 
+In `renderGetDXComments()` (raw.js), line 275 (the return object inside the
+comment map), add:
+
+```js
+driver_name: ck.driver_name || null,
+```
+
 **Verify:** After `bunx fit-map activity seed`, `getdx_snapshot_comments` rows
-with source data containing `driver_name` have non-null values.
+have non-null `driver_name` values.
 
 ---
 
@@ -183,6 +240,9 @@ if (options.managerEmail) {
 }
 ```
 
+Org-wide scope requires no code change — calling `getUnscoredArtifacts` with
+no `email` or `managerEmail` already returns all artifacts.
+
 **Verify:** `getUnscoredArtifacts(supabase, { managerEmail:
 "athena@bionova.example" })` returns only artifacts for Athena's team members.
 
@@ -191,7 +251,9 @@ if (options.managerEmail) {
 ## Step 6: Initiative removal
 
 Remove the initiative command group from Landmark, the initiative query module
-from Map, and the initiative transform from the GetDX sync.
+from Map, and the initiative transform from the GetDX sync. Keep the initiative
+migration file in place so existing databases with the table applied do not
+show schema drift.
 
 **Deleted:**
 
@@ -201,7 +263,6 @@ from Map, and the initiative transform from the GetDX sync.
 - `products/landmark/test/initiative.test.js`
 - `products/landmark/test/initiative-helpers.test.js`
 - `products/map/src/activity/queries/initiatives.js`
-- `products/map/supabase/migrations/20250101000004_getdx_initiatives.sql`
 
 **Modified:**
 
@@ -211,9 +272,9 @@ from Map, and the initiative transform from the GetDX sync.
 | `products/landmark/src/formatters/index.js` | Remove `initiativeFormatter` import (line 20) and `initiative: initiativeFormatter` entry (line 34) |
 | `products/landmark/src/commands/health.js` | Remove `listInitiatives` import (line 18). Remove `listInitiatives` from the `q` default object (line 46). Remove `fetchInitiatives()` call (line 91), `attachInitiatives()` call (line 92), and both functions `fetchInitiatives` (lines 258–272) and `attachInitiatives` (lines 275–281). Remove `initiatives: []` from driver objects in `buildDriverRows` (line 190) |
 | `products/landmark/src/formatters/health.js` | Remove `renderTextInitiatives` (lines 61–68), `renderMdInitiatives` (lines 111–118), `formatInitPct` (lines 34–36). Remove calls to these from `renderTextDriver` (line 83) and `renderMdDriver` (line 129) |
-| `products/landmark/src/lib/empty-state.js` | Remove `NO_INITIATIVES` entry (line 22–23) |
-| `products/landmark/test/empty-state.test.js` | Remove the assertion referencing `NO_INITIATIVES` (line 37) |
-| `products/map/src/activity/transform/getdx.js` | Remove `transformInitiatives()` function (lines 283–346), its call site in `transformAllGetDX()` (lines 65–75), `initiativeCount` variable (line 65), and `initiatives` from the return object (line 78) |
+| `products/landmark/src/lib/empty-state.js` | Remove `NO_INITIATIVES` entry (lines 22–23) |
+| `products/landmark/test/empty-state.test.js` | Remove the `NO_INITIATIVES` test case (lines 36–38) |
+| `products/map/src/activity/transform/getdx.js` | Remove `transformInitiatives()` function (lines 283–346), its call site in `transformAllGetDX()` (lines 65–75), `initiativeCount` variable (line 65), and `initiatives` from the return object (line 82) |
 
 **Verify:** `bunx fit-landmark initiative` exits with "unknown command"
 (exit code 2). `bunx fit-landmark health` runs without errors.
@@ -225,7 +286,7 @@ from Map, and the initiative transform from the GetDX sync.
 
 **Modified:** `libraries/libsyntheticprose/src/prompts/pathway/capability.js`
 
-After the `agent.confirmChecklist` instructions (line 72), add:
+After the `agent.confirmChecklist` instructions (line 73), add:
 
 ```js
 "  - markers: An object keyed by proficiency level",
@@ -238,6 +299,13 @@ After the `agent.confirmChecklist` instructions (line 72), add:
 "    Markers describe concrete, observable evidence of skill proficiency",
 "    at that level. Higher levels show broader scope and autonomy.",
 ```
+
+`libsyntheticrender` requires no changes — `renderPathway()` calls
+`toYaml(stripInternal(entity))` which serializes the full entity including
+`markers`. The Map loader already preserves `markers` on skills
+(loader.js lines 112, 126). `data/synthetic/story.dsl` requires no changes —
+the entity generator already populates `manager_email` from team manager
+declarations.
 
 **Verify:** After `bunx fit-terrain generate`, inspect a capability YAML in
 `data/pathway/capabilities/` — each skill has a `markers` block. After

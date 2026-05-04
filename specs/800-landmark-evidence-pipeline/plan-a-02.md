@@ -318,9 +318,10 @@ export class MapService extends MapBase {
 
 ---
 
-## Step 5: svcmap `server.js` + `package.json`
+## Step 5: svcmap `server.js`, `package.json`, `README.md`, `test/`
 
-**Created:** `services/map/server.js`
+**Created:** `services/map/server.js`, `services/map/README.md`,
+`services/map/test/map.test.js`
 
 ```js
 #!/usr/bin/env node
@@ -410,16 +411,28 @@ await server.start();
 }
 ```
 
-**Verify:** `bun install` resolves deps. `node services/map/server.js` starts
-without errors (assuming Supabase and svcpathway are running).
+**Created:** `services/map/README.md` — Purpose, key exports, one composition
+example. Follow `services/graph/README.md` as template.
+
+**Created:** `services/map/test/map.test.js` — Unit tests for each RPC method
+using a mock Supabase client and mock pathwayClient.
+
+**Verify:** `bun install` resolves deps. `bun test services/map/test/` passes.
+`node services/map/server.js` starts without errors (assuming Supabase and
+svcpathway are running).
 
 ---
 
-## Step 6: svcmcp — add `mapClient`
+## Step 6: Service URL + svcmcp wiring
+
+**Modified:** `products/guide/src/commands/init.js`
+
+Add `SERVICE_MAP_URL: "grpc://localhost:3006"` to the `serviceUrls` object
+(after `SERVICE_MCP_URL` at line 25).
 
 **Modified:** `services/mcp/server.js`
 
-Add after the pathwayClient creation (line 14):
+Add after the pathwayClient creation (line 15):
 
 ```js
 const mapClient = await createClient("map", logger, tracer);
@@ -505,13 +518,15 @@ appear in the MCP tool listing.
 
 ---
 
-## Step 8: Codegen
+## Step 8: Codegen + catalog
 
 ```sh
 just codegen
+bun run context:fix
 ```
 
 **Verify:** `generated/services/bases/MapBase.js` exists.
 `generated/services/clients/MapClient.js` exists. `PathwayBase` includes
 `GetMarkersForProfile`. `generated/types/metadata.js` includes entries for
-`map.Map.*` and `pathway.Pathway.GetMarkersForProfile`.
+`map.Map.*` and `pathway.Pathway.GetMarkersForProfile`. `services/README.md`
+lists svcmap in the catalog.
