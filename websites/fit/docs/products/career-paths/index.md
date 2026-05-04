@@ -1,109 +1,347 @@
 ---
-title: "Career Paths"
-description: "Browse job definitions, understand skill proficiencies, and analyze career progression."
+title: "See What's Expected at Your Level"
+description: "Starting a new role with undefined expectations -- use Pathway to see the skills, behaviours, and scope your level requires so you stop guessing during reviews."
 ---
 
-Pathway shows you what engineering roles look like at every level — the skills
-expected, the behaviours valued, and how roles change across disciplines and
-tracks. It turns agent-aligned engineering standard definitions into concrete
-job descriptions, progression roadmaps, and gap analyses.
+You have started a new role, and the review form says "meets expectations" --
+but nobody can point to a definition of what that means. Pathway makes those
+expectations visible: the skills your level requires, the behaviours the
+organization values, and the scope and autonomy your role implies. By the end of
+this guide you will have a concrete picture of what your level expects, grounded
+in your organization's own engineering standard.
 
-## What Pathway Shows You
+## Prerequisites
 
-- **Job definitions** — Complete role descriptions for any combination of
-  discipline, level, and track
-- **Skill expectations** — Which skills matter at each level and what
-  proficiency is expected
-- **Behaviour expectations** — How engineers are expected to work at each level
-- **Career progression** — What changes between your current level and the next
-  one
-- **Gap analysis** — Where you stand relative to a target role
+Install Pathway and initialize your standard data before continuing. If you
+have not done that yet, follow the
+[Getting Started: Pathway for Engineers](/docs/getting-started/engineers/pathway/)
+guide, then return here.
 
-## Browse Entities
+## Find your role coordinates
 
-Explore what is defined in your agent-aligned engineering standard:
+Every role in Pathway is defined by three coordinates: a **discipline**, a
+**level**, and an optional **track**. Before you can see your expectations, you
+need to identify which values describe your current role.
+
+List the disciplines defined in your standard:
 
 ```sh
 npx fit-pathway discipline --list
-npx fit-pathway skill --list
-npx fit-pathway level --list
-npx fit-pathway track --list
-npx fit-pathway behaviour --list
-npx fit-pathway driver --list
 ```
 
-## View a Job Definition
+Expected output (your organization's values will differ):
 
-See the full job definition for a specific role:
+```text
+clinical_informatics, Clinical Informatics, professional, —
+data_engineering, Data Engineering, professional, platform
+engineering_management, Engineering Management, management, —
+quality_engineering, Quality Engineering, professional, sre
+software_engineering, Software Engineering, professional, platform|sre
+```
+
+The first column is the discipline ID you will use in later commands. The last
+column shows which tracks are available for that discipline.
+
+List the levels:
+
+```sh
+npx fit-pathway level --list
+```
+
+```text
+J040, Associate Engineer, Team Coordinator
+J060, Engineer, Team Lead
+J070, Senior Engineer, Engineering Manager
+J080, Lead Engineer, Senior Engineering Manager
+J090, Staff Engineer, Director of Engineering
+J100, Principal Engineer, Vice President of Engineering
+```
+
+Each row shows the level code and the professional / management title. Find
+the row that matches your current role.
+
+If your discipline supports track specializations, list them:
+
+```sh
+npx fit-pathway track --list
+```
+
+```text
+ml_ops, ML Operations
+platform, Platform Engineering
+security, Security Engineering
+sre, Site Reliability Engineering
+```
+
+Note down your discipline ID, level code, and track ID (if applicable). These
+three values are all you need for the remaining steps.
+
+## View your full role definition
+
+Generate the complete expectation profile for your role:
 
 ```sh
 npx fit-pathway job software_engineering J060
 ```
 
-Apply a track to see how the role shifts in a specific context:
+The output has four sections:
+
+1. **Expectations** -- your level's impact scope, autonomy, influence scope, and
+   the complexity you are expected to handle.
+2. **Behaviour Profile** -- each behaviour the organization values and the
+   maturity level expected at your role.
+3. **Skill Matrix** -- every skill relevant to your discipline, with the
+   proficiency level expected.
+4. **Driver Coverage** -- how your skill and behaviour profile maps to
+   engineering effectiveness drivers.
+
+Here is what the Expectations section looks like for an Engineer (J060) in
+Software Engineering:
+
+```text
+## Expectations
+
+- **Impact Scope**: Delivers components and features that contribute to
+  team-level objectives and product outcomes.
+- **Autonomy Expectation**: Works independently on defined deliverables,
+  escalating ambiguous issues to senior engineers.
+- **Influence Scope**: Influences technical decisions within the immediate
+  team through reasoned contributions.
+- **Complexity Handled**: Handles moderately complex problems with several
+  known variables and documented precedents.
+```
+
+If your role has a track specialization, add the `--track` flag to see how the
+profile shifts:
 
 ```sh
 npx fit-pathway job software_engineering J060 --track=platform
 ```
 
-The output includes the role's skill expectations with proficiency levels,
-behaviour expectations with maturity levels, responsibilities, and scope.
+Track specializations add track-specific skills and may adjust behaviour
+maturity expectations. For example, a Platform Engineering track adds skills
+like Change Management, Incident Management, Observability, and Performance
+Optimization -- and raises the Think in Systems behaviour maturity from
+Practicing to Role Modeling.
 
-## Understanding Skill Proficiencies
+## Understand your skill expectations
 
-Skills are assessed on a five-level proficiency scale. Each level describes
-increasing autonomy and scope:
+The Skill Matrix in your role definition shows what proficiency level each
+skill requires. Skills fall into three tiers:
 
-| Proficiency    | Autonomy              | Scope                    | Typical Verbs                     |
-| -------------- | --------------------- | ------------------------ | --------------------------------- |
-| `awareness`    | with guidance         | team                     | understand, follow, use, learn    |
-| `foundational` | with minimal guidance | team                     | apply, create, explain, identify  |
-| `working`      | independently         | team                     | design, own, troubleshoot, decide |
-| `practitioner` | lead, mentor          | area (2–5 teams)         | lead, mentor, establish, evaluate |
-| `expert`       | define, shape         | business unit / function | define, shape, innovate, pioneer  |
+| Tier          | Depth    | Purpose                                       |
+| ------------- | -------- | --------------------------------------------- |
+| `core`        | deepest  | the skills that define your discipline         |
+| `supporting`  | moderate | skills that enable your core work              |
+| `broad`       | lightest | cross-cutting skills for organizational impact |
 
-A job definition specifies the expected proficiency for each skill. Not every
-skill needs to be at the same level — disciplines use a T-shaped model where
-core skills go deeper than supporting or broad skills.
+To understand what a specific proficiency level means in practice, inspect any
+skill:
 
-## Understanding Behaviour Maturities
+```sh
+npx fit-pathway skill architecture_design
+```
 
-Behaviours describe how engineers approach their work. They are assessed on a
-maturity scale:
+```text
+# Architecture Design
 
-| Maturity        | Description                                          |
+Scale
+
+Designs system structures that meet functional, scalability, and regulatory
+requirements. Balances modularity, integration, and validated computer system
+constraints typical of pharmaceutical environments.
+
+## Level Descriptions
+
+| Level | Description |
+| --- | --- |
+| Awareness | You recognize common architectural styles... |
+| Foundational | You implement components inside a defined architecture... |
+| Working | You design services and module boundaries for a bounded domain... |
+| Practitioner | You lead architecture for a product or platform area... |
+| Expert | You define architectural strategy and reference patterns... |
+```
+
+Each proficiency level describes concrete, observable actions -- not vague
+aspirations. Compare the level description for your expected proficiency
+against your current practice to identify where you are strong and where you
+have room to grow.
+
+The five proficiency levels follow a consistent progression:
+
+| Proficiency    | Autonomy              | Scope                    |
+| -------------- | --------------------- | ------------------------ |
+| `awareness`    | with guidance         | team                     |
+| `foundational` | with minimal guidance | team                     |
+| `working`      | independently         | team                     |
+| `practitioner` | lead, mentor          | area (2-5 teams)         |
+| `expert`       | define, shape         | business unit / function |
+
+## Understand your behaviour expectations
+
+Behaviours describe how engineers approach their work -- not what they know,
+but how they operate. Your role definition's Behaviour Profile shows each
+behaviour and the maturity level expected.
+
+Inspect a specific behaviour to see what each maturity level looks like:
+
+```sh
+npx fit-pathway behaviour systems_thinking
+```
+
+```text
+# Think in Systems
+
+Systems thinking is the practice of understanding how components, processes,
+and people interact across a wider whole rather than viewing problems in
+isolation...
+
+## Maturity Levels
+
+| Maturity | Description |
+| --- | --- |
+| Emerging | You recognise that your work connects to broader processes... |
+| Developing | You actively trace dependencies beyond your immediate scope... |
+| Practicing | You consistently reason about systems end-to-end... |
+| Role Modeling | You shape how teams approach problems... |
+| Exemplifying | You set the standard for systems thinking... |
+```
+
+Like skill proficiencies, behaviour maturities describe observable patterns.
+Read the description for your expected maturity level and ask yourself: does
+this describe how I work today? That self-assessment is the starting point for
+identifying growth areas.
+
+The five maturity levels:
+
+| Maturity        | What it looks like                                   |
 | --------------- | ---------------------------------------------------- |
-| `emerging`      | Shows interest, needs prompting                      |
-| `developing`    | Regularly applies with some guidance                 |
-| `practicing`    | Consistently demonstrates in daily work              |
-| `role_modeling` | Influences the team's approach, others seek them out |
-| `exemplifying`  | Shapes organizational culture in this area           |
+| `emerging`      | shows interest, needs prompting                      |
+| `developing`    | regularly applies with some guidance                 |
+| `practicing`    | consistently demonstrates in daily work              |
+| `role_modeling` | influences the team's approach, others seek them out |
+| `exemplifying`  | shapes organizational culture in this area           |
 
-## Career Progression
+## See what changes at the next level
 
-See what is expected at your current level:
+Once you know what your current level expects, the natural next question is:
+what would need to change to reach the next level?
 
-```sh
-npx fit-pathway progress software_engineering J040 --track=platform
-```
-
-Compare your current level with a target level to see what changes:
+Run the `progress` command for your current role to see the progression to the
+next level:
 
 ```sh
-npx fit-pathway progress software_engineering J040 --track=platform --compare=J060
+npx fit-pathway progress software_engineering J060
 ```
 
-The comparison highlights:
+```text
+# Career Progression
 
-- Skills where the expected proficiency increases
-- Behaviours where the expected maturity increases
-- New responsibilities that appear at the target level
-- Changes in scope and autonomy
+**From**: Engineer Software Engineer
+**To**: Senior Engineer Software Engineer
 
-This makes promotion criteria concrete — instead of vague descriptions, you see
-exactly which skills need to grow and by how much.
+## Summary
 
-## Related Documentation
+- Skills to improve: 7
+- Behaviours to improve: 5
+- New skills: 0
+- Total changes: 12
 
-- [Data Model Reference](/docs/reference/model/) — how disciplines, tracks,
-  skills, and levels relate
+## Skill Changes
+
+| Skill | Type | From |  | To | Change |
+| --- | --- | --- | --- | --- | --- |
+| Architecture Design | Core | Working | -> | Practitioner | +1 |
+| Code Review | Core | Working | -> | Practitioner | +1 |
+| Full Stack Development | Core | Working | -> | Practitioner | +1 |
+| Cloud Platforms | Supporting | Foundational | -> | Working | +1 |
+| SRE Practices | Supporting | Foundational | -> | Working | +1 |
+| Data Modeling | Broad | Awareness | -> | Foundational | +1 |
+| Stakeholder Management | Broad | Awareness | -> | Foundational | +1 |
+
+## Behaviour Changes
+
+| Behaviour | From |  | To | Change |
+| --- | --- | --- | --- | --- |
+| Build Polymathic Knowledge | Practicing | -> | Role Modeling | +1 |
+| Communicate with Precision | Developing | -> | Practicing | +1 |
+| Own the Outcome | Developing | -> | Practicing | +1 |
+| Stay Relentlessly Curious | Developing | -> | Practicing | +1 |
+| Think in Systems | Practicing | -> | Role Modeling | +1 |
+```
+
+The output makes promotion criteria concrete. Instead of a vague "you need to
+be more senior," you can see that moving from J060 to J070 in Software
+Engineering means growing Architecture Design from Working to Practitioner,
+moving Think in Systems from Practicing to Role Modeling, and eleven other
+specific changes.
+
+Add a track to see progression within a specialization:
+
+```sh
+npx fit-pathway progress software_engineering J060 --track=platform
+```
+
+Track specializations often add more skill changes -- in this case, the
+Platform Engineering track shows 16 total changes instead of 12, because
+track-specific skills like Change Management, Incident Management,
+Observability, and Performance Optimization all need to grow as well.
+
+To compare any two specific levels (not just adjacent ones), use `--compare`:
+
+```sh
+npx fit-pathway progress software_engineering J040 --compare=J060
+```
+
+```text
+# Career Progression
+
+**From**: Associate Engineer Software Engineer
+**To**: Engineer Software Engineer
+
+## Summary
+
+- Skills to improve: 10
+- Behaviours to improve: 4
+- New skills: 0
+- Total changes: 14
+```
+
+This shows every skill and behaviour change between Associate Engineer (J040)
+and Engineer (J060), regardless of the number of levels between them.
+
+## Verify
+
+You have reached the outcome of this guide when you can answer these
+questions from your Pathway output:
+
+- **What is my role formula?** You can name your discipline, level, and track
+  (e.g., Software Engineering x J060 x Platform Engineering).
+- **What skills does my role expect, and at what proficiency?** You have
+  reviewed the Skill Matrix and understand the difference between core,
+  supporting, and broad skill tiers.
+- **What behaviours does my role expect, and at what maturity?** You have
+  reviewed the Behaviour Profile and can describe what your expected maturity
+  level looks like in practice.
+- **What does my level imply about scope and autonomy?** You have read the
+  Expectations section and can describe your level's impact scope, autonomy
+  expectation, and influence scope.
+- **What changes at the next level?** You have run the `progress` command and
+  can name the specific skills and behaviours that would need to grow.
+
+If any of these are unclear, re-run the relevant command and inspect the
+detail for any skill or behaviour using `npx fit-pathway skill <id>` or
+`npx fit-pathway behaviour <id>`.
+
+## What's next
+
+You now have a concrete picture of what your level expects -- the skills,
+behaviours, scope, and autonomy your role requires, grounded in your
+organization's own standard.
+
+- [Understand autonomy and scope](/docs/products/career-paths/autonomy-scope/)
+  -- see what your level implies for independence and decision-making
+- [Find Growth Areas](/docs/products/finding-your-bearing/) -- identify specific
+  gaps and build evidence of progress
+- [Data Model Reference](/docs/reference/model/) -- how disciplines, tracks,
+  skills, and levels relate in the underlying model
