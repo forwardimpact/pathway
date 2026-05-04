@@ -70,7 +70,7 @@ text-embeddings-router --model-id BAAI/bge-small-en-v1.5 --port 8090 --json-outp
 ### Running Under fit-rc
 
 For supervised operation, add a TEI entry to `config/config.json` under
-`init.services`. The base config created by `fit-guide init` does not include
+`init.services`. The base config created by `fit-guide --init` does not include
 TEI — add the entry manually:
 
 ```json
