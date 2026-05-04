@@ -12,72 +12,115 @@ and scan set diverge.
 
 ## Libraries used
 
-`yaml` (parse) — added as a root devDependency (already resolved transitively
-at `node_modules/yaml@2.8.3`; declaring it makes the script's import explicit).
+`yaml` (parse).
 
 ## Steps
 
 ### Step 1 — Add `yaml` to root devDependencies
 
-Intent: make the YAML parser an explicit dependency of the root workspace.
+Intent: declare the YAML parser explicitly at the root workspace so the script
+imports an owned dependency (currently transitive at `node_modules/yaml@2.8.3`
+via six workspace packages).
 
-| Action   | File           |
-| -------- | -------------- |
-| modify   | `package.json` |
-| modify   | `bun.lock`     |
+| Action | File           |
+| ------ | -------------- |
+| modify | `package.json` |
+| modify | `bun.lock`     |
 
-Add `"yaml": "^2.8.3"` to `devDependencies` (alphabetically last, after
-`serve`). Run `bun install` to refresh `bun.lock`.
+Edit `devDependencies` from:
 
-Verification: `bun install` completes; `node -e 'import("yaml").then(m => console.log(typeof m.parse))'` prints `function`.
+```json
+"devDependencies": {
+  "@biomejs/biome": "2.4.14",
+  "@playwright/test": "^1.59.1",
+  "acorn": "^8.16.0",
+  "serve": "^14.2.6"
+}
+```
+
+to:
+
+```json
+"devDependencies": {
+  "@biomejs/biome": "2.4.14",
+  "@playwright/test": "^1.59.1",
+  "acorn": "^8.16.0",
+  "serve": "^14.2.6",
+  "yaml": "^2.8.3"
+}
+```
+
+Run `bun install` to refresh `bun.lock` (auto-generated; modify entry tracks
+the regen). `^2.8.3` matches every existing workspace pin, so resolution stays
+single-version.
+
+Verification: `grep '"yaml":' package.json` shows the new entry; `bun install`
+exits 0; defer functional verification to Step 2 (the script's import of
+`yaml` is the binding test).
 
 ### Step 2 — Create `scripts/check-dependabot.mjs`
 
-Intent: assert the coverage invariant from the design end-to-end, fail loudly
-on drift, exit 0 otherwise.
+Intent: assert the design's coverage invariant end-to-end, fail loudly on
+drift, exit 0 otherwise.
 
-| Action  | File                            |
-| ------- | ------------------------------- |
-| create  | `scripts/check-dependabot.mjs`  |
+| Action | File                            |
+| ------ | ------------------------------- |
+| create | `scripts/check-dependabot.mjs`  |
 
-Behaviour, in order:
+Behaviour, in order — accumulate violations across all checks before exiting
+(no short-circuit; the implementer wants every drift visible in one run):
 
-1. Read `.github/dependabot.yml`; parse with `yaml.parse`.
-2. Find the `updates` entry where `package-ecosystem === "github-actions"`;
-   extract its `directories:` array. Fail with a clear message if either is
-   missing.
-3. **Scan set computation:** for each entry, if it contains `*`, expand against
-   the filesystem (single `*` matches one path segment of a directory under the
-   prefix, matching design's `/.github/actions/*` shape; literal entries go in
-   verbatim). Stop with `unsupported pattern` if a glob shape outside this
-   contract appears.
-4. **Filesystem set computation:** read `.github/actions/`, include `<D>` if
-   `.github/actions/<D>/action.yml` or `.github/actions/<D>/action.yaml` exists.
-5. **Invariant checks** (each prints its own diff on failure):
-   - `filesystem set ⊆ (scan set ∖ {/})` — directories with an action.yml not
-     covered by any scan entry.
-   - `(scan set ∖ {/}) ⊆ filesystem set` — scan-set paths that point at no
-     action directory.
-   - `/` ∈ scan set (criterion 5 — workflow-root coverage preserved).
-6. Exit `0` on all-pass, `1` on any failure. CLI shape: no flags, no args.
+1. **Read & parse.** Read `.github/dependabot.yml` from repo root (resolve via
+   `new URL("..", import.meta.url).pathname` — matches `check-instructions.mjs`
+   and `check-libharness.mjs`, and is Node 18-safe; `import.meta.dirname` is
+   Node 20.11+ only and would break under the package's `engines.node ≥ 18`).
+   Parse with `yaml.parse`.
+2. **Locate ecosystem.** Find the `updates[]` entry where
+   `package-ecosystem === "github-actions"`; extract its `directories` array.
+   Fail with a clear message if either is missing or empty.
+3. **Scan-set computation** — for each entry:
+   - Literal (no `*`): include verbatim.
+   - Trailing `/*` only (e.g., `/.github/actions/*`): expand to one entry per
+     direct child of `<prefix>` that is a directory (single path segment, no
+     dotfiles, files skipped). Implemented via `readdirSync(prefix, { withFileTypes: true })`.
+   - Anything else (`**`, mid-segment globs like `/foo*`, multiple `*`):
+     fail with `unsupported pattern: <entry>` and exit 1.
+4. **Filesystem-set computation.** If `.github/actions/` is missing or
+   contains no directories, the filesystem set is empty (no error). Otherwise,
+   include `<D>` iff `.github/actions/<D>/` is a directory AND
+   `action.yml` or `action.yaml` exists inside it. Non-directory entries
+   under `.github/actions/` are skipped silently (matches design risk row:
+   stray non-action files are harmless).
+5. **Invariant checks** — accumulate, do not short-circuit:
+   - **A.** `filesystem set ⊆ (expanded scan set ∖ {/})` — uncovered action
+     directories. Print missing entries.
+   - **B.** `(expanded scan set ∖ {/}) ⊆ filesystem set` — scan-set paths
+     that point at no action directory. Print stale entries.
+   - **C.** `/` ∈ **pre-expansion** entries (literal-string check on the raw
+     `directories` array, before glob expansion) — guards spec criterion 5.
+   - **D.** No `unsupported pattern` raised in Step 3.
+6. **Exit.** Print one diff section per failed check, then exit `0` if all
+   four pass, `1` if any fail.
 
-Add `#!/usr/bin/env node` shebang; ESM imports (`node:fs`, `node:path`,
-`yaml`); use `import.meta.dirname` to resolve repo root, matching the existing
-`scripts/check-*.mjs` convention.
+CLI shape: no flags, no args. Shebang `#!/usr/bin/env node`. ESM imports:
+`node:fs`, `node:path`, `yaml`. No `chmod +x` required (invocation is
+`bun scripts/check-dependabot.mjs`).
 
-Verification: `bun scripts/check-dependabot.mjs` exits 0 against the
-post-Step-3 tree; replay the three incident deltas in scratch (introduce
-`_canary/action.yml`; rename a directory; delete a directory) and confirm the
-script still exits 0 in each case (the glob auto-tracks).
+Verification: from a clean checkout of the post-Step-3 tree, run
+`bun scripts/check-dependabot.mjs` and confirm exit 0. Then in three
+throw-away worktrees (created via `git worktree add ../tmp-730-{add,rename,delete}`):
+introduce `.github/actions/_canary/action.yml`; rename `audit` → `audit-renamed`;
+delete `post-run`. The script must exit 0 in all three (the glob auto-tracks).
+Discard worktrees after verification — no commits.
 
 ### Step 3 — Replace per-directory entries with the glob
 
 Intent: collapse the five literal action-directory entries to a single glob
 plus the existing root entry.
 
-| Action | File                       |
-| ------ | -------------------------- |
-| modify | `.github/dependabot.yml`   |
+| Action | File                     |
+| ------ | ------------------------ |
+| modify | `.github/dependabot.yml` |
 
 Before:
 
@@ -103,7 +146,7 @@ No other field changes.
 
 Verification: `bun scripts/check-dependabot.mjs` exits 0 (filesystem set =
 {audit, bootstrap, kata-action-agent, kata-action-eval, post-run}; expanded
-scan set matches; `/` preserved).
+scan set = same plus `/`; `/` preserved).
 
 ### Step 4 — Wire into the `context` chain
 
@@ -116,19 +159,21 @@ see drift before pushing.
 
 Two edits:
 
-- Add row: `"context:check-dependabot": "bun scripts/check-dependabot.mjs"`
-  (alphabetical placement after `context:check-catalog`).
-- Append `&& bun run context:check-dependabot` to the `"context"` script.
+- Insert row `"context:check-dependabot": "bun scripts/check-dependabot.mjs"`
+  alphabetically between `context:check-catalog` and `context:check-instructions`.
+- Append `&& bun run context:check-dependabot` to the `"context"` script
+  (chain order is invocation order, not alphabetical — append to the end).
 
-Verification: `bun run context:check-dependabot` exits 0 standalone.
+Verification: `bun run context:check-dependabot` exits 0 standalone; `bun run
+context` exits 0 end-to-end (this also exercises the chain append).
 
 ### Step 5 — Add a CI gate job to `check-security.yml`
 
 Intent: enforce the invariant in the merge-gate workflow per the design's
 component 3.
 
-| Action | File                                  |
-| ------ | ------------------------------------- |
+| Action | File                                   |
+| ------ | -------------------------------------- |
 | modify | `.github/workflows/check-security.yml` |
 
 Add a third job `dependabot-coverage` after `secret-scanning`:
@@ -142,26 +187,30 @@ Add a third job `dependabot-coverage` after `secret-scanning`:
       - run: bun scripts/check-dependabot.mjs
 ```
 
-Use the same checkout SHA-pin and `bootstrap` composite action already used
-elsewhere in the file. No new permissions block needed (workflow `contents:
-read` covers it).
+`bootstrap` provides Bun + workspace install (including the new `yaml`
+devDep). No `setup-node` step is needed: invocation is `bun`, not `node`.
+Use the same checkout SHA-pin already pinned in this file. Workflow-level
+`contents: read` permission already covers the new job.
 
-Verification: the new job appears in the `Security` workflow run on the PR;
-shows `success`.
+Verification: the new job appears in the `Security` workflow run on PR #728;
+shows `success`. Spec criteria 2–4 (add/rename/delete) are verified
+mechanically by virtue of the gate running on every PR diff — the gate IS
+the replay test, since each replayed delta arrives at `main` only via a PR
+that triggers this workflow.
 
 ## Risks
 
-| Risk                                                                                                                       | Mitigation in this plan                                                                                                                                                                       |
-| -------------------------------------------------------------------------------------------------------------------------- | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
-| Dependabot's first scheduled run after the change skips an action directory because its glob expander differs from ours.   | Step 2 expansion uses the literal `<dir>/*` shape the design committed to (single segment, directories only); deviation surfaces on the next add/move via the CI gate, before silent miss.   |
-| `package.json` already references a missing `scripts/check-catalog.mjs` (existing CI noise on `context:check-catalog`).    | Out of scope — do not fix. If it actually fails CI on this PR, escalate as a separate issue rather than absorbing into 730.                                                                   |
-| `yaml` declared as a root devDep clashes with an internal package's pinned range.                                          | Existing pins are `^2.8.3` across six packages; matching the same range avoids a workspace-resolution split.                                                                                  |
+| Risk                                                                                                   | Mitigation in this plan                                                                                                                                                                                                                                                                       |
+| ------------------------------------------------------------------------------------------------------ | --------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------------- |
+| Dependabot's glob expander on its servers differs from the `<prefix>/*` shape we implement in Step 2.  | Both expansions are evaluated at the same commit on the same tree; any divergence surfaces on the next directory change as the CI gate would still pass while Dependabot misses (or vice versa). Rebut by running a manual `gh api` Dependabot listing once after merge to confirm coverage. |
+| `bootstrap` composite action does not pre-install workspace devDependencies on a fresh CI checkout.    | Verify by inspecting `.github/actions/bootstrap/action.yml` before merge; if it skips devDeps, add an explicit `bun install` step in the new CI job rather than within Step 1.                                                                                                                |
 
 ## Execution
 
 Single trusted agent (`staff-engineer`) executes Steps 1–5 sequentially in one
-PR — each step depends on the previous. No part-decomposition (one file per
-step, < 100 lines of net change). The implementer should verify Step 2 against
-all three incident replays before opening the PR.
+PR — each step depends on the previous. No decomposition (≈100 lines of net
+change across 4 files). The implementer must complete the Step 2 worktree
+replays before opening the implementation PR; record outcomes in the PR
+description.
 
 — Staff Engineer 🛠️
